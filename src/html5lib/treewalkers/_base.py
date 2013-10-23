@@ -1,8 +1,40 @@
+from __future__ import absolute_import, division, unicode_literals
+from six import text_type, string_types
+
 import gettext
 _ = gettext.gettext
 
-from html5lib.constants import voidElements, spaceCharacters
-spaceCharacters = u"".join(spaceCharacters)
+from xml.dom import Node
+
+DOCUMENT = Node.DOCUMENT_NODE
+DOCTYPE = Node.DOCUMENT_TYPE_NODE
+TEXT = Node.TEXT_NODE
+ELEMENT = Node.ELEMENT_NODE
+COMMENT = Node.COMMENT_NODE
+ENTITY = Node.ENTITY_NODE
+UNKNOWN = "<#UNKNOWN#>"
+
+from ..constants import voidElements, spaceCharacters
+spaceCharacters = "".join(spaceCharacters)
+
+
+def to_text(s, blank_if_none=True):
+    """Wrapper around six.text_type to convert None to empty string"""
+    if s is None:
+        if blank_if_none:
+            return ""
+        else:
+            return None
+    elif isinstance(s, text_type):
+        return s
+    else:
+        return text_type(s)
+
+
+def is_text_or_none(string):
+    """Wrapper around isinstance(string_types) or is None"""
+    return string is None or isinstance(string, string_types)
+
 
 class TreeWalker(object):
     def __init__(self, tree):
@@ -14,36 +46,50 @@ class TreeWalker(object):
     def error(self, msg):
         return {"type": "SerializeError", "data": msg}
 
-    def normalizeAttrs(self, attrs):
-        if not attrs:
-            attrs = []
-        elif hasattr(attrs, 'items'):
-            attrs = attrs.items()
-        return [(unicode(name),unicode(value)) for name,value in attrs]
-
     def emptyTag(self, namespace, name, attrs, hasChildren=False):
-        yield {"type": "EmptyTag", "name": unicode(name), 
-               "namespace":unicode(namespace),
-               "data": self.normalizeAttrs(attrs)}
+        assert namespace is None or isinstance(namespace, string_types), type(namespace)
+        assert isinstance(name, string_types), type(name)
+        assert all((namespace is None or isinstance(namespace, string_types)) and
+                   isinstance(name, string_types) and
+                   isinstance(value, string_types)
+                   for (namespace, name), value in attrs.items())
+
+        yield {"type": "EmptyTag", "name": to_text(name, False),
+               "namespace": to_text(namespace),
+               "data": attrs}
         if hasChildren:
             yield self.error(_("Void element has children"))
 
     def startTag(self, namespace, name, attrs):
-        return {"type": "StartTag", 
-                "name": unicode(name),
-                "namespace":unicode(namespace),
-                "data": self.normalizeAttrs(attrs)}
+        assert namespace is None or isinstance(namespace, string_types), type(namespace)
+        assert isinstance(name, string_types), type(name)
+        assert all((namespace is None or isinstance(namespace, string_types)) and
+                   isinstance(name, string_types) and
+                   isinstance(value, string_types)
+                   for (namespace, name), value in attrs.items())
+
+        return {"type": "StartTag",
+                "name": text_type(name),
+                "namespace": to_text(namespace),
+                "data": dict(((to_text(namespace, False), to_text(name)),
+                              to_text(value, False))
+                             for (namespace, name), value in attrs.items())}
 
     def endTag(self, namespace, name):
-        return {"type": "EndTag", 
-                "name": unicode(name),
-                "namespace":unicode(namespace),
-                "data": []}
+        assert namespace is None or isinstance(namespace, string_types), type(namespace)
+        assert isinstance(name, string_types), type(namespace)
+
+        return {"type": "EndTag",
+                "name": to_text(name, False),
+                "namespace": to_text(namespace),
+                "data": {}}
 
     def text(self, data):
-        data = unicode(data)
+        assert isinstance(data, string_types), type(data)
+
+        data = to_text(data)
         middle = data.lstrip(spaceCharacters)
-        left = data[:len(data)-len(middle)]
+        left = data[:len(data) - len(middle)]
         if left:
             yield {"type": "SpaceCharacters", "data": left}
         data = middle
@@ -55,52 +101,40 @@ class TreeWalker(object):
             yield {"type": "SpaceCharacters", "data": right}
 
     def comment(self, data):
-        return {"type": "Comment", "data": unicode(data)}
+        assert isinstance(data, string_types), type(data)
+
+        return {"type": "Comment", "data": text_type(data)}
 
     def doctype(self, name, publicId=None, systemId=None, correct=True):
+        assert is_text_or_none(name), type(name)
+        assert is_text_or_none(publicId), type(publicId)
+        assert is_text_or_none(systemId), type(systemId)
+
         return {"type": "Doctype",
-                "name": name is not None and unicode(name) or u"",
-                "publicId": publicId,
-                "systemId": systemId,
-                "correct": correct}
+                "name": to_text(name),
+                "publicId": to_text(publicId),
+                "systemId": to_text(systemId),
+                "correct": to_text(correct)}
+
+    def entity(self, name):
+        assert isinstance(name, string_types), type(name)
+
+        return {"type": "Entity", "name": text_type(name)}
 
     def unknown(self, nodeType):
         return self.error(_("Unknown node type: ") + nodeType)
 
-class RecursiveTreeWalker(TreeWalker):
-    def walkChildren(self, node):
-        raise NodeImplementedError
-
-    def element(self, node, namespace, name, attrs, hasChildren):
-        if name in voidElements:
-            for token in self.emptyTag(namespace, name, attrs, hasChildren):
-                yield token
-        else:
-            yield self.startTag(name, attrs)
-            if hasChildren:
-                for token in self.walkChildren(node):
-                    yield token
-            yield self.endTag(name)
-
-from xml.dom import Node
-
-DOCUMENT = Node.DOCUMENT_NODE
-DOCTYPE = Node.DOCUMENT_TYPE_NODE
-TEXT = Node.TEXT_NODE
-ELEMENT = Node.ELEMENT_NODE
-COMMENT = Node.COMMENT_NODE
-UNKNOWN = "<#UNKNOWN#>"
 
 class NonRecursiveTreeWalker(TreeWalker):
     def getNodeDetails(self, node):
         raise NotImplementedError
-    
+
     def getFirstChild(self, node):
         raise NotImplementedError
-    
+
     def getNextSibling(self, node):
         raise NotImplementedError
-    
+
     def getParentNode(self, node):
         raise NotImplementedError
 
@@ -110,7 +144,6 @@ class NonRecursiveTreeWalker(TreeWalker):
             details = self.getNodeDetails(currentNode)
             type, details = details[0], details[1:]
             hasChildren = False
-            endTag = None
 
             if type == DOCTYPE:
                 yield self.doctype(*details)
@@ -122,28 +155,30 @@ class NonRecursiveTreeWalker(TreeWalker):
             elif type == ELEMENT:
                 namespace, name, attributes, hasChildren = details
                 if name in voidElements:
-                    for token in self.emptyTag(namespace, name, attributes, 
+                    for token in self.emptyTag(namespace, name, attributes,
                                                hasChildren):
                         yield token
                     hasChildren = False
                 else:
-                    endTag = name
                     yield self.startTag(namespace, name, attributes)
 
             elif type == COMMENT:
                 yield self.comment(details[0])
+
+            elif type == ENTITY:
+                yield self.entity(details[0])
 
             elif type == DOCUMENT:
                 hasChildren = True
 
             else:
                 yield self.unknown(details[0])
-            
+
             if hasChildren:
                 firstChild = self.getFirstChild(currentNode)
             else:
                 firstChild = None
-            
+
             if firstChild is not None:
                 currentNode = firstChild
             else:

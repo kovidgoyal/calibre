@@ -7,6 +7,7 @@ __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
 from lxml import etree
+from html5lib.constants import cdataElements, rcdataElements
 
 from calibre.ebooks.oeb.polish.tests.base import BaseTest
 from calibre.ebooks.oeb.base import XPath, XHTML_NS, SVG_NS, XLINK_NS
@@ -18,7 +19,7 @@ def nonvoid_cdata_elements(test, parse_function):
     markup = '''
     <html> <head><{0}/></head> <body id="test"> </html>
     '''
-    for tag in ('title', 'style', 'script', 'textarea'):
+    for tag in cdataElements | rcdataElements:
         for x in (tag, tag.upper(), '\n' + tag, tag + ' id="xxx" '):
             root = parse_function(markup.format(x))
             test.assertEqual(

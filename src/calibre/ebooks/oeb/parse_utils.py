@@ -81,11 +81,14 @@ def node_depth(node):
     return ans
 
 def html5_parse(data, max_nesting_depth=100):
-    import html5lib
-    # html5lib bug: http://code.google.com/p/html5lib/issues/detail?id=195
-    data = re.sub(r'<\s*(title|style|script|textarea)\s*[^>]*/\s*>', r'<\1></\1>', data, flags=re.I)
+    import html5lib, warnings
+    from html5lib.constants import cdataElements, rcdataElements
+    # HTML5 parsing algorithm idiocy: http://code.google.com/p/html5lib/issues/detail?id=195
+    data = re.sub(r'<\s*(%s)\s*[^>]*/\s*>' % ('|'.join(cdataElements|rcdataElements)), r'<\1></\1>', data, flags=re.I)
 
-    data = html5lib.parse(data, treebuilder='lxml').getroot()
+    with warnings.catch_warnings():
+        warnings.simplefilter('ignore')
+        data = html5lib.parse(data, treebuilder='lxml').getroot()
 
     # Check that the asinine HTML 5 algorithm did not result in a tree with
     # insane nesting depths

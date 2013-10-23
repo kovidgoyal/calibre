@@ -1,25 +1,34 @@
-from html5lib.constants import scopingElements, tableInsertModeElements, namespaces
-try:
-    frozenset
-except NameError:
-    # Import from the sets module for python 2.3
-    from sets import Set as set
-    from sets import ImmutableSet as frozenset
+from __future__ import absolute_import, division, unicode_literals
+from six import text_type
 
-# The scope markers are inserted when entering buttons, object elements,
+from ..constants import scopingElements, tableInsertModeElements, namespaces
+
+# The scope markers are inserted when entering object elements,
 # marquees, table cells, and table captions, and are used to prevent formatting
-# from "leaking" into tables, buttons, object elements, and marquees.
+# from "leaking" into tables, object elements, and marquees.
 Marker = None
+
+listElementsMap = {
+    None: (frozenset(scopingElements), False),
+    "button": (frozenset(scopingElements | set([(namespaces["html"], "button")])), False),
+    "list": (frozenset(scopingElements | set([(namespaces["html"], "ol"),
+                                              (namespaces["html"], "ul")])), False),
+    "table": (frozenset([(namespaces["html"], "html"),
+                         (namespaces["html"], "table")]), False),
+    "select": (frozenset([(namespaces["html"], "optgroup"),
+                          (namespaces["html"], "option")]), True)
+}
+
 
 class Node(object):
     def __init__(self, name):
         """Node representing an item in the tree.
         name - The tag name associated with the node
         parent - The parent of the current node (or None for the document node)
-        value - The value of the current node (applies to text nodes and 
+        value - The value of the current node (applies to text nodes and
         comments
         attributes - a dict holding name, value pairs for attributes of the node
-        childNodes - a list of child nodes of the current node. This must 
+        childNodes - a list of child nodes of the current node. This must
         include all elements but not necessarily other node types
         _flags - A list of miscellaneous flags that can be set on the node
         """
@@ -30,14 +39,14 @@ class Node(object):
         self.childNodes = []
         self._flags = []
 
-    def __unicode__(self):
-        attributesStr =  " ".join(["%s=\"%s\""%(name, value) 
-                                   for name, value in 
-                                   self.attributes.iteritems()])
+    def __str__(self):
+        attributesStr = " ".join(["%s=\"%s\"" % (name, value)
+                                  for name, value in
+                                  self.attributes.items()])
         if attributesStr:
-            return "<%s %s>"%(self.name,attributesStr)
+            return "<%s %s>" % (self.name, attributesStr)
         else:
-            return "<%s>"%(self.name)
+            return "<%s>" % (self.name)
 
     def __repr__(self):
         return "<%s>" % (self.name)
@@ -48,14 +57,14 @@ class Node(object):
         raise NotImplementedError
 
     def insertText(self, data, insertBefore=None):
-        """Insert data as text in the current node, positioned before the 
+        """Insert data as text in the current node, positioned before the
         start of node insertBefore or to the end of the node's text.
         """
         raise NotImplementedError
 
     def insertBefore(self, node, refNode):
-        """Insert node as a child of the current node, before refNode in the 
-        list of child nodes. Raises ValueError if refNode is not a child of 
+        """Insert node as a child of the current node, before refNode in the
+        list of child nodes. Raises ValueError if refNode is not a child of
         the current node"""
         raise NotImplementedError
 
@@ -65,11 +74,11 @@ class Node(object):
         raise NotImplementedError
 
     def reparentChildren(self, newParent):
-        """Move all the children of the current node to newParent. 
-        This is needed so that trees that don't store text as nodes move the 
+        """Move all the children of the current node to newParent.
+        This is needed so that trees that don't store text as nodes move the
         text in the correct way
         """
-        #XXX - should this method be made more general?
+        # XXX - should this method be made more general?
         for child in self.childNodes:
             newParent.appendChild(child)
         self.childNodes = []
@@ -80,11 +89,35 @@ class Node(object):
         """
         raise NotImplementedError
 
-
     def hasContent(self):
         """Return true if the node has children or text, false otherwise
         """
         raise NotImplementedError
+
+
+class ActiveFormattingElements(list):
+    def append(self, node):
+        equalCount = 0
+        if node != Marker:
+            for element in self[::-1]:
+                if element == Marker:
+                    break
+                if self.nodesEqual(element, node):
+                    equalCount += 1
+                if equalCount == 3:
+                    self.remove(element)
+                    break
+        list.append(self, node)
+
+    def nodesEqual(self, node1, node2):
+        if not node1.nameTuple == node2.nameTuple:
+            return False
+
+        if not node1.attributes == node2.attributes:
+            return False
+
+        return True
+
 
 class TreeBuilder(object):
     """Base treebuilder implementation
@@ -94,19 +127,19 @@ class TreeBuilder(object):
     doctypeClass - the class to use for doctypes
     """
 
-    #Document class
+    # Document class
     documentClass = None
 
-    #The class to use for creating a node
+    # The class to use for creating a node
     elementClass = None
 
-    #The class to use for creating comments
+    # The class to use for creating comments
     commentClass = None
 
-    #The class to use for creating doctypes
+    # The class to use for creating doctypes
     doctypeClass = None
-    
-    #Fragment class
+
+    # Fragment class
     fragmentClass = None
 
     def __init__(self, namespaceHTMLElements):
@@ -115,12 +148,12 @@ class TreeBuilder(object):
         else:
             self.defaultNamespace = None
         self.reset()
-    
+
     def reset(self):
         self.openElements = []
-        self.activeFormattingElements = []
+        self.activeFormattingElements = ActiveFormattingElements()
 
-        #XXX - rename these to headElement, formElement
+        # XXX - rename these to headElement, formElement
         self.headPointer = None
         self.formPointer = None
 
@@ -129,23 +162,21 @@ class TreeBuilder(object):
         self.document = self.documentClass()
 
     def elementInScope(self, target, variant=None):
-        # Exit early when possible.
-        listElementsMap = {
-            None:scopingElements,
-            "list":scopingElements | set([(namespaces["html"], "ol"),
-                                          (namespaces["html"], "ul")]),
-            "table":set([(namespaces["html"], "html"),
-                         (namespaces["html"], "table")])
-            }
-        listElements = listElementsMap[variant]
+
+        # If we pass a node in we match that. if we pass a string
+        # match any node with that name
+        exactNode = hasattr(target, "nameTuple")
+
+        listElements, invert = listElementsMap[variant]
 
         for node in reversed(self.openElements):
-            if node.name == target:
+            if (node.name == target and not exactNode or
+                    node == target and exactNode):
                 return True
-            elif node.nameTuple in listElements:
+            elif (invert ^ (node.nameTuple in listElements)):
                 return False
 
-        assert False # We should never reach this point
+        assert False  # We should never reach this point
 
     def reconstructActiveFormattingElements(self):
         # Within this algorithm the order of steps described in the
@@ -165,7 +196,7 @@ class TreeBuilder(object):
         # Step 6
         while entry != Marker and entry not in self.openElements:
             if i == 0:
-                #This will be reset to 0 below
+                # This will be reset to 0 below
                 i = -1
                 break
             i -= 1
@@ -178,13 +209,13 @@ class TreeBuilder(object):
 
             # Step 8
             entry = self.activeFormattingElements[i]
-            clone = entry.cloneNode() #Mainly to get a new copy of the attributes
+            clone = entry.cloneNode()  # Mainly to get a new copy of the attributes
 
             # Step 9
-            element = self.insertElement({"type":"StartTag", 
-                                          "name":clone.name, 
-                                          "namespace":clone.namespace, 
-                                          "data":clone.attributes})
+            element = self.insertElement({"type": "StartTag",
+                                          "name": clone.name,
+                                          "namespace": clone.namespace,
+                                          "data": clone.attributes})
 
             # Step 10
             self.activeFormattingElements[i] = element
@@ -229,7 +260,7 @@ class TreeBuilder(object):
         if parent is None:
             parent = self.openElements[-1]
         parent.appendChild(self.commentClass(token["data"]))
-                           
+
     def createElement(self, token):
         """Create an element but don't insert it anywhere"""
         name = token["name"]
@@ -251,9 +282,10 @@ class TreeBuilder(object):
             self.insertElement = self.insertElementNormal
 
     insertFromTable = property(_getInsertFromTable, _setInsertFromTable)
-        
+
     def insertElementNormal(self, token):
         name = token["name"]
+        assert isinstance(name, text_type), "Element %s not unicode" % name
         namespace = token.get("namespace", self.defaultNamespace)
         element = self.elementClass(name, namespace)
         element.attributes = token["data"]
@@ -262,13 +294,13 @@ class TreeBuilder(object):
         return element
 
     def insertElementTable(self, token):
-        """Create an element and insert it into the tree""" 
+        """Create an element and insert it into the tree"""
         element = self.createElement(token)
         if self.openElements[-1].name not in tableInsertModeElements:
             return self.insertElementNormal(token)
         else:
-            #We should be in the InTable mode. This means we want to do
-            #special magic element rearranging
+            # We should be in the InTable mode. This means we want to do
+            # special magic element rearranging
             parent, insertBefore = self.getTableMisnestedNodePosition()
             if insertBefore is None:
                 parent.appendChild(element)
@@ -283,7 +315,7 @@ class TreeBuilder(object):
             parent = self.openElements[-1]
 
         if (not self.insertFromTable or (self.insertFromTable and
-                                         self.openElements[-1].name 
+                                         self.openElements[-1].name
                                          not in tableInsertModeElements)):
             parent.insertText(data)
         else:
@@ -291,14 +323,14 @@ class TreeBuilder(object):
             # special magic element rearranging
             parent, insertBefore = self.getTableMisnestedNodePosition()
             parent.insertText(data, insertBefore)
-            
+
     def getTableMisnestedNodePosition(self):
         """Get the foster parent element, and sibling to insert before
         (or None) when inserting a misnested table node"""
         # The foster parent element is the one which comes before the most
         # recently opened table element
         # XXX - this is really inelegant
-        lastTable=None
+        lastTable = None
         fosterParent = None
         insertBefore = None
         for elm in self.openElements[::-1]:
@@ -321,8 +353,8 @@ class TreeBuilder(object):
     def generateImpliedEndTags(self, exclude=None):
         name = self.openElements[-1].name
         # XXX td, th and tr are not actually needed
-        if (name in frozenset(("dd", "dt", "li", "p", "td", "th", "tr"))
-            and name != exclude):
+        if (name in frozenset(("dd", "dt", "li", "option", "optgroup", "p", "rp", "rt"))
+                and name != exclude):
             self.openElements.pop()
             # XXX This is not entirely what the specification says. We should
             # investigate it more closely.
@@ -331,10 +363,10 @@ class TreeBuilder(object):
     def getDocument(self):
         "Return the final tree"
         return self.document
-    
+
     def getFragment(self):
         "Return the final fragment"
-        #assert self.innerHTML
+        # assert self.innerHTML
         fragment = self.fragmentClass()
         self.openElements[0].reparentChildren(fragment)
         return fragment
