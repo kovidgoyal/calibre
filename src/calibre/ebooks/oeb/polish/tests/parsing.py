@@ -96,6 +96,6 @@ basic_checks = (nonvoid_cdata_elements, namespaces, space_characters, case_insen
 class ParsingTests(BaseTest):
 
     def test_conversion_parser(self):
-        ' Test parsing with the parser used for conversion '
+        ' Test parsing with the HTML5 parser used for conversion '
         for test in basic_checks:
             test(self, html5_parse)
