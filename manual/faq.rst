@@ -791,6 +791,13 @@ There are several possible things I know of, that can cause this:
       that prevent 64-bit |app| from working properly. If you are using the 64-bit
       version of |app| try switching to the 32-bit version.
 
+    * If the crashes happen specifically when you are using a file open dialog,
+      like clicking on the Add Books button or the Save to Disk button, then
+      you may have an issue with the windows file open dialogs on your
+      computer. You can tell calibre to use its own file open dialogs by
+      setting the environment variable ``CALIBRE_NO_NATIVE_FILEDIALOGS=1``.
+      See `How to set environment variables in windows <http://www.computerhope.com/issues/ch000549.htm>`_.
+
 If none of the above apply to you, then there is some other program on your
 computer that is interfering with |app|. First reboot your computer in safe
 mode, to have as few running programs as possible, and see if the crashes still
