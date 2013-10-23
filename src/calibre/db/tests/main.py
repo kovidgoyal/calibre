@@ -75,6 +75,8 @@ def run_tests(find_tests=find_tests):
         try:
             for suite in tests:
                 for test in suite._tests:
+                    if test.__class__.__name__ == 'ModuleImportFailure':
+                        raise Exception('Failed to import a test module: %s' % test)
                     for s in test:
                         if s._testMethodName == q:
                             ans = s
