@@ -98,10 +98,6 @@ def html5_parse(data, max_nesting_depth=100):
             if depth > max_nesting_depth:
                 raise ValueError('html5lib resulted in a tree with nesting'
                         ' depth > %d'%max_nesting_depth)
-    # Set lang correctly
-    xl = data.attrib.pop('xmlU0003Alang', None)
-    if xl is not None and 'lang' not in data.attrib:
-        data.attrib['lang'] = xl
 
     # html5lib has the most inelegant handling of namespaces I have ever seen
     # Try to reconstitute destroyed namespace info
@@ -110,6 +106,10 @@ def html5_parse(data, max_nesting_depth=100):
     seen_namespaces = set()
     for elem in tuple(data.iter(tag=etree.Element)):
         elem.attrib.pop('xmlns', None)
+        # Set lang correctly
+        xl = elem.attrib.pop('xmlU0003Alang', None)
+        if xl is not None and 'lang' not in elem.attrib:
+            elem.attrib['lang'] = xl
         namespaces = {}
         for x in tuple(elem.attrib):
             if x.startswith('xmlnsU') or x.startswith(xmlns_declaration):
