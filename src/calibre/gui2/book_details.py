@@ -110,6 +110,8 @@ def render_data(mi, use_roman_numbers=True, all_fields=False):
     isdevice = not hasattr(mi, 'id')
     fm = getattr(mi, 'field_metadata', field_metadata)
     row = u'<td class="title">%s</td><td class="value">%s</td>'
+    p = prepare_string_for_xml
+    a = partial(prepare_string_for_xml, attribute=True)
 
     for field, display in get_field_list(fm):
         metadata = fm.get(field, None)
@@ -167,20 +169,19 @@ def render_data(mi, use_roman_numbers=True, all_fields=False):
         elif field == 'formats':
             if isdevice:
                 continue
-            p = partial(prepare_string_for_xml, attribute=True)
             path = ''
             if mi.path:
                 h, t = os.path.split(mi.path)
                 path = '/'.join((os.path.basename(h), t))
             data = ({
-                'fmt':x, 'path':p(path or ''), 'fname':p(mi.format_files.get(x, '')),
+                'fmt':x, 'path':a(path or ''), 'fname':a(mi.format_files.get(x, '')),
                 'ext':x.lower(), 'id':mi.id
             } for x in mi.formats)
             fmts = [u'<a title="{path}/{fname}.{ext}" href="format:{id}:{fmt}">{fmt}</a>'.format(**x) for x in data]
             ans.append((field, row % (name, u', '.join(fmts))))
         elif field == 'identifiers':
             urls = urls_from_identifiers(mi.identifiers)
-            links = [u'<a href="%s" title="%s:%s">%s</a>' % (url, id_typ, id_val, name)
+            links = [u'<a href="%s" title="%s:%s">%s</a>' % (a(url), a(id_typ), a(id_val), p(name))
                     for name, id_typ, id_val, url in urls]
             links = u', '.join(links)
             if links:
@@ -200,9 +201,9 @@ def render_data(mi, use_roman_numbers=True, all_fields=False):
                         vals['author_sort'] = aut.replace(' ', '+')
                     link = formatter.safe_format(
                             gprefs.get('default_author_link'), vals, '', vals)
+                aut = p(aut)
                 if link:
-                    link = prepare_string_for_xml(link)
-                    authors.append(u'<a calibre-data="authors" href="%s">%s</a>'%(link, aut))
+                    authors.append(u'<a calibre-data="authors" href="%s">%s</a>'%(a(link), aut))
                 else:
                     authors.append(aut)
             ans.append((field, row % (name, u' & '.join(authors))))
@@ -215,14 +216,14 @@ def render_data(mi, use_roman_numbers=True, all_fields=False):
             val = mi.format_field(field)[-1]
             if val is None:
                 continue
-            val = prepare_string_for_xml(val)
+            val = p(val)
             if metadata['datatype'] == 'series':
                 sidx = mi.get(field+'_index')
                 if sidx is None:
                     sidx = 1.0
                 val = _('Book %(sidx)s of <span class="series_name">%(series)s</span>')%dict(
                         sidx=fmt_sidx(sidx, use_roman=use_roman_numbers),
-                        series=prepare_string_for_xml(getattr(mi, field)))
+                        series=p(getattr(mi, field)))
             elif metadata['datatype'] == 'datetime':
                 aval = getattr(mi, field)
                 if is_date_undefined(aval):
