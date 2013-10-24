@@ -62,7 +62,7 @@ class Push(Command):
                 r'Owner@winxp:/cygdrive/c/Documents\ and\ Settings/Owner/calibre':'winxp',
                 'kovid@ox:calibre':None,
                 r'kovid@win7:/cygdrive/c/Users/kovid/calibre':'Windows 7',
-                'kovid@win7-64:calibre-src':None,
+                'kovid@win7-x64:calibre-src':'win7-x64',
                 }.iteritems():
             if vmname is None or is_vm_running(vmname):
                 rcmd = BASE_RSYNC + EXCLUDES + ['.', host]
