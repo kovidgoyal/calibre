@@ -10,7 +10,7 @@ __docformat__ = 'restructuredtext en'
 import hashlib
 from future_builtins import map
 
-from PyQt4.Qt import QBuffer, QByteArray, QImage, Qt, QColor, qRgba
+from PyQt4.Qt import QBuffer, QByteArray, QImage, Qt, QColor, qRgba, QPainter
 
 from calibre.constants import (__appname__, __version__)
 from calibre.ebooks.pdf.render.common import (
@@ -418,41 +418,35 @@ class PDFStream(object):
             data = image.constBits().asstring(bytes_per_line * h)
             return self.write_image(data, w, h, d, cache_key=cache_key)
 
-        ba = QByteArray()
-        buf = QBuffer(ba)
-        image.save(buf, 'jpeg', 94)
-        data = bytes(ba.data())
-        has_alpha = has_mask = False
-        soft_mask = mask = None
+        has_alpha = False
+        soft_mask = None
 
         if fmt == QImage.Format_ARGB32:
             tmask = image.constBits().asstring(4*w*h)[self.alpha_bit::4]
             sdata = bytearray(tmask)
             vals = set(sdata)
-            vals.discard(255)
-            has_mask = bool(vals)
-            vals.discard(0)
+            vals.discard(255)  # discard opaque pixels
             has_alpha = bool(vals)
+            if has_alpha:
+                # Blend image onto a white background as otherwise Qt will render
+                # transparent pixels as black
+                background = QImage(image.size(), QImage.Format_ARGB32_Premultiplied)
+                background.fill(Qt.white)
+                painter = QPainter(background)
+                painter.drawImage(0, 0, image)
+                painter.end()
+                image = background
+
+        ba = QByteArray()
+        buf = QBuffer(ba)
+        image.save(buf, 'jpeg', 94)
+        data = bytes(ba.data())
 
         if has_alpha:
             soft_mask = self.write_image(tmask, w, h, 8)
-        elif has_mask:
-            # dither the soft mask to 1bit and add it. This also helps PDF
-            # viewers without transparency support
-            bytes_per_line = (w + 7) >> 3
-            mdata = bytearray(0 for i in xrange(bytes_per_line * h))
-            spos = mpos = 0
-            for y in xrange(h):
-                for x in xrange(w):
-                    if sdata[spos]:
-                        mdata[mpos + x>>3] |= (0x80 >> (x&7))
-                    spos += 1
-                mpos += bytes_per_line
-            mdata = bytes(mdata)
-            mask = self.write_image(mdata, w, h, 1)
 
-        return self.write_image(data, w, h, 32, mask=mask, dct=True,
-                                    soft_mask=soft_mask, cache_key=cache_key)
+        return self.write_image(data, w, h, 32, dct=True,
+                                soft_mask=soft_mask, cache_key=cache_key)
 
     def add_pattern(self, pattern):
         if pattern.cache_key not in self.pattern_cache:
