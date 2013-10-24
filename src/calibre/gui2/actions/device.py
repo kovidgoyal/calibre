@@ -12,7 +12,7 @@ from PyQt4.Qt import QToolButton, QMenu, pyqtSignal, QIcon, QTimer
 from calibre.gui2.actions import InterfaceAction
 from calibre.utils.smtp import config as email_config
 from calibre.utils.config import tweaks
-from calibre.constants import iswindows, isosx
+from calibre.constants import iswindows, isosx, get_osx_version
 from calibre.customize.ui import is_disabled
 from calibre.devices.bambook.driver import BAMBOOK
 from calibre.gui2.dialogs.smartdevice import SmartdeviceDialog
@@ -44,8 +44,8 @@ class ShareConnMenu(QMenu):  # {{{
         mitem.setEnabled(True)
         mitem.triggered.connect(lambda x : self.connect_to_itunes.emit())
         self.connect_to_itunes_action = mitem
-        if not (iswindows or isosx):
-            mitem.setVisible(False)
+        itunes_ok = iswindows or (isosx and get_osx_version() < (10, 9, 0))
+        mitem.setVisible(itunes_ok)
         mitem = self.addAction(QIcon(I('devices/bambook.png')), _('Connect to Bambook'))
         mitem.setEnabled(True)
         mitem.triggered.connect(lambda x : self.connect_to_bambook.emit())
