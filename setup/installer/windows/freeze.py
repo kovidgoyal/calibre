@@ -688,6 +688,8 @@ class Win32Freeze(Command, WixMixIn):
 
             for d in self.get_pth_dirs(self.j(sp, 'easy-install.pth')):
                 handled.add(self.b(d))
+                if os.path.basename(d).startswith('six-'):
+                    continue  # We prefer the version bundled with calibre
                 for x in os.listdir(d):
                     if x in {'EGG-INFO', 'site.py', 'site.pyc', 'site.pyo'}:
                         continue

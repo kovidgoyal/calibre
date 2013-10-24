@@ -15,6 +15,11 @@ Test a binary calibre build to ensure that all needed binary images/libraries ha
 import cStringIO
 from calibre.constants import plugins, iswindows
 
+def test_html5lib():
+    import html5lib.html5parser  # noqa
+    from html5lib import parse  # noqa
+    print ('html5lib OK!')
+
 def test_plugins():
     for name in plugins:
         mod, err = plugins[name]
@@ -113,6 +118,7 @@ def test():
     test_icu()
     test_woff()
     test_qt()
+    test_html5lib()
     if iswindows:
         test_winutil()
         test_wpd()
