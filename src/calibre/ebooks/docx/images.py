@@ -10,9 +10,16 @@ import os
 
 from lxml.html.builder import IMG, HR
 
+from calibre.constants import iswindows
 from calibre.ebooks.docx.names import XPath, get, barename
 from calibre.utils.filenames import ascii_filename
 from calibre.utils.imghdr import what
+
+class LinkedImageNotFound(ValueError):
+
+    def __init__(self, fname):
+        ValueError.__init__(self, fname)
+        self.fname = fname
 
 def emu_to_pt(x):
     return x / 12700
@@ -107,7 +114,16 @@ class Images(object):
         fname = rid_map[rid]
         if fname in self.used:
             return self.used[fname]
-        raw = self.docx.read(fname)
+        if fname.startswith('file://'):
+            src = fname[len('file://'):]
+            if iswindows and src and src[0] == '/':
+                src = src[1:]
+            if not src or not os.path.exists(src):
+                raise LinkedImageNotFound(src)
+            with open(src, 'rb') as rawsrc:
+                raw = rawsrc.read()
+        else:
+            raw = self.docx.read(fname)
         base = base or ascii_filename(rid_map[rid].rpartition('/')[-1]).replace(' ', '_') or 'image'
         ext = what(None, raw) or base.rpartition('.')[-1] or 'jpeg'
         if ext == 'emf':
@@ -155,10 +171,16 @@ class Images(object):
             if name:
                 name = ascii_filename(name).replace(' ', '_')
             alt = pr.get('descr', None)
-            for a in XPath('descendant::a:blip[@r:embed]')(pic):
+            for a in XPath('descendant::a:blip[@r:embed or @r:link]')(pic):
                 rid = get(a, 'r:embed')
-                if rid in self.rid_map:
-                    src = self.generate_filename(rid, name)
+                if not rid:
+                    rid = get(a, 'r:link')
+                if rid and rid in self.rid_map:
+                    try:
+                        src = self.generate_filename(rid, name)
+                    except LinkedImageNotFound as err:
+                        self.log.warn('Linked image: %s not found, ignoring' % err.fname)
+                        continue
                     img = IMG(src='images/%s' % src)
                     img.set('alt', alt or 'Image')
                     if link is not None:
@@ -211,7 +233,11 @@ class Images(object):
         for imagedata in XPath('descendant::v:imagedata[@r:id]')(pict):
             rid = get(imagedata, 'r:id')
             if rid in self.rid_map:
-                src = self.generate_filename(rid)
+                try:
+                    src = self.generate_filename(rid)
+                except LinkedImageNotFound as err:
+                    self.log.warn('Linked image: %s not found, ignoring' % err.fname)
+                    continue
                 img = IMG(src='images/%s' % src, style="display:block")
                 alt = get(imagedata, 'o:title')
                 img.set('alt', alt or 'Image')
