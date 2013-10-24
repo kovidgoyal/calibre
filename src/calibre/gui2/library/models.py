@@ -668,6 +668,9 @@ class BooksModel(QAbstractTableModel):  # {{{
             data = self.db.cover(row_number)
         except IndexError:  # Happens if database has not yet been refreshed
             pass
+        except MemoryError:
+            raise ValueError(_('The cover for the book %s is too large, cannot load it.'
+                             ' Resize or delete it.') % self.db.title(row_number))
 
         if not data:
             return self.default_image
