@@ -7,6 +7,7 @@ __docformat__ = 'restructuredtext en'
 
 import os
 from functools import partial
+from collections import defaultdict
 
 from PyQt4.Qt import QPixmap, QTimer
 
@@ -19,7 +20,8 @@ from calibre.gui2.dialogs.progress import ProgressDialog
 from calibre.gui2.widgets import IMAGE_EXTENSIONS
 from calibre.ebooks import BOOK_EXTENSIONS
 from calibre.utils.filenames import ascii_filename
-from calibre.constants import preferred_encoding, filesystem_encoding
+from calibre.utils.icu import sort_key
+from calibre.constants import filesystem_encoding
 from calibre.gui2.actions import InterfaceAction
 from calibre.gui2 import question_dialog
 from calibre.ebooks.metadata import MetaInformation
@@ -358,15 +360,21 @@ class AddAction(InterfaceAction):
             self.gui.tags_view.recount()
 
         if getattr(self._adder, 'merged_books', False):
-            books = u'\n'.join([x if isinstance(x, unicode) else
-                    x.decode(preferred_encoding, 'replace') for x in
-                    self._adder.merged_books])
+            merged = defaultdict(list)
+            for title, author in self._adder.merged_books:
+                merged[author].append(title)
+            lines = []
+            for author in sorted(merged, key=sort_key):
+                lines.append(author)
+                for title in sorted(merged[author], key=sort_key):
+                    lines.append('\t' + title)
+                lines.append('')
             info_dialog(self.gui, _('Merged some books'),
                 _('The following %d duplicate books were found and incoming '
                     'book formats were processed and merged into your '
                     'Calibre database according to your automerge '
                     'settings:')%len(self._adder.merged_books),
-                    det_msg=books, show=True)
+                    det_msg='\n'.join(lines), show=True)
 
         if getattr(self._adder, 'number_of_books_added', 0) > 0 or \
                 getattr(self._adder, 'merged_books', False):
