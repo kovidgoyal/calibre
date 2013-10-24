@@ -52,7 +52,10 @@ def get_osx_version():
         from collections import namedtuple
         OSX = namedtuple('OSX', 'major minor tertiary')
         try:
-            _osx_ver = OSX(*(map(int, platform.mac_ver()[0].split('.'))))
+            ver = platform.mac_ver()[0].split('.')
+            if len(ver) == 2:
+                ver.append(0)
+            _osx_ver = OSX(*(map(int, ver)))
         except:
             _osx_ver = OSX(0, 0, 0)
     return _osx_ver
