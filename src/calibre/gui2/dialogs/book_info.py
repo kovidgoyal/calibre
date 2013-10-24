@@ -50,6 +50,8 @@ class BookInfo(QDialog):
         self.details.sizeHint = self.details_size_hint
         self.details.page().setLinkDelegationPolicy(self.details.page().DelegateAllLinks)
         self.details.linkClicked.connect(self.link_clicked)
+        s = self.details.page().settings()
+        s.setAttribute(s.JavascriptEnabled, False)
         self.css = css()
         self.link_delegate = link_delegate
         self.details.setAttribute(Qt.WA_OpaquePaintEvent, False)

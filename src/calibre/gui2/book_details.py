@@ -418,6 +418,8 @@ class BookInfo(QWebView):
 
     def __init__(self, vertical, parent=None):
         QWebView.__init__(self, parent)
+        s = self.settings()
+        s.setAttribute(s.JavascriptEnabled, False)
         self.vertical = vertical
         self.page().setLinkDelegationPolicy(self.page().DelegateAllLinks)
         self.linkClicked.connect(self.link_activated)
