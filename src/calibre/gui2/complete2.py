@@ -11,8 +11,9 @@ import weakref
 
 import sip
 from PyQt4.Qt import (QLineEdit, QAbstractListModel, Qt, pyqtSignal, QObject,
-        QApplication, QListView, QPoint, QModelIndex)
+        QApplication, QListView, QPoint, QModelIndex, QFont, QFontInfo)
 
+from calibre.constants import isosx, get_osx_version
 from calibre.utils.icu import sort_key, primary_startswith
 from calibre.gui2 import NONE
 from calibre.gui2.widgets import EnComboBox, LineEditECM
@@ -165,6 +166,14 @@ class Completer(QListView):  # {{{
             self.setCurrentIndex(self.model().index(0))
 
         if not p.isVisible():
+            if isosx and get_osx_version() >= (10, 9, 0):
+                # On mavericks the popup menu seems to use a font smaller than
+                # the widgets font, see for example:
+                # https://bugs.launchpad.net/bugs/1243761
+                fp = QFontInfo(widget.font())
+                f = QFont()
+                f.setPixelSize(fp.pixelSize())
+                self.setFont(f)
             p.show()
 
     def eventFilter(self, obj, e):
