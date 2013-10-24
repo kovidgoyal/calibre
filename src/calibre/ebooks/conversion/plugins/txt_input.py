@@ -236,5 +236,14 @@ class TXTInput(InputFormatPlugin):
         from calibre.ebooks.oeb.transforms.metadata import meta_info_to_oeb_metadata
         mi = get_file_type_metadata(stream, file_ext)
         meta_info_to_oeb_metadata(mi, oeb.metadata, log)
+        self.html_postprocess_title = mi.title
 
         return oeb
+
+    def postprocess_book(self, oeb, opts, log):
+        for item in oeb.spine:
+            if hasattr(item.data, 'xpath'):
+                for title in item.data.xpath('//*[local-name()="title"]'):
+                    if title.text == _('Unknown'):
+                        title.text = self.html_postprocess_title
+
