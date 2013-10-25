@@ -91,7 +91,11 @@ def html5_parse(data, max_nesting_depth=100):
 
     with warnings.catch_warnings():
         warnings.simplefilter('ignore')
-        data = html5lib.parse(data, treebuilder='lxml').getroot()
+        try:
+            data = html5lib.parse(data, treebuilder='lxml').getroot()
+        except ValueError:
+            from calibre.utils.cleantext import clean_xml_chars
+            data = html5lib.parse(clean_xml_chars(data), treebuilder='lxml').getroot()
 
     # Check that the asinine HTML 5 algorithm did not result in a tree with
     # insane nesting depths

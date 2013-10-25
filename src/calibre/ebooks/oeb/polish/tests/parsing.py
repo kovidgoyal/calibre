@@ -94,8 +94,10 @@ def space_characters(test, parse_function):
     root = parse_function(markup)
     err = 'form feed character not converted, parsed markup:\n' + etree.tostring(root)
     test.assertNotIn('\u000c', root.xpath('//*[local-name()="p"]')[0].text, err)
-    markup = '<html><p>\u000b\u000c</p>'
+    markup = '<html><p>a\u000b\u000c</p>'
     root = parse_function(markup)  # Should strip non XML safe control code \u000b
+    test.assertNotIn('\u000b', root.xpath('//*[local-name()="p"]')[0].text, err)
+    test.assertNotIn('\u000c', root.xpath('//*[local-name()="p"]')[0].text, err)
 
 def case_insensitive_element_names(test, parse_function):
     markup = '<HTML><P> </p>'
