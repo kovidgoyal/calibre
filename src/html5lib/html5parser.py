@@ -1084,7 +1084,7 @@ def getPhases(debug):
 
         def startTagA(self, token):
             afeAElement = self.tree.elementInActiveFormattingElements("a")
-            if afeAElement:
+            if afeAElement is not False:
                 self.parser.parseError("unexpected-start-tag-implies-end-tag",
                                        {"startName": "a", "endName": "a"})
                 self.endTagFormatting(impliedTagToken("a"))
@@ -1407,7 +1407,7 @@ def getPhases(debug):
                 # - has the same tag name as the token.
                 formattingElement = self.tree.elementInActiveFormattingElements(
                     token["name"])
-                if (not formattingElement or
+                if (formattingElement is False or
                     (formattingElement in self.tree.openElements and
                      not self.tree.elementInScope(formattingElement.name))):
                     # If there is no such node, then abort these steps
@@ -1509,7 +1509,7 @@ def getPhases(debug):
                     node = clone
                     # Step 9.9
                     # Remove lastNode from its parents, if any
-                    if lastNode.parent:
+                    if lastNode.parent is not None:
                         lastNode.parent.removeChild(lastNode)
                     node.appendChild(lastNode)
                     # Step 9.10
@@ -1519,7 +1519,7 @@ def getPhases(debug):
                 # Foster parent lastNode if commonAncestor is a
                 # table, tbody, tfoot, thead, or tr we need to foster
                 # parent the lastNode
-                if lastNode.parent:
+                if lastNode.parent is not None:
                     lastNode.parent.removeChild(lastNode)
 
                 if commonAncestor.name in frozenset(("table", "tbody", "tfoot", "thead", "tr")):
