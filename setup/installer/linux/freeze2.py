@@ -189,8 +189,11 @@ class LinuxFreeze(Command):
                 raise ValueError('%s does not exist in site-packages' % x)
 
         for x in os.listdir(self.SRC):
-            shutil.copytree(self.j(self.SRC, x), self.j(dest, x),
-                    ignore=ignore_in_lib)
+            if os.path.isdir(self.j(self.SRC, x)):
+                shutil.copytree(self.j(self.SRC, x), self.j(dest, x),
+                        ignore=ignore_in_lib)
+            else:
+                shutil.copy2(self.j(self.SRC, x), self.j(dest, x))
         for x in ('trac',):
             x = self.j(dest, 'calibre', x)
             if os.path.exists(x):
