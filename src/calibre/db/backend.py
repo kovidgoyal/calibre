@@ -317,8 +317,8 @@ class DB(object):
 
         if iswindows and len(self.library_path) + 4*self.PATH_LIMIT + 10 > 259:
             raise ValueError(_(
-                'Path to library (%s) too long. Must be less than'
-                ' %d characters.')%(self.library_path, 259-4*self.PATH_LIMIT-10))
+                'Path to library ({0}) too long. Must be less than'
+                ' {1} characters.').format(self.library_path, 259-4*self.PATH_LIMIT-10))
         exists = self._exists = os.path.exists(self.dbpath)
         if not exists:
             # Be more strict when creating new libraries as the old calculation
