@@ -67,6 +67,18 @@ def namespaces(test, parse_function):
     match_and_prefix(root, '//svg:svg', 'svg', err)
     match_and_prefix(root, '//svg:image[@xl:href]', 'svg', err)
 
+    root = parse_function('<html id="a"><p><html xmlns:x="y" lang="en"><p>')
+    err = 'Multiple HTML tags not handled, parsed markup:\n' + etree.tostring(root)
+    match_and_prefix(root, '//h:html', None, err)
+    match_and_prefix(root, '//h:html[@lang]', None, err)
+    match_and_prefix(root, '//h:html[@id]', None, err)
+
+    if parse_function is not html5_parse:
+        markup = '<html:html xmlns:html="{html}" id="a"><html:body><html:p></html:p></html:body></html>'.format(html=XHTML_NS)
+        root = parse_function(markup)
+        err = 'HTML namespace prefixed, parsed markup:\n' + etree.tostring(root)
+        match_and_prefix(root, '//h:html', None, err)
+
     markup = '<html><body><ns1:tag1 xmlns:ns1="NS"><ns2:tag2 xmlns:ns2="NS" ns1:id="test"/><ns1:tag3 xmlns:ns1="NS2" ns1:id="test"/></ns1:tag1>'
     root = parse_function(markup)
     err = 'Arbitrary namespaces not preserved, parsed markup:\n' + etree.tostring(root)

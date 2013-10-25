@@ -6,7 +6,7 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import copy
+import copy, re
 from functools import partial
 
 from lxml.etree import ElementBase, XMLParser, ElementDefaultClassLookup, CommentBase
@@ -23,6 +23,12 @@ from calibre.utils.cleantext import clean_xml_chars
 infoset_filter = InfosetFilter()
 to_xml_name = infoset_filter.toXmlName
 known_namespaces = {namespaces[k]:k for k in ('mathml', 'svg')}
+
+class NamespacedHTMLPresent(ValueError):
+
+    def __init__(self, prefix):
+        ValueError.__init__(self, prefix)
+        self.prefix = prefix
 
 def create_lxml_context():
     parser = XMLParser(no_network=True)
@@ -225,6 +231,12 @@ def process_attribs(attrs, nsmap):
             if ':' in k:
                 if k.startswith('xmlns') and (k.startswith('xmlns:') or k == 'xmlns'):
                     prefix = k.partition(':')[2] or None
+                    if prefix is not None:
+                        # Use an existing prefix for this namespace, if
+                        # possible
+                        existing = {v:k for k, v in nsmap.iteritems()}.get(v, False)
+                        if existing is not False:
+                            prefix = existing
                     nsmap[prefix] = v
                 else:
                     namespaced_attribs[k] = v
@@ -255,6 +267,7 @@ class TreeBuilder(BaseTreeBuilder):
         BaseTreeBuilder.__init__(self, True)
         self.lxml_context = create_lxml_context()
         self.elementClass = partial(ElementFactory, context=self.lxml_context)
+        self.seen_extra_html = False
 
     def getDocument(self):
         return self.document.root
@@ -272,6 +285,8 @@ class TreeBuilder(BaseTreeBuilder):
         nsmap = nsmap or {}
         attribs = process_attribs(token['data'], nsmap)
         name = token["name"]
+        if name.endswith(':html'):
+            raise NamespacedHTMLPresent(name.rpartition(':')[0])
         namespace = token.get("namespace", self.defaultNamespace)
         if ':' in name:
             prefix, name = name.partition(':')[0::2]
@@ -314,9 +329,9 @@ class TreeBuilder(BaseTreeBuilder):
         return element
 
     def apply_html_attributes(self, attrs):
+        if not attrs:
+            return
         html = self.openElements[0]
-        if len(html) > 0:
-            raise ValueError('Cannot apply attributes to <html> after it has children')
         nsmap = html.nsmap.copy()
         attribs = process_attribs(attrs, nsmap)
         for k, v in attribs.iteritems():
@@ -330,22 +345,34 @@ class TreeBuilder(BaseTreeBuilder):
             self.openElements[0] = newroot
             if self.document.root is html:
                 self.document.root = newroot
+            if len(html) > 0:
+                # TODO: the nsmap changes need to be propagated down the tree
+                for child in html:
+                    newroot.append(copy.copy(child))
 
-def parse(raw, decoder=None):
+def parse(raw, decoder=None, log=None):
     if isinstance(raw, bytes):
         raw = xml_to_unicode(raw)[0] if decoder is None else decoder(raw)
     # TODO: Replace entities?
     raw = fix_self_closing_cdata_tags(raw)  # TODO: Handle this in the parser
     # TODO: ignore warnings
-    parser = HTMLParser(tree=TreeBuilder)
-    parser.parse(raw, parseMeta=False, useChardet=False)
+    while True:
+        try:
+            parser = HTMLParser(tree=TreeBuilder)
+            parser.parse(raw, parseMeta=False, useChardet=False)
+        except NamespacedHTMLPresent as err:
+            raw = re.sub(r'<\s*/{0,1}(%s:)' % err.prefix, lambda m: m.group().replace(m.group(1), ''), raw, flags=re.I)
+            continue
+        break
     root = parser.tree.getDocument()
+    if root.tag != '{%s}%s' % (namespaces['html'], 'html') or root.prefix:
+        raise ValueError('Failed to parse correctly, root has tag: %s and prefix: %s' % (root.tag, root.prefix))
     return root
 
 
 if __name__ == '__main__':
     from lxml import etree
-    root = parse('<html><p -moo><gah\u000c>')
+    root = parse('<html:html xmlns:html="{html}" id="a"><html:p><html:p></html:html>'.format(html=namespaces['html']))
     print (etree.tostring(root))
     print()
 
