@@ -20,6 +20,66 @@
 #   new recipes:
 #     - title: 
 
+- version: 1.8.0
+  date: 2013-10-25
+
+  new features:
+    - title: "DOCX Input: Support linked (as opposed to embedded) images, if the linked image is found on the local computer."
+      tickets: [1243597]
+
+    - title: 'FB2 Input: Add support for note and cite back references. Link pairs of type="note" and type="cite" now automatically generate the correct back reference.'
+      tickets: [1243714]
+
+    - title: "When automerging books during during an add, include the author as well as the title in the report of merged books."
+
+    - title: "OS X Mavericks (10.9) breaks connecting to iTunes and iBooks on iOS devices. For more details see: http://www.mobileread.com/forums/showthread.php?t=215624"
+ 
+  bug fixes:
+    - title: "OS X: Fix system tray notifications causing crashes on some OS X 10.9 (Mavericks) systems (those that had Growl installed at some point)."
+      tickets: [1224491]
+
+    - title: "OSX: Fix font size in completion popups too small on Mavericks (I hope)"
+      tickets: [1243761]
+
+    - title: "PDF Output: Fix rendering of some semi-transparent images. All semi-transparent images are now rendered using soft masks."
+      tickets: [1243829]
+
+    - title: "MOBI Output: Fix text marked with white-space:pre-wrap causing the Kindle to break lines at arbitrary points inside words."
+      tickets: [1240235]
+
+    - title: "FB2 Input: Fix a regression that broke conversion of FB2 files with paragraphs having both a style and an id attribute."
+      tickets: [1243709]
+
+    - title: "TXT Input: Ensure that <title> in the generated HTML has a meaningful value."
+      tickets: [1236923]
+
+    - title: "Book details panel: Fix HTML in author names and identifiers not being escaped"
+      tickets: [1243976]
+
+    - title: "HTML 5 parsing: Fix handling of xml:lang attributes on all elements xml:lang is now mapped to a plain lang on all elements, not just <html>"
+
+    - title: "Update HTML 5 parser used in calibre (html5lib-python) to fix a few corner cases"
+
+    - title: "When bulk deleting formats, use a single temporary directory for the deleted files. This makes restoring them from the recycle bin a little cleaner. Also might fix the reported issue with the windows recycle bin choking on creating a large number of folders."
+
+    - title: "DOCX Input: Add support for hyperlink fields that have only anchors and not URLs"
+
+    - title: "DOCX Input: Fix handling of multiple block level bookmarks at the same location."
+      tickets: [1241451]
+
+    - title: "HTMLZ Output: Fix Htmlz does not apply inline css from <body>."
+      tickets: [1242261]
+
+    - title: "Fix the restore database operation failing on windows installs with long usernames (this would cause the path to the temporary folder used to restore the database to become too long)."
+
+    - title: "ODT Input: Various workarounds for broken ODT files generated my mk4ht"
+
+    - title: "Fix a bug with non-ascii text in the create catalog dialog"
+      ticket: [1241515]
+
+  improved recipes:
+    - A List Apart
+
 - version: 1.7.0
   date: 2013-10-18
 
