@@ -6,14 +6,14 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import copy, re
+import copy, re, warnings
 from functools import partial
 
 from lxml.etree import ElementBase, XMLParser, ElementDefaultClassLookup, CommentBase
 
 from html5lib.constants import namespaces, tableInsertModeElements
 from html5lib.treebuilders._base import TreeBuilder as BaseTreeBuilder
-from html5lib.ihatexml import InfosetFilter
+from html5lib.ihatexml import InfosetFilter, DataLossWarning
 from html5lib.html5parser import HTMLParser
 
 from calibre.ebooks.chardet import xml_to_unicode
@@ -357,11 +357,12 @@ def parse(raw, decoder=None, log=None):
         raw = xml_to_unicode(raw)[0] if decoder is None else decoder(raw)
     # TODO: Replace entities?
     raw = fix_self_closing_cdata_tags(raw)  # TODO: Handle this in the parser
-    # TODO: ignore warnings
     while True:
         try:
             parser = HTMLParser(tree=TreeBuilder)
-            parser.parse(raw, parseMeta=False, useChardet=False)
+            with warnings.catch_warnings():
+                warnings.simplefilter('ignore', category=DataLossWarning)
+                parser.parse(raw, parseMeta=False, useChardet=False)
         except NamespacedHTMLPresent as err:
             raw = re.sub(r'<\s*/{0,1}(%s:)' % err.prefix, lambda m: m.group().replace(m.group(1), ''), raw, flags=re.I)
             continue
