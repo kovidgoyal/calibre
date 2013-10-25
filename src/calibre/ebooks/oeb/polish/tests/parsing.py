@@ -117,7 +117,13 @@ def case_insensitive_element_names(test, parse_function):
     err = 'case sensitive parsing, parsed markup:\n' + etree.tostring(root)
     test.assertEqual(len(XPath('//h:p')(root)), 1, err)
 
-basic_checks = (nonvoid_cdata_elements, namespaces, space_characters, case_insensitive_element_names)
+def entities(test, parse_function):
+    markup = '<html><p>&nbsp;&apos;</p>'
+    root = parse_function(markup)
+    err = 'Entities not handled, parsed markup:\n' + etree.tostring(root)
+    test.assertEqual('\xa0\'', root.xpath('//*[local-name()="p"]')[0].text, err)
+
+basic_checks = (nonvoid_cdata_elements, namespaces, space_characters, case_insensitive_element_names, entities)
 
 class ParsingTests(BaseTest):
 

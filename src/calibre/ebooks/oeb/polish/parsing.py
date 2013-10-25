@@ -16,6 +16,7 @@ from html5lib.treebuilders._base import TreeBuilder as BaseTreeBuilder
 from html5lib.ihatexml import InfosetFilter, DataLossWarning
 from html5lib.html5parser import HTMLParser
 
+from calibre import xml_replace_entities
 from calibre.ebooks.chardet import xml_to_unicode
 from calibre.ebooks.oeb.parse_utils import fix_self_closing_cdata_tags
 from calibre.utils.cleantext import clean_xml_chars
@@ -355,8 +356,8 @@ class TreeBuilder(BaseTreeBuilder):
 def parse(raw, decoder=None, log=None):
     if isinstance(raw, bytes):
         raw = xml_to_unicode(raw)[0] if decoder is None else decoder(raw)
-    # TODO: Replace entities?
     raw = fix_self_closing_cdata_tags(raw)  # TODO: Handle this in the parser
+    raw = xml_replace_entities(raw)
     while True:
         try:
             parser = HTMLParser(tree=TreeBuilder)
@@ -375,7 +376,7 @@ def parse(raw, decoder=None, log=None):
 
 if __name__ == '__main__':
     from lxml import etree
-    root = parse('<html:html xmlns:html="{html}" id="a"><html:p><html:p></html:html>'.format(html=namespaces['html']))
+    root = parse('<html><p>&nbsp;')
     print (etree.tostring(root))
     print()
 
