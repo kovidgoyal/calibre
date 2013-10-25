@@ -57,22 +57,6 @@ class Element(ElementBase):
         return '<%s%s%s (%s)>' % (prefix, self.name, attrs, hex(id(self)))
     __repr__ = __str__
 
-    @dynamic_property
-    def name(self):
-        def fget(self):
-            return self.tag.rpartition('}')[2]
-        def fset(self, val):
-            self.tag = '%s}%s' % (self.tag.rpartition('}')[2], val)
-        return property(fget=fget, fset=fset)
-
-    @property
-    def namespace(self):
-        return self.nsmap[self.prefix]
-
-    @property
-    def nameTuple(self):
-        return self.nsmap[self.prefix], self.tag.rpartition('}')[2]
-
     @property
     def attributes(self):
         return self.attrib
@@ -139,23 +123,6 @@ class Element(ElementBase):
         for child in self:
             new_parent.append(child)
 
-class NoNameSpaceElement(Element):
-
-    @property
-    def namespace(self):
-        return None
-
-    @dynamic_property
-    def name(self):
-        def fget(self):
-            return self.tag
-        def fset(self, val):
-            self.tag = val
-        return property(fget=fget, fset=fset)
-
-    @property
-    def nameTuple(self):
-        return html_ns, self.tag
 
 class Comment(CommentBase):
 
@@ -215,7 +182,7 @@ class Document(object):
         self.doctype = None
 
     def appendChild(self, child):
-        if isinstance(child, Element):
+        if isinstance(child, ElementBase):
             self.root = child
         elif isinstance(child, DocType):
             self.doctype = child
@@ -226,9 +193,9 @@ class DocType(object):
         self.text = self.name = name
         self.public_id, self.system_id = public_id, system_id
 
-def create_lxml_context(element=Element):
+def create_lxml_context():
     parser = XMLParser(no_network=True)
-    parser.set_element_class_lookup(ElementDefaultClassLookup(element=element, comment=Comment))
+    parser.set_element_class_lookup(ElementDefaultClassLookup(element=Element, comment=Comment))
     return parser
 
 # }}}
@@ -286,6 +253,7 @@ class TreeBuilder(BaseTreeBuilder):
         BaseTreeBuilder.__init__(self, namespaceHTMLElements)
         self.lxml_context = create_lxml_context()
         self.elementClass = partial(ElementFactory, context=self.lxml_context)
+        self.proxy_cache = []
 
     def getDocument(self):
         return self.document.root
@@ -302,7 +270,7 @@ class TreeBuilder(BaseTreeBuilder):
         """Create an element but don't insert it anywhere"""
         nsmap = nsmap or {}
         attribs = process_attribs(token['data'], nsmap)
-        name = token["name"]
+        name = token_name = token["name"]
         namespace = token.get("namespace", self.defaultNamespace)
         if ':' in name:
             if name.endswith(':html'):
@@ -322,6 +290,12 @@ class TreeBuilder(BaseTreeBuilder):
             if prefix not in nsmap:
                 nsmap[prefix] = namespace
                 elem = self.lxml_context.makeelement(elem.tag, attrib=elem.attrib, nsmap=nsmap)
+        # Keep a reference to elem so that lxml does not delete and re-create
+        # it, losing the name related attributes
+        self.proxy_cache.append(elem)
+        elem.name = token_name
+        elem.namespace = elem.nsmap[elem.prefix]
+        elem.nameTuple = (elem.nsmap[elem.prefix], elem.name)
         return elem
 
     def insertElementNormal(self, token):
@@ -360,6 +334,8 @@ class TreeBuilder(BaseTreeBuilder):
                     html.set(to_xml_name(k), v)
         if nsmap != html.nsmap:
             newroot = self.lxml_context.makeelement(html.tag, attrib=html.attrib, nsmap=nsmap)
+            self.proxy_cache.append(newroot)
+            newroot.name, newroot.namespace, newroot.nameTuple = html.name, html.namespace, html.nameTuple
             self.openElements[0] = newroot
             if self.document.root is html:
                 self.document.root = newroot
@@ -385,17 +361,25 @@ class NoNamespaceTreeBuilder(TreeBuilder):
 
     def __init__(self, namespaceHTMLElements=False):
         BaseTreeBuilder.__init__(self, namespaceHTMLElements)
-        self.lxml_context = create_lxml_context(element=NoNameSpaceElement)
+        self.lxml_context = create_lxml_context()
         self.elementClass = partial(ElementFactory, context=self.lxml_context)
+        self.proxy_cache = []
 
     def createElement(self, token, nsmap=None):
         name = token['name'].rpartition(':')[2]
         attribs = process_namespace_free_attribs(token['data'])
         try:
-            return self.lxml_context.makeelement(name, attrib=attribs)
+            elem = self.lxml_context.makeelement(name, attrib=attribs)
         except ValueError:
             attribs = {to_xml_name(k):v for k, v in attribs.iteritems()}
-            return self.lxml_context.makeelement(to_xml_name(name), attrib=attribs)
+            elem = self.lxml_context.makeelement(to_xml_name(name), attrib=attribs)
+        # Keep a reference to elem so that lxml does not delete and re-create
+        # it, losing _namespace
+        self.proxy_cache.append(elem)
+        elem.name = elem.tag
+        elem.namespace = token.get('namespace', self.defaultNamespace)
+        elem.nameTuple = (elem.namespace or html_ns, elem.name)
+        return elem
 
     def apply_html_attributes(self, attrs):
         if not attrs:
@@ -420,7 +404,10 @@ def parse(raw, decoder=None, log=None, discard_namespaces=False):
             parser = HTMLParser(tree=builder, namespaceHTMLElements=not discard_namespaces)
             with warnings.catch_warnings():
                 warnings.simplefilter('ignore', category=DataLossWarning)
-                parser.parse(raw, parseMeta=False, useChardet=False)
+                try:
+                    parser.parse(raw, parseMeta=False, useChardet=False)
+                finally:
+                    parser.tree.proxy_cache = None
         except NamespacedHTMLPresent as err:
             raw = re.sub(r'<\s*/{0,1}(%s:)' % err.prefix, lambda m: m.group().replace(m.group(1), ''), raw, flags=re.I)
             continue
@@ -434,7 +421,8 @@ def parse(raw, decoder=None, log=None, discard_namespaces=False):
 
 if __name__ == '__main__':
     from lxml import etree
-    root = parse('<html><p>&nbsp;<b>b', discard_namespaces=True)
+    # root = parse('\n<html><head><title>a\n</title><p>&nbsp;\n<b>b', discard_namespaces=False)
+    root = parse('\n<html><p><svg><image /><b></svg>&nbsp;\n<b>xxx', discard_namespaces=True)
     print (etree.tostring(root, encoding='utf-8'))
     print()
 

@@ -136,3 +136,6 @@ class ParsingTests(BaseTest):
         ' Test parsing with the HTML5 parser used for polishing '
         for test in basic_checks:
             test(self, parse)
+
+        root = parse('<html><p><svg><image /><b></svg>&nbsp;\n<b>xxx', discard_namespaces=True)
+        self.assertFalse(root.xpath('//svg/b'), 'The <b> was not moved out of <svg>')
