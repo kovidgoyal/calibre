@@ -24,6 +24,7 @@ from calibre.utils.cleantext import clean_xml_chars
 infoset_filter = InfosetFilter()
 to_xml_name = infoset_filter.toXmlName
 known_namespaces = {namespaces[k]:k for k in ('mathml', 'svg')}
+html_ns = namespaces['html']
 
 class NamespacedHTMLPresent(ValueError):
 
@@ -32,11 +33,6 @@ class NamespacedHTMLPresent(ValueError):
         self.prefix = prefix
 
 # Nodes {{{
-def create_lxml_context():
-    parser = XMLParser(no_network=True)
-    parser.set_element_class_lookup(ElementDefaultClassLookup(element=Element, comment=Comment))
-    return parser
-
 def ElementFactory(name, namespace=None, context=None):
     context = context or create_lxml_context()
     ns = namespace or namespaces['html']
@@ -44,9 +40,6 @@ def ElementFactory(name, namespace=None, context=None):
         return context.makeelement('{%s}%s' % (ns, name), nsmap={None:ns})
     except ValueError:
         return context.makeelement('{%s}%s' % (ns, to_xml_name(name)), nsmap={None:ns})
-
-def CommentFactory(text):
-    return Comment(text.replace('--', '- -'))
 
 class Element(ElementBase):
 
@@ -146,6 +139,24 @@ class Element(ElementBase):
         for child in self:
             new_parent.append(child)
 
+class NoNameSpaceElement(Element):
+
+    @property
+    def namespace(self):
+        return None
+
+    @dynamic_property
+    def name(self):
+        def fget(self):
+            return self.tag
+        def fset(self, val):
+            self.tag = val
+        return property(fget=fget, fset=fset)
+
+    @property
+    def nameTuple(self):
+        return html_ns, self.tag
+
 class Comment(CommentBase):
 
     @dynamic_property
@@ -214,6 +225,12 @@ class DocType(object):
     def __init__(self, name, public_id, system_id):
         self.text = self.name = name
         self.public_id, self.system_id = public_id, system_id
+
+def create_lxml_context(element=Element):
+    parser = XMLParser(no_network=True)
+    parser.set_element_class_lookup(ElementDefaultClassLookup(element=element, comment=Comment))
+    return parser
+
 # }}}
 
 def process_attribs(attrs, nsmap):
@@ -262,15 +279,13 @@ def process_attribs(attrs, nsmap):
 class TreeBuilder(BaseTreeBuilder):
 
     elementClass = ElementFactory
-    commentClass = Comment
     documentClass = Document
     doctypeClass = DocType
 
     def __init__(self, namespaceHTMLElements=True):
-        BaseTreeBuilder.__init__(self, True)
+        BaseTreeBuilder.__init__(self, namespaceHTMLElements)
         self.lxml_context = create_lxml_context()
         self.elementClass = partial(ElementFactory, context=self.lxml_context)
-        self.seen_extra_html = False
 
     def getDocument(self):
         return self.document.root
@@ -288,10 +303,10 @@ class TreeBuilder(BaseTreeBuilder):
         nsmap = nsmap or {}
         attribs = process_attribs(token['data'], nsmap)
         name = token["name"]
-        if name.endswith(':html'):
-            raise NamespacedHTMLPresent(name.rpartition(':')[0])
         namespace = token.get("namespace", self.defaultNamespace)
         if ':' in name:
+            if name.endswith(':html'):
+                raise NamespacedHTMLPresent(name.rpartition(':')[0])
             prefix, name = name.partition(':')[0::2]
             namespace = nsmap.get(prefix, namespace)
         try:
@@ -353,14 +368,56 @@ class TreeBuilder(BaseTreeBuilder):
                 for child in html:
                     newroot.append(copy.copy(child))
 
-def parse(raw, decoder=None, log=None):
+    def insertComment(self, token, parent=None):
+        if parent is None:
+            parent = self.openElements[-1]
+        parent.appendChild(Comment(token["data"].replace('--', '- -')))
+
+def process_namespace_free_attribs(attrs):
+    attribs = {k:v for k, v in attrs.iteritems() if ':' not in k}
+    for k in set(attrs) - set(attribs):
+        prefix, name = k.partition(':')[0::2]
+        if prefix != 'xmlns' and name not in attribs:
+            attribs[name] = attrs[k]
+    return attribs
+
+class NoNamespaceTreeBuilder(TreeBuilder):
+
+    def __init__(self, namespaceHTMLElements=False):
+        BaseTreeBuilder.__init__(self, namespaceHTMLElements)
+        self.lxml_context = create_lxml_context(element=NoNameSpaceElement)
+        self.elementClass = partial(ElementFactory, context=self.lxml_context)
+
+    def createElement(self, token, nsmap=None):
+        name = token['name'].rpartition(':')[2]
+        attribs = process_namespace_free_attribs(token['data'])
+        try:
+            return self.lxml_context.makeelement(name, attrib=attribs)
+        except ValueError:
+            attribs = {to_xml_name(k):v for k, v in attribs.iteritems()}
+            return self.lxml_context.makeelement(to_xml_name(name), attrib=attribs)
+
+    def apply_html_attributes(self, attrs):
+        if not attrs:
+            return
+        html = self.openElements[0]
+        attribs = process_namespace_free_attribs(attrs)
+        for k, v in attribs.iteritems():
+            if k not in html.attrib:
+                try:
+                    html.set(k, v)
+                except ValueError:
+                    html.set(to_xml_name(k), v)
+
+def parse(raw, decoder=None, log=None, discard_namespaces=False):
     if isinstance(raw, bytes):
         raw = xml_to_unicode(raw)[0] if decoder is None else decoder(raw)
     raw = fix_self_closing_cdata_tags(raw)  # TODO: Handle this in the parser
     raw = xml_replace_entities(raw)
+    builder = NoNamespaceTreeBuilder if discard_namespaces else TreeBuilder
     while True:
         try:
-            parser = HTMLParser(tree=TreeBuilder)
+            parser = HTMLParser(tree=builder, namespaceHTMLElements=not discard_namespaces)
             with warnings.catch_warnings():
                 warnings.simplefilter('ignore', category=DataLossWarning)
                 parser.parse(raw, parseMeta=False, useChardet=False)
@@ -369,14 +426,15 @@ def parse(raw, decoder=None, log=None):
             continue
         break
     root = parser.tree.getDocument()
-    if root.tag != '{%s}%s' % (namespaces['html'], 'html') or root.prefix:
+    if (discard_namespaces and root.tag != 'html') or (
+        not discard_namespaces and (root.tag != '{%s}%s' % (namespaces['html'], 'html') or root.prefix)):
         raise ValueError('Failed to parse correctly, root has tag: %s and prefix: %s' % (root.tag, root.prefix))
     return root
 
 
 if __name__ == '__main__':
     from lxml import etree
-    root = parse('<html><p>&nbsp;')
-    print (etree.tostring(root))
+    root = parse('<html><p>&nbsp;<b>b', discard_namespaces=True)
+    print (etree.tostring(root, encoding='utf-8'))
     print()
 
