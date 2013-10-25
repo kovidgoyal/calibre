@@ -80,11 +80,14 @@ def node_depth(node):
         p = p.getparent()
     return ans
 
+def fix_self_closing_cdata_tags(data):
+    from html5lib.constants import cdataElements, rcdataElements
+    return re.sub(r'<\s*(%s)\s*[^>]*/\s*>' % ('|'.join(cdataElements|rcdataElements)), r'<\1></\1>', data, flags=re.I)
+
 def html5_parse(data, max_nesting_depth=100):
     import html5lib, warnings
-    from html5lib.constants import cdataElements, rcdataElements
     # HTML5 parsing algorithm idiocy: http://code.google.com/p/html5lib/issues/detail?id=195
-    data = re.sub(r'<\s*(%s)\s*[^>]*/\s*>' % ('|'.join(cdataElements|rcdataElements)), r'<\1></\1>', data, flags=re.I)
+    data = fix_self_closing_cdata_tags(data)
 
     with warnings.catch_warnings():
         warnings.simplefilter('ignore')

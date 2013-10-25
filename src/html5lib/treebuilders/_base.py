@@ -269,6 +269,11 @@ class TreeBuilder(object):
         element.attributes = token["data"]
         return element
 
+    def apply_html_attributes(self, attrs):
+        for attr, value in attrs.items():
+            if attr not in self.openElements[0].attributes:
+                self.openElements[0].attributes[attr] = value
+
     def _getInsertFromTable(self):
         return self._insertFromTable
 

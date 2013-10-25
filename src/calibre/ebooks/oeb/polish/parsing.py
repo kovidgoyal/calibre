@@ -7,29 +7,38 @@ __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import copy
+from functools import partial
 
 from lxml.etree import ElementBase, XMLParser, ElementDefaultClassLookup, CommentBase
 
-from html5lib.constants import namespaces
+from html5lib.constants import namespaces, tableInsertModeElements
 from html5lib.treebuilders._base import TreeBuilder as BaseTreeBuilder
 from html5lib.ihatexml import InfosetFilter
+from html5lib.html5parser import HTMLParser
+
+from calibre.ebooks.chardet import xml_to_unicode
+from calibre.ebooks.oeb.parse_utils import fix_self_closing_cdata_tags
+from calibre.utils.cleantext import clean_xml_chars
 
 infoset_filter = InfosetFilter()
-coerce_comment = infoset_filter.coerceComment
-coerce_text = infoset_filter.coerceCharacters
+to_xml_name = infoset_filter.toXmlName
+known_namespaces = {namespaces[k]:k for k in ('mathml', 'svg')}
 
 def create_lxml_context():
-    parser = XMLParser()
+    parser = XMLParser(no_network=True)
     parser.set_element_class_lookup(ElementDefaultClassLookup(element=Element, comment=Comment))
     return parser
 
 def ElementFactory(name, namespace=None, context=None):
     context = context or create_lxml_context()
     ns = namespace or namespaces['html']
-    return context.makeelement('{%s}%s' % (ns, name), nsmap={None:ns})
+    try:
+        return context.makeelement('{%s}%s' % (ns, name), nsmap={None:ns})
+    except ValueError:
+        return context.makeelement('{%s}%s' % (ns, to_xml_name(name)), nsmap={None:ns})
 
 def CommentFactory(text):
-    return Comment(coerce_comment(text))
+    return Comment(text.replace('--', '- -'))
 
 class Element(ElementBase):
 
@@ -59,15 +68,13 @@ class Element(ElementBase):
     def namespace(self):
         return self.nsmap[self.prefix]
 
-    @dynamic_property
+    @property
+    def nameTuple(self):
+        return self.nsmap[self.prefix], self.tag.rpartition('}')[2]
+
+    @property
     def attributes(self):
-        def fget(self):
-            return self.attrib
-        def fset(self, val):
-            attrs = {('{%s}%s' % k) if isinstance(k, tuple) else k : v for k, v in val.iteritems()}
-            self.attrib.clear()
-            self.attrib.update(attrs)
-        return property(fget=fget, fset=fset)
+        return self.attrib
 
     @dynamic_property
     def childNodes(self):
@@ -94,21 +101,30 @@ class Element(ElementBase):
         self.insert(self.index(ref_node), node)
 
     def insertText(self, data, insertBefore=None):
-        data = coerce_text(data)
+        def append_text(el, attr):
+            try:
+                setattr(el, attr, (getattr(el, attr) or '') + data)
+            except ValueError:
+                text = data.replace('\u000c', ' ')
+                try:
+                    setattr(el, attr, (getattr(el, attr) or '') + text)
+                except ValueError:
+                    setattr(el, attr, (getattr(el, attr) or '') + clean_xml_chars(text))
+
         if len(self) == 0:
-            self.text = (self.text or '') + data
+            append_text(self, 'text')
         elif insertBefore is None:
             # Insert the text as the tail of the last child element
             el = self[-1]
-            el.tail = (el.tail or '') + data
+            append_text(el, 'tail')
         else:
             # Insert the text before the specified node
             index = self.index(insertBefore)
             if index > 0:
                 el = self[index - 1]
-                el.tail = (el.tail or '') + data
+                append_text(el, 'tail')
             else:
-                self.text = (self.text or '') + data
+                append_text(self, 'text')
 
     def reparentChildren(self, new_parent):
         # Move self.text
@@ -129,7 +145,7 @@ class Comment(CommentBase):
         def fget(self):
             return self.text
         def fset(self, val):
-            self.text = coerce_comment(val)
+            self.text = val.replace('--', '- -')
         return property(fget=fget, fset=fset)
 
     @property
@@ -143,6 +159,10 @@ class Comment(CommentBase):
     @property
     def namespace(self):
         return None
+
+    @property
+    def nameTuple(self):
+        return None, None
 
     @property
     def childNodes(self):
@@ -164,7 +184,7 @@ class Comment(CommentBase):
     reparentChildren = no_op
 
     def insertText(self, text, insertBefore=None):
-        self.text = (self.text or '') + coerce_comment(text)
+        self.text = (self.text or '') + text.replace('--', '- -')
 
     def cloneNode(self):
         return copy.copy(self)
@@ -187,6 +207,43 @@ class DocType(object):
         self.text = self.name = name
         self.public_id, self.system_id = public_id, system_id
 
+def process_attribs(attrs, nsmap):
+    attribs = {}
+    namespaced_attribs = {}
+    xmlns = namespaces['xmlns']
+    for k, v in attrs.iteritems():
+        if isinstance(k, tuple):
+            if k[2] == xmlns:
+                prefix, name, ns = k
+                if prefix is None:
+                    nsmap[None] = v
+                else:
+                    nsmap[name] = v
+            else:
+                attribs['{%s}%s' % (k[2], k[1])] = v
+        else:
+            if ':' in k:
+                if k.startswith('xmlns') and (k.startswith('xmlns:') or k == 'xmlns'):
+                    prefix = k.partition(':')[2] or None
+                    nsmap[prefix] = v
+                else:
+                    namespaced_attribs[k] = v
+            else:
+                attribs[k] = v
+
+    for k, v in namespaced_attribs.iteritems():
+        prefix, name = k.partition(':')[0::2]
+        if prefix == 'xml':
+            if name == 'lang':
+                attribs['lang'] = attribs.get('lang', v)
+            continue
+        ns = nsmap.get(prefix, None)
+        if ns is not None:
+            name = '{%s}%s' % (ns, name)
+        attribs[name] =v
+
+    return attribs
+
 class TreeBuilder(BaseTreeBuilder):
 
     elementClass = ElementFactory
@@ -194,6 +251,101 @@ class TreeBuilder(BaseTreeBuilder):
     documentClass = Document
     doctypeClass = DocType
 
-    def __init__(self):
+    def __init__(self, namespaceHTMLElements=True):
         BaseTreeBuilder.__init__(self, True)
+        self.lxml_context = create_lxml_context()
+        self.elementClass = partial(ElementFactory, context=self.lxml_context)
+
+    def getDocument(self):
+        return self.document.root
+
+    # The following methods are re-implementations from BaseTreeBuilder to
+    # handle namespaces properly.
+
+    def insertRoot(self, token):
+        element = self.createElement(token, nsmap={None:namespaces['html']})
+        self.openElements.append(element)
+        self.document.appendChild(element)
+
+    def createElement(self, token, nsmap=None):
+        """Create an element but don't insert it anywhere"""
+        nsmap = nsmap or {}
+        attribs = process_attribs(token['data'], nsmap)
+        name = token["name"]
+        namespace = token.get("namespace", self.defaultNamespace)
+        if ':' in name:
+            prefix, name = name.partition(':')[0::2]
+            namespace = nsmap.get(prefix, namespace)
+        try:
+            elem = self.lxml_context.makeelement('{%s}%s' % (namespace, name), attrib=attribs, nsmap=nsmap)
+        except ValueError:
+            attribs = {to_xml_name(k):v for k, v in attribs.iteritems()}
+            elem = self.lxml_context.makeelement('{%s}%s' % (namespace, to_xml_name(name)), attrib=attribs, nsmap=nsmap)
+
+        # Ensure that svg and mathml elements get nice namespace prefixes if
+        # the input document is HTML 5 with no namespace information
+        if elem.prefix is not None and elem.prefix.startswith('ns') and namespace not in set(nsmap.itervalues()) and namespace in known_namespaces:
+            prefix = known_namespaces[namespace]
+            if prefix not in nsmap:
+                nsmap[prefix] = namespace
+                elem = self.lxml_context.makeelement(elem.tag, attrib=elem.attrib, nsmap=nsmap)
+        return elem
+
+    def insertElementNormal(self, token):
+        parent = self.openElements[-1]
+        element = self.createElement(token, parent.nsmap)
+        parent.appendChild(element)
+        self.openElements.append(element)
+        return element
+
+    def insertElementTable(self, token):
+        """Create an element and insert it into the tree"""
+        if self.openElements[-1].name not in tableInsertModeElements:
+            return self.insertElementNormal(token)
+        # We should be in the InTable mode. This means we want to do
+        # special magic element rearranging
+        parent, insertBefore = self.getTableMisnestedNodePosition()
+        element = self.createElement(token, nsmap=parent.nsmap)
+        if insertBefore is None:
+            parent.appendChild(element)
+        else:
+            parent.insertBefore(element, insertBefore)
+        self.openElements.append(element)
+        return element
+
+    def apply_html_attributes(self, attrs):
+        html = self.openElements[0]
+        if len(html) > 0:
+            raise ValueError('Cannot apply attributes to <html> after it has children')
+        nsmap = html.nsmap.copy()
+        attribs = process_attribs(attrs, nsmap)
+        for k, v in attribs.iteritems():
+            if k not in html.attrib:
+                try:
+                    html.set(k, v)
+                except ValueError:
+                    html.set(to_xml_name(k), v)
+        if nsmap != html.nsmap:
+            newroot = self.lxml_context.makeelement(html.tag, attrib=html.attrib, nsmap=nsmap)
+            self.openElements[0] = newroot
+            if self.document.root is html:
+                self.document.root = newroot
+
+def parse(raw, decoder=None):
+    if isinstance(raw, bytes):
+        raw = xml_to_unicode(raw)[0] if decoder is None else decoder(raw)
+    # TODO: Replace entities?
+    raw = fix_self_closing_cdata_tags(raw)  # TODO: Handle this in the parser
+    # TODO: ignore warnings
+    parser = HTMLParser(tree=TreeBuilder)
+    parser.parse(raw, parseMeta=False, useChardet=False)
+    root = parser.tree.getDocument()
+    return root
+
+
+if __name__ == '__main__':
+    from lxml import etree
+    root = parse('<html><p -moo><gah\u000c>')
+    print (etree.tostring(root))
+    print()
 

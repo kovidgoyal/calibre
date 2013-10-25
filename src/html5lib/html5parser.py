@@ -155,8 +155,8 @@ class HTMLParser(object):
             new_token = token
             while new_token is not None:
                 currentNode = self.tree.openElements[-1] if self.tree.openElements else None
-                currentNodeNamespace = currentNode.namespace if currentNode else None
-                currentNodeName = currentNode.name if currentNode else None
+                currentNodeNamespace = currentNode.namespace if currentNode is not None else None
+                currentNodeName = currentNode.name if currentNode is not None else None
 
                 type = new_token["type"]
 
@@ -472,9 +472,7 @@ def getPhases(debug):
                 self.parser.parseError("non-html-root")
             # XXX Need a check here to see if the first start tag token emitted is
             # this token... If it's not, invoke self.parser.parseError().
-            for attr, value in token["data"].items():
-                if attr not in self.tree.openElements[0].attributes:
-                    self.tree.openElements[0].attributes[attr] = value
+            self.tree.apply_html_attributes(token['data'])
             self.parser.firstStartTag = False
 
         def processEndTag(self, token):

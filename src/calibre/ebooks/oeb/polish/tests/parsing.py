@@ -10,6 +10,7 @@ from lxml import etree
 from html5lib.constants import cdataElements, rcdataElements
 
 from calibre.ebooks.oeb.polish.tests.base import BaseTest
+from calibre.ebooks.oeb.polish.parsing import parse
 from calibre.ebooks.oeb.base import XPath, XHTML_NS, SVG_NS, XLINK_NS
 from calibre.ebooks.oeb.parse_utils import html5_parse
 
@@ -28,11 +29,17 @@ def nonvoid_cdata_elements(test, parse_function):
 
 def namespaces(test, parse_function):
     ae = test.assertEqual
+    def match_and_prefix(root, xpath, prefix, err=''):
+        matches = XPath(xpath)(root)
+        ae(len(matches), 1, err)
+        ae(matches[0].prefix, prefix)
+
     markup = ''' <html xmlns="{xhtml}"><head><body id="test"></html> '''.format(xhtml=XHTML_NS)
     root = parse_function(markup)
     ae(
         len(XPath('//h:body[@id="test"]')(root)), 1,
         'Incorrect parsing, parsed markup:\n' + etree.tostring(root))
+    match_and_prefix(root, '//h:body[@id="test"]', None)
 
     markup = '''
     <html xmlns="{xhtml}"><head><body id="test">
@@ -40,9 +47,9 @@ def namespaces(test, parse_function):
     '''.format(xhtml=XHTML_NS, svg=SVG_NS, xlink=XLINK_NS)
     root = parse_function(markup)
     err = 'Incorrect parsing, parsed markup:\n' + etree.tostring(root)
-    ae(len(XPath('//h:body[@id="test"]')(root)), 1, err)
-    ae(len(XPath('//svg:svg')(root)), 1, err)
-    ae(len(XPath('//svg:image[@xl:href]')(root)), 1, err)
+    match_and_prefix(root, '//h:body[@id="test"]', None, err)
+    match_and_prefix(root, '//svg:svg', 'svg', err)
+    match_and_prefix(root, '//svg:image[@xl:href]', 'svg', err)
 
     markup = '''
     <html xmlns="{xhtml}"><head><body id="test">
@@ -50,15 +57,15 @@ def namespaces(test, parse_function):
     '''.format(xhtml=XHTML_NS, svg=SVG_NS, xlink=XLINK_NS)
     root = parse_function(markup)
     err = 'Incorrect parsing, parsed markup:\n' + etree.tostring(root)
-    ae(len(XPath('//h:body[@id="test"]')(root)), 1, err)
-    ae(len(XPath('//svg:svg')(root)), 1, err)
-    ae(len(XPath('//svg:image[@xl:href]')(root)), 1, err)
+    match_and_prefix(root, '//h:body[@id="test"]', None, err)
+    match_and_prefix(root, '//svg:svg', None if parse_function is parse else 'svg', err)
+    match_and_prefix(root, '//svg:image[@xl:href]', None if parse_function is parse else 'svg', err)
 
     markup = '<html><body><svg><image xlink:href="xxx"></svg>'
     root = parse_function(markup)
     err = 'Namespaces not created, parsed markup:\n' + etree.tostring(root)
-    ae(len(XPath('//svg:svg')(root)), 1, err)
-    ae(len(XPath('//svg:image[@xl:href]')(root)), 1, err)
+    match_and_prefix(root, '//svg:svg', 'svg', err)
+    match_and_prefix(root, '//svg:image[@xl:href]', 'svg', err)
 
     markup = '<html><body><ns1:tag1 xmlns:ns1="NS"><ns2:tag2 xmlns:ns2="NS" ns1:id="test"/><ns1:tag3 xmlns:ns1="NS2" ns1:id="test"/></ns1:tag1>'
     root = parse_function(markup)
@@ -70,6 +77,9 @@ def namespaces(test, parse_function):
     ae(len(xpath('//ns2:tag3')), 1, err)
     ae(len(xpath('//ns1:tag2[@ns1:id="test"]')), 1, err)
     ae(len(xpath('//ns2:tag3[@ns2:id="test"]')), 1, err)
+    for tag in root.iter():
+        if 'NS' in tag.tag:
+            ae('ns1', tag.prefix)
 
     markup = '<html xml:lang="en"><body><p lang="de"><p xml:lang="es"><p lang="en" xml:lang="de">'
     root = parse_function(markup)
@@ -84,6 +94,8 @@ def space_characters(test, parse_function):
     root = parse_function(markup)
     err = 'form feed character not converted, parsed markup:\n' + etree.tostring(root)
     test.assertNotIn('\u000c', root.xpath('//*[local-name()="p"]')[0].text, err)
+    markup = '<html><p>\u000b\u000c</p>'
+    root = parse_function(markup)  # Should strip non XML safe control code \u000b
 
 def case_insensitive_element_names(test, parse_function):
     markup = '<HTML><P> </p>'
@@ -99,3 +111,8 @@ class ParsingTests(BaseTest):
         ' Test parsing with the HTML5 parser used for conversion '
         for test in basic_checks:
             test(self, html5_parse)
+
+    def test_polish_parser(self):
+        ' Test parsing with the HTML5 parser used for polishing '
+        for test in basic_checks:
+            test(self, parse)
