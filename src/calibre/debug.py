@@ -150,6 +150,13 @@ def print_basic_debug_info(out=None):
     out(__appname__, get_version(), 'Portable' if isportable else '',
         'isfrozen:', isfrozen, 'is64bit:', is64bit)
     out(platform.platform(), platform.system(), platform.architecture())
+    if iswindows and not is64bit:
+        try:
+            import win32process
+            if win32process.IsWow64Process():
+                out('32bit process running on 64bit windows')
+        except:
+            pass
     out(platform.system_alias(platform.system(), platform.release(),
             platform.version()))
     out('Python', platform.python_version())
