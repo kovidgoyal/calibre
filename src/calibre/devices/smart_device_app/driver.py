@@ -310,6 +310,12 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
               'to resend metadata to the device, either by changing '
               'the metadata for the book (updating the last modification '
               'time) or resending the book itself.') + '</p>',
+        _('Use metadata cache') + ':::<p>' +
+            _('Setting this option allows calibre to keep a copy of metadata '
+              'on the device, speeding up device connections. Unsetting this '
+              'option disables keeping the copy, forcing the device to send '
+              'metadata to calibre on every connect. Unset this option if '
+              'you think that the cache might not be operating correctly.') + '</p>',
         ]
     EXTRA_CUSTOMIZATION_DEFAULT = [
                 False, '',
@@ -318,7 +324,8 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                 False, '',
                 '',    '',
                 True,  '',
-                True,   '75'
+                True,   '75',
+                True
     ]
     OPT_AUTOSTART               = 0
     OPT_PASSWORD                = 2
@@ -330,6 +337,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
     OPT_FORCE_IP_ADDRESS        = 11
     OPT_OVERWRITE_BOOKS_UUID    = 12
     OPT_COMPRESSION_QUALITY     = 13
+    OPT_USE_METADATA_CACHE      = 14
 
     def __init__(self, path):
         self.sync_lock = threading.RLock()
@@ -972,6 +980,9 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
             self._debug('Device can delete multiple books', self.client_can_delete_multiple)
             self.client_can_use_metadata_cache = result.get('canUseCachedMetadata', False)
             self._debug('Device can use cached metadata', self.client_can_use_metadata_cache)
+            if not self.settings().extra_customization[self.OPT_USE_METADATA_CACHE]:
+                self.client_can_use_metadata_cache = False
+                self._debug('metadata caching disabled by option')
 
             self.client_device_kind = result.get('deviceKind', '')
             self._debug('Client device kind', self.client_device_kind)
@@ -1135,19 +1146,19 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
             will_use_cache = self.client_can_use_metadata_cache
 
             if will_use_cache:
-                books_on_device = {}
+                books_on_device = []
                 self._debug('caching. count=', count)
                 for i in range(0, count):
                     opcode, result = self._receive_from_client(print_debug_info=False)
-                    books_on_device[result.get('uuid')] = result
+                    books_on_device.append(result)
 
                 books_to_send = []
-                for u,v in books_on_device.iteritems():
-                    book = self._metadata_in_cache(u, v['extension'], v['last_modified'])
+                for r in books_on_device:
+                    book = self._metadata_in_cache(r['uuid'], r['extension'], r['last_modified'])
                     if book:
                         bl.add_book(book, replace_metadata=True)
                     else:
-                        books_to_send.append(v['priKey'])
+                        books_to_send.append(r['priKey'])
 
                 count = len(books_to_send)
                 self._debug('caching. Need count from device', count)
