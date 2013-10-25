@@ -30,6 +30,7 @@ class NamespacedHTMLPresent(ValueError):
         ValueError.__init__(self, prefix)
         self.prefix = prefix
 
+# Nodes {{{
 def create_lxml_context():
     parser = XMLParser(no_network=True)
     parser.set_element_class_lookup(ElementDefaultClassLookup(element=Element, comment=Comment))
@@ -212,6 +213,7 @@ class DocType(object):
     def __init__(self, name, public_id, system_id):
         self.text = self.name = name
         self.public_id, self.system_id = public_id, system_id
+# }}}
 
 def process_attribs(attrs, nsmap):
     attribs = {}
