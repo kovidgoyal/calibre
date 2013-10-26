@@ -1019,9 +1019,7 @@ def getPhases(debug):
                 assert self.parser.innerHTML
             else:
                 self.parser.framesetOK = False
-                for attr, value in token["data"].items():
-                    if attr not in self.tree.openElements[1].attributes:
-                        self.tree.openElements[1].attributes[attr] = value
+                self.tree.apply_body_attributes(token['data'])
 
         def startTagFrameset(self, token):
             self.parser.parseError("unexpected-start-tag", {"name": "frameset"})

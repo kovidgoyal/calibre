@@ -367,6 +367,18 @@ class TreeBuilder(BaseTreeBuilder):
                 for child in html:
                     newroot.append(copy.copy(child))
 
+    def apply_body_attributes(self, attrs):
+        body = self.openElements[1]
+        nsmap = body.nsmap.copy()
+        attribs = process_attribs(attrs, nsmap)
+        for k, v in attribs.iteritems():
+            if k not in body.attrib:
+                try:
+                    body.set(k, v)
+                except ValueError:
+                    body.set(to_xml_name(k), v)
+        # We ignore xmlns attributes on non-first <body> tags
+
     def insertComment(self, token, parent=None):
         if parent is None:
             parent = self.openElements[-1]
@@ -424,6 +436,18 @@ class NoNamespaceTreeBuilder(TreeBuilder):
                     html.set(k, v)
                 except ValueError:
                     html.set(to_xml_name(k), v)
+
+    def apply_body_attributes(self, attrs):
+        if not attrs:
+            return
+        body = self.openElements[1]
+        attribs = process_namespace_free_attribs(attrs)
+        for k, v in attribs.iteritems():
+            if k not in body.attrib:
+                try:
+                    body.set(k, v)
+                except ValueError:
+                    body.set(to_xml_name(k), v)
 
 # Input Stream {{{
 _regex_cache = {}
