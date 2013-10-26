@@ -949,17 +949,8 @@ def getPhases(debug):
             self.endTagHandler.default = self.endTagOther
 
         def isMatchingFormattingElement(self, node1, node2):
-            if node1.name != node2.name or node1.namespace != node2.namespace:
-                return False
-            elif len(node1.attributes) != len(node2.attributes):
-                return False
-            else:
-                attributes1 = sorted(node1.attributes.items())
-                attributes2 = sorted(node2.attributes.items())
-                for attr1, attr2 in zip(attributes1, attributes2):
-                    if attr1 != attr2:
-                        return False
-            return True
+            return (node1.name == node2.name and node1.namespace ==
+                    node2.namespace and node1.attributes == node2.attributes)
 
         # helper
         def addFormattingElement(self, token):
