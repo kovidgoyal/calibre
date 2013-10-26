@@ -276,8 +276,8 @@ class TreeBuilder(object):
 
     def apply_body_attributes(self, attrs):
         for attr, value in attrs.items():
-            if attr not in self.tree.openElements[1].attributes:
-                self.tree.openElements[1].attributes[attr] = value
+            if attr not in self.openElements[1].attributes:
+                self.openElements[1].attributes[attr] = value
 
     def _getInsertFromTable(self):
         return self._insertFromTable
