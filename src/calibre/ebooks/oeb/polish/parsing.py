@@ -23,8 +23,9 @@ from calibre.utils.cleantext import clean_xml_chars
 
 infoset_filter = InfosetFilter()
 to_xml_name = infoset_filter.toXmlName
-known_namespaces = {namespaces[k]:k for k in ('mathml', 'svg')}
+known_namespaces = {namespaces[k]:k for k in ('mathml', 'svg', 'xlink')}
 html_ns = namespaces['html']
+xlink_ns = namespaces['xlink']
 
 class NamespacedHTMLPresent(ValueError):
 
@@ -213,6 +214,11 @@ def process_attribs(attrs, nsmap):
                 else:
                     nsmap[name] = v
             else:
+                if k[2] == xlink_ns and 'xlink' not in nsmap:
+                    for prefix, ns in tuple(nsmap.iteritems()):
+                        if ns == xlink_ns:
+                            del nsmap[prefix]
+                    nsmap['xlink'] = xlink_ns
                 attribs['{%s}%s' % (k[2], k[1])] = v
         else:
             if ':' in k:
@@ -283,13 +289,14 @@ class TreeBuilder(BaseTreeBuilder):
             attribs = {to_xml_name(k):v for k, v in attribs.iteritems()}
             elem = self.lxml_context.makeelement('{%s}%s' % (namespace, to_xml_name(name)), attrib=attribs, nsmap=nsmap)
 
-        # Ensure that svg and mathml elements get nice namespace prefixes if
-        # the input document is HTML 5 with no namespace information
-        if elem.prefix is not None and elem.prefix.startswith('ns') and namespace not in set(nsmap.itervalues()) and namespace in known_namespaces:
-            prefix = known_namespaces[namespace]
-            if prefix not in nsmap:
-                nsmap[prefix] = namespace
-                elem = self.lxml_context.makeelement(elem.tag, attrib=elem.attrib, nsmap=nsmap)
+        # Ensure that svg and mathml elements get no namespace prefixes
+        if elem.prefix is not None and namespace in known_namespaces:
+            for k, v in tuple(nsmap.iteritems()):
+                if v == namespace:
+                    del nsmap[k]
+            nsmap[None] = namespace
+            elem = self.lxml_context.makeelement(elem.tag, attrib=elem.attrib, nsmap=nsmap)
+
         # Keep a reference to elem so that lxml does not delete and re-create
         # it, losing the name related attributes
         self.proxy_cache.append(elem)
@@ -422,7 +429,7 @@ def parse(raw, decoder=None, log=None, discard_namespaces=False):
 if __name__ == '__main__':
     from lxml import etree
     # root = parse('\n<html><head><title>a\n</title><p>&nbsp;\n<b>b', discard_namespaces=False)
-    root = parse('\n<html><p><svg><image /><b></svg>&nbsp;\n<b>xxx', discard_namespaces=True)
+    root = parse('\n<html><p><svg viewbox="0 0 0 0"><image xlink:href="xxx"/><b></svg>&nbsp;\n<b>xxx', discard_namespaces=False)
     print (etree.tostring(root, encoding='utf-8'))
     print()
 
