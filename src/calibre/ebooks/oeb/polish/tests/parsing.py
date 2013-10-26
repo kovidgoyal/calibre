@@ -141,4 +141,13 @@ class ParsingTests(BaseTest):
             test(self, parse)
 
         root = parse('<html><p><svg><image /><b></svg>&nbsp;\n<b>xxx', discard_namespaces=True)
+        self.assertTrue(root.xpath('//b'), 'Namespaces not discarded')
         self.assertFalse(root.xpath('//svg/b'), 'The <b> was not moved out of <svg>')
+
+        for ds in (False, True):
+            src = '\n<html>\n<p>\n<svg><image />\n<b></svg>&nbsp'
+            root = parse(src, discard_namespaces=ds)
+            for tag, lnum in {'html':2, 'head':3, 'body':3, 'p':3, 'svg':4, 'image':4, 'b':5}.iteritems():
+                elem = root.xpath('//*[local-name()="%s"]' % tag)[0]
+                self.assertEqual(lnum, elem.sourceline, 'Line number incorrect for %s, source: %s:' % (tag, src))
+

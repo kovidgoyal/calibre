@@ -35,10 +35,11 @@ class HTMLTokenizer(object):
     """
 
     def __init__(self, stream, encoding=None, parseMeta=True, useChardet=True,
-                 lowercaseElementName=True, lowercaseAttrName=True, parser=None):
+                 lowercaseElementName=True, lowercaseAttrName=True, parser=None, track_positions=False):
 
         self.stream = HTMLInputStream(stream, encoding, parseMeta, useChardet)
         self.parser = parser
+        self.track_positions = track_positions
 
         # Perform case conversions?
         self.lowercaseElementName = lowercaseElementName
@@ -378,6 +379,8 @@ class HTMLTokenizer(object):
                                  "name": data, "data": [],
                                  "selfClosing": False,
                                  "selfClosingAcknowledged": False}
+            if self.track_positions:
+                self.currentToken['position'] = (self.stream.position(), False)
             self.state = self.tagNameState
         elif data == ">":
             # XXX In theory it could be something besides a tag name. But

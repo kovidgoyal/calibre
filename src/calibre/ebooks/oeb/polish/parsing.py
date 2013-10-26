@@ -256,8 +256,9 @@ class TreeBuilder(BaseTreeBuilder):
     documentClass = Document
     doctypeClass = DocType
 
-    def __init__(self, namespaceHTMLElements=True):
+    def __init__(self, namespaceHTMLElements=True, linenumber_attribute=None):
         BaseTreeBuilder.__init__(self, namespaceHTMLElements)
+        self.linenumber_attribute = linenumber_attribute
         self.lxml_context = create_lxml_context()
         self.elementClass = partial(ElementFactory, context=self.lxml_context)
         self.proxy_cache = []
@@ -304,6 +305,20 @@ class TreeBuilder(BaseTreeBuilder):
         elem.name = token_name
         elem.namespace = elem.nsmap[elem.prefix]
         elem.nameTuple = (elem.nsmap[elem.prefix], elem.name)
+        position = token.get('position', None)
+        if position is not None:
+            # Unfortunately, libxml2 can only store line numbers upto 65535
+            # (unsigned short). If you really need to workaround this, use the
+            # patch here:
+            # https://bug325533.bugzilla-attachments.gnome.org/attachment.cgi?id=56951
+            # (replacing int with size_t) and patching lxml correspondingly to
+            # get rid of the OverflowError
+            try:
+                elem.sourceline = position[0][0]
+            except OverflowError:
+                elem.sourceline = 65535
+            if self.linenumber_attribute is not None:
+                elem.set(self.linenumber_attribute, str(position[0][0]))
         return elem
 
     def insertElementNormal(self, token):
@@ -367,8 +382,9 @@ def process_namespace_free_attribs(attrs):
 
 class NoNamespaceTreeBuilder(TreeBuilder):
 
-    def __init__(self, namespaceHTMLElements=False):
+    def __init__(self, namespaceHTMLElements=False, linenumber_attribute=None):
         BaseTreeBuilder.__init__(self, namespaceHTMLElements)
+        self.linenumber_attribute = linenumber_attribute
         self.lxml_context = create_lxml_context()
         self.elementClass = partial(ElementFactory, context=self.lxml_context)
         self.proxy_cache = []
@@ -387,6 +403,14 @@ class NoNamespaceTreeBuilder(TreeBuilder):
         elem.name = elem.tag
         elem.namespace = token.get('namespace', self.defaultNamespace)
         elem.nameTuple = (elem.namespace or html_ns, elem.name)
+        position = token.get('position', None)
+        if position is not None:
+            try:
+                elem.sourceline = position[0][0]
+            except OverflowError:
+                elem.sourceline = 65535
+            if self.linenumber_attribute is not None:
+                elem.set(self.linenumber_attribute, str(position[0][0]))
         return elem
 
     def apply_html_attributes(self, attrs):
@@ -401,6 +425,7 @@ class NoNamespaceTreeBuilder(TreeBuilder):
                 except ValueError:
                     html.set(to_xml_name(k), v)
 
+# Input Stream {{{
 _regex_cache = {}
 
 class FastStream(object):
@@ -414,7 +439,7 @@ class FastStream(object):
         self.charEncoding = ("utf-8", "certain")
         self.track_position = track_position
         if track_position:
-            self.new_lines = tuple(m.start() for m in re.finditer(r'\n', raw))
+            self.new_lines = tuple(m.start() + 1 for m in re.finditer(r'\n', raw))
 
     def reset(self):
         self.pos = 0
@@ -451,17 +476,24 @@ class FastStream(object):
     def position(self):
         if not self.track_position:
             return (-1, -1)
-        lnum = bisect(self.new_lines, self.pos)
-        if lnum == 0:
-            return (1, self.pos)
-        return (lnum, self.pos - self.new_lines[lnum - 1])
+        pos = self.pos
+        lnum = bisect(self.new_lines, pos)
+        # lnum is the line from which the next char() will come, therefore the
+        # current char is a \n and \n is given the line number of the line it
+        # creates.
+        try:
+            offset = self.new_lines[lnum - 1] - pos
+        except IndexError:
+            offset = pos
+        return (lnum + 1, offset)
+# }}}
 
 if len("\U0010FFFF") == 1:  # UCS4 build
     replace_chars = re.compile("[\uD800-\uDFFF]")
 else:
     replace_chars = re.compile("([\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?<![\uD800-\uDBFF])[\uDC00-\uDFFF])")
 
-def parse(raw, decoder=None, log=None, discard_namespaces=False, line_numbers=True):
+def parse(raw, decoder=None, log=None, discard_namespaces=False, line_numbers=True, linenumber_attribute=None):
     if isinstance(raw, bytes):
         raw = xml_to_unicode(raw)[0] if decoder is None else decoder(raw)
     raw = fix_self_closing_cdata_tags(raw)  # TODO: Handle this in the parser
@@ -471,10 +503,10 @@ def parse(raw, decoder=None, log=None, discard_namespaces=False, line_numbers=Tr
 
     stream_class = partial(FastStream, track_position=line_numbers)
     stream = stream_class(raw)
-    builder = NoNamespaceTreeBuilder if discard_namespaces else TreeBuilder
+    builder = partial(NoNamespaceTreeBuilder if discard_namespaces else TreeBuilder, linenumber_attribute=linenumber_attribute)
     while True:
         try:
-            parser = HTMLParser(tree=builder, namespaceHTMLElements=not discard_namespaces)
+            parser = HTMLParser(tree=builder, track_positions=line_numbers, namespaceHTMLElements=not discard_namespaces)
             with warnings.catch_warnings():
                 warnings.simplefilter('ignore', category=DataLossWarning)
                 try:
@@ -495,8 +527,8 @@ def parse(raw, decoder=None, log=None, discard_namespaces=False, line_numbers=Tr
 
 if __name__ == '__main__':
     from lxml import etree
-    # root = parse('\n<html><head><title>a\n</title><p>&nbsp;\n<b>b', discard_namespaces=False)
-    root = parse('\n<html><p><svg viewbox="0 0 0 0"><image xlink:href="xxx"/><b></svg>&nbsp;\n<b>xxx', discard_namespaces=False)
+    root = parse('\n<html><head><title>a\n</title><p>&nbsp;\n<b>b', discard_namespaces=False)
+    # root = parse('\n<html><p><svg viewbox="0 0 0 0"><image xlink:href="xxx"/><b></svg>&nbsp;\n<b>xxx', discard_namespaces=False)
     print (etree.tostring(root, encoding='utf-8'))
     print()
 
