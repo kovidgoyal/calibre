@@ -9,6 +9,7 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 import copy, re, warnings
 from functools import partial
 from bisect import bisect
+from collections import OrderedDict
 
 from lxml.etree import ElementBase, XMLParser, ElementDefaultClassLookup, CommentBase
 
@@ -203,7 +204,7 @@ def create_lxml_context():
 # }}}
 
 def process_attribs(attrs, nsmap):
-    attribs = {}
+    attrib_name_map = {}
     namespaced_attribs = {}
     xmlns = namespaces['xmlns']
     for k, v in attrs.iteritems():
@@ -220,7 +221,7 @@ def process_attribs(attrs, nsmap):
                         if ns == xlink_ns:
                             del nsmap[prefix]
                     nsmap['xlink'] = xlink_ns
-                attribs['{%s}%s' % (k[2], k[1])] = v
+                attrib_name_map[k] = '{%s}%s' % (k[2], k[1])
         else:
             if ':' in k:
                 if k.startswith('xmlns') and (k.startswith('xmlns:') or k == 'xmlns'):
@@ -228,27 +229,46 @@ def process_attribs(attrs, nsmap):
                     if prefix is not None:
                         # Use an existing prefix for this namespace, if
                         # possible
-                        existing = {v:k for k, v in nsmap.iteritems()}.get(v, False)
+                        existing = {x:k for k, x in nsmap.iteritems()}.get(v, False)
                         if existing is not False:
                             prefix = existing
                     nsmap[prefix] = v
                 else:
                     namespaced_attribs[k] = v
             else:
-                attribs[k] = v
+                attrib_name_map[k] = k
 
+    xml_lang = None
     for k, v in namespaced_attribs.iteritems():
         prefix, name = k.partition(':')[0::2]
         if prefix == 'xml':
             if name == 'lang':
-                attribs['lang'] = attribs.get('lang', v)
+                xml_lang = v
             continue
         ns = nsmap.get(prefix, None)
         if ns is not None:
             name = '{%s}%s' % (ns, name)
-        attribs[name] =v
+        attrib_name_map[k] = name
 
-    return attribs
+    ans = OrderedDict((attrib_name_map.get(k, None), v) for k, v in attrs.iteritems())
+    ans.pop(None, None)
+    if xml_lang:
+        ans['lang'] = ans.get('lang', xml_lang)
+    return ans
+
+def makeelement_ns(ctx, namespace, name, attrib, nsmap):
+    try:
+        elem = ctx.makeelement('{%s}%s' % (namespace, name), nsmap=nsmap)
+    except ValueError:
+        elem = ctx.makeelement('{%s}%s' % (namespace, to_xml_name(name)), nsmap=nsmap)
+    # Unfortunately, lxml randomizes attrib order if passed in the makeelement
+    # constructor, therefore they have to be set one by one.
+    for k, v in attrib.iteritems():
+        try:
+            elem.set(k, v)
+        except ValueError:
+            elem.set(to_xml_name(k), v)
+    return elem
 
 class TreeBuilder(BaseTreeBuilder):
 
@@ -285,11 +305,7 @@ class TreeBuilder(BaseTreeBuilder):
                 raise NamespacedHTMLPresent(name.rpartition(':')[0])
             prefix, name = name.partition(':')[0::2]
             namespace = nsmap.get(prefix, namespace)
-        try:
-            elem = self.lxml_context.makeelement('{%s}%s' % (namespace, name), attrib=attribs, nsmap=nsmap)
-        except ValueError:
-            attribs = {to_xml_name(k):v for k, v in attribs.iteritems()}
-            elem = self.lxml_context.makeelement('{%s}%s' % (namespace, to_xml_name(name)), attrib=attribs, nsmap=nsmap)
+        elem = makeelement_ns(self.lxml_context, namespace, name, attribs, nsmap)
 
         # Ensure that svg and mathml elements get no namespace prefixes
         if elem.prefix is not None and namespace in known_namespaces:
@@ -297,7 +313,10 @@ class TreeBuilder(BaseTreeBuilder):
                 if v == namespace:
                     del nsmap[k]
             nsmap[None] = namespace
-            elem = self.lxml_context.makeelement(elem.tag, attrib=elem.attrib, nsmap=nsmap)
+            nelem = self.lxml_context.makeelement(elem.tag, nsmap=nsmap)
+            for k, v in elem.items():  # Only elem.items() preserves attrib order
+                nelem.set(k, v)
+            elem = nelem
 
         # Keep a reference to elem so that lxml does not delete and re-create
         # it, losing the name related attributes
@@ -385,12 +404,26 @@ class TreeBuilder(BaseTreeBuilder):
         parent.appendChild(Comment(token["data"].replace('--', '- -')))
 
 def process_namespace_free_attribs(attrs):
-    attribs = {k:v for k, v in attrs.iteritems() if ':' not in k}
-    for k in set(attrs) - set(attribs):
+    anm = {k:k for k, v in attrs.iteritems() if ':' not in k}
+    for k in frozenset(attrs) - frozenset(anm):
         prefix, name = k.partition(':')[0::2]
-        if prefix != 'xmlns' and name not in attribs:
-            attribs[name] = attrs[k]
-    return attribs
+        if prefix != 'xmlns' and name not in anm:
+            anm[name] = k
+    ans = OrderedDict((anm.get(k, None), v) for k, v in attrs.iteritems())
+    ans.pop(None, None)
+    return ans
+
+def makeelement(ctx, name, attrib):
+    try:
+        elem = ctx.makeelement(name)
+    except ValueError:
+        elem = ctx.makeelement(to_xml_name(name))
+    for k, v in attrib.iteritems():
+        try:
+            elem.set(k, v)
+        except ValueError:
+            elem.set(to_xml_name(k), v)
+    return elem
 
 class NoNamespaceTreeBuilder(TreeBuilder):
 
@@ -404,11 +437,7 @@ class NoNamespaceTreeBuilder(TreeBuilder):
     def createElement(self, token, nsmap=None):
         name = token['name'].rpartition(':')[2]
         attribs = process_namespace_free_attribs(token['data'])
-        try:
-            elem = self.lxml_context.makeelement(name, attrib=attribs)
-        except ValueError:
-            attribs = {to_xml_name(k):v for k, v in attribs.iteritems()}
-            elem = self.lxml_context.makeelement(to_xml_name(name), attrib=attribs)
+        elem = makeelement(self.lxml_context, name, attribs)
         # Keep a reference to elem so that lxml does not delete and re-create
         # it, losing _namespace
         self.proxy_cache.append(elem)
@@ -551,8 +580,7 @@ def parse(raw, decoder=None, log=None, discard_namespaces=False, line_numbers=Tr
 
 if __name__ == '__main__':
     from lxml import etree
-    root = parse('\n<html><head><title>a\n</title><p>&nbsp;\n<b>b', discard_namespaces=False)
-    # root = parse('\n<html><p><svg viewbox="0 0 0 0"><image xlink:href="xxx"/><b></svg>&nbsp;\n<b>xxx', discard_namespaces=False)
+    root = parse('\n<html><head><title>a\n</title><p b=1 c=2 a=0>&nbsp;\n<b>b<svg ass="wipe" viewbox="0">', discard_namespaces=False)
     print (etree.tostring(root, encoding='utf-8'))
     print()
 

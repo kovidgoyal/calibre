@@ -135,7 +135,15 @@ def multiple_html_and_body(test, parse_function):
     test.assertEqual(len(XPath('//h:html[@id and @lang]')(root)), 1, err)
     test.assertEqual(len(XPath('//h:body[@id and @lang]')(root)), 1, err)
 
-basic_checks = (nonvoid_cdata_elements, namespaces, space_characters, case_insensitive_element_names, entities, multiple_html_and_body)
+def attribute_replacement(test, parse_function):
+    markup = '<html><body><svg viewbox="0"></svg><svg xmlns="%s" viewbox="1">' % SVG_NS
+    root = parse_function(markup)
+    err = 'SVG attributes not normalized, parsed markup:\n' + etree.tostring(root)
+    test.assertEqual(len(XPath('//svg:svg[@viewBox]')(root)), 2, err)
+
+basic_checks = (nonvoid_cdata_elements, namespaces, space_characters,
+                case_insensitive_element_names, entities,
+                multiple_html_and_body, attribute_replacement)
 
 class ParsingTests(BaseTest):
 
@@ -159,4 +167,11 @@ class ParsingTests(BaseTest):
             for tag, lnum in {'html':2, 'head':3, 'body':3, 'p':3, 'svg':4, 'image':4, 'b':5}.iteritems():
                 elem = root.xpath('//*[local-name()="%s"]' % tag)[0]
                 self.assertEqual(lnum, elem.sourceline, 'Line number incorrect for %s, source: %s:' % (tag, src))
+
+        for ds in (False, True):
+            src = '\n<html>\n<p b=1 a=2 c=3 d=4 e=5 f=6 g=7 h=8><svg b=1 a=2 c=3 d=4 e=5 f=6 g=7 h=8>\n'
+            root = parse(src, discard_namespaces=ds)
+            for tag in ('p', 'svg'):
+                for i, (k, v) in enumerate(root.xpath('//*[local-name()="%s"]' % tag)[0].items()):
+                    self.assertEqual(i+1, int(v))
 
