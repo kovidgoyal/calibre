@@ -8,10 +8,11 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import copy, re, warnings
 from functools import partial
+from bisect import bisect
 
 from lxml.etree import ElementBase, XMLParser, ElementDefaultClassLookup, CommentBase
 
-from html5lib.constants import namespaces, tableInsertModeElements
+from html5lib.constants import namespaces, tableInsertModeElements, EOF
 from html5lib.treebuilders._base import TreeBuilder as BaseTreeBuilder
 from html5lib.ihatexml import InfosetFilter, DataLossWarning
 from html5lib.html5parser import HTMLParser
@@ -400,11 +401,76 @@ class NoNamespaceTreeBuilder(TreeBuilder):
                 except ValueError:
                     html.set(to_xml_name(k), v)
 
-def parse(raw, decoder=None, log=None, discard_namespaces=False):
+_regex_cache = {}
+
+class FastStream(object):
+
+    __slots__ = ('raw', 'pos', 'errors', 'new_lines', 'track_position', 'charEncoding')
+
+    def __init__(self, raw, track_position=False):
+        self.raw = raw
+        self.pos = 0
+        self.errors = []
+        self.charEncoding = ("utf-8", "certain")
+        self.track_position = track_position
+        if track_position:
+            self.new_lines = tuple(m.start() for m in re.finditer(r'\n', raw))
+
+    def reset(self):
+        self.pos = 0
+
+    def char(self):
+        try:
+            ans = self.raw[self.pos]
+        except IndexError:
+            return EOF
+        self.pos += 1
+        return ans
+
+    def unget(self, char):
+        if char is not None:
+            self.pos = max(0, self.pos - 1)
+
+    def charsUntil(self, characters, opposite=False):
+        # Use a cache of regexps to find the required characters
+        try:
+            chars = _regex_cache[(characters, opposite)]
+        except KeyError:
+            regex = "".join(["\\x%02x" % ord(c) for c in characters])
+            if not opposite:
+                regex = "^%s" % regex
+            chars = _regex_cache[(characters, opposite)] = re.compile("[%s]+" % regex)
+
+        # Find the longest matching prefix
+        m = chars.match(self.raw, self.pos)
+        if m is None:
+            return ''
+        self.pos = m.end()
+        return m.group()
+
+    def position(self):
+        if not self.track_position:
+            return (-1, -1)
+        lnum = bisect(self.new_lines, self.pos)
+        if lnum == 0:
+            return (1, self.pos)
+        return (lnum, self.pos - self.new_lines[lnum - 1])
+
+if len("\U0010FFFF") == 1:  # UCS4 build
+    replace_chars = re.compile("[\uD800-\uDFFF]")
+else:
+    replace_chars = re.compile("([\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?<![\uD800-\uDBFF])[\uDC00-\uDFFF])")
+
+def parse(raw, decoder=None, log=None, discard_namespaces=False, line_numbers=True):
     if isinstance(raw, bytes):
         raw = xml_to_unicode(raw)[0] if decoder is None else decoder(raw)
     raw = fix_self_closing_cdata_tags(raw)  # TODO: Handle this in the parser
     raw = xml_replace_entities(raw)
+    raw = raw.replace('\r\n', '\n').replace('\r', '\n')
+    raw = replace_chars.sub('', raw)
+
+    stream_class = partial(FastStream, track_position=line_numbers)
+    stream = stream_class(raw)
     builder = NoNamespaceTreeBuilder if discard_namespaces else TreeBuilder
     while True:
         try:
@@ -412,11 +478,12 @@ def parse(raw, decoder=None, log=None, discard_namespaces=False):
             with warnings.catch_warnings():
                 warnings.simplefilter('ignore', category=DataLossWarning)
                 try:
-                    parser.parse(raw, parseMeta=False, useChardet=False)
+                    parser.parse(stream, parseMeta=False, useChardet=False)
                 finally:
                     parser.tree.proxy_cache = None
         except NamespacedHTMLPresent as err:
             raw = re.sub(r'<\s*/{0,1}(%s:)' % err.prefix, lambda m: m.group().replace(m.group(1), ''), raw, flags=re.I)
+            stream = stream_class(raw)
             continue
         break
     root = parser.tree.getDocument()
