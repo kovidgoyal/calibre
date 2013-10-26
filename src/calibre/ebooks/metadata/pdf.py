@@ -10,7 +10,7 @@ from functools import partial
 from calibre import prints
 from calibre.constants import iswindows
 from calibre.ptempfile import TemporaryDirectory
-from calibre.ebooks.metadata import MetaInformation, string_to_authors
+from calibre.ebooks.metadata import MetaInformation, string_to_authors, check_isbn
 from calibre.utils.ipc.simple_worker import fork_job, WorkerError
 
 #_isbn_pat = re.compile(r'ISBN[: ]*([-0-9Xx]+)')
@@ -107,7 +107,7 @@ def get_metadata(stream, cover=True):
     else:
         au = string_to_authors(au)
     mi = MetaInformation(title, au)
-    #if isbn is not None:
+    # if isbn is not None:
     #    mi.isbn = isbn
 
     creator = info.get('Creator', None)
@@ -118,6 +118,10 @@ def get_metadata(stream, cover=True):
     mi.tags = []
     if keywords:
         mi.tags = [x.strip() for x in keywords.split(',')]
+        isbn = [check_isbn(x) for x in mi.tags if check_isbn(x)]
+        if isbn:
+            mi.isbn = isbn = isbn[0]
+        mi.tags = [x for x in mi.tags if check_isbn(x) != isbn]
 
     subject = info.get('Subject', None)
     if subject:
