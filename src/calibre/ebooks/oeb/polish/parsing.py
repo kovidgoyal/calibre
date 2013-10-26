@@ -546,7 +546,7 @@ if len("\U0010FFFF") == 1:  # UCS4 build
 else:
     replace_chars = re.compile("([\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?<![\uD800-\uDBFF])[\uDC00-\uDFFF])")
 
-def parse(raw, decoder=None, log=None, discard_namespaces=False, line_numbers=True, linenumber_attribute=None):
+def parse_html5(raw, decoder=None, log=None, discard_namespaces=False, line_numbers=True, linenumber_attribute=None):
     if isinstance(raw, bytes):
         raw = xml_to_unicode(raw)[0] if decoder is None else decoder(raw)
     raw = fix_self_closing_cdata_tags(raw)  # TODO: Handle this in the parser
@@ -580,7 +580,7 @@ def parse(raw, decoder=None, log=None, discard_namespaces=False, line_numbers=Tr
 
 if __name__ == '__main__':
     from lxml import etree
-    root = parse('\n<html><head><title>a\n</title><p b=1 c=2 a=0>&nbsp;\n<b>b<svg ass="wipe" viewbox="0">', discard_namespaces=False)
+    root = parse_html5('\n<html><head><title>a\n</title><p b=1 c=2 a=0>&nbsp;\n<b>b<svg ass="wipe" viewbox="0">', discard_namespaces=False)
     print (etree.tostring(root, encoding='utf-8'))
     print()
 
