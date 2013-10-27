@@ -195,6 +195,7 @@ class ANDROID(USBMS):
             0x17ef : {
                     0x7421 : [0x0216],
                     0x741b : [0x9999],
+                    0x7640 : [0x0255],
             },
 
             # Pantech
@@ -251,7 +252,7 @@ class ANDROID(USBMS):
             'S5830I_CARD', 'MID7042', 'LINK-CREATE', '7035', 'VIEWPAD_7E',
             'NOVO7', 'MB526', '_USB#WYK7MSF8KE', 'TABLET_PC', 'F', 'MT65XX_MS',
             'ICS', 'E400', '__FILE-STOR_GADG', 'ST80208-1', 'GT-S5660M_CARD', 'XT894', '_USB',
-            'PROD_TAB13-201', 'URFPAD2', 'MID1126', 'ST10216-1', 'S5360L_CARD',
+            'PROD_TAB13-201', 'URFPAD2', 'MID1126', 'ST10216-1', 'S5360L_CARD', 'IDEATAB_A1000-F',
     ]
     WINDOWS_CARD_A_MEM = ['ANDROID_PHONE', 'GT-I9000_CARD', 'SGH-I897',
             'FILE-STOR_GADGET', 'SGH-T959_CARD', 'SGH-T959', 'SAMSUNG_ANDROID', 'GT-P1000_CARD',
