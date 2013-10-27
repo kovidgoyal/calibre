@@ -64,7 +64,7 @@ def toc_as_html(toc, pdf, opts):
             )
         ),
         BODY(
-            H1(_('Table of Contents')),
+            H1(opts.toc_title or _('Table of Contents')),
             TABLE(),
         )
     )

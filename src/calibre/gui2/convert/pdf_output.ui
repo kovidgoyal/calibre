@@ -232,6 +232,19 @@
      </property>
     </widget>
    </item>
+   <item row="8" column="1">
+    <widget class="QLineEdit" name="opt_toc_title"/>
+   </item>
+   <item row="8" column="0">
+    <widget class="QLabel" name="label_14">
+     <property name="text">
+      <string>&amp;Title for ToC:</string>
+     </property>
+     <property name="buddy">
+      <cstring>opt_toc_title</cstring>
+     </property>
+    </widget>
+   </item>
   </layout>
  </widget>
  <resources/>

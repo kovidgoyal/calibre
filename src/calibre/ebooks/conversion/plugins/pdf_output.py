@@ -112,6 +112,9 @@ class PDFOutput(OutputFormatPlugin):
         OptionRecommendation(name='pdf_add_toc', recommended_value=False,
             help=_('Add a Table of Contents at the end of the PDF that lists page numbers. '
                    'Useful if you want to print out the PDF. If this PDF is intended for electronic use, use the PDF Outline instead.')),
+        OptionRecommendation(name='toc_title', recommended_value=None,
+            help=_('Title for generated table of contents.')
+        ),
         ])
 
     def convert(self, oeb_book, output_path, input_plugin, opts, log):
