@@ -11,8 +11,9 @@ from threading import Thread
 from contextlib import closing
 from collections import defaultdict
 
-from PyQt4.Qt import (QToolButton, QDialog, QGridLayout, QIcon, QLabel, QDialogButtonBox,
-                      QFormLayout, QCheckBox, QWidget, QScrollArea, QVBoxLayout)
+from PyQt4.Qt import (
+    QToolButton, QDialog, QGridLayout, QIcon, QLabel, QDialogButtonBox,
+    QFormLayout, QCheckBox, QWidget, QScrollArea, QVBoxLayout, Qt, QListWidgetItem, QListWidget)
 
 from calibre.gui2.actions import InterfaceAction
 from calibre.gui2 import (error_dialog, Dispatcher, warning_dialog, gprefs,
@@ -90,10 +91,10 @@ def ask_about_cc_mismatch(gui, db, newdb, missing_cols, incompatible_cols):  # {
 
 class Worker(Thread):  # {{{
 
-    def __init__(self, ids, db, loc, progress, done, delete_after):
+    def __init__(self, ids, db, loc, progress, done, delete_after, add_duplicates):
         Thread.__init__(self)
         self.ids = ids
-        self.processed = set([])
+        self.processed = set()
         self.db = db
         self.loc = loc
         self.error = None
@@ -101,6 +102,8 @@ class Worker(Thread):  # {{{
         self.done = done
         self.delete_after = delete_after
         self.auto_merged_ids = {}
+        self.add_duplicates = add_duplicates
+        self.duplicate_ids = {}
 
     def run(self):
         try:
@@ -142,57 +145,68 @@ class Worker(Thread):  # {{{
                 fmts = []
             else:
                 fmts = fmts.split(',')
+            identical_book_list = set()
             paths = []
             for fmt in fmts:
                 p = self.db.format(x, fmt, index_is_id=True,
                     as_path=True)
                 if p:
                     paths.append(p)
-            automerged = False
-            if prefs['add_formats_to_existing']:
-                identical_book_list = newdb.find_identical_books(mi)
-                if identical_book_list:  # books with same author and nearly same title exist in newdb
-                    self.auto_merged_ids[x] = _('%(title)s by %(author)s')%\
-                    dict(title=mi.title, author=mi.format_field('authors')[1])
-                    automerged = True
-                    seen_fmts = set()
-                    for identical_book in identical_book_list:
-                        ib_fmts = newdb.formats(identical_book, index_is_id=True)
-                        if ib_fmts:
-                            seen_fmts |= set(ib_fmts.split(','))
-                        replace = gprefs['automerge'] == 'overwrite'
-                        self.add_formats(identical_book, paths, newdb,
-                                replace=replace)
+            try:
+                if not self.add_duplicates:
+                    if prefs['add_formats_to_existing'] or prefs['check_for_dupes_on_ctl']:
+                        # Scanning for dupes can be slow on a large library so
+                        # only do it if the option is set
+                        identical_book_list = newdb.find_identical_books(mi)
+                    if identical_book_list:  # books with same author and nearly same title exist in newdb
+                        if prefs['add_formats_to_existing']:
+                            self.automerge_book(x, mi, identical_book_list, paths, newdb)
+                        else:  # Report duplicates for later processing
+                            self.duplicate_ids[x] = (mi.title, mi.authors)
+                        continue
 
-                    if gprefs['automerge'] == 'new record':
-                        incoming_fmts = \
-                            set([os.path.splitext(path)[-1].replace('.',
-                                '').upper() for path in paths])
-
-                        if incoming_fmts.intersection(seen_fmts):
-                            # There was at least one duplicate format
-                            # so create a new record and put the
-                            # incoming formats into it
-                            # We should arguably put only the duplicate
-                            # formats, but no real harm is done by having
-                            # all formats
-                            newdb.import_book(mi, paths, notify=False, import_hooks=False,
-                                apply_import_tags=tweaks['add_new_book_tags_when_importing_books'],
-                                preserve_uuid=False)
-
-            if not automerged:
                 newdb.import_book(mi, paths, notify=False, import_hooks=False,
                     apply_import_tags=tweaks['add_new_book_tags_when_importing_books'],
                     preserve_uuid=self.delete_after)
                 co = self.db.conversion_options(x, 'PIPE')
                 if co is not None:
                     newdb.set_conversion_options(x, 'PIPE', co)
-            self.processed.add(x)
-            for path in paths:
-                try:
-                    os.remove(path)
-                except:
-                    pass
+                self.processed.add(x)
+            finally:
+                for path in paths:
+                    try:
+                        os.remove(path)
+                    except:
+                        pass
+
+    def automerge_book(self, book_id, mi, identical_book_list, paths, newdb):
+        self.auto_merged_ids[book_id] = _('%(title)s by %(author)s') % dict(title=mi.title, author=mi.format_field('authors')[1])
+        seen_fmts = set()
+        self.processed.add(book_id)
+        for identical_book in identical_book_list:
+            ib_fmts = newdb.formats(identical_book, index_is_id=True)
+            if ib_fmts:
+                seen_fmts |= set(ib_fmts.split(','))
+            replace = gprefs['automerge'] == 'overwrite'
+            self.add_formats(identical_book, paths, newdb,
+                    replace=replace)
+
+        if gprefs['automerge'] == 'new record':
+            incoming_fmts = \
+                set([os.path.splitext(path)[-1].replace('.',
+                    '').upper() for path in paths])
+
+            if incoming_fmts.intersection(seen_fmts):
+                # There was at least one duplicate format
+                # so create a new record and put the
+                # incoming formats into it
+                # We should arguably put only the duplicate
+                # formats, but no real harm is done by having
+                # all formats
+                newdb.import_book(mi, paths, notify=False, import_hooks=False,
+                    apply_import_tags=tweaks['add_new_book_tags_when_importing_books'],
+                    preserve_uuid=False)
+
 
 # }}}
 
@@ -240,6 +254,51 @@ class ChooseLibrary(QDialog):  # {{{
     @property
     def args(self):
         return (unicode(self.le.text()), self.delete_after_copy)
+# }}}
+
+class DuplicatesQuestion(QDialog):  # {{{
+
+    def __init__(self, parent, duplicates, loc):
+        QDialog.__init__(self, parent)
+        l = QVBoxLayout()
+        self.setLayout(l)
+        self.la = la = QLabel(_('Books with the same title and author as the following already exist in the library %s.'
+                                ' Select which books you want copied anyway.') %
+                              os.path.basename(loc))
+        la.setWordWrap(True)
+        l.addWidget(la)
+        self.setWindowTitle(_('Duplicate books'))
+        self.books = QListWidget(self)
+        self.items = []
+        for book_id, (title, authors) in duplicates.iteritems():
+            i = QListWidgetItem(_('%s by %s') % (title, ' & '.join(authors[:3])), self.books)
+            i.setData(Qt.UserRole, book_id)
+            i.setFlags(Qt.ItemIsUserCheckable | Qt.ItemIsEnabled)
+            i.setCheckState(Qt.Checked)
+            self.items.append(i)
+        l.addWidget(self.books)
+        self.bb = bb = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
+        bb.accepted.connect(self.accept)
+        bb.rejected.connect(self.reject)
+        self.a = b = bb.addButton(_('Select &all'), bb.ActionRole)
+        b.clicked.connect(self.select_all)
+        self.n = b = bb.addButton(_('Select &none'), bb.ActionRole)
+        b.clicked.connect(self.select_none)
+        l.addWidget(bb)
+        self.resize(600, 400)
+
+    def select_all(self):
+        for i in self.items:
+            i.setCheckState(Qt.Checked)
+
+    def select_none(self):
+        for i in self.items:
+            i.setCheckState(Qt.Unchecked)
+
+    @property
+    def ids(self):
+        return {i.data(Qt.UserRole).toInt()[0] for i in self.items if i.checkState() == Qt.Checked}
+
 # }}}
 
 # Static session-long set of pairs of libraries that have had their custom columns
@@ -323,20 +382,9 @@ class CopyToLibraryAction(InterfaceAction):
             return error_dialog(self.gui, _('No library'),
                     _('No library found at %s')%loc, show=True)
 
-        aname = _('Moving to') if delete_after else _('Copying to')
-        dtitle = '%s %s'%(aname, os.path.basename(loc))
-
-        self.pd = ProgressDialog(dtitle, min=0, max=len(ids)-1,
-                parent=self.gui, cancelable=False)
-
-        def progress(idx, title):
-            self.pd.set_msg(title)
-            self.pd.set_value(idx)
-
         # Open the new db so we can check the custom columns. We use only the
         # backend since we only need the custom column definitions, not the
         # rest of the data in the db.
-
         global libraries_with_checked_columns
 
         from calibre.db.legacy import create_backend
@@ -367,9 +415,26 @@ class CopyToLibraryAction(InterfaceAction):
         del newdb
         if not continue_processing:
             return
+        duplicate_ids = self.do_copy(ids, db, loc, delete_after, False)
+        if duplicate_ids:
+            d = DuplicatesQuestion(self.gui, duplicate_ids, loc)
+            if d.exec_() == d.Accepted:
+                ids = d.ids
+                if ids:
+                    self.do_copy(list(ids), db, loc, delete_after, add_duplicates=True)
+
+    def do_copy(self, ids, db, loc, delete_after, add_duplicates=False):
+        aname = _('Moving to') if delete_after else _('Copying to')
+        dtitle = '%s %s'%(aname, os.path.basename(loc))
+        self.pd = ProgressDialog(dtitle, min=0, max=len(ids)-1,
+                parent=self.gui, cancelable=False)
+
+        def progress(idx, title):
+            self.pd.set_msg(title)
+            self.pd.set_value(idx)
 
         self.worker = Worker(ids, db, loc, Dispatcher(progress),
-                             Dispatcher(self.pd.accept), delete_after)
+                             Dispatcher(self.pd.accept), delete_after, add_duplicates)
         self.worker.start()
 
         self.pd.exec_()
@@ -382,29 +447,31 @@ class CopyToLibraryAction(InterfaceAction):
             e, tb = self.worker.error
             error_dialog(self.gui, _('Failed'), _('Could not copy books: ') + e,
                     det_msg=tb, show=True)
-        else:
-            self.gui.status_bar.show_message(donemsg %
-                    dict(num=len(ids), loc=loc), 2000)
-            if self.worker.auto_merged_ids:
-                books = '\n'.join(self.worker.auto_merged_ids.itervalues())
-                info_dialog(self.gui, _('Auto merged'),
-                        _('Some books were automatically merged into existing '
-                            'records in the target library. Click Show '
-                            'details to see which ones. This behavior is '
-                            'controlled by the Auto merge option in '
-                            'Preferences->Adding books.'), det_msg=books,
-                        show=True)
-            if delete_after and self.worker.processed:
-                v = self.gui.library_view
-                ci = v.currentIndex()
-                row = None
-                if ci.isValid():
-                    row = ci.row()
+            return
 
-                v.model().delete_books_by_id(self.worker.processed,
-                        permanent=True)
-                self.gui.iactions['Remove Books'].library_ids_deleted(
-                        self.worker.processed, row)
+        self.gui.status_bar.show_message(donemsg %
+                dict(num=len(ids), loc=loc), 2000)
+        if self.worker.auto_merged_ids:
+            books = '\n'.join(self.worker.auto_merged_ids.itervalues())
+            info_dialog(self.gui, _('Auto merged'),
+                    _('Some books were automatically merged into existing '
+                        'records in the target library. Click Show '
+                        'details to see which ones. This behavior is '
+                        'controlled by the Auto merge option in '
+                        'Preferences->Adding books.'), det_msg=books,
+                    show=True)
+        if delete_after and self.worker.processed:
+            v = self.gui.library_view
+            ci = v.currentIndex()
+            row = None
+            if ci.isValid():
+                row = ci.row()
+
+            v.model().delete_books_by_id(self.worker.processed,
+                    permanent=True)
+            self.gui.iactions['Remove Books'].library_ids_deleted(
+                    self.worker.processed, row)
+        return self.worker.duplicate_ids
 
     def cannot_do_dialog(self):
         warning_dialog(self.gui, _('Not allowed'),

@@ -27,6 +27,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         r('read_file_metadata', prefs)
         r('swap_author_names', prefs)
         r('add_formats_to_existing', prefs)
+        r('check_for_dupes_on_ctl', prefs)
         r('preserve_date_on_ctl', gprefs)
         r('manual_add_auto_convert', gprefs)
         choices = [

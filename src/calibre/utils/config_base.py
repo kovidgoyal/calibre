@@ -398,6 +398,8 @@ def _prefs():
             help=_('Swap author first and last names when reading metadata'))
     c.add_opt('add_formats_to_existing', default=False,
             help=_('Add new formats to existing book records'))
+    c.add_opt('check_for_dupes_on_ctl', default=False,
+            help=_('Check for duplicates when copying to another library'))
     c.add_opt('installation_uuid', default=None, help='Installation UUID')
     c.add_opt('new_book_tags', default=[], help=_('Tags to apply to books added to the library'))
     c.add_opt('mark_new_books', default=False, help=_(
