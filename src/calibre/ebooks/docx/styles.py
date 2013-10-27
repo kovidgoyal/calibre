@@ -446,6 +446,9 @@ class Styles(object):
             /* In word all paragraphs have zero margins unless explicitly specified in a style */
             ul, ol, p, h1, h2, h3, h4, h5, h6 { margin: 0; padding: 0 }
 
+            /* The word hyperlink styling will set text-decoration to underline if needed */
+            a { text-decoration: none }
+
             sup.noteref a { text-decoration: none }
 
             h1.notes-header { page-break-before: always }
