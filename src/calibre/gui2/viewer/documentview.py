@@ -25,6 +25,7 @@ from calibre.gui2.viewer.position import PagePosition
 from calibre.gui2.viewer.config import config, ConfigDialog, load_themes
 from calibre.gui2.viewer.image_popup import ImagePopup
 from calibre.gui2.viewer.table_popup import TablePopup
+from calibre.gui2.viewer.inspector import WebInspector
 from calibre.ebooks.oeb.display.webview import load_html
 from calibre.constants import isxp, iswindows
 # }}}
@@ -479,6 +480,7 @@ class DocumentView(QWebView):  # {{{
         self.document = Document(self.shortcuts, parent=self,
                 debug_javascript=debug_javascript)
         self.setPage(self.document)
+        self.inspector = WebInspector(self, self.document)
         self.manager = None
         self._reference_mode = False
         self._ignore_scrollbar_signals = False
@@ -672,8 +674,7 @@ class DocumentView(QWebView):  # {{{
                 menu.addAction(self.manager.action_font_size_smaller)
 
         menu.addSeparator()
-        inspectAction = self.pageAction(self.document.InspectElement)
-        menu.addAction(inspectAction)
+        menu.addAction(_('Inspect'), self.inspect)
 
         if not text and img.isNull() and self.manager is not None:
             menu.addSeparator()
@@ -685,6 +686,11 @@ class DocumentView(QWebView):  # {{{
             menu.addAction(self.manager.action_quit)
 
         menu.exec_(ev.globalPos())
+
+    def inspect(self):
+        self.inspector.show()
+        self.inspector.raise_()
+        self.pageAction(self.document.InspectElement).trigger()
 
     def lookup(self, *args):
         if self.manager is not None:
