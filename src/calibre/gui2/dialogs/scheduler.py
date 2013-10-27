@@ -243,7 +243,6 @@ class SchedulerDialog(QDialog, Ui_Dialog):
         self.password.setEchoMode(self.password.Normal
                 if state == Qt.Checked else self.password.Password)
 
-
     def schedule_type_selected(self, *args):
         for i, st in enumerate(self.SCHEDULE_TYPES):
             if getattr(self, st).isChecked():
@@ -365,8 +364,10 @@ class SchedulerDialog(QDialog, Ui_Dialog):
         un = pw = ''
         if account_info is not None:
             un, pw = account_info[:2]
-            if not un: un = ''
-            if not pw: pw = ''
+            if not un:
+                un = ''
+            if not pw:
+                pw = ''
         self.username.setText(un)
         self.password.setText(pw)
         self.show_password.setChecked(False)
@@ -390,7 +391,8 @@ class SchedulerDialog(QDialog, Ui_Dialog):
         if scheduled:
             typ, sch, last_downloaded = schedule_info
             d = utcnow() - last_downloaded
-            def hm(x): return (x-x%3600)//3600, (x%3600 - (x%3600)%60)//60
+            def hm(x):
+                return (x-x%3600)//3600, (x%3600 - (x%3600)%60)//60
             hours, minutes = hm(d.seconds)
             tm = _('%(days)d days, %(hours)d hours'
                     ' and %(mins)d minutes ago')%dict(
@@ -417,10 +419,9 @@ class SchedulerDialog(QDialog, Ui_Dialog):
         self.keep_issues.setEnabled(self.add_title_tag.isChecked())
 
 
-
 class Scheduler(QObject):
 
-    INTERVAL = 1 # minutes
+    INTERVAL = 1  # minutes
 
     delete_old_news = pyqtSignal(object)
     start_recipe_fetch = pyqtSignal(object)
@@ -476,7 +477,6 @@ class Scheduler(QObject):
                 if ids:
                     self.delete_old_news.emit(ids)
         QTimer.singleShot(60 * 60 * 1000, self.oldest_check)
-
 
     def show_dialog(self, *args):
         self.lock.lock()
