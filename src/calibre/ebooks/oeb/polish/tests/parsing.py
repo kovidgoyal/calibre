@@ -6,6 +6,8 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
+from functools import partial
+
 from lxml import etree
 from html5lib.constants import cdataElements, rcdataElements
 
@@ -32,7 +34,7 @@ def namespaces(test, parse_function):
     def match_and_prefix(root, xpath, prefix, err=''):
         matches = XPath(xpath)(root)
         ae(len(matches), 1, err)
-        ae(matches[0].prefix, prefix)
+        ae(matches[0].prefix, prefix, err)
 
     markup = ''' <html xmlns="{xhtml}"><head><body id="test"></html> '''.format(xhtml=XHTML_NS)
     root = parse_function(markup)
@@ -175,3 +177,20 @@ class ParsingTests(BaseTest):
                 for i, (k, v) in enumerate(root.xpath('//*[local-name()="%s"]' % tag)[0].items()):
                     self.assertEqual(i+1, int(v))
 
+def timing():
+    import time, sys
+    from calibre.ebooks.chardet import xml_to_unicode
+    from html5lib import parse as vanilla
+    filename = sys.argv[-1]
+    with open(filename, 'rb') as f:
+        raw = f.read()
+    raw = xml_to_unicode(raw)[0]
+
+    for name, f in (('calibre', partial(parse, line_numbers=False)), ('html5lib', vanilla), ('calibre-old', html5_parse)):
+        timings = []
+        for i in xrange(5):
+            st = time.time()
+            f(raw)
+            timings.append(time.time() - st)
+        avg = sum(timings)/len(timings)
+        print ('Average time for %s: %.2g' % (name, avg))
