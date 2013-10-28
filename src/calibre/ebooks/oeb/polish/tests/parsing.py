@@ -188,7 +188,7 @@ def timing():
 
     for name, f in (('calibre', partial(parse, line_numbers=False)), ('html5lib', vanilla), ('calibre-old', html5_parse)):
         timings = []
-        for i in xrange(5):
+        for i in xrange(10):
             st = time.time()
             f(raw)
             timings.append(time.time() - st)
