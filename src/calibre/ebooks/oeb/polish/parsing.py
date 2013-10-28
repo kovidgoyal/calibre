@@ -10,7 +10,7 @@ import copy, re, warnings
 from functools import partial
 from bisect import bisect
 
-from lxml.etree import ElementBase, XMLParser, ElementDefaultClassLookup, CommentBase
+from lxml.etree import ElementBase, XMLParser, ElementDefaultClassLookup, CommentBase, fromstring, Element as LxmlElement
 
 from html5lib.constants import namespaces, tableInsertModeElements, EOF
 from html5lib.treebuilders._base import TreeBuilder as BaseTreeBuilder
@@ -18,7 +18,7 @@ from html5lib.ihatexml import InfosetFilter, DataLossWarning
 from html5lib.html5parser import HTMLParser
 
 from calibre import xml_replace_entities
-from calibre.ebooks.chardet import xml_to_unicode
+from calibre.ebooks.chardet import xml_to_unicode, strip_encoding_declarations
 from calibre.ebooks.oeb.parse_utils import fix_self_closing_cdata_tags
 from calibre.utils.cleantext import clean_xml_chars
 
@@ -560,12 +560,14 @@ if len("\U0010FFFF") == 1:  # UCS4 build
 else:
     replace_chars = re.compile("([\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?<![\uD800-\uDBFF])[\uDC00-\uDFFF])")
 
-def parse_html5(raw, decoder=None, log=None, discard_namespaces=False, line_numbers=True, linenumber_attribute=None):
+def parse_html5(raw, decoder=None, log=None, discard_namespaces=False, line_numbers=True, linenumber_attribute=None, replace_entities=True, fix_newlines=True):
     if isinstance(raw, bytes):
         raw = xml_to_unicode(raw)[0] if decoder is None else decoder(raw)
     raw = fix_self_closing_cdata_tags(raw)  # TODO: Handle this in the parser
-    raw = xml_replace_entities(raw)
-    raw = raw.replace('\r\n', '\n').replace('\r', '\n')
+    if replace_entities:
+        raw = xml_replace_entities(raw)
+    if fix_newlines:
+        raw = raw.replace('\r\n', '\n').replace('\r', '\n')
     raw = replace_chars.sub('', raw)
 
     stream_class = partial(FastStream, track_position=line_numbers)
@@ -591,6 +593,33 @@ def parse_html5(raw, decoder=None, log=None, discard_namespaces=False, line_numb
         raise ValueError('Failed to parse correctly, root has tag: %s and prefix: %s' % (root.tag, root.prefix))
     return root
 
+def parse(raw, decoder=None, log=None, line_numbers=True, linenumber_attribute=None):
+    if isinstance(raw, bytes):
+        raw = xml_to_unicode(raw)[0] if decoder is None else decoder(raw)
+    raw = xml_replace_entities(raw).replace('\0', '')  # Handle &#0;
+    raw = raw.replace('\r\n', '\n').replace('\r', '\n')
+
+    # Remove any preamble before the opening html tag as it can cause problems,
+    # especially doctypes, preserve the original linenumbers by inserting
+    # newlines at the start
+    pre = raw[:2048]
+    for match in re.finditer(r'<\s*html', pre, flags=re.I):
+        newlines = raw.count('\n', 0, match.start())
+        raw = ('\n' * newlines) + raw[match.start():]
+        break
+
+    raw = strip_encoding_declarations(raw)
+    try:
+        parser = XMLParser(no_network=True)
+        ans = fromstring(raw, parser=parser)
+        if linenumber_attribute:
+            for elem in ans.iter(LxmlElement):
+                if elem.sourceline is not None:
+                    elem.set(linenumber_attribute, str(elem.sourceline))
+    except Exception:
+        if log is not None:
+            log.exception('Failed to parse as XML, parsing as tag soup')
+        return parse_html5(raw, log=log, line_numbers=line_numbers, linenumber_attribute=linenumber_attribute, replace_entities=False, fix_newlines=False)
 
 if __name__ == '__main__':
     from lxml import etree
