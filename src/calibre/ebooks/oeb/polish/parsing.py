@@ -616,6 +616,7 @@ def parse(raw, decoder=None, log=None, line_numbers=True, linenumber_attribute=N
             for elem in ans.iter(LxmlElement):
                 if elem.sourceline is not None:
                     elem.set(linenumber_attribute, str(elem.sourceline))
+        return ans
     except Exception:
         if log is not None:
             log.exception('Failed to parse as XML, parsing as tag soup')

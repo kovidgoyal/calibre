@@ -30,6 +30,7 @@ from calibre.ebooks.oeb.base import (
     serialize, OEB_DOCS, _css_logger, OEB_STYLES, OPF2_NS, DC11_NS, OPF,
     rewrite_links, iterlinks, itercsslinks, urlquote, urlunquote)
 from calibre.ebooks.oeb.polish.errors import InvalidBook, DRMError
+from calibre.ebooks.oeb.polish.parsing import parse as parse_html_tweak
 from calibre.ebooks.oeb.parse_utils import NotHTML, parse_html, RECOVER_PARSER
 from calibre.ptempfile import PersistentTemporaryDirectory, PersistentTemporaryFile
 from calibre.utils.filenames import nlinks_file, hardlink_file
@@ -98,6 +99,7 @@ class Container(object):  # {{{
         self.log = log
         self.html_preprocessor = HTMLPreProcessor()
         self.css_preprocessor = CSSPreProcessor()
+        self.tweak_mode = False
 
         self.parsed_cache = {}
         self.mime_map = {}
@@ -110,7 +112,7 @@ class Container(object):  # {{{
 
         if clone_data is not None:
             self.cloned = True
-            for x in ('name_path_map', 'opf_name', 'mime_map', 'pretty_print', 'encoding_map'):
+            for x in ('name_path_map', 'opf_name', 'mime_map', 'pretty_print', 'encoding_map', 'tweak_mode'):
                 setattr(self, x, clone_data[x])
             self.opf_dir = os.path.dirname(self.name_path_map[self.opf_name])
             return
@@ -150,6 +152,7 @@ class Container(object):  # {{{
             'mime_map': self.mime_map.copy(),
             'pretty_print': set(self.pretty_print),
             'encoding_map': self.encoding_map.copy(),
+            'tweak_mode': self.tweak_mode,
             'name_path_map': {
                 name:os.path.join(dest_dir, os.path.relpath(path, self.root))
                 for name, path in self.name_path_map.iteritems()}
@@ -343,13 +346,16 @@ class Container(object):  # {{{
         return etree.fromstring(data, parser=RECOVER_PARSER)
 
     def parse_xhtml(self, data, fname):
-        try:
-            return parse_html(
-                data, log=self.log, decoder=self.decode,
-                preprocessor=self.html_preprocessor, filename=fname,
-                non_html_file_tags={'ncx'})
-        except NotHTML:
-            return self.parse_xml(data)
+        if self.tweak_mode:
+            return parse_html_tweak(data, log=self.log, decoder=self.decode)
+        else:
+            try:
+                return parse_html(
+                    data, log=self.log, decoder=self.decode,
+                    preprocessor=self.html_preprocessor, filename=fname,
+                    non_html_file_tags={'ncx'})
+            except NotHTML:
+                return self.parse_xml(data)
 
     def parse(self, path, mime):
         with open(path, 'rb') as src:
@@ -367,7 +373,8 @@ class Container(object):  # {{{
         log.setLevel(logging.WARN)
         log.raiseExceptions = False
         data = self.decode(data)
-        data = self.css_preprocessor(data)
+        if not self.tweak_mode:
+            data = self.css_preprocessor(data)
         parser = CSSParser(loglevel=logging.WARNING,
                            # We dont care about @import rules
                            fetcher=lambda x: (None, None), log=_css_logger)
@@ -1000,11 +1007,12 @@ class AZW3Container(Container):
         return set(self.name_path_map)
 # }}}
 
-def get_container(path, log=None, tdir=None):
+def get_container(path, log=None, tdir=None, tweak_mode=False):
     if log is None:
         log = default_log
     ebook = (AZW3Container if path.rpartition('.')[-1].lower() in {'azw3', 'mobi'}
             else EpubContainer)(path, log, tdir=tdir)
+    ebook.tweak_mode = tweak_mode
     return ebook
 
 def test_roundtrip():

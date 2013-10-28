@@ -17,13 +17,17 @@ from calibre import prints
 from calibre.ptempfile import PersistentTemporaryDirectory
 from calibre.ebooks.oeb.base import urlnormalize
 from calibre.ebooks.oeb.polish.main import SUPPORTED
-from calibre.ebooks.oeb.polish.container import get_container, clone_container, guess_type
+from calibre.ebooks.oeb.polish.container import get_container as _gc, clone_container, guess_type
 from calibre.ebooks.oeb.polish.replace import rename_files
 from calibre.gui2 import error_dialog, choose_files, question_dialog, info_dialog
 from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.gui2.tweak_book import set_current_container, current_container, tprefs
 from calibre.gui2.tweak_book.undo import GlobalUndoHistory
 from calibre.gui2.tweak_book.save import SaveManager
+
+def get_container(*args, **kwargs):
+    kwargs['tweak_mode'] = True
+    return _gc(*args, **kwargs)
 
 class Boss(QObject):
 

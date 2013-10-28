@@ -2881,6 +2881,7 @@ class BibTeX:
         Latex escaping some (not all) special characters
         """
         text.replace('\\', '\\\\')
+        
         return self.escape.sub(lambda m: u'\\%s' % m.group(), text)
 
     # Calibre functions: Option to go to official ASCII Bibtex or unofficial UTF-8
@@ -2901,4 +2902,33 @@ class BibTeX:
         Format authors for Bibtex compliance (get a list as input)
         """
         return self.utf8ToBibtex(u' and '.join([author for author in item]))
+
+    def stripUnmatchedSyntax(self, text, open_character, close_character):
+        """ 
+        Strips unmatched BibTeX syntax
+        """
+        stack = list()
+    
+        if len(open_character) > 1 or len(close_character) > 1:
+            raise ValueError("Only single characters accepted")
+        
+        for i in text:
+            if i == open_character: 
+                stack.append(open_character)
+            # if there is already an orphan closing character strip everything
+            elif i == close_character and not stack:
+                text = text.replace(open_character, u'')
+                text = text.replace(close_character, u'')
+                return text 
+            elif i == close_character and stack:
+                    stack.pop()
+                    
+        # if there are still open_tokens on the stack they have not been closed strip everything
+        if stack:
+            text = text.replace(open_character, u'')
+            text = text.replace(close_character, u'')
+            return text
+        # if nothing left on stack all characters matched and do nothing
+        else:
+            return text
 
