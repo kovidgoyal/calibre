@@ -213,6 +213,7 @@ class CommentsEdit(Editor):
 
     def __init__(self, field, is_new, parent, metadata, extra):
         Editor.__init__(self, parent, one_line_toolbar=False)
+        self.set_minimum_height_for_editor(150)
         self.is_new = is_new
         self.field = field
         self.metadata = metadata

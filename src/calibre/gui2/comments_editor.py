@@ -640,6 +640,9 @@ class Editor(QWidget):  # {{{
         self.highlighter = Highlighter(self.code_edit.document())
         self.layout().setContentsMargins(0, 0, 0, 0)
 
+    def set_minimum_height_for_editor(self, val):
+        self.editor.setMinimumHeight(val)
+
         # toolbar1 {{{
         self.toolbar1.addAction(self.editor.action_undo)
         self.toolbar1.addAction(self.editor.action_redo)
