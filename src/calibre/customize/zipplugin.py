@@ -81,6 +81,30 @@ def get_icons(zfp, name_or_list_of_names):
         ians = ians.pop(names[0])
     return ians
 
+_translations_cache = {}
+
+def load_translations(namespace, zfp):
+    null = object()
+    trans = _translations_cache.get(zfp, null)
+    if trans is None:
+        return
+    if trans is null:
+        from calibre.utils.localization import get_lang
+        lang = get_lang()
+        if not lang or lang == 'en':  # performance optimization
+            _translations_cache[zfp] = None
+            return
+        mo = get_resources(zfp, 'translations/%s.mo' % lang)
+        if mo is None:
+            _translations_cache[zfp] = None
+            return
+        from gettext import GNUTranslations
+        from io import BytesIO
+        trans = _translations_cache[zfp] = GNUTranslations(BytesIO(mo))
+
+    namespace['_'] = trans.gettext
+    namespace['ngettext'] = trans.ngettext
+
 class PluginLoader(object):
 
     def __init__(self):
@@ -147,10 +171,10 @@ class PluginLoader(object):
                 import_name), 'exec', dont_inherit=True)
             mod.__dict__['get_resources'] = partial(get_resources, zfp)
             mod.__dict__['get_icons'] = partial(get_icons, zfp)
+            mod.__dict__['load_translations'] = partial(load_translations, mod.__dict__, zfp)
             exec compiled in mod.__dict__
 
         return mod
-
 
     def load(self, path_to_zip_file):
         if not os.access(path_to_zip_file, os.R_OK):
@@ -192,7 +216,6 @@ class PluginLoader(object):
             with self._lock:
                 del self.loaded_plugins[plugin_name]
             raise
-
 
     def _locate_code(self, zf, path_to_zip_file):
         names = [x if isinstance(x, unicode) else x.decode('utf-8') for x in

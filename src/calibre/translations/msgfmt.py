@@ -143,7 +143,7 @@ def make(filename, outfile):
                     (infile, lno)
                 sys.exit(1)
             l = l[12:]
-            msgid += '\0' # separator of singular and plural
+            msgid += '\0'  # separator of singular and plural
             is_plural = True
         # Now we are in a msgstr section
         elif l.startswith('msgstr'):
@@ -155,7 +155,7 @@ def make(filename, outfile):
                     sys.exit(1)
                 l = l.split(']', 1)[1]
                 if msgstr:
-                    msgstr += '\0' # Separator of the various plural forms
+                    msgstr += '\0'  # Separator of the various plural forms
             else:
                 if is_plural:
                     print >> sys.stderr, 'indexed msgstr required for plural on  %s:%d' %\
@@ -184,7 +184,11 @@ def make(filename, outfile):
     # Compute output
     output = generate()
 
-    outfile.write(output)
+    try:
+        outfile.write(output)
+    except AttributeError:
+        with open(outfile, 'wb') as f:
+            f.write(output)
 
 
 def main():

@@ -92,6 +92,11 @@ The first thing to note is that this zip file has a lot more files in it, explai
     **about.txt**
         A text file with information about the plugin
 
+    **translations**
+        A folder containing .mo files with the translations of the user
+        interface of your plugin into different languages. See below for
+        details.
+
 Now let's look at the code.
 
 __init__.py
@@ -175,6 +180,42 @@ You can see the ``prefs`` object being used in main.py:
 .. literalinclude:: plugin_examples/interface_demo/main.py
     :pyobject: DemoDialog.config
 
+Adding translations to your plugin
+--------------------------------------
+
+You can have all the user interface strings in your plugin translated and
+displayed in whatever language is set for the main calibre user interface.
+
+The first step is to go through your plugin's source code and mark all user
+visible strings as translatable, by surrounding them in _(). For example::
+
+    action_spec = (_('My plugin'), None, _('My plugin is cool'), None)
+
+Then use some program to generate .po files from your plugin source code. There
+should be one .po file for every language you want to translate into. For
+example: de.po for German, fr.po for French and so on. You can use the 
+`poedit <http://www.poedit.net/>`_ program for this.
+
+Send these .po files to your translators. Once you get them back, compile them
+into .mo files. You can again use poedit for that, or just do::
+
+    calibre-debug -c "from calibre.translations.msgfmt import main; main()" filename.po
+
+Put the .mo files into the ``translations`` folder in your plugin.
+
+The last step is to simply call the function `load_translations()` at the top
+of your plugin's .py files. For performance reasons you should only call this
+function in those .py files that actually have translatable strings. So in a
+typical User Interface plugin you would call it at the top of ``ui.py`` but not
+``__init__.py``.
+
+You can test the translations of your plugins by changing the user interface
+language in calibre under Preferences->Look & Feel or by running calibre like
+this::
+
+    CALIBRE_OVERRIDE_LANG=de calibre
+
+Replace ``de`` with the language code of the language you want to test.
 
 The plugin API
 --------------------------------
