@@ -10,10 +10,14 @@ import os, subprocess
 
 from calibre.ebooks.oeb.polish.tests.base import BaseTest, get_simple_book
 
-from calibre.ebooks.oeb.polish.container import get_container, clone_container, OCF_NS
+from calibre.ebooks.oeb.polish.container import get_container as _gc, clone_container, OCF_NS
 from calibre.ebooks.oeb.polish.replace import rename_files
 from calibre.utils.filenames import nlinks_file
 from calibre.ptempfile import TemporaryFile
+
+def get_container(*args, **kwargs):
+    kwargs['tweak_mode'] = True
+    return _gc(*args, **kwargs)
 
 class ContainerTests(BaseTest):
 
