@@ -30,11 +30,12 @@ Environment variables
     * ``CALIBRE_OVERRIDE_DATABASE_PATH`` - allows you to specify the full path to metadata.db. Using this variable you can have metadata.db be in a location other than the library folder. Useful if your library folder is on a networked drive that does not support file locking.
     * ``CALIBRE_DEVELOP_FROM`` - Used to run from a calibre development environment. See :ref:`develop`.
     * ``CALIBRE_OVERRIDE_LANG`` - Used to force the language used by the interface (ISO 639 language code)
-    * ``CALIBRE_NO_NATIVE_FILEDIALOGS`` - Causes calibre to not use native file dialogs for selecting files/directories.
+    * ``CALIBRE_NO_NATIVE_FILEDIALOGS`` - Causes calibre to not use native file dialogs for selecting files/directories. Set it to 1 to enable.
     * ``SYSFS_PATH`` - Use if sysfs is mounted somewhere other than /sys
     * ``http_proxy`` - Used on linux to specify an HTTP proxy
 
-See `How to set environment variables in windows <http://www.computerhope.com/issues/ch000549.htm>`_.
+See `How to set environment variables in windows <http://www.computerhope.com/issues/ch000549.htm>`_ or
+`How to set environment variables in OS X <http://blog.dowdandassociates.com/content/howto-set-an-environment-variable-in-mac-os-x-home-slash-dot-macosx-slash-environment-dot-plist/>`_.
 
 Tweaks
 ------------
