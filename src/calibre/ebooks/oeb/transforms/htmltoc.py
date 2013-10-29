@@ -102,7 +102,7 @@ class HTMLTOCAdder(object):
                 href=css_href)
         body = element(contents, XHTML('body'),
                        attrib={'class': 'calibre_toc'})
-        h1 = element(body, XHTML('h1'),
+        h1 = element(body, XHTML('h2'),
                      attrib={'class': 'calibre_toc_header'})
         h1.text = title
         self.add_toc_level(body, oeb.toc)
