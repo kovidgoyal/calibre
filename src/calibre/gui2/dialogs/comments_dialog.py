@@ -4,6 +4,8 @@ __docformat__ = 'restructuredtext en'
 __license__   = 'GPL v3'
 
 from PyQt4.Qt import Qt, QDialog, QDialogButtonBox
+
+from calibre.gui2 import gprefs
 from calibre.gui2.dialogs.comments_dialog_ui import Ui_CommentsDialog
 from calibre.library.comments import comments_to_html
 
@@ -26,4 +28,23 @@ class CommentsDialog(QDialog, Ui_CommentsDialog):
 
         if column_name:
             self.setWindowTitle(_('Edit "{0}"').format(column_name))
+
+        geom = gprefs.get('comments_dialog_geom', None)
+        if geom is not None:
+            self.restoreGeometry(geom)
+
+    def save_geometry(self):
+        gprefs.set('comments_dialog_geom', bytearray(self.saveGeometry()))
+
+    def accept(self):
+        self.save_geometry()
+        QDialog.accept(self)
+
+    def reject(self):
+        self.save_geometry()
+        QDialog.reject(self)
+
+    def closeEvent(self, ev):
+        self.save_geometry()
+        return QDialog.closeEvent(self, ev)
 
