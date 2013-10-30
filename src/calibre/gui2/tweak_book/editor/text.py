@@ -7,10 +7,11 @@ __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import textwrap
+from future_builtins import map
 
 from PyQt4.Qt import (
     QPlainTextEdit, QApplication, QFontDatabase, QToolTip, QPalette, QFont,
-    QTextEdit, QTextFormat)
+    QTextEdit, QTextFormat, QWidget, QSize, QPainter, Qt, QRect)
 
 from calibre.gui2.tweak_book import tprefs
 from calibre.gui2.tweak_book.editor.themes import THEMES, DEFAULT_THEME, theme_color
@@ -30,6 +31,18 @@ def default_font_family():
             _dff = 'Courier New'
     return _dff
 
+class LineNumbers(QWidget):  # {{{
+
+    def __init__(self, parent):
+        QWidget.__init__(self, parent)
+
+    def sizeHint(self):
+        return QSize(self.parent().line_number_area_width(), 0)
+
+    def paintEvent(self, ev):
+        self.parent().paint_line_numbers(ev)
+# }}}
+
 class TextEdit(QPlainTextEdit):
 
     def __init__(self, parent=None):
@@ -38,8 +51,11 @@ class TextEdit(QPlainTextEdit):
         self.apply_theme()
         self.setMouseTracking(True)
         self.cursorPositionChanged.connect(self.highlight_cursor_line)
+        self.blockCountChanged[int].connect(self.update_line_number_area_width)
+        self.updateRequest.connect(self.update_line_number_area)
+        self.line_number_area = LineNumbers(self)
 
-    def apply_theme(self):
+    def apply_theme(self):  # {{{
         theme = THEMES.get(tprefs['editor_theme'], None)
         if theme is None:
             theme = THEMES[DEFAULT_THEME]
@@ -54,6 +70,10 @@ class TextEdit(QPlainTextEdit):
         self.tooltip_palette = pal = QPalette()
         pal.setColor(pal.ToolTipBase, theme_color(theme, 'Tooltip', 'bg'))
         pal.setColor(pal.ToolTipText, theme_color(theme, 'Tooltip', 'fg'))
+        self.line_number_palette = pal = QPalette()
+        pal.setColor(pal.Base, theme_color(theme, 'LineNr', 'bg'))
+        pal.setColor(pal.Text, theme_color(theme, 'LineNr', 'fg'))
+        pal.setColor(pal.BrightText, theme_color(theme, 'LineNrC', 'fg'))
         font = self.font()
         ff = tprefs['editor_font_family']
         if ff is None:
@@ -64,6 +84,9 @@ class TextEdit(QPlainTextEdit):
         self.tooltip_font.setPointSize(font.pointSize() - 1)
         self.setFont(font)
         self.highlighter.apply_theme(theme)
+        w = self.fontMetrics().width
+        self.number_width = max(map(lambda x:w(str(x)), xrange(10)))
+    # }}}
 
     def load_text(self, text, syntax='html'):
         self.highlighter = {'html':HTMLHighlighter}.get(syntax, SyntaxHighlighter)(self)
@@ -71,6 +94,7 @@ class TextEdit(QPlainTextEdit):
         self.highlighter.setDocument(self.document())
         self.setPlainText(text)
 
+    # Line numbers and cursor line {{{
     def highlight_cursor_line(self):
         sel = QTextEdit.ExtraSelection()
         sel.format.setBackground(self.palette().alternateBase())
@@ -78,7 +102,72 @@ class TextEdit(QPlainTextEdit):
         sel.cursor = self.textCursor()
         sel.cursor.clearSelection()
         self.setExtraSelections([sel])
+        # Update the cursor line's line number in the line number area
+        try:
+            self.line_number_area.update(0, self.last_current_lnum[0], self.line_number_area.width(), self.last_current_lnum[1])
+        except AttributeError:
+            pass
+        block = self.textCursor().block()
+        top = int(self.blockBoundingGeometry(block).translated(self.contentOffset()).top())
+        height = int(self.blockBoundingRect(block).height())
+        self.line_number_area.update(0, top, self.line_number_area.width(), height)
 
+    def update_line_number_area_width(self, block_count=0):
+        self.setViewportMargins(self.line_number_area_width(), 0, 0, 0)
+
+    def line_number_area_width(self):
+        digits = 1
+        limit = max(1, self.blockCount())
+        while limit >= 10:
+            limit /= 10
+            digits += 1
+
+        return 8 + self.number_width * digits
+
+    def update_line_number_area(self, rect, dy):
+        if dy:
+            self.line_number_area.scroll(0, dy)
+        else:
+            self.line_number_area.update(0, rect.y(), self.line_number_area.width(), rect.height())
+        if rect.contains(self.viewport().rect()):
+            self.update_line_number_area_width()
+
+    def resizeEvent(self, ev):
+        QPlainTextEdit.resizeEvent(self, ev)
+        cr = self.contentsRect()
+        self.line_number_area.setGeometry(QRect(cr.left(), cr.top(), self.line_number_area_width(), cr.height()))
+
+    def paint_line_numbers(self, ev):
+        painter = QPainter(self.line_number_area)
+        painter.fillRect(ev.rect(), self.line_number_palette.color(QPalette.Base))
+
+        block = self.firstVisibleBlock()
+        num = block.blockNumber()
+        top = int(self.blockBoundingGeometry(block).translated(self.contentOffset()).top())
+        bottom = top + int(self.blockBoundingRect(block).height())
+        current = self.textCursor().block().blockNumber()
+        painter.setPen(self.line_number_palette.color(QPalette.Text))
+
+        while block.isValid() and top <= ev.rect().bottom():
+            if block.isVisible() and bottom >= ev.rect().top():
+                if current == num:
+                    painter.save()
+                    painter.setPen(self.line_number_palette.color(QPalette.BrightText))
+                    f = QFont(self.font())
+                    f.setBold(True)
+                    painter.setFont(f)
+                    self.last_current_lnum = (top, bottom - top)
+                painter.drawText(0, top, self.line_number_area.width() - 5, self.fontMetrics().height(),
+                              Qt.AlignRight, str(num + 1))
+                if current == num:
+                    painter.restore()
+            block = block.next()
+            top = bottom
+            bottom = top + int(self.blockBoundingRect(block).height())
+            num += 1
+    # }}}
+
+    # Tooltips {{{
     def event(self, ev):
         if ev.type() == ev.ToolTip:
             self.show_tooltip(ev)
@@ -104,6 +193,7 @@ class TextEdit(QPlainTextEdit):
                 QToolTip.showText(ev.globalPos(), textwrap.fill(tt))
         QToolTip.hideText()
         ev.ignore()
+    # }}}
 
 if __name__ == '__main__':
     app = QApplication([])
