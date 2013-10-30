@@ -9,6 +9,10 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 from calibre.utils.config import JSONConfig
 tprefs = JSONConfig('tweak_book_gui')
 
+tprefs.defaults['editor_theme'] = None
+tprefs.defaults['editor_font_family'] = None
+tprefs.defaults['editor_font_size'] = 12
+
 _current_container = None
 
 def current_container():

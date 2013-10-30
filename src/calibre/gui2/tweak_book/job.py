@@ -10,7 +10,7 @@ import time
 from threading import Thread
 from functools import partial
 
-from PyQt4.Qt import (QWidget, QVBoxLayout, QLabel, Qt, QPainter, QBrush, QRect)
+from PyQt4.Qt import (QWidget, QVBoxLayout, QLabel, Qt, QPainter, QBrush, QRect, QApplication, QCursor)
 
 from calibre.gui2 import Dispatcher
 from calibre.gui2.progress_indicator import ProgressIndicator
@@ -65,8 +65,10 @@ class BlockingJob(QWidget):
         self.raise_()
         self.setFocus(Qt.OtherFocusReason)
         self.pi.startAnimation()
+        QApplication.setOverrideCursor(QCursor(Qt.WaitCursor))
 
     def stop(self):
+        QApplication.restoreOverrideCursor()
         self.pi.stopAnimation()
         self.setVisible(False)
         self.parent().setEnabled(True)

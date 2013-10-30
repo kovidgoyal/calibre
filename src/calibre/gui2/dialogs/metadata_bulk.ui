@@ -662,6 +662,16 @@ as that of the first selected book.</string>
              </property>
             </widget>
            </item>
+           <item row="4" column="2">
+            <widget class="QCheckBox" name="clear_pub">
+             <property name="toolTip">
+              <string>If checked, the publisher will be cleared</string>
+             </property>
+             <property name="text">
+              <string>&amp;Clear pub</string>
+             </property>
+            </widget>
+           </item>
           </layout>
          </widget>
          <widget class="QWidget" name="tab">
