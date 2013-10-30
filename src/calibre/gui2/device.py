@@ -1189,7 +1189,7 @@ class DeviceMixin(object): # {{{
                 return
             if d.format():
                 fmt = d.format().lower()
-        dest, sub_dest = dest.split(':')
+        dest, sub_dest = dest.partition(':')[0::2]
         if dest in ('main', 'carda', 'cardb'):
             if not self.device_connected or not self.device_manager:
                 error_dialog(self, _('No device'),
