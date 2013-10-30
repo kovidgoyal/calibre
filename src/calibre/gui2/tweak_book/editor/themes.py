@@ -27,15 +27,9 @@ THEMES = {
 
     Cursor       bg=656565
     Normal       fg=f6f3e8 bg=242424
-    NonText      fg=808080 bg=303030
     LineNr       fg=857b6f bg=000000
-    StatusLine   fg=f6f3e8 bg=444444 italic
-    StatusLineNC fg=857b6f bg=444444
-    VertSplit    fg=444444 bg=444444
-    Folded       bg=384048 fg=a0a8b0
-    Title        fg=f6f3e8 bold
+    LineNrC      fg=yellow
     Visual       fg=f6f3e8 bg=444444
-    SpecialKey   fg=808080 bg=343434
 
     Comment      fg=99968b
     Todo         fg=8f8f8f
@@ -75,6 +69,7 @@ def read_theme(raw):
             continue
         bold = italic = False
         fg = bg = name = underline = underline_color = None
+        line = line.partition('#')[0]
         for i, token in enumerate(line.split()):
             if i == 0:
                 name = token
