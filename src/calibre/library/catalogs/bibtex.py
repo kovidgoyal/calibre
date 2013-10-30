@@ -179,6 +179,8 @@ class BIBTEX(CatalogPlugin):
                     #\n removal
                     item = item.replace(u'\r\n',u' ')
                     item = item.replace(u'\n',u' ')
+                    # unmatched brace removal (users should use \leftbrace or \rightbrace for single braces)
+                    item = bibtexdict.stripUnmatchedSyntax(item, u'{', u'}')
                     #html to text
                     try:
                         item = html2text(item)
