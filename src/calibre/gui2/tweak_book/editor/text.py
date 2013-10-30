@@ -11,7 +11,7 @@ from future_builtins import map
 
 from PyQt4.Qt import (
     QPlainTextEdit, QApplication, QFontDatabase, QToolTip, QPalette, QFont,
-    QTextEdit, QTextFormat, QWidget, QSize, QPainter, Qt, QRect)
+    QTextEdit, QTextFormat, QWidget, QSize, QPainter, Qt, QRect, QDialog, QVBoxLayout)
 
 from calibre.gui2.tweak_book import tprefs
 from calibre.gui2.tweak_book.editor.themes import THEMES, DEFAULT_THEME, theme_color
@@ -55,6 +55,9 @@ class TextEdit(QPlainTextEdit):
         self.updateRequest.connect(self.update_line_number_area)
         self.line_number_area = LineNumbers(self)
 
+    def sizeHint(self):
+        return self.size_hint
+
     def apply_theme(self):  # {{{
         theme = THEMES.get(tprefs['editor_theme'], None)
         if theme is None:
@@ -84,8 +87,9 @@ class TextEdit(QPlainTextEdit):
         self.tooltip_font.setPointSize(font.pointSize() - 1)
         self.setFont(font)
         self.highlighter.apply_theme(theme)
-        w = self.fontMetrics().width
-        self.number_width = max(map(lambda x:w(str(x)), xrange(10)))
+        w = self.fontMetrics()
+        self.number_width = max(map(lambda x:w.width(str(x)), xrange(10)))
+        self.size_hint = QSize(100 * w.averageCharWidth(), 50 * w.height())
     # }}}
 
     def load_text(self, text, syntax='html'):
@@ -195,11 +199,23 @@ class TextEdit(QPlainTextEdit):
         ev.ignore()
     # }}}
 
-if __name__ == '__main__':
-    app = QApplication([])
+def launch_editor(path_to_edit):
+    if '<html' in path_to_edit:
+        raw = path_to_edit
+    else:
+        with open(path_to_edit, 'rb') as f:
+            raw = f.read().decode('utf-8')
+    app = QApplication([])  # noqa
     t = TextEdit()
-    t.show()
-    t.load_text(textwrap.dedent('''\
+    t.load_text(raw)
+    d = QDialog()
+    d.setLayout(QVBoxLayout())
+    d.layout().addWidget(t)
+    d.exec_()
+
+if __name__ == '__main__':
+    launch_editor(
+    textwrap.dedent('''\
                 <html>
                 <head>
                     <title>Page title</title>
@@ -228,5 +244,4 @@ if __name__ == '__main__':
                 </body>
                 </html>
                 '''))
-    app.exec_()
 
