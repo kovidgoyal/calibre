@@ -9,7 +9,8 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 import textwrap
 
 from PyQt4.Qt import (
-    QPlainTextEdit, QApplication, QFontDatabase, QToolTip, QPalette, QFont)
+    QPlainTextEdit, QApplication, QFontDatabase, QToolTip, QPalette, QFont,
+    QTextEdit, QTextFormat)
 
 from calibre.gui2.tweak_book import tprefs
 from calibre.gui2.tweak_book.editor.themes import THEMES, DEFAULT_THEME, theme_color
@@ -36,6 +37,7 @@ class TextEdit(QPlainTextEdit):
         self.highlighter = SyntaxHighlighter(self)
         self.apply_theme()
         self.setMouseTracking(True)
+        self.cursorPositionChanged.connect(self.highlight_cursor_line)
 
     def apply_theme(self):
         theme = THEMES.get(tprefs['editor_theme'], None)
@@ -44,6 +46,7 @@ class TextEdit(QPlainTextEdit):
         self.theme = theme
         pal = self.palette()
         pal.setColor(pal.Base, theme_color(theme, 'Normal', 'bg'))
+        pal.setColor(pal.AlternateBase, theme_color(theme, 'CursorLine', 'bg'))
         pal.setColor(pal.Text, theme_color(theme, 'Normal', 'fg'))
         pal.setColor(pal.Highlight, theme_color(theme, 'Visual', 'bg'))
         pal.setColor(pal.HighlightedText, theme_color(theme, 'Visual', 'fg'))
@@ -67,6 +70,14 @@ class TextEdit(QPlainTextEdit):
         self.highlighter.apply_theme(self.theme)
         self.highlighter.setDocument(self.document())
         self.setPlainText(text)
+
+    def highlight_cursor_line(self):
+        sel = QTextEdit.ExtraSelection()
+        sel.format.setBackground(self.palette().alternateBase())
+        sel.format.setProperty(QTextFormat.FullWidthSelection, True)
+        sel.cursor = self.textCursor()
+        sel.cursor.clearSelection()
+        self.setExtraSelections([sel])
 
     def event(self, ev):
         if ev.type() == ev.ToolTip:
