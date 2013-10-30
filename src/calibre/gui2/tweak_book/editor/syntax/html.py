@@ -24,6 +24,7 @@ attribute_name_pat = re.compile(r'''[^%s"'/><=]+''' % space_chars)
 self_closing_pat = re.compile(r'/\s*>')
 unquoted_val_pat = re.compile(r'''[^%s'"=<>`]+''' % space_chars)
 cdata_close_pats = {x:re.compile(r'</%s' % x, flags=re.I) for x in cdata_tags}
+nbsp_pat = re.compile('\xa0+')
 
 class State(object):
 
@@ -72,6 +73,23 @@ def cdata(state, text, i, formats):
     num = m.start() - i
     return [(num, fmt), (2, formats['end_tag']), (len(m.group()) - 2, formats['tag_name'])]
 
+def mark_nbsp(state, text, nbsp_format):
+    ans = []
+    fmt = None
+    if state.bold or state.italic:
+        fmt = QTextCharFormat()
+        if state.bold:
+            fmt.setFontWeight(QFont.Bold)
+        if state.italic:
+            fmt.setFontItalic(True)
+    last = 0
+    for m in nbsp_pat.finditer(text):
+        ans.extend([(m.start() - last, fmt), (m.end() - m.start(), nbsp_format)])
+    if not ans:
+        ans = [(len(text), fmt)]
+    return ans
+
+
 def normal(state, text, i, formats):
     ' The normal state in between tags '
     ch = text[i]
@@ -115,14 +133,7 @@ def normal(state, text, i, formats):
         return [(1, formats['>'])]
 
     t = normal_pat.search(text, i).group()
-    fmt = None
-    if state.bold or state.italic:
-        fmt = QTextCharFormat()
-        if state.bold:
-            fmt.setFontWeight(QFont.Bold)
-        if state.italic:
-            fmt.setFontItalic(True)
-    return [(len(t), fmt)]
+    return mark_nbsp(state, t, formats['nbsp'])
 
 def opening_tag(state, text, i, formats):
     'An opening tag, like <a>'
@@ -257,6 +268,7 @@ class HTMLHighlighter(SyntaxHighlighter):
             'string': t['String'],
             'nsprefix': t['Constant'],
             'preproc': t['PreProc'],
+            'nbsp': t['CursorLine'],
         }
         for name, msg in {
             '<': _('An unescaped < is not allowed. Replace it with &lt;'),
@@ -314,10 +326,12 @@ if __name__ == '__main__':
         <!-- The start of the actual body text -->
         <h1>A heading that should appear in bold, with an <i>italic</i> word</h1>
         <p>Some text with inline formatting, that is syntax highlighted. A <b>bold</b> word, and an <em>italic</em> word. \
-<i>Some italic text with a <b>bold italic</b> word in </i> middle.</p>
+<i>Some italic text with a <b>bold-italic</b> word in </i>the middle.</p>
         <!-- Let's see what exotic constructs like namespace prefixes and empty attributes look like -->
         <svg:svg xmlns:svg="http://whatever" />
         <input disabled><input disabled /><span attr=<></span>
+        <!-- Non-breaking spaces are rendered differently from normal spaces, so that they stand out -->
+        <p>Some\xa0words\xa0separated\xa0by\xa0non-breaking\xa0spaces.</p>
     </body>
 </html>
 ''')
