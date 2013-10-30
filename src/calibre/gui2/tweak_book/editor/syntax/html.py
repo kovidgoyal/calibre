@@ -52,11 +52,6 @@ class State(object):
         tag = self.TAGS.get(self.tag.lower(), 0)
         return (self.parse & 0b1111) | ((self.bold & 0b11111111) << 4) | ((self.italic & 0b11111111) << 12) | (tag << 20)
 
-def err(formats, msg):
-    ans = QTextCharFormat(formats['error'])
-    ans.setToolTip(msg)
-    return ans
-
 def normal(state, text, i, formats):
     ' The normal state in between tags '
     ch = text[i]
@@ -75,7 +70,7 @@ def normal(state, text, i, formats):
 
         m = tag_name_pat.match(text, i + 1)
         if m is None:
-            return [(1, err(formats, _('An unescaped < is not allowed. Replace it with &lt;')))]
+            return [(1, formats['<'])]
 
         name = m.group()
         closing = name.startswith('/')
@@ -87,11 +82,11 @@ def normal(state, text, i, formats):
     if ch == '&':
         m = entity_pat.match(text, i)
         if m is None:
-            return [(1, err(formats, _('An unescaped ampersand is not allowed. Replace it with &amp;')))]
+            return [(1, formats['&'])]
         return [(len(m.group()), formats['entity'])]
 
     if ch == '>':
-        return [(1, err(formats, _('An unescaped > is not allowed. Replace it with &gt;')))]
+        return [(1, formats['>'])]
 
     return [(1, None)]
 
@@ -103,7 +98,7 @@ def opening_tag(state, text, i, formats):
     if ch == '/':
         m = self_closing_pat.match(text, i)
         if m is None:
-            return [(1, err(formats, _('/ not allowed except at the end of the tag')))]
+            return [(1, formats['/'])]
         state.parse = state.NORMAL
         state.tag = State.UNKNOWN_TAG
         return [(len(m.group()), formats['tag'])]
@@ -113,7 +108,7 @@ def opening_tag(state, text, i, formats):
         return [(1, formats['tag'])]
     m = attribute_name_pat.match(text, i)
     if m is None:
-        return [(1, err(formats, _('Unknown character')))]
+        return [(1, formats['?'])]
     state.parse = state.ATTRIBUTE_NAME
     num = len(m.group())
     return [(num, formats['attr'])]
@@ -159,12 +154,12 @@ def closing_tag(state, text, i, formats):
         return [(1, None)]
     pos = text.find('>', i)
     if pos == -1:
-        return [(len(text) - i, err(formats, _('A closing tag must contain only the tag name and nothing else')))]
+        return [(len(text) - i, formats['bad-closing'])]
     state.parse = state.NORMAL
     num = pos - i + 1
     ans = [(1, formats['end_tag'])]
     if num > 1:
-        ans.insert(0, (num - 1, err(formats, _('A closing tag must contain only the tag name and nothing else'))))
+        ans.insert(0, (num - 1, formats['bad-closing']))
     return ans
 
 def in_comment(state, text, i, formats):
@@ -201,7 +196,6 @@ class HTMLHighlighter(SyntaxHighlighter):
     def create_formats(self):
         t = self.theme
         self.formats = {
-            'normal': QTextCharFormat(),
             'tag': t['Function'],
             'end_tag': t['Identifier'],
             'attr': t['Type'],
@@ -212,6 +206,16 @@ class HTMLHighlighter(SyntaxHighlighter):
             'special': t['Special'],
             'string': t['String'],
         }
+        for name, msg in {
+            '<': _('An unescaped < is not allowed. Replace it with &lt;'),
+            '&': _('An unescaped ampersand is not allowed. Replace it with &amp;'),
+            '>': _('An unescaped > is not allowed. Replace it with &gt;'),
+            '/': _('/ not allowed except at the end of the tag'),
+            '?': _('Unknown character'),
+            'bad-closing': _('A closing tag must contain only the tag name and nothing else'),
+        }.iteritems():
+            f = self.formats[name] = QTextCharFormat(self.formats['error'])
+            f.setToolTip(msg)
 
     def highlightBlock(self, text):
         try:
