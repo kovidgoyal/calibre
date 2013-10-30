@@ -8,17 +8,19 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import re
 
-from PyQt4.Qt import (QTextCharFormat)
+from PyQt4.Qt import (QTextCharFormat, QFont)
 
 from calibre.gui2.tweak_book.editor.syntax.base import SyntaxHighlighter
 from html5lib.constants import cdataElements, rcdataElements
 
+cdata_tags = cdataElements | rcdataElements
 entity_pat = re.compile(r'&#{0,1}[a-zA-Z0-9]{1,8};')
 tag_name_pat = re.compile(r'/{0,1}[a-zA-Z0-9:]+')
 space_chars = ' \t\r\n\u000c'
-attribute_name_pat = re.compile(r'''[^%s"'/>=]+''' % space_chars)
+attribute_name_pat = re.compile(r'''[^%s"'/><=]+''' % space_chars)
 self_closing_pat = re.compile(r'/\s*>')
 unquoted_val_pat = re.compile(r'''[^%s'"=<>`]+''' % space_chars)
+cdata_close_pats = {x:re.compile(r'</%s' % x, flags=re.I) for x in cdata_tags}
 
 class State(object):
 
@@ -36,8 +38,9 @@ class State(object):
     ATTRIBUTE_VALUE = 7
     SQ_VAL = 8
     DQ_VAL = 9
+    CDATA = 10
 
-    TAGS = {x:i+1 for i, x in enumerate(cdataElements | rcdataElements | {'b', 'em', 'i', 'string', 'a'} | {'h%d' % d for d in range(1, 7)})}
+    TAGS = {x:i+1 for i, x in enumerate(cdata_tags | {'b', 'em', 'i', 'string', 'a'} | {'h%d' % d for d in range(1, 7)})}
     TAGS_RMAP = {v:k for k, v in TAGS.iteritems()}
     UNKNOWN_TAG = '___'
 
@@ -50,7 +53,21 @@ class State(object):
     @property
     def value(self):
         tag = self.TAGS.get(self.tag.lower(), 0)
-        return (self.parse & 0b1111) | ((self.bold & 0b11111111) << 4) | ((self.italic & 0b11111111) << 12) | (tag << 20)
+        return ((self.parse & 0b1111) |
+                ((max(0, self.bold) & 0b11111111) << 4) |
+                ((max(0, self.italic) & 0b11111111) << 12) |
+                (tag << 20))
+
+def cdata(state, text, i, formats):
+    'CDATA inside tags like <title> or <style>'
+    pat = cdata_close_pats[state.tag]
+    m = pat.search(text, i)
+    fmt = formats['title' if state.tag == 'title' else 'special']
+    if m is None:
+        return [(len(text) - i, fmt)]
+    state.parse = State.IN_CLOSING_TAG
+    num = m.start() - i
+    return [(num, fmt), (2, formats['end_tag']), (len(m.group()) - 2, formats['tag_name'])]
 
 def normal(state, text, i, formats):
     ' The normal state in between tags '
@@ -61,11 +78,11 @@ def normal(state, text, i, formats):
             return [(4, fmt)]
 
         if text[i:i+2] == '<?':
-            state.parse, fmt = state.IN_PI, formats['special']
+            state.parse, fmt = state.IN_PI, formats['preproc']
             return [(2, fmt)]
 
         if text[i:i+2] == '<!' and text[i+2:].lstrip().lower().startswith('doctype'):
-            state.parse, fmt = state.IN_DOCTYPE, formats['special']
+            state.parse, fmt = state.IN_DOCTYPE, formats['preproc']
             return [(2, fmt)]
 
         m = tag_name_pat.match(text, i + 1)
@@ -110,7 +127,8 @@ def opening_tag(state, text, i, formats):
         return [(len(m.group()), formats['tag'])]
     if ch == '>':
         state.parse = state.NORMAL
-        state.tag = State.UNKNOWN_TAG
+        if state.tag in cdata_tags:
+            state.parse = state.CDATA
         return [(1, formats['tag'])]
     m = attribute_name_pat.match(text, i)
     if m is None:
@@ -130,7 +148,10 @@ def attribute_name(state, text, i, formats):
         state.parse = State.ATTRIBUTE_VALUE
         return [(1, formats['attr'])]
     state.parse = State.IN_OPENING_TAG
-    return [(-1, None)]
+    if ch in {'>', '/'}:
+        # Standalone attribute with no value
+        return [(0, None)]
+    return [(1, formats['no-attr-value'])]
 
 def attribute_value(state, text, i, formats):
     ' After attribute = '
@@ -140,8 +161,10 @@ def attribute_value(state, text, i, formats):
     if ch in {'"', "'"}:
         state.parse = State.SQ_VAL if ch == "'" else State.DQ_VAL
         return [(1, formats['string'])]
-    m = unquoted_val_pat.match(text, i)
     state.parse = State.IN_OPENING_TAG
+    m = unquoted_val_pat.match(text, i)
+    if m is None:
+        return [(1, formats['no-attr-value'])]
     return [(len(m.group()), formats['string'])]
 
 def quoted_val(state, text, i, formats):
@@ -168,13 +191,14 @@ def closing_tag(state, text, i, formats):
     ans = [(1, formats['end_tag'])]
     if num > 1:
         ans.insert(0, (num - 1, formats['bad-closing']))
+    state.tag = State.UNKNOWN_TAG
     return ans
 
 def in_comment(state, text, i, formats):
     ' Comment, processing instruction or doctype '
     end = {state.IN_COMMENT:'-->', state.IN_PI:'?>'}.get(state.parse, '>')
     pos = text.find(end, i+1)
-    fmt = formats['comment' if state.parse == state.IN_COMMENT else 'special']
+    fmt = formats['comment' if state.parse == state.IN_COMMENT else 'preproc']
     if pos == -1:
         num = len(text) - i
     else:
@@ -188,6 +212,7 @@ state_map = {
     State.IN_CLOSING_TAG: closing_tag,
     State.ATTRIBUTE_NAME: attribute_name,
     State.ATTRIBUTE_VALUE: attribute_value,
+    State.CDATA: cdata,
 }
 
 for x in (State.IN_COMMENT, State.IN_PI, State.IN_DOCTYPE):
@@ -205,7 +230,7 @@ class HTMLHighlighter(SyntaxHighlighter):
         t = self.theme
         self.formats = {
             'tag': t['Function'],
-            'end_tag': t['Identifier'],
+            'end_tag': t['Function'],
             'attr': t['Type'],
             'tag_name' : t['Statement'],
             'entity': t['Special'],
@@ -214,6 +239,7 @@ class HTMLHighlighter(SyntaxHighlighter):
             'special': t['Special'],
             'string': t['String'],
             'nsprefix': t['Constant'],
+            'preproc': t['PreProc'],
         }
         for name, msg in {
             '<': _('An unescaped < is not allowed. Replace it with &lt;'),
@@ -222,9 +248,12 @@ class HTMLHighlighter(SyntaxHighlighter):
             '/': _('/ not allowed except at the end of the tag'),
             '?': _('Unknown character'),
             'bad-closing': _('A closing tag must contain only the tag name and nothing else'),
+            'no-attr-value': _('Expecting an attribute value'),
         }.iteritems():
             f = self.formats[name] = QTextCharFormat(self.formats['error'])
             f.setToolTip(msg)
+        f = self.formats['title'] = QTextCharFormat()
+        f.setFontWeight(QFont.Bold)
 
     def highlightBlock(self, text):
         try:
@@ -256,7 +285,7 @@ if __name__ == '__main__':
 <html xml:lang="en" lang="en">
     <head>
         <meta charset="utf-8" />
-        <title>A title with a tag <b> in it</title>
+        <title>A title with a tag <span> in it</title>
         <style type="text/css">
             body {
                   color: green;
@@ -265,7 +294,10 @@ if __name__ == '__main__':
         </style>
     </head id="invalid attribute on closing tag">
     <body>
+        <!-- The start of the actual body text -->
+        <h1>A heading that should appear in bold, with an <i>italic</i> word</h1>
         <svg:svg xmlns:svg="http://whatever" />
+        <input disabled><input disabled /><span attr=<></span>
     </body>
 </html>
 ''')
