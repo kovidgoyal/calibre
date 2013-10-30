@@ -14,6 +14,9 @@ from calibre.gui2.tweak_book.editor.syntax.base import SyntaxHighlighter
 from html5lib.constants import cdataElements, rcdataElements
 
 cdata_tags = cdataElements | rcdataElements
+bold_tags = {'b', 'strong'} | {'h%d' % d for d in range(1, 7)}
+italic_tags = {'i', 'em'}
+normal_pat = re.compile(r'[^<>&]')
 entity_pat = re.compile(r'&#{0,1}[a-zA-Z0-9]{1,8};')
 tag_name_pat = re.compile(r'/{0,1}[a-zA-Z0-9:]+')
 space_chars = ' \t\r\n\u000c'
@@ -40,7 +43,7 @@ class State(object):
     DQ_VAL = 9
     CDATA = 10
 
-    TAGS = {x:i+1 for i, x in enumerate(cdata_tags | {'b', 'em', 'i', 'string', 'a'} | {'h%d' % d for d in range(1, 7)})}
+    TAGS = {x:i+1 for i, x in enumerate(cdata_tags | bold_tags | italic_tags)}
     TAGS_RMAP = {v:k for k, v in TAGS.iteritems()}
     UNKNOWN_TAG = '___'
 
@@ -111,7 +114,15 @@ def normal(state, text, i, formats):
     if ch == '>':
         return [(1, formats['>'])]
 
-    return [(1, None)]
+    t = normal_pat.search(text, i).group()
+    fmt = None
+    if state.bold or state.italic:
+        fmt = QTextCharFormat()
+        if state.bold:
+            fmt.setFontWeight(QFont.Bold)
+        if state.italic:
+            fmt.setFontItalic(True)
+    return [(len(t), fmt)]
 
 def opening_tag(state, text, i, formats):
     'An opening tag, like <a>'
@@ -127,8 +138,11 @@ def opening_tag(state, text, i, formats):
         return [(len(m.group()), formats['tag'])]
     if ch == '>':
         state.parse = state.NORMAL
-        if state.tag in cdata_tags:
+        tag = state.tag.lower()
+        if tag in cdata_tags:
             state.parse = state.CDATA
+        state.bold += int(tag in bold_tags)
+        state.italic += int(tag in italic_tags)
         return [(1, formats['tag'])]
     m = attribute_name_pat.match(text, i)
     if m is None:
@@ -187,6 +201,9 @@ def closing_tag(state, text, i, formats):
     if pos == -1:
         return [(len(text) - i, formats['bad-closing'])]
     state.parse = state.NORMAL
+    tag = state.tag.lower()
+    state.bold -= int(tag in bold_tags)
+    state.italic -= int(tag in italic_tags)
     num = pos - i + 1
     ans = [(1, formats['end_tag'])]
     if num > 1:
@@ -285,7 +302,7 @@ if __name__ == '__main__':
 <html xml:lang="en" lang="en">
     <head>
         <meta charset="utf-8" />
-        <title>A title with a tag <span> in it</title>
+        <title>A title with a tag <span> in it, the tag is treated as normal text</title>
         <style type="text/css">
             body {
                   color: green;
@@ -296,6 +313,9 @@ if __name__ == '__main__':
     <body>
         <!-- The start of the actual body text -->
         <h1>A heading that should appear in bold, with an <i>italic</i> word</h1>
+        <p>Some text with inline formatting, that is syntax highlighted. A <b>bold</b> word, and an <em>italic</em> word. \
+<i>Some italic text with a <b>bold italic</b> word in </i> middle.</p>
+        <!-- Let's see what exotic constructs like namespace prefixes and empty attributes look like -->
         <svg:svg xmlns:svg="http://whatever" />
         <input disabled><input disabled /><span attr=<></span>
     </body>
