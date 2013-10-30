@@ -436,6 +436,11 @@ class Worker(Thread):  # Get details {{{
         return authors
 
     def parse_rating(self, root):
+        for x in root.xpath('//div[@id="cpsims-feature" or @id="purchase-sims-feature" or @id="rhf"]'):
+            # Remove the similar books section as it can cause sppurious
+            # ratings matches
+            x.getparent().remove(x)
+
         rating_paths = ('//div[@data-feature-name="averageCustomerReviews"]',
                         '//div[@class="jumpBar"]/descendant::span[contains(@class,"asinReviewsSummary")]',
                         '//div[@class="buying"]/descendant::span[contains(@class,"asinReviewsSummary")]',
