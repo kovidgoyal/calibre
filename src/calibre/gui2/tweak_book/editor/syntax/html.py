@@ -10,7 +10,7 @@ import re
 
 from PyQt4.Qt import (QTextCharFormat)
 
-from .base import SyntaxHighlighter
+from calibre.gui2.tweak_book.editor.syntax.base import SyntaxHighlighter
 from html5lib.constants import cdataElements, rcdataElements
 
 entity_pat = re.compile(r'&#{0,1}[a-zA-Z0-9]{1,8};')
@@ -75,9 +75,15 @@ def normal(state, text, i, formats):
         name = m.group()
         closing = name.startswith('/')
         state.parse = state.IN_CLOSING_TAG if closing else state.IN_OPENING_TAG
-        state.tag = name[1:] if closing else name
-        num = 2 if closing else 1
-        return [(num, formats['end_tag' if closing else 'tag']), (len(state.tag), formats['tag_name'])]
+        ans = [(2 if closing else 1, formats['end_tag' if closing else 'tag'])]
+        if closing:
+            name = name[1:]
+        prefix, name = name.partition(':')[0::2]
+        state.tag = name or prefix
+        if prefix and name:
+            ans.append((len(prefix)+1, formats['nsprefix']))
+        ans.append((len(name or prefix), formats['tag_name']))
+        return ans
 
     if ch == '&':
         m = entity_pat.match(text, i)
@@ -110,8 +116,10 @@ def opening_tag(state, text, i, formats):
     if m is None:
         return [(1, formats['?'])]
     state.parse = state.ATTRIBUTE_NAME
-    num = len(m.group())
-    return [(num, formats['attr'])]
+    prefix, name = m.group().partition(':')[0::2]
+    if prefix and name:
+        return [(len(prefix) + 1, formats['nsprefix']), (len(name), formats['attr'])]
+    return [(len(prefix), formats['attr'])]
 
 def attribute_name(state, text, i, formats):
     ' After attribute name '
@@ -205,6 +213,7 @@ class HTMLHighlighter(SyntaxHighlighter):
             'comment': t['Comment'],
             'special': t['Special'],
             'string': t['String'],
+            'nsprefix': t['Constant'],
         }
         for name, msg in {
             '<': _('An unescaped < is not allowed. Replace it with &lt;'),
@@ -240,3 +249,23 @@ class HTMLHighlighter(SyntaxHighlighter):
 
         self.setCurrentBlockState(state.value)
 
+if __name__ == '__main__':
+    from calibre.gui2.tweak_book.editor.text import launch_editor
+    launch_editor('''\
+<!DOCTYPE html>
+<html xml:lang="en" lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <title>A title with a tag <b> in it</title>
+        <style type="text/css">
+            body {
+                  color: green;
+                  font-size: 12pt;
+            }
+        </style>
+    </head id="invalid attribute on closing tag">
+    <body>
+        <svg:svg xmlns:svg="http://whatever" />
+    </body>
+</html>
+''')
