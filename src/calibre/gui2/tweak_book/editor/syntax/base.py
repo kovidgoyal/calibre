@@ -26,3 +26,27 @@ class SyntaxHighlighter(QSyntaxHighlighter):
     def create_formats(self):
         pass
 
+    def highlightBlock(self, text):
+        try:
+            state = self.previousBlockState()
+            if state == -1:
+                state = 0
+            self.do_highlight(state, unicode(text))
+        except:
+            import traceback
+            traceback.print_exc()
+
+    def do_highlight(self, state, text):
+        state = self.state_class(state)
+
+        i = 0
+        while i < len(text):
+            fmt = self.state_map[state.parse](state, text, i, self.formats)
+            for num, f in fmt:
+                if f is not None:
+                    self.setFormat(i, num, f)
+                i += num
+
+        self.setCurrentBlockState(state.value)
+
+

@@ -251,6 +251,9 @@ for x in (State.SQ_VAL, State.DQ_VAL):
 
 class HTMLHighlighter(SyntaxHighlighter):
 
+    state_map = state_map
+    state_class = State
+
     def __init__(self, parent):
         SyntaxHighlighter.__init__(self, parent)
 
@@ -283,29 +286,6 @@ class HTMLHighlighter(SyntaxHighlighter):
             f.setToolTip(msg)
         f = self.formats['title'] = QTextCharFormat()
         f.setFontWeight(QFont.Bold)
-
-    def highlightBlock(self, text):
-        try:
-            self.do_highlight(unicode(text))
-        except:
-            import traceback
-            traceback.print_exc()
-
-    def do_highlight(self, text):
-        state = self.previousBlockState()
-        if state == -1:
-            state = State.NORMAL
-        state = State(state)
-
-        i = 0
-        while i < len(text):
-            fmt = state_map[state.parse](state, text, i, self.formats)
-            for num, f in fmt:
-                if f is not None:
-                    self.setFormat(i, num, f)
-                i += num
-
-        self.setCurrentBlockState(state.value)
 
 if __name__ == '__main__':
     from calibre.gui2.tweak_book.editor.text import launch_editor
