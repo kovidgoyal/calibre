@@ -32,7 +32,10 @@ class SyntaxHighlighter(QSyntaxHighlighter):
 
     state_class = SimpleState
     state_map = {0:lambda state, text, i, formats:[(len(text), None)]}
-    formats = {}
+    create_formats_func = lambda highlighter: {}
+
+    def __init__(self, *args, **kwargs):
+        QSyntaxHighlighter.__init__(self, *args, **kwargs)
 
     def rehighlight(self):
         self.outlineexplorer_data = {}
@@ -46,7 +49,7 @@ class SyntaxHighlighter(QSyntaxHighlighter):
         self.rehighlight()
 
     def create_formats(self):
-        pass
+        self.formats = self.create_formats_func()
 
     def highlightBlock(self, text):
         try:

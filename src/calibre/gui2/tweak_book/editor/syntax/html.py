@@ -249,43 +249,43 @@ for x in (State.IN_COMMENT, State.IN_PI, State.IN_DOCTYPE):
 for x in (State.SQ_VAL, State.DQ_VAL):
     state_map[x] = quoted_val
 
+def create_formats(highlighter):
+    t = highlighter.theme
+    formats = {
+        'tag': t['Function'],
+        'end_tag': t['Function'],
+        'attr': t['Type'],
+        'tag_name' : t['Statement'],
+        'entity': t['Special'],
+        'error': t['Error'],
+        'comment': t['Comment'],
+        'special': t['Special'],
+        'string': t['String'],
+        'nsprefix': t['Constant'],
+        'preproc': t['PreProc'],
+        'nbsp': t['CursorLine'],
+    }
+    for name, msg in {
+        '<': _('An unescaped < is not allowed. Replace it with &lt;'),
+        '&': _('An unescaped ampersand is not allowed. Replace it with &amp;'),
+        '>': _('An unescaped > is not allowed. Replace it with &gt;'),
+        '/': _('/ not allowed except at the end of the tag'),
+        '?': _('Unknown character'),
+        'bad-closing': _('A closing tag must contain only the tag name and nothing else'),
+        'no-attr-value': _('Expecting an attribute value'),
+    }.iteritems():
+        f = formats[name] = QTextCharFormat(formats['error'])
+        f.setToolTip(msg)
+    f = formats['title'] = QTextCharFormat()
+    f.setFontWeight(QFont.Bold)
+    return formats
+
+
 class HTMLHighlighter(SyntaxHighlighter):
 
     state_map = state_map
     state_class = State
-
-    def __init__(self, parent):
-        SyntaxHighlighter.__init__(self, parent)
-
-    def create_formats(self):
-        t = self.theme
-        self.formats = {
-            'tag': t['Function'],
-            'end_tag': t['Function'],
-            'attr': t['Type'],
-            'tag_name' : t['Statement'],
-            'entity': t['Special'],
-            'error': t['Error'],
-            'comment': t['Comment'],
-            'special': t['Special'],
-            'string': t['String'],
-            'nsprefix': t['Constant'],
-            'preproc': t['PreProc'],
-            'nbsp': t['CursorLine'],
-        }
-        for name, msg in {
-            '<': _('An unescaped < is not allowed. Replace it with &lt;'),
-            '&': _('An unescaped ampersand is not allowed. Replace it with &amp;'),
-            '>': _('An unescaped > is not allowed. Replace it with &gt;'),
-            '/': _('/ not allowed except at the end of the tag'),
-            '?': _('Unknown character'),
-            'bad-closing': _('A closing tag must contain only the tag name and nothing else'),
-            'no-attr-value': _('Expecting an attribute value'),
-        }.iteritems():
-            f = self.formats[name] = QTextCharFormat(self.formats['error'])
-            f.setToolTip(msg)
-        f = self.formats['title'] = QTextCharFormat()
-        f.setFontWeight(QFont.Bold)
+    create_formats_func = create_formats
 
 if __name__ == '__main__':
     from calibre.gui2.tweak_book.editor.text import launch_editor

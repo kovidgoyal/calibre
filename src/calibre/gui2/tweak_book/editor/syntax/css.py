@@ -7,7 +7,6 @@ __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import re
-from functools import partial
 
 from calibre.gui2.tweak_book.editor.syntax.base import SyntaxHighlighter
 
@@ -200,8 +199,9 @@ def comment(state, text, i, formats):
     state.parse = State.NORMAL
     return [(pos - i + 2, formats['comment'])]
 
-def in_string(q, state, text, i, formats):
+def in_string(state, text, i, formats):
     'Inside a string'
+    q = '"' if state.parse == State.IN_DQS else "'"
     pos = text.find(q, i)
     if pos == -1:
         if text[-1] == '\\':
@@ -214,44 +214,43 @@ def in_string(q, state, text, i, formats):
 state_map = {
     State.NORMAL:normal,
     State.IN_COMMENT: comment,
-    State.IN_SQS: partial(in_string, "'"),
-    State.IN_DQS: partial(in_string, '"'),
+    State.IN_SQS: in_string,
+    State.IN_DQS: in_string,
     State.IN_CONTENT: content,
 }
+
+def create_formats(highlighter):
+    theme = highlighter.theme
+    formats = {
+        'comment': theme['Comment'],
+        'error': theme['Error'],
+        'string': theme['String'],
+        'preproc': theme['PreProc'],
+        'keyword': theme['Keyword'],
+        'colorname': theme['Constant'],
+        'number': theme['Number'],
+        'operator': theme['Function'],
+        'bracket': theme['Special'],
+        'identifier': theme['Identifier'],
+        'id_selector': theme['Special'],
+        'class_selector': theme['Special'],
+        'pseudo_selector': theme['Special'],
+        'tag': theme['Identifier'],
+    }
+    for name, msg in {
+        'unknown-normal': _('Invalid text'),
+        'unterminated-string': _('Unterminated string'),
+    }.iteritems():
+        f = formats[name] = QTextCharFormat(formats['error'])
+        f.setToolTip(msg)
+    return formats
+
 
 class CSSHighlighter(SyntaxHighlighter):
 
     state_map = state_map
     state_class = State
-
-    def __init__(self, parent):
-        SyntaxHighlighter.__init__(self, parent)
-
-    def create_formats(self):
-        t = self.theme
-        self.formats = {
-            'comment': t['Comment'],
-            'error': t['Error'],
-            'string': t['String'],
-            'preproc': t['PreProc'],
-            'keyword': t['Keyword'],
-            'colorname': t['Constant'],
-            'number': t['Number'],
-            'operator': t['Function'],
-            'bracket': t['Special'],
-            'identifier': t['Identifier'],
-            'id_selector': t['Special'],
-            'class_selector': t['Special'],
-            'pseudo_selector': t['Special'],
-            'tag': t['Identifier'],
-        }
-        for name, msg in {
-            'unknown-normal': _('Invalid text'),
-            'unterminated-string': _('Unterminated string'),
-        }.iteritems():
-            f = self.formats[name] = QTextCharFormat(self.formats['error'])
-            f.setToolTip(msg)
-
+    create_formats_func = create_formats
 
 if __name__ == '__main__':
     from calibre.gui2.tweak_book.editor.text import launch_editor
