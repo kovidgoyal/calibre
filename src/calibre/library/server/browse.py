@@ -836,7 +836,7 @@ class BrowseServer(object):
         raw = json.dumps('\n'.join(summs), ensure_ascii=True)
         return raw
 
-    def browse_render_details(self, id_, add_random_button=False):
+    def browse_render_details(self, id_, add_random_button=False, add_title=False):
         try:
             mi = self.db.get_metadata(id_, index_is_id=True)
         except:
@@ -894,6 +894,8 @@ class BrowseServer(object):
                 fields.append((m['name'], r))
 
             fields.sort(key=lambda x: sort_key(x[0]))
+            if add_title:
+                fields.insert(0, ('Title', u'<strong>%s: </strong>%s' % (xml(_('Title')), xml(mi.title))))
             fields = [u'<div class="field">{0}</div>'.format(f[1]) for f in
                     fields]
             fields = u'<div class="fields">%s</div>'%('\n\n'.join(fields))
@@ -934,7 +936,7 @@ class BrowseServer(object):
             book_id = random.choice(self.search_for_books(''))
         except IndexError:
             raise cherrypy.HTTPError(404, 'This library has no books')
-        ans = self.browse_render_details(book_id, add_random_button=True)
+        ans = self.browse_render_details(book_id, add_random_button=True, add_title=True)
         return self.browse_template('').format(
                 title='', script='book();', main=ans)
 
@@ -945,9 +947,9 @@ class BrowseServer(object):
         except:
             raise cherrypy.HTTPError(404, 'invalid id: %r'%id)
 
-        ans = self.browse_render_details(id_)
+        ans = self.browse_render_details(id_, add_title=True)
         return self.browse_template('').format(
-                title='', script='book();', main=ans)
+                title=self.db.title(id_, index_is_id=True), script='book();', main=ans)
 
     # }}}
 
