@@ -146,6 +146,11 @@ class EditMetadataAction(InterfaceAction):
             checkbox_msg = _('Show the &failed books in the main book list '
                     'after updating metadata')
 
+        if getattr(job, 'metadata_and_covers', None) == (False, True):
+            # Only covers, remove failed cover downloads from id_map
+            for book_id in failed_covers:
+                if hasattr(id_map, 'discard'):
+                    id_map.discard(book_id)
         payload = (id_map, tdir, log_file, lm_map,
                 failed_ids.union(failed_covers))
         review_apply = partial(self.apply_downloaded_metadata, True)
