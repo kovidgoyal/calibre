@@ -19,13 +19,12 @@ class SimpleState(object):
     def value(self):
         return self.parse
 
-def run_loop(state, state_map, set_format, formats, text):
+def run_loop(state, state_map, formats, text):
     i = 0
     while i < len(text):
         fmt = state_map[state.parse](state, text, i, formats)
         for num, f in fmt:
-            if f is not None:
-                set_format(i, num, f)
+            yield i, num, f
             i += num
 
 class SyntaxHighlighter(QSyntaxHighlighter):
@@ -57,7 +56,9 @@ class SyntaxHighlighter(QSyntaxHighlighter):
             if state == -1:
                 state = 0
             state = self.state_class(state)
-            run_loop(state, self.state_map, self.setFormat, self.formats, unicode(text))
+            for i, num, fmt in run_loop(state, self.state_map, self.formats, unicode(text)):
+                if fmt is not None:
+                    self.setFormat(i, num, fmt)
             self.setCurrentBlockState(state.value)
         except:
             import traceback

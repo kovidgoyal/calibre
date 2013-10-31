@@ -10,7 +10,9 @@ import re
 
 from PyQt4.Qt import (QTextCharFormat, QFont)
 
-from calibre.gui2.tweak_book.editor.syntax.base import SyntaxHighlighter
+from calibre.gui2.tweak_book.editor.syntax.base import SyntaxHighlighter, run_loop
+from calibre.gui2.tweak_book.editor.syntax.css import create_formats as create_css_formats, state_map as css_state_map, State as CSSState
+
 from html5lib.constants import cdataElements, rcdataElements
 
 cdata_tags = cdataElements | rcdataElements
@@ -43,6 +45,7 @@ class State(object):
     SQ_VAL = 8
     DQ_VAL = 9
     CDATA = 10
+    CSS = 11
 
     TAGS = {x:i+1 for i, x in enumerate(cdata_tags | bold_tags | italic_tags)}
     TAGS_RMAP = {v:k for k, v in TAGS.iteritems()}
@@ -53,14 +56,42 @@ class State(object):
         self.bold   = (num >> 4) & 0b11111111
         self.italic = (num >> 12) & 0b11111111
         self.tag    = self.TAGS_RMAP.get(num >> 20, self.UNKNOWN_TAG)
+        self.css    = 0
+        if self.parse == State.CSS:
+            self.css = num >> 4
 
     @property
     def value(self):
+        if self.parse == State.CSS:
+            return ((self.parse & 0b1111) | (self.css << 4))
         tag = self.TAGS.get(self.tag.lower(), 0)
         return ((self.parse & 0b1111) |
                 ((max(0, self.bold) & 0b11111111) << 4) |
                 ((max(0, self.italic) & 0b11111111) << 12) |
                 (tag << 20))
+
+    def clear(self):
+        self.parse = self.bold = self.italic = self.css = 0
+        self.tag = self.UNKNOWN_TAG
+
+def css(state, text, i, formats):
+    ' Inside a <style> tag '
+    pat = cdata_close_pats['style']
+    m = pat.search(text, i)
+    if m is None:
+        css_text = text[i:]
+    else:
+        css_text = text[i:m.start()]
+    ans = []
+    css_state = CSSState(state.css)
+    for j, num, fmt in run_loop(css_state, css_state_map, state.css_formats, css_text):
+        ans.append((num, fmt))
+    state.css = css_state.value
+    if m is not None:
+        state.clear()
+        state.parse = State.IN_CLOSING_TAG
+        ans.extend([(2, formats['end_tag']), (len(m.group()) - 2, formats['tag_name'])])
+    return ans
 
 def cdata(state, text, i, formats):
     'CDATA inside tags like <title> or <style>'
@@ -152,6 +183,9 @@ def opening_tag(state, text, i, formats):
         tag = state.tag.lower()
         if tag in cdata_tags:
             state.parse = state.CDATA
+            if tag == 'style':
+                state.clear()
+                state.parse = state.CSS
         state.bold += int(tag in bold_tags)
         state.italic += int(tag in italic_tags)
         return [(1, formats['tag'])]
@@ -241,6 +275,7 @@ state_map = {
     State.ATTRIBUTE_NAME: attribute_name,
     State.ATTRIBUTE_VALUE: attribute_value,
     State.CDATA: cdata,
+    State.CSS: css,
 }
 
 for x in (State.IN_COMMENT, State.IN_PI, State.IN_DOCTYPE):
@@ -287,6 +322,16 @@ class HTMLHighlighter(SyntaxHighlighter):
     state_class = State
     create_formats_func = create_formats
 
+    def create_formats(self):
+        super(HTMLHighlighter, self).create_formats()
+        self.css_formats = create_css_formats(self)
+        self.state_class = self.create_state
+
+    def create_state(self, val):
+        ans = State(val)
+        ans.css_formats = self.css_formats
+        return ans
+
 if __name__ == '__main__':
     from calibre.gui2.tweak_book.editor.text import launch_editor
     launch_editor('''\
@@ -301,6 +346,7 @@ if __name__ == '__main__':
                   font-size: 12pt;
             }
         </style>
+        <style type="text/css">p.small { font-size: x-small; color:gray }</style>
     </head id="invalid attribute on closing tag">
     <body>
         <!-- The start of the actual body text -->
