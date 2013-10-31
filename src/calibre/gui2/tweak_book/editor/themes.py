@@ -33,13 +33,13 @@ THEMES = {
 
     Comment      fg=99968b
     Todo         fg=8f8f8f
-    Constant     fg=e5786d
     String       fg=95e454
     Identifier   fg=cae682
     Function     fg=cae682
     Type         fg=cae682
     Statement    fg=8ac6f2
     Keyword      fg=8ac6f2
+    Constant     fg=e5786d
     PreProc      fg=e5786d
     Number       fg=e5786d
     Special      fg=e7f6da
