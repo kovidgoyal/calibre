@@ -880,7 +880,7 @@ class BrowseServer(object):
                             for name, id_typ, id_val, url in urls]
                     links = u', '.join(links)
                     if links:
-                        fields.append((m['name'], u'<strong>%s: </strong>%s'%(
+                        fields.append((field, m['name'], u'<strong>%s: </strong>%s'%(
                             _('Ids'), links)))
                         continue
 
@@ -891,12 +891,15 @@ class BrowseServer(object):
                 else:
                     r = u'<strong>%s: </strong>'%xml(m['name']) + \
                                 args[field]
-                fields.append((m['name'], r))
+                fields.append((field, m['name'], r))
 
-            fields.sort(key=lambda x: sort_key(x[0]))
+            def fsort(x):
+                num = {'authors':0, 'series':1, 'tags':2}.get(x[0], 100)
+                return (num, sort_key(x[-1]))
+            fields.sort(key=fsort)
             if add_title:
-                fields.insert(0, ('Title', u'<strong>%s: </strong>%s' % (xml(_('Title')), xml(mi.title))))
-            fields = [u'<div class="field">{0}</div>'.format(f[1]) for f in
+                fields.insert(0, ('title', 'Title', u'<strong>%s: </strong>%s' % (xml(_('Title')), xml(mi.title))))
+            fields = [u'<div class="field">{0}</div>'.format(f[-1]) for f in
                     fields]
             fields = u'<div class="fields">%s</div>'%('\n\n'.join(fields))
 
