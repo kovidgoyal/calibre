@@ -941,7 +941,7 @@ class BrowseServer(object):
             raise cherrypy.HTTPError(404, 'This library has no books')
         ans = self.browse_render_details(book_id, add_random_button=True, add_title=True)
         return self.browse_template('').format(
-                title='', script='book();', main=ans)
+                title=self.db.title(book_id, index_is_id=True), script='book();', main=ans)
 
     @Endpoint()
     def browse_book(self, id=None, category_sort=None):
