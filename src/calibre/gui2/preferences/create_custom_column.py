@@ -183,7 +183,7 @@ class CreateCustomColumn(QDialog, Ui_QCreateCustomColumn):
             self.composite_box.setText(
                 {
                     'isbn': '{identifiers:select(isbn)}',
-                    'formats': '{formats}',
+                    'formats': "{:'approximate_formats()'}",
                     }[which])
             self.composite_sort_by.setCurrentIndex(0)
 

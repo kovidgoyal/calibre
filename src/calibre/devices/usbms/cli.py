@@ -6,6 +6,7 @@ __docformat__ = 'restructuredtext en'
 
 import os, shutil, time
 
+from calibre import fsync
 from calibre.devices.errors import PathError
 from calibre.utils.filenames import case_preserving_open_file
 
@@ -58,14 +59,15 @@ class CLI(object):
                 dest.seek(0)
                 dest.truncate()
                 shutil.copyfileobj(infile, dest)
+            fsync(dest)
             #if not check_transfer(infile, dest): raise Exception('Transfer failed')
         if close:
             infile.close()
         return actual_path
 
     def munge_path(self, path):
-        if path.startswith('/') and not (path.startswith(self._main_prefix) or \
-            (self._card_a_prefix and path.startswith(self._card_a_prefix)) or \
+        if path.startswith('/') and not (path.startswith(self._main_prefix) or
+            (self._card_a_prefix and path.startswith(self._card_a_prefix)) or
             (self._card_b_prefix and path.startswith(self._card_b_prefix))):
             path = self._main_prefix + path[1:]
         elif path.startswith('carda:'):

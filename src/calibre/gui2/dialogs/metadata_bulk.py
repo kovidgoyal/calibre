@@ -3,7 +3,9 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
 '''Dialog to edit metadata in bulk'''
 
-import re, os, inspect
+import re, os
+from collections import namedtuple, defaultdict
+from threading import Thread
 
 from PyQt4.Qt import Qt, QDialog, QGridLayout, QVBoxLayout, QFont, QLabel, \
                      pyqtSignal, QDialogButtonBox, QInputDialog, QLineEdit, \
@@ -15,7 +17,7 @@ from calibre.ebooks.metadata import string_to_authors, authors_to_string, title_
 from calibre.ebooks.metadata.book.formatter import SafeFormat
 from calibre.gui2.custom_column_widgets import populate_metadata_page
 from calibre.gui2 import error_dialog, ResizableDialog, UNDEFINED_QDATETIME, \
-    gprefs, question_dialog
+    gprefs, question_dialog, FunctionDispatcher
 from calibre.gui2.progress_indicator import ProgressIndicator
 from calibre.gui2.metadata.basic_widgets import CalendarWidget
 from calibre.utils.config import dynamic, JSONConfig
@@ -24,10 +26,9 @@ from calibre.utils.icu import sort_key, capitalize
 from calibre.utils.config import prefs, tweaks
 from calibre.utils.magick.draw import identify_data
 from calibre.utils.date import qt_to_dt
-from calibre.ptempfile import SpooledTemporaryFile
-from calibre.db import SPOOL_SIZE
+from calibre.db import _get_next_series_num_for_list
 
-def get_cover_data(stream, ext): # {{{
+def get_cover_data(stream, ext):  # {{{
     from calibre.ebooks.metadata.meta import get_metadata
     old = prefs['read_file_metadata']
     if not old:
@@ -53,26 +54,22 @@ def get_cover_data(stream, ext): # {{{
     return cdata, area
 # }}}
 
-class MyBlockingBusy(QDialog): # {{{
+Settings = namedtuple('Settings', 'remove_all remove add au aus do_aus rating pub do_series do_autonumber do_remove_format '
+                      'remove_format do_swap_ta do_remove_conv do_auto_author series do_series_restart series_start_value '
+                      'do_title_case cover_action clear_series clear_pub pubdate adddate do_title_sort languages clear_languages restore_original comments')
+null = object()
 
-    do_one_signal = pyqtSignal()
+class MyBlockingBusy(QDialog):  # {{{
 
-    phases = ['',
-              _('Title/Author'),
-              _('Standard metadata'),
-              _('Custom metadata'),
-              _('Search/Replace'),
-    ]
+    all_done = pyqtSignal()
 
-    def __init__(self, msg, args, db, ids, cc_widgets, s_r_func,
-                 parent=None, window_title=_('Working')):
+    def __init__(self, args, ids, db, refresh_books, cc_widgets, s_r_func, do_sr, sr_calls, parent=None, window_title=_('Working')):
         QDialog.__init__(self, parent)
 
-        self._layout = QVBoxLayout()
-        self.setLayout(self._layout)
-        self.msg_text = msg
-        self.msg = QLabel(msg+'        ') # Ensure dialog is wide enough
-        #self.msg.setWordWrap(True)
+        self._layout =  l = QVBoxLayout()
+        self.setLayout(l)
+
+        self.msg = QLabel(_('Processing %d books, please wait...') % len(ids))
         self.font = QFont()
         self.font.setPointSize(self.font.pointSize() + 8)
         self.msg.setFont(self.font)
@@ -81,48 +78,45 @@ class MyBlockingBusy(QDialog): # {{{
         self._layout.addWidget(self.pi, 0, Qt.AlignHCenter)
         self._layout.addSpacing(15)
         self._layout.addWidget(self.msg, 0, Qt.AlignHCenter)
-        self.setWindowTitle(window_title)
+        self.setWindowTitle(window_title + '...')
+        self.setMinimumWidth(200)
         self.resize(self.sizeHint())
-        self.start()
-
-        self.args = args
-        self.series_start_value = None
-        self.db = db
-        self.ids = ids
         self.error = None
-        self.cc_widgets = cc_widgets
-        self.s_r_func = s_r_func
-        self.do_one_signal.connect(self.do_one_safe, Qt.QueuedConnection)
-
-    def start(self):
-        self.pi.startAnimation()
-
-    def stop(self):
-        self.pi.stopAnimation()
+        self.all_done.connect(self.on_all_done, type=Qt.QueuedConnection)
+        self.args, self.ids = args, ids
+        self.db, self.cc_widgets = db, cc_widgets
+        self.s_r_func = FunctionDispatcher(s_r_func)
+        self.do_sr = do_sr
+        self.sr_calls = sr_calls
+        self.refresh_books = refresh_books
 
     def accept(self):
-        self.stop()
-        return QDialog.accept(self)
+        pass
+
+    def reject(self):
+        pass
+
+    def on_all_done(self):
+        if not self.error:
+            # The cc widgets can only be accessed in the GUI thread
+            try:
+                for w in self.cc_widgets:
+                    w.commit(self.ids)
+            except Exception as err:
+                import traceback
+                self.error = (err, traceback.format_exc())
+        self.pi.stopAnimation()
+        QDialog.accept(self)
 
     def exec_(self):
-        self.current_index = 0
-        self.current_phase = 1
-        self.do_one_signal.emit()
+        self.thread = Thread(target=self.do_it)
+        self.thread.start()
+        self.pi.startAnimation()
         return QDialog.exec_(self)
 
-    def do_one_safe(self):
+    def do_it(self):
         try:
-            if self.current_index >= len(self.ids):
-                self.current_phase += 1
-                self.current_index = 0
-                if self.current_phase > 4:
-                    self.db.commit()
-                    return self.accept()
-            id = self.ids[self.current_index]
-            percent = int((self.current_index*100)/float(len(self.ids)))
-            self.msg.setText(self.msg_text.format(self.phases[self.current_phase],
-                                        percent))
-            self.do_one(id)
+            self.do_all()
         except Exception as err:
             import traceback
             try:
@@ -130,58 +124,63 @@ class MyBlockingBusy(QDialog): # {{{
             except:
                 err = repr(err)
             self.error = (err, traceback.format_exc())
-            return self.accept()
 
-    def do_one(self, id):
-        remove_all, remove, add, au, aus, do_aus, rating, pub, do_series, \
-            do_autonumber, do_remove_format, remove_format, do_swap_ta, \
-            do_remove_conv, do_auto_author, series, do_series_restart, \
-            series_start_value, do_title_case, cover_action, clear_series, \
-            pubdate, adddate, do_title_sort, languages, clear_languages, \
-            restore_original = self.args
+        self.all_done.emit()
 
+    def do_all(self):
+        cache = self.db.new_api
+        args = self.args
 
-        # first loop: All changes that modify the filesystem and commit
-        # immediately. We want to
-        # try hard to keep the DB and the file system in sync, even in the face
-        # of exceptions or forced exits.
-        if self.current_phase == 1:
-            title_set = False
-            if do_swap_ta:
-                title = self.db.title(id, index_is_id=True)
-                aum = self.db.authors(id, index_is_id=True)
-                if aum:
-                    aum = [a.strip().replace('|', ',') for a in aum.split(',')]
-                    new_title = authors_to_string(aum)
-                    if do_title_case:
-                        new_title = titlecase(new_title)
-                    self.db.set_title(id, new_title, notify=False)
-                    title_set = True
-                if title:
-                    new_authors = string_to_authors(title)
-                    self.db.set_authors(id, new_authors, notify=False)
-            if do_title_case and not title_set:
-                title = self.db.title(id, index_is_id=True)
-                self.db.set_title(id, titlecase(title), notify=False)
-            if do_title_sort:
-                title = self.db.title(id, index_is_id=True)
-                if languages:
-                    lang = languages[0]
+        # Title and authors
+        if args.do_swap_ta:
+            title_map = cache.all_field_for('title', self.ids)
+            authors_map = cache.all_field_for('authors', self.ids)
+            def new_title(authors):
+                ans = authors_to_string(authors)
+                return titlecase(ans) if args.do_title_case else ans
+            new_title_map = {bid:new_title(authors) for bid, authors in authors_map.iteritems()}
+            new_authors_map = {bid:string_to_authors(title) for bid, title in title_map.iteritems()}
+            cache.set_field('authors', new_authors_map)
+            cache.set_field('title', new_title_map)
+
+        if args.do_title_case and not args.do_swap_ta:
+            title_map = cache.all_field_for('title', self.ids)
+            cache.set_field('title', {bid:titlecase(title) for bid, title in title_map.iteritems()})
+
+        if args.do_title_sort:
+            lang_map = cache.all_field_for('languages', self.ids)
+            title_map = cache.all_field_for('title', self.ids)
+            def get_sort(book_id):
+                if args.languages:
+                    lang = args.languages[0]
                 else:
-                    lang = self.db.languages(id, index_is_id=True)
-                    if lang:
-                        lang = lang.partition(',')[0]
-                self.db.set_title_sort(id, title_sort(title, lang=lang),
-                        notify=False)
-            if au:
-                self.db.set_authors(id, string_to_authors(au), notify=False)
-            if cover_action == 'remove':
-                self.db.remove_cover(id)
-            elif cover_action == 'generate':
-                from calibre.ebooks import calibre_cover
-                from calibre.ebooks.metadata import fmt_sidx
-                from calibre.gui2 import config
-                mi = self.db.get_metadata(id, index_is_id=True)
+                    try:
+                        lang = lang_map[book_id][0]
+                    except (KeyError, IndexError, TypeError, AttributeError):
+                        lang = 'eng'
+                return title_sort(title_map[book_id], lang=lang)
+            cache.set_field('sort', {bid:get_sort(bid) for bid in self.ids})
+
+        if args.au:
+            authors = string_to_authors(args.au)
+            cache.set_field('authors', {bid:authors for bid in self.ids})
+
+        if args.do_auto_author:
+            aus_map = cache.author_sort_strings_for_books(self.ids)
+            cache.set_field('author_sort', {book_id:' & '.join(aus_map[book_id]) for book_id in aus_map})
+
+        if args.aus and args.do_aus:
+            cache.set_field('author_sort', {bid:args.aus for bid in self.ids})
+
+        # Covers
+        if args.cover_action == 'remove':
+            cache.set_cover({bid:None for bid in self.ids})
+        elif args.cover_action == 'generate':
+            from calibre.ebooks import calibre_cover
+            from calibre.ebooks.metadata import fmt_sidx
+            from calibre.gui2 import config
+            for book_id in self.ids:
+                mi = self.db.get_metadata(book_id, index_is_id=True)
                 series_string = None
                 if mi.series:
                     series_string = _('Book %(sidx)s of %(series)s')%dict(
@@ -191,138 +190,151 @@ class MyBlockingBusy(QDialog): # {{{
 
                 cdata = calibre_cover(mi.title, mi.format_field('authors')[-1],
                         series_string=series_string)
-                self.db.set_cover(id, cdata)
-            elif cover_action == 'fromfmt':
-                fmts = self.db.formats(id, index_is_id=True, verify_formats=False)
+                cache.set_cover({book_id:cdata})
+        elif args.cover_action == 'fromfmt':
+            for book_id in self.ids:
+                fmts = cache.formats(book_id, verify_formats=False)
                 if fmts:
                     covers = []
-                    for fmt in fmts.split(','):
-                        fmtf = self.db.format(id, fmt, index_is_id=True,
-                                as_file=True)
-                        if fmtf is None: continue
+                    for fmt in fmts:
+                        fmtf = cache.format(book_id, fmt, as_file=True)
+                        if fmtf is None:
+                            continue
                         cdata, area = get_cover_data(fmtf, fmt)
                         if cdata:
                             covers.append((cdata, area))
                     covers.sort(key=lambda x: x[1])
                     if covers:
-                        self.db.set_cover(id, covers[-1][0])
-                    covers = []
+                        cache.set_cover({book_id:covers[-1][0]})
+        elif args.cover_action == 'trim':
+            from calibre.utils.magick import Image
+            for book_id in self.ids:
+                cdata = cache.cover(book_id)
+                if cdata:
+                    im = Image()
+                    im.load(cdata)
+                    im.trim(tweaks['cover_trim_fuzz_value'])
+                    cdata = im.export('jpg')
+                    cache.set_cover({book_id:cdata})
+        elif args.cover_action == 'clone':
+            cdata = None
+            for book_id in self.ids:
+                cdata = cache.cover(book_id)
+                if cdata:
+                    break
+            if cdata:
+                cache.set_cover({bid:cdata for bid in self.ids if bid != book_id})
 
-            if do_remove_format:
-                self.db.remove_format(id, remove_format, index_is_id=True,
-                        notify=False, commit=True)
+        # Formats
+        if args.do_remove_format:
+            cache.remove_formats({bid:(args.remove_format,) for bid in self.ids})
 
-            if restore_original:
-                formats = self.db.formats(id, index_is_id=True)
-                formats = formats.split(',') if formats else []
-                originals = [x.upper() for x in formats if
-                        x.upper().startswith('ORIGINAL_')]
+        if args.restore_original:
+            for book_id in self.ids:
+                formats = cache.formats(book_id)
+                originals = tuple(x.upper() for x in formats if x.upper().startswith('ORIGINAL_'))
                 for ofmt in originals:
-                    fmt = ofmt.replace('ORIGINAL_', '')
-                    with SpooledTemporaryFile(SPOOL_SIZE) as stream:
-                        self.db.copy_format_to(id, ofmt, stream,
-                                index_is_id=True)
-                        stream.seek(0)
-                        self.db.add_format(id, fmt, stream, index_is_id=True,
-                                notify=False)
-                    self.db.remove_format(id, ofmt, index_is_id=True,
-                            notify=False, commit=True)
+                    cache.restore_original_format(book_id, ofmt)
 
-        elif self.current_phase == 2:
-            # All of these just affect the DB, so we can tolerate a total rollback
-            if do_auto_author:
-                x = self.db.author_sort_from_book(id, index_is_id=True)
-                if x:
-                    self.db.set_author_sort(id, x, notify=False, commit=False)
+        # Various fields
+        if args.rating != -1:
+            cache.set_field('rating', {bid:args.rating*2 for bid in self.ids})
 
-            if aus and do_aus:
-                self.db.set_author_sort(id, aus, notify=False, commit=False)
+        if args.clear_pub:
+            cache.set_field('publisher', {bid:'' for bid in self.ids})
 
-            if rating != -1:
-                self.db.set_rating(id, 2*rating, notify=False, commit=False)
+        if args.pub:
+            cache.set_field('publisher', {bid:args.pub for bid in self.ids})
 
-            if pub:
-                self.db.set_publisher(id, pub, notify=False, commit=False)
+        if args.clear_series:
+            cache.set_field('series', {bid:'' for bid in self.ids})
 
-            if clear_series:
-                self.db.set_series(id, '', notify=False, commit=False)
+        if args.pubdate is not None:
+            cache.set_field('pubdate', {bid:args.pubdate for bid in self.ids})
 
-            if pubdate is not None:
-                self.db.set_pubdate(id, pubdate, notify=False, commit=False)
+        if args.adddate is not None:
+            cache.set_field('timestamp', {bid:args.adddate for bid in self.ids})
 
-            if adddate is not None:
-                self.db.set_timestamp(id, adddate, notify=False, commit=False)
+        if args.do_series:
+            sval = args.series_start_value if args.do_series_restart else cache.get_next_series_num_for(args.series, current_indices=True)
+            cache.set_field('series', {bid:args.series for bid in self.ids})
+            if not args.series:
+                cache.set_field('series_index', {bid:1.0 for bid in self.ids})
+            else:
+                def next_series_num(bid, i):
+                    if args.do_series_restart:
+                        return sval + i
+                    next_num = _get_next_series_num_for_list(sorted(sval.itervalues()), unwrap=False)
+                    sval[bid] = next_num
+                    return next_num
 
-            if do_series:
-                if do_series_restart:
-                    if self.series_start_value is None:
-                        self.series_start_value = series_start_value
-                    next = self.series_start_value
-                    self.series_start_value += 1
-                else:
-                    next = self.db.get_next_series_num_for(series)
-                self.db.set_series(id, series, notify=False, commit=False)
-                if not series:
-                    self.db.set_series_index(id, 1.0, notify=False, commit=False)
-                elif do_autonumber: # is True if do_series_restart is True
-                    self.db.set_series_index(id, next, notify=False, commit=False)
+                smap = {bid:next_series_num(bid, i) for i, bid in enumerate(self.ids)}
+                if args.do_autonumber:
+                    cache.set_field('series_index', smap)
                 elif tweaks['series_index_auto_increment'] != 'no_change':
-                    self.db.set_series_index(id, 1.0, notify=False, commit=False)
+                    cache.set_field('series_index', {bid:1.0 for bid in self.ids})
 
-            if do_remove_conv:
-                self.db.delete_conversion_options(id, 'PIPE', commit=False)
+        if args.comments is not null:
+            cache.set_field('comments', {bid:args.comments for bid in self.ids})
 
-            if clear_languages:
-                self.db.set_languages(id, [], notify=False, commit=False)
-            elif languages:
-                self.db.set_languages(id, languages, notify=False, commit=False)
+        if args.do_remove_conv:
+            cache.delete_conversion_options(self.ids)
 
-        elif self.current_phase == 3:
-            # both of these are fast enough to just do them all
-            for w in self.cc_widgets:
-                w.commit(self.ids)
-            if remove_all:
-                self.db.remove_all_tags(self.ids)
-            self.db.bulk_modify_tags(self.ids, add=add, remove=remove,
-                                         notify=False)
-            self.current_index = len(self.ids)
-        elif self.current_phase == 4:
-            self.s_r_func(id)
-        # do the next one
-        self.current_index += 1
-        self.do_one_signal.emit()
+        if args.clear_languages:
+            cache.set_field('languages', {bid:() for bid in self.ids})
+        elif args.languages:
+            cache.set_field('languages', {bid:args.languages for bid in self.ids})
 
-    # }}}
+        if args.remove_all:
+            cache.set_field('tags', {bid:() for bid in self.ids})
+        if args.add or args.remove:
+            self.db.bulk_modify_tags(self.ids, add=args.add, remove=args.remove)
+
+        if self.do_sr:
+            for book_id in self.ids:
+                self.s_r_func(book_id)
+            if self.sr_calls:
+                for field, book_id_val_map in self.sr_calls.iteritems():
+                    self.refresh_books.update(self.db.new_api.set_field(field, book_id_val_map))
+
+# }}}
 
 class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
 
-    s_r_functions = {       ''              : lambda x: x,
+    s_r_functions = {''              : lambda x: x,
                             _('Lower Case') : lambda x: icu_lower(x),
                             _('Upper Case') : lambda x: icu_upper(x),
                             _('Title Case') : lambda x: titlecase(x),
                             _('Capitalize') : lambda x: capitalize(x),
                     }
 
-    s_r_match_modes = [     _('Character match'),
+    s_r_match_modes = [_('Character match'),
                             _('Regular Expression'),
                       ]
 
-    s_r_replace_modes = [   _('Replace field'),
+    s_r_replace_modes = [_('Replace field'),
                             _('Prepend to field'),
                             _('Append to field'),
                         ]
 
-    def __init__(self, window, rows, model, tab):
+    def __init__(self, window, rows, model, tab, refresh_books):
         ResizableDialog.__init__(self, window)
         Ui_MetadataBulkDialog.__init__(self)
         self.model = model
         self.db = model.db
+        self.refresh_book_list.setChecked(gprefs['refresh_book_list_on_bulk_edit'])
+        self.refresh_book_list.toggled.connect(self.save_refresh_booklist)
         self.ids = [self.db.id(r) for r in rows]
+        self.first_title = self.db.title(self.ids[0], index_is_id=True)
+        self.cover_clone.setToolTip(unicode(self.cover_clone.toolTip()) + ' (%s)' % self.first_title)
         self.box_title.setText('<p>' +
                 _('Editing meta information for <b>%d books</b>') %
                 len(rows))
         self.write_series = False
         self.changed = False
+        self.refresh_books = refresh_books
+        self.comments = null
+        self.comments_button.clicked.connect(self.set_comments)
 
         all_tags = self.db.all_tags()
         self.tags.update_items_cache(all_tags)
@@ -330,7 +342,7 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
 
         self.initialize_combos()
 
-        for f in self.db.all_formats():
+        for f in sorted(self.db.all_formats()):
             self.remove_format.addItem(f)
 
         self.remove_format.setCurrentIndex(-1)
@@ -379,6 +391,19 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
         self.languages.setEditText('')
         self.authors.setFocus(Qt.OtherFocusReason)
         self.exec_()
+
+    def set_comments(self):
+        from calibre.gui2.dialogs.comments_dialog import CommentsDialog
+        d = CommentsDialog(self, '' if self.comments is null else (self.comments or ''), _('Comments'))
+        if d.exec_() == d.Accepted:
+            self.comments = d.textbox.html
+            b = self.comments_button
+            b.setStyleSheet('QPushButton { font-weight: bold }')
+            if unicode(b.text())[-1] != '*':
+                b.setText(unicode(b.text()) + ' *')
+
+    def save_refresh_booklist(self, *args):
+        gprefs['refresh_book_list_on_bulk_edit'] = bool(self.refresh_book_list.isChecked())
 
     def save_state(self, *args):
         gprefs['bulk_metadata_window_geometry'] = \
@@ -554,8 +579,8 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
     def s_r_get_field(self, mi, field):
         if field:
             if field == '{template}':
-                v = SafeFormat().safe_format\
-                    (unicode(self.s_r_template.text()), mi, _('S/R TEMPLATE ERROR'), mi)
+                v = SafeFormat().safe_format(
+                    unicode(self.s_r_template.text()), mi, _('S/R TEMPLATE ERROR'), mi)
                 return [v]
             fm = self.db.metadata_for_field(field)
             if field == 'sort':
@@ -600,7 +625,7 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
         self.template_label.setVisible(False)
         self.s_r_src_ident_label.setVisible(False)
         self.s_r_src_ident.setVisible(False)
-        if idx == 1: # Template
+        if idx == 1:  # Template
             self.s_r_template.setVisible(True)
             self.template_label.setVisible(True)
         elif self.s_r_sf_itemdata(idx) == 'identifiers':
@@ -801,7 +826,7 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
                 self.s_r_set_colors()
                 break
 
-    def do_search_replace(self, id):
+    def do_search_replace(self, book_id):
         source = self.s_r_sf_itemdata(None)
         if not source or not self.s_r_obj:
             return
@@ -809,7 +834,7 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
         if not dest:
             dest = source
         dfm = self.db.field_metadata[dest]
-        mi = self.db.get_metadata(id, index_is_id=True,)
+        mi = self.db.new_api.get_proxy_metadata(book_id)
         val = self.s_r_do_regexp(mi)
         val = self.s_r_do_destination(mi, val)
         if dfm['is_multiple']:
@@ -834,37 +859,7 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
             if dest == 'title' and len(val) == 0:
                 val = _('Unknown')
 
-        if dfm['is_custom']:
-            extra = self.db.get_custom_extra(id, label=dfm['label'], index_is_id=True)
-            books_to_refresh = self.db.set_custom(id, val, label=dfm['label'],
-                                                  extra=extra, commit=False,
-                                                  allow_case_change=True)
-        elif dest.startswith('#') and dest.endswith('_index'):
-            label = self.db.field_metadata[dest[:-6]]['label']
-            series = self.db.get_custom(id, label=label, index_is_id=True)
-            books_to_refresh = self.db.set_custom(id, series, label=label,
-                                                  extra=val, commit=False,
-                                                  allow_case_change=True)
-        else:
-            if dest == 'comments':
-                setter = self.db.set_comment
-            elif dest == 'sort':
-                setter = self.db.set_title_sort
-            else:
-                setter = getattr(self.db, 'set_'+dest)
-
-            args = inspect.getargspec(setter)
-            if args and 'allow_case_change' in args.args:
-                books_to_refresh = setter(id, val, notify=False, commit=False,
-                                          allow_case_change=True)
-            else:
-                setter(id, val, notify=False, commit=False)
-                books_to_refresh = set([])
-        if books_to_refresh:
-            # Must commit here because we are telling the gui that the data is
-            # permanent. Make sure it really is.
-            self.db.commit()
-            self.model.refresh_ids(list(books_to_refresh))
+        self.set_field_calls[dest][book_id] = val
     # }}}
 
     def create_custom_column_editors(self):
@@ -965,6 +960,7 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
         pub = unicode(self.publisher.text())
         do_series = self.write_series
         clear_series = self.clear_series.isChecked()
+        clear_pub = self.clear_pub.isChecked()
         series = unicode(self.series.currentText()).strip()
         do_autonumber = self.autonumber_series.isChecked()
         do_series_restart = self.series_numbering_restarts.isChecked()
@@ -992,18 +988,24 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
             cover_action = 'generate'
         elif self.cover_from_fmt.isChecked():
             cover_action = 'fromfmt'
+        elif self.cover_trim.isChecked():
+            cover_action = 'trim'
+        elif self.cover_clone.isChecked():
+            cover_action = 'clone'
 
-        args = (remove_all, remove, add, au, aus, do_aus, rating, pub, do_series,
+        args = Settings(remove_all, remove, add, au, aus, do_aus, rating, pub, do_series,
                 do_autonumber, do_remove_format, remove_format, do_swap_ta,
                 do_remove_conv, do_auto_author, series, do_series_restart,
-                series_start_value, do_title_case, cover_action, clear_series,
+                series_start_value, do_title_case, cover_action, clear_series, clear_pub,
                 pubdate, adddate, do_title_sort, languages, clear_languages,
-                restore_original)
+                restore_original, self.comments)
 
-        bb = MyBlockingBusy(_('Applying changes to %d books.\nPhase {0} {1}%%.')
-                %len(self.ids), args, self.db, self.ids,
-                getattr(self, 'custom_column_widgets', []),
-                self.do_search_replace, parent=self)
+        source = self.s_r_sf_itemdata(None)
+        do_sr = source and self.s_r_obj
+        self.set_field_calls = defaultdict(dict)
+        bb = MyBlockingBusy(args, self.ids, self.db, self.refresh_books,
+            getattr(self, 'custom_column_widgets', []),
+            self.do_search_replace, do_sr, self.set_field_calls, parent=self)
 
         # The metadata backup thread causes database commits
         # which can slow down bulk editing of large numbers of books
@@ -1012,6 +1014,8 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
             bb.exec_()
         finally:
             self.model.start_metadata_backup()
+
+        bb.thread = bb.db = bb.cc_widgets = None
 
         if bb.error is not None:
             return error_dialog(self, _('Failed'),
@@ -1023,7 +1027,7 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
         return QDialog.accept(self)
 
     def series_changed(self, *args):
-        self.write_series = True
+        self.write_series = bool(unicode(self.series.currentText()).strip())
         self.autonumber_series.setEnabled(True)
 
     def s_r_remove_query(self, *args):
@@ -1141,9 +1145,9 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
         set_index(self.search_field, 'search_field')
         set_text(self.s_r_template, 's_r_template')
 
-        self.s_r_template_changed() #simulate gain/loss of focus
+        self.s_r_template_changed()  # simulate gain/loss of focus
 
-        set_index(self.s_r_src_ident, 's_r_src_ident');
+        set_index(self.s_r_src_ident, 's_r_src_ident')
         set_text(self.s_r_dst_ident, 's_r_dst_ident')
         set_text(self.search_for, 'search_for')
         set_checked(self.case_sensitive, 'case_sensitive')
@@ -1173,4 +1177,5 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
         self.results_count.setValue(999)
         self.starting_from.setValue(1)
         self.multiple_separator.setText(" ::: ")
+
 

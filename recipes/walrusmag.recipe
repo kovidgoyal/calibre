@@ -1,46 +1,13 @@
 from calibre.web.feeds.news import BasicNewsRecipe
 
-class AdvancedUserRecipe1282101454(BasicNewsRecipe):
-    title = 'The Walrus Mag'
+class AdvancedUserRecipe1371743239(BasicNewsRecipe):
+    title          = u'The Walrus Mag'
+    description = 'National general interest magazine about Canada and its place in the world'
     language = 'en'
-    __author__ = 'TonytheBookworm'
-    description = 'national general interest magazine about Canada and its place in the world'
-    publisher = 'Tony Stegall'
-    category = 'Canada, news'
-    oldest_article = 365
+    __author__ = 'Bert'
+    oldest_article = 34
     max_articles_per_feed = 100
+    auto_cleanup = True
 
-    masthead_url = 'http://www.walrusmagazine.com/images/wordmark.png'
-    keep_only_tags    = [
-                         dict(name='h1'),
-                         dict(name='div', attrs={'id':['prbody']})
-      #                 ,dict(attrs={'id':['cxArticleText','cxArticleBodyText']})
-                        ]
-    feeds          = [
-                      ('Walrus Magazine', 'http://feeds.feedburner.com/WalrusFeatureArticles?format=xml'),
-
-                     ]
-
-
-
-
-    def print_version(self, url):
-        split1 = url.split("/articles/")
-        #print 'THE SPLIT IS: ', split1
-        url1 = split1[0]
-        #print 'url1 is: ',url1
-        url2 = split1[1]
-        #print 'url2 is: ',url2
-
-
-  #need to convert to print_version
-  #originalversion is : http://www.walrusmagazine.com/articles/2010.09-frontier-no-one-can-hear-you-scream/
-  #printversion should be: http://www.walrusmagazine.com/print/2010.09-frontier-no-one-can-hear-you-scream/
-
-
-
-
-        print_url = url1 + '/print/' + url2
-        #print 'THIS URL WILL PRINT: ', print_url # this is a test string to see what the url is it will return
-        return print_url
+    feeds          = [(u'The Walrus Mag', u'http://thewalrus.ca/feed/')]
 

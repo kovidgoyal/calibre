@@ -537,25 +537,38 @@ Set the :guilabel:`Level 1 TOC` setting to ``//h:h2``. Then, for chapter two, |a
 How options are set/saved for Conversion
 -------------------------------------------
 
-There are two places where conversion options can be set in |app|. The first is in Preferences->Conversion. These
-settings are the defaults for the conversion options. Whenever you try to convert a new book, the settings set here
-will be used by default.
+There are two places where conversion options can be set in |app|. The first is
+in Preferences->Conversion. These settings are the defaults for the conversion
+options. Whenever you try to convert a new book, the settings set here will be
+used by default.
 
-You can also change settings in the conversion dialog for each book conversion. When you convert a book, |app| remembers the
-settings you used for that book, so that if you convert it again, the saved settings for the individual book will take
-precedence over the defaults set in Preferences. You can restore the individual settings to defaults by using the Restore to defaults
-button in the individual book conversion dialog.
+You can also change settings in the conversion dialog for each book conversion.
+When you convert a book, |app| remembers the settings you used for that book,
+so that if you convert it again, the saved settings for the individual book
+will take precedence over the defaults set in Preferences. You can restore the
+individual settings to defaults by using the Restore to defaults button in the
+individual book conversion dialog. You can remove the saved settings for a
+group of books by selecting all the books and then clicking the edit metadata
+button to bring up the bulk metadata edit dialog, near the bottom of the dialog
+is an option to remove stored conversion settings.
 
-When you Bulk Convert a set of books, settings are taken in the following order:
+When you Bulk Convert a set of books, settings are taken in the following order (last one wins):
 
-    * From the defaults set in Preferences->Conversion
-    * From the saved conversion settings for each book being converted (if any). This can be turned off by the option in the top left corner of the Bulk Conversion dialog.
+    * From the defaults set in Preferences->Conversion 
+
+    * From the saved conversion settings for each book being converted (if
+      any). This can be turned off by the option in the top left corner of the
+      Bulk Conversion dialog.  
+
     * From the settings set in the Bulk conversion dialog
 
-Note that the final settings for each book in a Bulk Conversion will be saved and re-used if the book is converted again. Since the
-highest priority in Bulk Conversion is given to the settings in the Bulk Conversion dialog, these will override any book specific
-settings. So you should only bulk convert books together that need similar settings. The exceptions are metadata and input format specific 
-settings. Since the Bulk Conversion dialog does not have settings for these two categories, they will be taken from book specific
+Note that the final settings for each book in a Bulk Conversion will be saved
+and re-used if the book is converted again. Since the highest priority in Bulk
+Conversion is given to the settings in the Bulk Conversion dialog, these will
+override any book specific settings. So you should only bulk convert books
+together that need similar settings. The exceptions are metadata and input
+format specific settings. Since the Bulk Conversion dialog does not have
+settings for these two categories, they will be taken from book specific
 settings (if any) or the defaults. 
 
 .. note::
@@ -772,9 +785,11 @@ size. By default, |app| uses a page size defined by the current
 :guilabel:`Output profile`. So if your output profile is set to Kindle, |app|
 will create a PDF with page size suitable for viewing on the small kindle
 screen. However, if you view this PDF file on a computer screen, then it will
-appear to have too large fonts. To create "normal" sized PDFs, use the override
-page size option under :guilabel:`PDF Output` in the conversion dialog.
+appear to have too large fonts. To create "normal" sized PDFs, use the
+:guilabel:`Override page size` option under :guilabel:`PDF Output` in the conversion dialog.
 
+Headers and Footers
+^^^^^^^^^^^^^^^^^^^^
 You can insert arbitrary headers and footers on each page of the PDF by
 specifying header and footer templates. Templates are just snippets of HTML
 code that get rendered in the header and footer locations. For example, to
@@ -812,6 +827,9 @@ the page will be used.
 .. note:: When adding headers and footers make sure you set the page top and
     bottom margins to large enough values, under the Page Setup section of the
     conversion dialog.
+
+Printable Table of Contents
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 You can also insert a printable Table of Contents at the end of the PDF that
 lists the page numbers for every section. This is very useful if you intend to

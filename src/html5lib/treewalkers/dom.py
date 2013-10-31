@@ -1,10 +1,12 @@
+from __future__ import absolute_import, division, unicode_literals
+
 from xml.dom import Node
 
 import gettext
 _ = gettext.gettext
 
-import _base
-from html5lib.constants import voidElements
+from . import _base
+
 
 class TreeWalker(_base.NonRecursiveTreeWalker):
     def getNodeDetails(self, node):
@@ -15,8 +17,15 @@ class TreeWalker(_base.NonRecursiveTreeWalker):
             return _base.TEXT, node.nodeValue
 
         elif node.nodeType == Node.ELEMENT_NODE:
-            return (_base.ELEMENT, node.namespaceURI, node.nodeName, 
-                    node.attributes.items(), node.hasChildNodes)
+            attrs = {}
+            for attr in list(node.attributes.keys()):
+                attr = node.getAttributeNode(attr)
+                if attr.namespaceURI:
+                    attrs[(attr.namespaceURI, attr.localName)] = attr.value
+                else:
+                    attrs[(None, attr.name)] = attr.value
+            return (_base.ELEMENT, node.namespaceURI, node.nodeName,
+                    attrs, node.hasChildNodes())
 
         elif node.nodeType == Node.COMMENT_NODE:
             return _base.COMMENT, node.nodeValue

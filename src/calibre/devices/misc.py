@@ -9,8 +9,7 @@ __docformat__ = 'restructuredtext en'
 import os
 
 from calibre.devices.usbms.driver import USBMS
-from calibre import prints
-prints
+from calibre import fsync
 
 class PALMPRE(USBMS):
 
@@ -100,6 +99,7 @@ class PDNOVEL(USBMS):
         if coverdata and coverdata[2]:
             with open('%s.jpg' % os.path.join(path, filename), 'wb') as coverfile:
                 coverfile.write(coverdata[2])
+                fsync(coverfile)
 
 class PDNOVEL_KOBO(PDNOVEL):
     name = 'Pandigital Kobo device interface'
@@ -118,6 +118,7 @@ class PDNOVEL_KOBO(PDNOVEL):
                 os.makedirs(dirpath)
             with open(os.path.join(dirpath, filename+'.jpg'), 'wb') as coverfile:
                 coverfile.write(coverdata[2])
+                fsync(coverfile)
 
 
 class VELOCITYMICRO(USBMS):
@@ -190,6 +191,7 @@ class LUMIREAD(USBMS):
                 os.makedirs(pdir)
             with open(cfilepath+'.jpg', 'wb') as f:
                 f.write(metadata.thumbnail[-1])
+                fsync(f)
 
 class ALURATEK_COLOR(USBMS):
 
@@ -211,6 +213,7 @@ class ALURATEK_COLOR(USBMS):
     VENDOR_NAME = ['USB_2.0', 'EZREADER', 'C4+']
     WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = ['USB_FLASH_DRIVER', '.', 'TOUCH']
     SCAN_FROM_ROOT = True
+    SUPPORTS_SUB_DIRS_FOR_SCAN = True
 
 class TREKSTOR(USBMS):
 
@@ -226,16 +229,18 @@ class TREKSTOR(USBMS):
     VENDOR_ID   = [0x1e68]
     PRODUCT_ID  = [0x0041, 0x0042, 0x0052, 0x004e, 0x0056,
             0x0067,  # This is for the Pyrus Mini
+            0x006f,  # This is for the Pyrus Maxi
             0x003e,  # This is for the EBOOK_PLAYER_5M https://bugs.launchpad.net/bugs/792091
-            0x5cL,  # This is for the 4ink http://www.mobileread.com/forums/showthread.php?t=191318
+            0x05cL,  # This is for the 4ink http://www.mobileread.com/forums/showthread.php?t=191318
+            0x006c,  # This is for the 4ink http://www.mobileread.com/forums/showthread.php?t=218273
             ]
-    BCD         = [0x0002, 0x100]
+    BCD         = [0x0002, 0x100, 0x0222]
 
     EBOOK_DIR_MAIN = 'Ebooks'
 
     VENDOR_NAME = 'TREKSTOR'
     WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = ['EBOOK_PLAYER_7',
-            'EBOOK_PLAYER_5M', 'EBOOK-READER_3.0', 'EREADER_PYRUS', 'PYRUS_MINI']
+            'EBOOK_PLAYER_5M', 'EBOOK-READER_3.0', 'EREADER_PYRUS', 'PYRUS_MINI', 'PYRUS_MAXI']
     SUPPORTS_SUB_DIRS = True
     SUPPORTS_SUB_DIRS_DEFAULT = False
 
@@ -331,6 +336,7 @@ class NEXTBOOK(USBMS):
                 os.makedirs(thumbnail_dir)
             with open(os.path.join(thumbnail_dir, filename+'.jpg'), 'wb') as f:
                 f.write(metadata.thumbnail[-1])
+                fsync(f)
     '''
 
 class MOOVYBOOK(USBMS):
@@ -455,7 +461,7 @@ class WAYTEQ(USBMS):
 
     def linux_swap_drives(self, drives):
         # See https://bugs.launchpad.net/bugs/1151901
-        if len(drives) < 2 or not drives[1] or not drives[2]:
+        if len(drives) < 2 or not drives[0] or not drives[1]:
             return drives
         drives = list(drives)
         t = drives[0]
@@ -474,5 +480,28 @@ class WAYTEQ(USBMS):
             names['carda'] = main
 
         return names
+
+
+class WOXTER(USBMS):
+
+    name           = 'Woxter Scriba device interface'
+    gui_name       = 'Woxter Scriba'
+    description    = _('Communicate with the Woxter Scriba reader')
+    author         = 'Kovid Goyal'
+    supported_platforms = ['windows', 'osx', 'linux']
+
+    # Ordered list of supported formats
+    FORMATS     = ['epub', 'mobi', 'fb2', 'txt', 'pdf', 'html', 'rtf', 'djvu', 'doc']
+
+    VENDOR_ID   = [0x2207]
+    PRODUCT_ID  = [0x2818]
+    BCD         = [0x0100]
+
+    EBOOK_DIR_MAIN = 'Books'
+    SCAN_FROM_ROOT = True
+    SUPPORTS_SUB_DIRS = True
+
+    VENDOR_NAME = ['ROCKCHIP']
+    WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = ['EREADER']
 
 

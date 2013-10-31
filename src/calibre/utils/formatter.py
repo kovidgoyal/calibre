@@ -137,6 +137,7 @@ class _Parser(object):
             # We have a function.
             # Check if it is a known one. We do this here so error reporting is
             # better, as it can identify the tokens near the problem.
+            id = id.strip()
             if id not in funcs:
                 self.error(_('unknown function {0}').format(id))
 
@@ -246,6 +247,7 @@ class _CompileParser(_Parser):
             # We have a function.
             # Check if it is a known one. We do this here so error reporting is
             # better, as it can identify the tokens near the problem.
+            id = id.strip()
             if id not in funcs:
                 self.error(_('unknown function {0}').format(id))
 
@@ -457,7 +459,7 @@ class TemplateFormatter(string.Formatter):
                     colon += 1
 
                 funcs = formatter_functions().get_functions()
-                fname = fmt[colon:p]
+                fname = fmt[colon:p].strip()
                 if fname in funcs:
                     func = funcs[fname]
                     if func.arg_count == 2:
@@ -513,8 +515,8 @@ class TemplateFormatter(string.Formatter):
         try:
             ans = self.evaluate(fmt, [], kwargs).strip()
         except Exception as e:
-#            if DEBUG:
-#                traceback.print_exc()
+            if DEBUG and getattr(e, 'is_locking_error', False):
+                traceback.print_exc()
             ans = error_value + ' ' + e.message
         return ans
 
@@ -527,7 +529,7 @@ class ValidateFormatter(TemplateFormatter):
 
     def validate(self, x):
         from calibre.ebooks.metadata.book.base import Metadata
-        self.book = Metadata('');
+        self.book = Metadata('')
         return self.vformat(x, [], {})
 
 validation_formatter = ValidateFormatter()

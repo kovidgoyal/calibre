@@ -7,6 +7,7 @@ __docformat__ = 'restructuredtext en'
 
 import os
 from functools import partial
+from collections import defaultdict
 
 from PyQt4.Qt import QPixmap, QTimer
 
@@ -14,11 +15,13 @@ from calibre import as_unicode
 from calibre.gui2 import (error_dialog, choose_files, choose_dir,
         warning_dialog, info_dialog)
 from calibre.gui2.dialogs.add_empty_book import AddEmptyBookDialog
+from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.gui2.dialogs.progress import ProgressDialog
 from calibre.gui2.widgets import IMAGE_EXTENSIONS
 from calibre.ebooks import BOOK_EXTENSIONS
 from calibre.utils.filenames import ascii_filename
-from calibre.constants import preferred_encoding, filesystem_encoding
+from calibre.utils.icu import sort_key
+from calibre.constants import filesystem_encoding
 from calibre.gui2.actions import InterfaceAction
 from calibre.gui2 import question_dialog
 from calibre.ebooks.metadata import MetaInformation
@@ -109,6 +112,19 @@ class AddAction(InterfaceAction):
             return
 
         db = view.model().db
+        if len(ids) == 1:
+            formats = db.formats(ids[0], index_is_id=True)
+            if formats:
+                formats = {x.upper() for x in formats.split(',')}
+                nformats = {f.rpartition('.')[-1].upper() for f in books}
+                override = formats.intersection(nformats)
+                if override:
+                    title = db.title(ids[0], index_is_id=True)
+                    msg = _('The {0} format(s) will be replaced in the book {1}. Are you sure?').format(
+                        ', '.join(override), title)
+                    if not confirm(msg, 'confirm_format_override_on_add', title=_('Are you sure'), parent=self.gui):
+                        return
+
         for id_ in ids:
             for fpath in books:
                 fmt = os.path.splitext(fpath)[1][1:].upper()
@@ -118,7 +134,6 @@ class AddAction(InterfaceAction):
         current_idx = self.gui.library_view.currentIndex()
         if current_idx.isValid():
             view.model().current_changed(current_idx, current_idx)
-
 
     def add_recursive(self, single):
         root = choose_dir(self.gui, 'recursive book import root dir dialog',
@@ -205,7 +220,6 @@ class AddAction(InterfaceAction):
                         'authors']))
                 return
 
-
             mi = MetaInformation(None)
             mi.isbn = x['isbn']
             if self.isbn_add_tags:
@@ -227,7 +241,8 @@ class AddAction(InterfaceAction):
             return
         db = self.gui.library_view.model().db
         current_idx = self.gui.library_view.currentIndex()
-        if not current_idx.isValid(): return
+        if not current_idx.isValid():
+            return
         cid = db.id(current_idx.row())
         from calibre.gui2.dnd import DownloadDialog
         d = DownloadDialog(url, fname, self.gui)
@@ -235,7 +250,7 @@ class AddAction(InterfaceAction):
         if d.err is None:
             self.files_dropped_on_book(None, [d.fpath], cid=cid)
 
-    def files_dropped_on_book(self, event, paths, cid=None):
+    def files_dropped_on_book(self, event, paths, cid=None, do_confirm=True):
         accept = False
         if self.gui.current_view() is not self.gui.library_view:
             return
@@ -243,8 +258,10 @@ class AddAction(InterfaceAction):
         cover_changed = False
         current_idx = self.gui.library_view.currentIndex()
         if cid is None:
-            if not current_idx.isValid(): return
+            if not current_idx.isValid():
+                return
             cid = db.id(current_idx.row()) if cid is None else cid
+        formats = []
         for path in paths:
             ext = os.path.splitext(path)[1].lower()
             if ext:
@@ -257,10 +274,18 @@ class AddAction(InterfaceAction):
                     db.set_cover(cid, pmap)
                     cover_changed = True
             elif ext in BOOK_EXTENSIONS:
-                db.add_format_with_hooks(cid, ext, path, index_is_id=True)
+                formats.append((ext, path))
                 accept = True
         if accept and event is not None:
             event.accept()
+        if do_confirm and formats:
+            if not confirm(
+                _('You have dropped some files onto the book <b>%s</b>. This will'
+                  ' add or replace the files for this book. Do you want to proceed?') % db.title(cid, index_is_id=True),
+                'confirm_drop_on_book', parent=self.gui):
+                formats = []
+        for ext, path in formats:
+            db.add_format_with_hooks(cid, ext, path, index_is_id=True)
         if current_idx.isValid():
             self.gui.library_view.model().current_changed(current_idx, current_idx)
         if cover_changed:
@@ -277,9 +302,8 @@ class AddAction(InterfaceAction):
             to_device = allow_device and self.gui.stack.currentIndex() != 0
             self._add_books(books, to_device)
             if to_device:
-                self.gui.status_bar.show_message(\
+                self.gui.status_bar.show_message(
                         _('Uploading books to device.'), 2000)
-
 
     def add_filesystem_book(self, paths, allow_device=True):
         self._add_filesystem_book(paths, allow_device=allow_device)
@@ -336,15 +360,21 @@ class AddAction(InterfaceAction):
             self.gui.tags_view.recount()
 
         if getattr(self._adder, 'merged_books', False):
-            books = u'\n'.join([x if isinstance(x, unicode) else
-                    x.decode(preferred_encoding, 'replace') for x in
-                    self._adder.merged_books])
+            merged = defaultdict(list)
+            for title, author in self._adder.merged_books:
+                merged[author].append(title)
+            lines = []
+            for author in sorted(merged, key=sort_key):
+                lines.append(author)
+                for title in sorted(merged[author], key=sort_key):
+                    lines.append('\t' + title)
+                lines.append('')
             info_dialog(self.gui, _('Merged some books'),
                 _('The following %d duplicate books were found and incoming '
                     'book formats were processed and merged into your '
                     'Calibre database according to your automerge '
                     'settings:')%len(self._adder.merged_books),
-                    det_msg=books, show=True)
+                    det_msg='\n'.join(lines), show=True)
 
         if getattr(self._adder, 'number_of_books_added', 0) > 0 or \
                 getattr(self._adder, 'merged_books', False):
@@ -451,5 +481,6 @@ class AddAction(InterfaceAction):
             self._adder = Adder(self.gui, self.gui.library_view.model().db,
                     self.Dispatcher(self.__adder_func), spare_server=self.gui.spare_server)
             self._adder.add(ok_paths)
+
 
 

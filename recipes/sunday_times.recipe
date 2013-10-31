@@ -1,6 +1,6 @@
 
 __license__   = 'GPL v3'
-__copyright__ = '2010-2012, Darko Miletic <darko.miletic at gmail.com>'
+__copyright__ = '2010-2013, Darko Miletic <darko.miletic at gmail.com>'
 '''
 www.thesundaytimes.co.uk
 '''
@@ -50,7 +50,7 @@ class TimesOnline(BasicNewsRecipe):
                                      ,'username':self.username
                                      ,'password':self.password
                                    })
-            br.open('https://acs.thetimes.co.uk/user/login',data)
+            br.open('https://login.thetimes.co.uk/',data)
         return br
 
     remove_tags      = [

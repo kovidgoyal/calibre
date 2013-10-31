@@ -15,7 +15,7 @@ from calibre.gui2 import UNDEFINED_QDATETIME, error_dialog, rating_font
 from calibre.constants import iswindows
 from calibre.gui2.widgets import EnLineEdit
 from calibre.gui2.complete2 import EditWithComplete
-from calibre.utils.date import now, format_date, qt_to_dt
+from calibre.utils.date import now, format_date, qt_to_dt, is_date_undefined
 from calibre.utils.config import tweaks
 from calibre.utils.formatter import validation_formatter
 from calibre.utils.icu import sort_key
@@ -36,12 +36,28 @@ class DateTimeEdit(QDateTimeEdit):  # {{{
     def keyPressEvent(self, ev):
         if ev.key() == Qt.Key_Minus:
             ev.accept()
-            self.setDateTime(self.minimumDateTime())
+            self.setDateTime(UNDEFINED_QDATETIME)
         elif ev.key() == Qt.Key_Equal:
             ev.accept()
             self.setDateTime(QDateTime.currentDateTime())
         else:
             return QDateTimeEdit.keyPressEvent(self, ev)
+# }}}
+
+class ClearingSpinBox(QSpinBox):    # {{{
+    def keyPressEvent(self, ev):
+        if ev.key() == Qt.Key_Space:
+            self.setValue(-1000000)
+        else:
+            return QSpinBox.keyPressEvent(self, ev)
+# }}}
+
+class ClearingDoubleSpinBox(QDoubleSpinBox):    # {{{
+    def keyPressEvent(self, ev):
+        if ev.key() == Qt.Key_Space:
+            self.setValue(-1000000.0)
+        else:
+            return QDoubleSpinBox.keyPressEvent(self, ev)
 # }}}
 
 class RatingDelegate(QStyledItemDelegate):  # {{{
@@ -91,10 +107,10 @@ class DateDelegate(QStyledItemDelegate):  # {{{
             self.format = default_format
 
     def displayText(self, val, locale):
-        d = val.toDateTime()
-        if d <= UNDEFINED_QDATETIME:
+        d = qt_to_dt(val.toDateTime())
+        if is_date_undefined(d):
             return ''
-        return format_date(qt_to_dt(d, as_utc=False), self.format)
+        return format_date(d, self.format)
 
     def createEditor(self, parent, option, index):
         return DateTimeEdit(parent, self.format)
@@ -110,17 +126,17 @@ class PubDateDelegate(QStyledItemDelegate):  # {{{
             self.format = 'MMM yyyy'
 
     def displayText(self, val, locale):
-        d = val.toDateTime()
-        if d <= UNDEFINED_QDATETIME:
+        d = qt_to_dt(val.toDateTime())
+        if is_date_undefined(d):
             return ''
-        return format_date(qt_to_dt(d, as_utc=False), self.format)
+        return format_date(d, self.format)
 
     def createEditor(self, parent, option, index):
         return DateTimeEdit(parent, self.format)
 
     def setEditorData(self, editor, index):
         val = index.data(Qt.EditRole).toDate()
-        if val == UNDEFINED_QDATETIME.date():
+        if is_date_undefined(val):
             val = QDate(2000, 1, 1)
         editor.setDate(val)
 
@@ -234,10 +250,10 @@ class CcDateDelegate(QStyledItemDelegate):  # {{{
             self.format = format
 
     def displayText(self, val, locale):
-        d = val.toDateTime()
-        if d <= UNDEFINED_QDATETIME:
+        d = qt_to_dt(val.toDateTime())
+        if is_date_undefined(d):
             return ''
-        return format_date(qt_to_dt(d, as_utc=False), self.format)
+        return format_date(d, self.format)
 
     def createEditor(self, parent, option, index):
         return DateTimeEdit(parent, self.format)
@@ -253,7 +269,7 @@ class CcDateDelegate(QStyledItemDelegate):  # {{{
 
     def setModelData(self, editor, model, index):
         val = editor.dateTime()
-        if val <= UNDEFINED_QDATETIME:
+        if is_date_undefined(val):
             val = None
         model.setData(index, QVariant(val), Qt.EditRole)
 
@@ -293,14 +309,14 @@ class CcNumberDelegate(QStyledItemDelegate):  # {{{
         m = index.model()
         col = m.column_map[index.column()]
         if m.custom_columns[col]['datatype'] == 'int':
-            editor = QSpinBox(parent)
+            editor = ClearingSpinBox(parent)
             editor.setRange(-1000000, 100000000)
             editor.setSpecialValueText(_('Undefined'))
             editor.setSingleStep(1)
         else:
-            editor = QDoubleSpinBox(parent)
+            editor = ClearingDoubleSpinBox(parent)
             editor.setSpecialValueText(_('Undefined'))
-            editor.setRange(-1000000., 100000000)
+            editor.setRange(-1000000., 100000000.)
             editor.setDecimals(2)
         return editor
 
@@ -382,7 +398,7 @@ class CcCommentsDelegate(QStyledItemDelegate):  # {{{
         m = index.model()
         col = m.column_map[index.column()]
         text = m.db.data[index.row()][m.custom_columns[col]['rec_index']]
-        editor = CommentsDialog(parent, text)
+        editor = CommentsDialog(parent, text, column_name=m.custom_columns[col]['name'])
         d = editor.exec_()
         if d:
             m.setData(index, QVariant(editor.textbox.html), Qt.EditRole)

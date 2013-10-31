@@ -127,7 +127,7 @@ class OEBReader(object):
     def _metadata_from_opf(self, opf):
         from calibre.ebooks.metadata.opf2 import OPF
         from calibre.ebooks.oeb.transforms.metadata import meta_info_to_oeb_metadata
-        stream = cStringIO.StringIO(etree.tostring(opf))
+        stream = cStringIO.StringIO(etree.tostring(opf, xml_declaration=True, encoding='utf-8'))
         mi = OPF(stream).to_book_metadata()
         if not mi.language:
             mi.language = get_lang().replace('_', '-')
@@ -330,6 +330,9 @@ class OEBReader(object):
         if len(spine) == 0:
             raise OEBError("Spine is empty")
         self._spine_add_extra()
+        for val in xpath(opf, '/o2:package/o2:spine/@page-progression-direction'):
+            if val in {'ltr', 'rtl'}:
+                spine.page_progression_direction = val
 
     def _guide_from_opf(self, opf):
         guide = self.oeb.guide

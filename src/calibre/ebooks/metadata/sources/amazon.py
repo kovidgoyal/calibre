@@ -19,6 +19,11 @@ from calibre.ebooks.metadata.sources.base import (Source, Option, fixcase,
 from calibre.ebooks.metadata.book.base import Metadata
 from calibre.utils.localization import canonicalize_lang
 
+def CSSSelect(expr):
+    from cssselect import HTMLTranslator
+    from lxml.etree import XPath
+    return XPath(HTMLTranslator().css_to_xpath(expr))
+
 class Worker(Thread):  # Get details {{{
 
     '''
@@ -41,14 +46,14 @@ class Worker(Thread):  # Get details {{{
 
         months = {
                 'de': {
-            1: ['jän'],
+            1: ['jän', 'januar'],
             2: ['februar'],
             3: ['märz'],
             5: ['mai'],
             6: ['juni'],
             7: ['juli'],
-            10: ['okt'],
-            12: ['dez']
+            10: ['okt', 'oktober'],
+            12: ['dez', 'dezember']
             },
                 'it': {
             1: ['enn'],
@@ -142,6 +147,8 @@ class Worker(Thread):  # Get details {{{
                     starts-with(text(), "Editora:") or \
                     starts-with(text(), "出版社:")]
             '''
+        self.publisher_names = {'Publisher', 'Verlag', 'Editore', 'Editeur', 'Editor', 'Editora', '出版社'}
+
         self.language_xpath =    '''
             descendant::*[
                 starts-with(text(), "Language:") \
@@ -153,6 +160,19 @@ class Worker(Thread):  # Get details {{{
                 or starts-with(text(), "言語") \
                 ]
             '''
+        self.language_names = {'Language', 'Sprache', 'Lingua', 'Idioma', 'Langue', '言語'}
+
+        self.tags_xpath = '''
+            descendant::h2[
+                text() = "Look for Similar Items by Category" or
+                text() = "Ähnliche Artikel finden" or
+                text() = "Buscar productos similares por categoría" or
+                text() = "Ricerca articoli simili per categoria" or
+                text() = "Rechercher des articles similaires par rubrique" or
+                text() = "Procure por itens similares por categoria" or
+                text() = "関連商品を探す"
+            ]/../descendant::ul/li
+        '''
 
         self.ratings_pat = re.compile(
             r'([0-9.]+) ?(out of|von|su|étoiles sur|つ星のうち|de un máximo de|de) ([\d\.]+)( (stars|Sternen|stelle|estrellas|estrelas)){0,1}')
@@ -305,41 +325,54 @@ class Worker(Thread):  # Get details {{{
             self.log.exception('Error parsing series for url: %r'%self.url)
 
         try:
+            mi.tags = self.parse_tags(root)
+        except:
+            self.log.exception('Error parsing tags for url: %r'%self.url)
+
+        try:
             self.cover_url = self.parse_cover(root, raw)
         except:
             self.log.exception('Error parsing cover for url: %r'%self.url)
         mi.has_cover = bool(self.cover_url)
 
-        pd = root.xpath(self.pd_xpath)
-        if pd:
-            pd = pd[0]
-
+        non_hero = CSSSelect('div#bookDetails_container_div div#nonHeroSection')(root)
+        if non_hero:
+            # New style markup
             try:
-                isbn = self.parse_isbn(pd)
-                if isbn:
-                    self.isbn = mi.isbn = isbn
+                self.parse_new_details(root, mi, non_hero[0])
             except:
-                self.log.exception('Error parsing ISBN for url: %r'%self.url)
-
-            try:
-                mi.publisher = self.parse_publisher(pd)
-            except:
-                self.log.exception('Error parsing publisher for url: %r'%self.url)
-
-            try:
-                mi.pubdate = self.parse_pubdate(pd)
-            except:
-                self.log.exception('Error parsing publish date for url: %r'%self.url)
-
-            try:
-                lang = self.parse_language(pd)
-                if lang:
-                    mi.language = lang
-            except:
-                self.log.exception('Error parsing language for url: %r'%self.url)
-
+                self.log.exception('Failed to parse new-style book details section')
         else:
-            self.log.warning('Failed to find product description for url: %r'%self.url)
+            pd = root.xpath(self.pd_xpath)
+            if pd:
+                pd = pd[0]
+
+                try:
+                    isbn = self.parse_isbn(pd)
+                    if isbn:
+                        self.isbn = mi.isbn = isbn
+                except:
+                    self.log.exception('Error parsing ISBN for url: %r'%self.url)
+
+                try:
+                    mi.publisher = self.parse_publisher(pd)
+                except:
+                    self.log.exception('Error parsing publisher for url: %r'%self.url)
+
+                try:
+                    mi.pubdate = self.parse_pubdate(pd)
+                except:
+                    self.log.exception('Error parsing publish date for url: %r'%self.url)
+
+                try:
+                    lang = self.parse_language(pd)
+                    if lang:
+                        mi.language = lang
+                except:
+                    self.log.exception('Error parsing language for url: %r'%self.url)
+
+            else:
+                self.log.warning('Failed to find product description for url: %r'%self.url)
 
         mi.source_relevance = self.relevance
 
@@ -359,7 +392,16 @@ class Worker(Thread):  # Get details {{{
         for l in link:
             return l.get('href').rpartition('/')[-1]
 
+    def totext(self, elem):
+        return self.tostring(elem, encoding=unicode, method='text').strip()
+
     def parse_title(self, root):
+        h1 = root.xpath('//h1[@id="title"]')
+        if h1:
+            h1 = h1[0]
+            for child in h1.xpath('./*[contains(@class, "a-color-secondary")]'):
+                h1.remove(child)
+            return self.totext(h1)
         tdiv = root.xpath('//h1[contains(@class, "parseasinTitle")]')[0]
         actual_title = tdiv.xpath('descendant::*[@id="btAsinTitle"]')
         if actual_title:
@@ -373,6 +415,13 @@ class Worker(Thread):  # Get details {{{
         return ans
 
     def parse_authors(self, root):
+        matches = CSSSelect('#byline .author .contributorNameID')(root)
+        if not matches:
+            matches = CSSSelect('#byline .author a.a-link-normal')(root)
+        if matches:
+            authors = [self.totext(x) for x in matches]
+            return [a for a in authors if a]
+
         x = '//h1[contains(@class, "parseasinTitle")]/following-sibling::span/*[(name()="a" and @href) or (name()="span" and @class="contributorNameTrigger")]'
         aname = root.xpath(x)
         if not aname:
@@ -387,11 +436,20 @@ class Worker(Thread):  # Get details {{{
         return authors
 
     def parse_rating(self, root):
-        ratings = root.xpath('//div[@class="jumpBar"]/descendant::span[contains(@class,"asinReviewsSummary")]')
-        if not ratings:
-            ratings = root.xpath('//div[@class="buying"]/descendant::span[contains(@class,"asinReviewsSummary")]')
-        if not ratings:
-            ratings = root.xpath('//span[@class="crAvgStars"]/descendant::span[contains(@class,"asinReviewsSummary")]')
+        for x in root.xpath('//div[@id="cpsims-feature" or @id="purchase-sims-feature" or @id="rhf"]'):
+            # Remove the similar books section as it can cause sppurious
+            # ratings matches
+            x.getparent().remove(x)
+
+        rating_paths = ('//div[@data-feature-name="averageCustomerReviews"]',
+                        '//div[@class="jumpBar"]/descendant::span[contains(@class,"asinReviewsSummary")]',
+                        '//div[@class="buying"]/descendant::span[contains(@class,"asinReviewsSummary")]',
+                        '//span[@class="crAvgStars"]/descendant::span[contains(@class,"asinReviewsSummary")]')
+        ratings = None
+        for p in rating_paths:
+            ratings = root.xpath(p)
+            if ratings:
+                break
         if ratings:
             for elem in ratings[0].xpath('descendant::*[@title]'):
                 t = elem.get('title').strip()
@@ -420,8 +478,8 @@ class Worker(Thread):  # Get details {{{
         # remove all attributes from tags
         desc = re.sub(r'<([a-zA-Z0-9]+)\s[^>]+>', r'<\1>', desc)
         # Collapse whitespace
-        #desc = re.sub('\n+', '\n', desc)
-        #desc = re.sub(' +', ' ', desc)
+        # desc = re.sub('\n+', '\n', desc)
+        # desc = re.sub(' +', ' ', desc)
         # Remove the notice about text referring to out of print editions
         desc = re.sub(r'(?s)<em>--This text ref.*?</em>', '', desc)
         # Remove comments
@@ -429,6 +487,17 @@ class Worker(Thread):  # Get details {{{
         return sanitize_comments_html(desc)
 
     def parse_comments(self, root):
+        ns = CSSSelect('#bookDescription_feature_div noscript')(root)
+        if ns:
+            ns = ns[0]
+            if len(ns) == 0 and ns.text:
+                import html5lib
+                # html5lib parsed noscript as CDATA
+                ns = html5lib.parseFragment('<div>%s</div>' % (ns.text), treebuilder='lxml', namespaceHTMLElements=False)[0]
+            else:
+                ns.tag = 'div'
+            return self._render_comments(ns)
+
         ans = ''
         desc = root.xpath('//div[@id="ps-content"]/div[@class="content"]')
         if desc:
@@ -452,10 +521,29 @@ class Worker(Thread):  # Get details {{{
                     ans = (s, i)
         return ans
 
+    def parse_tags(self, root):
+        ans = []
+        exclude_tokens = {'kindle', 'a-z'}
+        exclude = {'special features', 'by authors', 'authors & illustrators', 'books', 'new; used & rental textbooks'}
+        seen = set()
+        for li in root.xpath(self.tags_xpath):
+            for i, a in enumerate(li.iterdescendants('a')):
+                if i > 0:
+                    # we ignore the first category since it is almost always too broad
+                    raw = (a.text or '').strip().replace(',', ';')
+                    lraw = icu_lower(raw)
+                    tokens = frozenset(lraw.split())
+                    if raw and lraw not in exclude and not tokens.intersection(exclude_tokens) and lraw not in seen:
+                        ans.append(raw)
+                        seen.add(lraw)
+        return ans
+
     def parse_cover(self, root, raw=b""):
         imgs = root.xpath('//img[(@id="prodImage" or @id="original-main-image" or @id="main-image") and @src]')
         if not imgs:
             imgs = root.xpath('//div[@class="main-image-inner-wrapper"]/img[@src]')
+            if not imgs:
+                imgs = root.xpath('//div[@id="main-image-container"]//img[@src]')
         if imgs:
             src = imgs[0].get('src')
             if 'loading-' in src:
@@ -471,6 +559,37 @@ class Worker(Thread):  # Get details {{{
                     if len(sparts) > 2:
                         bn = re.sub(r'\.\.jpg$', '.jpg', (sparts[0] + sparts[-1]))
                         return ('/'.join(parts[:-1]))+'/'+bn
+
+    def parse_new_details(self, root, mi, non_hero):
+        table = non_hero.xpath('descendant::table')[0]
+        for tr in table.xpath('descendant::tr'):
+            cells = tr.xpath('descendant::td')
+            if len(cells) == 2:
+                name = self.totext(cells[0])
+                val = self.totext(cells[1])
+                if not val:
+                    continue
+                if name in self.language_names:
+                    ans = self.lang_map.get(val, None)
+                    if not ans:
+                        ans = canonicalize_lang(val)
+                    if ans:
+                        mi.language = ans
+                elif name in self.publisher_names:
+                    pub = val.partition(';')[0].partition('(')[0].strip()
+                    if pub:
+                        mi.publisher = pub
+                    date = val.rpartition('(')[-1].replace(')', '').strip()
+                    try:
+                        from calibre.utils.date import parse_only_date
+                        date = self.delocalize_datestr(date)
+                        mi.pubdate = parse_only_date(date, assume_utc=True)
+                    except:
+                        self.log.exception('Failed to parse pubdate: %s' % val)
+                elif name in {'ISBN', 'ISBN-10', 'ISBN-13'}:
+                    ans = check_isbn(val)
+                    if ans:
+                        self.isbn = mi.isbn = ans
 
     def parse_isbn(self, pd):
         items = pd.xpath(
@@ -634,6 +753,16 @@ class Amazon(Source):
             mi.tags = list(map(fixcase, mi.tags))
         mi.isbn = check_isbn(mi.isbn)
 
+    def get_website_domain(self, domain):
+        udomain = domain
+        if domain == 'uk':
+            udomain = 'co.uk'
+        elif domain == 'jp':
+            udomain = 'co.jp'
+        elif domain == 'br':
+            udomain = 'com.br'
+        return udomain
+
     def create_query(self, log, title=None, authors=None, identifiers={},  # {{{
             domain=None):
         from urllib import urlencode
@@ -689,14 +818,7 @@ class Amazon(Source):
         encoded_q = dict([(x.encode(encode_to, 'ignore'), y.encode(encode_to,
             'ignore')) for x, y in
             q.iteritems()])
-        udomain = domain
-        if domain == 'uk':
-            udomain = 'co.uk'
-        elif domain == 'jp':
-            udomain = 'co.jp'
-        elif domain == 'br':
-            udomain = 'com.br'
-        url = 'http://www.amazon.%s/s/?'%udomain + urlencode(encoded_q)
+        url = 'http://www.amazon.%s/s/?'%self.get_website_domain(domain) + urlencode(encoded_q)
         return url, domain
 
     # }}}
@@ -714,16 +836,16 @@ class Amazon(Source):
         return url
     # }}}
 
-    def parse_results_page(self, root):  # {{{
+    def parse_results_page(self, root, domain):  # {{{
         from lxml.html import tostring
 
         matches = []
 
         def title_ok(title):
             title = title.lower()
-            bad = ['bulk pack', '[audiobook]', '[audio cd]']
+            bad = ['bulk pack', '[audiobook]', '[audio cd]', '(a book companion)', '( slipcase with door )']
             if self.domain == 'com':
-                bad.append('(spanish edition)')
+                bad.extend(['(%s edition)' % x for x in ('spanish', 'german')])
             for x in bad:
                 if x in title:
                     return False
@@ -737,7 +859,10 @@ class Amazon(Source):
             for a in links:
                 title = tostring(a, method='text', encoding=unicode)
                 if title_ok(title):
-                    matches.append(a.get('href'))
+                    url = a.get('href')
+                    if url.startswith('/'):
+                        url = 'http://www.amazon.%s%s' % (self.get_website_domain(domain), url)
+                    matches.append(url)
                 break
 
         if not matches:
@@ -748,7 +873,10 @@ class Amazon(Source):
                 for a in td.xpath(r'descendant::td[@class="dataColumn"]/descendant::a[@href]/span[@class="srTitle"]/..'):
                     title = tostring(a, method='text', encoding=unicode)
                     if title_ok(title):
-                        matches.append(a.get('href'))
+                        url = a.get('href')
+                        if url.startswith('/'):
+                            url = 'http://www.amazon.%s%s' % (self.get_website_domain(domain), url)
+                        matches.append(url)
                     break
 
         # Keep only the top 5 matches as the matches are sorted by relevance by
@@ -824,7 +952,7 @@ class Amazon(Source):
                     found = False
 
         if found:
-            matches = self.parse_results_page(root)
+            matches = self.parse_results_page(root, domain)
 
         if abort.is_set():
             return
@@ -898,16 +1026,10 @@ class Amazon(Source):
     # }}}
 
 if __name__ == '__main__':  # tests {{{
-    # To run these test use: calibre-debug -e
-    # src/calibre/ebooks/metadata/sources/amazon.py
+    # To run these test use: calibre-debug src/calibre/ebooks/metadata/sources/amazon.py
     from calibre.ebooks.metadata.sources.test import (test_identify_plugin,
-            isbn_test, title_test, authors_test, comments_test, series_test)
+            isbn_test, title_test, authors_test, comments_test)
     com_tests = [  # {{{
-
-            (  # Has a spanish edition
-             {'title':'11/22/63'},
-             [title_test('11/22/63: A Novel', exact=True), authors_test(['Stephen King']),]
-             ),
 
             (  # + in title and uses id="main-image" for cover
              {'title':'C++ Concurrency in Action'},
@@ -916,11 +1038,10 @@ if __name__ == '__main__':  # tests {{{
               ]
              ),
 
-            (  # Series
+            (  # noscript description
                 {'identifiers':{'amazon':'0756407117'}},
                 [title_test(
-                "Throne of the Crescent Moon",
-                exact=True), series_test('Crescent Moon Kingdoms', 1),
+                "Throne of the Crescent Moon"),
                 comments_test('Makhslood'),
                 ]
             ),
@@ -930,7 +1051,7 @@ if __name__ == '__main__':  # tests {{{
                 [title_test(
                 "Griffin's Destiny: Book Three: The Griffin's Daughter Trilogy",
                 exact=True),
-                comments_test('Jelena'), comments_test('Leslie'),
+                comments_test('Jelena'), comments_test('Ashinji'),
                 ]
             ),
 
@@ -1053,4 +1174,5 @@ if __name__ == '__main__':  # tests {{{
     # do_test('de')
 
 # }}}
+
 

@@ -71,10 +71,11 @@ class ConvertAction(InterfaceAction):
 
     def auto_convert(self, book_ids, on_card, format):
         previous = self.gui.library_view.currentIndex()
-        rows = [x.row() for x in \
+        rows = [x.row() for x in
                 self.gui.library_view.selectionModel().selectedRows()]
         jobs, changed, bad = convert_single_ebook(self.gui, self.gui.library_view.model().db, book_ids, True, format)
-        if jobs == []: return
+        if jobs == []:
+            return
         self.queue_convert_jobs(jobs, changed, bad, rows, previous,
                 self.book_auto_converted, extra_job_args=[on_card])
 
@@ -92,40 +93,54 @@ class ConvertAction(InterfaceAction):
             jobs, changed, bad = convert_single_ebook(self.gui,
                     self.gui.library_view.model().db, needed, True, of,
                     show_no_format_warning=False)
-            if not jobs: return
+            if not jobs:
+                return
             self.queue_convert_jobs(jobs, changed, bad, list(needed), previous,
                     self.book_converted, rows_are_ids=True)
 
     def auto_convert_mail(self, to, fmts, delete_from_library, book_ids, format, subject):
         previous = self.gui.library_view.currentIndex()
-        rows = [x.row() for x in \
+        rows = [x.row() for x in
                 self.gui.library_view.selectionModel().selectedRows()]
         jobs, changed, bad = convert_single_ebook(self.gui, self.gui.library_view.model().db, book_ids, True, format)
-        if jobs == []: return
+        if jobs == []:
+            return
         self.queue_convert_jobs(jobs, changed, bad, rows, previous,
                 self.book_auto_converted_mail,
                 extra_job_args=[delete_from_library, to, fmts, subject])
 
+    def auto_convert_multiple_mail(self, book_ids, data, ofmt, delete_from_library):
+        previous = self.gui.library_view.currentIndex()
+        rows = [x.row() for x in self.gui.library_view.selectionModel().selectedRows()]
+        jobs, changed, bad = convert_single_ebook(self.gui, self.gui.library_view.model().db, book_ids, True, ofmt)
+        if jobs == []:
+            return
+        self.queue_convert_jobs(jobs, changed, bad, rows, previous,
+                self.book_auto_converted_multiple_mail,
+                extra_job_args=[delete_from_library, data])
+
     def auto_convert_news(self, book_ids, format):
         previous = self.gui.library_view.currentIndex()
-        rows = [x.row() for x in \
+        rows = [x.row() for x in
                 self.gui.library_view.selectionModel().selectedRows()]
         jobs, changed, bad = convert_single_ebook(self.gui, self.gui.library_view.model().db, book_ids, True, format)
-        if jobs == []: return
+        if jobs == []:
+            return
         self.queue_convert_jobs(jobs, changed, bad, rows, previous,
                 self.book_auto_converted_news)
 
     def auto_convert_catalogs(self, book_ids, format):
         previous = self.gui.library_view.currentIndex()
-        rows = [x.row() for x in \
+        rows = [x.row() for x in
                 self.gui.library_view.selectionModel().selectedRows()]
         jobs, changed, bad = convert_single_ebook(self.gui, self.gui.library_view.model().db, book_ids, True, format)
-        if jobs == []: return
+        if jobs == []:
+            return
         self.queue_convert_jobs(jobs, changed, bad, rows, previous,
                 self.book_auto_converted_catalogs)
 
     def get_books_for_conversion(self):
-        rows = [r.row() for r in \
+        rows = [r.row() for r in
                 self.gui.library_view.selectionModel().selectedRows()]
         if not rows or len(rows) == 0:
             d = error_dialog(self.gui, _('Cannot convert'),
@@ -136,12 +151,13 @@ class ConvertAction(InterfaceAction):
 
     def convert_ebook(self, checked, bulk=None):
         book_ids = self.get_books_for_conversion()
-        if book_ids is None: return
+        if book_ids is None:
+            return
         self.do_convert(book_ids, bulk=bulk)
 
     def do_convert(self, book_ids, bulk=None):
         previous = self.gui.library_view.currentIndex()
-        rows = [x.row() for x in \
+        rows = [x.row() for x in
                 self.gui.library_view.selectionModel().selectedRows()]
         num = 0
         if bulk or (bulk is None and len(book_ids) > 1):
@@ -207,6 +223,13 @@ class ConvertAction(InterfaceAction):
         self.gui.send_by_mail(to, fmts, delete_from_library, subject=subject,
                 specific_format=fmt, send_ids=[book_id], do_auto_convert=False)
 
+    def book_auto_converted_multiple_mail(self, job):
+        temp_files, fmt, book_id, delete_from_library, data = self.conversion_jobs[job]
+        self.book_converted(job)
+        for to, subject in data:
+            self.gui.send_by_mail(to, (fmt,), delete_from_library, subject=subject,
+                    specific_format=fmt, send_ids=[book_id], do_auto_convert=False)
+
     def book_auto_converted_news(self, job):
         temp_files, fmt, book_id = self.conversion_jobs[job]
         self.book_converted(job)
@@ -236,7 +259,7 @@ class ConvertAction(InterfaceAction):
 
             with open(temp_files[-1].name, 'rb') as data:
                 db.add_format(book_id, fmt, data, index_is_id=True)
-            self.gui.status_bar.show_message(job.description + \
+            self.gui.status_bar.show_message(job.description +
                     (' completed'), 2000)
         finally:
             for f in temp_files:
@@ -247,9 +270,11 @@ class ConvertAction(InterfaceAction):
                     pass
         self.gui.tags_view.recount()
         if self.gui.current_view() is self.gui.library_view:
-            current = self.gui.library_view.currentIndex()
+            lv = self.gui.library_view
+            lv.model().refresh_ids((book_id,))
+            current = lv.currentIndex()
             if current.isValid():
-                self.gui.library_view.model().current_changed(current, QModelIndex())
+                lv.model().current_changed(current, QModelIndex())
         if manually_fine_tune_toc:
             self.gui.iactions['Edit ToC'].do_one(book_id, fmt.upper())
 

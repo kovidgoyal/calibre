@@ -23,10 +23,8 @@ from calibre.gui2 import error_dialog, question_dialog, info_dialog, NONE, open_
 from calibre.gui2.preferences.plugins import ConfigWidget
 from calibre.utils.date import UNDEFINED_DATE, format_date
 
-
-MR_URL = 'http://www.mobileread.com/forums/'
-MR_INDEX_URL = MR_URL + 'showpost.php?p=1362767&postcount=1'
-
+SERVER = 'http://plugins.calibre-ebook.com/'
+INDEX_URL = '%splugins.json.bz2' % SERVER
 FILTER_ALL = 0
 FILTER_INSTALLED = 1
 FILTER_UPDATE_AVAILABLE = 2
@@ -55,33 +53,30 @@ def filter_not_installed_plugins(display_plugin):
     return not display_plugin.is_installed()
 
 def read_available_plugins(raise_error=False):
+    import json, bz2
     display_plugins = []
     br = browser()
-    br.set_handle_gzip(True)
     try:
-        raw = br.open_novisit(MR_INDEX_URL).read()
+        raw = br.open_novisit(INDEX_URL).read()
         if not raw:
             return
+        raw = json.loads(bz2.decompress(raw))
     except:
         if raise_error:
             raise
         traceback.print_exc()
         return
-    raw = raw.decode('utf-8', errors='replace')
-    root = html.fromstring(raw)
-    list_nodes = root.xpath('//div[@id="post_message_1362767"]/ul/li')
-    # Add our deprecated plugins which are nested in a grey span
-    list_nodes.extend(root.xpath('//div[@id="post_message_1362767"]/span/ul/li'))
-    for list_node in list_nodes:
+    for plugin in raw.itervalues():
         try:
-            display_plugin = DisplayPlugin(list_node)
+            display_plugin = DisplayPlugin(plugin)
             get_installed_plugin_status(display_plugin)
             display_plugins.append(display_plugin)
         except:
             if DEBUG:
-                prints('======= MobileRead Parse Error =======')
+                prints('======= Plugin Parse Error =======')
                 traceback.print_exc()
-                prints(html.tostring(list_node))
+                import pprint
+                pprint.pprint(plugin)
     display_plugins = sorted(display_plugins, key=lambda k: k.name)
     return display_plugins
 
@@ -89,7 +84,7 @@ def get_installed_plugin_status(display_plugin):
     display_plugin.installed_version = None
     display_plugin.plugin = None
     for plugin in initialized_plugins():
-        if plugin.name == display_plugin.name:
+        if plugin.name == display_plugin.name and plugin.plugin_path is not None:
             display_plugin.plugin = plugin
             display_plugin.installed_version = plugin.version
             break
@@ -189,61 +184,21 @@ class PluginFilterComboBox(QComboBox):
 
 class DisplayPlugin(object):
 
-    def __init__(self, list_node):
-        # The html from the index web page looks like this:
-        '''
-<li><a href="http://www.mobileread.com/forums/showthread.php?t=121787">Book Sync</a><br />
-<i>Add books to a list to be automatically sent to your device the next time it is connected.<br />
-<span class="resize_1">Version: 1.1; Released: 02-22-2011; Calibre: 0.7.42; Author: kiwidude; <br />
-Platforms: Windows, OSX, Linux; History: Yes;</span></i></li>
-        '''
-        self.name = list_node.xpath('a')[0].text_content().strip()
-        self.forum_link = list_node.xpath('a/@href')[0].strip()
+    def __init__(self, plugin):
+        self.name = plugin['index_name']
+        self.forum_link = plugin['thread_url']
+        self.zip_url = SERVER + plugin['file']
         self.installed_version = None
-
-        description_text = list_node.xpath('i')[0].text_content()
-        description_parts = description_text.partition('Version:')
-        self.description = description_parts[0].strip()
-
-        details_text = description_parts[1] + description_parts[2].replace('\r\n','')
-        details_pairs = details_text.split(';')
-        details = {}
-        for details_pair in details_pairs:
-            pair = details_pair.split(':')
-            if len(pair) == 2:
-                key = pair[0].strip().lower()
-                value = pair[1].strip()
-                details[key] = value
-
-        donation_node = list_node.xpath('i/span/a/@href')
-        self.donation_link = donation_node[0] if donation_node else None
-
-        self.available_version = self._version_text_to_tuple(details.get('version', None))
-
-        release_date = details.get('released', '01-01-0101').split('-')
-        date_parts = [int(re.search(r'(\d+)', x).group(1)) for x in release_date]
-        self.release_date = datetime.date(date_parts[2], date_parts[0], date_parts[1])
-
-        self.calibre_required_version = self._version_text_to_tuple(details.get('calibre', None))
-        self.author = details.get('author', '')
-        self.platforms = [p.strip().lower() for p in details.get('platforms', '').split(',')]
-        # Optional pairing just for plugins which require checking for uninstall first
-        self.uninstall_plugins = []
-        uninstall = details.get('uninstall', None)
-        if uninstall:
-            self.uninstall_plugins = [i.strip() for i in uninstall.split(',')]
-        self.has_changelog = details.get('history', 'No').lower() in ['yes', 'true']
-        self.is_deprecated = details.get('deprecated', 'No').lower() in ['yes', 'true']
-
-    def _version_text_to_tuple(self, version_text):
-        if version_text:
-            ver = version_text.split('.')
-            while len(ver) < 3:
-                ver.append('0')
-            ver = [int(re.search(r'(\d+)', x).group(1)) for x in ver]
-            return tuple(ver)
-        else:
-            return None
+        self.description = plugin['description']
+        self.donation_link = plugin['donate']
+        self.available_version = tuple(plugin['version'])
+        self.release_date = datetime.datetime(*tuple(map(int, re.split(r'\D', plugin['last_modified'])))[:6]).date()
+        self.calibre_required_version = plugin['minimum_calibre_version']
+        self.author = plugin['author']
+        self.platforms = plugin['supported_platforms']
+        self.uninstall_plugins = plugin['uninstall'] or []
+        self.has_changelog = plugin['history']
+        self.is_deprecated = plugin['deprecated']
 
     def is_disabled(self):
         if self.plugin is None:
@@ -254,7 +209,7 @@ Platforms: Windows, OSX, Linux; History: Yes;</span></i></li>
         return self.installed_version is not None
 
     def is_upgrade_available(self):
-        return self.is_installed() and (self.installed_version < self.available_version \
+        return self.is_installed() and (self.installed_version < self.available_version
                 or self.is_deprecated)
 
     def is_valid_platform(self):
@@ -276,6 +231,7 @@ class DisplayPluginSortFilterModel(QSortFilterProxyModel):
     def __init__(self, parent):
         QSortFilterProxyModel.__init__(self, parent)
         self.setSortRole(Qt.UserRole)
+        self.setSortCaseSensitivity(Qt.CaseInsensitive)
         self.filter_criteria = FILTER_ALL
 
     def filterAcceptsRow(self, sourceRow, sourceParent):
@@ -317,7 +273,7 @@ class DisplayPluginModel(QAbstractTableModel):
 
     def data(self, index, role):
         if not index.isValid():
-            return NONE;
+            return NONE
         row, col = index.row(), index.column()
         if row < 0 or row >= self.rowCount():
             return NONE
@@ -357,7 +313,7 @@ class DisplayPluginModel(QAbstractTableModel):
             else:
                 return self._get_status_tooltip(display_plugin)
         elif role == Qt.ForegroundRole:
-            if col != 1: # Never change colour of the donation column
+            if col != 1:  # Never change colour of the donation column
                 if display_plugin.is_deprecated:
                     return QVariant(QBrush(Qt.blue))
                 if display_plugin.is_disabled():
@@ -417,7 +373,7 @@ class DisplayPluginModel(QAbstractTableModel):
                     icon_name = 'plugin_upgrade_invalid.png'
             else:
                 icon_name = 'plugin_upgrade_ok.png'
-        else: # A plugin available not currently installed
+        else:  # A plugin available not currently installed
             if display_plugin.is_valid_to_install():
                 icon_name = 'plugin_new_valid.png'
             else:
@@ -429,11 +385,11 @@ class DisplayPluginModel(QAbstractTableModel):
             return QVariant(_('This plugin has been deprecated and should be uninstalled')+'\n\n'+
                             _('Right-click to see more options'))
         if not display_plugin.is_valid_platform():
-            return QVariant(_('This plugin can only be installed on: %s') % \
+            return QVariant(_('This plugin can only be installed on: %s') %
                             ', '.join(display_plugin.platforms)+'\n\n'+
                             _('Right-click to see more options'))
         if numeric_version < display_plugin.calibre_required_version:
-            return QVariant(_('You must upgrade to at least Calibre %s before installing this plugin') % \
+            return QVariant(_('You must upgrade to at least Calibre %s before installing this plugin') %
                             self._get_display_version(display_plugin.calibre_required_version)+'\n\n'+
                             _('Right-click to see more options'))
         if display_plugin.installed_version < display_plugin.available_version:
@@ -455,6 +411,7 @@ class PluginUpdaterDialog(SizePersistedDialog):
         SizePersistedDialog.__init__(self, gui, 'Plugin Updater plugin:plugin updater dialog')
         self.gui = gui
         self.forum_link = None
+        self.zip_url = None
         self.model = None
         self.do_restart = False
         self._initialize_controls()
@@ -474,8 +431,8 @@ class PluginUpdaterDialog(SizePersistedDialog):
             self._select_and_focus_view()
         else:
             error_dialog(self.gui, _('Update Check Failed'),
-                        _('Unable to reach the MobileRead plugins forum index page.'),
-                        det_msg=MR_INDEX_URL, show=True)
+                        _('Unable to reach the plugin index page.'),
+                        det_msg=INDEX_URL, show=True)
             self.filter_combo.setEnabled(False)
         # Cause our dialog size to be restored from prefs or created on first usage
         self.resize_dialog()
@@ -598,6 +555,7 @@ class PluginUpdaterDialog(SizePersistedDialog):
             display_plugin = self.model.display_plugins[actual_idx.row()]
             self.description.setText(display_plugin.description)
             self.forum_link = display_plugin.forum_link
+            self.zip_url = display_plugin.zip_url
             self.forum_action.setEnabled(bool(self.forum_link))
             self.install_button.setEnabled(display_plugin.is_valid_to_install())
             self.install_action.setEnabled(self.install_button.isEnabled())
@@ -610,6 +568,7 @@ class PluginUpdaterDialog(SizePersistedDialog):
         else:
             self.description.setText('')
             self.forum_link = None
+            self.zip_url = None
             self.forum_action.setEnabled(False)
             self.install_button.setEnabled(False)
             self.install_action.setEnabled(False)
@@ -687,7 +646,7 @@ class PluginUpdaterDialog(SizePersistedDialog):
 
     def _install_clicked(self):
         display_plugin = self._selected_display_plugin()
-        if not question_dialog(self, _('Install %s')%display_plugin.name, '<p>' + \
+        if not question_dialog(self, _('Install %s')%display_plugin.name, '<p>' +
                 _('Installing plugins is a <b>security risk</b>. '
                 'Plugins can contain a virus/malware. '
                     'Only install it if you got it from a trusted source.'
@@ -702,17 +661,7 @@ class PluginUpdaterDialog(SizePersistedDialog):
             for name_to_remove in uninstall_names:
                 self._uninstall_plugin(name_to_remove)
 
-        if DEBUG:
-            prints('Locating zip file for %s: %s'% (display_plugin.name, display_plugin.forum_link))
-        self.gui.status_bar.showMessage(
-                _('Locating zip file for %(name)s: %(link)s') % dict(
-                    name=display_plugin.name, link=display_plugin.forum_link))
-        plugin_zip_url = self._read_zip_attachment_url(display_plugin.forum_link)
-        if not plugin_zip_url:
-            return error_dialog(self.gui, _('Install Plugin Failed'),
-                        _('Unable to locate a plugin zip file for <b>%s</b>') % display_plugin.name,
-                        det_msg=display_plugin.forum_link, show=True)
-
+        plugin_zip_url = display_plugin.zip_url
         if DEBUG:
             prints('Downloading plugin zip attachment: ', plugin_zip_url)
         self.gui.status_bar.showMessage(_('Downloading plugin zip attachment: %s') % plugin_zip_url)
@@ -851,38 +800,11 @@ class PluginUpdaterDialog(SizePersistedDialog):
                     prints(html.tostring(spoiler_node))
         return None
 
-    def _read_zip_attachment_url(self, forum_link):
-        br = browser()
-        br.set_handle_gzip(True)
-        try:
-            raw = br.open_novisit(forum_link).read()
-            if not raw:
-                return None
-        except:
-            traceback.print_exc()
-            return None
-        raw = raw.decode('utf-8', errors='replace')
-        root = html.fromstring(raw)
-        attachment_nodes = root.xpath('//fieldset/table/tr/td/a')
-        for attachment_node in attachment_nodes:
-            try:
-                filename = attachment_node.text_content().lower()
-                if filename.find('.zip') != -1:
-                    full_url = MR_URL + attachment_node.attrib['href']
-                    return full_url
-            except:
-                if DEBUG:
-                    prints('======= MobileRead Parse Error =======')
-                    traceback.print_exc()
-                    prints(html.tostring(attachment_node))
-        return None
-
     def _download_zip(self, plugin_zip_url):
         from calibre.ptempfile import PersistentTemporaryFile
         br = browser()
-        br.set_handle_gzip(True)
         raw = br.open_novisit(plugin_zip_url).read()
-        pt = PersistentTemporaryFile('.zip')
-        pt.write(raw)
-        pt.close()
+        with PersistentTemporaryFile('.zip') as pt:
+            pt.write(raw)
         return pt.name
+

@@ -1,14 +1,15 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import (unicode_literals, division, absolute_import, print_function)
-store_version = 1 # Needed for dynamic plugin loading
+store_version = 4 # Needed for dynamic plugin loading
 
 __license__ = 'GPL 3'
-__copyright__ = '2011-2012, Tomasz Długosz <tomek3d@gmail.com>'
+__copyright__ = '2011-2013, Tomasz Długosz <tomek3d@gmail.com>'
 __docformat__ = 'restructuredtext en'
 
 import re
 import urllib
+from base64 import b64encode
 from contextlib import closing
 
 from lxml import html
@@ -25,20 +26,20 @@ from calibre.gui2.store.web_store_dialog import WebStoreDialog
 class EbookpointStore(BasicStoreConfig, StorePlugin):
 
     def open(self, parent=None, detail_item=None, external=False):
-        pid = '5557Y'
+        aff_root = 'https://www.a4b-tracking.com/pl/stat-click-text-link/32/58/'
 
-        url = 'http://ebookpoint.pl/view/' + pid
+        url = 'http://ebookpoint.pl/'
+
+        aff_url = aff_root + str(b64encode(url))
+
         detail_url = None
-
         if detail_item:
-            book_id = re.sub(r'http://ebookpoint.pl/ksiazki', '', detail_item)
-            if book_id:
-                detail_url = url + book_id
+            detail_url = aff_root + str(b64encode(detail_item))
 
         if external or self.config.get('open_external', False):
-            open_url(QUrl(url_slash_cleaner(detail_url if detail_url else url)))
+            open_url(QUrl(url_slash_cleaner(detail_url if detail_url else aff_url)))
         else:
-            d = WebStoreDialog(self.gui, url, parent, detail_url)
+            d = WebStoreDialog(self.gui, url, parent, detail_url if detail_url else aff_url)
             d.setWindowTitle(self.name)
             d.set_tags(self.config.get('tags', ''))
             d.exec_()
@@ -59,13 +60,15 @@ class EbookpointStore(BasicStoreConfig, StorePlugin):
                 if not id:
                     continue
 
+                formats = ', '.join(data.xpath('.//div[@class="ikony"]/span/text()'))
+                if formats == 'MP3':
+                    continue
                 cover_url = ''.join(data.xpath('.//a[@class="cover"]/img/@src'))
                 title = ''.join(data.xpath('.//h3/a/@title'))
                 title = re.sub('eBook.', '', title)
-                author = ''.join(data.xpath('.//p[@class="author"]/text()'))
+                author = ''.join(data.xpath('.//p[@class="author"]//text()'))
                 price = ''.join(data.xpath('.//p[@class="price"]/ins/text()'))
 
-                formats = ', '.join(data.xpath('.//div[@class="ikony"]/span/text()'))
 
                 counter -= 1
 

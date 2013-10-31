@@ -24,3 +24,10 @@ Development
 
 A [tarball of the source code](http://status.calibre-ebook.com/dist/src) for the 
 current calibre release.
+
+Bugs
+------
+
+Bug reports and feature requests should be made in the calibre bug tracker at [launchpad](https://bugs.launchpad.net/calibre).
+The GitHub bug tracker is only for people contributing code to calibre.
+

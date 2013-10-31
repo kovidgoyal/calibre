@@ -279,6 +279,12 @@ If not checked, the values can be Yes or No.</string>
    </item>
    <item row="8" column="1">
     <widget class="QPushButton" name="reset_confirmation_button">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
      <property name="text">
       <string>Reset all disabled &amp;confirmation dialogs</string>
      </property>

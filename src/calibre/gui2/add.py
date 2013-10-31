@@ -189,7 +189,7 @@ class DBAdder(QObject):  # {{{
             if prefs['add_formats_to_existing']:  # automerge is on
                 identical_book_list = self.db.find_identical_books(mi)
                 if identical_book_list:  # books with same author and nearly same title exist in db
-                    self.merged_books.add(mi.title)
+                    self.merged_books.add((mi.title, ' & '.join(mi.authors)))
                     seen_fmts = set([])
 
                     for identical_book in identical_book_list:

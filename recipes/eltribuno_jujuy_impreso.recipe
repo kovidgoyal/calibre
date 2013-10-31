@@ -1,0 +1,126 @@
+__license__   = 'GPL v3'
+__copyright__ = '2013, Darko Miletic <darko.miletic at gmail.com>'
+'''
+http://www.eltribuno.info/jujuy/edicion_impresa.aspx
+'''
+
+import urllib
+from calibre.ptempfile import PersistentTemporaryFile
+from calibre.web.feeds.news import BasicNewsRecipe
+from collections import OrderedDict
+
+class ElTribunoJujuyImpreso(BasicNewsRecipe):
+    title                   = 'El Tribuno Jujuy (Edición Impresa)'
+    __author__              = 'Darko Miletic'
+    description             = "Diario principal de Jujuy"
+    publisher               = 'Horizontes S.A.'
+    category                = 'news, politics, Jujuy, Argentina, World'
+    oldest_article          = 2
+    language                = 'es_AR'
+    max_articles_per_feed   = 250
+    no_stylesheets          = True
+    use_embedded_content    = False
+    encoding                = 'utf8'
+    publication_type        = 'newspaper'
+    delay                   = 1
+    articles_are_obfuscated = True
+    temp_files              = []
+    PREFIX                  = 'http://www.eltribuno.info/jujuy/'
+    INDEX                   = PREFIX + 'edicion_impresa.aspx'
+    PRINTURL                = PREFIX + 'nota_print.aspx?%s'
+
+    conversion_options = {
+                          'comment'          : description
+                        , 'tags'             : category
+                        , 'publisher'        : publisher
+                        , 'language'         : language
+                        , 'linearize_tables' : True
+                        }
+
+    keep_only_tags = [dict(name='div' , attrs={'class':['notaHead', 'notaContent']})]
+    remove_tags = [
+                     dict(name=['meta','iframe','base','object','embed','link','img']),
+                     dict(name='ul', attrs={'class':'Tabs'})
+                  ]
+
+    extra_css = """
+                body{font-family: Arial,Helvetica,sans-serif}
+                .notaHead h4{text-transform: uppercase; color: gray}
+                img{margin-top: 0.8em; display: block}
+                """
+
+    def parse_index(self):
+        feeds = OrderedDict()
+        soup = None
+        count = 0
+        while (count < 5):
+            try:
+                soup = self.index_to_soup(self.INDEX)
+                count = 5
+            except:
+                print "Retrying download..."
+            count += 1
+        if not soup:
+            return []
+        alink = soup.find('a', href=True, attrs={'class':'ZoomTapa'})
+        if alink and 'href' in alink:
+            self.cover_url = alink['href']
+        sections = soup.findAll('div', attrs={'id':lambda x: x and x.startswith('Ediciones')})
+        for section in sections:
+            section_title = 'Sin titulo'
+            sectiont=section.find('h3', attrs={'class':'NombreSeccion'})
+            if sectiont:
+                section_title = self.tag_to_string(sectiont.span)
+
+            arts = section.findAll('div', attrs={'class':'Noticia NoticiaAB1'})
+            for article in arts:
+                articles = []
+                title=self.tag_to_string(article.div.h3.a)
+                url=article.div.h3.a['href']
+                description=self.tag_to_string(article.p)
+                articles.append({'title':title, 'url':url, 'description':description, 'date':''})
+
+                if articles:
+                    if section_title not in feeds:
+                        feeds[section_title] = []
+                    feeds[section_title] += articles
+
+        ans = [(key, val) for key, val in feeds.iteritems()]
+        return ans
+
+    def preprocess_html(self, soup):
+        for item in soup.findAll(style=True):
+            del item['style']
+        for item in soup.findAll('a'):
+            if item.string is not None:
+                str = item.string
+                item.replaceWith(str)
+            else:
+                str = self.tag_to_string(item)
+                item.replaceWith(str)
+        return soup
+
+    def get_masthead_title(self):
+        return 'El Tribuno'
+
+    def get_obfuscated_article(self, url):
+        count = 0
+        while (count < 10):
+            try:
+                response = self.browser.open(url)
+                html = response.read()
+                count = 10
+            except:
+                print "Retrying download..."
+            count += 1
+        tfile = PersistentTemporaryFile('_fa.html')
+        tfile.write(html)
+        tfile.close()
+        self.temp_files.append(tfile)
+        return tfile.name
+
+    def print_version(self, url):
+        right = url.rpartition('/')[2]
+        artid = right.partition('-')[0]
+        params = {'Note':artid}
+        return (self.PRINTURL % urllib.urlencode(params))

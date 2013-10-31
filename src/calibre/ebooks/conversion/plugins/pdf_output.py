@@ -112,6 +112,9 @@ class PDFOutput(OutputFormatPlugin):
         OptionRecommendation(name='pdf_add_toc', recommended_value=False,
             help=_('Add a Table of Contents at the end of the PDF that lists page numbers. '
                    'Useful if you want to print out the PDF. If this PDF is intended for electronic use, use the PDF Outline instead.')),
+        OptionRecommendation(name='toc_title', recommended_value=None,
+            help=_('Title for generated table of contents.')
+        ),
         ])
 
     def convert(self, oeb_book, output_path, input_plugin, opts, log):
@@ -285,5 +288,49 @@ class PDFOutput(OutputFormatPlugin):
         if close:
             out_stream.close()
 
+    def specialize_css_for_output(self, log, opts, item, stylizer):
+        ''' Qt WebKit (4.8.x) cannot handle font-variant: small-caps. It tries to fake the small caps,
+        which is ok, but the faking continues on to subsequent text that should not be in small-caps.
+        So we workaround the problem by faking small caps ourselves. A minimal example that Qt chokes on:
+        <html><body>
+        <p style="font-variant:small-caps">Some Small-caps Text</p>
+        <p style="text-align:justify">Some non small-caps text with enough text for at least one
+        full line and justification enabled. Both of these are needed for the example to work.</p>
+        </body></html> '''
+        from calibre.ebooks.oeb.base import XHTML
+        import itertools, string
+        if not hasattr(item.data, 'xpath'):
+            return
+        ws = unicode(string.whitespace)
 
+        def fake_small_caps(elem):
+            spans = []
+            for lowercase, textiter in itertools.groupby(elem.text, lambda x:x not in ws and icu_lower(x)==x):
+                text = ''.join(textiter)
+                if lowercase:
+                    text = icu_upper(text)
+                span = elem.makeelement(XHTML('span'))
+                span.text = text
+                style = stylizer.style(span)
+                if lowercase:
+                    style.set('font-size', '0.65em')
+                spans.append(span)
+            elem.text = None
+            elem[0:] = spans
+
+        def process_elem(elem, parent_fv=None):
+            children = tuple(elem)
+            style = stylizer.style(elem)
+            fv = style.drop('font-variant')
+            if not fv or fv.lower() == 'inherit':
+                fv = parent_fv
+            if fv and fv.lower() in {'smallcaps', 'small-caps'}:
+                if elem.text:
+                    fake_small_caps(elem)
+            for child in children:
+                if hasattr(getattr(child, 'tag', None), 'lower'):
+                    process_elem(child, parent_fv=fv)
+
+        for body in item.data.xpath('//*[local-name()="body"]'):
+            process_elem(body)
 

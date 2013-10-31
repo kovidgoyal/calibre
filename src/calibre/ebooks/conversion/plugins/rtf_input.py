@@ -4,7 +4,7 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import os, glob, re, textwrap
 
-from calibre.customize.conversion import InputFormatPlugin
+from calibre.customize.conversion import InputFormatPlugin, OptionRecommendation
 
 border_style_map = {
         'single' : 'solid',
@@ -45,6 +45,11 @@ class RTFInput(InputFormatPlugin):
     description = 'Convert RTF files to HTML'
     file_types  = set(['rtf'])
 
+    options = {
+        OptionRecommendation(name='ignore_wmf', recommended_value=False,
+            help=_('Ignore WMF images instead of replacing them with a placeholder image.')),
+    }
+
     def generate_xml(self, stream):
         from calibre.ebooks.rtf2xml.ParseRtf import ParseRtf
         ofile = u'dataxml.xml'
@@ -59,46 +64,51 @@ class RTFInput(InputFormatPlugin):
             except:
                 self.log.warn('Impossible to run RTFParser in debug mode')
         parser = ParseRtf(
-            in_file    = stream,
-            out_file   = ofile,
+            in_file=stream,
+            out_file=ofile,
             # Convert symbol fonts to unicode equivalents. Default
             # is 1
-            convert_symbol = 1,
+            convert_symbol=1,
 
             # Convert Zapf fonts to unicode equivalents. Default
             # is 1.
-            convert_zapf = 1,
+            convert_zapf=1,
 
             # Convert Wingding fonts to unicode equivalents.
             # Default is 1.
-            convert_wingdings = 1,
+            convert_wingdings=1,
 
             # Convert RTF caps to real caps.
             # Default is 1.
-            convert_caps = 1,
+            convert_caps=1,
 
             # Indent resulting XML.
             # Default is 0 (no indent).
-            indent = indent_out,
+            indent=indent_out,
 
             # Form lists from RTF. Default is 1.
-            form_lists = 1,
+            form_lists=1,
 
             # Convert headings to sections. Default is 0.
-            headings_to_sections = 1,
+            headings_to_sections=1,
 
             # Group paragraphs with the same style name. Default is 1.
-            group_styles = 1,
+            group_styles=1,
 
             # Group borders. Default is 1.
-            group_borders = 1,
+            group_borders=1,
 
             # Write or do not write paragraphs. Default is 0.
-            empty_paragraphs = 1,
+            empty_paragraphs=1,
 
-            #debug
-            deb_dir = debug_dir,
-            run_level = run_lev,
+            # Debug
+            deb_dir=debug_dir,
+
+            # Default encoding
+            default_encoding=getattr(self.opts, 'input_encoding', 'cp1252') or 'cp1252',
+
+            # Run level
+            run_level=run_lev,
         )
         parser.parse_rtf()
         with open(ofile, 'rb') as f:
@@ -151,6 +161,9 @@ class RTFInput(InputFormatPlugin):
         return self.replace_wmf(name)
 
     def replace_wmf(self, name):
+        if self.opts.ignore_wmf:
+            os.remove(name)
+            return '__REMOVE_ME__'
         from calibre.ebooks import calibre_cover
         if self.default_img is None:
             self.default_img = calibre_cover('Conversion of WMF images is not supported',
@@ -171,7 +184,6 @@ class RTFInput(InputFormatPlugin):
         with open(name, 'wb') as f:
             f.write(data)
         return name
-
 
     def write_inline_css(self, ic, border_styles):
         font_size_classes = ['span.fs%d { font-size: %spt }'%(i, x) for i, x in
@@ -268,14 +280,14 @@ class RTFInput(InputFormatPlugin):
         self.log('Converting XML to HTML...')
         inline_class = InlineClass(self.log)
         styledoc = etree.fromstring(P('templates/rtf.xsl', data=True))
-        extensions = { ('calibre', 'inline-class') : inline_class }
+        extensions = {('calibre', 'inline-class') : inline_class}
         transform = etree.XSLT(styledoc, extensions=extensions)
         result = transform(doc)
         html = u'index.xhtml'
         with open(html, 'wb') as f:
             res = transform.tostring(result)
             # res = res[:100].replace('xmlns:html', 'xmlns') + res[100:]
-            #clean multiple \n
+            # clean multiple \n
             res = re.sub('\n+', '\n', res)
             # Replace newlines inserted by the 'empty_paragraphs' option in rtf2xml with html blank lines
             # res = re.sub('\s*<body>', '<body>', res)
@@ -295,4 +307,15 @@ class RTFInput(InputFormatPlugin):
         opf.render(open(u'metadata.opf', 'wb'))
         return os.path.abspath(u'metadata.opf')
 
+    def postprocess_book(self, oeb, opts, log):
+        for item in oeb.spine:
+            for img in item.data.xpath('//*[local-name()="img" and @src="__REMOVE_ME__"]'):
+                p = img.getparent()
+                idx = p.index(img)
+                p.remove(img)
+                if img.tail:
+                    if idx == 0:
+                        p.text = (p.text or '') + img.tail
+                    else:
+                        p[idx-1].tail = (p[idx-1].tail or '') + img.tail
 

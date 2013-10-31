@@ -15,7 +15,6 @@ from calibre.constants import (filesystem_encoding, iswindows,
         get_portable_base)
 from calibre import isbytestring, patheq, force_unicode
 from calibre.gui2.wizard import move_library
-from calibre.library.database2 import LibraryDatabase2
 
 class ChooseLibrary(QDialog, Ui_Dialog):
 
@@ -86,6 +85,7 @@ class ChooseLibrary(QDialog, Ui_Dialog):
                     show=True)
             return False
         if ac in ('new', 'move'):
+            from calibre.db.legacy import LibraryDatabase
             if not empty:
                 error_dialog(self, _('Not empty'),
                     _('The folder %s is not empty. Please choose an empty'
@@ -93,10 +93,10 @@ class ChooseLibrary(QDialog, Ui_Dialog):
                     show=True)
                 return False
             if (iswindows and len(loc) >
-                    LibraryDatabase2.WINDOWS_LIBRARY_PATH_LIMIT):
+                    LibraryDatabase.WINDOWS_LIBRARY_PATH_LIMIT):
                 error_dialog(self, _('Too long'),
                     _('Path to library too long. Must be less than'
-                    ' %d characters.')%LibraryDatabase2.WINDOWS_LIBRARY_PATH_LIMIT,
+                    ' %d characters.')%LibraryDatabase.WINDOWS_LIBRARY_PATH_LIMIT,
                     show=True)
                 return False
 

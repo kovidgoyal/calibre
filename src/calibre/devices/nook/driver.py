@@ -12,6 +12,7 @@ import os
 
 import cStringIO
 
+from calibre import fsync
 from calibre.constants import isosx
 from calibre.devices.usbms.driver import USBMS
 
@@ -76,21 +77,24 @@ class NOOK(USBMS):
 
         with open('%s.jpg' % os.path.join(path, filename), 'wb') as coverfile:
             coverfile.write(coverdata)
+            fsync(coverfile)
 
     def sanitize_path_components(self, components):
         return [x.replace('#', '_') for x in components]
 
 class NOOK_COLOR(NOOK):
     name           = 'Nook Color Device Interface'
-    description    = _('Communicate with the Nook Color, TSR and Tablet eBook readers.')
+    description    = _('Communicate with the Nook Color, TSR, Glowlight and Tablet eBook readers.')
 
-    PRODUCT_ID  = [0x002, 0x003, 0x004]
+    PRODUCT_ID  = [0x002, 0x003, 0x004,
+                   # Glowlight from 2013
+                   0x007]
     if isosx:
         PRODUCT_ID.append(0x005)  # Nook HD+
     BCD         = [0x216]
 
     WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = ['EBOOK_DISK', 'NOOK_TABLET',
-            'NOOK_SIMPLETOUCH']
+            'NOOK_SIMPLETOUCH', 'NOOK_GLOWLIGHT']
     EBOOK_DIR_MAIN = 'My Files'
     SCAN_FROM_ROOT = True
     NEWS_IN_FOLDER = False

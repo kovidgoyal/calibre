@@ -88,7 +88,7 @@ self_closing_bad_tags = {'a', 'abbr', 'address', 'article', 'aside', 'audio', 'b
 'label', 'legend', 'li', 'map', 'mark', 'meter', 'nav', 'ol', 'output', 'p',
 'pre', 'progress', 'q', 'rp', 'rt', 'samp', 'section', 'select', 'small',
 'span', 'strong', 'sub', 'summary', 'sup', 'textarea', 'time', 'ul', 'var',
-'video'}
+'video', 'title', 'script', 'style'}
 
 _self_closing_pat = re.compile(
     r'<(?P<tag>%s)(?=[\s/])(?P<arg>[^>]*)/>'%('|'.join(self_closing_bad_tags)),
@@ -100,6 +100,12 @@ def close_self_closing_tags(raw):
 def uuid_id():
     return 'u'+unicode(uuid.uuid4())
 
+def itercsslinks(raw):
+    for match in _css_url_re.finditer(raw):
+        yield match.group(1), match.start(1)
+    for match in _css_import_re.finditer(raw):
+        yield match.group(1), match.start(1)
+
 def iterlinks(root, find_links_in_css=True):
     '''
     Iterate over all links in a OEB Document.
@@ -107,8 +113,7 @@ def iterlinks(root, find_links_in_css=True):
     :param root: A valid lxml.etree element.
     '''
     assert etree.iselement(root)
-    link_attrs = set(html.defs.link_attrs)
-    link_attrs.add(XLINK('href'))
+    link_attrs = set(html.defs.link_attrs) | {XLINK('href'), 'poster'}
 
     for el in root.iter():
         attribs = el.attrib
@@ -1210,6 +1215,7 @@ class Spine(object):
     def __init__(self, oeb):
         self.oeb = oeb
         self.items = []
+        self.page_progression_direction = None
 
     def _linear(self, linear):
         if isinstance(linear, basestring):
@@ -1896,4 +1902,6 @@ class OEBBook(object):
                              attrib={'media-type': PAGE_MAP_MIME})
             spine.attrib['page-map'] = id
             results[PAGE_MAP_MIME] = (href, self.pages.to_page_map())
+        if self.spine.page_progression_direction in {'ltr', 'rtl'}:
+            spine.attrib['page-progression-direction'] = self.spine.page_progression_direction
         return results

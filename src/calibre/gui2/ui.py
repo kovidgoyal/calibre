@@ -14,15 +14,16 @@ from Queue import Queue, Empty
 from threading import Thread
 from collections import OrderedDict
 
+import apsw
 from PyQt4.Qt import (Qt, SIGNAL, QTimer, QHelpEvent, QAction,
                      QMenu, QIcon, pyqtSignal, QUrl, QFont,
                      QDialog, QSystemTrayIcon, QApplication)
 
 from calibre import prints, force_unicode
-from calibre.constants import __appname__, isosx, filesystem_encoding
+from calibre.constants import __appname__, isosx, filesystem_encoding, DEBUG
 from calibre.utils.config import prefs, dynamic
 from calibre.utils.ipc.server import Server
-from calibre.library.database2 import LibraryDatabase2
+from calibre.db.legacy import LibraryDatabase
 from calibre.customize.ui import interface_actions, available_store_plugins
 from calibre.gui2 import (error_dialog, GetMetadata, open_url,
         gprefs, max_available_height, config, info_dialog, Dispatcher,
@@ -42,7 +43,6 @@ from calibre.gui2.search_restriction_mixin import SearchRestrictionMixin
 from calibre.gui2.tag_browser.ui import TagBrowserMixin
 from calibre.gui2.keyboard import Manager
 from calibre.gui2.auto_add import AutoAdder
-from calibre.library.sqlite import sqlite, DatabaseException
 from calibre.gui2.proceed import ProceedQuestion
 from calibre.gui2.dialogs.message_box import JobError
 from calibre.gui2.job_indicator import Pointer
@@ -201,7 +201,14 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
         self.check_messages_timer.start(1000)
 
         for ac in self.iactions.values():
-            ac.do_genesis()
+            try:
+                ac.do_genesis()
+            except Exception:
+                # Ignore errors in third party plugins
+                import traceback
+                traceback.print_exc()
+                if getattr(ac, 'plugin_path', None) is None:
+                    raise
         self.donate_action = QAction(QIcon(I('donate.png')),
                 _('&Donate to support calibre'), self)
         for st in self.istores.values():
@@ -293,6 +300,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
         self.location_manager.location_selected.connect(self.location_selected)
         self.location_manager.unmount_device.connect(self.device_manager.umount_device)
         self.location_manager.configure_device.connect(self.configure_connected_device)
+        self.location_manager.update_device_metadata.connect(self.update_metadata_on_device)
         self.eject_action.triggered.connect(self.device_manager.umount_device)
 
         #################### Update notification ###################
@@ -301,10 +309,10 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
         ####################### Search boxes ########################
         SearchRestrictionMixin.__init__(self)
         SavedSearchBoxMixin.__init__(self)
-        SearchBoxMixin.__init__(self)
 
         ####################### Library view ########################
         LibraryViewMixin.__init__(self, db)
+        SearchBoxMixin.__init__(self)  # Requires current_db
 
         if show_gui:
             self.show()
@@ -341,6 +349,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
         ######################### Search Restriction ##########################
         if db.prefs['virtual_lib_on_startup']:
             self.apply_virtual_library(db.prefs['virtual_lib_on_startup'])
+        self.rebuild_vl_tabs()
 
         ########################### Cover Flow ################################
 
@@ -520,21 +529,33 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
         except Empty:
             return
         if msg.startswith('launched:'):
-            argv = eval(msg[len('launched:'):])
-            if len(argv) > 1:
-                path = os.path.abspath(argv[1])
-                if os.access(path, os.R_OK):
-                    self.iactions['Add Books'].add_filesystem_book(path)
+            import json
+            try:
+                argv = json.loads(msg[len('launched:'):])
+            except ValueError:
+                prints('Failed to decode message from other instance: %r' % msg)
+                if DEBUG:
+                    error_dialog(self, 'Invalid message',
+                                 'Received an invalid message from other calibre instance.'
+                                 ' Do you have multiple versions of calibre installed?',
+                                 det_msg='Invalid msg: %r' % msg, show=True)
+                argv = ()
+            if isinstance(argv, (list, tuple)) and len(argv) > 1:
+                files = [os.path.abspath(p) for p in argv[1:] if not os.path.isdir(p) and os.access(p, os.R_OK)]
+                if files:
+                    self.iactions['Add Books'].add_filesystem_book(files)
             self.setWindowState(self.windowState() &
                     ~Qt.WindowMinimized|Qt.WindowActive)
             self.show_windows()
             self.raise_()
             self.activateWindow()
         elif msg.startswith('refreshdb:'):
-            self.library_view.model().refresh()
-            self.library_view.model().research()
+            m = self.library_view.model()
+            m.db.new_api.reload_from_db()
+            m.db.data.refresh(clear_caches=False, do_search=False)
+            m.resort()
+            m.research()
             self.tags_view.recount()
-            self.library_view.model().db.refresh_format_cache()
         elif msg.startswith('shutdown:'):
             self.quit(confirm_quit=False)
         else:
@@ -564,11 +585,14 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
             olddb = self.library_view.model().db
             if copy_structure:
                 default_prefs = olddb.prefs
+
+            from calibre.utils.formatter_functions import unload_user_template_functions
+            unload_user_template_functions(olddb.library_id)
         except:
             olddb = None
         try:
-            db = LibraryDatabase2(newloc, default_prefs=default_prefs)
-        except (DatabaseException, sqlite.Error):
+            db = LibraryDatabase(newloc, default_prefs=default_prefs)
+        except apsw.Error:
             if not allow_rebuild:
                 raise
             import traceback
@@ -582,7 +606,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
             if repair:
                 from calibre.gui2.dialogs.restore_library import repair_library_at
                 if repair_library_at(newloc, parent=self):
-                    db = LibraryDatabase2(newloc, default_prefs=default_prefs)
+                    db = LibraryDatabase(newloc, default_prefs=default_prefs)
                 else:
                     return
             else:
@@ -608,12 +632,13 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
         self.saved_searches_changed(recount=False)  # reload the search restrictions combo box
         if db.prefs['virtual_lib_on_startup']:
             self.apply_virtual_library(db.prefs['virtual_lib_on_startup'])
+        self.rebuild_vl_tabs()
         for action in self.iactions.values():
             action.library_changed(db)
         if olddb is not None:
             try:
                 if call_close:
-                    olddb.conn.close()
+                    olddb.close()
             except:
                 import traceback
                 traceback.print_exc()
@@ -790,9 +815,18 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
 
             if not question_dialog(self, _('Active jobs'), msg):
                 return False
+        from calibre.db.delete_service import has_jobs
+        if has_jobs():
+            msg = _('Some deleted books are still being moved to the Recycle '
+                    'Bin, if you quit now, they will be left behind. Are you '
+                    'sure you want to quit?')
+            if not question_dialog(self, _('Active jobs'), msg):
+                return False
+
         return True
 
     def shutdown(self, write_settings=True):
+        self.grid_view.shutdown()
         try:
             db = self.library_view.model().db
             cf = db.clean
@@ -834,6 +868,8 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
                 pass
         except KeyboardInterrupt:
             pass
+        from calibre.db.delete_service import shutdown
+        shutdown()
         time.sleep(2)
         self.istores.join()
         self.hide_windows()
@@ -867,7 +903,8 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
                 try:
                     self.shutdown(write_settings=False)
                 except:
-                    pass
+                    import traceback
+                    traceback.print_exc()
                 e.accept()
             else:
                 e.ignore()

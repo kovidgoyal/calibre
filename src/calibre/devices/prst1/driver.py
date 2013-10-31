@@ -15,6 +15,7 @@ import os, time, re
 from contextlib import closing
 from datetime import date
 
+from calibre import fsync
 from calibre.devices.errors import DeviceError
 from calibre.devices.usbms.driver import USBMS, debug_print
 from calibre.devices.usbms.device import USBDevice
@@ -50,10 +51,10 @@ class PRST1(USBMS):
 
     VENDOR_NAME        = 'SONY'
     WINDOWS_MAIN_MEM   = re.compile(
-            r'(PRS-T(1|2|2N)&)'
+            r'(PRS-T(1|2|2N|3)&)'
             )
     WINDOWS_CARD_A_MEM = re.compile(
-            r'(PRS-T(1|2|2N)__SD&)'
+            r'(PRS-T(1|2|2N|3)_{1,2}SD&)'
             )
     MAIN_MEMORY_VOLUME_LABEL = 'SONY Reader Main Memory'
     STORAGE_CARD_VOLUME_LABEL = 'SONY Reader Storage Card'
@@ -761,6 +762,7 @@ class PRST1(USBMS):
 
         with open(thumbnail_file_path, 'wb') as f:
             f.write(book.thumbnail[-1])
+            fsync(f)
 
         query = 'UPDATE books SET thumbnail = ? WHERE _id = ?'
         t = (thumbnail_path, book.bookId,)
@@ -774,7 +776,7 @@ class PRST1(USBMS):
             return False
         if not book.lpath.lower().endswith('.epub'):
             return False
-        if book.pubdate.date() < date(2010, 10, 17):
+        if book.pubdate is None or book.pubdate.date() < date(2010, 10, 17):
             return False
         return True
 

@@ -15,7 +15,7 @@ from calibre.db.tests.base import BaseTest
 
 class ReadingTest(BaseTest):
 
-    def test_read(self): # {{{
+    def test_read(self):  # {{{
         'Test the reading of data from the database'
         cache = self.init_cache(self.library_path)
         tests = {
@@ -123,9 +123,10 @@ class ReadingTest(BaseTest):
                             book_id, field, expected_val, val))
         # }}}
 
-    def test_sorting(self): # {{{
+    def test_sorting(self):  # {{{
         'Test sorting'
-        cache = self.init_cache(self.library_path)
+        cache = self.init_cache()
+        ae = self.assertEqual
         for field, order in {
             'title'  : [2, 1, 3],
             'authors': [2, 1, 3],
@@ -147,25 +148,71 @@ class ReadingTest(BaseTest):
             '#rating':[3, 2, 1],
             '#series':[3, 2, 1],
             '#tags':[3, 2, 1],
-            '#yesno':[3, 1, 2],
+            '#yesno':[2, 1, 3],
             '#comments':[3, 2, 1],
-            # TODO: Add an empty book to the db and ensure that empty
-            # fields sort the same as they do in db2
+            'id': [1, 2, 3],
         }.iteritems():
             x = list(reversed(order))
-            self.assertEqual(order, cache.multisort([(field, True)],
+            ae(order, cache.multisort([(field, True)],
                 ids_to_sort=x),
                     'Ascending sort of %s failed'%field)
-            self.assertEqual(x, cache.multisort([(field, False)],
+            ae(x, cache.multisort([(field, False)],
                 ids_to_sort=order),
                     'Descending sort of %s failed'%field)
 
+        # Test sorting of is_multiple fields.
+
+        # Author like fields should be sorted by generating sort names from the
+        # actual values in entry order
+        for field in ('authors', '#authors'):
+            ae(
+                cache.set_field(field, {1:('aa bb', 'bb cc', 'cc dd'), 2:('bb aa', 'xx yy'), 3: ('aa bb', 'bb aa')}), {1, 2, 3})
+            ae([2, 3, 1], cache.multisort([(field, True)], ids_to_sort=(1, 2, 3)))
+            ae([1, 3, 2], cache.multisort([(field, False)], ids_to_sort=(1, 2, 3)))
+
+        # All other is_multiple fields should be sorted by sorting the values
+        # for each book and using that as the sort key
+        for field in ('tags', '#tags'):
+            ae(
+                cache.set_field(field, {1:('b', 'a'), 2:('c', 'y'), 3: ('b', 'z')}), {1, 2, 3})
+            ae([1, 3, 2], cache.multisort([(field, True)], ids_to_sort=(1, 2, 3)))
+            ae([2, 3, 1], cache.multisort([(field, False)], ids_to_sort=(1, 2, 3)))
+
+        # Test tweak to sort dates by visible format
+        from calibre.utils.date import parse_only_date as p
+        from calibre.utils.config_base import Tweak
+        ae(cache.set_field('pubdate', {1:p('2001-3-3'), 2:p('2002-2-3'), 3:p('2003-1-3')}), {1, 2, 3})
+        ae([1, 2, 3], cache.multisort([('pubdate', True)]))
+        with Tweak('gui_pubdate_display_format', 'MMM'), Tweak('sort_dates_using_visible_fields', True):
+            c2 = self.init_cache()
+            ae([3, 2, 1], c2.multisort([('pubdate', True)]))
+
+        # Test bool sorting when not tristate
+        cache.set_pref('bools_are_tristate', False)
+        c2 = self.init_cache()
+        ae([2, 3, 1], c2.multisort([('#yesno', True), ('id', False)]))
+
         # Test subsorting
-        self.assertEqual([3, 2, 1], cache.multisort([('identifiers', True),
+        ae([3, 2, 1], cache.multisort([('identifiers', True),
             ('title', True)]), 'Subsort failed')
+        from calibre.ebooks.metadata.book.base import Metadata
+        for i in xrange(7):
+            cache.create_book_entry(Metadata('title%d' % i), apply_import_tags=False)
+        cache.create_custom_column('one', 'CC1', 'int', False)
+        cache.create_custom_column('two', 'CC2', 'int', False)
+        cache.create_custom_column('three', 'CC3', 'int', False)
+        cache.close()
+        cache = self.init_cache()
+        cache.set_field('#one', {(i+(5*m)):m for m in (0, 1) for i in xrange(1, 6)})
+        cache.set_field('#two', {i+(m*3):m for m in (0, 1, 2) for i in (1, 2, 3)})
+        cache.set_field('#two', {10:2})
+        cache.set_field('#three', {i:i for i in xrange(1, 11)})
+        ae(list(xrange(1, 11)), cache.multisort([('#one', True), ('#two', True)], ids_to_sort=sorted(cache.all_book_ids())))
+        ae([4, 5, 1, 2, 3, 7,8, 9, 10, 6], cache.multisort([('#one', True), ('#two', False)], ids_to_sort=sorted(cache.all_book_ids())))
+        ae([5, 4, 3, 2, 1, 10, 9, 8, 7, 6], cache.multisort([('#one', True), ('#two', False), ('#three', False)], ids_to_sort=sorted(cache.all_book_ids())))
     # }}}
 
-    def test_get_metadata(self): # {{{
+    def test_get_metadata(self):  # {{{
         'Test get_metadata() returns the same data for both backends'
         from calibre.library.database2 import LibraryDatabase2
         old = LibraryDatabase2(self.library_path)
@@ -188,7 +235,7 @@ class ReadingTest(BaseTest):
             self.compare_metadata(mi1, mi2)
     # }}}
 
-    def test_get_cover(self): # {{{
+    def test_get_cover(self):  # {{{
         'Test cover() returns the same data for both backends'
         from calibre.library.database2 import LibraryDatabase2
         old = LibraryDatabase2(self.library_path)
@@ -212,7 +259,7 @@ class ReadingTest(BaseTest):
 
     # }}}
 
-    def test_searching(self): # {{{
+    def test_searching(self):  # {{{
         'Test searching returns the same data for both backends'
         from calibre.library.database2 import LibraryDatabase2
         old = LibraryDatabase2(self.library_path)
@@ -226,8 +273,8 @@ class ReadingTest(BaseTest):
             'rating:3', 'rating:>2', 'rating:=2', 'rating:true',
             'rating:false', 'rating:>4', 'tags:#<2', 'tags:#>7',
             'cover:false', 'cover:true', '#float:>11', '#float:<1k',
-            '#float:10.01', 'series_index:1', 'series_index:<3', 'id:1',
-            'id:>2',
+            '#float:10.01', '#float:false', 'series_index:1',
+            'series_index:<3', 'id:1', 'id:>2',
 
             # Bool tests
             '#yesno:true', '#yesno:false', '#yesno:yes', '#yesno:no',
@@ -267,7 +314,7 @@ class ReadingTest(BaseTest):
 
     # }}}
 
-    def test_get_categories(self): # {{{
+    def test_get_categories(self):  # {{{
         'Check that get_categories() returns the same data for both backends'
         from calibre.library.database2 import LibraryDatabase2
         old = LibraryDatabase2(self.library_path)
@@ -286,9 +333,9 @@ class ReadingTest(BaseTest):
                 oval, nval = getattr(old, attr), getattr(new, attr)
                 if (
                     (category in {'rating', '#rating'} and attr in {'id_set', 'sort'}) or
-                    (category == 'series' and attr == 'sort') or # Sorting is wrong in old
+                    (category == 'series' and attr == 'sort') or  # Sorting is wrong in old
                     (category == 'identifiers' and attr == 'id_set') or
-                    (category == '@Good Series') or # Sorting is wrong in old
+                    (category == '@Good Series') or  # Sorting is wrong in old
                     (category == 'news' and attr in {'count', 'id_set'}) or
                     (category == 'formats' and attr == 'id_set')
                 ):
@@ -306,7 +353,7 @@ class ReadingTest(BaseTest):
 
     # }}}
 
-    def test_get_formats(self): # {{{
+    def test_get_formats(self):  # {{{
         'Test reading ebook formats using the format() method'
         from calibre.library.database2 import LibraryDatabase2
         from calibre.db.cache import NoSuchFormat
@@ -341,5 +388,235 @@ class ReadingTest(BaseTest):
         self.assertRaises(NoSuchFormat, cache.copy_format_to, 99999, 'X', buf, 'copy_format_to() failed to raise an exception for non-existent book')
         self.assertRaises(NoSuchFormat, cache.copy_format_to, 1, 'X', buf, 'copy_format_to() failed to raise an exception for non-existent format')
 
+    # }}}
+
+    def test_author_sort_for_authors(self):  # {{{
+        'Test getting the author sort for authors from the db'
+        cache = self.init_cache()
+        table = cache.fields['authors'].table
+        table.set_sort_names({next(table.id_map.iterkeys()): 'Fake Sort'}, cache.backend)
+
+        authors = tuple(table.id_map.itervalues())
+        nval = cache.author_sort_from_authors(authors)
+        self.assertIn('Fake Sort', nval)
+
+        db = self.init_old()
+        self.assertEqual(db.author_sort_from_authors(authors), nval)
+        db.close()
+        del db
+
+    # }}}
+
+    def test_get_next_series_num(self):  # {{{
+        'Test getting the next series number for a series'
+        cache = self.init_cache()
+        cache.set_field('series', {3:'test series'})
+        cache.set_field('series_index', {3:13})
+        table = cache.fields['series'].table
+        series = tuple(table.id_map.itervalues())
+        nvals = {s:cache.get_next_series_num_for(s) for s in series}
+        db = self.init_old()
+        self.assertEqual({s:db.get_next_series_num_for(s) for s in series}, nvals)
+        db.close()
+
+    # }}}
+
+    def test_has_book(self):  # {{{
+        'Test detecting duplicates'
+        from calibre.ebooks.metadata.book.base import Metadata
+        cache = self.init_cache()
+        db = self.init_old()
+        for title in cache.fields['title'].table.book_col_map.itervalues():
+            for x in (db, cache):
+                self.assertTrue(x.has_book(Metadata(title)))
+                self.assertTrue(x.has_book(Metadata(title.upper())))
+                self.assertFalse(x.has_book(Metadata(title + 'XXX')))
+                self.assertFalse(x.has_book(Metadata(title[:1])))
+        db.close()
+    # }}}
+
+    def test_datetime(self):  # {{{
+        ' Test the reading of datetimes stored in the db '
+        from calibre.utils.date import parse_date
+        from calibre.db.tables import c_parse, UNDEFINED_DATE, _c_speedup
+
+        # First test parsing of string to UTC time
+        for raw in ('2013-07-22 15:18:29+05:30', '  2013-07-22 15:18:29+00:00', '2013-07-22 15:18:29', '2003-09-21 23:30:00-06:00'):
+            self.assertTrue(_c_speedup(raw))
+            ctime = c_parse(raw)
+            pytime = parse_date(raw, assume_utc=True)
+            self.assertEqual(ctime, pytime)
+
+        self.assertEqual(c_parse(2003).year, 2003)
+        for x in (None, '', 'abc'):
+            self.assertEqual(UNDEFINED_DATE, c_parse(x))
+    # }}}
+
+    def test_restrictions(self):  # {{{
+        ' Test searching with and without restrictions '
+        cache = self.init_cache()
+        self.assertSetEqual(cache.all_book_ids(), cache.search(''))
+        self.assertSetEqual({1, 2}, cache.search('', 'not authors:=Unknown'))
+        self.assertSetEqual(set(), cache.search('authors:=Unknown', 'not authors:=Unknown'))
+        self.assertSetEqual({2}, cache.search('not authors:"=Author Two"', 'not authors:=Unknown'))
+        self.assertSetEqual({2}, cache.search('not authors:"=Author Two"', book_ids={1, 2}))
+        self.assertSetEqual({2}, cache.search('not authors:"=Author Two"', 'not authors:=Unknown', book_ids={1,2,3}))
+        self.assertSetEqual(set(), cache.search('authors:=Unknown', 'not authors:=Unknown', book_ids={1,2,3}))
+    # }}}
+
+    def test_search_caching(self):  # {{{
+        ' Test caching of searches '
+        from calibre.db.search import LRUCache
+        class TestCache(LRUCache):
+            hit_counter = 0
+            miss_counter = 0
+            def get(self, key, default=None):
+                ans = LRUCache.get(self, key, default=default)
+                if ans is not None:
+                    self.hit_counter += 1
+                else:
+                    self.miss_counter += 1
+            @property
+            def cc(self):
+                self.hit_counter = self.miss_counter = 0
+            @property
+            def counts(self):
+                return self.hit_counter, self.miss_counter
+
+        cache = self.init_cache()
+        cache._search_api.cache = c = TestCache()
+
+        ae, at = self.assertEqual, self.assertTrue
+
+        def test(hit, result, *args):
+            c.cc
+            ae(cache.search(*args), result)
+            ae(c.counts, (1, 0) if hit else (0, 1))
+            c.cc
+
+        test(False, {3}, 'Unknown')
+        test(True, {3}, 'Unknown')
+        test(True, {3}, 'Unknown')
+        cache._search_api.MAX_CACHE_UPDATE = 0
+        cache.set_field('title', {3:'xxx'})
+        test(False, {3}, 'Unknown')  # cache cleared
+        test(True, {3}, 'Unknown')
+        c.limit = 5
+        for i in range(6):
+            test(False, set(), 'nomatch_%s' % i)
+        test(False, {3}, 'Unknown')  # cached search expired
+        test(False, {3}, '', 'unknown')
+        test(True, {3}, '', 'unknown')
+        test(True, {3}, 'Unknown', 'unknown')
+        cache._search_api.MAX_CACHE_UPDATE = 100
+        test(False, {2, 3}, 'title:=xxx or title:"=Title One"')
+        cache.set_field('publisher', {3:'ppppp', 2:'other'})
+        # Test cache update worked
+        test(True, {2, 3}, 'title:=xxx or title:"=Title One"')
+    # }}}
+
+    def test_proxy_metadata(self):  # {{{
+        ' Test the ProxyMetadata object used for composite columns '
+        from calibre.ebooks.metadata.book.base import STANDARD_METADATA_FIELDS
+        cache = self.init_cache()
+        for book_id in cache.all_book_ids():
+            mi = cache.get_metadata(book_id, get_user_categories=False)
+            pmi = cache.get_proxy_metadata(book_id)
+            self.assertSetEqual(set(mi.custom_field_keys()), set(pmi.custom_field_keys()))
+
+            for field in STANDARD_METADATA_FIELDS | {'#series_index'}:
+                f = lambda x: x
+                if field == 'formats':
+                    f = lambda x: x if x is None else tuple(x)
+                self.assertEqual(f(getattr(mi, field)), f(getattr(pmi, field)),
+                                'Standard field: %s not the same for book %s' % (field, book_id))
+                self.assertEqual(mi.format_field(field), pmi.format_field(field),
+                                'Standard field format: %s not the same for book %s' % (field, book_id))
+                def f(x):
+                    try:
+                        x.pop('rec_index', None)
+                    except:
+                        pass
+                    return x
+                if field not in {'#series_index'}:
+                    v = pmi.get_standard_metadata(field)
+                    self.assertTrue(v is None or isinstance(v, dict))
+                    self.assertEqual(f(mi.get_standard_metadata(field, False)), f(v),
+                                     'get_standard_metadata() failed for field %s' % field)
+            for field, meta in cache.field_metadata.custom_iteritems():
+                if meta['datatype'] != 'composite':
+                    self.assertEqual(f(getattr(mi, field)), f(getattr(pmi, field)),
+                                    'Custom field: %s not the same for book %s' % (field, book_id))
+                    self.assertEqual(mi.format_field(field), pmi.format_field(field),
+                                    'Custom field format: %s not the same for book %s' % (field, book_id))
+
+        # Test handling of recursive templates
+        cache.create_custom_column('comp2', 'comp2', 'composite', False, display={'composite_template':'{title}'})
+        cache.create_custom_column('comp1', 'comp1', 'composite', False, display={'composite_template':'foo{#comp2}'})
+        cache.close()
+        cache = self.init_cache()
+        mi, pmi = cache.get_metadata(1), cache.get_proxy_metadata(1)
+        self.assertEqual(mi.get('#comp1'), pmi.get('#comp1'))
+
+    # }}}
+
+    def test_marked_field(self):  # {{{
+        ' Test the marked field '
+        db = self.init_legacy()
+        db.set_marked_ids({3:1, 2:3})
+        ids = [1,2,3]
+        db.multisort([('marked', True)], only_ids=ids)
+        self.assertListEqual([1, 3, 2], ids)
+        db.multisort([('marked', False)], only_ids=ids)
+        self.assertListEqual([2, 3, 1], ids)
+    # }}}
+
+    def test_composites(self):  # {{{
+        ' Test sorting and searching in composite columns '
+        from calibre.utils.date import parse_only_date as p
+        cache = self.init_cache()
+        cache.create_custom_column('mult', 'CC1', 'composite', True, display={'composite_template': 'b,a,c'})
+        cache.create_custom_column('single', 'CC2', 'composite', False, display={'composite_template': 'b,a,c'})
+        cache.create_custom_column('number', 'CC3', 'composite', False, display={'composite_template': '{#float}', 'composite_sort':'number'})
+        cache.create_custom_column('size', 'CC4', 'composite', False, display={'composite_template': '{#float:human_readable()}', 'composite_sort':'number'})
+        cache.create_custom_column('ccdate', 'CC5', 'composite', False,
+                                   display={'composite_template': '{pubdate:format_date(d-M-yy)}', 'composite_sort':'date'})
+        cache.create_custom_column('bool', 'CC6', 'composite', False, display={'composite_template': '{#yesno}', 'composite_sort':'bool'})
+        cache.create_custom_column('ccm', 'CC7', 'composite', True, display={'composite_template': '{#tags}'})
+        cache.create_custom_column('ccp', 'CC8', 'composite', True, display={'composite_template': '{publisher}'})
+        cache.create_custom_column('ccf', 'CC9', 'composite', True, display={'composite_template': "{:'approximate_formats()'}"})
+
+        cache = self.init_cache()
+        # Test searching
+        self.assertEqual({1,2,3}, cache.search('#mult:=a'))
+        self.assertEqual(set(), cache.search('#mult:=b,a,c'))
+        self.assertEqual({1,2,3}, cache.search('#single:=b,a,c'))
+        self.assertEqual(set(), cache.search('#single:=b'))
+
+        # Test numeric sorting
+        cache.set_field('#float', {1:2, 2:10, 3:0.0001})
+        self.assertEqual([3, 1, 2], cache.multisort([('#number', True)]))
+        cache.set_field('#float', {1:3, 2:2*1024, 3:1*1024*1024})
+        self.assertEqual([1, 2, 3], cache.multisort([('#size', True)]))
+
+        # Test date sorting
+        cache.set_field('pubdate', {1:p('2001-2-6'), 2:p('2001-10-6'), 3:p('2001-6-6')})
+        self.assertEqual([1, 3, 2], cache.multisort([('#ccdate', True)]))
+
+        # Test bool sorting
+        self.assertEqual([2, 1, 3], cache.multisort([('#bool', True)]))
+
+        # Test is_multiple sorting
+        cache.set_field('#tags', {1:'b, a, c', 2:'a, b, c', 3:'a, c, b'})
+        self.assertEqual([1, 2, 3], cache.multisort([('#ccm', True)]))
+
+        # Test that lock downgrading during update of search cache works
+        self.assertEqual(cache.search('#ccp:One'), {2})
+        cache.set_field('publisher', {2:'One', 1:'One'})
+        self.assertEqual(cache.search('#ccp:One'), {1, 2})
+
+        self.assertEqual(cache.search('#ccf:FMT1'), {1, 2})
+        cache.remove_formats({1:('FMT1',)})
+        self.assertEqual('FMT2', cache.field_for('#ccf', 1))
     # }}}
 

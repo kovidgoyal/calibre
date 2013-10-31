@@ -9,7 +9,7 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 import os
 
 from lxml.html import tostring
-from lxml.html.builder import (HTML, HEAD, BODY, TABLE, TR, TD, H1, STYLE)
+from lxml.html.builder import (HTML, HEAD, BODY, TABLE, TR, TD, H2, STYLE)
 
 def convert_node(toc, table, level, pdf):
     tr = TR(
@@ -64,7 +64,7 @@ def toc_as_html(toc, pdf, opts):
             )
         ),
         BODY(
-            H1(_('Table of Contents')),
+            H2(opts.toc_title or _('Table of Contents')),
             TABLE(),
         )
     )

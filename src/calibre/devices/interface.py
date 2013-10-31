@@ -43,6 +43,11 @@ class DevicePlugin(Plugin):
     #: than THUMBNAIL_HEIGHT
     # THUMBNAIL_WIDTH = 68
 
+    #: Compression quality for thumbnails. Set this closer to 100 to have better
+    #: quality thumbnails with fewer compression artifacts. Of course, the
+    #: thumbnails get larger as well.
+    THUMBNAIL_COMPRESSION_QUALITY = 75
+
     #: Set this to True if the device supports updating cover thumbnails during
     #: sync_booklists. Setting it to true will ask device.py to refresh the
     #: cover thumbnails during book matching

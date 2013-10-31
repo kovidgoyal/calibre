@@ -23,6 +23,7 @@ LINKS     = 'http://schemas.openxmlformats.org/officeDocument/2006/relationships
 FOOTNOTES = 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/footnotes'
 ENDNOTES  = 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/endnotes'
 THEMES    = 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/theme'
+SETTINGS  = 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/settings'
 
 namespaces = {
     'mo': 'http://schemas.microsoft.com/office/mac/office/2008/main',

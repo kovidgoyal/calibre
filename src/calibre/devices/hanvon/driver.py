@@ -9,6 +9,7 @@ Device driver for Hanvon devices
 '''
 import re, os
 
+from calibre import fsync
 from calibre.devices.usbms.driver import USBMS
 
 def is_alex(device_info):
@@ -123,6 +124,7 @@ class ALEX(N516):
             os.makedirs(cdir)
         with open(cpath, 'wb') as coverfile:
             coverfile.write(cover)
+            fsync(coverfile)
 
     def delete_books(self, paths, end_session=True):
         for i, path in enumerate(paths):

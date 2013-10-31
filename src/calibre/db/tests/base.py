@@ -7,12 +7,14 @@ __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import unittest, os, shutil, tempfile, atexit, gc
+import unittest, os, shutil, tempfile, atexit, gc, time
 from functools import partial
 from io import BytesIO
 from future_builtins import map
 
 rmtree = partial(shutil.rmtree, ignore_errors=True)
+
+IMG = b'\xff\xd8\xff\xe0\x00\x10JFIF\x00\x01\x01\x01\x00`\x00`\x00\x00\xff\xe1\x00\x16Exif\x00\x00II*\x00\x08\x00\x00\x00\x00\x00\x00\x00\x00\x00\xff\xdb\x00C\x00\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\xff\xdb\x00C\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\xff\xc0\x00\x11\x08\x00\x01\x00\x01\x03\x01"\x00\x02\x11\x01\x03\x11\x01\xff\xc4\x00\x15\x00\x01\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\n\xff\xc4\x00\x14\x10\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\xff\xc4\x00\x14\x01\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\xff\xc4\x00\x14\x11\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\xff\xda\x00\x0c\x03\x01\x00\x02\x11\x03\x11\x00?\x00\xbf\x80\x01\xff\xd9'  # noqa {{{ }}}
 
 class BaseTest(unittest.TestCase):
 
@@ -20,12 +22,22 @@ class BaseTest(unittest.TestCase):
     maxDiff = None
 
     def setUp(self):
+        from calibre.utils.recycle_bin import nuke_recycle
+        nuke_recycle()
         self.library_path = self.mkdtemp()
         self.create_db(self.library_path)
 
     def tearDown(self):
+        from calibre.utils.recycle_bin import restore_recyle
+        restore_recyle()
         gc.collect(), gc.collect()
-        shutil.rmtree(self.library_path)
+        try:
+            shutil.rmtree(self.library_path)
+        except EnvironmentError:
+            # Try again in case something transient has a file lock on windows
+            gc.collect(), gc.collect()
+            time.sleep(2)
+            shutil.rmtree(self.library_path)
 
     def create_db(self, library_path):
         from calibre.library.database2 import LibraryDatabase2
@@ -78,7 +90,7 @@ class BaseTest(unittest.TestCase):
     def cloned_library(self):
         return self.clone_library(self.library_path)
 
-    def compare_metadata(self, mi1, mi2):
+    def compare_metadata(self, mi1, mi2, exclude=()):
         allfk1 = mi1.all_field_keys()
         allfk2 = mi2.all_field_keys()
         self.assertEqual(allfk1, allfk2)
@@ -88,7 +100,7 @@ class BaseTest(unittest.TestCase):
                     'ondevice_col', 'last_modified', 'has_cover',
                     'cover_data'}.union(allfk1)
         for attr in all_keys:
-            if attr == 'user_metadata':
+            if attr in {'user_metadata', 'book_size', 'ondevice_col', 'db_approx_formats'} or attr in exclude:
                 continue
             attr1, attr2 = getattr(mi1, attr), getattr(mi2, attr)
             if attr == 'formats':
@@ -97,7 +109,7 @@ class BaseTest(unittest.TestCase):
                 attr1, attr2 = set(attr1), set(attr2)
             self.assertEqual(attr1, attr2,
                     '%s not the same: %r != %r'%(attr, attr1, attr2))
-            if attr.startswith('#'):
+            if attr.startswith('#') and attr + '_index' not in exclude:
                 attr1, attr2 = mi1.get_extra(attr), mi2.get_extra(attr)
                 self.assertEqual(attr1, attr2,
                     '%s {#extra} not the same: %r != %r'%(attr, attr1, attr2))

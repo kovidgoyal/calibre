@@ -12,7 +12,7 @@ from collections import Counter
 from lxml.html.builder import OL, UL, SPAN
 
 from calibre.ebooks.docx.block_styles import ParagraphStyle
-from calibre.ebooks.docx.char_styles import RunStyle
+from calibre.ebooks.docx.char_styles import RunStyle, inherit
 from calibre.ebooks.docx.names import XPath, get
 
 STYLE_MAP = {
@@ -40,23 +40,25 @@ class Level(object):
         self.paragraph_style = self.character_style = None
         self.is_numbered = False
         self.num_template = None
+        self.bullet_template = None
+        self.pic_id = None
 
         if lvl is not None:
             self.read_from_xml(lvl)
 
     def copy(self):
         ans = Level()
-        for x in ('restart', 'start', 'fmt', 'para_link', 'paragraph_style', 'character_style', 'is_numbered', 'num_template'):
+        for x in ('restart', 'pic_id', 'start', 'fmt', 'para_link', 'paragraph_style', 'character_style', 'is_numbered', 'num_template', 'bullet_template'):
             setattr(ans, x, getattr(self, x))
         return ans
 
-    def format_template(self, counter, ilvl):
+    def format_template(self, counter, ilvl, template):
         def sub(m):
             x = int(m.group(1)) - 1
             if x > ilvl or x not in counter:
                 return ''
             return '%d' % (counter[x] - (0 if x == ilvl else 1))
-        return re.sub(r'%(\d+)', sub, self.num_template).rstrip() + '\xa0'
+        return re.sub(r'%(\d+)', sub, template).rstrip() + '\xa0'
 
     def read_from_xml(self, lvl, override=False):
         for lr in XPath('./w:lvlRestart[@w:val]')(lvl):
@@ -71,6 +73,13 @@ class Level(object):
             except (TypeError, ValueError):
                 pass
 
+        for rPr in XPath('./w:rPr')(lvl):
+            ps = RunStyle(rPr)
+            if self.character_style is None:
+                self.character_style = ps
+            else:
+                self.character_style.update(ps)
+
         lt = None
         for lr in XPath('./w:lvlText[@w:val]')(lvl):
             lt = get(lr, 'w:val')
@@ -79,7 +88,14 @@ class Level(object):
             val = get(lr, 'w:val')
             if val == 'bullet':
                 self.is_numbered = False
-                self.fmt = {'\uf0a7':'square', 'o':'circle'}.get(lt, 'disc')
+                cs = self.character_style
+                if lt in {'\uf0a7', 'o'} or (
+                    cs is not None and cs.font_family is not inherit and cs.font_family.lower() in {'wingdings', 'symbol'}):
+                    self.fmt = {'\uf0a7':'square', 'o':'circle'}.get(lt, 'disc')
+                else:
+                    self.bullet_template = lt
+                for lpid in XPath('./w:lvlPicBulletId[@w:val]')(lvl):
+                    self.pic_id = get(lpid, 'w:val')
             else:
                 self.is_numbered = True
                 self.fmt = STYLE_MAP.get(val, 'decimal')
@@ -96,12 +112,26 @@ class Level(object):
             else:
                 self.paragraph_style.update(ps)
 
-        for rPr in XPath('./w:rPr')(lvl):
-            ps = RunStyle(rPr)
-            if self.character_style is None:
-                self.character_style = ps
-            else:
-                self.character_style.update(ps)
+    def css(self, images, pic_map, rid_map):
+        ans = {'list-style-type': self.fmt}
+        if self.pic_id:
+            rid = pic_map.get(self.pic_id, None)
+            if rid:
+                try:
+                    fname = images.generate_filename(rid, rid_map=rid_map)
+                except Exception:
+                    fname = None
+                else:
+                    ans['list-style-image'] = 'url("images/%s")' % fname
+        return ans
+
+    def char_css(self):
+        try:
+            css = self.character_style.css
+        except AttributeError:
+            css = {}
+        css.pop('font-family', None)
+        return css
 
 class NumberingDefinition(object):
 
@@ -127,9 +157,16 @@ class Numbering(object):
         self.definitions = {}
         self.instances = {}
         self.counters = {}
+        self.pic_map = {}
 
-    def __call__(self, root, styles):
+    def __call__(self, root, styles, rid_map):
         ' Read all numbering style definitions '
+        self.rid_map = rid_map
+        for npb in XPath('./w:numPicBullet[@w:numPicBulletId]')(root):
+            npbid = get(npb, 'w:numPicBulletId')
+            for idata in XPath('descendant::v:imagedata[@r:id]')(npb):
+                rid = get(idata, 'r:id')
+                self.pic_map[npbid] = rid
         lazy_load = {}
         for an in XPath('./w:abstractNum[@w:abstractNumId]')(root):
             an_id = get(an, 'w:abstractNumId')
@@ -198,7 +235,7 @@ class Numbering(object):
             if (restart is None and ilvl == levelnum + 1) or restart == levelnum + 1:
                 counter[ilvl] = lvl.start
 
-    def apply_markup(self, items, body, styles, object_map):
+    def apply_markup(self, items, body, styles, object_map, images):
         for p, num_id, ilvl in items:
             d = self.instances.get(num_id, None)
             if d is not None:
@@ -210,7 +247,10 @@ class Numbering(object):
                     p.set('list-lvl', str(ilvl))
                     p.set('list-id', num_id)
                     if lvl.num_template is not None:
-                        val = lvl.format_template(counter, ilvl)
+                        val = lvl.format_template(counter, ilvl, lvl.num_template)
+                        p.set('list-template', val)
+                    elif lvl.bullet_template is not None:
+                        val = lvl.format_template(counter, ilvl, lvl.bullet_template)
                         p.set('list-template', val)
                     self.update_counter(counter, ilvl, d.levels)
 
@@ -227,12 +267,15 @@ class Numbering(object):
             ilvl = int(start.get('list-lvl'))
             lvl = d.levels[ilvl]
             lvlid = start.get('list-id') + start.get('list-lvl')
-            wrap = (OL if lvl.is_numbered else UL)('\n\t')
             has_template = 'list-template' in start.attrib
+            wrap = (OL if lvl.is_numbered or has_template else UL)('\n\t')
             if has_template:
                 wrap.set('lvlid', lvlid)
             else:
-                wrap.set('class', styles.register({'list-style-type': lvl.fmt}, 'list'))
+                wrap.set('class', styles.register(lvl.css(images, self.pic_map, self.rid_map), 'list'))
+            ccss = lvl.char_css()
+            if ccss:
+                ccss = styles.register(ccss, 'bullet')
             parent.insert(idx, wrap)
             last_val = None
             for child in current_run:
@@ -246,6 +289,8 @@ class Numbering(object):
                         span.append(gc)
                     child.append(span)
                     span = SPAN(child.get('list-template'))
+                    if ccss:
+                        span.set('class', ccss)
                     last = templates.get(lvlid, '')
                     if span.text and len(span.text) > len(last):
                         templates[lvlid] = span.text
@@ -253,7 +298,7 @@ class Numbering(object):
                 for attr in ('list-lvl', 'list-id', 'list-template'):
                     child.attrib.pop(attr, None)
                 val = int(child.get('value'))
-                if last_val == val - 1 or wrap.tag == 'ul':
+                if last_val == val - 1 or wrap.tag == 'ul' or (last_val is None and val == 1):
                     child.attrib.pop('value')
                 last_val = val
             current_run[-1].tail = '\n'
@@ -276,15 +321,12 @@ class Numbering(object):
                     commit(current_run)
             commit(current_run)
 
+        # Convert the list items that use custom text for bullets into tables
+        # so that they display correctly
         for wrap in body.xpath('//ol[@lvlid]'):
-            lvlid = wrap.attrib.pop('lvlid')
+            wrap.attrib.pop('lvlid')
             wrap.tag = 'div'
-            text = ''
-            maxtext = templates.get(lvlid, '').replace('.', '')[:-1]
-            for li in wrap.iterchildren('li'):
-                t = li[0].text
-                if t and len(t) > len(text):
-                    text = t
+            wrap.set('style', 'display:table')
             for i, li in enumerate(wrap.iterchildren('li')):
                 li.tag = 'div'
                 li.attrib.pop('value', None)
@@ -292,9 +334,8 @@ class Numbering(object):
                 obj = object_map[li]
                 bs = styles.para_cache[obj]
                 if i == 0:
-                    m = len(maxtext)  # Move the table left to simulate the behavior of a list (number is to the left of text margin)
-                    wrap.set('style', 'display:table; margin-left: -%dem; padding-left: %s' % (m, bs.css.get('margin-left', 0)))
+                    wrap.set('style', 'display:table; padding-left:%s' %
+                             bs.css.get('margin-left', '0'))
                 bs.css.pop('margin-left', None)
                 for child in li:
                     child.set('style', 'display:table-cell')
-

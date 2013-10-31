@@ -3,7 +3,7 @@ Make strings safe for use as ASCII filenames, while trying to preserve as much
 meaning as possible.
 '''
 
-import os, errno
+import os, errno, time
 from math import ceil
 
 from calibre import sanitize_file_name, isbytestring, force_unicode
@@ -70,9 +70,11 @@ def shorten_components_to(length, components, more_to_take=0):
         else:
             if x is components[-1]:
                 b, e = os.path.splitext(x)
-                if e == '.': e = ''
+                if e == '.':
+                    e = ''
                 r = shorten_component(b, delta)+e
-                if r.startswith('.'): r = x[0]+r
+                if r.startswith('.'):
+                    r = x[0]+r
             else:
                 r = shorten_component(x, delta)
             r = r.strip()
@@ -115,7 +117,7 @@ def is_case_sensitive(path):
         os.remove(f1)
     return is_case_sensitive
 
-def case_preserving_open_file(path, mode='wb', mkdir_mode=0777):
+def case_preserving_open_file(path, mode='wb', mkdir_mode=0o777):
     '''
     Open the file pointed to by path with the specified mode. If any
     directories in path do not exist, they are created. Returns the
@@ -199,31 +201,31 @@ def case_preserving_open_file(path, mode='wb', mkdir_mode=0777):
             fpath = os.path.join(cpath, fname)
     return ans, fpath
 
-def samefile_windows(src, dst):
+def windows_get_fileid(path):
+    ''' The fileid uniquely identifies actual file contents (it is the same for
+    all hardlinks to a file). Similar to inode number on linux. '''
     import win32file
     from pywintypes import error
+    if isbytestring(path):
+        path = path.decode(filesystem_encoding)
+    try:
+        h = win32file.CreateFile(path, 0, 0, None, win32file.OPEN_EXISTING,
+                win32file.FILE_FLAG_BACKUP_SEMANTICS, 0)
+        try:
+            data = win32file.GetFileInformationByHandle(h)
+        finally:
+            win32file.CloseHandle(h)
+    except (error, EnvironmentError):
+        return None
+    return data[4], data[8], data[9]
 
+def samefile_windows(src, dst):
     samestring = (os.path.normcase(os.path.abspath(src)) ==
             os.path.normcase(os.path.abspath(dst)))
     if samestring:
         return True
 
-    handles = []
-
-    def get_fileid(x):
-        if isbytestring(x): x = x.decode(filesystem_encoding)
-        try:
-            h = win32file.CreateFile(x, 0, 0, None, win32file.OPEN_EXISTING,
-                    win32file.FILE_FLAG_BACKUP_SEMANTICS, 0)
-            handles.append(h)
-            data = win32file.GetFileInformationByHandle(h)
-        except (error, EnvironmentError):
-            return None
-        return (data[4], data[8], data[9])
-
-    a, b = get_fileid(src), get_fileid(dst)
-    for h in handles:
-        win32file.CloseHandle(h)
+    a, b = windows_get_fileid(src), windows_get_fileid(dst)
     if a is None and b is None:
         return False
     return a == b
@@ -254,6 +256,53 @@ def samefile(src, dst):
             os.path.normcase(os.path.abspath(dst)))
     return samestring
 
+def windows_get_size(path):
+    ''' On windows file sizes are only accurately stored in the actual file,
+    not in the directory entry (which could be out of date). So we open the
+    file, and get the actual size. '''
+    import win32file
+    h = win32file.CreateFile(
+        path, 0, win32file.FILE_SHARE_READ | win32file.FILE_SHARE_WRITE | win32file.FILE_SHARE_DELETE,
+        None, win32file.OPEN_EXISTING, 0, None)
+    try:
+        return win32file.GetFileSize(h)
+    finally:
+        win32file.CloseHandle(h)
+
+def windows_hardlink(src, dest):
+    import win32file, pywintypes
+    try:
+        win32file.CreateHardLink(dest, src)
+    except pywintypes.error as e:
+        msg = u'Creating hardlink from %s to %s failed: %%s' % (src, dest)
+        raise Exception(msg % e)
+    src_size = os.path.getsize(src)
+    # We open and close dest, to ensure its directory entry is updated
+    # see http://blogs.msdn.com/b/oldnewthing/archive/2011/12/26/10251026.aspx
+    for i in range(10):
+        # If we are on a network filesystem, we have to wait for some indeterminate time, since
+        # network file systems are the best thing since sliced bread
+        try:
+            if windows_get_size(dest) == src_size:
+                return
+        except EnvironmentError:
+            pass
+        time.sleep(0.3)
+
+    sz = windows_get_size(dest)
+    if sz != src_size:
+        msg = u'Creating hardlink from %s to %s failed: %%s' % (src, dest)
+        raise Exception(msg % ('hardlink size: %d not the same as source size' % sz))
+
+def windows_nlinks(path):
+    import win32file
+    dwFlagsAndAttributes = win32file.FILE_FLAG_BACKUP_SEMANTICS if os.path.isdir(path) else 0
+    handle = win32file.CreateFile(path, win32file.GENERIC_READ, win32file.FILE_SHARE_READ, None, win32file.OPEN_EXISTING, dwFlagsAndAttributes, None)
+    try:
+        return win32file.GetFileInformationByHandle(handle)[7]
+    finally:
+        handle.Close()
+
 class WindowsAtomicFolderMove(object):
 
     '''
@@ -269,15 +318,24 @@ class WindowsAtomicFolderMove(object):
 
         import win32file, winerror
         from pywintypes import error
+        from collections import defaultdict
 
-        if isbytestring(path): path = path.decode(filesystem_encoding)
+        if isbytestring(path):
+            path = path.decode(filesystem_encoding)
 
         if not os.path.exists(path):
             return
 
-        for x in os.listdir(path):
+        names = os.listdir(path)
+        name_to_fileid = {x:windows_get_fileid(os.path.join(path, x)) for x in names}
+        fileid_to_names = defaultdict(set)
+        for name, fileid in name_to_fileid.iteritems():
+            fileid_to_names[fileid].add(name)
+
+        for x in names:
             f = os.path.normcase(os.path.abspath(os.path.join(path, x)))
-            if not os.path.isfile(f): continue
+            if not os.path.isfile(f):
+                continue
             try:
                 # Ensure the file is not read-only
                 win32file.SetFileAttributes(f, win32file.FILE_ATTRIBUTE_NORMAL)
@@ -289,6 +347,21 @@ class WindowsAtomicFolderMove(object):
                         win32file.FILE_SHARE_DELETE, None,
                         win32file.OPEN_EXISTING, win32file.FILE_FLAG_SEQUENTIAL_SCAN, 0)
             except error as e:
+                if getattr(e, 'winerror', 0) == winerror.ERROR_SHARING_VIOLATION:
+                    # The file could be a hardlink to an already opened file,
+                    # in which case we use the same handle for both files
+                    fileid = name_to_fileid[x]
+                    found = False
+                    if fileid is not None:
+                        for other in fileid_to_names[fileid]:
+                            other = os.path.normcase(os.path.abspath(os.path.join(path, other)))
+                            if other in self.handle_map:
+                                self.handle_map[f] = self.handle_map[other]
+                                found = True
+                                break
+                    if found:
+                        continue
+
                 self.close_handles()
                 if getattr(e, 'winerror', 0) == winerror.ERROR_SHARING_VIOLATION:
                     err = IOError(errno.EACCES,
@@ -315,12 +388,12 @@ class WindowsAtomicFolderMove(object):
             else:
                 raise ValueError(u'The file %r does not exist'%path)
         try:
-            win32file.CreateHardLink(dest, path)
-            if os.path.getsize(dest) != os.path.getsize(path):
-                raise Exception('This apparently can happen on network shares. Sigh.')
+            windows_hardlink(path, dest)
             return
         except:
             pass
+
+        win32file.SetFilePointer(handle, 0, win32file.FILE_BEGIN)
         with lopen(dest, 'wb') as f:
             while True:
                 hr, raw = win32file.ReadFile(handle, 1024*1024)
@@ -331,6 +404,7 @@ class WindowsAtomicFolderMove(object):
                 f.write(raw)
 
     def release_file(self, path):
+        ' Release the lock on the file pointed to by path. Will also release the lock on any hardlinks to path '
         key = None
         for p, h in self.handle_map.iteritems():
             if samefile_windows(path, p):
@@ -339,7 +413,9 @@ class WindowsAtomicFolderMove(object):
         if key is not None:
             import win32file
             win32file.CloseHandle(key[1])
-            self.handle_map.pop(key[0])
+            remove = [f for f, h in self.handle_map.iteritems() if h is key[1]]
+            for x in remove:
+                self.handle_map.pop(x)
 
     def close_handles(self):
         import win32file
@@ -355,10 +431,31 @@ class WindowsAtomicFolderMove(object):
 
 def hardlink_file(src, dest):
     if iswindows:
-        import win32file
-        win32file.CreateHardLink(dest, src)
-        if os.path.getsize(dest) != os.path.getsize(src):
-            raise Exception('This apparently can happen on network shares. Sigh.')
+        windows_hardlink(src, dest)
         return
     os.link(src, dest)
 
+def nlinks_file(path):
+    ' Return number of hardlinks to the file '
+    if iswindows:
+        return windows_nlinks(path)
+    return os.stat(path).st_nlink
+
+def atomic_rename(oldpath, newpath):
+    '''Replace the file newpath with the file oldpath. Can fail if the files
+    are on different volumes. If succeeds, guaranteed to be atomic. newpath may
+    or may not exist. If it exists, it is replaced. '''
+    if iswindows:
+        import win32file
+        for i in xrange(10):
+            try:
+                win32file.MoveFileEx(oldpath, newpath, win32file.MOVEFILE_REPLACE_EXISTING|win32file.MOVEFILE_WRITE_THROUGH)
+                break
+            except:
+                if i > 8:
+                    raise
+                # Try the rename repeatedly in case something like a virus
+                # scanner has opened one of the files (I love windows)
+                time.sleep(1)
+    else:
+        os.rename(oldpath, newpath)

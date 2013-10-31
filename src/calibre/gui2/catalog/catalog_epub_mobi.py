@@ -287,7 +287,7 @@ class PluginWidget(QWidget,Ui_Form):
                     if child.objectName() == 'format':
                         current_format = str(child.currentText()).strip()
                     elif child.objectName() == 'title':
-                        current_title = str(child.text()).strip()
+                        current_title = unicode(child.text()).strip()
         self.parentWidget().blockSignals(False)
         return current_format, current_title
 

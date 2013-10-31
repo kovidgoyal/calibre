@@ -12,7 +12,7 @@ import datetime, os, re, sys, json, hashlib
 
 from calibre.devices.kindle.bookmark import Bookmark
 from calibre.devices.usbms.driver import USBMS
-from calibre import strftime
+from calibre import strftime, fsync
 
 '''
 Notes on collections:
@@ -270,7 +270,7 @@ class KINDLE(USBMS):
         elif bm.type == 'kindle_clippings':
             # Find 'My Clippings' author=Kindle in database, or add
             last_update = 'Last modified %s' % strftime(u'%x %X',bm.value['timestamp'].timetuple())
-            mc_id = list(db.data.search_getting_ids('title:"My Clippings"', ''))
+            mc_id = list(db.data.search_getting_ids('title:"My Clippings"', '', sort_results=False))
             if mc_id:
                 db.add_format_with_hooks(mc_id[0], 'TXT', bm.value['path'],
                         index_is_id=True)
@@ -410,6 +410,7 @@ class KINDLE2(KINDLE):
                     uuid=mh.exth.uuid, cdetype=mh.exth.cdetype))
         with open(thumbfile, 'wb') as f:
             f.write(coverdata[2])
+            fsync(f)
 
     def upload_apnx(self, path, filename, metadata, filepath):
         from calibre.devices.kindle.apnx import APNXBuilder

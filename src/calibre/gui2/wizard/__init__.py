@@ -14,7 +14,6 @@ from contextlib import closing
 from PyQt4.Qt import (QWizard, QWizardPage, QPixmap, Qt, QAbstractListModel,
     QVariant, QItemSelectionModel, SIGNAL, QObject, QTimer, pyqtSignal)
 from calibre import __appname__, patheq
-from calibre.library.database2 import LibraryDatabase2
 from calibre.library.move import MoveLibrary
 from calibre.constants import (filesystem_encoding, iswindows, plugins,
         isportable)
@@ -29,7 +28,6 @@ from calibre.gui2 import min_available_height, available_width
 from calibre.utils.config import dynamic, prefs
 from calibre.gui2 import NONE, choose_dir, error_dialog
 from calibre.gui2.dialogs.progress import ProgressDialog
-from calibre.customize.ui import device_plugins
 
 if iswindows:
     winutil = plugins['winutil'][0]
@@ -139,7 +137,7 @@ class Kobo(Device):
     id = 'kobo'
 
 class KoboVox(Kobo):
-    name = 'Kobo Vox'
+    name = 'Kobo Vox and Kobo Aura HD'
     output_profile = 'tablet'
     id = 'kobo_vox'
 
@@ -272,6 +270,7 @@ class Android(Device):
 
     @classmethod
     def commit(cls):
+        from calibre.customize.ui import device_plugins
         super(Android, cls).commit()
         for plugin in device_plugins(include_disabled=True):
             if hasattr(plugin, 'configure_for_generic_epub_app'):
@@ -292,6 +291,7 @@ class AndroidPhoneWithKindle(Android):
 
     @classmethod
     def commit(cls):
+        from calibre.customize.ui import device_plugins
         super(Android, cls).commit()
         for plugin in device_plugins(include_disabled=True):
             if hasattr(plugin, 'configure_for_kindle_app'):
@@ -461,6 +461,11 @@ class KindlePage(QWizardPage, KindleUI):
     def nextId(self):
         return FinishPage.ID
 
+    def retranslateUi(self, widget):
+        KindleUI.retranslateUi(self, widget)
+        if hasattr(self, 'send_email_widget'):
+            self.send_email_widget.retranslateUi(self.send_email_widget)
+
 class StanzaPage(QWizardPage, StanzaUI):
 
     ID = 5
@@ -617,13 +622,14 @@ class Callback(object):
 
 _mm = None
 def move_library(oldloc, newloc, parent, callback_on_complete):
+    from calibre.db.legacy import LibraryDatabase
     callback = Callback(callback_on_complete)
     try:
         if not os.path.exists(os.path.join(newloc, 'metadata.db')):
             if oldloc and os.access(os.path.join(oldloc, 'metadata.db'), os.R_OK):
                 # Move old library to new location
                 try:
-                    db = LibraryDatabase2(oldloc)
+                    db = LibraryDatabase(oldloc)
                 except:
                     return move_library(None, newloc, parent,
                         callback)
@@ -636,13 +642,13 @@ def move_library(oldloc, newloc, parent, callback_on_complete):
                     return
             else:
                 # Create new library at new location
-                db = LibraryDatabase2(newloc)
+                db = LibraryDatabase(newloc)
                 callback(newloc)
                 return
 
         # Try to load existing library at new location
         try:
-            LibraryDatabase2(newloc)
+            LibraryDatabase(newloc)
         except Exception as err:
             det = traceback.format_exc()
             error_dialog(parent, _('Invalid database'),
@@ -710,10 +716,12 @@ class LibraryPage(QWizardPage, LibraryUI):
         __builtin__.__dict__['_'] = lambda(x): x
         from calibre.utils.localization import set_translators
         from calibre.gui2 import qt_app
+        from calibre.ebooks.metadata.book.base import reset_field_metadata
         set_translators()
         qt_app.load_translations()
         self.retranslate.emit()
         self.init_languages()
+        reset_field_metadata()
         try:
             lang = prefs['language'].lower()[:2]
             metadata_plugins = {
@@ -728,8 +736,9 @@ class LibraryPage(QWizardPage, LibraryUI):
             pass
 
     def is_library_dir_suitable(self, x):
+        from calibre.db.legacy import LibraryDatabase
         try:
-            return LibraryDatabase2.exists_at(x) or not os.listdir(x)
+            return LibraryDatabase.exists_at(x) or not os.listdir(x)
         except:
             return False
 
@@ -741,14 +750,15 @@ class LibraryPage(QWizardPage, LibraryUI):
         return True
 
     def change(self):
+        from calibre.db.legacy import LibraryDatabase
         x = choose_dir(self, 'database location dialog',
                          _('Select location for books'))
         if x:
             if (iswindows and len(x) >
-                    LibraryDatabase2.WINDOWS_LIBRARY_PATH_LIMIT):
+                    LibraryDatabase.WINDOWS_LIBRARY_PATH_LIMIT):
                 return error_dialog(self, _('Too long'),
                     _('Path to library too long. Must be less than'
-                    ' %d characters.')%LibraryDatabase2.WINDOWS_LIBRARY_PATH_LIMIT,
+                    ' %d characters.')%(LibraryDatabase.WINDOWS_LIBRARY_PATH_LIMIT),
                     show=True)
             if not os.path.exists(x):
                 try:

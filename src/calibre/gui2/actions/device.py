@@ -12,14 +12,14 @@ from PyQt4.Qt import QToolButton, QMenu, pyqtSignal, QIcon, QTimer
 from calibre.gui2.actions import InterfaceAction
 from calibre.utils.smtp import config as email_config
 from calibre.utils.config import tweaks
-from calibre.constants import iswindows, isosx
+from calibre.constants import iswindows, isosx, get_osx_version
 from calibre.customize.ui import is_disabled
 from calibre.devices.bambook.driver import BAMBOOK
 from calibre.gui2.dialogs.smartdevice import SmartdeviceDialog
 from calibre.gui2 import info_dialog, question_dialog
 from calibre.library.server import server_config as content_server_config
 
-class ShareConnMenu(QMenu): # {{{
+class ShareConnMenu(QMenu):  # {{{
 
     connect_to_folder = pyqtSignal()
     connect_to_itunes = pyqtSignal()
@@ -44,8 +44,8 @@ class ShareConnMenu(QMenu): # {{{
         mitem.setEnabled(True)
         mitem.triggered.connect(lambda x : self.connect_to_itunes.emit())
         self.connect_to_itunes_action = mitem
-        if not (iswindows or isosx):
-            mitem.setVisible(False)
+        itunes_ok = iswindows or (isosx and get_osx_version() < (10, 9, 0))
+        mitem.setVisible(itunes_ok)
         mitem = self.addAction(QIcon(I('devices/bambook.png')), _('Connect to Bambook'))
         mitem.setEnabled(True)
         mitem.triggered.connect(lambda x : self.connect_to_bambook.emit())
@@ -138,8 +138,22 @@ class ShareConnMenu(QMenu): # {{{
                     ac.a_s.connect(sync_menu.action_triggered)
                 action1.a_s.connect(sync_menu.action_triggered)
                 action2.a_s.connect(sync_menu.action_triggered)
+            action1 = DeviceAction('choosemail:', False, False, I('mail.png'),
+                    _('Select recipients'))
+            action2 = DeviceAction('choosemail:', True, False, I('mail.png'),
+                    _('Select recipients') + ' ' + _('(delete from library)'))
+            self.email_to_menu.addAction(action1)
+            self.email_to_and_delete_menu.addAction(action2)
+            map(self.memory.append, (action1, action2))
+            tac1 = DeviceAction('choosemail:', False, False, I('mail.png'),
+                    _('Email to selected recipients...'))
+            self.addAction(tac1)
+            tac1.a_s.connect(sync_menu.action_triggered)
+            self.memory.append(tac1)
             ac = self.addMenu(self.email_to_and_delete_menu)
             self.email_actions.append(ac)
+            action1.a_s.connect(sync_menu.action_triggered)
+            action2.a_s.connect(sync_menu.action_triggered)
         else:
             ac = self.addAction(_('Setup email based sharing of books'))
             self.email_actions.append(ac)
@@ -286,4 +300,5 @@ class ConnectShareAction(InterfaceAction):
         ac = self.share_conn_menu.control_smartdevice_action
         ac.setIcon(QIcon(I('dot_%s.png'%icon)))
         ac.setText(text)
+
 

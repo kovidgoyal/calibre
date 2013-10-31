@@ -149,7 +149,7 @@ class EPUB_MOBI(CatalogPlugin):
                           default=None,
                           dest='output_profile',
                           action=None,
-                          help=_("Specifies the output profile.  In some cases, an output profile is required to optimize the catalog for the device.  For example, 'kindle' or 'kindle_dx' creates a structured Table of Contents with Sections and Articles.\n"
+                          help=_("Specifies the output profile. In some cases, an output profile is required to optimize the catalog for the device.  For example, 'kindle' or 'kindle_dx' creates a structured Table of Contents with Sections and Articles.\n"
                           "Default: '%default'\n"
                           "Applies to: AZW3, ePub, MOBI output formats")),
                    Option('--prefix-rules',
@@ -447,7 +447,7 @@ class EPUB_MOBI(CatalogPlugin):
             try:
                 search_text = 'title:"%s" author:%s' % (
                         opts.catalog_title.replace('"', '\\"'), 'calibre')
-                matches = db.search(search_text, return_matches=True)
+                matches = db.search(search_text, return_matches=True, sort_results=False)
                 if matches:
                     cpath = db.cover(matches[0], index_is_id=True, as_path=True)
                     if cpath and os.path.exists(cpath):

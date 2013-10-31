@@ -1,0 +1,111 @@
+# vim:fileencoding=utf-8
+from __future__ import unicode_literals
+
+__license__   = 'GPL v3'
+__copyright__ = '2013'
+'''
+monde-diplomatique.fr
+'''
+
+import re
+from calibre.web.feeds.news import BasicNewsRecipe
+from calibre.web.feeds import feeds_from_index
+
+class LeMondeDiplomatiqueSiteWeb(BasicNewsRecipe):
+    title                  = u'Le Monde diplomatique.fr'
+    __author__             = 'Gaëtan Lehmann'
+    description            = "Le Monde diplomatique est un mensuel français d’information et d’opinion à la ligne éditoriale nettement engagée en faveur d'une gauche de rupture avec le capitalisme. Il aborde de nombreux sujets — géopolitique, relations internationales, économie, questions sociales, écologie, culture, médias, …"  # noqa
+    oldest_article         = 7
+    max_articles_per_feed  = 100
+    auto_cleanup = True
+    publisher              = 'monde-diplomatique.fr'
+    category               = 'news, France, world'
+    language               = 'fr'
+    masthead_url           = 'http://www.monde-diplomatique.fr/squelettes/images/logotyfa.png'
+    timefmt                = ' [%d %b %Y]'
+    no_stylesheets         = True
+
+    feeds                  = [(u'Blogs', u'http://blog.mondediplo.net/spip.php?page=backend'), (u'Archives', u'http://www.monde-diplomatique.fr/rss/')]
+
+    preprocess_regexps     = [
+        (re.compile(r'<title>(.*) - Les blogs du Diplo</title>'), lambda m: '<title>' + m.group(1) + '</title>'),
+        (re.compile(r'<h2>(.*) - Les blogs du Diplo</h2>'), lambda m: '<h2>' + m.group(1) + '</h2>'),
+        (re.compile(r'<title>(.*) \(Le Monde diplomatique\)</title>'), lambda m: '<title>' + m.group(1) + '</title>'),
+        (re.compile(r'<h2>(.*) \(Le Monde diplomatique\)</h2>'), lambda m: '<h2>' + m.group(1) + '</h2>'),
+        (re.compile(r'<h3>Grand format</h3>'), lambda m: '')]
+
+    remove_tags            = [dict(name='div', attrs={'class':'voiraussi liste'}),
+      dict(name='ul', attrs={'class':'hermetique carto hombre_demi_inverse'}),
+      dict(name='a', attrs={'class':'tousles'}),
+      dict(name='h3', attrs={'class':'cat'}),
+      dict(name='div', attrs={'class':'logodiplo'}),
+      dict(name='img', attrs={'class':'spip_logos'}),
+      dict(name='p', attrs={'id':'hierarchie'}),
+      dict(name='div', attrs={'class':'espace'})]
+
+    conversion_options     = {
+                              'comments'        : description
+                             ,'tags'            : category
+                             ,'language'        : language
+                             ,'publisher'       : publisher
+                             ,'linearize_tables': True
+                          }
+
+    remove_empty_feeds     = True
+
+    filterDuplicates       = True
+
+    # don't use parse_index - we need it to send an exception so we can mix
+    # feed and parse_index results in parse_feeds
+    def parse_index_valise(self):
+        articles = []
+        soup = self.index_to_soup('http://www.monde-diplomatique.fr/carnet/')
+        cnt = soup.find('ul',attrs={'class':'hermetique liste'})
+        for item in cnt.findAll('li'):
+            description = ''
+            feed_link = item.find('a')
+            desc = item.find('div',attrs={'class':'intro'})
+            date = item.find('div',attrs={'class':'dates_auteurs'})
+            if desc:
+                description = desc.string
+            if feed_link and feed_link.has_key('href'):
+                url   = 'http://www.monde-diplomatique.fr' + feed_link['href']
+                title = self.tag_to_string(feed_link)
+                articles.append({
+                                  'title'      :title
+                                 ,'date'       :date.string.strip()
+                                 ,'url'        :url
+                                 ,'description':description
+                                })
+        return [("La valise diplomatique", articles)]
+
+    def parse_index_cartes(self):
+        articles = []
+        soup = self.index_to_soup('http://www.monde-diplomatique.fr/cartes/')
+        cnt = soup.find('div',attrs={'class':'decale hermetique'})
+        for item in cnt.findAll('div',attrs={'class':re.compile('grid_3 filet hombre_demi')}):
+            feed_link = item.find('a',attrs={'class':'couve'})
+            h3 = item.find('h3')
+            authorAndDate = item.find('div',attrs={'class':'dates_auteurs'})
+            author, date = authorAndDate.string.strip().split(', ')
+            if feed_link and feed_link.has_key('href'):
+                url   = 'http://www.monde-diplomatique.fr' + feed_link['href']
+                title = self.tag_to_string(h3)
+                articles.append({
+                                  'title'      :title
+                                 ,'date'       :date
+                                 ,'url'        :url
+                                 ,'description': author
+                                })
+        return [("Cartes", articles)]
+
+    def parse_feeds(self):
+        feeds = BasicNewsRecipe.parse_feeds(self)
+        valise = feeds_from_index(self.parse_index_valise(), oldest_article=self.oldest_article,
+                                     max_articles_per_feed=self.max_articles_per_feed,
+                                    log=self.log)
+        cartes = feeds_from_index(self.parse_index_cartes(), oldest_article=self.oldest_article,
+                                     max_articles_per_feed=self.max_articles_per_feed,
+                                     log=self.log)
+        feeds = valise + feeds + cartes
+        return feeds

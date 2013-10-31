@@ -13,7 +13,7 @@ from io import BytesIO
 
 from calibre.ebooks.metadata import author_to_author_sort
 from calibre.utils.date import UNDEFINED_DATE
-from calibre.db.tests.base import BaseTest
+from calibre.db.tests.base import BaseTest, IMG
 
 class WritingTest(BaseTest):
 
@@ -292,6 +292,16 @@ class WritingTest(BaseTest):
             ae(c.field_for('sort', 1), 'Moose, The')
             ae(c.field_for('sort', 2), 'Cat')
 
+        # Test setting with the same value repeated
+        ae(sf('tags', {3: ('a', 'b', 'a')}), {3})
+        ae(sf('tags', {3: ('x', 'X')}), {3}, 'Failed when setting tag twice with different cases')
+        ae(('x',), cache.field_for('tags', 3))
+
+        # Test setting of authors with | in their names (for legacy database
+        # format compatibility | is replaced by ,)
+        ae(sf('authors', {3: ('Some| Author',)}), {3})
+        ae(('Some, Author',), cache.field_for('authors', 3))
+
     # }}}
 
     def test_dirtied(self):  # {{{
@@ -340,12 +350,12 @@ class WritingTest(BaseTest):
             ae(sf('authors', {1:'author1 & author2', 2:'author1 & author2', 3:'author1 & author2'}), {1,2,3})
             count = 6
             while cache.dirty_queue_length() and count > 0:
-                mb.join(interval)
+                mb.join(2)
                 count -= 1
             af(cache.dirty_queue_length())
         finally:
             mb.stop()
-        mb.join(interval)
+        mb.join(2)
         af(mb.is_alive())
         from calibre.ebooks.metadata.opf2 import OPF
         for book_id in (1, 2, 3):
@@ -364,8 +374,8 @@ class WritingTest(BaseTest):
         ae(cache.field_for('cover', 1), 1)
         ae(cache.set_cover({1:None}), set([1]))
         ae(cache.field_for('cover', 1), 0)
+        img = IMG
 
-        img = b'\xff\xd8\xff\xe0\x00\x10JFIF\x00\x01\x01\x01\x00`\x00`\x00\x00\xff\xe1\x00\x16Exif\x00\x00II*\x00\x08\x00\x00\x00\x00\x00\x00\x00\x00\x00\xff\xdb\x00C\x00\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\xff\xdb\x00C\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\xff\xc0\x00\x11\x08\x00\x01\x00\x01\x03\x01"\x00\x02\x11\x01\x03\x11\x01\xff\xc4\x00\x15\x00\x01\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\n\xff\xc4\x00\x14\x10\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\xff\xc4\x00\x14\x01\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\xff\xc4\x00\x14\x11\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\xff\xda\x00\x0c\x03\x01\x00\x02\x11\x03\x11\x00?\x00\xbf\x80\x01\xff\xd9'  # noqa {{{ }}}
         # Test setting a cover
         ae(cache.set_cover({bid:img for bid in (1, 2, 3)}), {1, 2, 3})
         old = self.init_old()
@@ -374,9 +384,311 @@ class WritingTest(BaseTest):
             ae(cache.field_for('cover', book_id), 1)
             ae(old.cover(book_id, index_is_id=True), img, 'Cover was not set correctly for book %d' % book_id)
             self.assertTrue(old.has_cover(book_id))
+        old.close()
+        old.break_cycles()
+        del old
     # }}}
 
-    def test_set_metadata(self):
+    def test_set_metadata(self):  # {{{
         ' Test setting of metadata '
-        self.assertTrue(False, 'TODO: test set_metadata()')
+        ae = self.assertEqual
+        cache = self.init_cache(self.cloned_library)
+
+        # Check that changing title/author updates the path
+        mi = cache.get_metadata(1)
+        old_path = cache.field_for('path', 1)
+        old_title, old_author = mi.title, mi.authors[0]
+        ae(old_path, '%s/%s (1)' % (old_author, old_title))
+        mi.title, mi.authors = 'New Title', ['New Author']
+        cache.set_metadata(1, mi)
+        ae(cache.field_for('path', 1), '%s/%s (1)' % (mi.authors[0], mi.title))
+        p = cache.format_abspath(1, 'FMT1')
+        self.assertTrue(mi.authors[0] in p and mi.title in p)
+
+        # Compare old and new set_metadata()
+        db = self.init_old(self.cloned_library)
+        mi = db.get_metadata(1, index_is_id=True, get_cover=True, cover_as_data=True)
+        mi2 = db.get_metadata(3, index_is_id=True, get_cover=True, cover_as_data=True)
+        db.set_metadata(2, mi)
+        db.set_metadata(1, mi2, force_changes=True)
+        oldmi = db.get_metadata(2, index_is_id=True, get_cover=True, cover_as_data=True)
+        oldmi2 = db.get_metadata(1, index_is_id=True, get_cover=True, cover_as_data=True)
+        db.close()
+        del db
+        cache = self.init_cache(self.cloned_library)
+        cache.set_metadata(2, mi)
+        nmi = cache.get_metadata(2, get_cover=True, cover_as_data=True)
+        ae(oldmi.cover_data, nmi.cover_data)
+        self.compare_metadata(nmi, oldmi, exclude={'last_modified', 'format_metadata'})
+        cache.set_metadata(1, mi2, force_changes=True)
+        nmi2 = cache.get_metadata(1, get_cover=True, cover_as_data=True)
+        # The new code does not allow setting of #series_index to None, instead
+        # it is reset to 1.0
+        ae(nmi2.get_extra('#series'), 1.0)
+        self.compare_metadata(nmi2, oldmi2, exclude={'last_modified', 'format_metadata', '#series_index'})
+
+        cache = self.init_cache(self.cloned_library)
+        mi = cache.get_metadata(1)
+        otags = mi.tags
+        mi.tags = [x.upper() for x in mi.tags]
+        cache.set_metadata(3, mi)
+        self.assertEqual(set(otags), set(cache.field_for('tags', 3)), 'case changes should not be allowed in set_metadata')
+
+    # }}}
+
+    def test_conversion_options(self):  # {{{
+        ' Test saving of conversion options '
+        cache = self.init_cache()
+        all_ids = cache.all_book_ids()
+        self.assertFalse(cache.has_conversion_options(all_ids))
+        self.assertIsNone(cache.conversion_options(1))
+        op1, op2 = {'xx':'yy'}, {'yy':'zz'}
+        cache.set_conversion_options({1:op1, 2:op2})
+        self.assertTrue(cache.has_conversion_options(all_ids))
+        self.assertEqual(cache.conversion_options(1), op1)
+        self.assertEqual(cache.conversion_options(2), op2)
+        cache.set_conversion_options({1:op2})
+        self.assertEqual(cache.conversion_options(1), op2)
+        cache.delete_conversion_options(all_ids)
+        self.assertFalse(cache.has_conversion_options(all_ids))
+    # }}}
+
+    def test_remove_items(self):  # {{{
+        ' Test removal of many-(many,one) items '
+        cache = self.init_cache()
+        tmap = cache.get_id_map('tags')
+        self.assertEqual(cache.remove_items('tags', tmap), {1, 2})
+        tmap = cache.get_id_map('#tags')
+        t = {v:k for k, v in tmap.iteritems()}['My Tag Two']
+        self.assertEqual(cache.remove_items('#tags', (t,)), {1, 2})
+
+        smap = cache.get_id_map('series')
+        self.assertEqual(cache.remove_items('series', smap), {1, 2})
+        smap = cache.get_id_map('#series')
+        s = {v:k for k, v in smap.iteritems()}['My Series Two']
+        self.assertEqual(cache.remove_items('#series', (s,)), {1})
+
+        for c in (cache, self.init_cache()):
+            self.assertFalse(c.get_id_map('tags'))
+            self.assertFalse(c.all_field_names('tags'))
+            for bid in c.all_book_ids():
+                self.assertFalse(c.field_for('tags', bid))
+
+            self.assertEqual(len(c.get_id_map('#tags')), 1)
+            self.assertEqual(c.all_field_names('#tags'), {'My Tag One'})
+            for bid in c.all_book_ids():
+                self.assertIn(c.field_for('#tags', bid), ((), ('My Tag One',)))
+
+            for bid in (1, 2):
+                self.assertEqual(c.field_for('series_index', bid), 1.0)
+            self.assertFalse(c.get_id_map('series'))
+            self.assertFalse(c.all_field_names('series'))
+            for bid in c.all_book_ids():
+                self.assertFalse(c.field_for('series', bid))
+
+            self.assertEqual(c.field_for('series_index', 1), 1.0)
+            self.assertEqual(c.all_field_names('#series'), {'My Series One'})
+            for bid in c.all_book_ids():
+                self.assertIn(c.field_for('#series', bid), (None, 'My Series One'))
+    # }}}
+
+    def test_rename_items(self):  # {{{
+        ' Test renaming of many-(many,one) items '
+        cl = self.cloned_library
+        cache = self.init_cache(cl)
+        # Check that renaming authors updates author sort and path
+        a = {v:k for k, v in cache.get_id_map('authors').iteritems()}['Unknown']
+        self.assertEqual(cache.rename_items('authors', {a:'New Author'})[0], {3})
+        a = {v:k for k, v in cache.get_id_map('authors').iteritems()}['Author One']
+        self.assertEqual(cache.rename_items('authors', {a:'Author Two'})[0], {1, 2})
+        for c in (cache, self.init_cache(cl)):
+            self.assertEqual(c.all_field_names('authors'), {'New Author', 'Author Two'})
+            self.assertEqual(c.field_for('author_sort', 3), 'Author, New')
+            self.assertIn('New Author/', c.field_for('path', 3))
+            self.assertEqual(c.field_for('authors', 1), ('Author Two',))
+            self.assertEqual(c.field_for('author_sort', 1), 'Two, Author')
+
+        t = {v:k for k, v in cache.get_id_map('tags').iteritems()}['Tag One']
+        # Test case change
+        self.assertEqual(cache.rename_items('tags', {t:'tag one'}), ({1, 2}, {t:t}))
+        for c in (cache, self.init_cache(cl)):
+            self.assertEqual(c.all_field_names('tags'), {'tag one', 'Tag Two', 'News'})
+            self.assertEqual(set(c.field_for('tags', 1)), {'tag one', 'News'})
+            self.assertEqual(set(c.field_for('tags', 2)), {'tag one', 'Tag Two'})
+        # Test new name
+        self.assertEqual(cache.rename_items('tags', {t:'t1'})[0], {1,2})
+        for c in (cache, self.init_cache(cl)):
+            self.assertEqual(c.all_field_names('tags'), {'t1', 'Tag Two', 'News'})
+            self.assertEqual(set(c.field_for('tags', 1)), {'t1', 'News'})
+            self.assertEqual(set(c.field_for('tags', 2)), {'t1', 'Tag Two'})
+        # Test rename to existing
+        self.assertEqual(cache.rename_items('tags', {t:'Tag Two'})[0], {1,2})
+        for c in (cache, self.init_cache(cl)):
+            self.assertEqual(c.all_field_names('tags'), {'Tag Two', 'News'})
+            self.assertEqual(set(c.field_for('tags', 1)), {'Tag Two', 'News'})
+            self.assertEqual(set(c.field_for('tags', 2)), {'Tag Two'})
+        # Test on a custom column
+        t = {v:k for k, v in cache.get_id_map('#tags').iteritems()}['My Tag One']
+        self.assertEqual(cache.rename_items('#tags', {t:'My Tag Two'})[0], {2})
+        for c in (cache, self.init_cache(cl)):
+            self.assertEqual(c.all_field_names('#tags'), {'My Tag Two'})
+            self.assertEqual(set(c.field_for('#tags', 2)), {'My Tag Two'})
+
+        # Test a Many-one field
+        s = {v:k for k, v in cache.get_id_map('series').iteritems()}['A Series One']
+        # Test case change
+        self.assertEqual(cache.rename_items('series', {s:'a series one'}), ({1, 2}, {s:s}))
+        for c in (cache, self.init_cache(cl)):
+            self.assertEqual(c.all_field_names('series'), {'a series one'})
+            self.assertEqual(c.field_for('series', 1), 'a series one')
+            self.assertEqual(c.field_for('series_index', 1), 2.0)
+
+        # Test new name
+        self.assertEqual(cache.rename_items('series', {s:'series'})[0], {1, 2})
+        for c in (cache, self.init_cache(cl)):
+            self.assertEqual(c.all_field_names('series'), {'series'})
+            self.assertEqual(c.field_for('series', 1), 'series')
+            self.assertEqual(c.field_for('series', 2), 'series')
+            self.assertEqual(c.field_for('series_index', 1), 2.0)
+
+        s = {v:k for k, v in cache.get_id_map('#series').iteritems()}['My Series One']
+        # Test custom column with rename to existing
+        self.assertEqual(cache.rename_items('#series', {s:'My Series Two'})[0], {2})
+        for c in (cache, self.init_cache(cl)):
+            self.assertEqual(c.all_field_names('#series'), {'My Series Two'})
+            self.assertEqual(c.field_for('#series', 2), 'My Series Two')
+            self.assertEqual(c.field_for('#series_index', 1), 3.0)
+            self.assertEqual(c.field_for('#series_index', 2), 4.0)
+
+        # Test renaming many-many items to multiple items
+        cache = self.init_cache(self.cloned_library)
+        t = {v:k for k, v in cache.get_id_map('tags').iteritems()}['Tag One']
+        affected_books, id_map = cache.rename_items('tags', {t:'Something, Else, Entirely'})
+        self.assertEqual({1, 2}, affected_books)
+        tmap = cache.get_id_map('tags')
+        self.assertEqual('Something', tmap[id_map[t]])
+        self.assertEqual(1, len(id_map))
+        f1, f2 = cache.field_for('tags', 1), cache.field_for('tags', 2)
+        for f in (f1, f2):
+            for t in 'Something,Else,Entirely'.split(','):
+                self.assertIn(t, f)
+            self.assertNotIn('Tag One', f)
+    # }}}
+
+    def test_composite_cache(self):  # {{{
+        ' Test that the composite field cache is properly invalidated on writes '
+        cache = self.init_cache()
+        cache.create_custom_column('tc', 'TC', 'composite', False, display={
+            'composite_template':'{title} {author_sort} {title_sort} {formats} {tags} {series} {series_index}'})
+        cache = self.init_cache()
+
+        def test_invalidate():
+            c = self.init_cache()
+            for bid in cache.all_book_ids():
+                self.assertEqual(cache.field_for('#tc', bid), c.field_for('#tc', bid))
+
+        cache.set_field('title', {1:'xx', 3:'yy'})
+        test_invalidate()
+        cache.set_field('series_index', {1:9, 3:11})
+        test_invalidate()
+        cache.rename_items('tags', {cache.get_item_id('tags', 'Tag One'):'xxx', cache.get_item_id('tags', 'News'):'news'})
+        test_invalidate()
+        cache.remove_items('tags', (cache.get_item_id('tags', 'news'),))
+        test_invalidate()
+        cache.set_sort_for_authors({cache.get_item_id('authors', 'Author One'):'meow'})
+        test_invalidate()
+        cache.remove_formats({1:{'FMT1'}})
+        test_invalidate()
+        cache.add_format(1, 'ADD', BytesIO(b'xxxx'))
+        test_invalidate()
+    # }}}
+
+    def test_dump_and_restore(self):  # {{{
+        ' Test roundtripping the db through SQL '
+        cache = self.init_cache()
+        uv = int(cache.backend.user_version)
+        all_ids = cache.all_book_ids()
+        cache.dump_and_restore()
+        self.assertEqual(cache.set_field('title', {1:'nt'}), set([1]), 'database connection broken')
+        cache = self.init_cache()
+        self.assertEqual(cache.all_book_ids(), all_ids, 'dump and restore broke database')
+        self.assertEqual(int(cache.backend.user_version), uv)
+    # }}}
+
+    def test_set_author_data(self):  # {{{
+        cache = self.init_cache()
+        adata = cache.author_data()
+        ldata = {aid:str(aid) for aid in adata}
+        self.assertEqual({1,2,3}, cache.set_link_for_authors(ldata))
+        for c in (cache, self.init_cache()):
+            self.assertEqual(ldata, {aid:d['link'] for aid, d in c.author_data().iteritems()})
+        self.assertEqual({3}, cache.set_link_for_authors({aid:'xxx' if aid == max(adata) else str(aid) for aid in adata}),
+                         'Setting the author link to the same value as before, incorrectly marked some books as dirty')
+        sdata = {aid:'%s, changed' % aid for aid in adata}
+        self.assertEqual({1,2,3}, cache.set_sort_for_authors(sdata))
+        for bid in (1, 2, 3):
+            self.assertIn(', changed', cache.field_for('author_sort', bid))
+        sdata = {aid:'%s, changed' % (aid*2 if aid == max(adata) else aid) for aid in adata}
+        self.assertEqual({3}, cache.set_sort_for_authors(sdata),
+                         'Setting the author sort to the same value as before, incorrectly marked some books as dirty')
+    # }}}
+
+    def test_fix_case_duplicates(self):  # {{{
+        ' Test fixing of databases that have items in is_many fields that differ only by case '
+        ae = self.assertEqual
+        cache = self.init_cache()
+        conn = cache.backend.conn
+        conn.execute('INSERT INTO publishers (name) VALUES ("mūs")')
+        lid = conn.last_insert_rowid()
+        conn.execute('INSERT INTO publishers (name) VALUES ("MŪS")')
+        uid = conn.last_insert_rowid()
+        conn.execute('DELETE FROM books_publishers_link')
+        conn.execute('INSERT INTO books_publishers_link (book,publisher) VALUES (1, %d)' % lid)
+        conn.execute('INSERT INTO books_publishers_link (book,publisher) VALUES (2, %d)' % uid)
+        conn.execute('INSERT INTO books_publishers_link (book,publisher) VALUES (3, %d)' % uid)
+        cache.reload_from_db()
+        t = cache.fields['publisher'].table
+        for x in (lid, uid):
+            self.assertIn(x, t.id_map)
+            self.assertIn(x, t.col_book_map)
+        ae(t.book_col_map[1], lid)
+        ae(t.book_col_map[2], uid)
+        t.fix_case_duplicates(cache.backend)
+        for c in (cache, self.init_cache()):
+            t = c.fields['publisher'].table
+            self.assertNotIn(uid, t.id_map)
+            self.assertNotIn(uid, t.col_book_map)
+            for bid in (1, 2, 3):
+                ae(c.field_for('publisher', bid), "mūs")
+            c.close()
+
+        cache = self.init_cache()
+        conn = cache.backend.conn
+        conn.execute('INSERT INTO tags (name) VALUES ("mūūs")')
+        lid = conn.last_insert_rowid()
+        conn.execute('INSERT INTO tags (name) VALUES ("MŪŪS")')
+        uid = conn.last_insert_rowid()
+        conn.execute('INSERT INTO tags (name) VALUES ("mūŪS")')
+        mid = conn.last_insert_rowid()
+        conn.execute('INSERT INTO tags (name) VALUES ("t")')
+        norm = conn.last_insert_rowid()
+        conn.execute('DELETE FROM books_tags_link')
+        for book_id, vals in {1:(lid, uid), 2:(uid, mid), 3:(lid, norm)}.iteritems():
+            conn.executemany('INSERT INTO books_tags_link (book,tag) VALUES (?,?)',
+                             tuple((book_id, x) for x in vals))
+        cache.reload_from_db()
+        t = cache.fields['tags'].table
+        for x in (lid, uid, mid):
+            self.assertIn(x, t.id_map)
+            self.assertIn(x, t.col_book_map)
+        t.fix_case_duplicates(cache.backend)
+        for c in (cache, self.init_cache()):
+            t = c.fields['tags'].table
+            for x in (uid, mid):
+                self.assertNotIn(x, t.id_map)
+                self.assertNotIn(x, t.col_book_map)
+            ae(c.field_for('tags', 1), (t.id_map[lid],))
+            ae(c.field_for('tags', 2), (t.id_map[lid],), 'failed for book 2')
+            ae(c.field_for('tags', 3), (t.id_map[lid], t.id_map[norm]))
+    # }}}
 

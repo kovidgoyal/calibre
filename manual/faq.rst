@@ -499,11 +499,17 @@ that allows you to create collections on your Kindle from the |app| metadata. It
 I am getting an error when I try to use |app| with my Kobo Touch/Glo/etc.?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The Kobo has very buggy firmware. Connecting to it has been known to fail at random. Certain combinations of motherboard, USB ports/cables/hubs can exacerbate this tendency to fail. If you are getting an error when connecting to your touch with |app| try the following, each of which has solved the problem for *some* |app| users.
+The Kobo has very buggy firmware. Connecting to it has been known to fail at
+random. Certain combinations of motherboard, USB ports/cables/hubs can
+exacerbate this tendency to fail. If you are getting an error when connecting
+to your touch with |app| try the following, each of which has solved the
+problem for *some* |app| users.
 
   * Connect the Kobo directly to your computer, not via USB Hub
   * Try a different USB cable and a different USB port on your computer
-  * Try a different computer (preferably an older model)
+  * Try a different computer, in particular the Kobo does not work well with
+    some Windows XP machines. If you are on Windows XP, try a computer with a
+    newer version of windows.
   * Try upgrading the firmware on your Kobo Touch to the latest
   * Try resetting the Kobo (sometimes this cures the problem for a little while, but then it re-appears, in which case you have to reset again and again)
   * Try only putting one or two books onto the Kobo at a time and do not keep large collections on the Kobo
@@ -622,13 +628,29 @@ should fix by hand.
 The list of books in |app| is blank!
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-In order to understand why that happened, you have to understand what a |app| library is. At the most basic level, a |app| library is just a folder. Whenever you add a book to |app|, that book's files are copied into this folder (arranged into sub folders by author and title). Inside the |app| library folder, at the top level, you will see a file called metadata.db. This file is where |app| stores the metadata like title/author/rating/tags etc. for *every* book in your |app| library. The list of books that |app| displays is created by reading the contents of this metadata.db file.
+In order to understand why that happened, you have to understand what a |app|
+library is. At the most basic level, a |app| library is just a folder. Whenever
+you add a book to |app|, that book's files are copied into this folder
+(arranged into sub folders by author and title). Inside the |app| library
+folder, at the top level, you will see a file called metadata.db. This file is
+where |app| stores the metadata like title/author/rating/tags etc. for *every*
+book in your |app| library. The list of books that |app| displays is created by
+reading the contents of this metadata.db file.
 
 There can be two reasons why |app| is showing a empty list of books:
 
-  * Your |app| library folder changed its location. This can happen if it was on an external disk and the drive letter for that disk changed. Or if you accidentally moved the folder. In this case, |app| cannot find its library and so starts up with an empty library instead. To remedy this, do a right-click on the |app| icon in the |app| toolbar (it will say 0 books underneath it) and select Switch/create library. Click the little blue icon to select the new location of your |app| library and click OK.
+  * Your |app| library folder changed its location. This can happen if it was
+    on an external disk and the drive letter for that disk changed. Or if you
+    accidentally moved the folder. In this case, |app| cannot find its library
+    and so starts up with an empty library instead. To remedy this, do a
+    right-click on the |app| icon in the |app| toolbar and select Switch/create
+    library. Click the little blue icon to select the new location of your
+    |app| library and click OK.
 
-  * Your metadata.db file was deleted/corrupted. In this case, you can ask |app| to rebuild the metadata.db from its backups. Right click the |app| icon in the |app| toolbar (it will say 0 books underneath it) and select Library maintenance->Restore database. |app| will automatically rebuild metadata.db.
+  * Your metadata.db file was deleted/corrupted. In this case, you can ask
+    |app| to rebuild the metadata.db from its backups. Right click the |app|
+    icon in the |app| toolbar and select Library maintenance->Restore database.
+    |app| will automatically rebuild metadata.db.
 
 I am getting errors with my calibre library on a networked drive/NAS?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -700,8 +722,14 @@ Take your pick:
 |app| is pronounced as cal-i-ber *not* ca-li-bre. If you're wondering, |app| is the British/commonwealth spelling for caliber. Being Indian, that's the natural spelling for me. 
 
 Why does |app| show only some of my fonts on OS X?
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-|app| embeds fonts in ebook files it creates. Ebook files support embedding only TrueType (.ttf) fonts. Most fonts on OS X systems are in .dfont format, thus they cannot be embedded. |app| shows only TrueType fonts found on your system. You can obtain many TrueType fonts on the web. Simply download the .ttf files and add them to the Library/Fonts directory in your home directory.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
+
+|app| embeds fonts in ebook files it creates. Ebook files support embedding
+only TrueType and OpenType (.ttf and .otf) fonts. Most fonts on OS X systems
+are in .dfont format, thus they cannot be embedded. |app| shows only TrueType
+and OpenType fonts found on your system. You can obtain many such fonts on the
+web. Simply download the .ttf/.otf files and add them to the Library/Fonts
+directory in your home directory.
 
 |app| is not starting on Windows?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -763,6 +791,13 @@ There are several possible things I know of, that can cause this:
       that prevent 64-bit |app| from working properly. If you are using the 64-bit
       version of |app| try switching to the 32-bit version.
 
+    * If the crashes happen specifically when you are using a file open dialog,
+      like clicking on the Add Books button or the Save to Disk button, then
+      you may have an issue with the windows file open dialogs on your
+      computer. You can tell calibre to use its own file open dialogs by
+      setting the environment variable ``CALIBRE_NO_NATIVE_FILEDIALOGS=1``.
+      See `How to set environment variables in windows <http://www.computerhope.com/issues/ch000549.htm>`_.
+
 If none of the above apply to you, then there is some other program on your
 computer that is interfering with |app|. First reboot your computer in safe
 mode, to have as few running programs as possible, and see if the crashes still
@@ -775,6 +810,31 @@ Screen Reader.
 The only way to find the culprit is to eliminate the programs one by one and
 see which one is causing the issue. Basically, stop a program, run calibre,
 check for crashes. If they still happen, stop another program and repeat.
+
+
+Using the viewer or doing any conversions results in a permission denied error on windows
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Something on your computer is preventing calibre from accessing its own
+temporary files. Most likely the permissions on your Temp folder are incorrect.
+Go to the folder file:`C:\\Users\\USERNAME\\AppData\\Local` in Windows
+Explorer and then right click on the file:`Temp` folder, select Properties and go to
+the Security tab. Make sure that your user account has full control for this
+folder.
+
+Some users have reported that running the following command in an Administrator
+Command Prompt fixed their permissions.  To get an Administrator Command Prompt
+search for cmd.exe in the start menu, then right click on the command prompt
+entry and select Run as Administrator. At the command prompt type the following
+command and press Enter::
+
+    icacls "%appdata%\..\Local\Temp" /reset /T
+
+Alternately, you can run calibre as Administrator, but doing so will cause
+some functionality, such as drag and drop to not work.
+
+Finally, some users have reported that disabling UAC fixes the problem.
+
 
 |app| is not starting on OS X?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -816,9 +876,10 @@ My antivirus program claims |app| is a virus/trojan?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The first thing to check is that you are downloading |app| from the official
-website: `<http://calibre-ebook.com/download>`_. |app| is a very popular program
-and unscrupulous people try to setup websites offering it for download to fool
-the unwary.
+website: `<http://calibre-ebook.com/download>`_. Make sure you are clicking the
+download links on the left, not the advertisements on the right. |app| is a
+very popular program and unscrupulous people try to setup websites offering it
+for download to fool the unwary.
 
 If you have the official download and your antivirus program is still claiming
 |app| is a virus, then, your antivirus program is wrong. Antivirus programs use
@@ -880,10 +941,25 @@ Why doesn't |app| have an automatic update?
 
 For many reasons:
 
-  * *There is no need to update every week*. If you are happy with how |app| works turn off the update notification and be on your merry way. Check back to see if you want to update once a year or so.
-  * Pre downloading the updates for all users in the background would require about 80TB of bandwidth *every week*. That costs thousands of dollars a month. And |app| is currently growing at 300,000 new users every month.
-  * If I implement a dialog that downloads the update and launches it, instead of going to the website as it does now, that would save the most ardent |app| updater, *at most five clicks a week*. There are far higher priority things to do in |app| development.
-  * If you really, really hate downloading |app| every week but still want to be up to the latest, I encourage you to run from source, which makes updating trivial. Instructions are :ref:`available here <develop>`.
+  * *There is no need to update every week*. If you are happy with how |app|
+    works turn off the update notification and be on your merry way. Check back
+    to see if you want to update once a year or so. There is a check box to
+    turn off the update notification, on the update notification itself.
+
+  * |app| downloads currently use `about 100TB of bandwidth a month
+    <http://status.calibre-ebook.com/downloads>`_. Implementing automatic
+    updates would greatly increase that and end up costing thousands of dollars
+    a month, which someone has to pay. And |app| is currently growing at `half
+    a million new installs a month <https://status.calibre-ebook.com>`_.
+
+  * If I implement a dialog that downloads the update and launches it, instead
+    of going to the website as it does now, that would save the most ardent
+    |app| updater, *at most five clicks a week*. There are far higher priority
+    things to do in |app| development.
+
+  * If you really, really hate downloading |app| every week but still want to
+    be up to the latest, I encourage you to run from source, which makes
+    updating trivial. Instructions are :ref:`available here <develop>`.
 
 How is |app| licensed?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

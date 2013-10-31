@@ -26,7 +26,7 @@ class Extract(ODF2XHTML):
         if not os.path.exists('Pictures'):
             os.makedirs('Pictures')
         for name in zf.namelist():
-            if name.startswith('Pictures'):
+            if name.startswith('Pictures') and name not in {'Pictures', 'Pictures/'}:
                 data = zf.read(name)
                 with open(name, 'wb') as f:
                     f.write(data)

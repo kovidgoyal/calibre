@@ -20,7 +20,7 @@ class crnews(BasicNewsRecipe):
     no_stylesheets = True
 
 
-    feeds          = [(u'Portada', u'http://www.nacion.com/Generales/RSS/EdicionRss.aspx?section=portada'), (u'Ultima Hora', u'http://www.nacion.com/Generales/RSS/UltimaHoraRss.aspx'), (u'Nacionales', u'http://www.nacion.com/Generales/RSS/EdicionRss.aspx?section=elpais'), (u'Entretenimiento', u'http://www.nacion.com/Generales/RSS/EdicionRss.aspx?section=entretenimiento'), (u'Sucesos', u'http://www.nacion.com/Generales/RSS/EdicionRss.aspx?section=sucesos'), (u'Deportes', u'http://www.nacion.com/Generales/RSS/EdicionRss.aspx?section=deportes'), (u'Internacionales', u'http://www.nacion.com/Generales/RSS/EdicionRss.aspx?section=mundo'), (u'Economia', u'http://www.nacion.com/Generales/RSS/EdicionRss.aspx?section=economia'), (u'Aldea Global', u'http://www.nacion.com/Generales/RSS/EdicionRss.aspx?section=aldeaglobal'), (u'Tecnologia', u'http://www.nacion.com/Generales/RSS/EdicionRss.aspx?section=tecnologia'), (u'Opinion', u'http://www.nacion.com/Generales/RSS/EdicionRss.aspx?section=opinion')]
+    feeds          = [(u'Portada', u'http://www.nacion.com/rss/'), (u'Ultima Hora', u'http://www.nacion.com/rss/latest/'), (u'Nacionales', u'http://www.nacion.com/rss/nacional/'), (u'Entretenimiento', u'http://www.nacion.com/rss/ocio/'), (u'Sucesos', u'http://www.nacion.com/rss/sucesos/'), (u'Deportes', u'http://www.nacion.com/rss/deportes/'), (u'Internacionales', u'http://www.nacion.com/rss/mundo/'), (u'Economia', u'http://www.nacion.com/rss/economia/'), (u'Vivir', u'http://www.nacion.com/rss/vivir/'), (u'Tecnologia', u'http://www.nacion.com/rss/tecnologia/'), (u'Opinion', u'http://www.nacion.com/rss/opinion/')]
 
     def get_cover_url(self):
         index = 'http://kiosko.net/cr/np/cr_nacion.html'

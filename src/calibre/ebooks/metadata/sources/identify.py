@@ -78,7 +78,6 @@ class xISBN(Thread):
             self.tb = traceback.format_exception()
 
 
-
 class ISBNMerge(object):
 
     def __init__(self, log):
@@ -361,7 +360,7 @@ def merge_identify_results(result_map, log):
 
 # }}}
 
-def identify(log, abort, # {{{
+def identify(log, abort,  # {{{
         title=None, authors=None, identifiers={}, timeout=30):
     if title == _('Unknown'):
         title = None
@@ -492,7 +491,6 @@ def identify(log, abort, # {{{
     log('We have %d merged results, merging took: %.2f seconds' %
             (len(results), time.time() - start_time))
 
-
     max_tags = msprefs['max_tags']
     for r in results:
         r.tags = r.tags[:max_tags]
@@ -514,7 +512,7 @@ def identify(log, abort, # {{{
     return results
 # }}}
 
-def urls_from_identifiers(identifiers): # {{{
+def urls_from_identifiers(identifiers):  # {{{
     identifiers = dict([(k.lower(), v) for k, v in identifiers.iteritems()])
     ans = []
     for plugin in all_metadata_plugins():
@@ -539,18 +537,17 @@ def urls_from_identifiers(identifiers): # {{{
     if oclc:
         ans.append(('OCLC', 'oclc', oclc,
             'http://www.worldcat.org/oclc/'+oclc))
-    url = identifiers.get('uri', None)
-    if url is None:
-        url = identifiers.get('url', None)
-    if url and url.startswith('http'):
-        url = url[:8].replace('|', ':') + url[8:].replace('|', ',')
-        parts = urlparse(url)
-        name = parts.netloc
-        ans.append((name, 'url', url, url))
+    for x in ('uri', 'url'):
+        url = identifiers.get(x, None)
+        if url and url.startswith('http'):
+            url = url[:8].replace('|', ':') + url[8:].replace('|', ',')
+            parts = urlparse(url)
+            name = parts.netloc
+            ans.append((name, x, url, url))
     return ans
 # }}}
 
-if __name__ == '__main__': # tests {{{
+if __name__ == '__main__':  # tests {{{
     # To run these test use: calibre-debug -e
     # src/calibre/ebooks/metadata/sources/identify.py
     from calibre.ebooks.metadata.sources.test import (test_identify,
@@ -563,7 +560,7 @@ if __name__ == '__main__': # tests {{{
             ),
 
 
-            ( # An e-book ISBN not on Amazon, one of the authors is
+            (  # An e-book ISBN not on Amazon, one of the authors is
               # unknown to Amazon
                 {'identifiers':{'isbn': '9780307459671'},
                     'title':'Invisible Gorilla', 'authors':['Christopher Chabris']},
@@ -580,7 +577,7 @@ if __name__ == '__main__': # tests {{{
 
             ),
 
-            ( # Sophisticated comment formatting
+            (  # Sophisticated comment formatting
                 {'identifiers':{'isbn': '9781416580829'}},
                 [title_test('Angels & Demons',
                     exact=True), authors_test(['Dan Brown'])]
@@ -594,7 +591,7 @@ if __name__ == '__main__': # tests {{{
             ),
 
         ]
-    #test_identify(tests[1:2])
+    # test_identify(tests[1:2])
     test_identify(tests)
 # }}}
 

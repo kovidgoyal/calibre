@@ -1,0 +1,69 @@
+#!/usr/bin/env  python
+# vim:fileencoding=utf-8
+from __future__ import unicode_literals
+__license__     = 'GPL v3'
+__copyright__   = '23 June 2013, desUBIKado'
+__author__      = 'desUBIKado'
+__description__ = 'Contemporary Culture Magazine'
+__version__     = 'v0.01'
+__date__        = '23, June 2013'
+'''
+http://www.jotdown.es/
+'''
+
+import re
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class jotdown(BasicNewsRecipe):
+    author        = 'desUBIKado'
+    description   = 'Revista digital con magníficos y extensos artículos'
+    title          = u'Jot Down - Contemporary Culture Magazine'
+    publisher      = 'Wabi Sabi Investments, S.C.'
+    category       = 'Opinion, culture, science, movies, TV shows, music, blogs'
+    language       = 'es'
+    timefmt        = '[%a, %d %b, %Y]'
+    oldest_article = 7
+    delay          = 1
+    max_articles_per_feed = 20
+    masthead_url   = 'http://www.jotdown.es/wp-content/uploads/2011/04/logoJotDown.png'
+    use_embedded_content  = False
+    remove_javascript = True
+    no_stylesheets = True
+
+    feeds          = [
+                        (u'Portada', u'http://www.jotdown.es/feed/')
+                     ]
+
+    keep_only_tags     = [dict(name='div', attrs={'class':['single']}),
+                          dict(name='div', attrs={'id':['comments']}),
+                         ]
+
+    remove_tags        = [dict(name='a', attrs={'href':['http://alternativaseconomicas.coop/']}),
+                          dict(name='div', attrs={'class':['reply','after-meta','comment-author vcard']}),
+                          dict(name='div', attrs={'align':['center']}),
+                          dict(name='span', attrs={'class':['fbreplace']}),
+                          dict(name='div', attrs={'id':'respond'})
+                     ]
+
+    remove_tags_after  = dict(name='div' , attrs={'id':'respond'})
+
+    extra_css = '''
+                    .comment-list {font-family:Arial,Helvetica,sans-serif; font-weight:normal;font-size:12px;}
+                '''
+
+    preprocess_regexps = [
+ # To present the image of the embedded video
+                           (re.compile(r'<object type="application/x-shockwave-flash" data="http://www.youtube.com/v',
+                            re.DOTALL|re.IGNORECASE), lambda match: '<img src="http://img.youtube.com/vi'),
+                           (re.compile(r'&rel=0&fs=1"', re.DOTALL|re.IGNORECASE), lambda match: '/0.jpg"><object'),
+ # To remove the link of the category
+                           (re.compile(r'<div class="meta">', re.DOTALL|re.IGNORECASE), lambda match: '<div class="meta"><!-- '),
+                           (re.compile(r'</a>, <a href="http://www.jotdown.es/category', re.DOTALL|re.IGNORECASE), lambda match: ', <!--'),
+                           (re.compile(r'"category tag">', re.DOTALL|re.IGNORECASE), lambda match: '--> '),
+                           (re.compile(r'</a> &mdash;', re.DOTALL|re.IGNORECASE), lambda match: ''),
+ # To remove the link of the title
+                           (re.compile(r'<h1> <a href="', re.DOTALL|re.IGNORECASE), lambda match: '<h1> <div class="'),
+                           (re.compile(r'</a> </h1>', re.DOTALL|re.IGNORECASE), lambda match: '</div> </h1>')
+
+                      ]
+

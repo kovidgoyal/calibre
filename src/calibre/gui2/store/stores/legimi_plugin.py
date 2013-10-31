@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import (unicode_literals, division, absolute_import, print_function)
-store_version = 2 # Needed for dynamic plugin loading
+store_version = 4 # Needed for dynamic plugin loading
 
 __license__ = 'GPL 3'
 __copyright__ = '2011-2013, Tomasz Długosz <tomek3d@gmail.com>'
@@ -9,6 +9,7 @@ __docformat__ = 'restructuredtext en'
 
 import re
 import urllib
+from base64 import b64encode
 from contextlib import closing
 
 from lxml import html
@@ -25,18 +26,20 @@ from calibre.gui2.store.web_store_dialog import WebStoreDialog
 class LegimiStore(BasicStoreConfig, StorePlugin):
 
     def open(self, parent=None, detail_item=None, external=False):
+        aff_root = 'https://www.a4b-tracking.com/pl/stat-click-text-link/9/58/'
 
-        plain_url = 'http://www.legimi.com/pl/ebooki/'
-        url = 'https://ssl.afiliant.com/affskrypt,,2f9de2,,11483,,,?u=(' + plain_url + ')'
+        url = 'http://www.legimi.com/pl/ebooki/'
+
+        aff_url = aff_root + str(b64encode(url))
+
         detail_url = None
-
         if detail_item:
-            detail_url = 'https://ssl.afiliant.com/affskrypt,,2f9de2,,11483,,,?u=(' + detail_item + ')'
+            detail_url = aff_root + str(b64encode(detail_item))
 
         if external or self.config.get('open_external', False):
-            open_url(QUrl(url_slash_cleaner(detail_url if detail_url else url)))
+            open_url(QUrl(url_slash_cleaner(detail_url if detail_url else aff_url)))
         else:
-            d = WebStoreDialog(self.gui, url, parent, detail_url)
+            d = WebStoreDialog(self.gui, url, parent, detail_url if detail_url else aff_url)
             d.setWindowTitle(self.name)
             d.set_tags(self.config.get('tags', ''))
             d.exec_()
@@ -45,7 +48,6 @@ class LegimiStore(BasicStoreConfig, StorePlugin):
         url = 'http://www.legimi.com/pl/ebooki/?szukaj=' + urllib.quote_plus(query)
 
         br = browser()
-        drm_pattern = re.compile("zabezpieczona DRM")
 
         counter = max_results
         with closing(br.open(url, timeout=timeout)) as f:
@@ -62,14 +64,6 @@ class LegimiStore(BasicStoreConfig, StorePlugin):
                 title = ''.join(data.xpath('.//span[@class="bookListTitle ellipsis"]/text()'))
                 author = ''.join(data.xpath('.//span[@class="bookListAuthor ellipsis"]/text()'))
                 price = ''.join(data.xpath('.//div[@class="bookListPrice"]/span/text()'))
-                formats = []
-                with closing(br.open(id.strip(), timeout=timeout/4)) as nf:
-                    idata = html.fromstring(nf.read())
-                    formatlist = idata.xpath('.//div[@id="fullBookFormats"]//span[@class="bookFormat"]/text()')
-                    for x in formatlist:
-                        if x.strip() not in formats:
-                            formats.append(x.strip())
-                    drm = drm_pattern.search(''.join(idata.xpath('.//div[@id="fullBookFormats"]/p/text()')))
 
                 counter -= 1
 
@@ -79,7 +73,20 @@ class LegimiStore(BasicStoreConfig, StorePlugin):
                 s.author = author.strip()
                 s.price = price
                 s.detail_item = 'http://www.legimi.com/' + id.strip()
-                s.formats = ', '.join(formats)
-                s.drm = SearchResult.DRM_LOCKED if drm else SearchResult.DRM_UNLOCKED
 
                 yield s
+
+    def get_details(self, search_result, timeout):
+        drm_pattern = re.compile("zabezpieczona DRM")
+        formats = []
+        br = browser()
+        with closing(br.open(search_result.detail_item, timeout=timeout)) as nf:
+            idata = html.fromstring(nf.read())
+            formatlist = idata.xpath('.//div[@id="fullBookFormats"]//span[@class="bookFormat"]/text()')
+            for x in formatlist:
+                if x.strip() not in formats:
+                    formats.append(x.strip())
+            drm = drm_pattern.search(''.join(idata.xpath('.//div[@id="fullBookFormats"]/p/text()')))
+            search_result.formats = ', '.join(formats)
+            search_result.drm = SearchResult.DRM_LOCKED if drm else SearchResult.DRM_UNLOCKED
+        return True

@@ -6,7 +6,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import sys, os, textwrap, subprocess, shutil, tempfile, atexit, shlex, glob
+import sys, os, textwrap, subprocess, shutil, tempfile, atexit, glob
 
 from setup import (Command, islinux, isbsd, basenames, modules, functions,
         __appname__, __version__)
@@ -133,7 +133,6 @@ class Develop(Command):
         self.regain_privileges()
         self.consolidate_paths()
         self.write_templates()
-        self.setup_mount_helper()
         self.install_files()
         self.run_postinstall()
         self.install_env_module()
@@ -149,23 +148,6 @@ class Develop(Command):
                 f.write(HEADER.format(**self.template_args()))
         else:
             self.warn('Cannot install calibre environment module to: '+libdir)
-
-    def setup_mount_helper(self):
-        def warn():
-            self.warn('Failed to compile mount helper. Auto mounting of',
-                ' devices will not work')
-
-        src = os.path.join(self.SRC, 'calibre', 'devices', 'linux_mount_helper.c')
-        dest = os.path.join(self.staging_bindir, 'calibre-mount-helper')
-        self.info('Installing mount helper to '+ dest)
-        cflags = os.environ.get('OVERRIDE_CFLAGS', '-Wall -pedantic')
-        cflags = shlex.split(cflags)
-        p = subprocess.Popen(['gcc']+cflags+[src, '-o', dest])
-        ret = p.wait()
-        if ret != 0:
-            return warn()
-        self.manifest.append(dest)
-        return dest
 
     def install_files(self):
         pass

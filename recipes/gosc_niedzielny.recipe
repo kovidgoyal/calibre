@@ -47,13 +47,7 @@ class GN(BasicNewsRecipe):
                 return feeds
 
         def find_articles(self, main_block):
-                for a in main_block.findAll('div', attrs={'class':'prev_doc2'}):
-						art = a.find('a')
-						yield {
-                                'title' : self.tag_to_string(art),
-                                'url'   : 'http://www.gosc.pl' + art['href']
-                                }
-                for a in main_block.findAll('div', attrs={'class':'sr-document'}):
+                for a in main_block.findAll('div', attrs={'class':['prev_doc2', 'sr-document']}):
 						art = a.find('a')
 						yield {
                                 'title' : self.tag_to_string(art),

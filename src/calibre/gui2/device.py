@@ -22,7 +22,7 @@ from calibre.gui2 import (config, error_dialog, Dispatcher, dynamic,
         warning_dialog, info_dialog, choose_dir, FunctionDispatcher,
         show_restart_warning, gprefs, question_dialog)
 from calibre.ebooks.metadata import authors_to_string
-from calibre import preferred_encoding, prints, force_unicode, as_unicode
+from calibre import preferred_encoding, prints, force_unicode, as_unicode, sanitize_file_name2
 from calibre.utils.filenames import ascii_filename
 from calibre.devices.errors import (FreeSpaceError, WrongDestinationError,
         BlacklistedDevice)
@@ -165,6 +165,10 @@ class DeviceManager(Thread): # {{{
     @property
     def is_device_connected(self):
         return self.connected_device is not None
+
+    @property
+    def is_device_present(self):
+        return self.connected_device is not None and self.connected_device not in self.ejected_devices
 
     @property
     def device(self):
@@ -591,12 +595,11 @@ class DeviceManager(Thread): # {{{
     def _save_books(self, paths, target):
         '''Copy books from device to disk'''
         for path in paths:
-            name = path.rpartition(os.sep)[2]
+            name = sanitize_file_name2(os.path.basename(path))
             dest = os.path.join(target, name)
             if os.path.abspath(dest) != os.path.abspath(path):
-                f = open(dest, 'wb')
-                self.device.get_file(path, f)
-                f.close()
+                with open(dest, 'wb') as f:
+                    self.device.get_file(path, f)
 
     def save_books(self, done, paths, target, add_as_step_to_job=None):
         return self.create_job_step(self._save_books, done, args=[paths, target],
@@ -1186,7 +1189,7 @@ class DeviceMixin(object): # {{{
                 return
             if d.format():
                 fmt = d.format().lower()
-        dest, sub_dest = dest.split(':')
+        dest, sub_dest = dest.partition(':')[0::2]
         if dest in ('main', 'carda', 'cardb'):
             if not self.device_connected or not self.device_manager:
                 error_dialog(self, _('No device'),
@@ -1214,6 +1217,11 @@ class DeviceMixin(object): # {{{
             subject = ';'.join(sub_dest_parts[2:])
             fmts = [x.strip().lower() for x in fmts.split(',')]
             self.send_by_mail(to, fmts, delete, subject=subject)
+        elif dest == 'choosemail':
+            from calibre.gui2.email import select_recipients
+            data = select_recipients(self)
+            if data:
+                self.send_multiple_by_mail(data, delete)
 
     def cover_to_thumbnail(self, data):
         if self.device_manager.device and \
@@ -1229,7 +1237,8 @@ class DeviceMixin(object): # {{{
         ht = self.device_manager.device.THUMBNAIL_HEIGHT \
                 if self.device_manager else DevicePlugin.THUMBNAIL_HEIGHT
         try:
-            return thumbnail(data, ht, ht)
+            return thumbnail(data, ht, ht,
+                    compression_quality=self.device_manager.device.THUMBNAIL_COMPRESSION_QUALITY)
         except:
             pass
 
@@ -1604,6 +1613,10 @@ class DeviceMixin(object): # {{{
                 except:
                     pass
 
+    def update_metadata_on_device(self):
+        self.set_books_in_library(self.booklists(), reset=True, force_send=True)
+        self.refresh_ondevice()
+
     def book_on_device(self, id, reset=False):
         '''
         Return an indication of whether the given book represented by its db id
@@ -1652,7 +1665,8 @@ class DeviceMixin(object): # {{{
                 loc[4] |= self.book_db_uuid_path_map[id]
         return loc
 
-    def set_books_in_library(self, booklists, reset=False, add_as_step_to_job=None):
+    def set_books_in_library(self, booklists, reset=False, add_as_step_to_job=None,
+                             force_send=False):
         '''
         Set the ondevice indications in the device database.
         This method should be called before book_on_device is called, because
@@ -1675,7 +1689,8 @@ class DeviceMixin(object): # {{{
             x = x.lower() if x else ''
             return string_pat.sub('', x)
 
-        update_metadata = device_prefs['manage_device_metadata'] == 'on_connect'
+        update_metadata = (
+           device_prefs['manage_device_metadata'] == 'on_connect' or force_send)
 
         get_covers = False
         desired_thumbnail_height = 0

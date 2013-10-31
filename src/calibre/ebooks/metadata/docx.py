@@ -8,29 +8,39 @@ __copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 from calibre.ebooks.docx.container import DOCX
+from calibre.ebooks.docx.names import XPath, get
 
-from calibre.utils.zipfile import ZipFile
 from calibre.utils.magick.draw import identify_data
+
+images = XPath('//*[name()="w:drawing" or name()="w:pict"]/descendant::*[(name()="a:blip" and @r:embed) or (name()="v:imagedata" and @r:id)][1]')
+
+def get_cover(docx):
+    doc = docx.document
+    rid_map = docx.document_relationships[0]
+    for image in images(doc):
+        rid = get(image, 'r:embed') or get(image, 'r:id')
+        if rid in rid_map:
+            try:
+                raw = docx.read(rid_map[rid])
+                width, height, fmt = identify_data(raw)
+            except Exception:
+                continue
+            if 0.8 <= height/width <= 1.8 and height*width >= 160000:
+                return (fmt, raw)
 
 def get_metadata(stream):
     c = DOCX(stream, extract=False)
     mi = c.metadata
+    try:
+        cdata = get_cover(c)
+    except Exception:
+        cdata = None
+        import traceback
+        traceback.print_exc()
     c.close()
     stream.seek(0)
-    cdata = None
-    with ZipFile(stream, 'r') as zf:
-        for zi in zf.infolist():
-            ext = zi.filename.rpartition('.')[-1].lower()
-            if cdata is None and ext in {'jpeg', 'jpg', 'png', 'gif'}:
-                raw = zf.read(zi)
-                try:
-                    width, height, fmt = identify_data(raw)
-                except:
-                    continue
-                if 0.8 <= height/width <= 1.8 and height*width >= 160000:
-                    cdata = (fmt, raw)
-        if cdata is not None:
-            mi.cover_data = cdata
+    if cdata is not None:
+        mi.cover_data = cdata
 
     return mi
 

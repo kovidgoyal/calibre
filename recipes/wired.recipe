@@ -1,9 +1,8 @@
 
 __license__   = 'GPL v3'
-__copyright__ = '2012, mkydgr'
+__copyright__ = '2010-2013, Darko Miletic <darko.miletic at gmail.com>'
 '''
 www.wired.com
-based on the (broken) built-in recipe by Darko Miletic <darko.miletic at gmail.com>
 '''
 
 import re
@@ -12,12 +11,11 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 class Wired(BasicNewsRecipe):
     title                 = 'Wired Magazine'
-    __author__            = 'mkydgr'
-    description           = 'Technology News'
+    __author__            = 'Darko Miletic'
+    description           = 'Gaming news'
     publisher             = 'Conde Nast Digital'
-    category              = ''
-    oldest_article        = 500
-    delay                 = 1
+    category              = 'news, games, IT, gadgets'
+    oldest_article        = 32
     max_articles_per_feed = 100
     no_stylesheets        = True
     encoding              = 'utf-8'
@@ -25,10 +23,16 @@ class Wired(BasicNewsRecipe):
     masthead_url          = 'http://www.wired.com/images/home/wired_logo.gif'
     language              = 'en'
     publication_type      = 'magazine'
-    extra_css             = ' body{font-family: Arial,Verdana,sans-serif} .entryDescription li {display: inline; list-style-type: none} '
-    index                 = 'http://www.wired.com/magazine'
-    departments           = ['features','start','test','play','found', 'reviews']
-    
+    extra_css             = """ 
+                               h1, .entry-header{font-family: brandon-grotesque,anchor-web,Helvetica,Arial,sans-serif} 
+                               .entry-header{display: block;}
+                               .entry-header ul{ list-style-type:disc;}
+                               .author, .entryDate, .entryTime, .entryEdit, .entryCategories{display: inline}
+                               .entry-header li{text-transform: uppercase;}
+                               div#container{font-family: 'Exchange SSm 4r', Georgia, serif} 
+                            """
+    index                 = 'http://www.wired.com/magazine/'
+
     preprocess_regexps = [(re.compile(r'<meta name="Title".*<title>', re.DOTALL|re.IGNORECASE),lambda match: '<title>')]
     conversion_options = {
                           'comment'   : description
@@ -38,56 +42,37 @@ class Wired(BasicNewsRecipe):
                         }
 
     keep_only_tags = [dict(name='div', attrs={'class':'post'})]
-    remove_tags_after = dict(name='div', attrs={'class':'tweetmeme_button'})
+    remove_tags_after = dict(name='div', attrs={'id':'container'})
     remove_tags = [
-                     dict(name=['object','embed','iframe','link'])
-                    ,dict(name='div', attrs={'class':['podcast_storyboard','tweetmeme_button']})
+                     dict(name=['object','embed','iframe','link','meta','base'])
+                    ,dict(name='div', attrs={'class':['social-top','podcast_storyboard','tweetmeme_button']})
                     ,dict(attrs={'id':'ff_bottom_nav'})
                     ,dict(name='a',attrs={'href':'http://www.wired.com/app'})
+                    ,dict(name='div', attrs={'id':'mag-bug'})
                   ]
-    remove_attributes = ['height','width']
+    remove_attributes = ['height','width','lang','border','clear']
 
 
     def parse_index(self):
         totalfeeds = []
-
         soup   = self.index_to_soup(self.index)
-        
-        #department feeds    
-        depts = soup.find('div',attrs={'id':'department-posts'})
-        
-        if depts:
-            for ditem in self.departments:
-                darticles = []
-                department = depts.find('h3',attrs={'id':'department-'+ditem})
-                if department:
-                    #print '\n###### Found department %s ########'%(ditem)
-                    
-                    el = department.next
-                    while el and (el.__class__.__name__ == 'NavigableString' or el.name != 'h3'):
-                        if el.__class__.__name__ != 'NavigableString':
-                            #print '\t ... element',el.name
-                            if el.name == 'ul':
-                                for artitem in el.findAll('li'):
-                                    #print '\t\t ... article',repr(artitem)
-                                    feed_link = artitem.find('a')
-                                    #print '\t\t\t ... link',repr(feed_link)
-                                    if feed_link and feed_link.has_key('href'):
-                                        url   = self.makeurl(feed_link['href'])
-                                        title = self.tag_to_string(feed_link)
-                                        date  = strftime(self.timefmt)
-                                        #print '\t\t ... found "%s" %s'%(title,url)
-                                        darticles.append({
-                                                          'title'      :title
-                                                         ,'date'       :date
-                                                         ,'url'        :url
-                                                         ,'description':''
-                                                        })
-                                el = None                            
-                        else: 
-                            el = el.next
-                     
-                    totalfeeds.append((ditem.capitalize(), darticles))
+        majorf = soup.find('div',attrs={'class':'entry'})
+        if majorf:
+           articles = []
+           checker = []
+           for a in majorf.findAll('a', href=True):
+               if a['href'].startswith('http://www.wired.com/') and a['href'].endswith('/'):
+                  title = self.tag_to_string(a)
+                  url = a['href']
+                  if title.lower() != 'read more' and url not in checker:
+                      checker.append(url) 
+                      articles.append({
+                                          'title'      :title
+                                         ,'date'       :strftime(self.timefmt)
+                                         ,'url'        :a['href']
+                                         ,'description':''
+                                        })
+           totalfeeds.append(('Articles', articles))
         return totalfeeds
 
     def get_cover_url(self):
@@ -95,7 +80,7 @@ class Wired(BasicNewsRecipe):
         soup = self.index_to_soup(self.index)
         cover_item = soup.find('div',attrs={'class':'spread-image'})
         if cover_item:
-           cover_url = self.makeurl(cover_item.a.img['src'])
+           cover_url = 'http://www.wired.com' + cover_item.a.img['src']
         return cover_url
 
     def print_version(self, url):
@@ -104,10 +89,19 @@ class Wired(BasicNewsRecipe):
     def preprocess_html(self, soup):
         for item in soup.findAll(style=True):
             del item['style']
+        for item in soup.findAll('a'):
+            if item.string is not None:
+               tstr = item.string
+               item.replaceWith(tstr)
+            else:
+               item.name='span'
+               for atrs in ['href','target','alt','title','name','id']:
+                   if item.has_key(atrs):
+                      del item[atrs]
+        for item in soup.findAll('img'):
+            if not item.has_key('alt'):
+               item['alt'] = 'image'            
+            if item.has_key('data-lazy-src'):
+                item['src'] = item['data-lazy-src']
+                del item['data-lazy-src']
         return soup
-        
-    def makeurl(self, addr):     
-        if addr[:4] != 'http' : addr='http://www.wired.com' + addr
-        while addr[-2:] == '//' : addr=addr[:-1]
-        return addr
-

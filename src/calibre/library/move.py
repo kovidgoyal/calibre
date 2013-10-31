@@ -10,14 +10,14 @@ import time, os
 from threading import Thread
 from Queue import Empty
 
-from calibre.library.database2 import LibraryDatabase2
 from calibre.utils.ipc.server import Server
 from calibre.utils.ipc.job import ParallelJob
 
 
-def move_library(from_, to, notification = lambda x:x):
+def move_library(from_, to, notification=lambda x:x):
+    from calibre.db.legacy import LibraryDatabase
     time.sleep(1)
-    old = LibraryDatabase2(from_)
+    old = LibraryDatabase(from_)
     old.move_library_to(to, notification)
     return True
 

@@ -75,6 +75,10 @@ class EPUBInput(InputFormatPlugin):
         return False
 
     def rationalize_cover(self, opf, log):
+        ''' Ensure that the cover information in the guide is correct. That
+        means, at most one entry with type="cover" that points to a raster
+        cover and at most one entry with type="titlepage" that points to an
+        HTML titlepage. '''
         removed = None
         from lxml import etree
         guide_cover, guide_elem = None, None
@@ -109,24 +113,41 @@ class EPUBInput(InputFormatPlugin):
             # display in the end
             spine[0].attrib.pop('linear', None)
             opf.spine[0].is_linear = True
-        guide_elem.set('href', 'calibre_raster_cover.jpg')
+        # Ensure that the guide has a cover entry pointing to a raster cover
+        # and a titlepage entry pointing to the html titlepage. The titlepage
+        # entry will be used by the epub output plugin, the raster cover entry
+        # by other output plugins.
+
         from calibre.ebooks.oeb.base import OPF
-        t = etree.SubElement(elem[0].getparent(), OPF('item'),
-        href=guide_elem.get('href'), id='calibre_raster_cover')
-        t.set('media-type', 'image/jpeg')
+
+        # Search for a raster cover identified in the OPF
+        raster_cover = opf.raster_cover
+
+        # Set the cover guide entry
+        if raster_cover is not None:
+            guide_elem.set('href', raster_cover)
+        else:
+            # Render the titlepage to create a raster cover
+            from calibre.ebooks import render_html_svg_workaround
+            guide_elem.set('href', 'calibre_raster_cover.jpg')
+            t = etree.SubElement(
+                elem[0].getparent(), OPF('item'), href=guide_elem.get('href'), id='calibre_raster_cover')
+            t.set('media-type', 'image/jpeg')
+            if os.path.exists(guide_cover):
+                renderer = render_html_svg_workaround(guide_cover, log)
+                if renderer is not None:
+                    open('calibre_raster_cover.jpg', 'wb').write(
+                        renderer)
+
+        # Set the titlepage guide entry
         for elem in list(opf.iterguide()):
             if elem.get('type', '').lower() == 'titlepage':
                 elem.getparent().remove(elem)
+
         t = etree.SubElement(guide_elem.getparent(), OPF('reference'))
         t.set('type', 'titlepage')
         t.set('href', guide_cover)
         t.set('title', 'Title Page')
-        from calibre.ebooks import render_html_svg_workaround
-        if os.path.exists(guide_cover):
-            renderer = render_html_svg_workaround(guide_cover, log)
-            if renderer is not None:
-                open('calibre_raster_cover.jpg', 'wb').write(
-                    renderer)
         return removed
 
     def find_opf(self):

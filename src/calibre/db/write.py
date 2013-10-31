@@ -10,11 +10,12 @@ __docformat__ = 'restructuredtext en'
 import re
 from functools import partial
 from datetime import datetime
+from future_builtins import zip
 
 from calibre.constants import preferred_encoding, ispy3
 from calibre.ebooks.metadata import author_to_author_sort, title_sort
-from calibre.utils.date import (parse_only_date, parse_date, UNDEFINED_DATE,
-                                isoformat)
+from calibre.utils.date import (
+    parse_only_date, parse_date, UNDEFINED_DATE, isoformat, is_date_undefined)
 from calibre.utils.localization import canonicalize_lang
 from calibre.utils.icu import strcmp
 
@@ -67,12 +68,14 @@ def multiple_text(sep, ui_sep, x):
 def adapt_datetime(x):
     if isinstance(x, (unicode, bytes)):
         x = parse_date(x, assume_utc=False, as_utc=False)
+    if x and is_date_undefined(x):
+        x = UNDEFINED_DATE
     return x
 
 def adapt_date(x):
     if isinstance(x, (unicode, bytes)):
         x = parse_only_date(x)
-    if x is None:
+    if x is None or is_date_undefined(x):
         x = UNDEFINED_DATE
     return x
 
@@ -80,7 +83,7 @@ def adapt_number(typ, x):
     if x is None:
         return None
     if isinstance(x, (unicode, bytes)):
-        if x.lower() == 'none':
+        if not x or x.lower() == 'none':
             return None
     return typ(x)
 
@@ -107,8 +110,8 @@ def adapt_languages(to_tuple, x):
     return tuple(ans)
 
 def clean_identifier(typ, val):
-    typ = icu_lower(typ).strip().replace(':', '').replace(',', '')
-    val = val.strip().replace(',', '|').replace(':', '|')
+    typ = icu_lower(typ or '').strip().replace(':', '').replace(',', '')
+    val = (val or '').strip().replace(',', '|')
     return typ, val
 
 def adapt_identifiers(to_tuple, x):
@@ -142,7 +145,7 @@ def get_adapter(name, metadata):
     elif dt == 'comments':
         ans = single_text
     elif dt == 'rating':
-        ans = lambda x: None if x in {None, 0} else min(10., max(0., adapt_number(float, x)))
+        ans = lambda x: None if x in {None, 0} else min(10, max(0, adapt_number(int, x)))
     elif dt == 'enumeration':
         ans = single_text
     elif dt == 'composite':
@@ -153,7 +156,7 @@ def get_adapter(name, metadata):
     if name == 'author_sort':
         return lambda x: ans(x) or ''
     if name == 'authors':
-        return lambda x: ans(x) or (_('Unknown'),)
+        return lambda x: tuple(y.replace('|', ',') for y in ans(x)) or (_('Unknown'),)
     if name in {'timestamp', 'last_modified'}:
         return lambda x: ans(x) or UNDEFINED_DATE
     if name == 'series_index':
@@ -212,7 +215,7 @@ def custom_series_index(book_id_val_map, db, field, *args):
         ids = series_field.ids_for_book(book_id)
         if ids:
             sequence.append((sidx, book_id, ids[0]))
-            field.table.book_col_map[book_id] = sidx
+        field.table.book_col_map[book_id] = sidx
     if sequence:
         db.conn.executemany('UPDATE %s SET %s=? WHERE book=? AND value=?'%(
                 field.metadata['table'], field.metadata['column']), sequence)
@@ -275,6 +278,10 @@ def many_one(book_id_val_map, db, field, allow_case_change, *args):
     # Map values to db ids, including any new values
     kmap = safe_lower if dt in {'text', 'series'} else lambda x:x
     rid_map = {kmap(item):item_id for item_id, item in table.id_map.iteritems()}
+    if len(rid_map) != len(table.id_map):
+        # table has some entries that differ only in case, fix it
+        table.fix_case_duplicates(db)
+        rid_map = {kmap(item):item_id for item_id, item in table.id_map.iteritems()}
     val_map = {None:None}
     case_changes = {}
     for val in book_id_val_map.itervalues():
@@ -335,6 +342,16 @@ def many_one(book_id_val_map, db, field, allow_case_change, *args):
 # }}}
 
 # Many-Many fields {{{
+
+def uniq(vals, kmap=lambda x:x):
+    ''' Remove all duplicates from vals, while preserving order. kmap must be a
+    callable that returns a hashable value for every item in vals '''
+    vals = vals or ()
+    lvals = (kmap(x) for x in vals)
+    seen = set()
+    seen_add = seen.add
+    return tuple(x for x, k in zip(vals, lvals) if k not in seen and not seen_add(k))
+
 def many_many(book_id_val_map, db, field, allow_case_change, *args):
     dirtied = set()
     m = field.metadata
@@ -345,8 +362,13 @@ def many_many(book_id_val_map, db, field, allow_case_change, *args):
     # Map values to db ids, including any new values
     kmap = safe_lower if dt == 'text' else lambda x:x
     rid_map = {kmap(item):item_id for item_id, item in table.id_map.iteritems()}
+    if len(rid_map) != len(table.id_map):
+        # table has some entries that differ only in case, fix it
+        table.fix_case_duplicates(db)
+        rid_map = {kmap(item):item_id for item_id, item in table.id_map.iteritems()}
     val_map = {}
     case_changes = {}
+    book_id_val_map = {k:uniq(vals, kmap) for k, vals in book_id_val_map.iteritems()}
     for vals in book_id_val_map.itervalues():
         for val in vals:
             get_db_id(val, db, m, table, kmap, rid_map, allow_case_change,

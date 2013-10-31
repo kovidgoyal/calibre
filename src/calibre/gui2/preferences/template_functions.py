@@ -13,7 +13,8 @@ from calibre.gui2 import error_dialog, warning_dialog
 from calibre.gui2.preferences import ConfigWidgetBase, test_widget
 from calibre.gui2.preferences.template_functions_ui import Ui_Form
 from calibre.gui2.widgets import PythonHighlighter
-from calibre.utils.formatter_functions import formatter_functions, compile_user_function
+from calibre.utils.formatter_functions import (formatter_functions,
+                        compile_user_function, load_user_template_functions)
 
 
 class ConfigWidget(ConfigWidgetBase, Ui_Form):
@@ -21,7 +22,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
     def genesis(self, gui):
         self.gui = gui
         self.db = gui.library_view.model().db
-        self.current_plugboards = self.db.prefs.get('plugboards',{})
+
         help_text = _('''
         <p>Here you can add and remove functions used in template processing. A
         template function is written in python. It takes information from the
@@ -217,15 +218,14 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         pass
 
     def commit(self):
-        formatter_functions().reset_to_builtins()
+        # formatter_functions().reset_to_builtins()
         pref_value = []
-        for f in self.funcs:
-            if f in self.builtins:
-                continue
-            func = self.funcs[f]
-            formatter_functions().register_function(func)
-            pref_value.append((func.name, func.doc, func.arg_count, func.program_text))
+        for name, cls in self.funcs.iteritems():
+            if name not in self.builtins:
+                pref_value.append((cls.name, cls.doc, cls.arg_count, cls.program_text))
         self.db.prefs.set('user_template_functions', pref_value)
+        load_user_template_functions(self.db.library_id, pref_value)
+        return False
 
 
 if __name__ == '__main__':

@@ -7,13 +7,16 @@ __license__   = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import re
+import re, weakref
 from functools import partial
 from datetime import timedelta
+from collections import deque
 
+from calibre.constants import preferred_encoding
+from calibre.db.utils import force_to_bool
 from calibre.utils.config_base import prefs
-from calibre.utils.date import parse_date, UNDEFINED_DATE, now
-from calibre.utils.icu import primary_find
+from calibre.utils.date import parse_date, UNDEFINED_DATE, now, dt_as_local
+from calibre.utils.icu import primary_find, sort_key
 from calibre.utils.localization import lang_map, canonicalize_lang
 from calibre.utils.search_query_parser import SearchQueryParser, ParseException
 
@@ -22,22 +25,6 @@ EQUALS_MATCH   = 1
 REGEXP_MATCH   = 2
 
 # Utils {{{
-
-def force_to_bool(val):
-    if isinstance(val, (str, unicode)):
-        try:
-            val = icu_lower(val)
-            if not val:
-                val = None
-            elif val in [_('yes'), _('checked'), 'true', 'yes']:
-                val = True
-            elif val in [_('no'), _('unchecked'), 'false', 'no']:
-                val = False
-            else:
-                val = bool(int(val))
-        except:
-            val = None
-    return val
 
 def _matchkind(query):
     matchkind = CONTAINS_MATCH
@@ -210,7 +197,7 @@ class DateSearch(object):  # {{{
         for v, book_ids in field_iter():
             if isinstance(v, (str, unicode)):
                 v = parse_date(v)
-            if v is not None and relop(v, qd, field_count):
+            if v is not None and relop(dt_as_local(v), qd, field_count):
                 matches |= book_ids
 
         return matches
@@ -288,8 +275,11 @@ class NumericSearch(object):  # {{{
                 raise ParseException(
                         _('Non-numeric value in query: {0}').format(query))
 
+        qfalse = query == 'false'
         for val, book_ids in field_iter():
             if val is None:
+                if qfalse:
+                    matches |= book_ids
                 continue
             try:
                 v = cast(val)
@@ -388,11 +378,72 @@ class KeyPairSearch(object):  # {{{
 
 # }}}
 
-class Parser(SearchQueryParser):
+class SavedSearchQueries(object):  # {{{
+    queries = {}
+    opt_name = ''
+
+    def __init__(self, db, _opt_name):
+        self.opt_name = _opt_name
+        try:
+            self._db = weakref.ref(db)
+        except TypeError:
+            # db could be None
+            self._db = lambda : None
+        self.load_from_db()
+
+    def load_from_db(self):
+        db = self.db
+        if db is not None:
+            self.queries = db._pref(self.opt_name, default={})
+        else:
+            self.queries = {}
+
+    @property
+    def db(self):
+        return self._db()
+
+    def force_unicode(self, x):
+        if not isinstance(x, unicode):
+            x = x.decode(preferred_encoding, 'replace')
+        return x
+
+    def add(self, name, value):
+        db = self.db
+        if db is not None:
+            self.queries[self.force_unicode(name)] = self.force_unicode(value).strip()
+            db._set_pref(self.opt_name, self.queries)
+
+    def lookup(self, name):
+        return self.queries.get(self.force_unicode(name), None)
+
+    def delete(self, name):
+        db = self.db
+        if db is not None:
+            self.queries.pop(self.force_unicode(name), False)
+            db._set_pref(self.opt_name, self.queries)
+
+    def rename(self, old_name, new_name):
+        db = self.db
+        if db is not None:
+            self.queries[self.force_unicode(new_name)] = self.queries.get(self.force_unicode(old_name), None)
+            self.queries.pop(self.force_unicode(old_name), False)
+            db._set_pref(self.opt_name, self.queries)
+
+    def set_all(self, smap):
+        db = self.db
+        if db is not None:
+            self.queries = smap
+            db._set_pref(self.opt_name, smap)
+
+    def names(self):
+        return sorted(self.queries.iterkeys(), key=sort_key)
+# }}}
+
+class Parser(SearchQueryParser):  # {{{
 
     def __init__(self, dbcache, all_book_ids, gst, date_search, num_search,
                  bool_search, keypair_search, limit_search_columns, limit_search_columns_to,
-                 locations, virtual_fields):
+                 locations, virtual_fields, lookup_saved_search, parse_cache):
         self.dbcache, self.all_book_ids = dbcache, all_book_ids
         self.all_search_locations = frozenset(locations)
         self.grouped_search_terms = gst
@@ -403,7 +454,7 @@ class Parser(SearchQueryParser):
         self.virtual_fields = virtual_fields or {}
         if 'marked' not in self.virtual_fields:
             self.virtual_fields['marked'] = self
-        super(Parser, self).__init__(locations, optimize=True)
+        SearchQueryParser.__init__(self, locations, optimize=True, lookup_saved_search=lookup_saved_search, parse_cache=parse_cache)
 
     @property
     def field_metadata(self):
@@ -413,16 +464,21 @@ class Parser(SearchQueryParser):
         return self.all_book_ids
 
     def field_iter(self, name, candidates):
-        get_metadata = partial(self.dbcache._get_metadata, get_user_categories=False)
+        get_metadata = self.dbcache._get_proxy_metadata
         try:
             field = self.dbcache.fields[name]
         except KeyError:
             field = self.virtual_fields[name]
+            self.virtual_field_used = True
         return field.iter_searchable_values(get_metadata, candidates)
 
     def iter_searchable_values(self, *args, **kwargs):
-        for x in []:
+        for x in ():
             yield x, set()
+
+    def parse(self, *args, **kwargs):
+        self.virtual_field_used = False
+        return SearchQueryParser.parse(self, *args, **kwargs)
 
     def get_matches(self, location, query, candidates=None,
                     allow_recursion=True):
@@ -526,7 +582,7 @@ class Parser(SearchQueryParser):
             if dt == 'bool':
                 return self.bool_search(icu_lower(query),
                                 partial(self.field_iter, location, candidates),
-                                self.dbcache.pref('bools_are_tristate'))
+                                self.dbcache._pref('bools_are_tristate'))
 
             # special case: colon-separated fields such as identifiers. isbn
             # is a special case within the case
@@ -551,7 +607,10 @@ class Parser(SearchQueryParser):
             if x.startswith('@'):
                 continue
             if fm['search_terms'] and x != 'series_sort':
-                all_locs.add(x)
+                if x not in self.virtual_fields:
+                    # We dont search virtual fields because if we do, search
+                    # caching will not be used
+                    all_locs.add(x)
                 field_metadata[x] = fm
                 if fm['datatype'] in {'composite', 'text', 'comments', 'series', 'enumeration'}:
                     text_fields.add(x)
@@ -630,7 +689,7 @@ class Parser(SearchQueryParser):
         if len(query) < 2:
             return matches
 
-        user_cats = self.dbcache.pref('user_categories')
+        user_cats = self.dbcache._pref('user_categories')
         c = set(candidates)
 
         if query.startswith('.'):
@@ -648,54 +707,183 @@ class Parser(SearchQueryParser):
         if query == 'false':
             return candidates - matches
         return matches
+# }}}
+
+class LRUCache(object):  # {{{
+
+    'A simple Least-Recently-Used cache'
+
+    def __init__(self, limit=30):
+        self.item_map = {}
+        self.age_map = deque()
+        self.limit = limit
+
+    def _move_up(self, key):
+        if key != self.age_map[-1]:
+            self.age_map.remove(key)
+            self.age_map.append(key)
+
+    def add(self, key, val):
+        if key in self.item_map:
+            self._move_up(key)
+            return
+
+        if len(self.age_map) >= self.limit:
+            self.item_map.pop(self.age_map.popleft())
+
+        self.item_map[key] = val
+        self.age_map.append(key)
+    __setitem__  = add
+
+    def get(self, key, default=None):
+        ans = self.item_map.get(key, default)
+        if ans is not default:
+            self._move_up(key)
+        return ans
+
+    def clear(self):
+        self.item_map.clear()
+        self.age_map.clear()
+
+    def pop(self, key, default=None):
+        self.item_map.pop(key, default)
+        try:
+            self.age_map.remove(key)
+        except ValueError:
+            pass
+
+    def __contains__(self, key):
+        return key in self.item_map
+
+    def __len__(self):
+        return len(self.age_map)
+
+    def __getitem__(self, key):
+        return self.get(key)
+
+    def __iter__(self):
+        return self.item_map.iteritems()
+# }}}
 
 class Search(object):
 
-    def __init__(self, all_search_locations=()):
+    MAX_CACHE_UPDATE = 50
+
+    def __init__(self, db, opt_name, all_search_locations=()):
         self.all_search_locations = all_search_locations
         self.date_search = DateSearch()
         self.num_search = NumericSearch()
         self.bool_search = BooleanSearch()
         self.keypair_search = KeyPairSearch()
+        self.saved_searches = SavedSearchQueries(db, opt_name)
+        self.cache = LRUCache()
+        self.parse_cache = LRUCache(limit=100)
+
+    def get_saved_searches(self):
+        return self.saved_searches
 
     def change_locations(self, newlocs):
+        if frozenset(newlocs) != frozenset(self.all_search_locations):
+            self.clear_caches()
+            self.parse_cache.clear()
         self.all_search_locations = newlocs
 
-    def __call__(self, dbcache, query, search_restriction, virtual_fields=None):
-        '''
-        Return the set of ids of all records that match the specified
-        query and restriction
-        '''
-        q = ''
-        if not query or not query.strip():
-            q = search_restriction
+    def update_or_clear(self, dbcache, book_ids=None):
+        if book_ids and (len(book_ids) * len(self.cache)) <= self.MAX_CACHE_UPDATE:
+            self.update_caches(dbcache, book_ids)
         else:
-            q = query
-            if search_restriction:
-                q = u'(%s) and (%s)' % (search_restriction, query)
+            self.clear_caches()
 
-        all_book_ids = dbcache.all_book_ids(type=set)
-        if not q:
-            return all_book_ids
+    def clear_caches(self):
+        self.cache.clear()
 
-        if not isinstance(q, type(u'')):
-            q = q.decode('utf-8')
+    def update_caches(self, dbcache, book_ids):
+        sqp = self.create_parser(dbcache)
+        try:
+            return self._update_caches(sqp, book_ids)
+        finally:
+            sqp.dbcache = sqp.lookup_saved_search = None
 
-        # We construct a new parser instance per search as pyparsing is not
-        # thread safe. On my desktop, constructing a SearchQueryParser instance
-        # takes 0.000975 seconds and restoring it from a pickle takes
-        # 0.000974 seconds.
-        sqp = Parser(
-            dbcache, all_book_ids, dbcache.pref('grouped_search_terms'),
+    def discard_books(self, book_ids):
+        book_ids = set(book_ids)
+        for query, result in self.cache:
+            result.difference_update(book_ids)
+
+    def _update_caches(self, sqp, book_ids):
+        book_ids = sqp.all_book_ids = set(book_ids)
+        remove = set()
+        for query, result in self.cache:
+            try:
+                matches = sqp.parse(query)
+            except ParseException:
+                remove.add(query)
+            else:
+                # remove books that no longer match
+                result.difference_update(book_ids - matches)
+                # add books that now match but did not before
+                result.update(matches)
+        for query in remove:
+            self.cache.pop(query)
+
+    def create_parser(self, dbcache, virtual_fields=None):
+        return Parser(
+            dbcache, set(), dbcache._pref('grouped_search_terms'),
             self.date_search, self.num_search, self.bool_search,
             self.keypair_search,
             prefs['limit_search_columns'],
             prefs['limit_search_columns_to'], self.all_search_locations,
-            virtual_fields)
+            virtual_fields, self.saved_searches.lookup, self.parse_cache)
 
+    def __call__(self, dbcache, query, search_restriction, virtual_fields=None, book_ids=None):
+        '''
+        Return the set of ids of all records that match the specified
+        query and restriction
+        '''
+        # We construct a new parser instance per search as the parse is not
+        # thread safe.
+        sqp = self.create_parser(dbcache, virtual_fields)
         try:
-            ret = sqp.parse(q)
+            return self._do_search(sqp, query, search_restriction, dbcache, book_ids=book_ids)
         finally:
-            sqp.dbcache = None
-        return ret
+            sqp.dbcache = sqp.lookup_saved_search = None
+
+    def _do_search(self, sqp, query, search_restriction, dbcache, book_ids=None):
+        ''' Do the search, caching the results. Results are cached only if the
+        search is on the full library and no virtual field is searched on '''
+        if isinstance(search_restriction, bytes):
+            search_restriction = search_restriction.decode('utf-8')
+
+        restricted_ids = all_book_ids = dbcache._all_book_ids(type=set)
+        if search_restriction and search_restriction.strip():
+            cached = self.cache.get(search_restriction.strip())
+            if cached is None:
+                sqp.all_book_ids = all_book_ids if book_ids is None else book_ids
+                restricted_ids = sqp.parse(search_restriction)
+                if not sqp.virtual_field_used and sqp.all_book_ids is all_book_ids:
+                    self.cache.add(search_restriction.strip(), restricted_ids)
+            else:
+                restricted_ids = cached
+                if book_ids is not None:
+                    restricted_ids = book_ids.intersection(restricted_ids)
+        elif book_ids is not None:
+            restricted_ids = book_ids
+
+        if isinstance(query, bytes):
+            query = query.decode('utf-8')
+
+        if not query or not query.strip():
+            return restricted_ids
+
+        if restricted_ids is all_book_ids:
+            cached = self.cache.get(query.strip())
+            if cached is not None:
+                return cached
+
+        sqp.all_book_ids = restricted_ids
+        result = sqp.parse(query)
+
+        if not sqp.virtual_field_used and sqp.all_book_ids is all_book_ids:
+            self.cache.add(query.strip(), result)
+
+        return result
 

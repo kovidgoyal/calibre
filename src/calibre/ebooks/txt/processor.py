@@ -40,7 +40,7 @@ def clean_txt(txt):
     txt = re.sub('(?<=.)\s+$', '', txt)
     # Remove excessive line breaks.
     txt = re.sub('\n{5,}', '\n\n\n\n', txt)
-    #remove ASCII invalid chars : 0 to 8 and 11-14 to 24
+    # remove ASCII invalid chars : 0 to 8 and 11-14 to 24
     txt = clean_ascii_chars(txt)
 
     return txt
@@ -55,14 +55,14 @@ def split_txt(txt, epub_split_size_kb=0):
     to accomidate the EPUB file size limitation
     and will fail.
     '''
-    #Takes care if there is no point to split
+    # Takes care if there is no point to split
     if epub_split_size_kb > 0:
         if isinstance(txt, unicode):
             txt = txt.encode('utf-8')
         length_byte = len(txt)
-        #Calculating the average chunk value for easy splitting as EPUB (+2 as a safe margin)
-        chunk_size = long(length_byte / (int(length_byte / (epub_split_size_kb * 1024) ) + 2 ))
-        #if there are chunks with a superior size then go and break
+        # Calculating the average chunk value for easy splitting as EPUB (+2 as a safe margin)
+        chunk_size = long(length_byte / (int(length_byte / (epub_split_size_kb * 1024)) + 2))
+        # if there are chunks with a superior size then go and break
         if (len(filter(lambda x: len(x) > chunk_size, txt.split('\n\n')))) :
             txt = '\n\n'.join([split_string_separator(line, chunk_size)
                 for line in txt.split('\n\n')])
@@ -95,12 +95,11 @@ def convert_basic(txt, title='', epub_split_size_kb=0):
 
     return HTML_TEMPLATE % (title, u'\n'.join(lines))
 
-def convert_markdown(txt, title='', disable_toc=False):
-    from calibre.ebooks.markdown import markdown
-    extensions=['footnotes', 'tables']
-    if not disable_toc:
-        extensions.append('toc')
-    md = markdown.Markdown(
+def convert_markdown(txt, title='', extensions=('footnotes', 'tables', 'toc')):
+    from calibre.ebooks.conversion.plugins.txt_input import MD_EXTENSIONS
+    from calibre.ebooks.markdown import Markdown
+    extensions = [x.lower() for x in extensions if x.lower() in MD_EXTENSIONS]
+    md = Markdown(
           extensions,
           safe_mode=False)
     return HTML_TEMPLATE % (title, md.convert(txt))

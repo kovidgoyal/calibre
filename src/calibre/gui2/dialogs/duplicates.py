@@ -20,7 +20,10 @@ class DuplicatesQuestion(QDialog):
         QDialog.__init__(self, parent)
         self.l = l = QGridLayout()
         self.setLayout(l)
-        self.setWindowTitle(_('Duplicates found!'))
+        t = ngettext('Duplicate found', 'Duplicates found', len(duplicates))
+        if len(duplicates) > 1:
+            t = '%d %s' % (len(duplicates), t)
+        self.setWindowTitle(t)
         self.i = i = QIcon(I('dialog_question.png'))
         self.setWindowIcon(i)
 

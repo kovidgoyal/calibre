@@ -5,6 +5,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
+from PyQt4.Qt import Qt
 
 from calibre.gui2.actions import InterfaceAction
 from calibre.gui2.dialogs.book_info import BookInfo
@@ -20,6 +21,7 @@ class ShowBookDetailsAction(InterfaceAction):
 
     def genesis(self):
         self.qaction.triggered.connect(self.show_book_info)
+        self.memory = []
 
     def show_book_info(self, *args):
         if self.gui.current_view() is not self.gui.library_view:
@@ -29,6 +31,20 @@ class ShowBookDetailsAction(InterfaceAction):
             return
         index = self.gui.library_view.currentIndex()
         if index.isValid():
-            BookInfo(self.gui, self.gui.library_view, index,
-                    self.gui.book_details.handle_click).show()
+            d = BookInfo(self.gui, self.gui.library_view, index,
+                    self.gui.book_details.handle_click)
+            self.memory.append(d)
+            d.closed.connect(self.closed, type=Qt.QueuedConnection)
+            d.show()
+
+    def closed(self, d):
+        try:
+            d.closed.disconnect(self.closed)
+            self.memory.remove(d)
+        except ValueError:
+            pass
+        else:
+            import sip
+            sip.delete(d)
+            del d
 

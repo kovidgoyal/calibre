@@ -1,0 +1,63 @@
+#
+# Written:      July 2013
+# Last Edited:  2013-07-11
+# Version:      1.0
+# Last update:  2013-07-25
+#
+
+__license__   = 'GPL v3'
+__copyright__ = '2013, Armin Geller'
+
+'''
+Fetch blindenbuch.de
+'''
+
+from calibre.web.feeds.recipes import BasicNewsRecipe
+class AdvancedUserRecipe1303841067(BasicNewsRecipe):
+
+    title                 = u'Blindbuch - Bücher neu entdecken'
+    __author__            = 'Armin Geller'  # AGe 2013-07-11
+    description           = u'Bücher blind präsentiert'
+    publisher             = 'blindbuch.de'
+    publication_type      = 'ebook news'
+    tags                  = 'Bücher, Literatur, E-Books, Germany'
+    timefmt               = ' [%a, %d %b %Y]'
+    publication_type      = 'Feed'
+    language              = 'de-DE'
+    encoding              = 'utf-8'
+
+    oldest_article        = 14
+    max_articles_per_feed = 100
+
+    no_stylesheets        = True
+    use_embedded_content  = False
+    remove_javascript     = True
+
+    conversion_options    = {'title'       : title,
+                              'comments'    : description,
+                              'tags'        : tags,
+                              'language'    : language,
+                              'publisher'   : publisher,
+                              'authors'     : publisher,
+                             }
+
+    cover_url             = 'http://blindbuch.de/img/blindbuch_calibre.png'
+    masthead_url          = 'http://www.blindbuch.de/img/Masterhead.JPG'
+
+    extra_css = '''
+                    h1{font-weight:bold;font-size:large;}
+                    .post-meta {font-size: 1em;text-align: left; font-style: italic}
+                '''
+
+    keep_only_tags = [
+                       dict(name='article')
+                     ]
+
+    remove_tags = [
+                    dict(name='div', attrs={'class':['su-spoiler su-spoiler-style-1','post-comments comments',]}),
+                    dict(name='span', attrs={'class':['post-comments comments',]}),
+                    dict(name='div', attrs={'addthis':['title',]}),
+                  ]
+
+    feeds = [(u'Blindbuch', u'http://www.blindbuch.de/feed/')]
+

@@ -11,7 +11,7 @@ from calibre.gui2.dialogs.confirm_delete_ui import Ui_Dialog
 
 class Dialog(QDialog, Ui_Dialog):
 
-    def __init__(self, msg, name, parent):
+    def __init__(self, msg, name, parent, config_set=dynamic):
         QDialog.__init__(self, parent)
         self.setupUi(self)
 
@@ -19,16 +19,18 @@ class Dialog(QDialog, Ui_Dialog):
         self.name = name
         self.again.stateChanged.connect(self.toggle)
         self.buttonBox.setFocus(Qt.OtherFocusReason)
+        self.config_set = config_set
 
     def toggle(self, *args):
-        dynamic[confirm_config_name(self.name)] = self.again.isChecked()
+        self.config_set[confirm_config_name(self.name)] = self.again.isChecked()
 
 
 def confirm(msg, name, parent=None, pixmap='dialog_warning.png', title=None,
-        show_cancel_button=True, confirm_msg=None):
-    if not dynamic.get(confirm_config_name(name), True):
+        show_cancel_button=True, confirm_msg=None, config_set=None):
+    config_set = config_set or dynamic
+    if not config_set.get(confirm_config_name(name), True):
         return True
-    d = Dialog(msg, name, parent)
+    d = Dialog(msg, name, parent, config_set=config_set)
     d.label.setPixmap(QPixmap(I(pixmap)))
     d.setWindowIcon(QIcon(I(pixmap)))
     if title is not None:

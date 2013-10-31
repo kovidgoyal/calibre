@@ -5,12 +5,12 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, posixpath
+import os, posixpath, weakref
 from functools import partial
 
 from PyQt4.Qt import (QMenu, Qt, QInputDialog, QToolButton, QDialog,
         QDialogButtonBox, QGridLayout, QLabel, QLineEdit, QIcon, QSize,
-        QCoreApplication, pyqtSignal)
+        QCoreApplication, pyqtSignal, QVBoxLayout, QTimer)
 
 from calibre import isbytestring, sanitize_file_name_unicode
 from calibre.constants import (filesystem_encoding, iswindows,
@@ -19,8 +19,11 @@ from calibre.utils.config import prefs, tweaks
 from calibre.utils.icu import sort_key
 from calibre.gui2 import (gprefs, warning_dialog, Dispatcher, error_dialog,
     question_dialog, info_dialog, open_local_file, choose_dir)
-from calibre.library.database2 import LibraryDatabase2
 from calibre.gui2.actions import InterfaceAction
+
+def db_class():
+    from calibre.db.legacy import LibraryDatabase
+    return LibraryDatabase
 
 class LibraryUsageStats(object):  # {{{
 
@@ -139,7 +142,7 @@ class MovedDialog(QDialog):  # {{{
 
     def accept(self):
         newloc = unicode(self.loc.text())
-        if not LibraryDatabase2.exists_at(newloc):
+        if not db_class().exists_at(newloc):
             error_dialog(self, _('No library found'),
                     _('No existing calibre library found at %s')%newloc,
                     show=True)
@@ -148,6 +151,49 @@ class MovedDialog(QDialog):  # {{{
         self.newloc = newloc
         QDialog.accept(self)
 # }}}
+
+class BackupStatus(QDialog):  # {{{
+
+    def __init__(self, gui):
+        QDialog.__init__(self, gui)
+        self.l = l = QVBoxLayout(self)
+        self.msg = QLabel('')
+        self.msg.setWordWrap(True)
+        l.addWidget(self.msg)
+        self.bb = bb = QDialogButtonBox(QDialogButtonBox.Close)
+        bb.accepted.connect(self.accept)
+        bb.rejected.connect(self.reject)
+        b = bb.addButton(_('Queue &all books for backup'), bb.ActionRole)
+        b.clicked.connect(self.mark_all_dirty)
+        b.setIcon(QIcon(I('lt.png')))
+        l.addWidget(bb)
+        self.db = weakref.ref(gui.current_db)
+        self.setResult(9)
+        self.setWindowTitle(_('Backup status'))
+        self.update()
+        self.resize(self.sizeHint() + QSize(50, 15))
+
+    def update(self):
+        db = self.db()
+        if db is None:
+            return
+        if self.result() != 9:
+            return
+        dirty_text = 'no'
+        try:
+            dirty_text = '%s' % db.dirty_queue_length()
+        except:
+            dirty_text = _('none')
+        self.msg.setText('<p>' +
+                _('Book metadata files remaining to be written: %s') % dirty_text)
+        QTimer.singleShot(1000, self.update)
+
+    def mark_all_dirty(self):
+        db = self.db()
+        db.new_api.mark_as_dirty(db.new_api.all_book_ids())
+
+# }}}
+
 
 class ChooseLibraryAction(InterfaceAction):
 
@@ -209,10 +255,6 @@ class ChooseLibraryAction(InterfaceAction):
                         'lt.png', None, None), attr='action_backup_status')
         ac.triggered.connect(self.backup_status, type=Qt.QueuedConnection)
         self.maintenance_menu.addAction(ac)
-        ac = self.create_action(spec=(_('Start backing up metadata of all books'),
-                        'lt.png', None, None), attr='action_backup_metadata')
-        ac.triggered.connect(self.mark_dirty, type=Qt.QueuedConnection)
-        self.maintenance_menu.addAction(ac)
         ac = self.create_action(spec=(_('Check library'), 'lt.png',
                                       None, None), attr='action_check_library')
         ac.triggered.connect(self.check_library, type=Qt.QueuedConnection)
@@ -247,16 +289,22 @@ class ChooseLibraryAction(InterfaceAction):
         path = path.replace(os.sep, '/')
         return self.stats.pretty(path)
 
+    def update_tooltip(self, count):
+        tooltip = self.action_spec[2] + '\n\n' + _('{0} [{1} books]').format(
+            getattr(self, 'last_lname', ''), count)
+        a = self.qaction
+        a.setToolTip(tooltip)
+        a.setStatusTip(tooltip)
+        a.setWhatsThis(tooltip)
+
     def library_changed(self, db):
         lname = self.stats.library_used(db)
-        tooltip = self.action_spec[2] + '\n\n' + _('{0} [{1} books]').format(lname, db.count())
+        self.last_lname = lname
         if len(lname) > 16:
             lname = lname[:16] + u'…'
         a = self.qaction
         a.setText(lname)
-        a.setToolTip(tooltip)
-        a.setStatusTip(tooltip)
-        a.setWhatsThis(tooltip)
+        self.update_tooltip(db.count())
         self.build_menus()
         state = self.view_state_map.get(self.stats.canonicalize_path(
             db.library_path), None)
@@ -285,19 +333,23 @@ class ChooseLibraryAction(InterfaceAction):
         for name, loc in locations:
             ac = self.quick_menu.addAction(name, Dispatcher(partial(self.switch_requested,
                 loc)))
+            ac.setStatusTip(_('Switch to: %s') % loc)
             quick_actions.append(ac)
             ac = self.rename_menu.addAction(name, Dispatcher(partial(self.rename_requested,
                 name, loc)))
             rename_actions.append(ac)
+            ac.setStatusTip(_('Rename: %s') % loc)
             ac = self.delete_menu.addAction(name, Dispatcher(partial(self.delete_requested,
                 name, loc)))
             delete_actions.append(ac)
+            ac.setStatusTip(_('Remove: %s') % loc)
 
         qs_actions = []
         for i, x in enumerate(locations[:len(self.switch_actions)]):
             name, loc = x
             ac = self.switch_actions[i]
             ac.setText(name)
+            ac.setStatusTip(_('Switch to: %s') % loc)
             ac.setVisible(True)
             qs_actions.append(ac)
 
@@ -313,6 +365,7 @@ class ChooseLibraryAction(InterfaceAction):
         self.qaction.setEnabled(enabled)
 
     def rename_requested(self, name, location):
+        LibraryDatabase = db_class()
         loc = location.replace('/', os.sep)
         base = os.path.dirname(loc)
         newname, ok = QInputDialog.getText(self.gui, _('Rename') + ' ' + name,
@@ -328,10 +381,10 @@ class ChooseLibraryAction(InterfaceAction):
                     _('The folder %s already exists. Delete it first.') %
                     newloc, show=True)
         if (iswindows and len(newloc) >
-                LibraryDatabase2.WINDOWS_LIBRARY_PATH_LIMIT):
+                LibraryDatabase.WINDOWS_LIBRARY_PATH_LIMIT):
             return error_dialog(self.gui, _('Too long'),
                     _('Path to library too long. Must be less than'
-                    ' %d characters.')%LibraryDatabase2.WINDOWS_LIBRARY_PATH_LIMIT,
+                    ' %d characters.')%LibraryDatabase.WINDOWS_LIBRARY_PATH_LIMIT,
                     show=True)
         if not os.path.exists(loc):
             error_dialog(self.gui, _('Not found'),
@@ -369,15 +422,8 @@ class ChooseLibraryAction(InterfaceAction):
             open_local_file(loc)
 
     def backup_status(self, location):
-        dirty_text = 'no'
-        try:
-            dirty_text = \
-                  unicode(self.gui.library_view.model().db.dirty_queue_length())
-        except:
-            dirty_text = _('none')
-        info_dialog(self.gui, _('Backup status'), '<p>'+
-                _('Book metadata files remaining to be written: %s') % dirty_text,
-                show=True)
+        self.__backup_status_dialog = d = BackupStatus(self.gui)
+        d.show()
 
     def mark_dirty(self):
         db = self.gui.library_view.model().db
@@ -387,16 +433,17 @@ class ChooseLibraryAction(InterfaceAction):
               'rate of approximately 1 book every three seconds.'), show=True)
 
     def restore_database(self):
+        LibraryDatabase = db_class()
         m = self.gui.library_view.model()
         db = m.db
         if (iswindows and len(db.library_path) >
-                LibraryDatabase2.WINDOWS_LIBRARY_PATH_LIMIT):
+                LibraryDatabase.WINDOWS_LIBRARY_PATH_LIMIT):
             return error_dialog(self.gui, _('Too long'),
                     _('Path to library too long. Must be less than'
                     ' %d characters. Move your library to a location with'
                     ' a shorter path using Windows Explorer, then point'
                     ' calibre to the new location and try again.')%
-                    LibraryDatabase2.WINDOWS_LIBRARY_PATH_LIMIT,
+                    LibraryDatabase.WINDOWS_LIBRARY_PATH_LIMIT,
                     show=True)
 
         from calibre.gui2.dialogs.restore_library import restore_database
@@ -490,7 +537,7 @@ class ChooseLibraryAction(InterfaceAction):
         # import weakref
         # from PyQt4.Qt import QTimer
         # self.dbref = weakref.ref(self.gui.library_view.model().db)
-        # self.before_mem = memory()/1024**2
+        # self.before_mem = memory()
         self.gui.library_moved(loc, allow_rebuild=True)
         # QTimer.singleShot(5000, self.debug_leak)
 
@@ -506,7 +553,7 @@ class ChooseLibraryAction(InterfaceAction):
                 print r
                 print
         print 'before:', self.before_mem
-        print 'after:', memory()/1024**2
+        print 'after:', memory()
         print
         self.dbref = self.before_mem = None
 
@@ -514,7 +561,7 @@ class ChooseLibraryAction(InterfaceAction):
         self.switch_requested(self.qs_locations[idx])
 
     def count_changed(self, new_count):
-        pass
+        self.update_tooltip(new_count)
 
     def choose_library(self, *args):
         if not self.change_library_allowed():

@@ -14,6 +14,7 @@ from functools import partial
 from calibre.ebooks.oeb.polish.container import get_container
 from calibre.ebooks.oeb.polish.stats import StatsCollector
 from calibre.ebooks.oeb.polish.subset import subset_all_fonts
+from calibre.ebooks.oeb.polish.embed import embed_all_fonts
 from calibre.ebooks.oeb.polish.cover import set_cover
 from calibre.ebooks.oeb.polish.replace import smarten_punctuation
 from calibre.ebooks.oeb.polish.jacket import (
@@ -21,6 +22,7 @@ from calibre.ebooks.oeb.polish.jacket import (
 from calibre.utils.logging import Log
 
 ALL_OPTS = {
+    'embed': False,
     'subset': False,
     'opf': None,
     'cover': None,
@@ -46,6 +48,13 @@ changes needed for the desired effect.</p>
 {0}
 <p>Note that polishing only works on files in the %s formats.</p>\
 ''')%_(' or ').join('<b>%s</b>'%x for x in SUPPORTED),
+
+'embed': _('''\
+<p>Embed all fonts that are referenced in the document and are not already embedded.
+This will scan your computer for the fonts, and if they are found, they will be
+embedded into the document.</p>
+<p>Please ensure that you have the proper license for embedding the fonts used in this document.</p>
+'''),
 
 'subset': _('''\
 <p>Subsetting fonts means reducing an embedded font to contain
@@ -118,8 +127,8 @@ def polish(file_map, opts, log, report):
         ebook = get_container(inbook, log)
         jacket = None
 
-        if opts.subset:
-            stats = StatsCollector(ebook)
+        if opts.subset or opts.embed:
+            stats = StatsCollector(ebook, do_embed=opts.embed)
 
         if opts.opf:
             rt(_('Updating metadata'))
@@ -157,6 +166,11 @@ def polish(file_map, opts, log, report):
         if opts.smarten_punctuation:
             rt(_('Smartening punctuation'))
             smarten_punctuation(ebook, report)
+            report('')
+
+        if opts.embed:
+            rt(_('Embedding referenced fonts'))
+            embed_all_fonts(ebook, stats, report)
             report('')
 
         if opts.subset:
@@ -197,6 +211,7 @@ def option_parser():
     parser = OptionParser(usage=USAGE)
     a = parser.add_option
     o = partial(a, default=False, action='store_true')
+    o('--embed-fonts', '-e', dest='embed', help=CLI_HELP['embed'])
     o('--subset-fonts', '-f', dest='subset', help=CLI_HELP['subset'])
     a('--cover', '-c', help=_(
         'Path to a cover image. Changes the cover specified in the ebook. '

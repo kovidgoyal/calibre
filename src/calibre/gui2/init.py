@@ -8,14 +8,16 @@ __docformat__ = 'restructuredtext en'
 import functools
 
 from PyQt4.Qt import (Qt, QApplication, QStackedWidget, QMenu, QTimer,
-        QSize, QSizePolicy, QStatusBar, QLabel, QFont)
+        QSize, QSizePolicy, QStatusBar, QLabel, QFont, QAction, QTabBar)
 
 from calibre.utils.config import prefs
+from calibre.utils.icu import sort_key
 from calibre.constants import (isosx, __appname__, preferred_encoding,
     get_version)
 from calibre.gui2 import config, is_widescreen, gprefs
 from calibre.gui2.library.views import BooksView, DeviceBooksView
-from calibre.gui2.widgets import Splitter
+from calibre.gui2.library.alternate_views import GridView
+from calibre.gui2.widgets import Splitter, LayoutButton
 from calibre.gui2.tag_browser.ui import TagBrowserWidget
 from calibre.gui2.book_details import BookDetails
 from calibre.gui2.notify import get_notifier
@@ -116,7 +118,13 @@ class LibraryWidget(Splitter):  # {{{
                 shortcut=_('Shift+Alt+B'))
         parent.library_view = BooksView(parent)
         parent.library_view.setObjectName('library_view')
-        self.addWidget(parent.library_view)
+        stack = QStackedWidget(self)
+        av = parent.library_view.alternate_views
+        av.set_stack(stack)
+        parent.grid_view = GridView(parent)
+        parent.grid_view.setObjectName('grid_view')
+        av.add_view('grid', parent.grid_view)
+        self.addWidget(stack)
 # }}}
 
 class Stack(QStackedWidget):  # {{{
@@ -161,8 +169,8 @@ class StatusBar(QStatusBar):  # {{{
 
     def __init__(self, parent=None):
         QStatusBar.__init__(self, parent)
-        self.base_msg = '%s %s' % (__appname__, get_version())
         self.version = get_version()
+        self.base_msg = '%s %s' % (__appname__, self.version)
         self.device_string = ''
         self.update_label = UpdateLabel('')
         self.total = self.current = self.selected = self.library_total = 0
@@ -234,9 +242,141 @@ class StatusBar(QStatusBar):  # {{{
 
 # }}}
 
+class GridViewButton(LayoutButton):  # {{{
+
+    def __init__(self, gui):
+        sc = _('Shift+Alt+G')
+        LayoutButton.__init__(self, I('grid.png'), _('Cover Grid'), parent=gui, shortcut=sc)
+        self.set_state_to_show()
+        self.action_toggle = QAction(self.icon(), _('Toggle') + ' ' + self.label, self)
+        gui.addAction(self.action_toggle)
+        gui.keyboard.register_shortcut('grid view toggle' + self.label, unicode(self.action_toggle.text()),
+                                    default_keys=(sc,), action=self.action_toggle)
+        self.action_toggle.triggered.connect(self.toggle)
+        self.toggled.connect(self.update_state)
+
+    def update_state(self, checked):
+        if checked:
+            self.set_state_to_hide()
+        else:
+            self.set_state_to_show()
+
+    def save_state(self):
+        gprefs['grid view visible'] = bool(self.isChecked())
+
+    def restore_state(self):
+        if gprefs.get('grid view visible', False):
+            self.toggle()
+
+
+# }}}
+
+class VLTabs(QTabBar):  # {{{
+
+    def __init__(self, parent):
+        QTabBar.__init__(self, parent)
+        self.setDocumentMode(True)
+        self.setDrawBase(False)
+        self.setMovable(True)
+        self.setTabsClosable(True)
+        self.gui = parent
+        self.currentChanged.connect(self.tab_changed)
+        self.tabMoved.connect(self.tab_moved, type=Qt.QueuedConnection)
+        self.tabCloseRequested.connect(self.tab_close)
+        self.setStyleSheet('QTabBar::tab:selected { font-weight: bold } QTabBar::tab { text-align: center }')
+        self.setVisible(gprefs['show_vl_tabs'])
+
+    def enable_bar(self):
+        gprefs['show_vl_tabs'] = True
+        self.setVisible(True)
+
+    def disable_bar(self):
+        gprefs['show_vl_tabs'] = False
+        self.setVisible(False)
+
+    def tab_changed(self, idx):
+        vl = unicode(self.tabData(idx).toString()).strip() or None
+        self.gui.apply_virtual_library(vl)
+
+    def tab_moved(self, from_, to):
+        self.current_db.prefs['virt_libs_order'] = [unicode(self.tabData(i).toString()) for i in range(self.count())]
+
+    def tab_close(self, index):
+        vl = unicode(self.tabData(index).toString())
+        if vl:  # Dont allow closing the All Books tab
+            self.current_db.prefs['virt_libs_hidden'] = list(
+                self.current_db.prefs['virt_libs_hidden']) + [vl]
+            self.removeTab(index)
+
+    @property
+    def current_db(self):
+        return self.gui.current_db
+
+    def rebuild(self):
+        self.currentChanged.disconnect(self.tab_changed)
+        db = self.current_db
+        virt_libs = frozenset(db.prefs.get('virtual_libraries', {}))
+        hidden = frozenset(db.prefs['virt_libs_hidden'])
+        if hidden - virt_libs:
+            db.prefs['virt_libs_hidden'] = list(hidden.intersection(virt_libs))
+        order = db.prefs['virt_libs_order']
+        while self.count():
+            self.removeTab(0)
+        current_lib = db.data.get_base_restriction_name()
+        current_idx = all_idx = None
+        virt_libs = (set(virt_libs) - hidden) | {''}
+        order = {x:i for i, x in enumerate(order)}
+        for i, vl in enumerate(sorted(virt_libs, key=lambda x:(order.get(x, 0), sort_key(x)))):
+            self.addTab(vl or _('All books'))
+            self.setTabData(i, vl)
+            if vl == current_lib:
+                current_idx = i
+            if not vl:
+                all_idx = i
+        self.setCurrentIndex(all_idx if current_idx is None else current_idx)
+        if current_idx is None and current_lib:
+            self.setTabText(all_idx, current_lib)
+        self.currentChanged.connect(self.tab_changed)
+        try:
+            self.tabButton(all_idx, self.RightSide).setVisible(False)
+        except AttributeError:
+            try:
+                self.tabButton(all_idx, self.LeftSide).setVisible(False)
+            except AttributeError:
+                # On some OS X machines (using native style) the tab button is
+                # on the left
+                pass
+
+    def update_current(self):
+        self.rebuild()
+
+    def contextMenuEvent(self, ev):
+        m = QMenu(self)
+        m.addAction(_('Sort alphabetically'), self.sort_alphabetically)
+        hidden = self.current_db.prefs['virt_libs_hidden']
+        if hidden:
+            s = m._s = m.addMenu(_('Restore hidden tabs'))
+            for x in hidden:
+                s.addAction(x, partial(self.restore, x))
+        m.addAction(_('Hide virtual library tabs'), self.disable_bar)
+        m.exec_(ev.globalPos())
+
+    def sort_alphabetically(self):
+        self.current_db.prefs['virt_libs_order'] = ()
+        self.rebuild()
+
+    def restore(self, x):
+        h = self.current_db.prefs['virt_libs_hidden']
+        self.current_db.prefs['virt_libs_hidden'] = list(set(h) - {x})
+        self.rebuild()
+
+# }}}
+
 class LayoutMixin(object):  # {{{
 
     def __init__(self):
+        self.vl_tabs = VLTabs(self)
+        self.centralwidget.layout().addWidget(self.vl_tabs)
 
         if config['gui_layout'] == 'narrow':  # narrow {{{
             self.book_details = BookDetails(False, self)
@@ -249,7 +389,7 @@ class LayoutMixin(object):  # {{{
             self.bd_splitter.addWidget(self.book_details)
             self.bd_splitter.setCollapsible(self.bd_splitter.other_index, False)
             self.centralwidget.layout().addWidget(self.bd_splitter)
-            button_order = ('tb', 'bd', 'cb')
+            button_order = ('tb', 'bd', 'gv', 'cb')
         # }}}
         else:  # wide {{{
             self.bd_splitter = Splitter('book_details_splitter',
@@ -264,13 +404,16 @@ class LayoutMixin(object):  # {{{
             self.bd_splitter.setSizePolicy(QSizePolicy(QSizePolicy.Expanding,
                 QSizePolicy.Expanding))
             self.centralwidget.layout().addWidget(self.bd_splitter)
-            button_order = ('tb', 'cb', 'bd')
+            button_order = ('tb', 'cb', 'gv', 'bd')
         # }}}
 
         self.status_bar = StatusBar(self)
         stylename = unicode(self.style().objectName())
+        self.grid_view_button = GridViewButton(self)
+        self.grid_view_button.toggled.connect(self.toggle_grid_view)
+
         for x in button_order:
-            button = getattr(self, x+'_splitter').button
+            button = self.grid_view_button if x == 'gv' else getattr(self, x+'_splitter').button
             button.setIconSize(QSize(24, 24))
             if isosx and stylename != u'Calibre':
                 button.setStyleSheet('''
@@ -314,6 +457,9 @@ class LayoutMixin(object):  # {{{
                     self.library_view.currentIndex())
         self.library_view.setFocus(Qt.OtherFocusReason)
 
+    def toggle_grid_view(self, show):
+        self.library_view.alternate_views.show_view('grid' if show else None)
+
     def bd_cover_changed(self, id_, cdata):
         self.library_view.model().db.set_cover(id_, cdata)
         if self.cover_flow:
@@ -337,11 +483,13 @@ class LayoutMixin(object):  # {{{
             s = getattr(self, x+'_splitter')
             s.update_desired_state()
             s.save_state()
+        self.grid_view_button.save_state()
 
     def read_layout_settings(self):
         # View states are restored automatically when set_database is called
         for x in ('cb', 'tb', 'bd'):
             getattr(self, x+'_splitter').restore_state()
+        self.grid_view_button.restore_state()
 
     def update_status_bar(self, *args):
         v = self.current_view()

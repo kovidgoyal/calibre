@@ -87,6 +87,25 @@ class FB2Input(InputFormatPlugin):
 
         transform = etree.XSLT(styledoc)
         result = transform(doc)
+
+        # Handle links of type note and cite
+        notes = {a.get('href')[1:]: a for a in result.xpath('//a[@link_note and @href]') if a.get('href').startswith('#')}
+        cites = {a.get('link_cite'): a for a in result.xpath('//a[@link_cite]') if not a.get('href', '')}
+        all_ids = {x for x in result.xpath('//*/@id')}
+        for cite, a in cites.iteritems():
+            note = notes.get(cite, None)
+            if note:
+                c = 1
+                while 'cite%d' % c in all_ids:
+                    c += 1
+                if not note.get('id', None):
+                    note.set('id', 'cite%d' % c)
+                    all_ids.add(note.get('id'))
+                a.set('href', '#%s' % note.get('id'))
+        for x in result.xpath('//*[@link_note or @link_cite]'):
+            x.attrib.pop('link_note', None)
+            x.attrib.pop('link_cite', None)
+
         for img in result.xpath('//img[@src]'):
             src = img.get('src')
             img.set('src', self.binary_map.get(src, src))

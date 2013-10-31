@@ -19,16 +19,16 @@ from calibre.library.server.utils import strftime, format_tag_string
 from calibre.ebooks.metadata import fmt_sidx
 from calibre.constants import __appname__
 from calibre import human_readable, isbytestring
-from calibre.utils.date import utcfromtimestamp
+from calibre.utils.date import utcfromtimestamp, as_local_time
 from calibre.utils.filenames import ascii_filename
 from calibre.utils.icu import sort_key
 
-def CLASS(*args, **kwargs): # class is a reserved word in Python
+def CLASS(*args, **kwargs):  # class is a reserved word in Python
     kwargs['class'] = ' '.join(args)
     return kwargs
 
 
-def build_search_box(num, search, sort, order, prefix): # {{{
+def build_search_box(num, search, sort, order, prefix):  # {{{
     div = DIV(id='search_box')
     form = FORM('Show ', method='get', action=prefix+'/mobile')
     form.set('accept-charset', 'UTF-8')
@@ -69,7 +69,7 @@ def build_search_box(num, search, sort, order, prefix): # {{{
     return div
     # }}}
 
-def build_navigation(start, num, total, url_base): # {{{
+def build_navigation(start, num, total, url_base):  # {{{
     end = min((start+num-1), total)
     tagline = SPAN('Books %d to %d of %d'%(start, end, total),
             style='display: block; text-align: center;')
@@ -150,7 +150,7 @@ def build_index(books, num, search, sort, order, start, total, url_base, CKEYS,
         first = SPAN(u'\u202f%s %s by %s' % (book['title'], series,
             book['authors']), CLASS('first-line'))
         div.append(first)
-        second = SPAN(u'%s - %s %s %s' % ( book['size'],
+        second = SPAN(u'%s - %s %s %s' % (book['size'],
             book['timestamp'],
             tags, ctext), CLASS('second-line'))
         div.append(second)
@@ -173,9 +173,9 @@ def build_index(books, num, search, sort, order, start, total, url_base, CKEYS,
             LINK(rel='stylesheet', type='text/css',
                 href=prefix+'/mobile/style.css'),
             LINK(rel='apple-touch-icon', href="/static/calibre.png")
-        ), # End head
+        ),  # End head
         body
-    ) # End html
+    )  # End html
 
 
 class MobileServer(object):
@@ -222,7 +222,7 @@ class MobileServer(object):
             search = ''
         if isbytestring(search):
             search = search.decode('UTF-8')
-        ids = self.db.search_getting_ids(search.strip(), self.search_restriction)
+        ids = self.search_for_books(search)
         FM = self.db.FIELD_MAP
         items = [r for r in iter(self.db) if r[FM['id']] in ids]
         if sort is not None:
@@ -254,7 +254,7 @@ class MobileServer(object):
                                              no_tag_count=True)
             book['title'] = record[FM['title']]
             for x in ('timestamp', 'pubdate'):
-                book[x] = strftime('%d %b, %Y', record[FM[x]])
+                book[x] = strftime('%d %b, %Y', as_local_time(record[FM[x]]))
             book['id'] = record[FM['id']]
             books.append(book)
             for key in CKEYS:

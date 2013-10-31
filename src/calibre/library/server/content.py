@@ -10,7 +10,7 @@ import re, os, posixpath
 import cherrypy
 
 from calibre import fit_image, guess_type
-from calibre.utils.date import fromtimestamp
+from calibre.utils.date import fromtimestamp, as_utc
 from calibre.library.caches import SortKeyGenerator
 from calibre.library.save_to_disk import find_plugboard
 from calibre.ebooks.metadata import authors_to_string
@@ -18,6 +18,7 @@ from calibre.utils.magick.draw import (save_cover_data_to, Image,
         thumbnail as generate_thumbnail)
 from calibre.utils.filenames import ascii_filename
 from calibre.ebooks.metadata.opf2 import metadata_to_opf
+from calibre.utils.config import tweaks
 
 plugboard_content_server_value = 'content_server'
 plugboard_content_server_formats = ['epub', 'mobi', 'azw3']
@@ -54,6 +55,7 @@ class ContentServer(object):
         Generates a locale independent, english timestamp from a datetime
         object
         '''
+        updated = as_utc(updated)
         lm = updated.strftime('day, %d month %Y %H:%M:%S GMT')
         day ={0:'Sun', 1:'Mon', 2:'Tue', 3:'Wed', 4:'Thu', 5:'Fri', 6:'Sat'}
         lm = lm.replace('day', day[int(updated.strftime('%w'))])
@@ -174,8 +176,13 @@ class ContentServer(object):
             cherrypy.response.headers['Last-Modified'] = self.last_modified(updated)
 
             if thumbnail:
-                return generate_thumbnail(cover,
-                        width=thumb_width, height=thumb_height)[-1]
+                quality = tweaks['content_server_thumbnail_compression_quality']
+                if quality < 50:
+                    quality = 50
+                elif quality > 99:
+                    quality = 99
+                return generate_thumbnail(cover, width=thumb_width,
+                        height=thumb_height, compression_quality=quality)[-1]
 
             img = Image()
             img.load(cover)

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import (unicode_literals, division, absolute_import, print_function)
-store_version = 4 # Needed for dynamic plugin loading
+store_version = 5  # Needed for dynamic plugin loading
 
 __license__ = 'GPL 3'
 __copyright__ = '2011-2013, Tomasz Długosz <tomek3d@gmail.com>'
@@ -56,20 +56,20 @@ class WoblinkStore(BasicStoreConfig, StorePlugin):
         counter = max_results
         with closing(br.open(url, timeout=timeout)) as f:
             doc = html.fromstring(f.read())
-            for data in doc.xpath('//div[@class="book-item backgroundmix"]'):
+            for data in doc.xpath('//div[@class="nw_katalog_lista_ksiazka"]'):
                 if counter <= 0:
                     break
 
-                id = ''.join(data.xpath('.//td[@class="w10 va-t mYHaveItYes"]/a[1]/@href'))
+                id = ''.join(data.xpath('.//div[@class="nw_katalog_lista_ksiazka_okladka nw_okladka"]/a[1]/@href'))
                 if not id:
                     continue
 
-                cover_url = ''.join(data.xpath('.//td[@class="w10 va-t mYHaveItYes"]/a[1]/img/@src'))
-                title = ''.join(data.xpath('.//h2[@class="title"]/a[1]/text()'))
-                author = ', '.join(data.xpath('.//td[@class="va-t"]/h3/a/text()'))
-                price = ''.join(data.xpath('.//div[@class="prices"]/span[1]/strong/span/text()'))
+                cover_url = ''.join(data.xpath('.//div[@class="nw_katalog_lista_ksiazka_okladka nw_okladka"]/a[1]/img/@src'))
+                title = ''.join(data.xpath('.//h2[@class="nw_katalog_lista_ksiazka_detale_tytul"]/a[1]/text()'))
+                author = ', '.join(data.xpath('.//h3[@class="nw_katalog_lista_ksiazka_detale_autor"]/a/text()'))
+                price = ''.join(data.xpath('.//div[@class="nw_katalog_lista_ksiazka_opcjezakupu_cena"]/span/text()'))
                 price = re.sub('\.', ',', price)
-                formats = [ form[8:-4].split('.')[0] for form in data.xpath('.//p[3]/img/@src')]
+                formats = ', '.join(data.xpath('.//p[@class="nw_katalog_lista_ksiazka_detale_formaty"]/span/text()'))
 
                 s = SearchResult()
                 s.cover_url = 'http://woblink.com' + cover_url
@@ -77,25 +77,16 @@ class WoblinkStore(BasicStoreConfig, StorePlugin):
                 s.author = author.strip()
                 s.price = price + ' zł'
                 s.detail_item = id.strip()
+                s.formats = formats
 
-                if 'epub_drm' in formats:
+                if 'EPUB DRM' in formats:
                     s.drm = SearchResult.DRM_LOCKED
-                    s.formats = 'EPUB'
-
-                    counter -= 1
-                    yield s
-                elif 'pdf' in formats:
-                    s.drm = SearchResult.DRM_LOCKED
-                    s.formats = 'PDF'
 
                     counter -= 1
                     yield s
                 else:
                     s.drm = SearchResult.DRM_UNLOCKED
-                    if 'MOBI_nieb' in formats:
-                        formats.remove('MOBI_nieb')
-                        formats.append('MOBI')
-                    s.formats = ', '.join(formats).upper()
 
                     counter -= 1
                     yield s
+

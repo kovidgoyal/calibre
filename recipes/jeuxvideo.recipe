@@ -1,0 +1,47 @@
+from __future__ import unicode_literals
+__license__   = 'GPL v3'
+__copyright__ = '2013, Malah <malah at neuf dot fr>'
+'''
+JeuxVideo.com
+'''
+
+__author__ = '2013, Malah <malah at neuf dot fr>'
+
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class JeuxVideoCom(BasicNewsRecipe):
+    title          = 'JeuxVideo.com'
+    __author__ = 'Malah'
+    description = 'La Référence des Jeux Vidéo sur PC et Consoles !'
+    oldest_article = 1.5
+    language = 'fr'
+    max_articles_per_feed = 100
+    remove_empty_feeds = True
+    use_embedded_content = False
+    no_stylesheets = True
+    ignore_duplicate_articles = {'title', 'url'}
+    keep_only_tags = [dict(id=['news_detail','test_txt','test_avis'])]
+    remove_tags = [
+        dict(name='div', attrs={'id':'player_video_article'}),
+        dict(name='div', attrs={'class':'liste-fiches'})
+    ]
+    masthead_url       = u'https://upload.wikimedia.org/wikipedia/commons/3/39/Jeuxvideocom.png'
+    feeds =  [
+        (u'Section PC',u'http://www.jeuxvideo.com/rss/rss-pc.xml'),
+        (u'Section Xbox One',u'http://www.jeuxvideo.com/rss/rss-xo.xml'),
+        (u'Section PlayStation 4',u'http://www.jeuxvideo.com/rss/rss-ps4.xml'),
+        (u'Section Xbox 360',u'http://www.jeuxvideo.com/rss/rss-360.xml'),
+        (u'Section PlayStation 3',u'http://www.jeuxvideo.com/rss/rss-ps3.xml'),
+        (u'Section Wii U',u'http://www.jeuxvideo.com/rss/rss-wiiu.xml'),
+        (u'Section Wii',u'http://www.jeuxvideo.com/rss/rss-wii.xml'),
+        (u'Section Nintendo 3DS',u'http://www.jeuxvideo.com/rss/rss-3ds.xml'),
+        (u'Section Nintendo DS',u'http://www.jeuxvideo.com/rss/rss-ds.xml'),
+        (u'Section PlayStation Vita',u'http://www.jeuxvideo.com/rss/rss-vita.xml'),
+        (u'Section PlayStation Protable',u'http://www.jeuxvideo.com/rss/rss-psp.xml'),
+        (u'Section Android',u'http://www.jeuxvideo.com/rss/rss-android.xml'),
+        (u'Section Iphone',u'http://www.jeuxvideo.com/rss/rss-iphone.xml'),
+        (u'Section Web',u'http://www.jeuxvideo.com/rss/rss-wb.xml'),
+        (u'Autres news', u'http://www.jeuxvideo.com/rss/rss-news.xml'),
+        (u'Autres vidéos', u'http://www.jeuxvideo.com/rss/rss-videos.xml'),
+        (u'Autres articles', u'http://www.jeuxvideo.com/rss/rss.xml'),
+    ]

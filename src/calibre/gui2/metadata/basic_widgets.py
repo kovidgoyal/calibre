@@ -9,11 +9,11 @@ __docformat__ = 'restructuredtext en'
 
 import textwrap, re, os, errno, shutil
 
-from PyQt4.Qt import (Qt, QDateTimeEdit, pyqtSignal, QMessageBox, QIcon,
-        QToolButton, QWidget, QLabel, QGridLayout, QApplication,
-        QDoubleSpinBox, QListWidgetItem, QSize, QPixmap, QDialog, QMenu,
-        QPushButton, QSpinBox, QLineEdit, QSizePolicy, QDialogButtonBox,
-        QAction, QCalendarWidget, QDate, QDateTime)
+from PyQt4.Qt import (
+    Qt, QDateTimeEdit, pyqtSignal, QMessageBox, QIcon, QToolButton, QWidget,
+    QLabel, QGridLayout, QApplication, QDoubleSpinBox, QListWidgetItem, QSize,
+    QPixmap, QDialog, QMenu, QSpinBox, QLineEdit, QSizePolicy,
+    QDialogButtonBox, QAction, QCalendarWidget, QDate, QDateTime)
 
 from calibre.gui2.widgets import EnLineEdit, FormatList as _FormatList, ImageView
 from calibre.utils.icu import sort_key
@@ -24,8 +24,8 @@ from calibre.ebooks.metadata.meta import get_metadata
 from calibre.gui2 import (file_icon_provider, UNDEFINED_QDATETIME,
         choose_files, error_dialog, choose_images)
 from calibre.gui2.complete2 import EditWithComplete
-from calibre.utils.date import (local_tz, qt_to_dt, as_local_time,
-        UNDEFINED_DATE)
+from calibre.utils.date import (
+    local_tz, qt_to_dt, as_local_time, UNDEFINED_DATE, is_date_undefined)
 from calibre import strftime
 from calibre.ebooks import BOOK_EXTENSIONS
 from calibre.customize.ui import run_plugins_on_import
@@ -861,14 +861,16 @@ class FormatsManager(QWidget):
             if fmt.path is None:
                 stream = db.format(id_, ext, as_file=True, index_is_id=True)
             else:
-                stream = open(fmt.path, 'r+b')
+                stream = open(fmt.path, 'rb')
             try:
                 with stream:
                     mi = get_metadata(stream, ext)
                 return mi, ext
             except:
+                import traceback
                 error_dialog(self, _('Could not read metadata'),
-                            _('Could not read metadata from %s format')%ext).exec_()
+                            _('Could not read metadata from %s format')%ext.upper(),
+                             det_msg=traceback.format_exc(), show=True)
             return None, None
         finally:
             if old != prefs['read_file_metadata']:
@@ -890,29 +892,37 @@ class Cover(ImageView):  # {{{
     download_cover = pyqtSignal()
 
     def __init__(self, parent):
-        ImageView.__init__(self, parent)
-        self.show_size = True
+        ImageView.__init__(self, parent, show_size_pref_name='edit_metadata_cover_widget', default_show_size=True)
         self.dialog = parent
         self._cdata = None
+        self.cdata_before_trim = None
         self.cover_changed.connect(self.set_pixmap_from_data)
 
-        self.select_cover_button = QPushButton(QIcon(I('document_open.png')),
-                _('&Browse'), parent)
-        self.trim_cover_button = QPushButton(QIcon(I('trim.png')),
-                _('T&rim'), parent)
-        self.remove_cover_button = QPushButton(QIcon(I('trash.png')),
-            _('&Remove'), parent)
+        class CB(QToolButton):
 
-        self.select_cover_button.clicked.connect(self.select_cover)
-        self.remove_cover_button.clicked.connect(self.remove_cover)
-        self.trim_cover_button.clicked.connect(self.trim_cover)
+            def __init__(self, text, icon=None, action=None):
+                QToolButton.__init__(self, parent)
+                self.setText(text)
+                if icon is not None:
+                    self.setIcon(QIcon(I(icon)))
+                self.setSizePolicy(QSizePolicy.MinimumExpanding, QSizePolicy.Preferred)
+                self.setToolButtonStyle(Qt.ToolButtonTextBesideIcon)
+                if action is not None:
+                    self.clicked.connect(action)
 
-        self.download_cover_button = QPushButton(_('Download co&ver'), parent)
-        self.generate_cover_button = QPushButton(_('&Generate cover'), parent)
+        self.select_cover_button = CB(_('&Browse'), 'document_open.png', self.select_cover)
+        self.trim_cover_button = b = CB(_('T&rim borders'), 'trim.png', self.trim_cover)
+        b.setToolTip(_(
+            'Automatically detect and remove extra space at the cover\'s edges.\n'
+            'Pressing it repeatedly can sometimes remove stubborn borders.'))
+        b.m = m = QMenu()
+        b.setPopupMode(QToolButton.DelayedPopup)
+        m.addAction(QIcon(I('edit-undo.png')), _('Undo last trim'), self.undo_trim)
+        b.setMenu(m)
+        self.remove_cover_button = CB(_('&Remove'), 'trash.png', self.remove_cover)
 
-        self.download_cover_button.clicked.connect(self.download_cover)
-        self.generate_cover_button.clicked.connect(self.generate_cover)
-
+        self.download_cover_button = CB(_('Download co&ver'), 'arrow-down.png', self.download_cover)
+        self.generate_cover_button = CB(_('&Generate cover'), 'default_cover.png', self.generate_cover)
         self.buttons = [self.select_cover_button, self.remove_cover_button,
                 self.trim_cover_button, self.download_cover_button,
                 self.generate_cover_button]
@@ -920,6 +930,11 @@ class Cover(ImageView):  # {{{
         self.frame_size = (300, 400)
         self.setSizePolicy(QSizePolicy(QSizePolicy.Preferred,
             QSizePolicy.Preferred))
+
+    def undo_trim(self):
+        if self.cdata_before_trim:
+            self.current_val = self.cdata_before_trim
+            self.cdata_before_trim = None
 
     def frame_resized(self, ev):
         sz = ev.size()
@@ -971,9 +986,9 @@ class Cover(ImageView):  # {{{
             return
         im = Image()
         im.load(cdata)
-        im.trim(10)
-        cdata = im.export('png')
-        self.current_val = cdata
+        im.trim(tweaks['cover_trim_fuzz_value'])
+        self.current_val = im.export('png')
+        self.cdata_before_trim = cdata
 
     def generate_cover(self, *args):
         from calibre.ebooks import calibre_cover
@@ -1009,6 +1024,7 @@ class Cover(ImageView):  # {{{
 
     def initialize(self, db, id_):
         self._cdata = None
+        self.cdata_before_trim = None
         self.current_val = db.cover(id_, index_is_id=True)
         self.original_val = self.current_val
 
@@ -1022,6 +1038,7 @@ class Cover(ImageView):  # {{{
             return self._cdata
         def fset(self, cdata):
             self._cdata = None
+            self.cdata_before_trim = None
             pm = QPixmap()
             if cdata:
                 pm.loadFromData(cdata)
@@ -1246,11 +1263,12 @@ class IdentifiersEdit(QLineEdit):  # {{{
                 c = x.split(':')
                 if len(c) > 1:
                     itype = c[0].lower()
+                    c = ':'.join(c[1:])
                     if itype == 'isbn':
-                        v = check_isbn(c[1])
+                        v = check_isbn(c)
                         if v is not None:
-                            c[1] = v
-                    ans[itype] = c[1]
+                            c = v
+                    ans[itype] = c
             return ans
         def fset(self, val):
             if not val:
@@ -1453,7 +1471,7 @@ class DateEdit(QDateTimeEdit):
         def fget(self):
             return qt_to_dt(self.dateTime(), as_utc=False)
         def fset(self, val):
-            if val is None:
+            if val is None or is_date_undefined(val):
                 val = UNDEFINED_DATE
             else:
                 val = as_local_time(val)

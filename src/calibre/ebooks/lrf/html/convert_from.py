@@ -104,7 +104,7 @@ class HTMLConverter(object):
 
                         # Replace entities
                         (re.compile(ur'&(\S+?);'), partial(entity_to_unicode,
-                                                           exceptions=['lt', 'gt', 'amp'])),
+                                                           exceptions=['lt', 'gt', 'amp', 'quot'])),
                         # Remove comments from within style tags as they can mess up BeatifulSoup
                         (re.compile(r'(<style.*?</style>)', re.IGNORECASE|re.DOTALL),
                          strip_style_comments),

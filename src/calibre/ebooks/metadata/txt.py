@@ -7,7 +7,7 @@ __copyright__ = '2009, John Schember <john@nachtimwald.com>'
 Read meta information from TXT files
 '''
 
-import re
+import re, os
 
 from calibre.ebooks.metadata import MetaInformation
 
@@ -15,7 +15,10 @@ def get_metadata(stream, extract_cover=True):
     '''
     Return metadata as a L{MetaInfo} object
     '''
-    mi = MetaInformation(_('Unknown'), [_('Unknown')])
+    name = getattr(stream, 'name', '').rpartition('.')[0]
+    if name:
+        name = os.path.basename(name)
+    mi = MetaInformation(name or _('Unknown'), [_('Unknown')])
     stream.seek(0)
 
     mdata = u''
@@ -29,7 +32,7 @@ def get_metadata(stream, extract_cover=True):
     mdata = mdata[:100]
 
     mo = re.search('(?u)^[ ]*(?P<title>.+)[ ]*(\n{3}|(\r\n){3}|\r{3})[ ]*(?P<author>.+)[ ]*(\n|\r\n|\r)$', mdata)
-    if mo != None:
+    if mo is not None:
         mi.title = mo.group('title')
         mi.authors = mo.group('author').split(',')
 

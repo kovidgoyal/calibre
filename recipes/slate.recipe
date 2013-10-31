@@ -7,31 +7,29 @@ __license__   = 'GPL v3'
 calibre recipe for slate.com
 '''
 
-import re
 from calibre.web.feeds.recipes import BasicNewsRecipe
 
 class Slate(BasicNewsRecipe):
+    title = 'Slate'
     description             = 'A general-interest publication offering analysis and commentary about politics, news and culture.'
     __author__              = 'Kovid Goyal'
     timefmt                 = ''
     no_stylesheets          = True
     language = 'en'
-    title = 'Slate'
-    INDEX = 'http://slate.com'
     encoding = 'utf-8'
-    preprocess_regexps = [
-            (re.compile(r'<!--.*?-->', re.DOTALL), lambda x: ''),
-            (re.compile(r'^.*?<html', re.DOTALL), lambda x:'<html'),
-            (re.compile(r'<meta[^>]+?/>', re.DOTALL), lambda x:''),
-            ]
-    remove_tags = [
-            {'name':['link', 'script']},
-            {'class':['share-box-flank', 'sl-crumbs', 'sl-tbar',
-                'sl-chunky-tbar']},
-            ]
-    remove_tags_after = [{'class':'sl-art-creds-cntr'}]
-    keep_only_tags = {'class':'sl-body-wrapper'}
+    masthead_url = 'http://img.slate.com/images/redesign2008/slate_logo.gif'
     remove_attributes = ['style']
+    INDEX = 'http://slate.com'
+    compress_news_images = True
+
+    keep_only_tags = [
+        dict(name='header', attrs={'class':'article-header'}),
+        dict(name='section', attrs={'class':'content'}),
+    ]
+    remove_tags = [
+        dict(id='header_social'),
+        dict(attrs={'class':['prop-name', 'prop-desc', 'authorbox']}),
+    ]
 
     def print_version(self, url):
         return url.replace('.html', '.single.html')
@@ -49,48 +47,32 @@ class Slate(BasicNewsRecipe):
                 ('Double X', '/articles/double_x.html'),
                 ):
             url = self.INDEX + url
-            self.log('Found section:', sectitle)
+            self.log('\nFound section:', sectitle)
             articles = self.slate_section_articles(self.index_to_soup(url))
             if articles:
                 ans.append((sectitle, articles))
+            if self.test and len(ans) > 1:
+                break
         return ans
 
     def slate_section_articles(self, soup):
-        cont = soup.find('div', id='most_read')
-        seen = set()
         ans = []
-        for h4 in cont.findAll('h4'):
-            a = h4.find('a', href=True)
-            if a is None: continue
+        main = soup.find('article', attrs={'class':'main'})
+        for a in main.findAll('a', attrs={'class':'primary'}):
             url = a['href']
-            if url.startswith('/'):
-                url = self.INDEX + url
-            if url in seen: continue
-            seen.add(url)
-            title = self.tag_to_string(a)
-            parent = h4.parent
-            h3 = parent.find('h3')
+            if url.endswith('/'):
+                continue
+            p = a.parent
+            title = p.find(attrs={'class':'hed'})
+            if title is None:
+                continue
+            title = self.tag_to_string(title)
+            span = p.find(attrs={'class':'byline'})
             desc = ''
-            if h3 is not None:
-                desc = self.tag_to_string(h3)
-            a = parent.find('a', rel='author')
-            if a is not None:
-                a = self.tag_to_string(a)
-            art = {'title':title, 'description':desc, 'date':'', 'url':url}
-            if a:
-                art['author'] = a
-            self.log('\tFound article:', title, ' by ', a)
-            ans.append(art)
+            if span is not None:
+                desc = self.tag_to_string(span)
+            self.log('\t' + title)
+            self.log('\t\t' + url)
+            ans.append({'title':title, 'description':desc, 'date':'', 'url':url})
         return ans
-
-    def get_masthead_url(self):
-        masthead = 'http://img.slate.com/images/redesign2008/slate_logo.gif'
-        br = BasicNewsRecipe.get_browser(self)
-        try:
-            br.open(masthead)
-        except:
-            self.log("\nMasthead unavailable")
-            masthead = None
-        return masthead
-
 

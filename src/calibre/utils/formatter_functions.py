@@ -22,9 +22,16 @@ from calibre.utils.localization import calibre_langcode_to_name, canonicalize_la
 
 class FormatterFunctions(object):
 
+    error_function_body = ('def evaluate(self, formatter, kwargs, mi, locals):\n'
+                       '\treturn "' +
+                            _('Duplicate user function name {0}. '
+                              'Change the name or ensure that the functions are identical')
+                                       + '"')
+
     def __init__(self):
         self._builtins = {}
         self._functions = {}
+        self._functions_from_library = {}
 
     def register_builtin(self, func_class):
         if not isinstance(func_class, FormatterFunction):
@@ -38,14 +45,44 @@ class FormatterFunctions(object):
         for a in func_class.aliases:
             self._functions[a] = func_class
 
-    def register_function(self, func_class):
+    def _register_function(self, func_class, replace=False):
         if not isinstance(func_class, FormatterFunction):
             raise ValueError('Class %s is not an instance of FormatterFunction'%(
                                     func_class.__class__.__name__))
         name = func_class.name
-        if name in self._functions:
+        if not replace and name in self._functions:
             raise ValueError('Name %s already used'%name)
         self._functions[name] = func_class
+
+    def register_functions(self, library_uuid, funcs):
+        self._functions_from_library[library_uuid] = funcs
+        self._register_functions()
+
+    def _register_functions(self):
+        for compiled_funcs in self._functions_from_library.itervalues():
+            for cls in compiled_funcs:
+                f = self._functions.get(cls.name, None)
+                replace = False
+                if f is not None:
+                    existing_body = f.program_text
+                    new_body = cls.program_text
+                    if new_body != existing_body:
+                        # Change the body of the template function to one that will
+                        # return an error message. Also change the arg count to
+                        # -1 (variable) to avoid template compilation errors
+                        replace = True
+                        func = [cls.name, '', -1, self.error_function_body.format(cls.name)]
+                        cls = compile_user_function(*func)
+                    else:
+                        continue
+                formatter_functions()._register_function(cls, replace=replace)
+
+    def unregister_functions(self, library_uuid):
+        if library_uuid in self._functions_from_library:
+            for cls in self._functions_from_library[library_uuid]:
+                self._functions.pop(cls.name, None)
+            self._functions_from_library.pop(library_uuid)
+            self._register_functions()
 
     def get_builtins(self):
         return self._builtins
@@ -552,7 +589,7 @@ class BuiltinCount(BuiltinFormatterFunction):
             'uses an ampersand. Examples: {tags:count(,)}, {authors:count(&)}')
 
     def evaluate(self, formatter, kwargs, mi, locals, val, sep):
-        return unicode(len(val.split(sep)))
+        return unicode(len([v for v in val.split(sep) if v]))
 
 class BuiltinListitem(BuiltinFormatterFunction):
     name = 'list_item'
@@ -603,15 +640,22 @@ class BuiltinApproximateFormats(BuiltinFormatterFunction):
                   'although it probably is. '
                   'This function can be called in template program mode using '
                   'the template "{:\'approximate_formats()\'}". '
-                  'Note that format names are always uppercase, as in EPUB.'
+                  'Note that format names are always uppercase, as in EPUB. '
+                  'This function works only in the GUI. If you want to use these values '
+                  'in save-to-disk or send-to-device templates then you '
+                  'must make a custom "Column built from other columns", use '
+                  'the function in that column\'s template, and use that '
+                  'column\'s value in your save/send templates'
             )
 
     def evaluate(self, formatter, kwargs, mi, locals):
-        fmt_data = mi.get('db_approx_formats', [])
-        if not fmt_data:
-            return ''
-        data = sorted(fmt_data)
-        return ','.join(v.upper() for v in data)
+        if hasattr(mi, '_proxy_metadata'):
+            fmt_data = mi._proxy_metadata.db_approx_formats
+            if not fmt_data:
+                return ''
+            data = sorted(fmt_data)
+            return ','.join(v.upper() for v in data)
+        return _('This function can be used only in the GUI')
 
 class BuiltinFormatsModtimes(BuiltinFormatterFunction):
     name = 'formats_modtimes'
@@ -865,27 +909,42 @@ class BuiltinBooksize(BuiltinFormatterFunction):
     name = 'booksize'
     arg_count = 0
     category = 'Get values from metadata'
-    __doc__ = doc = _('booksize() -- return value of the size field')
+    __doc__ = doc = _('booksize() -- return value of the size field. '
+                'This function works only in the GUI. If you want to use this value '
+                'in save-to-disk or send-to-device templates then you '
+                'must make a custom "Column built from other columns", use '
+                'the function in that column\'s template, and use that '
+                'column\'s value in your save/send templates')
 
     def evaluate(self, formatter, kwargs, mi, locals):
-        if mi.book_size is not None:
+        if hasattr(mi, '_proxy_metadata'):
             try:
-                return str(mi.book_size)
+                v = mi._proxy_metadata.book_size
+                if v is not None:
+                    return str(mi._proxy_metadata.book_size)
+                return ''
             except:
                 pass
-        return ''
+            return ''
+        return _('This function can be used only in the GUI')
 
 class BuiltinOndevice(BuiltinFormatterFunction):
     name = 'ondevice'
     arg_count = 0
     category = 'Get values from metadata'
     __doc__ = doc = _('ondevice() -- return Yes if ondevice is set, otherwise return '
-            'the empty string')
+              'the empty string. This function works only in the GUI. If you want to '
+              'use this value in save-to-disk or send-to-device templates then you '
+              'must make a custom "Column built from other columns", use '
+              'the function in that column\'s template, and use that '
+              'column\'s value in your save/send templates')
 
     def evaluate(self, formatter, kwargs, mi, locals):
-        if mi.ondevice_col:
-            return _('Yes')
-        return ''
+        if hasattr(mi, '_proxy_metadata'):
+            if mi._proxy_metadata.ondevice_col:
+                return _('Yes')
+            return ''
+        return _('This function can be used only in the GUI')
 
 class BuiltinSeriesSort(BuiltinFormatterFunction):
     name = 'series_sort'
@@ -1128,7 +1187,7 @@ class BuiltinDaysBetween(BuiltinFormatterFunction):
         except:
             return ''
         i = d1 - d2
-        return str('%d.%d'%(i.days, i.seconds/8640))
+        return '%.1f'%(i.days + (i.seconds/(24.0*60.0*60.0)))
 
 class BuiltinLanguageStrings(BuiltinFormatterFunction):
     name = 'language_strings'
@@ -1209,6 +1268,23 @@ class BuiltinFinishFormatting(BuiltinFormatterFunction):
             return val
         return prefix + formatter._do_format(val, fmt) + suffix
 
+class BuiltinVirtualLibraries(BuiltinFormatterFunction):
+    name = 'virtual_libraries'
+    arg_count = 0
+    category = 'Get values from metadata'
+    __doc__ = doc = _('virtual_libraries() -- return a comma-separated list of '
+                      'virtual libraries that contain this book. This function '
+                      'works only in the GUI. If you want to use these values '
+                      'in save-to-disk or send-to-device templates then you '
+                      'must make a custom "Column built from other columns", use '
+                      'the function in that column\'s template, and use that '
+                      'column\'s value in your save/send templates')
+
+    def evaluate(self, formatter, kwargs, mi, locals_):
+        if hasattr(mi, '_proxy_metadata'):
+            return mi._proxy_metadata.virtual_libraries
+        return _('This function can be used only in the GUI')
+
 _formatter_builtins = [
     BuiltinAdd(), BuiltinAnd(), BuiltinApproximateFormats(),
     BuiltinAssign(), BuiltinBooksize(),
@@ -1230,7 +1306,7 @@ _formatter_builtins = [
     BuiltinStrcmp(), BuiltinStrInList(), BuiltinStrlen(), BuiltinSubitems(),
     BuiltinSublist(),BuiltinSubstr(), BuiltinSubtract(), BuiltinSwapAroundComma(),
     BuiltinSwitch(), BuiltinTemplate(), BuiltinTest(), BuiltinTitlecase(),
-    BuiltinToday(), BuiltinUppercase(),
+    BuiltinToday(), BuiltinUppercase(), BuiltinVirtualLibraries()
 ]
 
 class FormatterUserFunction(FormatterFunction):
@@ -1259,11 +1335,25 @@ class UserFunction(FormatterUserFunction):
     cls = locals_['UserFunction'](name, doc, arg_count, eval_func)
     return cls
 
-def load_user_template_functions(funcs):
-    formatter_functions().reset_to_builtins()
+
+def load_user_template_functions(library_uuid, funcs):
+    unload_user_template_functions(library_uuid)
+
+    compiled_funcs = []
     for func in funcs:
         try:
-            cls = compile_user_function(*func)
-            formatter_functions().register_function(cls)
+            # Force a name conflict to test the logic
+            # if func[0] == 'myFunc2':
+            #     func[0] = 'myFunc3'
+
+            # Compile the function so that the tab processing is done on the
+            # source. This helps ensure that if the function already is defined
+            # then white space differences don't cause them to compare differently
+
+            compiled_funcs.append(compile_user_function(*func))
         except:
             traceback.print_exc()
+    formatter_functions().register_functions(library_uuid, compiled_funcs)
+
+def unload_user_template_functions(library_uuid):
+    formatter_functions().unregister_functions(library_uuid)

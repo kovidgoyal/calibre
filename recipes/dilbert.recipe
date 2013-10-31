@@ -6,6 +6,7 @@ DrMerry added cover Image 2011-11-12
 '''
 
 from calibre.web.feeds.recipes import BasicNewsRecipe
+from calibre.ebooks.BeautifulSoup import BeautifulSoup
 import re
 
 class DilbertBig(BasicNewsRecipe):
@@ -16,7 +17,7 @@ class DilbertBig(BasicNewsRecipe):
     oldest_article         = 15
     max_articles_per_feed  = 100
     no_stylesheets         = True
-    use_embedded_content   = True
+    use_embedded_content   = False
     encoding               = 'utf-8'
     publisher              = 'UNITED FEATURE SYNDICATE, INC.'
     category               = 'comic'
@@ -30,25 +31,14 @@ class DilbertBig(BasicNewsRecipe):
                             ,'publisher'       : publisher
                          }
 
-    feeds = [(u'Dilbert', u'http://feed.dilbert.com/dilbert/daily_strip' )]
-
-    def get_article_url(self, article):
-        return article.get('feedburner_origlink', None)
+    feeds = [(u'Dilbert', u'http://feed.dilbert.com/dilbert/daily_strip')]
 
     preprocess_regexps = [
         (re.compile('strip\..*\.gif', re.DOTALL|re.IGNORECASE), lambda match: 'strip.zoom.gif')
         ]
 
     def preprocess_html(self, soup):
-       for tag in soup.findAll(name='a'):
-           if tag['href'].find('http://feedads') >= 0:
-              tag.extract()
-       return soup
+        for tag in soup.findAll(name='input'):
+            image = BeautifulSoup('<img src=' + tag['value'] + '></img>')
+        return image
 
-    extra_css = '''
-                    h1{font-family:Arial,Helvetica,sans-serif; font-weight:bold;font-size:large;}
-                    h2{font-family:Arial,Helvetica,sans-serif; font-weight:normal;font-size:small;}
-                    img {max-width:100%; min-width:100%;}
-                    p{font-family:Arial,Helvetica,sans-serif;font-size:small;}
-                    body{font-family:Helvetica,Arial,sans-serif;font-size:small;}
-		'''

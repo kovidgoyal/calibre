@@ -1,3 +1,6 @@
+# -*- mode:python -*-
+from __future__ import unicode_literals
+
 __license__   = 'GPL v3'
 __copyright__ = '2009, Mathieu Godlewski <mathieu at godlewski.fr>; 2010-2012, Louis Gesbert <meta at antislash dot info>'
 '''
@@ -6,57 +9,164 @@ Mediapart
 
 __author__ = '2009, Mathieu Godlewski <mathieu at godlewski.fr>; 2010-2012, Louis Gesbert <meta at antislash dot info>'
 
-from calibre.ebooks.BeautifulSoup import BeautifulSoup, Tag
+import re
+from calibre.ebooks.BeautifulSoup import BeautifulSoup
 from calibre.web.feeds.news import BasicNewsRecipe
+from calibre.web.feeds import feeds_from_index
+from datetime import date,timedelta
 
 class Mediapart(BasicNewsRecipe):
-    title          = 'Mediapart'
+    title = 'Mediapart'
     __author__ = 'Mathieu Godlewski, Louis Gesbert'
     description = 'Global news in french from news site Mediapart'
-    oldest_article = 7
+    publication_type = 'newspaper'
     language = 'fr'
     needs_subscription = True
-    max_articles_per_feed = 50
+    oldest_article = 2
 
     use_embedded_content = False
     no_stylesheets = True
 
-    cover_url = 'http://static.mediapart.fr/files/pave_mediapart.jpg'
+    cover_url = 'https://static.mediapart.fr/files/M%20Philips/logo-mediapart.png'
+
+# --
+
+    oldest_article_date = date.today() - timedelta(days=oldest_article)
+
+# -- get the index (the feed at 'http://www.mediapart.fr/articles/feed' only has
+#    the 10 last elements :/)
 
     feeds =  [
-        ('Les articles', 'http://www.mediapart.fr/articles/feed'),
+        ('La Une', 'http://www.mediapart.fr/articles/feed'),
     ]
+
+    def parse_feeds(self):
+        feeds = super(Mediapart, self).parse_feeds()
+        feeds += feeds_from_index(self.my_parse_index(feeds))
+        return feeds
+
+    def my_parse_index(self, la_une):
+        articles = []
+
+        breves = []
+        liens = []
+        confidentiels = []
+
+        soup = self.index_to_soup('https://www.mediapart.fr/journal/fil-dactualites')
+        page = soup.find('div', {'id':'pageFirstContent'})
+        fils = page.find('div', {'class':re.compile(r'\bcontent-journal\b')})
+
+        for article in fils.findAll('div'):
+            try:
+                title = article.find('h2',recursive=False)
+                if title is None or title['class'] == 'title-specific':
+                    continue
+
+                # print "found fil ",title
+                article_type = article.find('a', {'href': re.compile(r'.*\/type-darticles\/.*')}).renderContents()
+                # print "kind: ",article_type
+
+                for s in title('span'):
+                    s.replaceWith(s.renderContents() + "\n")
+                url = title.find('a', href=True)['href']
+
+                article_date = self.parse_french_date(article.find("span", "article-date").renderContents())
+
+                if article_date < self.oldest_article_date:
+                    # print "too old"
+                    continue
+
+                authors = article.findAll('a',{'class':re.compile(r'\bjournalist\b')})
+                authors = [self.tag_to_string(a) for a in authors]
+
+                description = article.find('div', {'class': lambda c: c != 'taxonomy-teaser'}, recursive=False).findAll('p')
+
+                # print "fil ",title," by ",authors," : ",description
+
+                summary = {
+                    'title': self.tag_to_string(title).strip(),
+                    'author': ', '.join(authors),
+                    'url': url,
+                    'date': u'' + article_date.strftime("%A %d %b %Y"),
+                    'description': '\n'.join([self.tag_to_string(d) for d in description]),
+                }
+                {
+                    "Brève": breves,
+                    "Lien": liens,
+                    "Confidentiel": confidentiels,
+                }.get(article_type).append(summary)
+            except:
+                pass
+
+        # print 'La Une: ', len(la_une), ' articles'
+        # for a in la_une: print a["title"]
+        # print 'Brèves: ', len(breves), ' articles'
+        # print 'Revue web: ', len(liens), ' articles'
+        # print 'Confidentiel: ', len(confidentiels), ' articles'
+
+        articles += [('Brèves', breves)] if breves else []
+        articles += [('Revue du Web', liens)] if liens else []
+        articles += [('Confidentiel', confidentiels)] if confidentiels else []
+        return articles
 
 # -- print-version
 
-    conversion_options = { 'smarten_punctuation' : True }
+    conversion_options = {'smarten_punctuation' : True}
 
-    remove_tags = [ dict(name='div', attrs={'class':'print-source_url'}) ]
+    remove_tags = [dict(name='div', attrs={'class':'print-source_url'})]
+
+    # non-locale specific date parse (strptime("%d %b %Y",s) would work with french locale)
+    def parse_french_date(self, date_str):
+        date_arr = date_str.lower().split()
+        return date(day=int(date_arr[0]),
+                    year=int(date_arr[2]),
+                    month=
+                      [None, 'janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet',
+                       'août', 'septembre', 'octobre', 'novembre', 'décembre'].index(date_arr[1]))
 
     def print_version(self, url):
         raw = self.browser.open(url).read()
         soup = BeautifulSoup(raw.decode('utf8', 'replace'))
-        link = soup.find('a', {'title':'Imprimer'})
-        if link is None:
+
+        # Filter old articles
+        article_date = self.parse_french_date(self.tag_to_string(soup.find('span', 'article-date')))
+
+        if article_date < self.oldest_article_date:
             return None
-        return link['href']
+
+        tools = soup.find('div', {'class':'menu-tools'})
+        link = tools.find('a', {'href': re.compile(r'\/print\/.*')})
+        if link is None:
+            print 'Error: print link not found'
+            return None
+        return 'https://mediapart.fr/' + link['href']
 
 # -- Handle login
-
     def get_browser(self):
         br = BasicNewsRecipe.get_browser(self)
         if self.username is not None and self.password is not None:
-            br.open('http://www.mediapart.fr/')
-            br.select_form(nr=0)
+            br.open('https://www.mediapart.fr/user')
+            br.select_form(nr=1)
             br['name'] = self.username
             br['pass'] = self.password
             br.submit()
         return br
 
-    def preprocess_html(self, soup):
-        for title in soup.findAll('p', {'class':'titre_page'}):
-            title.name = 'h3'
-        for legend in soup.findAll('span', {'class':'legend'}):
-            legend.insert(0, Tag(soup, 'br', []))
-            legend.name = 'small'
-        return soup
+    # This is a workaround articles with scribd content that include
+    # <body></body> tags _within_ the body
+    preprocess_regexps = [
+        (re.compile(r'(<body.*?>)(.*)</body>', re.IGNORECASE|re.DOTALL),
+         lambda match:
+             match.group(1)
+             + re.sub(re.compile(r'</?body>', re.IGNORECASE|re.DOTALL),'',
+                      match.group(2))
+             + '</body>')
+    ]
+
+    # def preprocess_html(self, soup):
+    #     for title in soup.findAll('p', {'class':'titre_page'}):
+    #         title.name = 'h3'
+    #     for legend in soup.findAll('span', {'class':'legend'}):
+    #         legend.insert(0, Tag(soup, 'br', []))
+    #         legend.name = 'em'
+    #     return soup

@@ -120,7 +120,8 @@ class USER_DEFINED(USBMS):
         self.plugin_needs_delayed_initialization = False
 
     def windows_sort_drives(self, drives):
-        if len(drives) < 2: return drives
+        if len(drives) < 2:
+            return drives
         e = self.settings().extra_customization
         if not e[self.OPT_SWAP_MAIN_AND_CARD]:
             return drives
@@ -132,7 +133,8 @@ class USER_DEFINED(USBMS):
         return drives
 
     def linux_swap_drives(self, drives):
-        if len(drives) < 2 or not drives[1] or not drives[2]: return drives
+        if len(drives) < 2 or not drives[0] or not drives[1]:
+            return drives
         e = self.settings().extra_customization
         if not e[self.OPT_SWAP_MAIN_AND_CARD]:
             return drives
@@ -143,7 +145,8 @@ class USER_DEFINED(USBMS):
         return tuple(drives)
 
     def osx_sort_names(self, names):
-        if len(names) < 2: return names
+        if len(names) < 2:
+            return names
         e = self.settings().extra_customization
         if not e[self.OPT_SWAP_MAIN_AND_CARD]:
             return names

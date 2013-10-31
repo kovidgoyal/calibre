@@ -29,7 +29,6 @@ class CustomColumns(object):
             'SELECT name FROM sqlite_master WHERE type="table" AND '
             '(name GLOB "custom_column_*" OR name GLOB "books_custom_column_*")')])
 
-
     def __init__(self):
         # Verify that CUSTOM_DATA_TYPES is a (possibly improper) subset of
         # VALID_DATA_TYPES
@@ -378,7 +377,7 @@ class CustomColumns(object):
         self.conn.commit()
 
     def set_custom_column_metadata(self, num, name=None, label=None,
-            is_editable=None, display=None, notify=True):
+            is_editable=None, display=None, notify=True, update_last_modified=False):
         changed = False
         if name is not None:
             self.conn.execute('UPDATE custom_columns SET name=? WHERE id=?',

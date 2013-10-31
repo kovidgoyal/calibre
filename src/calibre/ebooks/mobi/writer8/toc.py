@@ -34,15 +34,29 @@ TEMPLATE = '''
 </html>
 '''
 
+def find_previous_calibre_inline_toc(oeb):
+    if 'toc' in oeb.guide:
+        href = urlnormalize(oeb.guide['toc'].href.partition('#')[0])
+        if href in oeb.manifest.hrefs:
+            item = oeb.manifest.hrefs[href]
+            if (hasattr(item.data, 'xpath') and XPath('//h:body[@id="calibre_generated_inline_toc"]')(item.data)):
+                return item
+
 class TOCAdder(object):
 
-    def __init__(self, oeb, opts):
+    def __init__(self, oeb, opts, replace_previous_inline_toc=False, ignore_existing_toc=False):
         self.oeb, self.opts, self.log = oeb, opts, oeb.log
         self.title = opts.toc_title or DEFAULT_TITLE
         self.at_start = opts.mobi_toc_at_start
         self.generated_item = None
         self.added_toc_guide_entry = False
         self.has_toc = oeb.toc and oeb.toc.count() > 1
+
+        self.tocitem = tocitem = None
+        if find_previous_calibre_inline_toc:
+            tocitem = self.tocitem = find_previous_calibre_inline_toc(oeb)
+        if ignore_existing_toc and 'toc' in oeb.guide:
+            oeb.guide.remove('toc')
 
         if 'toc' in oeb.guide:
             # Remove spurious toc entry from guide if it is not in spine or it
@@ -81,13 +95,19 @@ class TOCAdder(object):
         for child in self.oeb.toc:
             self.process_toc_node(child, parent)
 
-        id, href = oeb.manifest.generate('contents', 'contents.xhtml')
-        item = self.generated_item = oeb.manifest.add(id, href, XHTML_MIME,
-                data=root)
-        if self.at_start:
-            oeb.spine.insert(0, item, linear=True)
+        if tocitem is not None:
+            href = tocitem.href
+            if oeb.spine.index(tocitem) > -1:
+                oeb.spine.remove(tocitem)
+            tocitem.data = root
         else:
-            oeb.spine.add(item, linear=False)
+            id, href = oeb.manifest.generate('contents', 'contents.xhtml')
+            tocitem = self.generated_item = oeb.manifest.add(id, href, XHTML_MIME,
+                    data=root)
+        if self.at_start:
+            oeb.spine.insert(0, tocitem, linear=True)
+        else:
+            oeb.spine.add(tocitem, linear=False)
 
         oeb.guide.add('toc', 'Table of Contents', href)
 
@@ -95,7 +115,10 @@ class TOCAdder(object):
         li = parent.makeelement(XHTML('li'))
         li.tail = '\n'+ ('\t'*level)
         parent.append(li)
-        a = parent.makeelement(XHTML('a'), href=toc.href or '#')
+        href = toc.href
+        if self.tocitem is not None and href:
+            href = self.tocitem.relhref(toc.href)
+        a = parent.makeelement(XHTML('a'), href=href or '#')
         a.text = toc.title
         li.append(a)
         if toc.count() > 0:
@@ -114,4 +137,5 @@ class TOCAdder(object):
         if self.added_toc_guide_entry:
             self.oeb.guide.remove('toc')
             self.added_toc_guide_entry = False
+
 

@@ -571,7 +571,7 @@ class Browser(QObject, FormsMixin):
                     ans[url] = raw
                     urls.discard(url)
 
-        while urls and time.time() - start_time > timeout and self.page.ready_state not in {'complete', 'completed'}:
+        while urls and time.time() - start_time < timeout and self.page.ready_state not in {'complete', 'completed'}:
             get_resources()
             if urls:
                 self.run_for_a_time(0.1)

@@ -385,6 +385,12 @@ sort_dates_using_visible_fields = False
 generate_cover_title_font = None
 generate_cover_foot_font = None
 
+#: Fuzz value for trimming covers
+# The value used for the fuzz distance when trimming a cover.
+# Colors within this distance are considered equal.
+# The distance is in absolute intensity units.
+cover_trim_fuzz_value = 10
+
 #: Control behavior of the book list
 # You can control the behavior of doubleclicks on the books list.
 # Choices: open_viewer, do_nothing,
@@ -438,7 +444,7 @@ public_smtp_relay_delay = 301
 # All covers in the calibre library will be resized, preserving aspect ratio,
 # to fit within this size. This is to prevent slowdowns caused by extremely
 # large covers
-maximum_cover_size = (1200, 1600)
+maximum_cover_size = (1450, 2000)
 
 #: Where to send downloaded news
 # When automatically sending downloaded news to a connected device, calibre
@@ -537,3 +543,17 @@ many_libraries = 10
 # highlight with this tweak. Set it to 'transparent' to disable highlighting.
 highlight_virtual_library = 'yellow'
 
+#: Choose available output formats for conversion
+# Restrict the list of available output formats in the conversion dialogs.
+# For example, if you only want to convert to EPUB and AZW3, change this to
+# restrict_output_formats = ['EPUB', 'AZW3']. The default value of None causes
+# all available output formats to be present.
+restrict_output_formats = None
+
+#: Set the thumbnail image quality used by the content server
+# The quality of a thumbnail is largely controlled by the compression quality
+# used when creating it. Set this to a larger number to improve the quality.
+# Note that the thumbnails get much larger with larger compression quality
+# numbers.
+# The value can be between 50 and 99
+content_server_thumbnail_compression_quality = 75

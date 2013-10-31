@@ -3,13 +3,13 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 ''' Code to manage ebook library'''
 
 def db(path=None, read_only=False):
-    from calibre.library.database2 import LibraryDatabase2
+    from calibre.db.legacy import LibraryDatabase
     from calibre.utils.config import prefs
-    return LibraryDatabase2(path if path else prefs['library_path'],
+    return LibraryDatabase(path if path else prefs['library_path'],
             read_only=read_only)
 
 
-def generate_test_db(library_path, # {{{
+def generate_test_db(library_path,  # {{{
         num_of_records=20000,
         num_of_authors=6000,
         num_of_tags=10000,
@@ -75,4 +75,5 @@ def current_library_name():
     path = current_library_path()
     if path:
         return posixpath.basename(path)
+
 

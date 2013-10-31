@@ -11,14 +11,15 @@ import weakref
 
 import sip
 from PyQt4.Qt import (QLineEdit, QAbstractListModel, Qt, pyqtSignal, QObject,
-        QApplication, QListView, QPoint, QModelIndex)
+        QApplication, QListView, QPoint, QModelIndex, QFont, QFontInfo)
 
+from calibre.constants import isosx, get_osx_version
 from calibre.utils.icu import sort_key, primary_startswith
 from calibre.gui2 import NONE
 from calibre.gui2.widgets import EnComboBox, LineEditECM
 from calibre.utils.config import tweaks
 
-class CompleteModel(QAbstractListModel): # {{{
+class CompleteModel(QAbstractListModel):  # {{{
 
     def __init__(self, parent=None):
         QAbstractListModel.__init__(self, parent)
@@ -65,7 +66,7 @@ class CompleteModel(QAbstractListModel): # {{{
                 return self.index(i)
 # }}}
 
-class Completer(QListView): # {{{
+class Completer(QListView):  # {{{
 
     item_selected = pyqtSignal(object)
     relayout_needed = pyqtSignal()
@@ -92,7 +93,8 @@ class Completer(QListView): # {{{
         QListView.hide(self)
 
     def item_chosen(self, index):
-        if not self.isVisible(): return
+        if not self.isVisible():
+            return
         self.hide()
         text = self.model().data(index, Qt.DisplayRole)
         self.item_selected.emit(unicode(text))
@@ -164,6 +166,14 @@ class Completer(QListView): # {{{
             self.setCurrentIndex(self.model().index(0))
 
         if not p.isVisible():
+            if isosx and get_osx_version() >= (10, 9, 0):
+                # On mavericks the popup menu seems to use a font smaller than
+                # the widgets font, see for example:
+                # https://bugs.launchpad.net/bugs/1243761
+                fp = QFontInfo(widget.font())
+                f = QFont()
+                f.setPixelSize(fp.pixelSize())
+                self.setFont(f)
             p.show()
 
     def eventFilter(self, obj, e):
@@ -287,7 +297,8 @@ class LineEdit(QLineEdit, LineEditECM):
         self.mcompleter.popup()
 
     def text_edited(self, *args):
-        if self.no_popup: return
+        if self.no_popup:
+            return
         self.update_completions()
         select_first = len(self.mcompleter.model().current_prefix) > 0
         if not select_first:
@@ -370,13 +381,13 @@ class EditWithComplete(EnComboBox):
 
     @dynamic_property
     def all_items(self):
-        def fget(self): return self.lineEdit().all_items
-        def fset(self, val): self.lineEdit().all_items = val
+        def fget(self):
+            return self.lineEdit().all_items
+        def fset(self, val):
+            self.lineEdit().all_items = val
         return property(fget=fget, fset=fset)
 
-
     # }}}
-
     def text(self):
         return unicode(self.lineEdit().text())
 

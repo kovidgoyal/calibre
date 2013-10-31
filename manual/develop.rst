@@ -49,7 +49,7 @@ All the |app| python code is in the ``calibre`` package. This package contains t
         * Metadata reading, writing, and downloading is all in ``ebooks.metadata``
         * Conversion happens in a pipeline, for the structure of the pipeline,
           see :ref:`conversion-introduction`. The pipeline consists of an input
-          plugin, various transforms and an output plugin. The that code constructs
+          plugin, various transforms and an output plugin. The code that constructs
           and drives the pipeline is in :file:`plumber.py`. The pipeline works on a
           representation of an ebook that is like an unzipped epub, with
           manifest, spine, toc, guide, html content, etc. The

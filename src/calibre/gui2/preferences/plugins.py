@@ -23,7 +23,7 @@ from calibre.utils.search_query_parser import SearchQueryParser
 from calibre.utils.icu import lower
 from calibre.constants import iswindows
 
-class PluginModel(QAbstractItemModel, SearchQueryParser): # {{{
+class PluginModel(QAbstractItemModel, SearchQueryParser):  # {{{
 
     def __init__(self, show_only_user_plugins=False):
         QAbstractItemModel.__init__(self)
@@ -172,7 +172,6 @@ class PluginModel(QAbstractItemModel, SearchQueryParser): # {{{
                     return self.index(j, 0, parent)
         return QModelIndex()
 
-
     def refresh_plugin(self, plugin, rescan=False):
         if rescan:
             self.populate()
@@ -191,7 +190,7 @@ class PluginModel(QAbstractItemModel, SearchQueryParser): # {{{
         if index.internalId() == 0:
             if role == Qt.DisplayRole:
                 category = self.categories[index.row()]
-                return QVariant(_("%(plugin_type)s %(plugins)s")%\
+                return QVariant(_("%(plugin_type)s %(plugins)s")%
                         dict(plugin_type=category, plugins=_('plugins')))
         else:
             plugin = self.index_to_plugin(index)
@@ -276,7 +275,6 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             unicode(self.search.currentText()), backwards=True)
         self.highlight_index(idx)
 
-
     def toggle_plugin(self, *args):
         self.modify_plugin(op='toggle')
 
@@ -298,8 +296,8 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         if not path:
             return
         path = path[0]
-        if path and  os.access(path, os.R_OK) and path.lower().endswith('.zip'):
-            if not question_dialog(self, _('Are you sure?'), '<p>' + \
+        if path and os.access(path, os.R_OK) and path.lower().endswith('.zip'):
+            if not question_dialog(self, _('Are you sure?'), '<p>' +
                     _('Installing plugins is a <b>security risk</b>. '
                     'Plugins can contain a virus/malware. '
                         'Only install it if you got it from a trusted source.'
@@ -327,7 +325,6 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             error_dialog(self, _('No valid plugin path'),
                          _('%s is not a valid plugin path')%path).exec_()
 
-
     def modify_plugin(self, op=''):
         index = self.plugin_view.currentIndex()
         if index.isValid():
@@ -340,8 +337,8 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             plugin = self._plugin_model.index_to_plugin(index)
             if op == 'toggle':
                 if not plugin.can_be_disabled:
-                    error_dialog(self,_('Plugin cannot be disabled'),
-                                 _('The plugin: %s cannot be disabled')%plugin.name).exec_()
+                    info_dialog(self, _('Plugin cannot be disabled'),
+                                 _('Disabling the plugin %s is not allowed')%plugin.name, show=True, show_copy_button=False)
                     return
                 if is_disabled(plugin):
                     enable_plugin(plugin)
@@ -399,7 +396,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
 
     def reload_store_plugins(self):
         self.gui.load_store_plugins()
-        if self.gui.iactions.has_key('Store'):
+        if 'Store' in self.gui.iactions:
             self.gui.iactions['Store'].load_menu()
 
     def check_for_add_to_toolbars(self, plugin):
@@ -429,7 +426,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
                 all_locations.iteritems() if key
                 not in plugin_action.dont_add_to]
         if not allowed_locations:
-            return # This plugin doesn't want to live in the GUI
+            return  # This plugin doesn't want to live in the GUI
 
         from calibre.gui2.dialogs.choose_plugin_toolbars import ChoosePluginToolbarsDialog
         d = ChoosePluginToolbarsDialog(self, plugin_action, allowed_locations)
@@ -444,4 +441,5 @@ if __name__ == '__main__':
     from PyQt4.Qt import QApplication
     app = QApplication([])
     test_widget('Advanced', 'Plugins')
+
 

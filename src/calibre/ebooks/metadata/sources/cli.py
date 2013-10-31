@@ -34,9 +34,9 @@ def option_parser():
     parser.add_option('-i', '--isbn', help='Book ISBN')
     parser.add_option('-v', '--verbose', default=False, action='store_true',
                       help='Print the log to the console (stderr)')
-    parser.add_option('-o', '--opf', help='Output the metadata in OPF format')
+    parser.add_option('-o', '--opf', help='Output the metadata in OPF format instead of human readable text.', action='store_true', default=False)
     parser.add_option('-c', '--cover',
-            help='Specify a filename. The cover, if available, will be saved to it')
+            help='Specify a filename. The cover, if available, will be saved to it. Without this option, no cover will be downloaded.')
     parser.add_option('-d', '--timeout', default='30',
             help='Timeout in seconds. Default is 30')
 
@@ -71,15 +71,13 @@ def main(args=sys.argv):
     if opts.cover and results:
         cover = download_cover(log, title=opts.title, authors=authors,
                 identifiers=result.identifiers, timeout=int(opts.timeout))
-        if cover is None:
+        if cover is None and not opts.opf:
             prints('No cover found', file=sys.stderr)
         else:
             save_cover_data_to(cover[-1], opts.cover)
             result.cover = cf = opts.cover
 
-
     log = buf.getvalue()
-
 
     result = (metadata_to_opf(result) if opts.opf else
                     unicode(result).encode('utf-8'))
@@ -95,3 +93,4 @@ def main(args=sys.argv):
 
 if __name__ == '__main__':
     sys.exit(main())
+

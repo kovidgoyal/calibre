@@ -5,12 +5,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import glob
-
-from calibre.constants import plugins, iswindows, filesystem_encoding
-from calibre.ptempfile import TemporaryDirectory
-from calibre import CurrentDir
-from calibre.utils.magick import Image, PixelWand
+import struct
 
 class Unavailable(Exception):
     pass
@@ -18,39 +13,67 @@ class Unavailable(Exception):
 class NoRaster(Exception):
     pass
 
-def extract_raster_image(wmf_data):
-    try:
-        wmf, wmf_err = plugins['wmf']
-    except KeyError:
-        raise Unavailable('libwmf not available on this platform')
-    if wmf_err:
-        raise Unavailable(wmf_err)
 
-    if iswindows:
-        import sys, os
-        appdir = sys.app_dir
-        if isinstance(appdir, unicode):
-            appdir = appdir.encode(filesystem_encoding)
-        fdir = os.path.join(appdir, 'wmffonts')
-        wmf.set_font_dir(fdir)
+class DIBHeader(object):
 
-    data = ''
+    '''
+    See http://en.wikipedia.org/wiki/BMP_file_format
+    '''
 
-    with TemporaryDirectory('wmf2png') as tdir:
-        with CurrentDir(tdir):
-            wmf.render(wmf_data)
+    def __init__(self, raw):
+        hsize = struct.unpack(b'<I', raw[:4])[0]
+        if hsize == 40:
+            parts = struct.unpack(b'<IiiHHIIIIII', raw[:hsize])
+            for i, attr in enumerate((
+                'header_size', 'width', 'height', 'color_planes',
+                'bits_per_pixel', 'compression', 'image_size',
+                'hres', 'vres', 'ncols', 'nimpcols'
+                )):
+                setattr(self, attr, parts[i])
+        elif hsize == 12:
+            parts = struct.unpack(b'<IHHHH', raw[:hsize])
+            for i, attr in enumerate((
+                'header_size', 'width', 'height', 'color_planes',
+                'bits_per_pixel')):
+                setattr(self, attr, parts[i])
+        else:
+            raise ValueError('Unsupported DIB header type of size: %d'%hsize)
 
-            images = list(sorted(glob.glob('*.png')))
-            if not images:
-                raise NoRaster('No raster images in WMF')
-            data = open(images[0], 'rb').read()
+        self.bitmasks_size = 12 if getattr(self, 'compression', 0) == 3 else 0
+        self.color_table_size = 0
+        if self.bits_per_pixel != 24:
+            # See http://support.microsoft.com/kb/q81498/
+            # for all the gory Micro and soft details
+            self.color_table_size = getattr(self, 'ncols', 0) * 4
 
-    im = Image()
-    im.load(data)
-    pw = PixelWand()
-    pw.color = '#ffffff'
-    im.rotate(pw, 180)
 
-    return im.export('png')
+def create_bmp_from_dib(raw):
+    size = len(raw) + 14
+    dh = DIBHeader(raw)
+    pixel_array_offset = dh.header_size + dh.bitmasks_size + \
+                            dh.color_table_size
+    parts = [b'BM', struct.pack(b'<I', size), b'\0'*4, struct.pack(b'<I',
+        pixel_array_offset)]
+    return b''.join(parts) + raw
+
+def to_png(bmp):
+    # ImageMagick does not convert some bmp files correctly, while Qt does,
+    # so try Qt first. See for instance:
+    # https://bugs.launchpad.net/calibre/+bug/934167
+    # ImageMagick bug report:
+    # http://www.imagemagick.org/discourse-server/viewtopic.php?f=3&t=20350
+    from PyQt4.Qt import QImage, QByteArray, QBuffer
+    i = QImage()
+    if i.loadFromData(bmp):
+        ba = QByteArray()
+        buf = QBuffer(ba)
+        buf.open(QBuffer.WriteOnly)
+        i.save(buf, 'png')
+        return bytes(ba.data())
+
+    from calibre.utils.magick import Image
+    img = Image()
+    img.load(bmp)
+    return img.export('png')
 
 

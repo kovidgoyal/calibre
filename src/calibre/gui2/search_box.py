@@ -14,11 +14,10 @@ from PyQt4.Qt import QComboBox, Qt, QLineEdit, QStringList, pyqtSlot, QDialog, \
                      pyqtSignal, QCompleter, QAction, QKeySequence, QTimer, \
                      QString, QIcon, QMenu
 
-from calibre.gui2 import config, error_dialog
+from calibre.gui2 import config, error_dialog, question_dialog
 from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.gui2.dialogs.saved_search_editor import SavedSearchEditor
 from calibre.gui2.dialogs.search import SearchDialog
-from calibre.utils.search_query_parser import saved_searches
 
 class SearchLineEdit(QLineEdit):  # {{{
     key_pressed = pyqtSignal(object)
@@ -197,7 +196,7 @@ class SearchBox2(QComboBox):  # {{{
         self.search.emit(text)
 
         if store_in_history:
-            idx = self.findText(text, Qt.MatchFixedString)
+            idx = self.findText(text, Qt.MatchFixedString|Qt.MatchCaseSensitive)
             self.block_signals(True)
             if idx < 0:
                 self.insertItem(0, text)
@@ -309,25 +308,35 @@ class SavedSearchBox(QComboBox):  # {{{
             self.saved_search_selected(self.currentText())
 
     def saved_search_selected(self, qname):
+        from calibre.gui2.ui import get_gui
+        db = get_gui().current_db
         qname = unicode(qname)
         if qname is None or not qname.strip():
             self.search_box.clear()
             return
-        if not saved_searches().lookup(qname):
+        if not db.saved_search_lookup(qname):
             self.search_box.clear()
             self.setEditText(qname)
             return
         self.search_box.set_search_string(u'search:"%s"' % qname, emit_changed=False)
         self.setEditText(qname)
-        self.setToolTip(saved_searches().lookup(qname))
+        self.setToolTip(db.saved_search_lookup(qname))
 
     def initialize_saved_search_names(self):
-        qnames = saved_searches().names()
-        self.addItems(qnames)
+        from calibre.gui2.ui import get_gui
+        gui = get_gui()
+        try:
+            names = gui.current_db.saved_search_names()
+        except AttributeError:
+            # Happens during gui initialization
+            names = []
+        self.addItems(names)
         self.setCurrentIndex(-1)
 
     # SIGNALed from the main UI
     def save_search_button_clicked(self):
+        from calibre.gui2.ui import get_gui
+        db = get_gui().current_db
         name = unicode(self.currentText())
         if not name.strip():
             name = unicode(self.search_box.text()).replace('"', '')
@@ -335,8 +344,8 @@ class SavedSearchBox(QComboBox):  # {{{
             error_dialog(self, _('Create saved search'),
                          _('There is no search to save'), show=True)
             return
-        saved_searches().delete(name)
-        saved_searches().add(name, unicode(self.search_box.text()))
+        db.saved_search_delete(name)
+        db.saved_search_add(name, unicode(self.search_box.text()))
         # now go through an initialization cycle to ensure that the combobox has
         # the new search in it, that it is selected, and that the search box
         # references the new search instead of the text in the search.
@@ -346,6 +355,8 @@ class SavedSearchBox(QComboBox):  # {{{
         self.changed.emit()
 
     def delete_current_search(self):
+        from calibre.gui2.ui import get_gui
+        db = get_gui().current_db
         idx = self.currentIndex()
         if idx <= 0:
             error_dialog(self, _('Delete current search'),
@@ -355,20 +366,22 @@ class SavedSearchBox(QComboBox):  # {{{
                        '<b>permanently deleted</b>. Are you sure?')
                     +'</p>', 'saved_search_delete', self):
             return
-        ss = saved_searches().lookup(unicode(self.currentText()))
+        ss = db.saved_search_lookup(unicode(self.currentText()))
         if ss is None:
             return
-        saved_searches().delete(unicode(self.currentText()))
+        db.saved_search_delete(unicode(self.currentText()))
         self.clear()
         self.search_box.clear()
         self.changed.emit()
 
     # SIGNALed from the main UI
     def copy_search_button_clicked(self):
+        from calibre.gui2.ui import get_gui
+        db = get_gui().current_db
         idx = self.currentIndex()
         if idx < 0:
             return
-        self.search_box.set_search_string(saved_searches().lookup(unicode(self.currentText())))
+        self.search_box.set_search_string(db.saved_search_lookup(unicode(self.currentText())))
 
     # }}}
 
@@ -407,6 +420,11 @@ class SearchBoxMixin(object):  # {{{
         self.highlight_only_button.setToolTip(tt)
 
     def highlight_only_clicked(self, state):
+        if not config['highlight_search_matches'] and not question_dialog(self, _('Are you sure?'),
+            _('This will change how searching works. When you search, instead of showing only the '
+                'matching books, all books will be shown with the matching books highlighted. '
+                'Are you sure this is what you want?'), skip_dialog_name='confirm_search_highlight_toggle'):
+            return
         config['highlight_search_matches'] = not config['highlight_search_matches']
         self.set_highlight_only_button_icon()
         self.search.do_search()

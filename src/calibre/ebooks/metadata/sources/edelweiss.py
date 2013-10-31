@@ -34,7 +34,7 @@ def astext(node):
     return etree.tostring(node, method='text', encoding=unicode,
                           with_tail=False).strip()
 
-class Worker(Thread): # {{{
+class Worker(Thread):  # {{{
 
     def __init__(self, sku, url, relevance, result_queue, br, timeout, log, plugin):
         Thread.__init__(self)
@@ -154,8 +154,8 @@ class Worker(Thread): # {{{
         # remove all attributes from tags
         desc = re.sub(r'<([a-zA-Z0-9]+)\s[^>]+>', r'<\1>', desc)
         # Collapse whitespace
-        #desc = re.sub('\n+', '\n', desc)
-        #desc = re.sub(' +', ' ', desc)
+        # desc = re.sub('\n+', '\n', desc)
+        # desc = re.sub(' +', ' ', desc)
         # Remove comments
         desc = re.sub(r'(?s)<!--.*?-->', '', desc)
         return sanitize_comments_html(desc)
@@ -183,14 +183,14 @@ class Edelweiss(Source):
         if sku:
             return 'http://edelweiss.abovethetreeline.com/ProductDetailPage.aspx?sku=%s'%sku
 
-    def get_book_url(self, identifiers): # {{{
+    def get_book_url(self, identifiers):  # {{{
         sku = identifiers.get('edelweiss', None)
         if sku:
             return 'edelweiss', sku, self._get_book_url(sku)
 
     # }}}
 
-    def get_cached_cover_url(self, identifiers): # {{{
+    def get_cached_cover_url(self, identifiers):  # {{{
         sku = identifiers.get('edelweiss', None)
         if not sku:
             isbn = identifiers.get('isbn', None)
@@ -199,7 +199,7 @@ class Edelweiss(Source):
         return self.cached_identifier_to_cover_url(sku)
     # }}}
 
-    def create_query(self, log, title=None, authors=None, identifiers={}): # {{{
+    def create_query(self, log, title=None, authors=None, identifiers={}):  # {{{
         from urllib import urlencode
         BASE_URL = 'http://edelweiss.abovethetreeline.com/CatalogOverview.aspx?'
         params = {
@@ -239,9 +239,40 @@ class Edelweiss(Source):
                 params[k] = v.encode('utf-8')
 
         return BASE_URL+urlencode(params)
+
+    def create_query2(self, log, title=None, authors=None, identifiers={}):
+        ''' The edelweiss advanced search appears to be broken, use the keyword search instead, until it is fixed. '''
+        from urllib import urlencode
+        BASE_URL = 'http://edelweiss.abovethetreeline.com/CatalogOverview.aspx?'
+        params = {
+            'group':'search',
+            'section':'CatalogOverview',
+            'searchType':1,
+            'searchOrgID':'',
+            'searchCatalogID': '',
+            'searchMailingID': '',
+            'searchSelect':1,
+        }
+        keywords = []
+        isbn = check_isbn(identifiers.get('isbn', None))
+        if isbn is not None:
+            keywords.append(isbn)
+        elif title or authors:
+            title_tokens = list(self.get_title_tokens(title))
+            if title_tokens:
+                keywords.extend(title_tokens)
+            author_tokens = self.get_author_tokens(authors,
+                    only_first_author=True)
+            if author_tokens:
+                keywords.extend(author_tokens)
+        if not keywords:
+            return None
+        params['keywords'] = (' '.join(keywords)).encode('utf-8')
+        return BASE_URL+urlencode(params)
+
     # }}}
 
-    def identify(self, log, result_queue, abort, title=None, authors=None, # {{{
+    def identify(self, log, result_queue, abort, title=None, authors=None,  # {{{
             identifiers={}, timeout=30):
         from urlparse import parse_qs
 
@@ -251,11 +282,12 @@ class Edelweiss(Source):
             entries = [(book_url, identifiers['edelweiss'])]
         else:
             entries = []
-            query = self.create_query(log, title=title, authors=authors,
+            query = self.create_query2(log, title=title, authors=authors,
                     identifiers=identifiers)
             if not query:
                 log.error('Insufficient metadata to construct query')
                 return
+            log('Using query URL:', query)
             try:
                 raw = br.open_novisit(query, timeout=timeout).read()
             except Exception as e:
@@ -270,7 +302,8 @@ class Edelweiss(Source):
 
             for entry in CSSSelect('div.listRow div.listRowMain')(root):
                 a = entry.xpath('descendant::a[contains(@href, "sku=") and contains(@href, "ProductDetailPage.aspx")]')
-                if not a: continue
+                if not a:
+                    continue
                 href = a[0].get('href')
                 prefix, qs = href.partition('?')[0::2]
                 sku = parse_qs(qs).get('sku', None)
@@ -288,7 +321,7 @@ class Edelweiss(Source):
 
                     div = CSSSelect('div.format.attGroup')(entry)
                     text = astext(div[0]).lower()
-                    if 'audio' in text or 'mp3' in text: # Audio-book, ignore
+                    if 'audio' in text or 'mp3' in text:  # Audio-book, ignore
                         continue
                     entries.append((self._get_book_url(sku), sku))
 
@@ -321,7 +354,7 @@ class Edelweiss(Source):
 
     # }}}
 
-    def download_cover(self, log, result_queue, abort, # {{{
+    def download_cover(self, log, result_queue, abort,  # {{{
             title=None, authors=None, identifiers={}, timeout=30, get_best_cover=False):
         cached_url = self.get_cached_cover_url(identifiers)
         if cached_url is None:
@@ -381,7 +414,7 @@ if __name__ == '__main__':
 
         ),
 
-        ( # Pubdate
+        (  # Pubdate
          {'title':'The Great Gatsby', 'authors':['F. Scott Fitzgerald']},
             [title_test('The great gatsby', exact=True),
                 authors_test(['F. Scott Fitzgerald']), pubdate_test(2004, 9, 29)]
@@ -393,5 +426,7 @@ if __name__ == '__main__':
 
     tests = tests[start:stop]
     test_identify_plugin(Edelweiss.name, tests)
+
+
 
 

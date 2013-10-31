@@ -12,7 +12,7 @@ from calibre.ebooks.BeautifulSoup import BeautifulSoup, Tag, NavigableString, \
         CData, Comment, Declaration, ProcessingInstruction
 from calibre import prepare_string_for_xml
 from calibre.utils.html2text import html2text
-from calibre.ebooks.markdown import markdown
+from calibre.ebooks.markdown import Markdown
 
 # Hackish - ignoring sentences ending or beginning in numbers to avoid
 # confusion with decimal points.
@@ -68,7 +68,6 @@ def comments_to_html(comments):
             import traceback
             traceback.print_exc()
             return u'<p></p>'
-
 
     # Explode lost CRs to \n\n
     comments = lost_cr_exception_pat.sub(lambda m: m.group().replace('.',
@@ -134,9 +133,8 @@ def comments_to_html(comments):
 
 def sanitize_comments_html(html):
     text = html2text(html)
-    md = markdown.Markdown(safe_mode=True)
+    md = Markdown(safe_mode='remove')
     cleansed = re.sub('\n+', '', md.convert(text))
-    cleansed = cleansed.replace(markdown.HTML_REMOVED_TEXT, '')
     return cleansed
 
 def test():

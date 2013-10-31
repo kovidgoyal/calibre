@@ -10,7 +10,7 @@ import re, uuid
 
 from lxml import etree
 from urlparse import urlparse
-from collections import OrderedDict
+from collections import OrderedDict, Counter
 
 from calibre.ebooks.oeb.base import XPNSMAP, TOC, XHTML, xml2text, barename
 from calibre.ebooks import ConversionError
@@ -21,6 +21,26 @@ def XPath(x):
     except etree.XPathSyntaxError:
         raise ConversionError(
         'The syntax of the XPath expression %s is invalid.' % repr(x))
+
+def isspace(x):
+    return not x or x.replace(u'\xa0', u'').isspace()
+
+def at_start(elem):
+    ' Return True if there is no content before elem '
+    body = XPath('ancestor-or-self::h:body')(elem)
+    if not body:
+        return True
+    body = body[0]
+    ancestors = frozenset(XPath('ancestor::*')(elem))
+    for x in body.iter():
+        if x is elem:
+            return True
+        if hasattr(getattr(x, 'tag', None), 'rpartition') and x.tag.rpartition('}')[-1] in {'img', 'svg'}:
+            return False
+        if isspace(getattr(x, 'text', None)) and (x in ancestors or isspace(getattr(x, 'tail', None))):
+            continue
+        return False
+    return False
 
 class DetectStructure(object):
 
@@ -51,7 +71,7 @@ class DetectStructure(object):
             regexp = re.compile(opts.toc_filter)
             for node in list(self.oeb.toc.iter()):
                 if not node.title or regexp.search(node.title) is not None:
-                    self.log('Filtering', node.title if node.title else\
+                    self.log('Filtering', node.title if node.title else
                             'empty node', 'from TOC')
                     self.oeb.toc.remove(node)
 
@@ -92,7 +112,8 @@ class DetectStructure(object):
                 'Invalid start reading at XPath expression, ignoring: %s'%expr)
             return
         for item in self.oeb.spine:
-            if not hasattr(item.data, 'xpath'): continue
+            if not hasattr(item.data, 'xpath'):
+                continue
             matches = expr(item.data)
             if matches:
                 elem = matches[0]
@@ -129,17 +150,27 @@ class DetectStructure(object):
             chapter_mark = self.opts.chapter_mark
             page_break_before = 'display: block; page-break-before: always'
             page_break_after = 'display: block; page-break-after: always'
+            c = Counter()
             for item, elem in self.detected_chapters:
+                c[item] += 1
                 text = xml2text(elem).strip()
                 text = re.sub(r'\s+', ' ', text.strip())
                 self.log('\tDetected chapter:', text[:50])
                 if chapter_mark == 'none':
                     continue
-                elif chapter_mark == 'rule':
+                if chapter_mark == 'rule':
                     mark = etree.Element(XHTML('hr'))
                 elif chapter_mark == 'pagebreak':
+                    if c[item] < 3 and at_start(elem):
+                        # For the first two elements in this item, check if they
+                        # are at the start of the file, in which case inserting a
+                        # page break in unnecessary and can lead to extra blank
+                        # pages in the PDF Output plugin. We need to use two as
+                        # feedbooks epubs match both a heading tag and its
+                        # containing div with the default chapter expression.
+                        continue
                     mark = etree.Element(XHTML('div'), style=page_break_after)
-                else: # chapter_mark == 'both':
+                else:  # chapter_mark == 'both':
                     mark = etree.Element(XHTML('hr'), style=page_break_before)
                 try:
                     elem.addprevious(mark)
@@ -182,8 +213,6 @@ class DetectStructure(object):
                             self.log('Maximum TOC links reached, stopping.')
                             return
 
-
-
     def elem_to_link(self, item, elem, counter):
         text = xml2text(elem).strip()
         if not text:
@@ -196,7 +225,6 @@ class DetectStructure(object):
         elem.set('id', id)
         href = '#'.join((item.href, id))
         return text, href
-
 
     def add_leveled_toc_items(self):
         added = OrderedDict()
@@ -223,7 +251,7 @@ class DetectStructure(object):
                     node = self.oeb.toc.add(text, _href,
                             play_order=self.oeb.toc.next_play_order())
                     added[elem] = node
-                    #node.add(_('Top'), _href)
+                    # node.add(_('Top'), _href)
 
             if self.opts.level2_toc is not None and added:
                 for elem in find_matches(self.opts.level2_toc, document.data):
@@ -262,4 +290,5 @@ class DetectStructure(object):
                                     level2.add(text, _href,
                                         play_order=self.oeb.toc.next_play_order())
                                 break
+
 

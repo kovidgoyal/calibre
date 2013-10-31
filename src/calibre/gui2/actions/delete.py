@@ -5,6 +5,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
+import errno
 from functools import partial
 from collections import Counter
 
@@ -19,7 +20,7 @@ from calibre.utils.recycle_bin import can_recycle
 
 single_shot = partial(QTimer.singleShot, 10)
 
-class MultiDeleter(QObject): # {{{
+class MultiDeleter(QObject):  # {{{
 
     def __init__(self, gui, ids, callback):
         from calibre.gui2.dialogs.progress import ProgressDialog
@@ -195,12 +196,10 @@ class DeleteAction(InterfaceAction):
             _('Choose formats to be deleted'), ids)
         if not fmts:
             return
-        for id in ids:
-            for fmt in fmts:
-                self.gui.library_view.model().db.remove_format(id, fmt,
-                        index_is_id=True, notify=False)
-        self.gui.library_view.model().refresh_ids(ids)
-        self.gui.library_view.model().current_changed(self.gui.library_view.currentIndex(),
+        m = self.gui.library_view.model()
+        m.db.new_api.remove_formats({book_id:fmts for book_id in ids})
+        m.refresh_ids(ids)
+        m.current_changed(self.gui.library_view.currentIndex(),
                 self.gui.library_view.currentIndex())
         if ids:
             self.gui.tags_view.recount()
@@ -215,8 +214,10 @@ class DeleteAction(InterfaceAction):
             exclude=True)
         if fmts is None:
             return
+        m = self.gui.library_view.model()
+        removals = {}
         for id in ids:
-            bfmts = self.gui.library_view.model().db.formats(id, index_is_id=True)
+            bfmts = m.db.formats(id, index_is_id=True)
             if bfmts is None:
                 continue
             bfmts = set([x.lower() for x in bfmts.split(',')])
@@ -224,14 +225,14 @@ class DeleteAction(InterfaceAction):
             if bfmts - rfmts:
                 # Do not delete if it will leave the book with no
                 # formats
-                for fmt in rfmts:
-                    self.gui.library_view.model().db.remove_format(id, fmt,
-                            index_is_id=True, notify=False)
-        self.gui.library_view.model().refresh_ids(ids)
-        self.gui.library_view.model().current_changed(self.gui.library_view.currentIndex(),
-                self.gui.library_view.currentIndex())
-        if ids:
-            self.gui.tags_view.recount()
+                removals[id] = rfmts
+        if removals:
+            m.db.new_api.remove_formats(removals)
+            m.refresh_ids(ids)
+            m.current_changed(self.gui.library_view.currentIndex(),
+                    self.gui.library_view.currentIndex())
+            if ids:
+                self.gui.tags_view.recount()
 
     def delete_all_formats(self, *args):
         ids = self._get_selected_ids()
@@ -243,20 +244,21 @@ class DeleteAction(InterfaceAction):
                             +'</p>', 'delete_all_formats', self.gui):
             return
         db = self.gui.library_view.model().db
+        removals = {}
         for id in ids:
             fmts = db.formats(id, index_is_id=True, verify_formats=False)
             if fmts:
-                for fmt in fmts.split(','):
-                    self.gui.library_view.model().db.remove_format(id, fmt,
-                            index_is_id=True, notify=False)
-        self.gui.library_view.model().refresh_ids(ids)
-        self.gui.library_view.model().current_changed(self.gui.library_view.currentIndex(),
-                self.gui.library_view.currentIndex())
-        if ids:
-            self.gui.tags_view.recount()
+                removals[id] = fmts.split(',')
+        if removals:
+            db.new_api.remove_formats(removals)
+            self.gui.library_view.model().refresh_ids(ids)
+            self.gui.library_view.model().current_changed(self.gui.library_view.currentIndex(),
+                    self.gui.library_view.currentIndex())
+            if ids:
+                self.gui.tags_view.recount()
 
     def remove_matching_books_from_device(self, *args):
-        if not self.gui.device_manager.is_device_connected:
+        if not self.gui.device_manager.is_device_present:
             d = error_dialog(self.gui, _('Cannot delete books'),
                              _('No device is connected'))
             d.exec_()
@@ -264,7 +266,7 @@ class DeleteAction(InterfaceAction):
         ids = self._get_selected_ids()
         if not ids:
             #_get_selected_ids shows a dialog box if nothing is selected, so we
-            #do not need to show one here
+            # do not need to show one here
             return
         to_delete = {}
         some_to_delete = False
@@ -305,7 +307,6 @@ class DeleteAction(InterfaceAction):
         self.gui.library_view.model().current_changed(self.gui.library_view.currentIndex(),
                 self.gui.library_view.currentIndex())
 
-
     def library_ids_deleted(self, ids_deleted, current_row=None):
         view = self.gui.library_view
         for v in (self.gui.memory_view, self.gui.card_a_view, self.gui.card_b_view):
@@ -332,7 +333,7 @@ class DeleteAction(InterfaceAction):
     def do_library_delete(self, to_delete_ids):
         view = self.gui.current_view()
         # Ask the user if they want to delete the book from the library or device if it is in both.
-        if self.gui.device_manager.is_device_connected:
+        if self.gui.device_manager.is_device_present:
             on_device = False
             on_device_ids = self._get_selected_ids()
             for id in on_device_ids:
@@ -361,7 +362,17 @@ class DeleteAction(InterfaceAction):
             return
         next_id = view.next_id
         if len(to_delete_ids) < 5:
-            view.model().delete_books_by_id(to_delete_ids)
+            try:
+                view.model().delete_books_by_id(to_delete_ids)
+            except IOError as err:
+                if err.errno == errno.EACCES:
+                    import traceback
+                    fname = getattr(err, 'filename', 'file') or 'file'
+                    return error_dialog(self.gui, _('Permission denied'),
+                            _('Could not access %s. Is it being used by another'
+                            ' program? Click "Show details" for more information.')%fname, det_msg=traceback.format_exc(),
+                            show=True)
+
             self.library_ids_deleted2(to_delete_ids, next_id=next_id)
         else:
             self.__md = MultiDeleter(self.gui, to_delete_ids,

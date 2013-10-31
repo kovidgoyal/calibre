@@ -67,6 +67,18 @@ class FontStats
                 ans.push(usage)
         py_bridge.value = ans
 
+    get_font_families: () ->
+        ans = {}
+        for node in document.getElementsByTagName('*')
+            rules = document.defaultView.getMatchedCSSRules(node, '')
+            if rules
+                for rule in rules
+                    style = rule.style
+                    family = style.getPropertyValue('font-family')
+                    if family
+                        ans[family] = true
+        py_bridge.value = ans
+
 if window?
     window.font_stats = new FontStats()
 

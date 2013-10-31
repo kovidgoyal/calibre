@@ -64,7 +64,7 @@ class FontKeyChooser(QDialog, Ui_Dialog):
     @property
     def fsizes(self):
         key = unicode(self.font_size_key.text()).strip()
-        return [float(x.strip()) for x in key.split(',') if x.strip()]
+        return [float(x.strip()) for x in key.split(',' if ',' in key else ' ') if x.strip()]
 
     @property
     def dbase(self):

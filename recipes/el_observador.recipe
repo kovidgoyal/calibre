@@ -1,18 +1,23 @@
 #!/usr/bin/env  python
+##
+## Last Edited:  2013-09-29 Carlos Alves <carlosalves90@gmail.com>
+##
 
 __license__   = 'GPL v3'
 __author__ = '2010, Yuri Alvarez<me at yurialvarez.com>'
 __copyright__ = '2008, Kovid Goyal kovid@kovidgoyal.net'
+
 '''
-observa.com.uy
+elobservador.com.uy
 '''
 
 from calibre.web.feeds.news import BasicNewsRecipe
 
-class ObservaDigital(BasicNewsRecipe):
-    title                 = 'Observa Digital'
-    __author__            = 'yrvn'
-    description           = 'Noticias de Uruguay'
+class Noticias(BasicNewsRecipe):
+    title                 = 'El Observador'
+    __author__ = 'yrvn'
+    description           = 'Noticias desde Uruguay'
+    tags = 'news, sports, entretainment'
     language       = 'es_UY'
     timefmt        = '[%a, %d %b, %Y]'
     use_embedded_content  = False
@@ -23,12 +28,17 @@ class ObservaDigital(BasicNewsRecipe):
 
     oldest_article        = 2
     max_articles_per_feed = 100
-    keep_only_tags = [dict(id=['contenido'])]
+    keep_only_tags = [
+             dict(name='div', attrs={'class':'story collapsed'})
+             ]
     remove_tags = [
-                     dict(name='div', attrs={'id':'contenedorVinculadas'}),
-             dict(name='p', attrs={'id':'nota_firma'}),
+             dict(name='div', attrs={'class':['fecha', 'copyright', 'story_right']}),
+             dict(name='div', attrs={'class':['photo', 'social']}),
+             dict(name='div', attrs={'id':'widget'}),
              dict(name=['object','link'])
                   ]
+
+    remove_attributes = ['width','height', 'style', 'font', 'color']
 
     extra_css = '''
                 h1{font-family:Geneva, Arial, Helvetica, sans-serif;color:#154B7A;}
@@ -37,19 +47,9 @@ class ObservaDigital(BasicNewsRecipe):
                 p {font-family:Arial,Helvetica,sans-serif;}
                 '''
     feeds = [
-               (u'Actualidad', u'http://www.observa.com.uy/RSS/actualidad.xml'),
-           (u'Deportes', u'http://www.observa.com.uy/RSS/deportes.xml'),
-           (u'Vida', u'http://www.observa.com.uy/RSS/vida.xml'),
-           (u'Ciencia y Tecnologia', u'http://www.observa.com.uy/RSS/ciencia.xml')
+           (u'Portada', u'http://elobservador.com.uy/rss/portada/'),
         ]
 
-    def get_cover_url(self):
-        index = 'http://www.observa.com.uy/'
-        soup = self.index_to_soup(index)
-        for image in soup.findAll('img',alt=True):
-           if image['alt'].startswith('Tapa El Observador'):
-              return image['src'].rstrip('b.jpg') + '.jpg'
-        return None
 
     def preprocess_html(self, soup):
         for item in soup.findAll(style=True):

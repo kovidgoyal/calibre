@@ -67,6 +67,18 @@ def authors_test(authors):
 
     return test
 
+def tags_test(tags):
+    tags = set([x.lower() for x in tags])
+
+    def test(mi):
+        t = set([x.lower() for x in mi.tags])
+        if t == tags:
+            return True
+        prints('Tags test failed. Expected: \'%s\' found \'%s\''%(tags, t))
+        return False
+
+    return test
+
 def series_test(series, series_index):
     series = series.lower()
 
@@ -75,10 +87,10 @@ def series_test(series, series_index):
         if (ms == series) and (series_index == mi.series_index):
             return True
         if mi.series:
-            prints('Series test failed. Expected: \'%s [%d]\' found \'%s[%d]\''% \
+            prints('Series test failed. Expected: \'%s [%d]\' found \'%s[%d]\''%
                         (series, series_index, ms, mi.series_index))
         else:
-            prints('Series test failed. Expected: \'%s [%d]\' found no series'% \
+            prints('Series test failed. Expected: \'%s [%d]\' found no series'%
                         (series, series_index))
         return False
 
@@ -111,7 +123,7 @@ def init_test(tdir_name):
     abort = Event()
     return tdir, lf, log, abort
 
-def test_identify(tests): # {{{
+def test_identify(tests):  # {{{
     '''
     :param tests: List of 2-tuples. Each two tuple is of the form (args,
                   test_funcs). args is a dict of keyword arguments to pass to
@@ -178,7 +190,7 @@ def test_identify(tests): # {{{
 # }}}
 
 def test_identify_plugin(name, tests, modify_plugin=lambda plugin:None,
-        fail_missing_meta=True): # {{{
+        fail_missing_meta=True):  # {{{
     '''
     :param name: Plugin name
     :param tests: List of 2-tuples. Each two tuple is of the form (args,

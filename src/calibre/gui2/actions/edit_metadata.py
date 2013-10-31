@@ -10,7 +10,7 @@ from functools import partial
 
 from PyQt4.Qt import QMenu, QModelIndex, QTimer, QIcon
 
-from calibre.gui2 import error_dialog, Dispatcher, question_dialog
+from calibre.gui2 import error_dialog, Dispatcher, question_dialog, gprefs
 from calibre.gui2.dialogs.metadata_bulk import MetadataBulkDialog
 from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.gui2.dialogs.device_category_editor import DeviceCategoryEditor
@@ -146,6 +146,11 @@ class EditMetadataAction(InterfaceAction):
             checkbox_msg = _('Show the &failed books in the main book list '
                     'after updating metadata')
 
+        if getattr(job, 'metadata_and_covers', None) == (False, True):
+            # Only covers, remove failed cover downloads from id_map
+            for book_id in failed_covers:
+                if hasattr(id_map, 'discard'):
+                    id_map.discard(book_id)
         payload = (id_map, tdir, log_file, lm_map,
                 failed_ids.union(failed_covers))
         review_apply = partial(self.apply_downloaded_metadata, True)
@@ -296,6 +301,12 @@ class EditMetadataAction(InterfaceAction):
                 list(range(self.gui.library_view.model().rowCount(QModelIndex())))
             current_row = row_list.index(cr)
 
+        view = self.gui.library_view.alternate_views.current_view
+        try:
+            hpos = view.horizontalScrollBar().value()
+        except Exception:
+            hpos = 0
+
         changed, rows_to_refresh = self.do_edit_metadata(row_list, current_row)
 
         m = self.gui.library_view.model()
@@ -310,6 +321,11 @@ class EditMetadataAction(InterfaceAction):
                 self.gui.cover_flow.dataChanged()
             m.current_changed(current, previous)
             self.gui.tags_view.recount()
+        if self.gui.library_view.alternate_views.current_view is view:
+            if hasattr(view, 'restore_hpos'):
+                view.restore_hpos(hpos)
+            else:
+                view.horizontalScrollBar().setValue(hpos)
 
     def do_edit_metadata(self, row_list, current_row):
         from calibre.gui2.metadata.single import edit_metadata
@@ -352,11 +368,12 @@ class EditMetadataAction(InterfaceAction):
         # Prevent the TagView from updating due to signals from the database
         self.gui.tags_view.blockSignals(True)
         changed = False
+        refresh_books = set(book_ids)
         try:
             current_tab = 0
             while True:
                 dialog = MetadataBulkDialog(self.gui, rows,
-                                self.gui.library_view.model(), current_tab)
+                                self.gui.library_view.model(), current_tab, refresh_books)
                 if dialog.changed:
                     changed = True
                 if not dialog.do_again:
@@ -365,9 +382,13 @@ class EditMetadataAction(InterfaceAction):
         finally:
             self.gui.tags_view.blockSignals(False)
         if changed:
+            refresh_books |= dialog.refresh_books
             m = self.gui.library_view.model()
-            m.refresh(reset=False)
-            m.research()
+            if gprefs['refresh_book_list_on_bulk_edit']:
+                m.refresh(reset=False)
+                m.research()
+            else:
+                m.refresh_ids(refresh_books)
             self.gui.tags_view.recount()
             if self.gui.cover_flow:
                 self.gui.cover_flow.dataChanged()
@@ -399,8 +420,7 @@ class EditMetadataAction(InterfaceAction):
         if safe_merge:
             if not confirm('<p>'+_(
                 'Book formats and metadata from the selected books '
-                'will be added to the <b>first selected book</b> (%s). '
-                'ISBN will <i>not</i> be merged.<br><br> '
+                'will be added to the <b>first selected book</b> (%s).<br> '
                 'The second and subsequently selected books will not '
                 'be deleted or changed.<br><br>'
                 'Please confirm you want to proceed.')%title
@@ -413,7 +433,7 @@ class EditMetadataAction(InterfaceAction):
                 'Book formats from the selected books will be merged '
                 'into the <b>first selected book</b> (%s). '
                 'Metadata in the first selected book will not be changed. '
-                'Author, Title, ISBN and all other metadata will <i>not</i> be merged.<br><br>'
+                'Author, Title and all other metadata will <i>not</i> be merged.<br><br>'
                 'After merger the second and subsequently '
                 'selected books, with any metadata they have will be <b>deleted</b>. <br><br>'
                 'All book formats of the first selected book will be kept '
@@ -427,8 +447,7 @@ class EditMetadataAction(InterfaceAction):
         else:
             if not confirm('<p>'+_(
                 'Book formats and metadata from the selected books will be merged '
-                'into the <b>first selected book</b> (%s). '
-                'ISBN will <i>not</i> be merged.<br><br>'
+                'into the <b>first selected book</b> (%s).<br><br>'
                 'After merger the second and '
                 'subsequently selected books will be <b>deleted</b>. <br><br>'
                 'All book formats of the first selected book will be kept '
@@ -490,11 +509,13 @@ class EditMetadataAction(InterfaceAction):
     def merge_metadata(self, dest_id, src_ids):
         db = self.gui.library_view.model().db
         dest_mi = db.get_metadata(dest_id, index_is_id=True)
+        merged_identifiers = db.get_identifiers(dest_id, index_is_id=True)
         orig_dest_comments = dest_mi.comments
         dest_cover = db.cover(dest_id, index_is_id=True)
         had_orig_cover = bool(dest_cover)
         for src_id in src_ids:
             src_mi = db.get_metadata(src_id, index_is_id=True)
+
             if src_mi.comments and orig_dest_comments != src_mi.comments:
                 if not dest_mi.comments:
                     dest_mi.comments = src_mi.comments
@@ -523,7 +544,15 @@ class EditMetadataAction(InterfaceAction):
             if not dest_mi.series:
                 dest_mi.series = src_mi.series
                 dest_mi.series_index = src_mi.series_index
+
+            src_identifiers = db.get_identifiers(src_id, index_is_id=True)
+            src_identifiers.update(merged_identifiers)
+            merged_identifiers = src_identifiers.copy()
+
+        if merged_identifiers:
+            dest_mi.set_identifiers(merged_identifiers)
         db.set_metadata(dest_id, dest_mi, ignore_errors=False)
+
         if not had_orig_cover and dest_cover:
             db.set_cover(dest_id, dest_cover)
 
@@ -689,13 +718,7 @@ class EditMetadataAction(InterfaceAction):
                 _('Failed to apply updated metadata for some books'
                     ' in your library. Click "Show Details" to see '
                     'details.'), det_msg='\n\n'.join(msg), show=True)
-        if self.applied_ids:
-            cr = self.gui.library_view.currentIndex().row()
-            self.gui.library_view.model().refresh_ids(
-                list(self.applied_ids), cr)
-            if self.gui.cover_flow:
-                self.gui.cover_flow.dataChanged()
-            self.gui.tags_view.recount()
+        self.refresh_gui(self.applied_ids)
 
         self.apply_id_map = []
         self.apply_pd = None
@@ -704,6 +727,16 @@ class EditMetadataAction(InterfaceAction):
                 self.apply_callback(list(self.applied_ids))
         finally:
             self.apply_callback = None
+
+    def refresh_gui(self, book_ids, covers_changed=True, tag_browser_changed=True):
+        if book_ids:
+            cr = self.gui.library_view.currentIndex().row()
+            self.gui.library_view.model().refresh_ids(
+                list(book_ids), cr)
+            if covers_changed and self.gui.cover_flow:
+                self.gui.cover_flow.dataChanged()
+            if tag_browser_changed:
+                self.gui.tags_view.recount()
 
     # }}}
 

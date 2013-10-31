@@ -9,6 +9,7 @@ Command line interface to conversion sub-system
 
 import sys, os
 from optparse import OptionGroup, Option
+from collections import OrderedDict
 
 from calibre.utils.config import OptionParser
 from calibre.utils.logging import Log
@@ -27,7 +28,7 @@ specified as the first two arguments to the command.
 The output ebook format is guessed from the file extension of \
 output_file. output_file can also be of the special format .EXT where \
 EXT is the output file extension. In this case, the name of the output \
-file is derived the name of the input file. Note that the filenames must \
+file is derived from the name of the input file. Note that the filenames must \
 not start with a hyphen. Finally, if output_file has no extension, then \
 it is treated as a directory and an "open ebook" (OEB) consisting of HTML \
 files is written to that directory. These files are the files that would \
@@ -94,6 +95,8 @@ def option_recommendation_to_cli_option(add_option, rec):
     if opt.long_switch == 'verbose':
         attrs['action'] = 'count'
         attrs.pop('type', '')
+    if opt.name == 'read_metadata_from_opf':
+        switches.append('--from-opf')
     if opt.name in DEFAULT_TRUE_OPTIONS and rec.recommended_value is True:
         switches = ['--disable-'+opt.long_switch]
     add_option(Option(*switches, **attrs))
@@ -101,13 +104,46 @@ def option_recommendation_to_cli_option(add_option, rec):
 def group_titles():
     return _('INPUT OPTIONS'), _('OUTPUT OPTIONS')
 
+def recipe_test(option, opt_str, value, parser):
+    assert value is None
+    value = []
+
+    def floatable(str):
+        try:
+            float(str)
+            return True
+        except ValueError:
+            return False
+
+    for arg in parser.rargs:
+        # stop on --foo like options
+        if arg[:2] == "--":
+            break
+        # stop on -a, but not on -3 or -3.0
+        if arg[:1] == "-" and len(arg) > 1 and not floatable(arg):
+            break
+        try:
+            value.append(int(arg))
+        except (TypeError, ValueError, AttributeError):
+            break
+        if len(value) == 2:
+            break
+    del parser.rargs[:len(value)]
+
+    while len(value) < 2:
+        value.append(2)
+
+    setattr(parser.values, option.dest, tuple(value))
+
 def add_input_output_options(parser, plumber):
     input_options, output_options = \
                                 plumber.input_options, plumber.output_options
-
     def add_options(group, options):
         for opt in options:
-            option_recommendation_to_cli_option(group, opt)
+            if plumber.input_fmt == 'recipe' and opt.option.long_switch == 'test':
+                group(Option('--test', dest='test', action='callback', callback=recipe_test))
+            else:
+                option_recommendation_to_cli_option(group, opt)
 
     if input_options:
         title = group_titles()[0]
@@ -124,22 +160,22 @@ def add_input_output_options(parser, plumber):
         parser.add_option_group(oo)
 
 def add_pipeline_options(parser, plumber):
-    groups = {
-              '' : ('',
+    groups = OrderedDict((
+              ('' , ('',
                     [
                      'input_profile',
                      'output_profile',
                      ]
-                    ),
-              'LOOK AND FEEL' : (
+                    )),
+              (_('LOOK AND FEEL') , (
                   _('Options to control the look and feel of the output'),
                   [
                       'base_font_size', 'disable_font_rescaling',
                       'font_size_mapping', 'embed_font_family',
-                      'subset_embedded_fonts',
+                      'subset_embedded_fonts', 'embed_all_fonts',
                       'line_height', 'minimum_line_height',
                       'linearize_tables',
-                      'extra_css', 'filter_css',
+                      'extra_css', 'filter_css', 'expand_css',
                       'smarten_punctuation', 'unsmarten_punctuation',
                       'margin_top', 'margin_left', 'margin_right',
                       'margin_bottom', 'change_justification',
@@ -148,17 +184,17 @@ def add_pipeline_options(parser, plumber):
                       'remove_paragraph_spacing_indent_size',
                       'asciiize', 'keep_ligatures',
                   ]
-                  ),
+                  )),
 
-              'HEURISTIC PROCESSING' : (
+              (_('HEURISTIC PROCESSING') , (
                   _('Modify the document text and structure using common'
                      ' patterns. Disabled by default. Use %(en)s to enable. '
                      ' Individual actions can be disabled with the %(dis)s options.')
                   % dict(en='--enable-heuristics', dis='--disable-*'),
                   ['enable_heuristics'] + HEURISTIC_OPTIONS
-                  ),
+                  )),
 
-              'SEARCH AND REPLACE' : (
+              (_('SEARCH AND REPLACE') , (
                  _('Modify the document text and structure using user defined patterns.'),
                  [
                      'sr1_search', 'sr1_replace',
@@ -166,9 +202,9 @@ def add_pipeline_options(parser, plumber):
                      'sr3_search', 'sr3_replace',
                      'search_replace',
                  ]
-              ),
+              )),
 
-              'STRUCTURE DETECTION' : (
+              (_('STRUCTURE DETECTION') , (
                   _('Control auto-detection of document structure.'),
                   [
                       'chapter', 'chapter_mark',
@@ -176,9 +212,9 @@ def add_pipeline_options(parser, plumber):
                       'insert_metadata', 'page_breaks_before',
                       'remove_fake_margins', 'start_reading_at',
                   ]
-                  ),
+                  )),
 
-              'TABLE OF CONTENTS' : (
+              (_('TABLE OF CONTENTS') , (
                   _('Control the automatic generation of a Table of Contents. By '
                   'default, if the source file has a Table of Contents, it will '
                   'be used in preference to the automatically generated one.'),
@@ -187,26 +223,20 @@ def add_pipeline_options(parser, plumber):
                     'toc_threshold', 'max_toc_links', 'no_chapters_in_toc',
                     'use_auto_toc', 'toc_filter', 'duplicate_links_in_toc',
                   ]
-                  ),
+                  )),
 
-              'METADATA' : (_('Options to set metadata in the output'),
-                            plumber.metadata_option_names,
-                            ),
-              'DEBUG': (_('Options to help with debugging the conversion'),
+              (_('METADATA') , (_('Options to set metadata in the output'),
+                            plumber.metadata_option_names + ['read_metadata_from_opf'],
+                            )),
+              (_('DEBUG'), (_('Options to help with debugging the conversion'),
                         [
                          'verbose',
                          'debug_pipeline',
-                         ]),
+                         ])),
 
+              ))
 
-              }
-
-    group_order = ['', 'LOOK AND FEEL', 'HEURISTIC PROCESSING',
-            'SEARCH AND REPLACE', 'STRUCTURE DETECTION',
-            'TABLE OF CONTENTS', 'METADATA', 'DEBUG']
-
-    for group in group_order:
-        desc, options = groups[group]
+    for group, (desc, options) in groups.iteritems():
         if group:
             group = OptionGroup(parser, group, desc)
             parser.add_option_group(group)
@@ -320,7 +350,7 @@ def main(args=sys.argv):
         opts.search_replace = read_sr_patterns(opts.search_replace, log)
 
     recommendations = [(n.dest, getattr(opts, n.dest),
-                        OptionRecommendation.HIGH) \
+                        OptionRecommendation.HIGH)
                                         for n in parser.options_iter()
                                         if n.dest]
     plumber.merge_ui_recommendations(recommendations)
@@ -342,3 +372,4 @@ def main(args=sys.argv):
 
 if __name__ == '__main__':
     sys.exit(main())
+

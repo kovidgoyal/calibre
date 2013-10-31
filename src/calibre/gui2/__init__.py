@@ -73,7 +73,7 @@ defs['action-layout-context-menu'] = (
 
 defs['action-layout-context-menu-device'] = (
         'View', 'Save To Disk', None, 'Remove Books', None,
-        'Add To Library', 'Edit Collections',
+        'Add To Library', 'Edit Collections', 'Match Books'
         )
 
 defs['action-layout-context-menu-cover-browser'] = (
@@ -110,23 +110,33 @@ defs['bd_overlay_cover_size'] = False
 defs['tags_browser_category_icons'] = {}
 defs['cover_browser_reflections'] = True
 defs['extra_row_spacing'] = 0
+defs['refresh_book_list_on_bulk_edit'] = True
+defs['cover_grid_width'] = 0
+defs['cover_grid_height'] = 0
+defs['cover_grid_spacing'] = 0
+defs['cover_grid_color'] = (80, 80, 80)
+defs['cover_grid_cache_size'] = 100
+defs['cover_grid_disk_cache_size'] = 2500
+defs['cover_grid_show_title'] = False
+defs['cover_grid_texture'] = None
+defs['show_vl_tabs'] = False
 del defs
 # }}}
 
-NONE = QVariant() #: Null value to return from the data function of item models
+NONE = QVariant()  # : Null value to return from the data function of item models
 UNDEFINED_QDATETIME = QDateTime(UNDEFINED_DATE)
 
 ALL_COLUMNS = ['title', 'ondevice', 'authors', 'size', 'timestamp', 'rating', 'publisher',
         'tags', 'series', 'pubdate']
 
-def _config(): # {{{
+def _config():  # {{{
     c = Config('gui', 'preferences for the calibre GUI')
     c.add_opt('send_to_storage_card_by_default', default=False,
               help=_('Send file to storage card instead of main memory by default'))
     c.add_opt('confirm_delete', default=False,
               help=_('Confirm before deleting'))
     c.add_opt('main_window_geometry', default=None,
-              help=_('Main window geometry')) # value QVariant.toByteArray
+              help=_('Main window geometry'))  # value QVariant.toByteArray
     c.add_opt('new_version_notification', default=True,
               help=_('Notify when a new version is available'))
     c.add_opt('use_roman_numerals_for_series_number', default=True,
@@ -578,9 +588,9 @@ class FileDialog(QObject):
                        filters=[],
                        add_all_files_filter=True,
                        parent=None,
-                       modal = True,
-                       name = '',
-                       mode = QFileDialog.ExistingFiles,
+                       modal=True,
+                       name='',
+                       mode=QFileDialog.ExistingFiles,
                        default_dir='~',
                        no_save_dir=False
                        ):
@@ -609,7 +619,7 @@ class FileDialog(QObject):
         if not isinstance(initial_dir, basestring):
             initial_dir = os.path.expanduser(default_dir)
         self.selected_files = []
-        use_native_dialog = not os.environ.has_key('CALIBRE_NO_NATIVE_FILEDIALOGS')
+        use_native_dialog = 'CALIBRE_NO_NATIVE_FILEDIALOGS' not in os.environ
         with SanitizeLibraryPath():
             opts = QFileDialog.Option()
             if not use_native_dialog:
@@ -629,7 +639,8 @@ class FileDialog(QObject):
                         ftext, "", opts)
                 for f in fs:
                     f = unicode(f)
-                    if not f: continue
+                    if not f:
+                        continue
                     if not os.path.exists(f):
                         # QFileDialog for some reason quotes spaces
                         # on linux if there is more than one space in a row
@@ -728,14 +739,14 @@ def choose_images(window, name, title, select_only_single_file=True,
         return fd.get_files()
     return None
 
-def pixmap_to_data(pixmap, format='JPEG'):
+def pixmap_to_data(pixmap, format='JPEG', quality=90):
     '''
     Return the QPixmap pixmap as a string saved in the specified format.
     '''
     ba = QByteArray()
     buf = QBuffer(ba)
     buf.open(QBuffer.WriteOnly)
-    pixmap.save(buf, format)
+    pixmap.save(buf, format, quality=quality)
     return bytes(ba.data())
 
 class ResizableDialog(QDialog):
@@ -743,11 +754,13 @@ class ResizableDialog(QDialog):
     def __init__(self, *args, **kwargs):
         QDialog.__init__(self, *args)
         self.setupUi(self)
-        nh, nw = min_available_height()-25, available_width()-10
+        desktop = QCoreApplication.instance().desktop()
+        geom = desktop.availableGeometry(self)
+        nh, nw = geom.height()-25, geom.width()-10
         if nh < 0:
-            nh = 800
+            nh = max(800, self.height())
         if nw < 0:
-            nw = 600
+            nw = max(600, self.height())
         nh = min(self.height(), nh)
         nw = min(self.width(), nw)
         self.resize(nw, nh)
@@ -863,6 +876,11 @@ class Application(QApplication):
                 'MessageBoxWarning': u'dialog_warning.png',
                 'MessageBoxCritical': u'dialog_error.png',
                 'MessageBoxQuestion': u'dialog_question.png',
+                # These two are used to calculate the sizes for the doc widget
+                # title bar buttons, therefore, they have to exist. The actual
+                # icon is not used.
+                'TitleBarCloseButton': u'window-close.png',
+                'TitleBarNormalButton': u'window-close.png',
                 }.iteritems():
             if v not in pcache:
                 p = I(v)
@@ -917,7 +935,6 @@ class Application(QApplication):
             if self._file_open_paths:
                 self.file_event_hook(self._file_open_paths)
                 self._file_open_paths = []
-
 
     def load_translations(self):
         if self._translator is not None:
@@ -1058,4 +1075,5 @@ def build_forms(srcdir, info=None):
 _df = os.environ.get('CALIBRE_DEVELOP_FROM', None)
 if _df and os.path.exists(_df):
     build_forms(_df)
+
 

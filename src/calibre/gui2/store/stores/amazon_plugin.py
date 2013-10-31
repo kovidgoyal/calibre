@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import (unicode_literals, division, absolute_import, print_function)
-store_version = 3 # Needed for dynamic plugin loading
+store_version = 4 # Needed for dynamic plugin loading
 
 __license__ = 'GPL 3'
 __copyright__ = '2011, John Schember <john@nachtimwald.com>'
@@ -126,15 +126,47 @@ class AmazonKindleStore(StorePlugin):
 
         counter = max_results
         with closing(br.open(url, timeout=timeout)) as f:
-            doc = html.fromstring(f.read().decode('latin-1', 'replace'))
+            doc = html.fromstring(f.read())
 
-            data_xpath = '//div[contains(@class, "prod")]'
-            format_xpath = './/ul[contains(@class, "rsltL") or contains(@class, "rsltGridList")]//span[contains(@class, "lrg") and not(contains(@class, "bld"))]/text()'
-            asin_xpath = '@name'
-            cover_xpath = './/img[@class="productImage"]/@src'
-            title_xpath = './/h3[@class="newaps"]/a//text()'
-            author_xpath = './/h3[@class="newaps"]//span[contains(@class, "reg")]//text()'
-            price_xpath = './/ul[contains(@class, "rsltL") or contains(@class, "rsltGridList")]//span[contains(@class, "lrg") and contains(@class, "bld")]/text()'
+            if doc.xpath('//div[@id = "atfResults" and contains(@class, "grid")]'):
+                data_xpath = '//div[contains(@class, "prod")]'
+                format_xpath = (
+                        './/ul[contains(@class, "rsltGridList")]'
+                        '//span[contains(@class, "lrg") and not(contains(@class, "bld"))]/text()')
+                asin_xpath = '@name'
+                cover_xpath = './/img[@class="productImage"]/@src'
+                title_xpath = './/h3[@class="newaps"]/a//text()'
+                author_xpath = './/h3[@class="newaps"]//span[contains(@class, "reg")]//text()'
+                price_xpath = (
+                        './/ul[contains(@class, "rsltGridList")]'
+                        '//span[contains(@class, "lrg") and contains(@class, "bld")]/text()')
+            elif doc.xpath('//div[@id = "atfResults" and contains(@class, "ilresults")]'):
+                data_xpath = '//li[(@class="ilo")]'
+                format_xpath = (
+                        './/ul[contains(@class, "rsltGridList")]'
+                        '//span[contains(@class, "lrg") and not(contains(@class, "bld"))]/text()')
+                asin_xpath = '@name'
+                cover_xpath = './div[@class = "ilf"]/a/img[contains(@class, "ilo")]/@src'
+                title_xpath = './/h3[@class="newaps"]/a//text()'
+                author_xpath = './/h3[@class="newaps"]//span[contains(@class, "reg")]//text()'
+                # Results can be in a grid (table) or a column
+                price_xpath = (
+                        './/ul[contains(@class, "rsltL") or contains(@class, "rsltGridList")]'
+                        '//span[contains(@class, "lrg") and contains(@class, "bld")]/text()')
+            elif doc.xpath('//div[@id = "atfResults" and contains(@class, "list")]'):
+                data_xpath = '//div[contains(@class, "prod")]'
+                format_xpath = (
+                        './/ul[contains(@class, "rsltL")]'
+                        '//span[contains(@class, "lrg") and not(contains(@class, "bld"))]/text()')
+                asin_xpath = '@name'
+                cover_xpath = './/img[@class="productImage"]/@src'
+                title_xpath = './/h3[@class="newaps"]/a//text()'
+                author_xpath = './/h3[@class="newaps"]//span[contains(@class, "reg")]//text()'
+                price_xpath = (
+                        './/ul[contains(@class, "rsltL")]'
+                        '//span[contains(@class, "lrg") and contains(@class, "bld")]/text()')
+            else:
+                return
 
             for data in doc.xpath(data_xpath):
                 if counter <= 0:

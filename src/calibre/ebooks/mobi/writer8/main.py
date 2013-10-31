@@ -22,6 +22,7 @@ from calibre.ebooks.mobi.utils import (create_text_record, to_base,
 from calibre.ebooks.compression.palmdoc import compress_doc
 from calibre.ebooks.oeb.base import (OEB_DOCS, OEB_STYLES, SVG_MIME, XPath,
         extract, XHTML, urlnormalize)
+from calibre.ebooks.oeb.normalize_css import condense_sheet
 from calibre.ebooks.oeb.parse_utils import barename
 from calibre.ebooks.mobi.writer8.skeleton import Chunker, aid_able_tags, to_href
 from calibre.ebooks.mobi.writer8.index import (NCXIndex, SkelIndex,
@@ -48,8 +49,8 @@ class KF8Writer(object):
         self.toc_adder = TOCAdder(oeb, opts)
         self.used_images = set()
         self.resources = resources
-        self.flows = [None] # First flow item is reserved for the text
-        self.records = [None] # Placeholder for zeroth record
+        self.flows = [None]  # First flow item is reserved for the text
+        self.records = [None]  # Placeholder for zeroth record
 
         self.log('\tGenerating KF8 markup...')
         self.dup_data()
@@ -145,11 +146,13 @@ class KF8Writer(object):
                 cssutils.replaceUrls(sheet, replacer, ignoreImportRules=True)
 
     def extract_css_into_flows(self):
-        inlines = defaultdict(list) # Ensure identical <style>s not repeated
+        inlines = defaultdict(list)  # Ensure identical <style>s not repeated
         sheets = {}
 
         for item in self.oeb.manifest:
             if item.media_type in OEB_STYLES:
+                if not self.opts.expand_css and hasattr(item.data, 'cssText'):
+                    condense_sheet(self.data(item))
                 data = self.data(item).cssText
                 sheets[item.href] = len(self.flows)
                 self.flows.append(force_unicode(data, 'utf-8'))
@@ -227,7 +230,11 @@ class KF8Writer(object):
                 count += 1
                 ref = item.abshref(a.get('href'))
                 href, _, frag = ref.partition('#')
-                href = urlnormalize(href)
+                try:
+                    href = urlnormalize(href)
+                except ValueError:
+                    # a non utf-8 quoted url? Since we cannot interpret it, pass it through.
+                    pass
                 if href in hrefs:
                     placeholder = 'kindle:pos:fid:0000:off:%s'%to_href(count)
                     self.link_map[placeholder] = (href, frag)
@@ -375,7 +382,7 @@ class KF8Writer(object):
                 key=lambda entry: (entry['depth'], entry['offset']))
         is_non_linear = original != linearized
         entries = linearized
-        is_non_linear = False # False as we are using the linearized entries
+        is_non_linear = False  # False as we are using the linearized entries
 
         if is_non_linear:
             for entry in entries:
@@ -428,7 +435,7 @@ class KF8Writer(object):
                 _('Unknown'), ref.type, (pos, fid)))
 
         if self.guide_table:
-            self.guide_table.sort(key=lambda x:x.type) # Needed by the Kindle
+            self.guide_table.sort(key=lambda x:x.type)  # Needed by the Kindle
             self.guide_records = GuideIndex(self.guide_table)()
 
 def create_kf8_book(oeb, opts, resources, for_joint=False):

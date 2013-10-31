@@ -12,17 +12,19 @@ import sip
 
 from PyQt4.Qt import (QApplication, QFontInfo, QSize, QWidget, QPlainTextEdit,
     QToolBar, QVBoxLayout, QAction, QIcon, Qt, QTabWidget, QUrl, QFormLayout,
-    QSyntaxHighlighter, QColor, QChar, QColorDialog, QMenu, QDialog,
-    QHBoxLayout, QKeySequence, QLineEdit, QDialogButtonBox)
+    QSyntaxHighlighter, QColor, QChar, QColorDialog, QMenu, QDialog, QLabel,
+    QHBoxLayout, QKeySequence, QLineEdit, QDialogButtonBox, QPushButton,
+    QCheckBox)
 from PyQt4.QtWebKit import QWebView, QWebPage
 
 from calibre.ebooks.chardet import xml_to_unicode
 from calibre import xml_replace_entities, prepare_string_for_xml
-from calibre.gui2 import open_url
+from calibre.gui2 import open_url, error_dialog, choose_files
 from calibre.utils.soupparser import fromstring
 from calibre.utils.config import tweaks
+from calibre.utils.imghdr import what
 
-class PageAction(QAction): # {{{
+class PageAction(QAction):  # {{{
 
     def __init__(self, wac, icon, text, checkable, view):
         QAction.__init__(self, QIcon(I(icon+'.png')), text, view)
@@ -43,14 +45,15 @@ class PageAction(QAction): # {{{
         self.page_action.trigger()
 
     def update_state(self, *args):
-        if sip.isdeleted(self) or sip.isdeleted(self.page_action): return
+        if sip.isdeleted(self) or sip.isdeleted(self.page_action):
+            return
         if self.isCheckable():
             self.setChecked(self.page_action.isChecked())
         self.setEnabled(self.page_action.isEnabled())
 
 # }}}
 
-class BlockStyleAction(QAction): # {{{
+class BlockStyleAction(QAction):  # {{{
 
     def __init__(self, text, name, view):
         QAction.__init__(self, text, view)
@@ -62,7 +65,7 @@ class BlockStyleAction(QAction): # {{{
 
 # }}}
 
-class EditorWidget(QWebView): # {{{
+class EditorWidget(QWebView):  # {{{
 
     def __init__(self, parent=None):
         QWebView.__init__(self, parent)
@@ -155,8 +158,10 @@ class EditorWidget(QWebView): # {{{
             self.block_style_actions.append(ac)
 
         self.action_insert_link = QAction(QIcon(I('insert-link.png')),
-                _('Insert link'), self)
+                _('Insert link or image'), self)
         self.action_insert_link.triggered.connect(self.insert_link)
+        self.pageAction(QWebPage.ToggleBold).changed.connect(self.update_link_action)
+        self.action_insert_link.setEnabled(False)
         self.action_clear = QAction(QIcon(I('edit-clear')), _('Clear'), self)
         self.action_clear.triggered.connect(self.clear_text)
 
@@ -165,6 +170,10 @@ class EditorWidget(QWebView): # {{{
 
         self.setHtml('')
         self.set_readonly(False)
+
+    def update_link_action(self):
+        wac = self.pageAction(QWebPage.ToggleBold)
+        self.action_insert_link.setEnabled(wac.isEnabled())
 
     def set_readonly(self, what):
         self.readonly = what
@@ -196,18 +205,26 @@ class EditorWidget(QWebView): # {{{
             self.exec_command('hiliteColor', unicode(col.name()))
 
     def insert_link(self, *args):
-        link, name = self.ask_link()
+        link, name, is_image = self.ask_link()
         if not link:
             return
-        url = self.parse_link(unicode(link))
+        url = self.parse_link(link)
         if url.isValid():
             url = unicode(url.toString())
-            if name:
+            self.setFocus(Qt.OtherFocusReason)
+            if is_image:
+                self.exec_command('insertHTML',
+                        '<img src="%s" alt="%s"></img>'%(prepare_string_for_xml(url, True),
+                            prepare_string_for_xml(name or _('Image'), True)))
+            elif name:
                 self.exec_command('insertHTML',
                         '<a href="%s">%s</a>'%(prepare_string_for_xml(url, True),
                             prepare_string_for_xml(name)))
             else:
                 self.exec_command('createLink', url)
+        else:
+            error_dialog(self, _('Invalid URL'),
+                         _('The url %r is invalid') % link, show=True)
 
     def ask_link(self):
         d = QDialog(self)
@@ -216,19 +233,51 @@ class EditorWidget(QWebView): # {{{
         d.setLayout(l)
         d.url = QLineEdit(d)
         d.name = QLineEdit(d)
+        d.treat_as_image = QCheckBox(d)
+        d.setMinimumWidth(600)
         d.bb = QDialogButtonBox(QDialogButtonBox.Ok|QDialogButtonBox.Cancel)
+        d.br = b = QPushButton(_('&Browse'))
+        b.setIcon(QIcon(I('document_open.png')))
+        def cf():
+            files = choose_files(d, 'select link file', _('Choose file'), select_only_single_file=True)
+            if files:
+                path = files[0]
+                d.url.setText(path)
+                if path and os.path.exists(path):
+                    with lopen(path, 'rb') as f:
+                        q = what(f)
+                    is_image = q in {'jpeg', 'png', 'gif'}
+                    d.treat_as_image.setChecked(is_image)
+
+        b.clicked.connect(cf)
+        d.la = la = QLabel(_(
+            'Enter a URL. If you check the "Treat the URL as an image" box '
+            'then the URL will be added as an image reference instead of as '
+            'a link. You can also choose to create a link to a file on '
+            'your computer. '
+            'Note that if you create a link to a file on your computer, it '
+            'will stop working if the file is moved.'))
+        la.setWordWrap(True)
+        la.setStyleSheet('QLabel { margin-bottom: 1.5ex }')
+        l.setWidget(0, l.SpanningRole, la)
         l.addRow(_('Enter &URL:'), d.url)
-        l.addRow(_('Enter name (optional):'), d.name)
+        l.addRow(_('Treat the URL as an &image'), d.treat_as_image)
+        l.addRow(_('Enter &name (optional):'), d.name)
+        l.addRow(_('Choose a file on your computer:'), d.br)
         l.addRow(d.bb)
         d.bb.accepted.connect(d.accept)
         d.bb.rejected.connect(d.reject)
-        link, name = None, None
+        d.resize(d.sizeHint())
+        link, name, is_image = None, None, False
         if d.exec_() == d.Accepted:
             link, name = unicode(d.url.text()).strip(), unicode(d.name.text()).strip()
-        return link, name
+            is_image = d.treat_as_image.isChecked()
+        return link, name, is_image
 
     def parse_link(self, link):
         link = link.strip()
+        if link and os.path.exists(link):
+            return QUrl.fromLocalFile(link)
         has_schema = re.match(r'^[a-zA-Z]+:', link)
         if has_schema is not None:
             url = QUrl(link, QUrl.TolerantMode)
@@ -268,14 +317,14 @@ class EditorWidget(QWebView): # {{{
 
         def fget(self):
             ans = u''
-            check = unicode(self.page().mainFrame().toPlainText()).strip()
-            if not check:
-                return ans
             try:
+                check = unicode(self.page().mainFrame().toPlainText()).strip()
                 raw = unicode(self.page().mainFrame().toHtml())
                 raw = xml_to_unicode(raw, strip_encoding_pats=True,
                                     resolve_entities=True)[0]
                 raw = self.comments_pat.sub('', raw)
+                if not check and '<img' not in raw.lower():
+                    return ans
 
                 try:
                     root = html.fromstring(raw)
@@ -362,9 +411,9 @@ class Highlighter(QSyntaxHighlighter):
         self.colors['doctype']        = QColor(192, 192, 192)
         self.colors['entity']         = QColor(128, 128, 128)
         self.colors['tag']            = QColor(136,  18, 128)
-        self.colors['comment']        = QColor( 35, 110,  37)
+        self.colors['comment']        = QColor(35, 110,  37)
         self.colors['attrname']       = QColor(153,  69,   0)
-        self.colors['attrval']        = QColor( 36,  36, 170)
+        self.colors['attrval']        = QColor(36,  36, 170)
 
     def highlightBlock(self, text):
         state = self.previousBlockState()
@@ -378,8 +427,8 @@ class Highlighter(QSyntaxHighlighter):
                 start = pos
                 while pos < len_:
                     if text.mid(pos, 3) == "-->":
-                        pos += 3;
-                        state = State_Text;
+                        pos += 3
+                        state = State_Text
                         break
                     else:
                         pos += 1
@@ -422,7 +471,7 @@ class Highlighter(QSyntaxHighlighter):
                     if ch == QChar('>'):
                         state = State_Text
                         break
-                self.setFormat(start, pos - start, self.colors['tag']);
+                self.setFormat(start, pos - start, self.colors['tag'])
 
             # anywhere after tag name and before tag closing ('>')
             elif state == State_InsideTag:
@@ -489,7 +538,7 @@ class Highlighter(QSyntaxHighlighter):
                     # just stop at non-space or tag delimiter
                     start = pos
                     while pos < len_:
-                        ch = text.at(pos);
+                        ch = text.at(pos)
                         if ch.isSpace():
                             break
                         if ch in (QChar('>'), QChar('/')):
@@ -538,7 +587,7 @@ class Highlighter(QSyntaxHighlighter):
                                 state = State_DocType
                             else:
                                 state = State_TagStart
-                        break;
+                        break
                     elif ch == QChar('&'):
                         start = pos
                         while pos < len_ and text.at(pos) != QChar(';'):
@@ -549,12 +598,11 @@ class Highlighter(QSyntaxHighlighter):
                     else:
                         pos += 1
 
-
         self.setCurrentBlockState(state)
 
 # }}}
 
-class Editor(QWidget): # {{{
+class Editor(QWidget):  # {{{
 
     def __init__(self, parent=None, one_line_toolbar=False):
         QWidget.__init__(self, parent)
@@ -591,6 +639,9 @@ class Editor(QWidget): # {{{
         self.tabs.currentChanged[int].connect(self.change_tab)
         self.highlighter = Highlighter(self.code_edit.document())
         self.layout().setContentsMargins(0, 0, 0, 0)
+
+    def set_minimum_height_for_editor(self, val):
+        self.editor.setMinimumHeight(val)
 
         # toolbar1 {{{
         self.toolbar1.addAction(self.editor.action_undo)
@@ -650,13 +701,13 @@ class Editor(QWidget): # {{{
         return property(fget=fget, fset=fset)
 
     def change_tab(self, index):
-        #print 'reloading:', (index and self.wyswyg_dirty) or (not index and
+        # print 'reloading:', (index and self.wyswyg_dirty) or (not index and
         #        self.source_dirty)
-        if index == 1: # changing to code view
+        if index == 1:  # changing to code view
             if self.wyswyg_dirty:
                 self.code_edit.setPlainText(self.editor.html)
                 self.wyswyg_dirty = False
-        elif index == 0: #changing to wyswyg
+        elif index == 0:  # changing to wyswyg
             if self.source_dirty:
                 self.editor.html = unicode(self.code_edit.toPlainText())
                 self.source_dirty = False
@@ -687,4 +738,5 @@ if __name__ == '__main__':
     w.show()
     w.html = '<b>testing</b>'
     app.exec_()
-    #print w.html
+    # print w.html
+

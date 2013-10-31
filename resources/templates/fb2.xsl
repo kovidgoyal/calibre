@@ -223,13 +223,13 @@
     <xsl:template match="fb:p">
         <xsl:element name="div">
             <xsl:attribute name="class">paragraph</xsl:attribute>
+            <xsl:if test="@style">
+                <xsl:attribute name="style"><xsl:value-of select="@style"/></xsl:attribute>
+            </xsl:if>
             <xsl:if test="@id">
                 <xsl:element name="a">
                     <xsl:attribute name="name"><xsl:value-of select="@id"/></xsl:attribute>
                 </xsl:element>
-            </xsl:if>
-            <xsl:if test="@style">
-                <xsl:attribute name="style"><xsl:value-of select="@style"/></xsl:attribute>
             </xsl:if>
             <xsl:apply-templates/>
         </xsl:element>
@@ -269,9 +269,14 @@
             </xsl:attribute>
             <xsl:choose>
                 <xsl:when test="(@type) = 'note'">
+                    <xsl:attribute name="link_note"></xsl:attribute>
                     <sup>
                         <xsl:apply-templates/>
                     </sup>
+                </xsl:when>
+                <xsl:when test="(@type) = 'cite' and @id">
+                    <xsl:attribute name="link_cite"><xsl:value-of select="@id"/></xsl:attribute>
+                    <xsl:apply-templates/>
                 </xsl:when>
                 <xsl:otherwise>
                     <xsl:apply-templates/>

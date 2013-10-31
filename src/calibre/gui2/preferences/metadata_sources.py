@@ -19,7 +19,7 @@ from calibre.customize.ui import (all_metadata_plugins, is_disabled,
         enable_plugin, disable_plugin, default_disabled_plugins)
 from calibre.gui2 import NONE, error_dialog, question_dialog
 
-class SourcesModel(QAbstractTableModel): # {{{
+class SourcesModel(QAbstractTableModel):  # {{{
 
     def __init__(self, parent=None):
         QAbstractTableModel.__init__(self, parent)
@@ -108,7 +108,6 @@ class SourcesModel(QAbstractTableModel): # {{{
             self.dataChanged.emit(index, index)
         return ret
 
-
     def flags(self, index):
         col = index.column()
         ans = QAbstractTableModel.flags(self, index)
@@ -145,8 +144,7 @@ class SourcesModel(QAbstractTableModel): # {{{
 
 # }}}
 
-class FieldsModel(QAbstractListModel): # {{{
-
+class FieldsModel(QAbstractListModel):  # {{{
 
     def __init__(self, parent=None):
         QAbstractTableModel.__init__(self, parent)
@@ -164,7 +162,9 @@ class FieldsModel(QAbstractListModel): # {{{
                 'languages': _('Languages'),
         }
         self.overrides = {}
-        self.exclude = frozenset(['series_index'])
+        self.exclude = frozenset([
+            'series_index', 'language'  # some plugins use language instead of languages
+        ])
 
     def rowCount(self, parent=None):
         return len(self.fields)
@@ -251,7 +251,7 @@ class FieldsModel(QAbstractListModel): # {{{
 
 # }}}
 
-class PluginConfig(QWidget): # {{{
+class PluginConfig(QWidget):  # {{{
 
     finished = pyqtSignal()
 

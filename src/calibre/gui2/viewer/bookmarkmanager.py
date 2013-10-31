@@ -1,15 +1,17 @@
-from __future__ import with_statement
+#!/usr/bin/env python
+# vim:fileencoding=utf-8
+from __future__ import (unicode_literals, division, absolute_import,
+                        print_function)
 
-__license__   = 'GPL v3'
-__copyright__ = '2009, John Schember <john@nachtimwald.com>'
+__license__ = 'GPL v3'
+__copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import cPickle, os
 
-from PyQt4.Qt import Qt, QDialog, QAbstractTableModel, QVariant, SIGNAL, \
-    QModelIndex, QInputDialog, QLineEdit, QFileDialog
+from PyQt4.Qt import (
+    Qt, QDialog, QListWidgetItem, QFileDialog, QItemSelectionModel)
 
 from calibre.gui2.viewer.bookmarkmanager_ui import Ui_BookmarkManager
-from calibre.gui2 import NONE
 
 class BookmarkManager(QDialog, Ui_BookmarkManager):
     def __init__(self, parent, bookmarks):
@@ -17,122 +19,106 @@ class BookmarkManager(QDialog, Ui_BookmarkManager):
 
         self.setupUi(self)
 
-        self.bookmarks = bookmarks[:]
+        self.original_bookmarks = bookmarks
         self.set_bookmarks()
 
-        self.connect(self.button_revert, SIGNAL('clicked()'), self.set_bookmarks)
-        self.connect(self.button_delete, SIGNAL('clicked()'), self.delete_bookmark)
-        self.connect(self.button_edit, SIGNAL('clicked()'), self.edit_bookmark)
-        self.connect(self.button_export, SIGNAL('clicked()'), self.export_bookmarks)
-        self.connect(self.button_import, SIGNAL('clicked()'), self.import_bookmarks)
+        self.button_revert.clicked.connect(lambda :self.set_bookmarks())
+        self.button_delete.clicked.connect(self.delete_bookmark)
+        self.button_edit.clicked.connect(self.edit_bookmark)
+        self.button_export.clicked.connect(self.export_bookmarks)
+        self.button_import.clicked.connect(self.import_bookmarks)
+        self.bookmarks_list.setStyleSheet('QListView::item { padding: 0.5ex }')
+        self.bookmarks_list.viewport().setAcceptDrops(True)
+        self.bookmarks_list.setDropIndicatorShown(True)
+        self.bookmarks_list.itemChanged.connect(self.item_changed)
+        self.resize(600, 500)
+        self.bookmarks_list.setFocus(Qt.OtherFocusReason)
 
     def set_bookmarks(self, bookmarks=None):
-        if bookmarks == None:
-            bookmarks = self.bookmarks[:]
-        self._model = BookmarkTableModel(self, bookmarks)
-        self.bookmarks_table.setModel(self._model)
-        self.bookmarks_table.resizeColumnsToContents()
+        if bookmarks is None:
+            bookmarks = self.original_bookmarks
+        self.bookmarks_list.clear()
+        for bm in bookmarks:
+            i = QListWidgetItem(bm['title'])
+            i.setData(Qt.UserRole, self.bm_to_item(bm))
+            i.setFlags(i.flags() | Qt.ItemIsEditable)
+            self.bookmarks_list.addItem(i)
+        if len(bookmarks) > 0:
+            self.bookmarks_list.setCurrentItem(self.bookmarks_list.item(0), QItemSelectionModel.ClearAndSelect)
+
+    def item_changed(self, item):
+        self.bookmarks_list.blockSignals(True)
+        title = unicode(item.data(Qt.DisplayRole).toString())
+        if not title:
+            title = _('Unknown')
+            item.setData(Qt.DisplayRole, title)
+        bm = self.item_to_bm(item)
+        bm['title'] = title
+        item.setData(Qt.UserRole, self.bm_to_item(bm))
+        self.bookmarks_list.blockSignals(False)
 
     def delete_bookmark(self):
-        indexes = self.bookmarks_table.selectionModel().selectedIndexes()
-        if indexes != []:
-            self._model.remove_row(indexes[0].row())
+        row = self.bookmarks_list.currentRow()
+        if row > -1:
+            self.bookmarks_list.takeItem(row)
 
     def edit_bookmark(self):
-        indexes = self.bookmarks_table.selectionModel().selectedIndexes()
-        if indexes != []:
-            title, ok = QInputDialog.getText(self, _('Edit bookmark'), _('New title for bookmark:'), QLineEdit.Normal, self._model.data(indexes[0], Qt.DisplayRole).toString())
-            title = QVariant(unicode(title).strip())
-            if ok and title:
-                self._model.setData(indexes[0], title, Qt.EditRole)
+        item = self.bookmarks_list.currentItem()
+        if item is not None:
+            self.bookmarks_list.editItem(item)
+
+    def bm_to_item(self, bm):
+        return bytearray(cPickle.dumps(bm, -1))
+
+    def item_to_bm(self, item):
+        return cPickle.loads(bytes(item.data(Qt.UserRole).toPyObject()))
 
     def get_bookmarks(self):
-        return self._model.bookmarks
+        l = self.bookmarks_list
+        return [self.item_to_bm(l.item(i)) for i in xrange(l.count())]
 
     def export_bookmarks(self):
         filename = QFileDialog.getSaveFileName(self, _("Export Bookmarks"),
                 '%s%suntitled.pickle' % (os.getcwdu(), os.sep),
                 _("Saved Bookmarks (*.pickle)"))
-        if filename == '':
+        if not filename:
             return
 
         with open(filename, 'w') as fileobj:
-            cPickle.dump(self._model.bookmarks, fileobj)
+            cPickle.dump(self.get_bookmarks(), fileobj)
 
     def import_bookmarks(self):
         filename = QFileDialog.getOpenFileName(self, _("Import Bookmarks"), '%s' % os.getcwdu(), _("Pickled Bookmarks (*.pickle)"))
-        if filename == '':
+        if not filename:
             return
 
         imported = None
         with open(filename, 'r') as fileobj:
             imported = cPickle.load(fileobj)
 
-        if imported != None:
+        if imported is not None:
             bad = False
             try:
                 for bm in imported:
-                    if len(bm) != 2:
+                    if 'title' not in bm:
                         bad = True
                         break
             except:
                 pass
 
             if not bad:
-                bookmarks = self._model.bookmarks[:]
+                bookmarks = self.get_bookmarks()
                 for bm in imported:
-                    if bm not in bookmarks and bm['title'] != 'calibre_current_page_bookmark':
+                    if bm not in bookmarks:
                         bookmarks.append(bm)
-                self.set_bookmarks(bookmarks)
+                self.set_bookmarks([bm for bm in bookmarks if bm['title'] != 'calibre_current_page_bookmark'])
 
+if __name__ == '__main__':
+    from PyQt4.Qt import QApplication
+    app = QApplication([])
+    d = BookmarkManager(None, [{'title':'Bookmark #%d' % i, 'data':b'xxxxx'} for i in range(1, 5)])
+    d.exec_()
+    import pprint
+    pprint.pprint(d.get_bookmarks())
 
-class BookmarkTableModel(QAbstractTableModel):
-    headers = [_("Name")]
-
-    def __init__(self, parent, bookmarks):
-        QAbstractTableModel.__init__(self, parent)
-
-        self.bookmarks = bookmarks[:]
-
-    def rowCount(self, parent):
-        if parent and parent.isValid():
-            return 0
-        return len(self.bookmarks)
-
-    def columnCount(self, parent):
-        if parent and parent.isValid():
-            return 0
-        return len(self.headers)
-
-    def data(self, index, role):
-        if role in (Qt.DisplayRole, Qt.EditRole):
-            ans = self.bookmarks[index.row()]['title']
-            return NONE if ans is None else QVariant(ans)
-        return NONE
-
-    def setData(self, index, value, role):
-        if role == Qt.EditRole:
-            bm = self.bookmarks[index.row()]
-            bm['title'] = unicode(value.toString()).strip()
-            self.emit(SIGNAL("dataChanged(QModelIndex, QModelIndex)"), index, index)
-            return True
-        return False
-
-    def flags(self, index):
-        flags = QAbstractTableModel.flags(self, index)
-        flags |= Qt.ItemIsEditable
-        return flags
-
-    def headerData(self, section, orientation, role):
-        if role != Qt.DisplayRole:
-            return NONE
-        if orientation == Qt.Horizontal:
-            return QVariant(self.headers[section])
-        else:
-            return QVariant(section+1)
-
-    def remove_row(self, row):
-        self.beginRemoveRows(QModelIndex(), row, row)
-        del self.bookmarks[row]
-        self.endRemoveRows()
 

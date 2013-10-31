@@ -130,6 +130,9 @@ class ComicMetadataReader(MetadataReaderPlugin):
     file_types = set(['cbr', 'cbz'])
     description = _('Extract cover from comic files')
 
+    def customization_help(self, gui=False):
+        return 'Read series number from volume or issue number. Default is volume, set this to issue to use issue number instead.'
+
     def get_metadata(self, stream, ftype):
         if hasattr(stream, 'seek') and hasattr(stream, 'tell'):
             pos = stream.tell()
@@ -151,8 +154,11 @@ class ComicMetadataReader(MetadataReaderPlugin):
         mi = MetaInformation(None, None)
         stream.seek(0)
         if ftype in {'cbr', 'cbz'}:
+            series_index = self.site_customization
+            if series_index not in {'volume', 'issue'}:
+                series_index = 'volume'
             try:
-                mi.smart_update(get_comic_metadata(stream, ftype))
+                mi.smart_update(get_comic_metadata(stream, ftype, series_index=series_index))
             except:
                 pass
         if ret is not None:
@@ -429,7 +435,7 @@ class EPUBMetadataWriter(MetadataWriterPlugin):
 
     def set_metadata(self, stream, mi, type):
         from calibre.ebooks.metadata.epub import set_metadata
-        set_metadata(stream, mi, apply_null=self.apply_null)
+        set_metadata(stream, mi, apply_null=self.apply_null, force_identifiers=self.force_identifiers)
 
 class FB2MetadataWriter(MetadataWriterPlugin):
 
@@ -664,7 +670,7 @@ from calibre.devices.teclast.driver import (TECLAST_K3, NEWSMY, IPAPYRUS,
 from calibre.devices.sne.driver import SNE
 from calibre.devices.misc import (PALMPRE, AVANT, SWEEX, PDNOVEL,
         GEMEI, VELOCITYMICRO, PDNOVEL_KOBO, LUMIREAD, ALURATEK_COLOR,
-        TREKSTOR, EEEREADER, NEXTBOOK, ADAM, MOOVYBOOK, COBY, EX124G, WAYTEQ)
+        TREKSTOR, EEEREADER, NEXTBOOK, ADAM, MOOVYBOOK, COBY, EX124G, WAYTEQ, WOXTER)
 from calibre.devices.folder_device.driver import FOLDER_DEVICE_FOR_CONFIG
 from calibre.devices.kobo.driver import KOBO, KOBOTOUCH
 from calibre.devices.bambook.driver import BAMBOOK
@@ -738,7 +744,7 @@ plugins += [
     EEEREADER,
     NEXTBOOK,
     ADAM,
-    MOOVYBOOK, COBY, EX124G, WAYTEQ,
+    MOOVYBOOK, COBY, EX124G, WAYTEQ, WOXTER,
     ITUNES,
     BOEYE_BEX,
     BOEYE_BDX,
@@ -886,6 +892,11 @@ class ActionEditCollections(InterfaceActionBase):
     actual_plugin = 'calibre.gui2.actions.edit_collections:EditCollectionsAction'
     description = _('Edit the collections in which books are placed on your device')
 
+class ActionMatchBooks(InterfaceActionBase):
+    name = 'Match Books'
+    actual_plugin = 'calibre.gui2.actions.match_books:MatchBookAction'
+    description = _('Match book on the devices to books in the library')
+
 class ActionCopyToLibrary(InterfaceActionBase):
     name = 'Copy To Library'
     actual_plugin = 'calibre.gui2.actions.copy_to_library:CopyToLibraryAction'
@@ -907,6 +918,15 @@ class ActionPickRandom(InterfaceActionBase):
     actual_plugin = 'calibre.gui2.actions.random:PickRandomAction'
     description = _('Choose a random book from your calibre library')
 
+class ActionSortBy(InterfaceActionBase):
+    name = 'Sort By'
+    actual_plugin = 'calibre.gui2.actions.sort:SortByAction'
+    description = _('Sort the list of books')
+
+class ActionMarkBooks(InterfaceActionBase):
+    name = 'Mark Books'
+    actual_plugin = 'calibre.gui2.actions.mark_books:MarkBooksAction'
+    description = _('Temporarily mark books')
 
 class ActionStore(InterfaceActionBase):
     name = 'Store'
@@ -936,9 +956,10 @@ plugins += [ActionAdd, ActionFetchAnnotations, ActionGenerateCatalog,
         ActionFetchNews, ActionSaveToDisk, ActionQuickview, ActionPolish,
         ActionShowBookDetails,ActionRestart, ActionOpenFolder, ActionConnectShare,
         ActionSendToDevice, ActionHelp, ActionPreferences, ActionSimilarBooks,
-        ActionAddToLibrary, ActionEditCollections, ActionChooseLibrary,
+        ActionAddToLibrary, ActionEditCollections, ActionMatchBooks, ActionChooseLibrary,
         ActionCopyToLibrary, ActionTweakEpub, ActionNextMatch, ActionStore,
-        ActionPluginUpdater, ActionPickRandom, ActionEditToC]
+        ActionPluginUpdater, ActionPickRandom, ActionEditToC, ActionSortBy,
+        ActionMarkBooks]
 
 # }}}
 
@@ -1194,6 +1215,17 @@ plugins += [LookAndFeel, Behavior, Columns, Toolbar, Search, InputOptions,
 #}}}
 
 # Store plugins {{{
+class StoreAllegroStore(StoreBase):
+    name = 'Ebooki Allegro'
+    author = u'Tomasz Długosz'
+    description = u'Platforma Grupy Allegro sprzedająca ebooki zabezpieczone znakiem wodnym.'
+    actual_plugin = 'calibre.gui2.store.stores.allegro_plugin:AllegroStore'
+
+    drm_free_only = True
+    headquarters = 'PL'
+    formats = ['EPUB', 'MOBI', 'PDF']
+    affiliate = True
+
 class StoreAmazonKindleStore(StoreBase):
     name = 'Amazon Kindle'
     description = u'Kindle books from Amazon.'
@@ -1219,6 +1251,15 @@ class StoreSonyAUStore(StoreSonyStore):
     actual_plugin = 'calibre.gui2.store.stores.sony_au_plugin:SonyStore'
     headquarters = 'AU'
 
+class StoreAmazonCAKindleStore(StoreBase):
+    name = 'Amazon CA Kindle'
+    author = u'Tomasz Długosz'
+    description = u'Kindle books from Amazon.'
+    actual_plugin = 'calibre.gui2.store.stores.amazon_ca_plugin:AmazonCAKindleStore'
+
+    headquarters = 'CA'
+    formats = ['KINDLE']
+    # affiliate = True
 
 class StoreAmazonDEKindleStore(StoreBase):
     name = 'Amazon DE Kindle'
@@ -1316,15 +1357,15 @@ class StoreBiblioStore(StoreBase):
     headquarters = 'BG'
     formats = ['EPUB, PDF']
 
-class StoreBookotekaStore(StoreBase):
-    name = 'Bookoteka'
+class StoreCdpStore(StoreBase):
+    name = 'Cdp.pl'
     author = u'Tomasz Długosz'
-    description = u'E-booki w Bookotece dostępne są w formacie EPUB oraz PDF. Publikacje sprzedawane w Bookotece są objęte prawami autorskimi. Zobowiązaliśmy się chronić te prawa, ale bez ograniczania dostępu do książki użytkownikowi, który nabył ją w legalny sposób. Dlatego też Bookoteka stosuje tak zwany „watermarking transakcyjny” czyli swego rodzaju znaki wodne.'  # noqa
-    actual_plugin = 'calibre.gui2.store.stores.bookoteka_plugin:BookotekaStore'
+    description = u'Ebooki w wielu formatach zabezpieczone znakiem wodnym RuneMark'
+    actual_plugin = 'calibre.gui2.store.stores.cdp_plugin:CdpStore'
 
     drm_free_only = True
     headquarters = 'PL'
-    formats = ['EPUB', 'PDF']
+    formats = ['EPUB', 'MOBI', 'PDF']
 
 class StoreChitankaStore(StoreBase):
     name = u'Моята библиотека'
@@ -1651,6 +1692,15 @@ class StoreWHSmithUKStore(StoreBase):
     headquarters = 'UK'
     formats = ['EPUB', 'PDF']
 
+class StoreWolneLekturyStore(StoreBase):
+    name = 'Wolne Lektury'
+    author = u'Tomasz Długosz'
+    description = u'Wolne Lektury to biblioteka internetowa czynna 24 godziny na dobę, 365 dni w roku, której zasoby dostępne są całkowicie za darmo. Wszystkie dzieła są odpowiednio opracowane - opatrzone przypisami, motywami i udostępnione w kilku formatach - HTML, TXT, PDF, EPUB, MOBI, FB2.'  # noqa
+    actual_plugin = 'calibre.gui2.store.stores.wolnelektury_plugin:WolneLekturyStore'
+
+    headquarters = 'PL'
+    formats = ['EPUB', 'MOBI', 'PDF', 'TXT', 'FB2']
+
 class StoreWoblinkStore(StoreBase):
     name = 'Woblink'
     author = u'Tomasz Długosz'
@@ -1670,8 +1720,10 @@ class XinXiiStore(StoreBase):
     formats = ['EPUB', 'PDF']
 
 plugins += [
+    StoreAllegroStore,
     StoreArchiveOrgStore,
     StoreAmazonKindleStore,
+    StoreAmazonCAKindleStore,
     StoreAmazonDEKindleStore,
     StoreAmazonESKindleStore,
     StoreAmazonFRKindleStore,
@@ -1681,8 +1733,8 @@ plugins += [
     StoreBNStore,
     StoreBeamEBooksDEStore,
     StoreBiblioStore,
-    StoreBookotekaStore,
     StoreChitankaStore,
+    StoreCdpStore,
     StoreDieselEbooksStore,
     StoreEbookNLStore,
     StoreEbookpointStore,
@@ -1716,6 +1768,7 @@ plugins += [
     StoreWaterstonesUKStore,
     StoreWeightlessBooksStore,
     StoreWHSmithUKStore,
+    StoreWolneLekturyStore,
     StoreWoblinkStore,
     XinXiiStore
 ]

@@ -75,6 +75,7 @@ class FormatState(object):
         self.strikethrough = False
         self.underline = False
         self.preserve = False
+        self.pre_wrap = False
         self.family = 'serif'
         self.bgcolor = 'transparent'
         self.fgcolor = 'black'
@@ -88,6 +89,7 @@ class FormatState(object):
                and self.bold == other.bold \
                and self.href == other.href \
                and self.preserve == other.preserve \
+               and self.pre_wrap == other.pre_wrap \
                and self.family == other.family \
                and self.bgcolor == other.bgcolor \
                and self.fgcolor == other.fgcolor \
@@ -136,8 +138,14 @@ class MobiMLizer(object):
             return "%dpt" % int(round(ptsize))
         return "%dem" % int(round(ptsize / embase))
 
-    def preize_text(self, text):
-        text = unicode(text).replace(u' ', u'\xa0')
+    def preize_text(self, text, pre_wrap=False):
+        text = unicode(text)
+        if pre_wrap:
+            # Replace n consecutive spaces with n-1 NBSP + space
+            text = re.sub(r' {2,}', lambda m:(u'\xa0'*(len(m.group())-1) + u' '), text)
+        else:
+            text = text.replace(u' ', u'\xa0')
+
         text = text.replace('\r\n', '\n')
         text = text.replace('\r', '\n')
         lines = text.split('\n')
@@ -283,7 +291,7 @@ class MobiMLizer(object):
             bstate.inline = inline
         bstate.istate = istate
         inline = bstate.inline
-        content = self.preize_text(text) if istate.preserve else [text]
+        content = self.preize_text(text, pre_wrap=istate.pre_wrap) if istate.preserve or istate.pre_wrap else [text]
         for item in content:
             if isinstance(item, basestring):
                 if len(inline) == 0:
@@ -377,12 +385,13 @@ class MobiMLizer(object):
         istate.italic = True if style['font-style'] == 'italic' else False
         weight = style['font-weight']
         istate.bold = weight in ('bold', 'bolder') or asfloat(weight) > 400
-        istate.preserve = (style['white-space'] in ('pre', 'pre-wrap'))
+        istate.preserve = style['white-space'] == 'pre'
+        istate.pre_wrap = style['white-space'] == 'pre-wrap'
         istate.bgcolor  = style['background-color']
         istate.fgcolor  = style['color']
         istate.strikethrough = style.effective_text_decoration == 'line-through'
         istate.underline = style.effective_text_decoration == 'underline'
-        ff = style['font-family'].lower() if style['font-family'] else ''
+        ff = style['font-family'].lower() if hasattr(style['font-family'], 'lower') else ''
         if 'monospace' in ff or 'courier' in ff or ff.endswith(' mono'):
             istate.family = 'monospace'
         elif ('sans-serif' in ff or 'sansserif' in ff or 'verdana' in ff or
@@ -487,7 +496,7 @@ class MobiMLizer(object):
             elem.tail = u'\u201d' + t
         text = None
         if elem.text:
-            if istate.preserve:
+            if istate.preserve or istate.pre_wrap:
                 text = elem.text
             elif (len(elem) > 0 and isspace(elem.text) and hasattr(elem[0].tag, 'rpartition') and
                   elem[0].tag.rpartition('}')[-1] not in INLINE_TAGS):
@@ -525,6 +534,8 @@ class MobiMLizer(object):
                     else:
                         break
                 if vbstate.para is not None:
+                    if vbstate.para.text:
+                        vtag.text = vbstate.para.text
                     for child in vbstate.para:
                         vtag.append(child)
                 return
@@ -543,7 +554,7 @@ class MobiMLizer(object):
             self.mobimlize_elem(child, stylizer, bstate, istates)
             tail = None
             if child.tail:
-                if istate.preserve:
+                if istate.preserve or istate.pre_wrap:
                     tail = child.tail
                 elif bstate.para is None and isspace(child.tail):
                     tail = None

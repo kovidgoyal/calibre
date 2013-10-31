@@ -1,41 +1,206 @@
 #!/usr/bin/env python
-# vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
+# -*- coding: utf-8 -*-
+__license__   = 'GPL v3'
+__copyright__ = '2013, Dale Furrow dkfurrow@gmail.com'
+'''
+chron.com
+'''
+import re, time
+from calibre.web.feeds.recipes import BasicNewsRecipe
+from calibre.utils.date import dt_factory, local_tz
+from datetime import datetime, timedelta, date
+from lxml import html
 
-from calibre.web.feeds.news import BasicNewsRecipe
 
 class HoustonChronicle(BasicNewsRecipe):
 
-    title          = u'The Houston Chronicle'
+    title      =  u'The Houston Chronicle'
     description    = 'News from Houston, Texas'
-    __author__     = 'Kovid Goyal'
-    language       = 'en'
-    timefmt        = ' [%a, %d %b, %Y]'
+    __author__ = 'Dale Furrow'
+    language = 'en'
     no_stylesheets = True
-    use_embedded_content = False
+    # use_embedded_content = False
     remove_attributes = ['style']
-    auto_cleanup = True
-
-    oldest_article = 3.0
-
-    #keep_only_tags = {'class':lambda x: x and ('hst-articletitle' in x or
-        #'hst-articletext' in x or 'hst-galleryitem' in x)}
+    remove_empty_feeds = True
+    timefmt = '[%a, %d %b %Y]'
+    timestampfmt = '%Y%m%d%H%M%S'
+    ignore_duplicate_articles = {'url'}
     remove_attributes = ['xmlns']
 
-    feeds = [
-            ('News', "http://www.chron.com/rss/feed/News-270.php"),
-            ('Sports',
-                'http://www.chron.com/sports/headlines/collectionRss/Sports-Headlines-Staff-Stories-10767.php'),
-            ('Neighborhood',
-                'http://www.chron.com/rss/feed/Neighborhood-305.php'),
-            ('Business', 'http://www.chron.com/rss/feed/Business-287.php'),
-            ('Entertainment',
-                'http://www.chron.com/rss/feed/Entertainment-293.php'),
-            ('Editorials',
-                'http://www.chron.com/opinion/editorials/collectionRss/Opinion-Editorials-Headline-List-10567.php'),
-            ('Life', 'http://www.chron.com/rss/feed/Life-297.php'),
-            ('Science & Tech',
-                'http://www.chron.com/rss/feed/AP-Technology-and-Science-266.php'),
-        ]
+    remove_tags = [dict(name='div', attrs={'class':'socialBar'}),
+                   dict(name='div', attrs={'class':re.compile('post-commentmeta')}),
+                   dict(name='div', attrs={'class':re.compile('slideshow_wrapper')}),
+                   dict(name='div', attrs={'class':'entry-summary'}),
+                   dict(name='a', attrs={'rel':'item-license'})]
+
+    baseUrl = 'http://www.chron.com'
+
+    oldest_web_article = 7.0
+
+    if oldest_web_article is None:
+        earliest_date = date.today()
+    else:
+        earliest_date = date.today() - timedelta(days=oldest_web_article)
+
+    pages = [('news' , '/news/houston-texas/'),
+        ('business' , '/business/'),
+        ('opinion', '/opinion/'),
+        ('sports', '/sports/')]
+
+    def getLinksFromSectionPage(self, sectionUrl):
+        pageDoc = html.parse(sectionUrl)
+        els = pageDoc.xpath("""//div[contains(@class, 'scp-item')
+        or @class='scp-feature' or contains(@class, 'simplelist')
+        or contains(@class, 'scp-blogpromo')]
+        //a[@href and not(@target) and not(child::img)]""")
+        elList = []
+        for el in els:
+            link = el.get('href')
+            title = el.text
+            if link[:4] != 'http':
+                link = self.baseUrl + link
+            if title is not None:
+                elList.append((link, el.text))
+        return elList
+
+    def getArticleDescriptionFromDoc(self, pageDoc):
+        descriptionCharsBreak = 140
+        descriptionMaxChars = 300
+        descXpath = """//div[contains(@class, 'article-body') or
+        contains(@class, 'resource-content') or contains(@class, 'post')]//p"""
+        sentenceRegex = re.compile("(\S.+?[.!?])(?=\s+|$)")
+
+        def stringify_children(node):
+            return ''.join([x for x in node.itertext()])
+        try:
+            els = pageDoc.xpath(descXpath)
+            outText = ""
+            ellipsis = ""
+            for el in els:
+                sentences = re.findall(sentenceRegex, stringify_children(el))
+                for sentence in sentences:
+                    if len(outText) < descriptionCharsBreak:
+                        outText += sentence + " "
+                    else:
+                        if len(outText) > descriptionMaxChars:
+                            ellipsis = "..."
+                        return outText[:descriptionMaxChars] + ellipsis
+            return outText
+        except:
+            self.log('Error on Article Description')
+            return ""
+
+    def getPublishedTimeFromDoc(self, pageDoc):
+        regexDateOnly = re.compile("""(?:January|February|March|April|
+        May|June|July|August|September|October|November|
+        December)\s[0-9]{1,2},\s20[01][0-9]""")
+        regextTimeOnly = re.compile("""[0-9]{1,2}:[0-9]{1,2} \w{2}""")
+        def getRegularTimestamp(dateString):
+            try:
+                outDate = datetime.strptime(dateString, "%Y-%m-%dT%H:%M:%SZ")
+                return outDate
+            except:
+                return None
+        def getDateFromString(inText):
+            match = re.findall(regexDateOnly, inText)
+            if match:
+                try:
+                    outDate = datetime.strptime(match[0], "%B %d, %Y")
+                    match = re.findall(regextTimeOnly, inText)
+                    if match:
+                        outTime = datetime.strptime(match[0], "%I:%M %p")
+                        return datetime.combine(outDate.date(), outTime.time())
+                    return outDate
+                except:
+                    return None
+                else:
+                    return None
+        el = pageDoc.xpath("//*[@class='timestamp'][1]")
+        if len(el) == 1:
+            return getRegularTimestamp(el[0].get('title'))
+        else:
+            el = pageDoc.xpath("//*[@class='entry-date' or @class='post-date'][1]")
+            if len(el) == 1:
+                return getDateFromString(el[0].text_content())
+            else:
+                return None
+
+    def getAllFeedDataFromPage(self, page):
+        articles = []
+        linkList = self.getLinksFromSectionPage(self.baseUrl + page[1])
+        self.log('from section: ', page[0], " found ", len(linkList), " links")
+        for link in linkList:
+            try:
+                articleDoc = html.parse(link[0])
+                description = self.getArticleDescriptionFromDoc(articleDoc)
+                articleDate = self.getPublishedTimeFromDoc(articleDoc)
+                if articleDate is not None and description is not None and articleDate.date() > self.earliest_date:
+                    dateText = articleDate.strftime('%a, %d %b')
+                    author = articleDate.strftime(self.timestampfmt)
+                    articles.append({'title':link[1], 'url':link[0],
+                                     'description':description, 'date':dateText, 'author':author})
+                    self.log(page[0] + ": " + link[1] + ', from ' + dateText +
+                     " description of " + str(len(description)) + ' characters at ' + link[0])
+                else:
+                    msg = ""
+                    if articleDate is None:
+                        msg = " No Timestamp Found"
+                    else:
+                        msg = " article older than " + str(self.oldest_web_article) + ' days...'
+                    self.log("Skipping article: ", link[0], msg)
+            except:
+                print 'error on fetching ' + link[0]
+                continue
+        return articles
+
+    def parse_index(self):
+
+        self.timefmt = ' [%a, %d %b, %Y]'
+        self.log('starting parse_index: ',  time.strftime(self.timestampfmt))
+        feeds = []
+        for page in self.pages:
+            articles = []
+            articles = self.getAllFeedDataFromPage(page)
+            if articles:
+                feeds.append((page[0], articles))
+        self.log('finished parse_index: ', time.strftime(self.timestampfmt))
+        return feeds
+
+    def preprocess_html(self, thisSoup):
+        baseTags = []
+        baseTags.extend(thisSoup.findAll(name='div', attrs={'id':re.compile('post-\d+')}))
+        baseTags.extend(thisSoup.findAll(name='div', attrs={'class':'hnews hentry item'}))
+        allTags = []
+        allTags.extend(baseTags)
+        if len(baseTags) > 0:
+            for tag in baseTags:
+                allTags.extend(tag.findAll(True))
+        paragraphs = thisSoup.findAll(name='p')
+        for paragraph in paragraphs:
+            if paragraph not in allTags:
+                allTags.append(paragraph)
+        for tag in baseTags:
+            while tag.parent is not None:
+                allTags.append(tag)
+                tag = tag.parent
+        for tag in thisSoup.findAll(True):
+            if tag not in allTags:
+                tag.extract()
+        return thisSoup
+
+    def populate_article_metadata(self, article, soup, first):
+        if not first:
+            return
+        try:
+            article.date = time.strptime(article.author, self.timestampfmt)
+            article.utctime = dt_factory(article.date, assume_utc=False, as_utc=False)
+            article.localtime = article.utctime.astimezone(local_tz)
+        except Exception as inst:  # remove after debug
+            self.log('Exception: ', article.title)  # remove after debug
+            self.log(type(inst))  # remove after debug
+            self.log(inst)  # remove after debug
+
+
 
 
 

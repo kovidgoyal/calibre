@@ -9,6 +9,18 @@ import os
 from calibre import _ent_pat, walk, xml_entity_to_unicode
 from calibre.customize.conversion import InputFormatPlugin, OptionRecommendation
 
+MD_EXTENSIONS = {
+    'abbr': _('Abbreviations'),
+    'def_list': _('Definition lists'),
+    'fenced_code': _('Alternative code block syntax'),
+    'footnotes': _('Footnotes'),
+    'headerid': _('Allow ids as part of a header'),
+    'meta': _('Metadata in the document'),
+    'tables': _('Support tables'),
+    'toc': _('Generate a table of contents'),
+    'wikilinks': _('Wiki style links'),
+}
+
 class TXTInput(InputFormatPlugin):
 
     name        = 'TXT Input'
@@ -47,8 +59,12 @@ class TXTInput(InputFormatPlugin):
         OptionRecommendation(name='txt_in_remove_indents', recommended_value=False,
             help=_('Normally extra space at the beginning of lines is retained. '
                    'With this option they will be removed.')),
-        OptionRecommendation(name="markdown_disable_toc", recommended_value=False,
-            help=_('Do not insert a Table of Contents into the output text.')),
+        OptionRecommendation(name="markdown_extensions", recommended_value='footnotes, tables, toc',
+            help=_('Enable extensions to markdown syntax. Extensions are formatting that is not part '
+                   'of the standard markdown format. The extensions enabled by default: %default.\n'
+                   'To learn more about markdown extensions, see http://pythonhosted.org/Markdown/extensions/index.html\n'
+                   'This should be a comma separated list of extensions to enable:\n') +
+                             '\n'.join('* %s: %s' % (k, MD_EXTENSIONS[k]) for k in sorted(MD_EXTENSIONS))),
     ])
 
     def convert(self, stream, options, file_ext, log,
@@ -178,7 +194,7 @@ class TXTInput(InputFormatPlugin):
         if options.formatting_type == 'markdown':
             log.debug('Running text through markdown conversion...')
             try:
-                html = convert_markdown(txt, disable_toc=options.markdown_disable_toc)
+                html = convert_markdown(txt, extensions=[x.strip() for x in options.markdown_extensions.split(',') if x.strip()])
             except RuntimeError:
                 raise ValueError('This txt file has malformed markup, it cannot be'
                     ' converted by calibre. See http://daringfireball.net/projects/markdown/syntax')
@@ -220,5 +236,14 @@ class TXTInput(InputFormatPlugin):
         from calibre.ebooks.oeb.transforms.metadata import meta_info_to_oeb_metadata
         mi = get_file_type_metadata(stream, file_ext)
         meta_info_to_oeb_metadata(mi, oeb.metadata, log)
+        self.html_postprocess_title = mi.title
 
         return oeb
+
+    def postprocess_book(self, oeb, opts, log):
+        for item in oeb.spine:
+            if hasattr(item.data, 'xpath'):
+                for title in item.data.xpath('//*[local-name()="title"]'):
+                    if title.text == _('Unknown'):
+                        title.text = self.html_postprocess_title
+

@@ -113,7 +113,8 @@ class EbookIterator(BookmarksMixin):
 
         self.book_format = os.path.splitext(self.pathtoebook)[1][1:].upper()
         if getattr(plumber.input_plugin, 'is_kf8', False):
-            self.book_format = 'KF8'
+            fs = ':joint' if getattr(plumber.input_plugin, 'mobi_is_joint', False) else ''
+            self.book_format = 'KF8' + fs
 
         self.opf = getattr(plumber.input_plugin, 'optimize_opf_parsing', None)
         if self.opf is None:
@@ -143,7 +144,7 @@ class EbookIterator(BookmarksMixin):
 
         cover = self.opf.cover
         if cover and self.ebook_ext in {'lit', 'mobi', 'prc', 'opf', 'fb2',
-                                        'azw', 'azw3'}:
+                                        'azw', 'azw3', 'docx'}:
             cfile = os.path.join(self.base, 'calibre_iterator_cover.html')
             rcpath = os.path.relpath(cover, self.base).replace(os.sep, '/')
             chtml = (TITLEPAGE%prepare_string_for_xml(rcpath, True)).encode('utf-8')

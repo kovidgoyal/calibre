@@ -20,27 +20,22 @@ class AdvancedUserRecipe1325006965(BasicNewsRecipe):
     #article_already_exists = False
     #feed_hash = ''
     def get_cover_url(self):
-            soup = self.index_to_soup('http://www.countryfile.com/magazine')
-            cov = soup.find(attrs={'class' : re.compile('imagecache imagecache-250px_wide')})#'width' : '160',
-            print '&&&&&&&& ',cov,' ***'
-            cov=str(cov)
-            #cov2 =  re.findall('http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+', cov)
-            cov2 =  re.findall('/(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+', cov)
+        soup = self.index_to_soup('http://www.countryfile.com/magazine')
+        cov = soup.find(attrs={'class' : re.compile('imagecache imagecache-250px')})  # 'width' : '160',
 
-            cov2 = str(cov2)
-            cov2= "http://www.countryfile.com"+cov2[2:len(cov2)-8]
-
-            print '******** ',cov2,' ***'
-             # try to get cover - if can't get known cover
-            br = browser()
-
-            br.set_handle_redirect(False)
-            try:
-                br.open_novisit(cov2)
-                cover_url = cov2
-            except:
-                  cover_url = 'http://www.countryfile.com/sites/default/files/imagecache/160px_wide/cover/2_1.jpg'
-            return cover_url
+        cov=str(cov)
+        cov=cov[10:]
+        cov=cov[:-135]
+        br = browser()
+        br.set_handle_redirect(False)
+        try:
+            br.open_novisit(cov)
+            cover_url = cov
+        except:
+            cover_url = 'http://www.countryfile.com/sites/default/files/imagecache/160px_wide/cover/2_1.jpg'
+        return cover_url
+    preprocess_regexps = [
+        (re.compile(r' \| Countryfile.com', re.IGNORECASE | re.DOTALL), lambda match: '')]
     remove_tags    = [
                              # dict(attrs={'class' : ['player']}),
 
@@ -48,6 +43,5 @@ class AdvancedUserRecipe1325006965(BasicNewsRecipe):
     feeds          = [
     (u'Homepage', u'http://www.countryfile.com/rss/home'),
     (u'Country News', u'http://www.countryfile.com/rss/news'),
-            (u'Countryside', u'http://www.countryfile.com/rss/countryside'),
+    (u'Countryside', u'http://www.countryfile.com/rss/countryside'),
             ]
-

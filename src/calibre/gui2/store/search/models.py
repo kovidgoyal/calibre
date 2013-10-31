@@ -6,7 +6,7 @@ __license__ = 'GPL 3'
 __copyright__ = '2011, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
-import re
+import re, string
 from operator import attrgetter
 
 from PyQt4.Qt import (Qt, QAbstractItemModel, QVariant, QPixmap, QModelIndex, QSize,
@@ -229,14 +229,14 @@ class Matches(QAbstractItemModel):
             if col == 1:
                 return QVariant('<p>%s</p>' % result.title)
             elif col == 2:
-                return QVariant('<p>' + _('Detected price as: %s. Check with the store before making a purchase to verify this price is correct. This price often does not include promotions the store may be running.') % result.price + '</p>')
+                return QVariant('<p>' + _('Detected price as: %s. Check with the store before making a purchase to verify this price is correct. This price often does not include promotions the store may be running.') % result.price + '</p>')  # noqa
             elif col == 3:
                 if result.drm == SearchResult.DRM_LOCKED:
-                    return QVariant('<p>' + _('This book as been detected as having DRM restrictions. This book may not work with your reader and you will have limitations placed upon you as to what you can do with this book. Check with the store before making any purchases to ensure you can actually read this book.') + '</p>')
+                    return QVariant('<p>' + _('This book as been detected as having DRM restrictions. This book may not work with your reader and you will have limitations placed upon you as to what you can do with this book. Check with the store before making any purchases to ensure you can actually read this book.') + '</p>')  # noqa
                 elif result.drm == SearchResult.DRM_UNLOCKED:
-                    return QVariant('<p>' + _('This book has been detected as being DRM Free. You should be able to use this book on any device provided it is in a format calibre supports for conversion. However, before making a purchase double check the DRM status with the store. The store may not be disclosing the use of DRM.') + '</p>')
+                    return QVariant('<p>' + _('This book has been detected as being DRM Free. You should be able to use this book on any device provided it is in a format calibre supports for conversion. However, before making a purchase double check the DRM status with the store. The store may not be disclosing the use of DRM.') + '</p>')  # noqa
                 else:
-                    return QVariant('<p>' + _('The DRM status of this book could not be determined. There is a very high likelihood that this book is actually DRM restricted.') + '</p>')
+                    return QVariant('<p>' + _('The DRM status of this book could not be determined. There is a very high likelihood that this book is actually DRM restricted.') + '</p>')  # noqa
             elif col == 4:
                 return QVariant('<p>%s</p>' % result.formats)
             elif col == 5:
@@ -325,6 +325,9 @@ class SearchFilter(SearchQueryParser):
     def __init__(self):
         SearchQueryParser.__init__(self, locations=self.USABLE_LOCATIONS)
         self.srs = set([])
+        # remove joiner words surrounded by space or at string boundaries
+        self.joiner_pat = re.compile(r'(^|\s)(and|not|or|a|the|is|of)(\s|$)', re.IGNORECASE)
+        self.punctuation_table = {ord(x):' ' for x in string.punctuation}
 
     def add_search_result(self, search_result):
         self.srs.add(search_result)
@@ -337,7 +340,7 @@ class SearchFilter(SearchQueryParser):
 
     def _match(self, query, value, matchkind):
         for t in value:
-            try:     ### ignore regexp exceptions, required because search-ahead tries before typing is finished
+            try:  # ignore regexp exceptions, required because search-ahead tries before typing is finished
                 t = icu_lower(t)
                 if matchkind == self.EQUALS_MATCH:
                     if query == t:
@@ -375,7 +378,7 @@ class SearchFilter(SearchQueryParser):
             elif query.startswith('~'):
                 matchkind = self.REGEXP_MATCH
                 query = query[1:]
-        if matchkind != self.REGEXP_MATCH: ### leave case in regexps because it can be significant e.g. \S \W \D
+        if matchkind != self.REGEXP_MATCH:  # leave case in regexps because it can be significant e.g. \S \W \D
             query = query.lower()
 
         if location not in self.USABLE_LOCATIONS:
@@ -439,9 +442,9 @@ class SearchFilter(SearchQueryParser):
                 if locvalue in ('affiliate', 'drm', 'download', 'downloads'):
                     continue
                 try:
-                    ### Can't separate authors because comma is used for name sep and author sep
-                    ### Exact match might not get what you want. For that reason, turn author
-                    ### exactmatch searches into contains searches.
+                    # Can't separate authors because comma is used for name sep and author sep
+                    # Exact match might not get what you want. For that reason, turn author
+                    # exactmatch searches into contains searches.
                     if locvalue == 'author' and matchkind == self.EQUALS_MATCH:
                         m = self.CONTAINS_MATCH
                     else:
@@ -449,16 +452,22 @@ class SearchFilter(SearchQueryParser):
 
                     if locvalue == 'format':
                         vals = accessor(sr).split(',')
-                    elif locvalue in ('author2', 'title2'):
+                    elif locvalue in {'author2', 'title2'}:
                         m = self.IN_MATCH
-                        vals = re.sub(r'(^|\s)(and|not|or|a|the|is|of|,)(\s|$)', ' ', accessor(sr)).split(' ')
-                        final_query = query.lower()
+                        vals = [x for x in self.field_trimmer(accessor(sr)).split() if x]
+                        final_query = ' '.join(self.field_trimmer(icu_lower(query)).split())
                     else:
                         vals = [accessor(sr)]
                     if self._match(final_query, vals, m):
                         matches.add(sr)
                         break
-                except ValueError: # Unicode errors
+                except ValueError:  # Unicode errors
                     import traceback
                     traceback.print_exc()
         return matches
+
+    def field_trimmer(self, field):
+        ''' Remove common joiner words and punctuation to improve matching,
+        punctuation is removed first, so that a.and.b becomes a b '''
+        return self.joiner_pat.sub(' ', field.translate(self.punctuation_table))
+

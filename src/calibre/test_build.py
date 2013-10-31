@@ -15,6 +15,11 @@ Test a binary calibre build to ensure that all needed binary images/libraries ha
 import cStringIO
 from calibre.constants import plugins, iswindows
 
+def test_html5lib():
+    import html5lib.html5parser  # noqa
+    from html5lib import parse  # noqa
+    print ('html5lib OK!')
+
 def test_plugins():
     for name in plugins:
         mod, err = plugins[name]
@@ -38,13 +43,6 @@ def test_winutil():
     if len(matches) < 1:
         raise RuntimeError('win_pnp_drives returned no drives')
     print ('win_pnp_drives OK!')
-
-def test_win32():
-    from calibre.utils.winshell import desktop
-    d = desktop()
-    if not d:
-        raise RuntimeError('winshell failed')
-    print ('winshell OK! (%s is the desktop)'%d)
 
 def test_sqlite():
     import sqlite3
@@ -120,8 +118,8 @@ def test():
     test_icu()
     test_woff()
     test_qt()
+    test_html5lib()
     if iswindows:
-        test_win32()
         test_winutil()
         test_wpd()
 

@@ -22,13 +22,14 @@ from calibre.library.comments import comments_to_html
 from calibre.library.server import custom_fields_to_display
 from calibre.library.field_metadata import category_icon_map
 from calibre.library.server.utils import quote, unquote
+from calibre.db.categories import Tag
 from calibre.ebooks.metadata.sources.identify import urls_from_identifiers
 
 def xml(*args, **kwargs):
     ans = prepare_string_for_xml(*args, **kwargs)
     return ans.replace('&apos;', '&#39;')
 
-def render_book_list(ids, prefix, suffix=''): # {{{
+def render_book_list(ids, prefix, suffix=''):  # {{{
     pages = []
     num = len(ids)
     pos = 0
@@ -113,13 +114,13 @@ def render_book_list(ids, prefix, suffix=''): # {{{
 
 # }}}
 
-def utf8(x): # {{{
+def utf8(x):  # {{{
     if isinstance(x, unicode):
         x = x.encode('utf-8')
     return x
 # }}}
 
-def render_rating(rating, url_prefix, container='span', prefix=None): # {{{
+def render_rating(rating, url_prefix, container='span', prefix=None):  # {{{
     if rating < 0.1:
         return '', ''
     added = 0
@@ -145,7 +146,7 @@ def render_rating(rating, url_prefix, container='span', prefix=None): # {{{
 
 # }}}
 
-def get_category_items(category, items, datatype, prefix): # {{{
+def get_category_items(category, items, datatype, prefix):  # {{{
 
     def item(i):
         templ = (u'<div title="{4}" class="category-item">'
@@ -179,7 +180,7 @@ def get_category_items(category, items, datatype, prefix): # {{{
 
 # }}}
 
-class Endpoint(object): # {{{
+class Endpoint(object):  # {{{
     'Manage encoding, mime-type, last modified, cookies, etc.'
 
     def __init__(self, mimetype='text/html; charset=utf-8', sort_type='category'):
@@ -194,7 +195,7 @@ class Endpoint(object): # {{{
             if 'json' not in eself.mimetype:
                 sort_val = None
                 cookie = cherrypy.request.cookie
-                if cookie.has_key(eself.sort_cookie_name):
+                if eself.sort_cookie_name in cookie:
                     sort_val = cookie[eself.sort_cookie_name].value
                 kwargs[eself.sort_kwarg] = sort_val
 
@@ -291,7 +292,7 @@ class BrowseServer(object):
             lp = force_unicode(lp, filesystem_encoding)
         ans = ans.replace('{library_name}', xml(os.path.basename(lp)))
         ans = ans.replace('{library_path}', xml(lp, True))
-        ans = ans.replace('{initial_search}', initial_search)
+        ans = ans.replace('{initial_search}', xml(initial_search, attribute=True))
         return ans
 
     @property
@@ -352,9 +353,15 @@ class BrowseServer(object):
                 (_('All books'), 'allbooks', 'book.png'),
                 (_('Random book'), 'randombook', 'random.png'),
                 ]
+        virt_libs = self.db.prefs.get('virtual_libraries', {})
+        if virt_libs:
+            cats.append((_('Virtual Libs.'), 'virt_libs', 'lt.png'))
 
         def getter(x):
-            return category_meta[x]['name'].lower()
+            try:
+                return category_meta[x]['name'].lower()
+            except KeyError:
+                return x
 
         displayed_custom_fields = custom_fields_to_display(self.db)
         uc_displayed = set()
@@ -421,11 +428,12 @@ class BrowseServer(object):
 
     def browse_category(self, category, sort):
         categories = self.categories_cache()
+        categories['virt_libs'] = {}
         if category not in categories:
             raise cherrypy.HTTPError(404, 'category not found')
         category_meta = self.db.field_metadata
-        category_name = category_meta[category]['name']
-        datatype = category_meta[category]['datatype']
+        category_name = _('Virtual Libraries') if category == 'virt_libs' else category_meta[category]['name']
+        datatype = 'text' if category == 'virt_libs' else category_meta[category]['datatype']
 
         # See if we have any sub-categories to display. As we find them, add
         # them to the displayed set to avoid showing the same item twice
@@ -480,7 +488,10 @@ class BrowseServer(object):
             script = 'true'
 
         # Now do the category items
+        vls = self.db.prefs.get('virtual_libraries', {})
+        categories['virt_libs'] = sorted([Tag(k) for k, v in vls.iteritems()], key=lambda x:sort_key(x.name))
         items = categories[category]
+
         sort = self.browse_sort_categories(items, sort)
 
         if not cats and len(items) == 1:
@@ -489,7 +500,7 @@ class BrowseServer(object):
                     datatype, self.opts.url_prefix)
             href = re.search(r'<a href="([^"]+)"', html)
             if href is not None:
-                raise cherrypy.HTTPRedirect(href.group(1))
+                raise cherrypy.InternalRedirect(href.group(1))
 
         if len(items) <= self.opts.max_opds_ungrouped_items:
             script = 'false'
@@ -522,8 +533,6 @@ class BrowseServer(object):
                     for s, c in category_groups.items()]
             items = '\n\n'.join(items)
             items = u'<div id="groups">\n{0}</div>'.format(items)
-
-
 
         if cats:
             script = 'toplevel();category(%s);'%script
@@ -586,13 +595,13 @@ class BrowseServer(object):
                 datatype, self.opts.url_prefix)
         return json.dumps(entries, ensure_ascii=True)
 
-
     @Endpoint()
     def browse_catalog(self, category=None, category_sort=None):
         'Entry point for top-level, categories and sub-categories'
         prefix = '' if self.is_wsgi else self.opts.url_prefix
-        if category == None:
+        if category is None:
             ans = self.browse_toplevel()
+        # The following are fake categories used for the top-level view
         elif category == 'newest':
             raise cherrypy.InternalRedirect(prefix +
                     '/browse/matches/newest/dummy')
@@ -632,18 +641,19 @@ class BrowseServer(object):
         categories = self.categories_cache()
 
         if category not in categories and \
-                category not in ('newest', 'allbooks'):
+                category not in ('newest', 'allbooks', 'virt_libs'):
             raise cherrypy.HTTPError(404, 'category not found')
         fm = self.db.field_metadata
         try:
             category_name = fm[category]['name']
             dt = fm[category]['datatype']
         except:
-            if category not in ('newest', 'allbooks'):
+            if category not in ('newest', 'allbooks', 'virt_libs'):
                 raise
             category_name = {
                     'newest' : _('Newest'),
                     'allbooks' : _('All books'),
+                    'virt_libs': _('Virtual Libraries'),
             }[category]
             dt = None
 
@@ -661,6 +671,20 @@ class BrowseServer(object):
                 hide_sort = 'true'
             elif category == 'allbooks':
                 ids = all_ids
+            elif category == 'virt_libs':
+                which = unhexlify(cid).decode('utf-8')
+                vls = self.db.prefs.get('virtual_libraries', {})
+                ids = self.search_cache(vls[which])
+                if not ids:
+                    msg = _('The virtual library <b>%s</b> has no books.') % prepare_string_for_xml(which)
+                    if self.search_restriction:
+                        msg += ' ' + _(
+                            'This is probably because you have applied a virtual library'
+                            ' to the content server in Preferences->Sharing over the net.'
+                            ' This virtual library is applied globally and combined with'
+                            ' the current virtual library.')
+                    return self.browse_template('name').format(title='',
+                        script='', main='<p>%s</p>'%msg)
             else:
                 if fm.get(category, {'datatype':None})['datatype'] == 'composite':
                     cid = cid.decode('utf-8')
@@ -670,7 +694,7 @@ class BrowseServer(object):
                 ids = self.db.get_books_for_category(q, cid)
                 ids = [x for x in ids if x in all_ids]
 
-        items = [self.db.data._data[x] for x in ids]
+        items = [self.db.data.tablerow_for_id(x) for x in ids]
         if category == 'newest':
             list_sort = 'timestamp'
         if dt == 'series':
@@ -770,7 +794,7 @@ class BrowseServer(object):
             if fmts and fmt:
                 other_fmts = [x for x in fmts if x.lower() != fmt.lower()]
                 if other_fmts:
-                    ofmts = [u'<a href="{4}/get/{0}/{1}_{2}.{0}" title="{3}">{3}</a>'\
+                    ofmts = [u'<a href="{4}/get/{0}/{1}_{2}.{0}" title="{3}">{3}</a>'
                             .format(f, fname, id_, f.upper(),
                                 self.opts.url_prefix) for f in
                             other_fmts]
@@ -783,7 +807,7 @@ class BrowseServer(object):
             if fmt:
                 href = self.opts.url_prefix + '/get/%s/%s_%d.%s'%(
                         fmt, fname, id_, fmt)
-                rt = xml(_('Read %(title)s in the %(fmt)s format')% \
+                rt = xml(_('Read %(title)s in the %(fmt)s format')%
                         {'title':args['title'], 'fmt':fmt.upper()}, True)
 
                 args['get_button'] = \
@@ -809,11 +833,10 @@ class BrowseServer(object):
 
             summs.append(self.browse_summary_template.format(**args))
 
-
         raw = json.dumps('\n'.join(summs), ensure_ascii=True)
         return raw
 
-    def browse_render_details(self, id_, add_random_button=False):
+    def browse_render_details(self, id_, add_random_button=False, add_title=False):
         try:
             mi = self.db.get_metadata(id_, index_is_id=True)
         except:
@@ -829,7 +852,7 @@ class BrowseServer(object):
                 args['get_url'] = ''
             args['formats'] = ''
             if fmts:
-                ofmts = [u'<a href="{4}/get/{0}/{1}_{2}.{0}" title="{3}">{3}</a>'\
+                ofmts = [u'<a href="{4}/get/{0}/{1}_{2}.{0}" title="{3}">{3}</a>'
                         .format(xfmt, fname, id_, xfmt.upper(),
                             self.opts.url_prefix) for xfmt in fmts]
                 ofmts = ', '.join(ofmts)
@@ -842,7 +865,7 @@ class BrowseServer(object):
                                 field not in displayed_custom_fields:
                     continue
                 if m['datatype'] == 'comments' or field == 'comments' or (
-                        m['datatype'] == 'composite' and \
+                        m['datatype'] == 'composite' and
                             m['display'].get('contains_html', False)):
                     val = mi.get(field, '')
                     if val and val.strip():
@@ -857,7 +880,7 @@ class BrowseServer(object):
                             for name, id_typ, id_val, url in urls]
                     links = u', '.join(links)
                     if links:
-                        fields.append((m['name'], u'<strong>%s: </strong>%s'%(
+                        fields.append((field, m['name'], u'<strong>%s: </strong>%s'%(
                             _('Ids'), links)))
                         continue
 
@@ -868,10 +891,15 @@ class BrowseServer(object):
                 else:
                     r = u'<strong>%s: </strong>'%xml(m['name']) + \
                                 args[field]
-                fields.append((m['name'], r))
+                fields.append((field, m['name'], r))
 
-            fields.sort(key=lambda x: sort_key(x[0]))
-            fields = [u'<div class="field">{0}</div>'.format(f[1]) for f in
+            def fsort(x):
+                num = {'authors':0, 'series':1, 'tags':2}.get(x[0], 100)
+                return (num, sort_key(x[-1]))
+            fields.sort(key=fsort)
+            if add_title:
+                fields.insert(0, ('title', 'Title', u'<strong>%s: </strong>%s' % (xml(_('Title')), xml(mi.title))))
+            fields = [u'<div class="field">{0}</div>'.format(f[-1]) for f in
                     fields]
             fields = u'<div class="fields">%s</div>'%('\n\n'.join(fields))
 
@@ -907,11 +935,13 @@ class BrowseServer(object):
     @Endpoint()
     def browse_random(self, *args, **kwargs):
         import random
-        book_id = random.choice(self.db.search_getting_ids(
-            '', self.search_restriction))
-        ans = self.browse_render_details(book_id, add_random_button=True)
+        try:
+            book_id = random.choice(self.search_for_books(''))
+        except IndexError:
+            raise cherrypy.HTTPError(404, 'This library has no books')
+        ans = self.browse_render_details(book_id, add_random_button=True, add_title=True)
         return self.browse_template('').format(
-                title='', script='book();', main=ans)
+                title=prepare_string_for_xml(self.db.title(book_id, index_is_id=True)), script='book();', main=ans)
 
     @Endpoint()
     def browse_book(self, id=None, category_sort=None):
@@ -920,10 +950,9 @@ class BrowseServer(object):
         except:
             raise cherrypy.HTTPError(404, 'invalid id: %r'%id)
 
-        ans = self.browse_render_details(id_)
+        ans = self.browse_render_details(id_, add_title=True)
         return self.browse_template('').format(
-                title='', script='book();', main=ans)
-
+                title=prepare_string_for_xml(self.db.title(id_, index_is_id=True)), script='book();', main=ans)
 
     # }}}
 
@@ -932,8 +961,8 @@ class BrowseServer(object):
     def browse_search(self, query='', list_sort=None):
         if isbytestring(query):
             query = query.decode('UTF-8')
-        ids = self.db.search_getting_ids(query.strip(), self.search_restriction)
-        items = [self.db.data._data[x] for x in ids]
+        ids = self.search_for_books(query)
+        items = [self.db.data.tablerow_for_id(x) for x in ids]
         sort = self.browse_sort_book_list(items, list_sort)
         ids = [x[0] for x in items]
         html = render_book_list(ids, self.opts.url_prefix,
@@ -943,5 +972,6 @@ class BrowseServer(object):
                 script='search_result();', main=html)
 
     # }}}
+
 
 

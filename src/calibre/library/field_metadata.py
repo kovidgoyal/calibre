@@ -3,7 +3,7 @@ Created on 25 May 2010
 
 @author: charles
 '''
-import copy, traceback
+import traceback
 from collections import OrderedDict
 
 from calibre.utils.config_base import tweaks
@@ -40,67 +40,13 @@ category_icon_map = {
                     'languages'  : 'languages.png',
             }
 
+# Builtin metadata {{{
 
-class FieldMetadata(dict):
-    '''
-    key: the key to the dictionary is:
-    - for standard fields, the metadata field name.
-    - for custom fields, the metadata field name prefixed by '#'
-    This is done to create two 'namespaces' so the names don't clash
-
-    label: the actual column label. No prefixing.
-
-    datatype: the type of information in the field. Valid values are listed in
-    VALID_DATA_TYPES below.
-    is_multiple: valid for the text datatype. If {}, the field is to be
-    treated as a single term. If not None, it contains a dict of the form
-            {'cache_to_list': ',',
-             'ui_to_list': ',',
-             'list_to_ui': ', '}
-    where the cache_to_list contains the character used to split the value in
-    the meta2 table, ui_to_list contains the character used to create a list
-    from a value shown in the ui (each resulting value must be strip()ed and
-    empty values removed), and list_to_ui contains the string used in join()
-    to create a displayable string from the list.
-
-    kind == field: is a db field.
-    kind == category: standard tag category that isn't a field. see news.
-    kind == user: user-defined tag category.
-    kind == search: saved-searches category.
-
-    is_category: is a tag browser category. If true, then:
-       table: name of the db table used to construct item list
-       column: name of the column in the normalized table to join on
-       link_column: name of the column in the connection table to join on. This
-                    key should not be present if there is no link table
-       category_sort: the field in the normalized table to sort on. This
-                      key must be present if is_category is True
-       If these are None, then the category constructor must know how
-       to build the item list (e.g., formats, news).
-       The order below is the order that the categories will
-       appear in the tags pane.
-
-    name: the text that is to be used when displaying the field. Column headings
-    in the GUI, etc.
-
-    search_terms: the terms that can be used to identify the field when
-    searching. They can be thought of as aliases for metadata keys, but are only
-    valid when passed to search().
-
-    is_custom: the field has been added by the user.
-
-    rec_index: the index of the field in the db metadata record.
-
-    is_csp: field contains colon-separated pairs. Must also be text, is_multiple
-
-    '''
-
-    VALID_DATA_TYPES = frozenset([None, 'rating', 'text', 'comments', 'datetime',
-                'int', 'float', 'bool', 'series', 'composite', 'enumeration'])
-
-    # Builtin metadata {{{
-
-    _field_metadata_prototype = [
+def _builtin_field_metadata():
+    # This is a function so that changing the UI language allows newly created
+    # field metadata objects to have correctly translated labels for builtin
+    # fields.
+    return [
             ('authors',   {'table':'authors',
                            'column':'name',
                            'link_column':'author',
@@ -388,15 +334,70 @@ class FieldMetadata(dict):
                            'is_category':False,
                            'is_csp': False}),
         ]
-    # }}}
+# }}}
+
+class FieldMetadata(dict):
+    '''
+    key: the key to the dictionary is:
+    - for standard fields, the metadata field name.
+    - for custom fields, the metadata field name prefixed by '#'
+    This is done to create two 'namespaces' so the names don't clash
+
+    label: the actual column label. No prefixing.
+
+    datatype: the type of information in the field. Valid values are listed in
+    VALID_DATA_TYPES below.
+    is_multiple: valid for the text datatype. If {}, the field is to be
+    treated as a single term. If not None, it contains a dict of the form
+            {'cache_to_list': ',',
+             'ui_to_list': ',',
+             'list_to_ui': ', '}
+    where the cache_to_list contains the character used to split the value in
+    the meta2 table, ui_to_list contains the character used to create a list
+    from a value shown in the ui (each resulting value must be strip()ed and
+    empty values removed), and list_to_ui contains the string used in join()
+    to create a displayable string from the list.
+
+    kind == field: is a db field.
+    kind == category: standard tag category that isn't a field. see news.
+    kind == user: user-defined tag category.
+    kind == search: saved-searches category.
+
+    is_category: is a tag browser category. If true, then:
+       table: name of the db table used to construct item list
+       column: name of the column in the normalized table to join on
+       link_column: name of the column in the connection table to join on. This
+                    key should not be present if there is no link table
+       category_sort: the field in the normalized table to sort on. This
+                      key must be present if is_category is True
+       If these are None, then the category constructor must know how
+       to build the item list (e.g., formats, news).
+       The order below is the order that the categories will
+       appear in the tags pane.
+
+    name: the text that is to be used when displaying the field. Column headings
+    in the GUI, etc.
+
+    search_terms: the terms that can be used to identify the field when
+    searching. They can be thought of as aliases for metadata keys, but are only
+    valid when passed to search().
+
+    is_custom: the field has been added by the user.
+
+    rec_index: the index of the field in the db metadata record.
+
+    is_csp: field contains colon-separated pairs. Must also be text, is_multiple
+
+    '''
+
+    VALID_DATA_TYPES = frozenset([None, 'rating', 'text', 'comments', 'datetime',
+                'int', 'float', 'bool', 'series', 'composite', 'enumeration'])
 
     # search labels that are not db columns
-    search_items = [    'all',
-                        'search',
-                    ]
+    search_items = ['all', 'search']
 
     def __init__(self):
-        self._field_metadata = copy.deepcopy(self._field_metadata_prototype)
+        self._field_metadata = _builtin_field_metadata()
         self._tb_cats = OrderedDict()
         self._tb_custom_fields = {}
         self._search_term_map = {}
@@ -434,12 +435,10 @@ class FieldMetadata(dict):
             yield key
 
     def __contains__(self, key):
-        return self.has_key(key)
+        return key in self._tb_cats or key == 'title_sort'
 
     def has_key(self, key):
-        if key == 'title_sort':
-            return True
-        return key in self._tb_cats
+        return key in self
 
     def keys(self):
         return self._tb_cats.keys()

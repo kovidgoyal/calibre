@@ -59,8 +59,24 @@ class TOLINO(EB600):
     VENDOR_NAME      = ['DEUTSCHE']
     WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = ['_TELEKOMTOLINO']
 
+    EXTRA_CUSTOMIZATION_MESSAGE = [
+        _('Swap main and card A') +
+            ':::' +
+            _('Check this box if the device\'s main memory is being seen as card a and the card '
+              'is being seen as main memory. Some Tolino devices may need this option.'),
+    ]
+
+    EXTRA_CUSTOMIZATION_DEFAULT = [
+        True,
+    ]
+
+    OPT_SWAP_MEMORY = 0
+
+    # There are apparently two versions of this device, one with swapped
+    # drives and one without, see https://bugs.launchpad.net/bugs/1240504
     def linux_swap_drives(self, drives):
-        if len(drives) < 2 or not drives[1] or not drives[2]:
+        e = self.settings().extra_customization
+        if len(drives) < 2 or not drives[0] or not drives[1] or not e[self.OPT_SWAP_MEMORY]:
             return drives
         drives = list(drives)
         t = drives[0]
@@ -69,7 +85,8 @@ class TOLINO(EB600):
         return tuple(drives)
 
     def windows_sort_drives(self, drives):
-        if len(drives) < 2:
+        e = self.settings().extra_customization
+        if len(drives) < 2 or not e[self.OPT_SWAP_MEMORY]:
             return drives
         main = drives.get('main', None)
         carda = drives.get('carda', None)
@@ -86,7 +103,7 @@ class COOL_ER(EB600):
     FORMATS = ['epub', 'mobi', 'prc', 'pdf', 'txt']
 
     VENDOR_NAME = 'COOL-ER'
-    WINDOWS_MAIN_MEM = 'EREADER'
+    WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = 'EREADER'
 
     OSX_MAIN_MEM = 'COOL-ER eReader Media'
 
@@ -259,7 +276,7 @@ class POCKETBOOK301(USBMS):
 class POCKETBOOK602(USBMS):
 
     name = 'PocketBook Pro 602/902 Device Interface'
-    description    = _('Communicate with the PocketBook 602/603/902/903/Pro 912 reader.')
+    description    = _('Communicate with the PocketBook 515/602/603/902/903/Pro 912 reader.')
     author         = 'Kovid Goyal'
     supported_platforms = ['windows', 'osx', 'linux']
     FORMATS = ['epub', 'fb2', 'prc', 'mobi', 'pdf', 'djvu', 'rtf', 'chm',
@@ -267,14 +284,15 @@ class POCKETBOOK602(USBMS):
 
     EBOOK_DIR_MAIN = 'books'
     SUPPORTS_SUB_DIRS = True
+    SCAN_FROM_ROOT = True
 
     VENDOR_ID   = [0x0525]
     PRODUCT_ID  = [0xa4a5]
-    BCD         = [0x0324]
+    BCD         = [0x0324, 0x0330]
 
-    VENDOR_NAME = ''
+    VENDOR_NAME = ['', 'LINUX']
     WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = ['PB602', 'PB603', 'PB902',
-            'PB903', 'Pocket912', 'PB']
+            'PB903', 'Pocket912', 'PB', 'FILE-STOR_GADGET']
 
 class POCKETBOOK622(POCKETBOOK602):
 

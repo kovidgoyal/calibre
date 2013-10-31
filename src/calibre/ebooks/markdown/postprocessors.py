@@ -8,15 +8,23 @@ processing.
 
 """
 
+from __future__ import absolute_import
+from __future__ import unicode_literals
+from . import util
+from . import odict
+import re
 
-import markdown
 
-class Processor:
-    def __init__(self, markdown_instance=None):
-        if markdown_instance:
-            self.markdown = markdown_instance
+def build_postprocessors(md_instance, **kwargs):
+    """ Build the default postprocessors for Markdown. """
+    postprocessors = odict.OrderedDict()
+    postprocessors["raw_html"] = RawHtmlPostprocessor(md_instance)
+    postprocessors["amp_substitute"] = AndSubstitutePostprocessor()
+    postprocessors["unescape"] = UnescapePostprocessor()
+    return postprocessors
 
-class Postprocessor(Processor):
+
+class Postprocessor(util.Processor):
     """
     Postprocessors are run after the ElementTree it converted back into text.
 
@@ -50,12 +58,12 @@ class RawHtmlPostprocessor(Postprocessor):
                 elif str(self.markdown.safeMode).lower() == 'remove':
                     html = ''
                 else:
-                    html = markdown.HTML_REMOVED_TEXT
-            if safe or not self.markdown.safeMode:
+                    html = self.markdown.html_replacement_text
+            if self.isblocklevel(html) and (safe or not self.markdown.safeMode):
                 text = text.replace("<p>%s</p>" % 
-                            (markdown.preprocessors.HTML_PLACEHOLDER % i),
+                            (self.markdown.htmlStash.get_placeholder(i)),
                             html + "\n")
-            text =  text.replace(markdown.preprocessors.HTML_PLACEHOLDER % i, 
+            text =  text.replace(self.markdown.htmlStash.get_placeholder(i), 
                                  html)
         return text
 
@@ -66,12 +74,31 @@ class RawHtmlPostprocessor(Postprocessor):
         html = html.replace('>', '&gt;')
         return html.replace('"', '&quot;')
 
+    def isblocklevel(self, html):
+        m = re.match(r'^\<\/?([^ >]+)', html)
+        if m:
+            if m.group(1)[0] in ('!', '?', '@', '%'):
+                # Comment, php etc...
+                return True
+            return util.isBlockLevel(m.group(1))
+        return False
+
 
 class AndSubstitutePostprocessor(Postprocessor):
     """ Restore valid entities """
-    def __init__(self):
-        pass
 
     def run(self, text):
-        text =  text.replace(markdown.AMP_SUBSTITUTE, "&")
+        text =  text.replace(util.AMP_SUBSTITUTE, "&")
         return text
+
+
+class UnescapePostprocessor(Postprocessor):
+    """ Restore escaped chars """
+
+    RE = re.compile('%s(\d+)%s' % (util.STX, util.ETX))
+
+    def unescape(self, m):
+        return util.int2str(int(m.group(1)))
+
+    def run(self, text):
+        return self.RE.sub(self.unescape, text)

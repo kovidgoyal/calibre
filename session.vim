@@ -25,7 +25,7 @@ fun! CalibreLog()
     " Setup buffers to edit the calibre changelog and version info prior to
     " making a release.
     enew
-    read ! git log --first-parent "--pretty=\%an:::\%n\%s\%n\%b\%n" -500
+    read ! git log  "--pretty=\%an:::\%n\%s\%n\%b\%n" -500
     setl nomodifiable noswapfile buftype=nofile
     hi def link au Keyword
     syntax match au /^.*:::$/

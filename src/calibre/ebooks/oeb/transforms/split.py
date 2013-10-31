@@ -339,6 +339,8 @@ class FlowSplitter(object):
                     # We want to keep the descendants of the split point in
                     # Tree 1
                     keep_descendants = True
+                    # We want the split point element, but not its tail
+                    elem.tail = '\n'
 
                 continue
             if hit_split_point:
@@ -357,6 +359,18 @@ class FlowSplitter(object):
         for elem in tuple(body2.iterdescendants()):
             if elem is split_point2:
                 if not before:
+                    # Keep the split point element's tail, if it contains non-whitespace
+                    # text
+                    tail = elem.tail
+                    if tail and not tail.isspace():
+                        parent = elem.getparent()
+                        idx = parent.index(elem)
+                        if idx == 0:
+                            parent.text = (parent.text or '') + tail
+                        else:
+                            sib = parent[idx-1]
+                            sib.tail = (sib.tail or '') + tail
+                    # Remove the element itself
                     nix_element(elem)
                 break
             if elem in ancestors:

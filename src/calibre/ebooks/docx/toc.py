@@ -21,7 +21,7 @@ class Count(object):
     def __init__(self):
         self.val = 0
 
-def from_headings(body):
+def from_headings(body, log):
     ' Create a TOC from headings in the document '
     headings = ('h1', 'h2', 'h3')
     tocroot = TOC()
@@ -58,6 +58,7 @@ def from_headings(body):
             level_prev[i] = None
 
     if len(tuple(tocroot.flat())) > 1:
+        log('Generating Table of Contents from headings')
         return tocroot
 
 def structure_toc(entries):
@@ -98,7 +99,7 @@ def link_to_txt(a, styles, object_map):
 
     return tostring(a, method='text', with_tail=False, encoding=unicode).strip()
 
-def from_toc(docx, link_map, styles, object_map):
+def from_toc(docx, link_map, styles, object_map, log):
     toc_level = None
     level = 0
     TI = namedtuple('TI', 'text anchor indent')
@@ -132,9 +133,10 @@ def from_toc(docx, link_map, styles, object_map):
                         ml = 0
                     toc.append(TI(txt, href[1:], ml))
     if toc:
+        log('Found Word Table of Contents, using it to generate the Table of Contents')
         return structure_toc(toc)
 
-def create_toc(docx, body, link_map, styles, object_map):
-    return from_toc(docx, link_map, styles, object_map) or from_headings(body)
+def create_toc(docx, body, link_map, styles, object_map, log):
+    return from_toc(docx, link_map, styles, object_map, log) or from_headings(body, log)
 
 

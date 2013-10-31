@@ -18,7 +18,6 @@ class OEBOutput(OutputFormatPlugin):
 
     recommendations = set([('pretty_print', True, OptionRecommendation.HIGH)])
 
-
     def convert(self, oeb_book, output_path, input_plugin, opts, log):
         from urllib import unquote
         from lxml import etree
@@ -26,7 +25,8 @@ class OEBOutput(OutputFormatPlugin):
         self.log, self.opts = log, opts
         if not os.path.exists(output_path):
             os.makedirs(output_path)
-        from calibre.ebooks.oeb.base import OPF_MIME, NCX_MIME, PAGE_MAP_MIME
+        from calibre.ebooks.oeb.base import OPF_MIME, NCX_MIME, PAGE_MAP_MIME, OEB_STYLES
+        from calibre.ebooks.oeb.normalize_css import condense_sheet
         with CurrentDir(output_path):
             results = oeb_book.to_opf2(page_map=True)
             for key in (OPF_MIME, NCX_MIME, PAGE_MAP_MIME):
@@ -54,6 +54,8 @@ class OEBOutput(OutputFormatPlugin):
                         f.write(raw)
 
             for item in oeb_book.manifest:
+                if not self.opts.expand_css and item.media_type in OEB_STYLES and hasattr(item.data, 'cssText'):
+                    condense_sheet(item.data)
                 path = os.path.abspath(unquote(item.href))
                 dir = os.path.dirname(path)
                 if not os.path.exists(dir):
@@ -62,7 +64,7 @@ class OEBOutput(OutputFormatPlugin):
                     f.write(str(item))
                 item.unload_data_from_memory(memory=path)
 
-    def workaround_nook_cover_bug(self, root): # {{{
+    def workaround_nook_cover_bug(self, root):  # {{{
         cov = root.xpath('//*[local-name() = "meta" and @name="cover" and'
                 ' @content != "cover"]')
 
@@ -96,7 +98,7 @@ class OEBOutput(OutputFormatPlugin):
                     cov.set('content', 'cover')
     # }}}
 
-    def workaround_pocketbook_cover_bug(self, root): # {{{
+    def workaround_pocketbook_cover_bug(self, root):  # {{{
         m = root.xpath('//*[local-name() = "manifest"]/*[local-name() = "item" '
                 ' and @id="cover"]')
         if len(m) == 1:
@@ -106,7 +108,7 @@ class OEBOutput(OutputFormatPlugin):
             p.insert(0, m)
     # }}}
 
-    def migrate_lang_code(self, root): # {{{
+    def migrate_lang_code(self, root):  # {{{
         from calibre.utils.localization import lang_as_iso639_1
         for lang in root.xpath('//*[local-name() = "language"]'):
             clc = lang_as_iso639_1(lang.text)

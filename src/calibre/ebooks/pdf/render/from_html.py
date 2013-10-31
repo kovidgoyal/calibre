@@ -41,8 +41,8 @@ def get_page_size(opts, for_comic=False):  # {{{
             width, sep, height = opts.custom_size.partition('x')
             if height:
                 try:
-                    width = float(width)
-                    height = float(height)
+                    width = float(width.replace(',', '.'))
+                    height = float(height.replace(',', '.'))
                 except:
                     pass
                 else:
@@ -216,7 +216,11 @@ class PDFWriter(QObject):
         try:
             if self.cover_data is not None:
                 p = QPixmap()
-                p.loadFromData(self.cover_data)
+                try:
+                    p.loadFromData(self.cover_data)
+                except TypeError:
+                    self.log.warn('This ebook does not have a raster cover, cannot generate cover for PDF'
+                                  '. Cover type: %s' % type(self.cover_data))
                 if not p.isNull():
                     self.doc.init_page()
                     draw_image_page(QRect(*self.doc.full_page_rect),
@@ -253,7 +257,7 @@ class PDFWriter(QObject):
             return self.loop.exit(1)
         try:
             if not self.render_queue:
-                if self.toc is not None and len(self.toc) > 0 and not hasattr(self, 'rendered_inline_toc'):
+                if self.opts.pdf_add_toc and self.toc is not None and len(self.toc) > 0 and not hasattr(self, 'rendered_inline_toc'):
                     return self.render_inline_toc()
                 self.loop.exit()
             else:
@@ -353,6 +357,7 @@ class PDFWriter(QObject):
         paged_display.layout();
         paged_display.fit_images();
         py_bridge.value = book_indexing.all_links_and_anchors();
+        window.scrollTo(0, 0); // This is needed as getting anchor positions could have caused the viewport to scroll
         '''%(self.margin_top, 0, self.margin_bottom))
 
         amap = self.bridge_value

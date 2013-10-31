@@ -18,7 +18,7 @@ from calibre.ebooks.metadata import author_to_author_sort
 from calibre.library.catalogs import AuthorSortMismatchException, EmptyCatalogException, \
                                      InvalidGenresSourceFieldException
 from calibre.ptempfile import PersistentTemporaryDirectory
-from calibre.utils.date import format_date, is_date_undefined, now as nowf
+from calibre.utils.date import format_date, is_date_undefined, now as nowf, as_local_time
 from calibre.utils.filenames import ascii_text, shorten_components_to
 from calibre.utils.icu import capitalize, collation_order, sort_key
 from calibre.utils.magick.draw import thumbnail
@@ -940,7 +940,7 @@ class CatalogBuilder(object):
             if is_date_undefined(record['pubdate']):
                 this_title['date'] = None
             else:
-                this_title['date'] = strftime(u'%B %Y', record['pubdate'].timetuple())
+                this_title['date'] = strftime(u'%B %Y', as_local_time(record['pubdate']).timetuple())
 
             this_title['timestamp'] = record['timestamp']
 
@@ -4447,21 +4447,21 @@ class CatalogBuilder(object):
         """
         excluded_tags = []
         for rule in self.opts.exclusion_rules:
-            if rule[1].lower() == 'tags':
+            if rule[1] == _('Tags'):
                 excluded_tags.extend(rule[2].split(','))
 
         # Remove dups
         excluded_tags = list(set(excluded_tags))
 
         # Report excluded books
-        if self.opts.verbose and excluded_tags:
+        if excluded_tags:
             self.opts.log.info(" Books excluded by tag:")
             data = self.db.get_data_as_dict(ids=self.opts.ids)
             for record in data:
                 matched = list(set(record['tags']) & set(excluded_tags))
                 if matched:
                     for rule in self.opts.exclusion_rules:
-                        if rule[1] == 'Tags' and rule[2] == str(matched[0]):
+                        if rule[1] == _('Tags') and rule[2] == str(matched[0]):
                             self.opts.log.info("  - '%s' by %s (Exclusion rule '%s')" %
                                 (record['title'], record['authors'][0], rule[0]))
 

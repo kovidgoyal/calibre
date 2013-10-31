@@ -38,6 +38,8 @@ Sections
    glossary
 
 
+.. REMOVE_IN_PDF
+
 The main |app| user interface
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 

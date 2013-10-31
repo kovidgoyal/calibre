@@ -2,7 +2,7 @@
 __author__    = 'Sylvain Durand <sylvain.durand@ponts.org>'
 __license__   = 'GPL v3'
 
-import time
+import time, re
 
 from calibre import strftime
 from calibre.web.feeds.news import BasicNewsRecipe
@@ -13,7 +13,7 @@ class LeMonde(BasicNewsRecipe):
 
     title              = u'Le Monde: Édition abonnés'
     __author__         = 'Sylvain Durand'
-    description        = u'Disponible du lundi au samedi à partir de 14 heures environ, avec tous ses cahiers.'
+    description        = u'La version papier du quotidien Le Monde, disponible du lundi au samedi à partir de 14 heures environ, avec tous ses cahiers.'
     language           = 'fr'
     encoding           = 'utf8'
 
@@ -65,30 +65,43 @@ class LeMonde(BasicNewsRecipe):
         url = time.strftime(self.journal_url,self.date)
         soup = self.index_to_soup(url).sommaire
         sections = []
-        for sec in soup.findAll("section"):
-            articles = []
-            if sec['cahier'] != "Le Monde":
-                for col in sec.findAll("fnts"):
-                    col.extract()
-            if sec['cahier']=="Le Monde Magazine":
-                continue
-            for art in sec.findAll("art"):
-                if art.txt.string and art.ttr.string:
-                    if art.find(['url']):
-                        art.insert(6,'<div id="photo"><img src="'+art.find(['url']).string+'" /></div>')
-                    if art.find(['lgd']) and art.find(['lgd']).string:
-                        art.insert(7,'<div id="lgd">'+art.find(['lgd']).string+'</div>')
-                    article = "<html><head></head><body>"+unicode(art)+"</body></html>"
-                    article = article.replace('<![CDATA[','').replace(']]>','').replace(' oC ','°C ')
-                    article = article.replace('srttr>','h3>').replace('ssttr>','h2>').replace('ttr>','h1>')
-                    f = PersistentTemporaryFile()
-                    f.write(article)
-                    articles.append({'title':art.ttr.string,'url':"file:///"+f.name})
-            sections.append((sec['nom'], articles))
+        try:
+            for sec in soup.findAll("section"):
+                articles = []
+                if sec['cahier'] != "Le Monde":
+                    for col in sec.findAll("fnts"):
+                        col.extract()
+                if sec['cahier']=="Le Monde Magazine":
+                    continue
+                for art in sec.findAll("art"):
+                    if art.txt.string and art.ttr.string:
+                        if art.find(['url']):
+                            art.insert(6,'<div id="photo"><img src="'+art.find(['url']).string+'" /></div>')
+                        if art.find(['lgd']) and art.find(['lgd']).string:
+                            art.insert(7,'<div id="lgd">'+art.find(['lgd']).string+'</div>')
+
+                        def guillemets(match):
+                            if match.group(1) == u"=":
+                                return match.group(0)
+                            return u'%s«&nbsp;%s&nbsp;»' % (match.group(1), match.group(2))
+
+                        article = "<html><head></head><body>"+unicode(art)+"</body></html>"
+                        article = article.replace('<![CDATA[','').replace(']]>','').replace(' oC ','°C ')
+                        article = article.replace('srttr>','h3>').replace('ssttr>','h2>').replace('ttr>','h1>')
+                        article = article.replace("'" , u'\u2019')
+                        article = re.sub('(.|^)"([^"]+)"', guillemets, article)
+
+                        f = PersistentTemporaryFile()
+                        f.write(article)
+                        articles.append({'title':art.ttr.string,'url':"file:///"+f.name})
+                sections.append((sec['nom'], articles))
+        except AttributeError:
+            self.log("Vos identifiants sont incorrects, ou votre abonnement LeMonde.fr ne vous permet pas de télécharger le journal.")
         return sections
 
     def preprocess_html(self, soup):
         for lgd in soup.findAll(id="lgd"):
             lgd.contents[-1].extract()
         return soup
+
 

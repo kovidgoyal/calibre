@@ -31,8 +31,8 @@ class FontMetrics(object):
         hhea.read_data(self.sfnt[b'hmtx'])
         self.ascent = hhea.ascender
         self.descent = hhea.descender
-        self.bbox = ( self.head.x_min, self.head.y_min, self.head.x_max,
-                     self.head.y_max )
+        self.bbox = (self.head.x_min, self.head.y_min, self.head.x_max,
+                     self.head.y_max)
         self._advance_widths = hhea.advance_widths
         self.cmap = self.sfnt[b'cmap']
         self.units_per_em = self.head.units_per_em

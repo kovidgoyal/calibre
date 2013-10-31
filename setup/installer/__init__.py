@@ -6,7 +6,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import subprocess, tempfile, os, time, socket
+import subprocess, tempfile, os, time
 
 from setup import Command, installer_name
 from setup.build_environment import HOST, PROJECT
@@ -57,23 +57,25 @@ class Push(Command):
 
     def run(self, opts):
         from threading import Thread
-        threads = []
+        threads = {}
         for host, vmname in {
                 r'Owner@winxp:/cygdrive/c/Documents\ and\ Settings/Owner/calibre':'winxp',
                 'kovid@ox:calibre':None,
                 r'kovid@win7:/cygdrive/c/Users/kovid/calibre':'Windows 7',
-                'kovid@getafix:calibre-src':None,
+                'kovid@win7-x64:calibre-src':'win7-x64',
                 }.iteritems():
-            if '@getafix:' in host and socket.gethostname() == 'getafix':
-                continue
             if vmname is None or is_vm_running(vmname):
                 rcmd = BASE_RSYNC + EXCLUDES + ['.', host]
                 print '\n\nPushing to:', vmname or host, '\n'
-                threads.append(Thread(target=subprocess.check_call, args=(rcmd,),
-                    kwargs={'stdout':open(os.devnull, 'wb')}))
-                threads[-1].start()
-        for thread in threads:
-            thread.join()
+                threads[vmname or host] = thread = Thread(target=subprocess.check_call, args=(rcmd,),
+                    kwargs={'stdout':open(os.devnull, 'wb')})
+                thread.start()
+        while threads:
+            for name, thread in tuple(threads.iteritems()):
+                thread.join(0.01)
+                if not thread.is_alive():
+                    print '\n\n', name, 'done'
+                    threads.pop(name)
 
 
 class VMInstaller(Command):

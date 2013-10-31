@@ -14,7 +14,6 @@ build
 dist
 docs
 resources/localization
-resources/images.qrc
 resources/scripts.pickle
 resources/ebook-convert-complete.pickle
 resources/builtin_recipes.xml
@@ -42,3 +41,4 @@ calibre_plugins/
 recipes/*.mobi
 recipes/*.epub
 recipes/debug
+/.metadata/

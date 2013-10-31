@@ -131,6 +131,7 @@ def start_download(gui, ids, callback, ensure_fields=None):
         _('Download metadata for %d books')%len(ids),
         download, (ids, tf.name, gui.current_db, d.identify, d.covers,
             ensure_fields), {}, callback)
+    job.metadata_and_covers = (d.identify, d.covers)
     job.download_debug_log = tf.name
     gui.job_manager.run_threaded_job(job)
     gui.status_bar.show_message(_('Metadata download started'), 3000)
@@ -153,7 +154,7 @@ def get_job_details(job):
             all_failed, det_msg, lm_map)
 
 class HeartBeat(object):
-    CHECK_INTERVAL = 300 # seconds
+    CHECK_INTERVAL = 300  # seconds
     ''' Check that the file count in tdir changes every five minutes '''
 
     def __init__(self, tdir):

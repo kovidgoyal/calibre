@@ -76,7 +76,66 @@ class FilesystemTest(BaseTest):
         f = open(fpath, 'rb')
         with self.assertRaises(IOError):
             cache.set_field('title', {1:'Moved'})
+        with self.assertRaises(IOError):
+            cache.remove_books({1})
         f.close()
         self.assertNotEqual(cache.field_for('title', 1), 'Moved', 'Title was changed despite file lock')
 
+        # Test on folder with hardlinks
+        from calibre.ptempfile import TemporaryDirectory
+        from calibre.utils.filenames import hardlink_file, WindowsAtomicFolderMove
+        raw = b'xxx'
+        with TemporaryDirectory() as tdir1, TemporaryDirectory() as tdir2:
+            a, b = os.path.join(tdir1, 'a'), os.path.join(tdir1, 'b')
+            a = os.path.join(tdir1, 'a')
+            with open(a, 'wb') as f:
+                f.write(raw)
+            hardlink_file(a, b)
+            wam = WindowsAtomicFolderMove(tdir1)
+            wam.copy_path_to(a, os.path.join(tdir2, 'a'))
+            wam.copy_path_to(b, os.path.join(tdir2, 'b'))
+            wam.delete_originals()
+            self.assertEqual([], os.listdir(tdir1))
+            self.assertEqual({'a', 'b'}, set(os.listdir(tdir2)))
+            self.assertEqual(raw, open(os.path.join(tdir2, 'a'), 'rb').read())
+            self.assertEqual(raw, open(os.path.join(tdir2, 'b'), 'rb').read())
 
+    def test_library_move(self):
+        ' Test moving of library '
+        from calibre.ptempfile import TemporaryDirectory
+        cache = self.init_cache()
+        self.assertIn('metadata.db', cache.get_top_level_move_items()[0])
+        all_ids = cache.all_book_ids()
+        fmt1 = cache.format(1, 'FMT1')
+        cov = cache.cover(1)
+        with TemporaryDirectory('moved_lib') as tdir:
+            cache.move_library_to(tdir)
+            self.assertIn('moved_lib', cache.backend.library_path)
+            self.assertIn('moved_lib', cache.backend.dbpath)
+            self.assertEqual(fmt1, cache.format(1, 'FMT1'))
+            self.assertEqual(cov, cache.cover(1))
+            cache.reload_from_db()
+            self.assertEqual(all_ids, cache.all_book_ids())
+            cache.backend.close()
+
+    def test_long_filenames(self):
+        ' Test long file names '
+        cache = self.init_cache()
+        cache.set_field('title', {1:'a'*10000})
+        self.assertLessEqual(len(cache.field_for('path', 1)), cache.backend.PATH_LIMIT * 2)
+        cache.set_field('authors', {1:'b'*10000})
+        self.assertLessEqual(len(cache.field_for('path', 1)), cache.backend.PATH_LIMIT * 2)
+        fpath = cache.format_abspath(1, cache.formats(1)[0])
+        self.assertLessEqual(len(fpath), len(cache.backend.library_path) + cache.backend.PATH_LIMIT * 4)
+
+    def test_fname_change(self):
+        ' Test the changing of the filename but not the folder name '
+        cache = self.init_cache()
+        title = 'a'*30 + 'bbb'
+        cache.backend.PATH_LIMIT = 100
+        cache.set_field('title', {3:title})
+        cache.add_format(3, 'TXT', BytesIO(b'xxx'))
+        cache.backend.PATH_LIMIT = 40
+        cache.set_field('title', {3:title})
+        fpath = cache.format_abspath(3, 'TXT')
+        self.assertEqual(sorted([os.path.basename(fpath)]), sorted(os.listdir(os.path.dirname(fpath))))

@@ -27,6 +27,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         r('read_file_metadata', prefs)
         r('swap_author_names', prefs)
         r('add_formats_to_existing', prefs)
+        r('check_for_dupes_on_ctl', prefs)
         r('preserve_date_on_ctl', gprefs)
         r('manual_add_auto_convert', gprefs)
         choices = [
@@ -35,6 +36,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
                 (_('Create new record for each duplicate format'), 'new record')]
         r('automerge', gprefs, choices=choices)
         r('new_book_tags', prefs, setting=CommaSeparatedList)
+        r('mark_new_books', prefs)
         r('auto_add_path', gprefs, restart_required=True)
         r('auto_add_check_for_duplicates', gprefs)
         r('auto_add_auto_convert', gprefs)

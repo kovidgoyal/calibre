@@ -78,16 +78,16 @@ class MainWindow(QMainWindow):
 
     @classmethod
     def create_application_menubar(cls):
-        mb = QMenuBar(None)
-        menu = QMenu()
-        for action in cls.get_menubar_actions():
-            menu.addAction(action)
-            cls.__actions.append(action)
-            yield action
-        mb.addMenu(menu)
-        cls.___menu_bar = mb
-        cls.___menu = menu
-
+        if not cls.__actions:
+            mb = QMenuBar(None)
+            menu = QMenu()
+            for action in cls.get_menubar_actions():
+                menu.addAction(action)
+                cls.__actions.append(action)
+            mb.addMenu(menu)
+            cls.___menu_bar = mb
+            cls.___menu = menu
+        return cls.__actions
 
     @classmethod
     def get_menubar_actions(cls):
@@ -108,7 +108,14 @@ class MainWindow(QMainWindow):
             return
         try:
             sio = StringIO.StringIO()
+            try:
+                from calibre.debug import print_basic_debug_info
+                print_basic_debug_info(out=sio)
+            except:
+                pass
             traceback.print_exception(type, value, tb, file=sio)
+            if getattr(value, 'locking_debug_msg', None):
+                prints(value.locking_debug_msg, file=sio)
             fe = sio.getvalue()
             prints(fe, file=sys.stderr)
             msg = '<b>%s</b>:'%type.__name__ + unicode(str(value), 'utf8', 'replace')

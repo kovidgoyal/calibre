@@ -39,10 +39,10 @@ class HBR(BasicNewsRecipe):
             br.visit('https://hbr.org/login?request_url=/', timeout=20)
         except Timeout:
             pass
-        br.click('#accordion div[tabindex="0"]', wait_for_load=False)
-        f = br.select_form('#signin-form')
-        f['signin-form:username'] = username
-        f['signin-form:password'] = password
+        br.click('#form-wrapper h3[tabindex="0"]', wait_for_load=False)
+        f = br.select_form('#login-form')
+        f['username'] = username
+        f['password'] = password
         br.submit(wait_for_load=False)
         br.run_for_a_time(30)
 
@@ -56,7 +56,8 @@ class HBR(BasicNewsRecipe):
         articles = []
         for x in soup.find(id='issueFeaturesContent').findAll(['li', 'h4']):
             if x.name == 'h4':
-                if x.get('class', None) == 'basic':continue
+                if x.get('class', None) == 'basic':
+                    continue
                 if current_section is not None and articles:
                     feeds.append((current_section, articles))
                 current_section = self.tag_to_string(x).capitalize()
@@ -64,7 +65,8 @@ class HBR(BasicNewsRecipe):
                 self.log('\tFound section:', current_section)
             else:
                 a = x.find('a', href=True)
-                if a is None: continue
+                if a is None:
+                    continue
                 title = self.tag_to_string(a)
                 url = a['href']
                 if '/ar/' not in url:
@@ -90,11 +92,11 @@ class HBR(BasicNewsRecipe):
     def parse_index(self):
         soup0 = self.index_to_soup('http://hbr.org/magazine')
         datencover = soup0.find('ul', attrs={'id':'magazineArchiveCarousel'}).findAll('li')[-1]
-        #find date & cover
+        # find date & cover
         self.cover_url=datencover.img['src']
         dates=self.tag_to_string(datencover.img['alt'])
         self.timefmt = u' [%s]'%dates
-        soup = self.index_to_soup(self.INDEX + soup0.find('div', attrs = {'class':'magazine_page'}).a['href'])
+        soup = self.index_to_soup(self.INDEX + soup0.find('div', attrs={'class':'magazine_page'}).a['href'])
         feeds = self.hbr_parse_toc(soup)
         return feeds
 
