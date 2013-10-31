@@ -2863,7 +2863,7 @@ class BibTeX:
         return self.invalid_cit.sub(u'', text)
 
     def braceUppercase(self, text):
-        """ 
+        """
         Convert uppercase letters to bibtex encoded uppercase
         """
         return self.upper.sub(lambda m: u'{%s}' % m.group(), text)
@@ -2901,4 +2901,30 @@ class BibTeX:
         Format authors for Bibtex compliance (get a list as input)
         """
         return self.utf8ToBibtex(u' and '.join([author for author in item]))
+
+    def stripUnmatchedSyntax(text, open_character, close_character):
+        """
+        Strips unmatched BibTeX syntax
+        """
+        stack = []
+        assert len(open_character) == 1 and len(close_character) == 1
+        remove = []
+        for i, ch in enumerate(text):
+            if ch == open_character:
+                stack.append(i)
+            elif ch == close_character:
+                try:
+                    stack.pop()
+                except IndexError:
+                    # Remove unmatched closing char
+                    remove.append(i)
+        # Remove unmatched opening chars
+        remove.extend(stack)
+
+        if remove:
+            text = list(text)
+            for i in sorted(remove, reverse=True):
+                text.pop(i)
+            text = ''.join(text)
+        return text
 
