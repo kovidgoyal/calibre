@@ -205,6 +205,7 @@ def in_string(state, text, i, formats):
     pos = text.find(q, i)
     if pos == -1:
         if text[-1] == '\\':
+            # Multi-line string
             return [(len(text) - i, formats['string'])]
         state.parse = (State.NORMAL if state.blocks < 1 else State.IN_CONTENT)
         return [(len(text) - i, formats['unterminated-string'])]
