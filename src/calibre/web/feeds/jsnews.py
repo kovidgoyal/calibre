@@ -321,7 +321,7 @@ class JavascriptRecipe(BasicNewsRecipe):
         if self.ignore_duplicate_articles is not None:
             feeds = self.remove_duplicate_articles(feeds)
         if self.test:
-            feeds = feeds[:2]
+            feeds = feeds[:self.test[0]]
         self.has_single_feed = len(feeds) == 1
         index = os.path.join(self.output_dir, 'index.html')
 

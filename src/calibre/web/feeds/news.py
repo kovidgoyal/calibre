@@ -425,7 +425,7 @@ class BasicNewsRecipe(Recipe):
         if not self.feeds:
             raise NotImplementedError
         if self.test:
-            return self.feeds[:2]
+            return self.feeds[:self.test[0]]
         return self.feeds
 
     @classmethod
@@ -839,6 +839,8 @@ class BasicNewsRecipe(Recipe):
         self.output_dir = os.path.abspath(os.getcwdu())
         self.verbose = options.verbose
         self.test = options.test
+        if self.test and not isinstance(self.test, tuple):
+            self.test = (2, 2)
         self.username = options.username
         self.password = options.password
         self.lrf = options.lrf
@@ -847,8 +849,8 @@ class BasicNewsRecipe(Recipe):
         if self.touchscreen:
             self.template_css += self.output_profile.touchscreen_news_css
 
-        if options.test:
-            self.max_articles_per_feed = 2
+        if self.test:
+            self.max_articles_per_feed = self.test[1]
             self.simultaneous_downloads = min(4, self.simultaneous_downloads)
 
         if self.debug:
@@ -1163,7 +1165,7 @@ class BasicNewsRecipe(Recipe):
         self.resolve_masthead()
 
         if self.test:
-            feeds = feeds[:2]
+            feeds = feeds[:self.test[0]]
         self.has_single_feed = len(feeds) == 1
 
         index = os.path.join(self.output_dir, 'index.html')

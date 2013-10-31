@@ -34,8 +34,11 @@ class RecipeInput(InputFormatPlugin):
 
     options = set([
         OptionRecommendation(name='test', recommended_value=False,
-            help=_('Useful for recipe development. Forces '
-            'max_articles_per_feed to 2 and downloads at most 2 feeds.')),
+            help=_(
+            'Useful for recipe development. Forces'
+            ' max_articles_per_feed to 2 and downloads at most 2 feeds.'
+            ' You can change the number of feeds and articles by supplying optional arguments.'
+            ' For example: --test 3 1 will download at most 3 feeds and only 1 article per feed.')),
         OptionRecommendation(name='username', recommended_value=None,
             help=_('Username for sites that require a login to access '
                 'content.')),
@@ -85,7 +88,7 @@ class RecipeInput(InputFormatPlugin):
                     self.recipe_source = raw
                     if recipe.requires_version > numeric_version:
                         log.warn(
-                        'Downloaded recipe needs calibre version at least: %s' % \
+                        'Downloaded recipe needs calibre version at least: %s' %
                         ('.'.join(recipe.requires_version)))
                         builtin = True
                 except:
