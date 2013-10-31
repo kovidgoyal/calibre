@@ -314,4 +314,4 @@ if __name__ == '__main__':
         <p>Some\xa0words\xa0separated\xa0by\xa0non-breaking\xa0spaces.</p>
     </body>
 </html>
-''')
+''', path_is_raw=True)

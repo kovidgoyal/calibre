@@ -17,6 +17,7 @@ from calibre.gui2.tweak_book import tprefs
 from calibre.gui2.tweak_book.editor.themes import THEMES, DEFAULT_THEME, theme_color
 from calibre.gui2.tweak_book.editor.syntax.base import SyntaxHighlighter
 from calibre.gui2.tweak_book.editor.syntax.html import HTMLHighlighter
+from calibre.gui2.tweak_book.editor.syntax.css import CSSHighlighter
 
 _dff = None
 def default_font_family():
@@ -93,7 +94,7 @@ class TextEdit(QPlainTextEdit):
     # }}}
 
     def load_text(self, text, syntax='html'):
-        self.highlighter = {'html':HTMLHighlighter}.get(syntax, SyntaxHighlighter)(self)
+        self.highlighter = {'html':HTMLHighlighter, 'css':CSSHighlighter}.get(syntax, SyntaxHighlighter)(self)
         self.highlighter.apply_theme(self.theme)
         self.highlighter.setDocument(self.document())
         self.setPlainText(text)
@@ -199,49 +200,23 @@ class TextEdit(QPlainTextEdit):
         ev.ignore()
     # }}}
 
-def launch_editor(path_to_edit):
-    if '<html' in path_to_edit:
+def launch_editor(path_to_edit, path_is_raw=False, syntax='html'):
+    if path_is_raw:
         raw = path_to_edit
     else:
         with open(path_to_edit, 'rb') as f:
             raw = f.read().decode('utf-8')
+        ext = path_to_edit.rpartition('.')[-1].lower()
+        if ext in ('html', 'htm', 'xhtml', 'xhtm'):
+            syntax = 'html'
+        elif ext in ('css',):
+            syntax = 'css'
     app = QApplication([])  # noqa
     t = TextEdit()
-    t.load_text(raw)
+    t.load_text(raw, syntax=syntax)
     d = QDialog()
     d.setLayout(QVBoxLayout())
     d.layout().addWidget(t)
     d.exec_()
 
-if __name__ == '__main__':
-    launch_editor(
-    textwrap.dedent('''\
-                <html>
-                <head>
-                    <title>Page title</title>
-                    <style type="text/css">
-                        body { color: green; }
-                    </style>
-                </head id="1">
-                <body>
-                <!-- The start of the document -->a
-                <h1 class="head" id="one" >A heading</h1>
-                <p> A single &. An proper entity &amp;.
-                A single < and a single >.
-                These cases are perfectly simple and easy to
-                distinguish. In a free hour, when our power of choice is
-                untrammelled and when nothing prevents our being able to do
-                what we like best, every pleasure is to be welcomed and every
-                pain avoided.</p>
-
-                <p>
-                But in certain circumstances and owing to the claims of duty or the obligations
-                of business it will frequently occur that pleasures have to be
-                repudiated and annoyances accepted. The wise man therefore
-                always holds in these matters to this principle of selection:
-                he rejects pleasures to secure other greater pleasures, or else
-                he endures pains.</p>
-                </body>
-                </html>
-                '''))
 
