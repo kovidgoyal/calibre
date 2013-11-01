@@ -20,6 +20,59 @@
 #   new recipes:
 #     - title: 
 
+- version: 1.9.0
+  date: 2013-11-01
+
+  new features:
+    - title: "Drivers for the new Nook Glowlight, Lenovo IdeaPad and Kindle Fire HDX (linux)"
+      tickets: [1244857, 1246775]
+
+    - title: "Add an option to check for duplicates (books with the same title/author) when copying between libraries. Option is under Preferences->Adding books."
+      tickets: [1245089]
+
+    - title: "Content server: Display book title on details page. Also put the most important fields (authors/series/tags) at the top."
+      tickets: [1246523]
+
+    - title: "When developing recipes using the command line, allow specifying the number of feeds and articles when using the --test parameter."
+      tickets: [1246061]
+
+    - title: "PDF Output: Option to control title of generated Table of Contents"
+      tickets: [1245076]
+
+    - title: "PDF metadata: If one of the keywords in the PDF is a valid ISBN, use it as the ISBN for the book"
+ 
+  bug fixes:
+    - title: "Amazon metadata download: Fix spurious ratings being returned for unrated books."
+      tickets: [1245449]
+
+    - title: "Bulk metadata edit: Only clear series if the clear series checkbox is checked. Also add a clear checkbox for publishers, so that publishers can be removed."
+      tickets: [1245058]
+
+    - title: "Use <h2> for the inserted Table of Contents title for the MOBI and PDF formats as well as the EPUB and AZW3 formats."
+      tickets: [1245076]
+
+    - title: "Fix comments editor in review metadata becoming too small on small screens."
+      tickets: [1245275]
+
+    - title: "DOCX Input: Fix hyperlink showing as underlined even if the hyperlink style in word is set to not show underlines."
+
+    - title: "E-book viewer: Remember the size of the 'Inspect' window used to examine the book's code."
+      tickets: [1245068]
+
+    - title: "Wireless driver: Fix bug that prevented different formats of the same book on the device from being recognized"
+
+    - title: "Bulk metadata download: When downloading only covers and some covers fail, do not show the failed books while reviewing downloaded metadata."
+      tickets: [1238271]
+
+    - title: "BibTeX catalogs: Strip unmatched braces to prevent generation of invalid .bib file."
+      tickets: [1228905]
+
+  improved recipes:
+    - Reuters (Japan)
+    - MIT Technology Review
+    - dotNet Magazine
+    - Science Based News
+
 - version: 1.8.0
   date: 2013-10-25
 
