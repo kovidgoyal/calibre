@@ -15,12 +15,6 @@ class Polter(BasicNewsRecipe):
     #masthead_url = ''
     use_embedded_content = False
     oldest_article = 7
-    preprocess_regexps = [(re.compile(ur'<div[^>]*?id="pol_lista"[^>]*?>.*</body>', re.DOTALL|re.IGNORECASE), lambda match: '</body>'),
-                          (re.compile(ur'<a[^>]*?>wersja do druku</a>', re.DOTALL|re.IGNORECASE), lambda match: ''),
-                          #(re.compile(ur'<a href="JavaScript:[^">]*">(<img ?[^>]*?/>)</a>', re.DOTALL|re.IGNORECASE), lambda match: '/1')
-                          (re.compile(ur'(<br ?/?>[\n\s\r]*){2,}', re.DOTALL|re.IGNORECASE), lambda match: '<br />'),
-                          (re.compile(ur'<span[^>]*>Zaloguj się aby wyłączyć tę reklamę</span>', re.DOTALL|re.IGNORECASE), lambda match: ''),
-                          ]
     max_articles_per_feed = 100
     no_stylesheets = True
     remove_empty_feeds = True
@@ -29,9 +23,8 @@ class Polter(BasicNewsRecipe):
     ignore_duplicate_articles = {'title', 'url'}
 
     keep_only_tags = [dict(attrs={'class':'boxcontent'})]
-    remove_tags = [dict(attrs={'class':'fb-like'}), dict(attrs={'alt':'Wersja do druku'}), dict(id=['pol_liczba', 'col12AdSenseLight']), dict(attrs={'scr':'http://static.polter.pl/tplimg/buttons/ceneo_140_40.gif'}), dict(name=['g:plusone', 'fb:like'])]
-    remove_tags_after = dict(attrs={'class':'fb-like'})
-    #remove_tags_before = dict()
+    remove_tags = [dict(id='komentarze')]
+    remove_tags_after = dict(id='komentarze')
 
     feeds = [(u'Wieści', 'http://polter.pl/wiesci,rss.html'), (u'RPG', 'http://rpg.polter.pl/wiesci,rss.html'), (u'Książki', 'http://ksiazki.polter.pl/wiesci,rss.html'), (u'Film', 'http://film.polter.pl/wiesci,rss.html'), (u'Komiks', 'http://komiks.polter.pl/wiesci,rss.html'), (u'Gry bitewne', 'http://bitewniaki.polter.pl/wiesci,rss.html'), (u'Gry karciane', 'http://karcianki.polter.pl/wiesci,rss.html'), (u'Gry planszowe', 'http://planszowki.polter.pl/wiesci,rss.html'), (u'Gry PC', 'http://gry.polter.pl/wiesci,rss.html'), (u'Gry konsolowe', 'http://konsole.polter.pl/wiesci,rss.html'), (u'Konwenty', 'http://konwenty.polter.pl/wiesci,rss.html'), (u'Blogi', 'http://polter.pl/blogi,rss.html')]
 

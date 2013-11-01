@@ -11,6 +11,7 @@ class INFRA(BasicNewsRecipe):
     index='http://infra.org.pl'
     language = 'pl'
     max_articles_per_feed = 100
+    remove_empty_feeds = True
     remove_attrs = ['style']
     no_stylesheets = True
     keep_only_tags = [dict(id='ja-current-content')]

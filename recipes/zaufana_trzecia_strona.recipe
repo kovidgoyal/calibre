@@ -13,6 +13,7 @@ class ZTS(BasicNewsRecipe):
     max_articles_per_feed = 100
     no_stylesheets = True
     remove_empty_feeds = True
+    use_embedded_content = False
     keep_only_tags = [dict(name='div', attrs={'class':'post postcontent'})]
     remove_tags = [dict(name='div', attrs={'class':'dolna-ramka'})]
     feeds          = [(u'Strona g\u0142\xf3wna', u'http://feeds.feedburner.com/ZaufanaTrzeciaStronaGlowna'), (u'Drobiazgi', u'http://feeds.feedburner.com/ZaufanaTrzeciaStronaDrobiazgi')]
