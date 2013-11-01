@@ -640,9 +640,6 @@ class Editor(QWidget):  # {{{
         self.highlighter = Highlighter(self.code_edit.document())
         self.layout().setContentsMargins(0, 0, 0, 0)
 
-    def set_minimum_height_for_editor(self, val):
-        self.editor.setMinimumHeight(val)
-
         # toolbar1 {{{
         self.toolbar1.addAction(self.editor.action_undo)
         self.toolbar1.addAction(self.editor.action_redo)
@@ -690,6 +687,9 @@ class Editor(QWidget):  # {{{
 
         self.code_edit.textChanged.connect(self.code_dirtied)
         self.editor.page().contentsChanged.connect(self.wyswyg_dirtied)
+
+    def set_minimum_height_for_editor(self, val):
+        self.editor.setMinimumHeight(val)
 
     @dynamic_property
     def html(self):
@@ -739,4 +739,5 @@ if __name__ == '__main__':
     w.html = '<b>testing</b>'
     app.exec_()
     # print w.html
+
 
