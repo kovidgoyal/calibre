@@ -1,5 +1,4 @@
 from calibre.web.feeds.news import BasicNewsRecipe
-import re
 
 class dotnetMagazine (BasicNewsRecipe):
     __author__ = u'Bonni Salles'
