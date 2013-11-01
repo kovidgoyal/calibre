@@ -190,7 +190,7 @@ class EPUBOutput(OutputFormatPlugin):
         self.workaround_webkit_quirks()
         self.upshift_markup()
         from calibre.ebooks.oeb.transforms.rescale import RescaleImages
-        RescaleImages()(oeb, opts)
+        RescaleImages(check_colorspaces=True)(oeb, opts)
 
         from calibre.ebooks.oeb.transforms.split import Split
         split = Split(not self.opts.dont_split_on_page_breaks,

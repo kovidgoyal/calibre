@@ -20,6 +20,9 @@ _gravity_map = dict([(getattr(_magick, x), x) for x in dir(_magick) if
 _type_map = dict([(getattr(_magick, x), x) for x in dir(_magick) if
     x.endswith('Type')])
 
+_colorspace_map = dict([(getattr(_magick, x), x) for x in dir(_magick) if
+    x.endswith('Colorspace')])
+
 # Font metrics {{{
 class Rect(object):
 
@@ -163,6 +166,15 @@ class Image(_magick.Image):  # {{{
         def fset(self, val):
             val = getattr(_magick, str(val))
             self.type_ = val
+        return property(fget=fget, fset=fset, doc=_magick.Image.type_.__doc__)
+
+    @dynamic_property
+    def colorspace(self):
+        def fget(self):
+            return _colorspace_map[self.colorspace_]
+        def fset(self, val):
+            val = getattr(_magick, str(val))
+            self.colorspace_ = val
         return property(fget=fget, fset=fset, doc=_magick.Image.type_.__doc__)
 
     @dynamic_property

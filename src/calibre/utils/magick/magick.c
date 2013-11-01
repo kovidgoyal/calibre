@@ -1252,6 +1252,41 @@ magick_Image_set_opacity(magick_Image *self, PyObject *args) {
 }
 // }}}
 
+// Image.colorspace {{{
+static PyObject *
+magick_Image_colorspace_getter(magick_Image *self, void *closure) {
+    NULL_CHECK(NULL)
+
+    return Py_BuildValue("i", MagickGetImageColorspace(self->wand));
+}
+
+static int
+magick_Image_colorspace_setter(magick_Image *self, PyObject *val, void *closure) {
+    int cs = RGBColorspace;
+
+    NULL_CHECK(-1)
+
+    if (val == NULL) {
+        PyErr_SetString(PyExc_TypeError, "Cannot delete image colorspace");
+        return -1;
+    }
+
+    if (!PyInt_Check(val)) {
+        PyErr_SetString(PyExc_TypeError, "Colorspace must be an integer");
+        return -1;
+    }
+
+    cs = (int)PyInt_AS_LONG(val);
+    if (!MagickSetImageColorspace(self->wand, cs)) {
+        PyErr_Format(PyExc_ValueError, "Could not set image colorspace to %d", cs);
+        return -1;
+    }
+
+    return 0;
+}
+
+// }}}
+
 // Image attr list {{{
 static PyMethodDef magick_Image_methods[] = {
     {"destroy", (PyCFunction)magick_Image_destroy, METH_VARARGS,
@@ -1395,6 +1430,10 @@ static PyGetSetDef  magick_Image_getsetters[] = {
      (char *)"the image depth.",
      NULL},
 
+    {(char *)"colorspace_",
+     (getter)magick_Image_colorspace_getter, (setter)magick_Image_colorspace_setter,
+     (char *)"the image colorspace.",
+     NULL},
 
     {NULL}  /* Sentinel */
 };
