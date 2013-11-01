@@ -23,8 +23,8 @@ class cdrinfo(BasicNewsRecipe):
     preprocess_regexps = [(re.compile(u'<p[^>]*?>Uprzejmie prosimy o przestrzeganie netykiety.+?www\.gravatar\.com</a>\.</p>', re.DOTALL), lambda match: '')]
     ignore_duplicate_articles = {'title', 'url'}
 
-    keep_only_tags = [dict(name='input', attrs={'name':'ref'}), dict(id='text')]
-    remove_tags = [dict(attrs={'class':['navigation', 'sociable']}), dict(name='hr'), dict(id='respond')]
+    keep_only_tags = [dict(name='input', attrs={'name':'ref'}), dict(id=['text', 'text2'])]
+    remove_tags = [dict(attrs={'class':['navigation', 'sociable', 'last6news']}), dict(name='hr'), dict(id='respond')]
     remove_tags_after = dict(id='artnawigacja')
     feeds = [(u'Wiadomości', 'http://feeds.feedburner.com/cdrinfo'), (u'Recenzje', 'http://www.cdrinfo.pl/rss/rss_recenzje.php'),
             (u'Konsole', 'http://konsole.cdrinfo.pl/rss/rss_konsole_news.xml'),

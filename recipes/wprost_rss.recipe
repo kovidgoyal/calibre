@@ -16,33 +16,11 @@ class Wprost(BasicNewsRecipe):
     no_stylesheets = True
     language = 'pl'
     remove_javascript = True
-    recursions = 0
     use_embedded_content = False
     ignore_duplicate_articles = {'title', 'url'}
     remove_empty_feeds = True
-    remove_tags_before = dict(dict(name = 'div', attrs = {'id' : 'print-layer'}))
-    remove_tags_after = dict(dict(name = 'div', attrs = {'id' : 'print-layer'}))
-    '''
-    keep_only_tags =[]
-    keep_only_tags.append(dict(name = 'table', attrs = {'id' : 'title-table'}))
-    keep_only_tags.append(dict(name = 'div', attrs = {'class' : 'div-header'}))
-    keep_only_tags.append(dict(name = 'div', attrs = {'class' : 'div-content'}))
-    keep_only_tags.append(dict(name = 'div', attrs = {'class' : 'def element-autor'}))
-    '''
-
-    preprocess_regexps = [(re.compile(r'style="display: none;"'), lambda match: ''),
-        (re.compile(r'display: block;'), lambda match: ''),
-        (re.compile(r'\<td\>\<tr\>\<\/table\>'), lambda match: ''),
-        (re.compile(r'\<table .*?\>'), lambda match: ''),
-        (re.compile(r'\<tr>'), lambda match: ''),
-        (re.compile(r'\<td .*?\>'), lambda match: ''),
-        (re.compile(r'\<div id="footer"\>.*?\</footer\>'), lambda match: '')]
-
-    remove_tags =[]
-    remove_tags.append(dict(name = 'div', attrs = {'class' : 'def element-date'}))
-    remove_tags.append(dict(name = 'div', attrs = {'class' : 'def silver'}))
-    remove_tags.append(dict(name = 'div', attrs = {'id' : 'content-main-column-right'}))
-
+    keep_only_tags = [dict(attrs={'class':'art-area'})]
+    remove_tags = [dict(attrs={'class':'add300x250'})]
 
     extra_css = '''.div-header {font-size: x-small; font-weight: bold}'''
     #h2 {font-size: x-large; font-weight: bold}
