@@ -271,7 +271,7 @@ class DuplicatesQuestion(QDialog):  # {{{
         self.books = QListWidget(self)
         self.items = []
         for book_id, (title, authors) in duplicates.iteritems():
-            i = QListWidgetItem(_('%s by %s') % (title, ' & '.join(authors[:3])), self.books)
+            i = QListWidgetItem(_('{0} by {1}').format(title, ' & '.join(authors[:3])), self.books)
             i.setData(Qt.UserRole, book_id)
             i.setFlags(Qt.ItemIsUserCheckable | Qt.ItemIsEnabled)
             i.setCheckState(Qt.Checked)
