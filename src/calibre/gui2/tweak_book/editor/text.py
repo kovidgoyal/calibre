@@ -49,7 +49,7 @@ class TextEdit(QPlainTextEdit):
     def __init__(self, parent=None):
         QPlainTextEdit.__init__(self, parent)
         self.highlighter = SyntaxHighlighter(self)
-        self.apply_theme()
+        self.apply_settings()
         self.setMouseTracking(True)
         self.cursorPositionChanged.connect(self.highlight_cursor_line)
         self.blockCountChanged[int].connect(self.update_line_number_area_width)
@@ -59,10 +59,15 @@ class TextEdit(QPlainTextEdit):
     def sizeHint(self):
         return self.size_hint
 
-    def apply_theme(self):  # {{{
-        theme = THEMES.get(tprefs['editor_theme'], None)
+    def apply_settings(self, prefs=None):  # {{{
+        prefs = prefs or tprefs
+        self.setLineWrapMode(QPlainTextEdit.WidgetWidth if prefs['editor_line_wrap'] else QPlainTextEdit.NoWrap)
+        theme = THEMES.get(prefs['editor_theme'], None)
         if theme is None:
             theme = THEMES[DEFAULT_THEME]
+        self.apply_theme(theme)
+
+    def apply_theme(self, theme):
         self.theme = theme
         pal = self.palette()
         pal.setColor(pal.Base, theme_color(theme, 'Normal', 'bg'))
