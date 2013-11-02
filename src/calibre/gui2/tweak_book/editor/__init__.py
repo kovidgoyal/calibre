@@ -14,11 +14,7 @@ def syntax_from_mime(mime):
         return 'html'
     if mime in OEB_STYLES:
         return 'css'
-    if mime == guess_type('a.opf'):
-        return 'xml'
-    if mime == guess_type('a.ncx'):
-        return 'xml'
-    if mime == guess_type('a.xml'):
+    if mime in {guess_type('a.opf'), guess_type('a.ncx'), guess_type('a.xml')}:
         return 'xml'
     if mime.startswith('text/'):
         return 'text'
