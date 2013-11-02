@@ -56,6 +56,16 @@ class TextEdit(QPlainTextEdit):
         self.updateRequest.connect(self.update_line_number_area)
         self.line_number_area = LineNumbers(self)
 
+    @dynamic_property
+    def is_modified(self):
+        ''' True if the document has been modified since it was loaded or since
+        the last time is_modified was set to False. '''
+        def fget(self):
+            return self.document().isModified()
+        def fset(self, val):
+            self.document.setModified(bool(val))
+        return property(fget=fget, fset=fset)
+
     def sizeHint(self):
         return self.size_hint
 

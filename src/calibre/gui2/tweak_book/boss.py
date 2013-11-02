@@ -219,7 +219,7 @@ class Boss(QObject):
             editor = self.editors[name] = editor_from_syntax(syntax, self.gui.editor_tabs)
             self.gui.central.add_editor(name, editor)
             c = current_container()
-            editor.load_text(c.decode(c.open(name).read()), syntax=syntax)
+            editor.load_text(c.decode(c.open(name).read()))
         self.gui.central.show_editor(editor)
 
     def edit_file_requested(self, name, syntax, mime):

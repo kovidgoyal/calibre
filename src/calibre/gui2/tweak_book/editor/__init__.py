@@ -23,5 +23,5 @@ def editor_from_syntax(syntax, parent=None):
     if syntax not in {'text', 'html', 'css', 'xml'}:
         return None
     from calibre.gui2.tweak_book.editor.widget import Editor
-    return Editor(parent)
+    return Editor(syntax, parent=parent)
 

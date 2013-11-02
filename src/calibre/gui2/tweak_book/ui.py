@@ -16,7 +16,7 @@ from calibre.gui2.tweak_book import current_container, tprefs
 from calibre.gui2.tweak_book.file_list import FileListWidget
 from calibre.gui2.tweak_book.job import BlockingJob
 from calibre.gui2.tweak_book.boss import Boss
-from calibre.gui2.keyboard import Manager as KeyboardManager
+from calibre.gui2.tweak_book.keyboard import KeyboardManager
 
 class Central(QStackedWidget):
     ' The central widget, hosts the editors '
@@ -65,7 +65,7 @@ class Main(MainWindow):
         self.container = None
         self.current_metadata = None
         self.blocking_job = BlockingJob(self)
-        self.keyboard = KeyboardManager(parent=self, config_name='shortcuts/tweak')
+        self.keyboard = KeyboardManager()
 
         self.create_actions()
         self.create_menubar()
@@ -88,6 +88,7 @@ class Main(MainWindow):
         self.restore_state()
 
         self.keyboard.finalize()
+        self.keyboard.set_mode('other')
 
     @property
     def editor_tabs(self):
@@ -112,7 +113,7 @@ class Main(MainWindow):
                                       _('Revert book to before the last action (Undo)'))
         self.action_global_redo = reg('forward.png', _('&Revert to after'), self.boss.do_global_redo, 'global-redo', 'Ctrl+Right',
                                       _('Revert book state to after the next action (Redo)'))
-        self.action_save = reg('save.png', _('&Save'), self.boss.save_book, 'save-book', 'Ctrl+S', _('Save book'))
+        self.action_save = reg('save.png', _('&Save'), self.boss.save_book, 'save-book', 'Ctrl+Shift+S', _('Save book'))
         self.action_save.setEnabled(False)
         self.action_quit = reg('quit.png', _('&Quit'), self.boss.quit, 'quit', 'Ctrl+Q', _('Quit'))
 
@@ -129,7 +130,7 @@ class Main(MainWindow):
         e.addAction(self.action_global_redo)
 
     def create_toolbar(self):
-        self.global_bar = b = self.addToolBar(_('Global'))
+        self.global_bar = b = self.addToolBar(_('Global tool bar'))
         b.setObjectName('global_bar')  # Needed for saveState
         b.addAction(self.action_open_book)
         b.addAction(self.action_global_undo)
