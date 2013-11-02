@@ -6,7 +6,9 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
-from PyQt4.Qt import QDockWidget, Qt, QLabel, QIcon, QAction, QApplication
+from PyQt4.Qt import (
+    QDockWidget, Qt, QLabel, QIcon, QAction, QApplication, QWidget,
+    QVBoxLayout, QStackedWidget, QTabWidget)
 
 from calibre.constants import __appname__, get_version
 from calibre.gui2.main_window import MainWindow
@@ -15,6 +17,38 @@ from calibre.gui2.tweak_book.file_list import FileListWidget
 from calibre.gui2.tweak_book.job import BlockingJob
 from calibre.gui2.tweak_book.boss import Boss
 from calibre.gui2.keyboard import Manager as KeyboardManager
+
+class Central(QStackedWidget):
+    ' The central widget, hosts the editors '
+
+    def __init__(self, parent=None):
+        QStackedWidget.__init__(self, parent)
+        self.welcome = w = QLabel('<p>'+_(
+            'Double click a file in the left panel to start editing'
+            ' it.'))
+        self.addWidget(w)
+        w.setWordWrap(True)
+        w.setAlignment(Qt.AlignTop | Qt.AlignHCenter)
+
+        self.container = c = QWidget(self)
+        self.addWidget(c)
+        l = c.l = QVBoxLayout(c)
+        c.setLayout(l)
+        l.setContentsMargins(0, 0, 0, 0)
+        self.editor_tabs = t = QTabWidget(c)
+        l.addWidget(t)
+        t.setDocumentMode(True)
+        t.setTabsClosable(True)
+        t.setMovable(True)
+
+    def add_editor(self, name, editor):
+        fname = name.rpartition('/')[2]
+        index = self.editor_tabs.addTab(editor, fname)
+        self.editor_tabs.setTabToolTip(index, name)
+
+    def show_editor(self, editor):
+        self.setCurrentIndex(1)
+        self.editor_tabs.setCurrentWidget(editor)
 
 class Main(MainWindow):
 
@@ -39,20 +73,25 @@ class Main(MainWindow):
         self.create_docks()
 
         self.status_bar = self.statusBar()
-        self.l = QLabel('Placeholder')
         self.status_bar.addPermanentWidget(self.boss.save_manager.status_widget)
         self.status_bar.addWidget(QLabel(_('{0} {1} created by {2}').format(__appname__, get_version(), 'Kovid Goyal')))
         f = self.status_bar.font()
         f.setBold(True)
         self.status_bar.setFont(f)
 
-        self.setCentralWidget(self.l)
+        self.central = Central(self)
+        self.setCentralWidget(self.central)
+
         self.boss(self)
         g = QApplication.instance().desktop().availableGeometry(self)
         self.resize(g.width()-50, g.height()-50)
         self.restore_state()
 
         self.keyboard.finalize()
+
+    @property
+    def editor_tabs(self):
+        return self.central.editor_tabs
 
     def create_actions(self):
         group = _('Global Actions')

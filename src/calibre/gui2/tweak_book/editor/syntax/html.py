@@ -7,6 +7,7 @@ __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import re
+from functools import partial
 
 from PyQt4.Qt import (QTextCharFormat, QFont)
 
@@ -166,7 +167,7 @@ def normal(state, text, i, formats):
     t = normal_pat.search(text, i).group()
     return mark_nbsp(state, t, formats['nbsp'])
 
-def opening_tag(state, text, i, formats):
+def opening_tag(cdata_tags, state, text, i, formats):
     'An opening tag, like <a>'
     ch = text[i]
     if ch in space_chars:
@@ -270,7 +271,7 @@ def in_comment(state, text, i, formats):
 
 state_map = {
     State.NORMAL:normal,
-    State.IN_OPENING_TAG: opening_tag,
+    State.IN_OPENING_TAG: partial(opening_tag, cdata_tags),
     State.IN_CLOSING_TAG: closing_tag,
     State.ATTRIBUTE_NAME: attribute_name,
     State.ATTRIBUTE_VALUE: attribute_value,
@@ -283,6 +284,9 @@ for x in (State.IN_COMMENT, State.IN_PI, State.IN_DOCTYPE):
 
 for x in (State.SQ_VAL, State.DQ_VAL):
     state_map[x] = quoted_val
+
+xml_state_map = state_map.copy()
+xml_state_map[State.IN_OPENING_TAG] = partial(opening_tag, set())
 
 def create_formats(highlighter):
     t = highlighter.theme
@@ -332,8 +336,12 @@ class HTMLHighlighter(SyntaxHighlighter):
         ans.css_formats = self.css_formats
         return ans
 
+class XMLHighlighter(HTMLHighlighter):
+
+    state_map = xml_state_map
+
 if __name__ == '__main__':
-    from calibre.gui2.tweak_book.editor.text import launch_editor
+    from calibre.gui2.tweak_book.editor.widget import launch_editor
     launch_editor('''\
 <!DOCTYPE html>
 <html xml:lang="en" lang="en">

@@ -254,7 +254,7 @@ class CSSHighlighter(SyntaxHighlighter):
     create_formats_func = create_formats
 
 if __name__ == '__main__':
-    from calibre.gui2.tweak_book.editor.text import launch_editor
+    from calibre.gui2.tweak_book.editor.widget import launch_editor
     launch_editor('''\
 @charset "utf-8";
 /* A demonstration css sheet */

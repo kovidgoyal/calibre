@@ -24,6 +24,7 @@ from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.gui2.tweak_book import set_current_container, current_container, tprefs
 from calibre.gui2.tweak_book.undo import GlobalUndoHistory
 from calibre.gui2.tweak_book.save import SaveManager
+from calibre.gui2.tweak_book.editor import editor_from_syntax, syntax_from_mime
 
 def get_container(*args, **kwargs):
     kwargs['tweak_mode'] = True
@@ -39,6 +40,7 @@ class Boss(QObject):
         self.save_manager = SaveManager(parent)
         self.save_manager.report_error.connect(self.report_save_error)
         self.doing_terminal_save = False
+        self.editors = {}
 
     def __call__(self, gui):
         self.gui = gui
@@ -46,6 +48,7 @@ class Boss(QObject):
         fl.delete_requested.connect(self.delete_requested)
         fl.reorder_spine.connect(self.reorder_spine)
         fl.rename_requested.connect(self.rename_requested)
+        fl.edit_file.connect(self.edit_file_requested)
 
     def mkdtemp(self):
         self.container_count += 1
@@ -97,43 +100,12 @@ class Boss(QObject):
         self.gui.action_save.setEnabled(False)
         self.update_global_history_actions()
 
-    def update_global_history_actions(self):
-        gu = self.global_undo
-        for x, text in (('undo', _('&Revert to before')), ('redo', '&Revert to after')):
-            ac = getattr(self.gui, 'action_global_%s' % x)
-            ac.setEnabled(getattr(gu, 'can_' + x))
-            ac.setText(text + ' ' + (getattr(gu, x + '_msg') or '...'))
-
-    def add_savepoint(self, msg):
-        nc = clone_container(current_container(), self.mkdtemp())
-        self.global_undo.add_savepoint(nc, msg)
-        set_current_container(nc)
-        self.update_global_history_actions()
-
-    def rewind_savepoint(self):
-        container = self.global_undo.rewind_savepoint()
-        if container is not None:
-            set_current_container(container)
-            self.update_global_history_actions()
-
     def apply_container_update_to_gui(self):
         container = current_container()
         self.gui.file_list.build(container)
         self.update_global_history_actions()
         self.gui.action_save.setEnabled(True)
         # TODO: Apply to other GUI elements
-
-    def do_global_undo(self):
-        container = self.global_undo.undo()
-        if container is not None:
-            set_current_container(container)
-            self.apply_container_update_to_gui()
-
-    def do_global_redo(self):
-        container = self.global_undo.redo()
-        if container is not None:
-            set_current_container(container)
-            self.apply_container_update_to_gui()
 
     def delete_requested(self, spine_items, other_items):
         if not self.check_dirtied():
@@ -157,6 +129,7 @@ class Boss(QObject):
         self.gui.file_list.build(current_container())  # needed as the linear flag may have changed on some items
         # TODO: If content.opf is open in an editor, reload it
 
+    # Renaming {{{
     def rename_requested(self, oldname, newname):
         if not self.check_dirtied():
             return
@@ -191,6 +164,40 @@ class Boss(QObject):
         self.gui.file_list.build(current_container())
         self.gui.action_save.setEnabled(True)
         # TODO: Update the rest of the GUI
+    # }}}
+
+    # Global history {{{
+    def do_global_undo(self):
+        container = self.global_undo.undo()
+        if container is not None:
+            set_current_container(container)
+            self.apply_container_update_to_gui()
+
+    def do_global_redo(self):
+        container = self.global_undo.redo()
+        if container is not None:
+            set_current_container(container)
+            self.apply_container_update_to_gui()
+
+    def update_global_history_actions(self):
+        gu = self.global_undo
+        for x, text in (('undo', _('&Revert to before')), ('redo', '&Revert to after')):
+            ac = getattr(self.gui, 'action_global_%s' % x)
+            ac.setEnabled(getattr(gu, 'can_' + x))
+            ac.setText(text + ' ' + (getattr(gu, x + '_msg') or '...'))
+
+    def add_savepoint(self, msg):
+        nc = clone_container(current_container(), self.mkdtemp())
+        self.global_undo.add_savepoint(nc, msg)
+        set_current_container(nc)
+        self.update_global_history_actions()
+
+    def rewind_savepoint(self):
+        container = self.global_undo.rewind_savepoint()
+        if container is not None:
+            set_current_container(container)
+            self.update_global_history_actions()
+    # }}}
 
     def save_book(self):
         self.gui.action_save.setEnabled(False)
@@ -206,6 +213,27 @@ class Boss(QObject):
                      _('Saving of the book failed. Click "Show Details"'
                        ' for more information.'), det_msg=tb, show=True)
 
+    def edit_file(self, name, syntax):
+        editor = self.editors.get(name, None)
+        if editor is None:
+            editor = self.editors[name] = editor_from_syntax(syntax, self.gui.editor_tabs)
+            self.gui.central.add_editor(name, editor)
+            c = current_container()
+            editor.load_text(c.decode(c.open(name).read()), syntax=syntax)
+        self.gui.central.show_editor(editor)
+
+    def edit_file_requested(self, name, syntax, mime):
+        if name in self.editors:
+            self.gui.show_editor(self.editors[name])
+            return
+        syntax = syntax or syntax_from_mime(mime)
+        if not syntax:
+            return error_dialog(
+                self.gui, _('Unsupported file format'),
+                _('Editing of files of type %s is not supported' % mime), show=True)
+        self.edit_file(name, syntax)
+
+    # Shutdown {{{
     def quit(self):
         if not self.confirm_quit():
             return
@@ -275,3 +303,5 @@ class Boss(QObject):
     def save_state(self):
         with tprefs:
             self.gui.save_state()
+    # }}}
+

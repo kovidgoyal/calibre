@@ -23,6 +23,7 @@ TOP_ICON_SIZE = 24
 NAME_ROLE = Qt.UserRole
 CATEGORY_ROLE = NAME_ROLE + 1
 LINEAR_ROLE = CATEGORY_ROLE + 1
+MIME_ROLE = LINEAR_ROLE + 1
 NBSP = '\xa0'
 
 class ItemDelegate(QStyledItemDelegate):  # {{{
@@ -71,6 +72,7 @@ class FileList(QTreeWidget):
     delete_requested = pyqtSignal(object, object)
     reorder_spine = pyqtSignal(object)
     rename_requested = pyqtSignal(object, object)
+    edit_file = pyqtSignal(object, object, object)
 
     def __init__(self, parent=None):
         QTreeWidget.__init__(self, parent)
@@ -106,6 +108,7 @@ class FileList(QTreeWidget):
                 'misc':'mimetypes/dir.png',
                 'images':'view-image.png',
             }.iteritems()}
+        self.itemDoubleClicked.connect(self.item_double_clicked)
 
     def get_state(self):
         s = {'pos':self.verticalScrollBar().value()}
@@ -232,6 +235,7 @@ class FileList(QTreeWidget):
             item.setData(0, NAME_ROLE, name)
             item.setData(0, CATEGORY_ROLE, category)
             item.setData(0, LINEAR_ROLE, bool(linear))
+            item.setData(0, MIME_ROLE, imt)
             set_display_name(name, item)
             # TODO: Add appropriate tooltips based on the emblems
             emblems = []
@@ -327,11 +331,19 @@ class FileList(QTreeWidget):
                     order[i][1] = True
             self.reorder_spine.emit(order)
 
+    def item_double_clicked(self, item, column):
+        category = unicode(item.data(0, CATEGORY_ROLE).toString())
+        mime = unicode(item.data(0, MIME_ROLE).toString())
+        name = unicode(item.data(0, NAME_ROLE).toString())
+        syntax = {'text':'html', 'styles':'css'}.get(category, None)
+        self.edit_file.emit(name, syntax, mime)
+
 class FileListWidget(QWidget):
 
     delete_requested = pyqtSignal(object, object)
     reorder_spine = pyqtSignal(object)
     rename_requested = pyqtSignal(object, object)
+    edit_file = pyqtSignal(object, object, object)
 
     def __init__(self, parent=None):
         QWidget.__init__(self, parent)
@@ -339,7 +351,7 @@ class FileListWidget(QWidget):
         self.file_list = FileList(self)
         self.layout().addWidget(self.file_list)
         self.layout().setContentsMargins(0, 0, 0, 0)
-        for x in ('delete_requested', 'reorder_spine', 'rename_requested'):
+        for x in ('delete_requested', 'reorder_spine', 'rename_requested', 'edit_file'):
             getattr(self.file_list, x).connect(getattr(self, x))
         for x in ('delete_done',):
             setattr(self, x, getattr(self.file_list, x))

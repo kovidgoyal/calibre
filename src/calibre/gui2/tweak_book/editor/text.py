@@ -10,13 +10,13 @@ import textwrap
 from future_builtins import map
 
 from PyQt4.Qt import (
-    QPlainTextEdit, QApplication, QFontDatabase, QToolTip, QPalette, QFont,
-    QTextEdit, QTextFormat, QWidget, QSize, QPainter, Qt, QRect, QDialog, QVBoxLayout)
+    QPlainTextEdit, QFontDatabase, QToolTip, QPalette, QFont,
+    QTextEdit, QTextFormat, QWidget, QSize, QPainter, Qt, QRect)
 
 from calibre.gui2.tweak_book import tprefs
 from calibre.gui2.tweak_book.editor.themes import THEMES, DEFAULT_THEME, theme_color
 from calibre.gui2.tweak_book.editor.syntax.base import SyntaxHighlighter
-from calibre.gui2.tweak_book.editor.syntax.html import HTMLHighlighter
+from calibre.gui2.tweak_book.editor.syntax.html import HTMLHighlighter, XMLHighlighter
 from calibre.gui2.tweak_book.editor.syntax.css import CSSHighlighter
 
 _dff = None
@@ -94,7 +94,7 @@ class TextEdit(QPlainTextEdit):
     # }}}
 
     def load_text(self, text, syntax='html'):
-        self.highlighter = {'html':HTMLHighlighter, 'css':CSSHighlighter}.get(syntax, SyntaxHighlighter)(self)
+        self.highlighter = {'html':HTMLHighlighter, 'css':CSSHighlighter, 'xml':XMLHighlighter}.get(syntax, SyntaxHighlighter)(self)
         self.highlighter.apply_theme(self.theme)
         self.highlighter.setDocument(self.document())
         self.setPlainText(text)
@@ -199,24 +199,4 @@ class TextEdit(QPlainTextEdit):
         QToolTip.hideText()
         ev.ignore()
     # }}}
-
-def launch_editor(path_to_edit, path_is_raw=False, syntax='html'):
-    if path_is_raw:
-        raw = path_to_edit
-    else:
-        with open(path_to_edit, 'rb') as f:
-            raw = f.read().decode('utf-8')
-        ext = path_to_edit.rpartition('.')[-1].lower()
-        if ext in ('html', 'htm', 'xhtml', 'xhtm'):
-            syntax = 'html'
-        elif ext in ('css',):
-            syntax = 'css'
-    app = QApplication([])  # noqa
-    t = TextEdit()
-    t.load_text(raw, syntax=syntax)
-    d = QDialog()
-    d.setLayout(QVBoxLayout())
-    d.layout().addWidget(t)
-    d.exec_()
-
 
