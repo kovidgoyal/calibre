@@ -102,8 +102,8 @@ def load_translations(namespace, zfp):
         from io import BytesIO
         trans = _translations_cache[zfp] = GNUTranslations(BytesIO(mo))
 
-    namespace['_'] = trans.gettext
-    namespace['ngettext'] = trans.ngettext
+    namespace['_'] = trans.ugettext
+    namespace['ngettext'] = trans.ungettext
 
 class PluginLoader(object):
 
