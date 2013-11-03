@@ -219,10 +219,10 @@ class Boss(QObject):
         if editor is None:
             editor = self.editors[name] = editor_from_syntax(syntax, self.gui.editor_tabs)
             editor.undo_redo_state_changed.connect(self.editor_undo_redo_state_changed)
-            editor.modification_state_changed.connect(self.editor_modification_state_changed)
             self.gui.central.add_editor(name, editor)
             c = current_container()
             editor.load_text(c.decode(c.open(name).read()))
+            editor.modification_state_changed.connect(self.editor_modification_state_changed)
         self.gui.central.show_editor(editor)
 
     def edit_file_requested(self, name, syntax, mime):
@@ -249,8 +249,10 @@ class Boss(QObject):
     def editor_undo_redo_state_changed(self, *args):
         self.apply_current_editor_state(update_keymap=False)
 
-    def editor_modification_state_changed(self, *args):
+    def editor_modification_state_changed(self, is_modified):
         self.apply_current_editor_state(update_keymap=False)
+        if is_modified:
+            actions['save-book'].setEnabled(True)
 
     def apply_current_editor_state(self, update_keymap=True):
         ed = self.gui.central.current_editor
