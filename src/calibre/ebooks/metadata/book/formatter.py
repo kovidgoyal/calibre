@@ -33,8 +33,7 @@ class SafeFormat(TemplateFormatter):
             b = self.book.get_user_metadata(key, False)
         except:
             b = None
-        if b and ((b['datatype'] == 'int' and self.book.get(key, 0) == 0) or
-                  (b['datatype'] == 'float' and self.book.get(key, 0.0) == 0.0)):
+        if b and b['datatype'] in {'int', 'float'} and self.book.get(key, None) is None:
             v = ''
         else:
             v = self.book.format_field(key, series_with_index=False)[1]

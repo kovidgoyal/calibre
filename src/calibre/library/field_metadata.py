@@ -504,9 +504,12 @@ class FieldMetadata(dict):
         return [k for k in self._tb_cats.iterkeys() if self.is_ignorable_field(k)]
 
     def is_series_index(self, key):
-        m = self[key]
-        return (m['datatype'] == 'float' and key.endswith('_index') and
-                key[:-6] in self)
+        try:
+            m = self._tb_cats[key]
+            return (m['datatype'] == 'float' and key.endswith('_index') and
+                    key[:-6] in self._tb_cats)
+        except (KeyError, ValueError, TypeError, AttributeError):
+            return False
 
     def key_to_label(self, key):
         if 'label' not in self._tb_cats[key]:
