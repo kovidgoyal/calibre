@@ -8,11 +8,13 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
 from PyQt4.Qt import QMainWindow, Qt, QApplication, pyqtSignal
 
+from calibre.gui2.tweak_book import actions
 from calibre.gui2.tweak_book.editor.text import TextEdit
 
 class Editor(QMainWindow):
 
     modification_state_changed = pyqtSignal(object)
+    undo_redo_state_changed = pyqtSignal(object, object)
 
     def __init__(self, syntax, parent=None):
         QMainWindow.__init__(self, parent)
@@ -23,9 +25,27 @@ class Editor(QMainWindow):
         self.setCentralWidget(self.editor)
         self.editor.modificationChanged.connect(self.modification_state_changed.emit)
         self.create_toolbars()
+        self.undo_available = False
+        self.redo_available = False
+        self.editor.undoAvailable.connect(self._undo_available)
+        self.editor.redoAvailable.connect(self._redo_available)
+
+    def _undo_available(self, available):
+        self.undo_available = available
+        self.undo_redo_state_changed.emit(self.undo_available, self.redo_available)
+
+    def _redo_available(self, available):
+        self.redo_available = available
+        self.undo_redo_state_changed.emit(self.undo_available, self.redo_available)
 
     def load_text(self, raw):
         self.editor.load_text(raw, syntax=self.syntax)
+
+    def undo(self):
+        self.editor.undo()
+
+    def redo(self):
+        self.editor.redo()
 
     @dynamic_property
     def is_modified(self):
@@ -38,6 +58,9 @@ class Editor(QMainWindow):
     def create_toolbars(self):
         self.action_bar = b = self.addToolBar(_('Edit actions tool bar'))
         b.setObjectName('action_bar')  # Needed for saveState
+        b.addAction(actions['editor-save'])
+        b.addAction(actions['editor-undo'])
+        b.addAction(actions['editor-redo'])
 
 
 def launch_editor(path_to_edit, path_is_raw=False, syntax='html'):

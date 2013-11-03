@@ -22,3 +22,5 @@ def current_container():
 def set_current_container(container):
     global _current_container
     _current_container = container
+
+actions = {}

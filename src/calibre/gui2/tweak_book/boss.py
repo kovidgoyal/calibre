@@ -21,7 +21,7 @@ from calibre.ebooks.oeb.polish.container import get_container as _gc, clone_cont
 from calibre.ebooks.oeb.polish.replace import rename_files
 from calibre.gui2 import error_dialog, choose_files, question_dialog, info_dialog
 from calibre.gui2.dialogs.confirm_delete import confirm
-from calibre.gui2.tweak_book import set_current_container, current_container, tprefs
+from calibre.gui2.tweak_book import set_current_container, current_container, tprefs, actions
 from calibre.gui2.tweak_book.undo import GlobalUndoHistory
 from calibre.gui2.tweak_book.save import SaveManager
 from calibre.gui2.tweak_book.editor import editor_from_syntax, syntax_from_mime
@@ -49,6 +49,7 @@ class Boss(QObject):
         fl.reorder_spine.connect(self.reorder_spine)
         fl.rename_requested.connect(self.rename_requested)
         fl.edit_file.connect(self.edit_file_requested)
+        self.gui.central.current_editor_changed.connect(self.apply_current_editor_state)
 
     def mkdtemp(self):
         self.container_count += 1
@@ -217,11 +218,12 @@ class Boss(QObject):
         editor = self.editors.get(name, None)
         if editor is None:
             editor = self.editors[name] = editor_from_syntax(syntax, self.gui.editor_tabs)
+            editor.undo_redo_state_changed.connect(self.editor_undo_redo_state_changed)
+            editor.modification_state_changed.connect(self.editor_modification_state_changed)
             self.gui.central.add_editor(name, editor)
             c = current_container()
             editor.load_text(c.decode(c.open(name).read()))
         self.gui.central.show_editor(editor)
-        self.gui.keyboard.set_mode(syntax)
 
     def edit_file_requested(self, name, syntax, mime):
         if name in self.editors:
@@ -233,6 +235,33 @@ class Boss(QObject):
                 self.gui, _('Unsupported file format'),
                 _('Editing of files of type %s is not supported' % mime), show=True)
         self.edit_file(name, syntax)
+
+    def do_editor_undo(self):
+        ed = self.gui.central.current_editor
+        if ed is not None:
+            ed.undo()
+
+    def do_editor_redo(self):
+        ed = self.gui.central.current_editor
+        if ed is not None:
+            ed.redo()
+
+    def editor_undo_redo_state_changed(self, *args):
+        self.apply_current_editor_state(update_keymap=False)
+
+    def editor_modification_state_changed(self, *args):
+        self.apply_current_editor_state(update_keymap=False)
+
+    def apply_current_editor_state(self, update_keymap=True):
+        ed = self.gui.central.current_editor
+        if ed is not None:
+            actions['editor-undo'].setEnabled(ed.undo_available)
+            actions['editor-redo'].setEnabled(ed.redo_available)
+            actions['editor-save'].setEnabled(ed.is_modified)
+        self.gui.keyboard.set_mode(ed.syntax)
+
+    def do_editor_save(self):
+        pass  # TODO: Implement this
 
     # Shutdown {{{
     def quit(self):

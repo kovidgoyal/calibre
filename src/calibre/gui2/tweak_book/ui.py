@@ -8,11 +8,11 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
 from PyQt4.Qt import (
     QDockWidget, Qt, QLabel, QIcon, QAction, QApplication, QWidget,
-    QVBoxLayout, QStackedWidget, QTabWidget, QImage, QPixmap)
+    QVBoxLayout, QStackedWidget, QTabWidget, QImage, QPixmap, pyqtSignal)
 
 from calibre.constants import __appname__, get_version
 from calibre.gui2.main_window import MainWindow
-from calibre.gui2.tweak_book import current_container, tprefs
+from calibre.gui2.tweak_book import current_container, tprefs, actions
 from calibre.gui2.tweak_book.file_list import FileListWidget
 from calibre.gui2.tweak_book.job import BlockingJob
 from calibre.gui2.tweak_book.boss import Boss
@@ -20,6 +20,8 @@ from calibre.gui2.tweak_book.keyboard import KeyboardManager
 
 class Central(QStackedWidget):
     ' The central widget, hosts the editors '
+
+    current_editor_changed = pyqtSignal()
 
     def __init__(self, parent=None):
         QStackedWidget.__init__(self, parent)
@@ -47,6 +49,7 @@ class Central(QStackedWidget):
             self.modified_icon = QIcon(QPixmap.fromImage(i))
         else:
             self.modified_icon = QIcon(I('modified.png'))
+        self.editor_tabs.currentChanged.connect(self.current_editor_changed)
 
     def add_editor(self, name, editor):
         fname = name.rpartition('/')[2]
@@ -64,6 +67,10 @@ class Central(QStackedWidget):
             editor = self.editor_tabs.widget(i)
             modified = getattr(editor, 'is_modified', False)
             tb.setTabIcon(i, self.modified_icon if modified else QIcon())
+
+    @property
+    def current_editor(self):
+        return self.editor_tabs.currentWidget()
 
 class Main(MainWindow):
 
@@ -113,7 +120,7 @@ class Main(MainWindow):
         group = _('Global Actions')
 
         def reg(icon, text, target, sid, keys, description):
-            ac = QAction(QIcon(I(icon)), text, self)
+            ac = actions[sid] = QAction(QIcon(I(icon)), text, self)
             ac.setObjectName('action-' + sid)
             ac.triggered.connect(target)
             if isinstance(keys, type('')):
@@ -131,6 +138,14 @@ class Main(MainWindow):
         self.action_save = reg('save.png', _('&Save'), self.boss.save_book, 'save-book', 'Ctrl+Shift+S', _('Save book'))
         self.action_save.setEnabled(False)
         self.action_quit = reg('quit.png', _('&Quit'), self.boss.quit, 'quit', 'Ctrl+Q', _('Quit'))
+
+        # Editor actions
+        self.action_editor_undo = reg('edit-undo.png', _('&Undo'), self.boss.do_editor_undo, 'editor-undo', 'Ctrl+Z',
+                                      _('Undo typing'))
+        self.action_editor_redo = reg('edit-redo.png', _('&Redo'), self.boss.do_editor_redo, 'editor-redo', 'Ctrl+Y',
+                                      _('Redo typing'))
+        self.action_editor_save = reg('save.png', _('&Save'), self.boss.do_editor_save, 'editor-save', 'Ctrl+S',
+                                      _('Save changes to the current file'))
 
     def create_menubar(self):
         b = self.menuBar()
