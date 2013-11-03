@@ -53,12 +53,24 @@ class RescaleImages(object):
 
                 try:
                     if self.check_colorspaces and img.colorspace == 'CMYKColorspace':
-                        # We cannot do an automatic conversion of CMYK to RGB as
+                        # We cannot do an imagemagick conversion of CMYK to RGB as
                         # ImageMagick inverts colors if you just set the colorspace
                         # to rgb. See for example: https://bugs.launchpad.net/bugs/1246710
-                        self.log.warn(
-                            'The image %s is in the CMYK colorspace, you should convert'
-                            ' it to sRGB as Adobe Digital Editions cannot render CMYK' % item.href)
+                        from PyQt4.Qt import QImage
+                        from calibre.gui2 import pixmap_to_data
+                        qimg = QImage()
+                        qimg.loadFromData(raw)
+                        if not qimg.isNull():
+                            raw = item.data = pixmap_to_data(qimg, format=ext, quality=95)
+                            img = Image()
+                            img.load(raw)
+                            self.log.warn(
+                                'The image %s is in the CMYK colorspace, converting it '
+                                'to RGB as Adobe Digital Editions cannot display CMYK' % item.href)
+                        else:
+                            self.log.warn(
+                                'The image %s is in the CMYK colorspace, you should convert'
+                                ' it to sRGB as Adobe Digital Editions cannot render CMYK' % item.href)
                 except Exception:
                     pass
 
