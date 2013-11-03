@@ -254,7 +254,26 @@ The next interesting feature is::
 
 ``needs_subscription = True`` tells |app| that this recipe needs a username and password in order to access the content. This causes, |app| to ask for a username and password whenever you try to use this recipe. The code in :meth:`calibre.web.feeds.news.BasicNewsRecipe.get_browser` actually does the login into the NYT website. Once logged in, |app| will use the same, logged in, browser instance to fetch all content. See `mechanize <http://wwwsearch.sourceforge.net/mechanize/>`_ to understand the code in ``get_browser``.
 
-The next new feature is the :meth:`calibre.web.feeds.news.BasicNewsRecipe.parse_index` method. Its job is to go to http://www.nytimes.com/pages/todayspaper/index.html and fetch the list of articles that appear in *todays* paper. While more complex than simply using :term:`RSS`, the recipe creates an ebook that corresponds very closely to the days paper. ``parse_index`` makes heavy use of `BeautifulSoup <http://www.crummy.com/software/BeautifulSoup/documentation.html>`_ to parse the daily paper webpage.
+The next new feature is the
+:meth:`calibre.web.feeds.news.BasicNewsRecipe.parse_index` method. Its job is
+to go to http://www.nytimes.com/pages/todayspaper/index.html and fetch the list
+of articles that appear in *todays* paper. While more complex than simply using
+:term:`RSS`, the recipe creates an ebook that corresponds very closely to the
+days paper. ``parse_index`` makes heavy use of `BeautifulSoup
+<http://www.crummy.com/software/BeautifulSoup/documentation.html>`_ to parse
+the daily paper webpage. You can also use other, more modern parsers if you
+dislike BeatifulSoup. calibre comes with `lxml <http://lxml.de/>`_ and
+`html5lib <https://github.com/html5lib/html5lib-python>`_, which are the
+recommended parsers. To use them, replace the call to ``index_to_soup()`` with
+the following::
+    
+    raw = self.index_to_soup(url, raw=True)
+    # For html5lib
+    import html5lib
+    root = html5lib.parse(raw, namespaceHTMLElements=False, treebuilder='lxml')
+    # For the lxml html 4 parser
+    from lxml import html
+    root = html.fromstring(raw)
 
 The final new feature is the :meth:`calibre.web.feeds.news.BasicNewsRecipe.preprocess_html` method. It can be used to perform arbitrary transformations on every downloaded HTML page. Here it is used to bypass the ads that the nytimes shows you before each article.
 
