@@ -8,7 +8,7 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
 from PyQt4.Qt import (
     QDockWidget, Qt, QLabel, QIcon, QAction, QApplication, QWidget,
-    QVBoxLayout, QStackedWidget, QTabWidget)
+    QVBoxLayout, QStackedWidget, QTabWidget, QImage, QPixmap)
 
 from calibre.constants import __appname__, get_version
 from calibre.gui2.main_window import MainWindow
@@ -40,15 +40,30 @@ class Central(QStackedWidget):
         t.setDocumentMode(True)
         t.setTabsClosable(True)
         t.setMovable(True)
+        pal = self.palette()
+        if pal.color(pal.WindowText).lightness() > 128:
+            i = QImage(I('modified.png'))
+            i.invertPixels()
+            self.modified_icon = QIcon(QPixmap.fromImage(i))
+        else:
+            self.modified_icon = QIcon(I('modified.png'))
 
     def add_editor(self, name, editor):
         fname = name.rpartition('/')[2]
         index = self.editor_tabs.addTab(editor, fname)
-        self.editor_tabs.setTabToolTip(index, name)
+        self.editor_tabs.setTabToolTip(index, _('Full path:') + ' ' + name)
+        editor.modification_state_changed.connect(self.editor_modified)
 
     def show_editor(self, editor):
         self.setCurrentIndex(1)
         self.editor_tabs.setCurrentWidget(editor)
+
+    def editor_modified(self, *args):
+        tb = self.editor_tabs.tabBar()
+        for i in xrange(self.editor_tabs.count()):
+            editor = self.editor_tabs.widget(i)
+            modified = getattr(editor, 'is_modified', False)
+            tb.setTabIcon(i, self.modified_icon if modified else QIcon())
 
 class Main(MainWindow):
 
