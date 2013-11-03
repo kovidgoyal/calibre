@@ -406,6 +406,7 @@ class DisplayPluginModel(QAbstractTableModel):
 class PluginUpdaterDialog(SizePersistedDialog):
 
     initial_extra_size = QSize(350, 100)
+    forum_label_text = _('Plugin homepage')
 
     def __init__(self, gui, initial_filter=FILTER_UPDATE_AVAILABLE):
         SizePersistedDialog.__init__(self, gui, 'Plugin Updater plugin:plugin updater dialog')
@@ -466,7 +467,7 @@ class PluginUpdaterDialog(SizePersistedDialog):
 
         details_layout = QHBoxLayout()
         layout.addLayout(details_layout)
-        forum_label = QLabel('<a href="http://www.foo.com/">Plugin Forum Thread</a>', self)
+        forum_label = self.forum_label = QLabel('')
         forum_label.setTextInteractionFlags(Qt.LinksAccessibleByMouse | Qt.LinksAccessibleByKeyboard)
         forum_label.linkActivated.connect(self._forum_label_activated)
         details_layout.addWidget(QLabel(_('Description')+':', self), 0, Qt.AlignLeft)
@@ -491,6 +492,12 @@ class PluginUpdaterDialog(SizePersistedDialog):
         self.configure_button.clicked.connect(self._configure_clicked)
         self.configure_button.setEnabled(False)
         layout.addWidget(self.button_box)
+
+    def update_forum_label(self):
+        txt = ''
+        if self.forum_link:
+            txt = '<a href="%s">%s</a>' % (self.forum_link, self.forum_label_text)
+        self.forum_label.setText(txt)
 
     def _create_context_menu(self):
         self.plugin_view.setContextMenuPolicy(Qt.ActionsContextMenu)
@@ -578,6 +585,7 @@ class PluginUpdaterDialog(SizePersistedDialog):
             self.configure_action.setEnabled(False)
             self.toggle_enabled_action.setEnabled(False)
             self.donate_enabled_action.setEnabled(False)
+        self.update_forum_label()
 
     def _donate_clicked(self):
         plugin = self._selected_display_plugin()
