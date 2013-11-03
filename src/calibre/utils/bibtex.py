@@ -2902,7 +2902,7 @@ class BibTeX:
         """
         return self.utf8ToBibtex(u' and '.join([author for author in item]))
 
-    def stripUnmatchedSyntax(text, open_character, close_character):
+    def stripUnmatchedSyntax(self, text, open_character, close_character):
         """
         Strips unmatched BibTeX syntax
         """
