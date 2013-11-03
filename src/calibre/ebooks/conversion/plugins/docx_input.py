@@ -11,8 +11,8 @@ from calibre.customize.conversion import InputFormatPlugin, OptionRecommendation
 class DOCXInput(InputFormatPlugin):
     name        = 'DOCX Input'
     author      = 'Kovid Goyal'
-    description = 'Convert DOCX files (.docx) to HTML'
-    file_types = set(['docx'])
+    description = _('Convert DOCX files (.docx and .docm) to HTML')
+    file_types  = {'docx', 'docm'}
 
     options = {
         OptionRecommendation(name='docx_no_cover', recommended_value=False,
