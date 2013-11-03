@@ -233,7 +233,7 @@ class Boss(QObject):
         if not syntax:
             return error_dialog(
                 self.gui, _('Unsupported file format'),
-                _('Editing of files of type %s is not supported' % mime), show=True)
+                _('Editing files of type %s is not supported' % mime), show=True)
         self.edit_file(name, syntax)
 
     def do_editor_undo(self):
