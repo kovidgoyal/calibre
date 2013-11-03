@@ -208,10 +208,12 @@ class Source(Plugin):
     #: If True this source can return multiple covers for a given query
     can_get_multiple_covers = False
 
+    #: If set to True covers downloaded by this plugin are automatically trimmed.
+    auto_trim_covers = False
 
     def __init__(self, *args, **kwargs):
         Plugin.__init__(self, *args, **kwargs)
-        self.running_a_test = False # Set to True when using identify_test()
+        self.running_a_test = False  # Set to True when using identify_test()
         self._isbn_to_identifier_cache = {}
         self._identifier_to_cover_url_cache = {}
         self.cache_lock = threading.RLock()
@@ -446,11 +448,8 @@ class Source(Plugin):
         except Exception:
             self.log.exception('Failed to download cover from: %r'%url)
 
-
     # }}}
-
     # Metadata API {{{
-
     def get_book_url(self, identifiers):
         '''
         Return a 3-tuple or None. The 3-tuple is of the form:

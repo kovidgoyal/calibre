@@ -61,7 +61,8 @@ def process_result(log, result):
     try:
         im = Image()
         im.load(data)
-        im.trim(10)
+        if getattr(plugin, 'auto_trim_covers', False):
+            im.trim(10)
         width, height = im.size
         fmt = im.format
 
