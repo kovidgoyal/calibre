@@ -221,6 +221,7 @@ class Boss(QObject):
             c = current_container()
             editor.load_text(c.decode(c.open(name).read()))
         self.gui.central.show_editor(editor)
+        self.gui.keyboard.set_mode(syntax)
 
     def edit_file_requested(self, name, syntax, mime):
         if name in self.editors:

@@ -31,10 +31,15 @@ class KeyboardManager(object):
             km.finalize()
 
     def set_mode(self, name):
-        km = self.modes[name]
-        for un, action in self.actions.iteritems():
-            keys = km.keys_map[un]
-            action.setShortcuts(list(keys))
-        self.current_mode = name
+        try:
+            km = self.modes[name]
+        except KeyError:
+            name = 'other'
+            km = self.modes[name]
+        if name != self.current_mode:
+            for un, action in self.actions.iteritems():
+                keys = km.keys_map[un]
+                action.setShortcuts(list(keys))
+            self.current_mode = name
 
 
