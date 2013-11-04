@@ -51,13 +51,17 @@ class Boss(QObject):
         fl.edit_file.connect(self.edit_file_requested)
         self.gui.central.current_editor_changed.connect(self.apply_current_editor_state)
 
-    def mkdtemp(self):
+    def mkdtemp(self, prefix=''):
         self.container_count += 1
-        return tempfile.mkdtemp(prefix='%05d-' % self.container_count, dir=self.tdir)
+        return tempfile.mkdtemp(prefix='%s%05d-' % (prefix, self.container_count), dir=self.tdir)
 
     def check_dirtied(self):
-        # TODO: Implement this
-        return True
+        dirtied = {name for name, ed in self.editors.iteritems() if ed.is_modified}
+        if not dirtied:
+            return True
+        return question_dialog(self.gui, _('Unsaved changes'), _(
+            'You have unsaved changes in the files %s. If you proceeed,'
+            ' you will lose them. Proceed anyway?') % ', '.join(dirtied))
 
     def open_book(self, path=None):
         if not self.check_dirtied():
@@ -201,9 +205,15 @@ class Boss(QObject):
     # }}}
 
     def save_book(self):
+        c = current_container()
+        for name, ed in self.editors.iteritems():
+            if ed.is_modified:
+                with c.open(name, 'wb') as f:
+                    f.write(ed.data)
+                ed.is_modified = False
         self.gui.action_save.setEnabled(False)
-        tdir = tempfile.mkdtemp(prefix='save-%05d-' % self.container_count, dir=self.tdir)
-        container = clone_container(current_container(), tdir)
+        tdir = self.mkdtemp(prefix='save-')
+        container = clone_container(c, tdir)
         self.save_manager.schedule(tdir, container)
 
     def report_save_error(self, tb):
@@ -221,7 +231,8 @@ class Boss(QObject):
             editor.undo_redo_state_changed.connect(self.editor_undo_redo_state_changed)
             self.gui.central.add_editor(name, editor)
             c = current_container()
-            editor.load_text(c.decode(c.open(name).read()))
+            with c.open(name) as f:
+                editor.data = c.decode(f.read())
             editor.modification_state_changed.connect(self.editor_modification_state_changed)
         self.gui.central.show_editor(editor)
 
@@ -263,7 +274,29 @@ class Boss(QObject):
         self.gui.keyboard.set_mode(ed.syntax)
 
     def do_editor_save(self):
-        pass  # TODO: Implement this
+        ed = self.gui.central.current_editor
+        if ed is None:
+            return
+        name = None
+        for n, x in self.editors.iteritems():
+            if x is ed:
+                name = n
+                break
+        if name is None:
+            return
+        c = current_container()
+        with c.open(name, 'wb') as f:
+            f.write(ed.data)
+        ed.is_modified = False
+        tdir = self.mkdtemp(prefix='save-')
+        container = clone_container(c, tdir)
+        self.save_manager.schedule(tdir, container)
+        is_modified = False
+        for ed in self.editors.itervalues():
+            if ed.is_modified:
+                is_modified = True
+                break
+        self.gui.action_save.setEnabled(is_modified)
 
     # Shutdown {{{
     def quit(self):

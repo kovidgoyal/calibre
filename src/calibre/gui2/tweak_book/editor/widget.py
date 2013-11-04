@@ -8,6 +8,7 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
 from PyQt4.Qt import QMainWindow, Qt, QApplication, pyqtSignal
 
+from calibre import xml_replace_entities
 from calibre.gui2.tweak_book import actions
 from calibre.gui2.tweak_book.editor.text import TextEdit
 
@@ -38,8 +39,16 @@ class Editor(QMainWindow):
         self.redo_available = available
         self.undo_redo_state_changed.emit(self.undo_available, self.redo_available)
 
-    def load_text(self, raw):
-        self.editor.load_text(raw, syntax=self.syntax)
+    @dynamic_property
+    def data(self):
+        def fget(self):
+            ans = unicode(self.editor.toPlainText())
+            if self.syntax == 'html':
+                ans = xml_replace_entities(ans)
+            return ans.encode('utf-8')
+        def fset(self, val):
+            self.editor.load_text(val, syntax=self.syntax)
+        return property(fget=fget, fset=fset)
 
     def undo(self):
         self.editor.undo()

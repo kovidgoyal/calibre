@@ -63,7 +63,7 @@ class TextEdit(QPlainTextEdit):
         def fget(self):
             return self.document().isModified()
         def fset(self, val):
-            self.document.setModified(bool(val))
+            self.document().setModified(bool(val))
         return property(fget=fget, fset=fset)
 
     def sizeHint(self):
