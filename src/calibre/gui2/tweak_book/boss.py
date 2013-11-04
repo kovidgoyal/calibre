@@ -50,6 +50,7 @@ class Boss(QObject):
         fl.rename_requested.connect(self.rename_requested)
         fl.edit_file.connect(self.edit_file_requested)
         self.gui.central.current_editor_changed.connect(self.apply_current_editor_state)
+        self.gui.central.close_requested.connect(self.editor_close_requested)
 
     def mkdtemp(self, prefix=''):
         self.container_count += 1
@@ -271,7 +272,25 @@ class Boss(QObject):
             actions['editor-undo'].setEnabled(ed.undo_available)
             actions['editor-redo'].setEnabled(ed.redo_available)
             actions['editor-save'].setEnabled(ed.is_modified)
-        self.gui.keyboard.set_mode(ed.syntax)
+            self.gui.keyboard.set_mode(ed.syntax)
+        else:
+            self.gui.keyboard.set_mode('other')
+
+    def editor_close_requested(self, editor):
+        name = None
+        for n, ed in self.editors.iteritems():
+            if ed is editor:
+                name = n
+        if not name:
+            return
+        if editor.is_modified:
+            if not question_dialog(self.gui, _('Unsaved changes'), _(
+                'There are unsaved changes in %s. Are you sure you want to close'
+                ' this editor?') % name):
+                return
+        self.editors.pop(name)
+        self.gui.central.close_editor(editor)
+        editor.break_cycles()
 
     def do_editor_save(self):
         ed = self.gui.central.current_editor

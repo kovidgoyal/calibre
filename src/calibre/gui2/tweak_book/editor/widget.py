@@ -71,6 +71,13 @@ class Editor(QMainWindow):
         b.addAction(actions['editor-undo'])
         b.addAction(actions['editor-redo'])
 
+    def break_cycles(self):
+        self.modification_state_changed.disconnect()
+        self.undo_redo_state_changed.disconnect()
+        self.editor.undoAvailable.disconnect()
+        self.editor.redoAvailable.disconnect()
+        self.editor.modificationChanged.disconnect()
+        self.editor.setPlainText('')
 
 def launch_editor(path_to_edit, path_is_raw=False, syntax='html'):
     if path_is_raw:

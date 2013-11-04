@@ -22,6 +22,7 @@ class Central(QStackedWidget):
     ' The central widget, hosts the editors '
 
     current_editor_changed = pyqtSignal()
+    close_requested = pyqtSignal(object)
 
     def __init__(self, parent=None):
         QStackedWidget.__init__(self, parent)
@@ -50,6 +51,11 @@ class Central(QStackedWidget):
         else:
             self.modified_icon = QIcon(I('modified.png'))
         self.editor_tabs.currentChanged.connect(self.current_editor_changed)
+        self.editor_tabs.tabCloseRequested.connect(self._close_requested)
+
+    def _close_requested(self, index):
+        editor = self.editor_tabs.widget(index)
+        self.close_requested.emit(editor)
 
     def add_editor(self, name, editor):
         fname = name.rpartition('/')[2]
@@ -60,6 +66,13 @@ class Central(QStackedWidget):
     def show_editor(self, editor):
         self.setCurrentIndex(1)
         self.editor_tabs.setCurrentWidget(editor)
+
+    def close_editor(self, editor):
+        for i in xrange(self.editor_tabs.count()):
+            if self.editor_tabs.widget(i) is editor:
+                self.editor_tabs.removeTab(i)
+                return True
+        return False
 
     def editor_modified(self, *args):
         tb = self.editor_tabs.tabBar()
