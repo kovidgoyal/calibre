@@ -8,6 +8,8 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import shutil
 
+MAX_SAVEPOINTS = 100
+
 def cleanup(containers):
     for container in containers:
         try:
@@ -42,8 +44,17 @@ class GlobalUndoHistory(object):
         self.states = self.states[:self.pos+1]
         self.states.append(State(new_container))
         self.pos += 1
+        if len(self.states) > MAX_SAVEPOINTS:
+            num = len(self.states) - MAX_SAVEPOINTS
+            cleanup(self.states[:num])
+            self.states = self.states[num:]
 
     def rewind_savepoint(self):
+        ''' Revert back to the last save point, should only be used immediately
+        after a call to add_savepoint. If there are intervening calls to undo
+        or redo, behavior is undefined. This is intended to be used in the case
+        where you create savepoint, perform some operation, operation fails, so
+        revert to state before creating savepoint. '''
         if self.pos > 0 and self.pos == len(self.states) - 1:
             self.pos -= 1
             cleanup(self.states.pop())
