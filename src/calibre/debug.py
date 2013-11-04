@@ -60,12 +60,8 @@ Everything after the -- is passed to the script.
     parser.add_option('-m', '--inspect-mobi', action='store_true',
             default=False,
             help='Inspect the MOBI file(s) at the specified path(s)')
-    parser.add_option('-t', '--tweak-book', default=None,
-            help='Tweak the book (exports the book as a collection of HTML '
-            'files and metadata, which you can edit using standard HTML '
-            'editing tools, and then rebuilds the file from the edited HTML. '
-            'Makes no additional changes to the HTML, unlike a full calibre '
-            'conversion).')
+    parser.add_option('-t', '--tweak-book', action='store_true',
+            help='Launch the calibre Tweak Book tool in debug mode.')
     parser.add_option('-s', '--shutdown-running-calibre', default=False,
             action='store_true',
             help=_('Cause a running calibre instance, if any, to be'
@@ -249,8 +245,8 @@ def main(args=sys.argv):
         for path in args[1:]:
             inspect_mobi(path)
     elif opts.tweak_book:
-        from calibre.ebooks.tweak import tweak
-        tweak(opts.tweak_book)
+        from calibre.gui2.tweak_book.main import main
+        main(['ebook-tweak'] + args[1:])
     elif opts.test_build:
         from calibre.test_build import test
         test()
