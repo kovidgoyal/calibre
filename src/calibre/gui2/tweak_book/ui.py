@@ -71,6 +71,8 @@ class Central(QStackedWidget):
         for i in xrange(self.editor_tabs.count()):
             if self.editor_tabs.widget(i) is editor:
                 self.editor_tabs.removeTab(i)
+                if self.editor_tabs.count() == 0:
+                    self.setCurrentIndex(0)
                 return True
         return False
 
