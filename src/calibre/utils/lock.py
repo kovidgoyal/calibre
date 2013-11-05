@@ -24,12 +24,12 @@ class WindowsExclFile(object):
             timeout -= 1
             try:
                 self._handle = w.CreateFile(path,
-                    w.GENERIC_READ|w.GENERIC_WRITE, # Open for reading and writing
-                    0, # Open exclusive
-                    None, # No security attributes
-                    w.OPEN_ALWAYS, # If file does not exist, create it
-                    w.FILE_ATTRIBUTE_NORMAL, #Normal attributes
-                    None, #No template file
+                    w.GENERIC_READ|w.GENERIC_WRITE,  # Open for reading and writing
+                    0,  # Open exclusive
+                    None,  # No security attributes
+                    w.OPEN_ALWAYS,  # If file does not exist, create it
+                    w.FILE_ATTRIBUTE_NORMAL,  # Normal attributes
+                    None,  # No template file
                 )
                 break
             except pywintypes.error as err:
@@ -38,6 +38,8 @@ class WindowsExclFile(object):
                     continue
                 else:
                     raise
+        if not hasattr(self, '_handle'):
+            raise Exception('Failed to open exclusive file: %s' % path)
 
     def seek(self, amt, frm=0):
         import win32file as w
@@ -67,7 +69,8 @@ class WindowsExclFile(object):
         import win32file as w
         sz = w.GetFileSize(self._handle)
         max = sz - self.tell()
-        if bytes < 0: bytes = max
+        if bytes < 0:
+            bytes = max
         bytes = min(max, bytes)
         if bytes < 1:
             return ''
@@ -110,7 +113,7 @@ class ExclusiveFile(object):
         self.timeout = timeout
 
     def __enter__(self):
-        self.file  =  WindowsExclFile(self.path, self.timeout) if iswindows else open(self.path, 'a+b')
+        self.file = WindowsExclFile(self.path, self.timeout) if iswindows else open(self.path, 'a+b')
         self.file.seek(0)
         timeout = self.timeout
         if not iswindows:
