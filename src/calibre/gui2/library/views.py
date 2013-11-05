@@ -859,6 +859,38 @@ class BooksView(QTableView):  # {{{
             self.horizontalScrollBar().setValue(val)
         return ret
 
+    def row_at_top(self):
+        pos = 0
+        while pos < 100:
+            ans = self.rowAt(pos)
+            if ans > -1:
+                return ans
+            pos += 5
+
+    def row_at_bottom(self):
+        pos = self.viewport().height()
+        limit = pos - 100
+        while pos > limit:
+            ans = self.rowAt(pos)
+            if ans > -1:
+                return ans
+            pos -= 5
+
+    def moveCursor(self, action, modifiers):
+        orig = self.currentIndex()
+        index = QTableView.moveCursor(self, action, modifiers)
+        if action == QTableView.MovePageDown:
+            rows = self.row_at_bottom() - self.row_at_top()
+            moved = index.row() - orig.row()
+            if moved > rows:
+                index = self.model().index(orig.row() + rows, index.column())
+        elif action == QTableView.MovePageUp:
+            rows = self.row_at_bottom() - self.row_at_top()
+            moved = orig.row() - index.row()
+            if moved > rows:
+                index = self.model().index(orig.row() - rows, index.column())
+        return index
+
     def ids_to_rows(self, ids):
         row_map = OrderedDict()
         ids = frozenset(ids)
