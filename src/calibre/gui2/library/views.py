@@ -880,13 +880,19 @@ class BooksView(QTableView):  # {{{
         orig = self.currentIndex()
         index = QTableView.moveCursor(self, action, modifiers)
         if action == QTableView.MovePageDown:
-            rows = self.row_at_bottom() - self.row_at_top()
             moved = index.row() - orig.row()
+            try:
+                rows = self.row_at_bottom() - self.row_at_top()
+            except TypeError:
+                rows = moved
             if moved > rows:
                 index = self.model().index(orig.row() + rows, index.column())
         elif action == QTableView.MovePageUp:
-            rows = self.row_at_bottom() - self.row_at_top()
             moved = orig.row() - index.row()
+            try:
+                rows = self.row_at_bottom() - self.row_at_top()
+            except TypeError:
+                rows = moved
             if moved > rows:
                 index = self.model().index(orig.row() - rows, index.column())
         return index
