@@ -123,6 +123,9 @@ class Boss(QObject):
             c.remove_item(name)
         self.gui.action_save.setEnabled(True)
         self.gui.file_list.delete_done(spine_items, other_items)
+        for name in list(spine_items) + list(other_items):
+            if name in self.editors:
+                self.close_editor(name)
         # TODO: Update other GUI elements
 
     def reorder_spine(self, items):
@@ -288,7 +291,10 @@ class Boss(QObject):
                 'There are unsaved changes in %s. Are you sure you want to close'
                 ' this editor?') % name):
                 return
-        self.editors.pop(name)
+        self.close_editor(name)
+
+    def close_editor(self, name):
+        editor = self.editors.pop(name)
         self.gui.central.close_editor(editor)
         editor.break_cycles()
 
