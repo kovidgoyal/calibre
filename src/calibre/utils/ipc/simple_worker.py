@@ -74,7 +74,11 @@ class OffloadWorker(object):
         finally:
             self.conn = None
             t = Thread(target=self.worker.kill)
-            t.daemon=True
+            t.daemon = True
+            try:
+                os.remove(self.worker.log_path)
+            except:
+                pass
             t.start()
 
 def communicate(ans, worker, listener, args, timeout=300, heartbeat=None,
