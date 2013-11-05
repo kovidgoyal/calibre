@@ -61,7 +61,7 @@ class Boss(QObject):
         if not dirtied:
             return True
         return question_dialog(self.gui, _('Unsaved changes'), _(
-            'You have unsaved changes in the files %s. If you proceeed,'
+            'You have unsaved changes in the files %s. If you proceed,'
             ' you will lose them. Proceed anyway?') % ', '.join(dirtied))
 
     def open_book(self, path=None):

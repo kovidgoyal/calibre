@@ -263,6 +263,9 @@ def offload():
             res = {'result':None, 'tb':None}
             try:
                 mod, func, args, kwargs = args
+                if mod is None:
+                    eintr_retry_call(conn.send, res)
+                    continue
                 f = func_cache.get((mod, func), None)
                 if f is None:
                     try:
