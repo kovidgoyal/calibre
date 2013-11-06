@@ -388,6 +388,7 @@ class Boss(QObject):
     def shutdown(self):
         self.save_state()
         self.save_manager.shutdown()
+        self.gui.preview.parse_worker.shutdown()
         self.save_manager.wait(0.1)
 
     def save_state(self):

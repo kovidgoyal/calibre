@@ -17,6 +17,7 @@ from calibre.gui2.tweak_book.file_list import FileListWidget
 from calibre.gui2.tweak_book.job import BlockingJob
 from calibre.gui2.tweak_book.boss import Boss
 from calibre.gui2.tweak_book.keyboard import KeyboardManager
+from calibre.gui2.tweak_book.preview import Preview
 
 class Central(QStackedWidget):
     ' The central widget, hosts the editors '
@@ -189,6 +190,13 @@ class Main(MainWindow):
         self.file_list = FileListWidget(d)
         d.setWidget(self.file_list)
         self.addDockWidget(Qt.LeftDockWidgetArea, d)
+
+        self.preview_dock = d = QDockWidget(_('&Book preview'), self)
+        d.setObjectName('file_list_dock')  # Needed for saveState
+        d.setAllowedAreas(Qt.LeftDockWidgetArea | Qt.RightDockWidgetArea)
+        self.preview = Preview(d)
+        d.setWidget(self.preview)
+        self.addDockWidget(Qt.RightDockWidgetArea, d)
 
     def resizeEvent(self, ev):
         self.blocking_job.resize(ev.size())

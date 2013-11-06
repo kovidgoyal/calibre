@@ -30,6 +30,18 @@ from calibre.ebooks.oeb.display.webview import load_html
 from calibre.constants import isxp, iswindows
 # }}}
 
+def apply_settings(settings, opts):
+    settings.setFontSize(QWebSettings.DefaultFontSize, opts.default_font_size)
+    settings.setFontSize(QWebSettings.DefaultFixedFontSize, opts.mono_font_size)
+    settings.setFontSize(QWebSettings.MinimumLogicalFontSize, opts.minimum_font_size)
+    settings.setFontSize(QWebSettings.MinimumFontSize, opts.minimum_font_size)
+    settings.setFontFamily(QWebSettings.StandardFont, {'serif':opts.serif_family, 'sans':opts.sans_family, 'mono':opts.mono_family}[opts.standard_font])
+    settings.setFontFamily(QWebSettings.SerifFont, opts.serif_family)
+    settings.setFontFamily(QWebSettings.SansSerifFont, opts.sans_family)
+    settings.setFontFamily(QWebSettings.FixedFont, opts.mono_family)
+    settings.setAttribute(QWebSettings.ZoomTextOnly, True)
+
+
 class Document(QWebPage):  # {{{
 
     page_turn = pyqtSignal(object)
@@ -38,15 +50,7 @@ class Document(QWebPage):  # {{{
 
     def set_font_settings(self, opts):
         settings = self.settings()
-        settings.setFontSize(QWebSettings.DefaultFontSize, opts.default_font_size)
-        settings.setFontSize(QWebSettings.DefaultFixedFontSize, opts.mono_font_size)
-        settings.setFontSize(QWebSettings.MinimumLogicalFontSize, opts.minimum_font_size)
-        settings.setFontSize(QWebSettings.MinimumFontSize, opts.minimum_font_size)
-        settings.setFontFamily(QWebSettings.StandardFont, {'serif':opts.serif_family, 'sans':opts.sans_family, 'mono':opts.mono_family}[opts.standard_font])
-        settings.setFontFamily(QWebSettings.SerifFont, opts.serif_family)
-        settings.setFontFamily(QWebSettings.SansSerifFont, opts.sans_family)
-        settings.setFontFamily(QWebSettings.FixedFont, opts.mono_family)
-        settings.setAttribute(QWebSettings.ZoomTextOnly, True)
+        apply_settings(settings, opts)
 
     def do_config(self, parent=None):
         d = ConfigDialog(self.shortcuts, parent)

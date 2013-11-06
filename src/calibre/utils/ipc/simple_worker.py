@@ -206,7 +206,7 @@ def fork_job(mod_name, func_name, args=(), kwargs={}, timeout=300,  # seconds
 
 def offload_worker(env={}, priority='normal', cwd=None):
     listener, w = create_worker(env=env, priority=priority, cwd=cwd, func='offload')
-    return OffloadWorker(listener)
+    return OffloadWorker(listener, w)
 
 def compile_code(src):
     import re, io
