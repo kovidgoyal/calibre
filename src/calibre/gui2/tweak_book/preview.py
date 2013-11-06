@@ -9,9 +9,13 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 from threading import Thread
 from Queue import Queue, Empty
 
-from PyQt4.Qt import (QWidget, QVBoxLayout, QApplication, QSize, QNetworkAccessManager)
+from PyQt4.Qt import (
+    QWidget, QVBoxLayout, QApplication, QSize, QNetworkAccessManager,
+    QNetworkReply, QTimer, QNetworkRequest, QUrl)
 from PyQt4.QtWebKit import QWebView
 
+from calibre.constants import iswindows
+from calibre.gui2.tweak_book import current_container, editors
 from calibre.gui2.viewer.documentview import apply_settings
 from calibre.gui2.viewer.config import config
 from calibre.utils.ipc.simple_worker import offload_worker
@@ -56,6 +60,47 @@ class ParseWorker(Thread):
     def shutdown(self):
         self.requests.put(shutdown)
 
+
+class LocalNetworkReply(QNetworkReply):
+
+    def __init__(self, parent, request, mime_type, data):
+        QNetworkReply.__init__(self, parent)
+        self.setOpenMode(QNetworkReply.ReadOnly | QNetworkReply.Unbuffered)
+        self.__data = data
+        self.setRequest(request)
+        self.setUrl(request.url())
+        self.setHeader(QNetworkRequest.ContentTypeHeader, mime_type)
+        self.setHeader(QNetworkRequest.ContentLengthHeader, len(self.__data))
+        QTimer.singleShot(0, self.finalize_reply)
+
+    def bytesAvailable(self):
+        return len(self.__data)
+
+    def isSequential(self):
+        return True
+
+    def abort(self):
+        pass
+
+    def readData(self, maxlen):
+        ans, self.__data = self.__data[:maxlen], self.__data[maxlen:]
+        return ans
+    read = readData
+
+    def finalize_reply(self):
+        self.setFinished(True)
+        self.setAttribute(QNetworkRequest.HttpStatusCodeAttribute, 200)
+        self.setAttribute(QNetworkRequest.HttpReasonPhraseAttribute, "Ok")
+        self.metaDataChanged.emit()
+        self.downloadProgress.emit(len(self.__data), len(self.__data))
+        self.readyRead.emit()
+        self.finished.emit()
+
+def get_data(name):
+    if name in editors:
+        return editors[name].data
+    return current_container().open(name).read()
+
 class NetworkAccessManager(QNetworkAccessManager):
 
     OPERATION_NAMES = {getattr(QNetworkAccessManager, '%sOperation'%x) :
@@ -65,7 +110,19 @@ class NetworkAccessManager(QNetworkAccessManager):
 
     def createRequest(self, operation, request, data):
         url = unicode(request.url().toString())
-        print (url)
+        if url.startswith('file://'):
+            path = url[7:]
+            if iswindows and path.startswith('/'):
+                path = path[1:]
+            c = current_container()
+            name = c.abspath_to_name(path)
+            if c.has_name(name):
+                try:
+                    return LocalNetworkReply(self, request, c.mime_map.get(name, 'application/octet-stream'),
+                                             get_data(name) if operation == self.GetOperation else b'')
+                except Exception:
+                    import traceback
+                    traceback.print_stack()
         return QNetworkAccessManager.createRequest(self, operation, request,
                 data)
 
@@ -78,9 +135,17 @@ class WebView(QWebView):
         settings = self.page().settings()
         apply_settings(settings, config().parse())
         settings.setMaximumPagesInCache(0)
+        settings.setAttribute(settings.JavaEnabled, False)
+        settings.setAttribute(settings.PluginsEnabled, False)
+        settings.setAttribute(settings.PrivateBrowsingEnabled, True)
+        settings.setAttribute(settings.JavascriptCanOpenWindows, False)
+        settings.setAttribute(settings.JavascriptCanAccessClipboard, False)
+        settings.setAttribute(settings.LinksIncludedInFocusChain, False)
+        settings.setAttribute(settings.DeveloperExtrasEnabled, True)
+        settings.setDefaultTextEncoding('utf-8')
+
         self.setHtml('<p>')
-        self.nam = NetworkAccessManager(self)
-        self.page().setNetworkAccessManager(self.nam)
+        self.page().setNetworkAccessManager(NetworkAccessManager(self))
 
     def sizeHint(self):
         return self._size_hint
@@ -95,4 +160,9 @@ class Preview(QWidget):
         self.parse_worker = ParseWorker()
         self.view = WebView(self)
         l.addWidget(self.view)
+
+    def show(self, name):
+        data = get_data(name)
+        c = current_container()
+        self.view.setHtml(data, QUrl.fromLocalFile(c.name_to_abspath(name)))
 

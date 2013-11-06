@@ -21,7 +21,7 @@ from calibre.ebooks.oeb.polish.container import get_container as _gc, clone_cont
 from calibre.ebooks.oeb.polish.replace import rename_files
 from calibre.gui2 import error_dialog, choose_files, question_dialog, info_dialog
 from calibre.gui2.dialogs.confirm_delete import confirm
-from calibre.gui2.tweak_book import set_current_container, current_container, tprefs, actions
+from calibre.gui2.tweak_book import set_current_container, current_container, tprefs, actions, editors
 from calibre.gui2.tweak_book.undo import GlobalUndoHistory
 from calibre.gui2.tweak_book.save import SaveManager
 from calibre.gui2.tweak_book.editor import editor_from_syntax, syntax_from_mime
@@ -40,7 +40,6 @@ class Boss(QObject):
         self.save_manager = SaveManager(parent)
         self.save_manager.report_error.connect(self.report_save_error)
         self.doing_terminal_save = False
-        self.editors = {}
 
     def __call__(self, gui):
         self.gui = gui
@@ -57,7 +56,7 @@ class Boss(QObject):
         return tempfile.mkdtemp(prefix='%s%05d-' % (prefix, self.container_count), dir=self.tdir)
 
     def check_dirtied(self):
-        dirtied = {name for name, ed in self.editors.iteritems() if ed.is_modified}
+        dirtied = {name for name, ed in editors.iteritems() if ed.is_modified}
         if not dirtied:
             return True
         return question_dialog(self.gui, _('Unsaved changes'), _(
@@ -124,7 +123,7 @@ class Boss(QObject):
         self.gui.action_save.setEnabled(True)
         self.gui.file_list.delete_done(spine_items, other_items)
         for name in list(spine_items) + list(other_items):
-            if name in self.editors:
+            if name in editors:
                 self.close_editor(name)
         # TODO: Update other GUI elements
 
@@ -210,7 +209,7 @@ class Boss(QObject):
 
     def save_book(self):
         c = current_container()
-        for name, ed in self.editors.iteritems():
+        for name, ed in editors.iteritems():
             if ed.is_modified:
                 with c.open(name, 'wb') as f:
                     f.write(ed.data)
@@ -229,9 +228,9 @@ class Boss(QObject):
                        ' for more information.'), det_msg=tb, show=True)
 
     def edit_file(self, name, syntax):
-        editor = self.editors.get(name, None)
+        editor = editors.get(name, None)
         if editor is None:
-            editor = self.editors[name] = editor_from_syntax(syntax, self.gui.editor_tabs)
+            editor = editors[name] = editor_from_syntax(syntax, self.gui.editor_tabs)
             editor.undo_redo_state_changed.connect(self.editor_undo_redo_state_changed)
             self.gui.central.add_editor(name, editor)
             c = current_container()
@@ -241,8 +240,8 @@ class Boss(QObject):
         self.gui.central.show_editor(editor)
 
     def edit_file_requested(self, name, syntax, mime):
-        if name in self.editors:
-            self.gui.show_editor(self.editors[name])
+        if name in editors:
+            self.gui.show_editor(editors[name])
             return
         syntax = syntax or syntax_from_mime(mime)
         if not syntax:
@@ -281,7 +280,7 @@ class Boss(QObject):
 
     def editor_close_requested(self, editor):
         name = None
-        for n, ed in self.editors.iteritems():
+        for n, ed in editors.iteritems():
             if ed is editor:
                 name = n
         if not name:
@@ -294,7 +293,7 @@ class Boss(QObject):
         self.close_editor(name)
 
     def close_editor(self, name):
-        editor = self.editors.pop(name)
+        editor = editors.pop(name)
         self.gui.central.close_editor(editor)
         editor.break_cycles()
 
@@ -303,7 +302,7 @@ class Boss(QObject):
         if ed is None:
             return
         name = None
-        for n, x in self.editors.iteritems():
+        for n, x in editors.iteritems():
             if x is ed:
                 name = n
                 break
@@ -317,7 +316,7 @@ class Boss(QObject):
         container = clone_container(c, tdir)
         self.save_manager.schedule(tdir, container)
         is_modified = False
-        for ed in self.editors.itervalues():
+        for ed in editors.itervalues():
             if ed.is_modified:
                 is_modified = True
                 break

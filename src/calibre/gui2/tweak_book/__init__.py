@@ -24,3 +24,4 @@ def set_current_container(container):
     _current_container = container
 
 actions = {}
+editors = {}
