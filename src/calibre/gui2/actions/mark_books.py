@@ -87,7 +87,7 @@ class MarkBooksAction(InterfaceAction):
 
     def about_to_show_menu(self):
         db = self.gui.current_db
-        num = len(db.data.marked_ids)
+        num = len(frozenset(db.data.marked_ids).intersection(db.new_api.all_book_ids()))
         text = _('Show marked book') if num == 1 else (_('Show marked books') + (' (%d)' % num))
         self.show_marked_action.setText(text)
 
