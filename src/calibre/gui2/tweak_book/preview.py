@@ -146,6 +146,7 @@ class WebView(QWebView):
 
         self.setHtml('<p>')
         self.page().setNetworkAccessManager(NetworkAccessManager(self))
+        self.page().setLinkDelegationPolicy(self.page().DelegateAllLinks)
 
     def sizeHint(self):
         return self._size_hint
