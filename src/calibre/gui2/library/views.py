@@ -851,14 +851,6 @@ class BooksView(QTableView):  # {{{
                     sm = self.selectionModel()
                     sm.select(index, sm.ClearAndSelect|sm.Rows)
 
-    def keyPressEvent(self, ev):
-        val = self.horizontalScrollBar().value()
-        ret = super(BooksView, self).keyPressEvent(ev)
-        if ev.isAccepted() and ev.key() in (Qt.Key_Home, Qt.Key_End
-                                            ) and ev.modifiers() & Qt.ControlModifier:
-            self.horizontalScrollBar().setValue(val)
-        return ret
-
     def row_at_top(self):
         pos = 0
         while pos < 100:
@@ -895,6 +887,10 @@ class BooksView(QTableView):  # {{{
                 rows = moved
             if moved > rows:
                 index = self.model().index(orig.row() - rows, index.column())
+        elif action == QTableView.MoveHome and modifiers & Qt.ControlModifier:
+            return self.model().index(0, orig.column())
+        elif action == QTableView.MoveEnd and modifiers & Qt.ControlModifier:
+            return self.model().index(self.model().rowCount(QModelIndex()) - 1, orig.column())
         return index
 
     def ids_to_rows(self, ids):
