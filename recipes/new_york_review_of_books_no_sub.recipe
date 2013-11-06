@@ -27,7 +27,7 @@ class NewYorkReviewOfBooks(BasicNewsRecipe):
     keep_only_tags = [
         dict(name='section', attrs={'class':'article_body'}),
         dict(name=find_header),
-        dict(name='div', attrs={'class':'for-subscribers-only'}),
+        dict(name='div', attrs={'class':['footnotes', 'for-subscribers-only']}),
     ]
 
     preprocess_regexps = [(re.compile(r'<head>.*?</head>', re.DOTALL), lambda
