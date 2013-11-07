@@ -16,6 +16,7 @@ class Editor(QMainWindow):
 
     modification_state_changed = pyqtSignal(object)
     undo_redo_state_changed = pyqtSignal(object, object)
+    copy_available_state_changed = pyqtSignal(object)
     data_changed = pyqtSignal(object)
 
     def __init__(self, syntax, parent=None):
@@ -29,20 +30,11 @@ class Editor(QMainWindow):
         self.create_toolbars()
         self.undo_available = False
         self.redo_available = False
+        self.copy_available = self.cut_available = False
         self.editor.undoAvailable.connect(self._undo_available)
         self.editor.redoAvailable.connect(self._redo_available)
         self.editor.textChanged.connect(self._data_changed)
-
-    def _data_changed(self):
-        self.data_changed.emit(self)
-
-    def _undo_available(self, available):
-        self.undo_available = available
-        self.undo_redo_state_changed.emit(self.undo_available, self.redo_available)
-
-    def _redo_available(self, available):
-        self.redo_available = available
-        self.undo_redo_state_changed.emit(self.undo_available, self.redo_available)
+        self.editor.copyAvailable.connect(self._copy_available)
 
     @dynamic_property
     def data(self):
@@ -73,21 +65,50 @@ class Editor(QMainWindow):
         return property(fget=fget, fset=fset)
 
     def create_toolbars(self):
-        self.action_bar = b = self.addToolBar(_('Edit actions tool bar'))
+        self.action_bar = b = self.addToolBar(_('File actions tool bar'))
         b.setObjectName('action_bar')  # Needed for saveState
-        b.addAction(actions['editor-save'])
-        b.addAction(actions['editor-undo'])
-        b.addAction(actions['editor-redo'])
+        for x in ('save', 'undo', 'redo'):
+            b.addAction(actions['editor-%s' % x])
+        self.edit_bar = b = self.addToolBar(_('Edit actions tool bar'))
+        for x in ('cut', 'copy', 'paste'):
+            b.addAction(actions['editor-%s' % x])
 
     def break_cycles(self):
         self.modification_state_changed.disconnect()
         self.undo_redo_state_changed.disconnect()
+        self.copy_available_state_changed.disconnect()
         self.data_changed.disconnect()
         self.editor.undoAvailable.disconnect()
         self.editor.redoAvailable.disconnect()
         self.editor.modificationChanged.disconnect()
         self.editor.textChanged.disconnect()
+        self.editor.copyAvailable.disconnect()
         self.editor.setPlainText('')
+
+    def _data_changed(self):
+        self.data_changed.emit(self)
+
+    def _undo_available(self, available):
+        self.undo_available = available
+        self.undo_redo_state_changed.emit(self.undo_available, self.redo_available)
+
+    def _redo_available(self, available):
+        self.redo_available = available
+        self.undo_redo_state_changed.emit(self.undo_available, self.redo_available)
+
+    def _copy_available(self, available):
+        self.copy_available = self.cut_available = available
+        self.copy_available_state_changed.emit(available)
+
+    def cut(self):
+        self.editor.cut()
+
+    def copy(self):
+        self.editor.copy()
+
+    def paste(self):
+        self.editor.paste()
+
 
 def launch_editor(path_to_edit, path_is_raw=False, syntax='html'):
     if path_is_raw:

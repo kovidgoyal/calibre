@@ -20,6 +20,7 @@ from calibre.gui2.tweak_book.keyboard import KeyboardManager
 from calibre.gui2.tweak_book.preview import Preview
 
 class Central(QStackedWidget):
+
     ' The central widget, hosts the editors '
 
     current_editor_changed = pyqtSignal()
@@ -162,6 +163,12 @@ class Main(MainWindow):
                                       _('Redo typing'))
         self.action_editor_save = reg('save.png', _('&Save'), self.boss.do_editor_save, 'editor-save', 'Ctrl+S',
                                       _('Save changes to the current file'))
+        self.action_editor_cut = reg('edit-cut.png', _('C&ut text'), self.boss.do_editor_cut, 'editor-cut', 'Ctrl+X',
+                                      _('Cut text'))
+        self.action_editor_copy = reg('edit-copy.png', _('&Copy text'), self.boss.do_editor_copy, 'editor-copy', 'Ctrl+C',
+                                      _('Copy text'))
+        self.action_editor_paste = reg('edit-paste.png', _('&Paste text'), self.boss.do_editor_paste, 'editor-paste', 'Ctrl+V',
+                                      _('Paste text'))
 
     def create_menubar(self):
         b = self.menuBar()

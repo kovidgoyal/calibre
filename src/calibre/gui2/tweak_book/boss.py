@@ -238,6 +238,7 @@ class Boss(QObject):
             editor = editors[name] = editor_from_syntax(syntax, self.gui.editor_tabs)
             editor.undo_redo_state_changed.connect(self.editor_undo_redo_state_changed)
             editor.data_changed.connect(self.editor_data_changed)
+            editor.copy_available_state_changed.connect(self.editor_copy_available_state_changed)
             c = current_container()
             with c.open(name) as f:
                 editor.data = c.decode(f.read())
@@ -256,6 +257,7 @@ class Boss(QObject):
                 _('Editing files of type %s is not supported' % mime), show=True)
         self.edit_file(name, syntax)
 
+    # Editor basic controls {{{
     def do_editor_undo(self):
         ed = self.gui.central.current_editor
         if ed is not None:
@@ -266,16 +268,35 @@ class Boss(QObject):
         if ed is not None:
             ed.redo()
 
+    def do_editor_copy(self):
+        ed = self.gui.central.current_editor
+        if ed is not None:
+            ed.copy()
+
+    def do_editor_cut(self):
+        ed = self.gui.central.current_editor
+        if ed is not None:
+            ed.cut()
+
+    def do_editor_paste(self):
+        ed = self.gui.central.current_editor
+        if ed is not None:
+            ed.paste()
+
     def editor_data_changed(self, editor):
         self.gui.preview.refresh_timer.start(tprefs['preview_refresh_time'] * 1000)
 
     def editor_undo_redo_state_changed(self, *args):
         self.apply_current_editor_state(update_keymap=False)
 
+    def editor_copy_available_state_changed(self, *args):
+        self.apply_current_editor_state(update_keymap=False)
+
     def editor_modification_state_changed(self, is_modified):
         self.apply_current_editor_state(update_keymap=False)
         if is_modified:
             actions['save-book'].setEnabled(True)
+    # }}}
 
     def apply_current_editor_state(self, update_keymap=True):
         ed = self.gui.central.current_editor
@@ -283,6 +304,8 @@ class Boss(QObject):
             actions['editor-undo'].setEnabled(ed.undo_available)
             actions['editor-redo'].setEnabled(ed.redo_available)
             actions['editor-save'].setEnabled(ed.is_modified)
+            actions['editor-cut'].setEnabled(ed.copy_available)
+            actions['editor-copy'].setEnabled(ed.cut_available)
             self.gui.keyboard.set_mode(ed.syntax)
             name = None
             for n, x in editors.iteritems():
