@@ -97,6 +97,7 @@ class Boss(QObject):
             return error_dialog(self.gui, _('Failed to open book'),
                     _('Failed to open book, click Show details for more information.'),
                                 det_msg=job.traceback, show=True)
+        parse_worker.clear()
         container = job.result
         set_current_container(container)
         self.current_metadata = self.gui.current_metadata = container.mi

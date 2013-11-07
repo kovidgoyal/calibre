@@ -117,6 +117,9 @@ class ParseWorker(Thread):
     def get_data(self, name):
         return getattr(self.parse_items.get(name, None), 'parsed_data', None)
 
+    def clear(self):
+        self.parse_items.clear()
+
 parse_worker = ParseWorker()
 # }}}
 
