@@ -6,6 +6,7 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
+import time
 from threading import Thread
 from Queue import Queue, Empty
 
@@ -14,7 +15,11 @@ from PyQt4.Qt import (
     QNetworkReply, QTimer, QNetworkRequest, QUrl)
 from PyQt4.QtWebKit import QWebView
 
+from calibre import prints
 from calibre.constants import iswindows
+from calibre.ebooks.oeb.polish.parsing import parse
+from calibre.ebooks.oeb.base import serialize
+from calibre.gui2 import Dispatcher
 from calibre.gui2.tweak_book import current_container, editors
 from calibre.gui2.viewer.documentview import apply_settings
 from calibre.gui2.viewer.config import config
@@ -22,27 +27,36 @@ from calibre.utils.ipc.simple_worker import offload_worker
 
 shutdown = object()
 
+def parse_html(raw):
+    root = parse(raw, decoder=lambda x:x.decode('utf-8'), replace_entities=False, line_numbers=True, linenumber_attribute='lnum')
+    return serialize(root, 'text/html').decode('utf-8')
+
 class ParseWorker(Thread):
 
     daemon = True
+    SLEEP_TIME = 1
 
-    def __init__(self):
+    def __init__(self, callback=lambda x, y: None):
         Thread.__init__(self)
         self.worker = offload_worker(priority='low')
         self.requests = Queue()
         self.request_count = 0
         self.start()
+        self.cache = {}
+        self.callback = callback
 
     def run(self):
+        mod, func = 'calibre.gui2.tweak_book.preview', 'parse_html'
         try:
             # Connect to the worker and send a dummy job to initialize it
-            self.worker(None, None, (), {})
+            self.worker(mod, func, b'<p></p>')
         except:
             import traceback
             traceback.print_exc()
             return
 
         while True:
+            time.sleep(self.SLEEP_TIME)
             x = self.requests.get()
             requests = [x]
             while True:
@@ -55,7 +69,37 @@ class ParseWorker(Thread):
                 break
             request = sorted(requests, reverse=True)[0]
             del requests
-            request
+            name, data = request[1:]
+            old_len, old_fp, old_parsed = self.cache.get(name, (None, None, None))
+            length, fp = len(data), hash(data)
+            if length == old_len and fp == old_fp:
+                self.done(name, old_parsed)
+                continue
+            try:
+                res = self.worker(mod, func, data)
+            except:
+                import traceback
+                traceback.print_exc()
+            else:
+                parsed_data = res['result']
+                if res['tb']:
+                    prints("Parser error:")
+                    prints(res['tb'])
+                else:
+                    self.cache[name] = (length, fp, parsed_data)
+                    self.done(name, parsed_data)
+
+    def done(self, name, data):
+        try:
+            self.callback(name, data)
+        except Exception:
+            import traceback
+            traceback.print_exc()
+
+    def add_request(self, name):
+        data = get_data(name)
+        self.requests.put((self.request_count, name, data))
+        self.request_count += 1
 
     def shutdown(self):
         self.requests.put(shutdown)
@@ -158,12 +202,21 @@ class Preview(QWidget):
         self.l = l = QVBoxLayout()
         self.setLayout(l)
         l.setContentsMargins(0, 0, 0, 0)
-        self.parse_worker = ParseWorker()
+        self.parse_worker = ParseWorker(callback=Dispatcher(self.parsing_done))
         self.view = WebView(self)
         l.addWidget(self.view)
 
+        self.current_name = None
+        self.parse_pending = False
+        self.last_sync_request = None
+
     def show(self, name):
-        data = get_data(name)
-        c = current_container()
-        self.view.setHtml(data, QUrl.fromLocalFile(c.name_to_abspath(name)))
+        self.current_name, self.parse_pending = name, True
+        self.parse_worker.add_request(name)
+
+    def parsing_done(self, name, data):
+        if name == self.current_name:
+            c = current_container()
+            self.view.setHtml(data, QUrl.fromLocalFile(c.name_to_abspath(name)))
+            self.parse_pending = False
 

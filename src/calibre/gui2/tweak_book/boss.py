@@ -232,16 +232,16 @@ class Boss(QObject):
         if editor is None:
             editor = editors[name] = editor_from_syntax(syntax, self.gui.editor_tabs)
             editor.undo_redo_state_changed.connect(self.editor_undo_redo_state_changed)
-            self.gui.central.add_editor(name, editor)
             c = current_container()
             with c.open(name) as f:
                 editor.data = c.decode(f.read())
             editor.modification_state_changed.connect(self.editor_modification_state_changed)
+            self.gui.central.add_editor(name, editor)
         self.gui.central.show_editor(editor)
 
     def edit_file_requested(self, name, syntax, mime):
         if name in editors:
-            self.gui.show_editor(editors[name])
+            self.gui.central.show_editor(editors[name])
             return
         syntax = syntax or syntax_from_mime(mime)
         if not syntax:
@@ -275,6 +275,13 @@ class Boss(QObject):
             actions['editor-redo'].setEnabled(ed.redo_available)
             actions['editor-save'].setEnabled(ed.is_modified)
             self.gui.keyboard.set_mode(ed.syntax)
+            name = None
+            for n, x in editors.iteritems():
+                if ed is x:
+                    name = n
+                    break
+            if name is not None:
+                self.gui.preview.show(name)
         else:
             self.gui.keyboard.set_mode('other')
 
