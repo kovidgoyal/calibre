@@ -86,6 +86,9 @@ class Boss(QObject):
                   ' Convert your book to one of these formats first.') % _(' and ').join(sorted(SUPPORTED)),
                 show=True)
 
+        for name in editors:
+            self.close_editor(name)
+        self.gui.preview.clear()
         self.container_count = -1
         if self.tdir:
             shutil.rmtree(self.tdir, ignore_errors=True)

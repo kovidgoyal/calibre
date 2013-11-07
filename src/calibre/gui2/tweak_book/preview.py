@@ -235,9 +235,10 @@ class WebView(QWebView):
         settings.setAttribute(settings.DeveloperExtrasEnabled, True)
         settings.setDefaultTextEncoding('utf-8')
 
-        self.setHtml('<p>')
         self.page().setNetworkAccessManager(NetworkAccessManager(self))
         self.page().setLinkDelegationPolicy(self.page().DelegateAllLinks)
+
+        self.clear()
 
     def sizeHint(self):
         return self._size_hint
@@ -255,6 +256,9 @@ class WebView(QWebView):
             mf.setScrollBarValue(Qt.Horizontal, val[0])
             mf.setScrollBarValue(Qt.Vertical, val[1])
         return property(fget=fget, fset=fset)
+
+    def clear(self):
+        self.setHtml('<p>')
 
 class Preview(QWidget):
 
@@ -286,4 +290,7 @@ class Preview(QWidget):
             parse_worker.add_request(self.current_name)
             # Tell webkit to reload all html and associated resources
             self.view.refresh()
+
+    def clear(self):
+        self.view.clear()
 
