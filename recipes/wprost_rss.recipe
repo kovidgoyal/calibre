@@ -6,7 +6,6 @@ __copyright__ = '''2010, matek09, matek09@gmail.com
                  Modified 2012,  Artur Stachecki <artur.stachecki@gmail.com>'''
 
 from calibre.web.feeds.news import BasicNewsRecipe
-import re
 
 class Wprost(BasicNewsRecipe):
     title = u'Wprost (RSS)'
