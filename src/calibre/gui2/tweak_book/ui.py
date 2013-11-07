@@ -191,8 +191,8 @@ class Main(MainWindow):
         d.setWidget(self.file_list)
         self.addDockWidget(Qt.LeftDockWidgetArea, d)
 
-        self.preview_dock = d = QDockWidget(_('&Book preview'), self)
-        d.setObjectName('file_list_dock')  # Needed for saveState
+        self.preview_dock = d = QDockWidget(_('File &Preview'), self)
+        d.setObjectName('file_preview')  # Needed for saveState
         d.setAllowedAreas(Qt.LeftDockWidgetArea | Qt.RightDockWidgetArea)
         self.preview = Preview(d)
         d.setWidget(self.preview)
