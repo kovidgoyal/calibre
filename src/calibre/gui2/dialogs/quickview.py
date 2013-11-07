@@ -6,7 +6,7 @@ __docformat__ = 'restructuredtext en'
 
 from PyQt4.Qt import (Qt, QDialog, QAbstractItemView, QTableWidgetItem,
                       QListWidgetItem, QByteArray, QCoreApplication,
-                      QApplication, pyqtSignal)
+                      QApplication, pyqtSignal, QDialogButtonBox)
 
 from calibre.customize.ui import find_plugin
 from calibre.gui2 import gprefs
@@ -112,14 +112,8 @@ class Quickview(QDialog, Ui_Quickview):
         self.search_button.clicked.connect(self.do_search)
         view.model().new_bookdisplay_data.connect(self.book_was_changed)
 
-    def set_database(self, db):
-        self.db = db
-        self.items.blockSignals(True)
-        self.books_table.blockSignals(True)
-        self.items.clear()
-        self.books_table.setRowCount(0)
-        self.books_table.blockSignals(False)
-        self.items.blockSignals(False)
+        close_button = self.buttonBox.button(QDialogButtonBox.Close)
+        close_button.setAutoDefault(False)
 
     # search button
     def do_search(self):
@@ -138,7 +132,7 @@ class Quickview(QDialog, Ui_Quickview):
         # view is changed, triggering a book_was_changed signal. Unfortunately
         # this happens before the library_changed actions are run, meaning we
         # still have the old database. To avoid the problem we just ignore the
-        # operation if we get an exception. The set_database will come
+        # operation if we get an exception. The "close" will come
         # eventually.
         try:
             self.refresh(self.view.model().index(self.db.row(mi.id), self.current_column))
@@ -153,6 +147,9 @@ class Quickview(QDialog, Ui_Quickview):
 
     # Given a cell in the library view, display the information
     def refresh(self, idx):
+        if self.lock_qv.isChecked():
+            return
+
         bv_row = idx.row()
         self.current_column = idx.column()
         key = self.view.model().column_map[self.current_column]
@@ -167,7 +164,7 @@ class Quickview(QDialog, Ui_Quickview):
                 self.indicate_no_items()
                 return
             key = self.current_key
-        self.items_label.setText('{0} ({1})'.format(
+        self.items_label.setText(_('&Item: {0} ({1})').format(
                                     self.db.field_metadata[key]['name'], key))
 
         self.items.blockSignals(True)
@@ -219,7 +216,7 @@ class Quickview(QDialog, Ui_Quickview):
                                sort_results=False)
 
         self.books_table.setRowCount(len(books))
-        self.books_label.setText(_('Books with selected item "{0}": {1}').
+        self.books_label.setText(_('&Books with selected item "{0}": {1}').
                                  format(selected_item, len(books)))
 
         select_item = None
@@ -296,7 +293,7 @@ class Quickview(QDialog, Ui_Quickview):
         gprefs['quickview_dialog_books_table_widths'] = self.books_table_column_widths
         gprefs['quickview_dialog_geometry'] = bytearray(self.saveGeometry())
 
-    def close(self):
+    def _close(self):
         self.save_state()
         # clean up to prevent memory leaks
         self.db = self.view = self.gui = None
@@ -304,10 +301,10 @@ class Quickview(QDialog, Ui_Quickview):
 
     # called by the window system
     def closeEvent(self, *args):
-        self.close()
+        self._close()
         QDialog.closeEvent(self, *args)
 
     # called by the close button
     def reject(self):
-        self.close()
+        self._close()
         QDialog.reject(self)
