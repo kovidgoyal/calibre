@@ -47,4 +47,4 @@ class ShowQuickviewAction(InterfaceAction):
 
     def library_changed(self, db):
         if self.current_instance and not self.current_instance.is_closed:
-            self.current_instance.set_database(db)
+            self.current_instance.reject()
