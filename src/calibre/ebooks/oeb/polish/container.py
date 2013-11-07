@@ -368,6 +368,13 @@ class Container(object):  # {{{
             data = self.parse_css(data, self.relpath(path))
         return data
 
+    def raw_data(self, name, decode=True):
+        ans = self.open(name).read()
+        mime = self.mime_map.get(name, guess_type(name))
+        if decode and (mime in OEB_STYLES or mime in OEB_DOCS or mime[-4:] in {'+xml', '/xml'}):
+            ans = self.decode(ans)
+        return ans
+
     def parse_css(self, data, fname):
         from cssutils import CSSParser, log
         log.setLevel(logging.WARN)

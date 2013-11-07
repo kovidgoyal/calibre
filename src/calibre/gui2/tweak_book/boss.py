@@ -24,6 +24,7 @@ from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.gui2.tweak_book import set_current_container, current_container, tprefs, actions, editors
 from calibre.gui2.tweak_book.undo import GlobalUndoHistory
 from calibre.gui2.tweak_book.save import SaveManager
+from calibre.gui2.tweak_book.preview import parse_worker
 from calibre.gui2.tweak_book.editor import editor_from_syntax, syntax_from_mime
 
 def get_container(*args, **kwargs):
@@ -232,6 +233,7 @@ class Boss(QObject):
         if editor is None:
             editor = editors[name] = editor_from_syntax(syntax, self.gui.editor_tabs)
             editor.undo_redo_state_changed.connect(self.editor_undo_redo_state_changed)
+            editor.data_changed.connect(self.editor_data_changed)
             c = current_container()
             with c.open(name) as f:
                 editor.data = c.decode(f.read())
@@ -260,6 +262,9 @@ class Boss(QObject):
         if ed is not None:
             ed.redo()
 
+    def editor_data_changed(self, editor):
+        self.gui.preview.refresh_timer.start(tprefs['preview_refresh_time'] * 1000)
+
     def editor_undo_redo_state_changed(self, *args):
         self.apply_current_editor_state(update_keymap=False)
 
@@ -280,7 +285,7 @@ class Boss(QObject):
                 if ed is x:
                     name = n
                     break
-            if name is not None:
+            if name is not None and getattr(ed, 'syntax', None) == 'html':
                 self.gui.preview.show(name)
         else:
             self.gui.keyboard.set_mode('other')
@@ -392,9 +397,10 @@ class Boss(QObject):
         QApplication.instance().quit()
 
     def shutdown(self):
+        self.gui.preview.refresh_timer.stop()
         self.save_state()
         self.save_manager.shutdown()
-        self.gui.preview.parse_worker.shutdown()
+        parse_worker.shutdown()
         self.save_manager.wait(0.1)
 
     def save_state(self):

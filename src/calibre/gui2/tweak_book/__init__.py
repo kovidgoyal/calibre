@@ -13,6 +13,7 @@ tprefs.defaults['editor_theme'] = None
 tprefs.defaults['editor_font_family'] = None
 tprefs.defaults['editor_font_size'] = 12
 tprefs.defaults['editor_line_wrap'] = True
+tprefs.defaults['preview_refresh_time'] = 2
 
 _current_container = None
 

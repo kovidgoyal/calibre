@@ -16,6 +16,7 @@ class Editor(QMainWindow):
 
     modification_state_changed = pyqtSignal(object)
     undo_redo_state_changed = pyqtSignal(object, object)
+    data_changed = pyqtSignal(object)
 
     def __init__(self, syntax, parent=None):
         QMainWindow.__init__(self, parent)
@@ -30,6 +31,10 @@ class Editor(QMainWindow):
         self.redo_available = False
         self.editor.undoAvailable.connect(self._undo_available)
         self.editor.redoAvailable.connect(self._redo_available)
+        self.editor.textChanged.connect(self._data_changed)
+
+    def _data_changed(self):
+        self.data_changed.emit(self)
 
     def _undo_available(self, available):
         self.undo_available = available
@@ -49,6 +54,9 @@ class Editor(QMainWindow):
         def fset(self, val):
             self.editor.load_text(val, syntax=self.syntax)
         return property(fget=fget, fset=fset)
+
+    def get_raw_data(self):
+        return unicode(self.editor.toPlainText())
 
     def undo(self):
         self.editor.undo()
@@ -74,9 +82,11 @@ class Editor(QMainWindow):
     def break_cycles(self):
         self.modification_state_changed.disconnect()
         self.undo_redo_state_changed.disconnect()
+        self.data_changed.disconnect()
         self.editor.undoAvailable.disconnect()
         self.editor.redoAvailable.disconnect()
         self.editor.modificationChanged.disconnect()
+        self.editor.textChanged.disconnect()
         self.editor.setPlainText('')
 
 def launch_editor(path_to_edit, path_is_raw=False, syntax='html'):

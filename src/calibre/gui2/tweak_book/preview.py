@@ -12,14 +12,14 @@ from Queue import Queue, Empty
 
 from PyQt4.Qt import (
     QWidget, QVBoxLayout, QApplication, QSize, QNetworkAccessManager,
-    QNetworkReply, QTimer, QNetworkRequest, QUrl)
+    QNetworkReply, QTimer, QNetworkRequest, QUrl, Qt, QNetworkDiskCache)
 from PyQt4.QtWebKit import QWebView
 
 from calibre import prints
 from calibre.constants import iswindows
 from calibre.ebooks.oeb.polish.parsing import parse
-from calibre.ebooks.oeb.base import serialize
-from calibre.gui2 import Dispatcher
+from calibre.ebooks.oeb.base import serialize, OEB_DOCS
+from calibre.ptempfile import PersistentTemporaryDirectory
 from calibre.gui2.tweak_book import current_container, editors
 from calibre.gui2.viewer.documentview import apply_settings
 from calibre.gui2.viewer.config import config
@@ -27,29 +27,43 @@ from calibre.utils.ipc.simple_worker import offload_worker
 
 shutdown = object()
 
+def get_data(name):
+    'Get the data for name. Returns a unicode string if name is a text document/stylesheet'
+    if name in editors:
+        return editors[name].get_raw_data()
+    return current_container().raw_data(name)
+
+# Parsing of html to add linenumbers {{{
 def parse_html(raw):
-    root = parse(raw, decoder=lambda x:x.decode('utf-8'), replace_entities=False, line_numbers=True, linenumber_attribute='lnum')
-    return serialize(root, 'text/html').decode('utf-8')
+    root = parse(raw, decoder=lambda x:x.decode('utf-8'), line_numbers=True, linenumber_attribute='lnum')
+    return serialize(root, 'text/html').encode('utf-8')
+
+class ParseItem(object):
+
+    __slots__ = ('name', 'length', 'fingerprint', 'parsed_data')
+
+    def __init__(self, name):
+        self.name = name
+        self.length, self.fingerprint = 0, None
+        self.parsed_data = None
 
 class ParseWorker(Thread):
 
     daemon = True
     SLEEP_TIME = 1
 
-    def __init__(self, callback=lambda x, y: None):
+    def __init__(self):
         Thread.__init__(self)
-        self.worker = offload_worker(priority='low')
         self.requests = Queue()
         self.request_count = 0
-        self.start()
-        self.cache = {}
-        self.callback = callback
+        self.parse_items = {}
 
     def run(self):
         mod, func = 'calibre.gui2.tweak_book.preview', 'parse_html'
         try:
             # Connect to the worker and send a dummy job to initialize it
-            self.worker(mod, func, b'<p></p>')
+            self.worker = offload_worker(priority='low')
+            self.worker(mod, func, '<p></p>')
         except:
             import traceback
             traceback.print_exc()
@@ -69,12 +83,7 @@ class ParseWorker(Thread):
                 break
             request = sorted(requests, reverse=True)[0]
             del requests
-            name, data = request[1:]
-            old_len, old_fp, old_parsed = self.cache.get(name, (None, None, None))
-            length, fp = len(data), hash(data)
-            if length == old_len and fp == old_fp:
-                self.done(name, old_parsed)
-                continue
+            pi, data = request[1:]
             try:
                 res = self.worker(mod, func, data)
             except:
@@ -86,45 +95,75 @@ class ParseWorker(Thread):
                     prints("Parser error:")
                     prints(res['tb'])
                 else:
-                    self.cache[name] = (length, fp, parsed_data)
-                    self.done(name, parsed_data)
-
-    def done(self, name, data):
-        try:
-            self.callback(name, data)
-        except Exception:
-            import traceback
-            traceback.print_exc()
+                    pi.parsed_data = parsed_data
 
     def add_request(self, name):
         data = get_data(name)
-        self.requests.put((self.request_count, name, data))
+        ldata, hdata = len(data), hash(data)
+        pi = self.parse_items.get(name, None)
+        if pi is None:
+            self.parse_items[name] = pi = ParseItem(name)
+        else:
+            if pi.length == ldata and pi.fingerprint == hdata:
+                return
+            pi.parsed_data = None
+        pi.length, pi.fingerprint = ldata, hdata
+        self.requests.put((self.request_count, pi, data))
         self.request_count += 1
 
     def shutdown(self):
         self.requests.put(shutdown)
 
+    def get_data(self, name):
+        return getattr(self.parse_items.get(name, None), 'parsed_data', None)
 
-class LocalNetworkReply(QNetworkReply):
+parse_worker = ParseWorker()
+# }}}
 
-    def __init__(self, parent, request, mime_type, data):
+# Override network access to load data "live" from the editors {{{
+class NetworkReply(QNetworkReply):
+
+    def __init__(self, parent, request, mime_type, name):
         QNetworkReply.__init__(self, parent)
         self.setOpenMode(QNetworkReply.ReadOnly | QNetworkReply.Unbuffered)
-        self.__data = data
         self.setRequest(request)
         self.setUrl(request.url())
-        self.setHeader(QNetworkRequest.ContentTypeHeader, mime_type)
+        self._aborted = False
+        if mime_type in OEB_DOCS:
+            self.resource_name = name
+            QTimer.singleShot(0, self.check_for_parse)
+        else:
+            data = get_data(name)
+            if isinstance(data, type('')):
+                data = data.encode('utf-8')
+                mime_type += '; charset=utf-8'
+            self.__data = data
+            self.setHeader(QNetworkRequest.ContentTypeHeader, mime_type)
+            self.setHeader(QNetworkRequest.ContentLengthHeader, len(self.__data))
+            QTimer.singleShot(0, self.finalize_reply)
+
+    def check_for_parse(self):
+        if self._aborted:
+            return
+        data = parse_worker.get_data(self.resource_name)
+        if data is None:
+            return QTimer.singleShot(10, self.check_for_parse)
+        self.__data = data
+        self.setHeader(QNetworkRequest.ContentTypeHeader, 'text/html; charset=utf-8')
         self.setHeader(QNetworkRequest.ContentLengthHeader, len(self.__data))
-        QTimer.singleShot(0, self.finalize_reply)
+        self.finalize_reply()
 
     def bytesAvailable(self):
-        return len(self.__data)
+        try:
+            return len(self.__data)
+        except AttributeError:
+            return 0
 
     def isSequential(self):
         return True
 
     def abort(self):
-        pass
+        self._aborted = True
 
     def readData(self, maxlen):
         ans, self.__data = self.__data[:maxlen], self.__data[maxlen:]
@@ -132,6 +171,8 @@ class LocalNetworkReply(QNetworkReply):
     read = readData
 
     def finalize_reply(self):
+        if self._aborted:
+            return
         self.setFinished(True)
         self.setAttribute(QNetworkRequest.HttpStatusCodeAttribute, 200)
         self.setAttribute(QNetworkRequest.HttpReasonPhraseAttribute, "Ok")
@@ -140,10 +181,6 @@ class LocalNetworkReply(QNetworkReply):
         self.readyRead.emit()
         self.finished.emit()
 
-def get_data(name):
-    if name in editors:
-        return editors[name].data
-    return current_container().open(name).read()
 
 class NetworkAccessManager(QNetworkAccessManager):
 
@@ -152,9 +189,16 @@ class NetworkAccessManager(QNetworkAccessManager):
                 'Custom')
     }
 
+    def __init__(self, *args):
+        QNetworkAccessManager.__init__(self, *args)
+        self.cache = QNetworkDiskCache(self)
+        self.setCache(self.cache)
+        self.cache.setCacheDirectory(PersistentTemporaryDirectory(prefix='disk_cache_'))
+        self.cache.setMaximumCacheSize(0)
+
     def createRequest(self, operation, request, data):
         url = unicode(request.url().toString())
-        if url.startswith('file://'):
+        if operation == self.GetOperation and url.startswith('file://'):
             path = url[7:]
             if iswindows and path.startswith('/'):
                 path = path[1:]
@@ -162,13 +206,13 @@ class NetworkAccessManager(QNetworkAccessManager):
             name = c.abspath_to_name(path)
             if c.has_name(name):
                 try:
-                    return LocalNetworkReply(self, request, c.mime_map.get(name, 'application/octet-stream'),
-                                             get_data(name) if operation == self.GetOperation else b'')
+                    return NetworkReply(self, request, c.mime_map.get(name, 'application/octet-stream'), name)
                 except Exception:
                     import traceback
-                    traceback.print_stack()
-        return QNetworkAccessManager.createRequest(self, operation, request,
-                data)
+                    traceback.print_exc()
+        return QNetworkAccessManager.createRequest(self, operation, request, data)
+
+# }}}
 
 class WebView(QWebView):
 
@@ -195,6 +239,20 @@ class WebView(QWebView):
     def sizeHint(self):
         return self._size_hint
 
+    def refresh(self):
+        self.pageAction(self.page().Reload).trigger()
+
+    @dynamic_property
+    def scroll_pos(self):
+        def fget(self):
+            mf = self.page().mainFrame()
+            return (mf.scrollBarValue(Qt.Horizontal), mf.scrollBarValue(Qt.Vertical))
+        def fset(self, val):
+            mf = self.page().mainFrame()
+            mf.setScrollBarValue(Qt.Horizontal, val[0])
+            mf.setScrollBarValue(Qt.Vertical, val[1])
+        return property(fget=fget, fset=fset)
+
 class Preview(QWidget):
 
     def __init__(self, parent=None):
@@ -202,21 +260,27 @@ class Preview(QWidget):
         self.l = l = QVBoxLayout()
         self.setLayout(l)
         l.setContentsMargins(0, 0, 0, 0)
-        self.parse_worker = ParseWorker(callback=Dispatcher(self.parsing_done))
         self.view = WebView(self)
         l.addWidget(self.view)
 
         self.current_name = None
-        self.parse_pending = False
         self.last_sync_request = None
+        self.refresh_timer = QTimer(self)
+        self.refresh_timer.timeout.connect(self.refresh)
+        parse_worker.start()
 
     def show(self, name):
-        self.current_name, self.parse_pending = name, True
-        self.parse_worker.add_request(name)
+        if name != self.current_name:
+            self.refresh_timer.stop()
+            self.current_name = name
+            parse_worker.add_request(name)
+            self.view.setUrl(QUrl.fromLocalFile(current_container().name_to_abspath(name)))
 
-    def parsing_done(self, name, data):
-        if name == self.current_name:
-            c = current_container()
-            self.view.setHtml(data, QUrl.fromLocalFile(c.name_to_abspath(name)))
-            self.parse_pending = False
+    def refresh(self):
+        if self.current_name:
+            # This will check if the current html has changed in its editor,
+            # and re-parse it if so
+            parse_worker.add_request(self.current_name)
+            # Tell webkit to reload all html and associated resources
+            self.view.refresh()
 
