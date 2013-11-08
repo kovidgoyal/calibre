@@ -290,7 +290,12 @@ class Preview(QWidget):
             # and re-parse it if so
             parse_worker.add_request(self.current_name)
             # Tell webkit to reload all html and associated resources
-            self.view.refresh()
+            current_url = QUrl.fromLocalFile(current_container().name_to_abspath(self.current_name))
+            if current_url != self.view.url():
+                # The container was changed
+                self.view.setUrl(current_url)
+            else:
+                self.view.refresh()
 
     def clear(self):
         self.view.clear()
