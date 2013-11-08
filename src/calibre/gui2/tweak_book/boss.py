@@ -25,6 +25,7 @@ from calibre.gui2.tweak_book import set_current_container, current_container, tp
 from calibre.gui2.tweak_book.undo import GlobalUndoHistory
 from calibre.gui2.tweak_book.save import SaveManager
 from calibre.gui2.tweak_book.preview import parse_worker
+from calibre.gui2.tweak_book.toc import TOCEditor
 from calibre.gui2.tweak_book.editor import editor_from_syntax, syntax_from_mime
 
 def get_container(*args, **kwargs):
@@ -86,7 +87,7 @@ class Boss(QObject):
                   ' Convert your book to one of these formats first.') % _(' and ').join(sorted(SUPPORTED)),
                 show=True)
 
-        for name in editors:
+        for name in tuple(editors):
             self.close_editor(name)
         self.gui.preview.clear()
         self.container_count = -1
@@ -110,12 +111,20 @@ class Boss(QObject):
         self.gui.action_save.setEnabled(False)
         self.update_global_history_actions()
 
+    def update_editors_from_container(self, container=None):
+        c = container or current_container()
+        for name, ed in tuple(editors.iteritems()):
+            if c.has_name(name):
+                ed.replace_data(c.raw_data(name))
+            else:
+                self.close_editor(name)
+
     def apply_container_update_to_gui(self):
         container = current_container()
         self.gui.file_list.build(container)
         self.update_global_history_actions()
         self.gui.action_save.setEnabled(True)
-        # TODO: Apply to other GUI elements
+        self.update_editors_from_container()
 
     def delete_requested(self, spine_items, other_items):
         if not self.check_dirtied():
@@ -130,7 +139,8 @@ class Boss(QObject):
         for name in list(spine_items) + list(other_items):
             if name in editors:
                 self.close_editor(name)
-        # TODO: Update other GUI elements
+        if not editors:
+            self.gui.preview.clear()
 
     def reorder_spine(self, items):
         # TODO: If content.opf is dirty in an editor, abort, calling
@@ -141,6 +151,16 @@ class Boss(QObject):
         self.gui.action_save.setEnabled(True)
         self.gui.file_list.build(current_container())  # needed as the linear flag may have changed on some items
         # TODO: If content.opf is open in an editor, reload it
+
+    def edit_toc(self):
+        if not self.check_dirtied():
+            return
+        self.add_savepoint(_('Edit Table of Contents'))
+        d = TOCEditor(parent=self.gui)
+        if d.exec_() != d.Accepted:
+            self.rewind_savepoint()
+            return
+        self.update_editors_from_container()
 
     # Renaming {{{
     def rename_requested(self, oldname, newname):
@@ -176,7 +196,8 @@ class Boss(QObject):
                                 det_msg=job.traceback, show=True)
         self.gui.file_list.build(current_container())
         self.gui.action_save.setEnabled(True)
-        # TODO: Update the rest of the GUI
+        # TODO: Update the rest of the GUI. This means renaming open editors and
+        # then calling update_editors_from_container()
     # }}}
 
     # Global history {{{
@@ -335,6 +356,8 @@ class Boss(QObject):
         editor = editors.pop(name)
         self.gui.central.close_editor(editor)
         editor.break_cycles()
+        if not editors:
+            self.gui.preview.clear()
 
     def do_editor_save(self):
         ed = self.gui.central.current_editor

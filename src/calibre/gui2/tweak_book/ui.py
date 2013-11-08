@@ -164,16 +164,20 @@ class Main(MainWindow):
                                       _('Redo typing'))
         self.action_editor_save = reg('save.png', _('&Save'), self.boss.do_editor_save, 'editor-save', 'Ctrl+S',
                                       _('Save changes to the current file'))
-        self.action_editor_cut = reg('edit-cut.png', _('C&ut text'), self.boss.do_editor_cut, 'editor-cut', 'Ctrl+X',
+        self.action_editor_cut = reg('edit-cut.png', _('C&ut text'), self.boss.do_editor_cut, 'editor-cut', ('Ctrl+X', 'Shift+Delete', ),
                                       _('Cut text'))
-        self.action_editor_copy = reg('edit-copy.png', _('&Copy text'), self.boss.do_editor_copy, 'editor-copy', 'Ctrl+C',
+        self.action_editor_copy = reg('edit-copy.png', _('&Copy text'), self.boss.do_editor_copy, 'editor-copy', ('Ctrl+C', 'Ctrl+Insert'),
                                       _('Copy text'))
-        self.action_editor_paste = reg('edit-paste.png', _('&Paste text'), self.boss.do_editor_paste, 'editor-paste', 'Ctrl+V',
+        self.action_editor_paste = reg('edit-paste.png', _('&Paste text'), self.boss.do_editor_paste, 'editor-paste', ('Ctrl+V', 'Shift+Insert', ),
                                       _('Paste text'))
         self.action_editor_cut.setEnabled(False)
         self.action_editor_copy.setEnabled(False)
         self.action_editor_undo.setEnabled(False)
         self.action_editor_redo.setEnabled(False)
+
+        # Tool actions
+        group = _('Tools')
+        self.action_toc = reg('toc.png', _('&Edit ToC'), self.boss.edit_toc, 'edit-toc', (), _('Edit Table of Contents'))
 
     def create_menubar(self):
         b = self.menuBar()
@@ -194,13 +198,17 @@ class Main(MainWindow):
         e.addAction(self.action_editor_copy)
         e.addAction(self.action_editor_paste)
 
+        e = b.addMenu(_('&Tools'))
+        e.addAction(self.action_toc)
+
     def create_toolbar(self):
-        self.global_bar = b = self.addToolBar(_('Global tool bar'))
+        self.global_bar = b = self.addToolBar(_('Book tool bar'))
         b.setObjectName('global_bar')  # Needed for saveState
         b.addAction(self.action_open_book)
         b.addAction(self.action_global_undo)
         b.addAction(self.action_global_redo)
         b.addAction(self.action_save)
+        b.addAction(self.action_toc)
 
     def create_docks(self):
         self.file_list_dock = d = QDockWidget(_('&Files Browser'), self)

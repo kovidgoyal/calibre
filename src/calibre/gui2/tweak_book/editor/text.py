@@ -114,6 +114,18 @@ class TextEdit(QPlainTextEdit):
         self.highlighter.setDocument(self.document())
         self.setPlainText(text)
 
+    def replace_text(self, text):
+        c = self.textCursor()
+        pos = c.position()
+        c.beginEditBlock()
+        c.clearSelection()
+        c.select(c.Document)
+        c.insertText(text)
+        c.endEditBlock()
+        c.setPosition(pos)
+        self.setTextCursor(c)
+        self.ensureCursorVisible()
+
     # Line numbers and cursor line {{{
     def highlight_cursor_line(self):
         sel = QTextEdit.ExtraSelection()

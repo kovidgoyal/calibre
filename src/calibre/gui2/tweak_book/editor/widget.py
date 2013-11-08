@@ -9,6 +9,7 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 from PyQt4.Qt import QMainWindow, Qt, QApplication, pyqtSignal
 
 from calibre import xml_replace_entities
+from calibre.gui2 import error_dialog
 from calibre.gui2.tweak_book import actions
 from calibre.gui2.tweak_book.editor.text import TextEdit
 
@@ -49,6 +50,13 @@ class Editor(QMainWindow):
 
     def get_raw_data(self):
         return unicode(self.editor.toPlainText())
+
+    def replace_data(self, raw, only_if_different=True):
+        if isinstance(raw, bytes):
+            raw = raw.decode('utf-8')
+        current = self.get_raw_data() if only_if_different else False
+        if current != raw:
+            self.editor.replace_text(raw)
 
     def undo(self):
         self.editor.undo()
@@ -107,6 +115,9 @@ class Editor(QMainWindow):
         self.editor.copy()
 
     def paste(self):
+        if not self.editor.canPaste():
+            return error_dialog(self, _('No text'), _(
+                'There is no suitable text in the clipboard to paste.'), show=True)
         self.editor.paste()
 
 
