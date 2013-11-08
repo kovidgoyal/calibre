@@ -119,65 +119,68 @@ def update_metadata(ebook, new_opf):
         stream.truncate()
         stream.write(opf.render())
 
-def polish(file_map, opts, log, report):
+def polish_one(ebook, opts, report):
     rt = lambda x: report('\n### ' + x)
+    jacket = None
+
+    if opts.subset or opts.embed:
+        stats = StatsCollector(ebook, do_embed=opts.embed)
+
+    if opts.opf:
+        rt(_('Updating metadata'))
+        update_metadata(ebook, opts.opf)
+        jacket = find_existing_jacket(ebook)
+        if jacket is not None:
+            replace_jacket(ebook, jacket)
+            report(_('Updated metadata jacket'))
+        report(_('Metadata updated\n'))
+
+    if opts.cover:
+        rt(_('Setting cover'))
+        set_cover(ebook, opts.cover, report)
+        report('')
+
+    if opts.jacket:
+        rt(_('Inserting metadata jacket'))
+        if jacket is None:
+            if add_or_replace_jacket(ebook):
+                report(_('Existing metadata jacket replaced'))
+            else:
+                report(_('Metadata jacket inserted'))
+        else:
+            report(_('Existing metadata jacket replaced'))
+        report('')
+
+    if opts.remove_jacket:
+        rt(_('Removing metadata jacket'))
+        if remove_jacket(ebook):
+            report(_('Metadata jacket removed'))
+        else:
+            report(_('No metadata jacket found'))
+        report('')
+
+    if opts.smarten_punctuation:
+        rt(_('Smartening punctuation'))
+        smarten_punctuation(ebook, report)
+        report('')
+
+    if opts.embed:
+        rt(_('Embedding referenced fonts'))
+        embed_all_fonts(ebook, stats, report)
+        report('')
+
+    if opts.subset:
+        rt(_('Subsetting embedded fonts'))
+        subset_all_fonts(ebook, stats.font_stats, report)
+        report('')
+
+
+def polish(file_map, opts, log, report):
     st = time.time()
     for inbook, outbook in file_map.iteritems():
         report(_('## Polishing: %s')%(inbook.rpartition('.')[-1].upper()))
         ebook = get_container(inbook, log)
-        jacket = None
-
-        if opts.subset or opts.embed:
-            stats = StatsCollector(ebook, do_embed=opts.embed)
-
-        if opts.opf:
-            rt(_('Updating metadata'))
-            update_metadata(ebook, opts.opf)
-            jacket = find_existing_jacket(ebook)
-            if jacket is not None:
-                replace_jacket(ebook, jacket)
-                report(_('Updated metadata jacket'))
-            report(_('Metadata updated\n'))
-
-        if opts.cover:
-            rt(_('Setting cover'))
-            set_cover(ebook, opts.cover, report)
-            report('')
-
-        if opts.jacket:
-            rt(_('Inserting metadata jacket'))
-            if jacket is None:
-                if add_or_replace_jacket(ebook):
-                    report(_('Existing metadata jacket replaced'))
-                else:
-                    report(_('Metadata jacket inserted'))
-            else:
-                report(_('Existing metadata jacket replaced'))
-            report('')
-
-        if opts.remove_jacket:
-            rt(_('Removing metadata jacket'))
-            if remove_jacket(ebook):
-                report(_('Metadata jacket removed'))
-            else:
-                report(_('No metadata jacket found'))
-            report('')
-
-        if opts.smarten_punctuation:
-            rt(_('Smartening punctuation'))
-            smarten_punctuation(ebook, report)
-            report('')
-
-        if opts.embed:
-            rt(_('Embedding referenced fonts'))
-            embed_all_fonts(ebook, stats, report)
-            report('')
-
-        if opts.subset:
-            rt(_('Subsetting embedded fonts'))
-            subset_all_fonts(ebook, stats.font_stats, report)
-            report('')
-
+        polish_one(ebook, opts, report)
         ebook.commit(outbook)
         report('-'*70)
     report(_('Polishing took: %.1f seconds')%(time.time()-st))
@@ -203,6 +206,15 @@ def gui_polish(data):
     for msg in report:
         log(msg)
     return '\n\n'.join(report)
+
+def tweak_polish(container, actions):
+    opts = ALL_OPTS.copy()
+    opts.update(actions)
+    O = namedtuple('Options', ' '.join(ALL_OPTS.iterkeys()))
+    opts = O(**opts)
+    report = []
+    polish_one(container, opts, report.append)
+    return report
 
 def option_parser():
     from calibre.utils.config import OptionParser
