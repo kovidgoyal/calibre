@@ -11,12 +11,12 @@ from functools import partial
 
 from PyQt4.Qt import (
     QObject, QApplication, QDialog, QGridLayout, QLabel, QSize, Qt,
-    QDialogButtonBox, QIcon, QTimer, QPixmap)
+    QDialogButtonBox, QIcon, QTimer, QPixmap, QTextBrowser, QVBoxLayout)
 
 from calibre import prints
 from calibre.ptempfile import PersistentTemporaryDirectory
 from calibre.ebooks.oeb.base import urlnormalize
-from calibre.ebooks.oeb.polish.main import SUPPORTED
+from calibre.ebooks.oeb.polish.main import SUPPORTED, tweak_polish
 from calibre.ebooks.oeb.polish.container import get_container as _gc, clone_container, guess_type
 from calibre.ebooks.oeb.polish.replace import rename_files
 from calibre.gui2 import error_dialog, choose_files, question_dialog, info_dialog
@@ -156,11 +156,36 @@ class Boss(QObject):
         if not self.check_dirtied():
             return
         self.add_savepoint(_('Edit Table of Contents'))
-        d = TOCEditor(parent=self.gui)
+        d = TOCEditor(title=self.current_metadata.title, parent=self.gui)
         if d.exec_() != d.Accepted:
             self.rewind_savepoint()
             return
         self.update_editors_from_container()
+
+    def polish(self, action, name):
+        if not self.check_dirtied():
+            return
+        self.add_savepoint(name)
+        try:
+            report = tweak_polish(current_container(), {action:True})
+        except:
+            self.rewind_savepoint()
+            raise
+        self.apply_container_update_to_gui()
+        from calibre.ebooks.markdown import markdown
+        report = markdown('# %s\n\n'%self.current_metadata.title + '\n\n'.join(report), output_format='html4')
+        d = QDialog(self.gui)
+        d.l = QVBoxLayout()
+        d.setLayout(d.l)
+        d.e = QTextBrowser(d)
+        d.l.addWidget(d.e)
+        d.e.setHtml(report)
+        d.bb = QDialogButtonBox(QDialogButtonBox.Close)
+        d.l.addWidget(d.bb)
+        d.bb.rejected.connect(d.reject)
+        d.bb.accepted.connect(d.accept)
+        d.resize(600, 400)
+        d.exec_()
 
     # Renaming {{{
     def rename_requested(self, oldname, newname):

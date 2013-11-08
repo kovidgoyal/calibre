@@ -6,6 +6,8 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
+from functools import partial
+
 from PyQt4.Qt import (
     QDockWidget, Qt, QLabel, QIcon, QAction, QApplication, QWidget,
     QVBoxLayout, QStackedWidget, QTabWidget, QImage, QPixmap, pyqtSignal)
@@ -179,6 +181,18 @@ class Main(MainWindow):
         group = _('Tools')
         self.action_toc = reg('toc.png', _('&Edit Table of Contents'), self.boss.edit_toc, 'edit-toc', (), _('Edit Table of Contents'))
 
+        # Polish actions
+        group = _('Polish')
+        self.action_subset_fonts = reg(
+            'subset-fonts.png', _('&Subset embedded fonts'), partial(
+                self.boss.polish, 'subset', _('Subset fonts')), 'subset-fonts', (), _('Subset embedded fonts'))
+        self.action_embed_fonts = reg(
+            'embed-fonts.png', _('&Embed referenced fonts'), partial(
+                self.boss.polish, 'embed', _('Embed fonts')), 'embed-fonts', (), _('Embed referenced fonts'))
+        self.action_smarten_punctuation = reg(
+            'smarten-punctuation.png', _('&Smarten punctuation'), partial(
+                self.boss.polish, 'smarten_punctuation', _('Smarten punstuation')), 'smarten-punctuation', (), _('Smarten punctuation'))
+
     def create_menubar(self):
         b = self.menuBar()
 
@@ -200,6 +214,9 @@ class Main(MainWindow):
 
         e = b.addMenu(_('&Tools'))
         e.addAction(self.action_toc)
+        e.addAction(self.action_embed_fonts)
+        e.addAction(self.action_subset_fonts)
+        e.addAction(self.action_smarten_punctuation)
 
     def create_toolbar(self):
         self.global_bar = b = self.addToolBar(_('Book tool bar'))
@@ -209,6 +226,12 @@ class Main(MainWindow):
         b.addAction(self.action_global_redo)
         b.addAction(self.action_save)
         b.addAction(self.action_toc)
+
+        self.polish_bar = b = self.addToolBar(_('Polish book tool bar'))
+        b.setObjectName('polish_bar')  # Needed for saveState
+        b.addAction(self.action_embed_fonts)
+        b.addAction(self.action_subset_fonts)
+        b.addAction(self.action_smarten_punctuation)
 
     def create_docks(self):
         self.file_list_dock = d = QDockWidget(_('&Files Browser'), self)
