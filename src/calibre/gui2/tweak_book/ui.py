@@ -191,7 +191,7 @@ class Main(MainWindow):
                 self.boss.polish, 'embed', _('Embed fonts')), 'embed-fonts', (), _('Embed referenced fonts'))
         self.action_smarten_punctuation = reg(
             'smarten-punctuation.png', _('&Smarten punctuation'), partial(
-                self.boss.polish, 'smarten_punctuation', _('Smarten punstuation')), 'smarten-punctuation', (), _('Smarten punctuation'))
+                self.boss.polish, 'smarten_punctuation', _('Smarten punctuation')), 'smarten-punctuation', (), _('Smarten punctuation'))
 
     def create_menubar(self):
         b = self.menuBar()
