@@ -177,7 +177,7 @@ class Main(MainWindow):
 
         # Tool actions
         group = _('Tools')
-        self.action_toc = reg('toc.png', _('&Edit ToC'), self.boss.edit_toc, 'edit-toc', (), _('Edit Table of Contents'))
+        self.action_toc = reg('toc.png', _('&Edit Table of Contents'), self.boss.edit_toc, 'edit-toc', (), _('Edit Table of Contents'))
 
     def create_menubar(self):
         b = self.menuBar()
