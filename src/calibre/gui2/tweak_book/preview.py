@@ -285,6 +285,7 @@ class Preview(QWidget):
 
     def refresh(self):
         if self.current_name:
+            self.refresh_timer.stop()
             # This will check if the current html has changed in its editor,
             # and re-parse it if so
             parse_worker.add_request(self.current_name)
