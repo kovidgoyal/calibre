@@ -122,7 +122,7 @@ class TextEdit(QPlainTextEdit):
         c.select(c.Document)
         c.insertText(text)
         c.endEditBlock()
-        c.setPosition(pos)
+        c.setPosition(min(pos, len(text)))
         self.setTextCursor(c)
         self.ensureCursorVisible()
 
