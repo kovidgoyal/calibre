@@ -20,6 +20,44 @@
 #   new recipes:
 #     - title: 
 
+- version: 1.10.0
+  date: 2013-11-08
+
+  new features:
+    - title: "Conversion: Treat .docm the same as .docx files, ignoring any macros in the file."
+      tickets: [1247565]
+
+    - title: "EPUB Output: Auto convert CMYK images to RGB. Works around the inability of Adobe Digital Editions to display CMYK images."
+      tickets: [1246710]
+
+    - title: "Quickview: Add a checkbox to lock the quickview window so that it does not change while moving around in the main book list"
+ 
+  bug fixes:
+    - title: "Fix number of marked books shown in the drop down menu of the Mark Books action not being updated when marked books are deleted (as opposed to being unmarked)."
+      tickets: [1248506]
+
+    - title: "Book list: Preserve the current column when using Ctrl+Home or Ctrl+End shortcuts"
+
+    - title: "Booklist: Fix using Page Up/Down keys moving book list by one row too many."
+      tickets: [1248109]
+
+    - title: "Metadata download: Do not auto trim downloaded covers as trimming can sometimes have undesirable effects."
+
+    - title: "Template language: Fix zero valued series indices not formatting correctly"
+      tickets: [1247348]
+
+    - title: "Fix a regression in 1.9 that broke bibtex catalog creation"
+
+    - title: "Quickview: Auto-close the quickview window when changing libraries. You have to open it again in the new library."
+
+    - title: "Linux binary build: Update the bundled version of zlib to fix library compatibility on some newer linux distros that have libpng16 compiled to require newer zlib versions"
+      tickets: [1247315]
+
+  improved recipes:
+    - New York Review of Books
+    - Various Polish news sources
+
+
 - version: 1.9.0
   date: 2013-11-01
 
