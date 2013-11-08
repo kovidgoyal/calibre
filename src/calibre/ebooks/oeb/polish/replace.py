@@ -78,6 +78,7 @@ def replace_links(container, link_map, frag_map=lambda name, frag:frag, replace_
 
 def smarten_punctuation(container, report):
     from calibre.ebooks.conversion.preprocess import smarten_punctuation
+    smartened = False
     for path in container.spine_items:
         name = container.abspath_to_name(path)
         changed = False
@@ -98,6 +99,9 @@ def smarten_punctuation(container, report):
             for m in root.xpath('descendant::*[local-name()="meta" and @http-equiv]'):
                 m.getparent().remove(m)
             container.dirty(name)
+            smartened = True
+    if not smartened:
+        report(_('No punctuation that could be smartened found'))
 
 def rename_files(container, file_map):
     overlap = set(file_map).intersection(set(file_map.itervalues()))
