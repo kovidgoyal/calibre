@@ -157,6 +157,7 @@ class Main(MainWindow):
         self.action_quit = reg('quit.png', _('&Quit'), self.boss.quit, 'quit', 'Ctrl+Q', _('Quit'))
 
         # Editor actions
+        group = _('Editor actions')
         self.action_editor_undo = reg('edit-undo.png', _('&Undo'), self.boss.do_editor_undo, 'editor-undo', 'Ctrl+Z',
                                       _('Undo typing'))
         self.action_editor_redo = reg('edit-redo.png', _('&Redo'), self.boss.do_editor_redo, 'editor-redo', 'Ctrl+Y',
@@ -169,6 +170,10 @@ class Main(MainWindow):
                                       _('Copy text'))
         self.action_editor_paste = reg('edit-paste.png', _('&Paste text'), self.boss.do_editor_paste, 'editor-paste', 'Ctrl+V',
                                       _('Paste text'))
+        self.action_editor_cut.setEnabled(False)
+        self.action_editor_copy.setEnabled(False)
+        self.action_editor_undo.setEnabled(False)
+        self.action_editor_redo.setEnabled(False)
 
     def create_menubar(self):
         b = self.menuBar()
@@ -181,6 +186,13 @@ class Main(MainWindow):
         e = b.addMenu(_('&Edit'))
         e.addAction(self.action_global_undo)
         e.addAction(self.action_global_redo)
+        e.addSeparator()
+        e.addAction(self.action_editor_undo)
+        e.addAction(self.action_editor_redo)
+        e.addSeparator()
+        e.addAction(self.action_editor_cut)
+        e.addAction(self.action_editor_copy)
+        e.addAction(self.action_editor_paste)
 
     def create_toolbar(self):
         self.global_bar = b = self.addToolBar(_('Global tool bar'))
