@@ -14,7 +14,7 @@ from PyQt4.Qt import (
     QTextEdit, QTextFormat, QWidget, QSize, QPainter, Qt, QRect)
 
 from calibre.gui2.tweak_book import tprefs
-from calibre.gui2.tweak_book.editor.themes import THEMES, DEFAULT_THEME, theme_color
+from calibre.gui2.tweak_book.editor.themes import THEMES, default_theme, theme_color
 from calibre.gui2.tweak_book.editor.syntax.base import SyntaxHighlighter
 from calibre.gui2.tweak_book.editor.syntax.html import HTMLHighlighter, XMLHighlighter
 from calibre.gui2.tweak_book.editor.syntax.css import CSSHighlighter
@@ -74,7 +74,7 @@ class TextEdit(QPlainTextEdit):
         self.setLineWrapMode(QPlainTextEdit.WidgetWidth if prefs['editor_line_wrap'] else QPlainTextEdit.NoWrap)
         theme = THEMES.get(prefs['editor_theme'], None)
         if theme is None:
-            theme = THEMES[DEFAULT_THEME]
+            theme = THEMES[default_theme()]
         self.apply_theme(theme)
 
     def apply_theme(self, theme):
@@ -113,6 +113,18 @@ class TextEdit(QPlainTextEdit):
         self.highlighter.apply_theme(self.theme)
         self.highlighter.setDocument(self.document())
         self.setPlainText(text)
+
+    def replace_text(self, text):
+        c = self.textCursor()
+        pos = c.position()
+        c.beginEditBlock()
+        c.clearSelection()
+        c.select(c.Document)
+        c.insertText(text)
+        c.endEditBlock()
+        c.setPosition(min(pos, len(text)))
+        self.setTextCursor(c)
+        self.ensureCursorVisible()
 
     # Line numbers and cursor line {{{
     def highlight_cursor_line(self):

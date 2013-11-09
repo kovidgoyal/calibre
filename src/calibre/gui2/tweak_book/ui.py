@@ -6,6 +6,8 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
+from functools import partial
+
 from PyQt4.Qt import (
     QDockWidget, Qt, QLabel, QIcon, QAction, QApplication, QWidget,
     QVBoxLayout, QStackedWidget, QTabWidget, QImage, QPixmap, pyqtSignal)
@@ -20,6 +22,7 @@ from calibre.gui2.tweak_book.keyboard import KeyboardManager
 from calibre.gui2.tweak_book.preview import Preview
 
 class Central(QStackedWidget):
+
     ' The central widget, hosts the editors '
 
     current_editor_changed = pyqtSignal()
@@ -106,9 +109,9 @@ class Main(MainWindow):
         self.keyboard = KeyboardManager()
 
         self.create_actions()
-        self.create_menubar()
-        self.create_toolbar()
+        self.create_toolbars()
         self.create_docks()
+        self.create_menubar()
 
         self.status_bar = self.statusBar()
         self.status_bar.addPermanentWidget(self.boss.save_manager.status_widget)
@@ -138,7 +141,8 @@ class Main(MainWindow):
         def reg(icon, text, target, sid, keys, description):
             ac = actions[sid] = QAction(QIcon(I(icon)), text, self)
             ac.setObjectName('action-' + sid)
-            ac.triggered.connect(target)
+            if target is not None:
+                ac.triggered.connect(target)
             if isinstance(keys, type('')):
                 keys = (keys,)
             self.keyboard.register_shortcut(
@@ -156,12 +160,44 @@ class Main(MainWindow):
         self.action_quit = reg('quit.png', _('&Quit'), self.boss.quit, 'quit', 'Ctrl+Q', _('Quit'))
 
         # Editor actions
+        group = _('Editor actions')
         self.action_editor_undo = reg('edit-undo.png', _('&Undo'), self.boss.do_editor_undo, 'editor-undo', 'Ctrl+Z',
                                       _('Undo typing'))
         self.action_editor_redo = reg('edit-redo.png', _('&Redo'), self.boss.do_editor_redo, 'editor-redo', 'Ctrl+Y',
                                       _('Redo typing'))
         self.action_editor_save = reg('save.png', _('&Save'), self.boss.do_editor_save, 'editor-save', 'Ctrl+S',
                                       _('Save changes to the current file'))
+        self.action_editor_cut = reg('edit-cut.png', _('C&ut text'), self.boss.do_editor_cut, 'editor-cut', ('Ctrl+X', 'Shift+Delete', ),
+                                      _('Cut text'))
+        self.action_editor_copy = reg('edit-copy.png', _('&Copy text'), self.boss.do_editor_copy, 'editor-copy', ('Ctrl+C', 'Ctrl+Insert'),
+                                      _('Copy text'))
+        self.action_editor_paste = reg('edit-paste.png', _('&Paste text'), self.boss.do_editor_paste, 'editor-paste', ('Ctrl+V', 'Shift+Insert', ),
+                                      _('Paste text'))
+        self.action_editor_cut.setEnabled(False)
+        self.action_editor_copy.setEnabled(False)
+        self.action_editor_undo.setEnabled(False)
+        self.action_editor_redo.setEnabled(False)
+
+        # Tool actions
+        group = _('Tools')
+        self.action_toc = reg('toc.png', _('&Edit Table of Contents'), self.boss.edit_toc, 'edit-toc', (), _('Edit Table of Contents'))
+
+        # Polish actions
+        group = _('Polish')
+        self.action_subset_fonts = reg(
+            'subset-fonts.png', _('&Subset embedded fonts'), partial(
+                self.boss.polish, 'subset', _('Subset fonts')), 'subset-fonts', (), _('Subset embedded fonts'))
+        self.action_embed_fonts = reg(
+            'embed-fonts.png', _('&Embed referenced fonts'), partial(
+                self.boss.polish, 'embed', _('Embed fonts')), 'embed-fonts', (), _('Embed referenced fonts'))
+        self.action_smarten_punctuation = reg(
+            'smarten-punctuation.png', _('&Smarten punctuation'), partial(
+                self.boss.polish, 'smarten_punctuation', _('Smarten punctuation')), 'smarten-punctuation', (), _('Smarten punctuation'))
+
+        # Preview actions
+        group = _('Preview')
+        self.action_auto_reload_preview = reg('auto-reload.png', _('Auto reload preview'), None, 'auto-reload-preview', (), _('Auto reload preview'))
+        self.action_reload_preview = reg('view-refresh.png', _('Refresh preview'), None, 'reload-preview', ('F5', 'Ctrl+R'), _('Refresh preview'))
 
     def create_menubar(self):
         b = self.menuBar()
@@ -174,29 +210,77 @@ class Main(MainWindow):
         e = b.addMenu(_('&Edit'))
         e.addAction(self.action_global_undo)
         e.addAction(self.action_global_redo)
+        e.addSeparator()
+        e.addAction(self.action_editor_undo)
+        e.addAction(self.action_editor_redo)
+        e.addSeparator()
+        e.addAction(self.action_editor_cut)
+        e.addAction(self.action_editor_copy)
+        e.addAction(self.action_editor_paste)
 
-    def create_toolbar(self):
-        self.global_bar = b = self.addToolBar(_('Global tool bar'))
-        b.setObjectName('global_bar')  # Needed for saveState
-        b.addAction(self.action_open_book)
-        b.addAction(self.action_global_undo)
-        b.addAction(self.action_global_redo)
-        b.addAction(self.action_save)
+        e = b.addMenu(_('&Tools'))
+        e.addAction(self.action_toc)
+        e.addAction(self.action_embed_fonts)
+        e.addAction(self.action_subset_fonts)
+        e.addAction(self.action_smarten_punctuation)
+
+        e = b.addMenu(_('&View'))
+        t = e.addMenu(_('Tool&bars'))
+        e.addSeparator()
+        for name, ac in actions.iteritems():
+            if name.endswith('-dock'):
+                e.addAction(ac)
+            elif name.endswith('-bar'):
+                t.addAction(ac)
+
+    def create_toolbars(self):
+        def create(text, name):
+            name += '-bar'
+            b = self.addToolBar(text)
+            b.setObjectName(name)  # Needed for saveState
+            setattr(self, name.replace('-', '_'), b)
+            actions[name] = b.toggleViewAction()
+            return b
+
+        a = create(_('Book tool bar'), 'global').addAction
+        for x in ('open_book', 'global_undo', 'global_redo', 'save', 'toc'):
+            a(getattr(self, 'action_' + x))
+
+        a = create(_('Polish book tool bar'), 'polish').addAction
+        for x in ('embed_fonts', 'subset_fonts', 'smarten_punctuation'):
+            a(getattr(self, 'action_' + x))
 
     def create_docks(self):
-        self.file_list_dock = d = QDockWidget(_('&Files Browser'), self)
-        d.setObjectName('file_list_dock')  # Needed for saveState
+
+        def create(name, oname):
+            oname += '-dock'
+            d = QDockWidget(name, self)
+            d.setObjectName(oname)  # Needed for saveState
+            ac = d.toggleViewAction()
+            desc = _('Toggle %s') % name.replace('&', '')
+            self.keyboard.register_shortcut(
+                oname, desc, description=desc, action=ac, group=_('Windows'))
+            actions[oname] = ac
+            setattr(self, oname.replace('-', '_'), d)
+            return d
+
+        d = create(_('&Files Browser'), 'files-browser')
         d.setAllowedAreas(Qt.LeftDockWidgetArea | Qt.RightDockWidgetArea)
         self.file_list = FileListWidget(d)
         d.setWidget(self.file_list)
         self.addDockWidget(Qt.LeftDockWidgetArea, d)
 
-        self.preview_dock = d = QDockWidget(_('&Book preview'), self)
-        d.setObjectName('file_list_dock')  # Needed for saveState
+        d = create(_('File &Preview'), 'preview')
         d.setAllowedAreas(Qt.LeftDockWidgetArea | Qt.RightDockWidgetArea)
         self.preview = Preview(d)
         d.setWidget(self.preview)
         self.addDockWidget(Qt.RightDockWidgetArea, d)
+
+        d = create(_('&Inspector'), 'inspector')
+        d.setAllowedAreas(Qt.LeftDockWidgetArea | Qt.RightDockWidgetArea | Qt.BottomDockWidgetArea | Qt.TopDockWidgetArea)
+        d.setWidget(self.preview.inspector)
+        self.preview.inspector.setParent(d)
+        self.addDockWidget(Qt.BottomDockWidgetArea, d)
 
     def resizeEvent(self, ev):
         self.blocking_job.resize(ev.size())
@@ -227,3 +311,8 @@ class Main(MainWindow):
         state = tprefs.get('main_window_state', None)
         if state is not None:
             self.restoreState(state, self.STATE_VERSION)
+        # We never want to start with the inspector showing
+        self.inspector_dock.close()
+
+    def contextMenuEvent(self, ev):
+        ev.ignore()

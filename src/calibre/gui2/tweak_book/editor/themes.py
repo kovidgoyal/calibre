@@ -8,21 +8,67 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
 from collections import namedtuple
 
-from PyQt4.Qt import (QColor, QTextCharFormat, QBrush, QFont)
+from PyQt4.Qt import (QColor, QTextCharFormat, QBrush, QFont, QApplication, QPalette)
 
 underline_styles = {'single', 'dash', 'dot', 'dash_dot', 'dash_dot_dot', 'wave', 'spell'}
 
-DEFAULT_THEME = 'calibre-dark'
+_default_theme = None
+def default_theme():
+    global _default_theme
+    if _default_theme is None:
+        isdark = QApplication.instance().palette().color(QPalette.WindowText).lightness() > 128
+        _default_theme = 'wombat-dark' if isdark else 'pyte-light'
+    return _default_theme
+
+# The solarized themes {{{
+SLDX = {'base03':'1c1c1c', 'base02':'262626', 'base01':'585858', 'base00':'626262', 'base0':'808080', 'base1':'8a8a8a', 'base2':'e4e4e4', 'base3':'ffffd7', 'yellow':'af8700', 'orange':'d75f00', 'red':'d70000', 'magenta':'af005f', 'violet':'5f5faf', 'blue':'0087ff', 'cyan':'00afaf', 'green':'5f8700'}  # noqa
+SLD  = {'base03':'002b36', 'base02':'073642', 'base01':'586e75', 'base00':'657b83', 'base0':'839496', 'base1':'93a1a1', 'base2':'eee8d5', 'base3':'fdf6e3', 'yellow':'b58900', 'orange':'cb4b16', 'red':'dc322f', 'magenta':'d33682', 'violet':'6c71c4', 'blue':'268bd2', 'cyan':'2aa198', 'green':'859900'}  # noqa
+m = {'base%d'%n:'base%02d'%n for n in xrange(1, 4)}
+m.update({'base%02d'%n:'base%d'%n for n in xrange(1, 4)})
+SLL = {m.get(k, k) : v for k, v in SLD.iteritems()}
+SLLX = {m.get(k, k) : v for k, v in SLDX.iteritems()}
+SOLARIZED = \
+    '''
+    CursorLine   bg={base02}
+    CursorColumn bg={base02}
+    ColorColumn  bg={base02}
+    MatchParen   fg={red} bg={base01} bold
+    Pmenu        fg={base0} bg={base02}
+    PmenuSel     fg={base01} bg={base2}
+
+    Cursor       fg={base03} bg={base0}
+    Normal       fg={base0} bg={base03}
+    LineNr       fg={base01} bg={base02}
+    LineNrC      fg={magenta}
+    Visual       fg={base01} bg={base03}
+
+    Comment      fg={base01} italic
+    Todo         fg={magenta} bold
+    String       fg={cyan}
+    Constant     fg={cyan}
+    Number       fg={cyan}
+    PreProc      fg={orange}
+    Identifier   fg={blue}
+    Function     fg={blue}
+    Type         fg={yellow}
+    Statement    fg={green} bold
+    Keyword      fg={green}
+    Special      fg={red}
+
+    Error        us=wave uc={red}
+    Tooltip      fg=black bg=ffffed
+    '''
+# }}}
 
 THEMES = {
-    'calibre-dark':  # {{{  Based on the wombat color scheme for vim
+    'wombat-dark':  # {{{
     '''
-    CursorLine   bg=2d2d2d
-    CursorColumn bg=2d2d2d
-    ColorColumn  bg=2d2d2d
+    CursorLine   bg={cursor_loc}
+    CursorColumn bg={cursor_loc}
+    ColorColumn  bg={cursor_loc}
     MatchParen   fg=f6f3e8 bg=857b6f bold
     Pmenu        fg=f6f3e8 bg=444444
-    PmenuSel     fg=yellow bg=cae682
+    PmenuSel     fg=yellow bg={identifier}
     Tooltip      fg=black bg=ffffed
 
     Cursor       bg=656565
@@ -31,27 +77,79 @@ THEMES = {
     LineNrC      fg=yellow
     Visual       fg=f6f3e8 bg=444444
 
-    Comment      fg=99968b
+    Comment      fg={comment}
     Todo         fg=8f8f8f
-    String       fg=95e454
-    Identifier   fg=cae682
-    Function     fg=cae682
-    Type         fg=cae682
-    Statement    fg=8ac6f2
-    Keyword      fg=8ac6f2
-    Constant     fg=e5786d
-    PreProc      fg=e5786d
-    Number       fg=e5786d
+    String       fg={string}
+    Constant     fg={constant}
+    Number       fg={constant}
+    PreProc      fg={constant}
+    Identifier   fg={identifier}
+    Function     fg={identifier}
+    Type         fg={identifier}
+    Statement    fg={keyword}
+    Keyword      fg={keyword}
     Special      fg=e7f6da
     Error        us=wave uc=red
 
-    ''',  # }}}
+    '''.format(
+        cursor_loc='2d2d2d',
+        identifier='cae682',
+        comment='99968b',
+        string='95e454',
+        keyword='8ac6f2',
+        constant='e5786d'),  # }}}
+
+    'pyte-light':  # {{{
+    '''
+    CursorLine   bg={cursor_loc}
+    CursorColumn bg={cursor_loc}
+    ColorColumn  bg={cursor_loc}
+    MatchParen   fg=white bg=80a090 bold
+    Pmenu        fg=white bg=808080
+    PmenuSel     fg=white bg=808080
+    Tooltip      fg=black bg=ffffed
+
+    Cursor       fg=black bg=b0b4b8
+    Normal       fg=404850 bg=f0f0f0
+    LineNr       fg=white bg=8090a0
+    LineNrC      fg=yellow
+    Visual       fg=white bg=8090a0
+
+    Comment      fg={comment} italic
+    Todo         fg={comment} italic bold
+    String       fg={string}
+    Constant     fg={constant}
+    Number       fg={constant}
+    PreProc      fg={constant}
+    Identifier   fg={identifier}
+    Function     fg={identifier}
+    Type         fg={identifier}
+    Statement    fg={keyword}
+    Keyword      fg={keyword}
+    Special      fg=70a0d0 italic
+    Error        us=wave uc=red
+
+    '''.format(
+        cursor_loc='white',
+        identifier='7b5694',
+        comment='a0b0c0',
+        string='4070a0',
+        keyword='007020',
+        constant='a07040'),  # }}}
+
+    'solarized-x-dark': SOLARIZED.format(**SLDX),
+    'solarized-dark': SOLARIZED.format(**SLD),
+    'solarized-light': SOLARIZED.format(**SLL),
+    'solarized-x-light': SOLARIZED.format(**SLLX),
 
 }
 
 def read_color(col):
     if QColor.isValidColor(col):
         return QBrush(QColor(col))
+    if col.startswith('rgb('):
+        r, g, b = map(int, (x.strip() for x in col[4:-1].split(',')))
+        return QBrush(QColor(r, g, b))
     try:
         r, g, b = col[0:2], col[2:4], col[4:6]
         r, g, b = int(r, 16), int(g, 16), int(b, 16)
@@ -122,5 +220,5 @@ def theme_color(theme, name, attr):
     try:
         return getattr(theme[name], attr).color()
     except (KeyError, AttributeError):
-        return getattr(THEMES[DEFAULT_THEME], attr).color()
+        return getattr(THEMES[default_theme()], attr).color()
 

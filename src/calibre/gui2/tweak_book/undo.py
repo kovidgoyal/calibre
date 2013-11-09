@@ -57,7 +57,7 @@ class GlobalUndoHistory(object):
         revert to state before creating savepoint. '''
         if self.pos > 0 and self.pos == len(self.states) - 1:
             self.pos -= 1
-            cleanup(self.states.pop())
+            cleanup([self.states.pop().container])
             ans = self.current_container
             ans.message = None
             return ans

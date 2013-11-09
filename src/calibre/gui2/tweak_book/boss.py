@@ -11,12 +11,12 @@ from functools import partial
 
 from PyQt4.Qt import (
     QObject, QApplication, QDialog, QGridLayout, QLabel, QSize, Qt,
-    QDialogButtonBox, QIcon, QTimer, QPixmap)
+    QDialogButtonBox, QIcon, QTimer, QPixmap, QTextBrowser, QVBoxLayout)
 
 from calibre import prints
 from calibre.ptempfile import PersistentTemporaryDirectory
 from calibre.ebooks.oeb.base import urlnormalize
-from calibre.ebooks.oeb.polish.main import SUPPORTED
+from calibre.ebooks.oeb.polish.main import SUPPORTED, tweak_polish
 from calibre.ebooks.oeb.polish.container import get_container as _gc, clone_container, guess_type
 from calibre.ebooks.oeb.polish.replace import rename_files
 from calibre.gui2 import error_dialog, choose_files, question_dialog, info_dialog
@@ -25,6 +25,7 @@ from calibre.gui2.tweak_book import set_current_container, current_container, tp
 from calibre.gui2.tweak_book.undo import GlobalUndoHistory
 from calibre.gui2.tweak_book.save import SaveManager
 from calibre.gui2.tweak_book.preview import parse_worker
+from calibre.gui2.tweak_book.toc import TOCEditor
 from calibre.gui2.tweak_book.editor import editor_from_syntax, syntax_from_mime
 
 def get_container(*args, **kwargs):
@@ -86,6 +87,9 @@ class Boss(QObject):
                   ' Convert your book to one of these formats first.') % _(' and ').join(sorted(SUPPORTED)),
                 show=True)
 
+        for name in tuple(editors):
+            self.close_editor(name)
+        self.gui.preview.clear()
         self.container_count = -1
         if self.tdir:
             shutil.rmtree(self.tdir, ignore_errors=True)
@@ -97,6 +101,7 @@ class Boss(QObject):
             return error_dialog(self.gui, _('Failed to open book'),
                     _('Failed to open book, click Show details for more information.'),
                                 det_msg=job.traceback, show=True)
+        parse_worker.clear()
         container = job.result
         set_current_container(container)
         self.current_metadata = self.gui.current_metadata = container.mi
@@ -106,12 +111,20 @@ class Boss(QObject):
         self.gui.action_save.setEnabled(False)
         self.update_global_history_actions()
 
+    def update_editors_from_container(self, container=None):
+        c = container or current_container()
+        for name, ed in tuple(editors.iteritems()):
+            if c.has_name(name):
+                ed.replace_data(c.raw_data(name))
+            else:
+                self.close_editor(name)
+
     def apply_container_update_to_gui(self):
         container = current_container()
         self.gui.file_list.build(container)
         self.update_global_history_actions()
         self.gui.action_save.setEnabled(True)
-        # TODO: Apply to other GUI elements
+        self.update_editors_from_container()
 
     def delete_requested(self, spine_items, other_items):
         if not self.check_dirtied():
@@ -126,7 +139,8 @@ class Boss(QObject):
         for name in list(spine_items) + list(other_items):
             if name in editors:
                 self.close_editor(name)
-        # TODO: Update other GUI elements
+        if not editors:
+            self.gui.preview.clear()
 
     def reorder_spine(self, items):
         # TODO: If content.opf is dirty in an editor, abort, calling
@@ -137,6 +151,41 @@ class Boss(QObject):
         self.gui.action_save.setEnabled(True)
         self.gui.file_list.build(current_container())  # needed as the linear flag may have changed on some items
         # TODO: If content.opf is open in an editor, reload it
+
+    def edit_toc(self):
+        if not self.check_dirtied():
+            return
+        self.add_savepoint(_('Edit Table of Contents'))
+        d = TOCEditor(title=self.current_metadata.title, parent=self.gui)
+        if d.exec_() != d.Accepted:
+            self.rewind_savepoint()
+            return
+        self.update_editors_from_container()
+
+    def polish(self, action, name):
+        if not self.check_dirtied():
+            return
+        self.add_savepoint(name)
+        try:
+            report = tweak_polish(current_container(), {action:True})
+        except:
+            self.rewind_savepoint()
+            raise
+        self.apply_container_update_to_gui()
+        from calibre.ebooks.markdown import markdown
+        report = markdown('# %s\n\n'%self.current_metadata.title + '\n\n'.join(report), output_format='html4')
+        d = QDialog(self.gui)
+        d.l = QVBoxLayout()
+        d.setLayout(d.l)
+        d.e = QTextBrowser(d)
+        d.l.addWidget(d.e)
+        d.e.setHtml(report)
+        d.bb = QDialogButtonBox(QDialogButtonBox.Close)
+        d.l.addWidget(d.bb)
+        d.bb.rejected.connect(d.reject)
+        d.bb.accepted.connect(d.accept)
+        d.resize(600, 400)
+        d.exec_()
 
     # Renaming {{{
     def rename_requested(self, oldname, newname):
@@ -172,7 +221,8 @@ class Boss(QObject):
                                 det_msg=job.traceback, show=True)
         self.gui.file_list.build(current_container())
         self.gui.action_save.setEnabled(True)
-        # TODO: Update the rest of the GUI
+        # TODO: Update the rest of the GUI. This means renaming open editors and
+        # then calling update_editors_from_container()
     # }}}
 
     # Global history {{{
@@ -234,6 +284,7 @@ class Boss(QObject):
             editor = editors[name] = editor_from_syntax(syntax, self.gui.editor_tabs)
             editor.undo_redo_state_changed.connect(self.editor_undo_redo_state_changed)
             editor.data_changed.connect(self.editor_data_changed)
+            editor.copy_available_state_changed.connect(self.editor_copy_available_state_changed)
             c = current_container()
             with c.open(name) as f:
                 editor.data = c.decode(f.read())
@@ -252,6 +303,7 @@ class Boss(QObject):
                 _('Editing files of type %s is not supported' % mime), show=True)
         self.edit_file(name, syntax)
 
+    # Editor basic controls {{{
     def do_editor_undo(self):
         ed = self.gui.central.current_editor
         if ed is not None:
@@ -262,16 +314,35 @@ class Boss(QObject):
         if ed is not None:
             ed.redo()
 
+    def do_editor_copy(self):
+        ed = self.gui.central.current_editor
+        if ed is not None:
+            ed.copy()
+
+    def do_editor_cut(self):
+        ed = self.gui.central.current_editor
+        if ed is not None:
+            ed.cut()
+
+    def do_editor_paste(self):
+        ed = self.gui.central.current_editor
+        if ed is not None:
+            ed.paste()
+
     def editor_data_changed(self, editor):
-        self.gui.preview.refresh_timer.start(tprefs['preview_refresh_time'] * 1000)
+        self.gui.preview.start_refresh_timer()
 
     def editor_undo_redo_state_changed(self, *args):
+        self.apply_current_editor_state(update_keymap=False)
+
+    def editor_copy_available_state_changed(self, *args):
         self.apply_current_editor_state(update_keymap=False)
 
     def editor_modification_state_changed(self, is_modified):
         self.apply_current_editor_state(update_keymap=False)
         if is_modified:
             actions['save-book'].setEnabled(True)
+    # }}}
 
     def apply_current_editor_state(self, update_keymap=True):
         ed = self.gui.central.current_editor
@@ -279,6 +350,8 @@ class Boss(QObject):
             actions['editor-undo'].setEnabled(ed.undo_available)
             actions['editor-redo'].setEnabled(ed.redo_available)
             actions['editor-save'].setEnabled(ed.is_modified)
+            actions['editor-cut'].setEnabled(ed.copy_available)
+            actions['editor-copy'].setEnabled(ed.cut_available)
             self.gui.keyboard.set_mode(ed.syntax)
             name = None
             for n, x in editors.iteritems():
@@ -308,6 +381,8 @@ class Boss(QObject):
         editor = editors.pop(name)
         self.gui.central.close_editor(editor)
         editor.break_cycles()
+        if not editors:
+            self.gui.preview.clear()
 
     def do_editor_save(self):
         ed = self.gui.central.current_editor
@@ -397,7 +472,7 @@ class Boss(QObject):
         QApplication.instance().quit()
 
     def shutdown(self):
-        self.gui.preview.refresh_timer.stop()
+        self.gui.preview.stop_refresh_timer()
         self.save_state()
         self.save_manager.shutdown()
         parse_worker.shutdown()
