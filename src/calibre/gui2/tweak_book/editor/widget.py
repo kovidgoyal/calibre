@@ -76,10 +76,16 @@ class Editor(QMainWindow):
         self.action_bar = b = self.addToolBar(_('File actions tool bar'))
         b.setObjectName('action_bar')  # Needed for saveState
         for x in ('save', 'undo', 'redo'):
-            b.addAction(actions['editor-%s' % x])
+            try:
+                b.addAction(actions['editor-%s' % x])
+            except KeyError:
+                pass
         self.edit_bar = b = self.addToolBar(_('Edit actions tool bar'))
         for x in ('cut', 'copy', 'paste'):
-            b.addAction(actions['editor-%s' % x])
+            try:
+                b.addAction(actions['editor-%s' % x])
+            except KeyError:
+                pass
 
     def break_cycles(self):
         self.modification_state_changed.disconnect()
@@ -136,7 +142,7 @@ def launch_editor(path_to_edit, path_is_raw=False, syntax='html'):
             syntax = 'css'
     app = QApplication([])
     t = Editor(syntax)
-    t.load_text(raw, syntax=syntax)
+    t.data = raw
     t.show()
     app.exec_()
 
