@@ -141,7 +141,8 @@ class Main(MainWindow):
         def reg(icon, text, target, sid, keys, description):
             ac = actions[sid] = QAction(QIcon(I(icon)), text, self)
             ac.setObjectName('action-' + sid)
-            ac.triggered.connect(target)
+            if target is not None:
+                ac.triggered.connect(target)
             if isinstance(keys, type('')):
                 keys = (keys,)
             self.keyboard.register_shortcut(
@@ -192,6 +193,10 @@ class Main(MainWindow):
         self.action_smarten_punctuation = reg(
             'smarten-punctuation.png', _('&Smarten punctuation'), partial(
                 self.boss.polish, 'smarten_punctuation', _('Smarten punctuation')), 'smarten-punctuation', (), _('Smarten punctuation'))
+
+        # Preview actions
+        self.action_auto_reload_preview = reg('auto-reload.png', _('Auto reload preview'), None, 'auto-reload-preview', (), _('Auto reload preview'))
+        self.action_reload_preview = reg('view-refresh.png', _('Refresh preview'), None, 'reload-preview', (), _('Refresh preview'))
 
     def create_menubar(self):
         b = self.menuBar()

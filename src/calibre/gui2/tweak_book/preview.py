@@ -12,7 +12,7 @@ from Queue import Queue, Empty
 
 from PyQt4.Qt import (
     QWidget, QVBoxLayout, QApplication, QSize, QNetworkAccessManager,
-    QNetworkReply, QTimer, QNetworkRequest, QUrl, Qt, QNetworkDiskCache)
+    QNetworkReply, QTimer, QNetworkRequest, QUrl, Qt, QNetworkDiskCache, QToolBar)
 from PyQt4.QtWebKit import QWebView
 
 from calibre import prints
@@ -20,7 +20,7 @@ from calibre.constants import iswindows
 from calibre.ebooks.oeb.polish.parsing import parse
 from calibre.ebooks.oeb.base import serialize, OEB_DOCS
 from calibre.ptempfile import PersistentTemporaryDirectory
-from calibre.gui2.tweak_book import current_container, editors, tprefs
+from calibre.gui2.tweak_book import current_container, editors, tprefs, actions
 from calibre.gui2.viewer.documentview import apply_settings
 from calibre.gui2.viewer.config import config
 from calibre.utils.ipc.simple_worker import offload_worker
@@ -269,6 +269,19 @@ class Preview(QWidget):
         l.setContentsMargins(0, 0, 0, 0)
         self.view = WebView(self)
         l.addWidget(self.view)
+        self.bar = QToolBar(self)
+        l.addWidget(self.bar)
+
+        ac = actions['auto-reload-preview']
+        ac.setCheckable(True)
+        ac.setChecked(True)
+        ac.toggled.connect(self.auto_reload_toggled)
+        self.auto_reload_toggled(ac.isChecked())
+        self.bar.addAction(ac)
+
+        ac = actions['reload-preview']
+        ac.triggered.connect(self.refresh)
+        self.bar.addAction(ac)
 
         self.current_name = None
         self.last_sync_request = None
@@ -301,7 +314,13 @@ class Preview(QWidget):
         self.view.clear()
 
     def start_refresh_timer(self):
-        self.refresh_timer.start(tprefs['preview_refresh_time'] * 1000)
+        if actions['auto-reload-preview'].isChecked():
+            self.refresh_timer.start(tprefs['preview_refresh_time'] * 1000)
 
     def stop_refresh_timer(self):
         self.refresh_timer.stop()
+
+    def auto_reload_toggled(self, checked):
+        actions['auto-reload-preview'].setToolTip(_(
+            'Auto reload preview when text changes in editor') if not checked else _(
+                'Disable auto reload of preview'))
