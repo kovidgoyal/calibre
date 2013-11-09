@@ -330,7 +330,7 @@ class Boss(QObject):
             ed.paste()
 
     def editor_data_changed(self, editor):
-        self.gui.preview.refresh_timer.start(tprefs['preview_refresh_time'] * 1000)
+        self.gui.preview.start_refresh_timer()
 
     def editor_undo_redo_state_changed(self, *args):
         self.apply_current_editor_state(update_keymap=False)
@@ -472,7 +472,7 @@ class Boss(QObject):
         QApplication.instance().quit()
 
     def shutdown(self):
-        self.gui.preview.refresh_timer.stop()
+        self.gui.preview.stop_refresh_timer()
         self.save_state()
         self.save_manager.shutdown()
         parse_worker.shutdown()

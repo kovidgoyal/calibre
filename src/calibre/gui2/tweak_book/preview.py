@@ -20,7 +20,7 @@ from calibre.constants import iswindows
 from calibre.ebooks.oeb.polish.parsing import parse
 from calibre.ebooks.oeb.base import serialize, OEB_DOCS
 from calibre.ptempfile import PersistentTemporaryDirectory
-from calibre.gui2.tweak_book import current_container, editors
+from calibre.gui2.tweak_book import current_container, editors, tprefs
 from calibre.gui2.viewer.documentview import apply_settings
 from calibre.gui2.viewer.config import config
 from calibre.utils.ipc.simple_worker import offload_worker
@@ -300,3 +300,8 @@ class Preview(QWidget):
     def clear(self):
         self.view.clear()
 
+    def start_refresh_timer(self):
+        self.refresh_timer.start(tprefs['preview_refresh_time'] * 1000)
+
+    def stop_refresh_timer(self):
+        self.refresh_timer.stop()
