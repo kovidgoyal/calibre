@@ -109,9 +109,9 @@ class Main(MainWindow):
         self.keyboard = KeyboardManager()
 
         self.create_actions()
-        self.create_menubar()
-        self.create_toolbar()
+        self.create_toolbars()
         self.create_docks()
+        self.create_menubar()
 
         self.status_bar = self.statusBar()
         self.status_bar.addPermanentWidget(self.boss.save_manager.status_widget)
@@ -224,20 +224,31 @@ class Main(MainWindow):
         e.addAction(self.action_subset_fonts)
         e.addAction(self.action_smarten_punctuation)
 
-    def create_toolbar(self):
-        self.global_bar = b = self.addToolBar(_('Book tool bar'))
-        b.setObjectName('global_bar')  # Needed for saveState
-        b.addAction(self.action_open_book)
-        b.addAction(self.action_global_undo)
-        b.addAction(self.action_global_redo)
-        b.addAction(self.action_save)
-        b.addAction(self.action_toc)
+        e = b.addMenu(_('&View'))
+        t = e.addMenu(_('Tool&bars'))
+        e.addSeparator()
+        for name, ac in actions.iteritems():
+            if name.endswith('-dock'):
+                e.addAction(ac)
+            elif name.endswith('-bar'):
+                t.addAction(ac)
 
-        self.polish_bar = b = self.addToolBar(_('Polish book tool bar'))
-        b.setObjectName('polish_bar')  # Needed for saveState
-        b.addAction(self.action_embed_fonts)
-        b.addAction(self.action_subset_fonts)
-        b.addAction(self.action_smarten_punctuation)
+    def create_toolbars(self):
+        def create(text, name):
+            name += '-bar'
+            b = self.addToolBar(text)
+            b.setObjectName(name)  # Needed for saveState
+            setattr(self, name.replace('-', '_'), b)
+            actions[name] = b.toggleViewAction()
+            return b
+
+        a = create(_('Book tool bar'), 'global').addAction
+        for x in ('open_book', 'global_undo', 'global_redo', 'save', 'toc'):
+            a(getattr(self, 'action_' + x))
+
+        a = create(_('Polish book tool bar'), 'polish').addAction
+        for x in ('embed_fonts', 'subset_fonts', 'smarten_punctuation'):
+            a(getattr(self, 'action_' + x))
 
     def create_docks(self):
 
@@ -302,3 +313,6 @@ class Main(MainWindow):
             self.restoreState(state, self.STATE_VERSION)
         # We never want to start with the inspector showing
         self.inspector_dock.close()
+
+    def contextMenuEvent(self, ev):
+        ev.ignore()

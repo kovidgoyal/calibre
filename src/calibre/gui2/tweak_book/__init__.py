@@ -24,5 +24,12 @@ def set_current_container(container):
     global _current_container
     _current_container = container
 
-actions = {}
-editors = {}
+class NonReplaceDict(dict):
+
+    def __setitem__(self, k, v):
+        if k in self:
+            raise ValueError('The key %s is already present' % k)
+        dict.__setitem__(self, k, v)
+
+actions = NonReplaceDict()
+editors = NonReplaceDict()
