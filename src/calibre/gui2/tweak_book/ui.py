@@ -195,8 +195,9 @@ class Main(MainWindow):
                 self.boss.polish, 'smarten_punctuation', _('Smarten punctuation')), 'smarten-punctuation', (), _('Smarten punctuation'))
 
         # Preview actions
+        group = _('Preview')
         self.action_auto_reload_preview = reg('auto-reload.png', _('Auto reload preview'), None, 'auto-reload-preview', (), _('Auto reload preview'))
-        self.action_reload_preview = reg('view-refresh.png', _('Refresh preview'), None, 'reload-preview', (), _('Refresh preview'))
+        self.action_reload_preview = reg('view-refresh.png', _('Refresh preview'), None, 'reload-preview', ('F5', 'Ctrl+R'), _('Refresh preview'))
 
     def create_menubar(self):
         b = self.menuBar()
@@ -239,19 +240,36 @@ class Main(MainWindow):
         b.addAction(self.action_smarten_punctuation)
 
     def create_docks(self):
-        self.file_list_dock = d = QDockWidget(_('&Files Browser'), self)
-        d.setObjectName('file_list_dock')  # Needed for saveState
+
+        def create(name, oname):
+            oname += '-dock'
+            d = QDockWidget(name, self)
+            d.setObjectName(oname)  # Needed for saveState
+            ac = d.toggleViewAction()
+            desc = _('Toggle %s') % name.replace('&', '')
+            self.keyboard.register_shortcut(
+                oname, desc, description=desc, action=ac, group=_('Windows'))
+            actions[oname] = ac
+            setattr(self, oname.replace('-', '_'), d)
+            return d
+
+        d = create(_('&Files Browser'), 'files-browser')
         d.setAllowedAreas(Qt.LeftDockWidgetArea | Qt.RightDockWidgetArea)
         self.file_list = FileListWidget(d)
         d.setWidget(self.file_list)
         self.addDockWidget(Qt.LeftDockWidgetArea, d)
 
-        self.preview_dock = d = QDockWidget(_('File &Preview'), self)
-        d.setObjectName('file_preview')  # Needed for saveState
+        d = create(_('File &Preview'), 'preview')
         d.setAllowedAreas(Qt.LeftDockWidgetArea | Qt.RightDockWidgetArea)
         self.preview = Preview(d)
         d.setWidget(self.preview)
         self.addDockWidget(Qt.RightDockWidgetArea, d)
+
+        d = create(_('&Inspector'), 'inspector')
+        d.setAllowedAreas(Qt.LeftDockWidgetArea | Qt.RightDockWidgetArea | Qt.BottomDockWidgetArea | Qt.TopDockWidgetArea)
+        d.setWidget(self.preview.inspector)
+        self.preview.inspector.setParent(d)
+        self.addDockWidget(Qt.BottomDockWidgetArea, d)
 
     def resizeEvent(self, ev):
         self.blocking_job.resize(ev.size())
@@ -282,3 +300,5 @@ class Main(MainWindow):
         state = tprefs.get('main_window_state', None)
         if state is not None:
             self.restoreState(state, self.STATE_VERSION)
+        # We never want to start with the inspector showing
+        self.inspector_dock.close()

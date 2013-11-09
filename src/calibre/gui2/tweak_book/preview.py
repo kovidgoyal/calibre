@@ -11,9 +11,9 @@ from threading import Thread
 from Queue import Queue, Empty
 
 from PyQt4.Qt import (
-    QWidget, QVBoxLayout, QApplication, QSize, QNetworkAccessManager,
+    QWidget, QVBoxLayout, QApplication, QSize, QNetworkAccessManager, QMenu, QIcon,
     QNetworkReply, QTimer, QNetworkRequest, QUrl, Qt, QNetworkDiskCache, QToolBar)
-from PyQt4.QtWebKit import QWebView
+from PyQt4.QtWebKit import QWebView, QWebInspector
 
 from calibre import prints
 from calibre.constants import iswindows
@@ -221,6 +221,7 @@ class WebView(QWebView):
 
     def __init__(self, parent=None):
         QWebView.__init__(self, parent)
+        self.inspector = QWebInspector(self)
         w = QApplication.instance().desktop().availableGeometry(self).width()
         self._size_hint = QSize(int(w/3), int(w/2))
         settings = self.page().settings()
@@ -260,6 +261,17 @@ class WebView(QWebView):
     def clear(self):
         self.setHtml('<p>')
 
+    def inspect(self):
+        self.inspector.parent().show()
+        self.inspector.parent().raise_()
+        self.pageAction(self.page().InspectElement).trigger()
+
+    def contextMenuEvent(self, ev):
+        menu = QMenu(self)
+        menu.addAction(actions['reload-preview'])
+        menu.addAction(QIcon(I('debug.png')), _('Inspect element'), self.inspect)
+        menu.exec_(ev.globalPos())
+
 class Preview(QWidget):
 
     def __init__(self, parent=None):
@@ -268,6 +280,8 @@ class Preview(QWidget):
         self.setLayout(l)
         l.setContentsMargins(0, 0, 0, 0)
         self.view = WebView(self)
+        self.inspector = self.view.inspector
+        self.inspector.setPage(self.view.page())
         l.addWidget(self.view)
         self.bar = QToolBar(self)
         l.addWidget(self.bar)
@@ -282,6 +296,8 @@ class Preview(QWidget):
         ac = actions['reload-preview']
         ac.triggered.connect(self.refresh)
         self.bar.addAction(ac)
+
+        actions['preview-dock'].toggled.connect(self.visibility_changed)
 
         self.current_name = None
         self.last_sync_request = None
@@ -313,8 +329,12 @@ class Preview(QWidget):
     def clear(self):
         self.view.clear()
 
+    @property
+    def is_visible(self):
+        return actions['preview-dock'].isChecked()
+
     def start_refresh_timer(self):
-        if actions['auto-reload-preview'].isChecked():
+        if self.is_visible and actions['auto-reload-preview'].isChecked():
             self.refresh_timer.start(tprefs['preview_refresh_time'] * 1000)
 
     def stop_refresh_timer(self):
@@ -324,3 +344,8 @@ class Preview(QWidget):
         actions['auto-reload-preview'].setToolTip(_(
             'Auto reload preview when text changes in editor') if not checked else _(
                 'Disable auto reload of preview'))
+
+    def visibility_changed(self, is_visible):
+        if is_visible:
+            self.refresh()
+
