@@ -1,3 +1,6 @@
+#!/usr/bin/env python
+# coding: utf-8
+
 '''
 Created on 13 Jan 2011
 
@@ -1285,6 +1288,21 @@ class BuiltinVirtualLibraries(BuiltinFormatterFunction):
             return mi._proxy_metadata.virtual_libraries
         return _('This function can be used only in the GUI')
 
+class BuiltinTransliterate(BuiltinFormatterFunction):
+    name = 'transliterate'
+    arg_count = 1
+    category = 'String manipulation'
+    __doc__ = doc = _('transliterate(a) -- Returns a string in a latin alphabet '
+                      'formed by approximating the sound of the words in the '
+                      'source string. For example, if the source is "Фёдор '
+                      'Миха́йлович Достоевский" the function returns "Fiodor '
+                      'Mikhailovich Dostoievskii".')
+
+    def evaluate(self, formatter, kwargs, mi, locals, source):
+        from calibre.utils.filenames import ascii_text
+        return ascii_text(source)
+
+
 _formatter_builtins = [
     BuiltinAdd(), BuiltinAnd(), BuiltinApproximateFormats(),
     BuiltinAssign(), BuiltinBooksize(),
@@ -1306,7 +1324,8 @@ _formatter_builtins = [
     BuiltinStrcmp(), BuiltinStrInList(), BuiltinStrlen(), BuiltinSubitems(),
     BuiltinSublist(),BuiltinSubstr(), BuiltinSubtract(), BuiltinSwapAroundComma(),
     BuiltinSwitch(), BuiltinTemplate(), BuiltinTest(), BuiltinTitlecase(),
-    BuiltinToday(), BuiltinUppercase(), BuiltinVirtualLibraries()
+    BuiltinToday(), BuiltinTransliterate(), BuiltinUppercase(),
+    BuiltinVirtualLibraries()
 ]
 
 class FormatterUserFunction(FormatterFunction):
