@@ -111,9 +111,9 @@ THEMES = {
 
     Cursor       fg=black bg=b0b4b8
     Normal       fg=404850 bg=f0f0f0
-    LineNr       fg=white bg=a0b0c0
+    LineNr       fg=white bg=8090a0
     LineNrC      fg=yellow
-    Visual       fg=black bg=lightyellow
+    Visual       fg=white bg=8090a0
 
     Comment      fg={comment} italic
     Todo         fg={comment} italic bold
