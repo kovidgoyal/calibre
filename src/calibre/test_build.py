@@ -15,6 +15,12 @@ Test a binary calibre build to ensure that all needed binary images/libraries ha
 import cStringIO
 from calibre.constants import plugins, iswindows
 
+def test_regex():
+    import regex
+    if regex.findall(r'(?i)(a)(b)', 'ab cd AB 1a1b') != [('a', 'b'), ('A', 'B')]:
+        raise ValueError('regex module failed on a simple search')
+    print ('regex OK!')
+
 def test_html5lib():
     import html5lib.html5parser  # noqa
     from html5lib import parse  # noqa
@@ -119,6 +125,7 @@ def test():
     test_woff()
     test_qt()
     test_html5lib()
+    test_regex()
     if iswindows:
         test_winutil()
         test_wpd()
