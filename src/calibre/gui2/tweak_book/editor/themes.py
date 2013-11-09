@@ -130,7 +130,7 @@ THEMES = {
     Error        us=wave uc=red
 
     '''.format(
-        cursor_loc='f6f6f6',
+        cursor_loc='white',
         identifier='7b5694',
         comment='a0b0c0',
         string='4070a0',
