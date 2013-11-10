@@ -291,9 +291,7 @@ class Boss(QObject):
         editor = editors.get(name, None)
         if editor is None:
             editor = editors[name] = editor_from_syntax(syntax, self.gui.editor_tabs)
-            c = current_container()
-            with c.open(name) as f:
-                data = c.decode(f.read())
+            data = current_container().raw_data(name)
             self.init_editor(name, editor, data)
         self.show_editor(name)
 
