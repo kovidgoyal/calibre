@@ -20,6 +20,7 @@ from calibre.gui2.tweak_book.job import BlockingJob
 from calibre.gui2.tweak_book.boss import Boss
 from calibre.gui2.tweak_book.keyboard import KeyboardManager
 from calibre.gui2.tweak_book.preview import Preview
+from calibre.gui2.tweak_book.search import SearchPanel
 
 class Central(QStackedWidget):
 
@@ -56,6 +57,9 @@ class Central(QStackedWidget):
             self.modified_icon = QIcon(I('modified.png'))
         self.editor_tabs.currentChanged.connect(self.current_editor_changed)
         self.editor_tabs.tabCloseRequested.connect(self._close_requested)
+        self.search_panel = SearchPanel(self)
+        l.addWidget(self.search_panel)
+        self.restore_state()
 
     def _close_requested(self, index):
         editor = self.editor_tabs.widget(index)
@@ -91,6 +95,17 @@ class Central(QStackedWidget):
     def current_editor(self):
         return self.editor_tabs.currentWidget()
 
+    def save_state(self):
+        tprefs.set('search-panel-visible', self.search_panel.isVisible())
+        self.search_panel.save_state()
+
+    def restore_state(self):
+        self.search_panel.setVisible(tprefs.get('search-panel-visible', False))
+        self.search_panel.restore_state()
+
+    def show_find(self):
+        self.search_panel.show_panel()
+
 class Main(MainWindow):
 
     APP_NAME = _('Tweak Book')
@@ -108,6 +123,9 @@ class Main(MainWindow):
         self.blocking_job = BlockingJob(self)
         self.keyboard = KeyboardManager()
 
+        self.central = Central(self)
+        self.setCentralWidget(self.central)
+
         self.create_actions()
         self.create_toolbars()
         self.create_docks()
@@ -119,9 +137,6 @@ class Main(MainWindow):
         f = self.status_bar.font()
         f.setBold(True)
         self.status_bar.setFont(f)
-
-        self.central = Central(self)
-        self.setCentralWidget(self.central)
 
         self.boss(self)
         g = QApplication.instance().desktop().availableGeometry(self)
@@ -198,6 +213,10 @@ class Main(MainWindow):
         group = _('Preview')
         self.action_auto_reload_preview = reg('auto-reload.png', _('Auto reload preview'), None, 'auto-reload-preview', (), _('Auto reload preview'))
         self.action_reload_preview = reg('view-refresh.png', _('Refresh preview'), None, 'reload-preview', ('F5', 'Ctrl+R'), _('Refresh preview'))
+
+        # Search actions
+        group = _('Search')
+        self.action_find = reg('search.png', _('&Find/Replace'), self.central.show_find, 'find-replace', ('Ctrl+F',), _('Find/Replace'))
 
     def create_menubar(self):
         b = self.menuBar()
@@ -303,6 +322,7 @@ class Main(MainWindow):
     def save_state(self):
         tprefs.set('main_window_geometry', bytearray(self.saveGeometry()))
         tprefs.set('main_window_state', bytearray(self.saveState(self.STATE_VERSION)))
+        self.central.save_state()
 
     def restore_state(self):
         geom = tprefs.get('main_window_geometry', None)
@@ -311,6 +331,7 @@ class Main(MainWindow):
         state = tprefs.get('main_window_state', None)
         if state is not None:
             self.restoreState(state, self.STATE_VERSION)
+        self.central.restore_state()
         # We never want to start with the inspector showing
         self.inspector_dock.close()
 
