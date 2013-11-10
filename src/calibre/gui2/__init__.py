@@ -862,27 +862,28 @@ class Application(QApplication):
         icon_map = {}
         pcache = {}
         for k, v in {
-                'DialogYesButton': u'ok.png',
-                'DialogNoButton': u'window-close.png',
-                'DialogCloseButton': u'window-close.png',
-                'DialogOkButton': u'ok.png',
-                'DialogCancelButton': u'window-close.png',
-                'DialogHelpButton': u'help.png',
-                'DialogOpenButton': u'document_open.png',
-                'DialogSaveButton': u'save.png',
-                'DialogApplyButton': u'ok.png',
-                'DialogDiscardButton': u'trash.png',
-                'MessageBoxInformation': u'dialog_information.png',
-                'MessageBoxWarning': u'dialog_warning.png',
-                'MessageBoxCritical': u'dialog_error.png',
-                'MessageBoxQuestion': u'dialog_question.png',
-                'BrowserReload': u'view-refresh.png',
-                # These two are used to calculate the sizes for the doc widget
-                # title bar buttons, therefore, they have to exist. The actual
-                # icon is not used.
-                'TitleBarCloseButton': u'window-close.png',
-                'TitleBarNormalButton': u'window-close.png',
-                }.iteritems():
+            'DialogYesButton': u'ok.png',
+            'DialogNoButton': u'window-close.png',
+            'DialogCloseButton': u'window-close.png',
+            'DialogOkButton': u'ok.png',
+            'DialogCancelButton': u'window-close.png',
+            'DialogHelpButton': u'help.png',
+            'DialogOpenButton': u'document_open.png',
+            'DialogSaveButton': u'save.png',
+            'DialogApplyButton': u'ok.png',
+            'DialogDiscardButton': u'trash.png',
+            'MessageBoxInformation': u'dialog_information.png',
+            'MessageBoxWarning': u'dialog_warning.png',
+            'MessageBoxCritical': u'dialog_error.png',
+            'MessageBoxQuestion': u'dialog_question.png',
+            'BrowserReload': u'view-refresh.png',
+            # These two are used to calculate the sizes for the doc widget
+            # title bar buttons, therefore, they have to exist. The actual
+            # icon is not used.
+            'TitleBarCloseButton': u'window-close.png',
+            'TitleBarNormalButton': u'window-close.png',
+            'DockWidgetCloseButton': u'window-close.png',
+        }.iteritems():
             if v not in pcache:
                 p = I(v)
                 if isinstance(p, bytes):
