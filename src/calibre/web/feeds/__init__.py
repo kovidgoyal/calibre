@@ -78,7 +78,6 @@ class Article(object):
             self._title = clean_ascii_chars(val)
         return property(fget=fget, fset=fset)
 
-
     def __repr__(self):
         return \
 (u'''\
@@ -97,7 +96,7 @@ Has content : %s
         return repr(self)
 
     def is_same_as(self, other_article):
-        #if self.title != getattr(other_article, 'title', False):
+        # if self.title != getattr(other_article, 'title', False):
         #    return False
         if self.url:
             return self.url == getattr(other_article, 'url', False)
@@ -137,7 +136,6 @@ class Feed(object):
                 break
             self.parse_article(item)
 
-
     def populate_from_preparsed_feed(self, title, articles, oldest_article=7,
                            max_articles_per_feed=100):
         self.title      = unicode(title if title else _('Unknown feed'))
@@ -175,7 +173,6 @@ class Feed(object):
                         (title, t, self.title))
             d = item.get('date', '')
             article.formatted_date = d
-
 
     def parse_article(self, item):
         self.id_counter += 1
@@ -219,7 +216,8 @@ class Feed(object):
             self.articles.append(article)
         else:
             try:
-                self.logger.debug('Skipping article %s (%s) from feed %s as it is too old.'%(title, article.localtime.strftime('%a, %d %b, %Y %H:%M'), self.title))
+                self.logger.debug('Skipping article %s (%s) from feed %s as it is too old.'%
+                                  (title, article.localtime.strftime('%a, %d %b, %Y %H:%M'), self.title))
             except UnicodeDecodeError:
                 if not isinstance(title, unicode):
                     title = title.decode('utf-8', 'replace')
@@ -310,7 +308,7 @@ class FeedCollection(list):
         self.duplicates = duplicates
         print len(duplicates)
         print map(len, self)
-        #raise
+        # raise
 
     def find_article(self, article):
         for j, f in enumerate(self):
