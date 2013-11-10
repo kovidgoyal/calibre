@@ -18,7 +18,7 @@ from calibre.gui2.viewer.toc import TOC
 from calibre.gui2.widgets import ProgressIndicator
 from calibre.gui2.main_window import MainWindow
 from calibre.gui2 import (Application, ORG_NAME, APP_UID, choose_files,
-    info_dialog, error_dialog, open_url, available_height)
+    info_dialog, error_dialog, open_url, available_height, setup_gui_option_parser, detach_gui)
 from calibre.ebooks.oeb.iterator.book import EbookIterator
 from calibre.ebooks import DRMError
 from calibre.constants import islinux, filesystem_encoding
@@ -1183,11 +1183,13 @@ def config(defaults=None):
 
 def option_parser():
     c = config()
-    return c.option_parser(usage=_('''\
+    parser = c.option_parser(usage=_('''\
 %prog [options] file
 
 View an ebook.
 '''))
+    setup_gui_option_parser(parser)
+    return parser
 
 
 def main(args=sys.argv):
@@ -1197,6 +1199,8 @@ def main(args=sys.argv):
 
     parser = option_parser()
     opts, args = parser.parse_args(args)
+    if getattr(opts, 'detach', False):
+        detach_gui()
     try:
         open_at = float(opts.open_at)
     except:

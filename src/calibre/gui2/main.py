@@ -12,8 +12,9 @@ from calibre import prints, plugins, force_unicode
 from calibre.constants import (iswindows, __appname__, isosx, DEBUG, islinux,
         filesystem_encoding, get_portable_base)
 from calibre.utils.ipc import gui_socket_address, RC
-from calibre.gui2 import (ORG_NAME, APP_UID, initialize_file_icon_provider,
-    Application, choose_dir, error_dialog, question_dialog, gprefs)
+from calibre.gui2 import (
+    ORG_NAME, APP_UID, initialize_file_icon_provider, Application, choose_dir,
+    error_dialog, question_dialog, gprefs, detach_gui, setup_gui_option_parser)
 from calibre.gui2.main_window import option_parser as _option_parser
 from calibre.utils.config import prefs, dynamic
 
@@ -46,6 +47,7 @@ path_to_ebook to the database.
             help=_('Cause a running calibre instance, if any, to be'
                 ' shutdown. Note that if there are running jobs, they '
                 'will be silently aborted, so use with care.'))
+    setup_gui_option_parser(parser)
     return parser
 
 def find_portable_library():
@@ -84,6 +86,8 @@ def find_portable_library():
 def init_qt(args):
     parser = option_parser()
     opts, args = parser.parse_args(args)
+    if getattr(opts, 'detach', False):
+        detach_gui()
     find_portable_library()
     if opts.with_library is not None:
         libpath = os.path.expanduser(opts.with_library)
