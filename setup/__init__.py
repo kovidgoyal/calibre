@@ -13,7 +13,8 @@ iswindows = re.search('win(32|64)', sys.platform)
 isosx = 'darwin' in sys.platform
 isfreebsd = 'freebsd' in sys.platform
 isnetbsd = 'netbsd' in sys.platform
-isbsd = isnetbsd or isfreebsd
+isdragonflybsd = 'dragonfly' in sys.platform
+isbsd = isnetbsd or isfreebsd or isdragonflybsd
 islinux = not isosx and not iswindows and not isbsd
 SRC = os.path.abspath('src')
 sys.path.insert(0, SRC)
