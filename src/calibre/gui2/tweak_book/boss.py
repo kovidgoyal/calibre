@@ -278,19 +278,28 @@ class Boss(QObject):
                      _('Saving of the book failed. Click "Show Details"'
                        ' for more information.'), det_msg=tb, show=True)
 
+    def init_editor(self, name, editor, data=None):
+        editor.undo_redo_state_changed.connect(self.editor_undo_redo_state_changed)
+        editor.data_changed.connect(self.editor_data_changed)
+        editor.copy_available_state_changed.connect(self.editor_copy_available_state_changed)
+        if data is not None:
+            editor.data = data
+        editor.modification_state_changed.connect(self.editor_modification_state_changed)
+        self.gui.central.add_editor(name, editor)
+
     def edit_file(self, name, syntax):
         editor = editors.get(name, None)
         if editor is None:
             editor = editors[name] = editor_from_syntax(syntax, self.gui.editor_tabs)
-            editor.undo_redo_state_changed.connect(self.editor_undo_redo_state_changed)
-            editor.data_changed.connect(self.editor_data_changed)
-            editor.copy_available_state_changed.connect(self.editor_copy_available_state_changed)
             c = current_container()
             with c.open(name) as f:
-                editor.data = c.decode(f.read())
-            editor.modification_state_changed.connect(self.editor_modification_state_changed)
-            self.gui.central.add_editor(name, editor)
-        self.gui.central.show_editor(editor)
+                data = c.decode(f.read())
+            self.init_editor(name, editor, data)
+        self.show_editor(name)
+
+    def show_editor(self, name):
+        self.gui.central.show_editor(editors[name])
+        editors[name].set_focus()
 
     def edit_file_requested(self, name, syntax, mime):
         if name in editors:

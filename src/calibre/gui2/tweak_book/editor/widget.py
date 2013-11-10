@@ -58,6 +58,9 @@ class Editor(QMainWindow):
         if current != raw:
             self.editor.replace_text(raw)
 
+    def set_focus(self):
+        self.editor.setFocus(Qt.OtherFocusReason)
+
     def undo(self):
         self.editor.undo()
 
