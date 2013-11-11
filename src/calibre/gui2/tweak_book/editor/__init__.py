@@ -6,6 +6,8 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
+from PyQt4.Qt import QTextCharFormat
+
 from calibre.ebooks.oeb.base import OEB_DOCS, OEB_STYLES
 from calibre.ebooks.oeb.polish.container import guess_type
 
@@ -24,4 +26,12 @@ def editor_from_syntax(syntax, parent=None):
         return None
     from calibre.gui2.tweak_book.editor.widget import Editor
     return Editor(syntax, parent=parent)
+
+SYNTAX_PROPERTY = QTextCharFormat.UserProperty
+
+class SyntaxTextCharFormat(QTextCharFormat):
+
+    def __init__(self, *args, **kwargs):
+        QTextCharFormat.__init__(self, *args, **kwargs)
+        self.setProperty(SYNTAX_PROPERTY, True)
 

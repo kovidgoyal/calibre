@@ -14,6 +14,7 @@ from PyQt4.Qt import (
     QTextEdit, QTextFormat, QWidget, QSize, QPainter, Qt, QRect)
 
 from calibre.gui2.tweak_book import tprefs
+from calibre.gui2.tweak_book.editor import SYNTAX_PROPERTY
 from calibre.gui2.tweak_book.editor.themes import THEMES, default_theme, theme_color
 from calibre.gui2.tweak_book.editor.syntax.base import SyntaxHighlighter
 from calibre.gui2.tweak_book.editor.syntax.html import HTMLHighlighter, XMLHighlighter
@@ -211,7 +212,7 @@ class TextEdit(QPlainTextEdit):
             return
         pos = cursor.positionInBlock()
         for r in cursor.block().layout().additionalFormats():
-            if r.start <= pos < r.start + r.length:
+            if r.start <= pos < r.start + r.length and r.format.property(SYNTAX_PROPERTY).toBool():
                 return r.format
 
     def show_tooltip(self, ev):

@@ -8,7 +8,9 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
 from collections import namedtuple
 
-from PyQt4.Qt import (QColor, QTextCharFormat, QBrush, QFont, QApplication, QPalette)
+from PyQt4.Qt import (QColor, QBrush, QFont, QApplication, QPalette)
+
+from calibre.gui2.tweak_book.editor import SyntaxTextCharFormat
 
 underline_styles = {'single', 'dash', 'dot', 'dash_dot', 'dash_dot_dot', 'wave', 'spell'}
 
@@ -198,10 +200,10 @@ def u(x):
     if 'Dot' in x:
         return x + 'Line'
     return x + 'Underline'
-underline_styles = {x:getattr(QTextCharFormat, u(x)) for x in underline_styles}
+underline_styles = {x:getattr(SyntaxTextCharFormat, u(x)) for x in underline_styles}
 
 def highlight_to_char_format(h):
-    ans = QTextCharFormat()
+    ans = SyntaxTextCharFormat()
     if h.bold:
         ans.setFontWeight(QFont.Bold)
     if h.italic:
