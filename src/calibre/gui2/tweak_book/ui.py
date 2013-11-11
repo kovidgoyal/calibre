@@ -154,7 +154,7 @@ class Main(MainWindow):
         group = _('Global Actions')
 
         def reg(icon, text, target, sid, keys, description):
-            ac = actions[sid] = QAction(QIcon(I(icon)), text, self)
+            ac = actions[sid] = QAction(QIcon(I(icon)), text, self) if icon else QAction(text, self)
             ac.setObjectName('action-' + sid)
             if target is not None:
                 ac.triggered.connect(target)
@@ -212,11 +212,27 @@ class Main(MainWindow):
         # Preview actions
         group = _('Preview')
         self.action_auto_reload_preview = reg('auto-reload.png', _('Auto reload preview'), None, 'auto-reload-preview', (), _('Auto reload preview'))
-        self.action_reload_preview = reg('view-refresh.png', _('Refresh preview'), None, 'reload-preview', ('F5', 'Ctrl+R'), _('Refresh preview'))
+        self.action_reload_preview = reg('view-refresh.png', _('Refresh preview'), None, 'reload-preview', ('F5',), _('Refresh preview'))
 
         # Search actions
         group = _('Search')
-        self.action_find = reg('search.png', _('&Find/Replace'), self.central.show_find, 'find-replace', ('Ctrl+F',), _('Find/Replace'))
+        self.action_find = reg('search.png', _('&Find/Replace'), self.central.show_find, 'find-replace', ('Ctrl+F',), _('Show the Find/Replace panel'))
+        def sreg(name, text, action, overrides={}, keys=(), description=None, icon=None):
+            return reg(icon, text, partial(self.boss.search, action, overrides), name, keys, description or text.replace('&', ''))
+        self.action_find_next = sreg('find-next', _('Find &Next'),
+                                     'find', {'direction':'down'}, ('F3', 'Ctrl+G'), _('Find next match'))
+        self.action_find_previous = sreg('find-previous', _('Find &Previous'),
+                                         'find', {'direction':'up'}, ('Shift+F3', 'Shift+Ctrl+G'), _('Find previous match'))
+        self.action_replace = sreg('replace', _('Replace'),
+                                   'replace', keys=('Ctrl+R'), description=_('Replace current match'))
+        self.action_replace_next = sreg('replace-next', _('&Replace and find next'),
+                                        'replace-find', {'direction':'down'}, ('Ctrl+]'), _('Replace current match and find next'))
+        self.action_replace_previous = sreg('replace-previous', _('R&eplace and find previous'),
+                                        'replace-find', {'direction':'up'}, ('Ctrl+['), _('Replace current match and find previous'))
+        self.action_replace_all = sreg('replace-all', _('Replace &all'),
+                                   'replace-all', keys=('Ctrl+A'), description=_('Replace all matches'))
+        self.action_count = sreg('count-matches', _('&Count all'),
+                                   'count', keys=('Ctrl+N'), description=_('Count number of matches'))
 
     def create_menubar(self):
         b = self.menuBar()
@@ -251,6 +267,20 @@ class Main(MainWindow):
                 e.addAction(ac)
             elif name.endswith('-bar'):
                 t.addAction(ac)
+
+        e = b.addMenu(_('&Search'))
+        a = e.addAction
+        a(self.action_find)
+        e.addSeparator()
+        a(self.action_find_next)
+        a(self.action_find_previous)
+        e.addSeparator()
+        a(self.action_replace)
+        a(self.action_replace_next)
+        a(self.action_replace_previous)
+        a(self.action_replace_all)
+        e.addSeparator()
+        a(self.action_count)
 
     def create_toolbars(self):
         def create(text, name):

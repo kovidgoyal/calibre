@@ -52,6 +52,7 @@ class Boss(QObject):
         fl.edit_file.connect(self.edit_file_requested)
         self.gui.central.current_editor_changed.connect(self.apply_current_editor_state)
         self.gui.central.close_requested.connect(self.editor_close_requested)
+        self.gui.central.search_panel.search_triggered.connect(self.search)
 
     def mkdtemp(self, prefix=''):
         self.container_count += 1
@@ -257,6 +258,50 @@ class Boss(QObject):
             set_current_container(container)
             self.update_global_history_actions()
     # }}}
+
+    def search(self, action, overrides=None):
+        ' Run a search/replace '
+        sp = self.gui.central.search_panel
+        # Ensure the search panel is visible
+        sp.setVisible(True)
+        ed = self.gui.central.current_editor
+        name = None
+        for n, x in editors.iteritems():
+            if x is ed:
+                name = n
+                break
+        state = sp.state
+        if overrides:
+            state.update(overrides)
+        searchable_names = self.gui.file_list.searchable_names
+        where = state['where']
+        err = None
+        if name is None and where in {'current', 'selected-text'}:
+            err = _('No file is being edited.')
+        elif where == 'selected' and not searchable_names['selected']:
+            err = _('No files are selected in the Files Browser')
+        if not err and not state['find']:
+            err = _('No search query specified')
+        if err:
+            return error_dialog(self.gui, _('Cannot search'), err, show=True)
+        del err
+        if where == 'current':
+            files = [name]
+            editor = ed
+        elif where in {'styles', 'text', 'selected'}:
+            files = searchable_names[where]
+            if name in files:
+                editor = ed
+            else:
+                common = set(editors).intersection(set(files))
+                if common:
+                    name = next(x for x in files if x in common)
+                    editor = editors[name]
+                    self.gui.central.show_editor(editor)
+                else:
+                    pass  # TODO: Find the first name with a match and open its editor
+        else:
+            pass  # selected text TODO: Implement this
 
     def save_book(self):
         c = current_container()

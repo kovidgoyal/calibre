@@ -21,11 +21,9 @@ REGEX_FLAGS = regex.VERSION1 | regex.WORD | regex.FULLCASE | regex.MULTILINE | r
 
 class PushButton(QPushButton):
 
-    triggered = pyqtSignal(object)
-
     def __init__(self, text, action, parent):
         QPushButton.__init__(self, text, parent)
-        self.clicked.connect(lambda : self.triggered.emit(action))
+        self.clicked.connect(lambda : parent.search_triggered.emit(action))
 
 class SearchWidget(QWidget):
 
@@ -37,6 +35,8 @@ class SearchWidget(QWidget):
         'wrap': True,
         'dot_all': False,
     }
+
+    search_triggered = pyqtSignal(object)
 
     def __init__(self, parent=None):
         QWidget.__init__(self, parent)
@@ -168,7 +168,7 @@ class SearchWidget(QWidget):
 
     @dynamic_property
     def where(self):
-        wm = {0:'current', 1:'text', 2:'style', 3:'selected-files', 4:'selected-text'}
+        wm = {0:'current', 1:'text', 2:'styles', 3:'selected', 4:'selected-text'}
         def fget(self):
             return wm[self.where_box.currentIndex()]
         def fset(self, val):
@@ -223,7 +223,11 @@ class SearchWidget(QWidget):
     def save_state(self):
         tprefs.set('find-widget-state', self.state)
 
+# }}}
+
 class SearchPanel(QWidget):
+
+    search_triggered = pyqtSignal(object)
 
     def __init__(self, parent=None):
         QWidget.__init__(self, parent)
@@ -241,6 +245,7 @@ class SearchPanel(QWidget):
         self.widget = SearchWidget(self)
         l.addWidget(self.widget)
         self.restore_state, self.save_state = self.widget.restore_state, self.widget.save_state
+        self.widget.search_triggered.connect(self.search_triggered)
 
     def hide_panel(self):
         self.setVisible(False)
@@ -248,5 +253,11 @@ class SearchPanel(QWidget):
     def show_panel(self):
         self.setVisible(True)
         self.widget.find_text.setFocus(Qt.OtherFocusReason)
-# }}}
+
+    @property
+    def state(self):
+        ans = self.widget.state
+        ans['find'] = self.widget.find
+        ans['replace'] = self.widget.replace
+        return ans
 

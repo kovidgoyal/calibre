@@ -338,6 +338,26 @@ class FileList(QTreeWidget):
         syntax = {'text':'html', 'styles':'css'}.get(category, None)
         self.edit_file.emit(name, syntax, mime)
 
+    @property
+    def all_files(self):
+        return (category.child(i) for category in self.categories.itervalues() for i in xrange(category.childCount()))
+
+    @property
+    def searchable_names(self):
+        ans = {'text':[], 'styles':[], 'selected':[]}
+        for item in self.all_files:
+            category = unicode(item.data(0, CATEGORY_ROLE).toString())
+            mime = unicode(item.data(0, MIME_ROLE).toString())
+            name = unicode(item.data(0, NAME_ROLE).toString())
+            ok = category in {'text', 'styles'}
+            if ok:
+                ans[category].append(name)
+            if not ok and category == 'misc':
+                ok = mime in {guess_type('a.'+x) for x in ('opf', 'ncx', 'txt', 'xml')}
+            if ok and item.isSelected():
+                ans['selected'].append(name)
+        return ans
+
 class FileListWidget(QWidget):
 
     delete_requested = pyqtSignal(object, object)
@@ -359,4 +379,7 @@ class FileListWidget(QWidget):
     def build(self, container, preserve_state=True):
         self.file_list.build(container, preserve_state=preserve_state)
 
+    @property
+    def searchable_names(self):
+        return self.file_list.searchable_names
 
