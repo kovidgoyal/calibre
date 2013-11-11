@@ -233,6 +233,7 @@ class Main(MainWindow):
                                    'replace-all', keys=('Ctrl+A'), description=_('Replace all matches'))
         self.action_count = sreg('count-matches', _('&Count all'),
                                    'count', keys=('Ctrl+N'), description=_('Count number of matches'))
+        self.action_mark = reg(None, _('&Mark selected text'), self.boss.mark_selected_text, 'mark-selected-text', ('Ctrl+Shift+M',), _('Mark selected text'))
 
     def create_menubar(self):
         b = self.menuBar()
@@ -281,6 +282,8 @@ class Main(MainWindow):
         a(self.action_replace_all)
         e.addSeparator()
         a(self.action_count)
+        e.addSeparator()
+        a(self.action_mark)
 
     def create_toolbars(self):
         def create(text, name):

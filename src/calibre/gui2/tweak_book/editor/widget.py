@@ -67,6 +67,9 @@ class Editor(QMainWindow):
     def redo(self):
         self.editor.redo()
 
+    def mark_selected_text(self):
+        self.editor.mark_selected_text()
+
     @dynamic_property
     def is_modified(self):
         def fget(self):

@@ -259,6 +259,12 @@ class Boss(QObject):
             self.update_global_history_actions()
     # }}}
 
+    def mark_selected_text(self):
+        ed = self.gui.central.current_editor
+        if ed is not None:
+            ed.mark_selected_text()
+        self.gui.central.search_panel.set_where('selected-text')
+
     def search(self, action, overrides=None):
         ' Run a search/replace '
         sp = self.gui.central.search_panel

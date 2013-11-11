@@ -49,6 +49,8 @@ class TextEdit(QPlainTextEdit):
 
     def __init__(self, parent=None):
         QPlainTextEdit.__init__(self, parent)
+        self.current_cursor_line = None
+        self.current_search_mark = None
         self.highlighter = SyntaxHighlighter(self)
         self.apply_settings()
         self.setMouseTracking(True)
@@ -107,6 +109,7 @@ class TextEdit(QPlainTextEdit):
         w = self.fontMetrics()
         self.number_width = max(map(lambda x:w.width(str(x)), xrange(10)))
         self.size_hint = QSize(100 * w.averageCharWidth(), 50 * w.height())
+        self.highlight_color = theme_color(theme, 'HighlightRegion', 'bg')
     # }}}
 
     def load_text(self, text, syntax='html'):
@@ -127,6 +130,24 @@ class TextEdit(QPlainTextEdit):
         self.setTextCursor(c)
         self.ensureCursorVisible()
 
+    def update_extra_selections(self):
+        sel = []
+        if self.current_cursor_line is not None:
+            sel.append(self.current_cursor_line)
+        if self.current_search_mark is not None:
+            sel.append(self.current_search_mark)
+        self.setExtraSelections(sel)
+
+    def mark_selected_text(self):
+        sel = QTextEdit.ExtraSelection()
+        sel.format.setBackground(self.highlight_color)
+        sel.cursor = self.textCursor()
+        self.current_search_mark = sel
+        self.update_extra_selections()
+        c = self.textCursor()
+        c.clearSelection()
+        self.setTextCursor(c)
+
     # Line numbers and cursor line {{{
     def highlight_cursor_line(self):
         sel = QTextEdit.ExtraSelection()
@@ -134,7 +155,8 @@ class TextEdit(QPlainTextEdit):
         sel.format.setProperty(QTextFormat.FullWidthSelection, True)
         sel.cursor = self.textCursor()
         sel.cursor.clearSelection()
-        self.setExtraSelections([sel])
+        self.current_cursor_line = sel
+        self.update_extra_selections()
         # Update the cursor line's line number in the line number area
         try:
             self.line_number_area.update(0, self.last_current_lnum[0], self.line_number_area.width(), self.last_current_lnum[1])

@@ -34,6 +34,7 @@ SOLARIZED = \
     CursorLine   bg={base02}
     CursorColumn bg={base02}
     ColorColumn  bg={base02}
+    HighlightRegion bg={base00}
     MatchParen   fg={red} bg={base01} bold
     Pmenu        fg={base0} bg={base02}
     PmenuSel     fg={base01} bg={base2}
@@ -68,6 +69,7 @@ THEMES = {
     CursorLine   bg={cursor_loc}
     CursorColumn bg={cursor_loc}
     ColorColumn  bg={cursor_loc}
+    HighlightRegion bg=323232
     MatchParen   fg=f6f3e8 bg=857b6f bold
     Pmenu        fg=f6f3e8 bg=444444
     PmenuSel     fg=yellow bg={identifier}
@@ -106,6 +108,7 @@ THEMES = {
     CursorLine   bg={cursor_loc}
     CursorColumn bg={cursor_loc}
     ColorColumn  bg={cursor_loc}
+    HighlightRegion bg=E3F988
     MatchParen   fg=white bg=80a090 bold
     Pmenu        fg=white bg=808080
     PmenuSel     fg=white bg=808080

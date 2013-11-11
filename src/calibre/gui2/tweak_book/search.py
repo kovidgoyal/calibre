@@ -219,6 +219,8 @@ class SearchWidget(QWidget):
 
     def restore_state(self):
         self.state = tprefs.get('find-widget-state', self.DEFAULT_STATE)
+        if self.where == 'selected-text':
+            self.where = self.DEFAULT_STATE['where']
 
     def save_state(self):
         tprefs.set('find-widget-state', self.state)
@@ -260,4 +262,7 @@ class SearchPanel(QWidget):
         ans['find'] = self.widget.find
         ans['replace'] = self.widget.replace
         return ans
+
+    def set_where(self, val):
+        self.widget.where = val
 
