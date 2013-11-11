@@ -142,11 +142,14 @@ class TextEdit(QPlainTextEdit):
         sel = QTextEdit.ExtraSelection()
         sel.format.setBackground(self.highlight_color)
         sel.cursor = self.textCursor()
-        self.current_search_mark = sel
+        if sel.cursor.hasSelection():
+            self.current_search_mark = sel
+            c = self.textCursor()
+            c.clearSelection()
+            self.setTextCursor(c)
+        else:
+            self.current_search_mark = None
         self.update_extra_selections()
-        c = self.textCursor()
-        c.clearSelection()
-        self.setTextCursor(c)
 
     # Line numbers and cursor line {{{
     def highlight_cursor_line(self):
