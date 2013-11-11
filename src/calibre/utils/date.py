@@ -13,6 +13,7 @@ from functools import partial
 from dateutil.tz import tzlocal, tzutc, EPOCHORDINAL
 
 from calibre import strftime
+from calibre.constants import iswindows
 
 class SafeLocalTimeZone(tzlocal):
 
@@ -216,9 +217,15 @@ def utcfromtimestamp(stamp):
     except ValueError:
         # Raised if stamp if out of range for the platforms gmtime function
         # We print the error for debugging, but otherwise ignore it
-        import traceback
-        traceback.print_exc()
-        return utcnow()
+        # Special-case handling for Windows pre-epoch values
+        if iswindows and stamp < 0:
+            epoch = datetime(1970, 1, 1)
+            pre_epoch = epoch + timedelta(seconds=(stamp))
+            return pre_epoch.replace(tzinfo=_utc_tz)
+        else:
+            import traceback
+            traceback.print_exc()
+            return utcnow()
 
 # Format date functions
 

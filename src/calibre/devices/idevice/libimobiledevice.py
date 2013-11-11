@@ -601,7 +601,7 @@ class libiMobileDevice():
         error = self.lib.afc_remove_path(byref(self.afc), str(path))
 
         if error:
-            self._log(" ERROR: %s" % self._afc_error(error))
+            self._log_error(" ERROR: %s path:%s" % (self._afc_error(error), repr(path)))
 
     def stat(self, path):
         '''
@@ -650,7 +650,7 @@ class libiMobileDevice():
 
         error = self.lib.afc_client_free(byref(self.afc)) & 0xFFFF
         if error:
-            self._log(" ERROR: %s" % self._afc_error(error))
+            self._log_error(" ERROR: %s" % self._afc_error(error))
 
     def _afc_client_new(self):
         '''
@@ -810,7 +810,7 @@ class libiMobileDevice():
         error = self.lib.afc_file_close(byref(self.afc),
                                         handle) & 0xFFFF
         if error:
-            self._log(" ERROR: %s" % self._afc_error(error))
+            self._log_error(" ERROR: %s handle:%s" % (self._afc_error(error), handle))
 
     def _afc_file_open(self, filename, mode='r'):
         '''
@@ -850,7 +850,7 @@ class libiMobileDevice():
                                            byref(handle)) & 0xFFFF
 
         if error:
-            self._log(" ERROR: %s" % self._afc_error(error))
+            self._log_error(" ERROR: %s filename:%s" % (self._afc_error(error), repr(filename)))
             return None
         else:
             return handle
@@ -887,13 +887,13 @@ class libiMobileDevice():
                                            size,
                                            byref(bytes_read)) & 0xFFFF
             if error:
-                self._log(" ERROR: %s" % self._afc_error(error))
+                self._log_error(" ERROR: %s handle:%s" % (self._afc_error(error), handle))
             return data
         else:
             data = create_string_buffer(size)
             error = self.lib.afc_file_read(byref(self.afc), handle, byref(data), size, byref(bytes_read))
             if error:
-                self._log(" ERROR: %s" % self._afc_error(error))
+                self._log_error(" ERROR: %s handle:%s" % (self._afc_error(error), handle))
             return data.value
 
     def _afc_file_write(self, handle, content, mode='w'):
@@ -933,7 +933,7 @@ class libiMobileDevice():
                                         len(content),
                                         byref(bytes_written)) & 0xFFFF
         if error:
-            self._log(" ERROR: %s" % self._afc_error(error))
+            self._log_error(" ERROR: %s handle:%s" % (self._afc_error(error), handle))
             return False
         return True
 
@@ -1012,7 +1012,7 @@ class libiMobileDevice():
                                            byref(infolist)) & 0xFFFF
         file_stats = {}
         if error:
-            self._log(" ERROR: %s" % self._afc_error(error))
+            self._log_error(" ERROR: %s path:%s" % (self._afc_error(error), repr(path)))
         else:
             num_items = 0
             item_list = []
@@ -1049,7 +1049,7 @@ class libiMobileDevice():
         error = self.lib.afc_make_directory(byref(self.afc),
                                             str(path)) & 0xFFFF
         if error:
-            self._log(" ERROR: %s" % self._afc_error(error))
+            self._log_error(" ERROR: %s path:%s" % (self._afc_error(error), repr(path)))
 
         return error
 
@@ -1078,7 +1078,7 @@ class libiMobileDevice():
                                             str(directory),
                                             byref(dirs)) & 0xFFFF
         if error:
-            self._log(" ERROR: %s" % self._afc_error(error))
+            self._log_error(" ERROR: %s directory:%s" % (self._afc_error(error), repr(directory)))
         else:
             num_dirs = 0
             dir_list = []
@@ -1126,7 +1126,7 @@ class libiMobileDevice():
         error = self.lib.house_arrest_client_free(byref(self.house_arrest)) & 0xFFFF
         if error:
             error = error - 0x10000
-            self._log(" ERROR: %s" % self._house_arrest_error(error))
+            self._log_error(" ERROR: %s" % self._house_arrest_error(error))
 
     def _house_arrest_client_new(self):
         '''
@@ -1302,7 +1302,7 @@ class libiMobileDevice():
 
         if error:
             error = error - 0x10000
-            self._log(" ERROR: %s" % self._idevice_error(error))
+            self._log_error(" ERROR: %s" % self._idevice_error(error))
 
     def _idevice_get_device_list(self):
         '''
@@ -1326,7 +1326,7 @@ class libiMobileDevice():
                 self._log(" no connected devices")
             else:
                 device_list = None
-                self._log(" ERROR: %s" % self._idevice_error(error))
+                self._log_error(" ERROR: %s" % self._idevice_error(error))
         else:
             index = 0
             while devices[index]:
@@ -1858,6 +1858,20 @@ class libiMobileDevice():
             debug_print(" %s" % msg)
         else:
             debug_print()
+
+    def _log_error(self, *args):
+        '''
+        Print error message with location regardless of self.verbose
+        '''
+        arg1 = arg2 = ''
+
+        if len(args) > 0:
+            arg1 = args[0]
+        if len(args) > 1:
+            arg2 = args[1]
+
+        debug_print(self.LOCATION_TEMPLATE.format(cls=self.__class__.__name__,
+            func=sys._getframe(1).f_code.co_name, arg1=arg1, arg2=arg2))
 
     def _log_location(self, *args):
         '''
