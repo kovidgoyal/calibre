@@ -263,7 +263,8 @@ class Boss(QObject):
         ed = self.gui.central.current_editor
         if ed is not None:
             ed.mark_selected_text()
-        self.gui.central.search_panel.set_where('selected-text')
+            if ed.has_marked_text:
+                self.gui.central.search_panel.set_where('selected-text')
 
     def search(self, action, overrides=None):
         ' Run a search/replace '
@@ -286,6 +287,9 @@ class Boss(QObject):
             err = _('No file is being edited.')
         elif where == 'selected' and not searchable_names['selected']:
             err = _('No files are selected in the Files Browser')
+        elif where == 'selected-text' and not ed.has_marked_text:
+            err = _('No text is marked. First select some text, and then use'
+                    ' The "Mark selected text" action in the Search menu to mark it.')
         if not err and not state['find']:
             err = _('No search query specified')
         if err:
@@ -307,7 +311,7 @@ class Boss(QObject):
                 else:
                     pass  # TODO: Find the first name with a match and open its editor
         else:
-            pass  # selected text TODO: Implement this
+            pass  # marked text TODO: Implement this
 
     def save_book(self):
         c = current_container()

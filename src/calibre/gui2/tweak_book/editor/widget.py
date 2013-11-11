@@ -70,6 +70,10 @@ class Editor(QMainWindow):
     def mark_selected_text(self):
         self.editor.mark_selected_text()
 
+    @property
+    def has_marked_text(self):
+        return self.editor.current_search_mark is not None
+
     @dynamic_property
     def is_modified(self):
         def fget(self):
