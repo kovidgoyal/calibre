@@ -386,8 +386,13 @@ class LinuxFreeze(Command):
                     mod = __import__(sys.calibre_module, fromlist=[1])
                     func = getattr(mod, sys.calibre_function)
                     return func()
-                except SystemExit:
-                    raise
+                except SystemExit as err:
+                    if err.code is None:
+                        return 0
+                    if isinstance(err.code, int):
+                        return err.code
+                    print (err.code)
+                    return 1
                 except:
                     import traceback
                     traceback.print_exc()
