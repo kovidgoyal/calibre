@@ -154,11 +154,14 @@ class TextEdit(QPlainTextEdit):
             self.current_search_mark = None
         self.update_extra_selections()
 
-    def find(self, pat):
+    def find(self, pat, wrap=False):
         reverse = pat.flags & regex.REVERSE
         c = self.textCursor()
         c.clearSelection()
-        c.movePosition(c.Start if reverse else c.End, c.KeepAnchor)
+        pos = c.Start if reverse else c.End
+        if wrap:
+            pos = c.End if reverse else c.Start
+        c.movePosition(pos, c.KeepAnchor)
         raw = unicode(c.selectedText()).replace(PARAGRAPH_SEPARATOR, '\n')
         m = pat.search(raw)
         if m is None:
@@ -166,12 +169,17 @@ class TextEdit(QPlainTextEdit):
         start, end = m.span()
         if start == end:
             return False
-        if reverse:
-            # Put the cursor at the start of the match
-            start, end = end, start
+        if wrap:
+            if reverse:
+                textpos = c.anchor()
+                start, end = textpos + end, textpos + start
         else:
-            textpos = c.anchor()
-            start, end = textpos + start, textpos + end
+            if reverse:
+                # Put the cursor at the start of the match
+                start, end = end, start
+            else:
+                textpos = c.anchor()
+                start, end = textpos + start, textpos + end
         c.clearSelection()
         c.setPosition(start)
         c.setPosition(end, c.KeepAnchor)

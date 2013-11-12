@@ -311,14 +311,31 @@ class Boss(QObject):
                 else:
                     pass  # TODO: Find the first name with a match and open its editor
         else:
+            files = [name]
             pass  # marked text TODO: Implement this
 
+        def no_match():
+            return error_dialog(
+                self.gui, _('Not found'), _(
+                'No matches were found for %s') % state['find'], show=True)
+
         pat = sp.get_regex(state)
-        if action == 'find':
+
+        def do_find():
             found = editor.find(pat)
             if found:
                 return
-            # TODO: Handle wrapping, depending on state['where']
+            if len(files) == 1:
+                if not state['wrap']:
+                    return no_match()
+                found = editor.find(pat, wrap=True)
+                if not found:
+                    return no_match()
+            else:
+                pass  # TODO: handle multiple file search
+
+        if action == 'find':
+            return do_find()
 
     def save_book(self):
         c = current_container()
