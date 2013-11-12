@@ -313,6 +313,13 @@ class Boss(QObject):
         else:
             pass  # marked text TODO: Implement this
 
+        pat = sp.get_regex(state)
+        if action == 'find':
+            found = editor.find(pat)
+            if found:
+                return
+            # TODO: Handle wrapping, depending on state['where']
+
     def save_book(self):
         c = current_container()
         for name, ed in editors.iteritems():

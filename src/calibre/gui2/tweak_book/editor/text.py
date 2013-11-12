@@ -9,6 +9,7 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 import textwrap
 from future_builtins import map
 
+import regex
 from PyQt4.Qt import (
     QPlainTextEdit, QFontDatabase, QToolTip, QPalette, QFont,
     QTextEdit, QTextFormat, QWidget, QSize, QPainter, Qt, QRect)
@@ -19,6 +20,8 @@ from calibre.gui2.tweak_book.editor.themes import THEMES, default_theme, theme_c
 from calibre.gui2.tweak_book.editor.syntax.base import SyntaxHighlighter
 from calibre.gui2.tweak_book.editor.syntax.html import HTMLHighlighter, XMLHighlighter
 from calibre.gui2.tweak_book.editor.syntax.css import CSSHighlighter
+
+PARAGRAPH_SEPARATOR = '\u2029'
 
 _dff = None
 def default_font_family():
@@ -150,6 +153,40 @@ class TextEdit(QPlainTextEdit):
         else:
             self.current_search_mark = None
         self.update_extra_selections()
+
+    def find(self, pat):
+        reverse = pat.flags & regex.REVERSE
+        c = self.textCursor()
+        c.clearSelection()
+        c.movePosition(c.Start if reverse else c.End, c.KeepAnchor)
+        raw = unicode(c.selectedText()).replace(PARAGRAPH_SEPARATOR, '\n')
+        m = pat.search(raw)
+        if m is None:
+            return False
+        start, end = m.span()
+        if start == end:
+            return False
+        if reverse:
+            # Put the cursor at the start of the match
+            start, end = end, start
+        else:
+            textpos = c.anchor()
+            start, end = textpos + start, textpos + end
+        c.clearSelection()
+        c.setPosition(start)
+        c.setPosition(end, c.KeepAnchor)
+        self.setTextCursor(c)
+        return True
+
+    def replace(self, pat, template):
+        c = self.textCursor()
+        raw = unicode(c.selectedText()).replace(PARAGRAPH_SEPARATOR, '\n')
+        m = pat.fullmatch(raw)
+        if m is None:
+            return False
+        text = m.expand(template)
+        c.insertText(text)
+        return True
 
     # Line numbers and cursor line {{{
     def highlight_cursor_line(self):

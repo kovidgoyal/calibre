@@ -70,6 +70,12 @@ class Editor(QMainWindow):
     def mark_selected_text(self):
         self.editor.mark_selected_text()
 
+    def find(self, *args, **kwargs):
+        return self.editor.find(*args, **kwargs)
+
+    def replace(self, *args, **kwargs):
+        return self.editor.replace(*args, **kwargs)
+
     @property
     def has_marked_text(self):
         return self.editor.current_search_mark is not None

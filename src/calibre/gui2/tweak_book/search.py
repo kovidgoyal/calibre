@@ -12,7 +12,7 @@ from PyQt4.Qt import (
 
 import regex
 
-from calibre.gui2.widgets import HistoryLineEdit
+from calibre.gui2.widgets2 import HistoryLineEdit2
 from calibre.gui2.tweak_book import tprefs
 
 REGEX_FLAGS = regex.VERSION1 | regex.WORD | regex.FULLCASE | regex.MULTILINE | regex.UNICODE
@@ -46,15 +46,16 @@ class SearchWidget(QWidget):
 
         self.fl = fl = QLabel(_('&Find:'))
         fl.setAlignment(Qt.AlignRight | Qt.AlignCenter)
-        self.find_text = ft = HistoryLineEdit(self)
+        self.find_text = ft = HistoryLineEdit2(self)
         ft.initialize('tweak_book_find_edit')
+        ft.returnPressed.connect(lambda : self.search_triggered.emit('find'))
         fl.setBuddy(ft)
         l.addWidget(fl, 0, 0)
         l.addWidget(ft, 0, 1)
 
         self.rl = rl = QLabel(_('&Replace:'))
         rl.setAlignment(Qt.AlignRight | Qt.AlignCenter)
-        self.replace_text = rt = HistoryLineEdit(self)
+        self.replace_text = rt = HistoryLineEdit2(self)
         rt.initialize('tweak_book_replace_edit')
         rl.setBuddy(rt)
         l.addWidget(rl, 1, 0)
@@ -153,7 +154,7 @@ class SearchWidget(QWidget):
     @dynamic_property
     def find(self):
         def fget(self):
-            return unicode(self.find_text.text()).strip()
+            return unicode(self.find_text.text())
         def fset(self, val):
             self.find_text.setText(val)
         return property(fget=fget, fset=fset)
@@ -161,7 +162,7 @@ class SearchWidget(QWidget):
     @dynamic_property
     def replace(self):
         def fget(self):
-            return unicode(self.replace_text.text()).strip()
+            return unicode(self.replace_text.text())
         def fset(self, val):
             self.replace_text.setText(val)
         return property(fget=fget, fset=fset)
@@ -227,6 +228,8 @@ class SearchWidget(QWidget):
 
 # }}}
 
+regex_cache = {}
+
 class SearchPanel(QWidget):
 
     search_triggered = pyqtSignal(object)
@@ -265,4 +268,20 @@ class SearchPanel(QWidget):
 
     def set_where(self, val):
         self.widget.where = val
+
+    def get_regex(self, state):
+        raw = state['find']
+        if state['mode'] != 'regex':
+            raw = regex.escape(raw, special_only=True)
+        flags = REGEX_FLAGS
+        if not state['case_sensitive']:
+            flags |= regex.IGNORECASE
+        if state['mode'] == 'regex' and state['dot_all']:
+            flags |= regex.DOTALL
+        if state['direction'] == 'up':
+            flags |= regex.REVERSE
+        ans = regex_cache.get((flags, raw), None)
+        if ans is None:
+            ans = regex_cache[(flags, raw)] = regex.compile(raw, flags=flags)
+        return ans
 
