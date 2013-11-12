@@ -11,17 +11,20 @@ import sys, os
 from PyQt4.Qt import QIcon
 
 from calibre.constants import islinux
-from calibre.gui2 import Application, ORG_NAME, APP_UID
+from calibre.gui2 import Application, ORG_NAME, APP_UID, setup_gui_option_parser, detach_gui
 from calibre.ptempfile import reset_base_dir
 from calibre.utils.config import OptionParser
 from calibre.gui2.tweak_book.ui import Main
 
 def option_parser():
-    return OptionParser('''\
+    parser =  OptionParser('''\
 %prog [opts] [path_to_ebook]
 
 Launch the calibre tweak book tool.
 ''')
+    setup_gui_option_parser(parser)
+    return parser
+
 
 def main(args=sys.argv):
     # Ensure we can continue to function if GUI is closed
@@ -30,6 +33,8 @@ def main(args=sys.argv):
 
     parser = option_parser()
     opts, args = parser.parse_args(args)
+    if getattr(opts, 'detach', False):
+        detach_gui()
     override = 'calibre-tweak-book' if islinux else None
     app = Application(args, override_program_name=override)
     app.load_builtin_fonts()

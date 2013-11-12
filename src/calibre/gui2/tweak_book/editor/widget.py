@@ -58,11 +58,27 @@ class Editor(QMainWindow):
         if current != raw:
             self.editor.replace_text(raw)
 
+    def set_focus(self):
+        self.editor.setFocus(Qt.OtherFocusReason)
+
     def undo(self):
         self.editor.undo()
 
     def redo(self):
         self.editor.redo()
+
+    def mark_selected_text(self):
+        self.editor.mark_selected_text()
+
+    def find(self, *args, **kwargs):
+        return self.editor.find(*args, **kwargs)
+
+    def replace(self, *args, **kwargs):
+        return self.editor.replace(*args, **kwargs)
+
+    @property
+    def has_marked_text(self):
+        return self.editor.current_search_mark is not None
 
     @dynamic_property
     def is_modified(self):

@@ -8,9 +8,8 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import re
 
+from calibre.gui2.tweak_book.editor import SyntaxTextCharFormat
 from calibre.gui2.tweak_book.editor.syntax.base import SyntaxHighlighter
-
-from PyQt4.Qt import QTextCharFormat
 
 space_pat = re.compile(r'[ \n\t\r\f]+')
 cdo_pat = re.compile(r'/\*')
@@ -242,7 +241,7 @@ def create_formats(highlighter):
         'unknown-normal': _('Invalid text'),
         'unterminated-string': _('Unterminated string'),
     }.iteritems():
-        f = formats[name] = QTextCharFormat(formats['error'])
+        f = formats[name] = SyntaxTextCharFormat(formats['error'])
         f.setToolTip(msg)
     return formats
 

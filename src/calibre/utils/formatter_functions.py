@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# coding: utf-8
+# vim:fileencoding=utf-8
 
 '''
 Created on 13 Jan 2011
@@ -135,6 +135,7 @@ class FormatterFunction(object):
             return unicode(ret)
 
 class BuiltinFormatterFunction(FormatterFunction):
+
     def __init__(self):
         formatter_functions().register_builtin(self)
         eval_func = inspect.getmembers(self.__class__,
@@ -355,7 +356,7 @@ class BuiltinLookup(BuiltinFormatterFunction):
             'variable save paths')
 
     def evaluate(self, formatter, kwargs, mi, locals, val, *args):
-        if len(args) == 2: # here for backwards compatibility
+        if len(args) == 2:  # here for backwards compatibility
             if val:
                 return formatter.vformat('{'+args[0].strip()+'}', [], kwargs)
             else:
@@ -744,11 +745,11 @@ class BuiltinFormatNumber(BuiltinFormatterFunction):
             v1 = float(val)
         except:
             return ''
-        try: # Try formatting the value as a float
+        try:  # Try formatting the value as a float
             return template.format(v1)
         except:
             pass
-        try: # Try formatting the value as an int
+        try:  # Try formatting the value as an int
             v2 = trunc(v1)
             if v2 == v1:
                 return template.format(v2)
@@ -1292,11 +1293,11 @@ class BuiltinTransliterate(BuiltinFormatterFunction):
     name = 'transliterate'
     arg_count = 1
     category = 'String manipulation'
-    __doc__ = doc = _('transliterate(a) -- Returns a string in a latin alphabet '
-                      'formed by approximating the sound of the words in the '
-                      'source string. For example, if the source is "Фёдор '
-                      'Миха́йлович Достоевский" the function returns "Fiodor '
-                      'Mikhailovich Dostoievskii".')
+    __doc__ = doc = _(u'transliterate(a) -- Returns a string in a latin alphabet '
+                      u'formed by approximating the sound of the words in the '
+                      u'source string. For example, if the source is "Фёдор '
+                      u'Миха́йлович Достоевский" the function returns "Fiodor '
+                      u'Mikhailovich Dostoievskii".')
 
     def evaluate(self, formatter, kwargs, mi, locals, source):
         from calibre.utils.filenames import ascii_text
@@ -1329,6 +1330,7 @@ _formatter_builtins = [
 ]
 
 class FormatterUserFunction(FormatterFunction):
+
     def __init__(self, name, doc, arg_count, program_text):
         self.name = name
         self.doc = doc
@@ -1338,9 +1340,9 @@ class FormatterUserFunction(FormatterFunction):
 tabs = re.compile(r'^\t*')
 def compile_user_function(name, doc, arg_count, eval_func):
     def replace_func(mo):
-        return  mo.group().replace('\t', '    ')
+        return mo.group().replace('\t', '    ')
 
-    func = '    ' + '\n    '.join([tabs.sub(replace_func, line )
+    func = '    ' + '\n    '.join([tabs.sub(replace_func, line)
                                    for line in eval_func.splitlines()])
     prog = '''
 from calibre.utils.formatter_functions import FormatterUserFunction

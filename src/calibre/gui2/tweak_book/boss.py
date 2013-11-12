@@ -52,6 +52,7 @@ class Boss(QObject):
         fl.edit_file.connect(self.edit_file_requested)
         self.gui.central.current_editor_changed.connect(self.apply_current_editor_state)
         self.gui.central.close_requested.connect(self.editor_close_requested)
+        self.gui.central.search_panel.search_triggered.connect(self.search)
 
     def mkdtemp(self, prefix=''):
         self.container_count += 1
@@ -258,6 +259,84 @@ class Boss(QObject):
             self.update_global_history_actions()
     # }}}
 
+    def mark_selected_text(self):
+        ed = self.gui.central.current_editor
+        if ed is not None:
+            ed.mark_selected_text()
+            if ed.has_marked_text:
+                self.gui.central.search_panel.set_where('selected-text')
+
+    def search(self, action, overrides=None):
+        ' Run a search/replace '
+        sp = self.gui.central.search_panel
+        # Ensure the search panel is visible
+        sp.setVisible(True)
+        ed = self.gui.central.current_editor
+        name = None
+        for n, x in editors.iteritems():
+            if x is ed:
+                name = n
+                break
+        state = sp.state
+        if overrides:
+            state.update(overrides)
+        searchable_names = self.gui.file_list.searchable_names
+        where = state['where']
+        err = None
+        if name is None and where in {'current', 'selected-text'}:
+            err = _('No file is being edited.')
+        elif where == 'selected' and not searchable_names['selected']:
+            err = _('No files are selected in the Files Browser')
+        elif where == 'selected-text' and not ed.has_marked_text:
+            err = _('No text is marked. First select some text, and then use'
+                    ' The "Mark selected text" action in the Search menu to mark it.')
+        if not err and not state['find']:
+            err = _('No search query specified')
+        if err:
+            return error_dialog(self.gui, _('Cannot search'), err, show=True)
+        del err
+        if where == 'current':
+            files = [name]
+            editor = ed
+        elif where in {'styles', 'text', 'selected'}:
+            files = searchable_names[where]
+            if name in files:
+                editor = ed
+            else:
+                common = set(editors).intersection(set(files))
+                if common:
+                    name = next(x for x in files if x in common)
+                    editor = editors[name]
+                    self.gui.central.show_editor(editor)
+                else:
+                    pass  # TODO: Find the first name with a match and open its editor
+        else:
+            files = [name]
+            pass  # marked text TODO: Implement this
+
+        def no_match():
+            return error_dialog(
+                self.gui, _('Not found'), _(
+                'No matches were found for %s') % state['find'], show=True)
+
+        pat = sp.get_regex(state)
+
+        def do_find():
+            found = editor.find(pat)
+            if found:
+                return
+            if len(files) == 1:
+                if not state['wrap']:
+                    return no_match()
+                found = editor.find(pat, wrap=True)
+                if not found:
+                    return no_match()
+            else:
+                pass  # TODO: handle multiple file search
+
+        if action == 'find':
+            return do_find()
+
     def save_book(self):
         c = current_container()
         for name, ed in editors.iteritems():
@@ -278,19 +357,26 @@ class Boss(QObject):
                      _('Saving of the book failed. Click "Show Details"'
                        ' for more information.'), det_msg=tb, show=True)
 
+    def init_editor(self, name, editor, data=None):
+        editor.undo_redo_state_changed.connect(self.editor_undo_redo_state_changed)
+        editor.data_changed.connect(self.editor_data_changed)
+        editor.copy_available_state_changed.connect(self.editor_copy_available_state_changed)
+        if data is not None:
+            editor.data = data
+        editor.modification_state_changed.connect(self.editor_modification_state_changed)
+        self.gui.central.add_editor(name, editor)
+
     def edit_file(self, name, syntax):
         editor = editors.get(name, None)
         if editor is None:
             editor = editors[name] = editor_from_syntax(syntax, self.gui.editor_tabs)
-            editor.undo_redo_state_changed.connect(self.editor_undo_redo_state_changed)
-            editor.data_changed.connect(self.editor_data_changed)
-            editor.copy_available_state_changed.connect(self.editor_copy_available_state_changed)
-            c = current_container()
-            with c.open(name) as f:
-                editor.data = c.decode(f.read())
-            editor.modification_state_changed.connect(self.editor_modification_state_changed)
-            self.gui.central.add_editor(name, editor)
-        self.gui.central.show_editor(editor)
+            data = current_container().raw_data(name)
+            self.init_editor(name, editor, data)
+        self.show_editor(name)
+
+    def show_editor(self, name):
+        self.gui.central.show_editor(editors[name])
+        editors[name].set_focus()
 
     def edit_file_requested(self, name, syntax, mime):
         if name in editors:

@@ -9,8 +9,9 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 import re
 from functools import partial
 
-from PyQt4.Qt import (QTextCharFormat, QFont)
+from PyQt4.Qt import QFont
 
+from calibre.gui2.tweak_book.editor import SyntaxTextCharFormat
 from calibre.gui2.tweak_book.editor.syntax.base import SyntaxHighlighter, run_loop
 from calibre.gui2.tweak_book.editor.syntax.css import create_formats as create_css_formats, state_map as css_state_map, State as CSSState
 
@@ -109,7 +110,7 @@ def mark_nbsp(state, text, nbsp_format):
     ans = []
     fmt = None
     if state.bold or state.italic:
-        fmt = QTextCharFormat()
+        fmt = SyntaxTextCharFormat()
         if state.bold:
             fmt.setFontWeight(QFont.Bold)
         if state.italic:
@@ -313,9 +314,9 @@ def create_formats(highlighter):
         'bad-closing': _('A closing tag must contain only the tag name and nothing else'),
         'no-attr-value': _('Expecting an attribute value'),
     }.iteritems():
-        f = formats[name] = QTextCharFormat(formats['error'])
+        f = formats[name] = SyntaxTextCharFormat(formats['error'])
         f.setToolTip(msg)
-    f = formats['title'] = QTextCharFormat()
+    f = formats['title'] = SyntaxTextCharFormat()
     f.setFontWeight(QFont.Bold)
     return formats
 

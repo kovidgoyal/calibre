@@ -803,6 +803,20 @@ def load_builtin_fonts():
                     if u'calibre Symbols' in fam:
                         _rating_font = u'calibre Symbols'
 
+def setup_gui_option_parser(parser):
+    if islinux:
+        parser.add_option('--detach', default=False, action='store_true',
+                          help='Detach from the controlling terminal, if any (linux only)')
+
+def detach_gui():
+    if islinux and not DEBUG and sys.stdout.isatty():
+        # We are a GUI process running in a terminal so detach from the controlling terminal
+        if os.fork() != 0:
+            raise SystemExit(0)
+        os.setsid()
+        so, se = file(os.devnull, 'a+'), file(os.devnull, 'a+', 0)
+        os.dup2(so.fileno(), sys.__stdout__.fileno())
+        os.dup2(se.fileno(), sys.__stderr__.fileno())
 
 class Application(QApplication):
 
@@ -824,7 +838,6 @@ class Application(QApplication):
         self._file_open_paths = []
         self._file_open_lock = RLock()
         self.setup_styles(force_calibre_style)
-
     if DEBUG:
         def notify(self, receiver, event):
             if self.redirect_notify:
@@ -862,27 +875,28 @@ class Application(QApplication):
         icon_map = {}
         pcache = {}
         for k, v in {
-                'DialogYesButton': u'ok.png',
-                'DialogNoButton': u'window-close.png',
-                'DialogCloseButton': u'window-close.png',
-                'DialogOkButton': u'ok.png',
-                'DialogCancelButton': u'window-close.png',
-                'DialogHelpButton': u'help.png',
-                'DialogOpenButton': u'document_open.png',
-                'DialogSaveButton': u'save.png',
-                'DialogApplyButton': u'ok.png',
-                'DialogDiscardButton': u'trash.png',
-                'MessageBoxInformation': u'dialog_information.png',
-                'MessageBoxWarning': u'dialog_warning.png',
-                'MessageBoxCritical': u'dialog_error.png',
-                'MessageBoxQuestion': u'dialog_question.png',
-                'BrowserReload': u'view-refresh.png',
-                # These two are used to calculate the sizes for the doc widget
-                # title bar buttons, therefore, they have to exist. The actual
-                # icon is not used.
-                'TitleBarCloseButton': u'window-close.png',
-                'TitleBarNormalButton': u'window-close.png',
-                }.iteritems():
+            'DialogYesButton': u'ok.png',
+            'DialogNoButton': u'window-close.png',
+            'DialogCloseButton': u'window-close.png',
+            'DialogOkButton': u'ok.png',
+            'DialogCancelButton': u'window-close.png',
+            'DialogHelpButton': u'help.png',
+            'DialogOpenButton': u'document_open.png',
+            'DialogSaveButton': u'save.png',
+            'DialogApplyButton': u'ok.png',
+            'DialogDiscardButton': u'trash.png',
+            'MessageBoxInformation': u'dialog_information.png',
+            'MessageBoxWarning': u'dialog_warning.png',
+            'MessageBoxCritical': u'dialog_error.png',
+            'MessageBoxQuestion': u'dialog_question.png',
+            'BrowserReload': u'view-refresh.png',
+            # These two are used to calculate the sizes for the doc widget
+            # title bar buttons, therefore, they have to exist. The actual
+            # icon is not used.
+            'TitleBarCloseButton': u'window-close.png',
+            'TitleBarNormalButton': u'window-close.png',
+            'DockWidgetCloseButton': u'window-close.png',
+        }.iteritems():
             if v not in pcache:
                 p = I(v)
                 if isinstance(p, bytes):

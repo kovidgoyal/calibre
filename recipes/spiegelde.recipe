@@ -6,12 +6,16 @@ __copyright__ = '2009, Darko Miletic <darko.miletic at gmail.com>'
 spiegel.de
 '''
 
+import time, re
+from contextlib import closing
+from calibre import as_unicode
+from calibre.web.feeds import feed_from_xml, Feed
 from calibre.web.feeds.news import BasicNewsRecipe
 
 class Spiegel_ger(BasicNewsRecipe):
     title                 = 'Spiegel Online - German'
     __author__            = 'Darko Miletic'
-    description           = "Immer die neueste Meldung auf dem Schirm, sekundenaktuell und uebersichtlich: Mit dem RSS-Angebot von SPIEGEL ONLINE entgeht Ihnen keine wichtige Meldung mehr, selbst wenn Sie keinen Internet-Browser geoeffnet haben. Sie koennen unsere Nachrichten-Feeds ganz einfach abonnieren - unkompliziert, kostenlos und nach Ihren persoenlichen Themen-Vorlieben."
+    description           = "Immer die neueste Meldung auf dem Schirm, sekundenaktuell und uebersichtlich: Mit dem RSS-Angebot von SPIEGEL ONLINE entgeht Ihnen keine wichtige Meldung mehr, selbst wenn Sie keinen Internet-Browser geoeffnet haben. Sie koennen unsere Nachrichten-Feeds ganz einfach abonnieren - unkompliziert, kostenlos und nach Ihren persoenlichen Themen-Vorlieben."  # noqa
     publisher             = 'SPIEGEL ONLINE Gmbh'
     category              = 'SPIEGEL ONLINE, DER SPIEGEL, Nachrichten, News,Dienste, RSS, RSS, Feedreader, Newsfeed, iGoogle, Netvibes, Widget'
     oldest_article        = 7
@@ -20,9 +24,18 @@ class Spiegel_ger(BasicNewsRecipe):
     lang                  = 'de-DE'
     no_stylesheets        = True
     use_embedded_content  = False
-    auto_cleanup = True
-    auto_cleanup_keep = '//*[@id="spArticleTopAsset"]'
     encoding              = 'cp1252'
+    keep_only_tags        = [
+        dict(name='h2', attrs={'class':'article-title'}),
+        dict(id=['js-article-top-wide-asset', 'js-article-column']),
+    ]
+    remove_tags = [
+        dict(attrs={'class':lambda x: x and 'asset-html-box' in x.split()}),
+        dict(attrs={'class':lambda x: x and 'article-social-bookmark' in x.split()}),
+        dict(attrs={'class':lambda x: x and 'article-newsfeed-box' in x.split()}),
+        dict(attrs={'class':lambda x: x and 'article-comments-box' in x.split()}),
+        dict(attrs={'class':lambda x: x and 'article-functions-bottom' in x.split()}),
+    ]
 
     conversion_options = {
                           'comment'          : description
@@ -31,10 +44,42 @@ class Spiegel_ger(BasicNewsRecipe):
                         , 'language'         : lang
                         }
 
-
-
-
     feeds          = [(u'Spiegel Online', u'http://www.spiegel.de/schlagzeilen/index.rss')]
 
+    def get_article_url(self, *args):
+        url = BasicNewsRecipe.get_article_url(self, *args).replace('#', '/#')
+        ai = re.search(r'ai=(\d+)', url).group(1)
+        soup = self.index_to_soup(url)
+        a = soup.find('a', href=lambda x: x and ai in x)
+        return 'http://www.spiegel.de' + a['href']
+
+    def parse_feeds(self):
+        title, url = self.feeds[0]
+        self.report_progress(0, _('Fetching feed')+' %s...'%(title if title else url))
+        parsed_feeds = []
+        try:
+            with closing(self.browser.open(url)) as s:
+                raw = s.read()
+            raw = raw.replace(b'<guid>http://www.spiegel.de</guid>', b'')
+
+            parsed_feeds.append(feed_from_xml(raw, title=title, log=self.log, oldest_article=self.oldest_article,
+                                        max_articles_per_feed=self.max_articles_per_feed,
+                                        get_article_url=self.get_article_url))
+            if (self.delay > 0):
+                time.sleep(self.delay)
+        except Exception as err:
+            feed = Feed()
+            msg = 'Failed feed: %s'%(title if title else url)
+            feed.populate_from_preparsed_feed(msg, [])
+            feed.description = as_unicode(err)
+            parsed_feeds.append(feed)
+            self.log.exception(msg)
+
+        remove = [f for f in parsed_feeds if len(f) == 0 and
+                self.remove_empty_feeds]
+        for f in remove:
+            parsed_feeds.remove(f)
+
+        return parsed_feeds
 
 

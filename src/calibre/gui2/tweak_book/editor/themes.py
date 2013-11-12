@@ -8,7 +8,9 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
 from collections import namedtuple
 
-from PyQt4.Qt import (QColor, QTextCharFormat, QBrush, QFont, QApplication, QPalette)
+from PyQt4.Qt import (QColor, QBrush, QFont, QApplication, QPalette)
+
+from calibre.gui2.tweak_book.editor import SyntaxTextCharFormat
 
 underline_styles = {'single', 'dash', 'dot', 'dash_dot', 'dash_dot_dot', 'wave', 'spell'}
 
@@ -32,6 +34,7 @@ SOLARIZED = \
     CursorLine   bg={base02}
     CursorColumn bg={base02}
     ColorColumn  bg={base02}
+    HighlightRegion bg={base00}
     MatchParen   fg={red} bg={base01} bold
     Pmenu        fg={base0} bg={base02}
     PmenuSel     fg={base01} bg={base2}
@@ -66,6 +69,7 @@ THEMES = {
     CursorLine   bg={cursor_loc}
     CursorColumn bg={cursor_loc}
     ColorColumn  bg={cursor_loc}
+    HighlightRegion bg=323232
     MatchParen   fg=f6f3e8 bg=857b6f bold
     Pmenu        fg=f6f3e8 bg=444444
     PmenuSel     fg=yellow bg={identifier}
@@ -104,6 +108,7 @@ THEMES = {
     CursorLine   bg={cursor_loc}
     CursorColumn bg={cursor_loc}
     ColorColumn  bg={cursor_loc}
+    HighlightRegion bg=E3F988
     MatchParen   fg=white bg=80a090 bold
     Pmenu        fg=white bg=808080
     PmenuSel     fg=white bg=808080
@@ -130,7 +135,7 @@ THEMES = {
     Error        us=wave uc=red
 
     '''.format(
-        cursor_loc='white',
+        cursor_loc='F8DE7E',
         identifier='7b5694',
         comment='a0b0c0',
         string='4070a0',
@@ -198,10 +203,10 @@ def u(x):
     if 'Dot' in x:
         return x + 'Line'
     return x + 'Underline'
-underline_styles = {x:getattr(QTextCharFormat, u(x)) for x in underline_styles}
+underline_styles = {x:getattr(SyntaxTextCharFormat, u(x)) for x in underline_styles}
 
 def highlight_to_char_format(h):
-    ans = QTextCharFormat()
+    ans = SyntaxTextCharFormat()
     if h.bold:
         ans.setFontWeight(QFont.Bold)
     if h.italic:

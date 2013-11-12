@@ -139,6 +139,7 @@ class Plugins(collections.Mapping):
                 'woff',
                 'unrar',
                 'qt_hack',
+                '_regex'
             ]
         if iswindows:
             plugins.extend(['winutil', 'wpd', 'winfonts'])

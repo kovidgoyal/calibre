@@ -1,37 +1,43 @@
+# vim:fileencoding=utf-8
 
 __license__   = 'GPL v3'
-__copyright__ = '2009-2011, Darko Miletic <darko.miletic at gmail.com>'
+__copyright__ = '2009-2013, Darko Miletic <darko.miletic at gmail.com>'
 '''
 elmundo.es
 '''
-import re
 import time
+from calibre.ptempfile import PersistentTemporaryFile
 from calibre.web.feeds.news import BasicNewsRecipe
 
 class ElMundo(BasicNewsRecipe):
-    title                 = 'El Mundo'
-    __author__            = 'Darko Miletic'
-    description           = 'Lider de informacion en espaniol'
-    publisher             = 'Unidad Editorial Informacion General S.L.U.'
-    category              = 'news, politics, Spain'
-    oldest_article        = 2
-    max_articles_per_feed = 100
-    no_stylesheets        = True
-    use_embedded_content  = False
-    encoding              = 'iso8859_15'
-    remove_javascript     = True
-    remove_empty_feeds    = True
-    language              = 'es'
-    masthead_url          = 'http://estaticos03.elmundo.es/elmundo/iconos/v4.x/v4.01/bg_h1.png'
-    publication_type      = 'newspaper'
-    extra_css             = """
-                               body{font-family: Arial,Helvetica,sans-serif}
-                               .metadata_noticia{font-size: small}
-                               .pestana_GDP{font-size: small; font-weight:bold}
-                               h1,h2,h3,h4,h5,h6,.subtitulo {color: #3F5974}
-                               .hora{color: red}
-                               .update{color: gray}
-                            """
+    title                     = 'El Mundo'
+    __author__                = 'Darko Miletic'
+    description               = u'Lider de informacion en español'
+    publisher                 = 'Unidad Editorial Informacion General S.L.U.'
+    category                  = 'news, politics, Spain'
+    oldest_article            = 2
+    max_articles_per_feed     = 100
+    no_stylesheets            = True
+    use_embedded_content      = False
+    encoding                  = 'iso8859_15'
+    remove_javascript         = True
+    remove_empty_feeds        = True
+    language                  = 'es'
+    ignore_duplicate_articles = {'url'}
+    masthead_url              = 'http://estaticos03.elmundo.es/assets/desktop/master/img/iconos/elmundo-portada.png'
+    publication_type          = 'newspaper'
+    articles_are_obfuscated   = True
+    temp_files                = []
+    needs_subscription        = 'optional'
+    LOGIN                     = 'https://seguro.elmundo.es/registro/login.html'
+    extra_css                 = """
+                                    body{font-family: Arial,Helvetica,sans-serif}
+                                    .metadata_noticia{font-size: small}
+                                    .pestana_GDP{font-size: small; font-weight:bold}
+                                    h1 {color: #333333; font-family: Georgia,"Times New Roman",Times,serif}
+                                    .hora{color: red}
+                                    .update{color: gray}
+                                    """
 
     conversion_options = {
                              'comments'  : description
@@ -40,86 +46,96 @@ class ElMundo(BasicNewsRecipe):
                             ,'publisher' : publisher
                          }
 
-    keep_only_tags     = [dict(name='div', attrs={'class':'noticia'})]
-    remove_tags_before = dict(attrs={'class':['titular','antetitulo']     })
+    remove_tags_before = dict(attrs={'class':['titular','antetitulo','entrada']})
     remove_tags_after  = dict(name='div' , attrs={'id':['desarrollo_noticia','tamano']})
+    remove_tags        = [
+                           dict(name='div', attrs={'class':'comentarios'}),
+                           dict(name=['meta', 'link', 'iframe', 'object'])
+                         ]
     remove_attributes  = ['lang','border']
-    remove_tags = [
-                     dict(name='div', attrs={'class':['herramientas','publicidad_google','comenta','col col-2b','apoyos','no-te-pierdas']})
-                    ,dict(name='div', attrs={'class':['publicidad publicidad_cuerpo_noticia','comentarios_nav','mensaje_privado','interact']})
-                    ,dict(name='div', attrs={'class':['num_comentarios estirar']})
-                    ,dict(name='span', attrs={'class':['links_comentar']})
-                    ,dict(name='div', attrs={'id':['comentar']})
-                    ,dict(name='ul', attrs={'class':'herramientas' })
-                    ,dict(name=['object','link','embed','iframe','base','meta'])
-                  ]
+
+    def get_browser(self):
+        br = BasicNewsRecipe.get_browser(self)
+        if self.username is not None and self.password is not None:
+            br.open(self.LOGIN)
+            br.select_form(name='login')
+            br['nick' ] = self.username
+            br['clave'] = self.password
+            br.submit()
+        return br
 
     feeds = [
-              (u'Portada'         , u'http://estaticos.elmundo.es/elmundo/rss/portada.xml'       )                                      
-             ,(u'Deportes'        , u'http://estaticos.elmundo.es/elmundodeporte/rss/portada.xml')
-             ,(u'Econom\xeda'     , u'http://estaticos.elmundo.es/elmundo/rss/economia.xml'      )
-             ,(u'Espa\xf1a'       , u'http://estaticos.elmundo.es/elmundo/rss/espana.xml'        )
-             ,(u'Internacional'   , u'http://estaticos.elmundo.es/elmundo/rss/internacional.xml' )
-             ,(u'Cultura'         , u'http://estaticos.elmundo.es/elmundo/rss/cultura.xml'       )
-             ,(u'Ciencia/Ecolog\xeda', u'http://estaticos.elmundo.es/elmundo/rss/ciencia.xml'    )
-             ,(u'Comunicaci\xf3n' , u'http://estaticos.elmundo.es/elmundo/rss/comunicacion.xml'  )
-             ,(u'Televisi\xf3n'   , u'http://estaticos.elmundo.es/elmundo/rss/television.xml'    )
+              (u'Portada'         , u'http://elmundo.feedsportal.com/elmundo/rss/portada.xml'       )
+             ,(u'Deportes'        , u'http://elmundo.feedsportal.com/elmundodeporte/rss/portada.xml')
+             ,(u'Econom\xeda'     , u'http://elmundo.feedsportal.com/elmundo/rss/economia.xml'      )
+             ,(u'Espa\xf1a'       , u'http://elmundo.feedsportal.com/elmundo/rss/espana.xml'        )
+             ,(u'Internacional'   , u'http://elmundo.feedsportal.com/elmundo/rss/internacional.xml' )
+             ,(u'Cultura'         , u'http://elmundo.feedsportal.com/elmundo/rss/internacional.xml'       )
+             ,(u'Ciencia/Ecolog\xeda', u'http://elmundo.feedsportal.com/elmundo/rss/ciencia.xml'    )
+             ,(u'Comunicaci\xf3n' , u'http://elmundo.feedsportal.com/elmundo/rss/comunicacion.xml'  )
+             ,(u'Televisi\xf3n'   , u'http://elmundo.feedsportal.com/elmundo/rss/television.xml'    )
 
-             ,(u'Salud'           , u'http://estaticos.elmundo.es/elmundosalud/rss/portada.xml'  )
-             ,(u'Solidaridad'     , u'http://estaticos.elmundo.es/elmundo/rss/solidaridad.xml'   )
-             ,(u'Su vivienda'     , u'http://estaticos.elmundo.es/elmundo/rss/suvivienda.xml'    )             
-             ,(u'Motor'           , u'http://estaticos.elmundo.es/elmundomotor/rss/portada.xml'  )             
-             
-             ,(u'Madrid'          , u'http://estaticos.elmundo.es/elmundo/rss/madrid.xml'        )
-             ,(u'Barcelona'       , u'http://estaticos.elmundo.es/elmundo/rss/barcelona.xml'     )
-             ,(u'Pa\xeds Vasco'   , u'http://estaticos.elmundo.es/elmundo/rss/paisvasco.xml'     )	     
-             ,(u'Baleares'        , u'http://estaticos.elmundo.es/elmundo/rss/baleares.xml'      )
-	     ,(u'Castilla y Le\xf3n' , u'http://estaticos.elmundo.es/elmundo/rss/castillayleon.xml' )	     
-	     ,(u'Valladolid'      , u'http://estaticos.elmundo.es/elmundo/rss/valladolid.xml'    )
-	     ,(u'Valencia'        , u'http://estaticos.elmundo.es/elmundo/rss/valencia.xml'      )
-	     ,(u'Alicante'        , u'http://estaticos.elmundo.es/elmundo/rss/alicante.xml'      )
-	     ,(u'Castell\xf3n'    , u'http://estaticos.elmundo.es/elmundo/rss/castellon.xml'     )	
-	     ,(u'Andaluc\xeda'    , u'http://estaticos.elmundo.es/elmundo/rss/andalucia.xml'     )
-	     ,(u'Sevilla'         , u'http://estaticos.elmundo.es/elmundo/rss/andalucia_sevilla.xml'  )
-	     ,(u'M\xe1laga'       , u'http://estaticos.elmundo.es/elmundo/rss/andalucia_malaga.xml'   )
+             ,(u'Salud'           , u'http://elmundo.feedsportal.com/elmundosalud/rss/portada.xml'  )
+             ,(u'Solidaridad'     , u'http://elmundo.feedsportal.com/elmundo/rss/solidaridad.xml'   )
+             ,(u'Su vivienda'     , u'http://elmundo.feedsportal.com/elmundo/rss/suvivienda.xml'    )
+             ,(u'Motor'           , u'http://elmundo.feedsportal.com/elmundodeporte/rss/motor.xml'  )
+
+             ,(u'Madrid'          , u'http://elmundo.feedsportal.com/elmundo/rss/madrid.xml'        )
+             ,(u'Barcelona'       , u'http://elmundo.feedsportal.com/elmundo/rss/barcelona.xml'     )
+             ,(u'Pa\xeds Vasco'   , u'http://elmundo.feedsportal.com/elmundo/rss/paisvasco.xml'     )
+             ,(u'Baleares'        , u'http://elmundo.feedsportal.com/elmundo/rss/baleares.xml'      )
+             ,(u'Castilla y Le\xf3n' , u'http://elmundo.feedsportal.com/elmundo/rss/castillayleon.xml' )
+             ,(u'Valladolid'      , u'http://elmundo.feedsportal.com/elmundo/rss/valladolid.xml'    )
+             ,(u'Valencia'        , u'http://elmundo.feedsportal.com/elmundo/rss/valencia.xml'      )
+             ,(u'Alicante'        , u'http://elmundo.feedsportal.com/elmundo/rss/alicante.xml'      )
+             ,(u'Castell\xf3n'    , u'http://elmundo.feedsportal.com/elmundo/rss/castellon.xml'     )
+             ,(u'Andaluc\xeda'    , u'http://elmundo.feedsportal.com/elmundo/rss/andalucia.xml'     )
+             ,(u'Sevilla'         , u'http://elmundo.feedsportal.com/elmundo/rss/andalucia_sevilla.xml'  )
+             ,(u'M\xe1laga'       , u'http://elmundo.feedsportal.com/elmundo/rss/andalucia_malaga.xml'   )
             ]
 
-    def preprocess_html(self, soup):
-        for item in soup.findAll(style=True):
-            del item['style']
-        return soup
-
     def get_article_url(self, article):
-        return article.get('guid',  None)
-
-
-    preprocess_regexps = [     
-                           # Para presentar la imagen de los videos incrustados                           
-
-                           (re.compile(r'var imagen', re.DOTALL|re.IGNORECASE), lambda match: '--></script><img src'),
-                           (re.compile(r'.jpg";', re.DOTALL|re.IGNORECASE), lambda match: '.jpg">'),
-                           (re.compile(r'var video=', re.DOTALL|re.IGNORECASE), lambda match: '<script language="Javascript" type="text/javascript"><!--'),
-
-                           # Para que no salga la numeración de comentarios: 1, 2, 3 ...
-
-                           (re.compile(r'<ol>\n<li style="z-index:', re.DOTALL|re.IGNORECASE), lambda match: '<ul><li style="z-index:'),
-                           (re.compile(r'</ol>\n<div class="num_comentarios estirar">', re.DOTALL|re.IGNORECASE), lambda match: '</ul><div class="num_comentarios estirar">'),
-                         ]
+        realurl = article.get('guid',  None)
+        if '/album/' in realurl or '/envivos/' in realurl:
+            return None
+        return realurl
 
     # Obtener la imagen de portada
-
     def get_cover_url(self):
-       cover = None
+       cover = self.masthead_url
        st = time.localtime()
        year = str(st.tm_year)
        month = "%.2d" % st.tm_mon
        day = "%.2d" % st.tm_mday
-		#http://img.kiosko.net/2011/11/19/es/elmundo.750.jpg
        cover='http://img.kiosko.net/'+ year + '/' +  month + '/' + day +'/es/elmundo.750.jpg'
-       br = BasicNewsRecipe.get_browser(self)
        try:
-           br.open(cover)
+           self.browser.open(cover)
        except:
            self.log("\nPortada no disponible")
-           cover ='http://estaticos03.elmundo.es/elmundo/iconos/v4.x/v4.01/bg_h1.png'
-       return cover 
+       return cover
+
+    def get_obfuscated_article(self, url):
+        count = 0
+        tries = 5
+        html  = None
+        while (count < tries):
+            try:
+                response = self.browser.open(url)
+                html = response.read()
+                count = tries
+            except:
+                print "Retrying download..."
+            count += 1
+        if html is not None:
+            tfile = PersistentTemporaryFile('_fa.html')
+            tfile.write(html)
+            tfile.close()
+            self.temp_files.append(tfile)
+            return tfile.name
+        return None
+
+    def image_url_processor(self, baseurl, url):
+        if url.startswith('//'):
+           return 'http:' + url
+        return url
+

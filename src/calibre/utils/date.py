@@ -69,6 +69,7 @@ local_tz = _local_tz = SafeLocalTimeZone()
 
 UNDEFINED_DATE = datetime(101,1,1, tzinfo=utc_tz)
 DEFAULT_DATE = datetime(2000,1,1, tzinfo=utc_tz)
+EPOCH = datetime(1970, 1, 1, tzinfo=_utc_tz)
 
 def is_date_undefined(qt_or_dt):
     d = qt_or_dt
@@ -210,15 +211,23 @@ def now():
 def utcnow():
     return datetime.utcnow().replace(tzinfo=_utc_tz)
 
+
 def utcfromtimestamp(stamp):
     try:
         return datetime.utcfromtimestamp(stamp).replace(tzinfo=_utc_tz)
     except ValueError:
-        # Raised if stamp if out of range for the platforms gmtime function
-        # We print the error for debugging, but otherwise ignore it
-        import traceback
-        traceback.print_exc()
-        return utcnow()
+        # Raised if stamp is out of range for the platforms gmtime function
+        # For example, this happens with negative values on windows
+        try:
+            return EPOCH + timedelta(seconds=stamp)
+        except (ValueError, OverflowError):
+            # datetime can only represent years between 1 and 9999
+            import traceback
+            traceback.print_exc()
+    return utcnow()
+
+def timestampfromdt(dt, assume_utc=True):
+    return (as_utc(dt, assume_utc=assume_utc) - EPOCH).total_seconds()
 
 # Format date functions
 

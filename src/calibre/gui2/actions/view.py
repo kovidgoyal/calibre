@@ -10,9 +10,9 @@ from functools import partial
 
 from PyQt4.Qt import Qt, QAction, pyqtSignal
 
-from calibre.constants import isosx
-from calibre.gui2 import error_dialog, Dispatcher, question_dialog, config, \
-        open_local_file, info_dialog
+from calibre.constants import isosx, iswindows
+from calibre.gui2 import (
+    error_dialog, Dispatcher, question_dialog, config, open_local_file, info_dialog)
 from calibre.gui2.dialogs.choose_format import ChooseFormatDialog
 from calibre.utils.config import prefs, tweaks
 from calibre.ptempfile import PersistentTemporaryFile
@@ -119,8 +119,26 @@ class ViewAction(InterfaceAction):
                 self.gui.job_manager.launch_gui_app(viewer,
                         kwargs=dict(args=args))
             else:
+                if iswindows:
+                    from calibre.utils.file_associations import file_assoc_windows
+                    ext = name.rpartition('.')[-1]
+                    if ext:
+                        try:
+                            prog = file_assoc_windows(ext)
+                        except Exception:
+                            prog = None
+                        if prog and prog.lower().endswith('calibre.exe'):
+                            name = os.path.basename(name)
+                            return error_dialog(
+                                self.gui, _('No associated program'), _(
+                                    'Windows will try to open %s with calibre itself'
+                                    ' resulting in a duplicate in your calibre library. You'
+                                    ' should install some program capable of viewing this'
+                                    ' file format and tell windows to use that program to open'
+                                    ' files of this type.') % name, show=True)
+
                 open_local_file(name)
-                time.sleep(2) # User feedback
+                time.sleep(2)  # User feedback
         finally:
             self.gui.unsetCursor()
 
@@ -145,7 +163,8 @@ class ViewAction(InterfaceAction):
         all_fmts = set([])
         for x in formats:
             if x:
-                for f in x: all_fmts.add(f)
+                for f in x:
+                    all_fmts.add(f)
         if not all_fmts:
             error_dialog(self.gui,  _('Format unavailable'),
                     _('Selected books have no formats'), show=True)
@@ -257,7 +276,7 @@ class ViewAction(InterfaceAction):
             self.build_menus(db)
 
     def view_device_book(self, path):
-        pt = PersistentTemporaryFile('_view_device_book'+\
+        pt = PersistentTemporaryFile('_view_device_book'+
                 os.path.splitext(path)[1])
         self.persistent_files.append(pt)
         pt.close()
