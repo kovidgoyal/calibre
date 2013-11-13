@@ -14,7 +14,7 @@ from PyQt4.Qt import QComboBox, Qt, QLineEdit, QStringList, pyqtSlot, QDialog, \
                      pyqtSignal, QCompleter, QAction, QKeySequence, QTimer, \
                      QString, QIcon, QMenu
 
-from calibre.gui2 import config, error_dialog, question_dialog
+from calibre.gui2 import config, error_dialog, question_dialog, gprefs
 from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.gui2.dialogs.saved_search_editor import SavedSearchEditor
 from calibre.gui2.dialogs.search import SearchDialog
@@ -435,6 +435,7 @@ class SearchBoxMixin(object):  # {{{
             self.highlight_only_button.setIcon(QIcon(I('highlight_only_on.png')))
         else:
             self.highlight_only_button.setIcon(QIcon(I('highlight_only_off.png')))
+        self.highlight_only_button.setVisible(gprefs['show_highlight_toggle_button'])
         self.library_view.model().set_highlight_only(config['highlight_search_matches'])
 
     def focus_search_box(self, *args):

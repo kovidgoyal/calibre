@@ -120,6 +120,7 @@ defs['cover_grid_disk_cache_size'] = 2500
 defs['cover_grid_show_title'] = False
 defs['cover_grid_texture'] = None
 defs['show_vl_tabs'] = False
+defs['show_highlight_toggle_button'] = False
 del defs
 # }}}
 
