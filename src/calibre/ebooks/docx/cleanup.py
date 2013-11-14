@@ -9,6 +9,7 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 import os
 
 from calibre.ebooks.docx.names import XPath
+NBSP = '\xa0'
 
 def mergeable(previous, current):
     if previous.tail or current.tail:
@@ -160,6 +161,17 @@ def cleanup_markup(log, root, styles, dest_dir, detect_cover):
     # Get rid of <span>s that have no styling
     for span in root.xpath('//span[not(@class) and not(@id) and not(@style)]'):
         lift(span)
+
+    # Convert <p><br style="page-break-after:always"> </p> style page breaks
+    # into something the viewer will render as a page break
+    for p in root.xpath('//p[br[@style="page-break-after:always"]]'):
+        if len(p) == 1 and (not p[0].tail or not p[0].tail.strip()):
+            p.remove(p[0])
+            prefix = p.get('style', '')
+            if prefix:
+                prefix += '; '
+            p.set('style', prefix + 'page-break-after:always')
+            p.text = NBSP
 
     if detect_cover:
         # Check if the first image in the document is possibly a cover
