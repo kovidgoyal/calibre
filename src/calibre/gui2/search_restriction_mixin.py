@@ -10,7 +10,7 @@ from functools import partial
 
 from PyQt4.Qt import (
     Qt, QMenu, QPoint, QIcon, QDialog, QGridLayout, QLabel, QLineEdit, QComboBox,
-    QDialogButtonBox, QSize, QVBoxLayout, QListWidget, QStringList, QRadioButton)
+    QDialogButtonBox, QSize, QVBoxLayout, QListWidget, QStringList, QRadioButton, QAction)
 
 from calibre.gui2 import error_dialog, question_dialog, gprefs
 from calibre.gui2.dialogs.confirm_delete import confirm
@@ -311,6 +311,14 @@ class SearchRestrictionMixin(object):
     def __init__(self):
         self.checked = QIcon(I('ok.png'))
         self.empty = QIcon(I('blank.png'))
+        self.current_search_action = QAction(self.empty, _('*current search'), self)
+        self.current_search_action.triggered.connect(partial(self.apply_virtual_library, library='*'))
+        self.addAction(self.current_search_action)
+        self.keyboard.register_shortcut(
+            'vl-from-current-search', _('Virtual library from current search'), description=_(
+                'Create a temporary Virtual library from the current search'), group=_('Miscellaneous'),
+            default_keys=('Ctrl+*',), action=self.current_search_action)
+
         self.search_based_vl_name = None
         self.search_based_vl = None
 
@@ -387,8 +395,7 @@ class SearchRestrictionMixin(object):
             a = m.addAction(self.empty, self.no_restriction)
         a.triggered.connect(partial(self.apply_virtual_library, library=''))
 
-        a = m.addAction(self.empty, _('*current search'))
-        a.triggered.connect(partial(self.apply_virtual_library, library='*'))
+        a = m.addAction(self.current_search_action)
 
         if self.search_based_vl_name:
             a = m.addAction(
