@@ -7,10 +7,11 @@ __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import tempfile, shutil, sys, os
+from collections import OrderedDict
 from functools import partial
 
 from PyQt4.Qt import (
-    QObject, QApplication, QDialog, QGridLayout, QLabel, QSize, Qt,
+    QObject, QApplication, QDialog, QGridLayout, QLabel, QSize, Qt, QCursor,
     QDialogButtonBox, QIcon, QTimer, QPixmap, QTextBrowser, QVBoxLayout)
 
 from calibre import prints
@@ -272,7 +273,7 @@ class Boss(QObject):
         # Ensure the search panel is visible
         sp.setVisible(True)
         ed = self.gui.central.current_editor
-        name = None
+        name = editor = None
         for n, x in editors.iteritems():
             if x is ed:
                 name = n
@@ -295,47 +296,74 @@ class Boss(QObject):
         if err:
             return error_dialog(self.gui, _('Cannot search'), err, show=True)
         del err
+
+        files = OrderedDict()
+        do_all = state['wrap'] or action in {'replace-all', 'count'}
+        marked = False
         if where == 'current':
-            files = [name]
             editor = ed
         elif where in {'styles', 'text', 'selected'}:
             files = searchable_names[where]
             if name in files:
+                # Start searching in the current editor
                 editor = ed
-            else:
-                common = set(editors).intersection(set(files))
-                if common:
-                    name = next(x for x in files if x in common)
-                    editor = editors[name]
-                    self.gui.central.show_editor(editor)
+                # Re-order the list of other files so that we search in the same
+                # order every time. Depending on direction, search the files
+                # that come after the current file, or before the current file,
+                # first.
+                lfiles = list(files)
+                idx = lfiles.index(name)
+                before, after = lfiles[:idx], lfiles[idx+1:]
+                if state['direction'] == 'up':
+                    lfiles = list(reversed(before))
+                    if do_all:
+                        lfiles += list(reversed(after)) + [name]
                 else:
-                    pass  # TODO: Find the first name with a match and open its editor
+                    lfiles = after
+                    if do_all:
+                        lfiles += before + [name]
+                files = OrderedDict((m, files[m]) for m in lfiles)
         else:
-            files = [name]
-            pass  # marked text TODO: Implement this
+            editor = ed
+            marked = True
 
         def no_match():
+            msg = '<p>' + _('No matches were found for %s.') % state['find']
+            if not state['wrap']:
+                msg += '<p>' + _('You have turned off search wrapping, so all text might not have been searched.'
+                  ' Try the search again, with wrapping enabled. Wrapping is enabled via the'
+                  ' "Wrap" checkbox at the bottom of the search panel.')
             return error_dialog(
-                self.gui, _('Not found'), _(
-                'No matches were found for %s') % state['find'], show=True)
+                self.gui, _('Not found'), msg, show=True)
 
         pat = sp.get_regex(state)
 
         def do_find():
-            found = editor.find(pat)
-            if found:
-                return
-            if len(files) == 1:
-                if not state['wrap']:
-                    return no_match()
-                found = editor.find(pat, wrap=True)
-                if not found:
-                    return no_match()
-            else:
-                pass  # TODO: handle multiple file search
+            if editor is not None:
+                if editor.find(pat, marked=marked):
+                    return
+                if not files:
+                    if not state['wrap']:
+                        return no_match()
+                    return editor.find(pat, wrap=True, marked=marked) or no_match()
+            for fname, syntax in files.iteritems():
+                if fname in editors:
+                    if not editors[fname].find(pat, complete=True):
+                        continue
+                    return self.show_editor(fname)
+                raw = current_container().raw_data(fname)
+                if pat.search(raw) is not None:
+                    self.edit_file(fname, syntax)
+                    if editors[fname].find(pat, complete=True):
+                        return
+            return no_match()
 
-        if action == 'find':
-            return do_find()
+        QApplication.setOverrideCursor(QCursor(Qt.WaitCursor))
+        try:
+            if action == 'find':
+                return do_find()
+        finally:
+            QApplication.restoreOverrideCursor()
 
     def save_book(self):
         c = current_container()

@@ -154,12 +154,59 @@ class TextEdit(QPlainTextEdit):
             self.current_search_mark = None
         self.update_extra_selections()
 
-    def find(self, pat, wrap=False):
+    def find_in_marked(self, pat, wrap=False):
+        if self.current_search_mark is None:
+            return False
+        csm = self.current_search_mark.cursor
         reverse = pat.flags & regex.REVERSE
         c = self.textCursor()
         c.clearSelection()
-        pos = c.Start if reverse else c.End
+        m_start = min(csm.position(), csm.anchor())
+        m_end = max(csm.position(), csm.anchor())
+        if c.position() < m_start:
+            c.setPosition(m_start)
+        if c.position() > m_end:
+            c.setPosition(m_end)
+        pos = m_start if reverse else m_end
         if wrap:
+            pos = m_end if reverse else m_start
+        c.setPosition(pos, c.KeepAnchor)
+        raw = unicode(c.selectedText()).replace(PARAGRAPH_SEPARATOR, '\n')
+        m = pat.search(raw)
+        if m is None:
+            return False
+        start, end = m.span()
+        if start == end:
+            return False
+        if wrap:
+            if reverse:
+                textpos = c.anchor()
+                start, end = textpos + end, textpos + start
+            else:
+                start, end = m_start + start, m_start + end
+        else:
+            if reverse:
+                start, end = m_start + end, m_start + start
+            else:
+                start, end = c.anchor() + start, c.anchor() + end
+
+        c.clearSelection()
+        c.setPosition(start)
+        c.setPosition(end, c.KeepAnchor)
+        self.setTextCursor(c)
+        return True
+
+    def find(self, pat, wrap=False, marked=False, complete=False):
+        if marked:
+            return self.find_in_marked(pat, wrap=wrap)
+        reverse = pat.flags & regex.REVERSE
+        c = self.textCursor()
+        c.clearSelection()
+        if complete:
+            # Search the entire text
+            c.movePosition(c.End if reverse else c.Start)
+        pos = c.Start if reverse else c.End
+        if wrap and not complete:
             pos = c.End if reverse else c.Start
         c.movePosition(pos, c.KeepAnchor)
         raw = unicode(c.selectedText()).replace(PARAGRAPH_SEPARATOR, '\n')
@@ -169,7 +216,7 @@ class TextEdit(QPlainTextEdit):
         start, end = m.span()
         if start == end:
             return False
-        if wrap:
+        if wrap and not complete:
             if reverse:
                 textpos = c.anchor()
                 start, end = textpos + end, textpos + start

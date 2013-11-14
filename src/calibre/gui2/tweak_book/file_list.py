@@ -7,6 +7,7 @@ __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
 from binascii import hexlify
+from collections import OrderedDict
 from PyQt4.Qt import (
     QWidget, QTreeWidget, QGridLayout, QSize, Qt, QTreeWidgetItem, QIcon,
     QStyledItemDelegate, QStyle, QPixmap, QPainter, pyqtSignal)
@@ -17,6 +18,7 @@ from calibre.ebooks.oeb.polish.container import guess_type
 from calibre.ebooks.oeb.polish.cover import get_cover_page_name, get_raster_cover_name
 from calibre.gui2 import error_dialog
 from calibre.gui2.tweak_book import current_container
+from calibre.gui2.tweak_book.editor import syntax_from_mime
 from calibre.utils.icu import sort_key
 
 TOP_ICON_SIZE = 24
@@ -344,18 +346,18 @@ class FileList(QTreeWidget):
 
     @property
     def searchable_names(self):
-        ans = {'text':[], 'styles':[], 'selected':[]}
+        ans = {'text':OrderedDict(), 'styles':OrderedDict(), 'selected':OrderedDict()}
         for item in self.all_files:
             category = unicode(item.data(0, CATEGORY_ROLE).toString())
             mime = unicode(item.data(0, MIME_ROLE).toString())
             name = unicode(item.data(0, NAME_ROLE).toString())
             ok = category in {'text', 'styles'}
             if ok:
-                ans[category].append(name)
+                ans[category][name] = syntax_from_mime(mime)
             if not ok and category == 'misc':
                 ok = mime in {guess_type('a.'+x) for x in ('opf', 'ncx', 'txt', 'xml')}
             if ok and item.isSelected():
-                ans['selected'].append(name)
+                ans['selected'][name] = syntax_from_mime(mime)
         return ans
 
 class FileListWidget(QWidget):
