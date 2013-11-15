@@ -19,7 +19,8 @@ class LaTeXHelpBuilder(LaTeXBuilder):
         self.info('Fixing Cyrillic characters...')
         tex = os.path.join(self.outdir, 'calibre.tex')
         with open(tex, 'r+b') as f:
-            raw = f.read().replace(b'Михаил Горбачёв',
-                br'{\fontencoding{T2A}\selectfont Михаил Горбачёв}')
+            raw = f.read()
+            for x in (b'Михаил Горбачёв', b'Фёдор Миха́йлович Достоевский'):
+                raw = raw.replace(x, br'{\fontencoding{T2A}\selectfont %s}' % (x.replace(b'а́', b'a')))
             f.seek(0)
             f.write(raw)
