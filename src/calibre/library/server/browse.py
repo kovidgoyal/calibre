@@ -675,6 +675,7 @@ class BrowseServer(object):
                 which = unhexlify(cid).decode('utf-8')
                 vls = self.db.prefs.get('virtual_libraries', {})
                 ids = self.search_cache(vls[which])
+                category_name = _('virtual library: ') + which
                 if not ids:
                     msg = _('The virtual library <b>%s</b> has no books.') % prepare_string_for_xml(which)
                     if self.search_restriction:
