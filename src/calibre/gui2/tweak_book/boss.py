@@ -374,6 +374,36 @@ class Boss(QObject):
                         'Currently selected text does not match the search query.'))
             return True
 
+        def count_message(action, count):
+            msg = _('%(action)s %(num)s occurrences of %(query)s' % dict(num=count, query=state['find'], action=action))
+            info_dialog(self.gui, _('Searching done'), msg, show=True)
+
+        def do_all(replace=True):
+            count = 0
+            if not files and editor is None:
+                return 0
+            lfiles = files or {name:editor.syntax}
+
+            for n, syntax in lfiles.iteritems():
+                if n in editors:
+                    raw = editors[n].get_raw_data()
+                else:
+                    raw = current_container().raw_data(n)
+                if replace:
+                    raw, num = pat.subn(state['replace'], raw)
+                else:
+                    num = len(pat.findall(raw))
+                count += num
+                if replace and num > 0:
+                    if n in editors:
+                        editors[n].replace_data(raw)
+                    else:
+                        with current_container().open(n, 'wb') as f:
+                            f.write(raw.encode('utf-8'))
+            QApplication.restoreOverrideCursor()
+            count_message(_('Replaced') if replace else _('Found'), count)
+            return count
+
         QApplication.setOverrideCursor(QCursor(Qt.WaitCursor))
         try:
             if action == 'find':
@@ -382,6 +412,18 @@ class Boss(QObject):
                 return do_replace()
             if action == 'replace-find' and do_replace():
                 return do_find()
+            if action == 'replace-all':
+                if marked:
+                    return count_message(_('Replaced'), editor.all_in_marked(pat, state['replace']))
+                self.add_savepoint(_('Replace all'))
+                count = do_all()
+                if count == 0:
+                    self.rewind_savepoint()
+                return
+            if action == 'count':
+                if marked:
+                    return count_message(_('Found'), editor.all_in_marked(pat))
+                return do_all(replace=False)
         finally:
             QApplication.restoreOverrideCursor()
 

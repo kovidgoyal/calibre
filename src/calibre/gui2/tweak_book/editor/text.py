@@ -141,6 +141,7 @@ class TextEdit(QPlainTextEdit):
             sel.append(self.current_search_mark)
         self.setExtraSelections(sel)
 
+    # Search and replace {{{
     def mark_selected_text(self):
         sel = QTextEdit.ExtraSelection()
         sel.format.setBackground(self.highlight_color)
@@ -196,6 +197,22 @@ class TextEdit(QPlainTextEdit):
         self.setTextCursor(c)
         return True
 
+    def all_in_marked(self, pat, template=None):
+        if self.current_search_mark is None:
+            return 0
+        c = self.current_search_mark.cursor
+        raw = unicode(c.selectedText()).replace(PARAGRAPH_SEPARATOR, '\n')
+        if template is None:
+            count = len(pat.findall(raw))
+        else:
+            raw, count = pat.subn(template, raw)
+            if count > 0:
+                c.setKeepPositionOnInsert(True)
+                c.insertText(raw)
+                c.setKeepPositionOnInsert(False)
+                self.update_extra_selections()
+        return count
+
     def find(self, pat, wrap=False, marked=False, complete=False):
         if marked:
             return self.find_in_marked(pat, wrap=wrap)
@@ -242,6 +259,7 @@ class TextEdit(QPlainTextEdit):
         text = m.expand(template)
         c.insertText(text)
         return True
+    # }}}
 
     # Line numbers and cursor line {{{
     def highlight_cursor_line(self):

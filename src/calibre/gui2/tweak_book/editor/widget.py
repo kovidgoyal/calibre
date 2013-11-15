@@ -67,6 +67,7 @@ class Editor(QMainWindow):
     def redo(self):
         self.editor.redo()
 
+    # Search and replace {{{
     def mark_selected_text(self):
         self.editor.mark_selected_text()
 
@@ -75,6 +76,10 @@ class Editor(QMainWindow):
 
     def replace(self, *args, **kwargs):
         return self.editor.replace(*args, **kwargs)
+
+    def all_in_marked(self, *args, **kwargs):
+        return self.editor.all_in_marked(*args, **kwargs)
+    # }}}
 
     @property
     def has_marked_text(self):
