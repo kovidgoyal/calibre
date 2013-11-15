@@ -1293,11 +1293,11 @@ class BuiltinTransliterate(BuiltinFormatterFunction):
     name = 'transliterate'
     arg_count = 1
     category = 'String manipulation'
-    __doc__ = doc = _(u'transliterate(a) -- Returns a string in a latin alphabet '
-                      u'formed by approximating the sound of the words in the '
-                      u'source string. For example, if the source is "Фёдор '
-                      u'Миха́йлович Достоевский" the function returns "Fiodor '
-                      u'Mikhailovich Dostoievskii".')
+    __doc__ = doc = _('transliterate(a) -- Returns a string in a latin alphabet '
+                      'formed by approximating the sound of the words in the '
+                      'source string. For example, if the source is "{0}"'
+                      ' the function returns "{1}".').format(
+                          u"Фёдор Миха́йлович Достоевский", 'Fiodor Mikhailovich Dostoievskii')
 
     def evaluate(self, formatter, kwargs, mi, locals, source):
         from calibre.utils.filenames import ascii_text
