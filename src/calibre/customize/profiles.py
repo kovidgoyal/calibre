@@ -47,7 +47,7 @@ class InputProfile(Plugin):
     type = _('Input profile')
 
     name        = 'Default Input Profile'
-    short_name  = 'default' # Used in the CLI so dont use spaces etc. in it
+    short_name  = 'default'  # Used in the CLI so dont use spaces etc. in it
     description = _('This profile tries to provide sane defaults and is useful '
                     'if you know nothing about the input document.')
 
@@ -230,7 +230,7 @@ class OutputProfile(Plugin):
     type = _('Output profile')
 
     name        = 'Default Output Profile'
-    short_name  = 'default' # Used in the CLI so dont use spaces etc. in it
+    short_name  = 'default'  # Used in the CLI so dont use spaces etc. in it
     description = _('This profile tries to provide sane defaults and is useful '
                     'if you want to produce a document intended to be read at a '
                     'computer or on a range of devices.')
@@ -280,7 +280,7 @@ class iPadOutput(OutputProfile):
     extra_css_modules = [
         {
             'name':'webkit',
-            'props': { '-webkit-border-bottom-left-radius':'{length}',
+            'props': {'-webkit-border-bottom-left-radius':'{length}',
                 '-webkit-border-bottom-right-radius':'{length}',
                 '-webkit-border-top-left-radius':'{length}',
                 '-webkit-border-top-right-radius':'{length}',
@@ -507,6 +507,17 @@ class SonyReader900Output(SonyReaderOutput):
 
     screen_size               = (600, 999)
     comic_screen_size = screen_size
+
+class SonyReaderT3Output(SonyReaderOutput):
+
+    author = 'Kovid Goyal'
+    name        = 'Sony Reader T3'
+    short_name  = 'sonyt3'
+    description = _('This profile is intended for the SONY PRS-T3.')
+
+    screen_size               = (758, 934)
+    comic_screen_size = screen_size
+
 
 class GenericEink(SonyReaderOutput):
 
