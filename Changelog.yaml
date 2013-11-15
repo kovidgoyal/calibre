@@ -20,6 +20,50 @@
 #   new recipes:
 #     - title: 
 
+- version: 1.11.0
+  date: 2013-11-15
+
+  new features:
+    - title: "Kobo driver: Support the new firmware version 3.0.0 for Kobo devices"
+
+    - title: "Content server: Show the name of the virtual library at the top when browsing books in a virtual library."
+      tickets: [1251278]
+
+    - title: "Add a keyboard shortcut (Ctrl+*) to convert the current search into a temporary virtual library."
+      tickets: [1249773]
+
+    - title: "Template language: Add a transliterate function, useful to convert metadata in other languages into its phonetic English representation, when exporting books from calibre."
+      tickets: [1249562]
+
+    - title: "Remove the button to toggle search result highlighting from next to the search bar, as too many people click it accidentally and then do not realize what they have done, despite the confirmation message that pops up. The button can be restored via Preferences->Searching"
+
+    - title: "Wireless driver: Remove old non-streaming networking code. Apps that still use it must be updated. A message will popup notifying the user of the need to update if such an app is encountered."
+
+    - title: "Linux: Add an option to cause calibre to detach from its controlling terminal (--detach)"
+ 
+  bug fixes:
+    - title: "DOCX Input: Fix page-breaks created as a page break inside an otherwise empty paragraph not being rendered on conversion to PDF."
+      tickets: [1249502]
+
+    - title: "Windows: When viewing books with an external viewer, check if windows will open the file with calibre itself, and if so, popup an error message telling the user to install some software capable of viewing the file."
+      tickets: [1249698]
+
+    - title: "Wireless driver: Fix a bug that could cause the wrong path information to be sent to the device in some circumstances."
+
+    - title: "Linux binary build: Return proper exit codes when raising SystemExit"
+
+    - title: "Transliterate the Arabic Alef into 'a'"
+      tickets: [1249469]
+
+  improved recipes:
+    - Radikal (tr)
+    - Spiegel Online
+    - El Mundo
+
+  new recipes:
+    - title: ARG Noticias 
+      author: Darko Miletic
+
 - version: 1.10.0
   date: 2013-11-08
 
