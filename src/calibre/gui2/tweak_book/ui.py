@@ -235,6 +235,12 @@ class Main(MainWindow):
                                    'count', keys=('Ctrl+N'), description=_('Count number of matches'))
         self.action_mark = reg(None, _('&Mark selected text'), self.boss.mark_selected_text, 'mark-selected-text', ('Ctrl+Shift+M',), _('Mark selected text'))
 
+        # Miscellaneous actions
+        group = _('Miscellaneous')
+        self.action_create_checkpoint = reg(
+            'marked.png', _('&Create checkpoint'), self.boss.create_checkpoint, 'create-checkpoint', (), _(
+                'Create a checkpoint with the current state of the book'))
+
     def create_menubar(self):
         b = self.menuBar()
 
@@ -246,6 +252,7 @@ class Main(MainWindow):
         e = b.addMenu(_('&Edit'))
         e.addAction(self.action_global_undo)
         e.addAction(self.action_global_redo)
+        e.addAction(self.action_create_checkpoint)
         e.addSeparator()
         e.addAction(self.action_editor_undo)
         e.addAction(self.action_editor_redo)
@@ -295,7 +302,7 @@ class Main(MainWindow):
             return b
 
         a = create(_('Book tool bar'), 'global').addAction
-        for x in ('open_book', 'global_undo', 'global_redo', 'save', 'toc'):
+        for x in ('open_book', 'global_undo', 'global_redo', 'save', 'create_checkpoint', 'toc'):
             a(getattr(self, 'action_' + x))
 
         a = create(_('Polish book tool bar'), 'polish').addAction

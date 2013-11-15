@@ -12,7 +12,7 @@ from functools import partial
 
 from PyQt4.Qt import (
     QObject, QApplication, QDialog, QGridLayout, QLabel, QSize, Qt, QCursor,
-    QDialogButtonBox, QIcon, QTimer, QPixmap, QTextBrowser, QVBoxLayout)
+    QDialogButtonBox, QIcon, QTimer, QPixmap, QTextBrowser, QVBoxLayout, QInputDialog)
 
 from calibre import prints
 from calibre.ptempfile import PersistentTemporaryDirectory
@@ -426,6 +426,13 @@ class Boss(QObject):
                 return do_all(replace=False)
         finally:
             QApplication.restoreOverrideCursor()
+
+    def create_checkpoint(self):
+        text, ok = QInputDialog.getText(self.gui, _('Choose name'), _(
+            'Choose a name for the checkpoint.\nYou can later restore the book'
+            ' to this checkpoint via the\n"Revert to..." entries in the Edit menu.'))
+        if ok:
+            self.add_savepoint(text)
 
     def save_book(self):
         c = current_container()
