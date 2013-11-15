@@ -328,6 +328,7 @@ class Boss(QObject):
             marked = True
 
         def no_match():
+            QApplication.restoreOverrideCursor()
             msg = '<p>' + _('No matches were found for %s.') % state['find']
             if not state['wrap']:
                 msg += '<p>' + _('You have turned off search wrapping, so all text might not have been searched.'
@@ -358,9 +359,28 @@ class Boss(QObject):
                         return
             return no_match()
 
+        def no_replace(prefix=''):
+            QApplication.restoreOverrideCursor()
+            error_dialog(
+                self.gui, _('Cannot replace'), prefix + _(
+                'You must first click Find, before trying to replace'), show=True)
+            return False
+
+        def do_replace():
+            if editor is None:
+                return no_replace()
+            if not editor.replace(pat, state['replace']):
+                return no_replace(_(
+                        'Currently selected text does not match the search query.'))
+            return True
+
         QApplication.setOverrideCursor(QCursor(Qt.WaitCursor))
         try:
             if action == 'find':
+                return do_find()
+            if action == 'replace':
+                return do_replace()
+            if action == 'replace-find' and do_replace():
                 return do_find()
         finally:
             QApplication.restoreOverrideCursor()
