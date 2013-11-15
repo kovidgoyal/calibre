@@ -92,7 +92,7 @@ class SearchWidget(QWidget):
 
         self.where_box = wb = QComboBox(self)
         wb.setSizePolicy(QSizePolicy.Maximum, QSizePolicy.Maximum)
-        wb.addItems([_('Current file'), _('All text files'), _('All style files'), _('Selected files'), _('Selected text')])
+        wb.addItems([_('Current file'), _('All text files'), _('All style files'), _('Selected files'), _('Marked text')])
         wb.setToolTip('<style>dd {margin-bottom: 1.5ex}</style>' + _(
             '''
             Where to search/replace:
@@ -105,8 +105,8 @@ class SearchWidget(QWidget):
             <dd>Search in all style (CSS) files</dd>
             <dt><b>Selected files</b></dt>
             <dd>Search in the files currently selected in the Files Browser</dd>
-            <dt><b>Selected text</b></dt>
-            <dd>Search only within the selected text in the currently opened file</dd>
+            <dt><b>Marked text</b></dt>
+            <dd>Search only within the marked text in the currently opened file. You can mark text using the Search menu.</dd>
             </dl>'''))
         ol.addWidget(wb)
 
