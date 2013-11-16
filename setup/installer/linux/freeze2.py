@@ -14,7 +14,7 @@ from setup import Command, modules, basenames, functions, __version__, \
 
 SITE_PACKAGES = ['PIL', 'dateutil', 'dns', 'PyQt4', 'mechanize',
         'sip.so', 'BeautifulSoup.py', 'cssutils', 'encutils', 'lxml',
-        'sipconfig.py', 'xdg', 'dbus', '_dbus_bindings.so', 'dbus_bindings.py',
+        'sipconfig.py', 'xdg', 'dbus', '_dbus_bindings.so',
         '_dbus_glib_bindings.so', 'netifaces.so', '_psutil_posix.so',
         '_psutil_linux.so', 'psutil', 'cssselect', 'apsw.so']
 
@@ -65,6 +65,7 @@ binary_includes = [
                 '/usr/lib/libicui18n.so.49',
                 '/usr/lib/libicuuc.so.49',
                 '/usr/lib/libicuio.so.49',
+                '/usr/lib/libdbus-1.so.3',
                 ]
 binary_includes += [os.path.join(QTDIR, 'lib%s.so.4'%x) for x in QTDLLS]
 
