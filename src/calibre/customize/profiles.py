@@ -801,7 +801,7 @@ class PocketBookPro912Output(OutputProfile):
     comic_screen_size         = screen_size
 
 output_profiles = [OutputProfile, SonyReaderOutput, SonyReader300Output,
-        SonyReader900Output, MSReaderOutput, MobipocketOutput, HanlinV3Output,
+        SonyReader900Output, SonyReaderT3Output, MSReaderOutput, MobipocketOutput, HanlinV3Output,
         HanlinV5Output, CybookG3Output, CybookOpusOutput, KindleOutput,
         iPadOutput, iPad3Output, KoboReaderOutput, TabletOutput, SamsungGalaxy,
         SonyReaderLandscapeOutput, KindleDXOutput, IlliadOutput, NookHD,
