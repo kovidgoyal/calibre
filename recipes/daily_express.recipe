@@ -1,9 +1,11 @@
 import re
 from calibre.web.feeds.news import BasicNewsRecipe
+
 class AdvancedUserRecipe1376229553(BasicNewsRecipe):
     title          = u'Daily Express'
     __author__ = 'Dave Asbury'
     # 9-9-13 added article author and now use (re.compile(r'>[\w].+? News<'
+    # 16-11-13 cover adjustment
     encoding    = 'utf-8'
     remove_empty_feeds = True
     #remove_javascript     = True
@@ -68,13 +70,21 @@ class AdvancedUserRecipe1376229553(BasicNewsRecipe):
 
     def get_cover_url(self):
         soup = self.index_to_soup('http://www.express.co.uk/ourpaper/')
-        cov = soup.find(attrs={'src' : re.compile('http://images.dailyexpress.co.uk/img/covers/')})
+        cov = soup.find(attrs={'src' : re.compile('http://cdn.images.express.co.uk/img/covers/')})
         cov=str(cov)
         cov2 =  re.findall('http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+', cov)
 
         cov=str(cov2)
         cov=cov[2:len(cov)-2]
-        cover_url=cov
+
+        br = self.get_browser()
+        br.set_handle_redirect(False)
+        try:
+            br.open_novisit(cov)
+            cover_url = cov
+        except:
+            cover_url ='http://cdn.images.express.co.uk/img/static/ourpaper/header-back-issue-papers.jpg'
+
         return cover_url
 
     extra_css = '''
