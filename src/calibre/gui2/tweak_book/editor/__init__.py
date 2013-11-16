@@ -31,7 +31,7 @@ SYNTAX_PROPERTY = QTextCharFormat.UserProperty
 
 class SyntaxTextCharFormat(QTextCharFormat):
 
-    def __init__(self, *args, **kwargs):
-        QTextCharFormat.__init__(self, *args, **kwargs)
+    def __init__(self, *args):
+        QTextCharFormat.__init__(self, *args)
         self.setProperty(SYNTAX_PROPERTY, True)
 
