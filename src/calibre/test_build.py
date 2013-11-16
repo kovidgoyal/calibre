@@ -13,7 +13,18 @@ Test a binary calibre build to ensure that all needed binary images/libraries ha
 '''
 
 import cStringIO
-from calibre.constants import plugins, iswindows
+from calibre.constants import plugins, iswindows, islinux
+
+def test_dbus():
+    import dbus
+    bus = dbus.SystemBus()
+    if not bus.list_names():
+        raise ValueError('Failed to list names on the system bus')
+    bus = dbus.SessionBus()
+    if not bus.list_names():
+        raise ValueError('Failed to list names on the session bus')
+    del bus
+    print ('dbus OK!')
 
 def test_regex():
     import regex
@@ -59,7 +70,8 @@ def test_sqlite():
     print ('sqlite OK!')
 
 def test_qt():
-    from PyQt4.Qt import (QWebView, QDialog, QImageReader, QNetworkAccessManager)
+    from PyQt4.Qt import (QDialog, QImageReader, QNetworkAccessManager)
+    from PyQt4.QtWebKit import QWebView
     fmts = set(map(unicode, QImageReader.supportedImageFormats()))
     testf = set(['jpg', 'png', 'mng', 'svg', 'ico', 'gif'])
     if testf.intersection(fmts) != testf:
@@ -129,6 +141,8 @@ def test():
     if iswindows:
         test_winutil()
         test_wpd()
+    if islinux:
+        test_dbus()
 
 if __name__ == '__main__':
     test()
