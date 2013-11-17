@@ -822,6 +822,7 @@ class CoversView(QListView):  # {{{
         if idx and idx.isValid() and not idx.data(Qt.UserRole).toPyObject():
             m = QMenu()
             m.addAction(QIcon(I('view.png')), _('View this cover at full size'), self.show_cover)
+            m.addAction(QIcon(I('edit-copy.png')), _('Copy this cover to clipboard'), self.copy_cover)
             m.exec_(QCursor.pos())
 
     def show_cover(self):
@@ -831,6 +832,12 @@ class CoversView(QListView):  # {{{
             from calibre.gui2.viewer.image_popup import ImageView
             d = ImageView(self, pmap, unicode(idx.data(Qt.DisplayRole).toString()), geom_name='metadata_download_cover_popup_geom')
             d(use_exec=True)
+
+    def copy_cover(self):
+        idx = self.currentIndex()
+        pmap = self.model().cover_pixmap(idx)
+        if pmap is not None:
+            QApplication.clipboard().setPixmap(pmap)
 
 # }}}
 
