@@ -63,11 +63,11 @@ class KOBO(USBMS):
     gui_name = 'Kobo Reader'
     description = _('Communicate with the Kobo Reader')
     author = 'Timothy Legge and David Forrester'
-    version = (2, 1, 5)
+    version = (2, 1, 6)
 
     dbversion = 0
     fwversion = 0
-    supported_dbversion = 90
+    supported_dbversion = 95
     has_kepubs = False
 
     supported_platforms = ['windows', 'osx', 'linux']
@@ -79,9 +79,11 @@ class KOBO(USBMS):
     FORMATS     = ['epub', 'pdf', 'txt', 'cbz', 'cbr']
     CAN_SET_METADATA = ['collections']
 
-    VENDOR_ID   = [0x2237]
-    PRODUCT_ID  = [0x4161, 0x4165]
-    BCD         = [0x0110, 0x0323, 0x0326]
+    VENDOR_ID           = [0x2237]
+    BCD                 = [0x0110, 0x0323, 0x0326]
+    ORIGINAL_PRODUCT_ID = [0x4165]
+    WIFI_PRODUCT_ID     = [0x4161, 0x4162]
+    PRODUCT_ID          = ORIGINAL_PRODUCT_ID + WIFI_PRODUCT_ID
 
     VENDOR_NAME = ['KOBO_INC', 'KOBO']
     WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = ['.KOBOEREADER', 'EREADER']
