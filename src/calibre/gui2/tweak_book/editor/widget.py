@@ -48,6 +48,9 @@ class Editor(QMainWindow):
             self.editor.load_text(val, syntax=self.syntax)
         return property(fget=fget, fset=fset)
 
+    def init_from_template(self, template):
+        self.editor.load_text(template, syntax=self.syntax, process_template=True)
+
     def get_raw_data(self):
         return unicode(self.editor.toPlainText())
 

@@ -158,3 +158,20 @@ class ContainerTests(BaseTest):
 
         # self.run_external_tools(c, gvim=True)
 
+    def test_file_add(self):
+        ' Test adding of files '
+        book = get_simple_book()
+        c = get_container(book)
+        name = 'folder/added file.html'
+        c.add_file(name, b'xxx')
+        self.assertEqual('xxx', c.raw_data(name))
+        self.assertIn(name, set(c.manifest_id_map.itervalues()))
+        self.assertIn(name, {x[0] for x in c.spine_names})
+
+        name = 'added.css'
+        c.add_file(name, b'xxx')
+        self.assertEqual('xxx', c.raw_data(name))
+        self.assertIn(name, set(c.manifest_id_map.itervalues()))
+        self.assertNotIn(name, {x[0] for x in c.spine_names})
+
+        self.check_links(c)

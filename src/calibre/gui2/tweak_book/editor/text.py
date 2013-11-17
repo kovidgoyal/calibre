@@ -115,11 +115,14 @@ class TextEdit(QPlainTextEdit):
         self.highlight_color = theme_color(theme, 'HighlightRegion', 'bg')
     # }}}
 
-    def load_text(self, text, syntax='html'):
+    def load_text(self, text, syntax='html', process_template=False):
         self.highlighter = {'html':HTMLHighlighter, 'css':CSSHighlighter, 'xml':XMLHighlighter}.get(syntax, SyntaxHighlighter)(self)
         self.highlighter.apply_theme(self.theme)
         self.highlighter.setDocument(self.document())
         self.setPlainText(text)
+        if process_template and QPlainTextEdit.find(self, '%CURSOR%'):
+            c = self.textCursor()
+            c.insertText('')
 
     def replace_text(self, text):
         c = self.textCursor()

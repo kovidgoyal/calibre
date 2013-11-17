@@ -24,6 +24,7 @@ from calibre.gui2 import error_dialog, choose_files, question_dialog, info_dialo
 from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.gui2.tweak_book import set_current_container, current_container, tprefs, actions, editors
 from calibre.gui2.tweak_book.undo import GlobalUndoHistory
+from calibre.gui2.tweak_book.file_list import NewFileDialog
 from calibre.gui2.tweak_book.save import SaveManager
 from calibre.gui2.tweak_book.preview import parse_worker
 from calibre.gui2.tweak_book.toc import TOCEditor
@@ -144,15 +145,52 @@ class Boss(QObject):
         if not editors:
             self.gui.preview.clear()
 
+    def check_opf_dirtied(self):
+        c = current_container()
+        if c.opf_name in editors and editors[c.opf_name].is_modified:
+            return question_dialog(self.gui, _('Unsaved changes'), _(
+                'You have unsaved changes in %s. If you proceed,'
+                ' you will lose them. Proceed anyway?') % c.opf_name)
+        return True
+
     def reorder_spine(self, items):
-        # TODO: If content.opf is dirty in an editor, abort, calling
-        # file_list.build(current_container) to undo drag and drop
+        if not self.check_opf_dirtied():
+            return
         self.add_savepoint(_('Re-order text'))
         c = current_container()
         c.set_spine(items)
         self.gui.action_save.setEnabled(True)
         self.gui.file_list.build(current_container())  # needed as the linear flag may have changed on some items
-        # TODO: If content.opf is open in an editor, reload it
+        if c.opf_name in editors:
+            editors[c.opf_name].replace_data(c.raw_data(c.opf_name))
+
+    def add_file(self):
+        if not self.check_opf_dirtied():
+            return
+        d = NewFileDialog(self.gui)
+        if d.exec_() != d.Accepted:
+            return
+        self.add_savepoint(_('Add file %s') % self.gui.elided_text(d.file_name))
+        c = current_container()
+        data = d.file_data
+        if d.using_template:
+            data = data.replace(b'%CURSOR%', b'')
+        try:
+            c.add_file(d.file_name, data)
+        except:
+            self.rewind_savepoint()
+            raise
+        self.gui.file_list.build(c)
+        self.gui.file_list.select_name(d.file_name)
+        if c.opf_name in editors:
+            editors[c.opf_name].replace_data(c.raw_data(c.opf_name))
+        mt = c.mime_map[d.file_name]
+        syntax = syntax_from_mime(mt)
+        if syntax:
+            if d.using_template:
+                self.edit_file(d.file_name, syntax, use_template=d.file_data.decode('utf-8'))
+            else:
+                self.edit_file(d.file_name, syntax)
 
     def edit_toc(self):
         if not self.check_dirtied():
@@ -454,21 +492,27 @@ class Boss(QObject):
                      _('Saving of the book failed. Click "Show Details"'
                        ' for more information.'), det_msg=tb, show=True)
 
-    def init_editor(self, name, editor, data=None):
+    def init_editor(self, name, editor, data=None, use_template=False):
         editor.undo_redo_state_changed.connect(self.editor_undo_redo_state_changed)
         editor.data_changed.connect(self.editor_data_changed)
         editor.copy_available_state_changed.connect(self.editor_copy_available_state_changed)
         if data is not None:
-            editor.data = data
+            if use_template:
+                editor.init_from_template(data)
+            else:
+                editor.data = data
         editor.modification_state_changed.connect(self.editor_modification_state_changed)
         self.gui.central.add_editor(name, editor)
 
-    def edit_file(self, name, syntax):
+    def edit_file(self, name, syntax, use_template=None):
         editor = editors.get(name, None)
         if editor is None:
             editor = editors[name] = editor_from_syntax(syntax, self.gui.editor_tabs)
-            data = current_container().raw_data(name)
-            self.init_editor(name, editor, data)
+            if use_template is None:
+                data = current_container().raw_data(name)
+            else:
+                data = use_template
+            self.init_editor(name, editor, data, use_template=bool(use_template))
         self.show_editor(name)
 
     def show_editor(self, name):

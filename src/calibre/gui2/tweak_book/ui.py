@@ -9,7 +9,7 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 from functools import partial
 
 from PyQt4.Qt import (
-    QDockWidget, Qt, QLabel, QIcon, QAction, QApplication, QWidget,
+    QDockWidget, Qt, QLabel, QIcon, QAction, QApplication, QWidget, QFontMetrics,
     QVBoxLayout, QStackedWidget, QTabWidget, QImage, QPixmap, pyqtSignal)
 
 from calibre.constants import __appname__, get_version
@@ -21,6 +21,10 @@ from calibre.gui2.tweak_book.boss import Boss
 from calibre.gui2.tweak_book.keyboard import KeyboardManager
 from calibre.gui2.tweak_book.preview import Preview
 from calibre.gui2.tweak_book.search import SearchPanel
+
+def elided_text(font, text, width=200, mode=Qt.ElideMiddle):
+    fm = QFontMetrics(font)
+    return unicode(fm.elidedText(text, mode, int(width)))
 
 class Central(QStackedWidget):
 
@@ -146,6 +150,9 @@ class Main(MainWindow):
         self.keyboard.finalize()
         self.keyboard.set_mode('other')
 
+    def elided_text(self, text, width=200, mode=Qt.ElideMiddle):
+        return elided_text(self.font(), text, width=width, mode=mode)
+
     @property
     def editor_tabs(self):
         return self.central.editor_tabs
@@ -165,6 +172,7 @@ class Main(MainWindow):
             self.addAction(ac)
             return ac
 
+        self.action_new_file = reg('document-new.png', _('&New file'), self.boss.add_file, 'new-file', (), _('Create a new file in the current book'))
         self.action_open_book = reg('document_open.png', _('Open &book'), self.boss.open_book, 'open-book', 'Ctrl+O', _('Open a new book'))
         self.action_global_undo = reg('back.png', _('&Revert to before'), self.boss.do_global_undo, 'global-undo', 'Ctrl+Left',
                                       _('Revert book to before the last action (Undo)'))
@@ -245,6 +253,7 @@ class Main(MainWindow):
         b = self.menuBar()
 
         f = b.addMenu(_('&File'))
+        f.addAction(self.action_new_file)
         f.addAction(self.action_open_book)
         f.addAction(self.action_save)
         f.addAction(self.action_quit)
@@ -302,7 +311,7 @@ class Main(MainWindow):
             return b
 
         a = create(_('Book tool bar'), 'global').addAction
-        for x in ('open_book', 'global_undo', 'global_redo', 'save', 'create_checkpoint', 'toc'):
+        for x in ('new_file', 'open_book', 'global_undo', 'global_redo', 'save', 'create_checkpoint', 'toc'):
             a(getattr(self, 'action_' + x))
 
         a = create(_('Polish book tool bar'), 'polish').addAction

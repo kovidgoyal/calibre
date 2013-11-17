@@ -6,19 +6,22 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
+import os
 from binascii import hexlify
 from collections import OrderedDict
 from PyQt4.Qt import (
     QWidget, QTreeWidget, QGridLayout, QSize, Qt, QTreeWidgetItem, QIcon,
-    QStyledItemDelegate, QStyle, QPixmap, QPainter, pyqtSignal)
+    QStyledItemDelegate, QStyle, QPixmap, QPainter, pyqtSignal,
+    QDialogButtonBox, QDialog, QLabel, QLineEdit, QVBoxLayout)
 
-from calibre import human_readable
+from calibre import human_readable, sanitize_file_name_unicode
 from calibre.ebooks.oeb.base import OEB_STYLES, OEB_DOCS
 from calibre.ebooks.oeb.polish.container import guess_type
 from calibre.ebooks.oeb.polish.cover import get_cover_page_name, get_raster_cover_name
-from calibre.gui2 import error_dialog
+from calibre.gui2 import error_dialog, choose_files
 from calibre.gui2.tweak_book import current_container
 from calibre.gui2.tweak_book.editor import syntax_from_mime
+from calibre.gui2.tweak_book.templates import template_for
 from calibre.utils.icu import sort_key
 
 TOP_ICON_SIZE = 24
@@ -127,6 +130,14 @@ class FileList(QTreeWidget):
                 name = unicode(c.data(0, NAME_ROLE).toString())
                 if name in state['selected']:
                     c.setSelected(True)
+
+    def select_name(self, name):
+        for parent in self.categories.itervalues():
+            for c in (parent.child(i) for i in xrange(parent.childCount())):
+                q = unicode(c.data(0, NAME_ROLE).toString())
+                c.setSelected(q == name)
+                if q == name:
+                    self.scrollToItem(c)
 
     def build(self, container, preserve_state=True):
         if preserve_state:
@@ -360,6 +371,86 @@ class FileList(QTreeWidget):
                 ans['selected'][name] = syntax_from_mime(mime)
         return ans
 
+class NewFileDialog(QDialog):
+
+    def __init__(self, initial_choice='html', parent=None):
+        QDialog.__init__(self, parent)
+        self.l = l = QVBoxLayout()
+        self.setLayout(l)
+        self.la = la = QLabel(_(
+            'Choose a name for the new file'))
+        self.setWindowTitle(_('Choose file'))
+        l.addWidget(la)
+        self.name = n = QLineEdit(self)
+        n.textChanged.connect(self.update_ok)
+        l.addWidget(n)
+        self.err_label = la = QLabel('')
+        la.setWordWrap(True)
+        l.addWidget(la)
+        self.bb = bb = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
+        l.addWidget(bb)
+        bb.accepted.connect(self.accept)
+        bb.rejected.connect(self.reject)
+        self.imp_button = b = bb.addButton(_('Import resource file (image/font/etc.)'), bb.ActionRole)
+        b.setIcon(QIcon(I('view-image.png')))
+        b.clicked.connect(self.import_file)
+
+        self.ok_button = bb.button(bb.Ok)
+
+        self.file_data = ''
+        self.using_template = False
+
+    def show_error(self, msg):
+        self.err_label.setText('<p style="color:red">' + msg)
+        return False
+
+    def import_file(self):
+        path = choose_files(self, 'tweak-book-new-resource-file', _('Choose file'), select_only_single_file=True)
+        if path:
+            path = path[0]
+            with open(path, 'rb') as f:
+                self.file_data = f.read()
+            name = os.path.basename(path)
+            self.name.setText(name)
+
+    @property
+    def name_is_ok(self):
+        name = unicode(self.name.text())
+        if not name or not name.strip():
+            return self.show_error('')
+        ext = name.rpartition('.')[-1]
+        if not ext or ext == name:
+            return self.show_error(_('The file name must have an extension'))
+        norm = name.replace('\\', '/')
+        parts = name.split('/')
+        for x in parts:
+            if sanitize_file_name_unicode(x) != x:
+                return self.show_error(_('The file name contains invalid characters'))
+        if current_container().has_name(norm):
+            return self.show_error(_('This file name already exists in the book'))
+        self.show_error('')
+        return True
+
+    def update_ok(self, *args):
+        self.ok_button.setEnabled(self.name_is_ok)
+
+    def accept(self):
+        if not self.name_is_ok:
+            return error_dialog(self, _('No name specified'), _(
+                'You must specify a name for the new file, with an extension, for example, chapter1.html'), show=True)
+        name = unicode(self.name.text())
+        name, ext = name.rpartition('.')[0::2]
+        name = (name + '.' + ext.lower()).replace('\\', '/')
+        mt = guess_type(name)
+        if mt in OEB_DOCS:
+            self.file_data = template_for('html').encode('utf-8')
+            self.using_template = True
+        elif mt in OEB_STYLES:
+            self.file_data = template_for('css').encode('utf-8')
+            self.using_template = True
+        self.file_name = name
+        QDialog.accept(self)
+
 class FileListWidget(QWidget):
 
     delete_requested = pyqtSignal(object, object)
@@ -375,7 +466,7 @@ class FileListWidget(QWidget):
         self.layout().setContentsMargins(0, 0, 0, 0)
         for x in ('delete_requested', 'reorder_spine', 'rename_requested', 'edit_file'):
             getattr(self.file_list, x).connect(getattr(self, x))
-        for x in ('delete_done',):
+        for x in ('delete_done', 'select_name'):
             setattr(self, x, getattr(self.file_list, x))
 
     def build(self, container, preserve_state=True):

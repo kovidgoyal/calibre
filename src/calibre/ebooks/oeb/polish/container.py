@@ -158,6 +158,46 @@ class Container(object):  # {{{
                 for name, path in self.name_path_map.iteritems()}
         }
 
+    def add_file(self, name, data, media_type=None):
+        ''' Add a file to this container. Entries for the file are
+        automatically created in the OPF manifest and spine
+        (if the file is a text document) '''
+        if self.has_name(name):
+            raise ValueError('A file with the name %s already exists' % name)
+        if '..' in name:
+            raise ValueError('Names are not allowed to have .. in them')
+        href = self.name_to_href(name, self.opf_name)
+        all_hrefs = {x.get('href') for x in self.opf_xpath('//opf:manifest/opf:item[@href]')}
+        if href in all_hrefs:
+            raise ValueError('An item with the href %s already exists in the manifest' % href)
+        path = self.name_to_abspath(name)
+        base = os.path.dirname(path)
+        if not os.path.exists(base):
+            os.makedirs(base)
+        with open(path, 'wb') as f:
+            f.write(data)
+        mt = media_type or guess_type(name)
+        self.name_path_map[name] = path
+        self.mime_map[name] = mt
+        if name in self.names_that_need_not_be_manifested:
+            return
+        all_ids = {x.get('id') for x in self.opf_xpath('//*[@id]')}
+        c = 0
+        item_id = 'id'
+        while item_id in all_ids:
+            c += 1
+            item_id = 'id' + '%d'%c
+        manifest = self.opf_xpath('//opf:manifest')[0]
+        item = manifest.makeelement(OPF('item'),
+                                    id=item_id, href=href)
+        item.set('media-type', mt)
+        self.insert_into_xml(manifest, item)
+        self.dirty(self.opf_name)
+        if mt in OEB_DOCS:
+            spine = self.opf_xpath('//opf:spine')[0]
+            si = manifest.makeelement(OPF('itemref'), idref=item_id)
+            self.insert_into_xml(spine, si)
+
     def rename(self, current_name, new_name):
         ''' Renames a file from current_name to new_name. It automatically
         rebases all links inside the file if the directory the file is in
