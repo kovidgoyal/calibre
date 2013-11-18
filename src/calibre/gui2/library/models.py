@@ -1004,7 +1004,8 @@ class BooksModel(QAbstractTableModel):  # {{{
         id = self.db.id(row)
         books_to_refresh = set([id])
         books_to_refresh |= self.db.set_custom(id, val, extra=s_index,
-                           label=label, num=None, append=False, notify=True)
+                           label=label, num=None, append=False, notify=True,
+                           allow_case_change=True)
         self.refresh_ids(list(books_to_refresh), current_row=row)
         return True
 
