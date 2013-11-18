@@ -12,8 +12,9 @@ from Queue import Queue, Empty
 
 from PyQt4.Qt import (
     QWidget, QVBoxLayout, QApplication, QSize, QNetworkAccessManager, QMenu, QIcon,
-    QNetworkReply, QTimer, QNetworkRequest, QUrl, Qt, QNetworkDiskCache, QToolBar)
-from PyQt4.QtWebKit import QWebView, QWebInspector
+    QNetworkReply, QTimer, QNetworkRequest, QUrl, Qt, QNetworkDiskCache, QToolBar,
+    pyqtSlot, pyqtSignal)
+from PyQt4.QtWebKit import QWebView, QWebInspector, QWebPage
 
 from calibre import prints
 from calibre.constants import iswindows
@@ -217,6 +218,41 @@ class NetworkAccessManager(QNetworkAccessManager):
 
 # }}}
 
+class WebPage(QWebPage):
+
+    sync_requested = pyqtSignal(object)
+
+    def __init__(self, parent):
+        QWebPage.__init__(self, parent)
+        self.setNetworkAccessManager(NetworkAccessManager(self))
+        self.setLinkDelegationPolicy(self.DelegateAllLinks)
+        self.mainFrame().javaScriptWindowObjectCleared.connect(self.init_javascript)
+        self.init_javascript()
+
+    def javaScriptConsoleMessage(self, msg, lineno, source_id):
+        prints('preview js:%s:%s:'%(unicode(source_id), lineno), unicode(msg))
+
+    def init_javascript(self):
+        mf = self.mainFrame()
+        mf.addToJavaScriptWindowObject("py_bridge", self)
+        mf.evaluateJavaScript(
+            '''
+            function handle_click(event) {
+                event.preventDefault();
+                window.py_bridge.request_sync(event.target.getAttribute("lnum"));
+            }
+            window.onload = function() {
+                document.body.addEventListener('click', handle_click, true);
+            }
+            ''')
+
+    @pyqtSlot(str)
+    def request_sync(self, lnum):
+        try:
+            self.sync_requested.emit(int(lnum))
+        except (TypeError, ValueError, OverflowError, AttributeError):
+            pass
+
 class WebView(QWebView):
 
     def __init__(self, parent=None):
@@ -235,10 +271,8 @@ class WebView(QWebView):
         settings.setAttribute(settings.LinksIncludedInFocusChain, False)
         settings.setAttribute(settings.DeveloperExtrasEnabled, True)
         settings.setDefaultTextEncoding('utf-8')
-
-        self.page().setNetworkAccessManager(NetworkAccessManager(self))
-        self.page().setLinkDelegationPolicy(self.page().DelegateAllLinks)
-
+        self._page = WebPage(self)
+        self.setPage(self._page)
         self.clear()
 
     def sizeHint(self):
@@ -274,12 +308,15 @@ class WebView(QWebView):
 
 class Preview(QWidget):
 
+    sync_requested = pyqtSignal(object, object)
+
     def __init__(self, parent=None):
         QWidget.__init__(self, parent)
         self.l = l = QVBoxLayout()
         self.setLayout(l)
         l.setContentsMargins(0, 0, 0, 0)
         self.view = WebView(self)
+        self.view.page().sync_requested.connect(self.request_sync)
         self.inspector = self.view.inspector
         self.inspector.setPage(self.view.page())
         l.addWidget(self.view)
@@ -304,6 +341,10 @@ class Preview(QWidget):
         self.refresh_timer = QTimer(self)
         self.refresh_timer.timeout.connect(self.refresh)
         parse_worker.start()
+
+    def request_sync(self, lnum):
+        if self.current_name:
+            self.sync_requested.emit(self.current_name, lnum)
 
     def show(self, name):
         if name != self.current_name:

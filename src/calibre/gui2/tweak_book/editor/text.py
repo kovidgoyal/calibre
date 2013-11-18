@@ -136,6 +136,22 @@ class TextEdit(QPlainTextEdit):
         self.setTextCursor(c)
         self.ensureCursorVisible()
 
+    def go_to_line(self, lnum):
+        lnum = max(1, min(self.blockCount(), lnum))
+        c = self.textCursor()
+        c.clearSelection()
+        c.movePosition(c.Start)
+        c.movePosition(c.NextBlock, n=lnum - 1)
+        c.movePosition(c.StartOfLine)
+        c.movePosition(c.EndOfLine, c.KeepAnchor)
+        text = unicode(c.selectedText())
+        c.movePosition(c.StartOfLine)
+        lt = text.lstrip()
+        if text and lt and lt != text:
+            c.movePosition(c.NextWord)
+        self.setTextCursor(c)
+        self.ensureCursorVisible()
+
     def update_extra_selections(self):
         sel = []
         if self.current_cursor_line is not None:

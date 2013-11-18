@@ -55,6 +55,7 @@ class Boss(QObject):
         self.gui.central.current_editor_changed.connect(self.apply_current_editor_state)
         self.gui.central.close_requested.connect(self.editor_close_requested)
         self.gui.central.search_panel.search_triggered.connect(self.search)
+        self.gui.preview.sync_requested.connect(self.sync_editor_to_preview)
 
     def mkdtemp(self, prefix=''):
         self.container_count += 1
@@ -492,6 +493,10 @@ class Boss(QObject):
                      _('Saving of the book failed. Click "Show Details"'
                        ' for more information.'), det_msg=tb, show=True)
 
+    def sync_editor_to_preview(self, name, lnum):
+        editor = self.edit_file(name, 'html')
+        editor.go_to_line(lnum)
+
     def init_editor(self, name, editor, data=None, use_template=False):
         editor.undo_redo_state_changed.connect(self.editor_undo_redo_state_changed)
         editor.data_changed.connect(self.editor_data_changed)
@@ -514,6 +519,7 @@ class Boss(QObject):
                 data = use_template
             self.init_editor(name, editor, data, use_template=bool(use_template))
         self.show_editor(name)
+        return editor
 
     def show_editor(self, name):
         self.gui.central.show_editor(editors[name])

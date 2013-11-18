@@ -51,6 +51,9 @@ class Editor(QMainWindow):
     def init_from_template(self, template):
         self.editor.load_text(template, syntax=self.syntax, process_template=True)
 
+    def go_to_line(self, lnum):
+        self.editor.go_to_line(lnum)
+
     def get_raw_data(self):
         return unicode(self.editor.toPlainText())
 
