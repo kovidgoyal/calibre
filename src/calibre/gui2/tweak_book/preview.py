@@ -7,6 +7,8 @@ __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import time
+from bisect import bisect_right
+from future_builtins import map
 from threading import Thread
 from Queue import Queue, Empty
 
@@ -36,7 +38,7 @@ def get_data(name):
 
 # Parsing of html to add linenumbers {{{
 def parse_html(raw):
-    root = parse(raw, decoder=lambda x:x.decode('utf-8'), line_numbers=True, linenumber_attribute='lnum')
+    root = parse(raw, decoder=lambda x:x.decode('utf-8'), line_numbers=True, linenumber_attribute='data-lnum')
     return serialize(root, 'text/html').encode('utf-8')
 
 class ParseItem(object):
@@ -218,6 +220,80 @@ class NetworkAccessManager(QNetworkAccessManager):
 
 # }}}
 
+JS = '''
+function handle_click(event) {
+    event.preventDefault();
+    window.py_bridge.request_sync(event.target.getAttribute("data-lnum"));
+}
+
+function line_numbers() {
+    var elements = document.getElementsByTagName('*'), found_body = false, ans = [], node, i;
+    var found_body = false;
+    var ans = [];
+    for (i = 0; i < elements.length; i++) {
+        node = elements[i];
+        if (!found_body && node.tagName.toLowerCase() === "body") {
+            found_body = true;
+        }
+        if (found_body) {
+            ans.push(node.getAttribute("data-lnum"));
+        }
+    }
+    return ans;
+}
+
+function document_offset_top(obj) {
+    var curtop = 0;
+    if (obj.offsetParent) {
+        do {
+            curtop += obj.offsetTop;
+        } while (obj = obj.offsetParent);
+    return curtop;
+    }
+}
+
+function is_hidden(elem) {
+    var p = elem;
+    while (p) {
+        if (p.style && (p.style.visibility === 'hidden' || p.style.display === 'none'))
+            return true;
+        p = p.parentNode;
+    }
+    return false;
+}
+
+function go_to_line(lnum) {
+    var elements = document.querySelectorAll('[data-lnum="' + lnum + '"]');
+    for (var i = 0; i < elements.length; i++) {
+        var node = elements[i];
+        if (is_hidden(node)) continue;
+        var top = document_offset_top(node) - (window.innerHeight / 2);
+        if (top < 0) top = 0;
+        window.scrollTo(0, top);
+        return;
+    }
+}
+
+window.onload = function() {
+    document.body.addEventListener('click', handle_click, true);
+}
+
+'''
+
+def uniq(vals):
+    ''' Remove all duplicates from vals, while preserving order.  '''
+    vals = vals or ()
+    seen = set()
+    seen_add = seen.add
+    return tuple(x for x in vals if x not in seen and not seen_add(x))
+
+def find_le(a, x):
+    'Find rightmost value in a less than or equal to x'
+    i = bisect_right(a, x)
+    if i:
+        return a[i-1]
+    raise ValueError
+
 class WebPage(QWebPage):
 
     sync_requested = pyqtSignal(object)
@@ -233,18 +309,10 @@ class WebPage(QWebPage):
         prints('preview js:%s:%s:'%(unicode(source_id), lineno), unicode(msg))
 
     def init_javascript(self):
+        self._line_numbers = None
         mf = self.mainFrame()
         mf.addToJavaScriptWindowObject("py_bridge", self)
-        mf.evaluateJavaScript(
-            '''
-            function handle_click(event) {
-                event.preventDefault();
-                window.py_bridge.request_sync(event.target.getAttribute("lnum"));
-            }
-            window.onload = function() {
-                document.body.addEventListener('click', handle_click, true);
-            }
-            ''')
+        mf.evaluateJavaScript(JS)
 
     @pyqtSlot(str)
     def request_sync(self, lnum):
@@ -252,6 +320,24 @@ class WebPage(QWebPage):
             self.sync_requested.emit(int(lnum))
         except (TypeError, ValueError, OverflowError, AttributeError):
             pass
+
+    @property
+    def line_numbers(self):
+        if self._line_numbers is None:
+            def atoi(x):
+                ans, ok = x.toUInt()
+                if not ok:
+                    ans = None
+                return ans
+            self._line_numbers = sorted(uniq(filter(lambda x:x is not None, map(atoi, self.mainFrame().evaluateJavaScript('line_numbers()').toStringList()))))
+        return self._line_numbers
+
+    def go_to_line(self, lnum):
+        try:
+            lnum = find_le(self.line_numbers, lnum)
+        except ValueError:
+            return
+        self.mainFrame().evaluateJavaScript('go_to_line(%d)' % lnum)
 
 class WebView(QWebView):
 
@@ -341,10 +427,25 @@ class Preview(QWidget):
         self.refresh_timer = QTimer(self)
         self.refresh_timer.timeout.connect(self.refresh)
         parse_worker.start()
+        self.current_sync_request = None
 
     def request_sync(self, lnum):
         if self.current_name:
             self.sync_requested.emit(self.current_name, lnum)
+
+    def sync_to_editor(self, name, lnum):
+        self.current_sync_request = (name, lnum)
+        QTimer.singleShot(100, self._sync_to_editor)
+
+    def _sync_to_editor(self):
+        try:
+            if self.refresh_timer.isActive() or self.current_sync_request[0] != self.current_name:
+                return QTimer.singleShot(100, self._sync_to_editor)
+        except TypeError:
+            return  # Happens if current_sync_request is None
+        lnum = self.current_sync_request[1]
+        self.current_sync_request = None
+        self.view.page().go_to_line(lnum)
 
     def show(self, name):
         if name != self.current_name:

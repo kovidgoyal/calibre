@@ -495,12 +495,24 @@ class Boss(QObject):
 
     def sync_editor_to_preview(self, name, lnum):
         editor = self.edit_file(name, 'html')
-        editor.go_to_line(lnum)
+        editor.current_line = lnum
+
+    def sync_preview_to_editor(self):
+        ed = self.gui.central.current_editor
+        if ed is not None:
+            name = None
+            for n, x in editors.iteritems():
+                if ed is x:
+                    name = n
+                    break
+            if name is not None and getattr(ed, 'syntax', None) == 'html':
+                self.gui.preview.sync_to_editor(name, ed.current_line)
 
     def init_editor(self, name, editor, data=None, use_template=False):
         editor.undo_redo_state_changed.connect(self.editor_undo_redo_state_changed)
         editor.data_changed.connect(self.editor_data_changed)
         editor.copy_available_state_changed.connect(self.editor_copy_available_state_changed)
+        editor.cursor_position_changed.connect(self.sync_preview_to_editor)
         if data is not None:
             if use_template:
                 editor.init_from_template(data)

@@ -19,6 +19,7 @@ class Editor(QMainWindow):
     undo_redo_state_changed = pyqtSignal(object, object)
     copy_available_state_changed = pyqtSignal(object)
     data_changed = pyqtSignal(object)
+    cursor_position_changed = pyqtSignal()
 
     def __init__(self, syntax, parent=None):
         QMainWindow.__init__(self, parent)
@@ -36,6 +37,15 @@ class Editor(QMainWindow):
         self.editor.redoAvailable.connect(self._redo_available)
         self.editor.textChanged.connect(self._data_changed)
         self.editor.copyAvailable.connect(self._copy_available)
+        self.editor.cursorPositionChanged.connect(self._cursor_position_changed)
+
+    @dynamic_property
+    def current_line(self):
+        def fget(self):
+            return self.editor.textCursor().blockNumber()
+        def fset(self, val):
+            self.editor.go_to_line(val)
+        return property(fget=fget, fset=fset)
 
     @dynamic_property
     def data(self):
@@ -50,9 +60,6 @@ class Editor(QMainWindow):
 
     def init_from_template(self, template):
         self.editor.load_text(template, syntax=self.syntax, process_template=True)
-
-    def go_to_line(self, lnum):
-        self.editor.go_to_line(lnum)
 
     def get_raw_data(self):
         return unicode(self.editor.toPlainText())
@@ -118,12 +125,14 @@ class Editor(QMainWindow):
         self.modification_state_changed.disconnect()
         self.undo_redo_state_changed.disconnect()
         self.copy_available_state_changed.disconnect()
+        self.cursor_position_changed.disconnect()
         self.data_changed.disconnect()
         self.editor.undoAvailable.disconnect()
         self.editor.redoAvailable.disconnect()
         self.editor.modificationChanged.disconnect()
         self.editor.textChanged.disconnect()
         self.editor.copyAvailable.disconnect()
+        self.editor.cursorPositionChanged.disconnect()
         self.editor.setPlainText('')
 
     def _data_changed(self):
@@ -140,6 +149,9 @@ class Editor(QMainWindow):
     def _copy_available(self, available):
         self.copy_available = self.cut_available = available
         self.copy_available_state_changed.emit(available)
+
+    def _cursor_position_changed(self, *args):
+        self.cursor_position_changed.emit()
 
     def cut(self):
         self.editor.cut()
