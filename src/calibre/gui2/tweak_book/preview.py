@@ -423,6 +423,8 @@ class Preview(QWidget):
         self.sync_toggled(ac.isChecked())
         self.bar.addAction(ac)
 
+        self.bar.addSeparator()
+
         ac = actions['reload-preview']
         ac.triggered.connect(self.refresh)
         self.bar.addAction(ac)
