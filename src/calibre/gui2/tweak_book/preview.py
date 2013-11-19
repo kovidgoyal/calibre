@@ -416,6 +416,13 @@ class Preview(QWidget):
         self.auto_reload_toggled(ac.isChecked())
         self.bar.addAction(ac)
 
+        ac = actions['sync-preview-to-editor']
+        ac.setCheckable(True)
+        ac.setChecked(True)
+        ac.toggled.connect(self.sync_toggled)
+        self.sync_toggled(ac.isChecked())
+        self.bar.addAction(ac)
+
         ac = actions['reload-preview']
         ac.triggered.connect(self.refresh)
         self.bar.addAction(ac)
@@ -438,6 +445,8 @@ class Preview(QWidget):
         QTimer.singleShot(100, self._sync_to_editor)
 
     def _sync_to_editor(self):
+        if not actions['sync-preview-to-editor'].isChecked():
+            return
         try:
             if self.refresh_timer.isActive() or self.current_sync_request[0] != self.current_name:
                 return QTimer.singleShot(100, self._sync_to_editor)
@@ -486,6 +495,11 @@ class Preview(QWidget):
         actions['auto-reload-preview'].setToolTip(_(
             'Auto reload preview when text changes in editor') if not checked else _(
                 'Disable auto reload of preview'))
+
+    def sync_toggled(self, checked):
+        actions['sync-preview-to-editor'].setToolTip(_(
+            'Disable syncing of preview position to editor position') if checked else _(
+                'Enable syncing of preview position to editor position'))
 
     def visibility_changed(self, is_visible):
         if is_visible:

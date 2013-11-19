@@ -220,6 +220,8 @@ class Main(MainWindow):
         # Preview actions
         group = _('Preview')
         self.action_auto_reload_preview = reg('auto-reload.png', _('Auto reload preview'), None, 'auto-reload-preview', (), _('Auto reload preview'))
+        self.action_auto_sync_preview = reg('sync-right.png', _('Sync preview position to editor position'), None, 'sync-preview-to-editor', (), _(
+            'Sync preview position to editor position'))
         self.action_reload_preview = reg('view-refresh.png', _('Refresh preview'), None, 'reload-preview', ('F5',), _('Refresh preview'))
 
         # Search actions
