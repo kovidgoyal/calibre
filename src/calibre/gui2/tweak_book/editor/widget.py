@@ -15,6 +15,8 @@ from calibre.gui2.tweak_book.editor.text import TextEdit
 
 class Editor(QMainWindow):
 
+    has_line_numbers = True
+
     modification_state_changed = pyqtSignal(object)
     undo_redo_state_changed = pyqtSignal(object, object)
     copy_available_state_changed = pyqtSignal(object)
@@ -46,6 +48,10 @@ class Editor(QMainWindow):
         def fset(self, val):
             self.editor.go_to_line(val)
         return property(fget=fget, fset=fset)
+
+    @property
+    def number_of_lines(self):
+        return self.editor.blockCount()
 
     @dynamic_property
     def data(self):

@@ -244,6 +244,7 @@ class Main(MainWindow):
         self.action_count = sreg('count-matches', _('&Count all'),
                                    'count', keys=('Ctrl+N'), description=_('Count number of matches'))
         self.action_mark = reg(None, _('&Mark selected text'), self.boss.mark_selected_text, 'mark-selected-text', ('Ctrl+Shift+M',), _('Mark selected text'))
+        self.action_go_to_line = reg(None, _('Go to &line'), self.boss.go_to_line_number, 'go-to-line-number', ('Ctrl+.',), _('Go to line number'))
 
         # Miscellaneous actions
         group = _('Miscellaneous')
@@ -302,6 +303,8 @@ class Main(MainWindow):
         a(self.action_count)
         e.addSeparator()
         a(self.action_mark)
+        e.addSeparator()
+        a(self.action_go_to_line)
 
     def create_toolbars(self):
         def create(text, name):

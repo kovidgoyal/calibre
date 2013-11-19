@@ -493,6 +493,14 @@ class Boss(QObject):
                      _('Saving of the book failed. Click "Show Details"'
                        ' for more information.'), det_msg=tb, show=True)
 
+    def go_to_line_number(self):
+        ed = self.gui.central.current_editor
+        if ed is None or not ed.has_line_numbers:
+            return
+        num, ok = QInputDialog.getInt(self.gui, _('Enter line number'), ('Line number:'), ed.current_line, 1, max(100000, ed.number_of_lines))
+        if ok:
+            ed.current_line = num
+
     def sync_editor_to_preview(self, name, lnum):
         editor = self.edit_file(name, 'html')
         editor.current_line = lnum
@@ -597,6 +605,7 @@ class Boss(QObject):
             actions['editor-save'].setEnabled(ed.is_modified)
             actions['editor-cut'].setEnabled(ed.copy_available)
             actions['editor-copy'].setEnabled(ed.cut_available)
+            actions['go-to-line-number'].setEnabled(ed.has_line_numbers)
             self.gui.keyboard.set_mode(ed.syntax)
             name = None
             for n, x in editors.iteritems():
@@ -607,6 +616,7 @@ class Boss(QObject):
                 self.gui.preview.show(name)
         else:
             self.gui.keyboard.set_mode('other')
+            actions['go-to-line-number'].setEnabled(False)
 
     def editor_close_requested(self, editor):
         name = None
