@@ -44,6 +44,7 @@ class Boss(QObject):
         self.save_manager = SaveManager(parent)
         self.save_manager.report_error.connect(self.report_save_error)
         self.doing_terminal_save = False
+        self.ignore_preview_to_editor_sync = False
 
     def __call__(self, gui):
         self.gui = gui
@@ -503,9 +504,15 @@ class Boss(QObject):
 
     def sync_editor_to_preview(self, name, lnum):
         editor = self.edit_file(name, 'html')
-        editor.current_line = lnum
+        self.ignore_preview_to_editor_sync = True
+        try:
+            editor.current_line = lnum
+        finally:
+            self.ignore_preview_to_editor_sync = False
 
     def sync_preview_to_editor(self):
+        if self.ignore_preview_to_editor_sync:
+            return
         ed = self.gui.central.current_editor
         if ed is not None:
             name = None
