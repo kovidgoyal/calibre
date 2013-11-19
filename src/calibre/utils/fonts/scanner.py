@@ -73,7 +73,7 @@ def fc_list():
             try:
                 ans.append(d.decode(filesystem_encoding))
             except ValueError:
-                return default_font_dirs
+                continue
     end(str_list)
     if len(ans) < 3:
         return default_font_dirs()
