@@ -1,0 +1,30 @@
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class HindustanTimes(BasicNewsRecipe):
+    title          = u'Loksatta'
+    language       = 'mr'
+    __author__     = 'Krittika Goyal'
+    oldest_article = 1  # days
+    max_articles_per_feed = 25
+    #encoding = 'cp1252'
+    use_embedded_content = False
+
+    no_stylesheets = True
+    auto_cleanup = True
+    #auto_cleanup_keep = '//div[@id="main-image"]'
+
+    feeds          = [
+('Maharashtra',
+ 'http://www.loksatta.com/maharashtra.xml'),
+('Mumbai',
+ 'http://www.loksatta.com/mumbai.xml'),
+('Pune',
+ 'http://www.loksatta.com/pune.xml'),
+('Desh Videsh',
+ 'http://www.loksatta.com/deshvidesh.xml'),
+('Krida',
+ 'http://www.loksatta.com/krida.xml'),
+('Arthasatta',
+ 'http://www.loksatta.com/arthasatta.xml'),
+]
+
