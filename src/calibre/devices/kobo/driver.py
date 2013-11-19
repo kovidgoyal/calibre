@@ -28,7 +28,8 @@ from calibre.ptempfile import PersistentTemporaryFile
 from calibre.constants import DEBUG
 from calibre.utils.config_base import prefs
 
-EPUB_EXT = '.epub'
+EPUB_EXT  = '.epub'
+KEPUB_EXT = '.kepub'
 
 
 # Implementation of QtQHash for strings. This doesn't seem to be in the Python implementation.
@@ -889,7 +890,7 @@ class KOBO(USBMS):
         return collections
 
     def sync_booklists(self, booklists, end_session=True):
-        debug_print('KOBO: started sync_booklists')
+        debug_print('KOBO:sync_booklists - start')
         paths = self.get_device_paths()
 
         blists = {}
@@ -911,7 +912,7 @@ class KOBO(USBMS):
             self.update_device_database_collections(blist, collections, oncard)
 
         USBMS.sync_booklists(self, booklists, end_session=end_session)
-        debug_print('KOBO: finished sync_booklists')
+        debug_print('KOBO:sync_booklists - end')
 
     def rebuild_collections(self, booklist, oncard):
         collections_attributes = []
@@ -1250,14 +1251,16 @@ class KOBOTOUCH(KOBO):
     min_dbversion_externalid        = 65
     min_dbversion_archive           = 71
     min_dbversion_images_on_sdcard  = 77
-    min_dbversion_activiy           = 77
+    min_dbversion_activity          = 77
     min_dbversion_keywords          = 82
 
     max_supported_fwversion         = (3, 0, 0)
-    min_fwversion_images_on_sdcard  = (2,4,1)
-    min_fwversion_images_tree       = (2,9,0)  # Cover images stored in tree under .kobo-images
+    min_fwversion_shelves           = (2, 0, 0)
+    min_fwversion_images_on_sdcard  = (2, 4, 1)
+    min_fwversion_images_tree       = (2, 9, 0)  # Cover images stored in tree under .kobo-images
 
     has_kepubs = True
+    FORMATS = ['kepub', 'epub', 'cbr', 'cbz', 'pdf', 'txt']
 
     booklist_class = KTCollectionsBookList
     book_class = Book
@@ -1982,6 +1985,17 @@ class KOBOTOUCH(KOBO):
 
         return True
 
+    def filename_callback(self, path, mi):
+        debug_print("KoboTouch:filename_callback:Path - {0}".format(path))
+
+        idx = path.rfind('.')
+        ext = path[idx:]
+        if ext == KEPUB_EXT:
+            path = path + EPUB_EXT
+            debug_print("KoboTouch:filename_callback:New path - {0}".format(path))
+
+        return path
+
     def delete_via_sql(self, ContentID, ContentType):
         imageId = super(KOBOTOUCH, self).delete_via_sql(ContentID, ContentType)
 
@@ -2177,7 +2191,7 @@ class KOBOTOUCH(KOBO):
                 if self.dbversion < 53:
                     debug_print("KoboTouch:update_device_database_collections - calling reset_readstatus")
                     self.reset_readstatus(connection, oncard)
-                if self.dbversion >= 14:
+                if self.dbversion >= 14 and self.fwversion < self.min_fwversion_shelves:
                     debug_print("KoboTouch:update_device_database_collections - calling reset_favouritesindex")
                     self.reset_favouritesindex(connection, oncard)
 
@@ -2251,7 +2265,7 @@ class KOBOTOUCH(KOBO):
                 debug_print("No Collections - reseting ReadStatus")
                 if self.dbversion < 53:
                     self.reset_readstatus(connection, oncard)
-                if self.dbversion >= 14:
+                if self.dbversion >= 14 and self.fwversion < self.min_fwversion_shelves:
                     debug_print("No Collections - resetting FavouritesIndex")
                     self.reset_favouritesindex(connection, oncard)
 
@@ -2811,7 +2825,7 @@ class KOBOTOUCH(KOBO):
         return self.dbversion >= self.min_dbversion_externalid
 
     def has_activity_table(self):
-        return self.dbversion >= self.min_dbversion_activiy
+        return self.dbversion >= self.min_dbversion_activity
 
     def modify_database_check(self, function):
         # Checks to see whether the database version is supported
