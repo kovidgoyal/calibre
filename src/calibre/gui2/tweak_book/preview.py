@@ -19,7 +19,7 @@ from PyQt4.Qt import (
 from PyQt4.QtWebKit import QWebView, QWebInspector, QWebPage
 
 from calibre import prints
-from calibre.constants import iswindows
+from calibre.constants import iswindows, DEBUG
 from calibre.ebooks.oeb.polish.parsing import parse
 from calibre.ebooks.oeb.base import serialize, OEB_DOCS
 from calibre.ptempfile import PersistentTemporaryDirectory
@@ -220,66 +220,6 @@ class NetworkAccessManager(QNetworkAccessManager):
 
 # }}}
 
-JS = '''
-function handle_click(event) {
-    event.preventDefault();
-    window.py_bridge.request_sync(event.target.getAttribute("data-lnum"));
-}
-
-function line_numbers() {
-    var elements = document.getElementsByTagName('*'), found_body = false, ans = [], node, i;
-    var found_body = false;
-    var ans = [];
-    for (i = 0; i < elements.length; i++) {
-        node = elements[i];
-        if (!found_body && node.tagName.toLowerCase() === "body") {
-            found_body = true;
-        }
-        if (found_body) {
-            ans.push(node.getAttribute("data-lnum"));
-        }
-    }
-    return ans;
-}
-
-function document_offset_top(obj) {
-    var curtop = 0;
-    if (obj.offsetParent) {
-        do {
-            curtop += obj.offsetTop;
-        } while (obj = obj.offsetParent);
-    return curtop;
-    }
-}
-
-function is_hidden(elem) {
-    var p = elem;
-    while (p) {
-        if (p.style && (p.style.visibility === 'hidden' || p.style.display === 'none'))
-            return true;
-        p = p.parentNode;
-    }
-    return false;
-}
-
-function go_to_line(lnum) {
-    var elements = document.querySelectorAll('[data-lnum="' + lnum + '"]');
-    for (var i = 0; i < elements.length; i++) {
-        var node = elements[i];
-        if (is_hidden(node)) continue;
-        var top = document_offset_top(node) - (window.innerHeight / 2);
-        if (top < 0) top = 0;
-        window.scrollTo(0, top);
-        return;
-    }
-}
-
-window.onload = function() {
-    document.body.addEventListener('click', handle_click, true);
-}
-
-'''
-
 def uniq(vals):
     ''' Remove all duplicates from vals, while preserving order.  '''
     vals = vals or ()
@@ -321,10 +261,14 @@ class WebPage(QWebPage):
         prints('preview js:%s:%s:'%(unicode(source_id), lineno), unicode(msg))
 
     def init_javascript(self):
+        if not hasattr(self, 'js'):
+            from calibre.utils.resources import compiled_coffeescript
+            self.js = compiled_coffeescript('ebooks.oeb.display.utils', dynamic=DEBUG)
+            self.js += compiled_coffeescript('ebooks.oeb.polish.preview', dynamic=DEBUG)
         self._line_numbers = None
         mf = self.mainFrame()
         mf.addToJavaScriptWindowObject("py_bridge", self)
-        mf.evaluateJavaScript(JS)
+        mf.evaluateJavaScript(self.js)
 
     @pyqtSlot(str)
     def request_sync(self, lnum):
@@ -341,7 +285,8 @@ class WebPage(QWebPage):
                 if not ok:
                     ans = None
                 return ans
-            self._line_numbers = sorted(uniq(filter(lambda x:x is not None, map(atoi, self.mainFrame().evaluateJavaScript('line_numbers()').toStringList()))))
+            self._line_numbers = sorted(uniq(filter(lambda x:x is not None, map(atoi, self.mainFrame().evaluateJavaScript(
+                'window.calibre_preview_integration.line_numbers()').toStringList()))))
         return self._line_numbers
 
     def go_to_line(self, lnum):
@@ -349,7 +294,8 @@ class WebPage(QWebPage):
             lnum = find_le(self.line_numbers, lnum)
         except ValueError:
             return
-        self.mainFrame().evaluateJavaScript('go_to_line(%d)' % lnum)
+        self.mainFrame().evaluateJavaScript(
+            'window.calibre_preview_integration.go_to_line(%d)' % lnum)
 
 class WebView(QWebView):
 

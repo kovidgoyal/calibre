@@ -93,6 +93,17 @@ class CalibreUtils
         return this.viewport_to_document(r.left, 0, elem.ownerDocument)[0]
     # }}}
 
+    abstop: (elem) -> # {{{
+        # The left edge of elem in document co-ords. Works in all
+        # circumstances, including column layout. Note that this will cause
+        # a relayout if the render tree is dirty. Also, because of a bug in the
+        # version of WebKit bundled with Qt 4.8, this does not always work, see
+        # https://bugs.launchpad.net/bugs/1132641 for a test case.
+        r = elem.getBoundingClientRect()
+        return this.viewport_to_document(r.top, 0, elem.ownerDocument)[0]
+    # }}}
+
+
 if window?
     window.calibre_utils = new CalibreUtils()
 
