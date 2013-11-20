@@ -38,6 +38,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         r('new_book_tags', prefs, setting=CommaSeparatedList)
         r('mark_new_books', prefs)
         r('auto_add_path', gprefs, restart_required=True)
+        r('auto_add_everything', gprefs, restart_required=True)
         r('auto_add_check_for_duplicates', gprefs)
         r('auto_add_auto_convert', gprefs)
 

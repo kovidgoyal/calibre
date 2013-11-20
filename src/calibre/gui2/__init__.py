@@ -102,6 +102,7 @@ defs['auto_add_path'] = None
 defs['auto_add_check_for_duplicates'] = False
 defs['blocked_auto_formats'] = []
 defs['auto_add_auto_convert'] = True
+defs['auto_add_everything'] = False
 defs['ui_style'] = 'calibre' if iswindows or isosx else 'system'
 defs['tag_browser_old_look'] = False
 defs['book_list_tooltips'] = True

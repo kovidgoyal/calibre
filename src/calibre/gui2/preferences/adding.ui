@@ -173,6 +173,63 @@ Title match ignores leading indefinite articles (&quot;the&quot;, &quot;a&quot;,
       </attribute>
       <layout class="QGridLayout" name="gridLayout_3">
        <item row="5" column="0">
+        <widget class="QCheckBox" name="opt_auto_add_everything">
+         <property name="toolTip">
+          <string>By default, calibre will auto-add only known ebook files. 
+This option tells calibre to add all file types, except those
+that have been explicitly ignored below.</string>
+         </property>
+         <property name="text">
+          <string>Auto add files of &amp;all types (not just ebooks)</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0" colspan="2">
+        <layout class="QHBoxLayout" name="horizontalLayout_2">
+         <item>
+          <widget class="QLineEdit" name="opt_auto_add_path">
+           <property name="placeholderText">
+            <string>Folder to auto-add files from</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QToolButton" name="auto_add_browse_button">
+           <property name="toolTip">
+            <string>Browse for folder</string>
+           </property>
+           <property name="text">
+            <string>...</string>
+           </property>
+           <property name="icon">
+            <iconset resource="../../../../resources/images.qrc">
+             <normaloff>:/images/document_open.png</normaloff>:/images/document_open.png</iconset>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item row="4" column="0">
+        <widget class="QCheckBox" name="opt_auto_add_auto_convert">
+         <property name="text">
+          <string>Automatically &amp;convert added files to the current output format</string>
+         </property>
+        </widget>
+       </item>
+       <item row="7" column="0">
+        <spacer name="verticalSpacer_2">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>40</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item row="6" column="0">
         <widget class="QGroupBox" name="groupBox">
          <layout class="QVBoxLayout" name="verticalLayout_2">
           <item>
@@ -228,7 +285,7 @@ Title match ignores leading indefinite articles (&quot;the&quot;, &quot;a&quot;,
          </property>
         </widget>
        </item>
-       <item row="5" column="1">
+       <item row="6" column="1">
         <spacer name="horizontalSpacer_2">
          <property name="orientation">
           <enum>Qt::Horizontal</enum>
@@ -237,51 +294,6 @@ Title match ignores leading indefinite articles (&quot;the&quot;, &quot;a&quot;,
           <size>
            <width>272</width>
            <height>20</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-       <item row="1" column="0" colspan="2">
-        <layout class="QHBoxLayout" name="horizontalLayout_2">
-         <item>
-          <widget class="QLineEdit" name="opt_auto_add_path">
-           <property name="placeholderText">
-            <string>Folder to auto-add files from</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QToolButton" name="auto_add_browse_button">
-           <property name="toolTip">
-            <string>Browse for folder</string>
-           </property>
-           <property name="text">
-            <string>...</string>
-           </property>
-           <property name="icon">
-            <iconset resource="../../../../resources/images.qrc">
-             <normaloff>:/images/document_open.png</normaloff>:/images/document_open.png</iconset>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </item>
-       <item row="4" column="0">
-        <widget class="QCheckBox" name="opt_auto_add_auto_convert">
-         <property name="text">
-          <string>Automatically &amp;convert added files to the current output format</string>
-         </property>
-        </widget>
-       </item>
-       <item row="6" column="0">
-        <spacer name="verticalSpacer_2">
-         <property name="orientation">
-          <enum>Qt::Vertical</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>20</width>
-           <height>40</height>
           </size>
          </property>
         </spacer>
