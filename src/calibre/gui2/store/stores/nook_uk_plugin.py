@@ -56,9 +56,12 @@ class NookUKStore(BasicStoreConfig, StorePlugin):
                 if counter <= 0:
                     break
 
-                id = ''.join(data.xpath('.//span[contains(@class, "image")]/a/@href'))
-                if not id:
+                id_ = ''.join(data.xpath('.//span[contains(@class, "image")]/a/@href'))
+                if not id_:
                     continue
+                if id_.startswith('/gb'):
+                    id_ = id_[3:]
+                id_ = 'http://uk.nook.com' + id_.strip()
 
                 cover_url = ''.join(data.xpath('.//span[contains(@class, "image")]//img/@data-src'))
 
@@ -77,7 +80,7 @@ class NookUKStore(BasicStoreConfig, StorePlugin):
                 s.title = title.strip()
                 s.author = author.strip()
                 s.price = price.strip()
-                s.detail_item = 'http://uk.nook.com/' + id.strip()
+                s.detail_item = id_
                 s.drm = SearchResult.DRM_UNKNOWN
                 s.formats = 'Nook'
 
