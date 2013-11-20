@@ -15,7 +15,7 @@ class LeMonde(BasicNewsRecipe):
     no_stylesheets         = True
     #delay                  = 1
     use_embedded_content   = False
-    encoding               = 'cp1252'
+    encoding               = 'utf-8'
     publisher              = 'lemonde.fr'
     category               = 'news, France, world'
     language               = 'fr'
