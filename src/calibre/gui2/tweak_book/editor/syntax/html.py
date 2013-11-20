@@ -28,7 +28,7 @@ attribute_name_pat = re.compile(r'''[^%s"'/><=]+''' % space_chars)
 self_closing_pat = re.compile(r'/\s*>')
 unquoted_val_pat = re.compile(r'''[^%s'"=<>`]+''' % space_chars)
 cdata_close_pats = {x:re.compile(r'</%s' % x, flags=re.I) for x in cdata_tags}
-nbsp_pat = re.compile('\xa0+')
+nbsp_pat = re.compile('[\xa0\u2011]+')  # non-breaking spaces and hyphens
 
 class State(object):
 
@@ -366,7 +366,7 @@ if __name__ == '__main__':
         <svg:svg xmlns:svg="http://whatever" />
         <input disabled><input disabled /><span attr=<></span>
         <!-- Non-breaking spaces are rendered differently from normal spaces, so that they stand out -->
-        <p>Some\xa0words\xa0separated\xa0by\xa0non-breaking\xa0spaces.</p>
+        <p>Some\xa0words\xa0separated\xa0by\xa0non\u2011breaking\xa0spaces and non\u2011breaking hyphens.</p>
     </body>
 </html>
 ''', path_is_raw=True)
