@@ -77,6 +77,13 @@ class Quickview(QDialog, Ui_Quickview):
         self.current_item = None
         self.no_valid_items = False
 
+        column_positions = self.view.get_state()['column_positions']
+        column_order = ['title', 'authors',  'series']
+        column_order.sort(key=lambda col: column_positions[col])
+        self.title_column = column_order.index('title')
+        self.author_column = column_order.index('authors')
+        self.series_column = column_order.index('series')
+
         self.items.setSelectionMode(QAbstractItemView.SingleSelection)
         self.items.currentTextChanged.connect(self.item_selected)
 
@@ -85,14 +92,14 @@ class Quickview(QDialog, Ui_Quickview):
         self.books_table.setSelectionMode(QAbstractItemView.SingleSelection)
         self.books_table.setColumnCount(3)
         t = QTableWidgetItem(_('Title'))
-        self.books_table.setHorizontalHeaderItem(0, t)
+        self.books_table.setHorizontalHeaderItem(self.title_column, t)
         t = QTableWidgetItem(_('Authors'))
-        self.books_table.setHorizontalHeaderItem(1, t)
+        self.books_table.setHorizontalHeaderItem(self.author_column, t)
         t = QTableWidgetItem(_('Series'))
-        self.books_table.setHorizontalHeaderItem(2, t)
+        self.books_table.setHorizontalHeaderItem(self.series_column, t)
         self.books_table_header_height = self.books_table.height()
         self.books_table.cellDoubleClicked.connect(self.book_doubleclicked)
-        self.books_table.sortByColumn(0, Qt.AscendingOrder)
+        self.books_table.sortByColumn(self.title_column, Qt.AscendingOrder)
 
         # get the standard table row height. Do this here because calling
         # resizeRowsToContents can word wrap long cell contents, creating
@@ -230,18 +237,18 @@ class Quickview(QDialog, Ui_Quickview):
             a = TableItem(mi.title, mi.title_sort)
             a.setData(Qt.UserRole, b)
             a.setToolTip(tt)
-            self.books_table.setItem(row, 0, a)
+            self.books_table.setItem(row, self.title_column, a)
             if b == self.current_book_id:
                 select_item = a
             a = TableItem(' & '.join(mi.authors), mi.author_sort)
             a.setToolTip(tt)
-            self.books_table.setItem(row, 1, a)
+            self.books_table.setItem(row, self.author_column, a)
             series = mi.format_field('series')[1]
             if series is None:
                 series = ''
             a = TableItem(series, mi.series, mi.series_index)
             a.setToolTip(tt)
-            self.books_table.setItem(row, 2, a)
+            self.books_table.setItem(row, self.series_column, a)
             self.books_table.setRowHeight(row, self.books_table_row_height)
 
         self.books_table.setSortingEnabled(True)
@@ -269,7 +276,7 @@ class Quickview(QDialog, Ui_Quickview):
     def book_doubleclicked(self, row, column):
         if self.no_valid_items:
             return
-        book_id = self.books_table.item(row, 0).data(Qt.UserRole).toInt()[0]
+        book_id = self.books_table.item(row, self.title_column).data(Qt.UserRole).toInt()[0]
         self.view.select_rows([book_id])
         modifiers = int(QApplication.keyboardModifiers())
         if modifiers in (Qt.CTRL, Qt.SHIFT):
