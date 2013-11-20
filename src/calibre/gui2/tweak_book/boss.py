@@ -57,6 +57,7 @@ class Boss(QObject):
         self.gui.central.close_requested.connect(self.editor_close_requested)
         self.gui.central.search_panel.search_triggered.connect(self.search)
         self.gui.preview.sync_requested.connect(self.sync_editor_to_preview)
+        self.gui.preview.split_start_requested.connect(self.split_start_requested)
 
     def mkdtemp(self, prefix=''):
         self.container_count += 1
@@ -501,6 +502,11 @@ class Boss(QObject):
         num, ok = QInputDialog.getInt(self.gui, _('Enter line number'), ('Line number:'), ed.current_line, 1, max(100000, ed.number_of_lines))
         if ok:
             ed.current_line = num
+
+    def split_start_requested(self):
+        if not self.check_dirtied():
+            return self.gui.preview.stop_split()
+        self.gui.preview.do_start_split()
 
     def sync_editor_to_preview(self, name, lnum):
         editor = self.edit_file(name, 'html')

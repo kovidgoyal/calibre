@@ -6,8 +6,9 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import time
+import time, textwrap
 from bisect import bisect_right
+from base64 import b64encode
 from future_builtins import map
 from threading import Thread
 from Queue import Queue, Empty
@@ -23,6 +24,7 @@ from calibre.constants import iswindows, DEBUG
 from calibre.ebooks.oeb.polish.parsing import parse
 from calibre.ebooks.oeb.base import serialize, OEB_DOCS
 from calibre.ptempfile import PersistentTemporaryDirectory
+from calibre.gui2 import error_dialog
 from calibre.gui2.tweak_book import current_container, editors, tprefs, actions
 from calibre.gui2.viewer.documentview import apply_settings
 from calibre.gui2.viewer.config import config
@@ -237,6 +239,7 @@ def find_le(a, x):
 class WebPage(QWebPage):
 
     sync_requested = pyqtSignal(object)
+    split_requested = pyqtSignal(object)
 
     def __init__(self, parent):
         QWebPage.__init__(self, parent)
@@ -251,6 +254,10 @@ class WebPage(QWebPage):
         settings.setAttribute(settings.LinksIncludedInFocusChain, False)
         settings.setAttribute(settings.DeveloperExtrasEnabled, True)
         settings.setDefaultTextEncoding('utf-8')
+        data = 'data:text/css;charset=utf-8;base64,'
+        css = '[data-in-split-mode="1"] [data-is-block="1"]:hover { cursor: pointer !important; border-top: solid 5px green !important }'
+        data += b64encode(css.encode('utf-8'))
+        settings.setUserStyleSheetUrl(QUrl(data))
 
         self.setNetworkAccessManager(NetworkAccessManager(self))
         self.setLinkDelegationPolicy(self.DelegateAllLinks)
@@ -277,6 +284,14 @@ class WebPage(QWebPage):
         except (TypeError, ValueError, OverflowError, AttributeError):
             pass
 
+    @pyqtSlot('QList<int>')
+    def request_split(self, loc):
+        actions['split-in-preview'].setChecked(False)
+        if not loc:
+            return error_dialog(self.view(), _('Invalid location'),
+                                _('Cannot split on the body tag'), show=True)
+        self.split_requested.emit(loc)
+
     @property
     def line_numbers(self):
         if self._line_numbers is None:
@@ -296,6 +311,12 @@ class WebPage(QWebPage):
             return
         self.mainFrame().evaluateJavaScript(
             'window.calibre_preview_integration.go_to_line(%d)' % lnum)
+
+    def split_mode(self, enabled):
+        self.mainFrame().evaluateJavaScript(
+            'window.calibre_preview_integration.split_mode(%s)' % (
+                'true' if enabled else 'false'))
+
 
 class WebView(QWebView):
 
@@ -343,6 +364,8 @@ class WebView(QWebView):
 class Preview(QWidget):
 
     sync_requested = pyqtSignal(object, object)
+    split_requested = pyqtSignal(object, object)
+    split_start_requested = pyqtSignal()
 
     def __init__(self, parent=None):
         QWidget.__init__(self, parent)
@@ -351,6 +374,8 @@ class Preview(QWidget):
         l.setContentsMargins(0, 0, 0, 0)
         self.view = WebView(self)
         self.view.page().sync_requested.connect(self.request_sync)
+        self.view.page().split_requested.connect(self.request_split)
+        self.view.page().loadFinished.connect(self.load_finished)
         self.inspector = self.view.inspector
         self.inspector.setPage(self.view.page())
         l.addWidget(self.view)
@@ -373,6 +398,13 @@ class Preview(QWidget):
 
         self.bar.addSeparator()
 
+        ac = actions['split-in-preview']
+        ac.setCheckable(True)
+        ac.setChecked(False)
+        ac.toggled.connect(self.split_toggled)
+        self.split_toggled(ac.isChecked())
+        self.bar.addAction(ac)
+
         ac = actions['reload-preview']
         ac.triggered.connect(self.refresh)
         self.bar.addAction(ac)
@@ -389,6 +421,10 @@ class Preview(QWidget):
     def request_sync(self, lnum):
         if self.current_name:
             self.sync_requested.emit(self.current_name, lnum)
+
+    def request_split(self, loc):
+        if self.current_name:
+            self.split_requested.emit(self.current_name, loc)
 
     def sync_to_editor(self, name, lnum):
         self.current_sync_request = (name, lnum)
@@ -454,4 +490,27 @@ class Preview(QWidget):
     def visibility_changed(self, is_visible):
         if is_visible:
             self.refresh()
+
+    def split_toggled(self, checked):
+        actions['split-in-preview'].setToolTip(textwrap.fill(_(
+            'Abort file split') if checked else _(
+                'Split this file at a specified location.\n\nAfter clicking this button, click'
+                ' inside the preview panel above at the location you want the file to be split.')))
+        if checked:
+            self.split_start_requested.emit()
+        else:
+            self.view.page().split_mode(False)
+
+    def do_start_split(self):
+        self.view.page().split_mode(True)
+
+    def stop_split(self):
+        actions['split-in-preview'].setChecked(False)
+
+    def load_finished(self, ok):
+        if actions['split-in-preview'].isChecked():
+            if ok:
+                self.do_start_split()
+            else:
+                self.stop_split()
 

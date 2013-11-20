@@ -17,6 +17,21 @@ is_hidden = (elem) ->
         elem = elem.parentNode
     return false
 
+previous_sibling = (node) ->
+    node = node.previousSibling
+    while node and node.nodeType != Node.ELEMENT_NODE
+        node = node.previousSibling
+    return node
+
+is_block = (elem) ->
+    style = window.getComputedStyle(elem)
+    return style.display in ['block', 'flex-box', 'box']
+
+find_containing_block = (elem) ->
+    while elem and elem.getAttribute('data-is-block') != '1'
+        elem = elem.parentNode
+    return elem
+
 class PreviewIntegration
 
     ###
@@ -27,18 +42,20 @@ class PreviewIntegration
     constructor: () ->
         if not this instanceof arguments.callee
             throw new Error('PreviewIntegration constructor called as function')
+        this.blocks_found = false
+        this.in_split_mode = false
 
-    go_to_line: (lnum) ->
+    go_to_line: (lnum) =>
         for node in document.querySelectorAll('[data-lnum="' + lnum + '"]')
             if is_hidden(node)
                 continue
             top = window.calibre_utils.abstop(node) - (window.innerHeight / 2)
-            if (top < 0)
+            if top < 0
                 top = 0
             window.scrollTo(0, top)
             return
 
-    line_numbers: () ->
+    line_numbers: () =>
         found_body = false
         ans = []
         for node in document.getElementsByTagName('*')
@@ -49,18 +66,43 @@ class PreviewIntegration
         return ans
 
     find_blocks: () =>
+        if this.blocks_found
+            return
         for elem in document.body.getElementsByTagName('*')
-            style = window.getComputedStyle(elem)
-            if style.display in ['block', 'flex-box', 'box']
+            if is_block(elem)
                 elem.setAttribute('data-is-block', '1')
-                elem.onclick = this.onclick
+        this.blocks_found = true
 
-    onload: () ->
-        window.document.body.addEventListener('click', window.calibre_preview_integration.onclick, true)
+    split_mode: (enabled) =>
+        this.in_split_mode = enabled
+        document.body.setAttribute('data-in-split-mode', if enabled then '1' else '0')
+        if enabled
+            this.find_blocks()
 
-    onclick: (event) ->
+    report_split: (node) =>
+        loc = []
+        parent = find_containing_block(node)
+        while parent and parent.tagName.toLowerCase() != 'body'
+            num = 0
+            sibling = previous_sibling(parent)
+            while sibling
+                num += 1
+                sibling = previous_sibling(sibling)
+            loc.push(num)
+            parent = parent.parentNode
+        loc.reverse()
+        window.py_bridge.request_split(loc)
+
+    onload: () =>
+        window.document.body.addEventListener('click', this.onclick, true)
+
+    onclick: (event) =>
         event.preventDefault()
-        window.py_bridge.request_sync(event.target.getAttribute("data-lnum"))
+        if this.in_split_mode
+            this.report_split(event.target)
+        else
+            window.py_bridge.request_sync(event.target.getAttribute("data-lnum"))
+        return false
 
 window.calibre_preview_integration = new PreviewIntegration()
 window.onload = window.calibre_preview_integration.onload
