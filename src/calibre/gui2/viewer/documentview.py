@@ -139,6 +139,15 @@ class Document(QWebPage):  # {{{
         data += b64encode(raw.encode('utf-8'))
         self.settings().setUserStyleSheetUrl(QUrl(data))
 
+    def findText(self, q, flags):
+        if self.hyphenatable:
+            q = unicode(q)
+            hyphenated_q = self.javascript(
+                'hyphenate_text(%s, "%s")' % (json.dumps(q, ensure_ascii=False), self.loaded_lang), typ='string')
+            if QWebPage.findText(self, hyphenated_q, flags):
+                return True
+        return QWebPage.findText(self, q, flags)
+
     def misc_config(self, opts):
         self.hyphenate = opts.hyphenate
         self.hyphenate_default_lang = opts.hyphenate_default_lang
@@ -198,10 +207,14 @@ class Document(QWebPage):  # {{{
     def animated_scroll_done(self):
         self.emit(SIGNAL('animated_scroll_done()'))
 
+    @property
+    def hyphenatable(self):
+        # Qt fails to render soft hyphens correctly on windows xp
+        return not isxp and self.hyphenate and getattr(self, 'loaded_lang', '')
+
     @pyqtSignature("")
     def init_hyphenate(self):
-        # Qt fails to render soft hyphens correctly on windows xp
-        if not isxp and self.hyphenate and getattr(self, 'loaded_lang', ''):
+        if self.hyphenatable:
             self.javascript('do_hyphenation("%s")'%self.loaded_lang)
 
     @pyqtSlot(int)
@@ -782,7 +795,7 @@ class DocumentView(QWebView):  # {{{
 
     def search(self, text, backwards=False):
         flags = self.document.FindBackward if backwards else self.document.FindFlags(0)
-        found = self.findText(text, flags)
+        found = self.document.findText(text, flags)
         if found and self.document.in_paged_mode:
             self.document.javascript('paged_display.snap_to_selection()')
         return found

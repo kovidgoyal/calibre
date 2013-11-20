@@ -8,7 +8,7 @@ function do_hyphenation(lang) {
     Hyphenator.config(
         {
         'minwordlength'    : 6,
-        //'hyphenchar'     : '|',
+        // 'hyphenchar'     : '|',
         'displaytogglebox' : false,
         'remoteloading'    : false,
         'doframes'         : true,
@@ -20,5 +20,9 @@ function do_hyphenation(lang) {
         });
     // console.log(lang);
     Hyphenator.hyphenate(document.body, lang);
+}
+
+function hyphenate_text(text, lang) {
+    return Hyphenator.hyphenate(text, lang);
 }
 
