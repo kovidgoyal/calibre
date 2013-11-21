@@ -27,6 +27,13 @@ is_block = (elem) ->
     style = window.getComputedStyle(elem)
     return style.display in ['block', 'flex-box', 'box']
 
+in_table = (elem) ->
+    while elem
+        if elem.tagName?.toLowerCase() == 'table'
+            return true
+        elem = elem.parentNode
+    return false
+
 find_containing_block = (elem) ->
     while elem and elem.getAttribute('data-is-block') != '1'
         elem = elem.parentNode
@@ -69,7 +76,7 @@ class PreviewIntegration
         if this.blocks_found
             return
         for elem in document.body.getElementsByTagName('*')
-            if is_block(elem)
+            if is_block(elem) and not in_table(elem)
                 elem.setAttribute('data-is-block', '1')
         this.blocks_found = true
 
