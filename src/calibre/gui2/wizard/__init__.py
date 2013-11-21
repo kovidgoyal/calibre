@@ -181,6 +181,12 @@ class Sony900(Sony505):
     id = 'prs900'
     output_profile = 'sony900'
 
+class SonyT3(Sony505):
+
+    name = 'SONY Reader T3'
+    id = 'prst3'
+    output_profile = 'sonyt3'
+
 class Nook(Sony505):
     id = 'nook'
     name = 'Nook and Nook Simple Reader'
