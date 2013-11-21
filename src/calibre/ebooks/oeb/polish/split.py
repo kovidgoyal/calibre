@@ -8,8 +8,9 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import copy
 from future_builtins import map
+from urlparse import urlparse
 
-from calibre.ebooks.oeb.base import barename, XPNSMAP, XPath
+from calibre.ebooks.oeb.base import barename, XPNSMAP, XPath, OPF
 from calibre.ebooks.oeb.polish.toc import node_from_loc
 
 def in_table(node):
@@ -137,6 +138,25 @@ def do_split(split_point, log, before=True):
 
     return tree, tree2
 
+class SplitLinkReplacer(object):
+
+    def __init__(self, base, bottom_anchors, top_name, bottom_name, container):
+        self.bottom_anchors, self.bottom_name = bottom_anchors, bottom_name
+        self.container, self.top_name = container, top_name
+        self.base = base
+        self.replaced = False
+
+    def __call__(self, url):
+        if url and url.startswith('#'):
+            return url
+        name = self.container.href_to_name(url, self.base)
+        if name != self.top_name:
+            return url
+        purl = urlparse(url)
+        if purl.fragment and purl.fragment in self.bottom_anchors:
+            url = self.container.name_to_href(self.bottom_name, self.base) + '#' + purl.fragment
+            self.replaced = True
+        return url
 
 def split(container, name, loc):
     root = container.parsed(name)
@@ -145,5 +165,44 @@ def split(container, name, loc):
         raise ValueError('Cannot split inside tables')
     if split_point.tag.endswith('}body'):
         raise ValueError('Cannot split on the <body> tag')
+    tree1, tree2 = do_split(split_point, container.log)
+    root1, root2 = tree1.getroot(), tree2.getroot()
+    anchors_in_top = frozenset(root1.xpath('//*/@id')) | frozenset(root1.xpath('//*/@name')) | {''}
+    anchors_in_bottom = frozenset(root2.xpath('//*/@id')) | frozenset(root2.xpath('//*/@name'))
+    manifest_item = container.generate_item(name, media_type=container.mime_map[name])
+    bottom_name = container.href_to_name(manifest_item.get('href'), container.opf_name)
 
+    # Fix links in the split trees
+    for r, rname, anchors in [(root1, bottom_name, anchors_in_bottom), (root2, name, anchors_in_top)]:
+        for a in r.xpath('//*[@href]'):
+            url = a.get('href')
+            if url.startswith('#'):
+                fname = name
+            else:
+                fname = container.href_to_name(url, name)
+            if fname == name:
+                purl = urlparse(url)
+                if purl.fragment in anchors:
+                    a.set('href', '%s#%s' % (container.name_to_href(rname, name), purl.fragment))
 
+    # Fix all links in the container that point to anchors in the bottom tree
+    for fname, media_type in container.mime_map.iteritems():
+        if fname not in {name, bottom_name}:
+            repl = SplitLinkReplacer(fname, anchors_in_bottom, name, bottom_name, container)
+            container.replace_links(fname, repl)
+
+    container.replace(name, root1)
+    container.replace(bottom_name, root2)
+
+    spine = container.opf_xpath('//opf:spine')[0]
+    for spine_item, spine_name, linear in container.spine_iter:
+        if spine_name == name:
+            break
+    index = spine.index(spine_item) + 1
+
+    si = spine.makeelement(OPF('itemref'), idref=manifest_item.get('id'))
+    if not linear:
+        si.set('linear', 'no')
+    container.insert_into_xml(spine, si, index=index)
+    container.dirty(container.opf_name)
+    return bottom_name

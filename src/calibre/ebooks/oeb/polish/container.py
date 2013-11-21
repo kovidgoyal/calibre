@@ -158,6 +158,14 @@ class Container(object):  # {{{
                 for name, path in self.name_path_map.iteritems()}
         }
 
+    def guess_type(self, name):
+        # epubcheck complains if the mimetype for text documents is set to
+        # text/html in EPUB 2 books. Sigh.
+        ans = guess_type(name)
+        if ans == 'text/html':
+            ans = 'application/xhtml+xml'
+        return ans
+
     def add_file(self, name, data, media_type=None):
         ''' Add a file to this container. Entries for the file are
         automatically created in the OPF manifest and spine
@@ -176,7 +184,7 @@ class Container(object):  # {{{
             os.makedirs(base)
         with open(path, 'wb') as f:
             f.write(data)
-        mt = media_type or guess_type(name)
+        mt = media_type or self.guess_type(name)
         self.name_path_map[name] = path
         self.mime_map[name] = mt
         if name in self.names_that_need_not_be_manifested:
@@ -660,8 +668,15 @@ class Container(object):  # {{{
         self.insert_into_xml(manifest, item)
         self.dirty(self.opf_name)
         name = self.href_to_name(href, self.opf_name)
-        self.name_path_map[name] = self.name_to_abspath(name)
+        self.name_path_map[name] = path = self.name_to_abspath(name)
         self.mime_map[name] = media_type
+        # Ensure that the file corresponding to the newly created item exists
+        # otherwise cloned containers will fail when they try to get the number
+        # of links to the file
+        base = os.path.dirname(path)
+        if not os.path.exists(base):
+            os.makedirs(path)
+        open(path, 'wb').close()
         return item
 
     def format_opf(self):

@@ -20,6 +20,7 @@ from calibre.ebooks.oeb.base import urlnormalize
 from calibre.ebooks.oeb.polish.main import SUPPORTED, tweak_polish
 from calibre.ebooks.oeb.polish.container import get_container as _gc, clone_container, guess_type
 from calibre.ebooks.oeb.polish.replace import rename_files
+from calibre.ebooks.oeb.polish.split import split
 from calibre.gui2 import error_dialog, choose_files, question_dialog, info_dialog
 from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.gui2.tweak_book import set_current_container, current_container, tprefs, actions, editors
@@ -58,6 +59,7 @@ class Boss(QObject):
         self.gui.central.search_panel.search_triggered.connect(self.search)
         self.gui.preview.sync_requested.connect(self.sync_editor_to_preview)
         self.gui.preview.split_start_requested.connect(self.split_start_requested)
+        self.gui.preview.split_requested.connect(self.split_requested)
 
     def mkdtemp(self, prefix=''):
         self.container_count += 1
@@ -507,6 +509,18 @@ class Boss(QObject):
         if not self.check_dirtied():
             return self.gui.preview.stop_split()
         self.gui.preview.do_start_split()
+
+    def split_requested(self, name, loc):
+        if not self.check_dirtied():
+            return
+        self.add_savepoint(self.gui.elided_text(_('Split %s') % name))
+        try:
+            bottom_name = split(current_container(), name, loc)
+        except:
+            self.rewind_savepoint()
+            raise
+        self.apply_container_update_to_gui()
+        self.edit_file(bottom_name, 'html')
 
     def sync_editor_to_preview(self, name, lnum):
         editor = self.edit_file(name, 'html')
