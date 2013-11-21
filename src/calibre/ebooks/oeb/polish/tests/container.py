@@ -8,10 +8,11 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import os, subprocess
 
-from calibre.ebooks.oeb.polish.tests.base import BaseTest, get_simple_book
+from calibre.ebooks.oeb.polish.tests.base import BaseTest, get_simple_book, get_split_book
 
 from calibre.ebooks.oeb.polish.container import get_container as _gc, clone_container, OCF_NS
 from calibre.ebooks.oeb.polish.replace import rename_files
+from calibre.ebooks.oeb.polish.split import split
 from calibre.utils.filenames import nlinks_file
 from calibre.ptempfile import TemporaryFile
 
@@ -174,4 +175,16 @@ class ContainerTests(BaseTest):
         self.assertIn(name, set(c.manifest_id_map.itervalues()))
         self.assertNotIn(name, {x[0] for x in c.spine_names})
 
+        self.check_links(c)
+
+    def test_split_file(self):
+        ' Test splitting of files '
+        book = get_split_book()
+        c = get_container(book)
+        name = 'index.html'
+        nname = split(c, name, '//*[@id="page2"]')
+        root = c.parsed(nname)
+        troot = c.parsed(name)
+        self.assertEqual(1, len(root.xpath('//*[@id="container"]')), 'Split point was not adjusted')
+        self.assertEqual(0, len(troot.xpath('//*[@id="container"]')), 'Split point was not adjusted')
         self.check_links(c)

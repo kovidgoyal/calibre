@@ -158,14 +158,19 @@ class SplitLinkReplacer(object):
             self.replaced = True
         return url
 
-def split(container, name, loc):
+def split(container, name, loc_or_xpath, before=True):
+    ''' Split the file specified by name at the position specified by loc_or_xpath. '''
+
     root = container.parsed(name)
-    split_point = node_from_loc(root, loc)
+    if isinstance(loc_or_xpath, type('')):
+        split_point = root.xpath(loc_or_xpath)[0]
+    else:
+        split_point = node_from_loc(root, loc_or_xpath)
     if in_table(split_point):
         raise ValueError('Cannot split inside tables')
     if split_point.tag.endswith('}body'):
         raise ValueError('Cannot split on the <body> tag')
-    tree1, tree2 = do_split(split_point, container.log)
+    tree1, tree2 = do_split(split_point, container.log, before=before)
     root1, root2 = tree1.getroot(), tree2.getroot()
     anchors_in_top = frozenset(root1.xpath('//*/@id')) | frozenset(root1.xpath('//*/@name')) | {''}
     anchors_in_bottom = frozenset(root2.xpath('//*/@id')) | frozenset(root2.xpath('//*/@name'))

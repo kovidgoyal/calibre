@@ -55,6 +55,22 @@ def get_simple_book(fmt='epub'):
             os.remove(x)
     return ans
 
+def get_split_book(fmt='epub'):
+    cache = get_cache()
+    ans = os.path.join(cache, 'split.'+fmt)
+    src = os.path.join(os.path.dirname(__file__), 'split.html')
+    if needs_recompile(ans, src):
+        x = src.replace('split.html', 'index.html')
+        raw = open(src, 'rb').read().decode('utf-8')
+        try:
+            with open(x, 'wb') as f:
+                f.write(raw.encode('utf-8'))
+            build_book(x, ans, args=['--level1-toc=//h:h2', '--language=en', '--authors=Kovid Goyal',
+                                        '--cover=' + I('lt.png')])
+        finally:
+            os.remove(x)
+    return ans
+
 devnull = DevNull()
 
 class BaseTest(unittest.TestCase):
