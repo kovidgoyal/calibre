@@ -113,10 +113,10 @@ class OEBReader(object):
                 self.logger.warn('OPF contains invalid HTML named entities')
             except etree.XMLSyntaxError:
                 data = re.sub(r'(?is)<tours>.+</tours>', '', data)
-                self.logger.warn('OPF contains invalid tours section')
                 data = data.replace('<dc-metadata>',
                     '<dc-metadata xmlns:dc="http://purl.org/metadata/dublin_core">')
                 opf = etree.fromstring(data)
+                self.logger.warn('OPF contains invalid tours section')
 
         ns = namespace(opf.tag)
         if ns not in ('', OPF1_NS, OPF2_NS):
