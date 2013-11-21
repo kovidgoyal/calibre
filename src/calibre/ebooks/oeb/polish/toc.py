@@ -295,8 +295,7 @@ def from_files(container):
         toc.add(text, name)
     return toc
 
-def add_id(container, name, loc):
-    root = container.parsed(name)
+def node_from_loc(root, loc):
     body = root.xpath('//*[local-name()="body"]')[0]
     locs = deque(loc)
     node = body
@@ -304,10 +303,14 @@ def add_id(container, name, loc):
         children = tuple(node.iterchildren(etree.Element))
         node = children[locs[0]]
         locs.popleft()
+    return node
+
+def add_id(container, name, loc):
+    root = container.parsed(name)
+    node = node_from_loc(root, loc)
     node.set('id', node.get('id', uuid_id()))
     container.commit_item(name, keep_parsed=True)
     return node.get('id')
-
 
 def create_ncx(toc, to_href, btitle, lang, uid):
     lang = lang.replace('_', '-')
