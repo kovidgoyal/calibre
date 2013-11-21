@@ -36,7 +36,7 @@ class Book(Book_):
 
         self.mime = mime
 
-        self.size = size # will be set later if None
+        self.size = size  # will be set later if None
 
         if ContentType == '6' and date is not None:
             try:
@@ -73,6 +73,7 @@ class Book(Book_):
 
 
 class ImageWrapper(object):
+
     def __init__(self, image_path):
         self.image_path = image_path
 
@@ -96,7 +97,7 @@ class KTCollectionsBookList(CollectionsBookList):
                 tsval = book.title
 
             show_debug = self.is_debugging_title(tsval) or tsval is None
-            if show_debug: # or len(book.device_collections) > 0:
+            if show_debug:  # or len(book.device_collections) > 0:
                 debug_print('KTCollectionsBookList:get_collections - tsval=', tsval, "book.title=", book.title, "book.title_sort=", book.title_sort)
                 debug_print('KTCollectionsBookList:get_collections - book.device_collections=', book.device_collections)
 #                debug_print(book)
@@ -138,7 +139,7 @@ class KTCollectionsBookList(CollectionsBookList):
                 # values came from.
                 if attr == 'device_collections':
                     doing_dc = True
-                    val = book.device_collections # is a list
+                    val = book.device_collections  # is a list
                     if show_debug:
                         debug_print("KTCollectionsBookList:get_collections - adding book.device_collections", book.device_collections)
                 # If the book is not in the current library, we don't want to use the metadtaa for the collections
@@ -153,7 +154,8 @@ class KTCollectionsBookList(CollectionsBookList):
                         debug_print("KTCollectionsBookList:get_collections - not device_collections")
                         debug_print('          ign=', ign, ', val=', val, ' orig_val=', orig_val, 'fm=', fm)
                         debug_print('          val=', val)
-                if not val: continue
+                if not val:
+                    continue
                 if isbytestring(val):
                     val = val.decode(preferred_encoding, 'replace')
                 if isinstance(val, (list, tuple)):
@@ -188,7 +190,7 @@ class KTCollectionsBookList(CollectionsBookList):
                         # comparing it to the series name.
                         if category == book.series:
                             is_series = True
-                    elif fm is not None and fm['is_custom']: # is a custom field
+                    elif fm is not None and fm['is_custom']:  # is a custom field
                         if fm['datatype'] == 'text' and len(category) > 1 and \
                                 category[0] == '[' and category[-1] == ']':
                             continue
@@ -263,7 +265,8 @@ class KTCollectionsBookList(CollectionsBookList):
         if not DEBUG:
             return False
 #        debug_print("KTCollectionsBookList:is_debugging - title=", title, "self.debugging_title=", self.debugging_title)
-        is_debugging = self.debugging_title is not None and len(self.debugging_title) > 0 and title is not None and (title.lower().find(self.debugging_title.lower()) >= 0 or len(title) == 0)
+        is_debugging = self.debugging_title is not None and len(self.debugging_title) > 0 and title is not None and (
+            title.lower().find(self.debugging_title.lower()) >= 0 or len(title) == 0)
 #        debug_print("KTCollectionsBookList:is_debugging - is_debugging=", is_debugging)
 
         return is_debugging
