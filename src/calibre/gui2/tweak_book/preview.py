@@ -20,7 +20,7 @@ from PyQt4.Qt import (
 from PyQt4.QtWebKit import QWebView, QWebInspector, QWebPage
 
 from calibre import prints
-from calibre.constants import iswindows, DEBUG
+from calibre.constants import iswindows
 from calibre.ebooks.oeb.polish.parsing import parse
 from calibre.ebooks.oeb.base import serialize, OEB_DOCS
 from calibre.ptempfile import PersistentTemporaryDirectory
@@ -270,8 +270,8 @@ class WebPage(QWebPage):
     def init_javascript(self):
         if not hasattr(self, 'js'):
             from calibre.utils.resources import compiled_coffeescript
-            self.js = compiled_coffeescript('ebooks.oeb.display.utils', dynamic=DEBUG)
-            self.js += compiled_coffeescript('ebooks.oeb.polish.preview', dynamic=DEBUG)
+            self.js = compiled_coffeescript('ebooks.oeb.display.utils', dynamic=False)
+            self.js += compiled_coffeescript('ebooks.oeb.polish.preview', dynamic=False)
         self._line_numbers = None
         mf = self.mainFrame()
         mf.addToJavaScriptWindowObject("py_bridge", self)
