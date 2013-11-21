@@ -16,9 +16,10 @@ from lxml.etree import XPath as _XPath
 from lxml import etree
 from cssselect import HTMLTranslator
 
-from calibre.ebooks.oeb.base import (OEB_STYLES, XPNSMAP as NAMESPACES,
-        urldefrag, rewrite_links, urlunquote, barename, XHTML, urlnormalize)
 from calibre.ebooks.epub import rules
+from calibre.ebooks.oeb.base import (OEB_STYLES, XPNSMAP as NAMESPACES,
+        urldefrag, rewrite_links, urlunquote, XHTML, urlnormalize)
+from calibre.ebooks.oeb.polish.split import do_split
 
 XPath = functools.partial(_XPath, namespaces=NAMESPACES)
 
@@ -271,31 +272,6 @@ class FlowSplitter(object):
             return None
         return body[0]
 
-    def adjust_split_point(self, root, path):
-        '''
-        Move the split point up its ancestor chain if it has no textual content
-        before it. This handles the common case:
-        <div id="chapter1"><h2>Chapter 1</h2>...</div> with a page break on the
-        h2.
-        '''
-        sp = root.xpath(path)[0]
-        while True:
-            parent = sp.getparent()
-            if barename(parent.tag) in ('body', 'html'):
-                break
-            if parent.text and parent.text.strip():
-                break
-            if parent.index(sp) > 0:
-                break
-            sp = parent
-
-        npath = sp.getroottree().getpath(sp)
-
-        if self.opts.verbose > 3 and npath != path:
-            self.log.debug('\t\t\tMoved split point %s to %s'%(path, npath))
-
-        return npath
-
     def do_split(self, tree, split_point, before):
         '''
         Split ``tree`` into a *before* and *after* tree at ``split_point``.
@@ -303,87 +279,7 @@ class FlowSplitter(object):
         :param before: If True tree is split before split_point, otherwise after split_point
         :return: before_tree, after_tree
         '''
-        path         = tree.getpath(split_point)
-        tree, tree2  = copy.deepcopy(tree), copy.deepcopy(tree)
-        root         = tree.getroot()
-        root2        = tree2.getroot()
-        body, body2  = map(self.get_body, (root, root2))
-        if before:
-            # We cannot adjust for after since moving an after split point to a
-            # parent will cause breakage if the parent contains any content
-            # after the original split point
-            path = self.adjust_split_point(root, path)
-        split_point  = root.xpath(path)[0]
-        split_point2 = root2.xpath(path)[0]
-
-        def nix_element(elem, top=True):
-            # Remove elem unless top is False in which case replace elem by its
-            # children
-            parent = elem.getparent()
-            if top:
-                parent.remove(elem)
-            else:
-                index = parent.index(elem)
-                parent[index:index+1] = list(elem.iterchildren())
-
-        # Tree 1
-        hit_split_point = False
-        keep_descendants = False
-        split_point_descendants = frozenset(split_point.iterdescendants())
-        for elem in tuple(body.iterdescendants()):
-            if elem is split_point:
-                hit_split_point = True
-                if before:
-                    nix_element(elem)
-                else:
-                    # We want to keep the descendants of the split point in
-                    # Tree 1
-                    keep_descendants = True
-                    # We want the split point element, but not its tail
-                    elem.tail = '\n'
-
-                continue
-            if hit_split_point:
-                if keep_descendants:
-                    if elem in split_point_descendants:
-                        # elem is a descendant keep it
-                        continue
-                    else:
-                        # We are out of split_point, so prevent further set
-                        # lookups of split_point_descendants
-                        keep_descendants = False
-                nix_element(elem)
-
-        # Tree 2
-        ancestors = frozenset(XPath('ancestor::*')(split_point2))
-        for elem in tuple(body2.iterdescendants()):
-            if elem is split_point2:
-                if not before:
-                    # Keep the split point element's tail, if it contains non-whitespace
-                    # text
-                    tail = elem.tail
-                    if tail and not tail.isspace():
-                        parent = elem.getparent()
-                        idx = parent.index(elem)
-                        if idx == 0:
-                            parent.text = (parent.text or '') + tail
-                        else:
-                            sib = parent[idx-1]
-                            sib.tail = (sib.tail or '') + tail
-                    # Remove the element itself
-                    nix_element(elem)
-                break
-            if elem in ancestors:
-                # We have to preserve the ancestors as they could have CSS
-                # styles that are inherited/applicable, like font or
-                # width. So we only remove the text, if any.
-                elem.text = '\n'
-            else:
-                nix_element(elem, top=False)
-
-        body2.text = '\n'
-
-        return tree, tree2
+        return do_split(split_point, self.log, before=before)
 
     def is_page_empty(self, root):
         body = self.get_body(root)
