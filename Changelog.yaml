@@ -20,6 +20,55 @@
 #   new recipes:
 #     - title: 
 
+- version: 1.12.0
+  date: 2013-11-22
+
+  new features:
+    - title: "Auto adding: Option to add files of all types, not just ebooks. You can now tell calibre to auto add all file types, instead of just known ebooks via Preferences->Adding books->Automatic adding."
+      tickets: [1252814]
+
+    - title: "Quick view: Show the title/author/series columns in the same order as in the main book list."
+      tickets: [1253022]
+
+    - title: "Update Kobo driver to allow sending kepubs"
+      tickets: [1252688]
+
+    - title: "Allow right clicking on covers to copy them in the metadata cover download dialog."
+      tickets: [1251793]
+ 
+  bug fixes:
+    - title: "Titlecase: Fix incorrect title casing for some non-English words."
+      tickets: [1253692]
+
+    - title: "Kobo driver: Fix errors when using rating or numerical custom columns to create shelves."
+      tickets: [1253637]
+
+    - title: "E-book viewer: Allow searching to work with hyphenation enabled, provided you are searching for whole words. Searching for partial words may still not work. For robust searching, turn off hyphenation in the viewer preferences."
+
+    - title: "Get books: Update the B&N UK store plugin to handle changes to the B&N UK website"
+
+    - title: "Apply changes being edited when clicking apply in the email preferences list."
+      tickets: [1252758]
+
+    - title: "Fix crash on linux systems whose fontconfig configuration includes paths to in an undecodable encoding."
+
+    - title: "Fix editing custom column values in the book list not allowing change of case."
+      tickets: [1251768]
+
+    - title: "Kobo driver: Fix latest firmware update for Kobo Wifi causing calibre to not recognize it."
+      tickets: [1251536]
+
+    - title: "Content server: Fix virtual libraries with an ampersand in their names not working"
+
+  improved recipes:
+    - Le Monde (free version)
+    - Pecat
+    - Daily Express
+
+  new recipes:
+    - title: Loksatta and Maharashtra Times
+      author: Krittika Goyal
+
 - version: 1.11.0
   date: 2013-11-15
 
