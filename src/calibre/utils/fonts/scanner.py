@@ -73,6 +73,7 @@ def fc_list():
             try:
                 ans.append(d.decode(filesystem_encoding))
             except ValueError:
+                prints('Ignoring undecodeable font path: %r' % d)
                 continue
     end(str_list)
     if len(ans) < 3:
