@@ -11,7 +11,7 @@ from binascii import hexlify
 from collections import OrderedDict
 from PyQt4.Qt import (
     QWidget, QTreeWidget, QGridLayout, QSize, Qt, QTreeWidgetItem, QIcon,
-    QStyledItemDelegate, QStyle, QPixmap, QPainter, pyqtSignal,
+    QStyledItemDelegate, QStyle, QPixmap, QPainter, pyqtSignal, QMenu,
     QDialogButtonBox, QDialog, QLabel, QLineEdit, QVBoxLayout)
 
 from calibre import human_readable, sanitize_file_name_unicode
@@ -19,7 +19,7 @@ from calibre.ebooks.oeb.base import OEB_STYLES, OEB_DOCS
 from calibre.ebooks.oeb.polish.container import guess_type
 from calibre.ebooks.oeb.polish.cover import get_cover_page_name, get_raster_cover_name
 from calibre.gui2 import error_dialog, choose_files
-from calibre.gui2.tweak_book import current_container
+from calibre.gui2.tweak_book import current_container, elided_text
 from calibre.gui2.tweak_book.editor import syntax_from_mime
 from calibre.gui2.tweak_book.templates import template_for
 from calibre.utils.icu import sort_key
@@ -291,7 +291,24 @@ class FileList(QTreeWidget):
             self.set_state(state)
 
     def show_context_menu(self, point):
-        pass  # TODO: Implement this
+        item = self.itemAt(point)
+        if item is None or item in set(self.categories.itervalues()):
+            return
+        m = QMenu(self)
+        num = len(self.selectedItems())
+        if num > 0:
+            m.addAction(QIcon(I('trash.png')), _('&Delete selected files'), self.request_delete)
+        ci = self.currentItem()
+        if ci is not None:
+            cn = unicode(ci.data(0, NAME_ROLE).toString())
+            m.addAction(QIcon(I('modified.png')), _('&Rename %s') % (elided_text(self.font(), cn)), self.edit_current_item)
+
+        if len(list(m.actions())) > 0:
+            m.popup(self.mapToGlobal(point))
+
+    def edit_current_item(self):
+        if self.currentItem() is not None:
+            self.editItem(self.currentItem())
 
     def keyPressEvent(self, ev):
         if ev.key() in (Qt.Key_Delete, Qt.Key_Backspace):

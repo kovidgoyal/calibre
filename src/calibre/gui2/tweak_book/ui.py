@@ -9,22 +9,18 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 from functools import partial
 
 from PyQt4.Qt import (
-    QDockWidget, Qt, QLabel, QIcon, QAction, QApplication, QWidget, QFontMetrics,
+    QDockWidget, Qt, QLabel, QIcon, QAction, QApplication, QWidget,
     QVBoxLayout, QStackedWidget, QTabWidget, QImage, QPixmap, pyqtSignal)
 
 from calibre.constants import __appname__, get_version
 from calibre.gui2.main_window import MainWindow
-from calibre.gui2.tweak_book import current_container, tprefs, actions
+from calibre.gui2.tweak_book import current_container, tprefs, actions, elided_text
 from calibre.gui2.tweak_book.file_list import FileListWidget
 from calibre.gui2.tweak_book.job import BlockingJob
 from calibre.gui2.tweak_book.boss import Boss
 from calibre.gui2.tweak_book.keyboard import KeyboardManager
 from calibre.gui2.tweak_book.preview import Preview
 from calibre.gui2.tweak_book.search import SearchPanel
-
-def elided_text(font, text, width=200, mode=Qt.ElideMiddle):
-    fm = QFontMetrics(font)
-    return unicode(fm.elidedText(text, mode, int(width)))
 
 class Central(QStackedWidget):
 
