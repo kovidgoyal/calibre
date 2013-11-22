@@ -266,8 +266,10 @@ class Boss(QObject):
                                 det_msg=job.traceback, show=True)
         self.gui.file_list.build(current_container())
         self.gui.action_save.setEnabled(True)
-        # TODO: Update the rest of the GUI. This means renaming open editors and
-        # then calling update_editors_from_container()
+        if oldname in editors:
+            editors[newname] = editors.pop(oldname)
+            self.gui.central.rename_editor(editors[newname], newname)
+        self.apply_container_update_to_gui()
     # }}}
 
     # Global history {{{

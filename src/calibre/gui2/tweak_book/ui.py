@@ -75,6 +75,13 @@ class Central(QStackedWidget):
         self.editor_tabs.setTabToolTip(index, _('Full path:') + ' ' + name)
         editor.modification_state_changed.connect(self.editor_modified)
 
+    def rename_editor(self, editor, name):
+        for i in xrange(self.editor_tabs.count()):
+            if self.editor_tabs.widget(i) is editor:
+                fname = name.rpartition('/')[2]
+                self.editor_tabs.setTabText(i, fname)
+                self.editor_tabs.setTabToolTip(i, _('Full path:') + ' ' + name)
+
     def show_editor(self, editor):
         self.setCurrentIndex(1)
         self.editor_tabs.setCurrentWidget(editor)

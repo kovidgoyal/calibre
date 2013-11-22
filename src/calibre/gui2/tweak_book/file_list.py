@@ -58,7 +58,10 @@ class ItemDelegate(QStyledItemDelegate):  # {{{
             if top_level:
                 suffix = '%s(%d)' % (NBSP, index.model().rowCount(index))
             else:
-                suffix = NBSP + human_readable(current_container().filesize(unicode(index.data(NAME_ROLE).toString())))
+                try:
+                    suffix = NBSP + human_readable(current_container().filesize(unicode(index.data(NAME_ROLE).toString())))
+                except EnvironmentError:
+                    suffix = NBSP + human_readable(0)
             br = painter.boundingRect(option.rect, Qt.AlignRight|Qt.AlignVCenter, suffix)
         if top_level and index.row() > 0:
             option.rect.adjust(0, 5, 0, 0)
