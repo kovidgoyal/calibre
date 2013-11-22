@@ -180,7 +180,7 @@ class FileList(QTreeWidget):
 
         font_types = {guess_type('a.'+x) for x in ('ttf', 'otf', 'woff')}
 
-        def get_category(mt):
+        def get_category(name, mt):
             category = 'misc'
             if mt.startswith('image/'):
                 category = 'images'
@@ -190,6 +190,10 @@ class FileList(QTreeWidget):
                 category = 'styles'
             elif mt in OEB_DOCS:
                 category = 'text'
+            ext = name.rpartition('.')[-1].lower()
+            if ext in {'ttf', 'otf', 'woff'}:
+                # Probably wrong mimetype in the OPF
+                category = 'fonts'
             return category
 
         def set_display_name(name, item):
@@ -240,7 +244,7 @@ class FileList(QTreeWidget):
 
         def create_item(name, linear=None):
             imt = container.mime_map.get(name, guess_type(name))
-            icat = get_category(imt)
+            icat = get_category(name, imt)
             category = 'text' if linear is not None else ({'text':'misc'}.get(icat, icat))
             item = QTreeWidgetItem(self.categories['text' if linear is not None else category], 1)
             flags = Qt.ItemIsEnabled | Qt.ItemIsSelectable
