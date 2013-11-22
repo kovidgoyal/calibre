@@ -670,7 +670,7 @@ computers. Run |app| on a single computer and access it via the Content Server
 or a Remote Desktop solution.
 
 If you must share the actual library, use a file syncing tool like
-DropBox or rsync or Microsoft SkyDrive instead of a networked drive. If you are
+DropBox or rsync instead of a networked drive. If you are
 using a file-syncing tool it is **essential** that you make sure that both
 |app| and the file syncing tool do not try to access the |app| library at the
 same time. In other words, **do not** run the file syncing tool and |app| at
