@@ -82,11 +82,14 @@ class UpdateNotification(QDialog):
         self.logo.setMaximumWidth(110)
         self.logo.setPixmap(QPixmap(I('lt.png')).scaled(100, 100,
             Qt.IgnoreAspectRatio, Qt.SmoothTransformation))
+        ver = calibre_version
+        if ver.endswith('.0'):
+            ver = ver[:-2]
         self.label = QLabel(('<p>'+
             _('New version <b>%(ver)s</b> of %(app)s is available for download. '
             'See the <a href="http://calibre-ebook.com/whats-new'
             '">new features</a>.'))%dict(
-                app=__appname__, ver=calibre_version))
+                app=__appname__, ver=ver))
         self.label.setOpenExternalLinks(True)
         self.label.setWordWrap(True)
         self.setWindowTitle(_('Update available!'))
@@ -168,7 +171,6 @@ class UpdateMixin(object):
                     _('updated plugins'))
         self.status_bar.update_label.setText(msg)
         self.status_bar.update_label.setVisible(True)
-
 
         if has_calibre_update:
             if (force or (config.get('new_version_notification') and
