@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import (unicode_literals, division, absolute_import, print_function)
-store_version = 4 # Needed for dynamic plugin loading
+store_version = 5 # Needed for dynamic plugin loading
 
 __license__ = 'GPL 3'
 __copyright__ = '2011-2013, Tomasz Długosz <tomek3d@gmail.com>'
@@ -61,7 +61,7 @@ class EbookpointStore(BasicStoreConfig, StorePlugin):
                     continue
 
                 formats = ', '.join(data.xpath('.//div[@class="ikony"]/span/text()'))
-                if formats == 'MP3':
+                if formats in ['MP3','']:
                     continue
                 cover_url = ''.join(data.xpath('.//a[@class="cover"]/img/@src'))
                 title = ''.join(data.xpath('.//h3/a/@title'))
