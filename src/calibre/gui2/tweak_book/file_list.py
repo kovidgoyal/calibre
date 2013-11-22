@@ -8,11 +8,12 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import os
 from binascii import hexlify
-from collections import OrderedDict
+from collections import OrderedDict, defaultdict
+from functools import partial
 from PyQt4.Qt import (
     QWidget, QTreeWidget, QGridLayout, QSize, Qt, QTreeWidgetItem, QIcon,
     QStyledItemDelegate, QStyle, QPixmap, QPainter, pyqtSignal, QMenu,
-    QDialogButtonBox, QDialog, QLabel, QLineEdit, QVBoxLayout)
+    QDialogButtonBox, QDialog, QLabel, QLineEdit, QVBoxLayout, QScrollArea, QRadioButton)
 
 from calibre import human_readable, sanitize_file_name_unicode
 from calibre.ebooks.oeb.base import OEB_STYLES, OEB_DOCS
@@ -81,6 +82,7 @@ class FileList(QTreeWidget):
     reorder_spine = pyqtSignal(object)
     rename_requested = pyqtSignal(object, object)
     edit_file = pyqtSignal(object, object, object)
+    merge_requested = pyqtSignal(object, object, object)
 
     def __init__(self, parent=None):
         QTreeWidget.__init__(self, parent)
@@ -295,7 +297,8 @@ class FileList(QTreeWidget):
         if item is None or item in set(self.categories.itervalues()):
             return
         m = QMenu(self)
-        num = len(self.selectedItems())
+        sel = self.selectedItems()
+        num = len(sel)
         if num > 0:
             m.addAction(QIcon(I('trash.png')), _('&Delete selected files'), self.request_delete)
         ci = self.currentItem()
@@ -303,8 +306,33 @@ class FileList(QTreeWidget):
             cn = unicode(ci.data(0, NAME_ROLE).toString())
             m.addAction(QIcon(I('modified.png')), _('&Rename %s') % (elided_text(self.font(), cn)), self.edit_current_item)
 
+        selected_map = defaultdict(list)
+        for item in sel:
+            selected_map[unicode(item.data(0, CATEGORY_ROLE).toString())].append(unicode(item.data(0, NAME_ROLE).toString()))
+
+        for items in selected_map.itervalues():
+            items.sort(key=self.index_of_name)
+
+        if len(selected_map['text']) > 1:
+            m.addAction(QIcon(I('merge.png')), _('&Merge selected text files'), partial(self.start_merge, 'text', selected_map['text']))
+        if len(selected_map['styles']) > 1:
+            m.addAction(QIcon(I('merge.png')), _('&Merge selected style files'), partial(self.start_merge, 'styles', selected_map['styles']))
+
         if len(list(m.actions())) > 0:
             m.popup(self.mapToGlobal(point))
+
+    def index_of_name(self, name):
+        for category, parent in self.categories.iteritems():
+            for i in xrange(parent.childCount()):
+                item = parent.child(i)
+                if unicode(item.data(0, NAME_ROLE).toString()) == name:
+                    return (category, i)
+        return (None, -1)
+
+    def start_merge(self, category, names):
+        d = MergeDialog(names, self)
+        if d.exec_() == d.Accepted and d.ans:
+            self.merge_requested.emit(category, names, d.ans)
 
     def edit_current_item(self):
         if self.currentItem() is not None:
@@ -391,7 +419,7 @@ class FileList(QTreeWidget):
                 ans['selected'][name] = syntax_from_mime(mime)
         return ans
 
-class NewFileDialog(QDialog):
+class NewFileDialog(QDialog):  # {{{
 
     def __init__(self, initial_choice='html', parent=None):
         QDialog.__init__(self, parent)
@@ -470,6 +498,42 @@ class NewFileDialog(QDialog):
             self.using_template = True
         self.file_name = name
         QDialog.accept(self)
+# }}}
+
+class MergeDialog(QDialog):  # {{{
+
+    def __init__(self, names, parent=None):
+        QDialog.__init__(self, parent)
+        self.setWindowTitle(_('Choose master file'))
+        self.l = l = QVBoxLayout()
+        self.setLayout(l)
+        self.la = la = QLabel(_('Choose the master file. All selected files will be merged into the master file:'))
+        la.setWordWrap(True)
+        l.addWidget(la)
+        self.sa = sa = QScrollArea(self)
+        l.addWidget(sa)
+        self.bb = bb = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
+        l.addWidget(bb)
+        bb.accepted.connect(self.accept)
+        bb.rejected.connect(self.reject)
+        self.w = w = QWidget(self)
+        w.l = QVBoxLayout()
+        w.setLayout(w.l)
+
+        buttons = self.buttons = [QRadioButton(n) for n in names]
+        buttons[0].setChecked(True)
+        map(w.l.addWidget, buttons)
+        sa.setWidget(w)
+
+        self.resize(self.sizeHint() + QSize(150, 20))
+
+    @property
+    def ans(self):
+        for b in self.buttons:
+            if b.isChecked():
+                return unicode(b.text())
+
+# }}}
 
 class FileListWidget(QWidget):
 
@@ -477,6 +541,7 @@ class FileListWidget(QWidget):
     reorder_spine = pyqtSignal(object)
     rename_requested = pyqtSignal(object, object)
     edit_file = pyqtSignal(object, object, object)
+    merge_requested = pyqtSignal(object, object, object)
 
     def __init__(self, parent=None):
         QWidget.__init__(self, parent)
@@ -484,7 +549,7 @@ class FileListWidget(QWidget):
         self.file_list = FileList(self)
         self.layout().addWidget(self.file_list)
         self.layout().setContentsMargins(0, 0, 0, 0)
-        for x in ('delete_requested', 'reorder_spine', 'rename_requested', 'edit_file'):
+        for x in ('delete_requested', 'reorder_spine', 'rename_requested', 'edit_file', 'merge_requested'):
             getattr(self.file_list, x).connect(getattr(self, x))
         for x in ('delete_done', 'select_name'):
             setattr(self, x, getattr(self.file_list, x))
