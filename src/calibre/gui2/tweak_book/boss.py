@@ -190,7 +190,7 @@ class Boss(QObject):
         if c.opf_name in editors:
             editors[c.opf_name].replace_data(c.raw_data(c.opf_name))
         mt = c.mime_map[d.file_name]
-        syntax = syntax_from_mime(mt)
+        syntax = syntax_from_mime(d.file_name, mt)
         if syntax:
             if d.using_template:
                 self.edit_file(d.file_name, syntax, use_template=d.file_data.decode('utf-8'))
@@ -578,7 +578,7 @@ class Boss(QObject):
         if name in editors:
             self.gui.central.show_editor(editors[name])
             return
-        syntax = syntax or syntax_from_mime(mime)
+        syntax = syntax or syntax_from_mime(name, mime)
         if not syntax:
             return error_dialog(
                 self.gui, _('Unsupported file format'),

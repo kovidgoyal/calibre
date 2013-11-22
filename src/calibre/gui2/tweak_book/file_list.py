@@ -416,11 +416,11 @@ class FileList(QTreeWidget):
             name = unicode(item.data(0, NAME_ROLE).toString())
             ok = category in {'text', 'styles'}
             if ok:
-                ans[category][name] = syntax_from_mime(mime)
+                ans[category][name] = syntax_from_mime(name, mime)
             if not ok and category == 'misc':
                 ok = mime in {guess_type('a.'+x) for x in ('opf', 'ncx', 'txt', 'xml')}
             if ok and item.isSelected():
-                ans['selected'][name] = syntax_from_mime(mime)
+                ans['selected'][name] = syntax_from_mime(name, mime)
         return ans
 
 class NewFileDialog(QDialog):  # {{{

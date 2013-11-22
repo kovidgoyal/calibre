@@ -11,7 +11,7 @@ from PyQt4.Qt import QTextCharFormat
 from calibre.ebooks.oeb.base import OEB_DOCS, OEB_STYLES
 from calibre.ebooks.oeb.polish.container import guess_type
 
-def syntax_from_mime(mime):
+def syntax_from_mime(name, mime):
     if mime in OEB_DOCS:
         return 'html'
     if mime in OEB_STYLES:
