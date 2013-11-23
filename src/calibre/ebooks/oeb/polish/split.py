@@ -10,7 +10,7 @@ import copy, os
 from future_builtins import map
 from urlparse import urlparse
 
-from calibre.ebooks.oeb.base import barename, XPNSMAP, XPath, OPF, XHTML
+from calibre.ebooks.oeb.base import barename, XPNSMAP, XPath, OPF, XHTML, OEB_DOCS
 from calibre.ebooks.oeb.polish.toc import node_from_loc
 from calibre.ebooks.oeb.polish.replace import LinkRebaser
 
@@ -353,6 +353,49 @@ def merge_html(container, names, master):
         repl = MergeLinkReplacer(fname, anchor_map, master, container)
         container.replace_links(fname, repl)
 
+def merge_css(container, names, master):
+    p = container.parsed
+    msheet = p(master)
+    master_base = os.path.dirname(master)
+    merged = set()
+
+    for name in names:
+        if name == master:
+            continue
+        # Rebase links if master is in a different directory
+        if os.path.dirname(name) != master_base:
+            container.replace_links(name, LinkRebaser(container, name, master))
+
+        sheet = p(name)
+
+        # Remove charset rules
+        cr = [r for r in sheet.cssRules if r.type == r.CHARSET_RULE]
+        [sheet.remove(r) for r in cr]
+        for rule in sheet.cssRules:
+            msheet.add(rule)
+
+        container.remove_item(name)
+        merged.add(name)
+
+    # Remove links to merged stylesheets in the html files, replacing with a
+    # link to the master sheet
+    for name, mt in container.mime_map.iteritems():
+        if mt in OEB_DOCS:
+            removed = False
+            root = p(name)
+            for link in XPath('//h:link[@href]')(root):
+                q = container.href_to_name(link.get('href'), name)
+                if q in merged:
+                    container.remove_from_xml(link)
+                    removed = True
+            if removed:
+                container.dirty(name)
+            if removed and master not in set(all_stylesheets(container, name)):
+                head = root.find('h:head', namespaces=XPNSMAP)
+                if head is not None:
+                    link = head.makeelement(XHTML('link'), type='text/css', rel='stylesheet', href=container.name_to_href(master, name))
+                    container.insert_into_xml(head, link)
+
 
 def merge(container, category, names, master):
     if category not in {'text', 'styles'}:
@@ -365,7 +408,7 @@ def merge(container, category, names, master):
     if category == 'text':
         merge_html(container, names, master)
     elif category == 'styles':
-        merge_css(container, names, master)  # noqa
+        merge_css(container, names, master)
 
     container.dirty(master)
 

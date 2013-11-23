@@ -205,3 +205,8 @@ class ContainerTests(BaseTest):
         self.check_links(c)
         root = c.parsed(one)
         self.assertEqual(1, len(root.xpath('//*[@href="../page_styles.css"]')))
+
+        book = get_simple_book()
+        c = get_container(book)
+        merge(c, 'styles', ('stylesheet.css', 'page_styles.css'), 'stylesheet.css')
+        self.check_links(c)
