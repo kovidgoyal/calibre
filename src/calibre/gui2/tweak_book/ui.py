@@ -209,7 +209,7 @@ class Main(MainWindow):
         self.action_toc = reg('toc.png', _('&Edit Table of Contents'), self.boss.edit_toc, 'edit-toc', (), _('Edit Table of Contents'))
 
         # Polish actions
-        group = _('Polish')
+        group = _('Polish Book')
         self.action_subset_fonts = reg(
             'subset-fonts.png', _('&Subset embedded fonts'), partial(
                 self.boss.polish, 'subset', _('Subset fonts')), 'subset-fonts', (), _('Subset embedded fonts'))
