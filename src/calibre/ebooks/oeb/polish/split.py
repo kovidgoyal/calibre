@@ -6,12 +6,16 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import copy
+import copy, os
 from future_builtins import map
 from urlparse import urlparse
 
-from calibre.ebooks.oeb.base import barename, XPNSMAP, XPath, OPF
+from calibre.ebooks.oeb.base import barename, XPNSMAP, XPath, OPF, XHTML
 from calibre.ebooks.oeb.polish.toc import node_from_loc
+from calibre.ebooks.oeb.polish.replace import LinkRebaser
+
+class AbortError(ValueError):
+    pass
 
 def in_table(node):
     while node is not None:
@@ -167,9 +171,9 @@ def split(container, name, loc_or_xpath, before=True):
     else:
         split_point = node_from_loc(root, loc_or_xpath)
     if in_table(split_point):
-        raise ValueError('Cannot split inside tables')
+        raise AbortError('Cannot split inside tables')
     if split_point.tag.endswith('}body'):
-        raise ValueError('Cannot split on the <body> tag')
+        raise AbortError('Cannot split on the <body> tag')
     tree1, tree2 = do_split(split_point, container.log, before=before)
     root1, root2 = tree1.getroot(), tree2.getroot()
     anchors_in_top = frozenset(root1.xpath('//*/@id')) | frozenset(root1.xpath('//*/@name')) | {''}
@@ -211,3 +215,157 @@ def split(container, name, loc_or_xpath, before=True):
     container.insert_into_xml(spine, si, index=index)
     container.dirty(container.opf_name)
     return bottom_name
+
+class MergeLinkReplacer(object):
+
+    def __init__(self, base, anchor_map, master, container):
+        self.container, self.anchor_map = container, anchor_map
+        self.master = master
+        self.base = base
+        self.replaced = False
+
+    def __call__(self, url):
+        if url and url.startswith('#'):
+            return url
+        name = self.container.href_to_name(url, self.base)
+        amap = self.anchor_map.get(name, None)
+        if amap is None:
+            return url
+        purl = urlparse(url)
+        frag = purl.fragment or ''
+        frag = amap.get(frag, frag)
+        url = self.container.name_to_href(self.master, self.base) + '#' + frag
+        self.replaced = True
+        return url
+
+
+def add_text(body, text):
+    if len(body) > 0:
+        body[-1].tail = (body[-1].tail or '') + text
+    else:
+        body.text = (body.text or '') + text
+
+def all_anchors(root):
+    return set(root.xpath('//*/@id')) | set(root.xpath('//*/@name'))
+
+def all_stylesheets(container, name):
+    for link in XPath('//h:head/h:link[@href]')(container.parsed(name)):
+        name = container.href_to_name(link.get('href'), name)
+        typ = link.get('type', 'text/css')
+        if typ == 'text/css':
+            yield name
+
+def unique_anchor(seen_anchors, current):
+    c = 0
+    ans = current
+    while ans in seen_anchors:
+        c += 1
+        ans = '%s_%d' % (current, c)
+    return ans
+
+def remove_name_attributes(root):
+    # Remove all name attributes, replacing them with id attributes
+    for elem in root.xpath('//*[@id and @name]'):
+        del elem.attrib['name']
+    for elem in root.xpath('//*[@name]'):
+        elem.set('id', elem.attrib.pop('name'))
+
+def merge_html(container, names, master):
+    p = container.parsed
+    root = p(master)
+
+    # Ensure master has a <head>
+    head = root.find('h:head', namespaces=XPNSMAP)
+    if head is None:
+        head = root.makeelement(XHTML('head'))
+        container.insert_into_xml(root, head, 0)
+
+    seen_anchors = all_anchors(root)
+    seen_stylesheets = set(all_stylesheets(container, master))
+    master_body = p(master).findall('h:body', namespaces=XPNSMAP)[-1]
+    master_base = os.path.dirname(master)
+    anchor_map = {n:{} for n in names if n != master}
+
+    for name in names:
+        if name == master:
+            continue
+        # Insert new stylesheets into master
+        for sheet in all_stylesheets(container, name):
+            if sheet not in seen_stylesheets:
+                seen_stylesheets.add(sheet)
+                link = head.makeelement(XHTML('link'), rel='stylesheet', type='text/css', href=container.name_to_href(sheet, master))
+                container.insert_into_xml(head, link)
+
+        # Rebase links if master is in a different directory
+        if os.path.dirname(name) != master_base:
+            container.replace_links(name, LinkRebaser(container, name, master))
+
+        root = p(name)
+        children = []
+        for body in p(name).findall('h:body', namespaces=XPNSMAP):
+            children.append(body.text if body.text and body.text.strip() else '\n\n')
+            children.extend(body)
+
+        first_child = ''
+        for first_child in children:
+            if not isinstance(first_child, basestring):
+                break
+        if isinstance(first_child, basestring):
+            # Empty document, ignore
+            continue
+
+        amap = anchor_map[name]
+        remove_name_attributes(root)
+
+        for elem in root.xpath('//*[@id]'):
+            val = elem.get('id')
+            if not val:
+                continue
+            if val in seen_anchors:
+                nval = unique_anchor(seen_anchors, val)
+                elem.set('id', nval)
+                amap[val] = nval
+            else:
+                seen_anchors.add(val)
+
+        if 'id' not in first_child.attrib:
+            first_child.set('id', unique_anchor(seen_anchors, 'top'))
+            seen_anchors.add(first_child.get('id'))
+
+        amap[''] = first_child.get('id')
+
+        # Fix links that point to local changed anchors
+        for a in XPath('//h:a[starts-with(@href, "#")]')(root):
+            q = a.get('href')[1:]
+            if q in amap:
+                a.set('href', '#' + amap[q])
+
+        for child in children:
+            if isinstance(child, basestring):
+                add_text(master_body, child)
+            else:
+                master_body.append(copy.deepcopy(child))
+
+        container.remove_item(name, remove_from_guide=False)
+
+    # Fix all links in the container that point to merged files
+    for fname, media_type in container.mime_map.iteritems():
+        repl = MergeLinkReplacer(fname, anchor_map, master, container)
+        container.replace_links(fname, repl)
+
+
+def merge(container, category, names, master):
+    if category not in {'text', 'styles'}:
+        raise AbortError('Cannot merge files of type: %s' % category)
+    if len(names) < 2:
+        raise AbortError('Must specify at least two files to be merged')
+    if master not in names:
+        raise AbortError('The master file must be one of the files being merged')
+
+    if category == 'text':
+        merge_html(container, names, master)
+    elif category == 'styles':
+        merge_css(container, names, master)  # noqa
+
+    container.dirty(master)
+

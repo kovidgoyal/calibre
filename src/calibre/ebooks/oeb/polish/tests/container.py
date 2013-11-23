@@ -12,7 +12,7 @@ from calibre.ebooks.oeb.polish.tests.base import BaseTest, get_simple_book, get_
 
 from calibre.ebooks.oeb.polish.container import get_container as _gc, clone_container, OCF_NS
 from calibre.ebooks.oeb.polish.replace import rename_files
-from calibre.ebooks.oeb.polish.split import split
+from calibre.ebooks.oeb.polish.split import split, merge
 from calibre.utils.filenames import nlinks_file
 from calibre.ptempfile import TemporaryFile
 
@@ -188,3 +188,20 @@ class ContainerTests(BaseTest):
         self.assertEqual(1, len(root.xpath('//*[@id="container"]')), 'Split point was not adjusted')
         self.assertEqual(0, len(troot.xpath('//*[@id="container"]')), 'Split point was not adjusted')
         self.check_links(c)
+
+    def test_merge_file(self):
+        ' Test merging of files '
+        book = get_simple_book()
+        c = get_container(book)
+        merge(c, 'text', ('index_split_000.html', 'index_split_001.html'), 'index_split_000.html')
+        self.check_links(c)
+
+        book = get_simple_book()
+        c = get_container(book)
+        one, two = 'one/one.html', 'two/two.html'
+        c.add_file(one, b'<head><link href="../stylesheet.css"><p><a name="one" href="../two/two.html">1</a><a name="two" href="../two/two.html#one">2</a>')  # noqa
+        c.add_file(two, b'<head><link href="../page_styles.css"><p><a name="one" href="two.html#two">1</a><a name="two" href="../one/one.html#one">2</a><a href="#one">3</a>')  # noqa
+        merge(c, 'text', (one, two), one)
+        self.check_links(c)
+        root = c.parsed(one)
+        self.assertEqual(1, len(root.xpath('//*[@href="../page_styles.css"]')))

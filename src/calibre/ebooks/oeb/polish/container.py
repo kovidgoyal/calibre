@@ -539,7 +539,7 @@ class Container(object):  # {{{
             spine[-1].tail = last_tail
         self.dirty(self.opf_name)
 
-    def remove_item(self, name):
+    def remove_item(self, name, remove_from_guide=True):
         '''
         Remove the item identified by name from this container. This removes all
         references to the item in the OPF manifest, guide and spine as well as from
@@ -571,10 +571,11 @@ class Container(object):  # {{{
                     self.remove_from_xml(meta)
                     self.dirty(self.opf_name)
 
-        for item in self.opf_xpath('//opf:guide/opf:reference[@href]'):
-            if self.href_to_name(item.get('href'), self.opf_name) == name:
-                self.remove_from_xml(item)
-                self.dirty(self.opf_name)
+        if remove_from_guide:
+            for item in self.opf_xpath('//opf:guide/opf:reference[@href]'):
+                if self.href_to_name(item.get('href'), self.opf_name) == name:
+                    self.remove_from_xml(item)
+                    self.dirty(self.opf_name)
 
         path = self.name_path_map.pop(name, None)
         if path and os.path.exists(path):
@@ -872,7 +873,7 @@ class EpubContainer(Container):
     def names_that_must_not_be_changed(self):
         return super(EpubContainer, self).names_that_must_not_be_changed | {'META-INF/' + x for x in self.META_INF}
 
-    def remove_item(self, name):
+    def remove_item(self, name, remove_from_guide=True):
         # Handle removal of obfuscated fonts
         if name == 'META-INF/encryption.xml':
             self.obfuscated_fonts.clear()
@@ -890,7 +891,7 @@ class EpubContainer(Container):
                 if name == self.href_to_name(cr.get('URI')):
                     self.remove_from_xml(em.getparent())
                     self.dirty('META-INF/encryption.xml')
-        super(EpubContainer, self).remove_item(name)
+        super(EpubContainer, self).remove_item(name, remove_from_guide=remove_from_guide)
 
     def process_encryption(self):
         fonts = {}

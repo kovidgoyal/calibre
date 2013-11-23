@@ -20,7 +20,7 @@ from calibre.ebooks.oeb.base import urlnormalize
 from calibre.ebooks.oeb.polish.main import SUPPORTED, tweak_polish
 from calibre.ebooks.oeb.polish.container import get_container as _gc, clone_container, guess_type
 from calibre.ebooks.oeb.polish.replace import rename_files
-from calibre.ebooks.oeb.polish.split import split
+from calibre.ebooks.oeb.polish.split import split, merge, AbortError
 from calibre.gui2 import error_dialog, choose_files, question_dialog, info_dialog
 from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.gui2.tweak_book import set_current_container, current_container, tprefs, actions, editors
@@ -54,6 +54,7 @@ class Boss(QObject):
         fl.reorder_spine.connect(self.reorder_spine)
         fl.rename_requested.connect(self.rename_requested)
         fl.edit_file.connect(self.edit_file_requested)
+        fl.merge_requested.connect(self.merge_requested)
         self.gui.central.current_editor_changed.connect(self.apply_current_editor_state)
         self.gui.central.close_requested.connect(self.editor_close_requested)
         self.gui.central.search_panel.search_triggered.connect(self.search)
@@ -515,14 +516,27 @@ class Boss(QObject):
     def split_requested(self, name, loc):
         if not self.check_dirtied():
             return
-        self.add_savepoint(self.gui.elided_text(_('Split %s') % name))
+        self.add_savepoint(_('Split %s') % self.gui.elided_text(name))
         try:
             bottom_name = split(current_container(), name, loc)
-        except:
+        except AbortError:
             self.rewind_savepoint()
             raise
         self.apply_container_update_to_gui()
         self.edit_file(bottom_name, 'html')
+
+    def merge_requested(self, category, names, master):
+        if not self.check_dirtied():
+            return
+        self.add_savepoint(_('Merge files into %s') % self.gui.elided_text(master))
+        try:
+            merge(current_container(), category, names, master)
+        except AbortError:
+            self.rewind_savepoint()
+            raise
+        self.apply_container_update_to_gui()
+        if master in editors:
+            self.show_editor(master)
 
     def sync_editor_to_preview(self, name, lnum):
         editor = self.edit_file(name, 'html')
