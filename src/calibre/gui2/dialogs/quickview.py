@@ -64,6 +64,7 @@ class Quickview(QDialog, Ui_Quickview):
         # Remove the help button from the window title bar
         icon = self.windowIcon()
         self.setWindowFlags(self.windowFlags()&(~Qt.WindowContextHelpButtonHint))
+        self.setWindowFlags(self.windowFlags()|Qt.WindowStaysOnTopHint)
         self.setWindowIcon(icon)
 
         self.db = view.model().db
