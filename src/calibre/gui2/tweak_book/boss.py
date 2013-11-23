@@ -313,6 +313,14 @@ class Boss(QObject):
             if ed.has_marked_text:
                 self.gui.central.search_panel.set_where('selected-text')
 
+    def show_find(self):
+        self.gui.central.show_find()
+        ed = self.gui.central.current_editor
+        if ed is not None:
+            text = ed.selected_text
+            if text and text.strip():
+                self.gui.central.pre_fill_search(text)
+
     def search(self, action, overrides=None):
         ' Run a search/replace '
         sp = self.gui.central.search_panel

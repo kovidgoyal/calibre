@@ -86,6 +86,10 @@ class Editor(QMainWindow):
     def redo(self):
         self.editor.redo()
 
+    @property
+    def selected_text(self):
+        return self.editor.selected_text
+
     # Search and replace {{{
     def mark_selected_text(self):
         self.editor.mark_selected_text()

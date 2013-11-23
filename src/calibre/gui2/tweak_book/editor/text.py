@@ -72,6 +72,10 @@ class TextEdit(QPlainTextEdit):
             self.document().setModified(bool(val))
         return property(fget=fget, fset=fset)
 
+    @property
+    def selected_text(self):
+        return unicode(self.textCursor().selectedText())
+
     def sizeHint(self):
         return self.size_hint
 

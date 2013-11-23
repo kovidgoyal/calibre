@@ -113,6 +113,9 @@ class Central(QStackedWidget):
     def show_find(self):
         self.search_panel.show_panel()
 
+    def pre_fill_search(self, text):
+        self.search_panel.pre_fill(text)
+
 class Main(MainWindow):
 
     APP_NAME = _('Tweak Book')
@@ -231,7 +234,7 @@ class Main(MainWindow):
 
         # Search actions
         group = _('Search')
-        self.action_find = reg('search.png', _('&Find/Replace'), self.central.show_find, 'find-replace', ('Ctrl+F',), _('Show the Find/Replace panel'))
+        self.action_find = reg('search.png', _('&Find/Replace'), self.boss.show_find, 'find-replace', ('Ctrl+F',), _('Show the Find/Replace panel'))
         def sreg(name, text, action, overrides={}, keys=(), description=None, icon=None):
             return reg(icon, text, partial(self.boss.search, action, overrides), name, keys, description or text.replace('&', ''))
         self.action_find_next = sreg('find-next', _('Find &Next'),

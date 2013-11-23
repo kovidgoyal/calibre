@@ -226,6 +226,12 @@ class SearchWidget(QWidget):
     def save_state(self):
         tprefs.set('find-widget-state', self.state)
 
+    def pre_fill(self, text):
+        if self.mode == 'regex':
+            text = regex.escape(text, special_only=True)
+        self.find = text
+        self.find_text.setSelection(0, len(text)+10)
+
 # }}}
 
 regex_cache = {}
@@ -251,6 +257,7 @@ class SearchPanel(QWidget):
         l.addWidget(self.widget)
         self.restore_state, self.save_state = self.widget.restore_state, self.widget.save_state
         self.widget.search_triggered.connect(self.search_triggered)
+        self.pre_fill = self.widget.pre_fill
 
     def hide_panel(self):
         self.setVisible(False)
