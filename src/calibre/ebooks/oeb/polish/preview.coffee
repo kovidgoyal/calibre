@@ -56,10 +56,7 @@ class PreviewIntegration
         for node in document.querySelectorAll('[data-lnum="' + lnum + '"]')
             if is_hidden(node)
                 continue
-            top = window.calibre_utils.abstop(node) - (window.innerHeight / 2)
-            if top < 0
-                top = 0
-            window.scrollTo(0, top)
+            node.scrollIntoView()
             return
 
     line_numbers: () =>
