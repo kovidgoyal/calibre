@@ -292,3 +292,10 @@ class SearchPanel(QWidget):
             ans = regex_cache[(flags, raw)] = regex.compile(raw, flags=flags)
         return ans
 
+    def keyPressEvent(self, ev):
+        if ev.key() == Qt.Key_Escape:
+            self.hide_panel()
+            ev.accept()
+        else:
+            return QWidget.keyPressEvent(self, ev)
+
