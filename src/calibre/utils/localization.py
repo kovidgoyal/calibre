@@ -30,16 +30,17 @@ def get_system_locale():
             from calibre.constants import get_windows_user_locale_name
             lang = get_windows_user_locale_name()
             lang = lang.strip()
-            if not lang: lang = None
+            if not lang:
+                lang = None
         except:
-            pass # Windows XP does not have the GetUserDefaultLocaleName fn
+            pass  # Windows XP does not have the GetUserDefaultLocaleName fn
     if lang is None:
         try:
             lang = locale.getdefaultlocale(['LANGUAGE', 'LC_ALL', 'LC_CTYPE',
                                         'LC_MESSAGES', 'LANG'])[0]
         except:
-            pass # This happens on Ubuntu apparently
-        if lang is None and os.environ.has_key('LANG'): # Needed for OS X
+            pass  # This happens on Ubuntu apparently
+        if lang is None and 'LANG' in os.environ:  # Needed for OS X
             try:
                 lang = os.environ['LANG']
             except:
@@ -88,7 +89,10 @@ def zf_exists():
     return os.path.exists(P('localization/locales.zip',
                 allow_user_override=False))
 
+_lang_trans = None
+
 def set_translators():
+    global _lang_trans
     # To test different translations invoke as
     # CALIBRE_OVERRIDE_LANG=de_DE.utf8 program
     lang = get_lang()
@@ -121,13 +125,14 @@ def set_translators():
                 try:
                     iso639 = cStringIO.StringIO(zf.read(isof))
                 except:
-                    pass # No iso639 translations for this lang
+                    pass  # No iso639 translations for this lang
 
         if buf is not None:
             t = GNUTranslations(buf)
             if iso639 is not None:
-                iso639 = GNUTranslations(iso639)
+                iso639 = _lang_trans = GNUTranslations(iso639)
                 t.add_fallback(iso639)
+                iso639.add_fallback(t)
 
     if t is None:
         t = NullTranslations()
@@ -256,7 +261,10 @@ def get_language(lang):
             ans = iso639['by_3b'][lang]
         else:
             ans = iso639['by_3t'].get(lang, ans)
-    return translate(ans)
+    try:
+        return _lang_trans.ugettext(ans)
+    except AttributeError:
+        return translate(ans)
 
 def calibre_langcode_to_name(lc, localize=True):
     iso639 = _load_iso639()
