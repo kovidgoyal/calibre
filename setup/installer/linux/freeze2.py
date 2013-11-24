@@ -21,10 +21,11 @@ SITE_PACKAGES = ['PIL', 'dateutil', 'dns', 'PyQt4', 'mechanize',
 QTDIR          = '/usr/lib/qt4'
 QTDLLS         = ('QtCore', 'QtGui', 'QtNetwork', 'QtSvg', 'QtXml', 'QtWebKit', 'QtDBus', 'QtXmlPatterns')
 MAGICK_PREFIX = '/usr'
+is64bit = platform.architecture()[0] == '64bit'
 binary_includes = [
                 '/usr/bin/pdftohtml',
                 '/usr/bin/pdfinfo',
-                '/usr/lib/libusb-1.0.so.0',
+                '/usr/lib/libusb-1.0.so.0' if is64bit else '/lib/libusb-1.0.so.0',
                 '/usr/lib/libmtp.so.9',
                 '/usr/lib/libglib-2.0.so.0',
                 '/usr/bin/pdftoppm',
@@ -69,7 +70,6 @@ binary_includes = [
                 ]
 binary_includes += [os.path.join(QTDIR, 'lib%s.so.4'%x) for x in QTDLLS]
 
-is64bit = platform.architecture()[0] == '64bit'
 arch = 'x86_64' if is64bit else 'i686'
 
 

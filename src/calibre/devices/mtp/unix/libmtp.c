@@ -725,18 +725,18 @@ initlibmtp(void) {
 
     // Redirect stdout to get rid of the annoying message about mtpz. Really,
     // who designs a library without anyway to control/redirect the debugging
-    // output, and hardcoded paths that cannot be changed?
-    int bak, new;
-    fprintf(stdout, "\n"); // This is needed, without it, for some odd reason the code below causes stdout to buffer all output after it is restored, rather than using line buffering, and setlinebuf does not work.
-    fflush(stdout);
-    bak = dup(STDOUT_FILENO);
-    new = open("/dev/null", O_WRONLY);
-    dup2(new, STDOUT_FILENO);
-    close(new);
+    // output, and hardcoded paths that cannot be changed? Compiling libmtp without the crypt use flag disables mtpz support in libmtp
+    /* int bak, new; */
+    /* fprintf(stdout, "\n"); // This is needed, without it, for some odd reason the code below causes stdout to buffer all output after it is restored, rather than using line buffering, and setlinebuf does not work. */
+    /* fflush(stdout); */
+    /* bak = dup(STDOUT_FILENO); */
+    /* new = open("/dev/null", O_WRONLY); */
+    /* dup2(new, STDOUT_FILENO); */
+    /* close(new); */
     LIBMTP_Init();
-    fflush(stdout);
-    dup2(bak, STDOUT_FILENO);
-    close(bak);
+    /* fflush(stdout); */
+    /* dup2(bak, STDOUT_FILENO); */
+    /* close(bak); */
 
     LIBMTP_Set_Debug(LIBMTP_DEBUG_NONE);
 
