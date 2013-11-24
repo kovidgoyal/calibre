@@ -12,6 +12,7 @@ import os.path
 from PyQt4.Qt import (QDialog, QGridLayout, QIcon, QLabel, QTreeWidget,
                       QTreeWidgetItem, Qt, QFont, QDialogButtonBox)
 
+from calibre.gui2 import gprefs
 from calibre.ebooks.metadata import authors_to_string
 
 class DuplicatesQuestion(QDialog):
@@ -47,12 +48,16 @@ class DuplicatesQuestion(QDialog):
         bb.accepted.connect(self.accept)
         bb.rejected.connect(self.reject)
         l.addWidget(bb, 2, 0, 1, 2)
+        l.setColumnStretch(1, 10)
         self.ab = ab = bb.addButton(_('Select &all'), bb.ActionRole)
         ab.clicked.connect(self.select_all)
         self.nb = ab = bb.addButton(_('Select &none'), bb.ActionRole)
         ab.clicked.connect(self.select_none)
 
         self.resize(self.sizeHint())
+        geom = gprefs.get('duplicates-question-dialog-geometry', None)
+        if geom is not None:
+            self.restoreGeometry(geom)
         self.exec_()
 
     def select_all(self):
@@ -66,8 +71,16 @@ class DuplicatesQuestion(QDialog):
             x.setCheckState(0, Qt.Unchecked)
 
     def reject(self):
+        self.save_geometry()
         self.select_none()
         QDialog.reject(self)
+
+    def accept(self):
+        self.save_geometry()
+        QDialog.accept(self)
+
+    def save_geometry(self):
+        gprefs.set('duplicates-question-dialog-geometry', bytearray(self.saveGeometry()))
 
     def process_duplicates(self, db, duplicates):
         ta = _('%(title)s by %(author)s [%(formats)s]')
