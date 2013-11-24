@@ -688,7 +688,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                 lastmod = parse_date(lastmod)
             if key in self.known_uuids and self.known_uuids[key]['book'].last_modified == lastmod:
                 self.known_uuids[key]['last_used'] = now()
-                return self.known_uuids[key]['book'].deepcopy()
+                return self.known_uuids[key]['book'].deepcopy(lambda : SDBook('', ''))
         except:
             traceback.print_exc()
         return None

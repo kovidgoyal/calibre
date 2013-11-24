@@ -184,11 +184,14 @@ class Metadata(object):
     def has_key(self, key):
         return key in object.__getattribute__(self, '_data')
 
-    def deepcopy(self):
+    def deepcopy(self, class_generator=lambda : Metadata(None)):
         ''' Do not use this method unless you know what you are doing, if you
         want to create a simple clone of this object, use :meth:`deepcopy_metadata`
-        instead. '''
-        m = Metadata(None)
+        instead. Class_generator must be a function that returns an instance
+        of Metadata or a subclass of it.'''
+        m = class_generator()
+        if not isinstance(m, Metadata):
+            return None
         object.__setattr__(m, '__dict__', copy.deepcopy(self.__dict__))
         return m
 
