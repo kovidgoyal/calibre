@@ -83,7 +83,10 @@ class Element(ElementBase):
     removeChild = ElementBase.remove
 
     def cloneNode(self):
-        return self.makeelement(self.tag, nsmap=self.nsmap, attrib=self.attrib)
+        ans = self.makeelement(self.tag, nsmap=self.nsmap, attrib=self.attrib)
+        for x in ('name', 'namespace', 'nameTuple'):
+            setattr(ans, x, getattr(self, x))
+        return ans
 
     def insertBefore(self, node, ref_node):
         self.insert(self.index(ref_node), node)
@@ -125,7 +128,6 @@ class Element(ElementBase):
         self.text = None
         for child in self:
             new_parent.append(child)
-
 
 class Comment(CommentBase):
 
