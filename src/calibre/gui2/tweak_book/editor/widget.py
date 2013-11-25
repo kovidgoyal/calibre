@@ -130,6 +130,9 @@ class Editor(QMainWindow):
                 b.addAction(actions['editor-%s' % x])
             except KeyError:
                 pass
+        self.tools_bar = b = self.addToolBar(_('Editor tools'))
+        if self.syntax == 'html':
+            b.addAction(actions['fix-html-current'])
 
     def break_cycles(self):
         self.modification_state_changed.disconnect()
@@ -177,6 +180,10 @@ class Editor(QMainWindow):
 
     def contextMenuEvent(self, ev):
         ev.ignore()
+
+    def fix_html(self):
+        if self.syntax == 'html':
+            self.editor.fix_html()
 
 def launch_editor(path_to_edit, path_is_raw=False, syntax='html'):
     if path_is_raw:

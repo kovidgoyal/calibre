@@ -19,6 +19,7 @@ from calibre.ptempfile import PersistentTemporaryDirectory
 from calibre.ebooks.oeb.base import urlnormalize
 from calibre.ebooks.oeb.polish.main import SUPPORTED, tweak_polish
 from calibre.ebooks.oeb.polish.container import get_container as _gc, clone_container, guess_type
+from calibre.ebooks.oeb.polish.pretty import fix_all_html
 from calibre.ebooks.oeb.polish.replace import rename_files
 from calibre.ebooks.oeb.polish.split import split, merge, AbortError
 from calibre.gui2 import error_dialog, choose_files, question_dialog, info_dialog
@@ -305,6 +306,18 @@ class Boss(QObject):
             set_current_container(container)
             self.update_global_history_actions()
     # }}}
+
+    def fix_html(self, current):
+        if current:
+            ed = self.gui.central.current_editor
+            if hasattr(ed, 'fix_html'):
+                ed.fix_html()
+        else:
+            if not self.check_dirtied():
+                return
+            self.add_savepoint(_('Fix HTML'))
+            fix_all_html(current_container())
+            self.update_editors_from_container()
 
     def mark_selected_text(self):
         ed = self.gui.central.current_editor
@@ -657,6 +670,7 @@ class Boss(QObject):
             actions['editor-cut'].setEnabled(ed.copy_available)
             actions['editor-copy'].setEnabled(ed.cut_available)
             actions['go-to-line-number'].setEnabled(ed.has_line_numbers)
+            actions['fix-html-current'].setEnabled(ed.syntax == 'html')
             self.gui.keyboard.set_mode(ed.syntax)
             name = None
             for n, x in editors.iteritems():

@@ -164,6 +164,10 @@ class TextEdit(QPlainTextEdit):
             sel.append(self.current_search_mark)
         self.setExtraSelections(sel)
 
+    def fix_html(self):
+        from calibre.ebooks.oeb.polish.pretty import fix_html
+        self.replace_text(fix_html(unicode(self.toPlainText())).decode('utf-8'))
+
     # Search and replace {{{
     def mark_selected_text(self):
         sel = QTextEdit.ExtraSelection()

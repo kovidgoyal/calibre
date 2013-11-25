@@ -210,6 +210,10 @@ class Main(MainWindow):
         # Tool actions
         group = _('Tools')
         self.action_toc = reg('toc.png', _('&Edit Table of Contents'), self.boss.edit_toc, 'edit-toc', (), _('Edit Table of Contents'))
+        self.action_fix_html_current = reg('html-fix.png', _('&Fix HTML'), partial(self.boss.fix_html, True), 'fix-html-current', (),
+                                           _('Fix HTML in the current file'))
+        self.action_fix_html_all = reg('html-fix.png', _('&Fix HTML - all files'), partial(self.boss.fix_html, False), 'fix-html-all', (),
+                                       _('Fix HTML in all files'))
 
         # Polish actions
         group = _('Polish Book')
@@ -286,6 +290,7 @@ class Main(MainWindow):
         e.addAction(self.action_embed_fonts)
         e.addAction(self.action_subset_fonts)
         e.addAction(self.action_smarten_punctuation)
+        e.addAction(self.action_fix_html_all)
 
         e = b.addMenu(_('&View'))
         t = e.addMenu(_('Tool&bars'))
