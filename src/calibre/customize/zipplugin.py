@@ -94,7 +94,11 @@ def load_translations(namespace, zfp):
         if not lang or lang == 'en':  # performance optimization
             _translations_cache[zfp] = None
             return
-        mo = get_resources(zfp, 'translations/%s.mo' % lang)
+        with zipfile.ZipFile(zfp) as zf:
+            try:
+                mo = zf.read('translations/%s.mo' % lang)
+            except KeyError:
+                mo = None  # No translations for this language present
         if mo is None:
             _translations_cache[zfp] = None
             return
