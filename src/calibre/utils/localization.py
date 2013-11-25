@@ -132,7 +132,6 @@ def set_translators():
             if iso639 is not None:
                 iso639 = _lang_trans = GNUTranslations(iso639)
                 t.add_fallback(iso639)
-                iso639.add_fallback(t)
 
     if t is None:
         t = NullTranslations()
