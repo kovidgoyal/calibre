@@ -43,7 +43,7 @@ exists, join, relpath = os.path.exists, os.path.join, os.path.relpath
 def guess_type(x):
     return _guess_type(x)[0] or 'application/octet-stream'
 
-OEB_FONTS = {guess_type('a.ttf'), guess_type('b.ttf')}
+OEB_FONTS = {guess_type('a.ttf'), guess_type('b.otf')}
 OPF_NAMESPACES = {'opf':OPF2_NS, 'dc':DC11_NS}
 
 class CSSPreProcessor(cssp):
