@@ -381,7 +381,19 @@ class WebView(QWebView):
         return property(fget=fget, fset=fset)
 
     def clear(self):
-        self.setHtml('<p>')
+        self.setHtml(_(
+            '''
+            <h3>Live preview</h3>
+
+            <p>Here you will see a live preview of the HTML file you are currently editing.
+            The preview will update automatically as you make changes.
+
+            <p style="font-size:x-small; color: gray">Note that this is a quick preview
+            only, it is not intended to simulate an actual ebook reader. Some
+            aspects of your ebook will not work, such as, page breaks,
+            page margins and embedded fonts that use font name aliasing.
+
+            '''))
 
     def inspect(self):
         self.inspector.parent().show()
