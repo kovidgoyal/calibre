@@ -35,6 +35,7 @@ from calibre.library.server import server_config as content_server_config
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.utils.ipc import eintr_retry_call
 from calibre.utils.config_base import tweaks
+from calibre.utils.date import now
 from calibre.utils.filenames import ascii_filename as sanitize, shorten_components_to
 from calibre.utils.mdns import (publish as publish_zeroconf, unpublish as
         unpublish_zeroconf, get_all_ips)
@@ -221,6 +222,8 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
     SEND_NOOP_EVERY_NTH_PROBE   = 5
     DISCONNECT_AFTER_N_SECONDS  = 30*60  # 30 minutes
 
+    PURGE_CACHE_ENTRIES_DAYS    = 30
+
     ZEROCONF_CLIENT_STRING      = b'calibre wireless device client'
 
     # A few "random" port numbers to use for detecting clients using broadcast
@@ -379,7 +382,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
 
     # copied from USBMS. Perhaps this could be a classmethod in usbms?
     def _update_driveinfo_record(self, dinfo, prefix, location_code, name=None):
-        from calibre.utils.date import isoformat, now
+        from calibre.utils.date import isoformat
         import uuid
         if not isinstance(dinfo, dict):
             dinfo = {}
@@ -678,10 +681,10 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
         else:
             return None
 
-    def _metadata_in_cache(self, uuid, ext, lastmod):
+    def _metadata_in_cache(self, uuid, ext_or_lpath, lastmod):
         try:
-            from calibre.utils.date import parse_date, now
-            key = uuid+ext
+            from calibre.utils.date import parse_date
+            key = self._make_metadata_cache_key(uuid, ext_or_lpath)
             if isinstance(lastmod, unicode):
                 if lastmod == 'None':
                     return None
@@ -713,9 +716,15 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
 
     def _uuid_in_cache(self, uuid, ext):
         try:
-            return self.known_uuids[uuid + ext]['book']
+            for b in self.known_uuids:
+                metadata = b['book']
+                if metadata.get('uuid', '') != uuid:
+                    continue
+                if metadata.get('lpath', '').endswith(ext):
+                    return metadata
         except:
-            return None
+            pass
+        return None
 
     def _read_metadata_cache(self):
         from calibre.utils.config import from_json
@@ -742,17 +751,14 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                             break
                         raw = fd.read(int(rec_len))
                         book = json.loads(raw.decode('utf-8'), object_hook=from_json)
-                        uuid = book.keys()[0]
-                        metadata = self.json_codec.raw_to_book(book[uuid]['book'],
+                        key = book.keys()[0]
+                        metadata = self.json_codec.raw_to_book(book[key]['book'],
                                                             SDBook, self.PREFIX)
-                        book[uuid]['book'] = metadata
+                        book[key]['book'] = metadata
                         self.known_uuids.update(book)
 
                         lpath = metadata.get('lpath')
-                        if lpath in self.known_metadata:
-                            self.known_uuids.pop(uuid, None)
-                        else:
-                            self.known_metadata[lpath] = metadata
+                        self.known_metadata[lpath] = metadata
         except:
             traceback.print_exc()
             self.known_uuids = defaultdict(dict)
@@ -769,15 +775,20 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                            'device_drivers_' + self.__class__.__name__ +
                                 '_metadata_cache.json')
         try:
+            purged = 0
             with open(cache_file_name, mode='wb') as fd:
-                for uuid,book in self.known_uuids.iteritems():
+                for key,book in self.known_uuids.iteritems():
+                    if (now() - book['last_used']).days > self.PURGE_CACHE_ENTRIES_DAYS:
+                        purged += 1
+                        continue
                     json_metadata = defaultdict(dict)
-                    json_metadata[uuid]['book'] = self.json_codec.encode_book_metadata(book['book'])
-                    json_metadata[uuid]['last_used'] = book['last_used']
+                    json_metadata[key]['book'] = self.json_codec.encode_book_metadata(book['book'])
+                    json_metadata[key]['last_used'] = book['last_used']
                     result = json.dumps(json_metadata, indent=2, default=to_json)
                     fd.write("%0.7d\n"%(len(result)+1))
                     fd.write(result)
                     fd.write('\n')
+                self._debug('purged', purged, 'cache entries')
         except:
             traceback.print_exc()
             try:
@@ -786,23 +797,32 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
             except:
                 traceback.print_exc()
 
+    def _make_metadata_cache_key(self, uuid, lpath_or_ext):
+        key = None
+        if uuid and lpath_or_ext:
+            key = uuid + lpath_or_ext
+        return key
+
     def _set_known_metadata(self, book, remove=False):
-        from calibre.utils.date import now
         lpath = book.lpath
         ext = os.path.splitext(lpath)[1]
         uuid = book.get('uuid', None)
-        key = None
-        if uuid and ext:
-            key = uuid + ext
+
+        if self.client_cache_uses_lpaths:
+            key = self._make_metadata_cache_key(uuid, lpath)
+        else:
+            key = self._make_metadata_cache_key(uuid, ext)
         if remove:
             self.known_metadata.pop(lpath, None)
             if key:
                 self.known_uuids.pop(key, None)
         else:
             # Check if we have another UUID with the same lpath. If so, remove it
+            # Must try both the extension and the lpath because of the cache change
             existing_uuid = self.known_metadata.get(lpath, {}).get('uuid', None)
-            if existing_uuid:
-                self.known_uuids.pop(existing_uuid + ext, None)
+            if existing_uuid and existing_uuid != uuid:
+                self.known_uuids.pop(self._make_metadata_cache_key(existing_uuid, ext), None)
+                self.known_uuids.pop(self._make_metadata_cache_key(existing_uuid, lpath), None)
 
             new_book = book.deepcopy()
             self.known_metadata[lpath] = new_book
@@ -913,7 +933,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
 
     @synchronous('sync_lock')
     def open(self, connected_device, library_uuid):
-        from calibre.utils.date import isoformat, now
+        from calibre.utils.date import isoformat
         self._debug()
         if not self.is_connected:
             # We have been called to retry the connection. Give up immediately
@@ -977,6 +997,8 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
 
             self.client_can_use_metadata_cache = result.get('canUseCachedMetadata', False)
             self._debug('Device can use cached metadata', self.client_can_use_metadata_cache)
+            self.client_cache_uses_lpaths = result.get('cacheUsesLpaths', False)
+            self._debug('Cache uses lpaths', self.client_cache_uses_lpaths)
 
             if not self.settings().extra_customization[self.OPT_USE_METADATA_CACHE]:
                 self.client_can_use_metadata_cache = False
@@ -1162,7 +1184,12 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
 
                 books_to_send = []
                 for r in books_on_device:
-                    book = self._metadata_in_cache(r['uuid'], r['extension'], r['last_modified'])
+                    if r.get('lpath', None):
+                        book = self._metadata_in_cache(r['uuid'], r['lpath'],
+                                                       r['last_modified'])
+                    else:
+                        book = self._metadata_in_cache(r['uuid'], r['extension'],
+                                                       r['last_modified'])
                     if book:
                         bl.add_book(book, replace_metadata=True)
                     else:
