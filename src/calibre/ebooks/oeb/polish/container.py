@@ -393,7 +393,7 @@ class Container(object):  # {{{
             data, strip_encoding_pats=True, assume_utf8=True, resolve_entities=True)
         return etree.fromstring(data, parser=RECOVER_PARSER)
 
-    def parse_xhtml(self, data, fname):
+    def parse_xhtml(self, data, fname='<string>'):
         if self.tweak_mode:
             return parse_html_tweak(data, log=self.log, decoder=self.decode)
         else:
@@ -423,7 +423,7 @@ class Container(object):  # {{{
             ans = self.decode(ans)
         return ans
 
-    def parse_css(self, data, fname):
+    def parse_css(self, data, fname='<string>'):
         from cssutils import CSSParser, log
         log.setLevel(logging.WARN)
         log.raiseExceptions = False

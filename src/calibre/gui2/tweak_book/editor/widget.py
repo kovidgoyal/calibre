@@ -10,7 +10,7 @@ from PyQt4.Qt import QMainWindow, Qt, QApplication, pyqtSignal
 
 from calibre import xml_replace_entities
 from calibre.gui2 import error_dialog
-from calibre.gui2.tweak_book import actions
+from calibre.gui2.tweak_book import actions, current_container
 from calibre.gui2.tweak_book.editor.text import TextEdit
 
 class Editor(QMainWindow):
@@ -133,6 +133,8 @@ class Editor(QMainWindow):
         self.tools_bar = b = self.addToolBar(_('Editor tools'))
         if self.syntax == 'html':
             b.addAction(actions['fix-html-current'])
+        if self.syntax in {'xml', 'html', 'css'}:
+            b.addAction(actions['pretty-current'])
 
     def break_cycles(self):
         self.modification_state_changed.disconnect()
@@ -183,7 +185,18 @@ class Editor(QMainWindow):
 
     def fix_html(self):
         if self.syntax == 'html':
-            self.editor.fix_html()
+            from calibre.ebooks.oeb.polish.pretty import fix_html
+            self.editor.replace_text(fix_html(current_container(), unicode(self.editor.toPlainText())).decode('utf-8'))
+            return True
+        return False
+
+    def pretty_print(self, name):
+        from calibre.ebooks.oeb.polish.pretty import pretty_html, pretty_css, pretty_xml
+        if self.syntax in {'css', 'html', 'xml'}:
+            func = {'css':pretty_css, 'xml':pretty_xml}.get(self.syntax, pretty_html)
+            self.editor.replace_text(func(current_container(), name, unicode(self.editor.toPlainText())).decode('utf-8'))
+            return True
+        return False
 
 def launch_editor(path_to_edit, path_is_raw=False, syntax='html'):
     if path_is_raw:

@@ -61,6 +61,7 @@ class TextEdit(QPlainTextEdit):
         self.blockCountChanged[int].connect(self.update_line_number_area_width)
         self.updateRequest.connect(self.update_line_number_area)
         self.line_number_area = LineNumbers(self)
+        self.syntax = None
 
     @dynamic_property
     def is_modified(self):
@@ -163,10 +164,6 @@ class TextEdit(QPlainTextEdit):
         if self.current_search_mark is not None:
             sel.append(self.current_search_mark)
         self.setExtraSelections(sel)
-
-    def fix_html(self):
-        from calibre.ebooks.oeb.polish.pretty import fix_html
-        self.replace_text(fix_html(unicode(self.toPlainText())).decode('utf-8'))
 
     # Search and replace {{{
     def mark_selected_text(self):

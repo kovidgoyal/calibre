@@ -19,7 +19,7 @@ from calibre.ptempfile import PersistentTemporaryDirectory
 from calibre.ebooks.oeb.base import urlnormalize
 from calibre.ebooks.oeb.polish.main import SUPPORTED, tweak_polish
 from calibre.ebooks.oeb.polish.container import get_container as _gc, clone_container, guess_type
-from calibre.ebooks.oeb.polish.pretty import fix_all_html
+from calibre.ebooks.oeb.polish.pretty import fix_all_html, pretty_all
 from calibre.ebooks.oeb.polish.replace import rename_files
 from calibre.ebooks.oeb.polish.split import split, merge, AbortError
 from calibre.gui2 import error_dialog, choose_files, question_dialog, info_dialog
@@ -133,7 +133,7 @@ class Boss(QObject):
         container = current_container()
         self.gui.file_list.build(container)
         self.update_global_history_actions()
-        self.gui.action_save.setEnabled(True)
+        self.set_modified()
         self.update_editors_from_container()
 
     def delete_requested(self, spine_items, other_items):
@@ -144,7 +144,7 @@ class Boss(QObject):
         c.remove_from_spine(spine_items)
         for name in other_items:
             c.remove_item(name)
-        self.gui.action_save.setEnabled(True)
+        self.set_modified()
         self.gui.file_list.delete_done(spine_items, other_items)
         for name in list(spine_items) + list(other_items):
             if name in editors:
@@ -166,7 +166,7 @@ class Boss(QObject):
         self.add_savepoint(_('Re-order text'))
         c = current_container()
         c.set_spine(items)
-        self.gui.action_save.setEnabled(True)
+        self.set_modified()
         self.gui.file_list.build(current_container())  # needed as the linear flag may have changed on some items
         if c.opf_name in editors:
             editors[c.opf_name].replace_data(c.raw_data(c.opf_name))
@@ -267,7 +267,7 @@ class Boss(QObject):
                     _('Failed to rename files, click Show details for more information.'),
                                 det_msg=job.traceback, show=True)
         self.gui.file_list.build(current_container())
-        self.gui.action_save.setEnabled(True)
+        self.set_modified()
         if oldname in editors:
             editors[newname] = editors.pop(oldname)
             self.gui.central.rename_editor(editors[newname], newname)
@@ -307,6 +307,9 @@ class Boss(QObject):
             self.update_global_history_actions()
     # }}}
 
+    def set_modified(self):
+        self.gui.action_save.setEnabled(True)
+
     def fix_html(self, current):
         if current:
             ed = self.gui.central.current_editor
@@ -318,6 +321,22 @@ class Boss(QObject):
             self.add_savepoint(_('Fix HTML'))
             fix_all_html(current_container())
             self.update_editors_from_container()
+            self.set_modified()
+
+    def pretty_print(self, current):
+        if current:
+            ed = self.gui.central.current_editor
+            for name, x in editors.iteritems():
+                if x is ed:
+                    break
+            ed.pretty_print(name)
+        else:
+            if not self.check_dirtied():
+                return
+            self.add_savepoint(_('Beautify files'))
+            pretty_all(current_container())
+            self.update_editors_from_container()
+            self.set_modified()
 
     def mark_selected_text(self):
         ed = self.gui.central.current_editor
@@ -658,7 +677,7 @@ class Boss(QObject):
     def editor_modification_state_changed(self, is_modified):
         self.apply_current_editor_state(update_keymap=False)
         if is_modified:
-            actions['save-book'].setEnabled(True)
+            self.set_modified()
     # }}}
 
     def apply_current_editor_state(self, update_keymap=True):

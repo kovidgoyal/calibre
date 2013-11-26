@@ -214,6 +214,10 @@ class Main(MainWindow):
                                            _('Fix HTML in the current file'))
         self.action_fix_html_all = reg('html-fix.png', _('&Fix HTML - all files'), partial(self.boss.fix_html, False), 'fix-html-all', (),
                                        _('Fix HTML in all files'))
+        self.action_pretty_current = reg('format-justify-fill.png', _('&Beautify current file'), partial(self.boss.pretty_print, True), 'pretty-current', (),
+                                           _('Beautify current file'))
+        self.action_pretty_all = reg('format-justify-fill.png', _('&Beautify all files'), partial(self.boss.pretty_print, False), 'pretty-all', (),
+                                       _('Beautify all files'))
 
         # Polish actions
         group = _('Polish Book')
@@ -291,6 +295,7 @@ class Main(MainWindow):
         e.addAction(self.action_subset_fonts)
         e.addAction(self.action_smarten_punctuation)
         e.addAction(self.action_fix_html_all)
+        e.addAction(self.action_pretty_all)
 
         e = b.addMenu(_('&View'))
         t = e.addMenu(_('Tool&bars'))
