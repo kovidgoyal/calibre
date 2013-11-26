@@ -17,7 +17,7 @@ from PyQt4.Qt import (
 
 from calibre import human_readable, sanitize_file_name_unicode
 from calibre.ebooks.oeb.base import OEB_STYLES, OEB_DOCS
-from calibre.ebooks.oeb.polish.container import guess_type
+from calibre.ebooks.oeb.polish.container import guess_type, OEB_FONTS
 from calibre.ebooks.oeb.polish.cover import get_cover_page_name, get_raster_cover_name
 from calibre.gui2 import error_dialog, choose_files
 from calibre.gui2.tweak_book import current_container, elided_text
@@ -178,13 +178,11 @@ class FileList(QTreeWidget):
         for names in container.manifest_type_map.itervalues():
             manifested_names |= set(names)
 
-        font_types = {guess_type('a.'+x) for x in ('ttf', 'otf', 'woff')}
-
         def get_category(name, mt):
             category = 'misc'
             if mt.startswith('image/'):
                 category = 'images'
-            elif mt in font_types:
+            elif mt in OEB_FONTS:
                 category = 'fonts'
             elif mt in OEB_STYLES:
                 category = 'styles'

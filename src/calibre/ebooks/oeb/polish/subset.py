@@ -11,7 +11,7 @@ import os, sys
 
 from calibre import prints, as_unicode
 from calibre.ebooks.oeb.base import OEB_STYLES, OEB_DOCS, XPath
-from calibre.ebooks.oeb.polish.container import OEB_FONTS
+from calibre.ebooks.oeb.polish.container import OEB_FONTS, guess_type
 from calibre.utils.fonts.sfnt.subset import subset
 from calibre.utils.fonts.sfnt.errors import UnsupportedFont
 from calibre.utils.fonts.utils import get_font_names
@@ -35,7 +35,7 @@ def subset_all_fonts(container, font_stats, report):
     remove = set()
     total_old = total_new = 0
     for name, mt in container.mime_map.iteritems():
-        if mt in OEB_FONTS or name.rpartition('.')[-1].lower() in {'otf', 'ttf'}:
+        if (mt in OEB_FONTS or name.rpartition('.')[-1].lower() in {'otf', 'ttf'}) and mt != guess_type('a.woff'):
             chars = font_stats.get(name, set())
             path = container.name_path_map[name]
             total_old += os.path.getsize(path)
