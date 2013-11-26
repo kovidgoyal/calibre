@@ -565,27 +565,35 @@ class Boss(QObject):
     def split_requested(self, name, loc):
         if not self.check_dirtied():
             return
-        self.add_savepoint(_('Split %s') % self.gui.elided_text(name))
+        QApplication.setOverrideCursor(QCursor(Qt.WaitCursor))
         try:
-            bottom_name = split(current_container(), name, loc)
-        except AbortError:
-            self.rewind_savepoint()
-            raise
-        self.apply_container_update_to_gui()
-        self.edit_file(bottom_name, 'html')
+            self.add_savepoint(_('Split %s') % self.gui.elided_text(name))
+            try:
+                bottom_name = split(current_container(), name, loc)
+            except AbortError:
+                self.rewind_savepoint()
+                raise
+            self.apply_container_update_to_gui()
+            self.edit_file(bottom_name, 'html')
+        finally:
+            QApplication.restoreOverrideCursor()
 
     def merge_requested(self, category, names, master):
         if not self.check_dirtied():
             return
-        self.add_savepoint(_('Merge files into %s') % self.gui.elided_text(master))
+        QApplication.setOverrideCursor(QCursor(Qt.WaitCursor))
         try:
-            merge(current_container(), category, names, master)
-        except AbortError:
-            self.rewind_savepoint()
-            raise
-        self.apply_container_update_to_gui()
-        if master in editors:
-            self.show_editor(master)
+            self.add_savepoint(_('Merge files into %s') % self.gui.elided_text(master))
+            try:
+                merge(current_container(), category, names, master)
+            except AbortError:
+                self.rewind_savepoint()
+                raise
+            self.apply_container_update_to_gui()
+            if master in editors:
+                self.show_editor(master)
+        finally:
+            QApplication.restoreOverrideCursor()
 
     def sync_editor_to_preview(self, name, lnum):
         editor = self.edit_file(name, 'html')
