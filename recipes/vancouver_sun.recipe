@@ -117,15 +117,17 @@ class CanWestPaper(BasicNewsRecipe):
                 .photocaption { font-size: xx-small; font-style: italic; font-weight: normal; }
                 #photocredit { font-size: xx-small; font-weight: normal; }'''
 
-    keep_only_tags = [dict(name='div', attrs={'id':'storyheader'}),dict(name='div', attrs={'id':'storycontent'}),dict(name='div', attrs={'id':'storyphoto'})]
+    keep_only_tags = [dict(name='div', attrs={'id':re.compile('story')})]
 
-    remove_tags = [{'class':'comments'},
-                   dict(name='div', attrs={'class':'navbar'}),dict(name='div', attrs={'class':'morelinks'}),
+    remove_tags = [{'class':'comments'},{'class':'comment-intro'},{'class':'storytab'},
+                   dict(name='div', attrs={'class':'section_title'}),dict(name='div', attrs={'class':'sharebar'}),dict(name='div', attrs={'class':'navbar'}),dict(name='div', attrs={'class':'morelinks'}),
                    dict(name='h2', attrs={'id':'photocredit'}),
                    dict(name='div', attrs={'class':'viewmore'}),dict(name='li', attrs={'class':'email'}),
                    dict(name='div', attrs={'class':'story_tool_hr'}),dict(name='div', attrs={'class':'clear'}),
                    dict(name='div', attrs={'class':'story_tool'}),dict(name='div', attrs={'class':'copyright'}),
                    dict(name='div', attrs={'class':'rule_grey_solid'}),
+                   dict(name='div', attrs={'id':'soundoff'}),
+                   dict(name='div', attrs={'id':re.compile('flyer')}),
                    dict(name='li', attrs={'class':'print'}),dict(name='li', attrs={'class':'share'}),dict(name='ul', attrs={'class':'bullet'})]
 
 
@@ -252,18 +254,23 @@ class CanWestPaper(BasicNewsRecipe):
 
 
         def handle_article(adiv,key):
-            h1tag = adiv.h1
+            if adiv.name=='h1' or adiv.name=='h3':
+                h1tag = adiv
+            else:
+                h1tag = adiv.h1
+                if h1tag is None:
+                    h1tag = adiv.h3
             if h1tag is not None:
                 atag = h1tag.a
                 if atag is not None:
                     url = atag['href']
-                    if atag['href'].startswith('http'):
+                    if url.startswith('/'):
+                        url = self.url_prefix+url
+                    if not url.startswith(self.url_prefix):
+                        print("Rejected "+url)
                         return
-                    elif atag['href'].startswith('/'):
-                        url = self.url_prefix+atag['href']
-                    else:
-                        url = self.url_prefix+'/'+atag['href']
                     if url in self.url_list:
+                        print("Rejected dup "+url)
                         return
                     self.url_list.append(url)
                     title = self.tag_to_string(atag,False)
@@ -290,22 +297,21 @@ class CanWestPaper(BasicNewsRecipe):
                     articles[key].append(dict(title=title,url=url,date='',description=description,author='',content=''))
 
         def parse_web_index(key, keyurl):
+            print("Section: "+key+': '+self.url_prefix+keyurl)
             try:
                 soup = self.index_to_soup(self.url_prefix+keyurl)
             except:
+                print("Section: "+key+' NOT FOUND');
                 return
             ans.append(key)
             mainsoup = soup.find('div','bodywrapper')
             footer = mainsoup.find(attrs={'id':'footerfeature'})
             if footer is not None:
                 footer.extract()
-            print("Section: "+key)
-            for wdiv in mainsoup.findAll('div',attrs={'id':re.compile('^HorizontalFeatureSlider_1_Story')}):
-                handle_article(wdiv,key)
-                wdiv.extract()
-            for wdiv in mainsoup.findAll(attrs={'id':['featurewidget','textfeature','textlinks_timestamp']}):
-                for adiv in wdiv.findAll('div','featurecontent'):
-                    handle_article(adiv,key)
+            for wdiv in mainsoup.findAll(attrs={'class':['genericfeature']}):
+               wdiv.extract()
+            for wdiv in mainsoup.findAll(attrs={'class':['headline','featurecontent']}):
+               handle_article(wdiv,key)
 
         for (k,url) in self.postmedia_index_pages:
             parse_web_index(k,url)
