@@ -28,7 +28,7 @@ from calibre.gui2.tweak_book import set_current_container, current_container, tp
 from calibre.gui2.tweak_book.undo import GlobalUndoHistory
 from calibre.gui2.tweak_book.file_list import NewFileDialog
 from calibre.gui2.tweak_book.save import SaveManager
-from calibre.gui2.tweak_book.preview import parse_worker
+from calibre.gui2.tweak_book.preview import parse_worker, font_cache
 from calibre.gui2.tweak_book.toc import TOCEditor
 from calibre.gui2.tweak_book.editor import editor_from_syntax, syntax_from_mime
 
@@ -114,6 +114,7 @@ class Boss(QObject):
         parse_worker.clear()
         container = job.result
         set_current_container(container)
+        font_cache.remove_fonts()
         self.current_metadata = self.gui.current_metadata = container.mi
         self.global_undo.open_book(container)
         self.gui.update_window_title()
