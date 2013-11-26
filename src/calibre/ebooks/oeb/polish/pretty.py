@@ -106,7 +106,7 @@ def has_only_blocks(x):
     if x.text and not isspace(x.text):
         return False
     for child in x:
-        if not isblock(child) or (child.tail and isspace(child.tail)):
+        if not isblock(child) or (child.tail and not isspace(child.tail)):
             return False
     return True
 
