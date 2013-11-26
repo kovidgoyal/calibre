@@ -676,7 +676,7 @@ class Container(object):  # {{{
         # of links to the file
         base = os.path.dirname(path)
         if not os.path.exists(base):
-            os.makedirs(path)
+            os.makedirs(base)
         open(path, 'wb').close()
         return item
 
