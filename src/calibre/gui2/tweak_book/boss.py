@@ -319,10 +319,14 @@ class Boss(QObject):
         else:
             if not self.check_dirtied():
                 return
-            self.add_savepoint(_('Fix HTML'))
-            fix_all_html(current_container())
-            self.update_editors_from_container()
-            self.set_modified()
+            QApplication.setOverrideCursor(QCursor(Qt.WaitCursor))
+            try:
+                self.add_savepoint(_('Fix HTML'))
+                fix_all_html(current_container())
+                self.update_editors_from_container()
+                self.set_modified()
+            finally:
+                QApplication.restoreOverrideCursor()
 
     def pretty_print(self, current):
         if current:
@@ -334,10 +338,14 @@ class Boss(QObject):
         else:
             if not self.check_dirtied():
                 return
-            self.add_savepoint(_('Beautify files'))
-            pretty_all(current_container())
-            self.update_editors_from_container()
-            self.set_modified()
+            QApplication.setOverrideCursor(QCursor(Qt.WaitCursor))
+            try:
+                self.add_savepoint(_('Beautify files'))
+                pretty_all(current_container())
+                self.update_editors_from_container()
+                self.set_modified()
+            finally:
+                QApplication.restoreOverrideCursor()
 
     def mark_selected_text(self):
         ed = self.gui.central.current_editor
