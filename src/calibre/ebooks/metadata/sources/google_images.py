@@ -39,7 +39,7 @@ class GoogleImages(Source):
             title=None, authors=None, identifiers={}, timeout=30, get_best_cover=False):
         if not title:
             return
-        timeout = max(60, timeout) # Needs at least a minute
+        timeout = max(60, timeout)  # Needs at least a minute
         title = ' '.join(self.get_title_tokens(title))
         author = ' '.join(self.get_author_tokens(authors))
         urls = self.get_image_urls(title, author, log, abort, timeout)
@@ -59,14 +59,16 @@ class GoogleImages(Source):
 
         return []
 
-USER_AGENT = 'Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.9.2.13) Gecko/20101210 Firefox/3.6.13'
+USER_AGENT = 'Mozilla/5.0 (X11; Linux x86_64; rv:25.0) Gecko/20100101 Firefox/25.0'
 
 def find_image_urls(br, ans):
     import urlparse
-    for w in br.page.mainFrame().documentElement().findAll('.images_table a[href]'):
+    for w in br.page.mainFrame().documentElement().findAll('div#ires a.rg_l[href]'):
         try:
             imgurl = urlparse.parse_qs(urlparse.urlparse(unicode(w.attribute('href'))).query)['imgurl'][0]
         except:
+            # import traceback
+            # traceback.print_exc()
             continue
         if imgurl not in ans:
             ans.append(imgurl)
@@ -98,7 +100,7 @@ def search(title, author, size, timeout, debug=False):
     if debug:
         br.show_browser()
     br.close()
-    del br # Needed to prevent PyQt from segfaulting
+    del br  # Needed to prevent PyQt from segfaulting
     return ans
 
 def test_google():
