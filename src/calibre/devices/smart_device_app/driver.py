@@ -688,9 +688,9 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                 if lastmod == 'None':
                     return None
                 lastmod = parse_date(lastmod)
-            if key in self.known_uuids and self.known_uuids[key]['book'].last_modified == lastmod:
-                self.known_uuids[key]['last_used'] = now()
-                return self.known_uuids[key]['book'].deepcopy(lambda : SDBook('', ''))
+            if key in self.device_book_cache and self.device_book_cache[key]['book'].last_modified == lastmod:
+                self.device_book_cache[key]['last_used'] = now()
+                return self.device_book_cache[key]['book'].deepcopy(lambda : SDBook('', ''))
         except:
             traceback.print_exc()
         return None
@@ -715,17 +715,18 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
 
     def _uuid_in_cache(self, uuid, ext):
         try:
-            for b in self.known_uuids:
+            for b in self.device_book_cache.itervalues():
                 metadata = b['book']
                 if metadata.get('uuid', '') != uuid:
                     continue
                 if metadata.get('lpath', '').endswith(ext):
                     return metadata
         except:
-            pass
+            traceback.print_exc()
         return None
 
     def _read_metadata_cache(self):
+        self._debug('device uuid', self.device_uuid)
         from calibre.utils.config import from_json
         try:
             old_cache_file_name = os.path.join(cache_dir(),
@@ -736,12 +737,22 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
         except:
             pass
 
-        cache_file_name = os.path.join(cache_dir(),
+        try:
+            old_cache_file_name = os.path.join(cache_dir(),
                            'device_drivers_' + self.__class__.__name__ +
                                 '_metadata_cache.json')
-        self.known_uuids = defaultdict(dict)
+            if os.path.exists(old_cache_file_name):
+                os.remove(old_cache_file_name)
+        except:
+            pass
+
+        cache_file_name = os.path.join(cache_dir(),
+                           'wireless_device_' + self.device_uuid +
+                                '_metadata_cache.json')
+        self.device_book_cache = defaultdict(dict)
         self.known_metadata = {}
         try:
+            count = 0
             if os.path.exists(cache_file_name):
                 with open(cache_file_name, mode='rb') as fd:
                     while True:
@@ -754,13 +765,15 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                         metadata = self.json_codec.raw_to_book(book[key]['book'],
                                                             SDBook, self.PREFIX)
                         book[key]['book'] = metadata
-                        self.known_uuids.update(book)
+                        self.device_book_cache.update(book)
 
                         lpath = metadata.get('lpath')
                         self.known_metadata[lpath] = metadata
+                        count += 1
+            self._debug('loaded', count, 'cache items')
         except:
             traceback.print_exc()
-            self.known_uuids = defaultdict(dict)
+            self.device_book_cache = defaultdict(dict)
             self.known_metadata = {}
             try:
                 if os.path.exists(cache_file_name):
@@ -769,15 +782,17 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                 traceback.print_exc()
 
     def _write_metadata_cache(self):
+        self._debug()
         from calibre.utils.date import now
         from calibre.utils.config import to_json
         cache_file_name = os.path.join(cache_dir(),
-                           'device_drivers_' + self.__class__.__name__ +
+                           'wireless_device_' + self.device_uuid +
                                 '_metadata_cache.json')
         try:
             purged = 0
+            count = 0
             with open(cache_file_name, mode='wb') as fd:
-                for key,book in self.known_uuids.iteritems():
+                for key,book in self.device_book_cache.iteritems():
                     if (now() - book['last_used']).days > self.PURGE_CACHE_ENTRIES_DAYS:
                         purged += 1
                         continue
@@ -788,7 +803,8 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                     fd.write("%0.7d\n"%(len(result)+1))
                     fd.write(result)
                     fd.write('\n')
-                self._debug('purged', purged, 'cache entries')
+                    count += 1
+                self._debug('wrote', count, 'entries, purged', purged, 'entries')
         except:
             traceback.print_exc()
             try:
@@ -816,20 +832,20 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
         if remove:
             self.known_metadata.pop(lpath, None)
             if key:
-                self.known_uuids.pop(key, None)
+                self.device_book_cache.pop(key, None)
         else:
             # Check if we have another UUID with the same lpath. If so, remove it
             # Must try both the extension and the lpath because of the cache change
             existing_uuid = self.known_metadata.get(lpath, {}).get('uuid', None)
             if existing_uuid and existing_uuid != uuid:
-                self.known_uuids.pop(self._make_metadata_cache_key(existing_uuid, ext), None)
-                self.known_uuids.pop(self._make_metadata_cache_key(existing_uuid, lpath), None)
+                self.device_book_cache.pop(self._make_metadata_cache_key(existing_uuid, ext), None)
+                self.device_book_cache.pop(self._make_metadata_cache_key(existing_uuid, lpath), None)
 
             new_book = book.deepcopy()
             self.known_metadata[lpath] = new_book
             if key:
-                self.known_uuids[key]['book'] = new_book
-                self.known_uuids[key]['last_used'] = now()
+                self.device_book_cache[key]['book'] = new_book
+                self.device_book_cache[key]['last_used'] = now()
 
     def _close_device_socket(self):
         if self.device_socket is not None:
@@ -941,6 +957,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
             raise ControlError(desc='Attempt to open a closed device')
         self.current_library_uuid = library_uuid
         self.current_library_name = current_library_name()
+        self.device_uuid = ''
         try:
             password = self.settings().extra_customization[self.OPT_PASSWORD]
             if password:
@@ -1115,7 +1132,9 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
         if opcode == 'OK':
             self.driveinfo = result['device_info']
             self._update_driveinfo_record(self.driveinfo, self.PREFIX, 'main')
+            self.device_uuid = self.driveinfo['device_store_uuid']
             self._call_client('SET_CALIBRE_DEVICE_INFO', self.driveinfo)
+            self._read_metadata_cache()
             return (self.get_gui_name(), result['device_version'],
                     result['version'], '', {'main':self.driveinfo})
         return (self.get_gui_name(), '', '', '')
@@ -1433,7 +1452,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
         self.device_socket = None
         self.json_codec = JsonCodec()
         self.known_metadata = {}
-        self.known_uuids = defaultdict(dict)
+        self.device_book_cache = defaultdict(dict)
         self.debug_time = time.time()
         self.debug_start_time = time.time()
         self.max_book_packet_len = 0
@@ -1541,7 +1560,6 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
         self.connection_listener = ConnectionListener(self)
         self.connection_listener.start()
 
-        self._read_metadata_cache()
         return message
 
     @synchronous('sync_lock')
