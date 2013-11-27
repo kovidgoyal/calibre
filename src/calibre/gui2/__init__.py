@@ -585,6 +585,16 @@ def file_icon_provider():
     initialize_file_icon_provider()
     return _file_icon_provider
 
+def select_initial_dir(q):
+    while q:
+        c = os.path.dirname(q)
+        if c == q:
+            break
+        if os.path.exists(c):
+            return c
+        q = c
+    return os.path.expanduser('~')
+
 class FileDialog(QObject):
     def __init__(self, title=_('Choose Files'),
                        filters=[],
@@ -620,6 +630,8 @@ class FileDialog(QObject):
                     os.path.expanduser(default_dir))
         if not isinstance(initial_dir, basestring):
             initial_dir = os.path.expanduser(default_dir)
+        if not initial_dir or not os.path.exists(initial_dir):
+            initial_dir = select_initial_dir(initial_dir)
         self.selected_files = []
         use_native_dialog = 'CALIBRE_NO_NATIVE_FILEDIALOGS' not in os.environ
         with SanitizeLibraryPath():
