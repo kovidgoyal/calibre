@@ -223,6 +223,8 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
 
     PURGE_CACHE_ENTRIES_DAYS    = 30
 
+    CURRENT_CC_VERSION          = 64
+
     ZEROCONF_CLIENT_STRING      = b'calibre wireless device client'
 
     # A few "random" port numbers to use for detecting clients using broadcast
@@ -1035,11 +1037,11 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
 
             try:
                 if (self.client_app_name == 'CalibreCompanion' and
-                         self.app_version_number < 62):
+                         self.app_version_number < self.CURRENT_CC_VERSION):
                     self._debug('Telling client to update')
                     self._call_client("DISPLAY_MESSAGE",
                             {'messageKind': self.MESSAGE_UPDATE_NEEDED,
-                             'lastestKnownAppVersion': 62})
+                             'lastestKnownAppVersion': self.CURRENT_CC_VERSION})
             except:
                 pass
 
