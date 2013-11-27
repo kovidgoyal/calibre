@@ -150,11 +150,13 @@ class CSSFlattener(object):
         self.filter_css = frozenset()
         if self.opts.filter_css:
             try:
-                self.filter_css = frozenset([x.strip().lower() for x in
-                    self.opts.filter_css.split(',')])
+                self.filter_css = {x.strip().lower() for x in
+                    self.opts.filter_css.split(',')}
             except:
                 self.oeb.log.warning('Failed to parse filter_css, ignoring')
             else:
+                from calibre.ebooks.oeb.normalize_css import normalize_filter_css
+                self.filter_css = frozenset(normalize_filter_css(self.filter_css))
                 self.oeb.log.debug('Filtering CSS properties: %s'%
                     ', '.join(self.filter_css))
 

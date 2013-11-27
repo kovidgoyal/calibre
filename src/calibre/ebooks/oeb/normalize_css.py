@@ -13,7 +13,7 @@ try:
     from cssutils.css import PropertyValue
 except ImportError:
     raise RuntimeError('You need cssutils >= 0.9.9 for calibre')
-from cssutils import profile as cssprofiles
+from cssutils import profile as cssprofiles, CSSParser
 
 DEFAULTS = {'azimuth': 'center', 'background-attachment': 'scroll',  # {{{
             'background-color': 'transparent', 'background-image': 'none',
@@ -164,6 +164,25 @@ for x in ('margin', 'padding', 'border-style', 'border-width', 'border-color'):
 for x in EDGES:
     name = 'border-' + x
     normalizers[name] = simple_normalizer(name, BORDER_PROPS, check_inherit=False)
+
+SHORTHAND_DEFAULTS = {
+    'margin': '0', 'padding': '0', 'border-style': 'none', 'border-width': '0', 'border-color': 'currentColor',
+    'border':'none', 'border-left': 'none', 'border-right':'none', 'border-top': 'none', 'border-bottom': 'none',
+    'list-style': 'inherit', 'font': 'inherit',
+}
+
+def normalize_filter_css(props):
+    import logging
+    ans = set()
+    p = CSSParser(loglevel=logging.CRITICAL, validate=False)
+    for prop in props:
+        n = normalizers.get(prop, None)
+        ans.add(prop)
+        if n is not None and prop in SHORTHAND_DEFAULTS:
+            dec = p.parseStyle('%s: %s' % (prop, SHORTHAND_DEFAULTS[prop]))
+            cssvalue = dec.getPropertyCSSValue(dec.item(0))
+            ans |= set(n(prop, cssvalue))
+    return ans
 
 def condense_edge(vals):
     edges = {x.name.rpartition('-')[-1]:x.value for x in vals}
@@ -336,6 +355,21 @@ def test_normalization():  # {{{
             }.iteritems():
                 cval = tuple(parseStyle('list-style: %s' % raw, validate=False))[0].cssValue
                 self.assertDictEqual(ls_dict(expected), normalizers['list-style']('list-style', cval))
+
+        def test_filter_css_normalization(self):
+            ae = self.assertEqual
+            ae({'font'} | set(font_composition), normalize_filter_css({'font'}))
+            for p in ('margin', 'padding'):
+                ae({p} | {p + '-' + x for x in EDGES}, normalize_filter_css({p}))
+            bvals = {'border-%s-%s' % (edge, x) for edge in EDGES for x in BORDER_PROPS}
+            ae(bvals | {'border'}, normalize_filter_css({'border'}))
+            for x in BORDER_PROPS:
+                sbvals = {'border-%s-%s' % (e, x) for e in EDGES}
+                ae(sbvals | {'border-%s' % x}, normalize_filter_css({'border-%s' % x}))
+            for e in EDGES:
+                sbvals = {'border-%s-%s' % (e, x) for x in BORDER_PROPS}
+                ae(sbvals | {'border-%s' % e}, normalize_filter_css({'border-%s' % e}))
+            ae({'list-style', 'list-style-image', 'list-style-type', 'list-style-position'}, normalize_filter_css({'list-style'}))
 
         def test_edge_condensation(self):
             for s, v in {
