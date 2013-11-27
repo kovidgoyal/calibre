@@ -227,6 +227,21 @@ class AuthorsEdit(EditWithComplete):
         self.setSizeAdjustPolicy(self.AdjustToMinimumContentsLengthWithIcon)
         self.manage_authors_signal = manage_authors
         manage_authors.triggered.connect(self.manage_authors)
+        self.lineEdit().createStandardContextMenu = self.createStandardContextMenu
+
+    def createStandardContextMenu(self):
+        menu = QLineEdit.createStandardContextMenu(self.lineEdit())
+        menu.addSeparator()
+        menu.addAction(_('&Edit authors'), self.edit_authors)
+        return menu
+
+    def edit_authors(self):
+        all_authors = self.lineEdit().all_items
+        current_authors = self.current_val
+        from calibre.gui2.dialogs.authors_edit import AuthorsEdit
+        d = AuthorsEdit(all_authors, current_authors, self)
+        if d.exec_() == d.Accepted:
+            self.current_val = d.authors
 
     def manage_authors(self):
         if self.original_val != self.current_val:
