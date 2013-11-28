@@ -46,7 +46,7 @@ class TableItem(QTableWidgetItem):
 
 class MatchBooks(QDialog, Ui_MatchBooks):
 
-    def __init__(self, gui, view, id_):
+    def __init__(self, gui, view, id_, row_index):
         QDialog.__init__(self, gui, flags=Qt.Window)
         Ui_MatchBooks.__init__(self)
         self.setupUi(self)
@@ -73,6 +73,7 @@ class MatchBooks(QDialog, Ui_MatchBooks):
         self.view = view
         self.gui = gui
         self.current_device_book_id = id_
+        self.current_device_book_index = row_index
         self.current_library_book_id = None
 
         # Set up the books table columns
@@ -107,7 +108,9 @@ class MatchBooks(QDialog, Ui_MatchBooks):
         self.buttonBox.rejected.connect(self.reject)
         self.ignore_next_key = False
 
-        self.search_text.setText(self.device_db[self.current_device_book_id].title)
+        search_text= self.device_db[self.current_device_book_id].title
+        search_text = search_text.replace('(', '\\(').replace(')', '\\)')
+        self.search_text.setText(search_text)
 
     def return_pressed(self):
         self.ignore_next_key = True
@@ -192,9 +195,14 @@ class MatchBooks(QDialog, Ui_MatchBooks):
             d.exec_()
             return
         mi = self.library_db.get_metadata(self.current_library_book_id,
-                              index_is_id=True, get_user_categories=False)
-        self.device_db[self.current_device_book_id].smart_update(mi, replace_metadata=True)
-        self.device_db[self.current_device_book_id].in_library_waiting = True
+                              index_is_id=True, get_user_categories=False,
+                              get_cover=True)
+        book = self.device_db[self.current_device_book_id]
+        book.smart_update(mi, replace_metadata=True)
+        self.gui.update_thumbnail(book)
+        book.in_library_waiting = True
+        self.view.model().current_changed(self.current_device_book_index,
+                                          self.current_device_book_index)
         self.save_state()
         QDialog.accept(self)
 
