@@ -339,17 +339,13 @@ class KeyPairSearch(object):  # {{{
     def __call__(self, query, field_iter, candidates, use_primary_find):
         matches = set()
         if ':' in query:
-            q = [q.strip() for q in query.split(':')]
-            if len(q) != 2:
-                raise ParseException(
-                 _('Invalid query format for colon-separated search: {0}').format(query))
+            q = [q.strip() for q in query.partition(':')[0::2]]
             keyq, valq = q
             keyq_mkind, keyq = _matchkind(keyq)
             valq_mkind, valq = _matchkind(valq)
         else:
             keyq = keyq_mkind = ''
             valq_mkind, valq = _matchkind(query)
-            keyq_mkind
 
         if valq in {'true', 'false'}:
             found = set()
