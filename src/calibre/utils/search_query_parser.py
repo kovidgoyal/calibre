@@ -177,14 +177,17 @@ class Parser(object):
         def parse(self, expr, locations):
             self.locations = locations
 
-            # Strip out escaped backslashes and escaped quotes so that the
+            # Strip out escaped backslashes, quotes and parens so that the
             # lex scanner doesn't get confused. We put them back later.
             expr = expr.replace(u'\\\\', u'\x01').replace(u'\\"', u'\x02')
+            expr = expr.replace(u'\\(', u'\x03').replace(u'\\)', u'\x04')
             self.tokens = self.lex_scanner.scan(expr)[0]
             for (i,tok) in enumerate(self.tokens):
                 tt, tv = tok
                 if tt == self.WORD or tt == self.QUOTED_WORD:
-                    self.tokens[i] = (tt, tv.replace(u'\x01', u'\\').replace(u'\x02', u'"'))
+                    self.tokens[i] = (tt,
+                        tv.replace(u'\x01', u'\\').replace(u'\x02', u'"').
+                        replace(u'\x03', u'(').replace(u'\x04', u')'))
 
             self.current_token = 0
             prog = self.or_expression()
@@ -219,10 +222,10 @@ class Parser(object):
             return self.location_expression()
 
         def location_expression(self):
-            if self.token() == '(':
+            if self.token_type() == self.OPCODE and self.token() == '(':
                 self.advance()
                 res = self.or_expression()
-                if self.token(advance=True) != ')':
+                if self.token_type() != self.OPCODE or self.token(advance=True) != ')':
                     raise ParseException(_('missing )'))
                 return res
             if self.token_type() not in (self.WORD, self.QUOTED_WORD):

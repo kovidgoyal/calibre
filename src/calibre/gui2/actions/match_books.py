@@ -36,4 +36,4 @@ class MatchBookAction(InterfaceAction):
             return
 
         id_ = view.model().indices(rows)[0]
-        MatchBooks(self.gui, view, id_).exec_()
+        MatchBooks(self.gui, view, id_, rows[0]).exec_()
