@@ -24,6 +24,9 @@ class Economist(BasicNewsRecipe):
         .headline {font-size: x-large;}
         h2 { font-size: small;  }
         h1 { font-size: medium;  }
+        em.Bold {font-weight:bold;font-style:normal;}
+        em.Italic {font-style:italic;}
+        p.xhead {font-weight:bold;}
         .pullquote {
             float: right;
             font-size: larger;
