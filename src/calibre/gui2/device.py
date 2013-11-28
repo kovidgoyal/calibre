@@ -1284,9 +1284,7 @@ class DeviceMixin(object): # {{{
                 prefix = ascii_filename(prefix)
                 names.append('%s_%d%s'%(prefix, id,
                     os.path.splitext(f)[1]))
-                if mi.cover and os.access(mi.cover, os.R_OK):
-                    mi.thumbnail = self.cover_to_thumbnail(open(mi.cover,
-                        'rb').read())
+                self.update_thumbnail(mi)
             dynamic.set('catalogs_to_be_synced', set([]))
             if files:
                 remove = []
@@ -1367,9 +1365,7 @@ class DeviceMixin(object): # {{{
                 prefix = ascii_filename(prefix)
                 names.append('%s_%d%s'%(prefix, id,
                     os.path.splitext(f)[1]))
-                if mi.cover and os.access(mi.cover, os.R_OK):
-                    mi.thumbnail = self.cover_to_thumbnail(open(mi.cover,
-                        'rb').read())
+                self.update_thumbnail(mi)
             self.news_to_be_synced = set([])
             if config['upload_news_to_device'] and files:
                 remove = ids if del_on_upload else []
@@ -1423,8 +1419,7 @@ class DeviceMixin(object): # {{{
         metadata = self.library_view.model().metadata_for(ids)
         ids = iter(ids)
         for mi in metadata:
-            if mi.cover and os.access(mi.cover, os.R_OK):
-                mi.thumbnail = self.cover_to_thumbnail(open(mi.cover, 'rb').read())
+            self.update_thumbnail(mi)
         imetadata = iter(metadata)
 
         bad, good, gf, names, remove_ids = [], [], [], [], []
@@ -1665,6 +1660,13 @@ class DeviceMixin(object): # {{{
                 loc[4] |= self.book_db_uuid_path_map[id]
         return loc
 
+    def update_thumbnail(self, book):
+        if book.cover and os.access(book.cover, os.R_OK):
+            book.thumbnail = self.cover_to_thumbnail(open(book.cover, 'rb').read())
+        else:
+            book.thumbnail = self.default_thumbnail
+
+
     def set_books_in_library(self, booklists, reset=False, add_as_step_to_job=None,
                              force_send=False):
         '''
@@ -1738,10 +1740,7 @@ class DeviceMixin(object): # {{{
             mi = db.get_metadata(id_, index_is_id=True, get_cover=get_covers)
             book.smart_update(mi, replace_metadata=True)
             if get_covers and desired_thumbnail_height != 0:
-                if book.cover and os.access(book.cover, os.R_OK):
-                    book.thumbnail = self.cover_to_thumbnail(open(book.cover, 'rb').read())
-                else:
-                    book.thumbnail = self.default_thumbnail
+                self.update_thumbnail(book)
 
         def updateq(id_, book):
             try:
