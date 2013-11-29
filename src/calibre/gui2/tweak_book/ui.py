@@ -131,7 +131,7 @@ class Main(MainWindow):
         self.container = None
         self.current_metadata = None
         self.blocking_job = BlockingJob(self)
-        self.keyboard = KeyboardManager()
+        self.keyboard = KeyboardManager(self, config_name='shortcuts/tweak_book')
 
         self.central = Central(self)
         self.setCentralWidget(self.central)
@@ -173,7 +173,7 @@ class Main(MainWindow):
             if isinstance(keys, type('')):
                 keys = (keys,)
             self.keyboard.register_shortcut(
-                sid, unicode(ac.text()), default_keys=keys, description=description, action=ac, group=group)
+                sid, unicode(ac.text()).replace('&', ''), default_keys=keys, description=description, action=ac, group=group)
             self.addAction(ac)
             return ac
 

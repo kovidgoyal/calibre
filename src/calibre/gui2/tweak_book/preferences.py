@@ -19,17 +19,28 @@ class Preferences(QDialog):
         QDialog.__init__(self, gui)
         self.l = l = QGridLayout(self)
         self.setLayout(l)
+        self.setWindowTitle(_('Preferences for Tweak Book'))
+        self.setWindowIcon(QIcon(I('config.png')))
 
         self.stacks = QStackedWidget(self)
         l.addWidget(self.stacks, 0, 1, 1, 1)
 
         self.categories_list = cl = QListWidget(self)
         cl.currentRowChanged.connect(self.stacks.setCurrentIndex)
+        cl.clearPropertyFlags()
+        cl.setViewMode(cl.IconMode)
+        cl.setFlow(cl.TopToBottom)
+        cl.setMovement(cl.Static)
+        cl.setWrapping(False)
+        cl.setSpacing(10)
+        cl.setWordWrap(True)
         l.addWidget(cl, 0, 0, 1, 1)
 
         self.bb = bb = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
         bb.accepted.connect(self.accept)
         bb.rejected.connect(self.reject)
+        self.rdb = b = bb.addButton(_('Restore all defaults'), bb.ResetRole)
+        b.clicked.connect(self.restore_all_defaults)
         l.addWidget(bb, 1, 0, 1, 2)
 
         self.resize(800, 600)
@@ -40,16 +51,26 @@ class Preferences(QDialog):
         self.keyboard_panel = ShortcutConfig(self)
         self.keyboard_panel.initialize(gui.keyboard)
 
-        for name, icon, panel in [(_('Keyboard'), 'keyboard.png', 'keyboard')]:
+        for name, icon, panel in [(_('Keyboard Shortcuts'), 'keyboard-prefs.png', 'keyboard')]:
             i = QListWidgetItem(QIcon(I(icon)), name, cl)
             cl.addItem(i)
             self.stacks.addWidget(getattr(self, panel + '_panel'))
 
         cl.setCurrentRow(0)
         cl.item(0).setSelected(True)
+        cl.setMaximumWidth(cl.sizeHintForColumn(0) + 30)
+        l.setColumnStretch(1, 10)
+
+    def restore_all_defaults(self):
+        for i in xrange(self.stacks.count()):
+            w = self.stacks.widget(i)
+            w.restore_defaults()
 
     def accept(self):
         tprefs.set('preferences_geom', bytearray(self.saveGeometry()))
+        for i in xrange(self.stacks.count()):
+            w = self.stacks.widget(i)
+            w.commit()
         QDialog.accept(self)
 
     def reject(self):

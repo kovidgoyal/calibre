@@ -31,6 +31,7 @@ from calibre.gui2.tweak_book.save import SaveManager
 from calibre.gui2.tweak_book.preview import parse_worker, font_cache
 from calibre.gui2.tweak_book.toc import TOCEditor
 from calibre.gui2.tweak_book.editor import editor_from_syntax, syntax_from_mime
+from calibre.gui2.tweak_book.preferences import Preferences
 
 def get_container(*args, **kwargs):
     kwargs['tweak_mode'] = True
@@ -64,7 +65,8 @@ class Boss(QObject):
         self.gui.preview.split_requested.connect(self.split_requested)
 
     def preferences(self):
-        pass
+        p = Preferences(self.gui)
+        p.exec_()
 
     def mkdtemp(self, prefix=''):
         self.container_count += 1
