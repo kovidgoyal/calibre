@@ -20,6 +20,55 @@
 #   new recipes:
 #     - title: 
 
+- version: 1.13.0
+  date: 2013-11-29
+
+  new features:
+    - title: "Edit metadata dialog: Facilitate editing the authors for books that have a large number of authors, by using a dedicated 'Edit authors' tool, which you can launch by right clicking the authors in the edit metadata dialog
+and selecting 'Edit authors'."
+      tickets: [1255288]
+
+    - title: "Conversion: Fix specifying shorthand properties in filter css not working. Now all shorthand properties automatically filter out all the properties they are shorthand for."
+
+    - title: "Kobo driver: support new firmware version 3.0.1"
+
+    - title: "Wireless device driver: Cache metadata on a per device basis."
+      description: "Allows for using different cover thumbnail sizes on different devices. Will force device to resend all metadata the first time it is connected after this upgrade."
+
+  bug fixes:
+    - title: "Metadata download: Update code to get covers via google image search to handle changes to the google website."
+      tickets: [1254973]
+
+    - title: "Searching: When searching for identifiers, fix searching for values that contain colons not working. Also fix escaped parentheses not being parsed correctly."
+
+    - title: "Match books on device: Fix parentheses in book titles not being escaped when searching for matches."
+      tickets: [1255671]
+
+    - title: "Match books on device: Fix thumbnail in device metadata cache not being updated when matching books."
+      tickets: [1255676]
+
+    - title: "File open dialogs; If the previously used initial directory, no longer exists, use a directory one level up."
+      tickets: [1255216]
+
+    - title: "EPUB Output: Strip -- from inside comments, as some ebook reading apps cannot handle them."
+      tickets: [1256059]
+
+    - title: "Fix a regression in the previous release that broke the Kobo third party plugins"
+
+    - title: "Fix QuickView windows not staying on top on some linux systems"
+      tickets: [1253922]
+
+    - title: "Fixes for website changes for various Get Books Polish language stores"
+
+    - title: "Metadata download dialog: Fix current cover not copyable to clipboard"
+
+    - title: "Fix an incorrect translation of the language 'Polish'"
+      tickets: [1254161] 
+
+  improved recipes:
+    - Economist
+    - Various PostMedia news sources
+
 - version: 1.12.0
   date: 2013-11-22
 
