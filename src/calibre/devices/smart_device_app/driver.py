@@ -38,6 +38,7 @@ from calibre.utils.config_base import tweaks
 from calibre.utils.filenames import ascii_filename as sanitize, shorten_components_to
 from calibre.utils.mdns import (publish as publish_zeroconf, unpublish as
         unpublish_zeroconf, get_all_ips)
+from calibre.utils.socket_inheritance import set_socket_inherit
 
 def synchronous(tlockname):
     """A decorator to place an instance based lock around a method """
@@ -139,6 +140,7 @@ class ConnectionListener(Thread):
                                 self.driver.listen_socket.accept)
                         self.driver.listen_socket.settimeout(None)
                         device_socket.settimeout(None)
+                        set_socket_inherit(device_socket, False)
 
                         try:
                             self.driver.connection_queue.put_nowait(device_socket)
@@ -1480,7 +1482,9 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
         message = None
         try:
             self.listen_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            set_socket_inherit(self.listen_socket, False)
         except:
+            traceback.print_exc()
             message = 'creation of listen socket failed'
             self._debug(message)
             return message
