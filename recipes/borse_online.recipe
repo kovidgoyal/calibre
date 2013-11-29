@@ -1,36 +1,34 @@
+# vim:fileencoding=utf-8
 from calibre.web.feeds.recipes import BasicNewsRecipe
+
 class AdvancedUserRecipe1303841067(BasicNewsRecipe):
 
-    title                 = u'Börse-online'
-    __author__            = 'schuster, Armin Geller'
-    oldest_article        = 1
-    max_articles_per_feed = 100
-    no_stylesheets        = True
-    use_embedded_content  = False
-    language              = 'de'
-    remove_javascript     = True
-    encoding              = 'iso-8859-1'
-    timefmt               = ' [%a, %d %b %Y]'
-    
-    
+    title                     = u'Börse-online'
+    __author__                = 'schuster, Armin Geller'  # AGE upd 2013-11-29
+    oldest_article            = 1
+    max_articles_per_feed     = 100
+    no_stylesheets            = True
+    use_embedded_content      = False
+    language                  = 'de'
+    remove_javascript         = True
+    remove_empty_feeds        = True
+    ignore_duplicate_articles = {'title', 'url'}
+    encoding                  = 'utf-8'
+    timefmt                   = ' [%a, %d %b %Y]'
+
     cover_url = 'http://www.wirtschaftsmedien-shop.de/s/media/coverimages/7576_2013107.jpg'
     masthead_url = 'http://upload.wikimedia.org/wikipedia/de/5/56/B%C3%B6rse_Online_Logo.svg'
 
-    remove_tags_after = [dict(name='div', attrs={'class':['artikelfuss', 'rahmen600']})]
-    
-    remove_tags = [
-                    dict(name='div', attrs={'id':['breadcrumb', 'rightCol', 'clearall']}),
-                    dict(name='div', attrs={'class':['footer', 'artikelfuss']}),
-                  ]
+    feeds          = [(u'Börsennachrichten', u'http://www.boerse-online.de/rss'),
+                       (u'Märkte', u'http://www.boerse-online.de/rss/maerkte'),
+                       (u'Chartanalyse', u'http://www.boerse-online.de/rss/maerkte/chartanalyse'),
+                       (u'Aktien', u'http://www.boerse-online.de/rss/aktie'),
+                       (u'Aktien-Chartanalyse', u'http://www.boerse-online.de/rss/aktie/chartanalyse'),
+                       (u'zertifikate', u'http://www.boerse-online.de/rss/zertifikat')
+                      ]
 
-    keep_only_tags    = [
-                          dict(name='div', attrs={'id':['contentWrapper']})
-                        ]
-
-    feeds          = [(u'Börsennachrichten', u'http://www.boerse-online.de/rss/')]
-    
     def print_version(self, url):
-        return url.replace('.html#nv=rss', '.html?mode=print')
-
+        s1,s2 = url.rsplit('/', 1)
+        return 'http://www.boerse-online.de/nachrichten/drucken/'+s2
 
 
