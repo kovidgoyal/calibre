@@ -64,7 +64,7 @@ def upload_signatures():
 
 class ReUpload(Command):  # {{{
 
-    description = 'Re-uplaod any installers present in dist/'
+    description = 'Re-upload any installers present in dist/'
 
     sub_commands = ['upload_installers']
 
@@ -76,7 +76,6 @@ class ReUpload(Command):  # {{{
             raise SystemExit(1)
 
     def run(self, opts):
-        upload_signatures()
         for x in installers():
             if os.path.exists(x):
                 os.remove(x)
@@ -131,7 +130,7 @@ class UploadInstallers(Command):  # {{{
 
     def add_options(self, parser):
         parser.add_option('--replace', default=False, action='store_true', help=
-                'Replace existing installers, when uploading to google')
+                'Replace existing installers')
 
     def run(self, opts):
         all_possible = set(installers())
@@ -149,6 +148,8 @@ class UploadInstallers(Command):  # {{{
         try:
             self.upload_to_staging(tdir, backup, files)
             self.upload_to_calibre()
+            if opts.replace:
+                upload_signatures()
             self.upload_to_sourceforge()
             self.upload_to_dbs()
             # self.upload_to_google(opts.replace)
