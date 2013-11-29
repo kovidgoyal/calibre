@@ -13,12 +13,12 @@ from PyQt4.Qt import (
     QVBoxLayout, QStackedWidget, QTabWidget, QImage, QPixmap, pyqtSignal)
 
 from calibre.constants import __appname__, get_version
+from calibre.gui2.keyboard import Manager as KeyboardManager
 from calibre.gui2.main_window import MainWindow
 from calibre.gui2.tweak_book import current_container, tprefs, actions, elided_text
 from calibre.gui2.tweak_book.file_list import FileListWidget
 from calibre.gui2.tweak_book.job import BlockingJob
 from calibre.gui2.tweak_book.boss import Boss
-from calibre.gui2.tweak_book.keyboard import KeyboardManager
 from calibre.gui2.tweak_book.preview import Preview
 from calibre.gui2.tweak_book.search import SearchPanel
 
@@ -154,7 +154,6 @@ class Main(MainWindow):
         self.restore_state()
 
         self.keyboard.finalize()
-        self.keyboard.set_mode('other')
 
     def elided_text(self, text, width=200, mode=Qt.ElideMiddle):
         return elided_text(self.font(), text, width=width, mode=mode)
@@ -187,6 +186,7 @@ class Main(MainWindow):
         self.action_save = reg('save.png', _('&Save'), self.boss.save_book, 'save-book', 'Ctrl+Shift+S', _('Save book'))
         self.action_save.setEnabled(False)
         self.action_quit = reg('quit.png', _('&Quit'), self.boss.quit, 'quit', 'Ctrl+Q', _('Quit'))
+        self.action_preferences = reg('config.png', _('&Preferences'), self.boss.preferences, 'preferences', 'Ctrl+P', _('Preferences'))
 
         # Editor actions
         group = _('Editor actions')
@@ -271,6 +271,9 @@ class Main(MainWindow):
                 'Create a checkpoint with the current state of the book'))
 
     def create_menubar(self):
+        p, q = self.create_application_menubar()
+        q.triggered.connect(self.action_quit.trigger)
+        p.triggered.connect(self.action_preferences.trigger)
         b = self.menuBar()
 
         f = b.addMenu(_('&File'))
@@ -290,6 +293,8 @@ class Main(MainWindow):
         e.addAction(self.action_editor_cut)
         e.addAction(self.action_editor_copy)
         e.addAction(self.action_editor_paste)
+        e.addSeparator()
+        e.addAction(self.action_preferences)
 
         e = b.addMenu(_('&Tools'))
         e.addAction(self.action_toc)

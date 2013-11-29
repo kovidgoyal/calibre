@@ -63,6 +63,9 @@ class Boss(QObject):
         self.gui.preview.split_start_requested.connect(self.split_start_requested)
         self.gui.preview.split_requested.connect(self.split_requested)
 
+    def preferences(self):
+        pass
+
     def mkdtemp(self, prefix=''):
         self.container_count += 1
         return tempfile.mkdtemp(prefix='%s%05d-' % (prefix, self.container_count), dir=self.tdir)
@@ -707,7 +710,6 @@ class Boss(QObject):
             actions['editor-copy'].setEnabled(ed.cut_available)
             actions['go-to-line-number'].setEnabled(ed.has_line_numbers)
             actions['fix-html-current'].setEnabled(ed.syntax == 'html')
-            self.gui.keyboard.set_mode(ed.syntax)
             name = None
             for n, x in editors.iteritems():
                 if ed is x:
@@ -716,7 +718,6 @@ class Boss(QObject):
             if name is not None and getattr(ed, 'syntax', None) == 'html':
                 self.gui.preview.show(name)
         else:
-            self.gui.keyboard.set_mode('other')
             actions['go-to-line-number'].setEnabled(False)
 
     def editor_close_requested(self, editor):
