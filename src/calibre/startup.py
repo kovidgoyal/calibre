@@ -16,7 +16,7 @@ __builtin__.__dict__['_'] = lambda s: s
 # immediately translated to the environment language
 __builtin__.__dict__['__'] = lambda s: s
 
-from calibre.constants import iswindows, preferred_encoding, plugins, isosx
+from calibre.constants import iswindows, preferred_encoding, plugins, isosx, islinux
 
 _run_once = False
 winutil = winutilerror = None
@@ -24,7 +24,7 @@ winutil = winutilerror = None
 if not _run_once:
     _run_once = True
 
-    ################################################################################
+    #
     # Platform specific modules
     if iswindows:
         winutil, winutilerror = plugins['winutil']
@@ -33,12 +33,12 @@ if not _run_once:
         if len(sys.argv) > 1 and not isinstance(sys.argv[1], unicode):
             sys.argv[1:] = winutil.argv()[1-len(sys.argv):]
 
-    ################################################################################
+    #
     # Ensure that all temp files/dirs are created under a calibre tmp dir
     from calibre.ptempfile import base_dir
     base_dir()
 
-    ################################################################################
+    #
     # Convert command line arguments to unicode
     enc = preferred_encoding
     if isosx:
@@ -52,19 +52,18 @@ if not _run_once:
         if not isinstance(sys.argv[i], unicode):
             sys.argv[i] = sys.argv[i].decode(enc, 'replace')
 
-    ################################################################################
+    #
     # Setup resources
     import calibre.utils.resources as resources
     resources
 
-
-    ################################################################################
+    #
     # Setup translations
     from calibre.utils.localization import set_translators
 
     set_translators()
 
-    ################################################################################
+    #
     # Initialize locale
     # Import string as we do not want locale specific
     # string.whitespace/printable, on windows especially, this causes problems.
@@ -82,7 +81,7 @@ if not _run_once:
         except:
             pass
 
-    ################################################################################
+    #
 
     def local_open(name, mode='r', bufsize=-1):
         '''
@@ -93,6 +92,7 @@ if not _run_once:
         '''
         if iswindows:
             class fwrapper(object):
+
                 def __init__(self, name, fobject):
                     object.__setattr__(self, 'fobject', fobject)
                     object.__setattr__(self, 'name', name)
@@ -129,7 +129,6 @@ if not _run_once:
                     fobject = object.__getattribute__(self, 'fobject')
                     return fobject.__exit__(*args)
 
-
             m = mode[0]
             random = len(mode) > 1 and mode[1] == '+'
             binary = mode[-1] == 'b'
@@ -162,9 +161,16 @@ if not _run_once:
                 cloexec_flag = fcntl.FD_CLOEXEC
             except AttributeError:
                 cloexec_flag = 1
+            # Python 2.x uses fopen which on recent glibc/linux kernel at least
+            # respects the 'e' mode flag. On OS X the e is ignored. So to try
+            # to get atomicity where possible we pass 'e' and then only use
+            # fcntl only if CLOEXEC was not set.
+            if islinux:
+                mode += 'e'
             ans = open(name, mode, bufsize)
             old = fcntl.fcntl(ans, fcntl.F_GETFD)
-            fcntl.fcntl(ans, fcntl.F_SETFD, old | cloexec_flag)
+            if not (old & cloexec_flag):
+                fcntl.fcntl(ans, fcntl.F_SETFD, old | cloexec_flag)
         return ans
 
     __builtin__.__dict__['lopen'] = local_open
