@@ -13,6 +13,7 @@ from future_builtins import map
 from threading import Thread
 from Queue import Queue, Empty
 from collections import namedtuple
+from functools import partial
 
 from PyQt4.Qt import (
     QWidget, QVBoxLayout, QApplication, QSize, QNetworkAccessManager, QMenu, QIcon,
@@ -30,6 +31,7 @@ from calibre.gui2 import error_dialog
 from calibre.gui2.tweak_book import current_container, editors, tprefs, actions
 from calibre.gui2.viewer.documentview import apply_settings
 from calibre.gui2.viewer.config import config
+from calibre.gui2.widgets2 import HistoryLineEdit2
 from calibre.utils.ipc.simple_worker import offload_worker
 
 shutdown = object()
@@ -462,6 +464,22 @@ class Preview(QWidget):
         self.refresh_timer.timeout.connect(self.refresh)
         parse_worker.start()
         self.current_sync_request = None
+
+        self.search = HistoryLineEdit2(self)
+        self.search.initialize('tweak_book_preview_search')
+        self.search.setPlaceholderText(_('Search in preview'))
+        self.search.returnPressed.connect(partial(self.find, 'next'))
+        self.bar.addSeparator()
+        self.bar.addWidget(self.search)
+        for d in ('next', 'prev'):
+            ac = actions['find-%s-preview' % d]
+            ac.triggered.connect(partial(self.find, d))
+            self.bar.addAction(ac)
+
+    def find(self, direction):
+        text = unicode(self.search.text())
+        self.view.findText(text, QWebPage.FindWrapsAroundDocument | (
+            QWebPage.FindBackward if direction == 'prev' else QWebPage.FindFlags(0)))
 
     def request_sync(self, lnum):
         if self.current_name:
