@@ -359,6 +359,8 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
                 # continue to function even when the toolbars are hidden
                 self.addAction(action)
 
+        for plugin in self.view.document.all_viewer_plugins:
+            plugin.customize_ui(self)
         self.view.document.settings_changed.connect(self.settings_changed)
 
         self.restore_state()

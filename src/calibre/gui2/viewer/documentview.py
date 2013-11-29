@@ -702,6 +702,8 @@ class DocumentView(QWebView):  # {{{
             menu.addSeparator()
             menu.addAction(self.manager.action_quit)
 
+        for plugin in self.document.all_viewer_plugins:
+            plugin.customize_context_menu(menu, ev, r)
         menu.exec_(ev.globalPos())
 
     def inspect(self):
