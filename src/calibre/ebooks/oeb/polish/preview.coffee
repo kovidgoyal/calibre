@@ -95,7 +95,7 @@ class PreviewIntegration
             loc.push(num)
             parent = parent.parentNode
         loc.reverse()
-        window.py_bridge.request_split(loc)
+        window.py_bridge.request_split(JSON.stringify(loc))
 
     onload: () =>
         window.document.body.addEventListener('click', this.onclick, true)

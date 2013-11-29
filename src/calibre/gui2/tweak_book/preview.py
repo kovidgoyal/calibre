@@ -6,7 +6,7 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import time, textwrap
+import time, textwrap, json
 from bisect import bisect_right
 from base64 import b64encode
 from future_builtins import map
@@ -319,9 +319,10 @@ class WebPage(QWebPage):
         except (TypeError, ValueError, OverflowError, AttributeError):
             pass
 
-    @pyqtSlot('QList<int>')
+    @pyqtSlot(str)
     def request_split(self, loc):
         actions['split-in-preview'].setChecked(False)
+        loc = json.loads(unicode(loc))
         if not loc:
             return error_dialog(self.view(), _('Invalid location'),
                                 _('Cannot split on the body tag'), show=True)
