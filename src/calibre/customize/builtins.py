@@ -885,7 +885,7 @@ class ActionChooseLibrary(InterfaceActionBase):
 class ActionAddToLibrary(InterfaceActionBase):
     name = 'Add To Library'
     actual_plugin = 'calibre.gui2.actions.add_to_library:AddToLibraryAction'
-    description = _('Copy books from the devce to your calibre library')
+    description = _('Copy books from the device to your calibre library')
 
 class ActionEditCollections(InterfaceActionBase):
     name = 'Edit Collections'
