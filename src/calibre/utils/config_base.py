@@ -146,6 +146,12 @@ class OptionSet(object):
         self.preferences.append(pref)
         self.defaults[name] = default
 
+    def retranslate_help(self):
+        t = _
+        for opt in self.preferences:
+            if opt.help:
+                opt.help = t(opt.help)
+
     def option_parser(self, user_defaults=None, usage='', gui_mode=False):
         from calibre.utils.config import OptionParser
         parser = OptionParser(usage, gui_mode=gui_mode)
@@ -341,6 +347,9 @@ class ConfigProxy(object):
 
     def refresh(self):
         self.__opts = self.__config.parse()
+
+    def retranslate_help(self):
+        self.__config.option_set.retranslate_help()
 
     def __getitem__(self, key):
         return self.get(key)
