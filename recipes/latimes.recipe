@@ -4,12 +4,13 @@ __copyright__ = '2008-2011, Darko Miletic <darko.miletic at gmail.com>'
 www.latimes.com
 '''
 
+import re, urllib
 from calibre.web.feeds.news import BasicNewsRecipe
 
 class LATimes(BasicNewsRecipe):
     title                 = 'Los Angeles Times'
     __author__            = 'Darko Miletic'
-    description           = 'The Los Angeles Times is a leading source of news on Southern California, entertainment, movies, television, music, politics, business, health, technology, travel, sports, environment, economics, autos, jobs, real estate and other topics affecting California'
+    description           = 'The Los Angeles Times is a leading source of news on Southern California, entertainment, movies, television, music, politics, business, health, technology, travel, sports, environment, economics, autos, jobs, real estate and other topics affecting California'  # noqa
     publisher             = 'Tribune Company'
     category              = 'news, politics, USA, Los Angeles, world'
     oldest_article        = 2
@@ -53,43 +54,47 @@ class LATimes(BasicNewsRecipe):
                   ]
     remove_attributes=['lang','xmlns:fb','xmlns:og','border','xtags','i','article_body']
 
-
     feeds = [
-              (u'Top News'             , u'http://feeds.latimes.com/latimes/news'                           )
-             ,(u'Local News'           , u'http://feeds.latimes.com/latimes/news/local'                     )
-             ,(u'National'             , u'http://feeds.latimes.com/latimes/news/nationworld/nation'        )
-             ,(u'National Politics'    , u'http://feeds.latimes.com/latimes/news/politics/'                 )
-             ,(u'Business'             , u'http://feeds.latimes.com/latimes/business'                       )
-             ,(u'Education'            , u'http://feeds.latimes.com/latimes/news/education'                 )
-             ,(u'Environment'          , u'http://feeds.latimes.com/latimes/news/science/environment'       )
-             ,(u'Religion'             , u'http://feeds.latimes.com/latimes/features/religion'              )
-             ,(u'Science'              , u'http://feeds.latimes.com/latimes/news/science'                   )
-             ,(u'Technology'           , u'http://feeds.latimes.com/latimes/technology'                     )
-             ,(u'Africa'               , u'http://feeds.latimes.com/latimes/africa'                         )
-             ,(u'Asia'                 , u'http://feeds.latimes.com/latimes/asia'                           )
-             ,(u'Europe'               , u'http://feeds.latimes.com/latimes/europe'                         )
-             ,(u'Latin America'        , u'http://feeds.latimes.com/latimes/latinamerica'                   )
-             ,(u'Middle East'          , u'http://feeds.latimes.com/latimes/middleeast'                     )
-             ,(u'Arts&Culture'         , u'http://feeds.feedburner.com/latimes/entertainment/news/arts'     )
-             ,(u'Entertainment News'   , u'http://feeds.feedburner.com/latimes/entertainment/news/'         )
-             ,(u'Movie News'           , u'http://feeds.feedburner.com/latimes/entertainment/news/movies/'  )
-             ,(u'Movie Reviews'        , u'http://feeds.feedburner.com/movies/reviews/'                     )
-             ,(u'Music News'           , u'http://feeds.feedburner.com/latimes/entertainment/news/music/'   )
-             ,(u'Pop Album Reviews'    , u'http://feeds.feedburner.com/latimes/pop-album-reviews'           )
-             ,(u'Restaurant Reviews'   , u'http://feeds.feedburner.com/latimes/restaurant/reviews'          )
-             ,(u'Theatar and Dance'    , u'http://feeds.feedburner.com/latimes/theaterdance'                )
+              (u'Top News'             , u'http://feeds.latimes.com/latimes/news')
+             ,(u'Local News'           , u'http://feeds.latimes.com/latimes/news/local')
+             ,(u'National'             , u'http://feeds.latimes.com/latimes/news/nationworld/nation')
+             ,(u'National Politics'    , u'http://feeds.latimes.com/latimes/news/politics/')
+             ,(u'Business'             , u'http://feeds.latimes.com/latimes/business')
+             ,(u'Education'            , u'http://feeds.latimes.com/latimes/news/education')
+             ,(u'Environment'          , u'http://feeds.latimes.com/latimes/news/science/environment')
+             ,(u'Religion'             , u'http://feeds.latimes.com/latimes/features/religion')
+             ,(u'Science'              , u'http://feeds.latimes.com/latimes/news/science')
+             ,(u'Technology'           , u'http://feeds.latimes.com/latimes/technology')
+             ,(u'Africa'               , u'http://feeds.latimes.com/latimes/africa')
+             ,(u'Asia'                 , u'http://feeds.latimes.com/latimes/asia')
+             ,(u'Europe'               , u'http://feeds.latimes.com/latimes/europe')
+             ,(u'Latin America'        , u'http://feeds.latimes.com/latimes/latinamerica')
+             ,(u'Middle East'          , u'http://feeds.latimes.com/latimes/middleeast')
+             ,(u'Arts&Culture'         , u'http://feeds.feedburner.com/latimes/entertainment/news/arts')
+             ,(u'Entertainment News'   , u'http://feeds.feedburner.com/latimes/entertainment/news/')
+             ,(u'Movie News'           , u'http://feeds.feedburner.com/latimes/entertainment/news/movies/')
+             ,(u'Movie Reviews'        , u'http://feeds.feedburner.com/movies/reviews/')
+             ,(u'Music News'           , u'http://feeds.feedburner.com/latimes/entertainment/news/music/')
+             ,(u'Pop Album Reviews'    , u'http://feeds.feedburner.com/latimes/pop-album-reviews')
+             ,(u'Restaurant Reviews'   , u'http://feeds.feedburner.com/latimes/restaurant/reviews')
+             ,(u'Theatar and Dance'    , u'http://feeds.feedburner.com/latimes/theaterdance')
              ,(u'Autos'                , u'http://feeds.latimes.com/latimes/classified/automotive/highway1/')
-             ,(u'Books'                , u'http://feeds.latimes.com/features/books'                         )
-             ,(u'Food'                 , u'http://feeds.latimes.com/latimes/features/food/'                 )
-             ,(u'Health'               , u'http://feeds.latimes.com/latimes/features/health/'               )
-             ,(u'Real Estate'          , u'http://feeds.latimes.com/latimes/classified/realestate/'         )
-             ,(u'Commentary'           , u'http://feeds2.feedburner.com/latimes/news/opinion/commentary/'   )
-             ,(u'Sports'               , u'http://feeds.latimes.com/latimes/sports/'                        )
+             ,(u'Books'                , u'http://feeds.latimes.com/features/books')
+             ,(u'Food'                 , u'http://feeds.latimes.com/latimes/features/food/')
+             ,(u'Health'               , u'http://feeds.latimes.com/latimes/features/health/')
+             ,(u'Real Estate'          , u'http://feeds.latimes.com/latimes/classified/realestate/')
+             ,(u'Commentary'           , u'http://feeds2.feedburner.com/latimes/news/opinion/commentary/')
+             ,(u'Sports'               , u'http://feeds.latimes.com/latimes/sports/')
             ]
 
     def get_article_url(self, article):
         ans = BasicNewsRecipe.get_article_url(self, article).rpartition('?')[0]
+        if not ans:
+            ans = urllib.unquote(re.search(r'href="http://share.feedsportal.com/share/twitter/\?u=([^"]+)', article['summary']).group(1)).partition('?')[0]
+        return ans
 
+    def print_version(self, url):
+        ans = url
         try:
             self.log('Looking for full story link in', ans)
             soup = self.index_to_soup(ans)
@@ -97,7 +102,7 @@ class LATimes(BasicNewsRecipe):
 
             if x is not None:
                 a = x.parent
-                if a and a.has_key('href'):
+                if a and a['href']:
                     ans = 'http://www.latimes.com'+a['href']
                     self.log('Found full story link', ans)
         except:
@@ -107,19 +112,16 @@ class LATimes(BasicNewsRecipe):
     def preprocess_html(self, soup):
         for item in soup.findAll(style=True):
             del item['style']
-        for item in soup.findAll('img'):
-            if not item.has_key('alt'):
-               item['alt'] = 'image'
         for item in soup.findAll('a'):
             limg = item.find('img')
             if item.string is not None:
-               str = item.string
-               item.replaceWith(str)
+                str = item.string
+                item.replaceWith(str)
             else:
-               if limg:
-                  item.name  ='div'
-                  item.attrs =[]
-               else:
-                   str = self.tag_to_string(item)
-                   item.replaceWith(str)
+                if limg:
+                    item.name  ='div'
+                    item.attrs =[]
+                else:
+                    str = self.tag_to_string(item)
+                    item.replaceWith(str)
         return soup
