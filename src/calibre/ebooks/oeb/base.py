@@ -325,6 +325,11 @@ def xpath(elem, expr):
     return elem.xpath(expr, namespaces=XPNSMAP)
 
 def xml2str(root, pretty_print=False, strip_comments=False, with_tail=True):
+    if not strip_comments:
+        # -- in comments trips up adobe digital editions
+        for x in root.iterdescendants(etree.Comment):
+            if x.text and '--' in x.text:
+                x.text = x.text.replace('--', '__')
     ans = etree.tostring(root, encoding='utf-8', xml_declaration=True,
                           pretty_print=pretty_print, with_tail=with_tail)
 
