@@ -214,12 +214,13 @@ class Container(object):  # {{{
         should be done once, in bulk. '''
         if current_name in self.names_that_must_not_be_changed:
             raise ValueError('Renaming of %s is not allowed' % current_name)
-        if self.exists(new_name):
-            raise ValueError('Cannot rename %s to %s as %s already exists' % (self.opf_name, new_name, new_name))
+        if self.exists(new_name) and (new_name == current_name or new_name.lower() != current_name.lower()):
+            # The destination exists and does not differ from the current name only by case
+            raise ValueError('Cannot rename %s to %s as %s already exists' % (current_name, new_name, new_name))
         new_path = self.name_to_abspath(new_name)
         base = os.path.dirname(new_path)
         if os.path.isfile(base):
-            raise ValueError('Cannot rename %s to %s as %s is a file' % (self.opf_name, new_name, base))
+            raise ValueError('Cannot rename %s to %s as %s is a file' % (current_name, new_name, base))
         if not os.path.exists(base):
             os.makedirs(base)
         old_path = parent_dir = self.name_to_abspath(current_name)

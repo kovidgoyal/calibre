@@ -149,12 +149,20 @@ class ContainerTests(BaseTest):
 
         # Test renaming of font files
         c = new_container()
-        rename_files(c, {'LiberationMono-Regular.ttf': 'fonts/LiberationMono Regular.ttf'})
+        fname = 'LiberationMono-Regular.ttf'
+        if fname not in c.name_path_map:
+            fname = fname.lower()  # On OS X the font file name is lowercased for some reason (maybe on windows too)
+        rename_files(c, {fname: 'fonts/LiberationMono Regular.ttf'})
         self.check_links(c)
 
         # Test renaming of text files
         c = new_container()
         rename_files(c, {'index_split_000.html':'text/page one fällen.html', 'index_split_001.html':'text/page two fällen.html'})
+        self.check_links(c)
+
+        # Test rename with only case change
+        c = new_container()
+        rename_files(c, {'index_split_000.html':'Index_split_000.html'})
         self.check_links(c)
 
         # self.run_external_tools(c, gvim=True)

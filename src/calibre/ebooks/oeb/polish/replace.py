@@ -109,6 +109,9 @@ def rename_files(container, file_map):
         raise ValueError('Circular rename detected. The files %s are both rename targets and destinations' % ', '.join(overlap))
     for name, dest in file_map.iteritems():
         if container.exists(dest):
+            if name != dest and name.lower() == dest.lower():
+                # A case change on an OS with a case insensitive file-system.
+                continue
             raise ValueError('Cannot rename {0} to {1} as {1} already exists'.format(name, dest))
     if len(tuple(file_map.itervalues())) != len(set(file_map.itervalues())):
         raise ValueError('Cannot rename, the set of destination files contains duplicates')
