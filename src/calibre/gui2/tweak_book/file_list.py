@@ -18,7 +18,8 @@ from PyQt4.Qt import (
 from calibre import human_readable, sanitize_file_name_unicode
 from calibre.ebooks.oeb.base import OEB_STYLES, OEB_DOCS
 from calibre.ebooks.oeb.polish.container import guess_type, OEB_FONTS
-from calibre.ebooks.oeb.polish.cover import get_cover_page_name, get_raster_cover_name
+from calibre.ebooks.oeb.polish.cover import (
+    get_cover_page_name, get_raster_cover_name, is_raster_image)
 from calibre.gui2 import error_dialog, choose_files
 from calibre.gui2.tweak_book import current_container, elided_text
 from calibre.gui2.tweak_book.editor import syntax_from_mime
@@ -83,6 +84,7 @@ class FileList(QTreeWidget):
     rename_requested = pyqtSignal(object, object)
     edit_file = pyqtSignal(object, object, object)
     merge_requested = pyqtSignal(object, object, object)
+    mark_requested = pyqtSignal(object, object)
 
     def __init__(self, parent=None):
         QTreeWidget.__init__(self, parent)
@@ -306,7 +308,10 @@ class FileList(QTreeWidget):
         ci = self.currentItem()
         if ci is not None:
             cn = unicode(ci.data(0, NAME_ROLE).toString())
+            mt = unicode(ci.data(0, MIME_ROLE).toString())
             m.addAction(QIcon(I('modified.png')), _('&Rename %s') % (elided_text(self.font(), cn)), self.edit_current_item)
+            if is_raster_image(mt):
+                m.addAction(QIcon(I('default_cover.png')), _('Mark %s as cover image') % elided_text(self.font(), cn), partial(self.mark_as_cover, cn))
 
         selected_map = defaultdict(list)
         for item in sel:
@@ -339,6 +344,9 @@ class FileList(QTreeWidget):
     def edit_current_item(self):
         if self.currentItem() is not None:
             self.editItem(self.currentItem())
+
+    def mark_as_cover(self, name):
+        self.mark_requested.emit(name, 'cover')
 
     def keyPressEvent(self, ev):
         if ev.key() in (Qt.Key_Delete, Qt.Key_Backspace):
@@ -544,6 +552,7 @@ class FileListWidget(QWidget):
     rename_requested = pyqtSignal(object, object)
     edit_file = pyqtSignal(object, object, object)
     merge_requested = pyqtSignal(object, object, object)
+    mark_requested = pyqtSignal(object, object)
 
     def __init__(self, parent=None):
         QWidget.__init__(self, parent)
@@ -551,7 +560,7 @@ class FileListWidget(QWidget):
         self.file_list = FileList(self)
         self.layout().addWidget(self.file_list)
         self.layout().setContentsMargins(0, 0, 0, 0)
-        for x in ('delete_requested', 'reorder_spine', 'rename_requested', 'edit_file', 'merge_requested'):
+        for x in ('delete_requested', 'reorder_spine', 'rename_requested', 'edit_file', 'merge_requested', 'mark_requested'):
             getattr(self.file_list, x).connect(getattr(self, x))
         for x in ('delete_done', 'select_name'):
             setattr(self, x, getattr(self.file_list, x))

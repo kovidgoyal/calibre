@@ -697,6 +697,10 @@ class Container(object):  # {{{
             mdata.remove(child)
         if len(mdata) > 0:
             mdata[-1].tail = '\n  '
+        # Ensure name comes before content, needed for Nooks
+        for meta in self.opf_xpath('//opf:meta[@name="cover"]'):
+            if 'content' in meta.attrib:
+                meta.set('content', meta.attrib.pop('content'))
 
     def serialize_item(self, name):
         data = self.parsed(name)

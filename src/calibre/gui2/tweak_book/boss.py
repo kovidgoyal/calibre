@@ -19,6 +19,7 @@ from calibre.ptempfile import PersistentTemporaryDirectory
 from calibre.ebooks.oeb.base import urlnormalize
 from calibre.ebooks.oeb.polish.main import SUPPORTED, tweak_polish
 from calibre.ebooks.oeb.polish.container import get_container as _gc, clone_container, guess_type
+from calibre.ebooks.oeb.polish.cover import mark_as_cover
 from calibre.ebooks.oeb.polish.pretty import fix_all_html, pretty_all
 from calibre.ebooks.oeb.polish.replace import rename_files
 from calibre.ebooks.oeb.polish.split import split, merge, AbortError
@@ -57,6 +58,7 @@ class Boss(QObject):
         fl.rename_requested.connect(self.rename_requested)
         fl.edit_file.connect(self.edit_file_requested)
         fl.merge_requested.connect(self.merge_requested)
+        fl.mark_requested.connect(self.mark_requested)
         self.gui.central.current_editor_changed.connect(self.apply_current_editor_state)
         self.gui.central.close_requested.connect(self.editor_close_requested)
         self.gui.central.search_panel.search_triggered.connect(self.search)
@@ -69,6 +71,18 @@ class Boss(QObject):
         if p.exec_() == p.Accepted:
             for ed in editors.itervalues():
                 ed.apply_settings()
+
+    def mark_requested(self, name, action):
+        if not self.check_opf_dirtied():
+            return
+        c = current_container()
+        if action == 'cover':
+            mark_as_cover(current_container(), name)
+
+        if c.opf_name in editors:
+            editors[c.opf_name].replace_data(c.raw_data(c.opf_name))
+        self.gui.file_list.build(c)
+        self.set_modified()
 
     def mkdtemp(self, prefix=''):
         self.container_count += 1
