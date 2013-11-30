@@ -8,6 +8,8 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import os, unittest, shutil
 
+from calibre import CurrentDir
+from calibre.ptempfile import TemporaryDirectory
 from calibre.ptempfile import PersistentTemporaryDirectory
 from calibre.utils.logging import DevNull
 import calibre.ebooks.oeb.polish.container as pc
@@ -35,24 +37,33 @@ def build_book(src, dest, args=()):
     from calibre.ebooks.conversion.cli import main
     main(['ebook-convert', src, dest] + list(args))
 
+def add_resources(raw, rmap):
+    for placeholder, path in rmap.iteritems():
+        fname = os.path.basename(path)
+        shutil.copy2(path, '.')
+        raw = raw.replace(placeholder, fname)
+    return raw
+
 def get_simple_book(fmt='epub'):
     cache = get_cache()
     ans = os.path.join(cache, 'simple.'+fmt)
     src = os.path.join(os.path.dirname(__file__), 'simple.html')
     if needs_recompile(ans, src):
-        x = src.replace('simple.html', 'index.html')
-        raw = open(src, 'rb').read().decode('utf-8')
-        raw = raw.replace('LMONOI', P('fonts/liberation/LiberationMono-Italic.ttf'))
-        raw = raw.replace('LMONO', P('fonts/liberation/LiberationMono-Regular.ttf'))
-        raw = raw.replace('IMAGE1', I('marked.png'))
-        raw = raw.replace('IMAGE2', I('textures/light_wood.png'))
-        try:
-            with open(x, 'wb') as f:
-                f.write(raw.encode('utf-8'))
-            build_book(x, ans, args=['--level1-toc=//h:h2', '--language=en', '--authors=Kovid Goyal',
-                                        '--cover=' + I('lt.png')])
-        finally:
-            os.remove(x)
+        with TemporaryDirectory('bpt') as tdir:
+            with CurrentDir(tdir):
+                raw = open(src, 'rb').read().decode('utf-8')
+                raw = add_resources(raw, {
+                    'LMONOI': P('fonts/liberation/LiberationMono-Italic.ttf'),
+                    'LMONOR': P('fonts/liberation/LiberationMono-Regular.ttf'),
+                    'IMAGE1': I('marked.png'),
+                    'IMAGE2': I('textures/light_wood.png'),
+                })
+                shutil.copy2(I('lt.png'), '.')
+                x = 'index.html'
+                with open(x, 'wb') as f:
+                    f.write(raw.encode('utf-8'))
+                build_book(x, ans, args=[
+                    '--level1-toc=//h:h2', '--language=en', '--authors=Kovid Goyal', '--cover=lt.png'])
     return ans
 
 def get_split_book(fmt='epub'):
