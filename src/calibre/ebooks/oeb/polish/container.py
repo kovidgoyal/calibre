@@ -794,7 +794,8 @@ class EpubContainer(Container):
 
         self.pathtoepub = pathtoepub
         if tdir is None:
-            tdir = os.path.abspath(os.path.realpath(PersistentTemporaryDirectory('_epub_container')))
+            tdir = PersistentTemporaryDirectory('_epub_container')
+        tdir = os.path.abspath(os.path.realpath(tdir))
         self.root = tdir
         with open(self.pathtoepub, 'rb') as stream:
             try:
@@ -1002,7 +1003,8 @@ class AZW3Container(Container):
 
         self.pathtoazw3 = pathtoazw3
         if tdir is None:
-            tdir = os.path.abspath(os.path.realpath(PersistentTemporaryDirectory('_azw3_container')))
+            tdir = PersistentTemporaryDirectory('_azw3_container')
+        tdir = os.path.abspath(os.path.realpath(tdir))
         self.root = tdir
         with open(pathtoazw3, 'rb') as stream:
             raw = stream.read(3)
