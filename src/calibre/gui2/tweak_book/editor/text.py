@@ -55,12 +55,12 @@ class TextEdit(QPlainTextEdit):
         self.current_cursor_line = None
         self.current_search_mark = None
         self.highlighter = SyntaxHighlighter(self)
+        self.line_number_area = LineNumbers(self)
         self.apply_settings()
         self.setMouseTracking(True)
         self.cursorPositionChanged.connect(self.highlight_cursor_line)
         self.blockCountChanged[int].connect(self.update_line_number_area_width)
         self.updateRequest.connect(self.update_line_number_area)
-        self.line_number_area = LineNumbers(self)
         self.syntax = None
 
     @dynamic_property
@@ -118,6 +118,7 @@ class TextEdit(QPlainTextEdit):
         self.number_width = max(map(lambda x:w.width(str(x)), xrange(10)))
         self.size_hint = QSize(100 * w.averageCharWidth(), 50 * w.height())
         self.highlight_color = theme_color(theme, 'HighlightRegion', 'bg')
+        self.highlight_cursor_line()
     # }}}
 
     def load_text(self, text, syntax='html', process_template=False):

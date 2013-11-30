@@ -77,6 +77,9 @@ class Editor(QMainWindow):
         if current != raw:
             self.editor.replace_text(raw)
 
+    def apply_settings(self, prefs=None):
+        self.editor.apply_settings(prefs=None)
+
     def set_focus(self):
         self.editor.setFocus(Qt.OtherFocusReason)
 

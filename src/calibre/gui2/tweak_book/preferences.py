@@ -6,12 +6,135 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
+from operator import attrgetter, methodcaller
+from collections import namedtuple
+
 from PyQt4.Qt import (
     QDialog, QGridLayout, QStackedWidget, QDialogButtonBox, QListWidget,
-    QListWidgetItem, QIcon)
+    QListWidgetItem, QIcon, QWidget, QSize, QFormLayout, Qt, QSpinBox,
+    QCheckBox, pyqtSignal, QDoubleSpinBox, QComboBox)
 
 from calibre.gui2.keyboard import ShortcutConfig
 from calibre.gui2.tweak_book import tprefs
+from calibre.gui2.tweak_book.editor.themes import default_theme, THEMES
+from calibre.gui2.font_family_chooser import FontFamilyChooser
+
+class BasicSettings(QWidget):  # {{{
+
+    changed_signal = pyqtSignal()
+
+    def __init__(self, parent=None):
+        QWidget.__init__(self, parent)
+        self.settings = {}
+        self._prevent_changed = False
+        self.Setting = namedtuple('Setting', 'name prefs widget getter setter initial_value')
+
+    def __call__(self, name, widget=None, getter=None, setter=None, prefs=None):
+        prefs = prefs or tprefs
+        defval = prefs.defaults[name]
+        inval = prefs[name]
+        if widget is None:
+            if isinstance(defval, bool):
+                widget = QCheckBox(self)
+                getter = getter or methodcaller('isChecked')
+                setter = setter or (lambda x, v: x.setChecked(v))
+                widget.toggled.connect(self.emit_changed)
+            elif isinstance(defval, (int, float)):
+                widget = (QSpinBox if isinstance(defval, int) else QDoubleSpinBox)(self)
+                getter = getter or methodcaller('value')
+                setter = setter or (lambda x, v:x.setValue(v))
+                widget.valueChanged.connect(self.emit_changed)
+            else:
+                raise TypeError('Unknown setting type for setting: %s' % name)
+        else:
+            if getter is None or setter is None:
+                raise ValueError("getter or setter not provided for: %s" % name)
+        self._prevent_changed = True
+        setter(widget, inval)
+        self._prevent_changed = False
+
+        self.settings[name] = self.Setting(name, prefs, widget, getter, setter, inval)
+        return widget
+
+    def choices_widget(self, name, choices, fallback_val, none_val, prefs=None):
+        prefs = prefs or tprefs
+        widget = QComboBox(self)
+        widget.currentIndexChanged[int].connect(self.emit_changed)
+        for key, human in choices.iteritems():
+            widget.addItem(human or key, key)
+
+        def getter(w):
+            ans = unicode(w.itemData(w.currentIndex()).toString())
+            return {none_val:None}.get(ans, ans)
+
+        def setter(w, val):
+            val = {None:none_val}.get(val, val)
+            idx = w.findData(val, flags=Qt.MatchFixedString|Qt.MatchCaseSensitive)
+            if idx == -1:
+                idx = w.findData(fallback_val, flags=Qt.MatchFixedString|Qt.MatchCaseSensitive)
+            w.setCurrentIndex(idx)
+
+        return self(name, widget=widget, getter=getter, setter=setter, prefs=prefs)
+
+    def emit_changed(self, *args):
+        if not self._prevent_changed:
+            self.changed_signal.emit()
+
+    def commit(self):
+        with tprefs:
+            for name in self.settings:
+                cv = self.current_value(name)
+                if self.initial_value(name) != cv:
+                    prefs = self.settings[name].prefs
+                    if cv == self.default_value(name):
+                        del prefs[name]
+                    else:
+                        prefs[name] = cv
+
+    def restore_defaults(self):
+        for setting in self.settings.itervalues():
+            setting.setter(setting.widget, self.default_value(setting.name))
+
+    def initial_value(self, name):
+        return self.settings[name].initial_value
+
+    def current_value(self, name):
+        s = self.settings[name]
+        return s.getter(s.widget)
+
+    def default_value(self, name):
+        s = self.settings[name]
+        return s.prefs.defaults[name]
+
+    def setting_changed(self, name):
+        return self.current_value(name) != self.initial_value(name)
+# }}}
+
+class EditorSettings(BasicSettings):
+
+    def __init__(self, parent=None):
+        BasicSettings.__init__(self, parent)
+        self.l = l = QFormLayout(self)
+        self.setLayout(l)
+
+        fc = FontFamilyChooser(self)
+        self('editor_font_family', widget=fc, getter=attrgetter('font_family'), setter=lambda x, val: setattr(x, 'font_family', val))
+        fc.family_changed.connect(self.emit_changed)
+        l.addRow(_('Editor font &family:'), fc)
+
+        fs = self('editor_font_size')
+        fs.setMinimum(8), fs.setSuffix(' pt'), fs.setMaximum(50)
+        l.addRow(_('Editor font &size:'), fs)
+
+        auto_theme = _('Automatic (%s)') % default_theme()
+        choices = {k:k for k in THEMES}
+        choices['auto'] = auto_theme
+        theme = self.choices_widget('editor_theme', choices, 'auto', 'auto')
+        l.addRow(_('&Color scheme:'), theme)
+
+        lw = self('editor_line_wrap')
+        lw.setText(_('&Wrap long lines in the editor'))
+        l.addRow(lw)
 
 class Preferences(QDialog):
 
@@ -32,7 +155,7 @@ class Preferences(QDialog):
         cl.setFlow(cl.TopToBottom)
         cl.setMovement(cl.Static)
         cl.setWrapping(False)
-        cl.setSpacing(10)
+        cl.setSpacing(15)
         cl.setWordWrap(True)
         l.addWidget(cl, 0, 0, 1, 1)
 
@@ -40,7 +163,11 @@ class Preferences(QDialog):
         bb.accepted.connect(self.accept)
         bb.rejected.connect(self.reject)
         self.rdb = b = bb.addButton(_('Restore all defaults'), bb.ResetRole)
+        b.setToolTip(_('Restore defaults for all preferences'))
         b.clicked.connect(self.restore_all_defaults)
+        self.rcdb = b = bb.addButton(_('Restore current defaults'), bb.ResetRole)
+        b.setToolTip(_('Restore defaults for currently displayed preferences'))
+        b.clicked.connect(self.restore_current_defaults)
         l.addWidget(bb, 1, 0, 1, 2)
 
         self.resize(800, 600)
@@ -50,21 +177,33 @@ class Preferences(QDialog):
 
         self.keyboard_panel = ShortcutConfig(self)
         self.keyboard_panel.initialize(gui.keyboard)
+        self.editor_panel = EditorSettings(self)
 
-        for name, icon, panel in [(_('Keyboard Shortcuts'), 'keyboard-prefs.png', 'keyboard')]:
+        for name, icon, panel in [
+            (_('Editor settings'), 'modified.png', 'editor'),
+            (_('Keyboard Shortcuts'), 'keyboard-prefs.png', 'keyboard')
+        ]:
             i = QListWidgetItem(QIcon(I(icon)), name, cl)
             cl.addItem(i)
             self.stacks.addWidget(getattr(self, panel + '_panel'))
 
         cl.setCurrentRow(0)
         cl.item(0).setSelected(True)
-        cl.setMaximumWidth(cl.sizeHintForColumn(0) + 30)
-        l.setColumnStretch(1, 10)
+        w, h = cl.sizeHintForColumn(0), 0
+        for i in xrange(cl.count()):
+            h = max(h, cl.sizeHintForRow(i))
+            cl.item(i).setSizeHint(QSize(w, h))
+
+        cl.setMaximumWidth(cl.sizeHintForColumn(0) + 35)
+        cl.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
 
     def restore_all_defaults(self):
         for i in xrange(self.stacks.count()):
             w = self.stacks.widget(i)
             w.restore_defaults()
+
+    def restore_current_defaults(self):
+        self.stacks.currentWidget().restore_defaults()
 
     def accept(self):
         tprefs.set('preferences_geom', bytearray(self.saveGeometry()))

@@ -66,7 +66,9 @@ class Boss(QObject):
 
     def preferences(self):
         p = Preferences(self.gui)
-        p.exec_()
+        if p.exec_() == p.Accepted:
+            for ed in editors.itervalues():
+                ed.apply_settings()
 
     def mkdtemp(self, prefix=''):
         self.container_count += 1
