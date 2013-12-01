@@ -9,8 +9,9 @@ This module implements a simple commandline SMTP client that supports:
   * Background delivery with failures being saved in a maildir mailbox
 '''
 
-import sys, traceback, os
+import sys, traceback, os, socket
 from calibre import isbytestring
+from calibre.utils.filenames import ascii_text
 
 def create_mail(from_, to, subject, text=None, attachment_data=None,
                  attachment_type=None, attachment_name=None):
@@ -61,12 +62,34 @@ def get_mx(host, verbose=0):
                                       int(getattr(y, 'preference', sys.maxint))))
     return [str(x.exchange) for x in answers if hasattr(x, 'exchange')]
 
+def safe_localhost():
+    # RFC 2821 says we should use the fqdn in the EHLO/HELO verb, and
+    # if that can't be calculated, that we should use a domain literal
+    # instead (essentially an encoded IP address like [A.B.C.D]).
+    fqdn = socket.getfqdn()
+    if '.' in fqdn:
+        # Some mail servers have problems with non-ascii local hostnames, see
+        # https://bugs.launchpad.net/bugs/1256549
+        try:
+            local_hostname = ascii_text(fqdn)
+        except:
+            local_hostname = 'localhost.localdomain'
+    else:
+        # We can't find an fqdn hostname, so use a domain literal
+        addr = '127.0.0.1'
+        try:
+            addr = socket.gethostbyname(socket.gethostname())
+        except socket.gaierror:
+            pass
+        local_hostname = '[%s]' % addr
+    return local_hostname
+
 def sendmail_direct(from_, to, msg, timeout, localhost, verbose,
         debug_output=None):
     import calibre.utils.smtplib as smtplib
     hosts = get_mx(to.split('@')[-1].strip(), verbose)
-    timeout=None # Non blocking sockets sometimes don't work
-    kwargs = dict(timeout=timeout, local_hostname=localhost)
+    timeout=None  # Non blocking sockets sometimes don't work
+    kwargs = dict(timeout=timeout, local_hostname=localhost or safe_localhost())
     if debug_output is not None:
         kwargs['debug_to'] = debug_output
     s = smtplib.SMTP(**kwargs)
@@ -94,9 +117,9 @@ def sendmail(msg, from_, to, localhost=None, verbose=0, timeout=None,
             return sendmail_direct(from_, x, msg, timeout, localhost, verbose)
     import calibre.utils.smtplib as smtplib
     cls = smtplib.SMTP_SSL if encryption == 'SSL' else smtplib.SMTP
-    timeout = None # Non-blocking sockets sometimes don't work
+    timeout = None  # Non-blocking sockets sometimes don't work
     port = int(port)
-    kwargs = dict(timeout=timeout, local_hostname=localhost)
+    kwargs = dict(timeout=timeout, local_hostname=localhost or safe_localhost())
     if debug_output is not None:
         kwargs['debug_to'] = debug_output
     s = cls(**kwargs)
@@ -118,7 +141,7 @@ def sendmail(msg, from_, to, localhost=None, verbose=0, timeout=None,
         try:
             ret = s.quit()
         except:
-            pass # Ignore so as to not hide original error
+            pass  # Ignore so as to not hide original error
     return ret
 
 def option_parser():
@@ -202,7 +225,6 @@ def compose_mail(from_, to, text, subject=None, attachment=None,
 def main(args=sys.argv):
     parser = option_parser()
     opts, args = parser.parse_args(args)
-
 
     if len(args) > 1:
         if len(args) < 4:
