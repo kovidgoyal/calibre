@@ -12,7 +12,9 @@ class NGM(BasicNewsRecipe):
     auto_cleanup_keep = '//div[@class="featurepic"]'
 
     def nejm_get_index(self):
-        return self.index_to_soup('http://ngm.nationalgeographic.com/2013/10/table-of-contents')
+        soup = self.index_to_soup('http://ngm.nationalgeographic.com/')
+        a = soup.find('div', id='current_issue').find('a', href=True)
+        return self.index_to_soup('http://ngm.nationalgeographic.com' + a['href'])
 
     # To parse artice toc
     def parse_index(self):
