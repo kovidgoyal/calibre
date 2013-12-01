@@ -1,10 +1,10 @@
 ﻿# -*- coding: utf-8 -*-
 
 from __future__ import (unicode_literals, division, absolute_import, print_function)
-store_version = 1 # Needed for dynamic plugin loading
+store_version = 2 # Needed for dynamic plugin loading
 
 __license__ = 'GPL 3'
-__copyright__ = '2011, Roman Mukhin <ramses_ru at hotmail.com>'
+__copyright__ = '2011-2013, Roman Mukhin <ramses_ru at hotmail.com>'
 __docformat__ = 'restructuredtext en'
 
 import random
@@ -51,11 +51,6 @@ class OzonRUStore(BasicStoreConfig, StorePlugin):
         search_url = self.shop_url + '/webservice/webservice.asmx/SearchWebService?'\
                     'searchText=%s&searchContext=ebook' % urllib2.quote(query)
         search_urls = [ search_url ]
-
-        ## add this as the fist try if it looks like ozon ID
-        if re.match("^\d{6,9}$", query):
-            ozon_detail = self.shop_url + '/webservices/OzonWebSvc.asmx/ItemDetail?ID=%s' % query
-            search_urls.insert(0, ozon_detail)
 
         xp_template = 'normalize-space(./*[local-name() = "{0}"]/text())'
         counter = max_results

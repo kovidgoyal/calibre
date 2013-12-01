@@ -2,7 +2,7 @@
 from __future__ import (unicode_literals, division, absolute_import, print_function)
 
 __license__ = 'GPL 3'
-__copyright__ = '2011, Roman Mukhin <ramses_ru at hotmail.com>'
+__copyright__ = '2011-2013 Roman Mukhin <ramses_ru at hotmail.com>'
 __docformat__ = 'restructuredtext en'
 
 import re
@@ -10,7 +10,7 @@ from Queue import Queue, Empty
 
 from calibre import as_unicode
 from calibre.ebooks.metadata import check_isbn
-from calibre.ebooks.metadata.sources.base import Source
+from calibre.ebooks.metadata.sources.base import Source, Option
 from calibre.ebooks.metadata.book.base import Metadata
 
 class Ozon(Source):
@@ -36,6 +36,13 @@ class Ozon(Source):
              '(?:[0-9]+[- ]?){2}[0-9X]'
     isbnRegex = re.compile(isbnPattern)
 
+    optkey_strictmatch = 'strict_result_match'
+    options = (
+            Option(optkey_strictmatch, 'bool', False,
+                _('Filter out less relevant hits from the search results'),
+                _('Improve search result by removing less relevant hits. It can be useful to refine the search when there are many matches')),
+            )
+
     def get_book_url(self, identifiers):  # {{{
         import urllib2
         ozon_id = identifiers.get('ozon', None)
@@ -48,34 +55,38 @@ class Ozon(Source):
 
     def create_query(self, log, title=None, authors=None, identifiers={}):  # {{{
         from urllib import quote_plus
+
         # div_book -> search only books, ebooks and audio books
         search_url = self.ozon_url + '/webservice/webservice.asmx/SearchWebService?searchContext=div_book&searchText='
 
         # for ozon.ru search we have to format ISBN with '-'
         isbn = _format_isbn(log, identifiers.get('isbn', None))
+        if isbn and not '-' in isbn:
+            log.error("%s requires formatted ISBN for search. %s cannot be formated - removed. (only Russian ISBN format is supported now)"
+                      %(self.name, isbn))
+            isbn = None
+
         ozonid = identifiers.get('ozon', None)
 
+        qItems = set([ozonid, isbn])
+
         unk = unicode(_('Unknown')).upper()
-        if (title and title != unk) or (authors and authors != [unk]) or isbn or not ozonid:
-            qItems = set([isbn, title])
-            if authors:
-                qItems |= frozenset(authors)
-            qItems.discard(None)
-            qItems.discard('')
-            qItems = map(_quoteString, qItems)
 
-            q = u' '.join(qItems).strip()
-            log.info(u'search string: ' + q)
+        if title and title != unk:
+            qItems.add(title)
+        if authors and authors != [unk]:
+            qItems |= frozenset(authors)
 
-            if isinstance(q, unicode):
-                q = q.encode('utf-8')
-            if not q:
-                return None
+        qItems.discard(None)
+        qItems.discard('')
+        qItems = map(_quoteString, qItems)
+        searchText = u' '.join(qItems).strip()
+        if isinstance(searchText, unicode):
+            searchText = searchText.encode('utf-8')
+        if not searchText:
+            return None
 
-            search_url += quote_plus(q)
-        else:
-            search_url = self.ozon_url + '/webservices/OzonWebSvc.asmx/ItemDetail?ID=%s' % ozonid
-
+        search_url += quote_plus(searchText)
         log.debug(u'search url: %r'%search_url)
         return search_url
     # }}}
@@ -125,13 +136,14 @@ class Ozon(Source):
         authors = map(_normalizeAuthorNameWithInitials,
                       map(unicode.upper, map(unicode, authors))) if authors else None
         ozon_id = identifiers.get('ozon', None)
+        #log.debug(u'ozonid: ', ozon_id)
 
         unk = unicode(_('Unknown')).upper()
 
         if title == unk:
             title = None
 
-        if authors == [unk]:
+        if authors == [unk] or authors == []:
             authors = None
 
         def in_authors(authors, miauthors):
@@ -142,33 +154,55 @@ class Ozon(Source):
                         return True
             return None
 
-        def ensure_metadata_match(mi):  # {{{
-            match = True
+        def calc_source_relevance(mi):  # {{{
+            relevance = 0
             if title:
                 mititle = unicode(mi.title).upper() if mi.title else ''
                 if reRemoveFromTitle:
                     mititle = reRemoveFromTitle.sub('', mititle)
-                match = title in mititle
-                #log.debug(u't=> %s <> %s'%(title, mititle))
-            if match and authors:
+                if title in mititle:
+                    relevance += 3
+                elif mititle:
+                    # log.debug(u'!!%s!'%mititle)
+                    relevance -= 3
+            else:
+                relevance += 1
+
+            if authors:
                 miauthors = map(unicode.upper, map(unicode, mi.authors)) if mi.authors else []
-                match = in_authors(authors, miauthors)
+                if (in_authors(authors, miauthors)):
+                    relevance += 3
+                elif u''.join(miauthors):
+                    # log.debug(u'!%s!'%u'|'.join(miauthors))
+                    relevance -= 3
+            else:
+                relevance += 1
 
-            if match and ozon_id:
+            if ozon_id:
                 mozon_id = mi.identifiers['ozon']
-                match = ozon_id == mozon_id
+                if ozon_id == mozon_id:
+                    relevance += 100
 
-            return match
+            if relevance < 0:
+                relevance = 0
+            return relevance
+        # }}}
 
+        strict_match = self.prefs[self.optkey_strictmatch]
         metadata = []
-        for i, entry in enumerate(entries):
+        for entry in entries:
             mi = self.to_metadata(log, entry)
-            mi.source_relevance = i
-            if ensure_metadata_match(mi):
+            relevance = calc_source_relevance(mi)
+            # TODO findout which is really used
+            mi.source_relevance = relevance
+            mi.relevance_in_source = relevance
+
+            if not strict_match or relevance > 0:
                 metadata.append(mi)
                 #log.debug(u'added metadata %s %s.'%(mi.title,  mi.authors))
             else:
-                log.debug(u'skipped metadata %s %s. (does not match the query)'%(unicode(mi.title), mi.authors))
+                log.debug(u'skipped metadata title: %s, authors: %s. (does not match the query - relevance score: %s)'
+                          %(mi.title, u' '.join(mi.authors), relevance))
         return metadata
     # }}}
 
@@ -296,47 +330,49 @@ class Ozon(Source):
         raw = self.browser.open_novisit(url, timeout=timeout).read()
         doc = html.fromstring(xml_to_unicode(raw, verbose=True)[0])
 
-        xpt_prod_det_at = u'string(//div[contains(@class, "product-detail")]//*[contains(normalize-space(text()), "%s")]/a[1]/@title)'
-        xpt_prod_det_tx = u'substring-after(//div[contains(@class, "product-detail")]//text()[contains(., "%s")], ":")'
+        xpt_tmpl_base = u'//text()[starts-with(translate(normalize-space(.), " \t", ""), "%s")]'
+        xpt_tmpl_a = u'normalize-space(' + xpt_tmpl_base + u'/following-sibling::a[1]/@title)'
 
         # series Серия/Серии
-        xpt = xpt_prod_det_at % u'Сери'
-        # % u'Серия:'
-        series = doc.xpath(xpt)
+        series = doc.xpath(xpt_tmpl_a % u'Сери')
         if series:
             metadata.series = series
+        #log.debug(u'Seria: ', metadata.series)
 
-        xpt = u'normalize-space(//*[@class="product-detail"]//text()[starts-with(., "ISBN")])'
-        isbn_str = doc.xpath(xpt)
+        xpt_isbn = u'normalize-space(' + xpt_tmpl_base + u')'
+        isbn_str = doc.xpath(xpt_isbn % u'ISBN')
         if isbn_str:
+            #log.debug(u'ISBNS: ', self.isbnRegex.findall(isbn_str))
             all_isbns = [check_isbn(isbn) for isbn in self.isbnRegex.findall(isbn_str) if _verifyISBNIntegrity(log, isbn)]
             if all_isbns:
                 metadata.all_isbns = all_isbns
                 metadata.isbn = all_isbns[0]
+        #log.debug(u'ISBN: ', metadata.isbn)
 
-        xpt = xpt_prod_det_at % u'Издатель'
-        publishers = doc.xpath(xpt)
+        publishers = doc.xpath(xpt_tmpl_a % u'Издатель')
         if publishers:
             metadata.publisher = publishers
+        #log.debug(u'Publisher: ', metadata.publisher)
 
+        xpt_lang = u'substring-after(normalize-space(//text()[contains(normalize-space(.), "%s")]), ":")'
         displ_lang = None
-        xpt = xpt_prod_det_tx % u'Язык'
-        langs = doc.xpath(xpt)
+        langs = doc.xpath(xpt_lang % u'Язык')
         if langs:
             lng_splt = langs.split(u',')
             if lng_splt:
                 displ_lang = lng_splt[0].strip()
         metadata.language = _translageLanguageToCode(displ_lang)
-        #log.debug(u'language: %s'%displ_lang)
+        #log.debug(u'Language: ', metadata.language)
 
         # can be set before from xml search responce
         if not metadata.pubdate:
-            xpt = u'normalize-space(substring-after(//div[@class="product-detail"]//text()[contains(., "г.")],";"))'
-            yearIn = doc.xpath(xpt)
+            xpt = u'substring-after(' + xpt_isbn + u',";")'
+            yearIn = doc.xpath(xpt % u'ISBN')
             if yearIn:
                 matcher = re.search(r'\d{4}', yearIn)
                 if matcher:
                     metadata.pubdate = toPubdate(log, matcher.group(0))
+        #log.debug(u'Pubdate: ', metadata.pubdate)
 
         # overwrite comments from HTML if any
         xpt = u'//*[@id="detail_description"]//*[contains(text(), "От производителя")]/../node()[not(self::comment())][not(self::br)][preceding::*[contains(text(), "От производителя")]]'  # noqa
@@ -352,7 +388,7 @@ class Ozon(Source):
             if comments and (not metadata.comments or len(comments) > len(metadata.comments)):
                 metadata.comments = comments
             else:
-                log.debug('HTML book description skipped in favour of search service xml responce')
+                log.debug('HTML book description skipped in favor of search service xml response')
         else:
             log.debug('No book description found in HTML')
     # }}}
@@ -396,7 +432,7 @@ def _format_isbn(log, isbn):  # {{{
     isbn_pat = re.compile(r"""
         ^
         (\d{3})?            # match GS1 Prefix for ISBN13
-        (5)                 # group identifier for rRussian-speaking countries
+        (5)                 # group identifier for Russian-speaking countries
         (                   # begin variable length for Publisher
             [01]\d{1}|      # 2x
             [2-6]\d{2}|     # 3x
@@ -423,7 +459,7 @@ def _format_isbn(log, isbn):  # {{{
         if m:
             res = '-'.join([g for g in m.groups() if g])
         else:
-            log.error('cannot format isbn %s'%isbn)
+            log.error('cannot format ISBN %s. Fow now only russian ISBNs are supported'%isbn)
     return res
 # }}}
 
