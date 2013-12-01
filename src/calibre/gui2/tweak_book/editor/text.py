@@ -6,7 +6,7 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import textwrap
+import textwrap, unicodedata
 from future_builtins import map
 
 import regex
@@ -75,7 +75,7 @@ class TextEdit(QPlainTextEdit):
 
     @property
     def selected_text(self):
-        return unicode(self.textCursor().selectedText())
+        return unicodedata.normalize('NFC', unicode(self.textCursor().selectedText()))
 
     def sizeHint(self):
         return self.size_hint
@@ -125,7 +125,7 @@ class TextEdit(QPlainTextEdit):
         self.highlighter = {'html':HTMLHighlighter, 'css':CSSHighlighter, 'xml':XMLHighlighter}.get(syntax, SyntaxHighlighter)(self)
         self.highlighter.apply_theme(self.theme)
         self.highlighter.setDocument(self.document())
-        self.setPlainText(text)
+        self.setPlainText(unicodedata.normalize('NFC', text))
         if process_template and QPlainTextEdit.find(self, '%CURSOR%'):
             c = self.textCursor()
             c.insertText('')
@@ -136,7 +136,7 @@ class TextEdit(QPlainTextEdit):
         c.beginEditBlock()
         c.clearSelection()
         c.select(c.Document)
-        c.insertText(text)
+        c.insertText(unicodedata.normalize('NFC', text))
         c.endEditBlock()
         c.setPosition(min(pos, len(text)))
         self.setTextCursor(c)

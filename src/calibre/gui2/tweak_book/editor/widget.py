@@ -6,6 +6,8 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
+import unicodedata
+
 from PyQt4.Qt import QMainWindow, Qt, QApplication, pyqtSignal
 
 from calibre import xml_replace_entities
@@ -56,7 +58,7 @@ class Editor(QMainWindow):
     @dynamic_property
     def data(self):
         def fget(self):
-            ans = unicode(self.editor.toPlainText())
+            ans = self.get_raw_data()
             if self.syntax == 'html':
                 ans = xml_replace_entities(ans)
             return ans.encode('utf-8')
@@ -68,7 +70,7 @@ class Editor(QMainWindow):
         self.editor.load_text(template, syntax=self.syntax, process_template=True)
 
     def get_raw_data(self):
-        return unicode(self.editor.toPlainText())
+        return unicodedata.normalize('NFC', unicode(self.editor.toPlainText()))
 
     def replace_data(self, raw, only_if_different=True):
         if isinstance(raw, bytes):
