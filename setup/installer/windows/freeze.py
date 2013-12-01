@@ -30,6 +30,7 @@ machine = 'X64' if is64bit else 'X86'
 DESCRIPTIONS = {
         'calibre' : 'The main calibre program',
         'ebook-viewer' : 'Viewer for all e-book formats',
+        'ebook-tweak' : 'Edit e-books',
         'lrfviewer'    : 'Viewer for LRF files',
         'ebook-convert': 'Command line interface to the conversion/news download system',
         'ebook-meta'   : 'Command line interface for manipulating e-book metadata',
@@ -334,7 +335,7 @@ class Win32Freeze(Command, WixMixIn):
     def embed_resources(self, module, desc=None, extra_data=None,
             product_description=None):
         icon_base = self.j(self.src_root, 'icons')
-        icon_map = {'calibre':'library', 'ebook-viewer':'viewer',
+        icon_map = {'calibre':'library', 'ebook-viewer':'viewer', 'ebook-tweak':'ebook-tweak',
                 'lrfviewer':'viewer', 'calibre-portable':'library'}
         file_type = 'DLL' if module.endswith('.dll') else 'APP'
         template = open(self.rc_template, 'rb').read()

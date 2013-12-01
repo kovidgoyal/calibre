@@ -72,6 +72,10 @@
                             Description="Viewer for all the major e-book formats"
                             Target="[#{exe_map[ebook-viewer]}]"
                              WorkingDirectory="APPLICATIONROOTDIRECTORY" />
+                         <Shortcut Id="s4" Name="E-book Tweak{x64}"
+                            Description="Edit e-books"
+                            Target="[#{exe_map[ebook-tweak]}]"
+                             WorkingDirectory="APPLICATIONROOTDIRECTORY" />
                          <Shortcut Id="s3" Name="LRF viewer{x64}"
                             Description="Viewer for LRF format e-books"
                             Target="[#{exe_map[lrfviewer]}]"

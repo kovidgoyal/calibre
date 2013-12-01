@@ -37,6 +37,7 @@ entry_points = {
             __appname__+' = calibre.gui2.main:main',
             'lrfviewer    = calibre.gui2.lrf_renderer.main:main',
             'ebook-viewer = calibre.gui2.viewer.main:main',
+            'ebook-tweak  = calibre.gui2.tweak_book.main:main',
                             ],
       }
 
@@ -492,6 +493,7 @@ class PostInstall:
             from calibre.ebooks.lrf.lrfparser import option_parser as lrf2lrsop
             from calibre.gui2.lrf_renderer.main import option_parser as lrfviewerop
             from calibre.gui2.viewer.main import option_parser as viewer_op
+            from calibre.gui2.tweak_book.main import option_parser as tweak_op
             from calibre.ebooks.metadata.sources.cli import option_parser as fem_op
             from calibre.gui2.main import option_parser as guiop
             from calibre.utils.smtp import option_parser as smtp_op
@@ -501,6 +503,7 @@ class PostInstall:
             from calibre.ebooks import BOOK_EXTENSIONS
             from calibre.customize.ui import available_input_formats
             input_formats = sorted(all_input_formats())
+            tweak_formats = sorted(x.lower() for x in SUPPORTED)
             zsh = ZshCompleter(self.opts)
             bc = os.path.join(os.path.dirname(self.opts.staging_sharedir),
                 'bash-completion')
@@ -541,6 +544,7 @@ class PostInstall:
                         opf_opts=['--opf', '-o'])
                 o_and_e('lrfviewer', lrfviewerop, ['lrf'])
                 o_and_e('ebook-viewer', viewer_op, input_formats)
+                o_and_e('ebook-tweak', tweak_op, tweak_formats)
                 o_and_w('fetch-ebook-metadata', fem_op, [])
                 o_and_w('calibre-smtp', smtp_op, [])
                 o_and_w('calibre-server', serv_op, [])
@@ -677,6 +681,9 @@ class PostInstall:
                 render_img('viewer.png', 'calibre-viewer.png')
                 cc('xdg-icon-resource install --size 128 calibre-viewer.png calibre-viewer', shell=True)
                 self.icon_resources.append(('apps', 'calibre-viewer', '128'))
+                render_img('tweak.png', 'calibre-ebook-tweak.png')
+                cc('xdg-icon-resource install --size 128 calibre-ebook-tweak.png calibre-ebook-tweak', shell=True)
+                self.icon_resources.append(('apps', 'calibre-ebook-tweak', '128'))
 
                 mimetypes = set([])
                 for x in all_input_formats():
@@ -687,19 +694,24 @@ class PostInstall:
                 def write_mimetypes(f):
                     f.write('MimeType=%s;\n'%';'.join(mimetypes))
 
+                from calibre.ebooks.oeb.polish.main import SUPPORTED
                 f = open('calibre-lrfviewer.desktop', 'wb')
                 f.write(VIEWER)
                 f.close()
                 f = open('calibre-ebook-viewer.desktop', 'wb')
                 f.write(EVIEWER)
                 write_mimetypes(f)
+                f = open('calibre-ebook-tweak.desktop', 'wb')
+                f.write(ETWEAK)
+                mt = [guess_type('a.' + x.lower())[0] for x in SUPPORTED]
+                f.write('MimeType=%s;\n'%';'.join(mt))
                 f.close()
                 f = open('calibre-gui.desktop', 'wb')
                 f.write(GUI)
                 write_mimetypes(f)
                 f.close()
                 des = ('calibre-gui.desktop', 'calibre-lrfviewer.desktop',
-                        'calibre-ebook-viewer.desktop')
+                        'calibre-ebook-viewer.desktop', 'calibre-ebook-tweak.desktop')
                 for x in des:
                     cmd = ['xdg-desktop-menu', 'install', '--noupdate', './'+x]
                     cc(' '.join(cmd), shell=True)
@@ -852,6 +864,18 @@ Icon=calibre-viewer
 Categories=Graphics;Viewer;
 '''
 
+ETWEAK = '''\
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=E-book Tweak
+GenericName=Edit E-books
+Comment=Edit e-books in various formats
+TryExec=ebook-tweak
+Exec=ebook-tweak %f
+Icon=calibre-ebook-tweak
+Categories=Office;
+'''
 
 GUI = '''\
 [Desktop Entry]
