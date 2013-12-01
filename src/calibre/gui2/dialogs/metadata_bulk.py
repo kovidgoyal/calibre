@@ -585,6 +585,8 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
             fm = self.db.metadata_for_field(field)
             if field == 'sort':
                 val = mi.get('title_sort', None)
+            elif fm['datatype'] == 'datetime':
+                val = mi.format_field(field)[1]
             else:
                 val = mi.get(field, None)
             if isinstance(val, (int, float, bool)):
@@ -731,8 +733,10 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
             return ''
         dest = self.s_r_df_itemdata(None)
         if dest == '':
-            if self.db.metadata_for_field(src)['datatype'] == 'composite':
-                raise Exception(_('You must specify a destination when source is a composite field'))
+            if (src == '{template}' or
+                        self.db.metadata_for_field(src)['datatype'] == 'composite'):
+                raise Exception(_('You must specify a destination when source is '
+                                  'a composite field or a template'))
             dest = src
         dest_mode = self.replace_mode.currentIndex()
 
