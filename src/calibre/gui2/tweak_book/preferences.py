@@ -8,6 +8,7 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
 from operator import attrgetter, methodcaller
 from collections import namedtuple
+from future_builtins import map
 
 from PyQt4.Qt import (
     QDialog, QGridLayout, QStackedWidget, QDialogButtonBox, QListWidget,
@@ -76,6 +77,36 @@ class BasicSettings(QWidget):  # {{{
 
         return self(name, widget=widget, getter=getter, setter=setter, prefs=prefs)
 
+    def order_widget(self, name, prefs=None):
+        prefs = prefs or tprefs
+        widget = QListWidget(self)
+        widget.addItems(prefs.defaults[name])
+        widget.setDragEnabled(True)
+        widget.setDragDropMode(widget.InternalMove)
+        widget.viewport().setAcceptDrops(True)
+        widget.setDropIndicatorShown(True)
+        widget.indexesMoved.connect(self.emit_changed)
+        widget.setDefaultDropAction(Qt.MoveAction)
+        widget.setMovement(widget.Snap)
+        widget.setSpacing(5)
+        widget.defaults = prefs.defaults[name]
+
+        def getter(w):
+            return list(map(unicode, (w.item(i).text() for i in xrange(w.count()))))
+
+        def setter(w, val):
+            order_map = {x:i for i, x in enumerate(val)}
+            items = list(w.defaults)
+            limit = len(items)
+            items.sort(key=lambda x:order_map.get(x, limit))
+            w.clear()
+            for x in items:
+                i = QListWidgetItem(w)
+                i.setText(x)
+                i.setFlags(i.flags() | Qt.ItemIsDragEnabled)
+
+        return self(name, widget=widget, getter=getter, setter=setter, prefs=prefs)
+
     def emit_changed(self, *args):
         if not self._prevent_changed:
             self.changed_signal.emit()
@@ -136,6 +167,23 @@ class EditorSettings(BasicSettings):
         lw.setText(_('&Wrap long lines in the editor'))
         l.addRow(lw)
 
+class IntegrationSettings(BasicSettings):
+
+    def __init__(self, parent=None):
+        BasicSettings.__init__(self, parent)
+        self.l = l = QFormLayout(self)
+        self.setLayout(l)
+
+        ask = self('choose_tweak_fmt')
+        ask.setText(_('Ask which format to tweak if more than one format is available for the book'))
+        l.addRow(ask)
+
+        order = self.order_widget('tweak_fmt_order')
+        order.setToolTip(_('When auto-selecting the format to tweak for a book with'
+                           ' multiple formats, this is the preference order.'))
+        l.addRow(_('Preferred format order (drag and drop to change)'), order)
+
+
 class Preferences(QDialog):
 
     def __init__(self, gui, initial_panel=None):
@@ -178,10 +226,12 @@ class Preferences(QDialog):
         self.keyboard_panel = ShortcutConfig(self)
         self.keyboard_panel.initialize(gui.keyboard)
         self.editor_panel = EditorSettings(self)
+        self.integration_panel = IntegrationSettings(self)
 
         for name, icon, panel in [
             (_('Editor settings'), 'modified.png', 'editor'),
-            (_('Keyboard Shortcuts'), 'keyboard-prefs.png', 'keyboard')
+            (_('Keyboard shortcuts'), 'keyboard-prefs.png', 'keyboard'),
+            (_('Integration with calibre'), 'lt.png', 'integration'),
         ]:
             i = QListWidgetItem(QIcon(I(icon)), name, cl)
             cl.addItem(i)
