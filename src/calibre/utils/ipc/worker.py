@@ -25,6 +25,9 @@ PARALLEL_FUNCS = {
       'ebook-viewer'    :
         ('calibre.gui2.viewer.main', 'main', None),
 
+      'ebook-tweak' :
+        ('calibre.gui2.tweak_book.main', 'main', None),
+
       'render_pages' :
         ('calibre.ebooks.comic.input', 'render_pages', 'notification'),
 
@@ -195,7 +198,6 @@ def main():
     sys.stdout.flush()
     sys.stderr.flush()
     return 0
-
 
 
 if __name__ == '__main__':
