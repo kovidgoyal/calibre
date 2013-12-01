@@ -19,7 +19,7 @@ from calibre.ptempfile import PersistentTemporaryDirectory
 from calibre.ebooks.oeb.base import urlnormalize
 from calibre.ebooks.oeb.polish.main import SUPPORTED, tweak_polish
 from calibre.ebooks.oeb.polish.container import get_container as _gc, clone_container, guess_type
-from calibre.ebooks.oeb.polish.cover import mark_as_cover
+from calibre.ebooks.oeb.polish.cover import mark_as_cover, mark_as_titlepage
 from calibre.ebooks.oeb.polish.pretty import fix_all_html, pretty_all
 from calibre.ebooks.oeb.polish.replace import rename_files
 from calibre.ebooks.oeb.polish.split import split, merge, AbortError
@@ -78,6 +78,10 @@ class Boss(QObject):
         c = current_container()
         if action == 'cover':
             mark_as_cover(current_container(), name)
+        elif action.startswith('titlepage:'):
+            action, move_to_start = action.partition(':')[0::2]
+            move_to_start = move_to_start == 'True'
+            mark_as_titlepage(current_container(), name, move_to_start=move_to_start)
 
         if c.opf_name in editors:
             editors[c.opf_name].replace_data(c.raw_data(c.opf_name))

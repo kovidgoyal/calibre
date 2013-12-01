@@ -148,6 +148,23 @@ def mark_as_cover_epub(container, name):
 
     container.dirty(container.opf_name)
 
+def mark_as_titlepage(container, name, move_to_start=True):
+    if move_to_start:
+        for item, q, linear in container.spine_iter:
+            if name == q:
+                break
+        if not linear:
+            item.set('linear', 'yes')
+        if item.getparent().index(item) > 0:
+            container.insert_into_xml(item.getparent(), item, 0)
+    for ref in container.opf_xpath('//opf:guide/opf:reference[@type="cover"]'):
+        ref.getparent().remove(ref)
+
+    for guide in container.opf_xpath('//opf:guide'):
+        container.insert_into_xml(guide, guide.makeelement(
+            OPF('reference'), type='cover', href=container.name_to_href(name, container.opf_name)))
+    container.dirty(container.opf_name)
+
 def find_cover_page(container):
     'Find a document marked as a cover in the OPF'
     mm = container.mime_map

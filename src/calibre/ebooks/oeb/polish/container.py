@@ -93,6 +93,7 @@ class Container(object):  # {{{
     '''
 
     book_type = 'oeb'
+    SUPPORTS_TITLEPAGES = True
 
     def __init__(self, rootpath, opfpath, log, clone_data=None):
         self.root = clone_data['root'] if clone_data is not None else os.path.abspath(rootpath)
@@ -998,6 +999,7 @@ def do_explode(path, dest):
 class AZW3Container(Container):
 
     book_type = 'azw3'
+    SUPPORTS_TITLEPAGES = False
 
     def __init__(self, pathtoazw3, log, clone_data=None, tdir=None):
         if clone_data is not None:
