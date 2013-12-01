@@ -121,6 +121,9 @@ class Boss(QObject):
                 _('Tweaking is only supported for books in the %s formats.'
                   ' Convert your book to one of these formats first.') % _(' and ').join(sorted(SUPPORTED)),
                 show=True)
+        if not os.path.exists(path):
+            return error_dialog(self.gui, _('File not found'), _(
+                'The file %s does not exist.') % path, show=True)
 
         for name in tuple(editors):
             self.close_editor(name)
