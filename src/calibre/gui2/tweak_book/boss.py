@@ -201,6 +201,11 @@ class Boss(QObject):
             editors[c.opf_name].replace_data(c.raw_data(c.opf_name))
 
     def add_file(self):
+        if current_container() is None:
+            return error_dialog(self.gui, _('No open book'), _(
+                'You must first open a book to tweak, before trying to create new files'
+                ' in it.'), show=True)
+
         if not self.check_opf_dirtied():
             return
         d = NewFileDialog(self.gui)
