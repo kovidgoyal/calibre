@@ -87,6 +87,9 @@ class TextEdit(QPlainTextEdit):
         if theme is None:
             theme = THEMES[default_theme()]
         self.apply_theme(theme)
+        w = self.fontMetrics()
+        self.space_width = w.width(' ')
+        self.setTabStopWidth(prefs['editor_tab_stop_width'] * self.space_width)
 
     def apply_theme(self, theme):
         self.theme = theme

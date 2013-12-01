@@ -163,6 +163,10 @@ class EditorSettings(BasicSettings):
         theme = self.choices_widget('editor_theme', choices, 'auto', 'auto')
         l.addRow(_('&Color scheme:'), theme)
 
+        tw = self('editor_tab_stop_width')
+        tw.setMinimum(2), tw.setSuffix(_(' characters')), tw.setMaximum(20)
+        l.addRow(_('Width of &tabs:'), tw)
+
         lw = self('editor_line_wrap')
         lw.setText(_('&Wrap long lines in the editor'))
         l.addRow(lw)
