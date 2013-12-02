@@ -1053,6 +1053,25 @@ def rating_font():
     global _rating_font
     return _rating_font
 
+def elided_text(text, font=None, width=300, pos='middle'):
+    ''' Return a version of text that is n wider than width pixels when
+    rendered, replacing characters from the left, middle or right (as per pos)
+    of the string with an ellipsis. Results in a string much closer to the
+    limit than Qt's elidedText().'''
+    from PyQt4.Qt import QFontMetrics, QApplication
+    fm = QApplication.fontMetrics() if font is None else QFontMetrics(font)
+    delta = 4
+    ellipsis = u'\u2026'
+
+    def remove_middle(x):
+        mid = len(x) // 2
+        return x[:max(0, mid - (delta//2))] + ellipsis + x[mid + (delta//2):]
+
+    chomp = {'middle':remove_middle, 'left':lambda x:(ellipsis + x[delta:]), 'right':lambda x:(x[:-delta] + ellipsis)}[pos]
+    while len(text) > delta and fm.width(text) > width:
+        text = chomp(text)
+    return unicode(text)
+
 def find_forms(srcdir):
     base = os.path.join(srcdir, 'calibre', 'gui2')
     forms = []

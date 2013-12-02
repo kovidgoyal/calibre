@@ -20,8 +20,8 @@ from calibre.ebooks.oeb.base import OEB_STYLES, OEB_DOCS
 from calibre.ebooks.oeb.polish.container import guess_type, OEB_FONTS
 from calibre.ebooks.oeb.polish.cover import (
     get_cover_page_name, get_raster_cover_name, is_raster_image)
-from calibre.gui2 import error_dialog, choose_files, question_dialog
-from calibre.gui2.tweak_book import current_container, elided_text
+from calibre.gui2 import error_dialog, choose_files, question_dialog, elided_text
+from calibre.gui2.tweak_book import current_container
 from calibre.gui2.tweak_book.editor import syntax_from_mime
 from calibre.gui2.tweak_book.templates import template_for
 from calibre.utils.icu import sort_key
@@ -310,11 +310,11 @@ class FileList(QTreeWidget):
             cn = unicode(ci.data(0, NAME_ROLE).toString())
             mt = unicode(ci.data(0, MIME_ROLE).toString())
             cat = unicode(ci.data(0, CATEGORY_ROLE).toString())
-            m.addAction(QIcon(I('modified.png')), _('&Rename %s') % (elided_text(self.font(), cn)), self.edit_current_item)
+            m.addAction(QIcon(I('modified.png')), _('&Rename %s') % (elided_text(cn)), self.edit_current_item)
             if is_raster_image(mt):
-                m.addAction(QIcon(I('default_cover.png')), _('Mark %s as cover image') % elided_text(self.font(), cn), partial(self.mark_as_cover, cn))
+                m.addAction(QIcon(I('default_cover.png')), _('Mark %s as cover image') % elided_text(cn), partial(self.mark_as_cover, cn))
             elif current_container().SUPPORTS_TITLEPAGES and mt in OEB_DOCS and cat == 'text':
-                m.addAction(QIcon(I('default_cover.png')), _('Mark %s as title/cover page') % elided_text(self.font(), cn), partial(self.mark_as_titlepage, cn))
+                m.addAction(QIcon(I('default_cover.png')), _('Mark %s as title/cover page') % elided_text(cn), partial(self.mark_as_titlepage, cn))
 
         selected_map = defaultdict(list)
         for item in sel:
@@ -358,7 +358,7 @@ class FileList(QTreeWidget):
             move_to_start = question_dialog(self, _('Not first item'), _(
                 '%s is not the first text item. You should only mark the'
                 ' first text item as cover. Do you want to make it the'
-                ' first item?') % elided_text(self.font(), name))
+                ' first item?') % elided_text(name))
         self.mark_requested.emit(name, 'titlepage:%r' % move_to_start)
 
     def keyPressEvent(self, ev):

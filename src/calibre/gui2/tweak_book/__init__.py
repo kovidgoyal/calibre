@@ -27,13 +27,6 @@ def set_current_container(container):
     global _current_container
     _current_container = container
 
-def elided_text(font, text, width=200, mode=None):
-    from PyQt4.Qt import QFontMetrics, Qt
-    if mode is None:
-        mode = Qt.ElideMiddle
-    fm = QFontMetrics(font)
-    return unicode(fm.elidedText(text, mode, int(width)))
-
 class NonReplaceDict(dict):
 
     def __setitem__(self, k, v):

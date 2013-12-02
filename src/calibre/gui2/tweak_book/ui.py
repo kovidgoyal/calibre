@@ -13,9 +13,10 @@ from PyQt4.Qt import (
     QVBoxLayout, QStackedWidget, QTabWidget, QImage, QPixmap, pyqtSignal)
 
 from calibre.constants import __appname__, get_version
+from calibre.gui2 import elided_text
 from calibre.gui2.keyboard import Manager as KeyboardManager
 from calibre.gui2.main_window import MainWindow
-from calibre.gui2.tweak_book import current_container, tprefs, actions, elided_text
+from calibre.gui2.tweak_book import current_container, tprefs, actions
 from calibre.gui2.tweak_book.file_list import FileListWidget
 from calibre.gui2.tweak_book.job import BlockingJob
 from calibre.gui2.tweak_book.boss import Boss
@@ -158,8 +159,8 @@ class Main(MainWindow):
     def show_status_message(self, msg, timeout=5):
         self.status_bar.showMessage(msg, int(timeout*1000))
 
-    def elided_text(self, text, width=200, mode=Qt.ElideMiddle):
-        return elided_text(self.font(), text, width=width, mode=mode)
+    def elided_text(self, text, width=300):
+        return elided_text(text, font=self.font(), width=width)
 
     @property
     def editor_tabs(self):
@@ -281,6 +282,8 @@ class Main(MainWindow):
         f = b.addMenu(_('&File'))
         f.addAction(self.action_new_file)
         f.addAction(self.action_open_book)
+        self.recent_books_menu = f.addMenu(_('&Recently opened books'))
+        self.update_recent_books()
         f.addSeparator()
         f.addAction(self.action_save)
         f.addAction(self.action_save_copy)
@@ -335,6 +338,13 @@ class Main(MainWindow):
         a(self.action_mark)
         e.addSeparator()
         a(self.action_go_to_line)
+
+    def update_recent_books(self):
+        m = self.recent_books_menu
+        m.clear()
+        books = tprefs.get('recent-books', [])
+        for path in books:
+            m.addAction(self.elided_text(path, width=500), partial(self.boss.open_book, path=path))
 
     def create_toolbars(self):
         def create(text, name):

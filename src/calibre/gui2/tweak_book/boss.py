@@ -169,6 +169,13 @@ class Boss(QObject):
         self.gui.file_list.build(container, preserve_state=False)
         self.gui.action_save.setEnabled(False)
         self.update_global_history_actions()
+        recent_books = list(tprefs.get('recent-books', []))
+        path = container.path_to_ebook
+        if path in recent_books:
+            recent_books.remove(path)
+        recent_books.insert(0, path)
+        tprefs['recent-books'] = recent_books[:10]
+        self.gui.update_recent_books()
 
     def update_editors_from_container(self, container=None):
         c = container or current_container()
