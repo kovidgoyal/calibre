@@ -86,6 +86,7 @@ class FileList(QTreeWidget):
     merge_requested = pyqtSignal(object, object, object)
     mark_requested = pyqtSignal(object, object)
     export_requested = pyqtSignal(object, object)
+    replace_requested = pyqtSignal(object, object, object, object)
 
     def __init__(self, parent=None):
         QTreeWidget.__init__(self, parent)
@@ -304,6 +305,7 @@ class FileList(QTreeWidget):
         m = QMenu(self)
         sel = self.selectedItems()
         num = len(sel)
+        container = current_container()
         if num > 0:
             m.addAction(QIcon(I('trash.png')), _('&Delete selected files'), self.request_delete)
             m.addSeparator()
@@ -312,13 +314,16 @@ class FileList(QTreeWidget):
             cn = unicode(ci.data(0, NAME_ROLE).toString())
             mt = unicode(ci.data(0, MIME_ROLE).toString())
             cat = unicode(ci.data(0, CATEGORY_ROLE).toString())
-            m.addAction(QIcon(I('modified.png')), _('&Rename %s') % (elided_text(cn)), self.edit_current_item)
+            n = elided_text(cn.rpartition('/')[-1])
+            m.addAction(QIcon(I('modified.png')), _('&Rename %s') % n, self.edit_current_item)
             if is_raster_image(mt):
-                m.addAction(QIcon(I('default_cover.png')), _('Mark %s as cover image') % elided_text(cn), partial(self.mark_as_cover, cn))
+                m.addAction(QIcon(I('default_cover.png')), _('Mark %s as cover image') % n, partial(self.mark_as_cover, cn))
             elif current_container().SUPPORTS_TITLEPAGES and mt in OEB_DOCS and cat == 'text':
-                m.addAction(QIcon(I('default_cover.png')), _('Mark %s as title/cover page') % elided_text(cn), partial(self.mark_as_titlepage, cn))
+                m.addAction(QIcon(I('default_cover.png')), _('Mark %s as cover page') % n, partial(self.mark_as_titlepage, cn))
             m.addSeparator()
-            m.addAction(QIcon(I('save.png')), _('Export %s') % elided_text(cn), partial(self.export, cn))
+            m.addAction(QIcon(I('save.png')), _('Export %s') % n, partial(self.export, cn))
+            if cn not in container.names_that_must_not_be_changed and cn not in container.names_that_must_not_be_removed and mt not in OEB_FONTS:
+                m.addAction(_('Replace %s with file...') % n, partial(self.replace, cn))
             m.addSeparator()
 
         selected_map = defaultdict(list)
@@ -453,6 +458,32 @@ class FileList(QTreeWidget):
         if path:
             self.export_requested.emit(name, path)
 
+    def replace(self, name):
+        c = current_container()
+        mt = c.mime_map[name]
+        oext = name.rpartition('.')[-1].lower()
+        filters = [oext]
+        fname = _('Files')
+        if mt in OEB_DOCS:
+            fname = _('HTML Files')
+            filters = 'html htm xhtm xhtml shtml'.split()
+        elif is_raster_image(mt):
+            fname = _('Images')
+            filters = 'jpeg jpg gif png'.split()
+        path = choose_files(self, 'tweak_book_import_file', _('Choose file'), filters=[(fname, filters)], select_only_single_file=True)
+        if not path:
+            return
+        path = path[0]
+        ext = path.rpartition('.')[-1].lower()
+        force_mt = None
+        if mt in OEB_DOCS:
+            force_mt = c.guess_type('a.html')
+        nname = os.path.basename(path)
+        nname, ext = nname.rpartition('.')[0::2]
+        nname = nname + '.' + ext.lower()
+        self.replace_requested.emit(name, path, nname, force_mt)
+
+
 class NewFileDialog(QDialog):  # {{{
 
     def __init__(self, initial_choice='html', parent=None):
@@ -578,6 +609,7 @@ class FileListWidget(QWidget):
     merge_requested = pyqtSignal(object, object, object)
     mark_requested = pyqtSignal(object, object)
     export_requested = pyqtSignal(object, object)
+    replace_requested = pyqtSignal(object, object, object, object)
 
     def __init__(self, parent=None):
         QWidget.__init__(self, parent)
@@ -585,7 +617,9 @@ class FileListWidget(QWidget):
         self.file_list = FileList(self)
         self.layout().addWidget(self.file_list)
         self.layout().setContentsMargins(0, 0, 0, 0)
-        for x in ('delete_requested', 'reorder_spine', 'rename_requested', 'edit_file', 'merge_requested', 'mark_requested', 'export_requested'):
+        for x in ('delete_requested', 'reorder_spine', 'rename_requested',
+                  'edit_file', 'merge_requested', 'mark_requested',
+                  'export_requested', 'replace_requested'):
             getattr(self.file_list, x).connect(getattr(self, x))
         for x in ('delete_done', 'select_name'):
             setattr(self, x, getattr(self.file_list, x))

@@ -21,7 +21,7 @@ from calibre.ebooks.oeb.polish.main import SUPPORTED, tweak_polish
 from calibre.ebooks.oeb.polish.container import get_container as _gc, clone_container, guess_type
 from calibre.ebooks.oeb.polish.cover import mark_as_cover, mark_as_titlepage
 from calibre.ebooks.oeb.polish.pretty import fix_all_html, pretty_all
-from calibre.ebooks.oeb.polish.replace import rename_files
+from calibre.ebooks.oeb.polish.replace import rename_files, replace_file
 from calibre.ebooks.oeb.polish.split import split, merge, AbortError
 from calibre.gui2 import error_dialog, choose_files, question_dialog, info_dialog, choose_save_file
 from calibre.gui2.dialogs.confirm_delete import confirm
@@ -75,6 +75,7 @@ class Boss(QObject):
         fl.merge_requested.connect(self.merge_requested)
         fl.mark_requested.connect(self.mark_requested)
         fl.export_requested.connect(self.export_requested)
+        fl.replace_requested.connect(self.replace_requested)
         self.gui.central.current_editor_changed.connect(self.apply_current_editor_state)
         self.gui.central.close_requested.connect(self.editor_close_requested)
         self.gui.central.search_panel.search_triggered.connect(self.search)
@@ -681,6 +682,13 @@ class Boss(QObject):
             self.commit_editor_to_container(name)
         with current_container().open(name, 'rb') as src, open(path, 'wb') as dest:
             shutil.copyfileobj(src, dest)
+
+    @in_thread_job
+    def replace_requested(self, name, path, basename, force_mt):
+        self.commit_all_editors_to_container()
+        self.add_savepoint(_('Replace %s') % name)
+        replace_file(current_container(), name, path, basename, force_mt)
+        self.apply_container_update_to_gui()
 
     def sync_editor_to_preview(self, name, lnum):
         editor = self.edit_file(name, 'html')

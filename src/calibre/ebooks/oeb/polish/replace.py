@@ -7,9 +7,10 @@ __license__   = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import codecs
+import codecs, shutil
 from urlparse import urlparse
 
+from calibre import sanitize_file_name_unicode
 from calibre.ebooks.chardet import strip_encoding_declarations
 
 class LinkReplacer(object):
@@ -121,4 +122,26 @@ def rename_files(container, file_map):
         if new_name != container.opf_name:  # OPF is handled by the container
             link_map[current_name] = new_name
     replace_links(container, link_map, replace_in_opf=True)
+
+def replace_file(container, name, path, basename, force_mt=None):
+    dirname, base = name.rpartition('/')[0::2]
+    nname = sanitize_file_name_unicode(basename)
+    if dirname:
+        nname = dirname + '/' + nname
+    with open(path, 'rb') as src:
+        if name != nname:
+            count = 0
+            b, e = nname.rpartition('.')[0::2]
+            while container.exists(nname):
+                count += 1
+                nname = b + ('_%d.%s' % (count, e))
+            rename_files(container, {name:nname})
+            mt = force_mt or container.guess_type(nname)
+        for itemid, q in container.manifest_id_map.iteritems():
+            if q == nname:
+                for item in container.opf_xpath('//opf:manifest/opf:item[@href and @id="%s"]' % itemid):
+                    item.set('media-type', mt)
+        container.dirty(container.opf_name)
+        with container.open(nname, 'wb') as dest:
+            shutil.copyfileobj(src, dest)
 
