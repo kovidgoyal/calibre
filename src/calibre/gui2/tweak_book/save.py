@@ -18,6 +18,18 @@ from calibre.gui2.progress_indicator import ProgressIndicator
 from calibre.utils import join_with_timeout
 from calibre.utils.filenames import atomic_rename
 
+def save_container(container, path):
+    temp = PersistentTemporaryFile(
+        prefix=('_' if iswindows else '.'), suffix=os.path.splitext(path)[1], dir=os.path.dirname(path))
+    temp.close()
+    temp = temp.name
+    try:
+        container.commit(temp)
+        atomic_rename(temp, path)
+    finally:
+        if os.path.exists(temp):
+            os.remove(temp)
+
 class SaveWidget(QWidget):
 
     def __init__(self, parent=None):
@@ -105,18 +117,9 @@ class SaveManager(QObject):
         self.save_done.emit()
 
     def do_save(self, tdir, container):
-        temp = None
         try:
-            path = container.path_to_ebook
-            temp = PersistentTemporaryFile(
-                prefix=('_' if iswindows else '.'), suffix=os.path.splitext(path)[1], dir=os.path.dirname(path))
-            temp.close()
-            temp = temp.name
-            container.commit(temp)
-            atomic_rename(temp, path)
+            save_container(container, container.path_to_ebook)
         finally:
-            if temp and os.path.exists(temp):
-                os.remove(temp)
             shutil.rmtree(tdir, ignore_errors=True)
 
     @property

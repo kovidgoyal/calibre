@@ -23,12 +23,12 @@ from calibre.ebooks.oeb.polish.cover import mark_as_cover, mark_as_titlepage
 from calibre.ebooks.oeb.polish.pretty import fix_all_html, pretty_all
 from calibre.ebooks.oeb.polish.replace import rename_files
 from calibre.ebooks.oeb.polish.split import split, merge, AbortError
-from calibre.gui2 import error_dialog, choose_files, question_dialog, info_dialog
+from calibre.gui2 import error_dialog, choose_files, question_dialog, info_dialog, choose_save_file
 from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.gui2.tweak_book import set_current_container, current_container, tprefs, actions, editors
 from calibre.gui2.tweak_book.undo import GlobalUndoHistory
 from calibre.gui2.tweak_book.file_list import NewFileDialog
-from calibre.gui2.tweak_book.save import SaveManager
+from calibre.gui2.tweak_book.save import SaveManager, save_container
 from calibre.gui2.tweak_book.preview import parse_worker, font_cache
 from calibre.gui2.tweak_book.toc import TOCEditor
 from calibre.gui2.tweak_book.editor import editor_from_syntax, syntax_from_mime
@@ -580,6 +580,35 @@ class Boss(QObject):
         tdir = self.mkdtemp(prefix='save-')
         container = clone_container(c, tdir)
         self.save_manager.schedule(tdir, container)
+
+    def save_copy(self):
+        c = current_container()
+        ext = c.path_to_ebook.rpartition('.')[-1]
+        path = choose_save_file(self.gui, 'tweak_book_save_copy', _(
+            'Choose path'), filters=[(_('Book (%s)') % ext.upper(), [ext.lower()])], all_files=False)
+        if not path:
+            return
+        tdir = self.mkdtemp(prefix='save-copy-')
+        container = clone_container(c, tdir)
+        for name, ed in editors.iteritems():
+            if ed.is_modified:
+                with c.open(name, 'wb') as f:
+                    f.write(ed.data)
+
+        def do_save(c, path, tdir):
+            save_container(c, path)
+            shutil.rmtree(tdir, ignore_errors=True)
+            return path
+
+        self.gui.blocking_job('save_copy', _('Saving copy, please wait...'), self.copy_saved, do_save, container, path, tdir)
+
+    def copy_saved(self, job):
+        if job.traceback is not None:
+            return error_dialog(self.gui, _('Failed to save copy'),
+                    _('Failed to save copy, click Show details for more information.'), det_msg=job.traceback, show=True)
+        msg = _('Copy saved to %s') % job.result
+        info_dialog(self.gui, _('Copy saved'), msg, show=True)
+        self.gui.show_status_message(msg, 5)
 
     def report_save_error(self, tb):
         if self.doing_terminal_save:

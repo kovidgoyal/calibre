@@ -155,6 +155,9 @@ class Main(MainWindow):
 
         self.keyboard.finalize()
 
+    def show_status_message(self, msg, timeout=5):
+        self.status_bar.showMessage(msg, int(timeout*1000))
+
     def elided_text(self, text, width=200, mode=Qt.ElideMiddle):
         return elided_text(self.font(), text, width=width, mode=mode)
 
@@ -185,6 +188,7 @@ class Main(MainWindow):
                                       _('Revert book state to after the next action (Redo)'))
         self.action_save = reg('save.png', _('&Save'), self.boss.save_book, 'save-book', 'Ctrl+Shift+S', _('Save book'))
         self.action_save.setEnabled(False)
+        self.action_save_copy = reg('save.png', _('Save a &copy'), self.boss.save_copy, 'save-copy', 'Ctrl+Alt+S', _('Save a copy of the book'))
         self.action_quit = reg('quit.png', _('&Quit'), self.boss.quit, 'quit', 'Ctrl+Q', _('Quit'))
         self.action_preferences = reg('config.png', _('&Preferences'), self.boss.preferences, 'preferences', 'Ctrl+P', _('Preferences'))
 
@@ -279,7 +283,10 @@ class Main(MainWindow):
         f = b.addMenu(_('&File'))
         f.addAction(self.action_new_file)
         f.addAction(self.action_open_book)
+        f.addSeparator()
         f.addAction(self.action_save)
+        f.addAction(self.action_save_copy)
+        f.addSeparator()
         f.addAction(self.action_quit)
 
         e = b.addMenu(_('&Edit'))
