@@ -96,6 +96,11 @@ class Boss(QObject):
         dirtied = {name for name, ed in editors.iteritems() if ed.is_modified}
         if not dirtied:
             return True
+        if len(dirtied) > 4:
+            return question_dialog(self.gui, _('Unsaved changes'), _(
+                'You have unsaved changes in many opened files. If you proceed,'
+                ' you will lose them. Proceed anyway?') % ', '.join(dirtied))
+
         return question_dialog(self.gui, _('Unsaved changes'), _(
             'You have unsaved changes in the files %s. If you proceed,'
             ' you will lose them. Proceed anyway?') % ', '.join(dirtied))
@@ -155,6 +160,7 @@ class Boss(QObject):
         for name, ed in tuple(editors.iteritems()):
             if c.has_name(name):
                 ed.replace_data(c.raw_data(name))
+                ed.is_modified = False
             else:
                 self.close_editor(name)
 
@@ -162,8 +168,8 @@ class Boss(QObject):
         container = current_container()
         self.gui.file_list.build(container)
         self.update_global_history_actions()
-        self.set_modified()
         self.update_editors_from_container()
+        self.set_modified()
 
     def delete_requested(self, spine_items, other_items):
         if not self.check_dirtied():
