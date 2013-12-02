@@ -8,7 +8,7 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import tempfile, shutil, sys, os
 from collections import OrderedDict
-from functools import partial
+from functools import partial, wraps
 
 from PyQt4.Qt import (
     QObject, QApplication, QDialog, QGridLayout, QLabel, QSize, Qt, QCursor,
@@ -37,6 +37,21 @@ from calibre.gui2.tweak_book.preferences import Preferences
 def get_container(*args, **kwargs):
     kwargs['tweak_mode'] = True
     return _gc(*args, **kwargs)
+
+class BusyCursor(object):
+
+    def __enter__(self):
+        QApplication.setOverrideCursor(QCursor(Qt.WaitCursor))
+
+    def __exit__(self, *args):
+        QApplication.restoreOverrideCursor()
+
+def in_thread_job(func):
+    @wraps(func)
+    def ans(*args, **kwargs):
+        with BusyCursor():
+            return func(*args, **kwargs)
+    return ans
 
 class Boss(QObject):
 
@@ -73,8 +88,7 @@ class Boss(QObject):
                 ed.apply_settings()
 
     def mark_requested(self, name, action):
-        if not self.check_opf_dirtied():
-            return
+        self.commit_dirty_opf()
         c = current_container()
         if action == 'cover':
             mark_as_cover(current_container(), name)
@@ -161,7 +175,7 @@ class Boss(QObject):
         for name, ed in tuple(editors.iteritems()):
             if c.has_name(name):
                 ed.replace_data(c.raw_data(name))
-                ed.is_modified = False
+                ed.is_synced_to_container = True
             else:
                 self.close_editor(name)
 
@@ -172,9 +186,9 @@ class Boss(QObject):
         self.update_editors_from_container()
         self.set_modified()
 
+    @in_thread_job
     def delete_requested(self, spine_items, other_items):
-        if not self.check_dirtied():
-            return
+        self.commit_all_editors_to_container()
         self.add_savepoint(_('Delete files'))
         c = current_container()
         c.remove_from_spine(spine_items)
@@ -188,17 +202,13 @@ class Boss(QObject):
         if not editors:
             self.gui.preview.clear()
 
-    def check_opf_dirtied(self):
+    def commit_dirty_opf(self):
         c = current_container()
-        if c.opf_name in editors and editors[c.opf_name].is_modified:
-            return question_dialog(self.gui, _('Unsaved changes'), _(
-                'You have unsaved changes in %s. If you proceed,'
-                ' you will lose them. Proceed anyway?') % c.opf_name)
-        return True
+        if c.opf_name in editors and not editors[c.opf_name].is_synced_to_container:
+            self.commit_editor_to_container(c.opf_name)
 
     def reorder_spine(self, items):
-        if not self.check_opf_dirtied():
-            return
+        self.commit_dirty_opf()
         self.add_savepoint(_('Re-order text'))
         c = current_container()
         c.set_spine(items)
@@ -213,8 +223,7 @@ class Boss(QObject):
                 'You must first open a book to tweak, before trying to create new files'
                 ' in it.'), show=True)
 
-        if not self.check_opf_dirtied():
-            return
+        self.commit_dirty_opf()
         d = NewFileDialog(self.gui)
         if d.exec_() != d.Accepted:
             return
@@ -241,8 +250,7 @@ class Boss(QObject):
                 self.edit_file(d.file_name, syntax)
 
     def edit_toc(self):
-        if not self.check_dirtied():
-            return
+        self.commit_all_editors_to_container()
         self.add_savepoint(_('Edit Table of Contents'))
         d = TOCEditor(title=self.current_metadata.title, parent=self.gui)
         if d.exec_() != d.Accepted:
@@ -251,17 +259,17 @@ class Boss(QObject):
         self.update_editors_from_container()
 
     def polish(self, action, name):
-        if not self.check_dirtied():
-            return
-        self.add_savepoint(name)
-        try:
-            report = tweak_polish(current_container(), {action:True})
-        except:
-            self.rewind_savepoint()
-            raise
-        self.apply_container_update_to_gui()
-        from calibre.ebooks.markdown import markdown
-        report = markdown('# %s\n\n'%self.current_metadata.title + '\n\n'.join(report), output_format='html4')
+        self.commit_all_editors_to_container()
+        with BusyCursor():
+            self.add_savepoint(name)
+            try:
+                report = tweak_polish(current_container(), {action:True})
+            except:
+                self.rewind_savepoint()
+                raise
+            self.apply_container_update_to_gui()
+            from calibre.ebooks.markdown import markdown
+            report = markdown('# %s\n\n'%self.current_metadata.title + '\n\n'.join(report), output_format='html4')
         d = QDialog(self.gui)
         d.l = QVBoxLayout()
         d.setLayout(d.l)
@@ -277,8 +285,7 @@ class Boss(QObject):
 
     # Renaming {{{
     def rename_requested(self, oldname, newname):
-        if not self.check_dirtied():
-            return
+        self.commit_all_editors_to_container()
         if guess_type(oldname) != guess_type(newname):
             args = os.path.splitext(oldname) + os.path.splitext(newname)
             if not confirm(
@@ -357,16 +364,12 @@ class Boss(QObject):
             if hasattr(ed, 'fix_html'):
                 ed.fix_html()
         else:
-            if not self.check_dirtied():
-                return
-            QApplication.setOverrideCursor(QCursor(Qt.WaitCursor))
-            try:
+            self.commit_all_editors_to_container()
+            with BusyCursor():
                 self.add_savepoint(_('Fix HTML'))
                 fix_all_html(current_container())
                 self.update_editors_from_container()
                 self.set_modified()
-            finally:
-                QApplication.restoreOverrideCursor()
 
     def pretty_print(self, current):
         if current:
@@ -376,16 +379,12 @@ class Boss(QObject):
                     break
             ed.pretty_print(name)
         else:
-            if not self.check_dirtied():
-                return
-            QApplication.setOverrideCursor(QCursor(Qt.WaitCursor))
-            try:
+            self.commit_all_editors_to_container()
+            with BusyCursor():
                 self.add_savepoint(_('Beautify files'))
                 pretty_all(current_container())
                 self.update_editors_from_container()
                 self.set_modified()
-            finally:
-                QApplication.restoreOverrideCursor()
 
     def mark_selected_text(self):
         ed = self.gui.central.current_editor
@@ -539,8 +538,7 @@ class Boss(QObject):
             count_message(_('Replaced') if replace else _('Found'), count)
             return count
 
-        QApplication.setOverrideCursor(QCursor(Qt.WaitCursor))
-        try:
+        with BusyCursor():
             if action == 'find':
                 return do_find()
             if action == 'replace':
@@ -559,8 +557,6 @@ class Boss(QObject):
                 if marked:
                     return count_message(_('Found'), editor.all_in_marked(pat))
                 return do_all(replace=False)
-        finally:
-            QApplication.restoreOverrideCursor()
 
     def create_checkpoint(self):
         text, ok = QInputDialog.getText(self.gui, _('Choose name'), _(
@@ -569,12 +565,26 @@ class Boss(QObject):
         if ok:
             self.add_savepoint(text)
 
+    def commit_editor_to_container(self, name, container=None):
+        container = container or current_container()
+        ed = editors[name]
+        with container.open(name, 'wb') as f:
+            f.write(ed.data)
+            if container is current_container():
+                ed.is_synced_to_container = True
+
+    def commit_all_editors_to_container(self):
+        with BusyCursor():
+            for name, ed in editors.iteritems():
+                if not ed.is_synced_to_container:
+                    self.commit_editor_to_container(name)
+                    ed.is_synced_to_container = True
+
     def save_book(self):
         c = current_container()
         for name, ed in editors.iteritems():
-            if ed.is_modified:
-                with c.open(name, 'wb') as f:
-                    f.write(ed.data)
+            if ed.is_modified or not ed.is_synced_to_container:
+                self.commit_editor_to_container(name, c)
                 ed.is_modified = False
         self.gui.action_save.setEnabled(False)
         tdir = self.mkdtemp(prefix='save-')
@@ -591,9 +601,8 @@ class Boss(QObject):
         tdir = self.mkdtemp(prefix='save-copy-')
         container = clone_container(c, tdir)
         for name, ed in editors.iteritems():
-            if ed.is_modified:
-                with c.open(name, 'wb') as f:
-                    f.write(ed.data)
+            if ed.is_modified or not ed.is_synced_to_container:
+                self.commit_editor_to_container(name, container)
 
         def do_save(c, path, tdir):
             save_container(c, path)
@@ -627,42 +636,33 @@ class Boss(QObject):
             ed.current_line = num
 
     def split_start_requested(self):
-        if not self.check_dirtied():
-            return self.gui.preview.stop_split()
+        self.commit_all_editors_to_container()
         self.gui.preview.do_start_split()
 
+    @in_thread_job
     def split_requested(self, name, loc):
-        if not self.check_dirtied():
-            return
-        QApplication.setOverrideCursor(QCursor(Qt.WaitCursor))
+        self.commit_all_editors_to_container()
+        self.add_savepoint(_('Split %s') % self.gui.elided_text(name))
         try:
-            self.add_savepoint(_('Split %s') % self.gui.elided_text(name))
-            try:
-                bottom_name = split(current_container(), name, loc)
-            except AbortError:
-                self.rewind_savepoint()
-                raise
-            self.apply_container_update_to_gui()
-            self.edit_file(bottom_name, 'html')
-        finally:
-            QApplication.restoreOverrideCursor()
+            bottom_name = split(current_container(), name, loc)
+        except AbortError:
+            self.rewind_savepoint()
+            raise
+        self.apply_container_update_to_gui()
+        self.edit_file(bottom_name, 'html')
 
+    @in_thread_job
     def merge_requested(self, category, names, master):
-        if not self.check_dirtied():
-            return
-        QApplication.setOverrideCursor(QCursor(Qt.WaitCursor))
+        self.commit_all_editors_to_container()
+        self.add_savepoint(_('Merge files into %s') % self.gui.elided_text(master))
         try:
-            self.add_savepoint(_('Merge files into %s') % self.gui.elided_text(master))
-            try:
-                merge(current_container(), category, names, master)
-            except AbortError:
-                self.rewind_savepoint()
-                raise
-            self.apply_container_update_to_gui()
-            if master in editors:
-                self.show_editor(master)
-        finally:
-            QApplication.restoreOverrideCursor()
+            merge(current_container(), category, names, master)
+        except AbortError:
+            self.rewind_savepoint()
+            raise
+        self.apply_container_update_to_gui()
+        if master in editors:
+            self.show_editor(master)
 
     def sync_editor_to_preview(self, name, lnum):
         editor = self.edit_file(name, 'html')
@@ -695,6 +695,7 @@ class Boss(QObject):
                 editor.init_from_template(data)
             else:
                 editor.data = data
+                editor.is_synced_to_container = True
         editor.modification_state_changed.connect(self.editor_modification_state_changed)
         self.gui.central.add_editor(name, editor)
 
@@ -755,23 +756,22 @@ class Boss(QObject):
         self.gui.preview.start_refresh_timer()
 
     def editor_undo_redo_state_changed(self, *args):
-        self.apply_current_editor_state(update_keymap=False)
+        self.apply_current_editor_state()
 
     def editor_copy_available_state_changed(self, *args):
-        self.apply_current_editor_state(update_keymap=False)
+        self.apply_current_editor_state()
 
     def editor_modification_state_changed(self, is_modified):
-        self.apply_current_editor_state(update_keymap=False)
+        self.apply_current_editor_state()
         if is_modified:
             self.set_modified()
     # }}}
 
-    def apply_current_editor_state(self, update_keymap=True):
+    def apply_current_editor_state(self):
         ed = self.gui.central.current_editor
         if ed is not None:
             actions['editor-undo'].setEnabled(ed.undo_available)
             actions['editor-redo'].setEnabled(ed.redo_available)
-            actions['editor-save'].setEnabled(ed.is_modified)
             actions['editor-cut'].setEnabled(ed.copy_available)
             actions['editor-copy'].setEnabled(ed.cut_available)
             actions['go-to-line-number'].setEnabled(ed.has_line_numbers)
@@ -793,7 +793,7 @@ class Boss(QObject):
                 name = n
         if not name:
             return
-        if editor.is_modified:
+        if editor.is_modified or not editor.is_synced_to_container:
             if not question_dialog(self.gui, _('Unsaved changes'), _(
                 'There are unsaved changes in %s. Are you sure you want to close'
                 ' this editor?') % name):
@@ -806,31 +806,6 @@ class Boss(QObject):
         editor.break_cycles()
         if not editors:
             self.gui.preview.clear()
-
-    def do_editor_save(self):
-        ed = self.gui.central.current_editor
-        if ed is None:
-            return
-        name = None
-        for n, x in editors.iteritems():
-            if x is ed:
-                name = n
-                break
-        if name is None:
-            return
-        c = current_container()
-        with c.open(name, 'wb') as f:
-            f.write(ed.data)
-        ed.is_modified = False
-        tdir = self.mkdtemp(prefix='save-')
-        container = clone_container(c, tdir)
-        self.save_manager.schedule(tdir, container)
-        is_modified = False
-        for ed in editors.itervalues():
-            if ed.is_modified:
-                is_modified = True
-                break
-        self.gui.action_save.setEnabled(is_modified)
 
     # Shutdown {{{
     def quit(self):

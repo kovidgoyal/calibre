@@ -29,14 +29,15 @@ class Editor(QMainWindow):
         QMainWindow.__init__(self, parent)
         if parent is None:
             self.setWindowFlags(Qt.Widget)
+        self.is_synced_to_container = False
         self.syntax = syntax
         self.editor = TextEdit(self)
         self.setCentralWidget(self.editor)
-        self.editor.modificationChanged.connect(self.modification_state_changed.emit)
         self.create_toolbars()
         self.undo_available = False
         self.redo_available = False
         self.copy_available = self.cut_available = False
+        self.editor.modificationChanged.connect(self._modification_state_changed)
         self.editor.undoAvailable.connect(self._undo_available)
         self.editor.redoAvailable.connect(self._redo_available)
         self.editor.textChanged.connect(self._data_changed)
@@ -124,7 +125,7 @@ class Editor(QMainWindow):
     def create_toolbars(self):
         self.action_bar = b = self.addToolBar(_('File actions tool bar'))
         b.setObjectName('action_bar')  # Needed for saveState
-        for x in ('save', 'undo', 'redo'):
+        for x in ('undo', 'redo'):
             try:
                 b.addAction(actions['editor-%s' % x])
             except KeyError:
@@ -155,7 +156,12 @@ class Editor(QMainWindow):
         self.editor.cursorPositionChanged.disconnect()
         self.editor.setPlainText('')
 
+    def _modification_state_changed(self):
+        self.is_synced_to_container = self.is_modified
+        self.modification_state_changed.emit(self.is_modified)
+
     def _data_changed(self):
+        self.is_synced_to_container = False
         self.data_changed.emit(self)
 
     def _undo_available(self, available):

@@ -186,7 +186,7 @@ class Main(MainWindow):
                                       _('Revert book to before the last action (Undo)'))
         self.action_global_redo = reg('forward.png', _('&Revert to after'), self.boss.do_global_redo, 'global-redo', 'Ctrl+Right',
                                       _('Revert book state to after the next action (Redo)'))
-        self.action_save = reg('save.png', _('&Save'), self.boss.save_book, 'save-book', 'Ctrl+Shift+S', _('Save book'))
+        self.action_save = reg('save.png', _('&Save'), self.boss.save_book, 'save-book', 'Ctrl+S', _('Save book'))
         self.action_save.setEnabled(False)
         self.action_save_copy = reg('save.png', _('Save a &copy'), self.boss.save_copy, 'save-copy', 'Ctrl+Alt+S', _('Save a copy of the book'))
         self.action_quit = reg('quit.png', _('&Quit'), self.boss.quit, 'quit', 'Ctrl+Q', _('Quit'))
@@ -198,8 +198,6 @@ class Main(MainWindow):
                                       _('Undo typing'))
         self.action_editor_redo = reg('edit-redo.png', _('&Redo'), self.boss.do_editor_redo, 'editor-redo', 'Ctrl+Y',
                                       _('Redo typing'))
-        self.action_editor_save = reg('save.png', _('&Save'), self.boss.do_editor_save, 'editor-save', 'Ctrl+S',
-                                      _('Save changes to the current file'))
         self.action_editor_cut = reg('edit-cut.png', _('C&ut text'), self.boss.do_editor_cut, 'editor-cut', ('Ctrl+X', 'Shift+Delete', ),
                                       _('Cut text'))
         self.action_editor_copy = reg('edit-copy.png', _('&Copy text'), self.boss.do_editor_copy, 'editor-copy', ('Ctrl+C', 'Ctrl+Insert'),
