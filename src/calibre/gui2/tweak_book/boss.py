@@ -18,7 +18,7 @@ from calibre import prints, prepare_string_for_xml
 from calibre.ptempfile import PersistentTemporaryDirectory
 from calibre.ebooks.oeb.base import urlnormalize
 from calibre.ebooks.oeb.polish.main import SUPPORTED, tweak_polish
-from calibre.ebooks.oeb.polish.container import get_container as _gc, clone_container, guess_type
+from calibre.ebooks.oeb.polish.container import get_container as _gc, clone_container, guess_type, OEB_FONTS
 from calibre.ebooks.oeb.polish.cover import mark_as_cover, mark_as_titlepage
 from calibre.ebooks.oeb.polish.pretty import fix_all_html, pretty_all
 from calibre.ebooks.oeb.polish.replace import rename_files, replace_file
@@ -36,7 +36,16 @@ from calibre.gui2.tweak_book.preferences import Preferences
 
 def get_container(*args, **kwargs):
     kwargs['tweak_mode'] = True
-    return _gc(*args, **kwargs)
+    container = _gc(*args, **kwargs)
+    # We preload the embedded fonts from this book, so that the preview panel
+    # works
+    font_cache.remove_fonts()
+    for name, mt in container.mime_map.iteritems():
+        if mt in OEB_FONTS and container.exists(name):
+            with container.open(name, 'rb') as f:
+                raw = f.read()
+            font_cache.add_font(raw)
+    return container
 
 class BusyCursor(object):
 
@@ -167,7 +176,6 @@ class Boss(QObject):
         parse_worker.clear()
         container = job.result
         set_current_container(container)
-        font_cache.remove_fonts()
         self.current_metadata = self.gui.current_metadata = container.mi
         self.global_undo.open_book(container)
         self.gui.update_window_title()
