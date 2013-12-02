@@ -97,6 +97,9 @@ class TweakEpubAction(InterfaceAction):
         self.do_tweak(book_id)
 
     def do_tweak(self, book_id):
+        from calibre.utils.config_base import tweaks
+        if not tweaks.get('test_tweak_book', False):
+            return self.gui.iactions['Unpack Book'].do_tweak(book_id)
         from calibre.ebooks.oeb.polish.main import SUPPORTED
         db = self.gui.library_view.model().db
         fmts = db.formats(book_id, index_is_id=True) or ''
