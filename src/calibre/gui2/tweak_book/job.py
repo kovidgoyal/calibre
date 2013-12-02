@@ -96,11 +96,6 @@ class BlockingJob(QWidget):
         p.drawText(r, Qt.AlignHCenter | Qt.AlignTop | Qt.TextSingleLine, self.text)
         p.end()
 
-    def eventFilter(self, obj, ev):
-        if ev.type() in (ev.KeyPress, ev.KeyRelease):
-            return True
-        return QWidget.eventFilter(self, obj, ev)
-
     def set_msg(self, text):
         self.text = text
 
