@@ -157,6 +157,9 @@ class Boss(QObject):
 
     def book_opened(self, job):
         if job.traceback is not None:
+            if 'DRMError:' in job.traceback:
+                from calibre.gui2.dialogs.drm_error import DRMErrorMessage
+                return DRMErrorMessage(self.gui).exec_()
             return error_dialog(self.gui, _('Failed to open book'),
                     _('Failed to open book, click Show details for more information.'),
                                 det_msg=job.traceback, show=True)
