@@ -1072,7 +1072,7 @@ class AZW3Container(Container):
 
     @property
     def path_to_ebook(self):
-        return self.pathtoepub
+        return self.pathtoazw3
 
     @property
     def names_that_must_not_be_changed(self):
