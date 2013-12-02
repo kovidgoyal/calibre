@@ -5,21 +5,23 @@
 Ebook Conversion
 ===================
 
-|app| has a conversion system that is designed to be very easy to use. Normally, you just
-add a book to |app|, click convert and |app| will try hard to generate output that is as
-close as possible to the input. However, |app| accepts a very large number of input formats,
-not all of which are as suitable as others for conversion to ebooks. In the case of
-such input formats, or if you just want greater control over the conversion system,
-|app| has a lot of options to fine tune the conversion process. Note however that |app|'s
-conversion system is not a substitute for a full blown ebook editor. To edit ebooks, I
-would recommend first converting them to EPUB using |app| and then using a dedicated EPUB editor,
-like `Sigil <http://code.google.com/p/sigil/>`_ to get the book into perfect shape. You can then
-use the edited EPUB as input for conversion into other formats in |app|.
+|app| has a conversion system that is designed to be very easy to use.
+Normally, you just add a book to |app|, click convert and |app| will try hard
+to generate output that is as close as possible to the input. However, |app|
+accepts a very large number of input formats, not all of which are as suitable
+as others for conversion to ebooks. In the case of such input formats, or if
+you just want greater control over the conversion system, |app| has a lot of
+options to fine tune the conversion process. Note however that |app|'s
+conversion system is not a substitute for a full blown ebook editor. To edit
+ebooks, I recommend first converting them to EPUB or AZW3 using |app| and
+then using the Tweak Book feature to get them into perfect shape. You can then
+use the edited ebook as input for conversion into other formats in |app|.
 
-This document will refer mainly to the conversion settings as found in the conversion dialog,
-pictured below. All these settings are also available via command line interface to conversion,
-documented at :ref:`ebook-convert`. In |app|, you can obtain help on any individual setting by holding your
-mouse over it, a tooltip will appear describing the setting.
+This document will refer mainly to the conversion settings as found in the
+conversion dialog, pictured below. All these settings are also available via
+command line interface to conversion, documented at :ref:`ebook-convert`. In
+|app|, you can obtain help on any individual setting by holding your mouse over
+it, a tooltip will appear describing the setting.
 
 .. image:: images/conv_dialog.png
     :align: center
