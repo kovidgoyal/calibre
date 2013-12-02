@@ -9,9 +9,8 @@ This module implements a simple commandline SMTP client that supports:
   * Background delivery with failures being saved in a maildir mailbox
 '''
 
-import sys, traceback, os, socket
-from calibre import isbytestring
-from calibre.utils.filenames import ascii_text
+import sys, traceback, os, socket, encodings.idna as idna
+from calibre import isbytestring, force_unicode
 
 def create_mail(from_, to, subject, text=None, attachment_data=None,
                  attachment_type=None, attachment_name=None):
@@ -71,7 +70,7 @@ def safe_localhost():
         # Some mail servers have problems with non-ascii local hostnames, see
         # https://bugs.launchpad.net/bugs/1256549
         try:
-            local_hostname = ascii_text(fqdn)
+            local_hostname = idna.ToASCII(force_unicode(fqdn))
         except:
             local_hostname = 'localhost.localdomain'
     else:
