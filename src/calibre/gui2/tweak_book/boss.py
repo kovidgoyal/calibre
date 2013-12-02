@@ -14,7 +14,7 @@ from PyQt4.Qt import (
     QObject, QApplication, QDialog, QGridLayout, QLabel, QSize, Qt, QCursor,
     QDialogButtonBox, QIcon, QTimer, QPixmap, QTextBrowser, QVBoxLayout, QInputDialog)
 
-from calibre import prints
+from calibre import prints, prepare_string_for_xml
 from calibre.ptempfile import PersistentTemporaryDirectory
 from calibre.ebooks.oeb.base import urlnormalize
 from calibre.ebooks.oeb.polish.main import SUPPORTED, tweak_polish
@@ -457,7 +457,7 @@ class Boss(QObject):
 
         def no_match():
             QApplication.restoreOverrideCursor()
-            msg = '<p>' + _('No matches were found for %s.') % state['find']
+            msg = '<p>' + _('No matches were found for %s.') % prepare_string_for_xml(state['find'])
             if not state['wrap']:
                 msg += '<p>' + _('You have turned off search wrapping, so all text might not have been searched.'
                   ' Try the search again, with wrapping enabled. Wrapping is enabled via the'
@@ -504,7 +504,7 @@ class Boss(QObject):
 
         def count_message(action, count):
             msg = _('%(action)s %(num)s occurrences of %(query)s' % dict(num=count, query=state['find'], action=action))
-            info_dialog(self.gui, _('Searching done'), msg, show=True)
+            info_dialog(self.gui, _('Searching done'), prepare_string_for_xml(msg), show=True)
 
         def do_all(replace=True):
             count = 0
