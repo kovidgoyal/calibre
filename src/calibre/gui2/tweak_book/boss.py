@@ -74,6 +74,7 @@ class Boss(QObject):
         fl.edit_file.connect(self.edit_file_requested)
         fl.merge_requested.connect(self.merge_requested)
         fl.mark_requested.connect(self.mark_requested)
+        fl.export_requested.connect(self.export_requested)
         self.gui.central.current_editor_changed.connect(self.apply_current_editor_state)
         self.gui.central.close_requested.connect(self.editor_close_requested)
         self.gui.central.search_panel.search_triggered.connect(self.search)
@@ -670,6 +671,13 @@ class Boss(QObject):
         self.apply_container_update_to_gui()
         if master in editors:
             self.show_editor(master)
+
+    @in_thread_job
+    def export_requested(self, name, path):
+        if name in editors and not editors[name].is_synced_to_container:
+            self.commit_editor_to_container(name)
+        with current_container().open(name, 'rb') as src, open(path, 'wb') as dest:
+            shutil.copyfileobj(src, dest)
 
     def sync_editor_to_preview(self, name, lnum):
         editor = self.edit_file(name, 'html')

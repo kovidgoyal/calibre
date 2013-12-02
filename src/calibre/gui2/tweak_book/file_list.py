@@ -20,7 +20,7 @@ from calibre.ebooks.oeb.base import OEB_STYLES, OEB_DOCS
 from calibre.ebooks.oeb.polish.container import guess_type, OEB_FONTS
 from calibre.ebooks.oeb.polish.cover import (
     get_cover_page_name, get_raster_cover_name, is_raster_image)
-from calibre.gui2 import error_dialog, choose_files, question_dialog, elided_text
+from calibre.gui2 import error_dialog, choose_files, question_dialog, elided_text, choose_save_file
 from calibre.gui2.tweak_book import current_container
 from calibre.gui2.tweak_book.editor import syntax_from_mime
 from calibre.gui2.tweak_book.templates import template_for
@@ -85,6 +85,7 @@ class FileList(QTreeWidget):
     edit_file = pyqtSignal(object, object, object)
     merge_requested = pyqtSignal(object, object, object)
     mark_requested = pyqtSignal(object, object)
+    export_requested = pyqtSignal(object, object)
 
     def __init__(self, parent=None):
         QTreeWidget.__init__(self, parent)
@@ -305,6 +306,7 @@ class FileList(QTreeWidget):
         num = len(sel)
         if num > 0:
             m.addAction(QIcon(I('trash.png')), _('&Delete selected files'), self.request_delete)
+            m.addSeparator()
         ci = self.currentItem()
         if ci is not None:
             cn = unicode(ci.data(0, NAME_ROLE).toString())
@@ -315,6 +317,9 @@ class FileList(QTreeWidget):
                 m.addAction(QIcon(I('default_cover.png')), _('Mark %s as cover image') % elided_text(cn), partial(self.mark_as_cover, cn))
             elif current_container().SUPPORTS_TITLEPAGES and mt in OEB_DOCS and cat == 'text':
                 m.addAction(QIcon(I('default_cover.png')), _('Mark %s as title/cover page') % elided_text(cn), partial(self.mark_as_titlepage, cn))
+            m.addSeparator()
+            m.addAction(QIcon(I('save.png')), _('Export %s') % elided_text(cn), partial(self.export, cn))
+            m.addSeparator()
 
         selected_map = defaultdict(list)
         for item in sel:
@@ -442,6 +447,12 @@ class FileList(QTreeWidget):
                 ans['selected'][name] = syntax_from_mime(name, mime)
         return ans
 
+    def export(self, name):
+        path = choose_save_file(self, 'tweak_book_export_file', _('Choose location'), filters=[
+            (_('Files'), [name.rpartition('.')[-1].lower()])], all_files=False)
+        if path:
+            self.export_requested.emit(name, path)
+
 class NewFileDialog(QDialog):  # {{{
 
     def __init__(self, initial_choice='html', parent=None):
@@ -566,6 +577,7 @@ class FileListWidget(QWidget):
     edit_file = pyqtSignal(object, object, object)
     merge_requested = pyqtSignal(object, object, object)
     mark_requested = pyqtSignal(object, object)
+    export_requested = pyqtSignal(object, object)
 
     def __init__(self, parent=None):
         QWidget.__init__(self, parent)
@@ -573,7 +585,7 @@ class FileListWidget(QWidget):
         self.file_list = FileList(self)
         self.layout().addWidget(self.file_list)
         self.layout().setContentsMargins(0, 0, 0, 0)
-        for x in ('delete_requested', 'reorder_spine', 'rename_requested', 'edit_file', 'merge_requested', 'mark_requested'):
+        for x in ('delete_requested', 'reorder_spine', 'rename_requested', 'edit_file', 'merge_requested', 'mark_requested', 'export_requested'):
             getattr(self.file_list, x).connect(getattr(self, x))
         for x in ('delete_done', 'select_name'):
             setattr(self, x, getattr(self.file_list, x))
