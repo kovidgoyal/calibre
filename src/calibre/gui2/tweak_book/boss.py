@@ -738,7 +738,7 @@ class Boss(QObject):
         if editor is None:
             if use_template is None:
                 data = current_container().raw_data(name)
-                if isbytestring(data):
+                if isbytestring(data) and syntax in {'html', 'css', 'text', 'xml'}:
                     try:
                         data = data.decode('utf-8')
                     except UnicodeDecodeError:
