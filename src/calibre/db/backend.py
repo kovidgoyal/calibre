@@ -428,6 +428,7 @@ class DB(object):
         defs['virtual_lib_on_startup'] = defs['cs_virtual_lib_on_startup'] = ''
         defs['virt_libs_hidden'] = defs['virt_libs_order'] = ()
         defs['update_all_last_mod_dates_on_start'] = False
+        defs['field_under_covers_in_grid'] = 'title'
 
         # Migrate the bool tristate tweak
         defs['bools_are_tristate'] = \

@@ -20,7 +20,8 @@ from PyQt4.Qt import (
     QPropertyAnimation, QEasingCurve, pyqtSlot, QHelpEvent, QAbstractItemView,
     QStyleOptionViewItem, QToolTip, QByteArray, QBuffer, QBrush)
 
-from calibre import fit_image, prints, prepare_string_for_xml
+from calibre import fit_image, prints, prepare_string_for_xml, human_readable
+from calibre.constants import DEBUG
 from calibre.ebooks.metadata import fmt_sidx
 from calibre.utils import join_with_timeout
 from calibre.gui2 import gprefs, config
@@ -369,6 +370,23 @@ class CoverDelegate(QStyledItemDelegate):
     def sizeHint(self, option, index):
         return self.item_size
 
+    def render_field(self, db, book_id):
+        try:
+            field = db.pref('field_under_covers_in_grid', 'title')
+            if field == 'size':
+                ans = human_readable(db.field_for(field, book_id, default_value=0))
+            else:
+                mi = db.get_proxy_metadata(book_id)
+                display_name, ans, val, fm = mi.format_field_extended(field)
+                if fm and fm['datatype'] == 'rating':
+                    ans = u'\u2605' * int(val/2.0)
+            return unicode(ans)
+        except Exception:
+            if DEBUG:
+                import traceback
+                traceback.print_exc()
+        return ''
+
     def paint(self, painter, option, index):
         QStyledItemDelegate.paint(self, painter, option, QModelIndex())  # draw the hover and selection highlights
         m = index.model()
@@ -418,7 +436,7 @@ class CoverDelegate(QStyledItemDelegate):
                     rect = trect
                     rect.setTop(rect.bottom() - self.title_height + 5)
                     painter.setRenderHint(QPainter.TextAntialiasing, True)
-                    title = db.field_for('title', book_id, default_value='')
+                    title = self.render_field(db, book_id)
                     metrics = painter.fontMetrics()
                     painter.drawText(rect, Qt.AlignCenter|Qt.TextSingleLine,
                                      metrics.elidedText(title, Qt.ElideRight, rect.width()))

@@ -212,6 +212,11 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         r('categories_using_hierarchy', db.prefs, setting=CommaSeparatedList,
           choices=sorted(list(choices), key=sort_key))
 
+        fm = db.field_metadata
+        choices = sorted(((fm[k]['name'], k) for k in fm.displayable_field_keys() if fm[k]['name']),
+                         key=lambda x:sort_key(x[0]))
+        r('field_under_covers_in_grid', db.prefs, choices=choices)
+
         self.current_font = self.initial_font = None
         self.change_font_button.clicked.connect(self.change_font)
 
