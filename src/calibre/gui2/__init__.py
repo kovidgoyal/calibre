@@ -1054,7 +1054,7 @@ def rating_font():
     return _rating_font
 
 def elided_text(text, font=None, width=300, pos='middle'):
-    ''' Return a version of text that is n wider than width pixels when
+    ''' Return a version of text that is no wider than width pixels when
     rendered, replacing characters from the left, middle or right (as per pos)
     of the string with an ellipsis. Results in a string much closer to the
     limit than Qt's elidedText().'''
