@@ -99,7 +99,8 @@ class Boss(QObject):
         if len(dirtied) > 4:
             return question_dialog(self.gui, _('Unsaved changes'), _(
                 'You have unsaved changes in many opened files. If you proceed,'
-                ' you will lose them. Proceed anyway?') % ', '.join(dirtied))
+                ' you will lose them. Proceed anyway?'), det_msg=(
+                    _('Modified files:\n\n') + '\n'.join(dirtied)))
 
         return question_dialog(self.gui, _('Unsaved changes'), _(
             'You have unsaved changes in the files %s. If you proceed,'
