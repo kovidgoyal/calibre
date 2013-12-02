@@ -10,9 +10,11 @@ import os
 from binascii import hexlify
 from collections import OrderedDict, defaultdict
 from functools import partial
+
+import sip
 from PyQt4.Qt import (
     QWidget, QTreeWidget, QGridLayout, QSize, Qt, QTreeWidgetItem, QIcon,
-    QStyledItemDelegate, QStyle, QPixmap, QPainter, pyqtSignal, QMenu,
+    QStyledItemDelegate, QStyle, QPixmap, QPainter, pyqtSignal, QMenu, QTimer,
     QDialogButtonBox, QDialog, QLabel, QLineEdit, QVBoxLayout, QScrollArea, QRadioButton)
 
 from calibre import human_readable, sanitize_file_name_unicode
@@ -39,7 +41,20 @@ class ItemDelegate(QStyledItemDelegate):  # {{{
 
     def setEditorData(self, editor, index):
         name = unicode(index.data(NAME_ROLE).toString())
+        # We do this because Qt calls selectAll() unconditionally on the
+        # editor, and we want only a part of the file name to be selected
+        QTimer.singleShot(0, partial(self.set_editor_data, name, editor))
+
+    def set_editor_data(self, name, editor):
+        if sip.isdeleted(editor):
+            return
         editor.setText(name)
+        ext_pos = name.rfind('.')
+        slash_pos = name.rfind('/')
+        if ext_pos > -1 and slash_pos > -1 and ext_pos > slash_pos + 1:
+            editor.setSelection(slash_pos+1, ext_pos - slash_pos - 1)
+        else:
+            editor.selectAll()
 
     def setModelData(self, editor, model, index):
         newname = unicode(editor.text())
