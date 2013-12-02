@@ -14,7 +14,7 @@ from PyQt4.Qt import (
     QObject, QApplication, QDialog, QGridLayout, QLabel, QSize, Qt, QCursor,
     QDialogButtonBox, QIcon, QTimer, QPixmap, QTextBrowser, QVBoxLayout, QInputDialog)
 
-from calibre import prints, prepare_string_for_xml
+from calibre import prints, prepare_string_for_xml, isbytestring
 from calibre.ptempfile import PersistentTemporaryDirectory
 from calibre.ebooks.oeb.base import urlnormalize
 from calibre.ebooks.oeb.polish.main import SUPPORTED, tweak_polish
@@ -736,11 +736,17 @@ class Boss(QObject):
     def edit_file(self, name, syntax, use_template=None):
         editor = editors.get(name, None)
         if editor is None:
-            editor = editors[name] = editor_from_syntax(syntax, self.gui.editor_tabs)
             if use_template is None:
                 data = current_container().raw_data(name)
+                if isbytestring(data):
+                    try:
+                        data = data.decode('utf-8')
+                    except UnicodeDecodeError:
+                        return error_dialog(self.gui, _('Cannot decode'), _(
+                            'Cannot edit %s as it appears to be in an unknown character encoding') % name, show=True)
             else:
                 data = use_template
+            editor = editors[name] = editor_from_syntax(syntax, self.gui.editor_tabs)
             self.init_editor(name, editor, data, use_template=bool(use_template))
         self.show_editor(name)
         return editor
