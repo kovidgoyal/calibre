@@ -33,6 +33,7 @@ class SaveWidget(QWidget):
         self.stop()
 
     def start(self):
+        self.pi.setDisplaySize(self.label.height())
         self.pi.setVisible(True)
         self.pi.startAnimation()
         self.label.setText(_('Saving...'))
