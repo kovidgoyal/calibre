@@ -56,6 +56,7 @@ class BlockingJob(QWidget):
         l.addStretch(10)
         self.setVisible(False)
         self.text = ''
+        self.setFocusPolicy(Qt.NoFocus)
 
     def start(self):
         self.setGeometry(0, 0, self.parent().width(), self.parent().height())
@@ -72,6 +73,10 @@ class BlockingJob(QWidget):
         self.pi.stopAnimation()
         self.setVisible(False)
         self.parent().setEnabled(True)
+        # The following line is needed on OS X, because of this bug:
+        # https://bugreports.qt-project.org/browse/QTBUG-34371 it causes
+        # keyboard events to no longer work
+        self.parent().setFocus(Qt.OtherFocusReason)
 
     def job_done(self, callback, job):
         del job.callback
