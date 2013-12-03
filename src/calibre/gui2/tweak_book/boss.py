@@ -117,23 +117,12 @@ class Boss(QObject):
         self.container_count += 1
         return tempfile.mkdtemp(prefix='%s%05d-' % (prefix, self.container_count), dir=self.tdir)
 
-    def check_dirtied(self):
-        dirtied = {name for name, ed in editors.iteritems() if ed.is_modified}
-        if not dirtied:
-            return True
-        if len(dirtied) > 4:
-            return question_dialog(self.gui, _('Unsaved changes'), _(
-                'You have unsaved changes in many opened files. If you proceed,'
-                ' you will lose them. Proceed anyway?'), det_msg=(
-                    _('Modified files:\n\n') + '\n'.join(dirtied)))
-
-        return question_dialog(self.gui, _('Unsaved changes'), _(
-            'You have unsaved changes in the files %s. If you proceed,'
-            ' you will lose them. Proceed anyway?') % ', '.join(dirtied))
-
     def open_book(self, path=None):
-        if not self.check_dirtied():
-            return
+        if self.gui.action_save.isEnabled():
+            if not question_dialog(self.gui, _('Unsaved changes'), _(
+                'The current book has unsaved changes. If you open a new book, they will be lost'
+                ' are you sure you want to proceed?')):
+                return
         if self.save_manager.has_tasks:
             return info_dialog(self.gui, _('Cannot open'),
                         _('The current book is being saved, you cannot open a new book until'
@@ -833,11 +822,8 @@ class Boss(QObject):
                 name = n
         if not name:
             return
-        if editor.is_modified or not editor.is_synced_to_container:
-            if not question_dialog(self.gui, _('Unsaved changes'), _(
-                'There are unsaved changes in %s. Are you sure you want to close'
-                ' this editor?') % name):
-                return
+        if not editor.is_synced_to_container:
+            self.commit_editor_to_container(name)
         self.close_editor(name)
 
     def close_editor(self, name):
