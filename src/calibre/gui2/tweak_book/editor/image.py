@@ -140,7 +140,7 @@ class Canvas(QWidget):
     def move_selection(self, dp):
         sr = self.selection_state.rect
         dm = self.selection_state.dragging
-        if dm == (None, None):
+        if dm is None:
             half_width = sr.width() / 2.0
             half_height = sr.height() / 2.0
             c = sr.center()
@@ -184,11 +184,11 @@ class Canvas(QWidget):
             if not self.target.contains(pos):
                 return
             if ev.buttons() & Qt.LeftButton:
-                if self.selection_state.last_press_point is not None:
+                if self.selection_state.last_press_point is not None and self.selection_state.current_mode is not None:
                     if self.selection_state.current_mode == 'select':
                         self.selection_state.rect = QRectF(self.selection_state.last_press_point, pos).normalized()
                         changed = True
-                    elif self.selection_state.dragging is not None and self.selection_state.last_drag_pos is not None:
+                    elif self.selection_state.last_drag_pos is not None:
                         self.selection_state.in_selection = True
                         self.selection_state.drag_corner = self.selection_state.dragging
                         dp = pos - self.selection_state.last_drag_pos
