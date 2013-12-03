@@ -504,6 +504,8 @@ class Boss(QObject):
 
         def no_replace(prefix=''):
             QApplication.restoreOverrideCursor()
+            if prefix:
+                prefix += ' '
             error_dialog(
                 self.gui, _('Cannot replace'), prefix + _(
                 'You must first click Find, before trying to replace'), show=True)
