@@ -1254,7 +1254,7 @@ class KOBOTOUCH(KOBO):
     min_dbversion_activity          = 77
     min_dbversion_keywords          = 82
 
-    max_supported_fwversion         = (3, 0, 5)
+    max_supported_fwversion         = (3, 1, 5)
     min_fwversion_shelves           = (2, 0, 0)
     min_fwversion_images_on_sdcard  = (2, 4, 1)
     min_fwversion_images_tree       = (2, 9, 0)  # Cover images stored in tree under .kobo-images
@@ -1986,13 +1986,13 @@ class KOBOTOUCH(KOBO):
         return True
 
     def filename_callback(self, path, mi):
-        debug_print("KoboTouch:filename_callback:Path - {0}".format(path))
+#        debug_print("KoboTouch:filename_callback:Path - {0}".format(path))
 
         idx = path.rfind('.')
         ext = path[idx:]
         if ext == KEPUB_EXT:
             path = path + EPUB_EXT
-            debug_print("KoboTouch:filename_callback:New path - {0}".format(path))
+#            debug_print("KoboTouch:filename_callback:New path - {0}".format(path))
 
         return path
 
