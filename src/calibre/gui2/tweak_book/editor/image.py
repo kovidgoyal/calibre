@@ -171,6 +171,7 @@ class Canvas(QWidget):
                 else:
                     self.selection_state.current_mode = 'select'
                     self.selection_state.rect = None
+                    self.selection_state_changed.emit(False)
 
     def mouseMoveEvent(self, ev):
         changed = False
