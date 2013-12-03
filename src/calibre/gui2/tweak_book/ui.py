@@ -99,6 +99,22 @@ class Central(QStackedWidget):
             modified = getattr(editor, 'is_modified', False)
             tb.setTabIcon(i, self.modified_icon if modified else QIcon())
 
+    def close_current_editor(self):
+        ed = self.current_editor
+        if ed is not None:
+            self.close_requested.emit(ed)
+
+    def close_all_but_current_editor(self):
+        ed = self.current_editor
+        close = []
+        if ed is not None:
+            for i in xrange(self.editor_tabs.count()):
+                q = self.editor_tabs.widget(i)
+                if q is not None and q is not ed:
+                    close.append(q)
+        for q in close:
+            self.close_requested.emit(q)
+
     @property
     def current_editor(self):
         return self.editor_tabs.currentWidget()
@@ -272,6 +288,12 @@ class Main(MainWindow):
         self.action_create_checkpoint = reg(
             'marked.png', _('&Create checkpoint'), self.boss.create_checkpoint, 'create-checkpoint', (), _(
                 'Create a checkpoint with the current state of the book'))
+        self.action_close_current_tab = reg(
+            'window-close.png', _('&Close current tab'), self.central.close_current_editor, 'close-current-tab', 'Ctrl+W', _(
+                'Close the currently open tab'))
+        self.action_close_all_but_current_tab = reg(
+            'edit-clear.png', _('&Close other tabs'), self.central.close_all_but_current_editor, 'close-all-but-current-tab', 'Ctrl+Alt+W', _(
+                'Close all tabs except the current tab'))
 
     def create_menubar(self):
         p, q = self.create_application_menubar()
@@ -320,6 +342,9 @@ class Main(MainWindow):
                 e.addAction(ac)
             elif name.endswith('-bar'):
                 t.addAction(ac)
+        e.addSeparator()
+        e.addAction(self.action_close_current_tab)
+        e.addAction(self.action_close_all_but_current_tab)
 
         e = b.addMenu(_('&Search'))
         a = e.addAction
