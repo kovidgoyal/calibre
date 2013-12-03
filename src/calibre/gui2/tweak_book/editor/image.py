@@ -116,7 +116,7 @@ class Canvas(QWidget):
     def get_cursor(self):
         dc = self.selection_state.drag_corner
         if dc is None:
-            ans = Qt.CrossCursor
+            ans = Qt.OpenHandCursor if self.selection_state.last_drag_pos is None else Qt.ClosedHandCursor
         elif None in dc:
             ans = Qt.SizeVerCursor if dc[0] is None else Qt.SizeHorCursor
         else:
@@ -168,6 +168,7 @@ class Canvas(QWidget):
                 if self.selection_state.rect is not None and self.selection_state.rect.contains(pos):
                     self.selection_state.drag_corner = self.selection_state.dragging = self.get_drag_corner(pos)
                     self.selection_state.last_drag_pos = pos
+                    self.setCursor(self.get_cursor())
                 else:
                     self.selection_state.current_mode = 'select'
                     self.selection_state.rect = None
