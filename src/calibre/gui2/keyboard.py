@@ -538,8 +538,12 @@ class Delegate(QStyledItemDelegate):  # {{{
         w = Editor(parent=parent)
         w.editing_done.connect(self.editor_done)
         self.editing_index = index
+        self.current_editor = w
         self.sizeHintChanged.emit(index)
         return w
+
+    def accept_changes(self):
+        self.editor_done(self.current_editor)
 
     def editor_done(self, editor):
         self.commitData.emit(editor)
@@ -579,6 +583,7 @@ class Delegate(QStyledItemDelegate):  # {{{
         editor.setGeometry(option.rect)
 
     def editing_done(self, *args):
+        self.current_editor = None
         idx = self.editing_index
         self.editing_index = None
         if idx is not None:
@@ -625,6 +630,8 @@ class ShortcutConfig(QWidget):  # {{{
         self.changed_signal.emit()
 
     def commit(self):
+        if self.view.state() == self.view.EditingState:
+            self.delegate.accept_changes()
         self._model.commit()
 
     def initialize(self, keyboard):
