@@ -11,7 +11,7 @@ from functools import wraps
 
 from PyQt4.Qt import (
     QWidget, QImage, QPainter, QColor, QApplication, Qt, QPixmap, QRectF,
-    QPointF, QPen)
+    QPointF, QPen, pyqtSignal)
 
 from calibre import fit_image
 
@@ -51,6 +51,12 @@ class Canvas(QWidget):
     BACKGROUND = QColor(60, 60, 60)
     SHADE_COLOR = QColor(0, 0, 0, 180)
     SELECT_PEN = QPen(QColor(Qt.white))
+
+    selection_state_changed = pyqtSignal(object)
+
+    @property
+    def has_selection(self):
+        return self.selection_state.current_mode == 'selected'
 
     def __init__(self, parent=None):
         QWidget.__init__(self, parent)
@@ -209,6 +215,7 @@ class Canvas(QWidget):
             self.selection_state.reset(full=False)
             if self.selection_state.current_mode == 'select':
                 self.selection_state.current_mode = 'selected'
+                self.selection_state_changed.emit(True)
             self.update()
 
     @painter
