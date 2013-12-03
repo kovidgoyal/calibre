@@ -264,6 +264,7 @@ class Canvas(QWidget):
     def draw_selection_rect(self, painter):
         cr, sr = self.target, self.selection_state.rect
         painter.setPen(self.SELECT_PEN)
+        painter.setRenderHint(QPainter.Antialiasing, False)
         if self.selection_state.current_mode == 'selected':
             # Shade out areas outside the selection rect
             for r in (
@@ -279,7 +280,7 @@ class Canvas(QWidget):
                 # Draw the resize rectangle
                 painter.save()
                 painter.setCompositionMode(QPainter.RasterOp_SourceAndNotDestination)
-                painter.setClipRect(sr)
+                painter.setClipRect(sr.adjusted(1, 1, -1, -1))
                 painter.drawRect(dr)
                 painter.restore()
 
