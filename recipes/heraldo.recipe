@@ -3,10 +3,10 @@ __license__     = 'GPL v3'
 __copyright__   = '04 December 2010, desUBIKado'
 __author__      = 'desUBIKado'
 __description__ = 'Daily newspaper from Aragon'
-__version__     = 'v0.05'
-__date__        = '5, Februery 2012'
+__version__     = 'v0.06'
+__date__        = '01, December 2013'
 '''
-[url]http://www.heraldo.es/[/url]
+http://www.heraldo.es/
 '''
 
 import time
@@ -17,7 +17,7 @@ class heraldo(BasicNewsRecipe):
     __author__     = 'desUBIKado'
     description    = 'Daily newspaper from Aragon'
     title          = u'Heraldo de Aragon'
-    publisher      = 'OJD Nielsen'
+    publisher      = 'Grupo Heraldo'
     category       = 'News, politics, culture, economy, general interest'
     language       = 'es'
     timefmt        = '[%a, %d %b, %Y]'
@@ -25,42 +25,44 @@ class heraldo(BasicNewsRecipe):
     delay          = 1
     max_articles_per_feed = 100
     use_embedded_content  = False
+    masthead_url          = 'http://www.heraldo.es/MODULOS/global/publico/interfaces/img/logo-Heraldo.png'
+    remove_empty_feeds    = True
     remove_javascript = True
     no_stylesheets = True
-
 
     feeds          = [
                         (u'Portadas', u'http://www.heraldo.es/index.php/mod.portadas/mem.rss')
                      ]
 
+    keep_only_tags     = [dict(name='div', attrs={'class':['row-f2 brd-row-f4 bck-row-f1-f1 padd-t padd-btt con n-marg-btt']}),
+                          dict(name='div', attrs={'id':['dts','com']})]
 
-
-    keep_only_tags     = [dict(name='div', attrs={'id':['dts','com']})]
-
-    remove_tags        = [dict(name='a', attrs={'class':['com flo-r','enl-if','enl-df']}),
-                          dict(name='div', attrs={'class':['brb-b-s con marg-btt','cnt-rel con','col5-f1']}),
+    remove_tags        = [dict(name='a', attrs={'class':['com flo-r','enl-if','enl-df','next_com']}),
+                          dict(name='div', attrs={'class':['brb-b-s con marg-btt','cnt-rel con','col5-f1','tit txt-wh f-s con','con cont-top ']}),
+                          dict(name='div', attrs={'id':['cont-Top-8760','caj-pub','8760-cpt1']}),
                           dict(name='form', attrs={'class':'form'}),
-                          dict(name='ul', attrs={'id':['cont-tags','pag-1']})]
+                          dict(name='ul', attrs={'class':['tabs-nav','lst-not-f2 con']}),
+                          dict(name='span', attrs={'class':['flo-r']}),
+                          dict(name='ul', attrs={'id':['cont-tags','pag-1','pag-cnt-I-']})]
 
     remove_tags_before = dict(name='div' , attrs={'id':'dts'})
     remove_tags_after  = dict(name='div' , attrs={'id':'com'})
 
     def get_cover_url(self):
-       cover = None
-       st = time.localtime()
-       year = str(st.tm_year)
-       month = "%.2d" % st.tm_mon
-       day = "%.2d" % st.tm_mday
-		#[url]http://oldorigin-www.heraldo.es/20101211/primeras/portada_aragon.pdf[/url]
-       cover='http://oldorigin-www.heraldo.es/'+ year +  month + day +'/primeras/portada_aragon.pdf'
-       br = BasicNewsRecipe.get_browser(self)
-       try:
-           br.open(cover)
-       except:
-           self.log("\nPortada no disponible")
-           cover ='http://www.heraldo.es/MODULOS/global/publico/interfaces/img/logo-Heraldo.png'
-       return cover
-
+        cover = None
+        st = time.localtime()
+        year = str(st.tm_year)
+        month = "%.2d" % st.tm_mon
+        day = "%.2d" % st.tm_mday
+                 # http://oldorigin-www.heraldo.es/20101211/primeras/portada_aragon.pdf
+        cover='http://oldorigin-www.heraldo.es/'+ year +  month + day +'/primeras/portada_aragon.pdf'
+        br = BasicNewsRecipe.get_browser(self)
+        try:
+            br.open(cover)
+        except:
+            self.log("\nPortada no disponible")
+            cover ='http://www.heraldo.es/MODULOS/global/publico/interfaces/img/logo-Heraldo.png'
+        return cover
 
     extra_css = '''
                     .con strong{font-family:Arial,Helvetica,sans-serif; font-weight:normal;font-size:16px;}
@@ -76,5 +78,3 @@ class heraldo(BasicNewsRecipe):
                            (re.compile(r'<div id="com"', re.DOTALL|re.IGNORECASE), lambda match: '<br><div id="com"')
 
                          ]
-
-
