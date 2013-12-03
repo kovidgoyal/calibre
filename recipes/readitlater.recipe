@@ -137,7 +137,7 @@ class Pocket(BasicNewsRecipe):
         ajax_url = self.index_url + u'/a/x/getArticle.php'
         soup = self.index_to_soup(url)
         fc_tag = soup.find('script', text=re.compile("formCheck"))
-        fc_id = re.search(r"\'([\d\w]+)\'", fc_tag).group(1)
+        fc_id = re.search(r"formCheck = \'([\d\w]+)\';", fc_tag).group(1)
         article_id = url.split("/")[-1]
         data = urllib.urlencode({'itemId': article_id, 'formCheck': fc_id})
         try:
