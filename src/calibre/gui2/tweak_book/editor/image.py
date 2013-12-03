@@ -29,6 +29,23 @@ ucase_map = {l:string.ascii_uppercase[i] for i, l in enumerate(string.ascii_lowe
 def capitalize(x):
     return ucase_map[x[0]] + x[1:]
 
+class SelectionState(object):
+
+    __slots__ = ('last_press_point', 'current_mode', 'rect', 'in_selection', 'drag_corner', 'dragging', 'last_drag_pos')
+
+    def __init__(self):
+        self.reset()
+
+    def reset(self, full=True):
+        self.last_press_point = None
+        if full:
+            self.current_mode = None
+            self.rect = None
+        self.in_selection = False
+        self.drag_corner = None
+        self.dragging = None
+        self.last_drag_pos = None
+
 class Canvas(QWidget):
 
     BACKGROUND = QColor(60, 60, 60)
@@ -38,22 +55,16 @@ class Canvas(QWidget):
     def __init__(self, parent=None):
         QWidget.__init__(self, parent)
         self.setMouseTracking(True)
+        self.selection_state = SelectionState()
 
         self.current_image_data = None
         self.current_image = None
         self.current_scaled_pixmap = None
         self.last_canvas_size = None
-        self.last_press_point = None
-        self.last_move_point = None
         self.target = QRectF(0, 0, 0, 0)
-        self.current_mode = None
-        self.selection_rect = None
-        self.in_selection = False
-        self.drag_corner = (None, None)
-        self.last_drag_pos = None
-        self.drag_mode = None
 
     def show_image(self, data):
+        self.selection_state.reset()
         self.current_image_data = data
         self.current_image = i = QImage()
         i.loadFromData(data)
@@ -62,23 +73,23 @@ class Canvas(QWidget):
 
     @property
     def dc_size(self):
-        sr = self.selection_rect
+        sr = self.selection_state.rect
         dx = min(75, sr.width() / 4)
         dy = min(75, sr.height() / 4)
         return dx, dy
 
     def get_drag_corner(self, pos):
         dx, dy = self.dc_size
-        sr = self.selection_rect
+        sr = self.selection_state.rect
         x, y = pos.x(), pos.y()
         hedge = 'left' if x < sr.x() + dx else 'right' if x > sr.right() - dx else None
         vedge = 'top' if y < sr.y() + dy else 'bottom' if y > sr.bottom() - dy else None
-        return (hedge, vedge)
+        return (hedge, vedge) if hedge or vedge else None
 
     def get_drag_rect(self):
-        sr = self.selection_rect
-        dc = self.drag_corner
-        if sr is None or dc == (None, None):
+        sr = self.selection_state.rect
+        dc = self.selection_state.drag_corner
+        if None in (sr, dc):
             return
         dx, dy = self.dc_size
         if None in dc:
@@ -97,8 +108,8 @@ class Canvas(QWidget):
         return ans
 
     def get_cursor(self):
-        dc = self.drag_corner
-        if dc == (None, None):
+        dc = self.selection_state.drag_corner
+        if dc is None:
             ans = Qt.CrossCursor
         elif None in dc:
             ans = Qt.SizeVerCursor if dc[0] is None else Qt.SizeHorCursor
@@ -107,7 +118,7 @@ class Canvas(QWidget):
         return ans
 
     def move_edge(self, edge, dp):
-        sr = self.selection_rect
+        sr = self.selection_state.rect
         horiz = edge in {'left', 'right'}
         func = getattr(sr, 'set' + capitalize(edge))
         delta = getattr(dp, 'x' if horiz else 'y')()
@@ -121,8 +132,8 @@ class Canvas(QWidget):
         func(max(minv, min(maxv, delta + getattr(sr, edge)())))
 
     def move_selection(self, dp):
-        sr = self.selection_rect
-        dm = self.drag_mode
+        sr = self.selection_state.rect
+        dm = self.selection_state.dragging
         if dm == (None, None):
             half_width = sr.width() / 2.0
             half_height = sr.height() / 2.0
@@ -143,49 +154,49 @@ class Canvas(QWidget):
     def mousePressEvent(self, ev):
         if ev.button() == Qt.LeftButton and self.target.contains(ev.pos()):
             pos = ev.pos()
-            self.last_press_point = pos
-            if self.current_mode is None:
-                self.current_mode = 'select'
+            self.selection_state.last_press_point = pos
+            if self.selection_state.current_mode is None:
+                self.selection_state.current_mode = 'select'
 
-            elif self.current_mode == 'selected':
-                if self.selection_rect is not None and self.selection_rect.contains(pos):
-                    self.drag_mode = self.get_drag_corner(pos)
-                    self.last_drag_pos = pos
+            elif self.selection_state.current_mode == 'selected':
+                if self.selection_state.rect is not None and self.selection_state.rect.contains(pos):
+                    self.selection_state.drag_corner = self.selection_state.dragging = self.get_drag_corner(pos)
+                    self.selection_state.last_drag_pos = pos
                 else:
-                    self.current_mode = 'select'
-                    self.selection_rect = None
+                    self.selection_state.current_mode = 'select'
+                    self.selection_state.rect = None
 
     def mouseMoveEvent(self, ev):
         changed = False
-        if self.in_selection:
+        if self.selection_state.in_selection:
             changed = True
-        self.in_selection = False
-        self.drag_corner = (None, None)
+        self.selection_state.in_selection = False
+        self.selection_state.drag_corner = None
         pos = ev.pos()
         cursor = Qt.ArrowCursor
         try:
             if not self.target.contains(pos):
                 return
             if ev.buttons() & Qt.LeftButton:
-                if self.last_press_point is not None:
-                    if self.current_mode == 'select':
-                        self.selection_rect = QRectF(self.last_press_point, pos).normalized()
+                if self.selection_state.last_press_point is not None:
+                    if self.selection_state.current_mode == 'select':
+                        self.selection_state.rect = QRectF(self.selection_state.last_press_point, pos).normalized()
                         changed = True
-                    elif self.drag_mode is not None and self.last_drag_pos is not None:
-                        self.drag_corner = self.drag_mode
-                        self.in_selection = True
-                        dp = pos - self.last_drag_pos
+                    elif self.selection_state.dragging is not None and self.selection_state.last_drag_pos is not None:
+                        self.selection_state.in_selection = True
+                        self.selection_state.drag_corner = self.selection_state.dragging
+                        dp = pos - self.selection_state.last_drag_pos
+                        self.selection_state.last_drag_pos = pos
+                        self.move_selection(dp)
                         cursor = self.get_cursor()
                         changed = True
-                        self.last_drag_pos = pos
-                        self.move_selection(dp)
             else:
-                if self.selection_rect is None or not self.selection_rect.contains(pos):
+                if self.selection_state.rect is None or not self.selection_state.rect.contains(pos):
                     return
-                if self.current_mode == 'selected':
-                    if self.selection_rect is not None and self.selection_rect.contains(pos):
-                        self.drag_corner = self.get_drag_corner(pos)
-                        self.in_selection = True
+                if self.selection_state.current_mode == 'selected':
+                    if self.selection_state.rect is not None and self.selection_state.rect.contains(pos):
+                        self.selection_state.drag_corner = self.get_drag_corner(pos)
+                        self.selection_state.in_selection = True
                         cursor = self.get_cursor()
                         changed = True
         finally:
@@ -195,11 +206,9 @@ class Canvas(QWidget):
 
     def mouseReleaseEvent(self, ev):
         if ev.button() == Qt.LeftButton:
-            self.last_press_point = None
-            self.drag_mode = None
-            self.last_drag_pos = None
-            if self.current_mode == 'select':
-                self.current_mode = 'selected'
+            self.selection_state.reset(full=False)
+            if self.selection_state.current_mode == 'select':
+                self.selection_state.current_mode = 'selected'
             self.update()
 
     @painter
@@ -218,9 +227,8 @@ class Canvas(QWidget):
     def load_pixmap(self):
         canvas_size = self.rect().width(), self.rect().height()
         if self.last_canvas_size != canvas_size:
-            if self.last_canvas_size is not None and self.selection_rect is not None:
-                self.current_mode = None
-                self.selection_rect = None
+            if self.last_canvas_size is not None and self.selection_state.rect is not None:
+                self.selection_state.reset()
                 # TODO: Migrate the selection rect
             self.last_canvas_size = canvas_size
             self.current_scaled_pixmap = None
@@ -245,9 +253,9 @@ class Canvas(QWidget):
 
     @painter
     def draw_selection_rect(self, painter):
-        cr, sr = self.target, self.selection_rect
+        cr, sr = self.target, self.selection_state.rect
         painter.setPen(self.SELECT_PEN)
-        if self.current_mode == 'selected':
+        if self.selection_state.current_mode == 'selected':
             # Shade out areas outside the selection rect
             for r in (
                 QRectF(cr.topLeft(), QPointF(sr.left(), cr.bottom())),  # left
@@ -258,7 +266,7 @@ class Canvas(QWidget):
                 painter.fillRect(r, self.SHADE_COLOR)
 
             dr = self.get_drag_rect()
-            if self.in_selection and dr is not None:
+            if self.selection_state.in_selection and dr is not None:
                 # Draw the resize rectangle
                 painter.save()
                 painter.setCompositionMode(QPainter.RasterOp_SourceAndNotDestination)
@@ -282,7 +290,7 @@ class Canvas(QWidget):
                 return self.draw_image_error(p)
             self.load_pixmap()
             self.draw_pixmap(p)
-            if self.selection_rect is not None:
+            if self.selection_state.rect is not None:
                 self.draw_selection_rect(p)
         finally:
             p.end()
