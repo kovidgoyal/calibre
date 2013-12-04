@@ -186,6 +186,9 @@ class Canvas(QWidget):
             img = QImage(md.imageData())
             if not img.isNull():
                 self.undo_stack.push(Replace(img, _('Paste image'), self))
+        else:
+            error_dialog(self, _('No image'), _(
+                'No image available in the clipboard'), show=True)
 
     def break_cycles(self):
         self.undo_stack.clear()
