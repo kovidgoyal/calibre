@@ -13,7 +13,7 @@ from PyQt4.Qt import (
     QApplication, QKeySequence)
 
 from calibre.gui2 import gprefs
-from calibre.gui2.tweak_book.editor.image import Canvas
+from calibre.gui2.tweak_book.editor.canvas import Canvas
 
 class TrimImage(QDialog):
 
