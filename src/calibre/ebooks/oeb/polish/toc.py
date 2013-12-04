@@ -9,8 +9,9 @@ __docformat__ = 'restructuredtext en'
 
 import re
 from urlparse import urlparse
-from collections import deque, Counter
+from collections import deque, Counter, OrderedDict
 from functools import partial
+from operator import itemgetter
 
 from lxml import etree
 
@@ -206,10 +207,26 @@ def from_xpaths(container, xpaths):
     level_prev = {i+1:None for i in xrange(len(xpaths))}
     level_prev[0] = tocroot
 
+    # Find those levels that have no elements in all spine items
+    maps = OrderedDict()
+    empty_levels = {i+1 for i, xp in enumerate(xpaths)}
     for spinepath in container.spine_items:
         name = container.abspath_to_name(spinepath)
         root = container.parsed(name)
-        level_item_map = {i+1:frozenset(xp(root)) for i, xp in enumerate(xpaths)}
+        level_item_map = maps[name] = {i+1:frozenset(xp(root)) for i, xp in enumerate(xpaths)}
+        for lvl, elems in level_item_map.iteritems():
+            if elems:
+                empty_levels.discard(lvl)
+    # Remove empty levels from all level_maps
+    if empty_levels:
+        for name, lmap in tuple(maps.iteritems()):
+            lmap = {lvl:items for lvl, items in lmap.iteritems() if lvl not in empty_levels}
+            lmap = sorted(lmap.iteritems(), key=itemgetter(0))
+            lmap = {i+1:items for i, (l, items) in enumerate(lmap)}
+            maps[name] = lmap
+
+    for name, level_item_map in maps.iteritems():
+        root = container.parsed(name)
         item_level_map = {e:i for i, elems in level_item_map.iteritems() for e in elems}
         item_dirtied = False
 
