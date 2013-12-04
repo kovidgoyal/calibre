@@ -194,9 +194,11 @@ class Canvas(QWidget):
     @imageop
     def trim_image(self):
         if self.selection_state.rect is None:
-            return error_dialog(self, _('No selection'), _(
+            error_dialog(self, _('No selection'), _(
                 'No active selection, first select a region in the image, by dragging with your mouse'), show=True)
+            return False
         self.undo_stack.push(Trim(self))
+        return True
 
     # The selection rectangle {{{
     @property

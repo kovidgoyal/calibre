@@ -59,6 +59,10 @@ class TrimImage(QDialog):
         bb.rejected.connect(self.reject)
         l.addWidget(bb)
 
+        self.tok = b = bb.addButton(_('Trim and OK'), QDialogButtonBox.ActionRole)
+        b.clicked.connect(self.trim_and_accept)
+        b.setIcon(self.trim_action.icon())
+
         self.resize(QSize(900, 600))
         geom = gprefs.get('image-trim-dialog-geometry', None)
         if geom is not None:
@@ -86,6 +90,10 @@ class TrimImage(QDialog):
     def reject(self):
         self.cleanup()
         QDialog.reject(self)
+
+    def trim_and_accept(self):
+        if self.canvas.trim_image():
+            self.accept()
 
 if __name__ == '__main__':
     app = QApplication([])
