@@ -258,6 +258,7 @@ class FileList(QTreeWidget):
 
         ok_to_be_unmanifested = container.names_that_need_not_be_manifested
         cannot_be_renamed = container.names_that_must_not_be_changed
+        ncx_mime = guess_type('a.ncx')
 
         def create_item(name, linear=None):
             imt = container.mime_map.get(name, guess_type(name))
@@ -280,6 +281,10 @@ class FileList(QTreeWidget):
             emblems = []
             if name in {cover_page_name, cover_image_name}:
                 emblems.append('default_cover.png')
+            if name in container.opf_name:
+                emblems.append('metadata.png')
+            if imt == ncx_mime:
+                emblems.append('toc.png')
             if name not in manifested_names and name not in ok_to_be_unmanifested:
                 emblems.append('dialog_question.png')
             if linear is False:
