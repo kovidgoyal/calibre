@@ -77,7 +77,7 @@ class KOBO(USBMS):
     book_class = Book
 
     # Ordered list of supported formats
-    FORMATS     = ['epub', 'pdf', 'txt', 'cbz', 'cbr']
+    FORMATS     = ['kepub', 'epub', 'pdf', 'txt', 'cbz', 'cbr']
     CAN_SET_METADATA = ['collections']
 
     VENDOR_ID           = [0x2237]
@@ -383,6 +383,17 @@ class KOBO(USBMS):
 
         self.report_progress(1.0, _('Getting list of books on device...'))
         return bl
+
+    def filename_callback(self, path, mi):
+#        debug_print("Kobo:filename_callback:Path - {0}".format(path))
+
+        idx = path.rfind('.')
+        ext = path[idx:]
+        if ext == KEPUB_EXT:
+            path = path + EPUB_EXT
+#            debug_print("Kobo:filename_callback:New path - {0}".format(path))
+
+        return path
 
     def delete_via_sql(self, ContentID, ContentType):
         # Delete Order:
@@ -1260,7 +1271,6 @@ class KOBOTOUCH(KOBO):
     min_fwversion_images_tree       = (2, 9, 0)  # Cover images stored in tree under .kobo-images
 
     has_kepubs = True
-    FORMATS = ['kepub', 'epub', 'cbr', 'cbz', 'pdf', 'txt']
 
     booklist_class = KTCollectionsBookList
     book_class = Book
@@ -1984,17 +1994,6 @@ class KOBOTOUCH(KOBO):
             container.commit(file)
 
         return True
-
-    def filename_callback(self, path, mi):
-#        debug_print("KoboTouch:filename_callback:Path - {0}".format(path))
-
-        idx = path.rfind('.')
-        ext = path[idx:]
-        if ext == KEPUB_EXT:
-            path = path + EPUB_EXT
-#            debug_print("KoboTouch:filename_callback:New path - {0}".format(path))
-
-        return path
 
     def delete_via_sql(self, ContentID, ContentType):
         imageId = super(KOBOTOUCH, self).delete_via_sql(ContentID, ContentType)
