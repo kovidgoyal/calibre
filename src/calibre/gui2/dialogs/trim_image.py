@@ -74,7 +74,7 @@ class TrimImage(QDialog):
         self.sz.setText('\xa0' + _('Size:') + '%dx%d' % (qimage.width(), qimage.height()))
 
     def cleanup(self):
-        self.canvas.cleanup()
+        self.canvas.break_cycles()
         gprefs.set('image-trim-dialog-geometry', bytearray(self.saveGeometry()))
 
     def accept(self):

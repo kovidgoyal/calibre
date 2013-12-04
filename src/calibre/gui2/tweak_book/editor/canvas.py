@@ -156,7 +156,7 @@ class Canvas(QWidget):
             return self.original_image_data
         return pixmap_to_data(self.current_image, format=self.original_image_format or 'JPEG', quality=90)
 
-    def cleanup(self):
+    def break_cycles(self):
         self.undo_stack.clear()
         self.original_image_data = self.current_image = self.current_scaled_pixmap = None
 
