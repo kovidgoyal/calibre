@@ -210,6 +210,7 @@ class Editor(QMainWindow):
         return False
 
 def launch_editor(path_to_edit, path_is_raw=False, syntax='html'):
+    app = QApplication([])
     if path_is_raw:
         raw = path_to_edit
     else:
@@ -220,7 +221,6 @@ def launch_editor(path_to_edit, path_is_raw=False, syntax='html'):
             syntax = 'html'
         elif ext in ('css',):
             syntax = 'css'
-    app = QApplication([])
     t = Editor(syntax)
     t.data = raw
     t.show()
