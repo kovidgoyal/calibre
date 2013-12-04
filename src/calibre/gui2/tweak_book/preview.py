@@ -266,10 +266,10 @@ def uniq(vals):
 
 def find_le(a, x):
     'Find rightmost value in a less than or equal to x'
-    i = bisect_right(a, x)
-    if i:
-        return a[i-1]
-    raise ValueError
+    try:
+        return a[bisect_right(a, x)]
+    except IndexError:
+        return a[-1]
 
 class WebPage(QWebPage):
 
