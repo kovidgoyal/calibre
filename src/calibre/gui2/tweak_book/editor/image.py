@@ -6,14 +6,15 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import sys, string
+import sys, string, weakref
 from functools import wraps
 
 from PyQt4.Qt import (
     QWidget, QImage, QPainter, QColor, QApplication, Qt, QPixmap, QRectF,
-    QPointF, QPen, pyqtSignal)
+    QPointF, QPen, pyqtSignal, QUndoCommand, QUndoStack, QIcon)
 
 from calibre import fit_image
+from calibre.gui2 import error_dialog
 
 def painter(func):
     @wraps(func)
@@ -46,6 +47,51 @@ class SelectionState(object):
         self.dragging = None
         self.last_drag_pos = None
 
+class Command(QUndoCommand):
+
+    def __init__(self, text, canvas):
+        QUndoCommand.__init__(self, text)
+        self.canvas_ref = weakref.ref(canvas)
+        self.before_image = i = canvas.current_image
+        if i is None:
+            raise ValueError('No image loaded')
+        if i.isNull():
+            raise ValueError('Cannot perform operations on invalid images')
+        self.after_image = canvas.current_image = self(canvas)
+
+    def undo(self):
+        canvas = self.canvas_ref()
+        canvas.set_image(self.before_image)
+
+    def redo(self):
+        canvas = self.canvas_ref()
+        canvas.set_image(self.after_image)
+
+class Trim(Command):
+
+    def __init__(self, canvas):
+        Command.__init__(self, _('Trim image'), canvas)
+
+    def __call__(self, canvas):
+        img = canvas.current_image
+        target = canvas.target
+        sr = canvas.selection_state.rect
+        left_border = (abs(sr.left() - target.left())/target.width()) * img.width()
+        top_border = (abs(sr.top() - target.top())/target.height()) * img.height()
+        right_border = (abs(target.right() - sr.right())/target.width()) * img.width()
+        bottom_border = (abs(target.bottom() - sr.bottom())/target.height()) * img.height()
+        return img.copy(left_border, top_border, img.width() - left_border - right_border, img.height() - top_border - bottom_border)
+
+def imageop(func):
+    @wraps(func)
+    def ans(self, *args, **kwargs):
+        if self.original_image_data is None:
+            return error_dialog(self, _('No image'), _('No image loaded'), show=True)
+        if not self.is_valid:
+            return error_dialog(self, _('Invalid image'), _('The current image is not valid'), show=True)
+        return func(self, *args, **kwargs)
+    return ans
+
 class Canvas(QWidget):
 
     BACKGROUND = QColor(60, 60, 60)
@@ -53,6 +99,7 @@ class Canvas(QWidget):
     SELECT_PEN = QPen(QColor(Qt.white))
 
     selection_state_changed = pyqtSignal(object)
+    image_changed = pyqtSignal(object)
 
     @property
     def has_selection(self):
@@ -62,21 +109,49 @@ class Canvas(QWidget):
         QWidget.__init__(self, parent)
         self.setMouseTracking(True)
         self.selection_state = SelectionState()
+        self.undo_stack = QUndoStack()
+        self.undo_stack.setUndoLimit(10)
 
-        self.current_image_data = None
+        self.original_image_data = None
         self.current_image = None
         self.current_scaled_pixmap = None
         self.last_canvas_size = None
         self.target = QRectF(0, 0, 0, 0)
 
-    def show_image(self, data):
+        self.undo_action = a = self.undo_stack.createUndoAction(self, _('Undo') + ' ')
+        a.setIcon(QIcon(I('edit-undo.png')))
+        self.redo_action = a = self.undo_stack.createRedoAction(self, _('Redo') + ' ')
+        a.setIcon(QIcon(I('edit-redo.png')))
+
+    def load_image(self, data):
         self.selection_state.reset()
-        self.current_image_data = data
-        self.current_image = i = QImage()
+        self.original_image_data = data
+        self.current_image = i = self.original_image = QImage()
         i.loadFromData(data)
         self.is_valid = not i.isNull()
         self.update()
+        self.image_changed.emit(self.current_image)
 
+    def set_image(self, qimage):
+        self.selection_state.reset()
+        self.current_scaled_pixmap = None
+        self.current_image = qimage
+        self.is_valid = not qimage.isNull()
+        self.update()
+        self.image_changed.emit(self.current_image)
+
+    def cleanup(self):
+        self.undo_stack.clear()
+        self.original_image_data = self.current_image = self.current_scaled_pixmap = None
+
+    @imageop
+    def trim_image(self):
+        if self.selection_state.rect is None:
+            return error_dialog(self, _('No selection'), _(
+                'No active selection, first select a region in the image, by dragging with your mouse'), show=True)
+        self.undo_stack.push(Trim(self))
+
+    # The selection rectangle {{{
     @property
     def dc_size(self):
         sr = self.selection_state.rect
@@ -225,7 +300,9 @@ class Canvas(QWidget):
             elif self.selection_state.current_mode == 'selected' and self.selection_state.rect is not None and self.selection_state.rect.contains(ev.pos()):
                 self.setCursor(self.get_cursor())
             self.update()
+    # }}}
 
+    # Painting {{{
     @painter
     def draw_background(self, painter):
         painter.fillRect(self.rect(), self.BACKGROUND)
@@ -300,7 +377,7 @@ class Canvas(QWidget):
         p.setRenderHints(QPainter.Antialiasing | QPainter.SmoothPixmapTransform)
         try:
             self.draw_background(p)
-            if self.current_image_data is None:
+            if self.original_image_data is None:
                 return
             if not self.is_valid:
                 return self.draw_image_error(p)
@@ -310,12 +387,13 @@ class Canvas(QWidget):
                 self.draw_selection_rect(p)
         finally:
             p.end()
+    # }}}
 
 if __name__ == '__main__':
     app = QApplication([])
     with open(sys.argv[-1], 'rb') as f:
         data = f.read()
     c = Canvas()
-    c.show_image(data)
+    c.load_image(data)
     c.show()
     app.exec_()
