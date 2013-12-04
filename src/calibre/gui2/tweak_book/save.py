@@ -53,7 +53,7 @@ class SaveWidget(QWidget):
     def stop(self):
         self.pi.setVisible(False)
         self.pi.stopAnimation()
-        self.label.setText(_('Saved'))
+        self.label.setText('')
 
 class SaveManager(QObject):
 
