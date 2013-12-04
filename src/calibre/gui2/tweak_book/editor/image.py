@@ -108,6 +108,7 @@ class Canvas(QWidget):
     def __init__(self, parent=None):
         QWidget.__init__(self, parent)
         self.setMouseTracking(True)
+        self.setFocusPolicy(Qt.ClickFocus)
         self.selection_state = SelectionState()
         self.undo_stack = QUndoStack()
         self.undo_stack.setUndoLimit(10)
@@ -212,21 +213,24 @@ class Canvas(QWidget):
             maxv = sr.bottom() - buf if edge == 'top' else self.target.bottom()
         func(max(minv, min(maxv, delta + getattr(sr, edge)())))
 
-    def move_selection(self, dp):
+    def move_selection_rect(self, x, y):
         sr = self.selection_state.rect
+        half_width = sr.width() / 2.0
+        half_height = sr.height() / 2.0
+        c = sr.center()
+        nx = c.x() + x
+        ny = c.y() + y
+        minx = self.target.left() + half_width
+        maxx = self.target.right() - half_width
+        miny, maxy = self.target.top() + half_height, self.target.bottom() - half_height
+        nx = max(minx, min(maxx, nx))
+        ny = max(miny, min(maxy, ny))
+        sr.moveCenter(QPointF(nx, ny))
+
+    def move_selection(self, dp):
         dm = self.selection_state.dragging
         if dm is None:
-            half_width = sr.width() / 2.0
-            half_height = sr.height() / 2.0
-            c = sr.center()
-            nx = c.x() + dp.x()
-            ny = c.y() + dp.y()
-            minx = self.target.left() + half_width
-            maxx = self.target.right() - half_width
-            miny, maxy = self.target.top() + half_height, self.target.bottom() - half_height
-            nx = max(minx, min(maxx, nx))
-            ny = max(miny, min(maxy, ny))
-            sr.moveCenter(QPointF(nx, ny))
+            self.move_selection_rect(dp.x(), dp.y())
         else:
             for edge in dm:
                 if edge is not None:
@@ -301,6 +305,21 @@ class Canvas(QWidget):
                 self.setCursor(self.get_cursor())
             self.update()
     # }}}
+
+    def keyPressEvent(self, ev):
+        k = ev.key()
+        if k in (Qt.Key_Left, Qt.Key_Right, Qt.Key_Up, Qt.Key_Down) and self.has_selection:
+            ev.accept()
+            delta = 10 if ev.modifiers() & Qt.ShiftModifier else 1
+            x = y = 0
+            if k in (Qt.Key_Left, Qt.Key_Right):
+                x = delta * (-1 if k == Qt.Key_Left else 1)
+            else:
+                y = delta * (-1 if k == Qt.Key_Up else 1)
+            self.move_selection_rect(x, y)
+            self.update()
+        else:
+            return QWidget.keyPressEvent(self, ev)
 
     # Painting {{{
     @painter
