@@ -59,7 +59,7 @@ class TrimImage(QDialog):
         bb.rejected.connect(self.reject)
         l.addWidget(bb)
 
-        self.resize(QSize(800, 600))
+        self.resize(QSize(900, 600))
         geom = gprefs.get('image-trim-dialog-geometry', None)
         if geom is not None:
             self.restoreGeometry(geom)

@@ -308,7 +308,7 @@ class Canvas(QWidget):
 
     def keyPressEvent(self, ev):
         k = ev.key()
-        if k in (Qt.Key_Left, Qt.Key_Right, Qt.Key_Up, Qt.Key_Down) and self.has_selection:
+        if k in (Qt.Key_Left, Qt.Key_Right, Qt.Key_Up, Qt.Key_Down) and self.selection_state.rect is not None and self.has_selection:
             ev.accept()
             delta = 10 if ev.modifiers() & Qt.ShiftModifier else 1
             x = y = 0
