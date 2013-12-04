@@ -22,6 +22,8 @@ def option_parser():
 Launch the calibre tweak book tool.
 ''')
     setup_gui_option_parser(parser)
+    parser.add_option('--edit-file', help=_(
+        'Edit the named file inside the book'))
     return parser
 
 
@@ -50,7 +52,7 @@ def main(args=sys.argv):
     sys.excepthook = main.unhandled_exception
     main.show()
     if len(args) > 1:
-        main.boss.open_book(args[1])
+        main.boss.open_book(args[1], edit_file=opts.edit_file)
     app.exec_()
 
 if __name__ == '__main__':

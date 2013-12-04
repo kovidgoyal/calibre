@@ -117,7 +117,7 @@ class Boss(QObject):
         self.container_count += 1
         return tempfile.mkdtemp(prefix='%s%05d-' % (prefix, self.container_count), dir=self.tdir)
 
-    def open_book(self, path=None):
+    def open_book(self, path=None, edit_file=None):
         if self.gui.action_save.isEnabled():
             if not question_dialog(self.gui, _('Unsaved changes'), _(
                 'The current book has unsaved changes. If you open a new book, they will be lost'
@@ -152,9 +152,13 @@ class Boss(QObject):
         if self.tdir:
             shutil.rmtree(self.tdir, ignore_errors=True)
         self.tdir = PersistentTemporaryDirectory()
+        self._edit_file_on_open = edit_file
         self.gui.blocking_job('open_book', _('Opening book, please wait...'), self.book_opened, get_container, path, tdir=self.mkdtemp())
 
     def book_opened(self, job):
+        ef = getattr(self, '_edit_file_on_open', None)
+        self._edit_file_on_open = None
+
         if job.traceback is not None:
             if 'DRMError:' in job.traceback:
                 from calibre.gui2.dialogs.drm_error import DRMErrorMessage
@@ -178,6 +182,8 @@ class Boss(QObject):
         recent_books.insert(0, path)
         tprefs['recent-books'] = recent_books[:10]
         self.gui.update_recent_books()
+        if ef:
+            self.gui.file_list.request_edit(ef)
 
     def update_editors_from_container(self, container=None):
         c = container or current_container()

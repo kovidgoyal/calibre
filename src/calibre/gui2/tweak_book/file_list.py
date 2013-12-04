@@ -155,6 +155,13 @@ class FileList(QTreeWidget):
                 if name in state['selected']:
                     c.setSelected(True)
 
+    def item_from_name(self, name):
+        for parent in self.categories.itervalues():
+            for c in (parent.child(i) for i in xrange(parent.childCount())):
+                q = unicode(c.data(0, NAME_ROLE).toString())
+                if q == name:
+                    return c
+
     def select_name(self, name):
         for parent in self.categories.itervalues():
             for c in (parent.child(i) for i in xrange(parent.childCount())):
@@ -446,11 +453,22 @@ class FileList(QTreeWidget):
             self.reorder_spine.emit(order)
 
     def item_double_clicked(self, item, column):
+        self._request_edit(item)
+
+    def _request_edit(self, item):
         category = unicode(item.data(0, CATEGORY_ROLE).toString())
         mime = unicode(item.data(0, MIME_ROLE).toString())
         name = unicode(item.data(0, NAME_ROLE).toString())
         syntax = {'text':'html', 'styles':'css'}.get(category, None)
         self.edit_file.emit(name, syntax, mime)
+
+    def request_edit(self, name):
+        item = self.item_from_name(name)
+        if item is not None:
+            self._request_edit(item)
+        else:
+            error_dialog(self, _('Cannot edit'),
+                         _('No item with the name: %s was found') % name, show=True)
 
     @property
     def all_files(self):
@@ -641,7 +659,7 @@ class FileListWidget(QWidget):
                   'edit_file', 'merge_requested', 'mark_requested',
                   'export_requested', 'replace_requested'):
             getattr(self.file_list, x).connect(getattr(self, x))
-        for x in ('delete_done', 'select_name'):
+        for x in ('delete_done', 'select_name', 'request_edit'):
             setattr(self, x, getattr(self.file_list, x))
 
     def build(self, container, preserve_state=True):
