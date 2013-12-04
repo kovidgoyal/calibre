@@ -214,10 +214,16 @@ class Canvas(QWidget):
 
     def mouseReleaseEvent(self, ev):
         if ev.button() == Qt.LeftButton:
-            self.selection_state.reset(full=False)
+            self.selection_state.dragging = self.selection_state.last_drag_pos = None
             if self.selection_state.current_mode == 'select':
-                self.selection_state.current_mode = 'selected'
-                self.selection_state_changed.emit(True)
+                r = self.selection_state.rect
+                if r is None or max(r.width(), r.height()) < 3:
+                    self.selection_state.reset()
+                else:
+                    self.selection_state.current_mode = 'selected'
+                self.selection_state_changed.emit(self.has_selection)
+            elif self.selection_state.current_mode == 'selected' and self.selection_state.rect is not None and self.selection_state.rect.contains(ev.pos()):
+                self.setCursor(self.get_cursor())
             self.update()
 
     @painter
