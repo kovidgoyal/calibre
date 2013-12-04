@@ -58,7 +58,7 @@ class Command(QUndoCommand):
             raise ValueError('No image loaded')
         if i.isNull():
             raise ValueError('Cannot perform operations on invalid images')
-        self.after_image = canvas.current_image = self(canvas)
+        self.after_image = self(canvas)
 
     def undo(self):
         canvas = self.canvas_ref()
@@ -82,6 +82,15 @@ class Trim(Command):
         right_border = (abs(target.right() - sr.right())/target.width()) * img.width()
         bottom_border = (abs(target.bottom() - sr.bottom())/target.height()) * img.height()
         return img.copy(left_border, top_border, img.width() - left_border - right_border, img.height() - top_border - bottom_border)
+
+class Replace(Command):
+
+    def __init__(self, img, text, canvas):
+        self.after_image = img
+        Command.__init__(self, text, canvas)
+
+    def __call__(self, canvas):
+        return self.after_image
 
 def imageop(func):
     @wraps(func)
@@ -119,6 +128,8 @@ class Canvas(QWidget):
         self.undo_stack.setUndoLimit(10)
 
         self.original_image_data = None
+        self.is_valid = False
+        self.original_image_format = None
         self.current_image = None
         self.current_scaled_pixmap = None
         self.last_canvas_size = None
@@ -130,6 +141,7 @@ class Canvas(QWidget):
         a.setIcon(QIcon(I('edit-redo.png')))
 
     def load_image(self, data):
+        self.is_valid = False
         try:
             fmt = identify_data(data)[-1].encode('ascii')
         except Exception:
@@ -155,6 +167,25 @@ class Canvas(QWidget):
         if not self.is_modified:
             return self.original_image_data
         return pixmap_to_data(self.current_image, format=self.original_image_format or 'JPEG', quality=90)
+
+    def copy(self):
+        if not self.is_valid:
+            return
+        clipboard = QApplication.clipboard()
+        if not self.has_selection or self.selection_state.rect is None:
+            clipboard.setImage(self.current_image)
+        else:
+            trim = Trim(self)
+            clipboard.setImage(trim.after_image)
+            trim.before_image = trim.after_image = None
+
+    def paste(self):
+        clipboard = QApplication.clipboard()
+        md = clipboard.mimeData()
+        if md.hasImage():
+            img = QImage(md.imageData())
+            if not img.isNull():
+                self.undo_stack.push(Replace(img, _('Paste image'), self))
 
     def break_cycles(self):
         self.undo_stack.clear()
