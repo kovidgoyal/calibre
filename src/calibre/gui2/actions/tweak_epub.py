@@ -110,8 +110,8 @@ class TweakEpubAction(InterfaceAction):
                     _('The book must be in the %s formats to tweak.'
                         '\n\nFirst convert the book to one of these formats.') % (_(' or '.join(SUPPORTED))),
                     show=True)
+        from calibre.gui2.tweak_book import tprefs
         if len(tweakable_fmts) > 1:
-            from calibre.gui2.tweak_book import tprefs
             if tprefs['choose_tweak_fmt']:
                 d = Choose(sorted(tweakable_fmts, key=tprefs.defaults['tweak_fmt_order'].index), self.gui)
                 if d.exec_() != d.Accepted:
@@ -131,6 +131,12 @@ class TweakEpubAction(InterfaceAction):
                 ' library maintenance.') % fmt, show=True)
         tweak = 'ebook-tweak'
         self.gui.setCursor(Qt.BusyCursor)
+        if tprefs['update_metadata_from_calibre']:
+            from calibre.ebooks.metadata.opf2 import pretty_print
+            from calibre.ebooks.metadata.meta import set_metadata
+            mi = db.new_api.get_metadata(book_id)
+            with pretty_print, open(path, 'r+b') as f:
+                set_metadata(f, mi, stream_type=fmt.lower())
         try:
             self.gui.job_manager.launch_gui_app(tweak, kwargs=dict(args=[tweak, path]))
             time.sleep(2)

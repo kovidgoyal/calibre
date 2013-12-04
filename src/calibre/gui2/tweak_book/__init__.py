@@ -17,6 +17,7 @@ tprefs.defaults['editor_tab_stop_width'] = 2
 tprefs.defaults['preview_refresh_time'] = 2
 tprefs.defaults['choose_tweak_fmt'] = True
 tprefs.defaults['tweak_fmt_order'] = ['EPUB', 'AZW3']
+tprefs.defaults['update_metadata_from_calibre'] = True
 
 _current_container = None
 

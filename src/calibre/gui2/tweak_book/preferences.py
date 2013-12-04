@@ -178,6 +178,13 @@ class IntegrationSettings(BasicSettings):
         self.l = l = QFormLayout(self)
         self.setLayout(l)
 
+        um = self('update_metadata_from_calibre')
+        um.setText(_('Update metadata embedded in the book when opening'))
+        um.setToolTip('<p>' + _(
+            'When the file is opened, update the metadata embedded in the book file to the current metadata'
+            ' in the calibre library.'))
+        l.addRow(um)
+
         ask = self('choose_tweak_fmt')
         ask.setText(_('Ask which format to tweak if more than one format is available for the book'))
         l.addRow(ask)

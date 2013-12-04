@@ -24,6 +24,23 @@ from calibre import prints, guess_type
 from calibre.utils.cleantext import clean_ascii_chars, clean_xml_chars
 from calibre.utils.config import tweaks
 
+pretty_print_opf = False
+
+class PrettyPrint(object):
+    def __enter__(self):
+        global pretty_print_opf
+        pretty_print_opf = True
+
+    def __exit__(self, *args):
+        global pretty_print_opf
+        pretty_print_opf = False
+pretty_print = PrettyPrint()
+
+def _pretty_print(root):
+    from calibre.ebooks.oeb.polish.pretty import pretty_opf, pretty_xml_tree
+    pretty_opf(root)
+    pretty_xml_tree(root)
+
 class Resource(object):  # {{{
     '''
     Represents a resource (usually a file on the filesystem or a URL pointing
@@ -1210,6 +1227,8 @@ class OPF(object):  # {{{
                 a['content'] = c
 
         self.write_user_metadata()
+        if pretty_print_opf:
+            _pretty_print(self.root)
         raw = etree.tostring(self.root, encoding=encoding, pretty_print=True)
         if not raw.lstrip().startswith('<?xml '):
             raw = '<?xml version="1.0"  encoding="%s"?>\n'%encoding.upper()+raw
@@ -1562,6 +1581,9 @@ def metadata_to_opf(mi, as_string=True, default_lang=None):
                 attrib={'type':'cover', 'title':_('Cover'), 'href':mi.cover})
         r.tail = '\n' +(' '*4)
         guide.append(r)
+    if pretty_print_opf:
+        _pretty_print(root)
+
     return etree.tostring(root, pretty_print=True, encoding='utf-8',
             xml_declaration=True) if as_string else root
 
