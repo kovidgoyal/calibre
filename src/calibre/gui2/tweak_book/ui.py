@@ -451,8 +451,6 @@ class Main(MainWindow):
         if state is not None:
             self.restoreState(state, self.STATE_VERSION)
         self.central.restore_state()
-        # We never want to start with the inspector showing
-        self.inspector_dock.close()
 
     def contextMenuEvent(self, ev):
         ev.ignore()
