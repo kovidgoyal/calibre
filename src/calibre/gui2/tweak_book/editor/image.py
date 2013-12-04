@@ -10,11 +10,12 @@ import sys, string, weakref
 from functools import wraps
 
 from PyQt4.Qt import (
-    QWidget, QImage, QPainter, QColor, QApplication, Qt, QPixmap, QRectF,
-    QPointF, QPen, pyqtSignal, QUndoCommand, QUndoStack, QIcon)
+    QWidget, QPainter, QColor, QApplication, Qt, QPixmap, QRectF,
+    QPointF, QPen, pyqtSignal, QUndoCommand, QUndoStack, QIcon, QImage)
 
 from calibre import fit_image
-from calibre.gui2 import error_dialog
+from calibre.gui2 import error_dialog, pixmap_to_data
+from calibre.utils.magick.draw import identify_data
 
 def painter(func):
     @wraps(func)
@@ -105,6 +106,10 @@ class Canvas(QWidget):
     def has_selection(self):
         return self.selection_state.current_mode == 'selected'
 
+    @property
+    def is_modified(self):
+        return self.current_image is not self.original_image
+
     def __init__(self, parent=None):
         QWidget.__init__(self, parent)
         self.setMouseTracking(True)
@@ -125,10 +130,15 @@ class Canvas(QWidget):
         a.setIcon(QIcon(I('edit-redo.png')))
 
     def load_image(self, data):
+        try:
+            fmt = identify_data(data)[-1].encode('ascii')
+        except Exception:
+            fmt = b''
+        self.original_image_format = fmt.decode('ascii').lower()
         self.selection_state.reset()
         self.original_image_data = data
-        self.current_image = i = self.original_image = QImage()
-        i.loadFromData(data)
+        self.current_image = i = self.original_image = (
+            QImage.fromData(data, format=fmt) if fmt else QImage.fromData(data))
         self.is_valid = not i.isNull()
         self.update()
         self.image_changed.emit(self.current_image)
@@ -140,6 +150,11 @@ class Canvas(QWidget):
         self.is_valid = not qimage.isNull()
         self.update()
         self.image_changed.emit(self.current_image)
+
+    def get_image_data(self, quality=90):
+        if not self.is_modified:
+            return self.original_image_data
+        return pixmap_to_data(self.current_image, format=self.original_image_format or 'JPEG', quality=90)
 
     def cleanup(self):
         self.undo_stack.clear()

@@ -6,7 +6,7 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import sys
+import sys, os
 
 from PyQt4.Qt import (
     QDialog, QGridLayout, QToolBar, Qt, QLabel, QIcon, QDialogButtonBox, QSize,
@@ -64,6 +64,7 @@ class TrimImage(QDialog):
         if geom is not None:
             self.restoreGeometry(geom)
         self.setWindowIcon(self.trim_action.icon())
+        self.image_data = None
 
     def selection_changed(self, has_selection):
         self.trim_action.setEnabled(has_selection)
@@ -77,6 +78,8 @@ class TrimImage(QDialog):
         gprefs.set('image-trim-dialog-geometry', bytearray(self.saveGeometry()))
 
     def accept(self):
+        if self.canvas.is_modified:
+            self.image_data = self.canvas.get_image_data()
         self.cleanup()
         QDialog.accept(self)
 
@@ -86,9 +89,13 @@ class TrimImage(QDialog):
 
 if __name__ == '__main__':
     app = QApplication([])
-    with open(sys.argv[-1], 'rb') as f:
+    fname = sys.argv[-1]
+    with open(fname, 'rb') as f:
         data = f.read()
     d = TrimImage(data)
-    d.exec_()
-
-
+    if d.exec_() == d.Accepted and d.image_data is not None:
+        b, ext = os.path.splitext(fname)
+        fname = b + '-trimmed' + ext
+        with open(fname, 'wb') as f:
+            f.write(d.image_data)
+        print ('Trimmed image written to', fname)
