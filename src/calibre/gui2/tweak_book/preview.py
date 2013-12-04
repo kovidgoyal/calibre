@@ -343,7 +343,7 @@ class WebPage(QWebPage):
     def go_to_line(self, lnum):
         try:
             lnum = find_le(self.line_numbers, lnum)
-        except ValueError:
+        except IndexError:
             return
         self.mainFrame().evaluateJavaScript(
             'window.calibre_preview_integration.go_to_line(%d)' % lnum)
