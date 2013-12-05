@@ -20,13 +20,13 @@ class Kommersant_ru(BasicNewsRecipe):
     language              = 'ru'
     publication_type      = 'newspaper'
     masthead_url          = 'http://www.kommersant.ru/CorpPics/logo_daily_1.gif'
-    extra_css             = """ 
-	                          @font-face {font-family: "sans1";src:url(res:///opt/sony/ebook/FONT/tt0003m_.ttf)}
-	                          body{font-family: Tahoma, Arial, Helvetica, sans1, sans-serif}
-							  .title{font-size: x-large; font-weight: bold; margin-bottom: 1em}
-							  .subtitle{font-size: large; margin-bottom: 1em}
-							  .document_vvodka{font-weight: bold; margin-bottom: 1em}
-							"""
+    extra_css             = """
+                            @font-face {font-family: "sans1";src:url(res:///opt/sony/ebook/FONT/tt0003m_.ttf)}
+                            body{font-family: Tahoma, Arial, Helvetica, sans1, sans-serif}
+                            .title{font-size: x-large; font-weight: bold; margin-bottom: 1em}
+                            .subtitle{font-size: large; margin-bottom: 1em}
+                            .document_vvodka{font-weight: bold; margin-bottom: 1em}
+                            """
 
     conversion_options = {
                           'comment'   : description
@@ -35,14 +35,15 @@ class Kommersant_ru(BasicNewsRecipe):
                         , 'language'  : language
                         }
 
-    keep_only_tags = [dict(attrs={'class':['document','document_vvodka','document_text','document_authors vblock']})]
-    remove_tags    = [dict(name=['iframe','object','link','img','base','meta'])]
+    keep_only_tags  = [dict(attrs={'class':'b-article'})]
+    remove_tags     = [dict(name=['iframe','object','link','img','base','meta'])]
+    remo_tags_after = dict(attrs={'class':'hide1 hide2'})
 
     feeds       = [(u'Articles', u'http://dynamic.feedsportal.com/pf/438800/http://feeds.kommersant.ru/RSS_Export/RU/daily.xml')]
-    
+
     def get_article_url(self, article):
         return article.get('guid',  None)
-    
-    def print_version(self, url):	    
+
+    def print_version(self, url):
         return url.replace('/doc-rss/','/Doc/') + '/Print'
-		
+
