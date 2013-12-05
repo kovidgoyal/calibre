@@ -11,10 +11,12 @@ from functools import wraps
 
 from PyQt4.Qt import (
     QWidget, QPainter, QColor, QApplication, Qt, QPixmap, QRectF, QMatrix,
-    QPointF, QPen, pyqtSignal, QUndoCommand, QUndoStack, QIcon, QImage)
+    QPointF, QPen, pyqtSignal, QUndoCommand, QUndoStack, QIcon, QImage, QByteArray)
 
 from calibre import fit_image
 from calibre.gui2 import error_dialog, pixmap_to_data
+from calibre.utils.config_base import tweaks
+from calibre.utils.magick import Image
 from calibre.utils.magick.draw import identify_data
 
 def painter(func):
@@ -50,8 +52,10 @@ class SelectionState(object):
 
 class Command(QUndoCommand):
 
-    def __init__(self, text, canvas):
-        QUndoCommand.__init__(self, text)
+    TEXT = ''
+
+    def __init__(self, canvas):
+        QUndoCommand.__init__(self, self.TEXT)
         self.canvas_ref = weakref.ref(canvas)
         self.before_image = i = canvas.current_image
         if i is None:
@@ -76,12 +80,55 @@ def get_selection_rect(img, sr, target):
     bottom_border = (abs(target.bottom() - sr.bottom())/target.height()) * img.height()
     return left_border, top_border, img.width() - left_border - right_border, img.height() - top_border - bottom_border
 
+_qimage_pixel_map = None
+def get_pixel_map():
+    ' Get the order of pixels in QImage (RGBA or BGRA usually) '
+    global _qimage_pixel_map
+    if _qimage_pixel_map is None:
+        i = QImage(1, 1, QImage.Format_ARGB32)
+        i.fill(QColor(0, 1, 2, 3))
+        raw = bytearray(i.constBits().asstring(4))
+        _qimage_pixel_map = {c:raw.index(x) for c, x in zip('RGBA', b'\x00\x01\x02\x03')}
+        _qimage_pixel_map = ''.join(sorted(_qimage_pixel_map, key=_qimage_pixel_map.get))
+    return _qimage_pixel_map
+
+def qimage_to_magick(img):
+    fmt = get_pixel_map()
+    if not img.hasAlphaChannel():
+        if img.format() != img.Format_RGB32:
+            img = QImage(img)
+            img.setFormat(QImage.Format_RGB32)
+        fmt = fmt.replace('A', 'P')
+    else:
+        if img.format() != img.Format_ARGB32:
+            img = QImage(img)
+            img.setFormat(img.Format_ARGB32)
+    raw = img.constBits().ascapsule()
+    ans = Image()
+    ans.constitute(img.width(), img.height(), fmt, raw)
+    return ans
+
+def magick_to_qimage(img):
+    fmt = get_pixel_map()
+    # ImageMagick can output only output raw data in some formats that can be
+    # read into QImage directly, if the QImage format is not one of those, use
+    # PNG
+    if fmt in {'RGBA', 'BGRA'}:
+        w, h = img.size
+        img.depth = 8  # QImage expects 8bpp
+        raw = img.export(fmt)
+        i = QImage(raw, w, h, QImage.Format_ARGB32)
+        del raw  # According to the documentation, raw is supposed to not be deleted, but it works, so make it explicit
+        return i
+    else:
+        raw = img.export('PNG')
+        return QImage.fromData(QByteArray(raw), 'PNG')
+
 class Trim(Command):
 
     ''' Remove the areas of the image outside the current selection. '''
 
-    def __init__(self, canvas):
-        Command.__init__(self, _('Trim image'), canvas)
+    TEXT = _('Trim image')
 
     def __call__(self, canvas):
         img = canvas.current_image
@@ -89,10 +136,20 @@ class Trim(Command):
         sr = canvas.selection_state.rect
         return img.copy(*get_selection_rect(img, sr, target))
 
+class AutoTrim(Trim):
+
+    ''' Auto trim borders from the image '''
+    TEXT = _('Auto-trim image')
+
+    def __call__(self, canvas):
+        img = canvas.current_image
+        i = qimage_to_magick(img)
+        i.trim(tweaks['cover_trim_fuzz_value'])
+        return magick_to_qimage(i)
+
 class Rotate(Command):
 
-    def __init__(self, canvas):
-        Command.__init__(self, _('Rotate image'), canvas)
+    TEXT = _('Rotate image')
 
     def __call__(self, canvas):
         img = canvas.current_image
@@ -102,9 +159,11 @@ class Rotate(Command):
 
 class Scale(Command):
 
+    TEXT = _('Resize image')
+
     def __init__(self, width, height, canvas):
         self.width, self.height = width, height
-        Command.__init__(self, _('Resize image'), canvas)
+        Command.__init__(self, canvas)
 
     def __call__(self, canvas):
         img = canvas.current_image
@@ -245,6 +304,11 @@ class Canvas(QWidget):
                 'No active selection, first select a region in the image, by dragging with your mouse'), show=True)
             return False
         self.undo_stack.push(Trim(self))
+        return True
+
+    @imageop
+    def autotrim_image(self):
+        self.undo_stack.push(AutoTrim(self))
         return True
 
     @imageop

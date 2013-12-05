@@ -11,7 +11,7 @@ from functools import partial
 
 from PyQt4.Qt import (
     QMainWindow, Qt, QApplication, pyqtSignal, QLabel, QIcon, QFormLayout,
-    QDialog, QSpinBox, QCheckBox, QDialogButtonBox)
+    QDialog, QSpinBox, QCheckBox, QDialogButtonBox, QToolButton, QMenu)
 
 from calibre.gui2 import error_dialog
 from calibre.gui2.tweak_book import actions
@@ -200,9 +200,9 @@ class Editor(QMainWindow):
         self.copy_available_state_changed.emit(self.copy_available)
         self.data_changed.emit(self)
         self.modification_state_changed.emit(True)
-        self.fmt_label.setText((self.canvas.original_image_format or '').upper())
+        self.fmt_label.setText(' ' + (self.canvas.original_image_format or '').upper())
         im = self.canvas.current_image
-        self.size_label.setText('{0} x {1}{2}'.format(im.width(), im.height(), 'px'))
+        self.size_label.setText('{0} x {1}{2}'.format(im.width(), im.height(), ' px'))
 
     def break_cycles(self):
         self.canvas.break_cycles()
@@ -229,7 +229,7 @@ class Editor(QMainWindow):
             try:
                 ac = actions['editor-%s' % x]
             except KeyError:
-                b.addAction(x, getattr(self.canvas, x))
+                setattr(self, 'action_' + x, b.addAction(x, getattr(self.canvas, x)))
             else:
                 setattr(self, 'action_' + x, b.addAction(ac.icon(), x, getattr(self, x)))
         self.update_clipboard_actions()
@@ -238,6 +238,12 @@ class Editor(QMainWindow):
         self.action_trim = ac = b.addAction(QIcon(I('trim.png')), _('Trim image'), self.canvas.trim_image)
         self.action_rotate = ac = b.addAction(QIcon(I('rotate-right.png')), _('Rotate image'), self.canvas.rotate_image)
         self.action_resize = ac = b.addAction(QIcon(I('resize.png')), _('Resize image'), self.resize_image)
+        b.addSeparator()
+        self.action_filters = ac = b.addAction(QIcon(I('filter.png')), _('Image filters'))
+        b.widgetForAction(ac).setPopupMode(QToolButton.InstantPopup)
+        self.filters_menu = m = QMenu()
+        ac.setMenu(m)
+        m.addAction(_('Auto-trim image'), self.canvas.autotrim_image)
 
         self.info_bar = b = self.addToolBar(_('Image information bar'))
         self.fmt_label = QLabel('')

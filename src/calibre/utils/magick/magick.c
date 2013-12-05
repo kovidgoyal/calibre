@@ -537,6 +537,35 @@ magick_Image_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     return (PyObject *)self;
 }
 
+// Image.constitute {{{
+static PyObject *
+magick_Image_constitute(magick_Image *self, PyObject *args) {
+    const char *map;
+	Py_ssize_t width, height;
+    PyObject *capsule;
+    MagickBooleanType res;
+    void *data;
+    
+    NULL_CHECK(NULL)
+    if (!PyArg_ParseTuple(args, "iisO", &width, &height, &map, &capsule)) return NULL;
+
+    if (!PyCapsule_CheckExact(capsule)) {
+        PyErr_SetString(PyExc_TypeError, "data is not a capsule object");
+        return NULL;
+    }
+
+    data = PyCapsule_GetPointer(capsule,  PyCapsule_GetName(capsule));
+    if (data == NULL) return NULL;
+
+    res = MagickConstituteImage(self->wand, width, height, map, CharPixel, data);
+
+    if (!res)
+        return magick_set_exception(self->wand);
+
+    Py_RETURN_NONE;
+}
+
+// }}}
 
 // Image.load {{{
 static PyObject *
@@ -1294,6 +1323,10 @@ static PyMethodDef magick_Image_methods[] = {
 
     {"identify", (PyCFunction)magick_Image_identify, METH_VARARGS,
      "Identify an image from a byte buffer (string)"
+    },
+
+    {"constitute", (PyCFunction)magick_Image_constitute, METH_VARARGS,
+     "constitute(width, height, map, data) -> Create an image from raw (A)RGB data. map should be 'ARGB' or 'PRGB' or whatever is needed for data. data must be a PyCapsule object."
     },
 
     {"load", (PyCFunction)magick_Image_load, METH_VARARGS,
