@@ -11,7 +11,7 @@ from functools import partial
 
 from PyQt4.Qt import (
     QMainWindow, Qt, QApplication, pyqtSignal, QLabel, QIcon, QFormLayout,
-    QDialog, QSpinBox, QCheckBox, QDialogButtonBox, QToolButton, QMenu)
+    QDialog, QSpinBox, QCheckBox, QDialogButtonBox, QToolButton, QMenu, QInputDialog)
 
 from calibre.gui2 import error_dialog
 from calibre.gui2.tweak_book import actions
@@ -244,6 +244,9 @@ class Editor(QMainWindow):
         self.filters_menu = m = QMenu()
         ac.setMenu(m)
         m.addAction(_('Auto-trim image'), self.canvas.autotrim_image)
+        m.addAction(_('Sharpen image'), self.sharpen_image)
+        m.addAction(_('Blur image'), self.blur_image)
+        m.addAction(_('De-speckle image'), self.canvas.despeckle_image)
 
         self.info_bar = b = self.addToolBar(_('Image information bar'))
         self.fmt_label = QLabel('')
@@ -265,6 +268,18 @@ class Editor(QMainWindow):
         d = ResizeDialog(im.width(), im.height(), self)
         if d.exec_() == d.Accepted:
             self.canvas.resize_image(d.width, d.height)
+
+    def sharpen_image(self):
+        val, ok = QInputDialog.getInt(self, _('Sharpen image'), _(
+            'The standard deviation for the Gaussian sharpen operation (higher means more sharpening)'), value=3, min=1, max=20)
+        if ok:
+            self.canvas.sharpen_image(sigma=val)
+
+    def blur_image(self):
+        val, ok = QInputDialog.getInt(self, _('Blur image'), _(
+            'The standard deviation for the Gaussian blur operation (higher means more blurring)'), value=3, min=1, max=20)
+        if ok:
+            self.canvas.blur_image(sigma=val)
 
 def launch_editor(path_to_edit, path_is_raw=False):
     app = QApplication([])

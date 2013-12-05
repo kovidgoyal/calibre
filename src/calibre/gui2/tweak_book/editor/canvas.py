@@ -177,6 +177,36 @@ class Scale(Command):
         img = canvas.current_image
         return img.scaled(self.width, self.height, transformMode=Qt.SmoothTransformation)
 
+class Sharpen(Command):
+
+    TEXT = _('Sharpen image')
+    FUNC = 'sharpen'
+
+    def __init__(self, sigma, canvas):
+        self.sigma = sigma
+        Command.__init__(self, canvas)
+
+    def __call__(self, canvas):
+        img = canvas.current_image
+        i = qimage_to_magick(img)
+        getattr(i, self.FUNC)(0.0, self.sigma)
+        return magick_to_qimage(i)
+
+class Blur(Sharpen):
+
+    TEXT = _('Blur image')
+    FUNC = 'blur'
+
+class Despeckle(Command):
+
+    TEXT = _('De-speckle image')
+
+    def __call__(self, canvas):
+        img = canvas.current_image
+        i = qimage_to_magick(img)
+        i.despeckle()
+        return magick_to_qimage(i)
+
 class Replace(Command):
 
     ''' Replace the current image with another image. If there is a selection,
@@ -204,7 +234,11 @@ def imageop(func):
             return error_dialog(self, _('No image'), _('No image loaded'), show=True)
         if not self.is_valid:
             return error_dialog(self, _('Invalid image'), _('The current image is not valid'), show=True)
-        return func(self, *args, **kwargs)
+        QApplication.setOverrideCursor(Qt.BusyCursor)
+        try:
+            return func(self, *args, **kwargs)
+        finally:
+            QApplication.restoreOverrideCursor()
     return ans
 
 class Canvas(QWidget):
@@ -327,6 +361,21 @@ class Canvas(QWidget):
     @imageop
     def resize_image(self, width, height):
         self.undo_stack.push(Scale(width, height, self))
+        return True
+
+    @imageop
+    def sharpen_image(self, sigma=3.0):
+        self.undo_stack.push(Sharpen(sigma, self))
+        return True
+
+    @imageop
+    def blur_image(self, sigma=3.0):
+        self.undo_stack.push(Blur(sigma, self))
+        return True
+
+    @imageop
+    def despeckle_image(self):
+        self.undo_stack.push(Despeckle(self))
         return True
 
     # The selection rectangle {{{

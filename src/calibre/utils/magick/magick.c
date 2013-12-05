@@ -1154,6 +1154,22 @@ magick_Image_sharpen(magick_Image *self, PyObject *args) {
 }
 // }}}
 
+// Image.blur {{{
+
+static PyObject *
+magick_Image_blur(magick_Image *self, PyObject *args) {
+    double radius, sigma;
+   
+    NULL_CHECK(NULL)
+
+    if (!PyArg_ParseTuple(args, "dd", &radius, &sigma)) return NULL;
+
+    if (!MagickBlurImage(self->wand, radius, sigma)) return magick_set_exception(self->wand);
+
+    Py_RETURN_NONE;
+}
+// }}}
+
 // Image.quantize {{{
 
 static PyObject *
@@ -1431,8 +1447,12 @@ static PyMethodDef magick_Image_methods[] = {
      "sharpen(radius, sigma) \n\n sharpens an image. We convolve the image with a Gaussian operator of the given radius and standard deviation (sigma). For reasonable results, the radius should be larger than sigma. Use a radius of 0 and MagickSharpenImage() selects a suitable radius for you." 
     },
 
+    {"blur", (PyCFunction)magick_Image_blur, METH_VARARGS,
+     "blur(radius, sigma) \n\n blurs an image. We convolve the image with a Gaussian operator of the given radius and standard deviation (sigma). For reasonable results, the radius should be larger than sigma. Use a radius of 0 and MagickBlurImage() selects a suitable radius for you." 
+    },
+
     {"despeckle", (PyCFunction)magick_Image_despeckle, METH_VARARGS,
-     "despeckle() \n\n reduces the speckle noise in an image while perserving the edges of the original image." 
+     "despeckle() \n\n reduces the speckle noise in an image while preserving the edges of the original image." 
     },
 
     {"quantize", (PyCFunction)magick_Image_quantize, METH_VARARGS,
