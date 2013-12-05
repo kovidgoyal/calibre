@@ -217,10 +217,10 @@ class Main(MainWindow):
                                       _('Redo typing'))
         self.action_editor_cut = reg('edit-cut.png', _('C&ut text'), self.boss.do_editor_cut, 'editor-cut', ('Ctrl+X', 'Shift+Delete', ),
                                       _('Cut text'))
-        self.action_editor_copy = reg('edit-copy.png', _('&Copy text'), self.boss.do_editor_copy, 'editor-copy', ('Ctrl+C', 'Ctrl+Insert'),
-                                      _('Copy text'))
-        self.action_editor_paste = reg('edit-paste.png', _('&Paste text'), self.boss.do_editor_paste, 'editor-paste', ('Ctrl+V', 'Shift+Insert', ),
-                                      _('Paste text'))
+        self.action_editor_copy = reg('edit-copy.png', _('&Copy to clipboard'), self.boss.do_editor_copy, 'editor-copy', ('Ctrl+C', 'Ctrl+Insert'),
+                                      _('Copy to clipboard'))
+        self.action_editor_paste = reg('edit-paste.png', _('&Paste from clipboard'), self.boss.do_editor_paste, 'editor-paste', ('Ctrl+V', 'Shift+Insert', ),
+                                      _('Paste from clipboard'))
         self.action_editor_cut.setEnabled(False)
         self.action_editor_copy.setEnabled(False)
         self.action_editor_undo.setEnabled(False)

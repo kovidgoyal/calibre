@@ -809,8 +809,8 @@ class Boss(QObject):
         if ed is not None:
             actions['editor-undo'].setEnabled(ed.undo_available)
             actions['editor-redo'].setEnabled(ed.redo_available)
-            actions['editor-cut'].setEnabled(ed.copy_available)
-            actions['editor-copy'].setEnabled(ed.cut_available)
+            actions['editor-copy'].setEnabled(ed.copy_available)
+            actions['editor-cut'].setEnabled(ed.cut_available)
             actions['go-to-line-number'].setEnabled(ed.has_line_numbers)
             actions['fix-html-current'].setEnabled(ed.syntax == 'html')
             name = None
