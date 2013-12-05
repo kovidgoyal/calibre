@@ -10,7 +10,7 @@ import sys, string, weakref
 from functools import wraps
 
 from PyQt4.Qt import (
-    QWidget, QPainter, QColor, QApplication, Qt, QPixmap, QRectF,
+    QWidget, QPainter, QColor, QApplication, Qt, QPixmap, QRectF, QMatrix,
     QPointF, QPen, pyqtSignal, QUndoCommand, QUndoStack, QIcon, QImage)
 
 from calibre import fit_image
@@ -88,6 +88,27 @@ class Trim(Command):
         target = canvas.target
         sr = canvas.selection_state.rect
         return img.copy(*get_selection_rect(img, sr, target))
+
+class Rotate(Command):
+
+    def __init__(self, canvas):
+        Command.__init__(self, _('Rotate image'), canvas)
+
+    def __call__(self, canvas):
+        img = canvas.current_image
+        m = QMatrix()
+        m.rotate(90)
+        return img.transformed(m, Qt.SmoothTransformation)
+
+class Scale(Command):
+
+    def __init__(self, width, height, canvas):
+        self.width, self.height = width, height
+        Command.__init__(self, _('Resize image'), canvas)
+
+    def __call__(self, canvas):
+        img = canvas.current_image
+        return img.scaled(self.width, self.height, transformMode=Qt.SmoothTransformation)
 
 class Replace(Command):
 
@@ -224,6 +245,16 @@ class Canvas(QWidget):
                 'No active selection, first select a region in the image, by dragging with your mouse'), show=True)
             return False
         self.undo_stack.push(Trim(self))
+        return True
+
+    @imageop
+    def rotate_image(self):
+        self.undo_stack.push(Rotate(self))
+        return True
+
+    @imageop
+    def resize_image(self, width, height):
+        self.undo_stack.push(Scale(width, height, self))
         return True
 
     # The selection rectangle {{{
@@ -378,7 +409,6 @@ class Canvas(QWidget):
             elif self.selection_state.current_mode == 'selected' and self.selection_state.rect is not None and self.selection_state.rect.contains(ev.pos()):
                 self.setCursor(self.get_cursor())
             self.update()
-    # }}}
 
     def keyPressEvent(self, ev):
         k = ev.key()
@@ -394,6 +424,7 @@ class Canvas(QWidget):
             self.update()
         else:
             return QWidget.keyPressEvent(self, ev)
+    # }}}
 
     # Painting {{{
     @painter

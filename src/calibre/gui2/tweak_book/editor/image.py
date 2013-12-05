@@ -7,13 +7,76 @@ __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import sys
+from functools import partial
 
 from PyQt4.Qt import (
-    QMainWindow, Qt, QApplication, pyqtSignal)
+    QMainWindow, Qt, QApplication, pyqtSignal, QLabel, QIcon, QFormLayout,
+    QDialog, QSpinBox, QCheckBox, QDialogButtonBox)
 
 from calibre.gui2 import error_dialog
 from calibre.gui2.tweak_book import actions
 from calibre.gui2.tweak_book.editor.canvas import Canvas
+
+class ResizeDialog(QDialog):  # {{{
+
+    def __init__(self, width, height, parent=None):
+        QDialog.__init__(self, parent)
+        self.l = l = QFormLayout(self)
+        self.setLayout(l)
+        self.aspect_ratio = width / float(height)
+        l.addRow(QLabel(_('Choose the new width and height')))
+
+        self._width = w = QSpinBox(self)
+        w.setMinimum(1)
+        w.setMaximum(10 * width)
+        w.setValue(width)
+        w.setSuffix(' px')
+        l.addRow(_('&Width:'), w)
+
+        self._height = h = QSpinBox(self)
+        h.setMinimum(1)
+        h.setMaximum(10 * height)
+        h.setValue(height)
+        h.setSuffix(' px')
+        l.addRow(_('&Height:'), h)
+        w.valueChanged.connect(partial(self.keep_ar, 'width'))
+        h.valueChanged.connect(partial(self.keep_ar, 'height'))
+
+        self.ar = ar = QCheckBox(_('Keep &aspect ratio'))
+        ar.setChecked(True)
+        l.addRow(ar)
+        self.resize(self.sizeHint())
+
+        self.bb = bb = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
+        bb.accepted.connect(self.accept)
+        bb.rejected.connect(self.reject)
+        l.addRow(bb)
+
+    def keep_ar(self, which):
+        if self.ar.isChecked():
+            val = getattr(self, which)
+            oval = val / self.aspect_ratio if which == 'width' else val * self.aspect_ratio
+            other = getattr(self, '_height' if which == 'width' else '_width')
+            other.blockSignals(True)
+            other.setValue(oval)
+            other.blockSignals(False)
+
+    @dynamic_property
+    def width(self):
+        def fget(self):
+            return self._width.value()
+        def fset(self, val):
+            self._width.setValue(val)
+        return property(fget=fget, fset=fset)
+
+    @dynamic_property
+    def height(self):
+        def fget(self):
+            return self._height.value()
+        def fset(self, val):
+            self._height.setValue(val)
+        return property(fget=fget, fset=fset)
+# }}}
 
 class Editor(QMainWindow):
 
@@ -137,6 +200,9 @@ class Editor(QMainWindow):
         self.copy_available_state_changed.emit(self.copy_available)
         self.data_changed.emit(self)
         self.modification_state_changed.emit(True)
+        self.fmt_label.setText((self.canvas.original_image_format or '').upper())
+        im = self.canvas.current_image
+        self.size_label.setText('{0} x {1}{2}'.format(im.width(), im.height(), 'px'))
 
     def break_cycles(self):
         self.canvas.break_cycles()
@@ -168,6 +234,18 @@ class Editor(QMainWindow):
                 setattr(self, 'action_' + x, b.addAction(ac.icon(), x, getattr(self, x)))
         self.update_clipboard_actions()
 
+        b.addSeparator()
+        self.action_trim = ac = b.addAction(QIcon(I('trim.png')), _('Trim image'), self.canvas.trim_image)
+        self.action_rotate = ac = b.addAction(QIcon(I('rotate-right.png')), _('Rotate image'), self.canvas.rotate_image)
+        self.action_resize = ac = b.addAction(QIcon(I('resize.png')), _('Resize image'), self.resize_image)
+
+        self.info_bar = b = self.addToolBar(_('Image information bar'))
+        self.fmt_label = QLabel('')
+        b.addWidget(self.fmt_label)
+        b.addSeparator()
+        self.size_label = QLabel('')
+        b.addWidget(self.size_label)
+
     def update_clipboard_actions(self, *args):
         if self.canvas.has_selection:
             self.action_copy.setText(_('Copy selected region'))
@@ -175,6 +253,12 @@ class Editor(QMainWindow):
         else:
             self.action_copy.setText(_('Copy image'))
             self.action_paste.setText(_('Paste image'))
+
+    def resize_image(self):
+        im = self.canvas.current_image
+        d = ResizeDialog(im.width(), im.height(), self)
+        if d.exec_() == d.Accepted:
+            self.canvas.resize_image(d.width, d.height)
 
 def launch_editor(path_to_edit, path_is_raw=False):
     app = QApplication([])
