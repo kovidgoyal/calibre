@@ -14,6 +14,7 @@ from PyQt4.Qt import (
     QPointF, QPen, pyqtSignal, QUndoCommand, QUndoStack, QIcon, QImage, QByteArray)
 
 from calibre import fit_image
+from calibre.constants import isosx
 from calibre.gui2 import error_dialog, pixmap_to_data
 from calibre.utils.config_base import tweaks
 from calibre.utils.magick import Image
@@ -93,6 +94,14 @@ def get_pixel_map():
     return _qimage_pixel_map
 
 def qimage_to_magick(img):
+    ans = Image()
+    if isosx:
+        # For some reson, on OSX MagickConstituteImage fails, and I can't be
+        # bothered figuring out why. Dumping to uncompressed PNG is reasonably
+        # fast.
+        raw = pixmap_to_data(img, 'PNG', quality=100)
+        ans.load(raw)
+        return ans
     fmt = get_pixel_map()
     if not img.hasAlphaChannel():
         if img.format() != img.Format_RGB32:
@@ -104,7 +113,6 @@ def qimage_to_magick(img):
             img = QImage(img)
             img.setFormat(img.Format_ARGB32)
     raw = img.constBits().ascapsule()
-    ans = Image()
     ans.constitute(img.width(), img.height(), fmt, raw)
     return ans
 

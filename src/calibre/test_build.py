@@ -127,6 +127,14 @@ def test_woff():
     test()
     print ('WOFF ok!')
 
+def test_magick():
+    from calibre.utils.magick import create_canvas
+    i = create_canvas(100, 100)
+    from calibre.gui2.tweak_book.editor.canvas import qimage_to_magick, magick_to_qimage
+    img = magick_to_qimage(i)
+    i = qimage_to_magick(img)
+    print ('magick OK!')
+
 def test():
     test_plugins()
     test_lxml()
@@ -138,6 +146,7 @@ def test():
     test_qt()
     test_html5lib()
     test_regex()
+    test_magick()
     if iswindows:
         test_winutil()
         test_wpd()
