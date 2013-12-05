@@ -14,6 +14,7 @@ from PyQt4.Qt import (Qt, QUrl, QFrame, QVBoxLayout, QLabel, QBrush, QTextEdit,
                       QAbstractTableModel, QVariant, QTableView, QModelIndex,
                       QSortFilterProxyModel, QAction, QIcon, QDialog,
                       QFont, QPixmap, QSize)
+from PyQt4.QtGui import QLineEdit
 from calibre import browser, prints
 from calibre.constants import numeric_version, iswindows, isosx, DEBUG
 from calibre.customize.ui import (initialized_plugins, is_disabled, remove_plugin,
@@ -207,6 +208,9 @@ class DisplayPlugin(object):
 
     def is_installed(self):
         return self.installed_version is not None
+    
+    def is_name_contains_filter(self, filter_text):
+        return str(filter_text).lower() in self.name.lower() # case-insensitive filtering
 
     def is_upgrade_available(self):
         return self.is_installed() and (self.installed_version < self.available_version
@@ -233,22 +237,27 @@ class DisplayPluginSortFilterModel(QSortFilterProxyModel):
         self.setSortRole(Qt.UserRole)
         self.setSortCaseSensitivity(Qt.CaseInsensitive)
         self.filter_criteria = FILTER_ALL
+        self.filter_text = ""
 
     def filterAcceptsRow(self, sourceRow, sourceParent):
         index = self.sourceModel().index(sourceRow, 0, sourceParent)
         display_plugin = self.sourceModel().display_plugins[index.row()]
         if self.filter_criteria == FILTER_ALL:
-            return not (display_plugin.is_deprecated and not display_plugin.is_installed())
+            return not (display_plugin.is_deprecated and not display_plugin.is_installed()) and display_plugin.is_name_contains_filter(self.filter_text)
         if self.filter_criteria == FILTER_INSTALLED:
-            return display_plugin.is_installed()
+            return display_plugin.is_installed() and display_plugin.is_name_contains_filter(self.filter_text)
         if self.filter_criteria == FILTER_UPDATE_AVAILABLE:
-            return display_plugin.is_upgrade_available()
+            return display_plugin.is_upgrade_available() and display_plugin.is_name_contains_filter(self.filter_text)
         if self.filter_criteria == FILTER_NOT_INSTALLED:
-            return not display_plugin.is_installed() and not display_plugin.is_deprecated
+            return not display_plugin.is_installed() and not display_plugin.is_deprecated and display_plugin.is_name_contains_filter(self.filter_text)
         return False
 
     def set_filter_criteria(self, filter_value):
         self.filter_criteria = filter_value
+        self.invalidateFilter()
+        
+    def set_filter_text(self, filter_text_value):
+        self.filter_text = filter_text_value
         self.invalidateFilter()
 
 
@@ -455,6 +464,14 @@ class PluginUpdaterDialog(SizePersistedDialog):
         header_layout.addWidget(QLabel(_('Filter list of plugins')+':', self))
         header_layout.addWidget(self.filter_combo)
         header_layout.addStretch(10)
+        
+        # filter plugins by name
+        header_layout.addWidget(QLabel(_('Filter by name')+':', self))
+        self.filter_by_name_lineedit = QLineEdit(self)
+        self.filter_by_name_lineedit.setText("")
+        self.filter_by_name_lineedit.textChanged.connect(self._filter_name_lineedit_changed)
+        
+        header_layout.addWidget(self.filter_by_name_lineedit)   
 
         self.plugin_view = QTableView(self)
         self.plugin_view.horizontalHeader().setStretchLastSection(True)
@@ -601,12 +618,16 @@ class PluginUpdaterDialog(SizePersistedDialog):
         self.plugin_view.setFocus()
 
     def _filter_combo_changed(self, idx):
+        self.filter_by_name_lineedit.setText("") # clear the name filter text when a different group was selected
         self.proxy_model.set_filter_criteria(idx)
         if idx == FILTER_NOT_INSTALLED:
             self.plugin_view.sortByColumn(5, Qt.DescendingOrder)
         else:
             self.plugin_view.sortByColumn(0, Qt.AscendingOrder)
         self._select_and_focus_view()
+        
+    def _filter_name_lineedit_changed(self, text):
+        self.proxy_model.set_filter_text(text) # set the filter text for filterAcceptsRow
 
     def _forum_label_activated(self):
         if self.forum_link:
