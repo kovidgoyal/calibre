@@ -111,7 +111,8 @@ extensions = [
         headers=['calibre/utils/magick/magick_constants.h'],
         libraries=magick_libs,
         lib_dirs=magick_lib_dirs,
-        inc_dirs=magick_inc_dirs
+        inc_dirs=magick_inc_dirs,
+        cflags=['-DMAGICKCORE_QUANTUM_DEPTH=16', '-DMAGICKCORE_HDRI_ENABLE=0']
         ),
 
     Extension('lzx',

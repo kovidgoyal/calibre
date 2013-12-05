@@ -7,7 +7,7 @@ __docformat__ = 'restructuredtext en'
 
 import os, textwrap, re, subprocess
 
-INC = '/usr/include/ImageMagick'
+INC = '/usr/include/ImageMagick-6'
 
 '''
 Various constants defined in the ImageMagick header files. Note that
@@ -33,6 +33,8 @@ def parse_enums(f):
 
 def get_value(const):
     t = '''
+    #define MAGICKCORE_QUANTUM_DEPTH 16
+    #define MAGICKCORE_HDRI_ENABLE 0
     #include <wand/MagickWand.h>
     #include <stdio.h>
     int main(int argc, char **argv) {
@@ -42,7 +44,7 @@ def get_value(const):
     '''%const
     with open('/tmp/ig.c','wb') as f:
         f.write(t)
-    subprocess.check_call(['gcc', '-I/usr/include/ImageMagick', '/tmp/ig.c', '-o', '/tmp/ig', '-lMagickWand'])
+    subprocess.check_call(['gcc', '-I'+INC, '/tmp/ig.c', '-o', '/tmp/ig', '-lMagickWand-6.Q16'])
     return int(subprocess.Popen(["/tmp/ig"],
         stdout=subprocess.PIPE).communicate()[0].strip())
 
@@ -50,7 +52,7 @@ def get_value(const):
 def main():
     constants = []
     for x in ('resample', 'image', 'draw', 'distort', 'composite', 'geometry',
-            'colorspace', 'compare'):
+            'colorspace', 'compare', 'compress'):
         constants += list(parse_enums('magick/%s.h'%x))
     base = os.path.dirname(__file__)
     constants = [
