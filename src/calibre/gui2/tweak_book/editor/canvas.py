@@ -126,6 +126,7 @@ class Canvas(QWidget):
     SELECT_PEN = QPen(QColor(Qt.white))
 
     selection_state_changed = pyqtSignal(object)
+    undo_redo_state_changed = pyqtSignal(object, object)
     image_changed = pyqtSignal(object)
 
     @property
@@ -141,8 +142,10 @@ class Canvas(QWidget):
         self.setMouseTracking(True)
         self.setFocusPolicy(Qt.ClickFocus)
         self.selection_state = SelectionState()
-        self.undo_stack = QUndoStack()
-        self.undo_stack.setUndoLimit(10)
+        self.undo_stack = u = QUndoStack()
+        u.setUndoLimit(10)
+        u.canUndoChanged.connect(self.emit_undo_redo_state)
+        u.canRedoChanged.connect(self.emit_undo_redo_state)
 
         self.original_image_data = None
         self.is_valid = False
@@ -210,6 +213,9 @@ class Canvas(QWidget):
     def break_cycles(self):
         self.undo_stack.clear()
         self.original_image_data = self.current_image = self.current_scaled_pixmap = None
+
+    def emit_undo_redo_state(self):
+        self.undo_redo_state_changed.emit(self.undo_action.isEnabled(), self.redo_action.isEnabled())
 
     @imageop
     def trim_image(self):
