@@ -411,7 +411,7 @@ class Boss(QObject):
     def show_find(self):
         self.gui.central.show_find()
         ed = self.gui.central.current_editor
-        if ed is not None:
+        if ed is not None and hasattr(ed, 'selected_text'):
             text = ed.selected_text
             if text and text.strip():
                 self.gui.central.pre_fill_search(text)

@@ -20,12 +20,18 @@ def syntax_from_mime(name, mime):
         return 'xml'
     if mime.startswith('text/'):
         return 'text'
+    if mime.startswith('image/') and mime.partition('/')[-1].lower() in {
+        'jpeg', 'jpg', 'gif', 'png'}:
+        return 'raster_image'
 
 def editor_from_syntax(syntax, parent=None):
-    if syntax not in {'text', 'html', 'css', 'xml'}:
-        return None
-    from calibre.gui2.tweak_book.editor.widget import Editor
-    return Editor(syntax, parent=parent)
+    if syntax in {'text', 'html', 'css', 'xml'}:
+        from calibre.gui2.tweak_book.editor.widget import Editor
+        return Editor(syntax, parent=parent)
+    elif syntax == 'raster_image':
+        from calibre.gui2.tweak_book.editor.image import Editor
+        return Editor(syntax, parent=parent)
+
 
 SYNTAX_PROPERTY = QTextCharFormat.UserProperty
 
