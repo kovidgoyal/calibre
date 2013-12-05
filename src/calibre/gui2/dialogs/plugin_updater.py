@@ -210,7 +210,8 @@ class DisplayPlugin(object):
         return self.installed_version is not None
     
     def is_name_contains_filter(self, filter_text):
-        return str(filter_text).lower() in self.name.lower() # case-insensitive filtering
+        # filter_text is already lowercase @set_filter_text
+        return filter_text in self.name.lower() # case-insensitive filtering
 
     def is_upgrade_available(self):
         return self.is_installed() and (self.installed_version < self.available_version
@@ -257,7 +258,7 @@ class DisplayPluginSortFilterModel(QSortFilterProxyModel):
         self.invalidateFilter()
         
     def set_filter_text(self, filter_text_value):
-        self.filter_text = filter_text_value
+        self.filter_text = str(filter_text_value).lower()
         self.invalidateFilter()
 
 
