@@ -68,7 +68,17 @@ class Command(QUndoCommand):
         canvas = self.canvas_ref()
         canvas.set_image(self.after_image)
 
+def get_selection_rect(img, sr, target):
+    ' Given selection rect return the corresponding rectangle in the underlying image as left, top, width, height '
+    left_border = (abs(sr.left() - target.left())/target.width()) * img.width()
+    top_border = (abs(sr.top() - target.top())/target.height()) * img.height()
+    right_border = (abs(target.right() - sr.right())/target.width()) * img.width()
+    bottom_border = (abs(target.bottom() - sr.bottom())/target.height()) * img.height()
+    return left_border, top_border, img.width() - left_border - right_border, img.height() - top_border - bottom_border
+
 class Trim(Command):
+
+    ''' Remove the areas of the image outside the current selection. '''
 
     def __init__(self, canvas):
         Command.__init__(self, _('Trim image'), canvas)
@@ -77,19 +87,26 @@ class Trim(Command):
         img = canvas.current_image
         target = canvas.target
         sr = canvas.selection_state.rect
-        left_border = (abs(sr.left() - target.left())/target.width()) * img.width()
-        top_border = (abs(sr.top() - target.top())/target.height()) * img.height()
-        right_border = (abs(target.right() - sr.right())/target.width()) * img.width()
-        bottom_border = (abs(target.bottom() - sr.bottom())/target.height()) * img.height()
-        return img.copy(left_border, top_border, img.width() - left_border - right_border, img.height() - top_border - bottom_border)
+        return img.copy(*get_selection_rect(img, sr, target))
 
 class Replace(Command):
+
+    ''' Replace the current image with another image. If there is a selection,
+    only the region of the selection is replaced. '''
 
     def __init__(self, img, text, canvas):
         self.after_image = img
         Command.__init__(self, text, canvas)
 
     def __call__(self, canvas):
+        if canvas.has_selection and canvas.selection_state.rect is not None:
+            pimg = self.after_image
+            img = self.after_image = QImage(canvas.current_image)
+            rect = QRectF(*get_selection_rect(img, canvas.selection_state.rect, canvas.target))
+            p = QPainter(img)
+            p.setRenderHint(p.SmoothPixmapTransform, True)
+            p.drawImage(rect, pimg, QRectF(pimg.rect()))
+            p.end()
         return self.after_image
 
 def imageop(func):
