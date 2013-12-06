@@ -9,8 +9,8 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 from functools import partial
 
 from PyQt4.Qt import (
-    QDockWidget, Qt, QLabel, QIcon, QAction, QApplication, QWidget,
-    QVBoxLayout, QStackedWidget, QTabWidget, QImage, QPixmap, pyqtSignal)
+    QDockWidget, Qt, QLabel, QIcon, QAction, QApplication, QWidget, QEvent,
+    QVBoxLayout, QStackedWidget, QTabWidget, QImage, QPixmap, pyqtSignal, QMenu)
 
 from calibre.constants import __appname__, get_version
 from calibre.gui2 import elided_text
@@ -61,6 +61,7 @@ class Central(QStackedWidget):
         self.search_panel = SearchPanel(self)
         l.addWidget(self.search_panel)
         self.restore_state()
+        self.editor_tabs.tabBar().installEventFilter(self)
 
     def _close_requested(self, index):
         editor = self.editor_tabs.widget(index)
@@ -105,7 +106,9 @@ class Central(QStackedWidget):
             self.close_requested.emit(ed)
 
     def close_all_but_current_editor(self):
-        ed = self.current_editor
+        self.close_all_but(self.current_editor)
+
+    def close_all_but(self, ed):
         close = []
         if ed is not None:
             for i in xrange(self.editor_tabs.count()):
@@ -132,6 +135,25 @@ class Central(QStackedWidget):
 
     def pre_fill_search(self, text):
         self.search_panel.pre_fill(text)
+
+    def eventFilter(self, obj, event):
+        base = super(Central, self)
+        if obj is not self.editor_tabs.tabBar() or event.type() != QEvent.MouseButtonPress or event.button() not in (Qt.RightButton, Qt.MidButton):
+            return base.eventFilter(obj, event)
+        index = self.editor_tabs.tabBar().tabAt(event.pos())
+        if index < 0:
+            return base.eventFilter(obj, event)
+        if event.button() == Qt.MidButton:
+            self._close_requested(index)
+        ed = self.editor_tabs.widget(index)
+        if ed is not None:
+            menu = QMenu(self)
+            menu.addAction(actions['close-current-tab'].icon(), _('Close tab'), partial(self.close_requested.emit, ed))
+            menu.addSeparator()
+            menu.addAction(actions['close-all-but-current-tab'].icon(), _('Close other tabs'), partial(self.close_all_but, ed))
+            menu.exec_(self.editor_tabs.tabBar().mapToGlobal(event.pos()))
+
+        return True
 
 class Main(MainWindow):
 
