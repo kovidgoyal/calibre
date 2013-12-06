@@ -22,7 +22,7 @@ class Choose(QDialog):
         self.setWindowTitle(_('Choose format to tweak'))
 
         self.la = la = QLabel(_(
-            'This book mas multiple formats that can be tweaked. Choose the format you want to tweak.'))
+            'This book has multiple formats that can be tweaked. Choose the format you want to tweak.'))
         l.addWidget(la)
 
         self.rem = QCheckBox(_('Always ask when more than one format is available'))
