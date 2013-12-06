@@ -137,9 +137,9 @@ class Editor(QMainWindow):
             except KeyError:
                 pass
         self.tools_bar = b = self.addToolBar(_('Editor tools'))
-        if self.syntax == 'html':
+        if actions and self.syntax == 'html':
             b.addAction(actions['fix-html-current'])
-        if self.syntax in {'xml', 'html', 'css'}:
+        if actions and self.syntax in {'xml', 'html', 'css'}:
             b.addAction(actions['pretty-current'])
 
     def break_cycles(self):
