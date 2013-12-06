@@ -333,24 +333,27 @@ class FileList(QTreeWidget):
         sel = self.selectedItems()
         num = len(sel)
         container = current_container()
-        if num > 0:
-            m.addAction(QIcon(I('trash.png')), _('&Delete selected files'), self.request_delete)
-            m.addSeparator()
         ci = self.currentItem()
         if ci is not None:
             cn = unicode(ci.data(0, NAME_ROLE).toString())
             mt = unicode(ci.data(0, MIME_ROLE).toString())
             cat = unicode(ci.data(0, CATEGORY_ROLE).toString())
             n = elided_text(cn.rpartition('/')[-1])
+            m.addAction(QIcon(I('save.png')), _('Export %s') % n, partial(self.export, cn))
+            if cn not in container.names_that_must_not_be_changed and cn not in container.names_that_must_not_be_removed and mt not in OEB_FONTS:
+                m.addAction(_('Replace %s with file...') % n, partial(self.replace, cn))
+            m.addSeparator()
+
             m.addAction(QIcon(I('modified.png')), _('&Rename %s') % n, self.edit_current_item)
             if is_raster_image(mt):
                 m.addAction(QIcon(I('default_cover.png')), _('Mark %s as cover image') % n, partial(self.mark_as_cover, cn))
             elif current_container().SUPPORTS_TITLEPAGES and mt in OEB_DOCS and cat == 'text':
                 m.addAction(QIcon(I('default_cover.png')), _('Mark %s as cover page') % n, partial(self.mark_as_titlepage, cn))
             m.addSeparator()
-            m.addAction(QIcon(I('save.png')), _('Export %s') % n, partial(self.export, cn))
-            if cn not in container.names_that_must_not_be_changed and cn not in container.names_that_must_not_be_removed and mt not in OEB_FONTS:
-                m.addAction(_('Replace %s with file...') % n, partial(self.replace, cn))
+
+        if num > 0:
+            m.addSeparator()
+            m.addAction(QIcon(I('trash.png')), _('&Delete selected files'), self.request_delete)
             m.addSeparator()
 
         selected_map = defaultdict(list)
