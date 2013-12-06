@@ -20,6 +20,42 @@
 #   new recipes:
 #     - title: 
 
+- version: 1.14.0
+  date: 2013-12-06
+
+  new features:
+    - title: "Edit metadata dialog: Add the ability to trim covers manually, if automatic trimming is not satisfactory."
+      tickets: [1256054]
+
+    - title: "You can now show any metadata field below the covers in the cover grid view, not just title. To change the displayed field go to Preferences->Look & Feel->Cover Grid."
+
+    - title: "Allow searching for plugins by name in the install new plugins dialog"
+
+    - title: "Kobo driver: Allow sending kepubs to older kobo devices as well, also add support for firmware 3.1"
+      tickets: [1257972, 1257143]
+
+    - title: "Allow viewer plugins to customize the viewer's user interface"
+ 
+  bug fixes:
+    - title: "Table of Contents Editor: Handle generating ToC from headings if the first heading level in the document is not h1 or the document skips some intermediate heading levels"
+
+    - title: "Update the metadata download and Get Books plugins for ozon.ru"
+
+    - title: "Fix sending by email not working on computers with non-ascii hostnames."
+      tickets: [1256549]
+
+    - title: "Wireless driver: Fix launching programs from within calibre causing the wireless driver port to remain in use even after calibre is shutdown."
+      tickets: [1256198]
+
+  improved recipes:
+    - Kommersant
+    - Pocket
+    - Heraldo de Aragon
+    - National Geographic Magazine
+    - Los Angeles Times
+    - Boerse Online
+    - Reuters
+
 - version: 1.13.0
   date: 2013-11-29
 
