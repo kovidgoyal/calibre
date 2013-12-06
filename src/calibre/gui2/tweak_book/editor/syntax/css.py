@@ -121,10 +121,11 @@ content_tokens = [(re.compile(k), v, n) for k, v, n in [
 class State(object):
 
     NORMAL = 0
-    IN_COMMENT = 1
+    IN_COMMENT_NORMAL = 1
     IN_SQS = 2
     IN_DQS = 3
     IN_CONTENT = 4
+    IN_COMMENT_CONTENT = 5
 
     def __init__(self, num):
         self.parse  = num & 0b1111
@@ -142,7 +143,7 @@ def normal(state, text, i, formats):
         return [(len(m.group()), None)]
     cdo = cdo_pat.match(text, i)
     if cdo is not None:
-        state.parse = State.IN_COMMENT
+        state.parse = State.IN_COMMENT_NORMAL
         return [(len(cdo.group()), formats['comment'])]
     if text[i] == '"':
         state.parse = State.IN_DQS
@@ -168,7 +169,7 @@ def content(state, text, i, formats):
         return [(len(m.group()), None)]
     cdo = cdo_pat.match(text, i)
     if cdo is not None:
-        state.parse = State.IN_COMMENT
+        state.parse = State.IN_COMMENT_CONTENT
         return [(len(cdo.group()), formats['comment'])]
     if text[i] == '"':
         state.parse = State.IN_DQS
@@ -195,7 +196,7 @@ def comment(state, text, i, formats):
     pos = text.find('*/', i)
     if pos == -1:
         return [(len(text), formats['comment'])]
-    state.parse = State.NORMAL
+    state.parse = State.NORMAL if state.parse == State.IN_COMMENT_NORMAL else State.IN_CONTENT
     return [(pos - i + 2, formats['comment'])]
 
 def in_string(state, text, i, formats):
@@ -213,7 +214,8 @@ def in_string(state, text, i, formats):
 
 state_map = {
     State.NORMAL:normal,
-    State.IN_COMMENT: comment,
+    State.IN_COMMENT_NORMAL: comment,
+    State.IN_COMMENT_CONTENT: comment,
     State.IN_SQS: in_string,
     State.IN_DQS: in_string,
     State.IN_CONTENT: content,
