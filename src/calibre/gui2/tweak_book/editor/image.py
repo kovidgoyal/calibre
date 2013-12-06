@@ -226,12 +226,8 @@ class Editor(QMainWindow):
             b.addAction(getattr(self.canvas, '%s_action' % x))
         self.edit_bar = b = self.addToolBar(_('Edit actions tool bar'))
         for x in ('copy', 'paste'):
-            try:
-                ac = actions['editor-%s' % x]
-            except KeyError:
-                setattr(self, 'action_' + x, b.addAction(x, getattr(self.canvas, x)))
-            else:
-                setattr(self, 'action_' + x, b.addAction(ac.icon(), x, getattr(self, x)))
+            ac = actions['editor-%s' % x]
+            setattr(self, 'action_' + x, b.addAction(ac.icon(), x, getattr(self, x)))
         self.update_clipboard_actions()
 
         b.addSeparator()

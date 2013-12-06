@@ -126,22 +126,15 @@ class Editor(QMainWindow):
         self.action_bar = b = self.addToolBar(_('File actions tool bar'))
         b.setObjectName('action_bar')  # Needed for saveState
         for x in ('undo', 'redo'):
-            try:
-                b.addAction(actions['editor-%s' % x])
-            except KeyError:
-                pass
+            b.addAction(actions['editor-%s' % x])
         self.edit_bar = b = self.addToolBar(_('Edit actions tool bar'))
         for x in ('cut', 'copy', 'paste'):
-            try:
-                b.addAction(actions['editor-%s' % x])
-            except KeyError:
-                pass
+            b.addAction(actions['editor-%s' % x])
         self.tools_bar = b = self.addToolBar(_('Editor tools'))
-        if actions:
-            if self.syntax == 'html':
-                b.addAction(actions['fix-html-current'])
-            if self.syntax in {'xml', 'html', 'css'}:
-                b.addAction(actions['pretty-current'])
+        if self.syntax == 'html':
+            b.addAction(actions['fix-html-current'])
+        if self.syntax in {'xml', 'html', 'css'}:
+            b.addAction(actions['pretty-current'])
 
     def break_cycles(self):
         self.modification_state_changed.disconnect()
@@ -211,7 +204,12 @@ class Editor(QMainWindow):
         return False
 
 def launch_editor(path_to_edit, path_is_raw=False, syntax='html'):
+    from calibre.gui2.tweak_book.main import option_parser
+    from calibre.gui2.tweak_book.ui import Main
+    opts = option_parser().parse_args([])
     app = QApplication([])
+    # Create the actions that are placed into the editors toolbars
+    main = Main(opts)  # noqa
     if path_is_raw:
         raw = path_to_edit
     else:
