@@ -442,7 +442,10 @@ that does not come from a well known relay. The most robust way to setup email s
   * Create a free GMail account at `Google <http://www.gmail.com>`_. 
   * Goto Preferences->Email in |app| and click the "Use Gmail" button and fill in the information asked for.
   * |app| will then use GMail to send the mail.
-  * If you are sending to your Kindle, remember to update the email preferences on your Amazon Kindle page to allow email sent from your GMail email address.
+  * If you are sending to your Kindle, remember to update the email preferences
+    on your Amazon Kindle page to allow email sent from your GMail email
+    address. Also note that Amazon does not allow email delivery of AZW3 and
+    new style (KF8) MOBI files.
 
 Even after doing this, you may have problems. One common source of problems is that some poorly designed antivirus
 programs block |app| from opening a connection to send email. Try adding an exclusion for |app| in your
