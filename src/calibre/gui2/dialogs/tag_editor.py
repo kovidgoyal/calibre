@@ -173,8 +173,9 @@ class TagEditor(QDialog, Ui_TagEditor):
     # do the filtering on the available tags
     def filter_available(self, filter_value):        
         itemCount = self.available_tags.count()
+        l_filter_value = str(filter_value).lower()
         for i in range(0, itemCount): # on every available tag
-            if str(filter_value).lower() in str(self.available_tags.item(i).text()).lower():
+            if l_filter_value in str(self.available_tags.item(i).text()).lower():
                 # if contains the filter text, then show it
                 self.available_tags.item(i).setHidden(False)
             else:
@@ -184,8 +185,9 @@ class TagEditor(QDialog, Ui_TagEditor):
     # do the filtering on the applied tags
     def filter_applied(self, filter_value):
         itemCount = self.applied_tags.count()
+        l_filter_value = str(filter_value).lower()
         for i in range(0, itemCount): # on every applied tag
-            if str(filter_value).lower() in str(self.applied_tags.item(i).text()).lower():
+            if l_filter_value in str(self.applied_tags.item(i).text()).lower():
                 # if contains the filter text, then show it
                 self.applied_tags.item(i).setHidden(False)
             else:
