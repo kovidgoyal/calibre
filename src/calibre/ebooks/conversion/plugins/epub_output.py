@@ -379,6 +379,9 @@ class EPUBOutput(OutputFormatPlugin):
                 for x in XPath('//h:a[@name]')(body):
                     if not x.get('id', False):
                         x.set('id', x.get('name'))
+                    # The delightful epubcheck has started complaining about <a> tags that
+                    # have name attributes.
+                    x.attrib.pop('name')
 
                 # Replace <br> that are children of <body> as ADE doesn't handle them
                 for br in XPath('./h:br')(body):
