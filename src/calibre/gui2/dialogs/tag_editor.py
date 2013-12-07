@@ -53,6 +53,13 @@ class TagEditor(QDialog, Ui_TagEditor):
         self.connect(self.add_tag_button, SIGNAL('clicked()'), self.add_tag)
         self.connect(self.delete_button,  SIGNAL('clicked()'), self.delete_tags)
         self.connect(self.add_tag_input,  SIGNAL('returnPressed()'), self.add_tag)
+        # add the handlers for the filter input clear buttons
+        self.connect(self.available_filter_input_clear_btn,  SIGNAL('clicked()'), self.clear_available_filter)
+        self.connect(self.applied_filter_input_clear_btn,    SIGNAL('clicked()'), self.clear_applied_filter)
+        # add the handlers for the filter input fields
+        self.available_filter_input.textChanged.connect(self.filter_available)
+        self.applied_filter_input.textChanged.connect(self.filter_applied)
+        
         if islinux:
             self.available_tags.itemDoubleClicked.connect(self.apply_tags)
         else:
@@ -115,6 +122,9 @@ class TagEditor(QDialog, Ui_TagEditor):
         if row > 2:
             item = self.available_tags.item(row)
             self.available_tags.scrollToItem(item)
+        
+        # use the filter again when the applied tags were changed
+        self.filter_applied(self.applied_filter_input.text())
 
     def unapply_tags(self, item=None):
         items = self.applied_tags.selectedItems() if item is None else [item]
@@ -134,6 +144,10 @@ class TagEditor(QDialog, Ui_TagEditor):
         self.available_tags.clear()
         for item in items:
             self.available_tags.addItem(item)
+        
+        # use the filter again when the applied tags were changed
+        self.filter_applied(self.applied_filter_input.text())
+        self.filter_available(self.available_filter_input.text())
 
     def add_tag(self):
         tags = unicode(self.add_tag_input.text()).split(',')
@@ -151,7 +165,40 @@ class TagEditor(QDialog, Ui_TagEditor):
         for tag in self.tags:
             self.applied_tags.addItem(tag)
 
-        self.add_tag_input.setText('')
+        self.add_tag_input.setText('')        
+        # use the filter again when the applied tags were changed
+        self.filter_applied(self.applied_filter_input.text())
+
+    
+    # do the filtering on the available tags
+    def filter_available(self, filter_value):        
+        itemCount = self.available_tags.count()
+        for i in range(0, itemCount): # on every available tag
+            if str(filter_value).lower() in str(self.available_tags.item(i).text()).lower():
+                # if contains the filter text, then show it
+                self.available_tags.item(i).setHidden(False)
+            else:
+                # if not then hide it from the list
+                self.available_tags.item(i).setHidden(True)
+                
+    # do the filtering on the applied tags
+    def filter_applied(self, filter_value):
+        itemCount = self.applied_tags.count()
+        for i in range(0, itemCount): # on every applied tag
+            if str(filter_value).lower() in str(self.applied_tags.item(i).text()).lower():
+                # if contains the filter text, then show it
+                self.applied_tags.item(i).setHidden(False)
+            else:
+                # if not then hide it from the list
+                self.applied_tags.item(i).setHidden(True)
+
+    # clears the available tags filter input                
+    def clear_available_filter(self):
+        self.available_filter_input.setText('');
+    
+    # clears the applied tags filter input
+    def clear_applied_filter(self):
+        self.applied_filter_input.setText('');
 
     def accept(self):
         self.save_state()
@@ -163,4 +210,3 @@ class TagEditor(QDialog, Ui_TagEditor):
 
     def save_state(self):
         gprefs['tag_editor_geometry'] = bytearray(self.saveGeometry())
-
