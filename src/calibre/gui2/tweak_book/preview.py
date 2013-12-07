@@ -14,6 +14,7 @@ from threading import Thread
 from Queue import Queue, Empty
 from collections import namedtuple
 from functools import partial
+from urlparse import urlparse
 
 from PyQt4.Qt import (
     QWidget, QVBoxLayout, QApplication, QSize, QNetworkAccessManager, QMenu, QIcon,
@@ -273,7 +274,7 @@ def find_le(a, x):
 
 class WebPage(QWebPage):
 
-    sync_requested = pyqtSignal(object)
+    sync_requested = pyqtSignal(object, object, object)
     split_requested = pyqtSignal(object)
 
     def __init__(self, parent):
@@ -312,12 +313,16 @@ class WebPage(QWebPage):
         mf.addToJavaScriptWindowObject("py_bridge", self)
         mf.evaluateJavaScript(self.js)
 
-    @pyqtSlot(str)
-    def request_sync(self, lnum):
+    @pyqtSlot(str, str, str)
+    def request_sync(self, tag_name, href, lnum):
         try:
-            self.sync_requested.emit(int(lnum))
+            self.sync_requested.emit(unicode(tag_name), unicode(href), int(unicode(lnum)))
         except (TypeError, ValueError, OverflowError, AttributeError):
             pass
+
+    def go_to_anchor(self, anchor, lnum):
+        self.mainFrame().evaluateJavaScript('window.calibre_preview_integration.go_to_anchor(%s, %s)' % (
+            json.dumps(anchor), json.dumps(str(lnum))))
 
     @pyqtSlot(str)
     def request_split(self, loc):
@@ -414,6 +419,7 @@ class Preview(QWidget):
     sync_requested = pyqtSignal(object, object)
     split_requested = pyqtSignal(object, object)
     split_start_requested = pyqtSignal()
+    link_clicked = pyqtSignal(object, object)
 
     def __init__(self, parent=None):
         QWidget.__init__(self, parent)
@@ -482,8 +488,18 @@ class Preview(QWidget):
         self.view.findText(text, QWebPage.FindWrapsAroundDocument | (
             QWebPage.FindBackward if direction == 'prev' else QWebPage.FindFlags(0)))
 
-    def request_sync(self, lnum):
+    def request_sync(self, tagname, href, lnum):
         if self.current_name:
+            c = current_container()
+            if tagname == 'a' and href:
+                if href and href.startswith('#'):
+                    name = self.current_name
+                else:
+                    name = c.href_to_name(href, self.current_name) if href else None
+                if name == self.current_name:
+                    return self.view.page().go_to_anchor(urlparse(href).fragment, lnum)
+                if name and c.exists(name) and c.mime_map[name] in OEB_DOCS:
+                    return self.link_clicked.emit(name, urlparse(href).fragment)
             self.sync_requested.emit(self.current_name, lnum)
 
     def request_split(self, loc):

@@ -287,6 +287,20 @@ class TextEdit(QPlainTextEdit):
         text = m.expand(template)
         c.insertText(text)
         return True
+
+    def go_to_anchor(self, anchor):
+        base = r'''%%s\s*=\s*['"]{0,1}%s''' % regex.escape(anchor)
+        raw = unicode(self.toPlainText())
+        m = regex.search(base % 'id', raw)
+        if m is None:
+            m = regex.search(base % 'name', raw)
+        if m is not None:
+            c = self.textCursor()
+            c.setPosition(m.start())
+            self.setTextCursor(c)
+            return True
+        return False
+
     # }}}
 
     # Line numbers and cursor line {{{

@@ -105,8 +105,25 @@ class PreviewIntegration
         if this.in_split_mode
             this.report_split(event.target)
         else
-            window.py_bridge.request_sync(event.target.getAttribute("data-lnum"))
+            e = event.target
+            # Find the closest containing link, if any
+            lnum = e.getAttribute('data-lnum')
+            href = tn = ''
+            while e and e != document.body and e != document and (tn != 'a' or not href)
+                tn = e.tagName?.toLowerCase()
+                href = e.getAttribute('href')
+                e = e.parentNode
+            window.py_bridge.request_sync(tn, href, lnum)
         return false
+
+    go_to_anchor: (anchor, lnum) =>
+        elem = document.getElementById(anchor)
+        if not elem
+            elem = document.querySelector('[name="' + anchor + '"]')
+        if elem
+            elem.scrollIntoView()
+            lnum = elem.getAttribute('data-lnum')
+        window.py_bridge.request_sync('', '', lnum)
 
 window.calibre_preview_integration = new PreviewIntegration()
 window.onload = window.calibre_preview_integration.onload

@@ -108,6 +108,9 @@ class Editor(QMainWindow):
 
     def all_in_marked(self, *args, **kwargs):
         return self.editor.all_in_marked(*args, **kwargs)
+
+    def go_to_anchor(self, *args, **kwargs):
+        return self.editor.go_to_anchor(*args, **kwargs)
     # }}}
 
     @property

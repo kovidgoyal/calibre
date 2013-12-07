@@ -91,6 +91,7 @@ class Boss(QObject):
         self.gui.preview.sync_requested.connect(self.sync_editor_to_preview)
         self.gui.preview.split_start_requested.connect(self.split_start_requested)
         self.gui.preview.split_requested.connect(self.split_requested)
+        self.gui.preview.link_clicked.connect(self.link_clicked)
 
     def preferences(self):
         p = Preferences(self.gui)
@@ -667,6 +668,17 @@ class Boss(QObject):
             raise
         self.apply_container_update_to_gui()
         self.edit_file(bottom_name, 'html')
+
+    @in_thread_job
+    def link_clicked(self, name, anchor):
+        if name in editors:
+            editor = editors[name]
+            self.gui.central.show_editor(editor)
+        else:
+            syntax = syntax_from_mime(name, current_container().mime_map[name])
+            editor = self.edit_file(name, syntax)
+        if anchor:
+            editor.go_to_anchor(anchor)
 
     @in_thread_job
     def merge_requested(self, category, names, master):
