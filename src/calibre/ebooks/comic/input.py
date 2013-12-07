@@ -50,7 +50,8 @@ def find_pages(dir, sort_on_mtime=False, verbose=False):
     for datum in os.walk(dir):
         for name in datum[-1]:
             path = os.path.join(datum[0], name)
-            if '__MACOSX' in path: continue
+            if '__MACOSX' in path:
+                continue
             for ext in extensions:
                 if path.lower().endswith('.'+ext):
                     pages.append(path)
@@ -66,7 +67,8 @@ def find_pages(dir, sort_on_mtime=False, verbose=False):
         prints('\t'+'\n\t'.join([os.path.basename(p) for p in pages]))
     return pages
 
-class PageProcessor(list): # {{{
+class PageProcessor(list):  # {{{
+
     '''
     Contains the actual image rendering logic. See :method:`render` and
     :method:`process_pages`.
@@ -81,13 +83,12 @@ class PageProcessor(list): # {{{
         self.rotate       = False
         self.render()
 
-
     def render(self):
         from calibre.utils.magick import Image
         img = Image()
         img.open(self.path_to_page)
         width, height = img.size
-        if self.num == 0: # First image so create a thumbnail from it
+        if self.num == 0:  # First image so create a thumbnail from it
             thumb = img.clone
             thumb.thumbnail(60, 80)
             thumb.save(os.path.join(self.dest, 'thumbnail.png'))
@@ -113,10 +114,9 @@ class PageProcessor(list): # {{{
             if self.rotate:
                 wand.rotate(pw, -90)
 
-            # 25 percent fuzzy trim?
             if not self.opts.disable_trim:
-                wand.trim(25*65535/100)
-            wand.set_page(0, 0, 0, 0)   #Clear page after trim, like a "+repage"
+                wand.trim(10)
+            wand.set_page(0, 0, 0, 0)  # Clear page after trim, like a "+repage"
             # Do the Photoshop "Auto Levels" equivalent
             if not self.opts.dont_normalize:
                 wand.normalize()
@@ -129,7 +129,7 @@ class PageProcessor(list): # {{{
                     SCRWIDTH, SCRHEIGHT = map(int, [x.strip() for x in
                         self.opts.comic_image_size.split('x')])
             except:
-                pass # Ignore
+                pass  # Ignore
 
             if self.opts.keep_aspect_ratio:
                 # Preserve the aspect ratio by adding border
