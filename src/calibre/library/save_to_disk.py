@@ -243,6 +243,7 @@ def get_components(template, mi, id, timefmt='%b %Y', length=250,
         components = Formatter().unsafe_format(template, format_args, mi)
     components = [x.strip() for x in components.split('/')]
     components = [sanitize_func(x) for x in components if x]
+
     if not components:
         components = [str(id)]
     if to_lowercase:

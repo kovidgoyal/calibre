@@ -41,6 +41,8 @@ class DeviceConfig(object):
     #: If True the user can add new formats to the driver
     USER_CAN_ADD_NEW_FORMATS = True
 
+    #: If True, by default do not sanitize filename of the content that will be sent to the devie
+    SUPPORTS_NOT_SANITIZED_FILENAME = False
 
     @classmethod
     def _default_save_template(cls):
@@ -70,6 +72,8 @@ class DeviceConfig(object):
         c.add_opt('extra_customization',
                 default=cls.EXTRA_CUSTOMIZATION_DEFAULT,
                 help=_('Extra customization'))
+        c.add_opt('do_not_sanitize_filename', default=False,
+                help=_('Do not sanitize filename of the content that will be sent to the device'))
         return c
 
     @classmethod
@@ -81,6 +85,7 @@ class DeviceConfig(object):
         from calibre.gui2.device_drivers.configwidget import ConfigWidget
         cw = ConfigWidget(cls.settings(), cls.FORMATS, cls.SUPPORTS_SUB_DIRS,
             cls.MUST_READ_METADATA, cls.SUPPORTS_USE_AUTHOR_SORT,
+            cls.SUPPORTS_NOT_SANITIZED_FILENAME,
             cls.EXTRA_CUSTOMIZATION_MESSAGE, cls)
         return cw
 
@@ -110,6 +115,8 @@ class DeviceConfig(object):
                 if not ec:
                     ec = None
             proxy['extra_customization'] = ec
+        if cls.SUPPORTS_NOT_SANITIZED_FILENAME:
+            proxy['do_not_sanitize_filename'] = config_widget.do_not_sanitize_filename()
         st = unicode(config_widget.opt_save_template.text())
         proxy['save_template'] = st
 
