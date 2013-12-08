@@ -124,6 +124,16 @@ class TextEdit(QPlainTextEdit):
         self.highlight_cursor_line()
     # }}}
 
+    def toPlainText(self):
+        # QPlainTextEdit's toPlainText implementation replaces nbsp with normal
+        # space, so we re-implement it using QTextCursor, which does not do
+        # that
+        c = self.textCursor()
+        c.clearSelection()
+        c.movePosition(c.Start)
+        c.movePosition(c.End, c.KeepAnchor)
+        return c.selectedText().replace(PARAGRAPH_SEPARATOR, '\n')
+
     def load_text(self, text, syntax='html', process_template=False):
         self.highlighter = {'html':HTMLHighlighter, 'css':CSSHighlighter, 'xml':XMLHighlighter}.get(syntax, SyntaxHighlighter)(self)
         self.highlighter.apply_theme(self.theme)
