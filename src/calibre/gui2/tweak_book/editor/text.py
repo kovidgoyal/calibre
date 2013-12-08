@@ -11,8 +11,9 @@ from future_builtins import map
 
 import regex
 from PyQt4.Qt import (
-    QPlainTextEdit, QFontDatabase, QToolTip, QPalette, QFont,
-    QTextEdit, QTextFormat, QWidget, QSize, QPainter, Qt, QRect)
+    QPlainTextEdit, QFontDatabase, QToolTip, QPalette, QFont, QKeySequence,
+    QTextEdit, QTextFormat, QWidget, QSize, QPainter, Qt, QRect, pyqtSlot,
+    QApplication, QMimeData)
 
 from calibre.gui2.tweak_book import tprefs
 from calibre.gui2.tweak_book.editor import SYNTAX_PROPERTY
@@ -60,6 +61,7 @@ class TextEdit(QPlainTextEdit):
         self.setMouseTracking(True)
         self.cursorPositionChanged.connect(self.highlight_cursor_line)
         self.blockCountChanged[int].connect(self.update_line_number_area_width)
+        self.selectionChanged.connect(self.selection_changed)
         self.updateRequest.connect(self.update_line_number_area)
         self.syntax = None
 
@@ -75,7 +77,7 @@ class TextEdit(QPlainTextEdit):
 
     @property
     def selected_text(self):
-        return unicodedata.normalize('NFC', unicode(self.textCursor().selectedText()))
+        return unicodedata.normalize('NFC', unicode(self.textCursor().selectedText()).replace(PARAGRAPH_SEPARATOR, '\n'))
 
     def sizeHint(self):
         return self.size_hint
@@ -133,6 +135,30 @@ class TextEdit(QPlainTextEdit):
         c.movePosition(c.Start)
         c.movePosition(c.End, c.KeepAnchor)
         return c.selectedText().replace(PARAGRAPH_SEPARATOR, '\n')
+
+    @pyqtSlot()
+    def copy(self):
+        # Workaround Qt replacing nbsp with normal spaces on copy
+        c = self.textCursor()
+        if not c.hasSelection():
+            return
+        md = QMimeData()
+        md.setText(self.selected_text)
+        QApplication.clipboard().setMimeData(md)
+
+    @pyqtSlot()
+    def cut(self):
+        # Workaround Qt replacing nbsp with normal spaces on copy
+        self.copy()
+        self.textCursor().removeSelectedText()
+
+    def selection_changed(self):
+        # Workaround Qt replacing nbsp with normal spaces on copy
+        clipboard = QApplication.clipboard()
+        if clipboard.supportsSelection() and self.textCursor().hasSelection():
+            md = QMimeData()
+            md.setText(self.selected_text)
+            clipboard.setMimeData(md, clipboard.Selection)
 
     def load_text(self, text, syntax='html', process_template=False):
         self.highlighter = {'html':HTMLHighlighter, 'css':CSSHighlighter, 'xml':XMLHighlighter}.get(syntax, SyntaxHighlighter)(self)
@@ -387,13 +413,20 @@ class TextEdit(QPlainTextEdit):
             num += 1
     # }}}
 
-    # Tooltips {{{
     def event(self, ev):
         if ev.type() == ev.ToolTip:
             self.show_tooltip(ev)
             return True
+        if ev.type() == ev.ShortcutOverride and ev in (
+            QKeySequence.Copy, QKeySequence.Cut, QKeySequence.Paste):
+            # Let the global cut/copy/paste shortcuts work,this avoids the nbsp
+            # problem as well, since they use the overridden copy() method
+            # instead of the one from Qt
+            ev.ignore()
+            return False
         return QPlainTextEdit.event(self, ev)
 
+    # Tooltips {{{
     def syntax_format_for_cursor(self, cursor):
         if cursor.isNull():
             return
