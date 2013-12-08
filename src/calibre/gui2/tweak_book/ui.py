@@ -424,19 +424,19 @@ class Main(MainWindow):
             setattr(self, oname.replace('-', '_'), d)
             return d
 
-        d = create(_('&Files Browser'), 'files-browser')
+        d = create(_('Files Browser'), 'files-browser')
         d.setAllowedAreas(Qt.LeftDockWidgetArea | Qt.RightDockWidgetArea)
         self.file_list = FileListWidget(d)
         d.setWidget(self.file_list)
         self.addDockWidget(Qt.LeftDockWidgetArea, d)
 
-        d = create(_('File &Preview'), 'preview')
+        d = create(_('File Preview'), 'preview')
         d.setAllowedAreas(Qt.LeftDockWidgetArea | Qt.RightDockWidgetArea)
         self.preview = Preview(d)
         d.setWidget(self.preview)
         self.addDockWidget(Qt.RightDockWidgetArea, d)
 
-        d = create(_('&Inspector'), 'inspector')
+        d = create(_('Inspector'), 'inspector')
         d.setAllowedAreas(Qt.LeftDockWidgetArea | Qt.RightDockWidgetArea | Qt.BottomDockWidgetArea | Qt.TopDockWidgetArea)
         d.setWidget(self.preview.inspector)
         self.preview.inspector.setParent(d)
