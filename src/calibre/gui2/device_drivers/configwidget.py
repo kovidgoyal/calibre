@@ -18,6 +18,7 @@ class ConfigWidget(QWidget, Ui_ConfigWidget):
 
     def __init__(self, settings, all_formats, supports_subdirs,
         must_read_metadata, supports_use_author_sort,
+        supports_not_sanitized_filename,
         extra_customization_message, device):
 
         QWidget.__init__(self)
@@ -61,6 +62,12 @@ class ConfigWidget(QWidget, Ui_ConfigWidget):
             self.opt_use_author_sort.setChecked(self.settings.use_author_sort)
         else:
             self.opt_use_author_sort.hide()
+
+        if supports_not_sanitized_filename:
+            self.opt_do_not_sanitize_filename.setChecked(self.settings.do_not_sanitize_filename)
+        else:
+            self.opt_do_not_sanitize_filename.hide()
+
         if extra_customization_message:
             def parse_msg(m):
                 msg, _, tt = m.partition(':::') if m else ('', '', '')
@@ -136,6 +143,9 @@ class ConfigWidget(QWidget, Ui_ConfigWidget):
 
     def use_author_sort(self):
         return self.opt_use_author_sort.isChecked()
+
+    def do_not_sanitize_filename(self):
+        return self.opt_do_not_sanitize_filename.isChecked()
 
     def validate(self):
         formats = set(self.format_map())

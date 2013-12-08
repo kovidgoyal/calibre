@@ -1044,7 +1044,9 @@ class Device(DeviceConfig, DevicePlugin):
     def create_upload_path(self, path, mdata, fname, create_dirs=True):
         from calibre.devices.utils import create_upload_path
         settings = self.settings()
-        filepath = create_upload_path(mdata, fname, self.save_template(), sanitize,
+        do_not_sanitize_filename = self.SUPPORTS_NOT_SANITIZED_FILENAME and settings.do_not_sanitize_filename
+        sanitize_func = None if do_not_sanitize_filename else sanitize
+        filepath = create_upload_path(mdata, fname, self.save_template(), sanitize=sanitize_func,
                 prefix_path=os.path.abspath(path),
                 maxlen=self.MAX_PATH_LEN,
                 use_subdirs = self.SUPPORTS_SUB_DIRS and settings.use_subdirs,

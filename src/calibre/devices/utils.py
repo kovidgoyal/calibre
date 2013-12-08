@@ -62,7 +62,7 @@ def build_template_regexp(template):
         template = u'{title} - {authors}'
         return re.compile(re.sub('{([^}]*)}', f, template) + '([_\d]*$)')
 
-def create_upload_path(mdata, fname, template, sanitize,
+def create_upload_path(mdata, fname, template, sanitize=None,
         prefix_path='',
         path_type=os.path,
         maxlen=250,
@@ -73,6 +73,8 @@ def create_upload_path(mdata, fname, template, sanitize,
         ):
     from calibre.library.save_to_disk import get_components, config
     from calibre.utils.filenames import shorten_components_to
+
+    sanitize_func = sanitize if sanitize else lambda x: x
 
     special_tag = None
     if mdata.tags:
@@ -90,7 +92,7 @@ def create_upload_path(mdata, fname, template, sanitize,
             date = (today[0], today[1], today[2])
         template = u"{title}_%d-%d-%d" % date
 
-    fname = sanitize(fname)
+    fname = sanitize_func(fname)
     ext = path_type.splitext(fname)[1]
 
     opts = config().parse()
@@ -99,12 +101,13 @@ def create_upload_path(mdata, fname, template, sanitize,
     app_id = str(getattr(mdata, 'application_id', ''))
     id_ = mdata.get('id', fname)
     extra_components = get_components(template, mdata, id_,
-            timefmt=opts.send_timefmt, length=maxlen-len(app_id)-1)
+            timefmt=opts.send_timefmt, length=maxlen-len(app_id)-1,
+            sanitize_func=sanitize_func)
     if not extra_components:
-        extra_components.append(sanitize(filename_callback(fname,
+        extra_components.append(sanitize_func(filename_callback(fname,
             mdata)))
     else:
-        extra_components[-1] = sanitize(filename_callback(extra_components[-1]+ext, mdata))
+        extra_components[-1] = sanitize_func(filename_callback(extra_components[-1]+ext, mdata))
 
     if extra_components[-1] and extra_components[-1][0] in ('.', '_'):
         extra_components[-1] = 'x' + extra_components[-1][1:]

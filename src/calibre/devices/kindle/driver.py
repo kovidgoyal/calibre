@@ -297,6 +297,8 @@ class KINDLE2(KINDLE):
     # SUPPORTS_SUB_DIRS = False # Apparently the Paperwhite doesn't like files placed in subdirectories
     # SUPPORTS_SUB_DIRS_FOR_SCAN = True
 
+    SUPPORTS_NOT_SANITIZED_FILENAME = True
+
     EXTRA_CUSTOMIZATION_MESSAGE = [
         _('Send page number information when sending books') +
             ':::' +
