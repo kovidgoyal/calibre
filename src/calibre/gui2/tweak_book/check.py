@@ -9,11 +9,12 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 import sys
 
 from PyQt4.Qt import (
-     QIcon, Qt, QHBoxLayout, QListWidget, QTextBrowser, QWidget, QPalette,
+     QIcon, Qt, QSplitter, QListWidget, QTextBrowser, QPalette,
      QListWidgetItem, pyqtSignal, QApplication, QStyledItemDelegate)
 
 from calibre.ebooks.oeb.polish.check.base import WARN, INFO, DEBUG, ERROR, CRITICAL
 from calibre.ebooks.oeb.polish.check.main import run_checks
+from calibre.gui2.tweak_book import tprefs
 
 def icon_for_level(level):
     if level > WARN:
@@ -34,16 +35,15 @@ class Delegate(QStyledItemDelegate):
             option.font.setBold(True)
             option.backgroundBrush = self.parent().palette().brush(QPalette.AlternateBase)
 
-class Check(QWidget):
+class Check(QSplitter):
 
     item_activated = pyqtSignal(object)
     check_requested = pyqtSignal()
 
     def __init__(self, parent=None):
-        QWidget.__init__(self, parent)
+        QSplitter.__init__(self, parent)
+        self.setChildrenCollapsible(False)
 
-        self.l = l = QHBoxLayout(self)
-        self.setLayout(l)
         self.items = i = QListWidget(self)
         self.items.setSpacing(3)
         self.items.itemDoubleClicked.connect(self.current_item_activated)
@@ -51,13 +51,21 @@ class Check(QWidget):
         self.items.setSelectionMode(self.items.NoSelection)
         self.delegate = Delegate(self.items)
         self.items.setItemDelegate(self.delegate)
-        l.addWidget(i)
+        self.addWidget(i)
         self.help = h = QTextBrowser(self)
         h.anchorClicked.connect(self.link_clicked)
         h.setOpenLinks(False)
-        l.addWidget(h)
-        h.setMaximumWidth(250)
+        self.addWidget(h)
         self.clear_help(_('Check has not been run'))
+        self.setStretchFactor(0, 100)
+        self.setStretchFactor(1, 50)
+
+        state = tprefs.get('check-book-splitter-state', None)
+        if state is not None:
+            self.restoreState(state)
+
+    def save_state(self):
+        tprefs.set('check-book-splitter-state', bytearray(self.saveState()))
 
     def clear_help(self, msg):
         self.help.setText('<h2>%s</h2><p><a style="text-decoration:none" title="%s" href="run:check">%s</a></p>' % (

@@ -503,6 +503,7 @@ class Main(MainWindow):
         tprefs.set('main_window_geometry', bytearray(self.saveGeometry()))
         tprefs.set('main_window_state', bytearray(self.saveState(self.STATE_VERSION)))
         self.central.save_state()
+        self.check_book.save_state()
 
     def restore_state(self):
         geom = tprefs.get('main_window_geometry', None)
