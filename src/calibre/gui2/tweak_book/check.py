@@ -59,6 +59,15 @@ class Check(QWidget):
         elif url == 'run:check':
             self.check_requested.emit()
 
+    def next_error(self, delta=1):
+        row = self.items.currentRow()
+        num = self.items.count()
+        if num > 0:
+            row = (row + delta) % num
+            self.items.setCurrentRow(row)
+            self.items.item(row).setSelected(True)
+            self.current_item_activated()
+
     def current_item_activated(self, *args):
         i = self.items.currentItem()
         if i is not None:
@@ -100,6 +109,7 @@ class Check(QWidget):
             self.items.item(0).setSelected(True)
             self.items.setCurrentRow(0)
             self.current_item_changed()
+            self.items.setFocus(Qt.OtherFocusReason)
         else:
             self.clear_help(_('No problems found'))
 
@@ -110,6 +120,11 @@ class Check(QWidget):
     def hide_busy(self):
         self.help.setText('')
         self.items.clear()
+
+    def keyPressEvent(self, ev):
+        if ev.key() in (Qt.Key_Enter, Qt.Key_Return):
+            self.current_item_activated()
+        return super(Check, self).keyPressEvent(ev)
 
 def main():
     from calibre.gui2 import Application

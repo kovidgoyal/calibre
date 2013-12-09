@@ -195,6 +195,7 @@ class Main(MainWindow):
 
         self.central = Central(self)
         self.setCentralWidget(self.central)
+        self.check_book = Check(self)
 
         self.create_actions()
         self.create_toolbars()
@@ -282,7 +283,6 @@ class Main(MainWindow):
                                            _('Beautify current file'))
         self.action_pretty_all = reg('format-justify-fill.png', _('&Beautify all files'), partial(self.boss.pretty_print, False), 'pretty-all', (),
                                        _('Beautify all files'))
-        self.action_check_book = reg('debug.png', _('&Check Book'), self.boss.check_requested, 'check-book', ('F7'), _('Check book for errors'))
 
         # Polish actions
         group = _('Polish Book')
@@ -328,6 +328,14 @@ class Main(MainWindow):
                                    'count', keys=('Ctrl+N'), description=_('Count number of matches'))
         self.action_mark = reg(None, _('&Mark selected text'), self.boss.mark_selected_text, 'mark-selected-text', ('Ctrl+Shift+M',), _('Mark selected text'))
         self.action_go_to_line = reg(None, _('Go to &line'), self.boss.go_to_line_number, 'go-to-line-number', ('Ctrl+.',), _('Go to line number'))
+
+        # Check Book actions
+        group = _('Check Book')
+        self.action_check_book = reg('debug.png', _('&Check Book'), self.boss.check_requested, 'check-book', ('F7'), _('Check book for errors'))
+        self.action_check_book_next = reg('forward.png', _('&Next error'), partial(
+            self.check_book.next_error, delta=1), 'check-book-next', ('Ctrl+F7'), _('Show next error'))
+        self.action_check_book_previous = reg('back.png', _('&Previous error'), partial(
+            self.check_book.next_error, delta=-1), 'check-book-previous', ('Ctrl+Shift+F7'), _('Show previous error'))
 
         # Miscellaneous actions
         group = _('Miscellaneous')
@@ -463,7 +471,6 @@ class Main(MainWindow):
 
         d = create(_('Check Book'), 'check-book')
         d.setAllowedAreas(Qt.LeftDockWidgetArea | Qt.RightDockWidgetArea | Qt.BottomDockWidgetArea | Qt.TopDockWidgetArea)
-        self.check_book = Check(self)
         d.setWidget(self.check_book)
         self.addDockWidget(Qt.TopDockWidgetArea, d)
         d.close()  # By default the check window is closed
