@@ -8,7 +8,7 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
 from calibre import as_unicode
 from calibre.utils.magick import Image
-from calibre.ebooks.oeb.polish.check.base import BaseError
+from calibre.ebooks.oeb.polish.check.base import BaseError, WARN
 
 class InvalidImage(BaseError):
 
@@ -24,6 +24,7 @@ class CMYKImage(BaseError):
              ' colors are specified in the CMYK colorspace. You should convert this image'
              ' to the RGB colorspace, for maximum compatibility.')
     INDIVIDUAL_FIX = _('Convert image to RGB automatically')
+    level = WARN
 
     def __call__(self, container):
         from PyQt4.Qt import QImage

@@ -17,11 +17,11 @@ class BaseError(object):
 
     HELP = ''
     INDIVIDUAL_FIX = ''
+    level = ERROR
 
     def __init__(self, msg, name, line=None, col=None):
         self.msg, self.line, self.col = msg, line, col
         self.name = name
-        self.level = ERROR
 
     def __str__(self):
         return '%s:%s (%s, %s):%s' % (self.__class__.__name__, self.name, self.line, self.col, self.msg)
