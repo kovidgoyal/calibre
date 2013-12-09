@@ -48,8 +48,8 @@ class UnreferencedDoc(UnreferencedResource):
 class Unmanifested(BadLink):
 
     HELP = _('This file is not listed in the book manifest. While not strictly necessary'
-             ' it is good practice to list all files in the manifest. Also some poorly'
-             ' designed EPUB readers can fail if files are not listed in the manifest.')
+             ' it is good practice to list all files in the manifest. Either list this'
+             ' file in the manifest or remove it from the book if it is an unnecessary file.')
 
     def __init__(self, name):
         BadLink.__init__(self, _(
