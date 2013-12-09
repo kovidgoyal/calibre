@@ -125,7 +125,7 @@ class Check(QSplitter):
                 <div>%s<a href="fix:errors" title="%s">%s</a><br><br>
                 <a href="run:check" title="%s">%s</a></div>
                 ''' % (header, self.items.currentRow()+1, _('Click to open in editor'), err.name, loc, err.HELP, ifix,
-                       _('Try to fix all errors automatically. Only works for some types of error.'), _('Try fixing errors automatically'),
+                       _('Try to fix all fixable errors automatically. Only works for some types of error.'), _('Try to correct fixable errors automatically'),
                        _('Re-run the check'), _('Re-run check')))
 
     def run_checks(self, container):
