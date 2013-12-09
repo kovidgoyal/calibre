@@ -437,7 +437,10 @@ class Main(MainWindow):
             return b
 
         a = create(_('Book tool bar'), 'global').addAction
-        for x in ('new_file', 'open_book', 'global_undo', 'global_redo', 'save', 'create_checkpoint', 'toc', 'check_book'):
+        for x in ('new_file', 'open_book', None, 'global_undo', 'global_redo', 'create_checkpoint', 'save', None, 'toc', 'check_book'):
+            if x is None:
+                self.global_bar.addSeparator()
+                continue
             a(getattr(self, 'action_' + x))
         self.donate_button = b = ThrobbingButton(self)
         b.clicked.connect(lambda : open_url(QUrl('http://calibre-ebook.com/donate')))
