@@ -10,7 +10,7 @@ from collections import defaultdict
 from urlparse import urlparse
 
 from calibre.ebooks.oeb.base import OEB_DOCS, OEB_STYLES
-from calibre.ebooks.oeb.polish.container import guess_type
+from calibre.ebooks.oeb.polish.container import guess_type, OEB_FONTS
 from calibre.ebooks.oeb.polish.check.base import BaseError, WARN
 
 class BadLink(BaseError):
@@ -30,6 +30,31 @@ class LocalLink(BadLink):
              ' book is read on any computer other than the one it was created on.'
              ' Either fix or remove the link.')
 
+class UnreferencedResource(BadLink):
+
+    HELP = _('This file is included in the book but not referred to by any document in the spine.'
+             ' This means that the file will not be viewable on most ebook readers. You should '
+             ' probably remove this file from the book or add a link to it somewhere.')
+
+    def __init__(self, name):
+        BadLink.__init__(self, _(
+            'The file %s is not referenced') % name, name)
+
+class UnreferencedDoc(UnreferencedResource):
+
+    HELP = _('This file is not in the book spine. All content documents must be in the spine.'
+             ' You should probably add it to the spine.')
+
+class Unmanifested(BadLink):
+
+    HELP = _('This file is not listed in the book manifest. While not strictly necessary'
+             ' it is good practice to list all files in the manifest. Also some poorly'
+             ' designed EPUB readers can fail if files are not listed in the manifest.')
+
+    def __init__(self, name):
+        BadLink.__init__(self, _(
+            'The file %s is not listed in the manifest') % name, name)
+
 def check_links(container):
     links_map = defaultdict(set)
     xml_types = {guess_type('a.opf'), guess_type('a.ncx')}
@@ -48,7 +73,7 @@ def check_links(container):
                 tname = container.href_to_name(href, name)
                 if tname is not None:
                     if container.exists(tname):
-                        links_map[tname].add(name)
+                        links_map[name].add(tname)
                     else:
                         a(BadLink(_('The linked resource %s does not exist') % fl(href), name, lnum, col))
                 else:
@@ -57,5 +82,32 @@ def check_links(container):
                         a(FileLink(_('The link %s is a file:// URL') % fl(href), name, lnum, col))
                     elif purl.path and purl.path.startswith('/') and purl.scheme in {'', 'file'}:
                         a(LocalLink(_('The link %s points to a file outside the book') % fl(href), name, lnum, col))
+
+    spine_docs = {name for name, linear in container.spine_names}
+    spine_styles = {tname for name in spine_docs for tname in links_map[name] if container.mime_map[tname] in OEB_STYLES}
+    num = -1
+    while len(spine_styles) > num:
+        # Handle import rules in stylesheets
+        num = len(spine_styles)
+        spine_styles |= {tname for name in spine_styles for tname in links_map[name] if container.mime_map[tname] in OEB_STYLES}
+    seen = set(OEB_DOCS) | set(OEB_STYLES)
+    spine_resources = {tname for name in spine_docs | spine_styles for tname in links_map[name] if container.mime_map[tname] not in seen}
+    unreferenced = set()
+
+    for name, mt in container.mime_map.iteritems():
+        if mt in OEB_STYLES and name not in spine_styles:
+            a(UnreferencedResource(name))
+        elif mt in OEB_DOCS and name not in spine_docs:
+            a(UnreferencedDoc(name))
+        elif (mt in OEB_FONTS or mt.partition('/')[0] in {'image', 'audio', 'video'}) and name not in spine_resources:
+            a(UnreferencedResource(name))
+        else:
+            continue
+        unreferenced.add(name)
+
+    manifest_names = set(container.manifest_id_map.itervalues())
+    for name in container.mime_map:
+        if name not in container.names_that_need_not_be_manifested and name not in manifest_names:
+            a(Unmanifested(name))
 
     return errors
