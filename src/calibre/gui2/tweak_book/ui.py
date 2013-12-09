@@ -11,12 +11,13 @@ from functools import partial
 from PyQt4.Qt import (
     QDockWidget, Qt, QLabel, QIcon, QAction, QApplication, QWidget, QEvent,
     QVBoxLayout, QStackedWidget, QTabWidget, QImage, QPixmap, pyqtSignal,
-    QMenu, QHBoxLayout)
+    QMenu, QHBoxLayout, QTimer, QUrl)
 
 from calibre.constants import __appname__, get_version
-from calibre.gui2 import elided_text
+from calibre.gui2 import elided_text, open_url
 from calibre.gui2.keyboard import Manager as KeyboardManager
 from calibre.gui2.main_window import MainWindow
+from calibre.gui2.throbber import ThrobbingButton, create_donate_widget
 from calibre.gui2.tweak_book import current_container, tprefs, actions
 from calibre.gui2.tweak_book.file_list import FileListWidget
 from calibre.gui2.tweak_book.job import BlockingJob
@@ -438,6 +439,17 @@ class Main(MainWindow):
         a = create(_('Book tool bar'), 'global').addAction
         for x in ('new_file', 'open_book', 'global_undo', 'global_redo', 'save', 'create_checkpoint', 'toc', 'check_book'):
             a(getattr(self, 'action_' + x))
+        self.donate_button = b = ThrobbingButton(self)
+        b.clicked.connect(lambda : open_url(QUrl('http://calibre-ebook.com/donate')))
+        b.setAutoRaise(True)
+        self.donate_widget = w = create_donate_widget(b)
+        if hasattr(w, 'filler'):
+            w.filler.setVisible(False)
+        b.set_normal_icon_size(self.global_bar.iconSize().width(), self.global_bar.iconSize().height())
+        b.setIcon(QIcon(I('donate.png')))
+        b.setToolTip(_('Donate to support calibre development'))
+        QTimer.singleShot(10, b.start_animation)
+        self.global_bar.addWidget(w)
 
         a = create(_('Polish book tool bar'), 'polish').addAction
         for x in ('embed_fonts', 'subset_fonts', 'smarten_punctuation'):

@@ -7,8 +7,9 @@ __docformat__ = 'restructuredtext en'
 
 
 from PyQt4.Qt import QToolButton, QSize, QPropertyAnimation, Qt, \
-        QMetaObject
+        QMetaObject, QLabel, QVBoxLayout, QWidget
 
+from calibre.constants import isosx
 from calibre.gui2 import config
 
 class ThrobbingButton(QToolButton):
@@ -44,7 +45,8 @@ class ThrobbingButton(QToolButton):
         self.update()
 
     def start_animation(self):
-        if config['disable_animations']: return
+        if config['disable_animations']:
+            return
         if self.animation.state() != self.animation.Stopped or not self.isVisible():
             return
         size = self.normal_icon_size.width()
@@ -57,9 +59,20 @@ class ThrobbingButton(QToolButton):
         self.animation.stop()
         self.animation_finished()
 
+def create_donate_widget(button):
+    w = QWidget()
+    w.setLayout(QVBoxLayout())
+    w.layout().addWidget(button)
+    if isosx:
+        w.setStyleSheet('QWidget, QToolButton {background-color: none; border: none; }')
+        w.layout().setContentsMargins(0,0,0,0)
+        w.setContentsMargins(0,0,0,0)
+        w.filler = QLabel(u'\u00a0')
+        w.layout().addWidget(w.filler)
+    return w
 
 if __name__ == '__main__':
-    from PyQt4.Qt import QApplication, QWidget, QHBoxLayout, QIcon
+    from PyQt4.Qt import QApplication, QHBoxLayout, QIcon
     app = QApplication([])
     w = QWidget()
     w.setLayout(QHBoxLayout())

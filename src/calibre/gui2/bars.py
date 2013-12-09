@@ -8,13 +8,13 @@ __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 
-from PyQt4.Qt import (Qt, QAction, QLabel, QMenu, QMenuBar, QObject,
-    QToolBar, QToolButton, QSize, QVBoxLayout, QWidget)
+from PyQt4.Qt import (Qt, QAction, QMenu, QMenuBar, QObject,
+    QToolBar, QToolButton, QSize)
 
-from calibre.constants import isosx
+from calibre.gui2.throbber import create_donate_widget
 from calibre.gui2 import gprefs
 
-class ToolBar(QToolBar): # {{{
+class ToolBar(QToolBar):  # {{{
 
     def __init__(self, donate, location_manager, parent):
         QToolBar.__init__(self, parent)
@@ -54,7 +54,8 @@ class ToolBar(QToolBar): # {{{
 
     def contextMenuEvent(self, ev):
         ac = self.actionAt(ev.pos())
-        if ac is None: return
+        if ac is None:
+            return
         ch = self.widgetForAction(ac)
         sm = getattr(ch, 'showMenu', None)
         if callable(sm):
@@ -88,15 +89,7 @@ class ToolBar(QToolBar): # {{{
                     bar.setup_tool_button(bar, ac, QToolButton.MenuButtonPopup)
                     ac.setVisible(False)
             elif what == 'Donate':
-                self.d_widget = QWidget()
-                self.d_widget.setLayout(QVBoxLayout())
-                self.d_widget.layout().addWidget(self.donate_button)
-                if isosx:
-                    self.d_widget.setStyleSheet('QWidget, QToolButton {background-color: none; border: none; }')
-                    self.d_widget.layout().setContentsMargins(0,0,0,0)
-                    self.d_widget.setContentsMargins(0,0,0,0)
-                    self.d_widget.filler = QLabel(u'\u00a0')
-                    self.d_widget.layout().addWidget(self.d_widget.filler)
+                self.d_widget = create_donate_widget(self.donate_button)
                 bar.addWidget(self.d_widget)
                 self.showing_donate = True
             elif what in self.gui.iactions:
@@ -125,8 +118,8 @@ class ToolBar(QToolBar): # {{{
                     aa = iac.qaction
                     w = self.widgetForAction(aa)
                     m = aa.menu()
-                    if (( (w is not None and w.geometry().contains(pos)) or
-                          (m is not None and m.isVisible() and m.geometry().contains(pos)) ) and
+                    if (((w is not None and w.geometry().contains(pos)) or
+                          (m is not None and m.isVisible() and m.geometry().contains(pos))) and
                          getattr(iac, func)(event, md)):
                         return True
         return False
@@ -151,8 +144,8 @@ class ToolBar(QToolBar): # {{{
         for ac in self.location_manager.available_actions:
             w = self.widgetForAction(ac)
             if w is not None:
-                if ( md.hasFormat("application/calibre+from_library") or \
-                     md.hasFormat("application/calibre+from_device") ) and \
+                if (md.hasFormat("application/calibre+from_library") or
+                     md.hasFormat("application/calibre+from_device")) and \
                         w.geometry().contains(event.pos()) and \
                         isinstance(w, QToolButton) and not w.isChecked():
                     allowed = True
@@ -200,7 +193,7 @@ class ToolBar(QToolBar): # {{{
 
 # }}}
 
-class MenuAction(QAction): # {{{
+class MenuAction(QAction):  # {{{
 
     def __init__(self, clone, parent):
         QAction.__init__(self, clone.text(), parent)
@@ -211,7 +204,7 @@ class MenuAction(QAction): # {{{
         self.setText(self.clone.text())
 # }}}
 
-class MenuBar(QMenuBar): # {{{
+class MenuBar(QMenuBar):  # {{{
 
     def __init__(self, location_manager, parent):
         QMenuBar.__init__(self, parent)
