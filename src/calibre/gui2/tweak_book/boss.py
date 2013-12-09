@@ -697,6 +697,7 @@ class Boss(QObject):
 
     @in_thread_job
     def check_requested(self, *args):
+        self.commit_all_editors_to_container()
         c = self.gui.check_book
         c.parent().show()
         c.parent().raise_()
