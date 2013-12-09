@@ -14,6 +14,7 @@ from calibre.ebooks.oeb.polish.cover import is_raster_image
 from calibre.ebooks.oeb.polish.check.base import run_checkers
 from calibre.ebooks.oeb.polish.check.parsing import check_xml_parsing
 from calibre.ebooks.oeb.polish.check.images import check_raster_images
+from calibre.ebooks.oeb.polish.check.links import check_links
 
 XML_TYPES = frozenset(map(guess_type, ('a.xml', 'a.svg', 'a.opf', 'a.ncx')))
 
@@ -36,6 +37,8 @@ def run_checks(container):
     errors.extend(run_checkers(check_xml_parsing, xml_items))
     errors.extend(run_checkers(check_xml_parsing, html_items))
     errors.extend(run_checkers(check_raster_images, raster_images))
+
+    errors += check_links(container)
 
     return errors
 

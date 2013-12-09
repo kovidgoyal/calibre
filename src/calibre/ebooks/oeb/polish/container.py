@@ -9,6 +9,7 @@ __docformat__ = 'restructuredtext en'
 
 import os, logging, sys, hashlib, uuid, re, shutil
 from collections import defaultdict
+from bisect import bisect
 from io import BytesIO
 from urlparse import urlparse
 from future_builtins import zip
@@ -293,8 +294,17 @@ class Container(object):  # {{{
             if get_line_numbers:
                 with self.open(name) as f:
                     raw = self.decode(f.read())
+                    new_lines = tuple(m.start() + 1 for m in re.finditer(r'\n', raw))
+                    def position(pos):
+                        lnum = bisect(new_lines, pos)
+                        try:
+                            offset = abs(pos - new_lines[lnum - 1])
+                        except IndexError:
+                            offset = pos
+                        return (lnum + 1, offset)
                     for link, offset in itercsslinks(raw):
-                        yield link, 0, offset
+                        lnum, col = position(offset)
+                        yield link, lnum, col
             else:
                 for link in getUrls(self.parsed(name)):
                     yield link
