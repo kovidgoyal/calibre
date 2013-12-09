@@ -13,12 +13,13 @@ from calibre.ebooks.oeb.polish.container import guess_type
 from calibre.ebooks.oeb.polish.check.base import run_checkers
 from calibre.ebooks.oeb.polish.check.parsing import check_xml_parsing
 
+XML_TYPES = frozenset(map(guess_type, ('a.xml', 'a.svg', 'a.opf', 'a.ncx')))
+
 def run_checks(container):
 
     errors = []
 
     # Check parsing
-    XML_TYPES = frozenset(map(guess_type, ('a.xml', 'a.svg', 'a.opf', 'a.ncx')))
     xml_items, html_items = [], []
     for name, mt in container.mime_map.iteritems():
         items = None
@@ -32,4 +33,10 @@ def run_checks(container):
     errors.extend(run_checkers(check_xml_parsing, html_items))
 
     return errors
+
+def fix_errors(container, errors):
+    # Fix parsing
+    for name in {e.name for e in errors if getattr(e, 'is_parsing_error', False)}:
+        container.parsed(name)
+        container.dirty(name)
 

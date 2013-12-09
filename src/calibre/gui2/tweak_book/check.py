@@ -13,7 +13,7 @@ from PyQt4.Qt import (
      QListWidgetItem, pyqtSignal, QApplication, QStyledItemDelegate)
 
 from calibre.ebooks.oeb.polish.check.base import WARN, INFO, DEBUG, ERROR, CRITICAL
-from calibre.ebooks.oeb.polish.check.main import run_checks
+from calibre.ebooks.oeb.polish.check.main import run_checks, fix_errors
 from calibre.gui2.tweak_book import tprefs
 
 def icon_for_level(level):
@@ -39,6 +39,7 @@ class Check(QSplitter):
 
     item_activated = pyqtSignal(object)
     check_requested = pyqtSignal()
+    fix_requested = pyqtSignal()
 
     def __init__(self, parent=None):
         QSplitter.__init__(self, parent)
@@ -77,6 +78,8 @@ class Check(QSplitter):
             self.current_item_activated()
         elif url == 'run:check':
             self.check_requested.emit()
+        elif url == 'fix:errors':
+            self.fix_requested.emit()
 
     def next_error(self, delta=1):
         row = self.items.currentRow()
@@ -106,10 +109,14 @@ class Check(QSplitter):
             if loc:
                 loc = ' (%s)' % loc
             self.help.setText(
-                '''<h2 style="text-align:center">%s</h2>
-                <div><a style="text-decoration:none" href="activate:item" title="%s">%s %s</a></div>
+                '''<style>a { text-decoration: none}</style><h2>%s [%d]</h2>
+                <div><a href="activate:item" title="%s">%s %s</a></div>
                 <p>%s</p>
-                ''' % (header, _('Click to open in editor'), err.name, loc, err.HELP))
+                <div><a href="fix:errors" title="%s">%s</a><br><br>
+                <a href="run:check" title="%s">%s</a></div>
+                ''' % (header, self.items.currentRow()+1, _('Click to open in editor'), err.name, loc, err.HELP,
+                       _('Try to fix all errors automatically. Only works for some types of error.'), _('Try fixing errors automatically'),
+                       _('Re-run the check'), _('Re-run check')))
 
     def run_checks(self, container):
         from calibre.gui2.tweak_book.boss import BusyCursor
@@ -129,6 +136,15 @@ class Check(QSplitter):
             self.items.setFocus(Qt.OtherFocusReason)
         else:
             self.clear_help(_('No problems found'))
+
+    def fix_errors(self, container):
+        from calibre.gui2.tweak_book.boss import BusyCursor
+        with BusyCursor():
+            errors = [self.items.item(i).data(Qt.UserRole).toPyObject() for i in xrange(self.items.count())]
+            self.show_busy(_('Running fixers, please wait...'))
+            QApplication.processEvents()
+            fix_errors(container, errors)
+        self.run_checks(container)
 
     def show_busy(self, msg=_('Running checks, please wait...')):
         self.help.setText(msg)

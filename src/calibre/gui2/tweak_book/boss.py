@@ -94,6 +94,7 @@ class Boss(QObject):
         self.gui.preview.link_clicked.connect(self.link_clicked)
         self.gui.check_book.item_activated.connect(self.check_item_activated)
         self.gui.check_book.check_requested.connect(self.check_requested)
+        self.gui.check_book.fix_requested.connect(self.fix_requested)
 
     def preferences(self):
         p = Preferences(self.gui)
@@ -702,6 +703,17 @@ class Boss(QObject):
         c.parent().show()
         c.parent().raise_()
         c.run_checks(current_container())
+
+    @in_thread_job
+    def fix_requested(self):
+        self.commit_all_editors_to_container()
+        self.add_savepoint(_('Auto-fix errors'))
+        c = self.gui.check_book
+        c.parent().show()
+        c.parent().raise_()
+        c.fix_errors(current_container())
+        self.apply_container_update_to_gui()
+        self.set_modified()
 
     @in_thread_job
     def merge_requested(self, category, names, master):

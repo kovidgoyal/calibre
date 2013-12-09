@@ -13,6 +13,8 @@ from calibre.ebooks.oeb.base import OEB_DOCS
 
 class XMLParseError(BaseError):
 
+    is_parsing_error = True
+
     HELP = _('A parsing error in an XML file means that the XML syntax in the file is incorrect.'
              ' Such a file will most probably not open in an ebook reader. These errors can '
              ' usually be fixed automatically, however, automatic fixing can sometimes '
