@@ -480,6 +480,8 @@ class Main(MainWindow):
         d.setWidget(self.preview.inspector)
         self.preview.inspector.setParent(d)
         self.addDockWidget(Qt.BottomDockWidgetArea, d)
+        d.close()  # By default the inspector window is closed
+        d.setFeatures(d.DockWidgetClosable | d.DockWidgetMovable)  # QWebInspector does not work in a floating dock
 
     def resizeEvent(self, ev):
         self.blocking_job.resize(ev.size())
