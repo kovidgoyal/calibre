@@ -181,7 +181,7 @@ class TextEdit(QPlainTextEdit):
         self.setTextCursor(c)
         self.ensureCursorVisible()
 
-    def go_to_line(self, lnum):
+    def go_to_line(self, lnum, col=None):
         lnum = max(1, min(self.blockCount(), lnum))
         c = self.textCursor()
         c.clearSelection()
@@ -190,10 +190,16 @@ class TextEdit(QPlainTextEdit):
         c.movePosition(c.StartOfLine)
         c.movePosition(c.EndOfLine, c.KeepAnchor)
         text = unicode(c.selectedText())
-        c.movePosition(c.StartOfLine)
-        lt = text.lstrip()
-        if text and lt and lt != text:
-            c.movePosition(c.NextWord)
+        if col is None:
+            c.movePosition(c.StartOfLine)
+            lt = text.lstrip()
+            if text and lt and lt != text:
+                c.movePosition(c.NextWord)
+        else:
+            c.setPosition(c.block().position() + col)
+            if c.blockNumber() + 1 > lnum:
+                c.movePosition(c.PreviousBlock)
+                c.movePosition(c.EndOfBlock)
         self.setTextCursor(c)
         self.ensureCursorVisible()
 

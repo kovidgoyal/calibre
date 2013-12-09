@@ -176,11 +176,19 @@ class Editor(QMainWindow):
     def _cursor_position_changed(self, *args):
         self.cursor_position_changed.emit()
 
+    @property
+    def cursor_position(self):
+        c = self.editor.textCursor()
+        return (c.blockNumber() + 1, c.positionInBlock())
+
     def cut(self):
         self.editor.cut()
 
     def copy(self):
         self.editor.copy()
+
+    def go_to_line(self, line, col=None):
+        self.editor.go_to_line(line, col=col)
 
     def paste(self):
         if not self.editor.canPaste():

@@ -92,6 +92,8 @@ class Boss(QObject):
         self.gui.preview.split_start_requested.connect(self.split_start_requested)
         self.gui.preview.split_requested.connect(self.split_requested)
         self.gui.preview.link_clicked.connect(self.link_clicked)
+        self.gui.check_book.item_activated.connect(self.check_item_activated)
+        self.gui.check_book.check_requested.connect(self.check_requested)
 
     def preferences(self):
         p = Preferences(self.gui)
@@ -681,6 +683,26 @@ class Boss(QObject):
             editor.go_to_anchor(anchor)
 
     @in_thread_job
+    def check_item_activated(self, item):
+        name = item.name
+        if name in editors:
+            editor = editors[name]
+            self.gui.central.show_editor(editor)
+        else:
+            syntax = syntax_from_mime(name, current_container().mime_map[name])
+            editor = self.edit_file(name, syntax)
+        if editor.has_line_numbers:
+            editor.go_to_line(item.line, item.col)
+            editor.set_focus()
+
+    @in_thread_job
+    def check_requested(self, *args):
+        c = self.gui.check_book
+        c.parent().show()
+        c.parent().raise_()
+        c.run_checks(current_container())
+
+    @in_thread_job
     def merge_requested(self, category, names, master):
         self.commit_all_editors_to_container()
         self.add_savepoint(_('Merge files into %s') % self.gui.elided_text(master))
@@ -733,6 +755,7 @@ class Boss(QObject):
         editor.data_changed.connect(self.editor_data_changed)
         editor.copy_available_state_changed.connect(self.editor_copy_available_state_changed)
         editor.cursor_position_changed.connect(self.sync_preview_to_editor)
+        editor.cursor_position_changed.connect(self.update_cursor_position)
         if data is not None:
             if use_template:
                 editor.init_from_template(data)
@@ -818,6 +841,7 @@ class Boss(QObject):
 
     def apply_current_editor_state(self):
         ed = self.gui.central.current_editor
+        self.gui.cursor_position_widget.update_position()
         if ed is not None:
             actions['editor-undo'].setEnabled(ed.undo_available)
             actions['editor-redo'].setEnabled(ed.redo_available)
@@ -832,8 +856,17 @@ class Boss(QObject):
                     break
             if name is not None and getattr(ed, 'syntax', None) == 'html':
                 self.gui.preview.show(name)
+            if ed.has_line_numbers:
+                self.gui.cursor_position_widget.update_position(*ed.cursor_position)
         else:
             actions['go-to-line-number'].setEnabled(False)
+
+    def update_cursor_position(self):
+        ed = self.gui.central.current_editor
+        if getattr(ed, 'has_line_numbers', False):
+            self.gui.cursor_position_widget.update_position(*ed.cursor_position)
+        else:
+            self.gui.cursor_position_widget.update_position()
 
     def editor_close_requested(self, editor):
         name = None

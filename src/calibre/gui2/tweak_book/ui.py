@@ -10,7 +10,8 @@ from functools import partial
 
 from PyQt4.Qt import (
     QDockWidget, Qt, QLabel, QIcon, QAction, QApplication, QWidget, QEvent,
-    QVBoxLayout, QStackedWidget, QTabWidget, QImage, QPixmap, pyqtSignal, QMenu)
+    QVBoxLayout, QStackedWidget, QTabWidget, QImage, QPixmap, pyqtSignal,
+    QMenu, QHBoxLayout)
 
 from calibre.constants import __appname__, get_version
 from calibre.gui2 import elided_text
@@ -22,6 +23,7 @@ from calibre.gui2.tweak_book.job import BlockingJob
 from calibre.gui2.tweak_book.boss import Boss
 from calibre.gui2.tweak_book.preview import Preview
 from calibre.gui2.tweak_book.search import SearchPanel
+from calibre.gui2.tweak_book.check import Check
 
 class Central(QStackedWidget):
 
@@ -155,6 +157,25 @@ class Central(QStackedWidget):
 
         return True
 
+class CursorPositionWidget(QWidget):
+
+    def __init__(self, parent):
+        QWidget.__init__(self, parent)
+        self.l = QHBoxLayout(self)
+        self.setLayout(self.l)
+        self.la = QLabel('')
+        self.l.addWidget(self.la)
+        self.l.setContentsMargins(0, 0, 0, 0)
+        f = self.la.font()
+        f.setBold(False)
+        self.la.setFont(f)
+
+    def update_position(self, line=None, col=None):
+        if line is None:
+            self.la.setText('')
+        else:
+            self.la.setText(_('Line: {0} : {1}').format(line, col))
+
 class Main(MainWindow):
 
     APP_NAME = _('Tweak Book')
@@ -182,6 +203,8 @@ class Main(MainWindow):
 
         self.status_bar = self.statusBar()
         self.status_bar.addPermanentWidget(self.boss.save_manager.status_widget)
+        self.cursor_position_widget = CursorPositionWidget(self)
+        self.status_bar.addPermanentWidget(self.cursor_position_widget)
         self.status_bar.addWidget(QLabel(_('{0} {1} created by {2}').format(__appname__, get_version(), 'Kovid Goyal')))
         f = self.status_bar.font()
         f.setBold(True)
@@ -259,6 +282,7 @@ class Main(MainWindow):
                                            _('Beautify current file'))
         self.action_pretty_all = reg('format-justify-fill.png', _('&Beautify all files'), partial(self.boss.pretty_print, False), 'pretty-all', (),
                                        _('Beautify all files'))
+        self.action_check_book = reg('debug.png', _('&Check Book'), self.boss.check_requested, 'check-book', ('F7'), _('Check book for errors'))
 
         # Polish actions
         group = _('Polish Book')
@@ -355,6 +379,7 @@ class Main(MainWindow):
         e.addAction(self.action_smarten_punctuation)
         e.addAction(self.action_fix_html_all)
         e.addAction(self.action_pretty_all)
+        e.addAction(self.action_check_book)
 
         e = b.addMenu(_('&View'))
         t = e.addMenu(_('Tool&bars'))
@@ -403,7 +428,7 @@ class Main(MainWindow):
             return b
 
         a = create(_('Book tool bar'), 'global').addAction
-        for x in ('new_file', 'open_book', 'global_undo', 'global_redo', 'save', 'create_checkpoint', 'toc'):
+        for x in ('new_file', 'open_book', 'global_undo', 'global_redo', 'save', 'create_checkpoint', 'toc', 'check_book'):
             a(getattr(self, 'action_' + x))
 
         a = create(_('Polish book tool bar'), 'polish').addAction
@@ -435,6 +460,13 @@ class Main(MainWindow):
         self.preview = Preview(d)
         d.setWidget(self.preview)
         self.addDockWidget(Qt.RightDockWidgetArea, d)
+
+        d = create(_('Check Book'), 'check-book')
+        d.setAllowedAreas(Qt.LeftDockWidgetArea | Qt.RightDockWidgetArea | Qt.BottomDockWidgetArea | Qt.TopDockWidgetArea)
+        self.check_book = Check(self)
+        d.setWidget(self.check_book)
+        self.addDockWidget(Qt.TopDockWidgetArea, d)
+        d.close()  # By default the check window is closed
 
         d = create(_('Inspector'), 'inspector')
         d.setAllowedAreas(Qt.LeftDockWidgetArea | Qt.RightDockWidgetArea | Qt.BottomDockWidgetArea | Qt.TopDockWidgetArea)
