@@ -49,8 +49,8 @@ class Check(QWidget):
         self.clear_help(_('Check has not been run'))
 
     def clear_help(self, msg):
-        self.help.setText('<h2>%s</h2><p><a href="run:check">%s</a></p>' % (
-            msg, _('Run check')))
+        self.help.setText('<h2>%s</h2><p><a style="text-decoration:none" title="%s" href="run:check">%s</a></p>' % (
+            msg, _('Click to run a check on the book'), _('Run check')))
 
     def link_clicked(self, url):
         url = unicode(url.toString())
@@ -81,8 +81,8 @@ class Check(QWidget):
             self.help.setText(
                 '''<h2 style="text-align:center">%s</h2>
                 <p>%s</p>
-                <div><a style="text-decoration:none" href="activate:item">%s %s</a></div>
-                ''' % (header, err.msg, err.name, loc))
+                <div><a style="text-decoration:none" href="activate:item" title="%s">%s %s</a></div>
+                ''' % (header, err.msg, _('Click to open in editor'), err.name, loc))
 
     def run_checks(self, container):
         from calibre.gui2.tweak_book.boss import BusyCursor
