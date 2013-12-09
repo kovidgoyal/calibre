@@ -705,13 +705,13 @@ class Boss(QObject):
         c.run_checks(current_container())
 
     @in_thread_job
-    def fix_requested(self):
+    def fix_requested(self, errors):
         self.commit_all_editors_to_container()
         self.add_savepoint(_('Auto-fix errors'))
         c = self.gui.check_book
         c.parent().show()
         c.parent().raise_()
-        changed = c.fix_errors(current_container())
+        changed = c.fix_errors(current_container(), errors)
         if changed:
             self.apply_container_update_to_gui()
             self.set_modified()

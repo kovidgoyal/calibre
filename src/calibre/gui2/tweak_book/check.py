@@ -39,7 +39,7 @@ class Check(QSplitter):
 
     item_activated = pyqtSignal(object)
     check_requested = pyqtSignal()
-    fix_requested = pyqtSignal()
+    fix_requested = pyqtSignal(object)
 
     def __init__(self, parent=None):
         QSplitter.__init__(self, parent)
@@ -79,7 +79,12 @@ class Check(QSplitter):
         elif url == 'run:check':
             self.check_requested.emit()
         elif url == 'fix:errors':
-            self.fix_requested.emit()
+            errors = [self.items.item(i).data(Qt.UserRole).toPyObject() for i in xrange(self.items.count())]
+            self.fix_requested.emit(errors)
+        elif url.startswith('fix:error,'):
+            num = int(url.rpartition(',')[-1])
+            errors = [self.items.item(num).data(Qt.UserRole).toPyObject()]
+            self.fix_requested.emit(errors)
 
     def next_error(self, delta=1):
         row = self.items.currentRow()
@@ -108,13 +113,18 @@ class Check(QSplitter):
                 loc += ' column: %d' % err.col
             if loc:
                 loc = ' (%s)' % loc
+            ifix = ''
+            if err.INDIVIDUAL_FIX:
+                ifix = '<a href="fix:error,%d" title="%s">%s</a><br><br>' % (
+                    self.items.currentRow(), _('Try to fix only this error'), err.INDIVIDUAL_FIX)
+
             self.help.setText(
                 '''<style>a { text-decoration: none}</style><h2>%s [%d]</h2>
                 <div><a href="activate:item" title="%s">%s %s</a></div>
                 <p>%s</p>
-                <div><a href="fix:errors" title="%s">%s</a><br><br>
+                <div>%s<a href="fix:errors" title="%s">%s</a><br><br>
                 <a href="run:check" title="%s">%s</a></div>
-                ''' % (header, self.items.currentRow()+1, _('Click to open in editor'), err.name, loc, err.HELP,
+                ''' % (header, self.items.currentRow()+1, _('Click to open in editor'), err.name, loc, err.HELP, ifix,
                        _('Try to fix all errors automatically. Only works for some types of error.'), _('Try fixing errors automatically'),
                        _('Re-run the check'), _('Re-run check')))
 
@@ -137,10 +147,9 @@ class Check(QSplitter):
         else:
             self.clear_help(_('No problems found'))
 
-    def fix_errors(self, container):
+    def fix_errors(self, container, errors):
         from calibre.gui2.tweak_book.boss import BusyCursor
         with BusyCursor():
-            errors = [self.items.item(i).data(Qt.UserRole).toPyObject() for i in xrange(self.items.count())]
             self.show_busy(_('Running fixers, please wait...'))
             QApplication.processEvents()
             changed = fix_errors(container, errors)
