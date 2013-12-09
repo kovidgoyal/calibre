@@ -143,8 +143,9 @@ class Check(QSplitter):
             errors = [self.items.item(i).data(Qt.UserRole).toPyObject() for i in xrange(self.items.count())]
             self.show_busy(_('Running fixers, please wait...'))
             QApplication.processEvents()
-            fix_errors(container, errors)
+            changed = fix_errors(container, errors)
         self.run_checks(container)
+        return changed
 
     def show_busy(self, msg=_('Running checks, please wait...')):
         self.help.setText(msg)

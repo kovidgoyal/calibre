@@ -16,6 +16,7 @@ DEBUG, INFO, WARN, ERROR, CRITICAL = xrange(5)
 class BaseError(object):
 
     HELP = ''
+    INDIVIDUAL_FIX = ''
 
     def __init__(self, msg, name, line=None, col=None):
         self.msg, self.line, self.col = msg, line, col

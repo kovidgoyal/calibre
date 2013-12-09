@@ -711,9 +711,12 @@ class Boss(QObject):
         c = self.gui.check_book
         c.parent().show()
         c.parent().raise_()
-        c.fix_errors(current_container())
-        self.apply_container_update_to_gui()
-        self.set_modified()
+        changed = c.fix_errors(current_container())
+        if changed:
+            self.apply_container_update_to_gui()
+            self.set_modified()
+        else:
+            self.rewind_savepoint()
 
     @in_thread_job
     def merge_requested(self, category, names, master):
