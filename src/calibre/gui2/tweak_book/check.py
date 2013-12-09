@@ -9,8 +9,8 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 import sys
 
 from PyQt4.Qt import (
-     QIcon, Qt, QHBoxLayout, QListWidget, QTextBrowser, QWidget,
-    QListWidgetItem, pyqtSignal, QApplication)
+     QIcon, Qt, QHBoxLayout, QListWidget, QTextBrowser, QWidget, QPalette,
+     QListWidgetItem, pyqtSignal, QApplication, QStyledItemDelegate)
 
 from calibre.ebooks.oeb.polish.check.base import WARN, INFO, DEBUG, ERROR, CRITICAL
 from calibre.ebooks.oeb.polish.check.main import run_checks
@@ -26,6 +26,14 @@ def icon_for_level(level):
         icon = None
     return QIcon(I(icon)) if icon else QIcon()
 
+class Delegate(QStyledItemDelegate):
+
+    def initStyleOption(self, option, index):
+        super(Delegate, self).initStyleOption(option, index)
+        if index.row() == self.parent().currentRow():
+            option.font.setBold(True)
+            option.backgroundBrush = self.parent().palette().brush(QPalette.AlternateBase)
+
 class Check(QWidget):
 
     item_activated = pyqtSignal(object)
@@ -37,9 +45,12 @@ class Check(QWidget):
         self.l = l = QHBoxLayout(self)
         self.setLayout(l)
         self.items = i = QListWidget(self)
-        self.items.setSpacing(2)
+        self.items.setSpacing(3)
         self.items.itemDoubleClicked.connect(self.current_item_activated)
         self.items.currentItemChanged.connect(self.current_item_changed)
+        self.items.setSelectionMode(self.items.NoSelection)
+        self.delegate = Delegate(self.items)
+        self.items.setItemDelegate(self.delegate)
         l.addWidget(i)
         self.help = h = QTextBrowser(self)
         h.anchorClicked.connect(self.link_clicked)
@@ -65,7 +76,6 @@ class Check(QWidget):
         if num > 0:
             row = (row + delta) % num
             self.items.setCurrentRow(row)
-            self.items.item(row).setSelected(True)
             self.current_item_activated()
 
     def current_item_activated(self, *args):
@@ -89,9 +99,9 @@ class Check(QWidget):
                 loc = ' (%s)' % loc
             self.help.setText(
                 '''<h2 style="text-align:center">%s</h2>
-                <p>%s</p>
                 <div><a style="text-decoration:none" href="activate:item" title="%s">%s %s</a></div>
-                ''' % (header, err.msg, _('Click to open in editor'), err.name, loc))
+                <p>%s</p>
+                ''' % (header, _('Click to open in editor'), err.name, loc, err.HELP))
 
     def run_checks(self, container):
         from calibre.gui2.tweak_book.boss import BusyCursor
@@ -106,7 +116,6 @@ class Check(QWidget):
             i.setData(Qt.UserRole, err)
             i.setIcon(icon_for_level(err.level))
         if errors:
-            self.items.item(0).setSelected(True)
             self.items.setCurrentRow(0)
             self.current_item_changed()
             self.items.setFocus(Qt.OtherFocusReason)
