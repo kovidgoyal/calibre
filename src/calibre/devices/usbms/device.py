@@ -1015,6 +1015,13 @@ class Device(DeviceConfig, DevicePlugin):
 
         return path
 
+    def sanitize_callback(self, path):
+        '''
+        Callback to allow individual device drivers to override the path sanitization
+        used by :meth:`create_upload_path`.
+        '''
+        return sanitize(path)
+
     def filename_callback(self, default, mi):
         '''
         Callback to allow drivers to change the default file name
@@ -1044,7 +1051,7 @@ class Device(DeviceConfig, DevicePlugin):
     def create_upload_path(self, path, mdata, fname, create_dirs=True):
         from calibre.devices.utils import create_upload_path
         settings = self.settings()
-        filepath = create_upload_path(mdata, fname, self.save_template(), sanitize,
+        filepath = create_upload_path(mdata, fname, self.save_template(), self.sanitize_callback,
                 prefix_path=os.path.abspath(path),
                 maxlen=self.MAX_PATH_LEN,
                 use_subdirs = self.SUPPORTS_SUB_DIRS and settings.use_subdirs,
