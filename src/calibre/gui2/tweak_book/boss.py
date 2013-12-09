@@ -690,9 +690,8 @@ class Boss(QObject):
             editor = editors[name]
             self.gui.central.show_editor(editor)
         else:
-            syntax = syntax_from_mime(name, current_container().mime_map[name])
-            editor = self.edit_file(name, syntax)
-        if editor.has_line_numbers:
+            editor = self.edit_file_requested(name, None, current_container().mime_map[name])
+        if getattr(editor, 'has_line_numbers', False):
             editor.go_to_line(item.line, item.col)
             editor.set_focus()
 
@@ -812,7 +811,7 @@ class Boss(QObject):
             return error_dialog(
                 self.gui, _('Unsupported file format'),
                 _('Editing files of type %s is not supported' % mime), show=True)
-        self.edit_file(name, syntax)
+        return self.edit_file(name, syntax)
 
     # Editor basic controls {{{
     def do_editor_undo(self):
