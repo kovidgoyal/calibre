@@ -562,9 +562,9 @@ def entity_to_unicode(match, exceptions=[], encoding='cp1252',
             return check(chr(num).decode(encoding))
         except UnicodeDecodeError:
             return check(my_unichr(num))
-    from html5lib.constants import entities
+    from calibre.ebooks.html_entities import html5_entities
     try:
-        return check(entities[ent])
+        return check(html5_entities[ent])
     except KeyError:
         pass
     from htmlentitydefs import name2codepoint
