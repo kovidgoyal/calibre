@@ -47,6 +47,12 @@ def get_container(*args, **kwargs):
             font_cache.add_font(raw)
     return container
 
+def setup_cssutils_serialization():
+    import cssutils
+    prefs = cssutils.ser.prefs
+    prefs.indent = tprefs['editor_tab_stop_width'] * ' '
+    prefs.indentClosingBrace = False
+
 class BusyCursor(object):
 
     def __enter__(self):
@@ -73,6 +79,7 @@ class Boss(QObject):
         self.save_manager.report_error.connect(self.report_save_error)
         self.doing_terminal_save = False
         self.ignore_preview_to_editor_sync = False
+        setup_cssutils_serialization()
 
     def __call__(self, gui):
         self.gui = gui
@@ -102,6 +109,7 @@ class Boss(QObject):
             for ed in editors.itervalues():
                 ed.apply_settings()
             self.gui.keyboard.finalize()
+            setup_cssutils_serialization()
 
     def mark_requested(self, name, action):
         self.commit_dirty_opf()
