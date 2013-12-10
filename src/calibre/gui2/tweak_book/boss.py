@@ -52,6 +52,7 @@ def setup_cssutils_serialization():
     prefs = cssutils.ser.prefs
     prefs.indent = tprefs['editor_tab_stop_width'] * ' '
     prefs.indentClosingBrace = False
+    prefs.omitLastSemicolon = False
 
 class BusyCursor(object):
 
