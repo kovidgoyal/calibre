@@ -22,3 +22,18 @@ class PositionFinder(object):
         except IndexError:
             offset = pos
         return (lnum + 1, offset)
+
+class CommentFinder(object):
+
+    def __init__(self, raw, pat=r'(?s)/\*.*?\*/'):
+        self.starts, self.ends = [], []
+        for m in re.finditer(pat, raw):
+            start, end = m.span()
+            self.starts.append(start), self.ends.append(end)
+
+    def __call__(self, offset):
+        if not self.starts:
+            return False
+        q = bisect(self.starts, offset) - 1
+        return q >= 0 and self.starts[q] <= offset <= self.ends[q]
+

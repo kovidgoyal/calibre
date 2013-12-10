@@ -31,7 +31,7 @@ from calibre.ebooks.oeb.base import (
     rewrite_links, iterlinks, itercsslinks, urlquote, urlunquote)
 from calibre.ebooks.oeb.polish.errors import InvalidBook, DRMError
 from calibre.ebooks.oeb.polish.parsing import parse as parse_html_tweak
-from calibre.ebooks.oeb.polish.utils import PositionFinder
+from calibre.ebooks.oeb.polish.utils import PositionFinder, CommentFinder
 from calibre.ebooks.oeb.parse_utils import NotHTML, parse_html, RECOVER_PARSER
 from calibre.ptempfile import PersistentTemporaryDirectory, PersistentTemporaryFile
 from calibre.utils.filenames import nlinks_file, hardlink_file
@@ -292,12 +292,14 @@ class Container(object):  # {{{
                 yield (link, el.sourceline, pos) if get_line_numbers else link
         elif media_type.lower() in OEB_STYLES:
             if get_line_numbers:
-                with self.open(name) as f:
+                with self.open(name, 'rb') as f:
                     raw = self.decode(f.read()).replace('\r\n', '\n').replace('\r', '\n')
                     position = PositionFinder(raw)
+                    is_in_comment = CommentFinder(raw)
                     for link, offset in itercsslinks(raw):
-                        lnum, col = position(offset)
-                        yield link, lnum, col
+                        if not is_in_comment(offset):
+                            lnum, col = position(offset)
+                            yield link, lnum, col
             else:
                 for link in getUrls(self.parsed(name)):
                     yield link
