@@ -198,7 +198,8 @@ class TextEdit(QPlainTextEdit):
         else:
             c.setPosition(c.block().position() + col)
             if c.blockNumber() + 1 > lnum:
-                c.movePosition(c.PreviousBlock)
+                # We have moved past the end of the line
+                c.setPosition(c.block().position())
                 c.movePosition(c.EndOfBlock)
         self.setTextCursor(c)
         self.ensureCursorVisible()
