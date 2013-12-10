@@ -6,9 +6,9 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 import os, traceback, Queue, time, cStringIO, re, sys, weakref
 from threading import Thread, Event
 
-from PyQt4.Qt import (QMenu, QAction, QActionGroup, QIcon, SIGNAL,
-                     Qt, pyqtSignal, QDialog, QObject, QVBoxLayout,
-                     QDialogButtonBox)
+from PyQt4.Qt import (
+    QMenu, QAction, QActionGroup, QIcon, SIGNAL, Qt, pyqtSignal, QDialog,
+    QObject, QVBoxLayout, QDialogButtonBox, QCursor)
 
 from calibre.customize.ui import (available_input_formats, available_output_formats,
     device_plugins, disabled_device_plugins)
@@ -35,7 +35,7 @@ from calibre.utils.magick.draw import thumbnail
 from calibre.library.save_to_disk import find_plugboard
 # }}}
 
-class DeviceJob(BaseJob): # {{{
+class DeviceJob(BaseJob):  # {{{
 
     def __init__(self, func, done, job_manager, args=[], kwargs={},
             description=''):
@@ -119,7 +119,18 @@ def device_name_for_plugboards(device_class):
         return device_class.DEVICE_PLUGBOARD_NAME
     return device_class.__class__.__name__
 
-class DeviceManager(Thread): # {{{
+class BusyCursor(object):
+
+    def __enter__(self):
+        from PyQt4.Qt import QApplication
+        QApplication.setOverrideCursor(QCursor(Qt.WaitCursor))
+
+    def __exit__(self, *args):
+        from PyQt4.Qt import QApplication
+        QApplication.restoreOverrideCursor()
+
+
+class DeviceManager(Thread):  # {{{
 
     def __init__(self, connected_slot, job_manager, open_feedback_slot,
                  open_feedback_msg, allow_connect_slot,
@@ -662,7 +673,7 @@ class DeviceManager(Thread): # {{{
 
     # }}}
 
-class DeviceAction(QAction): # {{{
+class DeviceAction(QAction):  # {{{
 
     a_s = pyqtSignal(object)
 
@@ -681,7 +692,7 @@ class DeviceAction(QAction): # {{{
                 self.specific)
     # }}}
 
-class DeviceMenu(QMenu): # {{{
+class DeviceMenu(QMenu):  # {{{
 
     fetch_annotations = pyqtSignal()
     disconnect_mounted_device = pyqtSignal()
@@ -694,7 +705,6 @@ class DeviceMenu(QMenu): # {{{
 
         self.set_default_menu = QMenu(_('Set default send to device action'))
         self.set_default_menu.setIcon(QIcon(I('config.png')))
-
 
         basic_actions = [
                 ('main:', False, False,  I('reader.png'),
@@ -816,12 +826,12 @@ class DeviceMenu(QMenu): # {{{
                     if action.dest == 'main:':
                         action.setEnabled(True)
                     elif action.dest == 'carda:0':
-                        if card_prefix and card_prefix[0] != None:
+                        if card_prefix and card_prefix[0] is not None:
                             action.setEnabled(True)
                         else:
                             action.setEnabled(False)
                     elif action.dest == 'cardb:0':
-                        if card_prefix and card_prefix[1] != None:
+                        if card_prefix and card_prefix[1] is not None:
                             action.setEnabled(True)
                         else:
                             action.setEnabled(False)
@@ -831,7 +841,7 @@ class DeviceMenu(QMenu): # {{{
 
     # }}}
 
-class DeviceSignals(QObject): # {{{
+class DeviceSignals(QObject):  # {{{
     #: This signal is emitted once, after metadata is downloaded from the
     #: connected device.
     #: The sequence: gui.device_manager.is_device_connected will become True,
@@ -850,7 +860,7 @@ class DeviceSignals(QObject): # {{{
 device_signals = DeviceSignals()
 # }}}
 
-class DeviceMixin(object): # {{{
+class DeviceMixin(object):  # {{{
 
     def __init__(self):
         self.device_error_dialog = error_dialog(self, _('Error'),
@@ -926,7 +936,8 @@ class DeviceMixin(object): # {{{
         self.device_manager.umount_device()
 
     def configure_connected_device(self):
-        if not self.device_manager.is_device_connected: return
+        if not self.device_manager.is_device_connected:
+            return
         if self.job_manager.has_device_jobs(queued_also=True):
             return error_dialog(self, _('Running jobs'),
                     _('Cannot configure the device while there are running'
@@ -1039,12 +1050,12 @@ class DeviceMixin(object): # {{{
         self.set_device_menu_items_state(connected)
         if connected:
             self.device_connected = device_kind
-            self.device_manager.get_device_information(\
+            self.device_manager.get_device_information(
                     FunctionDispatcher(self.info_read))
-            self.set_default_thumbnail(\
+            self.set_default_thumbnail(
                     self.device_manager.device.THUMBNAIL_HEIGHT)
-            self.status_bar.show_message(_('Device: ')+\
-                self.device_manager.device.get_gui_name()+\
+            self.status_bar.show_message(_('Device: ')+
+                self.device_manager.device.get_gui_name()+
                         _(' detected.'), 3000)
             self.library_view.set_device_connected(self.device_connected)
             self.refresh_ondevice(reset_only=True)
@@ -1247,7 +1258,8 @@ class DeviceMixin(object): # {{{
             settings = self.device_manager.device.settings()
             ids = list(dynamic.get('catalogs_to_be_synced', set([]))) if send_ids is None else send_ids
             ids = [id for id in ids if self.library_view.model().db.has_id(id)]
-            files, _auto_ids = self.library_view.model().get_preferred_formats_from_ids(
+            with BusyCursor():
+                files, _auto_ids = self.library_view.model().get_preferred_formats_from_ids(
                                 ids, settings.format_map,
                                 exclude_auto=do_auto_convert)
             auto = []
@@ -1288,15 +1300,14 @@ class DeviceMixin(object): # {{{
             dynamic.set('catalogs_to_be_synced', set([]))
             if files:
                 remove = []
-                space = { self.location_manager.free[0] : None,
+                space = {self.location_manager.free[0] : None,
                     self.location_manager.free[1] : 'carda',
-                    self.location_manager.free[2] : 'cardb' }
+                    self.location_manager.free[2] : 'cardb'}
                 on_card = space.get(sorted(space.keys(), reverse=True)[0], None)
                 self.upload_books(files, names, metadata,
                         on_card=on_card,
                         memory=[files, remove])
                 self.status_bar.show_message(_('Sending catalogs to device.'), 5000)
-
 
     @dynamic_property
     def news_to_be_synced(self):
@@ -1321,14 +1332,14 @@ class DeviceMixin(object): # {{{
 
         return property(fget=fget, fset=fset, doc=doc)
 
-
     def sync_news(self, send_ids=None, do_auto_convert=True):
         if self.device_connected:
             del_on_upload = config['delete_news_from_library_on_upload']
             settings = self.device_manager.device.settings()
             ids = list(self.news_to_be_synced) if send_ids is None else send_ids
             ids = [id for id in ids if self.library_view.model().db.has_id(id)]
-            files, _auto_ids = self.library_view.model().get_preferred_formats_from_ids(
+            with BusyCursor():
+                files, _auto_ids = self.library_view.model().get_preferred_formats_from_ids(
                                 ids, settings.format_map,
                                 exclude_auto=do_auto_convert)
             auto = []
@@ -1369,9 +1380,9 @@ class DeviceMixin(object): # {{{
             self.news_to_be_synced = set([])
             if config['upload_news_to_device'] and files:
                 remove = ids if del_on_upload else []
-                space = { self.location_manager.free[0] : None,
+                space = {self.location_manager.free[0] : None,
                     self.location_manager.free[1] : 'carda',
-                    self.location_manager.free[2] : 'cardb' }
+                    self.location_manager.free[2] : 'cardb'}
                 on_card = space.get(sorted(space.keys(), reverse=True)[0], None)
                 try:
                     total_size = sum([os.stat(f).st_size for f in files])
@@ -1394,10 +1405,9 @@ class DeviceMixin(object): # {{{
                         memory=[files, remove])
                 self.status_bar.show_message(_('Sending news to device.'), 5000)
 
-
     def sync_to_device(self, on_card, delete_from_library,
             specific_format=None, send_ids=None, do_auto_convert=True):
-        ids = [self.library_view.model().id(r) \
+        ids = [self.library_view.model().id(r)
                for r in self.library_view.selectionModel().selectedRows()] \
                                 if send_ids is None else send_ids
         if not self.device_manager or not ids or len(ids) == 0 or \
@@ -1406,7 +1416,8 @@ class DeviceMixin(object): # {{{
 
         settings = self.device_manager.device.settings()
 
-        _files, _auto_ids = self.library_view.model().get_preferred_formats_from_ids(ids,
+        with BusyCursor():
+            _files, _auto_ids = self.library_view.model().get_preferred_formats_from_ids(ids,
                                     settings.format_map,
                                     specific_format=specific_format,
                                     exclude_auto=do_auto_convert)
@@ -1450,11 +1461,12 @@ class DeviceMixin(object): # {{{
         auto = []
         if _auto_ids != []:
             for id in _auto_ids:
-                if specific_format == None:
+                if specific_format is None:
                     formats = self.library_view.model().db.formats(id, index_is_id=True)
                     formats = formats.split(',') if formats is not None else []
                     formats = [f.lower().strip() for f in formats]
-                    if list(set(formats).intersection(available_input_formats())) != [] and list(set(settings.format_map).intersection(available_output_formats())) != []:
+                    if (list(set(formats).intersection(available_input_formats())) != [] and
+                        list(set(settings.format_map).intersection(available_output_formats())) != []):
                         auto.append(id)
                     else:
                         bad.append(self.library_view.model().db.title(id, index_is_id=True))
@@ -1556,7 +1568,7 @@ class DeviceMixin(object): # {{{
             if isinstance(job.exception, FreeSpaceError):
                 where = 'in main memory.' if 'memory' in str(job.exception) \
                         else 'on the storage card.'
-                titles = '\n'.join(['<li>'+mi.title+'</li>' \
+                titles = '\n'.join(['<li>'+mi.title+'</li>'
                                     for mi in metadata])
                 d = error_dialog(self, _('No space on device'),
                                  _('<p>Cannot upload books to device there '
@@ -1665,7 +1677,6 @@ class DeviceMixin(object): # {{{
             book.thumbnail = self.cover_to_thumbnail(open(book.cover, 'rb').read())
         else:
             book.thumbnail = self.default_thumbnail
-
 
     def set_books_in_library(self, booklists, reset=False, add_as_step_to_job=None,
                              force_send=False):
