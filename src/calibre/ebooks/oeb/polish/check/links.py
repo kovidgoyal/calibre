@@ -54,6 +54,13 @@ class Unmanifested(BadLink):
     def __init__(self, name):
         BadLink.__init__(self, _(
             'The file %s is not listed in the manifest') % name, name)
+        if name == 'META-INF/calibre_bookmarks.txt':
+            self.HELP = _(
+                'This file stores the bookmarks and last opened information from'
+                ' the calibre ebook viewer. You can remove it if you do not'
+                ' need that information, or dont want to share it with'
+                ' other people you send this book to.')
+
 
 def check_links(container):
     links_map = defaultdict(set)
