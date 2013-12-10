@@ -434,7 +434,8 @@ class Container(object):  # {{{
         from cssutils import CSSParser, log
         log.setLevel(logging.WARN)
         log.raiseExceptions = False
-        data = self.decode(data)
+        if isinstance(data, bytes):
+            data = self.decode(data)
         if not self.tweak_mode:
             data = self.css_preprocessor(data)
         parser = CSSParser(loglevel=logging.WARNING,

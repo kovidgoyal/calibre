@@ -9,10 +9,12 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 import re
 
 from lxml.etree import XMLParser, fromstring, XMLSyntaxError
+import cssutils
 
+from calibre import force_unicode
 from calibre.ebooks.html_entities import html5_entities
 from calibre.ebooks.oeb.polish.utils import PositionFinder
-from calibre.ebooks.oeb.polish.check.base import BaseError, WARN
+from calibre.ebooks.oeb.polish.check.base import BaseError, WARN, ERROR
 from calibre.ebooks.oeb.base import OEB_DOCS
 
 HTML_ENTITTIES = frozenset(html5_entities)
@@ -20,6 +22,15 @@ XML_ENTITIES = {'lt', 'gt', 'amp', 'apos', 'quot'}
 ALL_ENTITIES = HTML_ENTITTIES | XML_ENTITIES
 
 replace_pat = re.compile('&(%s);' % '|'.join(re.escape(x) for x in sorted((HTML_ENTITTIES - XML_ENTITIES))))
+
+def fix_style_tag(container, style):
+    prev = style.getprevious()
+    ws = style.getparent().text if prev is None else prev.tail
+    ws = ws.splitlines()[-1]
+    indent = ws[len(ws.rstrip()):]
+
+    sheet = container.parse_css(style.text)
+    style.text = '\n' + force_unicode(sheet.cssText, 'utf-8') + '\n' + indent
 
 class XMLParseError(BaseError):
 
@@ -131,3 +142,73 @@ def check_xml_parsing(name, mt, raw):
 
     return errors
 
+class CSSError(BaseError):
+
+    is_parsing_error = True
+
+    def __init__(self, level, msg, name, line, col):
+        self.level = level
+        prefix = 'CSS: '
+        BaseError.__init__(self, prefix + msg, name, line, col)
+        if level == WARN:
+            self.HELP = _('This CSS construct is not recognized. That means that it'
+                          ' most likely will not work on reader devices. Consider'
+                          ' replacing it with something else.')
+        else:
+            self.HELP = _('Some reader programs are very'
+                          ' finicky about CSS stylesheets and will ignore the whole'
+                          ' sheet if there is an error. These errors can often'
+                          ' be fixed automatically, however, automatic fixing will'
+                          ' typically remove unrecognized items, instead of correcting them.')
+            self.INDIVIDUAL_FIX = _('Try to fix parsing errors in this stylesheet automatically')
+
+    def __call__(self, container):
+        root = container.parsed(self.name)
+        container.dirty(self.name)
+        if container.mime_map[self.name] in OEB_DOCS:
+            for style in root.xpath('//*[local-name()="style"]'):
+                if style.get('type', 'text/css') == 'text/css' and style.text and style.text.strip():
+                    fix_style_tag(container, style)
+        return True
+
+pos_pats = (re.compile(r'\[(\d+):(\d+)'), re.compile(r'(\d+), (\d+)\)'))
+
+class ErrorHandler(object):
+
+    ' Replacement logger to get useful error/warning info out of cssutils during parsing '
+
+    def __init__(self, name):
+        # may be disabled during setting of known valid items
+        self.name = name
+        self.errors = []
+
+    def __noop(self, *args, **kwargs):
+        pass
+    info = debug = setLevel = getEffectiveLevel = addHandler = removeHandler = __noop
+
+    def __handle(self, level, *args):
+        msg = ' '.join(map(unicode, args))
+        line = col = None
+        for pat in pos_pats:
+            m = pat.search(msg)
+            if m is not None:
+                line, col = int(m.group(1)), int(m.group(2))
+        if msg and line is not None:
+            # Ignore error messages with no line numbers as these are usually
+            # summary messages for an underlying error with a line number
+            self.errors.append(CSSError(level, msg, self.name, line, col))
+
+    def error(self, *args):
+        self.__handle(ERROR, *args)
+
+    def warn(self, *args):
+        self.__handle(WARN, *args)
+    warning = warn
+
+def check_css_parsing(name, raw, line_offset=0):
+    log = ErrorHandler(name)
+    parser = cssutils.CSSParser(fetcher=lambda x: (None, None), log=log)
+    parser.parseString(raw, validate=True)
+    for err in log.errors:
+        err.line += line_offset
+    return log.errors
