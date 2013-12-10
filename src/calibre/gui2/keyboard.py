@@ -33,7 +33,7 @@ def finalize(shortcuts, custom_keys_map={}):  # {{{
     Resolve conflicts and assign keys to every action in shorcuts, which must
     be a OrderedDict. User specified mappings of unique names to keys (as a
     list of strings) should be passed in in custom_keys_map. Return a mapping
-    of unique names to resolved keys. Also sets the set_to_defaul member
+    of unique names to resolved keys. Also sets the set_to_default member
     correctly for each shortcut.
     '''
     seen, keys_map = {}, {}

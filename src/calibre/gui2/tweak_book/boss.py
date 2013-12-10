@@ -101,6 +101,7 @@ class Boss(QObject):
         if p.exec_() == p.Accepted:
             for ed in editors.itervalues():
                 ed.apply_settings()
+            self.gui.keyboard.finalize()
 
     def mark_requested(self, name, action):
         self.commit_dirty_opf()
