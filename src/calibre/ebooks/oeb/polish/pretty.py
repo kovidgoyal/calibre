@@ -150,6 +150,16 @@ def pretty_block(parent, level=1, indent='  '):
             child.tail = ''
         child.tail = child.tail + nn + (indent * l)
 
+
+def pretty_script_or_style(container, child):
+    if child.text:
+        indent = indent_for_tag(child)
+        if child.tag.endswith('style'):
+            child.text = force_unicode(pretty_css(container, '', child.text), 'utf-8')
+        child.text = textwrap.dedent(child.text)
+        child.text = '\n' + '\n'.join([(indent + x) if x else '' for x in child.text.splitlines()])
+        set_indent(child, 'text', indent)
+
 def pretty_html_tree(container, root):
     root.text = '\n\n'
     for child in root:
@@ -161,13 +171,7 @@ def pretty_html_tree(container, root):
 
     # Handle <script> and <style> tags
     for child in root.xpath('//*[local-name()="script" or local-name()="style"]'):
-        if child.text:
-            indent = indent_for_tag(child)
-            if child.tag.endswith('style'):
-                child.text = force_unicode(pretty_css(container, '', child.text), 'utf-8')
-            child.text = textwrap.dedent(child.text)
-            child.text = '\n' + '\n'.join([(indent + x) if x else '' for x in child.text.splitlines()])
-            set_indent(child, 'text', indent)
+        pretty_script_or_style(container, child)
 
 def fix_html(container, raw):
     root = container.parse_xhtml(raw)

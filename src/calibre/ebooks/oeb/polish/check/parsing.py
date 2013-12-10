@@ -11,8 +11,8 @@ import re
 from lxml.etree import XMLParser, fromstring, XMLSyntaxError
 import cssutils
 
-from calibre import force_unicode
 from calibre.ebooks.html_entities import html5_entities
+from calibre.ebooks.oeb.polish.pretty import pretty_script_or_style as fix_style_tag
 from calibre.ebooks.oeb.polish.utils import PositionFinder
 from calibre.ebooks.oeb.polish.check.base import BaseError, WARN, ERROR
 from calibre.ebooks.oeb.base import OEB_DOCS
@@ -22,15 +22,6 @@ XML_ENTITIES = {'lt', 'gt', 'amp', 'apos', 'quot'}
 ALL_ENTITIES = HTML_ENTITTIES | XML_ENTITIES
 
 replace_pat = re.compile('&(%s);' % '|'.join(re.escape(x) for x in sorted((HTML_ENTITTIES - XML_ENTITIES))))
-
-def fix_style_tag(container, style):
-    prev = style.getprevious()
-    ws = style.getparent().text if prev is None else prev.tail
-    ws = ws.splitlines()[-1]
-    indent = ws[len(ws.rstrip()):]
-
-    sheet = container.parse_css(style.text)
-    style.text = '\n' + force_unicode(sheet.cssText, 'utf-8') + '\n' + indent
 
 class XMLParseError(BaseError):
 
