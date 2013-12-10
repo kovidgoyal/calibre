@@ -52,7 +52,10 @@ def fix_errors(container, errors):
 
     for err in errors:
         if err.INDIVIDUAL_FIX:
-            if err(container):
+            if err(container) is not False:
+                # Assume changed unless fixer explicitly says no change (this
+                # is because sometimes I forget to return True, and it is
+                # better to have a false positive than a false negative)
                 changed = True
     return changed
 
