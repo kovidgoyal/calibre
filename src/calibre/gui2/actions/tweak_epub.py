@@ -19,10 +19,10 @@ class Choose(QDialog):
         QDialog.__init__(self, parent)
         self.l = l = QVBoxLayout(self)
         self.setLayout(l)
-        self.setWindowTitle(_('Choose format to tweak'))
+        self.setWindowTitle(_('Choose format to edit'))
 
         self.la = la = QLabel(_(
-            'This book has multiple formats that can be tweaked. Choose the format you want to tweak.'))
+            'This book has multiple formats that can be edited. Choose the format you want to edit.'))
         l.addWidget(la)
 
         self.rem = QCheckBox(_('Always ask when more than one format is available'))
@@ -54,7 +54,7 @@ class Choose(QDialog):
 class TweakEpubAction(InterfaceAction):
 
     name = 'Tweak ePub'
-    action_spec = (_('Tweak Book'), 'tweak.png', _('Edit eBooks'), _('T'))
+    action_spec = (_('Edit Book'), 'tweak.png', _('Edit eBooks'), _('T'))
     dont_add_to = frozenset(['context-menu-device'])
     action_type = 'current'
 
@@ -90,7 +90,7 @@ class TweakEpubAction(InterfaceAction):
     def tweak_book(self):
         row = self.gui.library_view.currentIndex()
         if not row.isValid():
-            return error_dialog(self.gui, _('Cannot Tweak Book'),
+            return error_dialog(self.gui, _('Cannot Edit Book'),
                     _('No book selected'), show=True)
 
         book_id = self.gui.library_view.model().id(row)
@@ -103,8 +103,8 @@ class TweakEpubAction(InterfaceAction):
         fmts = [x.upper().strip() for x in fmts.split(',')]
         tweakable_fmts = set(fmts).intersection(SUPPORTED)
         if not tweakable_fmts:
-            return error_dialog(self.gui, _('Cannot Tweak Book'),
-                    _('The book must be in the %s formats to tweak.'
+            return error_dialog(self.gui, _('Cannot Edit Book'),
+                    _('The book must be in the %s formats to edit.'
                         '\n\nFirst convert the book to one of these formats.') % (_(' or '.join(SUPPORTED))),
                     show=True)
         from calibre.gui2.tweak_book import tprefs
@@ -126,7 +126,7 @@ class TweakEpubAction(InterfaceAction):
             return error_dialog(self.gui, _('File missing'), _(
                 'The %s format is missing from the calibre library. You should run'
                 ' library maintenance.') % fmt, show=True)
-        tweak = 'ebook-tweak'
+        tweak = 'ebook-edit'
         self.gui.setCursor(Qt.BusyCursor)
         if tprefs['update_metadata_from_calibre']:
             from calibre.ebooks.metadata.opf2 import pretty_print

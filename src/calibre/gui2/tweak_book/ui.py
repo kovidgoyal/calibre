@@ -179,7 +179,7 @@ class CursorPositionWidget(QWidget):
 
 class Main(MainWindow):
 
-    APP_NAME = _('Tweak Book')
+    APP_NAME = _('Edit Book')
     STATE_VERSION = 0
 
     def __init__(self, opts):

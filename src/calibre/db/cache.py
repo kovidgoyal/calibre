@@ -671,7 +671,7 @@ class Cache(object):
         '''
         Return absolute path to the ebook file of format `format`
 
-        Currently used only in calibredb list, the viewer, tweak book and the
+        Currently used only in calibredb list, the viewer, edit book and the
         catalogs (via get_data_as_dict()).
 
         Apart from the viewer, I don't believe any of the others do any file

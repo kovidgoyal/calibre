@@ -186,11 +186,11 @@ class IntegrationSettings(BasicSettings):
         l.addRow(um)
 
         ask = self('choose_tweak_fmt')
-        ask.setText(_('Ask which format to tweak if more than one format is available for the book'))
+        ask.setText(_('Ask which format to edit if more than one format is available for the book'))
         l.addRow(ask)
 
         order = self.order_widget('tweak_fmt_order')
-        order.setToolTip(_('When auto-selecting the format to tweak for a book with'
+        order.setToolTip(_('When auto-selecting the format to edit for a book with'
                            ' multiple formats, this is the preference order.'))
         l.addRow(_('Preferred format order (drag and drop to change)'), order)
 
@@ -201,7 +201,7 @@ class Preferences(QDialog):
         QDialog.__init__(self, gui)
         self.l = l = QGridLayout(self)
         self.setLayout(l)
-        self.setWindowTitle(_('Preferences for Tweak Book'))
+        self.setWindowTitle(_('Preferences for Edit Book'))
         self.setWindowIcon(QIcon(I('config.png')))
 
         self.stacks = QStackedWidget(self)

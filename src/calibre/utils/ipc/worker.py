@@ -25,7 +25,7 @@ PARALLEL_FUNCS = {
       'ebook-viewer'    :
         ('calibre.gui2.viewer.main', 'main', None),
 
-      'ebook-tweak' :
+      'ebook-edit' :
         ('calibre.gui2.tweak_book.main', 'main', None),
 
       'render_pages' :

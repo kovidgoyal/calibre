@@ -16,11 +16,11 @@ from calibre.ptempfile import reset_base_dir
 from calibre.utils.config import OptionParser
 
 def option_parser():
-    parser =  OptionParser('''\
+    parser =  OptionParser(_('''\
 %prog [opts] [path_to_ebook]
 
-Launch the calibre tweak book tool.
-''')
+Launch the calibre edit book tool.
+'''))
     setup_gui_option_parser(parser)
     parser.add_option('--edit-file', help=_(
         'Edit the named file inside the book'))
@@ -42,7 +42,7 @@ def main(args=sys.argv):
     opts, args = parser.parse_args(args)
     if getattr(opts, 'detach', False):
         detach_gui()
-    override = 'calibre-tweak-book' if islinux else None
+    override = 'calibre-edit-book' if islinux else None
     app = Application(args, override_program_name=override)
     app.load_builtin_fonts()
     app.setWindowIcon(QIcon(I('tweak.png')))

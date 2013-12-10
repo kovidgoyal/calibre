@@ -905,7 +905,7 @@ class ActionCopyToLibrary(InterfaceActionBase):
 class ActionTweakEpub(InterfaceActionBase):
     name = 'Tweak ePub'
     actual_plugin = 'calibre.gui2.actions.tweak_epub:TweakEpubAction'
-    description = _('Make small tweaks to epub or htmlz files in your calibre library')
+    description = _('Edit ebooks in the epub or azw3 formats')
 
 class ActionUnpackBook(InterfaceActionBase):
     name = 'Unpack Book'

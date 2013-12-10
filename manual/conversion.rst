@@ -14,7 +14,7 @@ you just want greater control over the conversion system, |app| has a lot of
 options to fine tune the conversion process. Note however that |app|'s
 conversion system is not a substitute for a full blown ebook editor. To edit
 ebooks, I recommend first converting them to EPUB or AZW3 using |app| and
-then using the Tweak Book feature to get them into perfect shape. You can then
+then using the Edit Book feature to get them into perfect shape. You can then
 use the edited ebook as input for conversion into other formats in |app|.
 
 This document will refer mainly to the conversion settings as found in the
@@ -325,7 +325,7 @@ remove all non-breaking-space entities, or may include false positive matches re
     tags, i.e. horizontal rules, and <img> tags are exceptions.  Horizontal rules can optionally be specified with styles, if you 
     choose to add your own style be sure to include the 'width' setting, otherwise the style information will be discarded.  Image 
     tags can used, but |app| does not provide the ability to add the image during conversion, this must be done after the fact using 
-    the 'Tweak Book' feature, or Sigil.
+    the 'Edit Book' feature.
         
         Example image tag (place the image within an 'Images' folder inside the epub after conversion):
             <img style="width:10%" src="../Images/scenebreak.png" />
