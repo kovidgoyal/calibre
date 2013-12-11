@@ -310,6 +310,23 @@ class EditorWidget(QWebView):  # {{{
         frame.evaluateJavaScript(js)
 
     def remove_format_cleanup(self):
+        # WebKit (the version in Qt 4.8.x at least) does not remove background
+        # colors, see https://bugs.webkit.org/show_bug.cgi?id=101682
+        self.page().mainFrame().evaluateJavaScript(
+            '''
+            var sel = window.getSelection();
+            if (sel.rangeCount >= 1) {
+                var node = sel.getRangeAt(0).commonAncestorContainer;
+                if (node.style.backgroundColor && node.style.backgroundColor != 'transparent') node.style.backgroundColor = 'transparent';
+                var descendants = node.getElementsByTagName('*');
+                for (var i = 0; i < descendants.length; i++) {
+                    var s = descendants[i].style;
+                    if (s.backgroundColor && s.backgroundColor != 'transparent')
+                        s.backgroundColor = 'transparent';
+                }
+        }
+
+        ''')
         self.html = self.html
 
     @dynamic_property
@@ -736,7 +753,8 @@ if __name__ == '__main__':
     w = Editor()
     w.resize(800, 600)
     w.show()
-    w.html = '<b>testing</b>'
+    w.html = '''<span style="background-color: rgb(0, 255, 255); ">He hadn't
+    set out to have an <em>affair</em>, <span style="font-style:italic; background-color:red">much</span> less a long-term, devoted one.</span>'''
     app.exec_()
     # print w.html
 
