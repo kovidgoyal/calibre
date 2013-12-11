@@ -139,7 +139,7 @@ class Check(QSplitter):
             self.hide_busy()
 
         for err in sorted(errors, key=lambda e:(100 - e.level, e.name)):
-            i = QListWidgetItem(err.msg, self.items)
+            i = QListWidgetItem('%s\xa0\xa0\xa0\xa0[%s]' % (err.msg, err.name), self.items)
             i.setData(Qt.UserRole, err)
             i.setIcon(icon_for_level(err.level))
         if errors:
