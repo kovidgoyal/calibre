@@ -108,6 +108,7 @@ class TweakEpubAction(InterfaceAction):
                         '\n\nFirst convert the book to one of these formats.') % (_(' or '.join(SUPPORTED))),
                     show=True)
         from calibre.gui2.tweak_book import tprefs
+        tprefs.refresh()  # In case they were changed in a Tweak Book process
         if len(tweakable_fmts) > 1:
             if tprefs['choose_tweak_fmt']:
                 d = Choose(sorted(tweakable_fmts, key=tprefs.defaults['tweak_fmt_order'].index), self.gui)
