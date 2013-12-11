@@ -119,12 +119,13 @@ class Check(QSplitter):
                     self.items.currentRow(), _('Try to fix only this error'), err.INDIVIDUAL_FIX)
 
             self.help.setText(
-                '''<style>a { text-decoration: none}</style><h2>%s [%d]</h2>
+                '''<style>a { text-decoration: none}</style><h2>%s [%d / %d]</h2>
                 <div><a href="activate:item" title="%s">%s %s</a></div>
                 <p>%s</p>
                 <div>%s<a href="fix:errors" title="%s">%s</a><br><br>
                 <a href="run:check" title="%s">%s</a></div>
-                ''' % (header, self.items.currentRow()+1, _('Click to open in editor'), err.name, loc, err.HELP, ifix,
+                ''' % (header, self.items.currentRow()+1, self.items.count(),
+                       _('Click to open in editor'), err.name, loc, err.HELP, ifix,
                        _('Try to fix all fixable errors automatically. Only works for some types of error.'),
                        _('Try to correct all fixable errors automatically'),
                        _('Re-run the check'), _('Re-run check')))
