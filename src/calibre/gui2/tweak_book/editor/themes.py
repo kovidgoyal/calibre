@@ -79,7 +79,7 @@ THEMES = {
     Normal       fg=f6f3e8 bg=242424
     LineNr       fg=857b6f bg=000000
     LineNrC      fg=yellow
-    Visual       fg=f6f3e8 bg=444444
+    Visual       fg=black bg=888888
 
     Comment      fg={comment}
     Todo         fg=8f8f8f
@@ -96,7 +96,7 @@ THEMES = {
     Error        us=wave uc=red
 
     '''.format(
-        cursor_loc='2d2d2d',
+        cursor_loc='3d3d3d',
         identifier='cae682',
         comment='99968b',
         string='95e454',
