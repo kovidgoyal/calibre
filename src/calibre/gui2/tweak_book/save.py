@@ -17,6 +17,7 @@ from calibre.ptempfile import PersistentTemporaryFile
 from calibre.gui2.progress_indicator import ProgressIndicator
 from calibre.utils import join_with_timeout
 from calibre.utils.filenames import atomic_rename
+from calibre.utils.ipc import RC
 
 def save_container(container, path):
     temp = PersistentTemporaryFile(
@@ -29,6 +30,15 @@ def save_container(container, path):
     finally:
         if os.path.exists(temp):
             os.remove(temp)
+
+def send_message(msg=''):
+    if msg:
+        t = RC(print_error=False)
+        t.start()
+        t.join(3)
+        if t.done:
+            t.conn.send('bookedited:'+msg)
+            t.conn.close()
 
 class SaveWidget(QWidget):
 
@@ -61,12 +71,17 @@ class SaveManager(QObject):
     report_error = pyqtSignal(object)
     save_done = pyqtSignal()
 
-    def __init__(self, parent):
+    def __init__(self, parent, notify=None):
         QObject.__init__(self, parent)
         self.count = 0
         self.last_saved = -1
         self.requests = LifoQueue()
+        self.notify_requests = LifoQueue()
+        self.notify_data = notify
         t = Thread(name='save-thread', target=self.run)
+        t.daemon = True
+        t.start()
+        t = Thread(name='notify-thread', target=self.notify_calibre)
         t.daemon = True
         t.start()
         self.status_widget = w = SaveWidget(parent)
@@ -93,6 +108,15 @@ class SaveManager(QObject):
             finally:
                 self.requests.task_done()
 
+    def notify_calibre(self):
+        while True:
+            if not self.notify_requests.get():
+                break
+            send_message(self.notify_data)
+
+    def clear_notify_data(self):
+        self.notify_data = None
+
     def __empty_queue(self):
         ' Only to be used during shutdown '
         while True:
@@ -115,6 +139,8 @@ class SaveManager(QObject):
             import traceback
             self.report_error.emit(traceback.format_exc())
         self.save_done.emit()
+        if self.notify_data:
+            self.notify_requests.put(True)
 
     def do_save(self, tdir, container):
         try:
@@ -138,3 +164,4 @@ class SaveManager(QObject):
 
     def shutdown(self):
         self.requests.put(None)
+        self.notify_requests.put(None)

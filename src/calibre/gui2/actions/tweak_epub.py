@@ -135,8 +135,9 @@ class TweakEpubAction(InterfaceAction):
             mi = db.new_api.get_metadata(book_id)
             with pretty_print, open(path, 'r+b') as f:
                 set_metadata(f, mi, stream_type=fmt.lower())
+        notify = '%d:%s:%s:%s' % (book_id, fmt, db.library_id, db.library_path)
         try:
-            self.gui.job_manager.launch_gui_app(tweak, kwargs=dict(args=[tweak, path]))
+            self.gui.job_manager.launch_gui_app(tweak, kwargs=dict(path=path, notify=notify))
             time.sleep(2)
         finally:
             self.gui.unsetCursor()

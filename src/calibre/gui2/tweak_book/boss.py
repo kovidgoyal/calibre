@@ -71,12 +71,12 @@ def in_thread_job(func):
 
 class Boss(QObject):
 
-    def __init__(self, parent):
+    def __init__(self, parent, notify=None):
         QObject.__init__(self, parent)
         self.global_undo = GlobalUndoHistory()
         self.container_count = 0
         self.tdir = None
-        self.save_manager = SaveManager(parent)
+        self.save_manager = SaveManager(parent, notify)
         self.save_manager.report_error.connect(self.report_save_error)
         self.doing_terminal_save = False
         self.ignore_preview_to_editor_sync = False
@@ -131,7 +131,7 @@ class Boss(QObject):
         self.container_count += 1
         return tempfile.mkdtemp(prefix='%s%05d-' % (prefix, self.container_count), dir=self.tdir)
 
-    def open_book(self, path=None, edit_file=None):
+    def open_book(self, path=None, edit_file=None, clear_notify_data=True):
         if self.gui.action_save.isEnabled():
             if not question_dialog(self.gui, _('Unsaved changes'), _(
                 'The current book has unsaved changes. If you open a new book, they will be lost'
@@ -167,10 +167,12 @@ class Boss(QObject):
             shutil.rmtree(self.tdir, ignore_errors=True)
         self.tdir = PersistentTemporaryDirectory()
         self._edit_file_on_open = edit_file
+        self._clear_notify_data = clear_notify_data
         self.gui.blocking_job('open_book', _('Opening book, please wait...'), self.book_opened, get_container, path, tdir=self.mkdtemp())
 
     def book_opened(self, job):
         ef = getattr(self, '_edit_file_on_open', None)
+        cn = getattr(self, '_clear_notify_data', True)
         self._edit_file_on_open = None
 
         if job.traceback is not None:
@@ -180,6 +182,8 @@ class Boss(QObject):
             return error_dialog(self.gui, _('Failed to open book'),
                     _('Failed to open book, click Show details for more information.'),
                                 det_msg=job.traceback, show=True)
+        if cn:
+            self.save_manager.clear_notify_data()
         parse_worker.clear()
         container = job.result
         set_current_container(container)

@@ -182,9 +182,9 @@ class Main(MainWindow):
     APP_NAME = _('Edit Book')
     STATE_VERSION = 0
 
-    def __init__(self, opts):
+    def __init__(self, opts, notify=None):
         MainWindow.__init__(self, opts, disable_automatic_gc=True)
-        self.boss = Boss(self)
+        self.boss = Boss(self, notify=notify)
         self.setWindowTitle(self.APP_NAME)
         self.setWindowIcon(QIcon(I('tweak.png')))
         self.opts = opts

@@ -26,8 +26,10 @@ Launch the calibre edit book tool.
         'Edit the named file inside the book'))
     return parser
 
+def gui_main(path=None, notify=None):
+    _run(['ebook-edit', path], notify=notify)
 
-def main(args=sys.argv):
+def _run(args, notify=None):
     # Ensure we can continue to function if GUI is closed
     os.environ.pop('CALIBRE_WORKER_TEMP_DIR', None)
     reset_base_dir()
@@ -48,12 +50,15 @@ def main(args=sys.argv):
     app.setWindowIcon(QIcon(I('tweak.png')))
     Application.setOrganizationName(ORG_NAME)
     Application.setApplicationName(APP_UID)
-    main = Main(opts)
+    main = Main(opts, notify=notify)
     sys.excepthook = main.unhandled_exception
     main.show()
     if len(args) > 1:
-        main.boss.open_book(args[1], edit_file=opts.edit_file)
+        main.boss.open_book(args[1], edit_file=opts.edit_file, clear_notify_data=False)
     app.exec_()
+
+def main(args=sys.argv):
+    _run(args)
 
 if __name__ == '__main__':
     main()

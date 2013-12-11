@@ -558,6 +558,20 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
             self.tags_view.recount()
         elif msg.startswith('shutdown:'):
             self.quit(confirm_quit=False)
+        elif msg.startswith('bookedited:'):
+            parts = msg.split(':')[1:]
+            try:
+                book_id, fmt, library_id = parts[:3]
+                book_id = int(book_id)
+                m = self.library_view.model()
+                db = m.db.new_api
+                if m.db.library_id == library_id and db.has_id(book_id):
+                    db.format_metadata(book_id, fmt, allow_cache=False, update_db=True)
+                    db.update_last_modified((book_id,))
+                    m.refresh_ids((book_id,))
+            except Exception:
+                import traceback
+                traceback.print_exc()
         else:
             print msg
 
