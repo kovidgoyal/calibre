@@ -177,6 +177,9 @@ class ParsingTests(BaseTest):
                 for i, (k, v) in enumerate(root.xpath('//*[local-name()="%s"]' % tag)[0].items()):
                     self.assertEqual(i+1, int(v))
 
+        root = parse('<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en-US" xmlns:xml="http://www.w3.org/XML/1998/namespace"><body/></html>')
+        self.assertNotIn('xmlnsU0003Axml', root.attrib, 'xml namespace declaration not removed')
+
 def timing():
     import time, sys
     from calibre.ebooks.chardet import xml_to_unicode

@@ -399,6 +399,8 @@ class TreeBuilder(BaseTreeBuilder):
                 except TypeError:
                     pass
                 except ValueError:
+                    if k == 'xmlns:xml':
+                        continue
                     if k == 'xml:lang' and 'lang' not in html.attrib:
                         k = 'lang'
                     html.set(to_xml_name(k), v)
@@ -414,6 +416,8 @@ class TreeBuilder(BaseTreeBuilder):
                 except TypeError:
                     pass
                 except ValueError:
+                    if k == 'xmlns:xml':
+                        continue
                     if k == 'xml:lang' and 'lang' not in body.attrib:
                         k = 'lang'
                     body.set(to_xml_name(k), v)
