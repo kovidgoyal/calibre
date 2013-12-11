@@ -349,6 +349,9 @@ class Main(MainWindow):
         self.action_close_all_but_current_tab = reg(
             'edit-clear.png', _('&Close other tabs'), self.central.close_all_but_current_editor, 'close-all-but-current-tab', 'Ctrl+Alt+W', _(
                 'Close all tabs except the current tab'))
+        self.action_help = reg(
+            'help.png', _('User &Manual'), lambda : open_url(QUrl('http://manual.calibre-ebook.com/edit.html')), 'user-manual', 'F1', _(
+                'Show User Manual'))
 
     def create_menubar(self):
         p, q = self.create_application_menubar()
@@ -420,6 +423,10 @@ class Main(MainWindow):
         e.addSeparator()
         a(self.action_go_to_line)
 
+        e = b.addMenu(_('&Help'))
+        a = e.addAction
+        a(self.action_help)
+
     def update_recent_books(self):
         m = self.recent_books_menu
         m.clear()
@@ -453,6 +460,7 @@ class Main(MainWindow):
         b.setToolTip(_('Donate to support calibre development'))
         QTimer.singleShot(10, b.start_animation)
         self.global_bar.addWidget(w)
+        a(self.action_help)
 
         a = create(_('Polish book tool bar'), 'polish').addAction
         for x in ('embed_fonts', 'subset_fonts', 'smarten_punctuation'):

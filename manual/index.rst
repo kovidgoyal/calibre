@@ -29,6 +29,7 @@ Sections
    news
    viewer
    conversion
+   edit
    metadata
    faq 
    tutorials
@@ -71,6 +72,14 @@ Customizing |app|'s ebook conversion
    :maxdepth: 2
 
    conversion
+
+Editing ebooks
+^^^^^^^^^^^^^^^^
+
+.. toctree::
+   :maxdepth: 2
+
+   edit
 
 Editing ebook metadata
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
