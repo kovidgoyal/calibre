@@ -15,7 +15,8 @@ import sip
 from PyQt4.Qt import (
     QWidget, QTreeWidget, QGridLayout, QSize, Qt, QTreeWidgetItem, QIcon, QFont,
     QStyledItemDelegate, QStyle, QPixmap, QPainter, pyqtSignal, QMenu, QTimer,
-    QDialogButtonBox, QDialog, QLabel, QLineEdit, QVBoxLayout, QScrollArea, QRadioButton)
+    QDialogButtonBox, QDialog, QLabel, QLineEdit, QVBoxLayout, QScrollArea,
+    QRadioButton, QFormLayout, QSpinBox)
 
 from calibre import human_readable, sanitize_file_name_unicode
 from calibre.ebooks.oeb.base import OEB_STYLES, OEB_DOCS
@@ -97,6 +98,7 @@ class FileList(QTreeWidget):
     delete_requested = pyqtSignal(object, object)
     reorder_spine = pyqtSignal(object)
     rename_requested = pyqtSignal(object, object)
+    bulk_rename_requested = pyqtSignal(object)
     edit_file = pyqtSignal(object, object, object)
     merge_requested = pyqtSignal(object, object, object)
     mark_requested = pyqtSignal(object, object)
@@ -350,7 +352,9 @@ class FileList(QTreeWidget):
             self.set_state(state)
 
         if self.current_edited_name:
-            self.mark_item_as_current(self.current_edited_name)
+            item = self.item_from_name(self.current_edited_name)
+            if item is not None:
+                self.mark_item_as_current(item)
 
     def show_context_menu(self, point):
         item = self.itemAt(point)
@@ -380,6 +384,8 @@ class FileList(QTreeWidget):
 
         if num > 0:
             m.addSeparator()
+            if num > 1:
+                m.addAction(QIcon(I('modified.png')), _('&Bulk rename selected files'), self.request_bulk_rename)
             m.addAction(QIcon(I('trash.png')), _('&Delete selected files'), self.request_delete)
             m.addSeparator()
 
@@ -434,6 +440,42 @@ class FileList(QTreeWidget):
             self.request_delete()
         else:
             return QTreeWidget.keyPressEvent(self, ev)
+
+    def request_bulk_rename(self):
+        names = {unicode(item.data(0, NAME_ROLE).toString()) for item in self.selectedItems()}
+        bad = names & current_container().names_that_must_not_be_changed
+        if bad:
+            return error_dialog(self, _('Cannot rename'),
+                         _('The file(s) %s cannot be renamed.') % ('<b>%s</b>' % ', '.join(bad)), show=True)
+        names = sorted(names, key=self.index_of_name)
+        d = QDialog(self)
+        d.l = l = QFormLayout(d)
+        d.setLayout(l)
+        d.prefix = p = QLineEdit(d)
+        p.setText(_('Chapter-'))
+        p.selectAll()
+        d.la = la = QLabel(_(
+            'All selected files will be renamed to the form prefix-number'))
+        l.addRow(la)
+        l.addRow(_('&Prefix:'), p)
+        d.num = num = QSpinBox(d)
+        num.setMinimum(0), num.setValue(1), num.setMaximum(1000)
+        l.addRow(_('Starting &number:'), num)
+        d.bb = bb = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
+        bb.accepted.connect(d.accept), bb.rejected.connect(d.reject)
+        l.addRow(bb)
+        if d.exec_() == d.Accepted:
+            prefix = sanitize_file_name_unicode(unicode(d.prefix.text()))
+            num = d.num.value()
+            largest = num + len(names) - 1
+            fmt = '%0{0}d'.format(len(str(largest)))
+            def change_name(name, num):
+                parts = name.split('/')
+                base, ext = parts[-1].rpartition('.')[0::2]
+                parts[-1] = prefix + (fmt % num) + '.' + ext
+                return '/'.join(parts)
+            name_map = {n:change_name(n, num + i) for i, n in enumerate(names)}
+            self.bulk_rename_requested.emit(name_map)
 
     def request_delete(self):
         names = {unicode(item.data(0, NAME_ROLE).toString()) for item in self.selectedItems()}
@@ -673,6 +715,7 @@ class FileListWidget(QWidget):
     delete_requested = pyqtSignal(object, object)
     reorder_spine = pyqtSignal(object)
     rename_requested = pyqtSignal(object, object)
+    bulk_rename_requested = pyqtSignal(object)
     edit_file = pyqtSignal(object, object, object)
     merge_requested = pyqtSignal(object, object, object)
     mark_requested = pyqtSignal(object, object)
@@ -687,7 +730,7 @@ class FileListWidget(QWidget):
         self.layout().setContentsMargins(0, 0, 0, 0)
         for x in ('delete_requested', 'reorder_spine', 'rename_requested',
                   'edit_file', 'merge_requested', 'mark_requested',
-                  'export_requested', 'replace_requested'):
+                  'export_requested', 'replace_requested', 'bulk_rename_requested'):
             getattr(self.file_list, x).connect(getattr(self, x))
         for x in ('delete_done', 'select_name', 'request_edit', 'mark_name_as_current', 'clear_currently_edited_name'):
             setattr(self, x, getattr(self.file_list, x))

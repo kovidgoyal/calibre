@@ -88,6 +88,7 @@ class Boss(QObject):
         fl.delete_requested.connect(self.delete_requested)
         fl.reorder_spine.connect(self.reorder_spine)
         fl.rename_requested.connect(self.rename_requested)
+        fl.bulk_rename_requested.connect(self.bulk_rename_requested)
         fl.edit_file.connect(self.edit_file_requested)
         fl.merge_requested.connect(self.merge_requested)
         fl.mark_requested.connect(self.mark_requested)
@@ -338,21 +339,29 @@ class Boss(QObject):
                 'confirm-urlunsafe-change', parent=self.gui, title=_('Are you sure?'), config_set=tprefs):
                     return
         self.add_savepoint(_('Rename %s') % oldname)
+        name_map = {oldname:newname}
         self.gui.blocking_job(
-            'rename_file', _('Renaming and updating links...'), partial(self.rename_done, oldname, newname),
-            rename_files, current_container(), {oldname: newname})
+            'rename_file', _('Renaming and updating links...'), partial(self.rename_done, name_map),
+            rename_files, current_container(), name_map)
 
-    def rename_done(self, oldname, newname, job):
+    def bulk_rename_requested(self, name_map):
+        self.commit_all_editors_to_container()
+        self.add_savepoint(_('Bulk rename'))
+        self.gui.blocking_job(
+            'bulk_rename_files', _('Renaming and updating links...'), partial(self.rename_done, name_map),
+            rename_files, current_container(), name_map)
+
+    def rename_done(self, name_map, job):
         if job.traceback is not None:
-            self.rewind_savepoint()
             return error_dialog(self.gui, _('Failed to rename files'),
                     _('Failed to rename files, click Show details for more information.'),
                                 det_msg=job.traceback, show=True)
         self.gui.file_list.build(current_container())
         self.set_modified()
-        if oldname in editors:
-            editors[newname] = editors.pop(oldname)
-            self.gui.central.rename_editor(editors[newname], newname)
+        for oldname, newname in name_map.iteritems():
+            if oldname in editors:
+                editors[newname] = editors.pop(oldname)
+                self.gui.central.rename_editor(editors[newname], newname)
         self.apply_container_update_to_gui()
     # }}}
 
