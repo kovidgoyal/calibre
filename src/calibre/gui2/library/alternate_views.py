@@ -18,7 +18,7 @@ from PyQt4.Qt import (
     QTimer, QPalette, QColor, QItemSelection, QPixmap, QMenu, QApplication,
     QMimeData, QUrl, QDrag, QPoint, QPainter, QRect, pyqtProperty, QEvent,
     QPropertyAnimation, QEasingCurve, pyqtSlot, QHelpEvent, QAbstractItemView,
-    QStyleOptionViewItem, QToolTip, QByteArray, QBuffer, QBrush)
+    QStyleOptionViewItem, QToolTip, QByteArray, QBuffer, QBrush, qRed, qGreen, qBlue)
 
 from calibre import fit_image, prints, prepare_string_for_xml, human_readable
 from calibre.constants import DEBUG
@@ -438,6 +438,7 @@ class CoverDelegate(QStyledItemDelegate):
                     painter.setRenderHint(QPainter.TextAntialiasing, True)
                     title = self.render_field(db, book_id)
                     metrics = painter.fontMetrics()
+                    painter.setPen(self.highlight_color)
                     painter.drawText(rect, Qt.AlignCenter|Qt.TextSingleLine,
                                      metrics.elidedText(title, Qt.ElideRight, rect.width()))
             if marked:
@@ -598,7 +599,11 @@ class GridView(QListView):
             from calibre.gui2.preferences.texture_chooser import texture_path
             path = texture_path(tex)
             if path:
-                pal.setBrush(pal.Base, QBrush(QPixmap(path)))
+                pm = QPixmap(path)
+                if not pm.isNull():
+                    val = pm.scaled(1, 1).toImage().pixel(0, 0)
+                    r, g, b = qRed(val), qGreen(val), qBlue(val)
+                    pal.setBrush(pal.Base, QBrush(pm))
         dark = (r + g + b)/3.0 < 128
         pal.setColor(pal.Text, QColor(Qt.white if dark else Qt.black))
         self.setPalette(pal)
