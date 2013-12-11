@@ -58,6 +58,7 @@ The Files Browser
 ------------------
 
 .. image:: images/files_browser.png
+    :alt: The Files Browser
     :class: float-left-img
 
 The :guilabel:`Files Browser` gives you an overview of the various files inside
@@ -120,7 +121,7 @@ Changing text file order
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 You can re-arrange the order in which text (HTML) files are opened when reading
-the book by simply dragging and dropping them int he Files browser. For the
+the book by simply dragging and dropping them in the Files browser. For the
 technically inclined, this is called re-ordering the book spine.
 
 Marking the cover
@@ -145,3 +146,65 @@ Deleteing files
 
 You can delete files by either right clicking on them or by selecting them and
 pressing the Delete key.
+
+Export/import of files
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+You can export a file from inside the book to somewhere else on your computer.
+This is useful if you want to work on the file in isolation, with specialised
+tools. To do this, simply right click on the file and choose
+:guilabel:`Export`. 
+
+Once you are done working on the exported file, you can re-import it into the
+book, by right clicking on the file again and choosing :guilabel:`Replace with
+file...` which will allow you to replace the file in the book with
+the previously exported file.
+
+
+Search & Replace
+-------------------
+
+Edit Book has a very powerful search and replace interface that allows you to
+search and replace text in the current file, across all files and even in a
+marked region of the current file. You can search using a normal search or
+using regular expressions. To learn how to use regular expressions for advanced
+searching, see :ref:`regexptutorial`.
+
+.. image:: images/sr.png
+    :alt: The Edit Book tool
+    :align: center
+
+Start the search and replace via the :guilabel:`Search->Find/replace` menu
+entry (you must be editing an HTML or CSS file).  
+
+Type the text you want to find into the Find box and its replacement into the
+Replace box. You can the click the appropriate buttons to Find the next match,
+replace the current match and replace all matches. 
+
+Using the drop downs at the bottom of the box, you can have the search operate
+over the current file, all text files, all style files or all files. You can
+also choose the search mode to be a normal (string) search or a regular
+expression search. 
+
+You can count all the matches for a search expression via
+:guilabel:`Search->Count all`. The count will run over whatever files/regions
+you have selected in the dropdown box.
+
+You can also go to a specific line in the currently open editor via
+:guilabel:`Search->Go to line`.
+
+.. note:: 
+    Remember, to harness the full power of search and replace, you will
+    need to use regular expressions. See :ref:`regexptutorial`.
+
+Automated tools
+-------------------
+
+Edit book has various tools to help with common tasks. These are
+accessed via the :guilabel:`Tools` menu.
+
+Edit the Table of Contents
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+There is a dedicated tool to ease editing of the Table of Contents. Launch it
+with :guilabel:`Tools->Edit Table of Contents`. 
