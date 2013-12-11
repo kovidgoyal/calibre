@@ -379,8 +379,8 @@ class CoverDelegate(QStyledItemDelegate):
                 mi = db.get_proxy_metadata(book_id)
                 display_name, ans, val, fm = mi.format_field_extended(field)
                 if fm and fm['datatype'] == 'rating':
-                    ans = u'\u2605' * int(val/2.0)
-            return unicode(ans)
+                    ans = u'\u2605' * int(val/2.0) if val is not None else ''
+            return '' if ans is None else unicode(ans)
         except Exception:
             if DEBUG:
                 import traceback
