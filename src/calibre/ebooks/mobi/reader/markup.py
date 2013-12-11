@@ -45,7 +45,8 @@ def update_internal_links(mobi8_reader, log):
                         suffix = (b'#' + idtag) if idtag else b''
                         replacement = filename.split('/')[-1].encode(
                                 mr.header.codec) + suffix
-                    tag = posfid_index_pattern.sub(replacement, tag, 1)
+                        replacement = replacement.replace(b'"', b'&quot;')
+                    tag = posfid_index_pattern.sub(b'"' + replacement + b'"', tag, 1)
                 srcpieces[j] = tag
         raw = b''.join(srcpieces)
         parts.append(raw.decode(mr.header.codec))
