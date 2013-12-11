@@ -13,7 +13,7 @@ from functools import partial
 
 import sip
 from PyQt4.Qt import (
-    QWidget, QTreeWidget, QGridLayout, QSize, Qt, QTreeWidgetItem, QIcon,
+    QWidget, QTreeWidget, QGridLayout, QSize, Qt, QTreeWidgetItem, QIcon, QFont,
     QStyledItemDelegate, QStyle, QPixmap, QPainter, pyqtSignal, QMenu, QTimer,
     QDialogButtonBox, QDialog, QLabel, QLineEdit, QVBoxLayout, QScrollArea, QRadioButton)
 
@@ -105,6 +105,7 @@ class FileList(QTreeWidget):
 
     def __init__(self, parent=None):
         QTreeWidget.__init__(self, parent)
+        self.current_edited_name = None
         self.delegate = ItemDelegate(self)
         self.delegate.rename_requested.connect(self.rename_requested)
         self.setTextElideMode(Qt.ElideMiddle)
@@ -169,6 +170,29 @@ class FileList(QTreeWidget):
                 c.setSelected(q == name)
                 if q == name:
                     self.scrollToItem(c)
+
+    def mark_name_as_current(self, name):
+        current = self.item_from_name(name)
+        if current is not None:
+            if self.current_edited_name is not None:
+                ci = self.item_from_name(self.current_edited_name)
+                if ci is not None:
+                    ci.setData(0, Qt.FontRole, None)
+            self.current_edited_name = name
+            self.mark_item_as_current(current)
+
+    def mark_item_as_current(self, item):
+        font = QFont(self.font())
+        font.setItalic(True)
+        font.setBold(True)
+        item.setData(0, Qt.FontRole, font)
+
+    def clear_currently_edited_name(self):
+        if self.current_edited_name:
+            ci = self.item_from_name(self.current_edited_name)
+            if ci is not None:
+                ci.setData(0, Qt.FontRole, None)
+        self.current_edited_name = None
 
     def build(self, container, preserve_state=True):
         if preserve_state:
@@ -324,6 +348,9 @@ class FileList(QTreeWidget):
 
         if preserve_state:
             self.set_state(state)
+
+        if self.current_edited_name:
+            self.mark_item_as_current(self.current_edited_name)
 
     def show_context_menu(self, point):
         item = self.itemAt(point)
@@ -662,7 +689,7 @@ class FileListWidget(QWidget):
                   'edit_file', 'merge_requested', 'mark_requested',
                   'export_requested', 'replace_requested'):
             getattr(self.file_list, x).connect(getattr(self, x))
-        for x in ('delete_done', 'select_name', 'request_edit'):
+        for x in ('delete_done', 'select_name', 'request_edit', 'mark_name_as_current', 'clear_currently_edited_name'):
             setattr(self, x, getattr(self.file_list, x))
 
     def build(self, container, preserve_state=True):

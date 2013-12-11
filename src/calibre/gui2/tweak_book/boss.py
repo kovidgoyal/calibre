@@ -186,6 +186,7 @@ class Boss(QObject):
         self.current_metadata = self.gui.current_metadata = container.mi
         self.global_undo.open_book(container)
         self.gui.update_window_title()
+        self.gui.file_list.current_edited_name = None
         self.gui.file_list.build(container, preserve_state=False)
         self.gui.action_save.setEnabled(False)
         self.update_global_history_actions()
@@ -881,10 +882,13 @@ class Boss(QObject):
                     break
             if name is not None and getattr(ed, 'syntax', None) == 'html':
                 self.gui.preview.show(name)
+            if name is not None:
+                self.gui.file_list.mark_name_as_current(name)
             if ed.has_line_numbers:
                 self.gui.cursor_position_widget.update_position(*ed.cursor_position)
         else:
             actions['go-to-line-number'].setEnabled(False)
+            self.gui.file_list.clear_currently_edited_name()
 
     def update_cursor_position(self):
         ed = self.gui.central.current_editor
