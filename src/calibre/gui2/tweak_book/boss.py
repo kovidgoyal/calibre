@@ -894,7 +894,14 @@ class Boss(QObject):
                     name = n
                     break
             if name is not None and getattr(ed, 'syntax', None) == 'html':
-                self.gui.preview.show(name)
+                if self.gui.preview.show(name):
+                    # The file being displayed by the preview has changed.
+                    # Set the preview's position to the current cursor
+                    # position in the editor, in case the editors' cursor
+                    # position has not changed, since the last time it was
+                    # focused. This is not inefficient since multiple requests
+                    # to sync are de-bounced with a 100 msec wait.
+                    self.sync_preview_to_editor()
             if name is not None:
                 self.gui.file_list.mark_name_as_current(name)
             if ed.has_line_numbers:

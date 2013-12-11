@@ -528,6 +528,7 @@ class Preview(QWidget):
             self.current_name = name
             parse_worker.add_request(name)
             self.view.setUrl(QUrl.fromLocalFile(current_container().name_to_abspath(name)))
+            return True
 
     def refresh(self):
         if self.current_name:
