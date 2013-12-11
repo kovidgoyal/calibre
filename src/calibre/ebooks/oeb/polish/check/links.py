@@ -106,12 +106,14 @@ def check_links(container):
     spine_resources = {tname for name in spine_docs | spine_styles for tname in links_map[name] if container.mime_map[tname] not in seen}
     unreferenced = set()
 
+    cover_name = container.guide_type_map.get('cover', None)
+
     for name, mt in container.mime_map.iteritems():
         if mt in OEB_STYLES and name not in spine_styles:
             a(UnreferencedResource(name))
         elif mt in OEB_DOCS and name not in spine_docs:
             a(UnreferencedDoc(name))
-        elif (mt in OEB_FONTS or mt.partition('/')[0] in {'image', 'audio', 'video'}) and name not in spine_resources:
+        elif (mt in OEB_FONTS or mt.partition('/')[0] in {'image', 'audio', 'video'}) and name not in spine_resources and name != cover_name:
             a(UnreferencedResource(name))
         else:
             continue
