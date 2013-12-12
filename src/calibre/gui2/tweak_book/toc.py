@@ -174,7 +174,7 @@ class TOCViewer(QWidget):
                 node.setData(0, DEST_ROLE, child.dest or '')
                 node.setData(0, FRAG_ROLE, child.frag or '')
                 tt = _('File: {0}\nAnchor: {1}').format(
-                    child.dest or '', child.frag or '')
+                    child.dest or '', child.frag or _('Top of file'))
                 node.setData(0, Qt.ToolTipRole, tt)
                 process_node(child, node)
 
