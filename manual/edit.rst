@@ -327,3 +327,74 @@ inserted where appropriate and so on. Note that beautifying also auto-fixes
 broken HTML/CSS. Therefore, if you dont want any auto-fixing to be performed,
 first use the Check Book tool to correct all problems and only then run
 beautify.  Accessed via :guilabel:`Tools->Beautify all files`.
+
+Checkpoints
+------------------------
+
+:guilabel:`Checkpoints` are a way to mark the current state of the book as "special". You
+can then go on to do whatever changes you want to the book and if you dont like
+the results, return to the checkpointed state. Checkpoints are automatically
+created every time you run any of the automated tools described in the
+previous section.
+
+You can create a checkpoint via:guilabel:`Edit->Create checkpoint`. And go back
+to a previous checkpoint with :guilabel:`Edit->Revert to before`
+
+The checkpointing functionality is in addition to the normal Undo/redo
+mechanism when editing individual files. Checkpoints are particularly useful
+for when changes are spread over multiple files in the book or when you wish to
+be able to revert a large group of related changes as a whole.
+
+The Live Preview panel
+------------------------
+
+.. image:: images/live-preview.png
+    :alt: The Live Preview Panel
+    :class: float-left-img
+
+The :guilabel:`File Preview` gives you an overview of the various files inside
+The live preview panel shows you the changes you are making live (with a second
+or two of delay). As you edit HTML or CSS files, the preview panel is updated
+automatically to reflect your changes. As you move the cursor around in the
+editor, the preview panel will track its location, showing you the
+corresponding location in the book. Clicking in the preview panel, will cause
+the cursor in the editor to be positioned over the element you clicked. If you
+click a link pointing to another file in the book, that file will be opened in
+the edit and the preview panel, automatically.
+
+You can turn off the automatic syncing of position and live preview of changes
+-- by buttons under the preview panel. The live update of the preview
+panel only happens when you are not actively typing in the editor, so as not to
+be distracting or slow you down, waiting for the preview to render.
+
+The preview panel shows you how the text will look when viewed. However, the
+preview panel is not a substitute for actually testing your book an actual
+reader device. It is both more, and less capable than an actual reader. It will
+tolerate errors and sloppy markup much better than most reader devices. It will
+also not show you page margins, page breaks and embedded fonts that use font
+name aliasing. Use the preview panel while you are working on the book, but
+once you are done, review it in an actual reader device or software emulator.
+
+.. note::
+    The preview panel does not support embedded fonts if the name of the font
+    inside the font file does not match the name in the CSS @font-face rule.
+    You can use the Check Book tool to quickly find and fix any such
+    problem fonts.
+
+Splitting HTML files
+^^^^^^^^^^^^^^^^^^^^^^
+
+.. |spmb| image:: images/split-button.png
+
+One, perhaps non-obvious, use of the preview panel is to split long HTML files.
+While viewing the file you want to split, click the :guilabel:`split mode`
+button under the preview panel |spmb|. Then simply move your mouse to the place
+where you want to split the file and click. A thick green line will show you
+exactly where the split will happen as you move your mouse. Once you have found
+the location you want, simply click and the split will be performed. 
+
+Splitting the file will automatically update all links and references that
+pointed into the bottom half of the file and will open the newly split file in
+an editor. If you want to repeatedly split a file, you can do that, and then
+use the bulk renaming facility of the Files Browser, described above, to give
+the split off files sensible names.
