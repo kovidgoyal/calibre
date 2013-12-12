@@ -601,7 +601,7 @@ class NewFileDialog(QDialog):  # {{{
         self.l = l = QVBoxLayout()
         self.setLayout(l)
         self.la = la = QLabel(_(
-            'Choose a name for the new file'))
+            'Choose a name for the new (blank) file'))
         self.setWindowTitle(_('Choose file'))
         l.addWidget(la)
         self.name = n = QLineEdit(self)
