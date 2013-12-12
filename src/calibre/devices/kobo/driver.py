@@ -1382,13 +1382,13 @@ class KOBOTOUCH(KOBO):
                           ' - N3_FULL.parsed':[(758,1024),0, 99,True,],           # Used for screensaver, home screen
                           ' - N3_LIBRARY_FULL.parsed':[(355,479),0, 99,False,],   # Used for Details screen
                           ' - N3_LIBRARY_GRID.parsed':[(149,201),0, 99,False,],   # Used for library lists
-#                          ' - N3_LIBRARY_LIST.parsed':[(60,90),0, 53,],
-#                          ' - N3_LIBRARY_SHELF.parsed': [(40,60),0, 52,],
+                          ' - AndroidBookLoadTablet_Aspect.parsed':[(355,479), 88, 99,False,],   # In some cases this is used for Details screen
                           }
     AURA_HD_COVER_FILE_ENDINGS = {
                           ' - N3_FULL.parsed':        [(1080,1440), 0, 99,True,],  # Used for screensaver, home screen
                           ' - N3_LIBRARY_FULL.parsed':[(355,  471), 0, 99,False,],  # Used for Details screen
                           ' - N3_LIBRARY_GRID.parsed':[(149,  198), 0, 99,False,],  # Used for library lists
+                          ' - AndroidBookLoadTablet_Aspect.parsed':[(355,  471), 88, 99,False,],   # In some cases this is used for Details screen
                           }
     # Following are the sizes used with pre2.1.4 firmware
 #    COVER_FILE_ENDINGS = {
