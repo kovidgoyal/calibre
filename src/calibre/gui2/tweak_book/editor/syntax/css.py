@@ -38,7 +38,7 @@ content_tokens = [(re.compile(k), v, n) for k, v, n in [
     r'cue-after|cue-before|cue|cursor|direction|display|'
     r'elevation|empty-cells|float|font-family|font-size|'
     r'font-size-adjust|font-stretch|font-style|font-variant|'
-    r'font-weight|font|height|letter-spacing|line-height|'
+    r'font-weight|font|height|letter-spacing|line-height|panose-1|'
     r'list-style-type|list-style-image|list-style-position|'
     r'list-style|margin-bottom|margin-left|margin-right|'
     r'margin-top|margin|marker-offset|marks|max-height|max-width|'
