@@ -15,6 +15,7 @@ from calibre.ebooks.oeb.polish.check.base import run_checkers
 from calibre.ebooks.oeb.polish.check.parsing import check_xml_parsing, check_css_parsing, fix_style_tag
 from calibre.ebooks.oeb.polish.check.images import check_raster_images
 from calibre.ebooks.oeb.polish.check.links import check_links
+from calibre.ebooks.oeb.polish.check.fonts import check_fonts
 
 XML_TYPES = frozenset(map(guess_type, ('a.xml', 'a.svg', 'a.opf', 'a.ncx')))
 
@@ -50,6 +51,7 @@ def run_checks(container):
                 errors.extend(check_css_parsing(name, style.text, line_offset=style.sourceline - 1))
 
     errors += check_links(container)
+    errors += check_fonts(container)
 
     return errors
 

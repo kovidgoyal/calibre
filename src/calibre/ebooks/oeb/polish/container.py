@@ -430,7 +430,7 @@ class Container(object):  # {{{
             ans = self.decode(ans)
         return ans
 
-    def parse_css(self, data, fname='<string>'):
+    def parse_css(self, data, fname='<string>', is_declaration=False):
         from cssutils import CSSParser, log
         log.setLevel(logging.WARN)
         log.raiseExceptions = False
@@ -441,7 +441,10 @@ class Container(object):  # {{{
         parser = CSSParser(loglevel=logging.WARNING,
                            # We dont care about @import rules
                            fetcher=lambda x: (None, None), log=_css_logger)
-        data = parser.parseString(data, href=fname, validate=False)
+        if is_declaration:
+            data = parser.parseStyle(data, validate=False)
+        else:
+            data = parser.parseString(data, href=fname, validate=False)
         return data
 
     def parsed(self, name):
