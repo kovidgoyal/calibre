@@ -398,3 +398,31 @@ pointed into the bottom half of the file and will open the newly split file in
 an editor. If you want to repeatedly split a file, you can do that, and then
 use the bulk renaming facility of the Files Browser, described above, to give
 the split off files sensible names.
+
+
+Miscellaneous Views
+----------------------
+
+There are a few more views that can be useful while you edit the book. 
+
+The Table of Contents View
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The Table of Contents view shows you the current table of contents in the book.
+Double clicking on any entry opens the place that entry points to in an editor.
+You can right click to edit the Table of Contents, refresh the view or
+expand/collapse all items. Access this view via :guilabel:`Views->Table of
+Contents`.
+
+The code inspector view
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+This view shows you the HTML coding and CSS that applies to the current element
+of interest. You open it by right clicking a location in the preview panel and
+choosing :guilabel:`Inspect`. It allows you to see the HTML coding for that
+element and more importantly, the CSS styles that apply to it. You can even
+dynamically edit the styles and see what effect your changes have instantly.
+Note that editing the styles does not actually make changes to the book
+contents, it only allows for quick experimentation. The ability to live edit
+inside the Inspector is under development.
+
