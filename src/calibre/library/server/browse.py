@@ -814,7 +814,9 @@ class BrowseServer(object):
                         (xml(href, True), rt, xml(_('Get')))
                 args['get_url'] = xml(href, True)
             else:
-                args['get_button'] = args['get_url'] = ''
+                args['get_button'] = ''
+                args['get_url'] = 'javascript:alert(\'%s\')' % xml(_(
+                    'This book has no available formats to view'), True)
             args['comments'] = comments_to_html(mi.comments)
             args['stars'] = ''
             if mi.rating:
@@ -848,7 +850,8 @@ class BrowseServer(object):
                 args['get_url'] = xml(self.opts.url_prefix + '/get/%s/%s_%d.%s'%(
                     fmt, fname, id_, fmt), True)
             else:
-                args['get_url'] = ''
+                args['get_url'] = 'javascript:alert(\'%s\')' % xml(_(
+                    'This book has no available formats to view'), True)
             args['formats'] = ''
             if fmts:
                 ofmts = [u'<a href="{4}/get/{0}/{1}_{2}.{0}" title="{3}">{3}</a>'
