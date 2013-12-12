@@ -6,6 +6,7 @@
 #include <QStyle>
 #include <QApplication>
 #include <QDebug>
+#include <QProxyStyle>
 
 QProgressIndicator::QProgressIndicator(QWidget* parent, int size)
         : QWidget(parent),
@@ -157,5 +158,17 @@ bool do_notify(QObject *receiver, QEvent *event) {
     }
     qCritical() << "Receiver name:" << receiver->objectName() << "Receiver class:" << receiver->metaObject()->className() << "Event type: " << event->type();
     return false;
+}
+
+class NoActivateStyle: public QProxyStyle { 
+ 	public: 
+        int styleHint(StyleHint hint, const QStyleOption *option = 0, const QWidget *widget = 0, QStyleHintReturn *returnData = 0) const { 
+            if (hint == QStyle::SH_ItemView_ActivateItemOnSingleClick) return 0; 
+            return QProxyStyle::styleHint(hint, option, widget, returnData); 
+        } 
+};
+
+void set_no_activate_on_click(QWidget *widget) {
+    widget->setStyle(new NoActivateStyle);
 }
 

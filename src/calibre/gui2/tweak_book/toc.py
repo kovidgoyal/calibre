@@ -9,8 +9,9 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 from PyQt4.Qt import (
     QDialog, pyqtSignal, QIcon, QVBoxLayout, QDialogButtonBox, QStackedWidget,
     QAction, QMenu, QTreeWidget, QTreeWidgetItem, QGridLayout, QWidget, Qt,
-    QSize, QStyledItemDelegate, QTimer)
+    QSize, QStyledItemDelegate)
 
+from calibre.constants import plugins
 from calibre.ebooks.oeb.polish.toc import commit_toc, get_toc
 from calibre.gui2 import gprefs, error_dialog
 from calibre.gui2.toc.main import TOCView, ItemEdit
@@ -125,12 +126,14 @@ class TOCViewer(QWidget):
         self.view.setContextMenuPolicy(Qt.CustomContextMenu)
         self.view.customContextMenuRequested.connect(self.show_context_menu, type=Qt.QueuedConnection)
         self.view.itemActivated.connect(self.emit_navigate)
-        self.view.itemClicked.connect(self.emit_navigate)
+        pi = plugins['progress_indicator'][0]
+        if hasattr(pi, 'set_no_activate_on_click'):
+            pi.set_no_activate_on_click(self.view)
+        self.view.itemDoubleClicked.connect(self.emit_navigate)
         l.addWidget(self.view)
 
         self.refresh_action = QAction(QIcon(I('view-refresh.png')), _('&Refresh'), self)
         self.refresh_action.triggered.connect(self.build)
-        self._last_nav_request = None
 
     def show_context_menu(self, pos):
         menu = QMenu(self)
@@ -156,15 +159,7 @@ class TOCViewer(QWidget):
             frag = unicode(item.data(0, FRAG_ROLE).toString())
             if not frag:
                 frag = TOP
-            # Debounce as on some platforms clicking causes both itemActivated
-            # and itemClicked to be emitted
-            self._last_nav_request = (dest, frag)
-            QTimer.singleShot(0, self._emit_navigate)
-
-    def _emit_navigate(self):
-        if self._last_nav_request is not None:
-            self.navigate_requested.emit(*self._last_nav_request)
-            self._last_nav_request = None
+            self.navigate_requested.emit(dest, frag)
 
     def build(self):
         c = current_container()
