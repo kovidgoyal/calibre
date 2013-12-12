@@ -19,7 +19,7 @@ You can use this editor by right clicking on any book in |app| and selecting
     :align: center
 
 .. contents:: Contents
-  :depth: 1
+  :depth: 2
   :local:
 
 
@@ -141,11 +141,14 @@ ever converts the EPUB file in |app| to another format. This is because when
 converting, |app| assumes that the marked title page contains only the cover
 and no other content.
 
-Deleteing files
+Deleting files
 ^^^^^^^^^^^^^^^^
 
 You can delete files by either right clicking on them or by selecting them and
-pressing the Delete key.
+pressing the Delete key. Deleting a file removes all references to the file
+from the OPF file, saving you that chore. However, references in other places
+are not removed, you can use the Check Book tool to easily find and
+remove/replace them.
 
 Export/import of files
 ^^^^^^^^^^^^^^^^^^^^^^^^
@@ -208,3 +211,119 @@ Edit the Table of Contents
 
 There is a dedicated tool to ease editing of the Table of Contents. Launch it
 with :guilabel:`Tools->Edit Table of Contents`. 
+
+.. image:: images/tocedit.png
+    :alt: The Edit Table of Contents tool
+    :align: center
+
+The Edit Table of Contents tool shows you the current Table of Contents (if
+any) on the left. Simply double click on any entry to change its text. You can
+also re-arrange entries by drag and drop or by using the buttons to the right.
+
+Fro books that do not have a pre-existing Table of Contents, the tool gives you
+various options to auto-generate a Table of Contents from the text. You can
+generate from the headings in the document, from links, from individual files
+and so on. 
+
+You can edit individual entries by clicking on them and then clicking the
+:guilabel:`Change the location this entry points to` button. This will open up
+a mini-preview of the book, simply move the mouse cursor over the book view
+panel, and click where you want the entry to point to. A thick green line
+will show you the location. Click OK once you are happy with the location. 
+
+.. image:: images/tocedit-location.png
+    :alt: The Edit Table of Contents tool, how to change the location an entry points to
+    :align: center
+
+Check Book
+^^^^^^^^^^^^^
+
+The :guilabel:`Check Book` tool searches your book for problems that could
+prevent it working as intended on actual reader devices. Activate it via
+:guilabel:`Tools->Check Book`.
+
+.. image:: images/check-book.png
+    :alt: The Check Book tool
+    :align: center
+
+Any problems found are
+reported in a nice, easy to use list. Clicking any entry in the list shows you
+some help about that error as well as giving you the option to auto-fix that
+error, if the error can be fixed automatically. You can also double click the
+error to open the location of the error in an editor, so you can fix it
+yourself.
+
+Some of the checks performed are:
+
+    * Malformed HTML markup. Any HTML markup that does not parse as well-formed
+      XML is reported. Correcting it will ensure that your markup works as
+      intended in all contexts. |app| can also auto-fix these errors, but
+      auto-fixing can sometimes have unexpected effects, so use with care. As
+      always, a checkpoint is created before auto-fixing so you can easily
+      revert all changes. Auto-fixing works by parsing the markup using the
+      HTML 5 algorithm, which is highly fault tolerant and then converting to
+      well formed XML.
+
+    * Malformed or unknown CSS styles. Any CSS that is not valid or that has
+      properties not defined in the CSS 2.1 standard (plus a few from CSS 3)
+      are reported. CSS is checked in all stylesheets, inline style attributes
+      and <style> tags in HTML files.
+
+    * Broken links. Links that point to files inside the book that are missing
+      are reported.
+
+    * Unreferenced files. Files in the book that are not referenced by any
+      other file or are not in the spine are reported.
+
+    * Various compatibility checks for known problems that can cause the book
+      to malfunction on reader devices.
+
+Embedding referenced fonts
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Accessed via :guilabel:`Tools->Embed reference fonts`, this tool finds all
+fonts referenced in the book and if they are not already embedded, searches
+your computer for them and embeds them into the book, if found. Please make
+sure that you have the necessary copyrights for embedding commercially licensed
+fonts, before doing this.
+
+Subsetting embedded fonts
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Accessed via :guilabel:`Tools->Subset embedded fonts`, this tool reduces all
+the fonts in the book to only contain glyphs for the text actually present in
+the book. This commonly reduces the size of the font files by ~ 50%. However,
+be aware that once the fonts are subset, if you add new text whose characters
+are not previously present in the subset font, the font will not work for the
+new text. So do this only as the last step in your workflow.
+
+Smartening punctuation
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Convert plain text dashes, ellipsis, quotes, multiple hyphens, etc. into their
+typographically correct equivalents.
+Note that the algorithm can sometimes generate incorrect results, especially
+when single quotes at the start of contractions are involved. Accessed via
+:guilabel:`Tools->Smarten punctuation`.
+
+Fix HTML
+^^^^^^^^^^^
+
+This tool simply converts HTML that cannot be parsed as XML into well-formed
+XML. It is very common in ebooks to have non-well-formed XML, so this tool
+simply automates the process of fixing such HTML. The tool works by parsing the
+HTML using the HTML 5 algorithm (the algorithm used in all modern browsers) and
+then converting the result into XML. Be aware that auto-fixing can sometimes
+have counter-intuitive results. If you prefer, you can use the Check Book tool
+discussed above to find and manually correct problems in the HTML. Accessed via
+:guilabel:`Tools->Fix HTML`.
+
+Beautifying files
+^^^^^^^^^^^^^^^^^^^
+
+This tool is used to auto-format all HTML and CSS files so that they "look
+pretty". The code is auto-indented so that it lines up nicely, blank lines are
+inserted where appropriate and so on. Note that beautifying also auto-fixes
+broken HTML/CSS. Therefore, if you dont want any auto-fixing to be performed,
+first use the Check Book tool to correct all problems and only then run
+beautify.  Accessed via :guilabel:`Tools->Beautify all files`.
