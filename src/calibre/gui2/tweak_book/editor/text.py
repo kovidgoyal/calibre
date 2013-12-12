@@ -15,7 +15,7 @@ from PyQt4.Qt import (
     QTextEdit, QTextFormat, QWidget, QSize, QPainter, Qt, QRect, pyqtSlot,
     QApplication, QMimeData)
 
-from calibre.gui2.tweak_book import tprefs
+from calibre.gui2.tweak_book import tprefs, TOP
 from calibre.gui2.tweak_book.editor import SYNTAX_PROPERTY
 from calibre.gui2.tweak_book.editor.themes import THEMES, default_theme, theme_color
 from calibre.gui2.tweak_book.editor.syntax.base import SyntaxHighlighter
@@ -332,6 +332,11 @@ class TextEdit(QPlainTextEdit):
         return True
 
     def go_to_anchor(self, anchor):
+        if anchor is TOP:
+            c = self.textCursor()
+            c.movePosition(c.Start)
+            self.setTextCursor(c)
+            return True
         base = r'''%%s\s*=\s*['"]{0,1}%s''' % regex.escape(anchor)
         raw = unicode(self.toPlainText())
         m = regex.search(base % 'id', raw)

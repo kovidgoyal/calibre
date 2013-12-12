@@ -37,3 +37,4 @@ class NonReplaceDict(dict):
 
 actions = NonReplaceDict()
 editors = NonReplaceDict()
+TOP = object()

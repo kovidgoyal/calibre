@@ -104,6 +104,7 @@ class Boss(QObject):
         self.gui.check_book.item_activated.connect(self.check_item_activated)
         self.gui.check_book.check_requested.connect(self.check_requested)
         self.gui.check_book.fix_requested.connect(self.fix_requested)
+        self.gui.toc_view.navigate_requested.connect(self.link_clicked)
 
     def preferences(self):
         p = Preferences(self.gui)
@@ -188,22 +189,24 @@ class Boss(QObject):
         parse_worker.clear()
         container = job.result
         set_current_container(container)
-        self.current_metadata = self.gui.current_metadata = container.mi
-        self.global_undo.open_book(container)
-        self.gui.update_window_title()
-        self.gui.file_list.current_edited_name = None
-        self.gui.file_list.build(container, preserve_state=False)
-        self.gui.action_save.setEnabled(False)
-        self.update_global_history_actions()
-        recent_books = list(tprefs.get('recent-books', []))
-        path = container.path_to_ebook
-        if path in recent_books:
-            recent_books.remove(path)
-        recent_books.insert(0, path)
-        tprefs['recent-books'] = recent_books[:10]
-        self.gui.update_recent_books()
-        if ef:
-            self.gui.file_list.request_edit(ef)
+        with BusyCursor():
+            self.current_metadata = self.gui.current_metadata = container.mi
+            self.global_undo.open_book(container)
+            self.gui.update_window_title()
+            self.gui.file_list.current_edited_name = None
+            self.gui.file_list.build(container, preserve_state=False)
+            self.gui.action_save.setEnabled(False)
+            self.update_global_history_actions()
+            recent_books = list(tprefs.get('recent-books', []))
+            path = container.path_to_ebook
+            if path in recent_books:
+                recent_books.remove(path)
+            recent_books.insert(0, path)
+            tprefs['recent-books'] = recent_books[:10]
+            self.gui.update_recent_books()
+            if ef:
+                self.gui.file_list.request_edit(ef)
+            self.gui.toc_view.update_if_visible()
 
     def update_editors_from_container(self, container=None):
         c = container or current_container()
@@ -291,7 +294,9 @@ class Boss(QObject):
         if d.exec_() != d.Accepted:
             self.rewind_savepoint()
             return
-        self.update_editors_from_container()
+        with BusyCursor():
+            self.update_editors_from_container()
+            self.gui.toc_view.update_if_visible()
 
     def polish(self, action, name):
         self.commit_all_editors_to_container()
@@ -698,6 +703,8 @@ class Boss(QObject):
 
     @in_thread_job
     def link_clicked(self, name, anchor):
+        if not name:
+            return
         if name in editors:
             editor = editors[name]
             self.gui.central.show_editor(editor)

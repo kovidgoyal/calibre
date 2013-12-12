@@ -25,6 +25,7 @@ from calibre.gui2.tweak_book.boss import Boss
 from calibre.gui2.tweak_book.preview import Preview
 from calibre.gui2.tweak_book.search import SearchPanel
 from calibre.gui2.tweak_book.check import Check
+from calibre.gui2.tweak_book.toc import TOCViewer
 
 class Central(QStackedWidget):
 
@@ -197,6 +198,7 @@ class Main(MainWindow):
         self.central = Central(self)
         self.setCentralWidget(self.central)
         self.check_book = Check(self)
+        self.toc_view = TOCViewer(self)
 
         self.create_actions()
         self.create_toolbars()
@@ -505,6 +507,13 @@ class Main(MainWindow):
         self.addDockWidget(Qt.BottomDockWidgetArea, d)
         d.close()  # By default the inspector window is closed
         d.setFeatures(d.DockWidgetClosable | d.DockWidgetMovable)  # QWebInspector does not work in a floating dock
+
+        d = create(_('Table of Contents'), 'toc-viewer')
+        d.setAllowedAreas(Qt.LeftDockWidgetArea | Qt.RightDockWidgetArea | Qt.BottomDockWidgetArea | Qt.TopDockWidgetArea)
+        d.setWidget(self.toc_view)
+        self.addDockWidget(Qt.LeftDockWidgetArea, d)
+        d.close()  # Hidden by default
+        d.visibilityChanged.connect(self.toc_view.visibility_changed)
 
     def resizeEvent(self, ev):
         self.blocking_job.resize(ev.size())

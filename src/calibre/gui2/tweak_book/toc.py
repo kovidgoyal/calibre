@@ -6,12 +6,15 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
-from PyQt4.Qt import (QDialog, pyqtSignal, QIcon, QVBoxLayout, QDialogButtonBox, QStackedWidget)
+from PyQt4.Qt import (
+    QDialog, pyqtSignal, QIcon, QVBoxLayout, QDialogButtonBox, QStackedWidget,
+    QAction, QMenu, QTreeWidget, QTreeWidgetItem, QGridLayout, QWidget, Qt,
+    QSize, QStyledItemDelegate, QTimer)
 
-from calibre.ebooks.oeb.polish.toc import commit_toc
+from calibre.ebooks.oeb.polish.toc import commit_toc, get_toc
 from calibre.gui2 import gprefs, error_dialog
 from calibre.gui2.toc.main import TOCView, ItemEdit
-from calibre.gui2.tweak_book import current_container
+from calibre.gui2.tweak_book import current_container, TOP
 
 class TOCEditor(QDialog):
 
@@ -93,4 +96,101 @@ class TOCEditor(QDialog):
         toc = self.toc_view.create_toc()
         commit_toc(current_container(), toc, lang=self.toc_view.toc_lang,
                 uid=self.toc_view.toc_uid)
+
+DEST_ROLE = Qt.UserRole
+FRAG_ROLE = DEST_ROLE + 1
+
+class Delegate(QStyledItemDelegate):
+
+    def sizeHint(self, *args):
+        ans = QStyledItemDelegate.sizeHint(self, *args)
+        return ans + QSize(0, 10)
+
+class TOCViewer(QWidget):
+
+    navigate_requested = pyqtSignal(object, object)
+
+    def __init__(self, parent=None):
+        QWidget.__init__(self, parent)
+        self.l = l = QGridLayout(self)
+        self.setLayout(l)
+        l.setContentsMargins(0, 0, 0, 0)
+
+        self.is_visible = False
+        self.view = QTreeWidget(self)
+        self.delegate = Delegate(self.view)
+        self.view.setItemDelegate(self.delegate)
+        self.view.setHeaderHidden(True)
+        self.view.setAnimated(True)
+        self.view.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.view.customContextMenuRequested.connect(self.show_context_menu, type=Qt.QueuedConnection)
+        self.view.itemActivated.connect(self.emit_navigate)
+        self.view.itemClicked.connect(self.emit_navigate)
+        l.addWidget(self.view)
+
+        self.refresh_action = QAction(QIcon(I('view-refresh.png')), _('&Refresh'), self)
+        self.refresh_action.triggered.connect(self.build)
+        self._last_nav_request = None
+
+    def show_context_menu(self, pos):
+        menu = QMenu(self)
+        menu.addAction(self.refresh_action)
+        menu.addAction(_('&Expand all'), self.view.expandAll)
+        menu.addAction(_('&Collapse all'), self.view.collapseAll)
+        menu.exec_(self.view.mapToGlobal(pos))
+
+    def iteritems(self, parent=None):
+        if parent is None:
+            parent = self.invisibleRootItem()
+        for i in xrange(parent.childCount()):
+            child = parent.child(i)
+            yield child
+            for gc in self.iteritems(parent=child):
+                yield gc
+
+    def emit_navigate(self, *args):
+        item = self.view.currentItem()
+        if item is not None:
+            dest = unicode(item.data(0, DEST_ROLE).toString())
+            frag = unicode(item.data(0, FRAG_ROLE).toString())
+            if not frag:
+                frag = TOP
+            # Debounce as on some platforms clicking causes both itemActivated
+            # and itemClicked to be emitted
+            self._last_nav_request = (dest, frag)
+            QTimer.singleShot(0, self._emit_navigate)
+
+    def _emit_navigate(self):
+        if self._last_nav_request is not None:
+            self.navigate_requested.emit(*self._last_nav_request)
+            self._last_nav_request = None
+
+    def build(self):
+        c = current_container()
+        if c is None:
+            return
+        toc = get_toc(c, verify_destinations=False)
+
+        def process_node(toc, parent):
+            for child in toc:
+                node = QTreeWidgetItem(parent)
+                node.setText(0, child.title or '')
+                node.setData(0, DEST_ROLE, child.dest or '')
+                node.setData(0, FRAG_ROLE, child.frag or '')
+                tt = _('File: {0}\nAnchor: {1}').format(
+                    child.dest or '', child.frag or '')
+                node.setData(0, Qt.ToolTipRole, tt)
+                process_node(child, node)
+
+        self.view.clear()
+        process_node(toc, self.view.invisibleRootItem())
+
+    def visibility_changed(self, visible):
+        self.is_visible = visible
+        if visible:
+            self.build()
+
+    def update_if_visible(self):
+        if self.is_visible:
+            self.build()
 
