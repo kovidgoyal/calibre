@@ -10,7 +10,6 @@ import unicodedata
 
 from PyQt4.Qt import QMainWindow, Qt, QApplication, pyqtSignal
 
-from calibre import xml_replace_entities
 from calibre.gui2 import error_dialog
 from calibre.gui2.tweak_book import actions, current_container
 from calibre.gui2.tweak_book.editor.text import TextEdit
@@ -60,8 +59,6 @@ class Editor(QMainWindow):
     def data(self):
         def fget(self):
             ans = self.get_raw_data()
-            if self.syntax == 'html':
-                ans = xml_replace_entities(ans)
             return ans.encode('utf-8')
         def fset(self, val):
             self.editor.load_text(val, syntax=self.syntax)
