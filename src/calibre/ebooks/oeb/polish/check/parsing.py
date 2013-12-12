@@ -11,6 +11,7 @@ import re
 from lxml.etree import XMLParser, fromstring, XMLSyntaxError
 import cssutils
 
+from calibre import force_unicode
 from calibre.ebooks.html_entities import html5_entities
 from calibre.ebooks.oeb.polish.pretty import pretty_script_or_style as fix_style_tag
 from calibre.ebooks.oeb.polish.utils import PositionFinder
@@ -160,6 +161,10 @@ class CSSError(BaseError):
             for style in root.xpath('//*[local-name()="style"]'):
                 if style.get('type', 'text/css') == 'text/css' and style.text and style.text.strip():
                     fix_style_tag(container, style)
+            for elem in root.xpath('//*[@style]'):
+                raw = elem.get('style')
+                if raw:
+                    elem.set('style', force_unicode(container.parse_css(raw, is_declaration=True).cssText, 'utf-8').replace('\n', ' '))
         return True
 
 pos_pats = (re.compile(r'\[(\d+):(\d+)'), re.compile(r'(\d+), (\d+)\)'))
@@ -196,10 +201,13 @@ class ErrorHandler(object):
         self.__handle(WARN, *args)
     warning = warn
 
-def check_css_parsing(name, raw, line_offset=0):
+def check_css_parsing(name, raw, line_offset=0, is_declaration=False):
     log = ErrorHandler(name)
     parser = cssutils.CSSParser(fetcher=lambda x: (None, None), log=log)
-    parser.parseString(raw, validate=True)
+    if is_declaration:
+        parser.parseStyle(raw, validate=True)
+    else:
+        parser.parseString(raw, validate=True)
     for err in log.errors:
         err.line += line_offset
     return log.errors

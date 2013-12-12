@@ -49,6 +49,10 @@ def run_checks(container):
         for style in root.xpath('//*[local-name()="style"]'):
             if style.get('type', 'text/css') == 'text/css':
                 errors.extend(check_css_parsing(name, style.text, line_offset=style.sourceline - 1))
+        for elem in root.xpath('//*[@style]'):
+            raw = elem.get('style')
+            if raw:
+                errors.extend(check_css_parsing(name, raw, line_offset=elem.sourceline - 1, is_declaration=True))
 
     errors += check_links(container)
     errors += check_fonts(container)
