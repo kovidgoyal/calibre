@@ -616,6 +616,8 @@ class NewFileDialog(QDialog):  # {{{
         bb.rejected.connect(self.reject)
         self.imp_button = b = bb.addButton(_('Import resource file (image/font/etc.)'), bb.ActionRole)
         b.setIcon(QIcon(I('view-image.png')))
+        b.setToolTip(_('Import a file from your computer as a new'
+                       ' file into the book.'))
         b.clicked.connect(self.import_file)
 
         self.ok_button = bb.button(bb.Ok)

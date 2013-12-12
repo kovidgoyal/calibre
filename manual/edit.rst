@@ -150,7 +150,7 @@ from the OPF file, saving you that chore. However, references in other places
 are not removed, you can use the Check Book tool to easily find and
 remove/replace them.
 
-Export/import of files
+Export of files
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
 You can export a file from inside the book to somewhere else on your computer.
@@ -162,6 +162,14 @@ Once you are done working on the exported file, you can re-import it into the
 book, by right clicking on the file again and choosing :guilabel:`Replace with
 file...` which will allow you to replace the file in the book with
 the previously exported file.
+
+Adding new images/fonts/etc. or creating new blank files
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+You can add a new image, font, stylesheet, etc. from your computer into the
+book by clicking :guilabel:`File->New file`. This lets you either import a file
+by clicking the :guilabel:`Import resource file` button or create a new blank html file
+or stylesheet by simply entering the file name into the box for the new file.
 
 
 Search & Replace
