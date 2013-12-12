@@ -14,7 +14,7 @@ from PyQt4.Qt import (
 from calibre.ebooks.oeb.polish.toc import commit_toc, get_toc
 from calibre.gui2 import gprefs, error_dialog
 from calibre.gui2.toc.main import TOCView, ItemEdit
-from calibre.gui2.tweak_book import current_container, TOP
+from calibre.gui2.tweak_book import current_container, TOP, actions
 
 class TOCEditor(QDialog):
 
@@ -134,9 +134,10 @@ class TOCViewer(QWidget):
 
     def show_context_menu(self, pos):
         menu = QMenu(self)
-        menu.addAction(self.refresh_action)
+        menu.addAction(actions['edit-toc'])
         menu.addAction(_('&Expand all'), self.view.expandAll)
         menu.addAction(_('&Collapse all'), self.view.collapseAll)
+        menu.addAction(self.refresh_action)
         menu.exec_(self.view.mapToGlobal(pos))
 
     def iteritems(self, parent=None):
