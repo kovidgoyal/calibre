@@ -29,7 +29,7 @@ from calibre.ebooks.oeb.polish.parsing import parse
 from calibre.ebooks.oeb.base import serialize, OEB_DOCS
 from calibre.ptempfile import PersistentTemporaryDirectory
 from calibre.gui2 import error_dialog
-from calibre.gui2.tweak_book import current_container, editors, tprefs, actions
+from calibre.gui2.tweak_book import current_container, editors, tprefs, actions, TOP
 from calibre.gui2.viewer.documentview import apply_settings
 from calibre.gui2.viewer.config import config
 from calibre.gui2.widgets2 import HistoryLineEdit2
@@ -499,7 +499,7 @@ class Preview(QWidget):
                 if name == self.current_name:
                     return self.view.page().go_to_anchor(urlparse(href).fragment, lnum)
                 if name and c.exists(name) and c.mime_map[name] in OEB_DOCS:
-                    return self.link_clicked.emit(name, urlparse(href).fragment)
+                    return self.link_clicked.emit(name, urlparse(href).fragment or TOP)
             self.sync_requested.emit(self.current_name, lnum)
 
     def request_split(self, loc):
