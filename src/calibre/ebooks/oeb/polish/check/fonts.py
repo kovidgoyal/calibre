@@ -47,7 +47,7 @@ class FontAliasing(BaseError):
     level = WARN
 
     def __init__(self, font_name, css_name, name, line):
-        BaseError.__init__(self, _('The CSS font-family name %s does not match the actual font name %s') % (css_name, font_name), name, line)
+        BaseError.__init__(self, _('The CSS font-family name {0} does not match the actual font name {1}').format(css_name, font_name), name, line)
         self.HELP = _('The font family name specified in the CSS @font-face rule: "{0}" does'
                       ' not match the font name inside the actual font file: "{1}". This can'
                       ' cause problems in some viewers. You should change the CSS font name'
