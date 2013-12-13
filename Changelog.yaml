@@ -20,6 +20,36 @@
 #   new recipes:
 #     - title: 
 
+- version: 1.15.0
+  date: 2013-12-13
+
+  new features:
+    - title: "A new book editor, capable of editing files in the EPUB and AZW3 (Kindle) formats"
+      type: major
+      description: "Right click on any book in calibre and choose 'Edit Book', to edit e-books in the EPUB and AZW3 formats. The new editor allows you to edit the HTML/CSS and images inside the ebooks in a seamless fashion, with live preview of your changes and many helpful automated tools for checking the book for errors, editing the table of contents, merging, splitting, bulk renaming and so on. See http://manual.calibre-ebook.com/edit.html for more details and help using the new editor. Note that the editor is a completely new codebase and is still being actively developed, so expect a few bugs and many new features in the near future. However, the editor as it stands is extremely useable and useful today. Note that it replaces the old 'Tweak Book' feature in calibre. If you want the old Tweak Book back, it has been renamed to 'Unpack Book', you can go to Preferences->Toolbars and add it back. Happy holidays!"
+
+    - title: "Edit metadata dialog: In the tag editor, allow easy filtering of the lists of available and applied tags."
+
+    - title: "Driver for Onyx Boox C65."
+      tickets: [1259914]
+ 
+  bug fixes:
+    - title: "Kobo driver: Fix book covers not showing for sideloaded kepubs on the book details screen, with newer Kobo firmware."
+      tickets: [1260279]
+
+    - title: "Content server: Popup a more useful error when clicking on the cover of a book that has no formats to view."
+      tickets: [1260216]
+
+    - title: "Cover grid: Fix text showing 'None' for rating fields for books with no rating"
+
+    - title: "Cover grid: Set text color based on the background color/image being used."
+      tickets: [1258754]
+
+    - title: "Metadata editor: Fix removing formatting for comments not removing background colors."
+      tickets: [1258975]
+
+    - title: "EPUB Output: Remove name attribute from <a> tags (replacing with id) to keep the asinine epubcheck happy"
+
 - version: 1.14.0
   date: 2013-12-06
 
