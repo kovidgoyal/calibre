@@ -223,6 +223,7 @@ class Boss(QObject):
         self.update_global_history_actions()
         self.update_editors_from_container()
         self.set_modified()
+        self.gui.toc_view.update_if_visible()
 
     @in_thread_job
     def delete_requested(self, spine_items, other_items):
