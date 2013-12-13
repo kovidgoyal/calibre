@@ -78,7 +78,10 @@ def pretty_opf(root):
         return (cat, i)
 
     for manifest in root.xpath('//opf:manifest', namespaces=OPF_NAMESPACES):
-        children = sorted(manifest, key=manifest_key)
+        try:
+            children = sorted(manifest, key=manifest_key)
+        except AttributeError:
+            continue  # There are comments so dont sort since that would mess up the comments
         for x in reversed(children):
             manifest.insert(0, x)
 
