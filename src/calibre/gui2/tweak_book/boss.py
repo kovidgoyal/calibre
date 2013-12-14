@@ -710,7 +710,14 @@ class Boss(QObject):
             editor = editors[name]
             self.gui.central.show_editor(editor)
         else:
-            syntax = syntax_from_mime(name, current_container().mime_map[name])
+            try:
+                mt = current_container().mime_map[name]
+            except KeyError:
+                return error_dialog(self.gui, _('Does not exist'), _(
+                    'The file %s does not exist. If you were trying to click a'
+                    ' link in the preview panel or the Table of Contents, you may'
+                    ' need to refresh them by right-clicking and choosing "Refresh".') % name, show=True)
+            syntax = syntax_from_mime(name, mt)
             editor = self.edit_file(name, syntax)
         if anchor:
             editor.go_to_anchor(anchor)
