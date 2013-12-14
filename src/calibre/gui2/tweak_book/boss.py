@@ -715,8 +715,8 @@ class Boss(QObject):
             except KeyError:
                 return error_dialog(self.gui, _('Does not exist'), _(
                     'The file %s does not exist. If you were trying to click a'
-                    ' link in the preview panel or the Table of Contents, you may'
-                    ' need to refresh them by right-clicking and choosing "Refresh".') % name, show=True)
+                    ' the Table of Contents, you may'
+                    ' need to refresh it by right-clicking and choosing "Refresh".') % name, show=True)
             syntax = syntax_from_mime(name, mt)
             editor = self.edit_file(name, syntax)
         if anchor:
