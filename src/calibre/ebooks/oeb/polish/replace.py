@@ -137,10 +137,10 @@ def replace_file(container, name, path, basename, force_mt=None):
                 nname = b + ('_%d.%s' % (count, e))
             rename_files(container, {name:nname})
             mt = force_mt or container.guess_type(nname)
-        for itemid, q in container.manifest_id_map.iteritems():
-            if q == nname:
-                for item in container.opf_xpath('//opf:manifest/opf:item[@href and @id="%s"]' % itemid):
-                    item.set('media-type', mt)
+            for itemid, q in container.manifest_id_map.iteritems():
+                if q == nname:
+                    for item in container.opf_xpath('//opf:manifest/opf:item[@href and @id="%s"]' % itemid):
+                        item.set('media-type', mt)
         container.dirty(container.opf_name)
         with container.open(nname, 'wb') as dest:
             shutil.copyfileobj(src, dest)
