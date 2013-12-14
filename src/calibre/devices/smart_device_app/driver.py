@@ -241,7 +241,6 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
     opcodes = {
         'NOOP'                   : 12,
         'OK'                     : 0,
-        'BOOK_DATA'              : 10,
         'BOOK_DONE'              : 11,
         'CALIBRE_BUSY'           : 18,
         'DELETE_BOOK'            : 13,
