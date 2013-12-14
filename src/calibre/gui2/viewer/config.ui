@@ -375,7 +375,7 @@ QToolBox::tab:hover {
            </rect>
           </property>
           <attribute name="label">
-           <string>F&amp;ull  screen options</string>
+           <string>F&amp;ull screen options</string>
           </attribute>
           <layout class="QFormLayout" name="formLayout">
            <item row="0" column="0">
