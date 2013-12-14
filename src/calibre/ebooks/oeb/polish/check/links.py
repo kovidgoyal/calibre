@@ -11,7 +11,7 @@ from urlparse import urlparse
 
 from calibre.ebooks.oeb.base import OEB_DOCS, OEB_STYLES
 from calibre.ebooks.oeb.polish.container import guess_type, OEB_FONTS
-from calibre.ebooks.oeb.polish.check.base import BaseError, WARN
+from calibre.ebooks.oeb.polish.check.base import BaseError, WARN, INFO
 
 class BadLink(BaseError):
 
@@ -61,6 +61,8 @@ class Unmanifested(BadLink):
                 ' need that information, or dont want to share it with'
                 ' other people you send this book to.')
             self.INDIVIDUAL_FIX = _('Remove this file')
+            self.level = INFO
+            self.msg = _('The bookmarks file used by the calibre ebook viewer is present')
 
     def __call__(self, container):
         container.remove_item(self.name)
