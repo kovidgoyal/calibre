@@ -27,6 +27,9 @@ from calibre.gui2.tweak_book.search import SearchPanel
 from calibre.gui2.tweak_book.check import Check
 from calibre.gui2.tweak_book.toc import TOCViewer
 
+def open_donate():
+    open_url(QUrl('http://calibre-ebook.com/donate'))
+
 class Central(QStackedWidget):
 
     ' The central widget, hosts the editors '
@@ -429,6 +432,7 @@ class Main(MainWindow):
         e = b.addMenu(_('&Help'))
         a = e.addAction
         a(self.action_help)
+        a(QIcon(I('donate.png')), _('Donate to support calibre development'), open_donate)
 
     def update_recent_books(self):
         m = self.recent_books_menu
@@ -453,7 +457,7 @@ class Main(MainWindow):
                 continue
             a(getattr(self, 'action_' + x))
         self.donate_button = b = ThrobbingButton(self)
-        b.clicked.connect(lambda : open_url(QUrl('http://calibre-ebook.com/donate')))
+        b.clicked.connect(open_donate)
         b.setAutoRaise(True)
         self.donate_widget = w = create_donate_widget(b)
         if hasattr(w, 'filler'):
