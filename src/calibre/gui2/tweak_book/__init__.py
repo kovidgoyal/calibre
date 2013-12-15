@@ -20,6 +20,11 @@ tprefs.defaults['preview_refresh_time'] = 2
 tprefs.defaults['choose_tweak_fmt'] = True
 tprefs.defaults['tweak_fmt_order'] = ['EPUB', 'AZW3']
 tprefs.defaults['update_metadata_from_calibre'] = True
+tprefs.defaults['nestable_dock_widgets'] = False
+tprefs.defaults['dock_top_left'] = 'horizontal'
+tprefs.defaults['dock_top_right'] = 'horizontal'
+tprefs.defaults['dock_bottom_left'] = 'horizontal'
+tprefs.defaults['dock_bottom_right'] = 'horizontal'
 
 ucase_map = {l:string.ascii_uppercase[i] for i, l in enumerate(string.ascii_lowercase)}
 def capitalize(x):

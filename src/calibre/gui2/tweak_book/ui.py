@@ -7,6 +7,8 @@ __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
 from functools import partial
+from itertools import product
+from future_builtins import map
 
 from PyQt4.Qt import (
     QDockWidget, Qt, QLabel, QIcon, QAction, QApplication, QWidget, QEvent,
@@ -18,7 +20,7 @@ from calibre.gui2 import elided_text, open_url
 from calibre.gui2.keyboard import Manager as KeyboardManager
 from calibre.gui2.main_window import MainWindow
 from calibre.gui2.throbber import ThrobbingButton, create_donate_widget
-from calibre.gui2.tweak_book import current_container, tprefs, actions
+from calibre.gui2.tweak_book import current_container, tprefs, actions, capitalize
 from calibre.gui2.tweak_book.file_list import FileListWidget
 from calibre.gui2.tweak_book.job import BlockingJob
 from calibre.gui2.tweak_book.boss import Boss
@@ -220,9 +222,17 @@ class Main(MainWindow):
         self.boss(self)
         g = QApplication.instance().desktop().availableGeometry(self)
         self.resize(g.width()-50, g.height()-50)
-        self.restore_state()
 
+        self.restore_state()
+        self.apply_settings()
+
+    def apply_settings(self):
         self.keyboard.finalize()
+        self.setDockNestingEnabled(tprefs['nestable_dock_widgets'])
+        for v, h in product(('top', 'bottom'), ('left', 'right')):
+            p = 'dock_%s_%s' % (v, h)
+            area = getattr(Qt, '%sDockWidgetArea' % capitalize({'vertical':h, 'horizontal':v}[tprefs[p] or tprefs.defaults[p]]))
+            self.setCorner(getattr(Qt, '%s%sCorner' % tuple(map(capitalize, (v, h)))), area)
 
     def show_status_message(self, msg, timeout=5):
         self.status_bar.showMessage(msg, int(timeout*1000))

@@ -9,11 +9,12 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 from operator import attrgetter, methodcaller
 from collections import namedtuple
 from future_builtins import map
+from itertools import product
 
 from PyQt4.Qt import (
     QDialog, QGridLayout, QStackedWidget, QDialogButtonBox, QListWidget,
     QListWidgetItem, QIcon, QWidget, QSize, QFormLayout, Qt, QSpinBox,
-    QCheckBox, pyqtSignal, QDoubleSpinBox, QComboBox)
+    QCheckBox, pyqtSignal, QDoubleSpinBox, QComboBox, QLabel)
 
 from calibre.gui2.keyboard import ShortcutConfig
 from calibre.gui2.tweak_book import tprefs
@@ -194,6 +195,30 @@ class IntegrationSettings(BasicSettings):
                            ' multiple formats, this is the preference order.'))
         l.addRow(_('Preferred format order (drag and drop to change)'), order)
 
+class MainWindowSettings(BasicSettings):
+
+    def __init__(self, parent=None):
+        BasicSettings.__init__(self, parent)
+        self.l = l = QFormLayout(self)
+        self.setLayout(l)
+
+        nd = self('nestable_dock_widgets')
+        nd.setText(_('Allow dockable windows to be nested inside the dock areas'))
+        nd.setToolTip('<p>' + _(
+            'By default, you can have only a single row or column of windows in the dock'
+            ' areas (the areas around the central editors). This option allows'
+            ' for more flexible window layout, but is a little more complex to use.'))
+        l.addRow(nd)
+
+        l.addRow(QLabel(_('Choose which windows will occupy the corners of the dockable areas')))
+        for v, h in product(('top', 'bottom'), ('left', 'right')):
+            choices = {'vertical':{'left':_('Left'), 'right':_('Right')}[h],
+                       'horizontal':{'top':_('Top'), 'bottom':_('Bottom')}[v]}
+            name = 'dock_%s_%s' % (v, h)
+            w = self.choices_widget(name, choices, 'vertical', 'vertical')
+            cn = {('top', 'left'): _('The top-left corner'), ('top', 'right'):_('The top-right corner'),
+                  ('bottom', 'left'):_('The bottom-left corner'), ('bottom', 'right'):_('The bottom-right corner')}[(v, h)]
+            l.addRow(cn + ':', w)
 
 class Preferences(QDialog):
 
@@ -238,8 +263,10 @@ class Preferences(QDialog):
         self.keyboard_panel.initialize(gui.keyboard)
         self.editor_panel = EditorSettings(self)
         self.integration_panel = IntegrationSettings(self)
+        self.main_window_panel = MainWindowSettings(self)
 
         for name, icon, panel in [
+            (_('Main window'), 'page.png', 'main_window'),
             (_('Editor settings'), 'modified.png', 'editor'),
             (_('Keyboard shortcuts'), 'keyboard-prefs.png', 'keyboard'),
             (_('Integration with calibre'), 'lt.png', 'integration'),
