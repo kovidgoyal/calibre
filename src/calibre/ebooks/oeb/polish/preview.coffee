@@ -56,7 +56,10 @@ class PreviewIntegration
         for node in document.querySelectorAll('[data-lnum="' + lnum + '"]')
             if is_hidden(node)
                 continue
-            node.scrollIntoView()
+            if node is document.body
+                window.scrollTo(0, 0)
+            else
+                node.scrollIntoView()
             return
 
     line_numbers: () =>
