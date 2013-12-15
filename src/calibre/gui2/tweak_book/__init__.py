@@ -6,6 +6,8 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
+import string
+
 from calibre.utils.config import JSONConfig
 tprefs = JSONConfig('tweak_book_gui')
 
@@ -18,6 +20,10 @@ tprefs.defaults['preview_refresh_time'] = 2
 tprefs.defaults['choose_tweak_fmt'] = True
 tprefs.defaults['tweak_fmt_order'] = ['EPUB', 'AZW3']
 tprefs.defaults['update_metadata_from_calibre'] = True
+
+ucase_map = {l:string.ascii_uppercase[i] for i, l in enumerate(string.ascii_lowercase)}
+def capitalize(x):
+    return ucase_map[x[0]] + x[1:]
 
 _current_container = None
 

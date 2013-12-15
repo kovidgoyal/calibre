@@ -6,7 +6,7 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import sys, string, weakref
+import sys, weakref
 from functools import wraps
 
 from PyQt4.Qt import (
@@ -16,6 +16,7 @@ from PyQt4.Qt import (
 from calibre import fit_image
 from calibre.constants import isosx
 from calibre.gui2 import error_dialog, pixmap_to_data
+from calibre.gui2.tweak_book import capitalize
 from calibre.utils.config_base import tweaks
 from calibre.utils.magick import Image
 from calibre.utils.magick.draw import identify_data
@@ -29,10 +30,6 @@ def painter(func):
         finally:
             painter.restore()
     return ans
-
-ucase_map = {l:string.ascii_uppercase[i] for i, l in enumerate(string.ascii_lowercase)}
-def capitalize(x):
-    return ucase_map[x[0]] + x[1:]
 
 class SelectionState(object):
 
