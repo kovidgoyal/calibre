@@ -6,7 +6,7 @@ __copyright__ = '2009, Darko Miletic <darko.miletic at gmail.com>'
 spiegel.de
 '''
 
-import time, re
+import time
 from contextlib import closing
 from calibre import as_unicode
 from calibre.web.feeds import feed_from_xml, Feed
@@ -45,13 +45,6 @@ class Spiegel_ger(BasicNewsRecipe):
                         }
 
     feeds          = [(u'Spiegel Online', u'http://www.spiegel.de/schlagzeilen/index.rss')]
-
-    def get_article_url(self, *args):
-        url = BasicNewsRecipe.get_article_url(self, *args).replace('#', '/#')
-        ai = re.search(r'ai=(\d+)', url).group(1)
-        soup = self.index_to_soup(url)
-        a = soup.find('a', href=lambda x: x and ai in x)
-        return 'http://www.spiegel.de' + a['href']
 
     def parse_feeds(self):
         title, url = self.feeds[0]
