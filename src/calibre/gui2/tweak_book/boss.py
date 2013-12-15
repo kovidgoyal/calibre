@@ -296,6 +296,7 @@ class Boss(QObject):
             self.rewind_savepoint()
             return
         with BusyCursor():
+            self.set_modified()
             self.update_editors_from_container()
             self.gui.toc_view.update_if_visible()
 
