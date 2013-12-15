@@ -443,6 +443,7 @@ class Main(MainWindow):
         a = e.addAction
         a(self.action_help)
         a(QIcon(I('donate.png')), _('Donate to support calibre development'), open_donate)
+        a(self.action_preferences)
 
     def update_recent_books(self):
         m = self.recent_books_menu
