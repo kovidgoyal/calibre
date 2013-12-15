@@ -667,12 +667,13 @@ class NewFileDialog(QDialog):  # {{{
         name, ext = name.rpartition('.')[0::2]
         name = (name + '.' + ext.lower()).replace('\\', '/')
         mt = guess_type(name)
-        if mt in OEB_DOCS:
-            self.file_data = template_for('html').encode('utf-8')
-            self.using_template = True
-        elif mt in OEB_STYLES:
-            self.file_data = template_for('css').encode('utf-8')
-            self.using_template = True
+        if not self.file_data:
+            if mt in OEB_DOCS:
+                self.file_data = template_for('html').encode('utf-8')
+                self.using_template = True
+            elif mt in OEB_STYLES:
+                self.file_data = template_for('css').encode('utf-8')
+                self.using_template = True
         self.file_name = name
         QDialog.accept(self)
 # }}}
