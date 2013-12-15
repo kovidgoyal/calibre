@@ -10,21 +10,31 @@ import string
 
 from calibre.utils.config import JSONConfig
 tprefs = JSONConfig('tweak_book_gui')
+d = tprefs.defaults
 
-tprefs.defaults['editor_theme'] = None
-tprefs.defaults['editor_font_family'] = None
-tprefs.defaults['editor_font_size'] = 12
-tprefs.defaults['editor_line_wrap'] = True
-tprefs.defaults['editor_tab_stop_width'] = 2
-tprefs.defaults['preview_refresh_time'] = 2
-tprefs.defaults['choose_tweak_fmt'] = True
-tprefs.defaults['tweak_fmt_order'] = ['EPUB', 'AZW3']
-tprefs.defaults['update_metadata_from_calibre'] = True
-tprefs.defaults['nestable_dock_widgets'] = False
-tprefs.defaults['dock_top_left'] = 'horizontal'
-tprefs.defaults['dock_top_right'] = 'horizontal'
-tprefs.defaults['dock_bottom_left'] = 'horizontal'
-tprefs.defaults['dock_bottom_right'] = 'horizontal'
+d['editor_theme'] = None
+d['editor_font_family'] = None
+d['editor_font_size'] = 12
+d['editor_line_wrap'] = True
+d['editor_tab_stop_width'] = 2
+d['preview_refresh_time'] = 2
+d['choose_tweak_fmt'] = True
+d['tweak_fmt_order'] = ['EPUB', 'AZW3']
+d['update_metadata_from_calibre'] = True
+d['nestable_dock_widgets'] = False
+d['dock_top_left'] = 'horizontal'
+d['dock_top_right'] = 'horizontal'
+d['dock_bottom_left'] = 'horizontal'
+d['dock_bottom_right'] = 'horizontal'
+d['preview_serif_family'] = 'Liberation Serif'
+d['preview_sans_family'] = 'Liberation Sans'
+d['preview_mono_family'] = 'Liberation Mono'
+d['preview_standard_font_family'] = 'serif'
+d['preview_base_font_size'] = 18
+d['preview_mono_font_size'] = 14
+d['preview_minimum_font_size'] = 8
+
+del d
 
 ucase_map = {l:string.ascii_uppercase[i] for i, l in enumerate(string.ascii_lowercase)}
 def capitalize(x):

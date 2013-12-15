@@ -595,3 +595,14 @@ class Preview(QWidget):
             else:
                 self.stop_split()
 
+    def apply_settings(self):
+        s = self.view.page().settings()
+        s.setFontSize(s.DefaultFontSize, tprefs['preview_base_font_size'])
+        s.setFontSize(s.DefaultFixedFontSize, tprefs['preview_mono_font_size'])
+        s.setFontSize(s.MinimumLogicalFontSize, tprefs['preview_minimum_font_size'])
+        s.setFontSize(s.MinimumFontSize, tprefs['preview_minimum_font_size'])
+        sf, ssf, mf = tprefs['preview_serif_family'], tprefs['preview_sans_family'], tprefs['preview_mono_family']
+        s.setFontFamily(s.StandardFont, {'serif':sf, 'sans':ssf, 'mono':mf, None:sf}[tprefs['preview_standard_font_family']])
+        s.setFontFamily(s.SerifFont, sf)
+        s.setFontFamily(s.SansSerifFont, ssf)
+        s.setFontFamily(s.FixedFont, mf)

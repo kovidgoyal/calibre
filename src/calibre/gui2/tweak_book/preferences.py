@@ -14,7 +14,7 @@ from itertools import product
 from PyQt4.Qt import (
     QDialog, QGridLayout, QStackedWidget, QDialogButtonBox, QListWidget,
     QListWidgetItem, QIcon, QWidget, QSize, QFormLayout, Qt, QSpinBox,
-    QCheckBox, pyqtSignal, QDoubleSpinBox, QComboBox, QLabel)
+    QCheckBox, pyqtSignal, QDoubleSpinBox, QComboBox, QLabel, QFont, QFontComboBox)
 
 from calibre.gui2.keyboard import ShortcutConfig
 from calibre.gui2.tweak_book import tprefs
@@ -220,6 +220,38 @@ class MainWindowSettings(BasicSettings):
                   ('bottom', 'left'):_('The bottom-left corner'), ('bottom', 'right'):_('The bottom-right corner')}[(v, h)]
             l.addRow(cn + ':', w)
 
+class PreviewSettings(BasicSettings):
+
+    def __init__(self, parent=None):
+        BasicSettings.__init__(self, parent)
+        self.l = l = QFormLayout(self)
+        self.setLayout(l)
+
+        def family_getter(w):
+            return unicode(w.currentFont().family())
+
+        def family_setter(w, val):
+            w.setCurrentFont(QFont(val))
+
+        families = {'serif':_('Serif text'), 'sans':_('Sans-serif text'), 'mono':_('Monospaced text')}
+        for fam, text in families.iteritems():
+            w = QFontComboBox(self)
+            self('preview_%s_family' % fam, widget=w, getter=family_getter, setter=family_setter)
+            l.addRow(_('Font family for &%s:') % text, w)
+
+        w = self.choices_widget('preview_standard_font_family', families, 'serif', 'serif')
+        l.addRow(_('&Style for standard text:'), w)
+
+        w = self('preview_base_font_size')
+        w.setMinimum(8), w.setMaximum(100), w.setSuffix(' px')
+        l.addRow(_('&Default font size:'), w)
+        w = self('preview_mono_font_size')
+        w.setMinimum(8), w.setMaximum(100), w.setSuffix(' px')
+        l.addRow(_('&Monospace font size:'), w)
+        w = self('preview_minimum_font_size')
+        w.setMinimum(4), w.setMaximum(100), w.setSuffix(' px')
+        l.addRow(_('Mi&nimum font size:'), w)
+
 class Preferences(QDialog):
 
     def __init__(self, gui, initial_panel=None):
@@ -264,10 +296,12 @@ class Preferences(QDialog):
         self.editor_panel = EditorSettings(self)
         self.integration_panel = IntegrationSettings(self)
         self.main_window_panel = MainWindowSettings(self)
+        self.preview_panel = PreviewSettings(self)
 
         for name, icon, panel in [
             (_('Main window'), 'page.png', 'main_window'),
             (_('Editor settings'), 'modified.png', 'editor'),
+            (_('Preview settings'), 'viewer.png', 'preview'),
             (_('Keyboard shortcuts'), 'keyboard-prefs.png', 'keyboard'),
             (_('Integration with calibre'), 'lt.png', 'integration'),
         ]:
