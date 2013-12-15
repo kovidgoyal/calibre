@@ -622,7 +622,7 @@ class NewFileDialog(QDialog):  # {{{
 
         self.ok_button = bb.button(bb.Ok)
 
-        self.file_data = ''
+        self.file_data = b''
         self.using_template = False
 
     def show_error(self, msg):
@@ -637,6 +637,7 @@ class NewFileDialog(QDialog):  # {{{
                 self.file_data = f.read()
             name = os.path.basename(path)
             self.name.setText(name)
+            self.la.setText(_('Choose a name for the imported file'))
 
     @property
     def name_is_ok(self):
