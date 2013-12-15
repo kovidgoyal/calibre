@@ -29,5 +29,5 @@ Bugs
 ------
 
 Bug reports and feature requests should be made in the calibre bug tracker at [launchpad](https://bugs.launchpad.net/calibre).
-The GitHub bug tracker is only for people contributing code to calibre.
+GitHub is only used for code hosting and pull requests.
 
