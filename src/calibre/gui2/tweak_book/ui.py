@@ -28,6 +28,7 @@ from calibre.gui2.tweak_book.preview import Preview
 from calibre.gui2.tweak_book.search import SearchPanel
 from calibre.gui2.tweak_book.check import Check
 from calibre.gui2.tweak_book.toc import TOCViewer
+from calibre.gui2.tweak_book.editor.widget import register_text_editor_actions
 
 def open_donate():
     open_url(QUrl('http://calibre-ebook.com/donate'))
@@ -289,6 +290,10 @@ class Main(MainWindow):
         self.action_editor_copy.setEnabled(False)
         self.action_editor_undo.setEnabled(False)
         self.action_editor_redo.setEnabled(False)
+
+        def ereg(icon, text, target, sid, keys, description):
+            return reg(icon, text, partial(self.boss.editor_action, target), sid, keys, description)
+        register_text_editor_actions(ereg)
 
         # Tool actions
         group = _('Tools')

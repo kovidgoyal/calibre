@@ -161,6 +161,7 @@ class TextEdit(QPlainTextEdit):
             clipboard.setMimeData(md, clipboard.Selection)
 
     def load_text(self, text, syntax='html', process_template=False):
+        self.syntax = syntax
         self.highlighter = {'html':HTMLHighlighter, 'css':CSSHighlighter, 'xml':XMLHighlighter}.get(syntax, SyntaxHighlighter)(self)
         self.highlighter.apply_theme(self.theme)
         self.highlighter.setDocument(self.document())
@@ -459,4 +460,50 @@ class TextEdit(QPlainTextEdit):
         QToolTip.hideText()
         ev.ignore()
     # }}}
+
+    def get_range_inside_tag(self):
+        c = self.textCursor()
+        left = min(c.anchor(), c.position())
+        right = max(c.anchor(), c.position())
+        # For speed we use QPlainTextEdit's toPlainText as we dont care about
+        # spaces in this context
+        raw = unicode(QPlainTextEdit.toPlainText(self))
+        # Make sure the left edge is not within a <>
+        gtpos = raw.find('>', left)
+        ltpos = raw.find('<', left)
+        if gtpos < ltpos:
+            left = gtpos + 1 if gtpos > -1 else left
+        right = max(left, right)
+        if right != left:
+            gtpos = raw.find('>', right)
+            ltpos = raw.find('<', right)
+            if ltpos > gtpos:
+                ltpos = raw.rfind('<', left, right+1)
+                right = max(ltpos, left)
+        return left, right
+
+    def format_text(self, formatting):
+        if self.syntax != 'html':
+            return
+        prefix, suffix = {
+            'bold': ('<b>', '</b>'),
+            'italic': ('<i>', '</i>'),
+            'underline': ('<u>', '</u>'),
+            'strikethrough': ('<strike>', '</strike>'),
+            'superscript': ('<sup>', '</sup>'),
+            'subscript': ('<sub>', '</sub>'),
+        }[formatting]
+        left, right = self.get_range_inside_tag()
+        c = self.textCursor()
+        c.setPosition(left)
+        c.setPosition(right, c.KeepAnchor)
+        prev_text = unicode(c.selectedText())
+        c.insertText(prefix + prev_text + suffix)
+        if prev_text:
+            right = c.position()
+            c.setPosition(left)
+            c.setPosition(right, c.KeepAnchor)
+        else:
+            c.setPosition(c.position() - len(suffix))
+        self.setTextCursor(c)
 

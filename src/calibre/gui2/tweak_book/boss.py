@@ -443,6 +443,11 @@ class Boss(QObject):
             if ed.has_marked_text:
                 self.gui.central.search_panel.set_where('selected-text')
 
+    def editor_action(self, action):
+        ed = self.gui.central.current_editor
+        if hasattr(ed, 'action_triggered'):
+            ed.action_triggered(action)
+
     def show_find(self):
         self.gui.central.show_find()
         ed = self.gui.central.current_editor

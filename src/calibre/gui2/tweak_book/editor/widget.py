@@ -14,6 +14,23 @@ from calibre.gui2 import error_dialog
 from calibre.gui2.tweak_book import actions, current_container
 from calibre.gui2.tweak_book.editor.text import TextEdit
 
+def register_text_editor_actions(reg):
+    ac = reg('format-text-bold', _('&Bold'), ('format_text', 'bold'), 'format-text-bold', 'Ctrl+B', _('Make the selected text bold'))
+    ac.setToolTip(_('<h3>Bold</h3>Make the selected text bold'))
+    ac = reg('format-text-italic', _('&Italic'), ('format_text', 'italic'), 'format-text-italic', 'Ctrl+I', _('Make the selected text italic'))
+    ac.setToolTip(_('<h3>Italic</h3>Make the selected text italic'))
+    ac = reg('format-text-underline', _('&Underline'), ('format_text', 'underline'), 'format-text-underline', (), _('Underline the selected text'))
+    ac.setToolTip(_('<h3>Underline</h3>Underline the selected text'))
+    ac = reg('format-text-strikethrough', _('&Strikethrough'), ('format_text', 'strikethrough'),
+             'format-text-strikethrough', (), _('Draw a line through the selected text'))
+    ac.setToolTip(_('<h3>Strikethrough</h3>Draw a line through the selected text'))
+    ac = reg('format-text-superscript', _('&Superscript'), ('format_text', 'superscript'),
+             'format-text-superscript', (), _('Make the selected text a superscript'))
+    ac.setToolTip(_('<h3>Superscript</h3>Set the selected text slightly smaller and above the normal line'))
+    ac = reg('format-text-subscript', _('&Subscript'), ('format_text', 'subscript'),
+             'format-text-subscript', (), _('Make the selected text a subscript'))
+    ac.setToolTip(_('<h3>Subscript</h3>Set the selected text slightly smaller and below the normal line'))
+
 class Editor(QMainWindow):
 
     has_line_numbers = True
@@ -83,6 +100,11 @@ class Editor(QMainWindow):
     def set_focus(self):
         self.editor.setFocus(Qt.OtherFocusReason)
 
+    def action_triggered(self, action):
+        action, args = action[0], action[1:]
+        func = getattr(self.editor, action)
+        func(*args)
+
     def undo(self):
         self.editor.undo()
 
@@ -135,6 +157,10 @@ class Editor(QMainWindow):
             b.addAction(actions['fix-html-current'])
         if self.syntax in {'xml', 'html', 'css'}:
             b.addAction(actions['pretty-current'])
+        if self.syntax == 'html':
+            self.format_bar = b = self.addToolBar(_('Format text'))
+            for x in ('bold', 'italic', 'underline', 'strikethrough', 'subscript', 'superscript'):
+                b.addAction(actions['format-text-%s' % x])
 
     def break_cycles(self):
         self.modification_state_changed.disconnect()
