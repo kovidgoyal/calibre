@@ -13,7 +13,7 @@ import regex
 from PyQt4.Qt import (
     QPlainTextEdit, QFontDatabase, QToolTip, QPalette, QFont, QKeySequence,
     QTextEdit, QTextFormat, QWidget, QSize, QPainter, Qt, QRect, pyqtSlot,
-    QApplication, QMimeData)
+    QApplication, QMimeData, QColor, QColorDialog)
 
 from calibre.gui2.tweak_book import tprefs, TOP
 from calibre.gui2.tweak_book.editor import SYNTAX_PROPERTY
@@ -485,6 +485,16 @@ class TextEdit(QPlainTextEdit):
     def format_text(self, formatting):
         if self.syntax != 'html':
             return
+        color = 'currentColor'
+        if formatting in {'color', 'background-color'}:
+            color = QColorDialog.getColor(QColor(Qt.black if formatting == 'color' else Qt.white), self, _('Choose color'), QColorDialog.ShowAlphaChannel)
+            if not color.isValid():
+                return
+            r, g, b, a = color.getRgb()
+            if a == 255:
+                color = 'rgb(%d, %d, %d)' % (r, g, b)
+            else:
+                color = 'rgba(%d, %d, %d, %.2g)' % (r, g, b, a/255)
         prefix, suffix = {
             'bold': ('<b>', '</b>'),
             'italic': ('<i>', '</i>'),
@@ -492,6 +502,8 @@ class TextEdit(QPlainTextEdit):
             'strikethrough': ('<strike>', '</strike>'),
             'superscript': ('<sup>', '</sup>'),
             'subscript': ('<sub>', '</sub>'),
+            'color': ('<span style="color: %s">' % color, '</span>'),
+            'background-color': ('<span style="background-color: %s">' % color, '</span>'),
         }[formatting]
         left, right = self.get_range_inside_tag()
         c = self.textCursor()

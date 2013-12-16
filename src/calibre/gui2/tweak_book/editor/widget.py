@@ -30,6 +30,11 @@ def register_text_editor_actions(reg):
     ac = reg('format-text-subscript', _('&Subscript'), ('format_text', 'subscript'),
              'format-text-subscript', (), _('Make the selected text a subscript'))
     ac.setToolTip(_('<h3>Subscript</h3>Set the selected text slightly smaller and below the normal line'))
+    ac = reg('format-text-color', _('&Color'), ('format_text', 'color'), 'format-text-color', (), _('Change text color'))
+    ac.setToolTip(_('<h3>Color</h3>Change the color of the selected text'))
+    ac = reg('format-fill-color', _('&Background Color'), ('format_text', 'background-color'),
+             'format-text-background-color', (), _('Change background color of text'))
+    ac.setToolTip(_('<h3>Background Color</h3>Change the background color of the selected text'))
 
 class Editor(QMainWindow):
 
@@ -159,7 +164,7 @@ class Editor(QMainWindow):
             b.addAction(actions['pretty-current'])
         if self.syntax == 'html':
             self.format_bar = b = self.addToolBar(_('Format text'))
-            for x in ('bold', 'italic', 'underline', 'strikethrough', 'subscript', 'superscript'):
+            for x in ('bold', 'italic', 'underline', 'strikethrough', 'subscript', 'superscript', 'color', 'background-color'):
                 b.addAction(actions['format-text-%s' % x])
 
     def break_cycles(self):
