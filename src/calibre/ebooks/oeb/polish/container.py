@@ -344,7 +344,7 @@ class Container(object):  # {{{
         return self.opf.xpath(expr, namespaces=OPF_NAMESPACES)
 
     def has_name(self, name):
-        return name in self.name_path_map
+        return name and name in self.name_path_map
 
     def relpath(self, path, base=None):
         '''Convert an absolute path (with os separators) to a path relative to
