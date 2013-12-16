@@ -247,7 +247,10 @@ class NetworkAccessManager(QNetworkAccessManager):
             if iswindows and path.startswith('/'):
                 path = path[1:]
             c = current_container()
-            name = c.abspath_to_name(path)
+            try:
+                name = c.abspath_to_name(path)
+            except ValueError:  # Happens on windows with absolute paths on different drives
+                name = None
             if c.has_name(name):
                 try:
                     return NetworkReply(self, request, c.mime_map.get(name, 'application/octet-stream'), name)
