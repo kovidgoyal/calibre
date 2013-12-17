@@ -9,7 +9,7 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 from PyQt4.Qt import (
     QDialog, pyqtSignal, QIcon, QVBoxLayout, QDialogButtonBox, QStackedWidget,
     QAction, QMenu, QTreeWidget, QTreeWidgetItem, QGridLayout, QWidget, Qt,
-    QSize, QStyledItemDelegate)
+    QSize, QStyledItemDelegate, QApplication, QTimer)
 
 from calibre.constants import plugins
 from calibre.ebooks.oeb.polish.toc import commit_toc, get_toc
@@ -126,6 +126,7 @@ class TOCViewer(QWidget):
         self.view.setContextMenuPolicy(Qt.CustomContextMenu)
         self.view.customContextMenuRequested.connect(self.show_context_menu, type=Qt.QueuedConnection)
         self.view.itemActivated.connect(self.emit_navigate)
+        self.view.itemPressed.connect(self.item_pressed)
         pi = plugins['progress_indicator'][0]
         if hasattr(pi, 'set_no_activate_on_click'):
             pi.set_no_activate_on_click(self.view)
@@ -134,6 +135,10 @@ class TOCViewer(QWidget):
 
         self.refresh_action = QAction(QIcon(I('view-refresh.png')), _('&Refresh'), self)
         self.refresh_action.triggered.connect(self.build)
+
+    def item_pressed(self, item):
+        if QApplication.mouseButtons() & Qt.LeftButton:
+            QTimer.singleShot(0, self.emit_navigate)
 
     def show_context_menu(self, pos):
         menu = QMenu(self)
