@@ -373,6 +373,8 @@ class Boss(QObject):
             if oldname in editors:
                 editors[newname] = editors.pop(oldname)
                 self.gui.central.rename_editor(editors[newname], newname)
+            if self.gui.preview.current_name == oldname:
+                self.gui.preview.current_name = newname
         self.apply_container_update_to_gui()
     # }}}
 
