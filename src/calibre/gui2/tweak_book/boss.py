@@ -32,6 +32,7 @@ from calibre.gui2.tweak_book.save import SaveManager, save_container
 from calibre.gui2.tweak_book.preview import parse_worker, font_cache
 from calibre.gui2.tweak_book.toc import TOCEditor
 from calibre.gui2.tweak_book.editor import editor_from_syntax, syntax_from_mime
+from calibre.gui2.tweak_book.editor.insert_resource import get_resource_data
 from calibre.gui2.tweak_book.preferences import Preferences
 
 def get_container(*args, **kwargs):
@@ -217,9 +218,12 @@ class Boss(QObject):
             else:
                 self.close_editor(name)
 
-    def apply_container_update_to_gui(self):
+    def refresh_file_list(self):
         container = current_container()
         self.gui.file_list.build(container)
+
+    def apply_container_update_to_gui(self):
+        self.refresh_file_list()
         self.update_global_history_actions()
         self.update_editors_from_container()
         self.set_modified()
@@ -445,8 +449,30 @@ class Boss(QObject):
 
     def editor_action(self, action):
         ed = self.gui.central.current_editor
+        for n, x in editors.iteritems():
+            if x is ed:
+                edname = n
+                break
         if hasattr(ed, 'action_triggered'):
-            ed.action_triggered(action)
+            if action and action[0] == 'insert_resource':
+                rtype = action[1]
+                if rtype == 'image' and ed.syntax not in {'css', 'html'}:
+                    return error_dialog(self.gui, _('Not supported'), _(
+                        'Inserting images is only supported for HTML and CSS files.'), show=True)
+                rdata = get_resource_data(rtype, self.gui)
+                if rdata is None:
+                    return
+                if rtype == 'image':
+                    chosen_name, chosen_image_is_external = rdata
+                    if chosen_image_is_external:
+                        with open(chosen_image_is_external[1], 'rb') as f:
+                            current_container().add_file(chosen_image_is_external[0], f.read())
+                        self.refresh_file_list()
+                        chosen_name = chosen_image_is_external[0]
+                    href = current_container().name_to_href(chosen_name, edname)
+                    ed.insert_image(href)
+            else:
+                ed.action_triggered(action)
 
     def show_find(self):
         self.gui.central.show_find()

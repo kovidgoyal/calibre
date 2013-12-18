@@ -36,6 +36,9 @@ def register_text_editor_actions(reg):
              'format-text-background-color', (), _('Change background color of text'))
     ac.setToolTip(_('<h3>Background Color</h3>Change the background color of the selected text'))
 
+    ac = reg('view-image', _('&Insert image'), ('insert_resource', 'image'), 'insert-image', (), _('Insert an image into the text'))
+    ac.setToolTip(_('<h3>Insert image</h3>Insert an image into the text'))
+
 class Editor(QMainWindow):
 
     has_line_numbers = True
@@ -110,6 +113,9 @@ class Editor(QMainWindow):
         func = getattr(self.editor, action)
         func(*args)
 
+    def insert_image(self, href):
+        self.editor.insert_image(href)
+
     def undo(self):
         self.editor.undo()
 
@@ -162,6 +168,8 @@ class Editor(QMainWindow):
             b.addAction(actions['fix-html-current'])
         if self.syntax in {'xml', 'html', 'css'}:
             b.addAction(actions['pretty-current'])
+        if self.syntax in {'html', 'css'}:
+            b.addAction(actions['insert-image'])
         if self.syntax == 'html':
             self.format_bar = b = self.addToolBar(_('Format text'))
             for x in ('bold', 'italic', 'underline', 'strikethrough', 'subscript', 'superscript', 'color', 'background-color'):

@@ -15,6 +15,7 @@ from PyQt4.Qt import (
     QTextEdit, QTextFormat, QWidget, QSize, QPainter, Qt, QRect, pyqtSlot,
     QApplication, QMimeData, QColor, QColorDialog)
 
+from calibre import prepare_string_for_xml
 from calibre.gui2.tweak_book import tprefs, TOP
 from calibre.gui2.tweak_book.editor import SYNTAX_PROPERTY
 from calibre.gui2.tweak_book.editor.themes import THEMES, default_theme, theme_color
@@ -517,5 +518,26 @@ class TextEdit(QPlainTextEdit):
             c.setPosition(right, c.KeepAnchor)
         else:
             c.setPosition(c.position() - len(suffix))
+        self.setTextCursor(c)
+
+    def insert_image(self, href):
+        c = self.textCursor()
+        template, alt = 'url(%s)', ''
+        left = min(c.position(), c.anchor)
+        if self.syntax == 'html':
+            left, right = self.get_range_inside_tag()
+            c.setPosition(left)
+            c.setPosition(right, c.KeepAnchor)
+            alt = _('Image')
+            template = '<img alt="{0}" src="%s" />'.format(alt)
+            href = prepare_string_for_xml(href, True)
+        text = template % href
+        c.insertText(text)
+        if self.syntax == 'html':
+            c.setPosition(left + 10)
+            c.setPosition(c.position() + len(alt), c.KeepAnchor)
+        else:
+            c.setPosition(left)
+            c.setPosition(left + len(text), c.KeepAnchor)
         self.setTextCursor(c)
 
