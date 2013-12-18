@@ -1,3 +1,4 @@
+import re
 from calibre import strftime
 
 __license__   = 'GPL v3'
@@ -7,6 +8,7 @@ __copyright__ = '2012, Bernd Leinfelder <skoll1975 at gmail.com> '
 webpaper.nzz.ch
 '''
 
+from calibre.ptempfile import PersistentTemporaryFile
 from calibre.web.feeds.recipes import BasicNewsRecipe
 
 class Nzz(BasicNewsRecipe):
@@ -23,6 +25,7 @@ class Nzz(BasicNewsRecipe):
     encoding              = 'utf-8'
     use_embedded_content  = False
     language              = 'de'
+    temp_files = []
     extra_css = 'h1 {font: sans-serif large;}\n.byline {font:monospace;}'
 
     conversion_options = {
@@ -32,7 +35,7 @@ class Nzz(BasicNewsRecipe):
                             ,'publisher' : publisher
                          }
 
-    remove_tags = [dict(name='footer')]
+    remove_tags = [dict(name='footer') , dict({'class' : 'fullarticle__related'})]
 
     remove_tags_before = dict(name='article')
     remove_tags_after= dict(name='footer')
@@ -41,47 +44,52 @@ class Nzz(BasicNewsRecipe):
         baseref = 'https://webpaper.nzz.ch'
         soup = self.index_to_soup(baseref)
 
+        # print soup.prettify()
+
         articles = {}
+        sections = []
         ans = []
+        issue = soup.find("link",rel="prefetch")
 
-        issuelist = soup.find(id="issueSelectorList")
+        soup = self.index_to_soup(baseref+issue['href'])
+        # print soup.prettify()
+        section = ""
+        lastsection = ""
+        pubdate = strftime('%a, %d %b')
 
-        feeds = issuelist.findAll("a")
-        for f in feeds:
-            section = f.string
-            sectionref = baseref + f['href']
+        articlesoup = soup.findAll("article",{"class" : re.compile(".*fullarticle[ \"].*")})
+        for art in articlesoup:
+            # print art.prettify()
+            section=art['data-department']
+            print "section is "+section
 
-            ans.append(section)
+            if section != lastsection:
+                sections.append(section)
+                articles[section]=[]
+                lastsection=section
 
-            articlesoup = self.index_to_soup(sectionref)
+            caption = art.find("h2")
 
-            articlesoup = articlesoup.findAll('article','article')
-            for a in articlesoup:
-                artlink = a.find('a')
+            self.temp_files.append(PersistentTemporaryFile('_fa.html'))
+            self.temp_files[-1].write(art.prettify())
+            self.temp_files[-1].close()
+            filename = self.temp_files[-1].name
 
-                arthref = baseref + artlink['href']
-                arthead = a.find('h2')
-                artcaption = arthead.string
+            articles[section].append(
+                           dict(title=caption.string,url='file://'+filename, date=pubdate, description='', content=''))
 
-                pubdate = strftime('%a, %d %b')
+        ans = [(key, articles[key]) for key in sections if key in articles]
 
-                if not artcaption is None:
-                    if not articles.has_key(section):
-                        articles[section] = []
-                    articles[section].append(
-                        dict(title=artcaption, url=arthref, date=pubdate, description='', content=''))
+        # pprint.pprint(ans)
 
-        ans = [(key, articles[key]) for key in ans if articles.has_key(key)]
         return ans
 
     def get_browser(self):
         br = BasicNewsRecipe.get_browser(self)
         if self.username is not None and self.password is not None:
-            br.open('https://cas.nzz.ch/cas/login')
+            br.open('https://webpaper.nzz.ch/login')
             br.select_form(nr=0)
             br['username']   = self.username
             br['password'] = self.password
             br.submit()
         return br
-
-
