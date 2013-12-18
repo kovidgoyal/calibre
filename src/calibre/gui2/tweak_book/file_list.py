@@ -36,6 +36,22 @@ LINEAR_ROLE = CATEGORY_ROLE + 1
 MIME_ROLE = LINEAR_ROLE + 1
 NBSP = '\xa0'
 
+def name_is_ok(name, show_error):
+    if not name or not name.strip():
+        return show_error('') and False
+    ext = name.rpartition('.')[-1]
+    if not ext or ext == name:
+        return show_error(_('The file name must have an extension'))
+    norm = name.replace('\\', '/')
+    parts = name.split('/')
+    for x in parts:
+        if sanitize_file_name_unicode(x) != x:
+            return show_error(_('The file name contains invalid characters'))
+    if current_container().has_name(norm):
+        return show_error(_('This file name already exists in the book'))
+    show_error('')
+    return True
+
 class ItemDelegate(QStyledItemDelegate):  # {{{
 
     rename_requested = pyqtSignal(object, object)
@@ -641,21 +657,7 @@ class NewFileDialog(QDialog):  # {{{
 
     @property
     def name_is_ok(self):
-        name = unicode(self.name.text())
-        if not name or not name.strip():
-            return self.show_error('')
-        ext = name.rpartition('.')[-1]
-        if not ext or ext == name:
-            return self.show_error(_('The file name must have an extension'))
-        norm = name.replace('\\', '/')
-        parts = name.split('/')
-        for x in parts:
-            if sanitize_file_name_unicode(x) != x:
-                return self.show_error(_('The file name contains invalid characters'))
-        if current_container().has_name(norm):
-            return self.show_error(_('This file name already exists in the book'))
-        self.show_error('')
-        return True
+        return name_is_ok(unicode(self.name.text()), self.show_error)
 
     def update_ok(self, *args):
         self.ok_button.setEnabled(self.name_is_ok)
