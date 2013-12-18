@@ -41,14 +41,14 @@ def name_is_ok(name, show_error):
         return show_error('') and False
     ext = name.rpartition('.')[-1]
     if not ext or ext == name:
-        return show_error(_('The file name must have an extension'))
+        return show_error(_('The file name must have an extension')) and False
     norm = name.replace('\\', '/')
     parts = name.split('/')
     for x in parts:
         if sanitize_file_name_unicode(x) != x:
-            return show_error(_('The file name contains invalid characters'))
+            return show_error(_('The file name contains invalid characters')) and False
     if current_container().has_name(norm):
-        return show_error(_('This file name already exists in the book'))
+        return show_error(_('This file name already exists in the book')) and False
     show_error('')
     return True
 
