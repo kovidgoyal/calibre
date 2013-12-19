@@ -40,8 +40,14 @@ def get_azw3_raster_cover_name(container):
 
 def mark_as_cover_azw3(container, name):
     href = container.name_to_href(name, container.opf_name)
+    found = False
     for item in container.opf_xpath('//opf:guide/opf:reference[@href and contains(@type, "cover")]'):
         item.set('href', href)
+        found = True
+    if not found:
+        for guide in container.opf_xpath('//opf:guide'):
+            container.insert_into_xml(guide, guide.makeelement(
+                OPF('reference'), href=href, type='cover'))
     container.dirty(container.opf_name)
 
 def get_raster_cover_name(container):
