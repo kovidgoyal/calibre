@@ -29,11 +29,12 @@ from calibre.gui2.tweak_book.search import SearchPanel
 from calibre.gui2.tweak_book.check import Check
 from calibre.gui2.tweak_book.toc import TOCViewer
 from calibre.gui2.tweak_book.editor.widget import register_text_editor_actions
+from calibre.gui2.tweak_book.editor.insert_resource import InsertImage
 
 def open_donate():
     open_url(QUrl('http://calibre-ebook.com/donate'))
 
-class Central(QStackedWidget):
+class Central(QStackedWidget):  # {{{
 
     ' The central widget, hosts the editors '
 
@@ -164,8 +165,9 @@ class Central(QStackedWidget):
             menu.exec_(self.editor_tabs.tabBar().mapToGlobal(event.pos()))
 
         return True
+# }}}
 
-class CursorPositionWidget(QWidget):
+class CursorPositionWidget(QWidget):  # {{{
 
     def __init__(self, parent):
         QWidget.__init__(self, parent)
@@ -183,6 +185,7 @@ class CursorPositionWidget(QWidget):
             self.la.setText('')
         else:
             self.la.setText(_('Line: {0} : {1}').format(line, col))
+# }}}
 
 class Main(MainWindow):
 
@@ -205,6 +208,7 @@ class Main(MainWindow):
         self.setCentralWidget(self.central)
         self.check_book = Check(self)
         self.toc_view = TOCViewer(self)
+        self.image_browser = InsertImage(self, for_browsing=True)
 
         self.create_actions()
         self.create_toolbars()
@@ -374,6 +378,9 @@ class Main(MainWindow):
         self.action_help = reg(
             'help.png', _('User &Manual'), lambda : open_url(QUrl('http://manual.calibre-ebook.com/edit.html')), 'user-manual', 'F1', _(
                 'Show User Manual'))
+        self.action_browse_images = reg(
+            'view-image.png', _('&Browse images in book'), self.boss.browse_images, 'browse-images', (), _(
+                'Browse images in the books visually'))
 
     def create_menubar(self):
         p, q = self.create_application_menubar()
@@ -423,6 +430,7 @@ class Main(MainWindow):
                 e.addAction(ac)
             elif name.endswith('-bar'):
                 t.addAction(ac)
+        e.addAction(self.action_browse_images)
         e.addSeparator()
         e.addAction(self.action_close_current_tab)
         e.addAction(self.action_close_all_but_current_tab)

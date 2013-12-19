@@ -106,6 +106,7 @@ class Boss(QObject):
         self.gui.check_book.check_requested.connect(self.check_requested)
         self.gui.check_book.fix_requested.connect(self.fix_requested)
         self.gui.toc_view.navigate_requested.connect(self.link_clicked)
+        self.gui.image_browser.image_activated.connect(self.image_activated)
 
     def preferences(self):
         p = Preferences(self.gui)
@@ -816,6 +817,15 @@ class Boss(QObject):
         self.add_savepoint(_('Replace %s') % name)
         replace_file(current_container(), name, path, basename, force_mt)
         self.apply_container_update_to_gui()
+
+    def browse_images(self):
+        self.gui.image_browser.refresh()
+        self.gui.image_browser.show()
+        self.gui.image_browser.raise_()
+
+    def image_activated(self, name):
+        mt = current_container().mime_map.get(name, guess_type(name))
+        self.edit_file_requested(name, None, mt)
 
     def sync_editor_to_preview(self, name, lnum):
         editor = self.edit_file(name, 'html')

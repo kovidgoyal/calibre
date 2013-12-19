@@ -12,7 +12,7 @@ from PyQt4.Qt import (
     QDialog, QGridLayout, QDialogButtonBox, QSize, QListView, QStyledItemDelegate,
     QLabel, QPixmap, QApplication, QSizePolicy, QAbstractListModel, QVariant,
     Qt, QRect, QPainter, QModelIndex, QSortFilterProxyModel, QLineEdit,
-    QToolButton, QIcon, QFormLayout)
+    QToolButton, QIcon, QFormLayout, pyqtSignal)
 
 from calibre import fit_image
 from calibre.constants import plugins
@@ -160,12 +160,20 @@ class Images(QAbstractListModel):
     def __init__(self, parent):
         QAbstractListModel.__init__(self, parent)
         self.icon_size = parent.iconSize()
+        self.build()
+
+    def build(self):
         c = current_container()
         self.image_names = []
-        for name in sorted(c.mime_map, key=sort_key):
-            if c.mime_map[name].startswith('image/'):
-                self.image_names.append(name)
         self.image_cache = {}
+        if c is not None:
+            for name in sorted(c.mime_map, key=sort_key):
+                if c.mime_map[name].startswith('image/'):
+                    self.image_names.append(name)
+
+    def refresh(self):
+        self.build()
+        self.reset()
 
     def rowCount(self, *args):
         return len(self.image_names)
@@ -181,8 +189,12 @@ class Images(QAbstractListModel):
 
 class InsertImage(Dialog):
 
-    def __init__(self, parent=None):
-        Dialog.__init__(self, _('Choose an image'), 'insert-image-dialog', parent)
+    image_activated = pyqtSignal(object)
+
+    def __init__(self, parent=None, for_browsing=False):
+        self.for_browsing = for_browsing
+        Dialog.__init__(self, _('Images in book') if for_browsing else _('Choose an image'),
+                        'browse-image-dialog' if for_browsing else 'insert-image-dialog', parent)
         self.chosen_image = None
         self.chosen_image_is_external = False
 
@@ -196,6 +208,8 @@ class InsertImage(Dialog):
         self.la1 = la = QLabel(_('&Existing images in the book'))
         la.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
         l.addWidget(la, 0, 0, 1, 2)
+        if self.for_browsing:
+            la.setVisible(False)
 
         self.view = v = QListView(self)
         v.setViewMode(v.IconMode)
@@ -212,10 +226,12 @@ class InsertImage(Dialog):
         v.setItemDelegate(self.d)
         self.model = Images(self.view)
         self.fm = fm = QSortFilterProxyModel(self.view)
+        self.fm.setDynamicSortFilter(self.for_browsing)
         fm.setSourceModel(self.model)
         fm.setFilterCaseSensitivity(False)
         v.setModel(fm)
         l.addWidget(v, 1, 0, 1, 2)
+        v.pressed.connect(self.pressed)
         la.setBuddy(v)
 
         self.filter = f = QLineEdit(self)
@@ -228,10 +244,22 @@ class InsertImage(Dialog):
         f.textChanged.connect(self.filter_changed)
 
         l.addWidget(self.bb, 3, 0, 1, 2)
-        b = self.import_button = self.bb.addButton(_('&Import image'), self.bb.ActionRole)
-        b.clicked.connect(self.import_image)
-        b.setIcon(QIcon(I('view-image.png')))
-        b.setToolTip(_('Import an image from elsewhere in your computer'))
+        if self.for_browsing:
+            self.bb.clear()
+            self.bb.addButton(self.bb.Close)
+            b = self.refresh_button = self.bb.addButton(_('&Refresh'), self.bb.ActionRole)
+            b.clicked.connect(self.refresh)
+            b.setIcon(QIcon(I('view-refresh.png')))
+            b.setToolTip(_('Refresh the displayed images'))
+            self.setAttribute(Qt.WA_DeleteOnClose, False)
+        else:
+            b = self.import_button = self.bb.addButton(_('&Import image'), self.bb.ActionRole)
+            b.clicked.connect(self.import_image)
+            b.setIcon(QIcon(I('view-image.png')))
+            b.setToolTip(_('Import an image from elsewhere in your computer'))
+
+    def refresh(self):
+        self.model.refresh()
 
     def import_image(self):
         path = choose_files(self, 'tweak-book-choose-image-for-import', _('Choose Image'),
@@ -246,7 +274,13 @@ class InsertImage(Dialog):
                 self.accept()
                 self.chosen_image_is_external = (d.filename, path)
 
+    def pressed(self, index):
+        if QApplication.mouseButtons() & Qt.LeftButton:
+            self.activated(index)
+
     def activated(self, index):
+        if self.for_browsing:
+            return self.image_activated.emit(unicode(index.data().toString()))
         self.chosen_image_is_external = False
         self.accept()
 
