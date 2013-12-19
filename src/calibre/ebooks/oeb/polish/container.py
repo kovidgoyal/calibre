@@ -1005,6 +1005,18 @@ def do_explode(path, dest):
 
     return opf, obfuscated_fonts
 
+def opf_to_azw3(opf, outpath, log):
+    from calibre.ebooks.conversion.plumber import Plumber, create_oebbook
+    plumber = Plumber(opf, outpath, log)
+    plumber.setup_options()
+    inp = plugin_for_input_format('azw3')
+    outp = plugin_for_output_format('azw3')
+    plumber.opts.mobi_passthrough = True
+    oeb = create_oebbook(default_log, opf, plumber.opts)
+    set_cover(oeb)
+    outp.convert(oeb, outpath, inp, plumber.opts, default_log)
+
+
 class AZW3Container(Container):
 
     book_type = 'azw3'
@@ -1068,16 +1080,7 @@ class AZW3Container(Container):
         super(AZW3Container, self).commit(keep_parsed=keep_parsed)
         if outpath is None:
             outpath = self.pathtoazw3
-        from calibre.ebooks.conversion.plumber import Plumber, create_oebbook
-        opf = self.name_path_map[self.opf_name]
-        plumber = Plumber(opf, outpath, self.log)
-        plumber.setup_options()
-        inp = plugin_for_input_format('azw3')
-        outp = plugin_for_output_format('azw3')
-        plumber.opts.mobi_passthrough = True
-        oeb = create_oebbook(default_log, opf, plumber.opts)
-        set_cover(oeb)
-        outp.convert(oeb, outpath, inp, plumber.opts, default_log)
+        opf_to_azw3(self.name_path_map[self.opf_name], outpath, self.log)
 
     @property
     def path_to_ebook(self):
