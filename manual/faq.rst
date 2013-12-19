@@ -122,11 +122,11 @@ The EPUB I produced with |app| is not valid?
 
 |app| does not guarantee that an EPUB produced by it is valid. The only
 guarantee it makes is that if you feed it valid XHTML 1.1 + CSS 2.1 it will
-output a valid EPUB. |app| is designed for ebook consumers, not producers. It
-tries hard to ensure that EPUBs it produces actually work as intended on a wide
-variety of devices, a goal that is incompatible with producing valid EPUBs, and
-one that is far more important to the vast majority of its users. If you need a
-tool that always produces valid EPUBs, |app| is not for you.
+output a valid EPUB. |app| tries hard to ensure that EPUBs it produces actually
+work as intended on a wide variety of devices, a goal that is incompatible with
+producing valid EPUBs, and one that is far more important to the vast majority
+of its users. If you need a tool that always produces valid EPUBs, |app| is not
+for you.
 
 How do I use some of the advanced features of the conversion tools?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
