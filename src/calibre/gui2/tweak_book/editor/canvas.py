@@ -211,7 +211,8 @@ class Replace(Command):
 
     def __init__(self, img, text, canvas):
         self.after_image = img
-        Command.__init__(self, text, canvas)
+        self.TEXT = text
+        Command.__init__(self, canvas)
 
     def __call__(self, canvas):
         if canvas.has_selection and canvas.selection_state.rect is not None:
