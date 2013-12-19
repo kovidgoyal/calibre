@@ -32,7 +32,7 @@ from calibre.gui2.tweak_book.save import SaveManager, save_container
 from calibre.gui2.tweak_book.preview import parse_worker, font_cache
 from calibre.gui2.tweak_book.toc import TOCEditor
 from calibre.gui2.tweak_book.editor import editor_from_syntax, syntax_from_mime
-from calibre.gui2.tweak_book.editor.insert_resource import get_resource_data
+from calibre.gui2.tweak_book.editor.insert_resource import get_resource_data, NewBook
 from calibre.gui2.tweak_book.preferences import Preferences
 
 def get_container(*args, **kwargs):
@@ -135,7 +135,7 @@ class Boss(QObject):
         self.container_count += 1
         return tempfile.mkdtemp(prefix='%s%05d-' % (prefix, self.container_count), dir=self.tdir)
 
-    def open_book(self, path=None, edit_file=None, clear_notify_data=True):
+    def _check_before_open(self):
         if self.gui.action_save.isEnabled():
             if not question_dialog(self.gui, _('Unsaved changes'), _(
                 'The current book has unsaved changes. If you open a new book, they will be lost'
@@ -145,7 +145,24 @@ class Boss(QObject):
             return info_dialog(self.gui, _('Cannot open'),
                         _('The current book is being saved, you cannot open a new book until'
                           ' the saving is completed'), show=True)
+        return True
 
+    def new_book(self):
+        if not self._check_before_open():
+            return
+        d = NewBook(self.gui)
+        if d.exec_() == d.Accepted:
+            fmt = d.fmt
+            path = choose_save_file(self.gui, 'edit-book-new-book', _('Choose file location'),
+                                    filters=[(fmt.upper(), (fmt,))], all_files=False)
+            if path is not None:
+                from calibre.ebooks.oeb.polish.create import create_book
+                create_book(d.mi, path, fmt=fmt)
+                self.open_book(path=path)
+
+    def open_book(self, path=None, edit_file=None, clear_notify_data=True):
+        if not self._check_before_open():
+            return
         if not hasattr(path, 'rpartition'):
             path = choose_files(self.gui, 'open-book-for-tweaking', _('Choose book'),
                                 [(_('Books'), [x.lower() for x in SUPPORTED])], all_files=False, select_only_single_file=True)

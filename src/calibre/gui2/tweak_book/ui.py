@@ -277,6 +277,7 @@ class Main(MainWindow):
         self.action_save_copy = reg('save.png', _('Save a &copy'), self.boss.save_copy, 'save-copy', 'Ctrl+Alt+S', _('Save a copy of the book'))
         self.action_quit = reg('quit.png', _('&Quit'), self.boss.quit, 'quit', 'Ctrl+Q', _('Quit'))
         self.action_preferences = reg('config.png', _('&Preferences'), self.boss.preferences, 'preferences', 'Ctrl+P', _('Preferences'))
+        self.action_new_book = reg('book.png', _('Create &new, empty book'), self.boss.new_book, 'new-book', (), _('Create a new, empty book'))
 
         # Editor actions
         group = _('Editor actions')
@@ -391,6 +392,7 @@ class Main(MainWindow):
         f = b.addMenu(_('&File'))
         f.addAction(self.action_new_file)
         f.addAction(self.action_open_book)
+        f.addAction(self.action_new_book)
         self.recent_books_menu = f.addMenu(_('&Recently opened books'))
         self.update_recent_books()
         f.addSeparator()

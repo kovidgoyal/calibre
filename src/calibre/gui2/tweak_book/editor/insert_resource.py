@@ -7,6 +7,7 @@ __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import sys, os
+from functools import partial
 
 from PyQt4.Qt import (
     QDialog, QGridLayout, QDialogButtonBox, QSize, QListView, QStyledItemDelegate,
@@ -16,9 +17,13 @@ from PyQt4.Qt import (
 
 from calibre import fit_image
 from calibre.constants import plugins
+from calibre.ebooks.metadata import string_to_authors
+from calibre.ebooks.metadata.book.base import Metadata
 from calibre.gui2 import NONE, choose_files, error_dialog
+from calibre.gui2.languages import LanguagesEdit
 from calibre.gui2.tweak_book import current_container, tprefs
 from calibre.gui2.tweak_book.file_list import name_is_ok
+from calibre.utils.localization import get_lang, canonicalize_lang
 from calibre.utils.icu import sort_key
 
 class Dialog(QDialog):
@@ -54,7 +59,9 @@ class Dialog(QDialog):
             tprefs.set(self.name + '-splitter-state', bytearray(self.splitter.saveState()))
         QDialog.reject(self)
 
-class ChooseName(Dialog):
+class ChooseName(Dialog):  # {{{
+
+    ''' Chooses the filename for a newly imported file, with error checking '''
 
     def __init__(self, candidate, parent=None):
         self.candidate = candidate
@@ -91,7 +98,9 @@ class ChooseName(Dialog):
         name, ext = n.rpartition('.')[0::2]
         self.filename = name + '.' + ext.lower()
         super(ChooseName, self).accept()
+# }}}
 
+# Images {{{
 class ImageDelegate(QStyledItemDelegate):
 
     MARGIN = 4
@@ -291,12 +300,61 @@ class InsertImage(Dialog):
     def filter_changed(self, *args):
         f = unicode(self.filter.text())
         self.fm.setFilterFixedString(f)
+# }}}
 
 def get_resource_data(rtype, parent):
     if rtype == 'image':
         d = InsertImage(parent)
         if d.exec_() == d.Accepted:
             return d.chosen_image, d.chosen_image_is_external
+
+class NewBook(Dialog):  # {{{
+
+    def __init__(self, parent=None):
+        self.fmt = 'epub'
+        Dialog.__init__(self, _('Create new book'), 'create-new-book', parent=parent)
+
+    def setup_ui(self):
+        self.l = l = QFormLayout(self)
+        self.setLayout(l)
+
+        self.title = t = QLineEdit(self)
+        l.addRow(_('&Title:'), t)
+        t.setFocus(Qt.OtherFocusReason)
+
+        self.authors = a = QLineEdit(self)
+        l.addRow(_('&Authors:'), a)
+        a.setText(tprefs.get('previous_new_book_authors', ''))
+
+        self.languages = la = LanguagesEdit(self)
+        l.addRow(_('&Language:'), la)
+        la.lang_codes = (tprefs.get('previous_new_book_lang', canonicalize_lang(get_lang())),)
+
+        bb = self.bb
+        l.addRow(bb)
+        bb.clear()
+        bb.addButton(bb.Cancel)
+        b = bb.addButton('&EPUB', bb.AcceptRole)
+        b.clicked.connect(partial(self.set_fmt, 'epub'))
+        b = bb.addButton('&AZW3', bb.AcceptRole)
+        b.clicked.connect(partial(self.set_fmt, 'azw3'))
+
+    def set_fmt(self, fmt):
+        self.fmt = fmt
+
+    def accept(self):
+        tprefs.set('previous_new_book_authors', unicode(self.authors.text()))
+        tprefs.set('previous_new_book_lang', (self.languages.lang_codes or [get_lang()])[0])
+        super(NewBook, self).accept()
+
+    @property
+    def mi(self):
+        mi = Metadata(unicode(self.title.text()).strip() or _('Unknown'))
+        mi.authors = string_to_authors(unicode(self.authors.text()).strip()) or [_('Unknown')]
+        mi.languages = self.languages.lang_codes or [get_lang()]
+        return mi
+
+# }}}
 
 if __name__ == '__main__':
     app = QApplication([])  # noqa

@@ -1,0 +1,102 @@
+#!/usr/bin/env python
+# vim:fileencoding=utf-8
+from __future__ import (unicode_literals, division, absolute_import,
+                        print_function)
+
+__license__ = 'GPL v3'
+__copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
+
+import sys, os
+
+from lxml import etree
+
+from calibre import prepare_string_for_xml, CurrentDir
+from calibre.ptempfile import TemporaryDirectory
+from calibre.ebooks.metadata.opf2 import metadata_to_opf
+from calibre.ebooks.oeb.polish.container import OPF_NAMESPACES, guess_type, opf_to_azw3
+from calibre.ebooks.oeb.polish.pretty import pretty_xml_tree
+from calibre.ebooks.oeb.polish.toc import TOC, create_ncx
+from calibre.utils.localization import lang_as_iso639_1
+from calibre.utils.logging import DevNull
+from calibre.utils.zipfile import ZipFile, ZIP_STORED
+
+def create_toc(mi, opf, html_name, lang):
+    uuid = ''
+    for u in opf.xpath('//*[@id="uuid_id"]'):
+        uuid = u.text
+    toc = TOC()
+    toc.add(_('Start'), html_name)
+    return create_ncx(toc, lambda x:x, mi.title, lang, uuid)
+
+def create_book(mi, path, fmt='epub', opf_name='metadata.opf', html_name='start.xhtml', toc_name='toc.ncx'):
+    ''' Create an empty book in the specified format at the specified location. '''
+    path = os.path.abspath(path)
+    lang = 'und'
+    opf = metadata_to_opf(mi, as_string=False)
+    for l in opf.xpath('//*[local-name()="language"]'):
+        if l.text:
+            lang = l.text
+            break
+    lang = lang_as_iso639_1(lang) or lang
+
+    opfns = OPF_NAMESPACES['opf']
+    m = opf.makeelement('{%s}manifest' % opfns)
+    opf.insert(1, m)
+    i = m.makeelement('{%s}item' % opfns, href=html_name, id='start')
+    i.set('media-type', guess_type('a.xhtml'))
+    m.append(i)
+    i = m.makeelement('{%s}item' % opfns, href=toc_name, id='ncx')
+    i.set('media-type', guess_type(toc_name))
+    m.append(i)
+    s = opf.makeelement('{%s}spine' % opfns, toc="ncx")
+    opf.insert(2, s)
+    i = s.makeelement('{%s}itemref' % opfns, idref='start')
+    s.append(i)
+    CONTAINER = '''\
+<?xml version="1.0"?>
+<container version="1.0" xmlns="urn:oasis:names:tc:opendocument:xmlns:container">
+   <rootfiles>
+      <rootfile full-path="{0}" media-type="application/oebps-package+xml"/>
+   </rootfiles>
+</container>
+    '''.format(prepare_string_for_xml(opf_name, True)).encode('utf-8')
+    HTML = '''\
+<?xml version='1.0' encoding='utf-8'?>
+<html lang="{1}" xmlns="http://www.w3.org/1999/xhtml">
+
+    <head>
+        <title>{0}</title>
+    </head>
+
+    <body>
+        <h1>{0}</h1>
+    </body>
+</html>
+    '''.format(prepare_string_for_xml(mi.title), lang).encode('utf-8')
+    ncx = etree.tostring(create_toc(mi, opf, html_name, lang), encoding='utf-8', xml_declaration=True, pretty_print=True)
+    pretty_xml_tree(opf)
+    opf = etree.tostring(opf, encoding='utf-8', xml_declaration=True, pretty_print=True)
+    if fmt == 'azw3':
+        with TemporaryDirectory('create-azw3') as tdir, CurrentDir(tdir):
+            for name, data in ((opf_name, opf), (html_name, HTML), (toc_name, ncx)):
+                with open(name, 'wb') as f:
+                    f.write(data)
+            opf_to_azw3(opf_name, path, DevNull())
+    else:
+        with ZipFile(path, 'w', compression=ZIP_STORED) as zf:
+            zf.writestr('mimetype', b'application/epub+zip', compression=ZIP_STORED)
+            zf.writestr('META-INF/', b'', 0755)
+            zf.writestr('META-INF/container.xml', CONTAINER)
+            zf.writestr(opf_name, opf)
+            zf.writestr(html_name, HTML)
+            zf.writestr(toc_name, ncx)
+
+if __name__ == '__main__':
+    from calibre.ebooks.metadata.book.base import Metadata
+    mi = Metadata('Test book', authors=('Kovid Goyal',))
+    path = sys.argv[-1]
+    ext = path.rpartition('.')[-1].lower()
+    if ext not in ('epub', 'azw3'):
+        print ('Unsupported format:', ext)
+        raise SystemExit(1)
+    create_book(mi, path, fmt=ext)
