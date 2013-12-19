@@ -382,20 +382,14 @@ lxml
 
 Get the source from: http://pypi.python.org/pypi/lxml
 
-Add the following to the top of setupoptions.py::
-    if option == 'cflags':
-        return ['-IC:/cygwin/home/kovid/sw/include/libxml2',
-                '-IC:/cygwin/home/kovid/sw/include']
-    else:
-        return ['-LC:/cygwin/home/kovid/sw/lib'] 
+Change the include dirs and lib dirs by editing setupinfo.py and changing the
+library_dirs() function to return::
 
-Then, edit src/lxml/includes/etree_defs.h and change the section starting with
-#ifndef LIBXML2_NEW_BUFFER
-to
-#ifdef LIBXML2_NEW_BUFFER
-#  define xmlBufContent(buf) xmlBufferContent(buf)
-#  define xmlBufLength(buf) xmlBufferLength(buf)
-#endif
+    return ['C:/cygwin/home/kovid/sw/lib']
+
+and the include_dirs() function to return
+
+    return ['C:/cygwin/home/kovid/sw/include/libxml2', 'C:/cygwin/home/kovid/sw/include']
 
 Run::
     python setup.py install
