@@ -1012,9 +1012,9 @@ def opf_to_azw3(opf, outpath, log):
     inp = plugin_for_input_format('azw3')
     outp = plugin_for_output_format('azw3')
     plumber.opts.mobi_passthrough = True
-    oeb = create_oebbook(default_log, opf, plumber.opts)
+    oeb = create_oebbook(log, opf, plumber.opts)
     set_cover(oeb)
-    outp.convert(oeb, outpath, inp, plumber.opts, default_log)
+    outp.convert(oeb, outpath, inp, plumber.opts, log)
 
 
 class AZW3Container(Container):
