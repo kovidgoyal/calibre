@@ -331,7 +331,7 @@ class KF8Writer(object):
         toc = self.oeb.toc
         entries = []
         is_periodical = self.opts.mobi_periodical
-        if toc.count() < 2:
+        if toc.count() < 1:
             self.log.warn('Document has no ToC, MOBI will have no NCX index')
             return
 
