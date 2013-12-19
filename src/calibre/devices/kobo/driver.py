@@ -1372,23 +1372,23 @@ class KOBOTOUCH(KOBO):
     # Image file name endings. Made up of: image size, min_dbversion, max_dbversion, isFullSize,
     COVER_FILE_ENDINGS = {
                           ' - N3_FULL.parsed':[(600,800),0, 99,True,],            # Used for screensaver, home screen
-                          ' - N3_LIBRARY_FULL.parsed':[(355,473),0, 81,False,],   # Used for Details screen
+                          ' - N3_LIBRARY_FULL.parsed':[(355,473),0, 99,False,],   # Used for Details screen before FW2.8.1, then for current book tile on home screen
                           ' - N3_LIBRARY_GRID.parsed':[(149,198),0, 99,False,],   # Used for library lists
                           ' - N3_LIBRARY_LIST.parsed':[(60,90),0, 53,False,],
-                          ' - AndroidBookLoadTablet_Aspect.parsed':[(355,473), 82, 99,False,],   # Used for Details screen
+                          ' - AndroidBookLoadTablet_Aspect.parsed':[(355,473), 82, 99,False,],   # Used for Details screen from FW2.8.1
 #                          ' - N3_LIBRARY_SHELF.parsed': [(40,60),0, 52,],
                           }
     GLO_COVER_FILE_ENDINGS = {      # Glo and Aura share resolution, so the image sizes should be the same.
                           ' - N3_FULL.parsed':[(758,1024),0, 99,True,],           # Used for screensaver, home screen
-                          ' - N3_LIBRARY_FULL.parsed':[(355,479),0, 99,False,],   # Used for Details screen
+                          ' - N3_LIBRARY_FULL.parsed':[(355,479),0, 99,False,],   # Used for Details screen before FW2.8.1, then for current book tile on home screen 
                           ' - N3_LIBRARY_GRID.parsed':[(149,201),0, 99,False,],   # Used for library lists
-                          ' - AndroidBookLoadTablet_Aspect.parsed':[(355,479), 88, 99,False,],   # In some cases this is used for Details screen
+                          ' - AndroidBookLoadTablet_Aspect.parsed':[(355,479), 88, 99,False,],   # Used for Details screen from FW2.8.1
                           }
     AURA_HD_COVER_FILE_ENDINGS = {
                           ' - N3_FULL.parsed':        [(1080,1440), 0, 99,True,],  # Used for screensaver, home screen
-                          ' - N3_LIBRARY_FULL.parsed':[(355,  471), 0, 99,False,],  # Used for Details screen
+                          ' - N3_LIBRARY_FULL.parsed':[(355,  471), 0, 99,False,],  # Used for Details screen before FW2.8.1, then for current book tile on home screen
                           ' - N3_LIBRARY_GRID.parsed':[(149,  198), 0, 99,False,],  # Used for library lists
-                          ' - AndroidBookLoadTablet_Aspect.parsed':[(355,  471), 88, 99,False,],   # In some cases this is used for Details screen
+                          ' - AndroidBookLoadTablet_Aspect.parsed':[(355,  471), 88, 99,False,],   # Used for Details screen from FW2.8.1
                           }
     # Following are the sizes used with pre2.1.4 firmware
 #    COVER_FILE_ENDINGS = {
