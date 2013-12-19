@@ -19,8 +19,12 @@ class FazNet(BasicNewsRecipe):
     no_stylesheets        = True
     encoding              = 'utf-8'
     remove_javascript     = True
+
     keep_only_tags = [{'class':'FAZArtikelEinleitung'},
             {'id':'ArtikelTabContent_0'}]
+
+    remove_tags_after = dict(name='div', attrs={'class':['ArtikelFooter']})  # AGe add 2013-12-19
+    remove_tags = [dict(name='div', attrs={'class':['ArtikelFooter']})]  # AGe add 2013-12-19
 
     feeds = [
               ('FAZ.NET Aktuell', 'http://www.faz.net/aktuell/?rssview=1'),
@@ -28,12 +32,12 @@ class FazNet(BasicNewsRecipe):
               ('Wirtschaft', 'http://www.faz.net/aktuell/wirtschaft/?rssview=1'),
               ('Feuilleton', 'http://www.faz.net/aktuell/feuilleton/?rssview=1'),
               ('Sport', 'http://www.faz.net/aktuell/sport/?rssview=1'),
+              ('Lebensstil', 'http://www.faz.net/aktuell/lebensstil/?rssview=1'),  # AGe add 2013-12-19
               ('Gesellschaft', 'http://www.faz.net/aktuell/gesellschaft/?rssview=1'),
               ('Finanzen', 'http://www.faz.net/aktuell/finanzen/?rssview=1'),
               ('Technik & Motor', 'http://www.faz.net/aktuell/technik-motor/?rssview=1'),
               ('Wissen', 'http://www.faz.net/aktuell/wissen/?rssview=1'),
               ('Reise', 'http://www.faz.net/aktuell/reise/?rssview=1'),
               ('Beruf & Chance', 'http://www.faz.net/aktuell/beruf-chance/?rssview=1'),
-              ('Rhein-Main', 'http://www.faz.net/aktuell/rhein-main/?rssview=1') # AGe add 2012-07-13
+              ('Rhein-Main', 'http://www.faz.net/aktuell/rhein-main/?rssview=1')
             ]
-
