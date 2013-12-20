@@ -20,6 +20,55 @@
 #   new recipes:
 #     - title: 
 
+- version: 1.16.0
+  date: 2013-12-20
+
+  new features:
+    - title: "Edit book: Add a tool to browse all images in the book with their thumbnails. Useful for visually locating an image. To launch it, use View->Browse images in book."
+
+    - title: "Edit book: Allow creation of new, empty books via File->Create new book"
+
+    - title: "Edit book: Add buttons to easily create formatting such as bold/italic/colors/etc. when editing HTML files"
+
+    - title: "Edit book: Add button to easily insert <img> tag while editing HTML"
+
+    - title: "Edit book: Add options to change the default font families/sizes for the preview panel"
+
+    - title: "Edit book: Allow customizing which dockable windows occupy the four dock corners via Edit->Preferences. You can now also choose to have more than one row of windows in a given dock area."
+
+  bug fixes:
+    - title: "Edit book: When editing AZW3 files with no images in them, do not incorrectly display a number of binary records from the AZW3 file as 'unknown' miscellaneous files"
+
+    - title: "Edit book: Fix marking image as cover not working for AZW3 files if the file did not previously have a cover"
+
+    - title: "AZW3 Output: Do not refuse to create the ToC if it has only a single entry"
+
+    - title: "Edit book: Fix crashes when processing some books that contain malformed markup on OS X and windows 64bit machines"
+
+    - title: "Edit book: Fix error when renaming the html file currently displayed in the preview panel and that file is not the file being currently edited"
+
+    - title: "Edit book: Fix crash when editing books that have links to absolute paths."
+      tickets: [1261337]
+
+    - title: "Edit book: Fix book not being marked as modified after editing the ToC"
+
+    - title: "Edit book: When syncing the position of the preview panel to the cursor in the editor and the cursor is at or before the <body> tag set the position of the preview panel to the top of the file, so that the top margin of the body tag is seen easily."
+
+    - title: "Edit book: Fix trying to import an html file/css file via the add new file button always resulting in a blank file"
+
+    - title: "Edit book: Fix replacing a file with another file with exactly the same filename causing an error."
+      tickets: [1260822]
+
+    - title: "Edit book: Have the ToC view refresh itself after any major operation on the book"
+
+    - title: "Edit book: Fix pasting in the image editor not working"
+
+  improved recipes:
+    - NZZ
+    - Spiegel Online
+    - Daily Mail
+    - FAZ.net
+
 - version: 1.15.0
   date: 2013-12-13
 
