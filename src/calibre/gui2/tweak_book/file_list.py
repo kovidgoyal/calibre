@@ -519,7 +519,9 @@ class FileList(QTreeWidget):
                     if unicode(child.data(0, NAME_ROLE).toString()) in other_removals:
                         removals.append(child)
 
-        for c in removals:
+        # The sorting by index is necessary otherwise Qt crashes with recursive
+        # repaint detected message
+        for c in sorted(removals, key=lambda x:x.parent().indexOfChild(x), reverse=True):
             c.parent().removeChild(c)
 
     def dropEvent(self, event):
