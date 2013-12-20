@@ -184,7 +184,7 @@ class Images(object):
                     img = IMG(src='images/%s' % src)
                     img.set('alt', alt or 'Image')
                     if link is not None:
-                        self.links.append((img, link))
+                        self.links.append((img, link, self.rid_map))
                     return img
 
     def drawing_to_html(self, drawing, page):

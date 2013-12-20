@@ -516,7 +516,7 @@ class Convert(object):
                     continue
                 span.set('href', url)
 
-        for img, link in self.images.links:
+        for img, link, relationships_by_id in self.images.links:
             parent = img.getparent()
             idx = parent.index(img)
             a = A(img)
