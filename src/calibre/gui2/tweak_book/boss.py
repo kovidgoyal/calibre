@@ -773,7 +773,7 @@ class Boss(QObject):
                 mt = current_container().mime_map[name]
             except KeyError:
                 return error_dialog(self.gui, _('Does not exist'), _(
-                    'The file %s does not exist. If you were trying to click a'
+                    'The file %s does not exist. If you were trying to click an item in'
                     ' the Table of Contents, you may'
                     ' need to refresh it by right-clicking and choosing "Refresh".') % name, show=True)
             syntax = syntax_from_mime(name, mt)
