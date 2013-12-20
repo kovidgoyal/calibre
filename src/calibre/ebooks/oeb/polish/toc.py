@@ -45,6 +45,16 @@ class TOC(object):
         self.children.remove(child)
         child.parent = None
 
+    def remove_from_parent(self):
+        if self.parent is None:
+            return
+        idx = self.parent.children.index(self)
+        for child in reversed(self.children):
+            child.parent = self.parent
+            self.parent.children.insert(idx, child)
+        self.parent.children.remove(self)
+        self.parent = None
+
     def __iter__(self):
         for c in self.children:
             yield c
@@ -407,3 +417,18 @@ def commit_toc(container, toc, lang=None, uid=None):
     container.replace(tocname, root)
     container.pretty_print.add(tocname)
 
+def remove_names_from_toc(container, names):
+    toc = get_toc(container)
+    if len(toc) == 0:
+        return False
+    remove = []
+    names = frozenset(names)
+    for node in toc.iterdescendants():
+        if node.dest in names:
+            remove.append(node)
+    if remove:
+        for node in reversed(remove):
+            node.remove_from_parent()
+        commit_toc(container, toc)
+        return True
+    return False
