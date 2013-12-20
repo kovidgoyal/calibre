@@ -23,7 +23,7 @@ from calibre.ebooks.oeb.polish.cover import mark_as_cover, mark_as_titlepage
 from calibre.ebooks.oeb.polish.pretty import fix_all_html, pretty_all
 from calibre.ebooks.oeb.polish.replace import rename_files, replace_file
 from calibre.ebooks.oeb.polish.split import split, merge, AbortError
-from calibre.ebooks.oeb.polish.toc import remove_names_from_toc
+from calibre.ebooks.oeb.polish.toc import remove_names_from_toc, find_existing_toc
 from calibre.gui2 import error_dialog, choose_files, question_dialog, info_dialog, choose_save_file
 from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.gui2.tweak_book import set_current_container, current_container, tprefs, actions, editors
@@ -266,6 +266,9 @@ class Boss(QObject):
             self.gui.preview.clear()
         if remove_names_from_toc(current_container(), spine_names + list(other_items)):
             self.gui.toc_view.update_if_visible()
+            toc = find_existing_toc(current_container())
+            if toc and toc in editors:
+                editors[toc].replace_data(c.raw_data(toc))
 
     def commit_dirty_opf(self):
         c = current_container()
