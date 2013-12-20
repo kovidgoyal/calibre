@@ -236,7 +236,8 @@ class Main(MainWindow):
         self.setDockNestingEnabled(tprefs['nestable_dock_widgets'])
         for v, h in product(('top', 'bottom'), ('left', 'right')):
             p = 'dock_%s_%s' % (v, h)
-            area = getattr(Qt, '%sDockWidgetArea' % capitalize({'vertical':h, 'horizontal':v}[tprefs[p] or tprefs.defaults[p]]))
+            pref = tprefs[p] or tprefs.defaults[p]
+            area = getattr(Qt, '%sDockWidgetArea' % capitalize({'vertical':h, 'horizontal':v}[pref]))
             self.setCorner(getattr(Qt, '%s%sCorner' % tuple(map(capitalize, (v, h)))), area)
         self.preview.apply_settings()
 
