@@ -257,7 +257,7 @@ class Boss(QObject):
             c.remove_item(name)
         self.set_modified()
         self.gui.file_list.delete_done(spine_items, other_items)
-        for name in list(spine_items) + list(other_items):
+        for name in [x for x, remove in spine_items if remove] + list(other_items):
             if name in editors:
                 self.close_editor(name)
         if not editors:

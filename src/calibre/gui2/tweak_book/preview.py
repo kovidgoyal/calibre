@@ -549,6 +549,7 @@ class Preview(QWidget):
 
     def clear(self):
         self.view.clear()
+        self.current_name = None
 
     @property
     def is_visible(self):
