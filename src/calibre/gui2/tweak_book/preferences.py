@@ -215,7 +215,7 @@ class MainWindowSettings(BasicSettings):
             choices = {'vertical':{'left':_('Left'), 'right':_('Right')}[h],
                        'horizontal':{'top':_('Top'), 'bottom':_('Bottom')}[v]}
             name = 'dock_%s_%s' % (v, h)
-            w = self.choices_widget(name, choices, 'vertical', 'vertical')
+            w = self.choices_widget(name, choices, 'horizontal', 'horizontal')
             cn = {('top', 'left'): _('The top-left corner'), ('top', 'right'):_('The top-right corner'),
                   ('bottom', 'left'):_('The bottom-left corner'), ('bottom', 'right'):_('The bottom-right corner')}[(v, h)]
             l.addRow(cn + ':', w)
