@@ -150,7 +150,7 @@ def mark_as_cover_epub(container, name):
     if not container.opf_xpath('//opf:guide/opf:reference[@type="cover"]'):
         for guide in container.opf_xpath('//opf:guide'):
             container.insert_into_xml(guide, guide.makeelement(
-                OPF('reference', type='cover', href=container.name_to_href(name, container.opf_name))))
+                OPF('reference'), type='cover', href=container.name_to_href(name, container.opf_name)))
 
     container.dirty(container.opf_name)
 
