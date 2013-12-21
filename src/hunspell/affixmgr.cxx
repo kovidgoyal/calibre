@@ -3639,6 +3639,7 @@ int  AffixMgr::parse_convtable(char * line, FileMgr * af, RepList ** rl, const c
  
    /* now parse the num lines to read in the remainder of the table */
    char * nl;
+   size_t keywordlen = strlen(keyword);
    for (int j=0; j < numrl; j++) {
         if (!(nl = af->getline())) return 1;
         mychomp(nl);
@@ -3651,7 +3652,7 @@ int  AffixMgr::parse_convtable(char * line, FileMgr * af, RepList ** rl, const c
            if (*piece != '\0') {
                switch(i) {
                   case 0: {
-                             if (strncmp(piece, keyword, sizeof(keyword)) != 0) {
+                             if (strncmp(piece, keyword, keywordlen) != 0) {
                                  HUNSPELL_WARNING(stderr, "error: line %d: table is corrupt\n", af->getlinenum());
                                  delete *rl;
                                  *rl = NULL;
