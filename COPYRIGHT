@@ -38,6 +38,10 @@ Files: srx/regex/*
 Copyright: Matthew Barnett
 License: Python Software Foundation License
 
+Files: src/hunspell/*
+Copyright: Various
+License: GPL-2+
+
 Files: src/calibre/ebooks/hyphenate.py
 Copyright: Copyright (C) 1990, 2004, 2005 Gerard D.C. Kuiken.
 License: other
