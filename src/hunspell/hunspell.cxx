@@ -6,28 +6,26 @@
 #include <stdio.h>
 
 #include "hunspell.hxx"
-#include "hunspell.h"
 #ifndef MOZILLA_CLIENT
 #    include "config.h"
 #endif
 #include "csutil.hxx"
 
-Hunspell::Hunspell(const char * affpath, const char * dpath, const char * key)
+Hunspell::Hunspell(const char *affix_data, const size_t aff_len, const char *dic_data, const size_t dic_len)
 {
     encoding = NULL;
     csconv = NULL;
     utf8 = 0;
     complexprefixes = 0;
-    affixpath = mystrdup(affpath);
     maxdic = 0;
 
     /* first set up the hash manager */
-    pHMgr[0] = new HashMgr(dpath, affpath, key);
+    pHMgr[0] = new HashMgr(affix_data, aff_len, dic_data, dic_len);
     if (pHMgr[0]) maxdic = 1;
 
     /* next set up the affix manager */
     /* it needs access to the hash manager lookup methods */
-    pAMgr = new AffixMgr(affpath, pHMgr, &maxdic, key);
+    pAMgr = new AffixMgr(affix_data, aff_len, pHMgr, &maxdic);
 
     /* get the preferred try string and the dictionary */
     /* encoding from the Affix Manager for that dictionary */
@@ -59,16 +57,6 @@ Hunspell::~Hunspell()
     csconv= NULL;
     if (encoding) free(encoding);
     encoding = NULL;
-    if (affixpath) free(affixpath);
-    affixpath = NULL;
-}
-
-// load extra dictionaries
-int Hunspell::add_dic(const char * dpath, const char * key) {
-    if (maxdic == MAXDIC || !affixpath) return 1;
-    pHMgr[maxdic] = new HashMgr(dpath, affixpath, key);
-    if (pHMgr[maxdic]) maxdic++; else return 1;
-    return 0;
 }
 
 // make a copy of src at destination while removing all leading
@@ -1919,88 +1907,4 @@ char * Hunspell::morph_with_correction(const char * word)
 
 #endif // END OF HUNSPELL_EXPERIMENTAL CODE
 
-Hunhandle *Hunspell_create(const char * affpath, const char * dpath)
-{
-        return (Hunhandle*)(new Hunspell(affpath, dpath));
-}
 
-Hunhandle *Hunspell_create_key(const char * affpath, const char * dpath,
-    const char * key)
-{
-        return (Hunhandle*)(new Hunspell(affpath, dpath, key));
-}
-
-void Hunspell_destroy(Hunhandle *pHunspell)
-{
-        delete (Hunspell*)(pHunspell);
-}
-
-int Hunspell_spell(Hunhandle *pHunspell, const char *word)
-{
-        return ((Hunspell*)pHunspell)->spell(word);
-}
-
-char *Hunspell_get_dic_encoding(Hunhandle *pHunspell)
-{
-        return ((Hunspell*)pHunspell)->get_dic_encoding();
-}
-
-int Hunspell_suggest(Hunhandle *pHunspell, char*** slst, const char * word)
-{
-        return ((Hunspell*)pHunspell)->suggest(slst, word);
-}
-
-int Hunspell_analyze(Hunhandle *pHunspell, char*** slst, const char * word)
-{
-        return ((Hunspell*)pHunspell)->analyze(slst, word);
-}
-
-int Hunspell_stem(Hunhandle *pHunspell, char*** slst, const char * word)
-{
-        return ((Hunspell*)pHunspell)->stem(slst, word);
-}
-
-int Hunspell_stem2(Hunhandle *pHunspell, char*** slst, char** desc, int n)
-{
-        return ((Hunspell*)pHunspell)->stem(slst, desc, n);
-}
-
-int Hunspell_generate(Hunhandle *pHunspell, char*** slst, const char * word,
-    const char * word2)
-{
-        return ((Hunspell*)pHunspell)->generate(slst, word, word2);
-}
-
-int Hunspell_generate2(Hunhandle *pHunspell, char*** slst, const char * word,
-    char** desc, int n)
-{
-        return ((Hunspell*)pHunspell)->generate(slst, word, desc, n);
-}
-
-  /* functions for run-time modification of the dictionary */
-
-  /* add word to the run-time dictionary */
-
-int Hunspell_add(Hunhandle *pHunspell, const char * word) {
-        return ((Hunspell*)pHunspell)->add(word);
-}
-
-  /* add word to the run-time dictionary with affix flags of
-   * the example (a dictionary word): Hunspell will recognize
-   * affixed forms of the new word, too.
-   */
-
-int Hunspell_add_with_affix(Hunhandle *pHunspell, const char * word,
-        const char * example) {
-        return ((Hunspell*)pHunspell)->add_with_affix(word, example);
-}
-
-  /* remove word from the run-time dictionary */
-
-int Hunspell_remove(Hunhandle *pHunspell, const char * word) {
-        return ((Hunspell*)pHunspell)->remove(word);
-}
-
-void Hunspell_free_list(Hunhandle *, char *** slst, int n) {
-        freelist(slst, n);
-}

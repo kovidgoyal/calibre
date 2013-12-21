@@ -6,6 +6,7 @@
  * Distributed under terms of the GPL3 license.
  */
 
+#define PY_SSIZE_T_CLEAN 1
 #include <Python.h>
 #include <new>
 #include <string>
@@ -21,15 +22,16 @@ static PyObject *HunspellError = NULL;
 
 static int
 init_type(Dictionary *self, PyObject *args, PyObject *kwds) {
-	char *dpath = NULL, *apath = NULL;
+	char *dic = NULL, *aff = NULL;
+    Py_ssize_t diclen, afflen;
 
     self->handle = NULL;
     self->encoding = NULL;
 
-	if (!PyArg_ParseTuple(args, "ss", &dpath, &apath)) return 1;
+	if (!PyArg_ParseTuple(args, "s#s#", &dic, &diclen, &aff, &afflen)) return 1;
 
     try {
-        self->handle = new (std::nothrow) Hunspell(apath, dpath);
+        self->handle = new (std::nothrow) Hunspell(aff, afflen, dic, diclen);
     } catch (const std::exception &ex) {
         PyErr_SetString(HunspellError, ex.what());
         return 1;

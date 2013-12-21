@@ -23,7 +23,6 @@ class LIBHUNSPELL_DLL_EXPORTED Hunspell
   HashMgr*        pHMgr[MAXDIC];
   int             maxdic;
   SuggestMgr*     pSMgr;
-  char *          affixpath;
   char *          encoding;
   struct cs_info * csconv;
   int             langnum;
@@ -34,14 +33,11 @@ class LIBHUNSPELL_DLL_EXPORTED Hunspell
 public:
 
   /* Hunspell(aff, dic) - constructor of Hunspell class
-   * input: path of affix file and dictionary file
+   * input: The affix and dictionary data as bytes
    */
 
-  Hunspell(const char * affpath, const char * dpath, const char * key = NULL);
+  Hunspell(const char *affix_data, const size_t affix_len, const char *dic_data, const size_t dic_len);
   ~Hunspell();
-
-  /* load extra dictionaries (only dic files) */
-  int add_dic(const char * dpath, const char * key = NULL);
 
   /* spell(word) - spellcheck word
    * output: 0 = bad word, not 0 = good word

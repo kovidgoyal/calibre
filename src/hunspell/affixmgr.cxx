@@ -14,7 +14,7 @@
 
 #include "csutil.hxx"
 
-AffixMgr::AffixMgr(const char * affpath, HashMgr** ptr, int * md, const char * key) 
+AffixMgr::AffixMgr(const char *aff_data, const size_t aff_len, HashMgr** ptr, int * md) 
 {
   // register hash manager and load affix data from aff file
   pHMgr = ptr[0];
@@ -110,8 +110,8 @@ AffixMgr::AffixMgr(const char * affpath, HashMgr** ptr, int * md, const char * k
     contclasses[j] = 0;
   }
 
-  if (parse_file(affpath, key)) {
-     HUNSPELL_WARNING(stderr, "Failure loading aff file %s\n",affpath);
+  if (parse_file(aff_data, aff_len)) {
+     HUNSPELL_WARNING(stderr, "Failure loading aff file\n");
   }
   
   if (cpdmin == -1) cpdmin = MINCPDLEN;
@@ -255,7 +255,7 @@ AffixMgr::~AffixMgr()
 
 
 // read in aff file and build up prefix and suffix entry objects 
-int  AffixMgr::parse_file(const char * affpath, const char * key)
+int  AffixMgr::parse_file(const char *aff_data, const size_t aff_len)
 {
   char * line; // io buffers
   char ft;     // affix type
@@ -268,9 +268,9 @@ int  AffixMgr::parse_file(const char * affpath, const char * key)
   int firstline = 1;
   
   // open the affix file
-  FileMgr * afflst = new FileMgr(affpath, key);
+  FileMgr * afflst = new FileMgr(aff_data, aff_len);
   if (!afflst) {
-    HUNSPELL_WARNING(stderr, "error: could not open affix description file %s\n",affpath);
+    HUNSPELL_WARNING(stderr, "error: could not open affix description file \n");
     return 1;
   }
 

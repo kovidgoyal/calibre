@@ -10,9 +10,11 @@
 #include "csutil.hxx"
 #include "atypes.hxx"
 
+#define BUFSIZE  65536
+
 // build a hash table from a munched word list
 
-HashMgr::HashMgr(const char * tpath, const char * apath, const char * key)
+HashMgr::HashMgr(const char *aff_data, const size_t aff_len, const char *dic_data, const size_t dic_len)
 {
   tablesize = 0;
   tableptr = NULL;
@@ -31,8 +33,8 @@ HashMgr::HashMgr(const char * tpath, const char * apath, const char * key)
   numaliasm = 0;
   aliasm = NULL;
   forbiddenword = FORBIDDENWORD; // forbidden word signing flag
-  load_config(apath, key);
-  int ec = load_tables(tpath, key);
+  load_config(aff_data, aff_len);
+  int ec = load_tables(dic_data, dic_len);
   if (ec) {
     /* error condition - what should we do here */
     HUNSPELL_WARNING(stderr, "Hash Manager Error : %d\n",ec);
@@ -349,7 +351,7 @@ struct hentry * HashMgr::walk_hashtable(int &col, struct hentry * hp) const
 }
 
 // load a munched word list and build a hash table on the fly
-int HashMgr::load_tables(const char * tpath, const char * key)
+int HashMgr::load_tables(const char *dic_data, const size_t dic_len)
 {
   int al;
   char * ap;
@@ -359,7 +361,7 @@ int HashMgr::load_tables(const char * tpath, const char * key)
   char * ts;
 
   // open dictionary file
-  FileMgr * dict = new FileMgr(tpath, key);
+  FileMgr * dict = new FileMgr(dic_data, dic_len);
   if (dict == NULL) return 1;
 
   // first read the first line of file to get hash table size */
@@ -601,15 +603,15 @@ char * HashMgr::encode_flag(unsigned short f) {
 }
 
 // read in aff file and set flag mode
-int  HashMgr::load_config(const char * affpath, const char * key)
+int  HashMgr::load_config(const char *aff_data, const size_t aff_len)
 {
   char * line; // io buffers
   int firstline = 1;
  
   // open the affix file
-  FileMgr * afflst = new FileMgr(affpath, key);
+  FileMgr * afflst = new FileMgr(aff_data, aff_len);
   if (!afflst) {
-    HUNSPELL_WARNING(stderr, "Error - could not open affix description file %s\n",affpath);
+    HUNSPELL_WARNING(stderr, "Error - could not open affix description file");
     return 1;
   }
 

@@ -34,7 +34,7 @@ class LIBHUNSPELL_DLL_EXPORTED HashMgr
 
 
 public:
-  HashMgr(const char * tpath, const char * apath, const char * key = NULL);
+  HashMgr(const char *aff_data, const size_t aff_len, const char *dic_data, const size_t dic_len);
   ~HashMgr();
 
   struct hentry * lookup(const char *) const;
@@ -54,10 +54,10 @@ public:
 
 private:
   int get_clen_and_captype(const char * word, int wbl, int * captype);
-  int load_tables(const char * tpath, const char * key);
+  int load_tables(const char *dic_data, const size_t dic_len);
   int add_word(const char * word, int wbl, int wcl, unsigned short * ap,
     int al, const char * desc, bool onlyupcase);
-  int load_config(const char * affpath, const char * key);
+  int load_config(const char *aff_data, const size_t aff_len);
   int parse_aliasf(char * line, FileMgr * af);
   int add_hidden_capitalized_word(char * word, int wbl, int wcl,
     unsigned short * flags, int al, char * dp, int captype);

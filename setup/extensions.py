@@ -72,7 +72,7 @@ extensions = [
 
     Extension('hunspell',
               ['hunspell/'+x for x in
-                'affentry.cxx affixmgr.cxx csutil.cxx dictmgr.cxx filemgr.cxx hashmgr.cxx hunspell.cxx hunzip.cxx phonet.cxx replist.cxx suggestmgr.cxx'.split()
+                'affentry.cxx affixmgr.cxx csutil.cxx dictmgr.cxx filemgr.cxx hashmgr.cxx hunspell.cxx phonet.cxx replist.cxx suggestmgr.cxx'.split()
                 ] + ['calibre/utils/spell/hunspell_wrapper.cpp',],
               inc_dirs=['hunspell'],
               cflags='/DHUNSPELL_STATIC /D_CRT_SECURE_NO_WARNINGS /DUNICODE /D_UNICODE'.split() if iswindows else ['-DHUNSPELL_STATIC'],

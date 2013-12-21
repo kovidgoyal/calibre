@@ -109,8 +109,7 @@ class LIBHUNSPELL_DLL_EXPORTED AffixMgr
 
 public:
 
-  AffixMgr(const char * affpath, HashMgr** ptr, int * md,
-    const char * key = NULL);
+  AffixMgr(const char *aff_data, const size_t aff_len, HashMgr** ptr, int * md);
   ~AffixMgr();
   struct hentry *     affix_check(const char * word, int len,
             const unsigned short needflag = (unsigned short) 0,
@@ -217,7 +216,7 @@ public:
   int                 get_fullstrip() const;
 
 private:
-  int  parse_file(const char * affpath, const char * key);
+  int  parse_file(const char *aff_data, const size_t aff_len);
   int  parse_flag(char * line, unsigned short * out, FileMgr * af);
   int  parse_num(char * line, int * out, FileMgr * af);
   int  parse_cpdsyllable(char * line, FileMgr * af);

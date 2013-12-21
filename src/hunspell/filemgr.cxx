@@ -3,45 +3,42 @@
 
 #include <stdlib.h>
 #include <string.h>
-#include <stdio.h>
 
 #include "filemgr.hxx"
 
-int FileMgr::fail(const char * err, const char * par) {
-    fprintf(stderr, err, par);
-    return -1;
-}
-
-FileMgr::FileMgr(const char * file, const char * key) {
+FileMgr::FileMgr(const char *data, const size_t dlen) {
     linenum = 0;
-    hin = NULL;
-    fin = fopen(file, "r");
-    if (!fin) {
-        // check hzipped file
-        char * st = (char *) malloc(strlen(file) + strlen(HZIP_EXTENSION) + 1);
-        if (st) {
-            strcpy(st, file);
-            strcat(st, HZIP_EXTENSION);
-            hin = new Hunzip(st, key);
-            free(st);
-        }
-    }    
-    if (!fin && !hin) fail(MSG_OPEN, file);
+    last = 0;
+    buf = new char[dlen+1];
+    memcpy(buf, data, dlen);
+    buf[dlen] = 0;
+    pos = buf;
+    buflen = dlen;
 }
 
 FileMgr::~FileMgr()
 {
-    if (fin) fclose(fin);
-    if (hin) delete hin;
+    if (buf != NULL) { delete[] buf; buf = NULL; }
+    pos = NULL;
 }
 
 char * FileMgr::getline() {
-    const char * l;
+    if (buf == NULL) return NULL;
+    if (((size_t)(pos - buf)) >= buflen) {
+        // free up the memory as it will not be needed anymore
+        delete[] buf; buf = NULL; pos = NULL; return NULL;
+    }
+    if (pos != buf) *pos = last; // Restore the character that was previously replaced by null
+    char *ans = pos;
+    // Move pos to the start of the next line
+    pos = (char *)memchr(pos, 10, buflen - (pos - buf));
+    if (pos == NULL) pos = buf + buflen + 1;
+    else pos++;
+    // Ensure the current line is null terminated
+    last = *pos;
+    *pos = 0;
     linenum++;
-    if (fin) return fgets(in, BUFSIZE - 1, fin);
-    if (hin && (l = hin->getline())) return strcpy(in, l);
-    linenum--;
-    return NULL;
+    return ans;
 }
 
 int FileMgr::getlinenum() {
