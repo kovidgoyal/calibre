@@ -204,9 +204,11 @@ class ViewAction(InterfaceAction):
             return
         if not self._view_check(len(rows)):
             return
-        for row in rows:
+        for i, row in enumerate(rows):
             path = self.gui.library_view.model().db.abspath(row.row())
             open_local_file(path)
+            if isosx and i < len(rows) - 1:
+                time.sleep(0.1)  # Finder cannot handle multiple folder opens
 
     def view_folder_for_id(self, id_):
         path = self.gui.library_view.model().db.abspath(id_, index_is_id=True)
