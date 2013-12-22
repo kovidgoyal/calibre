@@ -57,6 +57,7 @@ SOLARIZED = \
     Statement    fg={green} bold
     Keyword      fg={green}
     Special      fg={red}
+    SpecialCharacter bg={base02}
 
     Error        us=wave uc={red}
     Tooltip      fg=black bg=ffffed
@@ -94,6 +95,7 @@ THEMES = {
     Keyword      fg={keyword}
     Special      fg=e7f6da
     Error        us=wave uc=red
+    SpecialCharacter bg={cursor_loc}
 
     '''.format(
         cursor_loc='3d3d3d',
@@ -132,6 +134,7 @@ THEMES = {
     Statement    fg={keyword}
     Keyword      fg={keyword}
     Special      fg=70a0d0 italic
+    SpecialCharacter bg={cursor_loc}
     Error        us=wave uc=red
 
     '''.format(

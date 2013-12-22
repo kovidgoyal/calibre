@@ -28,7 +28,7 @@ attribute_name_pat = re.compile(r'''[^%s"'/><=]+''' % space_chars)
 self_closing_pat = re.compile(r'/\s*>')
 unquoted_val_pat = re.compile(r'''[^%s'"=<>`]+''' % space_chars)
 cdata_close_pats = {x:re.compile(r'</%s' % x, flags=re.I) for x in cdata_tags}
-nbsp_pat = re.compile('[\xa0\u2011]+')  # non-breaking spaces and hyphens
+nbsp_pat = re.compile('[\xa0\u2000-\u200A\u202F\u205F\u3000\u2011-\u2015\uFE58\uFE63\uFF0D]+')  # special spaces and hyphens
 
 class State(object):
 
@@ -303,7 +303,7 @@ def create_formats(highlighter):
         'string': t['String'],
         'nsprefix': t['Constant'],
         'preproc': t['PreProc'],
-        'nbsp': t['CursorLine'],
+        'nbsp': t['SpecialCharacter'],
     }
     for name, msg in {
         '<': _('An unescaped < is not allowed. Replace it with &lt;'),
