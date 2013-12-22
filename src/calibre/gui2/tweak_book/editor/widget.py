@@ -216,8 +216,8 @@ class Editor(QMainWindow):
     def cursor_position(self):
         c = self.editor.textCursor()
         char = ''
-        if not c.atEnd():
-            c.setPosition(c.position()+1, c.KeepAnchor)
+        if not c.atStart():
+            c.setPosition(c.position()-1, c.KeepAnchor)
             char = unicode(c.selectedText())
         return (c.blockNumber() + 1, c.positionInBlock(), char)
 
