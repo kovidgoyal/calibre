@@ -6,6 +6,7 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
+import re
 import textwrap, unicodedata
 from future_builtins import map
 
@@ -15,7 +16,7 @@ from PyQt4.Qt import (
     QTextEdit, QTextFormat, QWidget, QSize, QPainter, Qt, QRect, pyqtSlot,
     QApplication, QMimeData, QColor, QColorDialog)
 
-from calibre import prepare_string_for_xml
+from calibre import prepare_string_for_xml, xml_entity_to_unicode
 from calibre.gui2.tweak_book import tprefs, TOP
 from calibre.gui2.tweak_book.editor import SYNTAX_PROPERTY
 from calibre.gui2.tweak_book.editor.themes import THEMES, default_theme, theme_color
@@ -24,6 +25,7 @@ from calibre.gui2.tweak_book.editor.syntax.html import HTMLHighlighter, XMLHighl
 from calibre.gui2.tweak_book.editor.syntax.css import CSSHighlighter
 
 PARAGRAPH_SEPARATOR = '\u2029'
+entity_pat = re.compile(r'&(#{0,1}[a-zA-Z0-9]{1,8});')
 
 _dff = None
 def default_font_family():
@@ -541,3 +543,20 @@ class TextEdit(QPlainTextEdit):
             c.setPosition(left + len(text), c.KeepAnchor)
         self.setTextCursor(c)
 
+    def keyPressEvent(self, ev):
+        QPlainTextEdit.keyPressEvent(self, ev)
+        if ev.key() == Qt.Key_Semicolon and tprefs['replace_entities_as_typed'] and self.syntax == 'html':
+            self.replace_possible_entity()
+
+    def replace_possible_entity(self):
+        c = self.textCursor()
+        c.setPosition(c.position() - min(c.positionInBlock(), 10), c.KeepAnchor)
+        text = unicode(c.selectedText())
+        m = entity_pat.search(text)
+        if m is None:
+            return
+        ent = m.group()
+        repl = xml_entity_to_unicode(m)
+        if repl != ent:
+            c.setPosition(c.position() + m.start(), c.KeepAnchor)
+            c.insertText(repl)

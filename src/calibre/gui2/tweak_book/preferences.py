@@ -172,6 +172,14 @@ class EditorSettings(BasicSettings):
         lw.setText(_('&Wrap long lines in the editor'))
         l.addRow(lw)
 
+        lw = self('replace_entities_as_typed')
+        lw.setText(_('&Replace HTML entities as they are typed'))
+        lw.setToolTip('<p>' + _(
+            'With this option, every time you type in a complete html entity, such as &amp;hellip;'
+            ' it is automatically replaced by its corresponding character. The replacement'
+            ' happens only when the trailing semi-colon is typed.'))
+        l.addRow(lw)
+
 class IntegrationSettings(BasicSettings):
 
     def __init__(self, parent=None):
