@@ -758,26 +758,13 @@ class MergeDialog(QDialog):  # {{{
 
 class FileListWidget(QWidget):
 
-    delete_requested = pyqtSignal(object, object)
-    reorder_spine = pyqtSignal(object)
-    rename_requested = pyqtSignal(object, object)
-    bulk_rename_requested = pyqtSignal(object)
-    edit_file = pyqtSignal(object, object, object)
-    merge_requested = pyqtSignal(object, object, object)
-    mark_requested = pyqtSignal(object, object)
-    export_requested = pyqtSignal(object, object)
-    replace_requested = pyqtSignal(object, object, object, object)
-    link_stylesheets_requested = pyqtSignal(object, object)
-
     def __init__(self, parent=None):
         QWidget.__init__(self, parent)
         self.setLayout(QGridLayout(self))
         self.file_list = FileList(self)
         self.layout().addWidget(self.file_list)
         self.layout().setContentsMargins(0, 0, 0, 0)
-        for k, o in vars(self.__class__).iteritems():
-            if isinstance(o, pyqtSignal) and hasattr(self.file_list, k):
-                getattr(self.file_list, k).connect(getattr(self, k))
+        self.forwarded_signals = {k for k, o in vars(self.file_list.__class__).iteritems() if isinstance(o, pyqtSignal) and '_' in k and not hasattr(self, k)}
         for x in ('delete_done', 'select_name', 'request_edit', 'mark_name_as_current', 'clear_currently_edited_name'):
             setattr(self, x, getattr(self.file_list, x))
 
@@ -787,4 +774,9 @@ class FileListWidget(QWidget):
     @property
     def searchable_names(self):
         return self.file_list.searchable_names
+
+    def __getattr__(self, name):
+        if name in self.forwarded_signals:
+            return getattr(self.file_list, name)
+        return QWidget.__getattr__(self, name)
 
