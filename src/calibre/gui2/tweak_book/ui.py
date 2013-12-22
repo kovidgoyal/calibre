@@ -185,7 +185,7 @@ class CursorPositionWidget(QWidget):  # {{{
         if line is None:
             self.la.setText('')
         else:
-            name = unicodedata.name(character) if character else None
+            name = unicodedata.name(character, None) if character else None
             text = _('Line: {0} : {1}').format(line, col)
             if name:
                 text = name + ' : ' + text
