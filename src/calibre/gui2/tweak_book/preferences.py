@@ -180,6 +180,10 @@ class EditorSettings(BasicSettings):
             ' happens only when the trailing semi-colon is typed.'))
         l.addRow(lw)
 
+        lw = self('editor_show_char_under_cursor')
+        lw.setText(_('Show the name of the current character under the cursor along with the line and column number'))
+        l.addRow(lw)
+
 class IntegrationSettings(BasicSettings):
 
     def __init__(self, parent=None):

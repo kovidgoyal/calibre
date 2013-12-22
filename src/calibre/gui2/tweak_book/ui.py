@@ -6,6 +6,7 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
+import unicodedata
 from functools import partial
 from itertools import product
 from future_builtins import map
@@ -180,11 +181,15 @@ class CursorPositionWidget(QWidget):  # {{{
         f.setBold(False)
         self.la.setFont(f)
 
-    def update_position(self, line=None, col=None):
+    def update_position(self, line=None, col=None, character=None):
         if line is None:
             self.la.setText('')
         else:
-            self.la.setText(_('Line: {0} : {1}').format(line, col))
+            name = unicodedata.name(character) if character else None
+            text = _('Line: {0} : {1}').format(line, col)
+            if name:
+                text = name + ' : ' + text
+            self.la.setText(text)
 # }}}
 
 class Main(MainWindow):

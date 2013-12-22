@@ -215,7 +215,11 @@ class Editor(QMainWindow):
     @property
     def cursor_position(self):
         c = self.editor.textCursor()
-        return (c.blockNumber() + 1, c.positionInBlock())
+        char = ''
+        if not c.atEnd():
+            c.setPosition(c.position()+1, c.KeepAnchor)
+            char = unicode(c.selectedText())
+        return (c.blockNumber() + 1, c.positionInBlock(), char)
 
     def cut(self):
         self.editor.cut()
