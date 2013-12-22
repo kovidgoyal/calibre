@@ -217,6 +217,7 @@ class Editor(QMainWindow):
         c = self.editor.textCursor()
         char = ''
         if not c.atStart():
+            c.clearSelection()
             c.setPosition(c.position()-1, c.KeepAnchor)
             char = unicode(c.selectedText())
         return (c.blockNumber() + 1, c.positionInBlock(), char)
