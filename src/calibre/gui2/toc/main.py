@@ -490,6 +490,15 @@ class TreeWidget(QTreeWidget):  # {{{
             t = unicode(item.data(0, Qt.DisplayRole).toString())
             item.setData(0, Qt.DisplayRole, titlecase(t))
 
+    def bulk_rename(self):
+        from calibre.gui2.tweak_book.file_list import get_bulk_rename_settings
+        sort_map = {item:i for i, item in enumerate(self.iteritems())}
+        items = sorted(self.selectedItems(), key=lambda x:sort_map.get(x, -1))
+        fmt, num = get_bulk_rename_settings(self, len(items), msg=_(
+            'All selected items will be renamed to the form prefix-number'), sanitize=lambda x:x, leading_zeros=False)
+        for i, item in enumerate(items):
+            item.setData(0, Qt.DisplayRole, fmt % (num + i))
+
     def keyPressEvent(self, ev):
         if ev.key() == Qt.Key_Left and ev.modifiers() & Qt.CTRL:
             self.move_left()
@@ -531,6 +540,7 @@ class TreeWidget(QTreeWidget):  # {{{
                 m.addAction(QIcon(I('forward.png')), (_('Indent "%s"')%ci)+key(Qt.Key_Right), self.move_right)
             m.addAction(QIcon(I('edit_input.png')), _('Change the location this entry points to'), self.edit_item)
             m.addAction(_('Change all selected items to title case'), self.title_case)
+            m.addAction(QIcon(I('modified.png')), _('Bulk rename all selected items'), self.bulk_rename)
             m.exec_(QCursor.pos())
 # }}}
 
