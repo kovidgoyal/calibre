@@ -31,6 +31,11 @@ def fix_declaration(style, css_name, font_name):
             val = ff.item(i)
             if val.value and val.value.lower() == css_name.lower():
                 val.value = font_name
+                # If val.type == 'IDENT' cssutils will not serialize the font
+                # name properly (it will not enclose it in quotes). There we
+                # use the following hack (setting an internal property of the
+                # Value class)
+                val._type = 'STRING'
                 changed = True
     return changed
 
