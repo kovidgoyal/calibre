@@ -1,0 +1,67 @@
+from calibre.web.feeds.news import BasicNewsRecipe
+from calibre import browser
+import re
+
+class AdvancedUserRecipe1306097511(BasicNewsRecipe):
+    title          = u'Birmingham Evening Mail'
+    description = 'News for Birmingham UK'
+    #timefmt = ''
+    __author__ = 'Dave Asbury'
+    # v1 21/12/13
+    masthead_url        = 'http://images.icnetwork.co.uk/upl/icbirmingham/apr2004/6/5/0007417F-982A-107F-969980BFB6FA0000.jpg'
+    oldest_article = 1
+    max_articles_per_feed = 10
+    #linearize_tables = True
+    remove_empty_feeds = True
+    remove_javascript     = True
+    no_stylesheets = True
+    remove_attributes = ['style']
+    #auto_cleanup = True
+    language = 'en_GB'
+    compress_news_images = True
+    compress_news_images_max_size = 30
+    ignore_duplicate_articles = {'title', 'url'}
+
+    remove_tags = [
+                dict(attrs={'class' : 'gallery-data'}),
+                dict(attrs={'class' : 'ir btn-fullscreen'}),
+                dict(attrs={'class' : 'tools clearfix'}),
+
+                ]
+    keep_only_tags = [dict(attrs={'class' : 'tmCol article'}),]
+
+    feeds          = [
+        (u'Local News', u'http://www.birminghammail.co.uk/news/local-news/rss.xml'),
+        (u'UK News', u'http://www.birminghammail.co.uk/news/uk-news/rss.xml'),
+        (u'Sport', u'http://www.birminghammail.co.uk/sport/rss.xml'),
+        (u'Whats On', u'http://www.birminghammail.co.uk/whats-on/rss.xml'),
+        (u'Lifestyle',u'http://www.birminghammail.co.uk/lifestyle/rss.xml'),
+        ]
+    extra_css = '''
+                    h1{font-weight:bold;font-size: 175%;}
+                    h2{font-weight:normal;font-size:75%;}
+                    #p{font-size:14px;}
+                    #body{font-size:14px;}
+                    #.photo-caption {display: block;margin-left: auto;margin-right: auto;width:100%;font-size:40%;}
+                    #.publish-info {font-size:50%;}
+                     img {display: block;margin-left: auto;margin-right: auto;width:100%;}
+                      '''
+    def get_cover_url(self):
+        soup = self.index_to_soup('http://www.birminghammail.co.uk')
+        cov = soup.find(attrs={'src' : re.compile('http://images.icnetwork.co.uk/upl/birmpost/')})
+        cov=str(cov)
+        cov2 =  re.findall('http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+', cov)
+
+        cov=str(cov2)
+        cov=cov[2:len(cov)-2]
+
+        cover_url=cov
+        br = browser()
+        br.set_handle_redirect(False)
+        try:
+            br.open_novisit(cov)
+            cover_url = cov
+        except:
+            cover_url ='http://s.birminghammail.co.uk/skins/birminghammail/gfx/follow-media.jpg'
+
+        return cover_url
