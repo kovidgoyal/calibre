@@ -52,6 +52,34 @@ def name_is_ok(name, show_error):
     show_error('')
     return True
 
+def get_bulk_rename_settings(parent, number, msg=None, sanitize=sanitize_file_name_unicode, leading_zeros=True):
+    d = QDialog(parent)
+    d.l = l = QFormLayout(d)
+    d.setLayout(l)
+    d.prefix = p = QLineEdit(d)
+    p.setText(_('Chapter-'))
+    p.selectAll()
+    d.la = la = QLabel(msg or _(
+        'All selected files will be renamed to the form prefix-number'))
+    l.addRow(la)
+    l.addRow(_('&Prefix:'), p)
+    d.num = num = QSpinBox(d)
+    num.setMinimum(0), num.setValue(1), num.setMaximum(1000)
+    l.addRow(_('Starting &number:'), num)
+    d.bb = bb = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
+    bb.accepted.connect(d.accept), bb.rejected.connect(d.reject)
+    l.addRow(bb)
+
+    if d.exec_() == d.Accepted:
+        prefix = sanitize(unicode(d.prefix.text()))
+        num = d.num.value()
+        fmt = '%d'
+        if leading_zeros:
+            largest = num + number - 1
+            fmt = '%0{0}d'.format(len(str(largest)))
+        return prefix + fmt, num
+    return None, None
+
 class ItemDelegate(QStyledItemDelegate):  # {{{
 
     rename_requested = pyqtSignal(object, object)
@@ -468,31 +496,12 @@ class FileList(QTreeWidget):
             return error_dialog(self, _('Cannot rename'),
                          _('The file(s) %s cannot be renamed.') % ('<b>%s</b>' % ', '.join(bad)), show=True)
         names = sorted(names, key=self.index_of_name)
-        d = QDialog(self)
-        d.l = l = QFormLayout(d)
-        d.setLayout(l)
-        d.prefix = p = QLineEdit(d)
-        p.setText(_('Chapter-'))
-        p.selectAll()
-        d.la = la = QLabel(_(
-            'All selected files will be renamed to the form prefix-number'))
-        l.addRow(la)
-        l.addRow(_('&Prefix:'), p)
-        d.num = num = QSpinBox(d)
-        num.setMinimum(0), num.setValue(1), num.setMaximum(1000)
-        l.addRow(_('Starting &number:'), num)
-        d.bb = bb = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
-        bb.accepted.connect(d.accept), bb.rejected.connect(d.reject)
-        l.addRow(bb)
-        if d.exec_() == d.Accepted:
-            prefix = sanitize_file_name_unicode(unicode(d.prefix.text()))
-            num = d.num.value()
-            largest = num + len(names) - 1
-            fmt = '%0{0}d'.format(len(str(largest)))
+        fmt, num = get_bulk_rename_settings(self, len(names))
+        if fmt is not None:
             def change_name(name, num):
                 parts = name.split('/')
                 base, ext = parts[-1].rpartition('.')[0::2]
-                parts[-1] = prefix + (fmt % num) + '.' + ext
+                parts[-1] = (fmt % num) + '.' + ext
                 return '/'.join(parts)
             name_map = {n:change_name(n, num + i) for i, n in enumerate(names)}
             self.bulk_rename_requested.emit(name_map)
