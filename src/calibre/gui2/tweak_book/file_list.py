@@ -16,7 +16,7 @@ from PyQt4.Qt import (
     QWidget, QTreeWidget, QGridLayout, QSize, Qt, QTreeWidgetItem, QIcon, QFont,
     QStyledItemDelegate, QStyle, QPixmap, QPainter, pyqtSignal, QMenu, QTimer,
     QDialogButtonBox, QDialog, QLabel, QLineEdit, QVBoxLayout, QScrollArea,
-    QRadioButton, QFormLayout, QSpinBox)
+    QRadioButton, QFormLayout, QSpinBox, QListWidget, QListWidgetItem)
 
 from calibre import human_readable, sanitize_file_name_unicode
 from calibre.ebooks.oeb.base import OEB_STYLES, OEB_DOCS
@@ -120,6 +120,7 @@ class FileList(QTreeWidget):
     mark_requested = pyqtSignal(object, object)
     export_requested = pyqtSignal(object, object)
     replace_requested = pyqtSignal(object, object, object, object)
+    link_stylesheets_requested = pyqtSignal(object, object)
 
     def __init__(self, parent=None):
         QTreeWidget.__init__(self, parent)
@@ -412,6 +413,9 @@ class FileList(QTreeWidget):
         for items in selected_map.itervalues():
             items.sort(key=self.index_of_name)
 
+        if selected_map['text']:
+            m.addAction(QIcon(I('format-text-color.png')), _('Link &stylesheets...'), partial(self.link_stylesheets, selected_map['text']))
+
         if len(selected_map['text']) > 1:
             m.addAction(QIcon(I('merge.png')), _('&Merge selected text files'), partial(self.start_merge, 'text', selected_map['text']))
         if len(selected_map['styles']) > 1:
@@ -611,6 +615,40 @@ class FileList(QTreeWidget):
         nname = nname + '.' + ext.lower()
         self.replace_requested.emit(name, path, nname, force_mt)
 
+    def link_stylesheets(self, names):
+        s = self.categories['styles']
+        sheets = [unicode(s.child(i).data(0, NAME_ROLE).toString()) for i in xrange(s.childCount())]
+        if not sheets:
+            return error_dialog(self, _('No stylesheets'), _(
+                'This book currently has no stylesheets. You must first create a stylesheet'
+                ' before linking it.'), show=True)
+        d = QDialog(self)
+        d.l = l = QVBoxLayout(d)
+        d.setLayout(l)
+        d.setWindowTitle(_('Choose stylesheets'))
+        d.la = la = QLabel(_('Choose the stylesheets to link. Drag and drop to re-arrange'))
+
+        la.setWordWrap(True)
+        l.addWidget(la)
+        d.s = s = QListWidget(d)
+        l.addWidget(s)
+        s.setDragEnabled(True)
+        s.setDropIndicatorShown(True)
+        s.setDragDropMode(self.InternalMove)
+        s.setAutoScroll(True)
+        s.setDefaultDropAction(Qt.MoveAction)
+        for name in sheets:
+            i = QListWidgetItem(name, s)
+            flags = Qt.ItemIsEnabled | Qt.ItemIsUserCheckable | Qt.ItemIsDragEnabled | Qt.ItemIsSelectable
+            i.setFlags(flags)
+            i.setCheckState(Qt.Checked)
+        d.bb = bb = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
+        bb.accepted.connect(d.accept), bb.rejected.connect(d.reject)
+        l.addWidget(bb)
+        if d.exec_() == d.Accepted:
+            sheets = [unicode(s.item(i).text()) for i in xrange(s.count()) if s.item(i).checkState() == Qt.Checked]
+            if sheets:
+                self.link_stylesheets_requested.emit(names, sheets)
 
 class NewFileDialog(QDialog):  # {{{
 
@@ -729,6 +767,7 @@ class FileListWidget(QWidget):
     mark_requested = pyqtSignal(object, object)
     export_requested = pyqtSignal(object, object)
     replace_requested = pyqtSignal(object, object, object, object)
+    link_stylesheets_requested = pyqtSignal(object, object)
 
     def __init__(self, parent=None):
         QWidget.__init__(self, parent)
@@ -736,10 +775,9 @@ class FileListWidget(QWidget):
         self.file_list = FileList(self)
         self.layout().addWidget(self.file_list)
         self.layout().setContentsMargins(0, 0, 0, 0)
-        for x in ('delete_requested', 'reorder_spine', 'rename_requested',
-                  'edit_file', 'merge_requested', 'mark_requested',
-                  'export_requested', 'replace_requested', 'bulk_rename_requested'):
-            getattr(self.file_list, x).connect(getattr(self, x))
+        for k, o in vars(self.__class__).iteritems():
+            if isinstance(o, pyqtSignal) and hasattr(self.file_list, k):
+                getattr(self.file_list, k).connect(getattr(self, k))
         for x in ('delete_done', 'select_name', 'request_edit', 'mark_name_as_current', 'clear_currently_edited_name'):
             setattr(self, x, getattr(self.file_list, x))
 

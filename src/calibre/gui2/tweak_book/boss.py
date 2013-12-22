@@ -24,6 +24,7 @@ from calibre.ebooks.oeb.polish.pretty import fix_all_html, pretty_all
 from calibre.ebooks.oeb.polish.replace import rename_files, replace_file
 from calibre.ebooks.oeb.polish.split import split, merge, AbortError
 from calibre.ebooks.oeb.polish.toc import remove_names_from_toc, find_existing_toc
+from calibre.ebooks.oeb.polish.utils import link_stylesheets
 from calibre.gui2 import error_dialog, choose_files, question_dialog, info_dialog, choose_save_file
 from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.gui2.tweak_book import set_current_container, current_container, tprefs, actions, editors
@@ -96,6 +97,7 @@ class Boss(QObject):
         fl.mark_requested.connect(self.mark_requested)
         fl.export_requested.connect(self.export_requested)
         fl.replace_requested.connect(self.replace_requested)
+        fl.link_stylesheets_requested.connect(self.link_stylesheets_requested)
         self.gui.central.current_editor_changed.connect(self.apply_current_editor_state)
         self.gui.central.close_requested.connect(self.editor_close_requested)
         self.gui.central.search_panel.search_triggered.connect(self.search)
@@ -228,12 +230,13 @@ class Boss(QObject):
                 self.gui.file_list.request_edit(ef)
             self.gui.toc_view.update_if_visible()
 
-    def update_editors_from_container(self, container=None):
+    def update_editors_from_container(self, container=None, names=None):
         c = container or current_container()
         for name, ed in tuple(editors.iteritems()):
             if c.has_name(name):
-                ed.replace_data(c.raw_data(name))
-                ed.is_synced_to_container = True
+                if names is None or name in names:
+                    ed.replace_data(c.raw_data(name))
+                    ed.is_synced_to_container = True
             else:
                 self.close_editor(name)
 
@@ -829,6 +832,15 @@ class Boss(QObject):
         self.apply_container_update_to_gui()
         if master in editors:
             self.show_editor(master)
+
+    @in_thread_job
+    def link_stylesheets_requested(self, names, sheets):
+        self.commit_all_editors_to_container()
+        self.add_savepoint(_('Link stylesheets'))
+        changed_names = link_stylesheets(current_container(), names, sheets)
+        if changed_names:
+            self.update_editors_from_container(names=changed_names)
+            self.set_modified()
 
     @in_thread_job
     def export_requested(self, name, path):

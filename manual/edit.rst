@@ -171,6 +171,12 @@ book by clicking :guilabel:`File->New file`. This lets you either import a file
 by clicking the :guilabel:`Import resource file` button or create a new blank html file
 or stylesheet by simply entering the file name into the box for the new file.
 
+Linking stylesheets to HTML files efficiently
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+As a convenience, you can select multiple HTML files in the Files Browser,
+right click and choose Link stylesheets to have |app| automatically insert the
+<link> tags for those stylesheets into all the selected HTML files.
 
 Search & Replace
 -------------------
