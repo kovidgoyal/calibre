@@ -52,7 +52,7 @@ def name_is_ok(name, show_error):
     show_error('')
     return True
 
-def get_bulk_rename_settings(parent, number, msg=None, sanitize=sanitize_file_name_unicode, leading_zeros=True):
+def get_bulk_rename_settings(parent, number, msg=None, sanitize=sanitize_file_name_unicode, leading_zeros=True):  # {{{
     d = QDialog(parent)
     d.l = l = QFormLayout(d)
     d.setLayout(l)
@@ -79,6 +79,7 @@ def get_bulk_rename_settings(parent, number, msg=None, sanitize=sanitize_file_na
             fmt = '%0{0}d'.format(len(str(largest)))
         return prefix + fmt, num
     return None, None
+# }}}
 
 class ItemDelegate(QStyledItemDelegate):  # {{{
 
