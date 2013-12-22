@@ -107,7 +107,7 @@ def _builtin_field_metadata():
                            'datatype':'text',
                            'is_multiple':{},
                            'kind':'field',
-                           'name':_('Publishers'),
+                           'name':_('Publisher'),
                            'search_terms':['publisher'],
                            'is_custom':False,
                            'is_category':True,
