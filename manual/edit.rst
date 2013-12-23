@@ -171,6 +171,9 @@ book by clicking :guilabel:`File->New file`. This lets you either import a file
 by clicking the :guilabel:`Import resource file` button or create a new blank html file
 or stylesheet by simply entering the file name into the box for the new file.
 
+You can also import multiple files into the book at once using File->Import
+files into book.
+
 Replacing files
 ^^^^^^^^^^^^^^^^
 
