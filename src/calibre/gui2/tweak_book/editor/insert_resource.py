@@ -341,16 +341,15 @@ class ChooseFolder(Dialog):  # {{{
         f.itemDoubleClicked.connect(self.accept)
         l.addWidget(f)
         self.root = QTreeWidgetItem(f, ('/',))
-        self.root.setExpanded(True)
 
         def process(node, parent):
+            parent.setIcon(0, QIcon(I('mimetypes/dir.png')))
             for child in sorted(node, key=sort_key):
                 c = QTreeWidgetItem(parent, (child,))
                 process(node[child], c)
-            if parent.childCount() == 1:
-                parent.child(0).setExpanded(True)
         process(create_folder_tree(current_container()), self.root)
         self.root.setSelected(True)
+        f.expandAll()
 
         l.addWidget(self.bb)
 
