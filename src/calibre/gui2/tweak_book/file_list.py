@@ -16,7 +16,7 @@ from PyQt4.Qt import (
     QWidget, QTreeWidget, QGridLayout, QSize, Qt, QTreeWidgetItem, QIcon, QFont,
     QStyledItemDelegate, QStyle, QPixmap, QPainter, pyqtSignal, QMenu, QTimer,
     QDialogButtonBox, QDialog, QLabel, QLineEdit, QVBoxLayout, QScrollArea,
-    QRadioButton, QFormLayout, QSpinBox, QListWidget, QListWidgetItem)
+    QRadioButton, QFormLayout, QSpinBox, QListWidget, QListWidgetItem, QCheckBox)
 
 from calibre import human_readable, sanitize_file_name_unicode
 from calibre.ebooks.oeb.base import OEB_STYLES, OEB_DOCS
@@ -24,7 +24,7 @@ from calibre.ebooks.oeb.polish.container import guess_type, OEB_FONTS
 from calibre.ebooks.oeb.polish.cover import (
     get_cover_page_name, get_raster_cover_name, is_raster_image)
 from calibre.gui2 import error_dialog, choose_files, question_dialog, elided_text, choose_save_file
-from calibre.gui2.tweak_book import current_container
+from calibre.gui2.tweak_book import current_container, tprefs
 from calibre.gui2.tweak_book.editor import syntax_from_mime
 from calibre.gui2.tweak_book.templates import template_for
 from calibre.utils.icu import sort_key
@@ -149,7 +149,7 @@ class FileList(QTreeWidget):
     mark_requested = pyqtSignal(object, object)
     export_requested = pyqtSignal(object, object)
     replace_requested = pyqtSignal(object, object, object, object)
-    link_stylesheets_requested = pyqtSignal(object, object)
+    link_stylesheets_requested = pyqtSignal(object, object, object)
 
     def __init__(self, parent=None):
         QTreeWidget.__init__(self, parent)
@@ -652,13 +652,17 @@ class FileList(QTreeWidget):
             flags = Qt.ItemIsEnabled | Qt.ItemIsUserCheckable | Qt.ItemIsDragEnabled | Qt.ItemIsSelectable
             i.setFlags(flags)
             i.setCheckState(Qt.Checked)
+        d.r = r = QCheckBox(_('Remove existing links to stylesheets'))
+        r.setChecked(tprefs['remove_existing_links_when_linking_sheets'])
+        l.addWidget(r)
         d.bb = bb = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
         bb.accepted.connect(d.accept), bb.rejected.connect(d.reject)
         l.addWidget(bb)
         if d.exec_() == d.Accepted:
+            tprefs['remove_existing_links_when_linking_sheets'] = r.isChecked()
             sheets = [unicode(s.item(i).text()) for i in xrange(s.count()) if s.item(i).checkState() == Qt.Checked]
             if sheets:
-                self.link_stylesheets_requested.emit(names, sheets)
+                self.link_stylesheets_requested.emit(names, sheets, r.isChecked())
 
 class NewFileDialog(QDialog):  # {{{
 

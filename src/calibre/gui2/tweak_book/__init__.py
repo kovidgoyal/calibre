@@ -35,6 +35,7 @@ d['preview_standard_font_family'] = 'serif'
 d['preview_base_font_size'] = 18
 d['preview_mono_font_size'] = 14
 d['preview_minimum_font_size'] = 8
+d['remove_existing_links_when_linking_sheets'] = True
 
 del d
 

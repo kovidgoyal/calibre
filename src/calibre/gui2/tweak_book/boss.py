@@ -834,10 +834,10 @@ class Boss(QObject):
             self.show_editor(master)
 
     @in_thread_job
-    def link_stylesheets_requested(self, names, sheets):
+    def link_stylesheets_requested(self, names, sheets, remove):
         self.commit_all_editors_to_container()
         self.add_savepoint(_('Link stylesheets'))
-        changed_names = link_stylesheets(current_container(), names, sheets)
+        changed_names = link_stylesheets(current_container(), names, sheets, remove)
         if changed_names:
             self.update_editors_from_container(names=changed_names)
             self.set_modified()

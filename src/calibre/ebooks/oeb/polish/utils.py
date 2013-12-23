@@ -37,7 +37,7 @@ class CommentFinder(object):
         q = bisect(self.starts, offset) - 1
         return q >= 0 and self.starts[q] <= offset <= self.ends[q]
 
-def link_stylesheets(container, names, sheets, mtype='text/css'):
+def link_stylesheets(container, names, sheets, remove=False, mtype='text/css'):
     from calibre.ebooks.oeb.base import XPath, XHTML
     changed_names = set()
     snames = set(sheets)
@@ -45,6 +45,12 @@ def link_stylesheets(container, names, sheets, mtype='text/css'):
     hp = XPath('//h:head')
     for name in names:
         root = container.parsed(name)
+        if remove:
+            for link in lp(root):
+                if (link.get('type', mtype) or mtype) == mtype:
+                    container.remove_from_xml(link)
+                    changed_names.add(name)
+                    container.dirty(name)
         existing = {container.href_to_name(l.get('href'), name) for l in lp(root) if (l.get('type', mtype) or mtype) == mtype}
         extra = snames - existing
         if extra:
