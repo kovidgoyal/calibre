@@ -13,7 +13,8 @@ from PyQt4.Qt import (
     QDialog, QGridLayout, QDialogButtonBox, QSize, QListView, QStyledItemDelegate,
     QLabel, QPixmap, QApplication, QSizePolicy, QAbstractListModel, QVariant,
     Qt, QRect, QPainter, QModelIndex, QSortFilterProxyModel, QLineEdit,
-    QToolButton, QIcon, QFormLayout, pyqtSignal)
+    QToolButton, QIcon, QFormLayout, pyqtSignal, QTreeWidget, QTreeWidgetItem,
+    QVBoxLayout)
 
 from calibre import fit_image
 from calibre.constants import plugins
@@ -308,6 +309,67 @@ def get_resource_data(rtype, parent):
         if d.exec_() == d.Accepted:
             return d.chosen_image, d.chosen_image_is_external
 
+def create_folder_tree(container):
+    root = {}
+
+    all_folders = {tuple(x.split('/')[:-1]) for x in container.name_path_map}
+    all_folders.discard(())
+
+    for folder_path in all_folders:
+        current = root
+        for x in folder_path:
+            current[x] = current = current.get(x, {})
+    return root
+
+class ChooseFolder(Dialog):  # {{{
+
+    def __init__(self, msg=None, parent=None):
+        self.msg = msg
+        Dialog.__init__(self, _('Choose folder'), 'choose-folder', parent=parent)
+
+    def setup_ui(self):
+        self.l = l = QVBoxLayout(self)
+        self.setLayout(l)
+
+        self.msg = m = QLabel(self.msg or _(
+        'Choose the folder into which the files will be placed'))
+        l.addWidget(m)
+        m.setWordWrap(True)
+
+        self.folders = f = QTreeWidget(self)
+        f.setHeaderHidden(True)
+        f.itemDoubleClicked.connect(self.accept)
+        l.addWidget(f)
+        self.root = QTreeWidgetItem(f, ('/',))
+        self.root.setExpanded(True)
+
+        def process(node, parent):
+            for child in sorted(node, key=sort_key):
+                c = QTreeWidgetItem(parent, (child,))
+                process(node[child], c)
+            if parent.childCount() == 1:
+                parent.child(0).setExpanded(True)
+        process(create_folder_tree(current_container()), self.root)
+        self.root.setSelected(True)
+
+        l.addWidget(self.bb)
+
+    def folder_path(self, item):
+        ans = []
+        while item is not self.root:
+            ans.append(unicode(item.text(0)))
+            item = item.parent()
+        return tuple(reversed(ans))
+
+    @property
+    def chosen_folder(self):
+        try:
+            return '/'.join(self.folder_path(self.folders.selectedItems()[0]))
+        except IndexError:
+            return ''
+# }}}
+
+
 class NewBook(Dialog):  # {{{
 
     def __init__(self, parent=None):
@@ -362,7 +424,7 @@ if __name__ == '__main__':
     from calibre.gui2.tweak_book.boss import get_container
     set_current_container(get_container(sys.argv[-1]))
 
-    d = InsertImage()
+    d = ChooseFolder()
     if d.exec_() == d.Accepted:
-        print (d.chosen_image, d.chosen_image_is_external)
+        print (repr(d.chosen_folder))
 

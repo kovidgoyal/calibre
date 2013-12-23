@@ -34,7 +34,7 @@ from calibre.gui2.tweak_book.save import SaveManager, save_container
 from calibre.gui2.tweak_book.preview import parse_worker, font_cache
 from calibre.gui2.tweak_book.toc import TOCEditor
 from calibre.gui2.tweak_book.editor import editor_from_syntax, syntax_from_mime
-from calibre.gui2.tweak_book.editor.insert_resource import get_resource_data, NewBook
+from calibre.gui2.tweak_book.editor.insert_resource import get_resource_data, NewBook, ChooseFolder
 from calibre.gui2.tweak_book.preferences import Preferences
 
 def get_container(*args, **kwargs):
@@ -319,6 +319,37 @@ class Boss(QObject):
                 self.edit_file(d.file_name, syntax, use_template=d.file_data.decode('utf-8'))
             else:
                 self.edit_file(d.file_name, syntax)
+
+    def add_files(self):
+        if current_container() is None:
+            return error_dialog(self.gui, _('No open book'), _(
+                'You must first open a book to tweak, before trying to create new files'
+                ' in it.'), show=True)
+
+        files = choose_files(self.gui, 'tweak-book-bulk-import-files', _('Choose files'))
+        if files:
+            d = ChooseFolder(parent=self.gui)
+            if d.exec_() == d.Accepted:
+                base = d.chosen_folder
+                files = {x:'/'.join((base, os.path.basename(x))) for x in files}
+                self.commit_dirty_opf()
+                self.add_savepoint(_('Add files'))
+                c = current_container()
+                for path, name in files.iteritems():
+                    i = 0
+                    while c.exists(name):
+                        i += 1
+                        name, ext = name.rpartition('.')[0::2]
+                        name = '%s_%d.%s' % (name, i, ext)
+                    try:
+                        with open(path, 'rb') as f:
+                            c.add_file(name, f.read())
+                    except:
+                        self.rewind_savepoint()
+                        raise
+                self.gui.file_list.build(c)
+                if c.opf_name in editors:
+                    editors[c.opf_name].replace_data(c.raw_data(c.opf_name))
 
     def edit_toc(self):
         self.commit_all_editors_to_container()
