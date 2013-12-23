@@ -171,6 +171,14 @@ book by clicking :guilabel:`File->New file`. This lets you either import a file
 by clicking the :guilabel:`Import resource file` button or create a new blank html file
 or stylesheet by simply entering the file name into the box for the new file.
 
+Replacing files
+^^^^^^^^^^^^^^^^
+
+You can easily replace existing files int he book, by right clicking on the
+file and choosing replace. This will automatically update all links and
+references, in case the replacement file has a different name than the file
+being replaced.
+
 Linking stylesheets to HTML files efficiently
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
