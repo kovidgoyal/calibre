@@ -16,6 +16,8 @@ from PyQt4.Qt import (
 from calibre import fit_image
 from calibre.constants import isosx
 from calibre.gui2 import error_dialog, pixmap_to_data
+from calibre.gui2.dnd import (
+    IMAGE_EXTENSIONS, dnd_has_extension, dnd_has_image, dnd_get_image, DownloadDialog)
 from calibre.gui2.tweak_book import capitalize
 from calibre.utils.config_base import tweaks
 from calibre.utils.magick import Image
@@ -257,8 +259,44 @@ class Canvas(QWidget):
     def is_modified(self):
         return self.current_image is not self.original_image
 
+    # Drag 'n drop {{{
+    DROPABBLE_EXTENSIONS = IMAGE_EXTENSIONS
+
+    def dragEnterEvent(self, event):
+        md = event.mimeData()
+        if dnd_has_extension(md, self.DROPABBLE_EXTENSIONS) or dnd_has_image(md):
+            event.acceptProposedAction()
+
+    def dropEvent(self, event):
+        event.setDropAction(Qt.CopyAction)
+        md = event.mimeData()
+
+        x, y = dnd_get_image(md)
+        if x is not None:
+            # We have an image, set cover
+            event.accept()
+            if y is None:
+                # Local image
+                self.undo_stack.push(Replace(x.toImage(), _('Drop image'), self))
+            else:
+                d = DownloadDialog(x, y, self.gui)
+                d.start_download()
+                if d.err is None:
+                    with open(d.fpath, 'rb') as f:
+                        img = QImage()
+                        img.loadFromData(f.read())
+                    if not img.isNull():
+                        self.undo_stack.push(Replace(img, _('Drop image'), self))
+
+        event.accept()
+
+    def dragMoveEvent(self, event):
+        event.acceptProposedAction()
+    # }}}
+
     def __init__(self, parent=None):
         QWidget.__init__(self, parent)
+        self.setAcceptDrops(True)
         self.setMouseTracking(True)
         self.setFocusPolicy(Qt.ClickFocus)
         self.selection_state = SelectionState()
