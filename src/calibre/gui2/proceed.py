@@ -15,11 +15,12 @@ from PyQt4.Qt import (QDialog, Qt, QLabel, QGridLayout, QPixmap,
 
 from calibre.constants import __version__
 from calibre.gui2.dialogs.message_box import ViewLog
+from calibre.gui2 import gprefs
 
 Question = namedtuple('Question', 'payload callback cancel_callback '
         'title msg html_log log_viewer_title log_is_file det_msg '
         'show_copy_button checkbox_msg checkbox_checked action_callback '
-        'action_label action_icon focus_action')
+        'action_label action_icon focus_action show_det show_ok geom_pref')
 
 class ProceedQuestion(QDialog):
 
@@ -62,7 +63,7 @@ class ProceedQuestion(QDialog):
                 _('Show detailed information about this error'))
         self.det_msg = QPlainTextEdit(self)
         self.det_msg.setReadOnly(True)
-        self.bb.setStandardButtons(self.bb.Yes|self.bb.No)
+        self.bb.setStandardButtons(self.bb.Yes|self.bb.No|self.bb.Ok)
         self.bb.button(self.bb.Yes).setDefault(True)
 
         self.checkbox = QCheckBox('', self)
@@ -91,6 +92,8 @@ class ProceedQuestion(QDialog):
         self.accept()
 
     def accept(self):
+        if self.geom_pref:
+            gprefs[self.geom_pref] = bytearray(self.saveGeometry())
         if self.questions:
             payload, callback, cancel_callback = self.questions[0][:3]
             self.questions = self.questions[1:]
@@ -101,6 +104,8 @@ class ProceedQuestion(QDialog):
         self.hide()
 
     def reject(self):
+        if self.geom_pref:
+            gprefs[self.geom_pref] = bytearray(self.saveGeometry())
         if self.questions:
             payload, callback, cancel_callback = self.questions[0][:3]
             self.questions = self.questions[1:]
@@ -126,6 +131,11 @@ class ProceedQuestion(QDialog):
         self.do_resize()
 
     def do_resize(self):
+        if self.geom_pref:
+            geom = gprefs.get(self.geom_pref, None)
+            if geom:
+                self.restoreGeometry(geom)
+                return
         sz = self.sizeHint() + QSize(100, 0)
         sz.setWidth(min(500, sz.width()))
         sz.setHeight(min(500, sz.height()))
@@ -139,6 +149,7 @@ class ProceedQuestion(QDialog):
             self.msg_label.setText(question.msg)
             self.setWindowTitle(question.title)
             self.log_button.setVisible(bool(question.html_log))
+            self.copy_button.setText(_('&Copy to clipboard'))
             self.copy_button.setVisible(bool(question.show_copy_button))
             self.action_button.setVisible(question.action_callback is not None)
             if question.action_callback is not None:
@@ -153,16 +164,25 @@ class ProceedQuestion(QDialog):
             if question.checkbox_msg is not None:
                 self.checkbox.setText(question.checkbox_msg)
                 self.checkbox.setChecked(question.checkbox_checked)
-            self.do_resize()
+            self.bb.button(self.bb.Ok).setVisible(question.show_ok)
+            self.bb.button(self.bb.Yes).setVisible(not question.show_ok)
+            self.bb.button(self.bb.No).setVisible(not question.show_ok)
+            self.geom_pref = ('proceed question dialog:' + question.geom_pref) if question.geom_pref else None
+            if question.show_det:
+                self.toggle_det_msg()
+            else:
+                self.do_resize()
             self.show()
-            button = self.action_button if question.focus_action and question.action_callback is not None else self.bb.button(self.bb.Yes)
+            button = self.action_button if question.focus_action and question.action_callback is not None else \
+                (self.bb.button(self.bb.Ok) if question.show_ok else self.bb.button(self.bb.Yes))
             button.setDefault(True)
             button.setFocus(Qt.OtherFocusReason)
 
     def __call__(self, callback, payload, html_log, log_viewer_title, title,
             msg, det_msg='', show_copy_button=False, cancel_callback=None,
             log_is_file=False, checkbox_msg=None, checkbox_checked=False,
-            action_callback=None, action_label=None, action_icon=None, focus_action=False):
+            action_callback=None, action_label=None, action_icon=None, focus_action=False,
+            show_det=False, show_ok=False, geom_pref=None):
         '''
         A non modal popup that notifies the user that a background task has
         been completed. This class guarantees that only a single popup is
@@ -194,13 +214,16 @@ class ProceedQuestion(QDialog):
         :param action_label: The text on the action button
         :param action_icon: The icon for the action button, must be a QIcon object or None
         :param focus_action: If True, the action button will be focused instead of the Yes button
+        :param show_det: If True, the Detailed message will be shown initially
+        :param show_ok: If True, OK will be shown instead of YES/NO
+        :param geom_pref: String for preference name to preserve dialog box geometry
 
         '''
         question = Question(
             payload, callback, cancel_callback, title, msg, html_log,
             log_viewer_title, log_is_file, det_msg, show_copy_button,
             checkbox_msg, checkbox_checked, action_callback, action_label,
-            action_icon, focus_action)
+            action_icon, focus_action, show_det, show_ok, geom_pref)
         self.questions.append(question)
         self.show_question()
 
@@ -216,12 +239,17 @@ class ProceedQuestion(QDialog):
 
 def main():
     from calibre.gui2 import Application
+    from PyQt4.QtGui import QMainWindow
     app = Application([])
+    w = QMainWindow()
+    w.show()
     p = ProceedQuestion(None)
-    p(lambda p:None, None, 'ass', 'ass', 'testing', 'testing',
+    p(lambda p,q:None, None, 'ass', 'ass', 'testing', 'testing',
             checkbox_msg='testing the ruddy checkbox', det_msg='details')
-    p.exec_()
-    app
+    p(lambda p:None, None, 'ass2', 'ass2', 'testing2', 'testing2',
+            det_msg='details shown first', show_det=True, show_ok=True,
+            geom_pref='ProceedQuestion-unit-test')
+    app.exec_()
 
 if __name__ == '__main__':
     main()
