@@ -21,7 +21,7 @@ from calibre.ebooks.oeb.polish.main import SUPPORTED, tweak_polish
 from calibre.ebooks.oeb.polish.container import get_container as _gc, clone_container, guess_type, OEB_FONTS
 from calibre.ebooks.oeb.polish.cover import mark_as_cover, mark_as_titlepage
 from calibre.ebooks.oeb.polish.pretty import fix_all_html, pretty_all
-from calibre.ebooks.oeb.polish.replace import rename_files, replace_file
+from calibre.ebooks.oeb.polish.replace import rename_files, replace_file, get_recommended_folders
 from calibre.ebooks.oeb.polish.split import split, merge, AbortError
 from calibre.ebooks.oeb.polish.toc import remove_names_from_toc, find_existing_toc
 from calibre.ebooks.oeb.polish.utils import link_stylesheets
@@ -34,7 +34,7 @@ from calibre.gui2.tweak_book.save import SaveManager, save_container
 from calibre.gui2.tweak_book.preview import parse_worker, font_cache
 from calibre.gui2.tweak_book.toc import TOCEditor
 from calibre.gui2.tweak_book.editor import editor_from_syntax, syntax_from_mime
-from calibre.gui2.tweak_book.editor.insert_resource import get_resource_data, NewBook, ChooseFolder
+from calibre.gui2.tweak_book.editor.insert_resource import get_resource_data, NewBook
 from calibre.gui2.tweak_book.preferences import Preferences
 
 def get_container(*args, **kwargs):
@@ -328,28 +328,27 @@ class Boss(QObject):
 
         files = choose_files(self.gui, 'tweak-book-bulk-import-files', _('Choose files'))
         if files:
-            d = ChooseFolder(parent=self.gui)
-            if d.exec_() == d.Accepted:
-                base = d.chosen_folder
-                files = {x:'/'.join((base, os.path.basename(x))) for x in files}
-                self.commit_dirty_opf()
-                self.add_savepoint(_('Add files'))
-                c = current_container()
-                for path, name in files.iteritems():
-                    i = 0
-                    while c.exists(name):
-                        i += 1
-                        name, ext = name.rpartition('.')[0::2]
-                        name = '%s_%d.%s' % (name, i, ext)
-                    try:
-                        with open(path, 'rb') as f:
-                            c.add_file(name, f.read())
-                    except:
-                        self.rewind_savepoint()
-                        raise
-                self.gui.file_list.build(c)
-                if c.opf_name in editors:
-                    editors[c.opf_name].replace_data(c.raw_data(c.opf_name))
+            folder_map = get_recommended_folders(current_container(), files)
+            files = {x:('/'.join((folder, os.path.basename(x))) if folder else os.path.basename(x))
+                     for x, folder in folder_map.iteritems()}
+            self.commit_dirty_opf()
+            self.add_savepoint(_('Add files'))
+            c = current_container()
+            for path, name in files.iteritems():
+                i = 0
+                while c.exists(name):
+                    i += 1
+                    name, ext = name.rpartition('.')[0::2]
+                    name = '%s_%d.%s' % (name, i, ext)
+                try:
+                    with open(path, 'rb') as f:
+                        c.add_file(name, f.read())
+                except:
+                    self.rewind_savepoint()
+                    raise
+            self.gui.file_list.build(c)
+            if c.opf_name in editors:
+                editors[c.opf_name].replace_data(c.raw_data(c.opf_name))
 
     def edit_toc(self):
         self.commit_all_editors_to_container()

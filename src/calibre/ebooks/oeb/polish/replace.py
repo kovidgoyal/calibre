@@ -7,8 +7,9 @@ __license__   = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import codecs, shutil
+import codecs, shutil, os
 from urlparse import urlparse
+from collections import Counter, defaultdict
 
 from calibre import sanitize_file_name_unicode
 from calibre.ebooks.chardet import strip_encoding_declarations
@@ -145,3 +146,25 @@ def replace_file(container, name, path, basename, force_mt=None):
         with container.open(nname, 'wb') as dest:
             shutil.copyfileobj(src, dest)
 
+def get_recommended_folders(container, names):
+    ' Return the folders that are recommended for the given filenames '
+    from calibre.ebooks.oeb.polish.container import guess_type, OEB_FONTS
+    from calibre.ebooks.oeb.base import OEB_DOCS, OEB_STYLES
+    counts = defaultdict(Counter)
+    def mt_to_category(mt):
+        if mt in OEB_DOCS:
+            category = 'text'
+        elif mt in OEB_STYLES:
+            category = 'style'
+        elif mt in OEB_FONTS:
+            category = 'font'
+        else:
+            category = mt.partition('/')[0]
+        return category
+
+    for name, mt in container.mime_map.iteritems():
+        folder = name.rpartition('/')[0] if '/' in name else ''
+        counts[mt_to_category(mt)][folder] += 1
+
+    recommendations = {category:counter.most_common(1)[0][0] for category, counter in counts.iteritems()}
+    return {n:recommendations.get(mt_to_category(guess_type(os.path.basename(n))), '') for n in names}
