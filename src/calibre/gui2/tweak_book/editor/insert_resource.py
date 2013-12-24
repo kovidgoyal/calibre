@@ -14,7 +14,7 @@ from PyQt4.Qt import (
     QLabel, QPixmap, QApplication, QSizePolicy, QAbstractListModel, QVariant,
     Qt, QRect, QPainter, QModelIndex, QSortFilterProxyModel, QLineEdit,
     QToolButton, QIcon, QFormLayout, pyqtSignal, QTreeWidget, QTreeWidgetItem,
-    QVBoxLayout)
+    QVBoxLayout, QMenu, QInputDialog)
 
 from calibre import fit_image
 from calibre.constants import plugins
@@ -340,6 +340,8 @@ class ChooseFolder(Dialog):  # {{{
         f.setHeaderHidden(True)
         f.itemDoubleClicked.connect(self.accept)
         l.addWidget(f)
+        f.setContextMenuPolicy(Qt.CustomContextMenu)
+        f.customContextMenuRequested.connect(self.show_context_menu)
         self.root = QTreeWidgetItem(f, ('/',))
 
         def process(node, parent):
@@ -352,6 +354,24 @@ class ChooseFolder(Dialog):  # {{{
         f.expandAll()
 
         l.addWidget(self.bb)
+
+    def show_context_menu(self, point):
+        item = self.folders.itemAt(point)
+        if item is None:
+            return
+        m = QMenu(self)
+        m.addAction(QIcon(I('mimetypes/dir.png')), _('Create new folder'), partial(self.create_folder, item))
+        m.popup(self.folders.mapToGlobal(point))
+
+    def create_folder(self, item):
+        text, ok = QInputDialog.getText(self, _('Folder name'), _('Enter a name for the new folder'))
+        if ok and unicode(text):
+            c = QTreeWidgetItem(item, (unicode(text),))
+            c.setIcon(0, QIcon(I('mimetypes/dir.png')))
+            for item in self.folders.selectedItems():
+                item.setSelected(False)
+            c.setSelected(True)
+            self.folders.setCurrentItem(c)
 
     def folder_path(self, item):
         ans = []
