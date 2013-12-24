@@ -484,31 +484,15 @@ class EPUBOutput(OutputFormatPlugin):
         Perform toc link transforms to alleviate slow loading.
         '''
         from calibre.ebooks.oeb.base import urldefrag, XPath
+        from calibre.ebooks.oeb.polish.toc import item_at_top
 
         def frag_is_at_top(root, frag):
-            body = XPath('//h:body')(root)
-            if body:
-                body = body[0]
-            else:
-                return False
-            tree = body.getroottree()
             elem = XPath('//*[@id="%s" or @name="%s"]'%(frag, frag))(root)
             if elem:
                 elem = elem[0]
             else:
                 return False
-            path = tree.getpath(elem)
-            for el in body.iterdescendants():
-                epath = tree.getpath(el)
-                if epath == path:
-                    break
-                if el.text and el.text.strip():
-                    return False
-                if not path.startswith(epath):
-                    # Only check tail of non-parent elements
-                    if el.tail and el.tail.strip():
-                        return False
-            return True
+            return item_at_top(elem)
 
         def simplify_toc_entry(toc):
             if toc.href:

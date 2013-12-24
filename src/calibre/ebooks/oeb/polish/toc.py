@@ -211,6 +211,28 @@ def elem_to_toc_text(elem):
         text = _('(Untitled)')
     return text
 
+def item_at_top(elem):
+    try:
+        body = XPath('//h:body')(elem.getroottree().getroot())[0]
+    except (TypeError, IndexError, KeyError, AttributeError):
+        return False
+    tree = body.getroottree()
+    path = tree.getpath(elem)
+    for el in body.iterdescendants(etree.Element):
+        epath = tree.getpath(el)
+        if epath == path:
+            break
+        try:
+            if el.tag.endswith('}img') or (el.text and el.text.strip()):
+                return False
+        except:
+            return False
+        if not path.startswith(epath):
+            # Only check tail of non-parent elements
+            if el.tail and el.tail.strip():
+                return False
+    return True
+
 def from_xpaths(container, xpaths):
     tocroot = TOC()
     xpaths = [XPath(xp) for xp in xpaths]
@@ -249,7 +271,10 @@ def from_xpaths(container, xpaths):
                 plvl -= 1
                 parent = level_prev[plvl]
             lvl = plvl + 1
-            dirtied, elem_id = ensure_id(item)
+            if item_at_top(item):
+                dirtied, elem_id = False, None
+            else:
+                dirtied, elem_id = ensure_id(item)
             text = elem_to_toc_text(item)
             item_dirtied = dirtied or item_dirtied
             toc = parent.add(text, name, elem_id)
