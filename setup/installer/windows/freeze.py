@@ -653,7 +653,7 @@ class Win32Freeze(Command, WixMixIn):
                         # any extensions that use C++ exceptions must be loaded
                         # from files
                         'unrar.pyd', 'wpd.pyd', 'podofo.pyd',
-                        'progress_indicator.pyd',
+                        'progress_indicator.pyd', 'hunspell.pyd',
                         # As per this https://bugs.launchpad.net/bugs/1087816
                         # on some systems magick.pyd fails to load from memory
                         # on 64 bit
