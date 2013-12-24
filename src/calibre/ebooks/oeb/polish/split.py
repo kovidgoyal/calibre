@@ -6,7 +6,7 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import copy, os
+import copy, os, re
 from future_builtins import map
 from urlparse import urlparse
 
@@ -178,7 +178,13 @@ def split(container, name, loc_or_xpath, before=True):
     root1, root2 = tree1.getroot(), tree2.getroot()
     anchors_in_top = frozenset(root1.xpath('//*/@id')) | frozenset(root1.xpath('//*/@name')) | {''}
     anchors_in_bottom = frozenset(root2.xpath('//*/@id')) | frozenset(root2.xpath('//*/@name'))
-    manifest_item = container.generate_item(name, media_type=container.mime_map[name])
+    base, ext = name.rpartition('.')[0::2]
+    base = re.sub(r'_split\d+$', '', base)
+    nname, s = None, 0
+    while not nname or container.exists(nname):
+        s += 1
+        nname = '%s_split%d.%s' % (base, s, ext)
+    manifest_item = container.generate_item(nname, media_type=container.mime_map[name])
     bottom_name = container.href_to_name(manifest_item.get('href'), container.opf_name)
 
     # Fix links in the split trees
