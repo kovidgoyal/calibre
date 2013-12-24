@@ -319,6 +319,7 @@ class Boss(QObject):
                 self.edit_file(d.file_name, syntax, use_template=d.file_data.decode('utf-8'))
             else:
                 self.edit_file(d.file_name, syntax)
+        self.set_modified()
 
     def add_files(self):
         if current_container() is None:
@@ -349,6 +350,7 @@ class Boss(QObject):
             self.gui.file_list.build(c)
             if c.opf_name in editors:
                 editors[c.opf_name].replace_data(c.raw_data(c.opf_name))
+            self.set_modified()
 
     def edit_toc(self):
         self.commit_all_editors_to_container()
