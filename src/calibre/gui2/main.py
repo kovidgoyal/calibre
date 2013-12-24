@@ -36,7 +36,7 @@ path_to_ebook to the database.
     parser.add_option('--start-in-tray', default=False, action='store_true',
                       help=_('Start minimized to system tray.'))
     parser.add_option('-v', '--verbose', default=0, action='count',
-                      help=_('Log debugging information to console'))
+                      help=_('Ignored, do not use. Present only for legacy reasons'))
     parser.add_option('--no-update-check', default=False, action='store_true',
             help=_('Do not check for updates'))
     parser.add_option('--ignore-plugins', default=False, action='store_true',
