@@ -427,7 +427,7 @@ class Build(Command):
             obj = self.j(obj_dir, os.path.splitext(self.b(src))[0]+'.o')
             objects.append(obj)
             if self.newer(obj, [src]+ext.headers):
-                inf = '/Tp' if src.endswith('.cpp') else '/Tc'
+                inf = '/Tp' if src.endswith('.cpp') or src.endswith('.cxx') else '/Tc'
                 sinc = [inf+src] if iswindows else ['-c', src]
                 oinc = ['/Fo'+obj] if iswindows else ['-o', obj]
                 cmd = [compiler] + cflags + ext.cflags + einc + sinc + oinc
