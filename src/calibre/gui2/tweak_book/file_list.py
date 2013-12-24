@@ -21,6 +21,7 @@ from PyQt4.Qt import (
 from calibre import human_readable, sanitize_file_name_unicode
 from calibre.ebooks.oeb.base import OEB_STYLES, OEB_DOCS
 from calibre.ebooks.oeb.polish.container import guess_type, OEB_FONTS
+from calibre.ebooks.oeb.polish.replace import get_recommended_folders
 from calibre.ebooks.oeb.polish.cover import (
     get_cover_page_name, get_raster_cover_name, is_raster_image)
 from calibre.gui2 import error_dialog, choose_files, question_dialog, elided_text, choose_save_file
@@ -706,6 +707,9 @@ class NewFileDialog(QDialog):  # {{{
             with open(path, 'rb') as f:
                 self.file_data = f.read()
             name = os.path.basename(path)
+            fmap = get_recommended_folders(current_container(), (name,))
+            if fmap[name]:
+                name = '/'.join((fmap[name], name))
             self.name.setText(name)
             self.la.setText(_('Choose a name for the imported file'))
 
