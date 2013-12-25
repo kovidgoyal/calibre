@@ -20,6 +20,57 @@
 #   new recipes:
 #     - title: 
 
+- version: 1.17.0
+  date: 2013-12-25
+
+  new features:
+    - title: "Merry Christmas everyone! Early release this week, as I will be travelling."
+
+    - title: "Edit book: Allow drag and drop of images onto the image editor"
+
+    - title: "Edit book: Allow import of multiple files at once, via File->Import files into book"
+
+    - title: "Edit book: Show the name of the current character to the left of the cursor in the status bar. Can be turned off via Preferences."
+
+    - title: "Edit book: Automatically replace HTML entities as they are typed. This can be turned off in the Preferences."
+
+    - title: "ToC Editor: Allow bulk renaming of items. Simply select the items you want to rename, right click and choose bulk rename. Useful if, for instance, you want to rename all the items to be Chapter 1, Chapter 2 and so on."
+
+    - title: "Edit book: Allow linking of stylesheets into HTML files automatically.  Right click on the selected HTML files in the File browser and choose 'Link stylesheets' to have the <link> tags for the sheets automatically inserted."
+
+    - title: "Edit book: When deleting files, automatically remove all entries that refer to them from the ToC"
+
+  bug fixes:
+    - title: "ToC Editor: When auto-generating the table of contents from headings or XPath, if an element is at the top of the file, link only to the file instead of to the element."
+      tickets: [1261099]
+
+    - title: "Edit book: When splitting files, name the newly created file with a _split suffix."
+
+    - title: "Edit book: Fix position syncing incorrect when in HTML files that contain <meta> tags with charset encoding declarations over more than a single line"
+
+    - title: "Edit book: Automatic correction of font family names not quoting family names with spaces in them if the original, incorrect family name did not have a space."
+      tickets: [1263448]
+
+    - title: "Title casing: Fix presence of some non-English characters or smart punctuation causing all-caps text to not be properly titlecased"
+
+    - title: "Edit book: Fix a bug preventing marking an image as cover in a book that previously had no cover"
+
+    - title: "Edit book: Fix a typo causing the preferences for which windows occupy which corners to not work"
+
+    - title: "Edit book: Fix crash that happens sometimes when deleting multiple files."
+      tickets: [1263179]
+
+    - title: "Edit book: Handle EPUB files which contain opf files with no <metadata> tags"
+
+    - title: "Edit book: Fix deleting a file that is currently open in an editor, not auto-closing the editor"
+
+    - title: "DOCX Input: Fix error when converting DOCX file that contains only image based links and no text based links."
+      tickets: [1263021]
+
+  new recipes:
+    - title: Birmingham Evening Mail 
+      author: Dave Asbury
+
 - version: 1.16.0
   date: 2013-12-20
 
