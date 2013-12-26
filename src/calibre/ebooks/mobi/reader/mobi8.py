@@ -204,6 +204,11 @@ class Mobi8Reader(object):
                 baseptr = baseptr + length
                 divptr += 1
             self.parts.append(skeleton)
+            if divcnt < 1:
+                # Empty file
+                import uuid
+                aidtext = str(uuid.uuid4())
+                filename = aidtext + '.html'
             self.partinfo.append(Part(skelnum, 'text', filename, skelpos,
                 baseptr, aidtext))
 
