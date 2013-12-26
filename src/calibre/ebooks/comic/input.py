@@ -115,7 +115,8 @@ class PageProcessor(list):  # {{{
                 wand.rotate(pw, -90)
 
             if not self.opts.disable_trim:
-                wand.trim(10)
+                wand.trim(25*65535/100)
+
             wand.set_page(0, 0, 0, 0)  # Clear page after trim, like a "+repage"
             # Do the Photoshop "Auto Levels" equivalent
             if not self.opts.dont_normalize:
