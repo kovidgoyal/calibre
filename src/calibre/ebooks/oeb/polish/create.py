@@ -12,9 +12,11 @@ from lxml import etree
 
 from calibre import prepare_string_for_xml, CurrentDir
 from calibre.ptempfile import TemporaryDirectory
+from calibre.ebooks.oeb.base import serialize
 from calibre.ebooks.metadata.opf2 import metadata_to_opf
+from calibre.ebooks.oeb.polish.parsing import parse
 from calibre.ebooks.oeb.polish.container import OPF_NAMESPACES, guess_type, opf_to_azw3
-from calibre.ebooks.oeb.polish.pretty import pretty_xml_tree
+from calibre.ebooks.oeb.polish.pretty import pretty_xml_tree, pretty_html_tree
 from calibre.ebooks.oeb.polish.toc import TOC, create_ncx
 from calibre.utils.localization import lang_as_iso639_1
 from calibre.utils.logging import DevNull
@@ -73,6 +75,9 @@ def create_book(mi, path, fmt='epub', opf_name='metadata.opf', html_name='start.
     </body>
 </html>
     '''.format(prepare_string_for_xml(mi.title), lang).encode('utf-8')
+    h = parse(HTML)
+    pretty_html_tree(None, h)
+    HTML = serialize(h, 'text/html')
     ncx = etree.tostring(create_toc(mi, opf, html_name, lang), encoding='utf-8', xml_declaration=True, pretty_print=True)
     pretty_xml_tree(opf)
     opf = etree.tostring(opf, encoding='utf-8', xml_declaration=True, pretty_print=True)
