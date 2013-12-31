@@ -6,7 +6,6 @@ __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 
-
 from calibre.gui2.preferences import ConfigWidgetBase, test_widget, \
         AbortCommit
 from calibre.gui2.preferences.sending_ui import Ui_Form
@@ -34,11 +33,10 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             self.opt_manage_device_metadata.setEnabled(False)
             self.opt_manage_device_metadata.setToolTip(
                 _('Cannot change metadata management while a device is connected'))
-            self.mm_label.setText('Metadata management (disabled while '
-                    'device connected)')
+            self.mm_label.setText(_('Metadata management (disabled while '
+                    'device connected)'))
 
         self.send_template.changed_signal.connect(self.changed_signal.emit)
-
 
     def initialize(self):
         ConfigWidgetBase.initialize(self)
