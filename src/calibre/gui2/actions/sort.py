@@ -63,10 +63,8 @@ class SortByAction(InterfaceAction):
         self._sactions = []
         for name in sorted(name_map, key=sort_key):
             key = name_map[name]
-            if key in {'title', 'series_sort', 'formats', 'path'}:
+            if key in {'sort', 'series_sort', 'formats', 'path'}:
                 continue
-            if key == 'sort':
-                name = _('Title')
             if key == 'ondevice' and self.gui.device_connected is None:
                     continue
             ascending = None

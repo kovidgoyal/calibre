@@ -474,7 +474,7 @@ class BooksView(QTableView):  # {{{
         state['last_modified_injected'] = True
         state['languages_injected'] = True
         state['sort_history'] = \
-            self.cleanup_sort_history(self.model().sort_history)
+            self.cleanup_sort_history(self.model().sort_history, ignore_column_map=self.is_library_view)
         state['column_positions'] = {}
         state['column_sizes'] = {}
         state['column_alignment'] = self._model.alignment_map
@@ -499,11 +499,11 @@ class BooksView(QTableView):  # {{{
 
     def cleanup_sort_history(self, sort_history, ignore_column_map=False):
         history = []
+
         for col, order in sort_history:
             if not isinstance(order, bool):
                 continue
-            if col == 'date':
-                col = 'timestamp'
+            col = {'date':'timestamp', 'sort':'title'}.get(col, col)
             if ignore_column_map or col in self.column_map:
                 if (not history or history[-1][0] != col):
                     history.append([col, order])
@@ -512,9 +512,14 @@ class BooksView(QTableView):  # {{{
     def apply_sort_history(self, saved_history, max_sort_levels=3):
         if not saved_history:
             return
-        for col, order in reversed(self.cleanup_sort_history(
-                saved_history)[:max_sort_levels]):
-            self.sort_by_column_and_order(self.column_map.index(col), order)
+        if self.is_library_view:
+            for col, order in reversed(self.cleanup_sort_history(
+                    saved_history, ignore_column_map=True)[:max_sort_levels]):
+                self.sort_by_named_field(col, order)
+        else:
+            for col, order in reversed(self.cleanup_sort_history(
+                    saved_history)[:max_sort_levels]):
+                self.sort_by_column_and_order(self.column_map.index(col), order)
 
     def apply_state(self, state, max_sort_levels=3):
         h = self.column_header
