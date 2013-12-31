@@ -1599,7 +1599,6 @@ class StoreNookUKStore(StoreBase):
 
     headquarters = 'UK'
     formats = ['NOOK']
-    affiliate = True
 
 class StoreOpenBooksStore(StoreBase):
     name = 'Open Books'
