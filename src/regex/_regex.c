@@ -11767,15 +11767,7 @@ backtrack:
 
                     ch = test->values[0];
 
-                    /* The tail is a character. We don't want to go off the end
-                     * of the slice.
-                     */
-                    limit = RE_MAX(limit, slice_start + 1);
-
                     for (;;) {
-                        if (pos <= limit)
-                            break;
-
                         --pos;
 
                         if ((char_at(text, pos) == ch) == m &&
@@ -11784,6 +11776,10 @@ backtrack:
                             match = TRUE;
                             break;
                         }
+
+                        if (pos == limit)
+                            break;
+
                     }
                     break;
                 }
@@ -11793,15 +11789,7 @@ backtrack:
 
                     ch = test->values[0];
 
-                    /* The tail is a character. We don't want to go off the end
-                     * of the slice.
-                     */
-                    limit = RE_MAX(limit, slice_start + 1);
-
                     for (;;) {
-                        if (pos <= limit)
-                            break;
-
                         --pos;
 
                         if (same_char_ign(encoding, char_at(text, pos), ch) ==
@@ -11810,6 +11798,10 @@ backtrack:
                             match = TRUE;
                             break;
                         }
+
+                        if (pos == limit)
+                            break;
+
                     }
                     break;
                 }
@@ -11819,15 +11811,7 @@ backtrack:
 
                     ch = test->values[0];
 
-                    /* The tail is a character. We don't want to go off the end
-                     * of the slice.
-                     */
-                    limit = RE_MIN(limit, slice_end - 1);
-
                     for (;;) {
-                        if (pos >= limit)
-                            break;
-
                         ++pos;
 
                         if (same_char_ign(encoding, char_at(text, pos - 1), ch)
@@ -11836,6 +11820,10 @@ backtrack:
                             match = TRUE;
                             break;
                         }
+
+                        if (pos == limit)
+                            break;
+
                     }
                     break;
                 }
@@ -11845,15 +11833,7 @@ backtrack:
 
                     ch = test->values[0];
 
-                    /* The tail is a character. We don't want to go off the end
-                     * of the slice.
-                     */
-                    limit = RE_MIN(limit, slice_end - 1);
-
                     for (;;) {
-                        if (pos >= limit)
-                            break;
-
                         ++pos;
 
                         if ((char_at(text, pos - 1) == ch) == m &&
@@ -11862,6 +11842,10 @@ backtrack:
                             match = TRUE;
                             break;
                         }
+
+                        if (pos == limit)
+                            break;
+
                     }
                     break;
                 }
