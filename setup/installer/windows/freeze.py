@@ -671,7 +671,10 @@ class Win32Freeze(Command, WixMixIn):
             sp = self.j(self.lib_dir, 'site-packages')
             # Special handling for PIL and pywin32
             handled = set(['PIL.pth', 'pywin32.pth', 'PIL', 'win32'])
-            if not is64bit:
+            if is64bit:
+                # PIL can raise exceptions, which cause crashes on 64bit
+                shutil.copytree(self.j(sp, 'PIL'), self.j(self.dll_dir, 'PIL'))
+            else:
                 self.add_to_zipfile(zf, 'PIL', sp)
             base = self.j(sp, 'win32', 'lib')
             for x in os.listdir(base):

@@ -414,6 +414,13 @@ Build and install with::
 Note that the lcms module will not be built. PIL requires lcms-1.x but only
 lcms-2.x can be compiled as a 64 bit library.
 
+Pillow >= 2.2 installs itself as a .egg file. calibre needs it to be a PIL
+directory. Extract the PIL directory as follows:
+    cd /cygdrive/c/Python27/Lib/site-packages
+    mkdir p && cd p
+    unzip ../Pillow-*.egg
+    cd .. && rm Pillow-*.egg && mv p/PIL . && chmod +x PIL/*.pyd
+
 Test it on the target system with
 
 calibre-debug -c "from PIL import Image; import _imaging, _imagingmath, _imagingft"
