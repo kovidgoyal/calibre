@@ -10,7 +10,7 @@ import sys, os, importlib
 
 from PyQt4.Qt import QIcon
 
-from calibre.constants import islinux
+from calibre.constants import islinux, iswindows
 from calibre.gui2 import Application, ORG_NAME, APP_UID, setup_gui_option_parser, detach_gui
 from calibre.ptempfile import reset_base_dir
 from calibre.utils.config import OptionParser
@@ -33,6 +33,15 @@ def _run(args, notify=None):
     # Ensure we can continue to function if GUI is closed
     os.environ.pop('CALIBRE_WORKER_TEMP_DIR', None)
     reset_base_dir()
+
+    if iswindows:
+        # Ensure that all ebook editor instances are grouped together in the task
+        # bar
+        import ctypes
+        try:
+            ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID('com.calibre-ebook.edit-book')
+        except:
+            pass  # Only available on windows 7 and newer
 
     # The following two lines are needed to prevent circular imports causing
     # errors during initialization of plugins that use the polish container
