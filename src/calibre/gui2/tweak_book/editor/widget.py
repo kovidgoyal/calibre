@@ -8,7 +8,7 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import unicodedata
 
-from PyQt4.Qt import QMainWindow, Qt, QApplication, pyqtSignal
+from PyQt4.Qt import QMainWindow, Qt, QApplication, pyqtSignal, QMenu
 
 from calibre.gui2 import error_dialog
 from calibre.gui2.tweak_book import actions, current_container
@@ -56,6 +56,8 @@ class Editor(QMainWindow):
         self.is_synced_to_container = False
         self.syntax = syntax
         self.editor = TextEdit(self)
+        self.editor.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.editor.customContextMenuRequested.connect(self.show_context_menu)
         self.setCentralWidget(self.editor)
         self.create_toolbars()
         self.undo_available = False
@@ -254,6 +256,20 @@ class Editor(QMainWindow):
             self.editor.replace_text(func(current_container(), name, unicode(self.editor.toPlainText())).decode('utf-8'))
             return True
         return False
+
+    def show_context_menu(self, pos):
+        m = QMenu(self)
+        a = m.addAction
+        for x in ('undo', 'redo'):
+            a(actions['editor-%s' % x])
+        m.addSeparator()
+        for x in ('cut', 'copy', 'paste'):
+            a(actions['editor-' + x])
+        m.addSeparator()
+        m.addAction(_('&Select all'), self.editor.select_all)
+        m.addAction(actions['mark-selected-text'])
+        m.exec_(self.editor.mapToGlobal(pos))
+
 
 def launch_editor(path_to_edit, path_is_raw=False, syntax='html'):
     from calibre.gui2.tweak_book.main import option_parser

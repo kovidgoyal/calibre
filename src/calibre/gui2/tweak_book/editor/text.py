@@ -560,3 +560,11 @@ class TextEdit(QPlainTextEdit):
         if repl != ent:
             c.setPosition(c.position() + m.start(), c.KeepAnchor)
             c.insertText(repl)
+
+    def select_all(self):
+        c = self.textCursor()
+        c.clearSelection()
+        c.setPosition(0)
+        c.movePosition(c.End, c.KeepAnchor)
+        self.setTextCursor(c)
+
