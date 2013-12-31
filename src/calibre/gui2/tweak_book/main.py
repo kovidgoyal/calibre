@@ -36,7 +36,8 @@ def _run(args, notify=None):
 
     if iswindows:
         # Ensure that all ebook editor instances are grouped together in the task
-        # bar
+        # bar. This prevents them from being grouped with viewer process when
+        # launched from within calibre, as both use calibre-parallel.exe
         import ctypes
         try:
             ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID('com.calibre-ebook.edit-book')
