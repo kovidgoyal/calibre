@@ -81,7 +81,8 @@ extensions = [
 
     Extension('_regex',
               ['regex/_regex.c', 'regex/_regex_unicode.c'],
-              headers=['regex/_regex.h']
+              headers=['regex/_regex.h'],
+              optimize_level=2,
               ),
 
     Extension('speedup',
