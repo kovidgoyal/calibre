@@ -15,6 +15,7 @@ from calibre import fsync
 from calibre.constants import isunix
 from calibre.devices.usbms.driver import USBMS
 import calibre.devices.cybook.t2b as t2b
+import calibre.devices.cybook.t4b as t4b
 
 class CYBOOK(USBMS):
 
@@ -67,11 +68,39 @@ class ORIZON(CYBOOK):
 
     BCD         = [0x319]
 
+    FORMATS     = ['epub', 'html', 'pdf', 'rtf', 'txt']
+
     VENDOR_NAME = ['BOOKEEN', 'LINUX']
     WINDOWS_MAIN_MEM = re.compile(r'(CYBOOK_ORIZON__-FD)|(FILE-STOR_GADGET)')
     WINDOWS_CARD_A_MEM = re.compile('(CYBOOK_ORIZON__-SD)|(FILE-STOR_GADGET)')
 
     EBOOK_DIR_MAIN = EBOOK_DIR_CARD_A = 'Digital Editions'
+
+    EBOOK_DIR_CARD_A = [EBOOK_DIR_CARD_A]
+    EXTRA_CUSTOMIZATION_MESSAGE = [
+        _('Card A folder') + ':::<p>' +
+            _('Enter the folder where the books are to be stored when sent to the '
+              'memory card. This folder is prepended to any send_to_device template') + '</p>',
+    ]
+    EXTRA_CUSTOMIZATION_DEFAULT = EBOOK_DIR_CARD_A
+
+    def upload_cover(self, path, filename, metadata, filepath):
+        coverdata = getattr(metadata, 'thumbnail', None)
+        if coverdata and coverdata[2]:
+            coverdata = coverdata[2]
+        else:
+            coverdata = None
+        with open('%s.thn' % filepath, 'wb') as thnfile:
+            t4b.write_t4b(thnfile, coverdata)
+            fsync(thnfile)
+
+    def post_open_callback(self):
+        opts = self.settings()
+        folder = opts.extra_customization
+        if not folder:
+            folder = ''
+        self.EBOOK_DIR_CARD_A = folder
+        print(folder)
 
     @classmethod
     def can_handle(cls, device_info, debug=False):
