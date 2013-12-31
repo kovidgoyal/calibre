@@ -13,8 +13,6 @@ class HBR(BasicNewsRecipe):
     LOGIN_URL = 'https://hbr.org/login?request_url=/'
     LOGOUT_URL = 'https://hbr.org/logout?request_url=/'
 
-    INDEX = 'http://hbr.org'
-
     keep_only_tags = [dict(name='div', id='pageContainer')]
     remove_tags = [dict(id=['mastheadContainer', 'magazineHeadline',
         'articleToolbarTopRD', 'pageRightSubColumn', 'pageRightColumn',
@@ -96,7 +94,7 @@ class HBR(BasicNewsRecipe):
         self.cover_url=datencover.img['src']
         dates=self.tag_to_string(datencover.img['alt'])
         self.timefmt = u' [%s]'%dates
-        soup = self.index_to_soup(self.INDEX + soup0.find('div', attrs={'class':'magazine_page'}).a['href'])
+        soup = self.index_to_soup(soup0.find('div', attrs={'class':'magazine_page'}).a['href'])
         feeds = self.hbr_parse_toc(soup)
         return feeds
 
