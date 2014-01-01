@@ -500,7 +500,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
     int ret = 0, argc;
     HRESULT hr;
     LPWSTR tgt = NULL, dest = NULL, *argv, unpack_dir = NULL;
-    BOOL existing = false, launch = false;
+    BOOL existing = false, launch = false, automated = false;
     WCHAR buf[4*MAX_PATH] = {0}, mb_msg[4*MAX_PATH] = {0}, fdest[4*MAX_PATH] = {0};
 
     if (!load_data(&cdata, &csz)) return 0;
@@ -513,6 +513,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
     if (argv == NULL) { show_last_error(L"Failed to get command line"); return 0; }
     if (argc > 1) {
         tgt = argv[1];
+        automated = true;
     } else {
         tgt = get_directory_from_user();
         if (tgt == NULL) goto end;
@@ -545,7 +546,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
     } while (wcslen(fdest) > 58);
 
     // Confirm the user wants to upgrade
-    if (existing) {
+    if (existing && !automated) {
         _snwprintf_s(mb_msg, 4*MAX_PATH, _TRUNCATE, 
             L"An existing install of Calibre Portable was found at %s. Do you want to upgrade it?",
             fdest);
