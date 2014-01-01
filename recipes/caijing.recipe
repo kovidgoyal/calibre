@@ -1,37 +1,46 @@
 import re
 from calibre.web.feeds.recipes import BasicNewsRecipe
 
+__license__   = 'GPL v3'
+
 
 class Caijing(BasicNewsRecipe):
 
-    title       = 'Caijing Magazine'
-    __author__  = 'Eric Chen'
+    '''based on the recipe wrote by Eric Chen at 2011'''
 
-    description = '''Bi-weekly Finance and Economics Review. Founded in 1998, the fortnightly CAIJING
-                 Magazine has firmly established itself as a news authority and leading voice for
-                 business and financial issues in China.
-                 CAIJING Magazine closely tracks the most important aspects of China's economic reforms,
-                 developments and policy changes, as well as major events in the capital markets. It also
-                 offers a broad international perspective through first-hand reporting on international
-                 political and economic issues.
-                 CAIJING Magazine is China's most widely read business and finance magazine, with a
-                 circulation of 225,000 per issue. It boasts top-level readers from government, business
-                 and academic circles. '''
+    __author__  = '2014, Chen Wei <weichen302@gmx.com>'
+    title = 'Caijing Magazine'
+    description = '''
+    Founded in 1998, the fortnightly CAIJING Magazine has firmly established
+    itself as a news authority and leading voice for business and financial
+    issues in China.
+
+    CAIJING Magazine closely tracks the most important aspects of China's
+    economic reforms, developments and policy changes, as well as major events
+    in the capital markets. It also offers a broad international perspective
+    through first-hand reporting on international political and economic
+    issues.
+
+    CAIJING Magazine is China's most widely read business and finance magazine,
+    with a circulation of 225,000 per issue. It boasts top-level readers from
+    government, business and academic circles.'''
     language = 'zh'
-    category = 'news, China'
     encoding = 'UTF-8'
+    publisher = 'Caijing Magazine'
+    publication_type = 'magazine'
+    category = 'news, Business, China'
     timefmt = ' [%a, %d %b, %Y]'
     needs_subscription = True
 
-    remove_tags = [dict(attrs={'class':['topad', 'nav', 'searchbox', 'connav',
-        'mbx', 'bianji', 'bianji bj', 'lnewlist', 'rdtj', 'loadComment',
-        'conr', 'bottom', 'bottomcopyr', 'emaildy', 'rcom', 'allcontent']}),
-                dict(name=['script', 'noscript', 'style'])]
+    remove_tags = [dict(attrs={'class':['head_nav', 'mcont_logo', 'header',
+                'bottom','footer', 'magazine_ipad','cjartShare', 'ar_about',
+                'main_rt', 'mcont_nav', 'new']}),
+                   dict(attrs={'id': ['articlePl']}),
+                   dict(name=['script', 'noscript', 'style'])]
     no_stylesheets = True
     remove_javascript = True
     current_issue_url = ""
     current_issue_cover = ""
-
 
     def get_browser(self):
         br = BasicNewsRecipe.get_browser(self)
@@ -44,31 +53,34 @@ class Caijing(BasicNewsRecipe):
         return br
 
     def parse_index(self):
-        articles = []
-        soup0 = self.index_to_soup('http://magazine.caijing.com.cn/2011/cjindex2011/')
-        div = soup0.find('div', attrs={'class':'fmcon'})
-        link = div.find('a', href=True)
-        current_issue_url = link['href']
+        soup_start = self.index_to_soup('http://magazine.caijing.com.cn/')
+        jumpurl = soup_start.find('script').contents[0].split()
+        for line in jumpurl:
+            if 'http' in line.lower():
+                issuesurl = line.split('"')[1]
+                break
+
+        soup_issues = self.index_to_soup(issuesurl)
+        # find the latest issue
+        div = soup_issues.find('div', attrs={'class':'fmcon'})
+        current_issue_url = div.find('a', href=True)['href']
 
         soup = self.index_to_soup(current_issue_url)
-
-        for div_cover in soup.findAll('img', {'src' : re.compile('.')}):
-            if re.search('\d{4}-\d{2}-\d{2}', div_cover['src']):
-                self.current_issue_cover = div_cover['src']
+        coverimg = soup.find('div', {'class': 'zzfm_img'})
+        self.current_issue_cover = coverimg.find('img')['src']
 
         feeds = []
-        for section in soup.findAll('div', attrs={'class':'cebd'}):
-            section_title = self.tag_to_string(section.find('div', attrs={'class':'ceti'}))
+        for section in soup.findAll('div',
+                        attrs={'class': re.compile(r'(fmwz_ml|zzlm_nr)2?$')}):
+            section_title = self.tag_to_string(section.find('div',
+                        attrs={'class':re.compile(r'(lmnav_bt|zzlm_bt)1?$')}))
+            self.log('Found section:', section_title)
             articles = []
-            for post in section.findAll('a', href=True):
-                if re.search('\d{4}-\d{2}-\d{2}', post['href']):
-                        date = re.search('\d{4}-\d{2}-\d{2}', post['href']).group(0)
-                id = re.search('\d{9}', post['href']).group(0)
-                url = re.sub(r'\d.*', 'templates/inc/chargecontent2.jsp?id=', post['href'])
-                url = url + id + '&time=' + date + '&cl=106&page=all'
-
+            for post in section.findAll('div',
+                        attrs={'class': re.compile(r'(fmwz_bt|zzlm_nr_bt)')}):
                 title = self.tag_to_string(post)
-                articles.append({'title':title, 'url':url, 'date':date})
+                url = post.find('a')['href']
+                articles.append({'title': title, 'url': url, 'date': None})
 
             if articles:
                 feeds.append((section_title, articles))
