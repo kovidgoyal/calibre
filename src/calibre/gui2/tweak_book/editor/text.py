@@ -545,7 +545,7 @@ class TextEdit(QPlainTextEdit):
 
     def keyPressEvent(self, ev):
         QPlainTextEdit.keyPressEvent(self, ev)
-        if (ev.key() == Qt.Key_Semicolon or unicode(ev.text()) == ';') and tprefs['replace_entities_as_typed'] and self.syntax == 'html':
+        if (ev.key() == Qt.Key_Semicolon or ';' in unicode(ev.text())) and tprefs['replace_entities_as_typed'] and self.syntax == 'html':
             self.replace_possible_entity()
 
     def replace_possible_entity(self):
