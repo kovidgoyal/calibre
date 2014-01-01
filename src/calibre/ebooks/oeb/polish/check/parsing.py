@@ -11,11 +11,11 @@ import re
 from lxml.etree import XMLParser, fromstring, XMLSyntaxError
 import cssutils
 
-from calibre import force_unicode
+from calibre import force_unicode, human_readable
 from calibre.ebooks.html_entities import html5_entities
 from calibre.ebooks.oeb.polish.pretty import pretty_script_or_style as fix_style_tag
 from calibre.ebooks.oeb.polish.utils import PositionFinder
-from calibre.ebooks.oeb.polish.check.base import BaseError, WARN, ERROR
+from calibre.ebooks.oeb.polish.check.base import BaseError, WARN, ERROR, INFO
 from calibre.ebooks.oeb.base import OEB_DOCS
 
 HTML_ENTITTIES = frozenset(html5_entities)
@@ -61,6 +61,16 @@ class NamedEntities(BaseError):
             f.write(nraw.encode('utf-8'))
         return True
 
+class TooLarge(BaseError):
+
+    level = INFO
+    MAX_SIZE = 260 *1024
+    HELP = _('This HTML file is larger than %s. Too large HTML files can cause performance problems'
+             ' on some ebook readers. Consider splitting this file into smaller sections.') % human_readable(MAX_SIZE)
+
+    def __init__(self, name):
+        BaseError.__init__(self, _('File too large'), name)
+
 class BadEntity(BaseError):
 
     HELP = _('This is an invalid (unrecognized) entity. Replace it with whatever'
@@ -102,6 +112,12 @@ class EntitityProcessor(object):
         else:
             self.bad_entities.append((m.start(), m.group()))
         return b' ' * len(m.group())
+
+def check_html_size(name, mt, raw):
+    errors = []
+    if len(raw) > TooLarge.MAX_SIZE:
+        errors.append(TooLarge(name))
+    return errors
 
 entity_pat = re.compile(br'&(#{0,1}[a-zA-Z0-9]{1,8});')
 

@@ -12,7 +12,7 @@ from calibre.ebooks.oeb.base import OEB_DOCS, OEB_STYLES
 from calibre.ebooks.oeb.polish.container import guess_type
 from calibre.ebooks.oeb.polish.cover import is_raster_image
 from calibre.ebooks.oeb.polish.check.base import run_checkers
-from calibre.ebooks.oeb.polish.check.parsing import check_xml_parsing, check_css_parsing, fix_style_tag
+from calibre.ebooks.oeb.polish.check.parsing import check_xml_parsing, check_css_parsing, fix_style_tag, check_html_size
 from calibre.ebooks.oeb.polish.check.images import check_raster_images
 from calibre.ebooks.oeb.polish.check.links import check_links
 from calibre.ebooks.oeb.polish.check.fonts import check_fonts
@@ -37,6 +37,7 @@ def run_checks(container):
             items = raster_images
         if items is not None:
             items.append((name, mt, container.open(name, 'rb').read()))
+    errors.extend(run_checkers(check_html_size, html_items))
     errors.extend(run_checkers(check_xml_parsing, xml_items))
     errors.extend(run_checkers(check_xml_parsing, html_items))
     errors.extend(run_checkers(check_raster_images, raster_images))
