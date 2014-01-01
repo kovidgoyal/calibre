@@ -83,7 +83,7 @@ def _builtin_field_metadata():
                            'datatype':'series',
                            'is_multiple':{},
                            'kind':'field',
-                           'name':ngettext('Series', 'Series', 2),
+                           'name':ngettext('Series', 'Series', 1),
                            'search_terms':['series'],
                            'is_custom':False,
                            'is_category':True,
