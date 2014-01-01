@@ -46,6 +46,8 @@ class NYTimes(BasicNewsRecipe):
     # download higher resolution images than the small thumbnails typically included in the article
     # the down side of having large beautiful images is the file size is much larger, on the order of 7MB per paper
     useHighResImages = True
+    compress_news_images = True
+    compress_news_images_auto_size = 5
 
     # replace paid Kindle Version:  the name will be changed to "The New York Times" to cause
     # previous paid versions of the new york times to best sent to the back issues folder on the kindle
