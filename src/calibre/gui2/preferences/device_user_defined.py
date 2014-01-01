@@ -64,13 +64,18 @@ class UserDefinedDevice(QDialog):
             new_devices = after['device_set'] - before['device_set']
             res = ''
             if (not iswindows or len(new_drives)) and len(new_devices) == 1:
+                def fmtid(x):
+                    if not x.startswith('0x'):
+                        x = '0x' + x
+                    return x
+
                 for d in new_devices:
-                    res =  _('USB Vendor ID (in hex)') + ': 0x' + \
-                            after['device_details'][d][0] + '\n'
-                    res += _('USB Product ID (in hex)') + ': 0x' + \
-                            after['device_details'][d][1] + '\n'
-                    res += _('USB Revision ID (in hex)') + ': 0x' + \
-                            after['device_details'][d][2] + '\n'
+                    res =  _('USB Vendor ID (in hex)') + ': ' + \
+                            fmtid(after['device_details'][d][0]) + '\n'
+                    res += _('USB Product ID (in hex)') + ': ' + \
+                            fmtid(after['device_details'][d][1]) + '\n'
+                    res += _('USB Revision ID (in hex)') + ': ' + \
+                            fmtid(after['device_details'][d][2]) + '\n'
                 if iswindows:
                     # sort the drives by the order number
                     for i,d in enumerate(sorted(new_drives,
