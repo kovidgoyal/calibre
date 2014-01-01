@@ -13232,7 +13232,6 @@ Py_LOCAL_INLINE(BOOL) state_init_2(RE_State* state, PatternObject* pattern,
 
     state->groups = NULL;
     state->repeats = NULL;
-    state->req_pos = -1;
     state->visible_captures = visible_captures;
     state->match_all = match_all;
     state->backtrack_block.previous = NULL;
@@ -13248,6 +13247,7 @@ Py_LOCAL_INLINE(BOOL) state_init_2(RE_State* state, PatternObject* pattern,
     state->first_group_call_frame = NULL;
     state->current_group_call_frame = NULL;
     state->group_call_guard_list = NULL;
+    state->req_pos = -1;
 
     /* The call guards used by recursive patterns. */
     if (pattern->call_ref_info_count > 0) {
