@@ -346,7 +346,13 @@ class MobiMLizer(object):
         if isblock:
             bstate.para = None
             istate.halign = style['text-align']
+            rawti = style._get('text-indent')
             istate.indent = style['text-indent']
+            if hasattr(rawti, 'strip') and '%' in rawti:
+                # We have a percentage text indent, these can come out looking
+                # too large if the user chooses a wide output profile like
+                # tablet
+                istate.indent = min(style._unit_convert(rawti, base=500), istate.indent)
             if style['margin-left'] == 'auto' \
                and style['margin-right'] == 'auto':
                 istate.halign = 'center'
