@@ -12,7 +12,7 @@ from functools import partial
 from calibre.constants import plugins
 from calibre.utils.config_base import tweaks
 
-_icu = _collator = _primary_collator = _sort_collator = None
+_icu = _collator = _primary_collator = _sort_collator = _numeric_collator = None
 _locale = None
 
 _none = u''
@@ -89,6 +89,29 @@ def icu_sort_key(collator, obj):
         else:
             obj = obj.replace(b'\0', b'')
         return _sort_collator.sort_key(obj)
+
+def numeric_collator():
+    global _numeric_collator
+    _numeric_collator = _collator.clone()
+    _numeric_collator.strength = _icu.UCOL_SECONDARY
+    _numeric_collator.numeric = True
+    return _numeric_collator
+
+def numeric_sort_key(obj):
+    'Uses natural sorting for numbers inside strings so something2 will sort before something10'
+    if not obj:
+        return _none2
+    try:
+        try:
+            return _numeric_collator.sort_key(obj)
+        except AttributeError:
+            return numeric_collator().sort_key(obj)
+    except TypeError:
+        if isinstance(obj, unicode):
+            obj = obj.replace(u'\0', u'')
+        else:
+            obj = obj.replace(b'\0', b'')
+        return _numeric_collator.sort_key(obj)
 
 def icu_change_case(upper, locale, obj):
     func = _icu.upper if upper else _icu.lower

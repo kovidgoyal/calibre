@@ -19,6 +19,7 @@ from calibre.ebooks.oeb.base import (XHTML, XHTML_NS, CSS_MIME, OEB_STYLES,
         namespace, barename, XPath)
 from calibre.ebooks.oeb.stylizer import Stylizer
 from calibre.utils.filenames import ascii_filename, ascii_text
+from calibre.utils.icu import numeric_sort_key
 
 COLLAPSE = re.compile(r'[ \t\r\n\v]+')
 STRIPNUM = re.compile(r'[-0-9]+$')
@@ -459,7 +460,7 @@ class CSSFlattener(object):
             keep_classes = set()
 
             if cssdict:
-                items = sorted(cssdict.items())
+                items = sorted(cssdict.iteritems())
                 css = u';\n'.join(u'%s: %s' % (key, val) for key, val in items)
                 classes = node.get('class', '').strip() or 'calibre'
                 klass = ascii_text(STRIPNUM.sub('', classes.split()[0].replace('_', '')))
@@ -577,7 +578,7 @@ class CSSFlattener(object):
             body = html.find(XHTML('body'))
             fsize = self.context.dest.fbase
             self.flatten_node(body, stylizer, names, styles, pseudo_styles, fsize, item.id)
-        items = sorted([(key, val) for (val, key) in styles.items()])
+        items = sorted(((key, val) for (val, key) in styles.iteritems()), key=lambda x:numeric_sort_key(x[0]))
         # :hover must come after link and :active must come after :hover
         psels = sorted(pseudo_styles.iterkeys(), key=lambda x :
                 {'hover':1, 'active':2}.get(x, 0))
