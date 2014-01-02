@@ -76,13 +76,12 @@ class ORIZON(CYBOOK):
 
     EBOOK_DIR_MAIN = EBOOK_DIR_CARD_A = 'Digital Editions'
 
-    EBOOK_DIR_CARD_A = [EBOOK_DIR_CARD_A]
     EXTRA_CUSTOMIZATION_MESSAGE = [
         _('Card A folder') + ':::<p>' +
             _('Enter the folder where the books are to be stored when sent to the '
-              'memory card. This folder is prepended to any send_to_device template') + '</p>',
+              'memory card. This folder is prepended to any send to device template') + '</p>',
     ]
-    EXTRA_CUSTOMIZATION_DEFAULT = EBOOK_DIR_CARD_A
+    EXTRA_CUSTOMIZATION_DEFAULT = [EBOOK_DIR_CARD_A]
 
     def upload_cover(self, path, filename, metadata, filepath):
         coverdata = getattr(metadata, 'thumbnail', None)
@@ -96,15 +95,19 @@ class ORIZON(CYBOOK):
 
     def post_open_callback(self):
         opts = self.settings()
-        folder = opts.extra_customization
+        folder = opts.extra_customization[0]
         if not folder:
             folder = ''
         self.EBOOK_DIR_CARD_A = folder
-        print(folder)
 
     @classmethod
     def can_handle(cls, device_info, debug=False):
         if isunix:
             return device_info[3] == 'Bookeen' and device_info[4] == 'Cybook Orizon'
         return True
+
+    def get_carda_ebook_dir(self, for_upload=False):
+        if not for_upload:
+            return ''
+        return self.EBOOK_DIR_CARD_A
 
