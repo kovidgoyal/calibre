@@ -247,6 +247,9 @@ def primary_find(pat, src):
     if _icu_not_ok:
         from calibre.utils.filenames import ascii_text
         return py_find(ascii_text(pat), ascii_text(src))
+    return primary_icu_find(pat, src)
+
+def primary_icu_find(pat, src):
     try:
         return icu_find(_primary_collator, pat, src)
     except AttributeError:

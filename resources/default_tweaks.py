@@ -523,6 +523,14 @@ default_tweak_format = None
 # your library and your personal editing style.
 preselect_first_completion = False
 
+#: Completion mode when editing authors/tags/series/etc.
+# By default, when completing items, calibre will show you all the candidates
+# that start with the text you have already typed. You can instead have it show
+# all candidates that contain the text you have already typed. To do this, set
+# completion_mode to 'contains'. For example, if you type asi it will match both
+# Asimov and Quasimodo, whereas the default behavior would match only Asimov.
+completion_mode = 'prefix'
+
 #: Recognize numbers inside text when sorting
 # This means that when sorting on text fields like title the text "Book 2"
 # will sort before the text "Book 100". If you want this behavior, set
