@@ -20,6 +20,7 @@ from calibre.utils.mdns import publish as publish_zeroconf, \
             unpublish as unpublish_zeroconf, get_external_ip, verify_ipV4_address
 from calibre.library.server.content import ContentServer
 from calibre.library.server.mobile import MobileServer
+from calibre.library.server.kindle import KindleServer
 from calibre.library.server.xml import XMLServer
 from calibre.library.server.opds import OPDSServer
 from calibre.library.server.cache import Cache
@@ -115,7 +116,7 @@ cherrypy.engine.bonjour = BonJour(cherrypy.engine)
 
 # }}}
 
-class LibraryServer(ContentServer, MobileServer, XMLServer, OPDSServer, Cache,
+class LibraryServer(ContentServer, MobileServer, KindleServer, XMLServer, OPDSServer, Cache,
         BrowseServer, AjaxServer):
 
     server_name = __appname__ + '/' + __version__
