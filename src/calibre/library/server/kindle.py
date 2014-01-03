@@ -6,6 +6,7 @@ __copyright__ = '2014, Yorick Terweijden <terwey@gmail.com>'
 __docformat__ = 'restructuredtext en'
 
 import re, os
+import sys
 import __builtin__
 from urllib import quote
 
@@ -22,6 +23,7 @@ from calibre import human_readable, isbytestring
 from calibre.utils.date import utcfromtimestamp, as_local_time
 from calibre.utils.filenames import ascii_filename
 from calibre.utils.icu import sort_key
+from calibre.utils.config import tweaks
 
 def CLASS(*args, **kwargs):  # class is a reserved word in Python
     kwargs['class'] = ' '.join(args)
@@ -29,7 +31,10 @@ def CLASS(*args, **kwargs):  # class is a reserved word in Python
 
 
 def build_search_box(num, search, sort, order, prefix):  # {{{
-    div = DIV(id='search_box')
+    divWrap = DIV()
+    searchShow = SPAN(A('Search', href="javascript:$('#search_box').toggle();"), CLASS('button'), id='searchShow')
+    divWrap.append(searchShow)
+    div = DIV(id='search_box', style="display:none")
     form = FORM('Show ', method='get', action=prefix+'/kindle')
     form.set('accept-charset', 'UTF-8')
 
@@ -66,7 +71,9 @@ def build_search_box(num, search, sort, order, prefix):  # {{{
 
     form.append(INPUT(id='go', type='submit', value='Search'))
 
-    return div
+    divWrap.append(div)
+
+    return divWrap
     # }}}
 
 def build_navigation(start, num, total, url_base):  # {{{
@@ -93,7 +100,7 @@ def build_navigation(start, num, total, url_base):  # {{{
 
 def build_index(books, num, search, sort, order, start, total, url_base, CKEYS,
         prefix):
-    logo = DIV(IMG(src=prefix+'/static/calibre.png', alt=__appname__), id='logo')
+    logo = DIV(A(IMG(src=prefix+'/static/calibre.png', alt=__appname__), href="/kindle"), id='logo')
 
     search_box = build_search_box(num, search, sort, order, prefix)
     navigation = build_navigation(start, num, total, prefix+url_base)
@@ -141,43 +148,33 @@ def build_index(books, num, search, sort, order, start, total, url_base, CKEYS,
                 s.tail = u''
                 downloadButton.append(s)
 
-        # div = DIV(CLASS('data-container'))
-        # data.append(div)
-
-        series = u'Series: [%s - %s]'%(book['series'], book['series_index']) \
+        series = u'Series: [<a href="/kindle?search=series:%s">%s</a> - %s]'%(quote(book['series']), book['series'], book['series_index']) \
                 if book['series'] else ''
         tags = u'Tags: [%s]'%book['tags'] if book['tags'] else ''
 
+        # I am unsure what this is used for
         # ctext = ''
         # for key in CKEYS:
         #     val = book.get(key, None)
         #     if val:
         #         ctext += '%s=[%s] '%tuple(val.split(':#:'))
 
-        # first = SPAN(u'\u202f%s %s by %s' % (book['title'], series,
-        #     book['authors']), CLASS('first-line'))
-        # div.append(first)
-        # second = SPAN(u'%s - %s %s %s' % (book['size'],
-        #     book['timestamp'],
-        #     tags, ctext), CLASS('second-line'))
-        # div.append(second)
-
         BookTitle = TD(CLASS('BookTitle'))
         BookTitle.append(SPAN(book['title'], style="font-weight:bold"))
 
         BookAuthor = TD(CLASS('BookAuthor'))
-        BookAuthor.append(SPAN(u'by %s' % (book['authors'])))
+        BookAuthor.append(SPAN(html.fromstring(u'by %s' % (book['authors']))))
 
         bookt.append(TR(thumbnail, BookTitle, downloadButton))
         bookt.append(TR(BookAuthor))
 
         BookInfo = TD(CLASS('BookInfo'))
         if '' != series:
-            BookInfo.append(SPAN(series))
+            BookInfo.append(SPAN(html.fromstring(series)))
         MoreText = DIV(CLASS('moreHolder'), style="display:none")
         MoreTextCheck = 0
         if '' != tags:
-            MoreText.append(SPAN(tags))
+            MoreText.append(SPAN(html.fromstring(tags)))
             MoreTextCheck += 1
         if book['comments'] is not None:
             MoreText.append(html.fromstring(u'Summary: %s' % (book['comments'])))
@@ -288,11 +285,11 @@ class KindleServer(object):
 
             aus = record[FM['authors']] if record[FM['authors']] else __builtin__._('Unknown')
             aut_is = CFM['authors']['is_multiple']
-            authors = aut_is['list_to_ui'].join([i.replace('|', ',') for i in aus.split(',')])
+            authors = aut_is['list_to_ui'].join([u'<a href="/kindle?search=authors:{0}">{1}</a>'.format(quote(i.replace('|', ',')), i.replace('|', ',')) for i in aus.split(',')])
             book['authors'] = authors
             book['series_index'] = fmt_sidx(float(record[FM['series_index']]))
             book['series'] = record[FM['series']]
-            book['tags'] = format_tag_string(record[FM['tags']], ',',
+            book['tags'] = format_tag_string_url(record[FM['tags']], ',',
                                              no_tag_count=True)
             book['title'] = record[FM['title']]
             book['comments'] = record[FM['comments']]
@@ -338,3 +335,17 @@ class KindleServer(object):
                 '<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">')
         return raw
 
+def format_tag_string_url(tags, sep, ignore_max=False, no_tag_count=False, joinval=', '):
+    MAX = sys.maxint if ignore_max else tweaks['max_content_server_tags_shown']
+    if tags:
+        tlist = [u'<a href="/kindle?search=tags:{0}">{1}</a>'.format(quote(t.strip()), t.strip()) for t in tags.split(sep)]
+    else:
+        tlist = []
+    tlist.sort(key=sort_key)
+    if len(tlist) > MAX:
+        tlist = tlist[:MAX]+['...']
+    if no_tag_count:
+        return joinval.join(tlist) if tlist else ''
+    else:
+        return u'%s:&:%s'%(tweaks['max_content_server_tags_shown'],
+                     joinval.join(tlist)) if tlist else ''

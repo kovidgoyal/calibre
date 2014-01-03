@@ -13,28 +13,15 @@
 }
 
 .button a, .button:visited a {
+    color: black;
     padding: 0.5em;
     font-size: larger;
     border: 1px solid black;
     text-color: black;
     text-decoration: none;
+    margin-top: 0.5em;
     margin-right: 0.5em;
     background-color: #ddd;
-    border-top: 1px solid ThreeDLightShadow;
-    border-right: 1px solid ButtonShadow;
-    border-bottom: 1px solid ButtonShadow;
-    border-left: 1 px solid ThreeDLightShadow;
-    -moz-border-radius: 0.25em;
-    -webkit-border-radius: 0.25em;
-}
-
-.button:hover a {
-    border-top: 1px solid #666;
-    border-right: 1px solid #CCC;
-    border-bottom: 1 px solid #CCC;
-    border-left: 1 px solid #666;
-
-
 }
 
 div.navigation {
@@ -78,13 +65,14 @@ div.navigation {
 
 #listing .button a{
     display: inline-block;
-    width: 2.5em;
-    padding-left: 0em;
-    padding-right: 0em;
     overflow: hidden;
     text-align: center;
     text-decoration: none;
     vertical-align: middle;
+}
+
+#searchShow {
+    float: right;
 }
 
 #logo {
