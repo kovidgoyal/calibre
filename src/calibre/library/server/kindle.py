@@ -12,7 +12,7 @@ from urllib import quote
 import cherrypy
 from lxml import html
 from lxml.html.builder import HTML, HEAD, TITLE, LINK, DIV, IMG, BODY, \
-        OPTION, SELECT, INPUT, FORM, SPAN, TABLE, TR, TD, A, HR
+        OPTION, SELECT, INPUT, FORM, SPAN, TABLE, TR, TD, A, HR, SCRIPT
 
 from calibre.library.server import custom_fields_to_display
 from calibre.library.server.utils import strftime, format_tag_string
@@ -121,7 +121,7 @@ def build_index(books, num, search, sort, order, start, total, url_base, CKEYS,
 
         # data = TD()
 
-        downloadButton = TD(rowspan="3")
+        downloadButton = TD(CLASS('thumbnail'), rowspan="3")
 
         for fmt in book['formats'].split(','):
             if not fmt or fmt.lower().startswith('original_'):
@@ -168,19 +168,28 @@ def build_index(books, num, search, sort, order, start, total, url_base, CKEYS,
         BookAuthor = TD(CLASS('BookAuthor'))
         BookAuthor.append(SPAN(u'by %s' % (book['authors'])))
 
+        bookt.append(TR(thumbnail, BookTitle, downloadButton))
+        bookt.append(TR(BookAuthor))
+
         BookInfo = TD(CLASS('BookInfo'))
-        BookInfo.append(SPAN(series))
-        BookInfo.append(SPAN(tags))
-
-        BookRow1 = TR(thumbnail, BookTitle, downloadButton)
-        BookRow2 = TR(BookAuthor)
-        BookRow3 = TR(BookInfo)
-        BookRow4 = TR(TD(HR(), CLASS('lastTr'), colspan="3"))
-
-        bookt.append(BookRow1)
-        bookt.append(BookRow2)
-        bookt.append(BookRow3)
-        bookt.append(BookRow4)
+        if '' != series:
+            BookInfo.append(SPAN(series))
+        MoreText = DIV(CLASS('moreHolder'), style="display:none")
+        MoreTextCheck = 0
+        if '' != tags:
+            MoreText.append(SPAN(tags))
+            MoreTextCheck += 1
+        if book['comments'] is not None:
+            MoreText.append(html.fromstring(u'Summary: %s' % (book['comments'])))
+            MoreTextCheck += 1
+        if MoreTextCheck >= 1:
+            MoreButton = SPAN(A('More', href="javascript:$('.more-'+%d+' .moreHolder').toggle();" % (book['id'])), CLASS('button'))
+            MoreHolder = DIV(CLASS(u'more-%d' % (book['id'])))
+            MoreHolder.append(MoreButton)
+            MoreHolder.append(MoreText)
+            BookInfo.append(MoreHolder)
+        bookt.append(TR(BookInfo))
+        bookt.append(TR(TD(HR(), CLASS('lastTr'), colspan="3")))
     # }}}
 
     body.append(DIV(
@@ -197,7 +206,8 @@ def build_index(books, num, search, sort, order, start, total, url_base, CKEYS,
                 type='image/x-icon'),
             LINK(rel='stylesheet', type='text/css',
                 href=prefix+'/kindle/style.css'),
-            LINK(rel='apple-touch-icon', href="/static/calibre.png")
+            LINK(rel='apple-touch-icon', href="/static/calibre.png"),
+            SCRIPT(src="http://code.jquery.com/jquery-1.10.1.min.js")
         ),  # End head
         body
     )  # End html
@@ -249,7 +259,12 @@ class KindleServer(object):
             search = search.decode('UTF-8')
         # We're only interested in showing books that can be read on the Kindle
         # so we have to search for them here
-        ids = self.search_for_books(u'%s %s' % (search, 'AND (format:azw3 OR format:mobi)'))
+        formatsToSearch = 'format:azw3 OR format:mobi'
+        if search == '':
+            searchWithFilter = formatsToSearch
+        else:
+            searchWithFilter = u'%s AND (%s)' % (search, formatsToSearch)
+        ids = self.search_for_books(searchWithFilter)
         FM = self.db.FIELD_MAP
         items = [r for r in iter(self.db) if r[FM['id']] in ids]
         if sort is not None:
@@ -280,6 +295,7 @@ class KindleServer(object):
             book['tags'] = format_tag_string(record[FM['tags']], ',',
                                              no_tag_count=True)
             book['title'] = record[FM['title']]
+            book['comments'] = record[FM['comments']]
             for x in ('timestamp', 'pubdate'):
                 book[x] = strftime('%d %b, %Y', as_local_time(record[FM[x]]))
             book['id'] = record[FM['id']]

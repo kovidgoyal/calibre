@@ -63,6 +63,11 @@ div.navigation {
 #listing td.thumbnail {
     height: 60px;
     width: 60px;
+    vertical-align: top;
+}
+
+#listing td.download {
+    vertical-align: top;
 }
 
 #listing tr.lastTr {
