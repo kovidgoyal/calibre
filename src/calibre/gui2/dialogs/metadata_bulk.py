@@ -440,7 +440,7 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
             if (f in ['author_sort'] or
                     (fm[f]['datatype'] in ['text', 'series', 'enumeration', 'comments']
                      and fm[f].get('search_terms', None)
-                     and f not in ['formats', 'ondevice']) or
+                     and f not in ['formats', 'ondevice', 'series_sort']) or
                     (fm[f]['datatype'] in ['int', 'float', 'bool', 'datetime'] and
                      f not in ['id', 'timestamp'])):
                 self.all_fields.append(f)
