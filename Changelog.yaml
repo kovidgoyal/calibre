@@ -6,7 +6,7 @@
 # Also, each release can have new and improved recipes.
 
 # - version: ?.?.?
-#   date: 2013-??-??
+#   date: 2014-??-??
 #
 #   new features:
 #     - title: 
@@ -19,6 +19,71 @@
 #
 #   new recipes:
 #     - title: 
+
+- version: 1.18.0
+  date: 2014-01-03
+
+  new features:
+    - title: "Add an option to control how completion works when editing authors/tags/series/etc."
+      description: "By default, when completing items, calibre will show you all the candidates that start with the text you have already typed. You can instead have it show all candidates that contain the text you have already typed. To do this, go to Preferences->Tweaks->Completion mode.  For example, if you type asi it will now match both Asimov and Quasimodo, whereas the default behavior would match only Asimov."
+      tickets: [1264304]
+
+    - title: "Edit book: Add a check for too large HTML files when running the check book tool."
+      tickets: [1264680]
+
+    - title: "Conversion: Sort the CSS rules in the output stylesheet using a 'natural' sort algorithm, so that calibre2 sorts before calibre10."
+      tickets: [1265175]
+
+    - title: "Cybook Orizon driver: Upload cover thumbnails in the correct format and add an option to control what directory books are sent to on the SD card"
+      tickets: [1265225] 
+
+    - title: "Portable installer: Do not ask the user for confirmation when upgrading an existing installation during an automated install"
+
+    - title: "Linux/OS X driver for Trekstor Pyrus LED"
+
+    - title: "Driver for Tagus Lux"
+      tickets: [1264355 ]
+
+  bug fixes:
+    - title: "MOBI Output: When text indent is specified as a percentage in the input document, prevent the generated MOBI from having too large an indent if the user chooses a large output profile like tablet."
+      tickets: [1265226]
+
+    - title: "Edit book: Fix live replacement of entities not working on some non-US keyboard layouts."
+      tickets: [1265147]
+
+    - title: "Fix titlecasing of words not capitalizing the first letter, if the first letter is not an English character."
+      tickets: [1265202]
+
+    - title: "Edit book: Ensure that multiple edit book windows are grouped in a separate group from viewer windows in the Windows 7 taskbar. Also change the icon color to blue to more easily distinguish it from the viewer icon"
+
+    - title: "Edit book: Fix a bug in the regex engine that calibre uses that could cause various incorrect results in some special circumstances."
+      tickets: [1263461]
+
+    - title: "Edit book: Replace buggy Qt supplied actions in the context menu for the editor widget with properly implemented ones"
+
+    - title: "Book list: Fix sorting on fields that are not viewable as columns not being restored on calibre restart. Also fix sorting on the Title field via the right click menu not being restored."
+
+    - title: "Windows 64bit build: Fix corrupted images in MOBI files causing crash."
+      tickets: [1264534]
+
+    - title: "Edit book: Prettify html in newly created books."
+      tickets: [1264390]
+
+    - title: "AZW3 Input: Handle azw3 files that contain some empty individual HTML files"
+
+    - title: "Comic Input: Fix a regression to comic input in 1.15 that could cause some comics to be rendered as black or white pages."
+      tickets: [1264133]
+
+  improved recipes:
+    - Chicago Tribune
+    - Caijing
+    - HBR
+    - poche
+    - Neue Osnabrucker Zeitung
+
+  new recipes:
+    - title: Nan Feng Chuang 
+      author: Chen Wei
 
 - version: 1.17.0
   date: 2013-12-25
