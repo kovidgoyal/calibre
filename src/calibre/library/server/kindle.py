@@ -249,7 +249,7 @@ class KindleServer(object):
             search = search.decode('UTF-8')
         # We're only interested in showing books that can be read on the Kindle
         # so we have to search for them here
-        ids = self.search_for_books(u'%s %s' % (search, 'format:azw3 OR format:mobi'))
+        ids = self.search_for_books(u'%s %s' % (search, 'AND (format:azw3 OR format:mobi)'))
         FM = self.db.FIELD_MAP
         items = [r for r in iter(self.db) if r[FM['id']] in ids]
         if sort is not None:
@@ -284,13 +284,6 @@ class KindleServer(object):
                 book[x] = strftime('%d %b, %Y', as_local_time(record[FM[x]]))
             book['id'] = record[FM['id']]
 
-            # We're only interested in showing books that can be read on the Kindle
-            # so we have to filter them here (primitively)
-
-            # kindleCompatibleFormats = ['azw3', 'mobi']
-            # bookFormats = [x.strip().lower() for x in book['formats'].split(',')]
-
-            # if any(x in bookFormats for x in kindleCompatibleFormats):
             books.append(book)
 
             for key in CKEYS:
