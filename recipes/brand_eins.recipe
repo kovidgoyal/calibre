@@ -1,167 +1,124 @@
 #!/usr/bin/env  python
-# -*- coding: utf-8 mode: python -*-
+# vim:fileencoding=utf-8
+from __future__ import unicode_literals
 
 __license__   = 'GPL v3'
-__copyright__ = '2010, Constantin Hofstetter <consti at consti.de>, Steffen Siebert <calibre at steffensiebert.de>'
-__version__   = '0.98'
+__copyright__ = '2014, Nikolas Mangold-Takao <nmangold at gmail.com>'
+__version__   = '0.10'
 
 ''' http://brandeins.de - Wirtschaftsmagazin '''
-import re
-import string
-from calibre.ebooks.BeautifulSoup import Tag
 from calibre.web.feeds.recipes import BasicNewsRecipe
 
 class BrandEins(BasicNewsRecipe):
 
-  title = u'brand eins'
-  __author__ = 'Constantin Hofstetter'
-  description = u'Wirtschaftsmagazin'
-  publisher ='brandeins.de'
-  category = 'politics, business, wirtschaft, Germany'
-  use_embedded_content = False
-  lang = 'de-DE'
-  no_stylesheets = True
-  encoding = 'utf-8'
-  language = 'de'
-  publication_type = 'magazine'
-  needs_subscription = 'optional'
-  # Prevent that conversion date is appended to title
-  timefmt = ''
+    title       = u'brand eins'
+    __author__  = 'Nikolas Mangold-Takao'
+    description = u'brand eins beschreibt den momentanen Wandel in Wirtschaft und Gesellschaft, den Übergang vom Informations- zum Wissenszeitalter.'
+    publisher   = u'brand eins Verlag GmbH & Co. oHG'
+    category = 'politics, business, wirtschaft, Germany'
 
-  # 2 is the last full magazine (default)
-  # 1 is the newest (but not full)
-  # 3 is one before 2 etc.
-  # This value can be set via the username field.
-  default_issue = 2
+    PREFIX = 'http://www.brandeins.de/'
+    INDEX  = PREFIX + 'archiv/listeansicht.html'
 
-  keep_only_tags = [dict(name='div', attrs={'id':'theContent'}), dict(name='div', attrs={'id':'sidebar'}), dict(name='div', attrs={'class':'intro'}), dict(name='p', attrs={'class':'bodytext'}), dict(name='div', attrs={'class':'single_image'})]
+    use_embedded_content = False
+    lang = 'de-DE'
+    no_stylesheets = True
+    encoding = 'utf-8'
+    language = 'de'
+    publication_type = 'magazine'
+    needs_subscription = 'optional'
+    timefmt = ''
 
-  '''
+    keep_only_tags = dict(name='div', attrs={'id':'content'})
+    remove_tags_before = dict(name='div', attrs={'class':'innerContent typeArticle'})
+    remove_tags_after = dict(name='div', attrs={'id':'socialshareprivacy'})
+
+    issue_url = ''
+
+    '''
   brandeins.de
   '''
 
-  def postprocess_html(self, soup,first):
+    def parse_index(self):
+        # Allow username/password information to access a past issue (mis)using username and password fields
+        # username = year [yyyy, e.g. 2012]
+        # password = month [MM, e.g. 10 for October]
+        issue = ""
+        if self.username is not None and self.password is not None:
+            try:
+                issue = "{}{}".format(self.username, self.password)  # yyyyMM
+            except:
+                pass
 
-    # Move the image of the sidebar right below the h3
-    first_h3 = soup.find(name='div', attrs={'id':'theContent'}).find('h3')
-    for imgdiv in soup.findAll(name='div', attrs={'class':'single_image'}):
-      if len(first_h3.findNextSiblings('div', {'class':'intro'})) >= 1:
-        # first_h3.parent.insert(2, imgdiv)
-        first_h3.findNextSiblings('div', {'class':'intro'})[0].parent.insert(4, imgdiv)
-      else:
-        first_h3.parent.insert(2, imgdiv)
+        soup = self.index_to_soup(self.INDEX)
+        issue_list = soup.findAll('div', attrs={'class': 'details'})
 
-    # Now, remove the sidebar
-    soup.find(name='div', attrs={'id':'sidebar'}).extract()
+        issue_map = {}
+        i = 0
+        for entry in issue_list:
+            title = self.tag_to_string(entry.find('h3', attrs={'class': 'like-h1'}))
+            issue_string = self.tag_to_string(entry.find('span', attrs={'class': 'meta'}))
+            year = issue_string[8:]
+            month = issue_string[5:-5]
+            yyyymm = "{}{}".format(year, month)
+            link = entry.findAll('a')[0]
+            issue_map[yyyymm] = link.get('href')
+            self.log('- ', year, month, title, link.get('href'))
 
-    # Remove the rating-image (stars) from the h3
-    for img in first_h3.findAll(name='img'):
-        img.extract()
+            # Issue 1 (most recent) has only few articles online,
+            # Issue 2 (2nd recent) is not completely online.
+            # Issue 3 (3rd recent) is completely online, hence i == 2
+            if issue == "" and i == 2:
+                issue = yyyymm
+            i+=1
 
-    # Mark the intro texts as italic
-    for div in soup.findAll(name='div', attrs={'class':'intro'}):
-      for p in div.findAll('p'):
-        content = self.tag_to_string(p)
-        new_p = "<p><i>"+ content +"</i></p>"
-        p.replaceWith(new_p)
+        self.log('Issue to get: ', issue, title)
+        url = 'http://brandeins.de/'+issue_map[issue]
+        self.issue_url = url  # save to extract cover
 
-    # Change <h3> to <h1>
-    header = soup.find("h3")
-    if header:
-        tag = Tag(soup, "h1")
-        tag.insert(0, header.contents[0])
-        header.replaceWith(tag)
+        return self.parse_issue(url)
 
-    return soup
+    def parse_issue(self, url):
+        soup = self.index_to_soup(url)
+        index = soup.find('div', attrs={'class': 'ihv_list'})
 
-  def get_cover(self, soup):
-    cover_url = None
-    cover_item = soup.find('div', attrs = {'class': 'cover_image'})
-    if cover_item:
-      cover_url = 'http://www.brandeins.de/' + cover_item.img['src']
-    return cover_url
+        feeds = []
+        sections = index.findAll('section')
 
-  def parse_index(self):
-    feeds = []
-    issue_map = {}
+        # special treatment for 'editorial'. It is not grouped in <section> and title is not in <h3>
+        inhalt_section = index.find('h1', attrs={'class': 'reset'})
+        section_ttl = self.tag_to_string(inhalt_section)
+        #self.log('+++ Found section', section_ttl)
+        editorial_article = inhalt_section.parent.findNextSibling('a')
+        ttl = self.tag_to_string(editorial_article.find('h2', attrs={'class': 'ihv_title'}))
+        url = self.PREFIX + editorial_article['href']
+        #self.log('--- Found article', ttl, url)
+        feeds.append((section_ttl, [{'title': ttl, 'url': url}]))
 
-    archive = "http://www.brandeins.de/archiv.html"
+        #self.log('NUMBER OF SECTIONS', len(sections))
+        for section in sections:
+            section_ttl = self.tag_to_string(section.find('h3'))
+            #self.log('+++ Found section', section_ttl)
 
-    issue = self.default_issue
-    if self.username:
-      try:
-        issue = int(self.username)
-      except:
-        pass
+            articles = []
+            for article in section.findNextSiblings(['a', 'section']):
+                if (article.name == 'section'):
+                    break
 
-    soup = self.index_to_soup(archive)
-    issue_list = soup.findAll('div', attrs={'class': 'tx-brandeinsmagazine-pi1'})[0].findAll('a')
-    issue_list = [i for i in issue_list if i.get('onmouseover', False)]
-    for i in issue_list:
-        issue_number_string = i.get('onmouseover', False)
-        if issue_number_string:
-            match = re.match("^switch_magazine\(([0-9]+), ([0-9]+)\)$", issue_number_string)
-            issue_number = "%04i%02i" % (int(match.group(1)), int(match.group(2)))
-            issue_map[issue_number] = i
-    keys = issue_map.keys()
-    keys.sort()
-    keys.reverse()
-    selected_issue_key = keys[issue - 1]
-    selected_issue = issue_map[selected_issue_key]
-    url = selected_issue.get('href', False)
-    # Get the title for the magazin - build it out of the title of the cover - take the issue and year;
-    # self.title = "brand eins " + selected_issue_key[4:] + "/" + selected_issue_key[0:4]
-    # Get the alternative title for the magazin - build it out of the title of the cover - without the issue and year;
-    url = 'http://brandeins.de/'+url
-    self.timefmt = ' ' + selected_issue_key[4:] + '/' + selected_issue_key[:4]
+                ttl = self.tag_to_string(article.find('h2', attrs={'class': 'ihv_title'}))
+                url = self.PREFIX + article['href']
+                #self.log('--- Found article', ttl, url)
+                articles.append({'title' : ttl, 'url' : url})
+            feeds.append((section_ttl, articles))
+        return feeds
 
-    # url = "http://www.brandeins.de/archiv/magazin/tierisch.html"
-    titles_and_articles = self.brand_eins_parse_issue(url)
-    if titles_and_articles:
-      for title, articles in titles_and_articles:
-        feeds.append((title, articles))
-    return feeds
-
-  def brand_eins_parse_issue(self, url):
-    soup = self.index_to_soup(url)
-    self.cover_url = self.get_cover(soup)
-    article_lists = [soup.find('div', attrs={'class':'subColumnLeft articleList'}), soup.find('div', attrs={'class':'subColumnRight articleList'})]
-
-    titles_and_articles = []
-    current_articles = []
-    chapter_title = "Editorial"
-    self.log('Found Chapter:', chapter_title)
-
-    # Remove last list of links (thats just the impressum and the 'gewinnspiel')
-    article_lists[1].findAll('ul')[len(article_lists[1].findAll('ul'))-1].extract()
-
-    for article_list in article_lists:
-      for chapter in article_list.findAll('ul'):
-        if len(chapter.findPreviousSiblings('h3')) >= 1:
-          new_chapter_title = string.capwords(self.tag_to_string(chapter.findPreviousSiblings('h3')[0]))
-          if new_chapter_title != chapter_title:
-            titles_and_articles.append([chapter_title, current_articles])
-            current_articles = []
-            self.log('Found Chapter:', new_chapter_title)
-          chapter_title = new_chapter_title
-        for li in chapter.findAll('li'):
-          a = li.find('a', href = True)
-          if a is None:
-            continue
-          title = self.tag_to_string(a)
-          url = a.get('href', False)
-          if not url or not title:
-            continue
-          url = 'http://brandeins.de/'+url
-          if len(a.parent.findNextSiblings('p')) >= 1:
-            description = self.tag_to_string(a.parent.findNextSiblings('p')[0])
-          else:
-            description = ''
-
-          self.log('\t\tFound article:', title)
-          self.log('\t\t\t', url)
-          self.log('\t\t\t', description)
-
-          current_articles.append({'title': title, 'url': url, 'description': description, 'date':''})
-    titles_and_articles.append([chapter_title, current_articles])
-    return titles_and_articles
+    def get_cover_url(self):
+        # the index does not contain a usable cover, but the "Welt in Zahlen"-article contains it
+        cover_article = "{}/{}".format(self.issue_url[:-5], 'die-welt-in-zahlen.html')
+        self.log(cover_article)
+        soup = self.index_to_soup(cover_article)
+        cover_meta = soup.find('meta', attrs={'property':'og:image'})
+        if cover_meta:
+            return cover_meta['content']
+        else:
+            self.log('ERROR: Could not return cover url')
