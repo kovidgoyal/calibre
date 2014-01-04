@@ -68,6 +68,41 @@ class Unmanifested(BadLink):
         container.remove_item(self.name)
         return True
 
+class MimetypeMismatch(BaseError):
+
+    level = WARN
+
+    def __init__(self, container, name, opf_mt, ext_mt):
+        self.opf_mt, self.ext_mt = opf_mt, ext_mt
+        self.file_name = name
+        BaseError.__init__(self, _('The file %s has a mimetype that does not match its extension') % name, container.opf_name)
+        ext = name.rpartition('.')[-1]
+        self.HELP = _('The file {0} has its mimetype specified as {1} in the OPF file.'
+                      ' The recommended mimetype for files with the extension "{2}" is {3}.'
+                      ' You should change either the file extension or the mimetype in the OPF.').format(
+                          name, opf_mt, ext, ext_mt)
+        self.INDIVIDUAL_FIX = _('Change the mimetype for this file in the OPF to %s') % ext_mt
+
+    def __call__(self, container):
+        changed = False
+        for item in container.opf_xpath('//opf:manifest/opf:item[@href and @media-type="%s"]' % self.opf_mt):
+            name = container.href_to_name(item.get('href'), container.opf_name)
+            if name == self.file_name:
+                changed = True
+                item.set('media-type', self.ext_mt)
+                container.mime_map[name] = self.ext_mt
+        if changed:
+            container.dirty(container.opf_name)
+        return changed
+
+def check_mimetypes(container):
+    errors = []
+    a = errors.append
+    for name, mt in container.mime_map.iteritems():
+        gt = container.guess_type(name)
+        if mt != gt:
+            a(MimetypeMismatch(container, name, mt, gt))
+    return errors
 
 def check_links(container):
     links_map = defaultdict(set)
