@@ -357,26 +357,35 @@ class FileList(QTreeWidget):
             item.setData(0, LINEAR_ROLE, bool(linear))
             item.setData(0, MIME_ROLE, imt)
             set_display_name(name, item)
-            # TODO: Add appropriate tooltips based on the emblems
+            tooltips = []
             emblems = []
             if name in {cover_page_name, cover_image_name}:
                 emblems.append('default_cover.png')
+                tooltips.append(_('This file is the cover %s for this book') % (_('image') if name == cover_image_name else _('page')))
             if name in container.opf_name:
                 emblems.append('metadata.png')
+                tooltips.append(_('This file contains all the metadata and book structure information'))
             if imt == ncx_mime:
                 emblems.append('toc.png')
+                tooltips.append(_('This file contains the metadata table of contents'))
             if name not in manifested_names and name not in ok_to_be_unmanifested:
                 emblems.append('dialog_question.png')
+                tooltips.append(_('This file is not listed in the book manifest'))
             if linear is False:
                 emblems.append('arrow-down.png')
+                tooltips.append(_('This file is marked as non-linear in the spine'))
             if linear is None and icat == 'text':
                 # Text item outside spine
                 emblems.append('dialog_warning.png')
+                tooltips.append(_('This file is a text file that is not referenced in the spine'))
             if category == 'text' and name in processed:
                 # Duplicate entry in spine
                 emblems.append('dialog_warning.png')
+                tooltips.append(_('This file occurs more than once in the spine'))
 
             render_emblems(item, emblems)
+            if tooltips:
+                item.setData(0, Qt.ToolTipRole, '\n'.join(tooltips))
             return item
 
         for name, linear in container.spine_names:
