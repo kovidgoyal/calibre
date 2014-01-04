@@ -138,6 +138,9 @@ class Container(object):  # {{{
             raise InvalidBook('Could not locate opf file: %r'%opfpath)
 
         # Update mime map with data from the OPF
+        self.refresh_mime_map()
+
+    def refresh_mime_map(self):
         for item in self.opf_xpath('//opf:manifest/opf:item[@href and @media-type]'):
             href = item.get('href')
             name = self.href_to_name(href, self.opf_name)

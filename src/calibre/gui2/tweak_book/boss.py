@@ -715,8 +715,12 @@ class Boss(QObject):
         ed = editors[name]
         with container.open(name, 'wb') as f:
             f.write(ed.data)
-            if container is current_container():
-                ed.is_synced_to_container = True
+        if name == container.opf_name:
+            container.refresh_mime_map()
+        if container is current_container():
+            ed.is_synced_to_container = True
+            if name == container.opf_name:
+                self.gui.file_list.build(container)
 
     def commit_all_editors_to_container(self):
         with BusyCursor():
