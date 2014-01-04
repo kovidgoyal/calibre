@@ -458,6 +458,9 @@ class Mobi8Reader(object):
             return os.path.basename(path) == 'debug-raw.html'
 
         opf.create_manifest_from_files_in([os.getcwdu()], exclude=exclude)
+        for entry in opf.manifest:
+            if entry.mime_type == 'text/html':
+                entry.mime_type = 'application/xhtml+xml'
         opf.create_spine(spine)
         opf.set_toc(toc)
         ppd = self.resc_data.get('page-progression-direction', None)
