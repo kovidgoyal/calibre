@@ -64,22 +64,23 @@ class NewYorkReviewOfBooks(BasicNewsRecipe):
             self.log('Issue date:', date)
 
         # Find TOC
-        toc = soup.find('div', attrs={'class':'current_issue'}).find('div', attrs={'class':'articles_list'})
+        tocs = soup.find('div', attrs={'class':'current_issue'}).findAll('div', attrs={'class':'articles_list'})
         articles = []
-        for div in toc.findAll('div', attrs={'class':'row'}):
-            h2 = div.find('h2')
-            title = self.tag_to_string(h2).strip()
-            author = self.tag_to_string(div.find('div', attrs={'class':'author'})).strip()
-            title = title + u' (%s)'%author
-            url = 'http://www.nybooks.com' + h2.find('a', href=True)['href']
-            desc = ''
-            for p in div.findAll('p', attrs={'class':lambda x: x and 'quiet' in x}):
-                desc += self.tag_to_string(p)
-            self.log('Found article:', title)
-            self.log('\t', url)
-            self.log('\t', desc)
-            articles.append({'title':title, 'url':url, 'date':'',
-                'description':desc})
+        for toc in tocs:
+            for div in toc.findAll('div', attrs={'class':'row'}):
+                h2 = div.find('h2')
+                title = self.tag_to_string(h2).strip()
+                author = self.tag_to_string(div.find('div', attrs={'class':'author'})).strip()
+                title = title + u' (%s)'%author
+                url = 'http://www.nybooks.com' + h2.find('a', href=True)['href']
+                desc = ''
+                for p in div.findAll('p', attrs={'class':lambda x: x and 'quiet' in x}):
+                    desc += self.tag_to_string(p)
+                self.log('Found article:', title)
+                self.log('\t', url)
+                self.log('\t', desc)
+                articles.append({'title':title, 'url':url, 'date':'',
+                    'description':desc})
 
         return [('Current Issue', articles)]
 
