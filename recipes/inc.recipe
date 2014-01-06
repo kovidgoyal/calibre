@@ -1,16 +1,23 @@
-from calibre.web.feeds.news import BasicNewsRecipe
-import re
+#!/usr/bin/env  python
+
+__license__   = 'GPL v3'
+__copyright__ = '2014, Nikolas Mangold-Takao <nmangold at gmail.com>'
+__version__   = '0.10'
+
+from calibre.web.feeds.recipes import BasicNewsRecipe
 
 class IncMagazineRecipe(BasicNewsRecipe):
-    __license__  = 'GPL v3'
-    __author__ = 'kwetal'
     language = 'en'
     version = 1
+
+    __author__  = 'Nikolas Mangold-Takao <nmangold at gmail.com>'
 
     title = u'Inc Magazine'
     publisher = u'Mansueto Ventures LLC'
     category = u'News, Business'
-    description = u'Handbook of the American Entrepeneur'
+    description = u'Free account required to browse website. Handbook of the American Entrepeneur'
+
+    needs_subscription = True  # signup is free, without account browsing is limited and recipe won't work
 
     use_embedded_content = False
     remove_empty_feeds = True
@@ -20,53 +27,54 @@ class IncMagazineRecipe(BasicNewsRecipe):
 
     INDEX = 'http://www.inc.com/magazine'
 
-    remove_tags = []
-    remove_tags.append(dict(name = 'div', attrs = {'id' : 'advt'}))
+    remove_tags_before = dict(name='div', attrs={'id': 'outercontainer'})
+    remove_tags = [dict(name='div', attrs={'id': 'morearticles'})]
+    remove_tags_after = dict(name='div', attrs={'id': 'article-share-footer'})
 
     extra_css = '''
-                body{font-family:verdana,arial,helvetica,geneva,sans-serif ;}
-                div#deck {font-weight: bold;}
                 div.byline {font-size: x-small; color: #696969; margin-top: 0.4em;}
                 '''
 
+    def get_browser(self):
+        def has_login_name(form):
+            try:
+                form.find_control(name="email")
+            except:
+                return False
+            else:
+                return True
+
+        br = BasicNewsRecipe.get_browser(self)
+        if self.username is not None and self.password is not None:
+            br.open('http://www.inc.com/login')
+            br.select_form(predicate=has_login_name)
+            br['email'] = self.username
+            br['password'] = self.password
+            br.submit()
+        return br
+
     def parse_index(self):
         soup = self.index_to_soup(self.INDEX)
-        self.browser.open(self.INDEX)
 
-        url = self.browser.geturl()
-        date = url.rpartition('/')[0].rpartition('/')[2]
-        self.title = self.title + ' ' + date[4:6] + ', ' + date[0:4]
+        feeds = []
+        articles = []
 
-        answer = []
-
-        for feature in soup.findAll('div', attrs = {'class': re.compile('magazinesection.*')}):
-            h2 = feature.find('h2')
-            if h2:
-                feedTitle = self.tag_to_string(h2)
-            else:
-                img = feature.find('img', attrs = {'class': 'howtohead'})
-                if img:
-                    feedTitle = img['alt']
-                else:
-                    feedTitle = 'Unknown Feature'
-
-            articles = []
-            for div in feature.findAll('div', attrs = {'class': re.compile('article.*|column.*')}):
-                h3 = div.find('h3')
-                title = self.tag_to_string(h3)
-                href = h3.a['href'].replace('.html', '_Printer_Friendly.html')
-                p = div.find('p', attrs = {'class': 'deck'})
-                description = self.tag_to_string(p)
-
-                articles.append({'title': title, 'date': u'', 'url': href, 'description': description})
-
-            answer.append((feedTitle, articles))
-
-        return answer
+        # We need for sure 'toc-top-l-column' and 'toc-bot-l-column'
+        # I am not sure about 'toc-top-r-column and 'toc-bot-r-column', seems to be mostly ads
+        for toc in soup.findAll('div', id=lambda x: x and x.endswith('-l-column')):
+            for article in toc.findAll('div', {'class' : lambda x: x and x.startswith('toc-h')}):  # h1-h2-h3
+                link = article.find('a')
+                if link is None:
+                    continue
+                article_title = self.tag_to_string(link)
+                article_link  = link.get('href')
+                articles.append({'title' : article_title, 'url' : article_link})
+        feeds.append(('Articles', articles))  # TODO figure out sections
+        return feeds
 
     def preprocess_html(self, soup):
-        img = soup.find('img', attrs = {'src': 'http://images.inc.com/nav/lofi_logo.gif'})
-        if img:
-            img.parent.extract()
-
+        for alink in soup.findAll('a'):
+            if alink.string is not None:
+                tstr = alink.string
+                alink.replaceWith(tstr)
         return soup
