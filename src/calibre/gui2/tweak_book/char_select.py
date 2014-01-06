@@ -439,11 +439,17 @@ class CategoryView(QTreeView):
         if hasattr(pi, 'set_no_activate_on_click'):
             pi.set_no_activate_on_click(self)
         self.initialized = False
+        self.setExpandsOnDoubleClick(False)
 
     def item_activated(self, index):
         ans = self._model.get_range(index)
         if ans is not None:
             self.category_selected.emit(*ans)
+        else:
+            if self.isExpanded(index):
+                self.collapse(index)
+            else:
+                self.expand(index)
 
     def initialize(self):
         if not self.initialized:
