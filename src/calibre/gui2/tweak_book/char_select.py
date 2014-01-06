@@ -6,7 +6,7 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import unicodedata, re, weakref
+import unicodedata, re
 from bisect import bisect
 from functools import partial
 
@@ -716,10 +716,6 @@ class CharSelect(Dialog):
             self.char_info.clear()
 
     def show(self):
-        try:
-            self.focus_widget = weakref.ref(QApplication.focusWidget())
-        except TypeError:
-            self.focus_widget = None
         self.initialize()
         Dialog.show(self)
         self.raise_()
@@ -727,17 +723,22 @@ class CharSelect(Dialog):
     def char_selected(self, c):
         if QApplication.keyboardModifiers() & Qt.CTRL:
             self.hide()
-        if self.focus_widget is None or self.focus_widget() is None:
+        if self.parent() is None or self.parent().focusWidget() is None:
             QApplication.clipboard().setText(c)
             return
-        w = self.focus_widget()
+        self.parent().activateWindow()
+        w = self.parent().focusWidget()
         if hasattr(w, 'textCursor'):
             cr = w.textCursor()
             cr.insertText(c)
             w.setTextCursor(cr)
         elif hasattr(w, 'insert'):
+            if hasattr(w, 'no_popup'):
+                oval = w.no_popup
+                w.no_popup = True
             w.insert(c)
-
+            if hasattr(w, 'no_popup'):
+                w.no_popup = oval
 
 if __name__ == '__main__':
     app = QApplication([])
