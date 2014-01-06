@@ -12,7 +12,7 @@ from bisect import bisect
 from PyQt4.Qt import (
     QAbstractItemModel, QModelIndex, Qt, QVariant, pyqtSignal, QApplication,
     QTreeView, QSize, QGridLayout, QAbstractListModel, QListView, QPen,
-    QStyledItemDelegate, QSplitter, QLabel, QSizePolicy, QIcon)
+    QStyledItemDelegate, QSplitter, QLabel, QSizePolicy, QIcon, QMimeData)
 
 from calibre.constants import ispy3, plugins
 from calibre.gui2 import NONE
@@ -459,6 +459,7 @@ class CharModel(QAbstractListModel):
     def __init__(self, parent=None):
         QAbstractListModel.__init__(self, parent)
         self.chars = []
+        self.allow_dnd = False
 
     def rowCount(self, parent=ROOT):
         return len(self.chars)
@@ -469,7 +470,37 @@ class CharModel(QAbstractListModel):
         return NONE
 
     def flags(self, index):
-        return Qt.ItemIsEnabled
+        ans = Qt.ItemIsEnabled
+        if self.allow_dnd:
+            ans |= Qt.ItemIsSelectable
+            ans |= Qt.ItemIsDragEnabled if index.isValid() else Qt.ItemIsDropEnabled
+        return ans
+
+    def supportedDropActions(self):
+        return Qt.MoveAction
+
+    def mimeTypes(self):
+        return ['application/calibre_charcode_indices']
+
+    def mimeData(self, indexes):
+        data = ','.join(str(i.row()) for i in indexes)
+        md = QMimeData()
+        md.setData('application/calibre_charcode_indices', data.encode('utf-8'))
+        return md
+
+    def dropMimeData(self, md, action, row, column, parent):
+        if action != Qt.MoveAction or not md.hasFormat('application/calibre_charcode_indices') or row < 0 or column != 0:
+            return False
+        indices = map(int, bytes(md.data('application/calibre_charcode_indices')).split(','))
+        codes = [self.chars[x] for x in indices]
+        for x in indices:
+            self.chars[x] = None
+        for x in reversed(codes):
+            self.chars.insert(row, x)
+        self.chars = [x for x in self.chars if x is not None]
+        self.reset()
+        tprefs['charmap_favorites'] = list(self.chars)
+        return True
 
 class CharDelegate(QStyledItemDelegate):
 
@@ -523,7 +554,20 @@ class CharView(QListView):
         self.setMouseTracking(True)
         self.setSpacing(2)
         self.setUniformItemSizes(True)
-        self.setCursor(Qt.PointingHandCursor)
+
+    def set_allow_drag_and_drop(self, enabled):
+        if not enabled:
+            self.setDragEnabled(False)
+            self.viewport().setAcceptDrops(False)
+            self.setDropIndicatorShown(True)
+            self._model.allow_dnd = False
+        else:
+            self.setSelectionMode(self.ExtendedSelection)
+            self.viewport().setAcceptDrops(True)
+            self.setDragEnabled(True)
+            self.setAcceptDrops(True)
+            self.setDropIndicatorShown(False)
+            self._model.allow_dnd = True
 
     def show_chars(self, name, codes):
         self._model.chars = codes
@@ -544,6 +588,7 @@ class CharView(QListView):
             self.setCursor(Qt.ArrowCursor)
             self.show_name.emit(-1)
             self.last_mouse_idx = -1
+        return QListView.mouseMoveEvent(self, ev)
 
 class CharSelect(Dialog):
 
@@ -554,7 +599,12 @@ class CharSelect(Dialog):
     def setup_ui(self):
         self.l = l = QGridLayout(self)
         self.setLayout(l)
+
         self.bb.setStandardButtons(self.bb.Close)
+        self.rearrange_button = b = self.bb.addButton(_('Re-arrange favorites'), self.bb.ActionRole)
+        b.setCheckable(True)
+        b.setChecked(False)
+        b.setVisible(False)
 
         self.splitter = s = QSplitter(self)
         s.setChildrenCollapsible(False)
@@ -562,14 +612,34 @@ class CharSelect(Dialog):
         self.category_view = CategoryView(self)
         l.addWidget(s)
         self.char_view = CharView(self)
-        self.category_view.category_selected.connect(self.char_view.show_chars)
+        self.rearrange_button.toggled[bool].connect(self.set_allow_drag_and_drop)
+        self.category_view.category_selected.connect(self.show_chars)
         self.char_view.show_name.connect(self.show_char_info)
         s.addWidget(self.category_view), s.addWidget(self.char_view)
 
         self.char_info = la = QLabel('\xa0')
         la.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
         l.addWidget(la)
+
+        self.rearrange_msg = la = QLabel(_(
+            'Drag and drop characters to re-arrange them. Click the re-arrange button again when you are done.'))
+        la.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
+        la.setVisible(False)
+        l.addWidget(la)
         l.addWidget(self.bb)
+
+    def set_allow_drag_and_drop(self, on):
+        self.char_view.set_allow_drag_and_drop(on)
+        self.rearrange_msg.setVisible(on)
+
+    def show_chars(self, name, codes):
+        b = self.rearrange_button
+        b.setVisible(name == _('Favorites'))
+        b.blockSignals(True)
+        b.setChecked(False)
+        b.blockSignals(False)
+        self.char_view.show_chars(name, codes)
+        self.char_view.set_allow_drag_and_drop(False)
 
     def initialize(self):
         if not self.initialized:
