@@ -6,12 +6,12 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import unicodedata
+import unicodedata, re
 from bisect import bisect
 
 from PyQt4.Qt import (
     QAbstractItemModel, QModelIndex, Qt, QVariant, pyqtSignal, QApplication,
-    QTreeView, QSize, QGridLayout, QAbstractListModel, QListView,
+    QTreeView, QSize, QGridLayout, QAbstractListModel, QListView, QPen,
     QStyledItemDelegate, QSplitter, QLabel, QSizePolicy, QIcon)
 
 from calibre.constants import ispy3, plugins
@@ -22,6 +22,14 @@ from calibre.gui2.tweak_book.editor.insert_resource import Dialog
 if not ispy3:
     chr = unichr
 ROOT = QModelIndex()
+
+non_printing = {
+    0xa0: 'nbsp', 0x2000: 'nqsp', 0x2001: 'mqsp', 0x2002: 'ensp', 0x2003: 'emsp', 0x2004: '3/msp', 0x2005: '4/msp', 0x2006: '6/msp',
+    0x2007: 'fsp', 0x2008: 'psp', 0x2009: 'thsp', 0x200A: 'hsp', 0x200b: 'zwsp', 0x200c: 'zwnj', 0x200d: 'zwj', 0x200e: 'lrm', 0x200f: 'rlm',
+    0x2028: 'lsep', 0x2029: 'psep', 0x202a: 'rle', 0x202b: 'lre', 0x202c: 'pdp', 0x202d: 'lro', 0x202e: 'rlo', 0x202f: 'nnbsp',
+    0x205f: 'mmsp', 0x2060: 'wj', 0x2061: 'fa', 0x2062: 'x', 0x2063: ',', 0x2064: '+', 0x206A: 'iss', 0x206b: 'ass', 0x206c: 'iafs', 0x206d: 'aafs',
+    0x206e: 'nads', 0x206f: 'nods', 0x20: 'sp', 0x7f: 'del', 0x2e3a: '2m', 0x2e3b: '3m', 0xad: 'shy',
+}
 
 class CategoryModel(QAbstractItemModel):
 
@@ -303,7 +311,7 @@ class CategoryModel(QAbstractItemModel):
     (_('Japanese Chess'), (0x2616, 0x2617)),
     (_('Mahjong Tiles'), (0x1F000, 0x1F02F)),
     (_('Playing Cards'), (0x1F0A0, 0x1F0FF)),
-    (_('Playing Cards'), (0x2660, 0x2667)),
+    (_('Playing Card Suits'), (0x2660, 0x2667)),
 )),
 
 (_('Other Symbols'), (
@@ -460,6 +468,9 @@ class CharModel(QAbstractListModel):
             return QVariant(self.chars[index.row()])
         return NONE
 
+    def flags(self, index):
+        return Qt.ItemIsEnabled
+
 class CharDelegate(QStyledItemDelegate):
 
     def __init__(self, parent=None):
@@ -474,15 +485,26 @@ class CharDelegate(QStyledItemDelegate):
         charcode, ok = index.data(Qt.UserRole).toInt()
         if not ok:
             return
-        char = chr(charcode)
         painter.save()
         try:
-            f = option.font
-            f.setPixelSize(self.item_size.height() - 8)
-            painter.setFont(f)
-            painter.drawText(option.rect, Qt.AlignHCenter | Qt.AlignBottom | Qt.TextSingleLine, char)
+            if charcode in non_printing:
+                self.paint_non_printing(painter, option, charcode)
+            else:
+                self.paint_normal(painter, option, charcode)
         finally:
             painter.restore()
+
+    def paint_normal(self, painter, option, charcode):
+        f = option.font
+        f.setPixelSize(option.rect.height() - 8)
+        painter.setFont(f)
+        painter.drawText(option.rect, Qt.AlignHCenter | Qt.AlignBottom | Qt.TextSingleLine, chr(charcode))
+
+    def paint_non_printing(self, painter, option, charcode):
+        text = re.sub(r'(sp|j|nj|ss|fs|ds)$', r'\n\1', non_printing[charcode])
+        painter.drawText(option.rect, Qt.AlignCenter | Qt.TextWordWrap | Qt.TextWrapAnywhere, text)
+        painter.setPen(QPen(Qt.DashLine))
+        painter.drawRect(option.rect)
 
 class CharView(QListView):
 
@@ -499,6 +521,7 @@ class CharView(QListView):
         self.setWrapping(True)
         self.setMouseTracking(True)
         self.setSpacing(2)
+        self.setUniformItemSizes(True)
         self.setCursor(Qt.PointingHandCursor)
 
     def show_chars(self, name, codes):
@@ -557,7 +580,7 @@ class CharSelect(Dialog):
     def show_char_info(self, char_code):
         if char_code > 0:
             category_name, subcategory_name, character_name = self.category_view.model().get_char_info(char_code)
-            self.char_info.setText('%s - %s - %s (U+%s)' % (category_name, subcategory_name, character_name, hex(char_code)))
+            self.char_info.setText('%s - %s - %s (%04X)' % (category_name, subcategory_name, character_name, char_code))
         else:
             self.char_info.clear()
 
