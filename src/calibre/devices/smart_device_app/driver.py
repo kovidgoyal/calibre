@@ -1571,8 +1571,12 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
     def shutdown(self):
         if getattr(self, 'listen_socket', None) is not None:
             self.connection_listener.stop()
-            unpublish_zeroconf('calibre smart device client',
-                             '_calibresmartdeviceapp._tcp', self.port, {})
+            try:
+                unpublish_zeroconf('calibre smart device client',
+                                   '_calibresmartdeviceapp._tcp', self.port, {})
+            except:
+                self._debug('deregistration with bonjour failed')
+                traceback.print_exc()
             self._close_listen_socket()
 
     # Methods for dynamic control
