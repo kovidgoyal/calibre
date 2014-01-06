@@ -373,7 +373,7 @@ class FileList(QTreeWidget):
                 tooltips.append(_('This file is not listed in the book manifest'))
             if linear is False:
                 emblems.append('arrow-down.png')
-                tooltips.append(_('This file is marked as non-linear in the spine'))
+                tooltips.append(_('This file is marked as non-linear in the spine\nDrag it to the top to make it linear'))
             if linear is None and icat == 'text':
                 # Text item outside spine
                 emblems.append('dialog_warning.png')
