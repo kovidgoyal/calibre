@@ -476,6 +476,7 @@ class CharDelegate(QStyledItemDelegate):
     def __init__(self, parent=None):
         QStyledItemDelegate.__init__(self, parent)
         self.item_size = QSize(32, 32)
+        self.np_pat = re.compile(r'(sp|j|nj|ss|fs|ds)$')
 
     def sizeHint(self, option, index):
         return self.item_size
@@ -501,10 +502,10 @@ class CharDelegate(QStyledItemDelegate):
         painter.drawText(option.rect, Qt.AlignHCenter | Qt.AlignBottom | Qt.TextSingleLine, chr(charcode))
 
     def paint_non_printing(self, painter, option, charcode):
-        text = re.sub(r'(sp|j|nj|ss|fs|ds)$', r'\n\1', non_printing[charcode])
+        text = self.np_pat.sub(r'\n\1', non_printing[charcode])
         painter.drawText(option.rect, Qt.AlignCenter | Qt.TextWordWrap | Qt.TextWrapAnywhere, text)
         painter.setPen(QPen(Qt.DashLine))
-        painter.drawRect(option.rect)
+        painter.drawRect(option.rect.adjusted(1, 1, -1, -1))
 
 class CharView(QListView):
 
