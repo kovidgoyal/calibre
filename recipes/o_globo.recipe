@@ -18,7 +18,6 @@ class OGlobo(BasicNewsRecipe):
     max_articles_per_feed = 100
     no_stylesheets        = True
     use_embedded_content  = False
-    encoding              = 'cp1252'
     cover_url             = 'http://oglobo.globo.com/_img/o-globo.png'
     remove_javascript     = True
 
