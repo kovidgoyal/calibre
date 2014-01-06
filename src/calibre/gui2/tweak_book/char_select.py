@@ -6,14 +6,18 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
+import unicodedata
+from bisect import bisect
+
 from PyQt4.Qt import (
     QAbstractItemModel, QModelIndex, Qt, QVariant, pyqtSignal, QApplication,
-    QTreeView, QSize, QGridLayout)
+    QTreeView, QSize, QGridLayout, QAbstractListModel, QListView,
+    QStyledItemDelegate, QSplitter, QLabel, QSizePolicy, QIcon)
 
 from calibre.constants import ispy3, plugins
 from calibre.gui2 import NONE
 from calibre.gui2.tweak_book import tprefs
-from calibre.gui2.tweak_book.insert_resource import Dialog
+from calibre.gui2.tweak_book.editor.insert_resource import Dialog
 
 if not ispy3:
     chr = unichr
@@ -184,10 +188,10 @@ class CategoryModel(QAbstractItemModel):
 (_('East Asian Scripts'), (
     (_('Bopomofo'), (0x3100, 0x312F)),
     (_('Bopomofo Extended'), (0x31A0, 0x31BF)),
-    (_('CJK Unified Ideographs (big!)'), (0x4E00, 0x9FFF)),
-    (_('CJK Unified Ideographs Extension-A (big!)'), (0x3400, 0x4DBF)),
-    (_('CJK Unified Ideographs Extension B (big!)'), (0x20000, 0x2A6DF)),
-    (_('CJK Unified Ideographs Extension C (big!)'), (0x2A700, 0x2B73F)),
+    (_('CJK Unified Ideographs'), (0x4E00, 0x9FFF)),
+    (_('CJK Unified Ideographs Extension-A'), (0x3400, 0x4DBF)),
+    (_('CJK Unified Ideographs Extension B'), (0x20000, 0x2A6DF)),
+    (_('CJK Unified Ideographs Extension C'), (0x2A700, 0x2B73F)),
     (_('CJK Unified Ideographs Extension D'), (0x2B740, 0x2B81F)),
     (_('CJK Compatibility Ideographs'), (0xF900, 0xFAFF)),
     (_('CJK Compatibility Ideographs Supplement'), (0x2F800, 0x2FA1F)),
@@ -201,7 +205,7 @@ class CategoryModel(QAbstractItemModel):
     (_('Kana Supplement'), (0x1B000, 0x1B0FF)),
     (_('Halfwidth Katakana'), (0xFF65, 0xFF9F)),
     (_('Kanbun'), (0x3190, 0x319F)),
-    (_('Hangul Syllables (big!)'), (0xAC00, 0xD7AF)),
+    (_('Hangul Syllables'), (0xAC00, 0xD7AF)),
     (_('Hangul Jamo'), (0x1100, 0x11FF)),
     (_('Hangul Jamo Extended-A'), (0xA960, 0xA97F)),
     (_('Hangul Jamo Extended-B'), (0xD7B0, 0xD7FF)),
@@ -328,6 +332,17 @@ class CategoryModel(QAbstractItemModel):
 )),
 )  # }}}
 
+        self.category_map = {}
+        self.starts = []
+        for tlname, items in self.categories[1:]:
+            for name, (start, end) in items:
+                self.category_map[start] = (tlname, name)
+                self.starts.append(start)
+        self.starts.sort()
+        self.bold_font = f = QApplication.font()
+        f.setBold(True)
+        self.fav_icon = QIcon(I('rating.png'))
+
     def columnCount(self, parent=ROOT):
         return 1
 
@@ -363,6 +378,10 @@ class CategoryModel(QAbstractItemModel):
         if pid == 0:
             if role == Qt.DisplayRole:
                 return QVariant(self.categories[index.row()][0])
+            if role == Qt.FontRole:
+                return QVariant(self.bold_font)
+            if role == Qt.DecorationRole and index.row() == 0:
+                return QVariant(self.fav_icon)
         else:
             if role == Qt.DisplayRole:
                 item = self.categories[pid - 1][1][index.row()]
@@ -379,6 +398,25 @@ class CategoryModel(QAbstractItemModel):
                 item = self.categories[pid - 1][1][index.row()]
                 return (item[0], list(xrange(item[1][0], item[1][1] + 1)))
 
+    def get_char_info(self, char_code):
+        ipos = bisect(self.starts, char_code) - 1
+        try:
+            category, subcategory = self.category_map[self.starts[ipos]]
+        except IndexError:
+            category = subcategory = _('Unknown')
+        return category, subcategory, unicodedata.name(chr(char_code), _('Unknown'))
+
+class CategoryDelegate(QStyledItemDelegate):
+
+    def __init__(self, parent=None):
+        QStyledItemDelegate.__init__(self, parent)
+
+    def sizeHint(self, option, index):
+        ans = QStyledItemDelegate.sizeHint(self, option, index)
+        if not index.parent().isValid():
+            ans += QSize(0, 6)
+        return ans
+
 class CategoryView(QTreeView):
 
     category_selected = pyqtSignal(object, object)
@@ -386,6 +424,7 @@ class CategoryView(QTreeView):
     def __init__(self, parent=None):
         QTreeView.__init__(self, parent)
         self.setHeaderHidden(True)
+        self.setAnimated(True)
         self.activated.connect(self.item_activated)
         self.clicked.connect(self.item_activated)
         pi = plugins['progress_indicator'][0]
@@ -402,7 +441,85 @@ class CategoryView(QTreeView):
         if not self.initialized:
             self._model = m = CategoryModel(self)
             self.setModel(m)
+            self.item_activated(m.index(0, 0))
+            self._delegate = CategoryDelegate(self)
+            self.setItemDelegate(self._delegate)
             self.initialized = True
+
+class CharModel(QAbstractListModel):
+
+    def __init__(self, parent=None):
+        QAbstractListModel.__init__(self, parent)
+        self.chars = []
+
+    def rowCount(self, parent=ROOT):
+        return len(self.chars)
+
+    def data(self, index, role):
+        if role == Qt.UserRole and -1 < index.row() < len(self.chars):
+            return QVariant(self.chars[index.row()])
+        return NONE
+
+class CharDelegate(QStyledItemDelegate):
+
+    def __init__(self, parent=None):
+        QStyledItemDelegate.__init__(self, parent)
+        self.item_size = QSize(32, 32)
+
+    def sizeHint(self, option, index):
+        return self.item_size
+
+    def paint(self, painter, option, index):
+        QStyledItemDelegate.paint(self, painter, option, index)
+        charcode, ok = index.data(Qt.UserRole).toInt()
+        if not ok:
+            return
+        char = chr(charcode)
+        painter.save()
+        try:
+            f = option.font
+            f.setPixelSize(self.item_size.height() - 8)
+            painter.setFont(f)
+            painter.drawText(option.rect, Qt.AlignHCenter | Qt.AlignBottom | Qt.TextSingleLine, char)
+        finally:
+            painter.restore()
+
+class CharView(QListView):
+
+    show_name = pyqtSignal(object)
+
+    def __init__(self, parent=None):
+        self.last_mouse_idx = -1
+        QListView.__init__(self, parent)
+        self._model = CharModel(self)
+        self.setModel(self._model)
+        self.delegate = CharDelegate(self)
+        self.setItemDelegate(self.delegate)
+        self.setFlow(self.LeftToRight)
+        self.setWrapping(True)
+        self.setMouseTracking(True)
+        self.setSpacing(2)
+        self.setCursor(Qt.PointingHandCursor)
+
+    def show_chars(self, name, codes):
+        self._model.chars = codes
+        self._model.reset()
+        self.scrollToTop()
+
+    def mouseMoveEvent(self, ev):
+        index = self.indexAt(ev.pos())
+        if index.isValid():
+            row = index.row()
+            if row != self.last_mouse_idx:
+                self.last_mouse_idx = row
+                char_code, ok = self.model().data(index, Qt.UserRole).toInt()
+                if ok:
+                    self.show_name.emit(char_code)
+            self.setCursor(Qt.PointingHandCursor)
+        else:
+            self.setCursor(Qt.ArrowCursor)
+            self.show_name.emit(-1)
+            self.last_mouse_idx = -1
 
 class CharSelect(Dialog):
 
@@ -415,8 +532,19 @@ class CharSelect(Dialog):
         self.setLayout(l)
         self.bb.setStandardButtons(self.bb.Close)
 
+        self.splitter = s = QSplitter(self)
+        s.setChildrenCollapsible(False)
+
         self.category_view = CategoryView(self)
-        l.addWidget(self.category_view)
+        l.addWidget(s)
+        self.char_view = CharView(self)
+        self.category_view.category_selected.connect(self.char_view.show_chars)
+        self.char_view.show_name.connect(self.show_char_info)
+        s.addWidget(self.category_view), s.addWidget(self.char_view)
+
+        self.char_info = la = QLabel('\xa0')
+        la.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
+        l.addWidget(la)
         l.addWidget(self.bb)
 
     def initialize(self):
@@ -425,6 +553,13 @@ class CharSelect(Dialog):
 
     def sizeHint(self):
         return QSize(800, 600)
+
+    def show_char_info(self, char_code):
+        if char_code > 0:
+            category_name, subcategory_name, character_name = self.category_view.model().get_char_info(char_code)
+            self.char_info.setText('%s - %s - %s (U+%s)' % (category_name, subcategory_name, character_name, hex(char_code)))
+        else:
+            self.char_info.clear()
 
     def show(self):
         self.initialize()
