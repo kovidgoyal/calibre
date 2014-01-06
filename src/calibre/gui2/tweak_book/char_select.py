@@ -8,10 +8,11 @@ __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import unicodedata, re
 from bisect import bisect
+from functools import partial
 
 from PyQt4.Qt import (
     QAbstractItemModel, QModelIndex, Qt, QVariant, pyqtSignal, QApplication,
-    QTreeView, QSize, QGridLayout, QAbstractListModel, QListView, QPen,
+    QTreeView, QSize, QGridLayout, QAbstractListModel, QListView, QPen, QMenu,
     QStyledItemDelegate, QSplitter, QLabel, QSizePolicy, QIcon, QMimeData)
 
 from calibre.constants import ispy3, plugins
@@ -401,7 +402,7 @@ class CategoryModel(QAbstractItemModel):
             pid = index.internalId()
             if pid == 0:
                 if index.row() == 0:
-                    return (_('Favorites'), tprefs['charmap_favorites'])
+                    return (_('Favorites'), list(tprefs['charmap_favorites']))
             else:
                 item = self.categories[pid - 1][1][index.row()]
                 return (item[0], list(xrange(item[1][0], item[1][1] + 1)))
@@ -560,6 +561,9 @@ class CharView(QListView):
         self.setMouseTracking(True)
         self.setSpacing(2)
         self.setUniformItemSizes(True)
+        self.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.customContextMenuRequested.connect(self.context_menu)
+        self.showing_favorites = False
 
     def set_allow_drag_and_drop(self, enabled):
         if not enabled:
@@ -576,6 +580,7 @@ class CharView(QListView):
             self._model.allow_dnd = True
 
     def show_chars(self, name, codes):
+        self.showing_favorites = name == _('Favorites')
         self._model.chars = codes
         self._model.reset()
         self.scrollToTop()
@@ -595,6 +600,40 @@ class CharView(QListView):
             self.show_name.emit(-1)
             self.last_mouse_idx = -1
         return QListView.mouseMoveEvent(self, ev)
+
+    def context_menu(self, pos):
+        index = self.indexAt(pos)
+        if index.isValid():
+            char_code, ok = self.model().data(index, Qt.UserRole).toInt()
+            if ok:
+                m = QMenu(self)
+                m.addAction(QIcon(I('edit-copy.png')), _('Copy %s to clipboard') % chr(char_code), partial(self.copy_to_clipboard, char_code))
+                m.addAction(QIcon(I('rating.png')),
+                            (_('Remove %s from favorites') if self.showing_favorites else _('Add %s to favorites')) % chr(char_code),
+                            partial(self.remove_from_favorites, char_code))
+                if self.showing_favorites:
+                    m.addAction(_('Restore favorites to defaults'), self.restore_defaults)
+                m.exec_(self.mapToGlobal(pos))
+
+    def restore_defaults(self):
+        del tprefs['charmap_favorites']
+        self.model().chars = list(tprefs['charmap_favorites'])
+        self.model().reset()
+
+    def copy_to_clipboard(self, char_code):
+        c = QApplication.clipboard()
+        c.setText(chr(char_code))
+
+    def remove_from_favorites(self, char_code):
+        existing = tprefs['charmap_favorites']
+        if not self.showing_favorites:
+            if char_code not in existing:
+                tprefs['charmap_favorites'] = [char_code] + existing
+        elif char_code in existing:
+            existing.remove(char_code)
+            tprefs['charmap_favorites'] = existing
+            self.model().chars.remove(char_code)
+            self.model().reset()
 
 class CharSelect(Dialog):
 
