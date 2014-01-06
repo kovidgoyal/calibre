@@ -29,6 +29,7 @@ from calibre.gui2.tweak_book.preview import Preview
 from calibre.gui2.tweak_book.search import SearchPanel
 from calibre.gui2.tweak_book.check import Check
 from calibre.gui2.tweak_book.toc import TOCViewer
+from calibre.gui2.tweak_book.char_select import CharSelect
 from calibre.gui2.tweak_book.editor.widget import register_text_editor_actions
 from calibre.gui2.tweak_book.editor.insert_resource import InsertImage
 
@@ -217,6 +218,7 @@ class Main(MainWindow):
         self.check_book = Check(self)
         self.toc_view = TOCViewer(self)
         self.image_browser = InsertImage(self, for_browsing=True)
+        self.insert_char = CharSelect(self)
 
         self.create_actions()
         self.create_toolbars()
@@ -321,6 +323,8 @@ class Main(MainWindow):
                                            _('Beautify current file'))
         self.action_pretty_all = reg('format-justify-fill.png', _('&Beautify all files'), partial(self.boss.pretty_print, False), 'pretty-all', (),
                                        _('Beautify all files'))
+        self.action_insert_char = reg('character-set.png', _('&Insert special character'), self.boss.insert_character, 'insert-character', (),
+                                      _('Insert special character'))
 
         # Polish actions
         group = _('Polish Book')
@@ -423,6 +427,7 @@ class Main(MainWindow):
         e.addAction(self.action_editor_cut)
         e.addAction(self.action_editor_copy)
         e.addAction(self.action_editor_paste)
+        e.addAction(self.action_insert_char)
         e.addSeparator()
         e.addAction(self.action_preferences)
 
@@ -505,6 +510,7 @@ class Main(MainWindow):
         b.setToolTip(_('Donate to support calibre development'))
         QTimer.singleShot(10, b.start_animation)
         self.global_bar.addWidget(w)
+        self.global_bar.addAction(self.action_insert_char)
         a(self.action_help)
 
         a = create(_('Polish book tool bar'), 'polish').addAction

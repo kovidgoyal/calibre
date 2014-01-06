@@ -1068,6 +1068,9 @@ class Boss(QObject):
         if not editors:
             self.gui.preview.clear()
 
+    def insert_character(self):
+        self.gui.insert_char.show()
+
     # Shutdown {{{
     def quit(self):
         if not self.confirm_quit():

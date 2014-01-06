@@ -6,7 +6,7 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import unicodedata, re
+import unicodedata, re, weakref
 from bisect import bisect
 from functools import partial
 
@@ -548,6 +548,7 @@ class CharDelegate(QStyledItemDelegate):
 class CharView(QListView):
 
     show_name = pyqtSignal(object)
+    char_selected = pyqtSignal(object)
 
     def __init__(self, parent=None):
         self.last_mouse_idx = -1
@@ -564,6 +565,16 @@ class CharView(QListView):
         self.setContextMenuPolicy(Qt.CustomContextMenu)
         self.customContextMenuRequested.connect(self.context_menu)
         self.showing_favorites = False
+        pi = plugins['progress_indicator'][0]
+        if hasattr(pi, 'set_no_activate_on_click'):
+            pi.set_no_activate_on_click(self)
+        self.activated.connect(self.item_activated)
+        self.clicked.connect(self.item_activated)
+
+    def item_activated(self, index):
+        char_code, ok = self.model().data(index, Qt.UserRole).toInt()
+        if ok:
+            self.char_selected.emit(chr(char_code))
 
     def set_allow_drag_and_drop(self, enabled):
         if not enabled:
@@ -640,6 +651,8 @@ class CharSelect(Dialog):
     def __init__(self, parent=None):
         self.initialized = False
         Dialog.__init__(self, _('Insert character'), 'charmap_dialog', parent)
+        self.setWindowIcon(QIcon(I('character-set.png')))
+        self.focus_widget = None
 
     def setup_ui(self):
         self.l = l = QGridLayout(self)
@@ -650,6 +663,7 @@ class CharSelect(Dialog):
         b.setCheckable(True)
         b.setChecked(False)
         b.setVisible(False)
+        b.setDefault(True)
 
         self.splitter = s = QSplitter(self)
         s.setChildrenCollapsible(False)
@@ -660,6 +674,7 @@ class CharSelect(Dialog):
         self.rearrange_button.toggled[bool].connect(self.set_allow_drag_and_drop)
         self.category_view.category_selected.connect(self.show_chars)
         self.char_view.show_name.connect(self.show_char_info)
+        self.char_view.char_selected.connect(self.char_selected)
         s.addWidget(self.category_view), s.addWidget(self.char_view)
 
         self.char_info = la = QLabel('\xa0')
@@ -701,9 +716,28 @@ class CharSelect(Dialog):
             self.char_info.clear()
 
     def show(self):
+        try:
+            self.focus_widget = weakref.ref(QApplication.focusWidget())
+        except TypeError:
+            self.focus_widget = None
         self.initialize()
         Dialog.show(self)
         self.raise_()
+
+    def char_selected(self, c):
+        if QApplication.keyboardModifiers() & Qt.CTRL:
+            self.hide()
+        if self.focus_widget is None or self.focus_widget() is None:
+            QApplication.clipboard().setText(c)
+            return
+        w = self.focus_widget()
+        if hasattr(w, 'textCursor'):
+            cr = w.textCursor()
+            cr.insertText(c)
+            w.setTextCursor(cr)
+        elif hasattr(w, 'insert'):
+            w.insert(c)
+
 
 if __name__ == '__main__':
     app = QApplication([])
