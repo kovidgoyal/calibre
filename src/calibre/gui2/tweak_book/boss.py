@@ -606,7 +606,7 @@ class Boss(QObject):
 
         def no_match():
             QApplication.restoreOverrideCursor()
-            msg = '<p>' + _('No matches were found for %s.') % prepare_string_for_xml(state['find'])
+            msg = '<p>' + _('No matches were found for %s.') % ('<br><i>' + prepare_string_for_xml(state['find']))
             if not state['wrap']:
                 msg += '<p>' + _('You have turned off search wrapping, so all text might not have been searched.'
                   ' Try the search again, with wrapping enabled. Wrapping is enabled via the'
