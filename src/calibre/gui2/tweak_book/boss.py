@@ -1065,7 +1065,7 @@ class Boss(QObject):
         editor = editors.pop(name)
         self.gui.central.close_editor(editor)
         editor.break_cycles()
-        if not editors:
+        if not editors or getattr(self.gui.central.current_editor, 'syntax', None) != 'html':
             self.gui.preview.clear()
 
     def insert_character(self):
