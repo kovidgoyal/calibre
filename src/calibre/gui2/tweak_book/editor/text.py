@@ -270,6 +270,7 @@ class TextEdit(QPlainTextEdit):
         c.setPosition(start)
         c.setPosition(end, c.KeepAnchor)
         self.setTextCursor(c)
+        self.centerCursor()
         return True
 
     def all_in_marked(self, pat, template=None):
@@ -323,6 +324,7 @@ class TextEdit(QPlainTextEdit):
         c.setPosition(start)
         c.setPosition(end, c.KeepAnchor)
         self.setTextCursor(c)
+        self.centerCursor()
         return True
 
     def replace(self, pat, template):

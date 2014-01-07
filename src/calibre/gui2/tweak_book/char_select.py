@@ -6,17 +6,20 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import unicodedata, re
+import unicodedata, re, os, cPickle
 from bisect import bisect
 from functools import partial
+from collections import defaultdict
 
 from PyQt4.Qt import (
     QAbstractItemModel, QModelIndex, Qt, QVariant, pyqtSignal, QApplication,
     QTreeView, QSize, QGridLayout, QAbstractListModel, QListView, QPen, QMenu,
-    QStyledItemDelegate, QSplitter, QLabel, QSizePolicy, QIcon, QMimeData)
+    QStyledItemDelegate, QSplitter, QLabel, QSizePolicy, QIcon, QMimeData,
+    QPushButton, QToolButton)
 
-from calibre.constants import ispy3, plugins
+from calibre.constants import ispy3, plugins, cache_dir
 from calibre.gui2 import NONE
+from calibre.gui2.widgets2 import HistoryLineEdit2
 from calibre.gui2.tweak_book import tprefs
 from calibre.gui2.tweak_book.editor.insert_resource import Dialog
 
@@ -31,6 +34,58 @@ non_printing = {
     0x205f: 'mmsp', 0x2060: 'wj', 0x2061: 'fa', 0x2062: 'x', 0x2063: ',', 0x2064: '+', 0x206A: 'iss', 0x206b: 'ass', 0x206c: 'iafs', 0x206d: 'aafs',
     0x206e: 'nads', 0x206f: 'nods', 0x20: 'sp', 0x7f: 'del', 0x2e3a: '2m', 0x2e3b: '3m', 0xad: 'shy',
 }
+
+# Searching {{{
+def load_search_index():
+    ver = 1  # Increment this when you make any changes to the index
+    name_map = {}
+    path = os.path.join(cache_dir(), 'unicode-name-index.pickle')
+    if os.path.exists(path):
+        with open(path, 'rb') as f:
+            name_map = cPickle.load(f)
+        if name_map.pop('calibre-nm-version:', -1) != ver:
+            name_map = {}
+    if not name_map:
+        name_map = defaultdict(set)
+        from calibre.constants import ispy3
+        if not ispy3:
+            chr = unichr
+        for x in xrange(1, 0x10FFFF + 1):
+            for word in unicodedata.name(chr(x), '').split():
+                name_map[word.lower()].add(x)
+        from calibre.ebooks.html_entities import html5_entities
+        for name, char in html5_entities.iteritems():
+            try:
+                name_map[name.lower()].add(ord(char))
+            except TypeError:
+                continue
+        name_map['nnbsp'].add(0x202F)
+        name_map['calibre-nm-version:'] = ver
+        cPickle.dump(dict(name_map), open(path, 'wb'), -1)
+        del name_map['calibre-nm-version:']
+    return name_map
+
+_index = None
+
+def search_for_chars(query, and_tokens=False):
+    global _index
+    if _index is None:
+        _index = load_search_index()
+    ans = set()
+    for token in query.split():
+        token = token.lower()
+        m = re.match(r'(?:[u]\+)([a-f0-9]+)', token)
+        if m is not None:
+            chars = {int(m.group(1), 16)}
+        else:
+            chars = _index.get(token, None)
+        if chars is not None:
+            if and_tokens:
+                ans &= chars
+            else:
+                ans |= chars
+    return sorted(ans)
+# }}}
 
 class CategoryModel(QAbstractItemModel):
 
@@ -452,10 +507,16 @@ class CategoryView(QTreeView):
             else:
                 self.expand(index)
 
+    def get_chars(self):
+        ans = self._model.get_range(self.currentIndex())
+        if ans is not None:
+            self.category_selected.emit(*ans)
+
     def initialize(self):
         if not self.initialized:
             self._model = m = CategoryModel(self)
             self.setModel(m)
+            self.setCurrentIndex(m.index(0, 0))
             self.item_activated(m.index(0, 0))
             self._delegate = CategoryDelegate(self)
             self.setItemDelegate(self._delegate)
@@ -668,8 +729,24 @@ class CharSelect(Dialog):
         self.splitter = s = QSplitter(self)
         s.setChildrenCollapsible(False)
 
+        self.search = h = HistoryLineEdit2(self)
+        h.setToolTip(_(
+            'Search for unicode characters by using the English names or nicknames.'
+            ' You can also search directly using a character code. For example, the following'
+            ' searches will all yield the no-break space character: U+A0, nbsp, no-break'))
+        h.initialize('charmap_search')
+        h.setPlaceholderText(_('Search by name, nickname or character code'))
+        self.search_button = b = QPushButton(_('&Search'))
+        h.returnPressed.connect(self.do_search)
+        b.clicked.connect(self.do_search)
+        self.clear_button = cb = QToolButton(self)
+        cb.setIcon(QIcon(I('clear_left.png')))
+        cb.setText(_('Clear search'))
+        cb.clicked.connect(self.clear_search)
+        l.addWidget(h), l.addWidget(b, 0, 1), l.addWidget(cb, 0, 2)
+
         self.category_view = CategoryView(self)
-        l.addWidget(s)
+        l.addWidget(s, 1, 0, 1, 3)
         self.char_view = CharView(self)
         self.rearrange_button.toggled[bool].connect(self.set_allow_drag_and_drop)
         self.category_view.category_selected.connect(self.show_chars)
@@ -679,14 +756,26 @@ class CharSelect(Dialog):
 
         self.char_info = la = QLabel('\xa0')
         la.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
-        l.addWidget(la)
+        l.addWidget(la, 2, 0, 1, 3)
 
         self.rearrange_msg = la = QLabel(_(
             'Drag and drop characters to re-arrange them. Click the re-arrange button again when you are done.'))
         la.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
         la.setVisible(False)
-        l.addWidget(la)
-        l.addWidget(self.bb)
+        l.addWidget(la, 3, 0, 1, 3)
+        l.addWidget(self.bb, 4, 0, 1, 3)
+        self.char_view.setFocus(Qt.OtherFocusReason)
+
+    def do_search(self):
+        text = unicode(self.search.text()).strip()
+        if not text:
+            return self.clear_search()
+        chars = search_for_chars(text)
+        self.show_chars(_('Search'), chars)
+
+    def clear_search(self):
+        self.search.clear()
+        self.category_view.get_chars()
 
     def set_allow_drag_and_drop(self, on):
         self.char_view.set_allow_drag_and_drop(on)
@@ -711,7 +800,7 @@ class CharSelect(Dialog):
     def show_char_info(self, char_code):
         if char_code > 0:
             category_name, subcategory_name, character_name = self.category_view.model().get_char_info(char_code)
-            self.char_info.setText('%s - %s - %s (%04X)' % (category_name, subcategory_name, character_name, char_code))
+            self.char_info.setText('%s - %s - %s (U+%04X)' % (category_name, subcategory_name, character_name, char_code))
         else:
             self.char_info.clear()
 
