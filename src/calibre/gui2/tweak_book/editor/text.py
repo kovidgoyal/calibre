@@ -270,6 +270,7 @@ class TextEdit(QPlainTextEdit):
         c.setPosition(start)
         c.setPosition(end, c.KeepAnchor)
         self.setTextCursor(c)
+        # Center search result on screen
         self.centerCursor()
         return True
 
@@ -324,6 +325,7 @@ class TextEdit(QPlainTextEdit):
         c.setPosition(start)
         c.setPosition(end, c.KeepAnchor)
         self.setTextCursor(c)
+        # Center search result on screen
         self.centerCursor()
         return True
 
