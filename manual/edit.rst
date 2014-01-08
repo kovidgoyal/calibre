@@ -425,10 +425,10 @@ use the bulk renaming facility of the Files Browser, described above, to give
 the split off files sensible names.
 
 
-Miscellaneous Views
+Miscellaneous Tools
 ----------------------
 
-There are a few more views that can be useful while you edit the book. 
+There are a few more tools that can be useful while you edit the book. 
 
 The Table of Contents View
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -438,6 +438,22 @@ Double clicking on any entry opens the place that entry points to in an editor.
 You can right click to edit the Table of Contents, refresh the view or
 expand/collapse all items. Access this view via :guilabel:`Views->Table of
 Contents`.
+
+Inserting special characters
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+You can insert characters that are difficult to type by using the
+:guilabel:`Edit->Insert special character` tool. This shows you all unicode
+characters, simply click in the character you want to type. If you hold Ctrl
+while clicking, the window will close itself after inserting the selected
+character.
+
+Because there are a lot of character, you can define your own "Favorites"
+characters, that will be shown first. Simply right click on a character to mark
+it as favorite. You can also right click on a character in favorites to remove
+it from favorites. Finally, you can re-arrange the order of characters in
+favorites by clicking the :guilabel:`Re-arrange favorties` button and then drag
+and dropping the characters in favorites around.
 
 The code inspector view
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
