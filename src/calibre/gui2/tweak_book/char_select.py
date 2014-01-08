@@ -6,7 +6,7 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import unicodedata, re, os, cPickle
+import unicodedata, re, os, cPickle, sys, textwrap
 from bisect import bisect
 from functools import partial
 from collections import defaultdict
@@ -24,7 +24,15 @@ from calibre.gui2.tweak_book import tprefs
 from calibre.gui2.tweak_book.editor.insert_resource import Dialog
 
 if not ispy3:
-    chr = unichr
+    if sys.maxunicode >= 0x10FFFF:
+        chr = unichr
+    else:
+        def chr(i):
+            # Narrow builds of python cannot represent code point > 0xffff as a
+            # single character, so we need our own implementation of unichr
+            # that returns them as a surrogate pair
+            return (b"\U%s" % (hex(i)[2:].zfill(8))).decode('unicode-escape')
+
 ROOT = QModelIndex()
 
 non_printing = {
@@ -37,20 +45,18 @@ non_printing = {
 
 # Searching {{{
 def load_search_index():
-    ver = 1  # Increment this when you make any changes to the index
+    topchar = sys.maxunicode
+    ver = (1, topchar, unicodedata.unidata_version)  # Increment this when you make any changes to the index
     name_map = {}
     path = os.path.join(cache_dir(), 'unicode-name-index.pickle')
     if os.path.exists(path):
         with open(path, 'rb') as f:
             name_map = cPickle.load(f)
-        if name_map.pop('calibre-nm-version:', -1) != ver:
+        if name_map.pop('calibre-nm-version:', None) != ver:
             name_map = {}
     if not name_map:
         name_map = defaultdict(set)
-        from calibre.constants import ispy3
-        if not ispy3:
-            chr = unichr
-        for x in xrange(1, 0x10FFFF + 1):
+        for x in xrange(1, topchar + 1):
             for word in unicodedata.name(chr(x), '').split():
                 name_map[word.lower()].add(x)
         from calibre.ebooks.html_entities import html5_entities
@@ -730,10 +736,10 @@ class CharSelect(Dialog):
         s.setChildrenCollapsible(False)
 
         self.search = h = HistoryLineEdit2(self)
-        h.setToolTip(_(
+        h.setToolTip(textwrap.fill(_(
             'Search for unicode characters by using the English names or nicknames.'
             ' You can also search directly using a character code. For example, the following'
-            ' searches will all yield the no-break space character: U+A0, nbsp, no-break'))
+            ' searches will all yield the no-break space character: U+A0, nbsp, no-break')))
         h.initialize('charmap_search')
         h.setPlaceholderText(_('Search by name, nickname or character code'))
         self.search_button = b = QPushButton(_('&Search'))
@@ -767,10 +773,12 @@ class CharSelect(Dialog):
         self.char_view.setFocus(Qt.OtherFocusReason)
 
     def do_search(self):
+        from calibre.gui2.tweak_book.boss import BusyCursor
         text = unicode(self.search.text()).strip()
         if not text:
             return self.clear_search()
-        chars = search_for_chars(text)
+        with BusyCursor():
+            chars = search_for_chars(text)
         self.show_chars(_('Search'), chars)
 
     def clear_search(self):
