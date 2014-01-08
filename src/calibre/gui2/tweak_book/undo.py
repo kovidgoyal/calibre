@@ -38,7 +38,11 @@ class GlobalUndoHistory(object):
         self.pos = 0
 
     def add_savepoint(self, new_container, message):
-        self.states[self.pos].message = message
+        try:
+            self.states[self.pos].message = message
+        except IndexError:
+            raise IndexError('The checkpoint stack has an incorrect position pointer. This should never happen: self.pos = %r, len(self.states) = %r' % (
+                self.pos, len(self.states)))
         extra = self.states[self.pos+1:]
         cleanup(extra)
         self.states = self.states[:self.pos+1]
