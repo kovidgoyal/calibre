@@ -15,7 +15,7 @@ from PyQt4.Qt import (
     QAbstractItemModel, QModelIndex, Qt, QVariant, pyqtSignal, QApplication,
     QTreeView, QSize, QGridLayout, QAbstractListModel, QListView, QPen, QMenu,
     QStyledItemDelegate, QSplitter, QLabel, QSizePolicy, QIcon, QMimeData,
-    QPushButton, QToolButton)
+    QPushButton, QToolButton, QInputMethodEvent)
 
 from calibre.constants import ispy3, plugins, cache_dir
 from calibre.gui2 import NONE
@@ -817,17 +817,14 @@ class CharSelect(Dialog):
             return
         self.parent().activateWindow()
         w = self.parent().focusWidget()
-        if hasattr(w, 'textCursor'):
-            cr = w.textCursor()
-            cr.insertText(c)
-            w.setTextCursor(cr)
-        elif hasattr(w, 'insert'):
-            if hasattr(w, 'no_popup'):
-                oval = w.no_popup
-                w.no_popup = True
-            w.insert(c)
-            if hasattr(w, 'no_popup'):
-                w.no_popup = oval
+        e = QInputMethodEvent('', [])
+        e.setCommitString(c)
+        if hasattr(w, 'no_popup'):
+            oval = w.no_popup
+            w.no_popup = True
+        QApplication.sendEvent(w, e)
+        if hasattr(w, 'no_popup'):
+            w.no_popup = oval
 
 if __name__ == '__main__':
     app = QApplication([])
