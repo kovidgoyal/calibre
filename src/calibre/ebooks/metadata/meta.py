@@ -82,7 +82,8 @@ def get_metadata(stream, stream_type='lrf', use_libprs_metadata=False,
 
 def _get_metadata(stream, stream_type, use_libprs_metadata,
                   force_read_metadata=False, pattern=None):
-    if stream_type: stream_type = stream_type.lower()
+    if stream_type:
+        stream_type = stream_type.lower()
     if stream_type in ('html', 'html', 'xhtml', 'xhtm', 'xml'):
         stream_type = 'html'
     if stream_type in ('mobi', 'prc', 'azw'):
@@ -187,8 +188,8 @@ def metadata_from_filename(name, pat=None):
         try:
             pubdate = match.group('published')
             if pubdate:
-                from calibre.utils.date import parse_date
-                mi.pubdate = parse_date(pubdate)
+                from calibre.utils.date import parse_only_date
+                mi.pubdate = parse_only_date(pubdate)
         except:
             pass
 
