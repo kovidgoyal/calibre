@@ -228,7 +228,7 @@ class Completer(QListView):  # {{{
                 self.hide()
                 e.accept()
                 return True
-        elif etype == e.ShortcutOverride:
+        elif etype in (e.InputMethod, e.ShortcutOverride):
             QApplication.sendEvent(widget, e)
         return False
 # }}}
