@@ -58,7 +58,7 @@ def link_stylesheets(container, names, sheets, remove=False, mtype='text/css'):
             try:
                 parent = hp(root)[0]
             except (TypeError, IndexError):
-                parent = XHTML('head')
+                parent = root.makeelement(XHTML('head'))
                 container.insert_into_xml(root, parent, index=0)
             for sheet in sheets:
                 if sheet in extra:
