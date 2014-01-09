@@ -25,6 +25,8 @@ class FazNet(BasicNewsRecipe):
 
     remove_tags_after = dict(name='div', attrs={'class':['ArtikelFooter']})  # AGe add 2013-12-19
     remove_tags = [dict(name='div', attrs={'class':['ArtikelFooter']})]  # AGe add 2013-12-19
+    recursions = 1
+    match_regexps = [r'-p[2-9].html$']
 
     feeds = [
               ('FAZ.NET Aktuell', 'http://www.faz.net/aktuell/?rssview=1'),
