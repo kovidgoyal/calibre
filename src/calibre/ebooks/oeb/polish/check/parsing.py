@@ -11,12 +11,12 @@ import re
 from lxml.etree import XMLParser, fromstring, XMLSyntaxError
 import cssutils
 
-from calibre import force_unicode, human_readable
+from calibre import force_unicode, human_readable, prepare_string_for_xml
 from calibre.ebooks.html_entities import html5_entities
 from calibre.ebooks.oeb.polish.pretty import pretty_script_or_style as fix_style_tag
 from calibre.ebooks.oeb.polish.utils import PositionFinder
 from calibre.ebooks.oeb.polish.check.base import BaseError, WARN, ERROR, INFO
-from calibre.ebooks.oeb.base import OEB_DOCS
+from calibre.ebooks.oeb.base import OEB_DOCS, XHTML_NS
 
 HTML_ENTITTIES = frozenset(html5_entities)
 XML_ENTITIES = {'lt', 'gt', 'amp', 'apos', 'quot'}
@@ -79,6 +79,24 @@ class BadEntity(BaseError):
     def __init__(self, ent, name, lnum, col):
         BaseError.__init__(self, _('Invalid entity: %s') % ent, name, lnum, col)
 
+class BadNamespace(BaseError):
+
+    INDIVIDUAL_FIX = _(
+        'Run fix HTML on this file, which will automatically insert the correct namespace')
+
+    def __init__(self, name, namespace):
+        BaseError.__init__(self, _('Invalid or missing namespace'), name)
+        self.HELP = prepare_string_for_xml(_(
+            'This file has {0}. Its namespace must be {1}. Se the namespace by defining the xmlns'
+            ' attribute on the <html> element, like this <html xmlns="{1}">').format(
+                (_('incorrect namespace %s') % namespace) if namespace else _('no namespace'),
+                XHTML_NS))
+
+    def __call__(self, container):
+        container.parsed(self.name)
+        container.dirty(self.name)
+        return True
+
 
 class EntitityProcessor(object):
 
@@ -138,7 +156,7 @@ def check_xml_parsing(name, mt, raw):
             errors.append(BadEntity(ent, name, lnum, col))
 
     try:
-        fromstring(eraw, parser=parser)
+        root = fromstring(eraw, parser=parser)
     except XMLSyntaxError as err:
         try:
             line, col = err.position
@@ -147,6 +165,9 @@ def check_xml_parsing(name, mt, raw):
         return errors + [errcls(err.message, name, line, col)]
     except Exception as err:
         return errors + [errcls(err.message, name)]
+
+    if mt in OEB_DOCS and root.nsmap.get(root.prefix, None) != XHTML_NS:
+        errors.append(BadNamespace(name, root.nsmap.get(root.prefix, None)))
 
     return errors
 

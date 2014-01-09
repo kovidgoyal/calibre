@@ -629,6 +629,8 @@ def parse(raw, decoder=None, log=None, line_numbers=True, linenumber_attribute=N
     try:
         parser = XMLParser(no_network=True)
         ans = fromstring(raw, parser=parser)
+        if ans.tag != '{%s}html' % html_ns:
+            raise ValueError('Root tag is not <html> in the XHTML namespace')
         if linenumber_attribute:
             for elem in ans.iter(LxmlElement):
                 if elem.sourceline is not None:
