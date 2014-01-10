@@ -87,7 +87,7 @@ class BadNamespace(BaseError):
     def __init__(self, name, namespace):
         BaseError.__init__(self, _('Invalid or missing namespace'), name)
         self.HELP = prepare_string_for_xml(_(
-            'This file has {0}. Its namespace must be {1}. Se the namespace by defining the xmlns'
+            'This file has {0}. Its namespace must be {1}. Set the namespace by defining the xmlns'
             ' attribute on the <html> element, like this <html xmlns="{1}">').format(
                 (_('incorrect namespace %s') % namespace) if namespace else _('no namespace'),
                 XHTML_NS))
