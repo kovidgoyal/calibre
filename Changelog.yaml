@@ -20,6 +20,49 @@
 #   new recipes:
 #     - title: 
 
+- version: 1.19.0
+  date: 2014-01-10
+
+  new features:
+    - title: "Edit book: A new tool to insert special characters into the text, available via Edit->Insert special character. Supports all unicode characters (over 60,000 of them). See http://manual.calibre-ebook.com/edit.html#inserting-special-characters"
+
+    - title: "Edit book: When searching for text in the editor, center the found text on screen"
+
+    - title: "Driver for teXet TB-146SE."
+      tickets: [1266030]
+
+    - title: "Edit book: Show tooltips in the File Browser for 'special' files, such as the cover, opf, ncx, etc."
+
+    - title: "Edit book: When checking book, check for entries in the OPF whose mimetype does not match the file extension."
+
+  bug fixes:
+    - title: "Edit book: Fix marking a file as titlepage not working if the opf does not contain a <guide> section."
+      tickets: [1267643]
+
+    - title: "Edit book: Fix errors when working on HTML files that parse as valid XML, but do not have the correct XHTML namespace."
+
+    - title: "Fix typing non-English characters using an input method (key composing) in the author/tags/etc fields in the metadata dialog not working."
+      tickets: [1266795]
+
+    - title: "Edit book: Fix error when merging html files that include a currently opened file and a non-html file is also open"
+
+    - title: "Fix unnecessary error popup during shutdown if the wireless device driver is running and mdns de-registration fails."
+      tickets: [1262819]
+
+    - title: "Add L´ and D´ as recognized articles when automatically computing sort strings for French."
+      tickets: [1264172]
+
+    - title: "Edit book: Fix changing mimetypes in the opf file not being detected when closing the opf file or running any automated tool like Check Book"
+
+  improved recipes:
+    - New York Times
+    - Zeit Online
+    - Faz.net
+    - OGlobo
+    - Inc Magazine
+    - New York Review of Books
+    - Brand Eins
+
 - version: 1.18.0
   date: 2014-01-03
 
