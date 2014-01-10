@@ -128,7 +128,7 @@ Marking the cover
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 E-books typically have a cover image. This image is indicated in the Files
-Browser by the icon of a brow book next to the image name. If you want to
+Browser by the icon of a brown book next to the image name. If you want to
 designate some other image as the cover, you can do so by right clicking on the
 file and choosing :guilabel:`Mark as cover`.
 
@@ -245,7 +245,7 @@ The Edit Table of Contents tool shows you the current Table of Contents (if
 any) on the left. Simply double click on any entry to change its text. You can
 also re-arrange entries by drag and drop or by using the buttons to the right.
 
-Fro books that do not have a pre-existing Table of Contents, the tool gives you
+For books that do not have a pre-existing Table of Contents, the tool gives you
 various options to auto-generate a Table of Contents from the text. You can
 generate from the headings in the document, from links, from individual files
 and so on. 
