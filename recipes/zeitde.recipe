@@ -9,7 +9,7 @@ from datetime import date
 
 class ZeitDe(BasicNewsRecipe):
 
-    __author__            = 'Armin Geller'    # AGe 2012-10-13
+    __author__            = 'Armin Geller'    # AGe 2014-01-09
     title                 = u'Zeit Online'
     description           = u'German  online portal of newspaper Die Zeit'
     publisher             = 'ZEIT ONLINE GmbH'
@@ -23,14 +23,16 @@ class ZeitDe(BasicNewsRecipe):
     max_articles_per_feed = 100
     remove_empty_feeds    = True
     auto_cleanup          = True
-    # no_stylesheets = True
-    # conversion_options = {'base_font_size': 10}
 
     masthead_url          = 'http://images.zeit.de/static/img/logo_247x30.png'
 
-    year = str(date.today().isocalendar()[0]) # [0]=year [1]=week number [2]=week day
-    week = str(date.today().isocalendar()[1]+1)
-    cover_url = 'http://images.zeit.de/bilder/titelseiten_zeit/titelfluss/'  + year + '/0'+ week + '_001.jpg'
+    year = str(date.today().isocalendar()[0])  # [0]=year [1]=week number [2]=week day
+    week = str(date.today().isocalendar()[1]+1).zfill(3)  # AGE 2014-01-09: week needs 3 digits with prefix 0
+
+    cover_url = 'http://images.zeit.de/bilder/titelseiten_zeit/titelfluss/'  + year + '/'+ week + '_001.jpg'  # AGE 2014-01-09
+
+    extra_css = '.caption {font-size: 0.9em; font-style: italic; } \
+                 .excerpt {font-size: 1.3em; font-style: italic; } '
 
     feeds =  [
                (u'Startseite – Die wichtigsten Themen auf einen Blick', u'http://newsfeed.zeit.de/index_xml'),
@@ -45,9 +47,9 @@ class ZeitDe(BasicNewsRecipe):
                (u'Karriere – Für Ein-, Um- und Aufsteiger', u'http://newsfeed.zeit.de/karriere/index'),
                (u'Lebensart – Freizeit und Leben', u'http://newsfeed.zeit.de/lebensart/index'),
                (u'Reisen – All inclusive und individuell', u'http://newsfeed.zeit.de/reisen/index'),
-               (u'Auto – Modelle und Trends', u'http://newsfeed.zeit.de/auto/index'),
+               (u'Mobilität – Wie wir uns fortbewegen', u'http://newsfeed.zeit.de/mobilitaet/index'),  # AGe 2014-01-09
                (u'Sport – Sieg und Niederlage', u'http://newsfeed.zeit.de/sport/index')
-             ]
+              ]
 
     def print_version(self, url):
         return url + '/komplettansicht?print=true'
