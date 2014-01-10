@@ -123,6 +123,14 @@ def find_cover_image(container, strict=False):
     if largest_cover[0]:
         return largest_cover[0]
 
+def get_guides(container):
+    guides = container.opf_xpath('//opf:guide')
+    if not guides:
+        container.insert_into_xml(container.opf, container.opf.makeelement(
+            OPF('guide')))
+        guides = container.opf_xpath('//opf:guide')
+    return guides
+
 def mark_as_cover_epub(container, name):
     mmap = {v:k for k, v in container.manifest_id_map.iteritems()}
     if name not in mmap:
@@ -148,7 +156,7 @@ def mark_as_cover_epub(container, name):
     # If no entry for titlepage exists in guide, insert one that points to this
     # image
     if not container.opf_xpath('//opf:guide/opf:reference[@type="cover"]'):
-        for guide in container.opf_xpath('//opf:guide'):
+        for guide in get_guides(container):
             container.insert_into_xml(guide, guide.makeelement(
                 OPF('reference'), type='cover', href=container.name_to_href(name, container.opf_name)))
 
@@ -166,7 +174,7 @@ def mark_as_titlepage(container, name, move_to_start=True):
     for ref in container.opf_xpath('//opf:guide/opf:reference[@type="cover"]'):
         ref.getparent().remove(ref)
 
-    for guide in container.opf_xpath('//opf:guide'):
+    for guide in get_guides(container):
         container.insert_into_xml(guide, guide.makeelement(
             OPF('reference'), type='cover', href=container.name_to_href(name, container.opf_name)))
     container.dirty(container.opf_name)
