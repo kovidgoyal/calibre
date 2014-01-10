@@ -174,7 +174,7 @@ class NYTimes(BasicNewsRecipe):
                     dict(attrs={'class':[
                                         'articleFooter',
                                         'articleTools',
-                                        'rfd',
+                                        'rfd', 'story-footer-links', 'page-footer',
                                         'columnGroup singleRule',
                                         'columnGroup last',
                                         'columnGroup  last',
