@@ -536,6 +536,30 @@ Use the following HTML markup to achieve this
 
 Set the :guilabel:`Level 1 TOC` setting to ``//h:h2``. Then, for chapter two, |app| will take the title from the value of the ``title`` attribute on the ``<h2>`` tag, since the tag has no text.
 
+Using tag attributes to supply the text for entries in the Table of Contents
+-----------------------------------------------------------------------------
+
+If you have particularly long chapter titles and want shortened versions in the
+Table of Contents, you can use the title attribute to achieve this, for
+example:
+
+.. code-block:: html
+
+    <html>
+        <body>
+            <h2 title="Chapter 1">Chapter 1: Some very long title</h2>
+            <p>chapter 1 text...</p>
+            <h2 title="Chapter 2">Chapter 2: Some other very long title</h2>
+            <p>chapter 2 text...</p>
+        </body>
+    </html>
+
+Set the :guilabel:`Level 1 TOC` setting to ``//h:h2/@title``. Then |app| will
+take the title from the value of the ``title`` attribute on the ``<h2>`` tags,
+instead of using the text inside the tag. Note the trailing ``/@title`` on the
+XPath expression, you can use this form to tell |app| to get the text from any
+attribute you like. 
+
 How options are set/saved for Conversion
 -------------------------------------------
 
