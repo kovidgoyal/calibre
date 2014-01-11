@@ -1104,7 +1104,8 @@ class OnDeviceSearch(SearchQueryParser):  # {{{
         'format',
         'formats',
         'title',
-        'inlibrary'
+        'inlibrary',
+        'tags'
     ]
 
     def __init__(self, model):
@@ -1142,7 +1143,8 @@ class OnDeviceSearch(SearchQueryParser):  # {{{
              'author': lambda x: ' & '.join(getattr(x, 'authors')).lower(),
              'collections':lambda x: ','.join(getattr(x, 'device_collections')).lower(),
              'format':lambda x: os.path.splitext(x.path)[1].lower(),
-             'inlibrary':lambda x : getattr(x, 'in_library')
+             'inlibrary':lambda x : getattr(x, 'in_library'),
+             'tags':lambda x : getattr(x, 'tags')
              }
         for x in ('author', 'format'):
             q[x+'s'] = q[x]
@@ -1169,10 +1171,12 @@ class OnDeviceSearch(SearchQueryParser):  # {{{
                     else:
                         m = matchkind
 
-                    if locvalue == 'collections':
-                        vals = accessor(row).split(',')
-                    else:
-                        vals = [accessor(row)]
+                    vals = accessor(row)
+                    if not isinstance(vals, list):
+                        if locvalue == 'collections':
+                            vals = accessor(row).split(',')
+                        else:
+                            vals = [accessor(row)]
                     if _match(query, vals, m, use_primary_find_in_search=upf):
                         matches.add(index)
                         break
