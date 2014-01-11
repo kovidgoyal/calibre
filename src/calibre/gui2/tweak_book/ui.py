@@ -191,6 +191,8 @@ class CursorPositionWidget(QWidget):  # {{{
             except Exception:
                 name = None
             text = _('Line: {0} : {1}').format(line, col)
+            if not name:
+                name = {'\t':'TAB'}.get(character, None)
             if name:
                 text = name + ' : ' + text
             self.la.setText(text)
