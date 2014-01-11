@@ -130,8 +130,19 @@ class DetectStructure(object):
         self.log.warn("Failed to find start reading at position: %s"%
                 self.opts.start_reading_at)
 
+    def get_toc_parts_for_xpath(self, expr):
+        # if an attribute is selected by the xpath expr then truncate it
+        # from the path and instead return it as where to find the title text
+        title_attribute_regex = re.compile('/@([-\w]+)$')
+        match = title_attribute_regex.search(expr)
+        if match is not None:
+            return expr[0:match.start()], match.group(1)
+
+        return expr, None
+
     def detect_chapters(self):
         self.detected_chapters = []
+        self.chapter_title_attribute = None
 
         def find_matches(expr, doc):
             try:
@@ -143,8 +154,10 @@ class DetectStructure(object):
                 return []
 
         if self.opts.chapter:
+            chapter_path, title_attribute = self.get_toc_parts_for_xpath(self.opts.chapter)
+            self.chapter_title_attribute = title_attribute
             for item in self.oeb.spine:
-                for x in find_matches(self.opts.chapter, item.data):
+                for x in find_matches(chapter_path, item.data):
                     self.detected_chapters.append((item, x))
 
             chapter_mark = self.opts.chapter_mark
@@ -184,7 +197,7 @@ class DetectStructure(object):
     def create_toc_from_chapters(self):
         counter = self.oeb.toc.next_play_order()
         for item, elem in self.detected_chapters:
-            text, href = self.elem_to_link(item, elem, counter)
+            text, href = self.elem_to_link(item, elem, self.chapter_title_attribute, counter)
             self.oeb.toc.add(text, href, play_order=counter)
             counter += 1
 
@@ -213,8 +226,12 @@ class DetectStructure(object):
                             self.log('Maximum TOC links reached, stopping.')
                             return
 
-    def elem_to_link(self, item, elem, counter):
-        text = xml2text(elem).strip()
+    def elem_to_link(self, item, elem, title_attribute, counter):
+        text = ''
+        if title_attribute is not None:
+            text = elem.get(title_attribute, '')
+        if not text:
+            text = xml2text(elem).strip()
         if not text:
             text = elem.get('title', '')
         if not text:
@@ -244,8 +261,9 @@ class DetectStructure(object):
             previous_level1 = list(added.itervalues())[-1] if added else None
             previous_level2 = list(added2.itervalues())[-1] if added2 else None
 
-            for elem in find_matches(self.opts.level1_toc, document.data):
-                text, _href = self.elem_to_link(document, elem, counter)
+            level1_toc, level1_title = self.get_toc_parts_for_xpath(self.opts.level1_toc)
+            for elem in find_matches(level1_toc, document.data):
+                text, _href = self.elem_to_link(document, elem, level1_title, counter)
                 counter += 1
                 if text:
                     node = self.oeb.toc.add(text, _href,
@@ -254,7 +272,8 @@ class DetectStructure(object):
                     # node.add(_('Top'), _href)
 
             if self.opts.level2_toc is not None and added:
-                for elem in find_matches(self.opts.level2_toc, document.data):
+                level2_toc, level2_title = self.get_toc_parts_for_xpath(self.opts.level2_toc)
+                for elem in find_matches(level2_toc, document.data):
                     level1 = None
                     for item in document.data.iterdescendants():
                         if item in added:
@@ -264,7 +283,7 @@ class DetectStructure(object):
                                 if previous_level1 is None:
                                     break
                                 level1 = previous_level1
-                            text, _href = self.elem_to_link(document, elem, counter)
+                            text, _href = self.elem_to_link(document, elem, level2_title, counter)
                             counter += 1
                             if text:
                                 added2[elem] = level1.add(text, _href,
@@ -272,8 +291,8 @@ class DetectStructure(object):
                             break
 
                 if self.opts.level3_toc is not None and added2:
-                    for elem in find_matches(self.opts.level3_toc,
-                            document.data):
+                    level3_toc, level3_title = self.get_toc_parts_for_xpath(self.opts.level3_toc)
+                    for elem in find_matches(level3_toc, document.data):
                         level2 = None
                         for item in document.data.iterdescendants():
                             if item in added2:
@@ -284,7 +303,7 @@ class DetectStructure(object):
                                         break
                                     level2 = previous_level2
                                 text, _href = \
-                                        self.elem_to_link(document, elem, counter)
+                                        self.elem_to_link(document, elem, level3_title, counter)
                                 counter += 1
                                 if text:
                                     level2.add(text, _href,
