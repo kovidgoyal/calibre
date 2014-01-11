@@ -1136,7 +1136,7 @@ class OnDeviceSearch(SearchQueryParser):  # {{{
         if location not in self.USABLE_LOCATIONS:
             return set([])
         matches = set([])
-        all_locs = set(self.USABLE_LOCATIONS) - set(['all'])
+        all_locs = set(self.USABLE_LOCATIONS) - set(['all', 'tags'])
         locations = all_locs if location == 'all' else [location]
         q = {
              'title' : lambda x : getattr(x, 'title').lower(),
@@ -1144,7 +1144,7 @@ class OnDeviceSearch(SearchQueryParser):  # {{{
              'collections':lambda x: ','.join(getattr(x, 'device_collections')).lower(),
              'format':lambda x: os.path.splitext(x.path)[1].lower(),
              'inlibrary':lambda x : getattr(x, 'in_library'),
-             'tags':lambda x : getattr(x, 'tags')
+             'tags':lambda x : getattr(x, 'tags', [])
              }
         for x in ('author', 'format'):
             q[x+'s'] = q[x]
@@ -1172,11 +1172,10 @@ class OnDeviceSearch(SearchQueryParser):  # {{{
                         m = matchkind
 
                     vals = accessor(row)
-                    if not isinstance(vals, list):
-                        if locvalue == 'collections':
-                            vals = accessor(row).split(',')
-                        else:
-                            vals = [accessor(row)]
+                    if vals is None:
+                        vals = ''
+                    if isinstance(vals, basestring):
+                        vals = vals.split(',') if locvalue == 'collections' else [vals]
                     if _match(query, vals, m, use_primary_find_in_search=upf):
                         matches.add(index)
                         break
