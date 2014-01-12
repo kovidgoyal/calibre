@@ -222,6 +222,7 @@ class NYTimes(BasicNewsRecipe):
                                         re.compile('commentCount'),
                                         'credit'
                                         ]}),
+                    dict(attrs={'class':lambda x: x and 'related-coverage-marginalia' in x.split()}),
                     dict(name='div', attrs={'class':re.compile('toolsList')}),  # bits
                     dict(name='div', attrs={'class':re.compile('postNavigation')}),  # bits
                     dict(name='div', attrs={'class':'tweet'}),
@@ -235,6 +236,8 @@ class NYTimes(BasicNewsRecipe):
                     dict(id=[
                             'adxLeaderboard',
                             'adxSponLink',
+                            'anchoredAd_module',
+                            'anchoredAd_spot',
                             'archive',
                             'articleExtras',
                             'articleInline',
@@ -268,7 +271,7 @@ class NYTimes(BasicNewsRecipe):
                             'related-content', #added for DealBook
                             'whats-next',
                             ]),
-                    dict(name=['script', 'noscript', 'style','form','hr', 'button'])]
+                    dict(name=['script', 'noscript', 'style','form','hr', 'button', 'meta'])]
     no_stylesheets = True
     extra_css = '''
                 .articleHeadline { text-align: left; margin-top:0.5em; margin-bottom:0.25em; }
