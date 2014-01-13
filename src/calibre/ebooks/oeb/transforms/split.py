@@ -317,13 +317,11 @@ class FlowSplitter(object):
     def split_to_size(self, tree):
         self.log.debug('\t\tSplitting...')
         root = tree.getroot()
-        # Split large <pre> tags
-        for pre in list(XPath('//h:pre')(root)):
-            text = u''.join(pre.xpath('descendant::text()'))
-            pre.text = text
-            for child in list(pre.iterchildren()):
-                pre.remove(child)
-            if len(pre.text) > self.max_flow_size*0.5:
+        # Split large <pre> tags if they contain only text
+        for pre in XPath('//h:pre')(root):
+            if len(tuple(pre.iterchildren(etree.Element))) > 0:
+                continue
+            if pre.text and len(pre.text) > self.max_flow_size*0.5:
                 self.log.debug('\t\tSplitting large <pre> tag')
                 frags = self.split_text(pre.text, root, int(0.2*self.max_flow_size))
                 new_pres = []

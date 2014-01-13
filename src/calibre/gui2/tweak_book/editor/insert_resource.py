@@ -10,11 +10,11 @@ import sys, os
 from functools import partial
 
 from PyQt4.Qt import (
-    QDialog, QGridLayout, QDialogButtonBox, QSize, QListView, QStyledItemDelegate,
-    QLabel, QPixmap, QApplication, QSizePolicy, QAbstractListModel, QVariant,
-    Qt, QRect, QPainter, QModelIndex, QSortFilterProxyModel, QLineEdit,
-    QToolButton, QIcon, QFormLayout, pyqtSignal, QTreeWidget, QTreeWidgetItem,
-    QVBoxLayout, QMenu, QInputDialog)
+    QGridLayout, QSize, QListView, QStyledItemDelegate, QLabel, QPixmap,
+    QApplication, QSizePolicy, QAbstractListModel, QVariant, Qt, QRect,
+    QPainter, QModelIndex, QSortFilterProxyModel, QLineEdit, QToolButton,
+    QIcon, QFormLayout, pyqtSignal, QTreeWidget, QTreeWidgetItem, QVBoxLayout,
+    QMenu, QInputDialog)
 
 from calibre import fit_image
 from calibre.constants import plugins
@@ -23,42 +23,10 @@ from calibre.ebooks.metadata.book.base import Metadata
 from calibre.gui2 import NONE, choose_files, error_dialog
 from calibre.gui2.languages import LanguagesEdit
 from calibre.gui2.tweak_book import current_container, tprefs
+from calibre.gui2.tweak_book.widgets import Dialog
 from calibre.gui2.tweak_book.file_list import name_is_ok
 from calibre.utils.localization import get_lang, canonicalize_lang
 from calibre.utils.icu import sort_key
-
-class Dialog(QDialog):
-
-    def __init__(self, title, name, parent=None):
-        QDialog.__init__(self, parent)
-        self.setWindowTitle(title)
-        self.name = name
-        self.bb = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
-        self.bb.accepted.connect(self.accept)
-        self.bb.rejected.connect(self.reject)
-
-        self.setup_ui()
-
-        self.resize(self.sizeHint())
-        geom = tprefs.get(name + '-geometry', None)
-        if geom is not None:
-            self.restoreGeometry(geom)
-        if hasattr(self, 'splitter'):
-            state = tprefs.get(name + '-splitter-state', None)
-            if state is not None:
-                self.splitter.restoreState(state)
-
-    def accept(self):
-        tprefs.set(self.name + '-geometry', bytearray(self.saveGeometry()))
-        if hasattr(self, 'splitter'):
-            tprefs.set(self.name + '-splitter-state', bytearray(self.splitter.saveState()))
-        QDialog.accept(self)
-
-    def reject(self):
-        tprefs.set(self.name + '-geometry', bytearray(self.saveGeometry()))
-        if hasattr(self, 'splitter'):
-            tprefs.set(self.name + '-splitter-state', bytearray(self.splitter.saveState()))
-        QDialog.reject(self)
 
 class ChooseName(Dialog):  # {{{
 
