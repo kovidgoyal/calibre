@@ -640,9 +640,11 @@ class ITUNES(DriverBase):
                     self.ejected = True
                     return False
             except:
-                # iTunes connection failed, probably not running anymore
-
-                logger().error("%s.can_handle_windows():\n lost connection to iTunes" % self.__class__.__name__)
+                # iTunes connection failed
+                if self.verbose:
+                    logger().info("ERROR: %s.can_handle_windows():\n no connection to iTunes" % self.__class__.__name__)
+                #import traceback
+                #traceback.print_exc()
                 return False
             finally:
                 pythoncom.CoUninitialize()
@@ -1544,7 +1546,7 @@ class ITUNES(DriverBase):
                                 attempts -= 1
                                 time.sleep(delay)
                                 if self.verbose:
-#                                     logger().warning("  iTunes automation interface reported an error"
+#                                     logger().info("  iTunes automation interface reported an error"
 #                                                      " adding artwork to '%s' in the iTunes Library" % metadata.title)
                                     logger().info("  waiting %.1f seconds for artwork to become writable (attempt #%d)" %
                                                      (delay, (10 - attempts)))
@@ -1578,7 +1580,7 @@ class ITUNES(DriverBase):
                             logger().info("   writing '%s' cover to iDevice" % metadata.title)
                         except:
                             if self.verbose:
-                                logger().warning("  iTunes automation interface reported an error"
+                                logger().info("  iTunes automation interface reported an error"
                                                  " adding artwork to '%s' on the iDevice" % metadata.title)
                             #import traceback
                             #traceback.print_exc()
@@ -1601,7 +1603,7 @@ class ITUNES(DriverBase):
                                 lb_added.AddArtworkFromFile(tc)
                         except:
                             if self.verbose:
-                                logger().warning("  iTunes automation interface reported an error"
+                                logger().info("  iTunes automation interface reported an error"
                                                  " when adding artwork to '%s' in the iTunes Library" % metadata.title)
                             pass
 
@@ -2434,10 +2436,10 @@ class ITUNES(DriverBase):
                             break
                     else:
                         if self.verbose:
-                            logger().error("  no Library|Books playlist found")
+                            logger().info("  ERROR: no Library|Books playlist found")
                 else:
                     if self.verbose:
-                        logger().error("  no Library playlists found")
+                        logger().info("  ERROR: no Library playlists found")
 
                 try:
                     for book in lib_books:
@@ -2501,8 +2503,12 @@ class ITUNES(DriverBase):
         elif iswindows:
             # Assumes a pythoncom wrapper
             it_sources = ['Unknown', 'Library', 'iPod', 'AudioCD', 'MP3CD', 'Device', 'RadioTuner', 'SharedLibrary']
-            names = [s.name for s in self.iTunes.sources]
-            kinds = [it_sources[s.kind] for s in self.iTunes.sources]
+            try:
+                names = [s.name for s in self.iTunes.sources]
+                kinds = [it_sources[s.kind] for s in self.iTunes.sources]
+            except:
+                logger().info(" %s._launch_iTunes():ERROR reading iTunes.sources" % self.__class__.__name__)
+                raise
 
         # If more than one connected iDevice, remove all from list to prevent driver initialization
         if kinds.count('iPod') > 1:
@@ -3132,18 +3138,34 @@ class ITUNES(DriverBase):
                 lb_added.Year = metadata_x.pubdate.year
 
             if db_added:
+                # Wait for db_added to become writeable
                 if self.verbose:
-                    logger().info("  waiting for db_added to become writable ")
-                time.sleep(1.0)
-                db_added.Name = metadata_x.title
-                db_added.Album = metadata_x.title
-                db_added.Artist = authors_to_string(metadata_x.authors)
-                db_added.Composer = metadata_x.uuid
-                db_added.Description = ("%s %s" % (self.description_prefix, strftime('%Y-%m-%d %H:%M:%S')))
-                db_added.Enabled = True
-                db_added.SortArtist = icu_title(metadata_x.author_sort)
-                db_added.SortName = metadata_x.title_sort
-                db_added.Year = metadata_x.pubdate.year
+                    logger().info("  waiting for metadata to become writeable on iDevice")
+
+                WAIT_TIME = 0.50
+                ATTEMPTS = attempts = 9
+                while attempts:
+                    try:
+                        db_added.Name = metadata_x.title
+                        db_added.Album = metadata_x.title
+                        db_added.Artist = authors_to_string(metadata_x.authors)
+                        db_added.Composer = metadata_x.uuid
+                        db_added.Description = ("%s %s" % (self.description_prefix, strftime('%Y-%m-%d %H:%M:%S')))
+                        db_added.Enabled = True
+                        db_added.SortArtist = icu_title(metadata_x.author_sort)
+                        db_added.SortName = metadata_x.title_sort
+                        db_added.Year = metadata_x.pubdate.year
+                        break
+                    except:
+                        time.sleep(WAIT_TIME)
+                        attempts -= 1
+                        if self.verbose:
+                            logger().info("  waiting %.1f seconds for iDevice metadata to become writable (attempt #%d)" %
+                                (WAIT_TIME, (ATTEMPTS - attempts + 1)))
+                        if not attempts:
+                            logger().info("  ERROR: Unable to set metadata in book")
+                            raise
+
 
             if metadata_x.comments:
                 if lb_added:
@@ -3160,7 +3182,7 @@ class ITUNES(DriverBase):
                         db_added.AlbumRating = (metadata_x.rating * 10)
                 except:
                     if self.verbose:
-                        logger().warning("  iTunes automation interface reported an error"
+                        logger().info("  iTunes automation interface reported an error"
                                          " setting AlbumRating on iDevice")
 
             # Set Genre from first alpha tag, overwrite with series if available
@@ -3185,13 +3207,13 @@ class ITUNES(DriverBase):
                         lb_added.TrackNumber = metadata_x.series_index
                     except:
                         if self.verbose:
-                            logger().warning("  iTunes automation interface reported an error"
+                            logger().info("  iTunes automation interface reported an error"
                                              " setting TrackNumber in iTunes")
                     try:
                         lb_added.EpisodeNumber = metadata_x.series_index
                     except:
                         if self.verbose:
-                            logger().warning("  iTunes automation interface reported an error"
+                            logger().info("  iTunes automation interface reported an error"
                                              " setting EpisodeNumber in iTunes")
 
                     # If no plugboard transform applied to tags, change the Genre/Category to Series
@@ -3213,13 +3235,13 @@ class ITUNES(DriverBase):
                         db_added.TrackNumber = metadata_x.series_index
                     except:
                         if self.verbose:
-                            logger().warning("  iTunes automation interface reported an error"
+                            logger().info("  iTunes automation interface reported an error"
                                              " setting TrackNumber on iDevice")
                     try:
                         db_added.EpisodeNumber = metadata_x.series_index
                     except:
                         if self.verbose:
-                            logger().warning("  iTunes automation interface reported an error"
+                            logger().info("  iTunes automation interface reported an error"
                                              " setting EpisodeNumber on iDevice")
 
                     # If no plugboard transform applied to tags, change the Genre/Category to Series
