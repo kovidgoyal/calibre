@@ -21,7 +21,7 @@ from calibre.constants import ispy3, plugins, cache_dir
 from calibre.gui2 import NONE
 from calibre.gui2.widgets2 import HistoryLineEdit2
 from calibre.gui2.tweak_book import tprefs
-from calibre.gui2.tweak_book.editor.insert_resource import Dialog
+from calibre.gui2.tweak_book.widgets import Dialog
 
 if not ispy3:
     if sys.maxunicode >= 0x10FFFF:
