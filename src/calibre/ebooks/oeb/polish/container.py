@@ -95,6 +95,7 @@ class Container(object):  # {{{
 
     book_type = 'oeb'
     SUPPORTS_TITLEPAGES = True
+    SUPPORTS_FILENAMES = True
 
     def __init__(self, rootpath, opfpath, log, clone_data=None):
         self.root = clone_data['root'] if clone_data is not None else os.path.abspath(rootpath)
@@ -1035,6 +1036,7 @@ class AZW3Container(Container):
 
     book_type = 'azw3'
     SUPPORTS_TITLEPAGES = False
+    SUPPORTS_FILENAMES = False
 
     def __init__(self, pathtoazw3, log, clone_data=None, tdir=None):
         if clone_data is not None:

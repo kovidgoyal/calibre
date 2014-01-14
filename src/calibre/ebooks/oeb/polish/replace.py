@@ -7,7 +7,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import codecs, shutil, os
+import codecs, shutil, os, posixpath
 from urlparse import urlparse
 from collections import Counter, defaultdict
 
@@ -146,25 +146,50 @@ def replace_file(container, name, path, basename, force_mt=None):
         with container.open(nname, 'wb') as dest:
             shutil.copyfileobj(src, dest)
 
-def get_recommended_folders(container, names):
-    ' Return the folders that are recommended for the given filenames '
+def mt_to_category(container, mt):
     from calibre.ebooks.oeb.polish.container import guess_type, OEB_FONTS
     from calibre.ebooks.oeb.base import OEB_DOCS, OEB_STYLES
-    counts = defaultdict(Counter)
-    def mt_to_category(mt):
-        if mt in OEB_DOCS:
-            category = 'text'
-        elif mt in OEB_STYLES:
-            category = 'style'
-        elif mt in OEB_FONTS:
-            category = 'font'
-        else:
-            category = mt.partition('/')[0]
-        return category
+    if mt in OEB_DOCS:
+        category = 'text'
+    elif mt in OEB_STYLES:
+        category = 'style'
+    elif mt in OEB_FONTS:
+        category = 'font'
+    elif mt == guess_type('a.opf'):
+        category = 'opf'
+    elif mt == guess_type('a.ncx'):
+        category = 'toc'
+    else:
+        category = mt.partition('/')[0]
+    return category
 
+def get_recommended_folders(container, names):
+    ' Return the folders that are recommended for the given filenames '
+    from calibre.ebooks.oeb.polish.container import guess_type
+    counts = defaultdict(Counter)
     for name, mt in container.mime_map.iteritems():
         folder = name.rpartition('/')[0] if '/' in name else ''
-        counts[mt_to_category(mt)][folder] += 1
+        counts[mt_to_category(container, mt)][folder] += 1
 
     recommendations = {category:counter.most_common(1)[0][0] for category, counter in counts.iteritems()}
-    return {n:recommendations.get(mt_to_category(guess_type(os.path.basename(n))), '') for n in names}
+    return {n:recommendations.get(mt_to_category(container, guess_type(os.path.basename(n))), '') for n in names}
+
+def rationalize_folders(container, folder_type_map):
+    all_names = set(container.mime_map)
+    new_names = set()
+    name_map = {}
+    for name in all_names:
+        category = mt_to_category(container, container.mime_map[name])
+        folder = folder_type_map.get(category, None)
+        if folder is not None:
+            bn = posixpath.basename(name)
+            new_name = posixpath.join(folder, bn)
+            if new_name != name:
+                c = 0
+                while new_name in all_names or new_name in new_names:
+                    c += 1
+                    n, ext = bn.rpartition('.')[0::2]
+                    new_name = posixpath.join(folder, '%s_%d.%s' % (n, c, ext))
+                name_map[name] = new_name
+                new_names.add(new_name)
+    return name_map

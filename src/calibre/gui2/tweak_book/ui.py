@@ -327,6 +327,8 @@ class Main(MainWindow):
                                        _('Beautify all files'))
         self.action_insert_char = reg('character-set.png', _('&Insert special character'), self.boss.insert_character, 'insert-character', (),
                                       _('Insert special character'))
+        self.action_rationalize_folders = reg('mimetypes/dir.png', _('&Arrange into folders'), self.boss.rationalize_folders, 'rationalize-folders', (),
+                                      _('Arrange into folders'))
 
         # Polish actions
         group = _('Polish Book')
@@ -440,6 +442,7 @@ class Main(MainWindow):
         e.addAction(self.action_smarten_punctuation)
         e.addAction(self.action_fix_html_all)
         e.addAction(self.action_pretty_all)
+        e.addAction(self.action_rationalize_folders)
         e.addAction(self.action_check_book)
 
         e = b.addMenu(_('&View'))

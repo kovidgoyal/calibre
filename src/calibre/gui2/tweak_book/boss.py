@@ -21,7 +21,7 @@ from calibre.ebooks.oeb.polish.main import SUPPORTED, tweak_polish
 from calibre.ebooks.oeb.polish.container import get_container as _gc, clone_container, guess_type, OEB_FONTS
 from calibre.ebooks.oeb.polish.cover import mark_as_cover, mark_as_titlepage
 from calibre.ebooks.oeb.polish.pretty import fix_all_html, pretty_all
-from calibre.ebooks.oeb.polish.replace import rename_files, replace_file, get_recommended_folders
+from calibre.ebooks.oeb.polish.replace import rename_files, replace_file, get_recommended_folders, rationalize_folders
 from calibre.ebooks.oeb.polish.split import split, merge, AbortError
 from calibre.ebooks.oeb.polish.toc import remove_names_from_toc, find_existing_toc
 from calibre.ebooks.oeb.polish.utils import link_stylesheets
@@ -36,6 +36,7 @@ from calibre.gui2.tweak_book.toc import TOCEditor
 from calibre.gui2.tweak_book.editor import editor_from_syntax, syntax_from_mime
 from calibre.gui2.tweak_book.editor.insert_resource import get_resource_data, NewBook
 from calibre.gui2.tweak_book.preferences import Preferences
+from calibre.gui2.tweak_book.widgets import RationalizeFolders
 
 def get_container(*args, **kwargs):
     kwargs['tweak_mode'] = True
@@ -390,6 +391,26 @@ class Boss(QObject):
         d.exec_()
 
     # Renaming {{{
+
+    def rationalize_folders(self):
+        c = current_container()
+        if not c.SUPPORTS_FILENAMES:
+            return error_dialog(self.gui, _('Not supported'),
+                _('The %s format does not support file and folder names internally, therefore'
+                  ' arranging files into folders is not allowed.') % c.book_type.upper(), show=True)
+        d = RationalizeFolders(self.gui)
+        if d.exec_() != d.Accepted:
+            return
+        self.commit_all_editors_to_container()
+        name_map = rationalize_folders(c, d.folder_map)
+        if not name_map:
+            return info_dialog(self.gui, _('Nothing to do'), _(
+                'The files in this book are already arranged into folders'), show=True)
+        self.add_savepoint(_('Arrange into folders'))
+        self.gui.blocking_job(
+            'rationalize_folders', _('Renaming and updating links...'), partial(self.rename_done, name_map),
+            rename_files, current_container(), name_map)
+
     def rename_requested(self, oldname, newname):
         self.commit_all_editors_to_container()
         if guess_type(oldname) != guess_type(newname):
