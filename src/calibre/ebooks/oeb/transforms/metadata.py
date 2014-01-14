@@ -139,6 +139,10 @@ class MergeMetadata(object):
         if cdata:
             self.oeb.guide.remove('cover')
             self.oeb.guide.remove('titlepage')
+        elif self.oeb.plumber_output_format in {'mobi', 'azw3'}:
+            # The amazon formats dont support html cover pages, so remove them
+            # even if no cover was specified.
+            self.oeb.guide.remove('titlepage')
         if old_cover is not None:
             if old_cover.href in self.oeb.manifest.hrefs:
                 item = self.oeb.manifest.hrefs[old_cover.href]
