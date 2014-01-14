@@ -471,8 +471,8 @@ Arrange files into folders by type
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Often when editing EPUB files that you get from somewhere, you will find that
-the files inside the EPUB are arranged haphazardly, in different subfolders.
+the files inside the EPUB are arranged haphazardly, in different sub-folders.
 This tool allows you to automatically move all files into sub-folders based on
 their types. Access it via :guilabel:`Tools->Arrange into folders`. Note that
 this tool only changes how the files are arranged inside the EPUB, it does not
-change how they are displayed in the Files Borwser.
+change how they are displayed in the Files Browser.
