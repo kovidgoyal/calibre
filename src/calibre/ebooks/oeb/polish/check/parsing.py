@@ -23,6 +23,7 @@ XML_ENTITIES = {'lt', 'gt', 'amp', 'apos', 'quot'}
 ALL_ENTITIES = HTML_ENTITTIES | XML_ENTITIES
 
 replace_pat = re.compile('&(%s);' % '|'.join(re.escape(x) for x in sorted((HTML_ENTITTIES - XML_ENTITIES))))
+mismatch_pat = re.compile('tag mismatch:.+?line (\d+).+?line \d+')
 
 class XMLParseError(BaseError):
 
@@ -35,6 +36,10 @@ class XMLParseError(BaseError):
 
     def __init__(self, msg, *args, **kwargs):
         BaseError.__init__(self, 'Parsing failed: ' + msg, *args, **kwargs)
+        m = mismatch_pat.search(msg)
+        if m is not None:
+            self.has_multiple_locations = True
+            self.all_locations = [(self.name, int(m.group(1)), None), (self.name, self.line, self.col)]
 
 class HTMLParseError(XMLParseError):
 
