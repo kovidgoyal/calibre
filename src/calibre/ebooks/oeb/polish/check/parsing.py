@@ -16,7 +16,7 @@ from calibre.ebooks.html_entities import html5_entities
 from calibre.ebooks.oeb.polish.pretty import pretty_script_or_style as fix_style_tag
 from calibre.ebooks.oeb.polish.utils import PositionFinder
 from calibre.ebooks.oeb.polish.check.base import BaseError, WARN, ERROR, INFO
-from calibre.ebooks.oeb.base import OEB_DOCS, XHTML_NS
+from calibre.ebooks.oeb.base import OEB_DOCS, XHTML_NS, urlquote, URL_SAFE
 
 HTML_ENTITTIES = frozenset(html5_entities)
 XML_ENTITIES = {'lt', 'gt', 'amp', 'apos', 'quot'}
@@ -59,6 +59,37 @@ class NamedEntities(BaseError):
         nraw = replace_pat.sub(lambda m:html5_entities[m.group(1)], raw)
         with container.open(self.name, 'wb') as f:
             f.write(nraw.encode('utf-8'))
+        return True
+
+class EscapedName(BaseError):
+
+    level = WARN
+
+    def __init__(self, name):
+        from calibre.utils.filenames import ascii_filename
+        BaseError.__init__(self, _('Filename contains unsafe characters'), name)
+        qname = urlquote(name)
+        def esc(n):
+            return ''.join(x if x in URL_SAFE else '_' for x in n)
+        self.sname = '/'.join(esc(ascii_filename(x)) for x in name.split('/'))
+        self.HELP = _(
+            'The filename {0} contains unsafe characters, that must be escaped, like'
+            ' this {1}. This can cause problems with some ebook readers. To be'
+            ' absolutely safe, use only the English alphabet [a-z], the numbers [0-9],'
+            ' underscores and hyphens in your file names. While many other characters'
+            ' are allowed, they may cause problems with some software.').format(name, qname)
+        self.INDIVIDUAL_FIX = _(
+            'Rename the file {0} to {1}').format(name, self.sname)
+
+    def __call__(self, container):
+        from calibre.ebooks.oeb.polish.replace import rename_files
+        all_names = set(container.name_path_map)
+        bn, ext = self.sname.rpartition('.')[0::2]
+        c = 0
+        while self.sname in all_names:
+            c += 1
+            self.sname = '%s_%d.%s' % (bn, c, ext)
+        rename_files(container, {self.name:self.sname})
         return True
 
 class TooLarge(BaseError):
@@ -250,3 +281,11 @@ def check_css_parsing(name, raw, line_offset=0, is_declaration=False):
     for err in log.errors:
         err.line += line_offset
     return log.errors
+
+def check_filenames(container):
+    errors = []
+    all_names = set(container.name_path_map) - container.names_that_must_not_be_changed
+    for name in all_names:
+        if urlquote(name) != name:
+            errors.append(EscapedName(name))
+    return errors
