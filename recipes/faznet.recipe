@@ -8,7 +8,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 class FazNet(BasicNewsRecipe):
     title                 = 'FAZ.NET'
-    __author__            = 'Kovid Goyal, Darko Miletic, Armin Geller'  # AGe upd. V4 2014-01-10
+    __author__            = 'Kovid Goyal, Darko Miletic, Armin Geller'  # AGe upd. V4 2014-01-14
     description           = 'Frankfurter Allgemeine Zeitung'
     publisher             = 'Frankfurter Allgemeine Zeitung GmbH'
     category              = 'news, politics, Germany'
@@ -47,7 +47,7 @@ class FazNet(BasicNewsRecipe):
 
 # AGe 2014-01-10 New  for multipages
     INDEX                 = ''
-    def append_page(self, soup, appendtag, position):
+    def append_page(self, soup, appendtag, position):   # AGe upd 2014-01-14
         pager = soup.find('a',attrs={'title':'Nächste Seite'})
         if pager:
             nexturl = self.INDEX + pager['href']
@@ -57,16 +57,17 @@ class FazNet(BasicNewsRecipe):
             texttag.find('div', attrs={'class':'ArtikelAbbinder'}).extract()
             texttag.find('div', attrs={'class':'ArtikelKommentieren Artikelfuss GETS;tk;boxen.top-lesermeinungen;tp;content'}).extract()
             texttag.find('div', attrs={'class':'Anzeige GoogleAdsBuehne'}).extract()
-            texttag.find('div', attrs={'id':'ArticlePagerBottom'}).extract()
             newpos = len(texttag.contents)
             self.append_page(soup2,texttag,newpos)
             texttag.extract()
             pager.extract()
             appendtag.insert(position,texttag)
 
-    def preprocess_html(self, soup):
+    def preprocess_html(self, soup):                    # AGe upd 2014-01-14
         self.append_page(soup, soup.body, 3)
-        pager = soup.find('div',attrs={'id':'ArticlePagerBottom'})
-        if pager:
-            pager.extract()
         return self.adeify_images(soup)
+
+    def postprocess_html(self, soup, first_fetch):      # AGe add 2014-01-14
+        for div in soup.findAll(id='ArticlePagerBottom'):
+            div.extract()
+        return soup
