@@ -13,7 +13,7 @@ from calibre.ebooks.oeb.polish.utils import guess_type
 from calibre.ebooks.oeb.polish.cover import is_raster_image
 from calibre.ebooks.oeb.polish.check.base import run_checkers
 from calibre.ebooks.oeb.polish.check.parsing import (
-    check_filenames, check_xml_parsing, check_css_parsing, fix_style_tag, check_html_size)
+    check_filenames, check_xml_parsing, check_css_parsing, fix_style_tag, check_html_size, check_ids)
 from calibre.ebooks.oeb.polish.check.images import check_raster_images
 from calibre.ebooks.oeb.polish.check.links import check_links, check_mimetypes
 from calibre.ebooks.oeb.polish.check.fonts import check_fonts
@@ -60,6 +60,7 @@ def run_checks(container):
     errors += check_links(container)
     errors += check_fonts(container)
     errors += check_filenames(container)
+    errors += check_ids(container)
 
     return errors
 

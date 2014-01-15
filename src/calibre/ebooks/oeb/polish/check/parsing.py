@@ -14,7 +14,7 @@ import cssutils
 from calibre import force_unicode, human_readable, prepare_string_for_xml
 from calibre.ebooks.html_entities import html5_entities
 from calibre.ebooks.oeb.polish.pretty import pretty_script_or_style as fix_style_tag
-from calibre.ebooks.oeb.polish.utils import PositionFinder
+from calibre.ebooks.oeb.polish.utils import PositionFinder, guess_type
 from calibre.ebooks.oeb.polish.check.base import BaseError, WARN, ERROR, INFO
 from calibre.ebooks.oeb.base import OEB_DOCS, XHTML_NS, urlquote, URL_SAFE
 
@@ -237,6 +237,28 @@ class CSSError(BaseError):
 
 pos_pats = (re.compile(r'\[(\d+):(\d+)'), re.compile(r'(\d+), (\d+)\)'))
 
+class DuplicateId(BaseError):
+
+    has_multiple_locations = True
+
+    INDIVIDUAL_FIX = _(
+        'Remove the duplicate ids from all but the first element')
+
+    def __init__(self, name, eid, locs):
+        BaseError.__init__(self, _('Duplicate id: %s') % eid, name)
+        self.HELP = _(
+            'The id {0} is present on more than one element in {1}. This is'
+            ' not allowed. Remove the id from all but one of the elements').format(eid, name)
+        self.all_locations = [(name, lnum, None) for lnum in sorted(locs)]
+        self.duplicate_id = eid
+
+    def __call__(self, container):
+        elems = [e for e in container.parsed(self.name).xpath('//*[@id]') if e.get('id') == self.duplicate_id]
+        for e in elems[1:]:
+            e.attrib.pop('id')
+        container.dirty(self.name)
+        return True
+
 class ErrorHandler(object):
 
     ' Replacement logger to get useful error/warning info out of cssutils during parsing '
@@ -288,4 +310,23 @@ def check_filenames(container):
     for name in all_names:
         if urlquote(name) != name:
             errors.append(EscapedName(name))
+    return errors
+
+def check_ids(container):
+    errors = []
+    mts = set(OEB_DOCS) | {guess_type('a.opf'), guess_type('a.ncx')}
+    for name, mt in container.mime_map.iteritems():
+        if mt in mts:
+            root = container.parsed(name)
+            seen_ids = {}
+            dups = {}
+            for elem in root.xpath('//*[@id]'):
+                eid = elem.get('id')
+                if eid in seen_ids:
+                    if eid not in dups:
+                        dups[eid] = [seen_ids[eid]]
+                    dups[eid].append(elem.sourceline)
+                else:
+                    seen_ids[eid] = elem.sourceline
+            errors.extend(DuplicateId(name, eid, locs) for eid, locs in dups.iteritems())
     return errors
