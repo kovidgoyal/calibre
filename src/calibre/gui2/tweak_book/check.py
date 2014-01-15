@@ -85,6 +85,9 @@ class Check(QSplitter):
             num = int(url.rpartition(',')[-1])
             errors = [self.items.item(num).data(Qt.UserRole).toPyObject()]
             self.fix_requested.emit(errors)
+        elif url.startswith('activate:item:'):
+            index = int(url.rpartition(':')[-1])
+            self.location_activated(index)
 
     def next_error(self, delta=1):
         row = self.items.currentRow()
@@ -100,35 +103,55 @@ class Check(QSplitter):
             err = i.data(Qt.UserRole).toPyObject()
             self.item_activated.emit(err)
 
+    def location_activated(self, index):
+        i = self.items.currentItem()
+        if i is not None:
+            err = i.data(Qt.UserRole).toPyObject()
+            err.current_location_index = index
+            self.item_activated.emit(err)
+
     def current_item_changed(self, *args):
         i = self.items.currentItem()
         self.help.setText('')
+        def loc_to_string(line, col):
+            loc = ''
+            if line is not None:
+                loc = _('line: %d') % line
+            if col is not None:
+                loc += _(' column: %d') % col
+            if loc:
+                loc = ' (%s)' % loc
+            return loc
+
         if i is not None:
             err = i.data(Qt.UserRole).toPyObject()
             header = {DEBUG:_('Debug'), INFO:_('Information'), WARN:_('Warning'), ERROR:_('Error'), CRITICAL:_('Error')}[err.level]
-            loc = ''
-            if err.line is not None:
-                loc = _('line: %d') % err.line
-            if err.col is not None:
-                loc += ' column: %d' % err.col
-            if loc:
-                loc = ' (%s)' % loc
             ifix = ''
+            loc = loc_to_string(err.line, err.col)
             if err.INDIVIDUAL_FIX:
                 ifix = '<a href="fix:error,%d" title="%s">%s</a><br><br>' % (
                     self.items.currentRow(), _('Try to fix only this error'), err.INDIVIDUAL_FIX)
-
+            open_tt = _('Click to open in editor')
+            fix_tt = _('Try to fix all fixable errors automatically. Only works for some types of error.')
+            fix_msg = _('Try to correct all fixable errors automatically')
+            run_tt, run_msg = _('Re-run the check'), _('Re-run check')
+            header = '<style>a { text-decoration: none}</style><h2>%s [%d / %d]</h2>' % (
+                        header, self.items.currentRow()+1, self.items.count())
+            msg = '<p>%s</p>'
+            footer = '<div>%s<a href="fix:errors" title="%s">%s</a><br><br> <a href="run:check" title="%s">%s</a></div>'
+            if err.has_multiple_locations:
+                activate = []
+                for i, (name, lnum, col) in enumerate(err.all_locations):
+                    activate.append('<a href="activate:item:%d" title="%s">%s %s</a>' % (
+                        i, open_tt, name, loc_to_string(lnum, col)))
+                activate = '<div>%s</div><br>' % ('<br>'.join(activate))
+                template = header + msg + activate + footer
+            else:
+                activate = '<div><a href="activate:item" title="%s">%s %s</a></div>' % (
+                       open_tt, err.name, loc)
+                template = header + activate + msg + footer
             self.help.setText(
-                '''<style>a { text-decoration: none}</style><h2>%s [%d / %d]</h2>
-                <div><a href="activate:item" title="%s">%s %s</a></div>
-                <p>%s</p>
-                <div>%s<a href="fix:errors" title="%s">%s</a><br><br>
-                <a href="run:check" title="%s">%s</a></div>
-                ''' % (header, self.items.currentRow()+1, self.items.count(),
-                       _('Click to open in editor'), err.name, loc, err.HELP, ifix,
-                       _('Try to fix all fixable errors automatically. Only works for some types of error.'),
-                       _('Try to correct all fixable errors automatically'),
-                       _('Re-run the check'), _('Re-run check')))
+                template % (err.HELP, ifix, fix_tt, fix_msg, run_tt, run_msg))
 
     def run_checks(self, container):
         from calibre.gui2.tweak_book.boss import BusyCursor

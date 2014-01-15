@@ -843,14 +843,18 @@ class Boss(QObject):
 
     @in_thread_job
     def check_item_activated(self, item):
-        name = item.name
+        is_mult = item.has_multiple_locations and getattr(item, 'current_location_index', None) is not None
+        name = item.all_locations[item.current_location_index][0] if is_mult else item.name
         if name in editors:
             editor = editors[name]
             self.gui.central.show_editor(editor)
         else:
             editor = self.edit_file_requested(name, None, current_container().mime_map[name])
         if getattr(editor, 'has_line_numbers', False):
-            editor.go_to_line(item.line, item.col)
+            if is_mult:
+                editor.go_to_line(*(item.all_locations[item.current_location_index][1:3]))
+            else:
+                editor.go_to_line(item.line, item.col)
             editor.set_focus()
 
     @in_thread_job
