@@ -47,6 +47,27 @@ class NonLinearItems(BaseError):
         container.dirty(container.opf_name)
         return True
 
+class DuplicateHref(BaseError):
+
+    has_multiple_locations = True
+
+    INDIVIDUAL_FIX = _(
+        'Remove all but the first duplicate item')
+
+    def __init__(self, name, eid, locs):
+        BaseError.__init__(self, _('Duplicate item in manifest: %s') % eid, name)
+        self.HELP = _(
+            'The item {0} is present more than once in the manifest in {1}. This is'
+            ' not allowed.').format(eid, name)
+        self.all_locations = [(name, lnum, None) for lnum in sorted(locs)]
+        self.duplicate_href = eid
+
+    def __call__(self, container):
+        items = [e for e in container.opf_xpath('/opf:package/opf:manifest/opf:item[@href]') if e.get('href') == self.duplicate_href]
+        [container.remove_from_xml(e) for e in items[1:]]
+        container.dirty(self.name)
+        return True
+
 def check_opf(container):
     errors = []
 
@@ -69,9 +90,19 @@ def check_opf(container):
     if nl_items:
         errors.append(NonLinearItems(container.opf_name, nl_items))
 
-    # Check unique identifier, version, <meta> tag with name before content for
-    # cover and content pointing to proper manifest item. Duplicate items in
-    # spine. Duplicate hrefs in manifest. hrefs in manifest that point to
-    # missing resources.
+    seen, dups = {}, {}
+    for item in container.opf_xpath('/opf:package/opf:manifest/opf:item[@href]'):
+        href = item.get('href')
+        if href in seen:
+            if href not in dups:
+                dups[href] = [seen[href]]
+            dups[href].append(item.sourceline)
+        else:
+            seen[href] = item.sourceline
+    errors.extend(DuplicateHref(container.opf_name, eid, locs) for eid, locs in dups.iteritems())
 
+    # Check unique identifier, <meta> tag with name before content for
+    # cover and content pointing to proper manifest item. Duplicate items in
+    # spine. hrefs in manifest that point to
+    # missing resources.
     return errors
