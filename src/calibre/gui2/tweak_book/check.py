@@ -101,7 +101,10 @@ class Check(QSplitter):
         i = self.items.currentItem()
         if i is not None:
             err = i.data(Qt.UserRole).toPyObject()
-            self.item_activated.emit(err)
+            if err.has_multiple_locations:
+                self.location_activated(0)
+            else:
+                self.item_activated.emit(err)
 
     def location_activated(self, index):
         i = self.items.currentItem()
