@@ -24,6 +24,22 @@ class IncorrectIdref(BaseError):
         self.HELP = xml(_(
             'The idref="%s" points to an id that does not exist in the OPF') % idref)
 
+class MissingHref(BaseError):
+
+    HELP = _('A file listed in the manifest is missing, you should either remove'
+             ' it from the manifest or add the missing file to the book.')
+
+    def __init__(self, name, href, lnum):
+        BaseError.__init__(self, _('Item (%s) in manifest is missing') % href, name, lnum)
+        self.bad_href = href
+        self.INDIVIDUAL_FIX = _('Remove the entry for %s from the manifest') % href
+
+    def __call__(self, container):
+        [container.remove_from_xml(elem) for elem in container.opf_xpath('/opf:package/opf:manifest/opf:item[@href]')
+         if elem.get('href') == self.bad_href]
+        container.dirty(container.opf_name)
+        return True
+
 class NonLinearItems(BaseError):
 
     level = WARN
@@ -93,6 +109,8 @@ def check_opf(container):
     seen, dups = {}, {}
     for item in container.opf_xpath('/opf:package/opf:manifest/opf:item[@href]'):
         href = item.get('href')
+        if not container.exists(href):
+            errors.append(MissingHref(container.opf_name, href, item.sourceline))
         if href in seen:
             if href not in dups:
                 dups[href] = [seen[href]]
@@ -103,6 +121,5 @@ def check_opf(container):
 
     # Check unique identifier, <meta> tag with name before content for
     # cover and content pointing to proper manifest item. Duplicate items in
-    # spine. hrefs in manifest that point to
-    # missing resources.
+    # spine.
     return errors
