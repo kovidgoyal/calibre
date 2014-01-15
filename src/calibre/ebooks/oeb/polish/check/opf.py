@@ -8,6 +8,7 @@ __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
 from calibre import prepare_string_for_xml as xml
 from calibre.ebooks.oeb.polish.check.base import BaseError, WARN
+from calibre.ebooks.oeb.base import OPF, OPF2_NS
 
 class MissingSection(BaseError):
 
@@ -49,8 +50,14 @@ class NonLinearItems(BaseError):
 def check_opf(container):
     errors = []
 
+    if container.opf.tag != OPF('package'):
+        err = BaseError(_('The OPF does not have the correct root element'), container.opf_name)
+        err.HELP = xml(_(
+            'The opf must have the root element <package> in namespace {0}, like this: <package xmlns="{0}">')).format(OPF2_NS)
+        errors.append(err)
+
     for tag in ('metadata', 'manifest', 'spine'):
-        if not container.opf_xpath('//opf:' + tag):
+        if not container.opf_xpath('/opf:package/opf:' + tag):
             errors.append(MissingSection(container.opf_name, tag))
 
     all_ids = set(container.opf_xpath('//*/@id'))
@@ -61,5 +68,10 @@ def check_opf(container):
     nl_items = [elem.sourceline for elem in container.opf_xpath('//opf:spine/opf:itemref[@linear="no"]')]
     if nl_items:
         errors.append(NonLinearItems(container.opf_name, nl_items))
+
+    # Check unique identifier, version, <meta> tag with name before content for
+    # cover and content pointing to proper manifest item. Duplicate items in
+    # spine. Duplicate hrefs in manifest. hrefs in manifest that point to
+    # missing resources.
 
     return errors
