@@ -17,6 +17,7 @@ from calibre.ebooks.oeb.polish.check.parsing import (
 from calibre.ebooks.oeb.polish.check.images import check_raster_images
 from calibre.ebooks.oeb.polish.check.links import check_links, check_mimetypes
 from calibre.ebooks.oeb.polish.check.fonts import check_fonts
+from calibre.ebooks.oeb.polish.check.opf import check_opf
 
 XML_TYPES = frozenset(map(guess_type, ('a.xml', 'a.svg', 'a.opf', 'a.ncx')))
 
@@ -61,6 +62,7 @@ def run_checks(container):
     errors += check_fonts(container)
     errors += check_filenames(container)
     errors += check_ids(container)
+    errors += check_opf(container)
 
     return errors
 
