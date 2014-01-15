@@ -70,16 +70,19 @@ class DuplicateHref(BaseError):
     INDIVIDUAL_FIX = _(
         'Remove all but the first duplicate item')
 
-    def __init__(self, name, eid, locs):
-        BaseError.__init__(self, _('Duplicate item in manifest: %s') % eid, name)
+    def __init__(self, name, eid, locs, for_spine=False):
+        loc = 'spine' if for_spine else 'manifest'
+        BaseError.__init__(self, _('Duplicate item in {0}: {1}').format(loc, eid), name)
         self.HELP = _(
-            'The item {0} is present more than once in the manifest in {1}. This is'
-            ' not allowed.').format(eid, name)
+            'The item {0} is present more than once in the {2} in {1}. This is'
+            ' not allowed.').format(eid, name, loc)
         self.all_locations = [(name, lnum, None) for lnum in sorted(locs)]
         self.duplicate_href = eid
+        self.xpath = '/opf:package/opf:' + ('spine/opf:itemref[@idref]' if for_spine else 'manifest/opf:item[@href]')
+        self.attr = 'idref' if for_spine else 'href'
 
     def __call__(self, container):
-        items = [e for e in container.opf_xpath('/opf:package/opf:manifest/opf:item[@href]') if e.get('href') == self.duplicate_href]
+        items = [e for e in container.opf_xpath(self.xpath) if e.get(self.attr) == self.duplicate_href]
         [container.remove_from_xml(e) for e in items[1:]]
         container.dirty(self.name)
         return True
@@ -119,7 +122,17 @@ def check_opf(container):
             seen[href] = item.sourceline
     errors.extend(DuplicateHref(container.opf_name, eid, locs) for eid, locs in dups.iteritems())
 
+    seen, dups = {}, {}
+    for item in container.opf_xpath('/opf:package/opf:spine/opf:itemref[@idref]'):
+        ref = item.get('idref')
+        if ref in seen:
+            if ref not in dups:
+                dups[ref] = [seen[ref]]
+            dups[ref].append(item.sourceline)
+        else:
+            seen[ref] = item.sourceline
+    errors.extend(DuplicateHref(container.opf_name, eid, locs, for_spine=True) for eid, locs in dups.iteritems())
+
     # Check unique identifier, <meta> tag with name before content for
-    # cover and content pointing to proper manifest item. Duplicate items in
-    # spine.
+    # cover and content pointing to proper manifest item.
     return errors
