@@ -144,8 +144,11 @@ class Check(QSplitter):
                 for i, (name, lnum, col) in enumerate(err.all_locations):
                     activate.append('<a href="activate:item:%d" title="%s">%s %s</a>' % (
                         i, open_tt, name, loc_to_string(lnum, col)))
-                activate = '<div>%s</div><br>' % ('<br>'.join(activate))
-                template = header + msg + activate + footer
+                many = len(activate) > 2
+                activate = '<div>%s</div>' % ('<br>'.join(activate))
+                if many:
+                    activate += '<br>'
+                template = header + ((msg + activate) if many else (activate + msg)) + footer
             else:
                 activate = '<div><a href="activate:item" title="%s">%s %s</a></div>' % (
                        open_tt, err.name, loc)
