@@ -16,7 +16,7 @@ from future_builtins import zip
 from lxml import etree
 from cssutils import replaceUrls, getUrls
 
-from calibre import guess_type as _guess_type, CurrentDir
+from calibre import CurrentDir
 from calibre.customize.ui import (plugin_for_input_format,
         plugin_for_output_format)
 from calibre.ebooks.chardet import xml_to_unicode
@@ -31,7 +31,7 @@ from calibre.ebooks.oeb.base import (
     rewrite_links, iterlinks, itercsslinks, urlquote, urlunquote)
 from calibre.ebooks.oeb.polish.errors import InvalidBook, DRMError
 from calibre.ebooks.oeb.polish.parsing import parse as parse_html_tweak
-from calibre.ebooks.oeb.polish.utils import PositionFinder, CommentFinder
+from calibre.ebooks.oeb.polish.utils import PositionFinder, CommentFinder, guess_type
 from calibre.ebooks.oeb.parse_utils import NotHTML, parse_html, RECOVER_PARSER
 from calibre.ptempfile import PersistentTemporaryDirectory, PersistentTemporaryFile
 from calibre.utils.filenames import nlinks_file, hardlink_file
@@ -41,8 +41,6 @@ from calibre.utils.zipfile import ZipFile
 
 exists, join, relpath = os.path.exists, os.path.join, os.path.relpath
 
-def guess_type(x):
-    return _guess_type(x)[0] or 'application/octet-stream'
 
 OEB_FONTS = {guess_type('a.ttf'), guess_type('b.otf'), guess_type('a.woff'), 'application/x-font-ttf', 'application/x-font-otf'}
 OPF_NAMESPACES = {'opf':OPF2_NS, 'dc':DC11_NS}

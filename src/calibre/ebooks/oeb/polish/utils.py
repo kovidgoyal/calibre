@@ -9,6 +9,11 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 import re
 from bisect import bisect
 
+from calibre import guess_type as _guess_type
+
+def guess_type(x):
+    return _guess_type(x)[0] or 'application/octet-stream'
+
 class PositionFinder(object):
 
     def __init__(self, raw):

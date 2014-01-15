@@ -14,7 +14,8 @@ from future_builtins import map
 from calibre import force_unicode
 from calibre.ebooks.oeb.base import (
     serialize, OEB_DOCS, barename, OEB_STYLES, XPNSMAP, XHTML, SVG)
-from calibre.ebooks.oeb.polish.container import OPF_NAMESPACES, guess_type
+from calibre.ebooks.oeb.polish.container import OPF_NAMESPACES
+from calibre.ebooks.oeb.polish.utils import guess_type
 from calibre.utils.icu import sort_key
 
 def isspace(x):

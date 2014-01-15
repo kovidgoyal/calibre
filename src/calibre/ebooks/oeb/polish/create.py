@@ -15,7 +15,8 @@ from calibre.ptempfile import TemporaryDirectory
 from calibre.ebooks.oeb.base import serialize
 from calibre.ebooks.metadata.opf2 import metadata_to_opf
 from calibre.ebooks.oeb.polish.parsing import parse
-from calibre.ebooks.oeb.polish.container import OPF_NAMESPACES, guess_type, opf_to_azw3
+from calibre.ebooks.oeb.polish.container import OPF_NAMESPACES, opf_to_azw3
+from calibre.ebooks.oeb.polish.utils import guess_type
 from calibre.ebooks.oeb.polish.pretty import pretty_xml_tree, pretty_html_tree
 from calibre.ebooks.oeb.polish.toc import TOC, create_ncx
 from calibre.utils.localization import lang_as_iso639_1

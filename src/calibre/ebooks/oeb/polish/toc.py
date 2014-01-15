@@ -17,7 +17,7 @@ from lxml import etree
 
 from calibre import __version__
 from calibre.ebooks.oeb.base import XPath, uuid_id, xml2text, NCX, NCX_NS, XML, XHTML
-from calibre.ebooks.oeb.polish.container import guess_type
+from calibre.ebooks.oeb.polish.utils import guess_type
 from calibre.utils.localization import get_lang, canonicalize_lang, lang_as_iso639_1
 
 ns = etree.FunctionNamespace('calibre_xpath_extensions')

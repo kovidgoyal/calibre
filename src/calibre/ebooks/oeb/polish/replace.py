@@ -147,7 +147,8 @@ def replace_file(container, name, path, basename, force_mt=None):
             shutil.copyfileobj(src, dest)
 
 def mt_to_category(container, mt):
-    from calibre.ebooks.oeb.polish.container import guess_type, OEB_FONTS
+    from calibre.ebooks.oeb.polish.utils import guess_type
+    from calibre.ebooks.oeb.polish.container import OEB_FONTS
     from calibre.ebooks.oeb.base import OEB_DOCS, OEB_STYLES
     if mt in OEB_DOCS:
         category = 'text'
@@ -165,7 +166,7 @@ def mt_to_category(container, mt):
 
 def get_recommended_folders(container, names):
     ' Return the folders that are recommended for the given filenames '
-    from calibre.ebooks.oeb.polish.container import guess_type
+    from calibre.ebooks.oeb.polish.utils import guess_type
     counts = defaultdict(Counter)
     for name, mt in container.mime_map.iteritems():
         folder = name.rpartition('/')[0] if '/' in name else ''

@@ -11,7 +11,8 @@ import os, sys
 
 from calibre import prints, as_unicode
 from calibre.ebooks.oeb.base import OEB_STYLES, OEB_DOCS, XPath
-from calibre.ebooks.oeb.polish.container import OEB_FONTS, guess_type
+from calibre.ebooks.oeb.polish.container import OEB_FONTS
+from calibre.ebooks.oeb.polish.utils import guess_type
 from calibre.utils.fonts.sfnt.subset import subset
 from calibre.utils.fonts.sfnt.errors import UnsupportedFont
 from calibre.utils.fonts.utils import get_font_names

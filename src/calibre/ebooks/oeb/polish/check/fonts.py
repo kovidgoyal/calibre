@@ -12,7 +12,8 @@ from calibre import force_unicode
 from calibre.constants import plugins
 from calibre.ebooks.oeb.base import OEB_DOCS, OEB_STYLES
 from calibre.ebooks.oeb.polish.check.base import BaseError, WARN
-from calibre.ebooks.oeb.polish.container import guess_type, OEB_FONTS
+from calibre.ebooks.oeb.polish.container import OEB_FONTS
+from calibre.ebooks.oeb.polish.utils import guess_type
 from calibre.ebooks.oeb.polish.pretty import pretty_script_or_style
 from calibre.utils.fonts.utils import get_all_font_names
 

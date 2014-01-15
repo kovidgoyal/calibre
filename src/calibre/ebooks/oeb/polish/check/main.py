@@ -9,7 +9,7 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 from future_builtins import map
 
 from calibre.ebooks.oeb.base import OEB_DOCS, OEB_STYLES
-from calibre.ebooks.oeb.polish.container import guess_type
+from calibre.ebooks.oeb.polish.utils import guess_type
 from calibre.ebooks.oeb.polish.cover import is_raster_image
 from calibre.ebooks.oeb.polish.check.base import run_checkers
 from calibre.ebooks.oeb.polish.check.parsing import (

@@ -10,7 +10,8 @@ from collections import defaultdict
 from urlparse import urlparse
 
 from calibre.ebooks.oeb.base import OEB_DOCS, OEB_STYLES
-from calibre.ebooks.oeb.polish.container import guess_type, OEB_FONTS
+from calibre.ebooks.oeb.polish.container import OEB_FONTS
+from calibre.ebooks.oeb.polish.utils import guess_type
 from calibre.ebooks.oeb.polish.check.base import BaseError, WARN, INFO
 
 class BadLink(BaseError):
