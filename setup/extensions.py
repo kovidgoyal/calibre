@@ -89,6 +89,10 @@ extensions = [
         ['calibre/utils/speedup.c'],
         ),
 
+    Extension('_patiencediff_c',
+        ['calibre/utils/diff/_patiencediff_c.c'],
+        ),
+
     Extension('icu',
         ['calibre/utils/icu.c'],
         libraries=icu_libs,

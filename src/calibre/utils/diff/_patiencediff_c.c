@@ -23,11 +23,11 @@
 */
 
 
+#include <Python.h>
 #include <stdlib.h>
 #include <string.h>
-#include <Python.h>
 
-#include "python-compat.h"
+/* #include "python-compat.h" Commented out by Kovid as nothing defined in it is needed for this module */
 
 
 #if defined(__GNUC__)

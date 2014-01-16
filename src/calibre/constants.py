@@ -141,6 +141,7 @@ class Plugins(collections.Mapping):
                 'qt_hack',
                 '_regex',
                 'hunspell',
+                '_patiencediff_c',
             ]
         if iswindows:
             plugins.extend(['winutil', 'wpd', 'winfonts'])
