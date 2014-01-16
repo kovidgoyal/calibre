@@ -98,7 +98,7 @@ THEMES = {
     SpecialCharacter bg={cursor_loc}
 
     '''.format(
-        cursor_loc='3d3d3d',
+        cursor_loc='343434',
         identifier='cae682',
         comment='99968b',
         string='95e454',
