@@ -8,6 +8,7 @@ __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
 from calibre import prepare_string_for_xml as xml
 from calibre.ebooks.oeb.polish.check.base import BaseError, WARN
+from calibre.ebooks.oeb.polish.utils import guess_type
 from calibre.ebooks.oeb.base import OPF, OPF2_NS
 
 class MissingSection(BaseError):
@@ -23,6 +24,17 @@ class IncorrectIdref(BaseError):
         BaseError.__init__(self, _('idref="%s" points to unknown id') % idref, name, lnum)
         self.HELP = xml(_(
             'The idref="%s" points to an id that does not exist in the OPF') % idref)
+
+class IncorrectToc(BaseError):
+
+    def __init__(self, name, lnum, bad_idref=None, bad_mimetype=None):
+        if bad_idref is not None:
+            msg = _('The item identified as the Table of Contents (%s) does not exist') % bad_idref
+            self.HELP = _('There is no item with id="%s" in the manifest.') % bad_idref
+        else:
+            msg = _('The item identified as the Table of Contents has an incorrect media-type (%s)') % bad_mimetype
+            self.HELP = _('The media type for the table of contents must be %s') % guess_type('a.ncx')
+        BaseError.__init__(self, msg, name, lnum)
 
 class MissingHref(BaseError):
 
@@ -132,6 +144,17 @@ def check_opf(container):
         else:
             seen[ref] = item.sourceline
     errors.extend(DuplicateHref(container.opf_name, eid, locs, for_spine=True) for eid, locs in dups.iteritems())
+
+    spine = container.opf_xpath('/opf:package/opf:spine[@toc]')
+    if spine:
+        spine = spine[0]
+        mitems = [x for x in container.opf_xpath('/opf:package/opf:manifest/opf:item[@id]') if x.get('id') == spine.get('toc')]
+        if mitems:
+            mitem = mitems[0]
+            if mitem.get('media-type', '') != guess_type('a.ncx'):
+                errors.append(IncorrectToc(container.opf_name, mitem.sourceline, bad_mimetype=mitem.get('media-type')))
+        else:
+            errors.append(IncorrectToc(container.opf_name, spine.sourceline, bad_idref=spine.get('toc')))
 
     # Check unique identifier, <meta> tag with name before content for
     # cover and content pointing to proper manifest item.
