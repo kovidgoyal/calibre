@@ -30,4 +30,7 @@ class Kosmonauta(BasicNewsRecipe):
                href = a['href']
                if not href.startswith('http'):
                    a['href'] = self.INDEX + href
+        for a in soup.findAll(name='img'):
+           if a.has_key('style') and 'float:' in a['style']:
+               a['class'] = 'thumb-left'
         return soup

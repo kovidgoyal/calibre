@@ -19,14 +19,16 @@ class cdrinfo(BasicNewsRecipe):
     no_stylesheets = True
     remove_empty_feeds = True
     remove_javascript = True
-    remove_attributes = ['style']
-    preprocess_regexps = [(re.compile(u'<p[^>]*?>Uprzejmie prosimy o przestrzeganie netykiety.+?www\.gravatar\.com</a>\.</p>', re.DOTALL), lambda match: '')]
+    remove_attributes = ['style', 'onmouseover']
+    preprocess_regexps = [(re.compile(u'<p[^>]*?>Uprzejmie prosimy o przestrzeganie netykiety.+?www\.gravatar\.com</a>\.</p>', re.DOTALL), lambda match: ''),
+    (re.compile(u'<p[^>]*?>.{,2}</p>', re.DOTALL), lambda match: '')]
     ignore_duplicate_articles = {'title', 'url'}
 
     keep_only_tags = [dict(name='input', attrs={'name':'ref'}), dict(id=['text', 'text2'])]
-    remove_tags = [dict(attrs={'class':['navigation', 'sociable', 'last6news']}), dict(name='hr'), dict(id='respond')]
+    remove_tags = [dict(attrs={'class':['navigation', 'sociable', 'last6news']}), dict(name=['hr', 'br']), dict(id='respond')]
     remove_tags_after = dict(id='artnawigacja')
-    feeds = [(u'Wiadomości', 'http://feeds.feedburner.com/cdrinfo'), (u'Recenzje', 'http://www.cdrinfo.pl/rss/rss_recenzje.php'),
+    feeds = [(u'Wiadomości', 'http://feeds.feedburner.com/cdrinfo'), 
+            (u'Recenzje', 'http://www.cdrinfo.pl/rss/rss_recenzje.php'),
             (u'Konsole', 'http://konsole.cdrinfo.pl/rss/rss_konsole_news.xml'),
             (u'Pliki', 'http://www.cdrinfo.pl/rss/rss_pliki.xml')
             ]

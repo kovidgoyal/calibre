@@ -17,6 +17,7 @@ class presseurop(BasicNewsRecipe):
     oldest_article = 7
     max_articles_per_feed = 100
     auto_cleanup = True
+    remove_empty_feeds = True
 
     feeds          = [
         (u'Polityka', u'http://www.presseurop.eu/pl/taxonomy/term/1/%2A/feed'),
