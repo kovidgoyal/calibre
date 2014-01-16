@@ -89,7 +89,7 @@ def pdftohtml(output_dir, pdf_path, no_images, as_xml=False):
         except:
             pass
         if ret != 0:
-            raise ConversionError(out)
+            raise ConversionError(b'return code: %d\n%s' % (ret, out))
         if out:
             print "pdftohtml log:"
             print out
