@@ -432,7 +432,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
         if message:
             if not self.device_manager.is_running('Wireless Devices'):
                     error_dialog(self, _('Problem starting the wireless device'),
-                                 _('The wireless device driver did not start. '
+                                 _('The wireless device driver had problems starting. '
                                    'It said "%s"')%message, show=True)
         self.iactions['Connect Share'].set_smartdevice_action_state()
 

@@ -208,6 +208,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
     THUMBNAIL_HEIGHT              = 160
     DEFAULT_THUMBNAIL_HEIGHT      = 160
     THUMBNAIL_COMPRESSION_QUALITY = 75
+    DEFAULT_THUMBNAIL_COMPRESSION_QUALITY = 75
 
     PREFIX                      = ''
     BACKLOADING_ERROR_MESSAGE   = None
@@ -680,6 +681,8 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
             return self.OPT_PORT_NUMBER
         elif opt_string == 'force_ip_address':
             return self.OPT_FORCE_IP_ADDRESS
+        elif opt_string == 'thumbnail_compression_quality':
+            return self.OPT_COMPRESSION_QUALITY
         else:
             return None
 
@@ -1463,6 +1466,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
         self.connection_attempts = {}
         self.client_wants_uuid_file_names = False
 
+        message = None
         compression_quality_ok = True
         try:
             cq = int(self.settings().extra_customization[self.OPT_COMPRESSION_QUALITY])
@@ -1474,11 +1478,12 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
             compression_quality_ok = False
         if not compression_quality_ok:
             self.THUMBNAIL_COMPRESSION_QUALITY = 70
-            message = 'Bad compression quality setting. It must be a number between 50 and 99'
+            message = _('Bad compression quality setting. It must be a number '
+                        'between 50 and 99. Forced to be %d.')%self.DEFAULT_THUMBNAIL_COMPRESSION_QUALITY
             self._debug(message)
-            return message
+            self.set_option('thumbnail_compression_quality',
+                            str(self.DEFAULT_THUMBNAIL_COMPRESSION_QUALITY))
 
-        message = None
         try:
             self.listen_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             set_socket_inherit(self.listen_socket, False)
@@ -1541,7 +1546,6 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
 
         # Now try to open a UDP socket to receive broadcasts on
 
-        message = None
         try:
             self.broadcast_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         except:
