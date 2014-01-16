@@ -8,7 +8,8 @@ from threading import Thread, Event
 
 from PyQt4.Qt import (
     QMenu, QAction, QActionGroup, QIcon, SIGNAL, Qt, pyqtSignal, QDialog,
-    QObject, QVBoxLayout, QDialogButtonBox, QCursor)
+    QObject, QVBoxLayout, QDialogButtonBox, QCursor, QCoreApplication,
+    QApplication, QEventLoop)
 
 from calibre.customize.ui import (available_input_formats, available_output_formats,
     device_plugins, disabled_device_plugins)
@@ -122,11 +123,9 @@ def device_name_for_plugboards(device_class):
 class BusyCursor(object):
 
     def __enter__(self):
-        from PyQt4.Qt import QApplication
         QApplication.setOverrideCursor(QCursor(Qt.WaitCursor))
 
     def __exit__(self, *args):
-        from PyQt4.Qt import QApplication
         QApplication.restoreOverrideCursor()
 
 
@@ -1092,8 +1091,14 @@ class DeviceMixin(object):  # {{{
             self.device_job_exception(job)
             return
         self.device_manager.slow_driveinfo()
+
         # set_books_in_library might schedule a sync_booklists job
+        if DEBUG:
+            prints('DeviceJob: metadata_downloaded: Starting set_books_in_library')
         self.set_books_in_library(job.result, reset=True, add_as_step_to_job=job)
+
+        if DEBUG:
+            prints('DeviceJob: metadata_downloaded: updating views')
         mainlist, cardalist, cardblist = job.result
         self.memory_view.set_database(mainlist)
         self.memory_view.set_editable(self.device_manager.device.CAN_SET_METADATA,
@@ -1107,9 +1112,17 @@ class DeviceMixin(object):  # {{{
         self.card_b_view.set_editable(self.device_manager.device.CAN_SET_METADATA,
                                       self.device_manager.device.BACKLOADING_ERROR_MESSAGE
                                       is None)
+        if DEBUG:
+            prints('DeviceJob: metadata_downloaded: syncing')
         self.sync_news()
         self.sync_catalogs()
+
+        if DEBUG:
+            prints('DeviceJob: metadata_downloaded: refreshing ondevice')
         self.refresh_ondevice()
+
+        if DEBUG:
+            prints('DeviceJob: metadata_downloaded: sending metadata_available signal')
         device_signals.device_metadata_available.emit()
 
     def refresh_ondevice(self, reset_only=False):
@@ -1766,71 +1779,104 @@ class DeviceMixin(object):  # {{{
             except:
                 return True
 
+        total_book_count = 0
         for booklist in booklists:
             for book in booklist:
-                book.in_library = None
-                if getattr(book, 'uuid', None) in self.db_book_uuid_cache:
-                    id_ = db_book_uuid_cache[book.uuid]
-                    if updateq(id_, book):
-                        update_book(id_, book)
-                    book.in_library = 'UUID'
-                    # ensure that the correct application_id is set
-                    book.application_id = id_
-                    continue
-                # No UUID exact match. Try metadata matching.
-                book_title = clean_string(book.title)
-                d = self.db_book_title_cache.get(book_title, None)
-                if d is not None:
-                    # At this point we know that the title matches. The book
-                    # will match if any of the db_id, author, or author_sort
-                    # also match.
-                    if getattr(book, 'application_id', None) in d['db_ids']:
-                        id_ = getattr(book, 'application_id', None)
-                        update_book(id_, book)
-                        book.in_library = 'APP_ID'
-                        # app_id already matches a db_id. No need to set it.
-                        continue
-                    # Sonys know their db_id independent of the application_id
-                    # in the metadata cache. Check that as well.
-                    if getattr(book, 'db_id', None) in d['db_ids']:
-                        update_book(book.db_id, book)
-                        book.in_library = 'DB_ID'
-                        book.application_id = book.db_id
-                        continue
-                    # We now know that the application_id is not right. Set it
-                    # to None to prevent book_on_device from accidentally
-                    # matching on it. It will be set to a correct value below if
-                    # the book is matched with one in the library
-                    book.application_id = None
-                    if book.authors:
-                        # Compare against both author and author sort, because
-                        # either can appear as the author
-                        book_authors = clean_string(authors_to_string(book.authors))
-                        if book_authors in d['authors']:
-                            id_ = d['authors'][book_authors]
-                            update_book(id_, book)
-                            book.in_library = 'AUTHOR'
-                            book.application_id = id_
-                        elif book_authors in d['author_sort']:
-                            id_ = d['author_sort'][book_authors]
-                            update_book(id_, book)
-                            book.in_library = 'AUTH_SORT'
-                            book.application_id = id_
-                else:
-                    # Book definitely not matched. Clear its application ID
-                    book.application_id = None
-                # Set author_sort if it isn't already
-                asort = getattr(book, 'author_sort', None)
-                if not asort and book.authors:
-                    book.author_sort = self.library_view.model().db.\
-                                author_sort_from_authors(book.authors)
+                if book:
+                    total_book_count += 1
+        if DEBUG:
+            prints('DeviceJob: set_books_in_library: books to process=', total_book_count)
 
-        if update_metadata:
-            if self.device_manager.is_device_connected:
-                plugboards = self.library_view.model().db.prefs.get('plugboards', {})
-                self.device_manager.sync_booklists(
-                                    FunctionDispatcher(self.metadata_synced), booklists,
-                                    plugboards, add_as_step_to_job)
+        start_time = time.time()
+
+        with BusyCursor():
+            current_book_count = 0
+            for booklist in booklists:
+                for book in booklist:
+                    if current_book_count % 100 == 0:
+                        self.status_bar.show_message(
+                                _('Analyzing books on the device: %d%% finished')%(
+                                    int((float(current_book_count)/total_book_count)*100.0)))
+
+                    # I am assuming that this sort-of multi-threading won't break
+                    # anything. Reasons: excluding UI events prevents the user
+                    # from explicitly changing anything, and (in theory) no
+                    # changes are happening because of timers and the like.
+                    # Why every tenth book? WAG balancing performance in the
+                    # loop with preventing App Not Responding errors
+                    if current_book_count % 10 == 0:
+                        QCoreApplication.processEvents(flags=
+                               QEventLoop.ExcludeUserInputEvents|
+                                    QEventLoop.ExcludeSocketNotifiers)
+                    current_book_count += 1
+                    book.in_library = None
+                    if getattr(book, 'uuid', None) in self.db_book_uuid_cache:
+                        id_ = db_book_uuid_cache[book.uuid]
+                        if updateq(id_, book):
+                            update_book(id_, book)
+                        book.in_library = 'UUID'
+                        # ensure that the correct application_id is set
+                        book.application_id = id_
+                        continue
+                    # No UUID exact match. Try metadata matching.
+                    book_title = clean_string(book.title)
+                    d = self.db_book_title_cache.get(book_title, None)
+                    if d is not None:
+                        # At this point we know that the title matches. The book
+                        # will match if any of the db_id, author, or author_sort
+                        # also match.
+                        if getattr(book, 'application_id', None) in d['db_ids']:
+                            id_ = getattr(book, 'application_id', None)
+                            update_book(id_, book)
+                            book.in_library = 'APP_ID'
+                            # app_id already matches a db_id. No need to set it.
+                            continue
+                        # Sonys know their db_id independent of the application_id
+                        # in the metadata cache. Check that as well.
+                        if getattr(book, 'db_id', None) in d['db_ids']:
+                            update_book(book.db_id, book)
+                            book.in_library = 'DB_ID'
+                            book.application_id = book.db_id
+                            continue
+                        # We now know that the application_id is not right. Set it
+                        # to None to prevent book_on_device from accidentally
+                        # matching on it. It will be set to a correct value below if
+                        # the book is matched with one in the library
+                        book.application_id = None
+                        if book.authors:
+                            # Compare against both author and author sort, because
+                            # either can appear as the author
+                            book_authors = clean_string(authors_to_string(book.authors))
+                            if book_authors in d['authors']:
+                                id_ = d['authors'][book_authors]
+                                update_book(id_, book)
+                                book.in_library = 'AUTHOR'
+                                book.application_id = id_
+                            elif book_authors in d['author_sort']:
+                                id_ = d['author_sort'][book_authors]
+                                update_book(id_, book)
+                                book.in_library = 'AUTH_SORT'
+                                book.application_id = id_
+                    else:
+                        # Book definitely not matched. Clear its application ID
+                        book.application_id = None
+                    # Set author_sort if it isn't already
+                    asort = getattr(book, 'author_sort', None)
+                    if not asort and book.authors:
+                        book.author_sort = self.library_view.model().db.\
+                                    author_sort_from_authors(book.authors)
+
+            if update_metadata:
+                if self.device_manager.is_device_connected:
+                    plugboards = self.library_view.model().db.prefs.get('plugboards', {})
+                    self.device_manager.sync_booklists(
+                                FunctionDispatcher(self.metadata_synced), booklists,
+                                plugboards, add_as_step_to_job)
+
+        if DEBUG:
+            prints('DeviceJob: set_books_in_library finished: time=',
+                   time.time() - start_time)
+        # The status line is reset when the job finishes
         return update_metadata
     # }}}
 

@@ -143,7 +143,7 @@ class SmartdeviceDialog(QDialog, Ui_Dialog):
 
         if not self.device_manager.is_running('smartdevice'):
             error_dialog(self, _('Problem starting the wireless device'),
-                _('The wireless device driver did not start. It said "%s"')%message,
+                _('The wireless device driver had problems starting. It said "%s"')%message,
                 show=True)
             self.device_manager.set_option('smartdevice', 'use_fixed_port',
                                            self.orig_fixed_port)
