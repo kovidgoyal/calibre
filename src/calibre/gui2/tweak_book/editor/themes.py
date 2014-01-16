@@ -70,7 +70,7 @@ THEMES = {
     CursorLine   bg={cursor_loc}
     CursorColumn bg={cursor_loc}
     ColorColumn  bg={cursor_loc}
-    HighlightRegion bg=323232
+    HighlightRegion bg=3d3d3d
     MatchParen   fg=f6f3e8 bg=857b6f bold
     Pmenu        fg=f6f3e8 bg=444444
     PmenuSel     fg=yellow bg={identifier}
@@ -98,7 +98,7 @@ THEMES = {
     SpecialCharacter bg={cursor_loc}
 
     '''.format(
-        cursor_loc='343434',
+        cursor_loc='323232',
         identifier='cae682',
         comment='99968b',
         string='95e454',
