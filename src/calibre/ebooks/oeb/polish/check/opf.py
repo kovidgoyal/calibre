@@ -6,10 +6,12 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
+from lxml import etree
+
 from calibre import prepare_string_for_xml as xml
 from calibre.ebooks.oeb.polish.check.base import BaseError, WARN
 from calibre.ebooks.oeb.polish.utils import guess_type
-from calibre.ebooks.oeb.base import OPF, OPF2_NS
+from calibre.ebooks.oeb.base import OPF, OPF2_NS, DC, DC11_NS
 
 class MissingSection(BaseError):
 
@@ -24,6 +26,30 @@ class IncorrectIdref(BaseError):
         BaseError.__init__(self, _('idref="%s" points to unknown id') % idref, name, lnum)
         self.HELP = xml(_(
             'The idref="%s" points to an id that does not exist in the OPF') % idref)
+
+class IncorrectCover(BaseError):
+
+    def __init__(self, name, lnum, cover):
+        BaseError.__init__(self, _('The meta cover tag points to an non-existent item'), name, lnum)
+        self.HELP = xml(_(
+            'The meta cover tag points to an item with id="%s" which does not exist in the manifest') % cover)
+
+class NookCover(BaseError):
+
+    HELP = _(
+            'Some ebook readers such as the Nook fail to recognize covers if'
+            ' the content attribute comes before the name attribute.'
+            ' For maximum compatibility move the name attribute before the content attribute.')
+    INDIVIDUAL_FIX = _('Move the name attribute before the content attribute')
+
+    def __init__(self, name, lnum):
+        BaseError.__init__(self, _('The meta cover tag has content before name'), name, lnum)
+
+    def __call__(self, container):
+        for cover in container.opf_xpath('//opf:meta[@name="cover" and @content]'):
+            cover.set('content', cover.attrib.pop('content'))
+        container.dirty(container.opf_name)
+        return True
 
 class IncorrectToc(BaseError):
 
@@ -99,6 +125,50 @@ class DuplicateHref(BaseError):
         container.dirty(self.name)
         return True
 
+class MultipleCovers(BaseError):
+
+    has_multiple_locations = True
+    HELP = xml(_(
+        'There is more than one <meta name="cover"> tag defined. There should be only one.'))
+    INDIVIDUAL_FIX = _('Remove all but the first meta cover tag')
+
+    def __init__(self, name, locs):
+        BaseError.__init__(self, _('There is more than one cover defined'), name)
+        self.all_locations = [(name, lnum, None) for lnum in sorted(locs)]
+
+    def __call__(self, container):
+        items = [e for e in container.opf_xpath('/opf:package/opf:metadata/opf:meta[@name="cover"]')]
+        [container.remove_from_xml(e) for e in items[1:]]
+        container.dirty(self.name)
+        return True
+
+class NoUID(BaseError):
+
+    HELP = xml(_(
+        'The OPF must have a unique identifier, i.e. a <dc:identifier> element whose id is referenced'
+        ' by the <package> element'))
+    INDIVIDUAL_FIX = _('Auto-generate a unique identifier')
+
+    def __init__(self, name):
+        BaseError.__init__(self, _('The OPF has no unique identifier'), name)
+
+    def __call__(self, container):
+        import uuid
+        opf = container.opf
+        uid = str(uuid.uuid4())
+        opf.set('unique-identifier', uid)
+        m = container.opf_xpath('/opf:package/opf:metadata')
+        if not m:
+            m = [container.opf.makeelement(OPF('metadata'), nsmap={'dc':DC11_NS})]
+            container.insert_into_xml(container.opf, m[0], 0)
+        m = m[0]
+        dc = m.makeelement(DC('identifier'), id=uid, nsmap={'opf':OPF2_NS})
+        dc.set(OPF('scheme'), 'uuid')
+        dc.text = uid
+        container.insert_into_xml(m, dc)
+        container.dirty(container.opf_name)
+        return True
+
 def check_opf(container):
     errors = []
 
@@ -156,6 +226,24 @@ def check_opf(container):
         else:
             errors.append(IncorrectToc(container.opf_name, spine.sourceline, bad_idref=spine.get('toc')))
 
-    # Check unique identifier, <meta> tag with name before content for
-    # cover and content pointing to proper manifest item.
+    covers = container.opf_xpath('/opf:package/opf:metadata/opf:meta[@name="cover"]')
+    if len(covers) > 0:
+        if len(covers) > 1:
+            errors.append(MultipleCovers(container.opf_name, [c.sourceline for c in covers]))
+        manifest_ids = set(container.opf_xpath('/opf:package/opf:manifest/opf:item/@id'))
+        for cover in covers:
+            if cover.get('content', None) not in manifest_ids:
+                errors.append(IncorrectCover(container.opf_name, cover.sourceline, cover.get('content', '')))
+            raw = etree.tostring(cover)
+            try:
+                n, c = raw.index('name="'), raw.index('content="')
+            except ValueError:
+                n = c = -1
+            if n > -1 and c > -1 and n > c:
+                errors.append(NookCover(container.opf_name, cover.sourceline))
+
+    uid = container.opf.get('unique-identifier', None)
+    if uid is None or not container.opf_xpath('/opf:package/opf:metadata/dc:identifier[@id=%r]' % uid):
+        errors.append(NoUID(container.opf_name))
+
     return errors
