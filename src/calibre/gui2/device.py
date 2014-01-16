@@ -8,7 +8,8 @@ from threading import Thread, Event
 
 from PyQt4.Qt import (
     QMenu, QAction, QActionGroup, QIcon, SIGNAL, Qt, pyqtSignal, QDialog,
-    QObject, QVBoxLayout, QDialogButtonBox, QCursor)
+    QObject, QVBoxLayout, QDialogButtonBox, QCursor, QCoreApplication,
+    QApplication)
 
 from calibre.customize.ui import (available_input_formats, available_output_formats,
     device_plugins, disabled_device_plugins)
@@ -1092,8 +1093,14 @@ class DeviceMixin(object):  # {{{
             self.device_job_exception(job)
             return
         self.device_manager.slow_driveinfo()
+
         # set_books_in_library might schedule a sync_booklists job
+        if DEBUG:
+            prints('DeviceJob: metadata_downloaded: Starting set_books_in_library')
         self.set_books_in_library(job.result, reset=True, add_as_step_to_job=job)
+
+        if DEBUG:
+            prints('DeviceJob: metadata_downloaded: updating views')
         mainlist, cardalist, cardblist = job.result
         self.memory_view.set_database(mainlist)
         self.memory_view.set_editable(self.device_manager.device.CAN_SET_METADATA,
@@ -1107,9 +1114,17 @@ class DeviceMixin(object):  # {{{
         self.card_b_view.set_editable(self.device_manager.device.CAN_SET_METADATA,
                                       self.device_manager.device.BACKLOADING_ERROR_MESSAGE
                                       is None)
+        if DEBUG:
+            prints('DeviceJob: metadata_downloaded: syncing')
         self.sync_news()
         self.sync_catalogs()
+
+        if DEBUG:
+            prints('DeviceJob: metadata_downloaded: refreshing ondevice')
         self.refresh_ondevice()
+
+        if DEBUG:
+            prints('DeviceJob: metadata_downloaded: sending metadata_available signal')
         device_signals.device_metadata_available.emit()
 
     def refresh_ondevice(self, reset_only=False):
@@ -1766,8 +1781,35 @@ class DeviceMixin(object):  # {{{
             except:
                 return True
 
+        total_book_count = 0;
         for booklist in booklists:
             for book in booklist:
+                if book:
+                    total_book_count += 1;
+        if DEBUG:
+            prints('DeviceJob: set_books_in_library: books to process=', total_book_count)
+
+        start_time = time.time()
+        QApplication.setOverrideCursor(Qt.WaitCursor)
+        current_book_count = 0;
+        for booklist in booklists:
+            for book in booklist:
+                if current_book_count % 100 == 0:
+                    self.status_bar.show_message(
+                            _('Analyzing books on the device: %d%% finished')%(
+                                int((float(current_book_count)/total_book_count)*100.0)))
+
+                # I am assuming that this pseudo multi-threading won't break
+                # anything. Reasons: UI actions that change the DB will happen
+                # synchronously with this loop, and the device booklist isn't
+                # used until this loop finishes. Of course, the UI will stutter
+                # somewhat, but that is better than locking up. Why every tenth
+                # book? WAG balancing performance in the loop with the user
+                # being able to get something done
+                if current_book_count % 10 == 0:
+                    QCoreApplication.processEvents()
+
+                current_book_count += 1;
                 book.in_library = None
                 if getattr(book, 'uuid', None) in self.db_book_uuid_cache:
                     id_ = db_book_uuid_cache[book.uuid]
@@ -1831,6 +1873,11 @@ class DeviceMixin(object):  # {{{
                 self.device_manager.sync_booklists(
                                     FunctionDispatcher(self.metadata_synced), booklists,
                                     plugboards, add_as_step_to_job)
+
+        QApplication.restoreOverrideCursor()
+        if DEBUG:
+            prints('DeviceJob: set_books_in_library finished: time=', time.time() - start_time)
+        # The status line is reset when the job finishes
         return update_metadata
     # }}}
 
