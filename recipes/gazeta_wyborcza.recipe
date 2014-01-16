@@ -99,9 +99,8 @@ class Gazeta_Wyborcza(BasicNewsRecipe):
 
     def get_cover_url(self):
         soup = self.index_to_soup('http://wyborcza.pl/0,76762,3751429.html')
-        cover = soup.find(id='GWmini2')
-        soup = self.index_to_soup('http://wyborcza.pl/' + cover.contents[3].a['href'])
-        self.cover_url = 'http://wyborcza.pl' + soup.img['src']
+        cover = soup.find(attrs={'class':'gallerycontent'})
+        self.cover_url = cover.ul.li.a.img['src'].replace('P.jpg', '.jpg')
         return getattr(self, 'cover_url', self.cover_url)
 
     def image_url_processor(self, baseurl, url):

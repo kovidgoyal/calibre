@@ -14,31 +14,31 @@ class CGM(BasicNewsRecipe):
     remove_empty_feeds= True
     max_articles_per_feed = 100
     no_stylesheets = True
-    extra_css      = 'div {color:black;} strong {color:black;} span {color:black;} p {color:black;} h2 {color:black;}'
+    extra_css      = 'div {color:black;} strong {color:black;} span {color:black;} p {color:black;} h2 {color:black;} img {display: block;} ul.galleryImagesList {list-style: none;} li.item {float: left;} .calibrenavbar {clear: both;}'
     remove_tags_before=dict(id='mainContent')
     remove_tags_after=dict(name='div', attrs={'class':'fbContainer'})
     remove_tags=[dict(name='div', attrs={'class':['fbContainer', 'socials']}),
           dict(name='p', attrs={'class':['tagCloud', 'galleryAuthor']}),
-          dict(id=['movieShare', 'container'])]
+          dict(id=['movieShare', 'container']), dict(name='br')]
     feeds          = [(u'Informacje', u'http://www.cgm.pl/rss.xml'), (u'Polecamy', u'http://www.cgm.pl/rss,4,news.xml'),
                           (u'Recenzje', u'http://www.cgm.pl/rss,1,news.xml')]
 
-
     def preprocess_html(self, soup):
-        gallery=soup.find('div', attrs={'class':'galleryFlash'})
-        if gallery:
-            img=gallery.div
+        gallery = soup.find('div', attrs={'class':'galleryFlash'})
+        if gallery and gallery.div:
+            img = gallery.div
             gallery.img.extract()
             if img:
-                img=img['style']
-                img='http://www.cgm.pl'+img[img.find('url(')+4:img.find(')')]
-                gallery.contents[1].name='img'
-                gallery.contents[1]['src']=img
+                img = img['style']
+                img = 'http://www.cgm.pl'+img[img.find('url(')+4:img.find(')')]
+                gallery.contents[1].name = 'img'
+                gallery.contents[1]['src'] = img
                 pos = len(gallery.contents)
                 gallery.insert(pos, BeautifulSoup('<br />'))
+
         for item in soup.findAll(style=True):
             del item['style']
-        ad=soup.findAll('a')
+        ad = soup.findAll('a')
         for r in ad:
             if 'www.hustla.pl' in r['href'] or 'www.ebilet.pl' in r['href']:
                  r.extract()

@@ -10,13 +10,9 @@ class AstroNEWS(BasicNewsRecipe):
     #extra_css= 'table {text-align: left;}'
     no_stylesheets=True
     cover_url='http://news.astronet.pl/img/logo_news.jpg'
+    remove_attributes = ['width', 'align']
     remove_tags=[dict(name='hr')]
     feeds          = [(u'Wiadomości', u'http://news.astronet.pl/rss.cgi')]
 
     def print_version(self, url):
         return url.replace('astronet.pl/', 'astronet.pl/print.cgi?')
-
-    def preprocess_html(self, soup):
-        for item in soup.findAll(align=True):
-            del item['align']
-        return soup

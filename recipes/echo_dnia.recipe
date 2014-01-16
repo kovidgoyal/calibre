@@ -25,7 +25,7 @@ class EchoDnia(BasicNewsRecipe):
     keep_only_tags = [dict(id=['article', 'cover', 'photostory'])]
     remove_tags = [dict(id=['articleTags', 'articleMeta', 'boxReadIt', 'articleGalleries', 'articleConnections',
                   'ForumArticleComments', 'articleRecommend', 'jedynkiLinks', 'articleGalleryConnections', 
-                  'photostoryConnections', 'articleEpaper', 'articlePoll', 'articleAlarm', 'articleByline']), 
+                  'photostoryConnections', 'articleEpaper', 'articlePoll', 'articleAlarm', 'articleByline', 'articleZoomText']), 
                   dict(attrs={'class':'articleFunctions'})]
 
     feeds          = [(u'Wszystkie', u'http://www.echodnia.eu/rss.xml'), 

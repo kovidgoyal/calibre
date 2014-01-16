@@ -16,7 +16,7 @@ class Dzieje(BasicNewsRecipe):
     remove_javascript = True
     no_stylesheets = True
     keep_only_tags = [dict(name='h1', attrs={'class':'title'}), dict(id='content-area')]
-    remove_tags = [dict(attrs={'class':'field field-type-computed field-field-tagi'}), dict(id='dogory')]
+    remove_tags = [dict(attrs={'class':'field field-type-computed field-field-tagi'}), dict(id='dogory'), dict(name='blockquote')]
     #feeds          = [(u'Dzieje', u'http://dzieje.pl/rss.xml')]
 
     def append_page(self, soup, appendtag):

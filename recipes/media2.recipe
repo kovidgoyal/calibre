@@ -12,6 +12,7 @@ class media2_pl(BasicNewsRecipe):
     description = u'Media2.pl to jeden z najczęściej odwiedzanych serwisów dla profesjonalistów z branży medialnej, telekomunikacyjnej, public relations oraz nowych technologii.'
     masthead_url = 'http://media2.pl/res/logo/www.png'
     cover_url = 'http://media2.pl/res/logo/www.png'
+    INDEX = 'http://media2.pl'
     remove_empty_feeds = True
     oldest_article = 7
     max_articles_per_feed = 100
@@ -22,10 +23,16 @@ class media2_pl(BasicNewsRecipe):
     extra_css = '''.news-lead{font-weight: bold; }'''
 
     keep_only_tags = [dict(name = 'div', attrs = {'class' : 'news-item tpl-big'})]
-    remove_tags = [dict(name = 'span', attrs = {'class' : 'news-comments'}), dict(name = 'div', attrs = {'class' : 'item-sidebar'}), dict(name = 'div', attrs = {'class' : 'news-tags'})]
+    remove_tags = [dict(name = 'span', attrs = {'class' : 'news-comments'}), dict(name = 'div', attrs = {'class' : ['item-sidebar', 'news-inline-promo nobbtext']}), 
+    dict(name = 'div', attrs = {'class' : 'news-tags'})]
 
     feeds = [(u'Media2', u'http://feeds.feedburner.com/media2'), (u'Internet', u'http://feeds.feedburner.com/media2/internet'),
             (u'Media', 'http://feeds.feedburner.com/media2/media'), (u'Telekomunikacja', 'http://feeds.feedburner.com/media2/telekomunikacja'),
             (u'Reklama/PR', 'http://feeds.feedburner.com/media2/reklama-pr'), (u'Technologie', 'http://feeds.feedburner.com/media2/technologie'),
             (u'Badania', 'http://feeds.feedburner.com/media2/badania')
             ]
+
+    def image_url_processor(self, baseurl, url):
+        if url[0] == '/':
+            url = self.INDEX + url
+        return url
