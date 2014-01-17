@@ -380,7 +380,7 @@ class FileList(QTreeWidget):
                 tooltips.append(_('This file is a text file that is not referenced in the spine'))
             if category == 'text' and name in processed:
                 # Duplicate entry in spine
-                emblems.append('dialog_warning.png')
+                emblems.append('dialog_error.png')
                 tooltips.append(_('This file occurs more than once in the spine'))
 
             render_emblems(item, emblems)
