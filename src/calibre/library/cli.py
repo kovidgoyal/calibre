@@ -546,7 +546,7 @@ def do_set_metadata(db, id, stream):
     db.set_metadata(id, mi)
 
 def set_metadata_option_parser():
-    return get_parser(_(
+    parser = get_parser(_(
 '''
 %prog set_metadata [options] id [/path/to/metadata.opf]
 
@@ -557,9 +557,6 @@ show_metadata command. You can also set the metadata of individual fields with
 the --field option. If you use the --field option, there is no need to specify
 an OPF file.
 '''))
-
-def command_set_metadata(args, dbpath):
-    parser = set_metadata_option_parser()
     parser.add_option('-f', '--field', action='append', default=[], help=_(
         'The field to set. Format is field_name:value, for example: '
         '{0} tags:tag1,tag2. Use {1} to get a list of all field names. You '
@@ -573,6 +570,10 @@ def command_set_metadata(args, dbpath):
     parser.add_option('-l', '--list-fields', action='store_true',
         default=False, help=_('List the metadata field names that can be used'
         ' with the --field option'))
+    return parser
+
+def command_set_metadata(args, dbpath):
+    parser = set_metadata_option_parser()
     opts, args = parser.parse_args(sys.argv[0:1]+args)
     db = get_db(dbpath, opts)
 
