@@ -1,6 +1,4 @@
-import re
 from calibre.web.feeds.news import BasicNewsRecipe
-from calibre.ebooks.BeautifulSoup import Comment
 
 class GazetaPomorska(BasicNewsRecipe):
     title          = u'Gazeta Pomorska'
@@ -16,19 +14,11 @@ class GazetaPomorska(BasicNewsRecipe):
     max_articles_per_feed = 100
     remove_empty_feeds = True
     no_stylesheets = True
+    use_embedded_content = False
     ignore_duplicate_articles = {'title', 'url'}
 
-    preprocess_regexps = [(re.compile(ur'Czytaj:.*?</a>', re.DOTALL), lambda match: ''), (re.compile(ur'Przeczytaj także:.*?</a>', re.DOTALL|re.IGNORECASE), lambda match: ''), 
-                          (re.compile(ur'Przeczytaj również:.*?</a>', re.DOTALL|re.IGNORECASE), lambda match: ''), (re.compile(ur'Zobacz też:.*?</a>', re.DOTALL|re.IGNORECASE), lambda match: '')]
-
-    keep_only_tags = [dict(id=['article', 'cover', 'photostory'])]
-    remove_tags = [dict(id=['articleTags', 'articleMeta', 'boxReadIt', 'articleGalleries', 'articleConnections',
-                  'ForumArticleComments', 'articleRecommend', 'jedynkiLinks', 'articleGalleryConnections', 
-                  'photostoryConnections', 'articleEpaper', 'articlePoll', 'articleAlarm', 'articleByline']), 
-                  dict(attrs={'class':'articleFunctions'})]
-
-    feeds          = [(u'Wszystkie', u'http://www.pomorska.pl/rss.xml'), 
-                      (u'Region', u'http://www.pomorska.pl/region.xml'), 
+    feeds          = [(u'Wszystkie', u'http://www.pomorska.pl/rss.xml'),
+                      (u'Region', u'http://www.pomorska.pl/region.xml'),
                       (u'Bydgoszcz', u'http://www.pomorska.pl/bydgoszcz.xml'),
                       (u'Nakło', u'http://www.pomorska.pl/naklo.xml'),
                       (u'Koronowo', u'http://www.pomorska.pl/koronowo.xml'),
@@ -50,12 +40,14 @@ class GazetaPomorska(BasicNewsRecipe):
                       (u'Świecie', u'http://www.pomorska.pl/swiecie.xml'),
                       (u'Tuchola', u'http://www.pomorska.pl/tuchola.xml'),
                       (u'Żnin', u'http://www.pomorska.pl/znin.xml'),
-                      (u'Sport', u'http://www.pomorska.pl/sport.xml'), 
-                      (u'Zdrowie', u'http://www.pomorska.pl/zdrowie.xml'), 
-                      (u'Auto', u'http://www.pomorska.pl/moto.xml'), 
-                      (u'Dom', u'http://www.pomorska.pl/dom.xml'), 
-                     #(u'Reporta\u017c', u'http://www.pomorska.pl/reportaz.xml'), 
+                      (u'Sport', u'http://www.pomorska.pl/sport.xml'),
+                      (u'Zdrowie', u'http://www.pomorska.pl/zdrowie.xml'),
+                      (u'Auto', u'http://www.pomorska.pl/moto.xml'),
+                      (u'Dom', u'http://www.pomorska.pl/dom.xml'),
+                     #(u'Reporta\u017c', u'http://www.pomorska.pl/reportaz.xml'),
                       (u'Gospodarka', u'http://www.pomorska.pl/gospodarka.xml')]
+
+    keep_only_tags = [dict(id='article')]
 
     def get_cover_url(self):
         soup = self.index_to_soup(self.INDEX + '/apps/pbcs.dll/section?Category=JEDYNKI')
@@ -64,33 +56,12 @@ class GazetaPomorska(BasicNewsRecipe):
         self.cover_url = self.INDEX + soup.find(id='cover').find(name='img')['src']
         return getattr(self, 'cover_url', self.cover_url)
 
-    def append_page(self, soup, appendtag):
-        tag = soup.find('span', attrs={'class':'photoNavigationPages'})
-        if tag:
-            number = int(tag.string.rpartition('/')[-1].replace('&nbsp;', ''))
-            baseurl = self.INDEX + soup.find(attrs={'class':'photoNavigationNext'})['href'][:-1]
+    def decode_feedportal_url(self, url):
+        link = url.rpartition('l/0L0S')[2][:-12]
+        replaces = (('0B', '.'), ('0C', '/'), ('0H', ','), ('0D', '?'), ('0F', '='), ('0A', '0'), ('0I', '_'))
+        for t in replaces:
+            link = link.replace(*t)
+        return 'http://' + link
 
-            for r in appendtag.findAll(attrs={'class':'photoNavigation'}):
-                r.extract()
-            for nr in range(2, number+1):
-                soup2 = self.index_to_soup(baseurl + str(nr))
-                pagetext = soup2.find(id='photoContainer')
-                if pagetext:
-                    pos = len(appendtag.contents)
-                    appendtag.insert(pos, pagetext)
-                pagetext = soup2.find(attrs={'class':'photoMeta'})
-                if pagetext:
-                    pos = len(appendtag.contents)
-                    appendtag.insert(pos, pagetext)
-                pagetext = soup2.find(attrs={'class':'photoStoryText'})
-                if pagetext:
-                    pos = len(appendtag.contents)
-                    appendtag.insert(pos, pagetext)
-            
-            comments = appendtag.findAll(text=lambda text:isinstance(text, Comment))
-            for comment in comments:
-                comment.extract()
-
-    def preprocess_html(self, soup):
-        self.append_page(soup, soup.body)
-        return soup
+    def print_version(self, url):
+        return self.decode_feedportal_url(url) + '&Template=printpicart'

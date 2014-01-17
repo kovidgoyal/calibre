@@ -1,3 +1,4 @@
+import re
 from calibre.web.feeds.news import BasicNewsRecipe
 
 class Android_com_pl(BasicNewsRecipe):
@@ -6,8 +7,9 @@ class Android_com_pl(BasicNewsRecipe):
     description   = u'Android.com.pl - to największe w Polsce centrum Android OS. Znajdziesz tu: nowości, forum, pomoc, recenzje, gry, aplikacje.'
     category       = 'Android, mobile'
     language       = 'pl'
-    use_embedded_content=True
-    cover_url =u'http://android.com.pl/wp-content/themes/android/images/logo.png'
+    use_embedded_content = True
+    cover_url = 'http://android.com.pl/wp-content/themes/android/images/logo.png'
     oldest_article = 8
     max_articles_per_feed = 100
+    preprocess_regexps = [(re.compile(ur'<p>.{,1}</p>', re.DOTALL), lambda match: '')]
     feeds          = [(u'Android', u'http://android.com.pl/feed/')]

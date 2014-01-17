@@ -7,11 +7,11 @@ class Fotoblogia_pl(BasicNewsRecipe):
     category       = 'photography'
     language       = 'pl'
     masthead_url = 'http://img.interia.pl/komputery/nimg/u/0/fotoblogia21.jpg'
-    cover_url= 'http://fotoblogia.pl/images/2009/03/fotoblogia2.jpg'
+    cover_url = 'http://fotoblogia.pl/images/2009/03/fotoblogia2.jpg'
     oldest_article = 7
     max_articles_per_feed = 100
     no_stylesheets = True
     use_embedded_content = False
-    keep_only_tags=[dict(name='div', attrs={'class':['post-view post-standard', 'photo-container']})]
-    remove_tags=[dict(attrs={'class':['external fotoblogia', 'categories', 'tags']})]
+    keep_only_tags = [dict(name='article')]
+    remove_tags = [dict(attrs={'class':'article-related'})]
     feeds          = [(u'Wszystko', u'http://fotoblogia.pl/feed/rss2')]

@@ -14,5 +14,5 @@ class Tablety_pl(BasicNewsRecipe):
     max_articles_per_feed = 100
     preprocess_regexps = [(re.compile(ur'<p><strong>Przeczytaj także.*?</a></strong></p>', re.DOTALL), lambda match: ''), (re.compile(ur'<p><strong>Przeczytaj koniecznie.*?</a></strong></p>', re.DOTALL), lambda match: '')]
     keep_only_tags = [dict(id='news_block')]
-    remove_tags=[dict(attrs={'class':['comments_icon', 'wp-polls', 'entry-comments', 'wp-polls-loading', 'ts-fab-wrapper', 'entry-footer']})]
+    remove_tags=[dict(attrs={'class':['comments_icon', 'wp-polls', 'entry-comments', 'wp-polls-loading', 'ts-fab-wrapper', 'entry-footer', 'social-custom']})]
     feeds = [(u'Najnowsze posty', u'http://www.tablety.pl/feed/')]

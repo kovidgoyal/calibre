@@ -1,6 +1,4 @@
-import re
 from calibre.web.feeds.news import BasicNewsRecipe
-from calibre.ebooks.BeautifulSoup import Comment
 
 class GCN(BasicNewsRecipe):
     title          = u'Gazeta Codziennej Nowiny'
@@ -18,14 +16,7 @@ class GCN(BasicNewsRecipe):
     no_stylesheets = True
     ignore_duplicate_articles = {'title', 'url'}
     remove_attributes = ['style']
-    preprocess_regexps = [(re.compile(ur'Czytaj:.*?</a>', re.DOTALL), lambda match: ''), (re.compile(ur'Przeczytaj także:.*?</a>', re.DOTALL|re.IGNORECASE), lambda match: ''),
-                          (re.compile(ur'Przeczytaj również:.*?</a>', re.DOTALL|re.IGNORECASE), lambda match: ''), (re.compile(ur'Zobacz też:.*?</a>', re.DOTALL|re.IGNORECASE), lambda match: '')]
-
-    keep_only_tags = [dict(id=['article', 'cover', 'photostory'])]
-    remove_tags = [dict(id=['articleTags', 'articleMeta', 'boxReadIt', 'articleGalleries', 'articleConnections',
-                  'ForumArticleComments', 'articleRecommend', 'jedynkiLinks', 'articleGalleryConnections',
-                  'photostoryConnections', 'articleEpaper', 'articlePoll', 'articleAlarm', 'articleByline']),
-                  dict(attrs={'class':'articleFunctions'})]
+    use_embedded_content = False
 
     feeds          = [(u'Wszystkie', u'http://www.nowiny24.pl/rss.xml'),
                       (u'Podkarpacie', u'http://www.nowiny24.pl/podkarpacie.xml'),
@@ -49,6 +40,8 @@ class GCN(BasicNewsRecipe):
                       (u'Zdrowie', u'http://www.nowiny24.pl/zdrowie.xml'),
                       (u'Wywiady', u'http://www.nowiny24.pl/wywiady.xml')]
 
+    keep_only_tags = [dict(id='article')]
+
     def get_cover_url(self):
         soup = self.index_to_soup(self.INDEX + '/apps/pbcs.dll/section?Category=JEDYNKI')
         nexturl = self.INDEX + soup.find(id='covers').find('a')['href']
@@ -56,33 +49,12 @@ class GCN(BasicNewsRecipe):
         self.cover_url = self.INDEX + soup.find(id='cover').find(name='img')['src']
         return getattr(self, 'cover_url', self.cover_url)
 
-    def append_page(self, soup, appendtag):
-        tag = soup.find('span', attrs={'class':'photoNavigationPages'})
-        if tag:
-            number = int(tag.string.rpartition('/')[-1].replace('&nbsp;', ''))
-            baseurl = self.INDEX + soup.find(attrs={'class':'photoNavigationNext'})['href'][:-1]
+    def decode_feedportal_url(self, url):
+        link = url.rpartition('l/0L0S')[2][:-12]
+        replaces = (('0B', '.'), ('0C', '/'), ('0H', ','), ('0D', '?'), ('0F', '='), ('0A', '0'), ('0I', '_'))
+        for t in replaces:
+            link = link.replace(*t)
+        return 'http://' + link
 
-            for r in appendtag.findAll(attrs={'class':'photoNavigation'}):
-                r.extract()
-            for nr in range(2, number+1):
-                soup2 = self.index_to_soup(baseurl + str(nr))
-                pagetext = soup2.find(id='photoContainer')
-                if pagetext:
-                    pos = len(appendtag.contents)
-                    appendtag.insert(pos, pagetext)
-                pagetext = soup2.find(attrs={'class':'photoMeta'})
-                if pagetext:
-                    pos = len(appendtag.contents)
-                    appendtag.insert(pos, pagetext)
-                pagetext = soup2.find(attrs={'class':'photoStoryText'})
-                if pagetext:
-                    pos = len(appendtag.contents)
-                    appendtag.insert(pos, pagetext)
-
-            comments = appendtag.findAll(text=lambda text:isinstance(text, Comment))
-            for comment in comments:
-                comment.extract()
-
-    def preprocess_html(self, soup):
-        self.append_page(soup, soup.body)
-        return soup
+    def print_version(self, url):
+        return self.decode_feedportal_url(url) + '&Template=printpicart'
