@@ -300,6 +300,10 @@ Some of the checks performed are:
     * Unreferenced files. Files in the book that are not referenced by any
       other file or are not in the spine are reported.
 
+    * Various common problems in OPF files such as duplicate spine or manifest
+      items, broken idrefs or meta cover tags, missing required sections and
+      so on.
+
     * Various compatibility checks for known problems that can cause the book
       to malfunction on reader devices.
 
