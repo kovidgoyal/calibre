@@ -20,6 +20,46 @@
 #   new recipes:
 #     - title: 
 
+- version: 1.20.0
+  date: 2014-01-17
+
+  new features:
+    - title: "Edit book: Add a new tool to automatically arrange all files in the book into folders based on their type. Access it via Tools->Arrange into folders."
+
+    - title: "Edit book: Add various validity checks for OPF files when running the Check Book tool."
+      description: "Check for incorrect idrefs, missing required sections, non-linear items in the spine, incorrect meta cover tags, duplicated items in the manifest or spine and so on."
+
+    - title: "Edit book: Add checks for duplicate ids in HTML/OPF/NCX files"
+
+    - title: "Edit book: Add checks for filenames containing URL unsafe characters to the Check Book tool"
+
+    - title: "Conversion: Allow getting text for entries in the Table of Contents from tag attributes."
+      tickets: [1267837]
+
+  bug fixes:
+    - title: "AZW3 Output: When converting EPUB files that include an HTML titlepage and no external cover is specified, ensure that the Go to cover action on the Kindle goes to the cover image and not the HTML titlepage."
+      tickets: [1268657]
+
+    - title: "Prevent setting an incorrect value for compression quality in the wireless driver causing an error"
+
+    - title: "Show a busy cursor while calibre is working on matching books on the device to books in the library, which can take a while if the user has a lot of books on the device."
+
+    - title: "iTunes driver: Retry automatically a few times when failing to send multiple book to iTunes."
+      tickets: [1268058]
+
+    - title: "HTML Input: Fix UTF-16/32 encoded files that are linked to from the parent file not being properly processed."
+      tickets: [1268262]
+
+    - title: "EPUB Output: Fix splitting of large HTML files removing all child tags from inside <pre> tags."
+      tickets: [1267327]
+
+    - title: "Edit book: Fix tab characters not being identified in the lower right corner."
+      tickets: [1267980]
+
+  improved recipes:
+    - Various Polish news sources
+    - Dilema Veche
+
 - version: 1.19.0
   date: 2014-01-10
 
