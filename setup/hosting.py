@@ -9,7 +9,7 @@ __docformat__ = 'restructuredtext en'
 
 import os, time, sys, traceback, subprocess, urllib2, re, base64, httplib, shutil
 from argparse import ArgumentParser, FileType
-from subprocess import check_call
+from subprocess import check_call, CalledProcessError
 from tempfile import NamedTemporaryFile
 from collections import OrderedDict
 
@@ -530,7 +530,15 @@ def upload_to_dbs(files, version):  # {{{
                 break
         print ('Uploaded in', int(time.time() - start), 'seconds\n\n')
         sys.stdout.flush()
-    check_call(['ssh', 'kovid@%s' % server, '/home/kovid/uploadFiles'])
+    try:
+        check_call(['ssh', 'kovid@%s' % server, '/home/kovid/uploadFiles'])
+    except CalledProcessError as err:
+        # fosshub is being a little flaky sshing into it is failing the first
+        # time, needing a retry
+        if err.returncode == 255:
+            check_call(['ssh', 'kovid@%s' % server, '/home/kovid/uploadFiles'])
+        else:
+            raise
 # }}}
 
 # CLI {{{
