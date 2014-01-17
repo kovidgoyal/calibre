@@ -229,7 +229,7 @@ class ANDROID(USBMS):
             'PMP5097C', 'MASS', 'NOVO7', 'ZEKI', 'COBY', 'SXZ', 'USB_2.0',
             'COBY_MID', 'VS', 'AINOL', 'TOPWISE', 'PAD703', 'NEXT8D12',
             'MEDIATEK', 'KEENHI', 'TECLAST', 'SURFTAB', 'XENTA', 'OBREEY_S',
-            'SURFTAB_', 'ONYX-INT',
+            'SURFTAB_', 'ONYX-INT', 'IMCOSYS',
     ]
     WINDOWS_MAIN_MEM = ['ANDROID_PHONE', 'A855', 'A853', 'A953', 'INC.NEXUS_ONE',
             '__UMS_COMPOSITE', '_MB200', 'MASS_STORAGE', '_-_CARD', 'SGH-I897',
@@ -253,7 +253,7 @@ class ANDROID(USBMS):
             'NOVO7', 'MB526', '_USB#WYK7MSF8KE', 'TABLET_PC', 'F', 'MT65XX_MS',
             'ICS', 'E400', '__FILE-STOR_GADG', 'ST80208-1', 'GT-S5660M_CARD', 'XT894', '_USB',
             'PROD_TAB13-201', 'URFPAD2', 'MID1126', 'ST10216-1', 'S5360L_CARD', 'IDEATAB_A1000-F',
-            'LBOOX', 'LTAGUS',
+            'LBOOX', 'LTAGUS', 'IMCOV6L',
     ]
     WINDOWS_CARD_A_MEM = ['ANDROID_PHONE', 'GT-I9000_CARD', 'SGH-I897',
             'FILE-STOR_GADGET', 'SGH-T959_CARD', 'SGH-T959', 'SAMSUNG_ANDROID', 'GT-P1000_CARD',
@@ -267,7 +267,7 @@ class ANDROID(USBMS):
             'USB_FLASH_DRIVER', 'ANDROID', 'MID7042', '7035', 'VIEWPAD_7E',
             'NOVO7', 'ADVANCED', 'TABLET_PC', 'F', 'E400_SD_CARD', 'ST80208-1', 'XT894',
             '_USB', 'PROD_TAB13-201', 'URFPAD2', 'MID1126', 'ANDROID_PLATFORM',
-            'ST10216-1', 'LBOOX', 'LTAGUS',
+            'ST10216-1', 'LBOOX', 'LTAGUS', 'IMCOV6L',
     ]
 
     OSX_MAIN_MEM = 'Android Device Main Memory'
