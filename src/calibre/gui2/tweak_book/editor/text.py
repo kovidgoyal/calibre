@@ -55,9 +55,7 @@ class LineNumbers(QWidget):  # {{{
 class PlainTextEdit(QPlainTextEdit):
 
     ''' A class that overrides some methods from QPlainTextEdit to fix handling
-    of the nbsp unicode character. In addition to this you also have to
-    override the default copy/cut actions triggered by the keyboard shortcuts.
-    See the event() method of the TextEdit class for example.  '''
+    of the nbsp unicode character. '''
 
     def __init__(self, parent=None):
         QPlainTextEdit.__init__(self, parent)
@@ -96,6 +94,13 @@ class PlainTextEdit(QPlainTextEdit):
             md = QMimeData()
             md.setText(self.selected_text)
             clipboard.setMimeData(md, clipboard.Selection)
+
+    def event(self, ev):
+        if ev.type() == ev.ShortcutOverride and ev in (QKeySequence.Copy, QKeySequence.Cut):
+            ev.accept()
+            (self.copy if ev == QKeySequence.Copy else self.cut)()
+            return True
+        return QPlainTextEdit.event(self, ev)
 
 class TextEdit(PlainTextEdit):
 
