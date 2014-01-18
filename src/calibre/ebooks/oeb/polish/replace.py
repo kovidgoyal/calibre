@@ -180,6 +180,8 @@ def rationalize_folders(container, folder_type_map):
     new_names = set()
     name_map = {}
     for name in all_names:
+        if name.startswith('META-INF/'):
+            continue
         category = mt_to_category(container, container.mime_map[name])
         folder = folder_type_map.get(category, None)
         if folder is not None:
