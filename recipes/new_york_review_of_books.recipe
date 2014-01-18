@@ -35,6 +35,8 @@ class NewYorkReviewOfBooks(BasicNewsRecipe):
         m:'<head></head>')]
 
     def print_version(self, url):
+        if '?' in url:
+            url = url.rpartition('?')[0]
         return url+'?pagination=false'
 
     def get_browser(self):
