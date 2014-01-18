@@ -64,7 +64,7 @@ class Highlight(QTextDocument):
         highlighter. '''
         num = hi - lo
         if num > 0:
-            block = self.findBlockByNumber(lo + 1)
+            block = self.findBlockByNumber(lo)
             while num > 0:
                 num -= 1
                 cursor.insertText(block.text())
