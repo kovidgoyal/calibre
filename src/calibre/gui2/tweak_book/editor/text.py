@@ -52,10 +52,55 @@ class LineNumbers(QWidget):  # {{{
         self.parent().paint_line_numbers(ev)
 # }}}
 
-class TextEdit(QPlainTextEdit):
+class PlainTextEdit(QPlainTextEdit):
+
+    ''' A class that overrides some methods from QPlainTextEdit to fix handling
+    of the nbsp unicode character. In addition to this you also have to
+    override the default copy/cut actions triggered by the keyboard shortcuts.
+    See the event() method of the TextEdit class for example.  '''
 
     def __init__(self, parent=None):
         QPlainTextEdit.__init__(self, parent)
+        self.selectionChanged.connect(self.selection_changed)
+
+    def toPlainText(self):
+        # QPlainTextEdit's toPlainText implementation replaces nbsp with normal
+        # space, so we re-implement it using QTextCursor, which does not do
+        # that
+        c = self.textCursor()
+        c.clearSelection()
+        c.movePosition(c.Start)
+        c.movePosition(c.End, c.KeepAnchor)
+        return c.selectedText().replace(PARAGRAPH_SEPARATOR, '\n')
+
+    @pyqtSlot()
+    def copy(self):
+        # Workaround Qt replacing nbsp with normal spaces on copy
+        c = self.textCursor()
+        if not c.hasSelection():
+            return
+        md = QMimeData()
+        md.setText(self.selected_text)
+        QApplication.clipboard().setMimeData(md)
+
+    @pyqtSlot()
+    def cut(self):
+        # Workaround Qt replacing nbsp with normal spaces on copy
+        self.copy()
+        self.textCursor().removeSelectedText()
+
+    def selection_changed(self):
+        # Workaround Qt replacing nbsp with normal spaces on copy
+        clipboard = QApplication.clipboard()
+        if clipboard.supportsSelection() and self.textCursor().hasSelection():
+            md = QMimeData()
+            md.setText(self.selected_text)
+            clipboard.setMimeData(md, clipboard.Selection)
+
+class TextEdit(PlainTextEdit):
+
+    def __init__(self, parent=None):
+        PlainTextEdit.__init__(self, parent)
         self.current_cursor_line = None
         self.current_search_mark = None
         self.highlighter = SyntaxHighlighter(self)
@@ -64,7 +109,6 @@ class TextEdit(QPlainTextEdit):
         self.setMouseTracking(True)
         self.cursorPositionChanged.connect(self.highlight_cursor_line)
         self.blockCountChanged[int].connect(self.update_line_number_area_width)
-        self.selectionChanged.connect(self.selection_changed)
         self.updateRequest.connect(self.update_line_number_area)
         self.syntax = None
 
@@ -128,40 +172,6 @@ class TextEdit(QPlainTextEdit):
         self.highlight_color = theme_color(theme, 'HighlightRegion', 'bg')
         self.highlight_cursor_line()
     # }}}
-
-    def toPlainText(self):
-        # QPlainTextEdit's toPlainText implementation replaces nbsp with normal
-        # space, so we re-implement it using QTextCursor, which does not do
-        # that
-        c = self.textCursor()
-        c.clearSelection()
-        c.movePosition(c.Start)
-        c.movePosition(c.End, c.KeepAnchor)
-        return c.selectedText().replace(PARAGRAPH_SEPARATOR, '\n')
-
-    @pyqtSlot()
-    def copy(self):
-        # Workaround Qt replacing nbsp with normal spaces on copy
-        c = self.textCursor()
-        if not c.hasSelection():
-            return
-        md = QMimeData()
-        md.setText(self.selected_text)
-        QApplication.clipboard().setMimeData(md)
-
-    @pyqtSlot()
-    def cut(self):
-        # Workaround Qt replacing nbsp with normal spaces on copy
-        self.copy()
-        self.textCursor().removeSelectedText()
-
-    def selection_changed(self):
-        # Workaround Qt replacing nbsp with normal spaces on copy
-        clipboard = QApplication.clipboard()
-        if clipboard.supportsSelection() and self.textCursor().hasSelection():
-            md = QMimeData()
-            md.setText(self.selected_text)
-            clipboard.setMimeData(md, clipboard.Selection)
 
     def load_text(self, text, syntax='html', process_template=False):
         self.syntax = syntax
