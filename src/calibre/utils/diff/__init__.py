@@ -10,8 +10,8 @@ from calibre.constants import plugins
 
 def load_patience_module():
     p, err = plugins['_patiencediff_c']
-    if err is not None:
-        raise ImportError('Failed to import the PatienceDiff C module with error: %s' % err)
+    if err:
+        raise ImportError('Failed to import the PatienceDiff C module with error: %r' % err)
     return p
 
 def get_sequence_matcher():
