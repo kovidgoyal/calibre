@@ -800,12 +800,23 @@ class PocketBookPro912Output(OutputProfile):
     dpi                       = 155.0
     comic_screen_size         = screen_size
 
+class PocketBookBasicTouch624Output(OutputProfile):
+
+    author = 'Ondrej Grover'
+    name = 'PocketBook Basic Touch 624'
+    short_name = 'pocketbook_624'
+    description = _('This profile is intended for the PocketBook Basic Touch 624 series of devices.')
+
+    # According to http://download.pocketbook-int.com/624/User_Guide_PocketBook_624(EN).pdf
+    screen_size               = (600, 800)
+    dpi                       = 166.0
+
 output_profiles = [OutputProfile, SonyReaderOutput, SonyReader300Output,
         SonyReader900Output, SonyReaderT3Output, MSReaderOutput, MobipocketOutput, HanlinV3Output,
         HanlinV5Output, CybookG3Output, CybookOpusOutput, KindleOutput,
         iPadOutput, iPad3Output, KoboReaderOutput, TabletOutput, SamsungGalaxy,
         SonyReaderLandscapeOutput, KindleDXOutput, IlliadOutput, NookHD,
-        IRexDR1000Output, IRexDR800Output, JetBook5Output, NookOutput,
+        IRexDR1000Output, IRexDR800Output, JetBook5Output, NookOutput, PocketBookBasicTouch624Output,
         BambookOutput, NookColorOutput, PocketBook900Output, PocketBookPro912Output,
         GenericEink, GenericEinkLarge, KindleFireOutput, KindlePaperWhiteOutput]
 
