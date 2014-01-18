@@ -40,8 +40,10 @@ class ComicInput(InputFormatPlugin):
         OptionRecommendation(name='landscape', recommended_value=False,
             help=_("Don't split landscape images into two portrait images")),
         OptionRecommendation(name='wide', recommended_value=False,
-            help=_("Keep aspect ratio and scale image using screen height as "
-            "image width for viewing in landscape mode.")),
+            help=_("Scale image using screen height as "
+            "image width for viewing in landscape mode."
+            "Fills the screen with the image by default,"
+            "use --keep_aspect_ratio to add borders and preserve aspect.")),
         OptionRecommendation(name='right2left', recommended_value=False,
               help=_('Used for right-to-left publications like manga. '
               'Causes landscape pages to be split into portrait pages '

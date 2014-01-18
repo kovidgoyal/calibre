@@ -152,29 +152,34 @@ class PageProcessor(list):  # {{{
                     wand.set_border_color(pw)
                     wand.add_border(pw, deltax, deltay)
             elif self.opts.wide:
-                # Keep aspect and Use device height as scaled image width so landscape mode is clean
+                # Use device height as scaled image width so landscape mode is clean
                 aspect = float(sizex) / float(sizey)
                 screen_aspect = float(SCRWIDTH) / float(SCRHEIGHT)
                 # Get dimensions of the landscape mode screen
                 # Add 25px back to height for the battery bar.
                 wscreenx = SCRHEIGHT + 25
                 wscreeny = int(wscreenx / screen_aspect)
-                if aspect <= screen_aspect:
-                    newsizey = wscreeny
-                    newsizex = int(newsizey * aspect)
-                    deltax = (wscreenx - newsizex) / 2
-                    deltay = 0
+                # Optionally keep aspect by adding borders
+                if self.opts.keep_aspect_ratio:
+                    if aspect <= screen_aspect:
+                        newsizey = wscreeny
+                        newsizex = int(newsizey * aspect)
+                        deltax = (wscreenx - newsizex) / 2
+                        deltay = 0
+                    else:
+                        newsizex = wscreenx
+                        newsizey = int(newsizex / aspect)
+                        deltax = 0
+                        deltay = (wscreeny - newsizey) / 2
+                    if newsizex < MAX_SCREEN_SIZE and newsizey < MAX_SCREEN_SIZE:
+                        # Too large and resizing fails, so better
+                        # to leave it as original size
+                        wand.size = (newsizex, newsizey)
+                        wand.set_border_color(pw)
+                        wand.add_border(pw, deltax, deltay)
                 else:
-                    newsizex = wscreenx
-                    newsizey = int(newsizex / aspect)
-                    deltax = 0
-                    deltay = (wscreeny - newsizey) / 2
-                if newsizex < MAX_SCREEN_SIZE and newsizey < MAX_SCREEN_SIZE:
-                    # Too large and resizing fails, so better
-                    # to leave it as original size
-                    wand.size = (newsizex, newsizey)
-                    wand.set_border_color(pw)
-                    wand.add_border(pw, deltax, deltay)
+                    if wscreenx < MAX_SCREEN_SIZE and wscreeny < MAX_SCREEN_SIZE:
+                        wand.size = (wscreenx, wscreeny)
             else:
                 if SCRWIDTH < MAX_SCREEN_SIZE and SCRHEIGHT < MAX_SCREEN_SIZE:
                     wand.size = (SCRWIDTH, SCRHEIGHT)
