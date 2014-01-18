@@ -27,6 +27,9 @@ from calibre.gui2.tweak_book.editor.syntax.css import CSSHighlighter
 PARAGRAPH_SEPARATOR = '\u2029'
 entity_pat = re.compile(r'&(#{0,1}[a-zA-Z0-9]{1,8});')
 
+def get_highlighter(syntax):
+    return {'html':HTMLHighlighter, 'css':CSSHighlighter, 'xml':XMLHighlighter}.get(syntax, SyntaxHighlighter)
+
 _dff = None
 def default_font_family():
     global _dff
@@ -180,7 +183,7 @@ class TextEdit(PlainTextEdit):
 
     def load_text(self, text, syntax='html', process_template=False):
         self.syntax = syntax
-        self.highlighter = {'html':HTMLHighlighter, 'css':CSSHighlighter, 'xml':XMLHighlighter}.get(syntax, SyntaxHighlighter)(self)
+        self.highlighter = get_highlighter(syntax)(self)
         self.highlighter.apply_theme(self.theme)
         self.highlighter.setDocument(self.document())
         self.setPlainText(unicodedata.normalize('NFC', text))
