@@ -87,6 +87,10 @@ class PlainTextEdit(QPlainTextEdit):
         self.copy()
         self.textCursor().removeSelectedText()
 
+    @property
+    def selected_text(self):
+        return unicodedata.normalize('NFC', unicode(self.textCursor().selectedText()).replace(PARAGRAPH_SEPARATOR, '\n'))
+
     def selection_changed(self):
         # Workaround Qt replacing nbsp with normal spaces on copy
         clipboard = QApplication.clipboard()
@@ -126,10 +130,6 @@ class TextEdit(PlainTextEdit):
         def fset(self, val):
             self.document().setModified(bool(val))
         return property(fget=fget, fset=fset)
-
-    @property
-    def selected_text(self):
-        return unicodedata.normalize('NFC', unicode(self.textCursor().selectedText()).replace(PARAGRAPH_SEPARATOR, '\n'))
 
     def sizeHint(self):
         return self.size_hint
