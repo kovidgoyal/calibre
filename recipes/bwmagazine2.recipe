@@ -5,31 +5,34 @@ from collections import OrderedDict
 class BusinessWeekMagazine(BasicNewsRecipe):
 
     title       = 'Business Week Magazine'
-    __author__  = 'Rick Shang'
+    __author__  = 'Rick Shang, Armin Geller'  # AGE Upd 2014-01-18
 
     description = 'A renowned business publication. Business news, trends and profiles of successful businesspeople.'
     language = 'en'
     category = 'news'
     encoding = 'UTF-8'
     keep_only_tags = [
-            dict(name='div', attrs={'id':['article_body_container','story_body']}),
+            dict(name='div', attrs={'id':['content']}),         # AGE 2014-01-18
             ]
-    remove_tags = [dict(name='ui'),dict(name='li'),dict(name='div', attrs={'id':['share-email']})]
+    remove_tags = [dict(name='hr'),
+                    dict(name='a', attrs={'class':'sub_sales'}),
+                    dict(name='div', attrs={'class':'fieldset'}),
+                    dict(name='div', attrs={'id':'taboola_wrapper'})]  # AGE 2014-01-18
     no_javascript = True
     no_stylesheets = True
 
     cover_url             = 'http://images.businessweek.com/mz/covers/current_120x160.jpg'
 
     def parse_index(self):
-        #Go to the issue
+        # Go to the issue
         soup = self.index_to_soup('http://www.businessweek.com/magazine/news/articles/business_news.htm')
 
-        #Find date
+        # Find date
         mag=soup.find('h2',text='Magazine')
         dates=self.tag_to_string(mag.findNext('h3'))
         self.timefmt = u' [%s]'%dates
 
-        #Go to the main body
+        # Go to the main body
         div0 = soup.find('div', attrs={'class':'column left'})
         section_title = ''
         feeds = OrderedDict()
