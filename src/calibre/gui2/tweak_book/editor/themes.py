@@ -137,6 +137,11 @@ THEMES = {
     SpecialCharacter bg={cursor_loc}
     Error        us=wave uc=red
 
+    DiffDelete   bg=rgb(255,160,180) fg=rgb(200,60,90)
+    DiffInsert   bg=rgb(180,255,180) fg=rgb(80,210,80)
+    DiffReplace  bg=rgb(206,226,250) fg=rgb(90,130,180)
+    DiffReplaceReplace bg=rgb(180,210,250)
+
     '''.format(
         cursor_loc='F8DE7E',
         identifier='7b5694',
