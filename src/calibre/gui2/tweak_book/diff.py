@@ -12,7 +12,8 @@ from collections import namedtuple
 
 from PyQt4.Qt import (
     QSplitter, QApplication, QPlainTextDocumentLayout, QTextDocument,
-    QTextCursor, QTextCharFormat, Qt, QRect, QPainter, QPalette, QPen)
+    QTextCursor, QTextCharFormat, Qt, QRect, QPainter, QPalette, QPen,
+    QBrush, QColor)
 
 from calibre.gui2.tweak_book import tprefs
 from calibre.gui2.tweak_book.editor.text import PlainTextEdit, get_highlighter, default_font_family, LineNumbers
@@ -68,11 +69,13 @@ class TextBrowser(PlainTextEdit):  # {{{
             'replace' : theme_color(theme, 'DiffReplace', 'bg'),
             'insert'  : theme_color(theme, 'DiffInsert', 'bg'),
             'delete'  : theme_color(theme, 'DiffDelete', 'bg'),
+            'boundary': QBrush(theme_color(theme, 'Normal', 'fg'), Qt.Dense7Pattern),
         }
         self.diff_foregrounds = {
             'replace' : theme_color(theme, 'DiffReplace', 'fg'),
             'insert'  : theme_color(theme, 'DiffInsert', 'fg'),
             'delete'  : theme_color(theme, 'DiffDelete', 'fg'),
+            'boundary': QColor(0, 0, 0, 0),
         }
 
     def clear(self):
@@ -227,9 +230,13 @@ class TextDiffView(QSplitter):
             for tag, alo, ahi, blo, bhi in self.cruncher.get_opcodes():
                 getattr(self, tag)(alo, ahi, blo, bhi)
         else:
-            for group in self.cruncher.get_grouped_opcodes():
+            for group in self.cruncher.get_grouped_opcodes(context):
                 for tag, alo, ahi, blo, bhi in group:
                     getattr(self, tag)(alo, ahi, blo, bhi)
+                cl.insertBlock(), cr.insertBlock()
+                self.changes.append(Change(
+                    ltop=cl.block().blockNumber()-1, lbot=cl.block().blockNumber(),
+                    rtop=cr.block().blockNumber()-1, rbot=cr.block().blockNumber(), kind='boundary'))
         cl.endEditBlock(), cr.endEditBlock()
 
         for v in (self.left, self.right):
@@ -277,7 +284,7 @@ if __name__ == '__main__':
     raw2 = open(sys.argv[-1], 'rb').read().decode('utf-8')
     w = TextDiffView()
     w.show()
-    w(raw1, raw2, syntax='html', context=None)
+    w(raw1, raw2, syntax='html', context=3)
     app.exec_()
 
 # TODO: Add diff colors for other color schemes
