@@ -62,7 +62,7 @@ class CYBOOK(USBMS):
 
 class ORIZON(CYBOOK):
 
-    name           = 'Orizon Device Interface'
+    name           = 'Cybook Orizon Device Interface'
     gui_name       = 'Orizon'
     description    = _('Communicate with the Cybook Orizon eBook reader.')
 
