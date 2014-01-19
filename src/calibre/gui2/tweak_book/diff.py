@@ -244,11 +244,24 @@ class TextDiffView(QSplitter):
             c.movePosition(c.Start)
             v.setTextCursor(c)
 
+        self.coalesce_changes()
+
         for ltop, lbot, rtop, rbot, kind in self.changes:
-            self.left.changes.append((ltop, lbot, kind))
-            self.right.changes.append((rtop, rbot, kind))
+            if kind != 'equal':
+                self.left.changes.append((ltop, lbot, kind))
+                self.right.changes.append((rtop, rbot, kind))
 
         self.update()
+
+    def coalesce_changes(self):
+        'Merge neighboring changes of the same kind, if any'
+        changes = []
+        for x in self.changes:
+            if changes and changes[-1].kind == x.kind:
+                changes[-1] = changes[-1]._replace(lbot=x.lbot, rbot=x.rbot)
+            else:
+                changes.append(x)
+        self.changes = changes
 
     def do_insert(self, cursor, highlighter, line_number_map, lo, hi):
         start_block = cursor.block()
@@ -258,7 +271,10 @@ class TextDiffView(QSplitter):
         return start_block.blockNumber(), cursor.block().blockNumber()
 
     def equal(self, alo, ahi, blo, bhi):
-        self.left_insert(alo, ahi), self.right_insert(blo, bhi)
+        lsb, lcb = self.left_insert(alo, ahi)
+        rsb, rcb = self.right_insert(blo, bhi)
+        self.changes.append(Change(
+            rtop=rsb, rbot=rcb, ltop=lsb, lbot=lcb, kind='equal'))
 
     def delete(self, alo, ahi, blo, bhi):
         start_block, current_block = self.left_insert(alo, ahi)
