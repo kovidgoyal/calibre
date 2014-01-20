@@ -14,7 +14,7 @@ from difflib import SequenceMatcher
 from PyQt4.Qt import (
     QSplitter, QApplication, QPlainTextDocumentLayout, QTextDocument,
     QTextCursor, QTextCharFormat, Qt, QRect, QPainter, QPalette, QPen,
-    QBrush, QColor, QTextLayout)
+    QBrush, QColor, QTextLayout, QCursor)
 
 from calibre.gui2.tweak_book import tprefs
 from calibre.gui2.tweak_book.editor.text import PlainTextEdit, get_highlighter, default_font_family, LineNumbers
@@ -22,6 +22,14 @@ from calibre.gui2.tweak_book.editor.themes import THEMES, default_theme, theme_c
 from calibre.utils.diff import get_sequence_matcher
 
 Change = namedtuple('Change', 'ltop lbot rtop rbot kind')
+
+class BusyCursor(object):
+
+    def __enter__(self):
+        QApplication.setOverrideCursor(QCursor(Qt.WaitCursor))
+
+    def __exit__(self, *args):
+        QApplication.restoreOverrideCursor()
 
 def get_theme():
     theme = THEMES.get(tprefs['editor_theme'], None)
@@ -222,36 +230,52 @@ class TextDiffView(QSplitter):
         self.left, self.right = TextBrowser(parent=self), TextBrowser(right=True, parent=self)
         self.addWidget(self.left), self.addWidget(self.right)
         self.split_words = re.compile(r"\w+|\W", re.UNICODE)
+        self.clear()
 
-    def __call__(self, left_text, right_text, context=None, syntax=None):
+    def clear(self):
+        self.left.clear(), self.right.clear()
+        self.changes = []
+
+    def finalize(self):
+        for v in (self.left, self.right):
+            c = v.textCursor()
+            c.movePosition(c.Start)
+            v.setTextCursor(c)
+        self.update()
+
+    def add_diff(self, left_text, right_text, context=None, syntax=None):
+        is_text = isinstance(left_text, type('')) or isinstance(right_text, type(''))
+        with BusyCursor():
+            if is_text:
+                self.add_text_diff(left_text, right_text, context, syntax)
+
+    def add_text_diff(self, left_text, right_text, context, syntax):
         left_text = unicodedata.normalize('NFC', left_text)
         right_text = unicodedata.normalize('NFC', right_text)
         left_lines = self.left_lines = left_text.splitlines()
         right_lines = self.right_lines = right_text.splitlines()
-        self.left_highlight, self.right_highlight = Highlight(self, left_text, syntax), Highlight(self, right_text, syntax)
-        self.context = context
 
-        self.cruncher = get_sequence_matcher()(None, left_lines, right_lines)
-        self.do_layout(context)
+        cruncher = get_sequence_matcher()(None, left_lines, right_lines)
 
-    def refresh(self):
-        self.do_layout(self.context)
-
-    def do_layout(self, context=None):
-        self.left.clear(), self.right.clear()
+        left_highlight, right_highlight = Highlight(self, left_text, syntax), Highlight(self, right_text, syntax)
         cl, cr = self.left_cursor, self.right_cursor = self.left.textCursor(), self.right.textCursor()
         cl.beginEditBlock(), cr.beginEditBlock()
+        cl.movePosition(cl.End), cr.movePosition(cr.End)
+        self.left_insert = partial(self.do_insert, cl, left_highlight, self.left.line_number_map)
+        self.right_insert = partial(self.do_insert, cr, right_highlight, self.right.line_number_map)
+
+        ochanges = []
         self.changes = []
-        self.left_insert = partial(self.do_insert, cl, self.left_highlight, self.left.line_number_map)
-        self.right_insert = partial(self.do_insert, cr, self.right_highlight, self.right.line_number_map)
 
         if context is None:
-            for tag, alo, ahi, blo, bhi in self.cruncher.get_opcodes():
+            for tag, alo, ahi, blo, bhi in cruncher.get_opcodes():
                 getattr(self, tag)(alo, ahi, blo, bhi)
+                QApplication.processEvents()
         else:
-            for group in self.cruncher.get_grouped_opcodes(context):
+            for group in cruncher.get_grouped_opcodes(context):
                 for tag, alo, ahi, blo, bhi in group:
                     getattr(self, tag)(alo, ahi, blo, bhi)
+                    QApplication.processEvents()
                 cl.insertBlock(), cr.insertBlock()
                 self.changes.append(Change(
                     ltop=cl.block().blockNumber()-1, lbot=cl.block().blockNumber(),
@@ -259,13 +283,11 @@ class TextDiffView(QSplitter):
                 self.left.line_number_map[self.changes[-1].ltop] = '-'
                 self.right.line_number_map[self.changes[-1].rtop] = '-'
         cl.endEditBlock(), cr.endEditBlock()
+        self.equalize_block_counts()
         del self.left_lines
         del self.right_lines
-
-        for v in (self.left, self.right):
-            c = v.textCursor()
-            c.movePosition(c.Start)
-            v.setTextCursor(c)
+        del self.left_insert
+        del self.right_insert
 
         self.coalesce_changes()
 
@@ -274,7 +296,13 @@ class TextDiffView(QSplitter):
                 self.left.changes.append((ltop, lbot, kind))
                 self.right.changes.append((rtop, rbot, kind))
 
-        self.update()
+        self.changes = ochanges + self.changes
+
+    def equalize_block_counts(self):
+        l, r = self.left.blockCount(), self.right.blockCount()
+        c = (self.left if l < r else self.right).textCursor()
+        c.movePosition(c.End)
+        c.insertText('\n' * (abs(l - r)))
 
     def coalesce_changes(self):
         'Merge neighboring changes of the same kind, if any'
@@ -429,7 +457,8 @@ if __name__ == '__main__':
     raw2 = open(sys.argv[-1], 'rb').read().decode('utf-8')
     w = TextDiffView()
     w.show()
-    w(raw1, raw2, syntax='html', context=3)
+    w.add_diff(raw1, raw2, syntax='html', context=3)
+    w.finalize()
     app.exec_()
 
 # TODO: Add diff colors for other color schemes
