@@ -138,6 +138,8 @@ def render_html(path_to_html, width=590, height=750, as_xhtml=True):
     path_to_html = os.path.abspath(path_to_html)
     with CurrentDir(os.path.dirname(path_to_html)):
         page = QWebPage()
+        settings = page.settings()
+        settings.setAttribute(settings.PluginsEnabled, False)
         pal = page.palette()
         pal.setBrush(QPalette.Background, Qt.white)
         page.setPalette(pal)
