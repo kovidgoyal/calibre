@@ -681,7 +681,9 @@ class NewFileDialog(QDialog):  # {{{
         self.l = l = QVBoxLayout()
         self.setLayout(l)
         self.la = la = QLabel(_(
-            'Choose a name for the new (blank) file'))
+            'Choose a name for the new (blank) file. To place the file in a'
+            ' specific folder in the book, include the folder name, for example: <i>text/chapter1.html'))
+        la.setWordWrap(True)
         self.setWindowTitle(_('Choose file'))
         l.addWidget(la)
         self.name = n = QLineEdit(self)
