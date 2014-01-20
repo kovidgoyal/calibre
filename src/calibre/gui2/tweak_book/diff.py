@@ -133,12 +133,16 @@ class TextBrowser(PlainTextEdit):  # {{{
         while block.isValid() and top <= ev.rect().bottom():
             r = ev.rect()
             if block.isVisible() and bottom >= r.top():
-                if self.right:
-                    painter.drawText(r.left() + 3, top, r.right(), self.fontMetrics().height(),
-                              Qt.AlignLeft, unicode(self.line_number_map.get(num, '')))
+                text = unicode(self.line_number_map.get(num, ''))
+                if text == '-':
+                    painter.drawLine(r.left() + 2, (top + bottom)//2, r.right() - 2, (top + bottom)//2)
                 else:
-                    painter.drawText(r.left(), top, r.right() - 5, self.fontMetrics().height(),
-                              Qt.AlignRight, unicode(self.line_number_map.get(num, '')))
+                    if self.right:
+                        painter.drawText(r.left() + 3, top, r.right(), self.fontMetrics().height(),
+                                Qt.AlignLeft, text)
+                    else:
+                        painter.drawText(r.left(), top, r.right() - 5, self.fontMetrics().height(),
+                                Qt.AlignRight, text)
             block = block.next()
             top = bottom
             bottom = top + int(self.blockBoundingRect(block).height())
@@ -153,28 +157,28 @@ class TextBrowser(PlainTextEdit):  # {{{
         fv = self.firstVisibleBlock().blockNumber()
         origin = self.contentOffset()
         doc = self.document()
-        prev_top = None
+        lines = []
 
         for top, bot, kind in self.changes:
             if bot < fv:
                 continue
-            y_top = self.blockBoundingGeometry(doc.findBlockByNumber(top)).translated(origin).y() - 1
-            y_bot = self.blockBoundingGeometry(doc.findBlockByNumber(bot)).translated(origin).y() + 1
+            y_top = self.blockBoundingGeometry(doc.findBlockByNumber(top)).translated(origin).y()
+            y_bot = self.blockBoundingGeometry(doc.findBlockByNumber(bot)).translated(origin).y()
             if max(y_top, y_bot) < ceiling:
                 continue
             if min(y_top, y_bot) > floor:
                 break
-            consecutive = prev_top == y_top  # A replace after an insert or a delete
-            if consecutive:
-                y_top += 2
-            prev_top = y_top
-            painter.fillRect(0,  y_top, w, y_bot - y_top, self.diff_backgrounds[kind])
-            if not consecutive:
-                painter.setPen(QPen(self.diff_foregrounds[kind], 1))
-                painter.drawLine(0, y_top, w, y_top)
-                painter.drawLine(0, y_bot - 1, w, y_bot - 1)
+            if y_top != y_bot:
+                painter.fillRect(0,  y_top, w, y_bot - y_top, self.diff_backgrounds[kind])
+            lines.append((y_top, y_bot, kind))
         painter.end()
         PlainTextEdit.paintEvent(self, event)
+        painter = QPainter(self.viewport())
+        painter.setClipRect(event.rect())
+        for top, bottom, kind in sorted(lines, key=lambda (t, b, k):{'replace':0}.get(k, 1)):
+            painter.setPen(QPen(self.diff_foregrounds[kind], 1))
+            painter.drawLine(0, top, w, top)
+            painter.drawLine(0, bottom - 1, w, bottom - 1)
 
 # }}}
 
@@ -252,6 +256,8 @@ class TextDiffView(QSplitter):
                 self.changes.append(Change(
                     ltop=cl.block().blockNumber()-1, lbot=cl.block().blockNumber(),
                     rtop=cr.block().blockNumber()-1, rbot=cr.block().blockNumber(), kind='boundary'))
+                self.left.line_number_map[self.changes[-1].ltop] = '-'
+                self.right.line_number_map[self.changes[-1].rtop] = '-'
         cl.endEditBlock(), cr.endEditBlock()
         del self.left_lines
         del self.right_lines
