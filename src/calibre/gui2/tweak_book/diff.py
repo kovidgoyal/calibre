@@ -6,14 +6,15 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import sys
+import sys, re, unicodedata
 from functools import partial
 from collections import namedtuple
+from difflib import SequenceMatcher
 
 from PyQt4.Qt import (
     QSplitter, QApplication, QPlainTextDocumentLayout, QTextDocument,
     QTextCursor, QTextCharFormat, Qt, QRect, QPainter, QPalette, QPen,
-    QBrush, QColor)
+    QBrush, QColor, QTextLayout)
 
 from calibre.gui2.tweak_book import tprefs
 from calibre.gui2.tweak_book.editor.text import PlainTextEdit, get_highlighter, default_font_family, LineNumbers
@@ -69,6 +70,7 @@ class TextBrowser(PlainTextEdit):  # {{{
             'replace' : theme_color(theme, 'DiffReplace', 'bg'),
             'insert'  : theme_color(theme, 'DiffInsert', 'bg'),
             'delete'  : theme_color(theme, 'DiffDelete', 'bg'),
+            'replacereplace': theme_color(theme, 'DiffReplaceReplace', 'bg'),
             'boundary': QBrush(theme_color(theme, 'Normal', 'fg'), Qt.Dense7Pattern),
         }
         self.diff_foregrounds = {
@@ -77,6 +79,10 @@ class TextBrowser(PlainTextEdit):  # {{{
             'delete'  : theme_color(theme, 'DiffDelete', 'fg'),
             'boundary': QColor(0, 0, 0, 0),
         }
+        for x in ('replacereplace', 'insert', 'delete'):
+            f = QTextCharFormat()
+            f.setBackground(self.diff_backgrounds[x])
+            setattr(self, '%s_format' % x, f)
 
     def clear(self):
         PlainTextEdit.clear(self)
@@ -147,6 +153,7 @@ class TextBrowser(PlainTextEdit):  # {{{
         fv = self.firstVisibleBlock().blockNumber()
         origin = self.contentOffset()
         doc = self.document()
+        prev_top = None
 
         for top, bot, kind in self.changes:
             if bot < fv:
@@ -157,10 +164,15 @@ class TextBrowser(PlainTextEdit):  # {{{
                 continue
             if min(y_top, y_bot) > floor:
                 break
+            consecutive = prev_top == y_top  # A replace after an insert or a delete
+            if consecutive:
+                y_top += 2
+            prev_top = y_top
             painter.fillRect(0,  y_top, w, y_bot - y_top, self.diff_backgrounds[kind])
-            painter.setPen(QPen(self.diff_foregrounds[kind], 1))
-            painter.drawLine(0, y_top, w, y_top)
-            painter.drawLine(0, y_bot - 1, w, y_bot - 1)
+            if not consecutive:
+                painter.setPen(QPen(self.diff_foregrounds[kind], 1))
+                painter.drawLine(0, y_top, w, y_top)
+                painter.drawLine(0, y_bot - 1, w, y_bot - 1)
         painter.end()
         PlainTextEdit.paintEvent(self, event)
 
@@ -205,10 +217,13 @@ class TextDiffView(QSplitter):
 
         self.left, self.right = TextBrowser(parent=self), TextBrowser(right=True, parent=self)
         self.addWidget(self.left), self.addWidget(self.right)
+        self.split_words = re.compile(r"\w+|\W", re.UNICODE)
 
     def __call__(self, left_text, right_text, context=None, syntax=None):
-        left_lines = left_text.splitlines()
-        right_lines = right_text.splitlines()
+        left_text = unicodedata.normalize('NFC', left_text)
+        right_text = unicodedata.normalize('NFC', right_text)
+        left_lines = self.left_lines = left_text.splitlines()
+        right_lines = self.right_lines = right_text.splitlines()
         self.left_highlight, self.right_highlight = Highlight(self, left_text, syntax), Highlight(self, right_text, syntax)
         self.context = context
 
@@ -238,6 +253,8 @@ class TextDiffView(QSplitter):
                     ltop=cl.block().blockNumber()-1, lbot=cl.block().blockNumber(),
                     rtop=cr.block().blockNumber()-1, rbot=cr.block().blockNumber(), kind='boundary'))
         cl.endEditBlock(), cr.endEditBlock()
+        del self.left_lines
+        del self.right_lines
 
         for v in (self.left, self.right):
             c = v.textCursor()
@@ -289,10 +306,116 @@ class TextDiffView(QSplitter):
             rtop=start_block, rbot=current_block, ltop=l, lbot=l, kind='insert'))
 
     def replace(self, alo, ahi, blo, bhi):
+        ''' When replacing one block of lines with another, search the blocks
+        for *similar* lines; the best-matching pair (if any) is used as a synch
+        point, and intraline difference marking is done on the similar pair.
+        Lots of work, but often worth it.  '''
+        if ahi + bhi - alo - blo > 100:
+            # Too many lines, this will be too slow
+            # http://bugs.python.org/issue6931
+            return self.do_replace(alo, ahi, blo, bhi)
+        # don't synch up unless the lines have a similarity score of at
+        # least cutoff; best_ratio tracks the best score seen so far
+        best_ratio, cutoff = 0.74, 0.75
+        cruncher = SequenceMatcher()
+        eqi, eqj = None, None   # 1st indices of equal lines (if any)
+        a, b = self.left_lines, self.right_lines
+
+        # search for the pair that matches best without being identical
+        # (identical lines must be junk lines, & we don't want to synch up
+        # on junk -- unless we have to)
+        for j in xrange(blo, bhi):
+            bj = b[j]
+            cruncher.set_seq2(bj)
+            for i in xrange(alo, ahi):
+                ai = a[i]
+                if ai == bj:
+                    if eqi is None:
+                        eqi, eqj = i, j
+                    continue
+                cruncher.set_seq1(ai)
+                # computing similarity is expensive, so use the quick
+                # upper bounds first -- have seen this speed up messy
+                # compares by a factor of 3.
+                # note that ratio() is only expensive to compute the first
+                # time it's called on a sequence pair; the expensive part
+                # of the computation is cached by cruncher
+                if (cruncher.real_quick_ratio() > best_ratio and
+                        cruncher.quick_ratio() > best_ratio and
+                        cruncher.ratio() > best_ratio):
+                    best_ratio, best_i, best_j = cruncher.ratio(), i, j
+        if best_ratio < cutoff:
+            # no non-identical "pretty close" pair
+            if eqi is None:
+                # no identical pair either -- treat it as a straight replace
+                self.do_replace(alo, ahi, blo, bhi)
+                return
+            # no close pair, but an identical pair -- synch up on that
+            best_i, best_j, best_ratio = eqi, eqj, 1.0
+        else:
+            # there's a close pair, so forget the identical pair (if any)
+            eqi = None
+
+        # a[best_i] very similar to b[best_j]; eqi is None iff they're not
+        # identical
+
+        # pump out diffs from before the synch point
+        self.replace_helper(alo, best_i, blo, best_j)
+
+        # do intraline marking on the synch pair
+        aelt, belt = a[best_i], b[best_j]
+        if eqi is None:
+            self.do_replace(best_i, best_i+1, best_j, best_j+1)
+        else:
+            # the synch pair is identical
+            self.equal(best_i, best_i+1, best_j, best_j+1)
+
+        # pump out diffs from after the synch point
+        self.replace_helper(best_i+1, ahi, best_j+1, bhi)
+
+    def replace_helper(self, alo, ahi, blo, bhi):
+        if alo < ahi:
+            if blo < bhi:
+                self.replace(alo, ahi, blo, bhi)
+            else:
+                self.delete(alo, ahi, blo, blo)
+        elif blo < bhi:
+            self.insert(alo, alo, blo, bhi)
+
+    def do_replace(self, alo, ahi, blo, bhi):
         lsb, lcb = self.left_insert(alo, ahi)
         rsb, rcb = self.right_insert(blo, bhi)
         self.changes.append(Change(
             rtop=rsb, rbot=rcb, ltop=lsb, lbot=lcb, kind='replace'))
+
+        l, r = '\n'.join(self.left_lines[alo:ahi]), '\n'.join(self.right_lines[blo:bhi])
+        ll, rl = self.split_words.findall(l), self.split_words.findall(r)
+        cruncher = get_sequence_matcher()(None, ll, rl)
+        lsb, rsb = self.left.document().findBlockByNumber(lsb), self.right.document().findBlockByNumber(rsb)
+
+        def do_tag(block, words, lo, hi, pos, fmts):
+            for word in words[lo:hi]:
+                if word == '\n':
+                    if fmts:
+                        block.layout().setAdditionalFormats(fmts)
+                    pos, block, fmts = 0, block.next(), []
+                    continue
+
+                if tag in {'replace', 'insert', 'delete'}:
+                    fmt = getattr(self.left, '%s_format' % ('replacereplace' if tag == 'replace' else tag))
+                    f = QTextLayout.FormatRange()
+                    f.start, f.length, f.format = pos, len(word), fmt
+                    fmts.append(f)
+                pos += len(word)
+            return block, pos, fmts
+
+        lfmts, rfmts, lpos, rpos = [], [], 0, 0
+        for tag, llo, lhi, rlo, rhi in cruncher.get_opcodes():
+            lsb, lpos, lfmts = do_tag(lsb, ll, llo, lhi, lpos, lfmts)
+            rsb, rpos, rfmts = do_tag(rsb, rl, rlo, rhi, rpos, rfmts)
+        for block, fmts in ((lsb, lfmts), (rsb, rfmts)):
+            if fmts:
+                block.layout().setAdditionalFormats(fmts)
 
 if __name__ == '__main__':
     app = QApplication([])
