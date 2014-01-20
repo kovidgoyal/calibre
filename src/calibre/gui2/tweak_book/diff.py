@@ -14,9 +14,11 @@ from difflib import SequenceMatcher
 from PyQt4.Qt import (
     QSplitter, QApplication, QPlainTextDocumentLayout, QTextDocument,
     QTextCursor, QTextCharFormat, Qt, QRect, QPainter, QPalette, QPen,
-    QBrush, QColor, QTextLayout, QCursor)
+    QBrush, QColor, QTextLayout, QCursor, QFont)
 
+from calibre.ebooks.oeb.polish.utils import guess_type
 from calibre.gui2.tweak_book import tprefs
+from calibre.gui2.tweak_book.editor import syntax_from_mime
 from calibre.gui2.tweak_book.editor.text import PlainTextEdit, get_highlighter, default_font_family, LineNumbers
 from calibre.gui2.tweak_book.editor.themes import THEMES, default_theme, theme_color
 from calibre.utils.diff import get_sequence_matcher
@@ -55,6 +57,9 @@ class TextBrowser(PlainTextEdit):  # {{{
         font.setFamily(ff)
         font.setPointSize(tprefs['editor_font_size'])
         self.setFont(font)
+        font = self.heading_font = QFont(self.font())
+        font.setPointSize(int(tprefs['editor_font_size'] * 1.5))
+        font.setBold(True)
         theme = get_theme()
         pal = self.palette()
         pal.setColor(pal.Base, theme_color(theme, 'Normal', 'bg'))
@@ -73,6 +78,7 @@ class TextBrowser(PlainTextEdit):  # {{{
         pal.setColor(pal.BrightText, theme_color(theme, 'LineNrC', 'fg'))
         self.line_number_map = {}
         self.changes = []
+        self.headers = []
         self.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.diff_backgrounds = {
             'replace' : theme_color(theme, 'DiffReplace', 'bg'),
@@ -96,6 +102,7 @@ class TextBrowser(PlainTextEdit):  # {{{
         PlainTextEdit.clear(self)
         self.line_number_map.clear()
         del self.changes[:]
+        del self.headers[:]
 
     def update_line_number_area_width(self, block_count=0):
         if self.right:
@@ -166,6 +173,21 @@ class TextBrowser(PlainTextEdit):  # {{{
         origin = self.contentOffset()
         doc = self.document()
         lines = []
+
+        for num, text in self.headers:
+            top, bot = num, num + 3
+            if bot < fv:
+                continue
+            y_top = self.blockBoundingGeometry(doc.findBlockByNumber(top)).translated(origin).y()
+            y_bot = self.blockBoundingGeometry(doc.findBlockByNumber(bot)).translated(origin).y()
+            if max(y_top, y_bot) < ceiling:
+                continue
+            if min(y_top, y_bot) > floor:
+                break
+            painter.setFont(self.heading_font)
+            br = painter.drawText(3, y_top, w, y_bot - y_top - 5, Qt.TextSingleLine, text)
+            painter.setPen(QPen(self.palette().text(), 2))
+            painter.drawLine(0, br.bottom()+3, w, br.bottom()+3)
 
         for top, bot, kind in self.changes:
             if bot < fv:
@@ -243,8 +265,16 @@ class TextDiffView(QSplitter):
             v.setTextCursor(c)
         self.update()
 
-    def add_diff(self, left_text, right_text, context=None, syntax=None):
+    def add_diff(self, left_name, right_name, left_text, right_text, context=None, syntax=None):
         is_text = isinstance(left_text, type('')) or isinstance(right_text, type(''))
+        start_line = self.left.blockCount() - 1
+        self.left.headers.append((start_line, left_name))
+        self.right.headers.append((start_line, right_name))
+        for v in (self.left, self.right):
+            c = v.textCursor()
+            c.movePosition(c.End)
+            (c.insertBlock(), c.insertBlock(), c.insertBlock())
+
         with BusyCursor():
             if is_text:
                 self.add_text_diff(left_text, right_text, context, syntax)
@@ -272,16 +302,18 @@ class TextDiffView(QSplitter):
                 getattr(self, tag)(alo, ahi, blo, bhi)
                 QApplication.processEvents()
         else:
-            for group in cruncher.get_grouped_opcodes(context):
+            for i, group in enumerate(cruncher.get_grouped_opcodes(context)):
+                if i > 0:
+                    self.changes.append(Change(
+                        ltop=cl.block().blockNumber()-1, lbot=cl.block().blockNumber(),
+                        rtop=cr.block().blockNumber()-1, rbot=cr.block().blockNumber(), kind='boundary'))
+                    self.left.line_number_map[self.changes[-1].ltop] = '-'
+                    self.right.line_number_map[self.changes[-1].rtop] = '-'
                 for tag, alo, ahi, blo, bhi in group:
                     getattr(self, tag)(alo, ahi, blo, bhi)
                     QApplication.processEvents()
                 cl.insertBlock(), cr.insertBlock()
-                self.changes.append(Change(
-                    ltop=cl.block().blockNumber()-1, lbot=cl.block().blockNumber(),
-                    rtop=cr.block().blockNumber()-1, rbot=cr.block().blockNumber(), kind='boundary'))
-                self.left.line_number_map[self.changes[-1].ltop] = '-'
-                self.right.line_number_map[self.changes[-1].rtop] = '-'
+
         cl.endEditBlock(), cr.endEditBlock()
         self.equalize_block_counts()
         del self.left_lines
@@ -453,11 +485,12 @@ class TextDiffView(QSplitter):
 
 if __name__ == '__main__':
     app = QApplication([])
-    raw1 = open(sys.argv[-2], 'rb').read().decode('utf-8')
-    raw2 = open(sys.argv[-1], 'rb').read().decode('utf-8')
     w = TextDiffView()
     w.show()
-    w.add_diff(raw1, raw2, syntax='html', context=3)
+    for l, r in zip(sys.argv[1::2], sys.argv[2::2]):
+        raw1 = open(l, 'rb').read().decode('utf-8')
+        raw2 = open(r, 'rb').read().decode('utf-8')
+        w.add_diff(l, r, raw1, raw2, syntax=syntax_from_mime(l, guess_type(l)), context=3)
     w.finalize()
     app.exec_()
 
