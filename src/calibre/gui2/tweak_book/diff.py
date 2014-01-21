@@ -277,7 +277,8 @@ class DiffViewHandle(QSplitterHandle):  # {{{
         lorigin, rorigin = left.contentOffset(), right.contentOffset()
         lfv, rfv = left.firstVisibleBlock().blockNumber(), right.firstVisibleBlock().blockNumber()
 
-        for (ltop, lbot, kind), (rtop, rbot, kind) in zip(left.changes, right.changes):
+        for (ltop, lbot, kind), (rtop, rbot, kind) in sorted(
+                zip(left.changes, right.changes), key=lambda (l, r):{'replace':0}.get(l[2], 1)):
             if lbot < lfv and rbot < rfv:
                 continue
             ly_top = left.blockBoundingGeometry(ldoc.findBlockByNumber(ltop)).translated(lorigin).y() + fw
