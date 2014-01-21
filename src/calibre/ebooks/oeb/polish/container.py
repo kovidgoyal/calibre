@@ -143,7 +143,7 @@ class Container(object):  # {{{
         for item in self.opf_xpath('//opf:manifest/opf:item[@href and @media-type]'):
             href = item.get('href')
             name = self.href_to_name(href, self.opf_name)
-            if name in self.mime_map:
+            if name in self.mime_map and name != self.opf_name:
                 self.mime_map[name] = item.get('media-type')
 
     def clone_data(self, dest_dir):
