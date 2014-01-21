@@ -144,6 +144,7 @@ class Container(object):  # {{{
             href = item.get('href')
             name = self.href_to_name(href, self.opf_name)
             if name in self.mime_map and name != self.opf_name:
+                # some epubs include the opf in the manifest with an incorrect mime type
                 self.mime_map[name] = item.get('media-type')
 
     def clone_data(self, dest_dir):
