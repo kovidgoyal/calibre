@@ -335,6 +335,15 @@ Note that the algorithm can sometimes generate incorrect results, especially
 when single quotes at the start of contractions are involved. Accessed via
 :guilabel:`Tools->Smarten punctuation`.
 
+Removing unused CSS rules
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Remove all unused CSS rules from stylesheets and <style> tags. Some books
+created from production templates can have a large number of extra CSS rules
+that dont match any actual content. These extra rules can slow down readers
+that need to process them all. Accessed via :guilabel:`Tools->Remove unused CSS`.
+
+
 Fix HTML
 ^^^^^^^^^^^
 

@@ -59,13 +59,14 @@ class Polish(QDialog):  # {{{
                          ' formats are not capable of supporting all the'
                          ' metadata in calibre.</p><p>There is a separate option to'
                          ' update the cover.</p>'),
-            'do_cover': _('<p>Update the covers in the ebook files to match the'
+            'do_cover': _('<h3>Update cover</h3><p>Update the covers in the ebook files to match the'
                         ' current cover in the calibre library.</p>'
                         '<p>If the ebook file does not have'
                         ' an identifiable cover, a new cover is inserted.</p>'
                         ),
             'jacket':_('<h3>Book Jacket</h3>%s')%HELP['jacket'],
             'remove_jacket':_('<h3>Remove Book Jacket</h3>%s')%HELP['remove_jacket'],
+            'remove_unused_css':_('<h3>Remove unused CSS rules</h3>%s')%HELP['remove_unused_css'],
         }
 
         self.l = l = QGridLayout()
@@ -83,6 +84,7 @@ class Polish(QDialog):  # {{{
             ('do_cover', _('Update the &cover in the book files')),
             ('jacket', _('Add metadata as a "book &jacket" page')),
             ('remove_jacket', _('&Remove a previously inserted book jacket')),
+            ('remove_unused_css', _('Remove &unused CSS rules from the book')),
         ])
         prefs = gprefs.get('polishing_settings', {})
         for name, text in self.all_actions.iteritems():

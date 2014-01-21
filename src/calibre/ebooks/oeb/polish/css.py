@@ -1,0 +1,149 @@
+#!/usr/bin/env python
+# vim:fileencoding=utf-8
+from __future__ import (unicode_literals, division, absolute_import,
+                        print_function)
+
+__license__ = 'GPL v3'
+__copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
+
+import re
+
+from lxml import etree
+from cssselect import HTMLTranslator
+from cssselect.xpath import XPathExpr, is_safe_name
+
+from calibre import force_unicode
+from calibre.ebooks.oeb.base import OEB_STYLES, OEB_DOCS, XPNSMAP, XHTML_NS
+from calibre.ebooks.oeb.stylizer import MIN_SPACE_RE, is_non_whitespace, xpath_lower_case, fix_namespace
+from calibre.ebooks.oeb.polish.pretty import pretty_script_or_style
+
+class NamespacedTranslator(HTMLTranslator):
+
+    def xpath_element(self, selector):
+        element = selector.element
+        if not element:
+            element = '*'
+            safe = True
+        else:
+            safe = is_safe_name(element)
+            if safe:
+                # We use the h: prefix for the XHTML namespace
+                element = 'h:%s' % element.lower()
+        xpath = XPathExpr(element=element)
+        if not safe:
+            xpath.add_name_test()
+        return xpath
+
+class CaseInsensitiveAttributesTranslator(NamespacedTranslator):
+    'Treat class and id CSS selectors case-insensitively'
+
+    def xpath_class(self, class_selector):
+        """Translate a class selector."""
+        x = self.xpath(class_selector.selector)
+        if is_non_whitespace(class_selector.class_name):
+            x.add_condition(
+                "%s and contains(concat(' ', normalize-space(%s), ' '), %s)"
+                % ('@class', xpath_lower_case('@class'), self.xpath_literal(
+                    ' '+class_selector.class_name.lower()+' ')))
+        else:
+            x.add_condition('0')
+        return x
+
+    def xpath_hash(self, id_selector):
+        """Translate an ID selector."""
+        x = self.xpath(id_selector.selector)
+        return self.xpath_attrib_equals(x, xpath_lower_case('@id'),
+                (id_selector.id.lower()))
+
+css_to_xpath = NamespacedTranslator().css_to_xpath
+ci_css_to_xpath = CaseInsensitiveAttributesTranslator().css_to_xpath
+
+def build_selector(text, case_sensitive=True):
+    func = css_to_xpath if case_sensitive else ci_css_to_xpath
+    try:
+        return etree.XPath(fix_namespace(func(text)), namespaces=XPNSMAP)
+    except Exception:
+        return None
+
+def is_rule_used(root, selector, log, pseudo_pat, cache):
+    selector = pseudo_pat.sub('', selector)
+    selector = MIN_SPACE_RE.sub(r'\1', selector)
+    try:
+        xp = cache[(True, selector)]
+    except KeyError:
+        xp = cache[(True, selector)] = build_selector(selector)
+    try:
+        if xp(root):
+            return True
+    except Exception:
+        return True
+
+    # See if interpreting class and id selectors case-insensitively gives us
+    # matches. Strictly speaking, class and id selectors should be case
+    # sensitive for XHTML, but we err on the side of caution and not remove
+    # them, since case sensitivity depends on whether the html is rendered in
+    # quirks mode or not.
+    try:
+        xp = cache[(False, selector)]
+    except KeyError:
+        xp = cache[(False, selector)] = build_selector(selector, case_sensitive=False)
+    try:
+        return bool(xp(root))
+    except Exception:
+        return True
+
+def filter_used_rules(root, rules, log, pseudo_pat, cache):
+    for rule in rules:
+        used = False
+        for selector in rule.selectorList:
+            text = selector.selectorText
+            if is_rule_used(root, text, log, pseudo_pat, cache):
+                used = True
+                break
+        if not used:
+            yield rule
+
+def remove_unused_css(container, report):
+    from cssutils.css import CSSRule
+    sheets = {name:container.parsed(name) for name, mt in container.mime_map.iteritems() if mt in OEB_STYLES}
+    for sheet in sheets.itervalues():
+        sheet.namespaces['h'] = XHTML_NS
+    style_rules = {name:tuple(sheet.cssRules.rulesOfType(CSSRule.STYLE_RULE)) for name, sheet in sheets.iteritems()}
+
+    num_of_removed_rules = 0
+    pseudo_pat = re.compile(r':(first-letter|first-line|link|hover|visited|active|focus|before|after)', re.I)
+    cache = {}
+
+    for name, mt in container.mime_map.iteritems():
+        if mt not in OEB_DOCS:
+            continue
+        root = container.parsed(name)
+        for style in root.xpath('//*[local-name()="style"]'):
+            if style.get('type', 'text/css') == 'text/css' and style.text:
+                sheet = container.parse_css(style.text)
+                sheet.namespaces['h'] = XHTML_NS
+                rules = tuple(sheet.cssRules.rulesOfType(CSSRule.STYLE_RULE))
+                unused_rules = tuple(filter_used_rules(root, rules, container.log, pseudo_pat, cache))
+                if unused_rules:
+                    num_of_removed_rules += len(unused_rules)
+                    [sheet.cssRules.remove(r) for r in unused_rules]
+                    style.text = force_unicode(sheet.cssText, 'utf-8')
+                    pretty_script_or_style(container, style)
+                    container.dirty(name)
+
+        for link in root.xpath('//*[local-name()="link" and @href]'):
+            sname = container.href_to_name(link.get('href'), name)
+            if sname in sheets:
+                style_rules[sname] = tuple(filter_used_rules(root, style_rules[sname], container.log, pseudo_pat, cache))
+
+    for name, sheet in sheets.iteritems():
+        unused_rules = style_rules[name]
+        if unused_rules:
+            num_of_removed_rules += len(unused_rules)
+            [sheet.cssRules.remove(r) for r in unused_rules]
+            container.dirty(name)
+
+    if num_of_removed_rules > 0:
+        report(_('Removed %d unused CSS style rules') % num_of_removed_rules)
+    else:
+        report(_('No unused CSS style rules found'))

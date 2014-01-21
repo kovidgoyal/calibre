@@ -19,6 +19,7 @@ from calibre.ebooks.oeb.polish.cover import set_cover
 from calibre.ebooks.oeb.polish.replace import smarten_punctuation
 from calibre.ebooks.oeb.polish.jacket import (
     replace_jacket, add_or_replace_jacket, find_existing_jacket, remove_jacket)
+from calibre.ebooks.oeb.polish.css import remove_unused_css
 from calibre.utils.logging import Log
 
 ALL_OPTS = {
@@ -29,6 +30,7 @@ ALL_OPTS = {
     'jacket': False,
     'remove_jacket':False,
     'smarten_punctuation':False,
+    'remove_unused_css':False,
 }
 
 SUPPORTED = {'EPUB', 'AZW3'}
@@ -90,6 +92,13 @@ typographically correct equivalents.</p>
 <p>Note that the algorithm can sometimes generate incorrect results, especially
 when single quotes at the start of contractions are involved.</p>
 '''),
+
+'remove_unused_css': _('''\
+<p>Remove all unused CSS rules from stylesheets and &lt;style&gt; tags. Some books
+created from production templates can have a large number of extra CSS rules
+that dont match any actual content. These extra rules can slow down readers
+that need to parse them all.</p>
+'''),
 }
 
 def hfix(name, raw):
@@ -98,6 +107,7 @@ def hfix(name, raw):
     raw = raw.replace('\n\n', '__XX__')
     raw = raw.replace('\n', ' ')
     raw = raw.replace('__XX__', '\n')
+    raw = raw.replace('&lt;', '<').replace('&gt;', '>')
     return raw
 
 CLI_HELP = {x:hfix(x, re.sub('<.*?>', '', y)) for x, y in HELP.iteritems()}
@@ -174,6 +184,11 @@ def polish_one(ebook, opts, report):
         subset_all_fonts(ebook, stats.font_stats, report)
         report('')
 
+    if opts.remove_unused_css:
+        rt(_('Removing unused CSS rules'))
+        remove_unused_css(ebook, report)
+        report('')
+
 
 def polish(file_map, opts, log, report):
     st = time.time()
@@ -233,6 +248,7 @@ def option_parser():
     o('--jacket', '-j', help=CLI_HELP['jacket'])
     o('--remove-jacket', help=CLI_HELP['remove_jacket'])
     o('--smarten-punctuation', '-p', help=CLI_HELP['smarten_punctuation'])
+    o('--remove-unused-css', '-u', help=CLI_HELP['remove_unused_css'])
 
     o('--verbose', help=_('Produce more verbose output, useful for debugging.'))
 

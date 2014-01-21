@@ -341,6 +341,9 @@ class Main(MainWindow):
         self.action_smarten_punctuation = reg(
             'smarten-punctuation.png', _('&Smarten punctuation'), partial(
                 self.boss.polish, 'smarten_punctuation', _('Smarten punctuation')), 'smarten-punctuation', (), _('Smarten punctuation'))
+        self.action_remove_unused_css = reg(
+            'edit-clear.png', _('Remove &unused CSS rules'), partial(
+                self.boss.polish, 'remove_unused_css', _('Remove unused CSS rules')), 'remove-unused-css', (), _('Remove unused CSS rules'))
 
         # Preview actions
         group = _('Preview')
@@ -440,6 +443,7 @@ class Main(MainWindow):
         e.addAction(self.action_embed_fonts)
         e.addAction(self.action_subset_fonts)
         e.addAction(self.action_smarten_punctuation)
+        e.addAction(self.action_remove_unused_css)
         e.addAction(self.action_fix_html_all)
         e.addAction(self.action_pretty_all)
         e.addAction(self.action_rationalize_folders)
@@ -519,7 +523,7 @@ class Main(MainWindow):
         a(self.action_help)
 
         a = create(_('Polish book tool bar'), 'polish').addAction
-        for x in ('embed_fonts', 'subset_fonts', 'smarten_punctuation'):
+        for x in ('embed_fonts', 'subset_fonts', 'smarten_punctuation', 'remove_unused_css'):
             a(getattr(self, 'action_' + x))
 
     def create_docks(self):
