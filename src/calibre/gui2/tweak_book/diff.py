@@ -10,11 +10,13 @@ import sys, re, unicodedata
 from functools import partial
 from collections import namedtuple
 from difflib import SequenceMatcher
+from future_builtins import zip
 
 from PyQt4.Qt import (
     QSplitter, QApplication, QPlainTextDocumentLayout, QTextDocument,
     QTextCursor, QTextCharFormat, Qt, QRect, QPainter, QPalette, QPen,
-    QBrush, QColor, QTextLayout, QCursor, QFont)
+    QBrush, QColor, QTextLayout, QCursor, QFont, QSplitterHandle, QStyle,
+    QPainterPath)
 
 from calibre.ebooks.oeb.polish.utils import guess_type
 from calibre.gui2.tweak_book import tprefs
@@ -244,6 +246,72 @@ class Highlight(QTextDocument):  # {{{
                 block = block.next()
 # }}}
 
+class DiffViewHandle(QSplitterHandle):  # {{{
+
+    WIDTH = 30  # px
+
+    def paintEvent(self, event):
+        QSplitterHandle.paintEvent(self, event)
+        left, right = self.parent().left, self.parent().right
+        painter = QPainter(self)
+        painter.setClipRect(event.rect())
+        w = self.width()
+        h = self.height()
+        painter.setRenderHints(QPainter.Antialiasing, True)
+        fw = QApplication.style().pixelMetric(QStyle.PM_DefaultFrameWidth)
+
+        C = 16  # Curve factor.
+
+        def create_line(ly, ry, right_to_left=False):
+            ' Create path that represents upper or lower line of change marker '
+            line = QPainterPath()
+            if not right_to_left:
+                line.moveTo(0, ly)
+                line.cubicTo(C, ly, w - C, ry, w, ry)
+            else:
+                line.moveTo(w, ry)
+                line.cubicTo(w - C, ry, C, ly, 0, ly)
+            return line
+
+        ldoc, rdoc = left.document(), right.document()
+        lorigin, rorigin = left.contentOffset(), right.contentOffset()
+        lfv, rfv = left.firstVisibleBlock().blockNumber(), right.firstVisibleBlock().blockNumber()
+
+        for (ltop, lbot, kind), (rtop, rbot, kind) in zip(left.changes, right.changes):
+            if lbot < lfv and rbot < rfv:
+                continue
+            ly_top = left.blockBoundingGeometry(ldoc.findBlockByNumber(ltop)).translated(lorigin).y() + fw
+            ly_bot = left.blockBoundingGeometry(ldoc.findBlockByNumber(lbot)).translated(lorigin).y() + fw
+            ry_top = right.blockBoundingGeometry(rdoc.findBlockByNumber(rtop)).translated(rorigin).y() + fw
+            ry_bot = right.blockBoundingGeometry(rdoc.findBlockByNumber(rbot)).translated(rorigin).y() + fw
+            if max(ly_top, ly_bot, ry_top, ry_bot) < 0:
+                continue
+            if min(ly_top, ly_bot, ry_top, ry_bot) > h:
+                break
+
+            upper_line = create_line(ly_top, ry_top)
+            lower_line = create_line(ly_bot, ry_bot, True)
+
+            region = QPainterPath()
+            region.moveTo(0, ly_top)
+            region.connectPath(upper_line)
+            region.lineTo(w, ry_bot)
+            region.connectPath(lower_line)
+            region.closeSubpath()
+
+            painter.fillPath(region, left.diff_backgrounds[kind])
+            painter.setPen(left.diff_foregrounds[kind])
+            for path, aa in zip((upper_line, lower_line), (ly_top != ry_top, ly_bot != ry_bot)):
+                painter.setRenderHints(QPainter.Antialiasing, aa)
+                painter.drawPath(path)
+        painter.end()
+
+    def sizeHint(self):
+        ans = QSplitterHandle.sizeHint(self)
+        ans.setWidth(self.WIDTH)
+        return ans
+# }}}
+
 class TextDiffView(QSplitter):
 
     def __init__(self, parent=None):
@@ -253,6 +321,9 @@ class TextDiffView(QSplitter):
         self.addWidget(self.left), self.addWidget(self.right)
         self.split_words = re.compile(r"\w+|\W", re.UNICODE)
         self.clear()
+
+    def createHandle(self):
+        return DiffViewHandle(self.orientation(), self)
 
     def clear(self):
         self.left.clear(), self.right.clear()
