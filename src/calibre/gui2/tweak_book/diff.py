@@ -16,7 +16,7 @@ from PyQt4.Qt import (
     QSplitter, QApplication, QPlainTextDocumentLayout, QTextDocument,
     QTextCursor, QTextCharFormat, Qt, QRect, QPainter, QPalette, QPen,
     QBrush, QColor, QTextLayout, QCursor, QFont, QSplitterHandle, QStyle,
-    QPainterPath)
+    QPainterPath, QHBoxLayout, QWidget, QScrollBar, QEventLoop, pyqtSignal)
 
 from calibre.ebooks.oeb.polish.utils import guess_type
 from calibre.gui2.tweak_book import tprefs
@@ -42,6 +42,8 @@ def get_theme():
     return theme
 
 class TextBrowser(PlainTextEdit):  # {{{
+
+    resized = pyqtSignal()
 
     def __init__(self, right=False, parent=None):
         PlainTextEdit.__init__(self, parent)
@@ -105,6 +107,7 @@ class TextBrowser(PlainTextEdit):  # {{{
         self.line_number_map.clear()
         del self.changes[:]
         del self.headers[:]
+        self.setHorizontalScrollBarPolicy(Qt.ScrollBarAsNeeded)
 
     def update_line_number_area_width(self, block_count=0):
         if self.right:
@@ -136,6 +139,7 @@ class TextBrowser(PlainTextEdit):  # {{{
             self.line_number_area.setGeometry(QRect(cr.right() - self.line_number_area_width(), cr.top(), cr.right(), cr.height()))
         else:
             self.line_number_area.setGeometry(QRect(cr.left(), cr.top(), self.line_number_area_width(), cr.height()))
+        self.resized.emit()
 
     def paint_line_numbers(self, ev):
         painter = QPainter(self.line_number_area)
@@ -246,7 +250,7 @@ class Highlight(QTextDocument):  # {{{
                 block = block.next()
 # }}}
 
-class DiffViewHandle(QSplitterHandle):  # {{{
+class DiffSplitHandle(QSplitterHandle):  # {{{
 
     WIDTH = 30  # px
 
@@ -276,9 +280,9 @@ class DiffViewHandle(QSplitterHandle):  # {{{
         ldoc, rdoc = left.document(), right.document()
         lorigin, rorigin = left.contentOffset(), right.contentOffset()
         lfv, rfv = left.firstVisibleBlock().blockNumber(), right.firstVisibleBlock().blockNumber()
+        lines = []
 
-        for (ltop, lbot, kind), (rtop, rbot, kind) in sorted(
-                zip(left.changes, right.changes), key=lambda (l, r):{'replace':0}.get(l[2], 1)):
+        for (ltop, lbot, kind), (rtop, rbot, kind) in zip(left.changes, right.changes):
             if lbot < lfv and rbot < rfv:
                 continue
             ly_top = left.blockBoundingGeometry(ldoc.findBlockByNumber(ltop)).translated(lorigin).y() + fw
@@ -301,10 +305,34 @@ class DiffViewHandle(QSplitterHandle):  # {{{
             region.closeSubpath()
 
             painter.fillPath(region, left.diff_backgrounds[kind])
-            painter.setPen(left.diff_foregrounds[kind])
             for path, aa in zip((upper_line, lower_line), (ly_top != ry_top, ly_bot != ry_bot)):
-                painter.setRenderHints(QPainter.Antialiasing, aa)
-                painter.drawPath(path)
+                lines.append((kind, path, aa))
+
+        for kind, path, aa in sorted(lines, key=lambda x:{'replace':0}.get(x[0], 1)):
+            painter.setPen(left.diff_foregrounds[kind])
+            painter.setRenderHints(QPainter.Antialiasing, aa)
+            painter.drawPath(path)
+
+        painter.setFont(left.heading_font)
+        for (lnum, text), (rnum, text) in zip(left.headers, right.headers):
+            ltop, lbot, rtop, rbot = lnum, lnum + 3, rnum, rnum + 3
+            if lbot < lfv and rbot < rfv:
+                continue
+            ly_top = left.blockBoundingGeometry(ldoc.findBlockByNumber(ltop)).translated(lorigin).y()
+            ly_bot = left.blockBoundingGeometry(ldoc.findBlockByNumber(lbot)).translated(lorigin).y()
+            ry_top = right.blockBoundingGeometry(rdoc.findBlockByNumber(rtop)).translated(rorigin).y()
+            ry_bot = right.blockBoundingGeometry(rdoc.findBlockByNumber(rbot)).translated(rorigin).y()
+            if max(ly_top, ly_bot, ry_top, ry_bot) < 0:
+                continue
+            if min(ly_top, ly_bot, ry_top, ry_bot) > h:
+                break
+            ly = painter.boundingRect(3, ly_top, left.width(), ly_bot - ly_top - 5, Qt.TextSingleLine, text).bottom() + 3
+            ry = painter.boundingRect(3, ry_top, right.width(), ry_bot - ry_top - 5, Qt.TextSingleLine, text).bottom() + 3
+            line = create_line(ly + fw, ry + fw)
+            painter.setPen(QPen(left.palette().text(), 2))
+            painter.setRenderHints(QPainter.Antialiasing, ly != ry)
+            painter.drawPath(line)
+
         painter.end()
 
     def sizeHint(self):
@@ -313,7 +341,7 @@ class DiffViewHandle(QSplitterHandle):  # {{{
         return ans
 # }}}
 
-class TextDiffView(QSplitter):
+class DiffSplit(QSplitter):  # {{{
 
     def __init__(self, parent=None):
         QSplitter.__init__(self, parent)
@@ -324,13 +352,18 @@ class TextDiffView(QSplitter):
         self.clear()
 
     def createHandle(self):
-        return DiffViewHandle(self.orientation(), self)
+        return DiffSplitHandle(self.orientation(), self)
 
     def clear(self):
         self.left.clear(), self.right.clear()
         self.changes = []
 
     def finalize(self):
+        # check horizontal scrollbars and force both if scrollbar visible only at one side
+        if self.left.horizontalScrollBar().isVisible() or self.right.horizontalScrollBar().isVisible():
+            self.left.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
+            self.right.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
+
         for v in (self.left, self.right):
             c = v.textCursor()
             c.movePosition(c.Start)
@@ -339,9 +372,8 @@ class TextDiffView(QSplitter):
 
     def add_diff(self, left_name, right_name, left_text, right_text, context=None, syntax=None):
         is_text = isinstance(left_text, type('')) or isinstance(right_text, type(''))
-        start_line = self.left.blockCount() - 1
-        self.left.headers.append((start_line, left_name))
-        self.right.headers.append((start_line, right_name))
+        self.left.headers.append((self.left.blockCount() - 1, left_name))
+        self.right.headers.append((self.right.blockCount() - 1, right_name))
         for v in (self.left, self.right):
             c = v.textCursor()
             c.movePosition(c.End)
@@ -372,7 +404,7 @@ class TextDiffView(QSplitter):
         if context is None:
             for tag, alo, ahi, blo, bhi in cruncher.get_opcodes():
                 getattr(self, tag)(alo, ahi, blo, bhi)
-                QApplication.processEvents()
+                QApplication.processEvents(QEventLoop.ExcludeUserInputEvents | QEventLoop.ExcludeSocketNotifiers)
         else:
             for i, group in enumerate(cruncher.get_grouped_opcodes(context)):
                 if i > 0:
@@ -383,11 +415,10 @@ class TextDiffView(QSplitter):
                     self.right.line_number_map[self.changes[-1].rtop] = '-'
                 for tag, alo, ahi, blo, bhi in group:
                     getattr(self, tag)(alo, ahi, blo, bhi)
-                    QApplication.processEvents()
+                    QApplication.processEvents(QEventLoop.ExcludeUserInputEvents | QEventLoop.ExcludeSocketNotifiers)
                 cl.insertBlock(), cr.insertBlock()
 
         cl.endEditBlock(), cr.endEditBlock()
-        self.equalize_block_counts()
         del self.left_lines
         del self.right_lines
         del self.left_insert
@@ -401,12 +432,6 @@ class TextDiffView(QSplitter):
                 self.right.changes.append((rtop, rbot, kind))
 
         self.changes = ochanges + self.changes
-
-    def equalize_block_counts(self):
-        l, r = self.left.blockCount(), self.right.blockCount()
-        c = (self.left if l < r else self.right).textCursor()
-        c.movePosition(c.End)
-        c.insertText('\n' * (abs(l - r)))
 
     def coalesce_changes(self):
         'Merge neighboring changes of the same kind, if any'
@@ -554,15 +579,69 @@ class TextDiffView(QSplitter):
         for block, fmts in ((lsb, lfmts), (rsb, rfmts)):
             if fmts:
                 block.layout().setAdditionalFormats(fmts)
+# }}}
+
+class DiffView(QWidget):
+
+    def __init__(self, parent=None):
+        QWidget.__init__(self, parent)
+        self.l = l = QHBoxLayout(self)
+        self.setLayout(l)
+        l.setMargin(0), l.setSpacing(0)
+        self.view = DiffSplit(self)
+        l.addWidget(self.view)
+        self.scrollbar = QScrollBar(self)
+        l.addWidget(self.scrollbar)
+        self.syncing = False
+        self.bars = []
+        for i, bar in enumerate((self.scrollbar, self.view.left.verticalScrollBar(), self.view.right.verticalScrollBar())):
+            self.bars.append(bar)
+            bar.valueChanged[int].connect(partial(self.scrolled, i))
+        self.view.left.resized.connect(self.adjust_range)
+
+    def scrolled(self, which):
+        if self.syncing:
+            return
+        self.view.handle(1).update()
+
+    def __enter__(self):
+        self.syncing = True
+
+    def __exit__(self, *args):
+        self.syncing = False
+
+    def clear(self):
+        self.view.clear()
+        self.changes = []
+
+    def adjust_range(self):
+        ls, rs = self.view.left.verticalScrollBar(), self.view.right.verticalScrollBar()
+        page_step = self.view.left.verticalScrollBar().pageStep()
+        self.scrollbar.setPageStep(min(ls.pageStep(), rs.pageStep()))
+        self.scrollbar.setSingleStep(min(ls.singleStep(), rs.singleStep()))
+        self.scrollbar.setRange(0, max(ls.maximum(), rs.maximum()))
+        self.scrollbar.setVisible(self.scrollbar.maximum() > page_step)
+
+    def finalize(self):
+        self.view.finalize()
+        self.changes = []
+
+        left, right = self.view.left, self.view.right
+        ldoc, rdoc = left.document(), right.document()
+
+        for (l_top, l_bot, kind), (r_top, r_bot, kind) in zip(left.changes, right.changes):
+            pass
+
+        self.adjust_range()
 
 if __name__ == '__main__':
     app = QApplication([])
-    w = TextDiffView()
+    w = DiffView()
     w.show()
     for l, r in zip(sys.argv[1::2], sys.argv[2::2]):
         raw1 = open(l, 'rb').read().decode('utf-8')
         raw2 = open(r, 'rb').read().decode('utf-8')
-        w.add_diff(l, r, raw1, raw2, syntax=syntax_from_mime(l, guess_type(l)), context=3)
+        w.view.add_diff(l, r, raw1, raw2, syntax=syntax_from_mime(l, guess_type(l)), context=31)
     w.finalize()
     app.exec_()
 
