@@ -4,58 +4,34 @@ class IndianExpress(BasicNewsRecipe):
     title          = u'Indian Express'
     language       = 'en_IN'
     __author__     = 'Krittika Goyal'
-    oldest_article = 1 #days
+    oldest_article = 1  # days
     max_articles_per_feed = 25
-    encoding = 'cp1252'
+    encoding = 'utf-8'
 
     no_stylesheets = True
-    remove_tags_before = dict(name='div', attrs={'class':'top_head'})
-    #remove_tags_after  = dict(name='td', attrs={'class':'newptool1'})
-    remove_tags = [
-       dict(name='iframe'),
-       dict(name='div', attrs={'class':['pagination_new', 'comments_desc',
-           'commenttext', 'postcomm', 'content_right', 'bookmarks_div',
-           'comment_box', 'bookmarks_div_bot', 'box']}),
-       dict(name='div', attrs={'id':['footer', 'tab_innerhc', 'discussion',
-           'google_new', 'header_new', 'slidebox']}),
-       dict(name='a', attrs={'class':'nobdr'}),
-       dict(name='h3', attrs={'class':['readcomm']}),
-       #dict(name='span', text=':'),
-    ]
-
+    use_embedded_content = False
+    auto_cleanup = True
     feeds          = [
 ('Front Page',
- 'http://syndication.indianexpress.com/rss/33/front-page.xml'),
-('Markets',
- 'http://syndication.indianexpress.com/rss/793/markets.xml'),
+ 'http://indianexpress.com/print/front-page/feed/'),
 ('Editorials',
- 'http://syndication.indianexpress.com/rss/35/editorials.xml'),
+ 'http://indianexpress.com/section/opinion/editorials/feed/'),
 ('Crime',
- 'http://syndication.indianexpress.com/rss/801/crime-&-justice.xml'),
+ 'http://indianexpress.com/section/india/crime/feed/'),
 ('Cricket',
- 'http://syndication.indianexpress.com/rss/777/cricket.xml'),
+ 'http://indianexpress.com/section/sports/cricket/feed/'),
 ('Health',
- 'http://syndication.indianexpress.com/rss/697/health.xml'),
+ 'http://www.indianexpress.com/lifestyle/health/feed/'),
 ('Asia',
- 'http://syndication.indianexpress.com/rss/790/asia.xml'),
+ 'http://indianexpress.com/section/world/asia/'),
 ('Politics',
- 'http://syndication.indianexpress.com/rss/799/politics.xml'),
+ 'http://indianexpress.com/section/india/politics/feed/'),
 ('Mumbai',
- 'http://syndication.indianexpress.com/rss/707/mumbai.xml'),
+ 'http://www.indianexpress.com/cities/mumbai/feed/'),
 ('Op-Ed',
- 'http://syndication.indianexpress.com/rss/36/oped.xml'),
-('Economy',
- 'http://syndication.indianexpress.com/rss/794/economy.xml'),
+ 'http://indianexpress.com/section/opinion/feed/'),
 ('Lifestyle',
- 'http://syndication.indianexpress.com/rss/713/lifestyle.xml'),
-('Letters to the Editor',
- 'http://syndication.indianexpress.com/rss/40/letters-to-editor.xml'),
-('Movie Reviews',
- 'http://syndication.indianexpress.com/rss/665/movie-reviews.xml'),
+ 'http://indianexpress.com/section/lifestyle/feed/'),
 ('Bollywood',
- 'http://syndication.indianexpress.com/rss/887/bollywood.xml'),
+ 'http://indianexpress.com/section/entertainment/bollywood/feed/'),
 ]
-
-    def print_version(self, url):
-        return url+'/0'
-
