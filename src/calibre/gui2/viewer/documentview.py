@@ -126,8 +126,7 @@ class Document(QWebPage):  # {{{
         mf.setScrollBarPolicy(Qt.Horizontal, Qt.ScrollBarAlwaysOff)
 
     def set_user_stylesheet(self, opts):
-        bg = opts.background_color or 'white'
-        brules = ['background-color: %s !important'%bg]
+        brules = ['background-color: %s !important'%opts.background_color] if opts.background_color else ['background-color: white']
         prefix = '''
             body { %s  }
         '''%('; '.join(brules))
