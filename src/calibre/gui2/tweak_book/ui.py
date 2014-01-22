@@ -403,6 +403,9 @@ class Main(MainWindow):
         self.action_browse_images = reg(
             'view-image.png', _('&Browse images in book'), self.boss.browse_images, 'browse-images', (), _(
                 'Browse images in the books visually'))
+        self.action_multiple_split = reg(
+            'auto_author_sort.png', _('&Split at multiple locations'), self.boss.multisplit, 'multisplit', (), _(
+                'Split HTML file at multiple locations'))
 
     def create_menubar(self):
         p, q = self.create_application_menubar()

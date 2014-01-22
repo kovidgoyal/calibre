@@ -6,8 +6,10 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
-from PyQt4.Qt import (QDialog, QDialogButtonBox, QGridLayout, QLabel, QLineEdit)
+from PyQt4.Qt import (
+    QDialog, QDialogButtonBox, QGridLayout, QLabel, QLineEdit, QVBoxLayout)
 
+from calibre.gui2 import error_dialog
 from calibre.gui2.tweak_book import tprefs
 
 class Dialog(QDialog):
@@ -46,7 +48,7 @@ class Dialog(QDialog):
     def setup_ui(self):
         raise NotImplementedError('You must implement this method in Dialog subclasses')
 
-class RationalizeFolders(Dialog):
+class RationalizeFolders(Dialog):  # {{{
 
     TYPE_MAP = (
                 ('text', _('Text (HTML) files')),
@@ -103,3 +105,38 @@ class RationalizeFolders(Dialog):
     def accept(self):
         tprefs['folders_for_types'] = self.folder_map
         return Dialog.accept(self)
+# }}}
+
+class MultiSplit(Dialog):  # {{{
+
+    def __init__(self, parent=None):
+        Dialog.__init__(self, _('Specify locations to split at'), 'multisplit-xpath', parent=parent)
+
+    def setup_ui(self):
+        from calibre.gui2.convert.xpath_wizard import XPathEdit
+        self.l = l = QVBoxLayout(self)
+        self.setLayout(l)
+
+        self.la = la = QLabel(_(
+            'Specify the locations to split at, using an XPath expression (click'
+            ' the wizard button for help with generating XPath expressions).'))
+        la.setWordWrap(True)
+        l.addWidget(la)
+
+        self._xpath = xp = XPathEdit(self)
+        xp.set_msg(_('&XPath expression:'))
+        xp.setObjectName('editor-multisplit-xpath-edit')
+        l.addWidget(xp)
+        l.addWidget(self.bb)
+
+    def accept(self):
+        if not self._xpath.check():
+            return error_dialog(self, _('Invalid XPath expression'), _(
+                'The XPath expression %s is invalid.') % self.xpath)
+        return Dialog.accept(self)
+
+    @property
+    def xpath(self):
+        return self._xpath.xpath
+
+# }}}

@@ -22,7 +22,7 @@ from calibre.ebooks.oeb.polish.container import get_container as _gc, clone_cont
 from calibre.ebooks.oeb.polish.cover import mark_as_cover, mark_as_titlepage
 from calibre.ebooks.oeb.polish.pretty import fix_all_html, pretty_all
 from calibre.ebooks.oeb.polish.replace import rename_files, replace_file, get_recommended_folders, rationalize_folders
-from calibre.ebooks.oeb.polish.split import split, merge, AbortError
+from calibre.ebooks.oeb.polish.split import split, merge, AbortError, multisplit
 from calibre.ebooks.oeb.polish.toc import remove_names_from_toc, find_existing_toc
 from calibre.ebooks.oeb.polish.utils import link_stylesheets
 from calibre.gui2 import error_dialog, choose_files, question_dialog, info_dialog, choose_save_file
@@ -36,7 +36,7 @@ from calibre.gui2.tweak_book.toc import TOCEditor
 from calibre.gui2.tweak_book.editor import editor_from_syntax, syntax_from_mime
 from calibre.gui2.tweak_book.editor.insert_resource import get_resource_data, NewBook
 from calibre.gui2.tweak_book.preferences import Preferences
-from calibre.gui2.tweak_book.widgets import RationalizeFolders
+from calibre.gui2.tweak_book.widgets import RationalizeFolders, MultiSplit
 
 def get_container(*args, **kwargs):
     kwargs['tweak_mode'] = True
@@ -820,6 +820,29 @@ class Boss(QObject):
             raise
         self.apply_container_update_to_gui()
         self.edit_file(bottom_name, 'html')
+
+    def multisplit(self):
+        ed = self.gui.central.current_editor
+        if ed.syntax != 'html':
+            return
+        name = None
+        for n, x in editors.iteritems():
+            if ed is x:
+                name = n
+                break
+        if name is None:
+            return
+        d = MultiSplit(self.gui)
+        if d.exec_() == d.Accepted:
+            with BusyCursor():
+                self.commit_all_editors_to_container()
+                self.add_savepoint(_('Split %s') % self.gui.elided_text(name))
+                try:
+                    multisplit(current_container(), name, d.xpath)
+                except AbortError:
+                    self.rewind_savepoint()
+                    raise
+                self.apply_container_update_to_gui()
 
     @in_thread_job
     def link_clicked(self, name, anchor):

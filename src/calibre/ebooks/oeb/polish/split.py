@@ -222,6 +222,34 @@ def split(container, name, loc_or_xpath, before=True):
     container.dirty(container.opf_name)
     return bottom_name
 
+def multisplit(container, name, xpath, before=True):
+    root = container.parsed(name)
+    nodes = root.xpath(xpath, namespaces=XPNSMAP)
+    if not nodes:
+        raise AbortError(_('The expression %s did not match any nodes') % xpath)
+    for split_point in nodes:
+        if in_table(split_point):
+            raise AbortError('Cannot split inside tables')
+        if split_point.tag.endswith('}body'):
+            raise AbortError('Cannot split on the <body> tag')
+
+    for i, tag in enumerate(nodes):
+        tag.set('calibre-split-point', str(i))
+
+    current = name
+    all_names = [name]
+    for i in xrange(len(nodes)):
+        current = split(container, current, '//*[@calibre-split-point="%d"]' % i, before=before)
+        all_names.append(current)
+
+    for x in all_names:
+        for tag in container.parsed(x).xpath('//*[@calibre-split-point]'):
+            tag.attrib.pop('calibre-split-point')
+        container.dirty(x)
+
+    return all_names[1:]
+
+
 class MergeLinkReplacer(object):
 
     def __init__(self, base, anchor_map, master, container):

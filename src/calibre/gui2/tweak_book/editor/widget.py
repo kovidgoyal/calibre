@@ -268,6 +268,8 @@ class Editor(QMainWindow):
         m.addSeparator()
         m.addAction(_('&Select all'), self.editor.select_all)
         m.addAction(actions['mark-selected-text'])
+        if self.syntax == 'html':
+            m.addAction(actions['multisplit'])
         m.exec_(self.editor.mapToGlobal(pos))
 
 

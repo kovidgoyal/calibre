@@ -433,9 +433,12 @@ the location you want, simply click and the split will be performed.
 
 Splitting the file will automatically update all links and references that
 pointed into the bottom half of the file and will open the newly split file in
-an editor. If you want to repeatedly split a file, you can do that, and then
-use the bulk renaming facility of the Files Browser, described above, to give
-the split off files sensible names.
+an editor. 
+
+You can also split a single HTML file at multiple locations automatically, by
+right clicking inside the file in the editor and choosing :guilabel:`Split at
+multiple locations`. This will allow you to easily split a large file at all
+heading tags or all tags having a certain class and so on.
 
 
 Miscellaneous Tools
