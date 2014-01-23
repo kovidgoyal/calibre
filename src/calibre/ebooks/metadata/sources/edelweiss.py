@@ -199,75 +199,28 @@ class Edelweiss(Source):
         return self.cached_identifier_to_cover_url(sku)
     # }}}
 
-    def create_query(self, log, title=None, authors=None, identifiers={}):  # {{{
+    def create_query(self, log, title=None, authors=None, identifiers={}):
         from urllib import urlencode
-        BASE_URL = 'http://edelweiss.abovethetreeline.com/CatalogOverview.aspx?'
+        BASE_URL = 'http://edelweiss.abovethetreeline.com/Browse.aspx?source=catalog&rg=4187&group=browse&pg=0&'
         params = {
-            'group':'search',
-            'searchType':999,
-            'searchOrgID':'',
-            'dateRange':0,
-            'isbn':'',
-        }
-        for num in (0, 1, 2, 3, 4, 5, 6, 200, 201, 202, 204):
-            params['condition%d'%num] = 1
-            params['keywords%d'%num] = ''
-        title_key, author_key = 'keywords200', 'keywords201'
-
-        isbn = check_isbn(identifiers.get('isbn', None))
-        found = False
-        if isbn is not None:
-            params['isbn'] = isbn
-            found = True
-        elif title or authors:
-            title_tokens = list(self.get_title_tokens(title))
-            if title_tokens:
-                params[title_key] = ' '.join(title_tokens)
-                found = True
-            author_tokens = self.get_author_tokens(authors,
-                    only_first_author=True)
-            if author_tokens:
-                params[author_key] = ' '.join(author_tokens)
-                found = True
-
-        if not found:
-            return None
-
-        for k in (title_key, author_key, 'isbn'):
-            v = params[k]
-            if isinstance(v, unicode):
-                params[k] = v.encode('utf-8')
-
-        return BASE_URL+urlencode(params)
-
-    def create_query2(self, log, title=None, authors=None, identifiers={}):
-        ''' The edelweiss advanced search appears to be broken, use the keyword search instead, until it is fixed. '''
-        from urllib import urlencode
-        BASE_URL = 'http://edelweiss.abovethetreeline.com/CatalogOverview.aspx?'
-        params = {
-            'group':'search',
-            'section':'CatalogOverview',
-            'searchType':1,
-            'searchOrgID':'',
-            'searchCatalogID': '',
-            'searchMailingID': '',
-            'searchSelect':1,
+            'browseType':'title', 'startIndex':0, 'savecook':1, 'sord':20, 'secSord':20, 'tertSord':20,
         }
         keywords = []
         isbn = check_isbn(identifiers.get('isbn', None))
         if isbn is not None:
             keywords.append(isbn)
-        elif title or authors:
+        elif title:
             title_tokens = list(self.get_title_tokens(title))
             if title_tokens:
                 keywords.extend(title_tokens)
-            author_tokens = self.get_author_tokens(authors,
-                    only_first_author=True)
-            if author_tokens:
-                keywords.extend(author_tokens)
+            # Searching with author names does not work on edelweiss
+            # author_tokens = self.get_author_tokens(authors,
+            #         only_first_author=True)
+            # if author_tokens:
+            #     keywords.extend(author_tokens)
         if not keywords:
             return None
-        params['keywords'] = (' '.join(keywords)).encode('utf-8')
+        params['bsk'] = (' '.join(keywords)).encode('utf-8')
         return BASE_URL+urlencode(params)
 
     # }}}
@@ -282,7 +235,7 @@ class Edelweiss(Source):
             entries = [(book_url, identifiers['edelweiss'])]
         else:
             entries = []
-            query = self.create_query2(log, title=title, authors=authors,
+            query = self.create_query(log, title=title, authors=authors,
                     identifiers=identifiers)
             if not query:
                 log.error('Insufficient metadata to construct query')
@@ -301,7 +254,7 @@ class Edelweiss(Source):
                 return as_unicode(e)
 
             for entry in CSSSelect('div.listRow div.listRowMain')(root):
-                a = entry.xpath('descendant::a[contains(@href, "sku=") and contains(@href, "ProductDetailPage.aspx")]')
+                a = entry.xpath('descendant::a[contains(@href, "sku=") and contains(@href, "productDetailPage.aspx")]')
                 if not a:
                     continue
                 href = a[0].get('href')
@@ -395,6 +348,18 @@ if __name__ == '__main__':
     from calibre.ebooks.metadata.sources.test import (
         test_identify_plugin, title_test, authors_test, comments_test, pubdate_test)
     tests = [
+        (  # A title and author search
+         {'title': 'Flame of Sevenwaters', 'authors':['Juliet Marillier']},
+         [title_test('Flame of sevenwaters', exact=True),
+                authors_test(['Juliet Marillier'])]
+        ),
+
+        (  # An isbn present in edelweiss
+         {'identifiers':{'isbn': '9780312621360'}, },
+         [title_test('Flame: A Sky Chasers Novel', exact=True),
+                authors_test(['Amy Kathleen Ryan'])]
+        ),
+
         # Multiple authors and two part title and no general description
         ({'identifiers':{'edelweiss':'0321180607'}},
         [title_test(
@@ -405,21 +370,6 @@ if __name__ == '__main__':
             'Jim Tivy', 'Philip Wadler']), pubdate_test(2003, 8, 22),
             comments_test('Jérôme Siméon'), lambda mi: bool(mi.comments and 'No title summary' not in mi.comments)
         ]),
-
-        (  # An isbn not present in edelweiss
-         {'identifiers':{'isbn': '9780316044981'}, 'title':'The Heroes',
-          'authors':['Joe Abercrombie']},
-            [title_test('The Heroes', exact=True),
-                authors_test(['Joe Abercrombie'])]
-
-        ),
-
-        (  # Pubdate
-         {'title':'The Great Gatsby', 'authors':['F. Scott Fitzgerald']},
-            [title_test('The great gatsby', exact=True),
-                authors_test(['F. Scott Fitzgerald']), pubdate_test(2004, 9, 29)]
-        ),
-
 
     ]
     start, stop = 0, len(tests)
