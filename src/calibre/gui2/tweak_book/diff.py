@@ -13,7 +13,7 @@ from difflib import SequenceMatcher
 from future_builtins import zip
 
 from PyQt4.Qt import (
-    QSplitter, QApplication, QPlainTextDocumentLayout, QTextDocument,
+    QSplitter, QApplication, QPlainTextDocumentLayout, QTextDocument, QTimer,
     QTextCursor, QTextCharFormat, Qt, QRect, QPainter, QPalette, QPen,
     QBrush, QColor, QTextLayout, QCursor, QFont, QSplitterHandle, QStyle,
     QPainterPath, QHBoxLayout, QWidget, QScrollBar, QEventLoop, pyqtSignal)
@@ -613,12 +613,21 @@ class DiffView(QWidget):
         l.addWidget(self.scrollbar)
         self.syncing = False
         self.bars = []
+        self.resize_timer = QTimer(self)
+        self.resize_timer.setSingleShot(True)
+        self.resize_timer.timeout.connect(self.resize_debounced)
         for i, bar in enumerate((self.scrollbar, self.view.left.verticalScrollBar(), self.view.right.verticalScrollBar())):
             self.bars.append(bar)
             bar.valueChanged[int].connect(partial(self.scrolled, i))
-        self.view.left.resized.connect(self.adjust_range)
+        self.view.left.resized.connect(self.resized)
         for v in self.view.left, self.view.right, self.view.handle(1):
             v.wheel_event.connect(self.scrollbar.wheelEvent)
+
+    def resized(self):
+        self.resize_timer.start(100)
+
+    def resize_debounced(self):
+        self.adjust_range()
 
     @property
     def syncpos(self):
