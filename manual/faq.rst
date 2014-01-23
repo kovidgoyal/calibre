@@ -192,8 +192,8 @@ Follow these steps to find the problem:
       should show up in Windows Explorer (in Windows) or Finder (in OS X).
     * In |app|, go to Preferences->Ignored Devices and check that your device
       is not being ignored
-    * If all the above steps fail, go to Preferences->Miscellaneous and click
-      debug device detection with your device attached and post the output as a
+    * If all the above steps fail, go to :guilabel:`Preferences->Miscellaneous` and click
+      :guilabel:`Debug device detection` with your device attached and post the output as a
       ticket on `the calibre bug tracker <http://bugs.calibre-ebook.com>`_.
 
 My device is non-standard or unusual. What can I do to connect to it?
