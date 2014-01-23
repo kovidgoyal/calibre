@@ -799,6 +799,20 @@ class PocketBookPro912Output(OutputProfile):
     screen_size               = (825, 1200)
     dpi                       = 155.0
     comic_screen_size         = screen_size
+    
+
+class GalaxyTab38Output(OutputProfile):
+
+    author = 'Will Kling'
+    name = 'Galaxy Tab 3 8'
+    short_name = 'galaxy_tab38'
+    description = _('This profile is intended for the Samsung Galaxy Tab 3 8 series of devices.')
+    # screen specs taken from http://it.wikipedia.org/wiki/Samsung_Galaxy_Tab_3
+
+    screen_size               = (800, 1280)
+    dpi                       = 189
+    comic_screen_size         = screen_size
+
 
 output_profiles = [OutputProfile, SonyReaderOutput, SonyReader300Output,
         SonyReader900Output, SonyReaderT3Output, MSReaderOutput, MobipocketOutput, HanlinV3Output,
@@ -807,6 +821,7 @@ output_profiles = [OutputProfile, SonyReaderOutput, SonyReader300Output,
         SonyReaderLandscapeOutput, KindleDXOutput, IlliadOutput, NookHD,
         IRexDR1000Output, IRexDR800Output, JetBook5Output, NookOutput,
         BambookOutput, NookColorOutput, PocketBook900Output, PocketBookPro912Output,
-        GenericEink, GenericEinkLarge, KindleFireOutput, KindlePaperWhiteOutput]
-
+        GenericEink, GenericEinkLarge, KindleFireOutput, KindlePaperWhiteOutput,
+        GalaxyTab38Output]
+        
 output_profiles.sort(cmp=lambda x,y:cmp(x.name.lower(), y.name.lower()))
