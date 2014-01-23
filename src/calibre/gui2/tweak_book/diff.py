@@ -44,9 +44,11 @@ def get_theme():
 class TextBrowser(PlainTextEdit):  # {{{
 
     resized = pyqtSignal()
+    wheel_event = pyqtSignal(object)
 
     def __init__(self, right=False, parent=None):
         PlainTextEdit.__init__(self, parent)
+        self.setFocusPolicy(Qt.NoFocus)
         self.right = right
         self.setReadOnly(True)
         w = self.fontMetrics()
@@ -216,6 +218,12 @@ class TextBrowser(PlainTextEdit):  # {{{
             painter.drawLine(0, top, w, top)
             painter.drawLine(0, bottom - 1, w, bottom - 1)
 
+    def wheelEvent(self, ev):
+        if ev.orientation() == Qt.Vertical:
+            self.wheel_event.emit(ev)
+        else:
+            return PlainTextEdit.wheelEvent(self, ev)
+
 # }}}
 
 class Highlight(QTextDocument):  # {{{
@@ -253,6 +261,7 @@ class Highlight(QTextDocument):  # {{{
 class DiffSplitHandle(QSplitterHandle):  # {{{
 
     WIDTH = 30  # px
+    wheel_event = pyqtSignal(object)
 
     def paintEvent(self, event):
         QSplitterHandle.paintEvent(self, event)
@@ -339,6 +348,12 @@ class DiffSplitHandle(QSplitterHandle):  # {{{
         ans = QSplitterHandle.sizeHint(self)
         ans.setWidth(self.WIDTH)
         return ans
+
+    def wheelEvent(self, ev):
+        if ev.orientation() == Qt.Vertical:
+            self.wheel_event.emit(ev)
+        else:
+            return QSplitterHandle.wheelEvent(self, ev)
 # }}}
 
 class DiffSplit(QSplitter):  # {{{
@@ -583,8 +598,12 @@ class DiffSplit(QSplitter):  # {{{
 
 class DiffView(QWidget):
 
+    SYNC_POSITION = 0.4
+
     def __init__(self, parent=None):
         QWidget.__init__(self, parent)
+        self.changes = []
+        self.delta = 0
         self.l = l = QHBoxLayout(self)
         self.setLayout(l)
         l.setMargin(0), l.setSpacing(0)
@@ -598,10 +617,57 @@ class DiffView(QWidget):
             self.bars.append(bar)
             bar.valueChanged[int].connect(partial(self.scrolled, i))
         self.view.left.resized.connect(self.adjust_range)
+        for v in self.view.left, self.view.right, self.view.handle(1):
+            v.wheel_event.connect(self.scrollbar.wheelEvent)
+
+    @property
+    def syncpos(self):
+        return self.scrollbar.value() + int(self.scrollbar.pageStep() * self.SYNC_POSITION)
+
+    def get_position_from_scrollbar(self, which):
+        changes = (self.changes, self.view.left.changes, self.view.right.changes)[which]
+        bar = self.bars[which]
+        syncpos = self.syncpos + bar.value()
+        prev = (0, 0, None)
+        for i, (top, bot, kind) in enumerate(changes):
+            if syncpos <= bot:
+                if top <= syncpos and top != bot:
+                    # syncpos is inside a change
+                    ratio = float(syncpos - top) / (bot - top)
+                    return 'in', i, ratio
+                else:
+                    # syncpos is after the change
+                    offset = syncpos - prev[1]
+                    return 'after', i - 1, offset
+                break
+            else:
+                prev = (top, bot, kind)
+        else:
+            offset = syncpos - prev[1]
+            return 'after', len(self.changes) - 1, offset
+
+    def scroll_to(self, which, position):
+        changes = (self.changes, self.view.left.changes, self.view.right.changes)[which]
+        bar = self.bars[which]
+        syncpos = self.syncpos
+        val = None
+        if position[0] == 'in':
+            change_idx, ratio = position[1:]
+            start, end = changes[change_idx][:2]
+            val = start + int((end - start) * ratio)
+        else:
+            change_idx, offset = position[1:]
+            start = 0 if change_idx < 0 else changes[change_idx][1]
+            val = start + offset
+        bar.setValue(val - syncpos)
 
     def scrolled(self, which):
         if self.syncing:
             return
+        position = self.get_position_from_scrollbar(which)
+        with self:
+            for x in {0, 1, 2} - {which}:
+                self.scroll_to(x, position)
         self.view.handle(1).update()
 
     def __enter__(self):
@@ -613,26 +679,50 @@ class DiffView(QWidget):
     def clear(self):
         self.view.clear()
         self.changes = []
+        self.delta = 0
 
     def adjust_range(self):
         ls, rs = self.view.left.verticalScrollBar(), self.view.right.verticalScrollBar()
         page_step = self.view.left.verticalScrollBar().pageStep()
         self.scrollbar.setPageStep(min(ls.pageStep(), rs.pageStep()))
         self.scrollbar.setSingleStep(min(ls.singleStep(), rs.singleStep()))
-        self.scrollbar.setRange(0, max(ls.maximum(), rs.maximum()))
+        self.scrollbar.setRange(0, ls.maximum() + self.delta)
         self.scrollbar.setVisible(self.scrollbar.maximum() > page_step)
 
     def finalize(self):
         self.view.finalize()
         self.changes = []
+        self.calculate_length()
 
+    def calculate_length(self):
         left, right = self.view.left, self.view.right
-        ldoc, rdoc = left.document(), right.document()
-
+        changes = []
+        delta = 0
         for (l_top, l_bot, kind), (r_top, r_bot, kind) in zip(left.changes, right.changes):
-            pass
-
+            height = max(l_bot - l_top, r_bot - r_top)
+            top = delta + l_top
+            changes.append((top, top + height, kind))
+            delta = top + height - l_bot
+        self.changes, self.delta = changes, delta
         self.adjust_range()
+
+    def keyPressEvent(self, ev):
+        amount, d = None, 1
+        key = ev.key()
+        if key in (Qt.Key_Up, Qt.Key_Down, Qt.Key_J, Qt.Key_K):
+            amount = self.scrollbar.singleStep()
+            if key in (Qt.Key_Up, Qt.Key_K):
+                d = -1
+        elif key in (Qt.Key_PageUp, Qt.Key_PageDown):
+            amount = self.scrollbar.pageStep()
+            if key in (Qt.Key_PageUp,):
+                d = -1
+        elif key in (Qt.Key_Home, Qt.Key_End):
+            self.scrollbar.setValue(0 if key == Qt.Key_Home else self.scrollbar.maximum())
+
+        if amount is not None:
+            self.scrollbar.setValue(self.scrollbar.value() + d * amount)
+
 
 if __name__ == '__main__':
     app = QApplication([])
@@ -646,4 +736,3 @@ if __name__ == '__main__':
     app.exec_()
 
 # TODO: Add diff colors for other color schemes
-# TODO: Handle scroll wheel and key up/down events
