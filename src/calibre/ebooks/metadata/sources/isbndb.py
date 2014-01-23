@@ -38,7 +38,7 @@ class ISBNDB(Source):
     config_help_message = '<p>'+_('To use metadata from isbndb.com you must sign'
             ' up for a free account and get an isbndb key and enter it below.'
             ' Instructions to get the key are '
-            '<a href="http://isbndb.com/docs/api/30-keys.html">here</a>.')
+            '<a href="http://isbndb.com/api/v1/docs/keys">here</a>.')
 
 
     def __init__(self, *args, **kwargs):
