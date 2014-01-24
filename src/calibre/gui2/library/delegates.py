@@ -7,8 +7,8 @@ __docformat__ = 'restructuredtext en'
 
 import sys
 
-from PyQt4.Qt import (Qt, QApplication, QStyle, QIcon,  QDoubleSpinBox,
-        QVariant, QSpinBox, QStyledItemDelegate, QComboBox, QTextDocument,
+from PyQt4.Qt import (Qt, QApplication, QStyle, QIcon,  QDoubleSpinBox, QStyleOptionViewItemV4,
+        QVariant, QSpinBox, QStyledItemDelegate, QComboBox, QTextDocument, QSize,
         QAbstractTextDocumentLayout, QFont, QFontInfo, QDate, QDateTimeEdit, QDateTime)
 
 from calibre.gui2 import UNDEFINED_QDATETIME, error_dialog, rating_font
@@ -450,6 +450,21 @@ class CcBoolDelegate(QStyledItemDelegate):  # {{{
             val = 2 if val is None else 1 if not val else 0
         editor.setCurrentIndex(val)
 
+    def updateEditorGeometry(self, editor, option, index):
+        if editor is None:
+            return
+        opt = QStyleOptionViewItemV4(option)
+        self.initStyleOption(opt, index)
+        opt.showDecorationSelected = True
+        opt.decorationSize = QSize(0, 0)  # We want the editor to cover the decoration
+        style = QApplication.style()
+        geom = style.subElementRect(style.SE_ItemViewItemText, opt, None)
+
+        if editor.layoutDirection() == Qt.RightToLeft:
+            delta = editor.sizeHint().width() - geom.width()
+            if delta > 0:
+                geom.adjust(-delta, 0, 0, 0)
+        editor.setGeometry(geom)
 # }}}
 
 class CcTemplateDelegate(QStyledItemDelegate):  # {{{
