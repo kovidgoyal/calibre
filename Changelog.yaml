@@ -20,6 +20,40 @@
 #   new recipes:
 #     - title: 
 
+- version: 1.21.0
+  date: 2014-01-24
+
+  new features:
+    - title: "Edit book: Add a tool to automatically remove all unused CSS rules.  Useful for books created from templates that can have large numbers of CSS rules that dont match any actual content. Available via Tools->Remove unused CSS."
+
+    - title: "Edit book: Add a tool to split HTML files at multiple locations automatically.  To use it, right click in the file and choose 'Split at multiple locations'.  Useful if you want to split at all heading tags or all tags having a certain class and so on."
+
+    - title: "Book polishing: Add an option to automatically remove all unused CSS rules, works the same as the tool for Edit book, above."
+
+    - title: "Driver for ImCoSys imcoV6L"
+      tickets: [1266079]
+
+    - title: "Edit book: Allow editing of .plist files as XML"
+
+  bug fixes:
+    - title: "Metadata download: Fix downloading of metadata from Edelweiss not working because of website changes"
+
+    - title: "Ebook viewer: Do not override the background color specified in the book if the user has not set a background color in the viewer preferences"
+
+    - title: "Edit book: Handle EPUB files that erroneously list the OPF itself in the OPF manifest with an incorrect mime type"
+
+    - title: "Edit book: Prevent arrange into folders tool from moving files inside the META-INF folder"
+
+  improved recipes:
+    - Indian Express
+    - Daily Express
+    - Business Week Magazine
+    - New York Review of Books
+
+  new recipes:
+    - title: Various Turkish news sources
+      author: asalet_r
+
 - version: 1.20.0
   date: 2014-01-17
 
