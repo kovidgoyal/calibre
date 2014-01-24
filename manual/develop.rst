@@ -57,9 +57,13 @@ All the |app| python code is in the ``calibre`` package. This package contains t
           various transformations that are applied to the book during
           conversions live in :file:`oeb/transforms/*.py`. And the input and output
           plugins live in :file:`conversion/plugins/*.py`.
+        * Ebook editing happens using a different container object. All the
+          code for editing is in ``ebooks.oeb.polish`` in particular the
+          container object is in ``ebooks.oeb.polish.container``.
 
-    * library - The database back-end and the content server. See ``library.database2`` for the interface to the |app| library. ``library.server`` is the |app| Content Server.
-    * gui2 - The Graphical User Interface. GUI initialization happens in ``gui2.main`` and ``gui2.ui``. The ebook-viewer is in ``gui2.viewer``.
+    * db - The database back-end. See ``db.cache`` for the interface to the |app| library. With a DB object you can access this API via ``db.new_api``. The db object itself exposes a legacy API that should not be used in new code. The legacy API is in ``library.database2``.
+    * content server: ``library.server`` is the |app| Content Server.
+    * gui2 - The Graphical User Interface. GUI initialization happens in ``gui2.main`` and ``gui2.ui``. The ebook-viewer is in ``gui2.viewer``. The ebook editor is in ``gui2.tweak_book``.
 
 If you need help understanding the code, post in the `development forum <http://www.mobileread.com/forums/forumdisplay.php?f=240>`_
 and you will most likely get help from one of |app|'s many developers.
