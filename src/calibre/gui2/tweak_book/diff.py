@@ -6,7 +6,8 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import sys, re, unicodedata
+import sys, re, unicodedata, os
+from math import ceil
 from functools import partial
 from collections import namedtuple
 from difflib import SequenceMatcher
@@ -16,8 +17,10 @@ from PyQt4.Qt import (
     QSplitter, QApplication, QPlainTextDocumentLayout, QTextDocument, QTimer,
     QTextCursor, QTextCharFormat, Qt, QRect, QPainter, QPalette, QPen,
     QBrush, QColor, QTextLayout, QCursor, QFont, QSplitterHandle, QStyle,
-    QPainterPath, QHBoxLayout, QWidget, QScrollBar, QEventLoop, pyqtSignal)
+    QPainterPath, QHBoxLayout, QWidget, QScrollBar, QEventLoop, pyqtSignal,
+    QImage, QPixmap)
 
+from calibre import human_readable, fit_image
 from calibre.ebooks.oeb.polish.utils import guess_type
 from calibre.gui2.tweak_book import tprefs
 from calibre.gui2.tweak_book.editor import syntax_from_mime
@@ -83,8 +86,7 @@ class TextBrowser(PlainTextEdit):  # {{{
         pal.setColor(pal.Text, theme_color(theme, 'LineNr', 'fg'))
         pal.setColor(pal.BrightText, theme_color(theme, 'LineNrC', 'fg'))
         self.line_number_map = {}
-        self.changes = []
-        self.headers = []
+        self.changes, self.headers, self.images = [], [], {}
         self.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.diff_backgrounds = {
             'replace' : theme_color(theme, 'DiffReplace', 'bg'),
@@ -109,6 +111,7 @@ class TextBrowser(PlainTextEdit):  # {{{
         self.line_number_map.clear()
         del self.changes[:]
         del self.headers[:]
+        self.images.clear()
         self.setHorizontalScrollBarPolicy(Qt.ScrollBarAsNeeded)
 
     def update_line_number_area_width(self, block_count=0):
@@ -209,6 +212,15 @@ class TextBrowser(PlainTextEdit):  # {{{
             if y_top != y_bot:
                 painter.fillRect(0,  y_top, w, y_bot - y_top, self.diff_backgrounds[kind])
             lines.append((y_top, y_bot, kind))
+            if top in self.images:
+                img, maxw = self.images[top]
+                if bot > top + 1 and not img.isNull():
+                    y_top = self.blockBoundingGeometry(doc.findBlockByNumber(top+1)).translated(origin).y() + 3
+                    y_bot -= 3
+                    scaled, imgw, imgh = fit_image(img.width(), img.height(), maxw - 3, y_bot - y_top)
+                    painter.setRenderHint(QPainter.SmoothPixmapTransform, True)
+                    painter.drawPixmap(QRect(3, y_top, imgw, imgh), img)
+
         painter.end()
         PlainTextEdit.paintEvent(self, event)
         painter = QPainter(self.viewport())
@@ -360,6 +372,7 @@ class DiffSplit(QSplitter):  # {{{
 
     def __init__(self, parent=None):
         QSplitter.__init__(self, parent)
+        self._failed_img = None
 
         self.left, self.right = TextBrowser(parent=self), TextBrowser(right=True, parent=self)
         self.addWidget(self.left), self.addWidget(self.right)
@@ -386,7 +399,11 @@ class DiffSplit(QSplitter):  # {{{
         self.update()
 
     def add_diff(self, left_name, right_name, left_text, right_text, context=None, syntax=None):
-        is_text = isinstance(left_text, type('')) or isinstance(right_text, type(''))
+        left_text, right_text = left_text or '', right_text or ''
+        is_identical = len(left_text) == len(right_text) and left_text == right_text
+        is_text = isinstance(left_text, type('')) and isinstance(right_text, type(''))
+        left_name = left_name or '[%s]'%_('This file was added')
+        right_name = right_name or '[%s]'%_('This file was removed')
         self.left.headers.append((self.left.blockCount() - 1, left_name))
         self.right.headers.append((self.right.blockCount() - 1, right_name))
         for v in (self.left, self.right):
@@ -395,8 +412,75 @@ class DiffSplit(QSplitter):  # {{{
             (c.insertBlock(), c.insertBlock(), c.insertBlock())
 
         with BusyCursor():
-            if is_text:
+            if is_identical:
+                for v in (self.left, self.right):
+                    c = v.textCursor()
+                    c.movePosition(c.End)
+                    c.insertText('[%s]\n\n' % _('The files are identical'))
+            elif is_text:
                 self.add_text_diff(left_text, right_text, context, syntax)
+            elif syntax == 'raster_image':
+                self.add_image_diff(left_text, right_text)
+            else:
+                text = '[%s]' % _('Binary file of size: %s')
+                left_text, right_text = text % human_readable(len(left_text)), text % human_readable(len(right_text))
+                self.add_text_diff(left_text, right_text, None, None)
+
+    @property
+    def failed_img(self):
+        if self._failed_img is None:
+            i = QImage(200, 150, QImage.Format_ARGB32)
+            i.fill(Qt.white)
+            p = QPainter(i)
+            r = i.rect().adjusted(10, 10, -10, -10)
+            n = QPen(Qt.DashLine)
+            n.setColor(Qt.black)
+            p.setPen(n)
+            p.drawRect(r)
+            p.setPen(Qt.black)
+            f = self.font()
+            f.setPixelSize(20)
+            p.setFont(f)
+            p.drawText(r.adjusted(10, 0, -10, 0), Qt.AlignCenter | Qt.TextWordWrap, _('Image could not be rendered'))
+            p.end()
+            self._failed_img = QPixmap.fromImage(i)
+        return self._failed_img
+
+    def add_image_diff(self, left_data, right_data):
+        def load(data):
+            p = QPixmap()
+            p.loadFromData(bytes(data))
+            if data and p.isNull():
+                p = self.failed_img
+            return p
+        left_img, right_img = load(left_data), load(right_data)
+        change = []
+        for v, img, size in ((self.left, left_img, len(left_data)), (self.right, right_img, len(right_data))):
+            c = v.textCursor()
+            c.movePosition(c.End)
+            start = c.block().blockNumber()
+            lines, w, h = self.get_lines_for_image(img, v)
+            c.movePosition(c.StartOfBlock)
+            if size > 0:
+                c.insertText(_('Size: {0} Resolution: {1}x{2}').format(human_readable(size), img.width(), img.height()))
+                for i in xrange(lines + 1):
+                    c.insertBlock()
+            change.extend((start, c.block().blockNumber()))
+            if size > 0:
+                c.insertBlock()
+            v.images[start] = (img, w)
+        change.append('replace' if left_data and right_data else 'delete' if left_data else 'insert')
+        self.changes.append(Change(*change))
+        self.left.changes.append((change[0], change[1], change[-1]))
+        self.right.changes.append((change[2], change[3], change[-1]))
+
+    def get_lines_for_image(self, img, view):
+        if img.isNull():
+            return 0, 0, 0
+        w, h = img.width(), img.height()
+        scaled, w, h = fit_image(w, h, view.width() - 5, int(0.9 * view.height()))
+        line_height = view.blockBoundingRect(view.document().begin()).height()
+        return int(ceil(h / line_height)) + 1, w, h
 
     def add_text_diff(self, left_text, right_text, context, syntax):
         left_text = unicodedata.normalize('NFC', left_text)
@@ -596,7 +680,7 @@ class DiffSplit(QSplitter):  # {{{
                 block.layout().setAdditionalFormats(fmts)
 # }}}
 
-class DiffView(QWidget):
+class DiffView(QWidget):  # {{{
 
     SYNC_POSITION = 0.4
 
@@ -731,16 +815,25 @@ class DiffView(QWidget):
 
         if amount is not None:
             self.scrollbar.setValue(self.scrollbar.value() + d * amount)
-
+# }}}
 
 if __name__ == '__main__':
     app = QApplication([])
     w = DiffView()
     w.show()
     for l, r in zip(sys.argv[1::2], sys.argv[2::2]):
-        raw1 = open(l, 'rb').read().decode('utf-8')
-        raw2 = open(r, 'rb').read().decode('utf-8')
-        w.view.add_diff(l, r, raw1, raw2, syntax=syntax_from_mime(l, guess_type(l)), context=31)
+        raw1 = open(l, 'rb').read()
+        raw2 = open(r, 'rb').read()
+        syntax = syntax_from_mime(l, guess_type(l))
+        if syntax is None and '.' not in os.path.basename(l):
+            # TODO: Add some kind of simple file type from contents detection.
+            syntax = 'text'  # Assume text file
+        if syntax not in {'raster_image', None}:
+            try:
+                raw1, raw2 = raw1.decode('utf-8'), raw2.decode('utf-8')
+            except UnicodeDecodeError:
+                pass
+        w.view.add_diff(l, r, raw1, raw2, syntax=syntax, context=31)
     w.finalize()
     app.exec_()
 
