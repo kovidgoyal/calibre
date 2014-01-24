@@ -408,7 +408,7 @@ class TagBrowserWidget(QWidget):  # {{{
         sb.bg = QActionGroup(sb)
 
         # Must be in the same order as db2.CATEGORY_SORTS
-        for i, x in enumerate((_('Sort by name'), _('Sort by popularity'),
+        for i, x in enumerate((_('Sort by name'), _('Sort by number of books'),
                   _('Sort by average rating'))):
             a = sb.m.addAction(x)
             sb.bg.addAction(a)
