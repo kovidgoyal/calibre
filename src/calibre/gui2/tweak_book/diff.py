@@ -191,11 +191,19 @@ class TextBrowser(PlainTextEdit):  # {{{
         top = int(self.blockBoundingGeometry(block).translated(self.contentOffset()).top())
         bottom = top + int(self.blockBoundingRect(block).height())
         painter.setPen(self.line_number_palette.color(QPalette.Text))
+        change_starts = {x[0] for x in self.changes}
 
         while block.isValid() and top <= ev.rect().bottom():
             r = ev.rect()
             if block.isVisible() and bottom >= r.top():
                 text = unicode(self.line_number_map.get(num, ''))
+                is_start = num in change_starts
+                if is_start:
+                    painter.save()
+                    f = QFont(self.font())
+                    f.setBold(True)
+                    painter.setFont(f)
+                    painter.setPen(self.line_number_palette.color(QPalette.BrightText))
                 if text == '-':
                     painter.drawLine(r.left() + 2, (top + bottom)//2, r.right() - 2, (top + bottom)//2)
                 else:
@@ -205,6 +213,8 @@ class TextBrowser(PlainTextEdit):  # {{{
                     else:
                         painter.drawText(r.left(), top, r.right() - 5, self.fontMetrics().height(),
                                 Qt.AlignRight, text)
+                if is_start:
+                    painter.restore()
             block = block.next()
             top = bottom
             bottom = top + int(self.blockBoundingRect(block).height())
