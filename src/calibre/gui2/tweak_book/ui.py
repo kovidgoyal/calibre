@@ -6,7 +6,7 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import unicodedata
+import unicodedata, os
 from functools import partial
 from itertools import product
 from future_builtins import map
@@ -231,7 +231,9 @@ class Main(MainWindow):
         self.status_bar.addPermanentWidget(self.boss.save_manager.status_widget)
         self.cursor_position_widget = CursorPositionWidget(self)
         self.status_bar.addPermanentWidget(self.cursor_position_widget)
-        self.status_bar.addWidget(QLabel(_('{0} {1} created by {2}').format(__appname__, get_version(), 'Kovid Goyal')))
+        self.status_bar_default_msg = la = QLabel(_('{0} {1} created by {2}').format(__appname__, get_version(), 'Kovid Goyal'))
+        la.base_template = unicode(la.text())
+        self.status_bar.addWidget(la)
         f = self.status_bar.font()
         f.setBold(True)
         self.status_bar.setFont(f)
@@ -581,7 +583,8 @@ class Main(MainWindow):
         return super(Main, self).resizeEvent(ev)
 
     def update_window_title(self):
-        self.setWindowTitle(self.current_metadata.title + ' [%s] - %s' %(current_container().book_type.upper(), self.APP_NAME))
+        fname = os.path.basename(current_container().path_to_ebook)
+        self.setWindowTitle(self.current_metadata.title + ' [%s] :: %s :: %s' %(current_container().book_type.upper(), fname, self.APP_NAME))
 
     def closeEvent(self, e):
         if not self.boss.confirm_quit():
