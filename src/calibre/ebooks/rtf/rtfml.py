@@ -114,7 +114,9 @@ class RTFMLizer(object):
                 output += '{\\page }'
         for item in self.oeb_book.spine:
             self.log.debug('Converting %s to RTF markup...' % item.href)
-            content = unicode(etree.tostring(item.data, encoding=unicode))
+            # Removing comments is needed as comments with -- inside them can
+            # cause fromstring() to fail
+            content = re.sub(ur'<!--.*?-->', u'', etree.tostring(item.data, encoding=unicode), flags=re.DOTALL)
             content = self.remove_newlines(content)
             content = self.remove_tabs(content)
             content = etree.fromstring(content)
