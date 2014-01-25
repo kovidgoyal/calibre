@@ -384,7 +384,6 @@ class DiffSplit(QSplitter):  # {{{
 
     def clear(self):
         self.left.clear(), self.right.clear()
-        self.changes = []
 
     def finalize(self):
         # check horizontal scrollbars and force both if scrollbar visible only at one side
@@ -470,7 +469,6 @@ class DiffSplit(QSplitter):  # {{{
                 c.insertBlock()
             v.images[start] = (img, w)
         change.append('replace' if left_data and right_data else 'delete' if left_data else 'insert')
-        self.changes.append(Change(*change))
         self.left.changes.append((change[0], change[1], change[-1]))
         self.right.changes.append((change[2], change[3], change[-1]))
 
@@ -497,7 +495,6 @@ class DiffSplit(QSplitter):  # {{{
         self.left_insert = partial(self.do_insert, cl, left_highlight, self.left.line_number_map)
         self.right_insert = partial(self.do_insert, cr, right_highlight, self.right.line_number_map)
 
-        ochanges = []
         self.changes = []
 
         if context is None:
@@ -530,7 +527,7 @@ class DiffSplit(QSplitter):  # {{{
                 self.left.changes.append((ltop, lbot, kind))
                 self.right.changes.append((rtop, rbot, kind))
 
-        self.changes = ochanges + self.changes
+        del self.changes
 
     def coalesce_changes(self):
         'Merge neighboring changes of the same kind, if any'
