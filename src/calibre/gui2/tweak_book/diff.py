@@ -18,7 +18,7 @@ from PyQt4.Qt import (
     QTextCursor, QTextCharFormat, Qt, QRect, QPainter, QPalette, QPen,
     QBrush, QColor, QTextLayout, QCursor, QFont, QSplitterHandle, QStyle,
     QPainterPath, QHBoxLayout, QWidget, QScrollBar, QEventLoop, pyqtSignal,
-    QImage, QPixmap)
+    QImage, QPixmap, QMenu, QIcon)
 
 from calibre import human_readable, fit_image
 from calibre.ebooks.oeb.polish.utils import guess_type
@@ -51,6 +51,8 @@ class TextBrowser(PlainTextEdit):  # {{{
 
     def __init__(self, right=False, parent=None):
         PlainTextEdit.__init__(self, parent)
+        self.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.customContextMenuRequested.connect(self.show_context_menu)
         self.setFocusPolicy(Qt.NoFocus)
         self.right = right
         self.setReadOnly(True)
@@ -105,6 +107,15 @@ class TextBrowser(PlainTextEdit):  # {{{
             f = QTextCharFormat()
             f.setBackground(self.diff_backgrounds[x])
             setattr(self, '%s_format' % x, f)
+
+    def show_context_menu(self, pos):
+        m = QMenu(self)
+        a = m.addAction
+        i = unicode(self.textCursor().selectedText())
+        if i:
+            a(QIcon(I('edit-copy.png')), _('Copy to clipboard'), self.copy)
+        if len(m.actions()) > 0:
+            m.exec_(self.mapToGlobal(pos))
 
     def clear(self):
         PlainTextEdit.clear(self)
@@ -425,6 +436,7 @@ class DiffSplit(QSplitter):  # {{{
                 left_text, right_text = text % human_readable(len(left_text)), text % human_readable(len(right_text))
                 self.add_text_diff(left_text, right_text, None, None)
 
+    # image diffs {{{
     @property
     def failed_img(self):
         if self._failed_img is None:
@@ -455,7 +467,7 @@ class DiffSplit(QSplitter):  # {{{
         left_img, right_img = load(left_data), load(right_data)
         change = []
         # Let any initial resizing of the window finish in case this is the
-        # first diff, to avoid expensize resize calculation later
+        # first diff, to avoid the expensive resize calculation later
         QApplication.processEvents(QEventLoop.ExcludeUserInputEvents | QEventLoop.ExcludeSocketNotifiers)
         for v, img, size in ((self.left, left_img, len(left_data)), (self.right, right_img, len(right_data))):
             c = v.textCursor()
@@ -516,7 +528,9 @@ class DiffSplit(QSplitter):  # {{{
         scaled, w, h = fit_image(w, h, view.width() - 5, int(0.9 * view.height()))
         line_height = view.blockBoundingRect(view.document().begin()).height()
         return int(ceil(h / line_height)) + 1, w
+    # }}}
 
+    # text diffs {{{
     def add_text_diff(self, left_text, right_text, context, syntax):
         left_text = unicodedata.normalize('NFC', left_text)
         right_text = unicodedata.normalize('NFC', right_text)
@@ -712,6 +726,7 @@ class DiffSplit(QSplitter):  # {{{
         for block, fmts in ((lsb, lfmts), (rsb, rfmts)):
             if fmts:
                 block.layout().setAdditionalFormats(fmts)
+    # }}}
 # }}}
 
 class DiffView(QWidget):  # {{{
