@@ -90,7 +90,7 @@ extensions = [
         ),
 
     Extension('_patiencediff_c',
-        ['calibre/utils/diff/_patiencediff_c.c'],
+        ['calibre/gui2/tweak_book/diff/_patiencediff_c.c'],
         ),
 
     Extension('icu',
