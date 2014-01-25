@@ -9,7 +9,7 @@ __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 import sys, re, unicodedata, os
 from math import ceil
 from functools import partial
-from collections import namedtuple
+from collections import namedtuple, OrderedDict
 from difflib import SequenceMatcher
 from future_builtins import zip
 
@@ -86,7 +86,7 @@ class TextBrowser(PlainTextEdit):  # {{{
         pal.setColor(pal.Text, theme_color(theme, 'LineNr', 'fg'))
         pal.setColor(pal.BrightText, theme_color(theme, 'LineNrC', 'fg'))
         self.line_number_map = {}
-        self.changes, self.headers, self.images = [], [], {}
+        self.changes, self.headers, self.images = [], [], OrderedDict()
         self.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.diff_backgrounds = {
             'replace' : theme_color(theme, 'DiffReplace', 'bg'),
@@ -213,7 +213,7 @@ class TextBrowser(PlainTextEdit):  # {{{
                 painter.fillRect(0,  y_top, w, y_bot - y_top, self.diff_backgrounds[kind])
             lines.append((y_top, y_bot, kind))
             if top in self.images:
-                img, maxw = self.images[top]
+                img, maxw = self.images[top][:2]
                 if bot > top + 1 and not img.isNull():
                     y_top = self.blockBoundingGeometry(doc.findBlockByNumber(top+1)).translated(origin).y() + 3
                     y_bot -= 3
@@ -454,31 +454,68 @@ class DiffSplit(QSplitter):  # {{{
             return p
         left_img, right_img = load(left_data), load(right_data)
         change = []
+        # Let any initial resizing of the window finish in case this is the
+        # first diff, to avoid expensize resize calculation later
+        QApplication.processEvents(QEventLoop.ExcludeUserInputEvents | QEventLoop.ExcludeSocketNotifiers)
         for v, img, size in ((self.left, left_img, len(left_data)), (self.right, right_img, len(right_data))):
             c = v.textCursor()
             c.movePosition(c.End)
             start = c.block().blockNumber()
-            lines, w, h = self.get_lines_for_image(img, v)
+            lines, w = self.get_lines_for_image(img, v)
             c.movePosition(c.StartOfBlock)
             if size > 0:
+                c.beginEditBlock()
                 c.insertText(_('Size: {0} Resolution: {1}x{2}').format(human_readable(size), img.width(), img.height()))
                 for i in xrange(lines + 1):
                     c.insertBlock()
             change.extend((start, c.block().blockNumber()))
             if size > 0:
                 c.insertBlock()
-            v.images[start] = (img, w)
+            c.endEditBlock()
+            v.images[start] = (img, w, lines)
         change.append('replace' if left_data and right_data else 'delete' if left_data else 'insert')
         self.left.changes.append((change[0], change[1], change[-1]))
         self.right.changes.append((change[2], change[3], change[-1]))
+        QApplication.processEvents(QEventLoop.ExcludeUserInputEvents | QEventLoop.ExcludeSocketNotifiers)
+
+    def resized(self):
+        ' Resize images to fit in new view size and adjust all line number references accordingly '
+        for v in (self.left, self.right):
+            changes = []
+            for i, (top, bot, kind) in enumerate(v.changes):
+                if top in v.images:
+                    img, oldw, oldlines = v.images[top]
+                    lines, w = self.get_lines_for_image(img, v)
+                    if lines != oldlines:
+                        changes.append((i, lines, lines - oldlines))
+
+            for i, lines, delta in changes:
+                top, bot, kind = v.changes[i]
+                c = QTextCursor(v.document().findBlockByNumber(top+1))
+                c.beginEditBlock()
+                c.movePosition(c.StartOfBlock)
+                if delta > 0:
+                    for _ in xrange(delta):
+                        c.insertBlock()
+                else:
+                    c.movePosition(c.NextBlock, c.KeepAnchor, -delta)
+                    c.removeSelectedText()
+                c.endEditBlock()
+                v.images[top] = (img, w, lines)
+                def mapnum(x):
+                    return x if x <= top else x + delta
+                v.line_number_map = {
+                    mapnum(x):val for x, val in v.line_number_map.iteritems()}
+                v.changes = [(mapnum(t), mapnum(b), kind) for t, b, kind in v.changes]
+                v.headers = [(mapnum(x), name) for x, name in v.headers]
 
     def get_lines_for_image(self, img, view):
         if img.isNull():
-            return 0, 0, 0
+            return 0, 0
         w, h = img.width(), img.height()
         scaled, w, h = fit_image(w, h, view.width() - 5, int(0.9 * view.height()))
         line_height = view.blockBoundingRect(view.document().begin()).height()
-        return int(ceil(h / line_height)) + 1, w, h
+        return int(ceil(h / line_height)) + 1, w
 
     def add_text_diff(self, left_text, right_text, context, syntax):
         left_text = unicodedata.normalize('NFC', left_text)
@@ -708,7 +745,9 @@ class DiffView(QWidget):  # {{{
         self.resize_timer.start(100)
 
     def resize_debounced(self):
-        self.adjust_range()
+        self.view.resized()
+        self.calculate_length()
+        self.view.handle(1).update()
 
     @property
     def syncpos(self):
