@@ -15,10 +15,10 @@ from future_builtins import zip
 
 from PyQt4.Qt import (
     QSplitter, QApplication, QPlainTextDocumentLayout, QTextDocument, QTimer,
-    QTextCursor, QTextCharFormat, Qt, QRect, QPainter, QPalette, QPen,
-    QBrush, QColor, QTextLayout, QCursor, QFont, QSplitterHandle, QStyle,
-    QPainterPath, QHBoxLayout, QWidget, QScrollBar, QEventLoop, pyqtSignal,
-    QImage, QPixmap, QMenu, QIcon)
+    QTextCursor, QTextCharFormat, Qt, QRect, QPainter, QPalette, QPen, QBrush,
+    QColor, QTextLayout, QCursor, QFont, QSplitterHandle, QPainterPath,
+    QHBoxLayout, QWidget, QScrollBar, QEventLoop, pyqtSignal, QImage, QPixmap,
+    QMenu, QIcon)
 
 from calibre import human_readable, fit_image
 from calibre.gui2.tweak_book import tprefs
@@ -50,6 +50,7 @@ class TextBrowser(PlainTextEdit):  # {{{
 
     def __init__(self, right=False, parent=None):
         PlainTextEdit.__init__(self, parent)
+        self.setFrameStyle(0)
         self.side_margin = 0
         self.setContextMenuPolicy(Qt.CustomContextMenu)
         self.customContextMenuRequested.connect(self.show_context_menu)
@@ -157,8 +158,7 @@ class TextBrowser(PlainTextEdit):  # {{{
             self.setViewportMargins(self.side_margin, 0, 0, 0)
 
     def available_width(self):
-        fw = QApplication.style().pixelMetric(QStyle.PM_DefaultFrameWidth)
-        return self.width() - fw - self.side_margin
+        return self.width() - self.side_margin
 
     def line_number_area_width(self):
         digits = 1
@@ -333,7 +333,6 @@ class DiffSplitHandle(QSplitterHandle):  # {{{
         w = self.width()
         h = self.height()
         painter.setRenderHints(QPainter.Antialiasing, True)
-        fw = QApplication.style().pixelMetric(QStyle.PM_DefaultFrameWidth)
 
         C = 16  # Curve factor.
 
@@ -356,10 +355,10 @@ class DiffSplitHandle(QSplitterHandle):  # {{{
         for (ltop, lbot, kind), (rtop, rbot, kind) in zip(left.changes, right.changes):
             if lbot < lfv and rbot < rfv:
                 continue
-            ly_top = left.blockBoundingGeometry(ldoc.findBlockByNumber(ltop)).translated(lorigin).y() + fw
-            ly_bot = left.blockBoundingGeometry(ldoc.findBlockByNumber(lbot)).translated(lorigin).y() + fw
-            ry_top = right.blockBoundingGeometry(rdoc.findBlockByNumber(rtop)).translated(rorigin).y() + fw
-            ry_bot = right.blockBoundingGeometry(rdoc.findBlockByNumber(rbot)).translated(rorigin).y() + fw
+            ly_top = left.blockBoundingGeometry(ldoc.findBlockByNumber(ltop)).translated(lorigin).y()
+            ly_bot = left.blockBoundingGeometry(ldoc.findBlockByNumber(lbot)).translated(lorigin).y()
+            ry_top = right.blockBoundingGeometry(rdoc.findBlockByNumber(rtop)).translated(rorigin).y()
+            ry_bot = right.blockBoundingGeometry(rdoc.findBlockByNumber(rbot)).translated(rorigin).y()
             if max(ly_top, ly_bot, ry_top, ry_bot) < 0:
                 continue
             if min(ly_top, ly_bot, ry_top, ry_bot) > h:
@@ -399,7 +398,7 @@ class DiffSplitHandle(QSplitterHandle):  # {{{
                 break
             ly = painter.boundingRect(3, ly_top, left.width(), ly_bot - ly_top - 5, Qt.TextSingleLine, text).bottom() + 3
             ry = painter.boundingRect(3, ry_top, right.width(), ry_bot - ry_top - 5, Qt.TextSingleLine, text).bottom() + 3
-            line = create_line(ly + fw, ry + fw)
+            line = create_line(ly, ry)
             painter.setPen(QPen(left.palette().text(), 2))
             painter.setRenderHints(QPainter.Antialiasing, ly != ry)
             painter.drawPath(line)
