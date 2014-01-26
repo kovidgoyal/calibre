@@ -82,7 +82,7 @@ def changed_files(list_of_names1, list_of_names2, get_data1, get_data2):
                 adds.discard(n)
                 break
         else:
-            cache.set_left(name, adata[name])
+            cache.set_left(name, rdata[name])
             removed_names.add(name)
     for name in adds:
         cache.set_right(name, adata[name])
@@ -217,12 +217,12 @@ class Diff(Dialog):
             add(args, kwargs)
 
         for name in sorted(added_names, key=numeric_sort_key):
-            args = (_('[This file was added]'), name, None, cache.right(name))
+            args = (_('[%s was added]') % name, name, None, cache.right(name))
             kwargs = {'syntax':syntax_map.get(name, None), 'context':self.context}
             add(args, kwargs)
 
         for name in sorted(removed_names, key=numeric_sort_key):
-            args = (name, _('[This file was removed]'), cache.left(name), None)
+            args = (name, _('[%s was removed]') % name, cache.left(name), None)
             kwargs = {'syntax':syntax_map.get(name, None), 'context':self.context}
             add(args, kwargs)
 

@@ -461,7 +461,7 @@ class DiffSplit(QSplitter):  # {{{
                     c.movePosition(c.End)
                     c.insertText('[%s]\n\n' % _('The files are identical'))
             elif left_name != right_name and not left_text and not right_text:
-                self.add_text_diff(_('[This file was renamed to %s]') % right_name, _('[This file was renamed from %s]') % left_name, context, syntax)
+                self.add_text_diff(_('[This file was renamed to %s]') % right_name, _('[This file was renamed from %s]') % left_name, context, None)
                 for v in (self.left, self.right):
                     v.appendPlainText('\n')
             elif is_text:
@@ -872,10 +872,11 @@ class DiffView(QWidget):  # {{{
         self.syncing = False
 
     def clear(self):
-        self.view.clear()
-        self.changes = []
-        self.delta = 0
-        self.scrollbar.setRange(0, 0)
+        with self:
+            self.view.clear()
+            self.changes = []
+            self.delta = 0
+            self.scrollbar.setRange(0, 0)
 
     def adjust_range(self):
         ls, rs = self.view.left.verticalScrollBar(), self.view.right.verticalScrollBar()
