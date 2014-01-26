@@ -772,6 +772,7 @@ class DiffSplit(QSplitter):  # {{{
             if fmts:
                 block.layout().setAdditionalFormats(fmts)
     # }}}
+
 # }}}
 
 class DiffView(QWidget):  # {{{

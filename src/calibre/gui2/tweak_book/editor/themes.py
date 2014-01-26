@@ -233,5 +233,5 @@ def theme_color(theme, name, attr):
     try:
         return getattr(theme[name], attr).color()
     except (KeyError, AttributeError):
-        return getattr(THEMES[default_theme()], attr).color()
+        return getattr(THEMES[default_theme()][name], attr).color()
 
