@@ -929,4 +929,3 @@ class DiffView(QWidget):  # {{{
             self.scrollbar.setValue(self.scrollbar.value() + d * amount)
 # }}}
 
-# TODO: Add diff colors for other color schemes

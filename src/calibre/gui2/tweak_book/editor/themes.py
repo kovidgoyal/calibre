@@ -61,6 +61,11 @@ SOLARIZED = \
 
     Error        us=wave uc={red}
     Tooltip      fg=black bg=ffffed
+
+    DiffDelete   bg={base02} fg={red}
+    DiffInsert   bg={base02} fg={green}
+    DiffReplace  bg={base02} fg={blue}
+    DiffReplaceReplace bg={base03}
     '''
 # }}}
 
@@ -96,6 +101,11 @@ THEMES = {
     Special      fg=e7f6da
     Error        us=wave uc=red
     SpecialCharacter bg={cursor_loc}
+
+    DiffDelete   bg=341414 fg=642424
+    DiffInsert   bg=143414 fg=246424
+    DiffReplace  bg=141434 fg=242464
+    DiffReplaceReplace bg=002050
 
     '''.format(
         cursor_loc='323232',
