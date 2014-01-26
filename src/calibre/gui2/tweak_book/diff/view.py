@@ -823,7 +823,7 @@ class DiffView(QWidget):  # {{{
 
     @property
     def syncpos(self):
-        return self.scrollbar.value() + int(self.scrollbar.pageStep() * self.SYNC_POSITION)
+        return int(ceil(self.scrollbar.pageStep() * self.SYNC_POSITION))
 
     def get_position_from_scrollbar(self, which):
         changes = (self.changes, self.view.left.changes, self.view.right.changes)[which]
@@ -832,9 +832,12 @@ class DiffView(QWidget):  # {{{
         prev = (0, 0, None)
         for i, (top, bot, kind) in enumerate(changes):
             if syncpos <= bot:
-                if top <= syncpos and top != bot:
+                if top <= syncpos:
                     # syncpos is inside a change
-                    ratio = float(syncpos - top) / (bot - top)
+                    try:
+                        ratio = float(syncpos - top) / (bot - top)
+                    except ZeroDivisionError:
+                        ratio = 0
                     return 'in', i, ratio
                 else:
                     # syncpos is after the change
@@ -850,7 +853,6 @@ class DiffView(QWidget):  # {{{
     def scroll_to(self, which, position):
         changes = (self.changes, self.view.left.changes, self.view.right.changes)[which]
         bar = self.bars[which]
-        syncpos = self.syncpos
         val = None
         if position[0] == 'in':
             change_idx, ratio = position[1:]
@@ -860,7 +862,7 @@ class DiffView(QWidget):  # {{{
             change_idx, offset = position[1:]
             start = 0 if change_idx < 0 else changes[change_idx][1]
             val = start + offset
-        bar.setValue(val - syncpos)
+        bar.setValue(val - self.syncpos)
 
     def scrolled(self, which, *args):
         if self.syncing:
