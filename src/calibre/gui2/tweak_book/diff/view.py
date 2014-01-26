@@ -50,6 +50,7 @@ class TextBrowser(PlainTextEdit):  # {{{
 
     def __init__(self, right=False, parent=None):
         PlainTextEdit.__init__(self, parent)
+        self.side_margin = 0
         self.setContextMenuPolicy(Qt.CustomContextMenu)
         self.customContextMenuRequested.connect(self.show_context_menu)
         self.setFocusPolicy(Qt.NoFocus)
@@ -149,10 +150,15 @@ class TextBrowser(PlainTextEdit):  # {{{
         self.setHorizontalScrollBarPolicy(Qt.ScrollBarAsNeeded)
 
     def update_line_number_area_width(self, block_count=0):
+        self.side_margin = self.line_number_area_width()
         if self.right:
-            self.setViewportMargins(0, 0, self.line_number_area_width(), 0)
+            self.setViewportMargins(0, 0, self.side_margin, 0)
         else:
-            self.setViewportMargins(self.line_number_area_width(), 0, 0, 0)
+            self.setViewportMargins(self.side_margin, 0, 0, 0)
+
+    def available_width(self):
+        fw = QApplication.style().pixelMetric(QStyle.PM_DefaultFrameWidth)
+        return self.width() - fw - self.side_margin
 
     def line_number_area_width(self):
         digits = 1
@@ -219,7 +225,7 @@ class TextBrowser(PlainTextEdit):  # {{{
             num += 1
 
     def paintEvent(self, event):
-        w = self.width()
+        w = event.rect().width()
         painter = QPainter(self.viewport())
         painter.setClipRect(event.rect())
         floor = event.rect().bottom()
@@ -261,7 +267,7 @@ class TextBrowser(PlainTextEdit):  # {{{
                 if bot > top + 1 and not img.isNull():
                     y_top = self.blockBoundingGeometry(doc.findBlockByNumber(top+1)).translated(origin).y() + 3
                     y_bot -= 3
-                    scaled, imgw, imgh = fit_image(img.width(), img.height(), maxw - 3, y_bot - y_top)
+                    scaled, imgw, imgh = fit_image(img.width(), img.height(), w - 3, y_bot - y_top)
                     painter.setRenderHint(QPainter.SmoothPixmapTransform, True)
                     painter.drawPixmap(QRect(3, y_top, imgw, imgh), img)
 
@@ -520,8 +526,7 @@ class DiffSplit(QSplitter):  # {{{
                 for i in xrange(lines + 1):
                     c.insertBlock()
             change.extend((start, c.block().blockNumber()))
-            if size > 0:
-                c.insertBlock()
+            c.insertBlock()
             c.endEditBlock()
             v.images[start] = (img, w, lines)
         change.append('replace' if left_data and right_data else 'delete' if left_data else 'insert')
@@ -538,9 +543,9 @@ class DiffSplit(QSplitter):  # {{{
                     img, oldw, oldlines = v.images[top]
                     lines, w = self.get_lines_for_image(img, v)
                     if lines != oldlines:
-                        changes.append((i, lines, lines - oldlines))
+                        changes.append((i, lines, lines - oldlines, img, w))
 
-            for i, lines, delta in changes:
+            for i, lines, delta, img, w in changes:
                 top, bot, kind = v.changes[i]
                 c = QTextCursor(v.document().findBlockByNumber(top+1))
                 c.beginEditBlock()
@@ -559,12 +564,13 @@ class DiffSplit(QSplitter):  # {{{
                     mapnum(x):val for x, val in v.line_number_map.iteritems()}
                 v.changes = [(mapnum(t), mapnum(b), kind) for t, b, kind in v.changes]
                 v.headers = [(mapnum(x), name) for x, name in v.headers]
+                v.images = OrderedDict((mapnum(x), v) for x, v in v.images.iteritems())
 
     def get_lines_for_image(self, img, view):
         if img.isNull():
             return 0, 0
         w, h = img.width(), img.height()
-        scaled, w, h = fit_image(w, h, view.width() - 5, int(0.9 * view.height()))
+        scaled, w, h = fit_image(w, h, view.available_width() - 3, int(0.9 * view.height()))
         line_height = view.blockBoundingRect(view.document().begin()).height()
         return int(ceil(h / line_height)) + 1, w
     # }}}
