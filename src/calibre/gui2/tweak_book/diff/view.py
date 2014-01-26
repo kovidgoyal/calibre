@@ -6,7 +6,7 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import sys, re, unicodedata, os
+import re, unicodedata
 from math import ceil
 from functools import partial
 from collections import namedtuple, OrderedDict
@@ -21,9 +21,7 @@ from PyQt4.Qt import (
     QImage, QPixmap, QMenu, QIcon)
 
 from calibre import human_readable, fit_image
-from calibre.ebooks.oeb.polish.utils import guess_type
 from calibre.gui2.tweak_book import tprefs
-from calibre.gui2.tweak_book.editor import syntax_from_mime
 from calibre.gui2.tweak_book.editor.text import PlainTextEdit, get_highlighter, default_font_family, LineNumbers
 from calibre.gui2.tweak_book.editor.themes import THEMES, default_theme, theme_color
 from calibre.utils.diff import get_sequence_matcher
@@ -445,7 +443,7 @@ class DiffSplit(QSplitter):  # {{{
 
     def add_diff(self, left_name, right_name, left_text, right_text, context=None, syntax=None):
         left_text, right_text = left_text or '', right_text or ''
-        is_identical = len(left_text) == len(right_text) and left_text == right_text
+        is_identical = len(left_text) == len(right_text) and left_text == right_text and left_name == right_name
         is_text = isinstance(left_text, type('')) and isinstance(right_text, type(''))
         left_name = left_name or '[%s]'%_('This file was added')
         right_name = right_name or '[%s]'%_('This file was removed')
@@ -462,6 +460,10 @@ class DiffSplit(QSplitter):  # {{{
                     c = v.textCursor()
                     c.movePosition(c.End)
                     c.insertText('[%s]\n\n' % _('The files are identical'))
+            elif left_name != right_name and not left_text and not right_text:
+                self.add_text_diff(_('[This file was renamed to %s]') % right_name, _('[This file was renamed from %s]') % left_name, context, syntax)
+                for v in (self.left, self.right):
+                    v.appendPlainText('\n')
             elif is_text:
                 self.add_text_diff(left_text, right_text, context, syntax)
             elif syntax == 'raster_image':
@@ -470,6 +472,8 @@ class DiffSplit(QSplitter):  # {{{
                 text = '[%s]' % _('Binary file of size: %s')
                 left_text, right_text = text % human_readable(len(left_text)), text % human_readable(len(right_text))
                 self.add_text_diff(left_text, right_text, None, None)
+                for v in (self.left, self.right):
+                    v.appendPlainText('\n')
 
     # image diffs {{{
     @property
@@ -777,6 +781,7 @@ class DiffView(QWidget):  # {{{
         l.setMargin(0), l.setSpacing(0)
         self.view = DiffSplit(self)
         l.addWidget(self.view)
+        self.add_diff = self.view.add_diff
         self.scrollbar = QScrollBar(self)
         l.addWidget(self.scrollbar)
         self.syncing = False
@@ -870,14 +875,14 @@ class DiffView(QWidget):  # {{{
         self.view.clear()
         self.changes = []
         self.delta = 0
+        self.scrollbar.setRange(0, 0)
 
     def adjust_range(self):
         ls, rs = self.view.left.verticalScrollBar(), self.view.right.verticalScrollBar()
-        page_step = self.view.left.verticalScrollBar().pageStep()
         self.scrollbar.setPageStep(min(ls.pageStep(), rs.pageStep()))
         self.scrollbar.setSingleStep(min(ls.singleStep(), rs.singleStep()))
         self.scrollbar.setRange(0, ls.maximum() + self.delta)
-        self.scrollbar.setVisible(self.scrollbar.maximum() > page_step)
+        self.scrollbar.setVisible(self.view.left.blockCount() > ls.pageStep() or self.view.right.blockCount() > rs.pageStep())
 
     def finalize(self):
         self.view.finalize()
@@ -913,25 +918,5 @@ class DiffView(QWidget):  # {{{
         if amount is not None:
             self.scrollbar.setValue(self.scrollbar.value() + d * amount)
 # }}}
-
-if __name__ == '__main__':
-    app = QApplication([])
-    w = DiffView()
-    w.show()
-    for l, r in zip(sys.argv[1::2], sys.argv[2::2]):
-        raw1 = open(l, 'rb').read()
-        raw2 = open(r, 'rb').read()
-        syntax = syntax_from_mime(l, guess_type(l))
-        if syntax is None and '.' not in os.path.basename(l):
-            # TODO: Add some kind of simple file type from contents detection.
-            syntax = 'text'  # Assume text file
-        if syntax not in {'raster_image', None}:
-            try:
-                raw1, raw2 = raw1.decode('utf-8'), raw2.decode('utf-8')
-            except UnicodeDecodeError:
-                pass
-        w.view.add_diff(l, r, raw1, raw2, syntax=syntax, context=31)
-    w.finalize()
-    app.exec_()
 
 # TODO: Add diff colors for other color schemes
