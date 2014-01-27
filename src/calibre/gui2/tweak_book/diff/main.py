@@ -11,7 +11,7 @@ from functools import partial
 from PyQt4.Qt import (
     QGridLayout, QToolButton, QIcon, QRadioButton, QMenu, QApplication, Qt,
     QSize, QWidget, QLabel, QStackedLayout, QPainter, QRect, QVBoxLayout,
-    QCursor, QEventLoop)
+    QCursor, QEventLoop, QKeySequence)
 
 from calibre.gui2 import info_dialog
 from calibre.gui2.progress_indicator import ProgressIndicator
@@ -244,6 +244,10 @@ class Diff(Dialog):
                 return  # The enter key is used by the search box, so prevent it closing the dialog
             if ev.key() == Qt.Key_Slash:
                 return self.search.setFocus(Qt.OtherFocusReason)
+            if ev.matches(QKeySequence.Copy):
+                text = self.view.view.left.selected_text + self.view.view.right.selected_text
+                if text:
+                    QApplication.clipboard().setText(text)
             return Dialog.keyPressEvent(self, ev)
 
 if __name__ == '__main__':

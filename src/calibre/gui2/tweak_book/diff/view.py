@@ -20,7 +20,7 @@ from PyQt4.Qt import (
     QTextCursor, QTextCharFormat, Qt, QRect, QPainter, QPalette, QPen, QBrush,
     QColor, QTextLayout, QCursor, QFont, QSplitterHandle, QPainterPath,
     QHBoxLayout, QWidget, QScrollBar, QEventLoop, pyqtSignal, QImage, QPixmap,
-    QMenu, QIcon)
+    QMenu, QIcon, QKeySequence)
 
 from calibre import human_readable, fit_image
 from calibre.gui2 import info_dialog
@@ -119,7 +119,7 @@ class TextBrowser(PlainTextEdit):  # {{{
         a = m.addAction
         i = unicode(self.textCursor().selectedText())
         if i:
-            a(QIcon(I('edit-copy.png')), _('Copy to clipboard'), self.copy)
+            a(QIcon(I('edit-copy.png')), _('Copy to clipboard'), self.copy).setShortcut(QKeySequence.Copy)
 
         if len(self.changes) > 0:
             try:
@@ -148,6 +148,8 @@ class TextBrowser(PlainTextEdit):  # {{{
             m.exec_(self.mapToGlobal(pos))
 
     def search(self, query, reverse=False):
+        ''' Search for query, also searching the headers. Matches in headers
+        are not highlighted as managing the highlight is too much of a pain.'''
         if not query.strip():
             return
         c = self.textCursor()
