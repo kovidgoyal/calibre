@@ -376,10 +376,13 @@ class Convert(object):
         def p_parent(x):
             # Ensure that nested <w:p> tags are handled. These can occur if a
             # textbox is present inside a paragraph.
-            while x is not None:
+            while True:
                 x = x.getparent()
-                if x.tag.endswith('}p'):
-                    return x
+                try:
+                    if x.tag.endswith('}p'):
+                        return x
+                except AttributeError:
+                    break
 
         for x in descendants(p, 'w:r', 'w:bookmarkStart', 'w:hyperlink'):
             if p_parent(x) is not p:
