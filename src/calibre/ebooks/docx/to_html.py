@@ -382,7 +382,9 @@ class Convert(object):
                     return x
 
         for x in descendants(p, 'w:r', 'w:bookmarkStart', 'w:hyperlink'):
-            if x.tag.endswith('}r') and p_parent(x) is p:
+            if p_parent(x) is not p:
+                continue
+            if x.tag.endswith('}r'):
                 span = self.convert_run(x)
                 if current_anchor is not None:
                     (dest if len(dest) == 0 else span).set('id', current_anchor)
