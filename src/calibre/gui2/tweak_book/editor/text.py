@@ -544,6 +544,152 @@ class TextEdit(PlainTextEdit):
             c.setPosition(c.position() - len(suffix))
         self.setTextCursor(c)
 
+    def style_text(self, formatting, preserve_attributes=True):
+        """Searches first block tag and replaces it with another tag
+
+        Slightly inspired with
+            https://github.com/user-none/Sigil/blob/master/src/Sigil/ViewEditors/CodeViewEditor.cpp
+        """
+        if self.syntax != 'html':
+            return
+        # left, right = self.get_range_inside_tag()
+
+        c = self.textCursor()
+
+        try:
+            text = unicode(QPlainTextEdit.toPlainText(self))
+            pos = c.position()
+        except:
+            return
+
+        # move cursor into tag content (if it was inside opening or closing tag)
+        tmppos = pos = self.move_into_tag_content(text, pos)
+        c.setPosition(pos)
+        self.setTextCursor(c)
+
+        while True:
+            # search last tag (closest from the left of tmppos) (is_closing and name)
+            last_tag_search = re.compile(r'.*(<\s*(/?)\s*(\w+)[^>]*>)', re.MULTILINE | re.DOTALL)
+            mo = last_tag_search.search(text, 0, tmppos)
+
+            if not mo:
+                # if no tag was found, quit
+                return
+
+            new_pos = mo.start(1)
+            if mo.group(2) == '/':
+                is_closing = True
+            else:
+                is_closing = False;
+            tag_name = mo.group(3).lower()
+
+            # if it is not replaceable or special block tag, continue
+            # body and td are special tags
+            if tag_name not in ('address', 'blockquote', 'center', 'dir',
+                'fieldset', 'isindex', 'menu', 'noframes', 'noscript', 'pre',
+                'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p', 'div',
+                'dl', 'ul', 'ol', 'body', 'td'):
+                # move tmppos before found tag
+                tmppos = new_pos
+                continue
+
+            # if it is body or td or some block closing tag
+            if tag_name in ('body', 'td') or is_closing:
+                # insert formatting tags around pos
+                print('insert formatting tags around pos')
+                opening_tag_start = pos
+                opening_tag_end = pos
+                closing_tag_start = pos
+                closing_tag_end = pos
+                break
+
+            # we found good opening tag
+            # print(mo.group(1), mo.group(2), mo.group(3))
+            opening_tag_start = mo.start(1)
+            opening_tag_end = mo.end(1)
+            opening_tag_attributes = text[mo.end(3):mo.end(1) - 1].strip()
+
+            # find corresponding closing tag
+            closing_tag_search = re.compile(r'</\s*' + tag_name + '\s*>', re.MULTILINE |
+                re.DOTALL | re.IGNORECASE)
+            mo = closing_tag_search.search(text, opening_tag_end)
+            if not mo:
+                # if closing tag was not found, quit
+                return
+            closing_tag_start = mo.start()
+            closing_tag_end = mo.end()
+            break
+
+        if preserve_attributes:
+            opening_tag_text = '<' + formatting + ' ' + opening_tag_attributes + '>';
+        else:
+            opening_tag_text = '<' + formatting + '>';
+        closing_tag_text = '</' + formatting + '>';
+
+        c.beginEditBlock();
+        # Replace the end block tag first since that does not affect positions
+        c.setPosition(closing_tag_end);
+        c.setPosition(closing_tag_start, c.KeepAnchor);
+        c.removeSelectedText();
+        c.insertText(closing_tag_text);
+        # Now replace the opening block tag
+        c.setPosition(opening_tag_end);
+        c.setPosition(opening_tag_start, c.KeepAnchor);
+        c.removeSelectedText();
+        c.insertText(opening_tag_text);
+        c.endEditBlock();
+        self.setTextCursor(c);
+
+    def move_into_tag_content(self, text, position):
+        """Check if current position is inside tag <...> or </...>.
+        Move cursor into tag content (if it was inside tag).
+        `text` is html string
+        `position` is position of the cursor inside `text`
+        Returns new position of cursor, inside of tag content.
+        Can throw exception.
+        """
+        # find > and < from current position to the left
+        gtpos = text.rfind('>', 0, position)
+        ltpos = text.rfind('<', 0, position)
+
+        if gtpos == -1 and ltpos == -1:
+            # no < or >
+            # print('no html at left side')
+            return position
+
+        if gtpos < ltpos:
+            # (only <) or (> then <) on the left
+            if text[ltpos + 1] == '/':
+                # if </
+                # print('inside closing tag?')
+                # return begin of the closing tag
+                return ltpos
+            else:
+                # < without /
+                # print('inside opening tag?')
+                # find end of opening tag
+                endpos = text.find('>', position)
+                if endpos != -1:
+                    return endpos + 1
+                raise Exception('No end of opening tag found')
+
+        if ltpos < gtpos:
+            if ltpos == -1:
+                # only > at the left
+                # print('invalid html - no starting <')
+                # TODO: does it matter here? We can only return unchanged position and deals with it elsewhere
+                raise Exception('No begin of tag found')
+            else:
+                # < then > at the left
+                # if text[ltpos + 1] == '/':
+                    # </...> at the left
+                    # print('after closing tag')
+                # else:
+                    # <...> at the left
+                    # print('inside content of tag')
+                # we can stand where we are
+                return position
+
     def insert_image(self, href):
         c = self.textCursor()
         template, alt = 'url(%s)', ''

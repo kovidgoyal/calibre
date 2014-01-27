@@ -39,6 +39,21 @@ def register_text_editor_actions(reg):
     ac = reg('view-image', _('&Insert image'), ('insert_resource', 'image'), 'insert-image', (), _('Insert an image into the text'))
     ac.setToolTip(_('<h3>Insert image</h3>Insert an image into the text'))
 
+    ac = reg('format-text-h1', _('H&1'), ('style_text', 'h1'), 'style-text-h1', 'Ctrl+1', _('Make the paragraph as H1'))
+    ac.setToolTip(_('<h3>H1</h3>Make the current paragraph as H1'))
+    ac = reg('format-text-h2', _('H&2'), ('style_text', 'h2'), 'style-text-h2', 'Ctrl+2', _('Make the paragraph as H2'))
+    ac.setToolTip(_('<h3>H2</h3>Make the current paragraph as H2'))
+    ac = reg('format-text-h3', _('H&3'), ('style_text', 'h3'), 'style-text-h3', 'Ctrl+3', _('Make the paragraph as H3'))
+    ac.setToolTip(_('<h3>H3</h3>Make the current paragraph as H3'))
+    ac = reg('format-text-h4', _('H&4'), ('style_text', 'h4'), 'style-text-h4', 'Ctrl+4', _('Make the paragraph as H4'))
+    ac.setToolTip(_('<h3>H4</h3>Make the current paragraph as H4'))
+    ac = reg('format-text-h5', _('H&5'), ('style_text', 'h5'), 'style-text-h5', 'Ctrl+5', _('Make the paragraph as H5'))
+    ac.setToolTip(_('<h3>H5</h3>Make the current paragraph as H5'))
+    ac = reg('format-text-h6', _('H&6'), ('style_text', 'h6'), 'style-text-h6', 'Ctrl+6', _('Make the paragraph as H6'))
+    ac.setToolTip(_('<h3>H6</h3>Make the current paragraph as H6'))
+    ac = reg('format-text-p', _('&P'), ('style_text', 'p'), 'style-text-p', 'Ctrl+7', _('Make the paragraph as P'))
+    ac.setToolTip(_('<h3>P</h3>Make the current paragraph as P'))
+
 class Editor(QMainWindow):
 
     has_line_numbers = True
@@ -176,6 +191,9 @@ class Editor(QMainWindow):
             self.format_bar = b = self.addToolBar(_('Format text'))
             for x in ('bold', 'italic', 'underline', 'strikethrough', 'subscript', 'superscript', 'color', 'background-color'):
                 b.addAction(actions['format-text-%s' % x])
+            self.format_bar = b = self.addToolBar(_('Style paragraph'))
+            for x in ('h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p'):
+                b.addAction(actions['style-text-%s' % x])
 
     def break_cycles(self):
         self.modification_state_changed.disconnect()
