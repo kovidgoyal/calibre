@@ -248,6 +248,13 @@ class Diff(Dialog):
                 text = self.view.view.left.selected_text + self.view.view.right.selected_text
                 if text:
                     QApplication.clipboard().setText(text)
+                return
+            if ev.matches(QKeySequence.FindNext):
+                self.sbn.click()
+                return
+            if ev.matches(QKeySequence.FindPrevious):
+                self.sbp.click()
+                return
             return Dialog.keyPressEvent(self, ev)
 
 if __name__ == '__main__':
