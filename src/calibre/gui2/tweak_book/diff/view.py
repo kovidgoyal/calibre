@@ -910,7 +910,7 @@ class DiffView(QWidget):  # {{{
         self.changes, self.delta = changes, delta
         self.adjust_range()
 
-    def keyPressEvent(self, ev):
+    def handle_key(self, ev):
         amount, d = None, 1
         key = ev.key()
         if key in (Qt.Key_Up, Qt.Key_Down, Qt.Key_J, Qt.Key_K):
@@ -923,8 +923,11 @@ class DiffView(QWidget):  # {{{
                 d = -1
         elif key in (Qt.Key_Home, Qt.Key_End):
             self.scrollbar.setValue(0 if key == Qt.Key_Home else self.scrollbar.maximum())
+            return True
 
         if amount is not None:
             self.scrollbar.setValue(self.scrollbar.value() + d * amount)
+            return True
+        return False
 # }}}
 

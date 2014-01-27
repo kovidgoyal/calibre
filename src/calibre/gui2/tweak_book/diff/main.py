@@ -231,6 +231,10 @@ class Diff(Dialog):
             kwargs = {'syntax':syntax_map.get(name, None), 'context':self.context}
             add(args, kwargs)
 
+    def keyPressEvent(self, ev):
+        if not self.view.handle_key(ev):
+            return Dialog.keyPressEvent(self, ev)
+
 if __name__ == '__main__':
     import sys
     app = QApplication([])
