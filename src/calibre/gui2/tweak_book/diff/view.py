@@ -225,7 +225,7 @@ class TextBrowser(PlainTextEdit):  # {{{
             num += 1
 
     def paintEvent(self, event):
-        w = event.rect().width()
+        w = self.viewport().rect().width()
         painter = QPainter(self.viewport())
         painter.setClipRect(event.rect())
         floor = event.rect().bottom()
