@@ -142,11 +142,13 @@ class Diff(Dialog):
         b.setIcon(QIcon(I('arrow-down.png')))
         b.clicked.connect(partial(self.do_search, False))
         b.setToolTip(_('Find next match'))
+        b.setText(_('&Next')), b.setToolButtonStyle(Qt.ToolButtonTextBesideIcon)
         l.addWidget(b, l.rowCount() - 1, l.columnCount(), 1, 1)
         self.sbp = b = QToolButton(self)
         b.setIcon(QIcon(I('arrow-up.png')))
         b.clicked.connect(partial(self.do_search, True))
         b.setToolTip(_('Find previous match'))
+        b.setText(_('&Previous')), b.setToolButtonStyle(Qt.ToolButtonTextBesideIcon)
         l.addWidget(b, l.rowCount() - 1, l.columnCount(), 1, 1)
         self.lb = b = QRadioButton(_('Left panel'), self)
         b.setToolTip(_('Perform search in the left panel'))
@@ -157,6 +159,7 @@ class Diff(Dialog):
         b.setChecked(True)
         self.pb = b = QToolButton(self)
         b.setIcon(QIcon(I('config.png')))
+        b.setText(_('&Context')), b.setToolButtonStyle(Qt.ToolButtonTextBesideIcon)
         b.setToolTip(_('Change the amount of context shown around the changes'))
         b.setPopupMode(b.InstantPopup)
         m = QMenu(b)
@@ -172,7 +175,11 @@ class Diff(Dialog):
         self.view.setFocus(Qt.OtherFocusReason)
 
     def do_search(self, reverse):
-        pass
+        text = unicode(self.search.text())
+        if not text.strip():
+            return
+        v = self.view.view.left if self.lb.isChecked() else self.view.view.right
+        v.search(text, reverse=reverse)
 
     def change_context(self, context):
         if context == self.context:
@@ -233,6 +240,10 @@ class Diff(Dialog):
 
     def keyPressEvent(self, ev):
         if not self.view.handle_key(ev):
+            if ev.key() in (Qt.Key_Enter, Qt.Key_Return):
+                return  # The enter key is used by the search box, so prevent it closing the dialog
+            if ev.key() == Qt.Key_Slash:
+                return self.search.setFocus(Qt.OtherFocusReason)
             return Dialog.keyPressEvent(self, ev)
 
 if __name__ == '__main__':

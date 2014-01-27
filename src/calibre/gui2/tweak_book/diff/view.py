@@ -7,12 +7,14 @@ __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import re, unicodedata
+from itertools import chain
 from math import ceil
 from functools import partial
 from collections import namedtuple, OrderedDict
 from difflib import SequenceMatcher
 from future_builtins import zip
 
+import regex
 from PyQt4.Qt import (
     QSplitter, QApplication, QPlainTextDocumentLayout, QTextDocument, QTimer,
     QTextCursor, QTextCharFormat, Qt, QRect, QPainter, QPalette, QPen, QBrush,
@@ -21,6 +23,7 @@ from PyQt4.Qt import (
     QMenu, QIcon)
 
 from calibre import human_readable, fit_image
+from calibre.gui2 import info_dialog
 from calibre.gui2.tweak_book import tprefs
 from calibre.gui2.tweak_book.editor.text import PlainTextEdit, get_highlighter, default_font_family, LineNumbers
 from calibre.gui2.tweak_book.editor.themes import THEMES, default_theme, theme_color
@@ -47,6 +50,7 @@ class TextBrowser(PlainTextEdit):  # {{{
     resized = pyqtSignal()
     wheel_event = pyqtSignal(object)
     goto_change = pyqtSignal(object)
+    scrolled = pyqtSignal()
 
     def __init__(self, right=False, parent=None):
         PlainTextEdit.__init__(self, parent)
@@ -89,6 +93,7 @@ class TextBrowser(PlainTextEdit):  # {{{
         pal.setColor(pal.Text, theme_color(theme, 'LineNr', 'fg'))
         pal.setColor(pal.BrightText, theme_color(theme, 'LineNrC', 'fg'))
         self.line_number_map = {}
+        self.search_header_pos = 0
         self.changes, self.headers, self.images = [], [], OrderedDict()
         self.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.diff_backgrounds = {
@@ -142,12 +147,60 @@ class TextBrowser(PlainTextEdit):  # {{{
         if len(m.actions()) > 0:
             m.exec_(self.mapToGlobal(pos))
 
+    def search(self, query, reverse=False):
+        if not query.strip():
+            return
+        c = self.textCursor()
+        lnum = c.block().blockNumber()
+        cpos = c.positionInBlock()
+        headers = dict(self.headers)
+        if lnum in headers:
+            cpos = self.search_header_pos
+        lines = unicode(self.toPlainText()).splitlines()
+        for hn, text in self.headers:
+            lines[hn] = text
+        prefix, postfix = lines[lnum][:cpos], lines[lnum][cpos:]
+        before, after = enumerate(lines[0:lnum]), ((lnum+1+i, x) for i, x in enumerate(lines[lnum+1:]))
+        if reverse:
+            sl = chain([(lnum, prefix)], reversed(tuple(before)), reversed(tuple(after)), [(lnum, postfix)])
+        else:
+            sl = chain([(lnum, postfix)], after, before, [(lnum, prefix)])
+        flags = regex.REVERSE if reverse else 0
+        pat = regex.compile(regex.escape(query, special_only=True), flags=regex.UNICODE|regex.IGNORECASE|flags)
+        for num, text in sl:
+            try:
+                m = next(pat.finditer(text))
+            except StopIteration:
+                continue
+            start, end = m.span()
+            length = end - start
+            if text is postfix:
+                start += cpos
+            c = QTextCursor(self.document().findBlockByNumber(num))
+            c.setPosition(c.position() + start)
+            if num in headers:
+                self.search_header_pos = start + length
+            else:
+                c.setPosition(c.position() + length, c.KeepAnchor)
+                self.search_header_pos = 0
+            if reverse:
+                pos, anchor = c.position(), c.anchor()
+                c.setPosition(pos), c.setPosition(anchor, c.KeepAnchor)
+            self.setTextCursor(c)
+            self.centerCursor()
+            self.scrolled.emit()
+            break
+        else:
+            info_dialog(self, _('No matches found'), _(
+                'No matches found for query: %s' % query), show=True)
+
     def clear(self):
         PlainTextEdit.clear(self)
         self.line_number_map.clear()
         del self.changes[:]
         del self.headers[:]
         self.images.clear()
+        self.search_header_pos = 0
         self.setHorizontalScrollBarPolicy(Qt.ScrollBarAsNeeded)
 
     def update_line_number_area_width(self, block_count=0):
@@ -799,10 +852,11 @@ class DiffView(QWidget):  # {{{
             self.bars.append(bar)
             bar.valueChanged[int].connect(partial(self.scrolled, i))
         self.view.left.resized.connect(self.resized)
-        for v in self.view.left, self.view.right, self.view.handle(1):
+        for i, v in enumerate((self.view.left, self.view.right, self.view.handle(1))):
             v.wheel_event.connect(self.scrollbar.wheelEvent)
-            if hasattr(v, 'goto_change'):
+            if i < 2:
                 v.goto_change.connect(self.goto_change)
+                v.scrolled.connect(partial(self.scrolled, i + 1))
 
     def goto_change(self, change):
         for v in (self.view.left, self.view.right):
