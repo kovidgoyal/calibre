@@ -123,7 +123,10 @@ def check_links(container):
                 tname = container.href_to_name(href, name)
                 if tname is not None:
                     if container.exists(tname):
-                        links_map[name].add(tname)
+                        if tname in container.mime_map:
+                            links_map[name].add(tname)
+                        else:
+                            a(BadLink(_('The linked resource %s is a directory') % fl(href), name, lnum, col))
                     else:
                         a(BadLink(_('The linked resource %s does not exist') % fl(href), name, lnum, col))
                 else:
@@ -134,12 +137,12 @@ def check_links(container):
                         a(LocalLink(_('The link %s points to a file outside the book') % fl(href), name, lnum, col))
 
     spine_docs = {name for name, linear in container.spine_names}
-    spine_styles = {tname for name in spine_docs for tname in links_map[name] if container.mime_map[tname] in OEB_STYLES}
+    spine_styles = {tname for name in spine_docs for tname in links_map[name] if container.mime_map.get(tname, None) in OEB_STYLES}
     num = -1
     while len(spine_styles) > num:
         # Handle import rules in stylesheets
         num = len(spine_styles)
-        spine_styles |= {tname for name in spine_styles for tname in links_map[name] if container.mime_map[tname] in OEB_STYLES}
+        spine_styles |= {tname for name in spine_styles for tname in links_map[name] if container.mime_map.get(tname, None) in OEB_STYLES}
     seen = set(OEB_DOCS) | set(OEB_STYLES)
     spine_resources = {tname for name in spine_docs | spine_styles for tname in links_map[name] if container.mime_map[tname] not in seen}
     unreferenced = set()
