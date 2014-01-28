@@ -11,7 +11,7 @@ from lxml import etree
 from calibre import prepare_string_for_xml as xml
 from calibre.ebooks.oeb.polish.check.base import BaseError, WARN
 from calibre.ebooks.oeb.polish.utils import guess_type
-from calibre.ebooks.oeb.base import OPF, OPF2_NS, DC, DC11_NS
+from calibre.ebooks.oeb.base import OPF, OPF2_NS, DC, DC11_NS, XHTML_MIME
 
 class MissingSection(BaseError):
 
@@ -169,6 +169,27 @@ class NoUID(BaseError):
         container.dirty(container.opf_name)
         return True
 
+class BadSpineMime(BaseError):
+
+    def __init__(self, name, iid, mt, lnum, opf_name):
+        BaseError.__init__(self, _('Incorrect media-type for spine item'), opf_name, lnum)
+        self.HELP = _(
+            'The item {0} present in the spine has the media-type {1}. '
+            ' Most ebook software cannot handle non-HTML spine items. '
+            ' If the item is actually HTML, you should change its media-type to {2}.'
+            ' If it is not-HTML you should consider replacing it with an HTML item, as it'
+            ' is unlikely to work in most readers.').format(name, mt, XHTML_MIME)
+        if iid is not None:
+            self.INDIVIDUAL_FIX = _('Change the media-type to %s') % XHTML_MIME
+            self.iid = iid
+
+    def __call__(self, container):
+        container.opf_xpath('/opf:package/opf:manifest/opf:item[@id=%r]' % self.iid)[0].set(
+            'media-type', XHTML_MIME)
+        container.dirty(container.opf_name)
+        container.refresh_mime_map()
+        return True
+
 def check_opf(container):
     errors = []
 
@@ -245,5 +266,18 @@ def check_opf(container):
     uid = container.opf.get('unique-identifier', None)
     if uid is None or not container.opf_xpath('/opf:package/opf:metadata/dc:identifier[@id=%r]' % uid):
         errors.append(NoUID(container.opf_name))
+
+    for item, name, linear in container.spine_iter:
+        mt = container.mime_map[name]
+        if mt != XHTML_MIME:
+            iid = item.get('idref', None)
+            lnum = None
+            if iid:
+                mitem = container.opf_xpath('/opf:package/opf:manifest/opf:item[@id=%r]' % iid)
+                if mitem:
+                    lnum = mitem[0].sourceline
+                else:
+                    iid = None
+            errors.append(BadSpineMime(name, iid, mt, lnum, container.opf_name))
 
     return errors
