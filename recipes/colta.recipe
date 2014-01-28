@@ -1,0 +1,32 @@
+# vim:fileencoding=UTF-8
+from __future__ import unicode_literals
+
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class Colta(BasicNewsRecipe):
+    language = 'ru'
+    __author__ = 'bug_me_not'
+    title          = u'Colta.ru'
+    description           = 'Всё о культуре и духе времени'
+    publisher             = 'OpenSpace.ru'
+    category              = 'news'
+    cover_url = u'http://www.colta.ru/assets/logo-afb684c3d35fc1f6f103f9fb638c8ec1.png'
+    language              = 'ru'
+    no_stylesheets        = True
+    remove_javascript = True
+
+    oldest_article = 21
+    max_articles_per_feed = 200
+
+    feeds          = [(u'Colta.ru', u'http://www.colta.ru/feed')]
+
+    remove_tags_before = dict(name='section', attrs={'id':'content'})
+    remove_tags_after  = dict(name='div', attrs={'class':'content'})
+    remove_tags     = [
+dict(name='div',attrs={'id':'right'}),
+dict(name='div',attrs={'class':'soc_block'}),
+dict(name='a',attrs={'class':'help_site like_material'}),
+dict(name='div',attrs={'class':'share'}),
+dict(name='div',attrs={'class':'comments_head'}),
+dict(name='div',attrs={'id':'disqus_thread'})
+]
