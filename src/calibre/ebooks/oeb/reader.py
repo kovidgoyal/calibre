@@ -15,7 +15,7 @@ from collections import defaultdict
 from lxml import etree
 
 from calibre.ebooks.oeb.base import OPF1_NS, OPF2_NS, OPF2_NSMAP, DC11_NS, \
-    DC_NSES, OPF, xml2text
+    DC_NSES, OPF, xml2text, XHTML_MIME
 from calibre.ebooks.oeb.base import OEB_DOCS, OEB_STYLES, OEB_IMAGES, \
     PAGE_MAP_MIME, JPEG_MIME, NCX_MIME, SVG_MIME
 from calibre.ebooks.oeb.base import XMLDECL_RE, COLLAPSE_RE, \
@@ -325,7 +325,11 @@ class OEBReader(object):
             if item.media_type.lower() in OEB_DOCS and hasattr(item.data, 'xpath'):
                 spine.add(item, elem.get('linear'))
             else:
-                self.oeb.log.warn('The item %s is not a XML document.'
+                if hasattr(item.data, 'tag') and item.data.tag and item.data.tag.endswith('}html'):
+                    item.media_type = XHTML_MIME
+                    spine.add(item, elem.get('linear'))
+                else:
+                    self.oeb.log.warn('The item %s is not a XML document.'
                         ' Removing it from spine.'%item.href)
         if len(spine) == 0:
             raise OEBError("Spine is empty")
