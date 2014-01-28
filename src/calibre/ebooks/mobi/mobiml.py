@@ -555,7 +555,13 @@ class MobiMLizer(object):
             # be added.
             istate.ids and tag in ('a', 'span', 'i', 'b', 'u') and
             len(elem)==0)):
-            self.mobimlize_content(tag, text, bstate, istates)
+                if tag == 'li' and len(istates) > 1 and 'value' in elem.attrib:
+                    try:
+                        value = int(elem.attrib['value'])
+                        istates[-2].list_num = value - 1
+                    except:
+                        pass
+                self.mobimlize_content(tag, text, bstate, istates)
         for child in elem:
             self.mobimlize_elem(child, stylizer, bstate, istates)
             tail = None
