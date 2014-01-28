@@ -185,6 +185,13 @@ class CHMReader(CHMFile):
             return data
         # nuke javascript...
         [s.extract() for s in soup('script')]
+        # See if everything is inside a <head> tag
+        # https://bugs.launchpad.net/bugs/1273512
+        body = soup.find('body')
+        if body is not None and body.parent.name == 'head':
+            html = soup.find('html')
+            html.insert(len(html), body)
+
         # remove forward and back nav bars from the top/bottom of each page
         # cos they really fuck with the flow of things and generally waste space
         # since we can't use [a,b] syntax to select arbitrary items from a list
