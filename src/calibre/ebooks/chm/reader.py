@@ -32,7 +32,7 @@ def check_all_prev_empty(tag):
         return False
     return check_all_prev_empty(tag.previousSibling)
 
-def check_empty(s, rex = re.compile(r'\S')):
+def check_empty(s, rex=re.compile(r'\S')):
     return rex.search(s) is None
 
 
@@ -40,6 +40,7 @@ class CHMError(Exception):
     pass
 
 class CHMReader(CHMFile):
+
     def __init__(self, input, log, input_encoding=None):
         CHMFile.__init__(self)
         if isinstance(input, unicode):
@@ -73,16 +74,15 @@ class CHMReader(CHMFile):
             else:
                 frag = None
             name = self._deentity(li.object('param', {'name': 'Name'})[0]['value'])
-            #print "========>", name
+            # print "========>", name
             toc.add_item(href, frag, name, play_order=self._playorder)
             self._playorder += 1
             if li.ul:
-               child = self._parse_toc(li.ul)
-               child.parent = toc
-               toc.append(child)
-        #print toc
+                child = self._parse_toc(li.ul)
+                child.parent = toc
+                toc.append(child)
+        # print toc
         return toc
-
 
     def GetFile(self, path):
         # have to have abs paths for ResolveObject, but Contents() deliberately
@@ -226,7 +226,8 @@ class CHMReader(CHMFile):
             if os.path.exists(ipath):
                 continue
             src = src.split(';')[0]
-            if not src: continue
+            if not src:
+                continue
             ipath = os.path.join(base, *src.split('/'))
             if not os.path.exists(ipath):
                 while src.startswith('../'):
@@ -277,6 +278,3 @@ class CHMReader(CHMFile):
 
     def extract_content(self, output_dir=os.getcwdu(), debug_dump=False):
         self.ExtractFiles(output_dir=output_dir, debug_dump=debug_dump)
-
-
-
