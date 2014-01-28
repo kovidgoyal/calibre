@@ -467,4 +467,13 @@ class FlowSplitter(object):
         if self.oeb.toc:
             fix_toc_entry(self.oeb.toc)
 
+        if self.oeb.pages:
+            for page in self.oeb.pages:
+                href, frag = urldefrag(page.href)
+                if href == self.item.href:
+                    nhref = self.anchor_map[frag if frag else None]
+                    if frag:
+                        nhref = '#'.join((nhref, frag))
+                    page.href = nhref
+
         self.oeb.manifest.remove(self.item)
