@@ -444,7 +444,9 @@ class Styles(object):
             body { font-family: %s; font-size: %s; color: %s }
 
             /* In word all paragraphs have zero margins unless explicitly specified in a style */
-            ul, ol, p, h1, h2, h3, h4, h5, h6 { margin: 0; padding: 0 }
+            p, h1, h2, h3, h4, h5, h6 { margin: 0; padding: 0 }
+            /* Setting padding-left to zero breaks rendering of lists, so we only set the other values to zero and leave padding-left for the user-agent */
+            ul, ol { margin: 0; padding-top: 0; padding-bottom: 0; padding-right: 0 }
 
             /* The word hyperlink styling will set text-decoration to underline if needed */
             a { text-decoration: none }
