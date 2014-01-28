@@ -102,6 +102,8 @@ def check_mimetypes(container):
     for name, mt in container.mime_map.iteritems():
         gt = container.guess_type(name)
         if mt != gt:
+            if mt == 'application/oebps-page-map+xml' and name.lower().endswith('.xml'):
+                continue
             a(MimetypeMismatch(container, name, mt, gt))
     return errors
 
