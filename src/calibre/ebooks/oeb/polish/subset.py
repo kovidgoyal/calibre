@@ -38,13 +38,14 @@ def subset_all_fonts(container, font_stats, report):
     for name, mt in container.mime_map.iteritems():
         if (mt in OEB_FONTS or name.rpartition('.')[-1].lower() in {'otf', 'ttf'}) and mt != guess_type('a.woff'):
             chars = font_stats.get(name, set())
-            path = container.name_path_map[name]
-            total_old += os.path.getsize(path)
+            with container.open(name, 'rb') as f:
+                f.seek(0, os.SEEK_END)
+                total_old += f.tell()
             if not chars:
                 remove.add(name)
                 report('Removed unused font: %s'%name)
                 continue
-            with open(path, 'r+b') as f:
+            with container.open(name, 'r+b') as f:
                 raw = f.read()
                 font_name = get_font_names(raw)[-1]
                 warnings = []
