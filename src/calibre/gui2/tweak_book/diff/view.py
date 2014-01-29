@@ -665,14 +665,17 @@ class DiffSplit(QSplitter):  # {{{
                 getattr(self, tag)(alo, ahi, blo, bhi)
                 QApplication.processEvents(QEventLoop.ExcludeUserInputEvents | QEventLoop.ExcludeSocketNotifiers)
         else:
+            def insert_boundary():
+                self.changes.append(Change(
+                    ltop=cl.block().blockNumber()-1, lbot=cl.block().blockNumber(),
+                    rtop=cr.block().blockNumber()-1, rbot=cr.block().blockNumber(), kind='boundary'))
+                self.left.line_number_map[self.changes[-1].ltop] = '-'
+                self.right.line_number_map[self.changes[-1].rtop] = '-'
+
             for i, group in enumerate(cruncher.get_grouped_opcodes(context)):
                 for j, (tag, alo, ahi, blo, bhi) in enumerate(group):
                     if j == 0 and (i > 0 or min(alo, blo) > 0):
-                        self.changes.append(Change(
-                            ltop=cl.block().blockNumber()-1, lbot=cl.block().blockNumber(),
-                            rtop=cr.block().blockNumber()-1, rbot=cr.block().blockNumber(), kind='boundary'))
-                        self.left.line_number_map[self.changes[-1].ltop] = '-'
-                        self.right.line_number_map[self.changes[-1].rtop] = '-'
+                        insert_boundary()
                     getattr(self, tag)(alo, ahi, blo, bhi)
                     QApplication.processEvents(QEventLoop.ExcludeUserInputEvents | QEventLoop.ExcludeSocketNotifiers)
                 cl.insertBlock(), cr.insertBlock()
