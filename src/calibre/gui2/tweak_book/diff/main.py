@@ -11,7 +11,7 @@ from functools import partial
 from PyQt4.Qt import (
     QGridLayout, QToolButton, QIcon, QRadioButton, QMenu, QApplication, Qt,
     QSize, QWidget, QLabel, QStackedLayout, QPainter, QRect, QVBoxLayout,
-    QCursor, QEventLoop, QKeySequence)
+    QCursor, QEventLoop, QKeySequence, pyqtSignal)
 
 from calibre.ebooks.oeb.polish.container import Container
 from calibre.gui2 import info_dialog
@@ -128,9 +128,12 @@ def ebook_diff(path1, path2):
 
 class Diff(Dialog):
 
-    def __init__(self, parent=None):
+    revert_requested = pyqtSignal()
+
+    def __init__(self, revert_button_msg=None, parent=None):
         self.context = 3
         self.apply_diff_calls = []
+        self.revert_button_msg = revert_button_msg
         Dialog.__init__(self, _('Differences between books'), 'diff-dialog', parent=parent)
 
     def sizeHint(self):
@@ -187,9 +190,22 @@ class Diff(Dialog):
         l.addWidget(b, l.rowCount() - 1, l.columnCount(), 1, 1)
 
         self.bb.setStandardButtons(self.bb.Close)
+        if self.revert_button_msg is not None:
+            self.rvb = b = self.bb.addButton(self.revert_button_msg, self.bb.RejectRole)
+            b.setIcon(QIcon(I('edit-undo.png')))
+            b.clicked.connect(self.revert_requested)
+        self.bb.button(self.bb.Close).setDefault(True)
         l.addWidget(self.bb, l.rowCount(), 0, 1, -1)
 
         self.view.setFocus(Qt.OtherFocusReason)
+
+    def break_cycles(self):
+        self.view = None
+        for x in ('revert_requested',):
+            try:
+                getattr(self, x).disconnect()
+            except:
+                pass
 
     def do_search(self, reverse):
         text = unicode(self.search.text())

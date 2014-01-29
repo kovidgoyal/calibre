@@ -38,6 +38,8 @@ from calibre.gui2.tweak_book.editor.insert_resource import get_resource_data, Ne
 from calibre.gui2.tweak_book.preferences import Preferences
 from calibre.gui2.tweak_book.widgets import RationalizeFolders, MultiSplit
 
+_diff_dialogs = []
+
 def get_container(*args, **kwargs):
     kwargs['tweak_mode'] = True
     container = _gc(*args, **kwargs)
@@ -384,11 +386,34 @@ class Boss(QObject):
         d.l.addWidget(d.e)
         d.e.setHtml(report)
         d.bb = QDialogButtonBox(QDialogButtonBox.Close)
+        b = d.b = d.bb.addButton(_('See what changed'), d.bb.AcceptRole)
+        b.setIcon(QIcon(I('diff.png')))
+        b.clicked.connect(partial(self.show_current_diff, allow_revert=True))
         d.l.addWidget(d.bb)
         d.bb.rejected.connect(d.reject)
         d.bb.accepted.connect(d.accept)
         d.resize(600, 400)
         d.exec_()
+
+    def create_diff_dialog(self, revert_msg=_('&Revert changes')):
+        global _diff_dialogs
+        from calibre.gui2.tweak_book.diff.main import Diff
+        d = Diff(revert_button_msg=revert_msg, parent=self.gui)
+        [x.break_cycles() for x in _diff_dialogs if not x.isVisible()]
+        _diff_dialogs = [x for x in _diff_dialogs if x.isVisible()] + [d]
+        d.show(), d.raise_(), d.setFocus(Qt.OtherFocusReason)
+        return d
+
+    def show_current_diff(self, allow_revert=True):
+        self.commit_all_editors_to_container()
+        d = self.create_diff_dialog()
+        d.revert_requested.connect(partial(self.revert_requested, self.global_undo.previous_container))
+        d.container_diff(self.global_undo.previous_container, self.global_undo.current_container)
+
+    def revert_requested(self, container):
+        nc = self.global_undo.revert_to(container)
+        set_current_container(nc)
+        self.apply_container_update_to_gui()
 
     # Renaming {{{
 

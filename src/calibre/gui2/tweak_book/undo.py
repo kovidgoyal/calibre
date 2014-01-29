@@ -33,6 +33,10 @@ class GlobalUndoHistory(object):
     def current_container(self):
         return self.states[self.pos].container
 
+    @property
+    def previous_container(self):
+        return self.states[self.pos - 1].container
+
     def open_book(self, container):
         self.states = [State(container)]
         self.pos = 0
@@ -75,6 +79,12 @@ class GlobalUndoHistory(object):
         if self.pos < len(self.states) - 1:
             self.pos += 1
             return self.current_container
+
+    def revert_to(self, container):
+        for i, state in enumerate(self.states):
+            if state.container is container:
+                self.pos = i
+                return container
 
     @property
     def can_undo(self):
