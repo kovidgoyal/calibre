@@ -13,12 +13,14 @@ from PyQt4.Qt import (
     QSize, QWidget, QLabel, QStackedLayout, QPainter, QRect, QVBoxLayout,
     QCursor, QEventLoop, QKeySequence)
 
+from calibre.ebooks.oeb.polish.container import Container
 from calibre.gui2 import info_dialog
 from calibre.gui2.progress_indicator import ProgressIndicator
 from calibre.gui2.tweak_book.editor import syntax_from_mime
 from calibre.gui2.tweak_book.diff.view import DiffView
 from calibre.gui2.tweak_book.widgets import Dialog
 from calibre.gui2.widgets2 import HistoryLineEdit2
+from calibre.utils.filenames import samefile
 from calibre.utils.icu import numeric_sort_key
 
 class BusyWidget(QWidget):  # {{{
@@ -90,8 +92,23 @@ def changed_files(list_of_names1, list_of_names2, get_data1, get_data2):
     return cache, changed_names, renamed_names, removed_names, added_names
 
 def container_diff(left, right):
-    cache, changed_names, renamed_names, removed_names, added_names = changed_files(
-        left.name_path_map, right.name_path_map, left.raw_data, right.raw_data)
+    left_names, right_names = set(left.name_path_map), set(right.name_path_map)
+    if left.cloned or right.cloned:
+        # Since containers are often clones of each other, as a performance
+        # optimization, discard identical names that point to the same physical
+        # file, without needing to read the file's contents.
+
+        # First commit dirtied names
+        for c in (left, right):
+            Container.commit(c, keep_parsed=True)
+
+        samefile_names = {name for name in left_names & right_names if samefile(
+            left.name_path_map[name], right.name_path_map[name])}
+        left_names -= samefile_names
+        right_names -= samefile_names
+
+        cache, changed_names, renamed_names, removed_names, added_names = changed_files(
+            left_names, right_names, left.raw_data, right.raw_data)
 
     def syntax(container, name):
         mt = container.mime_map[name]
@@ -205,8 +222,17 @@ class Diff(Dialog):
 
     def ebook_diff(self, path1, path2):
         with self:
-            self.apply_diff(_('The books are identical'), *ebook_diff(path1, path2))
+            identical = self.apply_diff(_('The books are identical'), *ebook_diff(path1, path2))
             self.view.finalize()
+        if identical:
+            self.reject()
+
+    def container_diff(self, left, right, identical_msg=None):
+        with self:
+            identical = self.apply_diff(identical_msg or _('No changes found'), *container_diff(left, right))
+            self.view.finalize()
+        if identical:
+            self.reject()
 
     def apply_diff(self, identical_msg, cache, syntax_map, changed_names, renamed_names, removed_names, added_names):
         self.view.clear()
@@ -216,7 +242,8 @@ class Diff(Dialog):
             calls.append((args, kwargs))
 
         if len(changed_names) + len(renamed_names) + len(removed_names) + len(added_names) < 1:
-            return info_dialog(self, _('No changes found'), identical_msg, show=True)
+            info_dialog(self, _('No changes found'), identical_msg, show=True)
+            return True
 
         for name in sorted(changed_names, key=numeric_sort_key):
             args = (name, name, cache.left(name), cache.right(name))
