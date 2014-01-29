@@ -627,8 +627,9 @@ class DiffSplit(QSplitter):  # {{{
                 v.images[top] = (img, w, lines)
                 def mapnum(x):
                     return x if x <= top else x + delta
-                v.line_number_map = {
-                    mapnum(x):val for x, val in v.line_number_map.iteritems()}
+                lnm = v.line_number_map
+                for x, val in tuple(lnm.iteritems()):
+                    dict.__setitem__(lnm, mapnum(x), val)
                 v.changes = [(mapnum(t), mapnum(b), kind) for t, b, kind in v.changes]
                 v.headers = [(mapnum(x), name) for x, name in v.headers]
                 v.images = OrderedDict((mapnum(x), v) for x, v in v.images.iteritems())
