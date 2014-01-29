@@ -70,10 +70,12 @@ class TextBrowser(PlainTextEdit):  # {{{
     wheel_event = pyqtSignal(object)
     next_change = pyqtSignal(object)
     scrolled = pyqtSignal()
+    line_activated = pyqtSignal(object, object, object)
 
-    def __init__(self, right=False, parent=None):
+    def __init__(self, right=False, parent=None, show_open_in_editor=False):
         PlainTextEdit.__init__(self, parent)
         self.setFrameStyle(0)
+        self.show_open_in_editor = show_open_in_editor
         self.side_margin = 0
         self.setContextMenuPolicy(Qt.CustomContextMenu)
         self.customContextMenuRequested.connect(self.show_context_menu)
@@ -144,8 +146,34 @@ class TextBrowser(PlainTextEdit):  # {{{
             a(QIcon(I('arrow-up.png')), _('Previous change'), partial(self.next_change.emit, -1))
             a(QIcon(I('arrow-down.png')), _('Next change'), partial(self.next_change.emit, 1))
 
+        if self.show_open_in_editor:
+            b = self.cursorForPosition(pos).block()
+            if b.isValid():
+                a(QIcon(I('tweak.png')), _('Open file in the editor'), partial(self.generate_sync_request, b.blockNumber()))
+
         if len(m.actions()) > 0:
             m.exec_(self.mapToGlobal(pos))
+
+    def mouseDoubleClickEvent(self, ev):
+        if ev.button() == 1:
+            b = self.cursorForPosition(ev.pos()).block()
+            if b.isValid():
+                self.generate_sync_request(b.blockNumber())
+        return PlainTextEdit.mouseDoubleClickEvent(self, ev)
+
+    def generate_sync_request(self, block_number):
+        if not self.headers:
+            return
+        try:
+            lnum = int(self.line_number_map.get(block_number, ''))
+        except:
+            lnum = 1
+        for i, (num, text) in enumerate(self.headers):
+            if num > block_number:
+                name = text if i == 0 else self.headers[i - 1][1]
+        else:
+            name = self.headers[0][1]
+        self.line_activated.emit(name, lnum, bool(self.right))
 
     def search(self, query, reverse=False):
         ''' Search for query, also searching the headers. Matches in headers
@@ -468,11 +496,11 @@ class DiffSplitHandle(QSplitterHandle):  # {{{
 
 class DiffSplit(QSplitter):  # {{{
 
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, show_open_in_editor=False):
         QSplitter.__init__(self, parent)
         self._failed_img = None
 
-        self.left, self.right = TextBrowser(parent=self), TextBrowser(right=True, parent=self)
+        self.left, self.right = TextBrowser(parent=self), TextBrowser(right=True, parent=self, show_open_in_editor=show_open_in_editor)
         self.addWidget(self.left), self.addWidget(self.right)
         self.split_words = re.compile(r"\w+|\W", re.UNICODE)
         self.clear()
@@ -832,8 +860,9 @@ class DiffSplit(QSplitter):  # {{{
 class DiffView(QWidget):  # {{{
 
     SYNC_POSITION = 0.4
+    line_activated = pyqtSignal(object, object, object)
 
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, show_open_in_editor=False):
         QWidget.__init__(self, parent)
         self.changes = [[], [], []]
         self.delta = 0
@@ -841,7 +870,7 @@ class DiffView(QWidget):  # {{{
         self.setLayout(l)
         self.syncpos = 0
         l.setMargin(0), l.setSpacing(0)
-        self.view = DiffSplit(self)
+        self.view = DiffSplit(self, show_open_in_editor=show_open_in_editor)
         l.addWidget(self.view)
         self.add_diff = self.view.add_diff
         self.scrollbar = QScrollBar(self)
@@ -859,6 +888,7 @@ class DiffView(QWidget):  # {{{
             v.wheel_event.connect(self.scrollbar.wheelEvent)
             if i < 2:
                 v.next_change.connect(self.next_change)
+                v.line_activated.connect(self.line_activated)
                 v.scrolled.connect(partial(self.scrolled, i + 1))
 
     def next_change(self, delta):

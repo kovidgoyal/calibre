@@ -396,10 +396,10 @@ class Boss(QObject):
         d.resize(600, 400)
         d.exec_()
 
-    def create_diff_dialog(self, revert_msg=_('&Revert changes')):
+    def create_diff_dialog(self, revert_msg=_('&Revert changes'), show_open_in_editor=True):
         global _diff_dialogs
         from calibre.gui2.tweak_book.diff.main import Diff
-        d = Diff(revert_button_msg=revert_msg, parent=self.gui)
+        d = Diff(revert_button_msg=revert_msg, parent=self.gui, show_open_in_editor=show_open_in_editor)
         [x.break_cycles() for x in _diff_dialogs if not x.isVisible()]
         _diff_dialogs = [x for x in _diff_dialogs if x.isVisible()] + [d]
         d.show(), d.raise_(), d.setFocus(Qt.OtherFocusReason)
@@ -409,6 +409,15 @@ class Boss(QObject):
         self.commit_all_editors_to_container()
         d = self.create_diff_dialog()
         d.revert_requested.connect(partial(self.revert_requested, self.global_undo.previous_container))
+        def line_activated(name, lnum, right):
+            if right:
+                self.edit_file_requested(name, None, guess_type(name))
+                if name in editors:
+                    editor = editors[name]
+                    editor.go_to_line(lnum)
+                    editor.setFocus(Qt.OtherFocusReason)
+                    self.gui.raise_()
+        d.line_activated.connect(line_activated)
         d.container_diff(self.global_undo.previous_container, self.global_undo.current_container)
 
     def revert_requested(self, container):

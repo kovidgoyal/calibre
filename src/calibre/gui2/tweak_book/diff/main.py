@@ -129,12 +129,15 @@ def ebook_diff(path1, path2):
 class Diff(Dialog):
 
     revert_requested = pyqtSignal()
+    line_activated = pyqtSignal(object, object, object)
 
-    def __init__(self, revert_button_msg=None, parent=None):
+    def __init__(self, revert_button_msg=None, parent=None, show_open_in_editor=False):
         self.context = 3
         self.apply_diff_calls = []
+        self.show_open_in_editor = show_open_in_editor
         self.revert_button_msg = revert_button_msg
         Dialog.__init__(self, _('Differences between books'), 'diff-dialog', parent=parent)
+        self.view.line_activated.connect(self.line_activated)
 
     def sizeHint(self):
         geom = QApplication.instance().desktop().availableGeometry(self)
@@ -151,7 +154,7 @@ class Diff(Dialog):
         self.l = l = QGridLayout()
         self.w.setLayout(l)
 
-        self.view = v = DiffView(self)
+        self.view = v = DiffView(self, show_open_in_editor=self.show_open_in_editor)
         l.addWidget(v, l.rowCount(), 0, 1, -1)
 
         r = l.rowCount()
@@ -217,7 +220,7 @@ class Diff(Dialog):
 
     def break_cycles(self):
         self.view = None
-        for x in ('revert_requested',):
+        for x in ('revert_requested', 'line_activated'):
             try:
                 getattr(self, x).disconnect()
             except:

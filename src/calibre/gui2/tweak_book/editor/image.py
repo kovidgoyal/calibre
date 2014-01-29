@@ -155,6 +155,9 @@ class Editor(QMainWindow):
     def apply_settings(self, prefs=None):
         pass
 
+    def go_to_line(self, *args, **kwargs):
+        pass
+
     def set_focus(self):
         self.canvas.setFocus(Qt.OtherFocusReason)
 
