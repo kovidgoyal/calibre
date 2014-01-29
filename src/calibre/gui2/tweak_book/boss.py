@@ -372,7 +372,7 @@ class Boss(QObject):
         with BusyCursor():
             self.add_savepoint(name)
             try:
-                report = tweak_polish(current_container(), {action:True})
+                report, changed = tweak_polish(current_container(), {action:True})
             except:
                 self.rewind_savepoint()
                 raise
@@ -386,9 +386,10 @@ class Boss(QObject):
         d.l.addWidget(d.e)
         d.e.setHtml(report)
         d.bb = QDialogButtonBox(QDialogButtonBox.Close)
-        b = d.b = d.bb.addButton(_('See what changed'), d.bb.AcceptRole)
-        b.setIcon(QIcon(I('diff.png')))
-        b.clicked.connect(partial(self.show_current_diff, allow_revert=True))
+        if changed:
+            b = d.b = d.bb.addButton(_('See what changed'), d.bb.AcceptRole)
+            b.setIcon(QIcon(I('diff.png')))
+            b.clicked.connect(partial(self.show_current_diff, allow_revert=True))
         d.l.addWidget(d.bb)
         d.bb.rejected.connect(d.reject)
         d.bb.accepted.connect(d.accept)

@@ -104,6 +104,7 @@ def smarten_punctuation(container, report):
             smartened = True
     if not smartened:
         report(_('No punctuation that could be smartened found'))
+    return smartened
 
 def rename_files(container, file_map):
     overlap = set(file_map).intersection(set(file_map.itervalues()))

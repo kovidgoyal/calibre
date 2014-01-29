@@ -116,7 +116,7 @@ def embed_all_fonts(container, stats, report):
 
     if not rules:
         report(_('No embeddable fonts found'))
-        return
+        return False
 
     # Write out CSS
     rules = [';\n\t'.join('%s: %s' % (
@@ -135,6 +135,7 @@ def embed_all_fonts(container, stats, report):
         href = container.name_to_href(name, spine_name)
         etree.SubElement(head, XHTML('link'), rel='stylesheet', type='text/css', href=href).tail = '\n'
         container.dirty(spine_name)
+    return True
 
 
 if __name__ == '__main__':

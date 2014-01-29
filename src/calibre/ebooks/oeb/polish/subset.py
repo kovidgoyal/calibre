@@ -35,6 +35,7 @@ def remove_font_face_rules(container, sheet, remove_names, base):
 def subset_all_fonts(container, font_stats, report):
     remove = set()
     total_old = total_new = 0
+    changed = False
     for name, mt in container.mime_map.iteritems():
         if (mt in OEB_FONTS or name.rpartition('.')[-1].lower() in {'otf', 'ttf'}) and mt != guess_type('a.woff'):
             chars = font_stats.get(name, set())
@@ -69,10 +70,12 @@ def subset_all_fonts(container, font_stats, report):
                 else:
                     report('Decreased the font %s to %.1f%% of its original size'%
                        (font_name, nlen/olen * 100))
+                    changed = True
                 f.seek(0), f.truncate(), f.write(nraw)
 
     for name in remove:
         container.remove_item(name)
+        changed = True
 
     if remove:
         for name, mt in container.mime_map.iteritems():
@@ -92,6 +95,7 @@ def subset_all_fonts(container, font_stats, report):
             total_new/total_old*100))
     else:
         report('No embedded fonts found')
+    return changed
 
 if __name__ == '__main__':
     from calibre.ebooks.oeb.polish.container import get_container

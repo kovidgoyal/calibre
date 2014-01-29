@@ -147,3 +147,4 @@ def remove_unused_css(container, report):
         report(_('Removed %d unused CSS style rules') % num_of_removed_rules)
     else:
         report(_('No unused CSS style rules found'))
+    return num_of_removed_rules > 0

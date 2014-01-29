@@ -132,11 +132,13 @@ def update_metadata(ebook, new_opf):
 def polish_one(ebook, opts, report):
     rt = lambda x: report('\n### ' + x)
     jacket = None
+    changed = False
 
     if opts.subset or opts.embed:
         stats = StatsCollector(ebook, do_embed=opts.embed)
 
     if opts.opf:
+        changed = True
         rt(_('Updating metadata'))
         update_metadata(ebook, opts.opf)
         jacket = find_existing_jacket(ebook)
@@ -146,11 +148,13 @@ def polish_one(ebook, opts, report):
         report(_('Metadata updated\n'))
 
     if opts.cover:
+        changed = True
         rt(_('Setting cover'))
         set_cover(ebook, opts.cover, report)
         report('')
 
     if opts.jacket:
+        changed = True
         rt(_('Inserting metadata jacket'))
         if jacket is None:
             if add_or_replace_jacket(ebook):
@@ -165,29 +169,36 @@ def polish_one(ebook, opts, report):
         rt(_('Removing metadata jacket'))
         if remove_jacket(ebook):
             report(_('Metadata jacket removed'))
+            changed = True
         else:
             report(_('No metadata jacket found'))
         report('')
 
     if opts.smarten_punctuation:
         rt(_('Smartening punctuation'))
-        smarten_punctuation(ebook, report)
+        if smarten_punctuation(ebook, report):
+            changed = True
         report('')
 
     if opts.embed:
         rt(_('Embedding referenced fonts'))
-        embed_all_fonts(ebook, stats, report)
+        if embed_all_fonts(ebook, stats, report):
+            changed = True
         report('')
 
     if opts.subset:
         rt(_('Subsetting embedded fonts'))
-        subset_all_fonts(ebook, stats.font_stats, report)
+        if subset_all_fonts(ebook, stats.font_stats, report):
+            changed = True
         report('')
 
     if opts.remove_unused_css:
         rt(_('Removing unused CSS rules'))
-        remove_unused_css(ebook, report)
+        if remove_unused_css(ebook, report):
+            changed = True
         report('')
+
+    return changed
 
 
 def polish(file_map, opts, log, report):
@@ -228,8 +239,8 @@ def tweak_polish(container, actions):
     O = namedtuple('Options', ' '.join(ALL_OPTS.iterkeys()))
     opts = O(**opts)
     report = []
-    polish_one(container, opts, report.append)
-    return report
+    changed = polish_one(container, opts, report.append)
+    return report, changed
 
 def option_parser():
     from calibre.utils.config import OptionParser
