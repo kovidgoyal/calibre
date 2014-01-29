@@ -870,7 +870,7 @@ class DiffView(QWidget):  # {{{
         self.view.handle(1).update()
 
     def resized(self):
-        self.resize_timer.start(100)
+        self.resize_timer.start(300)
 
     def resize_debounced(self):
         self.view.resized()
