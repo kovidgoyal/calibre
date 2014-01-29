@@ -250,8 +250,8 @@ class TextBrowser(PlainTextEdit):  # {{{
             r = ev.rect()
             if block.isVisible() and bottom >= r.top():
                 text = unicode(self.line_number_map.get(num, ''))
-                is_start = num in change_starts
-                if is_start and text != '-':
+                is_start = text != '-' and num in change_starts
+                if is_start:
                     painter.save()
                     f = QFont(self.font())
                     f.setBold(True)
