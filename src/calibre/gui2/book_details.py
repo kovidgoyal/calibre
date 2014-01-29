@@ -413,6 +413,7 @@ class BookInfo(QWebView):
     remove_format = pyqtSignal(int, object)
     save_format = pyqtSignal(int, object)
     restore_format = pyqtSignal(int, object)
+    compare_format = pyqtSignal(int, object)
     copy_link = pyqtSignal(object)
     manage_author = pyqtSignal(object)
 
@@ -433,7 +434,7 @@ class BookInfo(QWebView):
         for x, icon in [
             ('remove_format', 'trash.png'), ('save_format', 'save.png'),
             ('restore_format', 'edit-undo.png'), ('copy_link','edit-copy.png'),
-            ('manage_author', 'user_profile.png')]:
+            ('manage_author', 'user_profile.png'), ('compare_format', 'diff.png')]:
             ac = QAction(QIcon(I(icon)), '', self)
             ac.current_fmt = None
             ac.current_url = None
@@ -457,6 +458,9 @@ class BookInfo(QWebView):
 
     def restore_format_triggerred(self):
         self.context_action_triggered('restore_format')
+
+    def compare_format_triggerred(self):
+        self.context_action_triggered('compare_format')
 
     def copy_link_triggerred(self):
         self.context_action_triggered('copy_link')
@@ -517,20 +521,31 @@ class BookInfo(QWebView):
             if url.startswith('format:'):
                 parts = url.split(':')
                 try:
-                    book_id, fmt = int(parts[1]), parts[2]
+                    book_id, fmt = int(parts[1]), parts[2].upper()
                 except:
                     import traceback
                     traceback.print_exc()
                 else:
+                    from calibre.gui2.ui import get_gui
+                    db = get_gui().current_db.new_api
+                    ofmt = fmt.upper() if fmt.startswith('ORIGINAL_') else 'ORIGINAL_' + fmt
+                    fmts = {x.upper() for x in db.formats(book_id)}
                     for a, t in [('remove', _('Delete the %s format')),
                         ('save', _('Save the %s format to disk')),
                         ('restore', _('Restore the %s format')),
+                        ('compare', ''),
                     ]:
-                        if a == 'restore' and not fmt.upper().startswith('ORIGINAL_'):
+                        if a == 'restore' and not fmt.startswith('ORIGINAL_'):
                             continue
+                        if a == 'compare':
+                            if ofmt not in fmts:
+                                continue
+                            t = _('Compare to the %s format') % (fmt[9:] if fmt.startswith('ORIGINAL_') else ofmt)
+                        else:
+                            t = t % fmt
                         ac = getattr(self, '%s_format_action'%a)
                         ac.current_fmt = (book_id, fmt)
-                        ac.setText(t%parts[2])
+                        ac.setText(t)
                         menu.addAction(ac)
         if len(menu.actions()) > 0:
             menu.exec_(ev.globalPos())
@@ -635,6 +650,7 @@ class BookDetails(QWidget):  # {{{
     remove_specific_format = pyqtSignal(int, object)
     save_specific_format = pyqtSignal(int, object)
     restore_specific_format = pyqtSignal(int, object)
+    compare_specific_format = pyqtSignal(int, object)
     copy_link = pyqtSignal(object)
     remote_file_dropped = pyqtSignal(object, object)
     files_dropped = pyqtSignal(object, object)
@@ -706,6 +722,7 @@ class BookDetails(QWidget):  # {{{
         self.book_info.remove_format.connect(self.remove_specific_format)
         self.book_info.save_format.connect(self.save_specific_format)
         self.book_info.restore_format.connect(self.restore_specific_format)
+        self.book_info.compare_format.connect(self.compare_specific_format)
         self.book_info.copy_link.connect(self.copy_link)
         self.book_info.manage_author.connect(self.manage_author)
         self.setCursor(Qt.PointingHandCursor)

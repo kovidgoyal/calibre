@@ -11,7 +11,7 @@ from functools import partial
 from PyQt4.Qt import (
     QGridLayout, QToolButton, QIcon, QRadioButton, QMenu, QApplication, Qt,
     QSize, QWidget, QLabel, QStackedLayout, QPainter, QRect, QVBoxLayout,
-    QCursor, QEventLoop, QKeySequence, pyqtSignal)
+    QCursor, QEventLoop, QKeySequence, pyqtSignal, QTimer)
 
 from calibre.ebooks.oeb.polish.container import Container
 from calibre.gui2 import info_dialog
@@ -107,8 +107,8 @@ def container_diff(left, right):
         left_names -= samefile_names
         right_names -= samefile_names
 
-        cache, changed_names, renamed_names, removed_names, added_names = changed_files(
-            left_names, right_names, left.raw_data, right.raw_data)
+    cache, changed_names, renamed_names, removed_names, added_names = changed_files(
+        left_names, right_names, left.raw_data, right.raw_data)
 
     def syntax(container, name):
         mt = container.mime_map[name]
@@ -141,6 +141,7 @@ class Diff(Dialog):
         return QSize(int(0.9 * geom.width()), int(0.8 * geom.height()))
 
     def setup_ui(self):
+        self.setWindowIcon(QIcon(I('diff.png')))
         self.stacks = st = QStackedLayout(self)
         self.busy = BusyWidget(self)
         self.w = QWidget(self)
@@ -299,6 +300,18 @@ class Diff(Dialog):
                 self.sbp.click()
                 return
             return Dialog.keyPressEvent(self, ev)
+
+def compare_books(path1, path2, revert_msg=None, revert_callback=None, parent=None):
+    d = Diff(parent=parent, revert_button_msg=revert_msg)
+    if revert_msg is not None:
+        d.revert_requested.connect(revert_callback)
+    QTimer.singleShot(0, partial(d.ebook_diff, path1, path2))
+    d.exec_()
+    try:
+        d.revert_requested.disconnect()
+    except:
+        pass
+    d.break_cycles()
 
 if __name__ == '__main__':
     import sys

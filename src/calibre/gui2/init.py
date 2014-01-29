@@ -449,6 +449,7 @@ class LayoutMixin(object):  # {{{
         self.book_details.view_device_book.connect(
                 self.iactions['View'].view_device_book)
         self.book_details.manage_author.connect(lambda author:self.do_author_sort_edit(self, author, select_sort=False, select_link=False))
+        self.book_details.compare_specific_format.connect(self.compare_format)
 
         m = self.library_view.model()
         if m.rowCount(None) > 0:
@@ -474,6 +475,18 @@ class LayoutMixin(object):  # {{{
     def bd_copy_link(self, url):
         if url:
             QApplication.clipboard().setText(url)
+
+    def compare_format(self, book_id, fmt):
+        db = self.current_db.new_api
+        ofmt = fmt
+        if fmt.startswith('ORIGINAL_'):
+            fmt = fmt.partition('_')[-1]
+        else:
+            ofmt = 'ORIGINAL_' + fmt
+        path1, path2 = db.format_abspath(book_id, ofmt), db.format_abspath(book_id, fmt)
+        from calibre.gui2.tweak_book.diff.main import compare_books
+        compare_books(path1, path2, parent=self, revert_msg=_('Restore %s') % ofmt, revert_callback=partial(
+            self.iactions['Remove Books'].restore_format, book_id, ofmt))
 
     def save_layout_state(self):
         for x in ('library', 'memory', 'card_a', 'card_b'):
