@@ -45,6 +45,25 @@ def get_theme():
         theme = THEMES[default_theme()]
     return theme
 
+class LineNumberMap(dict):  # {{{
+
+    'Map line numbers and keep track of the maximum width of the line numbers'
+
+    def __new__(cls):
+        self = dict.__new__(cls)
+        self.max_width = 1
+        return self
+
+    def __setitem__(self, k, v):
+        v = unicode(v)
+        dict.__setitem__(self, k, v)
+        self.max_width = max(self.max_width, len(v))
+
+    def clear(self):
+        dict.clear(self)
+        self.max_width = 1
+# }}}
+
 class TextBrowser(PlainTextEdit):  # {{{
 
     resized = pyqtSignal()
@@ -92,7 +111,7 @@ class TextBrowser(PlainTextEdit):  # {{{
         pal.setColor(pal.Base, theme_color(theme, 'LineNr', 'bg'))
         pal.setColor(pal.Text, theme_color(theme, 'LineNr', 'fg'))
         pal.setColor(pal.BrightText, theme_color(theme, 'LineNrC', 'fg'))
-        self.line_number_map = {}
+        self.line_number_map = LineNumberMap()
         self.search_header_pos = 0
         self.changes, self.headers, self.images = [], [], OrderedDict()
         self.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
@@ -216,13 +235,7 @@ class TextBrowser(PlainTextEdit):  # {{{
         return self.width() - self.side_margin
 
     def line_number_area_width(self):
-        digits = 1
-        limit = max(1, self.blockCount())
-        while limit >= 10:
-            limit /= 10
-            digits += 1
-
-        return 8 + self.number_width * digits
+        return 9 + (self.line_number_map.max_width * self.number_width)
 
     def update_line_number_area(self, rect, dy):
         if dy:
@@ -270,7 +283,7 @@ class TextBrowser(PlainTextEdit):  # {{{
                         painter.drawText(r.left() + 3, top, r.right(), self.fontMetrics().height(),
                                 Qt.AlignLeft, text)
                     else:
-                        painter.drawText(r.left(), top, r.right() - 5, self.fontMetrics().height(),
+                        painter.drawText(r.left() + 2, top, r.right() - 5, self.fontMetrics().height(),
                                 Qt.AlignRight, text)
                 if is_start:
                     painter.restore()
