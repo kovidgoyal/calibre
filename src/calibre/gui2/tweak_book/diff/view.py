@@ -64,7 +64,7 @@ class TextBrowser(PlainTextEdit):  # {{{
         w = self.fontMetrics()
         self.number_width = max(map(lambda x:w.width(str(x)), xrange(10)))
         self.space_width = w.width(' ')
-        self.setLineWrapMode(self.WidgetWidth if tprefs['editor_line_wrap'] else self.NoWrap)
+        self.setLineWrapMode(self.WidgetWidth)
         self.setTabStopWidth(tprefs['editor_tab_stop_width'] * self.space_width)
         font = self.font()
         ff = tprefs['editor_font_family']
@@ -835,10 +835,11 @@ class DiffView(QWidget):  # {{{
 
     def __init__(self, parent=None):
         QWidget.__init__(self, parent)
-        self.changes = []
+        self.changes = [[], [], []]
         self.delta = 0
         self.l = l = QHBoxLayout(self)
         self.setLayout(l)
+        self.syncpos = 0
         l.setMargin(0), l.setSpacing(0)
         self.view = DiffSplit(self)
         l.addWidget(self.view)
@@ -875,14 +876,11 @@ class DiffView(QWidget):  # {{{
     def resize_debounced(self):
         self.view.resized()
         self.calculate_length()
+        self.adjust_range()
         self.view.handle(1).update()
 
-    @property
-    def syncpos(self):
-        return int(ceil(self.scrollbar.pageStep() * self.SYNC_POSITION))
-
     def get_position_from_scrollbar(self, which):
-        changes = (self.changes, self.view.left.changes, self.view.right.changes)[which]
+        changes = self.changes[which]
         bar = self.bars[which]
         syncpos = self.syncpos + bar.value()
         prev = (0, 0, None)
@@ -907,7 +905,7 @@ class DiffView(QWidget):  # {{{
             return 'after', len(self.changes) - 1, offset
 
     def scroll_to(self, which, position):
-        changes = (self.changes, self.view.left.changes, self.view.right.changes)[which]
+        changes = self.changes[which]
         bar = self.bars[which]
         val = None
         if position[0] == 'in':
@@ -938,7 +936,7 @@ class DiffView(QWidget):  # {{{
     def clear(self):
         with self:
             self.view.clear()
-            self.changes = []
+            self.changes = [[], [], []]
             self.delta = 0
             self.scrollbar.setRange(0, 0)
 
@@ -948,23 +946,36 @@ class DiffView(QWidget):  # {{{
         self.scrollbar.setSingleStep(min(ls.singleStep(), rs.singleStep()))
         self.scrollbar.setRange(0, ls.maximum() + self.delta)
         self.scrollbar.setVisible(self.view.left.blockCount() > ls.pageStep() or self.view.right.blockCount() > rs.pageStep())
+        self.syncpos = int(ceil(self.scrollbar.pageStep() * self.SYNC_POSITION))
 
     def finalize(self):
         self.view.finalize()
-        self.changes = []
+        self.changes = [[], [], []]
         self.calculate_length()
+        self.adjust_range()
 
     def calculate_length(self):
-        left, right = self.view.left, self.view.right
-        changes = []
         delta = 0
-        for (l_top, l_bot, kind), (r_top, r_bot, kind) in zip(left.changes, right.changes):
+        line_number_changes = ([], [])
+        for v, lmap, changes in zip((self.view.left, self.view.right), ({}, {}), line_number_changes):
+            b = v.document().firstBlock()
+            ebl = v.document().documentLayout().ensureBlockLayout
+            last_line_count = 0
+            while b.isValid():
+                ebl(b)
+                lmap[b.blockNumber()] = last_line_count
+                last_line_count += b.layout().lineCount()
+                b = b.next()
+            for top, bot, kind in v.changes:
+                changes.append((lmap[top], lmap[bot], kind))
+
+        changes = []
+        for (l_top, l_bot, kind), (r_top, r_bot, kind) in zip(*line_number_changes):
             height = max(l_bot - l_top, r_bot - r_top)
             top = delta + l_top
             changes.append((top, top + height, kind))
             delta = top + height - l_bot
-        self.changes, self.delta = changes, delta
-        self.adjust_range()
+        self.changes, self.delta = (changes,) + line_number_changes, delta
 
     def handle_key(self, ev):
         amount, d = None, 1
