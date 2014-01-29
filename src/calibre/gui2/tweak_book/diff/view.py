@@ -679,6 +679,8 @@ class DiffSplit(QSplitter):  # {{{
                     getattr(self, tag)(alo, ahi, blo, bhi)
                     QApplication.processEvents(QEventLoop.ExcludeUserInputEvents | QEventLoop.ExcludeSocketNotifiers)
                 cl.insertBlock(), cr.insertBlock()
+            if ahi < len(left_lines) - 1 or bhi < len(right_lines) - 1:
+                insert_boundary()
 
         cl.endEditBlock(), cr.endEditBlock()
         del self.left_lines
