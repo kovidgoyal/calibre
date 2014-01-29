@@ -68,7 +68,7 @@ class TextBrowser(PlainTextEdit):  # {{{
 
     resized = pyqtSignal()
     wheel_event = pyqtSignal(object)
-    goto_change = pyqtSignal(object)
+    next_change = pyqtSignal(object)
     scrolled = pyqtSignal()
 
     def __init__(self, right=False, parent=None):
@@ -141,27 +141,8 @@ class TextBrowser(PlainTextEdit):  # {{{
             a(QIcon(I('edit-copy.png')), _('Copy to clipboard'), self.copy).setShortcut(QKeySequence.Copy)
 
         if len(self.changes) > 0:
-            try:
-                b = self.cursorForPosition(pos).block().blockNumber()
-            except Exception:
-                b = -1
-            if b > -1:
-                pc = nc = None
-                for i, (top, bot, kind) in enumerate(self.changes):
-                    if top <= b and bot >= b:
-                        if len(self.changes) == 1:
-                            break
-                        pc = (i - 1) % len(self.changes)
-                        nc = (i + 1) % len(self.changes)
-                    if bot < b:
-                        pc = i
-                    if top > b:
-                        nc = i
-                        break
-                if pc is not None:
-                    a(QIcon(I('arrow-up.png')), _('Previous change'), partial(self.goto_change.emit, pc))
-                if nc is not None:
-                    a(QIcon(I('arrow-down.png')), _('Next change'), partial(self.goto_change.emit, nc))
+            a(QIcon(I('arrow-up.png')), _('Previous change'), partial(self.next_change.emit, -1))
+            a(QIcon(I('arrow-down.png')), _('Next change'), partial(self.next_change.emit, 1))
 
         if len(m.actions()) > 0:
             m.exec_(self.mapToGlobal(pos))
@@ -877,17 +858,36 @@ class DiffView(QWidget):  # {{{
         for i, v in enumerate((self.view.left, self.view.right, self.view.handle(1))):
             v.wheel_event.connect(self.scrollbar.wheelEvent)
             if i < 2:
-                v.goto_change.connect(self.goto_change)
+                v.next_change.connect(self.next_change)
                 v.scrolled.connect(partial(self.scrolled, i + 1))
 
-    def goto_change(self, change):
-        for v in (self.view.left, self.view.right):
-            c = QTextCursor(v.document().findBlockByNumber(v.changes[change][0]))
-            v.setTextCursor(c)
-            v.centerCursor()
-        with self:
-            self.scroll_to(0, self.get_position_from_scrollbar(1))
-        self.view.handle(1).update()
+    def next_change(self, delta):
+        assert delta in (1, -1)
+        position = self.get_position_from_scrollbar(0)
+        if position[0] == 'in':
+            p = n = position[1]
+        else:
+            p, n = position[1], position[1] + 1
+            if p < 0:
+                p = None
+            if n >= len(self.changes[0]):
+                n = None
+        if p == n:
+            nc = p + delta
+            if nc < 0 or nc >= len(self.changes[0]):
+                nc = None
+        else:
+            nc = {1:n, -1:p}[delta]
+        if nc is None:
+            self.scrollbar.setValue(0 if delta == -1 else self.scrollbar.maximum())
+        else:
+            val = self.scrollbar.value()
+            self.scroll_to(0, ('in', nc, 0))
+            nval = self.scrollbar.value()
+            if nval == val:
+                nval += 5 * delta
+                if 0 <= nval <= self.scrollbar.maximum():
+                    self.scrollbar.setValue(nval)
 
     def resized(self):
         self.resize_timer.start(300)
