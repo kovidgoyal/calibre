@@ -15,7 +15,7 @@ from PyQt4.Qt import (
     QDialogButtonBox, QIcon, QTimer, QPixmap, QTextBrowser, QVBoxLayout, QInputDialog)
 
 from calibre import prints, prepare_string_for_xml, isbytestring
-from calibre.ptempfile import PersistentTemporaryDirectory
+from calibre.ptempfile import PersistentTemporaryDirectory, TemporaryDirectory
 from calibre.ebooks.oeb.base import urlnormalize
 from calibre.ebooks.oeb.polish.main import SUPPORTED, tweak_polish
 from calibre.ebooks.oeb.polish.container import get_container as _gc, clone_container, guess_type, OEB_FONTS
@@ -395,16 +395,6 @@ class Boss(QObject):
     def create_diff_dialog(self, revert_msg=_('&Revert changes'), show_open_in_editor=True):
         global _diff_dialogs
         from calibre.gui2.tweak_book.diff.main import Diff
-        d = Diff(revert_button_msg=revert_msg, show_open_in_editor=show_open_in_editor)
-        [x.break_cycles() for x in _diff_dialogs if not x.isVisible()]
-        _diff_dialogs = [x for x in _diff_dialogs if x.isVisible()] + [d]
-        d.show(), d.raise_(), d.setFocus(Qt.OtherFocusReason), d.setWindowModality(Qt.NonModal)
-        return d
-
-    def show_current_diff(self, allow_revert=True):
-        self.commit_all_editors_to_container()
-        d = self.create_diff_dialog()
-        d.revert_requested.connect(partial(self.revert_requested, self.global_undo.previous_container))
         def line_activated(name, lnum, right):
             if right:
                 self.edit_file_requested(name, None, guess_type(name))
@@ -413,8 +403,30 @@ class Boss(QObject):
                     editor.go_to_line(lnum)
                     editor.setFocus(Qt.OtherFocusReason)
                     self.gui.raise_()
-        d.line_activated.connect(line_activated)
+        d = Diff(revert_button_msg=revert_msg, show_open_in_editor=show_open_in_editor)
+        [x.break_cycles() for x in _diff_dialogs if not x.isVisible()]
+        _diff_dialogs = [x for x in _diff_dialogs if x.isVisible()] + [d]
+        d.show(), d.raise_(), d.setFocus(Qt.OtherFocusReason), d.setWindowModality(Qt.NonModal)
+        if show_open_in_editor:
+            d.line_activated.connect(line_activated)
+        return d
+
+    def show_current_diff(self, allow_revert=True):
+        self.commit_all_editors_to_container()
+        d = self.create_diff_dialog()
+        d.revert_requested.connect(partial(self.revert_requested, self.global_undo.previous_container))
         d.container_diff(self.global_undo.previous_container, self.global_undo.current_container)
+
+    def compare_book(self):
+        self.commit_all_editors_to_container()
+        c = current_container()
+        path = choose_files(self.gui, 'select-book-for-comparison', _('Choose book'), filters=[
+            (_('%s books') % c.book_type.upper(), (c.book_type,))], select_only_single_file=True, all_files=False)
+        if path and path[0]:
+            with TemporaryDirectory('_compare') as tdir:
+                other = _gc(path[0], tdir=tdir, tweak_mode=True)
+                d = self.create_diff_dialog(revert_msg=None)
+                d.container_diff(other, c)
 
     def revert_requested(self, container):
         nc = self.global_undo.revert_to(container)

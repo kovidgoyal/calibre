@@ -408,6 +408,8 @@ class Main(MainWindow):
         self.action_multiple_split = reg(
             'auto_author_sort.png', _('&Split at multiple locations'), self.boss.multisplit, 'multisplit', (), _(
                 'Split HTML file at multiple locations'))
+        self.action_compare_book = reg('diff.png', _('&Compare to another book'), self.boss.compare_book, 'compare-book', (), _(
+            'Compare to another book'))
 
     def create_menubar(self):
         p, q = self.create_application_menubar()
@@ -426,6 +428,7 @@ class Main(MainWindow):
         f.addAction(self.action_save)
         f.addAction(self.action_save_copy)
         f.addSeparator()
+        f.addAction(self.action_compare_book)
         f.addAction(self.action_quit)
 
         e = b.addMenu(_('&Edit'))
