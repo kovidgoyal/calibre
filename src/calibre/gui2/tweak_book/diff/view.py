@@ -429,6 +429,11 @@ class DiffSplitHandle(QSplitterHandle):  # {{{
     WIDTH = 30  # px
     wheel_event = pyqtSignal(object)
 
+    def event(self, ev):
+        if ev.type() in (ev.HoverEnter, ev.HoverLeave):
+            self.hover = ev.type() == ev.HoverEnter
+        return QSplitterHandle.event(self, ev)
+
     def paintEvent(self, event):
         QSplitterHandle.paintEvent(self, event)
         left, right = self.parent().left, self.parent().right
@@ -508,6 +513,10 @@ class DiffSplitHandle(QSplitterHandle):  # {{{
             painter.drawPath(line)
 
         painter.end()
+        # Paint the splitter without the change lines if the mouse is over the
+        # splitter
+        if getattr(self, 'hover', False):
+            QSplitterHandle.paintEvent(self, event)
 
     def sizeHint(self):
         ans = QSplitterHandle.sizeHint(self)
