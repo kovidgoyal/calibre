@@ -45,6 +45,20 @@ def get_theme():
         theme = THEMES[default_theme()]
     return theme
 
+def beautify_text(raw, syntax):
+    from lxml import etree
+    from calibre.ebooks.oeb.polish.parsing import parse
+    from calibre.ebooks.oeb.polish.pretty import pretty_xml_tree, pretty_html_tree
+    from calibre.ebooks.chardet import strip_encoding_declarations
+    if syntax == 'xml':
+        root = etree.fromstring(strip_encoding_declarations(raw))
+        pretty_xml_tree(root)
+    else:
+        root = parse(raw, line_numbers=False)
+        pretty_html_tree(None, root)
+    return etree.tostring(root, encoding=unicode)
+
+
 class LineNumberMap(dict):  # {{{
 
     'Map line numbers and keep track of the maximum width of the line numbers'
@@ -518,7 +532,7 @@ class DiffSplit(QSplitter):  # {{{
             v.setTextCursor(c)
         self.update()
 
-    def add_diff(self, left_name, right_name, left_text, right_text, context=None, syntax=None):
+    def add_diff(self, left_name, right_name, left_text, right_text, context=None, syntax=None, beautify=False):
         left_text, right_text = left_text or '', right_text or ''
         is_identical = len(left_text) == len(right_text) and left_text == right_text and left_name == right_name
         is_text = isinstance(left_text, type('')) and isinstance(right_text, type(''))
@@ -542,7 +556,7 @@ class DiffSplit(QSplitter):  # {{{
                 for v in (self.left, self.right):
                     v.appendPlainText('\n')
             elif is_text:
-                self.add_text_diff(left_text, right_text, context, syntax)
+                self.add_text_diff(left_text, right_text, context, syntax, beautify=beautify)
             elif syntax == 'raster_image':
                 self.add_image_diff(left_text, right_text)
             else:
@@ -651,9 +665,11 @@ class DiffSplit(QSplitter):  # {{{
     # }}}
 
     # text diffs {{{
-    def add_text_diff(self, left_text, right_text, context, syntax):
+    def add_text_diff(self, left_text, right_text, context, syntax, beautify=False):
         left_text = unicodedata.normalize('NFC', left_text)
         right_text = unicodedata.normalize('NFC', right_text)
+        if beautify and syntax in {'xml', 'html'}:
+            left_text, right_text = beautify_text(left_text, syntax), beautify_text(right_text, syntax)
         left_lines = self.left_lines = left_text.splitlines()
         right_lines = self.right_lines = right_text.splitlines()
 

@@ -173,9 +173,10 @@ def pretty_html_tree(container, root):
     for body in root.findall('h:body', namespaces=XPNSMAP):
         pretty_block(body)
 
-    # Handle <script> and <style> tags
-    for child in root.xpath('//*[local-name()="script" or local-name()="style"]'):
-        pretty_script_or_style(container, child)
+    if container is not None:
+        # Handle <script> and <style> tags
+        for child in root.xpath('//*[local-name()="script" or local-name()="style"]'):
+            pretty_script_or_style(container, child)
 
 def fix_html(container, raw):
     root = container.parse_xhtml(raw)

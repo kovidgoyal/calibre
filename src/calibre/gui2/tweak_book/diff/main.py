@@ -182,6 +182,7 @@ class Diff(Dialog):
 
     def __init__(self, revert_button_msg=None, parent=None, show_open_in_editor=False):
         self.context = 3
+        self.beautify = False
         self.apply_diff_calls = []
         self.show_open_in_editor = show_open_in_editor
         self.revert_button_msg = revert_button_msg
@@ -247,14 +248,17 @@ class Diff(Dialog):
         b.setChecked(True)
         self.pb = b = QToolButton(self)
         b.setIcon(QIcon(I('config.png')))
-        b.setText(_('&Context')), b.setToolButtonStyle(Qt.ToolButtonTextBesideIcon)
-        b.setToolTip(_('Change the amount of context shown around the changes'))
+        b.setText(_('&Options')), b.setToolButtonStyle(Qt.ToolButtonTextBesideIcon)
+        b.setToolTip(_('Change how the differences are displayed'))
         b.setPopupMode(b.InstantPopup)
         m = QMenu(b)
         b.setMenu(m)
+        cm = self.cm = QMenu(_('Lines of context around each change'))
         for i in (3, 5, 10, 50):
-            m.addAction(_('Show %d lines of context around changes') % i, partial(self.change_context, i))
-        m.addAction(_('Show all text'), partial(self.change_context, None))
+            cm.addAction(_('Show %d lines of context') % i, partial(self.change_context, i))
+        cm.addAction(_('Show all text'), partial(self.change_context, None))
+        m.addAction(_('Beautify HTML/XML files before comparing them'), partial(self.change_beautify, True))
+        m.addMenu(cm)
         l.addWidget(b, l.rowCount() - 1, l.columnCount(), 1, 1)
 
         self.bb.setStandardButtons(self.bb.Close)
@@ -286,12 +290,22 @@ class Diff(Dialog):
         if context == self.context:
             return
         self.context = context
+        self.refresh()
+
+    def refresh(self):
         with self:
             self.view.clear()
             for args, kwargs in self.apply_diff_calls:
                 kwargs['context'] = self.context
+                kwargs['beautify'] = self.beautify
                 self.view.add_diff(*args, **kwargs)
             self.view.finalize()
+
+    def change_beautify(self, beautify):
+        if beautify == self.beautify:
+            return
+        self.beautify = beautify
+        self.refresh()
 
     def __enter__(self):
         self.stacks.setCurrentIndex(0)
@@ -343,31 +357,28 @@ class Diff(Dialog):
             info_dialog(self, _('No changes found'), identical_msg, show=True)
             return True
 
+        kwargs = lambda name: {'context':self.context, 'beautify':self.beautify, 'syntax':syntax_map.get(name, None)}
+
         if isinstance(changed_names, dict):
             for name, other_name in sorted(changed_names.iteritems(), key=lambda x:numeric_sort_key(x[0])):
                 args = (name, other_name, cache.left(name), cache.right(other_name))
-                kwargs = {'syntax':syntax_map.get(name, None), 'context':self.context}
-                add(args, kwargs)
+                add(args, kwargs(name))
         else:
             for name in sorted(changed_names, key=numeric_sort_key):
                 args = (name, name, cache.left(name), cache.right(name))
-                kwargs = {'syntax':syntax_map.get(name, None), 'context':self.context}
-                add(args, kwargs)
+                add(args, kwargs(name))
 
         for name in sorted(added_names, key=numeric_sort_key):
             args = (_('[%s was added]') % name, name, None, cache.right(name))
-            kwargs = {'syntax':syntax_map.get(name, None), 'context':self.context}
-            add(args, kwargs)
+            add(args, kwargs(name))
 
         for name in sorted(removed_names, key=numeric_sort_key):
             args = (name, _('[%s was removed]') % name, cache.left(name), None)
-            kwargs = {'syntax':syntax_map.get(name, None), 'context':self.context}
-            add(args, kwargs)
+            add(args, kwargs(name))
 
         for name, new_name in sorted(renamed_names.iteritems(), key=lambda x:numeric_sort_key(x[0])):
             args = (name, new_name, None, None)
-            kwargs = {'syntax':syntax_map.get(name, None), 'context':self.context}
-            add(args, kwargs)
+            add(args, kwargs(name))
 
     def keyPressEvent(self, ev):
         if not self.view.handle_key(ev):
