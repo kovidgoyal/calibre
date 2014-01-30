@@ -1054,6 +1054,9 @@ class DiffView(QWidget):  # {{{
         elif key in (Qt.Key_Home, Qt.Key_End):
             self.scrollbar.setValue(0 if key == Qt.Key_Home else self.scrollbar.maximum())
             return True
+        elif key in (Qt.Key_N, Qt.Key_P):
+            self.next_change(1 if key == Qt.Key_N else -1)
+            return True
 
         if amount is not None:
             self.scrollbar.setValue(self.scrollbar.value() + d * amount)

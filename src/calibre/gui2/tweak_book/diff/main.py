@@ -211,14 +211,14 @@ class Diff(Dialog):
         self.bp = b = QToolButton(self)
         b.setIcon(QIcon(I('back.png')))
         b.clicked.connect(partial(self.view.next_change, -1))
-        b.setToolTip(_('Go to previous change'))
+        b.setToolTip(_('Go to previous change') + ' [p]')
         b.setText(_('&Previous change')), b.setToolButtonStyle(Qt.ToolButtonTextBesideIcon)
         l.addWidget(b, r, l.columnCount(), 1, 1)
 
         self.bn = b = QToolButton(self)
         b.setIcon(QIcon(I('forward.png')))
         b.clicked.connect(partial(self.view.next_change, 1))
-        b.setToolTip(_('Go to next change'))
+        b.setToolTip(_('Go to next change') + ' [n]')
         b.setText(_('&Next change')), b.setToolButtonStyle(Qt.ToolButtonTextBesideIcon)
         l.addWidget(b, r, l.columnCount(), 1, 1)
 
