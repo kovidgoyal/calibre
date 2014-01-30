@@ -429,6 +429,7 @@ class Boss(QObject):
                 d.container_diff(other, c)
 
     def revert_requested(self, container):
+        self.commit_all_editors_to_container()
         nc = self.global_undo.revert_to(container)
         set_current_container(nc)
         self.apply_container_update_to_gui()
