@@ -395,10 +395,10 @@ class Boss(QObject):
     def create_diff_dialog(self, revert_msg=_('&Revert changes'), show_open_in_editor=True):
         global _diff_dialogs
         from calibre.gui2.tweak_book.diff.main import Diff
-        d = Diff(revert_button_msg=revert_msg, parent=self.gui, show_open_in_editor=show_open_in_editor)
+        d = Diff(revert_button_msg=revert_msg, show_open_in_editor=show_open_in_editor)
         [x.break_cycles() for x in _diff_dialogs if not x.isVisible()]
         _diff_dialogs = [x for x in _diff_dialogs if x.isVisible()] + [d]
-        d.show(), d.raise_(), d.setFocus(Qt.OtherFocusReason)
+        d.show(), d.raise_(), d.setFocus(Qt.OtherFocusReason), d.setWindowModality(Qt.NonModal)
         return d
 
     def show_current_diff(self, allow_revert=True):
@@ -1215,6 +1215,8 @@ class Boss(QObject):
     def shutdown(self):
         self.gui.preview.stop_refresh_timer()
         self.save_state()
+        [x.reject() for x in _diff_dialogs]
+        del _diff_dialogs[:]
         self.save_manager.shutdown()
         parse_worker.shutdown()
         self.save_manager.wait(0.1)
