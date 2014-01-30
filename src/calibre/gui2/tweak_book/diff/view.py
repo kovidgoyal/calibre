@@ -53,6 +53,19 @@ def beautify_text(raw, syntax):
     if syntax == 'xml':
         root = etree.fromstring(strip_encoding_declarations(raw))
         pretty_xml_tree(root)
+    elif syntax == 'css':
+        import logging
+        from calibre.ebooks.oeb.base import serialize, _css_logger
+        from calibre.ebooks.oeb.polish.utils import setup_cssutils_serialization
+        from cssutils import CSSParser, log
+        setup_cssutils_serialization(tprefs['editor_tab_stop_width'])
+        log.setLevel(logging.WARN)
+        log.raiseExceptions = False
+        parser = CSSParser(loglevel=logging.WARNING,
+                           # We dont care about @import rules
+                           fetcher=lambda x: (None, None), log=_css_logger)
+        data = parser.parseString(raw, href='<string>', validate=False)
+        return serialize(data, 'text/css')
     else:
         root = parse(raw, line_numbers=False)
         pretty_html_tree(None, root)
@@ -668,7 +681,7 @@ class DiffSplit(QSplitter):  # {{{
     def add_text_diff(self, left_text, right_text, context, syntax, beautify=False):
         left_text = unicodedata.normalize('NFC', left_text)
         right_text = unicodedata.normalize('NFC', right_text)
-        if beautify and syntax in {'xml', 'html'}:
+        if beautify and syntax in {'xml', 'html', 'css'}:
             left_text, right_text = beautify_text(left_text, syntax), beautify_text(right_text, syntax)
         left_lines = self.left_lines = left_text.splitlines()
         right_lines = self.right_lines = right_text.splitlines()

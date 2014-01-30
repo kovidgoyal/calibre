@@ -257,7 +257,7 @@ class Diff(Dialog):
         for i in (3, 5, 10, 50):
             cm.addAction(_('Show %d lines of context') % i, partial(self.change_context, i))
         cm.addAction(_('Show all text'), partial(self.change_context, None))
-        m.addAction(_('Beautify HTML/XML files before comparing them'), partial(self.change_beautify, True))
+        m.addAction(_('Beautify files before comparing them'), partial(self.change_beautify, True))
         m.addMenu(cm)
         l.addWidget(b, l.rowCount() - 1, l.columnCount(), 1, 1)
 

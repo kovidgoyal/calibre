@@ -24,7 +24,7 @@ from calibre.ebooks.oeb.polish.pretty import fix_all_html, pretty_all
 from calibre.ebooks.oeb.polish.replace import rename_files, replace_file, get_recommended_folders, rationalize_folders
 from calibre.ebooks.oeb.polish.split import split, merge, AbortError, multisplit
 from calibre.ebooks.oeb.polish.toc import remove_names_from_toc, find_existing_toc
-from calibre.ebooks.oeb.polish.utils import link_stylesheets
+from calibre.ebooks.oeb.polish.utils import link_stylesheets, setup_cssutils_serialization as scs
 from calibre.gui2 import error_dialog, choose_files, question_dialog, info_dialog, choose_save_file
 from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.gui2.tweak_book import set_current_container, current_container, tprefs, actions, editors
@@ -54,11 +54,7 @@ def get_container(*args, **kwargs):
     return container
 
 def setup_cssutils_serialization():
-    import cssutils
-    prefs = cssutils.ser.prefs
-    prefs.indent = tprefs['editor_tab_stop_width'] * ' '
-    prefs.indentClosingBrace = False
-    prefs.omitLastSemicolon = False
+    scs(tprefs['editor_tab_stop_width'])
 
 class BusyCursor(object):
 

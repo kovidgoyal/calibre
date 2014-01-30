@@ -14,6 +14,13 @@ from calibre import guess_type as _guess_type
 def guess_type(x):
     return _guess_type(x)[0] or 'application/octet-stream'
 
+def setup_cssutils_serialization(tab_width=2):
+    import cssutils
+    prefs = cssutils.ser.prefs
+    prefs.indent = tab_width * ' '
+    prefs.indentClosingBrace = False
+    prefs.omitLastSemicolon = False
+
 class PositionFinder(object):
 
     def __init__(self, raw):
