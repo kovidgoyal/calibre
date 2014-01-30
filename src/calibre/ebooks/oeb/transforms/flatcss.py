@@ -503,14 +503,14 @@ class CSSFlattener(object):
     def flatten_head(self, item, href, global_href):
         html = item.data
         head = html.find(XHTML('head'))
-        for node in head:
+        for node in html.xpath('//*[local-name()="style" or local-name()="link"]'):
             if node.tag == XHTML('link') \
                and node.get('rel', 'stylesheet') == 'stylesheet' \
                and node.get('type', CSS_MIME) in OEB_STYLES:
-                head.remove(node)
+                node.getparent().remove(node)
             elif node.tag == XHTML('style') \
                  and node.get('type', CSS_MIME) in OEB_STYLES:
-                head.remove(node)
+                node.getparent().remove(node)
         href = item.relhref(href)
         l = etree.SubElement(head, XHTML('link'),
             rel='stylesheet', type=CSS_MIME, href=href)

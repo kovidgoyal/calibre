@@ -172,11 +172,7 @@ class Stylizer(object):
         basename = os.path.basename(path)
         cssname = os.path.splitext(basename)[0] + '.css'
         stylesheets = [html_css_stylesheet()]
-        head = xpath(tree, '/h:html/h:head')
-        if head:
-            head = head[0]
-        else:
-            head = []
+        style_tags = xpath(tree, '//*[local-name()="style" or local-name()="link"]')
 
         # Add cssutils parsing profiles from output_profile
         for profile in self.opts.output_profile.extra_css_modules:
@@ -187,7 +183,7 @@ class Stylizer(object):
         parser = CSSParser(fetcher=self._fetch_css_file,
                 log=logging.getLogger('calibre.css'))
         self.font_face_rules = []
-        for elem in head:
+        for elem in style_tags:
             if (elem.tag == XHTML('style') and
                 elem.get('type', CSS_MIME) in OEB_STYLES):
                 text = elem.text if elem.text else u''
