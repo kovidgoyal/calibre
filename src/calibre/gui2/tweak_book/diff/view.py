@@ -637,6 +637,7 @@ class DiffSplit(QSplitter):  # {{{
                 v.changes = [(mapnum(t), mapnum(b), kind) for t, b, kind in v.changes]
                 v.headers = [(mapnum(x), name) for x, name in v.headers]
                 v.images = OrderedDict((mapnum(x), v) for x, v in v.images.iteritems())
+            v.viewport().update()
 
     def get_lines_for_image(self, img, view):
         if img.isNull():
