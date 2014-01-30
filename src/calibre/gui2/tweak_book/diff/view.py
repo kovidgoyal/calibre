@@ -116,7 +116,7 @@ class TextBrowser(PlainTextEdit):  # {{{
         self.line_number_map = LineNumberMap()
         self.search_header_pos = 0
         self.changes, self.headers, self.images = [], [], OrderedDict()
-        self.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff), self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.diff_backgrounds = {
             'replace' : theme_color(theme, 'DiffReplace', 'bg'),
             'insert'  : theme_color(theme, 'DiffInsert', 'bg'),
@@ -512,11 +512,6 @@ class DiffSplit(QSplitter):  # {{{
         self.left.clear(), self.right.clear()
 
     def finalize(self):
-        # check horizontal scrollbars and force both if scrollbar visible only at one side
-        if self.left.horizontalScrollBar().isVisible() or self.right.horizontalScrollBar().isVisible():
-            self.left.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
-            self.right.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
-
         for v in (self.left, self.right):
             c = v.textCursor()
             c.movePosition(c.Start)
