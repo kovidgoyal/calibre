@@ -109,6 +109,8 @@ class Boss(QObject):
         self.gui.check_book.fix_requested.connect(self.fix_requested)
         self.gui.toc_view.navigate_requested.connect(self.link_clicked)
         self.gui.image_browser.image_activated.connect(self.image_activated)
+        self.gui.checkpoints.revert_requested.connect(self.revert_requested)
+        self.gui.checkpoints.compare_requested.connect(self.compare_requested)
 
     def preferences(self):
         p = Preferences(self.gui)
@@ -411,11 +413,11 @@ class Boss(QObject):
             d.line_activated.connect(line_activated)
         return d
 
-    def show_current_diff(self, allow_revert=True):
+    def show_current_diff(self, allow_revert=True, to_container=None):
         self.commit_all_editors_to_container()
         d = self.create_diff_dialog()
         d.revert_requested.connect(partial(self.revert_requested, self.global_undo.previous_container))
-        d.container_diff(self.global_undo.previous_container, self.global_undo.current_container)
+        d.container_diff(to_container or self.global_undo.previous_container, self.global_undo.current_container)
 
     def compare_book(self):
         self.commit_all_editors_to_container()
@@ -433,6 +435,9 @@ class Boss(QObject):
         nc = self.global_undo.revert_to(container)
         set_current_container(nc)
         self.apply_container_update_to_gui()
+
+    def compare_requested(self, container):
+        self.show_current_diff(to_container=container)
 
     # Renaming {{{
 

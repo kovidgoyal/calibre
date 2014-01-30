@@ -25,6 +25,7 @@ from calibre.gui2.tweak_book import current_container, tprefs, actions, capitali
 from calibre.gui2.tweak_book.file_list import FileListWidget
 from calibre.gui2.tweak_book.job import BlockingJob
 from calibre.gui2.tweak_book.boss import Boss
+from calibre.gui2.tweak_book.undo import CheckpointView
 from calibre.gui2.tweak_book.preview import Preview
 from calibre.gui2.tweak_book.search import SearchPanel
 from calibre.gui2.tweak_book.check import Check
@@ -580,6 +581,13 @@ class Main(MainWindow):
         self.addDockWidget(Qt.LeftDockWidgetArea, d)
         d.close()  # Hidden by default
         d.visibilityChanged.connect(self.toc_view.visibility_changed)
+
+        d = create(_('Checkpoints'), 'checkpoints')
+        d.setAllowedAreas(Qt.LeftDockWidgetArea | Qt.RightDockWidgetArea | Qt.BottomDockWidgetArea | Qt.TopDockWidgetArea)
+        self.checkpoints = CheckpointView(self.boss.global_undo, parent=d)
+        d.setWidget(self.checkpoints)
+        self.addDockWidget(Qt.LeftDockWidgetArea, d)
+        d.close()  # Hidden by default
 
     def resizeEvent(self, ev):
         self.blocking_job.resize(ev.size())
