@@ -6,6 +6,7 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
+import sys
 from functools import partial
 
 from PyQt4.Qt import (
@@ -14,6 +15,7 @@ from PyQt4.Qt import (
     QCursor, QEventLoop, QKeySequence, pyqtSignal, QTimer)
 
 from calibre.ebooks.oeb.polish.container import Container
+from calibre.ebooks.oeb.polish.utils import guess_type
 from calibre.gui2 import info_dialog
 from calibre.gui2.progress_indicator import ProgressIndicator
 from calibre.gui2.tweak_book.editor import syntax_from_mime
@@ -90,6 +92,36 @@ def changed_files(list_of_names1, list_of_names2, get_data1, get_data2):
         cache.set_right(name, adata[name])
         added_names.add(name)
     return cache, changed_names, renamed_names, removed_names, added_names
+
+def get_decoded_raw(name):
+    from calibre.ebooks.chardet import xml_to_unicode, force_encoding
+    with open(name, 'rb') as f:
+        raw = f.read()
+    syntax = syntax_from_mime(name, guess_type(name))
+    if syntax is None:
+        try:
+            raw = raw.decode('utf-8')
+        except ValueError:
+            pass
+    if syntax != 'raster_image':
+        if syntax in {'html', 'xml'}:
+            raw = xml_to_unicode(raw, verbose=True)[0]
+        else:
+            enc = force_encoding(raw, verbose=True)
+            try:
+                raw = raw.decode(enc)
+            except ValueError:
+                pass
+    return raw, syntax
+
+
+def file_diff(left, right):
+    (raw1, syntax1), (raw2, syntax2) = map(get_decoded_raw, (left, right))
+    if type(raw1) is not type(raw2):
+        raw1, raw2 = open(left, 'rb').read(), open(right, 'rb').read()
+    cache = Cache()
+    cache.set_left(left, raw1), cache.set_right(right, raw2)
+    return cache, {left:syntax1, right:syntax2}, {left:right}, {}, set(), set()
 
 def container_diff(left, right):
     left_names, right_names = set(left.name_path_map), set(right.name_path_map)
@@ -269,6 +301,13 @@ class Diff(Dialog):
         if identical:
             self.reject()
 
+    def file_diff(self, left, right, identical_msg=None):
+        with self:
+            identical = self.apply_diff(identical_msg or _('The files are identical'), *file_diff(left, right))
+            self.view.finalize()
+        if identical:
+            self.reject()
+
     def apply_diff(self, identical_msg, cache, syntax_map, changed_names, renamed_names, removed_names, added_names):
         self.view.clear()
         self.apply_diff_calls = calls = []
@@ -280,10 +319,16 @@ class Diff(Dialog):
             info_dialog(self, _('No changes found'), identical_msg, show=True)
             return True
 
-        for name in sorted(changed_names, key=numeric_sort_key):
-            args = (name, name, cache.left(name), cache.right(name))
-            kwargs = {'syntax':syntax_map.get(name, None), 'context':self.context}
-            add(args, kwargs)
+        if isinstance(changed_names, dict):
+            for name, other_name in sorted(changed_names.iteritems(), key=lambda x:numeric_sort_key(x[0])):
+                args = (name, other_name, cache.left(name), cache.right(other_name))
+                kwargs = {'syntax':syntax_map.get(name, None), 'context':self.context}
+                add(args, kwargs)
+        else:
+            for name in sorted(changed_names, key=numeric_sort_key):
+                args = (name, name, cache.left(name), cache.right(name))
+                kwargs = {'syntax':syntax_map.get(name, None), 'context':self.context}
+                add(args, kwargs)
 
         for name in sorted(added_names, key=numeric_sort_key):
             args = (_('[%s was added]') % name, name, None, cache.right(name))
@@ -331,10 +376,18 @@ def compare_books(path1, path2, revert_msg=None, revert_callback=None, parent=No
         pass
     d.break_cycles()
 
-if __name__ == '__main__':
-    import sys
+def main(args=sys.argv):
+    left, right = sys.argv[-2:]
+    ext1, ext2 = left.rpartition('.')[-1].lower(), right.rpartition('.')[-1].lower()
+    if (ext1, ext2) in {('epub', 'epub'), ('azw3', 'azw3')}:
+        attr = 'ebook_diff'
+    else:
+        attr = 'file_diff'
     app = QApplication([])
     d = Diff()
     d.show()
-    d.ebook_diff(sys.argv[-2], sys.argv[-1])
+    getattr(d, attr)(left, right)
     app.exec_()
+
+if __name__ == '__main__':
+    main()
