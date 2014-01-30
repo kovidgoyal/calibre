@@ -27,7 +27,7 @@ from calibre.gui2 import info_dialog
 from calibre.gui2.tweak_book import tprefs
 from calibre.gui2.tweak_book.editor.text import PlainTextEdit, get_highlighter, default_font_family, LineNumbers
 from calibre.gui2.tweak_book.editor.themes import THEMES, default_theme, theme_color
-from calibre.utils.diff import get_sequence_matcher
+from calibre.gui2.tweak_book.diff import get_sequence_matcher
 
 Change = namedtuple('Change', 'ltop lbot rtop rbot kind')
 
