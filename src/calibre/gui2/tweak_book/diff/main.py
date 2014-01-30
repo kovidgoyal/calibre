@@ -6,7 +6,7 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import sys
+import sys, os
 from functools import partial
 
 from PyQt4.Qt import (
@@ -103,7 +103,7 @@ def get_decoded_raw(name):
             raw = raw.decode('utf-8')
         except ValueError:
             pass
-    if syntax != 'raster_image':
+    elif syntax != 'raster_image':
         if syntax in {'html', 'xml'}:
             raw = xml_to_unicode(raw, verbose=True)[0]
         else:
@@ -122,6 +122,23 @@ def file_diff(left, right):
     cache = Cache()
     cache.set_left(left, raw1), cache.set_right(right, raw2)
     return cache, {left:syntax1, right:syntax2}, {left:right}, {}, set(), set()
+
+def dir_diff(left, right):
+    ldata, rdata, lsmap, rsmap = {}, {}, {}, {}
+    for base, data, smap in ((left, ldata, lsmap), (right, rdata, rsmap)):
+        for dirpath, dirnames, filenames in os.walk(base):
+            for filename in filenames:
+                path = os.path.join(dirpath, filename)
+                name = os.path.relpath(path, base)
+                data[name], smap[name] = get_decoded_raw(path)
+    cache, changed_names, renamed_names, removed_names, added_names = changed_files(
+        ldata, rdata, ldata.get, rdata.get)
+
+    syntax_map = {name:lsmap[name] for name in changed_names}
+    syntax_map.update({name:lsmap[name] for name in renamed_names})
+    syntax_map.update({name:rsmap[name] for name in added_names})
+    syntax_map.update({name:lsmap[name] for name in removed_names})
+    return cache, syntax_map, changed_names, renamed_names, removed_names, added_names
 
 def container_diff(left, right):
     left_names, right_names = set(left.name_path_map), set(right.name_path_map)
@@ -308,6 +325,13 @@ class Diff(Dialog):
         if identical:
             self.reject()
 
+    def dir_diff(self, left, right, identical_msg=None):
+        with self:
+            identical = self.apply_diff(identical_msg or _('The directories are identical'), *dir_diff(left, right))
+            self.view.finalize()
+        if identical:
+            self.reject()
+
     def apply_diff(self, identical_msg, cache, syntax_map, changed_names, renamed_names, removed_names, added_names):
         self.view.clear()
         self.apply_diff_calls = calls = []
@@ -379,7 +403,9 @@ def compare_books(path1, path2, revert_msg=None, revert_callback=None, parent=No
 def main(args=sys.argv):
     left, right = sys.argv[-2:]
     ext1, ext2 = left.rpartition('.')[-1].lower(), right.rpartition('.')[-1].lower()
-    if (ext1, ext2) in {('epub', 'epub'), ('azw3', 'azw3')}:
+    if os.path.isdir(left):
+        attr = 'dir_diff'
+    elif (ext1, ext2) in {('epub', 'epub'), ('azw3', 'azw3')}:
         attr = 'ebook_diff'
     else:
         attr = 'file_diff'
