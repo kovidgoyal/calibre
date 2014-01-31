@@ -682,6 +682,7 @@ class DiffSplit(QSplitter):  # {{{
                 self.left.line_number_map[self.changes[-1].ltop] = '-'
                 self.right.line_number_map[self.changes[-1].rtop] = '-'
 
+            ahi = bhi = 0
             for i, group in enumerate(cruncher.get_grouped_opcodes(context)):
                 for j, (tag, alo, ahi, blo, bhi) in enumerate(group):
                     if j == 0 and (i > 0 or min(alo, blo) > 0):
