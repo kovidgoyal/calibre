@@ -20,6 +20,71 @@
 #   new recipes:
 #     - title: 
 
+- version: 1.22.0
+  date: 2014-01-31
+
+  new features:
+    - title: "A new tool to compare ebook files, showing the differences in their underlying text, styles and images side by side"
+      type: major
+      description: "The new compare tool is very useful in combination with the book editor. It allows you to see what changes have been made between checkpoints and what changes were made by automated tools. You can also compare different versions of the same ebook file. How to use each of these features is described below. Screenshots and help for using the new compare tool are at http://manual.calibre-ebook.com/diff.html"
+
+    - title: "Edit book: Add a tool to view the list of checkpoints and compare the current state of the book to the state at the specified checkpoint. To use it click View->Checkpoints"
+
+    - title: "Edit book: Add a tool to compare the book being currently edited with another file. To use it go to File->Compare to other book"
+
+    - title: "Allow comparing the ORIGINAL_EPUB version of a book to the EPUB version by right clicking on the ORIGINAL_EPUB format in the book details panel. And the same for ORIGINAL_AZW3 and AZW3 formats."
+
+    - title: "Edit Book: Add a button to show the changes after various automated tools are run such as: remove unused CSS, subset embedded fonts, smarten punctuation, etc."
+
+    - title: "Edit Book: Add check for spine items with incorrect media-type specified in the manifest"
+
+    - title: "Edit Book: Enable editing of page map XML files"
+
+    - title: "DOCX Input: Improve handling of text boxes. Text boxes are still not supported, but they no longer cause errors or duplicate content when embedded inside paragraphs."
+      tickets: [1273130]
+
+    - title: "Edit Book: Add check for links that point to directories in the book instead of files."
+      tickets: [1272769]
+
+    - title: "Edit Book: Show the filename of the currently edited file in the title bar."
+      tickets: [1272543]
+
+  bug fixes:
+    - title: "Edit Book: Fix unused CSS removal tool inserting namespace declaration at the top of the stylesheet"
+
+    - title: "Edit book: Fix cover not being updated from the current cover in the calibre library when using Edit Book. Note that you can turn off metadata updating via Preferences->calibre Integration in the Edit Book Preferences."
+      tickets: [1272730]
+
+    - title: "Conversion: Add support for <style> and <link> tags outside the <head> tag."
+      tickets: [1274339]
+
+    - title: "Edit book: Fix undo not working for subsetting fonts"
+
+    - title: "CHM Input: Handle CHM files with broken markup where all the content is placed inside the <head> tag."
+      tickets: [1273512]
+
+    - title: "DOCX Input: Fix padding-left of <ul>, <ol> being defaulted to 0 if no padding specified in the docx style, which breaks rendering for lists at the left margin of the document."
+
+    - title: "MOBI Output: Handle the value attribute on <li> tags."
+      tickets: [1273559]
+
+    - title: "EPUB Output: Fix splitting of HTML files not updating links in the <pageList> section of the NCX file"
+
+    - title: "EPUB Input: Handle EPUB files with incorrect media types for the spine items when converting."
+      tickets: [1273471]
+
+    - title: "RTF Output: Fix failure to convert documents that contain comments with the -- string inside the comment."
+      tickets: [1272588]
+
+    - title: "Edit Book: Fix extra 1x1 unused GIF image being created when saving and re-opening AZW3 files."
+      tickets: [1272410]
+
+    - title: "Fix editing of narrow yes/no columns in the book list not very convenient"
+      tickets: [1272089]
+
+  new recipes:
+    - title: Various Russian News sources by bug_me_not
+
 - version: 1.21.0
   date: 2014-01-24
 
