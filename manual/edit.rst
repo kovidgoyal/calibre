@@ -366,6 +366,8 @@ broken HTML/CSS. Therefore, if you dont want any auto-fixing to be performed,
 first use the Check Book tool to correct all problems and only then run
 beautify.  Accessed via :guilabel:`Tools->Beautify all files`.
 
+.. _checkpoints:
+
 Checkpoints
 ------------------------
 
@@ -382,6 +384,13 @@ The checkpointing functionality is in addition to the normal Undo/redo
 mechanism when editing individual files. Checkpoints are particularly useful
 for when changes are spread over multiple files in the book or when you wish to
 be able to revert a large group of related changes as a whole.
+
+You can see a list of available checkpoints via :guilabel:`View->Checkpoints`.
+You can compare the current state of the book to a specified checkpoint
+using the :ref:`diff` tool -- by selecting the checkpoint of interest and clicking
+the :guilabel:`Compare` button. The :guilabel:`Revert to` button restores the
+book to the selected checkpoint, undoing all changes since that checkpoint was
+created.
 
 The Live Preview panel
 ------------------------
