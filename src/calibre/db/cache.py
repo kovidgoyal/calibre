@@ -976,7 +976,10 @@ class Cache(object):
     def update_path(self, book_ids, mark_as_dirtied=True):
         for book_id in book_ids:
             title = self._field_for('title', book_id, default_value=_('Unknown'))
-            author = self._field_for('authors', book_id, default_value=(_('Unknown'),))[0]
+            try:
+                author = self._field_for('authors', book_id, default_value=(_('Unknown'),))[0]
+            except IndexError:
+                author = _('Unknown')
             self.backend.update_path(book_id, title, author, self.fields['path'], self.fields['formats'])
             if mark_as_dirtied:
                 self._mark_as_dirty(book_ids)
