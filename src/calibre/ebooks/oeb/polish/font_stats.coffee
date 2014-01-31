@@ -38,6 +38,18 @@ font_usage = (node) ->
     ans['text'] = text
     return ans
 
+process_sheet = (sheet, font_faces) ->
+    for rule in sheet.cssRules
+        if rule.type == rule.FONT_FACE_RULE
+            process_font_face_rule(rule, font_faces)
+        else if rule.type == rule.IMPORT_RULE and rule.styleSheet
+            process_sheet(rule.styleSheet, font_faces)
+
+process_font_face_rule = (rule, font_faces) ->
+    fd = font_dict(rule.style)
+    fd['src'] = rule.style.getPropertyValue('src')
+    font_faces.push(fd)
+
 class FontStats
     # This class is a namespace to expose functions via the
     # window.font_stats object.
@@ -49,11 +61,7 @@ class FontStats
     get_font_face_rules: () ->
         font_faces = []
         for sheet in document.styleSheets
-            for rule in sheet.cssRules
-                if rule.type == rule.FONT_FACE_RULE
-                    fd = font_dict(rule.style)
-                    fd['src'] = rule.style.getPropertyValue('src')
-                    font_faces.push(fd)
+            process_sheet(sheet, font_faces)
         py_bridge.value = font_faces
 
     get_font_usage: () ->
