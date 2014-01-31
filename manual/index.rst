@@ -30,6 +30,7 @@ Sections
    viewer
    conversion
    edit
+   diff
    metadata
    faq 
    tutorials
@@ -80,6 +81,14 @@ Editing ebooks
    :maxdepth: 2
 
    edit
+
+Comparing ebooks
+^^^^^^^^^^^^^^^^
+
+.. toctree::
+   :maxdepth: 2
+
+   diff
 
 Editing ebook metadata
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
