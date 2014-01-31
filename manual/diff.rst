@@ -35,7 +35,7 @@ and changed text with a blue background.
 
 The line numbers of all changed text are show at the sides, making it easy to
 go to a particular change in the editor. When you open the comparison tool from
-withing the editor, you can also double click on a line in the right panel to
+within the editor, you can also double click on a line in the right panel to
 go to that line in the editor automatically.
 
 One useful technique when comparing books is to tell the comparison tool to
