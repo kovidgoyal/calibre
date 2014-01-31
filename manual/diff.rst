@@ -10,16 +10,16 @@ what has changed inside an ebook after editing or converting it. It can compare
 books in the EPUB and AZW3 formats.
 
 To use it, either open the ebook file the tool for :ref:`edit` and then click
-:guilabel:`File->Comapre to other book` or use the :ref:`book_details` panel.
+:guilabel:`File->Compare to other book` or use the :ref:`book_details` panel.
 If you do a conversion from EPUB to EPUB, the original EPUB file will be saved
-as ORIGINAL_EPUB. Simply right click ont he ORIGINAL_EPUB entry in the Book
+as ORIGINAL_EPUB. Simply right click on the ORIGINAL_EPUB entry in the Book
 Details panel and choose :guilabel:`Compare to EPUB format`.
 
 The comparison tool that opens will look like the screenshot below. It shows
 you the differences in text, styles and images in the chosen books.
 
 .. image:: images/diff.png
-    :alt: The comapre tool
+    :alt: The compare tool
     :align: center
 
 Understanding the comparison view
@@ -42,7 +42,7 @@ One useful technique when comparing books is to tell the comparison tool to
 beautify the text and style files before calculating differences. This can
 often result in cleaner and easier to follow differences. To do this, click the
 :guilabel:`Options` button in the bottom right and choose :guilabel:`Beautify
-files before comapring`. Note that beautifying can sometimes have undesired
+files before comparing`. Note that beautifying can sometimes have undesired
 effects, as it can cause invalid markup to be altered to make it valid. You can
 also change the number of lines of context shown around differences via the
 :guilabel:`Options` button.
@@ -61,7 +61,7 @@ several ways to launch the tool.
 Comparing two ebook files
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Open the first file in the :ref:`edit` tool. Now click :guilabel:`File->Comapre
+Open the first file in the :ref:`edit` tool. Now click :guilabel:`File->Compare
 to another book` and choose the second file (it must be in the same format as
 the first). The comparison view will open with the file being edited on the
 right and the second file on the left.
@@ -84,7 +84,7 @@ allows you to save the current state of the book as a named
 made since creating the checkpoint. Checkpoints are also created automatically
 when you perform various automated actions in the editor. You can see the list
 of checkpoints by going to :guilabel:`View->Checkpoints` and then use the
-:guilabel:`Comapre` button to compare the book at the selected checkpoint with
+:guilabel:`Compare` button to compare the book at the selected checkpoint with
 the current state. The comparison tool will show the checkpoint on the left and
 the current state on the right.
 
