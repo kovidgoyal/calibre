@@ -193,8 +193,9 @@ class TextBrowser(PlainTextEdit):  # {{{
         for i, (num, text) in enumerate(self.headers):
             if num > block_number:
                 name = text if i == 0 else self.headers[i - 1][1]
+                break
         else:
-            name = self.headers[0][1]
+            name = self.headers[-1][1]
         self.line_activated.emit(name, lnum, bool(self.right))
 
     def search(self, query, reverse=False):
