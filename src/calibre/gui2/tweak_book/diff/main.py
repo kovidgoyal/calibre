@@ -257,7 +257,8 @@ class Diff(Dialog):
         for i in (3, 5, 10, 50):
             cm.addAction(_('Show %d lines of context') % i, partial(self.change_context, i))
         cm.addAction(_('Show all text'), partial(self.change_context, None))
-        m.addAction(_('Beautify files before comparing them'), partial(self.change_beautify, True))
+        self.beautify_action = m.addAction('', self.toggle_beautify)
+        self.set_beautify_action_text()
         m.addMenu(cm)
         l.addWidget(b, r, 7)
 
@@ -306,11 +307,15 @@ class Diff(Dialog):
                 self.view.add_diff(*args, **kwargs)
             self.view.finalize()
 
-    def change_beautify(self, beautify):
-        if beautify == self.beautify:
-            return
-        self.beautify = beautify
+    def toggle_beautify(self):
+        self.beautify = not self.beautify
+        self.set_beautify_action_text()
         self.refresh()
+
+    def set_beautify_action_text(self):
+        self.beautify_action.setText(
+            _('Beautify files before comparing them') if not self.beautify else
+            _('Do not beautify files before comparing'))
 
     def __enter__(self):
         self.stacks.setCurrentIndex(0)
