@@ -16,7 +16,7 @@ from future_builtins import zip
 
 import regex
 from PyQt4.Qt import (
-    QSplitter, QApplication, QPlainTextDocumentLayout, QTextDocument, QTimer,
+    QSplitter, QApplication, QTimer,
     QTextCursor, QTextCharFormat, Qt, QRect, QPainter, QPalette, QPen, QBrush,
     QColor, QTextLayout, QCursor, QFont, QSplitterHandle, QPainterPath,
     QHBoxLayout, QWidget, QScrollBar, QEventLoop, pyqtSignal, QImage, QPixmap,
@@ -25,9 +25,10 @@ from PyQt4.Qt import (
 from calibre import human_readable, fit_image
 from calibre.gui2 import info_dialog
 from calibre.gui2.tweak_book import tprefs
-from calibre.gui2.tweak_book.editor.text import PlainTextEdit, get_highlighter, default_font_family, LineNumbers
-from calibre.gui2.tweak_book.editor.themes import THEMES, default_theme, theme_color
+from calibre.gui2.tweak_book.editor.text import PlainTextEdit, default_font_family, LineNumbers
+from calibre.gui2.tweak_book.editor.themes import theme_color
 from calibre.gui2.tweak_book.diff import get_sequence_matcher
+from calibre.gui2.tweak_book.diff.highlight import get_theme, get_highlighter
 
 Change = namedtuple('Change', 'ltop lbot rtop rbot kind')
 
@@ -38,12 +39,6 @@ class BusyCursor(object):
 
     def __exit__(self, *args):
         QApplication.restoreOverrideCursor()
-
-def get_theme():
-    theme = THEMES.get(tprefs['editor_theme'], None)
-    if theme is None:
-        theme = THEMES[default_theme()]
-    return theme
 
 def beautify_text(raw, syntax):
     from lxml import etree
@@ -392,38 +387,6 @@ class TextBrowser(PlainTextEdit):  # {{{
 
 # }}}
 
-class Highlight(QTextDocument):  # {{{
-
-    def __init__(self, parent, text, syntax):
-        QTextDocument.__init__(self, parent)
-        self.l = QPlainTextDocumentLayout(self)
-        self.setDocumentLayout(self.l)
-        self.highlighter = get_highlighter(syntax)(self)
-        self.highlighter.apply_theme(get_theme())
-        self.highlighter.setDocument(self)
-        self.setPlainText(text)
-
-    def copy_lines(self, lo, hi, cursor):
-        ''' Copy specified lines from the syntax highlighted buffer into the
-        destination cursor, preserving all formatting created by the syntax
-        highlighter. '''
-        num = hi - lo
-        if num > 0:
-            block = self.findBlockByNumber(lo)
-            while num > 0:
-                num -= 1
-                cursor.insertText(block.text())
-                dest_block = cursor.block()
-                c = QTextCursor(dest_block)
-                for af in block.layout().additionalFormats():
-                    start = dest_block.position() + af.start
-                    c.setPosition(start), c.setPosition(start + af.length, c.KeepAnchor)
-                    c.setCharFormat(af.format)
-                cursor.insertBlock()
-                cursor.setCharFormat(QTextCharFormat())
-                block = block.next()
-# }}}
-
 class DiffSplitHandle(QSplitterHandle):  # {{{
 
     WIDTH = 30  # px
@@ -697,7 +660,7 @@ class DiffSplit(QSplitter):  # {{{
 
         cruncher = get_sequence_matcher()(None, left_lines, right_lines)
 
-        left_highlight, right_highlight = Highlight(self, left_text, syntax), Highlight(self, right_text, syntax)
+        left_highlight, right_highlight = get_highlighter(self.left, left_text, syntax), get_highlighter(self.right, right_text, syntax)
         cl, cr = self.left_cursor, self.right_cursor = self.left.textCursor(), self.right.textCursor()
         cl.beginEditBlock(), cr.beginEditBlock()
         cl.movePosition(cl.End), cr.movePosition(cr.End)
