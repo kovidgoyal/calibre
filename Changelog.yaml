@@ -83,7 +83,8 @@
       tickets: [1272089]
 
   new recipes:
-    - title: Various Russian News sources by bug_me_not
+    - title: Various Russian News sources 
+      author: bug_me_not
 
 - version: 1.21.0
   date: 2014-01-24
