@@ -442,7 +442,7 @@ def main(args=sys.argv):
     d = Diff()
     d.show()
     getattr(d, attr)(left, right)
-    app.exec_()
+    return app.exec_()
 
 if __name__ == '__main__':
     main()
