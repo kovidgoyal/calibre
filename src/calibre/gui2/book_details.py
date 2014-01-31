@@ -527,8 +527,10 @@ class BookInfo(QWebView):
                     traceback.print_exc()
                 else:
                     from calibre.gui2.ui import get_gui
+                    from calibre.ebooks.oeb.polish.main import SUPPORTED
                     db = get_gui().current_db.new_api
                     ofmt = fmt.upper() if fmt.startswith('ORIGINAL_') else 'ORIGINAL_' + fmt
+                    nfmt = ofmt[len('ORIGINAL_'):]
                     fmts = {x.upper() for x in db.formats(book_id)}
                     for a, t in [('remove', _('Delete the %s format')),
                         ('save', _('Save the %s format to disk')),
@@ -538,7 +540,7 @@ class BookInfo(QWebView):
                         if a == 'restore' and not fmt.startswith('ORIGINAL_'):
                             continue
                         if a == 'compare':
-                            if ofmt not in fmts:
+                            if ofmt not in fmts or nfmt not in SUPPORTED:
                                 continue
                             t = _('Compare to the %s format') % (fmt[9:] if fmt.startswith('ORIGINAL_') else ofmt)
                         else:
