@@ -43,15 +43,7 @@ class GlobalUndoHistory(QAbstractListModel):
 
     def data(self, index, role=Qt.DisplayRole):
         if role == Qt.DisplayRole:
-            row = index.row()
-            msg = self.states[row].message
-            if self.pos == row:
-                msg = _('Current state')
-            elif not msg:
-                msg = _('[Unnamed state]')
-            else:
-                msg = _('Before %s') % msg
-            return QVariant(msg)
+            return QVariant(self.label_for_row(index.row()))
         if role == Qt.FontRole and index.row() == self.pos:
             f = QApplication.instance().font()
             f.setBold(True)
@@ -59,6 +51,21 @@ class GlobalUndoHistory(QAbstractListModel):
         if role == Qt.UserRole:
             return QVariant(self.states[index.row()])
         return NONE
+
+    def label_for_row(self, row):
+        msg = self.states[row].message
+        if self.pos == row:
+            msg = _('Current state')
+        elif not msg:
+            msg = _('[Unnamed state]')
+        else:
+            msg = _('Before %s') % msg
+        return msg
+
+    def label_for_container(self, container):
+        for i, state in enumerate(self.states):
+            if state.container is container:
+                return self.label_for_row(i)
 
     @property
     def current_container(self):

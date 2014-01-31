@@ -12,7 +12,7 @@ from functools import partial
 from PyQt4.Qt import (
     QGridLayout, QToolButton, QIcon, QRadioButton, QMenu, QApplication, Qt,
     QSize, QWidget, QLabel, QStackedLayout, QPainter, QRect, QVBoxLayout,
-    QCursor, QEventLoop, QKeySequence, pyqtSignal, QTimer)
+    QCursor, QEventLoop, QKeySequence, pyqtSignal, QTimer, QHBoxLayout)
 
 from calibre.ebooks.oeb.polish.container import Container
 from calibre.ebooks.oeb.polish.utils import guess_type
@@ -213,18 +213,18 @@ class Diff(Dialog):
         b.clicked.connect(partial(self.view.next_change, -1))
         b.setToolTip(_('Go to previous change') + ' [p]')
         b.setText(_('&Previous change')), b.setToolButtonStyle(Qt.ToolButtonTextBesideIcon)
-        l.addWidget(b, r, l.columnCount(), 1, 1)
+        l.addWidget(b, r, 0)
 
         self.bn = b = QToolButton(self)
         b.setIcon(QIcon(I('forward.png')))
         b.clicked.connect(partial(self.view.next_change, 1))
         b.setToolTip(_('Go to next change') + ' [n]')
         b.setText(_('&Next change')), b.setToolButtonStyle(Qt.ToolButtonTextBesideIcon)
-        l.addWidget(b, r, l.columnCount(), 1, 1)
+        l.addWidget(b, r, 1)
 
         self.search = s = HistoryLineEdit2(self)
         s.initialize('diff_search_history')
-        l.addWidget(s, r, l.columnCount(), 1, 1)
+        l.addWidget(s, r, 2)
         s.setPlaceholderText(_('Search for text'))
         s.returnPressed.connect(partial(self.do_search, False))
         self.sbn = b = QToolButton(self)
@@ -232,19 +232,19 @@ class Diff(Dialog):
         b.clicked.connect(partial(self.do_search, False))
         b.setToolTip(_('Find next match'))
         b.setText(_('Next &match')), b.setToolButtonStyle(Qt.ToolButtonTextBesideIcon)
-        l.addWidget(b, l.rowCount() - 1, l.columnCount(), 1, 1)
+        l.addWidget(b, r, 3)
         self.sbp = b = QToolButton(self)
         b.setIcon(QIcon(I('arrow-up.png')))
         b.clicked.connect(partial(self.do_search, True))
         b.setToolTip(_('Find previous match'))
         b.setText(_('P&revious match')), b.setToolButtonStyle(Qt.ToolButtonTextBesideIcon)
-        l.addWidget(b, l.rowCount() - 1, l.columnCount(), 1, 1)
+        l.addWidget(b, r, 4)
         self.lb = b = QRadioButton(_('Left panel'), self)
         b.setToolTip(_('Perform search in the left panel'))
-        l.addWidget(b, l.rowCount() - 1, l.columnCount(), 1, 1)
+        l.addWidget(b, r, 5)
         self.rb = b = QRadioButton(_('Right panel'), self)
         b.setToolTip(_('Perform search in the right panel'))
-        l.addWidget(b, l.rowCount() - 1, l.columnCount(), 1, 1)
+        l.addWidget(b, r, 6)
         b.setChecked(True)
         self.pb = b = QToolButton(self)
         b.setIcon(QIcon(I('config.png')))
@@ -259,7 +259,12 @@ class Diff(Dialog):
         cm.addAction(_('Show all text'), partial(self.change_context, None))
         m.addAction(_('Beautify files before comparing them'), partial(self.change_beautify, True))
         m.addMenu(cm)
-        l.addWidget(b, l.rowCount() - 1, l.columnCount(), 1, 1)
+        l.addWidget(b, r, 7)
+
+        self.hl = QHBoxLayout()
+        l.addLayout(self.hl, l.rowCount(), 0, 1, -1)
+        self.names = QLabel('')
+        self.hl.addWidget(self.names, r)
 
         self.bb.setStandardButtons(self.bb.Close)
         if self.revert_button_msg is not None:
@@ -267,7 +272,7 @@ class Diff(Dialog):
             b.setIcon(QIcon(I('edit-undo.png')))
             b.clicked.connect(self.revert_requested)
         self.bb.button(self.bb.Close).setDefault(True)
-        l.addWidget(self.bb, l.rowCount(), 0, 1, -1)
+        self.hl.addWidget(self.bb, r)
 
         self.view.setFocus(Qt.OtherFocusReason)
 
@@ -318,14 +323,22 @@ class Diff(Dialog):
         self.stacks.setCurrentIndex(1)
         QApplication.restoreOverrideCursor()
 
-    def ebook_diff(self, path1, path2):
+    def set_names(self, names):
+        if isinstance(names, tuple):
+            self.names.setText('%s <--> %s' % names)
+        else:
+            self.names.setText('')
+
+    def ebook_diff(self, path1, path2, names=None):
+        self.set_names(names)
         with self:
             identical = self.apply_diff(_('The books are identical'), *ebook_diff(path1, path2))
             self.view.finalize()
         if identical:
             self.reject()
 
-    def container_diff(self, left, right, identical_msg=None):
+    def container_diff(self, left, right, identical_msg=None, names=None):
+        self.set_names(names)
         with self:
             identical = self.apply_diff(identical_msg or _('No changes found'), *container_diff(left, right))
             self.view.finalize()
@@ -399,11 +412,11 @@ class Diff(Dialog):
                 return
             return Dialog.keyPressEvent(self, ev)
 
-def compare_books(path1, path2, revert_msg=None, revert_callback=None, parent=None):
+def compare_books(path1, path2, revert_msg=None, revert_callback=None, parent=None, names=None):
     d = Diff(parent=parent, revert_button_msg=revert_msg)
     if revert_msg is not None:
         d.revert_requested.connect(revert_callback)
-    QTimer.singleShot(0, partial(d.ebook_diff, path1, path2))
+    QTimer.singleShot(0, partial(d.ebook_diff, path1, path2, names=names))
     d.exec_()
     try:
         d.revert_requested.disconnect()

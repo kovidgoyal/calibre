@@ -518,7 +518,9 @@ class Boss(QObject):
         self.commit_all_editors_to_container()
         d = self.create_diff_dialog()
         d.revert_requested.connect(partial(self.revert_requested, self.global_undo.previous_container))
-        d.container_diff(to_container or self.global_undo.previous_container, self.global_undo.current_container)
+        other = to_container or self.global_undo.previous_container
+        d.container_diff(other, self.global_undo.current_container,
+                         names=(self.global_undo.label_for_container(other), self.global_undo.label_for_container(self.global_undo.current_container)))
 
     def compare_book(self):
         self.commit_all_editors_to_container()
@@ -529,7 +531,8 @@ class Boss(QObject):
             with TemporaryDirectory('_compare') as tdir:
                 other = _gc(path[0], tdir=tdir, tweak_mode=True)
                 d = self.create_diff_dialog(revert_msg=None)
-                d.container_diff(other, c)
+                d.container_diff(other, c,
+                                 names=(_('Other book'), _('Current book')))
 
     def revert_requested(self, container):
         self.commit_all_editors_to_container()
