@@ -377,7 +377,7 @@ the results, return to the checkpointed state. Checkpoints are automatically
 created every time you run any of the automated tools described in the
 previous section.
 
-You can create a checkpoint via:guilabel:`Edit->Create checkpoint`. And go back
+You can create a checkpoint via :guilabel:`Edit->Create checkpoint`. And go back
 to a previous checkpoint with :guilabel:`Edit->Revert to before`
 
 The checkpointing functionality is in addition to the normal Undo/redo
