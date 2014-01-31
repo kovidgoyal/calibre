@@ -103,13 +103,26 @@ def filter_used_rules(root, rules, log, pseudo_pat, cache):
         if not used:
             yield rule
 
+def process_namespaces(sheet):
+    # Find the namespace prefix (if any) for the XHTML namespace, so that we
+    # can preserve it after processing
+    for prefix in sheet.namespaces:
+        if sheet.namespaces[prefix] == XHTML_NS:
+            return prefix
+
+def preserve_htmlns_prefix(sheet, prefix):
+    if prefix is None:
+        while 'h' in sheet.namespaces:
+            del sheet.namespaces['h']
+    else:
+        sheet.namespaces[prefix] = XHTML_NS
+
 def remove_unused_css(container, report):
     from cssutils.css import CSSRule
     sheets = {name:container.parsed(name) for name, mt in container.mime_map.iteritems() if mt in OEB_STYLES}
-    namespaced_sheets = set()
+    sheet_namespace = {}
     for sheet in sheets.itervalues():
-        if 'h' not in sheet.namespaces:
-            namespaced_sheets.add(sheet)
+        sheet_namespace[sheet] = process_namespaces(sheet)
         sheet.namespaces['h'] = XHTML_NS
     style_rules = {name:tuple(sheet.cssRules.rulesOfType(CSSRule.STYLE_RULE)) for name, sheet in sheets.iteritems()}
 
@@ -124,15 +137,14 @@ def remove_unused_css(container, report):
         for style in root.xpath('//*[local-name()="style"]'):
             if style.get('type', 'text/css') == 'text/css' and style.text:
                 sheet = container.parse_css(style.text)
-                ns = 'h' not in sheet.namespaces
+                ns = process_namespaces(sheet)
                 sheet.namespaces['h'] = XHTML_NS
                 rules = tuple(sheet.cssRules.rulesOfType(CSSRule.STYLE_RULE))
                 unused_rules = tuple(filter_used_rules(root, rules, container.log, pseudo_pat, cache))
                 if unused_rules:
                     num_of_removed_rules += len(unused_rules)
                     [sheet.cssRules.remove(r) for r in unused_rules]
-                    if ns:
-                        del sheet.namespaces['h']
+                    preserve_htmlns_prefix(sheet, ns)
                     style.text = force_unicode(sheet.cssText, 'utf-8')
                     pretty_script_or_style(container, style)
                     container.dirty(name)
@@ -143,8 +155,7 @@ def remove_unused_css(container, report):
                 style_rules[sname] = tuple(filter_used_rules(root, style_rules[sname], container.log, pseudo_pat, cache))
 
     for name, sheet in sheets.iteritems():
-        if sheet in namespaced_sheets:
-            del sheet.namespaces['h']
+        preserve_htmlns_prefix(sheet, sheet_namespace[sheet])
         unused_rules = style_rules[name]
         if unused_rules:
             num_of_removed_rules += len(unused_rules)
