@@ -180,6 +180,9 @@ class ParsingTests(BaseTest):
         root = parse('<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en-US" xmlns:xml="http://www.w3.org/XML/1998/namespace"><body/></html>')
         self.assertNotIn('xmlnsU0003Axml', root.attrib, 'xml namespace declaration not removed')
 
+        root = parse('<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en-US" xmlns:extra="extra"><body/></html>')
+        self.assertIn('extra', root.nsmap, 'Extra namespace declaration on <html> tag not preserved')
+
 def timing():
     import time, sys
     from calibre.ebooks.chardet import xml_to_unicode
