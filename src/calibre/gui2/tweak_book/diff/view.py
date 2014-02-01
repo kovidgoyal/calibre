@@ -656,6 +656,13 @@ class DiffSplit(QSplitter):  # {{{
         right_text = unicodedata.normalize('NFC', right_text)
         if beautify and syntax in {'xml', 'html', 'css'}:
             left_text, right_text = beautify_text(left_text, syntax), beautify_text(right_text, syntax)
+            if len(left_text) == len(right_text) and left_text == right_text:
+                for v in (self.left, self.right):
+                    c = v.textCursor()
+                    c.movePosition(c.End)
+                    c.insertText('[%s]\n\n' % _('The files are identical after beautifying'))
+                return
+
         left_lines = self.left_lines = left_text.splitlines()
         right_lines = self.right_lines = right_text.splitlines()
 
