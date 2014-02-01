@@ -256,7 +256,6 @@ class Boss(QObject):
 
     @in_thread_job
     def delete_requested(self, spine_items, other_items):
-        self.commit_all_editors_to_container()
         self.add_savepoint(_('Delete files'))
         c = current_container()
         c.remove_from_spine(spine_items)
@@ -282,7 +281,6 @@ class Boss(QObject):
             self.commit_editor_to_container(c.opf_name)
 
     def reorder_spine(self, items):
-        self.commit_dirty_opf()
         self.add_savepoint(_('Re-order text'))
         c = current_container()
         c.set_spine(items)
@@ -335,7 +333,6 @@ class Boss(QObject):
             folder_map = get_recommended_folders(current_container(), files)
             files = {x:('/'.join((folder, os.path.basename(x))) if folder else os.path.basename(x))
                      for x, folder in folder_map.iteritems()}
-            self.commit_dirty_opf()
             self.add_savepoint(_('Add files'))
             c = current_container()
             for path, name in files.iteritems():
@@ -356,7 +353,6 @@ class Boss(QObject):
             self.set_modified()
 
     def edit_toc(self):
-        self.commit_all_editors_to_container()
         self.add_savepoint(_('Edit Table of Contents'))
         d = TOCEditor(title=self.current_metadata.title, parent=self.gui)
         if d.exec_() != d.Accepted:
@@ -368,7 +364,6 @@ class Boss(QObject):
             self.gui.toc_view.update_if_visible()
 
     def polish(self, action, name):
-        self.commit_all_editors_to_container()
         with BusyCursor():
             self.add_savepoint(name)
             try:
@@ -443,7 +438,6 @@ class Boss(QObject):
             rename_files, current_container(), name_map)
 
     def bulk_rename_requested(self, name_map):
-        self.commit_all_editors_to_container()
         self.add_savepoint(_('Bulk rename'))
         self.gui.blocking_job(
             'bulk_rename_files', _('Renaming and updating links...'), partial(self.rename_done, name_map),
@@ -486,6 +480,7 @@ class Boss(QObject):
             ac.setText(text + ' ' + (getattr(gu, x + '_msg') or '...'))
 
     def add_savepoint(self, msg):
+        self.commit_all_editors_to_container()
         nc = clone_container(current_container(), self.mkdtemp())
         self.global_undo.add_savepoint(nc, msg)
         set_current_container(nc)
@@ -556,7 +551,6 @@ class Boss(QObject):
             if hasattr(ed, 'fix_html'):
                 ed.fix_html()
         else:
-            self.commit_all_editors_to_container()
             with BusyCursor():
                 self.add_savepoint(_('Fix HTML'))
                 fix_all_html(current_container())
@@ -571,7 +565,6 @@ class Boss(QObject):
                     break
             ed.pretty_print(name)
         else:
-            self.commit_all_editors_to_container()
             with BusyCursor():
                 self.add_savepoint(_('Beautify files'))
                 pretty_all(current_container())
@@ -866,7 +859,6 @@ class Boss(QObject):
 
     @in_thread_job
     def split_requested(self, name, loc):
-        self.commit_all_editors_to_container()
         self.add_savepoint(_('Split %s') % self.gui.elided_text(name))
         try:
             bottom_name = split(current_container(), name, loc)
@@ -890,7 +882,6 @@ class Boss(QObject):
         d = MultiSplit(self.gui)
         if d.exec_() == d.Accepted:
             with BusyCursor():
-                self.commit_all_editors_to_container()
                 self.add_savepoint(_('Split %s') % self.gui.elided_text(name))
                 try:
                     multisplit(current_container(), name, d.xpath)
@@ -947,7 +938,6 @@ class Boss(QObject):
 
     @in_thread_job
     def fix_requested(self, errors):
-        self.commit_all_editors_to_container()
         self.add_savepoint(_('Auto-fix errors'))
         c = self.gui.check_book
         c.parent().show()
@@ -961,7 +951,6 @@ class Boss(QObject):
 
     @in_thread_job
     def merge_requested(self, category, names, master):
-        self.commit_all_editors_to_container()
         self.add_savepoint(_('Merge files into %s') % self.gui.elided_text(master))
         try:
             merge(current_container(), category, names, master)
@@ -974,7 +963,6 @@ class Boss(QObject):
 
     @in_thread_job
     def link_stylesheets_requested(self, names, sheets, remove):
-        self.commit_all_editors_to_container()
         self.add_savepoint(_('Link stylesheets'))
         changed_names = link_stylesheets(current_container(), names, sheets, remove)
         if changed_names:
@@ -990,7 +978,6 @@ class Boss(QObject):
 
     @in_thread_job
     def replace_requested(self, name, path, basename, force_mt):
-        self.commit_all_editors_to_container()
         self.add_savepoint(_('Replace %s') % name)
         replace_file(current_container(), name, path, basename, force_mt)
         self.apply_container_update_to_gui()
