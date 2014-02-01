@@ -8,8 +8,9 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import re
 from functools import partial
+from collections import namedtuple
 
-from PyQt4.Qt import QFont
+from PyQt4.Qt import QFont, QTextBlockUserData
 
 from calibre.gui2.tweak_book.editor import SyntaxTextCharFormat
 from calibre.gui2.tweak_book.editor.syntax.base import SyntaxHighlighter, run_loop
@@ -122,6 +123,22 @@ def mark_nbsp(state, text, nbsp_format):
         ans = [(len(text), fmt)]
     return ans
 
+TagStart = namedtuple('TagStart', 'prefix name closing offset')
+TagEnd = namedtuple('TagEnd', 'self_closing offset')
+
+class HTMLUserData(QTextBlockUserData):
+
+    def __init__(self):
+        QTextBlockUserData.__init__(self)
+        self.tags = []
+
+def add_tag_data(state, tag):
+    ud = q = state.get_user_data()
+    if ud is None:
+        ud = HTMLUserData()
+    ud.tags.append(tag)
+    if q is None:
+        state.set_user_data(ud)
 
 def normal(state, text, i, formats):
     ' The normal state in between tags '
@@ -154,6 +171,7 @@ def normal(state, text, i, formats):
         if prefix and name:
             ans.append((len(prefix)+1, formats['nsprefix']))
         ans.append((len(name or prefix), formats['tag_name']))
+        add_tag_data(state, TagStart(prefix, name, closing, i))
         return ans
 
     if ch == '&':
@@ -179,6 +197,7 @@ def opening_tag(cdata_tags, state, text, i, formats):
             return [(1, formats['/'])]
         state.parse = state.NORMAL
         state.tag = State.UNKNOWN_TAG
+        add_tag_data(state, TagEnd(True, i))
         return [(len(m.group()), formats['tag'])]
     if ch == '>':
         state.parse = state.NORMAL
@@ -190,6 +209,7 @@ def opening_tag(cdata_tags, state, text, i, formats):
                 state.parse = state.CSS
         state.bold += int(tag in bold_tags)
         state.italic += int(tag in italic_tags)
+        add_tag_data(state, TagEnd(False, i))
         return [(1, formats['tag'])]
     m = attribute_name_pat.match(text, i)
     if m is None:
@@ -256,6 +276,7 @@ def closing_tag(state, text, i, formats):
     if num > 1:
         ans.insert(0, (num - 1, formats['bad-closing']))
     state.tag = State.UNKNOWN_TAG
+    add_tag_data(state, TagEnd(False, pos))
     return ans
 
 def in_comment(state, text, i, formats):
