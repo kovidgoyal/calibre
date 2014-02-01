@@ -156,10 +156,12 @@ class Boss(QObject):
             return
         d = NewBook(self.gui)
         if d.exec_() == d.Accepted:
-            fmt = d.fmt
+            fmt = d.fmt.lower()
             path = choose_save_file(self.gui, 'edit-book-new-book', _('Choose file location'),
                                     filters=[(fmt.upper(), (fmt,))], all_files=False)
             if path is not None:
+                if not path.lower().endswith('.' + fmt):
+                    path = path + '.' + fmt
                 from calibre.ebooks.oeb.polish.create import create_book
                 create_book(d.mi, path, fmt=fmt)
                 self.open_book(path=path)
