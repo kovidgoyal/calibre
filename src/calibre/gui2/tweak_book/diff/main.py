@@ -6,7 +6,7 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import sys, os
+import sys, os, re
 from functools import partial
 
 from PyQt4.Qt import (
@@ -93,6 +93,7 @@ def changed_files(list_of_names1, list_of_names2, get_data1, get_data2):
         added_names.add(name)
     return cache, changed_names, renamed_names, removed_names, added_names
 
+
 def get_decoded_raw(name):
     from calibre.ebooks.chardet import xml_to_unicode, force_encoding
     with open(name, 'rb') as f:
@@ -107,7 +108,11 @@ def get_decoded_raw(name):
         if syntax in {'html', 'xml'}:
             raw = xml_to_unicode(raw, verbose=True)[0]
         else:
-            enc = force_encoding(raw, verbose=True)
+            m = re.search(r"coding[:=]\s*([-\w.]+)", raw[:1024], flags=re.I)
+            if m is not None:
+                enc = m.group(1)
+            else:
+                enc = force_encoding(raw, verbose=True)
             try:
                 raw = raw.decode(enc)
             except ValueError:
