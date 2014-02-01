@@ -69,11 +69,12 @@ def pygments_lexer(filename):
         from pygments.util import ClassNotFound
     except ImportError:
         return None
+    glff = lambda n: get_lexer_for_filename(n, stripnl=False)
     try:
-        return get_lexer_for_filename(filename, stripnl=False)
+        return glff(filename)
     except ClassNotFound:
         if filename.lower().endswith('.recipe'):
-            return get_lexer_for_filename('a.py', stripnl=False)
+            return glff('a.py')
         return None
 
 _pyg_map = None
