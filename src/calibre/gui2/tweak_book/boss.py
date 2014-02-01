@@ -232,6 +232,7 @@ class Boss(QObject):
             if ef:
                 self.gui.file_list.request_edit(ef)
             self.gui.toc_view.update_if_visible()
+            self.add_savepoint(_('Start of editing session'))
 
     def update_editors_from_container(self, container=None, names=None):
         c = container or current_container()
