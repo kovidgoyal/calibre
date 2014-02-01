@@ -253,6 +253,9 @@ class Edelweiss(Source):
                 log.exception('Failed to parse identify results')
                 return as_unicode(e)
 
+            has_isbn = check_isbn(identifiers.get('isbn', None)) is not None
+            if not has_isbn:
+                author_tokens = set(x.lower() for x in self.get_author_tokens(authors, only_first_author=True))
             for entry in CSSSelect('div.listRow div.listRowMain')(root):
                 a = entry.xpath('descendant::a[contains(@href, "sku=") and contains(@href, "productDetailPage.aspx")]')
                 if not a:
@@ -276,6 +279,13 @@ class Edelweiss(Source):
                     text = astext(div[0]).lower()
                     if 'audio' in text or 'mp3' in text:  # Audio-book, ignore
                         continue
+                    if not has_isbn:
+                        # edelweiss returns matches based only on title, so we
+                        # filter by author manually
+                        div = CSSSelect('div.contributor.attGroup')(entry)
+                        entry_authors = set(self.get_author_tokens([x.strip() for x in astext(div[0]).lower().split(',')]))
+                        if not entry_authors.intersection(author_tokens):
+                            continue
                     entries.append((self._get_book_url(sku), sku))
 
         if (not entries and identifiers and title and authors and
@@ -349,9 +359,9 @@ if __name__ == '__main__':
         test_identify_plugin, title_test, authors_test, comments_test, pubdate_test)
     tests = [
         (  # A title and author search
-         {'title': 'Flame of Sevenwaters', 'authors':['Juliet Marillier']},
-         [title_test('Flame of sevenwaters', exact=True),
-                authors_test(['Juliet Marillier'])]
+         {'title': 'The Husband\'s Secret', 'authors':['Liane Moriarty']},
+         [title_test('The Husband\'s Secret', exact=True),
+                authors_test(['Liane Moriarty'])]
         ),
 
         (  # An isbn present in edelweiss
