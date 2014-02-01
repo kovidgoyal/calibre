@@ -59,7 +59,7 @@ class GlobalUndoHistory(QAbstractListModel):
         elif not msg:
             msg = _('[Unnamed state]')
         else:
-            msg = _('Before %s') % msg
+            msg = msg
         return msg
 
     def label_for_container(self, container):
@@ -160,7 +160,7 @@ class GlobalUndoHistory(QAbstractListModel):
     def redo_msg(self):
         if not self.can_redo:
             return ''
-        return self.states[self.pos].message or ''
+        return self.states[self.pos + 1].message or _('[Unnamed state]')
 
 class SpacedDelegate(QStyledItemDelegate):
 

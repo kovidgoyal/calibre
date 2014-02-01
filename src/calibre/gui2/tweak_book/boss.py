@@ -256,7 +256,7 @@ class Boss(QObject):
 
     @in_thread_job
     def delete_requested(self, spine_items, other_items):
-        self.add_savepoint(_('Delete files'))
+        self.add_savepoint(_('Before: Delete files'))
         c = current_container()
         c.remove_from_spine(spine_items)
         for name in other_items:
@@ -281,7 +281,7 @@ class Boss(QObject):
             self.commit_editor_to_container(c.opf_name)
 
     def reorder_spine(self, items):
-        self.add_savepoint(_('Re-order text'))
+        self.add_savepoint(_('Before: Re-order text'))
         c = current_container()
         c.set_spine(items)
         self.set_modified()
@@ -299,7 +299,7 @@ class Boss(QObject):
         d = NewFileDialog(self.gui)
         if d.exec_() != d.Accepted:
             return
-        self.add_savepoint(_('Add file %s') % self.gui.elided_text(d.file_name))
+        self.add_savepoint(_('Before: Add file %s') % self.gui.elided_text(d.file_name))
         c = current_container()
         data = d.file_data
         if d.using_template:
@@ -333,7 +333,7 @@ class Boss(QObject):
             folder_map = get_recommended_folders(current_container(), files)
             files = {x:('/'.join((folder, os.path.basename(x))) if folder else os.path.basename(x))
                      for x, folder in folder_map.iteritems()}
-            self.add_savepoint(_('Add files'))
+            self.add_savepoint(_('Before Add files'))
             c = current_container()
             for path, name in files.iteritems():
                 i = 0
@@ -353,7 +353,7 @@ class Boss(QObject):
             self.set_modified()
 
     def edit_toc(self):
-        self.add_savepoint(_('Edit Table of Contents'))
+        self.add_savepoint(_('Before: Edit Table of Contents'))
         d = TOCEditor(title=self.current_metadata.title, parent=self.gui)
         if d.exec_() != d.Accepted:
             self.rewind_savepoint()
@@ -365,7 +365,7 @@ class Boss(QObject):
 
     def polish(self, action, name):
         with BusyCursor():
-            self.add_savepoint(name)
+            self.add_savepoint(_('Before: %s') % name)
             try:
                 report, changed = tweak_polish(current_container(), {action:True})
             except:
@@ -407,7 +407,7 @@ class Boss(QObject):
         if not name_map:
             return info_dialog(self.gui, _('Nothing to do'), _(
                 'The files in this book are already arranged into folders'), show=True)
-        self.add_savepoint(_('Arrange into folders'))
+        self.add_savepoint(_('Before: Arrange into folders'))
         self.gui.blocking_job(
             'rationalize_folders', _('Renaming and updating links...'), partial(self.rename_done, name_map),
             rename_files, current_container(), name_map)
@@ -431,14 +431,14 @@ class Boss(QObject):
                       '<pre>%s</pre>'%newname, '<pre>%s</pre>' % urlnormalize(newname)),
                 'confirm-urlunsafe-change', parent=self.gui, title=_('Are you sure?'), config_set=tprefs):
                     return
-        self.add_savepoint(_('Rename %s') % oldname)
+        self.add_savepoint(_('Before: Rename %s') % oldname)
         name_map = {oldname:newname}
         self.gui.blocking_job(
             'rename_file', _('Renaming and updating links...'), partial(self.rename_done, name_map),
             rename_files, current_container(), name_map)
 
     def bulk_rename_requested(self, name_map):
-        self.add_savepoint(_('Bulk rename'))
+        self.add_savepoint(_('Before: Bulk rename'))
         self.gui.blocking_job(
             'bulk_rename_files', _('Renaming and updating links...'), partial(self.rename_done, name_map),
             rename_files, current_container(), name_map)
@@ -474,10 +474,10 @@ class Boss(QObject):
 
     def update_global_history_actions(self):
         gu = self.global_undo
-        for x, text in (('undo', _('&Revert to before')), ('redo', '&Revert to after')):
+        for x, text in (('undo', _('&Revert to')), ('redo', '&Revert to')):
             ac = getattr(self.gui, 'action_global_%s' % x)
             ac.setEnabled(getattr(gu, 'can_' + x))
-            ac.setText(text + ' ' + (getattr(gu, x + '_msg') or '...'))
+            ac.setText(text + ' "%s"'%(getattr(gu, x + '_msg') or '...'))
 
     def add_savepoint(self, msg):
         self.commit_all_editors_to_container()
@@ -552,7 +552,7 @@ class Boss(QObject):
                 ed.fix_html()
         else:
             with BusyCursor():
-                self.add_savepoint(_('Fix HTML'))
+                self.add_savepoint(_('Before: Fix HTML'))
                 fix_all_html(current_container())
                 self.update_editors_from_container()
                 self.set_modified()
@@ -566,7 +566,7 @@ class Boss(QObject):
             ed.pretty_print(name)
         else:
             with BusyCursor():
-                self.add_savepoint(_('Beautify files'))
+                self.add_savepoint(_('Before: Beautify files'))
                 pretty_all(current_container())
                 self.update_editors_from_container()
                 self.set_modified()
@@ -762,7 +762,7 @@ class Boss(QObject):
             if action == 'replace-all':
                 if marked:
                     return count_message(_('Replaced'), editor.all_in_marked(pat, state['replace']))
-                self.add_savepoint(_('Replace all'))
+                self.add_savepoint(_('Before: Replace all'))
                 count = do_all()
                 if count == 0:
                     self.rewind_savepoint()
@@ -859,7 +859,7 @@ class Boss(QObject):
 
     @in_thread_job
     def split_requested(self, name, loc):
-        self.add_savepoint(_('Split %s') % self.gui.elided_text(name))
+        self.add_savepoint(_('Before: Split %s') % self.gui.elided_text(name))
         try:
             bottom_name = split(current_container(), name, loc)
         except AbortError:
@@ -882,7 +882,7 @@ class Boss(QObject):
         d = MultiSplit(self.gui)
         if d.exec_() == d.Accepted:
             with BusyCursor():
-                self.add_savepoint(_('Split %s') % self.gui.elided_text(name))
+                self.add_savepoint(_('Before: Split %s') % self.gui.elided_text(name))
                 try:
                     multisplit(current_container(), name, d.xpath)
                 except AbortError:
@@ -938,7 +938,7 @@ class Boss(QObject):
 
     @in_thread_job
     def fix_requested(self, errors):
-        self.add_savepoint(_('Auto-fix errors'))
+        self.add_savepoint(_('Before: Auto-fix errors'))
         c = self.gui.check_book
         c.parent().show()
         c.parent().raise_()
@@ -951,7 +951,7 @@ class Boss(QObject):
 
     @in_thread_job
     def merge_requested(self, category, names, master):
-        self.add_savepoint(_('Merge files into %s') % self.gui.elided_text(master))
+        self.add_savepoint(_('Before: Merge files into %s') % self.gui.elided_text(master))
         try:
             merge(current_container(), category, names, master)
         except AbortError:
@@ -963,7 +963,7 @@ class Boss(QObject):
 
     @in_thread_job
     def link_stylesheets_requested(self, names, sheets, remove):
-        self.add_savepoint(_('Link stylesheets'))
+        self.add_savepoint(_('Before: Link stylesheets'))
         changed_names = link_stylesheets(current_container(), names, sheets, remove)
         if changed_names:
             self.update_editors_from_container(names=changed_names)
@@ -978,7 +978,7 @@ class Boss(QObject):
 
     @in_thread_job
     def replace_requested(self, name, path, basename, force_mt):
-        self.add_savepoint(_('Replace %s') % name)
+        self.add_savepoint(_('Before: Replace %s') % name)
         replace_file(current_container(), name, path, basename, force_mt)
         self.apply_container_update_to_gui()
 
