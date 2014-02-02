@@ -1,0 +1,49 @@
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class Disinformatico(BasicNewsRecipe):
+    title          = u'Il Disinformatico - Paolo Attivissimo'
+    oldest_article = 7
+    max_articles_per_feed = 25
+    auto_cleanup = False
+    use_embedded_content  = False
+    description = 'Un blog di Paolo Attivissimo, giornalista informatico e cacciatore di bufale'
+    publisher   = 'http://attivissimo.blogspot.it'
+    language = 'it'
+    __author__ = 'isspro'
+    publication_type = 'blog'
+
+    conversion_options = {'title'       : title,
+                           'comments'    : description,
+                           'language'    : language,
+                           'publisher'   : 'Paolo Attivissimo',
+                           'authors'     : 'Paolo Attivissimo',
+                           'smarten_punctuation' : True
+                         }
+
+    keep_only_tags     = [
+                          dict(name='div', attrs={'class':'post hentry'})
+                          ]
+
+    remove_tags = [
+                    dict(name='span', attrs={'id':'NumCom'}),
+                    dict(name='div', attrs={'id':'PostFooter'})
+                    ]
+
+    extra_css = '''
+        h1 {font-size:x-large;}
+        .post-body {margin: 0pt;}
+        .post-timestamp {margin-right: 0pt;}
+    '''
+
+    def parse_feeds(self):
+        feeds = BasicNewsRecipe.parse_feeds(self)
+        # Loop through all feeds.
+        for feed in feeds:
+            # Loop through all articles in feed.
+            for article in feed.articles[:]:
+                if 'podcast' in article.title:
+                    feed.articles.remove(article)
+
+        return feeds
+
+    feeds          = [(u'Home', u'http://feeds.feedburner.com/Disinformatico')]
