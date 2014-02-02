@@ -55,7 +55,7 @@ class GlobalUndoHistory(QAbstractListModel):
     def label_for_row(self, row):
         msg = self.states[row].message
         if self.pos == row:
-            msg = _('Current state')
+            msg = _('Current state') if not msg else _('%s [Current]') % msg
         elif not msg:
             msg = _('[Unnamed state]')
         else:
