@@ -116,7 +116,7 @@ class GlobalUndoHistory(QAbstractListModel):
             self.pos -= 1
             cleanup([self.states.pop().container])
             self.endRemoveRows()
-            self.dataChanged.emit(self.index(self.pos))
+            self.dataChanged.emit(self.index(self.pos), self.index(self.pos))
             ans = self.current_container
             ans.message = None
             return ans
