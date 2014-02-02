@@ -1102,8 +1102,6 @@ class Boss(QObject):
         self.apply_current_editor_state()
         if is_modified:
             self.set_modified()
-            self.global_undo.truncate()
-            self.update_global_history_actions()
     # }}}
 
     def apply_current_editor_state(self):
