@@ -6,7 +6,7 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import re
+import re, os
 from bisect import bisect
 
 from calibre import guess_type as _guess_type
@@ -20,6 +20,52 @@ def setup_cssutils_serialization(tab_width=2):
     prefs.indent = tab_width * ' '
     prefs.indentClosingBrace = False
     prefs.omitLastSemicolon = False
+
+def actual_case_for_name(container, name):
+    from calibre.utils.filenames import samefile
+    if not container.exists(name):
+        raise ValueError('Cannot get actual case for %s as it does not exist' % name)
+    parts = name.split('/')
+    base = ''
+    ans = []
+    for i, x in enumerate(parts):
+        base = '/'.join(ans + [x])
+        path = container.name_to_abspath(base)
+        pdir = os.path.dirname(path)
+        candidates = {os.path.join(pdir, q) for q in os.listdir(pdir)}
+        if x in candidates:
+            correctx = x
+        else:
+            for q in candidates:
+                if samefile(q, path):
+                    correctx = os.path.basename(q)
+                    break
+            else:
+                raise RuntimeError('Something bad happened')
+        ans.append(correctx)
+    return '/'.join(ans)
+
+def corrected_case_for_name(container, name):
+    parts = name.split('/')
+    ans = []
+    base = ''
+    for i, x in enumerate(parts):
+        base = '/'.join(ans + [x])
+        if container.exists(base):
+            correctx = x
+        else:
+            try:
+                candidates = {q for q in os.listdir(os.path.dirname(container.name_to_abspath(base)))}
+            except EnvironmentError:
+                return None  # one of the non-terminal components of name is a file instead of a directory
+            for q in candidates:
+                if q.lower() == x.lower():
+                    correctx = q
+                    break
+            else:
+                return None
+        ans.append(correctx)
+    return '/'.join(ans)
 
 class PositionFinder(object):
 

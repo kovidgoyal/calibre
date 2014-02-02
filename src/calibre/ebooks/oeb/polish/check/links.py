@@ -6,12 +6,13 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
+import os
 from collections import defaultdict
 from urlparse import urlparse
 
 from calibre.ebooks.oeb.base import OEB_DOCS, OEB_STYLES
 from calibre.ebooks.oeb.polish.container import OEB_FONTS
-from calibre.ebooks.oeb.polish.utils import guess_type
+from calibre.ebooks.oeb.polish.utils import guess_type, actual_case_for_name, corrected_case_for_name
 from calibre.ebooks.oeb.polish.check.base import BaseError, WARN, INFO
 
 class BadLink(BaseError):
@@ -19,6 +20,34 @@ class BadLink(BaseError):
     HELP = _('The resource pointed to by this link does not exist. You should'
              ' either fix, or remove the link.')
     level = WARN
+
+class CaseMismatch(BadLink):
+
+    def __init__(self, href, corrected_name, name, lnum, col):
+        BadLink.__init__(self, _('The linked to resource {0} does not exist').format(href), name, line=lnum, col=col)
+        self.HELP = _('The case of the link {0} and the case of the actual file it points to {1}'
+                      ' do not agree. You should change either the case of the link or rename the file.').format(
+                          href, corrected_name)
+        self.INDIVIDUAL_FIX = _('Change the case of the link to match the actual file')
+        self.corrected_name = corrected_name
+        self.href = href
+
+    def __call__(self, container):
+        frag = urlparse(self.href).fragment
+        nhref = container.name_to_href(self.corrected_name, self.name)
+        if frag:
+            nhref += '#' + frag
+        orig_href = self.href
+        class LinkReplacer(object):
+            replaced = False
+            def __call__(self, url):
+                if url != orig_href:
+                    return url
+                self.replaced = True
+                return nhref
+        replacer = LinkReplacer()
+        container.replace_links(self.name, replacer)
+        return replacer.replaced
 
 class FileLink(BadLink):
 
@@ -128,9 +157,20 @@ def check_links(container):
                         if tname in container.mime_map:
                             links_map[name].add(tname)
                         else:
-                            a(BadLink(_('The linked resource %s is a directory') % fl(href), name, lnum, col))
+                            # Filesystem says the file exists, but it is not in
+                            # the mime_map, so either there is a case mismatch
+                            # or the link is a directory
+                            apath = container.name_to_abspath(tname)
+                            if os.path.isdir(apath):
+                                a(BadLink(_('The linked resource %s is a directory') % fl(href), name, lnum, col))
+                            else:
+                                a(CaseMismatch(href, actual_case_for_name(container, tname), name, lnum, col))
                     else:
-                        a(BadLink(_('The linked resource %s does not exist') % fl(href), name, lnum, col))
+                        cname = corrected_case_for_name(container, tname)
+                        if cname is not None:
+                            a(CaseMismatch(href, cname, name, lnum, col))
+                        else:
+                            a(BadLink(_('The linked resource %s does not exist') % fl(href), name, lnum, col))
                 else:
                     purl = urlparse(href)
                     if purl.scheme == 'file':

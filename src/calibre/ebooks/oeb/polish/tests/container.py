@@ -185,6 +185,23 @@ class ContainerTests(BaseTest):
 
         self.check_links(c)
 
+    def test_actual_case(self):
+        ' Test getting the actual case for files from names on case insensitive filesystems '
+        from calibre.ebooks.oeb.polish.utils import actual_case_for_name, corrected_case_for_name
+        book = get_simple_book()
+        c = get_container(book)
+        name = 'f1/f2/added file.html'
+        c.add_file(name, b'xxx')
+        self.assertTrue(c.exists(name))
+        variations = (name, name.upper(), name.replace('f1', 'F1'), name.replace('f2', 'F2'))
+        if c.exists(name.upper()):
+            for n in variations:
+                self.assertEqual(name, actual_case_for_name(c, n))
+        else:
+            for n in variations:
+                self.assertEqual(name, corrected_case_for_name(c, n))
+            self.assertIsNone(corrected_case_for_name(c, name+'/xx'))
+
     def test_split_file(self):
         ' Test splitting of files '
         book = get_split_book()
