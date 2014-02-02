@@ -283,8 +283,11 @@ class Edelweiss(Source):
                         # edelweiss returns matches based only on title, so we
                         # filter by author manually
                         div = CSSSelect('div.contributor.attGroup')(entry)
-                        entry_authors = set(self.get_author_tokens([x.strip() for x in astext(div[0]).lower().split(',')]))
-                        if not entry_authors.intersection(author_tokens):
+                        try:
+                            entry_authors = set(self.get_author_tokens([x.strip() for x in astext(div[0]).lower().split(',')]))
+                        except IndexError:
+                            entry_authors = set()
+                        if not entry_authors.issuperset(author_tokens):
                             continue
                     entries.append((self._get_book_url(sku), sku))
 
