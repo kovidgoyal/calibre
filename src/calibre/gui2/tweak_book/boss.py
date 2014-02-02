@@ -375,6 +375,8 @@ class Boss(QObject):
             self.apply_container_update_to_gui()
             from calibre.ebooks.markdown import markdown
             report = markdown('# %s\n\n'%self.current_metadata.title + '\n\n'.join(report), output_format='html4')
+        if not changed:
+            self.rewind_savepoint()
         d = QDialog(self.gui)
         d.l = QVBoxLayout()
         d.setLayout(d.l)
