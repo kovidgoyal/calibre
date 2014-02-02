@@ -13,7 +13,7 @@ class GN(BasicNewsRecipe):
 
         __author__ = 'Piotr Kontek, Tomasz Długosz'
         title = u'Gość Niedzielny'
-        description = 'Ogólnopolski tygodnik katolicki - fragmenty artykułów z poprzedniego numeru'
+        description = 'Ogólnopolski tygodnik katolicki - fragmenty artykułów z aktualnego numeru'
         encoding = 'utf-8'
         no_stylesheets = True
         language = 'pl'
@@ -24,7 +24,7 @@ class GN(BasicNewsRecipe):
             doc = html.fromstring(raw)
             page = doc.xpath('//div[@class="c"]//div[@class="search-result"]/div[1]/div[2]/h1//a/@href')
 
-            return page[1]
+            return page[0]
 
         def parse_index(self):
                 soup = self.index_to_soup('http://gosc.pl' + self.find_last_issue())
