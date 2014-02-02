@@ -81,13 +81,7 @@ class GlobalUndoHistory(QAbstractListModel):
         self.pos = 0
         self.reset()
 
-    def add_savepoint(self, new_container, message):
-        try:
-            self.states[self.pos].rewind_message = self.states[self.pos].message
-            self.states[self.pos].message = message
-        except IndexError:
-            raise IndexError('The checkpoint stack has an incorrect position pointer. This should never happen: self.pos = %r, len(self.states) = %r' % (
-                self.pos, len(self.states)))
+    def truncate(self):
         extra = self.states[self.pos+1:]
         if extra:
             self.beginRemoveRows(ROOT, self.pos+1, len(self.states) - 1)
@@ -95,6 +89,15 @@ class GlobalUndoHistory(QAbstractListModel):
         self.states = self.states[:self.pos+1]
         if extra:
             self.endRemoveRows()
+
+    def add_savepoint(self, new_container, message):
+        try:
+            self.states[self.pos].rewind_message = self.states[self.pos].message
+            self.states[self.pos].message = message
+        except IndexError:
+            raise IndexError('The checkpoint stack has an incorrect position pointer. This should never happen: self.pos = %r, len(self.states) = %r' % (
+                self.pos, len(self.states)))
+        self.truncate()
         self.beginInsertRows(ROOT, self.pos+1, self.pos+1)
         self.states.append(State(new_container))
         self.pos += 1
