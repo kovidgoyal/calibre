@@ -1,58 +1,36 @@
-from calibre.web.feeds.news import BasicNewsRecipe
 import re
-from calibre import browser
+from calibre.web.feeds.news import BasicNewsRecipe
 
-class AdvancedUserRecipe1306097511(BasicNewsRecipe):
+class AdvancedUserRecipe1390635673(BasicNewsRecipe):
     title          = u'Cosmopolitan UK'
-    description = 'Author : D.Asbury : Womens Fashion, beauty and Gossip for women from COSMOPOLITAN -UK'
+    description = 'Womens Fashion, beauty and Gossip for women from COSMOPOLITAN -UK'
 
     __author__ = 'Dave Asbury'
-    #last update 7/7/12 hopefully get current cover from itunes
-    # greyscale code by Starson
-    cover_url = 'http://www.cosmopolitan.magazine.co.uk/files/4613/2085/8988/Cosmo_Cover3.jpg'
-    no_stylesheets = True
-    oldest_article = 7
-    max_articles_per_feed = 20
-    remove_empty_feeds = True
-    remove_javascript     = True
-    ignore_duplicate_articles = {'title'}
+   # 2/2/14
+    oldest_article = 28
+    max_articles_per_feed = 10
+    compress_news_images = True
+    compress_news_images_max_size = 20
+    auto_cleanup_keep = '//div[@class="articleHeading"]'
+    auto_cleanup = True
+    ignore_duplicate_articles = {'title', 'url'}
+    no_stylesheets        = True
+    masthead_url = 'http://www.cosmopolitan.co.uk//cm/cosmopolitanuk/site_images/site_logo.gif'
+    cover_url ='http://www.natmagnewsletters.co.uk/CIRCULES/CosmoXXLCover.jpg'
+    # kovids code
+    def preprocess_raw_html(self, raw_html, url):
+        for pat, f in [
+            (re.compile(r':: [\w].+</title>', re.DOTALL), lambda m: '</title>'),
 
-    preprocess_regexps = [
-    (re.compile(r'<!-- Begin tmpl module_competition_offer -->.*?<!-- End tmpl module_competition_offer-->', re.IGNORECASE | re.DOTALL), lambda match: '')]
-    language = 'en_GB'
-
-
-    masthead_url        = 'http://www.cosmopolitan.co.uk/cm/cosmopolitanuk/site_images/header/cosmouk_logo_home.gif'
-
-
-    keep_only_tags = [
-                              dict(attrs={'class' : ['dateAuthor', 'publishDate']}),
-                              dict(name='div',attrs ={'id' : ['main_content']})
-                              ]
-    remove_tags    = [
-                              dict(name='div',attrs={'class' : ['blogInfo','viral_toolbar','comment_number','prevEntry nav']}),
-                              dict(name='div',attrs={'class' : 'blog_module_about_the_authors'}),
-                              dict(attrs={'id': ['breadcrumbs','comment','related_links_list','right_rail','content_sec_fb_more','content_sec_mostpopularstories','content-sec_fb_frame_viewfb_bot']}),
-                              dict(attrs={'class' : ['read_liked_that_header','fb_back_next_area']}),
-                              dict(name='li',attrs={'class' : 'thumb'})
-              ]
+        ]:
+            raw_html = pat.sub(f, raw_html)
+        return raw_html
 
     feeds          = [
-        (u'Love & Sex', u'http://www.cosmopolitan.co.uk/love-sex/rss/'), (u'Men', u'http://cosmopolitan.co.uk/men/rss/'), (u'Fashion', u'http://cosmopolitan.co.uk/fashion/rss/'), (u'Hair & Beauty', u'http://cosmopolitan.co.uk/beauty-hair/rss/'), (u'LifeStyle', u'http://cosmopolitan.co.uk/lifestyle/rss/'), (u'Cosmo On Campus', u'http://cosmopolitan.co.uk/campus/rss/'), (u'Celebrity Gossip', u'http://cosmopolitan.co.uk/celebrity-gossip/rss/')]
-
-    def get_cover_url(self):
-        soup = self.index_to_soup('http://itunes.apple.com/gb/app/cosmopolitan-uk/id461363572?mt=8')
-        # look for the block containing the sun button and url
-        cov = soup.find(attrs={'alt' : 'iPhone Screenshot 1'})
-        cov2 = str(cov['src'])
-        br = browser()
-        br.set_handle_redirect(False)
-        try:
-            br.open_novisit(cov2)
-            cover_url = cov2
-        except:
-            cover_url = 'http://www.cosmopolitan.magazine.co.uk/files/4613/2085/8988/Cosmo_Cover3.jpg'
-
-        return cover_url
-
-
+        (u'Love & Sex', u'http://www.cosmopolitan.co.uk/love-sex/rss/'),
+        (u'Men', u'http://cosmopolitan.co.uk/men/rss/'),
+        (u'Fashion', u'http://cosmopolitan.co.uk/fashion/rss/'),
+        (u'Hair & Beauty', u'http://cosmopolitan.co.uk/beauty-hair/rss/'),
+        (u'LifeStyle', u'http://cosmopolitan.co.uk/lifestyle/rss/'),
+        (u'Cosmo On Campus', u'http://cosmopolitan.co.uk/campus/rss/'),
+        (u'Celebrity Gossip', u'http://cosmopolitan.co.uk/celebrity-gossip/rss/')]
