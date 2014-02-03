@@ -190,6 +190,7 @@ class Editor(QMainWindow):
         self.editor.copyAvailable.disconnect()
         self.editor.cursorPositionChanged.disconnect()
         self.editor.setPlainText('')
+        self.editor.smarts = None
 
     def _modification_state_changed(self):
         self.is_synced_to_container = self.is_modified

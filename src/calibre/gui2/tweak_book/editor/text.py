@@ -19,10 +19,12 @@ from PyQt4.Qt import (
 from calibre import prepare_string_for_xml, xml_entity_to_unicode
 from calibre.gui2.tweak_book import tprefs, TOP
 from calibre.gui2.tweak_book.editor import SYNTAX_PROPERTY
-from calibre.gui2.tweak_book.editor.themes import THEMES, default_theme, theme_color
+from calibre.gui2.tweak_book.editor.themes import THEMES, default_theme, theme_color, theme_format
 from calibre.gui2.tweak_book.editor.syntax.base import SyntaxHighlighter
 from calibre.gui2.tweak_book.editor.syntax.html import HTMLHighlighter, XMLHighlighter
 from calibre.gui2.tweak_book.editor.syntax.css import CSSHighlighter
+from calibre.gui2.tweak_book.editor.smart import NullSmarts
+from calibre.gui2.tweak_book.editor.smart.html import HTMLSmarts
 
 PARAGRAPH_SEPARATOR = '\u2029'
 entity_pat = re.compile(r'&(#{0,1}[a-zA-Z0-9]{1,8});')
@@ -113,6 +115,7 @@ class TextEdit(PlainTextEdit):
 
     def __init__(self, parent=None):
         PlainTextEdit.__init__(self, parent)
+        self.smarts = NullSmarts(self)
         self.current_cursor_line = None
         self.current_search_mark = None
         self.highlighter = SyntaxHighlighter(self)
@@ -164,6 +167,7 @@ class TextEdit(PlainTextEdit):
         pal.setColor(pal.Base, theme_color(theme, 'LineNr', 'bg'))
         pal.setColor(pal.Text, theme_color(theme, 'LineNr', 'fg'))
         pal.setColor(pal.BrightText, theme_color(theme, 'LineNrC', 'fg'))
+        self.match_paren_format = theme_format(theme, 'MatchParen')
         font = self.font()
         ff = tprefs['editor_font_family']
         if ff is None:
@@ -186,6 +190,9 @@ class TextEdit(PlainTextEdit):
         self.highlighter = get_highlighter(syntax)(self)
         self.highlighter.apply_theme(self.theme)
         self.highlighter.setDocument(self.document())
+        sclass = {'html':HTMLSmarts, 'xml':HTMLSmarts}.get(syntax, None)
+        if sclass is not None:
+            self.smarts = sclass(self)
         self.setPlainText(unicodedata.normalize('NFC', text))
         if process_template and QPlainTextEdit.find(self, '%CURSOR%'):
             c = self.textCursor()
@@ -232,6 +239,7 @@ class TextEdit(PlainTextEdit):
             sel.append(self.current_cursor_line)
         if self.current_search_mark is not None:
             sel.append(self.current_search_mark)
+        sel.extend(self.smarts.get_extra_selections(self))
         self.setExtraSelections(sel)
 
     # Search and replace {{{

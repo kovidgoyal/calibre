@@ -77,6 +77,17 @@ class State(object):
         self.parse = self.bold = self.italic = self.css = 0
         self.tag = self.UNKNOWN_TAG
 
+TagStart = namedtuple('TagStart', 'offset prefix name closing is_start')
+TagEnd = namedtuple('TagEnd', 'offset self_closing is_start')
+
+def add_tag_data(state, tag):
+    ud = q = state.get_user_data()
+    if ud is None:
+        ud = HTMLUserData()
+    ud.tags.append(tag)
+    if q is None:
+        state.set_user_data(ud)
+
 def css(state, text, i, formats):
     ' Inside a <style> tag '
     pat = cdata_close_pats['style']
@@ -93,6 +104,7 @@ def css(state, text, i, formats):
     if m is not None:
         state.clear()
         state.parse = State.IN_CLOSING_TAG
+        add_tag_data(state, TagStart(m.start(), 'style', '', True, True))
         ans.extend([(2, formats['end_tag']), (len(m.group()) - 2, formats['tag_name'])])
     return ans
 
@@ -105,6 +117,7 @@ def cdata(state, text, i, formats):
         return [(len(text) - i, fmt)]
     state.parse = State.IN_CLOSING_TAG
     num = m.start() - i
+    add_tag_data(state, TagStart(m.start(), state.tag, '', True, True))
     return [(num, fmt), (2, formats['end_tag']), (len(m.group()) - 2, formats['tag_name'])]
 
 def mark_nbsp(state, text, nbsp_format):
@@ -123,22 +136,11 @@ def mark_nbsp(state, text, nbsp_format):
         ans = [(len(text), fmt)]
     return ans
 
-TagStart = namedtuple('TagStart', 'prefix name closing offset')
-TagEnd = namedtuple('TagEnd', 'self_closing offset')
-
 class HTMLUserData(QTextBlockUserData):
 
     def __init__(self):
         QTextBlockUserData.__init__(self)
         self.tags = []
-
-def add_tag_data(state, tag):
-    ud = q = state.get_user_data()
-    if ud is None:
-        ud = HTMLUserData()
-    ud.tags.append(tag)
-    if q is None:
-        state.set_user_data(ud)
 
 def normal(state, text, i, formats):
     ' The normal state in between tags '
@@ -171,7 +173,7 @@ def normal(state, text, i, formats):
         if prefix and name:
             ans.append((len(prefix)+1, formats['nsprefix']))
         ans.append((len(name or prefix), formats['tag_name']))
-        add_tag_data(state, TagStart(prefix, name, closing, i))
+        add_tag_data(state, TagStart(i, prefix, name, closing, True))
         return ans
 
     if ch == '&':
@@ -197,8 +199,9 @@ def opening_tag(cdata_tags, state, text, i, formats):
             return [(1, formats['/'])]
         state.parse = state.NORMAL
         state.tag = State.UNKNOWN_TAG
-        add_tag_data(state, TagEnd(True, i))
-        return [(len(m.group()), formats['tag'])]
+        l = len(m.group())
+        add_tag_data(state, TagEnd(i + l - 1, True, False))
+        return [(l, formats['tag'])]
     if ch == '>':
         state.parse = state.NORMAL
         tag = state.tag.lower()
@@ -209,7 +212,7 @@ def opening_tag(cdata_tags, state, text, i, formats):
                 state.parse = state.CSS
         state.bold += int(tag in bold_tags)
         state.italic += int(tag in italic_tags)
-        add_tag_data(state, TagEnd(False, i))
+        add_tag_data(state, TagEnd(i, False, False))
         return [(1, formats['tag'])]
     m = attribute_name_pat.match(text, i)
     if m is None:
@@ -276,7 +279,7 @@ def closing_tag(state, text, i, formats):
     if num > 1:
         ans.insert(0, (num - 1, formats['bad-closing']))
     state.tag = State.UNKNOWN_TAG
-    add_tag_data(state, TagEnd(False, pos))
+    add_tag_data(state, TagEnd(pos, False, False))
     return ans
 
 def in_comment(state, text, i, formats):
