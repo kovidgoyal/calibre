@@ -221,7 +221,8 @@ class AutoAdder(QObject):
                 os.remove(paths[0])
                 self.worker.staging.remove(fname)
             except:
-                pass
+                import traceback
+                traceback.print_exc()
             count += num
 
         if duplicates:
