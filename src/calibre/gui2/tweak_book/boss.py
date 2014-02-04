@@ -690,21 +690,21 @@ class Boss(QObject):
 
         def do_find():
             if editor is not None:
-                if editor.find(pat, marked=marked):
+                if editor.find(pat, marked=marked, save_match='gui'):
                     return
                 if not files:
                     if not state['wrap']:
                         return no_match()
-                    return editor.find(pat, wrap=True, marked=marked) or no_match()
+                    return editor.find(pat, wrap=True, marked=marked, save_match='gui') or no_match()
             for fname, syntax in files.iteritems():
                 if fname in editors:
-                    if not editors[fname].find(pat, complete=True):
+                    if not editors[fname].find(pat, complete=True, save_match='gui'):
                         continue
                     return self.show_editor(fname)
                 raw = current_container().raw_data(fname)
                 if pat.search(raw) is not None:
                     self.edit_file(fname, syntax)
-                    if editors[fname].find(pat, complete=True):
+                    if editors[fname].find(pat, complete=True, save_match='gui'):
                         return
             return no_match()
 
@@ -720,7 +720,7 @@ class Boss(QObject):
         def do_replace():
             if editor is None:
                 return no_replace()
-            if not editor.replace(pat, state['replace']):
+            if not editor.replace(pat, state['replace'], saved_match='gui'):
                 return no_replace(_(
                         'Currently selected text does not match the search query.'))
             return True

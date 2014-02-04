@@ -115,6 +115,7 @@ class TextEdit(PlainTextEdit):
 
     def __init__(self, parent=None):
         PlainTextEdit.__init__(self, parent)
+        self.saved_matches = {}
         self.smarts = NullSmarts(self)
         self.current_cursor_line = None
         self.current_search_mark = None
@@ -256,7 +257,7 @@ class TextEdit(PlainTextEdit):
             self.current_search_mark = None
         self.update_extra_selections()
 
-    def find_in_marked(self, pat, wrap=False):
+    def find_in_marked(self, pat, wrap=False, save_match=None):
         if self.current_search_mark is None:
             return False
         csm = self.current_search_mark.cursor
@@ -298,6 +299,8 @@ class TextEdit(PlainTextEdit):
         self.setTextCursor(c)
         # Center search result on screen
         self.centerCursor()
+        if save_match is not None:
+            self.saved_matches[save_match] = m
         return True
 
     def all_in_marked(self, pat, template=None):
@@ -316,9 +319,9 @@ class TextEdit(PlainTextEdit):
                 self.update_extra_selections()
         return count
 
-    def find(self, pat, wrap=False, marked=False, complete=False):
+    def find(self, pat, wrap=False, marked=False, complete=False, save_match=None):
         if marked:
-            return self.find_in_marked(pat, wrap=wrap)
+            return self.find_in_marked(pat, wrap=wrap, save_match=save_match)
         reverse = pat.flags & regex.REVERSE
         c = self.textCursor()
         c.clearSelection()
@@ -353,12 +356,23 @@ class TextEdit(PlainTextEdit):
         self.setTextCursor(c)
         # Center search result on screen
         self.centerCursor()
+        if save_match is not None:
+            self.saved_matches[save_match] = m
         return True
 
-    def replace(self, pat, template):
+    def replace(self, pat, template, saved_match='gui'):
         c = self.textCursor()
         raw = unicode(c.selectedText()).replace(PARAGRAPH_SEPARATOR, '\n')
         m = pat.fullmatch(raw)
+        if m is None:
+            # This can happen if either the user changed the selected text or
+            # the search expression uses lookahead/lookbehind operators. See if
+            # the saved match matches the currently selected text and
+            # use it, if so.
+            if saved_match is not None and saved_match in self.saved_matches:
+                saved = self.saved_matches.pop(saved_match)
+                if saved.group() == raw:
+                    m = saved
         if m is None:
             return False
         text = m.expand(template)
