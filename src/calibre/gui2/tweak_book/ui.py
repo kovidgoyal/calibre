@@ -270,7 +270,9 @@ class Main(MainWindow):
         group = _('Global Actions')
 
         def reg(icon, text, target, sid, keys, description):
-            ac = actions[sid] = QAction(QIcon(I(icon)), text, self) if icon else QAction(text, self)
+            if not isinstance(icon, QIcon):
+                icon = QIcon(I(icon))
+            ac = actions[sid] = QAction(icon, text, self) if icon else QAction(text, self)
             ac.setObjectName('action-' + sid)
             if target is not None:
                 ac.triggered.connect(target)
@@ -315,7 +317,7 @@ class Main(MainWindow):
 
         def ereg(icon, text, target, sid, keys, description):
             return reg(icon, text, partial(self.boss.editor_action, target), sid, keys, description)
-        register_text_editor_actions(ereg)
+        register_text_editor_actions(ereg, self.palette())
 
         # Tool actions
         group = _('Tools')

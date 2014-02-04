@@ -6,13 +6,16 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import sys
+import sys, re
 from operator import itemgetter
 from . import NullSmarts
 
 from PyQt4.Qt import QTextEdit
 
+from calibre.gui2 import error_dialog
+
 get_offset = itemgetter(0)
+PARAGRAPH_SEPARATOR = '\u2029'
 
 class Tag(object):
 
@@ -104,6 +107,27 @@ def find_closing_tag(tag, max_tags=sys.maxint):
         max_tags -= 1
     return None
 
+def select_tag(cursor, tag):
+    cursor.setPosition(tag.start_block.position() + tag.start_offset)
+    cursor.setPosition(tag.end_block.position() + tag.end_offset + 1, cursor.KeepAnchor)
+    return unicode(cursor.selectedText()).replace(PARAGRAPH_SEPARATOR, '\n')
+
+def rename_tag(cursor, opening_tag, closing_tag, new_name, insert=False):
+    cursor.beginEditBlock()
+    text = select_tag(cursor, closing_tag)
+    if insert:
+        text = '</%s>%s' % (new_name, text)
+    else:
+        text = re.sub(r'^<\s*/\s*[a-zA-Z0-9]+', '</%s' % new_name, text)
+    cursor.insertText(text)
+    text = select_tag(cursor, opening_tag)
+    if insert:
+        text += '<%s>' % new_name
+    else:
+        text = re.sub(r'^<\s*[a-zA-Z0-9]+', '<%s' % new_name, text)
+    cursor.insertText(text)
+    cursor.endEditBlock()
+
 class HTMLSmarts(NullSmarts):
 
     def get_extra_selections(self, editor):
@@ -125,4 +149,35 @@ class HTMLSmarts(NullSmarts):
             if tag is not None:
                 add_tag(tag)
         return ans
+
+    def rename_block_tag(self, editor, new_name):
+        c = editor.textCursor()
+        block, offset = c.block(), c.positionInBlock()
+        tag = None
+
+        while True:
+            tag = find_closest_containing_tag(block, offset)
+            if tag is None:
+                break
+            block, offset = tag.start_block, tag.start_offset
+            if tag.name in {
+                    'address', 'article', 'aside', 'blockquote', 'center',
+                    'dir', 'fieldset', 'isindex', 'menu', 'noframes', 'hgroup',
+                    'noscript', 'pre', 'section', 'h1', 'h2', 'h3', 'h4', 'h5',
+                    'h6', 'header', 'p', 'div', 'dd', 'dl', 'ul', 'ol', 'li', 'body',
+                    'td', 'th'}:
+                break
+            tag = None
+
+        if tag is not None:
+            closing_tag = find_closing_tag(tag)
+            if closing_tag is None:
+                return error_dialog(editor, _('Invalid HTML'), _(
+                    'There is an unclosed %s tag. You should run the Fix HTML tool'
+                    ' before trying to rename tags.') % tag.name, show=True)
+            rename_tag(c, tag, closing_tag, new_name, insert=tag.name in {'body', 'td', 'th', 'li'})
+        else:
+            return error_dialog(editor, _('No found'), _(
+                'No suitable block level tag was found to rename'), show=True)
+
 

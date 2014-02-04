@@ -612,3 +612,7 @@ class TextEdit(PlainTextEdit):
         c.movePosition(c.End, c.KeepAnchor)
         self.setTextCursor(c)
 
+    def rename_block_tag(self, new_name):
+        if hasattr(self.smarts, 'rename_block_tag'):
+            self.smarts.rename_block_tag(self, new_name)
+
