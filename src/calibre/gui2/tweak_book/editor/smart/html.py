@@ -39,7 +39,7 @@ def next_tag_boundary(block, offset, forward=True):
         offset = -1 if forward else sys.maxint
     return None, None
 
-def find_closest_containing_tag(block, offset, max_tags=2000):
+def find_closest_containing_tag(block, offset, max_tags=sys.maxint):
     ''' Find the closest containing tag. To find it, we search for the first
     opening tag that does not have a matching closing tag before the specified
     position. Search through at most max_tags. '''
@@ -75,7 +75,7 @@ def find_closest_containing_tag(block, offset, max_tags=2000):
         max_tags -= 1
     return None  # Could not find a containing tag
 
-def find_closing_tag(tag, max_tags=4000):
+def find_closing_tag(tag, max_tags=sys.maxint):
     ''' Find the closing tag corresponding to the specified tag. To find it we
     search for the first closing tag after the specified tag that does not
     match a previous opening tag. Search through at most max_tags. '''
@@ -118,10 +118,10 @@ class HTMLSmarts(NullSmarts):
 
         c = editor.textCursor()
         block, offset = c.block(), c.positionInBlock()
-        tag = find_closest_containing_tag(block, offset)
+        tag = find_closest_containing_tag(block, offset, max_tags=2000)
         if tag is not None:
             add_tag(tag)
-            tag = find_closing_tag(tag)
+            tag = find_closing_tag(tag, max_tags=4000)
             if tag is not None:
                 add_tag(tag)
         return ans
