@@ -131,11 +131,11 @@ def do_list(db, fields, afields, sort_by, ascending, search_text, line_width, se
     with ColoredStream(sys.stdout, fg='green'):
         print ''.join(titles)
 
-    wrappers = map(lambda x: TextWrapper(x-1), widths)
+    wrappers = [TextWrapper(x - 1).wrap if x > 1 else lambda y: y for x in widths]
     o = cStringIO.StringIO()
 
     for record in data:
-        text = [wrappers[i].wrap(unicode(record[field])) for i, field in enumerate(fields)]
+        text = [wrappers[i](unicode(record[field])) for i, field in enumerate(fields)]
         lines = max(map(len, text))
         for l in range(lines):
             for i, field in enumerate(text):
