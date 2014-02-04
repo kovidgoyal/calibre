@@ -53,6 +53,7 @@ class SyntaxHighlighter(QSyntaxHighlighter):
     def highlightBlock(self, text):
         try:
             state = self.previousBlockState()
+            self.setCurrentBlockUserData(None)  # Ensure that any stale user data is discarded
             if state == -1:
                 state = 0
             state = self.state_class(state)
