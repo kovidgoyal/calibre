@@ -712,10 +712,26 @@ class PostInstall:
                 f.close()
                 des = ('calibre-gui.desktop', 'calibre-lrfviewer.desktop',
                         'calibre-ebook-viewer.desktop', 'calibre-ebook-edit.desktop')
+                appdata = os.path.join(os.path.dirname(self.opts.staging_sharedir), 'appdata')
+                if not os.path.exists(appdata):
+                    try:
+                        os.mkdir(appdata)
+                    except:
+                        prints('Failed to create %s not installing appdata files' % appdata)
+                if os.path.exists(appdata) and not os.access(appdata, os.W_OK):
+                    prints('Do not have write permissions for %s not installing appdata files' % appdata)
+                else:
+                    from calibre.utils.localization import get_all_translators
+                    translators = dict(get_all_translators())
+
+                APPDATA = get_appdata()
                 for x in des:
                     cmd = ['xdg-desktop-menu', 'install', '--noupdate', './'+x]
                     cc(' '.join(cmd), shell=True)
                     self.menu_resources.append(x)
+                    ak = x.partition('.')[0]
+                    if ak in APPDATA and os.access(appdata, os.W_OK):
+                        write_appdata(ak, APPDATA[ak], appdata, translators)
                 cc(['xdg-desktop-menu', 'forceupdate'])
                 f = open('calibre-mimetypes.xml', 'wb')
                 f.write(MIME)
@@ -889,6 +905,72 @@ Exec=calibre %F
 Icon=calibre-gui
 Categories=Office;
 '''
+
+def get_appdata():
+    _ = lambda x: x  # Make sure the text below is not translated, but is marked for translation
+    return {
+        'calibre-gui': {
+            'description':(
+                _('calibre is the one stop solution to all your e-book needs.'),
+                _('You can use calibre to catalog your books, fetch metadata for them automatically, convert them from and to all the various ebook formats, send them to your e-book reader devices, read the books on your computer, edit the books in a dedicated e-book editor and even make them available over the network with the built-in content server. You can also download news and periodicals in e-book format from over a thousand different news and magazine websites.')  # noqa
+            ),
+            'screenshots':(
+                (1408, 792, 'https://lh4.googleusercontent.com/-bNE1hc_3pIc/UvHLwKPGBPI/AAAAAAAAASA/8oavs_c6xoU/w1408-h792-no/main-default.png',),
+                (1408, 792, 'https://lh4.googleusercontent.com/-Zu2httSKABE/UvHMYK30JJI/AAAAAAAAATg/dQTQUjBvV5s/w1408-h792-no/main-grid.png'),
+                (1408, 792, 'https://lh3.googleusercontent.com/-_trYUjU_BaY/UvHMYSdKhlI/AAAAAAAAATc/auPA3gyXc6o/w1408-h792-no/main-flow.png'),
+            ),
+        },
+
+        'calibre-ebook-edit': {
+            'description':(
+                _('The calibre e-book editor allows you to edit the text and styles inside the book with a live preview of your changes.'),
+                _('It can edit books in both the EPUB and AZW3 (kindle) formats. It includes various useful tools for checking the book for errors, editing the Table of Contents, performing automated cleanups, etc.'),  # noqa
+            ),
+            'screenshots':(
+                (1408, 792, 'https://lh5.googleusercontent.com/-M2MAVc3A8e4/UvHMWqGRa8I/AAAAAAAAATA/cecQeWUYBVs/w1408-h792-no/edit-default.png',),
+                (1408, 792, 'https://lh4.googleusercontent.com/-WhoMxuRb34c/UvHMWqN8aGI/AAAAAAAAATI/8SDBYWXb7-8/w1408-h792-no/edit-check.png'),
+                (887, 575, 'https://lh6.googleusercontent.com/-KwaOwHabnBs/UvHMWidjyXI/AAAAAAAAAS8/H6xmCeLnSpk/w887-h575-no/edit-toc.png'),
+            ),
+        },
+
+        'calibre-ebook-viewer': {
+            'description': (
+                _('The calibre e-book viewer allows you to read e-books in over a dozen different formats.'),
+                _('It has a full screen mode for distraction free reading and can display the text with multiple columns per screen.'),
+            ),
+            'screenshots':(
+                (1408, 792, 'https://lh5.googleusercontent.com/-dzSO82BPpaE/UvHMYY5SpNI/AAAAAAAAATk/I_kF9fYWrZM/w1408-h792-no/viewer-default.png',),
+                (1920, 1080, 'https://lh6.googleusercontent.com/-n32Ae5RytAk/UvHMY0QD94I/AAAAAAAAATs/Zw8Yz08HIKk/w1920-h1080-no/viewer-fs.png'),
+            ),
+        },
+    }
+
+def write_appdata(key, entry, base, translators):
+    from lxml.etree import tostring
+    from lxml.builder import E
+    fpath = os.path.join(base, '%s.appdata.xml' % key)
+    root = E.application(
+        E.id(key + '.desktop', type='desktop'),
+        E.licence('CC0'),
+        E.description(),
+        E.url('http://calibre-ebook.com', type='homepage'),
+        E.screenshots(),
+    )
+    for w, h, url in entry['screenshots']:
+        s = E.screenshot(url, width=str(w), height=str(h))
+        root[-1].append(s)
+    root[-1][0].set('type', 'default')
+    for para in entry['description']:
+        root[2].append(E.p(para))
+        for lang, t in translators.iteritems():
+            tp = t.ugettext(para)
+            if tp != para:
+                root[2].append(E.p(tp))
+                root[2][-1].set('{http://www.w3.org/XML/1998/namespace}lang', lang)
+    with open(fpath, 'wb') as f:
+        f.write(tostring(root, encoding='utf-8', xml_declaration=True, pretty_print=True))
+    return fpath
+
 
 MIME = '''\
 <?xml version="1.0"?>

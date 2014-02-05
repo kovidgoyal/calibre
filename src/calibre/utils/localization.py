@@ -91,6 +91,15 @@ def zf_exists():
 
 _lang_trans = None
 
+def get_all_translators():
+    from zipfile import ZipFile
+    with ZipFile(P('localization/locales.zip', allow_user_override=False), 'r') as zf:
+        for lang in available_translations():
+            mpath = get_lc_messages_path(lang)
+            if mpath is not None:
+                buf = cStringIO.StringIO(zf.read(mpath + '/messages.mo'))
+                yield lang, GNUTranslations(buf)
+
 def set_translators():
     global _lang_trans
     # To test different translations invoke as
