@@ -27,6 +27,7 @@ from calibre.ebooks.oeb.polish.toc import remove_names_from_toc, find_existing_t
 from calibre.ebooks.oeb.polish.utils import link_stylesheets, setup_cssutils_serialization as scs
 from calibre.gui2 import error_dialog, choose_files, question_dialog, info_dialog, choose_save_file
 from calibre.gui2.dialogs.confirm_delete import confirm
+from calibre.gui2.dialogs.message_box import MessageBox
 from calibre.gui2.tweak_book import set_current_container, current_container, tprefs, actions, editors
 from calibre.gui2.tweak_book.undo import GlobalUndoHistory
 from calibre.gui2.tweak_book.file_list import NewFileDialog
@@ -385,7 +386,7 @@ class Boss(QObject):
         d.e.setHtml(report)
         d.bb = QDialogButtonBox(QDialogButtonBox.Close)
         if changed:
-            b = d.b = d.bb.addButton(_('See what changed'), d.bb.AcceptRole)
+            b = d.b = d.bb.addButton(_('See what &changed'), d.bb.AcceptRole)
             b.setIcon(QIcon(I('diff.png')))
             b.clicked.connect(partial(self.show_current_diff, allow_revert=True))
         d.l.addWidget(d.bb)
@@ -725,9 +726,16 @@ class Boss(QObject):
                         'Currently selected text does not match the search query.'))
             return True
 
-        def count_message(action, count):
+        def count_message(action, count, show_diff=False):
             msg = _('%(action)s %(num)s occurrences of %(query)s' % dict(num=count, query=state['find'], action=action))
-            info_dialog(self.gui, _('Searching done'), prepare_string_for_xml(msg), show=True)
+            if show_diff and count > 0:
+                d = MessageBox(MessageBox.INFO, _('Searching done'), prepare_string_for_xml(msg), parent=self.gui, show_copy_button=False)
+                d.diffb = b = d.bb.addButton(_('See what &changed'), d.bb.ActionRole)
+                b.setIcon(QIcon(I('diff.png'))), d.set_details(None), b.clicked.connect(d.accept)
+                b.clicked.connect(partial(self.show_current_diff, allow_revert=True))
+                d.exec_()
+            else:
+                info_dialog(self.gui, _('Searching done'), prepare_string_for_xml(msg), show=True)
 
         def do_all(replace=True):
             count = 0
@@ -752,7 +760,7 @@ class Boss(QObject):
                         with current_container().open(n, 'wb') as f:
                             f.write(raw.encode('utf-8'))
             QApplication.restoreOverrideCursor()
-            count_message(_('Replaced') if replace else _('Found'), count)
+            count_message(_('Replaced') if replace else _('Found'), count, show_diff=replace)
             return count
 
         with BusyCursor():
