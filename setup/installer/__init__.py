@@ -57,13 +57,14 @@ class Rsync(Command):
         self.info(cmd)
         subprocess.check_call(cmd, shell=True, env=env)
 
-def push(host, vmname):
+def push(host, vmname, available):
     if vmname is None:
         hostname = host.partition(':')[0].partition('@')[-1]
         ok = is_host_reachable(hostname)
     else:
         ok = is_vm_running(vmname)
     if ok:
+        available[vmname or host] = True
         rcmd = BASE_RSYNC + EXCLUDES + ['.', host]
         print '\n\nPushing to:', vmname or host, '\n'
         subprocess.check_call(rcmd, stdout=open(os.devnull, 'wb'))
@@ -74,7 +75,7 @@ class Push(Command):
 
     def run(self, opts):
         from threading import Thread
-        threads = {}
+        threads, available = {}, {}
         for host, vmname in {
                 r'Owner@winxp:/cygdrive/c/Documents\ and\ Settings/Owner/calibre':'winxp',
                 'kovid@ox:calibre':None,
@@ -82,13 +83,14 @@ class Push(Command):
                 'kovid@win7-x64:calibre-src':'win7-x64',
                 'kovid@tiny:calibre':None,
                 }.iteritems():
-                threads[vmname or host] = thread = Thread(target=push, args=(host, vmname,))
+                threads[vmname or host] = thread = Thread(target=push, args=(host, vmname, available))
                 thread.start()
         while threads:
             for name, thread in tuple(threads.iteritems()):
                 thread.join(0.01)
                 if not thread.is_alive():
-                    print '\n\n', name, 'done'
+                    if available.get(name, False):
+                        print '\n\n', name, 'done'
                     threads.pop(name)
 
 
