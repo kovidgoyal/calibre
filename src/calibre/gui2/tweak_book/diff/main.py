@@ -274,9 +274,10 @@ class Diff(Dialog):
 
         self.bb.setStandardButtons(self.bb.Close)
         if self.revert_button_msg is not None:
-            self.rvb = b = self.bb.addButton(self.revert_button_msg, self.bb.RejectRole)
-            b.setIcon(QIcon(I('edit-undo.png')))
+            self.rvb = b = self.bb.addButton(self.revert_button_msg, self.bb.ActionRole)
+            b.setIcon(QIcon(I('edit-undo.png'))), b.setAutoDefault(False)
             b.clicked.connect(self.revert_requested)
+            b.clicked.connect(self.reject)
         self.bb.button(self.bb.Close).setDefault(True)
         self.hl.addWidget(self.bb, r)
 

@@ -387,8 +387,9 @@ class Boss(QObject):
         d.bb = QDialogButtonBox(QDialogButtonBox.Close)
         if changed:
             b = d.b = d.bb.addButton(_('See what &changed'), d.bb.AcceptRole)
-            b.setIcon(QIcon(I('diff.png')))
+            b.setIcon(QIcon(I('diff.png'))), b.setAutoDefault(False)
             b.clicked.connect(partial(self.show_current_diff, allow_revert=True))
+        d.bb.button(d.bb.Close).setDefault(True)
         d.l.addWidget(d.bb)
         d.bb.rejected.connect(d.reject)
         d.bb.accepted.connect(d.accept)
