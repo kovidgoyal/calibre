@@ -407,7 +407,10 @@ class Graphics(object):
         w = pen.widthF()
         if pen.isCosmetic():
             t = painter.transform()
-            w /= sqrt(t.m11()**2 + t.m22()**2)
+            try:
+                w /= sqrt(t.m11()**2 + t.m22()**2)
+            except ZeroDivisionError:
+                w = 0
         pdf.serialize(w)
         pdf.current_page.write(' w ')
 
