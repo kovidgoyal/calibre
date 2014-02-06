@@ -750,11 +750,29 @@ class DiffSplit(QSplitter):  # {{{
         self.changes.append(Change(
             rtop=start_block, rbot=current_block, ltop=l, lbot=l, kind='insert'))
 
+    def trim_identical_leading_lines(self, alo, ahi, blo, bhi):
+        ''' The patience diff algorithm sometimes results in a block of replace
+        lines with identical leading lines. Remove these. This can cause extra
+        lines of context, but that is better than having extra lines of diff
+        with no actual changes. '''
+        a, b = self.left_lines, self.right_lines
+        leading = 0
+        while alo < ahi and blo < bhi and a[alo] == b[blo]:
+            leading += 1
+            alo += 1
+            blo += 1
+        if leading > 0:
+            self.equal(alo - leading, alo, blo - leading, blo)
+        return alo, ahi, blo, bhi
+
     def replace(self, alo, ahi, blo, bhi):
         ''' When replacing one block of lines with another, search the blocks
         for *similar* lines; the best-matching pair (if any) is used as a synch
         point, and intraline difference marking is done on the similar pair.
         Lots of work, but often worth it.  '''
+        alo, ahi, blo, bhi = self.trim_identical_leading_lines(alo, ahi, blo, bhi)
+        if alo == ahi and blo == bhi:
+            return
         if ahi + bhi - alo - blo > 100:
             # Too many lines, this will be too slow
             # http://bugs.python.org/issue6931
