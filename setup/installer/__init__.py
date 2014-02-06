@@ -6,7 +6,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import subprocess, tempfile, os, time
+import subprocess, tempfile, os, time, socket
 
 from setup import Command, installer_name
 from setup.build_environment import HOST, PROJECT
@@ -36,6 +36,13 @@ def is_vm_running(name):
             return True
     return False
 
+def is_host_reachable(name):
+    try:
+        socket.create_connection((name, 22), 5).close()
+        return True
+    except:
+        return False
+
 class Rsync(Command):
 
     description = 'Sync source tree from development machine'
@@ -50,6 +57,16 @@ class Rsync(Command):
         self.info(cmd)
         subprocess.check_call(cmd, shell=True, env=env)
 
+def push(host, vmname):
+    if vmname is None:
+        hostname = host.partition(':')[0].partition('@')[-1]
+        ok = is_host_reachable(hostname)
+    else:
+        ok = is_vm_running(vmname)
+    if ok:
+        rcmd = BASE_RSYNC + EXCLUDES + ['.', host]
+        print '\n\nPushing to:', vmname or host, '\n'
+        subprocess.check_call(rcmd, stdout=open(os.devnull, 'wb'))
 
 class Push(Command):
 
@@ -63,12 +80,9 @@ class Push(Command):
                 'kovid@ox:calibre':None,
                 r'kovid@win7:/cygdrive/c/Users/kovid/calibre':'Windows 7',
                 'kovid@win7-x64:calibre-src':'win7-x64',
+                'kovid@tiny:calibre':None,
                 }.iteritems():
-            if vmname is None or is_vm_running(vmname):
-                rcmd = BASE_RSYNC + EXCLUDES + ['.', host]
-                print '\n\nPushing to:', vmname or host, '\n'
-                threads[vmname or host] = thread = Thread(target=subprocess.check_call, args=(rcmd,),
-                    kwargs={'stdout':open(os.devnull, 'wb')})
+                threads[vmname or host] = thread = Thread(target=push, args=(host, vmname,))
                 thread.start()
         while threads:
             for name, thread in tuple(threads.iteritems()):
