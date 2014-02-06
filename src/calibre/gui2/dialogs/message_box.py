@@ -14,7 +14,7 @@ from PyQt4.Qt import (QDialog, QIcon, QApplication, QSize, QKeySequence,
 from calibre.constants import __version__, isfrozen
 from calibre.gui2.dialogs.message_box_ui import Ui_Dialog
 
-class MessageBox(QDialog, Ui_Dialog): # {{{
+class MessageBox(QDialog, Ui_Dialog):  # {{{
 
     ERROR = 0
     WARNING = 1
@@ -79,7 +79,6 @@ class MessageBox(QDialog, Ui_Dialog): # {{{
 
         self.do_resize()
 
-
     def toggle_det_msg(self, *args):
         vis = unicode(self.det_msg_toggle.text()) == self.hide_det_msg
         self.det_msg_toggle.setText(self.show_det_msg if vis else
@@ -109,7 +108,7 @@ class MessageBox(QDialog, Ui_Dialog): # {{{
                 self.bb.button(self.bb.Yes if self.default_yes else self.bb.No
                         ).setFocus(Qt.OtherFocusReason)
             except:
-                pass# Buttons were changed
+                pass  # Buttons were changed
         else:
             self.bb.button(self.bb.Ok).setFocus(Qt.OtherFocusReason)
         return ret
@@ -124,7 +123,7 @@ class MessageBox(QDialog, Ui_Dialog): # {{{
         self.do_resize()
 # }}}
 
-class ViewLog(QDialog): # {{{
+class ViewLog(QDialog):  # {{{
 
     def __init__(self, title, html, parent=None):
         QDialog.__init__(self, parent)
@@ -156,7 +155,7 @@ class ViewLog(QDialog): # {{{
 
 _proceed_memory = []
 
-class ProceedNotification(MessageBox): # {{{
+class ProceedNotification(MessageBox):  # {{{
 
     '''
     WARNING: This class is deprecated. DO not use it as some users have
@@ -227,7 +226,7 @@ class ProceedNotification(MessageBox): # {{{
 
 # }}}
 
-class ErrorNotification(MessageBox): # {{{
+class ErrorNotification(MessageBox):  # {{{
 
     def __init__(self, html_log, log_viewer_title, title, msg,
             det_msg='', show_copy_button=False, parent=None):
@@ -267,7 +266,7 @@ class ErrorNotification(MessageBox): # {{{
         _proceed_memory.remove(self)
 # }}}
 
-class JobError(QDialog): # {{{
+class JobError(QDialog):  # {{{
 
     WIDTH = 600
     do_pop = pyqtSignal()
@@ -343,7 +342,7 @@ class JobError(QDialog): # {{{
 
     def do_resize(self):
         h = self.sizeHint().height()
-        self.setMinimumHeight(0) # Needed as this gets set if det_msg is shown
+        self.setMinimumHeight(0)  # Needed as this gets set if det_msg is shown
         # Needed otherwise re-showing the box after showing det_msg causes the box
         # to not reduce in height
         self.setMaximumHeight(h)
@@ -360,7 +359,8 @@ class JobError(QDialog): # {{{
         self.pop()
 
     def pop(self):
-        if not self.queue or self.isVisible(): return
+        if not self.queue or self.isVisible():
+            return
         title, msg, det_msg = self.queue.pop(0)
         self.setWindowTitle(title)
         self.msg_label.setText(msg)
