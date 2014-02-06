@@ -940,7 +940,7 @@ class DiffView(QWidget):  # {{{
         changes = self.changes[which]
         bar = self.bars[which]
         syncpos = self.syncpos + bar.value()
-        prev = (0, 0, None)
+        prev = 0
         for i, (top, bot, kind) in enumerate(changes):
             if syncpos <= bot:
                 if top <= syncpos:
@@ -951,15 +951,14 @@ class DiffView(QWidget):  # {{{
                         ratio = 0
                     return 'in', i, ratio
                 else:
-                    # syncpos is after the change
-                    offset = syncpos - prev[1]
+                    # syncpos is after the previous change
+                    offset = syncpos - prev
                     return 'after', i - 1, offset
-                break
             else:
-                prev = (top, bot, kind)
-        else:
-            offset = syncpos - prev[1]
-            return 'after', len(self.changes) - 1, offset
+                # syncpos is after the current change
+                prev = bot
+        offset = syncpos - prev
+        return 'after', len(changes) - 1, offset
 
     def scroll_to(self, which, position):
         changes = self.changes[which]
