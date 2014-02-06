@@ -719,7 +719,7 @@ def command_export(args, dbpath):
 
 def do_add_custom_column(db, label, name, datatype, is_multiple, display):
     num = db.create_custom_column(label, name, datatype, is_multiple, display=display)
-    prints('Custom column created with id: %d'%num)
+    prints('Custom column created with id: %s'%num)
 
 def add_custom_column_option_parser():
     from calibre.library.custom_columns import CustomColumns

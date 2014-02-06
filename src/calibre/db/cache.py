@@ -1634,7 +1634,7 @@ class Cache(object):
 
     @write_api
     def create_custom_column(self, label, name, datatype, is_multiple, editable=True, display={}):
-        self.backend.create_custom_column(label, name, datatype, is_multiple, editable=editable, display=display)
+        return self.backend.create_custom_column(label, name, datatype, is_multiple, editable=editable, display=display)
 
     @write_api
     def set_custom_column_metadata(self, num, name=None, label=None, is_editable=None,
