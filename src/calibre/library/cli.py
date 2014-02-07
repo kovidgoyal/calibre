@@ -643,9 +643,21 @@ def command_set_metadata(args, dbpath):
             val = field_from_string(field, val, fields[field])
             vals[field] = val
         mi = db.get_metadata(book_id, index_is_id=True, get_cover=False)
-        for field, val in sorted(vals.iteritems(), key=lambda k: 1 if
-                k[0].endswith('_index') else 0):
-            mi.set(field, val)
+        for field, val in sorted(  # ensure series_index fields are set last
+                vals.iteritems(), key=lambda k: 1 if k[0].endswith('_index') else 0):
+            if field.endswith('_index'):
+                try:
+                    val = float(val)
+                except Exception:
+                    print >>sys.stderr, 'The value %r is not a valid series index' % val
+                    raise SystemExit(1)
+                sname = mi.get(field[:-6])
+                if not sname:
+                    print >>sys.stderr, 'Cannot set index for series before setting the series name'
+                    raise SystemExit(1)
+                mi.set(field[:-6], sname, extra=val)
+            else:
+                mi.set(field, val)
         db.set_metadata(book_id, mi, force_changes=True)
     db.clean()
     do_show_metadata(db, book_id, False)
