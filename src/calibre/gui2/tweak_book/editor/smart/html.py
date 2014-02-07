@@ -90,7 +90,7 @@ def find_closing_tag(tag, max_tags=sys.maxint):
         if block is None or not tag_start.is_start:
             break
         endblock, tag_end = next_tag_boundary(block, tag_start.offset)
-        if block is None or tag_end.is_start:
+        if endblock is None or tag_end.is_start:
             break
         if tag_start.closing:
             try:
