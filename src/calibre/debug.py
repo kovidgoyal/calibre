@@ -230,10 +230,7 @@ def main(args=sys.argv):
         open_local_file(opts.show_gui_debug)
     elif opts.viewer:
         from calibre.gui2.viewer.main import main
-        vargs = ['ebook-viewer', '--debug-javascript']
-        if len(args) > 1:
-            vargs.append(args[-1])
-        main(vargs)
+        main(['ebook-viewer'] + args[1:])
     elif opts.py_console:
         from calibre.utils.pyconsole.main import main
         main()
