@@ -93,6 +93,18 @@
     </layout>
    </item>
    <item>
+    <widget class="QCheckBox" name="opt_add_comments_to_email">
+     <property name="toolTip">
+      <string>Add the comments from the book metadata to the email.
+Useful to allow the recipient to see a summary of the
+book before opening it.</string>
+     </property>
+     <property name="text">
+      <string>Add &amp;comments metadata as text to the email</string>
+     </property>
+    </widget>
+   </item>
+   <item>
     <widget class="SendEmail" name="send_email_widget" native="true"/>
    </item>
   </layout>

@@ -6,7 +6,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, socket, time
+import os, socket, time, textwrap
 from binascii import unhexlify
 from functools import partial
 from threading import Thread
@@ -23,7 +23,7 @@ from calibre.utils.filenames import ascii_filename
 from calibre.customize.ui import available_input_formats, available_output_formats
 from calibre.ebooks.metadata import authors_to_string
 from calibre.constants import preferred_encoding
-from calibre.gui2 import config, Dispatcher, warning_dialog, error_dialog
+from calibre.gui2 import config, Dispatcher, warning_dialog, error_dialog, gprefs
 from calibre.library.save_to_disk import get_components
 from calibre.utils.config import tweaks, prefs
 from calibre.utils.icu import sort_key
@@ -382,6 +382,9 @@ class EmailMixin(object):  # {{{
                         '\n\n' + t + '\n\t' + _('by') + ' ' + a + '\n\n' +
                         _('in the %s format.') %
                         os.path.splitext(f)[1][1:].upper())
+                if mi.comments and gprefs['add_comments_to_email']:
+                    from calibre.utils.html2text import html2text
+                    texts[-1] += '\n\n' + _('About this book:') + '\n\n' + textwrap.fill(html2text(mi.comments))
                 prefix = ascii_filename(t+' - '+a)
                 if not isinstance(prefix, unicode):
                     prefix = prefix.decode(preferred_encoding, 'replace')

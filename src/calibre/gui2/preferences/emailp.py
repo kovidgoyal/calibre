@@ -14,7 +14,7 @@ from calibre.gui2.preferences import ConfigWidgetBase, test_widget, \
         AbortCommit
 from calibre.gui2.preferences.email_ui import Ui_Form
 from calibre.utils.config import ConfigProxy
-from calibre.gui2 import NONE
+from calibre.gui2 import NONE, gprefs
 from calibre.utils.smtp import config as smtp_prefs
 
 class EmailAccounts(QAbstractTableModel):  # {{{
@@ -163,6 +163,8 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
     def genesis(self, gui):
         self.gui = gui
         self.proxy = ConfigProxy(smtp_prefs())
+        r = self.register
+        r('add_comments_to_email', gprefs)
 
         self.send_email_widget.initialize(self.preferred_to_address)
         self.send_email_widget.changed_signal.connect(self.changed_signal.emit)
