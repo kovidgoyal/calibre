@@ -202,7 +202,11 @@ class DynamicConfig(dict):
         self.file_path = os.path.join(config_dir, name+'.pickle')
         self.refresh()
 
-    def refresh(self):
+    def decouple(self, prefix):
+        self.file_path = os.path.join(os.path.dirname(self.file_path), prefix + os.path.basename(self.file_path))
+        self.refresh(clear_current=False)
+
+    def refresh(self, clear_current=True):
         d = {}
         if os.path.exists(self.file_path):
             with ExclusiveFile(self.file_path) as f:
@@ -216,7 +220,8 @@ class DynamicConfig(dict):
                     print 'Failed to unpickle stored object:'
                     traceback.print_exc()
                     d = {}
-        self.clear()
+        if clear_current:
+            self.clear()
         self.update(d)
 
     def __getitem__(self, key):
@@ -280,7 +285,11 @@ class XMLConfig(dict):
     def to_raw(self):
         return plistlib.writePlistToString(self)
 
-    def refresh(self):
+    def decouple(self, prefix):
+        self.file_path = os.path.join(os.path.dirname(self.file_path), prefix + os.path.basename(self.file_path))
+        self.refresh(clear_current=False)
+
+    def refresh(self, clear_current=True):
         d = {}
         if os.path.exists(self.file_path):
             with ExclusiveFile(self.file_path) as f:
@@ -293,7 +302,8 @@ class XMLConfig(dict):
                     import traceback
                     traceback.print_exc()
                     d = {}
-        self.clear()
+        if clear_current:
+            self.clear()
         self.update(d)
 
     def __getitem__(self, key):

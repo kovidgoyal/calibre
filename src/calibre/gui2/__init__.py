@@ -763,6 +763,12 @@ def pixmap_to_data(pixmap, format='JPEG', quality=90):
     pixmap.save(buf, format, quality=quality)
     return bytes(ba.data())
 
+def decouple(prefix):
+    ' Ensure that config files used by utility code are not the same as those used by the main calibre GUI '
+    dynamic.decouple(prefix)
+    from calibre.gui2.widgets import history
+    history.decouple(prefix)
+
 class ResizableDialog(QDialog):
 
     def __init__(self, *args, **kwargs):
