@@ -20,6 +20,84 @@
 #   new recipes:
 #     - title: 
 
+- version: 1.23.0
+  date: 2014-02-07
+
+  new features:
+    - title: "Edit Book: Highlight the closest surrounding tag when editing HTML/XML"
+
+    - title: "Edit Book: Add a tool to easily change the current paragraph (the paragraph containing the cursor) to a heading. Simply click the button with 'H1' on it and choose the heading level you want the current paragraph changed to."
+
+    - title: "Edit Book: When running Replace All add a button to the replaced message to show exactly what changes were done and allow them to be undone"
+
+    - title: "Edit book: When checking book, detect case mismatches between links and the filenames of the files they point to and offer to auto-correct the links"
+
+    - title: "Adding books: Implement a copy to clipboard button for when duplicates are found during the adding process. Useful if you wish to review the list of duplicates later."
+      tickets: [1276918]
+
+    - title: "Linux installer: Install appdata files for integration with software stores."
+      tickets: [1271974]
+
+    - title: "Edit book: Auto add a checkpoint when the book is first opened for editing"
+
+  bug fixes:
+    - title: "Edit Book: Fix a bug in AZW3 support that could cause images/fonts to get mixed up when saving and re-opening the book multiple times."
+      tickets: [1276726]
+
+    - title: "Edit Book: Fix individual find and replace not working in regex mode if the search expression uses lookbehind/lookahead operators"
+
+    - title: "Compare books: Fix unchanged lines at the start of a change block being sometimes marked with a blue background, even though they contain no changes"
+
+    - title: "Compare books: Fix incorrect scrolling when viewing all text and a large amount of text is present after the final change."
+
+    - title: "PDF Output: Fix a zero division error when the transformation matrix has a zero diagonal"
+      tickets: [1277102]
+
+    - title: "calibredb add_custom_column: Fix a spurious error message when adding custom columns caused by the new db backend"
+
+    - title: "calibredb list: Fix error if one of the requested fields is empty for all requested books"
+
+    - title: "calibredb set_metadata: Fix setting series_index with the -f argument not working"
+
+    - title: "Markdown input: Fix handling of very large files."
+      tickets: [1212330]
+
+    - title: "Edit book: Do not create savepoints when no changes are performed by automated tools such as smarten punctuation, remove unused css etc."
+
+    - title: "Edit Book: Fix a bug that would cause an error when a global operation like find/replace or polishing fails."
+      tickets: [1275366]
+
+    - title: "Metadata download: Workaround edelweiss.com no longer being able to search by author name.  Search only by titles and filter the results returned by edelweiss to only include matching authors."
+
+    - title: "HTML 5 parser: Preserve non-core namespace declarations on the <html> tag"
+
+    - title: "Workaround broken file chooser dialog on Ubuntu that does not auto-insert the specified extension."
+      tickets: [1275125]
+
+    - title: "Compare books: Fix error when previously different files become identical after beautifying"
+
+    - title: "Edit Book: Fix subsetting embedded fonts not processing fonts included in a stylesheet that is itself referenced only by an @import rule"
+
+    - title: "Edit Book: Fix the remove unused css tool changing the namespace prefix used for the XHTML namespace in the CSS sheet, if any"
+
+    - title: "Conversion: Fix CSS selectors using the epub namespace being ignored"
+
+    - title: "Compare books: Fix double clicking in the right panel not opening the correct file in the editor"
+
+  improved recipes:
+    - Kathimerini
+    - Cosmopolitan UK
+    - wired.it
+    - Gosc Niedzielny
+    - New York Times Book Review
+
+  new recipes:
+    - title: Disinformatico 
+      author: isspro
+
+    - title: Les Echos 
+      author: Krittika Goyal
+
 - version: 1.22.0
   date: 2014-01-31
 
