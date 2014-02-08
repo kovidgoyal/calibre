@@ -51,7 +51,7 @@ class HTMLParseError(XMLParseError):
 class NamedEntities(BaseError):
 
     level = WARN
-    INDIVIDUAL_FIX = _('Replace all named entities with their character equivalents in this file')
+    INDIVIDUAL_FIX = _('Replace all named entities with their character equivalents in this book')
     HELP = _('Named entities are often only incompletely supported by various book reading software.'
              ' Therefore, it is best to not use them, replacing them with the actual characters they'
              ' represent. This can be done automatically.')
@@ -60,11 +60,18 @@ class NamedEntities(BaseError):
         BaseError.__init__(self, _('Named entities present'), name)
 
     def __call__(self, container):
-        raw = container.raw_data(self.name)
-        nraw = replace_pat.sub(lambda m:html5_entities[m.group(1)], raw)
-        with container.open(self.name, 'wb') as f:
-            f.write(nraw.encode('utf-8'))
-        return True
+        changed = False
+        from calibre.ebooks.oeb.polish.check.main import XML_TYPES
+        check_types = XML_TYPES | OEB_DOCS
+        for name, mt in container.mime_map.iteritems():
+            if mt in check_types:
+                raw = container.raw_data(name)
+                nraw = replace_pat.sub(lambda m:html5_entities[m.group(1)], raw)
+                if raw != nraw:
+                    changed = True
+                    with container.open(name, 'wb') as f:
+                        f.write(nraw.encode('utf-8'))
+        return changed
 
 class EscapedName(BaseError):
 

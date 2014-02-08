@@ -19,7 +19,7 @@ from calibre.ebooks.oeb.polish.check.links import check_links, check_mimetypes
 from calibre.ebooks.oeb.polish.check.fonts import check_fonts
 from calibre.ebooks.oeb.polish.check.opf import check_opf
 
-XML_TYPES = frozenset(map(guess_type, ('a.xml', 'a.svg', 'a.opf', 'a.ncx')))
+XML_TYPES = frozenset(map(guess_type, ('a.xml', 'a.svg', 'a.opf', 'a.ncx'))) | {'application/oebps-page-map+xml'}
 
 def run_checks(container):
 
