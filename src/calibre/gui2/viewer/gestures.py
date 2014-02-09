@@ -163,12 +163,12 @@ class GestureHandler(QObject):
         # events. See http://msdn.microsoft.com/en-us/library/windows/desktop/ms703320(v=vs.85).aspx
         self.is_fake_mouse_event = lambda : False
         if touch_supported and iswindows:
-            LPARAM = ctypes.c_long if ctypes.sizeof(ctypes.c_long) == ctypes.sizeof(ctypes.c_void_p) else ctypes.c_longlong
+            from ctypes import wintypes
             MI_WP_SIGNATURE = 0xFF515700
             SIGNATURE_MASK = 0xFFFFFF00
             try:
                 f = ctypes.windll.user32.GetMessageExtraInfo
-                f.restype = LPARAM
+                f.restype = wintypes.LPARAM
                 def is_fake_mouse_event():
                     val = f()
                     ans = (val & SIGNATURE_MASK) == MI_WP_SIGNATURE
