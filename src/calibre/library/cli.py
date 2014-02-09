@@ -810,16 +810,12 @@ def catalog_option_parser(args):
 
         return plugin
 
-    def print_help(parser, log):
-        help = parser.format_help().encode(preferred_encoding, 'replace')
-        log(help)
-
     def validate_command_line(parser, args, log):
         # calibredb catalog path/to/destination.[epub|csv|xml|...] [options]
 
         # Validate form
         if not len(args) or args[0].startswith('-'):
-            print_help(parser, log)
+            parser.print_help()
             log.error("\n\nYou must specify a catalog output file of the form 'path/to/destination.extension'\n"
             "To review options for an output format, type 'calibredb catalog <.extension> --help'\n"
             "For example, 'calibredb catalog .xml --help'\n")
@@ -830,7 +826,7 @@ def catalog_option_parser(args):
         file_extension = output[output.rfind('.') + 1:].lower()
 
         if not file_extension in available_catalog_formats():
-            print_help(parser, log)
+            parser.print_help()
             log.error("No catalog plugin available for extension '%s'.\n" % file_extension +
                       "Catalog plugins available for %s\n" % ', '.join(available_catalog_formats()))
             raise SystemExit(1)
