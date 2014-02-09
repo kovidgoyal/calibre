@@ -6,12 +6,21 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import time, ctypes
-from PyQt4.Qt import QObject, QPointF, pyqtSignal, QEvent
+import time, ctypes, sys
+from PyQt4.Qt import QObject, QPointF, pyqtSignal, QEvent, QApplication
 
-from calibre.constants import iswindows, isxp
+from calibre.constants import iswindows
 
-touch_supported = iswindows and not isxp
+touch_supported = False
+if iswindows and sys.getwindowsversion()[:2] >= (6, 2):  # At least windows 7
+    from ctypes import wintypes
+    try:
+        RegisterTouchWindow = ctypes.windll.user32.RegisterTouchWindow
+        RegisterTouchWindow.argtypes = (wintypes.HWND, wintypes.ULONG)
+        RegisterTouchWindow.restype = wintypes.BOOL
+        touch_supported = True
+    except Exception:
+        pass
 
 HOLD_THRESHOLD = 1.0  # seconds
 SWIPE_DISTANCE = 50  # manhattan pixels
@@ -163,7 +172,6 @@ class GestureHandler(QObject):
         # events. See http://msdn.microsoft.com/en-us/library/windows/desktop/ms703320(v=vs.85).aspx
         self.is_fake_mouse_event = lambda : False
         if touch_supported and iswindows:
-            from ctypes import wintypes
             MI_WP_SIGNATURE = 0xFF515700
             SIGNATURE_MASK = 0xFFFFFF00
             try:
@@ -174,9 +182,19 @@ class GestureHandler(QObject):
                     ans = (val & SIGNATURE_MASK) == MI_WP_SIGNATURE
                     return ans
                 self.is_fake_mouse_event = is_fake_mouse_event
+                QApplication.instance().focusChanged.connect(self.register_for_wm_touch)
             except Exception:
                 import traceback
                 traceback.print_exc()
+
+    def register_for_wm_touch(self, *args):
+        if touch_supported and iswindows:
+            # For some reason performing certain actions like toggling the ToC
+            # view causes windows to stop sending WM_TOUCH events. This works
+            # around that bug.
+            # This will need to be changed for Qt 5.
+            hwnd = int(self.parent().effectiveWinId())
+            RegisterTouchWindow(hwnd, 0)
 
     def __call__(self, ev):
         if not touch_supported:
