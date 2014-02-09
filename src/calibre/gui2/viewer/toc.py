@@ -219,13 +219,13 @@ class TOC(QStandardItemModel):
         self.setHorizontalHeaderItem(0, QStandardItem(_('Table of Contents')))
 
         for x in depth_first:
-            possible_enders = [ t for t in depth_first if t.depth <= x.depth
+            possible_enders = [t for t in depth_first if t.depth <= x.depth
                     and t.starts_at >= x.starts_at and t is not x and t not in
                     x.ancestors]
             if possible_enders:
                 min_spine = min(t.starts_at for t in possible_enders)
-                possible_enders = { t.fragment for t in possible_enders if
-                        t.starts_at == min_spine }
+                possible_enders = {t.fragment for t in possible_enders if
+                        t.starts_at == min_spine}
             else:
                 min_spine = len(spine) - 1
                 possible_enders = set()
@@ -247,7 +247,8 @@ class TOC(QStandardItemModel):
             backwards=False, current_entry=None):
         current_entry = (self.currently_viewed_entry if current_entry is None
                 else current_entry)
-        if current_entry is None: return
+        if current_entry is None:
+            return
         items = reversed(self.all_items) if backwards else self.all_items
         found = False
 
