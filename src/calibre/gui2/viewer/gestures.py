@@ -192,7 +192,8 @@ class GestureHandler(QObject):
             # For some reason performing certain actions like toggling the ToC
             # view causes windows to stop sending WM_TOUCH events. This works
             # around that bug.
-            # This will need to be changed for Qt 5.
+            # This might need to be changed for Qt 5 and effectivewinid returns
+            # a different kind of object.
             hwnd = int(self.parent().effectiveWinId())
             RegisterTouchWindow(hwnd, 0)
 
