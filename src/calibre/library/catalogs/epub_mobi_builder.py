@@ -1233,7 +1233,7 @@ class CatalogBuilder(object):
         else:
             # Validate custom field is usable as a genre source
             field_md = self.db.metadata_for_field(self.opts.genre_source_field)
-            if not field_md['datatype'] in ['enumeration', 'text']:
+            if field_md is None or not field_md['datatype'] in ['enumeration', 'text']:
                 all_custom_fields = self.db.custom_field_keys()
                 eligible_custom_fields = []
                 for cf in all_custom_fields:
