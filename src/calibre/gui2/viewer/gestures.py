@@ -243,9 +243,16 @@ class GestureHandler(QObject):
         if self.close_open_menu():
             return
         view = self.parent()
-        threshold = view.width() / 3.0
-        attr = 'previous' if tp.start_position.x() <= threshold else 'next'
-        getattr(view, '%s_page'%attr)()
+        mf = view.document.mainFrame()
+        r = mf.hitTestContent(tp.current_position.toPoint())
+        if r.linkElement().isNull():
+            threshold = view.width() / 3.0
+            attr = 'previous' if tp.start_position.x() <= threshold else 'next'
+            getattr(view, '%s_page'%attr)()
+        else:
+            for etype in (QEvent.MouseButtonPress, QEvent.MouseButtonRelease):
+                ev = QMouseEvent(etype, tp.current_position.toPoint(), tp.current_screen_position.toPoint(), Qt.LeftButton, Qt.LeftButton, Qt.NoModifier)
+                QApplication.sendEvent(view, ev)
 
     def handle_tap_hold(self, action, tp):
         etype = {'start':QEvent.MouseButtonPress, 'update':QEvent.MouseMove, 'end':QEvent.MouseButtonRelease}[action]
