@@ -185,13 +185,15 @@ class Diff(Dialog):
     revert_requested = pyqtSignal()
     line_activated = pyqtSignal(object, object, object)
 
-    def __init__(self, revert_button_msg=None, parent=None, show_open_in_editor=False):
+    def __init__(self, revert_button_msg=None, parent=None, show_open_in_editor=False, show_as_window=False):
         self.context = 3
         self.beautify = False
         self.apply_diff_calls = []
         self.show_open_in_editor = show_open_in_editor
         self.revert_button_msg = revert_button_msg
         Dialog.__init__(self, _('Differences between books'), 'diff-dialog', parent=parent)
+        if show_as_window:
+            self.setWindowFlags(Qt.Window)
         self.view.line_activated.connect(self.line_activated)
 
     def sizeHint(self):
@@ -445,7 +447,7 @@ def main(args=sys.argv):
     else:
         attr = 'file_diff'
     app = QApplication([])
-    d = Diff()
+    d = Diff(show_as_window=True)
     d.show()
     getattr(d, attr)(left, right)
     return app.exec_()
