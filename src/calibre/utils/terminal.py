@@ -93,7 +93,7 @@ class Detect(object):
     def __init__(self, stream):
         self.stream = stream or sys.stdout
         self.isatty = getattr(self.stream, 'isatty', lambda : False)()
-        force_ansi = os.environ.has_key('CALIBRE_FORCE_ANSI')
+        force_ansi = 'CALIBRE_FORCE_ANSI' in os.environ
         if not self.isatty and force_ansi:
             self.isatty = True
         self.isansi = force_ansi or not iswindows
@@ -198,7 +198,8 @@ class ANSIStream(Detect):
         return tuple(split(paramstring))
 
     def call_win32(self, command, params):
-        if command != b'm': return
+        if command != b'm':
+            return
         fg, bg, bold = self.last_state
 
         for param in params:
@@ -223,13 +224,15 @@ def windows_terminfo():
     from ctypes.wintypes import SHORT, WORD
 
     class COORD(Structure):
+
         """struct in wincon.h"""
         _fields_ = [
             ('X', SHORT),
             ('Y', SHORT),
         ]
 
-    class  SMALL_RECT(Structure):
+    class SMALL_RECT(Structure):
+
         """struct in wincon.h."""
         _fields_ = [
             ("Left", SHORT),
@@ -239,6 +242,7 @@ def windows_terminfo():
         ]
 
     class CONSOLE_SCREEN_BUFFER_INFO(Structure):
+
         """struct in wincon.h."""
         _fields_ = [
             ("dwSize", COORD),
