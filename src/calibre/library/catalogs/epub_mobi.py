@@ -122,7 +122,7 @@ class EPUB_MOBI(CatalogPlugin):
                           "Default: '%default'\n"
                           "Applies to: AZW3, ePub, MOBI output formats")),
                    Option('--genre-source-field',
-                          default='Tags',
+                          default=_('Tags'),
                           dest='genre_source_field',
                           action=None,
                           help=_("Source field for Genres section.\n"
