@@ -3,12 +3,12 @@
 __license__ = 'GPL v3'
 __copyright__ = '2010, Greg Riker'
 
-import datetime, htmlentitydefs, os, platform, re, shutil, time, unicodedata, zlib
+import datetime, os, platform, re, shutil, time, unicodedata, zlib
 from copy import deepcopy
 from xml.sax.saxutils import escape
 
 from calibre import (prepare_string_for_xml, strftime, force_unicode,
-        isbytestring)
+        isbytestring, replace_entities)
 from calibre.constants import isosx, cache_dir
 from calibre.customize.conversion import DummyReporter
 from calibre.customize.ui import output_profiles
@@ -432,28 +432,7 @@ class CatalogBuilder(object):
         Return:
          s (str): converted string
         """
-        matches = re.findall("&#\d+;", s)
-        if len(matches) > 0:
-            hits = set(matches)
-            for hit in hits:
-                name = hit[2:-1]
-                try:
-                    entnum = int(name)
-                    s = s.replace(hit, unichr(entnum))
-                except ValueError:
-                    pass
-
-        matches = re.findall("&\w+;", s)
-        hits = set(matches)
-        amp = "&amp;"
-        if amp in hits:
-            hits.remove(amp)
-        for hit in hits:
-            name = hit[1:-1]
-            if htmlentitydefs.name2codepoint in name:
-                    s = s.replace(hit, unichr(htmlentitydefs.name2codepoint[name]))
-        s = s.replace(amp, "&")
-        return s
+        return replace_entities(s)
 
     def copy_catalog_resources(self):
         """ Copy resources from calibre source to self.catalog_path.
