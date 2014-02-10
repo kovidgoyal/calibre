@@ -97,16 +97,51 @@ class Detect(object):
         if not self.isatty and force_ansi:
             self.isatty = True
         self.isansi = force_ansi or not iswindows
-        self.set_console = None
+        self.set_console = self.write_console = None
+        self.is_console = False
         if not self.isansi:
             try:
                 import msvcrt
                 self.msvcrt = msvcrt
                 self.file_handle = msvcrt.get_osfhandle(self.stream.fileno())
-                from ctypes import windll
-                self.set_console = windll.kernel32.SetConsoleTextAttribute
+                from ctypes import windll, wintypes, byref, c_wchar_p, c_size_t, POINTER
+                mode = wintypes.DWORD(0)
+                f = windll.kernel32.GetConsoleMode
+                f.restype = wintypes.BOOL
+                if f(self.file_handle, byref(mode)):
+                    # Stream is a console
+                    self.set_console = windll.kernel32.SetConsoleTextAttribute
+                    self.wcslen = crt().wcslen
+                    self.wcslen.argtypes, self.wcslen.restype = [c_wchar_p], c_size_t
+                    self.write_console = windll.kernel32.WriteConsoleW
+                    self.write_console.argtypes = [wintypes.HANDLE, wintypes.c_wchar_p, wintypes.DWORD, POINTER(wintypes.DWORD), wintypes.LPVOID]
+                    self.write_console.restype = wintypes.BOOL
+                    self.is_console = True
             except:
                 pass
+
+    def write_unicode_text(self, text):
+        ' Windows only method that writes unicode strings correctly to the windows console using the Win32 API '
+        if self.is_console:
+            from ctypes import wintypes, byref, c_wchar_p
+            written = wintypes.DWORD(0)
+            chunk = 1024 * 16
+            while text:
+                t, text = text[:chunk], text[chunk:]  # WriteConsoleW fails for large strings since it depends on the amount of free heap
+                wt = c_wchar_p(t)
+                if not self.write_console(self.file_handle, wt, self.wcslen(wt), byref(written), None) and chunk >= 128:
+                    # Retry with a smaller chunk size (give up if chunk < 128)
+                    chunk = chunk // 2
+                    text = t + text
+
+_crt = None
+def crt():
+    global _crt
+    if _crt is None:
+        import glob, ctypes
+        d = os.path.join(os.path.dirname(sys.executable), '*.CRT', 'msvcr*.dll')
+        _crt = ctypes.CDLL(glob.glob(d)[0])
+    return _crt
 
 class ColoredStream(Detect):
 
@@ -129,6 +164,7 @@ class ColoredStream(Detect):
         elif self.set_console is not None:
             if self.wval != 0:
                 self.set_console(self.file_handle, self.wval)
+        return self
 
     def __exit__(self, *args, **kwargs):
         if not self.isatty:
@@ -180,11 +216,19 @@ class ANSIStream(Detect):
             self.convert_ansi(*match.groups())
             cursor = end
         self.write_plain_text(text, cursor, len(text))
+        self.stream.flush()
 
     def write_plain_text(self, text, start, end):
         if start < end:
-            self.stream.write(text[start:end])
-            self.stream.flush()
+            text = text[start:end]
+            if self.is_console and isinstance(text, bytes):
+                try:
+                    utext = text.decode(self.encoding)
+                except ValueError:
+                    pass
+                else:
+                    return self.write_unicode_text(utext)
+            self.stream.write(text)
 
     def convert_ansi(self, paramstring, command):
         params = self.extract_params(paramstring)
@@ -285,5 +329,8 @@ def test():
     text = [colored(t, fg=t)+'. '+colored(t, fg=t, bold=True)+'.' for t in
             ('red', 'yellow', 'green', 'white', 'cyan', 'magenta', 'blue',)]
     s.write('\n'.join(text))
+    u = u'\u041c\u0438\u0445\u0430\u0438\u043b fällen'
+    print()
+    s.write_unicode_text(u)
     print()
 
