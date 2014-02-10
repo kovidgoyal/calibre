@@ -22,6 +22,7 @@ from calibre.utils.localization import calibre_langcode_to_name, canonicalize_la
 Option = namedtuple('Option', 'option, default, dest, action, help')
 
 class EPUB_MOBI(CatalogPlugin):
+
     'ePub catalog generator'
 
     name = 'Catalog_EPUB_MOBI'
@@ -149,7 +150,7 @@ class EPUB_MOBI(CatalogPlugin):
                           default=None,
                           dest='output_profile',
                           action=None,
-                          help=_("Specifies the output profile. In some cases, an output profile is required to optimize the catalog for the device.  For example, 'kindle' or 'kindle_dx' creates a structured Table of Contents with Sections and Articles.\n"
+                          help=_("Specifies the output profile. In some cases, an output profile is required to optimize the catalog for the device.  For example, 'kindle' or 'kindle_dx' creates a structured Table of Contents with Sections and Articles.\n"  # noqa
                           "Default: '%default'\n"
                           "Applies to: AZW3, ePub, MOBI output formats")),
                    Option('--prefix-rules',
@@ -280,7 +281,7 @@ class EPUB_MOBI(CatalogPlugin):
         if opts.connected_device['is_device_connected'] and \
            opts.connected_device['kind'] == 'device':
             if opts.connected_device['serial']:
-                build_log.append(u" connected_device: '%s' #%s%s " % \
+                build_log.append(u" connected_device: '%s' #%s%s " %
                     (opts.connected_device['name'],
                      opts.connected_device['serial'][0:4],
                      'x' * (len(opts.connected_device['serial']) - 4)))
@@ -395,7 +396,7 @@ class EPUB_MOBI(CatalogPlugin):
 
         if opts.verbose:
             log.info(" Begin catalog source generation (%s)" %
-                     str(datetime.timedelta(seconds = int(time.time() - opts.start_time))))
+                     str(datetime.timedelta(seconds=int(time.time() - opts.start_time))))
 
         # Launch the Catalog builder
         catalog = CatalogBuilder(db, opts, self, report_progress=notification)
@@ -404,7 +405,7 @@ class EPUB_MOBI(CatalogPlugin):
             catalog.build_sources()
             if opts.verbose:
                 log.info(" Completed catalog source generation (%s)\n"  %
-                         str(datetime.timedelta(seconds = int(time.time() - opts.start_time))))
+                         str(datetime.timedelta(seconds=int(time.time() - opts.start_time))))
         except (AuthorSortMismatchException, EmptyCatalogException), e:
             log.error(" *** Terminated catalog generation: %s ***" % e)
         except:
@@ -496,7 +497,7 @@ class EPUB_MOBI(CatalogPlugin):
 
             if opts.verbose:
                 log.info(" Catalog creation complete (%s)\n" %
-                     str(datetime.timedelta(seconds = int(time.time() - opts.start_time))))
+                     str(datetime.timedelta(seconds=int(time.time() - opts.start_time))))
 
         # returns to gui2.actions.catalog:catalog_generated()
         return catalog.error
