@@ -26,6 +26,7 @@ class AdvancedUserRecipe1296604369(BasicNewsRecipe):
     no_stylesheets = True
     use_embedded_content = False
     encoding = 'ISO-8859-1'
+    auto_cleanup = True
     remove_javascript = True
     language = 'es'
 
@@ -36,18 +37,6 @@ class AdvancedUserRecipe1296604369(BasicNewsRecipe):
                                h2{font-family: sans-serif; font-size:100%; font-weight:bold; text-align: justify; }
                                h1{font-family: sans-serif; font-size:150%; font-weight:bold; text-align: justify; }
                                  """
-
-    keep_only_tags = [
-#                 dict(name='h2', attrs={'class':['logos']}),
-                 dict(name='h3', attrs={'class':['overhead']}),
-                 dict(name='h1', attrs={'class':'headline'}),
-                 dict(name='h3', attrs={'class':['subhead']}),
-                 dict(name='div', attrs={'class':'datosi'}),
-                 dict(name='div', attrs={'class':'photo-alt1'}),
-                 dict(name='div', attrs={'class':'text'})
-                 ]
-
-#    remove_tags_before = dict(name='div' , attrs={'id':['cabecera2']})
 
     feeds          = [
                      (u'PORTADA', u'http://www.abc.es/rss/feeds/abcPortada.xml')
