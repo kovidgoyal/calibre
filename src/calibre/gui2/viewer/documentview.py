@@ -705,6 +705,16 @@ class DocumentView(QWebView):  # {{{
 
         for plugin in self.document.all_viewer_plugins:
             plugin.customize_context_menu(menu, ev, r)
+        if ev.reason() == ev.Other:
+            # Triggered by a touch event
+            from calibre.constants import plugins
+            pi = plugins['progress_indicator'][0]
+            for x in (menu, self.goto_location_menu):
+                if hasattr(pi, 'set_touch_menu_style'):
+                    pi.set_touch_menu_style(x)
+        else:
+            self.goto_location_menu.setStyle(self.style())
+        self.context_menu = menu
         menu.exec_(ev.globalPos())
 
     def inspect(self):

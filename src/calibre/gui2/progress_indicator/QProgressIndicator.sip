@@ -10,6 +10,7 @@
 int load_style(QString &path, QString &name);
 bool do_notify(QObject *receiver, QEvent *event);
 void set_no_activate_on_click(QWidget *widget);
+void set_touch_menu_style(QWidget *widget, int margin);
 %End
 
 class QProgressIndicator : QWidget {
@@ -62,3 +63,4 @@ int load_style(QString &path, QString &name);
 bool do_notify(QObject *receiver, QEvent *event);
 
 void set_no_activate_on_click(QWidget *widget);
+void set_touch_menu_style(QWidget *widget, int margin=20);
