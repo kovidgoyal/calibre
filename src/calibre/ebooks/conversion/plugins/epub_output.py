@@ -152,7 +152,6 @@ class EPUBOutput(OutputFormatPlugin):
                 continue
             for u in XPath('//h:u')(root):
                 u.tag = 'span'
-                u.set('style', 'text-decoration:underline')
 
             seen_ids, seen_names = set(), set()
             for x in XPath('//*[@id or @name]')(root):
