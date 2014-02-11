@@ -41,19 +41,8 @@ class ANSIStream(Stream):
 
     def prints(self, level, *args, **kwargs):
         from calibre.utils.terminal import ColoredStream
-        with ColoredStream(self.stream, self.color[level]) as cs:
-            kwargs['file'] = self.stream
-            if cs.is_console:
-                for i, arg in enumerate(args):
-                    if isinstance(arg, unicode):
-                        cs.write_unicode_text(arg)
-                    else:
-                        self._prints(arg, end='', file=self.stream)
-                    if i < len(args) - 1:
-                        self._prints(kwargs.get('sep', ' '), end='', file=self.stream)
-                self._prints('', end=kwargs.get('end', '\n'), file=self.stream)
-            else:
-                self._prints(*args, **kwargs)
+        with ColoredStream(self.stream, self.color[level]):
+            self._prints(*args, **kwargs)
 
     def flush(self):
         self.stream.flush()

@@ -183,6 +183,14 @@ def prints(*args, **kwargs):
         enc = 'utf-8'
     for i, arg in enumerate(args):
         if isinstance(arg, unicode):
+            if iswindows:
+                from calibre.utils.terminal import Detect
+                cs = Detect(file)
+                if cs.is_console:
+                    cs.write_unicode_text(arg)
+                    if i != len(args)-1:
+                        file.write(bytes(sep))
+                    continue
             try:
                 arg = arg.encode(enc)
             except UnicodeEncodeError:
