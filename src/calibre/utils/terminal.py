@@ -153,7 +153,7 @@ class ColoredStream(Detect):
 
     def __enter__(self):
         if not self.isatty:
-            return
+            return self
         if self.isansi:
             if self.bold:
                 self.stream.write(ATTRIBUTES['bold'])
