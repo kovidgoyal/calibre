@@ -120,7 +120,7 @@ class Detect(object):
             except:
                 pass
 
-    def write_unicode_text(self, text):
+    def write_unicode_text(self, text, ignore_errors=False):
         ' Windows only method that writes unicode strings correctly to the windows console using the Win32 API '
         if self.is_console:
             from ctypes import wintypes, byref, c_wchar_p
@@ -150,7 +150,8 @@ class Detect(object):
                         from calibre.utils.filenames import ascii_text
                         print (ascii_text(t + text), file=self.stream, end='')
                         continue
-                    raise ctypes.WinError(err)
+                    if not ignore_errors:
+                        raise ctypes.WinError(err)
 
 _crt = None
 def crt():
