@@ -104,16 +104,16 @@ class Detect(object):
                 import msvcrt
                 self.msvcrt = msvcrt
                 self.file_handle = msvcrt.get_osfhandle(self.stream.fileno())
-                from ctypes import windll, wintypes, byref, c_wchar_p, c_size_t, POINTER
+                from ctypes import windll, wintypes, byref, c_wchar_p, c_size_t, POINTER, WinDLL
                 mode = wintypes.DWORD(0)
                 f = windll.kernel32.GetConsoleMode
-                f.restype = wintypes.BOOL
+                f.argtypes, f.restype = [wintypes.HANDLE, POINTER(wintypes.DWORD)], wintypes.BOOL
                 if f(self.file_handle, byref(mode)):
                     # Stream is a console
                     self.set_console = windll.kernel32.SetConsoleTextAttribute
                     self.wcslen = crt().wcslen
                     self.wcslen.argtypes, self.wcslen.restype = [c_wchar_p], c_size_t
-                    self.write_console = windll.kernel32.WriteConsoleW
+                    self.write_console = WinDLL('kernel32', use_last_error=True).WriteConsoleW
                     self.write_console.argtypes = [wintypes.HANDLE, wintypes.c_wchar_p, wintypes.DWORD, POINTER(wintypes.DWORD), wintypes.LPVOID]
                     self.write_console.restype = wintypes.BOOL
                     self.is_console = True
@@ -125,17 +125,36 @@ class Detect(object):
         if self.is_console:
             from ctypes import wintypes, byref, c_wchar_p
             written = wintypes.DWORD(0)
-            chunk = 1024 * 16
+            chunk = len(text)
             while text:
-                t, text = text[:chunk], text[chunk:]  # WriteConsoleW fails for large strings since it depends on the amount of free heap
+                t, text = text[:chunk], text[chunk:]
                 wt = c_wchar_p(t)
-                if not self.write_console(self.file_handle, wt, self.wcslen(wt), byref(written), None) and chunk >= 128:
-                    # Retry with a smaller chunk size (give up if chunk < 128)
-                    chunk = chunk // 2
-                    text = t + text
+                if not self.write_console(self.file_handle, wt, self.wcslen(wt), byref(written), None):
+                    # Older versions of windows can fail to write large strings
+                    # to console with WriteConsoleW (seen it happen on Win XP)
+                    import ctypes, winerror
+                    err = ctypes.get_last_error()
+                    if err == winerror.ERROR_NOT_ENOUGH_MEMORY and chunk >= 128:
+                        # Retry with a smaller chunk size (give up if chunk < 128)
+                        chunk = chunk // 2
+                        text = t + text
+                        continue
+                    if err == winerror.ERROR_GEN_FAILURE:
+                        # On newer windows, this happens when trying to write
+                        # non-ascii chars to the console and the console is set
+                        # to use raster fonts (the default). In this case
+                        # rather than failing, write an informative error
+                        # message and the asciized version of the text.
+                        print ('Non-ASCII text detected. You must set your Console\'s font to'
+                               ' Lucida Console or Consolas or some other TrueType font to see this text', file=self.stream, end='')
+                        from calibre.utils.filenames import ascii_text
+                        print (ascii_text(t + text), file=self.stream, end='')
+                        continue
+                    raise ctypes.WinError(err)
 
 _crt = None
 def crt():
+    # We use the C runtime bundled with the calibre windows build
     global _crt
     if _crt is None:
         import glob, ctypes
