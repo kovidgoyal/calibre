@@ -207,6 +207,15 @@ class Completer(QListView):  # {{{
                 self.hide()
                 e.accept()
                 return True
+            if key == Qt.Key_Tab:
+                idx = self.currentIndex()
+                if idx.isValid():
+                    self.item_chosen(idx)
+                    self.hide()
+                elif self.model().rowCount() > 0:
+                    self.next_match()
+                e.accept()
+                return True
             if key in (Qt.Key_PageUp, Qt.Key_PageDown):
                 # Let the list view handle these keys
                 return False
