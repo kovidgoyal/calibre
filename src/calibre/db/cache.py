@@ -1254,7 +1254,14 @@ class Cache(object):
             if name and not replace:
                 return False
 
-            path = self._field_for('path', book_id).replace('/', os.sep)
+            path = self._field_for('path', book_id)
+            if path is None:
+                # Theoretically, this should never happen, but apparently it
+                # does: http://www.mobileread.com/forums/showthread.php?t=233353
+                self._update_path({book_id}, mark_as_dirtied=False)
+                path = self._field_for('path', book_id)
+
+            path = path.replace('/', os.sep)
             title = self._field_for('title', book_id, default_value=_('Unknown'))
             author = self._field_for('authors', book_id, default_value=(_('Unknown'),))[0]
             stream = stream_or_path if hasattr(stream_or_path, 'read') else lopen(stream_or_path, 'rb')
