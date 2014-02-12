@@ -235,7 +235,7 @@ Edit the Table of Contents
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 There is a dedicated tool to ease editing of the Table of Contents. Launch it
-with :guilabel:`Tools->Edit Table of Contents`. 
+with :guilabel:`Tools->Table of Contents->Edit Table of Contents`. 
 
 .. image:: images/tocedit.png
     :alt: The Edit Table of Contents tool
@@ -365,6 +365,20 @@ inserted where appropriate and so on. Note that beautifying also auto-fixes
 broken HTML/CSS. Therefore, if you dont want any auto-fixing to be performed,
 first use the Check Book tool to correct all problems and only then run
 beautify.  Accessed via :guilabel:`Tools->Beautify all files`.
+
+
+Insert inline Table of Contents
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Normally in ebooks, the Table of Contents is separate from the main text and is
+typically accessed via a special Table of Contents button/menu in the ebook
+reading device. You can also have |app| automatically generate an *inline*
+Table of Contents that becomes part of the text of the book. It is
+generated based on the currently defined Table of Contents. 
+
+If you use this tool multiple times, each invocation will cause the previously
+created inline Table of Contents to be replaced. The tool can be accessed via
+:guilabel:`Tools->Table of Contents->Insert inline Table of Contents`.
 
 .. _checkpoints:
 

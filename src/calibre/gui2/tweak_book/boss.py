@@ -23,7 +23,7 @@ from calibre.ebooks.oeb.polish.cover import mark_as_cover, mark_as_titlepage
 from calibre.ebooks.oeb.polish.pretty import fix_all_html, pretty_all
 from calibre.ebooks.oeb.polish.replace import rename_files, replace_file, get_recommended_folders, rationalize_folders
 from calibre.ebooks.oeb.polish.split import split, merge, AbortError, multisplit
-from calibre.ebooks.oeb.polish.toc import remove_names_from_toc, find_existing_toc
+from calibre.ebooks.oeb.polish.toc import remove_names_from_toc, find_existing_toc, create_inline_toc
 from calibre.ebooks.oeb.polish.utils import link_stylesheets, setup_cssutils_serialization as scs
 from calibre.gui2 import error_dialog, choose_files, question_dialog, info_dialog, choose_save_file
 from calibre.gui2.dialogs.confirm_delete import confirm
@@ -364,6 +364,19 @@ class Boss(QObject):
             self.set_modified()
             self.update_editors_from_container()
             self.gui.toc_view.update_if_visible()
+
+    def insert_inline_toc(self):
+        self.commit_all_editors_to_container()
+        self.add_savepoint(_('Before: Insert inline Table of Contents'))
+        name = create_inline_toc(current_container())
+        if name is None:
+            self.rewind_savepoint()
+            return error_dialog(self.gui, _('No Table of Contents'), _(
+                'Cannot create an inline Table of Contents as this book has no existing'
+                ' Table of Contents. You must first create a Table of Contents using the'
+                ' Edit Table of Contents tool.'), show=True)
+        self.apply_container_update_to_gui()
+        self.edit_file(name, 'html')
 
     def polish(self, action, name):
         with BusyCursor():

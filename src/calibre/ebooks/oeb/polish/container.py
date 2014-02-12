@@ -171,7 +171,7 @@ class Container(object):  # {{{
             ans = 'application/xhtml+xml'
         return ans
 
-    def add_file(self, name, data, media_type=None):
+    def add_file(self, name, data, media_type=None, spine_index=None):
         ''' Add a file to this container. Entries for the file are
         automatically created in the OPF manifest and spine
         (if the file is a text document) '''
@@ -209,7 +209,7 @@ class Container(object):  # {{{
         if mt in OEB_DOCS:
             spine = self.opf_xpath('//opf:spine')[0]
             si = manifest.makeelement(OPF('itemref'), idref=item_id)
-            self.insert_into_xml(spine, si)
+            self.insert_into_xml(spine, si, index=spine_index)
 
     def rename(self, current_name, new_name):
         ''' Renames a file from current_name to new_name. It automatically
