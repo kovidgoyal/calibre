@@ -6,8 +6,9 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, cPickle, re, shutil, marshal, zipfile, glob, time, subprocess, sys
+import os, cPickle, re, shutil, marshal, zipfile, glob, time, subprocess, sys, hashlib, json
 from zlib import compress
+from itertools import chain
 
 from setup import Command, basenames, __appname__
 
@@ -62,18 +63,20 @@ class Coffee(Command):  # {{{
                 '*.coffee')):
                 bn = os.path.basename(f).rpartition('.')[0]
                 arcname = src.replace('/', '.') + '.' + bn + '.js'
-                src_files[arcname] = (f, os.stat(f).st_mtime)
+                with open(f, 'rb') as fs:
+                    src_files[arcname] = (f, hashlib.sha1(fs.read()).hexdigest())
 
         existing = {}
         dest = self.j(self.RESOURCES, 'compiled_coffeescript.zip')
         if os.path.exists(dest):
             with zipfile.ZipFile(dest, 'r') as zf:
+                existing_hashes = {}
+                raw = zf.comment
+                if raw:
+                    existing_hashes = json.loads(raw)
                 for info in zf.infolist():
-                    mtime = time.mktime(info.date_time + (0, 0, -1))
-                    arcname = info.filename
-                    if (arcname in src_files and src_files[arcname][1] <
-                            mtime):
-                        existing[arcname] = (zf.read(info), info)
+                    if info.filename in existing_hashes and src_files.get(info.filename, (None, None))[1] == existing_hashes[info.filename]:
+                        existing[info.filename] = (zf.read(info), info, existing_hashes[info.filename])
 
         todo = set(src_files) - set(existing)
         updated = {}
@@ -81,7 +84,7 @@ class Coffee(Command):  # {{{
             name = arcname.rpartition('.')[0]
             print ('\t%sCompiling %s'%(time.strftime('[%H:%M:%S] ') if
                         timestamp else '', name))
-            src = src_files[arcname][0]
+            src, sig = src_files[arcname]
             try:
                 js = subprocess.check_output(self.compiler +
                         [src]).decode('utf-8')
@@ -100,13 +103,14 @@ class Coffee(Command):  # {{{
             zi = zipfile.ZipInfo()
             zi.filename = arcname
             zi.date_time = time.localtime()[:6]
-            updated[arcname] = (js.encode('utf-8'), zi)
+            updated[arcname] = (js.encode('utf-8'), zi, sig)
         if updated:
+            hashes = {}
             with zipfile.ZipFile(dest, 'w', zipfile.ZIP_STORED) as zf:
-                for raw, zi in updated.itervalues():
+                for raw, zi, sig in sorted(chain(updated.itervalues(), existing.itervalues()), key=lambda x: x[1].filename):
                     zf.writestr(zi, raw)
-                for raw, zi in existing.itervalues():
-                    zf.writestr(zi, raw)
+                    hashes[zi.filename] = sig
+                zf.comment = json.dumps(hashes)
 
     def clean(self):
         x = self.j(self.RESOURCES, 'compiled_coffeescript.zip')
