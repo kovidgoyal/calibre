@@ -249,7 +249,6 @@ def template_docs(app):
     update_cli_doc('template_ref.rst', raw, info)
 
 def setup(app):
-    app.add_config_value('kovid_epub_cover', None, False)
     app.add_builder(EPUBHelpBuilder)
     app.add_builder(LaTeXHelpBuilder)
     app.connect('doctree-read', substitute)

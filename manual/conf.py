@@ -114,14 +114,13 @@ html_short_title = 'Start'
 html_logo        = 'resources/logo.png'
 
 epub_author      = 'Kovid Goyal'
-kovid_epub_cover       = 'epub_cover.jpg'
 epub_publisher   = 'Kovid Goyal'
 epub_identifier  = 'http://manual.calibre-ebook.com'
 epub_scheme      = 'url'
 epub_uid         = 'S54a88f8e9d42455e9c6db000e989225f'
 epub_tocdepth    = 4
 epub_tocdup      = True
-epub_pre_files    = [('epub_titlepage.html', 'Cover')]
+epub_cover       = ('epub_cover.jpg', 'epub_cover_template.html')
 
 # Custom sidebar templates, maps document names to template names.
 #html_sidebars = {}
