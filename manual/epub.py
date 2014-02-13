@@ -69,6 +69,9 @@ class EPUBHelpBuilder(EpubBuilder):
         container.insert_into_xml(metadata, metadata.makeelement(DC('description')))
         metadata[-1].text = 'Comprehensive documentation for calibre'
 
+        # Remove search.html since it is useless in EPUB
+        container.remove_item('search.html')
+
         # Remove unreferenced files
         for error in check_links(container):
             if error.__class__ is UnreferencedResource:
