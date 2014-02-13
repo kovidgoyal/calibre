@@ -17,6 +17,7 @@ You can use this editor by right clicking on any book in |app| and selecting
 .. image:: images/edit-book.png
     :alt: The Edit Book tool
     :align: center
+    :class: fit-img
 
 .. contents:: Contents
   :depth: 2

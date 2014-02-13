@@ -26,7 +26,7 @@ it, a tooltip will appear describing the setting.
 .. image:: images/conv_dialog.png
     :align: center
     :alt: Ebook conversion dialog
-    :scale: 50 
+    :class: half-width-img
 
 .. contents:: Contents
   :depth: 1

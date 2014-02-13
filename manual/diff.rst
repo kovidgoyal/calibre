@@ -21,6 +21,7 @@ you the differences in text, styles and images in the chosen books.
 .. image:: images/diff.png
     :alt: The compare tool
     :align: center
+    :class: fit-img
 
 Understanding the comparison view
 ----------------------------------
