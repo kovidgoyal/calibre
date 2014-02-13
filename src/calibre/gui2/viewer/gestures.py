@@ -179,6 +179,9 @@ class State(QObject):
                 if pinch_dir is not None:
                     self.pinched.emit(pinch_dir)
 
+        if not self.hold_started:
+            return
+
         if TapAndHold in self.possible_gestures:
             tp = next(self.touch_points.itervalues())
             self.tap_hold_finished.emit(tp)
