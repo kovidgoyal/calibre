@@ -640,6 +640,7 @@ class DocumentView(QWebView):  # {{{
                          self.document.font_magnification_step)
 
     def contextMenuEvent(self, ev):
+        from_touch = ev.reason() == ev.Other
         mf = self.document.mainFrame()
         r = mf.hitTestContent(ev.pos())
         img = r.pixmap()
@@ -705,13 +706,16 @@ class DocumentView(QWebView):  # {{{
 
         for plugin in self.document.all_viewer_plugins:
             plugin.customize_context_menu(menu, ev, r)
-        if ev.reason() == ev.Other:
-            # Triggered by a touch event
+
+        if from_touch:
             from calibre.constants import plugins
             pi = plugins['progress_indicator'][0]
             for x in (menu, self.goto_location_menu):
                 if hasattr(pi, 'set_touch_menu_style'):
                     pi.set_touch_menu_style(x)
+            helpt = QAction(QIcon(I('help.png')), _('Show supported touch screen gestures'), menu)
+            helpt.triggered.connect(self.gesture_handler.show_help)
+            menu.insertAction(menu.actions()[0], helpt)
         else:
             self.goto_location_menu.setStyle(self.style())
         self.context_menu = menu

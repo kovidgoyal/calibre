@@ -10,7 +10,7 @@ import time, ctypes, sys
 from functools import partial
 from PyQt4.Qt import (
     QObject, QPointF, pyqtSignal, QEvent, QApplication, QMouseEvent, Qt,
-    QContextMenuEvent)
+    QContextMenuEvent, QDialog, QDialogButtonBox, QLabel, QVBoxLayout)
 
 from calibre.constants import iswindows
 
@@ -35,6 +35,56 @@ PINCH_SQUEEZE_FACTOR = 2.5  # smaller length must be less that larger length / s
 Tap, TapAndHold, Pinch, Swipe, SwipeAndHold = 'Tap', 'TapAndHold', 'Pinch', 'Swipe', 'SwipeAndHold'
 Left, Right, Up, Down = 'Left', 'Right', 'Up', 'Down'
 In, Out = 'In', 'Out'
+
+class Help(QDialog):  # {{{
+
+    def __init__(self, parent=None):
+        QDialog.__init__(self, parent=parent)
+        self.l = l = QVBoxLayout(self)
+        self.setLayout(l)
+
+        self.la = la = QLabel(
+        '''
+            <style>
+            h2 { text-align: center }
+            dt { font-weight: bold }
+            dd { margin-bottom: 1.5em }
+            </style>
+
+        ''' + _(
+            '''
+            <h2>The list of available gestures</h2>
+            <dl>
+            <dt>Single tap</dt>
+            <dd>A single tap on the right two thirds of the page will turn to the next page
+            and on the left one-third of the page will turn to the previous page. Single tapping
+            on a link will activate the link.</dd>
+
+            <dt>Swipe</dt>
+            <dd>Swipe to the left to go to the next page and to the right to go to the previous page.
+            This mimics turning pages in a paper book.</dd>
+
+            <dt>Pinch</dt>
+            <dd>Pinch in or out to decrease or increase the font size</dd>
+
+            <dt>Swipe and hold</dt>
+            <dd>If you swipe and the hold your finger down instead of lifting it, pages will be turned
+            rapidly allowing for quickly scanning through large numbers of pages.</dd>
+
+            <dt>Tap and hold</dt>
+            <dd>Bring up the context (right-click) menu</dd>
+            </dl>
+            '''
+        ))
+        la.setAlignment(Qt.AlignTop | Qt.AlignLeft)
+        la.setWordWrap(True)
+        l.addWidget(la, Qt.AlignTop|Qt.AlignLeft)
+        self.bb = bb = QDialogButtonBox(QDialogButtonBox.Close)
+        bb.accepted.connect(self.accept)
+        bb.rejected.connect(self.reject)
+        l.addWidget(bb)
+        self.resize(600, 500)
+# }}}
 
 class TouchPoint(object):
 
@@ -316,3 +366,9 @@ class GestureHandler(QObject):
         attr = 'magnify' if direction is Out else 'shrink'
         getattr(self.parent(), '%s_fonts' % attr)()
 
+    def show_help(self):
+        Help(self.parent()).exec_()
+
+if __name__ == '__main__':
+    app = QApplication([])
+    Help().exec_()
