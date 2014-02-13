@@ -40,7 +40,6 @@ class TouchPoint(object):
 
     def __init__(self, tp):
         self.creation_time = self.last_update_time = self.time_of_last_move = time.time()
-        self.start_position = self.current_position = self.previous_position = QPointF(tp.pos())
         self.start_screen_position = self.current_screen_position = self.previous_screen_position = QPointF(tp.screenPos())
         self.time_since_last_update = -1
         self.total_movement = 0
@@ -49,18 +48,16 @@ class TouchPoint(object):
         now = time.time()
         self.time_since_last_update = now - self.last_update_time
         self.last_update_time = now
-        self.previous_position, self.previous_screen_position = self.current_position, self.current_screen_position
-        self.current_position = QPointF(tp.pos())
-        self.current_screen_position = QPointF(tp.screenPos())
-        movement = (self.current_position - self.previous_position).manhattanLength()
+        self.previous_screen_position, self.current_screen_position = self.current_screen_position, QPointF(tp.screenPos())
+        movement = (self.current_screen_position - self.previous_screen_position).manhattanLength()
         self.total_movement += movement
         if movement > 5:
             self.time_of_last_move = now
 
     @property
     def swipe_type(self):
-        x_movement = self.current_position.x() - self.start_position.x()
-        y_movement = self.current_position.y() - self.start_position.y()
+        x_movement = self.current_screen_position.x() - self.start_screen_position.x()
+        y_movement = self.current_screen_position.y() - self.start_screen_position.y()
         xabs, yabs = map(abs, (x_movement, y_movement))
         if max(xabs, yabs) < SWIPE_DISTANCE or min(xabs/max(yabs, 0.01), yabs/max(xabs, 0.01)) > 0.3:
             return
@@ -270,27 +267,30 @@ class GestureHandler(QObject):
         func = {Left:'next_page', Right: 'previous_page', Up:'goto_previous_section', Down:'goto_next_section'}[direction]
         getattr(view, func)()
 
+    def current_position(self, tp):
+        return self.parent().mapFromGlobal(tp.current_screen_position.toPoint())
+
     def handle_tap(self, tp):
         if self.close_open_menu():
             return
         view = self.parent()
         mf = view.document.mainFrame()
-        r = mf.hitTestContent(tp.current_position.toPoint())
+        r = mf.hitTestContent(self.current_position(tp))
         if r.linkElement().isNull():
             threshold = view.width() / 3.0
-            attr = 'previous' if tp.start_position.x() <= threshold else 'next'
+            attr = 'previous' if self.current_position(tp).x() <= threshold else 'next'
             getattr(view, '%s_page'%attr)()
         else:
             for etype in (QEvent.MouseButtonPress, QEvent.MouseButtonRelease):
-                ev = QMouseEvent(etype, tp.current_position.toPoint(), tp.current_screen_position.toPoint(), Qt.LeftButton, Qt.LeftButton, Qt.NoModifier)
+                ev = QMouseEvent(etype, self.current_position(tp), tp.current_screen_position.toPoint(), Qt.LeftButton, Qt.LeftButton, Qt.NoModifier)
                 QApplication.sendEvent(view, ev)
 
     def handle_tap_hold(self, action, tp):
         etype = {'start':QEvent.MouseButtonPress, 'update':QEvent.MouseMove, 'end':QEvent.MouseButtonRelease}[action]
-        ev = QMouseEvent(etype, tp.current_position.toPoint(), tp.current_screen_position.toPoint(), Qt.LeftButton, Qt.LeftButton, Qt.NoModifier)
+        ev = QMouseEvent(etype, self.current_position(tp), tp.current_screen_position.toPoint(), Qt.LeftButton, Qt.LeftButton, Qt.NoModifier)
         QApplication.sendEvent(self.parent(), ev)
         if action == 'end':
-            ev = QContextMenuEvent(QContextMenuEvent.Other, tp.current_position.toPoint(), tp.current_screen_position.toPoint())
+            ev = QContextMenuEvent(QContextMenuEvent.Other, self.current_position(tp), tp.current_screen_position.toPoint())
             # We have to use post event otherwise the popup remains an alien widget and does not receive events
             QApplication.postEvent(self.parent(), ev)
 
