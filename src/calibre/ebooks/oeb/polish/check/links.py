@@ -49,6 +49,20 @@ class CaseMismatch(BadLink):
         container.replace_links(self.name, replacer)
         return replacer.replaced
 
+class BadDestinationType(BaseError):
+
+    level = WARN
+
+    def __init__(self, link_source, link_dest, link_elem):
+        BaseError.__init__(self, _('Link points to a file that is not a text document'), link_source, line=link_elem.sourceline)
+        self.HELP = _('The link "{0}" points to a file <i>{1}</i> that is not a text (HTML) document.'
+                      ' Many ebook readers will be unable to follow such a link. You should'
+                      ' either remove the link or change it to point to a text document.'
+                      ' For example, if it points to an image, you can create small wrapper'
+                      ' document that contains the image and change the link to point to that.').format(
+                          link_elem.get('href'), link_dest)
+        self.bad_href = link_elem.get('href')
+
 class FileLink(BadLink):
 
     HELP = _('This link uses the file:// URL scheme. This does not work with many ebook readers.'
@@ -134,6 +148,16 @@ def check_mimetypes(container):
             if mt == 'application/oebps-page-map+xml' and name.lower().endswith('.xml'):
                 continue
             a(MimetypeMismatch(container, name, mt, gt))
+    return errors
+
+def check_link_destinations(container):
+    errors = []
+    for name, mt in container.mime_map.iteritems():
+        if mt in OEB_DOCS:
+            for a in container.parsed(name).xpath('//*[local-name()="a" and @href]'):
+                tname = container.href_to_name(a.get('href'), name)
+                if tname and tname in container.mime_map and container.mime_map[tname] not in OEB_DOCS:
+                    errors.append(BadDestinationType(name, tname, a))
     return errors
 
 def check_links(container):
