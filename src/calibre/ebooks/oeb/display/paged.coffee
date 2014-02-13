@@ -180,7 +180,8 @@ class PagedDisplay
             # 2*clientWidth) as if it is <= clientWidth scrolling will work
             # anyway and if it is >= 2*clientWidth it can't be a full screen
             # layout
-            this.is_full_screen_layout = (only_img or has_svg) and single_screen and document.body.scrollWidth > document.body.clientWidth and document.body.scrollWidth < 2 * document.body.clientWidth
+            log(document.body.clientWidth, document.body.scrollWidth)
+            this.is_full_screen_layout = (only_img or has_svg) and single_screen and document.body.scrollWidth > document.body.clientWidth
             if is_single_page
                 this.is_full_screen_layout = true
 
