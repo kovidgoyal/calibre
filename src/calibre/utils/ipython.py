@@ -168,7 +168,7 @@ def ipython(user_ns=None):
     if not user_ns:
         user_ns = defns
     else:
-        user_ns = defns.updatu(user_ns)
+        user_ns = defns.update(user_ns)
 
     c = Config()
     c.InteractiveShellApp.exec_lines = [
