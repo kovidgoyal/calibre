@@ -114,6 +114,7 @@ class WebPage(QWebPage):  # {{{
         return True
 
     def on_unsupported_content(self, reply):
+        reply.abort()
         self.log.warn('Unsupported content, ignoring: %s'%reply.url())
 
     @property
@@ -613,6 +614,43 @@ class Browser(QObject, FormsMixin):
         ans = self.get_cached(url)
         if ans is not None:
             return ans
+
+    def download_file(self, url, timeout=60):
+        ' Download unsupported content: i.e. files the browser cannot handle itself or files marked for saving as files by the website '
+        ans = [False, None, []]
+        loop = QEventLoop(self)
+        start_time = time.time()
+        end_time = start_time + timeout
+        self.page.unsupportedContent.disconnect(self.page.on_unsupported_content)
+        try:
+            def download(reply):
+                ans[0] = True
+                while not reply.isFinished() and end_time > time.time():
+                    if not loop.processEvents():
+                        time.sleep(0.01)
+                    raw = bytes(bytearray(reply.readAll()))
+                    if raw:
+                        ans[-1].append(raw)
+                if not reply.isFinished():
+                    ans[1] = Timeout('Loading of %r took longer than %d seconds'%(url, timeout))
+                ans[-1].append(bytes(bytearray(reply.readAll())))
+            self.page.unsupportedContent.connect(download)
+            self.page.mainFrame().load(QUrl(url))
+            lw = LoadWatcher(self.page)
+            while not ans[0] and lw.is_loading and end_time > time.time():
+                if not loop.processEvents():
+                    time.sleep(0.01)
+            if not ans[0]:
+                raise ValueError('The URL %r does not point to a downloadable file. You can only'
+                                 ' use this method to download files that the browser cannot handle'
+                                 ' natively. Or files that are marked with the '
+                                 ' content-disposition: attachment header' % url)
+            if ans[1] is not None:
+                raise ans[1]
+            return b''.join(ans[-1])
+        finally:
+            self.page.unsupportedContent.disconnect()
+            self.page.unsupportedContent.connect(self.page.on_unsupported_content)
 
     def show_browser(self):
         '''
