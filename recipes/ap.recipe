@@ -1,4 +1,3 @@
-import re
 from calibre.web.feeds.news import BasicNewsRecipe
 
 
@@ -6,45 +5,37 @@ class AssociatedPress(BasicNewsRecipe):
 
     title = u'Associated Press'
     description = 'Global news'
-    __author__ = 'Kovid Goyal and Sujata Raman'
+    __author__ = 'Krittika Goyal'
     use_embedded_content   = False
     language = 'en'
     no_stylesheets = True
     auto_cleanup = True
-#    auto_cleanup_keep = '//td[@class="ap-smallphoto-td-image"]'
-    max_articles_per_feed = 15
+    auto_cleanup_keep = '//tr[@class="ap-story-td"]'
 
+    def parse_index(self):
+        feeds = []
+        fronts = ('HOME', 'US', 'WORLD', 'BUSINESS', 'TECHNOLOGY', 'SPORTS', 'ENTERTAINMENT', 'HEALTH', 'SCIENCE', 'POLITICS')
+        for front in fronts:
+            feeds.append([front.capitalize(), self.parse_section(front)])
+        feeds[0][0] = 'Top Stories'
+        return feeds
 
-    preprocess_regexps = [ (re.compile(i[0], re.IGNORECASE | re.DOTALL), i[1]) for i in
-[
-         (r'<span class="entry-content">', lambda match : '<div class="entry-content">'),
-    ]
-    ]
+    def parse_section(self, front):
+        self.log('Processing section:', front)
+        soup = self.index_to_soup('http://hosted.ap.org/dynamic/fronts/%s?SITE=AP' % front)
 
+        articles = []
+        for x in soup.findAll('p', attrs={'class':['ap-newsbriefitem-p', 'ap-topheadlineitem-p']}):
+            a = x.find('a', href=True)
+            title = self.tag_to_string(a)
+            url = "http://hosted.ap.org" + a['href']
+            p = x.find(attrs={'class':'topheadlinebody'})
+            desc = ''
+            if p is not None:
+                desc = self.tag_to_string(p)
+            self.log('\tFound article:', title, '\n\t\t', desc)
+            articles.append({'title':title, 'url':url})
 
-    #keep_only_tags = [ dict(name='table', attrs={'class':['ap-story-table hnews hentry item']}),
-                       ##dict(name='div', attrs={'class':['entry-content']}),
-                       #]
-    #remove_tags = [dict(name='td', attrs={'class':['ap-mediabox-td']}),
-                   #dict(name='table', attrs={'class':['ap-htmltable-table', 'ap-htmltable-table', 'ap-mediabox-table']}),
-                   ##dict(name='td', attrs={'bgcolor':['#333333']}),
-                  #]
-    extra_css = '''
-               .headline{font-family:Verdana,Arial,Helvetica,sans-serif;font-weight:bold;}
-               .bline{color:#003366;}
-                body{font-family:Arial,Helvetica,sans-serif;}
-                '''
+        self.log('\n\n')
 
-
-    feeds = [
-                   ('AP Headlines', 'http://hosted.ap.org/lineups/TOPHEADS-rss_2.0.xml?SITE=ORAST&SECTION=HOME'),
-                   ('AP US News', 'http://hosted.ap.org/lineups/USHEADS-rss_2.0.xml?SITE=CAVIC&SECTION=HOME'),
-                   ('AP World News', 'http://hosted.ap.org/lineups/WORLDHEADS-rss_2.0.xml?SITE=SCAND&SECTION=HOME'),
-                   ('AP Political News', 'http://hosted.ap.org/lineups/POLITICSHEADS-rss_2.0.xml?SITE=ORMED&SECTION=HOME'),
-                   ('AP Washington State News', 'http://hosted.ap.org/lineups/WASHINGTONHEADS-rss_2.0.xml?SITE=NYPLA&SECTION=HOME'),
-                   ('AP Technology News', 'http://hosted.ap.org/lineups/TECHHEADS-rss_2.0.xml?SITE=CTNHR&SECTION=HOME'),
-                   ('AP Health News', 'http://hosted.ap.org/lineups/HEALTHHEADS-rss_2.0.xml?SITE=FLDAY&SECTION=HOME'),
-                   ('AP Science News', 'http://hosted.ap.org/lineups/SCIENCEHEADS-rss_2.0.xml?SITE=OHCIN&SECTION=HOME'),
-                   ('AP Strange News', 'http://hosted.ap.org/lineups/STRANGEHEADS-rss_2.0.xml?SITE=WCNC&SECTION=HOME'),
-    ]
-
+        return articles
