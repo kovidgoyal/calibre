@@ -117,7 +117,7 @@
              <string>Restore this tweak to its default value</string>
             </property>
             <property name="text">
-             <string>Restore &amp;default</string>
+             <string>&amp;Reset this tweak</string>
             </property>
            </widget>
           </item>
@@ -127,7 +127,7 @@
              <string>Apply any changes you made to this tweak</string>
             </property>
             <property name="text">
-             <string>&amp;Apply</string>
+             <string>&amp;Apply changes to this tweak</string>
             </property>
            </widget>
           </item>
