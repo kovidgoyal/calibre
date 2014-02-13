@@ -7,7 +7,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, pprint, time, uuid
+import os, pprint, time, uuid, re
 from cookielib import Cookie
 from threading import current_thread
 
@@ -29,6 +29,11 @@ class Timeout(Exception):
 class LoadError(Exception):
     pass
 
+class ElementNotFound(ValueError):
+    pass
+
+class NotAFile(ValueError):
+    pass
 
 class WebPage(QWebPage):  # {{{
 
@@ -501,7 +506,7 @@ class Browser(QObject, FormsMixin):
         if not isinstance(qwe, QWebElement):
             qwe = self.css_select(qwe)
             if qwe is None:
-                raise ValueError('Failed to find element with selector: %r'
+                raise ElementNotFound('Failed to find element with selector: %r'
                         % qwe_or_selector)
         js = '''
             var e = document.createEvent('MouseEvents');
@@ -527,7 +532,7 @@ class Browser(QObject, FormsMixin):
                 target = qwe
                 break
         if target is None:
-            raise ValueError('No element matching %r with text %s found'%(
+            raise ElementNotFound('No element matching %r with text %s found'%(
                 selector, text_or_regex))
         return self.click(target, wait_for_load=wait_for_load,
                 ajax_replies=ajax_replies, timeout=timeout)
@@ -615,8 +620,16 @@ class Browser(QObject, FormsMixin):
         if ans is not None:
             return ans
 
-    def download_file(self, url, timeout=60):
-        ' Download unsupported content: i.e. files the browser cannot handle itself or files marked for saving as files by the website '
+    def download_file(self, url_or_selector_or_qwe, timeout=60):
+        '''
+        Download unsupported content: i.e. files the browser cannot handle
+        itself or files marked for saving as files by the website. Useful if
+        you want to download something like an epub file after authentication.
+
+        You can pass in either the url to the file to be downloaded, or a
+        selector that points to an element to be clicked on the current page
+        which will cause the file to be downloaded.
+        '''
         ans = [False, None, []]
         loop = QEventLoop(self)
         start_time = time.time()
@@ -632,19 +645,23 @@ class Browser(QObject, FormsMixin):
                     if raw:
                         ans[-1].append(raw)
                 if not reply.isFinished():
-                    ans[1] = Timeout('Loading of %r took longer than %d seconds'%(url, timeout))
+                    ans[1] = Timeout('Loading of %r took longer than %d seconds'%(url_or_selector_or_qwe, timeout))
                 ans[-1].append(bytes(bytearray(reply.readAll())))
             self.page.unsupportedContent.connect(download)
-            self.page.mainFrame().load(QUrl(url))
+            if hasattr(url_or_selector_or_qwe, 'rstrip') and re.match('[a-z]+://', url_or_selector_or_qwe) is not None:
+                # We have a URL
+                self.page.mainFrame().load(QUrl(url_or_selector_or_qwe))
+            else:
+                self.click(url_or_selector_or_qwe, wait_for_load=False)
             lw = LoadWatcher(self.page)
             while not ans[0] and lw.is_loading and end_time > time.time():
                 if not loop.processEvents():
                     time.sleep(0.01)
             if not ans[0]:
-                raise ValueError('The URL %r does not point to a downloadable file. You can only'
+                raise NotAFile('%r does not point to a downloadable file. You can only'
                                  ' use this method to download files that the browser cannot handle'
                                  ' natively. Or files that are marked with the '
-                                 ' content-disposition: attachment header' % url)
+                                 ' content-disposition: attachment header' % url_or_selector_or_qwe)
             if ans[1] is not None:
                 raise ans[1]
             return b''.join(ans[-1])
