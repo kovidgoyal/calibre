@@ -176,12 +176,12 @@ class PagedDisplay
             # with height=100% overflow the first column
             has_svg = document.getElementsByTagName('svg').length > 0
             only_img = document.getElementsByTagName('img').length == 1 and document.getElementsByTagName('div').length < 3 and document.getElementsByTagName('p').length < 2
-            # We only set full_screen_layout if scrollWidth is in (clientWidth,
-            # 2*clientWidth) as if it is <= clientWidth scrolling will work
-            # anyway and if it is >= 2*clientWidth it can't be a full screen
+            # We only set full_screen_layout if scrollWidth is in (body_width,
+            # 2*body_width) as if it is <= body_width scrolling will work
+            # anyway and if it is >= 2*body_width it can't be a full screen
             # layout
-            log(document.body.clientWidth, document.body.scrollWidth)
-            this.is_full_screen_layout = (only_img or has_svg) and single_screen and document.body.scrollWidth > document.body.clientWidth
+            body_width = document.body.offsetWidth + 2 * sm
+            this.is_full_screen_layout = (only_img or has_svg) and single_screen and document.body.scrollWidth > body_width and document.body.scrollWidth < 2 * body_width
             if is_single_page
                 this.is_full_screen_layout = true
 
