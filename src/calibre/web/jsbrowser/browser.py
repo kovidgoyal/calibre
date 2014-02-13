@@ -637,6 +637,9 @@ class Browser(QObject, FormsMixin):
         self.page.unsupportedContent.disconnect(self.page.on_unsupported_content)
         try:
             def download(reply):
+                if ans[0]:
+                    reply.abort()  # We only handle the first unsupported download
+                    return
                 ans[0] = True
                 while not reply.isFinished() and end_time > time.time():
                     if not loop.processEvents():
