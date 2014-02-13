@@ -38,9 +38,10 @@ class EPUBHelpBuilder(EpubBuilder):
         root = container.parsed(name)
         # ADE blows up floating images if their sizes are not specified
         for img in root.xpath('//*[local-name() = "img" and (@class = "float-right-img" or @class = "float-left-img")]'):
-            imgname = container.href_to_name(img.get('src'), name)
-            width, height, fmt = identify_data(container.raw_data(imgname))
-            img.set('style', 'width: %dpx; height: %dpx' % (width, height))
+            if 'style' not in img.attrib:
+                imgname = container.href_to_name(img.get('src'), name)
+                width, height, fmt = identify_data(container.raw_data(imgname))
+                img.set('style', 'width: %dpx; height: %dpx' % (width, height))
 
     def fix_opf(self, container):
         spine_names = {n for n, l in container.spine_names}
