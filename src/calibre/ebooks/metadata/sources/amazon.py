@@ -437,7 +437,7 @@ class Worker(Thread):  # Get details {{{
 
     def parse_rating(self, root):
         for x in root.xpath('//div[@id="cpsims-feature" or @id="purchase-sims-feature" or @id="rhf"]'):
-            # Remove the similar books section as it can cause sppurious
+            # Remove the similar books section as it can cause spurious
             # ratings matches
             x.getparent().remove(x)
 
