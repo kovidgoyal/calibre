@@ -202,6 +202,7 @@ class Tweaks(QAbstractListModel, SearchQueryParser):  # {{{
     def restore_to_defaults(self):
         for r in range(self.rowCount()):
             self.restore_to_default(self.index(r))
+        self.plugin_tweaks = {}
 
     def update_tweak(self, idx, varmap):
         tweak = self.data(idx, Qt.UserRole)
