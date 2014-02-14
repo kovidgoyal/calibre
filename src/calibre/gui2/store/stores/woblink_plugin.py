@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import (unicode_literals, division, absolute_import, print_function)
-store_version = 5  # Needed for dynamic plugin loading
+store_version = 6  # Needed for dynamic plugin loading
 
 __license__ = 'GPL 3'
-__copyright__ = '2011-2013, Tomasz Długosz <tomek3d@gmail.com>'
+__copyright__ = '2011-2014, Tomasz Długosz <tomek3d@gmail.com>'
 __docformat__ = 'restructuredtext en'
 
 import re
@@ -44,7 +44,7 @@ class WoblinkStore(BasicStoreConfig, StorePlugin):
             d.exec_()
 
     def search(self, query, max_results=10, timeout=60):
-        url = 'http://woblink.com/katalog-e-book?query=' + urllib.quote_plus(query.encode('utf-8'))
+        url = 'http://woblink.com/katalog-ebooki?query=' + urllib.quote_plus(query.encode('utf-8'))
         if max_results > 10:
             if max_results > 20:
                 url += '&limit=30'
@@ -56,7 +56,7 @@ class WoblinkStore(BasicStoreConfig, StorePlugin):
         counter = max_results
         with closing(br.open(url, timeout=timeout)) as f:
             doc = html.fromstring(f.read())
-            for data in doc.xpath('//div[@class="nw_katalog_lista_ksiazka"]'):
+            for data in doc.xpath('//div[@class="nw_katalog_lista_ksiazka "]'):
                 if counter <= 0:
                     break
 

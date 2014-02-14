@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import (unicode_literals, division, absolute_import, print_function)
-store_version = 2 # Needed for dynamic plugin loading
+store_version = 3 # Needed for dynamic plugin loading
 
 __license__ = 'GPL 3'
-__copyright__ = '2012-2013, Tomasz Długosz <tomek3d@gmail.com>'
+__copyright__ = '2012-2014, Tomasz Długosz <tomek3d@gmail.com>'
 __docformat__ = 'restructuredtext en'
 
 import urllib
@@ -64,7 +64,7 @@ class PublioStore(BasicStoreConfig, StorePlugin):
                     price = ''.join(data.xpath('.//div[@class="priceBox tk-museo-slab"]/ins/text()'))
                     if not price:
                         price = ''.join(data.xpath('.//div[@class="priceBox tk-museo-slab"]/text()')).strip()
-                    formats = ', '.join(data.xpath('.//div[@class="formats"]/a/img/@alt'))
+                    formats = ', '.join(data.xpath('.//div[@class="formats"]/a/text()'))
 
                     counter -= 1
 
