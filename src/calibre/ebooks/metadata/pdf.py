@@ -13,6 +13,7 @@ from calibre.ebooks.pdf.xmp_parser import xmp_to_dict
 from calibre.utils.ipc.simple_worker import fork_job, WorkerError
 
 #_isbn_pat = re.compile(r'ISBN[: ]*([-0-9Xx]+)')
+_metadata_split = re.compile(u'^Metadata:', re.MULTILINE)
 _doi_search = re.compile(u'10\.\d{4}/\S+')
 _PMCID_search = re.compile(u'PMC\d+')
 _arXiv_new_search = re.compile(u'\d{4}\.\d{4}v?\d*')
@@ -50,7 +51,7 @@ def read_info(outputdir, get_cover):
         prints('pdfinfo returned no UTF-8 data')
         return None
 
-    info, metadata = raw.split(u'Metadata:',1)
+    info, metadata = _metadata_split.split(raw, 1)
     lines = [line.partition(u':')[::2] for line in info.splitlines() \
                 if u':' in line]
     ans = {field: val.strip() for field, val in lines \
