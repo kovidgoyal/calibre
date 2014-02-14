@@ -20,6 +20,56 @@
 #   new recipes:
 #     - title: 
 
+
+- version: 1.24.0
+  date: 2014-02-14
+
+  new features:
+    - title: "E-book viewer: Add support for touchscreens when running on Windows tablets."
+      type: major
+      description: "The builtin viewer in calibre now support touch screens on Windows tablets. You can tap or swipe to turn pages. Swipe up or down to jump between sections. Swipe and hold to flip through pages rapidly and pinch to zoom in and out."
+
+    - title: "Sending by email: Add an option to insert the comments from the book metadata as text into the email. Useful to allow the recipient to see a summary of the book before opening it. The option is in Preferences->Sharing by email"
+
+    - title: "Edit book: new tool to automatically generate an inline (HTML) Table of Contents based on the current NCX Table of Contents. Accessed via Tools->Table of Contents->Insert inline Table of Contents."
+
+    - title: "Edit Book: Add a check for internal links in the book that do not point to HTML documents"
+
+    - title: "Kobo driver: Add support for the soon to be released firmware version 3.2"
+
+    - title: "Completion popups: Allow pressing Tab (in addition to Enter) to accept the current completion"
+
+    - title: "Edit book: When auto-fixing named entities, fix in all files not just current file."
+
+  bug fixes:
+    - title: "EPUB Output: Do not override any declared text-decoration CSS for <u> tags when auto-converting them to <span> (auto-conversion is needed to comply with the epub spec)."
+      tickets: [1278670]
+
+    - title: "Windows: Improve handling of non-ascii characters when the command line utilities are outputting to the windows console"
+
+    - title: "PDF Output: Fix incorrect rendering of html files with only a single large image and very little text. In some rare circumstances, the full html file would not be rendered."
+      ticket: [1278877]
+
+    - title: "Add a copy to clipboard button for the duplicates message when copying to another library."
+      tickets: [1278305]
+
+    - title: "Catalogs: Fix an error when generating catalogs via calibredb from the command line on non-English installs"
+
+    - title: "Catalogs: Fix an error creating catalogs in ebook format when one of the books contains HTML entities in its title"
+
+    - title: "Preferences: When using the Restore to defaults button for the Tweaks, remove all plugin tweaks as well. This allows the user to recover the tweaks file if one of the plugins insert invalid code into the plugin tweaks"
+
+    - title: "Edit book: Fix previously used locations for file open dialogs not being remembered when edit book is launched from within the main calibre program"
+
+    - title: "Edit book: Fix a couple of temporary files occasionally not being cleaned up on program exit in windows"
+      tickets: [1280040]
+
+  improved recipes:
+    - Associated Press
+    - NRC Handelsblad 
+    - Cumhuriyet Yazarlar
+    - ABC (es)
+
 - version: 1.23.0
   date: 2014-02-07
 
