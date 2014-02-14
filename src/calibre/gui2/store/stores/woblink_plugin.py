@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import (unicode_literals, division, absolute_import, print_function)
-store_version = 6  # Needed for dynamic plugin loading
+store_version = 7  # Needed for dynamic plugin loading
 
 __license__ = 'GPL 3'
 __copyright__ = '2011-2014, Tomasz Długosz <tomek3d@gmail.com>'
@@ -66,7 +66,7 @@ class WoblinkStore(BasicStoreConfig, StorePlugin):
 
                 cover_url = ''.join(data.xpath('.//div[@class="nw_katalog_lista_ksiazka_okladka nw_okladka"]/a[1]/img/@src'))
                 title = ''.join(data.xpath('.//h2[@class="nw_katalog_lista_ksiazka_detale_tytul"]/a[1]/text()'))
-                author = ', '.join(data.xpath('.//h3[@class="nw_katalog_lista_ksiazka_detale_autor"]/a/text()'))
+                author = ', '.join(data.xpath('.//p[@class="nw_katalog_lista_ksiazka_detale_autor"]/a/text()'))
                 price = ''.join(data.xpath('.//div[@class="nw_katalog_lista_ksiazka_opcjezakupu_cena"]/span/text()'))
                 price = re.sub('\.', ',', price)
                 formats = ', '.join(data.xpath('.//p[@class="nw_katalog_lista_ksiazka_detale_formaty"]/span/text()'))
