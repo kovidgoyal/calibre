@@ -27,7 +27,7 @@
   new features:
     - title: "E-book viewer: Add support for touchscreens when running on Windows tablets."
       type: major
-      description: "The builtin viewer in calibre now support touch screens on Windows tablets. You can tap or swipe to turn pages. Swipe up or down to jump between sections. Swipe and hold to flip through pages rapidly and pinch to zoom in and out."
+      description: "The builtin viewer in calibre now supports touch screens on Windows tablets. You can tap or swipe to turn pages. Swipe up or down to jump between sections. Swipe and hold to flip through pages rapidly and pinch to zoom in and out."
 
     - title: "Sending by email: Add an option to insert the comments from the book metadata as text into the email. Useful to allow the recipient to see a summary of the book before opening it. The option is in Preferences->Sharing by email"
 
