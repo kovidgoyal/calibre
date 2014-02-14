@@ -18,7 +18,7 @@ from PyQt4.Qt import (
     QDialogButtonBox, QDialog, QLabel, QLineEdit, QVBoxLayout, QScrollArea,
     QRadioButton, QFormLayout, QSpinBox, QListWidget, QListWidgetItem, QCheckBox)
 
-from calibre import human_readable, sanitize_file_name_unicode
+from calibre import human_readable, sanitize_file_name_unicode, plugins
 from calibre.ebooks.oeb.base import OEB_STYLES, OEB_DOCS
 from calibre.ebooks.oeb.polish.container import guess_type, OEB_FONTS
 from calibre.ebooks.oeb.polish.replace import get_recommended_folders
@@ -154,6 +154,9 @@ class FileList(QTreeWidget):
 
     def __init__(self, parent=None):
         QTreeWidget.__init__(self, parent)
+        pi = plugins['progress_indicator'][0]
+        if hasattr(pi, 'set_no_activate_on_click'):
+            pi.set_no_activate_on_click(self)
         self.current_edited_name = None
         self.delegate = ItemDelegate(self)
         self.delegate.rename_requested.connect(self.rename_requested)
@@ -187,7 +190,7 @@ class FileList(QTreeWidget):
                 'misc':'mimetypes/dir.png',
                 'images':'view-image.png',
             }.iteritems()}
-        self.itemDoubleClicked.connect(self.item_double_clicked)
+        self.itemActivated.connect(self.item_double_clicked)
 
     def get_state(self):
         s = {'pos':self.verticalScrollBar().value()}
