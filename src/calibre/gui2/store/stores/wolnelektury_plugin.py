@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import (unicode_literals, division, absolute_import, print_function)
-store_version = 1  # Needed for dynamic plugin loading
+store_version = 2 # Needed for dynamic plugin loading
 
 __license__ = 'GPL 3'
-__copyright__ = '2012-2013, Tomasz Długosz <tomek3d@gmail.com>'
+__copyright__ = '2012-2014, Tomasz Długosz <tomek3d@gmail.com>'
 __docformat__ = 'restructuredtext en'
 
 import urllib
@@ -55,9 +55,9 @@ class WolneLekturyStore(BasicStoreConfig, StorePlugin):
                 if not id:
                     continue
 
-                cover_url = ''.join(data.xpath('.//a[1]/img/@src'))
+                cover_url = ''.join(data.xpath('.//div[@class="cover-area"]//img/@src'))
                 title = ''.join(data.xpath('.//div[@class="title"]/a[1]/text()'))
-                author = ', '.join(data.xpath('.//div[@class="mono author"]/a/text()'))
+                author = ', '.join(data.xpath('.//div[@class="author"]/a/text()'))
                 price = '0,00 zł'
 
                 counter -= 1
