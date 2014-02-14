@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import (unicode_literals, division, absolute_import, print_function)
-store_version = 2 # Needed for dynamic plugin loading
+store_version = 3 # Needed for dynamic plugin loading
 
 __license__ = 'GPL 3'
-__copyright__ = '2013, Tomasz Długosz <tomek3d@gmail.com>'
+__copyright__ = '2013-2014, Tomasz Długosz <tomek3d@gmail.com>'
 __docformat__ = 'restructuredtext en'
 
 import urllib
@@ -58,7 +58,7 @@ class CdpStore(BasicStoreConfig, StorePlugin):
                     cover_url = ''.join(data.xpath('.//div[@class="product-image"]/a[1]/@data-background'))
                     cover_url = cover_url.split('\'')[1]
                     title = ''.join(data.xpath('.//div[@class="product-description"]/h2/a/text()'))
-                    author = ''.join(data.xpath('.//div[@class="product-description"]//ul[@class="taxons"]/li[2]/a/text()'))
+                    author = ''.join(data.xpath('.//div[@class="product-description"]//ul[@class="taxons"]/li[@class="author"]/a/text()'))
                     price = ''.join(data.xpath('.//span[@itemprop="price"]/text()'))
 
                     counter -= 1
