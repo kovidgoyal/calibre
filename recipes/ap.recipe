@@ -9,8 +9,14 @@ class AssociatedPress(BasicNewsRecipe):
     use_embedded_content   = False
     language = 'en'
     no_stylesheets = True
-    auto_cleanup = True
-    auto_cleanup_keep = '//tr[@class="ap-story-td"]'
+    conversion_options = {
+        'linearize_tables' : True
+    }
+    keep_only_tags = {'name':'table', 'attrs':{'class':lambda x: x and 'ap-story-table' in x.split()}}
+    remove_tags = [
+        {'class':['ap-mediabox-table']},
+        {'name':'img', 'src':lambda x: x and '//analytics.' in x},
+    ]
 
     def parse_index(self):
         feeds = []
