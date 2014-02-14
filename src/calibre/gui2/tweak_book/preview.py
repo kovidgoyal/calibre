@@ -155,6 +155,9 @@ class ParseWorker(Thread):
     def clear(self):
         self.parse_items.clear()
 
+    def is_alive(self):
+        return Thread.is_alive(self) or self.worker.is_alive()
+
 parse_worker = ParseWorker()
 # }}}
 

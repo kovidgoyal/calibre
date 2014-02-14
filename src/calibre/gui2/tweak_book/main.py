@@ -6,7 +6,7 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import sys, os, importlib
+import sys, os, importlib, time
 
 from PyQt4.Qt import QIcon
 
@@ -67,6 +67,12 @@ def _run(args, notify=None):
     if len(args) > 1:
         main.boss.open_book(args[1], edit_file=opts.edit_file, clear_notify_data=False)
     app.exec_()
+    # Ensure that the parse worker has quit so that temp files can be deleted
+    # on windows
+    st = time.time()
+    from calibre.gui2.tweak_book.preview import parse_worker
+    while parse_worker.is_alive() and time.time() - st < 120:
+        time.sleep(0.1)
 
 def main(args=sys.argv):
     _run(args)

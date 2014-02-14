@@ -58,6 +58,8 @@ class OffloadWorker(object):
         self.listener = listener
         self.worker = worker
         self.conn = None
+        self.kill_thread = t = Thread(target=self.worker.kill)
+        t.daemon = True
 
     def __call__(self, module, func, *args, **kwargs):
         if self.conn is None:
@@ -73,13 +75,14 @@ class OffloadWorker(object):
             traceback.print_exc()
         finally:
             self.conn = None
-            t = Thread(target=self.worker.kill)
-            t.daemon = True
             try:
                 os.remove(self.worker.log_path)
             except:
                 pass
-            t.start()
+            self.kill_thread.start()
+
+    def is_alive(self):
+        return self.worker.is_alive or self.kill_thread.is_alive()
 
 def communicate(ans, worker, listener, args, timeout=300, heartbeat=None,
         abort=None):
