@@ -66,11 +66,13 @@ def serialize_xmp_packet(root, encoding='utf-8'):
     return b'<?xpacket begin="%s" id="W5M0MpCehiHzreSzNTczkc9d"?>\n%s\n<?xpacket end="w"?>' % ('\ufeff'.encode(encoding), raw_bytes)
 
 def read_simple_property(elem):
+    # A simple property
     if elem.text:
         return elem.text
     return elem.get(NS('rdf', 'resource'), '')
 
 def read_lang_alt(parent):
+    # A text value with possibel alternate values in different languages
     items = XPath('descendant::rdf:li[@xml:lang="x-default"]')(parent)
     if items:
         return items[0]
@@ -79,6 +81,7 @@ def read_lang_alt(parent):
         return items[0]
 
 def read_sequence(parent):
+    # A sequence or set of values (assumes simple properties in the sequence)
     for item in XPath('descendant::rdf:li')(parent):
         yield read_simple_property(item)
 
@@ -92,18 +95,24 @@ def uniq(vals, kmap=lambda x:x):
     return tuple(x for x, k in zip(vals, lvals) if k not in seen and not seen_add(k))
 
 def multiple_sequences(expr, root):
+    # Get all values for sequence elements matching expr, ensuring the returned
+    # list contains distinct non-null elements preserving their order.
     ans = []
     for item in XPath(expr)(root):
         ans += list(read_sequence(item))
     return filter(None, uniq(ans))
 
 def first_alt(expr, root):
+    # The first element matching expr, assumes that the element contains a
+    # langauge alternate array
     for item in XPath(expr)(root):
         q = read_simple_property(read_lang_alt(item))
         if q:
             return q
 
 def first_simple(expr, root):
+    # The value for the first occurrence of an element matching exp (assumes
+    # simple property)
     for item in XPath(expr)(root):
         q = read_simple_property(item)
         if q:
