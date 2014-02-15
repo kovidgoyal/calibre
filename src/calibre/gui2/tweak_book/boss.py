@@ -1191,6 +1191,7 @@ class Boss(QObject):
         if not self.confirm_quit():
             return
         self.save_state()
+        self.shutdown()
         QApplication.instance().quit()
 
     def confirm_quit(self):
@@ -1240,7 +1241,6 @@ class Boss(QObject):
                 QTimer.singleShot(50, self.check_terminal_save)
                 return False
 
-        self.shutdown()
         return True
 
     def check_terminal_save(self):
