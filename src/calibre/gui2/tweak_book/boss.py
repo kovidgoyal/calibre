@@ -1240,6 +1240,7 @@ class Boss(QObject):
                 QTimer.singleShot(50, self.check_terminal_save)
                 return False
 
+        self.shutdown()
         return True
 
     def check_terminal_save(self):
