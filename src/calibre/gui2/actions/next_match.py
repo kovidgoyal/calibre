@@ -23,8 +23,8 @@ class NextMatchAction(InterfaceAction):
         self.can_move = None
         self.qaction.triggered.connect(self.move_forward)
         self.create_action(spec=(_('Move to previous item'), 'arrow-up.png',
-              _('Move to previous highlighted item'), [_('Shift+N'),
-                  _('Shift+F3')]), attr='p_action')
+              _('Move to previous highlighted item'), ['Shift+N',
+                  'Shift+F3']), attr='p_action')
         self.gui.addAction(self.p_action)
         self.p_action.triggered.connect(self.move_backward)
 

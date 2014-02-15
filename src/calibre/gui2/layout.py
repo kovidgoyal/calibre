@@ -202,7 +202,7 @@ class SearchBar(QWidget):  # {{{
         parent.advanced_search_toggle_action = ac = QAction(parent)
         parent.addAction(ac)
         parent.keyboard.register_shortcut('advanced search toggle',
-                _('Advanced search'), default_keys=(_("Shift+Ctrl+F"),),
+                _('Advanced search'), default_keys=("Shift+Ctrl+F",),
                 action=ac)
         ac.triggered.connect(x.click)
         x.setIcon(QIcon(I('search.png')))

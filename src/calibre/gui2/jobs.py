@@ -445,7 +445,7 @@ class JobsButton(QFrame):  # {{{
         self.pi = ProgressIndicator(self, size)
         self._jobs = QLabel('<b>'+_('Jobs:')+' 0')
         self._jobs.mouseReleaseEvent = self.mouseReleaseEvent
-        self.shortcut = _('Shift+Alt+J')
+        self.shortcut = 'Shift+Alt+J'
 
         if horizontal:
             self.setLayout(QHBoxLayout())

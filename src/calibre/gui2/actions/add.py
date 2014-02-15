@@ -68,11 +68,11 @@ class AddAction(InterfaceAction):
                     self.add_recursive_multiple)
         self.add_menu.addSeparator()
         ma('add-empty', _('Add Empty book. (Book entry with no formats)'),
-                shortcut=_('Shift+Ctrl+E')).triggered.connect(self.add_empty)
+                shortcut='Shift+Ctrl+E').triggered.connect(self.add_empty)
         ma('add-isbn', _('Add from ISBN')).triggered.connect(self.add_from_isbn)
         self.add_menu.addSeparator()
         ma('add-formats', _('Add files to selected book records'),
-                triggered=self.add_formats, shortcut=_('Shift+A'))
+                triggered=self.add_formats, shortcut='Shift+A')
         self.add_menu.addSeparator()
         ma('add-config', _('Control the adding of books'),
                 triggered=self.add_config)

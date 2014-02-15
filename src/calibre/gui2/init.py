@@ -115,7 +115,7 @@ class LibraryWidget(Splitter):  # {{{
                 orientation=orientation, parent=parent,
                 connect_button=not config['separate_cover_flow'],
                 side_index=idx, initial_side_size=size, initial_show=False,
-                shortcut=_('Shift+Alt+B'))
+                shortcut='Shift+Alt+B')
         parent.library_view = BooksView(parent)
         parent.library_view.setObjectName('library_view')
         stack = QStackedWidget(self)
@@ -137,7 +137,7 @@ class Stack(QStackedWidget):  # {{{
         parent.tb_splitter = Splitter('tag_browser_splitter',
                 _('Tag Browser'), I('tags.png'),
                 parent=parent, side_index=0, initial_side_size=200,
-                shortcut=_('Shift+Alt+T'))
+                shortcut='Shift+Alt+T')
         parent.tb_splitter.state_changed.connect(
                         self.tb_widget.set_pane_is_visible, Qt.QueuedConnection)
         parent.tb_splitter.addWidget(self.tb_widget)
@@ -245,7 +245,7 @@ class StatusBar(QStatusBar):  # {{{
 class GridViewButton(LayoutButton):  # {{{
 
     def __init__(self, gui):
-        sc = _('Shift+Alt+G')
+        sc = 'Shift+Alt+G'
         LayoutButton.__init__(self, I('grid.png'), _('Cover Grid'), parent=gui, shortcut=sc)
         self.set_state_to_show()
         self.action_toggle = QAction(self.icon(), _('Toggle') + ' ' + self.label, self)
@@ -384,7 +384,7 @@ class LayoutMixin(object):  # {{{
             self.bd_splitter = Splitter('book_details_splitter',
                     _('Book Details'), I('book.png'),
                     orientation=Qt.Vertical, parent=self, side_index=1,
-                    shortcut=_('Shift+Alt+D'))
+                    shortcut='Shift+Alt+D')
             self.bd_splitter.addWidget(self.stack)
             self.bd_splitter.addWidget(self.book_details)
             self.bd_splitter.setCollapsible(self.bd_splitter.other_index, False)
@@ -395,7 +395,7 @@ class LayoutMixin(object):  # {{{
             self.bd_splitter = Splitter('book_details_splitter',
                     _('Book Details'), I('book.png'), initial_side_size=200,
                     orientation=Qt.Horizontal, parent=self, side_index=1,
-                    shortcut=_('Shift+Alt+D'))
+                    shortcut='Shift+Alt+D')
             self.stack = Stack(self)
             self.bd_splitter.addWidget(self.stack)
             self.book_details = BookDetails(True, self)
