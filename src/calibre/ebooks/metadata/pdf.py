@@ -3,8 +3,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 '''Read meta information from PDF files'''
 
-#import re
-import os, subprocess, shutil
+import os, subprocess, shutil, re
 from functools import partial
 
 from calibre import prints
@@ -32,19 +31,24 @@ def read_info(outputdir, get_cover):
     file, only for src.pdf.'''
     os.chdir(outputdir)
     pdfinfo, pdftoppm = get_tools()
+    ans = {}
 
     try:
-        raw = subprocess.check_output([pdfinfo, '-enc', 'UTF-8', 'src.pdf'])
+        raw = subprocess.check_output([pdfinfo, '-meta', '-enc', 'UTF-8', 'src.pdf'])
     except subprocess.CalledProcessError as e:
         prints('pdfinfo errored out with return code: %d'%e.returncode)
         return None
+    # The XMP metadata could be in an encoding other than UTF-8, so split it
+    # out before trying to decode raw
+    parts = re.split(br'^Metadata:', raw, 1, flags=re.MULTILINE)
+    if len(parts) > 1:
+        raw, ans['xmp_metadata'] = parts
     try:
         raw = raw.decode('utf-8')
     except UnicodeDecodeError:
         prints('pdfinfo returned no UTF-8 data')
         return None
 
-    ans = {}
     for line in raw.splitlines():
         if u':' not in line:
             continue
@@ -127,9 +131,11 @@ def get_metadata(stream, cover=True):
     if subject:
         mi.tags.insert(0, subject)
 
+    if 'xmp_metadata' in info:
+        from calibre.ebooks.metadata.xmp import consolidate_metadata
+        mi = consolidate_metadata(mi, info['xmp_metadata'])
     if cdata:
         mi.cover_data = ('jpeg', cdata)
-
     return mi
 
 get_quick_metadata = partial(get_metadata, cover=False)
