@@ -89,13 +89,21 @@ def delete_all_but(path, pages):
         raw = f.read()
     p.load(raw)
     total = p.page_count()
-    pages = { total + x if x < 0 else x for x in pages }
+    pages = {total + x if x < 0 else x for x in pages}
     for page in xrange(total-1, -1, -1):
         if page not in pages:
             p.delete_page(page)
 
     with open(path, 'wb') as f:
         f.save_to_fileobj(path)
+
+def get_xmp_metadata(path):
+    podofo = get_podofo()
+    p = podofo.PDFDoc()
+    with open(path, 'rb') as f:
+        raw = f.read()
+    p.load(raw)
+    return p.get_xmp_metadata()
 
 def test_outline(src):
     podofo = get_podofo()
@@ -123,7 +131,7 @@ def test_save_to(src, dest):
         p.save_to_fileobj(out)
         print ('Wrote PDF of size:', out.tell())
 
+
 if __name__ == '__main__':
     import sys
-    test_save_to(sys.argv[-2], sys.argv[-1])
-
+    get_xmp_metadata(sys.argv[-1])

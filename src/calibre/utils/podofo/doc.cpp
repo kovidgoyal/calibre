@@ -241,6 +241,72 @@ error:
 
 } // }}}
 
+// get_xmp_metadata() {{{
+static PyObject *
+PDFDoc_get_xmp_metadata(PDFDoc *self, PyObject *args) {
+    PoDoFo::PdfObject *metadata = NULL;
+    PoDoFo::PdfStream *str = NULL;
+    PoDoFo::pdf_long len = 0;
+	char *buf = NULL;
+    PyObject *ans = NULL;
+
+    try {
+        if ((metadata = self->doc->GetMetadata()) != NULL) {
+            if ((str = metadata->GetStream()) != NULL) {
+                str->GetFilteredCopy(&buf, &len);
+                if (buf != NULL) {
+                    ans = Py_BuildValue("s#", buf, len);
+                    free(buf); buf = NULL;
+                    if (ans == NULL) goto error;
+                }
+            }
+        }
+    } catch(const PdfError & err) {
+        podofo_set_exception(err); goto error;
+    } catch (...) {
+        PyErr_SetString(PyExc_ValueError, "An unknown error occurred while trying to read the XML metadata"); goto error;
+    }
+
+    if (ans != NULL) return ans;
+    Py_RETURN_NONE;
+error:
+    return NULL;
+} // }}}
+
+// set_xmp_metadata() {{{
+static PyObject *
+PDFDoc_set_xmp_metadata(PDFDoc *self, PyObject *args) {
+    const char *raw = NULL;
+    long len = 0;
+    PoDoFo::PdfObject *metadata = NULL, *catalog = NULL;
+    PoDoFo::PdfStream *str = NULL;
+
+    if (!PyArg_ParseTuple(args, "s#", &raw, &len)) return NULL;
+    try {
+        if ((metadata = self->doc->GetMetadata()) != NULL) {
+            if ((str = metadata->GetStream()) == NULL) { PyErr_NoMemory(); goto error; }
+            str->Set(raw, len, PoDoFo::TVecFilters());
+        } else {
+            if ((catalog = self->doc->GetCatalog()) == NULL) { PyErr_SetString(PyExc_ValueError, "Cannot set XML metadata as this document has no catalog"); goto error; }
+            if ((metadata = self->doc->GetObjects().CreateObject("Metadata")) == NULL) { PyErr_NoMemory(); goto error; }
+            if ((str = metadata->GetStream()) == NULL) { PyErr_NoMemory(); goto error; }
+            metadata->GetDictionary().AddKey(PoDoFo::PdfName("Subtype"), PoDoFo::PdfName("XML"));
+            str->Set(raw, len, PoDoFo::TVecFilters());
+            catalog->GetDictionary().AddKey(PoDoFo::PdfName("Metadata"), metadata->Reference());
+        }
+    } catch(const PdfError & err) {
+        podofo_set_exception(err); goto error;
+    } catch (...) {
+        PyErr_SetString(PyExc_ValueError, "An unknown error occurred while trying to set the XML metadata");
+        goto error;
+    }
+
+    Py_RETURN_NONE;
+error:
+    return NULL;
+
+} // }}}
+
 // Properties {{{
 
 static PyObject *
@@ -482,6 +548,12 @@ static PyMethodDef PDFDoc_methods[] = {
     },
     {"create_outline", (PyCFunction)PDFDoc_create_outline, METH_VARARGS,
      "create_outline(title, pagenum) -> Create an outline, return the first outline item."
+    },
+    {"get_xmp_metadata", (PyCFunction)PDFDoc_get_xmp_metadata, METH_VARARGS,
+     "get_xmp_metadata(raw) -> Get the XMP metadata as raw bytes"
+    },
+    {"set_xmp_metadata", (PyCFunction)PDFDoc_set_xmp_metadata, METH_VARARGS,
+     "set_xmp_metadata(raw) -> Set the XMP metadata to the raw bytes (which must be a valid XML packet)"
     },
 
     {NULL}  /* Sentinel */
