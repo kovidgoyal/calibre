@@ -1,19 +1,26 @@
-from __future__ import with_statement
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 '''Read meta information from PDF files'''
 
-#import re
-import os, subprocess, shutil
+import re, os, subprocess, shutil
 from functools import partial
 
 from calibre import prints
 from calibre.constants import iswindows
 from calibre.ptempfile import TemporaryDirectory
 from calibre.ebooks.metadata import MetaInformation, string_to_authors, check_isbn
+from calibre.ebooks.pdf.xmp_parser import xmp_to_dict
 from calibre.utils.ipc.simple_worker import fork_job, WorkerError
 
 #_isbn_pat = re.compile(r'ISBN[: ]*([-0-9Xx]+)')
+_metadata_split = re.compile(u'^Metadata:', re.MULTILINE)
+_doi_search = re.compile(u'10\.\d{4}/\S+')
+_PMCID_search = re.compile(u'PMC\d+')
+_arXiv_new_search = re.compile(u'\d{4}\.\d{4}v?\d*')
+arXiv_fields = ['astro-ph', 'cond-mat', 'gr-qc', 'hep-ex', 'hep-lat', 'hep-ph',
+                'hep-th', 'math-ph', 'nlin', 'nucl-ex', 'nucl-th', 'physics',
+                'quant-ph ', 'math', 'CoRR', 'q-bio', 'q-fin', 'stat']
+_arXiv_old_search = re.compile(u'(%s)/[\dv]+'%(u'|'.join(arXiv_fields)))
 
 def get_tools():
     from calibre.ebooks.pdf.pdftohtml import PDFTOHTML
@@ -34,7 +41,7 @@ def read_info(outputdir, get_cover):
     pdfinfo, pdftoppm = get_tools()
 
     try:
-        raw = subprocess.check_output([pdfinfo, '-enc', 'UTF-8', 'src.pdf'])
+        raw = subprocess.check_output([pdfinfo, '-enc', 'UTF-8', '-meta', 'src.pdf'])
     except subprocess.CalledProcessError as e:
         prints('pdfinfo errored out with return code: %d'%e.returncode)
         return None
@@ -44,14 +51,12 @@ def read_info(outputdir, get_cover):
         prints('pdfinfo returned no UTF-8 data')
         return None
 
-    ans = {}
-    for line in raw.splitlines():
-        if u':' not in line:
-            continue
-        field, val = line.partition(u':')[::2]
-        val = val.strip()
-        if field and val:
-            ans[field] = val.strip()
+    info, metadata = _metadata_split.split(raw, 1)
+    lines = [line.partition(u':')[::2] for line in info.splitlines() \
+                if u':' in line]
+    ans = {field: val.strip() for field, val in lines \
+                if (field and val.strip())}
+    ans[u'Metadata'] = metadata.strip()
 
     if get_cover:
         try:
@@ -75,6 +80,77 @@ def page_images(pdfpath, outputdir, first=1, last=1):
                                os.path.join(outputdir, 'page-images')], **args)
     except subprocess.CalledProcessError as e:
         raise ValueError('Failed to render PDF, pdftoppm errorcode: %s'%e.returncode)
+
+def get_meta_ids(info):
+    ''' Try to extract DOI (or other meta ids) from technical literature pdfs.
+    Look into metadata object and check different known scheme.
+    If multiple, weighted decision in the end'''
+    # TODO: Check the first page of the pdf
+
+    ids = {}
+    DOI, arXiv, PMCID, dc_id = (None,None,None,None)
+
+    metadata = info.get('Metadata', None)
+    if metadata:
+        meta_dict = xmp_to_dict(metadata)
+
+        # DOI
+        if 'prism' in meta_dict and 'doi' in meta_dict['prism']:
+            DOI = meta_dict['prism']['doi']
+        elif 'pdfx' in meta_dict and 'doi' in meta_dict['pdfx']:
+            DOI = meta_dict['pdfx']['doi']
+        elif 'dc' in meta_dict and 'identifier' in meta_dict['dc']:
+            dc_id = meta_dict['dc']['identifier']
+
+    info.pop('Metadata', None)
+    if dc_id:
+        arXiv = dc_id
+        PMCID = dc_id
+        if not DOI:
+            DOI = dc_id
+
+    # Check DOI
+    if DOI:
+        find_doi = _doi_search.search(DOI)
+        if find_doi:
+            ids['doi'] = find_doi.group()
+        else:
+            DOI = None
+    # Check arXiv
+    if arXiv:
+        find_arXiv = _arXiv_new_search.search(arXiv)
+        if not find_arXiv:
+            find_arXiv = _arXiv_old_search.search(arXiv)
+        if find_arXiv:
+            ids['arxiv'] = find_arXiv.group()
+        else:
+            arXiv = None
+    # Check PMCID
+    if PMCID:
+        find_PMCID = _PMCID_search.search(PMCID)
+        if find_PMCID:
+            ids['pmcid'] = find_PMCID.group()
+        else:
+            PMCID = None
+
+    # Check usual infos for DOI, ArXIv
+    for v in info.itervalues():
+        if not DOI:
+            find_doi = _doi_search.search(v)
+            if find_doi:
+                ids['doi'] = find_doi.group()
+        if not PMCID:
+            find_PMCID = _PMCID_search.search(v)
+            if find_PMCID:
+                ids['pmcid'] = find_PMCID.group()
+        if not arXiv:
+            find_arXiv = _arXiv_new_search.search(v)
+            if not find_arXiv:
+                find_arXiv = _arXiv_old_search.search(v)
+            if find_arXiv:
+                ids['arxiv'] = find_arXiv.group()
+
+    return ids
 
 def get_metadata(stream, cover=True):
     with TemporaryDirectory('_pdf_metadata_read') as pdfpath:
@@ -127,6 +203,11 @@ def get_metadata(stream, cover=True):
     if subject:
         mi.tags.insert(0, subject)
 
+    meta_ids = get_meta_ids(info)
+    if meta_ids:
+        for meta, id in meta_ids.iteritems():
+            mi.set_identifier(meta,id)
+
     if cdata:
         mi.cover_data = ('jpeg', cdata)
 
@@ -139,5 +220,3 @@ from calibre.utils.podofo import set_metadata as podofo_set_metadata
 def set_metadata(stream, mi):
     stream.seek(0)
     return podofo_set_metadata(stream, mi)
-
-

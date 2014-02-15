@@ -176,7 +176,7 @@ def fmt_sidx(i, fmt='%.2f', use_roman=False):
 class Resource(object):
     '''
     Represents a resource (usually a file on the filesystem or a URL pointing
-    to the web. Such resources are commonly referred to in OPF files.
+    to the web). Such resources are commonly referred to in OPF files.
 
     They have the interface:
 
