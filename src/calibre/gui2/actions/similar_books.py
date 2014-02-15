@@ -75,7 +75,7 @@ class SimilarBooksAction(InterfaceAction):
 
         if not isinstance(val, (list, set)):
             val = [val]
-        search = [col + ':"='+t+'"' for t in val]
+        search = [col + ':"='+t.replace('"', '\\"')+'"' for t in val]
         if search:
             self.gui.search.set_search_string(join.join(search),
                     store_in_history=True)
