@@ -11,7 +11,6 @@ http://www.macworld.co.uk/
 '''
 
 from calibre.web.feeds.news import BasicNewsRecipe
-from calibre.ptempfile import PersistentTemporaryFile
 
 class pcMag(BasicNewsRecipe):
     __author__    = 'Lorenzo Vigentini'
@@ -25,55 +24,23 @@ class pcMag(BasicNewsRecipe):
     language       = 'en_GB'
     timefmt        = '[%a, %d %b, %Y]'
 
-    oldest_article        = 15
     max_articles_per_feed = 25
     use_embedded_content  = False
     recursion             = 10
 
     remove_javascript     = True
     no_stylesheets        = True
-
-    temp_files = []
-    articles_are_obfuscated = True
-
-    def get_obfuscated_article(self, url):
-        br = self.get_browser()
-        br.open(url)
-        response = br.follow_link(url_regex='&print$', nr = 0)
-        html = response.read()
-
-        self.temp_files.append(PersistentTemporaryFile('_fa.html'))
-        self.temp_files[-1].write(html)
-        self.temp_files[-1].close()
-        return self.temp_files[-1].name
-
-    keep_only_tags     = [
-                            dict(name='div', attrs={'id':'wrapper'})
-                        ]
-
-    remove_tags        = [
-                            dict(name='div', attrs={'class':'bannerContainer'}),
-                            dict(name='p', attrs={'class':'breadcrumbs'}),
-                            dict(name='ul', attrs={'id':'articleIconsList'})
-
-                        ]
-
-    remove_tags_after  = [
-                            dict(name='p', attrs={'id':'articlePageList'}),
-                        ]
+    auto_cleanup = True
 
     feeds          = [
-                       (u'MacWorld Headlines', u'http://www.macworld.co.uk/rss/macworld.xml'),
-                       (u'Reviews', u'http://www.macworld.co.uk/rss/reviews.xml'),
-                       (u'Masterclass', u'http://www.macworld.co.uk/rss/masterclasses.xml'),
-                       (u'MacWorld Team', u'http://www.macworld.co.uk/rss/blog8.xml'),
-                       (u'Andy Ihnatko', u'http://www.macworld.co.uk/rss/blog7.xml'),
-                       (u'Andy Penfold', u'http://www.macworld.co.uk/rss/blog11.xml'),
-                       (u'Jonny Evans', u'http://www.macworld.co.uk/rss/blog1.xml'),
-                       (u'Karen Haslam', u'http://www.macworld.co.uk/rss/blog4.xml'),
-                       (u'Mark Hattersley', u'http://www.macworld.co.uk/rss/blog2.xml'),
-                       (u'Nick Spence', u'http://www.macworld.co.uk/rss/blog12.xml'),
-                       (u'Simon Iary', u'http://www.macworld.co.uk/rss/blog3.xml')
+                       (u'MacWorld Headlines', u'http://www.macworld.co.uk/latest/rss'),
+                       (u'Reviews', u'http://www.macworld.co.uk/news/rss'),
+                       (u'Masterclass', u'http://www.macworld.co.uk/how-to/rss'),
+                       (u'MacWorld Team', u'http://www.macworld.co.uk/review/rss'),
+                       (u'Andy Ihnatko', u'http://www.macworld.co.uk/latest/iphone/rss'),
+                       (u'Andy Penfold', u'http://www.macworld.co.uk/latest/ipad/rss'),
+                       (u'Jonny Evans', u'http://www.macworld.co.uk/latest/mac/rss'),
+                       (u'Karen Haslam', u'http://www.macworld.co.uk/latest/apple/rss')
                      ]
 
     extra_css = '''
