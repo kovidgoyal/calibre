@@ -13,8 +13,9 @@ from collections import defaultdict
 from lxml import etree
 from lxml.builder import ElementMaker
 
+from calibre import prints
 from calibre import replace_entities
-from calibre.ebooks.metadata import check_isbn
+from calibre.ebooks.metadata import check_isbn, check_doi
 from calibre.ebooks.metadata.book.base import Metadata
 from calibre.utils.date import parse_date, isoformat, now
 
@@ -38,7 +39,7 @@ NS_MAP = {
     'x': 'adobe:ns:meta/',
     'calibre': 'http://calibre-ebook.com/xmp-namespace',
 }
-KNOWN_ID_SCHEMES = {'isbn', 'url', 'doi'}
+KNOWN_ID_SCHEMES = {'isbn', 'url', 'doi', 'identifier'}
 
 def expand(name):
     prefix, name = name.partition(':')[::2]
@@ -187,14 +188,17 @@ def metadata_from_xmp_packet(raw_bytes):
         for scheme, value in read_xmp_identifers(xmpid):
             if scheme and value:
                 identifiers[scheme.lower()] = value
+    prints(repr(identifiers))
 
-    for namespace in ('prism', 'pdfx'):
+    for namespace in ('prism', 'pdfx', 'dc'):
         for scheme in KNOWN_ID_SCHEMES:
             if scheme not in identifiers:
                 val = first_simple('//%s:%s' % (namespace, scheme), root)
                 scheme = scheme.lower()
                 if scheme == 'isbn':
                     val = check_isbn(val)
+                elif scheme == 'doi' or scheme == 'identifier':
+                    val = check_doi(val)
                 if val:
                     identifiers[scheme] = val
     if identifiers:
