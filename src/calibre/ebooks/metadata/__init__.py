@@ -368,3 +368,11 @@ def format_isbn(isbn):
         return '-'.join((i[:2], i[2:6], i[6:9], i[9]))
     return '-'.join((i[:3], i[3:5], i[5:9], i[9:12], i[12]))
 
+def check_doi(doi):
+    if not doi:
+        return None
+    doi_check = re.search(r'10\.\d{4}/\S+', doi)
+    if doi_check is not None:
+        return doi_check.group()
+    return None
+
