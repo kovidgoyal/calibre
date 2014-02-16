@@ -39,7 +39,7 @@ NS_MAP = {
     'x': 'adobe:ns:meta/',
     'calibre': 'http://calibre-ebook.com/xmp-namespace',
 }
-KNOWN_ID_SCHEMES = {'isbn', 'url', 'doi', 'identifier'}
+KNOWN_ID_SCHEMES = {'isbn', 'url', 'doi'}
 
 def expand(name):
     prefix, name = name.partition(':')[::2]
@@ -83,7 +83,7 @@ def read_simple_property(elem):
     return replace_entities(elem.get(expand('rdf:resource'), ''))
 
 def read_lang_alt(parent):
-    # A text value with possibel alternate values in different languages
+    # A text value with possible alternate values in different languages
     items = XPath('descendant::rdf:li[@xml:lang="x-default"]')(parent)
     if items:
         return items[0]
@@ -115,7 +115,7 @@ def multiple_sequences(expr, root):
 
 def first_alt(expr, root):
     # The first element matching expr, assumes that the element contains a
-    # langauge alternate array
+    # language alternate array
     for item in XPath(expr)(root):
         q = read_simple_property(read_lang_alt(item))
         if q:
@@ -188,19 +188,26 @@ def metadata_from_xmp_packet(raw_bytes):
         for scheme, value in read_xmp_identifers(xmpid):
             if scheme and value:
                 identifiers[scheme.lower()] = value
-    prints(repr(identifiers))
 
-    for namespace in ('prism', 'pdfx', 'dc'):
+    for namespace in ('prism', 'pdfx'):
         for scheme in KNOWN_ID_SCHEMES:
             if scheme not in identifiers:
                 val = first_simple('//%s:%s' % (namespace, scheme), root)
                 scheme = scheme.lower()
                 if scheme == 'isbn':
                     val = check_isbn(val)
-                elif scheme == 'doi' or scheme == 'identifier':
+                elif scheme == 'doi':
                     val = check_doi(val)
                 if val:
                     identifiers[scheme] = val
+
+    # Check Dublin Core for identifier, only DOI considered
+    if 'doi' not in identifiers:
+        val = first_simple('//dc:identifier', root)
+        val = check_doi(val)
+        if val:
+            identifiers['doi'] = val
+
     if identifiers:
         mi.set_identifiers(identifiers)
 
