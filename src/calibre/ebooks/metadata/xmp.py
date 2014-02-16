@@ -13,7 +13,6 @@ from collections import defaultdict
 from lxml import etree
 from lxml.builder import ElementMaker
 
-from calibre import prints
 from calibre import replace_entities
 from calibre.ebooks.metadata import check_isbn, check_doi
 from calibre.ebooks.metadata.book.base import Metadata
