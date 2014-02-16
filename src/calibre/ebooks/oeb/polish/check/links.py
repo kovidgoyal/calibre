@@ -125,18 +125,33 @@ class MimetypeMismatch(BaseError):
                       ' The recommended mimetype for files with the extension "{2}" is {3}.'
                       ' You should change either the file extension or the mimetype in the OPF.').format(
                           name, opf_mt, ext, ext_mt)
-        self.INDIVIDUAL_FIX = _('Change the mimetype for this file in the OPF to %s') % ext_mt
+        if opf_mt in OEB_DOCS and name in {n for n, l in container.spine_names}:
+            self.INDIVIDUAL_FIX = _('Change the file extension to .xhtml')
+            self.change_ext_to = 'xhtml'
+        else:
+            self.INDIVIDUAL_FIX = _('Change the mimetype for this file in the OPF to %s') % ext_mt
+            self.change_ext_to = None
 
     def __call__(self, container):
         changed = False
-        for item in container.opf_xpath('//opf:manifest/opf:item[@href and @media-type="%s"]' % self.opf_mt):
-            name = container.href_to_name(item.get('href'), container.opf_name)
-            if name == self.file_name:
-                changed = True
-                item.set('media-type', self.ext_mt)
-                container.mime_map[name] = self.ext_mt
-        if changed:
-            container.dirty(container.opf_name)
+        if self.change_ext_to is not None:
+            from calibre.ebooks.oeb.polish.replace import rename_files
+            new_name = self.file_name.rpartition('.')[0] + '.' + self.change_ext_to
+            c = 0
+            while container.has_name(new_name):
+                c += 1
+                new_name = self.file_name.rpartition('.')[0] + ('%d.' % c) + self.change_ext_to
+            rename_files(container, {self.file_name:new_name})
+            changed = True
+        else:
+            for item in container.opf_xpath('//opf:manifest/opf:item[@href and @media-type="%s"]' % self.opf_mt):
+                name = container.href_to_name(item.get('href'), container.opf_name)
+                if name == self.file_name:
+                    changed = True
+                    item.set('media-type', self.ext_mt)
+                    container.mime_map[name] = self.ext_mt
+            if changed:
+                container.dirty(container.opf_name)
         return changed
 
 def check_mimetypes(container):
