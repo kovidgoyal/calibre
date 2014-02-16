@@ -30,9 +30,12 @@ def set_metadata(stream, mi):
     with TemporaryDirectory(u'_podofo_set_metadata') as tdir:
         with open(os.path.join(tdir, u'input.pdf'), 'wb') as f:
             shutil.copyfileobj(stream, f)
+        from calibre.ebooks.metadata.xmp import metadata_to_xmp_packet
+        xmp_packet = metadata_to_xmp_packet(mi)
+
         try:
             touched = fork_job('calibre.utils.podofo', 'set_metadata_', (tdir,
-                mi.title, mi.authors, mi.book_producer, mi.tags))
+                mi.title, mi.authors, mi.book_producer, mi.tags, xmp_packet))
         except WorkerError as e:
             raise Exception('Failed to set PDF metadata: %s'%e.orig_tb)
         if touched:
@@ -46,7 +49,7 @@ def set_metadata(stream, mi):
                     stream.flush()
     stream.seek(0)
 
-def set_metadata_(tdir, title, authors, bkp, tags):
+def set_metadata_(tdir, title, authors, bkp, tags, xmp_packet):
     podofo = get_podofo()
     os.chdir(tdir)
     p = podofo.PDFDoc()
@@ -72,6 +75,16 @@ def set_metadata_(tdir, title, authors, bkp, tags):
         if tags != p.keywords:
             p.keywords = tags
             touched = True
+    except:
+        pass
+
+    try:
+        current_xmp_packet = p.get_xmp_metadata()
+        if current_xmp_packet:
+            from calibre.ebooks.metadata.xmp import merge_xmp_packet
+            xmp_packet = merge_xmp_packet(current_xmp_packet, xmp_packet)
+        p.set_xmp_metadata(xmp_packet)
+        touched = True
     except:
         pass
 
