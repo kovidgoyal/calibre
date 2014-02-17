@@ -621,7 +621,7 @@ class OPF(object):  # {{{
                 import traceback
                 traceback.print_exc()
                 continue
-            self._user_metadata_ = temp.get_all_user_metadata(True)
+        self._user_metadata_ = temp.get_all_user_metadata(True)
 
     def to_book_metadata(self):
         ans = MetaInformation(self)
