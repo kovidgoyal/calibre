@@ -17,6 +17,7 @@ from calibre import replace_entities
 from calibre.ebooks.metadata import check_isbn, check_doi
 from calibre.ebooks.metadata.book.base import Metadata
 from calibre.utils.date import parse_date, isoformat, now
+from calibre.utils.localization import canonicalize_lang, lang_as_iso639_1
 
 _xml_declaration = re.compile(r'<\?xml[^<>]+encoding\s*=\s*[\'"](.*?)[\'"][^<>]*>', re.IGNORECASE)
 
@@ -219,6 +220,12 @@ def metadata_from_xmp_packet(raw_bytes):
                 setattr(mi, x, val)
                 break
 
+    languages = multiple_sequences('//dc:language', root)
+    if languages:
+        languages = filter(None, map(canonicalize_lang, languages))
+        if languages:
+            mi.languages = languages
+
     identifiers = {}
     for xmpid in XPath('//xmp:Identifier')(root):
         for scheme, value in read_xmp_identifers(xmpid):
@@ -339,6 +346,10 @@ def metadata_to_xmp_packet(mi):
         create_sequence_property(dc, tag, val, ordered)
     if not mi.is_null('pubdate'):
         create_sequence_property(dc, 'dc:date', [isoformat(mi.pubdate, as_utc=False)])  # Adobe spec recommends local time
+    if not mi.is_null('languages'):
+        langs = filter(None, map(lambda x:lang_as_iso639_1(x) or canonicalize_lang(x), mi.languages))
+        if langs:
+            create_sequence_property(dc, 'dc:language', langs, ordered=False)
 
     xmp = rdf.makeelement(expand('rdf:Description'), nsmap=nsmap('xmp', 'xmpidq'))
     xmp.set(expand('rdf:about'), '')
