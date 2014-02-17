@@ -13,8 +13,8 @@ Input plugin for HTML or OPF ebooks.
 
 import os, re, sys,  errno as gerrno
 from urlparse import urlparse, urlunparse
-from urllib import unquote
 
+from calibre.ebooks.oeb.base import urlunquote
 from calibre.ebooks.chardet import detect_xml_encoding
 from calibre.constants import iswindows
 from calibre import unicode_path, as_unicode, replace_entities
@@ -33,7 +33,7 @@ class Link(object):
             path = path[1:]
             isabs = True
         path = urlunparse(('', '', path, url.params, url.query, ''))
-        path = unquote(path)
+        path = urlunquote(path)
         if isabs or os.path.isabs(path):
             return path
         return os.path.abspath(os.path.join(base, path))
@@ -50,7 +50,7 @@ class Link(object):
         self.is_local    = self.parsed_url.scheme in ('', 'file')
         self.is_internal = self.is_local and not bool(self.parsed_url.path)
         self.path        = None
-        self.fragment    = unquote(self.parsed_url.fragment)
+        self.fragment    = urlunquote(self.parsed_url.fragment)
         if self.is_local and not self.is_internal:
             self.path = self.url_to_local_path(self.parsed_url, base)
 
