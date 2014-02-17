@@ -75,7 +75,7 @@ the bottom of the screen, the full path to the file inside the book. Note that
 files inside ebooks are compressed, so the size of the final book is not the
 sum of the individual file sizes.
 
-Many files have special special meaning, in the book. These will typically have
+Many files have special meaning, in the book. These will typically have
 an icon next to their names, indicating the special meaning. For example, in
 the picture to the left, you can see that the files :guilabel:`cover_image.jpg`
 and :guilabel:`titlepage.xhtml` have the ocon of a cover next to them, this
@@ -494,6 +494,14 @@ it as favorite. You can also right click on a character in favorites to remove
 it from favorites. Finally, you can re-arrange the order of characters in
 favorites by clicking the :guilabel:`Re-arrange favorties` button and then drag
 and dropping the characters in favorites around.
+
+You can also directly type in special characters using the keyboard. To do
+this, you type the unicode code for the character (in hexadecimal) and then
+press the :guilabel:`Alt+X` key which will convert the previously typed code
+into the corresponding character. For example, to type ÿ you would type ff and
+then Alt+X. To type a non-breaking space you would use a0 and then
+:guilabel:`Alt+X`, to type the horizontal ellipsis you would use 2026 and
+:guilabel:`Alt+X` and so on.
 
 The code inspector view
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
