@@ -212,6 +212,12 @@ def metadata_from_xmp_packet(raw_bytes):
     series, series_index = read_series(root)
     if series:
         mi.series, mi.series_index = series, series_index
+    for x in ('title_sort', 'author_sort'):
+        for elem in XPath('//calibre:' + x)(root):
+            val = read_simple_property(elem)
+            if val:
+                setattr(mi, x, val)
+                break
 
     identifiers = {}
     for xmpid in XPath('//xmp:Identifier')(root):
@@ -369,6 +375,9 @@ def metadata_to_xmp_packet(mi):
             create_simple_property(calibre, 'calibre:rating', '%g' % r)
     if not mi.is_null('series'):
         create_series(calibre, mi.series, mi.series_index)
+    for x in ('title_sort', 'author_sort'):
+        if not mi.is_null(x):
+            create_simple_property(calibre, 'calibre:'+x, getattr(mi, x))
     return serialize_xmp_packet(root)
 
 def find_used_namespaces(elem):
