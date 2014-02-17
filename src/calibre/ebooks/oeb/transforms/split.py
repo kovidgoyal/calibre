@@ -138,7 +138,7 @@ class Split(object):
             page_breaks_.append((xp, x.get('pb_before', '0') == '1'))
             page_break_ids.append(id)
 
-        for elem in item.data.iter():
+        for elem in item.data.iter(etree.Element):
             elem.attrib.pop('pb_order', False)
             elem.attrib.pop('pb_before', False)
 
