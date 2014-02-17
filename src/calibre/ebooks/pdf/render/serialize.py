@@ -20,7 +20,7 @@ from calibre.ebooks.pdf.render.fonts import FontManager
 from calibre.ebooks.pdf.render.links import Links
 from calibre.utils.date import utcnow
 
-PDFVER = b'%PDF-1.3'
+PDFVER = b'%PDF-1.4'  # 1.4 is needed for XMP metadata
 
 class IndirectObjects(object):
 
@@ -239,6 +239,17 @@ class Image(Stream):
         if self.soft_mask is not None:
             d['SMask'] = self.soft_mask
 
+class Metadata(Stream):
+
+    def __init__(self, mi):
+        Stream.__init__(self)
+        from calibre.ebooks.metadata.xmp import metadata_to_xmp_packet
+        self.write(metadata_to_xmp_packet(mi))
+
+    def add_extra_keys(self, d):
+        d['Type'] = Name('Metadata')
+        d['Subtype'] = Name('XML')
+
 class PDFStream(object):
 
     PATH_OPS = {
@@ -292,13 +303,16 @@ class PDFStream(object):
     def get_pageref(self, pagenum):
         return self.page_tree.obj.get_ref(pagenum)
 
-    def set_metadata(self, title=None, author=None, tags=None):
+    def set_metadata(self, title=None, author=None, tags=None, mi=None):
         if title:
             self.info['Title'] = String(title)
         if author:
             self.info['Author'] = String(author)
         if tags:
             self.info['Keywords'] = String(tags)
+        if mi is not None:
+            self.metadata = self.objects.add(Metadata(mi))
+            self.catalog.obj['Metadata'] = self.metadata
 
     def write_line(self, byts=b''):
         byts = byts if isinstance(byts, bytes) else byts.encode('ascii')

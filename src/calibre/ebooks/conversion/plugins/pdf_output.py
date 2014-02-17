@@ -22,20 +22,21 @@ PAPER_SIZES = [u'a0', u'a1', u'a2', u'a3', u'a4', u'a5', u'a6', u'b0', u'b1',
                u'b2', u'b3', u'b4', u'b5', u'b6', u'legal', u'letter']
 
 class PDFMetadata(object):  # {{{
-    def __init__(self, oeb_metadata=None):
+    def __init__(self, mi=None):
         from calibre import force_unicode
         from calibre.ebooks.metadata import authors_to_string
         self.title = _(u'Unknown')
         self.author = _(u'Unknown')
         self.tags = u''
+        self.mi = mi
 
-        if oeb_metadata is not None:
-            if len(oeb_metadata.title) >= 1:
-                self.title = oeb_metadata.title[0].value
-            if len(oeb_metadata.creator) >= 1:
-                self.author = authors_to_string([x.value for x in oeb_metadata.creator])
-            if oeb_metadata.subject:
-                self.tags = u', '.join(map(unicode, oeb_metadata.subject))
+        if mi is not None:
+            if mi.title:
+                self.title = mi.title
+            if mi.authors:
+                self.author = authors_to_string(mi.authors)
+            if mi.tags:
+                self.tags = u', '.join(mi.tags)
 
         self.title = force_unicode(self.title)
         self.author = force_unicode(self.author)
@@ -125,7 +126,15 @@ class PDFOutput(OutputFormatPlugin):
         self.oeb = oeb_book
         self.input_plugin, self.opts, self.log = input_plugin, opts, log
         self.output_path = output_path
-        self.metadata = oeb_book.metadata
+        from calibre.ebooks.oeb.base import OPF, OPF2_NS
+        from lxml import etree
+        from io import BytesIO
+        package = etree.Element(OPF('package'),
+            attrib={'version': '2.0', 'unique-identifier': 'dummy'},
+            nsmap={None: OPF2_NS})
+        from calibre.ebooks.metadata.opf2 import OPF
+        self.oeb.metadata.to_opf2(package)
+        self.metadata = OPF(BytesIO(etree.tostring(package))).to_book_metadata()
         self.cover_data = None
 
         if input_plugin.is_image_collection:

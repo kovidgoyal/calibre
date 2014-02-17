@@ -209,7 +209,7 @@ class PDFWriter(QObject):
         self.painter = QPainter(self.doc)
         self.doc.set_metadata(title=pdf_metadata.title,
                               author=pdf_metadata.author,
-                              tags=pdf_metadata.tags)
+                              tags=pdf_metadata.tags, mi=pdf_metadata.mi)
         self.doc_title = pdf_metadata.title
         self.doc_author = pdf_metadata.author
         self.painter.save()
