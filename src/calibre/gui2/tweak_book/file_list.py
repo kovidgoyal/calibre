@@ -549,7 +549,15 @@ class FileList(QTreeWidget):
         # The sorting by index is necessary otherwise Qt crashes with recursive
         # repaint detected message
         for c in sorted(removals, key=lambda x:x.parent().indexOfChild(x), reverse=True):
-            c.parent().removeChild(c)
+            sip.delete(c)
+
+        # A bug in the raster paint engine on linux causes a crash if the scrollbar
+        # is at the bottom and the delete happens to cause the scrollbar to
+        # update
+        b = self.verticalScrollBar()
+        if b.value() == b.maximum():
+            b.setValue(b.minimum())
+            QTimer.singleShot(0, lambda : b.setValue(b.maximum()))
 
     def dropEvent(self, event):
         text = self.categories['text']
