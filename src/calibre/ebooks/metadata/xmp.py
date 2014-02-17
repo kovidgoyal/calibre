@@ -16,6 +16,7 @@ from lxml.builder import ElementMaker
 from calibre import prints
 from calibre.ebooks.metadata import check_isbn, check_doi
 from calibre.ebooks.metadata.book.base import Metadata
+from calibre.ebooks.metadata.opf2 import dump_dict
 from calibre.utils.date import parse_date, isoformat, now
 from calibre.utils.localization import canonicalize_lang, lang_as_iso639_1
 
@@ -242,6 +243,13 @@ def metadata_from_xmp_packet(raw_bytes):
             if val:
                 setattr(mi, x, val)
                 break
+    for x in ('author_link_map', 'user_categories'):
+        val = first_simple('//calibre:'+x, root)
+        if val:
+            try:
+                setattr(mi, x, json.loads(val))
+            except:
+                pass
 
     languages = multiple_sequences('//dc:language', root)
     if languages:
@@ -440,6 +448,13 @@ def metadata_to_xmp_packet(mi):
             create_simple_property(calibre, 'calibre:rating', '%g' % r)
     if not mi.is_null('series'):
         create_series(calibre, mi.series, mi.series_index)
+    if not mi.is_null('timestamp'):
+        create_simple_property(calibre, 'calibre:timestamp', isoformat(mi.timestamp, as_utc=False))
+    for x in ('author_link_map', 'user_categories'):
+        val = getattr(mi, x, None)
+        if val:
+            create_simple_property(calibre, 'calibre:'+x, dump_dict(val))
+
     for x in ('title_sort', 'author_sort'):
         if not mi.is_null(x):
             create_simple_property(calibre, 'calibre:'+x, getattr(mi, x))
