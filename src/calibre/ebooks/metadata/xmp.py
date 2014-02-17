@@ -425,10 +425,14 @@ def merge_xmp_packet(old, new):
     # As per the adobe spec all metadata items have to be present inside top-level rdf:Description containers
     item_xpath = XPath('//rdf:RDF/rdf:Description/*')
 
-    # First remove all data fields that are defined in the new packet from the
-    # old packet
+    # First remove all data fields that metadata_to_xmp_packet() knowns about,
+    # since either they will have been set or if not present, imply they have
+    # been cleared
     defined_tags = {expand(prefix + ':' + scheme) for prefix in ('prism', 'pdfx') for scheme in KNOWN_ID_SCHEMES}
-    defined_tags |= {x.tag for x in item_xpath(new)} | {expand('dc:identifier')}
+    defined_tags |= {expand('dc:' + x) for x in ('identifier', 'title', 'creator', 'date', 'description', 'language', 'publisher', 'subject')}
+    defined_tags |= {expand('xmp:' + x) for x in ('MetadataDate', 'Identifier')}
+    # For redundancy also remove all fields explicitly set in the new packet
+    defined_tags |= {x.tag for x in item_xpath(new)}
     calibrens = '{%s}' % NS_MAP['calibre']
     for elem in item_xpath(old):
         if elem.tag in defined_tags or (elem.tag and elem.tag.startswith(calibrens)):
