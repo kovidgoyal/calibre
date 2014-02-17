@@ -14,7 +14,7 @@ from lxml import etree
 from lxml.builder import ElementMaker
 
 from calibre import replace_entities
-from calibre.ebooks.metadata import check_isbn
+from calibre.ebooks.metadata import check_isbn, check_doi
 from calibre.ebooks.metadata.book.base import Metadata
 from calibre.utils.date import parse_date, isoformat, now
 
@@ -82,7 +82,7 @@ def read_simple_property(elem):
     return replace_entities(elem.get(expand('rdf:resource'), ''))
 
 def read_lang_alt(parent):
-    # A text value with possibel alternate values in different languages
+    # A text value with possible alternate values in different languages
     items = XPath('descendant::rdf:li[@xml:lang="x-default"]')(parent)
     if items:
         return items[0]
@@ -114,7 +114,7 @@ def multiple_sequences(expr, root):
 
 def first_alt(expr, root):
     # The first element matching expr, assumes that the element contains a
-    # langauge alternate array
+    # language alternate array
     for item in XPath(expr)(root):
         q = read_simple_property(read_lang_alt(item))
         if q:
@@ -195,8 +195,18 @@ def metadata_from_xmp_packet(raw_bytes):
                 scheme = scheme.lower()
                 if scheme == 'isbn':
                     val = check_isbn(val)
+                elif scheme == 'doi':
+                    val = check_doi(val)
                 if val:
                     identifiers[scheme] = val
+
+    # Check Dublin Core for recognizable identifier types
+    for scheme, check_func in {'doi':check_doi, 'isbn':check_isbn}.iteritems():
+        if scheme not in identifiers:
+            val = check_func(first_simple('//dc:identifier', root))
+            if val:
+                identifiers['doi'] = val
+
     if identifiers:
         mi.set_identifiers(identifiers)
 
@@ -360,7 +370,7 @@ def merge_xmp_packet(old, new):
     # First remove all data fields that are defined in the new packet from the
     # old packet
     defined_tags = {expand(prefix + ':' + scheme) for prefix in ('prism', 'pdfx') for scheme in KNOWN_ID_SCHEMES}
-    defined_tags |= {x.tag for x in item_xpath(new)}
+    defined_tags |= {x.tag for x in item_xpath(new)} | {expand('dc:identifier')}
     for elem in item_xpath(old):
         if elem.tag in defined_tags:
             elem.getparent().remove(elem)

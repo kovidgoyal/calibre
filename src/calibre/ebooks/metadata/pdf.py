@@ -9,7 +9,8 @@ from functools import partial
 from calibre import prints
 from calibre.constants import iswindows
 from calibre.ptempfile import TemporaryDirectory
-from calibre.ebooks.metadata import MetaInformation, string_to_authors, check_isbn
+from calibre.ebooks.metadata import (
+    MetaInformation, string_to_authors, check_isbn, check_doi)
 from calibre.utils.ipc.simple_worker import fork_job, WorkerError
 
 #_isbn_pat = re.compile(r'ISBN[: ]*([-0-9Xx]+)')
@@ -134,6 +135,18 @@ def get_metadata(stream, cover=True):
     if 'xmp_metadata' in info:
         from calibre.ebooks.metadata.xmp import consolidate_metadata
         mi = consolidate_metadata(mi, info['xmp_metadata'])
+
+    # Look for recognizable identifiers in the info dict, if they were not
+    # found in the XMP metadata
+    for scheme, check_func in {'doi':check_doi, 'isbn':check_isbn}.iteritems():
+        if scheme not in mi.get_identifiers():
+            for k, v in info.iteritems():
+                if k != 'xmp_metadata':
+                    val = check_func(v)
+                    if val:
+                        mi.set_identifier(scheme, val)
+                        break
+
     if cdata:
         mi.cover_data = ('jpeg', cdata)
     return mi
