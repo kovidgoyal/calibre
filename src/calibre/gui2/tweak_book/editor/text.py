@@ -477,13 +477,19 @@ class TextEdit(PlainTextEdit):
         if ev.type() == ev.ToolTip:
             self.show_tooltip(ev)
             return True
-        if ev.type() == ev.ShortcutOverride and ev in (
-            QKeySequence.Copy, QKeySequence.Cut, QKeySequence.Paste):
-            # Let the global cut/copy/paste shortcuts work,this avoids the nbsp
-            # problem as well, since they use the overridden copy() method
-            # instead of the one from Qt
-            ev.ignore()
-            return False
+        if ev.type() == ev.ShortcutOverride:
+            if ev in (
+                # Let the global cut/copy/paste shortcuts work,this avoids the nbsp
+                # problem as well, since they use the overridden copy() method
+                # instead of the one from Qt
+                QKeySequence.Copy, QKeySequence.Cut, QKeySequence.Paste,
+            ) or (
+                # This is used to convert typed hex codes into unicode
+                # characters
+                ev.key() == Qt.Key_X and ev.modifiers() == Qt.AltModifier
+            ):
+                ev.ignore()
+                return False
         return QPlainTextEdit.event(self, ev)
 
     # Tooltips {{{
@@ -588,9 +594,37 @@ class TextEdit(PlainTextEdit):
         self.setTextCursor(c)
 
     def keyPressEvent(self, ev):
+        if ev.key() == Qt.Key_X and ev.modifiers() == Qt.AltModifier:
+            if self.replace_possible_unicode_sequence():
+                ev.accept()
+                return
         QPlainTextEdit.keyPressEvent(self, ev)
         if (ev.key() == Qt.Key_Semicolon or ';' in unicode(ev.text())) and tprefs['replace_entities_as_typed'] and self.syntax == 'html':
             self.replace_possible_entity()
+
+    def replace_possible_unicode_sequence(self):
+        c = self.textCursor()
+        has_selection = c.hasSelection()
+        if has_selection:
+            text = unicode(c.selectedText()).rstrip('\0')
+        else:
+            c.setPosition(c.position() - min(c.positionInBlock(), 6), c.KeepAnchor)
+            text = unicode(c.selectedText()).rstrip('\0')
+        m = re.search(r'[a-fA-F0-9]{2,6}$', text)
+        if m is None:
+            return False
+        text = m.group()
+        try:
+            num = int(text, 16)
+        except ValueError:
+            return False
+        if num > 0x10ffff or num < 1:
+            return False
+        from calibre.gui2.tweak_book.char_select import chr
+        end_pos = max(c.anchor(), c.position())
+        c.setPosition(end_pos - len(text)), c.setPosition(end_pos, c.KeepAnchor)
+        c.insertText(chr(num))
+        return True
 
     def replace_possible_entity(self):
         c = self.textCursor()
