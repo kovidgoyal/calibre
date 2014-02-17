@@ -74,7 +74,15 @@ class PlainTextEdit(QPlainTextEdit):
         c.clearSelection()
         c.movePosition(c.Start)
         c.movePosition(c.End, c.KeepAnchor)
-        return c.selectedText().replace(PARAGRAPH_SEPARATOR, '\n')
+        ans = c.selectedText().replace(PARAGRAPH_SEPARATOR, '\n')
+        # QTextCursor pads the return value of selectedText with null bytes if
+        # non BMP characters such as 0x1f431 are present.
+        if hasattr(ans, 'rstrip'):
+            ans = ans.rstrip('\0')
+        else:  # QString
+            while ans[-1] == '\0':
+                ans.chop(1)
+        return ans
 
     @pyqtSlot()
     def copy(self):
@@ -94,7 +102,7 @@ class PlainTextEdit(QPlainTextEdit):
 
     @property
     def selected_text(self):
-        return unicodedata.normalize('NFC', unicode(self.textCursor().selectedText()).replace(PARAGRAPH_SEPARATOR, '\n'))
+        return unicodedata.normalize('NFC', unicode(self.textCursor().selectedText()).replace(PARAGRAPH_SEPARATOR, '\n').rstrip('\0'))
 
     def selection_changed(self):
         # Workaround Qt replacing nbsp with normal spaces on copy
@@ -219,7 +227,7 @@ class TextEdit(PlainTextEdit):
         c.movePosition(c.NextBlock, n=lnum - 1)
         c.movePosition(c.StartOfLine)
         c.movePosition(c.EndOfLine, c.KeepAnchor)
-        text = unicode(c.selectedText())
+        text = unicode(c.selectedText().rstrip('\0'))
         if col is None:
             c.movePosition(c.StartOfLine)
             lt = text.lstrip()
@@ -274,7 +282,7 @@ class TextEdit(PlainTextEdit):
         if wrap:
             pos = m_end if reverse else m_start
         c.setPosition(pos, c.KeepAnchor)
-        raw = unicode(c.selectedText()).replace(PARAGRAPH_SEPARATOR, '\n')
+        raw = unicode(c.selectedText()).replace(PARAGRAPH_SEPARATOR, '\n').rstrip('\0')
         m = pat.search(raw)
         if m is None:
             return False
@@ -307,7 +315,7 @@ class TextEdit(PlainTextEdit):
         if self.current_search_mark is None:
             return 0
         c = self.current_search_mark.cursor
-        raw = unicode(c.selectedText()).replace(PARAGRAPH_SEPARATOR, '\n')
+        raw = unicode(c.selectedText()).replace(PARAGRAPH_SEPARATOR, '\n').rstrip('\0')
         if template is None:
             count = len(pat.findall(raw))
         else:
@@ -332,7 +340,7 @@ class TextEdit(PlainTextEdit):
         if wrap and not complete:
             pos = c.End if reverse else c.Start
         c.movePosition(pos, c.KeepAnchor)
-        raw = unicode(c.selectedText()).replace(PARAGRAPH_SEPARATOR, '\n')
+        raw = unicode(c.selectedText()).replace(PARAGRAPH_SEPARATOR, '\n').rstrip('\0')
         m = pat.search(raw)
         if m is None:
             return False
@@ -362,7 +370,7 @@ class TextEdit(PlainTextEdit):
 
     def replace(self, pat, template, saved_match='gui'):
         c = self.textCursor()
-        raw = unicode(c.selectedText()).replace(PARAGRAPH_SEPARATOR, '\n')
+        raw = unicode(c.selectedText()).replace(PARAGRAPH_SEPARATOR, '\n').rstrip('\0')
         m = pat.fullmatch(raw)
         if m is None:
             # This can happen if either the user changed the selected text or
@@ -562,7 +570,7 @@ class TextEdit(PlainTextEdit):
         c = self.textCursor()
         c.setPosition(left)
         c.setPosition(right, c.KeepAnchor)
-        prev_text = unicode(c.selectedText())
+        prev_text = unicode(c.selectedText()).rstrip('\0')
         c.insertText(prefix + prev_text + suffix)
         if prev_text:
             right = c.position()
@@ -629,7 +637,7 @@ class TextEdit(PlainTextEdit):
     def replace_possible_entity(self):
         c = self.textCursor()
         c.setPosition(c.position() - min(c.positionInBlock(), 10), c.KeepAnchor)
-        text = unicode(c.selectedText())
+        text = unicode(c.selectedText()).rstrip('\0')
         m = entity_pat.search(text)
         if m is None:
             return

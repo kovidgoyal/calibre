@@ -110,7 +110,7 @@ def find_closing_tag(tag, max_tags=sys.maxint):
 def select_tag(cursor, tag):
     cursor.setPosition(tag.start_block.position() + tag.start_offset)
     cursor.setPosition(tag.end_block.position() + tag.end_offset + 1, cursor.KeepAnchor)
-    return unicode(cursor.selectedText()).replace(PARAGRAPH_SEPARATOR, '\n')
+    return unicode(cursor.selectedText()).replace(PARAGRAPH_SEPARATOR, '\n').rstrip('\0')
 
 def rename_tag(cursor, opening_tag, closing_tag, new_name, insert=False):
     cursor.beginEditBlock()

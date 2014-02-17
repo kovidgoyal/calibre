@@ -118,7 +118,7 @@ class Editor(QMainWindow):
         self.editor.load_text(template, syntax=self.syntax, process_template=True)
 
     def get_raw_data(self):
-        return unicodedata.normalize('NFC', unicode(self.editor.toPlainText()))
+        return unicodedata.normalize('NFC', unicode(self.editor.toPlainText()).rstrip('\0'))
 
     def replace_data(self, raw, only_if_different=True):
         if isinstance(raw, bytes):
@@ -251,7 +251,7 @@ class Editor(QMainWindow):
         if not c.atStart():
             c.clearSelection()
             c.setPosition(c.position()-1, c.KeepAnchor)
-            char = unicode(c.selectedText())
+            char = unicode(c.selectedText()).rstrip('\0')
         return (c.blockNumber() + 1, c.positionInBlock(), char)
 
     def cut(self):

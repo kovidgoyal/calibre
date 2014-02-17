@@ -160,7 +160,7 @@ class TextBrowser(PlainTextEdit):  # {{{
     def show_context_menu(self, pos):
         m = QMenu(self)
         a = m.addAction
-        i = unicode(self.textCursor().selectedText())
+        i = unicode(self.textCursor().selectedText()).rstrip('\0')
         if i:
             a(QIcon(I('edit-copy.png')), _('Copy to clipboard'), self.copy).setShortcut(QKeySequence.Copy)
 
