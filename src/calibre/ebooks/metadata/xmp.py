@@ -37,6 +37,7 @@ NS_MAP = {
     'xml': 'http://www.w3.org/XML/1998/namespace',
     'x': 'adobe:ns:meta/',
     'calibre': 'http://calibre-ebook.com/xmp-namespace',
+    'calibreSI': 'http://calibre-ebook.com/xmp-namespace-series-index',
 }
 KNOWN_ID_SCHEMES = {'isbn', 'url', 'doi'}
 
@@ -134,6 +135,24 @@ def first_sequence(expr, root):
         for ans in read_sequence(item):
             return ans
 
+def read_series(root):
+    for item in XPath('//calibre:series')(root):
+        val = XPath('descendant::rdf:value')(item)
+        if val:
+            series = val[0].text
+            if series and series.strip():
+                series_index = 1.0
+                for si in XPath('descendant::calibreSI:series_index')(item):
+                    try:
+                        series_index = float(si.text)
+                    except (TypeError, ValueError):
+                        continue
+                    else:
+                        break
+                return series, series_index
+    return None, None
+
+
 def read_xmp_identifers(parent):
     ''' For example:
     <rdf:li rdf:parseType="Resource"><xmpidq:Scheme>URL</xmp:idq><rdf:value>http://foo.com</rdf:value></rdf:li>
@@ -190,6 +209,9 @@ def metadata_from_xmp_packet(raw_bytes):
                 mi.rating = rating
         except (ValueError, TypeError):
             pass
+    series, series_index = read_series(root)
+    if series:
+        mi.series, mi.series_index = series, series_index
 
     identifiers = {}
     for xmpid in XPath('//xmp:Identifier')(root):
@@ -276,6 +298,21 @@ def create_identifiers(xmp, identifiers):
         li.append(val)
         val.text = value
 
+def create_series(calibre, series, series_index):
+    s = calibre.makeelement(expand('calibre:series'))
+    s.set(expand('rdf:parseType'), 'Resource')
+    calibre.append(s)
+    val = s.makeelement(expand('rdf:value'))
+    s.append(val)
+    val.text = series
+    try:
+        series_index = float(series_index)
+    except (TypeError, ValueError):
+        series_index = 1.0
+    si = s.makeelement(expand('calibreSI:series_index'))
+    si.text = '%.2f' % series_index
+    s.append(si)
+
 def metadata_to_xmp_packet(mi):
     A = ElementMaker(namespace=NS_MAP['x'], nsmap=nsmap('x'))
     R = ElementMaker(namespace=NS_MAP['rdf'], nsmap=nsmap('rdf'))
@@ -320,7 +357,7 @@ def metadata_to_xmp_packet(mi):
     d.text = isoformat(now(), as_utc=False)
     xmp.append(d)
 
-    calibre = rdf.makeelement(expand('rdf:Description'), nsmap=nsmap('calibre'))
+    calibre = rdf.makeelement(expand('rdf:Description'), nsmap=nsmap('calibre', 'calibreSI'))
     calibre.set(expand('rdf:about'), '')
     rdf.append(calibre)
     if not mi.is_null('rating'):
@@ -329,7 +366,9 @@ def metadata_to_xmp_packet(mi):
         except (TypeError, ValueError):
             pass
         else:
-            create_simple_property(calibre, 'calibre:rating', '%.3g' % r)
+            create_simple_property(calibre, 'calibre:rating', '%g' % r)
+    if not mi.is_null('series'):
+        create_series(calibre, mi.series, mi.series_index)
     return serialize_xmp_packet(root)
 
 def find_used_namespaces(elem):
