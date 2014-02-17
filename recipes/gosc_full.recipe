@@ -10,9 +10,9 @@ import re
 from lxml import html
 
 class GN(BasicNewsRecipe):
-
     __author__ = 'Piotr Kontek, Tomasz Długosz'
     title = u'Gość Niedzielny - pełny numer'
+    publisher = 'Wydawnictwo Kurii Metropolitalnej w Katowicach'
     description = 'Ogólnopolski tygodnik katolicki - pełny numer sprzed 4 tygodni'
     encoding = 'utf-8'
     no_stylesheets = True
@@ -28,7 +28,7 @@ class GN(BasicNewsRecipe):
 
     def parse_index(self):
         soup = self.index_to_soup('http://gosc.pl' + self.find_last_issue())
-        #self.masthead = 'http://www.gosc.pl' + soup.find('div',attrs={'class':'fl-w100 release-wp'}).findAll('a')[-4].contents[0]['src']
+        self.cover_url = 'http://www.gosc.pl' + soup.find('div',attrs={'class':'fl-w100 release-wp'}).findAll('a')[-4].contents[0]['src']
         feeds = []
         # wstepniak
         a = soup.find('div',attrs={'class':'release-wp-b'}).find('a')
@@ -74,6 +74,10 @@ class GN(BasicNewsRecipe):
     def postprocess_html(self, soup, first_fetch):
         for r in soup.findAll(attrs={'class':'pgr'}):
             r.extract()
+        for r in soup.findAll(attrs={'class':['di_dr', 'doc_image']}):
+            del r['style']
+        for r in soup.findAll(attrs={'class':'cm-i-a'}):
+            r.replaceWith( r.prettify() + '<div style="clear:both"></div>')
         return soup
 
     keep_only_tags = [
@@ -81,7 +85,7 @@ class GN(BasicNewsRecipe):
     ]
 
     remove_tags = [
-        dict(name='p', attrs={'class':['r tr', 'l l-2', 'wykop']}),
+        dict(name='p', attrs={'class':['r tr', 'l l-2', 'wykop', 'tags']}),
         dict(name='div', attrs={'class':['doc_actions', 'cf', 'fr1_cl']}),
         dict(name='div', attrs={'id':'vote'}),
         dict(name='a', attrs={'class':'img_enlarge'})
@@ -90,6 +94,6 @@ class GN(BasicNewsRecipe):
     extra_css = '''
             h1 {font-size:150%}
             p.limiter {font-size:150%; font-weight: bold}
-            span.cm-i-a {text-transform:uppercase;}
-            span.cm-i-p {font-style:italic; font-size:70%}
+            span.cm-i-a {text-transform:uppercase;font-size:50%}
+            span.cm-i-p {font-style:italic; font-size:70%;text-align:right}
         '''
