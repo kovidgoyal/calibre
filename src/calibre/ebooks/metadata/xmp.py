@@ -180,7 +180,16 @@ def metadata_from_xmp_packet(raw_bytes):
     else:
         mi.pubdate = pubdate
     bkp = first_simple('//xmp:CreatorTool', root)
-    mi.book_producer = bkp
+    if bkp:
+        mi.book_producer = bkp
+    rating = first_simple('//calibre:rating', root)
+    if rating is not None:
+        try:
+            rating = float(rating)
+            if 0 <= rating <= 10:
+                mi.rating = rating
+        except (ValueError, TypeError):
+            pass
 
     identifiers = {}
     for xmpid in XPath('//xmp:Identifier')(root):
@@ -311,6 +320,16 @@ def metadata_to_xmp_packet(mi):
     d.text = isoformat(now(), as_utc=False)
     xmp.append(d)
 
+    calibre = rdf.makeelement(expand('rdf:Description'), nsmap=nsmap('calibre'))
+    calibre.set(expand('rdf:about'), '')
+    rdf.append(calibre)
+    if not mi.is_null('rating'):
+        try:
+            r = float(mi.rating)
+        except (TypeError, ValueError):
+            pass
+        else:
+            create_simple_property(calibre, 'calibre:rating', '%.3g' % r)
     return serialize_xmp_packet(root)
 
 def find_used_namespaces(elem):
@@ -371,8 +390,9 @@ def merge_xmp_packet(old, new):
     # old packet
     defined_tags = {expand(prefix + ':' + scheme) for prefix in ('prism', 'pdfx') for scheme in KNOWN_ID_SCHEMES}
     defined_tags |= {x.tag for x in item_xpath(new)} | {expand('dc:identifier')}
+    calibrens = '{%s}' % NS_MAP['calibre']
     for elem in item_xpath(old):
-        if elem.tag in defined_tags:
+        if elem.tag in defined_tags or (elem.tag and elem.tag.startswith(calibrens)):
             elem.getparent().remove(elem)
 
     # Group all items into groups based on their namespaces
