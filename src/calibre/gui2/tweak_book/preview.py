@@ -281,7 +281,7 @@ def find_le(a, x):
 class WebPage(QWebPage):
 
     sync_requested = pyqtSignal(object, object, object)
-    split_requested = pyqtSignal(object)
+    split_requested = pyqtSignal(object, object)
 
     def __init__(self, parent):
         QWebPage.__init__(self, parent)
@@ -330,14 +330,14 @@ class WebPage(QWebPage):
         self.mainFrame().evaluateJavaScript('window.calibre_preview_integration.go_to_anchor(%s, %s)' % (
             json.dumps(anchor), json.dumps(str(lnum))))
 
-    @pyqtSlot(str)
-    def request_split(self, loc):
+    @pyqtSlot(str, str)
+    def request_split(self, loc, totals):
         actions['split-in-preview'].setChecked(False)
-        loc = json.loads(unicode(loc))
-        if not loc:
+        loc, totals = json.loads(unicode(loc)), json.loads(unicode(totals))
+        if not loc or not totals:
             return error_dialog(self.view(), _('Invalid location'),
                                 _('Cannot split on the body tag'), show=True)
-        self.split_requested.emit(loc)
+        self.split_requested.emit(loc, totals)
 
     @property
     def line_numbers(self):
@@ -423,7 +423,7 @@ class WebView(QWebView):
 class Preview(QWidget):
 
     sync_requested = pyqtSignal(object, object)
-    split_requested = pyqtSignal(object, object)
+    split_requested = pyqtSignal(object, object, object)
     split_start_requested = pyqtSignal()
     link_clicked = pyqtSignal(object, object)
 
@@ -508,9 +508,9 @@ class Preview(QWidget):
                     return self.link_clicked.emit(name, urlparse(href).fragment or TOP)
             self.sync_requested.emit(self.current_name, lnum)
 
-    def request_split(self, loc):
+    def request_split(self, loc, totals):
         if self.current_name:
-            self.split_requested.emit(self.current_name, loc)
+            self.split_requested.emit(self.current_name, loc, totals)
 
     def sync_to_editor(self, name, lnum):
         self.current_sync_request = (name, lnum)

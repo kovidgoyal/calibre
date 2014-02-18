@@ -9,7 +9,7 @@ __docformat__ = 'restructuredtext en'
 
 import re
 from urlparse import urlparse
-from collections import deque, Counter, OrderedDict
+from collections import Counter, OrderedDict
 from functools import partial
 from operator import itemgetter
 
@@ -18,6 +18,7 @@ from lxml.builder import ElementMaker
 
 from calibre import __version__
 from calibre.ebooks.oeb.base import XPath, uuid_id, xml2text, NCX, NCX_NS, XML, XHTML, XHTML_NS, serialize
+from calibre.ebooks.oeb.polish.errors import MalformedMarkup
 from calibre.ebooks.oeb.polish.utils import guess_type
 from calibre.ebooks.oeb.polish.pretty import pretty_html_tree
 from calibre.utils.localization import get_lang, canonicalize_lang, lang_as_iso639_1
@@ -349,14 +350,13 @@ def from_files(container):
         toc.add(text, name)
     return toc
 
-def node_from_loc(root, loc):
-    body = root.xpath('//*[local-name()="body"]')[0]
-    locs = deque(loc)
-    node = body
-    while locs:
+def node_from_loc(root, locs, totals=None):
+    node = root.xpath('//*[local-name()="body"]')[0]
+    for i, loc in enumerate(locs):
         children = tuple(node.iterchildren(etree.Element))
+        if totals is not None and totals[i] != len(children):
+            raise MalformedMarkup()
         node = children[locs[0]]
-        locs.popleft()
     return node
 
 def add_id(container, name, loc):

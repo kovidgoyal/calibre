@@ -16,3 +16,5 @@ class DRMError(_DRMError):
     def __init__(self):
         super(DRMError, self).__init__(_('This file is locked with DRM. It cannot be edited.'))
 
+class MalformedMarkup(ValueError):
+    pass

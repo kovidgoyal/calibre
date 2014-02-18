@@ -17,12 +17,6 @@ is_hidden = (elem) ->
         elem = elem.parentNode
     return false
 
-previous_sibling = (node) ->
-    node = node.previousSibling
-    while node and node.nodeType != Node.ELEMENT_NODE
-        node = node.previousSibling
-    return node
-
 is_block = (elem) ->
     style = window.getComputedStyle(elem)
     return style.display in ['block', 'flex-box', 'box']
@@ -88,17 +82,20 @@ class PreviewIntegration
 
     report_split: (node) =>
         loc = []
+        totals = []
         parent = find_containing_block(node)
         while parent and parent.tagName.toLowerCase() != 'body'
+            totals.push(parent.parentNode.children.length)
             num = 0
-            sibling = previous_sibling(parent)
+            sibling = parent.previousElementSibling
             while sibling
                 num += 1
-                sibling = previous_sibling(sibling)
+                sibling = sibling.previousElementSibling
             loc.push(num)
             parent = parent.parentNode
         loc.reverse()
-        window.py_bridge.request_split(JSON.stringify(loc))
+        totals.reverse()
+        window.py_bridge.request_split(JSON.stringify(loc), JSON.stringify(totals))
 
     onload: () =>
         window.document.body.addEventListener('click', this.onclick, true)

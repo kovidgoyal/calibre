@@ -403,9 +403,9 @@ class Container(object):  # {{{
             data, strip_encoding_pats=True, assume_utf8=True, resolve_entities=True)
         return etree.fromstring(data, parser=RECOVER_PARSER)
 
-    def parse_xhtml(self, data, fname='<string>'):
+    def parse_xhtml(self, data, fname='<string>', force_html5_parse=False):
         if self.tweak_mode:
-            return parse_html_tweak(data, log=self.log, decoder=self.decode)
+            return parse_html_tweak(data, log=self.log, decoder=self.decode, force_html5_parse=force_html5_parse)
         else:
             try:
                 return parse_html(

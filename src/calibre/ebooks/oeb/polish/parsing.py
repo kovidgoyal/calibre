@@ -636,7 +636,7 @@ def strip_encoding_declarations(raw):
         raw = prefix + suffix
     return raw
 
-def parse(raw, decoder=None, log=None, line_numbers=True, linenumber_attribute=None, replace_entities=True):
+def parse(raw, decoder=None, log=None, line_numbers=True, linenumber_attribute=None, replace_entities=True, force_html5_parse=False):
     if isinstance(raw, bytes):
         raw = xml_to_unicode(raw)[0] if decoder is None else decoder(raw)
     if replace_entities:
@@ -653,6 +653,8 @@ def parse(raw, decoder=None, log=None, line_numbers=True, linenumber_attribute=N
         break
 
     raw = strip_encoding_declarations(raw)
+    if force_html5_parse:
+        return parse_html5(raw, log=log, line_numbers=line_numbers, linenumber_attribute=linenumber_attribute, replace_entities=False, fix_newlines=False)
     try:
         parser = XMLParser(no_network=True)
         ans = fromstring(raw, parser=parser)

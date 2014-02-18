@@ -11,6 +11,7 @@ from future_builtins import map
 from urlparse import urlparse
 
 from calibre.ebooks.oeb.base import barename, XPNSMAP, XPath, OPF, XHTML, OEB_DOCS
+from calibre.ebooks.oeb.polish.errors import MalformedMarkup
 from calibre.ebooks.oeb.polish.toc import node_from_loc
 from calibre.ebooks.oeb.polish.replace import LinkRebaser
 
@@ -162,14 +163,28 @@ class SplitLinkReplacer(object):
             self.replaced = True
         return url
 
-def split(container, name, loc_or_xpath, before=True):
+def split(container, name, loc_or_xpath, before=True, totals=None):
     ''' Split the file specified by name at the position specified by loc_or_xpath. '''
 
     root = container.parsed(name)
     if isinstance(loc_or_xpath, type('')):
         split_point = root.xpath(loc_or_xpath)[0]
     else:
-        split_point = node_from_loc(root, loc_or_xpath)
+        try:
+            split_point = node_from_loc(root, loc_or_xpath, totals=totals)
+        except MalformedMarkup:
+            # The webkit HTML parser and the container parser have yielded
+            # different node counts, this can happen if the file is valid XML
+            # but contains constructs like nested <p> tags. So force parse it
+            # with the HTML 5 parser and try again.
+            raw = container.raw_data(name)
+            root = container.parse_xhtml(raw, fname=name, force_html5_parse=True)
+            try:
+                split_point = node_from_loc(root, loc_or_xpath, totals=totals)
+            except MalformedMarkup:
+                raise MalformedMarkup(_('The file %s has malformed markup. Try running the Fix HTML tool'
+                                        ' before splitting') % name)
+            container.replace(name, root)
     if in_table(split_point):
         raise AbortError('Cannot split inside tables')
     if split_point.tag.endswith('}body'):

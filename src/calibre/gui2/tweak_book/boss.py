@@ -902,10 +902,10 @@ class Boss(QObject):
         self.gui.preview.do_start_split()
 
     @in_thread_job
-    def split_requested(self, name, loc):
+    def split_requested(self, name, loc, totals):
         self.add_savepoint(_('Before: Split %s') % self.gui.elided_text(name))
         try:
-            bottom_name = split(current_container(), name, loc)
+            bottom_name = split(current_container(), name, loc, totals=totals)
         except AbortError:
             self.rewind_savepoint()
             raise
