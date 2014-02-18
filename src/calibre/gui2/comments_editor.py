@@ -343,6 +343,10 @@ class EditorWidget(QWebView):  # {{{
                 if not check and '<img' not in raw.lower():
                     return ans
 
+                # Bypass cleanup if special meta tag exists
+                if '<meta name="calibre-dont-sanitize">' in raw.lower():
+                    return unicode(self.page().mainFrame().toHtml())
+
                 try:
                     root = html.fromstring(raw)
                 except:
