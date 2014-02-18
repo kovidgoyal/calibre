@@ -110,9 +110,9 @@ def _get_metadata(stream, stream_type, use_libprs_metadata,
         # Assume that there was no metadata in the file and the user set pattern
         # to match meta info from the file name did not match.
         # The regex is meant to match the standard format filenames are written
-        # in: title_-_author_number.extension
+        # in the library title - author.extension
         base.smart_update(metadata_from_filename(name, re.compile(
-                    r'^(?P<title>[ \S]+?)[ _]-[ _](?P<author>[ \S]+?)_+\d+')))
+            r'^(?P<title>.+)[ _]-[ _](?P<author>[^-]+)$')))
         if base.title:
             base.title = base.title.replace('_', ' ')
         if base.authors:
