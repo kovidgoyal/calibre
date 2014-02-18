@@ -335,6 +335,9 @@ class EditorWidget(QWebView):  # {{{
         def fget(self):
             ans = u''
             try:
+                if not self.page().mainFrame().documentElement().findFirst('meta[name="calibre-dont-sanitize"]').isNull():
+                    # Bypass cleanup if special meta tag exists
+                    return unicode(self.page().mainFrame().toHtml())
                 check = unicode(self.page().mainFrame().toPlainText()).strip()
                 raw = unicode(self.page().mainFrame().toHtml())
                 raw = xml_to_unicode(raw, strip_encoding_pats=True,
