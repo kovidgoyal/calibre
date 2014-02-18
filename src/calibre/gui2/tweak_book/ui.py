@@ -16,7 +16,7 @@ from PyQt4.Qt import (
     QVBoxLayout, QStackedWidget, QTabWidget, QImage, QPixmap, pyqtSignal,
     QMenu, QHBoxLayout, QTimer, QUrl)
 
-from calibre.constants import __appname__, get_version
+from calibre.constants import __appname__, get_version, isosx
 from calibre.gui2 import elided_text, open_url
 from calibre.gui2.keyboard import Manager as KeyboardManager
 from calibre.gui2.main_window import MainWindow
@@ -287,9 +287,11 @@ class Main(MainWindow):
                                    'new-file', (), _('Create a new file in the current book'))
         self.action_import_files = reg(None, _('&Import files into book'), self.boss.add_files, 'new-files', (), _('Import files into book'))
         self.action_open_book = reg('document_open.png', _('Open &book'), self.boss.open_book, 'open-book', 'Ctrl+O', _('Open a new book'))
-        self.action_global_undo = reg('back.png', _('&Revert to before'), self.boss.do_global_undo, 'global-undo', 'Ctrl+Left',
+        # Qt does not generate shortcut overrides for cmd+arrow on os x which
+        # means these shortcuts interfere with editing
+        self.action_global_undo = reg('back.png', _('&Revert to before'), self.boss.do_global_undo, 'global-undo', () if isosx else 'Ctrl+Left',
                                       _('Revert book to before the last action (Undo)'))
-        self.action_global_redo = reg('forward.png', _('&Revert to after'), self.boss.do_global_redo, 'global-redo', 'Ctrl+Right',
+        self.action_global_redo = reg('forward.png', _('&Revert to after'), self.boss.do_global_redo, 'global-redo', () if isosx else 'Ctrl+Right',
                                       _('Revert book state to after the next action (Redo)'))
         self.action_save = reg('save.png', _('&Save'), self.boss.save_book, 'save-book', 'Ctrl+S', _('Save book'))
         self.action_save.setEnabled(False)
