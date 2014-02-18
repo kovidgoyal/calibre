@@ -88,6 +88,7 @@ class GN(BasicNewsRecipe):
         dict(name='p', attrs={'class':['r tr', 'l l-2', 'wykop', 'tags']}),
         dict(name='div', attrs={'class':['doc_actions', 'cf', 'fr1_cl']}),
         dict(name='div', attrs={'id':'vote'}),
+        dict(name='link'),
         dict(name='a', attrs={'class':'img_enlarge'})
     ]
 
