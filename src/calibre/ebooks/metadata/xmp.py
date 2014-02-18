@@ -226,6 +226,12 @@ def metadata_from_xmp_packet(raw_bytes):
     bkp = first_simple('//xmp:CreatorTool', root)
     if bkp:
         mi.book_producer = bkp
+    md = first_simple('//xmp:MetadataDate', root)
+    if md:
+        try:
+            mi.metadata_date = parse_date(md)
+        except:
+            pass
     rating = first_simple('//calibre:rating', root)
     if rating is not None:
         try:
@@ -289,15 +295,33 @@ def metadata_from_xmp_packet(raw_bytes):
 
     return mi
 
-def consolidate_metadata(info_mi, xmp_packet):
-    ' When both the PDF Info dict and XMP metadata are present, prefer the xmp metadata '
+def consolidate_metadata(info_mi, info):
+    ''' When both the PDF Info dict and XMP metadata are present, prefer the xmp
+    metadata unless the Info ModDate is never than the XMP MetadataDate. This
+    is the algorithm recommended by the PDF spec. '''
     try:
-        xmp_mi = metadata_from_xmp_packet(xmp_packet)
+        xmp_mi = metadata_from_xmp_packet(info['xmp_metadata'])
     except:
         import traceback
         traceback.print_exc()
+        return info_mi
+    info_title, info_authors, info_tags = info_mi.title or _('Unknown'), list(info_mi.authors or ()), list(info_mi.tags or ())
+    info_mi.smart_update(xmp_mi, replace_metadata=True)
+    prefer_info = False
+    if 'ModDate' in info and hasattr(xmp_mi, 'metadata_date'):
+        try:
+            info_date = parse_date(info['ModDate'])
+        except:
+            pass
+        else:
+            prefer_info = info_date > xmp_mi.metadata_date
+    if prefer_info:
+        info_mi.title, info_mi.authors, info_mi.tags = info_title, info_authors, info_tags
     else:
-        info_mi.smart_update(xmp_mi, replace_metadata=True)
+        # We'll use the xmp tags/authors but fallback to the info ones if the
+        # xmp does not have tags/authors. smart_update() should have taken care of
+        # the rest
+        info_mi.authors, info_mi.tags = xmp_mi.authors or info_mi.authors, xmp_mi.tags or info_mi.tags
     return info_mi
 
 def nsmap(*args):

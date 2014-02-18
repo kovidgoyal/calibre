@@ -134,7 +134,7 @@ def get_metadata(stream, cover=True):
 
     if 'xmp_metadata' in info:
         from calibre.ebooks.metadata.xmp import consolidate_metadata
-        mi = consolidate_metadata(mi, info['xmp_metadata'])
+        mi = consolidate_metadata(mi, info)
 
     # Look for recognizable identifiers in the info dict, if they were not
     # found in the XMP metadata
