@@ -167,6 +167,10 @@ class GlobalUndoHistory(QAbstractListModel):
             return ''
         return self.states[self.pos + 1].message or _('[Unnamed state]')
 
+    def update_path_to_ebook(self, path):
+        for state in self.states:
+            state.container.path_to_ebook = path
+
 class SpacedDelegate(QStyledItemDelegate):
 
     def sizeHint(self, *args):

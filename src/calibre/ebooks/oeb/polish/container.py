@@ -985,9 +985,13 @@ class EpubContainer(Container):
             f.write(guess_type('a.epub'))
         zip_rebuilder(self.root, outpath)
 
-    @property
+    @dynamic_property
     def path_to_ebook(self):
-        return self.pathtoepub
+        def fget(self):
+            return self.pathtoepub
+        def fset(self, val):
+            self.pathtoepub = val
+        return property(fget=fget, fset=fset)
 
 # }}}
 
@@ -1097,9 +1101,13 @@ class AZW3Container(Container):
             outpath = self.pathtoazw3
         opf_to_azw3(self.name_path_map[self.opf_name], outpath, self.log)
 
-    @property
+    @dynamic_property
     def path_to_ebook(self):
-        return self.pathtoazw3
+        def fget(self):
+            return self.pathtoazw3
+        def fset(self, val):
+            self.pathtoazw3 = val
+        return property(fget=fget, fset=fset)
 
     @property
     def names_that_must_not_be_changed(self):

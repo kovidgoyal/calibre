@@ -40,6 +40,14 @@ def send_message(msg=''):
             t.conn.send('bookedited:'+msg)
             t.conn.close()
 
+def find_first_existing_ancestor(path):
+    while path and not os.path.exists(path):
+        npath = os.path.dirname(path)
+        if npath == path:
+            break
+        path = npath
+    return path
+
 class SaveWidget(QWidget):
 
     def __init__(self, parent=None):

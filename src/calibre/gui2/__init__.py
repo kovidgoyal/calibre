@@ -722,7 +722,7 @@ def choose_files(window, name, title,
         return fd.get_files()
     return None
 
-def choose_save_file(window, name, title, filters=[], all_files=True):
+def choose_save_file(window, name, title, filters=[], all_files=True, initial_dir=None):
     '''
     Ask user to choose a file to save to. Can be a non-existent file.
     :param filters: list of allowable extensions. Each element of the list
@@ -731,9 +731,12 @@ def choose_save_file(window, name, title, filters=[], all_files=True):
                      of extensions.
     :param all_files: If True add All files to filters.
     '''
-    mode = QFileDialog.AnyFile
-    fd = FileDialog(title=title, name=name, filters=filters,
-                    parent=window, add_all_files_filter=all_files, mode=mode)
+    kwargs = dict(title=title, name=name, filters=filters,
+                    parent=window, add_all_files_filter=all_files, mode=QFileDialog.AnyFile)
+    if initial_dir is not None:
+        kwargs['no_save_dir'] = True
+        kwargs['default_dir'] = initial_dir
+    fd = FileDialog(**kwargs)
     fd.setParent(None)
     ans = None
     if fd.accepted:

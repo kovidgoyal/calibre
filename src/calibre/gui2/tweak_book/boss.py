@@ -31,7 +31,7 @@ from calibre.gui2.dialogs.message_box import MessageBox
 from calibre.gui2.tweak_book import set_current_container, current_container, tprefs, actions, editors
 from calibre.gui2.tweak_book.undo import GlobalUndoHistory
 from calibre.gui2.tweak_book.file_list import NewFileDialog
-from calibre.gui2.tweak_book.save import SaveManager, save_container
+from calibre.gui2.tweak_book.save import SaveManager, save_container, find_first_existing_ancestor
 from calibre.gui2.tweak_book.preview import parse_worker, font_cache
 from calibre.gui2.tweak_book.toc import TOCEditor
 from calibre.gui2.tweak_book.editor import editor_from_syntax, syntax_from_mime
@@ -829,6 +829,22 @@ class Boss(QObject):
             if ed.is_modified or not ed.is_synced_to_container:
                 self.commit_editor_to_container(name, c)
                 ed.is_modified = False
+        destdir = os.path.dirname(c.path_to_ebook)
+        if not os.path.exists(destdir):
+            info_dialog(self.gui, _('Path does not exist'), _(
+                'The file you are editing (%s) no longer exists. You have to choose a new save location.') % c.path_to_ebook,
+                        show_copy_button=False, show=True)
+            fmt = c.path_to_ebook.rpartition('.')[-1].lower()
+            start_dir = find_first_existing_ancestor(c.path_to_ebook)
+            path = choose_save_file(self.gui, 'choose-new-save-location', _('Choose file location'), initial_dir=start_dir,
+                                    filters=[(fmt.upper(), (fmt,))], all_files=False)
+            if path is not None:
+                if not path.lower().endswith('.' + fmt):
+                    path = path + '.' + fmt
+                c.path_to_ebook = path
+                self.global_undo.update_path_to_ebook(path)
+            else:
+                return
         self.gui.action_save.setEnabled(False)
         tdir = self.mkdtemp(prefix='save-')
         container = clone_container(c, tdir)
@@ -868,7 +884,8 @@ class Boss(QObject):
             return
         error_dialog(self.gui, _('Could not save'),
                      _('Saving of the book failed. Click "Show Details"'
-                       ' for more information.'), det_msg=tb, show=True)
+                       ' for more information. You can try to save a copy'
+                       ' to a different location, via File->Save a Copy'), det_msg=tb, show=True)
 
     def go_to_line_number(self):
         ed = self.gui.central.current_editor
