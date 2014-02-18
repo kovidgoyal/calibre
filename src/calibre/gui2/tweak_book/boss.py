@@ -829,18 +829,20 @@ class Boss(QObject):
             if ed.is_modified or not ed.is_synced_to_container:
                 self.commit_editor_to_container(name, c)
                 ed.is_modified = False
-        destdir = os.path.dirname(c.path_to_ebook)
+        path_to_ebook = os.path.abspath(c.path_to_ebook)
+        destdir = os.path.dirname(path_to_ebook)
         if not os.path.exists(destdir):
             info_dialog(self.gui, _('Path does not exist'), _(
-                'The file you are editing (%s) no longer exists. You have to choose a new save location.') % c.path_to_ebook,
+                'The file you are editing (%s) no longer exists. You have to choose a new save location.') % path_to_ebook,
                         show_copy_button=False, show=True)
-            fmt = c.path_to_ebook.rpartition('.')[-1].lower()
-            start_dir = find_first_existing_ancestor(c.path_to_ebook)
+            fmt = path_to_ebook.rpartition('.')[-1].lower()
+            start_dir = find_first_existing_ancestor(path_to_ebook)
             path = choose_save_file(self.gui, 'choose-new-save-location', _('Choose file location'), initial_dir=start_dir,
                                     filters=[(fmt.upper(), (fmt,))], all_files=False)
             if path is not None:
                 if not path.lower().endswith('.' + fmt):
                     path = path + '.' + fmt
+                path = os.path.abspath(path)
                 c.path_to_ebook = path
                 self.global_undo.update_path_to_ebook(path)
             else:
