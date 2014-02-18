@@ -209,8 +209,9 @@ def check_xml_parsing(name, mt, raw):
     except Exception as err:
         return errors + [errcls(err.message, name)]
 
-    if mt in OEB_DOCS and root.nsmap.get(root.prefix, None) != XHTML_NS:
-        errors.append(BadNamespace(name, root.nsmap.get(root.prefix, None)))
+    if mt in OEB_DOCS:
+        if root.nsmap.get(root.prefix, None) != XHTML_NS:
+            errors.append(BadNamespace(name, root.nsmap.get(root.prefix, None)))
 
     return errors
 
