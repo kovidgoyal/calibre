@@ -743,7 +743,7 @@ class TOCView(QWidget):  # {{{
 
     def update_item(self, item, where, name, frag, title):
         if isinstance(frag, tuple):
-            frag = add_id(self.ebook, name, frag)
+            frag = add_id(self.ebook, name, *frag)
         child = TOC(title, name, frag)
         child.dest_exists = True
         if item is None:

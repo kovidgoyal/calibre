@@ -359,9 +359,24 @@ def node_from_loc(root, locs, totals=None):
         node = children[locs[0]]
     return node
 
-def add_id(container, name, loc):
+def add_id(container, name, loc, totals=None):
     root = container.parsed(name)
-    node = node_from_loc(root, loc)
+    try:
+        node = node_from_loc(root, loc, totals=totals)
+    except MalformedMarkup:
+        # The webkit HTML parser and the container parser have yielded
+        # different node counts, this can happen if the file is valid XML
+        # but contains constructs like nested <p> tags. So force parse it
+        # with the HTML 5 parser and try again.
+        raw = container.raw_data(name)
+        root = container.parse_xhtml(raw, fname=name, force_html5_parse=True)
+        try:
+            node = node_from_loc(root, loc, totals=totals)
+        except MalformedMarkup:
+            raise MalformedMarkup(_('The file %s has malformed markup. Try running the Fix HTML tool'
+                                    ' before editing.') % name)
+        container.replace(name, root)
+
     node.set('id', node.get('id', uuid_id()))
     container.commit_item(name, keep_parsed=True)
     return node.get('id')

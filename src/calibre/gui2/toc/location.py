@@ -7,6 +7,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
+import json
 from base64 import b64encode
 
 from PyQt4.Qt import (QWidget, QGridLayout, QListWidget, QSize, Qt, QUrl,
@@ -20,7 +21,7 @@ from calibre.utils.logging import default_log
 
 class Page(QWebPage):  # {{{
 
-    elem_clicked = pyqtSignal(object, object, object, object)
+    elem_clicked = pyqtSignal(object, object, object, object, object)
 
     def __init__(self):
         self.log = default_log
@@ -42,21 +43,11 @@ class Page(QWebPage):  # {{{
     def shouldInterruptJavaScript(self):
         return True
 
-    @pyqtSlot(QWebElement, float)
-    def onclick(self, elem, frac):
+    @pyqtSlot(QWebElement, str, str, float)
+    def onclick(self, elem, loc, totals, frac):
         elem_id = unicode(elem.attribute('id')) or None
         tag = unicode(elem.tagName()).lower()
-        parent = elem
-        loc = []
-        while unicode(parent.tagName()).lower() != 'body':
-            num = 0
-            sibling = parent.previousSibling()
-            while not sibling.isNull():
-                num += 1
-                sibling = sibling.previousSibling()
-            loc.insert(0, num)
-            parent = parent.parent()
-        self.elem_clicked.emit(tag, frac, elem_id, tuple(loc))
+        self.elem_clicked.emit(tag, frac, elem_id, json.loads(str(loc)), json.loads(str(totals)))
 
     def load_js(self):
         if self.js is None:
@@ -69,7 +60,7 @@ class Page(QWebPage):  # {{{
 
 class WebView(QWebView):  # {{{
 
-    elem_clicked = pyqtSignal(object, object, object, object)
+    elem_clicked = pyqtSignal(object, object, object, object, object)
 
     def __init__(self, parent):
         QWebView.__init__(self, parent)
@@ -294,8 +285,8 @@ class ItemEdit(QWidget):
             loctext =  _('Approximately %d%% from the top')%frac
         return loctext
 
-    def elem_clicked(self, tag, frac, elem_id, loc):
-        self.current_frag = elem_id or loc
+    def elem_clicked(self, tag, frac, elem_id, loc, totals):
+        self.current_frag = elem_id or (loc, totals)
         base = _('Location: A &lt;%s&gt; tag inside the file')%tag
         loctext = base + ' [%s]'%self.get_loctext(frac)
         self.dest_label.setText(self.base_msg + '<br>' +

@@ -32,7 +32,22 @@ class AnchorLocator
         # block, if any.
         event.stopPropagation()
         frac = window.pageYOffset/document.body.scrollHeight
-        window.py_bridge.onclick(this, frac)
+        loc = []
+        totals = []
+        parent = this
+        while parent and parent.tagName.toLowerCase() != 'body'
+            totals.push(parent.parentNode.children.length)
+            num = 0
+            sibling = parent.previousElementSibling
+            while sibling
+                num += 1
+                sibling = sibling.previousElementSibling
+            loc.push(num)
+            parent = parent.parentNode
+        loc.reverse()
+        totals.reverse()
+
+        window.py_bridge.onclick(this, JSON.stringify(loc), JSON.stringify(totals), frac)
         return false
 
 calibre_anchor_locator = new AnchorLocator()
