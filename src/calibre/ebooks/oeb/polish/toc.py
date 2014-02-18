@@ -356,7 +356,7 @@ def node_from_loc(root, locs, totals=None):
         children = tuple(node.iterchildren(etree.Element))
         if totals is not None and totals[i] != len(children):
             raise MalformedMarkup()
-        node = children[locs[0]]
+        node = children[loc]
     return node
 
 def add_id(container, name, loc, totals=None):
