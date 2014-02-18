@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import (unicode_literals, division, absolute_import, print_function)
-store_version = 2 # Needed for dynamic plugin loading
+store_version = 3 # Needed for dynamic plugin loading
 
 __license__ = 'GPL 3'
 __copyright__ = '2012-2014, Tomasz Długosz <tomek3d@gmail.com>'
@@ -63,7 +63,7 @@ class WolneLekturyStore(BasicStoreConfig, StorePlugin):
                 counter -= 1
 
                 s = SearchResult()
-                for link in data.xpath('.//div[@class="book-box-formats mono"]/span/a'):
+                for link in data.xpath('.//div[@class="book-box-formats"]/span/a'):
                     ext = ''.join(link.xpath('./text()'))
                     href = 'http://wolnelektury.pl' + link.get('href')
                     s.downloads[ext] = href
