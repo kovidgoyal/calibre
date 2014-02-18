@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import (unicode_literals, division, absolute_import, print_function)
-store_version = 1 # Needed for dynamic plugin loading
+store_version = 2 # Needed for dynamic plugin loading
 
 __license__ = 'GPL 3'
 __copyright__ = '2011, John Schember <john@nachtimwald.com>'
@@ -41,27 +41,26 @@ class MillsBoonUKStore(BasicStoreConfig, StorePlugin):
             d.exec_()
 
     def search(self, query, max_results=10, timeout=60):
-        base_url = 'http://millsandboon.co.uk'
-        url = base_url + '/pages/searchres.htm?search=true&booktypesearch=ebook&first=yes&inputsearch=' + urllib2.quote(query)
+        base_url = 'http://www.millsandboon.co.uk'
+        url = base_url + '/search?format=ebook&q=' + urllib2.quote(query)
+        #print(url)
         br = browser()
 
         counter = max_results
         with closing(br.open(url, timeout=timeout)) as f:
             doc = html.fromstring(f.read())
-            for data in doc.xpath('//div[@class="catProdDiv"]'):
+            for data in doc.xpath('//article[contains(@class, "group")]'):
                 if counter <= 0:
                     break
-                id_ = ''.join(data.xpath('.//div[@class="catProdImage"]/div/a/@href')).strip()
-                id_ = base_url + id_[2:]
+                id_ = ''.join(data.xpath('.//div[@class="img-wrapper"]/a/@href')).strip()
+                id_ = base_url + id_
                 if not id_:
                     continue
 
-                cover_url = ''.join(data.xpath('.//div[@class="catProdImage"]/div/a/img/@src'))
-                cover_url = base_url + cover_url[2:]
-                title =  ''.join(data.xpath('.//div[@class="catProdImage"]/div/a/img/@alt')).strip()
-                title = title[23:]
-                author = ''.join(data.xpath('.//div[@class="catProdDetails"]/div[@class="catProdDetails-top"]/p[1]/a/text()'))
-                price = ''.join(data.xpath('.//span[@class="priceBold"]/text()'))
+                cover_url = ''.join(data.xpath('.//div[@class="img-wrapper"]/a/img/@src'))
+                title =  ''.join(data.xpath('.//div[@class="img-wrapper"]/a/img/@alt')).strip()
+                author = ''.join(data.xpath('.//a[@class="author"]/text()'))
+                price = ''.join(data.xpath('.//li[@class="productAttribute" and child::span[text()="eBook"]]/input/@value'))
                 format_ = ''.join(data.xpath('.//p[@class="doc-meta-format"]/span[last()]/text()'))
                 drm = SearchResult.DRM_LOCKED
 

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import (unicode_literals, division, absolute_import, print_function)
-store_version = 4 # Needed for dynamic plugin loading
+store_version = 5 # Needed for dynamic plugin loading
 
 __license__ = 'GPL 3'
 __copyright__ = '2011, John Schember <john@nachtimwald.com>'
@@ -66,7 +66,7 @@ class AmazonESKindleStore(StorePlugin):
                         './/ul[contains(@class, "rsltGridList")]'
                         '//span[contains(@class, "lrg") and not(contains(@class, "bld"))]/text()')
                 asin_xpath = '@name'
-                cover_xpath = './/img[@class="productImage"]/@src'
+                cover_xpath = './/img[contains(@class, "productImage")]/@src'
                 title_xpath = './/h3[@class="newaps"]/a//text()'
                 author_xpath = './/h3[@class="newaps"]//span[contains(@class, "reg")]//text()'
                 price_xpath = (

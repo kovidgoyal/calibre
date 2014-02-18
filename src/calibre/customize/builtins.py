@@ -1475,16 +1475,6 @@ class StoreFeedbooksStore(StoreBase):
     headquarters = 'FR'
     formats = ['EPUB', 'MOBI', 'PDF']
 
-class StoreFoylesUKStore(StoreBase):
-    name = 'Foyles UK'
-    author = 'Charles Haley'
-    description = u'Foyles of London\'s ebook store. Provides extensive range covering all subjects.'
-    actual_plugin = 'calibre.gui2.store.stores.foyles_uk_plugin:FoylesUKStore'
-
-    headquarters = 'UK'
-    formats = ['EPUB', 'PDF']
-    affiliate = True
-
 class StoreGoogleBooksStore(StoreBase):
     name = 'Google Books'
     description = u'Google Books'
@@ -1748,7 +1738,6 @@ plugins += [
     StoreEKnigiStore,
     StoreEmpikStore,
     StoreFeedbooksStore,
-    StoreFoylesUKStore,
     StoreGoogleBooksStore,
     StoreGutenbergStore,
     StoreKoboStore,
