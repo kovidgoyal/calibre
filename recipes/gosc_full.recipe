@@ -24,7 +24,10 @@ class GN(BasicNewsRecipe):
         doc = html.fromstring(raw)
         page = doc.xpath('//div[@class="c"]//div[@class="search-result"]/div[1]/div[2]/h1//a/@href')
 
-        return page[4]
+        if time.strftime("%w") in ['3','4']:
+            return page[5]
+        else:
+            return page[4]
 
     def parse_index(self):
         soup = self.index_to_soup('http://gosc.pl' + self.find_last_issue())
