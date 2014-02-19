@@ -4722,7 +4722,6 @@ class CatalogBuilder(object):
         Return:
          (list): filtered data_set
         """
-
         filtered_data_set = []
         exclusion_pairs = []
         exclusion_set = []
@@ -4773,7 +4772,8 @@ class CatalogBuilder(object):
                                 filtered_data_set.remove(record)
                             break
                         else:
-                            filtered_data_set.append(record)
+                            if record not in filtered_data_set:
+                                filtered_data_set.append(record)
                     else:
                         if (record not in filtered_data_set and
                             record not in exclusion_set):
