@@ -251,8 +251,10 @@ def create_formats(highlighter):
 class CSSHighlighter(SyntaxHighlighter):
 
     state_map = state_map
-    state_class = State
     create_formats_func = create_formats
+
+    def create_state(self, num):
+        return State(max(0, num))
 
 if __name__ == '__main__':
     from calibre.gui2.tweak_book.editor.widget import launch_editor

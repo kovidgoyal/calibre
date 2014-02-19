@@ -29,12 +29,14 @@ def run_loop(state, state_map, formats, text):
 
 class SyntaxHighlighter(QSyntaxHighlighter):
 
-    state_class = SimpleState
     state_map = {0:lambda state, text, i, formats:[(len(text), None)]}
     create_formats_func = lambda highlighter: {}
 
     def __init__(self, *args, **kwargs):
         QSyntaxHighlighter.__init__(self, *args, **kwargs)
+
+    def create_state(self, num):
+        return SimpleState(max(0, num))
 
     def rehighlight(self):
         self.outlineexplorer_data = {}
@@ -54,9 +56,7 @@ class SyntaxHighlighter(QSyntaxHighlighter):
         try:
             state = self.previousBlockState()
             self.setCurrentBlockUserData(None)  # Ensure that any stale user data is discarded
-            if state == -1:
-                state = 0
-            state = self.state_class(state)
+            state = self.create_state(state)
             state.get_user_data, state.set_user_data = self.currentBlockUserData, self.setCurrentBlockUserData
             for i, num, fmt in run_loop(state, self.state_map, self.formats, unicode(text)):
                 if fmt is not None:
