@@ -9,7 +9,7 @@ Comparing E-books
 what has changed inside an ebook after editing or converting it. It can compare
 books in the EPUB and AZW3 formats.
 
-To use it, either open the ebook file the tool for :ref:`edit` and then click
+To use it, either open the ebook in the tool for :ref:`edit` and then click
 :guilabel:`File->Compare to other book` or use the :ref:`book_details` panel.
 If you do a conversion from EPUB to EPUB, the original EPUB file will be saved
 as ORIGINAL_EPUB. Simply right click on the ORIGINAL_EPUB entry in the Book
