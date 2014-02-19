@@ -21,7 +21,7 @@ from html5lib.constants import cdataElements, rcdataElements
 cdata_tags = cdataElements | rcdataElements
 bold_tags = {'b', 'strong'} | {'h%d' % d for d in range(1, 7)}
 italic_tags = {'i', 'em'}
-normal_pat = re.compile(r'[^<>&]')
+normal_pat = re.compile(r'[^<>&]+')
 entity_pat = re.compile(r'&#{0,1}[a-zA-Z0-9]{1,8};')
 tag_name_pat = re.compile(r'/{0,1}[a-zA-Z0-9:]+')
 space_chars = ' \t\r\n\u000c'
@@ -132,6 +132,7 @@ def mark_nbsp(state, text, nbsp_format):
     last = 0
     for m in nbsp_pat.finditer(text):
         ans.extend([(m.start() - last, fmt), (m.end() - m.start(), nbsp_format)])
+        last = m.end()
     if not ans:
         ans = [(len(text), fmt)]
     return ans
