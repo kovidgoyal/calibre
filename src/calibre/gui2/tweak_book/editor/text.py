@@ -227,7 +227,7 @@ class TextEdit(PlainTextEdit):
         c.movePosition(c.NextBlock, n=lnum - 1)
         c.movePosition(c.StartOfLine)
         c.movePosition(c.EndOfLine, c.KeepAnchor)
-        text = unicode(c.selectedText().rstrip('\0'))
+        text = unicode(c.selectedText()).rstrip('\0')
         if col is None:
             c.movePosition(c.StartOfLine)
             lt = text.lstrip()
