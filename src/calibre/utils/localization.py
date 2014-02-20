@@ -180,6 +180,7 @@ _extra_lang_codes = {
         'zh_HK' : _('Chinese (HK)'),
         'zh_TW' : _('Traditional Chinese'),
         'en'    : _('English'),
+        'en_US' : _('English (United States)'),
         'en_AR' : _('English (Argentina)'),
         'en_AU' : _('English (Australia)'),
         'en_JP' : _('English (Japan)'),
