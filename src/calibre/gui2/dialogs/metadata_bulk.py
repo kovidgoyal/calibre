@@ -794,10 +794,13 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
         flags |= re.UNICODE
 
         try:
+            stext = unicode(self.search_for.text())
+            if not stext:
+                raise Exception(_('You must specify a search expression in the "Search for" field'))
             if self.search_mode.currentIndex() == 0:
-                self.s_r_obj = re.compile(re.escape(unicode(self.search_for.text())), flags)
+                self.s_r_obj = re.compile(re.escape(stext), flags)
             else:
-                self.s_r_obj = re.compile(unicode(self.search_for.text()), flags)
+                self.s_r_obj = re.compile(stext, flags)
         except Exception as e:
             self.s_r_obj = None
             self.s_r_error = e
