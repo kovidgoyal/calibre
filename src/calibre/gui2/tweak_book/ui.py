@@ -330,9 +330,9 @@ class Main(MainWindow):
                                            _('Fix HTML in the current file'))
         self.action_fix_html_all = reg('html-fix.png', _('&Fix HTML - all files'), partial(self.boss.fix_html, False), 'fix-html-all', (),
                                        _('Fix HTML in all files'))
-        self.action_pretty_current = reg('format-justify-fill.png', _('&Beautify current file'), partial(self.boss.pretty_print, True), 'pretty-current', (),
+        self.action_pretty_current = reg('beautify.png', _('&Beautify current file'), partial(self.boss.pretty_print, True), 'pretty-current', (),
                                            _('Beautify current file'))
-        self.action_pretty_all = reg('format-justify-fill.png', _('&Beautify all files'), partial(self.boss.pretty_print, False), 'pretty-all', (),
+        self.action_pretty_all = reg('beautify.png', _('&Beautify all files'), partial(self.boss.pretty_print, False), 'pretty-all', (),
                                        _('Beautify all files'))
         self.action_insert_char = reg('character-set.png', _('&Insert special character'), self.boss.insert_character, 'insert-character', (),
                                       _('Insert special character'))
