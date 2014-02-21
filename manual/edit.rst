@@ -486,7 +486,9 @@ You can insert characters that are difficult to type by using the
 :guilabel:`Edit->Insert special character` tool. This shows you all unicode
 characters, simply click on the character you want to type. If you hold Ctrl
 while clicking, the window will close itself after inserting the selected
-character.
+character. This tool can be used to insert special characters into the main
+text or into any other area of the user interface, such as the Search and
+replace tool.
 
 Because there are a lot of characters, you can define your own :guilabel:`Favorite`
 characters, that will be shown first. Simply right click on a character to mark
@@ -502,6 +504,10 @@ into the corresponding character. For example, to type ÿ you would type ff and
 then Alt+X. To type a non-breaking space you would use a0 and then
 :guilabel:`Alt+X`, to type the horizontal ellipsis you would use 2026 and
 :guilabel:`Alt+X` and so on.
+
+Finally, you can type in special characters by using HTML named entities. For
+example, typing &nbsp; will be replaced by a non breaking space when you type the
+semi-colon. The replacement happens only when typing the semi-colon.
 
 The code inspector view
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
