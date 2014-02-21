@@ -33,6 +33,7 @@ class GN(BasicNewsRecipe):
         soup = self.index_to_soup('http://gosc.pl' + self.find_last_issue())
         self.cover_url = 'http://www.gosc.pl' + soup.find('div',attrs={'class':'fl-w100 release-wp'}).findAll('a')[-4].contents[0]['src']
         feeds = []
+        enlisted = []
         # editorial:
         a = soup.find('div',attrs={'class':'release-wp-b'})
         art = a.find('a')
@@ -42,6 +43,7 @@ class GN(BasicNewsRecipe):
                      'description' : self.tag_to_string(a.find('p',attrs={'class':'b lead'}))
                     }]
         feeds.append((u'Wstępniak',articles))
+        enlisted.append(articles[0].get('url'))
         # columns:
         for addr in soup.findAll('a',attrs={'href':re.compile('kategoria')}):
             if addr.string != u'wszystkie artyku\u0142y z tej kategorii \xbb':
@@ -50,6 +52,20 @@ class GN(BasicNewsRecipe):
                 if len(articles) > 0:
                     section = addr.string
                     feeds.append((section, articles))
+                    enlisted.extend(list(article.get('url') for article in articles))
+        # not assigned content:
+        page = 1
+        not_assigned = []
+        while True:
+            soup = self.index_to_soup('http://gosc.pl' + self.find_last_issue().replace('przeglad','wszystko') + '/' + str(page))
+            articles = list(self.find_articles(soup))
+            not_assigned.extend([ x for x in articles if x.get('url') not in enlisted ])
+            page+=1
+            pages = soup.find('span', attrs={'class':'pgr_nrs'})
+            if str(page) not in [self.tag_to_string(x)[1] for x in pages.findAll('a')]:
+                break
+
+        feeds.insert(1,(u'Nieprzypisane', not_assigned))
         return feeds
 
     def find_articles(self, main_block):
