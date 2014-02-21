@@ -20,6 +20,59 @@
 #   new recipes:
 #     - title: 
 
+- version: 1.25.0
+  date: 2014-02-21
+
+  new features:
+    - title: "PDF: Add support for reading and writing extended (XMP) metadata"
+      description: "calibre can now read and write XMP metadata from PDF files. This means that all metadata that you can create in calibre, including custom columns, can be stored in the PDF files. It is also useful when importing PDF files created by some academic publishers, that sometimes have good XMP metadata, such as DOI identifiers, tags and so on."
+      type: major
+
+    - title: "Updated Quick Start guide. Available from: https://github.com/kovidgoyal/calibre/raw/master/resources/quick_start.epub"
+
+    - title: "Edit Book: Allow typing arbitrary unicode characters with the keyboard in the editor To use this feature, just type the unicode code number and press Alt+X.  For example, to get the character ÿ type ff and press Alt+X"
+      tickets: [1280868]
+
+    - title: "Edit book: Some performance improvements for the syntax highlighter that should make the editor noticeably more responsive while typing inside large HTML files."
+
+  bug fixes:
+    - title: "Edit book: Fix an error that occurs if more than 100 checkpoints are created."
+      tickets: [1282583]
+
+    - title: "Edit book: Fix splitting of HTML file occurring at the wrong location if the HTML contains invalid constructs like nested <p> tags"
+
+    - title: "Edit book: If the book being edited is deleted outside the editor, instead of showing an error message on save, ask the user to choose a new file location before saving."
+
+    - title: "Bulk metadata edit search and replace: Do not allow the user to perform the search and replace until she enters a search expression."
+      tickets: [1282357]
+
+    - title: "Conversion: When converting SVG images for formats that do not support SVG and the SVG has an invalid viewBox, ignore the viewBox instead of aborting conversion"
+
+    - title: "Conversion: Fix parsing of HTML 5 documents that are also valid XML but use non-namespaced inline svg"
+
+    - title: "Catalogs: Fix multiple exclusion rules causing entries to be duplicated."
+      tickets: [1281296]
+
+    - title: "HTML Input: Fix incorrect parsing of file names in href/src attributes that contain percent encoded non-ascii characters."
+      tickets: [1281099]
+
+    - title: "Edit book: Workaround bug in Qt causing crash on deleting bottom most file in the Files Browser on linux"
+
+    - title: "Edit book: Workaround for bug in Qt that caused extra null bytes to be appended to the end of the file when saving if the file contains non-BMP unicode characters."
+
+    - title: "Edit book: When autofixing file extensions <-> mimetype mismatch, if the file in question is in the spine, change the file extension rather than the mimetype, as that is more likely to be the correct fix."
+
+    - title: "Fix the Similar Books menu items failing to find similar books if the target book has a quote in its metadata"
+      tickets: [1280606]
+
+    - title: "Edit book: Fix regression that caused program to stop responding when quitting via File->Quit"
+
+  improved recipes:
+    - Various Polish news sources
+    - Mac World UK
+
+  new recipes:
+    - title: 
 
 - version: 1.24.0
   date: 2014-02-14
