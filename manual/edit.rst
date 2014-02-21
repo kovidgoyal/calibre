@@ -488,7 +488,7 @@ characters, simply click on the character you want to type. If you hold Ctrl
 while clicking, the window will close itself after inserting the selected
 character.
 
-Because there are a lot of characters, you can define your own "Favorites"
+Because there are a lot of characters, you can define your own :guilabel:`Favorite`
 characters, that will be shown first. Simply right click on a character to mark
 it as favorite. You can also right click on a character in favorites to remove
 it from favorites. Finally, you can re-arrange the order of characters in
