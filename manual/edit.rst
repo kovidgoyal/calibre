@@ -484,11 +484,11 @@ Inserting special characters
 
 You can insert characters that are difficult to type by using the
 :guilabel:`Edit->Insert special character` tool. This shows you all unicode
-characters, simply click in the character you want to type. If you hold Ctrl
+characters, simply click on the character you want to type. If you hold Ctrl
 while clicking, the window will close itself after inserting the selected
 character.
 
-Because there are a lot of character, you can define your own "Favorites"
+Because there are a lot of characters, you can define your own "Favorites"
 characters, that will be shown first. Simply right click on a character to mark
 it as favorite. You can also right click on a character in favorites to remove
 it from favorites. Finally, you can re-arrange the order of characters in
