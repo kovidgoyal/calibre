@@ -20,9 +20,9 @@ class GN(BasicNewsRecipe):
     remove_javascript = True
 
     def find_last_issue(self):
-        raw = self.index_to_soup('http://gosc.pl/wyszukaj/wydania/3.Gosc-Niedzielny/', raw=True)
+        raw = self.index_to_soup('http://m.gosc.pl/wyszukaj/wydania/3.Gosc-Niedzielny/', raw=True)
         doc = html.fromstring(raw)
-        page = doc.xpath('//div[@class="c"]//div[@class="search-result"]/div[1]/div[2]/h1//a/@href')
+        page = doc.xpath('//div[@class="search-result"]/div[1]/div[1]/a/@href')
 
         if time.strftime("%w") in ['3','4']:
             return page[5]
