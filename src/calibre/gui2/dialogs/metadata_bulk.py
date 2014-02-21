@@ -943,8 +943,13 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
         self.save_state()
         if len(self.ids) < 1:
             return QDialog.accept(self)
+        try:
+            source = self.s_r_sf_itemdata(None)
+        except:
+            source = ''
+        do_sr = source and self.s_r_obj
 
-        if self.s_r_error is not None:
+        if self.s_r_error is not None and do_sr:
             error_dialog(self, _('Search/replace invalid'),
                     _('Search pattern is invalid: %s')%self.s_r_error.message,
                     show=True)
@@ -1007,8 +1012,6 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
                 pubdate, adddate, do_title_sort, languages, clear_languages,
                 restore_original, self.comments)
 
-        source = self.s_r_sf_itemdata(None)
-        do_sr = source and self.s_r_obj
         self.set_field_calls = defaultdict(dict)
         bb = MyBlockingBusy(args, self.ids, self.db, self.refresh_books,
             getattr(self, 'custom_column_widgets', []),
