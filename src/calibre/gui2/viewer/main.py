@@ -5,11 +5,12 @@ import traceback, os, sys, functools, textwrap
 from functools import partial
 from threading import Thread
 
-from PyQt4.Qt import (QApplication, Qt, QIcon, QTimer, QByteArray, QSize,
-        QTime, QDoubleSpinBox, QLabel, QTextBrowser, QPropertyAnimation,
-        QPainter, QBrush, QColor, pyqtSignal, QUrl, QRegExpValidator, QRegExp,
-        QLineEdit, QToolButton, QMenu, QInputDialog, QAction,
-        QModelIndex)
+from PyQt4.Qt import (
+    QApplication, Qt, QIcon, QTimer, QByteArray, QSize, QTime, QDoubleSpinBox,
+    QLabel, QPropertyAnimation, pyqtSignal, QUrl, QRegExpValidator, QRegExp,
+    QLineEdit, QToolButton, QMenu, QInputDialog, QAction, QModelIndex, QPalette,
+    QPainter, QBrush, QColor)
+from PyQt4.QtWebKit import QWebView
 
 from calibre.gui2.viewer.main_ui import Ui_EbookViewer
 from calibre.gui2.viewer.printing import Printing
@@ -17,14 +18,13 @@ from calibre.gui2.viewer.bookmarkmanager import BookmarkManager
 from calibre.gui2.viewer.toc import TOC
 from calibre.gui2.widgets import ProgressIndicator
 from calibre.gui2.main_window import MainWindow
-from calibre.gui2 import (Application, ORG_NAME, APP_UID, choose_files,
+from calibre.gui2 import (Application, ORG_NAME, APP_UID, choose_files, rating_font,
     info_dialog, error_dialog, open_url, available_height, setup_gui_option_parser, detach_gui)
 from calibre.ebooks.oeb.iterator.book import EbookIterator
 from calibre.ebooks import DRMError
 from calibre.constants import islinux, filesystem_encoding
 from calibre.utils.config import Config, StringConfig, JSONConfig
 from calibre.gui2.search_box import SearchBox2
-from calibre.ebooks.metadata import MetaInformation
 from calibre.customize.ui import available_input_formats
 from calibre.gui2.viewer.dictionary import Lookup
 from calibre import as_unicode, force_unicode, isbytestring
@@ -102,31 +102,44 @@ class History(list):
         self.forward_pos = None
         self.set_actions()
 
-class Metadata(QLabel):
+class Metadata(QWebView):
 
     def __init__(self, parent):
-        QTextBrowser.__init__(self, parent.centralWidget())
+        QWebView.__init__(self, parent.centralWidget())
+        s = self.settings()
+        s.setAttribute(s.JavascriptEnabled, False)
+        self.page().setLinkDelegationPolicy(self.page().DelegateAllLinks)
+        self.setAttribute(Qt.WA_OpaquePaintEvent, False)
+        palette = self.palette()
+        palette.setBrush(QPalette.Base, Qt.transparent)
+        self.page().setPalette(palette)
+        self.css = P('templates/book_details.css', data=True).decode('utf-8')
+
         self.view = parent.splitter
         self.setGeometry(self.view.geometry())
-        self.setWordWrap(True)
         self.setVisible(False)
 
     def show_opf(self, opf, ext=''):
-        mi = MetaInformation(opf)
-        html = '<h2 align="center">%s</h2>%s\n<b>%s:</b> %s'\
-                %(_('Metadata'), u''.join(mi.to_html()),
-                        _('Book format'), ext.upper())
-        self.setText(html)
+        from calibre.gui2.book_details import render_html
+        from calibre.ebooks.metadata.book.render import mi_to_html
+
+        def render_data(mi, use_roman_numbers=True, all_fields=False):
+            return mi_to_html(mi, use_roman_numbers=use_roman_numbers, rating_font=rating_font())
+
+        mi = opf.to_book_metadata()
+        html = render_html(mi, self.css, True, self, render_data_func=render_data)
+        self.setHtml(html)
 
     def setVisible(self, x):
-        self.setGeometry(self.view.geometry())
-        QLabel.setVisible(self, x)
+        if x:
+            self.setGeometry(self.view.geometry())
+        QWebView.setVisible(self, x)
 
     def paintEvent(self, ev):
         p = QPainter(self)
         p.fillRect(ev.region().boundingRect(), QBrush(QColor(200, 200, 200, 220), Qt.SolidPattern))
         p.end()
-        QLabel.paintEvent(self, ev)
+        QWebView.paintEvent(self, ev)
 
 
 class DoubleSpinBox(QDoubleSpinBox):
