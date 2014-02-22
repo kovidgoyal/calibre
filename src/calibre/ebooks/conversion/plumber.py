@@ -368,7 +368,10 @@ OptionRecommendation(name='expand_css',
             help=_(
                 'By default, calibre will use the shorthand form for various'
                 ' css properties such as margin, padding, border, etc. This'
-                ' option will cause it to use the full expanded form instead.')
+                ' option will cause it to use the full expanded form instead.'
+                ' Note that CSS is always expanded when generating EPUB files'
+                ' with the output profile set to one of the Nook profiles'
+                ' as the Nook cannot handle shorthand CSS.')
         ),
 
 OptionRecommendation(name='page_breaks_before',
