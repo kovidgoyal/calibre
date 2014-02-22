@@ -125,6 +125,10 @@ class POT(Command):  # {{{
             src = pot_header + '\n' + src
             src += '\n\n' + self.get_tweaks_docs()
             pot = os.path.join(self.LP_PATH, __appname__+'.pot')
+            # Workaround for bug in xgettext:
+            # https://savannah.gnu.org/bugs/index.php?41668
+            src = re.sub(r'#, python-brace-format\s+msgid ""\s+.*<code>{0:</code>',
+                   lambda m: m.group().replace('python-brace', 'no-python-brace'), src)
             with open(pot, 'wb') as f:
                 f.write(src)
             self.info('Translations template:', os.path.abspath(pot))
