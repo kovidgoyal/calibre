@@ -3,7 +3,7 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
 ''' Post installation script for linux '''
 
-import sys, os, cPickle, textwrap, stat
+import sys, os, cPickle, textwrap, stat, errno
 from subprocess import check_call
 from functools import partial
 
@@ -75,11 +75,15 @@ class PreserveMIMEDefaults(object):
                 except:
                     pass
             elif os.path.exists(path):
-                with open(path, 'r+b') as f:
-                    if f.read() != val:
-                        f.seek(0)
-                        f.truncate()
-                        f.write(val)
+                try:
+                    with open(path, 'r+b') as f:
+                        if f.read() != val:
+                            f.seek(0)
+                            f.truncate()
+                            f.write(val)
+                except EnvironmentError as e:
+                    if e.errno != errno.EACCES:
+                        raise
 
 # Uninstall script {{{
 UNINSTALL = '''\
@@ -102,6 +106,13 @@ if os.geteuid() != euid:
 frozen_path = {frozen_path!r}
 if not frozen_path or not os.path.exists(os.path.join(frozen_path, 'resources', 'calibre-mimetypes.xml')):
     frozen_path = None
+
+for f in {mime_resources!r}:
+    cmd = ['xdg-mime', 'uninstall', f]
+    print ('Removing mime resource:', os.path.basename(f))
+    ret = subprocess.call(cmd)
+    if ret != 0:
+        print ('WARNING: Failed to remove mime resource', f)
 
 for x in tuple({manifest!r}) + tuple({appdata_resources!r}) + (os.path.abspath(__file__), __file__, frozen_path):
     if not x or not os.path.exists(x):
@@ -141,13 +152,6 @@ for f in mr:
     ret = subprocess.call(cmd)
     if ret != 0:
         print ('WARNING: Failed to remove menu item', f)
-
-for f in {mime_resources!r}:
-    cmd = ['xdg-mime', 'uninstall', f]
-    print ('Removing mime resource:', os.path.basename(f))
-    ret = subprocess.call(cmd)
-    if ret != 0:
-        print ('WARNING: Failed to remove mime resource', f)
 
 print ()
 
@@ -443,6 +447,7 @@ class PostInstall:
         print '\n'+'_'*20, 'WARNING','_'*20
         prints(*args, **kwargs)
         print '_'*50
+        print ('\n')
         self.warnings.append((args, kwargs))
         sys.stdout.flush()
 
@@ -464,20 +469,24 @@ class PostInstall:
                 os.path.join(self.opts.staging_root, 'etc')
 
         scripts = cPickle.loads(P('scripts.pickle', data=True))
+        self.manifest = manifest or []
         if getattr(sys, 'frozen_path', False):
-            self.info('Creating symlinks...')
-            for exe in scripts.keys():
-                dest = os.path.join(self.opts.staging_bindir, exe)
-                if os.path.lexists(dest):
-                    os.unlink(dest)
-                tgt = os.path.join(getattr(sys, 'frozen_path'), exe)
-                self.info('\tSymlinking %s to %s'%(tgt, dest))
-                os.symlink(tgt, dest)
+            if os.access(self.opts.staging_bindir, os.W_OK):
+                self.info('Creating symlinks...')
+                for exe in scripts.keys():
+                    dest = os.path.join(self.opts.staging_bindir, exe)
+                    if os.path.lexists(dest):
+                        os.unlink(dest)
+                    tgt = os.path.join(getattr(sys, 'frozen_path'), exe)
+                    self.info('\tSymlinking %s to %s'%(tgt, dest))
+                    os.symlink(tgt, dest)
+                    self.manifest.append(dest)
+            else:
+                self.warning(textwrap.fill(
+                    'No permission to write to %s, not creating program launch symlinks,'
+                    ' you should ensure that %s is in your PATH or create the symlinks yourself' % (
+                        self.opts.staging_bindir, getattr(sys, 'frozen_path', 'the calibre installation directory'))))
 
-        if manifest is None:
-            manifest = [os.path.abspath(os.path.join(opts.staging_bindir, x)) for x in
-                scripts.keys()]
-        self.manifest = manifest
         self.icon_resources = []
         self.menu_resources = []
         self.mime_resources = []
@@ -500,13 +509,16 @@ class PostInstall:
                     os.rmdir(config_dir)
 
         if warn is None and self.warnings:
-            self.info('There were %d warnings'%len(self.warnings))
+            self.info('\n\nThere were %d warnings\n'%len(self.warnings))
             for args, kwargs in self.warnings:
                 self.info('*', *args, **kwargs)
                 print
 
     def create_uninstaller(self):
-        dest = os.path.join(self.opts.staging_bindir, 'calibre-uninstall')
+        base = self.opts.staging_bindir
+        if not os.access(base, os.W_OK) and getattr(sys, 'frozen_path', False):
+            base = sys.frozen_path
+        dest = os.path.join(base, 'calibre-uninstall')
         self.info('Creating un-installer:', dest)
         raw = UNINSTALL.format(
             python='/usr/bin/python', euid=os.geteuid(),
@@ -554,10 +566,11 @@ class PostInstall:
                     f = os.path.join(self.opts.staging_etc, 'bash_completion.d/calibre')
             if not os.path.exists(os.path.dirname(f)):
                 os.makedirs(os.path.dirname(f))
+            bash_comp_dest, zsh_comp_dest = f, None
             if zsh.dest:
                 self.info('Installing zsh completion to:', zsh.dest)
                 self.manifest.append(zsh.dest)
-            self.manifest.append(f)
+                zsh_comp_dest = zsh.dest
             complete = 'calibre-complete'
             if getattr(sys, 'frozen_path', None):
                 complete = os.path.join(getattr(sys, 'frozen_path'), complete)
@@ -669,11 +682,15 @@ class PostInstall:
                 complete -o nospace -C %s ebook-convert
                 ''')%complete)
             zsh.write()
+            self.manifest.extend((bash_comp_dest, zsh_comp_dest))
         except TypeError as err:
             if 'resolve_entities' in str(err):
                 print 'You need python-lxml >= 2.0.5 for calibre'
                 sys.exit(1)
             raise
+        except EnvironmentError as e:
+            if e.errno == errno.EACCES:
+                self.warning('Failed to setup completion, permission denied')
         except:
             if self.opts.fatal_errors:
                 raise
@@ -755,9 +772,9 @@ class PostInstall:
                     try:
                         os.mkdir(appdata)
                     except:
-                        prints('Failed to create %s not installing appdata files' % appdata)
+                        self.warning('Failed to create %s not installing appdata files' % appdata)
                 if os.path.exists(appdata) and not os.access(appdata, os.W_OK):
-                    prints('Do not have write permissions for %s not installing appdata files' % appdata)
+                    self.warning('Do not have write permissions for %s not installing appdata files' % appdata)
                 else:
                     from calibre.utils.localization import get_all_translators
                     translators = dict(get_all_translators())
