@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mime-info xmlns='http://www.freedesktop.org/standards/shared-mime-info'>
+    <mime-type type="application/x-sony-bbeb">
+        <comment>SONY E-book compiled format</comment>
+        <glob pattern="*.lrf"/>
+    </mime-type>
+    <mime-type type="application/epub+zip">
+        <comment>EPUB ebook format</comment>
+        <glob pattern="*.epub"/>
+    </mime-type>
+    <mime-type type="text/lrs">
+        <comment>SONY E-book source format</comment>
+        <glob pattern="*.lrs"/>
+    </mime-type>
+    <mime-type type="application/x-mobipocket-ebook">
+        <comment>Amazon Mobipocket e-book format</comment>
+        <sub-class-of type="application/x-palm-database"/>
+        <glob pattern="*.azw"/>
+    </mime-type>
+    <mime-type type="application/x-topaz-ebook">
+        <comment>Amazon Topaz ebook format</comment>
+        <glob pattern="*.tpz"/>
+        <glob pattern="*.azw1"/>
+    </mime-type>
+    <mime-type type="application/x-kindle-application">
+        <comment>Amazon Kindle Application (Kindlet)</comment>
+        <sub-class-of type="application/x-java-archive"/>
+        <glob pattern="*.azw2"/>
+    </mime-type>
+    <mime-type type="application/x-mobipocket-subscription">
+        <comment>Amazon Mobipocket ebook newspaper format</comment>
+        <sub-class-of type="application/x-mobipocket-ebook"/>
+        <!-- Technically, this depends on the cdeType (NWPR or MAGZ), but since EXTH headers have a variable length, it's tricky to probe via magic... -->
+        <alias type="application/x-mobipocket-subscription-magazine"/>
+        <glob pattern="*.pobi"/>
+    </mime-type>
+    <mime-type type="application/x-mobi8-ebook">
+        <comment>Amazon KF8 ebook format</comment>
+        <sub-class-of type="application/x-palm-database"/>
+        <glob pattern="*.azw3"/>
+    </mime-type>
+</mime-info>

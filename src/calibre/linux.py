@@ -84,42 +84,76 @@ class PreserveMIMEDefaults(object):
 # Uninstall script {{{
 UNINSTALL = '''\
 #!{python}
+from __future__ import print_function, unicode_literals
 euid = {euid}
 
 import os, subprocess, shutil
 
-if os.geteuid() != euid:
-    print 'WARNING: uninstaller must be run as', euid, 'to remove all files'
+try:
+    raw_input
+except NameError:
+    raw_input = input
 
-for x in {manifest!r}:
-    if not os.path.exists(x): continue
-    print 'Removing', x
+if os.geteuid() != euid:
+    print ('The installer was last run as user id:', euid, 'To remove all files you must run the uninstaller as the same user')
+    if raw_input('Proceed anyway? [y/n]:').lower() != 'y':
+        raise SystemExit(1)
+
+frozen_path = {frozen_path!r}
+if not frozen_path or not os.path.exists(os.path.join(frozen_path, 'resources', 'calibre-mimetypes.xml')):
+    frozen_path = None
+
+for x in tuple({manifest!r}) + tuple({appdata_resources!r}) + (os.path.abspath(__file__), __file__, frozen_path):
+    if not x or not os.path.exists(x):
+        continue
+    print ('Removing', x)
     try:
         if os.path.isdir(x):
             shutil.rmtree(x)
         else:
             os.unlink(x)
     except Exception as e:
-        print 'Failed to delete', x
-        print '\t', e
+        print ('Failed to delete', x)
+        print ('\t', e)
 
 icr = {icon_resources!r}
-for context, name, size in icr:
+mimetype_icons = []
+
+def remove_icon(context, name, size, update=False):
     cmd = ['xdg-icon-resource', 'uninstall', '--context', context, '--size', size, name]
-    if (context, name) != icr[-1]:
+    if not update:
         cmd.insert(2, '--noupdate')
+    print ('Removing icon:', name, 'from context:', context, 'at size:', size)
     ret = subprocess.call(cmd)
     if ret != 0:
-        print 'WARNING: Failed to remove icon', name
+        print ('WARNING: Failed to remove icon', name)
+
+for i, (context, name, size) in enumerate(icr):
+    if context == 'mimetypes':
+        mimetype_icons.append((name, size))
+        continue
+    remove_icon(context, name, size, update=i == len(icr) - 1)
 
 mr = {menu_resources!r}
 for f in mr:
     cmd = ['xdg-desktop-menu', 'uninstall', f]
+    print ('Removing desktop file:', f)
     ret = subprocess.call(cmd)
     if ret != 0:
-        print 'WARNING: Failed to remove menu item', f
+        print ('WARNING: Failed to remove menu item', f)
 
-os.remove(os.path.abspath(__file__))
+for f in {mime_resources!r}:
+    cmd = ['xdg-mime', 'uninstall', f]
+    print ('Removing mime resource:', os.path.basename(f))
+    ret = subprocess.call(cmd)
+    if ret != 0:
+        print ('WARNING: Failed to remove mime resource', f)
+
+print ()
+
+if mimetype_icons and raw_input('Remove the ebook format icons? [y/n]:').lower() in ['', 'y']:
+    for i, (name, size) in enumerate(mimetype_icons):
+        remove_icon('mimetypes', name, size, update=i == len(mimetype_icons) - 1)
 '''
 
 # }}}
@@ -447,6 +481,7 @@ class PostInstall:
         self.icon_resources = []
         self.menu_resources = []
         self.mime_resources = []
+        self.appdata_resources = []
         if islinux or isbsd:
             self.setup_completion()
         if islinux or isbsd:
@@ -472,9 +507,12 @@ class PostInstall:
 
     def create_uninstaller(self):
         dest = os.path.join(self.opts.staging_bindir, 'calibre-uninstall')
-        raw = UNINSTALL.format(python=os.path.abspath(sys.executable), euid=os.geteuid(),
-                manifest=self.manifest, icon_resources=self.icon_resources,
-                menu_resources=self.menu_resources)
+        self.info('Creating un-installer:', dest)
+        raw = UNINSTALL.format(
+            python='/usr/bin/python', euid=os.geteuid(),
+            manifest=self.manifest, icon_resources=self.icon_resources,
+            mime_resources=self.mime_resources, menu_resources=self.menu_resources,
+            appdata_resources=self.appdata_resources, frozen_path=getattr(sys, 'frozen_path', None))
         try:
             with open(dest, 'wb') as f:
                 f.write(raw)
@@ -677,13 +715,13 @@ class PostInstall:
                 self.icon_resources.append(('mimetypes', 'application-x-mobi8-ebook', '128'))
                 render_img('lt.png', 'calibre-gui.png', width=256, height=256)
                 cc('xdg-icon-resource install --noupdate --size 256 calibre-gui.png calibre-gui', shell=True)
-                self.icon_resources.append(('apps', 'calibre-gui', '128'))
-                render_img('viewer.png', 'calibre-viewer.png')
-                cc('xdg-icon-resource install --size 128 calibre-viewer.png calibre-viewer', shell=True)
-                self.icon_resources.append(('apps', 'calibre-viewer', '128'))
-                render_img('tweak.png', 'calibre-ebook-edit.png')
-                cc('xdg-icon-resource install --size 128 calibre-ebook-edit.png calibre-ebook-edit', shell=True)
-                self.icon_resources.append(('apps', 'calibre-ebook-edit', '128'))
+                self.icon_resources.append(('apps', 'calibre-gui', '256'))
+                render_img('viewer.png', 'calibre-viewer.png', width=256, height=256)
+                cc('xdg-icon-resource install --size 256 calibre-viewer.png calibre-viewer', shell=True)
+                self.icon_resources.append(('apps', 'calibre-viewer', '256'))
+                render_img('tweak.png', 'calibre-ebook-edit.png', width=256, height=256)
+                cc('xdg-icon-resource install --size 256 calibre-ebook-edit.png calibre-ebook-edit', shell=True)
+                self.icon_resources.append(('apps', 'calibre-ebook-edit', '256'))
 
                 mimetypes = set([])
                 for x in all_input_formats():
@@ -731,13 +769,11 @@ class PostInstall:
                     self.menu_resources.append(x)
                     ak = x.partition('.')[0]
                     if ak in APPDATA and os.access(appdata, os.W_OK):
-                        write_appdata(ak, APPDATA[ak], appdata, translators)
+                        self.appdata_resources.append(write_appdata(ak, APPDATA[ak], appdata, translators))
                 cc(['xdg-desktop-menu', 'forceupdate'])
-                f = open('calibre-mimetypes.xml', 'wb')
-                f.write(MIME)
-                f.close()
-                self.mime_resources.append('calibre-mimetypes.xml')
-                cc('xdg-mime install ./calibre-mimetypes.xml', shell=True)
+                MIME = P('calibre-mimetypes.xml')
+                self.mime_resources.append(MIME)
+                cc(['xdg-mime', 'install', MIME])
         except Exception:
             if self.opts.fatal_errors:
                 raise
@@ -971,51 +1007,6 @@ def write_appdata(key, entry, base, translators):
         f.write(tostring(root, encoding='utf-8', xml_declaration=True, pretty_print=True))
     return fpath
 
-
-MIME = '''\
-<?xml version="1.0"?>
-<mime-info xmlns='http://www.freedesktop.org/standards/shared-mime-info'>
-    <mime-type type="application/x-sony-bbeb">
-        <comment>SONY E-book compiled format</comment>
-        <glob pattern="*.lrf"/>
-    </mime-type>
-    <mime-type type="application/epub+zip">
-        <comment>EPUB ebook format</comment>
-        <glob pattern="*.epub"/>
-    </mime-type>
-    <mime-type type="text/lrs">
-        <comment>SONY E-book source format</comment>
-        <glob pattern="*.lrs"/>
-    </mime-type>
-    <mime-type type="application/x-mobipocket-ebook">
-        <comment>Amazon Mobipocket e-book format</comment>
-        <sub-class-of type="application/x-palm-database"/>
-        <glob pattern="*.azw"/>
-    </mime-type>
-    <mime-type type="application/x-topaz-ebook">
-        <comment>Amazon Topaz ebook format</comment>
-        <glob pattern="*.tpz"/>
-        <glob pattern="*.azw1"/>
-    </mime-type>
-    <mime-type type="application/x-kindle-application">
-        <comment>Amazon Kindle Application (Kindlet)</comment>
-        <sub-class-of type="application/x-java-archive"/>
-        <glob pattern="*.azw2"/>
-    </mime-type>
-    <mime-type type="application/x-mobipocket-subscription">
-        <comment>Amazon Mobipocket ebook newspaper format</comment>
-        <sub-class-of type="application/x-mobipocket-ebook"/>
-        <!-- Technically, this depends on the cdeType (NWPR or MAGZ), but since EXTH headers have a variable length, it's tricky to probe via magic... -->
-        <alias type="application/x-mobipocket-subscription-magazine"/>
-        <glob pattern="*.pobi"/>
-    </mime-type>
-    <mime-type type="application/x-mobi8-ebook">
-        <comment>Amazon KF8 ebook format</comment>
-        <sub-class-of type="application/x-palm-database"/>
-        <glob pattern="*.azw3"/>
-    </mime-type>
-</mime-info>
-'''
 
 def render_img(image, dest, width=128, height=128):
     from PyQt4.Qt import QImage, Qt
