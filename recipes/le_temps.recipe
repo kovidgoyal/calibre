@@ -6,100 +6,162 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-
+#-------------------------------
+#   Modified by Roland Kessi - February 2014
+#-------------------------------
 
 from calibre.web.feeds.news import BasicNewsRecipe
 
 class LeTemps(BasicNewsRecipe):
-     title          = u'Le Temps'
-     oldest_article = 7
-     max_articles_per_feed = 100
-     __author__ = 'Kovid Goyal'
-     description = 'French news. Needs a subscription from http://www.letemps.ch'
-     no_stylesheets = True
-     remove_javascript = True
-     recursions = 1
-     encoding = 'UTF-8'
-     match_regexps = [r'http://www.letemps.ch/Page/Uuid/[-0-9a-f]+\|[1-9]']
-     language = 'fr'
-     needs_subscription = True
+    title          = u'Le Temps'
+    oldest_article = 7
+    max_articles_per_feed = 100
+    __author__ = 'Kovid Goyal'
+    description = 'French news. Needs a subscription from http://www.letemps.ch'
+    no_stylesheets = True
+    remove_javascript = True
+    recursions = 1
+    encoding = 'UTF-8'
+    match_regexps = [r'http://www.letemps.ch/Page/Uuid/[-0-9a-f]+\|[1-9]']
+    language = 'fr'
+    needs_subscription = True
+    simultaneous_downloads = 5
+    use_embedded_content = False
+    remove_empty_feeds = True
 
-     def get_browser(self):
-         br = BasicNewsRecipe.get_browser(self)
-         br.open('http://www.letemps.ch/login')
-         br.select_form(nr=1)
-         br['username'] = self.username
-         br['password'] = self.password
-         raw = br.submit().read()
-         if '>Login' in raw:
-             raise ValueError('Failed to login to letemp.ch. Check '
-                     'your username and password')
-         return br
+    def get_browser(self):
+        br = BasicNewsRecipe.get_browser(self)
+        br.open('http://www.letemps.ch/login')
+        br.select_form(nr=1)
+        br['username'] = self.username
+        br['password'] = self.password
+        raw = br.submit().read()
+        if '>Login' in raw:
+            raise ValueError('Failed to login to letemp.ch. Check '
+                'your username and password')
+        return br
 
+    def get_article_url(self, article):
+        '''
+            Override in a subclass to customize extraction of the :term:`URL` that points
+            to the content for each article. Return the
+            article URL. It is called with `article`, an object representing a parsed article
+            from a feed. See `feedparser <http://packages.python.org/feedparser/>`_.
+            By default it looks for the original link (for feeds syndicated via a
+            service like feedburner or pheedo) and if found,
+            returns that or else returns
+            `article.link <http://packages.python.org/feedparser/reference-entry-link.html>`_.
+        '''
+        #=======================================================================
+        # Avoid going through http://rss.feedsportal.com/...
+        #=======================================================================
+        for key in article.keys():
+            if key.endswith('_origlink'):
+                url = article[key]
+                if url and url.startswith('http://'):
+                    print ('Url is :', url)
+                    return url
+        ans = article.get('link', None)
+        if not ans and getattr(article, 'links', None):
+            for item in article.links:
+                if item.get('rel', 'alternate') == 'alternate':
+                    ans = item['href']
+                    break
+        pos = ans.find('letemps0Bch')
+        ans = 'http://www.' + ans[pos:]
+        ans = ans.replace('0A', '0')
+        ans = ans.replace('0B', '.')
+        ans = ans.replace('0C', '/')
+        ans = ans.replace('0E', '-')
+        return ans
 
-     keep_only_tags = [dict(name='div', attrs={'id':'content'}),
-                        dict(name='div', attrs={'class':'story'})
-                      ]
-     remove_tags    = [dict(name='div', attrs={'id':['footer','sub']}),
-                       dict(name='div', attrs={'class':['box additional','box function','right','box links','follow']})]
+    keep_only_tags =    [
+                            dict(name='div', attrs={'id':'content'}),
+                        ]
+    remove_tags    =    [
+                            dict(name='div', attrs={'id':'html5_gallery'}),
+                            dict(name='ul', attrs={'class':['tabs']}),
+                            dict(name='img', attrs={'class':['bigImg']}),
+                            dict(name='div', attrs={'class':['box function','contentInserts','box banner',
+                                 'box additional','galleryOverview','position','rightAd','bottomAd','video',]}),
+                        ]
 
+    extra_css       =   '''
+                        h1{font-family:"Georgia","Times New Roman",Times,serif;font-size:large;}
+                        .headline{font-family:"Georgia","Times New Roman",Times,serif;font-size:large;color:#990000;}
+                        .summary_gal{color:#777777;font-family:"Georgia","Times New Roman",Times,serif;font-size:x-small;}
+                        #capt{color:#1B1B1B;font-family:"Georgia","Times New Roman",Times,serif;font-size:x-small;}
+                        #content{font-family:"Lucida Grande","Lucida Sans Unicode",Arial,Verdana,sans-serif;}
+                        .box.article.important{font-family:"Lucida Grande","Lucida Sans Unicode",Arial,Verdana,sans-serif;}
+                        #h2 {font-size: 24px; line-height: 25px; margin-bottom: 14px; text-transform:uppercase;}
+                        .author {font-size:x-small; margin: 0 0 5px 0; color:#797971; font-family:"Lucida Grande","Lucida Sans Unicode",Arial,Verdana,sans-serif;}
+                        .lead {font-family:"Lucida Grande","Lucida Sans Unicode",Arial,Verdana,sans-serif;font-weight: bold; margin: 10px 0;font-size:small;}
+                        p {margin: 0 0 10px 0;}
+                        h3{font-size:small;font-weight:bold;}
+                        .description{font-size:x-small;font-family:"Lucida Grande","Lucida Sans Unicode",Arial,Verdana,sans-serif;color:white; }
+                        a {color:#1B1B1B; font-size:small;}
+                        .linkbox{font-size:x-small;color:#1B1B1B;font-family:"Lucida Grande","Lucida Sans Unicode",Arial,Verdana,sans-serif;}
 
-     extra_css      = '''h1{font-family:"Georgia","Times New Roman",Times,serif;font-size:large;}
-                         .headline{font-family:"Georgia","Times New Roman",Times,serif;font-size:large;color:#990000;}
-                         .summary_gal{color:#777777;font-family:"Georgia","Times New Roman",Times,serif;font-size:x-small;}
-                         #capt{color:#1B1B1B;font-family:"Georgia","Times New Roman",Times,serif;font-size:x-small;}
-                         #content{font-family:"Lucida Grande","Lucida Sans Unicode",Arial,Verdana,sans-serif;}
-                         h2 {font-size: 24px; line-height: 25px; margin-bottom: 14px; text-transform:uppercase;}
-                         .author {font-size:x-small; margin: 0 0 5px 0; color:#797971; font-family:"Lucida Grande","Lucida Sans Unicode",Arial,Verdana,sans-serif;}
-                         .lead {font-family:"Lucida Grande","Lucida Sans Unicode",Arial,Verdana,sans-serif;font-weight: bold; margin: 10px 0;font-size:small;}
-                         p {margin: 0 0 10px 0;}
-                         h3{font-size:small;font-weight:bold;}
-                         .heading{color:#940026;font-size:x-small;}
-                         .description{font-size:x-small;font-family:"Lucida Grande","Lucida Sans Unicode",Arial,Verdana,sans-serif;color:#797971; }
-                         a {color:#1B1B1B; font-size:small;}
-                         .linkbox{font-size:x-small;color:#1B1B1B;font-family:"Lucida Grande","Lucida Sans Unicode",Arial,Verdana,sans-serif;} '''
+                        h2{font-size:small;font-weight:bold;font-family:"Lucida Grande","Lucida Sans Unicode",Arial,Verdana,sans-serif;}
+                        p.clear{clear:both;}
+                        .heading{font-size:x-small;}
+                        .heading strong{color:#940026;}
+                        .box dd { clear:both; }
+                        .box dl { position:relative; }
+                        dl.caption {float:left;overflow:hidden;position:relative;margin: 0 10px 12px -40px;}
+                        .caption dd p,
+                        .caption dt img { margin-right: 0;margin-bottom: 0;}
+                        .caption dt img {float: left;}
+                        .caption dd {width: 100%;bottom: -1px;position: absolute;}
+                        .caption dd .description {z-index: 2;margin-left: 0px;padding: 3px 4px;position: relative;}
+                        .caption dd .background {top: 0;left: 0;width: 100%;height: 100%;filter: alpha(opacity=70);opacity: 0.7;z-index: 1;position: absolute;background-color: black;}
+                        '''
 
-     feeds          = [
-                              (u'Actualit\xe9', 'http://www.letemps.ch/rss/site/'),
-                              ('Monde', 'http://www.letemps.ch/rss/site/actualite/monde'),
-                              (u'Suisse & R\xe9gions', 'http://www.letemps.ch/rss/site/actualite/suisse_regions'),
-                              ('Sciences & Environnement', 'http://www.letemps.ch/rss/site/actualite/sciences_environnement'),
-                              (u'Soci\xe9t\xe9', 'http://www.letemps.ch/rss/site/actualite/societe'),
-                              ('Economie & Finance', 'http://www.letemps.ch/rss/site/economie_finance'),
-                              ('Economie & Finance - Finance', 'http://www.letemps.ch/rss/site/economie_finance/finance'),
-                              ('Economie & Finance - Fonds de placement', 'http://www.letemps.ch/rss/site/economie_finance/fonds_placement'),
-                              (u'Economie & Finance - Carri\xe9res', 'http://www.letemps.ch/rss/site/economie_finance/carrieres'),
-                              ('Culture', 'http://www.letemps.ch/rss/site/culture'),
-                              (u'Culture - Cin\xe9ma', 'http://www.letemps.ch/rss/site/culture/cinema'),
-                              ('Culture - Musiques', 'http://www.letemps.ch/rss/site/culture/musiques'),
-                              (u'Culture - Sc\xe9nes', 'http://www.letemps.ch/rss/site/culture/scenes'),
-                              ('Culture - Arts plastiques', 'http://www.letemps.ch/rss/site/culture/arts_plastiques'),
-                              ('Livres', 'http://www.letemps.ch/rss/site/culture/livres'),
-                              ('Opinions', 'http://www.letemps.ch/rss/site/opinions'),
-                              ('Opinions - Editoriaux', 'http://www.letemps.ch/rss/site/opinions/editoriaux'),
-                              (u'Opinions - Invit\xe9s', 'http://www.letemps.ch/rss/site/opinions/invites'),
-                              ('Opinions - Chroniques', 'http://www.letemps.ch/rss/site/opinions/chroniques'),
-                              ('LifeStyle', 'http://www.letemps.ch/rss/site/lifestyle'),
-                              ('LifeStyle - Luxe', 'http://www.letemps.ch/rss/site/lifestyle/luxe'),
-                              ('LifeStyle - Horlogerie & Joaillerie', 'http://www.letemps.ch/rss/site/lifestyle/horlogerie_joaillerie'),
-                              ('LifeStyle - Design', 'http://www.letemps.ch/rss/site/lifestyle/design'),
-                              ('LifeStyle - Voyages', 'http://www.letemps.ch/rss/site/lifestyle/voyages'),
-                              ('LifeStyle - Gastronomie', 'http://www.letemps.ch/rss/site/lifestyle/gastronomie'),
-                              ('LifeStyle - Architecture & Immobilier', 'http://www.letemps.ch/rss/site/lifestyle/architecture_immobilier'),
-                              ('LifeStyle - Automobile', 'http://www.letemps.ch/rss/site/lifestyle/automobile'),
-                              ('Sports', 'http://www.letemps.ch/rss/site/actualite/sports'),
-                             ]
+    feeds          =    [
+                            (u'Actualité', u'http://letemps.ch/rss/site/'),
+                            (u'Actualité - Monde', u'http://letemps.ch/rss/site/actualite/monde'),
+                            (u'Actualité - Suisse & régions', u'http://letemps.ch/rss/site/actualite/suisse_regions'),
+                            (u'Actualité - Sport', u'http://letemps.ch/rss/site/actualite/sports'),
+                            (u'Actualité - Sciences & Environnement', u'http://letemps.ch/rss/site/actualite/sciences_environnement'),
+                            (u'Actualité - Multimédia', u'http://letemps.ch/rss/site/actualite/multimedia'),
+                            (u'Actualité - Société', u'http://letemps.ch/rss/site/actualite/societe'),
+                            (u'Actualité - Société | Quoi de neuf', u'http://letemps.ch/rss/site/actualite/societe/quoi_de_neuf'),
+                            (u'Economie & Finance', u'http://letemps.ch/rss/site/economie_finance'),
+                            (u'Economie & Finance - Finance', u'http://letemps.ch/rss/site/economie_finance/finance'),
+                            (u'Economie & Finance - Fonds de placement', u'http://letemps.ch/rss/site/economie_finance/fonds_placement'),
+                            (u'Economie & Finance - Carrières', u'http://letemps.ch/rss/site/economie_finance/carrieres'),
+                            (u'Culture', u'http://letemps.ch/rss/site/culture'),
+                            (u'Culture - Cinémas', u'http://letemps.ch/rss/site/culture/cinema'),
+                            (u'Culture - Musiques', u'http://letemps.ch/rss/site/culture/musiques'),
+                            (u'Culture - Scènes', u'http://letemps.ch/rss/site/culture/scenes'),
+                            (u'Culture - Arts plastiques', u'http://letemps.ch/rss/site/culture/arts_plastiques'),
+                            (u'Culture - Livres', u'http://letemps.ch/rss/site/culture/livres'),
+                            (u'Lifestyle - Luxe', u'http://letemps.ch/rss/site/lifestyle/luxe'),
+                            (u'Lifestyle - Mode', u'http://letemps.ch/rss/site/lifestyle/mode'),
+                            (u'Lifestyle - Horlogerie & Joaillerie', u'http://letemps.ch/rss/site/lifestyle/horlogerie_joaillerie'),
+                            (u'Lifestyle - Design', u'http://letemps.ch/rss/site/lifestyle/design'),
+                            (u'Lifestyle - Voyages', u'http://letemps.ch/rss/site/lifestyle/voyages'),
+                            (u'Lifestyle - Gastronomie', u'http://letemps.ch/rss/site/lifestyle/gastronomie'),
+                            (u'Lifestyle - Architecture & Immobilier', u'http://letemps.ch/rss/site/lifestyle/architecture_immobilier'),
+                            (u'Lifestyle - Automobile', u'http://letemps.ch/rss/site/lifestyle/automobile'),
+                            (u'Opinions', u'http://letemps.ch/rss/site/opinions'),
+                            (u'Opinions - Editoriaux', u'http://letemps.ch/rss/site/opinions/editoriaux'),
+                            (u'Opinions - Invités', u'http://letemps.ch/rss/site/opinions/invites'),
+                            (u'Opinions - Chroniques', u'http://letemps.ch/rss/site/opinions/chroniques'),
+                            (u'Opinions - Chappatte', u'http://letemps.ch/rss/site/opinions/chappatte')
+                        ]
 
-     def postprocess_html(self, soup, first):
-        for tag in soup.findAll('div', attrs = {'class':'box pagination'}):
+    def parse_feeds(self):
+        feeds = BasicNewsRecipe.parse_feeds(self)
+        for feed in feeds:
+            del feed.description    # The title says it all and the description has has bad characters for "Le Temps"
+        return feeds
+
+    def postprocess_html(self, soup, first):
+        for tag in soup.findAll('div', attrs={'class':'box pagination'}):
             tag.extract()
         if not first:
             h = soup.find('h1')
             if h is not None:
                 h.extract()
         return soup
-
-   #  def print_version(self, url):
-   #         return url.replace('Page', 'Facet/print')
-
-
