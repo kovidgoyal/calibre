@@ -110,7 +110,7 @@ if not frozen_path or not os.path.exists(os.path.join(frozen_path, 'resources', 
 for f in {mime_resources!r}:
     cmd = ['xdg-mime', 'uninstall', f]
     print ('Removing mime resource:', os.path.basename(f))
-    ret = subprocess.call(cmd)
+    ret = subprocess.call(cmd, shell=False)
     if ret != 0:
         print ('WARNING: Failed to remove mime resource', f)
 
@@ -135,7 +135,7 @@ def remove_icon(context, name, size, update=False):
     if not update:
         cmd.insert(2, '--noupdate')
     print ('Removing icon:', name, 'from context:', context, 'at size:', size)
-    ret = subprocess.call(cmd)
+    ret = subprocess.call(cmd, shell=False)
     if ret != 0:
         print ('WARNING: Failed to remove icon', name)
 
@@ -149,7 +149,7 @@ mr = {menu_resources!r}
 for f in mr:
     cmd = ['xdg-desktop-menu', 'uninstall', f]
     print ('Removing desktop file:', f)
-    ret = subprocess.call(cmd)
+    ret = subprocess.call(cmd, shell=False)
     if ret != 0:
         print ('WARNING: Failed to remove menu item', f)
 
