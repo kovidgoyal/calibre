@@ -71,6 +71,7 @@ def txt2rtf(text):
     # Escape { and } in the text.
     text = text.replace('{', r'\'7b')
     text = text.replace('}', r'\'7d')
+    text = text.replace('\\', r'\'5c')
 
     if not isinstance(text, unicode):
         return text
