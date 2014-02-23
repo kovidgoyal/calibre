@@ -181,7 +181,7 @@ class EditorSettings(BasicSettings):
         l.addRow(lw)
 
         lw = self('editor_show_char_under_cursor')
-        lw.setText(_('Show the name of the current character under the cursor along with the line and column number'))
+        lw.setText(_('Show the name of the current character before the cursor along with the line and column number'))
         l.addRow(lw)
 
 class IntegrationSettings(BasicSettings):
