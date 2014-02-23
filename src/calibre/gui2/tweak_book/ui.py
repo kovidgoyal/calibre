@@ -188,13 +188,13 @@ class CursorPositionWidget(QWidget):  # {{{
             self.la.setText('')
         else:
             try:
-                name = unicodedata.name(character, None) if character else None
+                name = unicodedata.name(character, None) if character and tprefs['editor_show_char_under_cursor'] else None
             except Exception:
                 name = None
             text = _('Line: {0} : {1}').format(line, col)
             if not name:
                 name = {'\t':'TAB'}.get(character, None)
-            if name:
+            if name and tprefs['editor_show_char_under_cursor']:
                 text = name + ' : ' + text
             self.la.setText(text)
 # }}}
