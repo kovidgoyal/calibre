@@ -107,6 +107,10 @@ def match_hostname(cert, hostname):
 
 class HTTPSConnection(httplib.HTTPSConnection):
 
+    def __init__(self, ssl_version, *args, **kwargs):
+        httplib.HTTPSConnection.__init__(self, *args, **kwargs)
+        self.calibre_ssl_version = ssl_version
+
     def connect(self):
         """Connect to a host on a given (SSL) port, properly verifying the SSL
         certificate, both that it is valid and that its declared hostnames
@@ -117,21 +121,24 @@ class HTTPSConnection(httplib.HTTPSConnection):
         if self._tunnel_host:
             self.sock = sock
             self._tunnel()
-        self.sock = ssl.wrap_socket(sock, cert_reqs=ssl.CERT_REQUIRED, ca_certs=self.cert_file)
+        self.sock = ssl.wrap_socket(sock, cert_reqs=ssl.CERT_REQUIRED, ca_certs=self.cert_file, ssl_version=self.calibre_ssl_version)
         getattr(ssl, 'match_hostname', match_hostname)(self.sock.getpeercert(), self.host)
 
-def get_https_resource_securely(url, cacerts='calibre-ebook-root-CA.crt', timeout=60, max_redirects=5):
+def get_https_resource_securely(
+    url, cacerts='calibre-ebook-root-CA.crt', timeout=60, max_redirects=5, ssl_version=None):
     '''
     Download the resource pointed to by url using https securely (verify server
     certificate).  Ensures that redirects, if any, are also downloaded
     securely. Needs a CA certificates bundle (in PEM format) to verify the
     server's certificates.
     '''
+    if ssl_version is None:
+        ssl_version = ssl.PROTOCOL_TLSv1
     cacerts = P(cacerts, allow_user_override=False)
     p = urlsplit(url)
     if p.scheme != 'https':
         raise ValueError('URL scheme must be https, not %s' % p.scheme)
-    c = HTTPSConnection(p.hostname, p.port, cert_file=cacerts, timeout=timeout)
+    c = HTTPSConnection(ssl_version, p.hostname, p.port, cert_file=cacerts, timeout=timeout)
     with closing(c):
         path = p.path or '/'
         if p.query:
@@ -144,7 +151,8 @@ def get_https_resource_securely(url, cacerts='calibre-ebook-root-CA.crt', timeou
             newurl = response.getheader('Location', None)
             if newurl is None:
                 raise ValueError('%s returned a redirect response with no Location header' % url)
-            return get_https_resource_securely(newurl, cacerts=cacerts, timeout=timeout, max_redirects=max_redirects-1)
+            return get_https_resource_securely(
+                newurl, cacerts=cacerts, timeout=timeout, max_redirects=max_redirects-1, ssl_version=ssl_version)
         if response.status != httplib.OK:
             raise ValueError('%s returned an unsupported http response code: %d (%s)' % (
                 url, response.status, httplib.responses.get(response.status, None)))
