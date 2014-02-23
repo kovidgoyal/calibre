@@ -18,6 +18,7 @@ class GN(BasicNewsRecipe):
     no_stylesheets = True
     language = 'pl'
     remove_javascript = True
+    masthead_url = 'http://m.gosc.pl/static/themes/czerwony_gosc-mobile/logo.png'
 
     def find_last_issue(self):
         raw = self.index_to_soup('http://m.gosc.pl/wyszukaj/wydania/3.Gosc-Niedzielny/', raw=True)
@@ -43,7 +44,7 @@ class GN(BasicNewsRecipe):
                      'url' : 'http://www.gosc.pl' + art['href'],
                      'description' : self.tag_to_string(a.find('p',attrs={'class':'b lead'}))
                     }]
-        feeds.append((u'Wstępniak',articles))
+        feeds.append((u'Na dobry początek',articles))
         enlisted.append(articles[0].get('url'))
         # columns:
         for addr in soup.findAll('a',attrs={'href':re.compile('kategoria')}):
