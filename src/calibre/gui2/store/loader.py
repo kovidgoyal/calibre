@@ -13,7 +13,7 @@ from collections import OrderedDict
 from threading import Thread
 from urllib import urlencode
 
-from calibre import prints, browser
+from calibre import prints
 from calibre.constants import numeric_version, DEBUG
 from calibre.gui2.store import StorePlugin
 from calibre.utils.config import JSONConfig
@@ -23,14 +23,14 @@ class VersionMismatch(ValueError):
         ValueError.__init__(self, 'calibre too old')
         self.ver = ver
 
-def download_updates(ver_map={}, server='http://status.calibre-ebook.com'):
+def download_updates(ver_map={}, server='https://status.calibre-ebook.com'):
+    from calibre.utils.https import get_https_resource_securely
     data = {k:type(u'')(v) for k, v in ver_map.iteritems()}
     data['ver'] = '1'
     url = '%s/stores?%s'%(server, urlencode(data))
-    br = browser()
     # We use a timeout here to ensure the non-daemonic update thread does not
     # cause calibre to hang indefinitely during shutdown
-    raw = br.open(url, timeout=4.0).read()
+    raw = get_https_resource_securely(url, timeout=90.0)
 
     while raw:
         name, raw = raw.partition(b'\0')[0::2]

@@ -13,7 +13,7 @@ from datetime import timedelta
 from lxml import etree
 from lxml.builder import ElementMaker
 
-from calibre import browser, force_unicode
+from calibre import force_unicode
 from calibre.utils.date import parse_date, now as nowf, utcnow, tzlocal, \
         isoformat, fromordinal
 from calibre.utils.recycle_bin import delete_file
@@ -186,8 +186,8 @@ def get_builtin_recipe_titles():
     return [r.get('title') for r in get_builtin_recipe_collection()]
 
 def download_builtin_recipe(urn):
-    br = browser()
-    return br.open_novisit('http://status.calibre-ebook.com/recipe/'+urn).read()
+    from calibre.utils.https import get_https_resource_securely
+    return get_https_resource_securely('https://status.calibre-ebook.com/recipe/'+urn)
 
 def get_builtin_recipe(urn):
     with zipfile.ZipFile(P('builtin_recipes.zip', allow_user_override=False), 'r') as zf:
