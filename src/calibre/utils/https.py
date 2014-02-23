@@ -10,6 +10,17 @@ import ssl, socket, re, httplib
 from urlparse import urlsplit
 from contextlib import closing
 
+from calibre import get_proxies
+
+class HTTPError(ValueError):
+
+    def __init__(self, url, code):
+        msg = '%s returned an unsupported http response code: %d (%s)' % (
+                url, code, httplib.responses.get(code, None))
+        ValueError.__init__(self, msg)
+        self.code = code
+        self.url = url
+
 # Check certificate hostname {{{
 # Implementation taken from python 3
 class CertificateError(ValueError):
@@ -138,8 +149,28 @@ def get_https_resource_securely(
     p = urlsplit(url)
     if p.scheme != 'https':
         raise ValueError('URL scheme must be https, not %s' % p.scheme)
-    c = HTTPSConnection(ssl_version, p.hostname, p.port, cert_file=cacerts, timeout=timeout)
+
+    hostname, port = p.hostname, p.port
+    proxies = get_proxies()
+    has_proxy = False
+    for q in ('https', 'http'):
+        if q in proxies:
+            try:
+                h, po = proxies[q].rpartition(':')[::2]
+                po = int(po)
+                if h:
+                    hostname, port, has_proxy = h, po, True
+                    break
+            except Exception:
+                # Invalid proxy, ignore
+                pass
+
+    c = HTTPSConnection(ssl_version, hostname, port, cert_file=cacerts, timeout=timeout)
+    if has_proxy:
+        c.set_tunnel(p.hostname, p.port)
+
     with closing(c):
+        c.connect()  # This is needed for proxy connections
         path = p.path or '/'
         if p.query:
             path += '?' + p.query
@@ -154,8 +185,7 @@ def get_https_resource_securely(
             return get_https_resource_securely(
                 newurl, cacerts=cacerts, timeout=timeout, max_redirects=max_redirects-1, ssl_version=ssl_version)
         if response.status != httplib.OK:
-            raise ValueError('%s returned an unsupported http response code: %d (%s)' % (
-                url, response.status, httplib.responses.get(response.status, None)))
+            raise HTTPError(url, response.status)
         return response.read()
 
 if __name__ == '__main__':
