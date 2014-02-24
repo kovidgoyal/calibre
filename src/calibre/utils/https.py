@@ -163,7 +163,7 @@ def get_https_resource_securely(
     cacerts = P(cacerts, allow_user_override=False)
     p = urlparse(url)
     if p.scheme != 'https':
-        raise ValueError('URL scheme must be https, not %s' % p.scheme)
+        raise ValueError('URL %s scheme must be https, not %r' % (url, p.scheme))
 
     hostname, port = p.hostname, p.port
     proxies = get_proxies()

@@ -531,7 +531,7 @@ def get_https_resource_securely(url, timeout=60, max_redirects=5, ssl_version=No
         f.flush()
         p = urlparse(url)
         if p.scheme != 'https':
-            raise ValueError('URL scheme must be https, not %s' % p.scheme)
+            raise ValueError('URL %s scheme must be https, not %r' % (url, p.scheme))
 
         hostname, port = p.hostname, p.port
         proxies = get_proxies()
@@ -585,7 +585,7 @@ def get_tarball_info():
     global signature, calibre_version
     print ('Downloading tarball signature securely...')
     raw = get_https_resource_securely('https://status.calibre-ebook.com/tarball-info/' +
-                                      'x86_64' if is64bit else 'i686')
+                                      ('x86_64' if is64bit else 'i686'))
     signature, calibre_version = (x.decode('ascii') for x in raw.rpartition(b'@')[::2])
     if not signature or not calibre_version:
         raise ValueError('Failed to get install file signature, invalid signature returned')
@@ -655,5 +655,5 @@ except NameError:
     from_file = False
 
 if __name__ == '__main__' and from_file:
-    # curl '-Lf#' https://github.com/kovidgoyal/calibre/raw/master/setup/linux-installer.py | sudo INSTALL_DIR=/opt python -c "import sys; exec(sys.stdin.read()); main()"  # noqa
+    # wget -qO- https://github.com/kovidgoyal/calibre/raw/master/setup/linux-installer.py | sudo INSTALL_DIR=/opt python -c "import sys; exec(sys.stdin.read()); main()"  # noqa
     main()
