@@ -311,7 +311,7 @@ def download_tarball():
         os.remove(dest)
     try:
         with open(cached_sigf, 'wb') as f:
-            f.write(bytes(signature))
+            f.write(signature.encode('utf-8'))
     except IOError as e:
         if e.errno != errno.EACCES:
             raise
