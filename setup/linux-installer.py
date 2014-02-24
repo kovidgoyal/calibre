@@ -7,7 +7,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import sys, os, shutil, subprocess, re, platform, time, signal, textwrap, tempfile, hashlib, errno
+import sys, os, shutil, subprocess, re, platform, time, signal, tempfile, hashlib, errno
 import ssl, socket
 from contextlib import closing
 
@@ -617,17 +617,9 @@ def check_version():
     if calibre_version == '%version':
         calibre_version = urllib.urlopen('http://status.calibre-ebook.com/latest').read()
 
-def main(install_dir=None, bin_dir=None, share_dir=None, isolated=False):
+def main(bin_dir=None, share_dir=None, isolated=False):
     defdir = '/opt'
-    autodir = os.environ.get('CALIBRE_INSTALL_DIR', install_dir)
-    automated = False
-    if (autodir is None or not os.path.exists(autodir) or not
-            os.path.isdir(autodir)):
-        destdir = raw_input('Enter the installation directory for calibre [%s]: '%defdir).strip()
-    else:
-        automated = True
-        prints('Automatically installing to: %s'%autodir)
-        destdir = autodir
+    destdir = os.environ.get('INSTALL_DIR', None)
     if not destdir:
         destdir = defdir
     destdir = os.path.abspath(destdir)
@@ -640,6 +632,7 @@ def main(install_dir=None, bin_dir=None, share_dir=None, isolated=False):
         if not os.path.isdir(destdir):
             prints(destdir, 'exists and is not a directory. Choose a location like /opt or /usr/local')
             return 1
+    print ('Installing to', destdir)
 
     download_and_extract(destdir)
 
@@ -650,26 +643,9 @@ def main(install_dir=None, bin_dir=None, share_dir=None, isolated=False):
         if share_dir is not None:
             pi.extend(['--sharedir', share_dir])
         subprocess.call(pi, shell=len(pi) == 1)
-    if not automated:
-        prints()
-        prints(textwrap.dedent(
-            '''
-            You can automate future calibre installs by specifying the
-            installation directory in the install command itself, like
-            this:
-
-            sudo python -c "import sys; from subprocess import Popen, PIPE; \
-p = Popen('curl -sfLS https://github.com/kovidgoyal/calibre/raw/master/setup/linux-installer.py'.split(),\
-stdout=PIPE); raw = p.stdout.read(); p.wait() and sys.exit(p.returncode); exec(raw); main(install_dir='/opt'%s)"
-
-            Change /opt above to whatever directory you want calibre to be
-            automatically installed to
-            ''' % (', isolated=True' if isolated else '')))
-        prints()
-    if isolated:
-        prints('Run "%s/calibre" to start calibre' % destdir)
-    else:
         prints('Run "calibre" to start calibre')
+    else:
+        prints('Run "%s/calibre" to start calibre' % destdir)
     return 0
 
 try:
@@ -679,4 +655,5 @@ except NameError:
     from_file = False
 
 if __name__ == '__main__' and from_file:
+    # curl '-Lf#' https://github.com/kovidgoyal/calibre/raw/master/setup/linux-installer.py | sudo INSTALL_DIR=/opt python -c "import sys; exec(sys.stdin.read()); main()"  # noqa
     main()
