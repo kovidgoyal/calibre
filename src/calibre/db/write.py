@@ -94,7 +94,7 @@ def adapt_bool(x):
             x = True
         elif x == 'false':
             x = False
-        elif x == 'none':
+        elif x == 'none' or x == '':
             x = None
         else:
             x = bool(int(x))
