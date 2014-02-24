@@ -512,9 +512,10 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                 series = v.get('series', None)
                 if series:
                     tsorder = tweaks['save_template_title_series_sorting']
-                    series = title_sort(v.get('series', ''), order=tsorder)
+                    series = title_sort(series, order=tsorder)
                 else:
                     series = ''
+                self._debug('series sort = ', series)
                 res[k]['_series_sort_'] = series
             else:
                 res[k] = v
