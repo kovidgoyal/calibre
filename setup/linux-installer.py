@@ -655,5 +655,5 @@ except NameError:
     from_file = False
 
 if __name__ == '__main__' and from_file:
-    # wget -qO- https://github.com/kovidgoyal/calibre/raw/master/setup/linux-installer.py | sudo INSTALL_DIR=/opt python -c "import sys; exec(sys.stdin.read()); main()"  # noqa
+    # wget -nv -O- https://github.com/kovidgoyal/calibre/raw/master/setup/linux-installer.py | sudo INSTALL_DIR=/opt python -c "import sys; main=lambda:sys.stderr.write('Download failed\n'); exec(sys.stdin.read()); main()"  # noqa
     main()
