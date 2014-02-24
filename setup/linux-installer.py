@@ -311,7 +311,7 @@ def download_tarball():
         os.remove(dest)
     try:
         with open(cached_sigf, 'wb') as f:
-            f.write(signature.encode('utf-8'))
+            f.write(signature)
     except IOError as e:
         if e.errno != errno.EACCES:
             raise
@@ -322,7 +322,7 @@ def download_tarball():
     prints('Checking downloaded file integrity...')
     if not check_signature(dest, signature):
         os.remove(dest)
-        print ('The downloaded files\' hash does not match. '
+        print ('The downloaded files\' signature does not match. '
                 'Try the download again later.')
         raise SystemExit(1)
     return dest
@@ -586,9 +586,10 @@ def get_tarball_info():
     print ('Downloading tarball signature securely...')
     raw = get_https_resource_securely('https://status.calibre-ebook.com/tarball-info/' +
                                       ('x86_64' if is64bit else 'i686'))
-    signature, calibre_version = (x.decode('ascii') for x in raw.rpartition(b'@')[::2])
+    signature, calibre_version = raw.rpartition(b'@')[::2]
     if not signature or not calibre_version:
         raise ValueError('Failed to get install file signature, invalid signature returned')
+    calibre_version = calibre_version.decode('utf-8')
 
 
 def download_and_extract(destdir):
