@@ -55,7 +55,7 @@ class AmazonCAKindleStore(StorePlugin):
                         './/ul[contains(@class, "rsltGridList")]'
                         '//span[contains(@class, "lrg") and not(contains(@class, "bld"))]/text()')
                 asin_xpath = '@name'
-                cover_xpath = './/img[@class="productImage"]/@src'
+                cover_xpath = './/img[contains(@class, "productImage")]/@src'
                 title_xpath = './/h3[@class="newaps"]/a//text()'
                 author_xpath = './/h3[@class="newaps"]//span[contains(@class, "reg")]//text()'
                 price_xpath = (
@@ -80,7 +80,7 @@ class AmazonCAKindleStore(StorePlugin):
                         './/ul[contains(@class, "rsltL")]'
                         '//span[contains(@class, "lrg") and not(contains(@class, "bld"))]/text()')
                 asin_xpath = '@name'
-                cover_xpath = './/img[@class="productImage"]/@src'
+                cover_xpath = './/img[contains(@class, "productImage")]/@src'
                 title_xpath = './/h3[@class="newaps"]/a//text()'
                 author_xpath = './/h3[@class="newaps"]//span[contains(@class, "reg")]//text()'
                 price_xpath = (

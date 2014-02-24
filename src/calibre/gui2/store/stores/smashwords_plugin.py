@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import (unicode_literals, division, absolute_import, print_function)
-store_version = 1 # Needed for dynamic plugin loading
+store_version = 2 # Needed for dynamic plugin loading
 
 __license__ = 'GPL 3'
 __copyright__ = '2011, John Schember <john@nachtimwald.com>'
@@ -54,36 +54,32 @@ class SmashwordsStore(BasicStoreConfig, StorePlugin):
         counter = max_results
         with closing(br.open(url, timeout=timeout)) as f:
             doc = html.fromstring(f.read())
-            for data in doc.xpath('//div[@id="pageCenterContent"]//div[@class="bookCoverImg"]'):
+            for data in doc.xpath('//div[@id="pageCenterContent"]//div[@class="library-book"]'):
                 if counter <= 0:
                     break
                 data = html.fromstring(html.tostring(data))
 
                 id = None
-                id_a = data.xpath('//a[@class="bookTitle"]')
+                id_a = ''.join(data.xpath('//a[contains(@class, "library-title")]/@href'))
                 if id_a:
-                    id = id_a[0].get('href', None)
-                    if id:
-                        id = id.split('/')[-1]
+                    id = id_a.split('/')[-1]
                 if not id:
                     continue
 
-                cover_url = ''
-                c_url = data.get('style', None)
-                if c_url:
-                    mo = re.search(r'http://[^\'"]+', c_url)
-                    if mo:
-                        cover_url = mo.group()
+                cover_url = ''.join(data.xpath('//img[contains(@class, "book-list-image")]/@src'))
 
-                title = ''.join(data.xpath('//a[@class="bookTitle"]/text()'))
-                subnote = ''.join(data.xpath('//span[@class="subnote"]/text()'))
-                author = ''.join(data.xpath('//span[@class="subnote"]//a[1]//text()'))
-                if '$' in subnote:
-                    price = subnote.partition('$')[2]
-                    price = price.split(u'\xa0')[0]
-                    price = '$' + price
-                else:
-                    price = '$0.00'
+                title = ''.join(data.xpath('.//a[contains(@class, "library-title")]/text()'))
+                author = ''.join(data.xpath('.//div[@class="subnote"]//a[1]//text()'))
+
+                price = ''.join(data.xpath('.//div[@class="subnote"]//text()'))
+                if 'Price:' in price:
+                    try:
+                        price = price.partition('Price:')[2]
+                        price = re.sub('\s', ' ', price).strip()
+                        price = price.split(' ')[0]
+                        price = price.strip()
+                    except:
+                        price = 'Unknown'
 
                 counter -= 1
 
@@ -103,5 +99,5 @@ class SmashwordsStore(BasicStoreConfig, StorePlugin):
         br = browser()
         with closing(br.open(url + search_result.detail_item, timeout=timeout)) as nf:
             idata = html.fromstring(nf.read())
-            search_result.formats = ', '.join(list(set(idata.xpath('//td//b//text()'))))
+            search_result.formats = ', '.join(list(set(idata.xpath('//p//abbr//text()'))))
         return True
