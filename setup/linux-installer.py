@@ -311,7 +311,7 @@ def download_tarball():
         os.remove(dest)
     try:
         with open(cached_sigf, 'wb') as f:
-            f.write(signature)
+            f.write(bytes(signature))
     except IOError as e:
         if e.errno != errno.EACCES:
             raise
@@ -617,12 +617,8 @@ def check_version():
     if calibre_version == '%version':
         calibre_version = urllib.urlopen('http://status.calibre-ebook.com/latest').read()
 
-def main(bin_dir=None, share_dir=None, isolated=False):
-    defdir = '/opt'
-    destdir = os.environ.get('INSTALL_DIR', None)
-    if not destdir:
-        destdir = defdir
-    destdir = os.path.abspath(destdir)
+def main(install_dir=None, isolated=False, bin_dir=None, share_dir=None):
+    destdir = os.path.abspath(install_dir or '/opt')
     if destdir == '/usr/bin':
         prints(destdir, 'is not a valid install location. Choose', end='')
         prints('a location like /opt or /usr/local')
@@ -655,5 +651,4 @@ except NameError:
     from_file = False
 
 if __name__ == '__main__' and from_file:
-    # wget -nv -O- https://github.com/kovidgoyal/calibre/raw/master/setup/linux-installer.py | sudo INSTALL_DIR=/opt python -c "import sys; main=lambda:sys.stderr.write('Download failed\n'); exec(sys.stdin.read()); main()"  # noqa
     main()
