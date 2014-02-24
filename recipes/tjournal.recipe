@@ -1,0 +1,30 @@
+# vim:fileencoding=utf-8
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class AdjectiveSpecies(BasicNewsRecipe):
+    title          = u'TJournal'
+    __author__ = 'bug_me_not'
+    description           = 'TJOURNAL: издание о медиа, технологиях и трендах'
+    publisher             = 'tjournal.ru'
+    category              = 'news'
+    language              = 'ru'
+    no_stylesheets        = True
+    remove_javascript = True
+    oldest_article = 300
+    max_articles_per_feed = 100
+
+    remove_tags_before = dict(name='div', attrs={'class':'article grid-block'})
+    remove_tags_after  = dict(name='div', attrs={'class':'comments grid-block'})
+    remove_tags     = [dict(name='div',attrs={'class':'likes'}),
+        dict(name='div',attrs={'class':'adv'}),
+        dict(name='div',attrs={'class':'side grid-block'}),
+        dict(name='div',attrs={'class':'author'}),
+        dict(name='span',attrs={'class':'count-visits'}),
+        dict(name='a',attrs={'class':'count-comments'}),
+        dict(name='div',attrs={'class':'add-comment not-logined'}),
+        dict(name='div',attrs={'class':'newrphus'}),
+        dict(name='div',attrs={'class':'line-tags'}),
+        dict(name='div',attrs={'class':'line-banner-1'}),
+        dict(name='div',attrs={'class':'newrphus'})]
+
+    feeds          = [(u'TJournal: последние новости', u'http://tjournal.ru/rss')]

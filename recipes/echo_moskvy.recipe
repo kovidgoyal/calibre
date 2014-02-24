@@ -1,0 +1,25 @@
+# vim:fileencoding=utf-8
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class AdjectiveSpecies(BasicNewsRecipe):
+    title          = u'Эхо Москвы'
+    __author__ = 'bug_me_not'
+    cover_url = u'http://echo.msk.ru/i/logo.png'
+    description           = 'Радиостанция Эхо Москвы'
+    publisher             = 'Эхо Москвы'
+    category              = 'news'
+    language              = 'ru'
+    no_stylesheets        = True
+    remove_javascript = True
+    oldest_article = 300
+    max_articles_per_feed = 100
+
+    remove_tags_before = dict(name='div', attrs={'class':'topic'})
+    remove_tags_after  = dict(name='div', attrs={'class':'typical'})
+    remove_tags     = [dict(name='div',attrs={'class':'addInNetBlock'}),
+        dict(name='div',attrs={'class':'flash'})]
+
+    feeds          = [
+                          (u'Интервью и передачи', u'http://echo.msk.ru/interview/rss-fulltext.xml'),
+                          (u'Блоги', u'http://echo.msk.ru/blog/rss.xml')
+                         ]
