@@ -18,11 +18,12 @@ class GN(BasicNewsRecipe):
     no_stylesheets = True
     language = 'pl'
     remove_javascript = True
+    masthead_url = 'http://m.gosc.pl/static/themes/czerwony_gosc-mobile/logo.png'
 
     def find_last_issue(self):
-        raw = self.index_to_soup('http://gosc.pl/wyszukaj/wydania/3.Gosc-Niedzielny/', raw=True)
+        raw = self.index_to_soup('http://m.gosc.pl/wyszukaj/wydania/3.Gosc-Niedzielny/', raw=True)
         doc = html.fromstring(raw)
-        page = doc.xpath('//div[@class="c"]//div[@class="search-result"]/div[1]/div[2]/h1//a/@href')
+        page = doc.xpath('//div[@class="search-result"]/div[1]/div[1]/a/@href')
 
         if time.strftime("%w") in ['3','4']:
             return page[5]
@@ -30,7 +31,8 @@ class GN(BasicNewsRecipe):
             return page[4]
 
     def parse_index(self):
-        soup = self.index_to_soup('http://gosc.pl' + self.find_last_issue())
+        self.last_issue = self.find_last_issue()
+        soup = self.index_to_soup('http://gosc.pl' + self.last_issue)
         self.cover_url = 'http://www.gosc.pl' + soup.find('div',attrs={'class':'fl-w100 release-wp'}).findAll('a')[-4].contents[0]['src']
         feeds = []
         enlisted = []
@@ -42,7 +44,7 @@ class GN(BasicNewsRecipe):
                      'url' : 'http://www.gosc.pl' + art['href'],
                      'description' : self.tag_to_string(a.find('p',attrs={'class':'b lead'}))
                     }]
-        feeds.append((u'Wstępniak',articles))
+        feeds.append((u'Na dobry początek',articles))
         enlisted.append(articles[0].get('url'))
         # columns:
         for addr in soup.findAll('a',attrs={'href':re.compile('kategoria')}):
@@ -57,7 +59,7 @@ class GN(BasicNewsRecipe):
         page = 1
         not_assigned = []
         while True:
-            soup = self.index_to_soup('http://gosc.pl' + self.find_last_issue().replace('przeglad','wszystko') + '/' + str(page))
+            soup = self.index_to_soup('http://gosc.pl' + self.last_issue.replace('przeglad','wszystko') + '/' + str(page))
             articles = list(self.find_articles(soup))
             not_assigned.extend([x for x in articles if x.get('url') not in enlisted])
             page+=1
