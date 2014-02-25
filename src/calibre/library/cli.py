@@ -408,6 +408,8 @@ def do_remove(db, ids):
     db.new_api.remove_books(book_ids)
     db.clean()
     send_message()
+    from calibre.db.delete_service import delete_service
+    delete_service().wait()
 
 def remove_option_parser():
     return get_parser(_(
@@ -481,6 +483,8 @@ def command_add_format(args, dbpath):
 def do_remove_format(db, id, fmt):
     db.remove_format(id, fmt, index_is_id=True)
     send_message()
+    from calibre.db.delete_service import delete_service
+    delete_service().wait()
 
 def remove_format_option_parser():
     return get_parser(_(
