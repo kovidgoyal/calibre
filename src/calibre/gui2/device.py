@@ -1769,10 +1769,14 @@ class DeviceMixin(object):  # {{{
         def updateq(id_, book):
             try:
                 return (update_metadata and
-                        (db.metadata_last_modified(id_, index_is_id=True) !=
-                         getattr(book, 'last_modified', None) or
-                         (isinstance(getattr(book, 'thumbnail', None), (list, tuple))
-                          and max(book.thumbnail[0], book.thumbnail[1]) != desired_thumbnail_height
+                        (
+                         (self.device_manager.device is not None and
+                               self.device_manager.device.synchronize_with_db(db, id_, book)) or
+                         (db.metadata_last_modified(id_, index_is_id=True) !=
+                          getattr(book, 'last_modified', None) or
+                          (isinstance(getattr(book, 'thumbnail', None), (list, tuple))
+                           and max(book.thumbnail[0], book.thumbnail[1]) != desired_thumbnail_height
+                          )
                          )
                         )
                        )

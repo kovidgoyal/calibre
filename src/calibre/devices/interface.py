@@ -718,6 +718,23 @@ class DevicePlugin(Plugin):
         '''
         return False
 
+    def synchronize_with_db(self, db, book_id, book_metadata):
+        '''
+        Called during book matching when a book on the device is matched with
+        a book in calibre's db. The method is responsible for syncronizing
+        data from the device to calibre's db (if needed).
+
+        The method must return True if either calibre's database or the device
+        book's metadata were changed, False otherwise.
+
+        Extremely important: this method is called on the GUI thread. It must
+        be threadsafe with respect to the device manager's thread.
+
+        book_id: the calibre id for the book in the database.
+        book_metadata: the Metadata object for the book coming from the device.
+        '''
+        return False
+
 class BookList(list):
     '''
     A list of books. Each Book object must have the fields
