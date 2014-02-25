@@ -219,10 +219,13 @@ class NYTimes(BasicNewsRecipe):
                                         re.compile('^leaderboard'),
                                         re.compile('^module'),
                                         re.compile('commentCount'),
+                                        'lede-container',
                                         'credit'
                                         ]}),
                     dict(attrs={'class':lambda x: x and 'related-coverage-marginalia' in x.split()}),
                     dict(attrs={'class':lambda x: x and 'interactive' in x.split()}),
+                    dict(attrs={'class':lambda x: x and 'sharetools' in x.split()}),
+                    dict(attrs={'class':lambda x: x and 'ad' in x.split()}),
                     dict(name='div', attrs={'class':re.compile('toolsList')}),  # bits
                     dict(name='div', attrs={'class':re.compile('postNavigation')}),  # bits
                     dict(name='div', attrs={'class':'tweet'}),
@@ -235,6 +238,7 @@ class NYTimes(BasicNewsRecipe):
                     dict(name='div', attrs={'class':re.compile('entry-tags')}),  # pogue
                     dict(id=[
                             'adxLeaderboard',
+                            'pagelinks',
                             'adxSponLink',
                             'anchoredAd_module',
                             'anchoredAd_spot',
