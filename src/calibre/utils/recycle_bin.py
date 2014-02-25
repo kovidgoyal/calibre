@@ -47,8 +47,11 @@ if iswindows:
             except:
                 eintr_retry_call(print, b'KO', file=sys.stdout)
                 sys.stdout.flush()
-                import traceback
-                traceback.print_exc()  # goes to stderr, which is the same as for parent process
+                try:
+                    import traceback
+                    traceback.print_exc()  # goes to stderr, which is the same as for parent process
+                except Exception:
+                    pass  # Ignore failures to write the traceback, since GUI processes on windows have no stderr
             else:
                 eintr_retry_call(print, b'OK', file=sys.stdout)
                 sys.stdout.flush()
