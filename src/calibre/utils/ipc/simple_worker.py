@@ -136,6 +136,31 @@ def create_worker(env, priority='normal', cwd=None, func='main'):
     w(cwd=cwd, priority=priority)
     return listener, w
 
+def start_pipe_worker(command, env=None, priority='normal'):
+    import subprocess, atexit
+    from functools import partial
+    w = Worker(env or {})
+    args = {'stdout':subprocess.PIPE, 'stdin':subprocess.PIPE, 'env':w.env}
+    if iswindows:
+        import win32process
+        priority = {
+                'high'   : win32process.HIGH_PRIORITY_CLASS,
+                'normal' : win32process.NORMAL_PRIORITY_CLASS,
+                'low'    : win32process.IDLE_PRIORITY_CLASS}[priority]
+        args['creationflags'] = win32process.CREATE_NO_WINDOW|priority
+    else:
+        def renice(niceness):
+            try:
+                os.nice(niceness)
+            except:
+                pass
+        niceness = {'normal' : 0, 'low'    : 10, 'high'   : 20}[priority]
+        args['preexec_fn'] = partial(renice, niceness)
+
+    p = subprocess.Popen([w.executable, '--pipe-worker', command], **args)
+    atexit.register(w.kill)
+    return p
+
 def fork_job(mod_name, func_name, args=(), kwargs={}, timeout=300,  # seconds
         cwd=None, priority='normal', env={}, no_output=False, heartbeat=None,
         abort=None, module_is_source_code=False):

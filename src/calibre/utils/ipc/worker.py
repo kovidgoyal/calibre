@@ -175,6 +175,9 @@ def main():
         func = getattr(mod, func)
         func()
         return
+    if '--pipe-worker' in sys.argv:
+        exec (sys.argv[-1])
+        return
     address = cPickle.loads(unhexlify(os.environ['CALIBRE_WORKER_ADDRESS']))
     key     = unhexlify(os.environ['CALIBRE_WORKER_KEY'])
     resultf = unhexlify(os.environ['CALIBRE_WORKER_RESULT']).decode('utf-8')

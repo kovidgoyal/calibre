@@ -1,113 +1,86 @@
 #!/usr/bin/env python
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
+from __future__ import print_function
 
 __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, shutil, time
+import os, shutil, time, sys
 
-from calibre import isbytestring, force_unicode
+from calibre import isbytestring
 from calibre.constants import (iswindows, isosx, plugins, filesystem_encoding,
         islinux)
 
 recycle = None
 
 if iswindows:
-    import ctypes, subprocess, sys
-    from ctypes import POINTER, Structure
-    from ctypes.wintypes import HANDLE, LPVOID, WORD, DWORD, BOOL, ULONG, LPCWSTR
-    RECYCLE = force_unicode(os.path.join(os.path.dirname(sys.executable), 'calibre-recycle.exe'), filesystem_encoding)
-    LPDWORD = POINTER(DWORD)
-    LPHANDLE = POINTER(HANDLE)
-    ULONG_PTR = POINTER(ULONG)
-    CREATE_NO_WINDOW = 0x08000000
-    INFINITE = 0xFFFFFFFF
-    WAIT_FAILED = 0xFFFFFFFF
+    from calibre.utils.ipc import eintr_retry_call
+    from threading import Lock
+    recycler = None
+    rlock = Lock()
+    def start_recycler():
+        global recycler
+        if recycler is None:
+            from calibre.utils.ipc.simple_worker import start_pipe_worker
+            recycler = start_pipe_worker('from calibre.utils.recycle_bin import recycler_main; recycler_main()')
 
-    class SECURITY_ATTRIBUTES(Structure):
-        _fields_ = [("nLength", DWORD),
-                    ("lpSecurityDescriptor", LPVOID),
-                    ("bInheritHandle", BOOL)]
-    LPSECURITY_ATTRIBUTES = POINTER(SECURITY_ATTRIBUTES)
+    def recycle_path(path):
+        from win32com.shell import shell, shellcon
+        flags = (shellcon.FOF_ALLOWUNDO | shellcon.FOF_NOCONFIRMATION | shellcon.FOF_NOCONFIRMMKDIR | shellcon.FOF_NOERRORUI |
+                 shellcon.FOF_SILENT | shellcon.FOF_RENAMEONCOLLISION)
+        retcode, aborted = shell.SHFileOperation((0, shellcon.FO_DELETE, path, None, flags, None, None))
+        if retcode != 0 or aborted:
+            raise RuntimeError('Failed to delete: %r with error code: %d' % (path, retcode))
 
-    class STARTUPINFO(Structure):
-        _fields_ = [("cb", DWORD),
-                    ("lpReserved", LPCWSTR),
-                    ("lpDesktop", LPCWSTR),
-                    ("lpTitle", LPCWSTR),
-                    ("dwX", DWORD),
-                    ("dwY", DWORD),
-                    ("dwXSize", DWORD),
-                    ("dwYSize", DWORD),
-                    ("dwXCountChars", DWORD),
-                    ("dwYCountChars", DWORD),
-                    ("dwFillAttribute", DWORD),
-                    ("dwFlags", DWORD),
-                    ("wShowWindow", WORD),
-                    ("cbReserved2", WORD),
-                    ("lpReserved2", LPVOID),
-                    ("hStdInput", HANDLE),
-                    ("hStdOutput", HANDLE),
-                    ("hStdError", HANDLE)]
-    LPSTARTUPINFO = POINTER(STARTUPINFO)
+    def recycler_main():
+        while True:
+            path = eintr_retry_call(sys.stdin.readline)
+            if not path:
+                break
+            try:
+                path = path.decode('utf-8').rstrip()
+            except (ValueError, TypeError):
+                break
+            try:
+                recycle_path(path)
+            except:
+                eintr_retry_call(print, b'KO', file=sys.stdout)
+                sys.stdout.flush()
+                import traceback
+                traceback.print_exc()  # goes to stderr, which is the same as for parent process
+            else:
+                eintr_retry_call(print, b'OK', file=sys.stdout)
+                sys.stdout.flush()
 
-    class PROCESS_INFORMATION(Structure):
-        _fields_ = [("hProcess", HANDLE),
-                    ("hThread", HANDLE),
-                    ("dwProcessId", DWORD),
-                    ("dwThreadId", DWORD)]
-    LPPROCESS_INFORMATION = POINTER(PROCESS_INFORMATION)
-
-    CreateProcess = ctypes.windll.kernel32.CreateProcessW
-    CreateProcess.argtypes = [LPCWSTR, LPCWSTR, LPSECURITY_ATTRIBUTES,
-        LPSECURITY_ATTRIBUTES, BOOL, DWORD, LPVOID, LPCWSTR, LPSTARTUPINFO,
-        LPPROCESS_INFORMATION]
-    CreateProcess.restype = BOOL
-
-    WaitForSingleObject = ctypes.windll.kernel32.WaitForSingleObject
-    WaitForSingleObject.argtypes = [HANDLE, DWORD]
-    WaitForSingleObject.restype = DWORD
-
-    GetExitCodeProcess = ctypes.windll.kernel32.GetExitCodeProcess
-    GetExitCodeProcess.argtypes = [HANDLE, LPDWORD]
-    GetExitCodeProcess.restype = BOOL
-
-    CloseHandle = ctypes.windll.kernel32.CloseHandle
-    CloseHandle.argtypes = [HANDLE]
-    CloseHandle.restype = BOOL
+    def delegate_recycle(path):
+        if '\n' in path:
+            raise ValueError('Cannot recycle paths that have newlines in them (%r)' % path)
+        with rlock:
+            start_recycler()
+            eintr_retry_call(print, path.encode('utf-8'), file=recycler.stdin)
+            recycler.stdin.flush()
+            # Theoretically this could be made non-blocking using a
+            # thread+queue, however the original implementation was blocking,
+            # so I am leaving it as blocking.
+            result = eintr_retry_call(recycler.stdout.readline)
+            if result.rstrip() != b'OK':
+                raise RuntimeError('recycler failed to recycle: %r' % path)
 
     def recycle(path):
         # We have to run the delete to recycle bin in a separate process as the
         # morons who wrote SHFileOperation designed it to spin the event loop
         # even when no UI is created. And there is no other way to send files
-        # to the recycle bin on windows. Le Sigh. We dont use subprocess since
-        # there is no way to pass unicode arguments with subprocess in 2.7 and
-        # the twit that maintains subprocess believes that this is not an
-        # bug but a request for a new feature.
+        # to the recycle bin on windows. Le Sigh. So we do it in a worker
+        # process. Unfortunately, if the worker process exits immediately after
+        # deleting to recycle bin, winblows does not update the recycle bin
+        # icon. Le Double Sigh. So we use a long lived worker process, that is
+        # started on first recycle, and sticks around to handle subsequent
+        # recycles.
         if isinstance(path, bytes):
             path = path.decode(filesystem_encoding)
-        si = STARTUPINFO()
-        si.cb = ctypes.sizeof(si)
-        pi = PROCESS_INFORMATION()
-        exit_code = DWORD()
-        cmd = subprocess.list2cmdline([RECYCLE, path])
-        dwCreationFlags = CREATE_NO_WINDOW
-        if not CreateProcess(None, cmd, None, None, False, dwCreationFlags,
-                None, None, ctypes.byref(si), ctypes.byref(pi)):
-            raise ctypes.WinError()
-        try:
-            if WaitForSingleObject(pi.hProcess, INFINITE) == WAIT_FAILED:
-                raise ctypes.WinError()
-            if not GetExitCodeProcess(pi.hProcess, ctypes.byref(exit_code)):
-                raise ctypes.WinError()
-
-        finally:
-            CloseHandle(pi.hThread)
-            CloseHandle(pi.hProcess)
-        exit_code = exit_code.value
-        if exit_code != 0:
-            raise ctypes.WinError(exit_code)
+        path = os.path.abspath(path)  # Windows does not like recycling relative paths
+        return delegate_recycle(path)
 
 elif isosx:
     u = plugins['usbobserver'][0]

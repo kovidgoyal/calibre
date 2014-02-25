@@ -42,7 +42,6 @@ DESCRIPTIONS = {
         'calibre-server': 'Standalone calibre content server',
         'calibre-parallel': 'calibre worker process',
         'calibre-smtp' : 'Command line interface for sending books via email',
-        'calibre-recycle' : 'Helper program for deleting to recycle bin',
         'calibre-eject' : 'Helper program for ejecting connected reader devices',
 }
 
@@ -85,7 +84,6 @@ class Win32Freeze(Command, WixMixIn):
         self.initbase()
         self.build_launchers()
         self.build_eject()
-        self.build_recycle()
         self.add_plugins()
         self.freeze()
         self.embed_manifests()
@@ -545,21 +543,6 @@ class Win32Freeze(Command, WixMixIn):
                     zf.write(f, arcname)
         finally:
             os.chdir(cwd)
-
-    def build_recycle(self):
-        self.info('Building calibre-recycle.exe')
-        base = self.j(self.src_root, 'setup', 'installer', 'windows')
-        src = self.j(base, 'recycle.c')
-        obj = self.j(self.obj_dir, self.b(src)+'.obj')
-        cflags  = '/c /EHsc /MD /W3 /Ox /nologo /D_UNICODE'.split()
-        if self.newer(obj, src):
-            cmd = [msvc.cc] + cflags + ['/Fo'+obj, '/Tc'+src]
-            self.run_builder(cmd, show_output=True)
-        exe = self.j(self.base, 'calibre-recycle.exe')
-        cmd = [msvc.linker] + ['/MACHINE:'+machine,
-                '/SUBSYSTEM:CONSOLE', '/RELEASE',
-                '/OUT:'+exe] + [self.embed_resources(exe), obj, 'Shell32.lib']
-        self.run_builder(cmd)
 
     def build_eject(self):
         self.info('Building calibre-eject.exe')
