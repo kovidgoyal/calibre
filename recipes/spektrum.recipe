@@ -1,3 +1,9 @@
+##
+## Written:      October 2012 (new coding)
+## Version:      7.0
+## Last update:  2014-02-25
+##
+
 __license__   = 'GPL v3'
 __copyright__ = ''
 '''
@@ -6,11 +12,10 @@ Fetch RSS-Feeds spektrum.de
 from calibre.web.feeds.recipes import BasicNewsRecipe
 class AdvancedUserRecipe1303841067(BasicNewsRecipe):
     title                 = u'Spektrum der Wissenschaft'
-    __author__            = 'Armin Geller, Bratzzo, Rainer Zenz'  # Update AGE 2013-07-26
+    __author__            = 'Armin Geller, Bratzzo, Rainer Zenz' # Update AGE 2014-02-25
     description           = u'German  online portal of Spektrum der Wissenschaft'
     publisher             = 'Spektrum der Wissenschaft Verlagsgesellschaft mbH'
     category              = 'science news, Germany'
-
     oldest_article        = 7
     max_articles_per_feed = 100
     no_stylesheets        = True
@@ -20,16 +25,19 @@ class AdvancedUserRecipe1303841067(BasicNewsRecipe):
 
     #conversion_options    = {'base_font_size': 20}
 
-    # cover_url             = 'http://upload.wikimedia.org/wikipedia/de/5/59/Spektrum-cover.jpg' # from Rainer Zenz
-    cover_url             = 'http://www16.zippyshare.com/scaled/52219516/file.html'  # AGE 2013-07-26 new cover location
+
+    # Cover from Rainer Zenz
+    cover_url             = 'http://www16.zippyshare.com/scaled/52219516/file.html' # AGE 2013-07-26 new cover location
 
     masthead_url          = 'http://www.spektrum.de/fm/861/spektrum.de.png'
-
+    
+    # AGE 2014-02-25 add .textbox-wide
     extra_css      =  '''
                       h1 {font-size: 1.6em; text-align: left}
                       h2 {font-size: 1em; font-style: italic; font-weight: normal}
                       h3 {font-size: 1.3em;text-align: left}
                       h4, h5, h6, .heading, .hgroup {font-size: 1em;text-align: left}
+                      .textbox-wide {font-size: 1.3em; font-style: italic}
                       '''
 
     feeds = [
@@ -53,6 +61,7 @@ class AdvancedUserRecipe1303841067(BasicNewsRecipe):
 
     remove_tags = [
                     dict(attrs={'id':['recommend-article', 'dossierbox', 'cover', 'toc']}),
-                    dict(attrs={'class':['sidebar-box-full clearfix', 'linktotop']}),
+                    dict(attrs={'class':['sidebar-box-full clearfix', 'linktotop' ]}),
+                    dict(name='a', attrs={'class':'button-petrol'}), # AGE 2014-02-25
+                    dict(name='hr', attrs={'class':['box-border left','box-border right']}), # AGE 2014-02-25
                   ]
-
