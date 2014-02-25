@@ -24,6 +24,8 @@ def c_parse(val):
         # an int
         if isinstance(val, (int, float)):
             return datetime(int(val), 1, 3, tzinfo=utc_tz)
+        if val is None:
+            return UNDEFINED_DATE
     except:
         pass
     else:
@@ -36,7 +38,7 @@ def c_parse(val):
         return ans
     try:
         return parse_date(val, as_utc=True, assume_utc=True)
-    except ValueError:
+    except (ValueError, TypeError):
         return UNDEFINED_DATE
 
 ONE_ONE, MANY_ONE, MANY_MANY = xrange(3)
