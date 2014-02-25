@@ -283,7 +283,10 @@ class Editor(QMainWindow):
         from calibre.ebooks.oeb.polish.pretty import pretty_html, pretty_css, pretty_xml
         if self.syntax in {'css', 'html', 'xml'}:
             func = {'css':pretty_css, 'xml':pretty_xml}.get(self.syntax, pretty_html)
-            self.editor.replace_text(func(current_container(), name, unicode(self.editor.toPlainText())).decode('utf-8'))
+            original_text = unicode(self.editor.toPlainText())
+            prettied_text = func(current_container(), name, original_text).decode('utf-8')
+            if original_text != prettied_text:
+                self.editor.replace_text(prettied_text)
             return True
         return False
 

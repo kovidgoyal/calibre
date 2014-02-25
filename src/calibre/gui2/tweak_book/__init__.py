@@ -39,6 +39,7 @@ d['preview_minimum_font_size'] = 8
 d['remove_existing_links_when_linking_sheets'] = True
 d['charmap_favorites'] = list(map(ord, '\xa0\u2002\u2003\u2009\xad' '‘’“”‹›«»‚„' '—–§¶†‡©®™' '→⇒•·°±−×÷¼½½¾' '…µ¢£€¿¡¨´¸ˆ˜' 'ÀÁÂÃÄÅÆÇÈÉÊË' 'ÌÍÎÏÐÑÒÓÔÕÖØ' 'ŒŠÙÚÛÜÝŸÞßàá' 'âãäåæçèéêëìí' 'îïðñòóôõöøœš' 'ùúûüýÿþªºαΩ∞'))  # noqa
 d['folders_for_types'] = {'style':'styles', 'image':'images', 'font':'fonts', 'audio':'audio', 'video':'video'}
+d['pretty_print_on_open'] = False
 
 del d
 

@@ -136,6 +136,9 @@ class Editor(QMainWindow):
     def number_of_lines(self):
         return 0
 
+    def pretty_print(self, name):
+        return False
+
     def get_raw_data(self):
         return self.canvas.get_image_data(quality=self.quality)
 

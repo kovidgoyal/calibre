@@ -184,6 +184,13 @@ class EditorSettings(BasicSettings):
         lw.setText(_('Show the name of the current character before the cursor along with the line and column number'))
         l.addRow(lw)
 
+        lw = self('pretty_print_on_open')
+        lw.setText(_('Beautify individual files automatically when they are opened'))
+        lw.setToolTip('<p>' + _(
+            'This will cause the beautify current file action to be performed automatically every'
+            ' time you open a HTML/CSS/etc. file for editing.'))
+        l.addRow(lw)
+
 class IntegrationSettings(BasicSettings):
 
     def __init__(self, parent=None):

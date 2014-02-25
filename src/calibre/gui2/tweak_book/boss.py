@@ -1086,6 +1086,8 @@ class Boss(QObject):
                 data = use_template
             editor = editors[name] = editor_from_syntax(syntax, self.gui.editor_tabs)
             self.init_editor(name, editor, data, use_template=bool(use_template))
+            if tprefs['pretty_print_on_open']:
+                editor.pretty_print(name)
         self.show_editor(name)
         return editor
 
