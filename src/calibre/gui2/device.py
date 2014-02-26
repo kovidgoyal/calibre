@@ -1888,10 +1888,11 @@ class DeviceMixin(object):  # {{{
                 try:
                     prints('DeviceJob: set_books_in_library refreshing GUI for ',
                            len(self.sbil_book_ids_to_refresh), 'books')
-                    self.library_view.model().refresh_ids(self.sbil_book_ids_to_refresh)
+                    self.library_view.model().refresh_ids(self.sbil_book_ids_to_refresh,
+                                      current_row=self.library_view.currentIndex().row())
                 except:
                     # This shouldn't ever happen, but just in case ...
-                    pass
+                    traceback.print_exc()
 
         if DEBUG:
             prints('DeviceJob: set_books_in_library finished: time=',
