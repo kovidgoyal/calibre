@@ -570,7 +570,7 @@ def get_https_resource_securely(url, timeout=60, max_redirects=5, ssl_version=No
             if response.status != httplib.OK:
                 raise HTTPError(url, response.status)
             return response.read()
-
+# }}}
 
 def extract_tarball(tar, destdir):
     prints('Extracting application files...')
