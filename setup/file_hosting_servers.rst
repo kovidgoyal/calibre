@@ -4,7 +4,7 @@ Provisioning a file hosting server
 Create the ssh authorized keys file.
 
 Edit /etc/ssh/sshd_config and change PermitRootLogin to without-password.
-Restart sshd.
+service sshd restart
 
 hostname whatever
 Edit /etc/hosts and put in FQDN in the appropriate places, for example::
