@@ -9,7 +9,7 @@ from datetime import date
 
 class ZeitDe(BasicNewsRecipe):
 
-    __author__            = 'Armin Geller'    # AGe 2014-01-09
+    __author__            = 'Armin Geller'    # AGe 2014-02-26
     title                 = u'Zeit Online'
     description           = u'German  online portal of newspaper Die Zeit'
     publisher             = 'ZEIT ONLINE GmbH'
@@ -27,8 +27,8 @@ class ZeitDe(BasicNewsRecipe):
     masthead_url          = 'http://images.zeit.de/static/img/logo_247x30.png'
 
     year = str(date.today().isocalendar()[0])  # [0]=year [1]=week number [2]=week day
-    week = str(date.today().isocalendar()[1]+1).zfill(3)  # AGE 2014-01-09: week needs 3 digits with prefix 0
-
+    # week = str(date.today().isocalendar()[1]+1).zfill(3) # AGE 2014-01-09: week needs 3 digits with prefix 0
+    week = str(date.today().isocalendar()[1]).zfill(3)  # AGE 2014-02-26: week
     cover_url = 'http://images.zeit.de/bilder/titelseiten_zeit/titelfluss/'  + year + '/'+ week + '_001.jpg'  # AGE 2014-01-09
 
     extra_css = '.caption {font-size: 0.9em; font-style: italic; } \
