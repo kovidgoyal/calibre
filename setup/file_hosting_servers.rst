@@ -20,9 +20,11 @@ chsh -s /bin/zsh
 
 mkdir -p /root/staging /root/work/vim /srv/download /srv/manual
 
-scp ~/.zshrc ~/.vimrc  server:
-scp -r ~/work/vim/zsh-syntax-highlighting server:work/vim
-scp -r ~/work/vim/zsh-history-substring-search server:work/vim
+export server=whatever
+scp ~/.zshrc ~/.vimrc  $server:
+scp -r ~/work/vim/zsh-syntax-highlighting $server:work/vim
+scp -r ~/work/vim/zsh-history-substring-search $server:work/vim
+
 cd /usr/local && git clone https://github.com/kovidgoyal/calibre.git
 echo '#!/bin/sh\ncd /usr/local/calibre && git pull -q' > /usr/local/bin/update-calibre && chmod +x /usr/local/bin/update-calibre
 
@@ -38,14 +40,10 @@ Then, add the following to crontab::
 Nginx
 ------
 
-Copy over /etc/nginx/sites-available/default from another file server. When
-copying, remember to use cat instead of cp to preserve hardlinks (the file is a
-hardlink to /etc/nginx/sites-enabled/default)
-
-Also copy over /etc/nginx/mime.types
-
-rsync -avz other:/srv/ /srv/
-
+export server=whatever
+ssh $server cat /etc/nginx/sites-available/default > /etc/nginx/sites-available/default
+ssh $server cat /etc/nginx/mime.types > /etc/nginx/mime.types
+rsync -avz $server:/srv/ /srv/
 service nginx start
 
 Services
@@ -54,7 +52,7 @@ Services
 SSH into sourceforge and downloadbestsoftware so that their host keys are
 stored.
 
-   ssh -oStrictHostKeyChecking=no files.calibre-ebook.com (and whatever other mirrors are present)
-   ssh -oStrictHostKeyChecking=no kovid@mirror1.fosshub.com
+   ssh -oStrictHostKeyChecking=no files.calibre-ebook.com echo done (and whatever other mirrors are present)
+   ssh -oStrictHostKeyChecking=no kovid@mirror1.fosshub.com echo done
    ssh -oStrictHostKeyChecking=no kovidgoyal,calibre@frs.sourceforge.net
 
