@@ -4,7 +4,7 @@ Provisioning a file hosting server
 Create the ssh authorized keys file.
 
 Edit /etc/ssh/sshd_config and change PermitRootLogin to without-password.
-service sshd restart
+service ssh restart
 
 hostname whatever
 Edit /etc/hosts and put in FQDN in the appropriate places, for example::
@@ -20,7 +20,7 @@ chsh -s /bin/zsh
 
 mkdir -p /root/staging /root/work/vim /srv/download /srv/manual
 
-scp .zshrc .vimrc  server:
+scp ~/.zshrc ~/.vimrc  server:
 scp -r ~/work/vim/zsh-syntax-highlighting server:work/vim
 scp -r ~/work/vim/zsh-history-substring-search server:work/vim
 cd /usr/local && git clone https://github.com/kovidgoyal/calibre.git
@@ -44,7 +44,7 @@ hardlink to /etc/nginx/sites-enabled/default)
 
 Also copy over /etc/nginx/mime.types
 
-rsync /srv from another file server
+rsync -avz other:/srv/ /srv/
 
 service nginx start
 
@@ -54,7 +54,7 @@ Services
 SSH into sourceforge and downloadbestsoftware so that their host keys are
 stored.
 
+   ssh -oStrictHostKeyChecking=no files.calibre-ebook.com (and whatever other mirrors are present)
    ssh -oStrictHostKeyChecking=no kovid@mirror1.fosshub.com
    ssh -oStrictHostKeyChecking=no kovidgoyal,calibre@frs.sourceforge.net
-   ssh -oStrictHostKeyChecking=no files.calibre-ebook.com (and whatever other mirrors are present)
 
