@@ -494,6 +494,7 @@ class BooksModel(QAbstractTableModel):  # {{{
         mi.field_metadata = self.db.field_metadata
         mi.path = self.db.abspath(idx, create_dirs=False)
         mi.format_files = self.db.new_api.format_files(self.db.data.index_to_id(idx))
+        mi.row_number = idx
         try:
             mi.marked = self.db.data.get_marked(idx, index_is_id=False)
         except:

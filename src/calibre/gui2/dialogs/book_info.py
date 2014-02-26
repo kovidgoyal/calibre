@@ -79,7 +79,7 @@ class BookInfo(QDialog):
         self.view = view
         self.current_row = None
         self.refresh(row)
-        self.view.selectionModel().currentChanged.connect(self.slave)
+        self.view.model().new_bookdisplay_data.connect(self.slave)
         self.fit_cover.stateChanged.connect(self.toggle_cover_fit)
         self.ns = QShortcut(QKeySequence('Alt+Right'), self)
         self.ns.activated.connect(self.next)
@@ -110,7 +110,7 @@ class BookInfo(QDialog):
         saved_layout = (bytearray(self.saveGeometry()), bytearray(self.splitter.saveState()))
         gprefs.set('book_info_dialog_layout', saved_layout)
         ret = QDialog.done(self, r)
-        self.view.selectionModel().currentChanged.disconnect(self.slave)
+        self.view.model().new_bookdisplay_data.disconnect(self.slave)
         self.view = self.link_delegate = self.gui = None
         self.closed.emit(self)
         return ret
@@ -124,10 +124,6 @@ class BookInfo(QDialog):
         ci = self.view.currentIndex()
         if ci.isValid():
             self.view.model().current_changed(ci, ci)
-        self.cover_pixmap = QPixmap()
-        self.cover_pixmap.loadFromData(data)
-        if self.fit_cover.isChecked():
-            self.resize_cover()
 
     def details_size_hint(self):
         return QSize(350, 550)
@@ -139,25 +135,18 @@ class BookInfo(QDialog):
     def cover_view_resized(self, event):
         QTimer.singleShot(1, self.resize_cover)
 
-    def slave(self, current, previous):
-        if current.row() != previous.row():
-            row = current.row()
-            self.refresh(row)
+    def slave(self, mi):
+        self.refresh(mi.row_number, mi)
 
     def move(self, delta=1):
-        self.view.selectionModel().currentChanged.disconnect(self.slave)
-        try:
-            idx = self.view.currentIndex()
-            if idx.isValid():
-                m = self.view.model()
-                ni = m.index(idx.row() + delta, idx.column())
-                if ni.isValid():
-                    self.view.setCurrentIndex(ni)
-                    self.refresh(ni.row())
-                    if self.view.isVisible():
-                        self.view.scrollTo(ni)
-        finally:
-            self.view.selectionModel().currentChanged.connect(self.slave)
+        idx = self.view.currentIndex()
+        if idx.isValid():
+            m = self.view.model()
+            ni = m.index(idx.row() + delta, idx.column())
+            if ni.isValid():
+                if self.view.isVisible():
+                    self.view.scrollTo(ni)
+                self.view.setCurrentIndex(ni)
 
     def next(self):
         self.move()
@@ -190,12 +179,12 @@ class BookInfo(QDialog):
             tt += _('Cover size: %(width)d x %(height)d')%dict(width=sz.width(), height=sz.height())
         self.cover.setToolTip(tt)
 
-    def refresh(self, row):
+    def refresh(self, row, mi=None):
         if isinstance(row, QModelIndex):
             row = row.row()
-        if row == self.current_row:
+        if row == self.current_row and mi is None:
             return
-        mi = self.view.model().get_book_display_info(row)
+        mi = self.view.model().get_book_display_info(row) if mi is None else mi
         if mi is None:
             # Indicates books was deleted from library, or row numbers have
             # changed
