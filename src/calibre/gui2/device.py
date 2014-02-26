@@ -1751,12 +1751,9 @@ class DeviceMixin(object):  # {{{
             self.db_book_title_cache = db_book_title_cache
             self.db_book_uuid_cache = db_book_uuid_cache
 
-        # Now iterate through all the books on the device, setting the
-        # in_library field. If the UUID matches a book in the library, then
-        # do not consider that book for other matching. In all cases set
-        # the application_id to the db_id of the matching book. This value
-        # will be used by books_on_device to indicate matches. While we are
-        # going by, update the metadata for a book if automatic management is on
+        # This is really a local variable, but it must be made into a class
+        # attribute so that the updateq function (below) can change it.
+        self.sbil_book_ids_to_refresh = set()
 
         def update_book(id_, book) :
             if not update_metadata:
@@ -1768,20 +1765,30 @@ class DeviceMixin(object):  # {{{
 
         def updateq(id_, book):
             try:
-                return (update_metadata and
-                        (
-                         (self.device_manager.device is not None and
-                               self.device_manager.device.synchronize_with_db(db, id_, book)) or
-                         (db.metadata_last_modified(id_, index_is_id=True) !=
-                          getattr(book, 'last_modified', None) or
-                          (isinstance(getattr(book, 'thumbnail', None), (list, tuple))
-                           and max(book.thumbnail[0], book.thumbnail[1]) != desired_thumbnail_height
-                          )
-                         )
+                if not update_metadata:
+                    return False
+
+                if self.device_manager.device is not None:
+                    set_of_ids = self.device_manager.device.synchronize_with_db(db, id_, book)
+                    if set_of_ids is not None:
+                        self.sbil_book_ids_to_refresh |= set_of_ids
+                        return True
+
+                return (db.metadata_last_modified(id_, index_is_id=True) !=
+                        getattr(book, 'last_modified', None) or
+                        (isinstance(getattr(book, 'thumbnail', None), (list, tuple))
+                         and max(book.thumbnail[0], book.thumbnail[1]) != desired_thumbnail_height
                         )
                        )
             except:
                 return True
+
+        # Now iterate through all the books on the device, setting the
+        # in_library field. If the UUID matches a book in the library, then
+        # do not consider that book for other matching. In all cases set
+        # the application_id to the db_id of the matching book. This value
+        # will be used by books_on_device to indicate matches. While we are
+        # going by, update the metadata for a book if automatic management is on
 
         total_book_count = 0
         for booklist in booklists:
@@ -1876,6 +1883,15 @@ class DeviceMixin(object):  # {{{
                     self.device_manager.sync_booklists(
                                 FunctionDispatcher(self.metadata_synced), booklists,
                                 plugboards, add_as_step_to_job)
+
+            if self.sbil_book_ids_to_refresh:
+                try:
+                    prints('DeviceJob: set_books_in_library refreshing GUI for ',
+                           len(self.sbil_book_ids_to_refresh), 'books')
+                    self.library_view.model().refresh_ids(self.sbil_book_ids_to_refresh)
+                except:
+                    # This shouldn't ever happen, but just in case ...
+                    pass
 
         if DEBUG:
             prints('DeviceJob: set_books_in_library finished: time=',
