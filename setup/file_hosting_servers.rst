@@ -24,9 +24,11 @@ scp .zshrc .vimrc  server:
 scp -r ~/work/vim/zsh-syntax-highlighting server:work/vim
 scp -r ~/work/vim/zsh-history-substring-search server:work/vim
 cd /usr/local && git clone https://github.com/kovidgoyal/calibre.git
+echo '#!/bin/sh\ncd /usr/local/calibre && git pull -q' > /usr/local/bin/update-calibre && chmod +x /usr/local/bin/update-calibre
 
 Add the following to crontab::
     @hourly    /usr/bin/python /usr/local/calibre/setup/plugins_mirror.py
+    @hourly    /usr/local/bin/update-calibre
 
 If the server has a backup hard-disk, mount it at /mnt/backup and edit /etc/fstab so that it is auto-mounted.
 Then, add the following to crontab::
