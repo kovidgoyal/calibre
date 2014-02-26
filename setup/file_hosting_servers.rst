@@ -11,11 +11,9 @@ Edit /etc/hosts and put in FQDN in the appropriate places, for example::
     127.0.0.1       download.calibre-ebook.com download
     46.28.49.116 download.calibre-ebook.com download
 
-echo "Asia/Kolkata" > /etc/timezone && dpkg-reconfigure -f noninteractive tzdata
-
-apt-get install vim nginx zsh python-lxml python-mechanize iotop htop smartmontools mosh git
+echo "Asia/Kolkata" > /etc/timezone && dpkg-reconfigure -f noninteractive tzdata && ntpdate ntp.ubuntu.com
+apt-get install vim nginx zsh python-lxml python-mechanize iotop htop smartmontools mosh git ntp
 chsh -s /bin/zsh
-
 mkdir -p /root/staging /root/work/vim /srv/download /srv/manual
 
 export server=whatever
