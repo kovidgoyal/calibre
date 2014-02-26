@@ -1751,9 +1751,7 @@ class DeviceMixin(object):  # {{{
             self.db_book_title_cache = db_book_title_cache
             self.db_book_uuid_cache = db_book_uuid_cache
 
-        # This is really a local variable, but it must be made into a class
-        # attribute so that the updateq function (below) can change it.
-        self.sbil_book_ids_to_refresh = set()
+        book_ids_to_refresh = set()
 
         def update_book(id_, book) :
             if not update_metadata:
@@ -1771,7 +1769,7 @@ class DeviceMixin(object):  # {{{
                 if self.device_manager.device is not None:
                     set_of_ids = self.device_manager.device.synchronize_with_db(db, id_, book)
                     if set_of_ids is not None:
-                        self.sbil_book_ids_to_refresh |= set_of_ids
+                        book_ids_to_refresh.update(set_of_ids)
                         return True
 
                 return (db.metadata_last_modified(id_, index_is_id=True) !=
@@ -1884,11 +1882,11 @@ class DeviceMixin(object):  # {{{
                                 FunctionDispatcher(self.metadata_synced), booklists,
                                 plugboards, add_as_step_to_job)
 
-            if self.sbil_book_ids_to_refresh:
+            if book_ids_to_refresh:
                 try:
                     prints('DeviceJob: set_books_in_library refreshing GUI for ',
-                           len(self.sbil_book_ids_to_refresh), 'books')
-                    self.library_view.model().refresh_ids(self.sbil_book_ids_to_refresh,
+                           len(book_ids_to_refresh), 'books')
+                    self.library_view.model().refresh_ids(book_ids_to_refresh,
                                       current_row=self.library_view.currentIndex().row())
                 except:
                     # This shouldn't ever happen, but just in case ...
