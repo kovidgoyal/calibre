@@ -791,6 +791,8 @@ class Boss(QObject):
                 count = do_all()
                 if count == 0:
                     self.rewind_savepoint()
+                else:
+                    self.set_modified()
                 return
             if action == 'count':
                 if marked:
