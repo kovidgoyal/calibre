@@ -449,6 +449,7 @@ class Source(Plugin):
             self.log.exception('Failed to download cover from: %r'%url)
 
     # }}}
+
     # Metadata API {{{
     def get_book_url(self, identifiers):
         '''
