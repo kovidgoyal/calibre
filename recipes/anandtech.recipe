@@ -12,7 +12,7 @@ class anan(BasicNewsRecipe):
 
     title = 'Anandtech'
     description = 'comprehensive Hardware Tests'
-    __author__ = 'Oliver Niesner, Armin Geller'  # 2013-09-07 AGE: update
+    __author__ = 'Oliver Niesner, Armin Geller'  # 2014-02-27 AGE: update
     use_embedded_content   = False
     language = 'en'
     timefmt = ' [%d %b %Y]'
@@ -28,8 +28,8 @@ class anan(BasicNewsRecipe):
     keep_only_tags = [
                        dict(name='section', attrs={'class':['main_cont']}),
                      ]
-    remove_tags=[                                            # 2013-09-07 AGE: update
-                  dict(name='div', attrs={'class':['print',  # logo
+    remove_tags=[
+                  dict(name='div', attrs={'class':['print',
                                                     'breadcrumb_area noprint',
                                                     'fl-rt noprint',
                                                     'blog_top_right',]})
@@ -38,4 +38,5 @@ class anan(BasicNewsRecipe):
     feeds =  [('Anandtech', 'http://www.anandtech.com/rss/')]
 
     def print_version(self,url):
-        return url.replace("0Cshow0C", "0Cprint0C")  # 2013-09-07 AGE: update
+        # return url.replace("0Cshow0C", "0Cprint0C") # 2013-09-07 AGE: update
+        return url.replace("/show/", "/print/")  # 2014-02-27 AGE: update
