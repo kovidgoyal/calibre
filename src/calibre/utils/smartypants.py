@@ -1,4 +1,5 @@
 #!/usr/bin/python
+# vim:fileencoding=utf-8
 
 __author__ = "Chad Miller <smartypantspy@chad.org>, Kovid Goyal <kovid at kovidgoyal.net>"
 __description__ = "Smart-quotes, smart-ellipses, and smart-dashes for weblog entries in pyblosxom"
@@ -605,6 +606,12 @@ def educateQuotes(str):
     str = re.sub(r'''""''',       """&#8221;&#8221;""", str)
     str = re.sub(r"""''""",       """&#8217;&#8217;""", str)
 
+    # Special case for decade abbreviations (the '80s --> ’80s):
+    # See http://practicaltypography.com/apostrophes.html
+    str = re.sub(r"""(\W|^)'(?=\d{2}s)""", r"""\1&#8217;""", str)
+    # Measurements in feet and inches or longitude/latitude: 19' 43.5" --> 19′ 43.5″
+    str = re.sub(r'''(\W|^)([-0-9.]+\s*)'(\s*[-0-9.]+)"''', r'\1\2&#8242;\3&#8243;', str)
+
     # Special case for Quotes at inside of other entities, e.g.:
     #   <p>A double quote--"within dashes"--would be nice.</p>
     str = re.sub(r"""(?<=\W)"(?=\w)""", r"""&#8220;""", str)
@@ -624,9 +631,6 @@ def educateQuotes(str):
     # Special case for Quotes at beginning of line with a space - multiparagraph quoted text:
     # str = re.sub(r"""^"(?=\s)""", r"""&#8220;""", str)
     # str = re.sub(r"""^'(?=\s)""", r"""&#8216;""", str)
-
-    # Special case for decade abbreviations (the '80s):
-    str = re.sub(r"""\b'(?=\d{2}s)""", r"""&#8217;""", str)
 
     close_class = r"""[^\ \t\r\n\[\{\(\-]"""
     dec_dashes = r"""&#8211;|&#8212;"""
@@ -887,13 +891,19 @@ def run_tests():
         # the default attribute is "1", which means "all".
 
         def test_dates(self):
+            self.assertEqual(sp("one two '60s"), "one two &#8217;60s")
             self.assertEqual(sp("1440-80's"), "1440-80&#8217;s")
-            self.assertEqual(sp("1440-'80s"), "1440-&#8216;80s")
-            self.assertEqual(sp("1440---'80s"), "1440&#8211;&#8216;80s")
+            self.assertEqual(sp("1440-'80s"), "1440-&#8217;80s")
+            self.assertEqual(sp("1440---'80s"), "1440&#8211;&#8217;80s")
             self.assertEqual(sp("1960s"), "1960s")  # no effect.
             self.assertEqual(sp("1960's"), "1960&#8217;s")
-            self.assertEqual(sp("one two '60s"), "one two &#8216;60s")
-            self.assertEqual(sp("'60s"), "&#8216;60s")
+            self.assertEqual(sp("one two '60s"), "one two &#8217;60s")
+            self.assertEqual(sp("'60s"), "&#8217;60s")
+
+        def test_measurements(self):
+            ae = self.assertEqual
+            ae(sp("one two 1.1'2.2\""), "one two 1.1&#8242;2.2&#8243;")
+            ae(sp("1' 2\""), "1&#8242; 2&#8243;")
 
         def test_skip_tags(self):
             self.assertEqual(
