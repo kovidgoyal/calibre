@@ -530,3 +530,13 @@ This tool allows you to automatically move all files into sub-folders based on
 their types. Access it via :guilabel:`Tools->Arrange into folders`. Note that
 this tool only changes how the files are arranged inside the EPUB, it does not
 change how they are displayed in the Files Browser.
+
+Importing files in other e-book formats as EPUB
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The editor includes the ability to import files in some other e-book formats
+directly as a new EPUB, without going through a full conversion. This is
+particularly useful to directly create EPUB files from your own hand-edited
+HTML files. You can do this via :guilabel:`File->Import an HTML or DOCX file as
+a new book`.
+
