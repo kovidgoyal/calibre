@@ -174,6 +174,8 @@ class Boss(QObject):
         if hasattr(path, 'rstrip'):
             d.set_src(os.path.abspath(path))
         if d.exec_() == d.Accepted:
+            for name in tuple(editors):
+                self.close_editor(name)
             from calibre.ebooks.oeb.polish.import_book import import_book_as_epub
             src, dest = d.data
             self._clear_notify_data = True
