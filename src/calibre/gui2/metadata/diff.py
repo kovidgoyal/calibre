@@ -402,6 +402,14 @@ class CompareSingle(QWidget):
         self.sep2 = f = QFrame(self)
         f.setFrameShape(f.VLine)
         l.addWidget(f, 0, 4, row, 1)
+        if 'comments' in self.widgets and not gprefs.get('diff_widget_show_comments_controls', True):
+            self.widgets['comments'].new.hide_toolbars()
+
+    def save_comments_controls_state(self):
+        if 'comments' in self.widgets:
+            vis = self.widgets['comments'].new.toolbars_visible
+            if vis != gprefs.get('diff_widget_show_comments_controls', True):
+                gprefs.set('diff_widget_show_comments_controls', vis)
 
     def changed(self, field):
         w = self.widgets[field]
@@ -510,10 +518,12 @@ class CompareMany(QDialog):
 
     def accept(self):
         gprefs.set('diff_dialog_geom', bytearray(self.saveGeometry()))
+        self.compare_widget.save_comments_controls_state()
         super(CompareMany, self).accept()
 
     def reject(self):
         gprefs.set('diff_dialog_geom', bytearray(self.saveGeometry()))
+        self.compare_widget.save_comments_controls_state()
         super(CompareMany, self).reject()
 
     @property

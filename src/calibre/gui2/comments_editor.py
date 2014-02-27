@@ -5,7 +5,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import re, os, json
+import re, os, json, weakref
 
 from lxml import html
 import sip
@@ -69,6 +69,7 @@ class EditorWidget(QWebView):  # {{{
 
     def __init__(self, parent=None):
         QWebView.__init__(self, parent)
+        self._parent = weakref.ref(parent)
         self.readonly = False
 
         self.comments_pat = re.compile(r'<!--.*?-->', re.DOTALL)
@@ -407,6 +408,11 @@ class EditorWidget(QWebView):  # {{{
         for action in menu.actions():
             if action == paste:
                 menu.insertAction(action, self.pageAction(QWebPage.PasteAndMatchStyle))
+        parent = self._parent()
+        if hasattr(parent, 'toolbars_visible'):
+            vis = parent.toolbars_visible
+            menu.addAction(_('%s toolbars') % (_('Hide') if vis else _('Show')),
+                           (parent.hide_toolbars if vis else parent.show_toolbars))
         menu.exec_(ev.globalPos())
 
 # }}}
@@ -742,6 +748,19 @@ class Editor(QWidget):  # {{{
         self.toolbar1.setVisible(False)
         self.toolbar2.setVisible(False)
         self.toolbar3.setVisible(False)
+
+    def show_toolbars(self):
+        self.toolbar1.setVisible(True)
+        self.toolbar2.setVisible(True)
+        self.toolbar3.setVisible(True)
+
+    @dynamic_property
+    def toolbars_visible(self):
+        def fget(self):
+            return self.toolbar1.isVisible() or self.toolbar2.isVisible() or self.toolbar3.isVisible()
+        def fset(self, val):
+            getattr(self, ('show' if val else 'hide') + '_toolbars')()
+        return property(fget=fget, fset=fset)
 
     def set_readonly(self, what):
         self.editor.set_readonly(what)
