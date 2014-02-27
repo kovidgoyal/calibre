@@ -392,7 +392,7 @@ def cb_story(args):
     try:
         forbidden_flavours = args["entry"]["smartypants_forbidden_flavours"]
     except KeyError:
-        forbidden_flavours = [ "rss" ]
+        forbidden_flavours = ["rss"]
 
     try:
         attributes = args["entry"]["smartypants_attributes"]
@@ -416,7 +416,7 @@ def cb_story(args):
     args["entry"]["title"] = smartyPants(args["entry"]["title"], attributes)
 
 
-### interal functions below here
+# interal functions below here
 
 def smartyPants(text, attr=default_smartypants_attr):
     convert_quot = False  # should we translate &quot; entities into normal quotes?
@@ -468,14 +468,22 @@ def smartyPants(text, attr=default_smartypants_attr):
         do_stupefy   = "1"
     else:
         for c in attr:
-            if c == "q": do_quotes = "1"
-            elif c == "b": do_backticks = "1"
-            elif c == "B": do_backticks = "2"
-            elif c == "d": do_dashes = "1"
-            elif c == "D": do_dashes = "2"
-            elif c == "i": do_dashes = "3"
-            elif c == "e": do_ellipses = "1"
-            elif c == "w": convert_quot = "1"
+            if c == "q":
+                do_quotes = "1"
+            elif c == "b":
+                do_backticks = "1"
+            elif c == "B":
+                do_backticks = "2"
+            elif c == "d":
+                do_dashes = "1"
+            elif c == "D":
+                do_dashes = "2"
+            elif c == "i":
+                do_dashes = "3"
+            elif c == "e":
+                do_ellipses = "1"
+            elif c == "w":
+                convert_quot = "1"
             else:
                 pass
                 # ignore unknown option
@@ -514,7 +522,7 @@ def smartyPants(text, attr=default_smartypants_attr):
                             in_pre = False
         else:
             t = cur_token[1]
-            last_char = t[-1:] # Remember last char of this token before processing.
+            last_char = t[-1:]  # Remember last char of this token before processing.
             if not in_pre:
                 t = processEscapes(t)
 
@@ -607,12 +615,12 @@ def educateQuotes(str):
     # meaningful
 
     # Special case for Quotes at end of line with a preceeding space (may change just to end of line)
-    #str = re.sub(r"""(?<=\s)"$""", r"""&#8221;""", str)
-    #str = re.sub(r"""(?<=\s)'$""", r"""&#8217;""", str)
+    # str = re.sub(r"""(?<=\s)"$""", r"""&#8221;""", str)
+    # str = re.sub(r"""(?<=\s)'$""", r"""&#8217;""", str)
 
     # Special case for Quotes at beginning of line with a space - multiparagraph quoted text:
-    #str = re.sub(r"""^"(?=\s)""", r"""&#8220;""", str)
-    #str = re.sub(r"""^'(?=\s)""", r"""&#8216;""", str)
+    # str = re.sub(r"""^"(?=\s)""", r"""&#8220;""", str)
+    # str = re.sub(r"""^'(?=\s)""", r"""&#8216;""", str)
 
     # Special case for decade abbreviations (the '80s):
     str = re.sub(r"""\b'(?=\d{2}s)""", r"""&#8217;""", str)
@@ -724,8 +732,8 @@ def educateDashes(str):
                 an em-dash HTML entity.
     """
 
-    str = re.sub(r"""---""", r"""&#8211;""", str) # en  (yes, backwards)
-    str = re.sub(r"""--""", r"""&#8212;""", str) # em (yes, backwards)
+    str = re.sub(r"""---""", r"""&#8211;""", str)  # en  (yes, backwards)
+    str = re.sub(r"""--""", r"""&#8212;""", str)  # em (yes, backwards)
     return str
 
 
@@ -763,7 +771,6 @@ def educateDashesOldSchoolInverted(str):
     return str
 
 
-
 def educateEllipses(str):
     """
     Parameter:  String.
@@ -790,7 +797,7 @@ def stupefyEntities(str):
     """
 
     str = re.sub(r"""&#8211;""", r"""-""", str)  # en-dash
-    str = re.sub(r"""&#8212;""", r"""--""", str) # em-dash
+    str = re.sub(r"""&#8212;""", r"""--""", str)  # em-dash
 
     str = re.sub(r"""&#8216;""", r"""'""", str)  # open single quote
     str = re.sub(r"""&#8217;""", r"""'""", str)  # close single quote
@@ -798,7 +805,7 @@ def stupefyEntities(str):
     str = re.sub(r"""&#8220;""", r'''"''', str)  # open double quote
     str = re.sub(r"""&#8221;""", r'''"''', str)  # close double quote
 
-    str = re.sub(r"""&#8230;""", r"""...""", str)# ellipsis
+    str = re.sub(r"""&#8230;""", r"""...""", str)  # ellipsis
 
     return str
 
@@ -847,9 +854,9 @@ def _tokenize(str):
 
     #depth = 6
     #nested_tags = "|".join(['(?:<(?:[^<>]',] * depth) + (')*>)' * depth)
-    #match = r"""(?: <! ( -- .*? -- \s* )+ > ) |  # comments
-    #       (?: <\? .*? \?> ) |  # directives
-    #       %s  # nested tags       """ % (nested_tags,)
+    # match = r"""(?: <! ( -- .*? -- \s* )+ > ) |  # comments
+    # (?: <\? .*? \?> ) |  # directives
+    # %s  # nested tags       """ % (nested_tags,)
     tag_soup = re.compile(r"""([^<]*)(<[^>]*>)""")
 
     token_match = tag_soup.search(str)
@@ -870,7 +877,6 @@ def _tokenize(str):
     return tokens
 
 
-
 if __name__ == "__main__":
 
     import locale
@@ -884,7 +890,6 @@ if __name__ == "__main__":
     docstring_html = publish_string(__doc__, writer_name='html')
 
     print docstring_html
-
 
     # Unit test output goes out stderr.  No worries.
     import unittest
@@ -904,16 +909,15 @@ if __name__ == "__main__":
 
         def test_skip_tags(self):
             self.assertEqual(
-                sp("""<script type="text/javascript">\n<!--\nvar href = "http://www.google.com";\nvar linktext = "google";\ndocument.write('<a href="' + href + '">' + linktext + "</a>");\n//-->\n</script>"""),
-                   """<script type="text/javascript">\n<!--\nvar href = "http://www.google.com";\nvar linktext = "google";\ndocument.write('<a href="' + href + '">' + linktext + "</a>");\n//-->\n</script>""")
+                sp("""<script type="text/javascript">\n<!--\nvar href = "http://www.google.com";\nvar linktext = "google";\ndocument.write('<a href="' + href + '">' + linktext + "</a>");\n//-->\n</script>"""),  # noqa
+                   """<script type="text/javascript">\n<!--\nvar href = "http://www.google.com";\nvar linktext = "google";\ndocument.write('<a href="' + href + '">' + linktext + "</a>");\n//-->\n</script>""")  # noqa
             self.assertEqual(
                 sp("""<p>He said &quot;Let's write some code.&quot; This code here <code>if True:\n\tprint &quot;Okay&quot;</code> is python code.</p>"""),
-                   """<p>He said &#8220;Let&#8217;s write some code.&#8221; This code here <code>if True:\n\tprint &quot;Okay&quot;</code> is python code.</p>""")
+                   """<p>He said &#8220;Let&#8217;s write some code.&#8221; This code here <code>if True:\n\tprint &quot;Okay&quot;</code> is python code.</p>""")  # noqa
 
             self.assertEqual(
                 sp('''<script/><p>It's ok</p>'''),
                 '''<script/><p>It&#8217;s ok</p>''')
-
 
         def test_ordinal_numbers(self):
             self.assertEqual(sp("21st century"), "21st century")  # no effect.
@@ -923,8 +927,6 @@ if __name__ == "__main__":
             self.assertEqual(sp('''"Isn't this fun?"'''), '''&#8220;Isn&#8217;t this fun?&#8221;''')
 
     unittest.main()
-
-
 
 
 __author__ = "Chad Miller <smartypantspy@chad.org>"
