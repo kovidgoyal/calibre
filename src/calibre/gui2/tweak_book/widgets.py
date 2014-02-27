@@ -7,9 +7,10 @@ __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
 from PyQt4.Qt import (
-    QDialog, QDialogButtonBox, QGridLayout, QLabel, QLineEdit, QVBoxLayout)
+    QDialog, QDialogButtonBox, QGridLayout, QLabel, QLineEdit, QVBoxLayout,
+    QFormLayout, QHBoxLayout, QToolButton, QIcon, QApplication, Qt)
 
-from calibre.gui2 import error_dialog
+from calibre.gui2 import error_dialog, choose_files, choose_save_file
 from calibre.gui2.tweak_book import tprefs
 
 class Dialog(QDialog):
@@ -140,3 +141,86 @@ class MultiSplit(Dialog):  # {{{
         return self._xpath.xpath
 
 # }}}
+
+class ImportForeign(Dialog):  # {{{
+
+    def __init__(self, parent=None):
+        Dialog.__init__(self, _('Choose file to import'), 'import-foreign')
+
+    def sizeHint(self):
+        ans = Dialog.sizeHint(self)
+        ans.setWidth(ans.width() + 200)
+        return ans
+
+    def setup_ui(self):
+        self.l = l = QFormLayout(self)
+        self.setLayout(l)
+
+        la = self.la = QLabel(_(
+            'You can import an HTML or DOCX file directly as an EPUB and edit it. The EPUB'
+            ' will be generated with minimal changes from the source, unlike doing a full'
+            ' conversion in calibre.'))
+        la.setWordWrap(True)
+        l.addRow(la)
+
+        self.h1 = h1 = QHBoxLayout()
+        self.src = src = QLineEdit(self)
+        src.setPlaceholderText(_('Choose the file to import'))
+        h1.addWidget(src)
+        self.b1 = b = QToolButton(self)
+        b.setIcon(QIcon(I('document_open.png')))
+        b.setText(_('Choose file'))
+        h1.addWidget(b)
+        l.addRow(_('Source file'), h1)
+        b.clicked.connect(self.choose_source)
+        b.setFocus(Qt.OtherFocusReason)
+
+        self.h2 = h1 = QHBoxLayout()
+        self.dest = src = QLineEdit(self)
+        src.setPlaceholderText(_('Choose the location for the newly created EPUB'))
+        h1.addWidget(src)
+        self.b2 = b = QToolButton(self)
+        b.setIcon(QIcon(I('document_open.png')))
+        b.setText(_('Choose file'))
+        h1.addWidget(b)
+        l.addRow(_('Destination file'), h1)
+        b.clicked.connect(self.choose_destination)
+
+        l.addRow(self.bb)
+
+    def choose_source(self):
+        path = choose_files(self, 'edit-book-choose-file-to-import', _('Choose file'), filters=[
+            (_('HTML files'), ['htm', 'html', 'xhtml', 'xhtm']),
+            (_('DOCX files'), ['docx'])], select_only_single_file=True)
+        if path:
+            self.src.setText(path[0])
+            self.dest.setText(self.data[1])
+
+    def choose_destination(self):
+        path = choose_save_file(self, 'edit-book-destination-for-generated-epub', _('Choose destination'), filters=[
+            (_('EPUB files'), ['epub'])], all_files=False)
+        if path:
+            if not path.lower().endswith('.epub'):
+                path += '.epub'
+            self.dest.setText(path)
+
+    def accept(self):
+        if not unicode(self.src.text()):
+            return error_dialog(self, _('Need document'), _(
+                'You must specify the source file that will be imported.'), show=True)
+        Dialog.accept(self)
+
+    @property
+    def data(self):
+        src = unicode(self.src.text()).strip()
+        dest = unicode(self.dest.text()).strip()
+        if not dest:
+            dest = src.rpartition('.')[0] + '.epub'
+        return src, dest
+# }}}
+
+if __name__ == '__main__':
+    app = QApplication([])
+    d = ImportForeign()
+    d.exec_()
+    print (d.data)

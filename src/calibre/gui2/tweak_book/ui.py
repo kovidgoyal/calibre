@@ -299,6 +299,8 @@ class Main(MainWindow):
         self.action_quit = reg('quit.png', _('&Quit'), self.boss.quit, 'quit', 'Ctrl+Q', _('Quit'))
         self.action_preferences = reg('config.png', _('&Preferences'), self.boss.preferences, 'preferences', 'Ctrl+P', _('Preferences'))
         self.action_new_book = reg('book.png', _('Create &new, empty book'), self.boss.new_book, 'new-book', (), _('Create a new, empty book'))
+        self.action_import_book = reg('book.png', _('&Import an HTML or DOCX file as a new book'),
+                                      self.boss.import_book, 'import-book', (), _('Import an HTML or DOCX file as a new book'))
 
         # Editor actions
         group = _('Editor actions')
@@ -429,6 +431,7 @@ class Main(MainWindow):
         f.addAction(self.action_import_files)
         f.addAction(self.action_open_book)
         f.addAction(self.action_new_book)
+        f.addAction(self.action_import_book)
         self.recent_books_menu = f.addMenu(_('&Recently opened books'))
         self.update_recent_books()
         f.addSeparator()

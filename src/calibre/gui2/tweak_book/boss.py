@@ -37,7 +37,7 @@ from calibre.gui2.tweak_book.toc import TOCEditor
 from calibre.gui2.tweak_book.editor import editor_from_syntax, syntax_from_mime
 from calibre.gui2.tweak_book.editor.insert_resource import get_resource_data, NewBook
 from calibre.gui2.tweak_book.preferences import Preferences
-from calibre.gui2.tweak_book.widgets import RationalizeFolders, MultiSplit
+from calibre.gui2.tweak_book.widgets import RationalizeFolders, MultiSplit, ImportForeign
 
 _diff_dialogs = []
 
@@ -166,6 +166,19 @@ class Boss(QObject):
                 from calibre.ebooks.oeb.polish.create import create_book
                 create_book(d.mi, path, fmt=fmt)
                 self.open_book(path=path)
+
+    def import_book(self):
+        if not self._check_before_open():
+            return
+        d = ImportForeign(self.gui)
+        if d.exec_() == d.Accepted:
+            from calibre.ebooks.oeb.polish.import_book import import_book_as_epub
+            src, dest = d.data
+            self._clear_notify_data = True
+            def func(src, dest, tdir):
+                import_book_as_epub(src, dest)
+                return get_container(dest, tdir=tdir)
+            self.gui.blocking_job('import_book', _('Importing book, please wait...'), self.book_opened, func, src, dest, tdir=self.mkdtemp())
 
     def open_book(self, path=None, edit_file=None, clear_notify_data=True):
         if not self._check_before_open():
