@@ -639,7 +639,7 @@ class EditMetadataAction(InterfaceAction):
                     cancelable=False)
             self.apply_pd.setModal(True)
             self.apply_pd.show()
-        self._am_merge_tags = True
+        self._am_merge_tags = merge_tags
         self.do_one_apply()
 
     def do_one_apply(self):
@@ -664,7 +664,7 @@ class EditMetadataAction(InterfaceAction):
         self.apply_current_idx += 1
         if self.apply_pd is not None:
             self.apply_pd.value += 1
-        QTimer.singleShot(50, self.do_one_apply)
+        QTimer.singleShot(5, self.do_one_apply)
 
     def apply_mi(self, book_id, mi):
         db = self.gui.current_db
