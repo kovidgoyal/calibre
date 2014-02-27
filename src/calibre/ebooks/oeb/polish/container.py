@@ -192,7 +192,7 @@ class Container(object):  # {{{
         mt = media_type or self.guess_type(name)
         self.name_path_map[name] = path
         self.mime_map[name] = mt
-        if name in self.names_that_need_not_be_manifested:
+        if self.ok_to_be_unmanifested(name):
             return
         all_ids = {x.get('id') for x in self.opf_xpath('//*[@id]')}
         c = 0
@@ -385,6 +385,9 @@ class Container(object):  # {{{
             pass
         data, self.used_encoding = xml_to_unicode(data)
         return fix_data(data)
+
+    def ok_to_be_unmanifested(self, name):
+        return name in self.names_that_need_not_be_manifested
 
     @property
     def names_that_need_not_be_manifested(self):
@@ -887,6 +890,9 @@ class EpubContainer(Container):
     @property
     def names_that_need_not_be_manifested(self):
         return super(EpubContainer, self).names_that_need_not_be_manifested | {'META-INF/' + x for x in self.META_INF}
+
+    def ok_to_be_unmanifested(self, name):
+        return name in self.names_that_need_not_be_manifested or name.startswith('META-INF/')
 
     @property
     def names_that_must_not_be_removed(self):

@@ -98,19 +98,26 @@ class Unmanifested(BadLink):
     def __init__(self, name):
         BadLink.__init__(self, _(
             'The file %s is not listed in the manifest') % name, name)
-        if name == 'META-INF/calibre_bookmarks.txt':
-            self.HELP = _(
-                'This file stores the bookmarks and last opened information from'
-                ' the calibre ebook viewer. You can remove it if you do not'
-                ' need that information, or dont want to share it with'
-                ' other people you send this book to.')
-            self.INDIVIDUAL_FIX = _('Remove this file')
-            self.level = INFO
-            self.msg = _('The bookmarks file used by the calibre ebook viewer is present')
+
+
+class Bookmarks(BadLink):
+
+    HELP = _(
+        'This file stores the bookmarks and last opened information from'
+        ' the calibre ebook viewer. You can remove it if you do not'
+        ' need that information, or dont want to share it with'
+        ' other people you send this book to.')
+    INDIVIDUAL_FIX = _('Remove this file')
+    level = INFO
+
+    def __init__(self, name):
+        BadLink.__init__(self, _(
+            'The bookmarks file used by the calibre ebook viewer is present'), name)
 
     def __call__(self, container):
         container.remove_item(self.name)
         return True
+
 
 class MimetypeMismatch(BaseError):
 
@@ -243,7 +250,9 @@ def check_links(container):
 
     manifest_names = set(container.manifest_id_map.itervalues())
     for name in container.mime_map:
-        if name not in container.names_that_need_not_be_manifested and name not in manifest_names:
+        if name not in manifest_names and not container.ok_to_be_unmanifested(name):
             a(Unmanifested(name))
+        if name == 'META-INF/calibre_bookmarks.txt':
+            a(Bookmarks(name))
 
     return errors
