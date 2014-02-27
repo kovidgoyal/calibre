@@ -263,6 +263,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
 
     MESSAGE_PASSWORD_ERROR = 1
     MESSAGE_UPDATE_NEEDED  = 2
+    MESSAGE_SHOW_TOAST     = 3
 
     ALL_BY_TITLE     = _('All by title')
     ALL_BY_AUTHOR    = _('All by author')
@@ -354,6 +355,8 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
         self.debug_start_time = time.time()
         self.debug_time = time.time()
 
+    # This must be protected by a lock because it is called from three threads
+    @synchronous('sync_lock')
     def _debug(self, *args):
         # manual synchronization so we don't lose the calling method name
         import inspect
@@ -573,6 +576,9 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                     raise
                 time.sleep(0.1)  # lets not hammer the OS too hard
 
+    # This must be protected by a lock because it is called from the GUI thread
+    # (the sync stuff) and the device manager thread
+    @synchronous('sync_lock')
     def _call_client(self, op, arg, print_debug_info=True, wait_for_response=True):
         if op != 'NOOP':
             self.noop_counter = 0
@@ -1460,9 +1466,40 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
 
     @synchronous('sync_lock')
     def synchronize_with_db(self, db, id_, book):
+        def show_message(message):
+            self._call_client("DISPLAY_MESSAGE",
+                    {'messageKind': self.MESSAGE_SHOW_TOAST,
+                     'message': message})
+
         if not (self.is_read_sync_col or self.is_read_date_sync_col):
             # Not syncing
             return None
+
+        if not self.have_checked_sync_columns:
+            # Check the validity of the columns once per connection. We do it
+            # here because we have access to the db to get field_metadata
+            fm = db.field_metadata.custom_field_metadata()
+            if self.is_read_sync_col:
+                if self.is_read_sync_col not in fm:
+                    self._debug('is_read_sync_col not in field_metadata')
+                    show_message(_("The read sync column %s is "
+                             "not in calibre's library")%self.is_read_sync_col)
+                elif fm[self.is_read_sync_col]['datatype'] != 'bool':
+                    self._debug('is_read_sync_col not bool type')
+                    show_message(_("The read sync column %s is "
+                             "not a Yes/No column")%self.is_read_sync_col)
+
+            if self.is_read_date_sync_col:
+                if self.is_read_date_sync_col not in fm:
+                    self._debug('is_read_date_sync_col not in field_metadata')
+                    show_message(_("The read date sync column %s is "
+                             "not in calibre's library")%self.is_read_date_sync_col)
+                elif fm[self.is_read_date_sync_col]['datatype'] != 'datetime':
+                    self._debug('is_read_date_sync_col not date type')
+                    show_message(_("The read date sync column %s is "
+                             "not a Date column")%self.is_read_date_sync_col)
+
+            self.have_checked_sync_columns = True
 
         is_changed = book.get('_is_read_changed_', None);
         is_read = book.get('_is_read_', None)
@@ -1543,6 +1580,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
         self.client_wants_uuid_file_names = False
         self.is_read_sync_col = None
         self.is_read_date_sync_col = None
+        self.have_checked_sync_columns = False
 
         message = None
         compression_quality_ok = True
