@@ -167,10 +167,12 @@ class Boss(QObject):
                 create_book(d.mi, path, fmt=fmt)
                 self.open_book(path=path)
 
-    def import_book(self):
+    def import_book(self, path=None):
         if not self._check_before_open():
             return
         d = ImportForeign(self.gui)
+        if hasattr(path, 'rstrip'):
+            d.set_src(os.path.abspath(path))
         if d.exec_() == d.Accepted:
             from calibre.ebooks.oeb.polish.import_book import import_book_as_epub
             src, dest = d.data
@@ -192,6 +194,9 @@ class Boss(QObject):
 
         ext = path.rpartition('.')[-1].upper()
         if ext not in SUPPORTED:
+            from calibre.ebooks.oeb.polish.import_book import IMPORTABLE
+            if ext.lower() in IMPORTABLE:
+                return self.import_book(path)
             return error_dialog(self.gui, _('Unsupported format'),
                 _('Tweaking is only supported for books in the %s formats.'
                   ' Convert your book to one of these formats first.') % _(' and ').join(sorted(SUPPORTED)),

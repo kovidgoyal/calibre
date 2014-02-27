@@ -549,11 +549,12 @@ class PostInstall:
             from calibre.utils.smtp import option_parser as smtp_op
             from calibre.library.server.main import option_parser as serv_op
             from calibre.ebooks.oeb.polish.main import option_parser as polish_op, SUPPORTED
+            from calibre.ebooks.oeb.polish.import_book import IMPORTABLE
             from calibre.debug import option_parser as debug_op
             from calibre.ebooks import BOOK_EXTENSIONS
             from calibre.customize.ui import available_input_formats
             input_formats = sorted(all_input_formats())
-            tweak_formats = sorted(x.lower() for x in SUPPORTED)
+            tweak_formats = sorted(x.lower() for x in SUPPORTED|IMPORTABLE)
             zsh = ZshCompleter(self.opts)
             bc = os.path.join(os.path.dirname(self.opts.staging_sharedir),
                 'bash-completion')

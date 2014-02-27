@@ -189,11 +189,15 @@ class ImportForeign(Dialog):  # {{{
         l.addRow(self.bb)
 
     def choose_source(self):
+        from calibre.ebooks.oeb.polish.import_book import IMPORTABLE
         path = choose_files(self, 'edit-book-choose-file-to-import', _('Choose file'), filters=[
-            (_('HTML or DOCX files'), ['htm', 'html', 'xhtml', 'xhtm', 'docx'])], select_only_single_file=True)
+            (_('Importable files'), list(IMPORTABLE))], select_only_single_file=True)
         if path:
-            self.src.setText(path[0])
-            self.dest.setText(self.data[1])
+            self.set_src(path[0])
+
+    def set_src(self, path):
+        self.src.setText(path)
+        self.dest.setText(self.data[1])
 
     def choose_destination(self):
         path = choose_save_file(self, 'edit-book-destination-for-generated-epub', _('Choose destination'), filters=[

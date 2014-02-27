@@ -15,6 +15,8 @@ from calibre.ebooks.epub import initialize_container
 
 from calibre.utils.logging import default_log
 
+IMPORTABLE = {'htm', 'xhtml', 'html', 'xhtm', 'docx'}
+
 def auto_fill_manifest(container):
     manifest_id_map = container.manifest_id_map
     manifest_name_map = {v:k for k, v in manifest_id_map.iteritems()}
