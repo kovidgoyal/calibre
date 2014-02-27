@@ -1,5 +1,8 @@
 #!/usr/bin/python
 
+__author__ = "Chad Miller <smartypantspy@chad.org>, Kovid Goyal <kovid at kovidgoyal.net>"
+__description__ = "Smart-quotes, smart-ellipses, and smart-dashes for weblog entries in pyblosxom"
+
 r"""
 ==============
 smartypants.py
@@ -876,22 +879,7 @@ def _tokenize(str):
 
     return tokens
 
-
-if __name__ == "__main__":
-
-    import locale
-
-    try:
-        locale.setlocale(locale.LC_ALL, '')
-    except:
-        pass
-
-    from docutils.core import publish_string
-    docstring_html = publish_string(__doc__, writer_name='html')
-
-    print docstring_html
-
-    # Unit test output goes out stderr.  No worries.
+def run_tests():
     import unittest
     sp = smartyPants
 
@@ -926,10 +914,9 @@ if __name__ == "__main__":
         def test_educated_quotes(self):
             self.assertEqual(sp('''"Isn't this fun?"'''), '''&#8220;Isn&#8217;t this fun?&#8221;''')
 
-    unittest.main()
+    tests = unittest.defaultTestLoader.loadTestsFromTestCase(TestSmartypantsAllAttributes)
+    unittest.TextTestRunner(verbosity=4).run(tests)
 
 
-__author__ = "Chad Miller <smartypantspy@chad.org>"
-__version__ = "1.5_1.6: Fri, 27 Jul 2007 07:06:40 -0400"
-__url__ = "http://wiki.chad.org/SmartyPantsPy"
-__description__ = "Smart-quotes, smart-ellipses, and smart-dashes for weblog entries in pyblosxom"
+if __name__ == "__main__":
+    run_tests()
