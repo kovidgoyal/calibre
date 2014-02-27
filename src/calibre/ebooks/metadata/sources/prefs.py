@@ -18,6 +18,7 @@ msprefs.defaults['wait_after_first_cover_result'] = 60  # seconds
 msprefs.defaults['swap_author_names'] = False
 msprefs.defaults['fewer_tags'] = True
 msprefs.defaults['find_first_edition_date'] = False
+msprefs.defaults['append_comments'] = False
 
 # Google covers are often poor quality (scans/errors) but they have high
 # resolution, so they trump covers from better sources. So make sure they

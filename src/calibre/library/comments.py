@@ -131,6 +131,9 @@ def comments_to_html(comments):
 
     return result.renderContents(encoding=None)
 
+def merge_comments(one, two):
+    return comments_to_html(one) + '\n\n' + comments_to_html(two)
+
 def sanitize_comments_html(html):
     text = html2text(html)
     md = Markdown(safe_mode='remove')

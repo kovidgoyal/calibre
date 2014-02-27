@@ -20,6 +20,9 @@ from calibre.ebooks.metadata.book.base import Metadata
 from calibre.ebooks.metadata.opf2 import OPF, metadata_to_opf
 from calibre.utils.icu import sort_key
 from calibre.db.errors import NoSuchFormat
+from calibre.library.comments import merge_comments
+from calibre.ebooks.metadata.sources.prefs import msprefs
+
 
 class EditMetadataAction(InterfaceAction):
 
@@ -261,9 +264,9 @@ class EditMetadataAction(InterfaceAction):
         if restrict_to_failed:
             db.data.set_marked_ids(failed_ids)
 
-        self.apply_metadata_changes(id_map,
-                callback=partial(self.downloaded_metadata_applied, tdir,
-                    restrict_to_failed))
+        self.apply_metadata_changes(
+            id_map, merge_comments=msprefs['append_comments'],
+            callback=partial(self.downloaded_metadata_applied, tdir, restrict_to_failed))
 
     def downloaded_metadata_applied(self, tdir, restrict_to_failed, *args):
         if restrict_to_failed:
@@ -607,7 +610,7 @@ class EditMetadataAction(InterfaceAction):
 
     # Apply bulk metadata changes {{{
     def apply_metadata_changes(self, id_map, title=None, msg='', callback=None,
-            merge_tags=True):
+            merge_tags=True, merge_comments=False):
         '''
         Apply the metadata changes in id_map to the database synchronously
         id_map must be a mapping of ids to Metadata objects. Set any fields you
@@ -640,6 +643,7 @@ class EditMetadataAction(InterfaceAction):
             self.apply_pd.setModal(True)
             self.apply_pd.show()
         self._am_merge_tags = merge_tags
+        self._am_merge_comments = merge_comments
         self.do_one_apply()
 
     def do_one_apply(self):
@@ -684,6 +688,10 @@ class EditMetadataAction(InterfaceAction):
                     tags = [x.strip() for x in old_tags.split(',')] + (
                             mi.tags if mi.tags else [])
                     mi.tags = list(set(tags))
+            if self._am_merge_comments:
+                old_comments = db.new_api.field_for('comments', book_id)
+                if old_comments and mi.comments and old_comments != mi.comments:
+                    mi.comments = merge_comments(old_comments, mi.comments)
             db.set_metadata(book_id, mi, commit=False, set_title=set_title,
                     set_authors=set_authors, notify=False)
             self.applied_ids.add(book_id)

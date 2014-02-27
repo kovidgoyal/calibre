@@ -27,6 +27,7 @@ from calibre.utils.config import tweaks
 from calibre.ebooks.metadata.book.base import Metadata
 from calibre.utils.localization import canonicalize_lang
 from calibre.utils.date import local_tz
+from calibre.library.comments import merge_comments as merge_two_comments
 
 BASE_TITLE = _('Edit Metadata')
 
@@ -372,7 +373,7 @@ class MetadataSingleDialogBase(ResizableDialog):
                          show=True)
             return
 
-    def update_from_mi(self, mi, update_sorts=True, merge_tags=True):
+    def update_from_mi(self, mi, update_sorts=True, merge_tags=True, merge_comments=False):
         if not mi.is_null('title'):
             self.title.current_val = mi.title
             if update_sorts:
@@ -415,7 +416,12 @@ class MetadataSingleDialogBase(ResizableDialog):
             if langs:
                 self.languages.current_val = langs
         if mi.comments and mi.comments.strip():
-            self.comments.current_val = mi.comments
+            val = mi.comments
+            if val and merge_comments:
+                cval = self.comments.current_val
+                if cval:
+                    val = merge_two_comments(cval, val)
+            self.comments.current_val = val
 
     def fetch_metadata(self, *args):
         d = FullFetch(self.cover.pixmap(), self)
@@ -437,7 +443,7 @@ class MetadataSingleDialogBase(ResizableDialog):
                     # update_from_mi from changing the pubdate
                     mi.pubdate = datetime(pd.year, pd.month, pd.day,
                             tzinfo=local_tz)
-                self.update_from_mi(mi)
+                self.update_from_mi(mi, merge_comments=msprefs['append_comments'])
             if d.cover_pixmap is not None:
                 self.cover.current_val = pixmap_to_data(d.cover_pixmap)
 
