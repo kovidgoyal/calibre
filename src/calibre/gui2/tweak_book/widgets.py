@@ -190,8 +190,7 @@ class ImportForeign(Dialog):  # {{{
 
     def choose_source(self):
         path = choose_files(self, 'edit-book-choose-file-to-import', _('Choose file'), filters=[
-            (_('HTML files'), ['htm', 'html', 'xhtml', 'xhtm']),
-            (_('DOCX files'), ['docx'])], select_only_single_file=True)
+            (_('HTML or DOCX files'), ['htm', 'html', 'xhtml', 'xhtm', 'docx'])], select_only_single_file=True)
         if path:
             self.src.setText(path[0])
             self.dest.setText(self.data[1])
