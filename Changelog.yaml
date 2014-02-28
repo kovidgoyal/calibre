@@ -20,6 +20,64 @@
 #   new recipes:
 #     - title: 
 
+- version: 1.26.0
+  date: 2014-02-28
+
+  new features:
+    - title: "Edit Book: Allow direct importing of HTML or DOCX files as new books without doing a full conversion. Use File->Import HTML or DOCX to import a file as a new EPUB book with minimal changes from the original."
+
+    - title: "Linux binary installer: Various improvements to the binary installer. It now creates an un-installer (calibre-uninstall) that will remove all files created by the installer. It also no longer asks for the installation directory. If you wish to change that, you need to specify it in the installation command itself. Also the installer is now downloaded securely via HTTPS from github and verifies the signature of the installed files. Finally, it can be used to create an isolated install, that only makes changes to files in the installation directory and does not require root privileges."
+      tickets: [1283154] 
+
+    - title: "Metadata download: Add an option to merge the downloaded comments into existing comments, instead of overwriting (Preferences->Metadata download)."
+      tickets: [1285319]
+
+    - title: "Edit book: Add an option to automatically beautify individual files whenever they are opened for editing. Look under 'Editor Settings' in the Edit Book Preferences."
+
+    - title: "Bulk metadata download: When reviewing downloaded metadata allow hiding the controls on the comments box by right clicking in the comments area. Useful on smaller screens."
+      tickets: [1283251]
+
+    - title: "E-book viewer: When displaying metadata for the book, also display custom column metadata"
+
+  bug fixes:
+    - title: "Smarten punctuation: Correct handling for decade abbreviations like '60s and measurements in feet and inches like 1' 2\"."
+      tickets: [1285351]
+
+    - title: "EPUB Output: If the output profile is set to one of the Nook profiles, do not use shorthand CSS properties as the Nook cannot handle them."
+
+    - title: "Conversion: Fix incorrect CSS being generated when converting files that have <img> tags with width or height attributes that contain fractional numbers."
+      tickets: [1283108]
+
+    - title: "Edit Book: When editing EPUB files, and a file is added in META-INF/ do not automatically add it to the manifest. Also do not warn about unmanifested files inside META-INF/ since a few vendors (Apple) require non standard files in that location."
+      tickets: [1283015]
+
+    - title: "Fix Book details popup window not being updated when editing metadata in the main window"
+
+    - title: "Edit book: Fix editor not marking the book as modified when doing a Replace All that does not affect any currently open files."
+
+    - title: "Windows: Use a separate worker process to move files to the recycle bin. Fixes the problem of the recycle bin icon not being updated when deleting books into an empty recycle bin. Also avoids the overhead of launching a new, short-lived worker process for every delete."
+
+    - title: "calibredb: When deleting books/formats wait for deleted files to be moved to recycle bin, before quitting"
+
+    - title: "RTF Output: Fix invalid RTF being produced when the text contains a double backslash."
+      tickets: [1268118]
+
+    - title: "Edit book: Fix option to disable showing the character before cursor not working"
+
+    - title: "Get Books: Update various store plugins to account for changes to the store websites"
+
+    - title: "Fix virtual library names with ampersands in them not being displayed correctly in the virtual library menu and tab bar"
+
+  improved recipes:
+    - AnandTech
+    - Zeit Online
+    - Spektrum
+    - Le Temps
+
+  new recipes:
+    - title: Various Russian news sources
+      author: bug_me_not
+
 - version: 1.25.0
   date: 2014-02-21
 
