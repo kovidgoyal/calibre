@@ -409,7 +409,7 @@ class SearchRestrictionMixin(object):
 
         virt_libs = db.prefs.get('virtual_libraries', {})
         for vl in sorted(virt_libs.keys(), key=sort_key):
-            a = m.addAction(self.checked if vl == current_lib else self.empty, vl)
+            a = m.addAction(self.checked if vl == current_lib else self.empty, vl.replace('&', '&&'))
             a.triggered.connect(partial(self.apply_virtual_library, library=vl))
 
         p = QPoint(0, self.virtual_library.height())
@@ -462,7 +462,7 @@ class SearchRestrictionMixin(object):
         menu.setIcon(self.empty)
 
         def add_action(name, search):
-            a = menu.addAction(name)
+            a = menu.addAction(name.replace('&', '&&'))
             a.triggered.connect(partial(handler, name=name))
             a.setIcon(self.empty)
 

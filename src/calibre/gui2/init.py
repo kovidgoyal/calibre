@@ -327,7 +327,7 @@ class VLTabs(QTabBar):  # {{{
         virt_libs = (set(virt_libs) - hidden) | {''}
         order = {x:i for i, x in enumerate(order)}
         for i, vl in enumerate(sorted(virt_libs, key=lambda x:(order.get(x, 0), sort_key(x)))):
-            self.addTab(vl or _('All books'))
+            self.addTab(vl.replace('&', '&&') or _('All books'))
             self.setTabData(i, vl)
             if vl == current_lib:
                 current_idx = i
