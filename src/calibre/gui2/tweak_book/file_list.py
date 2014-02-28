@@ -616,7 +616,7 @@ class FileList(QTreeWidget):
 
     def export(self, name):
         path = choose_save_file(self, 'tweak_book_export_file', _('Choose location'), filters=[
-            (_('Files'), [name.rpartition('.')[-1].lower()])], all_files=False)
+            (_('Files'), [name.rpartition('.')[-1].lower()])], all_files=False, initial_filename=name.split('/')[-1])
         if path:
             self.export_requested.emit(name, path)
 

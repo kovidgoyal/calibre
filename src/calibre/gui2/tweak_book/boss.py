@@ -859,8 +859,9 @@ class Boss(QObject):
                         show_copy_button=False, show=True)
             fmt = path_to_ebook.rpartition('.')[-1].lower()
             start_dir = find_first_existing_ancestor(path_to_ebook)
-            path = choose_save_file(self.gui, 'choose-new-save-location', _('Choose file location'), initial_dir=start_dir,
-                                    filters=[(fmt.upper(), (fmt,))], all_files=False)
+            path = choose_save_file(
+                self.gui, 'choose-new-save-location', _('Choose file location'), initial_path=os.path.join(start_dir, os.path.basename(path_to_ebook)),
+                filters=[(fmt.upper(), (fmt,))], all_files=False)
             if path is not None:
                 if not path.lower().endswith('.' + fmt):
                     path = path + '.' + fmt
