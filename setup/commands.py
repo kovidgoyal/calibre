@@ -7,7 +7,7 @@ __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 __all__ = [
-        'pot', 'translations', 'get_translations', 'iso639',
+        'pot', 'translations', 'get_translations', 'iso639', 'iso3166',
         'build', 'server', 'mathjax',
         'gui',
         'develop', 'install',
@@ -25,11 +25,12 @@ __all__ = [
         ]
 
 
-from setup.translations import POT, GetTranslations, Translations, ISO639
+from setup.translations import POT, GetTranslations, Translations, ISO639, ISO3166
 pot = POT()
 translations = Translations()
 get_translations = GetTranslations()
 iso639 = ISO639()
+iso3166 = ISO3166()
 
 from setup.extensions import Build
 build = Build()

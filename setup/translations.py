@@ -399,3 +399,37 @@ class ISO639(Command):  # {{{
 
 # }}}
 
+class ISO3166(ISO639):  # {{{
+
+    description = 'Compile country code maps for performance'
+    DEST = os.path.join(os.path.dirname(POT.SRC), 'resources', 'localization',
+            'iso3166.pickle')
+
+    def run(self, opts):
+        src = self.j(self.d(self.SRC), 'setup', 'iso_639_3.xml')
+        if not os.path.exists(src):
+            raise Exception(src + ' does not exist')
+        dest = self.DEST
+        base = self.d(dest)
+        if not os.path.exists(base):
+            os.makedirs(base)
+        if not self.newer(dest, [src, __file__]):
+            self.info('Pickled code is up to date')
+            return
+        self.info('Pickling ISO-3166 codes to', dest)
+        from lxml import etree
+        root = etree.fromstring(open(src, 'rb').read())
+        codes = set()
+        three_map = {}
+        name_map = {}
+        for x in root.xpath('//iso_3166_entry'):
+            two = x.get('alpha_2_code', None)
+            three = x.get('alpha_3_code')
+            codes.add(two)
+            name_map[two] = x.get('name')
+            if three:
+                three_map[three] = two
+        from cPickle import dump
+        x = {'names':name_map, 'codes':frozenset(codes), 'three_map':three_map}
+        dump(x, open(dest, 'wb'), -1)
+# }}}

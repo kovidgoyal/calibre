@@ -1,0 +1,1710 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!--
+This file gives a list of all countries in the ISO 3166
+standard, and is used to provide translations via gettext
+
+Copyright (C) 2002, 2004, 2006 Alastair McKinstry <mckinstry@computer.org>
+Copyright (C) 2004 Andreas Jochens <aj@andaco.de>
+Copyright (C) 2004, 2007 Christian Perrier <bubulle@debian.org>
+Copyright (C) 2005, 2006, 2007 Tobias Quathamer <toddy@debian.org>
+
+    This file is free software; you can redistribute it and/or
+    modify it under the terms of the GNU Lesser General Public
+    License as published by the Free Software Foundation; either
+    version 2.1 of the License, or (at your option) any later version.
+
+    This file is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+    Lesser General Public License for more details.
+
+    You should have received a copy of the GNU Lesser General Public
+    License along with this file; if not, write to the Free Software
+    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+
+Source: <http://www.iso.org/iso/country_codes>
+-->
+
+<!DOCTYPE iso_3166_entries [
+	<!ELEMENT iso_3166_entries (iso_3166_entry+, iso_3166_3_entry*)>
+	<!ELEMENT iso_3166_entry EMPTY>
+	<!ATTLIST iso_3166_entry
+		alpha_2_code		CDATA	#REQUIRED
+		alpha_3_code		CDATA	#REQUIRED
+		numeric_code		CDATA	#REQUIRED
+		common_name		CDATA	#IMPLIED
+		name			CDATA	#REQUIRED
+		official_name		CDATA	#IMPLIED
+	>
+	<!ELEMENT iso_3166_3_entry EMPTY>
+	<!ATTLIST iso_3166_3_entry
+		alpha_4_code		CDATA	#REQUIRED
+		alpha_3_code		CDATA	#REQUIRED
+		numeric_code		CDATA	#IMPLIED
+		date_withdrawn		CDATA	#IMPLIED
+		names			CDATA	#REQUIRED
+		comment			CDATA	#IMPLIED
+	>
+]>
+
+<iso_3166_entries>
+	<iso_3166_entry
+		alpha_2_code="AF"
+		alpha_3_code="AFG"
+		numeric_code="004"
+		name="Afghanistan"
+		official_name="Islamic Republic of Afghanistan" />
+	<iso_3166_entry
+		alpha_2_code="AX"
+		alpha_3_code="ALA"
+		numeric_code="248"
+		name="Åland Islands" />
+	<iso_3166_entry
+		alpha_2_code="AL"
+		alpha_3_code="ALB"
+		numeric_code="008"
+		name="Albania"
+		official_name="Republic of Albania" />
+	<iso_3166_entry
+		alpha_2_code="DZ"
+		alpha_3_code="DZA"
+		numeric_code="012"
+		name="Algeria"
+		official_name="People's Democratic Republic of Algeria" />
+	<iso_3166_entry
+		alpha_2_code="AS"
+		alpha_3_code="ASM"
+		numeric_code="016"
+		name="American Samoa" />
+	<iso_3166_entry
+		alpha_2_code="AD"
+		alpha_3_code="AND"
+		numeric_code="020"
+		name="Andorra"
+		official_name="Principality of Andorra" />
+	<iso_3166_entry
+		alpha_2_code="AO"
+		alpha_3_code="AGO"
+		numeric_code="024"
+		name="Angola"
+		official_name="Republic of Angola" />
+	<iso_3166_entry
+		alpha_2_code="AI"
+		alpha_3_code="AIA"
+		numeric_code="660"
+		name="Anguilla" />
+	<iso_3166_entry
+		alpha_2_code="AQ"
+		alpha_3_code="ATA"
+		numeric_code="010"
+		name="Antarctica" />
+	<iso_3166_entry
+		alpha_2_code="AG"
+		alpha_3_code="ATG"
+		numeric_code="028"
+		name="Antigua and Barbuda" />
+	<iso_3166_entry
+		alpha_2_code="AR"
+		alpha_3_code="ARG"
+		numeric_code="032"
+		name="Argentina"
+		official_name="Argentine Republic" />
+	<iso_3166_entry
+		alpha_2_code="AM"
+		alpha_3_code="ARM"
+		numeric_code="051"
+		name="Armenia"
+		official_name="Republic of Armenia" />
+	<iso_3166_entry
+		alpha_2_code="AW"
+		alpha_3_code="ABW"
+		numeric_code="533"
+		name="Aruba" />
+	<iso_3166_entry
+		alpha_2_code="AU"
+		alpha_3_code="AUS"
+		numeric_code="036"
+		name="Australia" />
+	<iso_3166_entry
+		alpha_2_code="AT"
+		alpha_3_code="AUT"
+		numeric_code="040"
+		name="Austria"
+		official_name="Republic of Austria" />
+	<iso_3166_entry
+		alpha_2_code="AZ"
+		alpha_3_code="AZE"
+		numeric_code="031"
+		name="Azerbaijan"
+		official_name="Republic of Azerbaijan" />
+	<iso_3166_entry
+		alpha_2_code="BS"
+		alpha_3_code="BHS"
+		numeric_code="044"
+		name="Bahamas"
+		official_name="Commonwealth of the Bahamas" />
+	<iso_3166_entry
+		alpha_2_code="BH"
+		alpha_3_code="BHR"
+		numeric_code="048"
+		name="Bahrain"
+		official_name="Kingdom of Bahrain" />
+	<iso_3166_entry
+		alpha_2_code="BD"
+		alpha_3_code="BGD"
+		numeric_code="050"
+		name="Bangladesh"
+		official_name="People's Republic of Bangladesh" />
+	<iso_3166_entry
+		alpha_2_code="BB"
+		alpha_3_code="BRB"
+		numeric_code="052"
+		name="Barbados" />
+	<iso_3166_entry
+		alpha_2_code="BY"
+		alpha_3_code="BLR"
+		numeric_code="112"
+		name="Belarus"
+		official_name="Republic of Belarus" />
+	<iso_3166_entry
+		alpha_2_code="BE"
+		alpha_3_code="BEL"
+		numeric_code="056"
+		name="Belgium"
+		official_name="Kingdom of Belgium" />
+	<iso_3166_entry
+		alpha_2_code="BZ"
+		alpha_3_code="BLZ"
+		numeric_code="084"
+		name="Belize" />
+	<iso_3166_entry
+		alpha_2_code="BJ"
+		alpha_3_code="BEN"
+		numeric_code="204"
+		name="Benin"
+		official_name="Republic of Benin" />
+	<iso_3166_entry
+		alpha_2_code="BM"
+		alpha_3_code="BMU"
+		numeric_code="060"
+		name="Bermuda" />
+	<iso_3166_entry
+		alpha_2_code="BT"
+		alpha_3_code="BTN"
+		numeric_code="064"
+		name="Bhutan"
+		official_name="Kingdom of Bhutan" />
+	<iso_3166_entry
+		alpha_2_code="BO"
+		alpha_3_code="BOL"
+		numeric_code="068"
+		common_name="Bolivia"
+		name="Bolivia, Plurinational State of"
+		official_name="Plurinational State of Bolivia" />
+	<iso_3166_entry
+		alpha_2_code="BQ"
+		alpha_3_code="BES"
+		numeric_code="535"
+		name="Bonaire, Sint Eustatius and Saba"
+		official_name="Bonaire, Sint Eustatius and Saba" />
+	<iso_3166_entry
+		alpha_2_code="BA"
+		alpha_3_code="BIH"
+		numeric_code="070"
+		name="Bosnia and Herzegovina"
+		official_name="Republic of Bosnia and Herzegovina" />
+	<iso_3166_entry
+		alpha_2_code="BW"
+		alpha_3_code="BWA"
+		numeric_code="072"
+		name="Botswana"
+		official_name="Republic of Botswana" />
+	<iso_3166_entry
+		alpha_2_code="BV"
+		alpha_3_code="BVT"
+		numeric_code="074"
+		name="Bouvet Island" />
+	<iso_3166_entry
+		alpha_2_code="BR"
+		alpha_3_code="BRA"
+		numeric_code="076"
+		name="Brazil"
+		official_name="Federative Republic of Brazil" />
+	<iso_3166_entry
+		alpha_2_code="IO"
+		alpha_3_code="IOT"
+		numeric_code="086"
+		name="British Indian Ocean Territory" />
+	<iso_3166_entry
+		alpha_2_code="BN"
+		alpha_3_code="BRN"
+		numeric_code="096"
+		name="Brunei Darussalam" />
+	<iso_3166_entry
+		alpha_2_code="BG"
+		alpha_3_code="BGR"
+		numeric_code="100"
+		name="Bulgaria"
+		official_name="Republic of Bulgaria" />
+	<iso_3166_entry
+		alpha_2_code="BF"
+		alpha_3_code="BFA"
+		numeric_code="854"
+		name="Burkina Faso" />
+	<iso_3166_entry
+		alpha_2_code="BI"
+		alpha_3_code="BDI"
+		numeric_code="108"
+		name="Burundi"
+		official_name="Republic of Burundi" />
+	<iso_3166_entry
+		alpha_2_code="KH"
+		alpha_3_code="KHM"
+		numeric_code="116"
+		name="Cambodia"
+		official_name="Kingdom of Cambodia" />
+	<iso_3166_entry
+		alpha_2_code="CM"
+		alpha_3_code="CMR"
+		numeric_code="120"
+		name="Cameroon"
+		official_name="Republic of Cameroon" />
+	<iso_3166_entry
+		alpha_2_code="CA"
+		alpha_3_code="CAN"
+		numeric_code="124"
+		name="Canada" />
+	<iso_3166_entry
+		alpha_2_code="CV"
+		alpha_3_code="CPV"
+		numeric_code="132"
+		name="Cape Verde"
+		official_name="Republic of Cape Verde" />
+	<iso_3166_entry
+		alpha_2_code="KY"
+		alpha_3_code="CYM"
+		numeric_code="136"
+		name="Cayman Islands" />
+	<iso_3166_entry
+		alpha_2_code="CF"
+		alpha_3_code="CAF"
+		numeric_code="140"
+		name="Central African Republic" />
+	<iso_3166_entry
+		alpha_2_code="TD"
+		alpha_3_code="TCD"
+		numeric_code="148"
+		name="Chad"
+		official_name="Republic of Chad" />
+	<iso_3166_entry
+		alpha_2_code="CL"
+		alpha_3_code="CHL"
+		numeric_code="152"
+		name="Chile"
+		official_name="Republic of Chile" />
+	<iso_3166_entry
+		alpha_2_code="CN"
+		alpha_3_code="CHN"
+		numeric_code="156"
+		name="China"
+		official_name="People's Republic of China" />
+	<iso_3166_entry
+		alpha_2_code="CX"
+		alpha_3_code="CXR"
+		numeric_code="162"
+		name="Christmas Island" />
+	<iso_3166_entry
+		alpha_2_code="CC"
+		alpha_3_code="CCK"
+		numeric_code="166"
+		name="Cocos (Keeling) Islands" />
+	<iso_3166_entry
+		alpha_2_code="CO"
+		alpha_3_code="COL"
+		numeric_code="170"
+		name="Colombia"
+		official_name="Republic of Colombia" />
+	<iso_3166_entry
+		alpha_2_code="KM"
+		alpha_3_code="COM"
+		numeric_code="174"
+		name="Comoros"
+		official_name="Union of the Comoros" />
+	<iso_3166_entry
+		alpha_2_code="CG"
+		alpha_3_code="COG"
+		numeric_code="178"
+		name="Congo"
+		official_name="Republic of the Congo" />
+	<iso_3166_entry
+		alpha_2_code="CD"
+		alpha_3_code="COD"
+		numeric_code="180"
+		name="Congo, The Democratic Republic of the" />
+	<iso_3166_entry
+		alpha_2_code="CK"
+		alpha_3_code="COK"
+		numeric_code="184"
+		name="Cook Islands" />
+	<iso_3166_entry
+		alpha_2_code="CR"
+		alpha_3_code="CRI"
+		numeric_code="188"
+		name="Costa Rica"
+		official_name="Republic of Costa Rica" />
+	<iso_3166_entry
+		alpha_2_code="CI"
+		alpha_3_code="CIV"
+		numeric_code="384"
+		name="Côte d'Ivoire"
+		official_name="Republic of Côte d'Ivoire" />
+	<iso_3166_entry
+		alpha_2_code="HR"
+		alpha_3_code="HRV"
+		numeric_code="191"
+		name="Croatia"
+		official_name="Republic of Croatia" />
+	<iso_3166_entry
+		alpha_2_code="CU"
+		alpha_3_code="CUB"
+		numeric_code="192"
+		name="Cuba"
+		official_name="Republic of Cuba" />
+	<iso_3166_entry
+		alpha_2_code="CW"
+		alpha_3_code="CUW"
+		numeric_code="531"
+		name="Curaçao"
+		official_name="Curaçao" />
+	<iso_3166_entry
+		alpha_2_code="CY"
+		alpha_3_code="CYP"
+		numeric_code="196"
+		name="Cyprus"
+		official_name="Republic of Cyprus" />
+	<iso_3166_entry
+		alpha_2_code="CZ"
+		alpha_3_code="CZE"
+		numeric_code="203"
+		name="Czech Republic" />
+	<iso_3166_entry
+		alpha_2_code="DK"
+		alpha_3_code="DNK"
+		numeric_code="208"
+		name="Denmark"
+		official_name="Kingdom of Denmark" />
+	<iso_3166_entry
+		alpha_2_code="DJ"
+		alpha_3_code="DJI"
+		numeric_code="262"
+		name="Djibouti"
+		official_name="Republic of Djibouti" />
+	<iso_3166_entry
+		alpha_2_code="DM"
+		alpha_3_code="DMA"
+		numeric_code="212"
+		name="Dominica"
+		official_name="Commonwealth of Dominica" />
+	<iso_3166_entry
+		alpha_2_code="DO"
+		alpha_3_code="DOM"
+		numeric_code="214"
+		name="Dominican Republic" />
+	<iso_3166_entry
+		alpha_2_code="EC"
+		alpha_3_code="ECU"
+		numeric_code="218"
+		name="Ecuador"
+		official_name="Republic of Ecuador" />
+	<iso_3166_entry
+		alpha_2_code="EG"
+		alpha_3_code="EGY"
+		numeric_code="818"
+		name="Egypt"
+		official_name="Arab Republic of Egypt" />
+	<iso_3166_entry
+		alpha_2_code="SV"
+		alpha_3_code="SLV"
+		numeric_code="222"
+		name="El Salvador"
+		official_name="Republic of El Salvador" />
+	<iso_3166_entry
+		alpha_2_code="GQ"
+		alpha_3_code="GNQ"
+		numeric_code="226"
+		name="Equatorial Guinea"
+		official_name="Republic of Equatorial Guinea" />
+	<iso_3166_entry
+		alpha_2_code="ER"
+		alpha_3_code="ERI"
+		numeric_code="232"
+		name="Eritrea"
+		official_name="the State of Eritrea" />
+	<iso_3166_entry
+		alpha_2_code="EE"
+		alpha_3_code="EST"
+		numeric_code="233"
+		name="Estonia"
+		official_name="Republic of Estonia" />
+	<iso_3166_entry
+		alpha_2_code="ET"
+		alpha_3_code="ETH"
+		numeric_code="231"
+		name="Ethiopia"
+		official_name="Federal Democratic Republic of Ethiopia" />
+	<iso_3166_entry
+		alpha_2_code="FK"
+		alpha_3_code="FLK"
+		numeric_code="238"
+		name="Falkland Islands (Malvinas)" />
+	<iso_3166_entry
+		alpha_2_code="FO"
+		alpha_3_code="FRO"
+		numeric_code="234"
+		name="Faroe Islands" />
+	<iso_3166_entry
+		alpha_2_code="FJ"
+		alpha_3_code="FJI"
+		numeric_code="242"
+		name="Fiji"
+		official_name="Republic of Fiji" />
+	<iso_3166_entry
+		alpha_2_code="FI"
+		alpha_3_code="FIN"
+		numeric_code="246"
+		name="Finland"
+		official_name="Republic of Finland" />
+	<iso_3166_entry
+		alpha_2_code="FR"
+		alpha_3_code="FRA"
+		numeric_code="250"
+		name="France"
+		official_name="French Republic" />
+	<iso_3166_entry
+		alpha_2_code="GF"
+		alpha_3_code="GUF"
+		numeric_code="254"
+		name="French Guiana" />
+	<iso_3166_entry
+		alpha_2_code="PF"
+		alpha_3_code="PYF"
+		numeric_code="258"
+		name="French Polynesia" />
+	<iso_3166_entry
+		alpha_2_code="TF"
+		alpha_3_code="ATF"
+		numeric_code="260"
+		name="French Southern Territories" />
+	<iso_3166_entry
+		alpha_2_code="GA"
+		alpha_3_code="GAB"
+		numeric_code="266"
+		name="Gabon"
+		official_name="Gabonese Republic" />
+	<iso_3166_entry
+		alpha_2_code="GM"
+		alpha_3_code="GMB"
+		numeric_code="270"
+		name="Gambia"
+		official_name="Republic of the Gambia" />
+	<iso_3166_entry
+		alpha_2_code="GE"
+		alpha_3_code="GEO"
+		numeric_code="268"
+		name="Georgia" />
+	<iso_3166_entry
+		alpha_2_code="DE"
+		alpha_3_code="DEU"
+		numeric_code="276"
+		name="Germany"
+		official_name="Federal Republic of Germany" />
+	<iso_3166_entry
+		alpha_2_code="GH"
+		alpha_3_code="GHA"
+		numeric_code="288"
+		name="Ghana"
+		official_name="Republic of Ghana" />
+	<iso_3166_entry
+		alpha_2_code="GI"
+		alpha_3_code="GIB"
+		numeric_code="292"
+		name="Gibraltar" />
+	<iso_3166_entry
+		alpha_2_code="GR"
+		alpha_3_code="GRC"
+		numeric_code="300"
+		name="Greece"
+		official_name="Hellenic Republic" />
+	<iso_3166_entry
+		alpha_2_code="GL"
+		alpha_3_code="GRL"
+		numeric_code="304"
+		name="Greenland" />
+	<iso_3166_entry
+		alpha_2_code="GD"
+		alpha_3_code="GRD"
+		numeric_code="308"
+		name="Grenada" />
+	<iso_3166_entry
+		alpha_2_code="GP"
+		alpha_3_code="GLP"
+		numeric_code="312"
+		name="Guadeloupe" />
+	<iso_3166_entry
+		alpha_2_code="GU"
+		alpha_3_code="GUM"
+		numeric_code="316"
+		name="Guam" />
+	<iso_3166_entry
+		alpha_2_code="GT"
+		alpha_3_code="GTM"
+		numeric_code="320"
+		name="Guatemala"
+		official_name="Republic of Guatemala" />
+	<iso_3166_entry
+		alpha_2_code="GG"
+		alpha_3_code="GGY"
+		numeric_code="831"
+		name="Guernsey" />
+	<iso_3166_entry
+		alpha_2_code="GN"
+		alpha_3_code="GIN"
+		numeric_code="324"
+		name="Guinea"
+		official_name="Republic of Guinea" />
+	<iso_3166_entry
+		alpha_2_code="GW"
+		alpha_3_code="GNB"
+		numeric_code="624"
+		name="Guinea-Bissau"
+		official_name="Republic of Guinea-Bissau" />
+	<iso_3166_entry
+		alpha_2_code="GY"
+		alpha_3_code="GUY"
+		numeric_code="328"
+		name="Guyana"
+		official_name="Republic of Guyana" />
+	<iso_3166_entry
+		alpha_2_code="HT"
+		alpha_3_code="HTI"
+		numeric_code="332"
+		name="Haiti"
+		official_name="Republic of Haiti" />
+	<iso_3166_entry
+		alpha_2_code="HM"
+		alpha_3_code="HMD"
+		numeric_code="334"
+		name="Heard Island and McDonald Islands" />
+	<iso_3166_entry
+		alpha_2_code="VA"
+		alpha_3_code="VAT"
+		numeric_code="336"
+		name="Holy See (Vatican City State)" />
+	<iso_3166_entry
+		alpha_2_code="HN"
+		alpha_3_code="HND"
+		numeric_code="340"
+		name="Honduras"
+		official_name="Republic of Honduras" />
+	<iso_3166_entry
+		alpha_2_code="HK"
+		alpha_3_code="HKG"
+		numeric_code="344"
+		name="Hong Kong"
+		official_name="Hong Kong Special Administrative Region of China" />
+	<iso_3166_entry
+		alpha_2_code="HU"
+		alpha_3_code="HUN"
+		numeric_code="348"
+		name="Hungary"
+		official_name="Hungary" />
+	<iso_3166_entry
+		alpha_2_code="IS"
+		alpha_3_code="ISL"
+		numeric_code="352"
+		name="Iceland"
+		official_name="Republic of Iceland" />
+	<iso_3166_entry
+		alpha_2_code="IN"
+		alpha_3_code="IND"
+		numeric_code="356"
+		name="India"
+		official_name="Republic of India" />
+	<iso_3166_entry
+		alpha_2_code="ID"
+		alpha_3_code="IDN"
+		numeric_code="360"
+		name="Indonesia"
+		official_name="Republic of Indonesia" />
+	<iso_3166_entry
+		alpha_2_code="IR"
+		alpha_3_code="IRN"
+		numeric_code="364"
+		name="Iran, Islamic Republic of"
+		official_name="Islamic Republic of Iran" />
+	<iso_3166_entry
+		alpha_2_code="IQ"
+		alpha_3_code="IRQ"
+		numeric_code="368"
+		name="Iraq"
+		official_name="Republic of Iraq" />
+	<iso_3166_entry
+		alpha_2_code="IE"
+		alpha_3_code="IRL"
+		numeric_code="372"
+		name="Ireland" />
+	<iso_3166_entry
+		alpha_2_code="IM"
+		alpha_3_code="IMN"
+		numeric_code="833"
+		name="Isle of Man" />
+	<iso_3166_entry
+		alpha_2_code="IL"
+		alpha_3_code="ISR"
+		numeric_code="376"
+		name="Israel"
+		official_name="State of Israel" />
+	<iso_3166_entry
+		alpha_2_code="IT"
+		alpha_3_code="ITA"
+		numeric_code="380"
+		name="Italy"
+		official_name="Italian Republic" />
+	<iso_3166_entry
+		alpha_2_code="JM"
+		alpha_3_code="JAM"
+		numeric_code="388"
+		name="Jamaica" />
+	<iso_3166_entry
+		alpha_2_code="JP"
+		alpha_3_code="JPN"
+		numeric_code="392"
+		name="Japan" />
+	<iso_3166_entry
+		alpha_2_code="JE"
+		alpha_3_code="JEY"
+		numeric_code="832"
+		name="Jersey" />
+	<iso_3166_entry
+		alpha_2_code="JO"
+		alpha_3_code="JOR"
+		numeric_code="400"
+		name="Jordan"
+		official_name="Hashemite Kingdom of Jordan" />
+	<iso_3166_entry
+		alpha_2_code="KZ"
+		alpha_3_code="KAZ"
+		numeric_code="398"
+		name="Kazakhstan"
+		official_name="Republic of Kazakhstan" />
+	<iso_3166_entry
+		alpha_2_code="KE"
+		alpha_3_code="KEN"
+		numeric_code="404"
+		name="Kenya"
+		official_name="Republic of Kenya" />
+	<iso_3166_entry
+		alpha_2_code="KI"
+		alpha_3_code="KIR"
+		numeric_code="296"
+		name="Kiribati"
+		official_name="Republic of Kiribati" />
+	<iso_3166_entry
+		alpha_2_code="KP"
+		alpha_3_code="PRK"
+		numeric_code="408"
+		name="Korea, Democratic People's Republic of"
+		official_name="Democratic People's Republic of Korea" />
+	<iso_3166_entry
+		alpha_2_code="KR"
+		alpha_3_code="KOR"
+		numeric_code="410"
+		name="Korea, Republic of" />
+	<iso_3166_entry
+		alpha_2_code="KW"
+		alpha_3_code="KWT"
+		numeric_code="414"
+		name="Kuwait"
+		official_name="State of Kuwait" />
+	<iso_3166_entry
+		alpha_2_code="KG"
+		alpha_3_code="KGZ"
+		numeric_code="417"
+		name="Kyrgyzstan"
+		official_name="Kyrgyz Republic" />
+	<iso_3166_entry
+		alpha_2_code="LA"
+		alpha_3_code="LAO"
+		numeric_code="418"
+		name="Lao People's Democratic Republic" />
+	<iso_3166_entry
+		alpha_2_code="LV"
+		alpha_3_code="LVA"
+		numeric_code="428"
+		name="Latvia"
+		official_name="Republic of Latvia" />
+	<iso_3166_entry
+		alpha_2_code="LB"
+		alpha_3_code="LBN"
+		numeric_code="422"
+		name="Lebanon"
+		official_name="Lebanese Republic" />
+	<iso_3166_entry
+		alpha_2_code="LS"
+		alpha_3_code="LSO"
+		numeric_code="426"
+		name="Lesotho"
+		official_name="Kingdom of Lesotho" />
+	<iso_3166_entry
+		alpha_2_code="LR"
+		alpha_3_code="LBR"
+		numeric_code="430"
+		name="Liberia"
+		official_name="Republic of Liberia" />
+	<iso_3166_entry
+		alpha_2_code="LY"
+		alpha_3_code="LBY"
+		numeric_code="434"
+		name="Libya"
+		official_name="Libya" />
+	<iso_3166_entry
+		alpha_2_code="LI"
+		alpha_3_code="LIE"
+		numeric_code="438"
+		name="Liechtenstein"
+		official_name="Principality of Liechtenstein" />
+	<iso_3166_entry
+		alpha_2_code="LT"
+		alpha_3_code="LTU"
+		numeric_code="440"
+		name="Lithuania"
+		official_name="Republic of Lithuania" />
+	<iso_3166_entry
+		alpha_2_code="LU"
+		alpha_3_code="LUX"
+		numeric_code="442"
+		name="Luxembourg"
+		official_name="Grand Duchy of Luxembourg" />
+	<iso_3166_entry
+		alpha_2_code="MO"
+		alpha_3_code="MAC"
+		numeric_code="446"
+		name="Macao"
+		official_name="Macao Special Administrative Region of China" />
+	<iso_3166_entry
+		alpha_2_code="MK"
+		alpha_3_code="MKD"
+		numeric_code="807"
+		name="Macedonia, Republic of"
+		official_name="The Former Yugoslav Republic of Macedonia" />
+	<iso_3166_entry
+		alpha_2_code="MG"
+		alpha_3_code="MDG"
+		numeric_code="450"
+		name="Madagascar"
+		official_name="Republic of Madagascar" />
+	<iso_3166_entry
+		alpha_2_code="MW"
+		alpha_3_code="MWI"
+		numeric_code="454"
+		name="Malawi"
+		official_name="Republic of Malawi" />
+	<iso_3166_entry
+		alpha_2_code="MY"
+		alpha_3_code="MYS"
+		numeric_code="458"
+		name="Malaysia" />
+	<iso_3166_entry
+		alpha_2_code="MV"
+		alpha_3_code="MDV"
+		numeric_code="462"
+		name="Maldives"
+		official_name="Republic of Maldives" />
+	<iso_3166_entry
+		alpha_2_code="ML"
+		alpha_3_code="MLI"
+		numeric_code="466"
+		name="Mali"
+		official_name="Republic of Mali" />
+	<iso_3166_entry
+		alpha_2_code="MT"
+		alpha_3_code="MLT"
+		numeric_code="470"
+		name="Malta"
+		official_name="Republic of Malta" />
+	<iso_3166_entry
+		alpha_2_code="MH"
+		alpha_3_code="MHL"
+		numeric_code="584"
+		name="Marshall Islands"
+		official_name="Republic of the Marshall Islands" />
+	<iso_3166_entry
+		alpha_2_code="MQ"
+		alpha_3_code="MTQ"
+		numeric_code="474"
+		name="Martinique" />
+	<iso_3166_entry
+		alpha_2_code="MR"
+		alpha_3_code="MRT"
+		numeric_code="478"
+		name="Mauritania"
+		official_name="Islamic Republic of Mauritania" />
+	<iso_3166_entry
+		alpha_2_code="MU"
+		alpha_3_code="MUS"
+		numeric_code="480"
+		name="Mauritius"
+		official_name="Republic of Mauritius" />
+	<iso_3166_entry
+		alpha_2_code="YT"
+		alpha_3_code="MYT"
+		numeric_code="175"
+		name="Mayotte" />
+	<iso_3166_entry
+		alpha_2_code="MX"
+		alpha_3_code="MEX"
+		numeric_code="484"
+		name="Mexico"
+		official_name="United Mexican States" />
+	<iso_3166_entry
+		alpha_2_code="FM"
+		alpha_3_code="FSM"
+		numeric_code="583"
+		name="Micronesia, Federated States of"
+		official_name="Federated States of Micronesia" />
+	<iso_3166_entry
+		alpha_2_code="MD"
+		alpha_3_code="MDA"
+		numeric_code="498"
+		common_name="Moldova"
+		name="Moldova, Republic of"
+		official_name="Republic of Moldova" />
+	<iso_3166_entry
+		alpha_2_code="MC"
+		alpha_3_code="MCO"
+		numeric_code="492"
+		name="Monaco"
+		official_name="Principality of Monaco" />
+	<iso_3166_entry
+		alpha_2_code="MN"
+		alpha_3_code="MNG"
+		numeric_code="496"
+		name="Mongolia" />
+	<iso_3166_entry
+		alpha_2_code="ME"
+		alpha_3_code="MNE"
+		numeric_code="499"
+		name="Montenegro"
+		official_name="Montenegro" />
+	<iso_3166_entry
+		alpha_2_code="MS"
+		alpha_3_code="MSR"
+		numeric_code="500"
+		name="Montserrat" />
+	<iso_3166_entry
+		alpha_2_code="MA"
+		alpha_3_code="MAR"
+		numeric_code="504"
+		name="Morocco"
+		official_name="Kingdom of Morocco" />
+	<iso_3166_entry
+		alpha_2_code="MZ"
+		alpha_3_code="MOZ"
+		numeric_code="508"
+		name="Mozambique"
+		official_name="Republic of Mozambique" />
+	<iso_3166_entry
+		alpha_2_code="MM"
+		alpha_3_code="MMR"
+		numeric_code="104"
+		name="Myanmar"
+		official_name="Republic of Myanmar" />
+	<iso_3166_entry
+		alpha_2_code="NA"
+		alpha_3_code="NAM"
+		numeric_code="516"
+		name="Namibia"
+		official_name="Republic of Namibia" />
+	<iso_3166_entry
+		alpha_2_code="NR"
+		alpha_3_code="NRU"
+		numeric_code="520"
+		name="Nauru"
+		official_name="Republic of Nauru" />
+	<iso_3166_entry
+		alpha_2_code="NP"
+		alpha_3_code="NPL"
+		numeric_code="524"
+		name="Nepal"
+		official_name="Federal Democratic Republic of Nepal" />
+	<iso_3166_entry
+		alpha_2_code="NL"
+		alpha_3_code="NLD"
+		numeric_code="528"
+		name="Netherlands"
+		official_name="Kingdom of the Netherlands" />
+	<iso_3166_entry
+		alpha_2_code="NC"
+		alpha_3_code="NCL"
+		numeric_code="540"
+		name="New Caledonia" />
+	<iso_3166_entry
+		alpha_2_code="NZ"
+		alpha_3_code="NZL"
+		numeric_code="554"
+		name="New Zealand" />
+	<iso_3166_entry
+		alpha_2_code="NI"
+		alpha_3_code="NIC"
+		numeric_code="558"
+		name="Nicaragua"
+		official_name="Republic of Nicaragua" />
+	<iso_3166_entry
+		alpha_2_code="NE"
+		alpha_3_code="NER"
+		numeric_code="562"
+		name="Niger"
+		official_name="Republic of the Niger" />
+	<iso_3166_entry
+		alpha_2_code="NG"
+		alpha_3_code="NGA"
+		numeric_code="566"
+		name="Nigeria"
+		official_name="Federal Republic of Nigeria" />
+	<iso_3166_entry
+		alpha_2_code="NU"
+		alpha_3_code="NIU"
+		numeric_code="570"
+		name="Niue"
+		official_name="Niue" />
+	<iso_3166_entry
+		alpha_2_code="NF"
+		alpha_3_code="NFK"
+		numeric_code="574"
+		name="Norfolk Island" />
+	<iso_3166_entry
+		alpha_2_code="MP"
+		alpha_3_code="MNP"
+		numeric_code="580"
+		name="Northern Mariana Islands"
+		official_name="Commonwealth of the Northern Mariana Islands" />
+	<iso_3166_entry
+		alpha_2_code="NO"
+		alpha_3_code="NOR"
+		numeric_code="578"
+		name="Norway"
+		official_name="Kingdom of Norway" />
+	<iso_3166_entry
+		alpha_2_code="OM"
+		alpha_3_code="OMN"
+		numeric_code="512"
+		name="Oman"
+		official_name="Sultanate of Oman" />
+	<iso_3166_entry
+		alpha_2_code="PK"
+		alpha_3_code="PAK"
+		numeric_code="586"
+		name="Pakistan"
+		official_name="Islamic Republic of Pakistan" />
+	<iso_3166_entry
+		alpha_2_code="PW"
+		alpha_3_code="PLW"
+		numeric_code="585"
+		name="Palau"
+		official_name="Republic of Palau" />
+	<iso_3166_entry
+		alpha_2_code="PS"
+		alpha_3_code="PSE"
+		numeric_code="275"
+		name="Palestine, State of"
+		official_name="the State of Palestine" />
+	<iso_3166_entry
+		alpha_2_code="PA"
+		alpha_3_code="PAN"
+		numeric_code="591"
+		name="Panama"
+		official_name="Republic of Panama" />
+	<iso_3166_entry
+		alpha_2_code="PG"
+		alpha_3_code="PNG"
+		numeric_code="598"
+		name="Papua New Guinea"
+		official_name="Independent State of Papua New Guinea" />
+	<iso_3166_entry
+		alpha_2_code="PY"
+		alpha_3_code="PRY"
+		numeric_code="600"
+		name="Paraguay"
+		official_name="Republic of Paraguay" />
+	<iso_3166_entry
+		alpha_2_code="PE"
+		alpha_3_code="PER"
+		numeric_code="604"
+		name="Peru"
+		official_name="Republic of Peru" />
+	<iso_3166_entry
+		alpha_2_code="PH"
+		alpha_3_code="PHL"
+		numeric_code="608"
+		name="Philippines"
+		official_name="Republic of the Philippines" />
+	<iso_3166_entry
+		alpha_2_code="PN"
+		alpha_3_code="PCN"
+		numeric_code="612"
+		name="Pitcairn" />
+	<iso_3166_entry
+		alpha_2_code="PL"
+		alpha_3_code="POL"
+		numeric_code="616"
+		name="Poland"
+		official_name="Republic of Poland" />
+	<iso_3166_entry
+		alpha_2_code="PT"
+		alpha_3_code="PRT"
+		numeric_code="620"
+		name="Portugal"
+		official_name="Portuguese Republic" />
+	<iso_3166_entry
+		alpha_2_code="PR"
+		alpha_3_code="PRI"
+		numeric_code="630"
+		name="Puerto Rico" />
+	<iso_3166_entry
+		alpha_2_code="QA"
+		alpha_3_code="QAT"
+		numeric_code="634"
+		name="Qatar"
+		official_name="State of Qatar" />
+	<iso_3166_entry
+		alpha_2_code="RE"
+		alpha_3_code="REU"
+		numeric_code="638"
+		name="Réunion" />
+	<iso_3166_entry
+		alpha_2_code="RO"
+		alpha_3_code="ROU"
+		numeric_code="642"
+		name="Romania" />
+	<iso_3166_entry
+		alpha_2_code="RU"
+		alpha_3_code="RUS"
+		numeric_code="643"
+		name="Russian Federation" />
+	<iso_3166_entry
+		alpha_2_code="RW"
+		alpha_3_code="RWA"
+		numeric_code="646"
+		name="Rwanda"
+		official_name="Rwandese Republic" />
+	<iso_3166_entry
+		alpha_2_code="BL"
+		alpha_3_code="BLM"
+		numeric_code="652"
+		name="Saint Barthélemy" />
+	<iso_3166_entry
+		alpha_2_code="SH"
+		alpha_3_code="SHN"
+		numeric_code="654"
+		name="Saint Helena, Ascension and Tristan da Cunha" />
+	<iso_3166_entry
+		alpha_2_code="KN"
+		alpha_3_code="KNA"
+		numeric_code="659"
+		name="Saint Kitts and Nevis" />
+	<iso_3166_entry
+		alpha_2_code="LC"
+		alpha_3_code="LCA"
+		numeric_code="662"
+		name="Saint Lucia" />
+	<iso_3166_entry
+		alpha_2_code="MF"
+		alpha_3_code="MAF"
+		numeric_code="663"
+		name="Saint Martin (French part)" />
+	<iso_3166_entry
+		alpha_2_code="PM"
+		alpha_3_code="SPM"
+		numeric_code="666"
+		name="Saint Pierre and Miquelon" />
+	<iso_3166_entry
+		alpha_2_code="VC"
+		alpha_3_code="VCT"
+		numeric_code="670"
+		name="Saint Vincent and the Grenadines" />
+	<iso_3166_entry
+		alpha_2_code="WS"
+		alpha_3_code="WSM"
+		numeric_code="882"
+		name="Samoa"
+		official_name="Independent State of Samoa" />
+	<iso_3166_entry
+		alpha_2_code="SM"
+		alpha_3_code="SMR"
+		numeric_code="674"
+		name="San Marino"
+		official_name="Republic of San Marino" />
+	<iso_3166_entry
+		alpha_2_code="ST"
+		alpha_3_code="STP"
+		numeric_code="678"
+		name="Sao Tome and Principe"
+		official_name="Democratic Republic of Sao Tome and Principe" />
+	<iso_3166_entry
+		alpha_2_code="SA"
+		alpha_3_code="SAU"
+		numeric_code="682"
+		name="Saudi Arabia"
+		official_name="Kingdom of Saudi Arabia" />
+	<iso_3166_entry
+		alpha_2_code="SN"
+		alpha_3_code="SEN"
+		numeric_code="686"
+		name="Senegal"
+		official_name="Republic of Senegal" />
+	<iso_3166_entry
+		alpha_2_code="RS"
+		alpha_3_code="SRB"
+		numeric_code="688"
+		name="Serbia"
+		official_name="Republic of Serbia" />
+	<iso_3166_entry
+		alpha_2_code="SC"
+		alpha_3_code="SYC"
+		numeric_code="690"
+		name="Seychelles"
+		official_name="Republic of Seychelles" />
+	<iso_3166_entry
+		alpha_2_code="SL"
+		alpha_3_code="SLE"
+		numeric_code="694"
+		name="Sierra Leone"
+		official_name="Republic of Sierra Leone" />
+	<iso_3166_entry
+		alpha_2_code="SG"
+		alpha_3_code="SGP"
+		numeric_code="702"
+		name="Singapore"
+		official_name="Republic of Singapore" />
+	<iso_3166_entry
+		alpha_2_code="SX"
+		alpha_3_code="SXM"
+		numeric_code="534"
+		name="Sint Maarten (Dutch part)"
+		official_name="Sint Maarten (Dutch part)" />
+	<iso_3166_entry
+		alpha_2_code="SK"
+		alpha_3_code="SVK"
+		numeric_code="703"
+		name="Slovakia"
+		official_name="Slovak Republic" />
+	<iso_3166_entry
+		alpha_2_code="SI"
+		alpha_3_code="SVN"
+		numeric_code="705"
+		name="Slovenia"
+		official_name="Republic of Slovenia" />
+	<iso_3166_entry
+		alpha_2_code="SB"
+		alpha_3_code="SLB"
+		numeric_code="090"
+		name="Solomon Islands" />
+	<iso_3166_entry
+		alpha_2_code="SO"
+		alpha_3_code="SOM"
+		numeric_code="706"
+		name="Somalia"
+		official_name="Federal Republic of Somalia" />
+	<iso_3166_entry
+		alpha_2_code="ZA"
+		alpha_3_code="ZAF"
+		numeric_code="710"
+		name="South Africa"
+		official_name="Republic of South Africa" />
+	<iso_3166_entry
+		alpha_2_code="GS"
+		alpha_3_code="SGS"
+		numeric_code="239"
+		name="South Georgia and the South Sandwich Islands" />
+	<iso_3166_entry
+		alpha_2_code="ES"
+		alpha_3_code="ESP"
+		numeric_code="724"
+		name="Spain"
+		official_name="Kingdom of Spain" />
+	<iso_3166_entry
+		alpha_2_code="LK"
+		alpha_3_code="LKA"
+		numeric_code="144"
+		name="Sri Lanka"
+		official_name="Democratic Socialist Republic of Sri Lanka" />
+	<iso_3166_entry
+		alpha_2_code="SD"
+		alpha_3_code="SDN"
+		numeric_code="729"
+		name="Sudan"
+		official_name="Republic of the Sudan" />
+	<iso_3166_entry
+		alpha_2_code="SR"
+		alpha_3_code="SUR"
+		numeric_code="740"
+		name="Suriname"
+		official_name="Republic of Suriname" />
+	<iso_3166_entry
+		alpha_2_code="SS"
+		alpha_3_code="SSD"
+		numeric_code="728"
+		name="South Sudan"
+		official_name="Republic of South Sudan" />
+	<iso_3166_entry
+		alpha_2_code="SJ"
+		alpha_3_code="SJM"
+		numeric_code="744"
+		name="Svalbard and Jan Mayen" />
+	<iso_3166_entry
+		alpha_2_code="SZ"
+		alpha_3_code="SWZ"
+		numeric_code="748"
+		name="Swaziland"
+		official_name="Kingdom of Swaziland" />
+	<iso_3166_entry
+		alpha_2_code="SE"
+		alpha_3_code="SWE"
+		numeric_code="752"
+		name="Sweden"
+		official_name="Kingdom of Sweden" />
+	<iso_3166_entry
+		alpha_2_code="CH"
+		alpha_3_code="CHE"
+		numeric_code="756"
+		name="Switzerland"
+		official_name="Swiss Confederation" />
+	<iso_3166_entry
+		alpha_2_code="SY"
+		alpha_3_code="SYR"
+		numeric_code="760"
+		name="Syrian Arab Republic" />
+	<iso_3166_entry
+		alpha_2_code="TW"
+		alpha_3_code="TWN"
+		numeric_code="158"
+		common_name="Taiwan"
+		name="Taiwan, Province of China"
+		official_name="Taiwan, Province of China" />
+	<iso_3166_entry
+		alpha_2_code="TJ"
+		alpha_3_code="TJK"
+		numeric_code="762"
+		name="Tajikistan"
+		official_name="Republic of Tajikistan" />
+	<iso_3166_entry
+		alpha_2_code="TZ"
+		alpha_3_code="TZA"
+		numeric_code="834"
+		name="Tanzania, United Republic of"
+		official_name="United Republic of Tanzania" />
+	<iso_3166_entry
+		alpha_2_code="TH"
+		alpha_3_code="THA"
+		numeric_code="764"
+		name="Thailand"
+		official_name="Kingdom of Thailand" />
+	<iso_3166_entry
+		alpha_2_code="TL"
+		alpha_3_code="TLS"
+		numeric_code="626"
+		name="Timor-Leste"
+		official_name="Democratic Republic of Timor-Leste" />
+	<iso_3166_entry
+		alpha_2_code="TG"
+		alpha_3_code="TGO"
+		numeric_code="768"
+		name="Togo"
+		official_name="Togolese Republic" />
+	<iso_3166_entry
+		alpha_2_code="TK"
+		alpha_3_code="TKL"
+		numeric_code="772"
+		name="Tokelau" />
+	<iso_3166_entry
+		alpha_2_code="TO"
+		alpha_3_code="TON"
+		numeric_code="776"
+		name="Tonga"
+		official_name="Kingdom of Tonga" />
+	<iso_3166_entry
+		alpha_2_code="TT"
+		alpha_3_code="TTO"
+		numeric_code="780"
+		name="Trinidad and Tobago"
+		official_name="Republic of Trinidad and Tobago" />
+	<iso_3166_entry
+		alpha_2_code="TN"
+		alpha_3_code="TUN"
+		numeric_code="788"
+		name="Tunisia"
+		official_name="Republic of Tunisia" />
+	<iso_3166_entry
+		alpha_2_code="TR"
+		alpha_3_code="TUR"
+		numeric_code="792"
+		name="Turkey"
+		official_name="Republic of Turkey" />
+	<iso_3166_entry
+		alpha_2_code="TM"
+		alpha_3_code="TKM"
+		numeric_code="795"
+		name="Turkmenistan" />
+	<iso_3166_entry
+		alpha_2_code="TC"
+		alpha_3_code="TCA"
+		numeric_code="796"
+		name="Turks and Caicos Islands" />
+	<iso_3166_entry
+		alpha_2_code="TV"
+		alpha_3_code="TUV"
+		numeric_code="798"
+		name="Tuvalu" />
+	<iso_3166_entry
+		alpha_2_code="UG"
+		alpha_3_code="UGA"
+		numeric_code="800"
+		name="Uganda"
+		official_name="Republic of Uganda" />
+	<iso_3166_entry
+		alpha_2_code="UA"
+		alpha_3_code="UKR"
+		numeric_code="804"
+		name="Ukraine" />
+	<iso_3166_entry
+		alpha_2_code="AE"
+		alpha_3_code="ARE"
+		numeric_code="784"
+		name="United Arab Emirates" />
+	<iso_3166_entry
+		alpha_2_code="GB"
+		alpha_3_code="GBR"
+		numeric_code="826"
+		name="United Kingdom"
+		official_name="United Kingdom of Great Britain and Northern Ireland" />
+	<iso_3166_entry
+		alpha_2_code="US"
+		alpha_3_code="USA"
+		numeric_code="840"
+		name="United States"
+		official_name="United States of America" />
+	<iso_3166_entry
+		alpha_2_code="UM"
+		alpha_3_code="UMI"
+		numeric_code="581"
+		name="United States Minor Outlying Islands" />
+	<iso_3166_entry
+		alpha_2_code="UY"
+		alpha_3_code="URY"
+		numeric_code="858"
+		name="Uruguay"
+		official_name="Eastern Republic of Uruguay" />
+	<iso_3166_entry
+		alpha_2_code="UZ"
+		alpha_3_code="UZB"
+		numeric_code="860"
+		name="Uzbekistan"
+		official_name="Republic of Uzbekistan" />
+	<iso_3166_entry
+		alpha_2_code="VU"
+		alpha_3_code="VUT"
+		numeric_code="548"
+		name="Vanuatu"
+		official_name="Republic of Vanuatu" />
+	<iso_3166_entry
+		alpha_2_code="VE"
+		alpha_3_code="VEN"
+		numeric_code="862"
+		common_name="Venezuela"
+		name="Venezuela, Bolivarian Republic of"
+		official_name="Bolivarian Republic of Venezuela" />
+	<iso_3166_entry
+		alpha_2_code="VN"
+		alpha_3_code="VNM"
+		numeric_code="704"
+		name="Viet Nam"
+		official_name="Socialist Republic of Viet Nam" />
+	<!-- FIXME CHECK OFFICIAL NAME -->
+	<iso_3166_entry
+		alpha_2_code="VG"
+		alpha_3_code="VGB"
+		numeric_code="092"
+		name="Virgin Islands, British"
+		official_name="British Virgin Islands" />
+	<iso_3166_entry
+		alpha_2_code="VI"
+		alpha_3_code="VIR"
+		numeric_code="850"
+		name="Virgin Islands, U.S."
+		official_name="Virgin Islands of the United States" />
+	<iso_3166_entry
+		alpha_2_code="WF"
+		alpha_3_code="WLF"
+		numeric_code="876"
+		name="Wallis and Futuna" />
+	<iso_3166_entry
+		alpha_2_code="EH"
+		alpha_3_code="ESH"
+		numeric_code="732"
+		name="Western Sahara" />
+	<iso_3166_entry
+		alpha_2_code="YE"
+		alpha_3_code="YEM"
+		numeric_code="887"
+		name="Yemen"
+		official_name="Republic of Yemen" />
+	<iso_3166_entry
+		alpha_2_code="ZM"
+		alpha_3_code="ZMB"
+		numeric_code="894"
+		name="Zambia"
+		official_name="Republic of Zambia" />
+	<iso_3166_entry
+		alpha_2_code="ZW"
+		alpha_3_code="ZWE"
+		numeric_code="716"
+		name="Zimbabwe"
+		official_name="Republic of Zimbabwe" />
+	<iso_3166_3_entry
+		alpha_4_code="BQAQ"
+		alpha_3_code="ATB"
+		date_withdrawn="1979"
+		names="British Antarctic Territory" />
+	<iso_3166_3_entry
+		alpha_4_code="BUMM"
+		alpha_3_code="BUR"
+		numeric_code="104"
+		date_withdrawn="1989-12-05"
+		names="Burma, Socialist Republic of the Union of" />
+	<iso_3166_3_entry
+		alpha_4_code="BYAA"
+		alpha_3_code="BYS"
+		numeric_code="112"
+		date_withdrawn="1992-06-15"
+		names="Byelorussian SSR Soviet Socialist Republic" />
+	<iso_3166_3_entry
+		alpha_4_code="CTKI"
+		alpha_3_code="CTE"
+		numeric_code="128"
+		date_withdrawn="1984"
+		names="Canton and Enderbury Islands" />
+	<iso_3166_3_entry
+		alpha_4_code="CSHH"
+		alpha_3_code="CSK"
+		numeric_code="200"
+		date_withdrawn="1993-06-15"
+		names="Czechoslovakia, Czechoslovak Socialist Republic" />
+	<iso_3166_3_entry
+		alpha_4_code="DYBJ"
+		alpha_3_code="DHY"
+		numeric_code="204"
+		date_withdrawn="1977"
+		names="Dahomey" />
+	<iso_3166_3_entry
+		alpha_4_code="NQAQ"
+		alpha_3_code="ATN"
+		numeric_code="216"
+		date_withdrawn="1983"
+		names="Dronning Maud Land" />
+	<iso_3166_3_entry
+		alpha_4_code="TPTL"
+		alpha_3_code="TMP"
+		numeric_code="626"
+		date_withdrawn="2002-05-20"
+		names="East Timor"
+		comment="was Portuguese Timor" />
+	<iso_3166_3_entry
+		alpha_4_code="ET"
+		alpha_3_code="ETH"
+		numeric_code="230"
+		date_withdrawn="1993-07-16"
+		names="Ethiopia" />
+	<iso_3166_3_entry
+		alpha_4_code="FXFR"
+		alpha_3_code="FXX"
+		numeric_code="249"
+		date_withdrawn="1997-07-14"
+		names="France, Metropolitan" />
+	<iso_3166_3_entry
+		alpha_4_code="AIDJ"
+		alpha_3_code="AFI"
+		numeric_code="262"
+		date_withdrawn="1977"
+		names="French Afars and Issas" />
+	<iso_3166_3_entry
+		alpha_4_code="FQHH"
+		alpha_3_code="ATF"
+		date_withdrawn="1979"
+		names="French Southern and Antarctic Territories"
+		comment="now split between AQ and TF" />
+	<iso_3166_3_entry
+		alpha_4_code="DDDE"
+		alpha_3_code="DDR"
+		numeric_code="278"
+		date_withdrawn="1990-10-30"
+		names="German Democratic Republic" />
+	<iso_3166_3_entry
+		alpha_4_code="DE"
+		alpha_3_code="DEU"
+		numeric_code="280"
+		date_withdrawn="1990-10-30"
+		names="Germany, Federal Republic of" />
+	<iso_3166_3_entry
+		alpha_4_code="GEHH"
+		alpha_3_code="GEL"
+		numeric_code="296"
+		date_withdrawn="1979"
+		names="Gilbert and Ellice Islands"
+		comment="now split into Kiribati and Tuvalu" />
+	<iso_3166_3_entry
+		alpha_4_code="JTUM"
+		alpha_3_code="JTN"
+		numeric_code="396"
+		date_withdrawn="1986"
+		names="Johnston Island" />
+	<iso_3166_3_entry
+		alpha_4_code="MIUM"
+		alpha_3_code="MID"
+		numeric_code="488"
+		date_withdrawn="1986"
+		names="Midway Islands" />
+	<iso_3166_3_entry
+		alpha_4_code="AN"
+		alpha_3_code="ANT"
+		numeric_code="532"
+		date_withdrawn="1993-07-12"
+		names="Netherlands Antilles" />
+	<iso_3166_3_entry
+		alpha_4_code="NTHH"
+		alpha_3_code="NTZ"
+		numeric_code="536"
+		date_withdrawn="1993-07-12"
+		names="Neutral Zone"
+		comment="formerly between Saudi Arabia and Iraq" />
+	<iso_3166_3_entry
+		alpha_4_code="NHVU"
+		alpha_3_code="NHB"
+		numeric_code="548"
+		date_withdrawn="1980"
+		names="New Hebrides" />
+	<iso_3166_3_entry
+		alpha_4_code="PCHH"
+		alpha_3_code="PCI"
+		numeric_code="582"
+		date_withdrawn="1986"
+		names="Pacific Islands (trust territory)"
+		comment="divided into FM, MH, MP, and PW" />
+	<iso_3166_3_entry
+		alpha_4_code="PA"
+		alpha_3_code="PAN"
+		numeric_code="590"
+		date_withdrawn="1993-07-22"
+		names="Panama, Republic of" />
+	<iso_3166_3_entry
+		alpha_4_code="PZPA"
+		alpha_3_code="PCZ"
+		date_withdrawn="1980"
+		names="Panama Canal Zone" />
+	<iso_3166_3_entry
+		alpha_4_code="RO"
+		alpha_3_code="ROM"
+		numeric_code="642"
+		date_withdrawn="2002-02-01"
+		names="Romania, Socialist Republic of" />
+	<iso_3166_3_entry
+		alpha_4_code="KN"
+		alpha_3_code="KNA"
+		numeric_code="658"
+		date_withdrawn="1988"
+		names="St. Kitts-Nevis-Anguilla"
+		comment="now St. Kitts and Nevis and Anguilla" />
+	<iso_3166_3_entry
+		alpha_4_code="CSXX"
+		alpha_3_code="SCG"
+		numeric_code="891"
+		date_withdrawn="2006-06-05"
+		names="Serbia and Montenegro" />
+	<iso_3166_3_entry
+		alpha_4_code="SKIN"
+		alpha_3_code="SKM"
+		date_withdrawn="1975"
+		names="Sikkim" />
+	<iso_3166_3_entry
+		alpha_4_code="RHZW"
+		alpha_3_code="RHO"
+		numeric_code="716"
+		date_withdrawn="1980"
+		names="Southern Rhodesia" />
+	<iso_3166_3_entry
+		alpha_4_code="EH"
+		alpha_3_code="ESH"
+		numeric_code="732"
+		date_withdrawn="1988"
+		names="Spanish Sahara"
+		comment="now Western Sahara" />
+	<iso_3166_3_entry
+		alpha_4_code="PUUM"
+		alpha_3_code="PUS"
+		numeric_code="849"
+		date_withdrawn="1986"
+		names="US Miscellaneous Pacific Islands" />
+	<iso_3166_3_entry
+		alpha_4_code="SUHH"
+		alpha_3_code="SUN"
+		numeric_code="810"
+		date_withdrawn="1992-08-30"
+		names="USSR, Union of Soviet Socialist Republics" />
+	<iso_3166_3_entry
+		alpha_4_code="HVBF"
+		alpha_3_code="HVO"
+		numeric_code="854"
+		date_withdrawn="1984"
+		names="Upper Volta, Republic of" />
+	<iso_3166_3_entry
+		alpha_4_code="VA"
+		alpha_3_code="VAT"
+		numeric_code="336"
+		date_withdrawn="1996-04-03"
+		names="Vatican City State (Holy See)" />
+	<iso_3166_3_entry
+		alpha_4_code="VDVN"
+		alpha_3_code="VDR"
+		date_withdrawn="1977"
+		names="Viet-Nam, Democratic Republic of" />
+	<iso_3166_3_entry
+		alpha_4_code="WKUM"
+		alpha_3_code="WAK"
+		numeric_code="872"
+		date_withdrawn="1986"
+		names="Wake Island" />
+	<iso_3166_3_entry
+		alpha_4_code="YDYE"
+		alpha_3_code="YMD"
+		numeric_code="720"
+		date_withdrawn="1990-08-14"
+		names="Yemen, Democratic, People's Democratic Republic of" />
+	<iso_3166_3_entry
+		alpha_4_code="YE"
+		alpha_3_code="YEM"
+		numeric_code="891"
+		date_withdrawn="1990-08-14"
+		names="Yemen, Yemen Arab Republic" />
+	<iso_3166_3_entry
+		alpha_4_code="YUCS"
+		alpha_3_code="YUG"
+		numeric_code="891"
+		date_withdrawn="1993-07-28"
+		names="Yugoslavia, Socialist Federal Republic of" />
+	<iso_3166_3_entry
+		alpha_4_code="ZRCD"
+		alpha_3_code="ZAR"
+		numeric_code="180"
+		date_withdrawn="1997-07-14"
+		names="Zaire, Republic of" />
+</iso_3166_entries>

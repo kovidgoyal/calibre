@@ -22,6 +22,7 @@ class Stage1(Command):
             'resources',
             'translations',
             'iso639',
+            'iso3166',
             'gui',
             ]
 
