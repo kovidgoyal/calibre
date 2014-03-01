@@ -315,7 +315,7 @@ class Stylizer(object):
                     self.style(elem)._update_cssdict(cssdict)
         for elem in xpath(tree, '//h:*[@style]'):
             self.style(elem)._apply_style_attr(url_replacer=item.abshref)
-        num_pat = re.compile(r'[0-9.]$')
+        num_pat = re.compile(r'[0-9.]+$')
         for elem in xpath(tree, '//h:img[@width or @height]'):
             style = self.style(elem)
             # Check if either height or width is not default
