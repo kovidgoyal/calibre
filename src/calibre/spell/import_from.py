@@ -30,13 +30,6 @@ def parse_xcu(raw, origin='%origin%'):
         ans[(dic, aff)] = locales
     return ans
 
-def generate_locale_map(dictionaries):
-    ans = {}
-    for (dic, aff), locales in dictionaries.iteritems():
-        for locale in locales:
-            if locale not in ans:
-                ans[locale] = (dic, aff)
-
 def import_from_libreoffice_source_tree(source_path):
     dictionaries = {}
     for x in glob.glob(os.path.join(source_path, '*', 'dictionaries.xcu')):
@@ -58,6 +51,8 @@ def import_from_libreoffice_source_tree(source_path):
             for src in (dic, aff):
                 df = os.path.join(dest, locale + os.path.splitext(src)[1])
                 shutil.copyfile(src, df)
+            with open(os.path.join(dest, 'locales'), 'wb') as f:
+                f.write(('\n'.join(locales)).encode('utf-8'))
 
     if want_locales:
         raise Exception('Failed to find dictionaries for some wanted locales: %s' % want_locales)
