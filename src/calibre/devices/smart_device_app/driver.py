@@ -33,6 +33,7 @@ from calibre.ebooks.metadata.book.json_codec import JsonCodec
 from calibre.library import current_library_name
 from calibre.library.server import server_config as content_server_config
 from calibre.ptempfile import PersistentTemporaryFile
+from calibre.utils.date import isoformat, now, parse_date
 from calibre.utils.ipc import eintr_retry_call
 from calibre.utils.config_base import tweaks
 from calibre.utils.filenames import ascii_filename as sanitize, shorten_components_to
@@ -355,8 +356,6 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
         self.debug_start_time = time.time()
         self.debug_time = time.time()
 
-    # This must be protected by a lock because it is called from three threads
-    @synchronous('sync_lock')
     def _debug(self, *args):
         # manual synchronization so we don't lose the calling method name
         import inspect
@@ -388,7 +387,6 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
 
     # copied from USBMS. Perhaps this could be a classmethod in usbms?
     def _update_driveinfo_record(self, dinfo, prefix, location_code, name=None):
-        from calibre.utils.date import isoformat, now
         import uuid
         if not isinstance(dinfo, dict):
             dinfo = {}
@@ -695,7 +693,6 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
 
     def _metadata_in_cache(self, uuid, ext_or_lpath, lastmod):
         try:
-            from calibre.utils.date import parse_date, now
             key = self._make_metadata_cache_key(uuid, ext_or_lpath)
             if isinstance(lastmod, unicode):
                 if lastmod == 'None':
@@ -796,7 +793,6 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
 
     def _write_metadata_cache(self):
         self._debug()
-        from calibre.utils.date import now
         from calibre.utils.config import to_json
         cache_file_name = os.path.join(cache_dir(),
                            'wireless_device_' + self.device_uuid +
@@ -833,7 +829,6 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
         return key
 
     def _set_known_metadata(self, book, remove=False):
-        from calibre.utils.date import now
         lpath = book.lpath
         ext = os.path.splitext(lpath)[1]
         uuid = book.get('uuid', None)
@@ -963,7 +958,6 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
 
     @synchronous('sync_lock')
     def open(self, connected_device, library_uuid):
-        from calibre.utils.date import isoformat, now
         self._debug()
         if not self.is_connected:
             # We have been called to retry the connection. Give up immediately
@@ -1522,30 +1516,37 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
             # Both values are None. Do nothing
             return None
 
-        orig_is_read = book.get(self.is_read_sync_col, None)
-        if is_read != orig_is_read:
-            # The value in the device's is_read checkbox is not the same as the
-            # last one that came to the device from calibre during the last
-            # connect, meaning that the user changed it. Write the one from the
-            # checkbox to calibre's db.
-            changed_books = set()
-            is_read_date = book.get('_last_read_date_', None);
-            self._debug('standard update book', book.get('title', 'huh?'), 'to',
-                        is_read, is_read_date)
-            if self.is_read_sync_col:
-                try:
+        changed_books = set()
+        try:
+            orig_is_read = book.get(self.is_read_sync_col, None)
+            if is_read != orig_is_read:
+                # The value in the device's is_read checkbox is not the same as the
+                # last one that came to the device from calibre during the last
+                # connect, meaning that the user changed it. Write the one from the
+                # checkbox to calibre's db.
+                self._debug('standard update book is_read', book.get('title', 'huh?'),
+                            'to', is_read)
+                if self.is_read_sync_col:
                     changed_books = db.new_api.set_field(self.is_read_sync_col,
                                                          {id_: is_read})
-                except:
-                    self._debug('setting read sync col tossed exception',
-                                self.is_read_sync_col)
-            if self.is_read_date_sync_col:
-                try:
+        except:
+            self._debug('exception syncing is_read col', self.is_read_sync_col)
+            traceback.print_exc()
+
+        try:
+            is_read_date = parse_date(book.get('_last_read_date_', None));
+            orig_is_read_date = book.get(self.is_read_date_sync_col, None)
+            if is_read_date != orig_is_read_date:
+                self._debug('standard update book is_read_date', book.get('title', 'huh?'),
+                            'to', is_read_date)
+                if self.is_read_date_sync_col:
                     changed_books |= db.new_api.set_field(self.is_read_date_sync_col,
-                                              {id_: is_read_date})
-                except:
-                    self._debug('setting read date sync col tossed exception',
-                                self.is_read_date_sync_col)
+                                                  {id_: is_read_date})
+        except:
+            self._debug('Exception while syncing is_read_date', self.is_read_date_sync_col)
+            traceback.print_exc()
+
+        if changed_books:
             return changed_books
 
         # The user might have changed the value in calibre. If so, that value
