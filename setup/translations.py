@@ -406,7 +406,7 @@ class ISO3166(ISO639):  # {{{
             'iso3166.pickle')
 
     def run(self, opts):
-        src = self.j(self.d(self.SRC), 'setup', 'iso_639_3.xml')
+        src = self.j(self.d(self.SRC), 'setup', 'iso3166.xml')
         if not os.path.exists(src):
             raise Exception(src + ' does not exist')
         dest = self.DEST
@@ -423,7 +423,7 @@ class ISO3166(ISO639):  # {{{
         three_map = {}
         name_map = {}
         for x in root.xpath('//iso_3166_entry'):
-            two = x.get('alpha_2_code', None)
+            two = x.get('alpha_2_code')
             three = x.get('alpha_3_code')
             codes.add(two)
             name_map[two] = x.get('name')
