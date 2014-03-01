@@ -1103,7 +1103,7 @@ class OPF(object):  # {{{
             yield item
 
     @property
-    def unique_identifier(self):
+    def raw_unique_identifier(self):
         uuid_elem = None
         for attr in self.root.attrib:
             if attr.endswith('unique-identifier'):
@@ -1115,7 +1115,13 @@ class OPF(object):  # {{{
                 for m in matches:
                     raw = m.text
                     if raw:
-                        return raw.rpartition(':')[-1]
+                        return raw
+
+    @property
+    def unique_identifier(self):
+        raw = self.raw_unique_identifier
+        if raw:
+            return raw.rpartition(':')[-1]
 
     @property
     def page_progression_direction(self):
