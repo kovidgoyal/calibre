@@ -349,7 +349,7 @@ def get_proxies(debug=True):
             del proxies[key]
 
     if proxies and debug:
-        prints('Using proxies:', proxies)
+        prints('Using proxies:', repr(proxies))
     return proxies
 
 class HTTPError(ValueError):
