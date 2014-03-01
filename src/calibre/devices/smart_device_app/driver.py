@@ -1251,7 +1251,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                     book = self.json_codec.raw_to_book(result, SDBook, self.PREFIX)
                     book.set('_is_read_', result.get('_is_read_', None))
                     book.set('_is_read_changed_', result.get('_is_read_changed_', None))
-                    book.set('_last_read_date_', r.get('_last_read_date_', None))
+                    book.set('_last_read_date_', result.get('_last_read_date_', None))
                     bl.add_book(book, replace_metadata=True)
                     if '_new_book_' in result:
                         book.set('_new_book_', True)
@@ -1512,7 +1512,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                 book.set('_force_send_metadata_', True)
                 self._debug('special update book', book.get('title', 'huh?'),
                             'to', calibre_val)
-                return set(id_)
+                return set()
             # Both values are None. Do nothing
             return None
 
