@@ -628,7 +628,7 @@ def check_version():
         calibre_version = urllib.urlopen('http://status.calibre-ebook.com/latest').read()
 
 def main(install_dir=None, isolated=False, bin_dir=None, share_dir=None):
-    destdir = os.path.abspath(install_dir or '/opt')
+    destdir = os.path.abspath(os.path.expanduser(install_dir or '/opt'))
     if destdir == '/usr/bin':
         prints(destdir, 'is not a valid install location. Choose', end='')
         prints('a location like /opt or /usr/local')
