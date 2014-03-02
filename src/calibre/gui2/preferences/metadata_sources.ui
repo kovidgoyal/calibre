@@ -61,6 +61,9 @@
           <string>&lt;p&gt;Different metadata sources have different sets of tags for the same book. If this option is checked, then calibre will use the smaller tag sets. These tend to be more like genres, while the larger tag sets tend to describe the books content.
 &lt;p&gt;Note that this option will only make a practical difference if one of the metadata sources has a genre like tag set for the book you are searching for. Most often, they all have large tag sets.</string>
          </property>
+         <property name="statusTip">
+          <string>Prefer smaller tag sets when picking tags from different metadata sources</string>
+         </property>
          <property name="text">
           <string>Prefer &amp;fewer tags</string>
          </property>
@@ -208,6 +211,9 @@
         <widget class="QCheckBox" name="opt_append_comments">
          <property name="toolTip">
           <string>&lt;p&gt;When downloading comments, append the downloaded comments to any existing comment, instead of overwriting them.</string>
+         </property>
+         <property name="statusTip">
+          <string>When downloading comments, append the downloaded comments to any existing comment, instead of overwriting them.</string>
          </property>
          <property name="text">
           <string>Append &amp;comments to existing</string>
