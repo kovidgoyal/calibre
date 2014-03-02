@@ -80,7 +80,7 @@ def custom_dictionaries(reread=False):
         _custom = frozenset(dics)
     return _custom
 
-_default_lang_codes = {'eng':parse_lang_code('en-US'), 'deu':parse_lang_code('de-DE'), 'spa':parse_lang_code('es-ES'), 'fra':parse_lang_code('fr-FR')}
+default_preferred_locales = {'eng':'en-US', 'deu':'de-DE', 'spa':'es-ES', 'fra':'fr-FR'}
 
 def get_dictionary(locale, exact_match=False):
     preferred = {parse_lang_code(k):v for k, v in dprefs['preferred_dictionaries']}.get(locale, None)
@@ -110,9 +110,9 @@ def get_dictionary(locale, exact_match=False):
     # No dictionary matched the locale exactly, we will now fallback to
     # matching only on language. First see if a dictionary matching the
     # preferred locale for the language exists.
-    best_locale = dprefs['preferred_locales'].get(locale.langcode, _default_lang_codes.get(locale.langcode, None))
+    best_locale = dprefs['preferred_locales'].get(locale.langcode, default_preferred_locales.get(locale.langcode, None))
     if best_locale is not None:
-        ans = get_dictionary(best_locale, exact_match=True)
+        ans = get_dictionary(parse_lang_code(best_locale), exact_match=True)
         if ans is not None:
             return ans
 
