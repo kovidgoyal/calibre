@@ -542,19 +542,11 @@ class PRST1(USBMS):
         if source_ids:
             cursor = connection.cursor()
             if mark_read:
-                query = '''
-                    UPDATE books
-                    SET time=added_date
-                    WHERE _id IN ?
-                    '''
+                query = 'UPDATE books SET reading_time=added_date WHERE _id = ?'
             else:
-                query = '''
-                    UPDATE books
-                    SET time=null
-                    WHERE _id IN ?
-                    '''
-            t = set(source_ids)
-            cursor.execute(query, t)
+                query = 'UPDATE books SET reading_time=null WHERE _id = ?'
+            t = [(id,) for id in source_ids]
+            cursor.executemany(query, t)
             # Output results
             readstate = 'unread'
             if mark_read:
