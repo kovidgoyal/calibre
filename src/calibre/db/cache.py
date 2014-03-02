@@ -160,7 +160,7 @@ class Cache(object):
         self._search_api.change_locations(self.field_metadata.get_search_terms())
 
         self.dirtied_cache = {x:i for i, (x,) in enumerate(
-            self.backend.conn.execute('SELECT book FROM metadata_dirtied'))}
+            self.backend.execute('SELECT book FROM metadata_dirtied'))}
         if self.dirtied_cache:
             self.dirtied_sequence = max(self.dirtied_cache.itervalues())+1
 
@@ -923,7 +923,7 @@ class Cache(object):
             self.dirtied_sequence = max(already_dirtied.itervalues()) + 1
         self.dirtied_cache.update(already_dirtied)
         if new_dirtied:
-            self.backend.conn.executemany('INSERT OR IGNORE INTO metadata_dirtied (book) VALUES (?)',
+            self.backend.executemany('INSERT OR IGNORE INTO metadata_dirtied (book) VALUES (?)',
                                     ((x,) for x in new_dirtied))
             new_dirtied = {book_id:self.dirtied_sequence+i for i, book_id in enumerate(new_dirtied)}
             self.dirtied_sequence = max(new_dirtied.itervalues()) + 1
@@ -933,7 +933,7 @@ class Cache(object):
     def commit_dirty_cache(self):
         book_ids = [(x,) for x in self.dirtied_cache]
         if book_ids:
-            self.backend.conn.executemany('INSERT OR IGNORE INTO metadata_dirtied (book) VALUES (?)', book_ids)
+            self.backend.executemany('INSERT OR IGNORE INTO metadata_dirtied (book) VALUES (?)', book_ids)
 
     @write_api
     def set_field(self, name, book_id_to_val_map, allow_case_change=True, do_path_update=True):
@@ -1022,7 +1022,7 @@ class Cache(object):
         '''
         dc_sequence = self.dirtied_cache.get(book_id, None)
         if dc_sequence is None or sequence is None or dc_sequence == sequence:
-            self.backend.conn.execute('DELETE FROM metadata_dirtied WHERE book=?',
+            self.backend.execute('DELETE FROM metadata_dirtied WHERE book=?',
                     (book_id,))
             self.dirtied_cache.pop(book_id, None)
 
@@ -1374,14 +1374,13 @@ class Cache(object):
             aus = aus.decode(preferred_encoding, 'replace')
         if isbytestring(mi.title):
             mi.title = mi.title.decode(preferred_encoding, 'replace')
-        conn = self.backend.conn
         if force_id is None:
-            conn.execute('INSERT INTO books(title, series_index, author_sort) VALUES (?, ?, ?)',
+            self.backend.execute('INSERT INTO books(title, series_index, author_sort) VALUES (?, ?, ?)',
                          (mi.title, series_index, aus))
         else:
-            conn.execute('INSERT INTO books(id, title, series_index, author_sort) VALUES (?, ?, ?, ?)',
+            self.backend.execute('INSERT INTO books(id, title, series_index, author_sort) VALUES (?, ?, ?, ?)',
                          (force_id, mi.title, series_index, aus))
-        book_id = conn.last_insert_rowid()
+        book_id = self.backend.last_insert_rowid()
 
         mi.timestamp = utcnow() if mi.timestamp is None else mi.timestamp
         mi.pubdate = UNDEFINED_DATE if mi.pubdate is None else mi.pubdate
@@ -1392,7 +1391,7 @@ class Cache(object):
             self._set_field('uuid', {book_id:mi.uuid})
         # Update the caches for fields from the books table
         self.fields['size'].table.book_col_map[book_id] = 0
-        row = next(conn.execute('SELECT sort, series_index, author_sort, uuid, has_cover FROM books WHERE id=?', (book_id,)))
+        row = next(self.backend.execute('SELECT sort, series_index, author_sort, uuid, has_cover FROM books WHERE id=?', (book_id,)))
         for field, val in zip(('sort', 'series_index', 'author_sort', 'uuid', 'cover'), row):
             if field == 'cover':
                 val = bool(val)

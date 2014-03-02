@@ -14,35 +14,35 @@ from calibre.utils.date import isoformat, DEFAULT_DATE
 
 class SchemaUpgrade(object):
 
-    def __init__(self, conn, library_path, field_metadata):
-        conn.execute('BEGIN EXCLUSIVE TRANSACTION')
-        self.conn = conn
+    def __init__(self, db, library_path, field_metadata):
+        db.execute('BEGIN EXCLUSIVE TRANSACTION')
+        self.db = db
         self.library_path = library_path
         self.field_metadata = field_metadata
         # Upgrade database
         try:
             while True:
-                uv = self.conn.execute('pragma user_version').next()[0]
+                uv = self.db.execute('pragma user_version').next()[0]
                 meth = getattr(self, 'upgrade_version_%d'%uv, None)
                 if meth is None:
                     break
                 else:
                     prints('Upgrading database to version %d...'%(uv+1))
                     meth()
-                    self.conn.execute('pragma user_version=%d'%(uv+1))
+                    self.db.execute('pragma user_version=%d'%(uv+1))
         except:
-            self.conn.execute('ROLLBACK')
+            self.db.execute('ROLLBACK')
             raise
         else:
-            self.conn.execute('COMMIT')
+            self.db.execute('COMMIT')
         finally:
-            self.conn = self.field_metadata = None
+            self.db = self.field_metadata = None
 
     def upgrade_version_1(self):
         '''
         Normalize indices.
         '''
-        self.conn.execute('''\
+        self.db.execute('''\
         DROP INDEX IF EXISTS authors_idx;
         CREATE INDEX authors_idx ON books (author_sort COLLATE NOCASE, sort COLLATE NOCASE);
         DROP INDEX IF EXISTS series_idx;
@@ -65,14 +65,14 @@ class SchemaUpgrade(object):
         END;
         DELETE FROM %(table)s WHERE (SELECT COUNT(id) FROM books_%(ltable)s_link WHERE %(ltable_col)s=%(table)s.id) < 1;
         '''
-        self.conn.execute(script%dict(ltable='authors', table='authors', ltable_col='author'))
-        self.conn.execute(script%dict(ltable='publishers', table='publishers', ltable_col='publisher'))
-        self.conn.execute(script%dict(ltable='tags', table='tags', ltable_col='tag'))
-        self.conn.execute(script%dict(ltable='series', table='series', ltable_col='series'))
+        self.db.execute(script%dict(ltable='authors', table='authors', ltable_col='author'))
+        self.db.execute(script%dict(ltable='publishers', table='publishers', ltable_col='publisher'))
+        self.db.execute(script%dict(ltable='tags', table='tags', ltable_col='tag'))
+        self.db.execute(script%dict(ltable='series', table='series', ltable_col='series'))
 
     def upgrade_version_3(self):
         ' Add path to result cache '
-        self.conn.execute('''
+        self.db.execute('''
         DROP VIEW IF EXISTS meta;
         CREATE VIEW meta AS
         SELECT id, title,
@@ -95,7 +95,7 @@ class SchemaUpgrade(object):
 
     def upgrade_version_4(self):
         'Rationalize books table'
-        self.conn.execute('''
+        self.db.execute('''
         CREATE TEMPORARY TABLE
         books_backup(id,title,sort,timestamp,series_index,author_sort,isbn,path);
         INSERT INTO books_backup SELECT id,title,sort,timestamp,series_index,author_sort,isbn,path FROM books;
@@ -142,7 +142,7 @@ class SchemaUpgrade(object):
 
     def upgrade_version_5(self):
         'Update indexes/triggers for new books table'
-        self.conn.execute('''
+        self.db.execute('''
         CREATE INDEX authors_idx ON books (author_sort COLLATE NOCASE);
         CREATE INDEX books_idx ON books (sort COLLATE NOCASE);
         CREATE TRIGGER books_delete_trg
@@ -174,7 +174,7 @@ class SchemaUpgrade(object):
 
     def upgrade_version_6(self):
         'Show authors in order'
-        self.conn.execute('''
+        self.db.execute('''
         DROP VIEW IF EXISTS meta;
         CREATE VIEW meta AS
         SELECT id, title,
@@ -200,7 +200,7 @@ class SchemaUpgrade(object):
 
     def upgrade_version_7(self):
         'Add uuid column'
-        self.conn.execute('''
+        self.db.execute('''
         ALTER TABLE books ADD COLUMN uuid TEXT;
         DROP TRIGGER IF EXISTS books_insert_trg;
         DROP TRIGGER IF EXISTS books_update_trg;
@@ -243,7 +243,7 @@ class SchemaUpgrade(object):
     def upgrade_version_8(self):
         'Add Tag Browser views'
         def create_tag_browser_view(table_name, column_name):
-            self.conn.execute('''
+            self.db.execute('''
                 DROP VIEW IF EXISTS tag_browser_{tn};
                 CREATE VIEW tag_browser_{tn} AS SELECT
                     id,
@@ -260,7 +260,7 @@ class SchemaUpgrade(object):
 
     def upgrade_version_9(self):
         'Add custom columns'
-        self.conn.execute('''
+        self.db.execute('''
                 CREATE TABLE custom_columns (
                     id       INTEGER PRIMARY KEY AUTOINCREMENT,
                     label    TEXT NOT NULL,
@@ -295,11 +295,11 @@ class SchemaUpgrade(object):
                         {cn}={tn}.id AND books_list_filter(book)) count
                 FROM {tn};
                 '''.format(tn=table_name, cn=column_name, vcn=view_column_name))
-            self.conn.execute(script)
+            self.db.execute(script)
 
         for field in self.field_metadata.itervalues():
             if field['is_category'] and not field['is_custom'] and 'link_column' in field:
-                table = self.conn.get(
+                table = self.db.get(
                     'SELECT name FROM sqlite_master WHERE type="table" AND name=?',
                     ('books_%s_link'%field['table'],), all=False)
                 if table is not None:
@@ -337,7 +337,7 @@ class SchemaUpgrade(object):
 
                 '''.format(tn=table_name, cn=column_name,
                            vcn=view_column_name, scn=sort_column_name))
-            self.conn.execute(script)
+            self.db.execute(script)
 
         def create_cust_tag_browser_view(table_name, link_table_name):
             script = '''
@@ -371,18 +371,18 @@ class SchemaUpgrade(object):
                      value AS sort
                 FROM {table};
                 '''.format(lt=link_table_name, table=table_name)
-            self.conn.execute(script)
+            self.db.execute(script)
 
         for field in self.field_metadata.itervalues():
             if field['is_category'] and not field['is_custom'] and 'link_column' in field:
-                table = self.conn.get(
+                table = self.db.get(
                     'SELECT name FROM sqlite_master WHERE type="table" AND name=?',
                     ('books_%s_link'%field['table'],), all=False)
                 if table is not None:
                     create_std_tag_browser_view(field['table'], field['link_column'],
                                             field['column'], field['category_sort'])
 
-        db_tables = self.conn.get('''SELECT name FROM sqlite_master
+        db_tables = self.db.get('''SELECT name FROM sqlite_master
                                      WHERE type='table'
                                      ORDER BY name''')
         tables = []
@@ -393,7 +393,7 @@ class SchemaUpgrade(object):
             if table.startswith('custom_column_') and link_table in tables:
                 create_cust_tag_browser_view(table, link_table)
 
-        self.conn.execute('UPDATE authors SET sort=author_to_author_sort(name)')
+        self.db.execute('UPDATE authors SET sort=author_to_author_sort(name)')
 
     def upgrade_version_12(self):
         'DB based preference store'
@@ -404,7 +404,7 @@ class SchemaUpgrade(object):
                                  val TEXT NON NULL,
                                  UNIQUE(key));
         '''
-        self.conn.execute(script)
+        self.db.execute(script)
 
     def upgrade_version_13(self):
         'Dirtied table for OPF metadata backups'
@@ -415,12 +415,12 @@ class SchemaUpgrade(object):
                              UNIQUE(book));
         INSERT INTO metadata_dirtied (book) SELECT id FROM books;
         '''
-        self.conn.execute(script)
+        self.db.execute(script)
 
     def upgrade_version_14(self):
         'Cache has_cover'
-        self.conn.execute('ALTER TABLE books ADD COLUMN has_cover BOOL DEFAULT 0')
-        data = self.conn.get('SELECT id,path FROM books', all=True)
+        self.db.execute('ALTER TABLE books ADD COLUMN has_cover BOOL DEFAULT 0')
+        data = self.db.get('SELECT id,path FROM books', all=True)
         def has_cover(path):
             if path:
                 path = os.path.join(self.library_path, path.replace('/', os.sep),
@@ -429,16 +429,16 @@ class SchemaUpgrade(object):
             return False
 
         ids = [(x[0],) for x in data if has_cover(x[1])]
-        self.conn.executemany('UPDATE books SET has_cover=1 WHERE id=?', ids)
+        self.db.executemany('UPDATE books SET has_cover=1 WHERE id=?', ids)
 
     def upgrade_version_15(self):
         'Remove commas from tags'
-        self.conn.execute("UPDATE OR IGNORE tags SET name=REPLACE(name, ',', ';')")
-        self.conn.execute("UPDATE OR IGNORE tags SET name=REPLACE(name, ',', ';;')")
-        self.conn.execute("UPDATE OR IGNORE tags SET name=REPLACE(name, ',', '')")
+        self.db.execute("UPDATE OR IGNORE tags SET name=REPLACE(name, ',', ';')")
+        self.db.execute("UPDATE OR IGNORE tags SET name=REPLACE(name, ',', ';;')")
+        self.db.execute("UPDATE OR IGNORE tags SET name=REPLACE(name, ',', '')")
 
     def upgrade_version_16(self):
-        self.conn.execute('''
+        self.db.execute('''
         DROP TRIGGER IF EXISTS books_update_trg;
         CREATE TRIGGER books_update_trg
             AFTER UPDATE ON books
@@ -472,7 +472,7 @@ class SchemaUpgrade(object):
                 DELETE FROM books_plugin_data WHERE book=OLD.id;
         END;
         '''
-        self.conn.execute(script)
+        self.db.execute(script)
 
     def upgrade_version_18(self):
         '''
@@ -584,10 +584,10 @@ class SchemaUpgrade(object):
         '''%isoformat(DEFAULT_DATE, sep=' ')
         # Sqlite does not support non constant default values in alter
         # statements
-        self.conn.execute(script)
+        self.db.execute(script)
 
     def upgrade_version_19(self):
-        recipes = self.conn.get('SELECT id,title,script FROM feeds')
+        recipes = self.db.get('SELECT id,title,script FROM feeds')
         if recipes:
             from calibre.web.feeds.recipes import (custom_recipes,
                     custom_recipe_filename)
@@ -612,6 +612,6 @@ class SchemaUpgrade(object):
         script = '''
         ALTER TABLE authors ADD COLUMN link TEXT NOT NULL DEFAULT "";
         '''
-        self.conn.execute(script)
+        self.db.execute(script)
 
 
