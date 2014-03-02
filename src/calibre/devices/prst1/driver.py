@@ -92,12 +92,18 @@ class PRST1(USBMS):
           'appear the same way the T1 sets it. This means it will '
           'only show the first author for books with multiple authors. '
           'Leave this disabled if you use Metadata Plugboards.')
+        _('Mark all new exported books as Read') +
+              ':::' +
+              _('Set this option if you want the new exported books '
+                'to be marked as read and not appear under the Sony '
+                'new books collection.')
     ]
     EXTRA_CUSTOMIZATION_DEFAULT = [
                 ', '.join(['series', 'tags']),
                 True,
                 False,
                 True,
+                False,
                 False,
     ]
 
@@ -106,6 +112,7 @@ class PRST1(USBMS):
     OPT_REFRESH_COVERS = 2
     OPT_PRESERVE_ASPECT_RATIO = 3
     OPT_USE_SONY_AUTHORS = 4
+    OPT_MARK_AS_READ = 5
 
     plugboards = None
     plugboard_func = None
@@ -441,10 +448,12 @@ class PRST1(USBMS):
         upload_covers = opts.extra_customization[self.OPT_UPLOAD_COVERS]
         refresh_covers = opts.extra_customization[self.OPT_REFRESH_COVERS]
         use_sony_authors = opts.extra_customization[self.OPT_USE_SONY_AUTHORS]
+        mark_as_read = opts.extra_customization[self.OPT_MARK_AS_READ]
 
         db_books = self.read_device_books(connection, source_id, dbpath)
         cursor = connection.cursor()
 
+        ReadIds = []
         for book in booklist:
             # Run through plugboard if needed
             if plugboard is not None:
@@ -489,6 +498,7 @@ class PRST1(USBMS):
                         os.path.basename(lpath), book.size, book.mime or mime_type_ext(path_to_ext(lpath)))
                 cursor.execute(query, t)
                 book.bookId = self.get_lastrowid(cursor)
+                ReadIds.append(book.bookId)
                 if upload_covers:
                     self.upload_book_cover(connection, book, source_id)
                 debug_print('Inserted New Book: (%u) '%book.bookId + book.title)
@@ -508,6 +518,10 @@ class PRST1(USBMS):
             if self.is_sony_periodical(book):
                 self.periodicalize_book(connection, book)
 
+        if mark_as_read:
+            # Mark all the added books as read if asked
+            self.mark_as_read(connection, ReadIds)
+
         for book, bookId in db_books.items():
             if bookId is not None:
                 # Remove From Collections
@@ -522,6 +536,30 @@ class PRST1(USBMS):
 
         connection.commit()
         cursor.close()
+
+    def mark_as_read(self, connection, source_ids, mark_read=True):
+        # Mark books as read/unread
+        if source_ids:
+            cursor = connection.cursor()
+            if mark_read:
+                query = '''
+                    UPDATE books
+                    SET time=added_date
+                    WHERE _id IN ?
+                    '''
+            else:
+                query = '''
+                    UPDATE books
+                    SET time=null
+                    WHERE _id IN ?
+                    '''
+            t = set(source_ids)
+            cursor.execute(query, t)
+            # Output results
+            readstate = 'unread'
+            if mark_read:
+                readstate = 'read'
+            debug_print('Marked as %s the following Ids: %s '%(readstate,repr(t)))
 
     def read_device_collections(self, connection, source_id, dbpath):
         from sqlite3 import DatabaseError
