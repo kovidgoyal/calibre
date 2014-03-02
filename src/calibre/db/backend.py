@@ -792,7 +792,9 @@ class DB(object):
         except apsw.IOError:
             # This can happen if the computer was suspended see for example:
             # https://bugs.launchpad.net/bugs/1286522. Try to reopen the db
-            self.db.reopen(force=True)
+            if not self.conn.getautocommit():
+                raise  # We are in a transaction, re-opening the db will fail anyway
+            self.reopen(force=True)
             return self.conn.cursor().execute(sql, bindings)
 
     def executemany(self, sql, sequence_of_bindings):
@@ -802,7 +804,9 @@ class DB(object):
         except apsw.IOError:
             # This can happen if the computer was suspended see for example:
             # https://bugs.launchpad.net/bugs/1286522. Try to reopen the db
-            self.db.reopen(force=True)
+            if not self.conn.getautocommit():
+                raise  # We are in a transaction, re-opening the db will fail anyway
+            self.reopen(force=True)
             with self.conn:  # Disable autocommit mode, for performance
                 return self.conn.cursor().executemany(sql, sequence_of_bindings)
 
@@ -1589,12 +1593,13 @@ class DB(object):
 
     def has_conversion_options(self, ids, fmt='PIPE'):
         ids = frozenset(ids)
-        self.execute('DROP TABLE IF EXISTS conversion_options_temp; CREATE TEMP TABLE conversion_options_temp (id INTEGER PRIMARY KEY);')
-        self.executemany('INSERT INTO conversion_options_temp VALUES (?)', [(x,) for x in ids])
-        for (book_id,) in self.conn.get(
-            'SELECT book FROM conversion_options WHERE format=? AND book IN (SELECT id FROM conversion_options_temp)', (fmt.upper(),)):
-            return True
-        return False
+        with self.conn:
+            self.execute('DROP TABLE IF EXISTS conversion_options_temp; CREATE TEMP TABLE conversion_options_temp (id INTEGER PRIMARY KEY);')
+            self.executemany('INSERT INTO conversion_options_temp VALUES (?)', [(x,) for x in ids])
+            for (book_id,) in self.conn.get(
+                'SELECT book FROM conversion_options WHERE format=? AND book IN (SELECT id FROM conversion_options_temp)', (fmt.upper(),)):
+                return True
+            return False
 
     def delete_conversion_options(self, book_ids, fmt):
         self.executemany('DELETE FROM conversion_options WHERE book=? AND format=?',
