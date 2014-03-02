@@ -52,19 +52,13 @@ class FinancialTimes(BasicNewsRecipe):
         return br
 
     keep_only_tags = [
-                        dict(name='div' , attrs={'class':['fullstory fullstoryHeader', 'ft-story-header']})
-                       ,dict(name='div' , attrs={'class':'standfirst'})
-                       ,dict(name='div' , attrs={'id'   :'storyContent'})
-                       ,dict(name='div' , attrs={'class':['ft-story-body','index-detail']})
-                       ,dict(name='h2'  , attrs={'class':'entry-title'} )
-                       ,dict(name='span', attrs={'class':lambda x: x and 'posted-on' in x.split()} )
-                       ,dict(name='span', attrs={'class':'author_byline'} )
-                       ,dict(name='div' , attrs={'class':'entry-content'} )
+                        dict(name='div' , attrs={'class':['master-row editorialSection']})
                      ]
     remove_tags = [
                       dict(name='div', attrs={'id':'floating-con'})
                      ,dict(name=['meta','iframe','base','object','embed','link'])
-                     ,dict(attrs={'class':['storyTools','story-package','screen-copy','story-package separator','expandable-image']})
+                     ,dict(attrs={'class':['storyTools','story-package','screen-copy','story-package separator','expandable-image','promobox']})
+                     ,dict(name='div', attrs={'class':lambda x: x and 'insideArticleRelatedTopics' in x.split()} )
                   ]
     remove_attributes = ['width','height','lang']
 
@@ -157,12 +151,6 @@ class FinancialTimes(BasicNewsRecipe):
             if not item.has_key('alt'):
                item['alt'] = 'image'
         return soup
-
-    def get_cover_url(self):
-        cdate = datetime.date.today()
-        if cdate.isoweekday() == 7:
-            cdate -= datetime.timedelta(days=1)
-        return cdate.strftime('http://specials.ft.com/vtf_pdf/%d%m%y_FRONT1_USA.pdf')
 
     def get_obfuscated_article(self, url):
         count = 0
