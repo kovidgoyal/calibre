@@ -988,7 +988,8 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                     'currentLibraryUUID': library_uuid,
                     'pubdateFormat': tweaks['gui_pubdate_display_format'],
                     'timestampFormat': tweaks['gui_timestamp_display_format'],
-                    'lastModifiedFormat': tweaks['gui_last_modified_display_format']})
+                    'lastModifiedFormat': tweaks['gui_last_modified_display_format'],
+                    'calibre_version': numeric_version})
             if opcode != 'OK':
                 # Something wrong with the return. Close the socket
                 # and continue.
@@ -1087,7 +1088,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
             self.is_read_sync_col = result.get('isReadSyncCol', None)
             self._debug('Device is_read sync col', self.is_read_sync_col)
 
-            self.is_read_date_sync_col = result.get('isReadDateSyncCol', False)
+            self.is_read_date_sync_col = result.get('isReadDateSyncCol', None)
             self._debug('Device is_read_date sync col', self.is_read_date_sync_col)
 
             if password:
@@ -1207,7 +1208,8 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                             {'canStream':True,
                              'canScan':True,
                              'willUseCachedMetadata': self.client_can_use_metadata_cache,
-                             'supportsSync': True})
+                             'supportsSync': (self.is_read_sync_col or
+                                              self.is_read_date_sync_col)})
         bl = CollectionsBookList(None, self.PREFIX, self.settings)
         if opcode == 'OK':
             count = result['count']
@@ -1307,7 +1309,8 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
         self._call_client('SEND_BOOKLISTS', {'count': count,
                      'collections': coldict,
                      'willStreamMetadata': True,
-                     'supportsSync': True},
+                     'supportsSync': (self.is_read_sync_col or
+                                      self.is_read_date_sync_col)},
                      wait_for_response=False)
 
         if count:
@@ -1316,7 +1319,9 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                 self._set_known_metadata(book)
                 opcode, result = self._call_client(
                         'SEND_BOOK_METADATA',
-                        {'index': i, 'count': count, 'data': book, 'supportsSync': True},
+                        {'index': i, 'count': count, 'data': book,
+                         'supportsSync': (self.is_read_sync_col or
+                                          self.is_read_date_sync_col)},
                         print_debug_info=False,
                         wait_for_response=False)
 
