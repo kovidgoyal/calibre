@@ -172,6 +172,11 @@ extensions = [
     Extension('cPalmdoc',
         ['calibre/ebooks/compression/palmdoc.c']),
 
+    Extension('bzzdec',
+        ['calibre/ebooks/djvu/bzzdecoder.c'],
+        incdirs=['calibre/utils/chm']  # For stdint.h
+    ),
+
     Extension('podofo',
                     [
                         'calibre/utils/podofo/utils.cpp',

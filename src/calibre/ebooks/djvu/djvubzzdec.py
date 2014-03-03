@@ -499,37 +499,38 @@ class BZZDecoder():
         # Decode
         mtfno = 3
         markerpos = -1
+        zc = lambda i: self.zpcodec_decode(self.ctx, i)
+        dc = lambda i, bits: self.decode_binary(self.ctx, i, bits)
         for i in xrange(self.xsize):
             ctxid = CTXIDS - 1
             if ctxid > mtfno:
                 ctxid = mtfno
-            cx = self.ctx
-            if self.zpcodec_decode(cx, ctxid):
+            if zc(ctxid):
                 mtfno = 0
                 outbuf[i] = mtf[mtfno]
-            elif self.zpcodec_decode(cx, ctxid + CTXIDS):
+            elif zc(ctxid + CTXIDS):
                 mtfno = 1
                 outbuf[i] = mtf[mtfno]
-            elif self.zpcodec_decode(cx, 2*CTXIDS):
-                mtfno = 2 + self.decode_binary(cx, 2*CTXIDS + 1, 1)
+            elif zc(2*CTXIDS):
+                mtfno = 2 + dc(2*CTXIDS + 1, 1)
                 outbuf[i] = mtf[mtfno]
-            elif self.zpcodec_decode(cx, 2*CTXIDS+2):
-                mtfno = 4 + self.decode_binary(cx, 2*CTXIDS+2 + 1, 2)
+            elif zc(2*CTXIDS+2):
+                mtfno = 4 + dc(2*CTXIDS+2 + 1, 2)
                 outbuf[i] = mtf[mtfno]
-            elif self.zpcodec_decode(cx, 2*CTXIDS + 6):
-                mtfno = 8 + self.decode_binary(cx, 2*CTXIDS + 6 + 1, 3)
+            elif zc(2*CTXIDS + 6):
+                mtfno = 8 + dc(2*CTXIDS + 6 + 1, 3)
                 outbuf[i] = mtf[mtfno]
-            elif self.zpcodec_decode(cx, 2*CTXIDS + 14):
-                mtfno = 16 + self.decode_binary(cx, 2*CTXIDS + 14 + 1, 4)
+            elif zc(2*CTXIDS + 14):
+                mtfno = 16 + dc(2*CTXIDS + 14 + 1, 4)
                 outbuf[i] = mtf[mtfno]
-            elif self.zpcodec_decode(cx, 2*CTXIDS + 30):
-                mtfno = 32 + self.decode_binary(cx, 2*CTXIDS + 30 + 1, 5)
+            elif zc(2*CTXIDS + 30):
+                mtfno = 32 + dc(2*CTXIDS + 30 + 1, 5)
                 outbuf[i] = mtf[mtfno]
-            elif self.zpcodec_decode(cx, 2*CTXIDS + 62):
-                mtfno = 64 + self.decode_binary(cx, 2*CTXIDS + 62 + 1, 6)
+            elif zc(2*CTXIDS + 62):
+                mtfno = 64 + dc(2*CTXIDS + 62 + 1, 6)
                 outbuf[i] = mtf[mtfno]
-            elif self.zpcodec_decode(cx, 2*CTXIDS + 126):
-                mtfno = 128 + self.decode_binary(cx, 2*CTXIDS + 126 + 1, 7)
+            elif zc(2*CTXIDS + 126):
+                mtfno = 128 + dc(2*CTXIDS + 126 + 1, 7)
                 outbuf[i] = mtf[mtfno]
             else:
                 mtfno = 256  # EOB
@@ -727,15 +728,10 @@ class BZZDecoder():
 # for testing
 def main():
     import sys
-    infile = bytearray(file(sys.argv[1], "rb").read())
-    outfile = bytearray()
-    dec = BZZDecoder(infile, outfile)
-    while True:
-        res = dec.convert(1024 * 1024)
-        if not res:
-            break
-    with open(sys.argv[2], 'wb') as f:
-        f.write(bytes(outfile))
+    from calibre.constants import plugins
+    raw = file(sys.argv[1], "rb").read()
+    d = plugins['bzzdec'][0]
+    print (d.decompress(raw))
 
 if __name__ == "__main__":
     main()

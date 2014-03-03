@@ -142,6 +142,7 @@ class Plugins(collections.Mapping):
                 '_regex',
                 'hunspell',
                 '_patiencediff_c',
+                'bzzdec',
             ]
         if iswindows:
             plugins.extend(['winutil', 'wpd', 'winfonts'])

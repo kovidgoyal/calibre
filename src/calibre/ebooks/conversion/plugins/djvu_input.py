@@ -8,10 +8,9 @@ __copyright__ = '2011, Anthon van der Neut <anthon@mnt.org>'
 __docformat__ = 'restructuredtext en'
 
 import os
-from subprocess import Popen, PIPE
-from cStringIO import StringIO
+from io import BytesIO
 
-from calibre.customize.conversion import InputFormatPlugin, OptionRecommendation
+from calibre.customize.conversion import InputFormatPlugin
 
 class DJVUInput(InputFormatPlugin):
 
@@ -20,35 +19,13 @@ class DJVUInput(InputFormatPlugin):
     description = 'Convert OCR-ed DJVU files (.djvu) to HTML'
     file_types  = set(['djvu', 'djv'])
 
-    options = set([
-        OptionRecommendation(name='use_djvutxt', recommended_value=True,
-            help=_('Try to use the djvutxt program and fall back to pure '
-                'python implementation if it fails or is not available')),
-    ])
-
     def convert(self, stream, options, file_ext, log, accelerators):
         from calibre.ebooks.txt.processor import convert_basic
 
-        stdout = StringIO()
-        ppdjvu = True
-        # using djvutxt is MUCH faster, should make it an option
-        if options.use_djvutxt and os.path.exists('/usr/bin/djvutxt'):
-            from calibre.ptempfile import PersistentTemporaryFile
-            try:
-                fp = PersistentTemporaryFile(suffix='.djvu', prefix='djv_input')
-                filename = fp._name
-                fp.write(stream.read())
-                fp.close()
-                cmd = ['djvutxt', filename]
-                stdout.write(Popen(cmd, stdout=PIPE, close_fds=True).communicate()[0])
-                os.remove(filename)
-                ppdjvu = False
-            except:
-                stream.seek(0)  # retry with the pure python converter
-        if ppdjvu:
-            from calibre.ebooks.djvu.djvu import DJVUFile
-            x = DJVUFile(stream)
-            x.get_text(stdout)
+        stdout = BytesIO()
+        from calibre.ebooks.djvu.djvu import DJVUFile
+        x = DJVUFile(stream)
+        x.get_text(stdout)
 
         html = convert_basic(stdout.getvalue().replace(b"\n", b' ').replace(
             b'\037', b'\n\n'))

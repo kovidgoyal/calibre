@@ -15,10 +15,14 @@ import sys
 import struct
 
 from calibre.ebooks.djvu.djvubzzdec import BZZDecoder
+from calibre.constants import plugins
 
 class DjvuChunk(object):
     def __init__(self, buf, start, end, align=True, bigendian=True,
             inclheader=False, verbose=0):
+        self.speedup, err = plugins['bzzdec']
+        if self.speedup is None:
+            raise RuntimeError('Failed to load bzzdec plugin: %s' % err)
         self.subtype = None
         self._subchunks = []
         self.buf = buf
@@ -64,24 +68,28 @@ class DjvuChunk(object):
             out.write(b'%s%s [%d]\n' % (self.type,
                 b':' + self.subtype if self.subtype else b'', self.size))
         if txtout and self.type == b'TXTz':
-            inbuf = bytearray(self.buf[self.datastart: self.dataend])
-            outbuf = bytearray()
-            decoder = BZZDecoder(inbuf, outbuf)
-            while True:
-                xxres = decoder.convert(1024 * 1024)
-                if not xxres:
-                    break
-            res = bytes(outbuf)
-            if not res.strip(b'\0'):
-                raise ValueError('TXTz block is completely null')
-            l = 0
-            for x in res[:3]:
-                l <<= 8
-                l += ord(x)
-            if verbose > 0 and out:
-                print (l, file=out)
-            txtout.write(res[3:3+l])
-            txtout.write(b'\n')
+            if True:
+                # Use the C BZZ decode implementation
+                txtout.write(self.speedup.decompress(self.buf[self.datastart:self.dataend]))
+            else:
+                inbuf = bytearray(self.buf[self.datastart: self.dataend])
+                outbuf = bytearray()
+                decoder = BZZDecoder(inbuf, outbuf)
+                while True:
+                    xxres = decoder.convert(1024 * 1024)
+                    if not xxres:
+                        break
+                res = bytes(outbuf)
+                if not res.strip(b'\0'):
+                    raise ValueError('TXTz block is completely null')
+                l = 0
+                for x in res[:3]:
+                    l <<= 8
+                    l += ord(x)
+                if verbose > 0 and out:
+                    print (l, file=out)
+                txtout.write(res[3:3+l])
+            txtout.write(b'\037')
         if txtout and self.type == b'TXTa':
             res = self.buf[self.datastart: self.dataend]
             l = 0
@@ -91,7 +99,7 @@ class DjvuChunk(object):
             if verbose > 0 and out:
                 print (l, file=out)
             txtout.write(res[3:3+l])
-            txtout.write(b'\n')
+            txtout.write(b'\037')
         if indent >= maxlevel:
             return
         for schunk in self._subchunks:
