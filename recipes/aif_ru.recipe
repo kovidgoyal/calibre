@@ -1,5 +1,5 @@
 __license__   = 'GPL v3'
-__copyright__ = '2010 - 2012, Darko Miletic <darko.miletic at gmail.com>'
+__copyright__ = '2010 - 2014, Darko Miletic <darko.miletic at gmail.com>'
 '''
 www.aif.ru
 '''
@@ -16,22 +16,24 @@ class AIF_ru(BasicNewsRecipe):
     max_articles_per_feed = 100
     no_stylesheets        = True
     use_embedded_content  = False
-    encoding              = 'cp1251'
+    encoding              = 'utf8'
     language              = 'ru'
     publication_type      = 'magazine'
     masthead_url          = 'http://static3.aif.ru/glossy/index/i/logo.png'
-    extra_css             = """ 
-                                @font-face {font-family: "sans1";src:url(res:///opt/sony/ebook/FONT/tt0003m_.ttf)} 
+    extra_css             = """
                                 body{font-family: Verdana,Arial,Helvetica,sans1,sans-serif}
                                 img{display: block}
                             """
     keep_only_tags     = [
-                            dict(name='div',attrs={'class':['content-header', 'zoom']})
-                           ,dict(name='div',attrs={'id':'article-text'})
+                            dict(name='h1', attrs={'class':'title'})
+                           ,dict(name='div', attrs={'class':'prew_tags'})
+                           ,dict(name='article', attrs={'class':lambda x: x and 'articl_body' in x.split()})
                          ]
     remove_tags        = [
                             dict(name=['iframe','object','link','base','input','meta'])
                            ,dict(name='div',attrs={'class':'in-topic'})
+                           ,dict(name='div', attrs={'class':lambda x: x and 'related_article' in x.split()})
+                           ,dict(name='div', attrs={'class':lambda x: x and 'articl_tag' in x.split()})
                          ]
 
     feeds       = [(u'News', u'http://www.aif.ru/rss/all.php')]
