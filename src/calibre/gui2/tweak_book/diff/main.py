@@ -126,7 +126,8 @@ def file_diff(left, right):
         raw1, raw2 = open(left, 'rb').read(), open(right, 'rb').read()
     cache = Cache()
     cache.set_left(left, raw1), cache.set_right(right, raw2)
-    return cache, {left:syntax1, right:syntax2}, {left:right}, {}, set(), set()
+    changed_names = {} if raw1 == raw2 else {left:right}
+    return cache, {left:syntax1, right:syntax2}, changed_names, {}, set(), set()
 
 def dir_diff(left, right):
     ldata, rdata, lsmap, rsmap = {}, {}, {}, {}
@@ -438,6 +439,7 @@ def compare_books(path1, path2, revert_msg=None, revert_callback=None, parent=No
     d.break_cycles()
 
 def main(args=sys.argv):
+    from calibre.gui2 import Application
     left, right = sys.argv[-2:]
     ext1, ext2 = left.rpartition('.')[-1].lower(), right.rpartition('.')[-1].lower()
     if os.path.isdir(left):
@@ -446,11 +448,12 @@ def main(args=sys.argv):
         attr = 'ebook_diff'
     else:
         attr = 'file_diff'
-    app = QApplication([])
+    app = Application([])  # noqa
     d = Diff(show_as_window=True)
-    d.show()
-    getattr(d, attr)(left, right)
-    return app.exec_()
+    func = getattr(d, attr)
+    QTimer.singleShot(0, lambda : func(left, right))
+    d.exec_()
+    return 0
 
 if __name__ == '__main__':
     main()
