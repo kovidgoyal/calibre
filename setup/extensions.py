@@ -174,7 +174,7 @@ extensions = [
 
     Extension('bzzdec',
         ['calibre/ebooks/djvu/bzzdecoder.c'],
-        inc_dirs=['calibre/utils/chm']  # For stdint.h
+        inc_dirs=(['calibre/utils/chm'] if iswindows else [])  # For stdint.h
     ),
 
     Extension('podofo',
