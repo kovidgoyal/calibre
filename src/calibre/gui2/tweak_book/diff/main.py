@@ -442,6 +442,10 @@ def main(args=sys.argv):
     from calibre.gui2 import Application
     left, right = sys.argv[-2:]
     ext1, ext2 = left.rpartition('.')[-1].lower(), right.rpartition('.')[-1].lower()
+    if ext1.startswith('original_'):
+        ext1 = ext1.partition('_')[-1]
+    if ext2.startswith('original_'):
+        ext2 = ext2.partition('_')[-2]
     if os.path.isdir(left):
         attr = 'dir_diff'
     elif (ext1, ext2) in {('epub', 'epub'), ('azw3', 'azw3')}:
