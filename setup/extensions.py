@@ -174,7 +174,7 @@ extensions = [
 
     Extension('bzzdec',
         ['calibre/ebooks/djvu/bzzdecoder.c'],
-        incdirs=['calibre/utils/chm']  # For stdint.h
+        inc_dirs=['calibre/utils/chm']  # For stdint.h
     ),
 
     Extension('podofo',

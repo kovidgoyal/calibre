@@ -11,6 +11,8 @@
 
 #ifdef _MSC_VER
 #include "stdint.h"
+// inline does not work with the visual studio C compiler
+#define inline
 #else
 #include <inttypes.h>
 #endif
@@ -376,7 +378,7 @@ static bool init_state(State *state) {
     return TRUE;
 }
 
-static int32_t decode_sub_simple(State *state, int32_t mps, uint32_t z) {
+static inline int32_t decode_sub_simple(State *state, int32_t mps, uint32_t z) {
     int32_t shift = 0;
 
     /* Test MPS/LPS */
@@ -422,7 +424,7 @@ static inline int32_t decode_raw(State *state, int32_t bits) {
     return n - m;
 }
 
-static int32_t decode_sub(State *state, uint8_t *ctx, int32_t index, unsigned int z)
+static inline int32_t decode_sub(State *state, uint8_t *ctx, int32_t index, uint32_t z)
 {
     /* Save bit */
     int32_t bit = (ctx[index] & 1), shift;
@@ -462,7 +464,7 @@ static int32_t decode_sub(State *state, uint8_t *ctx, int32_t index, unsigned in
 
 
 static inline int32_t zpcodec_decode(State *state, uint8_t *ctx, int32_t index) {
-    int32_t z = state->a + state->p[ctx[index]];
+    uint32_t z = state->a + state->p[ctx[index]];
     if (z <= state->fence) {
         state->a = z;
         return ctx[index] & 1;
@@ -514,8 +516,8 @@ static bool decode(State *state, uint8_t *ctx) {
   0xE8, 0xE9, 0xEA, 0xEB, 0xEC, 0xED, 0xEE, 0xEF,
   0xF0, 0xF1, 0xF2, 0xF3, 0xF4, 0xF5, 0xF6, 0xF7,
   0xF8, 0xF9, 0xFA, 0xFB, 0xFC, 0xFD, 0xFE, 0xFF};  // }}}
-    int32_t freq[FREQMAX] = {0}, fadd = 4, mtfno = 3, markerpos = -1, i = 0, ctxid = 0, fshift = 0, k = 0, count[256] = {0}, last = 0, tmp = 0;
-    uint32_t fc = 0, *posn = NULL, n = 0;
+    int32_t fc = 0, freq[FREQMAX] = {0}, fadd = 4, mtfno = 3, markerpos = -1, ctxid = 0, fshift = 0, k = 0, count[256] = {0}, last = 0, tmp = 0;
+    uint32_t *posn = NULL, n = 0, i = 0;
     uint8_t j = 0, c = 0;
 
     state->xsize = decode_raw(state, 24);
@@ -580,10 +582,10 @@ static bool decode(State *state, uint8_t *ctx) {
     } // end loop on i
 
     ////////// Reconstruct the string
-    if (markerpos<1 || markerpos>=state->xsize) { CORRUPT; goto end; }
+    if (markerpos<1 || (uint32_t)markerpos>=state->xsize) { CORRUPT; goto end; }
     // Allocate pointers
     // Fill count buffer
-    for (i=0; i<markerpos; i++) 
+    for (i=0; i<(uint32_t)markerpos; i++) 
     {
         c = state->buf[i];
         posn[i] = (c<<24) | (count[c] & 0xffffff);
