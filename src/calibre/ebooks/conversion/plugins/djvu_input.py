@@ -36,13 +36,11 @@ class DJVUInput(InputFormatPlugin):
             setattr(options, opt.option.name, opt.recommended_value)
         options.input_encoding = 'utf-8'
         base = os.getcwdu()
-        if file_ext != 'txtz' and hasattr(stream, 'name'):
-            base = os.path.dirname(stream.name)
         fname = os.path.join(base, 'index.html')
         c = 0
         while os.path.exists(fname):
             c += 1
-            fname = 'index%d.html'%c
+            fname = os.path.join(base, 'index%d.html'%c)
         htmlfile = open(fname, 'wb')
         with htmlfile:
             htmlfile.write(html.encode('utf-8'))
