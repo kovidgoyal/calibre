@@ -13,7 +13,6 @@ __copyright__ = '2011, Anthon van der Neut <A.van.der.Neut@ruamel.eu>'
 
 import sys
 import struct
-from cStringIO import StringIO
 
 from calibre.ebooks.djvu.djvubzzdec import BZZDecoder
 
@@ -65,14 +64,14 @@ class DjvuChunk(object):
             out.write(b'%s%s [%d]\n' % (self.type,
                 b':' + self.subtype if self.subtype else b'', self.size))
         if txtout and self.type == b'TXTz':
-            inbuf = StringIO(self.buf[self.datastart: self.dataend])
-            outbuf = StringIO()
+            inbuf = bytearray(self.buf[self.datastart: self.dataend])
+            outbuf = bytearray()
             decoder = BZZDecoder(inbuf, outbuf)
             while True:
                 xxres = decoder.convert(1024 * 1024)
                 if not xxres:
                     break
-            res = outbuf.getvalue()
+            res = bytes(outbuf)
             if not res.strip(b'\0'):
                 raise ValueError('TXTz block is completely null')
             l = 0

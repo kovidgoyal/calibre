@@ -388,13 +388,11 @@ xmtf = (
 )
  # }}}
 
-def chr3(l):
-    return bytes(bytearray(l))
-
 class BZZDecoder():
 
     def __init__(self, infile, outfile):
         self.instream = infile
+        self.inptr = 0
         self.outf = outfile
         self.ieof = False
         self.bptr = None
@@ -442,7 +440,7 @@ class BZZDecoder():
         if self.ieof:
             return 0
         copied = 0
-        while sz > 0 and not (self.ieof):
+        while sz > 0 and not self.ieof:
             # Decode if needed
             if not self.xsize:
                 self.bptr = 0
@@ -455,8 +453,7 @@ class BZZDecoder():
             remaining = min(sz, self.xsize)
             # Transfer
             if remaining > 0:
-                raw = bytes(bytearray(self.outbuf[self.bptr:self.bptr + remaining]))
-                self.outf.write(raw)
+                self.outf.extend(self.outbuf[self.bptr:self.bptr + remaining])
             self.xsize -= remaining
             self.bptr += remaining
             sz -= remaining
@@ -466,7 +463,7 @@ class BZZDecoder():
 
     def preload(self):
         while self.scount <= 24:
-            if self.read_byte() < 1:
+            if not self.read_byte():
                 self.byte = 0xff
                 self.delay -= 1
                 if self.delay < 1:
@@ -502,7 +499,7 @@ class BZZDecoder():
         # Decode
         mtfno = 3
         markerpos = -1
-        for i in range(self.xsize):
+        for i in xrange(self.xsize):
             ctxid = CTXIDS - 1
             if ctxid > mtfno:
                 ctxid = mtfno
@@ -712,15 +709,12 @@ class BZZDecoder():
         return res
 
     def read_byte(self):
-        res = 0
-        if self.instream:
-            ires = self.instream.read(1)
-            res = len(ires)
-            if res:
-                self.byte = ord(ires[0])
-        else:
-            raise NotImplementedError
-        return res
+        try:
+            self.byte = self.instream[self.inptr]
+            self.inptr += 1
+            return True
+        except IndexError:
+            return False
 
     def ffz(self):
         x = self.a
@@ -733,13 +727,15 @@ class BZZDecoder():
 # for testing
 def main():
     import sys
-    infile = file(sys.argv[1], "rb")
-    outfile = file(sys.argv[2], "wb")
+    infile = bytearray(file(sys.argv[1], "rb").read())
+    outfile = bytearray()
     dec = BZZDecoder(infile, outfile)
     while True:
         res = dec.convert(1024 * 1024)
         if not res:
             break
+    with open(sys.argv[2], 'wb') as f:
+        f.write(bytes(outfile))
 
 if __name__ == "__main__":
     main()
