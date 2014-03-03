@@ -44,7 +44,7 @@ class DJVUInput(InputFormatPlugin):
                 os.remove(filename)
                 ppdjvu = False
             except:
-                stream.seek(0) # retry with the pure python converter
+                stream.seek(0)  # retry with the pure python converter
         if ppdjvu:
             from calibre.ebooks.djvu.djvu import DJVUFile
             x = DJVUFile(stream)

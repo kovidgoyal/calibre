@@ -15,7 +15,7 @@ import sys
 import struct
 from cStringIO import StringIO
 
-from .djvubzzdec import BZZDecoder
+from calibre.ebooks.djvu.djvubzzdec import BZZDecoder
 
 class DjvuChunk(object):
     def __init__(self, buf, start, end, align=True, bigendian=True,
@@ -73,14 +73,16 @@ class DjvuChunk(object):
                 if not xxres:
                     break
             res = outbuf.getvalue()
+            if not res.strip(b'\0'):
+                raise ValueError('TXTz block is completely null')
             l = 0
             for x in res[:3]:
                 l <<= 8
                 l += ord(x)
             if verbose > 0 and out:
-                print >> out, l
+                print (l, file=out)
             txtout.write(res[3:3+l])
-            txtout.write(b'\n\f')
+            txtout.write(b'\n')
         if txtout and self.type == b'TXTa':
             res = self.buf[self.datastart: self.dataend]
             l = 0
@@ -88,9 +90,9 @@ class DjvuChunk(object):
                 l <<= 8
                 l += ord(x)
             if verbose > 0 and out:
-                print >> out, l
+                print (l, file=out)
             txtout.write(res[3:3+l])
-            txtout.write(b'\n\f')
+            txtout.write(b'\n')
         if indent >= maxlevel:
             return
         for schunk in self._subchunks:
@@ -111,36 +113,8 @@ class DJVUFile(object):
         self.dc.dump(out=outfile, maxlevel=maxlevel)
 
 def main():
-    from ruamel.util.program import Program
-    class DJVUDecoder(Program):
-        def __init__(self):
-            Program.__init__(self)
-
-        def parser_setup(self):
-            Program.parser_setup(self)
-            #self._argparser.add_argument('--combine', '-c', action=CountAction, const=1, nargs=0)
-            #self._argparser.add_argument('--combine', '-c', type=int, default=1)
-            #self._argparser.add_argument('--segments', '-s', action='append', nargs='+')
-            #self._argparser.add_argument('--force', '-f', action='store_true')
-            #self._argparser.add_argument('classname')
-            self._argparser.add_argument('--text', '-t', action='store_true')
-            self._argparser.add_argument('--dump', type=int, default=0)
-            self._argparser.add_argument('file', nargs='+')
-
-        def run(self):
-            if self._args.verbose > 1: # can be negative with --quiet
-                print (self._args.file)
-            x = DJVUFile(file(self._args.file[0], 'rb'), verbose=self._args.verbose)
-            if self._args.text:
-                print (x.get_text(sys.stdout))
-            if self._args.dump:
-                x.dump(sys.stdout, maxlevel=self._args.dump)
-            return 0
-
-    tt = DJVUDecoder()
-    res = tt.result
-    if res != 0:
-        print (res)
+    f = DJVUFile(open(sys.argv[-1], 'rb'))
+    print (f.get_text(sys.stdout))
 
 if __name__ == '__main__':
     main()

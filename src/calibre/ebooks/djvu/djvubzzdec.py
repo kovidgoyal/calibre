@@ -80,6 +80,7 @@ MAXLEN = 1024 ** 2
 
 # Exception classes used by this module.
 class BZZDecoderError(Exception):
+
     """This exception is raised when BZZDecode runs into trouble
     """
     def __init__(self, msg):
@@ -91,7 +92,7 @@ class BZZDecoderError(Exception):
 # This table has been designed for the ZPCoder
 #   * by running the following command in file 'zptable.sn':
 #   * (fast-crude (steady-mat 0.0035  0.0002) 260)))
-default_ztable = [ # {{{
+default_ztable = [  # {{{
   (0x8000, 0x0000, 84, 145),    # 000: p=0.500000 (    0,    0)
   (0x8000, 0x0000, 3, 4),       # 001: p=0.500000 (    0,    0)
   (0x8000, 0x0000, 4, 3),       # 002: p=0.500000 (    0,    0)
@@ -391,6 +392,7 @@ def chr3(l):
     return bytes(bytearray(l))
 
 class BZZDecoder():
+
     def __init__(self, infile, outfile):
         self.instream = infile
         self.outf = outfile
@@ -450,17 +452,15 @@ class BZZDecoder():
                 self.xsize -= 1
 
             # Compute remaining
-            bytes = self.xsize
-            if bytes > sz:
-                bytes = sz
+            remaining = min(sz, self.xsize)
             # Transfer
-            if bytes:
-                for i in range(bytes):
-                    self.outf.write(chr3(self.outbuf[self.bptr + i]))
-            self.xsize -= bytes
-            self.bptr += bytes
-            sz -= bytes
-            copied += bytes
+            if remaining > 0:
+                raw = bytes(bytearray(self.outbuf[self.bptr:self.bptr + remaining]))
+                self.outf.write(raw)
+            self.xsize -= remaining
+            self.bptr += remaining
+            sz -= remaining
+            copied += remaining
             # offset += bytes; // for tell()
         return copied
 
@@ -468,7 +468,8 @@ class BZZDecoder():
         while self.scount <= 24:
             if self.read_byte() < 1:
                 self.byte = 0xff
-                if --self.delay < 1:
+                self.delay -= 1
+                if self.delay < 1:
                     raise BZZDecoderError("BiteStream EOF")
             self.bufint = (self.bufint << 8) | self.byte
             self.scount += 8
@@ -495,7 +496,7 @@ class BZZDecoder():
             if self.zpcodec_decoder():
                 fshift += 1
         # Prepare Quasi MTF
-        mtf = list(xmtf) # unsigned chars
+        mtf = list(xmtf)  # unsigned chars
         freq = [0] * FREQMAX
         fadd = 4
         # Decode
@@ -524,10 +525,10 @@ class BZZDecoder():
             elif self.zpcodec_decode(cx, 2*CTXIDS + 14):
                 mtfno = 16 + self.decode_binary(cx, 2*CTXIDS + 14 + 1, 4)
                 outbuf[i] = mtf[mtfno]
-            elif self.zpcodec_decode(cx, 2*CTXIDS + 30 ):
+            elif self.zpcodec_decode(cx, 2*CTXIDS + 30):
                 mtfno = 32 + self.decode_binary(cx, 2*CTXIDS + 30 + 1, 5)
                 outbuf[i] = mtf[mtfno]
-            elif self.zpcodec_decode(cx, 2*CTXIDS + 62 ):
+            elif self.zpcodec_decode(cx, 2*CTXIDS + 62):
                 mtfno = 64 + self.decode_binary(cx, 2*CTXIDS + 62 + 1, 6)
                 outbuf[i] = mtf[mtfno]
             elif self.zpcodec_decode(cx, 2*CTXIDS + 126):
@@ -729,9 +730,7 @@ class BZZDecoder():
             return (self.ffzt[(x >> 8) & 0xff])
 
 
-
-### for testing
-
+# for testing
 def main():
     import sys
     infile = file(sys.argv[1], "rb")
