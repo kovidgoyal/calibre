@@ -177,6 +177,11 @@ extensions = [
         inc_dirs=(['calibre/utils/chm'] if iswindows else [])  # For stdint.h
     ),
 
+    Extension('matcher',
+        ['calibre/gui2/tweak_book/matcher.c'],
+        inc_dirs=(['calibre/utils/chm'] if iswindows else [])  # For stdint.h
+    ),
+
     Extension('podofo',
                     [
                         'calibre/utils/podofo/utils.cpp',
