@@ -1208,8 +1208,8 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                             {'canStream':True,
                              'canScan':True,
                              'willUseCachedMetadata': self.client_can_use_metadata_cache,
-                             'supportsSync': (self.is_read_sync_col or
-                                              self.is_read_date_sync_col)})
+                             'supportsSync': (bool(self.is_read_sync_col) or
+                                              bool(self.is_read_date_sync_col))})
         bl = CollectionsBookList(None, self.PREFIX, self.settings)
         if opcode == 'OK':
             count = result['count']
@@ -1309,8 +1309,8 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
         self._call_client('SEND_BOOKLISTS', {'count': count,
                      'collections': coldict,
                      'willStreamMetadata': True,
-                     'supportsSync': (self.is_read_sync_col or
-                                      self.is_read_date_sync_col)},
+                     'supportsSync': (bool(self.is_read_sync_col) or
+                                      bool(self.is_read_date_sync_col))},
                      wait_for_response=False)
 
         if count:
@@ -1320,8 +1320,8 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                 opcode, result = self._call_client(
                         'SEND_BOOK_METADATA',
                         {'index': i, 'count': count, 'data': book,
-                         'supportsSync': (self.is_read_sync_col or
-                                          self.is_read_date_sync_col)},
+                         'supportsSync': (bool(self.is_read_sync_col) or
+                                          bool(self.is_read_date_sync_col))},
                         print_debug_info=False,
                         wait_for_response=False)
 
@@ -1469,7 +1469,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
 
     @synchronous('sync_lock')
     def synchronize_with_db(self, db, id_, book):
-        from calibre.utils.date import parse_date, UNDEFINED_DATE
+        from calibre.utils.date import parse_date, is_date_undefined
         def show_message(message):
             self._call_client("DISPLAY_MESSAGE",
                     {'messageKind': self.MESSAGE_SHOW_TOAST,
@@ -1514,8 +1514,12 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
 
         is_changed = book.get('_is_read_changed_', None);
         is_read = book.get('_is_read_', None)
+
         # This returns UNDEFINED_DATE if the value is None
         is_read_date = parse_date(book.get('_last_read_date_', None));
+        if is_date_undefined(is_read_date):
+            is_read_date = None
+
         value_to_return = None
 
         if is_changed == 2:
@@ -1524,8 +1528,9 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
             # through to the normal sync situation below, otherwise the calibre
             # value wins. The orig_* values are set to None to force the normal
             # sync code to actually sync because the values are different
-            orig_is_read_date = UNDEFINED_DATE
+            orig_is_read_date = None
             orig_is_read = None
+
             if is_read is None:
                 calibre_val = db.new_api.field_for(self.is_read_sync_col,
                                                    id_, default_value=None)
@@ -1537,10 +1542,10 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                                 'to', calibre_val)
                     value_to_return = set()
 
-            if is_read_date == UNDEFINED_DATE:
+            if is_read_date is None:
                 calibre_val = db.new_api.field_for(self.is_read_date_sync_col,
                                                    id_, default_value=None)
-                if calibre_val != UNDEFINED_DATE:
+                if not is_date_undefined(calibre_val):
                     book.set('_force_send_metadata_', True)
                     self._debug('special update is_read_date', book.get('title', 'huh?'),
                                 'to', calibre_val)
@@ -1575,7 +1580,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
         try:
             if is_read_date != orig_is_read_date:
                 self._debug('standard update book is_read_date', book.get('title', 'huh?'),
-                            'to', is_read_date)
+                            'to', is_read_date, 'was', orig_is_read_date)
                 if self.is_read_date_sync_col:
                     changed_books |= db.new_api.set_field(self.is_read_date_sync_col,
                                                   {id_: is_read_date})
