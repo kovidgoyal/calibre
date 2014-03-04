@@ -1469,7 +1469,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
 
     @synchronous('sync_lock')
     def synchronize_with_db(self, db, id_, book):
-        from calibre.utils.date import parse_date, UNDEFINED_DATE
+        from calibre.utils.date import parse_date, is_date_undefined
         def show_message(message):
             self._call_client("DISPLAY_MESSAGE",
                     {'messageKind': self.MESSAGE_SHOW_TOAST,
@@ -1517,7 +1517,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
 
         # This returns UNDEFINED_DATE if the value is None
         is_read_date = parse_date(book.get('_last_read_date_', None));
-        if is_read_date == UNDEFINED_DATE:
+        if is_date_undefined(is_read_date):
             is_read_date = None
 
         value_to_return = None
@@ -1545,7 +1545,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
             if is_read_date is None:
                 calibre_val = db.new_api.field_for(self.is_read_date_sync_col,
                                                    id_, default_value=None)
-                if calibre_val is not None and calibre_val != UNDEFINED_DATE:
+                if not is_date_undefined(calibre_val):
                     book.set('_force_send_metadata_', True)
                     self._debug('special update is_read_date', book.get('title', 'huh?'),
                                 'to', calibre_val)
