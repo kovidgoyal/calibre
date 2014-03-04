@@ -179,7 +179,10 @@ extensions = [
 
     Extension('matcher',
         ['calibre/gui2/tweak_book/matcher.c'],
-        inc_dirs=(['calibre/utils/chm'] if iswindows else [])  # For stdint.h
+        libraries=icu_libs,
+        lib_dirs=icu_lib_dirs,
+        cflags=icu_cflags,
+        inc_dirs=icu_inc_dirs  # + (['calibre/utils/chm'] if iswindows else [])  # For stdint.h
     ),
 
     Extension('podofo',

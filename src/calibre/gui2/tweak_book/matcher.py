@@ -15,7 +15,7 @@ from calibre.utils.icu import primary_sort_key
 
 class Matcher(object):
 
-    def __init__(self, items):
+    def __init__(self, items, level1='/', level2='-_ 0123456789', level3='.'):
         items = map(lambda x: normalize('NFC', unicode(x)), filter(None, items))
         items = tuple(map(lambda x: x.encode('utf-8'), items))
         sort_keys = tuple(map(primary_sort_key, items))
@@ -23,11 +23,11 @@ class Matcher(object):
         speedup, err = plugins['matcher']
         if speedup is None:
             raise RuntimeError('Failed to load the matcher plugin with error: %s' % err)
-        self.m = speedup.Matcher(items, sort_keys)
+        self.m = speedup.Matcher(items, sort_keys, level1.encode('utf-8'), level2.encode('utf-8'), level3.encode('utf-8'))
 
     def __call__(self, query):
         query = normalize('NFC', unicode(query)).encode('utf-8')
-        return self.m.get_matches(query)
+        return map(lambda x:x.decode('utf-8'), self.m.get_matches(query))
 
 def test_mem():
     from calibre.utils.mem import gc_histogram, diff_hists
@@ -45,4 +45,7 @@ def test_mem():
     diff_hists(h1, h2)
 
 if __name__ == '__main__':
+    m = Matcher(['image/one.png', 'image/two.gif', 'text/one.html'])
+    for q in ('one', 'ton', 'imo'):
+        print (q, '->', tuple(m(q)))
     test_mem()
