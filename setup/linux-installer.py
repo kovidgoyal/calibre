@@ -592,6 +592,7 @@ def extract_tarball(raw, destdir):
         p.stdin.close()
         if p.wait() != 0:
             prints('Extracting of application files failed with error code: %s' % p.returncode)
+            raise SystemExit(1)
 
 def get_tarball_info():
     global signature, calibre_version
