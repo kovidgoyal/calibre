@@ -7,7 +7,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import sys, os, shutil, subprocess, re, platform, time, signal, tempfile, hashlib, errno
+import sys, os, shutil, subprocess, re, platform, signal, tempfile, hashlib, errno
 import ssl, socket
 from contextlib import closing
 
@@ -241,14 +241,13 @@ def clean_cache(cache, fname):
 
 def check_signature(dest, signature):
     if not os.path.exists(dest):
-        return False
+        return None
     m = hashlib.sha512()
     with open(dest, 'rb') as f:
-        raw = True
-        while raw:
-            raw = f.read(1024*1024)
-            m.update(raw)
-    return m.hexdigest().encode('ascii') == signature
+        raw = f.read()
+    m.update(raw)
+    if m.hexdigest().encode('ascii') == signature:
+        return raw
 
 class URLOpener(urllib.FancyURLopener):
 
@@ -299,9 +298,10 @@ def download_tarball():
         os.makedirs(cache)
     clean_cache(cache, fname)
     dest = os.path.join(cache, fname)
-    if check_signature(dest, signature):
+    raw = check_signature(dest, signature)
+    if raw is not None:
         print ('Using previously downloaded', fname)
-        return dest
+        return raw
     cached_sigf = dest +'.signature'
     cached_sig = None
     if os.path.exists(cached_sigf):
@@ -320,12 +320,13 @@ def download_tarball():
         raise SystemExit(1)
     do_download(dest)
     prints('Checking downloaded file integrity...')
-    if not check_signature(dest, signature):
+    raw = check_signature(dest, signature)
+    if raw is None:
         os.remove(dest)
         print ('The downloaded files\' signature does not match. '
                 'Try the download again later.')
         raise SystemExit(1)
-    return dest
+    return raw
 # }}}
 
 # Get tarball signature securely {{{
@@ -581,14 +582,16 @@ def get_https_resource_securely(url, timeout=60, max_redirects=5, ssl_version=No
             return response.read()
 # }}}
 
-def extract_tarball(tar, destdir):
+def extract_tarball(raw, destdir):
     prints('Extracting application files...')
-    if hasattr(tar, 'read'):
-        tar = tar.name
     with open('/dev/null', 'w') as null:
-        subprocess.check_call(['tar', 'xjof', tar, '-C', destdir], stdout=null,
+        p = subprocess.Popen(['tar', 'xjof', '-', '-C', destdir], stdout=null, stdin=subprocess.PIPE, close_fds=True,
             preexec_fn=lambda:
                         signal.signal(signal.SIGPIPE, signal.SIG_DFL))
+        p.stdin.write(raw)
+        p.stdin.close()
+        if p.wait() != 0:
+            prints('Extracting of application files failed with error code: %s' % p.returncode)
 
 def get_tarball_info():
     global signature, calibre_version
@@ -603,24 +606,14 @@ def get_tarball_info():
 
 def download_and_extract(destdir):
     get_tarball_info()
-    try:
-        f = download_tarball()
-    except:
-        raise
-        print('Failed to download, retrying in 30 seconds...')
-        time.sleep(30)
-        try:
-            f = download_tarball()
-        except:
-            print('Failed to download, aborting')
-            sys.exit(1)
+    raw = download_tarball()
 
     if os.path.exists(destdir):
         shutil.rmtree(destdir)
     os.makedirs(destdir)
 
     print('Extracting files to %s ...'%destdir)
-    extract_tarball(f, destdir)
+    extract_tarball(raw, destdir)
 
 def check_version():
     global calibre_version
