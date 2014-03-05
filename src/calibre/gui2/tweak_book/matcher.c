@@ -37,7 +37,7 @@ typedef struct {
     UChar *needle;
     int32_t needle_len;
     double max_score_per_char;
-    double *memo;
+    double **memo;
     UChar *level1;
     UChar *level2;
     UChar *level3;
@@ -58,7 +58,7 @@ static double recursive_match(MatchInfo *m, int32_t haystack_idx, int32_t needle
     bool found;
 
     // do we have a memoized result we can return?
-    memoized = m->memo[needle_idx * m->needle_len + haystack_idx];
+    memoized = m->memo[needle_idx][haystack_idx];
     if (memoized != DBL_MAX)
         return memoized;
 
@@ -125,15 +125,29 @@ static double recursive_match(MatchInfo *m, int32_t haystack_idx, int32_t needle
     score = score > seen_score ? score : seen_score;
 
 memoize:
-    m->memo[needle_idx * m->needle_len + haystack_idx] = score;
+    m->memo[needle_idx][haystack_idx] = score;
     return score;
 }
 
+static double** alloc_memo(size_t rows, size_t cols) {
+    double **array, *data; /* Declare this first so we can use it with sizeof. */
+    size_t i;
+    const size_t row_pointers_bytes = rows * sizeof(*array);
+    const size_t row_elements_bytes = cols * sizeof(**array);
+    array = malloc(row_pointers_bytes + rows * row_elements_bytes);
+    if (array != NULL) {
+        data = (double*)(array + rows);
+        for(i = 0; i < rows; i++) array[i] = data + i * cols;
+    }
+    return array;
+}
+
 static bool match(UChar **items, int32_t *item_lengths, uint32_t item_count, UChar *needle, int32_t needle_len, Match *match_results, UChar *level1, UChar *level2, UChar *level3) {
-    uint32_t i = 0, maxhl = 0, n = 0;
+    uint32_t i = 0, maxhl = 0; 
+    int32_t r = 0, c = 0;
     MatchInfo *matches = NULL;
     bool ok = FALSE;
-    double *memo = NULL;
+    double **memo = NULL;
 
     if (needle_len == 0) {
         for (i = 0; i < item_count; i++) match_results[i].score = 0.0;
@@ -155,13 +169,14 @@ static bool match(UChar **items, int32_t *item_lengths, uint32_t item_count, UCh
         matches[i].level3 = level3;
         maxhl = MAX(maxhl, matches[i].haystack_len);
     }
-    maxhl *= needle_len;
 
-    memo = (double*)calloc(maxhl, sizeof(double));
-    if (memo == NULL) goto end;
+    memo = alloc_memo(needle_len, maxhl);
+    if (memo == NULL) {PyErr_NoMemory(); goto end;}
 
     for (i = 0; i < item_count; i++) {
-        for (n = 0; n < maxhl; n++) memo[n] = DBL_MAX;
+        for (r = 0; r < needle_len; r++) {
+            for (c = 0; c < maxhl; c++) memo[r][c] = DBL_MAX;
+        }
         matches[i].memo = memo;
         match_results[i].score = recursive_match(&matches[i], 0, 0, 0, 0.0);
     }
