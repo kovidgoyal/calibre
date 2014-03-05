@@ -106,7 +106,7 @@ static double recursive_match(MatchInfo *m, int32_t haystack_idx, int32_t needle
                 if (j < m->haystack_len) {
                     // bump cursor one char to the right and
                     // use recursion to try and find a better match
-                    sub_score = recursive_match(m, j, i, last_idx, score);
+                    sub_score = recursive_match(m, j, curri, last_idx, score);
                     if (sub_score > seen_score)
                         seen_score = sub_score;
                 }
