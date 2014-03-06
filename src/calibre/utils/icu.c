@@ -696,22 +696,18 @@ icu_get_available_transliterators(PyObject *self, PyObject *args) {
 // character_name {{{
 static PyObject *
 icu_character_name(PyObject *self, PyObject *args) {
-    char *input = NULL, name[512] = {0}; 
+    char name[512] = {0}; 
     int32_t sz, alias = 0;
     UChar *buf;
     UErrorCode status = U_ZERO_ERROR;
-    PyObject *palias = NULL, *result = NULL;
+    PyObject *palias = NULL, *result = NULL, *input = NULL;
     UChar32 code = 0;
   
-    if (!PyArg_ParseTuple(args, "es|O", "UTF-8", &input, &palias)) return NULL;
+    if (!PyArg_ParseTuple(args, "O|O", &input, &palias)) return NULL;
 
     if (palias != NULL && PyObject_IsTrue(palias)) alias = 1; 
-    
-    sz = (int32_t)strlen(input);
-    buf = (UChar*)calloc(sz*4 + 1, sizeof(UChar));
-    if (buf == NULL) { PyErr_NoMemory(); goto end; }
-    u_strFromUTF8(buf, sz*4, &sz, input, sz, &status);
-    if (U_FAILURE(status)) { PyErr_SetString(PyExc_ValueError, "Failed to decode char string"); goto end; }
+    buf = python_to_icu(input, NULL, 1);
+    if (buf == NULL) goto end; 
     U16_GET(buf, 0, 0, -1, code);
     if (alias) {
         sz = u_charName(code, U_CHAR_NAME_ALIAS, name, 511, &status);
@@ -722,7 +718,6 @@ icu_character_name(PyObject *self, PyObject *args) {
     result = PyUnicode_DecodeUTF8(name, sz, "strict");
 end:
     if (buf != NULL) free(buf);
-    PyMem_Free(input);
 
     return result;
 } // }}}
