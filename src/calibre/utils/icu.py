@@ -140,6 +140,16 @@ def character_name(string):
     except (TypeError, ValueError, KeyError):
         pass
 
+def character_name_from_code(code):
+    try:
+        try:
+            return _icu.character_name_from_code(code).decode('utf-8') or ''
+        except AttributeError:
+            import unicodedata
+            return unicodedata.name(py_safe_chr(code), '')
+    except (TypeError, ValueError, KeyError):
+        return ''
+
 if sys.maxunicode >= 0x10ffff:
     try:
         py_safe_chr = unichr
@@ -212,6 +222,7 @@ def icu_collation_order(collator, a):
 load_icu()
 load_collator()
 _icu_not_ok = _icu is None or _collator is None
+icu_unicode_version = getattr(_icu, 'unicode_version', None)
 
 try:
     senc = sys.getdefaultencoding()

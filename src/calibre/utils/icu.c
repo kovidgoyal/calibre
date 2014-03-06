@@ -738,6 +738,29 @@ end:
     return (PyErr_Occurred()) ? NULL : Py_BuildValue("s#", name, sz);
 } // }}}
 
+// character_name {{{
+static PyObject *
+icu_character_name_from_code(PyObject *self, PyObject *args) {
+    char name[512] = {0}; 
+    int32_t sz, alias = 0;
+    UErrorCode status = U_ZERO_ERROR;
+    PyObject *palias = NULL;
+    UChar32 code = 0;
+  
+    if (!PyArg_ParseTuple(args, "I|O", &code, &palias)) return NULL;
+
+    if (palias != NULL && PyObject_IsTrue(palias)) alias = 1; 
+    
+    if (alias) {
+        sz = u_charName(code, U_CHAR_NAME_ALIAS, name, 511, &status);
+    } else {
+        sz = u_charName(code, U_UNICODE_CHAR_NAME, name, 511, &status);
+    }
+    if (U_FAILURE(status)) { PyErr_SetString(PyExc_ValueError, "Failed to get name for code"); goto end; }
+end:
+    return (PyErr_Occurred()) ? NULL : Py_BuildValue("s#", name, sz);
+} // }}}
+
 // chr {{{
 static PyObject *
 icu_chr(PyObject *self, PyObject *args) {
@@ -784,6 +807,10 @@ static PyMethodDef icu_methods[] = {
 
     {"character_name", icu_character_name, METH_VARARGS, 
      "character_name(char, alias=False) -> Return name for the first character in char, which must be a unicode string."
+    },
+
+    {"character_name_from_code", icu_character_name_from_code, METH_VARARGS, 
+     "character_name_from_code(code, alias=False) -> Return the name for the specified unicode code point"
     },
 
     {"chr", icu_chr, METH_VARARGS, 

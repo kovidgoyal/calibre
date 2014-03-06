@@ -6,7 +6,7 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import unicodedata, re, os, cPickle, sys, textwrap
+import unicodedata, re, os, cPickle, textwrap
 from bisect import bisect
 from functools import partial
 from collections import defaultdict
@@ -22,7 +22,7 @@ from calibre.gui2 import NONE
 from calibre.gui2.widgets2 import HistoryLineEdit2
 from calibre.gui2.tweak_book import tprefs
 from calibre.gui2.tweak_book.widgets import Dialog
-from calibre.utils.icu import safe_chr as chr
+from calibre.utils.icu import safe_chr as chr, icu_unicode_version, character_name_from_code
 
 ROOT = QModelIndex()
 
@@ -35,9 +35,10 @@ non_printing = {
 }
 
 # Searching {{{
+
 def load_search_index():
-    topchar = sys.maxunicode
-    ver = (1, topchar, unicodedata.unidata_version)  # Increment this when you make any changes to the index
+    topchar = 0x10ffff
+    ver = (1, topchar, icu_unicode_version or unicodedata.unidata_version)  # Increment this when you make any changes to the index
     name_map = {}
     path = os.path.join(cache_dir(), 'unicode-name-index.pickle')
     if os.path.exists(path):
@@ -48,7 +49,7 @@ def load_search_index():
     if not name_map:
         name_map = defaultdict(set)
         for x in xrange(1, topchar + 1):
-            for word in unicodedata.name(chr(x), '').split():
+            for word in character_name_from_code(x).split():
                 name_map[word.lower()].add(x)
         from calibre.ebooks.html_entities import html5_entities
         for name, char in html5_entities.iteritems():
@@ -465,7 +466,7 @@ class CategoryModel(QAbstractItemModel):
             category, subcategory = self.category_map[self.starts[ipos]]
         except IndexError:
             category = subcategory = _('Unknown')
-        return category, subcategory, unicodedata.name(chr(char_code), _('Unknown'))
+        return category, subcategory, (character_name_from_code(char_code) or _('Unknown'))
 
 class CategoryDelegate(QStyledItemDelegate):
 
