@@ -463,6 +463,10 @@ pêché'''
             prints('primary_find() failed with %s not in %s'%(v, k))
             return
 
+    n = character_name(safe_chr(0x1f431))
+    if n != u'CAT FACE':
+        raise ValueError('Failed to get correct character name for 0x1f431: %r != %r' % n, u'CAT FACE')
+
     global _primary_collator
     orig = _primary_collator
     _primary_collator = _icu.Collator('es')
@@ -514,6 +518,9 @@ def test_roundtrip():
         raise ValueError(u'Roundtripping failed: %r != %r' % (r, rp))
 
 def test_normalize_performance():
+    import os
+    if not os.path.exists('t.txt'):
+        return
     raw = open('t.txt', 'rb').read().decode('utf-8')
     print (len(raw))
     import time, unicodedata
