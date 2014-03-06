@@ -181,8 +181,9 @@ static double process_item(MatchInfo *m, Stack *stack, int32_t *final_positions)
     UChar *p;
     double final_score = 0.0, score = 0.0, score_for_char = 0.0;
     int32_t pos, i, j, hidx, nidx, last_idx, distance, *positions = final_positions + m->needle_len;
-    stack_push(stack, 0, 0, 0, 0.0, final_positions);
     MemoryItem mem = {0};
+
+    stack_push(stack, 0, 0, 0, 0.0, final_positions);
 
     while (stack->pos >= 0) {
         stack_pop(stack, &hidx, &nidx, &last_idx, &score, positions);
@@ -195,7 +196,7 @@ static double process_item(MatchInfo *m, Stack *stack, int32_t *final_positions)
                 if (m->haystack_len - hidx < m->needle_len - nidx) { score = 0.0; break; }
                 p = u_strchr32(m->haystack + hidx, nc);  // TODO: Use primary collation for the find
                 if (p == NULL) { score = 0.0; break; }
-                pos = p - m->haystack;
+                pos = (int32_t)(p - m->haystack);
                 distance = u_countChar32(m->haystack + last_idx, pos - last_idx);  
                 if (distance <= 1) score_for_char = m->max_score_per_char;
                 else {
@@ -237,7 +238,7 @@ static bool match(UChar **items, int32_t *item_lengths, uint32_t item_count, UCh
     int32_t needle_len = u_strlen(needle);
 
     if (needle_len <= 0 || item_count <= 0) {
-        for (i = 0; i < item_count; i++) match_results[i].score = 0.0;
+        for (i = 0; i < (int32_t)item_count; i++) match_results[i].score = 0.0;
         ok = TRUE;
         goto end;
     }
@@ -246,7 +247,7 @@ static bool match(UChar **items, int32_t *item_lengths, uint32_t item_count, UCh
     positions = (int32_t*)calloc(2*needle_len, sizeof(int32_t)); // One set of positions is the final answer and one set is working space
     if (matches == NULL || positions == NULL) {PyErr_NoMemory(); goto end;}
 
-    for (i = 0; i < item_count; i++) {
+    for (i = 0; i < (int32_t)item_count; i++) {
         matches[i].haystack = items[i];
         matches[i].haystack_len = item_lengths[i];
         matches[i].needle = needle;
@@ -259,7 +260,7 @@ static bool match(UChar **items, int32_t *item_lengths, uint32_t item_count, UCh
     }
 
     if (maxhl <= 0) {
-        for (i = 0; i < item_count; i++) match_results[i].score = 0.0;
+        for (i = 0; i < (int32_t)item_count; i++) match_results[i].score = 0.0;
         ok = TRUE;
         goto end;
     }
@@ -268,7 +269,7 @@ static bool match(UChar **items, int32_t *item_lengths, uint32_t item_count, UCh
     memo = alloc_memory(needle_len, maxhl);
     if (stack.items == NULL || memo == NULL) {PyErr_NoMemory(); goto end;}
 
-    for (i = 0; i < item_count; i++) {
+    for (i = 0; i < (int32_t)item_count; i++) {
         for (r = 0; r < needle_len; r++) {
             positions[r] = -1;
         }
@@ -345,19 +346,19 @@ Matcher_init(Matcher *self, PyObject *args, PyObject *kwds)
         PyErr_NoMemory(); goto end; 
     }
 
-    u_strFromUTF8Lenient(self->level1, alloc_uchar(l1s), &i, level1, (int32_t)l1s, &status);
-    u_strFromUTF8Lenient(self->level2, alloc_uchar(l2s), &i, level2, (int32_t)l2s, &status);
-    u_strFromUTF8Lenient(self->level3, alloc_uchar(l3s), &i, level3, (int32_t)l3s, &status);
+    u_strFromUTF8Lenient(self->level1, alloc_uchar((int32_t)l1s), &i, level1, (int32_t)l1s, &status);
+    u_strFromUTF8Lenient(self->level2, alloc_uchar((int32_t)l2s), &i, level2, (int32_t)l2s, &status);
+    u_strFromUTF8Lenient(self->level3, alloc_uchar((int32_t)l3s), &i, level3, (int32_t)l3s, &status);
     if (U_FAILURE(status)) { PyErr_SetString(PyExc_ValueError, "Failed to convert bytes for level string from UTF-8 to UTF-16"); goto end; }
 
-    for (i = 0; i < self->item_count; i++) {
+    for (i = 0; i < (int32_t)self->item_count; i++) {
         p = PySequence_Fast_GET_ITEM(py_items, i);
         utf8 = PyBytes_AsString(p);
         if (utf8 == NULL) goto end;
         cap = PyBytes_GET_SIZE(p); 
         self->items[i] = (UChar*)calloc(alloc_uchar(cap), sizeof(UChar));
         if (self->items[i] == NULL) { PyErr_NoMemory(); goto end; }
-        u_strFromUTF8Lenient(self->items[i], alloc_uchar(cap), NULL, utf8, cap, &status);
+        u_strFromUTF8Lenient(self->items[i], alloc_uchar((int32_t)cap), NULL, utf8, (int32_t)cap, &status);
         if (U_FAILURE(status)) { PyErr_SetString(PyExc_ValueError, "Failed to convert bytes from UTF-8 to UTF-16"); goto end; }
         self->item_lengths[i] = u_strlen(self->items[i]);
     }
