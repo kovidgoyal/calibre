@@ -713,7 +713,7 @@ icu_character_name(PyObject *self, PyObject *args) {
     int32_t sz, alias = 0;
     UChar *buf;
     UErrorCode status = U_ZERO_ERROR;
-    PyObject *palias = NULL;
+    PyObject *palias = NULL, *result = NULL;
     UChar32 code = 0;
   
     if (!PyArg_ParseTuple(args, "es|O", "UTF-8", &input, &palias)) return NULL;
@@ -732,20 +732,21 @@ icu_character_name(PyObject *self, PyObject *args) {
         sz = u_charName(code, U_UNICODE_CHAR_NAME, name, 511, &status);
     }
     if (U_FAILURE(status)) { PyErr_SetString(PyExc_ValueError, "Failed to get name for code"); goto end; }
+    result = PyUnicode_DecodeUTF8(name, sz, "strict");
 end:
     if (buf != NULL) free(buf);
     PyMem_Free(input);
 
-    return (PyErr_Occurred()) ? NULL : Py_BuildValue("s#", name, sz);
+    return result;
 } // }}}
 
-// character_name {{{
+// character_name_from_code {{{
 static PyObject *
 icu_character_name_from_code(PyObject *self, PyObject *args) {
     char name[512] = {0}; 
     int32_t sz, alias = 0;
     UErrorCode status = U_ZERO_ERROR;
-    PyObject *palias = NULL;
+    PyObject *palias = NULL, *result = NULL;
     UChar32 code = 0;
   
     if (!PyArg_ParseTuple(args, "I|O", &code, &palias)) return NULL;
@@ -758,8 +759,9 @@ icu_character_name_from_code(PyObject *self, PyObject *args) {
         sz = u_charName(code, U_UNICODE_CHAR_NAME, name, 511, &status);
     }
     if (U_FAILURE(status)) { PyErr_SetString(PyExc_ValueError, "Failed to get name for code"); goto end; }
+    result = PyUnicode_DecodeUTF8(name, sz, "strict");
 end:
-    return (PyErr_Occurred()) ? NULL : Py_BuildValue("s#", name, sz);
+    return result;
 } // }}}
 
 // chr {{{
@@ -770,6 +772,7 @@ icu_chr(PyObject *self, PyObject *args) {
     UChar buf[5] = {0};
     int32_t sz = 0;
     char utf8[21];
+    PyObject *result = NULL;
   
     if (!PyArg_ParseTuple(args, "I", &code)) return NULL;
 
@@ -777,8 +780,9 @@ icu_chr(PyObject *self, PyObject *args) {
     if (U_FAILURE(status)) { PyErr_SetString(PyExc_ValueError, "arg not in range(0x110000)"); goto end; }
     u_strToUTF8(utf8, 20, &sz, buf, sz, &status);
     if (U_FAILURE(status)) { PyErr_SetString(PyExc_ValueError, "arg not in range(0x110000)"); goto end; }
+    result = PyUnicode_DecodeUTF8(utf8, sz, "strict");
 end:
-    return (PyErr_Occurred()) ? NULL : Py_BuildValue("s#", utf8, sz);
+    return result;
 } // }}}
 
 // normalize {{{

@@ -133,7 +133,7 @@ def py_find(pattern, source):
 def character_name(string):
     try:
         try:
-            return _icu.character_name(unicode(string)).decode('utf-8') or None
+            return _icu.character_name(unicode(string)) or None
         except AttributeError:
             import unicodedata
             return unicodedata.name(unicode(string)[0], None)
@@ -143,7 +143,7 @@ def character_name(string):
 def character_name_from_code(code):
     try:
         try:
-            return _icu.character_name_from_code(code).decode('utf-8') or ''
+            return _icu.character_name_from_code(code) or ''
         except AttributeError:
             import unicodedata
             return unicodedata.name(py_safe_chr(code), '')
@@ -164,7 +164,7 @@ else:
 
 def safe_chr(code):
     try:
-        return _icu.chr(code).decode('utf-8')
+        return _icu.chr(code)
     except AttributeError:
         return py_safe_chr(code)
 
