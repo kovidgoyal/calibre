@@ -801,8 +801,7 @@ initicu(void)
     PyObject* m;
     UVersionInfo ver, uver;
     UErrorCode status = U_ZERO_ERROR;
-    char version[U_MAX_VERSION_STRING_LENGTH+1] = {0};
-    char uversion[U_MAX_VERSION_STRING_LENGTH+5] = {0};
+    char version[U_MAX_VERSION_STRING_LENGTH+1] = {0}, uversion[U_MAX_VERSION_STRING_LENGTH+5] = {0};
 
     u_init(&status);
     if (U_FAILURE(status)) {

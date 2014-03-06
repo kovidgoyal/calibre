@@ -154,7 +154,7 @@ else:
 
 def safe_chr(code):
     try:
-        return _icu.chr(code)
+        return _icu.chr(code).decode('utf-8')
     except AttributeError:
         return py_safe_chr(code)
 
