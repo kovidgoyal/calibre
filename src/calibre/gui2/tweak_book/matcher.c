@@ -5,14 +5,8 @@
  * Distributed under terms of the GPL3 license.
  */
 
-#define PY_SSIZE_T_CLEAN
-#include <Python.h>
-#include <float.h>
-#include <stdlib.h>
-#include <search.h>
-#include <unicode/uchar.h>
-#include <unicode/ustring.h>
-#include <unicode/utf16.h>
+#define NO_ICU_TO_PYTHON
+#include "icu_calibre_utils.h"
 
 #ifdef _MSC_VER
 // inline does not work with the visual studio C compiler
@@ -325,42 +319,27 @@ Matcher_dealloc(Matcher* self)
 static int
 Matcher_init(Matcher *self, PyObject *args, PyObject *kwds)
 {
-    PyObject *items = NULL, *p = NULL, *py_items = NULL;
-    char *utf8 = NULL, *level1 = NULL, *level2 = NULL, *level3 = NULL;
+    PyObject *items = NULL, *p = NULL, *py_items = NULL, *level1 = NULL, *level2 = NULL, *level3 = NULL;
     int32_t i = 0;
-    Py_ssize_t cap = 0, l1s, l2s, l3s;
-    UErrorCode status = U_ZERO_ERROR;
 
-    if (!PyArg_ParseTuple(args, "Os#s#s#", &items, &level1, &l1s, &level2, &l2s, &level3, &l3s)) return -1;
+    if (!PyArg_ParseTuple(args, "OOOO", &items, &level1, &level2, &level3)) return -1;
     py_items = PySequence_Fast(items,  "Must pass in two sequence objects");
     if (py_items == NULL) goto end;
     self->item_count = (uint32_t)PySequence_Size(items);
 
     self->items = (UChar**)calloc(self->item_count, sizeof(UChar*));
     self->item_lengths = (int32_t*)calloc(self->item_count, sizeof(uint32_t));
-    self->level1 = (UChar*)calloc(alloc_uchar(l1s), sizeof(UChar));
-    self->level2 = (UChar*)calloc(alloc_uchar(l2s), sizeof(UChar));
-    self->level3 = (UChar*)calloc(alloc_uchar(l3s), sizeof(UChar));
+    self->level1 = python_to_icu(level1, NULL, 1);
+    self->level2 = python_to_icu(level2, NULL, 1);
+    self->level3 = python_to_icu(level3, NULL, 1);
 
-    if (self->items == NULL || self->item_lengths == NULL || self->level1 == NULL || self->level2 == NULL || self->level3 == NULL) {
-        PyErr_NoMemory(); goto end; 
-    }
-
-    u_strFromUTF8Lenient(self->level1, alloc_uchar((int32_t)l1s), &i, level1, (int32_t)l1s, &status);
-    u_strFromUTF8Lenient(self->level2, alloc_uchar((int32_t)l2s), &i, level2, (int32_t)l2s, &status);
-    u_strFromUTF8Lenient(self->level3, alloc_uchar((int32_t)l3s), &i, level3, (int32_t)l3s, &status);
-    if (U_FAILURE(status)) { PyErr_SetString(PyExc_ValueError, "Failed to convert bytes for level string from UTF-8 to UTF-16"); goto end; }
+    if (self->items == NULL || self->item_lengths == NULL ) { PyErr_NoMemory(); goto end; }
+    if (self->level1 == NULL || self->level2 == NULL || self->level3 == NULL) goto end;
 
     for (i = 0; i < (int32_t)self->item_count; i++) {
         p = PySequence_Fast_GET_ITEM(py_items, i);
-        utf8 = PyBytes_AsString(p);
-        if (utf8 == NULL) goto end;
-        cap = PyBytes_GET_SIZE(p); 
-        self->items[i] = (UChar*)calloc(alloc_uchar(cap), sizeof(UChar));
+        self->items[i] = python_to_icu(p, self->item_lengths + i, 1);
         if (self->items[i] == NULL) { PyErr_NoMemory(); goto end; }
-        u_strFromUTF8Lenient(self->items[i], alloc_uchar((int32_t)cap), NULL, utf8, (int32_t)cap, &status);
-        if (U_FAILURE(status)) { PyErr_SetString(PyExc_ValueError, "Failed to convert bytes from UTF-8 to UTF-16"); goto end; }
-        self->item_lengths[i] = u_strlen(self->items[i]);
     }
 
 end:
@@ -373,21 +352,17 @@ end:
 // Matcher.calculate_scores {{{
 static PyObject *
 Matcher_calculate_scores(Matcher *self, PyObject *args) {
-    char *cneedle = NULL;
-    int32_t qsize = 0, *final_positions = NULL, *p;
+    int32_t *final_positions = NULL, *p;
     Match *matches = NULL;
     bool ok = FALSE;
     uint32_t i = 0, needle_char_len = 0, j = 0;
-    PyObject *items = NULL, *score = NULL, *positions = NULL;
-    UErrorCode status = U_ZERO_ERROR;
+    PyObject *items = NULL, *score = NULL, *positions = NULL, *pneedle = NULL;
     UChar *needle = NULL;
 
-    if (!PyArg_ParseTuple(args, "s#", &cneedle, &qsize)) return NULL;
+    if (!PyArg_ParseTuple(args, "O", &pneedle)) return NULL;
 
-    needle = (UChar*)calloc(alloc_uchar(qsize), sizeof(UChar));
-    if (needle == NULL) return PyErr_NoMemory();
-    u_strFromUTF8Lenient(needle, alloc_uchar(qsize), &qsize, cneedle, qsize, &status);
-    if (U_FAILURE(status)) { PyErr_SetString(PyExc_ValueError, "Failed to convert bytes from UTF-8 to UTF-16"); goto end; }
+    needle = python_to_icu(pneedle, NULL, 1);
+    if (needle == NULL) return NULL;
     needle_char_len = u_countChar32(needle, -1);
     items = PyTuple_New(self->item_count);
     positions = PyTuple_New(self->item_count);

@@ -101,16 +101,15 @@ class PyScorer(object):
 class CScorer(object):
 
     def __init__(self, items, level1=DEFAULT_LEVEL1, level2=DEFAULT_LEVEL2, level3=DEFAULT_LEVEL3):
-        items = map(lambda x: normalize('NFC', unicode(x)), filter(None, items))
-        items = tuple(map(lambda x: x.encode('utf-8'), items))
+        items = tuple(map(lambda x: normalize('NFC', unicode(x)), filter(None, items)))
 
         speedup, err = plugins['matcher']
         if speedup is None:
             raise RuntimeError('Failed to load the matcher plugin with error: %s' % err)
-        self.m = speedup.Matcher(items, level1.encode('utf-8'), level2.encode('utf-8'), level3.encode('utf-8'))
+        self.m = speedup.Matcher(items, unicode(level1), unicode(level2), unicode(level3))
 
     def __call__(self, query):
-        query = normalize('NFC', unicode(query)).encode('utf-8')
+        query = normalize('NFC', unicode(query))
         scores, positions = self.m.calculate_scores(query)
         for score, pos in izip(scores, positions):
             yield score, pos

@@ -24,6 +24,7 @@
 #if PY_VERSION_HEX < 0x03030000 
 // Roundtripping will need to be implemented differently for python > 3.2 where strings are stored with variable widths
 
+#ifndef NO_PYTHON_TO_ICU
 static UChar* python_to_icu(PyObject *obj, int32_t *osz, uint8_t do_check) {
     UChar *ans = NULL;
     Py_ssize_t sz = 0;
@@ -50,12 +51,15 @@ static UChar* python_to_icu(PyObject *obj, int32_t *osz, uint8_t do_check) {
 end:
     return ans;
 }
+#endif
 
+#ifndef NO_ICU_TO_PYTHON
 static PyObject* icu_to_python(UChar *src, int32_t sz) {
     if (sizeof(Py_UNICODE) == 2) // narrow build UTF-16
         return PyUnicode_FromUnicode((Py_UNICODE*)src, sz);
     return PyUnicode_DecodeUTF16((char*)src, sz*sizeof(UChar), "strict", NULL);
 }
+#endif
 
 #endif
 
