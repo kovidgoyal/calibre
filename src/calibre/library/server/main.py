@@ -59,7 +59,9 @@ The OPDS interface is advertised via BonJour automatically.
             help=_('Specifies a virtual library to be used for this invocation. '
                    'This option overrides any per-library settings specified'
                    ' in the GUI. For compatibility, if the value is not a '
-                   'virtual library but is a saved search, that saved search is used.'))
+                   'virtual library but is a saved search, that saved search is used.'
+                   ' Also note that if you do not specify a restriction,'
+                   ' the value specified in the GUI (if any) will be used.'))
     parser.add_option('--auto-reload', default=False, action='store_true',
             help=_('Auto reload server when source code changes. May not'
                 ' work in all environments.'))
