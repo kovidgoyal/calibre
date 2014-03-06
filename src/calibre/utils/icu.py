@@ -169,6 +169,10 @@ def safe_chr(code):
         return py_safe_chr(code)
 
 def normalize(text, mode='NFC'):
+    # This is very slightly slower than using unicodedata.normalize, so stick with
+    # that unless you have very good reasons not too. Also, it's speed
+    # decreases on wide python builds, where conversion to/from ICU's string
+    # representation is slower.
     try:
         return _icu.normalize(_nmodes[mode], unicode(text))
     except (AttributeError, KeyError):
@@ -503,6 +507,28 @@ pêché'''
 
 # }}}
 
+def test_roundtrip():
+    r = u'xxx\0\u2219\U0001f431xxx'
+    rp = _icu.roundtrip(r)
+    if rp != r:
+        raise ValueError(u'Roundtripping failed: %r != %r' % (r, rp))
+
+def test_normalize_performance():
+    raw = open('t.txt', 'rb').read().decode('utf-8')
+    print (len(raw))
+    import time, unicodedata
+    st = time.time()
+    count = 100
+    for i in xrange(count):
+        normalize(raw)
+    print ('ICU time:', time.time() - st)
+    st = time.time()
+    for i in xrange(count):
+        unicodedata.normalize('NFC', unicode(raw))
+    print ('py time:', time.time() - st)
+
 if __name__ == '__main__':
+    test_roundtrip()
+    test_normalize_performance()
     test()
 

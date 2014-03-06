@@ -1,16 +1,4 @@
-#define UNICODE
-#define PY_SSIZE_T_CLEAN
-#include <Python.h>
-#include <unicode/uversion.h>
-#include <unicode/utypes.h>
-#include <unicode/uclean.h>
-#include <unicode/utf16.h>
-#include <unicode/ucol.h>
-#include <unicode/ucoleitr.h>
-#include <unicode/ustring.h>
-#include <unicode/usearch.h>
-#include <unicode/utrans.h>
-#include <unicode/unorm.h>
+#include "icu_calibre_utils.h"
 
 static PyObject* uchar_to_unicode(const UChar *src, int32_t len) {
     wchar_t *buf = NULL;
@@ -513,7 +501,6 @@ icu_Collator_clone(icu_Collator *self, PyObject *args, PyObject *kwargs)
 
 // }}}
 
-// Module initialization {{{
 
 // upper {{{
 static PyObject *
@@ -790,17 +777,12 @@ static PyObject *
 icu_normalize(PyObject *self, PyObject *args) {
     UErrorCode status = U_ZERO_ERROR;
     int32_t sz = 0, mode = UNORM_DEFAULT, cap = 0, rsz = 0;
-    char *buf = NULL, *utf8 = NULL;
     UChar *dest = NULL, *source = NULL;
-    PyObject *ret = NULL;
+    PyObject *ret = NULL, *src = NULL;
   
-    if (!PyArg_ParseTuple(args, "ies#", &mode, "UTF-8", &buf, &sz)) return NULL;
-
-    cap = 2 * sz;
-    source = (UChar*) calloc(cap, sizeof(UChar));
-    if (source == NULL) { PyErr_NoMemory(); goto end; }
-    u_strFromUTF8(source, cap, &sz, buf, sz, &status);
-    if (U_FAILURE(status)) { PyErr_SetString(PyExc_ValueError, u_errorName(status)); goto end; } cap = 2 * sz;
+    if (!PyArg_ParseTuple(args, "iO", &mode, &src)) return NULL;
+    source = python_to_icu(src, &sz, 1);
+    if (source == NULL) goto end; 
     cap = 2 * sz;
     dest = (UChar*) calloc(cap, sizeof(UChar));
     if (dest == NULL) { PyErr_NoMemory(); goto end; }
@@ -820,23 +802,32 @@ icu_normalize(PyObject *self, PyObject *args) {
         PyErr_SetString(PyExc_ValueError, u_errorName(status));
         goto end;
     }
-
-    utf8 = (char*)calloc(rsz*5+1, sizeof(char));
-    if (utf8 == NULL) {PyErr_NoMemory(); goto end;}
-    u_strToUTF8(utf8, rsz*5, &sz, dest, rsz, &status);
-    if (U_FAILURE(status)) { PyErr_SetString(PyExc_ValueError, u_errorName(status)); goto end; }
  
-    ret = PyUnicode_DecodeUTF8(utf8, sz, "replace");
-    if (ret == NULL) PyErr_NoMemory();
+    ret = icu_to_python(dest, rsz);
 
 end:
-    if (buf != NULL) PyMem_Free(buf);
     if (source != NULL) free(source);
     if (dest != NULL) free(dest);
-    if (utf8 != NULL) free(utf8);
     return ret;
 } // }}}
 
+// roundtrip {{{
+static PyObject *
+icu_roundtrip(PyObject *self, PyObject *args) {
+    int32_t sz = 0;
+    UChar *icu = NULL;
+    PyObject *ret = NULL, *src = NULL;
+  
+    if (!PyArg_ParseTuple(args, "O", &src)) return NULL;
+    icu = python_to_icu(src, &sz, 1);
+    if (icu != NULL) {
+        ret = icu_to_python(icu, sz);
+        free(icu);
+    }
+    return ret;
+} // }}}
+
+// Module initialization {{{
 static PyMethodDef icu_methods[] = {
     {"upper", icu_upper, METH_VARARGS,
         "upper(locale, unicode object) -> upper cased unicode object using locale rules."
@@ -878,6 +869,11 @@ static PyMethodDef icu_methods[] = {
      "normalize(mode, unicode_text) -> Return a python unicode string which is normalized in the specified mode."
     },
 
+    {"roundtrip", icu_roundtrip, METH_VARARGS, 
+     "roundtrip(string) -> Roundtrip a unicode object from python to ICU back to python (useful for testing)"
+    },
+
+
     {NULL}  /* Sentinel */
 };
 
@@ -890,6 +886,11 @@ initicu(void)
     UVersionInfo ver, uver;
     UErrorCode status = U_ZERO_ERROR;
     char version[U_MAX_VERSION_STRING_LENGTH+1] = {0}, uversion[U_MAX_VERSION_STRING_LENGTH+5] = {0};
+
+    if (sizeof(Py_UNICODE) != 2 && sizeof(Py_UNICODE) != 4) {
+        PyErr_SetString(PyExc_RuntimeError, "This module only works on python versions <= 3.2");
+        return;
+    }
 
     u_init(&status);
     if (U_FAILURE(status)) {

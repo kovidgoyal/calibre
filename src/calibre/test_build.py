@@ -113,9 +113,10 @@ def test_ssl():
     print ('SSL OK!')
 
 def test_icu():
-    from calibre.utils.icu import _icu_not_ok
+    from calibre.utils.icu import _icu_not_ok, test_roundtrip
     if _icu_not_ok:
         raise RuntimeError('ICU module not loaded/valid')
+    test_roundtrip()
     print ('ICU OK!')
 
 def test_wpd():

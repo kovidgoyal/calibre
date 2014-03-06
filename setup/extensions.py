@@ -95,6 +95,7 @@ extensions = [
 
     Extension('icu',
         ['calibre/utils/icu.c'],
+        headers=['calibre/utils/icu_calibre_utils.h'],
         libraries=icu_libs,
         lib_dirs=icu_lib_dirs,
         inc_dirs=icu_inc_dirs,
