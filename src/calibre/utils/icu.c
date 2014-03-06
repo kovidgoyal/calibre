@@ -697,7 +697,7 @@ icu_get_available_transliterators(PyObject *self, PyObject *args) {
 static PyObject *
 icu_character_name(PyObject *self, PyObject *args) {
     char name[512] = {0}; 
-    int32_t sz, alias = 0;
+    int32_t sz = 0, alias = 0;
     UChar *buf;
     UErrorCode status = U_ZERO_ERROR;
     PyObject *palias = NULL, *result = NULL, *input = NULL;
@@ -706,9 +706,9 @@ icu_character_name(PyObject *self, PyObject *args) {
     if (!PyArg_ParseTuple(args, "O|O", &input, &palias)) return NULL;
 
     if (palias != NULL && PyObject_IsTrue(palias)) alias = 1; 
-    buf = python_to_icu(input, NULL, 1);
+    buf = python_to_icu(input, &sz, 1);
     if (buf == NULL) goto end; 
-    U16_GET(buf, 0, 0, -1, code);
+    U16_GET(buf, 0, 0, sz, code);
     if (alias) {
         sz = u_charName(code, U_CHAR_NAME_ALIAS, name, 511, &status);
     } else {
