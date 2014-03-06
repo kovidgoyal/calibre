@@ -22,7 +22,7 @@
 #include <unicode/unorm.h>
 
 #if PY_VERSION_HEX < 0x03030000 
-// Roundtripping will need to be implemented differently for python > 3.2 where strings are stored with variable widths
+// Roundtripping will need to be implemented differently for python 3.3+ where strings are stored with variable widths
 
 #ifndef NO_PYTHON_TO_ICU
 static UChar* python_to_icu(PyObject *obj, int32_t *osz, uint8_t do_check) {
@@ -35,19 +35,21 @@ static UChar* python_to_icu(PyObject *obj, int32_t *osz, uint8_t do_check) {
         goto end;
     }
 
-    if (sizeof(Py_UNICODE) == 2) {  // narrow build (UTF-16)
-        sz = PyUnicode_GET_DATA_SIZE(obj);
-        ans = (UChar*) calloc(sz, 1);
-        if (ans == NULL) { PyErr_NoMemory(); goto end; }
-        memcpy(ans, PyUnicode_AS_UNICODE(obj), sz);
-        if (osz != NULL) *osz = (int32_t)PyUnicode_GET_SIZE(obj);
-    } else { // wide build (UCS 4)
-        sz = PyUnicode_GET_SIZE(obj);
-        ans = (UChar*) calloc(2*sz+1, sizeof(UChar)); // There can be no more than 2 UChars per character
-        if (ans == NULL) { PyErr_NoMemory(); goto end; }
-        u_strFromUTF32(ans, (int32_t)2*sz+1, osz, (UChar32*)PyUnicode_AS_UNICODE(obj), (int32_t)sz, &status);
-        if (U_FAILURE(status)) { PyErr_SetString(PyExc_ValueError, u_errorName(status)); free(ans); ans = NULL; goto end; }
-    }
+#ifdef Py_UNICODE_WIDE
+// wide build (UCS 4)
+    sz = PyUnicode_GET_SIZE(obj);
+    ans = (UChar*) calloc(2*sz+1, sizeof(UChar)); // There can be no more than 2 UChars per character
+    if (ans == NULL) { PyErr_NoMemory(); goto end; }
+    u_strFromUTF32(ans, (int32_t)2*sz+1, osz, (UChar32*)PyUnicode_AS_UNICODE(obj), (int32_t)sz, &status);
+    if (U_FAILURE(status)) { PyErr_SetString(PyExc_ValueError, u_errorName(status)); free(ans); ans = NULL; goto end; }
+#else
+// narrow build (UTF-16)
+    sz = PyUnicode_GET_DATA_SIZE(obj);
+    ans = (UChar*) calloc(sz, 1);
+    if (ans == NULL) { PyErr_NoMemory(); goto end; }
+    memcpy(ans, PyUnicode_AS_UNICODE(obj), sz);
+    if (osz != NULL) *osz = (int32_t)PyUnicode_GET_SIZE(obj);
+#endif
 end:
     return ans;
 }
@@ -55,9 +57,11 @@ end:
 
 #ifndef NO_ICU_TO_PYTHON
 static PyObject* icu_to_python(UChar *src, int32_t sz) {
-    if (sizeof(Py_UNICODE) == 2) // narrow build UTF-16
-        return PyUnicode_FromUnicode((Py_UNICODE*)src, sz);
+#ifdef Py_UNICODE_WIDE
     return PyUnicode_DecodeUTF16((char*)src, sz*sizeof(UChar), "strict", NULL);
+#else
+    return PyUnicode_FromUnicode((Py_UNICODE*)src, sz);
+#endif
 }
 #endif
 
