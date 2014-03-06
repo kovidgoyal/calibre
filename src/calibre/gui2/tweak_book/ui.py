@@ -6,7 +6,7 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import unicodedata, os
+import os
 from functools import partial
 from itertools import product
 from future_builtins import map
@@ -33,6 +33,7 @@ from calibre.gui2.tweak_book.toc import TOCViewer
 from calibre.gui2.tweak_book.char_select import CharSelect
 from calibre.gui2.tweak_book.editor.widget import register_text_editor_actions
 from calibre.gui2.tweak_book.editor.insert_resource import InsertImage
+from calibre.utils.icu import character_name
 
 def open_donate():
     open_url(QUrl('http://calibre-ebook.com/donate'))
@@ -188,7 +189,7 @@ class CursorPositionWidget(QWidget):  # {{{
             self.la.setText('')
         else:
             try:
-                name = unicodedata.name(character, None) if character and tprefs['editor_show_char_under_cursor'] else None
+                name = character_name(character) if character and tprefs['editor_show_char_under_cursor'] else None
             except Exception:
                 name = None
             text = _('Line: {0} : {1}').format(line, col)

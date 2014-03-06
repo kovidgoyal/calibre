@@ -1,8 +1,10 @@
 #define UNICODE
 #define PY_SSIZE_T_CLEAN
 #include <Python.h>
+#include <unicode/uversion.h>
 #include <unicode/utypes.h>
 #include <unicode/uclean.h>
+#include <unicode/utf16.h>
 #include <unicode/ucol.h>
 #include <unicode/ucoleitr.h>
 #include <unicode/ustring.h>
@@ -672,6 +674,7 @@ icu_set_filesystem_encoding(PyObject *self, PyObject *args) {
 
 }
 // }}}
+
 // set_default_encoding {{{
 static PyObject *
 icu_get_available_transliterators(PyObject *self, PyObject *args) {
@@ -701,6 +704,59 @@ icu_get_available_transliterators(PyObject *self, PyObject *args) {
 }
 
 // }}}
+
+// character_name {{{
+static PyObject *
+icu_character_name(PyObject *self, PyObject *args) {
+    char *input = NULL, name[512] = {0}; 
+    int32_t sz, alias = 0;
+    UChar *buf;
+    UErrorCode status = U_ZERO_ERROR;
+    PyObject *palias = NULL;
+    UChar32 code = 0;
+  
+    if (!PyArg_ParseTuple(args, "es|O", "UTF-8", &input, &palias)) return NULL;
+
+    if (palias != NULL && PyObject_IsTrue(palias)) alias = 1; 
+    
+    sz = (int32_t)strlen(input);
+    buf = (UChar*)calloc(sz*4 + 1, sizeof(UChar));
+    if (buf == NULL) { PyErr_NoMemory(); goto end; }
+    u_strFromUTF8(buf, sz*4, &sz, input, sz, &status);
+    if (U_FAILURE(status)) { PyErr_SetString(PyExc_ValueError, "Failed to decode char string"); goto end; }
+    U16_GET(buf, 0, 0, -1, code);
+    if (alias) {
+        sz = u_charName(code, U_CHAR_NAME_ALIAS, name, 511, &status);
+    } else {
+        sz = u_charName(code, U_UNICODE_CHAR_NAME, name, 511, &status);
+    }
+    if (U_FAILURE(status)) { PyErr_SetString(PyExc_ValueError, "Failed to get name for code"); goto end; }
+end:
+    if (buf != NULL) free(buf);
+    PyMem_Free(input);
+
+    return (PyErr_Occurred()) ? NULL : Py_BuildValue("s#", name, sz);
+} // }}}
+
+// chr {{{
+static PyObject *
+icu_chr(PyObject *self, PyObject *args) {
+    UErrorCode status = U_ZERO_ERROR;
+    UChar32 code = 0;
+    UChar buf[5] = {0};
+    int32_t sz = 0;
+    char utf8[21];
+  
+    if (!PyArg_ParseTuple(args, "I", &code)) return NULL;
+
+    u_strFromUTF32(buf, 4, &sz, &code, 1, &status);
+    if (U_FAILURE(status)) { PyErr_SetString(PyExc_ValueError, "arg not in range(0x110000)"); goto end; }
+    u_strToUTF8(utf8, 20, &sz, buf, sz, &status);
+    if (U_FAILURE(status)) { PyErr_SetString(PyExc_ValueError, "arg not in range(0x110000)"); goto end; }
+end:
+    return (PyErr_Occurred()) ? NULL : Py_BuildValue("s#", utf8, sz);
+} // }}}
+
 static PyMethodDef icu_methods[] = {
     {"upper", icu_upper, METH_VARARGS,
         "upper(locale, unicode object) -> upper cased unicode object using locale rules."
@@ -726,6 +782,14 @@ static PyMethodDef icu_methods[] = {
         "get_available_transliterators() -> Return list of available transliterators. This list is rather limited on OS X."
     },
 
+    {"character_name", icu_character_name, METH_VARARGS, 
+     "character_name(char, alias=False) -> Return name for the first character in char, which must be a unicode string."
+    },
+
+    {"chr", icu_chr, METH_VARARGS, 
+     "chr(code) -> Return a python unicode string corresponding to the specified character code. The string can have length 1 or 2 (for non BMP codes on narrow python builds)."
+    },
+
     {NULL}  /* Sentinel */
 };
 
@@ -735,13 +799,20 @@ PyMODINIT_FUNC
 initicu(void) 
 {
     PyObject* m;
+    UVersionInfo ver, uver;
     UErrorCode status = U_ZERO_ERROR;
+    char version[U_MAX_VERSION_STRING_LENGTH+1] = {0};
+    char uversion[U_MAX_VERSION_STRING_LENGTH+5] = {0};
 
     u_init(&status);
     if (U_FAILURE(status)) {
         PyErr_SetString(PyExc_RuntimeError, u_errorName(status));
         return;
     }
+    u_getVersion(ver);
+    u_versionToString(ver, version);
+    u_getUnicodeVersion(uver);
+    u_versionToString(uver, uversion);
 
     if (PyType_Ready(&icu_CollatorType) < 0)
         return;
@@ -753,6 +824,8 @@ initicu(void)
     PyModule_AddObject(m, "Collator", (PyObject *)&icu_CollatorType);
     // uint8_t must be the same size as char
     PyModule_AddIntConstant(m, "ok", (U_SUCCESS(status) && sizeof(uint8_t) == sizeof(char)) ? 1 : 0);
+    PyModule_AddStringConstant(m, "icu_version", version);
+    PyModule_AddStringConstant(m, "unicode_version", uversion);
 
     ADDUCONST(USET_SPAN_NOT_CONTAINED);
     ADDUCONST(USET_SPAN_CONTAINED);

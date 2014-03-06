@@ -130,6 +130,34 @@ def py_find(pattern, source):
         return pos, len(pattern)
     return -1, -1
 
+def character_name(string):
+    try:
+        try:
+            return _icu.character_name(unicode(string)).decode('utf-8') or None
+        except AttributeError:
+            import unicodedata
+            return unicodedata.name(unicode(string)[0], None)
+    except (TypeError, ValueError, KeyError):
+        pass
+
+if sys.maxunicode >= 0x10ffff:
+    try:
+        py_safe_chr = unichr
+    except NameError:
+        py_safe_chr = chr
+else:
+    def py_safe_chr(i):
+        # Narrow builds of python cannot represent code point > 0xffff as a
+        # single character, so we need our own implementation of unichr
+        # that returns them as a surrogate pair
+        return (b"\U%s" % (hex(i)[2:].zfill(8))).decode('unicode-escape')
+
+def safe_chr(code):
+    try:
+        return _icu.chr(code)
+    except AttributeError:
+        return py_safe_chr(code)
+
 def icu_find(collator, pattern, source):
     try:
         return collator.find(pattern, source)

@@ -17,21 +17,12 @@ from PyQt4.Qt import (
     QStyledItemDelegate, QSplitter, QLabel, QSizePolicy, QIcon, QMimeData,
     QPushButton, QToolButton, QInputMethodEvent)
 
-from calibre.constants import ispy3, plugins, cache_dir
+from calibre.constants import plugins, cache_dir
 from calibre.gui2 import NONE
 from calibre.gui2.widgets2 import HistoryLineEdit2
 from calibre.gui2.tweak_book import tprefs
 from calibre.gui2.tweak_book.widgets import Dialog
-
-if not ispy3:
-    if sys.maxunicode >= 0x10FFFF:
-        chr = unichr
-    else:
-        def chr(i):
-            # Narrow builds of python cannot represent code point > 0xffff as a
-            # single character, so we need our own implementation of unichr
-            # that returns them as a surrogate pair
-            return (b"\U%s" % (hex(i)[2:].zfill(8))).decode('unicode-escape')
+from calibre.utils.icu import safe_chr as chr
 
 ROOT = QModelIndex()
 
