@@ -248,11 +248,12 @@ class Editor(QMainWindow):
     def cursor_position(self):
         c = self.editor.textCursor()
         char = ''
+        col = c.positionInBlock()
         if not c.atStart():
             c.clearSelection()
-            c.setPosition(c.position()-1, c.KeepAnchor)
+            c.movePosition(c.PreviousCharacter, c.KeepAnchor)
             char = unicode(c.selectedText()).rstrip('\0')
-        return (c.blockNumber() + 1, c.positionInBlock(), char)
+        return (c.blockNumber() + 1, col, char)
 
     def cut(self):
         self.editor.cut()
