@@ -46,7 +46,7 @@ static UChar* python_to_icu(PyObject *obj, int32_t *osz, uint8_t do_check) {
         ans = (UChar*) calloc(2*sz+1, sizeof(UChar)); // There can be no more than 2 UChars per character
         if (ans == NULL) { PyErr_NoMemory(); goto end; }
         u_strFromUTF32(ans, (int32_t)2*sz+1, osz, (UChar32*)PyUnicode_AS_UNICODE(obj), (int32_t)sz, &status);
-        if (U_FAILURE(status)) { PyErr_SetString(PyExc_ValueError, u_errorName(status)); goto end; }
+        if (U_FAILURE(status)) { PyErr_SetString(PyExc_ValueError, u_errorName(status)); free(ans); ans = NULL; goto end; }
     }
 end:
     return ans;
