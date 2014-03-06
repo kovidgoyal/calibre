@@ -53,6 +53,8 @@ Add books
 
     3. **Add books from directories, including sub-directories (Multiple books per directory, assumes every ebook file is a different book)**: Allows you to choose a directory. The directory and all its sub-directories are scanned recursively and any ebooks found are added to the library. |app| assumes that each directory contains many books. All ebook files with the same name in a directory are assumed to be the same book in different formats. Ebooks with different names are added as different books. 
 
+    4. **Add multiple books from archive (ZIP/RAR)**: Allows you to add multiple ebooks that are stored inside a single ZIP or RAR file. It is a convenient shortcut that avoids having to first unzip the archive and then add the books via one of the above two options.
+
     4. **Add empty book. (Book Entry with no formats)**: Allows you to create a blank book record. This can be used to then manually fill out the information about a book that you may not have yet in your collection.
 
     5. **Add from ISBN**: Allows you to add one or more books by entering their ISBNs.

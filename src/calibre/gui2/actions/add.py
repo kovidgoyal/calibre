@@ -66,6 +66,12 @@ class AddAction(InterfaceAction):
             'sub directories (Multiple books per directory, assumes every '
             'ebook file is a different book)')).triggered.connect(
                     self.add_recursive_multiple)
+        arm = self.add_archive_menu = self.add_menu.addMenu(_('Add multiple books from archive (ZIP/RAR)'))
+        self.create_menu_action(arm, 'recursive-single-archive', _(
+            'One book per directory in the archive')).triggered.connect(partial(self.add_archive, True))
+        self.create_menu_action(arm, 'recursive-multiple-archive', _(
+            'Multiple books per directory in the archive')).triggered.connect(partial(self.add_archive, False))
+        self.add_menu.addSeparator()
         self.add_menu.addSeparator()
         ma('add-empty', _('Add Empty book. (Book entry with no formats)'),
                 shortcut='Shift+Ctrl+E').triggered.connect(self.add_empty)
@@ -135,11 +141,21 @@ class AddAction(InterfaceAction):
         if current_idx.isValid():
             view.model().current_changed(current_idx, current_idx)
 
+    def add_archive(self, single):
+        paths = choose_files(
+            self.gui, 'recursive-archive-add', _('Choose archive file'),
+            filters=[(_('Archives'), ('zip', 'rar'))], all_files=False, select_only_single_file=True)
+        if paths:
+            self.do_add_recursive(paths[0], single)
+
     def add_recursive(self, single):
         root = choose_dir(self.gui, 'recursive book import root dir dialog',
-                          'Select root folder')
+                          _('Select root folder'))
         if not root:
             return
+        self.do_add_recursive(root, single)
+
+    def do_add_recursive(self, root, single):
         from calibre.gui2.add import Adder
         self._adder = Adder(self.gui,
                 self.gui.library_view.model().db,
