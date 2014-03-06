@@ -10,6 +10,7 @@
 #include <unicode/ustring.h>
 #include <unicode/usearch.h>
 #include <unicode/utrans.h>
+#include <unicode/unorm.h>
 
 static PyObject* uchar_to_unicode(const UChar *src, int32_t len) {
     wchar_t *buf = NULL;
@@ -780,6 +781,58 @@ end:
     return (PyErr_Occurred()) ? NULL : Py_BuildValue("s#", utf8, sz);
 } // }}}
 
+// normalize {{{
+static PyObject *
+icu_normalize(PyObject *self, PyObject *args) {
+    UErrorCode status = U_ZERO_ERROR;
+    int32_t sz = 0, mode = UNORM_DEFAULT, cap = 0, rsz = 0;
+    char *buf = NULL, *utf8 = NULL;
+    UChar *dest = NULL, *source = NULL;
+    PyObject *ret = NULL;
+  
+    if (!PyArg_ParseTuple(args, "ies#", &mode, "UTF-8", &buf, &sz)) return NULL;
+
+    cap = 2 * sz;
+    source = (UChar*) calloc(cap, sizeof(UChar));
+    if (source == NULL) { PyErr_NoMemory(); goto end; }
+    u_strFromUTF8(source, cap, &sz, buf, sz, &status);
+    if (U_FAILURE(status)) { PyErr_SetString(PyExc_ValueError, u_errorName(status)); goto end; } cap = 2 * sz;
+    cap = 2 * sz;
+    dest = (UChar*) calloc(cap, sizeof(UChar));
+    if (dest == NULL) { PyErr_NoMemory(); goto end; }
+
+    while (1) {
+        rsz = unorm_normalize(source, sz, (UNormalizationMode)mode, 0, dest, cap, &status);
+        if (status == U_BUFFER_OVERFLOW_ERROR) {
+            cap *= 2;
+            dest = (UChar*) realloc(dest, cap*sizeof(UChar));
+            if (dest == NULL) { PyErr_NoMemory(); goto end; }
+            continue;
+        }
+        break;
+    }
+
+    if (U_FAILURE(status)) {
+        PyErr_SetString(PyExc_ValueError, u_errorName(status));
+        goto end;
+    }
+
+    utf8 = (char*)calloc(rsz*5+1, sizeof(char));
+    if (utf8 == NULL) {PyErr_NoMemory(); goto end;}
+    u_strToUTF8(utf8, rsz*5, &sz, dest, rsz, &status);
+    if (U_FAILURE(status)) { PyErr_SetString(PyExc_ValueError, u_errorName(status)); goto end; }
+ 
+    ret = PyUnicode_DecodeUTF8(utf8, sz, "replace");
+    if (ret == NULL) PyErr_NoMemory();
+
+end:
+    if (buf != NULL) PyMem_Free(buf);
+    if (source != NULL) free(source);
+    if (dest != NULL) free(dest);
+    if (utf8 != NULL) free(utf8);
+    return ret;
+} // }}}
+
 static PyMethodDef icu_methods[] = {
     {"upper", icu_upper, METH_VARARGS,
         "upper(locale, unicode object) -> upper cased unicode object using locale rules."
@@ -815,6 +868,10 @@ static PyMethodDef icu_methods[] = {
 
     {"chr", icu_chr, METH_VARARGS, 
      "chr(code) -> Return a python unicode string corresponding to the specified character code. The string can have length 1 or 2 (for non BMP codes on narrow python builds)."
+    },
+
+    {"normalize", icu_normalize, METH_VARARGS, 
+     "normalize(mode, unicode_text) -> Return a python unicode string which is normalized in the specified mode."
     },
 
     {NULL}  /* Sentinel */
@@ -869,6 +926,14 @@ initicu(void)
     ADDUCONST(UCOL_NON_IGNORABLE);
     ADDUCONST(UCOL_LOWER_FIRST);
     ADDUCONST(UCOL_UPPER_FIRST);
+
+    ADDUCONST(UNORM_NONE);
+    ADDUCONST(UNORM_NFD);
+    ADDUCONST(UNORM_NFKD);
+    ADDUCONST(UNORM_NFC);
+    ADDUCONST(UNORM_DEFAULT);
+    ADDUCONST(UNORM_NFKC);
+    ADDUCONST(UNORM_FCD);
 
 }
 // }}}

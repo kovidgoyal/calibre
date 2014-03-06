@@ -168,6 +168,13 @@ def safe_chr(code):
     except AttributeError:
         return py_safe_chr(code)
 
+def normalize(text, mode='NFC'):
+    try:
+        return _icu.normalize(_nmodes[mode], unicode(text))
+    except (AttributeError, KeyError):
+        import unicodedata
+        return unicodedata.normalize(mode, unicode(text))
+
 def icu_find(collator, pattern, source):
     try:
         return collator.find(pattern, source)
@@ -223,6 +230,7 @@ load_icu()
 load_collator()
 _icu_not_ok = _icu is None or _collator is None
 icu_unicode_version = getattr(_icu, 'unicode_version', None)
+_nmodes = {m:getattr(_icu, 'UNORM_'+m, None) for m in ('NFC', 'NFD', 'NFKC', 'NFKD', 'NONE', 'DEFAULT', 'FCD')}
 
 try:
     senc = sys.getdefaultencoding()
