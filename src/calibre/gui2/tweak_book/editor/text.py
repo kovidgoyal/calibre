@@ -25,6 +25,7 @@ from calibre.gui2.tweak_book.editor.syntax.html import HTMLHighlighter, XMLHighl
 from calibre.gui2.tweak_book.editor.syntax.css import CSSHighlighter
 from calibre.gui2.tweak_book.editor.smart import NullSmarts
 from calibre.gui2.tweak_book.editor.smart.html import HTMLSmarts
+from calibre.utils.icu import safe_chr
 
 PARAGRAPH_SEPARATOR = '\u2029'
 entity_pat = re.compile(r'&(#{0,1}[a-zA-Z0-9]{1,8});')
@@ -628,10 +629,9 @@ class TextEdit(PlainTextEdit):
             return False
         if num > 0x10ffff or num < 1:
             return False
-        from calibre.gui2.tweak_book.char_select import chr
         end_pos = max(c.anchor(), c.position())
         c.setPosition(end_pos - len(text)), c.setPosition(end_pos, c.KeepAnchor)
-        c.insertText(chr(num))
+        c.insertText(safe_chr(num))
         return True
 
     def replace_possible_entity(self):
