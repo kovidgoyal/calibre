@@ -1,5 +1,7 @@
 #!/usr/bin/env python
-# vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
+# vim:fileencoding=utf-8
+from __future__ import (unicode_literals, division, absolute_import,
+                        print_function)
 
 __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -7,232 +9,20 @@ __docformat__ = 'restructuredtext en'
 
 # Setup code {{{
 import sys
-from functools import partial
 
 from calibre.constants import plugins
 from calibre.utils.config_base import tweaks
 
-_icu = _collator = _primary_collator = _sort_collator = _numeric_collator = None
-_locale = None
+_locale = _collator = _primary_collator = _sort_collator = _numeric_collator = _case_sensitive_collator = None
 
 _none = u''
 _none2 = b''
-
-def get_locale():
-    global _locale
-    if _locale is None:
-        from calibre.utils.localization import get_lang
-        if tweaks['locale_for_sorting']:
-            _locale = tweaks['locale_for_sorting']
-        else:
-            _locale = get_lang()
-    return _locale
-
-def load_icu():
-    global _icu
-    if _icu is None:
-        _icu = plugins['icu'][0]
-        if _icu is None:
-            print 'Loading ICU failed with: ', plugins['icu'][1]
-        else:
-            if not getattr(_icu, 'ok', False):
-                print 'icu not ok'
-                _icu = None
-    return _icu
-
-def load_collator():
-    'The default collator for most locales takes both case and accented letters into account'
-    global _collator
-    if _collator is None:
-        icu = load_icu()
-        if icu is not None:
-            _collator = icu.Collator(get_locale())
-    return _collator
-
-def primary_collator():
-    'Ignores case differences and accented characters'
-    global _primary_collator
-    if _primary_collator is None:
-        _primary_collator = _collator.clone()
-        _primary_collator.strength = _icu.UCOL_PRIMARY
-    return _primary_collator
-
-def sort_collator():
-    'Ignores case differences and recognizes numbers in strings'
-    global _sort_collator
-    if _sort_collator is None:
-        _sort_collator = _collator.clone()
-        _sort_collator.strength = _icu.UCOL_SECONDARY
-        if tweaks['numeric_collation']:
-            try:
-                _sort_collator.numeric = True
-            except AttributeError:
-                pass
-    return _sort_collator
-
-def py_sort_key(obj):
-    if not obj:
-        return _none
-    return obj.lower()
-
-def icu_sort_key(collator, obj):
-    if not obj:
-        return _none2
-    try:
-        try:
-            return _sort_collator.sort_key(obj)
-        except AttributeError:
-            return sort_collator().sort_key(obj)
-    except TypeError:
-        if isinstance(obj, unicode):
-            obj = obj.replace(u'\0', u'')
-        else:
-            obj = obj.replace(b'\0', b'')
-        return _sort_collator.sort_key(obj)
-
-def numeric_collator():
-    global _numeric_collator
-    _numeric_collator = _collator.clone()
-    _numeric_collator.strength = _icu.UCOL_SECONDARY
-    _numeric_collator.numeric = True
-    return _numeric_collator
-
-def numeric_sort_key(obj):
-    'Uses natural sorting for numbers inside strings so something2 will sort before something10'
-    if not obj:
-        return _none2
-    try:
-        try:
-            return _numeric_collator.sort_key(obj)
-        except AttributeError:
-            return numeric_collator().sort_key(obj)
-    except TypeError:
-        if isinstance(obj, unicode):
-            obj = obj.replace(u'\0', u'')
-        else:
-            obj = obj.replace(b'\0', b'')
-        return _numeric_collator.sort_key(obj)
-
-def icu_change_case(upper, locale, obj):
-    func = _icu.upper if upper else _icu.lower
-    try:
-        return func(locale, obj)
-    except TypeError:
-        if isinstance(obj, unicode):
-            obj = obj.replace(u'\0', u'')
-        else:
-            obj = obj.replace(b'\0', b'')
-        return func(locale, obj)
-
-def py_find(pattern, source):
-    pos = source.find(pattern)
-    if pos > -1:
-        return pos, len(pattern)
-    return -1, -1
-
-def character_name(string):
-    try:
-        try:
-            return _icu.character_name(unicode(string)) or None
-        except AttributeError:
-            import unicodedata
-            return unicodedata.name(unicode(string)[0], None)
-    except (TypeError, ValueError, KeyError):
-        pass
-
-def character_name_from_code(code):
-    try:
-        try:
-            return _icu.character_name_from_code(code) or ''
-        except AttributeError:
-            import unicodedata
-            return unicodedata.name(py_safe_chr(code), '')
-    except (TypeError, ValueError, KeyError):
-        return ''
-
-if sys.maxunicode >= 0x10ffff:
-    try:
-        py_safe_chr = unichr
-    except NameError:
-        py_safe_chr = chr
-else:
-    def py_safe_chr(i):
-        # Narrow builds of python cannot represent code point > 0xffff as a
-        # single character, so we need our own implementation of unichr
-        # that returns them as a surrogate pair
-        return (b"\U%s" % (hex(i)[2:].zfill(8))).decode('unicode-escape')
-
-def safe_chr(code):
-    try:
-        return _icu.chr(code)
-    except AttributeError:
-        return py_safe_chr(code)
-
-def normalize(text, mode='NFC'):
-    # This is very slightly slower than using unicodedata.normalize, so stick with
-    # that unless you have very good reasons not too. Also, it's speed
-    # decreases on wide python builds, where conversion to/from ICU's string
-    # representation is slower.
-    try:
-        return _icu.normalize(_nmodes[mode], unicode(text))
-    except (AttributeError, KeyError):
-        import unicodedata
-        return unicodedata.normalize(mode, unicode(text))
-
-def icu_find(collator, pattern, source):
-    try:
-        return collator.find(pattern, source)
-    except TypeError:
-        return collator.find(unicode(pattern), unicode(source))
-
-def icu_startswith(collator, a, b):
-    try:
-        return collator.startswith(a, b)
-    except TypeError:
-        return collator.startswith(unicode(a), unicode(b))
-
-def py_case_sensitive_sort_key(obj):
-    if not obj:
-        return _none
-    return obj
-
-def icu_case_sensitive_sort_key(collator, obj):
-    if not obj:
-        return _none2
-    return collator.sort_key(obj)
-
-def icu_strcmp(collator, a, b):
-    return collator.strcmp(lower(a), lower(b))
-
-def py_strcmp(a, b):
-    return cmp(a.lower(), b.lower())
-
-def icu_case_sensitive_strcmp(collator, a, b):
-    return collator.strcmp(a, b)
-
-def icu_capitalize(s):
-    s = lower(s)
-    return s.replace(s[0], upper(s[0]), 1) if s else s
-
 _cmap = {}
-def icu_contractions(collator):
-    global _cmap
-    ans = _cmap.get(collator, None)
-    if ans is None:
-        ans = collator.contractions()
-        ans = frozenset(filter(None, ans)) if ans else {}
-        _cmap[collator] = ans
-    return ans
 
-def icu_collation_order(collator, a):
-    try:
-        return collator.collation_order(a)
-    except TypeError:
-        return collator.collation_order(unicode(a))
-
-load_icu()
-load_collator()
-_icu_not_ok = _icu is None or _collator is None
+_icu, err = plugins['icu']
+if _icu is None:
+    raise RuntimeError('Failed to load icu with error: %s' % err)
+del err
 icu_unicode_version = getattr(_icu, 'unicode_version', None)
 _nmodes = {m:getattr(_icu, 'UNORM_'+m, None) for m in ('NFC', 'NFD', 'NFKC', 'NFKD', 'NONE', 'DEFAULT', 'FCD')}
 
@@ -252,290 +42,208 @@ try:
 except:
     pass
 
+def collator():
+    global _collator, _locale
+    if _collator is None:
+        if _locale is None:
+            from calibre.utils.localization import get_lang
+            if tweaks['locale_for_sorting']:
+                _locale = tweaks['locale_for_sorting']
+            else:
+                _locale = get_lang()
+        try:
+            _collator = _icu.Collator(_locale)
+        except Exception as e:
+            print ('Failed to load collator for locale: %r with error %r, using English' % (_locale, e))
+            _collator = _icu.Collator('en')
+    return _collator
+
+def change_locale(locale=None):
+    global _locale, _collator, _primary_collator, _sort_collator, _numeric_collator, _case_sensitive_collator
+    _collator = _primary_collator = _sort_collator = _numeric_collator = _case_sensitive_collator = None
+    _locale = locale
+
+def primary_collator():
+    'Ignores case differences and accented characters'
+    global _primary_collator
+    if _primary_collator is None:
+        _primary_collator = collator().clone()
+        _primary_collator.strength = _icu.UCOL_PRIMARY
+    return _primary_collator
+
+def sort_collator():
+    'Ignores case differences and recognizes numbers in strings (if the tweak is set)'
+    global _sort_collator
+    if _sort_collator is None:
+        _sort_collator = collator().clone()
+        _sort_collator.strength = _icu.UCOL_SECONDARY
+        _sort_collator.numeric = tweaks['numeric_collation']
+    return _sort_collator
+
+def numeric_collator():
+    'Uses natural sorting for numbers inside strings so something2 will sort before something10'
+    global _numeric_collator
+    if _numeric_collator is None:
+        _numeric_collator = collator().clone()
+        _numeric_collator.strength = _icu.UCOL_SECONDARY
+        _numeric_collator.numeric = True
+    return _numeric_collator
+
+def case_sensitive_collator():
+    'Always sorts upper case letter before lower case'
+    global _case_sensitive_collator
+    if _case_sensitive_collator is None:
+        _case_sensitive_collator = collator().clone()
+        _case_sensitive_collator.numeric = sort_collator().numeric
+        _case_sensitive_collator.upper_first = True
+    return _case_sensitive_collator
+
+# Templates that will be used to generate various concrete
+# function implementations based on different collators, to allow lazy loading
+# of collators, with maximum runtime performance
+
+_sort_key_template = '''
+def {name}(obj):
+    try:
+        try:
+            return {collator}.{func}(obj)
+        except AttributeError:
+            return {collator_func}().{func}(obj)
+    except TypeError:
+        if isinstance(obj, bytes):
+            try:
+                obj = obj.decode(sys.getdefaultencoding())
+            except ValueError:
+                return obj
+            return {collator}.{func}(obj)
+    return b''
+'''
+
+_strcmp_template = '''
+def {name}(a, b):
+    try:
+        try:
+            return {collator}.{func}(a, b)
+        except AttributeError:
+            return {collator_func}().{func}(a, b)
+    except TypeError:
+        if isinstance(a, bytes):
+            try:
+                a = a.decode(sys.getdefaultencoding())
+            except ValueError:
+                return cmp(a, b)
+        elif a is None:
+            a = u''
+        if isinstance(b, bytes):
+            try:
+                b = b.decode(sys.getdefaultencoding())
+            except ValueError:
+                return cmp(a, b)
+        elif b is None:
+            b = u''
+        return {collator}.{func}(a, b)
+'''
+
+_change_case_template = '''
+def {name}(x):
+    try:
+        try:
+            return _icu.change_case(x, _icu.{which}, _locale)
+        except NotImplementedError:
+            collator()  # sets _locale
+            return _icu.change_case(x, _icu.{which}, _locale)
+    except TypeError:
+        if isinstance(x, bytes):
+            try:
+                x = x.decode(sys.getdefaultencoding())
+            except ValueError:
+                return x
+            return _icu.change_case(x, _icu.{which}, _locale)
+        raise
+'''
+
+def _make_func(template, name, **kwargs):
+    l = globals()
+    kwargs['name'] = name
+    kwargs['func'] = kwargs.get('func', 'sort_key')
+    exec template.format(**kwargs) in l
+    return l[name]
+
 
 # }}}
 
 ################# The string functions ########################################
+sort_key = _make_func(_sort_key_template, 'sort_key', collator='_sort_collator', collator_func='sort_collator')
 
-sort_key = py_sort_key if _icu_not_ok else partial(icu_sort_key, _collator)
+numeric_sort_key = _make_func(_sort_key_template, 'numeric_sort_key', collator='_numeric_collator', collator_func='numeric_collator')
 
-strcmp = py_strcmp if _icu_not_ok else partial(icu_strcmp, _collator)
+primary_sort_key = _make_func(_sort_key_template, 'primary_sort_key', collator='_primary_collator', collator_func='primary_collator')
 
-case_sensitive_sort_key = py_case_sensitive_sort_key if _icu_not_ok else \
-        partial(icu_case_sensitive_sort_key, _collator)
+case_sensitive_sort_key = _make_func(_sort_key_template, 'case_sensitive_sort_key',
+                                     collator='_case_sensitive_collator', collator_func='case_sensitive_collator')
 
-case_sensitive_strcmp = cmp if _icu_not_ok else icu_case_sensitive_strcmp
+collation_order = _make_func(_sort_key_template, 'collation_order', collator='_sort_collator', collator_func='sort_collator', func='collation_order')
 
-upper = (lambda s: s.upper()) if _icu_not_ok else \
-    partial(icu_change_case, True, get_locale())
+strcmp = _make_func(_strcmp_template, 'strcmp', collator='_sort_collator', collator_func='sort_collator', func='strcmp')
 
-lower = (lambda s: s.lower()) if _icu_not_ok else \
-    partial(icu_change_case, False, get_locale())
+case_sensitive_strcmp = _make_func(
+    _strcmp_template, 'case_sensitive_strcmp', collator='_case_sensitive_collator', collator_func='case_sensitive_collator', func='strcmp')
 
-title_case = (lambda s: s.title()) if _icu_not_ok else \
-    partial(_icu.title, get_locale())
+primary_strcmp = _make_func(_strcmp_template, 'primary_strcmp', collator='_primary_collator', collator_func='primary_collator', func='strcmp')
 
-capitalize = (lambda s: s.capitalize()) if _icu_not_ok else \
-    (lambda s: icu_capitalize(s))
+upper = _make_func(_change_case_template, 'upper', which='UPPER_CASE')
 
-find = (py_find if _icu_not_ok else partial(icu_find, _collator))
+lower = _make_func(_change_case_template, 'lower', which='LOWER_CASE')
 
-contractions = ((lambda : {}) if _icu_not_ok else (partial(icu_contractions,
-    _collator)))
+title_case = _make_func(_change_case_template, 'title_case', which='TITLE_CASE')
 
-def primary_strcmp(a, b):
-    'strcmp that ignores case and accents on letters'
-    if _icu_not_ok:
-        from calibre.utils.filenames import ascii_text
-        return py_strcmp(ascii_text(a), ascii_text(b))
+capitalize = lambda x: upper(x[0]) + lower(x[1:])
+
+find = _make_func(_strcmp_template, 'find', collator='_collator', collator_func='collator', func='find')
+
+primary_find = _make_func(_strcmp_template, 'primary_find', collator='_primary_collator', collator_func='primary_collator', func='find')
+
+startswith = _make_func(_strcmp_template, 'startswith', collator='_collator', collator_func='collator', func='startswith')
+
+primary_startswith = _make_func(_strcmp_template, 'primary_startswith', collator='_primary_collator', collator_func='primary_collator', func='startswith')
+
+safe_chr = _icu.chr
+
+def character_name(string):
     try:
-        return _primary_collator.strcmp(a, b)
-    except AttributeError:
-        return primary_collator().strcmp(a, b)
+        return _icu.character_name(unicode(string)) or None
+    except (TypeError, ValueError, KeyError):
+        pass
 
-def primary_find(pat, src):
-    'find that ignores case and accents on letters'
-    if _icu_not_ok:
-        from calibre.utils.filenames import ascii_text
-        return py_find(ascii_text(pat), ascii_text(src))
-    return primary_icu_find(pat, src)
-
-def primary_icu_find(pat, src):
+def character_name_from_code(code):
     try:
-        return icu_find(_primary_collator, pat, src)
-    except AttributeError:
-        return icu_find(primary_collator(), pat, src)
+        return _icu.character_name_from_code(code) or ''
+    except (TypeError, ValueError, KeyError):
+        return ''
 
-def primary_sort_key(val):
-    'A sort key that ignores case and diacritics'
-    if _icu_not_ok:
-        from calibre.utils.filenames import ascii_text
-        return ascii_text(val).lower()
-    try:
-        return _primary_collator.sort_key(val)
-    except AttributeError:
-        return primary_collator().sort_key(val)
+def normalize(text, mode='NFC'):
+    # This is very slightly slower than using unicodedata.normalize, so stick with
+    # that unless you have very good reasons not too. Also, it's speed
+    # decreases on wide python builds, where conversion to/from ICU's string
+    # representation is slower.
+    return _icu.normalize(_nmodes[mode], unicode(text))
 
-def primary_startswith(a, b):
-    if _icu_not_ok:
-        from calibre.utils.filenames import ascii_text
-        return ascii_text(a).lower().startswith(ascii_text(b).lower())
-    try:
-        return icu_startswith(_primary_collator, a, b)
-    except AttributeError:
-        return icu_startswith(primary_collator(), a, b)
+def contractions(col=None):
+    global _cmap
+    col = col or _collator
+    if col is None:
+        col = collator()
+    ans = _cmap.get(collator, None)
+    if ans is None:
+        ans = col.contractions()
+        ans = frozenset(filter(None, ans))
+        _cmap[col] = ans
+    return ans
 
-def collation_order(a):
-    if _icu_not_ok:
-        return (ord(a[0]), 1) if a else (0, 0)
-    try:
-        return icu_collation_order(_sort_collator, a)
-    except AttributeError:
-        return icu_collation_order(sort_collator(), a)
 
 ################################################################################
 
-def test():  # {{{
-    from calibre import prints
-    # Data {{{
-    german = '''
-    Sonntag
-Montag
-Dienstag
-Januar
-Februar
-März
-Fuße
-Fluße
-Flusse
-flusse
-fluße
-flüße
-flüsse
-'''
-    german_good = '''
-    Dienstag
-Februar
-flusse
-Flusse
-fluße
-Fluße
-flüsse
-flüße
-Fuße
-Januar
-März
-Montag
-Sonntag'''
-    french = '''
-dimanche
-lundi
-mardi
-janvier
-février
-mars
-déjà
-Meme
-deja
-même
-dejà
-bpef
-bœg
-Boef
-Mémé
-bœf
-boef
-bnef
-pêche
-pèché
-pêché
-pêche
-pêché'''
-    french_good = '''
-            bnef
-        boef
-        Boef
-        bœf
-        bœg
-        bpef
-        deja
-        dejà
-        déjà
-        dimanche
-        février
-        janvier
-        lundi
-        mardi
-        mars
-        Meme
-        Mémé
-        même
-        pèché
-        pêche
-        pêche
-        pêché
-        pêché'''
-    # }}}
-
-    def create(l):
-        l = l.decode('utf-8').splitlines()
-        return [x.strip() for x in l if x.strip()]
-
-    def test_strcmp(entries):
-        for x in entries:
-            for y in entries:
-                if strcmp(x, y) != cmp(sort_key(x), sort_key(y)):
-                    print 'strcmp failed for %r, %r'%(x, y)
-
-    german = create(german)
-    c = _icu.Collator('de')
-    c.numeric = True
-    gs = list(sorted(german, key=c.sort_key))
-    if gs != create(german_good):
-        print 'German sorting failed'
-        return
-    print
-    french = create(french)
-    c = _icu.Collator('fr')
-    c.numeric = True
-    fs = list(sorted(french, key=c.sort_key))
-    if fs != create(french_good):
-        print 'French sorting failed (note that French fails with icu < 4.6)'
-        return
-    test_strcmp(german + french)
-
-    print '\nTesting case transforms in current locale'
-    from calibre.utils.titlecase import titlecase
-    for x in ('a', 'Alice\'s code', 'macdonald\'s machine', '02 the wars'):
-        print 'Upper:     ', x, '->', 'py:', x.upper().encode('utf-8'), 'icu:', upper(x).encode('utf-8')
-        print 'Lower:     ', x, '->', 'py:', x.lower().encode('utf-8'), 'icu:', lower(x).encode('utf-8')
-        print 'Title:     ', x, '->', 'py:', x.title().encode('utf-8'), 'icu:', title_case(x).encode('utf-8'), 'titlecase:', titlecase(x).encode('utf-8')
-        print 'Capitalize:', x, '->', 'py:', x.capitalize().encode('utf-8'), 'icu:', capitalize(x).encode('utf-8')
-        print
-
-    print '\nTesting primary collation'
-    for k, v in {u'pèché': u'peche', u'flüße':u'Flusse',
-            u'Štepánek':u'ŠtepaneK'}.iteritems():
-        if primary_strcmp(k, v) != 0:
-            prints('primary_strcmp() failed with %s != %s'%(k, v))
-            return
-        if primary_find(v, u' '+k)[0] != 1:
-            prints('primary_find() failed with %s not in %s'%(v, k))
-            return
-
-    n = character_name(safe_chr(0x1f431))
-    if n != u'CAT FACE':
-        raise ValueError('Failed to get correct character name for 0x1f431: %r != %r' % n, u'CAT FACE')
-
-    global _primary_collator
-    orig = _primary_collator
-    _primary_collator = _icu.Collator('es')
-    if primary_strcmp(u'peña', u'pena') == 0:
-        print 'Primary collation in Spanish locale failed'
-        return
-    _primary_collator = orig
-
-    print '\nTesting contractions'
-    c = _icu.Collator('cs')
-    if icu_contractions(c) != frozenset([u'Z\u030c', u'z\u030c', u'Ch',
-        u'C\u030c', u'ch', u'cH', u'c\u030c', u's\u030c', u'r\u030c', u'CH',
-        u'S\u030c', u'R\u030c']):
-        print 'Contractions for the Czech language failed'
-        return
-
-    print '\nTesting startswith'
-    p = primary_startswith
-    if (not p('asd', 'asd') or not p('asd', 'A') or
-            not p('x', '')):
-        print 'startswith() failed'
-        return
-
-    print '\nTesting collation_order()'
-    for group in [
-        ('Šaa', 'Smith', 'Solženicyn', 'Štepánek'),
-        ('calibre', 'Charon', 'Collins'),
-        ('01', '1'),
-        ('1', '11', '13'),
-    ]:
-        last = None
-        for x in group:
-            val = icu_collation_order(sort_collator(), x)
-            if val[1] != 1:
-                prints('collation_order() returned incorrect length for', x)
-            if last is None:
-                last = val
-            else:
-                if val != last:
-                    prints('collation_order() returned incorrect value for', x)
-            last = val
-
-# }}}
-
-def test_roundtrip():
-    for r in (u'xxx\0\u2219\U0001f431xxx', u'\0', u'', u'simple'):
-        rp = _icu.roundtrip(r)
-        if rp != r:
-            raise ValueError(u'Roundtripping failed: %r != %r' % (r, rp))
-
-def test_normalize_performance():
-    import os
-    if not os.path.exists('t.txt'):
-        return
-    raw = open('t.txt', 'rb').read().decode('utf-8')
-    print (len(raw))
-    import time, unicodedata
-    st = time.time()
-    count = 100
-    for i in xrange(count):
-        normalize(raw)
-    print ('ICU time:', time.time() - st)
-    st = time.time()
-    for i in xrange(count):
-        unicodedata.normalize('NFC', unicode(raw))
-    print ('py time:', time.time() - st)
-
 if __name__ == '__main__':
-    test_roundtrip()
-    test_normalize_performance()
-    test()
+    from calibre.utils.icu_test import run
+    run(verbosity=4)
 

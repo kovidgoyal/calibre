@@ -14,13 +14,13 @@ from PyQt4.Qt import (QLineEdit, QAbstractListModel, Qt, pyqtSignal, QObject,
         QApplication, QListView, QPoint, QModelIndex, QFont, QFontInfo)
 
 from calibre.constants import isosx, get_osx_version
-from calibre.utils.icu import sort_key, primary_startswith, primary_icu_find
+from calibre.utils.icu import sort_key, primary_startswith, primary_find
 from calibre.gui2 import NONE
 from calibre.gui2.widgets import EnComboBox, LineEditECM
 from calibre.utils.config import tweaks
 
 def containsq(x, prefix):
-    return primary_icu_find(prefix, x)[0] != -1
+    return primary_find(prefix, x)[0] != -1
 
 class CompleteModel(QAbstractListModel):  # {{{
 
