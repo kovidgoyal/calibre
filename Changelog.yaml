@@ -20,6 +20,53 @@
 #   new recipes:
 #     - title: 
 
+- version: 1.27.0
+  date: 2014-03-07
+
+  new features:
+    - title: "An option to add multiple books from inside a ZIP or RAR file. Right click the Add Books button and choose 'Add multiple books from archive'."
+
+    - title: "Database backend: Make the database backend more robust when the calibre library is placed on flaky filesystems. Now when an I/O error occurs while writing to the database, the connection to the database is closed and re-opened and the operation is retried."
+      tickets: [1286522]
+
+    - title: "DJVU Input: Speedup extraction of text from DJVU files by implementing the BZZ decoder algorithm in C"
+
+  bug fixes:
+    - title: "MOBI Input: Fix empty <a> tags not being handled correctly in rare cases when the markup is bad enough to be parsed only using the fallback HTML parser."
+      tickets: [1288430]
+
+    - title: "Edit book: Fix column number of cursor shown in the bottom right being one less than it should be."
+
+    - title: "Edit book: Fix names for non-BMP unicode character (Such as emoticons) not being displayed in the lower right corner. Also allow these characters to be searched for by name in the Insert special character tool."
+
+    - title: "Do not show system tray notification popups while analyzing books on device, as they can be slow on systems that display multiple messages serially instead of replacing the last message"
+
+    - title: "Linux installer script: Do not use the filesystem to pass the downloaded tarball to tar as it is possible for malicious code running on the users computer to alter the download file between signature verification and calling tar to extract the files."
+
+    - title: "DJVU Input: When extracting embedded txt from TXTz sections in DJVU files, fix incorrect extraction of txt when the djvutxt external program is not present."
+      tickets: [1286771]
+
+    - title: "Edit Book: Fix import HTML file as new book not working on OS X"
+
+    - title: "Wireless device driver: Fix a regression that prevented it form working with the Calibre Sync Android app."
+
+    - title: "Fix a regression in 1.26 that caused width and height attributes on <img> tags to generate CSS width and height properties without a 'px' suffix"
+
+    - title: "Linux binary installer: Fix an error when using proxies and python 3 with the new installer script"
+      tickets: [1286274]
+
+    - title: "Edit book: When exporting files, fill the choose filename popup with the name of the file being exported as the default name"
+
+    - title: "Make the new Linux installer script compatible with python 2.6."
+      tickets: [1286011]
+
+  improved recipes:
+    - American Thinker
+    - HNA 
+    - Heise
+    - Arguments and Facts
+    - Financial Times
+
 - version: 1.26.0
   date: 2014-02-28
 
