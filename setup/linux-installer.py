@@ -16,7 +16,7 @@ url = 'http://status.calibre-ebook.com/dist/linux'+('64' if is64bit else '32')
 signature_url = 'http://calibre-ebook.com/downloads/signatures/%s.sha512'
 url = os.environ.get('CALIBRE_INSTALLER_LOCAL_URL', url)
 py3 = sys.version_info[0] > 2
-enc = getattr(sys.stdout, 'encoding', 'UTF-8')
+enc = getattr(sys.stdout, 'encoding', 'UTF-8') or 'utf-8'
 calibre_version = signature = None
 urllib = __import__('urllib.request' if py3 else 'urllib', fromlist=1)
 if py3:
@@ -197,7 +197,7 @@ class ProgressBar:
 def prints(*args, **kwargs):  # {{{
     f = kwargs.get('file', sys.stdout.buffer if py3 else sys.stdout)
     end = kwargs.get('end', b'\n')
-    enc = getattr(f, 'encoding', 'utf-8')
+    enc = getattr(f, 'encoding', 'utf-8') or 'utf-8'
 
     if isinstance(end, unicode):
         end = end.encode(enc)
