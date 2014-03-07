@@ -226,7 +226,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
 
     PURGE_CACHE_ENTRIES_DAYS    = 30
 
-    CURRENT_CC_VERSION          = 70
+    CURRENT_CC_VERSION          = 64
 
     ZEROCONF_CLIENT_STRING      = b'calibre wireless device client'
 
