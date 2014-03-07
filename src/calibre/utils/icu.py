@@ -512,10 +512,10 @@ pêché'''
 # }}}
 
 def test_roundtrip():
-    r = u'xxx\0\u2219\U0001f431xxx'
-    rp = _icu.roundtrip(r)
-    if rp != r:
-        raise ValueError(u'Roundtripping failed: %r != %r' % (r, rp))
+    for r in (u'xxx\0\u2219\U0001f431xxx', u'\0', u'', u'simple'):
+        rp = _icu.roundtrip(r)
+        if rp != r:
+            raise ValueError(u'Roundtripping failed: %r != %r' % (r, rp))
 
 def test_normalize_performance():
     import os

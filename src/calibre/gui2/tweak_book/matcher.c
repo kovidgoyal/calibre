@@ -7,6 +7,7 @@
 
 #define NO_ICU_TO_PYTHON
 #include "icu_calibre_utils.h"
+#include <float.h>
 
 #ifdef _MSC_VER
 // inline does not work with the visual studio C compiler
