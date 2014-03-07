@@ -4,7 +4,6 @@ __copyright__ = '2010-2013, Darko Miletic <darko.miletic at gmail.com>'
 www.ft.com/intl/international-edition
 '''
 
-import datetime
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre import strftime
 from calibre.web.feeds.news import BasicNewsRecipe
@@ -13,7 +12,7 @@ from collections import OrderedDict
 class FinancialTimes(BasicNewsRecipe):
     title                 = 'Financial Times (International) printed edition'
     __author__            = 'Darko Miletic'
-    description           = "The Financial Times (FT) is one of the world's leading business news and information organisations, recognised internationally for its authority, integrity and accuracy."
+    description           = "The Financial Times (FT) is one of the world's leading business news and information organisations, recognised internationally for its authority, integrity and accuracy."  # noqa
     publisher             = 'The Financial Times Ltd.'
     category              = 'news, finances, politics, World'
     oldest_article        = 2
@@ -58,7 +57,7 @@ class FinancialTimes(BasicNewsRecipe):
                       dict(name='div', attrs={'id':'floating-con'})
                      ,dict(name=['meta','iframe','base','object','embed','link'])
                      ,dict(attrs={'class':['storyTools','story-package','screen-copy','story-package separator','expandable-image','promobox']})
-                     ,dict(name='div', attrs={'class':lambda x: x and 'insideArticleRelatedTopics' in x.split()} )
+                     ,dict(name='div', attrs={'class':lambda x: x and 'insideArticleRelatedTopics' in x.split()})
                   ]
     remove_attributes = ['width','height','lang']
 
@@ -80,13 +79,13 @@ class FinancialTimes(BasicNewsRecipe):
         for item in elem.findAll('a',href=True):
             count = count + 1
             if self.test and count > 2:
-               return articles
+                return articles
             rawlink = item['href']
             url = rawlink
             if not rawlink.startswith('http://'):
-               url = self.PREFIX + rawlink
+                url = self.PREFIX + rawlink
             try:
-                urlverified = self.browser.open_novisit(url).geturl() # resolve redirect.
+                urlverified = self.browser.open_novisit(url).geturl()  # resolve redirect.
             except:
                 continue
             title = self.tag_to_string(item)
@@ -106,10 +105,11 @@ class FinancialTimes(BasicNewsRecipe):
         #self.timefmt = ' [%s]'%dates
         section_title = 'Untitled'
 
-        for column in soup.findAll('div', attrs = {'class':'feedBoxes clearfix'}):
-            for section in column. findAll('div', attrs = {'class':'feedBox'}):
+        for column in soup.findAll('div', attrs={'class':'feedBoxes clearfix'}):
+            for section in column. findAll('div', attrs={'class':'feedBox'}):
                 sectiontitle=self.tag_to_string(section.find('h4'))
-                if '...' not in sectiontitle: section_title=sectiontitle
+                if '...' not in sectiontitle:
+                    section_title=sectiontitle
                 for article in section.ul.findAll('li'):
                     articles = []
                     title=self.tag_to_string(article.a)
@@ -120,7 +120,6 @@ class FinancialTimes(BasicNewsRecipe):
                         if section_title not in feeds:
                             feeds[section_title] = []
                         feeds[section_title] += articles
-
 
         ans = [(key, val) for key, val in feeds.iteritems()]
         return ans
@@ -138,18 +137,18 @@ class FinancialTimes(BasicNewsRecipe):
         for item in soup.findAll('a'):
             limg = item.find('img')
             if item.string is not None:
-               str = item.string
-               item.replaceWith(str)
+                str = item.string
+                item.replaceWith(str)
             else:
-               if limg:
-                  item.name = 'div'
-                  item.attrs = []
-               else:
-                   str = self.tag_to_string(item)
-                   item.replaceWith(str)
+                if limg:
+                    item.name = 'div'
+                    item.attrs = []
+                else:
+                    str = self.tag_to_string(item)
+                    item.replaceWith(str)
         for item in soup.findAll('img'):
             if not item.has_key('alt'):
-               item['alt'] = 'image'
+                item['alt'] = 'image'
         return soup
 
     def get_obfuscated_article(self, url):
