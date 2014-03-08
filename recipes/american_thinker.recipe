@@ -15,6 +15,7 @@ class AmericanThinker(BasicNewsRecipe):
     max_articles_per_feed = 50
     summary_length        = 150
     language              = 'en'
+    ignore_duplicate_articles = {'title', 'url'}
 
     remove_javascript     = True
     no_stylesheets        = True
@@ -34,4 +35,3 @@ class AmericanThinker(BasicNewsRecipe):
 
     def print_version(self, url):
         return 'http://www.americanthinker.com/assets/3rd_party/printpage/?url=' + url
-        return 'http://www.americanthinker.com/printpage/?url=' + url
