@@ -217,14 +217,17 @@ def test2():
             print ('\tns', item, positions)
 
 def test():
-    items = ['m1mn34o/mno', 'xxx/XXX', 'mxnxox']
+    items = ['mx\U0001f431nxox']
     for q in (PyScorer, CScorer):
         print (q)
         m = Matcher(items, scorer=q)
         for item, positions in m('MNO').iteritems():
             print ('\tMNO', item, positions)
-        for item, positions in m('xxx').iteritems():
-            print ('\txxx', item, positions)
+            if -1 not in positions:
+                for p in positions:
+                    print (item[p], end=' ')
+                print ()
+
 
 def test_mem():
     from calibre.utils.mem import gc_histogram, diff_hists
@@ -277,4 +280,5 @@ def main(basedir=None, query=None):
 
 if __name__ == '__main__':
     # main(basedir='/t', query='ns')
+    # test()
     main()

@@ -160,8 +160,6 @@ static void convert_positions(int32_t *positions, int32_t *final_positions, UCha
 
     if (score == 0.0) { for (i = 0; i < char_len; i++) final_positions[i] = -1; return; }
 
-    if (char_len == byte_len) { memcpy(final_positions, positions, sizeof(*positions) * char_len); return; }
-
     end = final_positions + char_len;
     for (i = 0; i < byte_len && final_positions < end; i++) {
         if (positions[i] == -1) continue;
