@@ -191,6 +191,9 @@ end:
 // Collator.find {{{
 static PyObject *
 icu_Collator_find(icu_Collator *self, PyObject *args, PyObject *kwargs) {
+#if PY_VERSION_HEX >= 0x03030000 
+#error Not implemented for python >= 3.3
+#endif
     PyObject *a_ = NULL, *b_ = NULL;
     UChar *a = NULL, *b = NULL;
     int32_t asz = 0, bsz = 0, pos = -1, length = -1;
@@ -207,10 +210,16 @@ icu_Collator_find(icu_Collator *self, PyObject *args, PyObject *kwargs) {
     search = usearch_openFromCollator(a, asz, b, bsz, self->collator, NULL, &status);
     if (U_SUCCESS(status)) {
         pos = usearch_first(search, &status);
-        if (pos != USEARCH_DONE) 
+        if (pos != USEARCH_DONE) {
             length = usearch_getMatchedLength(search);
-        else
-            pos = -1;
+#ifdef Py_UNICODE_WIDE
+            // We have to return number of unicode characters since the string
+            // could contain surrogate pairs which are represented as a single
+            // character in python wide builds
+            length = u_countChar32(b + pos, length);
+            pos = u_countChar32(b, pos);
+#endif
+        } else pos = -1;
     }
 end:
     if (search != NULL) usearch_close(search);

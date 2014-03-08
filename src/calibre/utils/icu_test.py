@@ -92,7 +92,8 @@ class TestICU(unittest.TestCase):
     def test_find(self):
         ' Test searching for substrings '
         self.ae((1, 1), icu.find(b'a', b'1ab'))
-        self.ae((1, 2), icu.find('\U0001f431', 'x\U0001f431x'))
+        self.ae((1, 1 if sys.maxunicode >= 0x10ffff else 2), icu.find('\U0001f431', 'x\U0001f431x'))
+        self.ae((1 if sys.maxunicode >= 0x10ffff else 2, 1), icu.find('y', '\U0001f431y'))
         self.ae((0, 4), icu.primary_find('pena', 'peña'))
         for k, v in {u'pèché': u'peche', u'flüße':u'Flusse', u'Štepánek':u'ŠtepaneK'}.iteritems():
             self.ae((1, len(k)), icu.primary_find(v, ' ' + k), 'Failed to find %s in %s' % (v, k))
