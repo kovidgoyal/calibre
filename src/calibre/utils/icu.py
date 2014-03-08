@@ -203,6 +203,10 @@ find = _make_func(_strcmp_template, 'find', collator='_collator', collator_func=
 
 primary_find = _make_func(_strcmp_template, 'primary_find', collator='_primary_collator', collator_func='primary_collator', func='find')
 
+contains = _make_func(_strcmp_template, 'contains', collator='_collator', collator_func='collator', func='contains')
+
+primary_contains = _make_func(_strcmp_template, 'primary_contains', collator='_primary_collator', collator_func='primary_collator', func='contains')
+
 startswith = _make_func(_strcmp_template, 'startswith', collator='_collator', collator_func='collator', func='startswith')
 
 primary_startswith = _make_func(_strcmp_template, 'primary_startswith', collator='_primary_collator', collator_func='primary_collator', func='startswith')

@@ -229,6 +229,39 @@ end:
     return (PyErr_Occurred()) ? NULL : Py_BuildValue("ii", pos, length);
 } // }}}
 
+// Collator.contains {{{
+static PyObject *
+icu_Collator_contains(icu_Collator *self, PyObject *args, PyObject *kwargs) {
+    PyObject *a_ = NULL, *b_ = NULL;
+    UChar *a = NULL, *b = NULL;
+    int32_t asz = 0, bsz = 0, pos = -1;
+    uint8_t found = 0;
+    UErrorCode status = U_ZERO_ERROR;
+    UStringSearch *search = NULL;
+  
+    if (!PyArg_ParseTuple(args, "OO", &a_, &b_)) return NULL;
+
+    a = python_to_icu(a_, &asz, 1);
+    if (a == NULL) goto end;
+    if (asz == 0) { found = TRUE; goto end; }
+    b = python_to_icu(b_, &bsz, 1);
+    if (b == NULL) goto end;
+
+    search = usearch_openFromCollator(a, asz, b, bsz, self->collator, NULL, &status);
+    if (U_SUCCESS(status)) {
+        pos = usearch_first(search, &status);
+        if (pos != USEARCH_DONE) found = TRUE;
+    }
+end:
+    if (search != NULL) usearch_close(search);
+    if (a != NULL) free(a);
+    if (b != NULL) free(b);
+
+    if (PyErr_Occurred()) return NULL;
+    if (found) Py_RETURN_TRUE;
+    Py_RETURN_FALSE;
+} // }}}
+
 // Collator.contractions {{{
 static PyObject *
 icu_Collator_contractions(icu_Collator *self, PyObject *args, PyObject *kwargs) {
@@ -364,6 +397,10 @@ static PyMethodDef icu_Collator_methods[] = {
 
     {"find", (PyCFunction)icu_Collator_find, METH_VARARGS,
         "find(pattern, source) -> returns the position and length of the first occurrence of pattern in source. Returns (-1, -1) if not found."
+    },
+
+    {"contains", (PyCFunction)icu_Collator_contains, METH_VARARGS,
+        "contains(pattern, source) -> return True iff the pattern was found in the source."
     },
 
     {"contractions", (PyCFunction)icu_Collator_contractions, METH_VARARGS,

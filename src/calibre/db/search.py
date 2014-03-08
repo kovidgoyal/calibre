@@ -16,7 +16,7 @@ from calibre.constants import preferred_encoding
 from calibre.db.utils import force_to_bool
 from calibre.utils.config_base import prefs
 from calibre.utils.date import parse_date, UNDEFINED_DATE, now, dt_as_local
-from calibre.utils.icu import primary_find, sort_key
+from calibre.utils.icu import primary_contains, sort_key
 from calibre.utils.localization import lang_map, canonicalize_lang
 from calibre.utils.search_query_parser import SearchQueryParser, ParseException
 
@@ -73,7 +73,7 @@ def _match(query, value, matchkind, use_primary_find_in_search=True):
                     return True
             elif matchkind == CONTAINS_MATCH:
                 if use_primary_find_in_search:
-                    if primary_find(query, t)[0] != -1:
+                    if primary_contains(query, t):
                         return True
                 elif query in t:
                         return True

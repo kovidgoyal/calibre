@@ -102,6 +102,12 @@ class TestICU(unittest.TestCase):
         self.assertFalse(icu.startswith('xyz', 'a'))
         self.assertTrue(icu.startswith('xxx', ''))
         self.assertTrue(icu.primary_startswith('pena', 'peña'))
+        self.assertTrue(icu.contains('\U0001f431', '\U0001f431'))
+        self.assertTrue(icu.contains('something', 'some other something else'))
+        self.assertTrue(icu.contains('', 'a'))
+        self.assertTrue(icu.contains('', ''))
+        self.assertFalse(icu.contains('xxx', 'xx'))
+        self.assertTrue(icu.primary_contains('pena', 'peña'))
 
     def test_collation_order(self):
         'Testing collation ordering'
