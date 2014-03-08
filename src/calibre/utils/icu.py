@@ -247,6 +247,16 @@ def contractions(col=None):
 
 ################################################################################
 
+if not hasattr(_icu, 'change_case'):
+    print ('You are running from source with an outdated calibre binary install. You'
+           ' should update the main calibre binary to at least version 1.28.')
+    # Dont creak calibre for people running from source until the
+    # next binary is available witht he update icu module
+    from calibre.utils.icu_old import *  # noqa
+
+    def primary_contains(pat, src):
+        return primary_find(pat, src)[0] != -1
+
 if __name__ == '__main__':
     from calibre.utils.icu_test import run
     run(verbosity=4)
