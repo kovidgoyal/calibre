@@ -131,6 +131,12 @@ icu_Collator_actual_locale(icu_Collator *self, void *closure) {
 
 // }}}
 
+// Collator.capsule {{{
+static PyObject *
+icu_Collator_capsule(icu_Collator *self, void *closure) {
+    return PyCapsule_New(self->collator, NULL, NULL);
+} // }}}
+
 // Collator.sort_key {{{
 static PyObject *
 icu_Collator_sort_key(icu_Collator *self, PyObject *args, PyObject *kwargs) {
@@ -409,6 +415,11 @@ static PyGetSetDef  icu_Collator_getsetters[] = {
     {(char *)"actual_locale", 
      (getter)icu_Collator_actual_locale, NULL,
      (char *)"Actual locale used by this collator.",
+     NULL},
+
+    {(char *)"capsule", 
+     (getter)icu_Collator_capsule, NULL,
+     (char *)"A capsule enclosing the pointer to the ICU collator struct",
      NULL},
 
     {(char *)"display_name", 
