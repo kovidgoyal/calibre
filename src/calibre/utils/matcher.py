@@ -6,17 +6,20 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import atexit
+import atexit, os, sys
 from math import ceil
 from unicodedata import normalize
 from threading import Thread, Lock
 from Queue import Queue
+from operator import itemgetter
+from collections import OrderedDict
+from itertools import islice
 
 from itertools import izip
 from future_builtins import map
 
-from calibre import detect_ncpus as cpu_count
-from calibre.constants import plugins
+from calibre import detect_ncpus as cpu_count, as_unicode
+from calibre.constants import plugins, filesystem_encoding
 from calibre.utils.icu import primary_sort_key, primary_find, primary_collator
 
 DEFAULT_LEVEL1 = '/'
@@ -38,35 +41,35 @@ class Worker(Thread):
             if x is None:
                 break
             try:
-                self.results.put((True, self.process_query(*x)))
-            except:
-                import traceback
-                self.results.put((False, traceback.format_exc()))
+                i, scorer, query = x
+                self.results.put((True, (i, scorer(query))))
+            except Exception as e:
+                self.results.put((False, as_unicode(e)))
+                # import traceback
+                # traceback.print_exc()
 wlock = Lock()
 workers = []
 
 def split(tasks, pool_size):
     '''
     Split a list into a list of sub lists, with the number of sub lists being
-    no more than the number of workers this server supports. Each sublist contains
+    no more than pool_size. Each sublist contains
     2-tuples of the form (i, x) where x is an element from the original list
     and i is the index of the element x in the original list.
     '''
-    ans, count, pos = [], 0, 0
+    ans, count = [], 0
     delta = int(ceil(len(tasks)/pool_size))
-    while count < len(tasks):
-        section = []
-        for t in tasks[pos:pos+delta]:
-            section.append((count, t))
-            count += 1
+    while tasks:
+        section = [(count+i, task) for i, task in enumerate(tasks[:delta])]
+        tasks = tasks[delta:]
+        count += len(section)
         ans.append(section)
-        pos += delta
     return ans
 
 
 class Matcher(object):
 
-    def __init__(self, items, level1=DEFAULT_LEVEL1, level2=DEFAULT_LEVEL2, level3=DEFAULT_LEVEL3):
+    def __init__(self, items, level1=DEFAULT_LEVEL1, level2=DEFAULT_LEVEL2, level3=DEFAULT_LEVEL3, scorer=None):
         with wlock:
             if not workers:
                 requests, results = Queue(), Queue()
@@ -75,12 +78,57 @@ class Matcher(object):
                 workers.extend(w)
         items = map(lambda x: normalize('NFC', unicode(x)), filter(None, items))
         self.items = items = tuple(items)
-        self.sort_keys = tuple(map(primary_sort_key, items))
+        tasks = split(items, len(workers))
+        self.task_maps = [{j:i for j, (i, _) in enumerate(task)} for task in tasks]
+        scorer = scorer or CScorer
+        self.scorers = [scorer(tuple(map(itemgetter(1), task_items))) for task_items in tasks]
+        self.sort_keys = None
 
     def __call__(self, query):
-        query = normalize('NFC', unicode(query)).encode('utf-8')
-        return map(lambda x:x.decode('utf-8'), self.m.get_matches(query))
+        query = normalize('NFC', unicode(query))
+        with wlock:
+            for i, scorer in enumerate(self.scorers):
+                workers[0].requests.put((i, scorer, query))
+            if self.sort_keys is None:
+                self.sort_keys = {i:primary_sort_key(x) for i, x in enumerate(self.items)}
+            num = len(self.task_maps)
+            scores, positions = {}, {}
+            error = None
+            while num > 0:
+                ok, x = workers[0].results.get()
+                num -= 1
+                if ok:
+                    task_num, vals = x
+                    task_map = self.task_maps[task_num]
+                    for i, (score, pos) in enumerate(vals):
+                        item = task_map[i]
+                        scores[item] = score
+                        positions[item] = pos
+                else:
+                    error = x
 
+        if error is not None:
+            raise Exception('Failed to score items: %s' % error)
+        items = sorted(((-scores[i], item, positions[i]) for i, item in enumerate(self.items)),
+                       key=itemgetter(0))
+        return OrderedDict(x[1:] for x in items)
+
+def get_items_from_dir(basedir):
+    if isinstance(basedir, bytes):
+        basedir = basedir.decode(filesystem_encoding)
+    relsep = os.sep != '/'
+    for dirpath, dirnames, filenames in os.walk(basedir):
+        for f in filenames:
+            x = os.path.join(dirpath, f)
+            x = os.path.relpath(x, basedir)
+            if relsep:
+                x = x.replace(os.sep, '/')
+            yield x
+
+class FilesystemMatcher(Matcher):
+
+    def __init__(self, basedir, *args, **kwargs):
+        Matcher.__init__(self, get_items_from_dir(basedir), *args, **kwargs)
 
 def calc_score_for_char(ctx, prev, current, distance):
     factor = 1.0
@@ -112,10 +160,11 @@ def process_item(ctx, haystack, needle):
                 if (len(haystack) - hidx < len(needle) - i):
                     score = 0
                     break
-                pos = primary_find(n, haystack[hidx:])[0] + hidx
+                pos = primary_find(n, haystack[hidx:])[0]
                 if pos == -1:
                     score = 0
                     break
+                pos += hidx
 
                 distance = pos - last_idx
                 score_for_char = ctx.max_score_per_char if distance <= 1 else calc_score_for_char(ctx, haystack[pos-1], haystack[pos], distance)
@@ -137,7 +186,7 @@ class PyScorer(object):
     def __init__(self, items, level1=DEFAULT_LEVEL1, level2=DEFAULT_LEVEL2, level3=DEFAULT_LEVEL3):
         self.level1, self.level2, self.level3 = level1, level2, level3
         self.max_score_per_char = 0
-        self.items = map(lambda x: normalize('NFC', unicode(x)), filter(None, items))
+        self.items = items
 
     def __call__(self, needle):
         for item in self.items:
@@ -148,7 +197,6 @@ class PyScorer(object):
 class CScorer(object):
 
     def __init__(self, items, level1=DEFAULT_LEVEL1, level2=DEFAULT_LEVEL2, level3=DEFAULT_LEVEL3):
-        items = tuple(map(lambda x: normalize('NFC', unicode(x)), filter(None, items)))
 
         speedup, err = plugins['matcher']
         if speedup is None:
@@ -156,23 +204,32 @@ class CScorer(object):
         self.m = speedup.Matcher(items, primary_collator().capsule, unicode(level1), unicode(level2), unicode(level3))
 
     def __call__(self, query):
-        query = normalize('NFC', unicode(query))
         scores, positions = self.m.calculate_scores(query)
         for score, pos in izip(scores, positions):
             yield score, pos
 
-def test():
-    items = ['m1mn34o/mno']
-    s = PyScorer(items)
-    c = CScorer(items)
-    for q in (s, c):
+def test2():
+    items = ['.driveinfo.calibre', 'Suspense.xls', 'p/parsed/content.opf', 'ns.html']
+    for q in (PyScorer, CScorer):
         print (q)
-        for item, (score, positions) in izip(items, q('MNO')):
-            print (item, score, positions)
+        m = Matcher(items, scorer=q)
+        for item, positions in m('ns').iteritems():
+            print ('\tns', item, positions)
+
+def test():
+    items = ['m1mn34o/mno', 'xxx/XXX', 'mxnxox']
+    for q in (PyScorer, CScorer):
+        print (q)
+        m = Matcher(items, scorer=q)
+        for item, positions in m('MNO').iteritems():
+            print ('\tMNO', item, positions)
+        for item, positions in m('xxx').iteritems():
+            print ('\txxx', item, positions)
 
 def test_mem():
     from calibre.utils.mem import gc_histogram, diff_hists
-    m = Matcher([])
+    m = Matcher(['a'])
+    m('a')
     del m
     def doit(c):
         m = Matcher([c+'im/one.gif', c+'im/two.gif', c+'text/one.html',])
@@ -182,12 +239,42 @@ def test_mem():
     h1 = gc_histogram()
     for i in xrange(100):
         doit(str(i))
+    gc.collect()
     h2 = gc_histogram()
     diff_hists(h1, h2)
 
+def main(basedir=None, query=None):
+    from calibre import prints
+    from calibre.utils.terminal import ColoredStream
+    if basedir is None:
+        try:
+            basedir = raw_input('Enter directory to scan [%s]: ' % os.getcwdu()).decode(sys.stdin.encoding).strip() or os.getcwdu()
+        except (EOFError, KeyboardInterrupt):
+            return
+    m = FilesystemMatcher(basedir)
+    emph = ColoredStream(sys.stdout, fg='red', bold=True)
+    while True:
+        if query is None:
+            try:
+                query = raw_input('Enter query: ').decode(sys.stdin.encoding)
+            except (EOFError, KeyboardInterrupt):
+                break
+            if not query:
+                break
+        for path, positions in islice(m(query).iteritems(), 0, 10):
+            positions = list(positions)
+            p = 0
+            while positions:
+                pos = positions.pop(0)
+                if pos == -1:
+                    break
+                prints(path[p:pos], end='')
+                with emph:
+                    prints(path[pos], end='')
+                p = pos + 1
+            prints(path[p:])
+        query = None
+
 if __name__ == '__main__':
-    test()
-    # m = Matcher(['image/one.png', 'image/two.gif', 'text/one.html'])
-    # for q in ('one', 'ONE', 'ton', 'imo'):
-    #     print (q, '->', tuple(m(q)))
-    # test_mem()
+    # main(basedir='/t', query='ns')
+    main()

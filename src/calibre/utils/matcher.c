@@ -158,10 +158,9 @@ static void convert_positions(int32_t *positions, int32_t *final_positions, UCha
     // The positions array stores character positions as byte offsets in string, convert them into character offsets
     int32_t i, *end;
 
-    if (score == 0.0) {
-        for (i = 0; i < char_len; i++) final_positions[i] = -1;
-        return;
-    }
+    if (score == 0.0) { for (i = 0; i < char_len; i++) final_positions[i] = -1; return; }
+
+    if (char_len == byte_len) { memcpy(final_positions, positions, sizeof(*positions) * char_len); return; }
 
     end = final_positions + char_len;
     for (i = 0; i < byte_len && final_positions < end; i++) {
@@ -293,16 +292,14 @@ static bool match(UChar **items, int32_t *item_lengths, uint32_t item_count, UCh
     if (stack.items == NULL || memo == NULL) {PyErr_NoMemory(); goto end;}
 
     for (i = 0; i < (int32_t)item_count; i++) {
-        for (r = 0; r < needle_len; r++) {
-            positions[r] = -1;
-        }
+        for (r = 0; r < needle_len; r++)  positions[r] = -1;
         stack_clear(&stack);
         clear_memory(memo, needle_len, matches[i].haystack_len);
         free_searches(searches, needle_len);
         if (!create_searches(searches, matches[i].haystack, matches[i].haystack_len, needle, needle_len, collator)) goto end;
         matches[i].memo = memo;
         match_results[i].score = process_item(&matches[i], &stack, positions, searches);
-        convert_positions(positions, final_positions + i, matches[i].haystack, needle_char_len, needle_len, match_results[i].score);
+        convert_positions(positions, final_positions + i * needle_char_len, matches[i].haystack, needle_char_len, needle_len, match_results[i].score);
     }
 
     ok = TRUE;
@@ -430,7 +427,7 @@ Matcher_calculate_scores(Matcher *self, PyObject *args) {
             score = PyFloat_FromDouble(matches[i].score);
             if (score == NULL) { PyErr_NoMemory(); goto end; }
             PyTuple_SET_ITEM(items, (Py_ssize_t)i, score);
-            p = final_positions + i;
+            p = final_positions + (i * needle_char_len);
             for (j = 0; j < needle_char_len; j++) {
                 score = PyInt_FromLong((long)p[j]);
                 if (score == NULL) { PyErr_NoMemory(); goto end; }
