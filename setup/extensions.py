@@ -179,12 +179,12 @@ extensions = [
     ),
 
     Extension('matcher',
-        ['calibre/gui2/tweak_book/matcher.c'],
+        ['calibre/utils/matcher.c'],
         headers=['calibre/utils/icu_calibre_utils.h'],
         libraries=icu_libs,
         lib_dirs=icu_lib_dirs,
         cflags=icu_cflags,
-        inc_dirs=icu_inc_dirs  + ['calibre/utils']
+        inc_dirs=icu_inc_dirs
     ),
 
     Extension('podofo',
