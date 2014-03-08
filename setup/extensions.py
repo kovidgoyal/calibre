@@ -303,9 +303,10 @@ if islinux or isosx:
 if isunix:
     cc = os.environ.get('CC', 'gcc')
     cxx = os.environ.get('CXX', 'g++')
+    debug = ''
+    # debug = '-ggdb'
     cflags = os.environ.get('OVERRIDE_CFLAGS',
-        # '-Wall -DNDEBUG -ggdb -fno-strict-aliasing -pipe')
-        '-Wall -DNDEBUG -fno-strict-aliasing -pipe')
+        '-Wall -DNDEBUG %s -fno-strict-aliasing -pipe' % debug)
     cflags = shlex.split(cflags) + ['-fPIC']
     ldflags = os.environ.get('OVERRIDE_LDFLAGS', '-Wall')
     ldflags = shlex.split(ldflags)
