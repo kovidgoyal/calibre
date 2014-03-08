@@ -21,7 +21,10 @@
 #include <unicode/utrans.h>
 #include <unicode/unorm.h>
 
-#if PY_VERSION_HEX < 0x03030000 
+#if PY_VERSION_HEX >= 0x03030000 
+#error Not implemented for python >= 3.3
+#endif
+
 // Roundtripping will need to be implemented differently for python 3.3+ where strings are stored with variable widths
 
 #ifndef NO_PYTHON_TO_ICU
@@ -67,5 +70,4 @@ static PyObject* icu_to_python(UChar *src, int32_t sz) {
 }
 #endif
 
-#endif
 
