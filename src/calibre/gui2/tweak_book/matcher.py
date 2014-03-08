@@ -6,29 +6,76 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
+import atexit
+from math import ceil
 from unicodedata import normalize
+from threading import Thread, Lock
+from Queue import Queue
 
 from itertools import izip
 from future_builtins import map
 
+from calibre import detect_ncpus as cpu_count
 from calibre.constants import plugins
-from calibre.utils.icu import primary_sort_key, find
+from calibre.utils.icu import primary_sort_key, primary_find, primary_collator
 
 DEFAULT_LEVEL1 = '/'
 DEFAULT_LEVEL2 = '-_ 0123456789'
 DEFAULT_LEVEL3 = '.'
 
+class Worker(Thread):
+
+    daemon = True
+
+    def __init__(self, requests, results):
+        Thread.__init__(self)
+        self.requests, self.results = requests, results
+        atexit.register(lambda : requests.put(None))
+
+    def run(self):
+        while True:
+            x = self.requests.get()
+            if x is None:
+                break
+            try:
+                self.results.put((True, self.process_query(*x)))
+            except:
+                import traceback
+                self.results.put((False, traceback.format_exc()))
+wlock = Lock()
+workers = []
+
+def split(tasks, pool_size):
+    '''
+    Split a list into a list of sub lists, with the number of sub lists being
+    no more than the number of workers this server supports. Each sublist contains
+    2-tuples of the form (i, x) where x is an element from the original list
+    and i is the index of the element x in the original list.
+    '''
+    ans, count, pos = [], 0, 0
+    delta = int(ceil(len(tasks)/pool_size))
+    while count < len(tasks):
+        section = []
+        for t in tasks[pos:pos+delta]:
+            section.append((count, t))
+            count += 1
+        ans.append(section)
+        pos += delta
+    return ans
+
+
 class Matcher(object):
 
     def __init__(self, items, level1=DEFAULT_LEVEL1, level2=DEFAULT_LEVEL2, level3=DEFAULT_LEVEL3):
+        with wlock:
+            if not workers:
+                requests, results = Queue(), Queue()
+                w = [Worker(requests, results) for i in range(max(1, cpu_count()))]
+                [x.start() for x in w]
+                workers.extend(w)
         items = map(lambda x: normalize('NFC', unicode(x)), filter(None, items))
-        items = tuple(map(lambda x: x.encode('utf-8'), items))
-        sort_keys = tuple(map(primary_sort_key, items))
-
-        speedup, err = plugins['matcher']
-        if speedup is None:
-            raise RuntimeError('Failed to load the matcher plugin with error: %s' % err)
-        self.m = speedup.Matcher(items, sort_keys, level1.encode('utf-8'), level2.encode('utf-8'), level3.encode('utf-8'))
+        self.items = items = tuple(items)
+        self.sort_keys = tuple(map(primary_sort_key, items))
 
     def __call__(self, query):
         query = normalize('NFC', unicode(query)).encode('utf-8')
@@ -65,7 +112,7 @@ def process_item(ctx, haystack, needle):
                 if (len(haystack) - hidx < len(needle) - i):
                     score = 0
                     break
-                pos = find(n, haystack[hidx:])[0] + hidx
+                pos = primary_find(n, haystack[hidx:])[0] + hidx
                 if pos == -1:
                     score = 0
                     break
@@ -106,7 +153,7 @@ class CScorer(object):
         speedup, err = plugins['matcher']
         if speedup is None:
             raise RuntimeError('Failed to load the matcher plugin with error: %s' % err)
-        self.m = speedup.Matcher(items, unicode(level1), unicode(level2), unicode(level3))
+        self.m = speedup.Matcher(items, primary_collator().capsule, unicode(level1), unicode(level2), unicode(level3))
 
     def __call__(self, query):
         query = normalize('NFC', unicode(query))
@@ -120,7 +167,7 @@ def test():
     c = CScorer(items)
     for q in (s, c):
         print (q)
-        for item, (score, positions) in izip(items, q('mno')):
+        for item, (score, positions) in izip(items, q('MNO')):
             print (item, score, positions)
 
 def test_mem():
