@@ -38,6 +38,7 @@ from calibre.gui2.tweak_book.editor import editor_from_syntax, syntax_from_mime
 from calibre.gui2.tweak_book.editor.insert_resource import get_resource_data, NewBook
 from calibre.gui2.tweak_book.preferences import Preferences
 from calibre.gui2.tweak_book.widgets import RationalizeFolders, MultiSplit, ImportForeign
+from calibre.gui2.tweak_book.widgets import QuickOpen
 
 _diff_dialogs = []
 
@@ -1128,6 +1129,13 @@ class Boss(QObject):
                 self.gui, _('Unsupported file format'),
                 _('Editing files of type %s is not supported' % mime), show=True)
         return self.edit_file(name, syntax)
+
+    def quick_open(self):
+        c = current_container()
+        files = [name for name, mime in c.mime_map.iteritems() if c.exists(name) and syntax_from_mime(name, mime) is not None]
+        d = QuickOpen(files, parent=self.gui)
+        if d.exec_() == d.Accepted and d.selected_result is not None:
+            self.edit_file_requested(d.selected_result, None, c.mime_map[d.selected_result])
 
     # Editor basic controls {{{
     def do_editor_undo(self):

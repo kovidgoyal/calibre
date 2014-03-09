@@ -302,6 +302,8 @@ class Main(MainWindow):
         self.action_new_book = reg('book.png', _('Create &new, empty book'), self.boss.new_book, 'new-book', (), _('Create a new, empty book'))
         self.action_import_book = reg('book.png', _('&Import an HTML or DOCX file as a new book'),
                                       self.boss.import_book, 'import-book', (), _('Import an HTML or DOCX file as a new book'))
+        self.action_quick_edit = reg('modified.png', _('&Quick open a file to edit'), self.boss.quick_open, 'quick-open', ('Ctrl+T'), _(
+            'Quickly open a file from the book to edit it'))
 
         # Editor actions
         group = _('Editor actions')
@@ -430,6 +432,7 @@ class Main(MainWindow):
         f = b.addMenu(_('&File'))
         f.addAction(self.action_new_file)
         f.addAction(self.action_import_files)
+        f.addSeparator()
         f.addAction(self.action_open_book)
         f.addAction(self.action_new_book)
         f.addAction(self.action_import_book)
@@ -455,6 +458,7 @@ class Main(MainWindow):
         e.addAction(self.action_editor_paste)
         e.addAction(self.action_insert_char)
         e.addSeparator()
+        e.addAction(self.action_quick_edit)
         e.addAction(self.action_preferences)
 
         e = b.addMenu(_('&Tools'))
