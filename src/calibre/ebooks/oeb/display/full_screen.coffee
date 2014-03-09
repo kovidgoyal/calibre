@@ -25,9 +25,10 @@ class FullScreen
         this.initial_left_margin = bs.marginLeft
         this.initial_right_margin = bs.marginRight
 
-    on: (max_text_width, in_paged_mode) ->
+    on: (max_text_width, max_text_height, in_paged_mode) ->
         if in_paged_mode
             window.paged_display.max_col_width = max_text_width
+            window.paged_display.max_col_height = max_text_height
         else
             s = document.body.style
             s.maxWidth = max_text_width + 'px'

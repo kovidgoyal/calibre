@@ -35,6 +35,10 @@ def config(defaults=None):
         help=_("Set the maximum width that the book's text and pictures will take"
         " when in fullscreen mode. This allows you to read the book text"
         " without it becoming too wide."))
+    c.add_opt('max_fs_height', default=-1,
+        help=_("Set the maximum height that the book's text and pictures will take"
+        " when in fullscreen mode. This allows you to read the book text"
+        " without it becoming too tall. Note that this setting only takes effect in paged mode (which is the default mode)."))
     c.add_opt('fit_images', default=True,
             help=_('Resize images larger than the viewer window to fit inside it'))
     c.add_opt('hyphenate', default=False, help=_('Hyphenate text'))
@@ -211,6 +215,7 @@ class ConfigDialog(QDialog, Ui_Dialog):
                 {'serif':0, 'sans':1, 'mono':2}[opts.standard_font])
         self.css.setPlainText(opts.user_css)
         self.max_fs_width.setValue(opts.max_fs_width)
+        self.max_fs_height.setValue(opts.max_fs_height)
         pats, names = self.hyphenate_pats, self.hyphenate_names
         try:
             idx = pats.index(opts.hyphenate_default_lang)
@@ -287,6 +292,10 @@ class ConfigDialog(QDialog, Ui_Dialog):
         c.set('remember_window_size', self.opt_remember_window_size.isChecked())
         c.set('fit_images', self.opt_fit_images.isChecked())
         c.set('max_fs_width', int(self.max_fs_width.value()))
+        max_fs_height = self.max_fs_height.value()
+        if max_fs_height <= self.max_fs_height.minimum():
+            max_fs_height = -1
+        c.set('max_fs_height', max_fs_height)
         c.set('hyphenate', self.hyphenate.isChecked())
         c.set('remember_current_page', self.opt_remember_current_page.isChecked())
         c.set('wheel_flips_pages', self.opt_wheel_flips_pages.isChecked())
