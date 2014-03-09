@@ -111,19 +111,20 @@ class Matcher(object):
             raise Exception('Failed to score items: %s' % error)
         items = sorted(((-scores[i], item, positions[i]) for i, item in enumerate(self.items)),
                        key=itemgetter(0))
-        return OrderedDict(x[1:] for x in items)
+        return OrderedDict(x[1:] for x in filter(itemgetter(0), items))
 
-def get_items_from_dir(basedir):
+def get_items_from_dir(basedir, acceptq=lambda x: True):
     if isinstance(basedir, bytes):
         basedir = basedir.decode(filesystem_encoding)
     relsep = os.sep != '/'
     for dirpath, dirnames, filenames in os.walk(basedir):
         for f in filenames:
             x = os.path.join(dirpath, f)
-            x = os.path.relpath(x, basedir)
-            if relsep:
-                x = x.replace(os.sep, '/')
-            yield x
+            if acceptq(x):
+                x = os.path.relpath(x, basedir)
+                if relsep:
+                    x = x.replace(os.sep, '/')
+                yield x
 
 class FilesystemMatcher(Matcher):
 
