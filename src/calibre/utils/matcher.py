@@ -139,6 +139,7 @@ class FilesystemMatcher(Matcher):
     def __init__(self, basedir, *args, **kwargs):
         Matcher.__init__(self, get_items_from_dir(basedir), *args, **kwargs)
 
+# Python implementation of the scoring algorithm {{{
 def calc_score_for_char(ctx, prev, current, distance):
     factor = 1.0
     ans = ctx.max_score_per_char
@@ -202,11 +203,11 @@ class PyScorer(object):
             self.max_score_per_char = (1.0 / len(item) + 1.0 / len(needle)) / 2.0
             self.memory = {}
             yield process_item(self, item, needle)
+# }}}
 
 class CScorer(object):
 
     def __init__(self, items, level1=DEFAULT_LEVEL1, level2=DEFAULT_LEVEL2, level3=DEFAULT_LEVEL3):
-
         speedup, err = plugins['matcher']
         if speedup is None:
             raise PluginFailed('Failed to load the matcher plugin with error: %s' % err)
@@ -216,14 +217,6 @@ class CScorer(object):
         scores, positions = self.m.calculate_scores(query)
         for score, pos in izip(scores, positions):
             yield score, pos
-
-def test2():
-    items = ['.driveinfo.calibre', 'Suspense.xls', 'p/parsed/content.opf', 'ns.html']
-    for q in (PyScorer, CScorer):
-        print (q)
-        m = Matcher(items, scorer=q)
-        for item, positions in m('ns').iteritems():
-            print ('\tns', item, positions)
 
 def test():
     items = ['mx\U0001f431nxox']
@@ -236,7 +229,6 @@ def test():
                 for p in positions:
                     print (item[p], end=' ')
                 print ()
-
 
 def test_mem():
     from calibre.utils.mem import gc_histogram, diff_hists
@@ -254,6 +246,13 @@ def test_mem():
     gc.collect()
     h2 = gc_histogram()
     diff_hists(h1, h2)
+
+if sys.maxunicode >= 0x10ffff:
+    get_char = lambda string, pos: string[pos]
+else:
+    def get_char(string, pos):
+        chs = 2 if ('\ud800' <= string[pos] <= '\udbff') else 1  # UTF-16 surrogate pair in python narrow builds
+        return string[pos:pos+chs]
 
 def main(basedir=None, query=None):
     from calibre import prints
@@ -279,11 +278,12 @@ def main(basedir=None, query=None):
             while positions:
                 pos = positions.pop(0)
                 if pos == -1:
-                    break
+                    continue
                 prints(path[p:pos], end='')
+                ch = get_char(path, pos)
                 with emph:
-                    prints(path[pos], end='')
-                p = pos + 1
+                    prints(ch, end='')
+                p = pos + len(ch)
             prints(path[p:])
         query = None
 

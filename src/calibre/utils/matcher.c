@@ -155,6 +155,10 @@ static double calc_score_for_char(MatchInfo *m, UChar32 last, UChar32 current, i
 }
 
 static void convert_positions(int32_t *positions, int32_t *final_positions, UChar *string, int32_t char_len, int32_t byte_len, double score) {
+#if PY_VERSION_HEX >= 0x03030000 
+#error Not implemented for python >= 3.3
+#endif
+
     // The positions array stores character positions as byte offsets in string, convert them into character offsets
     int32_t i, *end;
 
@@ -163,7 +167,11 @@ static void convert_positions(int32_t *positions, int32_t *final_positions, UCha
     end = final_positions + char_len;
     for (i = 0; i < byte_len && final_positions < end; i++) {
         if (positions[i] == -1) continue;
+#ifdef Py_UNICODE_WIDE
         *final_positions = u_countChar32(string, positions[i]);
+#else
+        *final_positions = positions[i];
+#endif
         final_positions += 1;
     }
 }

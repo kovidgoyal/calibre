@@ -17,6 +17,7 @@ from PyQt4.Qt import (
 from calibre import prepare_string_for_xml
 from calibre.gui2 import error_dialog, choose_files, choose_save_file
 from calibre.gui2.tweak_book import tprefs
+from calibre.utils.matcher import get_char, Matcher
 
 class Dialog(QDialog):
 
@@ -309,7 +310,8 @@ class Results(QWidget):
         positions = sorted(set(positions) - {-1}, reverse=True)
         text = prepare_string_for_xml(text)
         for p in positions:
-            text = '%s<span style="%s">%s</span>%s' % (text[:p], self.EMPH, text[p], text[p+1:])
+            ch = get_char(text, p)
+            text = '%s<span style="%s">%s</span>%s' % (text[:p], self.EMPH, ch, text[p+len(ch):])
         text = QStaticText(text)
         text.setTextFormat(Qt.RichText)
         return text
@@ -363,7 +365,6 @@ class Results(QWidget):
 class QuickOpen(Dialog):
 
     def __init__(self, items, parent=None):
-        from calibre.utils.matcher import Matcher
         self.matcher = Matcher(items)
         self.matches = ()
         self.selected_result = None
