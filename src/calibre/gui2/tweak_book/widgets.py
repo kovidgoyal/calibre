@@ -12,7 +12,7 @@ from itertools import izip
 from PyQt4.Qt import (
     QDialog, QDialogButtonBox, QGridLayout, QLabel, QLineEdit, QVBoxLayout,
     QFormLayout, QHBoxLayout, QToolButton, QIcon, QApplication, Qt, QWidget,
-    QPoint, QSizePolicy, QPainter, QStaticText, pyqtSignal)
+    QPoint, QSizePolicy, QPainter, QStaticText, pyqtSignal, QTextOption)
 
 from calibre import prepare_string_for_xml
 from calibre.gui2 import error_dialog, choose_files, choose_save_file
@@ -247,6 +247,8 @@ class Results(QWidget):
         self.mouse_hover_result = -1
         self.setMouseTracking(True)
         self.setFocusPolicy(Qt.NoFocus)
+        self.text_option = to = QTextOption()
+        to.setWrapMode(to.NoWrap)
 
     def item_from_y(self, y):
         if not self.results:
@@ -294,6 +296,7 @@ class Results(QWidget):
         if results:
             self.current_result = 0
             prefixes = [QStaticText('<b>%s</b>' % os.path.basename(x)) for x in results]
+            [(p.setTextFormat(Qt.RichText), p.setTextOption(self.text_option)) for p in prefixes]
             self.maxwidth = max([x.size().width() for x in prefixes])
             divider = QStaticText('\xa0→ \xa0')
             divider.setTextFormat(Qt.PlainText)
@@ -313,6 +316,7 @@ class Results(QWidget):
             ch = get_char(text, p)
             text = '%s<span style="%s">%s</span>%s' % (text[:p], self.EMPH, ch, text[p+len(ch):])
         text = QStaticText(text)
+        text.setTextOption(self.text_option)
         text.setTextFormat(Qt.RichText)
         return text
 
@@ -349,7 +353,6 @@ class Results(QWidget):
                         p.setPen(Qt.DotLine)
                     p.drawLine(offset, QPoint(self.width(), offset.y()))
                     p.restore()
-                offset.setY(offset.y())
         else:
             p.drawText(self.rect(), Qt.AlignCenter, _('No results found'))
 
@@ -427,7 +430,7 @@ class QuickOpen(Dialog):
     def test(cls):
         import os
         from calibre.utils.matcher import get_items_from_dir
-        items = get_items_from_dir(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), lambda x:not x.endswith('.pyc'))
+        items = get_items_from_dir(os.getcwdu(), lambda x:not x.endswith('.pyc'))
         d = cls(items)
         d.exec_()
         print (d.selected_result)
