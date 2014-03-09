@@ -219,33 +219,43 @@ class CScorer(object):
             yield score, pos
 
 def test():
-    items = ['mx\U0001f431nxox']
-    for q in (PyScorer, CScorer):
-        print (q)
-        m = Matcher(items, scorer=q)
-        for item, positions in m('MNO').iteritems():
-            print ('\tMNO', item, positions)
-            if -1 not in positions:
-                for p in positions:
-                    print (item[p], end=' ')
-                print ()
+    import unittest
 
-def test_mem():
-    from calibre.utils.mem import gc_histogram, diff_hists
-    m = Matcher(['a'])
-    m('a')
-    del m
-    def doit(c):
-        m = Matcher([c+'im/one.gif', c+'im/two.gif', c+'text/one.html',])
-        m('one')
-    import gc
-    gc.collect()
-    h1 = gc_histogram()
-    for i in xrange(100):
-        doit(str(i))
-    gc.collect()
-    h2 = gc_histogram()
-    diff_hists(h1, h2)
+    class Test(unittest.TestCase):
+
+        def test_mem_leaks(self):
+            import gc
+            from calibre.utils.mem import get_memory as memory
+            m = Matcher(['a'], scorer=CScorer)
+            m('a')
+            def doit(c):
+                m = Matcher([c+'im/one.gif', c+'im/two.gif', c+'text/one.html',], scorer=CScorer)
+                m('one')
+            start = memory()
+            for i in xrange(10):
+                doit(str(i))
+            gc.collect()
+            used10 = memory() - start
+            start = memory()
+            for i in xrange(100):
+                doit(str(i))
+            gc.collect()
+            used100 = memory() - start
+            self.assertLessEqual(used100, 2 * used10)
+
+        def test_non_bmp(self):
+            raw = '_\U0001f431-'
+            m = Matcher([raw], scorer=CScorer)
+            positions = next(m(raw).itervalues())
+            self.assertEqual(positions, (0, 1, (2 if sys.maxunicode >= 0x10ffff else 3)))
+
+    class TestRunner(unittest.main):
+
+        def createTests(self):
+            tl = unittest.TestLoader()
+            self.test = tl.loadTestsFromTestCase(Test)
+
+    TestRunner(verbosity=4)
 
 if sys.maxunicode >= 0x10ffff:
     get_char = lambda string, pos: string[pos]
