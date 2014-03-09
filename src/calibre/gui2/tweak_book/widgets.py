@@ -249,6 +249,8 @@ class Results(QWidget):
         self.setFocusPolicy(Qt.NoFocus)
         self.text_option = to = QTextOption()
         to.setWrapMode(to.NoWrap)
+        self.divider = QStaticText('\xa0→ \xa0')
+        self.divider.setTextFormat(Qt.PlainText)
 
     def item_from_y(self, y):
         if not self.results:
@@ -298,9 +300,7 @@ class Results(QWidget):
             prefixes = [QStaticText('<b>%s</b>' % os.path.basename(x)) for x in results]
             [(p.setTextFormat(Qt.RichText), p.setTextOption(self.text_option)) for p in prefixes]
             self.maxwidth = max([x.size().width() for x in prefixes])
-            divider = QStaticText('\xa0→ \xa0')
-            divider.setTextFormat(Qt.PlainText)
-            self.results = tuple((prefix, divider, self.make_text(text, positions), text)
+            self.results = tuple((prefix, self.make_text(text, positions), text)
                 for prefix, (text, positions) in izip(prefixes, results.iteritems()))
         else:
             self.results = ()
@@ -327,7 +327,7 @@ class Results(QWidget):
         bottom = self.rect().bottom()
 
         if self.results:
-            for i, (prefix, divider, full, text) in enumerate(self.results):
+            for i, (prefix, full, text) in enumerate(self.results):
                 size = prefix.size()
                 if offset.y() + size.height() > bottom:
                     break
@@ -342,8 +342,8 @@ class Results(QWidget):
                 offset.setY(offset.y() + self.MARGIN // 2)
                 p.drawStaticText(offset, prefix)
                 offset.setX(self.maxwidth + 5)
-                p.drawStaticText(offset, divider)
-                offset.setX(offset.x() + divider.size().width())
+                p.drawStaticText(offset, self.divider)
+                offset.setX(offset.x() + self.divider.size().width())
                 p.drawStaticText(offset, full)
                 offset.setY(offset.y() + size.height() + self.MARGIN // 2)
                 if i in (self.current_result, self.mouse_hover_result):
