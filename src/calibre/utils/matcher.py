@@ -26,6 +26,9 @@ DEFAULT_LEVEL1 = '/'
 DEFAULT_LEVEL2 = '-_ 0123456789'
 DEFAULT_LEVEL3 = '.'
 
+class PluginFailed(RuntimeError):
+    pass
+
 class Worker(Thread):
 
     daemon = True
@@ -66,6 +69,11 @@ def split(tasks, pool_size):
         ans.append(section)
     return ans
 
+def default_scorer(*args, **kwargs):
+    try:
+        return CScorer(*args, **kwargs)
+    except PluginFailed:
+        return PyScorer(*args, **kwargs)
 
 class Matcher(object):
 
@@ -80,7 +88,7 @@ class Matcher(object):
         self.items = items = tuple(items)
         tasks = split(items, len(workers))
         self.task_maps = [{j:i for j, (i, _) in enumerate(task)} for task in tasks]
-        scorer = scorer or CScorer
+        scorer = scorer or default_scorer
         self.scorers = [scorer(tuple(map(itemgetter(1), task_items))) for task_items in tasks]
         self.sort_keys = None
 
@@ -201,7 +209,7 @@ class CScorer(object):
 
         speedup, err = plugins['matcher']
         if speedup is None:
-            raise RuntimeError('Failed to load the matcher plugin with error: %s' % err)
+            raise PluginFailed('Failed to load the matcher plugin with error: %s' % err)
         self.m = speedup.Matcher(items, primary_collator().capsule, unicode(level1), unicode(level2), unicode(level3))
 
     def __call__(self, query):
