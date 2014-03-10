@@ -182,7 +182,7 @@ def find_existing_toc(container):
 
 def get_toc(container, verify_destinations=True):
     toc = find_existing_toc(container)
-    if toc is None:
+    if toc is None or not container.has_name(toc):
         ans = TOC()
         ans.lang = ans.uid = None
         return ans
