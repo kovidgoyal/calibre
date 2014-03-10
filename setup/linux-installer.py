@@ -448,10 +448,16 @@ def match_hostname(cert, hostname):
             "doesn't match either of %s"
             % (hostname, ', '.join(map(repr, dnsnames))))
     elif len(dnsnames) == 1:
-        # python 2.6 does not read subjectAltName, so we do the best we can
-        if sys.version_info[:2] <= (2, 6):
-            if dnsnames[0] == 'calibre-ebook.com':
-                return
+        # python 2.7.2 does not read subject alt names thanks to this
+        # bug: http://bugs.python.org/issue13034
+        # And the utter lunacy that is the linux landscape could have
+        # any old version of python whatsoever with or without a hot fix for
+        # this bug. Not to mention that python 2.6 may or may not
+        # read alt names depending on its patchlevel. So we just bail on full
+        # verification if the python version is less than 2.7.3.
+        # Linux distros are one enormous, honking disaster.
+        if sys.version_info[:3] < (2, 7, 3) and dnsnames[0] == 'calibre-ebook.com':
+            return
         raise CertificateError("hostname %r "
             "doesn't match %r"
             % (hostname, dnsnames[0]))
