@@ -449,7 +449,7 @@ def match_hostname(cert, hostname):
             % (hostname, ', '.join(map(repr, dnsnames))))
     elif len(dnsnames) == 1:
         # python 2.6 does not read subjectAltName, so we do the best we can
-        if sys.version_info[:2] == (2, 6):
+        if sys.version_info[:2] <= (2, 6):
             if dnsnames[0] == 'calibre-ebook.com':
                 return
         raise CertificateError("hostname %r "
