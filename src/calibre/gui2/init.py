@@ -227,9 +227,9 @@ class StatusBar(QStatusBar):  # {{{
         self.device_string = ''
         self.set_label()
 
-    def show_message(self, msg, timeout=0):
+    def show_message(self, msg, timeout=0, show_notification=True):
         self.showMessage(msg, timeout)
-        if self.notifier is not None and not config['disable_tray_notification']:
+        if self.notifier is not None and not config['disable_tray_notification'] and show_notification:
             if isosx and isinstance(msg, unicode):
                 try:
                     msg = msg.encode(preferred_encoding)

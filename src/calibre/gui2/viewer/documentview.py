@@ -160,6 +160,7 @@ class Document(QWebPage):  # {{{
         screen_width = QApplication.desktop().screenGeometry().width()
         # Leave some space for the scrollbar and some border
         self.max_fs_width = min(opts.max_fs_width, screen_width-50)
+        self.max_fs_height = opts.max_fs_height
         self.fullscreen_clock = opts.fullscreen_clock
         self.fullscreen_scrollbar = opts.fullscreen_scrollbar
         self.fullscreen_pos = opts.fullscreen_pos
@@ -310,7 +311,7 @@ class Document(QWebPage):  # {{{
 
     def switch_to_fullscreen_mode(self):
         self.in_fullscreen_mode = True
-        self.javascript('full_screen.on(%d, %s)'%(self.max_fs_width,
+        self.javascript('full_screen.on(%d, %d, %s)'%(self.max_fs_width, self.max_fs_height,
             'true' if self.in_paged_mode else 'false'))
 
     def switch_to_window_mode(self):

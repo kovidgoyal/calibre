@@ -47,6 +47,10 @@ class DispatchController(object):  # {{{
         aw = kwargs.pop('android_workaround', False)
         if route != '/':
             route = self.prefix + route
+        if isinstance(route, unicode):
+            # Apparently the routes package chokes on unicode routes, see
+            # http://www.mobileread.com/forums/showthread.php?t=235366
+            route = route.encode('utf-8')
         elif self.prefix:
             self.dispatcher.connect(name+'prefix_extra', self.prefix, self,
                     **kwargs)

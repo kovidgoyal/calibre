@@ -6,7 +6,7 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import unicodedata, os
+import os
 from functools import partial
 from itertools import product
 from future_builtins import map
@@ -33,6 +33,7 @@ from calibre.gui2.tweak_book.toc import TOCViewer
 from calibre.gui2.tweak_book.char_select import CharSelect
 from calibre.gui2.tweak_book.editor.widget import register_text_editor_actions
 from calibre.gui2.tweak_book.editor.insert_resource import InsertImage
+from calibre.utils.icu import character_name
 
 def open_donate():
     open_url(QUrl('http://calibre-ebook.com/donate'))
@@ -188,7 +189,7 @@ class CursorPositionWidget(QWidget):  # {{{
             self.la.setText('')
         else:
             try:
-                name = unicodedata.name(character, None) if character and tprefs['editor_show_char_under_cursor'] else None
+                name = character_name(character) if character and tprefs['editor_show_char_under_cursor'] else None
             except Exception:
                 name = None
             text = _('Line: {0} : {1}').format(line, col)
@@ -301,6 +302,8 @@ class Main(MainWindow):
         self.action_new_book = reg('book.png', _('Create &new, empty book'), self.boss.new_book, 'new-book', (), _('Create a new, empty book'))
         self.action_import_book = reg('book.png', _('&Import an HTML or DOCX file as a new book'),
                                       self.boss.import_book, 'import-book', (), _('Import an HTML or DOCX file as a new book'))
+        self.action_quick_edit = reg('modified.png', _('&Quick open a file to edit'), self.boss.quick_open, 'quick-open', ('Ctrl+T'), _(
+            'Quickly open a file from the book to edit it'))
 
         # Editor actions
         group = _('Editor actions')
@@ -429,6 +432,7 @@ class Main(MainWindow):
         f = b.addMenu(_('&File'))
         f.addAction(self.action_new_file)
         f.addAction(self.action_import_files)
+        f.addSeparator()
         f.addAction(self.action_open_book)
         f.addAction(self.action_new_book)
         f.addAction(self.action_import_book)
@@ -454,6 +458,7 @@ class Main(MainWindow):
         e.addAction(self.action_editor_paste)
         e.addAction(self.action_insert_char)
         e.addSeparator()
+        e.addAction(self.action_quick_edit)
         e.addAction(self.action_preferences)
 
         e = b.addMenu(_('&Tools'))

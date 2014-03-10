@@ -156,6 +156,7 @@ def start_pipe_worker(command, env=None, priority='normal'):
                 pass
         niceness = {'normal' : 0, 'low'    : 10, 'high'   : 20}[priority]
         args['preexec_fn'] = partial(renice, niceness)
+        args['close_fds'] = True
 
     p = subprocess.Popen([w.executable, '--pipe-worker', command], **args)
     atexit.register(w.kill)

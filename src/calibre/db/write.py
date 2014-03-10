@@ -174,7 +174,7 @@ def one_one_in_books(book_id_val_map, db, field, *args):
     'Set a one-one field in the books table'
     if book_id_val_map:
         sequence = ((sqlite_datetime(v), k) for k, v in book_id_val_map.iteritems())
-        db.conn.executemany(
+        db.executemany(
             'UPDATE books SET %s=? WHERE id=?'%field.metadata['column'], sequence)
         field.table.book_col_map.update(book_id_val_map)
     return set(book_id_val_map)
@@ -194,13 +194,13 @@ def one_one_in_other(book_id_val_map, db, field, *args):
     'Set a one-one field in the non-books table, like comments'
     deleted = tuple((k,) for k, v in book_id_val_map.iteritems() if v is None)
     if deleted:
-        db.conn.executemany('DELETE FROM %s WHERE book=?'%field.metadata['table'],
+        db.executemany('DELETE FROM %s WHERE book=?'%field.metadata['table'],
                         deleted)
         for book_id in deleted:
             field.table.book_col_map.pop(book_id[0], None)
     updated = {k:v for k, v in book_id_val_map.iteritems() if v is not None}
     if updated:
-        db.conn.executemany('INSERT OR REPLACE INTO %s(book,%s) VALUES (?,?)'%(
+        db.executemany('INSERT OR REPLACE INTO %s(book,%s) VALUES (?,?)'%(
             field.metadata['table'], field.metadata['column']),
             ((k, sqlite_datetime(v)) for k, v in updated.iteritems()))
         field.table.book_col_map.update(updated)
@@ -217,7 +217,7 @@ def custom_series_index(book_id_val_map, db, field, *args):
             sequence.append((sidx, book_id, ids[0]))
         field.table.book_col_map[book_id] = sidx
     if sequence:
-        db.conn.executemany('UPDATE %s SET %s=? WHERE book=? AND value=?'%(
+        db.executemany('UPDATE %s SET %s=? WHERE book=? AND value=?'%(
                 field.metadata['table'], field.metadata['column']), sequence)
     return {s[1] for s in sequence}
 # }}}
@@ -239,12 +239,12 @@ def get_db_id(val, db, m, table, kmap, rid_map, allow_case_change,
     if item_id is None:
         if is_authors:
             aus = author_to_author_sort(val)
-            db.conn.execute('INSERT INTO authors(name,sort) VALUES (?,?)',
+            db.execute('INSERT INTO authors(name,sort) VALUES (?,?)',
                             (val.replace(',', '|'), aus))
         else:
-            db.conn.execute('INSERT INTO %s(%s) VALUES (?)'%(
+            db.execute('INSERT INTO %s(%s) VALUES (?)'%(
                 m['table'], m['column']), (val,))
-        item_id = rid_map[kval] = db.conn.last_insert_rowid()
+        item_id = rid_map[kval] = db.last_insert_rowid()
         table.id_map[item_id] = val
         table.col_book_map[item_id] = set()
         if is_authors:
@@ -260,7 +260,7 @@ def change_case(case_changes, dirtied, db, table, m, is_authors=False):
                 case_changes.iteritems())
     else:
         vals = ((val, item_id) for item_id, val in case_changes.iteritems())
-    db.conn.executemany(
+    db.executemany(
         'UPDATE %s SET %s=? WHERE id=?'%(m['table'], m['column']), vals)
     for item_id, val in case_changes.iteritems():
         table.id_map[item_id] = val
@@ -316,7 +316,7 @@ def many_one(book_id_val_map, db, field, allow_case_change, *args):
 
     # Update the db link table
     if deleted:
-        db.conn.executemany('DELETE FROM %s WHERE book=?'%table.link_table,
+        db.executemany('DELETE FROM %s WHERE book=?'%table.link_table,
                             ((k,) for k in deleted))
     if updated:
         sql = (
@@ -324,7 +324,7 @@ def many_one(book_id_val_map, db, field, allow_case_change, *args):
             if is_custom_series else
             'DELETE FROM {0} WHERE book=?; INSERT INTO {0}(book,{1}) VALUES(?, ?)'
         )
-        db.conn.executemany(sql.format(table.link_table, m['link_column']),
+        db.executemany(sql.format(table.link_table, m['link_column']),
             ((book_id, book_id, item_id) for book_id, item_id in
                     updated.iteritems()))
 
@@ -332,7 +332,7 @@ def many_one(book_id_val_map, db, field, allow_case_change, *args):
     remove = {item_id for item_id in table.id_map if not
               table.col_book_map.get(item_id, False)}
     if remove:
-        db.conn.executemany('DELETE FROM %s WHERE id=?'%m['table'],
+        db.executemany('DELETE FROM %s WHERE id=?'%m['table'],
             ((item_id,) for item_id in remove))
         for item_id in remove:
             del table.id_map[item_id]
@@ -413,16 +413,16 @@ def many_many(book_id_val_map, db, field, allow_case_change, *args):
 
     # Update the db link table
     if deleted:
-        db.conn.executemany('DELETE FROM %s WHERE book=?'%table.link_table,
+        db.executemany('DELETE FROM %s WHERE book=?'%table.link_table,
                             ((k,) for k in deleted))
     if updated:
         vals = (
             (book_id, val) for book_id, vals in updated.iteritems()
             for val in vals
         )
-        db.conn.executemany('DELETE FROM %s WHERE book=?'%table.link_table,
+        db.executemany('DELETE FROM %s WHERE book=?'%table.link_table,
                             ((k,) for k in updated))
-        db.conn.executemany('INSERT INTO {0}(book,{1}) VALUES(?, ?)'.format(
+        db.executemany('INSERT INTO {0}(book,{1}) VALUES(?, ?)'.format(
             table.link_table, m['link_column']), vals)
         if is_authors:
             aus_map = {book_id:field.author_sort_for_book(book_id) for book_id
@@ -433,7 +433,7 @@ def many_many(book_id_val_map, db, field, allow_case_change, *args):
     remove = {item_id for item_id in table.id_map if not
               table.col_book_map.get(item_id, False)}
     if remove:
-        db.conn.executemany('DELETE FROM %s WHERE id=?'%m['table'],
+        db.executemany('DELETE FROM %s WHERE id=?'%m['table'],
             ((item_id,) for item_id in remove))
         for item_id in remove:
             del table.id_map[item_id]
@@ -463,10 +463,10 @@ def identifiers(book_id_val_map, db, field, *args):  # {{{
                 table.col_book_map[key] = set()
             table.col_book_map[key].add(book_id)
             updates.add((book_id, key, val))
-    db.conn.executemany('DELETE FROM identifiers WHERE book=?',
+    db.executemany('DELETE FROM identifiers WHERE book=?',
                         ((x,) for x in book_id_val_map))
     if updates:
-        db.conn.executemany('INSERT OR REPLACE INTO identifiers (book, type, val) VALUES (?, ?, ?)',
+        db.executemany('INSERT OR REPLACE INTO identifiers (book, type, val) VALUES (?, ?, ?)',
                             tuple(updates))
     return set(book_id_val_map)
 # }}}

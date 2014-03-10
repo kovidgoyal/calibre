@@ -95,6 +95,7 @@ extensions = [
 
     Extension('icu',
         ['calibre/utils/icu.c'],
+        headers=['calibre/utils/icu_calibre_utils.h'],
         libraries=icu_libs,
         lib_dirs=icu_lib_dirs,
         inc_dirs=icu_inc_dirs,
@@ -171,6 +172,20 @@ extensions = [
 
     Extension('cPalmdoc',
         ['calibre/ebooks/compression/palmdoc.c']),
+
+    Extension('bzzdec',
+        ['calibre/ebooks/djvu/bzzdecoder.c'],
+        inc_dirs=(['calibre/utils/chm'] if iswindows else [])  # For stdint.h
+    ),
+
+    Extension('matcher',
+        ['calibre/utils/matcher.c'],
+        headers=['calibre/utils/icu_calibre_utils.h'],
+        libraries=icu_libs,
+        lib_dirs=icu_lib_dirs,
+        cflags=icu_cflags,
+        inc_dirs=icu_inc_dirs
+    ),
 
     Extension('podofo',
                     [
@@ -288,9 +303,10 @@ if islinux or isosx:
 if isunix:
     cc = os.environ.get('CC', 'gcc')
     cxx = os.environ.get('CXX', 'g++')
+    debug = ''
+    # debug = '-ggdb'
     cflags = os.environ.get('OVERRIDE_CFLAGS',
-        # '-Wall -DNDEBUG -ggdb -fno-strict-aliasing -pipe')
-        '-Wall -DNDEBUG -fno-strict-aliasing -pipe')
+        '-Wall -DNDEBUG %s -fno-strict-aliasing -pipe' % debug)
     cflags = shlex.split(cflags) + ['-fPIC']
     ldflags = os.environ.get('OVERRIDE_LDFLAGS', '-Wall')
     ldflags = shlex.split(ldflags)

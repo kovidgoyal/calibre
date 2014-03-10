@@ -7,6 +7,7 @@ from functools import partial
 
 from PyQt4.Qt import QThread, QObject, Qt, QProgressDialog, pyqtSignal, QTimer
 
+from calibre.ptempfile import PersistentTemporaryDirectory
 from calibre.gui2.dialogs.progress import ProgressDialog
 from calibre.gui2 import (error_dialog, info_dialog, gprefs,
         warning_dialog, available_width)
@@ -54,10 +55,11 @@ class RecursiveFind(QThread):  # {{{
     update = pyqtSignal(object)
     found  = pyqtSignal(object)
 
-    def __init__(self, parent, db, root, single):
+    def __init__(self, parent, db, root, single, tdir=None):
         QThread.__init__(self, parent)
         self.db = db
         self.path = root
+        self.tdir = tdir
         self.single_book_per_directory = single
         self.canceled = False
 
@@ -72,7 +74,34 @@ class RecursiveFind(QThread):  # {{{
             self.books += list(self.db.find_books_in_directory(dirpath[0],
                                             self.single_book_per_directory))
 
+    def extract(self):
+        if self.path.lower().endswith('.zip'):
+            from calibre.utils.zipfile import ZipFile
+            try:
+                with ZipFile(self.path) as zf:
+                    zf.extractall(self.tdir)
+            except Exception:
+                prints('Corrupt ZIP file, trying to use local headers')
+                from calibre.utils.localunzip import extractall
+                extractall(self.path, self.tdir)
+        elif self.path.lower().endswith('.rar'):
+            from calibre.utils.unrar import extract
+            extract(self.path, self.tdir)
+        else:
+            raise ValueError('Can only process ZIP or RAR archives')
+
     def run(self):
+        if self.tdir is not None:
+            try:
+                self.extract()
+            except Exception as err:
+                import traceback
+                traceback.print_exc()
+                msg = as_unicode(err)
+                self.found.emit(msg)
+                return
+            self.path = self.tdir
+
         root = os.path.abspath(self.path)
         try:
             self.walk(root)
@@ -263,12 +292,16 @@ class Adder(QObject):  # {{{
         self.pd.canceled_signal.connect(self.canceled)
 
     def add_recursive(self, root, single=True):
-        self.path = root
+        if os.path.exists(root) and os.path.isfile(root) and root.lower().rpartition('.')[-1] in {'zip', 'rar'}:
+            self.path = tdir = PersistentTemporaryDirectory('_arcv_')
+        else:
+            self.path = root
+            tdir = None
         self.pd.set_msg(_('Searching in all sub-directories...'))
         self.pd.set_min(0)
         self.pd.set_max(0)
         self.pd.value = 0
-        self.rfind = RecursiveFind(self, self.db, root, single)
+        self.rfind = RecursiveFind(self, self.db, root, single, tdir=tdir)
         self.rfind.update.connect(self.pd.set_msg, type=Qt.QueuedConnection)
         self.rfind.found.connect(self.add, type=Qt.QueuedConnection)
         self.rfind.start()
@@ -391,7 +424,7 @@ class Adder(QObject):  # {{{
             return self.duplicates_processed()
         self.pd.hide()
         from calibre.gui2.dialogs.duplicates import DuplicatesQuestion
-        d = DuplicatesQuestion(self.db, duplicates, self._parent)
+        self.__d_q = d = DuplicatesQuestion(self.db, duplicates, self._parent)
         duplicates = tuple(d.duplicates)
         if duplicates:
             pd = QProgressDialog(_('Adding duplicates...'), '', 0, len(duplicates),

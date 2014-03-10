@@ -45,30 +45,21 @@ class heiseDe(BasicNewsRecipe):
     }
     '''
 
-    remove_tags = [dict(id='navi_top'),
-		   dict(id='navi_bottom'),
-		   dict(id='logo'),
-		   dict(id='login_suche'),
+    remove_tags = [dict(id='navi_bottom'),
+		   dict(id='software_tabbox'),
+		   dict(id='heisetopnavi_sub_container'),
 		   dict(id='navi_login'),
-		   dict(id='navigation'),
-		   dict(id='breadcrumb'),
-		   dict(id='adblockerwarnung'),
-		   dict(id=''),
-		   dict(id='sitemap'),
-		   dict(id='bannerzone'),
-		   dict(name='span', attrs={'class':'rsaquo'}),
+		   dict(id='heisetopnavi_search'),
+		   dict(id='themen_aktuell'),
+		   dict(id='navi_top'),
+		   dict(id='logo_bereich'),
 		   dict(name='div', attrs={'class':'news_logo'}),
-		   dict(name='div', attrs={'class':'bcadv ISI_IGNORE'}),
-		   dict(name='div', attrs={'class':'navi_top_container'}),
-		   dict(name='p', attrs={'class':'news_option'}),
-		   dict(name='p', attrs={'class':'news_navi'}),
-		   dict(name='div', attrs={'class':'news_foren'})]
+		   dict(name='div', attrs={'class':'heisetopnavi_header'}),
+		   dict(name='p', attrs={'class':'teasermitbildundtext'}),
+		   dict(name='div', attrs={'class':'news_foren'}),
+		   dict(name='p', attrs={'class':'news_navi'})]
+
     remove_tags_after = [dict(name='div', attrs={'class':'news_foren'})]
 
     feeds =  [ ('heise', 'http://www.heise.de/newsticker/heise.rdf') ]
-
-
-
-
-
 

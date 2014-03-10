@@ -1119,7 +1119,7 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
                 event.accept()
                 return
             if self.isFullScreen():
-                self.toggle_fullscreen()
+                self.action_full_screen.trigger()
                 event.accept()
                 return
         try:

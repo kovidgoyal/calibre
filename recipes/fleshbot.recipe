@@ -20,10 +20,10 @@ class Fleshbot(BasicNewsRecipe):
     language              = 'en'
     masthead_url          = 'http://fbassets.s3.amazonaws.com/images/uploads/2012/01/fleshbot-logo.png'
     extra_css             = '''
-	body{font-family: "Lucida Grande",Helvetica,Arial,sans-serif}
-	img{margin-bottom: 1em}
-	h1{font-family :Arial,Helvetica,sans-serif; font-size:large}
-	              '''
+            body{font-family: "Lucida Grande",Helvetica,Arial,sans-serif}
+            img{margin-bottom: 1em}
+            h1{font-family :Arial,Helvetica,sans-serif; font-size:large}
+                        '''
     conversion_options = {
                           'comment'   : description
                         , 'tags'      : category
@@ -31,12 +31,11 @@ class Fleshbot(BasicNewsRecipe):
                         , 'language'  : language
                         }
 
-    feeds = [(u'Articles', u'http://www.fleshbot.com/feed')]
+    feeds = [(u'Articles', u'http://fleshbot.com/?feed=rss2')]
 
     remove_tags = [
             {'class': 'feedflare'},
     ]
-
 
     def preprocess_html(self, soup):
         return self.adeify_images(soup)

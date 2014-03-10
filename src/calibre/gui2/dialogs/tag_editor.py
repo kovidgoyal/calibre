@@ -9,7 +9,7 @@ from PyQt4.QtGui import QDialog
 from calibre.gui2.dialogs.tag_editor_ui import Ui_TagEditor
 from calibre.gui2 import question_dialog, error_dialog, gprefs
 from calibre.constants import islinux
-from calibre.utils.icu import sort_key, primary_find
+from calibre.utils.icu import sort_key, primary_contains
 
 class TagEditor(QDialog, Ui_TagEditor):
 
@@ -178,7 +178,7 @@ class TagEditor(QDialog, Ui_TagEditor):
         q = icu_lower(unicode(filter_value))
         for i in xrange(collection.count()):  # on every available tag
             item = collection.item(i)
-            item.setHidden(bool(q and primary_find(q, unicode(item.text()))[0] == -1))
+            item.setHidden(bool(q and not primary_contains(q, unicode(item.text()))))
 
     def accept(self):
         self.save_state()

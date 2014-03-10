@@ -100,7 +100,6 @@ class MobiReader(object):
         for i in range(self.num_sections):
             self.sections.append((section(i), self.section_headers[i]))
 
-
         self.book_header = bh = BookHeader(self.sections[0][0], self.ident,
             user_encoding, self.log, try_extra_data_fix=try_extra_data_fix)
         self.name = self.name.decode(self.book_header.codec, 'replace')
@@ -112,7 +111,7 @@ class MobiReader(object):
         if (self.book_header.mobi_version == 8 and hasattr(self.book_header,
             'skelidx')):
             self.kf8_type = 'standalone'
-        elif k8i is not None: # Check for joint mobi 6 and kf 8 file
+        elif k8i is not None:  # Check for joint mobi 6 and kf 8 file
             try:
                 raw = self.sections[k8i-1][0]
             except:
@@ -218,7 +217,8 @@ class MobiReader(object):
                 if hasattr(p, 'remove'):
                     p.remove(h)
             bodies, heads = root.xpath('//body'), root.xpath('//head')
-            for x in root: root.remove(x)
+            for x in root:
+                root.remove(x)
             head, body = map(root.makeelement, ('head', 'body'))
             for h in heads:
                 for x in h:
@@ -273,7 +273,7 @@ class MobiReader(object):
             ascii_filename(fname) + '.html')
         try:
             for ref in guide.xpath('descendant::reference'):
-                if ref.attrib.has_key('href'):
+                if 'href' in ref.attrib:
                     ref.attrib['href'] = os.path.basename(htmlfile) + ref.attrib['href']
         except AttributeError:
             pass
@@ -295,7 +295,6 @@ class MobiReader(object):
                 if isinstance(rule, unicode):
                     rule = rule.encode('utf-8')
                 s.write('.%s { %s }\n\n' % (cls, rule))
-
 
         if self.book_header.exth is not None or self.embedded_mi is not None:
             self.log.debug('Creating OPF...')
@@ -345,22 +344,26 @@ class MobiReader(object):
         self.processed_html = re.sub(r'<\s*(/?)\s*o:p[^>]*>', r'', self.processed_html)
         # Swap inline and block level elements, and order block level elements according to priority
         # - lxml and beautifulsoup expect/assume a specific order based on xhtml spec
-        self.processed_html = re.sub(r'(?i)(?P<styletags>(<(h\d+|i|b|u|em|small|big|strong|tt)>\s*){1,})(?P<para><p[^>]*>)', '\g<para>'+'\g<styletags>', self.processed_html)
-        self.processed_html = re.sub(r'(?i)(?P<para></p[^>]*>)\s*(?P<styletags>(</(h\d+|i|b|u|em|small|big|strong|tt)>\s*){1,})', '\g<styletags>'+'\g<para>', self.processed_html)
-        self.processed_html = re.sub(r'(?i)(?P<blockquote>(</(blockquote|div)[^>]*>\s*){1,})(?P<para></p[^>]*>)', '\g<para>'+'\g<blockquote>', self.processed_html)
-        self.processed_html = re.sub(r'(?i)(?P<para><p[^>]*>)\s*(?P<blockquote>(<(blockquote|div)[^>]*>\s*){1,})', '\g<blockquote>'+'\g<para>', self.processed_html)
+        self.processed_html = re.sub(
+            r'(?i)(?P<styletags>(<(h\d+|i|b|u|em|small|big|strong|tt)>\s*){1,})(?P<para><p[^>]*>)', '\g<para>'+'\g<styletags>', self.processed_html)
+        self.processed_html = re.sub(
+            r'(?i)(?P<para></p[^>]*>)\s*(?P<styletags>(</(h\d+|i|b|u|em|small|big|strong|tt)>\s*){1,})', '\g<styletags>'+'\g<para>', self.processed_html)
+        self.processed_html = re.sub(
+            r'(?i)(?P<blockquote>(</(blockquote|div)[^>]*>\s*){1,})(?P<para></p[^>]*>)', '\g<para>'+'\g<blockquote>', self.processed_html)
+        self.processed_html = re.sub(
+            r'(?i)(?P<para><p[^>]*>)\s*(?P<blockquote>(<(blockquote|div)[^>]*>\s*){1,})', '\g<blockquote>'+'\g<para>', self.processed_html)
         bods = htmls = 0
         for x in re.finditer(ur'</body>|</html>', self.processed_html):
-            if x == '</body>': bods +=1
-            else: htmls += 1
+            if x == '</body>':
+                bods +=1
+            else:
+                htmls += 1
             if bods > 1 and htmls > 1:
                 break
         if bods > 1:
             self.processed_html = self.processed_html.replace('</body>', '')
         if htmls > 1:
             self.processed_html = self.processed_html.replace('</html>', '')
-
-
 
     def remove_random_bytes(self, html):
         return re.sub('\x14|\x15|\x19|\x1c|\x1d|\xef|\x12|\x13|\xec|\x08|\x01|\x02|\x03|\x04|\x05|\x06|\x07',
@@ -408,11 +411,11 @@ class MobiReader(object):
                     tag.attrib.pop(key)
                 continue
             styles, attrib = [], tag.attrib
-            if attrib.has_key('style'):
+            if 'style' in attrib:
                 style = attrib.pop('style').strip()
                 if style:
                     styles.append(style)
-            if attrib.has_key('height'):
+            if 'height' in attrib:
                 height = attrib.pop('height').strip()
                 if height and '<' not in height and '>' not in height and \
                     re.search(r'\d+', height):
@@ -427,12 +430,12 @@ class MobiReader(object):
                                 # Paragraph spacer
                                 # Insert nbsp so that the element is never
                                 # discarded by a renderer
-                                tag.text = u'\u00a0' # nbsp
+                                tag.text = u'\u00a0'  # nbsp
                                 styles.append('height: %s' %
                                         self.ensure_unit(height))
                             else:
                                 styles.append('margin-top: %s' % self.ensure_unit(height))
-            if attrib.has_key('width'):
+            if 'width' in attrib:
                 width = attrib.pop('width').strip()
                 if width and re.search(r'\d+', width):
                     if tag.tag in ('table', 'td', 'tr'):
@@ -455,7 +458,7 @@ class MobiReader(object):
                             except:
                                 pass
 
-            if attrib.has_key('align'):
+            if 'align' in attrib:
                 align = attrib.pop('align').strip()
                 if align:
                     align = align.lower()
@@ -501,7 +504,7 @@ class MobiReader(object):
                         if val.lower().endswith('em'):
                             try:
                                 nval = float(val[:-2])
-                                nval *= 16 * (168.451/72) # Assume this was set using the Kindle profile
+                                nval *= 16 * (168.451/72)  # Assume this was set using the Kindle profile
                                 attrib[attr] = "%dpx"%int(nval)
                             except:
                                 del attrib[attr]
@@ -677,7 +680,7 @@ class MobiReader(object):
                         href = x.get('href', '')
                         if href and re.match('\w+://', href) is None:
                             try:
-                                text = u' '.join([t.strip() for t in \
+                                text = u' '.join([t.strip() for t in
                                     x.xpath('descendant::text()')])
                             except:
                                 text = ''
@@ -782,10 +785,9 @@ class MobiReader(object):
             self.mobi_html = self.mobi_html.replace('\r ', '\n\n ')
         self.mobi_html = self.mobi_html.replace('\0', '')
         if self.book_header.codec == 'cp1252':
-            self.mobi_html = self.mobi_html.replace('\x1e', '') # record separator
-            self.mobi_html = self.mobi_html.replace('\x02', '') # start of text
+            self.mobi_html = self.mobi_html.replace('\x1e', '')  # record separator
+            self.mobi_html = self.mobi_html.replace('\x02', '')  # start of text
         return processed_records
-
 
     def replace_page_breaks(self):
         self.processed_html = self.PAGE_BREAK_PAT.sub(
@@ -826,7 +828,6 @@ class MobiReader(object):
         # Remove anchors placed inside entities
         self.processed_html = re.sub(r'&([^;]*?)(<a id="filepos\d+"></a>)([^;]*);',
                 r'&\1\3;\2', processed_html)
-
 
     def extract_images(self, processed_records, output_dir):
         self.log.debug('Extracting images...')

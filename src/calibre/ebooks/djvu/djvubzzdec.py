@@ -80,6 +80,7 @@ MAXLEN = 1024 ** 2
 
 # Exception classes used by this module.
 class BZZDecoderError(Exception):
+
     """This exception is raised when BZZDecode runs into trouble
     """
     def __init__(self, msg):
@@ -91,7 +92,7 @@ class BZZDecoderError(Exception):
 # This table has been designed for the ZPCoder
 #   * by running the following command in file 'zptable.sn':
 #   * (fast-crude (steady-mat 0.0035  0.0002) 260)))
-default_ztable = [ # {{{
+default_ztable = [  # {{{
   (0x8000, 0x0000, 84, 145),    # 000: p=0.500000 (    0,    0)
   (0x8000, 0x0000, 3, 4),       # 001: p=0.500000 (    0,    0)
   (0x8000, 0x0000, 4, 3),       # 002: p=0.500000 (    0,    0)
@@ -387,12 +388,11 @@ xmtf = (
 )
  # }}}
 
-def chr3(l):
-    return bytes(bytearray(l))
-
 class BZZDecoder():
+
     def __init__(self, infile, outfile):
         self.instream = infile
+        self.inptr = 0
         self.outf = outfile
         self.ieof = False
         self.bptr = None
@@ -440,7 +440,7 @@ class BZZDecoder():
         if self.ieof:
             return 0
         copied = 0
-        while sz > 0 and not (self.ieof):
+        while sz > 0 and not self.ieof:
             # Decode if needed
             if not self.xsize:
                 self.bptr = 0
@@ -450,25 +450,23 @@ class BZZDecoder():
                 self.xsize -= 1
 
             # Compute remaining
-            bytes = self.xsize
-            if bytes > sz:
-                bytes = sz
+            remaining = min(sz, self.xsize)
             # Transfer
-            if bytes:
-                for i in range(bytes):
-                    self.outf.write(chr3(self.outbuf[self.bptr + i]))
-            self.xsize -= bytes
-            self.bptr += bytes
-            sz -= bytes
-            copied += bytes
+            if remaining > 0:
+                self.outf.extend(self.outbuf[self.bptr:self.bptr + remaining])
+            self.xsize -= remaining
+            self.bptr += remaining
+            sz -= remaining
+            copied += remaining
             # offset += bytes; // for tell()
         return copied
 
     def preload(self):
         while self.scount <= 24:
-            if self.read_byte() < 1:
+            if not self.read_byte():
                 self.byte = 0xff
-                if --self.delay < 1:
+                self.delay -= 1
+                if self.delay < 1:
                     raise BZZDecoderError("BiteStream EOF")
             self.bufint = (self.bufint << 8) | self.byte
             self.scount += 8
@@ -495,43 +493,44 @@ class BZZDecoder():
             if self.zpcodec_decoder():
                 fshift += 1
         # Prepare Quasi MTF
-        mtf = list(xmtf) # unsigned chars
+        mtf = list(xmtf)  # unsigned chars
         freq = [0] * FREQMAX
         fadd = 4
         # Decode
         mtfno = 3
         markerpos = -1
-        for i in range(self.xsize):
+        zc = lambda i: self.zpcodec_decode(self.ctx, i)
+        dc = lambda i, bits: self.decode_binary(self.ctx, i, bits)
+        for i in xrange(self.xsize):
             ctxid = CTXIDS - 1
             if ctxid > mtfno:
                 ctxid = mtfno
-            cx = self.ctx
-            if self.zpcodec_decode(cx, ctxid):
+            if zc(ctxid):
                 mtfno = 0
                 outbuf[i] = mtf[mtfno]
-            elif self.zpcodec_decode(cx, ctxid + CTXIDS):
+            elif zc(ctxid + CTXIDS):
                 mtfno = 1
                 outbuf[i] = mtf[mtfno]
-            elif self.zpcodec_decode(cx, 2*CTXIDS):
-                mtfno = 2 + self.decode_binary(cx, 2*CTXIDS + 1, 1)
+            elif zc(2*CTXIDS):
+                mtfno = 2 + dc(2*CTXIDS + 1, 1)
                 outbuf[i] = mtf[mtfno]
-            elif self.zpcodec_decode(cx, 2*CTXIDS+2):
-                mtfno = 4 + self.decode_binary(cx, 2*CTXIDS+2 + 1, 2)
+            elif zc(2*CTXIDS+2):
+                mtfno = 4 + dc(2*CTXIDS+2 + 1, 2)
                 outbuf[i] = mtf[mtfno]
-            elif self.zpcodec_decode(cx, 2*CTXIDS + 6):
-                mtfno = 8 + self.decode_binary(cx, 2*CTXIDS + 6 + 1, 3)
+            elif zc(2*CTXIDS + 6):
+                mtfno = 8 + dc(2*CTXIDS + 6 + 1, 3)
                 outbuf[i] = mtf[mtfno]
-            elif self.zpcodec_decode(cx, 2*CTXIDS + 14):
-                mtfno = 16 + self.decode_binary(cx, 2*CTXIDS + 14 + 1, 4)
+            elif zc(2*CTXIDS + 14):
+                mtfno = 16 + dc(2*CTXIDS + 14 + 1, 4)
                 outbuf[i] = mtf[mtfno]
-            elif self.zpcodec_decode(cx, 2*CTXIDS + 30 ):
-                mtfno = 32 + self.decode_binary(cx, 2*CTXIDS + 30 + 1, 5)
+            elif zc(2*CTXIDS + 30):
+                mtfno = 32 + dc(2*CTXIDS + 30 + 1, 5)
                 outbuf[i] = mtf[mtfno]
-            elif self.zpcodec_decode(cx, 2*CTXIDS + 62 ):
-                mtfno = 64 + self.decode_binary(cx, 2*CTXIDS + 62 + 1, 6)
+            elif zc(2*CTXIDS + 62):
+                mtfno = 64 + dc(2*CTXIDS + 62 + 1, 6)
                 outbuf[i] = mtf[mtfno]
-            elif self.zpcodec_decode(cx, 2*CTXIDS + 126):
-                mtfno = 128 + self.decode_binary(cx, 2*CTXIDS + 126 + 1, 7)
+            elif zc(2*CTXIDS + 126):
+                mtfno = 128 + dc(2*CTXIDS + 126 + 1, 7)
                 outbuf[i] = mtf[mtfno]
             else:
                 mtfno = 256  # EOB
@@ -711,15 +710,12 @@ class BZZDecoder():
         return res
 
     def read_byte(self):
-        res = 0
-        if self.instream:
-            ires = self.instream.read(1)
-            res = len(ires)
-            if res:
-                self.byte = ord(ires[0])
-        else:
-            raise NotImplementedError
-        return res
+        try:
+            self.byte = self.instream[self.inptr]
+            self.inptr += 1
+            return True
+        except IndexError:
+            return False
 
     def ffz(self):
         x = self.a
@@ -729,18 +725,13 @@ class BZZDecoder():
             return (self.ffzt[(x >> 8) & 0xff])
 
 
-
-### for testing
-
+# for testing
 def main():
     import sys
-    infile = file(sys.argv[1], "rb")
-    outfile = file(sys.argv[2], "wb")
-    dec = BZZDecoder(infile, outfile)
-    while True:
-        res = dec.convert(1024 * 1024)
-        if not res:
-            break
+    from calibre.constants import plugins
+    raw = file(sys.argv[1], "rb").read()
+    d = plugins['bzzdec'][0]
+    print (d.decompress(raw))
 
 if __name__ == "__main__":
     main()

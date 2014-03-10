@@ -1805,7 +1805,7 @@ class DeviceMixin(object):  # {{{
                     if current_book_count % 100 == 0:
                         self.status_bar.show_message(
                                 _('Analyzing books on the device: %d%% finished')%(
-                                    int((float(current_book_count)/total_book_count)*100.0)))
+                                    int((float(current_book_count)/total_book_count)*100.0)), show_notification=False)
 
                     # I am assuming that this sort-of multi-threading won't break
                     # anything. Reasons: excluding UI events prevents the user

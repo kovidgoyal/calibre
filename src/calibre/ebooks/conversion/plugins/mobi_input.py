@@ -50,10 +50,13 @@ class MOBIInput(InputFormatPlugin):
             if isinstance(raw, unicode):
                 raw = raw.encode('utf-8')
             open(u'debug-raw.html', 'wb').write(raw)
+        from calibre.ebooks.oeb.base import close_self_closing_tags
         for f, root in parse_cache.items():
+            raw = html.tostring(root, encoding='utf-8', method='xml',
+                    include_meta_content_type=False)
+            raw = close_self_closing_tags(raw)
             with open(f, 'wb') as q:
-                q.write(html.tostring(root, encoding='utf-8', method='xml',
-                    include_meta_content_type=False))
+                q.write(raw)
                 accelerators['pagebreaks'] = '//h:div[@class="mbp_pagebreak"]'
         return mr.created_opf_path
 

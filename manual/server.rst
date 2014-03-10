@@ -48,7 +48,7 @@ In process
 
 The calibre content server can be run directly, in process, inside a host server like Apache using the WSGI framework.
 
-.. note:: For this to work, all the dependencies needed by calibre must be installed on your system. On linux, this can be achieved fairly easily by installing the distribution provided calibre package (provided it is up to date).
+.. note:: For this to work, all the dependencies needed by calibre must be installed on your system. Doing so is highly non-trivial and you are encouraged not to use in process servers. You will not get any assistance with debugging in process server problems.
 
 First, we have to create a WSGI *adapter* for the calibre content server. Here is a template you can use for the purpose. Replace the paths as directed in the comments
 
