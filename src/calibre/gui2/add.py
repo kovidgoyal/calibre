@@ -424,7 +424,7 @@ class Adder(QObject):  # {{{
             return self.duplicates_processed()
         self.pd.hide()
         from calibre.gui2.dialogs.duplicates import DuplicatesQuestion
-        d = DuplicatesQuestion(self.db, duplicates, self._parent)
+        self.__d_q = d = DuplicatesQuestion(self.db, duplicates, self._parent)
         duplicates = tuple(d.duplicates)
         if duplicates:
             pd = QProgressDialog(_('Adding duplicates...'), '', 0, len(duplicates),
