@@ -25,6 +25,23 @@ class PushButton(QPushButton):
         QPushButton.__init__(self, text, parent)
         self.clicked.connect(lambda : parent.search_triggered.emit(action))
 
+class HistoryLineEdit(HistoryLineEdit2):
+
+    def __init__(self, parent):
+        HistoryLineEdit2.__init__(self, parent)
+        self.disable_popup = tprefs['disable_completion_popup_for_search']
+
+    def contextMenuEvent(self, event):
+        menu = self.createStandardContextMenu()
+        menu.addSeparator()
+        menu.addAction((_('Show completion based on search history') if self.disable_popup else _(
+            'Hide completion based on search history')), self.toggle_popups)
+        menu.exec_(event.globalPos())
+
+    def toggle_popups(self):
+        self.disable_popup = not bool(self.disable_popup)
+        tprefs['disable_completion_popup_for_search'] = self.disable_popup
+
 class SearchWidget(QWidget):
 
     DEFAULT_STATE = {
@@ -46,7 +63,7 @@ class SearchWidget(QWidget):
 
         self.fl = fl = QLabel(_('&Find:'))
         fl.setAlignment(Qt.AlignRight | Qt.AlignCenter)
-        self.find_text = ft = HistoryLineEdit2(self)
+        self.find_text = ft = HistoryLineEdit(self)
         ft.initialize('tweak_book_find_edit')
         ft.returnPressed.connect(lambda : self.search_triggered.emit('find'))
         fl.setBuddy(ft)
@@ -55,7 +72,7 @@ class SearchWidget(QWidget):
 
         self.rl = rl = QLabel(_('&Replace:'))
         rl.setAlignment(Qt.AlignRight | Qt.AlignCenter)
-        self.replace_text = rt = HistoryLineEdit2(self)
+        self.replace_text = rt = HistoryLineEdit(self)
         rt.initialize('tweak_book_replace_edit')
         rl.setBuddy(rt)
         l.addWidget(rl, 1, 0)

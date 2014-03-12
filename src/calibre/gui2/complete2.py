@@ -76,6 +76,7 @@ class Completer(QListView):  # {{{
 
     def __init__(self, completer_widget, max_visible_items=7):
         QListView.__init__(self)
+        self.disable_popup = False
         self.completer_widget = weakref.ref(completer_widget)
         self.setWindowFlags(Qt.Popup)
         self.max_visible_items = max_visible_items
@@ -132,6 +133,8 @@ class Completer(QListView):  # {{{
                 self.setCurrentIndex(index)
 
     def popup(self, select_first=True):
+        if self.disable_popup:
+            return
         p = self
         m = p.model()
         widget = self.completer_widget()
@@ -293,6 +296,13 @@ class LineEdit(QLineEdit, LineEditECM):
             self.mcompleter.model().set_items(items)
         return property(fget=fget, fset=fset)
 
+    @dynamic_property
+    def disable_popup(self):
+        def fget(self):
+            return self.mcompleter.disable_popup
+        def fset(self, val):
+            self.mcompleter.disable_popup = bool(val)
+        return property(fget=fget, fset=fset)
     # }}}
 
     def complete(self, show_all=False, select_first=True):
