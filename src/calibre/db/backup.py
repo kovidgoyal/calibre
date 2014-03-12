@@ -93,6 +93,7 @@ class MetadataBackup(Thread):
         except:
             prints('Failed to convert to opf for id:', book_id)
             traceback.print_exc()
+            self.db.clear_dirtied(book_id, sequence)
             return
 
         self.wait(self.scheduling_interval)
