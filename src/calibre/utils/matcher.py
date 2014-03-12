@@ -92,7 +92,7 @@ class Matcher(object):
         self.scorers = [scorer(tuple(map(itemgetter(1), task_items))) for task_items in tasks]
         self.sort_keys = None
 
-    def __call__(self, query):
+    def __call__(self, query, limit=None):
         query = normalize('NFC', unicode(query))
         with wlock:
             for i, scorer in enumerate(self.scorers):
@@ -119,6 +119,8 @@ class Matcher(object):
             raise Exception('Failed to score items: %s' % error)
         items = sorted(((-scores[i], item, positions[i]) for i, item in enumerate(self.items)),
                        key=itemgetter(0))
+        if limit is not None:
+            del items[limit:]
         return OrderedDict(x[1:] for x in filter(itemgetter(0), items))
 
 def get_items_from_dir(basedir, acceptq=lambda x: True):

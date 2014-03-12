@@ -37,8 +37,8 @@ from calibre.gui2.tweak_book.toc import TOCEditor
 from calibre.gui2.tweak_book.editor import editor_from_syntax, syntax_from_mime
 from calibre.gui2.tweak_book.editor.insert_resource import get_resource_data, NewBook
 from calibre.gui2.tweak_book.preferences import Preferences
-from calibre.gui2.tweak_book.widgets import RationalizeFolders, MultiSplit, ImportForeign
-from calibre.gui2.tweak_book.widgets import QuickOpen
+from calibre.gui2.tweak_book.widgets import (
+    RationalizeFolders, MultiSplit, ImportForeign, QuickOpen, InsertLink)
 
 _diff_dialogs = []
 
@@ -641,6 +641,11 @@ class Boss(QObject):
                         chosen_name = chosen_image_is_external[0]
                     href = current_container().name_to_href(chosen_name, edname)
                     ed.insert_image(href)
+            elif action[0] == 'insert_hyperlink':
+                self.commit_all_editors_to_container()
+                d = InsertLink(current_container(), edname, parent=self.gui)
+                if d.exec_() == d.Accepted:
+                    ed.insert_hyperlink(d.href)
             else:
                 ed.action_triggered(action)
 

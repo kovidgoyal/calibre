@@ -12,12 +12,17 @@ from itertools import izip
 from PyQt4.Qt import (
     QDialog, QDialogButtonBox, QGridLayout, QLabel, QLineEdit, QVBoxLayout,
     QFormLayout, QHBoxLayout, QToolButton, QIcon, QApplication, Qt, QWidget,
-    QPoint, QSizePolicy, QPainter, QStaticText, pyqtSignal, QTextOption)
+    QPoint, QSizePolicy, QPainter, QStaticText, pyqtSignal, QTextOption,
+    QAbstractListModel, QModelIndex, QVariant, QStyledItemDelegate, QStyle,
+    QListView, QTextDocument, QSize)
 
 from calibre import prepare_string_for_xml
-from calibre.gui2 import error_dialog, choose_files, choose_save_file
+from calibre.gui2 import error_dialog, choose_files, choose_save_file, NONE
 from calibre.gui2.tweak_book import tprefs
+from calibre.utils.icu import primary_sort_key
 from calibre.utils.matcher import get_char, Matcher
+
+ROOT = QModelIndex()
 
 class Dialog(QDialog):
 
@@ -230,6 +235,15 @@ class ImportForeign(Dialog):  # {{{
 
 # Quick Open {{{
 
+def make_highlighted_text(emph, text, positions):
+    positions = sorted(set(positions) - {-1}, reverse=True)
+    text = prepare_string_for_xml(text)
+    for p in positions:
+        ch = get_char(text, p)
+        text = '%s<span style="%s">%s</span>%s' % (text[:p], emph, ch, text[p+len(ch):])
+    return text
+
+
 class Results(QWidget):
 
     EMPH = "color:magenta; font-weight:bold"
@@ -310,12 +324,7 @@ class Results(QWidget):
         self.update()
 
     def make_text(self, text, positions):
-        positions = sorted(set(positions) - {-1}, reverse=True)
-        text = prepare_string_for_xml(text)
-        for p in positions:
-            ch = get_char(text, p)
-            text = '%s<span style="%s">%s</span>%s' % (text[:p], self.EMPH, ch, text[p+len(ch):])
-        text = QStaticText(text)
+        text = QStaticText(make_highlighted_text(self.EMPH, text, positions))
         text.setTextOption(self.text_option)
         text.setTextFormat(Qt.RichText)
         return text
@@ -411,7 +420,7 @@ class QuickOpen(Dialog):
         text = unicode(text).strip()
         self.help_label.setVisible(False)
         self.results.setVisible(True)
-        matches = self.matcher(text)
+        matches = self.matcher(text, limit=100)
         self.results(matches)
         self.matches = tuple(matches)
 
@@ -437,6 +446,193 @@ class QuickOpen(Dialog):
 
 # }}}
 
+# Filterable names list {{{
+
+class NamesDelegate(QStyledItemDelegate):
+
+    def sizeHint(self, option, index):
+        ans = QStyledItemDelegate.sizeHint(self, option, index)
+        ans.setHeight(ans.height() + 10)
+        return ans
+
+    def paint(self, painter, option, index):
+        QStyledItemDelegate.paint(self, painter, option, index)
+        text, positions = index.data(Qt.UserRole).toPyObject()
+        self.initStyleOption(option, index)
+        painter.save()
+        painter.setFont(option.font)
+        p = option.palette
+        c = p.HighlightedText if option.state & QStyle.State_Selected else p.Text
+        group = (p.Active if option.state & QStyle.State_Active else p.Inactive)
+        c = p.color(group, c)
+        painter.setClipRect(option.rect)
+        if positions is None or -1 in positions:
+            painter.setPen(c)
+            painter.drawText(option.rect, Qt.AlignLeft | Qt.AlignVCenter | Qt.TextSingleLine, text)
+        else:
+            to = QTextOption()
+            to.setWrapMode(to.NoWrap)
+            to.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
+            positions = sorted(set(positions) - {-1}, reverse=True)
+            text = '<body>%s</body>' % make_highlighted_text(Results.EMPH, text, positions)
+            doc = QTextDocument()
+            c = 'rgb(%d, %d, %d)'%c.getRgb()[:3]
+            doc.setDefaultStyleSheet(' body { color: %s }'%c)
+            doc.setHtml(text)
+            doc.setDefaultFont(option.font)
+            doc.setDocumentMargin(0.0)
+            doc.setDefaultTextOption(to)
+            height = doc.size().height()
+            painter.translate(option.rect.left(), option.rect.top() + (max(0, option.rect.height() - height) // 2))
+            doc.drawContents(painter)
+        painter.restore()
+
+class NamesModel(QAbstractListModel):
+
+    filtered = pyqtSignal(object)
+
+    def __init__(self, names, parent=None):
+        self.items = []
+        QAbstractListModel.__init__(self, parent)
+        self.set_names(names)
+
+    def set_names(self, names):
+        self.names = names
+        self.matcher = Matcher(names)
+        self.filter('')
+
+    def rowCount(self, parent=ROOT):
+        return len(self.items)
+
+    def data(self, index, role):
+        if role == Qt.UserRole:
+            return QVariant(self.items[index.row()])
+        if role == Qt.DisplayRole:
+            return QVariant('\xa0' * 20)
+        return NONE
+
+    def filter(self, query):
+        query = unicode(query or '')
+        if not query:
+            self.items = tuple((text, None) for text in self.names)
+        else:
+            self.items = tuple(self.matcher(query).iteritems())
+        self.reset()
+        self.filtered.emit(not bool(query))
+
+def create_filterable_names_list(names, filter_text=None, parent=None):
+    nl = QListView(parent)
+    nl.m = m = NamesModel(names, parent=nl)
+    m.filtered.connect(lambda all_items: nl.scrollTo(m.index(0)))
+    nl.setModel(m)
+    nl.d = NamesDelegate(nl)
+    nl.setItemDelegate(nl.d)
+    f = QLineEdit(parent)
+    f.setPlaceholderText(filter_text or '')
+    f.textEdited.connect(m.filter)
+    return nl, f
+
+# }}}
+
+# Insert Link {{{
+class InsertLink(Dialog):
+
+    def __init__(self, container, source_name, parent=None):
+        self.container = container
+        self.source_name = source_name
+        Dialog.__init__(self, _('Insert Hyperlink'), 'insert-hyperlink', parent=parent)
+        self.anchor_cache = {}
+
+    def sizeHint(self):
+        return QSize(800, 600)
+
+    def setup_ui(self):
+        self.l = l = QVBoxLayout(self)
+        self.setLayout(l)
+
+        self.h = h = QHBoxLayout()
+        l.addLayout(h)
+
+        names = [n for n, linear in self.container.spine_names]
+        fn, f = create_filterable_names_list(names, filter_text=_('Filter files'), parent=self)
+        self.file_names, self.file_names_filter = fn, f
+        fn.selectionModel().selectionChanged.connect(self.selected_file_changed)
+        self.fnl = fnl = QVBoxLayout()
+        self.la1 = la = QLabel(_('Choose a &file to link to:'))
+        la.setBuddy(fn)
+        fnl.addWidget(la), fnl.addWidget(fn), fnl.addWidget(f)
+        h.addLayout(fnl), h.setStretch(0, 2)
+
+        fn, f = create_filterable_names_list([], filter_text=_('Filter locations'), parent=self)
+        self.anchor_names, self.anchor_names_filter = fn, f
+        fn.selectionModel().selectionChanged.connect(self.update_target)
+        fn.doubleClicked.connect(self.accept, type=Qt.QueuedConnection)
+        self.anl = fnl = QVBoxLayout()
+        self.la2 = la = QLabel(_('Choose a &location (anchor) in the file:'))
+        la.setBuddy(fn)
+        fnl.addWidget(la), fnl.addWidget(fn), fnl.addWidget(f)
+        h.addLayout(fnl), h.setStretch(1, 1)
+
+        self.tl = tl = QHBoxLayout()
+        self.la3 = la = QLabel(_('&Target:'))
+        tl.addWidget(la)
+        self.target = t = QLineEdit(self)
+        la.setBuddy(t)
+        tl.addWidget(t)
+        l.addLayout(tl)
+
+        l.addWidget(self.bb)
+
+    def selected_file_changed(self, *args):
+        rows = list(self.file_names.selectionModel().selectedRows())
+        if not rows:
+            self.anchor_names.model().set_names([])
+        else:
+            name, positions = self.file_names.model().data(rows[0], Qt.UserRole).toPyObject()
+            self.populate_anchors(name)
+
+    def populate_anchors(self, name):
+        if name not in self.anchor_cache:
+            from calibre.ebooks.oeb.base import XHTML_NS
+            root = self.container.parsed(name)
+            self.anchor_cache[name] = sorted(
+                (set(root.xpath('//*/@id')) | set(root.xpath('//h:a/@name', namespaces={'h':XHTML_NS}))) - {''}, key=primary_sort_key)
+        self.anchor_names.model().set_names(self.anchor_cache[name])
+        self.update_target()
+
+    def update_target(self):
+        rows = list(self.file_names.selectionModel().selectedRows())
+        if not rows:
+            return
+        name = self.file_names.model().data(rows[0], Qt.UserRole).toPyObject()[0]
+        if name == self.source_name:
+            href = ''
+        else:
+            href = self.container.name_to_href(name, self.source_name)
+        frag = ''
+        rows = list(self.anchor_names.selectionModel().selectedRows())
+        if rows:
+            anchor = self.anchor_names.model().data(rows[0], Qt.UserRole).toPyObject()[0]
+            if anchor:
+                frag = '#' + anchor
+        href += frag
+        self.target.setText(href or '#')
+
+    @property
+    def href(self):
+        return unicode(self.target.text()).strip()
+
+    @classmethod
+    def test(cls):
+        import sys
+        from calibre.ebooks.oeb.polish.container import get_container
+        c = get_container(sys.argv[-1], tweak_mode=True)
+        d = cls(c, next(c.spine_names)[0])
+        if d.exec_() == d.Accepted:
+            print (d.href)
+
+# }}}
+
 if __name__ == '__main__':
     app = QApplication([])
-    QuickOpen.test()
+    InsertLink.test()
