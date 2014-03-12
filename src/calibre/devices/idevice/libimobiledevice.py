@@ -403,13 +403,13 @@ class libiMobileDevice():
         self._log_location()
         return self._lockdown_get_value(requested_items)
 
-    def listdir(self, path):
+    def listdir(self, path, get_stats=True):
         '''
         Return a list containing the names of the entries in the iOS directory
         given by path.
         '''
         self._log_location("'%s'" % path)
-        return self._afc_read_directory(path)
+        return self._afc_read_directory(path, get_stats=get_stats)
 
     def load_library(self):
         if islinux:
@@ -1053,16 +1053,17 @@ class libiMobileDevice():
 
         return error
 
-    def _afc_read_directory(self, directory=''):
+    def _afc_read_directory(self, directory='', get_stats=True):
         '''
         Gets a directory listing of the directory requested
 
         Args:
-         client: (AFC_CLIENT_T) The client to get a directory listing from
-         dir:    (const char *) The directory to list (a fully-qualified path)
-         list:   (char ***) A char list of files in that directory, terminated by
-                  an empty string. NULL if there was an error.
-
+         client:    (AFC_CLIENT_T) The client to get a directory listing from
+         dir:       (const char *) The directory to list (a fully-qualified path)
+         list:      (char ***) A char list of files in that directory, terminated by
+                     an empty string. NULL if there was an error.
+         get_stats: If True, return full file stats for each file in dir (slower)
+                    If False, return filename only (faster)
         Result:
          error: AFC_E_SUCCESS on success or an AFC_E_* error value
          file_stats:
@@ -1094,7 +1095,10 @@ class libiMobileDevice():
                     path = '/' + this_item
                 else:
                     path = '/'.join([directory, this_item])
-                file_stats[os.path.basename(path)] = self._afc_get_file_info(path)
+                if get_stats:
+                    file_stats[os.path.basename(path)] = self._afc_get_file_info(path)
+                else:
+                    file_stats[os.path.basename(path)] = {}
             self.current_dir = directory
         return file_stats
 
