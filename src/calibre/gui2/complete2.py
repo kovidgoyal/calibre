@@ -260,7 +260,6 @@ class LineEdit(QLineEdit, LineEditECM):
         QLineEdit.__init__(self, parent)
 
         self.sep = ','
-        self.eat_focus_out = False
         self.space_before_sep = False
         self.add_separator = True
         self.original_cursor_pos = None
@@ -313,17 +312,13 @@ class LineEdit(QLineEdit, LineEditECM):
         if not self.mcompleter.model().current_items:
             self.mcompleter.hide()
             return
-        self.eat_focus_out = True
         self.mcompleter.popup(select_first=select_first)
+        self.setFocus(Qt.OtherFocusReason)
         self.mcompleter.scroll_to(orig)
-
-    def focusOutEvent(self, ev):
-        if not self.eat_focus_out:
-            QLineEdit.focusOutEvent(self, ev)
-        self.eat_focus_out = False
 
     def relayout(self):
         self.mcompleter.popup()
+        self.setFocus(Qt.OtherFocusReason)
 
     def text_edited(self, *args):
         if self.no_popup:
