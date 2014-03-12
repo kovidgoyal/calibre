@@ -148,7 +148,7 @@ def mi_to_html(mi, field_list=None, default_author_link=None, use_roman_numbers=
                             default_author_link, vals, '', vals)
                 aut = p(aut)
                 if link:
-                    authors.append(u'<a calibre-data="authors" href="%s">%s</a>'%(a(link), aut))
+                    authors.append(u'<a calibre-data="authors" title="%s" href="%s">%s</a>'%(a(link), a(link), aut))
                 else:
                     authors.append(aut)
             ans.append((field, row % (name, u' & '.join(authors))))
