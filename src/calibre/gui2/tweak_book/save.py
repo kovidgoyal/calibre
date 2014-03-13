@@ -22,6 +22,13 @@ from calibre.utils.ipc import RC
 def save_container(container, path):
     temp = PersistentTemporaryFile(
         prefix=('_' if iswindows else '.'), suffix=os.path.splitext(path)[1], dir=os.path.dirname(path))
+    if hasattr(os, 'fchmod'):
+        # Ensure file permissions and owner information is preserved
+        fno = temp.fileno()
+        st = os.stat(path)
+        os.fchmod(fno, st.st_mode)
+        os.fchown(fno, st.st_uid, st.st_gid)
+
     temp.close()
     temp = temp.name
     try:
