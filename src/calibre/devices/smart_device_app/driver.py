@@ -1513,12 +1513,23 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                 return None
 
         sync_type = book.get('_sync_type_', None);
-        is_read = book.get('_is_read_', None)
+        # We need to check if our attributes are in the book. If they are not
+        # then this is metadata coming from calibre to the device for the first
+        # time, in which case we must not sync it.
+        if hasattr(book, '_is_read_'):
+            is_read = book.get('_is_read_', None)
+            has_is_read = True
+        else:
+            has_is_read = False
 
-        # parse_date returns UNDEFINED_DATE if the value is None
-        is_read_date = parse_date(book.get('_last_read_date_', None));
-        if is_date_undefined(is_read_date):
-            is_read_date = None
+        if hasattr(book, '_last_read_date_'):
+            # parse_date returns UNDEFINED_DATE if the value is None
+            is_read_date = parse_date(book.get('_last_read_date_', None));
+            if is_date_undefined(is_read_date):
+                is_read_date = None
+            has_is_read_date = True
+        else:
+            has_is_read_date = False
 
         force_return_changed_books = False
         changed_books = set()
@@ -1539,7 +1550,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
             # calibre value wins.
 
             # Check is_read
-            if self.is_read_sync_col:
+            if has_is_read and self.is_read_sync_col:
                 try:
                     calibre_val = db.new_api.field_for(self.is_read_sync_col,
                                                        id_, default_value=None)
@@ -1564,7 +1575,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                     traceback.print_exc()
 
             # Check is_read_date.
-            if self.is_read_date_sync_col:
+            if has_is_read_date and self.is_read_date_sync_col:
                 try:
                     # The db method returns None for undefined dates.
                     calibre_val = db.new_api.field_for(self.is_read_date_sync_col,
@@ -1588,7 +1599,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
             # This is the standard sync case. If the CC value has changed, it
             # wins, otherwise the calibre value is synced to CC in the normal
             # fashion (mod date)
-            if self.is_read_sync_col:
+            if has_is_read and self.is_read_sync_col:
                 try:
                     orig_is_read = book.get(self.is_read_sync_col, None)
                     if is_read != orig_is_read:
@@ -1605,7 +1616,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                     self._debug('exception standard syncing is_read', self.is_read_sync_col)
                     traceback.print_exc()
 
-            if self.is_read_date_sync_col:
+            if has_is_read_date and self.is_read_date_sync_col:
                 try:
                     orig_is_read_date = book.get(self.is_read_date_sync_col, None)
                     if is_date_undefined(orig_is_read_date):
