@@ -34,3 +34,8 @@ class HistoryLineEdit2(LineEdit):
             history.set(self.store_name, self.history)
             self.update_items_cache(self.history)
 
+    def clear_history(self):
+        self.history = []
+        history.set(self.store_name, self.history)
+        self.update_items_cache(self.history)
+
