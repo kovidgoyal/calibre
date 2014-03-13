@@ -560,7 +560,7 @@ class InsertLink(Dialog):
         self.fnl = fnl = QVBoxLayout()
         self.la1 = la = QLabel(_('Choose a &file to link to:'))
         la.setBuddy(fn)
-        fnl.addWidget(la), fnl.addWidget(fn), fnl.addWidget(f)
+        fnl.addWidget(la), fnl.addWidget(f), fnl.addWidget(fn)
         h.addLayout(fnl), h.setStretch(0, 2)
 
         fn, f = create_filterable_names_list([], filter_text=_('Filter locations'), parent=self)
@@ -570,7 +570,7 @@ class InsertLink(Dialog):
         self.anl = fnl = QVBoxLayout()
         self.la2 = la = QLabel(_('Choose a &location (anchor) in the file:'))
         la.setBuddy(fn)
-        fnl.addWidget(la), fnl.addWidget(fn), fnl.addWidget(f)
+        fnl.addWidget(la), fnl.addWidget(f), fnl.addWidget(fn)
         h.addLayout(fnl), h.setStretch(1, 1)
 
         self.tl = tl = QHBoxLayout()
