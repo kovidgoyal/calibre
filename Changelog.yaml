@@ -20,6 +20,46 @@
 #   new recipes:
 #     - title: 
 
+- version: 1.28.0
+  date: 2014-03-14
+
+  new features:
+    - title: "Edit Book: Add a tool to easily insert hyperlinks (click the insert hyperlink button on the toolbar)"
+
+    - title: "Edit book: Add a tool to easily open a file inside the book for editing by just typing a few characters from the file name. To use it press Ctrl+T in the editor or go to Edit->Quick open a file to edit'"
+
+    - title: "Edit book: Allow disabling the completion popups for the search and replace fields. Right click on the search/replace field to enable/disable the completion popup"
+
+    - title: "E-book viewer: Add an option to control the maximum text height in full screen. Note that it only works if the viewer is in paged mode (which is the default mode)."
+
+    - title: "Show the search expression for the virtual library in a tooltip when hovering over the tab for the virtual library."
+      tickets: [1291691]
+
+    - title: "Book details panel: Show author URL in a tooltip when hovering over author names"
+
+    - title: "Kobo driver: Update to handle updated Kobo firmware"
+
+  bug fixes:
+    - title: "Library backup: Avoid infinite retries if converting metadata to backup OPF for a book fails. Simply fail to backup the metadata for that book."
+      tickets: [1291142]
+
+    - title: "Edit book: Fix file permissions for the edited book being changed on Linux and OS X"
+
+    - title: "Fix text entry cursor becoming invisible when completion popup is opened"
+
+    - title: "Possible fix for crash on OS X Mavericks when adding duplicates"
+
+    - title: "E-book viewer: Fix pressing the Esc key to leave full screen mode not changing the state of the full screen button"
+
+    - title: "When reading metadata from filenames, do not apply the fallback regexp to read metadata if the user specified regexp puts the entire filename into the title. The fallback is only used if the user specified expression does not match the filename at all."
+
+    - title: "Linux binary install script: Fix error on linux systems where the system python has an encoding of None set on stdout. Assume encoding is utf-8 in this case."
+
+    - title: "Content server: Fix (maybe) an error on some windows computers with a non-standard default encoding"
+
+  improved recipes:
+    - Fleshbot
+
 - version: 1.27.0
   date: 2014-03-07
 
