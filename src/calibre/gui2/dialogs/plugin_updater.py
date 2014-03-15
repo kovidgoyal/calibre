@@ -748,8 +748,8 @@ class PluginUpdaterDialog(SizePersistedDialog):
                          det_msg=traceback.format_exc(), show=True)
             if DEBUG:
                 prints('Due to error now uninstalling plugin: %s'%display_plugin.name)
-                remove_plugin(display_plugin.name)
-                display_plugin.plugin = None
+            remove_plugin(display_plugin.name)
+            display_plugin.plugin = None
 
         display_plugin.uninstall_plugins = []
         if self.proxy_model.filter_criteria in [FILTER_NOT_INSTALLED, FILTER_UPDATE_AVAILABLE]:
