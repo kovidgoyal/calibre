@@ -643,9 +643,9 @@ class Boss(QObject):
                     ed.insert_image(href)
             elif action[0] == 'insert_hyperlink':
                 self.commit_all_editors_to_container()
-                d = InsertLink(current_container(), edname, parent=self.gui)
+                d = InsertLink(current_container(), edname, initial_text=ed.get_smart_selection(), parent=self.gui)
                 if d.exec_() == d.Accepted:
-                    ed.insert_hyperlink(d.href)
+                    ed.insert_hyperlink(d.href, d.text)
             else:
                 ed.action_triggered(action)
 

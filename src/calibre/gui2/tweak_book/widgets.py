@@ -537,9 +537,10 @@ def create_filterable_names_list(names, filter_text=None, parent=None):
 # Insert Link {{{
 class InsertLink(Dialog):
 
-    def __init__(self, container, source_name, parent=None):
+    def __init__(self, container, source_name, initial_text=None, parent=None):
         self.container = container
         self.source_name = source_name
+        self.initial_text = initial_text
         Dialog.__init__(self, _('Insert Hyperlink'), 'insert-hyperlink', parent=parent)
         self.anchor_cache = {}
 
@@ -573,13 +574,17 @@ class InsertLink(Dialog):
         fnl.addWidget(la), fnl.addWidget(f), fnl.addWidget(fn)
         h.addLayout(fnl), h.setStretch(1, 1)
 
-        self.tl = tl = QHBoxLayout()
-        self.la3 = la = QLabel(_('&Target:'))
-        tl.addWidget(la)
+        self.tl = tl = QFormLayout()
         self.target = t = QLineEdit(self)
-        la.setBuddy(t)
-        tl.addWidget(t)
+        t.setPlaceholderText(_('The destination (href) for the link'))
+        tl.addRow(_('&Target:'), t)
         l.addLayout(tl)
+
+        self.text_edit = t = QLineEdit(self)
+        la.setBuddy(t)
+        tl.addRow(_('Te&xt:'), t)
+        t.setText(self.initial_text or '')
+        t.setPlaceholderText(_('The (optional) text for the link'))
 
         l.addWidget(self.bb)
 
@@ -622,6 +627,10 @@ class InsertLink(Dialog):
     def href(self):
         return unicode(self.target.text()).strip()
 
+    @property
+    def text(self):
+        return unicode(self.text_edit.text()).strip()
+
     @classmethod
     def test(cls):
         import sys
@@ -629,7 +638,7 @@ class InsertLink(Dialog):
         c = get_container(sys.argv[-1], tweak_mode=True)
         d = cls(c, next(c.spine_names)[0])
         if d.exec_() == d.Accepted:
-            print (d.href)
+            print (d.href, d.text)
 
 # }}}
 

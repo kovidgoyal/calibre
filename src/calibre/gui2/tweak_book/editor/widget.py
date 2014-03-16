@@ -144,8 +144,8 @@ class Editor(QMainWindow):
     def insert_image(self, href):
         self.editor.insert_image(href)
 
-    def insert_hyperlink(self, href):
-        self.editor.insert_hyperlink(href)
+    def insert_hyperlink(self, href, text):
+        self.editor.insert_hyperlink(href, text)
 
     def undo(self):
         self.editor.undo()
@@ -156,6 +156,9 @@ class Editor(QMainWindow):
     @property
     def selected_text(self):
         return self.editor.selected_text
+
+    def get_smart_selection(self, update=True):
+        return self.editor.smarts.get_smart_selection(self.editor, update=update)
 
     # Search and replace {{{
     def mark_selected_text(self):
