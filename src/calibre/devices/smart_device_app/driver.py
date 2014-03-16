@@ -1779,6 +1779,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
 
     @synchronous('sync_lock')
     def shutdown(self):
+        self._close_device_socket()
         if getattr(self, 'listen_socket', None) is not None:
             self.connection_listener.stop()
             try:
