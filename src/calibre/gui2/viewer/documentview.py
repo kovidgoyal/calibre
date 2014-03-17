@@ -281,11 +281,16 @@ class Document(QWebPage):  # {{{
             ))
         force_fullscreen_layout = bool(getattr(last_loaded_path,
                                                'is_single_page', False))
-        f = 'true' if force_fullscreen_layout else 'false'
-        side_margin = self.javascript('window.paged_display.layout(%s)'%f, typ=int)
+        self.update_contents_size_for_paged_mode(force_fullscreen_layout)
+
+    def update_contents_size_for_paged_mode(self, force_fullscreen_layout=None):
         # Setup the contents size to ensure that there is a right most margin.
         # Without this WebKit renders the final column with no margin, as the
         # columns extend beyond the boundaries (and margin) of body
+        if force_fullscreen_layout is None:
+            force_fullscreen_layout = self.javascript('window.paged_display.is_full_screen_layout', typ=bool)
+        f = 'true' if force_fullscreen_layout else 'false'
+        side_margin = self.javascript('window.paged_display.layout(%s)'%f, typ=int)
         mf = self.mainFrame()
         sz = mf.contentsSize()
         scroll_width = self.javascript('document.body.scrollWidth', int)
@@ -354,6 +359,8 @@ class Document(QWebPage):  # {{{
             return ans[0] if ans[1] else 0.0
         if typ == 'string':
             return unicode(ans.toString())
+        if typ in {bool, 'bool'}:
+            return ans.toBool()
         return ans
 
     def javaScriptConsoleMessage(self, msg, lineno, msgid):
@@ -1104,8 +1111,12 @@ class DocumentView(QWebView):  # {{{
         def fget(self):
             return self.zoomFactor()
         def fset(self, val):
+            oval = self.zoomFactor()
             self.setZoomFactor(val)
-            self.magnification_changed.emit(val)
+            if val != oval:
+                if self.document.in_paged_mode:
+                    self.document.update_contents_size_for_paged_mode()
+                self.magnification_changed.emit(val)
         return property(fget=fget, fset=fset)
 
     def magnify_fonts(self, amount=None):
