@@ -81,8 +81,11 @@ class PlainTextEdit(QPlainTextEdit):
         if hasattr(ans, 'rstrip'):
             ans = ans.rstrip('\0')
         else:  # QString
-            while ans[-1] == '\0':
-                ans.chop(1)
+            try:
+                while ans[-1] == '\0':
+                    ans.chop(1)
+            except IndexError:
+                pass  # ans is an empty string
         return ans
 
     @pyqtSlot()
