@@ -2,10 +2,8 @@
 __license__   = 'GPL v3'
 __docformat__ = 'restructuredtext en'
 
-import re
 
 from calibre.web.feeds.news import BasicNewsRecipe
-from calibre.ebooks.chardet import xml_to_unicode
 
 class Wired_Daily(BasicNewsRecipe):
 
@@ -14,22 +12,13 @@ class Wired_Daily(BasicNewsRecipe):
     description = 'Technology news'
     timefmt  = ' [%Y%b%d  %H%M]'
     language = 'en'
-
+    use_embedded_content = False
     no_stylesheets = True
 
-    preprocess_regexps = [(re.compile(r'<head.*</head>', re.DOTALL), lambda m:
-        '<head></head>')]
+    keep_only_tags = [  # dict(name= 'div', id ='liveblog-hdr'),
+                      dict(name='div', attrs={'class': 'post'})]
 
-    remove_tags_before = dict(name='div', id='content')
-    remove_tags = [dict(id=['header', 'commenting_module', 'post_nav',
-        'social_tools', 'sidebar', 'footer', 'social_wishlist', 'pgwidget',
-        'outerWrapper', 'inf_widget']),
-        {'class':['entryActions', 'advertisement', 'entryTags']},
-        dict(name=['noscript', 'script']),
-        dict(name='h4', attrs={'class':re.compile(r'rat\d+')}),
-        {'class':lambda x: x and x.startswith('contentjump')},
-        dict(name='li', attrs={'class':['entryCategories', 'entryEdit']})]
-
+    remove_tags = [dict(name='div', attrs={'class': 'social-top'})]
 
     feeds = [
         ('Top News', 'http://feeds.wired.com/wired/index'),
@@ -49,11 +38,8 @@ class Wired_Daily(BasicNewsRecipe):
         ('Science', 'http://www.wired.com/wiredscience/feed/'),
         ]
 
-    def populate_article_metadata(self, article, soup, first):
-        if article.text_summary:
-            article.text_summary = xml_to_unicode(article.text_summary,
-                    resolve_entities=True)[0]
-
-    def print_version(self, url):
-        return url + '/all/1'
+    def preprocess_html(self, soup):
+        for img in soup.findAll('img', attrs={'data-lazy-src':True}):
+            img['src'] = img['data-lazy-src']
+        return soup
 
