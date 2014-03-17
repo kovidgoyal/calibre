@@ -22,6 +22,7 @@ class PagedDisplay
         this.set_geometry()
         this.page_width = 0
         this.screen_width = 0
+        this.side_margin = 0
         this.in_paged_mode = false
         this.current_margin_side = 0
         this.is_full_screen_layout = false
@@ -122,6 +123,7 @@ class PagedDisplay
             col_width = Math.max(100, ((ww - adjust)/n) - 2*sm)
         this.col_width = col_width
         this.page_width = col_width + 2*sm
+        this.side_margin = sm
         this.screen_width = this.page_width * this.cols_per_screen
 
         fgcolor = body_style.getPropertyValue('color')
