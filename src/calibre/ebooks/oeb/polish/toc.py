@@ -20,7 +20,9 @@ from calibre import __version__
 from calibre.ebooks.oeb.base import XPath, uuid_id, xml2text, NCX, NCX_NS, XML, XHTML, XHTML_NS, serialize
 from calibre.ebooks.oeb.polish.errors import MalformedMarkup
 from calibre.ebooks.oeb.polish.utils import guess_type
+from calibre.ebooks.oeb.polish.opf import set_guide_item, get_book_language
 from calibre.ebooks.oeb.polish.pretty import pretty_html_tree
+from calibre.translations.dynamic import translate
 from calibre.utils.localization import get_lang, canonicalize_lang, lang_as_iso639_1
 
 ns = etree.FunctionNamespace('calibre_xpath_extensions')
@@ -481,7 +483,12 @@ def find_inline_toc(container):
             return name
 
 def create_inline_toc(container, title=None):
-    title = title or _('Table of Contents')
+    lang = get_book_language(container)
+    default_title = 'Table of Contents'
+    if lang:
+        lang = lang_as_iso639_1(lang) or lang
+        default_title = translate(lang, default_title)
+    title = title or default_title
     toc = get_toc(container)
     if len(toc) == 0:
         return None
@@ -529,6 +536,8 @@ def create_inline_toc(container, title=None):
     name = toc_name
     for child in toc:
         process_node(html[1][1], child)
+    if lang:
+        html.set('lang', lang)
     pretty_html_tree(container, html)
     raw = serialize(html, 'text/html')
     if name is None:
@@ -540,5 +549,6 @@ def create_inline_toc(container, title=None):
     else:
         with container.open(name, 'wb') as f:
             f.write(raw)
+    set_guide_item(container, 'toc', title, name, frag='calibre_generated_inline_toc')
     return name
 
