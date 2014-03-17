@@ -13,17 +13,17 @@ from calibre.web.feeds.jsnews import JavascriptRecipe
 from lxml import html
 
 def wait_for_load(browser):
-    # This element is present in the black login bar at the top
-    browser.wait_for_element('#site-header p.constrain', timeout=180)
+    # This element is present next to the main TIME logo in the left hand side nav bar
+    browser.wait_for_element('.signedin-wrap a[href]', timeout=180)
 
 # Keep the login method as standalone, so it can be easily tested
 def do_login(browser, username, password):
     from calibre.web.jsbrowser.browser import Timeout
-    browser.visit('http://www.time.com/time/magazine')
-    form = browser.select_form('#magazine-signup')
+    browser.visit('http://time.com/magazine')
+    form = browser.select_form('#sign-in-form')
     form['username'] = username
     form['password'] = password
-    browser.submit('#paid-wall-submit')
+    browser.submit('#Sign_In')
     try:
         wait_for_load(browser)
     except Timeout:
@@ -40,100 +40,57 @@ class Time(JavascriptRecipe):
 
     no_stylesheets        = True
     remove_javascript     = True
-    keep_only_tags = ['article.post']
-    remove_tags = ['meta', '.entry-sharing', '.entry-footer', '.wp-paginate',
-                   '.post-rail', '.entry-comments', '.entry-tools',
-                   '#paid-wall-cm-ad']
-
-    recursions = 1
-    links_from_selectors = ['.wp-paginate a.page[href]']
-
-    extra_css = '.entry-date { padding-left: 2ex }'
+    keep_only_tags = ['.article-viewport .full-article']
+    remove_tags = ['.read-more-list', '.read-more-inline', '.article-footer', '.subscribe', '.tooltip', '#first-visit']
 
     def do_login(self, browser, username, password):
         do_login(browser, username, password)
 
-    def get_publication_data(self, browser):
-        selector = 'section.sec-mag-showcase ul.ul-mag-showcase img[src]'
+    def get_time_cover(self, browser):
+        selector = '#rail-articles img.magazine-thumb'
         cover = browser.css_select(selector)
         # URL for large cover
-        cover_url = unicode(cover.evaluateJavaScript('this.src').toString()).replace('_400.', '_600.')
-        raw = browser.html
-        ans = {'cover': browser.get_resource(cover_url)}
+        cover_url = unicode(cover.evaluateJavaScript('this.src').toString()).partition('?')[0] + '?w=814'
+        return browser.get_resource(cover_url)
+
+    def get_publication_data(self, browser):
         # We are already at the magazine page thanks to the do_login() method
+        ans = {}
+        raw = browser.html
         root = html.fromstring(raw)
 
-        dates = ''.join(root.xpath('//time[@class="updated"]/text()'))
+        dates = ''.join(root.xpath('//*[@class="rail-article-magazine-issue"]/date/text()'))
         if dates:
             self.timefmt = ' [%s]'%dates
 
-        feeds = []
-        parent = root.xpath('//div[@class="content-main-aside"]')[0]
-        for sec in parent.xpath(
-                'descendant::section[contains(@class, "sec-mag-section")]'):
-            h3 = sec.xpath('./h3')
-            if h3:
-                section = html.tostring(h3[0], encoding=unicode,
-                        method='text').strip().capitalize()
-                self.log('Found section', section)
-                articles = list(self.find_articles(sec))
-                if articles:
-                    feeds.append((section, articles))
+        parent = root.xpath('//section[@id="rail-articles"]')[0]
+        articles = []
+        for h3 in parent.xpath(
+                'descendant::h3[contains(@class, "rail-article-title")]'):
+            title = html.tostring(h3[0], encoding=unicode, method='text').strip()
+            a = h3.xpath('descendant::a[@href]')[0]
+            url = a.get('href')
+            h2 = h3.xpath('following-sibling::h2[@class="rail-article-excerpt"]')
+            desc = ''
+            if h2:
+                desc = html.tostring(h2[0], encoding=unicode, method='text').strip()
+            self.log('\nFound article:', title)
+            self.log('\t' + desc)
+            articles.append({'title':title, 'url':url, 'date':'', 'description':desc})
 
-        ans['index'] = feeds
+        ans['index'] = [('Articles', articles)]
+        ans['cover'] = self.get_time_cover(browser)
         return ans
 
-    def find_articles(self, sec):
-        for article in sec.xpath('./article'):
-            h2 = article.xpath('./*[@class="entry-title"]')
-            if not h2:
-                continue
-            a = h2[0].xpath('./a[@href]')
-            if not a:
-                continue
-            title = html.tostring(a[0], encoding=unicode,
-                        method='text').strip()
-            if not title:
-                continue
-            url = a[0].get('href')
-            if url.startswith('/'):
-                url = 'http://www.time.com'+url
-            desc = ''
-            p = article.xpath('./*[@class="entry-content"]')
-            if p:
-                desc = html.tostring(p[0], encoding=unicode,
-                        method='text')
-            self.log('\t', title, ':\n\t\t', url)
-            yield {
-                    'title' : title,
-                    'url'   : url,
-                    'date'  : '',
-                    'description' : desc
-                    }
-
-    def load_complete(self, browser, url, recursion_level):
-        # This is needed as without it, subscriber content is blank. time.com
-        # appears to be using some crazy iframe+js callback for loading content
-        wait_for_load(browser)
+    def load_complete(self, browser, url, rl):
+        browser.wait_for_element('footer.article-footer')
         return True
 
     def postprocess_html(self, article, root, url, recursion_level):
-        # Remove the header and page n of m messages from pages after the first
-        # page
-        if recursion_level > 0:
-            for h in root.xpath('//header[@class="entry-header"]|//span[@class="page"]'):
-                h.getparent().remove(h)
-        # Unfloat the article images and also remove them from pages after the
-        # first page as they are repeated on every page.
-        for fig in root.xpath('//figure'):
-            parent = fig.getparent()
-            if recursion_level > 0:
-                parent.remove(fig)
-            else:
-                idx = parent.index(fig)
-                for img in reversed(fig.xpath('descendant::img')):
-                    parent.insert(idx, img)
-                parent.remove(fig)
+        # get rid of the first visit div which for some reason remove_tags is
+        # not removing
+        for div in root.xpath('//*[@id="first-visit"]'):
+            div.getparent().remove(div)
         return root
 
 if __name__ == '__main__':
