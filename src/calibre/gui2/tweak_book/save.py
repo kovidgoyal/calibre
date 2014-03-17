@@ -6,7 +6,7 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import shutil, os
+import shutil, os, errno
 from threading import Thread
 from Queue import LifoQueue, Empty
 
@@ -25,7 +25,14 @@ def save_container(container, path):
     if hasattr(os, 'fchmod'):
         # Ensure file permissions and owner information is preserved
         fno = temp.fileno()
-        st = os.stat(path)
+        try:
+            st = os.stat(path)
+        except EnvironmentError as err:
+            if err.errno != errno.ENOENT:
+                raise
+            # path may not exist if we are saving a copy, in which case we use
+            # the metadata from the original book
+            st = os.stat(container.path_to_ebook)
         os.fchmod(fno, st.st_mode)
         os.fchown(fno, st.st_uid, st.st_gid)
 
