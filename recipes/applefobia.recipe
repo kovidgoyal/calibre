@@ -1,0 +1,16 @@
+class BasicUserRecipe1395137685(AutomaticNewsRecipe):
+    title          = u'Applefobia'
+    oldest_article = 7
+    max_articles_per_feed = 100
+    auto_cleanup = True
+    language                  = 'pl' # dwuliterowe oznaczenie jêzyka
+    remove_empty_feeds        = True # usuñ puste wiadomoœci
+    remove_javascript         = True # usuñ skrypty JavaScript
+	conversion_options        = { 'tags'                : u'newsy, Apple, humor',
+        'smarten_punctuation' : True,
+        'authors'             : 'Ogrodnik January',
+        'publisher'           : 'Blogspot.pl'
+        } # opcje konwersji. Tu mo¿na ustawiæ wartoœæ pól w metadanych ksi¹¿ki.
+    reverse_article_order     = True # odwraca domyœln¹ kolejnoœæ i czytamy od najstarszej do najnowszej a nie odwrotnie.
+
+    feeds          = [(u'Aktualne', u'http://applefobia.blogspot.com/feeds/posts/default')]
