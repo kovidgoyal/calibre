@@ -24,15 +24,16 @@ def containsq(x, prefix):
 
 class CompleteModel(QAbstractListModel):  # {{{
 
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, sort_func=sort_key):
         QAbstractListModel.__init__(self, parent)
+        self.sort_func = sort_func
         self.all_items = self.current_items = ()
         self.current_prefix = ''
 
     def set_items(self, items):
         items = [unicode(x.strip()) for x in items]
         items = [x for x in items if x]
-        items = tuple(sorted(items, key=sort_key))
+        items = tuple(sorted(items, key=self.sort_func))
         self.all_items = self.current_items = items
         self.current_prefix = ''
         self.reset()
@@ -74,7 +75,7 @@ class Completer(QListView):  # {{{
     item_selected = pyqtSignal(object)
     relayout_needed = pyqtSignal()
 
-    def __init__(self, completer_widget, max_visible_items=7):
+    def __init__(self, completer_widget, max_visible_items=7, sort_func=sort_key):
         QListView.__init__(self)
         self.disable_popup = False
         self.completer_widget = weakref.ref(completer_widget)
@@ -85,7 +86,7 @@ class Completer(QListView):  # {{{
         self.setSelectionBehavior(self.SelectRows)
         self.setSelectionMode(self.SingleSelection)
         self.setAlternatingRowColors(True)
-        self.setModel(CompleteModel(self))
+        self.setModel(CompleteModel(self, sort_func=sort_func))
         self.setMouseTracking(True)
         self.entered.connect(self.item_entered)
         self.activated.connect(self.item_chosen)
@@ -256,7 +257,7 @@ class LineEdit(QLineEdit, LineEditECM):
     to complete non multiple fields as well.
     '''
 
-    def __init__(self, parent=None, completer_widget=None):
+    def __init__(self, parent=None, completer_widget=None, sort_func=sort_key):
         QLineEdit.__init__(self, parent)
 
         self.sep = ','
@@ -266,7 +267,7 @@ class LineEdit(QLineEdit, LineEditECM):
         completer_widget = (self if completer_widget is None else
                 completer_widget)
 
-        self.mcompleter = Completer(completer_widget)
+        self.mcompleter = Completer(completer_widget, sort_func=sort_func)
         self.mcompleter.item_selected.connect(self.completion_selected,
                 type=Qt.QueuedConnection)
         self.mcompleter.relayout_needed.connect(self.relayout)

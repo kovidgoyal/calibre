@@ -13,6 +13,9 @@ class HistoryLineEdit2(LineEdit):
 
     max_history_items = None
 
+    def __init__(self, parent=None, completer_widget=None, sort_func=lambda x:None):
+        LineEdit.__init__(self, parent=parent, completer_widget=completer_widget, sort_func=sort_func)
+
     @property
     def store_name(self):
         return 'lineedit_history_'+self._name
