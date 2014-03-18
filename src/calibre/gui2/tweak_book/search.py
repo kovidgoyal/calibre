@@ -27,6 +27,8 @@ class PushButton(QPushButton):
 
 class HistoryLineEdit(HistoryLineEdit2):
 
+    max_history_items = 100
+
     def __init__(self, parent, clear_msg):
         HistoryLineEdit2.__init__(self, parent)
         self.disable_popup = tprefs['disable_completion_popup_for_search']
