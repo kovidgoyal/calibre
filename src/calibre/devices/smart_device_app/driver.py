@@ -226,7 +226,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
 
     PURGE_CACHE_ENTRIES_DAYS    = 30
 
-    CURRENT_CC_VERSION          = 64
+    CURRENT_CC_VERSION          = 73
 
     ZEROCONF_CLIENT_STRING      = b'calibre wireless device client'
 
@@ -1223,6 +1223,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                     books_on_device.append(result)
 
                 books_to_send = []
+                lpaths_on_device = set()
                 for r in books_on_device:
                     if r.get('lpath', None):
                         book = self._metadata_in_cache(r['uuid'], r['lpath'],
@@ -1231,12 +1232,30 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                         book = self._metadata_in_cache(r['uuid'], r['extension'],
                                                        r['last_modified'])
                     if book:
+                        if self.client_cache_uses_lpaths:
+                            lpaths_on_device.add(r.get('lpath'))
                         bl.add_book(book, replace_metadata=True)
                         book.set('_is_read_', r.get('_is_read_', None))
                         book.set('_sync_type_', r.get('_sync_type_', None))
                         book.set('_last_read_date_', r.get('_last_read_date_', None))
                     else:
                         books_to_send.append(r['priKey'])
+
+                count_of_cache_items_deleted = 0
+                if self.client_cache_uses_lpaths:
+                    for lpath in self.known_metadata.keys():
+                        if lpath not in lpaths_on_device:
+                            try:
+                                uuid = self.known_metadata[lpath].get('uuid', None)
+                                if uuid is not None:
+                                    key = self._make_metadata_cache_key(uuid, lpath)
+                                    self.device_book_cache.pop(key, None)
+                                    self.known_metadata.pop(lpath, None)
+                                    count_of_cache_items_deleted += 1
+                            except:
+                                self._debug('Exception while deleting book from caches', lpath)
+                                traceback.print_exc()
+                    self._debug('removed', count_of_cache_items_deleted, 'books from caches')
 
                 count = len(books_to_send)
                 self._debug('caching. Need count from device', count)
