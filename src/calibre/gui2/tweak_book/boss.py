@@ -38,7 +38,7 @@ from calibre.gui2.tweak_book.editor import editor_from_syntax, syntax_from_mime
 from calibre.gui2.tweak_book.editor.insert_resource import get_resource_data, NewBook
 from calibre.gui2.tweak_book.preferences import Preferences
 from calibre.gui2.tweak_book.widgets import (
-    RationalizeFolders, MultiSplit, ImportForeign, QuickOpen, InsertLink)
+    RationalizeFolders, MultiSplit, ImportForeign, QuickOpen, InsertLink, InsertSemantics)
 
 _diff_dialogs = []
 
@@ -648,6 +648,18 @@ class Boss(QObject):
                     ed.insert_hyperlink(d.href, d.text)
             else:
                 ed.action_triggered(action)
+
+    def set_semantics(self):
+        self.commit_all_editors_to_container()
+        c = current_container()
+        if c.book_type == 'azw3':
+            return error_dialog(self.gui, _('Not supported'), _(
+                'Semantics are not supported for the AZW3 format.'), show=True)
+        d = InsertSemantics(c, parent=self.gui)
+        if d.exec_() == d.Accepted and d.changed_type_map:
+            self.add_savepoint(_('Before: Set Semantics'))
+            d.apply_changes(current_container())
+            self.apply_container_update_to_gui()
 
     def show_find(self):
         self.gui.central.show_find()

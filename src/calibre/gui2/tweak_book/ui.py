@@ -343,6 +343,8 @@ class Main(MainWindow):
                                       _('Insert special character'))
         self.action_rationalize_folders = reg('mimetypes/dir.png', _('&Arrange into folders'), self.boss.rationalize_folders, 'rationalize-folders', (),
                                       _('Arrange into folders'))
+        self.action_set_semantics = reg('tags.png', _('Set &Semantics'), self.boss.set_semantics, 'set-semantics', (),
+                                        _('Set Semantics'))
 
         # Polish actions
         group = _('Polish Book')
@@ -472,6 +474,7 @@ class Main(MainWindow):
         e.addAction(self.action_fix_html_all)
         e.addAction(self.action_pretty_all)
         e.addAction(self.action_rationalize_folders)
+        e.addAction(self.action_set_semantics)
         e.addAction(self.action_check_book)
 
         e = b.addMenu(_('&View'))

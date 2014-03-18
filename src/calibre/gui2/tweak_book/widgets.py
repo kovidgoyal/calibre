@@ -8,18 +8,19 @@ __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import os
 from itertools import izip
+from collections import OrderedDict
 
 from PyQt4.Qt import (
     QDialog, QDialogButtonBox, QGridLayout, QLabel, QLineEdit, QVBoxLayout,
     QFormLayout, QHBoxLayout, QToolButton, QIcon, QApplication, Qt, QWidget,
     QPoint, QSizePolicy, QPainter, QStaticText, pyqtSignal, QTextOption,
     QAbstractListModel, QModelIndex, QVariant, QStyledItemDelegate, QStyle,
-    QListView, QTextDocument, QSize)
+    QListView, QTextDocument, QSize, QComboBox, QFrame)
 
 from calibre import prepare_string_for_xml
-from calibre.gui2 import error_dialog, choose_files, choose_save_file, NONE
+from calibre.gui2 import error_dialog, choose_files, choose_save_file, NONE, info_dialog
 from calibre.gui2.tweak_book import tprefs
-from calibre.utils.icu import primary_sort_key
+from calibre.utils.icu import primary_sort_key, sort_key
 from calibre.utils.matcher import get_char, Matcher
 
 ROOT = QModelIndex()
@@ -520,6 +521,11 @@ class NamesModel(QAbstractListModel):
         self.reset()
         self.filtered.emit(not bool(query))
 
+    def find_name(self, name):
+        for i, (text, positions) in enumerate(self.items):
+            if text == name:
+                return i
+
 def create_filterable_names_list(names, filter_text=None, parent=None):
     nl = QListView(parent)
     nl.m = m = NamesModel(names, parent=nl)
@@ -642,6 +648,200 @@ class InsertLink(Dialog):
 
 # }}}
 
+# Insert Semantics {{{
+
+class InsertSemantics(Dialog):
+
+    def __init__(self, container, parent=None):
+        self.container = container
+        self.anchor_cache = {}
+        self.original_type_map = {item.get('type', ''):(container.href_to_name(item.get('href'), container.opf_name), item.get('href', '').partition('#')[-1])
+            for item in container.opf_xpath('//opf:guide/opf:reference[@href and @type]')}
+        self.final_type_map = self.original_type_map.copy()
+        self.create_known_type_map()
+        Dialog.__init__(self, _('Set Semantics'), 'insert-semantics', parent=parent)
+
+    def sizeHint(self):
+        return QSize(800, 600)
+
+    def create_known_type_map(self):
+        _ = lambda x: x
+        self.known_type_map = {
+            'title-page': _('Title Page'),
+            'toc': _('Table of Contents'),
+            'index': _('Index'),
+            'glossary': _('Glossary'),
+            'acknowledgements': _('Acknowledgements'),
+            'bibliography': _('Bibliography'),
+            'colophon': _('Colophon'),
+            'copyright-page': _('Copyright page'),
+            'dedication': _('Dedication'),
+            'epigraph': _('Epigraph'),
+            'foreword': _('Foreword'),
+            'loi': _('List of Illustrations'),
+            'lot': _('List of Tables'),
+            'notes:': _('Notes'),
+            'preface': _('Preface'),
+            'text': _('Text'),
+        }
+        _ = __builtins__['_']
+        type_map_help = {
+            'title-page': _('Page with title, author, publisher, etc.'),
+            'index': _('Back-of-book style index'),
+            'text': _('First "real" page of content'),
+        }
+        t = _
+        all_types = [(k, (('%s (%s)' % (t(v), type_map_help[k])) if k in type_map_help else t(v))) for k, v in self.known_type_map.iteritems()]
+        all_types.sort(key=lambda x: sort_key(x[1]))
+        self.all_types = OrderedDict(all_types)
+
+    def setup_ui(self):
+        self.l = l = QVBoxLayout(self)
+        self.setLayout(l)
+
+        self.tl = tl = QFormLayout()
+        self.semantic_type = QComboBox(self)
+        for key, val in self.all_types.iteritems():
+            self.semantic_type.addItem(val, key)
+        tl.addRow(_('Type of &semantics:'), self.semantic_type)
+        self.target = t = QLineEdit(self)
+        t.setPlaceholderText(_('The destination (href) for the link'))
+        tl.addRow(_('&Target:'), t)
+        l.addLayout(tl)
+
+        self.hline = hl = QFrame(self)
+        hl.setFrameStyle(hl.HLine)
+        l.addWidget(hl)
+
+        self.h = h = QHBoxLayout()
+        l.addLayout(h)
+
+        names = [n for n, linear in self.container.spine_names]
+        fn, f = create_filterable_names_list(names, filter_text=_('Filter files'), parent=self)
+        self.file_names, self.file_names_filter = fn, f
+        fn.selectionModel().selectionChanged.connect(self.selected_file_changed)
+        self.fnl = fnl = QVBoxLayout()
+        self.la1 = la = QLabel(_('Choose a &file:'))
+        la.setBuddy(fn)
+        fnl.addWidget(la), fnl.addWidget(f), fnl.addWidget(fn)
+        h.addLayout(fnl), h.setStretch(0, 2)
+
+        fn, f = create_filterable_names_list([], filter_text=_('Filter locations'), parent=self)
+        self.anchor_names, self.anchor_names_filter = fn, f
+        fn.selectionModel().selectionChanged.connect(self.update_target)
+        fn.doubleClicked.connect(self.accept, type=Qt.QueuedConnection)
+        self.anl = fnl = QVBoxLayout()
+        self.la2 = la = QLabel(_('Choose a &location (anchor) in the file:'))
+        la.setBuddy(fn)
+        fnl.addWidget(la), fnl.addWidget(f), fnl.addWidget(fn)
+        h.addLayout(fnl), h.setStretch(1, 1)
+
+        self.bb.addButton(self.bb.Help)
+        self.bb.helpRequested.connect(self.help_requested)
+        l.addWidget(self.bb)
+        self.semantic_type_changed()
+        self.semantic_type.currentIndexChanged.connect(self.semantic_type_changed)
+        self.target.textChanged.connect(self.target_text_changed)
+
+    def help_requested(self):
+        d = info_dialog(self, _('About semantics'), _(
+            'Semantics refer to additional information about specific locations in the book.'
+            ' For example, you can specify that a particular location is the dedication or the preface'
+            ' or the table of contents and so on.\n\nFirst choose the type of semantic information, then'
+            ' choose a file and optionally a location within the file to point to.\n\nThe'
+            ' semantic information will be written in the <guide> section of the opf file.'))
+        d.resize(d.sizeHint())
+        d.exec_()
+
+    def semantic_type_changed(self):
+        item_type = unicode(self.semantic_type.itemData(self.semantic_type.currentIndex()).toString())
+        name, frag = self.final_type_map.get(item_type, (None, None))
+        self.show_type(name, frag)
+
+    def show_type(self, name, frag):
+        self.file_names_filter.clear(), self.anchor_names_filter.clear()
+        self.file_names.clearSelection(), self.anchor_names.clearSelection()
+        if name is not None:
+            row = self.file_names.model().find_name(name)
+            if row is not None:
+                sm = self.file_names.selectionModel()
+                sm.select(self.file_names.model().index(row), sm.ClearAndSelect)
+                if frag:
+                    row = self.anchor_names.model().find_name(frag)
+                    if row is not None:
+                        sm = self.anchor_names.selectionModel()
+                        sm.select(self.anchor_names.model().index(row), sm.ClearAndSelect)
+        self.target.blockSignals(True)
+        if name is not None:
+            self.target.setText(name + (('#' + frag) if frag else ''))
+        else:
+            self.target.setText('')
+        self.target.blockSignals(False)
+
+    def target_text_changed(self):
+        name, frag = unicode(self.target.text()).partition('#')[::2]
+        item_type = unicode(self.semantic_type.itemData(self.semantic_type.currentIndex()).toString())
+        self.final_type_map[item_type] = (name, frag or None)
+
+    def selected_file_changed(self, *args):
+        rows = list(self.file_names.selectionModel().selectedRows())
+        if not rows:
+            self.anchor_names.model().set_names([])
+        else:
+            name, positions = self.file_names.model().data(rows[0], Qt.UserRole).toPyObject()
+            self.populate_anchors(name)
+
+    def populate_anchors(self, name):
+        if name not in self.anchor_cache:
+            from calibre.ebooks.oeb.base import XHTML_NS
+            root = self.container.parsed(name)
+            self.anchor_cache[name] = sorted(
+                (set(root.xpath('//*/@id')) | set(root.xpath('//h:a/@name', namespaces={'h':XHTML_NS}))) - {''}, key=primary_sort_key)
+        self.anchor_names.model().set_names(self.anchor_cache[name])
+        self.update_target()
+
+    def update_target(self):
+        rows = list(self.file_names.selectionModel().selectedRows())
+        if not rows:
+            return
+        name = self.file_names.model().data(rows[0], Qt.UserRole).toPyObject()[0]
+        href = name
+        frag = ''
+        rows = list(self.anchor_names.selectionModel().selectedRows())
+        if rows:
+            anchor = self.anchor_names.model().data(rows[0], Qt.UserRole).toPyObject()[0]
+            if anchor:
+                frag = '#' + anchor
+        href += frag
+        self.target.setText(href or '#')
+
+    @property
+    def changed_type_map(self):
+        return {k:v for k, v in self.final_type_map.iteritems() if v != self.original_type_map.get(k, None)}
+
+    def apply_changes(self, container):
+        from calibre.ebooks.oeb.polish.opf import set_guide_item, get_book_language
+        from calibre.translations.dynamic import translate
+        lang = get_book_language(container)
+        for item_type, (name, frag) in self.changed_type_map.iteritems():
+            title = self.known_type_map[item_type]
+            if lang:
+                title = translate(lang, title)
+            set_guide_item(container, item_type, title, name, frag=frag)
+
+    @classmethod
+    def test(cls):
+        import sys
+        from calibre.ebooks.oeb.polish.container import get_container
+        c = get_container(sys.argv[-1], tweak_mode=True)
+        d = cls(c)
+        if d.exec_() == d.Accepted:
+            import pprint
+            pprint.pprint(d.changed_type_map)
+            d.apply_changes(d.container)
+
+# }}}
+
 if __name__ == '__main__':
     app = QApplication([])
-    InsertLink.test()
+    InsertSemantics.test()
