@@ -30,6 +30,8 @@ class Guardian(BasicNewsRecipe):
     max_articles_per_feed       = 100
     remove_javascript           = True
     encoding                    = 'utf-8'
+    compress_news_images = True
+    compress_news_images_auto_size = 8
 
     # List of section titles to ignore
     # For example: ['Sport']
