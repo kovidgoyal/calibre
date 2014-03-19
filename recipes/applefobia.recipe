@@ -1,16 +1,22 @@
-class BasicUserRecipe1395137685(AutomaticNewsRecipe):
+# vim:fileencoding=UTF-8
+from __future__ import unicode_literals
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class BasicUserRecipe1395137685(BasicNewsRecipe):
     title          = u'Applefobia'
+    __author__     = 'koliberek'
     oldest_article = 7
     max_articles_per_feed = 100
     auto_cleanup = True
-    language                  = 'pl' # dwuliterowe oznaczenie jêzyka
-    remove_empty_feeds        = True # usuñ puste wiadomoœci
-    remove_javascript         = True # usuñ skrypty JavaScript
-	conversion_options        = { 'tags'                : u'newsy, Apple, humor',
+    language                  = 'pl'
+    remove_empty_feeds        = True
+    remove_javascript         = True
+    conversion_options        = {
+        'tags'                : u'newsy, Apple, humor',
         'smarten_punctuation' : True,
         'authors'             : 'Ogrodnik January',
         'publisher'           : 'Blogspot.pl'
-        } # opcje konwersji. Tu mo¿na ustawiæ wartoœæ pól w metadanych ksi¹¿ki.
-    reverse_article_order     = True # odwraca domyœln¹ kolejnoœæ i czytamy od najstarszej do najnowszej a nie odwrotnie.
+        }
+    reverse_article_order     = True
 
     feeds          = [(u'Aktualne', u'http://applefobia.blogspot.com/feeds/posts/default')]
