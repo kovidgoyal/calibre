@@ -80,6 +80,8 @@ class TestICU(unittest.TestCase):
         from calibre.utils.titlecase import titlecase
         # Test corner cases
         self.ae('A', icu.upper(b'a'))
+        for x in ('', None, False, 1):
+            self.ae(x, icu.capitalize(x))
 
         for x in ('a', 'Alice\'s code', 'macdonald\'s machIne', '02 the wars'):
             self.ae(icu.upper(x), x.upper())

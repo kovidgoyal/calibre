@@ -197,7 +197,11 @@ lower = _make_func(_change_case_template, 'lower', which='LOWER_CASE')
 
 title_case = _make_func(_change_case_template, 'title_case', which='TITLE_CASE')
 
-capitalize = lambda x: upper(x[0]) + lower(x[1:])
+def capitalize(x):
+    try:
+        return upper(x[0]) + lower(x[1:])
+    except (IndexError, TypeError, AttributeError):
+        return x
 
 find = _make_func(_strcmp_template, 'find', collator='_collator', collator_func='collator', func='find')
 
