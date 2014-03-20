@@ -7,14 +7,14 @@ __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import tempfile, shutil, sys, os
-from collections import OrderedDict
 from functools import partial, wraps
 
 from PyQt4.Qt import (
-    QObject, QApplication, QDialog, QGridLayout, QLabel, QSize, Qt, QCursor,
-    QDialogButtonBox, QIcon, QTimer, QPixmap, QTextBrowser, QVBoxLayout, QInputDialog)
+    QObject, QApplication, QDialog, QGridLayout, QLabel, QSize, Qt,
+    QDialogButtonBox, QIcon, QTimer, QPixmap, QTextBrowser, QVBoxLayout,
+    QInputDialog)
 
-from calibre import prints, prepare_string_for_xml, isbytestring
+from calibre import prints, isbytestring
 from calibre.ptempfile import PersistentTemporaryDirectory, TemporaryDirectory
 from calibre.ebooks.oeb.base import urlnormalize
 from calibre.ebooks.oeb.polish.main import SUPPORTED, tweak_polish
@@ -27,7 +27,6 @@ from calibre.ebooks.oeb.polish.toc import remove_names_from_toc, find_existing_t
 from calibre.ebooks.oeb.polish.utils import link_stylesheets, setup_cssutils_serialization as scs
 from calibre.gui2 import error_dialog, choose_files, question_dialog, info_dialog, choose_save_file
 from calibre.gui2.dialogs.confirm_delete import confirm
-from calibre.gui2.dialogs.message_box import MessageBox
 from calibre.gui2.tweak_book import set_current_container, current_container, tprefs, actions, editors
 from calibre.gui2.tweak_book.undo import GlobalUndoHistory
 from calibre.gui2.tweak_book.file_list import NewFileDialog
@@ -37,8 +36,10 @@ from calibre.gui2.tweak_book.toc import TOCEditor
 from calibre.gui2.tweak_book.editor import editor_from_syntax, syntax_from_mime
 from calibre.gui2.tweak_book.editor.insert_resource import get_resource_data, NewBook
 from calibre.gui2.tweak_book.preferences import Preferences
+from calibre.gui2.tweak_book.search import validate_search_request, run_search
 from calibre.gui2.tweak_book.widgets import (
-    RationalizeFolders, MultiSplit, ImportForeign, QuickOpen, InsertLink, InsertSemantics)
+    RationalizeFolders, MultiSplit, ImportForeign, QuickOpen, InsertLink,
+    InsertSemantics, BusyCursor)
 
 _diff_dialogs = []
 
@@ -57,14 +58,6 @@ def get_container(*args, **kwargs):
 
 def setup_cssutils_serialization():
     scs(tprefs['editor_tab_stop_width'])
-
-class BusyCursor(object):
-
-    def __enter__(self):
-        QApplication.setOverrideCursor(QCursor(Qt.WaitCursor))
-
-    def __exit__(self, *args):
-        QApplication.restoreOverrideCursor()
 
 def in_thread_job(func):
     @wraps(func)
@@ -675,7 +668,7 @@ class Boss(QObject):
         # Ensure the search panel is visible
         sp.setVisible(True)
         ed = self.gui.central.current_editor
-        name = editor = None
+        name = None
         for n, x in editors.iteritems():
             if x is ed:
                 name = n
@@ -684,158 +677,11 @@ class Boss(QObject):
         if overrides:
             state.update(overrides)
         searchable_names = self.gui.file_list.searchable_names
-        where = state['where']
-        err = None
-        if name is None and where in {'current', 'selected-text'}:
-            err = _('No file is being edited.')
-        elif where == 'selected' and not searchable_names['selected']:
-            err = _('No files are selected in the Files Browser')
-        elif where == 'selected-text' and not ed.has_marked_text:
-            err = _('No text is marked. First select some text, and then use'
-                    ' The "Mark selected text" action in the Search menu to mark it.')
-        if not err and not state['find']:
-            err = _('No search query specified')
-        if err:
-            return error_dialog(self.gui, _('Cannot search'), err, show=True)
-        del err
+        if not validate_search_request(name, searchable_names, getattr(ed, 'has_marked_text', False), state, self.gui):
+            return
 
-        files = OrderedDict()
-        do_all = state['wrap'] or action in {'replace-all', 'count'}
-        marked = False
-        if where == 'current':
-            editor = ed
-        elif where in {'styles', 'text', 'selected'}:
-            files = searchable_names[where]
-            if name in files:
-                # Start searching in the current editor
-                editor = ed
-                # Re-order the list of other files so that we search in the same
-                # order every time. Depending on direction, search the files
-                # that come after the current file, or before the current file,
-                # first.
-                lfiles = list(files)
-                idx = lfiles.index(name)
-                before, after = lfiles[:idx], lfiles[idx+1:]
-                if state['direction'] == 'up':
-                    lfiles = list(reversed(before))
-                    if do_all:
-                        lfiles += list(reversed(after)) + [name]
-                else:
-                    lfiles = after
-                    if do_all:
-                        lfiles += before + [name]
-                files = OrderedDict((m, files[m]) for m in lfiles)
-        else:
-            editor = ed
-            marked = True
-
-        def no_match():
-            QApplication.restoreOverrideCursor()
-            msg = '<p>' + _('No matches were found for %s') % ('<pre style="font-style:italic">' + prepare_string_for_xml(state['find']) + '</pre>')
-            if not state['wrap']:
-                msg += '<p>' + _('You have turned off search wrapping, so all text might not have been searched.'
-                  ' Try the search again, with wrapping enabled. Wrapping is enabled via the'
-                  ' "Wrap" checkbox at the bottom of the search panel.')
-            return error_dialog(
-                self.gui, _('Not found'), msg, show=True)
-
-        pat = sp.get_regex(state)
-
-        def do_find():
-            if editor is not None:
-                if editor.find(pat, marked=marked, save_match='gui'):
-                    return
-                if not files:
-                    if not state['wrap']:
-                        return no_match()
-                    return editor.find(pat, wrap=True, marked=marked, save_match='gui') or no_match()
-            for fname, syntax in files.iteritems():
-                if fname in editors:
-                    if not editors[fname].find(pat, complete=True, save_match='gui'):
-                        continue
-                    return self.show_editor(fname)
-                raw = current_container().raw_data(fname)
-                if pat.search(raw) is not None:
-                    self.edit_file(fname, syntax)
-                    if editors[fname].find(pat, complete=True, save_match='gui'):
-                        return
-            return no_match()
-
-        def no_replace(prefix=''):
-            QApplication.restoreOverrideCursor()
-            if prefix:
-                prefix += ' '
-            error_dialog(
-                self.gui, _('Cannot replace'), prefix + _(
-                'You must first click Find, before trying to replace'), show=True)
-            return False
-
-        def do_replace():
-            if editor is None:
-                return no_replace()
-            if not editor.replace(pat, state['replace'], saved_match='gui'):
-                return no_replace(_(
-                        'Currently selected text does not match the search query.'))
-            return True
-
-        def count_message(action, count, show_diff=False):
-            msg = _('%(action)s %(num)s occurrences of %(query)s' % dict(num=count, query=state['find'], action=action))
-            if show_diff and count > 0:
-                d = MessageBox(MessageBox.INFO, _('Searching done'), prepare_string_for_xml(msg), parent=self.gui, show_copy_button=False)
-                d.diffb = b = d.bb.addButton(_('See what &changed'), d.bb.ActionRole)
-                b.setIcon(QIcon(I('diff.png'))), d.set_details(None), b.clicked.connect(d.accept)
-                b.clicked.connect(partial(self.show_current_diff, allow_revert=True))
-                d.exec_()
-            else:
-                info_dialog(self.gui, _('Searching done'), prepare_string_for_xml(msg), show=True)
-
-        def do_all(replace=True):
-            count = 0
-            if not files and editor is None:
-                return 0
-            lfiles = files or {name:editor.syntax}
-
-            for n, syntax in lfiles.iteritems():
-                if n in editors:
-                    raw = editors[n].get_raw_data()
-                else:
-                    raw = current_container().raw_data(n)
-                if replace:
-                    raw, num = pat.subn(state['replace'], raw)
-                else:
-                    num = len(pat.findall(raw))
-                count += num
-                if replace and num > 0:
-                    if n in editors:
-                        editors[n].replace_data(raw)
-                    else:
-                        with current_container().open(n, 'wb') as f:
-                            f.write(raw.encode('utf-8'))
-            QApplication.restoreOverrideCursor()
-            count_message(_('Replaced') if replace else _('Found'), count, show_diff=replace)
-            return count
-
-        with BusyCursor():
-            if action == 'find':
-                return do_find()
-            if action == 'replace':
-                return do_replace()
-            if action == 'replace-find' and do_replace():
-                return do_find()
-            if action == 'replace-all':
-                if marked:
-                    return count_message(_('Replaced'), editor.all_in_marked(pat, state['replace']))
-                self.add_savepoint(_('Before: Replace all'))
-                count = do_all()
-                if count == 0:
-                    self.rewind_savepoint()
-                else:
-                    self.set_modified()
-                return
-            if action == 'count':
-                if marked:
-                    return count_message(_('Found'), editor.all_in_marked(pat))
-                return do_all(replace=False)
+        run_search(state, action, ed, name, searchable_names,
+                   self.gui, self.show_editor, self.edit_file, self.show_current_diff, self.add_savepoint, self.rewind_savepoint, self.set_modified)
 
     def create_checkpoint(self):
         text, ok = QInputDialog.getText(self.gui, _('Choose name'), _(

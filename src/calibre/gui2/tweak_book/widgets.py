@@ -15,7 +15,7 @@ from PyQt4.Qt import (
     QFormLayout, QHBoxLayout, QToolButton, QIcon, QApplication, Qt, QWidget,
     QPoint, QSizePolicy, QPainter, QStaticText, pyqtSignal, QTextOption,
     QAbstractListModel, QModelIndex, QVariant, QStyledItemDelegate, QStyle,
-    QListView, QTextDocument, QSize, QComboBox, QFrame)
+    QListView, QTextDocument, QSize, QComboBox, QFrame, QCursor)
 
 from calibre import prepare_string_for_xml
 from calibre.gui2 import error_dialog, choose_files, choose_save_file, NONE, info_dialog
@@ -24,6 +24,14 @@ from calibre.utils.icu import primary_sort_key, sort_key
 from calibre.utils.matcher import get_char, Matcher
 
 ROOT = QModelIndex()
+
+class BusyCursor(object):
+
+    def __enter__(self):
+        QApplication.setOverrideCursor(QCursor(Qt.WaitCursor))
+
+    def __exit__(self, *args):
+        QApplication.restoreOverrideCursor()
 
 class Dialog(QDialog):
 

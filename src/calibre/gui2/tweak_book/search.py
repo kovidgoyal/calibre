@@ -7,6 +7,7 @@ __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
 from functools import partial
+from collections import OrderedDict
 
 from PyQt4.Qt import (
     QWidget, QToolBar, Qt, QHBoxLayout, QSize, QIcon, QGridLayout, QLabel,
@@ -16,10 +17,12 @@ from PyQt4.Qt import (
 
 import regex
 
-from calibre.gui2 import NONE, error_dialog
+from calibre import prepare_string_for_xml
+from calibre.gui2 import NONE, error_dialog, info_dialog
+from calibre.gui2.dialogs.message_box import MessageBox
 from calibre.gui2.widgets2 import HistoryLineEdit2
-from calibre.gui2.tweak_book import tprefs
-from calibre.gui2.tweak_book.widgets import Dialog
+from calibre.gui2.tweak_book import tprefs, editors, current_container
+from calibre.gui2.tweak_book.widgets import Dialog, BusyCursor
 
 from calibre.utils.icu import primary_contains
 
@@ -332,22 +335,6 @@ class SearchPanel(QWidget):  # {{{
     def set_where(self, val):
         self.widget.where = val
 
-    def get_regex(self, state):
-        raw = state['find']
-        if state['mode'] != 'regex':
-            raw = regex.escape(raw, special_only=True)
-        flags = REGEX_FLAGS
-        if not state['case_sensitive']:
-            flags |= regex.IGNORECASE
-        if state['mode'] == 'regex' and state['dot_all']:
-            flags |= regex.DOTALL
-        if state['direction'] == 'up':
-            flags |= regex.REVERSE
-        ans = regex_cache.get((flags, raw), None)
-        if ans is None:
-            ans = regex_cache[(flags, raw)] = regex.compile(raw, flags=flags)
-        return ans
-
     def keyPressEvent(self, ev):
         if ev.key() == Qt.Key_Escape:
             self.hide_panel()
@@ -544,7 +531,7 @@ class SavedSearches(Dialog):
                 (_('&Replace'), 'replace', _('Run replace using the selected entries.') + mulmsg),
                 (_('Replace a&nd Find'), 'replace-find', _('Run replace and then find using the selected entries.') + mulmsg),
                 (_('Replace &all'), 'replace-all', _('Run Replace All for all selected entries in the order selected')),
-                (_('&Count all'), 'count-all', _('Run Count All for all selected entries')),
+                (_('&Count all'), 'count', _('Run Count All for all selected entries')),
         ]:
             b = pb(text, tooltip)
             v.addWidget(b)
@@ -642,6 +629,7 @@ class SavedSearches(Dialog):
             search['wrap'] = self.wrap
             search['direction'] = self.direction
             search['where'] = self.where
+            search['mode'] = 'regex'
             searches.append(search)
         if not searches:
             return
@@ -688,6 +676,185 @@ class SavedSearches(Dialog):
             search_index, search = i.data(Qt.UserRole).toPyObject()
             self.description.setText(_('{2}\nFind: {0}\nReplace: {1}').format(
                 search.get('find', ''), search.get('replace', ''), search.get('name', '')))
+
+def validate_search_request(name, searchable_names, has_marked_text, state, gui_parent):
+    err = None
+    where = state['where']
+    if name is None and where in {'current', 'selected-text'}:
+        err = _('No file is being edited.')
+    elif where == 'selected' and not searchable_names['selected']:
+        err = _('No files are selected in the Files Browser')
+    elif where == 'selected-text' and not has_marked_text:
+        err = _('No text is marked. First select some text, and then use'
+                ' The "Mark selected text" action in the Search menu to mark it.')
+    if not err and not state['find']:
+        err = _('No search query specified')
+    if err:
+        error_dialog(gui_parent, _('Cannot search'), err, show=True)
+        return False
+    return True
+
+def get_search_regex(state):
+    raw = state['find']
+    if state['mode'] != 'regex':
+        raw = regex.escape(raw, special_only=True)
+    flags = REGEX_FLAGS
+    if not state['case_sensitive']:
+        flags |= regex.IGNORECASE
+    if state['mode'] == 'regex' and state['dot_all']:
+        flags |= regex.DOTALL
+    if state['direction'] == 'up':
+        flags |= regex.REVERSE
+    ans = regex_cache.get((flags, raw), None)
+    if ans is None:
+        ans = regex_cache[(flags, raw)] = regex.compile(raw, flags=flags)
+    return ans
+
+def initialize_search_request(state, action, current_editor, current_editor_name, searchable_names):
+    editor = None
+    where = state['where']
+    files = OrderedDict()
+    do_all = state['wrap'] or action in {'replace-all', 'count'}
+    marked = False
+    if where == 'current':
+        editor = current_editor
+    elif where in {'styles', 'text', 'selected'}:
+        files = searchable_names[where]
+        if current_editor_name in files:
+            # Start searching in the current editor
+            editor = current_editor
+            # Re-order the list of other files so that we search in the same
+            # order every time. Depending on direction, search the files
+            # that come after the current file, or before the current file,
+            # first.
+            lfiles = list(files)
+            idx = lfiles.index(current_editor_name)
+            before, after = lfiles[:idx], lfiles[idx+1:]
+            if state['direction'] == 'up':
+                lfiles = list(reversed(before))
+                if do_all:
+                    lfiles += list(reversed(after)) + [current_editor_name]
+            else:
+                lfiles = after
+                if do_all:
+                    lfiles += before + [current_editor_name]
+            files = OrderedDict((m, files[m]) for m in lfiles)
+    else:
+        editor = current_editor
+        marked = True
+
+    return editor, where, files, do_all, marked, get_search_regex(state)
+
+def run_search(
+    state, action, current_editor, current_editor_name, searchable_names,
+    gui_parent, show_editor, edit_file, show_current_diff, add_savepoint, rewind_savepoint, set_modified):
+
+    editor, where, files, do_all, marked, pat = initialize_search_request(state, action, current_editor, current_editor_name, searchable_names)
+    def no_match():
+        QApplication.restoreOverrideCursor()
+        msg = '<p>' + _('No matches were found for %s') % ('<pre style="font-style:italic">' + prepare_string_for_xml(state['find']) + '</pre>')
+        if not state['wrap']:
+            msg += '<p>' + _('You have turned off search wrapping, so all text might not have been searched.'
+                ' Try the search again, with wrapping enabled. Wrapping is enabled via the'
+                ' "Wrap" checkbox at the bottom of the search panel.')
+        return error_dialog(
+            gui_parent, _('Not found'), msg, show=True)
+
+    def do_find():
+        if editor is not None:
+            if editor.find(pat, marked=marked, save_match='gui'):
+                return
+            if not files:
+                if not state['wrap']:
+                    return no_match()
+                return editor.find(pat, wrap=True, marked=marked, save_match='gui') or no_match()
+        for fname, syntax in files.iteritems():
+            if fname in editors:
+                if not editors[fname].find(pat, complete=True, save_match='gui'):
+                    continue
+                return show_editor(fname)
+            raw = current_container().raw_data(fname)
+            if pat.search(raw) is not None:
+                edit_file(fname, syntax)
+                if editors[fname].find(pat, complete=True, save_match='gui'):
+                    return
+        return no_match()
+
+    def no_replace(prefix=''):
+        QApplication.restoreOverrideCursor()
+        if prefix:
+            prefix += ' '
+        error_dialog(
+            gui_parent, _('Cannot replace'), prefix + _(
+            'You must first click Find, before trying to replace'), show=True)
+        return False
+
+    def do_replace():
+        if editor is None:
+            return no_replace()
+        if not editor.replace(pat, state['replace'], saved_match='gui'):
+            return no_replace(_(
+                    'Currently selected text does not match the search query.'))
+        return True
+
+    def count_message(action, count, show_diff=False):
+        msg = _('%(action)s %(num)s occurrences of %(query)s' % dict(num=count, query=state['find'], action=action))
+        if show_diff and count > 0:
+            d = MessageBox(MessageBox.INFO, _('Searching done'), prepare_string_for_xml(msg), parent=gui_parent, show_copy_button=False)
+            d.diffb = b = d.bb.addButton(_('See what &changed'), d.bb.ActionRole)
+            b.setIcon(QIcon(I('diff.png'))), d.set_details(None), b.clicked.connect(d.accept)
+            b.clicked.connect(partial(show_current_diff, allow_revert=True))
+            d.exec_()
+        else:
+            info_dialog(gui_parent, _('Searching done'), prepare_string_for_xml(msg), show=True)
+
+    def do_all(replace=True):
+        count = 0
+        if not files and editor is None:
+            return 0
+        lfiles = files or {current_editor_name:editor.syntax}
+
+        for n, syntax in lfiles.iteritems():
+            if n in editors:
+                raw = editors[n].get_raw_data()
+            else:
+                raw = current_container().raw_data(n)
+            if replace:
+                raw, num = pat.subn(state['replace'], raw)
+            else:
+                num = len(pat.findall(raw))
+            count += num
+            if replace and num > 0:
+                if n in editors:
+                    editors[n].replace_data(raw)
+                else:
+                    with current_container().open(n, 'wb') as f:
+                        f.write(raw.encode('utf-8'))
+        QApplication.restoreOverrideCursor()
+        count_message(_('Replaced') if replace else _('Found'), count, show_diff=replace)
+        return count
+
+    with BusyCursor():
+        if action == 'find':
+            return do_find()
+        if action == 'replace':
+            return do_replace()
+        if action == 'replace-find' and do_replace():
+            return do_find()
+        if action == 'replace-all':
+            if marked:
+                return count_message(_('Replaced'), editor.all_in_marked(pat, state['replace']))
+            add_savepoint(_('Before: Replace all'))
+            count = do_all()
+            if count == 0:
+                rewind_savepoint()
+            else:
+                set_modified()
+            return
+        if action == 'count':
+            if marked:
+                return count_message(_('Found'), editor.all_in_marked(pat))
+            return do_all(replace=False)
 
 if __name__ == '__main__':
     app = QApplication([])
