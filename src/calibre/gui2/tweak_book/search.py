@@ -6,14 +6,18 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
+from functools import partial
+
 from PyQt4.Qt import (
     QWidget, QToolBar, Qt, QHBoxLayout, QSize, QIcon, QGridLayout, QLabel,
-    QPushButton, pyqtSignal, QComboBox, QCheckBox, QSizePolicy)
+    QPushButton, pyqtSignal, QComboBox, QCheckBox, QSizePolicy, QVBoxLayout,
+    QLineEdit, QToolButton, QListView, QFrame, QApplication)
 
 import regex
 
 from calibre.gui2.widgets2 import HistoryLineEdit2
 from calibre.gui2.tweak_book import tprefs
+from calibre.gui2.tweak_book.widgets import Dialog
 
 REGEX_FLAGS = regex.VERSION1 | regex.WORD | regex.FULLCASE | regex.MULTILINE | regex.UNICODE
 
@@ -45,6 +49,60 @@ class HistoryLineEdit(HistoryLineEdit2):
     def toggle_popups(self):
         self.disable_popup = not bool(self.disable_popup)
         tprefs['disable_completion_popup_for_search'] = self.disable_popup
+
+class WhereBox(QComboBox):
+
+    def __init__(self, parent):
+        QComboBox.__init__(self)
+        self.addItems([_('Current file'), _('All text files'), _('All style files'), _('Selected files'), _('Marked text')])
+        self.setToolTip('<style>dd {margin-bottom: 1.5ex}</style>' + _(
+            '''
+            Where to search/replace:
+            <dl>
+            <dt><b>Current file</b></dt>
+            <dd>Search only inside the currently opened file</dd>
+            <dt><b>All text files</b></dt>
+            <dd>Search in all text (HTML) files</dd>
+            <dt><b>All style files</b></dt>
+            <dd>Search in all style (CSS) files</dd>
+            <dt><b>Selected files</b></dt>
+            <dd>Search in the files currently selected in the Files Browser</dd>
+            <dt><b>Marked text</b></dt>
+            <dd>Search only within the marked text in the currently opened file. You can mark text using the Search menu.</dd>
+            </dl>'''))
+
+    @dynamic_property
+    def where(self):
+        wm = {0:'current', 1:'text', 2:'styles', 3:'selected', 4:'selected-text'}
+        def fget(self):
+            return wm[self.currentIndex()]
+        def fset(self, val):
+            self.setCurrentIndex({v:k for k, v in wm.iteritems()}[val])
+        return property(fget=fget, fset=fset)
+
+class DirectionBox(QComboBox):
+
+    def __init__(self, parent):
+        QComboBox.__init__(self, parent)
+        self.addItems([_('Down'), _('Up')])
+        self.setToolTip('<style>dd {margin-bottom: 1.5ex}</style>' + _(
+            '''
+            Direction to search:
+            <dl>
+            <dt><b>Down</b></dt>
+            <dd>Search for the next match from your current position</dd>
+            <dt><b>Up</b></dt>
+            <dd>Search for the previous match from your current position</dd>
+            </dl>'''))
+
+    @dynamic_property
+    def direction(self):
+        def fget(self):
+            return 'down' if self.currentIndex() == 0 else 'up'
+        def fset(self, val):
+            self.setCurrentIndex(1 if val == 'up' else 0)
+        return property(fget=fget, fset=fset)
+
 
 class SearchWidget(QWidget):
 
@@ -111,38 +169,12 @@ class SearchWidget(QWidget):
         ml.setBuddy(mb)
         ol.addWidget(mb)
 
-        self.where_box = wb = QComboBox(self)
-        wb.setSizePolicy(QSizePolicy.Maximum, QSizePolicy.Maximum)
-        wb.addItems([_('Current file'), _('All text files'), _('All style files'), _('Selected files'), _('Marked text')])
-        wb.setToolTip('<style>dd {margin-bottom: 1.5ex}</style>' + _(
-            '''
-            Where to search/replace:
-            <dl>
-            <dt><b>Current file</b></dt>
-            <dd>Search only inside the currently opened file</dd>
-            <dt><b>All text files</b></dt>
-            <dd>Search in all text (HTML) files</dd>
-            <dt><b>All style files</b></dt>
-            <dd>Search in all style (CSS) files</dd>
-            <dt><b>Selected files</b></dt>
-            <dd>Search in the files currently selected in the Files Browser</dd>
-            <dt><b>Marked text</b></dt>
-            <dd>Search only within the marked text in the currently opened file. You can mark text using the Search menu.</dd>
-            </dl>'''))
+        self.where_box = wb = WhereBox(self)
+        wb.setSizePolicy(QSizePolicy.Maximum, QSizePolicy.Fixed)
         ol.addWidget(wb)
 
-        self.direction_box = db = QComboBox(self)
+        self.direction_box = db = DirectionBox(self)
         db.setSizePolicy(QSizePolicy.Maximum, QSizePolicy.Maximum)
-        db.addItems([_('Down'), _('Up')])
-        db.setToolTip('<style>dd {margin-bottom: 1.5ex}</style>' + _(
-            '''
-            Direction to search:
-            <dl>
-            <dt><b>Down</b></dt>
-            <dd>Search for the next match from your current position</dd>
-            <dt><b>Up</b></dt>
-            <dd>Search for the previous match from your current position</dd>
-            </dl>'''))
         ol.addWidget(db)
 
         self.cs = cs = QCheckBox(_('&Case sensitive'))
@@ -190,11 +222,10 @@ class SearchWidget(QWidget):
 
     @dynamic_property
     def where(self):
-        wm = {0:'current', 1:'text', 2:'styles', 3:'selected', 4:'selected-text'}
         def fget(self):
-            return wm[self.where_box.currentIndex()]
+            return self.where_box.where
         def fset(self, val):
-            self.where_box.setCurrentIndex({v:k for k, v in wm.iteritems()}[val])
+            self.where_box.where = val
         return property(fget=fget, fset=fset)
 
     @dynamic_property
@@ -208,9 +239,9 @@ class SearchWidget(QWidget):
     @dynamic_property
     def direction(self):
         def fget(self):
-            return 'down' if self.direction_box.currentIndex() == 0 else 'up'
+            return self.direction_box.direction
         def fset(self, val):
-            self.direction_box.setCurrentIndex(1 if val == 'up' else 0)
+            self.direction_box.direction = val
         return property(fget=fget, fset=fset)
 
     @dynamic_property
@@ -320,3 +351,143 @@ class SearchPanel(QWidget):
         else:
             return QWidget.keyPressEvent(self, ev)
 
+class SavedSearches(Dialog):
+
+    def __init__(self, parent=None):
+        Dialog.__init__(self, _('Saved Searches'), 'saved-searches', parent=parent)
+
+    def sizeHint(self):
+        return QSize(800, 650)
+
+    def setup_ui(self):
+        self.l = l = QVBoxLayout(self)
+        self.setLayout(l)
+
+        self.h = h = QHBoxLayout()
+        self.filter_text = ft = QLineEdit(self)
+        ft.textChanged.connect(self.do_filter)
+        ft.setPlaceholderText(_('Filter displayed searches'))
+        h.addWidget(ft)
+        self.cft = cft = QToolButton(self)
+        cft.setToolTip(_('Clear filter')), cft.setIcon(QIcon(I('clear_left.png')))
+        cft.clicked.connect(ft.clear)
+        h.addWidget(cft)
+        l.addLayout(h)
+
+        self.h2 = h = QHBoxLayout()
+        self.searches = searches = QListView(self)
+        h.addWidget(searches, stretch=10)
+        self.v = v = QVBoxLayout()
+        h.addLayout(v)
+        l.addLayout(h)
+
+        def pb(text, tooltip=None):
+            b = QPushButton(text, self)
+            b.setToolTip(tooltip or '')
+            b.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Fixed)
+            return b
+
+        mulmsg = '\n\n' + _('The entries are tried in order until the first one matches.')
+
+        for text, action, tooltip in [
+                (_('&Find'), 'find', _('Run the search using the selected entries.') + mulmsg),
+                (_('&Replace'), 'replace', _('Run replace using the selected entries.') + mulmsg),
+                (_('Replace a&nd Find'), 'replace-find', _('Run replace and then find using the selected entries.') + mulmsg),
+                (_('Replace &all'), 'replace-all', _('Run Replace All for all selected entries in the order selected')),
+                (_('&Count all'), 'count-all', _('Run Count All for all selected entries')),
+        ]:
+            b = pb(text, tooltip)
+            v.addWidget(b)
+            b.clicked.connect(partial(self.run_search, action))
+
+        self.d1 = d = QFrame(self)
+        d.setFrameStyle(QFrame.HLine)
+        v.addWidget(d)
+
+        self.h3 = h = QHBoxLayout()
+        self.upb = b = QToolButton(self)
+        b.setIcon(QIcon(I('arrow-up.png'))), b.setToolTip(_('Move selected entries up'))
+        b.clicked.connect(partial(self.move_entry, -1))
+        self.dnb = b = QToolButton(self)
+        b.setIcon(QIcon(I('arrow-down.png'))), b.setToolTip(_('Move selected entries down'))
+        b.clicked.connect(partial(self.move_entry, 1))
+        h.addWidget(self.upb), h.addWidget(self.dnb)
+        v.addLayout(h)
+
+        self.eb = b = pb(_('&Edit search'), _('Edit the currently selected search'))
+        b.clicked.connect(self.edit_search)
+        v.addWidget(b)
+
+        self.eb = b = pb(_('&Remove search'), _('Remove the currently selected searches'))
+        b.clicked.connect(self.remove_search)
+        v.addWidget(b)
+
+        self.eb = b = pb(_('&Add search'), _('Add a new saved search'))
+        b.clicked.connect(self.add_search)
+        v.addWidget(b)
+
+        self.d2 = d = QFrame(self)
+        d.setFrameStyle(QFrame.HLine)
+        v.addWidget(d)
+
+        self.where_box = wb = WhereBox(self)
+        v.addWidget(wb)
+        self.direction_box = db = DirectionBox(self)
+        v.addWidget(db)
+
+        self.wr = wr = QCheckBox(_('&Wrap'))
+        wr.setToolTip('<p>'+_('When searching reaches the end, wrap around to the beginning and continue the search'))
+        v.addWidget(wr)
+
+        l.addWidget(self.bb)
+        self.bb.clear()
+        self.bb.addButton(self.bb.Close)
+
+        self.searches.setFocus(Qt.OtherFocusReason)
+
+    @dynamic_property
+    def where(self):
+        def fget(self):
+            return self.where_box.where
+        def fset(self, val):
+            self.where_box.where = val
+        return property(fget=fget, fset=fset)
+
+    @dynamic_property
+    def direction(self):
+        def fget(self):
+            return self.direction_box.direction
+        def fset(self, val):
+            self.direction_box.direction = val
+        return property(fget=fget, fset=fset)
+
+    @dynamic_property
+    def wrap(self):
+        def fget(self):
+            return self.wr.isChecked()
+        def fset(self, val):
+            self.wr.setChecked(bool(val))
+        return property(fget=fget, fset=fset)
+
+    def do_filter(self, text):
+        pass
+
+    def run_search(self, action):
+        pass
+
+    def move_entry(self, delta):
+        pass
+
+    def edit_search(self):
+        pass
+
+    def remove_search(self):
+        pass
+
+    def add_search(self):
+        pass
+
+if __name__ == '__main__':
+    app = QApplication([])
+    d = SavedSearches()
+    d.exec_()
