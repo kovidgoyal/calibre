@@ -39,6 +39,7 @@ class PushButton(QPushButton):
 class HistoryLineEdit(HistoryLineEdit2):
 
     max_history_items = 100
+    save_search = pyqtSignal()
 
     def __init__(self, parent, clear_msg):
         HistoryLineEdit2.__init__(self, parent)
@@ -51,6 +52,8 @@ class HistoryLineEdit(HistoryLineEdit2):
         menu.addAction(self.clear_msg, self.clear_history)
         menu.addAction((_('Enable completion based on search history') if self.disable_popup else _(
             'Disable completion based on search history')), self.toggle_popups)
+        menu.addSeparator()
+        menu.addAction(_('Save current search'), self.save_search.emit)
         menu.exec_(event.globalPos())
 
     def toggle_popups(self):
@@ -123,6 +126,7 @@ class SearchWidget(QWidget):
     }
 
     search_triggered = pyqtSignal(object)
+    save_search = pyqtSignal()
 
     def __init__(self, parent=None):
         QWidget.__init__(self, parent)
@@ -133,6 +137,7 @@ class SearchWidget(QWidget):
         self.fl = fl = QLabel(_('&Find:'))
         fl.setAlignment(Qt.AlignRight | Qt.AlignCenter)
         self.find_text = ft = HistoryLineEdit(self, _('Clear search history'))
+        ft.save_search.connect(self.save_search)
         ft.initialize('tweak_book_find_edit')
         ft.returnPressed.connect(lambda : self.search_triggered.emit('find'))
         fl.setBuddy(ft)
@@ -142,6 +147,7 @@ class SearchWidget(QWidget):
         self.rl = rl = QLabel(_('&Replace:'))
         rl.setAlignment(Qt.AlignRight | Qt.AlignCenter)
         self.replace_text = rt = HistoryLineEdit(self, _('Clear replace history'))
+        rt.save_search.connect(self.save_search)
         rt.initialize('tweak_book_replace_edit')
         rl.setBuddy(rt)
         l.addWidget(rl, 1, 0)
@@ -298,6 +304,7 @@ regex_cache = {}
 class SearchPanel(QWidget):  # {{{
 
     search_triggered = pyqtSignal(object)
+    save_search = pyqtSignal()
 
     def __init__(self, parent=None):
         QWidget.__init__(self, parent)
@@ -316,6 +323,7 @@ class SearchPanel(QWidget):  # {{{
         l.addWidget(self.widget)
         self.restore_state, self.save_state = self.widget.restore_state, self.widget.save_state
         self.widget.search_triggered.connect(self.search_triggered)
+        self.widget.save_search.connect(self.save_search)
         self.pre_fill = self.widget.pre_fill
 
     def hide_panel(self):
@@ -401,11 +409,16 @@ class SearchesModel(QAbstractListModel):
 
 class EditSearch(Dialog):  # {{{
 
-    def __init__(self, search=None, search_index=-1, parent=None):
+    def __init__(self, search=None, search_index=-1, parent=None, state=None):
         self.search = search or {}
         self.original_name = self.search.get('name', None)
         self.search_index = search_index
         Dialog.__init__(self, _('Edit search'), 'edit-saved-search', parent=parent)
+        if state is not None:
+            self.find.setText(state['find'])
+            self.replace.setText(state['replace'])
+            self.case_sensitive.setChecked(state['case_sensitive'])
+            self.dot_all.setChecked(state['dot_all'])
 
     def sizeHint(self):
         ans = Dialog.sizeHint(self)
@@ -480,6 +493,8 @@ class SearchDelegate(QStyledItemDelegate):
         return ans
 
 class SavedSearches(Dialog):
+
+    run_saved_searches = pyqtSignal(object, object)
 
     def __init__(self, parent=None):
         Dialog.__init__(self, _('Saved Searches'), 'saved-searches', parent=parent)
@@ -633,6 +648,7 @@ class SavedSearches(Dialog):
             searches.append(search)
         if not searches:
             return
+        self.run_saved_searches.emit(searches, action)
 
     def move_entry(self, delta):
         rows = {index.row() for index in self.searches.selectionModel().selectedIndexes()} - {-1}
@@ -661,6 +677,9 @@ class SavedSearches(Dialog):
 
     def add_search(self):
         d = EditSearch(parent=self)
+        self._add_search(d)
+
+    def _add_search(self, d):
         if d.exec_() == d.Accepted:
             self.model.add_search()
             index = self.model.index(self.model.rowCount() - 1)
@@ -668,6 +687,10 @@ class SavedSearches(Dialog):
             sm = self.searches.selectionModel()
             sm.setCurrentIndex(index, sm.ClearAndSelect)
             self.show_details()
+
+    def add_predefined_search(self, state):
+        d = EditSearch(parent=self, state=state)
+        self._add_search(d)
 
     def show_details(self):
         self.description.setText(' \n \n ')

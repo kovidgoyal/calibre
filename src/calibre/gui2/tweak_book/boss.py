@@ -106,6 +106,8 @@ class Boss(QObject):
         self.gui.image_browser.image_activated.connect(self.image_activated)
         self.gui.checkpoints.revert_requested.connect(self.revert_requested)
         self.gui.checkpoints.compare_requested.connect(self.compare_requested)
+        self.gui.saved_searches.run_saved_searches.connect(self.run_saved_searches)
+        self.gui.central.search_panel.save_search.connect(self.save_search)
 
     def preferences(self):
         p = Preferences(self.gui)
@@ -681,6 +683,27 @@ class Boss(QObject):
             return
 
         run_search(state, action, ed, name, searchable_names,
+                   self.gui, self.show_editor, self.edit_file, self.show_current_diff, self.add_savepoint, self.rewind_savepoint, self.set_modified)
+
+    def saved_searches(self):
+        self.gui.saved_searches.show(), self.gui.saved_searches.raise_()
+
+    def save_search(self):
+        state = self.gui.central.search_panel.state
+        self.gui.saved_searches.show(), self.gui.saved_searches.raise_()
+        self.gui.saved_searches.add_predefined_search(state)
+
+    def run_saved_searches(self, searches, action):
+        ed = self.gui.central.current_editor
+        name = None
+        for n, x in editors.iteritems():
+            if x is ed:
+                name = n
+                break
+        searchable_names = self.gui.file_list.searchable_names
+        if not searches or not validate_search_request(name, searchable_names, getattr(ed, 'has_marked_text', False), searches[0], self.gui):
+            return
+        run_search(searches, action, ed, name, searchable_names,
                    self.gui, self.show_editor, self.edit_file, self.show_current_diff, self.add_savepoint, self.rewind_savepoint, self.set_modified)
 
     def create_checkpoint(self):
