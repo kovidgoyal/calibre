@@ -41,6 +41,7 @@ d['charmap_favorites'] = list(map(ord, '\xa0\u2002\u2003\u2009\xad' '‘’“�
 d['folders_for_types'] = {'style':'styles', 'image':'images', 'font':'fonts', 'audio':'audio', 'video':'video'}
 d['pretty_print_on_open'] = False
 d['disable_completion_popup_for_search'] = False
+d['saved_searches'] = []
 
 del d
 
