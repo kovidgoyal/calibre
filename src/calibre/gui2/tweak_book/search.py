@@ -743,17 +743,28 @@ def initialize_search_request(state, action, current_editor, current_editor_name
         editor = current_editor
         marked = True
 
-    return editor, where, files, do_all, marked, get_search_regex(state)
+    return editor, where, files, do_all, marked
 
 def run_search(
-    state, action, current_editor, current_editor_name, searchable_names,
+    searches, action, current_editor, current_editor_name, searchable_names,
     gui_parent, show_editor, edit_file, show_current_diff, add_savepoint, rewind_savepoint, set_modified):
 
-    editor, where, files, do_all, marked, pat = initialize_search_request(state, action, current_editor, current_editor_name, searchable_names)
+    if isinstance(searches, dict):
+        searches = [searches]
+
+    editor, where, files, do_all, marked = initialize_search_request(searches[0], action, current_editor, current_editor_name, searchable_names)
+    wrap = searches[0]['wrap']
+
+    errfind = searches[0]['find']
+    if len(searches) > 1:
+        errfind = _('the selected searches')
+
+    searches = [(get_search_regex(search), search['replace']) for search in searches]
+
     def no_match():
         QApplication.restoreOverrideCursor()
-        msg = '<p>' + _('No matches were found for %s') % ('<pre style="font-style:italic">' + prepare_string_for_xml(state['find']) + '</pre>')
-        if not state['wrap']:
+        msg = '<p>' + _('No matches were found for %s') % ('<pre style="font-style:italic">' + prepare_string_for_xml(errfind) + '</pre>')
+        if not wrap:
             msg += '<p>' + _('You have turned off search wrapping, so all text might not have been searched.'
                 ' Try the search again, with wrapping enabled. Wrapping is enabled via the'
                 ' "Wrap" checkbox at the bottom of the search panel.')
@@ -761,23 +772,25 @@ def run_search(
             gui_parent, _('Not found'), msg, show=True)
 
     def do_find():
-        if editor is not None:
-            if editor.find(pat, marked=marked, save_match='gui'):
-                return
-            if not files:
-                if not state['wrap']:
-                    return no_match()
-                return editor.find(pat, wrap=True, marked=marked, save_match='gui') or no_match()
-        for fname, syntax in files.iteritems():
-            if fname in editors:
-                if not editors[fname].find(pat, complete=True, save_match='gui'):
-                    continue
-                return show_editor(fname)
-            raw = current_container().raw_data(fname)
-            if pat.search(raw) is not None:
-                edit_file(fname, syntax)
-                if editors[fname].find(pat, complete=True, save_match='gui'):
+        for p, __ in searches:
+            if editor is not None:
+                if editor.find(p, marked=marked, save_match='gui'):
                     return
+                if wrap and not files and editor.find(p, wrap=True, marked=marked, save_match='gui'):
+                    return
+            for fname, syntax in files.iteritems():
+                ed = editors.get(fname, None)
+                if ed is not None:
+                    if not wrap and ed is editor:
+                        continue
+                    if ed.find(p, complete=True, save_match='gui'):
+                        return show_editor(fname)
+                else:
+                    raw = current_container().raw_data(fname)
+                    if p.search(raw) is not None:
+                        edit_file(fname, syntax)
+                        if editors[fname].find(p, complete=True, save_match='gui'):
+                            return
         return no_match()
 
     def no_replace(prefix=''):
@@ -792,13 +805,14 @@ def run_search(
     def do_replace():
         if editor is None:
             return no_replace()
-        if not editor.replace(pat, state['replace'], saved_match='gui'):
-            return no_replace(_(
-                    'Currently selected text does not match the search query.'))
-        return True
+        for p, repl in searches:
+            if editor.replace(p, repl, saved_match='gui'):
+                return True
+        return no_replace(_(
+                'Currently selected text does not match the search query.'))
 
     def count_message(action, count, show_diff=False):
-        msg = _('%(action)s %(num)s occurrences of %(query)s' % dict(num=count, query=state['find'], action=action))
+        msg = _('%(action)s %(num)s occurrences of %(query)s' % dict(num=count, query=errfind, action=action))
         if show_diff and count > 0:
             d = MessageBox(MessageBox.INFO, _('Searching done'), prepare_string_for_xml(msg), parent=gui_parent, show_copy_button=False)
             d.diffb = b = d.bb.addButton(_('See what &changed'), d.bb.ActionRole)
@@ -813,23 +827,34 @@ def run_search(
         if not files and editor is None:
             return 0
         lfiles = files or {current_editor_name:editor.syntax}
-
+        updates = set()
+        raw_data = {}
         for n, syntax in lfiles.iteritems():
             if n in editors:
                 raw = editors[n].get_raw_data()
             else:
                 raw = current_container().raw_data(n)
-            if replace:
-                raw, num = pat.subn(state['replace'], raw)
-            else:
-                num = len(pat.findall(raw))
-            count += num
-            if replace and num > 0:
-                if n in editors:
-                    editors[n].replace_data(raw)
+            raw_data[n] = raw
+
+        for p, repl in searches:
+            for n, syntax in lfiles.iteritems():
+                raw = raw_data[n]
+                if replace:
+                    raw, num = p.subn(repl, raw)
+                    if num > 0:
+                        updates.add(n)
+                        raw_data[n] = raw
                 else:
-                    with current_container().open(n, 'wb') as f:
-                        f.write(raw.encode('utf-8'))
+                    num = len(p.findall(raw))
+                count += num
+
+        for n in updates:
+            raw = raw_data[n]
+            if n in editors:
+                editors[n].replace_data(raw)
+            else:
+                with current_container().open(n, 'wb') as f:
+                    f.write(raw.encode('utf-8'))
         QApplication.restoreOverrideCursor()
         count_message(_('Replaced') if replace else _('Found'), count, show_diff=replace)
         return count
@@ -843,7 +868,7 @@ def run_search(
             return do_find()
         if action == 'replace-all':
             if marked:
-                return count_message(_('Replaced'), editor.all_in_marked(pat, state['replace']))
+                return count_message(_('Replaced'), sum(editor.all_in_marked(p, repl) for p, repl in searches))
             add_savepoint(_('Before: Replace all'))
             count = do_all()
             if count == 0:
@@ -853,7 +878,7 @@ def run_search(
             return
         if action == 'count':
             if marked:
-                return count_message(_('Found'), editor.all_in_marked(pat))
+                return count_message(_('Found'), sum(editor.all_in_marked(p) for p, __ in searches))
             return do_all(replace=False)
 
 if __name__ == '__main__':
