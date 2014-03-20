@@ -584,10 +584,11 @@ class CatalogBuilder(object):
                 if field_contents == '':
                     field_contents = None
 
-                if (self.db.metadata_for_field(rule['field'])['datatype'] == 'bool' and
+                # Handle condition where bools_are_tristate is False,
+                # field is a bool and contents is None, which is displayed as No
+                if (not self.db.prefs.get('bools_are_tristate') and
+                    self.db.metadata_for_field(rule['field'])['datatype'] == 'bool' and
                     field_contents is None):
-                    # Handle condition where field is a bool and contents is None,
-                    # which is displayed as No
                     field_contents = _('False')
 
                 if field_contents is not None:
@@ -1021,8 +1022,11 @@ class CatalogBuilder(object):
         data = self.plugin.search_sort_db(self.db, self.opts)
         data = self.process_exclusions(data)
 
-        if self.prefix_rules and self.DEBUG:
-            self.opts.log.info(" Added prefixes:")
+        if self.DEBUG:
+            if self.prefix_rules:
+                self.opts.log.info(" Added prefixes (bools_are_tristate: {0}):".format(self.db.prefs.get('bools_are_tristate')))
+            else:
+                self.opts.log.info(" No added prefixes")
 
         # Populate this_title{} from data[{},{}]
         titles = []
