@@ -20,6 +20,52 @@
 #   new recipes:
 #     - title: 
 
+- version: 1.29.0
+  date: 2014-03-21
+
+  new features:
+    - title: "Edit Book: Add support for saved searches. Click Search->Saved Searches to bring up a dialog where you can create and manage saved searches"
+
+    - title: "Edit Book: New tool to specify semantics in EPUB books (semantics are items in the guide such as preface, title-page, dedication, etc.). To use it, go to Tools->Set Semantics"
+      tickets: [1287025]
+
+    - title: "Edit Book: Preview panel: Add a copy selected text action to the context menu"
+
+    - title: "Edit Book: When inserting hyperlinks, allow specifying the text for the hyperlink in the insert hyperlink dialog"
+
+  bug fixes:
+    - title: "Fix a regression in the previous release that broke downloading metadata for authors with a double initial such as R. A. Salvatore."
+      tickets: [1294529]
+
+    - title: "Edit book: When generating inline Table of Contents, mark it as such in the guide section of the OPF."
+      tickets: [1287018]
+
+    - title: "E-book viewer: Fix right margin for last page in a chapter sometimes disappearing when changing font size."
+      tickets: [1292822]
+
+    - title: "Edit Book: Fix saving of empty files not working"
+
+    - title: "Edit book: Fix a regression in the previous release that broke saving a copy of the current book on linux and OS X"
+
+    - title: "Edit book: Fix syntax highlighting in HTML files breaks if the closing of a comment or processing instruction is at the start of a new line."
+
+    - title: "Edit book: Fix check book failing in the presence of empty <style/> tags."
+      tickets: [1292841]
+
+    - title: "Catalogs: Fix handling of tristate boolean custom columns when creating EPUB/MOBI catalogs."
+      tickets: [1294983] 
+
+    - title: "Linux build: Workaround for systems that have broken libc implementations that change the behavior of truncate() on file descriptors with O_APPEND set."
+      tickets: [1295366]
+
+  improved recipes:
+    - TIME
+    - Wired Daily Edition
+
+  new recipes:
+    - title: Applefobia 
+      author: koliberek
+
 - version: 1.28.0
   date: 2014-03-14
 
