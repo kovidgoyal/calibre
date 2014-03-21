@@ -8,7 +8,7 @@ Secure access to locked files from multiple processes.
 
 from calibre.constants import iswindows, __appname__, \
                               win32api, win32event, winerror, fcntl
-import time, atexit, os
+import time, atexit, os, stat
 
 class LockError(Exception):
     pass
@@ -105,6 +105,12 @@ class WindowsExclFile(object):
     def closed(self):
         return self._handle is None
 
+def unix_open(path):
+    # We cannot use open(a+b) directly because Fedora apparently ships with a
+    # broken libc that causes seek(0) followed by truncate() to not work for
+    # files with O_APPEND set.
+    fd = os.open(path, os.O_RDWR | os.O_CREAT, stat.S_IRUSR | stat.S_IWUSR | stat.S_IRGRP | stat.S_IROTH)
+    return os.fdopen(fd, 'r+b')
 
 class ExclusiveFile(object):
 
@@ -113,7 +119,7 @@ class ExclusiveFile(object):
         self.timeout = timeout
 
     def __enter__(self):
-        self.file = WindowsExclFile(self.path, self.timeout) if iswindows else open(self.path, 'a+b')
+        self.file = WindowsExclFile(self.path, self.timeout) if iswindows else unix_open(self.path)
         self.file.seek(0)
         timeout = self.timeout
         if not iswindows:
