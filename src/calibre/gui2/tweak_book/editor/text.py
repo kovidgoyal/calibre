@@ -315,7 +315,7 @@ class TextEdit(PlainTextEdit):
         # Center search result on screen
         self.centerCursor()
         if save_match is not None:
-            self.saved_matches[save_match] = m
+            self.saved_matches[save_match] = (pat, m)
         return True
 
     def all_in_marked(self, pat, template=None):
@@ -372,7 +372,7 @@ class TextEdit(PlainTextEdit):
         # Center search result on screen
         self.centerCursor()
         if save_match is not None:
-            self.saved_matches[save_match] = m
+            self.saved_matches[save_match] = (pat, m)
         return True
 
     def replace(self, pat, template, saved_match='gui'):
@@ -385,8 +385,8 @@ class TextEdit(PlainTextEdit):
             # the saved match matches the currently selected text and
             # use it, if so.
             if saved_match is not None and saved_match in self.saved_matches:
-                saved = self.saved_matches.pop(saved_match)
-                if saved.group() == raw:
+                saved_pat, saved = self.saved_matches.pop(saved_match)
+                if saved_pat == pat and saved.group() == raw:
                     m = saved
         if m is None:
             return False
