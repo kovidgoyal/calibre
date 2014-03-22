@@ -35,16 +35,16 @@ class N770(USBMS):
     SUPPORTS_SUB_DIRS = True
 
 class N810(N770):
-    name           = 'Nokia 810 Device Interface'
-    gui_name       = 'Nokia 810/900/9'
-    description    = _('Communicate with the Nokia 810/900 internet tablet.')
+    name           = 'Nokia N800/N810/N900/N9 Device Interface'
+    gui_name       = 'Nokia N800/N810/N900/N9'
+    description    = _('Communicate with the Nokia N800/N810/N900/N9 Maemo/MeeGo devices.')
 
-    PRODUCT_ID = [0x96, 0x1c7, 0x0518]
+    PRODUCT_ID = [0x4c3, 0x96, 0x1c7, 0x0518]
     BCD        = [0x316]
 
-    WINDOWS_MAIN_MEM = ['N810', 'N900', 'NOKIA_N9']
+    WINDOWS_MAIN_MEM = ['N800', 'N810', 'N900', 'NOKIA_N9']
 
-    MAIN_MEMORY_VOLUME_LABEL = 'Nokia Tablet Main Memory'
+    MAIN_MEMORY_VOLUME_LABEL = 'Nokia Maemo/MeeGo device Main Memory'
 
 class E71X(USBMS):
 
