@@ -28,8 +28,8 @@ _nmodes = {m:getattr(_icu, 'UNORM_'+m, None) for m in ('NFC', 'NFD', 'NFKC', 'NF
 
 try:
     senc = sys.getdefaultencoding()
-    if not senc or senc.lower() == 'ascii':
-        _icu.set_default_encoding('utf-8')
+    if not senc or senc.lower() == b'ascii':
+        _icu.set_default_encoding(b'utf-8')
     del senc
 except:
     import traceback
@@ -37,8 +37,8 @@ except:
 
 try:
     fenc = sys.getfilesystemencoding()
-    if not fenc or fenc.lower() == 'ascii':
-        _icu.set_filesystem_encoding('utf-8')
+    if not fenc or fenc.lower() == b'ascii':
+        _icu.set_filesystem_encoding(b'utf-8')
     del fenc
 except:
     import traceback
