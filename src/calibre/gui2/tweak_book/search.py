@@ -41,6 +41,7 @@ class HistoryLineEdit(HistoryLineEdit2):
 
     max_history_items = 100
     save_search = pyqtSignal()
+    show_saved_searches = pyqtSignal()
 
     def __init__(self, parent, clear_msg):
         HistoryLineEdit2.__init__(self, parent)
@@ -55,6 +56,7 @@ class HistoryLineEdit(HistoryLineEdit2):
             'Disable completion based on search history')), self.toggle_popups)
         menu.addSeparator()
         menu.addAction(_('Save current search'), self.save_search.emit)
+        menu.addAction(_('Show saved searches'), self.show_saved_searches.emit)
         menu.exec_(event.globalPos())
 
     def toggle_popups(self):
@@ -150,6 +152,7 @@ class SearchWidget(QWidget):
 
     search_triggered = pyqtSignal(object)
     save_search = pyqtSignal()
+    show_saved_searches = pyqtSignal()
 
     def __init__(self, parent=None):
         QWidget.__init__(self, parent)
@@ -161,6 +164,7 @@ class SearchWidget(QWidget):
         fl.setAlignment(Qt.AlignRight | Qt.AlignCenter)
         self.find_text = ft = HistoryLineEdit(self, _('Clear search history'))
         ft.save_search.connect(self.save_search)
+        ft.show_saved_searches.connect(self.show_saved_searches)
         ft.initialize('tweak_book_find_edit')
         ft.returnPressed.connect(lambda : self.search_triggered.emit('find'))
         fl.setBuddy(ft)
@@ -171,6 +175,7 @@ class SearchWidget(QWidget):
         rl.setAlignment(Qt.AlignRight | Qt.AlignCenter)
         self.replace_text = rt = HistoryLineEdit(self, _('Clear replace history'))
         rt.save_search.connect(self.save_search)
+        rt.show_saved_searches.connect(self.show_saved_searches)
         rt.initialize('tweak_book_replace_edit')
         rl.setBuddy(rt)
         l.addWidget(rl, 1, 0)
@@ -319,6 +324,7 @@ class SearchPanel(QWidget):  # {{{
 
     search_triggered = pyqtSignal(object)
     save_search = pyqtSignal()
+    show_saved_searches = pyqtSignal()
 
     def __init__(self, parent=None):
         QWidget.__init__(self, parent)
@@ -338,6 +344,7 @@ class SearchPanel(QWidget):  # {{{
         self.restore_state, self.save_state = self.widget.restore_state, self.widget.save_state
         self.widget.search_triggered.connect(self.search_triggered)
         self.widget.save_search.connect(self.save_search)
+        self.widget.show_saved_searches.connect(self.show_saved_searches)
         self.pre_fill = self.widget.pre_fill
 
     def hide_panel(self):

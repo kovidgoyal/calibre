@@ -108,6 +108,7 @@ class Boss(QObject):
         self.gui.checkpoints.compare_requested.connect(self.compare_requested)
         self.gui.saved_searches.run_saved_searches.connect(self.run_saved_searches)
         self.gui.central.search_panel.save_search.connect(self.save_search)
+        self.gui.central.search_panel.show_saved_searches.connect(self.show_saved_searches)
 
     def preferences(self):
         p = Preferences(self.gui)
@@ -690,8 +691,11 @@ class Boss(QObject):
 
     def save_search(self):
         state = self.gui.central.search_panel.state
-        self.gui.saved_searches.show(), self.gui.saved_searches.raise_()
+        self.show_saved_searches()
         self.gui.saved_searches.add_predefined_search(state)
+
+    def show_saved_searches(self):
+        self.gui.saved_searches.show(), self.gui.saved_searches.raise_()
 
     def run_saved_searches(self, searches, action):
         ed = self.gui.central.current_editor
