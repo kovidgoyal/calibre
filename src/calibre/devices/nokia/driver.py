@@ -35,14 +35,14 @@ class N770(USBMS):
     SUPPORTS_SUB_DIRS = True
 
 class N810(N770):
-    name           = 'Nokia N800/N810/N900/N9 Device Interface'
-    gui_name       = 'Nokia N800/N810/N900/N9'
-    description    = _('Communicate with the Nokia N800/N810/N900/N9 Maemo/MeeGo devices.')
+    name           = 'Nokia N800/N810/N900/N950/N9 Device Interface'
+    gui_name       = 'Nokia N800/N810/N900/N950/N9'
+    description    = _('Communicate with the Nokia N800/N810/N900/N950/N9 Maemo/MeeGo devices.')
 
-    PRODUCT_ID = [0x4c3, 0x96, 0x1c7, 0x0518]
+    PRODUCT_ID = [0x4c3, 0x96, 0x1c7, 0x3d1, 0x518]
     BCD        = [0x316]
 
-    WINDOWS_MAIN_MEM = ['N800', 'N810', 'N900', 'NOKIA_N9']
+    WINDOWS_MAIN_MEM = ['N800', 'N810', 'N900', 'NOKIA_N950', 'NOKIA_N9']
 
     MAIN_MEMORY_VOLUME_LABEL = 'Nokia Maemo/MeeGo device Main Memory'
 
