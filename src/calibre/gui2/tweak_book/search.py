@@ -6,19 +6,20 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
+import json, copy
 from functools import partial
 from collections import OrderedDict
 
 from PyQt4.Qt import (
-    QWidget, QToolBar, Qt, QHBoxLayout, QSize, QIcon, QGridLayout, QLabel,
+    QWidget, QToolBar, Qt, QHBoxLayout, QSize, QIcon, QGridLayout, QLabel, QTimer,
     QPushButton, pyqtSignal, QComboBox, QCheckBox, QSizePolicy, QVBoxLayout,
     QLineEdit, QToolButton, QListView, QFrame, QApplication, QStyledItemDelegate,
-    QAbstractListModel, QVariant, QFormLayout, QModelIndex)
+    QAbstractListModel, QVariant, QFormLayout, QModelIndex, QMenu, QItemSelection)
 
 import regex
 
 from calibre import prepare_string_for_xml
-from calibre.gui2 import NONE, error_dialog, info_dialog
+from calibre.gui2 import NONE, error_dialog, info_dialog, choose_files, choose_save_file
 from calibre.gui2.dialogs.message_box import MessageBox
 from calibre.gui2.widgets2 import HistoryLineEdit2
 from calibre.gui2.tweak_book import tprefs, editors, current_container
@@ -391,9 +392,9 @@ class SearchesModel(QAbstractListModel):
             self.dataChanged.emit(self.index(b), self.index(b))
             tprefs['saved_searches'] = self.searches
 
-    def add_search(self):
+    def add_searches(self, count=1):
         self.searches = tprefs['saved_searches']
-        self.filtered_searches.append(len(self.searches) - 1)
+        self.filtered_searches.extend(xrange(len(self.searches) - 1, len(self.searches) - 1 - count, -1))
         self.reset()
 
     def remove_searches(self, rows):
@@ -601,6 +602,13 @@ class SavedSearches(Dialog):
         l.addWidget(self.bb)
         self.bb.clear()
         self.bb.addButton(self.bb.Close)
+        self.ib = b = self.bb.addButton(_('&Import'), self.bb.ActionRole)
+        b.clicked.connect(self.import_searches)
+        self.eb = b = self.bb.addButton(_('E&xport'), self.bb.ActionRole)
+        self.em = m = QMenu(_('Export'))
+        m.addAction(_('Export All'), lambda : QTimer.singleShot(0, partial(self.export_searches, all=True)))
+        m.addAction(_('Export Selected'), lambda : QTimer.singleShot(0, partial(self.export_searches, all=False)))
+        b.setMenu(m)
 
         self.searches.setFocus(Qt.OtherFocusReason)
 
@@ -639,12 +647,13 @@ class SavedSearches(Dialog):
                 continue
             seen.add(index.row())
             search = SearchWidget.DEFAULT_STATE.copy()
+            del search['mode']
             search_index, s = index.data(Qt.UserRole).toPyObject()
             search.update(s)
             search['wrap'] = self.wrap
             search['direction'] = self.direction
             search['where'] = self.where
-            search['mode'] = 'regex'
+            search['mode'] = search.get('mode', 'regex')
             searches.append(search)
         if not searches:
             return
@@ -681,7 +690,7 @@ class SavedSearches(Dialog):
 
     def _add_search(self, d):
         if d.exec_() == d.Accepted:
-            self.model.add_search()
+            self.model.add_searches()
             index = self.model.index(self.model.rowCount() - 1)
             self.searches.scrollTo(index)
             sm = self.searches.selectionModel()
@@ -701,6 +710,57 @@ class SavedSearches(Dialog):
             da = '✓' if search.get('dot_all', SearchWidget.DEFAULT_STATE['dot_all']) else '✗'
             self.description.setText(_('{2} (Case sensitive: {3} Dot All: {4})\nFind: {0}\nReplace: {1}').format(
                 search.get('find', ''), search.get('replace', ''), search.get('name', ''), cs, da))
+
+    def import_searches(self):
+        path = choose_files(self, 'import_saved_searches', _('Choose file'), filters=[
+            (_('Saved Searches'), ['json'])], all_files=False, select_only_single_file=True)
+        if path:
+            with open(path[0], 'rb') as f:
+                obj = json.loads(f.read())
+            needed_keys = {'name', 'find', 'replace', 'case_sensitive', 'dot_all', 'mode'}
+            def err():
+                error_dialog(self, _('Invalid data'), _(
+                    'The file %s does not contain valid saved searches') % path, show=True)
+            if not isinstance(obj, dict) or not 'version' in obj or not 'searches' in obj:
+                return err()
+            searches = []
+            for item in obj['searches']:
+                if not isinstance(item, dict) or not set(item.iterkeys()).issuperset(needed_keys):
+                    return err
+                searches.append({k:item[k] for k in needed_keys})
+
+            if searches:
+                tprefs['saved_searches'] = tprefs['saved_searches'] + searches
+                count = len(searches)
+                self.model.add_searches(count=count)
+                sm = self.searches.selectionModel()
+                top, bottom = self.model.index(self.model.rowCount() - count), self.model.index(self.model.rowCount() - 1)
+                sm.select(QItemSelection(top, bottom), sm.ClearAndSelect)
+                self.searches.scrollTo(bottom)
+
+    def export_searches(self, all=True):
+        if all:
+            searches = copy.deepcopy(tprefs['saved_searches'])
+            if not searches:
+                return error_dialog(self, _('No searches'), _(
+                    'No searches available to be saved'), show=True)
+        else:
+            searches = []
+            for index in self.searches.selectionModel().selectedIndexes():
+                search = index.data(Qt.UserRole).toPyObject()[-1]
+                searches.append(search.copy())
+            if not searches:
+                return error_dialog(self, _('No searches'), _(
+                    'No searches selected'), show=True)
+        [s.__setitem__('mode', s.get('mode', 'regex')) for s in searches]
+        path = choose_save_file(self, 'export-saved-searches', _('Choose file'), filters=[
+            (_('Saved Searches'), ['json'])], all_files=False)
+        if path:
+            if not path.lower().endswith('.json'):
+                path += '.json'
+            raw = json.dumps({'version':1, 'searches':searches}, ensure_ascii=False, indent=2, sort_keys=True)
+            with open(path, 'wb') as f:
+                f.write(raw.encode('utf-8'))
 
 def validate_search_request(name, searchable_names, has_marked_text, state, gui_parent):
     err = None
