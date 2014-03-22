@@ -496,9 +496,9 @@ void PictureFlowPrivate::setCurrentSlide(int index)
 {
   animateTimer.stop();
   step = 0;
-  centerIndex = qBound(index, 0, slideImages->count()-1);
+  centerIndex = qBound(0, index, qMax(0, slideImages->count()-1));
   target = centerIndex;
-  slideFrame = ((long long)index) << 16;
+  slideFrame = ((long long)centerIndex) << 16;
   resetSlides();
   triggerRender();
   widget->emitcurrentChanged(centerIndex);
