@@ -32,7 +32,8 @@ try:
         _icu.set_default_encoding('utf-8')
     del senc
 except:
-    pass
+    import traceback
+    traceback.print_exc()
 
 try:
     fenc = sys.getfilesystemencoding()
@@ -40,7 +41,8 @@ try:
         _icu.set_filesystem_encoding('utf-8')
     del fenc
 except:
-    pass
+    import traceback
+    traceback.print_exc()
 
 def collator():
     global _collator, _locale
