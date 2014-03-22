@@ -183,6 +183,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         r('use_roman_numerals_for_series_number', config)
         r('separate_cover_flow', config, restart_required=True)
         r('cb_fullscreen', gprefs)
+        r('cb_preserve_aspect_ratio', gprefs)
 
         choices = [(_('Off'), 'off'), (_('Small'), 'small'),
             (_('Medium'), 'medium'), (_('Large'), 'large')]
@@ -461,6 +462,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         gui.library_view.refresh_book_details()
         if hasattr(gui.cover_flow, 'setShowReflections'):
             gui.cover_flow.setShowReflections(gprefs['cover_browser_reflections'])
+            gui.cover_flow.setPreserveAspectRatio(gprefs['cb_preserve_aspect_ratio'])
         gui.library_view.refresh_row_sizing()
         gui.grid_view.refresh_settings()
 

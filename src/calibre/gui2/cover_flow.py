@@ -21,6 +21,7 @@ pictureflow, pictureflowerror = plugins['pictureflow']
 if pictureflow is not None:
 
     class EmptyImageList(pictureflow.FlowImages):
+
         def __init__(self):
             pictureflow.FlowImages.__init__(self)
 
@@ -108,7 +109,6 @@ if pictureflow is not None:
         def image(self, index):
             return self.model.cover(index)
 
-
     class CoverFlow(pictureflow.PictureFlow):
 
         dc_signal = pyqtSignal()
@@ -125,6 +125,10 @@ if pictureflow is not None:
                     type=Qt.QueuedConnection)
             self.context_menu = None
             self.setContextMenuPolicy(Qt.DefaultContextMenu)
+            try:
+                self.setPreserveAspectRatio(gprefs['cb_preserve_aspect_ratio'])
+            except AttributeError:
+                pass  # source checkout without updated binary
             if hasattr(self, 'setSubtitleFont'):
                 self.setSubtitleFont(QFont(rating_font()))
             if not gprefs['cover_browser_reflections']:
@@ -290,7 +294,6 @@ class CoverFlowMixin(object):
                 self.library_view.setCurrentIndex(idx)
                 self.library_view.scroll_to_row(idx.row())
 
-
     def show_cover_browser(self):
         d = CBDialog(self, self.cover_flow)
         d.addAction(self.cb_splitter.action_toggle)
@@ -312,7 +315,6 @@ class CoverFlowMixin(object):
             cbd.accept()
             self.cb_dialog = None
         self.cb_splitter.button.set_state_to_show()
-
 
     def sync_cf_to_listview(self, current, previous):
         if self.cover_flow_sync_flag and self.cover_flow.isVisible() and \

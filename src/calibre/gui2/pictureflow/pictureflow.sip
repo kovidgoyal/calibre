@@ -41,6 +41,10 @@ public :
 
   void setSlideSize(QSize size);
 
+  bool preserveAspectRatio() const;
+
+  void setPreserveAspectRatio(bool preserve);
+
   QFont subtitleFont() const;
 
   void setSubtitleFont(QFont font);
