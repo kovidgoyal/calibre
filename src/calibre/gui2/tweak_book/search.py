@@ -740,7 +740,7 @@ class SavedSearches(Dialog):
             def err():
                 error_dialog(self, _('Invalid data'), _(
                     'The file %s does not contain valid saved searches') % path, show=True)
-            if not isinstance(obj, dict) or not 'version' in obj or not 'searches' in obj:
+            if not isinstance(obj, dict) or not 'version' in obj or not 'searches' in obj or obj['version'] not in (1,):
                 return err()
             searches = []
             for item in obj['searches']:
