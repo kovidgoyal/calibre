@@ -697,8 +697,10 @@ class SavedSearches(Dialog):
         i = self.searches.currentIndex()
         if i.isValid():
             search_index, search = i.data(Qt.UserRole).toPyObject()
-            self.description.setText(_('{2}\nFind: {0}\nReplace: {1}').format(
-                search.get('find', ''), search.get('replace', ''), search.get('name', '')))
+            cs = '✓' if search.get('case_sensitive', SearchWidget.DEFAULT_STATE['case_sensitive']) else '✗'
+            da = '✓' if search.get('dot_all', SearchWidget.DEFAULT_STATE['dot_all']) else '✗'
+            self.description.setText(_('{2} (Case sensitive: {3} Dot All: {4})\nFind: {0}\nReplace: {1}').format(
+                search.get('find', ''), search.get('replace', ''), search.get('name', ''), cs, da))
 
 def validate_search_request(name, searchable_names, has_marked_text, state, gui_parent):
     err = None
