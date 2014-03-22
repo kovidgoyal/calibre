@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 __license__   = 'GPL v3'
-__copyright__ = '2009, John Schember <john at nachtimwald.com>'
+__copyright__ = '2009-2014, John Schember <john at nachtimwald.com> and Andres Gomez <agomez at igalia.com>'
 __docformat__ = 'restructuredtext en'
 
 '''
@@ -15,12 +15,12 @@ class N770(USBMS):
     name           = 'Nokia 770 Device Interface'
     gui_name       = 'Nokia 770'
     description    = _('Communicate with the Nokia 770 internet tablet.')
-    author         = 'John Schember'
+    author         = 'John Schember and Andres Gomez'
     supported_platforms = ['windows', 'linux', 'osx']
 
     # Ordered list of supported formats
-    FORMATS     = ['mobi', 'prc', 'epub', 'html', 'zip', 'fb2', 'chm', 'pdb',
-        'tcr', 'txt', 'rtf']
+    FORMATS     = ['mobi', 'prc', 'epub', 'pdf', 'html', 'zip', 'fb2', 'chm',
+        'pdb', 'tcr', 'txt', 'rtf']
 
     VENDOR_ID   = [0x421]
     PRODUCT_ID  = [0x431]
