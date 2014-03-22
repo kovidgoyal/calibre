@@ -850,4 +850,14 @@ class GridView(QListView):
             except ValueError:
                 pass
 
+    def moveCursor(self, action, modifiers):
+        index = QListView.moveCursor(self, action, modifiers)
+        if action in (QListView.MoveLeft, QListView.MoveRight) and index.isValid():
+            ci = self.currentIndex()
+            if ci.isValid() and index.row() == ci.row():
+                nr = index.row() + (1 if action == QListView.MoveRight else -1)
+                if 0 <= nr < self.model().rowCount(QModelIndex()):
+                    index = self.model().index(nr, 0)
+        return index
+
 # }}}
