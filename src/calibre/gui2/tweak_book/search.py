@@ -114,6 +114,28 @@ class DirectionBox(QComboBox):
             self.setCurrentIndex(1 if val == 'up' else 0)
         return property(fget=fget, fset=fset)
 
+class ModeBox(QComboBox):
+
+    def __init__(self, parent):
+        QComboBox.__init__(self, parent)
+        self.addItems([_('Normal'), _('Regex')])
+        self.setToolTip('<style>dd {margin-bottom: 1.5ex}</style>' + _(
+            '''Select how the search expression is interpreted
+            <dl>
+            <dt><b>Normal</b></dt>
+            <dd>The search expression is treated as normal text, calibre will look for the exact text.</dd>
+            <dt><b>Regex</b></dt>
+            <dd>The search expression is interpreted as a regular expression. See the User Manual for more help on using regular expressions.</dd>
+            </dl>'''))
+
+    @dynamic_property
+    def mode(self):
+        def fget(self):
+            return 'normal' if self.currentIndex() == 0 else 'regex'
+        def fset(self, val):
+            self.setCurrentIndex({'regex':1}.get(val, 0))
+        return property(fget=fget, fset=fset)
+
 
 class SearchWidget(QWidget):
 
@@ -169,17 +191,8 @@ class SearchWidget(QWidget):
         ml.setAlignment(Qt.AlignRight | Qt.AlignCenter)
         l.addWidget(ml, 2, 0)
         l.addLayout(ol, 2, 1, 1, 3)
-        self.mode_box = mb = QComboBox(self)
+        self.mode_box = mb = ModeBox(self)
         mb.setSizePolicy(QSizePolicy.Maximum, QSizePolicy.Maximum)
-        mb.addItems([_('Normal'), _('Regex')])
-        mb.setToolTip('<style>dd {margin-bottom: 1.5ex}</style>' + _(
-            '''Select how the search expression is interpreted
-            <dl>
-            <dt><b>Normal</b></dt>
-            <dd>The search expression is treated as normal text, calibre will look for the exact text.</dd>
-            <dt><b>Regex</b></dt>
-            <dd>The search expression is interpreted as a regular expression. See the User Manual for more help on using regular expressions.</dd>
-            </dl>'''))
         ml.setBuddy(mb)
         ol.addWidget(mb)
 
@@ -212,9 +225,9 @@ class SearchWidget(QWidget):
     @dynamic_property
     def mode(self):
         def fget(self):
-            return 'normal' if self.mode_box.currentIndex() == 0 else 'regex'
+            return self.mode_box.mode
         def fset(self, val):
-            self.mode_box.setCurrentIndex({'regex':1}.get(val, 0))
+            self.mode_box.mode = val
             self.da.setVisible(self.mode == 'regex')
         return property(fget=fget, fset=fset)
 
@@ -420,6 +433,7 @@ class EditSearch(Dialog):  # {{{
             self.replace.setText(state['replace'])
             self.case_sensitive.setChecked(state['case_sensitive'])
             self.dot_all.setChecked(state['dot_all'])
+            self.mode_box.mode = state.get('mode')
 
     def sizeHint(self):
         ans = Dialog.sizeHint(self)
@@ -450,6 +464,10 @@ class EditSearch(Dialog):  # {{{
         d.setChecked(self.search.get('dot_all', SearchWidget.DEFAULT_STATE['dot_all']))
         l.addRow(d)
 
+        self.mode_box = m = ModeBox(self)
+        self.mode_box.mode = self.search.get('mode', 'regex')
+        l.addRow(_('&Mode:'), m)
+
         l.addRow(self.bb)
 
     def accept(self):
@@ -476,6 +494,7 @@ class EditSearch(Dialog):  # {{{
 
         search['dot_all'] = bool(self.dot_all.isChecked())
         search['case_sensitive'] = bool(self.case_sensitive.isChecked())
+        search['mode'] = self.mode_box.mode
 
         if self.search_index == -1:
             searches.append(search)
