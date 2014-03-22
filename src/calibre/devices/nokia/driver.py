@@ -14,7 +14,7 @@ class N770(USBMS):
 
     name           = 'Nokia 770 Device Interface'
     gui_name       = 'Nokia 770'
-    description    = _('Communicate with the Nokia 770 internet tablet.')
+    description    = _('Communicate with the Nokia 770 Internet Tablet.')
     author         = 'John Schember and Andres Gomez'
     supported_platforms = ['windows', 'linux', 'osx']
 
@@ -29,7 +29,7 @@ class N770(USBMS):
     VENDOR_NAME      = 'NOKIA'
     WINDOWS_MAIN_MEM = '770'
 
-    MAIN_MEMORY_VOLUME_LABEL  = 'N770 Main Memory'
+    MAIN_MEMORY_VOLUME_LABEL  = 'Nokia 770 Main Memory'
 
     EBOOK_DIR_MAIN = 'My Ebooks'
     SUPPORTS_SUB_DIRS = True
