@@ -570,7 +570,7 @@ class SavedSearches(Dialog):
         b.clicked.connect(self.edit_search)
         v.addWidget(b)
 
-        self.eb = b = pb(_('&Remove search'), _('Remove the currently selected searches'))
+        self.eb = b = pb(_('Re&move search'), _('Remove the currently selected searches'))
         b.clicked.connect(self.remove_search)
         v.addWidget(b)
 
