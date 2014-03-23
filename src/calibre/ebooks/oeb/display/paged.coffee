@@ -8,6 +8,10 @@
 
 log = window.calibre_utils.log
 
+runscripts = (parent) ->
+    for script in parent.getElementsByTagName('script')
+        eval(script.text || script.textContent || script.innerHTML || '')
+
 class PagedDisplay
     # This class is a namespace to expose functions via the
     # window.paged_display object. The most important functions are:
@@ -238,8 +242,10 @@ class PagedDisplay
             section = py_bridge.section()
         if this.header != null
             this.header.innerHTML = this.header_template.replace(/_PAGENUM_/g, pagenum+"").replace(/_TITLE_/g, title+"").replace(/_AUTHOR_/g, author+"").replace(/_SECTION_/g, section+"")
+            runscripts(this.header)
         if this.footer != null
             this.footer.innerHTML = this.footer_template.replace(/_PAGENUM_/g, pagenum+"").replace(/_TITLE_/g, title+"").replace(/_AUTHOR_/g, author+"").replace(/_SECTION_/g, section+"")
+            runscripts(this.footer)
 
     fit_images: () ->
         # Ensure no images are wider than the available width in a column. Note
