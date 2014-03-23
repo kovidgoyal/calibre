@@ -384,7 +384,7 @@ class PDFWriter(QObject):
             elif col - 1 in sections:
                 # Ensure we are using the last section on the previous page as
                 # the section for this page, since this page has no sections
-                self.current_section = sections[col][-1]
+                self.current_section = sections[col-1][-1]
             self.doc.init_page()
             if self.header or self.footer:
                 evaljs('paged_display.update_header_footer(%d)'%self.current_page_num)
