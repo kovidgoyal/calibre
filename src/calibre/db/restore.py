@@ -5,7 +5,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import re, os, traceback, shutil
+import re, os, traceback, shutil, time
 from threading import Thread
 from operator import itemgetter
 
@@ -269,7 +269,14 @@ class Restore(Thread):
         save_path = self.olddb = os.path.splitext(dbpath)[0]+'_pre_restore.db'
         if os.path.exists(save_path):
             os.remove(save_path)
-        os.rename(dbpath, save_path)
+        try:
+            os.rename(dbpath, save_path)
+        except OSError as err:
+            if getattr(err, 'winerror', None) == 32:  # ERROR_SHARING_VIOLATION
+                time.sleep(4)  # Wait a little for dropbox or the antivirus or whatever to release the file
+                os.rename(dbpath, save_path)
+            else:
+                raise
         shutil.copyfile(ndbpath, dbpath)
 
 
