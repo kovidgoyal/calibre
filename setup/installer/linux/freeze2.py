@@ -279,6 +279,12 @@ class LinuxFreeze(Command):
         modules['console'].append('calibre.linux')
         basenames['console'].append('calibre_postinstall')
         functions['console'].append('main')
+        c_launcher = '/tmp/calibre-c-launcher'
+        lsrc = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'launcher.c')
+        cmd = ['gcc', '-O2', '-DMAGICK_BASE="%s"' % self.magick_base, '-o', c_launcher, lsrc, ]
+        self.info('Compiling launcher')
+        self.run_builder(cmd, verbose=False)
+
         for typ in ('console', 'gui', ):
             self.info('Processing %s launchers'%typ)
             for mod, bname, func in zip(modules[typ], basenames[typ],
@@ -288,20 +294,6 @@ class LinuxFreeze(Command):
                 xflags += ['-DMODULE="%s"'%mod, '-DBASENAME="%s"'%bname,
                     '-DFUNCTION="%s"'%func]
 
-                launcher = textwrap.dedent('''\
-                #!/bin/sh
-                path=`readlink -f $0`
-                base=`dirname $path`
-                lib=$base/lib
-                export QT_ACCESSIBILITY=0 # qt-at-spi causes crashes and performance issues in various distros, so disable it
-                export LD_LIBRARY_PATH=$lib:$LD_LIBRARY_PATH
-                export MAGICK_HOME=$base
-                export MAGICK_CONFIGURE_PATH=$lib/{1}/config
-                export MAGICK_CODER_MODULE_PATH=$lib/{1}/modules-Q16/coders
-                export MAGICK_CODER_FILTER_PATH=$lib/{1}/modules-Q16/filters
-                exec $base/bin/{0} "$@"
-                ''')
-
                 dest = self.j(self.obj_dir, bname+'.o')
                 if self.newer(dest, [src, __file__]+headers):
                     self.info('Compiling', bname)
@@ -309,8 +301,7 @@ class LinuxFreeze(Command):
                     self.run_builder(cmd, verbose=False)
                 exe = self.j(self.bin_dir, bname)
                 sh = self.j(self.base, bname)
-                with open(sh, 'wb') as f:
-                    f.write(launcher.format(bname, self.magick_base))
+                shutil.copy2(c_launcher, sh)
                 os.chmod(sh,
                     stat.S_IREAD|stat.S_IEXEC|stat.S_IWRITE|stat.S_IRGRP|stat.S_IXGRP|stat.S_IROTH|stat.S_IXOTH)
 
