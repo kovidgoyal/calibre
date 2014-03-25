@@ -19,6 +19,7 @@ py3 = sys.version_info[0] > 2
 enc = getattr(sys.stdout, 'encoding', 'UTF-8') or 'utf-8'
 calibre_version = signature = None
 urllib = __import__('urllib.request' if py3 else 'urllib', fromlist=1)
+
 if py3:
     unicode = str
     raw_input = input
