@@ -9,7 +9,7 @@ __docformat__ = 'restructuredtext en'
 
 import os, cPickle, traceback, time, importlib
 from binascii import hexlify, unhexlify
-from multiprocessing.connection import Listener, arbitrary_address, Client
+from multiprocessing.connection import Client
 from threading import Thread
 from contextlib import closing
 
@@ -117,11 +117,9 @@ def communicate(ans, worker, listener, args, timeout=300, heartbeat=None,
     ans['result'] = cw.res['result']
 
 def create_worker(env, priority='normal', cwd=None, func='main'):
-    address = arbitrary_address('AF_PIPE' if iswindows else 'AF_UNIX')
-    if iswindows and address[1] == ':':
-        address = address[2:]
+    from calibre.utils.ipc.server import create_listener
     auth_key = os.urandom(32)
-    listener = Listener(address=address, authkey=auth_key)
+    address, listener = create_listener(auth_key)
 
     env = dict(env)
     env.update({
