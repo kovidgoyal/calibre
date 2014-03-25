@@ -9,7 +9,7 @@ __docformat__ = 'restructuredtext en'
 import os, errno
 from threading import Thread
 
-from calibre.constants import iswindows, get_windows_username
+from calibre.constants import iswindows, get_windows_username, islinux
 
 ADDRESS = None
 
@@ -37,12 +37,15 @@ def gui_socket_address():
                 if user:
                     ADDRESS += '-' + user[:100] + 'x'
         else:
-            from tempfile import gettempdir
-            tmp = gettempdir()
             user = os.environ.get('USER', '')
             if not user:
                 user = os.path.basename(os.path.expanduser('~'))
-            ADDRESS = os.path.join(tmp, user+'-calibre-gui.socket')
+            if islinux:
+                ADDRESS = (u'\0%s-calibre-gui.socket' % user).encode('ascii')
+            else:
+                from tempfile import gettempdir
+                tmp = gettempdir()
+                ADDRESS = os.path.join(tmp, user+'-calibre-gui.socket')
     return ADDRESS
 
 class RC(Thread):

@@ -6,7 +6,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import sys, os, cPickle, time, tempfile
+import sys, os, cPickle, time, tempfile, errno
 from math import ceil
 from threading import Thread, RLock
 from Queue import Queue, Empty
@@ -18,7 +18,7 @@ from calibre.utils.ipc import eintr_retry_call
 from calibre.utils.ipc.launch import Worker
 from calibre.utils.ipc.worker import PARALLEL_FUNCS
 from calibre import detect_ncpus as cpu_count
-from calibre.constants import iswindows, DEBUG
+from calibre.constants import iswindows, DEBUG, islinux
 from calibre.ptempfile import base_dir
 
 _counter = 0
@@ -84,6 +84,22 @@ class ConnectedWorker(Thread):
 class CriticalError(Exception):
     pass
 
+_name_counter = 0
+
+def create_linux_listener(authkey, backlog=4):
+    # Use abstract named sockets on linux to avoid creating unnecessary temp files
+    global _name_counter
+    prefix = u'\0calibre-ipc-listener-%d-%%d' % os.getpid()
+    while True:
+        _name_counter += 1
+        address = (prefix % _name_counter).encode('ascii')
+        try:
+            return address, Listener(address=address, authkey=authkey, backlog=backlog)
+        except EnvironmentError as err:
+            if err.errno == errno.EADDRINUSE:
+                continue
+            raise
+
 class Server(Thread):
 
     def __init__(self, notify_on_job_done=lambda x: x, pool_size=None,
@@ -99,11 +115,13 @@ class Server(Thread):
         self.pool_size = limit if pool_size is None else pool_size
         self.notify_on_job_done = notify_on_job_done
         self.auth_key = os.urandom(32)
-        self.address = arbitrary_address('AF_PIPE' if iswindows else 'AF_UNIX')
-        if iswindows and self.address[1] == ':':
-            self.address = self.address[2:]
-        self.listener = Listener(address=self.address,
-                authkey=self.auth_key, backlog=4)
+        if islinux:
+            self.address, self.listener = create_linux_listener(self.auth_key, backlog=4)
+        else:
+            self.address = arbitrary_address('AF_PIPE' if iswindows else 'AF_UNIX')
+            if iswindows and self.address[1] == ':':
+                self.address = self.address[2:]
+            self.listener = Listener(address=self.address, authkey=self.auth_key, backlog=4)
         self.add_jobs_queue, self.changed_jobs_queue = Queue(), Queue()
         self.kill_queue = Queue()
         self.waiting_jobs = []
@@ -161,7 +179,6 @@ class Server(Thread):
     def run_job(self, job, gui=True, redirect_output=False):
         w = self.launch_worker(gui=gui, redirect_output=redirect_output)
         w.start_job(job)
-
 
     def run(self):
         while True:
@@ -279,8 +296,6 @@ class Server(Thread):
             ans.append(section)
             pos += delta
         return ans
-
-
 
     def close(self):
         try:
