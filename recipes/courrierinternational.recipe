@@ -1,7 +1,8 @@
 #!/usr/bin/env  python
 
 __license__   = 'GPL v3'
-__copyright__ = '2009, Mathieu Godlewski <mathieu at godlewski.fr>'
+__copyright__ = '''2009, Mathieu Godlewski <mathieu at godlewski.fr>
+2014, Rémi Vanicat <vanicat at debian.org>'''
 '''
 Courrier International
 '''
@@ -47,7 +48,7 @@ class CourrierInternational(BasicNewsRecipe):
         return br
 
     def preprocess_html(self, soup):
-        for link in soup.findAll("a",href=re.compile('^/(notule|sources|comment)')):
+        for link in soup.findAll("a",href=re.compile('^/')):
             link["href"]='http://www.courrierinternational.com' + link["href"]
         return soup
 
