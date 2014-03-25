@@ -233,7 +233,7 @@ def AumSortedConcatenate():
 
 class Connection(apsw.Connection):  # {{{
 
-    BUSY_TIMEOUT = 2000  # milliseconds
+    BUSY_TIMEOUT = 10000  # milliseconds
 
     def __init__(self, path):
         apsw.Connection.__init__(self, path)
