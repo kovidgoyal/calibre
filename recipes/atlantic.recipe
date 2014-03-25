@@ -18,13 +18,14 @@ class TheAtlantic(BasicNewsRecipe):
     INDEX = 'http://www.theatlantic.com/magazine/toc/0/'
     language = 'en'
 
-    remove_tags_before = dict(name='div', id='articleHead')
-    remove_tags_after  = dict(id='copyright')
-    remove_tags        = [dict(id=['header', 'printAds', 'pageControls'])]
+    keep_only_tags = [{'attrs':{'class':['article', 'articleHead', 'articleText']}}]
+    remove_tags        = [dict(attrs={'class':'footer'})]
     no_stylesheets = True
 
-    preprocess_regexps = [(re.compile(r'<!--.*?-->', re.DOTALL), lambda m: '')]
-
+    preprocess_regexps = [
+        (re.compile(r'<!--.*?-->', re.DOTALL), lambda m: ''),
+        (re.compile(r'.*<html', re.DOTALL|re.IGNORECASE), lambda m: '<html'),
+    ]
 
     def print_version(self, url):
         return url.replace('/archive/', '/print/')
@@ -40,7 +41,7 @@ class TheAtlantic(BasicNewsRecipe):
         cover = soup.find('img', src=True, attrs={'class':'cover'})
 
         if cover is not None:
-            self.cover_url = re.sub('\s','%20',re.sub('jpg.*','jpg',cover['src']))
+            self.cover_url = 'http:' + cover['src']
             self.log(self.cover_url)
 
         feeds = []
@@ -69,7 +70,7 @@ class TheAtlantic(BasicNewsRecipe):
             if articles:
                 feeds.append((section_title, articles))
 
-        rightContent=soup.find('div', attrs = {'class':'rightContent'})
+        rightContent=soup.find('div', attrs={'class':'rightContent'})
         for module in rightContent.findAll('div', attrs={'class':'module'}):
             section_title = self.tag_to_string(module.find('h2'))
             articles = []
@@ -91,7 +92,6 @@ class TheAtlantic(BasicNewsRecipe):
                 articles.append({'title':title, 'url':url, 'description':desc, 'date':''})
             if articles:
                 feeds.append((section_title, articles))
-
 
         return feeds
 
