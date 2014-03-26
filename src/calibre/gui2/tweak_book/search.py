@@ -456,7 +456,7 @@ class EditSearch(Dialog):  # {{{
         l.addRow(_('&Name:'), n)
 
         self.find = f = QLineEdit(self.search.get('find', ''), self)
-        f.setPlaceholderText(_('The regular expression to search for'))
+        f.setPlaceholderText(_('The expression to search for'))
         l.addRow(_('&Find:'), f)
 
         self.replace = r = QLineEdit(self.search.get('replace', ''), self)
@@ -734,8 +734,12 @@ class SavedSearches(Dialog):
             search_index, search = i.data(Qt.UserRole).toPyObject()
             cs = '✓' if search.get('case_sensitive', SearchWidget.DEFAULT_STATE['case_sensitive']) else '✗'
             da = '✓' if search.get('dot_all', SearchWidget.DEFAULT_STATE['dot_all']) else '✗'
-            self.description.setText(_('{2} (Case sensitive: {3} Dot All: {4})\nFind: {0}\nReplace: {1}').format(
-                search.get('find', ''), search.get('replace', ''), search.get('name', ''), cs, da))
+            if search.get('mode', SearchWidget.DEFAULT_STATE['mode']) == 'regex':
+                ts = _('(Case sensitive: {0} Dot All: {1})').format(cs, da)
+            else:
+                ts = _('(Case sensitive: {0} [Normal search])').format(cs)
+            self.description.setText(_('{2} {3}\nFind: {0}\nReplace: {1}').format(
+                search.get('find', ''), search.get('replace', ''), search.get('name', ''), ts))
 
     def import_searches(self):
         path = choose_files(self, 'import_saved_searches', _('Choose file'), filters=[
