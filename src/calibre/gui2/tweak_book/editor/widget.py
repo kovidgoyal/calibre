@@ -56,6 +56,9 @@ def register_text_editor_actions(reg, palette):
     ac = reg('view-image', _('&Insert image'), ('insert_resource', 'image'), 'insert-image', (), _('Insert an image into the text'))
     ac.setToolTip(_('<h3>Insert image</h3>Insert an image into the text'))
 
+    ac = reg('insert-link', _('Insert &hyperlink'), ('insert_hyperlink',), 'insert-hyperlink', (), _('Insert hyperlink'))
+    ac.setToolTip(_('<h3>Insert hyperlink</h3>Insert a hyperlink into the text'))
+
     for i, name in enumerate(('h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p')):
         text = ('&' + name) if name == 'p' else (name[0] + '&' + name[1])
         desc = _('Convert the paragraph to &lt;%s&gt;') % name
@@ -141,6 +144,9 @@ class Editor(QMainWindow):
     def insert_image(self, href):
         self.editor.insert_image(href)
 
+    def insert_hyperlink(self, href, text):
+        self.editor.insert_hyperlink(href, text)
+
     def undo(self):
         self.editor.undo()
 
@@ -150,6 +156,9 @@ class Editor(QMainWindow):
     @property
     def selected_text(self):
         return self.editor.selected_text
+
+    def get_smart_selection(self, update=True):
+        return self.editor.smarts.get_smart_selection(self.editor, update=update)
 
     # Search and replace {{{
     def mark_selected_text(self):
@@ -195,6 +204,8 @@ class Editor(QMainWindow):
             b.addAction(actions['pretty-current'])
         if self.syntax in {'html', 'css'}:
             b.addAction(actions['insert-image'])
+        if self.syntax == 'html':
+            b.addAction(actions['insert-hyperlink'])
         if self.syntax == 'html':
             self.format_bar = b = self.addToolBar(_('Format text'))
             for x in ('bold', 'italic', 'underline', 'strikethrough', 'subscript', 'superscript', 'color', 'background-color'):

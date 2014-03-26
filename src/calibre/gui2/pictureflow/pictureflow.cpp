@@ -318,6 +318,9 @@ struct SlideInfo
   PFreal cy;
 };
 
+static const QString OFFSET_KEY("offset");
+static const QString WIDTH_KEY("width");
+
 // PicturePlowPrivate {{{
 
 class PictureFlowPrivate
@@ -367,6 +370,7 @@ public:
   QTime  previousPosTimestamp;
   int    pixelDistanceMoved;
   int    pixelsToMovePerSlide;
+  bool   preserveAspectRatio;
   QFont subtitleFont;
 
   void setImages(FlowImages *images);
@@ -421,6 +425,7 @@ PictureFlowPrivate::PictureFlowPrivate(PictureFlow* w, int queueLength_)
   slideHeight = 200;
   fontSize = 10;
   doReflections = true;
+  preserveAspectRatio = false;
 
   centerIndex = 0;
   queueLength = queueLength_;
@@ -491,9 +496,9 @@ void PictureFlowPrivate::setCurrentSlide(int index)
 {
   animateTimer.stop();
   step = 0;
-  centerIndex = qBound(index, 0, slideImages->count()-1);
+  centerIndex = qBound(0, index, qMax(0, slideImages->count()-1));
   target = centerIndex;
-  slideFrame = ((long long)index) << 16;
+  slideFrame = ((long long)centerIndex) << 16;
   resetSlides();
   triggerRender();
   widget->emitcurrentChanged(centerIndex);
@@ -598,41 +603,58 @@ void PictureFlowPrivate::resetSlides()
   }
 }
 
-static QImage prepareSurface(QImage img, int w, int h, bool doReflections)
+static QImage prepareSurface(QImage srcimg, int w, int h, bool doReflections, bool preserveAspectRatio)
 {
-  img = img.scaled(w, h, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
+    // slightly larger, to accommodate for the reflection
+    int hs = int(h * REFLECTION_FACTOR), left = 0, top = 0, a = 0, r = 0, g = 0, b = 0, ht, x, y, bpp;
+    QImage img = (preserveAspectRatio) ? QImage(w, h, srcimg.format()) : srcimg.scaled(w, h, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
+    QRgb color;
 
-  // slightly larger, to accommodate for the reflection
-  int hs = int(h * REFLECTION_FACTOR);
+    // offscreen buffer: black is sweet
+    QImage result(hs, w, QImage::Format_RGB16);  
+    result.fill(0);
 
-  // offscreen buffer: black is sweet
-  QImage result(hs, w, QImage::Format_RGB16);  
-  result.fill(0);
-
-  // transpose the image, this is to speed-up the rendering
-  // because we process one column at a time
-  // (and much better and faster to work row-wise, i.e in one scanline)
-  for(int x = 0; x < w; x++)
-    for(int y = 0; y < h; y++)
-      result.setPixel(y, x, img.pixel(x, y));
-
-  if (doReflections) {
-    // create the reflection
-    int ht = hs - h;
-    for(int x = 0; x < w; x++)
-        for(int y = 0; y < ht; y++)
-        {
-        QRgb color = img.pixel(x, img.height()-y-1);
-        //QRgb565 color = img.scanLine(img.height()-y-1) + x*sizeof(QRgb565); //img.pixel(x, img.height()-y-1);
-        int a = qAlpha(color);
-        int r = qRed(color)   * a / 256 * (ht - y) / ht * 3/5;
-        int g = qGreen(color) * a / 256 * (ht - y) / ht * 3/5;
-        int b = qBlue(color)  * a / 256 * (ht - y) / ht * 3/5;
-        result.setPixel(h+y, x, qRgb(r, g, b));
+    if (preserveAspectRatio) {
+        QImage temp = srcimg.scaled(w, h, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+        img = QImage(w, h, temp.format());  
+        img.fill(0);
+        left = (w - temp.width()) / 2;
+        top = h - temp.height();
+        bpp = img.bytesPerLine() / img.width();
+        x = temp.width() * bpp;
+        result.setText(OFFSET_KEY, QString::number(left));
+        result.setText(WIDTH_KEY, QString::number(temp.width()));
+        for (y = 0; y < temp.height(); y++) {
+            const uchar *src = temp.scanLine(y);
+            uchar *dest = img.scanLine(top + y) + (bpp * left);
+            memcpy(dest, src, x);
         }
-  }
+    }
 
-  return result;
+    // transpose the image, this is to speed-up the rendering
+    // because we process one column at a time
+    // (and much better and faster to work row-wise, i.e in one scanline)
+    for(x = 0; x < w; x++)
+        for(y = 0; y < h; y++)
+            result.setPixel(y, x, img.pixel(x, y));
+
+    if (doReflections) {
+        // create the reflection
+        ht = hs - h;
+        for(x = 0; x < w; x++)
+            for(y = 0; y < ht; y++)
+            {
+                color = img.pixel(x, img.height()-y-1);
+                //QRgb565 color = img.scanLine(img.height()-y-1) + x*sizeof(QRgb565); //img.pixel(x, img.height()-y-1);
+                a = qAlpha(color);
+                r = qRed(color)   * a / 256 * (ht - y) / ht * 3/5;
+                g = qGreen(color) * a / 256 * (ht - y) / ht * 3/5;
+                b = qBlue(color)  * a / 256 * (ht - y) / ht * 3/5;
+                result.setPixel(h+y, x, qRgb(r, g, b));
+            }
+    }
+
+    return result;
 }
 
 
@@ -668,12 +690,12 @@ QImage* PictureFlowPrivate::surface(int slideIndex)
       painter.setBrush(QBrush());
       painter.drawRect(2, 2, slideWidth-3, slideHeight-3);
       painter.end();
-      blankSurface = prepareSurface(blankSurface, slideWidth, slideHeight, doReflections);
+      blankSurface = prepareSurface(blankSurface, slideWidth, slideHeight, doReflections, preserveAspectRatio);
     }
     return &blankSurface;
   }
 
-  surfaceCache.insert(slideIndex, new QImage(prepareSurface(img, slideWidth, slideHeight, doReflections)));
+  surfaceCache.insert(slideIndex, new QImage(prepareSurface(img, slideWidth, slideHeight, doReflections, preserveAspectRatio)));
   return surfaceCache[slideIndex];
 }
 
@@ -874,8 +896,7 @@ QRect PictureFlowPrivate::renderCenterSlide(const SlideInfo &slide) {
 // Renders a slide to offscreen buffer. Returns a rect of the rendered area.
 // alpha=256 means normal, alpha=0 is fully black, alpha=128 half transparent
 // col1 and col2 limit the column for rendering.
-QRect PictureFlowPrivate::renderSlide(const SlideInfo &slide, int alpha, 
-int col1, int col2)
+QRect PictureFlowPrivate::renderSlide(const SlideInfo &slide, int alpha, int col1, int col2)
 {
   QImage* src = surface(slide.slideIndex);
   if(!src)
@@ -913,6 +934,13 @@ int col1, int col2)
 
   bool flag = false;
   rect.setLeft(xi);
+  int img_offset = 0, img_width = 0;
+  bool slide_moving_to_center = false;
+  if (preserveAspectRatio) {
+      img_offset = src->text(OFFSET_KEY).toInt();
+      img_width = src->text(WIDTH_KEY).toInt();
+      slide_moving_to_center = slide.slideIndex == target && target != centerIndex;
+  }
   for(int x = qMax(xi, col1); x <= col2; x++)
   {
     PFreal hity = 0;
@@ -935,6 +963,17 @@ int col1, int col2)
       break;
     if(column < 0)
       continue;
+    if (preserveAspectRatio && !slide_moving_to_center) {
+        // We dont want a black border at the edge of narrow images when the images are in the left or right stacks
+        if (slide.slideIndex < centerIndex) {
+            column = qMin(column + img_offset, sw - 1);
+        } else if (slide.slideIndex == centerIndex) {
+            if (target > centerIndex) column = qMin(column + img_offset, sw - 1);
+            else if (target < centerIndex) column = qMax(column - sw + img_offset + img_width, 0);
+        } else {
+            column = qMax(column - sw + img_offset + img_width, 0);
+        }
+    }
 
     rect.setRight(x);  
     if(!flag)
@@ -1194,6 +1233,17 @@ QSize PictureFlow::slideSize() const
 void PictureFlow::setSlideSize(QSize size)
 {
   d->setSlideSize(size);
+}
+
+bool PictureFlow::preserveAspectRatio() const
+{
+  return d->preserveAspectRatio;
+}
+
+void PictureFlow::setPreserveAspectRatio(bool preserve)
+{
+  d->preserveAspectRatio = preserve;
+  clearCaches();
 }
 
 void PictureFlow::setSubtitleFont(QFont font)

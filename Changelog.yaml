@@ -20,6 +20,92 @@
 #   new recipes:
 #     - title: 
 
+- version: 1.29.0
+  date: 2014-03-21
+
+  new features:
+    - title: "Edit Book: Add support for saved searches. Click Search->Saved Searches to bring up a dialog where you can create and manage saved searches"
+
+    - title: "Edit Book: New tool to specify semantics in EPUB books (semantics are items in the guide such as preface, title-page, dedication, etc.). To use it, go to Tools->Set Semantics"
+      tickets: [1287025]
+
+    - title: "Edit Book: Preview panel: Add a copy selected text action to the context menu"
+
+    - title: "Edit Book: When inserting hyperlinks, allow specifying the text for the hyperlink in the insert hyperlink dialog"
+
+  bug fixes:
+    - title: "Fix a regression in the previous release that broke downloading metadata for authors with a double initial such as R. A. Salvatore."
+      tickets: [1294529]
+
+    - title: "Edit book: When generating inline Table of Contents, mark it as such in the guide section of the OPF."
+      tickets: [1287018]
+
+    - title: "E-book viewer: Fix right margin for last page in a chapter sometimes disappearing when changing font size."
+      tickets: [1292822]
+
+    - title: "Edit Book: Fix saving of empty files not working"
+
+    - title: "Edit book: Fix a regression in the previous release that broke saving a copy of the current book on linux and OS X"
+
+    - title: "Edit book: Fix syntax highlighting in HTML files breaks if the closing of a comment or processing instruction is at the start of a new line."
+
+    - title: "Edit book: Fix check book failing in the presence of empty <style/> tags."
+      tickets: [1292841]
+
+    - title: "Catalogs: Fix handling of tristate boolean custom columns when creating EPUB/MOBI catalogs."
+      tickets: [1294983] 
+
+    - title: "Linux build: Workaround for systems that have broken libc implementations that change the behavior of truncate() on file descriptors with O_APPEND set."
+      tickets: [1295366]
+
+  improved recipes:
+    - TIME
+    - Wired Daily Edition
+
+  new recipes:
+    - title: Applefobia 
+      author: koliberek
+
+- version: 1.28.0
+  date: 2014-03-14
+
+  new features:
+    - title: "Edit Book: Add a tool to easily insert hyperlinks (click the insert hyperlink button on the toolbar)"
+
+    - title: "Edit book: Add a tool to easily open a file inside the book for editing by just typing a few characters from the file name. To use it press Ctrl+T in the editor or go to Edit->Quick open a file to edit'"
+
+    - title: "Edit book: Allow disabling the completion popups for the search and replace fields. Right click on the search/replace field to enable/disable the completion popup"
+
+    - title: "E-book viewer: Add an option to control the maximum text height in full screen. Note that it only works if the viewer is in paged mode (which is the default mode)."
+
+    - title: "Show the search expression for the virtual library in a tooltip when hovering over the tab for the virtual library."
+      tickets: [1291691]
+
+    - title: "Book details panel: Show author URL in a tooltip when hovering over author names"
+
+    - title: "Kobo driver: Update to handle updated Kobo firmware"
+
+  bug fixes:
+    - title: "Library backup: Avoid infinite retries if converting metadata to backup OPF for a book fails. Simply fail to backup the metadata for that book."
+      tickets: [1291142]
+
+    - title: "Edit book: Fix file permissions for the edited book being changed on Linux and OS X"
+
+    - title: "Fix text entry cursor becoming invisible when completion popup is opened"
+
+    - title: "Possible fix for crash on OS X Mavericks when adding duplicates"
+
+    - title: "E-book viewer: Fix pressing the Esc key to leave full screen mode not changing the state of the full screen button"
+
+    - title: "When reading metadata from filenames, do not apply the fallback regexp to read metadata if the user specified regexp puts the entire filename into the title. The fallback is only used if the user specified expression does not match the filename at all."
+
+    - title: "Linux binary install script: Fix error on linux systems where the system python has an encoding of None set on stdout. Assume encoding is utf-8 in this case."
+
+    - title: "Content server: Fix (maybe) an error on some windows computers with a non-standard default encoding"
+
+  improved recipes:
+    - Fleshbot
+
 - version: 1.27.0
   date: 2014-03-07
 

@@ -286,7 +286,7 @@ def closing_tag(state, text, i, formats):
 def in_comment(state, text, i, formats):
     ' Comment, processing instruction or doctype '
     end = {state.IN_COMMENT:'-->', state.IN_PI:'?>'}.get(state.parse, '>')
-    pos = text.find(end, i+1)
+    pos = text.find(end, i)
     fmt = formats['comment' if state.parse == state.IN_COMMENT else 'preproc']
     if pos == -1:
         num = len(text) - i
@@ -371,6 +371,8 @@ if __name__ == '__main__':
     launch_editor('''\
 <!DOCTYPE html>
 <html xml:lang="en" lang="en">
+<!--
+-->
     <head>
         <meta charset="utf-8" />
         <title>A title with a tag <span> in it, the tag is treated as normal text</title>

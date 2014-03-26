@@ -93,6 +93,7 @@ Q_OBJECT
   Q_PROPERTY(int currentSlide READ currentSlide WRITE setCurrentSlide)
   Q_PROPERTY(QSize slideSize READ slideSize WRITE setSlideSize)
   Q_PROPERTY(QFont subtitleFont READ subtitleFont WRITE setSubtitleFont)
+  Q_PROPERTY(bool preserveAspectRatio READ preserveAspectRatio WRITE setPreserveAspectRatio)
 
 public:
   /*!
@@ -120,6 +121,16 @@ public:
     instead use resize which automatically sets an appropriate slide size.
   */  
   void setSlideSize(QSize size);
+
+  /*!
+    Returns whether aspect ration is preserved when scaling images
+  */  
+  bool preserveAspectRatio() const;
+
+  /*!
+    Whether to preserve aspect ration when scaling images
+  */  
+  void setPreserveAspectRatio(bool preserve);
 
   /*!
     Turn the reflections on/off.

@@ -21,7 +21,7 @@ from calibre.constants import plugins, cache_dir
 from calibre.gui2 import NONE
 from calibre.gui2.widgets2 import HistoryLineEdit2
 from calibre.gui2.tweak_book import tprefs
-from calibre.gui2.tweak_book.widgets import Dialog
+from calibre.gui2.tweak_book.widgets import Dialog, BusyCursor
 from calibre.utils.icu import safe_chr as chr, icu_unicode_version, character_name_from_code
 
 ROOT = QModelIndex()
@@ -765,7 +765,6 @@ class CharSelect(Dialog):
         self.char_view.setFocus(Qt.OtherFocusReason)
 
     def do_search(self):
-        from calibre.gui2.tweak_book.boss import BusyCursor
         text = unicode(self.search.text()).strip()
         if not text:
             return self.clear_search()

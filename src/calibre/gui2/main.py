@@ -365,7 +365,7 @@ def cant_start(msg=_('If you are sure it is not running')+', ',
     else:
         where += _('lower right region of the screen.')
     if what is None:
-        if iswindows:
+        if iswindows or islinux:
             what = _('try rebooting your computer.')
         else:
             what = _('try deleting the file')+': '+ gui_socket_address()
@@ -436,7 +436,7 @@ def main(args=sys.argv):
         try:
             listener = Listener(address=gui_socket_address())
         except socket.error:
-            if iswindows:
+            if iswindows or islinux:
                 cant_start()
             if os.path.exists(gui_socket_address()):
                 os.remove(gui_socket_address())

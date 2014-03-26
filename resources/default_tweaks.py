@@ -147,7 +147,7 @@ sort_columns_at_startup = None
 #  d     the day as number without a leading zero (1 to 31)
 #  dd    the day as number with a leading zero (01 to 31)
 #  ddd   the abbreviated localized day name (e.g. 'Mon' to 'Sun').
-#  dddd  the long localized day name (e.g. 'Monday' to 'Qt::Sunday').
+#  dddd  the long localized day name (e.g. 'Monday' to 'Sunday').
 #  M     the month as number without a leading zero (1-12)
 #  MM    the month as number with a leading zero (01-12)
 #  MMM   the abbreviated localized month name (e.g. 'Jan' to 'Dec').
@@ -444,7 +444,7 @@ public_smtp_relay_delay = 301
 # All covers in the calibre library will be resized, preserving aspect ratio,
 # to fit within this size. This is to prevent slowdowns caused by extremely
 # large covers
-maximum_cover_size = (1450, 2000)
+maximum_cover_size = (1650, 2200)
 
 #: Where to send downloaded news
 # When automatically sending downloaded news to a connected device, calibre

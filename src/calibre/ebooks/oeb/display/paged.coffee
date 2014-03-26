@@ -8,6 +8,10 @@
 
 log = window.calibre_utils.log
 
+runscripts = (parent) ->
+    for script in parent.getElementsByTagName('script')
+        eval(script.text || script.textContent || script.innerHTML || '')
+
 class PagedDisplay
     # This class is a namespace to expose functions via the
     # window.paged_display object. The most important functions are:
@@ -22,10 +26,12 @@ class PagedDisplay
         this.set_geometry()
         this.page_width = 0
         this.screen_width = 0
+        this.side_margin = 0
         this.in_paged_mode = false
         this.current_margin_side = 0
         this.is_full_screen_layout = false
         this.max_col_width = -1
+        this.max_col_height = - 1
         this.current_page_height = null
         this.document_margins = null
         this.use_document_margins = false
@@ -71,10 +77,14 @@ class PagedDisplay
             this.margin_top = this.document_margins.top or margin_top
             this.margin_bottom = this.document_margins.bottom or margin_bottom
             this.margin_side = this.document_margins.left or this.document_margins.right or margin_side
+            this.effective_margin_top = this.margin_top
+            this.effective_margin_bottom = this.margin_bottom
         else
             this.margin_top = margin_top
             this.margin_side = margin_side
             this.margin_bottom = margin_bottom
+            this.effective_margin_top = this.margin_top
+            this.effective_margin_bottom = this.margin_bottom
 
     handle_rtl_body: (body_style) ->
         if body_style.direction == "rtl"
@@ -117,8 +127,8 @@ class PagedDisplay
             col_width = Math.max(100, ((ww - adjust)/n) - 2*sm)
         this.col_width = col_width
         this.page_width = col_width + 2*sm
+        this.side_margin = sm
         this.screen_width = this.page_width * this.cols_per_screen
-        this.current_page_height = window.innerHeight - this.margin_top - this.margin_bottom
 
         fgcolor = body_style.getPropertyValue('color')
 
@@ -142,12 +152,20 @@ class PagedDisplay
         if c?.nodeType == 1
             c.style.setProperty('-webkit-margin-before', '0')
 
+        this.effective_margin_top = this.margin_top
+        this.effective_margin_bottom = this.margin_bottom
+        this.current_page_height = window.innerHeight - this.margin_top - this.margin_bottom
+        if this.max_col_height > 0 and this.current_page_height > this.max_col_height
+            eh = Math.ceil((this.current_page_height - this.max_col_height) / 2)
+            this.effective_margin_top += eh
+            this.effective_margin_bottom += eh
+            this.current_page_height -= 2 * eh
 
         bs.setProperty('overflow', 'visible')
-        bs.setProperty('height', (window.innerHeight - this.margin_top - this.margin_bottom) + 'px')
+        bs.setProperty('height', this.current_page_height + 'px')
         bs.setProperty('width', (window.innerWidth - 2*sm)+'px')
-        bs.setProperty('margin-top', this.margin_top + 'px')
-        bs.setProperty('margin-bottom', this.margin_bottom+'px')
+        bs.setProperty('margin-top', this.effective_margin_top + 'px')
+        bs.setProperty('margin-bottom', this.effective_margin_bottom+'px')
         bs.setProperty('margin-left', sm+'px')
         bs.setProperty('margin-right', sm+'px')
         for edge in ['left', 'right', 'top', 'bottom']
@@ -193,12 +211,12 @@ class PagedDisplay
     create_header_footer: (uuid) ->
         if this.header_template != null
             this.header = document.createElement('div')
-            this.header.setAttribute('style', "overflow:hidden; display:block; position:absolute; left:#{ this.side_margin }px; top: 0px; height: #{ this.margin_top }px; width: #{ this.col_width }px; margin: 0; padding: 0")
+            this.header.setAttribute('style', "overflow:hidden; display:block; position:absolute; left:#{ this.side_margin }px; top: 0px; height: #{ this.effective_margin_top }px; width: #{ this.col_width }px; margin: 0; padding: 0")
             this.header.setAttribute('id', 'pdf_page_header_'+uuid)
             document.body.appendChild(this.header)
         if this.footer_template != null
             this.footer = document.createElement('div')
-            this.footer.setAttribute('style', "overflow:hidden; display:block; position:absolute; left:#{ this.side_margin }px; top: #{ window.innerHeight - this.margin_bottom }px; height: #{ this.margin_bottom }px; width: #{ this.col_width }px; margin: 0; padding: 0")
+            this.footer.setAttribute('style', "overflow:hidden; display:block; position:absolute; left:#{ this.side_margin }px; top: #{ window.innerHeight - this.effective_margin_bottom }px; height: #{ this.effective_margin_bottom }px; width: #{ this.col_width }px; margin: 0; padding: 0")
             this.footer.setAttribute('id', 'pdf_page_footer_'+uuid)
             document.body.appendChild(this.footer)
         if this.header != null or this.footer != null
@@ -224,8 +242,10 @@ class PagedDisplay
             section = py_bridge.section()
         if this.header != null
             this.header.innerHTML = this.header_template.replace(/_PAGENUM_/g, pagenum+"").replace(/_TITLE_/g, title+"").replace(/_AUTHOR_/g, author+"").replace(/_SECTION_/g, section+"")
+            runscripts(this.header)
         if this.footer != null
             this.footer.innerHTML = this.footer_template.replace(/_PAGENUM_/g, pagenum+"").replace(/_TITLE_/g, title+"").replace(/_AUTHOR_/g, author+"").replace(/_SECTION_/g, section+"")
+            runscripts(this.footer)
 
     fit_images: () ->
         # Ensure no images are wider than the available width in a column. Note
@@ -501,8 +521,8 @@ class PagedDisplay
                     continue
                 deltax = Math.floor(this.page_width/25)
                 deltay = Math.floor(window.innerHeight/25)
-                cury = this.margin_top
-                until cury >= (window.innerHeight - this.margin_bottom)
+                cury = this.effective_margin_top
+                until cury >= (window.innerHeight - this.effective_margin_bottom)
                     curx = left + this.current_margin_side
                     until curx >= (right - this.current_margin_side)
                         cfi = window.cfi.at_point(curx-window.pageXOffset, cury-window.pageYOffset)

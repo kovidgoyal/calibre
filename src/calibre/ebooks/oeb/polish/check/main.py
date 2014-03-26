@@ -50,7 +50,7 @@ def run_checks(container):
     for name, mt, raw in html_items:
         root = container.parsed(name)
         for style in root.xpath('//*[local-name()="style"]'):
-            if style.get('type', 'text/css') == 'text/css':
+            if style.get('type', 'text/css') == 'text/css' and style.text:
                 errors.extend(check_css_parsing(name, style.text, line_offset=style.sourceline - 1))
         for elem in root.xpath('//*[@style]'):
             raw = elem.get('style')

@@ -196,11 +196,12 @@ class Cache(object):
     def reload_from_db(self, clear_caches=True):
         if clear_caches:
             self._clear_caches()
-        self.backend.prefs.load_from_db()
-        self._search_api.saved_searches.load_from_db()
-        for field in self.fields.itervalues():
-            if hasattr(field, 'table'):
-                field.table.read(self.backend)  # Reread data from metadata.db
+        with self.backend.conn:  # Prevent other processes, such as calibredb from interrupting the reload by locking the db
+            self.backend.prefs.load_from_db()
+            self._search_api.saved_searches.load_from_db()
+            for field in self.fields.itervalues():
+                if hasattr(field, 'table'):
+                    field.table.read(self.backend)  # Reread data from metadata.db
 
     @property
     def field_metadata(self):

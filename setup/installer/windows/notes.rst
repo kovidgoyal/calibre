@@ -60,6 +60,9 @@ to login as the normal user account with ssh. To do this, follow these steps:
       http://pcsupport.about.com/od/windows7/ht/auto-logon-windows-7.htm or
       http://pcsupport.about.com/od/windowsxp/ht/auto-logon-xp.htm to allow the
       machine to bootup without having to enter the password
+
+    * The following steps must all be run in an administrator cygwin shell
+
     * First clean out any existing cygwin ssh setup with::
         net stop sshd
         cygrunsrv -R sshd
@@ -70,7 +73,7 @@ to login as the normal user account with ssh. To do this, follow these steps:
         mkpasswd -cl > /etc/passwd
         mkgroup --local > /etc/group
     * Assign the necessary rights to the normal user account (administrator
-      command prompt needed)::
+      cygwin command prompt needed - editrights is available in \cygwin\bin)::
         editrights.exe -a SeAssignPrimaryTokenPrivilege -u kovid
         editrights.exe -a SeCreateTokenPrivilege -u kovid
         editrights.exe -a SeTcbPrivilege -u kovid

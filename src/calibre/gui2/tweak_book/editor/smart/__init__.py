@@ -14,3 +14,6 @@ class NullSmarts(object):
     def get_extra_selections(self, editor):
         return ()
 
+    def get_smart_selection(self, editor, update=True):
+        return editor.selected_text
+

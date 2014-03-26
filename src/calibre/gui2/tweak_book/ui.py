@@ -29,6 +29,7 @@ from calibre.gui2.tweak_book.undo import CheckpointView
 from calibre.gui2.tweak_book.preview import Preview
 from calibre.gui2.tweak_book.search import SearchPanel
 from calibre.gui2.tweak_book.check import Check
+from calibre.gui2.tweak_book.search import SavedSearches
 from calibre.gui2.tweak_book.toc import TOCViewer
 from calibre.gui2.tweak_book.char_select import CharSelect
 from calibre.gui2.tweak_book.editor.widget import register_text_editor_actions
@@ -221,6 +222,7 @@ class Main(MainWindow):
         self.setCentralWidget(self.central)
         self.check_book = Check(self)
         self.toc_view = TOCViewer(self)
+        self.saved_searches = SavedSearches(self)
         self.image_browser = InsertImage(self, for_browsing=True)
         self.insert_char = CharSelect(self)
 
@@ -302,6 +304,8 @@ class Main(MainWindow):
         self.action_new_book = reg('book.png', _('Create &new, empty book'), self.boss.new_book, 'new-book', (), _('Create a new, empty book'))
         self.action_import_book = reg('book.png', _('&Import an HTML or DOCX file as a new book'),
                                       self.boss.import_book, 'import-book', (), _('Import an HTML or DOCX file as a new book'))
+        self.action_quick_edit = reg('modified.png', _('&Quick open a file to edit'), self.boss.quick_open, 'quick-open', ('Ctrl+T'), _(
+            'Quickly open a file from the book to edit it'))
 
         # Editor actions
         group = _('Editor actions')
@@ -341,6 +345,8 @@ class Main(MainWindow):
                                       _('Insert special character'))
         self.action_rationalize_folders = reg('mimetypes/dir.png', _('&Arrange into folders'), self.boss.rationalize_folders, 'rationalize-folders', (),
                                       _('Arrange into folders'))
+        self.action_set_semantics = reg('tags.png', _('Set &Semantics'), self.boss.set_semantics, 'set-semantics', (),
+                                        _('Set Semantics'))
 
         # Polish actions
         group = _('Polish Book')
@@ -389,6 +395,7 @@ class Main(MainWindow):
                                    'count', keys=('Ctrl+N'), description=_('Count number of matches'))
         self.action_mark = reg(None, _('&Mark selected text'), self.boss.mark_selected_text, 'mark-selected-text', ('Ctrl+Shift+M',), _('Mark selected text'))
         self.action_go_to_line = reg(None, _('Go to &line'), self.boss.go_to_line_number, 'go-to-line-number', ('Ctrl+.',), _('Go to line number'))
+        self.action_saved_searches = reg(None, _('Sa&ved searches'), self.boss.saved_searches, 'saved-searches', (), _('Show the saved searches dialog'))
 
         # Check Book actions
         group = _('Check Book')
@@ -430,6 +437,7 @@ class Main(MainWindow):
         f = b.addMenu(_('&File'))
         f.addAction(self.action_new_file)
         f.addAction(self.action_import_files)
+        f.addSeparator()
         f.addAction(self.action_open_book)
         f.addAction(self.action_new_book)
         f.addAction(self.action_import_book)
@@ -455,6 +463,7 @@ class Main(MainWindow):
         e.addAction(self.action_editor_paste)
         e.addAction(self.action_insert_char)
         e.addSeparator()
+        e.addAction(self.action_quick_edit)
         e.addAction(self.action_preferences)
 
         e = b.addMenu(_('&Tools'))
@@ -468,6 +477,7 @@ class Main(MainWindow):
         e.addAction(self.action_fix_html_all)
         e.addAction(self.action_pretty_all)
         e.addAction(self.action_rationalize_folders)
+        e.addAction(self.action_set_semantics)
         e.addAction(self.action_check_book)
 
         e = b.addMenu(_('&View'))
@@ -500,6 +510,8 @@ class Main(MainWindow):
         a(self.action_mark)
         e.addSeparator()
         a(self.action_go_to_line)
+        e.addSeparator()
+        a(self.action_saved_searches)
 
         e = b.addMenu(_('&Help'))
         a = e.addAction

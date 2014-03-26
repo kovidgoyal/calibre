@@ -12,6 +12,7 @@ from . import NullSmarts
 
 from PyQt4.Qt import QTextEdit
 
+from calibre import prepare_string_for_xml
 from calibre.gui2 import error_dialog
 
 get_offset = itemgetter(0)
@@ -128,6 +129,25 @@ def rename_tag(cursor, opening_tag, closing_tag, new_name, insert=False):
     cursor.insertText(text)
     cursor.endEditBlock()
 
+def ensure_not_within_tag_definition(cursor, forward=True):
+    ''' Ensure the cursor is not inside a tag definition <>. Returns True iff the cursor was moved. '''
+    block, offset = cursor.block(), cursor.positionInBlock()
+    b, boundary = next_tag_boundary(block, offset, forward=False)
+    if b is None:
+        return False
+    if boundary.is_start:
+        # We are inside a tag
+        if forward:
+            block, boundary = next_tag_boundary(block, offset)
+            if block is not None:
+                cursor.setPosition(block.position() + boundary.offset + 1)
+                return True
+        else:
+            cursor.setPosition(b.position() + boundary.offset)
+            return True
+
+    return False
+
 class HTMLSmarts(NullSmarts):
 
     def get_extra_selections(self, editor):
@@ -180,4 +200,35 @@ class HTMLSmarts(NullSmarts):
             return error_dialog(editor, _('No found'), _(
                 'No suitable block level tag was found to rename'), show=True)
 
+    def get_smart_selection(self, editor, update=True):
+        cursor = editor.textCursor()
+        if not cursor.hasSelection():
+            return ''
+        left = min(cursor.anchor(), cursor.position())
+        right = max(cursor.anchor(), cursor.position())
 
+        cursor.setPosition(left)
+        ensure_not_within_tag_definition(cursor)
+        left = cursor.position()
+
+        cursor.setPosition(right)
+        ensure_not_within_tag_definition(cursor, forward=False)
+        right = cursor.position()
+
+        cursor.setPosition(left), cursor.setPosition(right, cursor.KeepAnchor)
+        if update:
+            editor.setTextCursor(cursor)
+        return editor.selected_text_from_cursor(cursor)
+
+    def insert_hyperlink(self, editor, target, text):
+        c = editor.textCursor()
+        if c.hasSelection():
+            c.insertText('')  # delete any existing selected text
+        ensure_not_within_tag_definition(c)
+        c.insertText('<a href="%s">' % prepare_string_for_xml(target, True))
+        p = c.position()
+        c.insertText('</a>')
+        c.setPosition(p)  # ensure cursor is positioned inside the newly created tag
+        if text:
+            c.insertText(text)
+        editor.setTextCursor(c)

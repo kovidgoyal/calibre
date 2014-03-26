@@ -14,7 +14,7 @@ from setup.build_environment import HOST, PROJECT
 BASE_RSYNC = ['rsync', '-avz', '--delete', '--force']
 EXCLUDES = []
 for x in [
-    'src/calibre/plugins', 'src/calibre/manual', 'src/calibre/trac',
+    'src/calibre/plugins', 'manual',
     '.bzr', '.git', '.build', '.svn', 'build', 'dist', 'imgsrc', '*.pyc', '*.pyo', '*.swp',
     '*.swo', 'format_docs']:
     EXCLUDES.extend(['--exclude', x])
@@ -82,6 +82,7 @@ class Push(Command):
                 r'kovid@win7:/cygdrive/c/Users/kovid/calibre':'Windows 7',
                 'kovid@win7-x64:calibre-src':'win7-x64',
                 'kovid@tiny:calibre':None,
+                'kovid@getafix:calibre-src':None,
                 }.iteritems():
                 threads[vmname or host] = thread = Thread(target=push, args=(host, vmname, available))
                 thread.start()

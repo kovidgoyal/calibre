@@ -60,7 +60,7 @@ QToolBox::tab:hover {
 }</string>
          </property>
          <property name="currentIndex">
-          <number>0</number>
+          <number>2</number>
          </property>
          <widget class="QWidget" name="page">
           <property name="geometry">
@@ -404,38 +404,64 @@ QToolBox::tab:hover {
              </property>
             </widget>
            </item>
-           <item row="1" column="0">
-            <widget class="QCheckBox" name="opt_fullscreen_clock">
-             <property name="text">
-              <string>Show &amp;clock in full screen mode</string>
-             </property>
-            </widget>
-           </item>
-           <item row="5" column="0" colspan="2">
+           <item row="6" column="0" colspan="2">
             <widget class="QCheckBox" name="opt_fullscreen_pos">
              <property name="text">
               <string>Show reading &amp;position in full screen mode</string>
              </property>
             </widget>
            </item>
-           <item row="4" column="0" colspan="2">
+           <item row="5" column="0" colspan="2">
             <widget class="QCheckBox" name="opt_fullscreen_scrollbar">
              <property name="text">
               <string>Show &amp;scrollbar in full screen mode</string>
              </property>
             </widget>
            </item>
-           <item row="3" column="0" colspan="2">
+           <item row="4" column="0" colspan="2">
             <widget class="QCheckBox" name="opt_start_in_fullscreen">
              <property name="text">
               <string>&amp;Start viewer in full screen mode</string>
              </property>
             </widget>
            </item>
-           <item row="2" column="0" colspan="2">
+           <item row="3" column="0" colspan="2">
             <widget class="QCheckBox" name="opt_show_fullscreen_help">
              <property name="text">
               <string>Show &amp;help message when starting full screen mode</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="0">
+            <widget class="QLabel" name="label_24">
+             <property name="text">
+              <string>Maximum text height in fullscreen (paged mode):</string>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="0" colspan="2">
+            <widget class="QCheckBox" name="opt_fullscreen_clock">
+             <property name="text">
+              <string>Show &amp;clock in full screen mode</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="1">
+            <widget class="QSpinBox" name="max_fs_height">
+             <property name="specialValueText">
+              <string>Disabled</string>
+             </property>
+             <property name="suffix">
+              <string> px</string>
+             </property>
+             <property name="minimum">
+              <number>100</number>
+             </property>
+             <property name="maximum">
+              <number>10000</number>
+             </property>
+             <property name="singleStep">
+              <number>25</number>
              </property>
             </widget>
            </item>

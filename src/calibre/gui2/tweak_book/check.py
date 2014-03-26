@@ -15,6 +15,7 @@ from PyQt4.Qt import (
 from calibre.ebooks.oeb.polish.check.base import WARN, INFO, DEBUG, ERROR, CRITICAL
 from calibre.ebooks.oeb.polish.check.main import run_checks, fix_errors
 from calibre.gui2.tweak_book import tprefs
+from calibre.gui2.tweak_book.widgets import BusyCursor
 
 def icon_for_level(level):
     if level > WARN:
@@ -160,7 +161,6 @@ class Check(QSplitter):
                 template % (err.HELP, ifix, fix_tt, fix_msg, run_tt, run_msg))
 
     def run_checks(self, container):
-        from calibre.gui2.tweak_book.boss import BusyCursor
         with BusyCursor():
             self.show_busy()
             QApplication.processEvents()
@@ -179,7 +179,6 @@ class Check(QSplitter):
             self.clear_help(_('No problems found'))
 
     def fix_errors(self, container, errors):
-        from calibre.gui2.tweak_book.boss import BusyCursor
         with BusyCursor():
             self.show_busy(_('Running fixers, please wait...'))
             QApplication.processEvents()

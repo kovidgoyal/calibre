@@ -10,6 +10,7 @@ __docformat__ = 'restructuredtext en'
 import json, os
 from future_builtins import map
 from math import floor
+from collections import defaultdict
 
 from PyQt4.Qt import (QObject, QPainter, Qt, QSize, QString, QTimer,
                       pyqtProperty, QEventLoop, QPixmap, QRect, pyqtSlot)
@@ -310,7 +311,7 @@ class PDFWriter(QObject):
             evaljs('document.getElementById("MathJax_Message").style.display="none";')
 
     def get_sections(self, anchor_map):
-        sections = {}
+        sections = defaultdict(list)
         ci = os.path.abspath(os.path.normcase(self.current_item))
         if self.toc is not None:
             for toc in self.toc.flat():
@@ -323,8 +324,7 @@ class PDFWriter(QObject):
                     col = 0
                     if frag and frag in anchor_map:
                         col = anchor_map[frag]['column']
-                    if col not in sections:
-                        sections[col] = toc.text or _('Untitled')
+                    sections[col].append(toc.text or _('Untitled'))
 
         return sections
 
@@ -380,7 +380,11 @@ class PDFWriter(QObject):
         mf = self.view.page().mainFrame()
         while True:
             if col in sections:
-                self.current_section = sections[col]
+                self.current_section = sections[col][0]
+            elif col - 1 in sections:
+                # Ensure we are using the last section on the previous page as
+                # the section for this page, since this page has no sections
+                self.current_section = sections[col-1][-1]
             self.doc.init_page()
             if self.header or self.footer:
                 evaljs('paged_display.update_header_footer(%d)'%self.current_page_num)

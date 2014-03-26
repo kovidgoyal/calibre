@@ -840,7 +840,7 @@ template::
 This will display the title at the left and the author at the right, in a font
 size smaller than the main text.
 
-Finally, you can also use the current section in templates, as shown below::
+You can also use the current section in templates, as shown below::
 
     <p style="text-align:right">_SECTION_</p>
 
@@ -849,6 +849,12 @@ names are taken from the metadata Table of Contents in the document (the PDF
 Outline). If the document has no table of contents then it will be replaced by
 empty text. If a single PDF page has multiple sections, the first section on
 the page will be used.
+
+You can even use javascript inside the header and footer templates, for
+example, the following template will cause page numbers to start at 4 instead
+of 1::
+
+    <p id="pagenum" style="text-align:center;"></p><script>document.getElementById("pagenum").innerHTML = "" + (_PAGENUM_ + 3)</script>
 
 .. note:: When adding headers and footers make sure you set the page top and
     bottom margins to large enough values, under the Page Setup section of the

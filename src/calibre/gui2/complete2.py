@@ -14,25 +14,26 @@ from PyQt4.Qt import (QLineEdit, QAbstractListModel, Qt, pyqtSignal, QObject,
         QApplication, QListView, QPoint, QModelIndex, QFont, QFontInfo)
 
 from calibre.constants import isosx, get_osx_version
-from calibre.utils.icu import sort_key, primary_startswith, primary_icu_find
+from calibre.utils.icu import sort_key, primary_startswith, primary_contains
 from calibre.gui2 import NONE
 from calibre.gui2.widgets import EnComboBox, LineEditECM
 from calibre.utils.config import tweaks
 
 def containsq(x, prefix):
-    return primary_icu_find(prefix, x)[0] != -1
+    return primary_contains(prefix, x)
 
 class CompleteModel(QAbstractListModel):  # {{{
 
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, sort_func=sort_key):
         QAbstractListModel.__init__(self, parent)
+        self.sort_func = sort_func
         self.all_items = self.current_items = ()
         self.current_prefix = ''
 
     def set_items(self, items):
         items = [unicode(x.strip()) for x in items]
         items = [x for x in items if x]
-        items = tuple(sorted(items, key=sort_key))
+        items = tuple(sorted(items, key=self.sort_func))
         self.all_items = self.current_items = items
         self.current_prefix = ''
         self.reset()
@@ -74,8 +75,9 @@ class Completer(QListView):  # {{{
     item_selected = pyqtSignal(object)
     relayout_needed = pyqtSignal()
 
-    def __init__(self, completer_widget, max_visible_items=7):
+    def __init__(self, completer_widget, max_visible_items=7, sort_func=sort_key):
         QListView.__init__(self)
+        self.disable_popup = False
         self.completer_widget = weakref.ref(completer_widget)
         self.setWindowFlags(Qt.Popup)
         self.max_visible_items = max_visible_items
@@ -84,7 +86,7 @@ class Completer(QListView):  # {{{
         self.setSelectionBehavior(self.SelectRows)
         self.setSelectionMode(self.SingleSelection)
         self.setAlternatingRowColors(True)
-        self.setModel(CompleteModel(self))
+        self.setModel(CompleteModel(self, sort_func=sort_func))
         self.setMouseTracking(True)
         self.entered.connect(self.item_entered)
         self.activated.connect(self.item_chosen)
@@ -132,6 +134,8 @@ class Completer(QListView):  # {{{
                 self.setCurrentIndex(index)
 
     def popup(self, select_first=True):
+        if self.disable_popup:
+            return
         p = self
         m = p.model()
         widget = self.completer_widget()
@@ -253,7 +257,7 @@ class LineEdit(QLineEdit, LineEditECM):
     to complete non multiple fields as well.
     '''
 
-    def __init__(self, parent=None, completer_widget=None):
+    def __init__(self, parent=None, completer_widget=None, sort_func=sort_key):
         QLineEdit.__init__(self, parent)
 
         self.sep = ','
@@ -263,7 +267,7 @@ class LineEdit(QLineEdit, LineEditECM):
         completer_widget = (self if completer_widget is None else
                 completer_widget)
 
-        self.mcompleter = Completer(completer_widget)
+        self.mcompleter = Completer(completer_widget, sort_func=sort_func)
         self.mcompleter.item_selected.connect(self.completion_selected,
                 type=Qt.QueuedConnection)
         self.mcompleter.relayout_needed.connect(self.relayout)
@@ -292,6 +296,13 @@ class LineEdit(QLineEdit, LineEditECM):
             self.mcompleter.model().set_items(items)
         return property(fget=fget, fset=fset)
 
+    @dynamic_property
+    def disable_popup(self):
+        def fget(self):
+            return self.mcompleter.disable_popup
+        def fset(self, val):
+            self.mcompleter.disable_popup = bool(val)
+        return property(fget=fget, fset=fset)
     # }}}
 
     def complete(self, show_all=False, select_first=True):
@@ -303,10 +314,12 @@ class LineEdit(QLineEdit, LineEditECM):
             self.mcompleter.hide()
             return
         self.mcompleter.popup(select_first=select_first)
+        self.setFocus(Qt.OtherFocusReason)
         self.mcompleter.scroll_to(orig)
 
     def relayout(self):
         self.mcompleter.popup()
+        self.setFocus(Qt.OtherFocusReason)
 
     def text_edited(self, *args):
         if self.no_popup:

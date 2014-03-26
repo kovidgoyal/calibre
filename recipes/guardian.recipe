@@ -30,6 +30,8 @@ class Guardian(BasicNewsRecipe):
     max_articles_per_feed       = 100
     remove_javascript           = True
     encoding                    = 'utf-8'
+    compress_news_images = True
+    compress_news_images_auto_size = 8
 
     # List of section titles to ignore
     # For example: ['Sport']
@@ -48,14 +50,14 @@ class Guardian(BasicNewsRecipe):
                         # article history link
                         dict(name='a', attrs={'class':["rollover history-link"]}),
                         # "a version of this article ..." speil
-                        dict(name='div' , attrs = { 'class' : ['section']}),
+                        dict(name='div' , attrs={'class' : ['section']}),
                         # "about this article" js dialog
                         dict(name='div', attrs={'class':["share-top",]}),
                         # author picture
                         dict(name='img', attrs={'class':["contributor-pic-small"]}),
                         # embedded videos/captions
                         dict(name='span',attrs={'class' : ['inline embed embed-media']}),
-                        #dict(name='img'),
+                        # dict(name='img'),
                         ]
     use_embedded_content    = False
 
@@ -72,12 +74,12 @@ class Guardian(BasicNewsRecipe):
                 '''
 
     def get_article_url(self, article):
-          url = article.get('guid', None)
-          if '/video/' in url or '/flyer/' in url or '/quiz/' in url or \
-              '/gallery/' in url  or 'ivebeenthere' in url or \
-              'pickthescore' in url or 'audioslideshow' in url :
-              url = None
-          return url
+        url = article.get('guid', None)
+        if '/video/' in url or '/flyer/' in url or '/quiz/' in url or \
+            '/gallery/' in url or 'ivebeenthere' in url or \
+            'pickthescore' in url or 'audioslideshow' in url :
+            url = None
+        return url
 
     def populate_article_metadata(self, article, soup, first):
         if first and hasattr(self, 'add_toc_thumbnail'):
@@ -87,39 +89,39 @@ class Guardian(BasicNewsRecipe):
 
     def preprocess_html(self, soup):
 
-          # multiple html sections in soup, useful stuff in the first
-          html = soup.find('html')
-          soup2 = BeautifulSoup()
-          soup2.insert(0,html) 
-          
-          soup = soup2  
-          
-          for item in soup.findAll(style=True):
-              del item['style']
+        # multiple html sections in soup, useful stuff in the first
+        html = soup.find('html')
+        soup2 = BeautifulSoup()
+        soup2.insert(0,html)
 
-          for item in soup.findAll(face=True):
-              del item['face']
-          for tag in soup.findAll(name=['ul','li']):
-                tag.name = 'div'
-         
-         # removes number next to rating stars
-          items_to_remove = []
-          rating_container = soup.find('div', attrs = {'class': ['rating-container']})
-          if rating_container:
+        soup = soup2
+
+        for item in soup.findAll(style=True):
+            del item['style']
+
+        for item in soup.findAll(face=True):
+            del item['face']
+        for tag in soup.findAll(name=['ul','li']):
+            tag.name = 'div'
+
+     # removes number next to rating stars
+        items_to_remove = []
+        rating_container = soup.find('div', attrs={'class': ['rating-container']})
+        if rating_container:
             for item in rating_container:
                 if isinstance(item, Tag) and str(item.name) == 'span':
                     items_to_remove.append(item)
-          
-          for item in items_to_remove:
+
+        for item in items_to_remove:
             item.extract()
-          
-          return soup
+
+        return soup
 
     def find_sections(self):
         # soup = self.index_to_soup("http://www.guardian.co.uk/theobserver")
         soup = self.index_to_soup(self.base_url)
         # find cover pic
-        img = soup.find( 'img',attrs ={'alt':self.cover_pic})
+        img = soup.find('img',attrs={'alt':self.cover_pic})
         if img is not None:
             self.cover_url = img['src']
         # end find cover pic
@@ -149,7 +151,8 @@ class Guardian(BasicNewsRecipe):
                     continue
                 tt = li.find('div', attrs={'class':'trailtext'})
                 if tt is not None:
-                    for da in tt.findAll('a'): da.extract()
+                    for da in tt.findAll('a'):
+                        da.extract()
                     desc = self.tag_to_string(tt).strip()
                 yield {
                         'title': title, 'url':url, 'description':desc,
@@ -161,4 +164,3 @@ class Guardian(BasicNewsRecipe):
         for title, href in self.find_sections():
             feeds.append((title, list(self.find_articles(href))))
         return feeds
-

@@ -19,6 +19,7 @@ from calibre.ebooks.metadata.meta import get_metadata
 from calibre.ebooks.metadata.book.base import field_from_string
 from calibre.ebooks.metadata.opf2 import OPFCreator, OPF
 from calibre.utils.date import isoformat
+from calibre.utils.localization import canonicalize_lang
 
 FIELDS = set(['title', 'authors', 'author_sort', 'publisher', 'rating',
     'timestamp', 'size', 'tags', 'comments', 'series', 'series_index',
@@ -229,7 +230,7 @@ class DevNull(object):
 NULL = DevNull()
 
 def do_add(db, paths, one_book_per_directory, recurse, add_duplicates, otitle,
-        oauthors, oisbn, otags, oseries, oseries_index, ocover):
+        oauthors, oisbn, otags, oseries, oseries_index, ocover, olanguages):
     orig = sys.stdout
     #sys.stdout = NULL
     try:
@@ -256,7 +257,7 @@ def do_add(db, paths, one_book_per_directory, recurse, add_duplicates, otitle,
                 mi.title = os.path.splitext(os.path.basename(book))[0]
             if not mi.authors:
                 mi.authors = [_('Unknown')]
-            for x in ('title', 'authors', 'isbn', 'tags', 'series'):
+            for x in ('title', 'authors', 'isbn', 'tags', 'series', 'languages'):
                 val = locals()['o'+x]
                 if val:
                     setattr(mi, x, val)
@@ -354,10 +355,12 @@ the directory related options below.
             help=_('Set the series number of the added book(s)'))
     parser.add_option('-c', '--cover', default=None,
             help=_('Path to the cover to use for the added book'))
+    parser.add_option('-l', '--languages', default=None,
+            help=_('A comma separated list of languages (best to use ISO639 language codes, though some language names may also be recognized)'))
 
     return parser
 
-def do_add_empty(db, title, authors, isbn, tags, series, series_index, cover):
+def do_add_empty(db, title, authors, isbn, tags, series, series_index, cover, languages):
     from calibre.ebooks.metadata import MetaInformation
     mi = MetaInformation(None)
     if title is not None:
@@ -372,6 +375,8 @@ def do_add_empty(db, title, authors, isbn, tags, series, series_index, cover):
         mi.series, mi.series_index = series, series_index
     if cover:
         mi.cover = cover
+    if languages:
+        mi.languages = languages
     book_id = db.import_book(mi, [])
     write_dirtied(db)
     prints(_('Added book ids: %s')%book_id)
@@ -383,9 +388,11 @@ def command_add(args, dbpath):
     opts, args = parser.parse_args(sys.argv[:1] + args)
     aut = string_to_authors(opts.authors) if opts.authors else []
     tags = [x.strip() for x in opts.tags.split(',')] if opts.tags else []
+    lcodes = [canonicalize_lang(x) for x in (opts.languages or '').split(',')]
+    lcodes = [x for x in lcodes if x]
     if opts.empty:
         do_add_empty(get_db(dbpath, opts), opts.title, aut, opts.isbn, tags,
-                opts.series, opts.series_index, opts.cover)
+                opts.series, opts.series_index, opts.cover, lcodes)
         return 0
     if len(args) < 2:
         parser.print_help()
@@ -394,7 +401,7 @@ def command_add(args, dbpath):
         return 1
     do_add(get_db(dbpath, opts), args[1:], opts.one_book_per_directory,
             opts.recurse, opts.duplicates, opts.title, aut, opts.isbn,
-            tags, opts.series, opts.series_index, opts.cover)
+            tags, opts.series, opts.series_index, opts.cover, lcodes)
     return 0
 
 def do_remove(db, ids):

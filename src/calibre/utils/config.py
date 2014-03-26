@@ -204,7 +204,7 @@ class DynamicConfig(dict):
 
     def decouple(self, prefix):
         self.file_path = os.path.join(os.path.dirname(self.file_path), prefix + os.path.basename(self.file_path))
-        self.refresh(clear_current=False)
+        self.refresh()
 
     def refresh(self, clear_current=True):
         d = {}
@@ -287,7 +287,7 @@ class XMLConfig(dict):
 
     def decouple(self, prefix):
         self.file_path = os.path.join(os.path.dirname(self.file_path), prefix + os.path.basename(self.file_path))
-        self.refresh(clear_current=False)
+        self.refresh()
 
     def refresh(self, clear_current=True):
         d = {}

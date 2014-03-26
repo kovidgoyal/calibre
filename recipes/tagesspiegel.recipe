@@ -1,20 +1,18 @@
-__license__   = 'GPL v3'
-__copyright__ = '2010 Ingo Paschke <ipaschke@gmail.com>'
-
-'''
-Fetch Tagesspiegel.
-'''
-import string, re
-from calibre import strftime
 from calibre.web.feeds.news import BasicNewsRecipe
 
-class TagesspiegelRSS(BasicNewsRecipe):
+class TagesspiegelRss(BasicNewsRecipe):
     title          = u'Der Tagesspiegel'
-    __author__ = 'Ingo Paschke'
-    language = 'de'
-    oldest_article = 7
+    oldest_article = 1
     max_articles_per_feed = 100
+    language = 'de'
     publication_type = 'newspaper'
+    auto_cleanup = True
+    no_stylesheets = True
+    remove_stylesheets = True
+    remove_javascript = True
+    remove_empty_feeds = True
+    encoding = 'utf-8'
+    use_embedded_content = False
 
     extra_css = '''
                 .hcf-overline{color:#990000; font-family:Arial,Helvetica,sans-serif;font-size:xx-small;display:block}
@@ -30,69 +28,34 @@ class TagesspiegelRSS(BasicNewsRecipe):
                 .hcf-smart-box{font-family: Arial, Helvetica, sans-serif; font-size: xx-small; margin: 0px 15px 8px 0px; width: 300px;}
                 '''
 
-    no_stylesheets = True
-    no_javascript = True
-    remove_empty_feeds = True
-    encoding = 'utf-8'
     remove_tags = [{'class':'hcf-header'}, {'class':'hcf-atlas'}, {'class':'hcf-colon'}, {'class':'hcf-date hcf-separate'}]
 
+    feeds          = [
+        (u'Politik', u'http://www.tagesspiegel.de/contentexport/feed/politik'),
+        (u'Meinung', u'http://www.tagesspiegel.de/contentexport/feed/meinung'),
+        (u'Berlin', u'http://www.tagesspiegel.de/contentexport/feed/berlin'),
+        (u'Wirtschaft', u'http://www.tagesspiegel.de/contentexport/feed/wirtschaft'),
+        (u'Sport', u'http://www.tagesspiegel.de/contentexport/feed/sport'),
+        (u'Kultur', u'http://www.tagesspiegel.de/contentexport/feed/kultur'),
+        (u'Weltspiegel', u'http://www.tagesspiegel.de/contentexport/feed/weltspiegel'),
+        (u'Medien', u'http://www.tagesspiegel.de/contentexport/feed/medien'),
+        (u'Wissen', u'http://www.tagesspiegel.de/contentexport/feed/wissen')
+    ]
+
     def print_version(self, url):
-        url = url.split('/')
+        # print url
+        u = url.find('0L0Stagesspiegel0Bde')
+        u = 'http://www.tagesspiegel.de' + url[u + 20:]
+        u = u.replace('0C', '/')
+        u = u.replace('0E', '-')
+        u = u.replace('A', '')
+        u = u.replace('0B', '.')
+        u = u.replace('.html/story01.htm', '.html')
+        url = u.split('/')
         url[-1] = 'v_print,%s?p='%url[-1]
-        return '/'.join(url)
+        u = '/'.join(url)
+        # print u
+        return u
 
     def get_masthead_url(self):
         return 'http://www.tagesspiegel.de/images/tsp_logo/3114/6.png'
-
-    def parse_index(self):
-        soup = self.index_to_soup('http://www.tagesspiegel.de/zeitung/')
-
-        def feed_title(div):
-            return ''.join(div.findAll(text=True, recursive=False)).strip() if div is not None else None
-
-        articles = {}
-        links = set()
-        key = None
-        ans = []
-        maincol = soup.find('div', attrs={'class':re.compile('hcf-main-col')})
-
-        for div in maincol.findAll(True, attrs={'class':['hcf-teaser', 'hcf-header', 'story headline', 'hcf-teaser hcf-last']}):
-
-             if div['class'] == 'hcf-header':
-                 try:
-                     key = string.capwords(feed_title(div.em))
-                     articles[key] = []
-                     ans.append(key)
-                 except:
-                     continue
-
-             elif div['class'] in ['hcf-teaser', 'hcf-teaser hcf-last'] and getattr(div.contents[0],'name','') == 'h2':
-                 a = div.find('a', href=True)
-                 if not a:
-                     continue
-                 url = 'http://www.tagesspiegel.de' + a['href']
-
-                 # check for duplicates
-                 if url in links:
-                     continue	
-                 links.add(url)					 
-
-                 title = self.tag_to_string(a, use_alt=True).strip()
-                 description = ''
-                 pubdate = strftime('%a, %d %b')
-                 summary = div.find('p', attrs={'class':'hcf-teaser'})
-                 if summary:
-                     description = self.tag_to_string(summary, use_alt=False)
-
-                 feed = key if key is not None else 'Uncategorized'
-                 if not articles.has_key(feed):
-                     articles[feed] = []
-                 if not 'podcasts' in url:
-                     articles[feed].append(
-                               dict(title=title, url=url, date=pubdate,
-                                    description=re.sub('mehr$', '', description),
-                                    content=''))
-
-        ans = [(key, articles[key]) for key in ans if articles.has_key(key)]
-
-        return ans

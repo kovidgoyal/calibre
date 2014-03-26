@@ -3,7 +3,15 @@ __copyright__ = '2010, Walt Anthony <workshop.northpole at gmail.com>'
 '''
 www.americanthinker.com
 '''
+import html5lib
 from calibre.web.feeds.news import BasicNewsRecipe
+from calibre.utils.cleantext import clean_xml_chars
+from lxml import etree
+
+def CSSSelect(expr):
+    from cssselect import HTMLTranslator
+    from lxml.etree import XPath
+    return XPath(HTMLTranslator().css_to_xpath(expr))
 
 class AmericanThinker(BasicNewsRecipe):
     title          = u'American Thinker'
@@ -15,9 +23,10 @@ class AmericanThinker(BasicNewsRecipe):
     max_articles_per_feed = 50
     summary_length        = 150
     language              = 'en'
+    ignore_duplicate_articles = {'title', 'url'}
 
     remove_javascript     = True
-    no_stylesheets        = True
+    remove_tags_before = dict(name='h1')
 
     conversion_options = {
                           'comment'   : description
@@ -26,7 +35,14 @@ class AmericanThinker(BasicNewsRecipe):
                         , 'language'  : language
                         , 'linearize_tables' : True
                         }
-    auto_claenup = True
+
+    def preprocess_raw_html(self, raw, url):
+        root = html5lib.parse(
+            clean_xml_chars(raw), treebuilder='lxml',
+            namespaceHTMLElements=False)
+        for x in CSSSelect('.article_body.bottom')(root):
+            x.getparent().remove(x)
+        return etree.tostring(root, encoding=unicode)
 
     feeds = [(u'http://feeds.feedburner.com/americanthinker'),
                      (u'http://feeds.feedburner.com/AmericanThinkerBlog')
@@ -34,4 +50,3 @@ class AmericanThinker(BasicNewsRecipe):
 
     def print_version(self, url):
         return 'http://www.americanthinker.com/assets/3rd_party/printpage/?url=' + url
-        return 'http://www.americanthinker.com/printpage/?url=' + url

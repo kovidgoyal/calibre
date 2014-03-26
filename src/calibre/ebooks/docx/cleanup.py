@@ -171,7 +171,7 @@ def cleanup_markup(log, root, styles, dest_dir, detect_cover):
             if prefix:
                 prefix += '; '
             p.set('style', prefix + 'page-break-after:always')
-            p.text = NBSP
+            p.text = NBSP if not p.text else p.text
 
     if detect_cover:
         # Check if the first image in the document is possibly a cover

@@ -81,8 +81,11 @@ class PlainTextEdit(QPlainTextEdit):
         if hasattr(ans, 'rstrip'):
             ans = ans.rstrip('\0')
         else:  # QString
-            while ans[-1] == '\0':
-                ans.chop(1)
+            try:
+                while ans[-1] == '\0':
+                    ans.chop(1)
+            except IndexError:
+                pass  # ans is an empty string
         return ans
 
     @pyqtSlot()
@@ -101,9 +104,12 @@ class PlainTextEdit(QPlainTextEdit):
         self.copy()
         self.textCursor().removeSelectedText()
 
+    def selected_text_from_cursor(self, cursor):
+        return unicodedata.normalize('NFC', unicode(cursor.selectedText()).replace(PARAGRAPH_SEPARATOR, '\n').rstrip('\0'))
+
     @property
     def selected_text(self):
-        return unicodedata.normalize('NFC', unicode(self.textCursor().selectedText()).replace(PARAGRAPH_SEPARATOR, '\n').rstrip('\0'))
+        return self.selected_text_from_cursor(self.textCursor())
 
     def selection_changed(self):
         # Workaround Qt replacing nbsp with normal spaces on copy
@@ -309,7 +315,7 @@ class TextEdit(PlainTextEdit):
         # Center search result on screen
         self.centerCursor()
         if save_match is not None:
-            self.saved_matches[save_match] = m
+            self.saved_matches[save_match] = (pat, m)
         return True
 
     def all_in_marked(self, pat, template=None):
@@ -366,7 +372,7 @@ class TextEdit(PlainTextEdit):
         # Center search result on screen
         self.centerCursor()
         if save_match is not None:
-            self.saved_matches[save_match] = m
+            self.saved_matches[save_match] = (pat, m)
         return True
 
     def replace(self, pat, template, saved_match='gui'):
@@ -379,8 +385,8 @@ class TextEdit(PlainTextEdit):
             # the saved match matches the currently selected text and
             # use it, if so.
             if saved_match is not None and saved_match in self.saved_matches:
-                saved = self.saved_matches.pop(saved_match)
-                if saved.group() == raw:
+                saved_pat, saved = self.saved_matches.pop(saved_match)
+                if saved_pat == pat and saved.group() == raw:
                     m = saved
         if m is None:
             return False
@@ -601,6 +607,10 @@ class TextEdit(PlainTextEdit):
             c.setPosition(left)
             c.setPosition(left + len(text), c.KeepAnchor)
         self.setTextCursor(c)
+
+    def insert_hyperlink(self, target, text):
+        if hasattr(self.smarts, 'insert_hyperlink'):
+            self.smarts.insert_hyperlink(self, target, text)
 
     def keyPressEvent(self, ev):
         if ev.key() == Qt.Key_X and ev.modifiers() == Qt.AltModifier:

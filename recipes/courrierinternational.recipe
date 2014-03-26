@@ -1,7 +1,8 @@
 #!/usr/bin/env  python
 
 __license__   = 'GPL v3'
-__copyright__ = '2009, Mathieu Godlewski <mathieu at godlewski.fr>'
+__copyright__ = '''2009, Mathieu Godlewski <mathieu at godlewski.fr>
+2014, Rémi Vanicat <vanicat at debian.org>'''
 '''
 Courrier International
 '''
@@ -19,23 +20,57 @@ class CourrierInternational(BasicNewsRecipe):
     max_articles_per_feed = 50
     no_stylesheets = True
 
+    ignore_duplicate_articles = {'title', 'url'}
+
     html2lrf_options = ['--base-font-size', '10']
+
+    keep_only_tags   = [
+        dict(name='div', attrs={'class':'dessin'}),
+        dict(name='div', attrs={'class':'story-content'}),
+    ]
+    remove_tags      = [
+        dict(name='div', attrs={'class':re.compile('story-share storylinks|pager|event-expand')}),
+        dict(name='li', attrs={'class':'event-partage_outils'}),
+        dict(name='li', attrs={'class':'story-comment-link'}),
+    ]
+
+    needs_subscription = "optional"
+    login_url          = 'http://www.courrierinternational.com/login'
+
+    def get_browser(self):
+        br = BasicNewsRecipe.get_browser(self)
+        if self.username:
+            br.open(self.login_url)
+            br.select_form(nr=1)
+            br['name'] = self.username
+            br['pass'] = self.password
+            br.submit()
+        return br
+
+    def preprocess_html(self, soup):
+        for link in soup.findAll("a",href=re.compile('^/')):
+            link["href"]='http://www.courrierinternational.com' + link["href"]
+        return soup
 
     feeds =  [
         # Some articles requiring subscription fails on download.
         ('A la Une', 'http://www.courrierinternational.com/rss/rss_a_la_une.xml'),
+        ('France', 'http://courrierint.com/rss/rp/14/0/rss.xml'),
+        ('Europe', 'http://courrierint.com/rss/rp/15/0/rss.xml'),
+        ('Amerique', 'http://courrierint.com/rss/rp/16/0/rss.xml'),
+        ('Asie', 'http://courrierint.com/rss/rp/17/0/rss.xml'),
+        ('Afrique', 'http://courrierint.com/rss/rp/18/0/rss.xml'),
+        ('Moyen-Orient', 'http://courrierint.com/rss/rp/19/0/rss.xml'),
+        ('Economie', 'http://courrierint.com/rss/rp/20/0/rss.xml'),
+        ('Multimedia', 'http://courrierint.com/rss/rp/23/0/rss.xml'),
+        ('Sciences', 'http://courrierint.com/rss/rp/22/0/rss.xml'),
+        ('Culture', 'http://courrierint.com/rss/rp/24/0/rss.xml'),
+        ('Insolites', 'http://courrierint.com/rss/rp/26/0/rss.xml'),
+        ('Cartoons', 'http://cs.courrierint.com/rss/all/rss.xml'),
+        ('Environnement', 'http://vt.courrierint.com/rss/all/rss.xml'),
+        ('Cinema', 'http://ca.courrierint.com/rss/all/rss.xml'),
+        ('Sport', 'http://st.courrierint.com/rss/all/rss.xml'),
     ]
-
-    preprocess_regexps = [ (re.compile(i[0], re.IGNORECASE|re.DOTALL), i[1]) for i in
-        [
-            #Handle Depeches
-            (r'.*<td [^>]*>([0-9][0-9]/.*</p>)</td>.*', lambda match : '<html><body><table><tr><td>'+match.group(1)+'</td></tr></table></body></html>'),
-            #Handle Articles
-            (r'.*<td [^>]*>(Courrier international.*?)							<td width="10"><img src="/img/espaceur.gif"></td>.*', lambda match : '<html><body><table><tr><td>'+match.group(1)+'</body></html>'),
-        ]
-    ]
-
 
     def print_version(self, url):
-        return re.sub('/[a-zA-Z]+\.asp','/imprimer.asp' ,url)
-
+        return url + '?page=all'

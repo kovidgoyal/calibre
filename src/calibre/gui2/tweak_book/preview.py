@@ -416,6 +416,9 @@ class WebView(QWebView):
 
     def contextMenuEvent(self, ev):
         menu = QMenu(self)
+        ca = self.pageAction(QWebPage.Copy)
+        if ca.isEnabled():
+            menu.addAction(ca)
         menu.addAction(actions['reload-preview'])
         menu.addAction(QIcon(I('debug.png')), _('Inspect element'), self.inspect)
         menu.exec_(ev.globalPos())

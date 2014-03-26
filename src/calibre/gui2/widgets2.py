@@ -11,6 +11,11 @@ from calibre.gui2.widgets import history
 
 class HistoryLineEdit2(LineEdit):
 
+    max_history_items = None
+
+    def __init__(self, parent=None, completer_widget=None, sort_func=lambda x:None):
+        LineEdit.__init__(self, parent=parent, completer_widget=completer_widget, sort_func=sort_func)
+
     @property
     def store_name(self):
         return 'lineedit_history_'+self._name
@@ -31,6 +36,13 @@ class HistoryLineEdit2(LineEdit):
             except ValueError:
                 pass
             self.history.insert(0, ct)
+            if self.max_history_items is not None:
+                del self.history[self.max_history_items:]
             history.set(self.store_name, self.history)
             self.update_items_cache(self.history)
+
+    def clear_history(self):
+        self.history = []
+        history.set(self.store_name, self.history)
+        self.update_items_cache(self.history)
 
