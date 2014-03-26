@@ -219,7 +219,7 @@ class libiMobileDevice():
             self.device_connected = True
 
         except libiMobileDeviceException as e:
-            self._log(e.value)
+            self._log_error(e.value)
             self.disconnect_idevice()
 
         return self.device_connected
@@ -501,7 +501,7 @@ class libiMobileDevice():
                     self.device_mounted = True
 
             except libiMobileDeviceException as e:
-                self._log(e.value)
+                self._log_error(e.value)
                 self.disconnect_idevice()
 
         elif app_id:
@@ -518,7 +518,7 @@ class libiMobileDevice():
                 self.device_mounted = True
 
             except libiMobileDeviceException as e:
-                self._log(e.value)
+                self._log_error("{0}: {1}".format(app_id, e.value))
                 self.disconnect_idevice()
 
         if self.device_mounted:
