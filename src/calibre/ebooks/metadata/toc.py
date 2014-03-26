@@ -13,6 +13,7 @@ from lxml.builder import ElementMaker
 from calibre.constants import __appname__, __version__
 from calibre.ebooks.BeautifulSoup import BeautifulSoup
 from calibre.ebooks.chardet import xml_to_unicode
+from calibre.utils.cleantext import clean_xml_chars
 
 NCX_NS = "http://www.daisy.org/z3986/2005/ncx/"
 CALIBRE_NS = "http://calibre.kovidgoyal.net/2009/metadata"
@@ -136,7 +137,7 @@ class TOC(list):
                 try:
                     if not os.path.exists(toc):
                         bn  = os.path.basename(toc)
-                        bn  = bn.replace('_top.htm', '_toc.htm') # Bug in BAEN OPF files
+                        bn  = bn.replace('_top.htm', '_toc.htm')  # Bug in BAEN OPF files
                         toc = os.path.join(os.path.dirname(toc), bn)
 
                     self.read_html_toc(toc)
@@ -258,6 +259,7 @@ class TOC(list):
                 text = ''
             c[1] += 1
             item_id = 'num_%d'%c[1]
+            text = clean_xml_chars(text)
             elem = E.navPoint(
                     E.navLabel(E.text(re.sub(r'\s+', ' ', text))),
                     E.content(src=unicode(np.href)+(('#' + unicode(np.fragment))
