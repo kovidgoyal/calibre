@@ -19,7 +19,7 @@ import lxml.etree
 
 NBSP = '\xa0'
 
-class Location:
+class Location(object):
     """
     This class represents one location in the index.
     We should provide a way to mark the main entries. Libre office
@@ -33,7 +33,7 @@ class Location:
         self.bookmark = bookmark
         self.target = target
 
-class Entry:
+class Entry(object):
     """
     This class represents one index entry.
     We can also have a list of subentries for the primary/secondary
@@ -48,17 +48,17 @@ class Entry:
         self.name = name
         self.index = index
     
-    def addEntry(self, entry, sub):
+    def add_entry(self, entry, sub):
         """
         The entry has the form [xxx, field, bookmark, target]
         """
         if len(sub) == 0:
             self.locations.append(Location(entry[2], entry[3]))
         else:
-            sube = Index.findEntry(sub[0], self.subentries, self.index)
-            sube.addEntry(entry, sub[1:])
+            sube = find_entry(sub[0], self.subentries, self.index)
+            sube.add_entry(entry, sub[1:])
 
-    def makeLink(self, loc, amap):
+    def make_link(self, loc, amap):
         # As a first pass, we just put a placeholder in the target location
         # We want it to float right
         markid = amap[loc.bookmark]
@@ -74,41 +74,41 @@ class Entry:
         setattr(text.elem, text.attr, ''.join(text.buf))
         return span
 
-    def toHtmlUnit(self, body, level, amap):
+    def to_htmlunit(self, body, level, amap):
         """
         Append the material for one index entry to the document.
         There is a name, and 0 or more locations.
         Put the first location, if any, on the same line as the
         name, and others on following lines.
         """
-        style = self.index.entryStyles[level]
-        main = Index.addName(self.name, style)
+        style = self.index.entry_styles[level]
+        main = add_name(self.name, style)
         if len(self.locations) == 0:
             body.append(main)
             return
 
         # First link on same line as name
-        link = self.makeLink(self.locations[0], amap)
+        link = self.make_link(self.locations[0], amap)
         main.append(link)
         body.append(main)
 
         # Put other links for same entry on their own lines
         # To keep the link span separate need to put a space as the name
         for l in self.locations[1:]:
-            link = self.makeLink(l, amap)
+            link = self.make_link(l, amap)
             dest = P()
             dest.set('class', style)
             dest.text = NBSP
             dest.append(link)
             body.append(dest)
 
-    def toHtml(self, body, level, amap):
+    def to_html(self, body, level, amap):
         level = min(level, 2)
-        self.toHtmlUnit(body, level, amap)
+        self.to_htmlunit(body, level, amap)
         for key in sorted(self.subentries.keys()):
-            self.subentries[key].toHtml(body, level + 1, amap)
+            self.subentries[key].to_html(body, level + 1, amap)
 
-class Section:
+class Section(object):
     """
     This class represents one section of the index - usually,
     for example, the A's or the B's.
@@ -119,7 +119,7 @@ class Section:
         self.index = index
         self.entries = {}
 
-    def addEntry(self, entry):
+    def add_entry(self, entry):
         """
         We have information from one index marker.
         The entry has form [name, field, bookmark, target].
@@ -128,19 +128,19 @@ class Section:
         location to it; otherwise create a new entry.
         """
         topics = entry[0].strip('"').split(':')
-        targ = Index.findEntry(topics[0], self.entries, self.index)
-        targ.addEntry(entry, topics[1:])
+        targ = find_entry(topics[0], self.entries, self.index)
+        targ.add_entry(entry, topics[1:])
     
-    def toHtml(self, key, body, amap):
+    def to_html(self, key, body, amap):
         """
         Add one section of the index to the html
         """
         if len(key) > 0:
-            body.append(Index.addName(key, self.index.sectionStyle))
+            body.append(add_name(key, self.index.sectionStyle))
         for ekey in sorted(self.entries.keys()):
-            self.entries[ekey].toHtml(body, 0, amap)
+            self.entries[ekey].to_html(body, 0, amap)
 
-class Index:
+class Index(object):
     """
     This class generates an alphabetical index from the index markers in a docx file.
 
@@ -166,24 +166,24 @@ class Index:
         self.convert = convert
         self.sections = {}
 
-        self.genStyles()
+        self.gen_styles()
 
         # Get a list of [name, field] entries, where name is the index
         # entry and field is the indexed location
-        self.entries = self.getEntries()
+        self.entries = self.get_entries()
 
         # Find styles which are provide the text for links.
-        self.targetStyles()
+        self.target_styles()
 
         # Generate bookmarks in the document at the indexed locations
         self.bookmarks()
 
         # Set up the entries in index sections
         for unit in self.entries:
-            sec = self.findSection(unit[0])
-            sec.addEntry(unit)
+            sec = self.find_section(unit[0])
+            sec.add_entry(unit)
 
-    def getEntries(self):
+    def get_entries(self):
         """
         We already have a list of fields which includes the index marks,
         identified by an XE tag.
@@ -204,9 +204,9 @@ class Index:
 
         # Only want the index entries
         fields = filter(lambda f: len(f.instructions) > 0 and f.instructions[0][0] == 'XE', fields)
-        return map(lambda f: [self.getEntry(f), f], fields)
+        return map(lambda f: [self.get_entry(f), f], fields)
     
-    def getEntry(self, field):
+    def get_entry(self, field):
 
         elist = [field.instructions[0][1]]
         for inst in field.instructions[1:]:
@@ -220,7 +220,7 @@ class Index:
         sep2 = sep1[2].partition('"')
         return sep2[0]
 
-    def targetStyles(self):
+    def target_styles(self):
         """
         We want to get a list of styles which represent valid index targets.
         That is, the text of a link in the index will be the title of the 
@@ -234,9 +234,9 @@ class Index:
         jumped in earlier and could map it to the original docx styles.
         """
         smap = self.convert.styles.id_map
-        self.targstyles = [name for name, style in smap.iteritems() if style.name.startswith('Heading')]
+        self.targstyles = [name for name, style in smap.iteritems() if style.name.lower().startswith('heading')]
 
-    def isHeading(self, node):
+    def is_heading(self, node):
         """
         Return true if the input node is a valid index link target.
         """
@@ -253,14 +253,14 @@ class Index:
         style = sn.get(k[0])
         return style in self.targstyles
 
-    def getHeadings(self, node):
+    def get_headings(self, node):
         """
         Get a list of all children of the input node which are headings -
         that is, valid targets for an index link
         """
         answer = []
         for c in node.getchildren():
-            if self.isHeading(c):
+            if self.is_heading(c):
                 answer.append(c)
         return answer
 
@@ -290,7 +290,7 @@ class Index:
         original names.
         """
         pnode = ancestor(node, 'w:p')
-        if self.isHeading(pnode):
+        if self.is_heading(pnode):
             return self.textValue(pnode)
 
         while True:
@@ -300,7 +300,7 @@ class Index:
 
             # Maintain document order in these lists
             pindex = parent.index(pnode)
-            hlist = self.getHeadings(parent)
+            hlist = self.get_headings(parent)
             hlist = filter(lambda x: parent.index(x) < pindex, hlist)
             if len(hlist) > 0:
                 return self.textValue(hlist[-1])
@@ -344,7 +344,7 @@ class Index:
                 targnode = self.findTarget(rnode)
                 entry.append(targnode)
 
-    def genStyles(self):
+    def gen_styles(self):
         """
         Generate css styles for the index elements.
         We do title, section header, and three levels of entries.
@@ -360,13 +360,13 @@ class Index:
         css = OrderedDict([('font-size', '16pt'), ('margin-top', '20pt'), ('margin-bottom', '10pt')])
         self.sectionStyle = self.convert.styles.register(css, 'block')
 
-        self.entryStyles = []
+        self.entry_styles = []
         for i in range(3):
             indent = str(i*20) + 'pt'
             css = OrderedDict([('margin-top', '0pt'), ('margin-bottom', '0pt'), ('margin-left', indent)])
-            self.entryStyles.append(self.convert.styles.register(css, 'block'))
+            self.entry_styles.append(self.convert.styles.register(css, 'block'))
 
-    def findSection(self, tag):
+    def find_section(self, tag):
         """
         Find the section for this index entry, creating it if required.
         The tag has a form like A or A:B or etc.
@@ -393,35 +393,33 @@ class Index:
         This method writes it into the html.
         """
         body = self.convert.body
-        body.append(Index.addName('Index', self.titleStyle))
+        body.append(add_name('Index', self.titleStyle))
 
         # And write them to the html
         for key in sorted(self.sections.keys()):
-            self.sections[key].toHtml(key, body, self.convert.anchor_map)
+            self.sections[key].to_html(key, body, self.convert.anchor_map)
 
-    @staticmethod
-    def addName(str, clname):
-        # Put this into the convert document map?
-        dest = P()
-        dest.set('class', clname)
-        span = SPAN()
-        from calibre.ebooks.docx.to_html import Text
-        text = Text(span, 'text', [])
-        text.buf.append(str)
-        setattr(text.elem, text.attr, ''.join(text.buf))
-        dest.append(span)
-        return dest
-    
-    @staticmethod
-    def findEntry(value, dict, index):
-        """
-        Find the Entry in the dictionary, or create a new one.
-        We convert to lower case to group all capitalizations
-        together as a single entry.
-        """
-        lvalue = value.lower()
-        if lvalue in dict:
-            return dict[lvalue]
-        ent = Entry(value, index)
-        dict[lvalue] = ent
-        return ent
+def add_name(str, clname):
+    # Put this into the convert document map?
+    dest = P()
+    dest.set('class', clname)
+    span = SPAN()
+    from calibre.ebooks.docx.to_html import Text
+    text = Text(span, 'text', [])
+    text.buf.append(str)
+    setattr(text.elem, text.attr, ''.join(text.buf))
+    dest.append(span)
+    return dest
+
+def find_entry(value, dict, index):
+    """
+    Find the Entry in the dictionary, or create a new one.
+    We convert to lower case to group all capitalizations
+    together as a single entry.
+    """
+    lvalue = value.lower()
+    if lvalue in dict:
+        return dict[lvalue]
+    ent = Entry(value, index)
+    dict[lvalue] = ent
+    return ent
