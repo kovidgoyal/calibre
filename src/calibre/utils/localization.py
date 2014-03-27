@@ -222,6 +222,7 @@ if False:
     _('pm')
     _('&Copy')
     _('Select All')
+    _('Copy Link')
     _('&Select All')
     _('Copy &Link location')
     _('&Undo')
