@@ -286,7 +286,7 @@ def main():
             usage="usage: %prog cp [options] source destination\nCopy files to/from the device\n\n"+\
             "One of source or destination must be a path on the device. \n\nDevice paths have the form\n"+\
             "dev:mountpoint/my/path\n"+\
-            "where mountpoint is one of / or card:/\n\n"+\
+            "where mountpoint is one of / or carda: or cardb:/\n\n"+\
             "source must point to a file for which you have read permissions\n"+\
             "destination must point to a file or directory for which you have write permissions"
             parser = OptionParser(usage=usage)
@@ -298,7 +298,7 @@ def main():
                 return 1
             if args[0].startswith("dev:"):
                 outfile = args[1]
-                path = args[0][7:]
+                path = args[0][4:]
                 if path.endswith("/"):
                     path = path[:-1]
                 if os.path.isdir(outfile):
@@ -320,11 +320,11 @@ def main():
                     parser.print_help()
                     return 1
                 try:
-                    dev.put_file(infile, args[1][7:])
+                    dev.put_file(infile, args[1][4:])
                 except PathError as err:
                     if options.force and 'exists' in str(err):
                         dev.del_file(err.path, False)
-                        dev.put_file(infile, args[1][7:])
+                        dev.put_file(infile, args[1][4:])
                     else:
                         raise
                 infile.close()
