@@ -13,7 +13,7 @@ message contains `Fix #number` or `Implement #number`. Also updates the commit
 message with the summary of the closed bug.
 
 '''
-import re, urllib, importlib, sys, json
+import re, urllib, importlib, sys, json, socket
 
 from lxml import html
 
@@ -21,6 +21,8 @@ SENDMAIL = ('/home/kovid/work/env', 'pgp_mail')
 LAUNCHPAD_BUG = 'https://bugs.launchpad.net/calibre/+bug/%s'
 GITHUB_BUG = 'https://api.github.com/repos/kovidgoyal/calibre/issues/%s'
 BUG_PAT = r'(Fix|Implement|Fixes|Fixed|Implemented|See)\s+#(\d+)'
+
+socket.setdefaulttimeout(90)
 
 class Bug:
 
