@@ -87,6 +87,22 @@ class CriticalError(Exception):
 _name_counter = 0
 
 if islinux:
+    class LinuxListener(Listener):
+
+        def __init__(self, *args, **kwargs):
+            Listener.__init__(self, *args, **kwargs)
+            # multiprocessing tries to call unlink even on abstract
+            # named sockets, prevent it from doing so.
+            self._listener._unlink.cancel()
+
+        def close(self):
+            # To ensure that the socket is released, we have to call
+            # shutdown() not close(). This is needed to allow calibre to
+            # restart using the same socket address.
+            import socket
+            self._listener._socket.shutdown(socket.SHUT_RDWR)
+            self._listener._socket.close()
+
     def create_listener(authkey, backlog=4):
         # Use abstract named sockets on linux to avoid creating unnecessary temp files
         global _name_counter
@@ -95,11 +111,7 @@ if islinux:
             _name_counter += 1
             address = (prefix % _name_counter).encode('ascii')
             try:
-                l = Listener(address=address, authkey=authkey, backlog=backlog)
-                if hasattr(l._listener._unlink, 'cancel'):
-                    # multiprocessing tries to call unlink even on abstract
-                    # named sockets, prevent it from doing so.
-                    l._listener._unlink.cancel()
+                l = LinuxListener(address=address, authkey=authkey, backlog=backlog)
                 return address, l
             except EnvironmentError as err:
                 if err.errno == errno.EADDRINUSE:

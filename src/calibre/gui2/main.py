@@ -418,13 +418,11 @@ def communicate(opts, args):
     raise SystemExit(0)
 
 def create_listener():
-    from multiprocessing.connection import Listener
-    listener = Listener(address=gui_socket_address())
-    if islinux and hasattr(listener._listener._unlink, 'cancel'):
-        # multiprocessing tries to call unlink even on abstract
-        # named sockets, prevent it from doing so.
-        listener._listener._unlink.cancel()
-    return listener
+    if islinux:
+        from calibre.utils.ipc.server import LinuxListener as Listener
+    else:
+        from multiprocessing.connection import Listener
+    return Listener(address=gui_socket_address())
 
 def main(args=sys.argv):
     gui_debug = None
