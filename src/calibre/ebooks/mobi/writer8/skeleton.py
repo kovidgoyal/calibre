@@ -201,7 +201,7 @@ class Chunker(object):
 
         # Set internal links
         text = b''.join(x.raw_text for x in self.skeletons)
-        self.text = self.set_internal_links(text)
+        self.text = self.set_internal_links(text, b''.join(x.rebuild() for x in self.skeletons))
 
     def remove_namespaces(self, root):
         lang = None
@@ -346,16 +346,16 @@ class Chunker(object):
                 cp += len(chunk.raw)
                 num += 1
 
-    def set_internal_links(self, text):
+    def set_internal_links(self, text, rebuilt_text):
         ''' Update the internal link placeholders to point to the correct
         location, based on the chunk table.'''
-        # A kindle:pos:fid link contains two base 32 numbers of the form
+        # A kindle:pos:fid:off link contains two base 32 numbers of the form
         # XXXX:YYYYYYYYYY
         # The first number is an index into the chunk table and the second is
         # an offset from the start of the chunk to the start of the tag pointed
         # to by the link.
-        aid_map = {}  # Map of aid to (pos, fid)
-        for match in re.finditer(br'<[^>]+? aid=[\'"]([A-Z0-9]+)[\'"]', text):
+        aid_map = {}  # Map of aid to (fid, offset_from_start_of_chunk, offset_from_start_of_text)
+        for match in re.finditer(br'<[^>]+? aid=[\'"]([A-Z0-9]+)[\'"]', rebuilt_text):
             offset = match.start()
             pos_fid = None
             for chunk in self.chunk_table:
@@ -369,8 +369,8 @@ class Chunker(object):
                     pos_fid = (chunk.sequence_number, 0, offset)
                     break
                 if chunk is self.chunk_table[-1]:
-                    # This can happen for aids very close to the end of the the
-                    # end of the text (https://bugs.launchpad.net/bugs/1011330)
+                    # This can happen for aids very close to the end of the
+                    # text (https://bugs.launchpad.net/bugs/1011330)
                     pos_fid = (chunk.sequence_number, offset-chunk.insert_pos,
                             offset)
             if pos_fid is None:
