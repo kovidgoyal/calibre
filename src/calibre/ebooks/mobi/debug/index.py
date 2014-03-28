@@ -50,8 +50,12 @@ class Index(object):
 
     def __init__(self, idx, records, codec):
         self.table = self.cncx = self.header = self.records = None
+        self.index_headers = []
         if idx != NULL_INDEX:
             self.table, self.cncx, self.header = read_index(records, idx, codec)
+        if self.header is not None:
+            for i in xrange(idx + 1, idx + 1 + self.header['count']):
+                self.index_headers.append(parse_indx_header(records[i].raw))
 
     def render(self):
         ans = ['*'*10 + ' Index Header ' + '*'*10]
@@ -60,6 +64,11 @@ class Index(object):
             for field in INDEX_HEADER_FIELDS:
                 a('%-12s: %r'%(field, self.header[field]))
         ans.extend(['', ''])
+        ans += ['*'*10 + ' Index Record Headers (%d records) ' % len(self.index_headers) + '*'*10]
+        for i, header in enumerate(self.index_headers):
+            ans += ['*'*10 + ' Index Record %d ' % i + '*'*10]
+            for field in INDEX_HEADER_FIELDS:
+                a('%-12s: %r'%(field, header[field]))
 
         if self.cncx:
             a('*'*10 + ' CNCX ' + '*'*10)
@@ -98,11 +107,11 @@ class SKELIndex(Index):
                     raise ValueError('SKEL Index has unknown tags: %s'%
                             (set(tag_map.iterkeys())-{1,6}))
                 self.records.append(File(
-                    i, # file_number
-                    text, # name
-                    tag_map[1][0], # divtbl_count
-                    tag_map[6][0], # start_pos
-                    tag_map[6][1]) # length
+                    i,  # file_number
+                    text,  # name
+                    tag_map[1][0],  # divtbl_count
+                    tag_map[6][0],  # start_pos
+                    tag_map[6][1])  # length
                 )
 
 class SECTIndex(Index):
@@ -112,7 +121,7 @@ class SECTIndex(Index):
         self.records = []
 
         if self.table is not None:
-             for i, text in enumerate(self.table.iterkeys()):
+            for i, text in enumerate(self.table.iterkeys()):
                 tag_map = self.table[text]
                 if set(tag_map.iterkeys()) != {2, 3, 4, 6}:
                     raise ValueError('Chunk Index has unknown tags: %s'%
@@ -120,11 +129,11 @@ class SECTIndex(Index):
 
                 toc_text = self.cncx[tag_map[2][0]]
                 self.records.append(Elem(
-                    int(text), # insert_pos
-                    toc_text, # toc_text
-                    tag_map[3][0], # file_number
-                    tag_map[4][0], # sequence_number
-                    tag_map[6][0], # start_pos
+                    int(text),  # insert_pos
+                    toc_text,  # toc_text
+                    tag_map[3][0],  # file_number
+                    tag_map[4][0],  # sequence_number
+                    tag_map[6][0],  # start_pos
                     tag_map[6][1]  # length
                     )
                 )
@@ -136,7 +145,7 @@ class GuideIndex(Index):
         self.records = []
 
         if self.table is not None:
-             for i, text in enumerate(self.table.iterkeys()):
+            for i, text in enumerate(self.table.iterkeys()):
                 tag_map = self.table[text]
                 if set(tag_map.iterkeys()) not in ({1, 6}, {1, 2, 3}):
                     raise ValueError('Guide Index has unknown tags: %s'%
@@ -194,5 +203,3 @@ class NCXIndex(Index):
                         last_child=refindx(e, 'childn'), title=e['text'],
                         pos_fid=e['pos_fid'], kind=e['kind'])
                 self.records.append(entry)
-
-

@@ -239,6 +239,7 @@ def parse_index_record(table, data, control_byte_count, tags, codec,
         rec = rec[consumed:]
         tag_map = get_tag_map(control_byte_count, tags, rec, strict=strict)
         table[ident] = tag_map
+    return header
 
 def read_index(sections, idx, codec):
     table, cncx = OrderedDict(), CNCX([], codec)
