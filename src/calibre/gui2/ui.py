@@ -72,7 +72,8 @@ class Listener(Thread):  # {{{
         try:
             self.listener.close()
         except:
-            pass
+            import traceback
+            traceback.print_exc()
 
 # }}}
 

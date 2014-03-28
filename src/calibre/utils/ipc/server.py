@@ -307,6 +307,9 @@ class Server(Thread):
     def close(self):
         try:
             self.add_jobs_queue.put(None)
+        except:
+            pass
+        try:
             self.listener.close()
         except:
             pass

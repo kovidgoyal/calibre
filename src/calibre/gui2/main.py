@@ -417,6 +417,15 @@ def communicate(opts, args):
     t.conn.close()
     raise SystemExit(0)
 
+def create_listener():
+    from multiprocessing.connection import Listener
+    listener = Listener(address=gui_socket_address())
+    if islinux and hasattr(listener._listener._unlink, 'cancel'):
+        # multiprocessing tries to call unlink even on abstract
+        # named sockets, prevent it from doing so.
+        listener._listener._unlink.cancel()
+    return listener
+
 def main(args=sys.argv):
     gui_debug = None
     if args[0] == '__CALIBRE_GUI_DEBUG__':
@@ -428,20 +437,19 @@ def main(args=sys.argv):
     except AbortInit:
         return 1
     from calibre.utils.lock import singleinstance
-    from multiprocessing.connection import Listener
     si = singleinstance('calibre GUI')
     if si and opts.shutdown_running_calibre:
         return 0
     if si:
         try:
-            listener = Listener(address=gui_socket_address())
+            listener = create_listener()
         except socket.error:
             if iswindows or islinux:
                 cant_start()
             if os.path.exists(gui_socket_address()):
                 os.remove(gui_socket_address())
             try:
-                listener = Listener(address=gui_socket_address())
+                listener = create_listener()
             except socket.error:
                 cant_start()
             else:
@@ -452,7 +460,7 @@ def main(args=sys.argv):
                     gui_debug=gui_debug)
     otherinstance = False
     try:
-        listener = Listener(address=gui_socket_address())
+        listener = create_listener()
     except socket.error:  # Good si is correct (on UNIX)
         otherinstance = True
     else:
