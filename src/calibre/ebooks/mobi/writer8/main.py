@@ -254,12 +254,12 @@ class KF8Writer(object):
                     if id_ is not None:
                         tag.attrib['id'] = id_
                 if id_ is not None or barename(tag.tag).lower() in aid_able_tags:
-                    aid = aidbase + j
-                    tag.attrib['aid'] = to_base(aid, base=32)
+                    aid = to_base(aidbase + j, base=32)
+                    tag.set('aid', aid)
                     if tag.tag == XHTML('body'):
-                        self.id_map[(item.href, '')] = tag.attrib['aid']
+                        self.id_map[(item.href, '')] = aid
                     if id_ is not None:
-                        self.id_map[(item.href, id_)] = tag.attrib['aid']
+                        self.id_map[(item.href, id_)] = aid
 
                     j += 1
 

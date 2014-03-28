@@ -165,6 +165,8 @@ class Chunker(object):
 
         for i, item in enumerate(self.oeb.spine):
             root = self.remove_namespaces(self.data(item))
+            for child in root.xpath('//*[@aid]'):
+                child.set('aid', child.attrib.pop('aid'))  # kindlegen always puts the aid last
             body = root.xpath('//body')[0]
             body.tail = '\n'
 
