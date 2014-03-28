@@ -77,7 +77,7 @@ def parse_indx_header(data):
     return ans
 
 
-class CNCX(object): # {{{
+class CNCX(object):  # {{{
 
     '''
     Parses the records that contain the compiled NCX (all strings from the
@@ -174,7 +174,7 @@ def get_tag_map(control_byte_count, tagx, data, strict=False):
                 byts, consumed = decint(data)
                 data = data[consumed:]
                 values.append(byts)
-        else: # value_bytes is not None
+        else:  # value_bytes is not None
             # Convert value_bytes to variable width values.
             total_consumed = 0
             while total_consumed < x.value_bytes:
