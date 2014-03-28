@@ -11,7 +11,7 @@ DOC = '''
 Trailing Byte Sequences contain information about which index entries touch a
 particular text record. Every text records has a set of trailing byte
 sequences. In order to figure out the sequence for a given text record, you
-have to first calculate all the indices that start, end, span and anre
+have to first calculate all the indices that start, end, span and are
 contained within that text record. Then arrange the indices into 'strands',
 where each strand is a hierarchical progression from the top level index down.
 For the exact algorithm, see separate_strands(). The strands are then encoded
@@ -60,7 +60,7 @@ def populate_strand(parent, entries):
                 children = [c for c in entries if c.parent == entry.index]
                 if children:
                     siblings += populate_strand(entry, entries)
-                    break # Cannot add more siblings, as we have added children
+                    break  # Cannot add more siblings, as we have added children
                 else:
                     siblings.append(entry)
         ans += siblings
@@ -176,7 +176,7 @@ def sequences_to_bytes(sequences):
     flag_size = 3
     for val, extra in sequences:
         ans.append(encode_tbs(val, extra, flag_size))
-        flag_size = 4 # only the first sequence has flag size 3 as all
+        flag_size = 4  # only the first sequence has flag size 3 as all
                       # subsequent sequences could need the 0b1000 flag
     return b''.join(ans)
 
