@@ -16,7 +16,7 @@ from calibre.utils.imghdr import what
 from calibre.ebooks import normalize
 
 IMAGE_MAX_SIZE = 10 * 1024 * 1024
-RECORD_SIZE = 0x1000 # 4096 (Text record size (uncompressed))
+RECORD_SIZE = 0x1000  # 4096 (Text record size (uncompressed))
 
 def decode_string(raw, codec='utf-8', ordt_map=''):
     length, = struct.unpack(b'>B', raw[0])
@@ -87,7 +87,7 @@ def encint(value, forward=True):
     byts = bytearray()
     while True:
         b = value & 0b01111111
-        value >>= 7 # shift value to the right by 7 bits
+        value >>= 7  # shift value to the right by 7 bits
 
         byts.append(b)
         if value == 0:
@@ -117,7 +117,7 @@ def decint(raw, forward=True):
     if not forward:
         byts.reverse()
     for byte in byts:
-        val <<= 7 # Shift value to the left by 7 bits
+        val <<= 7  # Shift value to the left by 7 bits
         val |= byte
 
     return val, len(byts)
@@ -256,7 +256,7 @@ def decode_fvwi(byts, flag_size=4):
 def decode_tbs(byts, flag_size=4):
     '''
     Trailing byte sequences for indexing consists of series of fvwi numbers.
-    This function reads the fvwi number and its associated flags. It them uses
+    This function reads the fvwi number and its associated flags. It then uses
     the flags to read any more numbers that belong to the series. The flags are
     the lowest 4 bits of the vwi (see the encode_fvwi function above).
 
@@ -323,7 +323,8 @@ def align_block(raw, multiple=4, pad=b'\0'):
     of 4.
     '''
     extra = len(raw) % multiple
-    if extra == 0: return raw
+    if extra == 0:
+        return raw
     return raw + pad*(multiple - extra)
 
 
@@ -370,7 +371,8 @@ def count_set_bits(num):
 def to_base(num, base=32, min_num_digits=None):
     digits = string.digits + string.ascii_uppercase
     sign = 1 if num >= 0 else -1
-    if num == 0: return ('0' if min_num_digits is None else '0'*min_num_digits)
+    if num == 0:
+        return ('0' if min_num_digits is None else '0'*min_num_digits)
     num *= sign
     ans = []
     while num:
@@ -454,7 +456,7 @@ def read_font_record(data, extent=1040):
         extent = min(extent, len(font_data))
 
         for n in xrange(extent):
-            buf[n] ^= key[n%xor_len] # XOR of buf and key
+            buf[n] ^= key[n%xor_len]  # XOR of buf and key
 
         font_data = bytes(buf)
         ans['encrypted'] = True
@@ -560,7 +562,7 @@ def create_text_record(text):
 
     return data, overlap
 
-class CNCX(object): # {{{
+class CNCX(object):  # {{{
 
     '''
     Create the CNCX records. These are records containing all the strings from
