@@ -1,4 +1,4 @@
-
+#-*- coding: utf-8 -*-
 from calibre.web.feeds.news import BasicNewsRecipe
 
 class AntywebRecipe(BasicNewsRecipe):
@@ -15,18 +15,31 @@ class AntywebRecipe(BasicNewsRecipe):
     auto_cleanup = False
     no_stylesheets=True
     use_embedded_content = False
-    oldest_article = 1
+    oldest_article = 7
     max_articles_per_feed = 100
     remove_javascript = True
     simultaneous_downloads = 3
+    ignore_duplicate_articles = {'title', 'url'} # zignoruj zduplikowane artykuły o takich samych tytułach LUB adresach
+    scale_news_images =True
+    conversion_options        = { 'tags'                : u'news, aplikacje mobilne, Android, iOS, Windows Phone ',
+                                  'smarten_punctuation' : True,
+                                  'publisher'           : 'AntyWeb'
+                                } # opcje konwersji. 
 
-    keep_only_tags =[]
-    keep_only_tags.append(dict(name = 'h1', attrs = { 'class' : 'entry-title '}))
+    keep_only_tags=[]    
+    keep_only_tags.append(dict(name = 'h1'))
+    keep_only_tags.append(dict(name = 'div', attrs = {'class' : 'entry-cover'}))
     keep_only_tags.append(dict(name = 'div', attrs = {'class' : 'news-content'}))
-    extra_css = '''body {font-family: verdana, arial, helvetica, geneva, sans-serif ;}'''
+
 
     feeds          = [
-                            (u'Artykuly', u'feed://feeds.feedburner.com/Antyweb?format=xml'),
+                            (u'Felietony', 'http://feeds.feedburner.com/AntywebFelietony'),
+                            (u'Apple', 'http://feeds.feedburner.com/AntywebApple'),
+                            (u'Gry', 'http://feeds.feedburner.com/AntywebGry'),
+                            (u'Mobile', 'http://feeds.feedburner.com/AntywebMobile'),
+                            (u'Startups', 'http://feeds.feedburner.com/AntywebStartups'),
+                            (u'Google', 'http://feeds.feedburner.com/AntywebGoogle'),
+                            (u'Microsoft', 'http://feeds.feedburner.com/AntywebMicrosoft')
                      ]
     def preprocess_html(self, soup):
         for alink in soup.findAll('a'):
