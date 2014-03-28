@@ -17,7 +17,7 @@ from calibre.ebooks.mobi.reader.index import (parse_index_record,
         parse_tagx_section)
 from calibre.ebooks.mobi.utils import (decode_hex_number, decint,
         decode_tbs, read_font_record)
-from calibre.utils.magick.draw import identify_data
+from calibre.utils.imghdr import what
 from calibre.ebooks.mobi.debug import format_bytes
 from calibre.ebooks.mobi.debug.headers import TextRecord
 
@@ -763,7 +763,7 @@ class MOBIFile(object):  # {{{
                     b'\xe9\x8e\r\n', b'RESC', b'BOUN', b'FDST', b'DATP',
                     b'AUDI', b'VIDE', b'FONT'}:
                 try:
-                    width, height, fmt = identify_data(r.raw)
+                    fmt = what(None, r.raw)
                 except:
                     pass
             if fmt is not None:
