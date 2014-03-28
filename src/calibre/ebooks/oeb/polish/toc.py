@@ -509,6 +509,7 @@ def create_inline_toc(container, title=None):
         li.append(a)
         if len(toc) > 0:
             parent = li.makeelement(XHTML('ul'))
+            parent.set('class', 'level%d' % (level + 1))
             li.append(parent)
             a.tail = '\n\n' + (indent*(level+2))
             parent.text = '\n'+(indent*(level+3))
@@ -534,8 +535,10 @@ def create_inline_toc(container, title=None):
     )
 
     name = toc_name
+    ul = html[1][1]
+    ul.set('class', 'level1')
     for child in toc:
-        process_node(html[1][1], child)
+        process_node(ul, child)
     if lang:
         html.set('lang', lang)
     pretty_html_tree(container, html)
