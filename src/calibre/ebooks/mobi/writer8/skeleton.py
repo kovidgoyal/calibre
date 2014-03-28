@@ -250,7 +250,7 @@ class Chunker(object):
         first_chunk_idx = len(chunks)
 
         # First handle any text
-        if tag.text and tag.text.strip(): # Leave pure whitespace in the skel
+        if tag.text and tag.text.strip():  # Leave pure whitespace in the skel
             chunks.extend(self.chunk_up_text(tag.text))
             tag.text = None
 
@@ -265,7 +265,7 @@ class Chunker(object):
             raw = close_self_closing_tags(raw)
             if len(raw) > CHUNK_SIZE and child.get('aid', None):
                 self.step_into_tag(child, chunks)
-                if child.tail and child.tail.strip(): # Leave pure whitespace
+                if child.tail and child.tail.strip():  # Leave pure whitespace
                     chunks.extend(self.chunk_up_text(child.tail))
                     child.tail = None
             else:
@@ -313,9 +313,9 @@ class Chunker(object):
         for chunk in chunks[1:]:
             prev = ans[-1]
             if (
-                    chunk.starts_tags or # Starts a tag in the skel
-                    len(chunk) + len(prev) > CHUNK_SIZE or # Too large
-                    prev.ends_tags # Prev chunk ended a tag
+                    chunk.starts_tags or  # Starts a tag in the skel
+                    len(chunk) + len(prev) > CHUNK_SIZE or  # Too large
+                    prev.ends_tags  # Prev chunk ended a tag
                     ):
                 ans.append(chunk)
             else:
@@ -352,7 +352,7 @@ class Chunker(object):
         # The first number is an index into the chunk table and the second is
         # an offset from the start of the chunk to the start of the tag pointed
         # to by the link.
-        aid_map = {} # Map of aid to (pos, fid)
+        aid_map = {}  # Map of aid to (pos, fid)
         for match in re.finditer(br'<[^>]+? aid=[\'"]([A-Z0-9]+)[\'"]', text):
             offset = match.start()
             pos_fid = None
