@@ -262,6 +262,7 @@ class UploadToServer(Command):  # {{{
     description = 'Upload miscellaneous data to calibre server'
 
     def run(self, opts):
+        upload_signatures()
         check_call('gpg --armor --detach-sign dist/calibre-*.tar.xz',
                 shell=True)
         check_call('scp dist/calibre-*.tar.xz.asc divok:%s/signatures/'%DOWNLOADS,
@@ -272,7 +273,6 @@ class UploadToServer(Command):  # {{{
                    %(__version__, DOWNLOADS), shell=True)
         check_call('ssh divok /etc/init.d/apache2 graceful',
                    shell=True)
-        upload_signatures()
 # }}}
 
 # Testing {{{
