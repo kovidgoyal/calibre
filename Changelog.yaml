@@ -20,6 +20,58 @@
 #   new recipes:
 #     - title: 
 
+- version: 1.30.0
+  date: 2014-03-28
+
+  new features:
+    - title: "Cover Browser: Add an option to show covers with their original aspect ratio instead of resizing them all to have the same width and height.  Option is in Preferences->Look & Feel->Cover Browser."
+      tickets: [1295902]
+
+    - title: "PDF Output: Enable using javascript inside header and footer templates"
+
+    - title: "Edit Book: When generating an inline ToC add a class attribute to all <ul> tags to make it easy to style a particular level of the ToC"
+
+    - title: "Use abstract named sockets on linux for IPC, to avoid use of temp files for sockets"
+
+    - title: "Drivers for the N800 and N950 Nokia MeeGo tablets"
+
+    - title: "Edit Book Saved searches: Allow saving normal mode searches as well"
+
+    - title: "Edit Book Saved searches: Add import/export functionality"
+
+    - title: "calibredb add: Add option to specify language when adding books"
+      tickets: [1295200]
+
+  bug fixes:
+    - title: "AZW3 Input: Handle files with garbage bytes in their table of contents."
+      tickets: [1297713]
+
+    - title: "DOCX Input: Fix text from some paragraphs not being converted if the paragraph contains an inline forced page break and no formatted text or line breaks."
+      tickets: [1296817]
+
+    - title: "calibre-customize: Do not error out if one of the installed plugins has no customization help when listing all plugins"
+
+    - title: "Edit book: Fix error when exporting files on some windows systems with non UTF-8 filename encodings"
+      tickets: [1298071]
+
+    - title: "Edit Book: When beautifying treat <img> tags as block tags"
+      tickets: [1297532] 
+
+    - title: "Linux binary build: Fix worker processes not working on linux systems with bash >= 4.3"
+
+    - title: "PDF Output: Fix using __SECTION__ in header and footer templates resolving to the inscorrect section if a page with no sections follows a page with multiple sections."
+      tickets: [1295236]
+
+    - title: "Cover Browser: Fix visual 'pop' when scrolling the first time"
+
+    - title: "Grid View: Allow the left and right arrow keys to traverse over rows."
+      tickets: [1295901]
+
+  improved recipes:
+    - The Atlantic
+    - Courrier International
+    - Der Tagesspiegel
+
 - version: 1.29.0
   date: 2014-03-21
 
