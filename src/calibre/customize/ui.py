@@ -677,7 +677,10 @@ def main(args=sys.argv):
                                 )
             print '\t', plugin.description
             if plugin.is_customizable():
-                print '\t', plugin.customization_help()
+                try:
+                    print '\t', plugin.customization_help()
+                except NotImplementedError:
+                    pass
             print
 
     return 0
