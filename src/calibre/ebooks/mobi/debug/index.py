@@ -27,8 +27,8 @@ GuideRef = namedtuple('GuideRef', 'type title pos_fid')
 
 INDEX_HEADER_FIELDS = INDEX_HEADER_FIELDS + ('last_index',)
 FIELD_NAMES = {'len':'Header length', 'type':'Unknown', 'gen':'Index Type (0 - normal, 2 - inflection)',
-               'start':'IDXT Offset', 'count':'Number of Index records', 'code': 'character encoding', 'lng':'Unknown',
-               'total':'Number of Index Entries', 'ordt': 'ORDT Offset', 'ligt':'LIGT Offset', 'nligt':'Number of LIGT',
+               'start':'IDXT Offset', 'count':'Number of Index entries or records', 'code': 'character encoding', 'lng':'Unknown',
+               'total':'Total number of Index Entries in all records', 'ordt': 'ORDT Offset', 'ligt':'LIGT Offset', 'nligt':'Number of LIGT',
                'ncncx':'Number of CNCX records', 'last_index':'Text of Boundary Index'}
 
 def read_last_index(data, header):
