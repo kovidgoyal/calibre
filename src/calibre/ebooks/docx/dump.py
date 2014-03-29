@@ -25,10 +25,11 @@ def dump(path):
         if f.endswith('.xml') or f.endswith('.rels'):
             with open(f, 'r+b') as stream:
                 raw = stream.read()
-                root = etree.fromstring(raw)
-                stream.seek(0)
-                stream.truncate()
-                stream.write(etree.tostring(root, pretty_print=True, encoding='utf-8', xml_declaration=True))
+                if raw:
+                    root = etree.fromstring(raw)
+                    stream.seek(0)
+                    stream.truncate()
+                    stream.write(etree.tostring(root, pretty_print=True, encoding='utf-8', xml_declaration=True))
 
     print (path, 'dumped to', dest)
 

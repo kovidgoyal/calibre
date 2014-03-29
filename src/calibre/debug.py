@@ -279,10 +279,10 @@ def main(args=sys.argv):
         main(['calibre-diff'] + args[1:])
     elif len(args) >= 2 and args[1].rpartition('.')[-1] in {'py', 'recipe'}:
         run_script(args[1], args[2:])
-    elif len(args) >= 2 and args[1].rpartition('.')[-1] in {'mobi', 'azw', 'azw3', 'docx'}:
+    elif len(args) >= 2 and args[1].rpartition('.')[-1] in {'mobi', 'azw', 'azw3', 'docx', 'odt'}:
         for path in args[1:]:
             ext = path.rpartition('.')[-1]
-            if ext == 'docx':
+            if ext in {'docx', 'odt'}:
                 from calibre.ebooks.docx.dump import dump
                 dump(path)
             elif ext in {'mobi', 'azw', 'azw3'}:
