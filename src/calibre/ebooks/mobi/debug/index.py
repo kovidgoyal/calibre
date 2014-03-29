@@ -26,6 +26,10 @@ Elem = namedtuple('Chunk',
 GuideRef = namedtuple('GuideRef', 'type title pos_fid')
 
 INDEX_HEADER_FIELDS = INDEX_HEADER_FIELDS + ('last_index',)
+FIELD_NAMES = {'len':'Header length', 'type':'Unknown', 'gen':'Index Type (0 - normal, 2 - inflection)',
+               'start':'IDXT Offset', 'count':'Number of Index records', 'code': 'character encoding', 'lng':'Unknown',
+               'total':'Number of Index Entries', 'ordt': 'ORDT Offset', 'ligt':'LIGT Offset', 'nligt':'Number of LIGT',
+               'ncncx':'Number of CNCX records', 'last_index':'Text of Boundary Index'}
 
 def read_last_index(data, header):
     offset = header['tagx']
@@ -73,13 +77,13 @@ class Index(object):
         a = ans.append
         if self.header is not None:
             for field in INDEX_HEADER_FIELDS:
-                a('%-12s: %r'%(field, self.header[field]))
+                a('%-12s: %r'%(FIELD_NAMES.get(field, field), self.header[field]))
         ans.extend(['', ''])
         ans += ['*'*10 + ' Index Record Headers (%d records) ' % len(self.index_headers) + '*'*10]
         for i, header in enumerate(self.index_headers):
             ans += ['*'*10 + ' Index Record %d ' % i + '*'*10]
             for field in INDEX_HEADER_FIELDS:
-                a('%-12s: %r'%(field, header[field]))
+                a('%-12s: %r'%(FIELD_NAMES.get(field, field), header[field]))
 
         if self.cncx:
             a('*'*10 + ' CNCX ' + '*'*10)
