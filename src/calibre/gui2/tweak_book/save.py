@@ -34,7 +34,14 @@ def save_container(container, path):
             # the metadata from the original book
             st = os.stat(container.path_to_ebook)
         os.fchmod(fno, st.st_mode)
-        os.fchown(fno, st.st_uid, st.st_gid)
+        try:
+            os.fchown(fno, st.st_uid, st.st_gid)
+        except EnvironmentError as err:
+            if err.errno != errno.EPERM:
+                # ignore chown failure as user could be editing file belonging
+                # to a different user, in which case we really cant do anything
+                # about it short of making the file update non-atomic
+                raise
 
     temp.close()
     temp = temp.name
