@@ -25,17 +25,30 @@ Elem = namedtuple('Chunk',
 
 GuideRef = namedtuple('GuideRef', 'type title pos_fid')
 
-INDEX_HEADER_FIELDS = INDEX_HEADER_FIELDS + ('last_index',)
+INDEX_HEADER_FIELDS = INDEX_HEADER_FIELDS + ('last_index', 'tagx_block_size', 'tagx_block')
 FIELD_NAMES = {'len':'Header length', 'type':'Unknown', 'gen':'Index Type (0 - normal, 2 - inflection)',
                'start':'IDXT Offset', 'count':'Number of Index entries or records', 'code': 'character encoding', 'lng':'Unknown',
                'total':'Total number of Index Entries in all records', 'ordt': 'ORDT Offset', 'ligt':'LIGT Offset', 'nligt':'Number of LIGT',
-               'ncncx':'Number of CNCX records', 'last_index':'Text of Boundary Index'}
+               'ncncx':'Number of CNCX records', 'last_index':'Text of Boundary Entry in every index record'}
 
 def read_last_index(data, header):
     offset = header['tagx']
-    offset += struct.unpack_from(b'>I', data, offset + 4)[0]
-    strlen = bytearray(data[offset:offset+1])[0]
-    header['last_index'] = data[offset+1:offset+1+strlen]
+    indices = []
+    if offset > 0:
+        tagx_block_size = header['tagx_block_size'] = struct.unpack_from(b'>I', data, offset + 4)[0]
+        header['tagx_block'] = data[offset:offset+tagx_block_size]
+        offset += tagx_block_size
+        for i in xrange(header['count']):
+            strlen = bytearray(data[offset:offset+1])[0]
+            text = data[offset+1:offset+1+strlen].decode('ascii')
+            offset += 1 + strlen
+            num = struct.unpack_from(b'>H', data, offset)[0]
+            offset += 2
+            indices.append((text, num))
+    else:
+        header['tagx_block'] = b''
+        header['tagx_block_size'] = 0
+    header['last_index'] = indices
 
 def read_index(sections, idx, codec):
     table, cncx = OrderedDict(), CNCX([], codec)
