@@ -440,7 +440,7 @@ def compare_books(path1, path2, revert_msg=None, revert_callback=None, parent=No
 
 def main(args=sys.argv):
     from calibre.gui2 import Application
-    left, right = sys.argv[-2:]
+    left, right = args[-2:]
     ext1, ext2 = left.rpartition('.')[-1].lower(), right.rpartition('.')[-1].lower()
     if ext1.startswith('original_'):
         ext1 = ext1.partition('_')[-1]
