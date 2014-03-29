@@ -31,7 +31,7 @@ FIELD_NAMES = {'len':'Header length', 'type':'Unknown', 'gen':'Index Type (0 - n
                'total':'Total number of Index Entries in all records', 'ordt': 'ORDT Offset', 'ligt':'LIGT Offset', 'nligt':'Number of LIGT',
                'ncncx':'Number of CNCX records', 'last_index':'Geometry of index records'}
 
-def read_last_index(data, header):
+def read_variable_len_data(data, header):
     offset = header['tagx']
     indices = []
     if offset > 0:
@@ -48,6 +48,11 @@ def read_last_index(data, header):
     else:
         header['tagx_block'] = b''
         header['tagx_block_size'] = 0
+    idxt_offset = header['start']
+    idxt_size = 4 + header['count'] * 2
+    trailing_bytes = data[idxt_offset+idxt_size:]
+    if trailing_bytes.rstrip(b'\0'):
+        raise ValueError('Traling bytes after last IDXT entry: %r' % trailing_bytes.rstrip(b'\0'))
     header['last_index'] = indices
 
 def read_index(sections, idx, codec):
@@ -66,7 +71,7 @@ def read_index(sections, idx, codec):
     tag_section_start = indx_header['tagx']
     control_byte_count, tags = parse_tagx_section(data[tag_section_start:])
 
-    read_last_index(data, indx_header)
+    read_variable_len_data(data, indx_header)
     index_headers = []
 
     for i in xrange(idx + 1, idx + 1 + indx_count):
@@ -74,7 +79,7 @@ def read_index(sections, idx, codec):
         data = sections[i].raw
         index_headers.append(parse_index_record(table, data, control_byte_count, tags, codec,
                 indx_header['ordt_map'], strict=True))
-        read_last_index(data, index_headers[-1])
+        read_variable_len_data(data, index_headers[-1])
     return table, cncx, indx_header, index_headers
 
 class Index(object):

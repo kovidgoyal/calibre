@@ -192,8 +192,8 @@ class IndexHeader(object):  # {{{
         length_check, = struct.unpack(b'>H', idxt[4:6])
         if length_check != self.header_length + self.tagx_header_length:
             raise ValueError('Length check failed')
-        if idxt[6:].replace(b'\0', b''):
-            raise ValueError('Non null trailing bytes after IDXT')
+        # if idxt[6:].replace(b'\0', b''):
+        #     raise ValueError('Non null trailing bytes after IDXT')
 
     def __str__(self):
         ans = ['*'*20 + ' Index Header (%d bytes)'%len(self.record.raw)+ '*'*20]
