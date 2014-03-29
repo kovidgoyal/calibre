@@ -27,7 +27,8 @@ def fcis(text_length):
     fcis += b'\x28\x00\x00\x00\x08\x00\x01\x00\x01\x00\x00\x00\x00'
     return fcis
 
-class MOBIHeader(Header): # {{{
+class MOBIHeader(Header):  # {{{
+
     '''
     Represents the first record in a MOBI file, contains all the metadata about
     the file.
@@ -261,7 +262,7 @@ class KF8Book(object):
         self.records.append(fcis(self.text_length))
 
         # EOF
-        self.records.append(b'\xe9\x8e\r\n') # EOF record
+        self.records.append(b'\xe9\x8e\r\n')  # EOF record
 
         # Miscellaneous header fields
         self.compression = writer.compress
