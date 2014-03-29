@@ -29,7 +29,7 @@ INDEX_HEADER_FIELDS = INDEX_HEADER_FIELDS + ('last_index', 'tagx_block_size', 't
 FIELD_NAMES = {'len':'Header length', 'type':'Unknown', 'gen':'Index Type (0 - normal, 2 - inflection)',
                'start':'IDXT Offset', 'count':'Number of Index entries or records', 'code': 'character encoding', 'lng':'Unknown',
                'total':'Total number of Index Entries in all records', 'ordt': 'ORDT Offset', 'ligt':'LIGT Offset', 'nligt':'Number of LIGT',
-               'ncncx':'Number of CNCX records', 'last_index':'Text of Boundary Entry in every index record'}
+               'ncncx':'Number of CNCX records', 'last_index':'Geometry of index records'}
 
 def read_last_index(data, header):
     offset = header['tagx']
