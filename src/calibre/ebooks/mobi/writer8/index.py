@@ -11,6 +11,7 @@ __docformat__ = 'restructuredtext en'
 from collections import namedtuple
 from struct import pack
 from io import BytesIO
+from future_builtins import zip
 
 from calibre.ebooks.mobi.utils import CNCX, encint, align_block
 from calibre.ebooks.mobi.writer8.header import Header
@@ -22,10 +23,10 @@ EndTagTable = TagMeta(('eof', 0, 0, 0, 1))
 
 # map of mask to number of shifts needed, works with 1 bit and two-bit wide masks
 # could also be extended to 4 bit wide ones as well
-mask_to_bit_shifts = { 1:0, 2:1, 3:0, 4:2, 8:3, 12:2, 16:4, 32:5, 48:4, 64:6,
-        128:7, 192: 6 }
+mask_to_bit_shifts = {1:0, 2:1, 3:0, 4:2, 8:3, 12:2, 16:4, 32:5, 48:4, 64:6,
+        128:7, 192: 6}
 
-class IndexHeader(Header): # {{{
+class IndexHeader(Header):  # {{{
 
     HEADER_NAME = b'INDX'
     ALIGN_BLOCK = True
@@ -45,7 +46,7 @@ class IndexHeader(Header): # {{{
     idxt_offset
 
     # 24 - 28: Number of index records
-    num_of_records = 1
+    num_of_records = DYN
 
     # 28 - 32: Index encoding (65001 = utf-8)
     encoding = 65001
@@ -80,8 +81,8 @@ class IndexHeader(Header): # {{{
     # TAGX
     tagx = DYN
 
-    # Last Index entry
-    last_index = DYN
+    # Geometry of index records
+    geometry = DYN
 
     # IDXT
     idxt = DYN
@@ -90,7 +91,7 @@ class IndexHeader(Header): # {{{
     POSITIONS = {'idxt_offset':'idxt'}
 # }}}
 
-class Index(object): # {{{
+class Index(object):  # {{{
 
     control_byte_count = 1
     cncx = CNCX()
@@ -135,27 +136,23 @@ class Index(object): # {{{
         self.control_bytes = self.calculate_control_bytes_for_each_entry(
                 self.entries)
 
-        rendered_entries = []
-        index, idxt, buf = BytesIO(), BytesIO(), BytesIO()
-        IndexEntry = namedtuple('IndexEntry', 'offset length raw')
-        last_lead_text = b''
-        too_large = ValueError('Index has too many entries, calibre does not'
-                    ' support generating multiple index records at this'
-                    ' time.')
+        index_blocks, idxt_blocks, record_counts, last_indices = [BytesIO()], [BytesIO()], [0], [b'']
+        buf = BytesIO()
 
-        for i, x in enumerate(self.entries):
+        RECORD_LIMIT = 0x10000 - self.HEADER_LENGTH - 1048  # kindlegen uses 1048 (there has to be some margin because of block alignment)
+
+        for i, (index_num, tags) in enumerate(self.entries):
             control_bytes = self.control_bytes[i]
-            leading_text, tags = x
             buf.seek(0), buf.truncate(0)
-            leading_text = (leading_text.encode('utf-8') if
-                    isinstance(leading_text, unicode) else leading_text)
-            raw = bytearray(leading_text)
-            raw.insert(0, len(leading_text))
+            index_num = (index_num.encode('utf-8') if isinstance(index_num, unicode) else index_num)
+            raw = bytearray(index_num)
+            raw.insert(0, len(index_num))
             buf.write(bytes(raw))
             buf.write(bytes(bytearray(control_bytes)))
             for tag in self.tag_types:
                 values = tags.get(tag.name, None)
-                if values is None: continue
+                if values is None:
+                    continue
                 try:
                     len(values)
                 except TypeError:
@@ -168,55 +165,71 @@ class Index(object): # {{{
                             raise ValueError('Invalid values for %r: %r'%(
                                 tag, values))
             raw = buf.getvalue()
-            offset = index.tell()
-            if offset + self.HEADER_LENGTH >= 0x10000:
-                raise too_large
-            rendered_entries.append(IndexEntry(offset, len(raw), raw))
-            idxt.write(pack(b'>H', self.HEADER_LENGTH+offset))
-            index.write(raw)
-            last_lead_text = leading_text
+            offset = index_blocks[-1].tell()
+            idxt_pos = idxt_blocks[-1].tell()
+            if offset + idxt_pos + len(raw) + 2 > RECORD_LIMIT:
+                index_blocks.append(BytesIO())
+                idxt_blocks.append(BytesIO())
+                record_counts.append(0)
+                offset = idxt_pos = 0
+                last_indices.append(b'')
+            record_counts[-1] += 1
+            idxt_blocks[-1].write(pack(b'>H', self.HEADER_LENGTH+offset))
+            index_blocks[-1].write(raw)
+            last_indices[-1] = index_num
 
-        index_block = align_block(index.getvalue())
-        idxt_block = align_block(b'IDXT' + idxt.getvalue())
-        body = index_block + idxt_block
-        if len(body) + self.HEADER_LENGTH >= 0x10000:
-            raise too_large
-        header = b'INDX'
-        buf.seek(0), buf.truncate(0)
-        buf.write(pack(b'>I', self.HEADER_LENGTH))
-        buf.write(b'\0'*4) # Unknown
-        buf.write(pack(b'>I', 1)) # Header type? Or index record number?
-        buf.write(b'\0'*4) # Unknown
+        index_records = []
+        for index_block, idxt_block, record_count in zip(index_blocks, idxt_blocks, record_counts):
+            index_block = align_block(index_block.getvalue())
+            idxt_block = align_block(b'IDXT' + idxt_block.getvalue())
+            # Create header for this index record
+            header = b'INDX'
+            buf.seek(0), buf.truncate(0)
+            buf.write(pack(b'>I', self.HEADER_LENGTH))
+            buf.write(b'\0'*4)  # Unknown
+            buf.write(pack(b'>I', 1))  # Header type (0 for Index header record and 1 for Index records)
+            buf.write(b'\0'*4)  # Unknown
 
-        # IDXT block offset
-        buf.write(pack(b'>I', self.HEADER_LENGTH + len(index_block)))
+            # IDXT block offset
+            buf.write(pack(b'>I', self.HEADER_LENGTH + len(index_block)))
 
-        # Number of index entries
-        buf.write(pack(b'>I', len(rendered_entries)))
+            # Number of index entries in this record
+            buf.write(pack(b'>I', record_count))
 
-        buf.write(b'\xff'*8) # Unknown
+            buf.write(b'\xff'*8)  # Unknown
 
-        buf.write(b'\0'*156) # Unknown
+            buf.write(b'\0'*156)  # Unknown
 
-        header += buf.getvalue()
-        index_record = header + body
+            header += buf.getvalue()
+            index_records.append(header + index_block + idxt_block)
+            if len(index_records[-1]) > 0x10000:
+                raise ValueError('Failed to rollover index blocks for very large index.')
 
+        # Create the Index Header record
         tagx = self.generate_tagx()
-        idxt = (b'IDXT' + pack(b'>H', IndexHeader.HEADER_LENGTH + len(tagx)) +
-                b'\0')
-        # Last index
-        idx = bytes(bytearray([len(last_lead_text)])) + last_lead_text
-        idx += pack(b'>H', len(rendered_entries))
+
+        # Geometry of the index records is written as index entries pointed to
+        # by the IDXT records
+        buf.seek(0), buf.truncate()
+        idxt = [b'IDXT']
+        pos = IndexHeader.HEADER_LENGTH + len(tagx)
+        for last_idx, num in zip(last_indices, record_counts):
+            start = buf.tell()
+            idxt.append(pack(b'>H', pos))
+            buf.write(bytes(bytearray([len(last_idx)])) + last_idx)
+            buf.write(pack(b'>H', num))
+            pos += buf.tell() - start
 
         header = {
-                'num_of_entries': len(rendered_entries),
+                'num_of_entries': sum(r for r in record_counts),
+                'num_of_records': len(index_records),
                 'num_of_cncx': len(self.cncx),
-                'tagx':tagx,
-                'last_index':align_block(idx),
-                'idxt':idxt
+                'tagx':align_block(tagx),
+                'geometry':align_block(buf.getvalue()),
+                'idxt':align_block(b''.join(idxt)),
         }
         header = IndexHeader()(**header)
-        self.records = [header, index_record]
+        self.records = [header] + index_records
         self.records.extend(self.cncx.records)
         return self.records
 # }}}
@@ -321,6 +334,12 @@ class NCXIndex(Index):
                 strings.append(kind)
         self.cncx = CNCX(strings)
 
+        try:
+            largest = max(x['index'] for x in toc_table)
+        except ValueError:
+            largest = 0
+        fmt = '%0{0}X'.format(max(2, len('%X' % largest)))
+
         def to_entry(x):
             ans = {}
             for f in ('offset', 'length', 'depth', 'pos_fid', 'parent',
@@ -330,10 +349,9 @@ class NCXIndex(Index):
             for f in ('label', 'description', 'author', 'kind'):
                 if f in x:
                     ans[f] = self.cncx[x[f]]
-            return ('%02x'%x['index'], ans)
+            return (fmt % x['index'], ans)
 
         self.entries = list(map(to_entry, toc_table))
-
 
 
 class NonLinearNCXIndex(NCXIndex):
@@ -352,4 +370,23 @@ class NonLinearNCXIndex(NCXIndex):
         EndTagTable
     )))
 
+if __name__ == '__main__':
+    # Generate a document with a large number of index entries using both
+    # calibre and kindlegen and compare the output
+    import os, subprocess
+    os.chdir('/t')
+    paras = ['<p>%d</p>' % i for i in xrange(4000)]
+    raw = '<html><body>' + '\n\n'.join(paras) + '</body></html>'
+
+    src = 'index.html'
+    with open(src, 'wb') as f:
+        f.write(raw.encode('utf-8'))
+
+    subprocess.check_call(['ebook-convert', src, '.epub', '--level1-toc', '//h:p', '--no-default-epub-cover', '--flow-size', '1000000'])
+    subprocess.check_call(['ebook-convert', src, '.azw3', '--level1-toc', '//h:p', '--no-inline-toc', '--extract-to=x'])
+    subprocess.call(['kindlegen', 'index.epub'])  # kindlegen exit code is not 0 as we dont have a cover
+    subprocess.check_call(['calibre-debug', 'index.mobi'])
+
+    from calibre.gui2.tweak_book.diff.main import main
+    main(['cdiff', 'decompiled_index/mobi8/ncx.record', 'x/ncx.record'])
 
