@@ -60,7 +60,7 @@ class MOBIHeader(Header):  # {{{
     ident = b'MOBI'
 
     # 20: Header length
-    header_length = 248
+    header_length = 264
 
     # 24: Book Type (0x2 - Book, 0x101 - News hierarchical, 0x102 - News
     # (flat), 0x103 - News magazine same as 0x101)
@@ -175,7 +175,13 @@ class MOBIHeader(Header):  # {{{
     datp_index = NULL
     guide_index = DYN
 
-    # 264: EXTH
+    # 264: Unknown
+    unknown5 = nulls(4)
+    unknown6 = zeroes(4)
+    unknown7 = nulls(4)
+    unknown8 = zeroes(4)
+
+    # 280: EXTH
     exth = DYN
 
     # Full title
