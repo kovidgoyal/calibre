@@ -116,9 +116,8 @@ class MOBIHeader(Header):  # {{{
     # 112: Huff/CDIC compression
     huff_first_record
     huff_count
-
-    # 120: Unknown (Maybe DATP related, maybe HUFF/CDIC related)
-    maybe_datp = zeroes(8)
+    huff_table_offset = zeroes(4)
+    huff_table_length = zeroes(4)
 
     # 128: EXTH flags
     exth_flags = DYN

@@ -427,8 +427,8 @@ class MOBIHeader(object):  # {{{
         r('First Image index', 'first_image_index')
         r('Huffman record offset', 'huffman_record_offset')
         a('Huffman record count: %d'%self.huffman_record_count)
-        r('DATP record offset', 'datp_record_offset')
-        a('DATP record count: %r'%self.datp_record_count)
+        r('Huffman table offset', 'datp_record_offset')
+        a('Huffman table length: %r'%self.datp_record_count)
         a('EXTH flags: %s (%s)'%(bin(self.exth_flags)[2:], self.has_exth))
         if self.has_drm_data:
             a('Unknown3: %r'%self.unknown3)
