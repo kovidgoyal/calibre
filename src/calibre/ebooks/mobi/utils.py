@@ -578,17 +578,14 @@ class CNCX(object):  # {{{
         self.records = []
         offset = 0
         buf = BytesIO()
-        for key in tuple(self.strings.iterkeys()):
+        RECORD_LIMIT = 0x10000 - 1024  # kindlegen appears to use 1024, PDB limit is 0x10000
+        for key in self.strings.iterkeys():
             utf8 = utf8_text(key[:self.MAX_STRING_LENGTH])
             l = len(utf8)
             sz_bytes = encint(l)
             raw = sz_bytes + utf8
-            if 0xfbf8 - buf.tell() < 6 + len(raw):
-                # Records in PDB files cannot be larger than 0x10000, so we
-                # stop well before that.
-                pad = 0xfbf8 - buf.tell()
-                buf.write(b'\0' * pad)
-                self.records.append(buf.getvalue())
+            if buf.tell() + len(raw) > RECORD_LIMIT:
+                self.records.append(align_block(buf.getvalue()))
                 buf.seek(0), buf.truncate(0)
                 offset = len(self.records) * 0x10000
             buf.write(raw)
