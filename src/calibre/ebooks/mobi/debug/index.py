@@ -7,6 +7,8 @@ __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
+import struct
+
 from collections import OrderedDict, namedtuple
 
 from calibre.ebooks.mobi.reader.headers import NULL_INDEX
@@ -22,6 +24,14 @@ Elem = namedtuple('Chunk',
     'length')
 
 GuideRef = namedtuple('GuideRef', 'type title pos_fid')
+
+INDEX_HEADER_FIELDS = INDEX_HEADER_FIELDS + ('last_index',)
+
+def read_last_index(data, header):
+    offset = header['tagx']
+    offset += struct.unpack_from(b'>I', data, offset + 4)[0]
+    strlen = bytearray(data[offset:offset+1])[0]
+    header['last_index'] = data[offset+1:offset+1+strlen]
 
 def read_index(sections, idx, codec):
     table, cncx = OrderedDict(), CNCX([], codec)
@@ -39,12 +49,16 @@ def read_index(sections, idx, codec):
     tag_section_start = indx_header['tagx']
     control_byte_count, tags = parse_tagx_section(data[tag_section_start:])
 
+    read_last_index(data, indx_header)
+    index_headers = []
+
     for i in xrange(idx + 1, idx + 1 + indx_count):
         # Index record
         data = sections[i].raw
-        parse_index_record(table, data, control_byte_count, tags, codec,
-                indx_header['ordt_map'], strict=True)
-    return table, cncx, indx_header
+        index_headers.append(parse_index_record(table, data, control_byte_count, tags, codec,
+                indx_header['ordt_map'], strict=True))
+        read_last_index(data, index_headers[-1])
+    return table, cncx, indx_header, index_headers
 
 class Index(object):
 
@@ -52,10 +66,7 @@ class Index(object):
         self.table = self.cncx = self.header = self.records = None
         self.index_headers = []
         if idx != NULL_INDEX:
-            self.table, self.cncx, self.header = read_index(records, idx, codec)
-        if self.header is not None:
-            for i in xrange(idx + 1, idx + 1 + self.header['count']):
-                self.index_headers.append(parse_indx_header(records[i].raw))
+            self.table, self.cncx, self.header, self.index_headers = read_index(records, idx, codec)
 
     def render(self):
         ans = ['*'*10 + ' Index Header ' + '*'*10]
