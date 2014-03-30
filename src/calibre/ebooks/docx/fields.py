@@ -54,6 +54,23 @@ def parse_hyperlink(raw, log):
                 last_option = None
     return ans
 
+def parse_xe(raw, log):
+    ans = {}
+    last_option = None
+    raw = raw.replace('\\\\', '\x01').replace('\\"', '\x02')
+    for token, token_type in scanner.scan(raw)[0]:
+        token = token.replace('\x01', '\\').replace('\x02', '"')
+        if token_type is FLAG:
+            last_option = {'b':'bold', 'i':'italic', 'f':'entry_type', 'r':'page_range_bookmark', 't':'page_number_text', 'y':'yomi'}.get(token[1], None)
+            if last_option is not None:
+                ans[last_option] = None
+        elif token_type is WORD:
+            if last_option is None:
+                ans['text'] = token
+            else:
+                ans[last_option] = token
+                last_option = None
+    return ans
 
 class Fields(object):
 
@@ -105,20 +122,35 @@ class Fields(object):
                     for runs in all_runs:
                         self.hyperlink_fields.append((hl, runs))
 
-def test_parse_hyperlink():
+        # Parse XE fields
+        self.xe_fields = []
+        for field in self.fields:
+            if len(field.instructions) >= 1 and field.instructions[0][0] == 'HYPERLINK':
+                xe = parse_xe(field.instructions[0][1], log)  # TODO: Handle field with multiple instructions
+                if xe:
+                    # TODO: parse the field contents
+                    self.xe_fields.append(xe)
+
+def test_parse_fields():
     import unittest
 
-    class TestParseHyperLink(unittest.TestCase):
+    class TestParseFields(unittest.TestCase):
 
-        def test_parsing(self):
-            self.assertEqual(parse_hyperlink(
-                r'\l anchor1', None), {'anchor':'anchor1'})
-            self.assertEqual(parse_hyperlink(
-                r'www.calibre-ebook.com', None), {'url':'www.calibre-ebook.com'})
-            self.assertEqual(parse_hyperlink(
-                r'www.calibre-ebook.com \t target \o tt', None), {'url':'www.calibre-ebook.com', 'target':'target', 'title': 'tt'})
-            self.assertEqual(parse_hyperlink(
-                r'"c:\\Some Folder"', None), {'url': 'c:\\Some Folder'})
+        def test_hyperlink(self):
+            ae = lambda x, y: self.assertEqual(parse_hyperlink(x, None), y)
+            ae(r'\l anchor1', {'anchor':'anchor1'})
+            ae(r'www.calibre-ebook.com', {'url':'www.calibre-ebook.com'})
+            ae(r'www.calibre-ebook.com \t target \o tt', {'url':'www.calibre-ebook.com', 'target':'target', 'title': 'tt'})
+            ae(r'"c:\\Some Folder"', {'url': 'c:\\Some Folder'})
 
-    suite = unittest.TestLoader().loadTestsFromTestCase(TestParseHyperLink)
+        def test_xe(self):
+            ae = lambda x, y: self.assertEqual(parse_xe(x, None), y)
+            ae(r'"some name"', {'text':'some name'})
+            ae(r'name \b \i', {'text':'name', 'bold':None, 'italic':None})
+            ae(r'xxx \y a', {'text':'xxx', 'yomi':'a'})
+
+    suite = unittest.TestLoader().loadTestsFromTestCase(TestParseFields)
     unittest.TextTestRunner(verbosity=4).run(suite)
+
+if __name__ == '__main__':
+    test_parse_fields()
