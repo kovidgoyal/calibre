@@ -108,7 +108,7 @@ def cli(port=4444):
             raise SystemExit(1)
     prints('Connected to remote process')
     import readline
-    histfile = os.path.join(cache_dir(), 'calibre-rpdb.history')
+    histfile = os.path.join(cache_dir(), 'rpdb.history')
     try:
         readline.read_history_file(histfile)
     except IOError:
