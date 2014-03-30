@@ -19,6 +19,7 @@ class DOCXInput(InputFormatPlugin):
             help=_('Normally, if a large image is present at the start of the document that looks like a cover, '
                    'it will be removed from the document and used as the cover for created ebook. This option '
                    'turns off that behavior.')),
+
     }
 
     recommendations = set([('page_breaks_before', '/', OptionRecommendation.MED)])
