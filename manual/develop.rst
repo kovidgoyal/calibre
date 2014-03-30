@@ -271,6 +271,22 @@ Python is a
 dynamically typed language with excellent facilities for introspection. Kovid wrote the core |app| code without once
 using a debugger. There are many strategies to debug |app| code:
 
+Using print statements
+^^^^^^^^^^^^^^^^^^^^^^^
+
+This is Kovid's favorite way to debug. Simply insert print statements at points of interest and run your program in the
+terminal. For example, you can start the GUI from the terminal as::
+
+    calibre-debug -g
+
+Similarly, you can start the ebook-viewer as::
+
+    calibre-debug -w /path/to/file/to/be/viewed
+
+The ebook-editor can be started as::
+
+    calibre-debug -t /path/to/be/edited
+
 Using an interactive python interpreter
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -284,23 +300,51 @@ locally defined variables (variables in the local scope). The interactive prompt
 for object properties and you can use the various Python facilities for introspection, such as
 :func:`dir`, :func:`type`, :func:`repr`, etc.
 
-Using print statements
-^^^^^^^^^^^^^^^^^^^^^^^
+Using the python debugger as a remote debugger
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-This is Kovid's favorite way to debug. Simply insert print statements at points of interest and run your program in the
-terminal. For example, you can start the GUI from the terminal as::
+You can use the builtin python debugger (pdb) as a remote debugger from the
+command line. First, start the remote debugger at the point in the calibre code
+you are interested in, like this::
 
-    calibre-debug -g
+    from calibre.rpdb import set_trace
+    set_trace()
 
-Similarly, you can start the ebook-viewer as::
+Then run calibre, either as normal, or using one of the calibre-debug commands
+described in the previous section. Once the above point in the code is reached,
+calibre will freeze, waiting for the debugger to connect.
 
-    calibre-debug -w /path/to/file/to/be/viewed
+Now open a terminal or command prompt and use the following command to start
+the debugging session::
 
-Using the debugger in PyDev
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    calibre-debug -c "from calibre.rpdb import cli; cli()"
 
-It is possible to get the debugger in PyDev working with the |app| development environment,
-see the `forum thread <http://www.mobileread.com/forums/showthread.php?t=143208>`_.
+You can read about how to use the python debugger in the `python stdlib docs
+for the pdb module <https://docs.python.org/2/library/pdb.html#debugger-commands>`_.
+
+.. note::
+    By default, the remote debugger will try to connect on port 4444. You can
+    change it, by passing the port parameter to both the set_trace() and the
+    cli() functions above, like this: ``set_trace(port=1234)`` and
+    ``cli(port=1234)``.
+
+.. note:: 
+    The python debugger cannot handle multiple threads, so you have to
+    call set_starace once per thread, each time with a different port number.
+
+Using the debugger in your favorite python IDE
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+It is possible to use the builtin debugger in your favorite python IDE, if it
+supports remote debugging. The first step is to add the |app| src checkout to
+the ``PYTHONPATH`` in your IDE. In other words, the directory you set as
+``CALIBRE_DEVELOP_FROM`` above, must also be in the ``PYTHONPATH`` of your IDE.
+
+Then place the IDE's remote debugger module into the :file:`src` subdirectory
+of the |app| source code checkout. Add whatever code is needed to launch the
+remote debugger to |app| at the point of interest, for example in the main
+function. Then run |app| as normal. Your IDE should now be able to connect to
+the remote debugger running inside |app|.
 
 Executing arbitrary scripts in the |app| python environment
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
