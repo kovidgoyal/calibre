@@ -330,7 +330,7 @@ for the pdb module <https://docs.python.org/2/library/pdb.html#debugger-commands
 
 .. note:: 
     The python debugger cannot handle multiple threads, so you have to
-    call set_starace once per thread, each time with a different port number.
+    call set_trace once per thread, each time with a different port number.
 
 Using the debugger in your favorite python IDE
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
