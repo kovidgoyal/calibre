@@ -6,10 +6,11 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import pdb, socket, inspect, sys, select
+import pdb, socket, inspect, sys, select, os, atexit, time
 
 from calibre import prints
 from calibre.utils.ipc import eintr_retry_call
+from calibre.constants import cache_dir
 
 PROMPT = b'(debug) '
 QUESTION = b'\x00\x01\x02'
@@ -92,10 +93,27 @@ def set_trace(port=4444, skip=None):
 def cli(port=4444):
     prints('Connecting to remote process on port %d...' % port)
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    sock.settimeout(120)
-    sock.connect(('127.0.0.1', port))
+    for i in xrange(20):
+        try:
+            sock.connect(('127.0.0.1', port))
+            break
+        except socket.error:
+            pass
+        time.sleep(0.1)
+    else:
+        try:
+            sock.connect(('127.0.0.1', port))
+        except socket.error as err:
+            prints(err, file=sys.stderr)
+            raise SystemExit(1)
     prints('Connected to remote process')
-    sock.setblocking(True)
+    import readline
+    histfile = os.path.join(cache_dir(), 'calibre-rpdb.history')
+    try:
+        readline.read_history_file(histfile)
+    except IOError:
+        pass
+    atexit.register(readline.write_history_file, histfile)
     try:
         while True:
             recvd = b''
@@ -104,18 +122,20 @@ def cli(port=4444):
                 if not buf:
                     return
                 recvd += buf
-            if recvd:
-                if recvd.startswith(QUESTION):
-                    recvd = recvd[len(QUESTION):-len(PROMPT)]
+            recvd = recvd[:-len(PROMPT)]
+            if recvd.startswith(QUESTION):
+                recvd = recvd[len(QUESTION):]
                 sys.stdout.write(recvd)
-            buf = []
-            raw = b''
-            try:
-                raw = raw_input() + b'\n'
-            except (EOFError, KeyboardInterrupt):
-                pass
-            if not raw:
-                raw = b'quit\n'
+                raw = sys.stdin.readline() or b'n'
+            else:
+                sys.stdout.write(recvd)
+                raw = b''
+                try:
+                    raw = raw_input(PROMPT) + b'\n'
+                except (EOFError, KeyboardInterrupt):
+                    pass
+                if not raw:
+                    raw = b'quit\n'
             eintr_retry_call(sock.send, raw)
     except KeyboardInterrupt:
         pass
