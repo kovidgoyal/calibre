@@ -226,6 +226,18 @@ You can also go to a specific line in the currently open editor via
     Remember, to harness the full power of search and replace, you will
     need to use regular expressions. See :ref:`regexptutorial`.
 
+Saved searches
+^^^^^^^^^^^^^^^
+
+You can save frequently used search/replace expressions and reuse them multiple times.
+To save a search simply right click in the Find box and select :guilabel:`Save current search`.
+
+You can bring up the dialog of saved searches via :guilabel:`Search->Saved
+Searches`. This will present you with a list of search and replace expressions
+that you can apply. You can even select multiple entries in the list by holding
+down the Ctrl Key while clicking so as to run multiple search and replace
+expressions in a single operation.
+
 Automated tools
 -------------------
 
