@@ -10,12 +10,15 @@ import re
 
 from calibre.ebooks.docx.names import XPath, get
 
+import sys
+
 class Field(object):
 
     def __init__(self, start):
         self.start = start
         self.end = None
         self.contents = []
+        self.elements = []
         self.instructions = []
 
     def add_instr(self, elem):
@@ -24,6 +27,7 @@ class Field(object):
             return
         name, rest = raw.strip().partition(' ')[0::2]
         self.instructions.append((name, rest.strip()))
+        self.elements.append(elem)
 
 WORD, FLAG = 0, 1
 scanner = re.Scanner([

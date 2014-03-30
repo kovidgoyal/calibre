@@ -28,6 +28,7 @@ from calibre.ebooks.docx.theme import Theme
 from calibre.ebooks.docx.toc import create_toc
 from calibre.ebooks.docx.fields import Fields
 from calibre.ebooks.docx.settings import Settings
+from calibre.ebooks.docx.index import Index
 from calibre.ebooks.metadata.opf2 import OPFCreator
 from calibre.utils.localization import canonicalize_lang, lang_as_iso639_1
 
@@ -44,12 +45,13 @@ class Text:
 
 class Convert(object):
 
-    def __init__(self, path_or_stream, dest_dir=None, log=None, detect_cover=True, notes_text=None):
+    def __init__(self, path_or_stream, dest_dir=None, log=None, detect_cover=True, do_index=False, notes_text=None):
         self.docx = DOCX(path_or_stream, log=log)
         self.ms_pat = re.compile(r'\s{2,}')
         self.ws_pat = re.compile(r'[\n\r\t]')
         self.log = self.docx.log
         self.detect_cover = detect_cover
+        self.do_index = do_index
         self.notes_text = notes_text or _('Notes')
         self.dest_dir = dest_dir or os.getcwdu()
         self.mi = self.docx.metadata
@@ -97,6 +99,14 @@ class Convert(object):
         paras = []
 
         self.log.debug('Converting Word markup to HTML')
+
+        # If we are doing an index, do the body part of the processing here.
+        # We need to insert bookmarks at the indexed locations before the
+        # main conversion work.
+        if self.do_index:
+            self.log.debug('Generating index')
+            index    = Index(self)
+
         self.read_page_properties(doc)
         self.current_rels = relationships_by_id
         for wp, page_properties in self.page_map.iteritems():
@@ -105,6 +115,7 @@ class Convert(object):
                 p = self.convert_p(wp)
                 self.body.append(p)
                 paras.append(wp)
+
         self.read_block_anchors(doc)
         self.styles.apply_contextual_spacing(paras)
         # Apply page breaks at the start of every section, except the first
@@ -156,6 +167,10 @@ class Convert(object):
                     style.text_indent = '%.3gpt' % indent
                     parent.text = tabs[-1].tail or ''
                     map(parent.remove, tabs)
+
+        # For an index, we now want to append the index object
+        if self.do_index:
+            index.generate()
 
         self.images.rid_map = orig_rid_map
 
