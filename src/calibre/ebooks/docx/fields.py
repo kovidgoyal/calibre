@@ -10,8 +10,6 @@ import re
 
 from calibre.ebooks.docx.names import XPath, get
 
-import sys
-
 class Field(object):
 
     def __init__(self, start):

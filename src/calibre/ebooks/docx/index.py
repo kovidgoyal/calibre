@@ -6,21 +6,18 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import itertools
 from collections import OrderedDict
-from lxml import html
-from lxml.html.builder import (
-    HTML, HEAD, TITLE, BODY, LINK, META, P, SPAN, BR, DIV, SUP, A, DT, DL, DD, H1)
-from calibre.ebooks.docx.names import (
-    XPath, is_tag, XML, STYLES, NUMBERING, FONTS, get, generate_anchor,
-    ancestor, descendants, namespaces, FOOTNOTES, ENDNOTES, children, THEMES, SETTINGS)
 
+from lxml.html.builder import A, SPAN
 import lxml.etree
+
+from calibre.ebooks.docx.names import XPath, ancestor, namespaces
+
 
 NBSP = '\xa0'
 
 class Location(object):
-    """
+    r"""
     This class represents one location in the index.
     We should provide a way to mark the main entries. Libre office
     has a main attribute, which doesn't seem to map to docx, and at least
@@ -36,10 +33,10 @@ class Location(object):
 class Entry(object):
     """
     This class represents one index entry.
-    We can also have a list of subentries for the primary/secondary
+    We can also have a list of sub-entries for the primary/secondary
     topic situation.
     Each entry has a list of locations we want to point to, but
-    it could be empty if this is only here to organize subentries.
+    it could be empty if this is only here to organize sub-entries.
     """
 
     def __init__(self, name, index):
@@ -47,7 +44,7 @@ class Entry(object):
         self.locations = []
         self.name = name
         self.index = index
-    
+
     def add_entry(self, entry, sub):
         """
         The entry has the form [xxx, field, bookmark, target]
@@ -62,7 +59,7 @@ class Entry(object):
         # As a first pass, we just put a placeholder in the target location
         # We want it to float right
         markid = amap[loc.bookmark]
-        if markid == None:
+        if markid is None:
             return
 
         span = A()
@@ -130,13 +127,13 @@ class Section(object):
         topics = entry[0].strip('"').split(':')
         targ = find_entry(topics[0], self.entries, self.index)
         targ.add_entry(entry, topics[1:])
-    
+
     def to_html(self, key, body, amap):
         """
         Add one section of the index to the html
         """
         if len(key) > 0:
-            body.append(add_name(key, self.index.sectionStyle))
+            body.append(add_name(key, self.index.section_style))
         for ekey in sorted(self.entries.keys()):
             self.entries[ekey].to_html(body, 0, amap)
 
@@ -145,7 +142,7 @@ class Index(object):
     This class generates an alphabetical index from the index markers in a docx file.
 
     Each field in the parse of the docx file contains an instructions list.
-    Instructions with name XE are index instructions. 
+    Instructions with name XE are index instructions.
     The instruction also contains the entry specifier, of the form A[:B[:C]] for
     main entry, A, subentry B, and so on.
 
@@ -184,10 +181,10 @@ class Index(object):
             sec.add_entry(unit)
 
     def get_entries(self):
-        """
+        r"""
         We already have a list of fields which includes the index marks,
         identified by an XE tag.
-        In the base case, the field object includes an instruction list 
+        In the base case, the field object includes an instruction list
         with one tuple like ('XE', '"entry"'), where entry is the text we
         want to put in the index. Note the double quotes around the entry.
         Sometimes the entry is broken up in the document, for example if
@@ -202,28 +199,27 @@ class Index(object):
         """
         fields = self.convert.fields.fields
 
+        def get_entry(field):
+            elist = [field.instructions[0][1]]
+            for inst in field.instructions[1:]:
+                elist.append(inst[0])
+                elist.append(inst[1])
+
+            entry = ''.join(elist)
+            sep1 = entry.partition('"')
+            if sep1[2] == '':
+                return entry
+            sep2 = sep1[2].partition('"')
+            return sep2[0]
+
         # Only want the index entries
-        fields = filter(lambda f: len(f.instructions) > 0 and f.instructions[0][0] == 'XE', fields)
-        return map(lambda f: [self.get_entry(f), f], fields)
-    
-    def get_entry(self, field):
-
-        elist = [field.instructions[0][1]]
-        for inst in field.instructions[1:]:
-            elist.append(inst[0])
-            elist.append(inst[1])
-
-        entry = ''.join(elist)
-        sep1 = entry.partition('"')
-        if sep1[2] == '':
-            return entry
-        sep2 = sep1[2].partition('"')
-        return sep2[0]
+        return [[get_entry(f), f] for f in fields
+                if f.instructions and f.instructions[0][0] == 'XE']
 
     def target_styles(self):
         """
         We want to get a list of styles which represent valid index targets.
-        That is, the text of a link in the index will be the title of the 
+        That is, the text of a link in the index will be the title of the
         section of the document containing the indexed location.
         We want the list of styles which can provide a valid title.
         In practice, this maps to Heading1 through Heading3 in the original document.
@@ -242,7 +238,7 @@ class Index(object):
         """
         snodes = XPath("./w:pPr/w:pStyle")(node)
         if len(snodes) == 0:
-            return False;
+            return False
 
         sn = snodes[0]
 
@@ -264,14 +260,13 @@ class Index(object):
                 answer.append(c)
         return answer
 
-    def textValue(self, node):
+    def text_value(self, node):
         tnodes = XPath("./w:r/w:t")(node)
         if len(tnodes) == 0:
             return 'Link'
-        textl = map(lambda x: x.text, tnodes)
-        return ''.join(textl)
+        return ''.join((x.text or '') for x in tnodes)
 
-    def findTarget(self, node):
+    def find_target(self, node):
         """
         Given an index entry, find the text of the last heading section
         preceding the entry.
@@ -279,7 +274,7 @@ class Index(object):
         return the text.
         Otherwise, go up the document level by level, staring with the
         parent of the w:p element containing the entry.
-        At each level, get the list of heading w:p elements which are 
+        At each level, get the list of heading w:p elements which are
         children of the top node. We also have the index in the top node
         of the child node containing the entry.
         Find the largest index of a heading child which is < the entry
@@ -291,11 +286,11 @@ class Index(object):
         """
         pnode = ancestor(node, 'w:p')
         if self.is_heading(pnode):
-            return self.textValue(pnode)
+            return self.text_value(pnode)
 
         while True:
             parent = pnode.getparent()
-            if parent == None:
+            if parent is None:
                 return 'Link'
 
             # Maintain document order in these lists
@@ -303,7 +298,7 @@ class Index(object):
             hlist = self.get_headings(parent)
             hlist = filter(lambda x: parent.index(x) < pindex, hlist)
             if len(hlist) > 0:
-                return self.textValue(hlist[-1])
+                return self.text_value(hlist[-1])
 
             # Try again
             pnode = parent
@@ -341,7 +336,7 @@ class Index(object):
                 # We should make the targets configurable, and add chapter
                 # titles and maybe other things.
                 # What about numbering?
-                targnode = self.findTarget(rnode)
+                targnode = self.find_target(rnode)
                 entry.append(targnode)
 
     def gen_styles(self):
@@ -350,15 +345,15 @@ class Index(object):
         We do title, section header, and three levels of entries.
         These are reasonable styles which only set a couple of key
         values, but we could provide an interface to allow the user to set them.
-        Is there any problem registering the styles this early in the 
+        Is there any problem registering the styles this early in the
         conversion process?
         """
         # The result is a string we can use as a class name.
         css = OrderedDict([('font-size', '20pt'), ('page-break-before', 'always')])
-        self.titleStyle = self.convert.styles.register(css, 'block')
+        self.title_style = self.convert.styles.register(css, 'block')
 
         css = OrderedDict([('font-size', '16pt'), ('margin-top', '20pt'), ('margin-bottom', '10pt')])
-        self.sectionStyle = self.convert.styles.register(css, 'block')
+        self.section_style = self.convert.styles.register(css, 'block')
 
         self.entry_styles = []
         for i in range(3):
@@ -393,7 +388,7 @@ class Index(object):
         This method writes it into the html.
         """
         body = self.convert.body
-        body.append(add_name('Index', self.titleStyle))
+        body.append(add_name('Index', self.title_style))
 
         # And write them to the html
         for key in sorted(self.sections.keys()):
