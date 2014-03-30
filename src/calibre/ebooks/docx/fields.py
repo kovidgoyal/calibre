@@ -35,6 +35,7 @@ scanner = re.Scanner([
     (r'\s+', None),
 ], flags=re.DOTALL)
 
+null = object()
 
 def parse_hyperlink(raw, log):
     ans = {}
@@ -43,7 +44,7 @@ def parse_hyperlink(raw, log):
     for token, token_type in scanner.scan(raw)[0]:
         token = token.replace('\x01', '\\').replace('\x02', '"')
         if token_type is FLAG:
-            last_option = {'l':'anchor', 'm':'image-map', 'n':'target', 'o':'title', 't':'target'}.get(token[1], None)
+            last_option = {'l':'anchor', 'm':'image-map', 'n':'target', 'o':'title', 't':'target'}.get(token[1], null)
             if last_option is not None:
                 ans[last_option] = None
         elif token_type is WORD:
@@ -52,6 +53,7 @@ def parse_hyperlink(raw, log):
             else:
                 ans[last_option] = token
                 last_option = None
+    ans.pop(null, None)
     return ans
 
 def parse_xe(raw, log):
@@ -61,7 +63,7 @@ def parse_xe(raw, log):
     for token, token_type in scanner.scan(raw)[0]:
         token = token.replace('\x01', '\\').replace('\x02', '"')
         if token_type is FLAG:
-            last_option = {'b':'bold', 'i':'italic', 'f':'entry_type', 'r':'page_range_bookmark', 't':'page_number_text', 'y':'yomi'}.get(token[1], None)
+            last_option = {'b':'bold', 'i':'italic', 'f':'entry_type', 'r':'page_range_bookmark', 't':'page_number_text', 'y':'yomi'}.get(token[1], null)
             if last_option is not None:
                 ans[last_option] = None
         elif token_type is WORD:
@@ -70,6 +72,7 @@ def parse_xe(raw, log):
             else:
                 ans[last_option] = token
                 last_option = None
+    ans.pop(null, None)
     return ans
 
 class Fields(object):
@@ -142,6 +145,7 @@ def test_parse_fields():
             ae(r'www.calibre-ebook.com', {'url':'www.calibre-ebook.com'})
             ae(r'www.calibre-ebook.com \t target \o tt', {'url':'www.calibre-ebook.com', 'target':'target', 'title': 'tt'})
             ae(r'"c:\\Some Folder"', {'url': 'c:\\Some Folder'})
+            ae(r'xxxx \y yyyy', {'url': 'xxxx'})
 
         def test_xe(self):
             ae = lambda x, y: self.assertEqual(parse_xe(x, None), y)
