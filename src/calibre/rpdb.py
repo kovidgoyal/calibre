@@ -114,6 +114,10 @@ def cli(port=4444):
     except IOError:
         pass
     atexit.register(readline.write_history_file, histfile)
+    p = pdb.Pdb()
+    readline.set_completer(p.complete)
+    readline.parse_and_bind("tab: complete")
+
     try:
         while True:
             recvd = b''
