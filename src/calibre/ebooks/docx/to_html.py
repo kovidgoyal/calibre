@@ -45,13 +45,12 @@ class Text:
 
 class Convert(object):
 
-    def __init__(self, path_or_stream, dest_dir=None, log=None, detect_cover=True, do_index=False, notes_text=None):
+    def __init__(self, path_or_stream, dest_dir=None, log=None, detect_cover=True, notes_text=None):
         self.docx = DOCX(path_or_stream, log=log)
         self.ms_pat = re.compile(r'\s{2,}')
         self.ws_pat = re.compile(r'[\n\r\t]')
         self.log = self.docx.log
         self.detect_cover = detect_cover
-        self.do_index = do_index
         self.notes_text = notes_text or _('Notes')
         self.dest_dir = dest_dir or os.getcwdu()
         self.mi = self.docx.metadata
@@ -103,9 +102,7 @@ class Convert(object):
         # If we are doing an index, do the body part of the processing here.
         # We need to insert bookmarks at the indexed locations before the
         # main conversion work.
-        if self.do_index:
-            self.log.debug('Generating index')
-            index    = Index(self)
+        index = Index(self)
 
         self.read_page_properties(doc)
         self.current_rels = relationships_by_id
@@ -168,13 +165,12 @@ class Convert(object):
                     parent.text = tabs[-1].tail or ''
                     map(parent.remove, tabs)
 
-        # For an index, we now want to append the index object
-        if self.do_index:
-            index.generate()
-
         self.images.rid_map = orig_rid_map
 
         self.resolve_links()
+
+        # For an index, we now want to append the index object
+        index.generate()
 
         self.styles.cascade(self.layers)
 

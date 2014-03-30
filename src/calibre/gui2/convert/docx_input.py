@@ -18,6 +18,6 @@ class PluginWidget(Widget, Ui_Form):
 
     def __init__(self, parent, get_option, get_help, db=None, book_id=None):
         Widget.__init__(self, parent,
-            ['docx_no_cover', 'docx_index', ])
+            ['docx_no_cover', ])
         self.initialize_options(get_option, get_help, db, book_id)
 

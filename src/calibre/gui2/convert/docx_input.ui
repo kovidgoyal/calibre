@@ -22,13 +22,6 @@
     </widget>
    </item>
    <item>
-    <widget class="QCheckBox" name="opt_docx_index">
-     <property name="text">
-      <string>Generate an alphabetical index from embedded index markers</string>
-     </property>
-    </widget>
-   </item>
-   <item>
     <spacer name="verticalSpacer">
      <property name="orientation">
       <enum>Qt::Vertical</enum>

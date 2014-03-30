@@ -387,6 +387,7 @@ class Index(object):
         We generated the index object in the constructor.
         This method writes it into the html.
         """
+        # TODO: Only do this at locations of the INDEX field in the document
         body = self.convert.body
         body.append(add_name('Index', self.title_style))
 
