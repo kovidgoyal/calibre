@@ -37,43 +37,36 @@ scanner = re.Scanner([
 
 null = object()
 
-def parse_hyperlink(raw, log):
-    ans = {}
-    last_option = None
-    raw = raw.replace('\\\\', '\x01').replace('\\"', '\x02')
-    for token, token_type in scanner.scan(raw)[0]:
-        token = token.replace('\x01', '\\').replace('\x02', '"')
-        if token_type is FLAG:
-            last_option = {'l':'anchor', 'm':'image-map', 'n':'target', 'o':'title', 't':'target'}.get(token[1], null)
-            if last_option is not None:
-                ans[last_option] = None
-        elif token_type is WORD:
-            if last_option is None:
-                ans['url'] = token
-            else:
-                ans[last_option] = token
-                last_option = None
-    ans.pop(null, None)
-    return ans
+def parser(name, field_map, default_field_name):
 
-def parse_xe(raw, log):
-    ans = {}
-    last_option = None
-    raw = raw.replace('\\\\', '\x01').replace('\\"', '\x02')
-    for token, token_type in scanner.scan(raw)[0]:
-        token = token.replace('\x01', '\\').replace('\x02', '"')
-        if token_type is FLAG:
-            last_option = {'b':'bold', 'i':'italic', 'f':'entry_type', 'r':'page_range_bookmark', 't':'page_number_text', 'y':'yomi'}.get(token[1], null)
-            if last_option is not None:
-                ans[last_option] = None
-        elif token_type is WORD:
-            if last_option is None:
-                ans['text'] = token
-            else:
-                ans[last_option] = token
-                last_option = None
-    ans.pop(null, None)
-    return ans
+    def parse(raw, log=None):
+        ans = {}
+        last_option = None
+        raw = raw.replace('\\\\', '\x01').replace('\\"', '\x02')
+        for token, token_type in scanner.scan(raw)[0]:
+            token = token.replace('\x01', '\\').replace('\x02', '"')
+            if token_type is FLAG:
+                last_option = field_map.get(token[1], null)
+                if last_option is not None:
+                    ans[last_option] = None
+            elif token_type is WORD:
+                if last_option is None:
+                    ans[default_field_name] = token
+                else:
+                    ans[last_option] = token
+                    last_option = None
+        ans.pop(null, None)
+        return ans
+
+    parse.__name__ = str('parse_' + name)
+
+    return parse
+
+parse_hyperlink = parser('hyperlink',
+    {'l':'anchor', 'm':'image-map', 'n':'target', 'o':'title', 't':'target'}, 'url')
+
+parse_xe = parser('xe',
+    {'b':'bold', 'i':'italic', 'f':'entry_type', 'r':'page_range_bookmark', 't':'page_number_text', 'y':'yomi'}, 'text')
 
 class Fields(object):
 
