@@ -28,6 +28,7 @@ from calibre.ebooks.docx.theme import Theme
 from calibre.ebooks.docx.toc import create_toc
 from calibre.ebooks.docx.fields import Fields
 from calibre.ebooks.docx.settings import Settings
+# from calibre.ebooks.docx.index import Index
 from calibre.ebooks.metadata.opf2 import OPFCreator
 from calibre.utils.localization import canonicalize_lang, lang_as_iso639_1
 
@@ -97,6 +98,12 @@ class Convert(object):
         paras = []
 
         self.log.debug('Converting Word markup to HTML')
+
+        # If we are doing an index, do the body part of the processing here.
+        # We need to insert bookmarks at the indexed locations before the
+        # main conversion work.
+        # index = Index(self)
+
         self.read_page_properties(doc)
         self.current_rels = relationships_by_id
         for wp, page_properties in self.page_map.iteritems():
@@ -105,6 +112,7 @@ class Convert(object):
                 p = self.convert_p(wp)
                 self.body.append(p)
                 paras.append(wp)
+
         self.read_block_anchors(doc)
         self.styles.apply_contextual_spacing(paras)
         # Apply page breaks at the start of every section, except the first
@@ -160,6 +168,9 @@ class Convert(object):
         self.images.rid_map = orig_rid_map
 
         self.resolve_links()
+
+        # For an index, we now want to append the index object
+        # index.generate()
 
         self.styles.cascade(self.layers)
 
