@@ -22,7 +22,8 @@ from calibre.utils.zipfile import ZipFile
 from calibre.ebooks.oeb.parse_utils import RECOVER_PARSER
 
 def fromstring(raw, parser=RECOVER_PARSER):
-    return etree.fromstring(raw, parser=parser)
+    res = etree.fromstring(raw, parser=parser)
+    return res
 
 # Read metadata {{{
 def read_doc_props(raw, mi):
