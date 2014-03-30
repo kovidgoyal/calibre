@@ -12,7 +12,7 @@ from calibre import prints
 from calibre.utils.ipc import eintr_retry_call
 
 PROMPT = b'(debug) '
-MSG = b'\x00\x01\x02'
+QUESTION = b'\x00\x01\x02'
 
 class RemotePdb(pdb.Pdb):
 
@@ -32,15 +32,15 @@ class RemotePdb(pdb.Pdb):
         pdb.Pdb.__init__(self, completekey='tab', stdin=self.handle, stdout=self.handle, skip=skip)
         self.prompt = PROMPT
 
-    def send_message(self, *args, **kwargs):
+    def prints(self, *args, **kwargs):
         kwargs['file'] = self.handle
-        self.handle.write(MSG)
         prints(*args, **kwargs)
-        self.handle.write(PROMPT)
-        self.handle.flush()
 
     def ask_question(self, query):
-        self.send_message(query, end='')
+        self.handle.write(QUESTION)
+        self.prints(query, end='')
+        self.handle.write(PROMPT)
+        self.handle.flush()
         return self.handle.readline()
 
     def end_session(self, *args):
@@ -59,7 +59,7 @@ class RemotePdb(pdb.Pdb):
             ans = self.ask_question("Clear all breaks? [y/n]: ")
             if ans.strip().lower() in {b'y', b'yes'}:
                 self.clear_all_breaks()
-                self.send_message('All breaks cleared')
+                self.prints('All breaks cleared')
             return
         return pdb.Pdb.do_clear(self, arg)
     do_cl = do_clear
@@ -105,21 +105,18 @@ def cli(port=4444):
                     return
                 recvd += buf
             if recvd:
-                if recvd.startswith(MSG):
-                    recvd = recvd[len(MSG):-len(PROMPT)]
+                if recvd.startswith(QUESTION):
+                    recvd = recvd[len(QUESTION):-len(PROMPT)]
                 sys.stdout.write(recvd)
             buf = []
             raw = b''
             try:
-                while not raw.endswith(b'\n'):
-                    raw += sys.stdin.read(1)
-                    if not raw:  # EOF (Ctrl+D)
-                        raw = b'quit\n'
-                        break
-                eintr_retry_call(sock.send, raw)
-            except KeyboardInterrupt:
-                eintr_retry_call(sock.send, b'quit\n')
-                continue
+                raw = raw_input() + b'\n'
+            except (EOFError, KeyboardInterrupt):
+                pass
+            if not raw:
+                raw = b'quit\n'
+            eintr_retry_call(sock.send, raw)
     except KeyboardInterrupt:
         pass
 
