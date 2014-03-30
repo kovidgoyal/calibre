@@ -28,11 +28,11 @@ from calibre.ebooks.docx.theme import Theme
 from calibre.ebooks.docx.toc import create_toc
 from calibre.ebooks.docx.fields import Fields
 from calibre.ebooks.docx.settings import Settings
-# from calibre.ebooks.docx.index import Index
 from calibre.ebooks.metadata.opf2 import OPFCreator
 from calibre.utils.localization import canonicalize_lang, lang_as_iso639_1
 
 NBSP = '\xa0'
+TEST_INDEX = 'CALIBRE_TEST_INDEX' in os.environ
 
 class Text:
 
@@ -99,10 +99,9 @@ class Convert(object):
 
         self.log.debug('Converting Word markup to HTML')
 
-        # If we are doing an index, do the body part of the processing here.
-        # We need to insert bookmarks at the indexed locations before the
-        # main conversion work.
-        # index = Index(self)
+        if TEST_INDEX:
+            from calibre.ebooks.docx.index import Index
+            self.index = Index(self.fields)
 
         self.read_page_properties(doc)
         self.current_rels = relationships_by_id
@@ -169,8 +168,8 @@ class Convert(object):
 
         self.resolve_links()
 
-        # For an index, we now want to append the index object
-        # index.generate()
+        if TEST_INDEX:
+            self.index.generate()
 
         self.styles.cascade(self.layers)
 
