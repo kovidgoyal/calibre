@@ -509,7 +509,7 @@ class Boss(QObject):
 
     def update_global_history_actions(self):
         gu = self.global_undo
-        for x, text in (('undo', _('&Revert to')), ('redo', '&Revert to')):
+        for x, text in (('undo', _('&Revert to')), ('redo', _('&Revert to'))):
             ac = getattr(self.gui, 'action_global_%s' % x)
             ac.setEnabled(getattr(gu, 'can_' + x))
             ac.setText(text + ' "%s"'%(getattr(gu, x + '_msg') or '...'))
