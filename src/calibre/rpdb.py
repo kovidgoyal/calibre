@@ -91,7 +91,7 @@ def set_trace(port=4444, skip=None):
         traceback.print_exc()
 
 def cli(port=4444):
-    prints('Connecting to remote process on port %d...' % port)
+    prints('Connecting to remote debugger on port %d...' % port)
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     for i in xrange(20):
         try:
@@ -104,7 +104,7 @@ def cli(port=4444):
         try:
             sock.connect(('127.0.0.1', port))
         except socket.error as err:
-            prints(err, file=sys.stderr)
+            prints('Failed to connect to remote debugger:', err, file=sys.stderr)
             raise SystemExit(1)
     prints('Connected to remote process')
     import readline
@@ -144,3 +144,5 @@ def cli(port=4444):
     except KeyboardInterrupt:
         pass
 
+if __name__ == '__main__':
+    cli()
