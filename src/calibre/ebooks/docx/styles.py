@@ -465,6 +465,7 @@ class Styles(object):
 
             span.tab { white-space: pre }
 
+            p.index-entry { text-indent: 0pt; }
             p.index-entry a:visited { color: blue }
             p.index-entry a:hover { color: red }
 

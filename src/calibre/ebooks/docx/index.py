@@ -8,6 +8,8 @@ __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
 from operator import itemgetter
 
+from lxml import etree
+
 from calibre.ebooks.docx.names import XPath, expand
 from calibre.utils.icu import partition_by_first_letter, sort_key
 
@@ -117,9 +119,56 @@ def process_index(field, index, xe_fields, log):
 
     return hyperlinks, blocks
 
+def split_up_block(block, a, text, prefix_map):
+    parts = filter(None, (x.strip() for x in text.split(':')))
+    if len(parts) < 2:
+        return
+    prefix_map[block] = prefix = parts[:-1]
+    a.text = parts[-1]
+    parent = a.getparent()
+    style = 'display:block; margin-left: %.3gem'
+    for i, prefix in enumerate(prefix):
+        m = 1.5 * i
+        span = parent.makeelement('span', style=style % m)
+        parent.append(span)
+        span.text = prefix
+    span = parent.makeelement('span', style=style % ((i + 1) * 1.5))
+    parent.append(span)
+    span.append(a)
+
+def merge_blocks(prev_block, next_block, prefix=False):
+    pa, na = prev_block.xpath('descendant::a'), next_block.xpath('descendant::a[1]')
+    if not pa or not na:
+        return
+    pa, na = pa[-1], na[0]
+    if prefix:
+        ps, ns = pa.getparent(), na.getparent()
+        p = ps.getparent()
+        p.insert(p.index(ps) + 1, ns)
+    else:
+        pa.tail = ', '
+        p = pa.getparent()
+        p.insert(p.index(pa) + 1, na)
+    next_block.getparent().remove(next_block)
+
 def polish_index_markup(index, blocks):
-    # prev_block = prev_text = None
+    text_map, prefix_map, a_map = {}, {}, {}
     for block in blocks:
-        cls = block.get('class', '')
+        cls = block.get('class', '') or ''
         block.set('class', (cls + ' index-entry').lstrip())
+        a = block.xpath('descendant::a[1]')
+        text = ''
+        if a:
+            text = etree.tostring(a[0], method='text', with_tail=False, encoding=unicode).strip()
+        text_map[block] = text
+        if ':' in text:
+            split_up_block(block, a[0], text, prefix_map)
+
+    prev_block = None
+    for block in blocks:
+        if text_map[block] == text_map.get(prev_block, None):
+            merge_blocks(prev_block, block)
+        if block in prefix_map and prefix_map[block] == prefix_map.get(prev_block, None):
+            merge_blocks(prev_block, block, prefix=True)
+        prev_block = block
 
