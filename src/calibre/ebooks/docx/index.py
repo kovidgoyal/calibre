@@ -117,4 +117,9 @@ def process_index(field, index, xe_fields, log):
 
     return hyperlinks, blocks
 
+def polish_index_markup(index, blocks):
+    # prev_block = prev_text = None
+    for block in blocks:
+        cls = block.get('class', '')
+        block.set('class', (cls + ' index-entry').lstrip())
 

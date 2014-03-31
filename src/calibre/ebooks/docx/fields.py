@@ -8,7 +8,7 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import re
 
-from calibre.ebooks.docx.index import process_index
+from calibre.ebooks.docx.index import process_index, polish_index_markup
 from calibre.ebooks.docx.names import XPath, get, namespaces
 
 class Field(object):
@@ -183,6 +183,13 @@ class Fields(object):
             self.hyperlink_fields.append(({'anchor':anchor}, [run]))
 
         self.index_fields.append((idx, blocks))
+
+    def polish_markup(self, object_map):
+        if not self.index_fields:
+            return
+        rmap = {v:k for k, v in object_map.iteritems()}
+        for idx, blocks in self.index_fields:
+            polish_index_markup(idx, [rmap[b] for b in blocks])
 
 def test_parse_fields():
     import unittest

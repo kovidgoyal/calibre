@@ -465,6 +465,9 @@ class Styles(object):
 
             span.tab { white-space: pre }
 
+            p.index-entry a:visited { color: blue }
+            p.index-entry a:hover { color: red }
+
             ''') % (self.body_font_family, self.body_font_size, self.body_color)
         if ef:
             prefix = ef + '\n' + prefix
