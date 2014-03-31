@@ -3,7 +3,7 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 import sys, logging, os, traceback, time
 
 from PyQt4.QtGui import QKeySequence, QPainter, QDialog, QSpinBox, QSlider, QIcon
-from PyQt4.QtCore import Qt, QObject, SIGNAL, QCoreApplication, QThread
+from PyQt4.QtCore import Qt, QCoreApplication, QThread
 
 from calibre import __appname__, setup_cli_handlers, islinux, isbsd
 from calibre.ebooks.lrf.lrfparser import LRFDocument
@@ -58,9 +58,8 @@ class Main(MainWindow, Ui_MainWindow):
 
     def create_document(self):
         self.document = Document(self.logger, self.opts)
-        QObject.connect(self.document, SIGNAL('chapter_rendered(int)'), self.chapter_rendered)
-        QObject.connect(self.document, SIGNAL('page_changed(PyQt_PyObject)'), self.page_changed)
-
+        self.document.chapter_rendered.connect(self.chapter_rendered)
+        self.document.page_changed.connect(self.page_changed)
 
     def __init__(self, logger, opts, parent=None):
         MainWindow.__init__(self, opts, parent)
@@ -87,23 +86,21 @@ class Main(MainWindow, Ui_MainWindow):
         self.action_previous_page.setShortcuts([QKeySequence.MoveToPreviousPage, QKeySequence(Qt.Key_Backspace)])
         self.action_next_match.setShortcuts(QKeySequence.FindNext)
         self.addAction(self.action_next_match)
-        QObject.connect(self.action_next_page, SIGNAL('triggered(bool)'), self.next)
-        QObject.connect(self.action_previous_page, SIGNAL('triggered(bool)'), self.previous)
-        QObject.connect(self.action_back, SIGNAL('triggered(bool)'), self.back)
-        QObject.connect(self.action_forward, SIGNAL('triggered(bool)'), self.forward)
-        QObject.connect(self.action_next_match, SIGNAL('triggered(bool)'), self.next_match)
-        QObject.connect(self.action_open_ebook, SIGNAL('triggered(bool)'), self.open_ebook)
-        QObject.connect(self.action_configure, SIGNAL('triggered(bool)'), self.configure)
-        QObject.connect(self.spin_box, SIGNAL('valueChanged(int)'), self.go_to_page)
-        QObject.connect(self.slider, SIGNAL('valueChanged(int)'), self.go_to_page)
-
+        self.action_next_page.triggered[(bool)].connect(self.next)
+        self.action_previous_page.triggered[(bool)].connect(self.previous)
+        self.action_back.triggered[(bool)].connect(self.back)
+        self.action_forward.triggered[(bool)].connect(self.forward)
+        self.action_next_match.triggered[(bool)].connect(self.next_match)
+        self.action_open_ebook.triggered[(bool)].connect(self.open_ebook)
+        self.action_configure.triggered[(bool)].connect(self.configure)
+        self.spin_box.valueChanged[(int)].connect(self.go_to_page)
+        self.slider.valueChanged[(int)].connect(self.go_to_page)
 
         self.graphics_view.setRenderHint(QPainter.Antialiasing, True)
         self.graphics_view.setRenderHint(QPainter.TextAntialiasing, True)
         self.graphics_view.setRenderHint(QPainter.SmoothPixmapTransform, True)
 
         self.closed = False
-
 
     def configure(self, triggered):
         opts = config['LRF_ebook_viewer_options']
@@ -126,7 +123,7 @@ class Main(MainWindow, Ui_MainWindow):
             self.file_name = os.path.basename(stream.name) if hasattr(stream, 'name') else ''
             self.progress_label.setText('Parsing '+ self.file_name)
             self.renderer = RenderWorker(self, stream, self.logger, self.opts)
-            QObject.connect(self.renderer, SIGNAL('finished()'), self.parsed, Qt.QueuedConnection)
+            self.renderer.finished.connect(self.parsed, type=Qt.QueuedConnection)
             self.search.clear()
             self.last_search = None
         else:
@@ -141,7 +138,6 @@ class Main(MainWindow, Ui_MainWindow):
             file = files[0]
             self.set_ebook(open(file, 'rb'))
             self.render()
-
 
     def page_changed(self, num):
         self.slider.setValue(num)
@@ -249,7 +245,6 @@ class Main(MainWindow, Ui_MainWindow):
         if self.renderer is not None and self.renderer.isRunning():
             self.renderer.abort()
             self.renderer.wait()
-        self.emit(SIGNAL('viewer_closed(PyQt_PyObject)'), self)
         event.accept()
 
 
@@ -259,7 +254,7 @@ def file_renderer(stream, opts, parent=None, logger=None):
         logger = logging.getLogger('lrfviewer')
         setup_cli_handlers(logger, level)
     if islinux or isbsd:
-        try: # Set lrfviewer as the default for LRF files for this user
+        try:  # Set lrfviewer as the default for LRF files for this user
             from subprocess import call
             call('xdg-mime default calibre-lrfviewer.desktop application/lrf', shell=True)
         except:

@@ -17,10 +17,9 @@ from calibre.utils.icu import sort_key
 
 from catalog_epub_mobi_ui import Ui_Form
 from PyQt4.Qt import (Qt, QAbstractItemView, QCheckBox, QComboBox,
-        QDoubleSpinBox, QIcon, QInputDialog, QLineEdit, QObject, QRadioButton,
+        QDoubleSpinBox, QIcon, QInputDialog, QLineEdit, QRadioButton,
         QSize, QSizePolicy, QTableWidget, QTableWidgetItem, QTextEdit, QToolButton,
-        QUrl, QVBoxLayout, QWidget,
-        SIGNAL)
+        QUrl, QVBoxLayout, QWidget)
 
 class PluginWidget(QWidget,Ui_Form):
 
@@ -906,7 +905,7 @@ class GenericRulesTable(QTableWidget):
         self._init_controls()
 
         # Hook check_box changes
-        QObject.connect(self, SIGNAL('cellChanged(int,int)'), self.enabled_state_changed)
+        self.cellChanged.connect(self.enabled_state_changed)
 
     def _init_controls(self):
         # Add the control set

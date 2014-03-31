@@ -2,7 +2,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 import collections, itertools, glob
 
-from PyQt4.QtCore import Qt, QByteArray, SIGNAL
+from PyQt4.QtCore import Qt, QByteArray, pyqtSignal
 from PyQt4.QtGui import QGraphicsRectItem, QGraphicsScene, QPen, \
                         QBrush, QColor, QFontDatabase, \
                         QGraphicsItem, QGraphicsLineItem
@@ -15,10 +15,12 @@ from calibre.ebooks.lrf.objects import Canvas as __Canvas
 
 
 class Color(QColor):
+
     def __init__(self, color):
         QColor.__init__(self, color.r, color.g, color.b, 0xff-color.a)
 
 class Pen(QPen):
+
     def __init__(self, color, width):
         QPen.__init__(self, QBrush(Color(color)), width,
                       (Qt.SolidLine if width > 0 else Qt.NoPen))
@@ -104,13 +106,13 @@ class _Canvas(QGraphicsRectItem):
 
     def layout_text_block(self, block, x, y):
         textwidth = block.bs.blockwidth - block.bs.sidemargin
-        if block.max_y == 0 or not block.lines: # Empty block skipping
+        if block.max_y == 0 or not block.lines:  # Empty block skipping
             self.is_full = False
             return
         line = block.peek()
         y += block.bs.topskip
         block_consumed = False
-        line.height = min(line.height, self.max_y-block.bs.topskip) # LRF files from TOR have Plot elements with their height set to 800
+        line.height = min(line.height, self.max_y-block.bs.topskip)  # LRF files from TOR have Plot elements with their height set to 800
         while y + line.height <= self.max_y:
             block.commit()
             if isinstance(line, QGraphicsItem):
@@ -122,7 +124,7 @@ class _Canvas(QGraphicsRectItem):
             if not block.has_content:
                 try:
                     y += block.bs.footskip
-                except AttributeError: # makelrf generates BlockStyles without footskip
+                except AttributeError:  # makelrf generates BlockStyles without footskip
                     pass
                 block_consumed = True
                 break
@@ -178,7 +180,6 @@ class _Canvas(QGraphicsRectItem):
         return matches
 
 
-
 class Canvas(_Canvas, ContentObject):
 
     def __init__(self, font_loader, canvas, logger, opts, ruby_tags, link_activated, width=0, height=0):
@@ -210,6 +211,7 @@ class Canvas(_Canvas, ContentObject):
         _Canvas.layout_block(self, block, x, y)
 
 class Header(Canvas):
+
     def __init__(self, font_loader, header, page_style, logger, opts, ruby_tags, link_activated):
         Canvas.__init__(self, font_loader, header, logger, opts, ruby_tags, link_activated,
                         page_style.textwidth,  page_style.headheight)
@@ -217,6 +219,7 @@ class Header(Canvas):
             self.setPen(QPen(Qt.blue, 1, Qt.DashLine))
 
 class Footer(Canvas):
+
     def __init__(self, font_loader, footer, page_style, logger, opts, ruby_tags, link_activated):
         Canvas.__init__(self, font_loader, footer, logger, opts, ruby_tags, link_activated,
                         page_style.textwidth, page_style.footheight)
@@ -291,7 +294,6 @@ class Page(_Canvas):
         self.layout_block(block, 0, self.current_y)
 
 
-
 class Chapter(object):
 
     num_of_pages = property(fget=lambda self: len(self.pages))
@@ -325,12 +327,14 @@ class History(collections.deque):
         self.pos = 0
 
     def back(self):
-        if self.pos - 1 < 0: return None
+        if self.pos - 1 < 0:
+            return None
         self.pos -= 1
         return self[self.pos]
 
     def forward(self):
-        if self.pos + 1 >= len(self): return None
+        if self.pos + 1 >= len(self):
+            return None
         self.pos += 1
         return self[self.pos]
 
@@ -341,10 +345,11 @@ class History(collections.deque):
         self.pos += 1
 
 
-
 class Document(QGraphicsScene):
 
     num_of_pages = property(fget=lambda self: sum(self.chapter_layout))
+    chapter_rendered = pyqtSignal(object)
+    page_changed = pyqtSignal(object)
 
     def __init__(self, logger, opts):
         QGraphicsScene.__init__(self)
@@ -364,7 +369,7 @@ class Document(QGraphicsScene):
     def page_of(self, oid):
         for chapter in self.chapters:
             if oid in chapter.object_to_page_map:
-                return  chapter.object_to_page_map[oid]
+                return chapter.object_to_page_map[oid]
 
     def get_page_num(self, chapterid, objid):
         cnum = self.chapter_map[chapterid]
@@ -388,7 +393,6 @@ class Document(QGraphicsScene):
             jb = self.objects[objid]
             self.link_map[objid] = (jb.refpage, jb.refobj)
 
-
     def back(self):
         oid = self.history.back()
         if oid is not None:
@@ -400,7 +404,6 @@ class Document(QGraphicsScene):
         if oid is not None:
             page = self.page_of(oid)
             self.show_page(page)
-
 
     def load_fonts(self, lrf, load_substitutions=True):
         font_map = {}
@@ -417,7 +420,6 @@ class Document(QGraphicsScene):
                 QFontDatabase.addApplicationFont(f)
 
         self.font_loader = FontLoader(font_map, self.dpi)
-
 
     def render_chapter(self, chapter, lrf):
         oddscreen, evenscreen = Screen(self.font_loader, chapter, True, self.logger, self.opts, self.ruby_tags, self.link_activated), \
@@ -442,7 +444,6 @@ class Document(QGraphicsScene):
         self.chapters.append(Chapter(oddscreen, evenscreen, pages, object_to_page_map))
         self.chapter_map[chapter.id] = len(self.chapters)-1
 
-
     def render(self, lrf, load_substitutions=True):
         self.dpi = lrf.device_info.dpi/10.
         self.ruby_tags = dict(**lrf.ruby_tags)
@@ -453,13 +454,12 @@ class Document(QGraphicsScene):
         for pt in lrf.page_trees:
             for chapter in pt:
                 num_chaps += 1
-        self.emit(SIGNAL('chapter_rendered(int)'), num_chaps)
+        self.chapter_rendered.emit(num_chaps)
 
         for pt in lrf.page_trees:
             for chapter in pt:
                 self.render_chapter(chapter, lrf)
-
-                self.emit(SIGNAL('chapter_rendered(int)'), -1)
+                self.chapter_rendered.emit(-1)
         self.chapter_layout = [i.num_of_pages for i in self.chapters]
         self.objects = None
 
@@ -485,8 +485,7 @@ class Document(QGraphicsScene):
             self.addItem(self.current_screen)
 
         self.current_screen.set_page(page)
-        self.emit(SIGNAL('page_changed(PyQt_PyObject)'), self.current_page)
-
+        self.page_changed.emit(self.current_page)
 
     def next(self):
         self.next_by(1)

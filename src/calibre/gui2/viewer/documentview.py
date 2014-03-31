@@ -8,7 +8,7 @@ import os, math, json
 from base64 import b64encode
 from functools import partial
 
-from PyQt4.Qt import (QSize, QSizePolicy, QUrl, SIGNAL, Qt, pyqtProperty,
+from PyQt4.Qt import (QSize, QSizePolicy, QUrl, Qt, pyqtProperty,
         QPainter, QPalette, QBrush, QDialog, QColor, QPoint, QImage, QRegion,
         QIcon, pyqtSignature, QAction, QMenu, QString, pyqtSignal,
         QApplication, pyqtSlot)
@@ -48,6 +48,7 @@ class Document(QWebPage):  # {{{
     page_turn = pyqtSignal(object)
     mark_element = pyqtSignal(QWebElement)
     settings_changed = pyqtSignal()
+    animated_scroll_done_signal = pyqtSignal()
 
     def set_font_settings(self, opts):
         settings = self.settings()
@@ -206,7 +207,7 @@ class Document(QWebPage):  # {{{
 
     @pyqtSignature("")
     def animated_scroll_done(self):
-        self.emit(SIGNAL('animated_scroll_done()'))
+        self.animated_scroll_done_signal.emit()
 
     @property
     def hyphenatable(self):
@@ -513,11 +514,10 @@ class DocumentView(QWebView):  # {{{
         self._ignore_scrollbar_signals = False
         self.loading_url = None
         self.loadFinished.connect(self.load_finished)
-        self.connect(self.document, SIGNAL('linkClicked(QUrl)'), self.link_clicked)
-        self.connect(self.document, SIGNAL('linkHovered(QString,QString,QString)'), self.link_hovered)
-        self.connect(self.document, SIGNAL('selectionChanged()'), self.selection_changed)
-        self.connect(self.document, SIGNAL('animated_scroll_done()'),
-                self.animated_scroll_done, Qt.QueuedConnection)
+        self.document.linkClicked.connect(self.link_clicked)
+        self.document.linkHovered.connect(self.link_hovered)
+        self.document.selectionChanged[()].connect(self.selection_changed)
+        self.document.animated_scroll_done_signal.connect(self.animated_scroll_done, type=Qt.QueuedConnection)
         self.document.page_turn.connect(self.page_turn_requested)
         copy_action = self.pageAction(self.document.Copy)
         copy_action.setIcon(QIcon(I('convert.png')))
@@ -755,7 +755,7 @@ class DocumentView(QWebView):  # {{{
     def set_manager(self, manager):
         self.manager = manager
         self.scrollbar = manager.horizontal_scrollbar
-        self.connect(self.scrollbar, SIGNAL('valueChanged(int)'), self.scroll_horizontally)
+        self.scrollbar.valueChanged[(int)].connect(self.scroll_horizontally)
 
     def scroll_horizontally(self, amount):
         self.document.scroll_to(y=self.document.ypos, x=amount)

@@ -2,7 +2,7 @@ __license__   = 'GPL v3'
 
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
-from PyQt4.QtCore import SIGNAL, Qt
+from PyQt4.QtCore import Qt
 from PyQt4.QtGui import QDialog, QIcon, QListWidgetItem
 
 from calibre.gui2.dialogs.tag_categories_ui import Ui_TagCategories
@@ -12,6 +12,7 @@ from calibre.constants import islinux
 from calibre.utils.icu import sort_key, strcmp
 
 class Item:
+
     def __init__(self, name, label, index, icon, exists):
         self.name = name
         self.label = label
@@ -22,6 +23,7 @@ class Item:
         return 'name=%s, label=%s, index=%s, exists='%(self.name, self.label, self.index, self.exists)
 
 class TagCategories(QDialog, Ui_TagCategories):
+
     '''
     The structure of user_categories stored in preferences is
       {cat_name: [ [name, category, v], [], []}, cat_name [ [name, cat, v] ...}
@@ -125,10 +127,8 @@ class TagCategories(QDialog, Ui_TagCategories):
         if islinux:
             self.available_items_box.itemDoubleClicked.connect(self.apply_tags)
         else:
-            self.connect(self.available_items_box,
-                         SIGNAL('itemActivated(QListWidgetItem*)'), self.apply_tags)
-        self.connect(self.applied_items_box,
-                     SIGNAL('itemActivated(QListWidgetItem*)'), self.unapply_tags)
+            self.available_items_box.itemActivated.connect(self.apply_tags)
+        self.applied_items_box.itemActivated.connect(self.unapply_tags)
 
         self.populate_category_list()
         if on_category is not None:
@@ -195,7 +195,7 @@ class TagCategories(QDialog, Ui_TagCategories):
             return False
         for c in sorted(self.categories.keys(), key=sort_key):
             if strcmp(c, cat_name) == 0 or \
-                    (icu_lower(cat_name).startswith(icu_lower(c) + '.') and\
+                    (icu_lower(cat_name).startswith(icu_lower(c) + '.') and
                      not cat_name.startswith(c + '.')):
                 error_dialog(self, _('Name already used'),
                         _('That name is already used, perhaps with different case.')).exec_()

@@ -9,7 +9,7 @@ from functools import partial
 
 from PyQt4.Qt import (QComboBox, QLabel, QSpinBox, QDoubleSpinBox, QDateTimeEdit,
         QDateTime, QGroupBox, QVBoxLayout, QSizePolicy, QGridLayout,
-        QSpacerItem, QIcon, QCheckBox, QWidget, QHBoxLayout, SIGNAL,
+        QSpacerItem, QIcon, QCheckBox, QWidget, QHBoxLayout,
         QPushButton, QMessageBox, QToolButton, Qt)
 
 from calibre.utils.date import qt_to_dt, now, as_local_time, as_utc
@@ -975,7 +975,7 @@ class RemoveTags(QWidget):
         layout.addWidget(self.checkbox)
         layout.addStretch(1)
         self.setLayout(layout)
-        self.connect(self.checkbox, SIGNAL('stateChanged(int)'), self.box_touched)
+        self.checkbox.stateChanged[int].connect(self.box_touched)
 
     def box_touched(self, state):
         if state:

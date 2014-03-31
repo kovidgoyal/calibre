@@ -7,7 +7,7 @@ import os, traceback, Queue, time, cStringIO, re, sys, weakref
 from threading import Thread, Event
 
 from PyQt4.Qt import (
-    QMenu, QAction, QActionGroup, QIcon, SIGNAL, Qt, pyqtSignal, QDialog,
+    QMenu, QAction, QActionGroup, QIcon, Qt, pyqtSignal, QDialog,
     QObject, QVBoxLayout, QDialogButtonBox, QCursor, QCoreApplication,
     QApplication, QEventLoop)
 
@@ -695,6 +695,7 @@ class DeviceMenu(QMenu):  # {{{
 
     fetch_annotations = pyqtSignal()
     disconnect_mounted_device = pyqtSignal()
+    sync = pyqtSignal(object, object, object)
 
     def __init__(self, parent=None):
         QMenu.__init__(self, parent)
@@ -805,8 +806,7 @@ class DeviceMenu(QMenu):  # {{{
         action.setChecked(True)
 
     def action_triggered(self, action):
-        self.emit(SIGNAL('sync(PyQt_PyObject, PyQt_PyObject, PyQt_PyObject)'),
-                action.dest, action.delete, action.specific)
+        self.sync.emit(action.dest, action.delete, action.specific)
 
     def trigger_default(self, *args):
         r = config['default_send_to_device_action']
@@ -973,9 +973,7 @@ class DeviceMixin(object):  # {{{
         self._sync_menu = DeviceMenu(self)
         self.iactions['Send To Device'].qaction.setMenu(self._sync_menu)
         self.iactions['Connect Share'].build_email_entries()
-        self.connect(self._sync_menu,
-                SIGNAL('sync(PyQt_PyObject, PyQt_PyObject, PyQt_PyObject)'),
-                self.dispatch_sync_event)
+        self._sync_menu.sync.connect(self.dispatch_sync_event)
         self._sync_menu.fetch_annotations.connect(
                 self.iactions['Fetch Annotations'].fetch_annotations)
         self._sync_menu.disconnect_mounted_device.connect(self.disconnect_mounted_device)

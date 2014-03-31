@@ -8,7 +8,7 @@ import re, os
 from PyQt4.Qt import (QIcon, QFont, QLabel, QListWidget, QAction,
         QListWidgetItem, QTextCharFormat, QApplication, QSyntaxHighlighter,
         QCursor, QColor, QWidget, QPixmap, QSplitterHandle, QToolButton,
-        QVariant, Qt, SIGNAL, pyqtSignal, QRegExp, QSize, QSplitter, QPainter,
+        QVariant, Qt, pyqtSignal, QRegExp, QSize, QSplitter, QPainter,
         QLineEdit, QComboBox, QPen, QGraphicsScene, QMenu, QStringListModel,
         QCompleter, QStringList, QTimer, QRect, QGraphicsView, QByteArray)
 
@@ -65,8 +65,9 @@ class FilenamePattern(QWidget, Ui_Form):  # {{{
         QWidget.__init__(self, parent)
         self.setupUi(self)
 
-        self.connect(self.test_button, SIGNAL('clicked()'), self.do_test)
-        self.connect(self.re.lineEdit(), SIGNAL('returnPressed()'), self.do_test)
+        self.test_button.clicked[()].connect(self.do_test)
+        self.re.lineEdit().returnPressed[()].connect(self.do_test)
+        self.filename.returnPressed[()].connect(self.do_test)
         self.re.lineEdit().textChanged.connect(lambda x: self.changed_signal.emit())
 
     def initialize(self, defaults=False):
@@ -428,11 +429,11 @@ class LineEditECM(object):  # {{{
         action_title_case = case_menu.addAction(_('Title Case'))
         action_capitalize = case_menu.addAction(_('Capitalize'))
 
-        self.connect(action_upper_case, SIGNAL('triggered()'), self.upper_case)
-        self.connect(action_lower_case, SIGNAL('triggered()'), self.lower_case)
-        self.connect(action_swap_case, SIGNAL('triggered()'), self.swap_case)
-        self.connect(action_title_case, SIGNAL('triggered()'), self.title_case)
-        self.connect(action_capitalize, SIGNAL('triggered()'), self.capitalize)
+        action_upper_case.triggered[()].connect(self.upper_case)
+        action_lower_case.triggered[()].connect(self.lower_case)
+        action_swap_case.triggered[()].connect(self.swap_case)
+        action_title_case.triggered[()].connect(self.title_case)
+        action_capitalize.triggered[()].connect(self.capitalize)
 
         menu.addMenu(case_menu)
         menu.exec_(event.globalPos())
@@ -506,16 +507,12 @@ class CompleteLineEdit(EnLineEdit):  # {{{
         self.separator = sep
         self.space_before_sep = space_before_sep
 
-        self.connect(self, SIGNAL('textChanged(QString)'), self.text_changed)
+        self.textChanged.connect(self.text_changed)
 
         self.completer = ItemsCompleter(self, complete_items)
         self.completer.setCaseSensitivity(Qt.CaseInsensitive)
 
-        self.connect(self,
-            SIGNAL('text_changed(PyQt_PyObject, PyQt_PyObject)'),
-            self.completer.update)
-        self.connect(self.completer, SIGNAL('activated(QString)'),
-            self.complete_text)
+        self.completer.activated[str].connect(self.complete_text)
 
         self.completer.setWidget(self)
 
@@ -539,9 +536,7 @@ class CompleteLineEdit(EnLineEdit):  # {{{
             if t1 != '':
                 text_items.append(t)
         text_items = list(set(text_items))
-
-        self.emit(SIGNAL('text_changed(PyQt_PyObject, PyQt_PyObject)'),
-            text_items, prefix)
+        self.completer.update(text_items, prefix)
 
     def complete_text(self, text):
         cursor_pos = self.cursorPosition()

@@ -1,7 +1,7 @@
 __license__   = 'GPL v3'
 __copyright__ = '2011, John Schember <john@nachtimwald.com>'
 
-from PyQt4.Qt import QDialog, QTreeWidgetItem, QIcon, SIGNAL
+from PyQt4.Qt import QDialog, QTreeWidgetItem, QIcon, QModelIndex
 
 from calibre.gui2 import file_icon_provider
 from calibre.gui2.dialogs.choose_format_device_ui import Ui_ChooseFormatDeviceDialog
@@ -20,8 +20,7 @@ class ChooseFormatDeviceDialog(QDialog, Ui_ChooseFormatDeviceDialog):
         QDialog.__init__(self, window)
         Ui_ChooseFormatDeviceDialog.__init__(self)
         self.setupUi(self)
-        self.connect(self.formats, SIGNAL('activated(QModelIndex)'),
-                self.activated_slot)
+        self.formats.activated[QModelIndex].connect(self.activated_slot)
 
         self.msg.setText(msg)
         for i, (format, exists, convertible) in enumerate(formats):

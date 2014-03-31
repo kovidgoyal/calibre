@@ -8,8 +8,6 @@ __docformat__ = 'restructuredtext en'
 
 import os
 
-from PyQt4.Qt import SIGNAL
-
 from calibre.gui2.convert.debug_ui import Ui_Form
 from calibre.gui2.convert import Widget
 from calibre.gui2 import error_dialog, choose_dir
@@ -27,10 +25,8 @@ class DebugWidget(Widget, Ui_Form):
                 )
         self.db, self.book_id = db, book_id
         self.initialize_options(get_option, get_help, db, book_id)
-        self.connect(self.button_debug_dir, SIGNAL('clicked()'),
-                self.set_debug_dir)
-        self.connect(self.button_clear, SIGNAL('clicked()'),
-                self.clear_debug_dir)
+        self.button_debug_dir.clicked[()].connect(self.set_debug_dir)
+        self.button_clear.clicked[()].connect(self.clear_debug_dir)
 
     def clear_debug_dir(self):
         self.opt_debug_pipeline.setText('')

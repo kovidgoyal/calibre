@@ -8,7 +8,7 @@ Render HTML tables as images.
 '''
 import os, tempfile, atexit, shutil
 from PyQt4.Qt import QUrl, QApplication, QSize, QEventLoop, \
-                     SIGNAL, QPainter, QImage, QObject, Qt
+                     QPainter, QImage, QObject, Qt
 from PyQt4.QtWebKit import QWebPage
 
 class HTMLTableRenderer(QObject):
@@ -27,11 +27,10 @@ class HTMLTableRenderer(QObject):
         self.tdir = tempfile.mkdtemp(prefix='calibre_render_table')
         self.loop = QEventLoop()
         self.page = QWebPage()
-        self.connect(self.page, SIGNAL('loadFinished(bool)'), self.render_html)
+        self.page.loadFinished.connect(self.render_html)
         self.page.mainFrame().setTextSizeMultiplier(factor)
         self.page.mainFrame().setHtml(html,
                                 QUrl('file:'+os.path.abspath(self.base_dir)))
-
 
     def render_html(self, ok):
         try:

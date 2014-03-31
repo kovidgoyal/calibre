@@ -4,7 +4,7 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 import os, sys, Queue, threading, glob
 from threading import RLock
 from urllib import unquote
-from PyQt4.Qt import (QVariant, QFileInfo, QObject, SIGNAL, QBuffer, Qt,
+from PyQt4.Qt import (QVariant, QFileInfo, QObject, QBuffer, Qt,
                     QByteArray, QTranslator, QCoreApplication, QThread,
                     QEvent, QTimer, pyqtSignal, QDateTime, QDesktopServices,
                     QFileDialog, QFileIconProvider, QSettings, QColor,
@@ -442,20 +442,21 @@ class GetMetadata(QObject):
     GUI thread. Must be instantiated in the GUI thread.
     '''
 
+    edispatch = pyqtSignal(object, object, object)
+    idispatch = pyqtSignal(object, object, object)
+    metadataf = pyqtSignal(object, object)
+    metadata  = pyqtSignal(object, object)
+
     def __init__(self):
         QObject.__init__(self)
-        self.connect(self, SIGNAL('edispatch(PyQt_PyObject, PyQt_PyObject, PyQt_PyObject)'),
-                     self._get_metadata, Qt.QueuedConnection)
-        self.connect(self, SIGNAL('idispatch(PyQt_PyObject, PyQt_PyObject, PyQt_PyObject)'),
-                     self._from_formats, Qt.QueuedConnection)
+        self.edispatch.connect(self._get_metadata, type=Qt.QueuedConnection)
+        self.idispatch.connect(self._from_formats, type=Qt.QueuedConnection)
 
     def __call__(self, id, *args, **kwargs):
-        self.emit(SIGNAL('edispatch(PyQt_PyObject, PyQt_PyObject, PyQt_PyObject)'),
-                  id, args, kwargs)
+        self.edispatch.emit(id, args, kwargs)
 
     def from_formats(self, id, *args, **kwargs):
-        self.emit(SIGNAL('idispatch(PyQt_PyObject, PyQt_PyObject, PyQt_PyObject)'),
-                  id, args, kwargs)
+        self.idispatch.emit(id, args, kwargs)
 
     def _from_formats(self, id, args, kwargs):
         from calibre.ebooks.metadata.meta import metadata_from_formats
@@ -463,7 +464,7 @@ class GetMetadata(QObject):
             mi = metadata_from_formats(*args, **kwargs)
         except:
             mi = MetaInformation('', [_('Unknown')])
-        self.emit(SIGNAL('metadataf(PyQt_PyObject, PyQt_PyObject)'), id, mi)
+        self.metadataf.emit(id, mi)
 
     def _get_metadata(self, id, args, kwargs):
         from calibre.ebooks.metadata.meta import get_metadata
@@ -471,7 +472,7 @@ class GetMetadata(QObject):
             mi = get_metadata(*args, **kwargs)
         except:
             mi = MetaInformation('', [_('Unknown')])
-        self.emit(SIGNAL('metadata(PyQt_PyObject, PyQt_PyObject)'), id, mi)
+        self.metadata.emit(id, mi)
 
 class FileIconProvider(QFileIconProvider):
 

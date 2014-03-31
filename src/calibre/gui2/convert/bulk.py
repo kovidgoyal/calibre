@@ -6,7 +6,7 @@ __docformat__ = 'restructuredtext en'
 
 import shutil
 
-from PyQt4.Qt import QString, SIGNAL
+from PyQt4.Qt import QString, QModelIndex
 
 from calibre.gui2.convert.single import (Config, sort_formats_by_preference,
     GroupModel, gprefs, get_output_formats)
@@ -42,14 +42,10 @@ class BulkConfig(Config):
             'values saved in a previous conversion (if they exist) instead '
             'of using the defaults specified in the Preferences'))
 
-        self.connect(self.output_formats, SIGNAL('currentIndexChanged(QString)'),
-                self.setup_pipeline)
-        self.connect(self.groups, SIGNAL('activated(QModelIndex)'),
-                self.show_pane)
-        self.connect(self.groups, SIGNAL('clicked(QModelIndex)'),
-                self.show_pane)
-        self.connect(self.groups, SIGNAL('entered(QModelIndex)'),
-                self.show_group_help)
+        self.output_formats.currentIndexChanged[str].connect(self.setup_pipeline)
+        self.groups.activated[(QModelIndex)].connect(self.show_pane)
+        self.groups.clicked[(QModelIndex)].connect(self.show_pane)
+        self.groups.entered[(QModelIndex)].connect(self.show_group_help)
         rb = self.buttonBox.button(self.buttonBox.RestoreDefaults)
         rb.setVisible(False)
         self.groups.setMouseTracking(True)
@@ -103,8 +99,7 @@ class BulkConfig(Config):
             widgets.append(output_widget)
         for w in widgets:
             self.stack.addWidget(w)
-            self.connect(w, SIGNAL('set_help(PyQt_PyObject)'),
-                    self.help.setPlainText)
+            w.set_help_signal.connect(self.help.setPlainText)
 
         self._groups_model = GroupModel(widgets)
         self.groups.setModel(self._groups_model)

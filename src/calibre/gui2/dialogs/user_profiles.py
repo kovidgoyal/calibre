@@ -3,8 +3,7 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import time, os
 
-from PyQt4.Qt import SIGNAL, QUrl, QAbstractListModel, Qt, \
-        QVariant, QFont
+from PyQt4.Qt import (QUrl, QAbstractListModel, Qt, QVariant, QFont)
 
 from calibre.web.feeds.recipes import compile_recipe, custom_recipes
 from calibre.web.feeds.news import AutomaticNewsRecipe
@@ -87,23 +86,19 @@ class UserProfiles(ResizableDialog, Ui_Dialog):
         f.setStyleHint(f.Monospace)
         self.source_code.setFont(f)
 
-        self.connect(self.remove_feed_button, SIGNAL('clicked(bool)'),
-                     self.added_feeds.remove_selected_items)
-        self.connect(self.remove_profile_button, SIGNAL('clicked(bool)'),
-                     self.remove_selected_items)
-        self.connect(self.add_feed_button, SIGNAL('clicked(bool)'),
-                     self.add_feed)
-        self.connect(self.load_button, SIGNAL('clicked()'), self.load)
-        self.connect(self.builtin_recipe_button, SIGNAL('clicked()'), self.add_builtin_recipe)
-        self.connect(self.share_button, SIGNAL('clicked()'), self.share)
+        self.remove_feed_button.clicked[(bool)].connect(self.added_feeds.remove_selected_items)
+        self.remove_profile_button.clicked[(bool)].connect(self.remove_selected_items)
+        self.add_feed_button.clicked[(bool)].connect(self.add_feed)
+        self.load_button.clicked[()].connect(self.load)
+        self.builtin_recipe_button.clicked[()].connect(self.add_builtin_recipe)
+        self.share_button.clicked[()].connect(self.share)
         self.show_recipe_files_button.clicked.connect(self.show_recipe_files)
-        self.connect(self.down_button, SIGNAL('clicked()'), self.down)
-        self.connect(self.up_button, SIGNAL('clicked()'), self.up)
-        self.connect(self.add_profile_button, SIGNAL('clicked(bool)'),
-                     self.add_profile)
-        self.connect(self.feed_url, SIGNAL('returnPressed()'), self.add_feed)
-        self.connect(self.feed_title, SIGNAL('returnPressed()'), self.add_feed)
-        self.connect(self.toggle_mode_button, SIGNAL('clicked(bool)'), self.toggle_mode)
+        self.down_button.clicked[()].connect(self.down)
+        self.up_button.clicked[()].connect(self.up)
+        self.add_profile_button.clicked[(bool)].connect(self.add_profile)
+        self.feed_url.returnPressed[()].connect(self.add_feed)
+        self.feed_title.returnPressed[()].connect(self.add_feed)
+        self.toggle_mode_button.clicked[(bool)].connect(self.toggle_mode)
         self.clear()
 
     def show_recipe_files(self, *args):
@@ -156,9 +151,9 @@ class UserProfiles(ResizableDialog, Ui_Dialog):
         url.addQueryItem('attachment', pt.name)
         open_url(url)
 
-
     def current_changed(self, current, previous):
-        if not current.isValid(): return
+        if not current.isValid():
+            return
         src = self._model.script(current)
         if src is None:
             return
@@ -185,7 +180,6 @@ class UserProfiles(ResizableDialog, Ui_Dialog):
                 src = self.options_to_profile()[0].replace('AutomaticNewsRecipe', 'BasicNewsRecipe')
                 self.source_code.setPlainText(src.replace('BasicUserRecipe', 'AdvancedUserRecipe'))
                 self.highlighter = PythonHighlighter(self.source_code.document())
-
 
     def add_feed(self, *args):
         title = unicode(self.feed_title.text()).strip()
@@ -230,7 +224,6 @@ class %(classname)s(%(base_class)s):
                  max_articles=max_articles,
                  base_class='AutomaticNewsRecipe')
         return src, title
-
 
     def populate_source_code(self):
         src = self.options_to_profile().replace('BasicUserRecipe', 'AdvancedUserRecipe')
@@ -328,7 +321,6 @@ class %(classname)s(%(base_class)s):
 
         self.clear()
 
-
     def load(self):
         files = choose_files(self, 'recipe loader dialog',
             _('Choose a recipe file'),
@@ -364,7 +356,6 @@ class %(classname)s(%(base_class)s):
             self.added_feeds.add_item(title+' - '+url, (title, url))
         self.feed_title.setText('')
         self.feed_url.setText('')
-
 
     def clear(self):
         self.populate_options(AutomaticNewsRecipe)

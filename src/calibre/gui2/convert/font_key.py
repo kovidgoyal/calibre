@@ -6,7 +6,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-from PyQt4.Qt import QDialog, SIGNAL
+from PyQt4.Qt import QDialog
 
 from calibre.gui2.convert.font_key_ui import Ui_Dialog
 
@@ -18,17 +18,13 @@ class FontKeyChooser(QDialog, Ui_Dialog):
 
         self.default_font_key       = font_key
         self.default_base_font_size = base_font_size
-        self.connect(self.buttonBox, SIGNAL('clicked(QAbstractButton*)'),
-                self.button_clicked)
-        self.connect(self.button_use_default, SIGNAL('clicked()'),
-                self.use_default)
+        self.buttonBox.clicked.connect(self.button_clicked)
+        self.button_use_default.clicked[()].connect(self.use_default)
 
         for x in ('input_base_font_size', 'input_font_size',
                 'output_base_font_size'):
-            self.connect(getattr(self, x), SIGNAL('valueChanged(double)'),
-                    self.calculate)
-        self.connect(self.font_size_key, SIGNAL('textChanged(QString)'),
-                    self.calculate)
+            getattr(self, x).valueChanged.connect(self.calculate)
+        self.font_size_key.textChanged.connect(self.calculate)
 
         self.initialize()
 

@@ -15,7 +15,7 @@ from threading import Thread
 from collections import OrderedDict
 
 import apsw
-from PyQt4.Qt import (Qt, SIGNAL, QTimer, QHelpEvent, QAction,
+from PyQt4.Qt import (Qt, QTimer, QHelpEvent, QAction,
                      QMenu, QIcon, pyqtSignal, QUrl, QFont,
                      QDialog, QSystemTrayIcon, QApplication)
 
@@ -197,8 +197,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
         self.must_restart_before_config = False
         self.listener = Listener(listener)
         self.check_messages_timer = QTimer()
-        self.connect(self.check_messages_timer, SIGNAL('timeout()'),
-                self.another_instance_wants_to_talk)
+        self.check_messages_timer.timeout.connect(self.another_instance_wants_to_talk)
         self.check_messages_timer.start(1000)
 
         for ac in self.iactions.values():
@@ -259,10 +258,9 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
         self.keyboard.register_shortcut('quit calibre', _('Quit calibre'),
                 default_keys=('Ctrl+Q',), action=self.quit_action)
         self.system_tray_icon.setContextMenu(self.system_tray_menu)
-        self.connect(self.quit_action, SIGNAL('triggered(bool)'), self.quit)
-        self.connect(self.donate_action, SIGNAL('triggered(bool)'), self.donate)
-        self.connect(self.restore_action, SIGNAL('triggered()'),
-                        self.show_windows)
+        self.quit_action.triggered[bool].connect(self.quit)
+        self.donate_action.triggered[bool].connect(self.donate)
+        self.restore_action.triggered.connect(self.show_windows)
         self.system_tray_icon.activated.connect(
             self.system_tray_icon_activated)
 
@@ -508,7 +506,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
                 window.hide()
                 setattr(window, '__systray_minimized', True)
 
-    def show_windows(self):
+    def show_windows(self, *args):
         for window in QApplication.topLevelWidgets():
             if getattr(window, '__systray_minimized', False):
                 window.show()

@@ -48,7 +48,7 @@ class Widget(QWidget):
     STRIP_TEXT_FIELDS = True
 
     changed_signal = pyqtSignal()
-    set_help = pyqtSignal(object)
+    set_help_signal = pyqtSignal(object)
 
     def __init__(self, parent, options):
         QWidget.__init__(self, parent)
@@ -238,7 +238,7 @@ class Widget(QWidget):
     def set_help(self, msg):
         if msg and getattr(msg, 'strip', lambda:True)():
             try:
-                self.set_help.emit(msg)
+                self.set_help_signal.emit(msg)
             except:
                 pass
 

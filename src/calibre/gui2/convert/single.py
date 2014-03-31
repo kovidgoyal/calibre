@@ -8,7 +8,7 @@ __docformat__ = 'restructuredtext en'
 
 import cPickle, shutil
 
-from PyQt4.Qt import QString, SIGNAL, QAbstractListModel, Qt, QVariant, QFont
+from PyQt4.Qt import QString, QAbstractListModel, Qt, QVariant, QFont, QModelIndex
 
 from calibre.gui2 import ResizableDialog, NONE, gprefs
 from calibre.ebooks.conversion.config import (GuiRecommendations, save_specifics,
@@ -150,19 +150,14 @@ class Config(ResizableDialog, Ui_Dialog):
                 preferred_output_format)
         self.setup_pipeline()
 
-        self.connect(self.input_formats, SIGNAL('currentIndexChanged(QString)'),
-                self.setup_pipeline)
-        self.connect(self.output_formats, SIGNAL('currentIndexChanged(QString)'),
-                self.setup_pipeline)
-        self.connect(self.groups, SIGNAL('activated(QModelIndex)'),
-                self.show_pane)
-        self.connect(self.groups, SIGNAL('clicked(QModelIndex)'),
-                self.show_pane)
-        self.connect(self.groups, SIGNAL('entered(QModelIndex)'),
-                self.show_group_help)
+        self.input_formats.currentIndexChanged[str].connect(self.setup_pipeline)
+        self.output_formats.currentIndexChanged[str].connect(self.setup_pipeline)
+        self.groups.activated[(QModelIndex)].connect(self.show_pane)
+        self.groups.clicked[(QModelIndex)].connect(self.show_pane)
+        self.groups.entered[(QModelIndex)].connect(self.show_group_help)
         rb = self.buttonBox.button(self.buttonBox.RestoreDefaults)
         rb.setText(_('Restore &Defaults'))
-        self.connect(rb, SIGNAL('clicked()'), self.restore_defaults)
+        rb.clicked[()].connect(self.restore_defaults)
         self.groups.setMouseTracking(True)
         geom = gprefs.get('convert_single_dialog_geom', None)
         if geom:
@@ -235,8 +230,7 @@ class Config(ResizableDialog, Ui_Dialog):
         widgets.append(debug)
         for w in widgets:
             self.stack.addWidget(w)
-            self.connect(w, SIGNAL('set_help(PyQt_PyObject)'),
-                    self.help.setPlainText)
+            w.set_help_signal.connect(self.help.setPlainText)
 
         self._groups_model = GroupModel(widgets)
         self.groups.setModel(self._groups_model)

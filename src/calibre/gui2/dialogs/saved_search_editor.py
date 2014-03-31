@@ -3,7 +3,6 @@ __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
 
-from PyQt4.QtCore import SIGNAL
 from PyQt4.QtGui import QDialog
 
 from calibre.gui2.dialogs.saved_search_editor_ui import Ui_SavedSearchEditor
@@ -20,10 +19,9 @@ class SavedSearchEditor(QDialog, Ui_SavedSearchEditor):
         Ui_SavedSearchEditor.__init__(self)
         self.setupUi(self)
 
-        self.connect(self.add_search_button, SIGNAL('clicked()'), self.add_search)
-        self.connect(self.search_name_box, SIGNAL('currentIndexChanged(int)'),
-                                    self.current_index_changed)
-        self.connect(self.delete_search_button, SIGNAL('clicked()'), self.del_search)
+        self.add_search_button.clicked[()].connect(self.add_search)
+        self.search_name_box.currentIndexChanged[(int)].connect(self.current_index_changed)
+        self.delete_search_button.clicked[()].connect(self.del_search)
         self.rename_button.clicked.connect(self.rename_search)
 
         self.current_search_name = None

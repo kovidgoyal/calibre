@@ -6,7 +6,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-from PyQt4.Qt import Qt, QAbstractListModel, QVariant, SIGNAL
+from PyQt4.Qt import Qt, QAbstractListModel, QVariant, QModelIndex
 
 from calibre.gui2.convert.page_setup_ui import Ui_Form
 from calibre.gui2.convert import Widget
@@ -59,7 +59,7 @@ class PageSetupWidget(Widget, Ui_Form):
 
         for x in (self.opt_input_profile, self.opt_output_profile):
             x.setMouseTracking(True)
-            self.connect(x, SIGNAL('entered(QModelIndex)'), self.show_desc)
+            x.entered[(QModelIndex)].connect(self.show_desc)
         self.initialize_options(get_option, get_help, db, book_id)
         it = unicode(self.opt_input_profile.toolTip())
         self.opt_input_profile.setToolTip('<p>'+it.replace('t.','t.\n<br>'))

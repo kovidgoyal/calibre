@@ -8,7 +8,7 @@ __docformat__ = 'restructuredtext en'
 
 import os, re
 
-from PyQt4.Qt import QPixmap, SIGNAL
+from PyQt4.Qt import QPixmap
 
 from calibre.gui2 import choose_images, error_dialog
 from calibre.gui2.convert.metadata_ui import Ui_Form
@@ -59,7 +59,7 @@ class MetadataWidget(Widget, Ui_Form):
         if self.db is not None:
             self.initialize_metadata_options()
         self.initialize_options(get_option, get_help, db, book_id)
-        self.connect(self.cover_button, SIGNAL("clicked()"), self.select_cover)
+        self.cover_button.clicked[()].connect(self.select_cover)
         self.comment.hide_toolbars()
         self.cover.cover_changed.connect(self.change_cover)
 

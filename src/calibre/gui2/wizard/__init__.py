@@ -12,7 +12,7 @@ from contextlib import closing
 
 
 from PyQt4.Qt import (QWizard, QWizardPage, QPixmap, Qt, QAbstractListModel,
-    QVariant, QItemSelectionModel, SIGNAL, QObject, QTimer, pyqtSignal)
+    QVariant, QItemSelectionModel, QObject, QTimer, pyqtSignal, QItemSelection)
 from calibre import __appname__, patheq
 from calibre.library.move import MoveLibrary
 from calibre.constants import (filesystem_encoding, iswindows, plugins,
@@ -479,7 +479,7 @@ class StanzaPage(QWizardPage, StanzaUI):
     def __init__(self):
         QWizardPage.__init__(self)
         self.setupUi(self)
-        self.connect(self.content_server, SIGNAL('stateChanged(int)'), self.set_port)
+        self.content_server.stateChanged[(int)].connect(self.set_port)
 
     def initializePage(self):
         from calibre.gui2 import config
@@ -548,9 +548,7 @@ class DevicePage(QWizardPage, DeviceUI):
         self.device_view.setModel(self.dev_model)
         self.device_view.selectionModel().select(idx,
                 QItemSelectionModel.Select)
-        self.connect(self.manufacturer_view.selectionModel(),
-                SIGNAL('selectionChanged(QItemSelection,QItemSelection)'),
-                self.manufacturer_changed)
+        self.manufacturer_view.selectionModel().selectionChanged[(QItemSelection, QItemSelection)].connect(self.manufacturer_changed)
 
     def manufacturer_changed(self, current, previous):
         new = list(current.indexes())[0]
@@ -591,7 +589,7 @@ class MoveMonitor(QObject):
         self.dialog.setModal(True)
         self.dialog.show()
         self.timer = QTimer(self)
-        self.connect(self.timer, SIGNAL('timeout()'), self.check)
+        self.timer.timeout.connect(self.check)
         self.timer.start(200)
 
     def check(self):
@@ -682,14 +680,13 @@ class LibraryPage(QWizardPage, LibraryUI):
         QWizardPage.__init__(self)
         self.setupUi(self)
         self.registerField('library_location', self.location)
-        self.connect(self.button_change, SIGNAL('clicked()'), self.change)
+        self.button_change.clicked[()].connect(self.change)
         self.init_languages()
         self.language.currentIndexChanged[int].connect(self.change_language)
-        self.connect(self.location, SIGNAL('textChanged(QString)'),
-                self.location_text_changed)
+        self.location.textChanged.connect(self.location_text_changed)
 
     def location_text_changed(self, newtext):
-        self.emit(SIGNAL('completeChanged()'))
+        self.completeChanged.emit()
 
     def init_languages(self):
         self.language.blockSignals(True)
