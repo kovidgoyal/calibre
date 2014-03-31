@@ -9,20 +9,27 @@ Updated Cover (drMerry)
 2014-03-28
 Update by Armin Geller
 news.cnet.com
+further updated by Bonni Salles
+My updates use the current rss feeds for CNet and eliminates extraneous areas and
+sets the oldest_article to 1 as the feed generally has the present day and one day before.
+You may want to set it to download daily for this reason.
 '''
 
 from calibre.web.feeds.news import BasicNewsRecipe
 
 class CnetNews(BasicNewsRecipe):
     title                 = 'CNET News'
-    __author__            = 'Darko Miletic updated by DrMerry.'
-    description           = 'Tech news and business reports by CNET News. Focused on information technology, core topics include computers, hardware, software, networking, and Internet media.'
+    __author__            = 'Darko Miletic updated by DrMerry and further updated by Bonni Salles'
+    description           = 'Tech news and business reports by CNET News. Focused on information technology, core topics include computers, hardware, software, networking, and Internet media.'  # noqa
     publisher             = 'CNET'
     category              = 'news, IT, USA'
     encoding              = 'utf-8'  # AGe 2014-03-28
     language              = 'en'  # AGe 2014-03-28
     oldest_article        = 7
     max_articles_per_feed = 100
+    ignore_duplicate_articles = {'title', 'url'}
+    remove_empty_feeds    = True
+    use_embedded_content  = False
 
     cover_url = 'http://reviews.cnet.com/i/ff/wp/logo_cnet.gif'
 
@@ -34,14 +41,29 @@ class CnetNews(BasicNewsRecipe):
                         }
 
     remove_tags = [  # AGe 2014-03-28, new
-                    dict(name='div', attrs={'class':'row controls'}),
+                    dict(name='nav', attrs={'id':'primaryNav'}),
+                    dict(name='nav', attrs={'id':'footerMap'}),
+                    dict(name='section', attrs={'class':'dontMissRight'}),
                     dict(name='ul', attrs={'class':'sharebar inline-view'}),
-                    dict(name='div', attrs={'id':'ob_holder'}),
-                    dict(name='span', attrs={'class':'author-social'}),
+                    dict(name='div', attrs={'id':'livefyreContainer'}),
+                    dict(name='div', attrs={'class':'productList ReviewListing'}),
+                    dict(name='div', attrs={'class':'col-4'}),
+                    dict(name='div', attrs={'id':'legal'}),
                   ]
 
-    keep_only_tags = dict(name='article', attrs={'id':'article-body'})  # AGe 2014-03-28
+    remove_tags_before = dict(name='article', id="article-body")
 
     feeds = [
-             (u'News', u'http://news.cnet.com/2547-1_3-0-20.xml'),
+             # (u'All of CNET', u'http://www.cnet.com/rss/all/'),
+             (u'CNET News', u'http://www.cnet.com/rss/news/'),
+             (u'CNET Reviews', u'http://www.cnet.com/rss/reviews/'),
+             (u'CNET Video', u'http://www.cnet.com/rss/video/'),
+             (u'CNET How To', u'http://www.cnet.com/rss/how-to/'),
+             (u'CNET Deals', u'http://www.cnet.com/rss/deals/'),
+             (u'CNET iPhone Update', u'http://www.cnet.com/rss/iphone-update/'),
+             (u'CNET Crave', u'http://www.cnet.com/rss/crave/'),
+             (u'CNET Car Tech', u'http://www.cnet.com/rss/car-tech/'),
+             (u'CNET Android Update', u'http://www.cnet.com/rss/android-update/'),
+             (u'CNET Gaming', u'http://www.cnet.com/rss/gaming/'),
+             (u'CNET Cheapskate', u'http://www.cnet.com/rss/cheapskate/'),
             ]
