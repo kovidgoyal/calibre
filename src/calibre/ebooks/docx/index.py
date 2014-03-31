@@ -119,11 +119,8 @@ def process_index(field, index, xe_fields, log):
 
     return hyperlinks, blocks
 
-def split_up_block(block, a, text, prefix_map):
-    parts = filter(None, (x.strip() for x in text.split(':')))
-    if len(parts) < 2:
-        return
-    prefix_map[block] = prefix = parts[:-1]
+def split_up_block(block, a, text, parts):
+    prefix = parts[:-1]
     a.text = parts[-1]
     parent = a.getparent()
     style = 'display:block; margin-left: %.3gem'
@@ -136,23 +133,25 @@ def split_up_block(block, a, text, prefix_map):
     parent.append(span)
     span.append(a)
 
-def merge_blocks(prev_block, next_block, prefix=False):
+def merge_blocks(prev_block, next_block, prev_path, next_path):
     pa, na = prev_block.xpath('descendant::a'), next_block.xpath('descendant::a[1]')
     if not pa or not na:
         return
     pa, na = pa[-1], na[0]
-    if prefix:
-        ps, ns = pa.getparent(), na.getparent()
-        p = ps.getparent()
-        p.insert(p.index(ps) + 1, ns)
-    else:
+    if prev_path == next_path:
+        # Put on same line with a comma
         pa.tail = ', '
         p = pa.getparent()
         p.insert(p.index(pa) + 1, na)
+    else:
+        # Add a line to the previous block
+        ps, ns = pa.getparent(), na.getparent()
+        p = ps.getparent()
+        p.insert(p.index(ps) + 1, ns)
     next_block.getparent().remove(next_block)
 
 def polish_index_markup(index, blocks):
-    text_map, prefix_map, a_map = {}, {}, {}
+    path_map = {}
     for block in blocks:
         cls = block.get('class', '') or ''
         block.set('class', (cls + ' index-entry').lstrip())
@@ -160,15 +159,23 @@ def polish_index_markup(index, blocks):
         text = ''
         if a:
             text = etree.tostring(a[0], method='text', with_tail=False, encoding=unicode).strip()
-        text_map[block] = text
         if ':' in text:
-            split_up_block(block, a[0], text, prefix_map)
+            path_map[block] = parts = filter(None, (x.strip() for x in text.split(':')))
+            if len(parts) > 1:
+                split_up_block(block, a[0], text, parts)
+        else:
+            path_map[block] = [text]
 
-    prev_block = None
-    for block in blocks:
-        if text_map[block] == text_map.get(prev_block, None):
-            merge_blocks(prev_block, block)
-        if block in prefix_map and prefix_map[block] == prefix_map.get(prev_block, None):
-            merge_blocks(prev_block, block, prefix=True)
+    prev_block = blocks[0]
+    for block in blocks[1:]:
+        pp, pn = path_map[prev_block], path_map[block]
+        if pp == pn:
+            merge_blocks(prev_block, block, pp, pn)
+        elif len(pp) > 1 and len(pn) >= len(pp):
+            if pn[:-1] in (pp[:-1], pp):
+                merge_blocks(prev_block, block, pp, pn)
+            # It's possible to have pn starting with pp but having more
+            # than one extra entry, but until I see that in the wild, I'm not
+            # going to bother
         prev_block = block
 
