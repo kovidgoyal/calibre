@@ -1382,15 +1382,6 @@ class StoreChitankaStore(StoreBase):
     headquarters = 'BG'
     formats = ['FB2', 'EPUB', 'TXT', 'SFB']
 
-class StoreDieselEbooksStore(StoreBase):
-    name = 'Diesel eBooks'
-    description = u'Instant access to over 2.4 million titles from hundreds of publishers including Harlequin, HarperCollins, John Wiley & Sons, McGraw-Hill, Simon & Schuster and Random House.'  # noqa
-    actual_plugin = 'calibre.gui2.store.stores.diesel_ebooks_plugin:DieselEbooksStore'
-
-    headquarters = 'US'
-    formats = ['EPUB', 'PDF']
-    affiliate = True
-
 class StoreEbookNLStore(StoreBase):
     name = 'eBook.nl'
     description = u'De eBookwinkel van Nederland'
@@ -1720,7 +1711,6 @@ plugins += [
     StoreBiblioStore,
     StoreChitankaStore,
     StoreCdpStore,
-    StoreDieselEbooksStore,
     StoreEbookNLStore,
     StoreEbookpointStore,
     StoreEbookscomStore,
