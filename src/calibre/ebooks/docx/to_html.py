@@ -26,7 +26,7 @@ from calibre.ebooks.docx.footnotes import Footnotes
 from calibre.ebooks.docx.cleanup import cleanup_markup
 from calibre.ebooks.docx.theme import Theme
 from calibre.ebooks.docx.toc import create_toc
-from calibre.ebooks.docx.fields import Fields, TEST_INDEX
+from calibre.ebooks.docx.fields import Fields
 from calibre.ebooks.docx.settings import Settings
 from calibre.ebooks.metadata.opf2 import OPFCreator
 from calibre.utils.localization import canonicalize_lang, lang_as_iso639_1
@@ -98,10 +98,6 @@ class Convert(object):
 
         self.log.debug('Converting Word markup to HTML')
 
-        if TEST_INDEX:
-            from calibre.ebooks.docx.index import Index
-            self.index = Index(self.fields)
-
         self.read_page_properties(doc)
         self.current_rels = relationships_by_id
         for wp, page_properties in self.page_map.iteritems():
@@ -166,9 +162,6 @@ class Convert(object):
         self.images.rid_map = orig_rid_map
 
         self.resolve_links()
-
-        if TEST_INDEX:
-            self.index.generate()
 
         self.styles.cascade(self.layers)
 

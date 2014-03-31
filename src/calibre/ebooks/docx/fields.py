@@ -8,6 +8,7 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import re, os
 
+from calibre.ebooks.docx.index import process_index
 from calibre.ebooks.docx.names import XPath, get, namespaces
 TEST_INDEX = 'CALIBRE_TEST_INDEX' in os.environ
 
@@ -82,7 +83,7 @@ parse_xe = parser('xe',
 parse_index = parser('index',
     'b:bookmark c:columns-per-page d:sequence-separator e:first-page-number-separator'
     ' f:entry-type g:page-range-separator h:heading k:crossref-separator'
-    ' p:page-number-separator r:run-together y:yomi z:langcode')
+    ' l:page-number-separator p:letter-range s:sequence-name r:run-together y:yomi z:langcode')
 
 class Fields(object):
 
@@ -173,15 +174,20 @@ class Fields(object):
             bm = p.makeelement(WORD('bookmarkEnd'))
             bm.set(WORD('id'), bmark)
             p.insert(p.index(field.end) + 1, bm)
+            xe['start_elem'] = field.start
             self.xe_fields.append(xe)
 
     def parse_index(self, field, parse_func, log):
-        # Parse Index fields
         if not TEST_INDEX:
             return
+        if not field.contents:
+            return
         idx = parse_func(field.instructions, log)
-        # TODO: parse the field contents
-        self.index_fields.append(idx)
+        hyperlinks, blocks = process_index(field, idx, self.xe_fields, log)
+        for anchor, run in hyperlinks:
+            self.hyperlink_fields.append(({'anchor':anchor}, [run]))
+
+        self.index_fields.append((idx, blocks))
 
 def test_parse_fields():
     import unittest
