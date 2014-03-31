@@ -818,13 +818,14 @@ class PluginWidget(QWidget,Ui_Form):
         open_url(QUrl('http://manual.calibre-ebook.com/catalogs.html'))
 
 class CheckableTableWidgetItem(QTableWidgetItem):
+
     '''
     Borrowed from kiwidude
     '''
 
     def __init__(self, checked=False, is_tristate=False):
         QTableWidgetItem.__init__(self, '')
-        self.setFlags(Qt.ItemFlags(Qt.ItemIsSelectable | Qt.ItemIsUserCheckable | Qt.ItemIsEnabled ))
+        self.setFlags(Qt.ItemFlags(Qt.ItemIsSelectable | Qt.ItemIsUserCheckable | Qt.ItemIsEnabled))
         if is_tristate:
             self.setFlags(self.flags() | Qt.ItemIsTristate)
         if checked:
@@ -847,12 +848,13 @@ class CheckableTableWidgetItem(QTableWidgetItem):
 
 class NoWheelComboBox(QComboBox):
 
-    def wheelEvent (self, event):
+    def wheelEvent(self, event):
         # Disable the mouse wheel on top of the combo box changing selection as plays havoc in a grid
         event.ignore()
 
 class ComboBox(NoWheelComboBox):
     # Caller is responsible for providing the list in the preferred order
+
     def __init__(self, parent, items, selected_text,insert_blank=True):
         NoWheelComboBox.__init__(self, parent)
         self.populate_combo(items, selected_text, insert_blank)
@@ -868,6 +870,7 @@ class ComboBox(NoWheelComboBox):
             self.setCurrentIndex(0)
 
 class GenericRulesTable(QTableWidget):
+
     '''
     Generic methods for managing rows in a QTableWidget
     '''
@@ -888,7 +891,7 @@ class GenericRulesTable(QTableWidget):
         sizePolicy = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Minimum)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
-        #sizePolicy.setHeightForWidth(self.sizePolicy().hasHeightForWidth())
+        # sizePolicy.setHeightForWidth(self.sizePolicy().hasHeightForWidth())
         self.setSizePolicy(sizePolicy)
         self.setMaximumSize(QSize(16777215, self.MAXIMUM_TABLE_HEIGHT))
 
@@ -1163,7 +1166,7 @@ class GenericRulesTable(QTableWidget):
 
 class ExclusionRules(GenericRulesTable):
 
-    COLUMNS = { 'ENABLED':{'ordinal': 0, 'name': ''},
+    COLUMNS = {'ENABLED':{'ordinal': 0, 'name': ''},
                 'NAME':   {'ordinal': 1, 'name': _('Name')},
                 'FIELD':  {'ordinal': 2, 'name': _('Field')},
                 'PATTERN':  {'ordinal': 3, 'name': _('Value')},}
@@ -1175,7 +1178,7 @@ class ExclusionRules(GenericRulesTable):
         self._initialize()
 
     def _init_table_widget(self):
-        header_labels = [self.COLUMNS[index]['name'] \
+        header_labels = [self.COLUMNS[index]['name']
             for index in sorted(self.COLUMNS.keys(), key=lambda c: self.COLUMNS[c]['ordinal'])]
         self.setColumnCount(len(header_labels))
         self.setHorizontalHeaderLabels(header_labels)
@@ -1254,7 +1257,7 @@ class ExclusionRules(GenericRulesTable):
 
 class PrefixRules(GenericRulesTable):
 
-    COLUMNS = { 'ENABLED':{'ordinal': 0, 'name': ''},
+    COLUMNS = {'ENABLED':{'ordinal': 0, 'name': ''},
                 'NAME':   {'ordinal': 1, 'name': _('Name')},
                 'PREFIX': {'ordinal': 2, 'name': _('Prefix')},
                 'FIELD':  {'ordinal': 3, 'name': _('Field')},
@@ -1267,7 +1270,7 @@ class PrefixRules(GenericRulesTable):
         self._initialize()
 
     def _init_table_widget(self):
-        header_labels = [self.COLUMNS[index]['name'] \
+        header_labels = [self.COLUMNS[index]['name']
             for index in sorted(self.COLUMNS.keys(), key=lambda c: self.COLUMNS[c]['ordinal'])]
         self.setColumnCount(len(header_labels))
         self.setHorizontalHeaderLabels(header_labels)
