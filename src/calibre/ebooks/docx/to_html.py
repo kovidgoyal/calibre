@@ -26,13 +26,12 @@ from calibre.ebooks.docx.footnotes import Footnotes
 from calibre.ebooks.docx.cleanup import cleanup_markup
 from calibre.ebooks.docx.theme import Theme
 from calibre.ebooks.docx.toc import create_toc
-from calibre.ebooks.docx.fields import Fields
+from calibre.ebooks.docx.fields import Fields, TEST_INDEX
 from calibre.ebooks.docx.settings import Settings
 from calibre.ebooks.metadata.opf2 import OPFCreator
 from calibre.utils.localization import canonicalize_lang, lang_as_iso639_1
 
 NBSP = '\xa0'
-TEST_INDEX = 'CALIBRE_TEST_INDEX' in os.environ
 
 class Text:
 

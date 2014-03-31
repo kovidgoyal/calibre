@@ -6,9 +6,10 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import re
+import re, os, uuid
 
-from calibre.ebooks.docx.names import XPath, get
+from calibre.ebooks.docx.names import XPath, get, namespaces
+TEST_INDEX = 'CALIBRE_TEST_INDEX' in os.environ
 
 class Field(object):
 
@@ -41,6 +42,9 @@ scanner = re.Scanner([
 ], flags=re.DOTALL)
 
 null = object()
+
+def WORD(x):
+    return '{%s}%s' % (namespaces['w'], x)
 
 def parser(name, field_map, default_field_name=None):
 
@@ -84,6 +88,8 @@ class Fields(object):
 
     def __init__(self):
         self.fields = []
+        self.bookmark_counter = 0
+        self.bookmark_prefix = str(uuid.uuid4())
 
     def __call__(self, doc, log):
         stack = []
@@ -144,13 +150,30 @@ class Fields(object):
 
     def parse_xe(self, field, parse_func, log):
         # Parse XE fields
+        if not TEST_INDEX:
+            return
+        if None in (field.start, field.end):
+            return
         xe = parse_func(field.instructions, log)
         if xe:
-            # TODO: parse the field contents
+            # We insert a synthetic bookmark around this index item so that we
+            # can link to it later
+            self.bookmark_counter += 1
+            bmark = xe['anchor'] = '%s-%d' % (self.bookmark_prefix, self.bookmark_counter)
+            p = field.start.getparent()
+            bm = p.makeelement(WORD('bookmarkStart'))
+            bm.set(WORD('id'), bmark), bm.set(WORD('name'), bmark)
+            p.insert(p.index(field.start), bm)
+            p = field.end.getparent()
+            bm = p.makeelement(WORD('bookmarkEnd'))
+            bm.set(WORD('id'), bmark)
+            p.insert(p.index(field.end) + 1, bm)
             self.xe_fields.append(xe)
 
     def parse_index(self, field, parse_func, log):
         # Parse Index fields
+        if not TEST_INDEX:
+            return
         idx = parse_func(field.instructions, log)
         # TODO: parse the field contents
         self.index_fields.append(idx)
