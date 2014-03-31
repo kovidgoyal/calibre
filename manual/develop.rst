@@ -39,7 +39,7 @@ All the |app| python code is in the ``calibre`` package. This package contains t
 
     * devices - All the device drivers. Just look through some of the built-in drivers to get an idea for how they work.
 
-      * For details, see: devices.interface which defines the interface supported by device drivers and ``devices.usbms`` which
+      * For details, see: ``devices.interface`` which defines the interface supported by device drivers and ``devices.usbms`` which
         defines a generic driver that connects to a USBMS device. All USBMS based drivers in |app| inherit from it.
 
     * ebooks  - All the ebook conversion/metadata code. A good starting point is ``calibre.ebooks.conversion.cli`` which is the
@@ -64,6 +64,10 @@ All the |app| python code is in the ``calibre`` package. This package contains t
     * db - The database back-end. See ``db.cache`` for the interface to the |app| library. With a DB object you can access this API via ``db.new_api``. The db object itself exposes a legacy API that should not be used in new code. The legacy API is in ``library.database2``.
     * content server: ``library.server`` is the |app| Content Server.
     * gui2 - The Graphical User Interface. GUI initialization happens in ``gui2.main`` and ``gui2.ui``. The ebook-viewer is in ``gui2.viewer``. The ebook editor is in ``gui2.tweak_book``.
+
+If you want to locate the entry points for all the various |app| executables,
+look at the ``entry_points`` structure in `linux.py
+<https://github.com/kovidgoyal/calibre/blob/master/src/calibre/linux.py>`_.
 
 If you need help understanding the code, post in the `development forum <http://www.mobileread.com/forums/forumdisplay.php?f=240>`_
 and you will most likely get help from one of |app|'s many developers.
