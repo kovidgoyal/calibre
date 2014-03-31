@@ -6,11 +6,10 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import re, os
+import re
 
 from calibre.ebooks.docx.index import process_index
 from calibre.ebooks.docx.names import XPath, get, namespaces
-TEST_INDEX = 'CALIBRE_TEST_INDEX' in os.environ
 
 class Field(object):
 
@@ -156,8 +155,6 @@ class Fields(object):
 
     def parse_xe(self, field, parse_func, log):
         # Parse XE fields
-        if not TEST_INDEX:
-            return
         if None in (field.start, field.end):
             return
         xe = parse_func(field.instructions, log)
@@ -178,8 +175,6 @@ class Fields(object):
             self.xe_fields.append(xe)
 
     def parse_index(self, field, parse_func, log):
-        if not TEST_INDEX:
-            return
         if not field.contents:
             return
         idx = parse_func(field.instructions, log)
