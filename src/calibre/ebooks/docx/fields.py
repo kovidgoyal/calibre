@@ -16,16 +16,21 @@ class Field(object):
         self.start = start
         self.end = None
         self.contents = []
-        self.elements = []
-        self.instructions = []
+        self.buf = []
+        self.instructions = None
+        self.name = None
 
     def add_instr(self, elem):
         raw = elem.text
         if not raw:
             return
-        name, rest = raw.strip().partition(' ')[0::2]
-        self.instructions.append((name, rest.strip()))
-        self.elements.append(elem)
+        if self.name is None:
+            self.name, raw = raw.strip().partition(' ')[0::2]
+        self.buf.append(raw)
+
+    def finalize(self):
+        self.instructions = ''.join(self.buf)
+        del self.buf
 
 WORD, FLAG = 0, 1
 scanner = re.Scanner([
@@ -109,48 +114,46 @@ class Fields(object):
             setattr(self, '%s_fields' % f, [])
 
         for field in self.fields:
+            field.finalize()
             if field.instructions:
-                name = field.instructions[0][0]
-                func = parsers.get(name, None)
+                func = parsers.get(field.name, None)
                 if func is not None:
-                    func(field, field_parsers[name], log)
+                    func(field, field_parsers[field.name], log)
 
     def parse_hyperlink(self, field, parse_func, log):
         # Parse hyperlink fields
-        if len(field.instructions) == 1:
-            hl = parse_func(field.instructions[0][1], log)
-            if hl:
-                if 'target' in hl and hl['target'] is None:
-                    hl['target'] = '_blank'
-                all_runs = []
-                current_runs = []
-                # We only handle spans in a single paragraph
-                # being wrapped in <a>
-                for x in field.contents:
-                    if x.tag.endswith('}p'):
-                        if current_runs:
-                            all_runs.append(current_runs)
-                        current_runs = []
-                    elif x.tag.endswith('}r'):
-                        current_runs.append(x)
-                if current_runs:
-                    all_runs.append(current_runs)
-                for runs in all_runs:
-                    self.hyperlink_fields.append((hl, runs))
+        hl = parse_func(field.instructions, log)
+        if hl:
+            if 'target' in hl and hl['target'] is None:
+                hl['target'] = '_blank'
+            all_runs = []
+            current_runs = []
+            # We only handle spans in a single paragraph
+            # being wrapped in <a>
+            for x in field.contents:
+                if x.tag.endswith('}p'):
+                    if current_runs:
+                        all_runs.append(current_runs)
+                    current_runs = []
+                elif x.tag.endswith('}r'):
+                    current_runs.append(x)
+            if current_runs:
+                all_runs.append(current_runs)
+            for runs in all_runs:
+                self.hyperlink_fields.append((hl, runs))
 
     def parse_xe(self, field, parse_func, log):
         # Parse XE fields
-        xe = parse_func(field.instructions[0][1], log)  # TODO: Handle field with multiple instructions
+        xe = parse_func(field.instructions, log)  # TODO: Handle field with multiple instructions
         if xe:
             # TODO: parse the field contents
             self.xe_fields.append(xe)
 
     def parse_index(self, field, parse_func, log):
         # Parse Index fields
-        if len(field.instructions):
-            idx = parse_func(field.instructions[0][1], log)
-            # TODO: parse the field contents
-            self.index_fields.append(idx)
+        idx = parse_func(field.instructions, log)
+        # TODO: parse the field contents
+        self.index_fields.append(idx)
 
 def test_parse_fields():
     import unittest
