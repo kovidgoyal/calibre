@@ -144,7 +144,7 @@ class Fields(object):
 
     def parse_xe(self, field, parse_func, log):
         # Parse XE fields
-        xe = parse_func(field.instructions, log)  # TODO: Handle field with multiple instructions
+        xe = parse_func(field.instructions, log)
         if xe:
             # TODO: parse the field contents
             self.xe_fields.append(xe)
