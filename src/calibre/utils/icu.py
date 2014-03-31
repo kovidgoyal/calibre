@@ -7,6 +7,10 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
+import sys
+
+is_narrow_build = sys.maxunicode < 0x10ffff
+
 # Setup code {{{
 import sys
 
@@ -250,6 +254,26 @@ def contractions(col=None):
         _cmap[col] = ans
     return ans
 
+def partition_by_first_letter(items, reverse=False, key=lambda x:x):
+    # Build a list of 'equal' first letters by noticing changes
+    # in ICU's 'ordinal' for the first letter.
+    from collections import OrderedDict
+    items = sorted(items, key=lambda x:sort_key(key(x)), reverse=reverse)
+    ans = OrderedDict()
+    last_c, last_ordnum = ' ', 0
+    for item in items:
+        c = icu_upper(key(item) or ' ')
+        ordnum, ordlen = collation_order(c)
+        if last_ordnum != ordnum:
+            if not is_narrow_build:
+                ordlen = 1
+            last_c = c[0:ordlen]
+            last_ordnum = ordnum
+        try:
+            ans[last_c].append(item)
+        except KeyError:
+            ans[last_c] = [item]
+    return ans
 
 ################################################################################
 

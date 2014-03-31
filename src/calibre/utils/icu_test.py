@@ -125,6 +125,9 @@ class TestICU(unittest.TestCase):
                     self.ae(last, order)
                 last = order
 
+        self.ae(dict(icu.partition_by_first_letter(['A1', '', 'a1', '\U0001f431', '\U0001f431x'])),
+                {' ':[''], 'A':['A1', 'a1'], '\U0001f431':['\U0001f431', '\U0001f431x']})
+
     def test_roundtrip(self):
         for r in (u'xxx\0\u2219\U0001f431xxx', u'\0', u'', u'simple'):
             self.ae(r, icu._icu.roundtrip(r))
