@@ -6,7 +6,7 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import re, os, uuid
+import re, os
 
 from calibre.ebooks.docx.names import XPath, get, namespaces
 TEST_INDEX = 'CALIBRE_TEST_INDEX' in os.environ
@@ -88,10 +88,15 @@ class Fields(object):
 
     def __init__(self):
         self.fields = []
-        self.bookmark_counter = 0
-        self.bookmark_prefix = str(uuid.uuid4())
+        self.index_bookmark_counter = 0
+        self.index_bookmark_prefix = 'index-'
 
     def __call__(self, doc, log):
+        all_ids = frozenset(XPath('//*/@w:id')(doc))
+        c = 0
+        while self.index_bookmark_prefix in all_ids:
+            c += 1
+            self.index_bookmark_prefix = self.index_bookmark_prefix.replace('-', '%d-' % c)
         stack = []
         for elem in XPath(
             '//*[name()="w:p" or name()="w:r" or name()="w:instrText" or (name()="w:fldChar" and (@w:fldCharType="begin" or @w:fldCharType="end"))]')(doc):
@@ -158,8 +163,8 @@ class Fields(object):
         if xe:
             # We insert a synthetic bookmark around this index item so that we
             # can link to it later
-            self.bookmark_counter += 1
-            bmark = xe['anchor'] = '%s-%d' % (self.bookmark_prefix, self.bookmark_counter)
+            self.index_bookmark_counter += 1
+            bmark = xe['anchor'] = '%s%d' % (self.index_bookmark_prefix, self.index_bookmark_counter)
             p = field.start.getparent()
             bm = p.makeelement(WORD('bookmarkStart'))
             bm.set(WORD('id'), bmark), bm.set(WORD('name'), bmark)
