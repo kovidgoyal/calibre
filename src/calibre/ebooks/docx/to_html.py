@@ -516,6 +516,7 @@ class Convert(object):
             spans = [rmap[r] for r in runs if r in rmap]
             if not spans:
                 continue
+            span = spans[0]
             if len(spans) > 1:
                 span = self.wrap_elems(spans, SPAN())
             span.tag = 'a'
