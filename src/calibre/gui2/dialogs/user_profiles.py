@@ -8,11 +8,13 @@ from PyQt4.Qt import (QUrl, QAbstractListModel, Qt, QVariant, QFont)
 from calibre.web.feeds.recipes import compile_recipe, custom_recipes
 from calibre.web.feeds.news import AutomaticNewsRecipe
 from calibre.gui2.dialogs.user_profiles_ui import Ui_Dialog
+from calibre.gui2.dialogs.message_box import MessageBox
 from calibre.gui2 import error_dialog, question_dialog, open_url, \
                          choose_files, ResizableDialog, NONE, open_local_file
 from calibre.gui2.widgets import PythonHighlighter
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.utils.icu import sort_key
+from calibre.utils.opml import OPML
 
 class CustomRecipeModel(QAbstractListModel):
 
@@ -90,6 +92,7 @@ class UserProfiles(ResizableDialog, Ui_Dialog):
         self.remove_profile_button.clicked[(bool)].connect(self.remove_selected_items)
         self.add_feed_button.clicked[(bool)].connect(self.add_feed)
         self.load_button.clicked[()].connect(self.load)
+        self.opml_button.clicked[()].connect(self.opml_import)
         self.builtin_recipe_button.clicked[()].connect(self.add_builtin_recipe)
         self.share_button.clicked[()].connect(self.share)
         self.show_recipe_files_button.clicked.connect(self.show_recipe_files)
@@ -201,15 +204,20 @@ class UserProfiles(ResizableDialog, Ui_Dialog):
         self.feed_title.setText('')
         self.feed_url.setText('')
 
-    def options_to_profile(self):
+    def options_to_profile(self, **kw):
         classname = 'BasicUserRecipe'+str(int(time.time()))
-        title = unicode(self.profile_title.text()).strip()
+        if 'nr' in kw:
+            classname = classname + str(kw['nr'])
+        title = kw['title'] if 'title' in kw else self.profile_title.text()
+        title = unicode(title).strip()
         if not title:
             title = classname
         self.profile_title.setText(title)
-        oldest_article = self.oldest_article.value()
-        max_articles   = self.max_articles.value()
-        feeds = [i.user_data for i in self.added_feeds.items()]
+        oldest_article = kw['oldest_article'] if 'oldest_article' in kw else self.oldest_article.value()
+        max_articles   = kw['max_articles'] if 'max_articles' in kw else self.max_articles.value()
+        feeds = kw['feeds'] \
+            if 'feeds' in kw \
+            else [i.user_data for i in self.added_feeds.items()]
 
         src = '''\
 class %(classname)s(%(base_class)s):
@@ -345,6 +353,50 @@ class %(classname)s(%(base_class)s):
             else:
                 self.model.add(title, profile)
             self.clear()
+
+    def opml_import(self):
+        opml_files = choose_files(self, 'OPML chooser dialog',
+                _('Select OPML file'), filters=[(_('OPML'), ['opml'])] )
+
+        if not opml_files:
+            return
+        
+        opml = OPML(self.oldest_article.value(), self.max_articles.value());
+        for opml_file in opml_files:
+            opml.load(opml_file)
+            outlines = opml.parse()
+            nr = 0
+            for outline in outlines:
+                src, title = self.options_to_profile(**{
+                    'nr':nr,
+                    'title':unicode(outline.get('title')),
+                    'feeds':outline.get('xmlUrl'),
+                    'oldest_article':self.oldest_article.value(),
+                    'max_articles':self.max_articles.value(),
+                })
+
+                try:
+                    compile_recipe(src)
+                except Exception as err:
+                    error_dialog(self, _('Invalid input'),
+                            _('<p>Could not create recipe. Error:<br>%s')%str(err)).exec_()
+                    return
+                profile = src
+                if self._model.has_title(title):
+                    if question_dialog(self, _('Replace recipe?'),
+                        _('A custom recipe named %s already exists. Do you want to '
+                            'replace it?')%title):
+                        self._model.replace_by_title(title, profile)
+                    else:
+                        return
+                else:
+                    self.model.add(title, profile)
+                nr+=1
+        self.clear()
+
+        msg_box = MessageBox(MessageBox.INFO, "Finished", "OPML to Recipe conversion complete", parent=self,
+                    show_copy_button=False)
+        msg_box.exec_()
 
     def populate_options(self, profile):
         self.oldest_article.setValue(profile.oldest_article)
