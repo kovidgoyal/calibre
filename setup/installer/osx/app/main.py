@@ -357,6 +357,7 @@ class Py2App(object):
                 CFBundleIconFile='library.icns',
                 LSMultipleInstancesProhibited=True,
                 NSHighResolutionCapable=True,
+                LSApplicationCategoryType='public.app-category.productivity',
                 LSEnvironment=env
         )
         plistlib.writePlist(pl, join(self.contents_dir, 'Info.plist'))
