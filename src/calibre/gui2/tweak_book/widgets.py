@@ -22,6 +22,7 @@ from calibre.gui2 import error_dialog, choose_files, choose_save_file, NONE, inf
 from calibre.gui2.tweak_book import tprefs
 from calibre.utils.icu import primary_sort_key, sort_key
 from calibre.utils.matcher import get_char, Matcher
+from calibre.gui2.complete2 import EditWithComplete
 
 ROOT = QModelIndex()
 
@@ -68,6 +69,39 @@ class Dialog(QDialog):
 
     def setup_ui(self):
         raise NotImplementedError('You must implement this method in Dialog subclasses')
+
+class InsertTag(Dialog):  # {{{
+
+    def __init__(self, parent=None):
+        Dialog.__init__(self, _('Choose tag name'), 'insert-tag', parent=parent)
+
+    def setup_ui(self):
+        from calibre.ebooks.constants import html5_tags
+        self.l = l = QVBoxLayout(self)
+        self.setLayout(l)
+
+        self.la = la = QLabel(_('Specify the name of the &tag to insert:'))
+        l.addWidget(la)
+
+        self.tag_input = ti = EditWithComplete(self)
+        ti.set_separator(None)
+        ti.all_items = html5_tags | frozenset(tprefs['insert_tag_mru'])
+        la.setBuddy(ti)
+        l.addWidget(ti)
+        l.addWidget(self.bb)
+        ti.setFocus(Qt.OtherFocusReason)
+
+    @property
+    def tag(self):
+        return unicode(self.tag_input.text()).strip()
+
+    @classmethod
+    def test(cls):
+        d = cls()
+        if d.exec_() == d.Accepted:
+            print (d.tag)
+
+# }}}
 
 class RationalizeFolders(Dialog):  # {{{
 
@@ -852,4 +886,4 @@ class InsertSemantics(Dialog):
 
 if __name__ == '__main__':
     app = QApplication([])
-    InsertSemantics.test()
+    InsertTag.test()

@@ -232,3 +232,12 @@ class HTMLSmarts(NullSmarts):
         if text:
             c.insertText(text)
         editor.setTextCursor(c)
+
+    def insert_tag(self, editor, name):
+        text = self.get_smart_selection(editor, update=True)
+        c = editor.textCursor()
+        pos = min(c.position(), c.anchor())
+        c.insertText('<{0}>{1}</{0}>'.format(name, text))
+        c.setPosition(pos + 1 + len(name))
+        editor.setTextCursor(c)
+
