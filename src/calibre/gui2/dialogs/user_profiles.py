@@ -10,7 +10,7 @@ from calibre.web.feeds.news import AutomaticNewsRecipe
 from calibre.gui2.dialogs.user_profiles_ui import Ui_Dialog
 from calibre.gui2 import error_dialog, question_dialog, open_url, \
                          choose_files, ResizableDialog, NONE, open_local_file, \
-                         info_dialog
+                         info_dialog, gprefs
 from calibre.gui2.widgets import PythonHighlighter
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.utils.icu import sort_key
@@ -356,7 +356,6 @@ class %(classname)s(%(base_class)s):
             self.clear()
 
     def opml_import(self):
-
         opml_files = choose_files(self, 'OPML chooser dialog',
                 _('Select OPML file'), filters=[(_('OPML'), ['opml'])] )
 
@@ -398,7 +397,6 @@ class %(classname)s(%(base_class)s):
         self.clear()
 
         # reset the question_dialog
-        gprefs = JSONConfig('gui')
         auto_skip = gprefs.get('questions_to_auto_skip', [])
         if skip_dialog_name in auto_skip:
             auto_skip.remove(skip_dialog_name)
