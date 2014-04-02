@@ -8,13 +8,14 @@ from PyQt4.Qt import (QUrl, QAbstractListModel, Qt, QVariant, QFont)
 from calibre.web.feeds.recipes import compile_recipe, custom_recipes
 from calibre.web.feeds.news import AutomaticNewsRecipe
 from calibre.gui2.dialogs.user_profiles_ui import Ui_Dialog
-from calibre.gui2.dialogs.message_box import MessageBox
 from calibre.gui2 import error_dialog, question_dialog, open_url, \
-                         choose_files, ResizableDialog, NONE, open_local_file
+                         choose_files, ResizableDialog, NONE, open_local_file, \
+                         info_dialog
 from calibre.gui2.widgets import PythonHighlighter
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.utils.icu import sort_key
 from calibre.utils.opml import OPML
+from calibre.utils.config import JSONConfig
 
 class CustomRecipeModel(QAbstractListModel):
 
@@ -355,12 +356,14 @@ class %(classname)s(%(base_class)s):
             self.clear()
 
     def opml_import(self):
+
         opml_files = choose_files(self, 'OPML chooser dialog',
                 _('Select OPML file'), filters=[(_('OPML'), ['opml'])] )
 
         if not opml_files:
             return
         
+        skip_dialog_name='replace_recipes'
         opml = OPML(self.oldest_article.value(), self.max_articles.value());
         for opml_file in opml_files:
             opml.load(opml_file)
@@ -380,23 +383,28 @@ class %(classname)s(%(base_class)s):
                 except Exception as err:
                     error_dialog(self, _('Invalid input'),
                             _('<p>Could not create recipe. Error:<br>%s')%str(err)).exec_()
-                    return
                 profile = src
                 if self._model.has_title(title):
                     if question_dialog(self, _('Replace recipe?'),
                         _('A custom recipe named %s already exists. Do you want to '
-                            'replace it?')%title):
+                            'replace it?')%title,
+                        skip_dialog_name=skip_dialog_name,
+                        skip_dialog_msg=_('Show dialog again?')
+                    ):
                         self._model.replace_by_title(title, profile)
-                    else:
-                        return
                 else:
                     self.model.add(title, profile)
                 nr+=1
         self.clear()
 
-        msg_box = MessageBox(MessageBox.INFO, "Finished", "OPML to Recipe conversion complete", parent=self,
-                    show_copy_button=False)
-        msg_box.exec_()
+        # reset the question_dialog
+        gprefs = JSONConfig('gui')
+        auto_skip = gprefs.get('questions_to_auto_skip', [])
+        if skip_dialog_name in auto_skip:
+            auto_skip.remove(skip_dialog_name)
+            gprefs.set('questions_to_auto_skip', auto_skip)
+
+        info_dialog(self, "Finished", "OPML to Recipe conversion complete", show_copy_button=False, show=True)
 
     def populate_options(self, profile):
         self.oldest_article.setValue(profile.oldest_article)
