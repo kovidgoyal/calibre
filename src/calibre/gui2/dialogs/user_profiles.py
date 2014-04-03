@@ -14,7 +14,6 @@ from calibre.gui2 import error_dialog, question_dialog, open_url, \
 from calibre.gui2.widgets import PythonHighlighter
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.utils.icu import sort_key
-from calibre.utils.opml import OPML
 
 class CustomRecipeModel(QAbstractListModel):
 
@@ -63,6 +62,10 @@ class CustomRecipeModel(QAbstractListModel):
 
     def add(self, title, script):
         self.recipe_model.add_custom_recipe(title, script)
+        self.reset()
+
+    def add_many(self, scriptmap):
+        self.recipe_model.add_custom_recipes(scriptmap)
         self.reset()
 
     def remove(self, rows):
@@ -208,16 +211,15 @@ class UserProfiles(ResizableDialog, Ui_Dialog):
         classname = 'BasicUserRecipe'+str(int(time.time()))
         if 'nr' in kw:
             classname = classname + str(kw['nr'])
-        title = kw['title'] if 'title' in kw else self.profile_title.text()
+        title = kw.get('title', self.profile_title.text())
         title = unicode(title).strip()
         if not title:
             title = classname
         self.profile_title.setText(title)
-        oldest_article = kw['oldest_article'] if 'oldest_article' in kw else self.oldest_article.value()
-        max_articles   = kw['max_articles'] if 'max_articles' in kw else self.max_articles.value()
-        feeds = kw['feeds'] \
-            if 'feeds' in kw \
-            else [i.user_data for i in self.added_feeds.items()]
+        oldest_article = kw.get('oldest_article', self.oldest_article.value())
+        max_articles   = kw.get('max_articles', self.max_articles.value())
+        feeds = kw.get('feeds', \
+                [i.user_data for i in self.added_feeds.items()])
 
         src = '''\
 class %(classname)s(%(base_class)s):
@@ -355,6 +357,7 @@ class %(classname)s(%(base_class)s):
             self.clear()
 
     def opml_import(self):
+        from calibre.utils.opml import OPML
         opml_files = choose_files(self, 'OPML chooser dialog',
                 _('Select OPML file'), filters=[(_('OPML'), ['opml'])] )
 
@@ -363,6 +366,7 @@ class %(classname)s(%(base_class)s):
         
         skip_dialog_name='replace_recipes'
         opml = OPML(self.oldest_article.value(), self.max_articles.value());
+        scriptmap = {}
         for opml_file in opml_files:
             opml.load(opml_file)
             outlines = opml.parse()
@@ -380,7 +384,8 @@ class %(classname)s(%(base_class)s):
                     compile_recipe(src)
                 except Exception as err:
                     error_dialog(self, _('Invalid input'),
-                            _('<p>Could not create recipe. Error:<br>%s')%str(err)).exec_()
+                        _('<p>Could not create recipe. Error:<br>%s')%str(err)).exec_()
+                    continue
                 profile = src
                 if self._model.has_title(title):
                     if question_dialog(self, _('Replace recipe?'),
@@ -391,8 +396,10 @@ class %(classname)s(%(base_class)s):
                     ):
                         self._model.replace_by_title(title, profile)
                 else:
-                    self.model.add(title, profile)
+                    scriptmap.update({ title: profile })
                 nr+=1
+        if scriptmap:
+            self.model.add_many(scriptmap)
         self.clear()
 
         # reset the question_dialog
