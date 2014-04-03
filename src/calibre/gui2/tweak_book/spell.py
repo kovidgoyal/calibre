@@ -11,7 +11,7 @@ from collections import defaultdict
 
 from PyQt4.Qt import (
     QGridLayout, QApplication, QTreeWidget, QTreeWidgetItem, Qt, QFont,
-    QStackedLayout, QLabel, QVBoxLayout, QVariant, QWidget, QPushButton)
+    QStackedLayout, QLabel, QVBoxLayout, QVariant, QWidget, QPushButton, QIcon)
 
 from calibre.gui2.tweak_book.widgets import Dialog
 from calibre.spell.dictionary import (
@@ -76,6 +76,9 @@ class ManageDictionaries(Dialog):
 
         self.bb.clear()
         self.bb.addButton(self.bb.Close)
+        b = self.bb.addButton(_('&Add dictionary'), self.bb.ActionRole)
+        b.setIcon(QIcon(I('plus.png')))
+        b.clicked.connect(self.add_dictionary)
         l.addWidget(self.bb, l.rowCount(), 0, 1, l.columnCount())
 
     def build_dictionaries(self):
@@ -112,6 +115,9 @@ class ManageDictionaries(Dialog):
                         k.setData(0, Qt.FontRole, itf)
 
         self.dictionaries.expandAll()
+
+    def add_dictionary(self):
+        pass
 
     def current_item_changed(self):
         item = self.dictionaries.currentItem()
