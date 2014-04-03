@@ -297,7 +297,7 @@ class CreateCustomColumn(QDialog, Ui_QCreateCustomColumn):
                 return self.simple_error('', _('The colors box must be empty or '
                 'contain the same number of items as the value box'))
             for tc in c:
-                if tc not in QColor.colorNames():
+                if tc not in QColor.colorNames() and not re.match("#(?:[0-9a-f]{3}){1,4}",tc,re.I):
                     return self.simple_error('',
                             _('The color {0} is unknown').format(tc))
 
