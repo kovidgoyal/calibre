@@ -7,7 +7,7 @@ __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import re
-from collections import Counter
+from collections import Counter, defaultdict
 
 from lxml.html.builder import OL, UL, SPAN
 
@@ -135,8 +135,9 @@ class Level(object):
 
 class NumberingDefinition(object):
 
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, an_id=None):
         self.levels = {}
+        self.abstract_numbering_definition_id = an_id
         if parent is not None:
             for lvl in XPath('./w:lvl')(parent):
                 try:
@@ -146,7 +147,7 @@ class NumberingDefinition(object):
                 self.levels[ilvl] = Level(lvl)
 
     def copy(self):
-        ans = NumberingDefinition()
+        ans = NumberingDefinition(an_id=self.abstract_numbering_definition_id)
         for l, lvl in self.levels.iteritems():
             ans.levels[l] = lvl.copy()
         return ans
@@ -156,7 +157,8 @@ class Numbering(object):
     def __init__(self):
         self.definitions = {}
         self.instances = {}
-        self.counters = {}
+        self.counters = defaultdict(Counter)
+        self.starts = {}
         self.pic_map = {}
 
     def __call__(self, root, styles, rid_map):
@@ -174,13 +176,24 @@ class Numbering(object):
             if nsl:
                 lazy_load[an_id] = get(nsl[0], 'w:val')
             else:
-                nd = NumberingDefinition(an)
+                nd = NumberingDefinition(an, an_id=an_id)
                 self.definitions[an_id] = nd
 
         def create_instance(n, definition):
             nd = definition.copy()
+            start_overrides = {}
             for lo in XPath('./w:lvlOverride')(n):
-                ilvl = get(lo, 'w:ilvl')
+                try:
+                    ilvl = int(get(lo, 'w:ilvl'))
+                except (ValueError, TypeError):
+                    ilvl = None
+                for so in XPath('./w:startOverride[@w:val]')(lo):
+                    try:
+                        start_override = int(get(so, 'w:val'))
+                    except (TypeError, ValueError):
+                        pass
+                    else:
+                        start_overrides[ilvl] = start_override
                 for lvl in XPath('./w:lvl')(lo)[:1]:
                     nilvl = get(lvl, 'w:ilvl')
                     ilvl = nilvl if ilvl is None else ilvl
@@ -188,6 +201,11 @@ class Numbering(object):
                     if alvl is None:
                         alvl = Level()
                     alvl.read_from_xml(lvl, override=True)
+            for ilvl, so in start_overrides.iteritems():
+                try:
+                    nd.levels[ilvl].start = start_override
+                except KeyError:
+                    pass
             return nd
 
         next_pass = {}
@@ -213,7 +231,7 @@ class Numbering(object):
                 self.instances[num_id] = create_instance(n, d)
 
         for num_id, d in self.instances.iteritems():
-            self.counters[num_id] = Counter({lvl:d.levels[lvl].start for lvl in d.levels})
+            self.starts[num_id] = {lvl:d.levels[lvl].start for lvl in d.levels}
 
     def get_pstyle(self, num_id, style_id):
         d = self.instances.get(num_id, None)
@@ -236,12 +254,17 @@ class Numbering(object):
                 counter[ilvl] = lvl.start
 
     def apply_markup(self, items, body, styles, object_map, images):
+        seen_instances = set()
         for p, num_id, ilvl in items:
             d = self.instances.get(num_id, None)
             if d is not None:
                 lvl = d.levels.get(ilvl, None)
                 if lvl is not None:
-                    counter = self.counters[num_id]
+                    an_id = d.abstract_numbering_definition_id
+                    counter = self.counters[an_id]
+                    if ilvl not in counter or num_id not in seen_instances:
+                        counter[ilvl] = self.starts[num_id][ilvl]
+                    seen_instances.add(num_id)
                     p.tag = 'li'
                     p.set('value', '%s' % counter[ilvl])
                     p.set('list-lvl', str(ilvl))
