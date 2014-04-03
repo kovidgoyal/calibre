@@ -53,9 +53,10 @@ class TOLINO(EB600):
 
     name = 'Tolino Shine Device Interface'
     gui_name = 'Tolino Shine'
-    description    = _('Communicate with the Tolino Shine reader.')
+    description    = _('Communicate with the Tolino Shine and Vision readers')
     FORMATS = ['epub', 'pdf', 'txt']
-    BCD         = [0x226]
+    PRODUCT_ID  = EB600.PRODUCT_ID + [0x6033]
+    BCD         = [0x226, 0x9999]
     VENDOR_NAME      = ['DEUTSCHE']
     WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = ['_TELEKOMTOLINO']
 

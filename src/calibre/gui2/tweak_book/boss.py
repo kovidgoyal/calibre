@@ -39,7 +39,7 @@ from calibre.gui2.tweak_book.preferences import Preferences
 from calibre.gui2.tweak_book.search import validate_search_request, run_search
 from calibre.gui2.tweak_book.widgets import (
     RationalizeFolders, MultiSplit, ImportForeign, QuickOpen, InsertLink,
-    InsertSemantics, BusyCursor)
+    InsertSemantics, BusyCursor, InsertTag)
 
 _diff_dialogs = []
 
@@ -642,6 +642,10 @@ class Boss(QObject):
                 d = InsertLink(current_container(), edname, initial_text=ed.get_smart_selection(), parent=self.gui)
                 if d.exec_() == d.Accepted:
                     ed.insert_hyperlink(d.href, d.text)
+            elif action[0] == 'insert_tag':
+                d = InsertTag(parent=self.gui)
+                if d.exec_() == d.Accepted:
+                    ed.insert_tag(d.tag)
             else:
                 ed.action_triggered(action)
 

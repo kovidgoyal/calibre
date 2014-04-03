@@ -8148,7 +8148,8 @@ void Style::drawComplexControl(ComplexControl control, const QStyleOptionComplex
                 drawControl(CE_ToolButtonLabel, &label, painter, widget);
 
                 if (!(toolbutton->subControls&SC_ToolButtonMenu) &&
-                     (toolbutton->features&QStyleOptionToolButton::HasMenu))
+                     (toolbutton->features&QStyleOptionToolButton::HasMenu &&
+                      toolbutton->features & QStyleOptionToolButton::PopupDelay))
                 {
                     QRect arrow(r.right()-(LARGE_ARR_WIDTH+(etched ? 3 : 2)),
                                 r.bottom()-(LARGE_ARR_HEIGHT+(etched ? 4 : 3)),

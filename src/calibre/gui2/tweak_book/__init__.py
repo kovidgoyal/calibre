@@ -42,6 +42,7 @@ d['folders_for_types'] = {'style':'styles', 'image':'images', 'font':'fonts', 'a
 d['pretty_print_on_open'] = False
 d['disable_completion_popup_for_search'] = False
 d['saved_searches'] = []
+d['insert_tag_mru'] = ['p', 'div', 'li', 'h1', 'h2', 'h3', 'h4', 'em', 'strong', 'td', 'tr']
 
 del d
 

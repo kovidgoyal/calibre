@@ -612,6 +612,10 @@ class TextEdit(PlainTextEdit):
         if hasattr(self.smarts, 'insert_hyperlink'):
             self.smarts.insert_hyperlink(self, target, text)
 
+    def insert_tag(self, tag):
+        if hasattr(self.smarts, 'insert_tag'):
+            self.smarts.insert_tag(self, tag)
+
     def keyPressEvent(self, ev):
         if ev.key() == Qt.Key_X and ev.modifiers() == Qt.AltModifier:
             if self.replace_possible_unicode_sequence():

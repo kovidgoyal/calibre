@@ -140,23 +140,29 @@ def update_custom_recipe(id_, title, script):
 
 
 def add_custom_recipe(title, script):
+    add_custom_recipes({title:script})
+
+def add_custom_recipes(script_map):
     from calibre.web.feeds.recipes import custom_recipes, \
             custom_recipe_filename
     id_ = 1000
     keys = tuple(map(int, custom_recipes.iterkeys()))
     if keys:
         id_ = max(keys)+1
-    id_ = str(id_)
-    bdir = os.path.dirname(custom_recipes.file_path)
+    with custom_recipes:
+        for title, script in script_map.iteritems():
+            fid = str(id_)
+            bdir = os.path.dirname(custom_recipes.file_path)
 
-    fname = custom_recipe_filename(id_, title)
-    if isinstance(script, unicode):
-        script = script.encode('utf-8')
+            fname = custom_recipe_filename(fid, title)
+            if isinstance(script, unicode):
+                script = script.encode('utf-8')
 
-    custom_recipes[id_] = (title, fname)
+            custom_recipes[fid] = (title, fname)
 
-    with open(os.path.join(bdir, fname), 'wb') as f:
-        f.write(script)
+            with open(os.path.join(bdir, fname), 'wb') as f:
+                f.write(script)
+            id_ += 1
 
 
 def remove_custom_recipe(id_):
