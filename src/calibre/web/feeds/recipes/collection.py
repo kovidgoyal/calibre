@@ -178,6 +178,7 @@ def add_custom_recipes(script_map):
 
             with open(os.path.join(bdir, fname), 'wb') as f:
                 f.write(script)
+            id_ += 1
 
 
 def remove_custom_recipe(id_):
