@@ -30,7 +30,7 @@ CHECKS = [('invalid_titles',    _('Invalid titles'), True, False),
           ('missing_formats',   _('Missing book formats'), False, True),
           ('extra_formats',     _('Extra book formats'), True, False),
           ('extra_files',       _('Unknown files in books'), True, False),
-          ('missing_covers',    _('Missing covers files'), False, True),
+          ('missing_covers',    _('Missing cover files'), False, True),
           ('extra_covers',      _('Cover files not in database'), True, True),
           ('failed_folders',    _('Folders raising exception'), False, False)
       ]
@@ -175,7 +175,8 @@ class CheckLibrary(object):
     def process_book(self, lib, book_info):
         (db_path, title_dir, book_id) = book_info
         filenames = frozenset([f for f in os.listdir(os.path.join(lib, db_path))
-                               if os.path.splitext(f)[1] not in self.ignore_ext])
+                               if os.path.splitext(f)[1] not in self.ignore_ext or
+                               f == 'cover.jpg'])
         book_id = int(book_id)
         formats = frozenset(filter(self.is_ebook_file, filenames))
         book_formats = frozenset([x[0]+'.'+x[1].lower() for x in
