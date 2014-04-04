@@ -379,7 +379,7 @@ class %(classname)s(%(base_class)s):
             return
         
         skip_dialog_name='replace_recipes'
-        opml = OPML(self.oldest_article.value(), self.max_articles.value());
+        opml = OPML()
         add_recipes_map = {}
         replace_recipes_map = {}
         for opml_file in opml_files:

@@ -2,16 +2,13 @@ __license__ = 'GPL 3'
 __copyright__ = '2014, Kenny Billiau <kennybilliau@gmail.co'
 __docformat__ = 'restructuredtext en'
 
-import time
 import xml.etree.ElementTree as ET
 
 class OPML(object):
 
-    def __init__(self, oldest_article = 7, max_articles = 100):
+    def __init__(self):
         self.doc = None # xml document
         self.outlines = None # parsed outline objects
-        self.oldest_article = oldest_article
-        self.max_articles = max_articles
 
     def load(self, filename):
         tree = ET.parse(filename)
