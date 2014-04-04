@@ -10,7 +10,7 @@ __docformat__ = 'restructuredtext en'
 import os, textwrap
 
 from PyQt4.Qt import (QWidget, QDialog, QLabel, QGridLayout, QComboBox, QSize,
-        QLineEdit, QIntValidator, QDoubleValidator, QFrame, QColor, Qt, QIcon,
+        QLineEdit, QIntValidator, QDoubleValidator, QFrame, Qt, QIcon,
         QScrollArea, QPushButton, QVBoxLayout, QDialogButtonBox, QToolButton,
         QListView, QAbstractListModel, pyqtSignal, QSizePolicy, QSpacerItem,
         QApplication, QStandardItem, QStandardItemModel, QCheckBox)
@@ -21,6 +21,7 @@ from calibre.utils.icu import sort_key
 from calibre.gui2 import error_dialog, choose_files, pixmap_to_data
 from calibre.gui2.dialogs.template_dialog import TemplateDialog
 from calibre.gui2.metadata.single_download import RichTextDelegate
+from calibre.gui2.widgets2 import ColorButton
 from calibre.library.coloring import (Rule, conditionable_columns,
     displayable_columns, rule_from_template, color_row_key)
 from calibre.utils.localization import lang_map
@@ -33,7 +34,8 @@ icon_rule_kinds = [(_('icon with text'), 'icon'),
                    (_('composed icons w/text'), 'icon_composed'),
                    (_('composed icons w/no text'), 'icon_only_composed'),]
 
-class ConditionEditor(QWidget): # {{{
+
+class ConditionEditor(QWidget):  # {{{
 
     ACTION_MAP = {
             'bool' : (
@@ -86,7 +88,6 @@ class ConditionEditor(QWidget): # {{{
     for x in ('float', 'rating'):
         ACTION_MAP[x] = ACTION_MAP['int']
 
-
     def __init__(self, fm, parent=None):
         QWidget.__init__(self, parent)
         self.fm = fm
@@ -107,8 +108,6 @@ class ConditionEditor(QWidget): # {{{
 
         self.column_box = QComboBox(self)
         l.addWidget(self.column_box, 0, 1)
-
-
 
         self.l2 = l2 = QLabel(two)
         l.addWidget(l2, 0, 2)
@@ -277,7 +276,7 @@ class ConditionEditor(QWidget): # {{{
             self.value_box.setEnabled(False)
 # }}}
 
-class RuleEditor(QDialog): # {{{
+class RuleEditor(QDialog):  # {{{
 
     def __init__(self, fm, pref_name, parent=None):
         QDialog.__init__(self, parent)
@@ -329,7 +328,7 @@ class RuleEditor(QDialog): # {{{
         l.addWidget(l4, 2, 4)
 
         if self.rule_kind == 'color':
-            self.color_box = QComboBox(self)
+            self.color_box = ColorButton(parent=self)
             self.color_label = QLabel('Sample text Sample text')
             self.color_label.setTextFormat(Qt.RichText)
             l.addWidget(self.color_box, 2, 5)
@@ -393,7 +392,7 @@ class RuleEditor(QDialog): # {{{
         self.conditions = []
 
         if self.rule_kind == 'color':
-            for b in (self.column_box, self.color_box):
+            for b in (self.column_box, ):
                 b.setSizeAdjustPolicy(b.AdjustToMinimumContentsLengthWithIcon)
                 b.setMinimumContentsLength(15)
 
@@ -407,10 +406,9 @@ class RuleEditor(QDialog): # {{{
         self.column_box.setCurrentIndex(0)
 
         if self.rule_kind == 'color':
-            self.color_box.addItems(QColor.colorNames())
-            self.color_box.setCurrentIndex(0)
+            self.color_box.color = '#000'
             self.update_color_label()
-            self.color_box.currentIndexChanged.connect(self.update_color_label)
+            self.color_box.color_changed.connect(self.update_color_label)
         else:
             self.rule_icon_files = []
             self.filename_button.clicked.connect(self.filename_button_clicked)
@@ -436,10 +434,10 @@ class RuleEditor(QDialog): # {{{
         for i,filename in enumerate(self.icon_file_names):
             item = QStandardItem(filename)
             if doing_multiple:
-                item.setFlags(Qt.ItemIsUserCheckable | Qt.ItemIsEnabled);
+                item.setFlags(Qt.ItemIsUserCheckable | Qt.ItemIsEnabled)
                 item.setData(Qt.Unchecked, Qt.CheckStateRole)
             else:
-                item.setFlags(Qt.ItemIsEnabled | Qt.ItemIsSelectable);
+                item.setFlags(Qt.ItemIsEnabled | Qt.ItemIsSelectable)
             icon = QIcon(os.path.join(config_dir, 'cc_icons', filename))
             item.setIcon(icon)
             model.appendRow(item)
@@ -448,7 +446,7 @@ class RuleEditor(QDialog): # {{{
         pal = QApplication.palette()
         bg1 = unicode(pal.color(pal.Base).name())
         bg2 = unicode(pal.color(pal.AlternateBase).name())
-        c = unicode(self.color_box.currentText())
+        c = self.color_box.color
         self.color_label.setText('''
             <span style="color: {c}; background-color: {bg1}">&nbsp;{st}&nbsp;</span>
             <span style="color: {c}; background-color: {bg2}">&nbsp;{st}&nbsp;</span>
@@ -528,9 +526,7 @@ class RuleEditor(QDialog): # {{{
     def apply_rule(self, kind, col, rule):
         if kind == 'color':
             if rule.color:
-                idx = self.color_box.findText(rule.color)
-                if idx >= 0:
-                    self.color_box.setCurrentIndex(idx)
+                self.color_box.color = rule.color
         else:
             for i,tup in enumerate(icon_rule_kinds):
                 if kind == tup[1]:
@@ -595,7 +591,7 @@ class RuleEditor(QDialog): # {{{
         if self.rule_kind != 'color':
             r.color = self.get_filenames_from_box()
         else:
-            r.color = unicode(self.color_box.currentText())
+            r.color = self.color_box.color
         idx = self.column_box.currentIndex()
         col = unicode(self.column_box.itemData(idx).toString())
         for c in self.conditions:
@@ -611,7 +607,7 @@ class RuleEditor(QDialog): # {{{
         return kind, col, r
 # }}}
 
-class RulesModel(QAbstractListModel): # {{{
+class RulesModel(QAbstractListModel):  # {{{
 
     def __init__(self, prefs, fm, pref_name, parent=None):
         QAbstractListModel.__init__(self, parent)
@@ -623,7 +619,8 @@ class RulesModel(QAbstractListModel): # {{{
             rules = list(prefs[pref_name])
             self.rules = []
             for col, template in rules:
-                if col not in self.fm and col != color_row_key: continue
+                if col not in self.fm and col != color_row_key:
+                    continue
                 try:
                     rule = rule_from_template(self.fm, template)
                 except:
@@ -634,7 +631,8 @@ class RulesModel(QAbstractListModel): # {{{
             rules = list(prefs[pref_name])
             self.rules = []
             for kind, col, template in rules:
-                if col not in self.fm and col != color_row_key: continue
+                if col not in self.fm and col != color_row_key:
+                    continue
                 try:
                     rule = rule_from_template(self.fm, template)
                 except:
@@ -764,7 +762,7 @@ class RulesModel(QAbstractListModel): # {{{
 
 # }}}
 
-class EditRules(QWidget): # {{{
+class EditRules(QWidget):  # {{{
 
     changed = pyqtSignal()
 
@@ -881,7 +879,7 @@ class EditRules(QWidget): # {{{
                                icon_rule_kind=kind)
 
         if d.exec_() == d.Accepted:
-            if len(d.rule) == 2: # Convert template dialog rules to a triple
+            if len(d.rule) == 2:  # Convert template dialog rules to a triple
                 d.rule = ('color', d.rule[0], d.rule[1])
             kind, col, r = d.rule
             if kind and r is not None and col:
@@ -945,7 +943,7 @@ if __name__ == '__main__':
         d.add_blank_condition()
         d.exec_()
 
-        col, r = d.rule
+        kind, col, r = d.rule
 
         print ('Column to be colored:', col)
         print ('Template:')
