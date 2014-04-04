@@ -48,7 +48,7 @@
        </widget>
       </item>
       <item row="1" column="1">
-       <widget class="QComboBox" name="color_name">
+       <widget class="ColorButton" name="color_name">
        </widget>
       </item>
       <item row="1" column="2">
@@ -246,6 +246,13 @@
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>ColorButton</class>
+   <extends>QPushButton</extends>
+   <header>calibre/gui2/widgets2.h</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections>
   <connection>
