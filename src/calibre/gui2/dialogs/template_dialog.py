@@ -229,9 +229,6 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
             for n1, k1 in cols:
                 self.colored_field.addItem(n1, k1)
             self.colored_field.setCurrentIndex(self.colored_field.findData(color_field))
-            colors = QColor.colorNames()
-            colors.sort()
-            self.color_name.addItems(colors)
         elif self.iconing:
             self.icon_layout.setVisible(True)
             for n1, k1 in cols:
@@ -362,7 +359,7 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
     def color_to_clipboard(self):
         app = QApplication.instance()
         c = app.clipboard()
-        c.setText(unicode(self.color_name.currentText()))
+        c.setText(unicode(self.color_name.color))
 
     def icon_to_clipboard(self):
         app = QApplication.instance()

@@ -1211,6 +1211,10 @@ def command_check_library(args, dbpath):
             for i in list:
                 print '    %-40.40s - %-40.40s'%(i[0], i[1])
 
+    if not LibraryDatabase.exists_at(dbpath):
+        prints('No library found at', dbpath, file=sys.stderr)
+        raise SystemExit(1)
+
     db = LibraryDatabase(dbpath)
     checker = CheckLibrary(dbpath, db)
     checker.scan_library(names, exts)

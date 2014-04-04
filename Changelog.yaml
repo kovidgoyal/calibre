@@ -20,6 +20,53 @@
 #   new recipes:
 #     - title: 
 
+- version: 1.31.0
+  date: 2014-04-04
+
+  new features:
+    - title: "DOCX Input: Support for converting indexes created using the Word Index tool. The entries in the index are automatically converted into links pointing to the indexed locations."
+
+    - title: "AZW3 Output: Add support for converting documents with very large table of contents (with more than 2000 entries)."
+      tickets: [1250475]
+
+    - title: "Edit Book: Add a button to easily insert HTML tags. Useful if you want to quickly surround selected text with an arbitrary tag. You can right click the button to get a list of recently used tags."
+
+    - title: "Driver for Tolino Vision (OS X/Linux only)."
+      tickets: [1301875]
+
+    - title: "Edit book: Allow editing SVG files as raw XML"
+
+  bug fixes:
+    - title: "DOCX Input: Fix incorrect numbering being generated for numbered lists in some circumstances."
+      tickets: [1301044]
+
+    - title: "calibredb check_library: Do not create empty library if user specifies incorrect path"
+
+    - title: "DOCX Input: Fix handling of hyperlinks in documents where the hyperlink is specified as a field internally (Microsoft Word does not use fields for hyperlinks)"
+
+    - title: "Get Books: Update WH Smiths plugin for website changes and remove Diesel eBooks, as they are shutting down"
+
+    - title: "AZW3 Output: Fix a bug that caused popup footnotes in some AZW3 files to not work properly. The popup would show all remaining footnotes instead of only the current footnote."
+      tickets: [1293290]
+
+    - title: "AZW3 Output: Various tweaks to the internal structure and headers of the output file to make it closer to what kindlegen 2.9 generates"
+
+    - title: "Edit Book: When user is editing files belonging to another user account on linux/os x rather than erroring out when saving, change the ownership of the file to the editing user."
+      tickets: [1299097]
+
+    - title: "Edit Book: Fix insert Inline ToC creating non-linear jumps in class names"
+
+    - title: "Fix regression that broke ebook-device cp"
+
+  improved recipes:
+    - CNET
+    - El Pais Impreso
+    - CNet News
+    - Antyweb
+
+  new recipes:
+    - title: 
+
 - version: 1.30.0
   date: 2014-03-28
 
