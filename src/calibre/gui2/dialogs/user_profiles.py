@@ -60,6 +60,20 @@ class CustomRecipeModel(QAbstractListModel):
             self.recipe_model.update_custom_recipe(urn, title, script)
             self.reset()
 
+    def replace_many_by_title(self, scriptmap):
+        script_urn_map = {}
+        for title, script in scriptmap.iteritems():
+            urn = None
+            for x in self.recipe_model.custom_recipe_collection:
+                if x.get('title', False) == title:
+                    urn = x.get('id')
+            if urn is not None:
+                script_urn_map.update({ urn: (title, script) })
+
+        if script_urn_map:
+            self.recipe_model.update_custom_recipes(script_urn_map)
+            self.reset()
+
     def add(self, title, script):
         self.recipe_model.add_custom_recipe(title, script)
         self.reset()
@@ -366,7 +380,8 @@ class %(classname)s(%(base_class)s):
         
         skip_dialog_name='replace_recipes'
         opml = OPML(self.oldest_article.value(), self.max_articles.value());
-        scriptmap = {}
+        add_recipes_map = {}
+        replace_recipes_map = {}
         for opml_file in opml_files:
             opml.load(opml_file)
             outlines = opml.parse()
@@ -394,12 +409,14 @@ class %(classname)s(%(base_class)s):
                         skip_dialog_name=skip_dialog_name,
                         skip_dialog_msg=_('Show dialog again?')
                     ):
-                        self._model.replace_by_title(title, profile)
+                        replace_recipes_map.update({ title: profile })
                 else:
-                    scriptmap.update({ title: profile })
+                    add_recipes_map.update({ title: profile })
                 nr+=1
-        if scriptmap:
-            self.model.add_many(scriptmap)
+        if add_recipes_map:
+            self.model.add_many(add_recipes_map)
+        if replace_recipes_map:
+            self.model.replace_many_by_title(replace_recipes_map)
         self.clear()
 
         # reset the question_dialog

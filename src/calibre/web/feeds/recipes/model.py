@@ -17,8 +17,8 @@ from calibre.utils.localization import get_language
 from calibre.web.feeds.recipes.collection import \
         get_builtin_recipe_collection, get_custom_recipe_collection, \
         SchedulerConfig, download_builtin_recipe, update_custom_recipe, \
-        add_custom_recipe, add_custom_recipes, remove_custom_recipe, \
-        get_custom_recipe, get_builtin_recipe
+        update_custom_recipes, add_custom_recipe, add_custom_recipes, \
+        remove_custom_recipe, get_custom_recipe, get_builtin_recipe
 from calibre.utils.search_query_parser import ParseException
 
 class NewsTreeItem(object):
@@ -171,8 +171,19 @@ class RecipeModel(QAbstractItemModel, SearchQueryParser):
         update_custom_recipe(id_, title, script)
         self.custom_recipe_collection = get_custom_recipe_collection()
 
+    def update_custom_recipes(self, script_urn_map):
+        script_ids = [] 
+        for urn, title_script in script_urn_map.iteritems():
+            id_ = int(urn[len('custom:'):])
+            (title, script) = title_script
+            script_ids.append((id_, title, script))
+
+        update_custom_recipes(script_ids)
+        self.custom_recipe_collection = get_custom_recipe_collection()
+
     def add_custom_recipe(self, title, script):
-        self.add_custom_recipes({ title: script })
+        self.add_custom_recipe(title, script)
+        self.custom_recipe_collection = get_custom_recipe_collection()
 
     def add_custom_recipes(self, scriptmap):
         add_custom_recipes(scriptmap)
