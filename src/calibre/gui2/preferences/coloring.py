@@ -723,11 +723,15 @@ class RulesModel(QAbstractListModel):  # {{{
 
         conditions = [self.condition_to_html(c) for c in rule.conditions]
 
+        sample = '' if kind != 'color' else (
+                     _('(<span style="color: %s;">sample</span>)') % rule.color)
+
         return _('''\
-            <p>Set the <b>%(kind)s</b> of <b>%(col)s</b> to <b>%(color)s</b> if the following
-            conditions are met:</p>
+            <p>Set the <b>%(kind)s</b> of <b>%(col)s</b> to <b>%(color)s</b> %(sample)s
+            if the following conditions are met:</p>
             <ul>%(rule)s</ul>
-            ''') % dict(kind=trans_kind, col=col, color=rule.color, rule=''.join(conditions))
+            ''') % dict(kind=trans_kind, col=col, color=rule.color,
+                        sample=sample, rule=''.join(conditions))
 
     def condition_to_html(self, condition):
         col, a, v = condition
