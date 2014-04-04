@@ -84,9 +84,5 @@ class ColorButton(QPushButton):
     def choose_color(self):
         col = QColorDialog.getColor(QColor(self._color or Qt.white), self, _('Choose a color'))
         if col.isValid():
-            r, g, b, a = col.getRgb()
-            if a != 255:
-                self.color = '#%02x%02x%02x%02x' % col.getRgb()
-            else:
-                self.color = '#%02x%02x%02x' % (r, g, b)
+            self.color = unicode(col.name())
 
