@@ -1137,6 +1137,7 @@ def build_forms(srcdir, info=None):
             dat = dat.replace('import images_rc', '')
             dat = dat.replace('from library import', 'from calibre.gui2.library import')
             dat = dat.replace('from widgets import', 'from calibre.gui2.widgets import')
+            dat = dat.replace('from widgets2 import', 'from calibre.gui2.widgets2 import')
             dat = dat.replace('from convert.xpath_wizard import',
                 'from calibre.gui2.convert.xpath_wizard import')
             dat = re.sub(r'^ {4}def _translate\(context, text, disambig\):\s+return.*$', '    pass', dat,
