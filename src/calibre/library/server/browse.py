@@ -498,7 +498,9 @@ class BrowseServer(object):
                     datatype, self.opts.url_prefix)
             href = re.search(r'<a href="([^"]+)"', html)
             if href is not None:
-                raise cherrypy.InternalRedirect(href.group(1))
+                # cherrypy does not auto unquote params when using
+                # InternalRedirect
+                raise cherrypy.InternalRedirect(unquote(href.group(1)))
 
         if len(items) <= self.opts.max_opds_ungrouped_items:
             script = 'false'
