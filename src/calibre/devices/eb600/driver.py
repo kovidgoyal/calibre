@@ -96,6 +96,16 @@ class TOLINO(EB600):
             drives['carda'] = main
         return drives
 
+    def post_open_callback(self):
+        # The Tolino Vision only handles books inside the Books folder
+        product_id = self.device_being_opened[1]
+        self.ebook_dir_for_upload = 'Books' if product_id == 0x6033 else ''
+
+    def get_main_ebook_dir(self, for_upload=False):
+        if for_upload:
+            return getattr(self, 'ebook_dir_for_upload', self.EBOOK_DIR_MAIN)
+        return self.EBOOK_DIR_MAIN
+
 class COOL_ER(EB600):
 
     name = 'Cool-er device interface'
