@@ -425,7 +425,7 @@ class %(classname)s(%(base_class)s):
             auto_skip.remove(skip_dialog_name)
             gprefs.set('questions_to_auto_skip', auto_skip)
 
-        info_dialog(self, "Finished", "OPML to Recipe conversion complete", show_copy_button=False, show=True)
+        info_dialog(self, _('Finished'), _('OPML to Recipe conversion complete'), show_copy_button=False, show=True)
 
     def populate_options(self, profile):
         self.oldest_article.setValue(profile.oldest_article)
