@@ -118,9 +118,9 @@ def indent_for_tag(x):
     prev = x.getprevious()
     x = x.getparent().text if prev is None else prev.tail
     if not x:
-        return None
+        return ''
     s = x.rpartition('\n')[-1]
-    return s if isspace(s) else None
+    return s if isspace(s) else ''
 
 def set_indent(elem, attr, indent):
     x = getattr(elem, attr)
