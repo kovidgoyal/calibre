@@ -250,6 +250,9 @@ class Images(object):
         width = float(style.get('width', '100pt')[:-2])
 
         page_width = page.width - page.margin_left - page.margin_right
+        if page_width <= 0:
+            # Ignore margins
+            page_width = page.width
 
         hpos = get_hpos(anchor, page_width) + width/(2*page_width)
 
