@@ -632,6 +632,8 @@ class BrowseServer(object):
 
     @Endpoint(sort_type='list')
     def browse_matches(self, category=None, cid=None, list_sort=None):
+        # We might get here from an internal redirect that doesn't unquote the category
+        category = unquote(category)
         if list_sort:
             list_sort = unquote(list_sort)
         if not cid:
