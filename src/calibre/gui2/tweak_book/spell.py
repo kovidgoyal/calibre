@@ -6,13 +6,16 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import cPickle
+import cPickle, os
 from collections import defaultdict
 
 from PyQt4.Qt import (
     QGridLayout, QApplication, QTreeWidget, QTreeWidgetItem, Qt, QFont,
-    QStackedLayout, QLabel, QVBoxLayout, QVariant, QWidget, QPushButton, QIcon)
+    QStackedLayout, QLabel, QVBoxLayout, QVariant, QWidget, QPushButton, QIcon,
+    QDialogButtonBox, QLineEdit, QDialog, QToolButton, QFormLayout, QHBoxLayout)
 
+from calibre.constants import __appname__
+from calibre.gui2 import choose_files, error_dialog
 from calibre.gui2.tweak_book.widgets import Dialog
 from calibre.spell.dictionary import (
     builtin_dictionaries, custom_dictionaries, best_locale_for_language,
@@ -31,6 +34,71 @@ def country_map():
     if _country_map is None:
         _country_map = cPickle.loads(P('localization/iso3166.pickle', data=True, allow_user_override=False))
     return _country_map
+
+class AddDictionary(QDialog):
+
+    def __init__(self, parent=None):
+        QDialog.__init__(self, parent)
+        self.setWindowTitle(_('Add a dictionary'))
+        self.l = l = QFormLayout(self)
+        self.setLayout(l)
+
+        self.la = la = QLabel('<p>' + _(
+        '''{0} supports the use of OpenOffice dictionaries for spell checking. You can
+            download more dictionaries from <a href="{1}">the OpenOffice extensions repository</a>.
+            The dictionary will download as an .oxt file. Simply specify the path to the
+            downloaded .oxt file here to add the dictionary to {0}.'''.format(
+                __appname__, 'http://extensions.openoffice.org'))+'<p>')
+        la.setWordWrap(True)
+        la.setOpenExternalLinks(True)
+        la.setMinimumWidth(450)
+        l.addRow(la)
+
+        self.h = h = QHBoxLayout()
+        self.path = p = QLineEdit(self)
+        p.setPlaceholderText(_('Path to OXT file'))
+        h.addWidget(p)
+
+        self.b = b = QToolButton(self)
+        b.setIcon(QIcon(I('document_open.png')))
+        b.setToolTip(_('Browse for an OXT file'))
+        b.clicked.connect(self.choose_file)
+        h.addWidget(b)
+        l.addRow(_('&Path to OXT file:'), h)
+        l.labelForField(h).setBuddy(p)
+
+        self.nick = n = QLineEdit(self)
+        n.setPlaceholderText(_('Choose a nickname for this dictionary'))
+        l.addRow(_('&Nickname:'), n)
+
+        self.bb = bb = QDialogButtonBox(QDialogButtonBox.Ok|QDialogButtonBox.Cancel)
+        bb.accepted.connect(self.accept)
+        bb.rejected.connect(self.reject)
+        l.addRow(bb)
+        b.setFocus(Qt.OtherFocusReason)
+
+    def choose_file(self):
+        path = choose_files(self, 'choose-dict-for-import', _('Choose OXT Dictionary'), filters=[
+            (_('Dictionaries', ['oxt']))], all_files=False, select_only_single_file=True)
+        if path is not None:
+            self.path.setText(path[0])
+            if not self.nickname:
+                n = os.path.basename(path[0])
+                self.nick.setText(n.rpartition('.')[0])
+
+    @property
+    def nickname(self):
+        return unicode(self.nick.text()).strip()
+
+    def accept(self):
+        nick = self.nickname
+        if not nick:
+            return error_dialog(self, _('Must specify nickname'), _(
+                'You must specify a nickname for this dictionary'), show=True)
+        if nick in {d.name for d in custom_dictionaries()}:
+            return error_dialog(self, _('Nickname already used'), _(
+                'A dictionary with the nick name "%s" already exists.'), show=True)
+        QDialog.accept(self)
 
 class ManageDictionaries(Dialog):
 
@@ -117,7 +185,10 @@ class ManageDictionaries(Dialog):
         self.dictionaries.expandAll()
 
     def add_dictionary(self):
-        pass
+        d = AddDictionary(self)
+        if d.exec_() == d.Accepted:
+            path = unicode(d.path.text())
+            print (path)
 
     def current_item_changed(self):
         item = self.dictionaries.currentItem()

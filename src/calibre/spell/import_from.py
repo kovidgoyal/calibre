@@ -10,9 +10,12 @@ import sys, glob, os, shutil
 
 from lxml import etree
 
+from calibre.utils.zipfile import ZipFile
+
 NS_MAP = {
     'oor': "http://openoffice.org/2001/registry",
     'xs': "http://www.w3.org/2001/XMLSchema",
+    'manifest': 'http://openoffice.org/2001/manifest',
 }
 
 XPath = lambda x: etree.XPath(x, namespaces=NS_MAP)
@@ -56,6 +59,14 @@ def import_from_libreoffice_source_tree(source_path):
 
     if want_locales:
         raise Exception('Failed to find dictionaries for some wanted locales: %s' % want_locales)
+
+def import_from_oxt(source_path):
+    with ZipFile(source_path) as zf:
+        root = etree.fromstring(zf.open('META-INF/manifest.xml').read())
+        xcu = XPath('//manifest:file-entry[@manifest:media-type="application/vnd.sun.star.configuration-data"]')(root)[0].get(
+            '{%s}full-path' % NS_MAP['manifest'])
+        dictionaries = {(dic.lstrip('/'), aff.lstrip('/')):locales for (dic, aff), locales in parse_xcu(zf.open(xcu).read(), origin='').iteritems()}
+        return dictionaries
 
 if __name__ == '__main__':
     import_from_libreoffice_source_tree(sys.argv[-1])
