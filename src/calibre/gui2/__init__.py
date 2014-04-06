@@ -9,7 +9,7 @@ from PyQt4.Qt import (QVariant, QFileInfo, QObject, QBuffer, Qt,
                     QEvent, QTimer, pyqtSignal, QDateTime, QDesktopServices,
                     QFileDialog, QFileIconProvider, QSettings, QColor,
                     QIcon, QApplication, QDialog, QUrl, QFont, QPalette,
-                    QFontDatabase)
+                    QFontDatabase, QLocale)
 
 ORG_NAME = 'KovidsBrain'
 APP_UID  = 'libprs500'
@@ -19,6 +19,7 @@ from calibre.constants import (islinux, iswindows, isbsd, isfrozen, isosx,
 from calibre.utils.config import Config, ConfigProxy, dynamic, JSONConfig
 from calibre.ebooks.metadata import MetaInformation
 from calibre.utils.date import UNDEFINED_DATE
+from calibre.utils.localization import get_lang
 
 # Setup gprefs {{{
 gprefs = JSONConfig('gui')
@@ -873,6 +874,9 @@ class Application(QApplication):
         if DEBUG:
             self.redirect_notify = True
         QApplication.__init__(self, qargs)
+        dl = QLocale(get_lang())
+        if unicode(dl.bcp47Name()) != u'C':
+            QLocale.setDefault(dl)
         global gui_thread, qt_app
         gui_thread = QThread.currentThread()
         self._translator = None

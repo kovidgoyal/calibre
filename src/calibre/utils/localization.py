@@ -100,8 +100,23 @@ def get_all_translators():
                 buf = cStringIO.StringIO(zf.read(mpath + '/messages.mo'))
                 yield lang, GNUTranslations(buf)
 
+lcdata = {
+    u'abday': (u'Sun', u'Mon', u'Tue', u'Wed', u'Thu', u'Fri', u'Sat'),
+    u'abmon': (u'Jan', u'Feb', u'Mar', u'Apr', u'May', u'Jun', u'Jul', u'Aug', u'Sep', u'Oct', u'Nov', u'Dec'),
+    u'd_fmt': u'%m/%d/%Y',
+    u'd_t_fmt': u'%a %d %b %Y %r %Z',
+    u'day': (u'Sunday', u'Monday', u'Tuesday', u'Wednesday', u'Thursday', u'Friday', u'Saturday'),
+    u'mon': (u'January', u'February', u'March', u'April', u'May', u'June', u'July', u'August', u'September', u'October', u'November', u'December'),
+    u'noexpr': u'^[nN].*',
+    u'radixchar': u'.',
+    u't_fmt': u'%r',
+    u't_fmt_ampm': u'%I:%M:%S %p',
+    u'thousep': u',',
+    u'yesexpr': u'^[yY].*'
+}
+
 def set_translators():
-    global _lang_trans
+    global _lang_trans, lcdata
     # To test different translations invoke as
     # CALIBRE_OVERRIDE_LANG=de_DE.utf8 program
     lang = get_lang()
@@ -135,6 +150,11 @@ def set_translators():
                     iso639 = cStringIO.StringIO(zf.read(isof))
                 except:
                     pass  # No iso639 translations for this lang
+                if buf is not None:
+                    try:
+                        lcdata = cPickle.loads(zf.read(mpath + '/lcdata.pickle'))
+                    except:
+                        pass  # No lcdata
 
         if buf is not None:
             t = GNUTranslations(buf)

@@ -6,7 +6,8 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, tempfile, shutil, subprocess, glob, re, time, textwrap
+import os, tempfile, shutil, subprocess, glob, re, time, textwrap, cPickle
+from locale import normalize as normalize_locale
 from functools import partial
 
 from setup import Command, __appname__, __version__, require_git_master
@@ -150,6 +151,9 @@ class Translations(POT):  # {{{
         return locale, os.path.join(self.DEST, locale, 'messages.mo')
 
     def run(self, opts):
+        l = {}
+        execfile(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'lc_data.py'), l, l)
+        lcdata = {k:{k1:v1 for k1, v1 in v} for k, v in l['data']}
         self.iso639_errors = []
         for f in self.po_files():
             locale, dest = self.mo_file(f)
@@ -172,6 +176,13 @@ class Translations(POT):  # {{{
                 'te', 'yi', 'fo', 'sq', 'ast', 'ml', 'ku', 'fr_CA', 'him',
                 'jv', 'ka', 'fur', 'ber', 'my', 'fil'}:
                 self.warn('No ISO 639 translations for locale:', locale)
+
+            ln = normalize_locale(locale).partition('.')[0]
+            if ln in lcdata:
+                ld = lcdata[ln]
+                lcdest = self.j(self.d(dest), 'lcdata.pickle')
+                with open(lcdest, 'wb') as lcf:
+                    lcf.write(cPickle.dumps(ld, -1))
 
         if self.iso639_errors:
             for err in self.iso639_errors:
