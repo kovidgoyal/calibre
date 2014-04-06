@@ -1151,14 +1151,20 @@ class CoverFetch(QDialog):  # {{{
         self.bb.rejected.connect(self.reject)
         self.bb.accepted.connect(self.accept)
 
+        geom = gprefs.get('single-cover-fetch-dialog-geometry', None)
+        if geom is not None:
+            self.restoreGeometry(geom)
+
     def cleanup(self):
         self.covers_widget.cleanup()
 
     def reject(self):
+        gprefs.set('single-cover-fetch-dialog-geometry', bytearray(self.saveGeometry()))
         self.covers_widget.cancel()
         return QDialog.reject(self)
 
     def accept(self, *args):
+        gprefs.set('single-cover-fetch-dialog-geometry', bytearray(self.saveGeometry()))
         self.cover_pixmap = self.covers_widget.cover_pixmap()
         QDialog.accept(self)
 
