@@ -10,7 +10,6 @@ import StringIO, sys, time, os
 from optparse import OptionParser
 
 from calibre import __version__, __appname__, human_readable, fsync
-from calibre.devices.errors import PathError
 from calibre.devices.errors import ArgumentError, DeviceError, DeviceLocked
 from calibre.customize.ui import device_plugins
 from calibre.devices.scanner import DeviceScanner
@@ -319,14 +318,7 @@ def main():
                     print >> sys.stderr, e
                     parser.print_help()
                     return 1
-                try:
-                    dev.put_file(infile, args[1][4:])
-                except PathError as err:
-                    if options.force and 'exists' in str(err):
-                        dev.del_file(err.path, False)
-                        dev.put_file(infile, args[1][4:])
-                    else:
-                        raise
+                dev.put_file(infile, args[1][4:], replace_file=options.force)
                 infile.close()
             else:
                 parser.print_help()
