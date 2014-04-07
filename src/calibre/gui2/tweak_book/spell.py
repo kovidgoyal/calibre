@@ -19,7 +19,7 @@ from calibre.gui2 import choose_files, error_dialog
 from calibre.gui2.tweak_book.widgets import Dialog
 from calibre.spell.dictionary import (
     builtin_dictionaries, custom_dictionaries, best_locale_for_language,
-    get_dictionary, DictionaryLocale, dprefs, remove_dictionary)
+    get_dictionary, DictionaryLocale, dprefs, remove_dictionary, rename_dictionary)
 from calibre.spell.import_from import import_from_oxt
 from calibre.utils.localization import calibre_langcode_to_name
 from calibre.utils.icu import sort_key
@@ -103,8 +103,10 @@ class AddDictionary(QDialog):  # {{{
         try:
             num = import_from_oxt(oxt, nick)
         except:
+            import traceback
             return error_dialog(self, _('Failed to import dictionaries'), _(
-                'Failed to import dictionaries from %s. Click "Show Details" for more information') % oxt, show=True)
+                'Failed to import dictionaries from %s. Click "Show Details" for more information') % oxt,
+                                det_msg=traceback.format_exc(), show=True)
         if num == 0:
             return error_dialog(self, _('No dictionaries'), _(
                 'No dictionaries were found in %s') % oxt, show=True)
@@ -146,6 +148,7 @@ class ManageDictionaries(Dialog):
         s.addWidget(w)
 
         self.dictionaries = d = QTreeWidget(self)
+        d.itemChanged.connect(self.data_changed, type=Qt.QueuedConnection)
         self.build_dictionaries()
         d.setCurrentIndex(d.model().index(0, 0))
         d.header().close()
@@ -160,6 +163,12 @@ class ManageDictionaries(Dialog):
         b.setIcon(QIcon(I('plus.png')))
         b.clicked.connect(self.add_dictionary)
         l.addWidget(self.bb, l.rowCount(), 0, 1, l.columnCount())
+
+    def data_changed(self, item, column):
+        if column == 0 and item.type() == DICTIONARY:
+            d = item.data(0, Qt.UserRole).toPyObject()
+            if not d.builtin and unicode(item.text(0)) != d.name:
+                rename_dictionary(d, unicode(item.text(0)))
 
     def build_dictionaries(self, reread=False):
         all_dictionaries = builtin_dictionaries() | custom_dictionaries(reread=reread)
@@ -192,6 +201,8 @@ class ManageDictionaries(Dialog):
                         pl += '-' + dictionary.primary_locale.countrycode.upper()
                     k.setText(0, dictionary.name or (_('<Builtin dictionary for {0}>').format(pl)))
                     k.setData(0, Qt.UserRole, dictionary)
+                    if dictionary.name:
+                        k.setFlags(k.flags() | Qt.ItemIsEditable)
                     if pd == dictionary:
                         k.setData(0, Qt.FontRole, itf)
 

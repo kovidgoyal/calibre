@@ -70,7 +70,10 @@ def custom_dictionaries(reread=False):
         dics = []
         for lc in glob.glob(os.path.join(config_dir, 'dictionaries', '*/locales')):
             locales = filter(None, open(lc, 'rb').read().decode('utf-8').splitlines())
-            name, locale, locales = locales[0], locales[1], locales[1:]
+            try:
+                name, locale, locales = locales[0], locales[1], locales[1:]
+            except IndexError:
+                continue
             base = os.path.dirname(lc)
             dics.append(Dictionary(
                 parse_lang_code(locale), frozenset(map(parse_lang_code, locales)), os.path.join(base, '%s.dic' % locale),
@@ -94,6 +97,14 @@ def remove_dictionary(dictionary):
     base = os.path.dirname(dictionary.dicpath)
     shutil.rmtree(base)
     dprefs['preferred_dictionaries'] = {k:v for k, v in dprefs['preferred_dictionaries'].iteritems() if v != dictionary.id}
+
+def rename_dictionary(dictionary, name):
+    lf = os.path.join(os.path.dirname(dictionary.dicpath), 'locales')
+    with open(lf, 'r+b') as f:
+        lines = f.read().splitlines()
+        lines[:1] = [name.encode('utf-8')]
+        f.seek(0), f.truncate(), f.write(b'\n'.join(lines))
+    custom_dictionaries(reread=True)
 
 def get_dictionary(locale, exact_match=False):
     preferred = preferred_dictionary(locale)

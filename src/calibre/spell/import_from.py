@@ -63,6 +63,8 @@ def import_from_libreoffice_source_tree(source_path):
 
 def import_from_oxt(source_path, name, dest_dir=None, prefix='dic-'):
     dest_dir = dest_dir or os.path.join(config_dir, 'dictionaries')
+    if not os.path.exists(dest_dir):
+        os.makedirs(dest_dir)
     num = 0
     with ZipFile(source_path) as zf:
         root = etree.fromstring(zf.open('META-INF/manifest.xml').read())
