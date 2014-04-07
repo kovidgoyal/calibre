@@ -117,6 +117,9 @@ class Boss(QObject):
                 ed.apply_settings()
             setup_cssutils_serialization()
             self.gui.apply_settings()
+            if p.dictionaries_changed:
+                pass  # TODO: Clear dictionary caches and rerun syntax highlighting in
+                # all open editors so that spellings are updated
 
     def mark_requested(self, name, action):
         self.commit_dirty_opf()

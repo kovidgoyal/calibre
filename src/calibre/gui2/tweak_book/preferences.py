@@ -14,11 +14,13 @@ from itertools import product
 from PyQt4.Qt import (
     QDialog, QGridLayout, QStackedWidget, QDialogButtonBox, QListWidget,
     QListWidgetItem, QIcon, QWidget, QSize, QFormLayout, Qt, QSpinBox,
-    QCheckBox, pyqtSignal, QDoubleSpinBox, QComboBox, QLabel, QFont, QFontComboBox)
+    QCheckBox, pyqtSignal, QDoubleSpinBox, QComboBox, QLabel, QFont,
+    QFontComboBox, QPushButton, QSizePolicy)
 
 from calibre.gui2.keyboard import ShortcutConfig
 from calibre.gui2.tweak_book import tprefs
 from calibre.gui2.tweak_book.editor.themes import default_theme, THEMES
+from calibre.gui2.tweak_book.spell import ManageDictionaries
 from calibre.gui2.font_family_chooser import FontFamilyChooser
 
 class BasicSettings(QWidget):  # {{{
@@ -146,6 +148,7 @@ class EditorSettings(BasicSettings):
 
     def __init__(self, parent=None):
         BasicSettings.__init__(self, parent)
+        self.dictionaries_changed = False
         self.l = l = QFormLayout(self)
         self.setLayout(l)
 
@@ -190,6 +193,16 @@ class EditorSettings(BasicSettings):
             'This will cause the beautify current file action to be performed automatically every'
             ' time you open a HTML/CSS/etc. file for editing.'))
         l.addRow(lw)
+
+        self.dictionaries = d = QPushButton(_('Manage &spelling dictionaries'), self)
+        d.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+        d.clicked.connect(self.manage_dictionaries)
+        l.addRow(d)
+
+    def manage_dictionaries(self):
+        d = ManageDictionaries(self)
+        d.exec_()
+        self.dictionaries_changed = True
 
 class IntegrationSettings(BasicSettings):
 
@@ -337,6 +350,10 @@ class Preferences(QDialog):
 
         cl.setMaximumWidth(cl.sizeHintForColumn(0) + 35)
         cl.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+
+    @property
+    def dictionaries_changed(self):
+        return self.editor_panel.dictionaries_changed
 
     def restore_all_defaults(self):
         for i in xrange(self.stacks.count()):
