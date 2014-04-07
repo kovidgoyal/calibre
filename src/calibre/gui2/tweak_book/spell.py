@@ -19,7 +19,8 @@ from calibre.gui2 import choose_files, error_dialog
 from calibre.gui2.tweak_book.widgets import Dialog
 from calibre.spell.dictionary import (
     builtin_dictionaries, custom_dictionaries, best_locale_for_language,
-    get_dictionary, DictionaryLocale, dprefs)
+    get_dictionary, DictionaryLocale, dprefs, remove_dictionary)
+from calibre.spell.import_from import import_from_oxt
 from calibre.utils.localization import calibre_langcode_to_name
 from calibre.utils.icu import sort_key
 
@@ -35,7 +36,7 @@ def country_map():
         _country_map = cPickle.loads(P('localization/iso3166.pickle', data=True, allow_user_override=False))
     return _country_map
 
-class AddDictionary(QDialog):
+class AddDictionary(QDialog):  # {{{
 
     def __init__(self, parent=None):
         QDialog.__init__(self, parent)
@@ -79,7 +80,7 @@ class AddDictionary(QDialog):
 
     def choose_file(self):
         path = choose_files(self, 'choose-dict-for-import', _('Choose OXT Dictionary'), filters=[
-            (_('Dictionaries', ['oxt']))], all_files=False, select_only_single_file=True)
+            (_('Dictionaries'), ['oxt'])], all_files=False, select_only_single_file=True)
         if path is not None:
             self.path.setText(path[0])
             if not self.nickname:
@@ -98,7 +99,17 @@ class AddDictionary(QDialog):
         if nick in {d.name for d in custom_dictionaries()}:
             return error_dialog(self, _('Nickname already used'), _(
                 'A dictionary with the nick name "%s" already exists.'), show=True)
+        oxt = unicode(self.path.text())
+        try:
+            num = import_from_oxt(oxt, nick)
+        except:
+            return error_dialog(self, _('Failed to import dictionaries'), _(
+                'Failed to import dictionaries from %s. Click "Show Details" for more information') % oxt, show=True)
+        if num == 0:
+            return error_dialog(self, _('No dictionaries'), _(
+                'No dictionaries were found in %s') % oxt, show=True)
         QDialog.accept(self)
+# }}}
 
 class ManageDictionaries(Dialog):
 
@@ -126,7 +137,8 @@ class ManageDictionaries(Dialog):
         self.dl = dl = QVBoxLayout(w)
         self.fb = b = QPushButton(self)
         b.clicked.connect(self.set_favorite)
-        self.remove_dictionary = rd = QPushButton(_('&Remove this dictionary'), w)
+        self.remove_dictionary_button = rd = QPushButton(_('&Remove this dictionary'), w)
+        rd.clicked.connect(self.remove_dictionary)
         dl.addWidget(b), dl.addWidget(rd)
         w.setLayout(dl)
         s.addWidget(la)
@@ -149,8 +161,8 @@ class ManageDictionaries(Dialog):
         b.clicked.connect(self.add_dictionary)
         l.addWidget(self.bb, l.rowCount(), 0, 1, l.columnCount())
 
-    def build_dictionaries(self):
-        all_dictionaries = builtin_dictionaries() | custom_dictionaries()
+    def build_dictionaries(self, reread=False):
+        all_dictionaries = builtin_dictionaries() | custom_dictionaries(reread=reread)
         languages = defaultdict(lambda : defaultdict(set))
         for d in all_dictionaries:
             for locale in d.locales | {d.primary_locale}:
@@ -159,6 +171,7 @@ class ManageDictionaries(Dialog):
         bf.setBold(True)
         itf = QFont(self.dictionaries.font())
         itf.setItalic(True)
+        self.dictionaries.clear()
 
         for lc in sorted(languages, key=lambda x:sort_key(calibre_langcode_to_name(x))):
             i = QTreeWidgetItem(self.dictionaries, LANG)
@@ -174,12 +187,12 @@ class ManageDictionaries(Dialog):
                 pd = get_dictionary(DictionaryLocale(lc, countrycode))
                 for dictionary in sorted(languages[lc][countrycode], key=lambda d:d.name):
                     k = QTreeWidgetItem(j, DICTIONARY)
-                    pl = calibre_langcode_to_name(d.primary_locale.langcode)
-                    if d.primary_locale.countrycode:
-                        pl += '-' + d.primary_locale.countrycode.upper()
-                    k.setText(0, d.name or (_('<Builtin dictionary for {0}>').format(pl)))
-                    k.setData(0, Qt.UserRole, d)
-                    if pd == d:
+                    pl = calibre_langcode_to_name(dictionary.primary_locale.langcode)
+                    if dictionary.primary_locale.countrycode:
+                        pl += '-' + dictionary.primary_locale.countrycode.upper()
+                    k.setText(0, dictionary.name or (_('<Builtin dictionary for {0}>').format(pl)))
+                    k.setData(0, Qt.UserRole, dictionary)
+                    if pd == dictionary:
                         k.setData(0, Qt.FontRole, itf)
 
         self.dictionaries.expandAll()
@@ -187,8 +200,15 @@ class ManageDictionaries(Dialog):
     def add_dictionary(self):
         d = AddDictionary(self)
         if d.exec_() == d.Accepted:
-            path = unicode(d.path.text())
-            print (path)
+            self.build_dictionaries(reread=True)
+
+    def remove_dictionary(self):
+        item = self.dictionaries.currentItem()
+        if item is not None and item.type() == DICTIONARY:
+            dic = item.data(0, Qt.UserRole).toPyObject()
+            if not dic.builtin:
+                remove_dictionary(dic)
+                self.build_dictionaries(reread=True)
 
     def current_item_changed(self):
         item = self.dictionaries.currentItem()
@@ -242,7 +262,7 @@ class ManageDictionaries(Dialog):
             'This is already the preferred dictionary') if preferred else
             _('Use this as the preferred dictionary')))
         saf.setEnabled(not preferred)
-        self.remove_dictionary.setEnabled(not item.data(0, Qt.UserRole).toPyObject().builtin)
+        self.remove_dictionary_button.setEnabled(not item.data(0, Qt.UserRole).toPyObject().builtin)
 
     def set_favorite(self):
         item = self.dictionaries.currentItem()
@@ -255,7 +275,7 @@ class ManageDictionaries(Dialog):
         d = item.data(0, Qt.UserRole).toPyObject()
         locale = '%s-%s' % (lc, cc)
         pl = dprefs['preferred_dictionaries']
-        pl[locale] = d.name
+        pl[locale] = d.id
         dprefs['preferred_dictionaries'] = pl
 
 if __name__ == '__main__':

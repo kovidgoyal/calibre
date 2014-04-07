@@ -6,7 +6,7 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import cPickle, os, glob
+import cPickle, os, glob, shutil
 from collections import namedtuple
 from operator import attrgetter
 
@@ -15,8 +15,8 @@ from calibre.utils.config import JSONConfig
 from calibre.utils.localization import get_lang, canonicalize_lang
 
 DictionaryLocale = namedtuple('DictionaryLocale', 'langcode countrycode')
-Dictionary = namedtuple('Dictionary', 'primary_locale locales dicpath affpath builtin name')
-LoadedDictionary = namedtuple('Dictionary', 'primary_locale locales obj builtin name')
+Dictionary = namedtuple('Dictionary', 'primary_locale locales dicpath affpath builtin name id')
+LoadedDictionary = namedtuple('Dictionary', 'primary_locale locales obj builtin name id')
 hunspell = plugins['hunspell'][0]
 if hunspell is None:
     raise RuntimeError('Failed to load hunspell: %s' % plugins[1])
@@ -60,15 +60,13 @@ def builtin_dictionaries():
             base = os.path.dirname(lc)
             dics.append(Dictionary(
                 parse_lang_code(locale), frozenset(map(parse_lang_code, locales)), os.path.join(base, '%s.dic' % locale),
-                os.path.join(base, '%s.aff' % locale), True, None))
+                os.path.join(base, '%s.aff' % locale), True, None, None))
         _builtins = frozenset(dics)
     return _builtins
 
 def custom_dictionaries(reread=False):
     global _custom
-    if reread:
-        _custom = None
-    if _custom is None:
+    if _custom is None or reread:
         dics = []
         for lc in glob.glob(os.path.join(config_dir, 'dictionaries', '*/locales')):
             locales = filter(None, open(lc, 'rb').read().decode('utf-8').splitlines())
@@ -76,7 +74,7 @@ def custom_dictionaries(reread=False):
             base = os.path.dirname(lc)
             dics.append(Dictionary(
                 parse_lang_code(locale), frozenset(map(parse_lang_code, locales)), os.path.join(base, '%s.dic' % locale),
-                os.path.join(base, '%s.aff' % locale), False, name))
+                os.path.join(base, '%s.aff' % locale), False, name, os.path.basename(base)))
         _custom = frozenset(dics)
     return _custom
 
@@ -88,7 +86,14 @@ def best_locale_for_language(langcode):
         return parse_lang_code(best_locale)
 
 def preferred_dictionary(locale):
-    return {parse_lang_code(k):v for k, v in dprefs['preferred_dictionaries']}.get(locale, None)
+    return {parse_lang_code(k):v for k, v in dprefs['preferred_dictionaries'].iteritems()}.get(locale, None)
+
+def remove_dictionary(dictionary):
+    if dictionary.builtin:
+        raise ValueError('Cannot remove builtin dictionaries')
+    base = os.path.dirname(dictionary.dicpath)
+    shutil.rmtree(base)
+    dprefs['preferred_dictionaries'] = {k:v for k, v in dprefs['preferred_dictionaries'].iteritems() if v != dictionary.id}
 
 def get_dictionary(locale, exact_match=False):
     preferred = preferred_dictionary(locale)
@@ -97,11 +102,11 @@ def get_dictionary(locale, exact_match=False):
     for collection in (custom_dictionaries(), builtin_dictionaries()):
         for d in collection:
             if d.primary_locale == locale:
-                exact_matches[d.name] = d
+                exact_matches[d.id] = d
         for d in collection:
             for q in d.locales:
-                if q == locale and d.name not in exact_matches:
-                    exact_matches[d.name] = d
+                if q == locale and d.id not in exact_matches:
+                    exact_matches[d.id] = d
 
     # If the user has specified a preferred dictionary for this locale, use it,
     # otherwise, if a builtin dictionary exists, use that
@@ -134,7 +139,7 @@ def get_dictionary(locale, exact_match=False):
 def load_dictionary(dictionary):
     with open(dictionary.dicpath, 'rb') as dic, open(dictionary.affpath, 'rb') as aff:
         obj = hunspell.Dictionary(dic.read(), aff.read())
-    return LoadedDictionary(dictionary.primary_locale, dictionary.locales, obj, dictionary.builtin, dictionary.name)
+    return LoadedDictionary(dictionary.primary_locale, dictionary.locales, obj, dictionary.builtin, dictionary.name, dictionary.id)
 
 class Dictionaries(object):
 

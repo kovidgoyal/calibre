@@ -6,10 +6,11 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import sys, glob, os, shutil
+import sys, glob, os, shutil, tempfile
 
 from lxml import etree
 
+from calibre.constants import config_dir
 from calibre.utils.zipfile import ZipFile
 
 NS_MAP = {
@@ -60,13 +61,25 @@ def import_from_libreoffice_source_tree(source_path):
     if want_locales:
         raise Exception('Failed to find dictionaries for some wanted locales: %s' % want_locales)
 
-def import_from_oxt(source_path):
+def import_from_oxt(source_path, name, dest_dir=None, prefix='dic-'):
+    dest_dir = dest_dir or os.path.join(config_dir, 'dictionaries')
+    num = 0
     with ZipFile(source_path) as zf:
         root = etree.fromstring(zf.open('META-INF/manifest.xml').read())
         xcu = XPath('//manifest:file-entry[@manifest:media-type="application/vnd.sun.star.configuration-data"]')(root)[0].get(
             '{%s}full-path' % NS_MAP['manifest'])
-        dictionaries = {(dic.lstrip('/'), aff.lstrip('/')):locales for (dic, aff), locales in parse_xcu(zf.open(xcu).read(), origin='').iteritems()}
-        return dictionaries
+        for (dic, aff), locales in parse_xcu(zf.open(xcu).read(), origin='').iteritems():
+            dic, aff = dic.lstrip('/'), aff.lstrip('/')
+            d = tempfile.mkdtemp(prefix=prefix, dir=dest_dir)
+            metadata = [name] + locales
+            with open(os.path.join(d, 'locales'), 'wb') as f:
+                f.write(('\n'.join(metadata)).encode('utf-8'))
+            with open(os.path.join(d, '%s.dic' % locales[0]), 'wb') as f:
+                shutil.copyfileobj(zf.open(dic), f)
+            with open(os.path.join(d, '%s.aff' % locales[0]), 'wb') as f:
+                shutil.copyfileobj(zf.open(aff), f)
+            num += 1
+    return num
 
 if __name__ == '__main__':
     import_from_libreoffice_source_tree(sys.argv[-1])
