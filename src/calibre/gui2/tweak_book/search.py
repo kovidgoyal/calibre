@@ -12,7 +12,7 @@ from collections import OrderedDict
 
 from PyQt4.Qt import (
     QWidget, QToolBar, Qt, QHBoxLayout, QSize, QIcon, QGridLayout, QLabel, QTimer,
-    QPushButton, pyqtSignal, QComboBox, QCheckBox, QSizePolicy, QVBoxLayout,
+    QPushButton, pyqtSignal, QComboBox, QCheckBox, QSizePolicy, QVBoxLayout, QFont,
     QLineEdit, QToolButton, QListView, QFrame, QApplication, QStyledItemDelegate,
     QAbstractListModel, QVariant, QFormLayout, QModelIndex, QMenu, QItemSelection)
 
@@ -65,7 +65,7 @@ class HistoryLineEdit(HistoryLineEdit2):
 
 class WhereBox(QComboBox):
 
-    def __init__(self, parent):
+    def __init__(self, parent, emphasize=False):
         QComboBox.__init__(self)
         self.addItems([_('Current file'), _('All text files'), _('All style files'), _('Selected files'), _('Marked text')])
         self.setToolTip('<style>dd {margin-bottom: 1.5ex}</style>' + _(
@@ -83,6 +83,7 @@ class WhereBox(QComboBox):
             <dt><b>Marked text</b></dt>
             <dd>Search only within the marked text in the currently opened file. You can mark text using the Search menu.</dd>
             </dl>'''))
+        self.emphasize = emphasize
 
     @dynamic_property
     def where(self):
@@ -92,6 +93,17 @@ class WhereBox(QComboBox):
         def fset(self, val):
             self.setCurrentIndex({v:k for k, v in wm.iteritems()}[val])
         return property(fget=fget, fset=fset)
+
+    def paintEvent(self, ev):
+        # We do it like this so that the popup uses a normal font
+        if self.emphasize:
+            ofont = self.font()
+            f = QFont(ofont)
+            f.setBold(True), f.setItalic(True)
+            self.setFont(f)
+        QComboBox.paintEvent(self, ev)
+        if self.emphasize:
+            self.setFont(ofont)
 
 class DirectionBox(QComboBox):
 
@@ -609,7 +621,7 @@ class SavedSearches(Dialog):
         d.setFrameStyle(QFrame.HLine)
         v.addWidget(d)
 
-        self.where_box = wb = WhereBox(self)
+        self.where_box = wb = WhereBox(self, emphasize=True)
         self.where = SearchWidget.DEFAULT_STATE['where']
         v.addWidget(wb)
         self.direction_box = db = DirectionBox(self)
