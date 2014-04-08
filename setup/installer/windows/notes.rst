@@ -164,6 +164,9 @@ somewhere on your PATH (I chose ~/sw/bin)
 Download and untar the openssl tarball, follow the instructions in INSTALL.(W32|W64)
 to install use prefix q:\openssl
 
+The following *MUST BE RUN* in a Visual Studio Command prompt and not in a cygwin
+environment.
+
 For 32-bit::
     perl Configure VC-WIN32 no-asm enable-static-engine --prefix=Q:/openssl
     ms\do_ms.bat
@@ -173,7 +176,7 @@ For 32-bit::
 
 For 64-bit::
     perl Configure VC-WIN64A no-asm enable-static-engine --prefix=C:/cygwin/home/kovid/sw/private/openssl
-    ms\do_win64a
+    ms\do_win64a.bat
     nmake -f ms\ntdll.mak
     nmake -f ms\ntdll.mak test
     nmake -f ms\ntdll.mak install
