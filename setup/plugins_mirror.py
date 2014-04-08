@@ -6,7 +6,7 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import urllib2, re, HTMLParser, zlib, gzip, io, sys, bz2, json, errno, urlparse, os, zipfile, ast, tempfile, glob, stat, socket
+import urllib2, re, HTMLParser, zlib, gzip, io, sys, bz2, json, errno, urlparse, os, zipfile, ast, tempfile, glob, stat, socket, subprocess, atexit
 from future_builtins import map, zip, filter
 from collections import namedtuple
 from multiprocessing.pool import ThreadPool
@@ -18,7 +18,8 @@ from xml.sax.saxutils import escape, quoteattr
 
 USER_AGENT = 'calibre mirror'
 MR_URL = 'http://www.mobileread.com/forums/'
-WORKDIR = '/srv/plugins' if os.path.exists('/srv') else '/t/plugins'
+IS_PRODUCTION = os.path.exists('/srv/plugins')
+WORKDIR = '/srv/plugins' if IS_PRODUCTION else '/t/plugins'
 PLUGINS = 'plugins.json.bz2'
 INDEX = MR_URL + 'showpost.php?p=1362767&postcount=1'
 # INDEX = 'file:///t/raw.html'
@@ -349,7 +350,7 @@ def fetch_plugins(old_index):
         os.unlink(x)
     return ans
 
-def plugin_to_index(plugin):
+def plugin_to_index(plugin, count):
     title = '<h3><img src="http://icons.iconarchive.com/icons/oxygen-icons.org/oxygen/32/Apps-preferences-plugin-icon.png"><a href=%s title="Plugin forum thread">%s</a></h3>' % (  # noqa
         quoteattr(plugin['thread_url']), escape(plugin['name']))
     released = datetime(*tuple(map(int, re.split(r'\D', plugin['last_modified'])))[:6]).strftime('%e %b, %Y').lstrip()
@@ -371,20 +372,25 @@ def plugin_to_index(plugin):
             block.append('<br>')
         block.append('<li>%s</li>' % li)
     block = '<ul>%s</ul>' % ('\n'.join(block))
-    zipfile = '<div class="end"><a href=%s title="Download plugin" download=%s>Download plugin \u2193</a></div>' % (
-        quoteattr(plugin['file']), quoteattr(plugin['name'] + '.zip'))
+    downloads = ('\xa0<span class="download-count">[%d total downloads]</span>' % count) if count else ''
+    zipfile = '<div class="end"><a href=%s title="Download plugin" download=%s>Download plugin \u2193</a>%s</div>' % (
+        quoteattr(plugin['file']), quoteattr(plugin['name'] + '.zip'), downloads)
     desc = plugin['description'] or ''
     if desc:
         desc = '<p>%s</p>' % desc
     return '%s\n%s\n%s\n%s\n\n' % (title, desc, block, zipfile)
 
-def create_index(index):
+def create_index(index, raw_stats):
     plugins = []
+    stats = {}
     for name in sorted(index):
         plugin = index[name]
         if not plugin['deprecated']:
+            count = raw_stats.get(plugin['file'].rpartition('.')[0], 0)
+            if count > 0:
+                stats[plugin['name']] = count
             plugins.append(
-                plugin_to_index(plugin))
+                plugin_to_index(plugin, count))
     index = '''\
 <!DOCTYPE html>
 <html>
@@ -401,6 +407,7 @@ li+li:before { content: " - " }
 .end { border-bottom: solid 1pt black; padding-bottom: 0.5ex; margin-bottom: 4ex; }
 h1 img, h3 img { vertical-align: middle; margin-right: 0.5em; }
 h1 { text-align: center }
+.download-count { color: gray; font-size: smaller }
 </style>
 </head>
 <body>
@@ -418,6 +425,40 @@ h1 { text-align: center }
     if raw != oraw:
         atomic_write(raw, 'index.html')
 
+    def plugin_stats(x):
+        name, count = x
+        return '<tr><td>%s</td><td>%s</td></tr>\n' % (escape(name), count)
+
+    pstats = map(plugin_stats, sorted(stats.iteritems(), reverse=True, key=lambda x:x[1]))
+    stats = '''\
+<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"><title>Stats for calibre plugins</title>
+<link rel="icon" type="image/x-icon" href="http://calibre-ebook.com/favicon.ico" />
+<style type="text/css">
+body { background-color: #eee; }
+h1 img, h3 img { vertical-align: middle; margin-right: 0.5em; }
+h1 { text-align: center }
+</style>
+</head>
+<body>
+<h1><img src="http://manual.calibre-ebook.com/_static/logo.png">Stats for calibre plugins</h1>
+<table>
+<tr><th>Plugin</th><th>Total downloads</th></tr>
+%s
+</table>
+</body>
+</html>
+    ''' % ('\n'.join(pstats))
+    raw = stats.encode('utf-8')
+    try:
+        with open('stats.html', 'rb') as f:
+            oraw = f.read()
+    except EnvironmentError:
+        oraw = None
+    if raw != oraw:
+        atomic_write(raw, 'stats.html')
+
 
 _singleinstance = None
 def singleinstance():
@@ -430,6 +471,32 @@ def singleinstance():
             return False
         raise
     return True
+
+def update_stats():
+    log = olog = 'stats.log'
+    if not os.path.exists(log):
+        return
+    stats = {}
+    if IS_PRODUCTION:
+        try:
+            with open('stats.json', 'rb') as f:
+                stats = json.load(f)
+        except EnvironmentError as err:
+            if err.errno != errno.ENOENT:
+                raise
+        log = 'rotated-' + log
+        os.rename(olog, log)
+        subprocess.check_call(['nginx', '-s', 'reopen'])
+        atexit.register(os.remove, log)
+    pat = re.compile(br'GET /(\d+)(?:-deprecated){0,1}\.zip')
+    for line in open(log, 'rb'):
+        m = pat.search(line)
+        if m is not None:
+            plugin = m.group(1).decode('utf-8')
+            stats[plugin] = stats.get(plugin, 0) + 1
+    with open('stats.json', 'wb') as f:
+        json.dump(stats, f, indent=2)
+    return stats
 
 def main():
     try:
@@ -447,10 +514,11 @@ def main():
         print('Another instance of plugins-mirror is running', file=sys.stderr)
         raise SystemExit(1)
     open('log', 'w').close()
+    stats = update_stats()
     try:
         plugins_index = load_plugins_index()
         plugins_index = fetch_plugins(plugins_index)
-        create_index(plugins_index)
+        create_index(plugins_index, stats)
     except:
         import traceback
         log('Failed to run at:', datetime.utcnow().isoformat())
