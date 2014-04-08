@@ -395,16 +395,19 @@ class SearchesModel(QAbstractListModel):
         return len(self.filtered_searches)
 
     def data(self, index, role):
-        if role == Qt.DisplayRole:
-            search = self.searches[self.filtered_searches[index.row()]]
-            return QVariant(search['name'])
-        if role == Qt.ToolTipRole:
-            search = self.searches[self.filtered_searches[index.row()]]
-            tt = '\n'.join((search['find'], search['replace']))
-            return QVariant(tt)
-        if role == Qt.UserRole:
-            search = self.searches[self.filtered_searches[index.row()]]
-            return QVariant((self.filtered_searches[index.row()], search))
+        try:
+            if role == Qt.DisplayRole:
+                search = self.searches[self.filtered_searches[index.row()]]
+                return QVariant(search['name'])
+            if role == Qt.ToolTipRole:
+                search = self.searches[self.filtered_searches[index.row()]]
+                tt = '\n'.join((search['find'], search['replace']))
+                return QVariant(tt)
+            if role == Qt.UserRole:
+                search = self.searches[self.filtered_searches[index.row()]]
+                return QVariant((self.filtered_searches[index.row()], search))
+        except IndexError:
+            pass
         return NONE
 
     def do_filter(self, text):
