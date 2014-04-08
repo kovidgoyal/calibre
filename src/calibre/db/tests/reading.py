@@ -274,7 +274,7 @@ class ReadingTest(BaseTest):
             'rating:false', 'rating:>4', 'tags:#<2', 'tags:#>7',
             'cover:false', 'cover:true', '#float:>11', '#float:<1k',
             '#float:10.01', '#float:false', 'series_index:1',
-            'series_index:<3', 'id:1', 'id:>2',
+            'series_index:<3',
 
             # Bool tests
             '#yesno:true', '#yesno:false', '#yesno:yes', '#yesno:no',
@@ -289,7 +289,7 @@ class ReadingTest(BaseTest):
             # Text tests
             'title:="Title One"', 'title:~title', '#enum:=one', '#enum:tw',
             '#enum:false', '#enum:true', 'series:one', 'tags:one', 'tags:true',
-            'tags:false', '2', 'one', '20.02', '"publisher one"',
+            'tags:false', 'uuid:2', 'one', '20.02', '"publisher one"',
             '"my comments one"',
 
             # User categories
@@ -311,6 +311,13 @@ class ReadingTest(BaseTest):
             self.assertEqual(ans, nr,
                 'Old result: %r != New result: %r for search: %s'%(
                     ans, nr, query))
+
+        # Test searching by id, which was introduced in the new backend
+        self.assertEqual(cache.search('id:1', ''), {1})
+        self.assertEqual(cache.search('id:>1', ''), {2, 3})
+
+        # Note that the old db searched uuid for un-prefixed searches, the new
+        # db does not, for performance
 
     # }}}
 

@@ -157,7 +157,7 @@ class Cache(object):
         self.field_metadata.add_grouped_search_terms(
                                     self._pref('grouped_search_terms', {}))
 
-        self._search_api.change_locations(self.field_metadata.get_search_terms())
+        self._refresh_search_locations()
 
         self.dirtied_cache = {x:i for i, (x,) in enumerate(
             self.backend.execute('SELECT book FROM metadata_dirtied'))}
@@ -1757,6 +1757,10 @@ class Cache(object):
     @write_api
     def change_search_locations(self, newlocs):
         self._search_api.change_locations(newlocs)
+
+    @write_api
+    def refresh_search_locations(self):
+        self._search_api.change_locations(self.field_metadata.get_search_terms())
 
     @write_api
     def dump_and_restore(self, callback=None, sql=None):

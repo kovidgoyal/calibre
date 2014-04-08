@@ -876,7 +876,7 @@ class TagsModel(QAbstractItemModel):  # {{{
                     tb_cats.add_user_category(label=u'@' + cat, name=cat)
                 except ValueError:
                     traceback.print_exc()
-        self.db.data.change_search_locations(self.db.field_metadata.get_search_terms())
+        self.db.new_api.refresh_search_locations()
 
         if len(self.db.saved_search_names()):
             tb_cats.add_search_category(label='search', name=_('Searches'))

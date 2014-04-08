@@ -111,7 +111,7 @@ class TagBrowserMixin(object):  # {{{
             db.field_metadata.remove_user_categories()
             for k in d.categories:
                 db.field_metadata.add_user_category('@' + k, k)
-            db.data.change_search_locations(db.field_metadata.get_search_terms())
+            db.new_api.refresh_search_locations()
             self.tags_view.recount()
 
     def do_delete_user_category(self, category_name):

@@ -562,10 +562,16 @@ class Parser(SearchQueryParser):  # {{{
             if (dt in ('rating', 'int', 'float') or
                     (dt == 'composite' and
                      fm['display'].get('composite_sort', '') == 'number')):
-                field = self.dbcache.fields[location]
+                if location == 'id':
+                    is_many = False
+                    def fi(default_value=None):
+                        for qid in candidates:
+                            yield qid, {qid}
+                else:
+                    field = self.dbcache.fields[location]
+                    fi, is_many = partial(self.field_iter, location, candidates), field.is_many
                 return self.num_search(
-                    icu_lower(query), partial(self.field_iter, location, candidates),
-                    location, dt, candidates, is_many=field.is_many)
+                    icu_lower(query), fi, location, dt, candidates, is_many=is_many)
 
             # take care of the 'count' operator for is_multiples
             if (fm['is_multiple'] and
@@ -602,8 +608,8 @@ class Parser(SearchQueryParser):  # {{{
         for x, fm in self.field_metadata.iteritems():
             if x.startswith('@'):
                 continue
-            if fm['search_terms'] and x != 'series_sort':
-                if x not in self.virtual_fields:
+            if fm['search_terms'] and x not in {'series_sort', 'id'}:
+                if x not in self.virtual_fields and x != 'uuid':
                     # We dont search virtual fields because if we do, search
                     # caching will not be used
                     all_locs.add(x)
