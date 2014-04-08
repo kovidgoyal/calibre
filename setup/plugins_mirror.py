@@ -412,7 +412,7 @@ h1 { text-align: center }
 </head>
 <body>
 <h1><img src="http://manual.calibre-ebook.com/_static/logo.png">Index of calibre plugins</h1>
-</body>
+<div style="text-align:center"><a href="stats.html">Download counts for all plugins</a></div>
 %s
 </body>
 </html>''' % ('\n'.join(plugins))
