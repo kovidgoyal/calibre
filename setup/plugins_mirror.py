@@ -6,7 +6,7 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import urllib2, re, HTMLParser, zlib, gzip, io, sys, bz2, json, errno, urlparse, os, zipfile, ast, tempfile, glob, fcntl, atexit, stat, socket
+import urllib2, re, HTMLParser, zlib, gzip, io, sys, bz2, json, errno, urlparse, os, zipfile, ast, tempfile, glob, stat, socket
 from future_builtins import map, zip, filter
 from collections import namedtuple
 from multiprocessing.pool import ThreadPool
@@ -419,18 +419,17 @@ h1 { text-align: center }
         atomic_write(raw, 'index.html')
 
 
+_singleinstance = None
 def singleinstance():
-    path = os.path.abspath('plugins_mirror_update.lock')
+    global _singleinstance
+    s = _singleinstance = socket.socket(socket.AF_UNIX)
     try:
-        f = open(path, 'w')
-        fcntl.lockf(f.fileno(), fcntl.LOCK_EX|fcntl.LOCK_NB)
-        f.write(str(os.getpid()))
-        f.flush()
-        atexit.register(f.close)
-        return True
-    except IOError:
-        return False
-    return False
+        s.bind(b'\0calibre-plugins-mirror-singleinstance')
+    except socket.error as err:
+        if getattr(err, 'errno', None) == errno.EADDRINUSE:
+            return False
+        raise
+    return True
 
 def main():
     try:
@@ -445,7 +444,7 @@ def main():
         else:
             raise
     if not singleinstance():
-        print('Another instance is running or you dont have permission to create lock file, aborting.', file=sys.stderr)
+        print('Another instance of plugins-mirror is running', file=sys.stderr)
         raise SystemExit(1)
     open('log', 'w').close()
     try:
