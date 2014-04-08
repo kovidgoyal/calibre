@@ -486,7 +486,7 @@ def update_stats():
                 raise
         log = 'rotated-' + log
         os.rename(olog, log)
-        subprocess.check_call(['nginx', '-s', 'reopen'])
+        subprocess.check_call(['/usr/sbin/nginx', '-s', 'reopen'])
         atexit.register(os.remove, log)
     pat = re.compile(br'GET /(\d+)(?:-deprecated){0,1}\.zip')
     for line in open(log, 'rb'):
