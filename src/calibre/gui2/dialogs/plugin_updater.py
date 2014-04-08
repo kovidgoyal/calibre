@@ -17,7 +17,7 @@ from PyQt4.Qt import (Qt, QUrl, QFrame, QVBoxLayout, QLabel, QBrush, QTextEdit,
 from PyQt4.QtGui import QLineEdit
 
 from calibre import browser, prints
-from calibre.constants import numeric_version, iswindows, isosx, DEBUG
+from calibre.constants import numeric_version, iswindows, isosx, DEBUG, __appname__, __version__
 from calibre.customize.ui import (
     initialized_plugins, is_disabled, remove_plugin, add_plugin, enable_plugin, disable_plugin,
     NameConflict, has_external_plugins)
@@ -836,7 +836,7 @@ class PluginUpdaterDialog(SizePersistedDialog):
 
     def _download_zip(self, plugin_zip_url):
         from calibre.ptempfile import PersistentTemporaryFile
-        br = browser()
+        br = browser(user_agent='%s %s' % (__appname__, __version__))
         raw = br.open_novisit(plugin_zip_url).read()
         with PersistentTemporaryFile('.zip') as pt:
             pt.write(raw)
