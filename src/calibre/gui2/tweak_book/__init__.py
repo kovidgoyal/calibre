@@ -10,6 +10,8 @@ import string
 from future_builtins import map
 
 from calibre.utils.config import JSONConfig
+from calibre.spell.dictionary import Dictionaries, parse_lang_code
+
 tprefs = JSONConfig('tweak_book_gui')
 d = tprefs.defaults
 
@@ -69,3 +71,12 @@ class NonReplaceDict(dict):
 actions = NonReplaceDict()
 editors = NonReplaceDict()
 TOP = object()
+dictionaries = Dictionaries()
+
+def set_book_locale(lang):
+    try:
+        dictionaries.default_locale = parse_lang_code(lang)
+        if dictionaries.default_locale.langcode == 'und':
+            raise ValueError('')
+    except ValueError:
+        dictionaries.default_locale = dictionaries.ui_locale

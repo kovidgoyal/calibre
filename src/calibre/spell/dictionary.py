@@ -34,6 +34,7 @@ def get_codes():
     return ccodes, ccodemap
 
 def parse_lang_code(raw):
+    raw = raw or ''
     parts = raw.replace('_', '-').split('-')
     lc = canonicalize_lang(parts[0])
     if lc is None:
@@ -161,6 +162,7 @@ class Dictionaries(object):
             self.default_locale = parse_lang_code(get_lang())
         except ValueError:
             self.default_locale = parse_lang_code('en-US')
+        self.ui_locale = self.default_locale
 
     def clear_caches(self):
         self.dictionaries.clear(), self.word_cache.clear()

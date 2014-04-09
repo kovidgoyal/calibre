@@ -27,7 +27,8 @@ from calibre.ebooks.oeb.polish.toc import remove_names_from_toc, find_existing_t
 from calibre.ebooks.oeb.polish.utils import link_stylesheets, setup_cssutils_serialization as scs
 from calibre.gui2 import error_dialog, choose_files, question_dialog, info_dialog, choose_save_file
 from calibre.gui2.dialogs.confirm_delete import confirm
-from calibre.gui2.tweak_book import set_current_container, current_container, tprefs, actions, editors
+from calibre.gui2.tweak_book import (
+    set_current_container, current_container, tprefs, actions, editors, set_book_locale)
 from calibre.gui2.tweak_book.undo import GlobalUndoHistory
 from calibre.gui2.tweak_book.file_list import NewFileDialog
 from calibre.gui2.tweak_book.save import SaveManager, save_container, find_first_existing_ancestor
@@ -237,6 +238,7 @@ class Boss(QObject):
         set_current_container(container)
         with BusyCursor():
             self.current_metadata = self.gui.current_metadata = container.mi
+            set_book_locale(self.current_metadata.language)
             self.global_undo.open_book(container)
             self.gui.update_window_title()
             self.gui.file_list.current_edited_name = None
@@ -732,6 +734,7 @@ class Boss(QObject):
             f.write(ed.data)
         if name == container.opf_name:
             container.refresh_mime_map()
+            set_book_locale(container.mi.language)
         if container is current_container():
             ed.is_synced_to_container = True
             if name == container.opf_name:
