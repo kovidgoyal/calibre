@@ -38,7 +38,7 @@
 **	Title
 */
 table.cbj_header td.cbj_title {
-	font-size: x-large;
+	font-size: 1.5em;
 	font-style: italic;
 	text-align: center;
 }
@@ -47,7 +47,6 @@ table.cbj_header td.cbj_title {
 **	Series
 */
 table.cbj_header td.cbj_series {
-	font-size: medium;
 	text-align: center;
 }
 
@@ -55,7 +54,6 @@ table.cbj_header td.cbj_series {
 **	Author
 */
 table.cbj_header td.cbj_author {
-	font-size: medium;
 	text-align: center;
 }
 
@@ -141,14 +139,11 @@ hr {
 
 .cbj_footer {
 	font-family: sans-serif;
-	font-size: small;
+	font-size: 0.8em;
 	margin-top: 8px;
 	text-align: center;
 	}
-.cbj_smallcaps {
-	font-size: 90%;
-	}
 
 .cbj_comments {
-	font-family: sans-serif;
+	font-family: sans-serif; 
 	}
