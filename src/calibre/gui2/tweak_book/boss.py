@@ -28,7 +28,7 @@ from calibre.ebooks.oeb.polish.utils import link_stylesheets, setup_cssutils_ser
 from calibre.gui2 import error_dialog, choose_files, question_dialog, info_dialog, choose_save_file
 from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.gui2.tweak_book import (
-    set_current_container, current_container, tprefs, actions, editors, set_book_locale)
+    set_current_container, current_container, tprefs, actions, editors, set_book_locale, dictionaries)
 from calibre.gui2.tweak_book.undo import GlobalUndoHistory
 from calibre.gui2.tweak_book.file_list import NewFileDialog
 from calibre.gui2.tweak_book.save import SaveManager, save_container, find_first_existing_ancestor
@@ -114,13 +114,12 @@ class Boss(QObject):
     def preferences(self):
         p = Preferences(self.gui)
         if p.exec_() == p.Accepted:
+            if p.dictionaries_changed:
+                dictionaries.clear_caches()
             for ed in editors.itervalues():
-                ed.apply_settings()
+                ed.apply_settings(dictionaries_changed=p.dictionaries_changed)
             setup_cssutils_serialization()
             self.gui.apply_settings()
-            if p.dictionaries_changed:
-                pass  # TODO: Clear dictionary caches and rerun syntax highlighting in
-                # all open editors so that spellings are updated
 
     def mark_requested(self, name, action):
         self.commit_dirty_opf()

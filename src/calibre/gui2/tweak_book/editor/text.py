@@ -156,7 +156,7 @@ class TextEdit(PlainTextEdit):
     def sizeHint(self):
         return self.size_hint
 
-    def apply_settings(self, prefs=None):  # {{{
+    def apply_settings(self, prefs=None, dictionaries_changed=False):  # {{{
         prefs = prefs or tprefs
         self.setLineWrapMode(QPlainTextEdit.WidgetWidth if prefs['editor_line_wrap'] else QPlainTextEdit.NoWrap)
         theme = THEMES.get(prefs['editor_theme'], None)
@@ -166,6 +166,8 @@ class TextEdit(PlainTextEdit):
         w = self.fontMetrics()
         self.space_width = w.width(' ')
         self.setTabStopWidth(prefs['editor_tab_stop_width'] * self.space_width)
+        if dictionaries_changed:
+            self.highlighter.rehighlight()
 
     def apply_theme(self, theme):
         self.theme = theme

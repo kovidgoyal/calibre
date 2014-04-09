@@ -155,7 +155,7 @@ class Editor(QMainWindow):
         # there is no easy way to check two images for equality
         self.data = raw
 
-    def apply_settings(self, prefs=None):
+    def apply_settings(self, prefs=None, dictionaries_changed=False):
         pass
 
     def go_to_line(self, *args, **kwargs):
