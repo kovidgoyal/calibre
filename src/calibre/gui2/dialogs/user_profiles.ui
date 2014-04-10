@@ -135,6 +135,17 @@
                </property>
               </widget>
              </item>
+             <item>
+              <widget class="QPushButton" name="opml_button">
+               <property name="text">
+                <string>&amp;Import RSS feeds</string>
+               </property>
+               <property name="icon">
+                <iconset resource="../../../../resources/images.qrc">
+                 <normaloff>:/images/opml.png</normaloff>:/images/opml.png</iconset>
+               </property>
+              </widget>
+             </item>
             </layout>
            </widget>
           </item>

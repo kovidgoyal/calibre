@@ -9,7 +9,8 @@ from calibre.web.feeds.recipes import compile_recipe, custom_recipes
 from calibre.web.feeds.news import AutomaticNewsRecipe
 from calibre.gui2.dialogs.user_profiles_ui import Ui_Dialog
 from calibre.gui2 import error_dialog, question_dialog, open_url, \
-                         choose_files, ResizableDialog, NONE, open_local_file
+                         choose_files, ResizableDialog, NONE, open_local_file, \
+                         info_dialog, gprefs
 from calibre.gui2.widgets import PythonHighlighter
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.utils.icu import sort_key
@@ -59,8 +60,26 @@ class CustomRecipeModel(QAbstractListModel):
             self.recipe_model.update_custom_recipe(urn, title, script)
             self.reset()
 
+    def replace_many_by_title(self, scriptmap):
+        script_urn_map = {}
+        for title, script in scriptmap.iteritems():
+            urn = None
+            for x in self.recipe_model.custom_recipe_collection:
+                if x.get('title', False) == title:
+                    urn = x.get('id')
+            if urn is not None:
+                script_urn_map.update({ urn: (title, script) })
+
+        if script_urn_map:
+            self.recipe_model.update_custom_recipes(script_urn_map)
+            self.reset()
+
     def add(self, title, script):
         self.recipe_model.add_custom_recipe(title, script)
+        self.reset()
+
+    def add_many(self, scriptmap):
+        self.recipe_model.add_custom_recipes(scriptmap)
         self.reset()
 
     def remove(self, rows):
@@ -90,6 +109,7 @@ class UserProfiles(ResizableDialog, Ui_Dialog):
         self.remove_profile_button.clicked[(bool)].connect(self.remove_selected_items)
         self.add_feed_button.clicked[(bool)].connect(self.add_feed)
         self.load_button.clicked[()].connect(self.load)
+        self.opml_button.clicked[()].connect(self.opml_import)
         self.builtin_recipe_button.clicked[()].connect(self.add_builtin_recipe)
         self.share_button.clicked[()].connect(self.share)
         self.show_recipe_files_button.clicked.connect(self.show_recipe_files)
@@ -201,15 +221,19 @@ class UserProfiles(ResizableDialog, Ui_Dialog):
         self.feed_title.setText('')
         self.feed_url.setText('')
 
-    def options_to_profile(self):
+    def options_to_profile(self, **kw):
         classname = 'BasicUserRecipe'+str(int(time.time()))
-        title = unicode(self.profile_title.text()).strip()
+        if 'nr' in kw:
+            classname = classname + str(kw['nr'])
+        title = kw.get('title', self.profile_title.text())
+        title = unicode(title).strip()
         if not title:
             title = classname
         self.profile_title.setText(title)
-        oldest_article = self.oldest_article.value()
-        max_articles   = self.max_articles.value()
-        feeds = [i.user_data for i in self.added_feeds.items()]
+        oldest_article = kw.get('oldest_article', self.oldest_article.value())
+        max_articles   = kw.get('max_articles', self.max_articles.value())
+        feeds = kw.get('feeds', \
+                [i.user_data for i in self.added_feeds.items()])
 
         src = '''\
 class %(classname)s(%(base_class)s):
@@ -345,6 +369,63 @@ class %(classname)s(%(base_class)s):
             else:
                 self.model.add(title, profile)
             self.clear()
+
+    def opml_import(self):
+        from calibre.utils.opml import OPML
+        opml_files = choose_files(self, 'OPML chooser dialog',
+                _('Select OPML file'), filters=[(_('OPML'), ['opml'])] )
+
+        if not opml_files:
+            return
+        
+        skip_dialog_name='replace_recipes'
+        opml = OPML()
+        add_recipes_map = {}
+        replace_recipes_map = {}
+        for opml_file in opml_files:
+            opml.load(opml_file)
+            outlines = opml.parse()
+            nr = 0
+            for outline in outlines:
+                src, title = self.options_to_profile(**{
+                    'nr':nr,
+                    'title':unicode(outline.get('title')),
+                    'feeds':outline.get('xmlUrl'),
+                    'oldest_article':self.oldest_article.value(),
+                    'max_articles':self.max_articles.value(),
+                })
+
+                try:
+                    compile_recipe(src)
+                except Exception as err:
+                    error_dialog(self, _('Invalid input'),
+                        _('<p>Could not create recipe. Error:<br>%s')%str(err)).exec_()
+                    continue
+                profile = src
+                if self._model.has_title(title):
+                    if question_dialog(self, _('Replace recipe?'),
+                        _('A custom recipe named %s already exists. Do you want to '
+                            'replace it?')%title,
+                        skip_dialog_name=skip_dialog_name,
+                        skip_dialog_msg=_('Show dialog again?')
+                    ):
+                        replace_recipes_map.update({ title: profile })
+                else:
+                    add_recipes_map.update({ title: profile })
+                nr+=1
+        if add_recipes_map:
+            self.model.add_many(add_recipes_map)
+        if replace_recipes_map:
+            self.model.replace_many_by_title(replace_recipes_map)
+        self.clear()
+
+        # reset the question_dialog
+        auto_skip = gprefs.get('questions_to_auto_skip', [])
+        if skip_dialog_name in auto_skip:
+            auto_skip.remove(skip_dialog_name)
+            gprefs.set('questions_to_auto_skip', auto_skip)
+
+        info_dialog(self, _('Finished'), _('OPML to Recipe conversion complete'), show_copy_button=False, show=True)
 
     def populate_options(self, profile):
         self.oldest_article.setValue(profile.oldest_article)
