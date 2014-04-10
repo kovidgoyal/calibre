@@ -525,6 +525,7 @@ class FileIconProvider(QFileIconProvider):
              'xps'     : 'xps',
              'oxps'    : 'xps',
              'docx'    : 'docx',
+             'opml'    : 'opml',
              }
 
     def __init__(self):

@@ -34,8 +34,8 @@
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>730</width>
-        <height>601</height>
+        <width>726</width>
+        <height>595</height>
        </rect>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout_3">
@@ -132,6 +132,22 @@
                <property name="icon">
                 <iconset resource="../../../../resources/images.qrc">
                  <normaloff>:/images/chapters.png</normaloff>:/images/chapters.png</iconset>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="opml_button">
+               <property name="toolTip">
+                <string>Import a collection of RSS feeds in OPML format
+Many RSS readers can export their subscribed RSS feeds
+in OPML format</string>
+               </property>
+               <property name="text">
+                <string>Import &amp;OPML</string>
+               </property>
+               <property name="icon">
+                <iconset resource="../../../../resources/images.qrc">
+                 <normaloff>:/images/mimetypes/opml.png</normaloff>:/images/mimetypes/opml.png</iconset>
                </property>
               </widget>
              </item>
