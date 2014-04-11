@@ -33,7 +33,7 @@ if flags == '1':  # A branch checkout
                 shutil.rmtree(extdir)
             subprocess.check_call(['python', 'setup.py', 'build', '--only', ext])
 
-    subprocess.check_call(['python', 'setup.py', 'gui'])
+    subprocess.check_call(['python', 'setup.py', 'gui', '--summary'])
 
     # Remove .pyc files as some of them might have been orphaned
     for dirpath, dirnames, filenames in os.walk('.'):

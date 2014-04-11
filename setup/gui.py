@@ -15,6 +15,10 @@ class GUI(Command):
     PATH  = os.path.join(Command.SRC, __appname__, 'gui2')
     QRC = os.path.join(Command.RESOURCES, 'images.qrc')
 
+    def add_options(self, parser):
+        parser.add_option('--summary', default=False, action='store_true',
+                help='Only display a summary about how many files were compiled')
+
     @classmethod
     def find_forms(cls):
         # We do not use the calibre function find_forms as
@@ -34,7 +38,7 @@ class GUI(Command):
         return form.rpartition('.')[0]+'_ui.py'
 
     def run(self, opts):
-        self.build_forms()
+        self.build_forms(summary=opts.summary)
         self.build_images()
 
     def build_images(self):
@@ -55,10 +59,9 @@ class GUI(Command):
         finally:
             os.chdir(cwd)
 
-
-    def build_forms(self):
+    def build_forms(self, summary=False):
         from calibre.gui2 import build_forms
-        build_forms(self.SRC, info=self.info)
+        build_forms(self.SRC, info=self.info, summary=summary)
 
     def clean(self):
         forms = self.find_forms()

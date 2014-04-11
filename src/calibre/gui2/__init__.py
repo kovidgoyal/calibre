@@ -1119,7 +1119,7 @@ def find_forms(srcdir):
 def form_to_compiled_form(form):
     return form.rpartition('.')[0]+'_ui.py'
 
-def build_forms(srcdir, info=None):
+def build_forms(srcdir, info=None, summary=False):
     import re, cStringIO
     from PyQt4.uic import compileUi
     forms = find_forms(srcdir)
@@ -1131,10 +1131,12 @@ def build_forms(srcdir, info=None):
         ans = 'I(%s%s%s)'%(match.group(1), match.group(2), match.group(1))
         return ans
 
+    num = 0
     for form in forms:
         compiled_form = form_to_compiled_form(form)
         if not os.path.exists(compiled_form) or os.stat(form).st_mtime > os.stat(compiled_form).st_mtime:
-            info('\tCompiling form', form)
+            if not summary:
+                info('\tCompiling form', form)
             buf = cStringIO.StringIO()
             compileUi(form, buf)
             dat = buf.getvalue()
@@ -1149,6 +1151,9 @@ def build_forms(srcdir, info=None):
                     'from PyQt4 import QtWebKit\nfrom PyQt4.QtWebKit import QWebView')
 
             open(compiled_form, 'wb').write(dat)
+            num += 1
+    if num:
+        info('Compiled %d forms' % num)
 
 _df = os.environ.get('CALIBRE_DEVELOP_FROM', None)
 if _df and os.path.exists(_df):
