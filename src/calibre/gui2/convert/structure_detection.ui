@@ -103,7 +103,7 @@
   <customwidget>
    <class>XPathEdit</class>
    <extends>QWidget</extends>
-   <header>convert/xpath_wizard.h</header>
+   <header>calibre/gui2/convert/xpath_wizard.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

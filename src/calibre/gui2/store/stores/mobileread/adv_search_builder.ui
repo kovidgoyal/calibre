@@ -293,7 +293,7 @@
   <customwidget>
    <class>EnLineEdit</class>
    <extends>QLineEdit</extends>
-   <header>widgets.h</header>
+   <header>calibre/gui2/widgets.h</header>
   </customwidget>
  </customwidgets>
  <tabstops>

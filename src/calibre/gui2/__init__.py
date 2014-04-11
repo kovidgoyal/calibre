@@ -1138,12 +1138,7 @@ def build_forms(srcdir, info=None):
             buf = cStringIO.StringIO()
             compileUi(form, buf)
             dat = buf.getvalue()
-            dat = dat.replace('__appname__', 'calibre')
             dat = dat.replace('import images_rc', '')
-            dat = dat.replace('from library import', 'from calibre.gui2.library import')
-            dat = dat.replace('from widgets import', 'from calibre.gui2.widgets import')
-            dat = dat.replace('from convert.xpath_wizard import',
-                'from calibre.gui2.convert.xpath_wizard import')
             dat = re.sub(r'^ {4}def _translate\(context, text, disambig\):\s+return.*$', '    pass', dat,
                          flags=re.M)
             dat = re.compile(r'(?:QtGui.QApplication.translate|(?<!def )_translate)\(.+?,\s+"(.+?)(?<!\\)",.+?\)', re.DOTALL).sub(r'_("\1")', dat)

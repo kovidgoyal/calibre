@@ -435,7 +435,7 @@
   <customwidget>
    <class>EncodingComboBox</class>
    <extends>QComboBox</extends>
-   <header>widgets.h</header>
+   <header>calibre/gui2/widgets.h</header>
   </customwidget>
   <customwidget>
    <class>FontFamilyChooser</class>

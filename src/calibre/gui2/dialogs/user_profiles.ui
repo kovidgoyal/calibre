@@ -402,7 +402,7 @@ p, li { white-space: pre-wrap; }
                  <item>
                   <widget class="QLabel" name="label_8">
                    <property name="text">
-                    <string>For help with writing advanced news recipes, please visit &lt;a href=&quot;http://manual.__appname__-ebook.com/news.html&quot;&gt;User Recipes&lt;/a&gt;</string>
+                    <string>For help with writing advanced news recipes, please visit &lt;a href=&quot;http://manual.calibre-ebook.com/news.html&quot;&gt;User Recipes&lt;/a&gt;</string>
                    </property>
                    <property name="wordWrap">
                     <bool>true</bool>
@@ -467,12 +467,12 @@ p, li { white-space: pre-wrap; }
   <customwidget>
    <class>BasicList</class>
    <extends>QListWidget</extends>
-   <header>widgets.h</header>
+   <header>calibre/gui2/widgets.h</header>
   </customwidget>
   <customwidget>
    <class>EnLineEdit</class>
    <extends>QLineEdit</extends>
-   <header>widgets.h</header>
+   <header>calibre/gui2/widgets.h</header>
   </customwidget>
  </customwidgets>
  <resources>
