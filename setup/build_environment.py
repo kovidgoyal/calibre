@@ -6,10 +6,14 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, socket, struct, subprocess, glob
+import os, socket, struct, subprocess, glob, re, sys
 from distutils.spawn import find_executable
 
-from PyQt4 import pyqtconfig
+# QT5XX: Remove this import once migration is complete, ensuring that sipconfig
+# comes from PyQt5
+sys.path.insert(0, '/opt/pyqt5/lib')
+
+import sipconfig
 
 from setup import isosx, iswindows, is64bit
 is64bit
@@ -45,6 +49,9 @@ elif find_executable('qmake'):
     QMAKE = find_executable('qmake')
 QMAKE = os.environ.get('QMAKE', QMAKE)
 
+# QT5XX: Change this to real qmake detection
+QMAKE = '/opt/qt5/bin/qmake'
+
 PKGCONFIG = find_executable('pkg-config')
 PKGCONFIG = os.environ.get('PKG_CONFIG', PKGCONFIG)
 
@@ -79,11 +86,23 @@ def consolidate(envvar, default):
     ans = [x.strip() for x in val.split(os.pathsep)]
     return [x for x in ans if x and os.path.exists(x)]
 
-pyqt = pyqtconfig.Configuration()
+qraw = subprocess.check_output([QMAKE, '-query']).decode('utf-8')
+def readvar(name):
+    return re.search('%s:(.+)$' % name, qraw, flags=re.M).group(1).strip()
 
-qt_inc = pyqt.qt_inc_dir
+pyqt = {x:readvar(y) for x, y in (
+    ('inc', 'QT_INSTALL_HEADERS'), ('lib', 'QT_INSTALL_LIBS')
+)}
+c = sipconfig.Configuration()
+pyqt['sip_bin'] = c.sip_bin
+from PyQt5.QtCore import PYQT_CONFIGURATION
+pyqt['sip_flags'] = PYQT_CONFIGURATION['sip_flags']
+pyqt['default_sip_dir'] = c.default_sip_dir
+pyqt['sip_inc_dir'] = c.sip_inc_dir
+
+qt_inc = pyqt['inc']
 qt_private_inc = []
-qt_lib = pyqt.qt_lib_dir
+qt_lib = pyqt['lib']
 ft_lib_dirs = []
 ft_libs = []
 ft_inc_dirs = []

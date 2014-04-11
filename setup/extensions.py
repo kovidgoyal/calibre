@@ -6,13 +6,11 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import textwrap, os, shlex, subprocess, glob, shutil
+import textwrap, os, shlex, subprocess, glob, shutil, re, sys
 from distutils import sysconfig
 from multiprocessing import cpu_count
 
-from PyQt4.pyqtconfig import QtGuiModuleMakefile
-
-from setup import Command, islinux, isbsd, isosx, SRC, iswindows
+from setup import Command, islinux, isbsd, isosx, SRC, iswindows, __version__
 from setup.build_environment import (chmlib_inc_dirs,
         podofo_inc, podofo_lib, podofo_error, pyqt, OSX_SDK, NMAKE, QMAKE,
         msvc, MT, win_inc, win_lib, win_ddk, magick_inc_dirs, magick_lib_dirs,
@@ -23,6 +21,7 @@ MT
 isunix = islinux or isosx or isbsd
 
 make = 'make' if isunix else NMAKE
+py_lib_dir = os.path.join(sys.prefix, 'lib')
 
 class Extension(object):
 
@@ -584,66 +583,76 @@ class Build(Command):
         finally:
             os.chdir(ocwd)
 
-    def build_qt_objects(self, ext):
-        obj_pat = 'release\\*.obj' if iswindows else '*.o'
-        objects = glob.glob(obj_pat)
-        if not objects or self.newer(objects, ext.sources+ext.headers):
-            archs = 'x86 x86_64'
-            pro = textwrap.dedent('''\
-                TARGET   = %s
-                TEMPLATE = lib
-                HEADERS  = %s
-                SOURCES  = %s
-                VERSION  = 1.0.0
-                CONFIG   += %s
-            ''')%(ext.name, ' '.join(ext.headers), ' '.join(ext.sources), archs)
-            if ext.inc_dirs:
-                idir = ' '.join(ext.inc_dirs)
-                pro += 'INCLUDEPATH = %s\n'%idir
-            pro = pro.replace('\\', '\\\\')
-            open(ext.name+'.pro', 'wb').write(pro)
-            qmc = [QMAKE, '-o', 'Makefile']
-            if iswindows:
-                qmc += ['-spec', 'win32-msvc2008']
-            self.check_call(qmc + [ext.name+'.pro'])
-            self.check_call([make, '-f', 'Makefile']+([] if iswindows else ['-j%d'%(cpu_count() or 1)]))
-            objects = glob.glob(obj_pat)
-        return list(map(self.a, objects))
-
-    def build_pyqt_extension(self, ext, dest):
-        pyqt_dir = self.j(self.d(self.SRC), 'build', 'pyqt')
-        src_dir = self.j(pyqt_dir, ext.name)
-        qt_dir  = self.j(src_dir, 'qt')
-        if not self.e(qt_dir):
-            os.makedirs(qt_dir)
-        cwd = os.getcwd()
-        try:
-            os.chdir(qt_dir)
-            qt_objects = self.build_qt_objects(ext)
-        finally:
-            os.chdir(cwd)
-
+    def build_sip_files(self, ext, src_dir):
         sip_files = ext.sip_files
         ext.sip_files = []
         sipf = sip_files[0]
         sbf = self.j(src_dir, self.b(sipf)+'.sbf')
         if self.newer(sbf, [sipf]+ext.headers):
-            exe = '.exe' if iswindows else ''
-            cmd = [pyqt.sip_bin+exe, '-w', '-c', src_dir, '-b', sbf, '-I'+
-                    pyqt.pyqt_sip_dir] + shlex.split(pyqt.pyqt_sip_flags) + [sipf]
+            cmd = [pyqt['sip_bin'], '-w', '-c', src_dir, '-b', sbf, '-I'+
+                    pyqt['default_sip_dir']+'/sip/PyQt5'] + shlex.split(pyqt['sip_flags']) + [sipf]
             self.info(' '.join(cmd))
             self.check_call(cmd)
-        module = self.j(src_dir, self.b(dest))
-        if self.newer(dest, [sbf]+qt_objects):
-            mf = self.j(src_dir, 'Makefile')
-            makefile = QtGuiModuleMakefile(configuration=pyqt, build_file=sbf,
-                    makefile=mf, universal=OSX_SDK, qt=1)
-            makefile.extra_lflags = qt_objects
-            makefile.extra_include_dirs = ext.inc_dirs
-            makefile.generate()
+            self.info('')
+        raw = open(sbf, 'rb').read().decode('utf-8')
+        def read(x):
+            ans = re.search('^%s\s*=\s*(.+)$' % x, raw, flags=re.M).group(1).strip()
+            if x != 'target':
+                ans = ans.split()
+            return ans
+        return {x:read(x) for x in ('target', 'sources', 'headers')}
 
-            self.check_call([make, '-f', mf], cwd=src_dir)
-            shutil.copy2(module, dest)
+    def build_pyqt_extension(self, ext, dest):
+        pyqt_dir = self.j(self.d(self.SRC), 'build', 'pyqt')
+        src_dir = self.j(pyqt_dir, ext.name)
+        if not os.path.exists(src_dir):
+            os.makedirs(src_dir)
+        sip = self.build_sip_files(ext, src_dir)
+        pro = textwrap.dedent(
+        '''\
+        TEMPLATE = lib
+        CONFIG += release plugin
+        QT += widgets
+        TARGET = {target}
+        HEADERS = {headers}
+        SOURCES = {sources}
+        INCLUDEPATH += {sipinc} {pyinc}
+        VERSION = {ver}
+        win32 {{
+            LIBS += {py_lib_dir}
+        }}
+        macx {{
+            QMAKE_LFLAGS += "-undefined dynamic_lookup"
+        }}
+        ''').format(
+            target=sip['target'], headers=' '.join(sip['headers'] + ext.headers), sources=' '.join(ext.sources + sip['sources']),
+            sipinc=pyqt['sip_inc_dir'], pyinc=sysconfig.get_python_inc(), py_lib_dir=py_lib_dir,
+            ver=__version__
+        )
+        for incdir in ext.inc_dirs:
+            pro += '\nINCLUDEPATH += ' + incdir
+        if not iswindows and not isosx:
+            # Ensure that only the init symbol is exported
+            pro += '\nQMAKE_LFLAGS += -Wl,--version-script=%s.exp' % sip['target']
+            with open(os.path.join(src_dir, sip['target'] + '.exp'), 'wb') as f:
+                f.write(('{ global: init%s; local: *; };' % sip['target']).encode('utf-8'))
+        proname = '%s.pro' % sip['target']
+        with open(os.path.join(src_dir, proname), 'wb') as f:
+            f.write(pro.encode('utf-8'))
+        cwd = os.getcwdu()
+        qmc = []
+        if iswindows:
+            qmc += ['-spec', 'win32-msvc2008']
+        fext = 'dll' if iswindows else 'dylib' if isosx else 'so'
+        name = '%s%s.%s' % ('' if iswindows else 'lib', sip['target'], fext)
+        try:
+            os.chdir(src_dir)
+            if self.newer(dest, sip['headers'] + sip['sources'] + ext.sources + ext.headers):
+                self.check_call([QMAKE] + qmc + [proname])
+                self.check_call([make])
+                shutil.copy2(os.path.realpath(name), dest)
+        finally:
+            os.chdir(cwd)
 
     def clean(self):
         for ext in extensions:
