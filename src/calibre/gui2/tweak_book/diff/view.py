@@ -381,7 +381,7 @@ class TextBrowser(PlainTextEdit):  # {{{
             painter.drawLine(0, bottom - 1, w, bottom - 1)
 
     def wheelEvent(self, ev):
-        if ev.orientation() == Qt.Vertical:
+        if ev.angleDelta().x() == 0:
             self.wheel_event.emit(ev)
         else:
             return PlainTextEdit.wheelEvent(self, ev)
@@ -488,7 +488,7 @@ class DiffSplitHandle(QSplitterHandle):  # {{{
         return ans
 
     def wheelEvent(self, ev):
-        if ev.orientation() == Qt.Vertical:
+        if ev.angleDelta().x() == 0:
             self.wheel_event.emit(ev)
         else:
             return QSplitterHandle.wheelEvent(self, ev)
