@@ -1143,6 +1143,7 @@ def build_forms(srcdir, info=None):
                          flags=re.M)
             dat = re.compile(r'(?:QtGui.QApplication.translate|(?<!def )_translate)\(.+?,\s+"(.+?)(?<!\\)",.+?\)', re.DOTALL).sub(r'_("\1")', dat)
             dat = dat.replace('_("MMM yyyy")', '"MMM yyyy"')
+            dat = dat.replace('_("d MMM yyyy")', '"d MMM yyyy"')
             dat = pat.sub(sub, dat)
             dat = dat.replace('from QtWebKit.QWebView import QWebView',
                     'from PyQt4 import QtWebKit\nfrom PyQt4.QtWebKit import QWebView')
