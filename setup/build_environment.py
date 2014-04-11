@@ -11,7 +11,7 @@ from distutils.spawn import find_executable
 
 # QT5XX: Remove this import once migration is complete, ensuring that sipconfig
 # comes from PyQt5
-sys.path.insert(0, '/opt/pyqt5/lib')
+sys.path.insert(0, os.environ.get('PYQT5_IMPORT_PATH', '/opt/pyqt5/lib'))
 
 import sipconfig
 

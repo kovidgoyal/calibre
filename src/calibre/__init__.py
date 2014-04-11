@@ -5,7 +5,7 @@ __docformat__ = 'restructuredtext en'
 
 import sys, os, re, time, random, __builtin__, warnings
 __builtin__.__dict__['dynamic_property'] = lambda func: func(None)
-sys.path.insert(0, '/opt/pyqt5/lib')  # QT5XX: Remove this after migration complete
+sys.path.insert(0, os.environ.get('PYQT5_IMPORT_PATH', '/opt/pyqt5/lib'))  # QT5XX: Remove this after migration complete
 from math import floor
 from functools import partial
 
