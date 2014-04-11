@@ -7,9 +7,9 @@ __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-from PyQt4.Qt import (QDialog, QDialogButtonBox, QVBoxLayout, QApplication,
+from PyQt5.Qt import (QDialog, QDialogButtonBox, QVBoxLayout, QApplication,
                       QSize, QIcon, Qt)
-from PyQt4.QtWebKit import QWebView
+from PyQt5.QtWebKit import QWebView
 
 from calibre.gui2 import gprefs, error_dialog
 

@@ -162,7 +162,7 @@ if __name__ == '__main__':
     n = FDONotifier()
     n('hello')
     '''
-    from PyQt4.Qt import QApplication, QSystemTrayIcon, QIcon
+    from PyQt5.Qt import QApplication, QSystemTrayIcon, QIcon
     app = QApplication([])
     ic = QIcon(I('notify.png'))
     tray = QSystemTrayIcon(ic)

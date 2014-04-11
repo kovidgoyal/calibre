@@ -10,7 +10,7 @@ __docformat__ = 'restructuredtext en'
 import hashlib
 from future_builtins import map
 
-from PyQt4.Qt import QBuffer, QByteArray, QImage, Qt, QColor, qRgba, QPainter
+from PyQt5.Qt import QBuffer, QByteArray, QImage, Qt, QColor, qRgba, QPainter
 
 from calibre.constants import (__appname__, __version__)
 from calibre.ebooks.pdf.render.common import (

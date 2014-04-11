@@ -12,7 +12,7 @@ from threading import Thread
 
 from lxml import html
 
-from PyQt4.Qt import (pyqtSignal, QObject)
+from PyQt5.Qt import (pyqtSignal, QObject)
 
 from calibre import browser
 from calibre.gui2.store.search_result import SearchResult

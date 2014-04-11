@@ -9,7 +9,7 @@ __docformat__ = 'restructuredtext en'
 from calibre.gui2 import gprefs
 from calibre.gui2.catalog.catalog_csv_xml_ui import Ui_Form
 from calibre.library import db as db_
-from PyQt4.Qt import QWidget, QListWidgetItem
+from PyQt5.Qt import QWidget, QListWidgetItem
 
 class PluginWidget(QWidget, Ui_Form):
 

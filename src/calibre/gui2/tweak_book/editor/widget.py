@@ -9,7 +9,7 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 import unicodedata
 from functools import partial
 
-from PyQt4.Qt import (
+from PyQt5.Qt import (
     QMainWindow, Qt, QApplication, pyqtSignal, QMenu, qDrawShadeRect, QPainter,
     QImage, QColor, QIcon, QPixmap, QToolButton, QAction, QTextCursor)
 

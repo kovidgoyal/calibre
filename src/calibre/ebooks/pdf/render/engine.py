@@ -13,7 +13,7 @@ from functools import wraps, partial
 from future_builtins import map
 
 import sip
-from PyQt4.Qt import (QPaintEngine, QPaintDevice, Qt, QTransform, QBrush)
+from PyQt5.Qt import (QPaintEngine, QPaintDevice, Qt, QTransform, QBrush)
 
 from calibre.constants import plugins
 from calibre.ebooks.pdf.render.serialize import (PDFStream, Path)

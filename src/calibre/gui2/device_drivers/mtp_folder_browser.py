@@ -9,7 +9,7 @@ __docformat__ = 'restructuredtext en'
 
 from operator import attrgetter
 
-from PyQt4.Qt import (QTabWidget, QTreeWidget, QTreeWidgetItem, Qt, QDialog,
+from PyQt5.Qt import (QTabWidget, QTreeWidget, QTreeWidgetItem, Qt, QDialog,
         QDialogButtonBox, QVBoxLayout, QSize, pyqtSignal, QIcon, QLabel)
 
 from calibre.gui2 import file_icon_provider

@@ -7,7 +7,7 @@ __docformat__ = 'restructuredtext en'
 
 import os
 
-from PyQt4.Qt import QDialog, QApplication
+from PyQt5.Qt import QDialog, QApplication
 
 from calibre.gui2.dialogs.add_from_isbn_ui import Ui_Dialog
 from calibre.ebooks.metadata import check_isbn

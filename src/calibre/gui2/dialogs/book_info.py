@@ -6,11 +6,11 @@ __copyright__ = '2008, Kovid Goyal kovid@kovidgoyal.net'
 __docformat__ = 'restructuredtext en'
 
 
-from PyQt4.Qt import (
+from PyQt5.Qt import (
     QCoreApplication, QModelIndex, QTimer, Qt, pyqtSignal, QWidget,
     QGridLayout, QDialog, QPixmap, QSize, QPalette, QShortcut, QKeySequence,
     QSplitter, QVBoxLayout, QCheckBox, QPushButton, QIcon, QBrush)
-from PyQt4.QtWebKit import QWebView
+from PyQt5.QtWebKit import QWebView
 
 from calibre.gui2 import gprefs
 from calibre import fit_image

@@ -60,7 +60,7 @@ def get_icons(zfp, name_or_list_of_names):
                 If a single path is passed in the return value will
                 be A QIcon.
     '''
-    from PyQt4.Qt import QIcon, QPixmap
+    from PyQt5.Qt import QIcon, QPixmap
     names = name_or_list_of_names
     ans = get_resources(zfp, names)
     if isinstance(names, basestring):

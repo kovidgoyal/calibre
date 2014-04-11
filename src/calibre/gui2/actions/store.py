@@ -8,7 +8,7 @@ __docformat__ = 'restructuredtext en'
 
 from functools import partial
 
-from PyQt4.Qt import QIcon, QSize
+from PyQt5.Qt import QIcon, QSize
 
 from calibre.gui2 import error_dialog
 from calibre.gui2.actions import InterfaceAction

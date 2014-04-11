@@ -8,7 +8,7 @@ __docformat__ = 'restructuredtext en'
 import functools, re, os, traceback, errno, time
 from collections import defaultdict, namedtuple
 
-from PyQt4.Qt import (QAbstractTableModel, Qt, pyqtSignal, QIcon, QImage,
+from PyQt5.Qt import (QAbstractTableModel, Qt, pyqtSignal, QIcon, QImage,
         QModelIndex, QVariant, QDateTime, QColor, QPixmap, QPainter)
 
 from calibre.gui2 import NONE, error_dialog

@@ -7,7 +7,7 @@ __docformat__ = 'restructuredtext en'
 
 import importlib
 
-from PyQt4.Qt import QIcon, Qt, QStringListModel, QVariant
+from PyQt5.Qt import QIcon, Qt, QStringListModel, QVariant
 
 from calibre.gui2.preferences import ConfigWidgetBase, test_widget, AbortCommit
 from calibre.ebooks.conversion.plumber import Plumber
@@ -116,7 +116,7 @@ class OutputOptions(Base):
                 continue
 
 if __name__ == '__main__':
-    from PyQt4.Qt import QApplication
+    from PyQt5.Qt import QApplication
     app = QApplication([])
     #test_widget('Conversion', 'Input Options')
     #test_widget('Conversion', 'Common Options')

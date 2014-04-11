@@ -6,7 +6,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-from PyQt4.Qt import Qt, QAbstractListModel, QVariant, QModelIndex
+from PyQt5.Qt import Qt, QAbstractListModel, QVariant, QModelIndex
 
 from calibre.gui2.convert.page_setup_ui import Ui_Form
 from calibre.gui2.convert import Widget

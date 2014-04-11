@@ -7,7 +7,7 @@ __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 
-from PyQt4.Qt import QDialog, QVBoxLayout, QPlainTextEdit, QTimer, \
+from PyQt5.Qt import QDialog, QVBoxLayout, QPlainTextEdit, QTimer, \
     QDialogButtonBox, QPushButton, QApplication, QIcon, QMessageBox
 
 from calibre.constants import iswindows

@@ -4,7 +4,7 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 import re, copy
 from datetime import date
 
-from PyQt4.Qt import QDialog, QDialogButtonBox
+from PyQt5.Qt import QDialog, QDialogButtonBox
 
 from calibre.gui2.dialogs.search_ui import Ui_Dialog
 from calibre.library.caches import CONTAINS_MATCH, EQUALS_MATCH

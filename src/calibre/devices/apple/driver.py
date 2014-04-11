@@ -45,7 +45,7 @@ class AppleOpenFeedback(OpenFeedback):
         self.plugin = plugin
 
     def custom_dialog(self, parent):
-        from PyQt4.Qt import (QDialog, QDialogButtonBox, QIcon,
+        from PyQt5.Qt import (QDialog, QDialogButtonBox, QIcon,
                               QLabel, QPushButton, QVBoxLayout)
 
         class Dialog(QDialog):

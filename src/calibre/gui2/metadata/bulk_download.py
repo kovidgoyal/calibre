@@ -11,7 +11,7 @@ import os, time, shutil
 from functools import partial
 from threading import Thread
 
-from PyQt4.Qt import (QIcon, QDialog,
+from PyQt5.Qt import (QIcon, QDialog,
         QDialogButtonBox, QLabel, QGridLayout, QPixmap, Qt)
 
 from calibre.gui2.threaded_jobs import ThreadedJob

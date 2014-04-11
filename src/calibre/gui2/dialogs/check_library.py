@@ -6,7 +6,7 @@ __license__   = 'GPL v3'
 import os
 from threading import Thread
 
-from PyQt4.Qt import (
+from PyQt5.Qt import (
     QDialog, QVBoxLayout, QHBoxLayout, QTreeWidget, QLabel, QPushButton,
     QDialogButtonBox, QApplication, QTreeWidgetItem, QLineEdit, Qt, QSize,
     QTimer, QIcon, QTextEdit, QSplitter, QWidget, QGridLayout, pyqtSignal)

@@ -4,7 +4,7 @@ __license__ = 'GPL 3'
 __copyright__ = '2009, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
-from PyQt4.Qt import QListWidgetItem, Qt
+from PyQt5.Qt import QListWidgetItem, Qt
 
 from calibre.gui2.convert.txt_input_ui import Ui_Form
 from calibre.gui2.convert import Widget

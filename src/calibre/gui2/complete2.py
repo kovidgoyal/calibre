@@ -10,7 +10,7 @@ __docformat__ = 'restructuredtext en'
 import weakref
 
 import sip
-from PyQt4.Qt import (QLineEdit, QAbstractListModel, Qt, pyqtSignal, QObject,
+from PyQt5.Qt import (QLineEdit, QAbstractListModel, Qt, pyqtSignal, QObject,
         QApplication, QListView, QPoint, QModelIndex, QFont, QFontInfo)
 
 from calibre.constants import isosx, get_osx_version
@@ -468,7 +468,7 @@ class EditWithComplete(EnComboBox):
         return EnComboBox.eventFilter(self, obj, e)
 
 if __name__ == '__main__':
-    from PyQt4.Qt import QDialog, QVBoxLayout
+    from PyQt5.Qt import QDialog, QVBoxLayout
     app = QApplication([])
     d = QDialog()
     d.setLayout(QVBoxLayout())

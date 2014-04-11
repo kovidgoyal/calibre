@@ -11,7 +11,7 @@ from collections import OrderedDict, namedtuple
 from functools import partial
 from future_builtins import zip
 
-from PyQt4.Qt import (
+from PyQt5.Qt import (
     QDialog, QWidget, QGridLayout, QLineEdit, QLabel, QToolButton, QIcon,
     QVBoxLayout, QDialogButtonBox, QApplication, pyqtSignal, QFont, QPixmap,
     QSize, QPainter, Qt, QColor, QPen, QSizePolicy, QScrollArea, QFrame)

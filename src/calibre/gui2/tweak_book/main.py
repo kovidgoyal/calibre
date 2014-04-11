@@ -8,7 +8,7 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import sys, os, importlib, time
 
-from PyQt4.Qt import QIcon
+from PyQt5.Qt import QIcon
 
 from calibre.constants import islinux, iswindows
 from calibre.gui2 import Application, ORG_NAME, APP_UID, setup_gui_option_parser, detach_gui, decouple

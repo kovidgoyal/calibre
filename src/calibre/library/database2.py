@@ -763,7 +763,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                 else:
                     ret = f.read()
                     if as_image:
-                        from PyQt4.Qt import QImage
+                        from PyQt5.Qt import QImage
                         i = QImage()
                         i.loadFromData(ret)
                         ret = i
@@ -3646,7 +3646,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             yield i[x]
 
     def migrate_old(self, db, progress):
-        from PyQt4.QtCore import QCoreApplication
+        from PyQt5.QtCore import QCoreApplication
         header = _(u'<p>Migrating old database to ebook library in %s<br><center>')%self.library_path
         progress.setValue(0)
         progress.setLabelText(header)

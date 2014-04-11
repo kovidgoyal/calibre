@@ -1,7 +1,7 @@
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
-from PyQt4.Qt import QDialog, QListWidgetItem, QModelIndex
+from PyQt5.Qt import QDialog, QListWidgetItem, QModelIndex
 
 from calibre.gui2 import file_icon_provider
 from calibre.gui2.dialogs.choose_format_ui import Ui_ChooseFormatDialog

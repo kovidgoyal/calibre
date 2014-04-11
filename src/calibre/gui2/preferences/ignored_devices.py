@@ -7,7 +7,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-from PyQt4.Qt import (QLabel, QVBoxLayout, QListWidget, QListWidgetItem, Qt,
+from PyQt5.Qt import (QLabel, QVBoxLayout, QListWidget, QListWidgetItem, Qt,
                       QIcon)
 
 from calibre.customize.ui import enable_plugin
@@ -97,7 +97,7 @@ class ConfigWidget(ConfigWidgetBase):
         return True # Restart required
 
 if __name__ == '__main__':
-    from PyQt4.Qt import QApplication
+    from PyQt5.Qt import QApplication
     app = QApplication([])
     test_widget('Sharing', 'Ignored Devices')
 

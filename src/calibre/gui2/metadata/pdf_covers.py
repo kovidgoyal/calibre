@@ -12,7 +12,7 @@ from threading import Thread
 from glob import glob
 
 import sip
-from PyQt4.Qt import (QDialog, QApplication, QLabel, QGridLayout,
+from PyQt5.Qt import (QDialog, QApplication, QLabel, QGridLayout,
                       QDialogButtonBox, Qt, pyqtSignal, QListWidget,
                       QListWidgetItem, QSize, QIcon)
 

@@ -12,7 +12,7 @@ from urlparse import urlparse, urlunparse
 from threading import Thread
 from Queue import Queue, Empty
 
-from PyQt4.Qt import QPixmap, Qt, QDialog, QLabel, QVBoxLayout, \
+from PyQt5.Qt import QPixmap, Qt, QDialog, QLabel, QVBoxLayout, \
         QDialogButtonBox, QProgressBar, QTimer
 
 from calibre.constants import DEBUG, iswindows

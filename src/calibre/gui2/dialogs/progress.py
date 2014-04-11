@@ -5,7 +5,7 @@ __docformat__ = 'restructuredtext en'
 
 ''''''
 
-from PyQt4.Qt import QDialog, pyqtSignal, Qt, QVBoxLayout, QLabel, QFont
+from PyQt5.Qt import QDialog, pyqtSignal, Qt, QVBoxLayout, QLabel, QFont
 
 from calibre.gui2.dialogs.progress_ui import Ui_Dialog
 from calibre.gui2.progress_indicator import ProgressIndicator

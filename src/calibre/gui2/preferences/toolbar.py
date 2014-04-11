@@ -7,7 +7,7 @@ __docformat__ = 'restructuredtext en'
 
 from functools import partial
 
-from PyQt4.Qt import QAbstractListModel, Qt, QIcon, \
+from PyQt5.Qt import QAbstractListModel, Qt, QIcon, \
         QVariant, QItemSelectionModel
 
 from calibre.gui2.preferences.toolbar_ui import Ui_Form
@@ -349,7 +349,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
 
 
 if __name__ == '__main__':
-    from PyQt4.Qt import QApplication
+    from PyQt5.Qt import QApplication
     app = QApplication([])
     test_widget('Interface', 'Toolbar')
 

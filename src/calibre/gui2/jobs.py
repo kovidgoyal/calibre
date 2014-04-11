@@ -10,7 +10,7 @@ Job management.
 import re, time
 from Queue import Empty, Queue
 
-from PyQt4.Qt import (QAbstractTableModel, QVariant, QModelIndex, Qt,
+from PyQt5.Qt import (QAbstractTableModel, QVariant, QModelIndex, Qt,
     QTimer, pyqtSignal, QIcon, QDialog, QAbstractItemDelegate, QApplication,
     QSize, QStyleOptionProgressBarV2, QString, QStyle, QToolTip, QFrame,
     QHBoxLayout, QVBoxLayout, QSizePolicy, QLabel, QCoreApplication, QAction,

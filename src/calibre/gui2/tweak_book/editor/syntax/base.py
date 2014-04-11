@@ -9,7 +9,7 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 import sys
 from collections import defaultdict, deque
 
-from PyQt4.Qt import (
+from PyQt5.Qt import (
     QTextCursor, pyqtSlot, QTextBlockUserData, QTextLayout, QTimer)
 
 from ..themes import highlight_to_char_format

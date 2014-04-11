@@ -8,7 +8,7 @@ __version__   = '0.1.0'
 
 from functools import partial
 
-from PyQt4.Qt import QDialog, QToolBar, QStatusBar, QLabel, QFont, Qt, \
+from PyQt5.Qt import QDialog, QToolBar, QStatusBar, QLabel, QFont, Qt, \
     QApplication, QIcon, QVBoxLayout, QAction
 
 from calibre.utils.pyconsole import dynamic, __appname__, __version__

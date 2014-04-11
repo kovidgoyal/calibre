@@ -10,7 +10,7 @@ __docformat__ = 'restructuredtext en'
 from collections import OrderedDict
 from functools import partial
 
-from PyQt4.Qt import (QObject, QKeySequence, QAbstractItemModel, QModelIndex,
+from PyQt5.Qt import (QObject, QKeySequence, QAbstractItemModel, QModelIndex,
         Qt, QStyledItemDelegate, QTextDocument, QStyle, pyqtSignal, QFrame,
         QApplication, QSize, QRectF, QWidget, QTreeView,
         QGridLayout, QLabel, QRadioButton, QPushButton, QToolButton, QIcon)

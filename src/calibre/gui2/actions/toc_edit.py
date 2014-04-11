@@ -9,7 +9,7 @@ __docformat__ = 'restructuredtext en'
 
 from collections import OrderedDict
 
-from PyQt4.Qt import (QTimer, QDialog, QGridLayout, QCheckBox, QLabel,
+from PyQt5.Qt import (QTimer, QDialog, QGridLayout, QCheckBox, QLabel,
                       QDialogButtonBox, QIcon)
 
 from calibre.gui2 import error_dialog

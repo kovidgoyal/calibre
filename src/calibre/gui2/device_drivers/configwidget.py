@@ -6,7 +6,7 @@ __docformat__ = 'restructuredtext en'
 
 import textwrap
 
-from PyQt4.Qt import (QWidget, QListWidgetItem, Qt, QVariant, QLabel,
+from PyQt5.Qt import (QWidget, QListWidgetItem, Qt, QVariant, QLabel,
         QLineEdit, QCheckBox, QComboBox)
 
 from calibre.gui2 import error_dialog, question_dialog

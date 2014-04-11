@@ -9,7 +9,7 @@ import sys, textwrap, traceback, StringIO
 from functools import partial
 from codeop import CommandCompiler
 
-from PyQt4.Qt import QTextEdit, Qt, QTextFrameFormat, pyqtSignal, \
+from PyQt5.Qt import QTextEdit, Qt, QTextFrameFormat, pyqtSignal, \
     QApplication, QColor, QPalette, QMenu, QActionGroup, QTimer
 
 from pygments.lexers import PythonLexer, PythonTracebackLexer

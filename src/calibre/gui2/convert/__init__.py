@@ -9,7 +9,7 @@ __docformat__ = 'restructuredtext en'
 import textwrap, codecs, importlib
 from functools import partial
 
-from PyQt4.Qt import (QWidget, QSpinBox, QDoubleSpinBox, QLineEdit, QTextEdit,
+from PyQt5.Qt import (QWidget, QSpinBox, QDoubleSpinBox, QLineEdit, QTextEdit,
     QCheckBox, QComboBox, Qt, QIcon, pyqtSignal, QLabel, QFontComboBox, QFont,
     QFontInfo)
 

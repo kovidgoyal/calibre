@@ -10,7 +10,7 @@ import sys, re
 from operator import itemgetter
 
 from cssutils import parseStyle
-from PyQt4.Qt import QTextEdit
+from PyQt5.Qt import QTextEdit
 
 from calibre import prepare_string_for_xml
 from calibre.gui2 import error_dialog

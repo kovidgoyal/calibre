@@ -6,7 +6,7 @@ __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 
-from PyQt4.Qt import QToolButton, QSize, QPropertyAnimation, Qt, \
+from PyQt5.Qt import QToolButton, QSize, QPropertyAnimation, Qt, \
         QMetaObject, QLabel, QVBoxLayout, QWidget
 
 from calibre.constants import isosx
@@ -72,7 +72,7 @@ def create_donate_widget(button):
     return w
 
 if __name__ == '__main__':
-    from PyQt4.Qt import QApplication, QHBoxLayout, QIcon
+    from PyQt5.Qt import QApplication, QHBoxLayout, QIcon
     app = QApplication([])
     w = QWidget()
     w.setLayout(QHBoxLayout())

@@ -5,7 +5,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-from PyQt4.Qt import Qt
+from PyQt5.Qt import Qt
 
 from calibre.gui2.actions import InterfaceAction
 from calibre.gui2.dialogs.book_info import BookInfo

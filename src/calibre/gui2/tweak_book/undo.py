@@ -8,7 +8,7 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import shutil
 
-from PyQt4.Qt import (
+from PyQt5.Qt import (
     QAbstractListModel, Qt, QModelIndex, QVariant, QApplication, QWidget,
     QGridLayout, QListView, QStyledItemDelegate, pyqtSignal, QPushButton, QIcon)
 

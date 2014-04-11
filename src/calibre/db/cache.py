@@ -642,7 +642,7 @@ class Cache(object):
                 return
             ret = buf.getvalue()
             if as_image:
-                from PyQt4.Qt import QImage
+                from PyQt5.Qt import QImage
                 i = QImage()
                 i.loadFromData(ret)
                 ret = i

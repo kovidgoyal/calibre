@@ -7,7 +7,7 @@ __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 
-from PyQt4.Qt import QVBoxLayout, QDialog, QLabel, QDialogButtonBox, Qt, \
+from PyQt5.Qt import QVBoxLayout, QDialog, QLabel, QDialogButtonBox, Qt, \
         QAbstractListModel, QVariant, QListView, QSize
 
 from calibre.gui2 import NONE, file_icon_provider
@@ -91,7 +91,7 @@ class SelectFormats(QDialog):
 
 
 if __name__ == '__main__':
-    from PyQt4.Qt import QApplication
+    from PyQt5.Qt import QApplication
     app = QApplication([])
     d = SelectFormats(['epub', 'lrf', 'lit', 'mobi'], 'Choose a format')
     d.exec_()

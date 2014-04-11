@@ -12,9 +12,9 @@ from future_builtins import map
 from math import floor
 from collections import defaultdict
 
-from PyQt4.Qt import (QObject, QPainter, Qt, QSize, QString, QTimer,
+from PyQt5.Qt import (QObject, QPainter, Qt, QSize, QString, QTimer,
                       pyqtProperty, QEventLoop, QPixmap, QRect, pyqtSlot)
-from PyQt4.QtWebKit import QWebView, QWebPage, QWebSettings
+from PyQt5.QtWebKit import QWebView, QWebPage, QWebSettings
 
 from calibre import fit_image
 from calibre.constants import iswindows

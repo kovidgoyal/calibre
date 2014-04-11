@@ -8,7 +8,7 @@ __copyright__ = '2012, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import re
-from PyQt4.Qt import (QStandardItem, QStandardItemModel, Qt, QFont,
+from PyQt5.Qt import (QStandardItem, QStandardItemModel, Qt, QFont,
         QTreeView)
 
 from calibre.ebooks.metadata.toc import TOC as MTOC

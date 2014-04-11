@@ -7,7 +7,7 @@ __docformat__ = 'restructuredtext en'
 
 import textwrap
 
-from PyQt4.Qt import QAbstractTableModel, QVariant, QFont, Qt
+from PyQt5.Qt import QAbstractTableModel, QVariant, QFont, Qt
 
 
 from calibre.gui2.preferences import ConfigWidgetBase, test_widget, \
@@ -228,7 +228,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
 
 
 if __name__ == '__main__':
-    from PyQt4.Qt import QApplication
+    from PyQt5.Qt import QApplication
     app = QApplication([])
     test_widget('Sharing', 'Email')
 

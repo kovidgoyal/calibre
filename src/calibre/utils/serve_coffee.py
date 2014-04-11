@@ -22,11 +22,11 @@ import time, BaseHTTPServer, os, sys, re, SocketServer
 from threading import Lock
 from SimpleHTTPServer import SimpleHTTPRequestHandler
 
-from PyQt4.Qt import QCoreApplication
+from PyQt5.Qt import QCoreApplication
 
 # Compiler {{{
 try:
-    from PyQt4.QtScript import QScriptEngine, QScriptValue
+    from PyQt5.QtScript import QScriptEngine, QScriptValue
 
     class Compiler(QScriptEngine):
 
@@ -65,8 +65,8 @@ try:
 except ImportError:
 
     def do_compile(raw):
-        from PyQt4.QtWebKit import QWebPage
-        from PyQt4.Qt import QApplication
+        from PyQt5.QtWebKit import QWebPage
+        from PyQt5.Qt import QApplication
         import json
         app = QApplication([])
 

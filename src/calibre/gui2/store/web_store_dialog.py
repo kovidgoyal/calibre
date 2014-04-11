@@ -6,7 +6,7 @@ __license__ = 'GPL 3'
 __copyright__ = '2011, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
-from PyQt4.Qt import QDialog, QUrl
+from PyQt5.Qt import QDialog, QUrl
 
 from calibre import url_slash_cleaner
 from calibre.gui2.store.web_store_dialog_ui import Ui_Dialog

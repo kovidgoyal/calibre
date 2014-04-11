@@ -6,7 +6,7 @@ __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 
-from PyQt4.Qt import QLineEdit
+from PyQt5.Qt import QLineEdit
 
 from calibre.gui2.dialogs.template_dialog import TemplateDialog
 

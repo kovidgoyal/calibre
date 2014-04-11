@@ -19,7 +19,7 @@ class Catalog(ResizableDialog, Ui_Dialog):
     def __init__(self, parent, dbspec, ids, db):
         import re, cStringIO
         from calibre import prints as info
-        from PyQt4.uic import compileUi
+        from PyQt5.uic import compileUi
 
         ResizableDialog.__init__(self, parent)
         self.dbspec, self.ids = dbspec, ids
@@ -186,7 +186,7 @@ class Catalog(ResizableDialog, Ui_Dialog):
         To add help functionality for a specific format:
         In gui2.catalog.catalog_<format>.py, add the following:
             from calibre.gui2 import open_url
-            from PyQt4.Qt import QUrl
+            from PyQt5.Qt import QUrl
 
         In the PluginWidget() class, add this method:
             def show_help(self):

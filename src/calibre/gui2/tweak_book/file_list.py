@@ -12,7 +12,7 @@ from collections import OrderedDict, defaultdict
 from functools import partial
 
 import sip
-from PyQt4.Qt import (
+from PyQt5.Qt import (
     QWidget, QTreeWidget, QGridLayout, QSize, Qt, QTreeWidgetItem, QIcon, QFont,
     QStyledItemDelegate, QStyle, QPixmap, QPainter, pyqtSignal, QMenu, QTimer,
     QDialogButtonBox, QDialog, QLabel, QLineEdit, QVBoxLayout, QScrollArea,

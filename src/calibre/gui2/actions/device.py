@@ -7,7 +7,7 @@ __docformat__ = 'restructuredtext en'
 
 from functools import partial
 
-from PyQt4.Qt import QToolButton, QMenu, pyqtSignal, QIcon, QTimer
+from PyQt5.Qt import QToolButton, QMenu, pyqtSignal, QIcon, QTimer
 
 from calibre.gui2.actions import InterfaceAction
 from calibre.utils.smtp import config as email_config

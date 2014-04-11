@@ -16,7 +16,7 @@ from calibre.utils.config import JSONConfig
 from calibre.utils.icu import sort_key
 
 from catalog_epub_mobi_ui import Ui_Form
-from PyQt4.Qt import (Qt, QAbstractItemView, QCheckBox, QComboBox,
+from PyQt5.Qt import (Qt, QAbstractItemView, QCheckBox, QComboBox,
         QDoubleSpinBox, QIcon, QInputDialog, QLineEdit, QRadioButton,
         QSize, QSizePolicy, QTableWidget, QTableWidgetItem, QTextEdit, QToolButton,
         QUrl, QVBoxLayout, QWidget)

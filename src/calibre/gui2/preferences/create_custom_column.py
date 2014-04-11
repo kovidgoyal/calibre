@@ -6,7 +6,7 @@ __copyright__ = '2010, Kovid Goyal <kovid at kovidgoyal.net>'
 import re
 from functools import partial
 
-from PyQt4.Qt import QDialog, Qt, QListWidgetItem, QVariant, QColor, QIcon
+from PyQt5.Qt import QDialog, Qt, QListWidgetItem, QVariant, QColor, QIcon
 
 from calibre.gui2.preferences.create_custom_column_ui import Ui_QCreateCustomColumn
 from calibre.gui2 import error_dialog

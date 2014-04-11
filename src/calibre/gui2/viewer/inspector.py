@@ -6,8 +6,8 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
-from PyQt4.Qt import QDialog, QDialogButtonBox, QVBoxLayout, QIcon
-from PyQt4.QtWebKit import QWebInspector
+from PyQt5.Qt import QDialog, QDialogButtonBox, QVBoxLayout, QIcon
+from PyQt5.QtWebKit import QWebInspector
 
 from calibre.gui2 import gprefs
 

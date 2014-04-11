@@ -7,7 +7,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-from PyQt4.Qt import QVBoxLayout
+from PyQt5.Qt import QVBoxLayout
 
 from calibre.gui2.preferences import (ConfigWidgetBase, test_widget)
 from calibre.gui2.keyboard import ShortcutConfig
@@ -41,7 +41,7 @@ class ConfigWidget(ConfigWidgetBase):
         self.conf_widget.highlight_group(group_name)
 
 if __name__ == '__main__':
-    from PyQt4.Qt import QApplication
+    from PyQt5.Qt import QApplication
     app = QApplication([])
     test_widget('Advanced', 'Keyboard')
 

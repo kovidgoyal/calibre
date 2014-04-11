@@ -4,7 +4,7 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 import re, binascii, cPickle
 from future_builtins import map
 
-from PyQt4.Qt import (QThread, pyqtSignal, Qt, QUrl, QDialog, QGridLayout,
+from PyQt5.Qt import (QThread, pyqtSignal, Qt, QUrl, QDialog, QGridLayout,
         QLabel, QCheckBox, QDialogButtonBox, QIcon, QPixmap)
 import mechanize
 

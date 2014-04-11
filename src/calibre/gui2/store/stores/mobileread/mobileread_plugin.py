@@ -9,7 +9,7 @@ __docformat__ = 'restructuredtext en'
 import os
 from threading import Lock
 
-from PyQt4.Qt import (QUrl, QCoreApplication)
+from PyQt5.Qt import (QUrl, QCoreApplication)
 
 from calibre.constants import cache_dir
 from calibre.gui2 import open_url

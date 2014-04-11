@@ -13,7 +13,7 @@ from Queue import LifoQueue
 from functools import wraps, partial
 from textwrap import wrap
 
-from PyQt4.Qt import (
+from PyQt5.Qt import (
     QListView, QSize, QStyledItemDelegate, QModelIndex, Qt, QImage, pyqtSignal,
     QTimer, QPalette, QColor, QItemSelection, QPixmap, QMenu, QApplication,
     QMimeData, QUrl, QDrag, QPoint, QPainter, QRect, pyqtProperty, QEvent,

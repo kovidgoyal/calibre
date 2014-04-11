@@ -12,7 +12,7 @@ from collections import OrderedDict
 from functools import partial
 from future_builtins import map
 
-from PyQt4.Qt import (QDialog, QGridLayout, QIcon, QCheckBox, QLabel, QFrame,
+from PyQt5.Qt import (QDialog, QGridLayout, QIcon, QCheckBox, QLabel, QFrame,
                       QApplication, QDialogButtonBox, Qt, QSize, QSpacerItem,
                       QSizePolicy, QTimer, QModelIndex, QTextEdit,
                       QInputDialog, QMenu)

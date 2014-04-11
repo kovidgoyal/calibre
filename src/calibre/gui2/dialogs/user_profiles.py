@@ -3,7 +3,7 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import time, os
 
-from PyQt4.Qt import (QUrl, QAbstractListModel, Qt, QVariant, QFont)
+from PyQt5.Qt import (QUrl, QAbstractListModel, Qt, QVariant, QFont)
 
 from calibre.web.feeds.recipes import compile_recipe, custom_recipes
 from calibre.web.feeds.news import AutomaticNewsRecipe
@@ -286,7 +286,7 @@ class %(classname)s(%(base_class)s):
     def add_builtin_recipe(self):
         from calibre.web.feeds.recipes.collection import \
             get_builtin_recipe_collection, get_builtin_recipe_by_id
-        from PyQt4.Qt import QDialog, QVBoxLayout, QListWidgetItem, \
+        from PyQt5.Qt import QDialog, QVBoxLayout, QListWidgetItem, \
                 QListWidget, QDialogButtonBox, QSize
 
         d = QDialog(self)

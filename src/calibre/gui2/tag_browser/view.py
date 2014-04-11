@@ -11,7 +11,7 @@ import cPickle, os
 from functools import partial
 from itertools import izip
 
-from PyQt4.Qt import (QStyledItemDelegate, Qt, QTreeView, pyqtSignal, QSize,
+from PyQt5.Qt import (QStyledItemDelegate, Qt, QTreeView, pyqtSignal, QSize,
         QIcon, QApplication, QMenu, QPoint, QModelIndex, QToolTip, QCursor,
         QDrag)
 

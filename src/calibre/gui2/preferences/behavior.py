@@ -7,7 +7,7 @@ __docformat__ = 'restructuredtext en'
 
 import re
 
-from PyQt4.Qt import Qt, QVariant, QListWidgetItem
+from PyQt5.Qt import Qt, QVariant, QListWidgetItem
 
 from calibre.gui2.preferences import ConfigWidgetBase, test_widget, Setting
 from calibre.gui2.preferences.behavior_ui import Ui_Form
@@ -170,7 +170,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
                 _('Confirmation dialogs have all been reset'), show=True)
 
 if __name__ == '__main__':
-    from PyQt4.Qt import QApplication
+    from PyQt5.Qt import QApplication
     app = QApplication([])
     test_widget('Interface', 'Behavior')
 

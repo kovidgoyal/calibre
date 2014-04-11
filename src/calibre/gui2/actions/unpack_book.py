@@ -7,7 +7,7 @@ __docformat__ = 'restructuredtext en'
 
 import os, weakref, shutil
 
-from PyQt4.Qt import (QDialog, QVBoxLayout, QHBoxLayout, QRadioButton, QFrame,
+from PyQt5.Qt import (QDialog, QVBoxLayout, QHBoxLayout, QRadioButton, QFrame,
         QPushButton, QLabel, QGroupBox, QGridLayout, QIcon, QSize, QTimer)
 
 from calibre import as_unicode

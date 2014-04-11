@@ -8,7 +8,7 @@ __docformat__ = 'restructuredtext en'
 
 from functools import partial
 
-from PyQt4.Qt import QAbstractListModel, Qt, QKeySequence, QListView, \
+from PyQt5.Qt import QAbstractListModel, Qt, QKeySequence, QListView, \
         QHBoxLayout, QWidget, QApplication, QStyledItemDelegate, QStyle, \
         QVariant, QTextDocument, QRectF, QFrame, QSize, QFont, QKeyEvent
 

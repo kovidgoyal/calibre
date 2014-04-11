@@ -7,7 +7,7 @@ __docformat__ = 'restructuredtext en'
 
 import os
 
-from PyQt4.Qt import QWizard, QWizardPage, QIcon, QPixmap, Qt, QThread, \
+from PyQt5.Qt import QWizard, QWizardPage, QIcon, QPixmap, Qt, QThread, \
         pyqtSignal
 
 from calibre.gui2 import error_dialog, choose_dir, gprefs
@@ -163,7 +163,7 @@ class Wizard(QWizard): # {{{
 
 # Test Wizard {{{
 if __name__ == '__main__':
-    from PyQt4.Qt import QApplication
+    from PyQt5.Qt import QApplication
     from calibre.library import db
     app = QApplication([])
     w = Wizard(db())

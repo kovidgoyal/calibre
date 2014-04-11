@@ -9,7 +9,7 @@ __docformat__ = 'restructuredtext en'
 
 import os
 
-from PyQt4.Qt import (QBrush, QColor, QPoint, QPixmap, QPainterPath, QRectF,
+from PyQt5.Qt import (QBrush, QColor, QPoint, QPixmap, QPainterPath, QRectF,
                       QApplication, QPainter, Qt, QImage, QLinearGradient,
                       QPointF, QPen)
 QBrush, QColor, QPoint, QPixmap, QPainterPath, QRectF, Qt, QPointF

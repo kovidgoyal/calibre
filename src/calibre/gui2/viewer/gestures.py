@@ -8,7 +8,7 @@ __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import time, ctypes, sys
 from functools import partial
-from PyQt4.Qt import (
+from PyQt5.Qt import (
     QObject, QPointF, pyqtSignal, QEvent, QApplication, QMouseEvent, Qt,
     QContextMenuEvent, QDialog, QDialogButtonBox, QLabel, QVBoxLayout)
 

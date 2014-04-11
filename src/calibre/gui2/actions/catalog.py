@@ -7,7 +7,7 @@ __docformat__ = 'restructuredtext en'
 
 import re, os, shutil, errno
 
-from PyQt4.Qt import QModelIndex
+from PyQt5.Qt import QModelIndex
 
 from calibre.gui2 import choose_dir, error_dialog, warning_dialog
 from calibre.gui2.tools import generate_catalog

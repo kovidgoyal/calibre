@@ -66,7 +66,7 @@ every time you add an HTML file to the library.\
         True if the user clicks OK, False otherwise. The changes are
         automatically applied.
         '''
-        from PyQt4.Qt import (QDialog, QDialogButtonBox, QVBoxLayout,
+        from PyQt5.Qt import (QDialog, QDialogButtonBox, QVBoxLayout,
                 QLabel, Qt, QLineEdit, QCheckBox)
 
         config_dialog = QDialog(parent)

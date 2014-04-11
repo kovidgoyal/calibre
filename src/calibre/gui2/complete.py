@@ -10,7 +10,7 @@ WARNING: The code in this module is deprecated. Use complete2.py instead. This
 code remains here for legacy plugin support.
 '''
 
-from PyQt4.Qt import (QLineEdit, QAbstractListModel, Qt,
+from PyQt5.Qt import (QLineEdit, QAbstractListModel, Qt,
         QApplication, QCompleter)
 
 from calibre.utils.icu import sort_key
@@ -199,7 +199,7 @@ class MultiCompleteComboBox(EnComboBox):
         le.selectAll()
 
 if __name__ == '__main__':
-    from PyQt4.Qt import QDialog, QVBoxLayout
+    from PyQt5.Qt import QDialog, QVBoxLayout
     app = QApplication([])
     d = QDialog()
     d.setLayout(QVBoxLayout())

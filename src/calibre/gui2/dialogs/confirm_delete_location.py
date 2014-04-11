@@ -7,7 +7,7 @@ __docformat__ = 'restructuredtext en'
 from functools import partial
 
 from calibre.gui2.dialogs.confirm_delete_location_ui import Ui_Dialog
-from PyQt4.Qt import QDialog, Qt, QPixmap, QIcon
+from PyQt5.Qt import QDialog, Qt, QPixmap, QIcon
 
 class Dialog(QDialog, Ui_Dialog):
 

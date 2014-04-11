@@ -11,7 +11,7 @@ from Queue import Empty, Queue
 from contextlib import closing
 
 
-from PyQt4.Qt import (QWizard, QWizardPage, QPixmap, Qt, QAbstractListModel,
+from PyQt5.Qt import (QWizard, QWizardPage, QPixmap, Qt, QAbstractListModel,
     QVariant, QItemSelectionModel, QObject, QTimer, pyqtSignal, QItemSelection)
 from calibre import __appname__, patheq
 from calibre.library.move import MoveLibrary

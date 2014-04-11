@@ -11,7 +11,7 @@ import sys, os, textwrap
 from threading import Thread
 from functools import partial
 
-from PyQt4.Qt import (QPushButton, QFrame, QVariant, QMenu, QInputDialog,
+from PyQt5.Qt import (QPushButton, QFrame, QVariant, QMenu, QInputDialog,
     QDialog, QVBoxLayout, QDialogButtonBox, QSize, QStackedWidget, QWidget,
     QLabel, Qt, pyqtSignal, QIcon, QTreeWidget, QGridLayout, QTreeWidgetItem,
     QToolButton, QItemSelectionModel, QCursor, QKeySequence)

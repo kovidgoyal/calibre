@@ -128,7 +128,7 @@ class Plugin(object):  # {{{
         True if the user clicks OK, False otherwise. The changes are
         automatically applied.
         '''
-        from PyQt4.Qt import QDialog, QDialogButtonBox, QVBoxLayout, \
+        from PyQt5.Qt import QDialog, QDialogButtonBox, QVBoxLayout, \
                 QLabel, Qt, QLineEdit
         from calibre.gui2 import gprefs
 
@@ -708,7 +708,7 @@ class ViewerPlugin(Plugin):  # {{{
         it wants to make available. For example::
 
             def load_fonts():
-                from PyQt4.Qt import QFontDatabase
+                from PyQt5.Qt import QFontDatabase
                 font_data = get_resources(['myfont1.ttf', 'myfont2.ttf'])
                 for raw in font_data.itervalues():
                     QFontDatabase.addApplicationFontFromData(raw)

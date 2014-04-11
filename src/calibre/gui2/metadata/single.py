@@ -10,7 +10,7 @@ __docformat__ = 'restructuredtext en'
 import os, errno
 from datetime import datetime
 
-from PyQt4.Qt import (Qt, QVBoxLayout, QHBoxLayout, QWidget, QPushButton,
+from PyQt5.Qt import (Qt, QVBoxLayout, QHBoxLayout, QWidget, QPushButton,
         QGridLayout, pyqtSignal, QDialogButtonBox, QScrollArea, QFont,
         QTabWidget, QIcon, QToolButton, QSplitter, QGroupBox, QSpacerItem,
         QSizePolicy, QFrame, QSize, QKeySequence, QMenu, QShortcut)

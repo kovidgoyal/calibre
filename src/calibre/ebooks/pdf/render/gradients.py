@@ -12,7 +12,7 @@ from future_builtins import map
 from collections import namedtuple
 
 import sip
-from PyQt4.Qt import QLinearGradient, QPointF
+from PyQt5.Qt import QLinearGradient, QPointF
 
 from calibre.ebooks.pdf.render.common import Name, Array, Dictionary
 

@@ -16,13 +16,13 @@ from operator import attrgetter
 from Queue import Queue, Empty
 from io import BytesIO
 
-from PyQt4.Qt import (
+from PyQt5.Qt import (
     QStyledItemDelegate, QTextDocument, QRectF, QIcon, Qt, QApplication,
     QDialog, QVBoxLayout, QLabel, QDialogButtonBox, QStyle, QStackedWidget,
     QWidget, QTableView, QGridLayout, QFontInfo, QPalette, QTimer, pyqtSignal,
     QAbstractTableModel, QVariant, QSize, QListView, QPixmap, QModelIndex,
     QAbstractListModel, QColor, QRect, QTextBrowser, QStringListModel, QMenu, QCursor)
-from PyQt4.QtWebKit import QWebView
+from PyQt5.QtWebKit import QWebView
 
 from calibre.customize.ui import metadata_plugins
 from calibre.ebooks.metadata import authors_to_string

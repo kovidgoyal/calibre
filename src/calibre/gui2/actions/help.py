@@ -5,7 +5,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-from PyQt4.Qt import QUrl
+from PyQt5.Qt import QUrl
 
 from calibre.gui2 import open_url
 from calibre.gui2.actions import InterfaceAction

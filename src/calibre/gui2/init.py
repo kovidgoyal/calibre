@@ -7,7 +7,7 @@ __docformat__ = 'restructuredtext en'
 
 import functools
 
-from PyQt4.Qt import (Qt, QApplication, QStackedWidget, QMenu, QTimer,
+from PyQt5.Qt import (Qt, QApplication, QStackedWidget, QMenu, QTimer,
         QSize, QSizePolicy, QStatusBar, QLabel, QFont, QAction, QTabBar)
 
 from calibre.utils.config import prefs

@@ -7,7 +7,7 @@ __docformat__ = 'restructuredtext en'
 
 from functools import partial
 
-from PyQt4.Qt import QToolButton
+from PyQt5.Qt import QToolButton
 
 from calibre.gui2.actions import InterfaceAction
 

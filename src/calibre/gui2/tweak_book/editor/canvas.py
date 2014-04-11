@@ -9,7 +9,7 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 import sys, weakref
 from functools import wraps
 
-from PyQt4.Qt import (
+from PyQt5.Qt import (
     QWidget, QPainter, QColor, QApplication, Qt, QPixmap, QRectF, QMatrix,
     QPointF, QPen, pyqtSignal, QUndoCommand, QUndoStack, QIcon, QImage, QByteArray)
 

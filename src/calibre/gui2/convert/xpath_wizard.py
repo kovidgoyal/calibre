@@ -6,7 +6,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-from PyQt4.Qt import QDialog, QWidget, Qt, QDialogButtonBox, QVBoxLayout
+from PyQt5.Qt import QDialog, QWidget, Qt, QDialogButtonBox, QVBoxLayout
 
 from calibre.gui2.convert.xpath_wizard_ui import Ui_Form
 from calibre.gui2.convert.xexp_edit_ui import Ui_Form as Ui_Edit
@@ -100,7 +100,7 @@ class XPathEdit(QWidget, Ui_Edit):
 
 
 if __name__ == '__main__':
-    from PyQt4.Qt import QApplication
+    from PyQt5.Qt import QApplication
     app = QApplication([])
     w = XPathEdit()
     w.setObjectName('test')

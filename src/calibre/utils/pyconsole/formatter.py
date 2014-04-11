@@ -5,7 +5,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-from PyQt4.Qt import QTextCharFormat, QFont, QBrush, QColor
+from PyQt5.Qt import QTextCharFormat, QFont, QBrush, QColor
 
 from pygments.formatter import Formatter as PF
 from pygments.token import Token, Generic, string_to_tokentype

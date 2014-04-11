@@ -8,7 +8,7 @@ __docformat__ = 'restructuredtext en'
 
 from functools import partial
 
-from PyQt4.Qt import (pyqtSignal, QMenu, QTreeView)
+from PyQt5.Qt import (pyqtSignal, QMenu, QTreeView)
 
 from calibre.gui2.metadata.single_download import RichTextDelegate
 from calibre.gui2.store.search.models import Matches

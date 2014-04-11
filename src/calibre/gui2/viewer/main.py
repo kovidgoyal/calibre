@@ -5,7 +5,7 @@ import traceback, os, sys, functools
 from functools import partial
 from threading import Thread
 
-from PyQt4.Qt import (
+from PyQt5.Qt import (
     QApplication, Qt, QIcon, QTimer, QByteArray, QSize, QTime,
     QPropertyAnimation, QUrl, QInputDialog, QAction, QModelIndex)
 

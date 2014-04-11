@@ -5,7 +5,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-from PyQt4.Qt import (QDialog, QLabel, QVBoxLayout, QDialogButtonBox,
+from PyQt5.Qt import (QDialog, QLabel, QVBoxLayout, QDialogButtonBox,
         QProgressBar, QSize, QTimer, pyqtSignal, Qt)
 
 from calibre.gui2 import (error_dialog, question_dialog, warning_dialog,

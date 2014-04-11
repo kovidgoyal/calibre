@@ -5,7 +5,7 @@ import os, shutil, time
 from Queue import Queue, Empty
 from functools import partial
 
-from PyQt4.Qt import QThread, QObject, Qt, QProgressDialog, pyqtSignal, QTimer
+from PyQt5.Qt import QThread, QObject, Qt, QProgressDialog, pyqtSignal, QTimer
 
 from calibre.ptempfile import PersistentTemporaryDirectory
 from calibre.gui2.dialogs.progress import ProgressDialog

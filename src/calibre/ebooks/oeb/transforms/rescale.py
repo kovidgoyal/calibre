@@ -56,7 +56,7 @@ class RescaleImages(object):
                         # We cannot do an imagemagick conversion of CMYK to RGB as
                         # ImageMagick inverts colors if you just set the colorspace
                         # to rgb. See for example: https://bugs.launchpad.net/bugs/1246710
-                        from PyQt4.Qt import QImage
+                        from PyQt5.Qt import QImage
                         from calibre.gui2 import pixmap_to_data
                         qimg = QImage()
                         qimg.loadFromData(raw)

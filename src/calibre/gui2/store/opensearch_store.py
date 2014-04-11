@@ -10,7 +10,7 @@ from contextlib import closing
 
 from lxml import etree
 
-from PyQt4.Qt import QUrl
+from PyQt5.Qt import QUrl
 
 from calibre import (browser, guess_extension)
 from calibre.gui2 import open_url

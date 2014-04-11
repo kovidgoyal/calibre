@@ -996,7 +996,7 @@ class Application(QApplication):
             if st is not None:
                 st = unicode(st.objectName()).lower()
             if (islinux or isbsd) and st in ('windows', 'motif', 'cde'):
-                from PyQt4.Qt import QStyleFactory
+                from PyQt5.Qt import QStyleFactory
                 styles = set(map(unicode, QStyleFactory.keys()))
                 if os.environ.get('KDE_FULL_SESSION', False):
                     self.load_calibre_style()
@@ -1104,7 +1104,7 @@ def elided_text(text, font=None, width=300, pos='middle'):
     rendered, replacing characters from the left, middle or right (as per pos)
     of the string with an ellipsis. Results in a string much closer to the
     limit than Qt's elidedText().'''
-    from PyQt4.Qt import QFontMetrics, QApplication
+    from PyQt5.Qt import QFontMetrics, QApplication
     fm = QApplication.fontMetrics() if font is None else QFontMetrics(font)
     delta = 4
     ellipsis = u'\u2026'

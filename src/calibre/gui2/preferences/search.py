@@ -5,7 +5,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-from PyQt4.Qt import QApplication
+from PyQt5.Qt import QApplication
 
 from calibre.gui2.preferences import ConfigWidgetBase, test_widget, \
         CommaSeparatedList

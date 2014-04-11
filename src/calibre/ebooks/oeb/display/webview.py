@@ -33,7 +33,7 @@ def self_closing_sub(match):
 def load_html(path, view, codec='utf-8', mime_type=None,
               pre_load_callback=lambda x:None, path_is_html=False,
               force_as_html=False):
-    from PyQt4.Qt import QUrl, QByteArray
+    from PyQt5.Qt import QUrl, QByteArray
     if mime_type is None:
         mime_type = guess_type(path)[0]
         if not mime_type:

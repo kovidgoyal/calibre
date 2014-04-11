@@ -7,7 +7,7 @@ __docformat__ = 'restructuredtext en'
 
 import sys
 
-from PyQt4.Qt import (QDialog, QIcon, QApplication, QSize, QKeySequence,
+from PyQt5.Qt import (QDialog, QIcon, QApplication, QSize, QKeySequence,
     QAction, Qt, QTextBrowser, QDialogButtonBox, QVBoxLayout, QGridLayout,
     QLabel, QPlainTextEdit, QTextDocument, QCheckBox, pyqtSignal)
 

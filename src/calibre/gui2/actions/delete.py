@@ -9,7 +9,7 @@ import errno
 from functools import partial
 from collections import Counter
 
-from PyQt4.Qt import QObject, QTimer, QModelIndex
+from PyQt5.Qt import QObject, QTimer, QModelIndex
 
 from calibre.gui2 import error_dialog, question_dialog
 from calibre.gui2.dialogs.delete_matching_from_device import DeleteMatchingFromDeviceDialog

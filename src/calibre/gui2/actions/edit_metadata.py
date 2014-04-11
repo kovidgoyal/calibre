@@ -8,7 +8,7 @@ __docformat__ = 'restructuredtext en'
 import os, shutil, copy
 from functools import partial
 
-from PyQt4.Qt import QMenu, QModelIndex, QTimer, QIcon
+from PyQt5.Qt import QMenu, QModelIndex, QTimer, QIcon
 
 from calibre.gui2 import error_dialog, Dispatcher, question_dialog, gprefs
 from calibre.gui2.dialogs.metadata_bulk import MetadataBulkDialog

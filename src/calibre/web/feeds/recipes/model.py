@@ -8,7 +8,7 @@ __docformat__ = 'restructuredtext en'
 
 import copy, zipfile
 
-from PyQt4.Qt import QAbstractItemModel, QVariant, Qt, QColor, QFont, QIcon, \
+from PyQt5.Qt import QAbstractItemModel, QVariant, Qt, QColor, QFont, QIcon, \
         QModelIndex, pyqtSignal, QPixmap
 
 from calibre.utils.search_query_parser import SearchQueryParser

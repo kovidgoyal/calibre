@@ -7,7 +7,7 @@ __docformat__ = 'restructuredtext en'
 
 import json, traceback
 
-from PyQt4.Qt import QDialogButtonBox
+from PyQt5.Qt import QDialogButtonBox
 
 from calibre.gui2 import error_dialog, warning_dialog
 from calibre.gui2.preferences import ConfigWidgetBase, test_widget
@@ -229,7 +229,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
 
 
 if __name__ == '__main__':
-    from PyQt4.Qt import QApplication
+    from PyQt5.Qt import QApplication
     app = QApplication([])
     test_widget('Advanced', 'TemplateFunctions')
 

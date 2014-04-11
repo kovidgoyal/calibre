@@ -3,7 +3,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal kovid@kovidgoyal.net'
 __docformat__ = 'restructuredtext en'
 
-from PyQt4.Qt import QDialog, Qt, QPixmap, QIcon
+from PyQt5.Qt import QDialog, Qt, QPixmap, QIcon
 
 from calibre import confirm_config_name
 from calibre.gui2 import dynamic

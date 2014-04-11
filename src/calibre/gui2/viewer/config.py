@@ -10,7 +10,7 @@ __docformat__ = 'restructuredtext en'
 import zipfile
 from functools import partial
 
-from PyQt4.Qt import (QFont, QVariant, QDialog, Qt, QColor, QColorDialog,
+from PyQt5.Qt import (QFont, QVariant, QDialog, Qt, QColor, QColorDialog,
         QMenu, QInputDialog)
 
 from calibre.constants import iswindows, isxp

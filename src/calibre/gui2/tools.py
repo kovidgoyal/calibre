@@ -9,7 +9,7 @@ Logic for setting up conversion jobs
 
 import cPickle, os
 
-from PyQt4.Qt import QDialog, QProgressDialog, QString, QTimer
+from PyQt5.Qt import QDialog, QProgressDialog, QString, QTimer
 
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.gui2 import warning_dialog, question_dialog

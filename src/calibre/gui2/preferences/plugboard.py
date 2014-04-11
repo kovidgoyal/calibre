@@ -7,7 +7,7 @@ __docformat__ = 'restructuredtext en'
 
 import copy
 
-from PyQt4.Qt import Qt, QComboBox, QListWidgetItem
+from PyQt5.Qt import Qt, QComboBox, QListWidgetItem
 
 from calibre.customize.ui import is_disabled
 from calibre.gui2 import error_dialog, question_dialog, warning_dialog
@@ -371,7 +371,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
 
 
 if __name__ == '__main__':
-    from PyQt4.Qt import QApplication
+    from PyQt5.Qt import QApplication
     app = QApplication([])
     test_widget('Import/Export', 'Plugboard')
 

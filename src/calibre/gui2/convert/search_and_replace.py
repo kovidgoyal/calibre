@@ -6,7 +6,7 @@ __docformat__ = 'restructuredtext en'
 
 import re, codecs, json
 
-from PyQt4.Qt import Qt, QTableWidgetItem
+from PyQt5.Qt import Qt, QTableWidgetItem
 
 from calibre.gui2.convert.search_and_replace_ui import Ui_Form
 from calibre.gui2.convert import Widget

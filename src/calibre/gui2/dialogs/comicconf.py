@@ -4,7 +4,7 @@ __copyright__ = '2008, Kovid Goyal kovid@kovidgoyal.net'
 __docformat__ = 'restructuredtext en'
 
 ''''''
-from PyQt4.QtGui import QDialog
+from PyQt5.QtGui import QDialog
 from calibre.gui2.dialogs.comicconf_ui import Ui_Dialog
 from calibre.ebooks.lrf.comic.convert_from import config, PROFILES
 

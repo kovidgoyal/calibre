@@ -10,7 +10,7 @@ import cStringIO, sys
 from binascii import hexlify, unhexlify
 from functools import partial
 
-from PyQt4.Qt import QWidget, pyqtSignal, QDialog, Qt, QLabel, \
+from PyQt5.Qt import QWidget, pyqtSignal, QDialog, Qt, QLabel, \
         QLineEdit, QDialogButtonBox, QGridLayout, QCheckBox
 
 from calibre.gui2.wizard.send_email_ui import Ui_Form

@@ -10,7 +10,7 @@ __docformat__ = 'restructuredtext en'
 
 import traceback, cPickle, copy, os
 
-from PyQt4.Qt import (QAbstractItemModel, QIcon, QVariant, QFont, Qt,
+from PyQt5.Qt import (QAbstractItemModel, QIcon, QVariant, QFont, Qt,
         QMimeData, QModelIndex, pyqtSignal, QObject)
 
 from calibre.constants import config_dir

@@ -11,7 +11,7 @@ from bisect import bisect
 from functools import partial
 from collections import defaultdict
 
-from PyQt4.Qt import (
+from PyQt5.Qt import (
     QAbstractItemModel, QModelIndex, Qt, QVariant, pyqtSignal, QApplication,
     QTreeView, QSize, QGridLayout, QAbstractListModel, QListView, QPen, QMenu,
     QStyledItemDelegate, QSplitter, QLabel, QSizePolicy, QIcon, QMimeData,

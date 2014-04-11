@@ -10,7 +10,7 @@ import shutil, os, errno
 from threading import Thread
 from Queue import LifoQueue, Empty
 
-from PyQt4.Qt import (QObject, pyqtSignal, QLabel, QWidget, QHBoxLayout, Qt)
+from PyQt5.Qt import (QObject, pyqtSignal, QLabel, QWidget, QHBoxLayout, Qt)
 
 from calibre.constants import iswindows
 from calibre.ptempfile import PersistentTemporaryFile

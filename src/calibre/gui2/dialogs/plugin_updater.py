@@ -9,12 +9,12 @@ __docformat__ = 'restructuredtext en'
 
 import re, datetime, traceback
 from lxml import html
-from PyQt4.Qt import (Qt, QUrl, QFrame, QVBoxLayout, QLabel, QBrush, QTextEdit,
+from PyQt5.Qt import (Qt, QUrl, QFrame, QVBoxLayout, QLabel, QBrush, QTextEdit,
                       QComboBox, QAbstractItemView, QHBoxLayout, QDialogButtonBox,
                       QAbstractTableModel, QVariant, QTableView, QModelIndex,
                       QSortFilterProxyModel, QAction, QIcon, QDialog,
                       QFont, QPixmap, QSize)
-from PyQt4.QtGui import QLineEdit
+from PyQt5.QtGui import QLineEdit
 
 from calibre import browser, prints
 from calibre.constants import numeric_version, iswindows, isosx, DEBUG, __appname__, __version__

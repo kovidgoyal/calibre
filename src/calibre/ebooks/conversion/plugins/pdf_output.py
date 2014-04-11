@@ -164,7 +164,7 @@ class PDFOutput(OutputFormatPlugin):
         '''
         from calibre.ebooks.oeb.base import urlnormalize
         from calibre.utils.fonts.utils import remove_embed_restriction
-        from PyQt4.Qt import QFontDatabase, QByteArray, QRawFont, QFont
+        from PyQt5.Qt import QFontDatabase, QByteArray, QRawFont, QFont
 
         # First find all @font-face rules and remove them, adding the embedded
         # fonts to Qt

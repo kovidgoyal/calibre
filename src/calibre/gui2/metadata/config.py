@@ -9,7 +9,7 @@ __docformat__ = 'restructuredtext en'
 
 import textwrap
 
-from PyQt4.Qt import (QWidget, QGridLayout, QGroupBox, QListView, Qt, QSpinBox,
+from PyQt5.Qt import (QWidget, QGridLayout, QGroupBox, QListView, Qt, QSpinBox,
         QDoubleSpinBox, QCheckBox, QLineEdit, QComboBox, QLabel, QVariant)
 
 from calibre.gui2.preferences.metadata_sources import FieldsModel as FM

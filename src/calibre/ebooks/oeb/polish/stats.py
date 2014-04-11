@@ -12,9 +12,9 @@ from urllib import unquote
 from collections import defaultdict
 
 from cssutils import CSSParser
-from PyQt4.Qt import (pyqtProperty, QString, QEventLoop, Qt, QSize, QTimer,
+from PyQt5.Qt import (pyqtProperty, QString, QEventLoop, Qt, QSize, QTimer,
                       pyqtSlot)
-from PyQt4.QtWebKit import QWebPage, QWebView
+from PyQt5.QtWebKit import QWebPage, QWebView
 
 from calibre.constants import iswindows
 from calibre.ebooks.oeb.display.webview import load_html

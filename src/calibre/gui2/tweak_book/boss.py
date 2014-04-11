@@ -10,7 +10,7 @@ import tempfile, shutil, sys, os
 from functools import partial, wraps
 from urlparse import urlparse
 
-from PyQt4.Qt import (
+from PyQt5.Qt import (
     QObject, QApplication, QDialog, QGridLayout, QLabel, QSize, Qt,
     QDialogButtonBox, QIcon, QTimer, QPixmap, QInputDialog, QUrl)
 

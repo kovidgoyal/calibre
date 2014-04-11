@@ -5,7 +5,7 @@ Miscellaneous widgets used in the GUI
 '''
 import re, os
 
-from PyQt4.Qt import (QIcon, QFont, QLabel, QListWidget, QAction,
+from PyQt5.Qt import (QIcon, QFont, QLabel, QListWidget, QAction,
         QListWidgetItem, QTextCharFormat, QApplication, QSyntaxHighlighter,
         QCursor, QColor, QWidget, QPixmap, QSplitterHandle, QToolButton,
         QVariant, Qt, pyqtSignal, QRegExp, QSize, QSplitter, QPainter,

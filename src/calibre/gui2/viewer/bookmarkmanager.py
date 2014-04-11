@@ -8,7 +8,7 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import cPickle
 
-from PyQt4.Qt import (
+from PyQt5.Qt import (
     Qt, QListWidget, QListWidgetItem, QItemSelectionModel, QAction,
     QGridLayout, QPushButton, QIcon, QWidget, pyqtSignal, QLabel)
 

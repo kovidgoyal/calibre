@@ -5,7 +5,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-from PyQt4.Qt import QWidget, QPainter, QPropertyAnimation, QEasingCurve, \
+from PyQt5.Qt import QWidget, QPainter, QPropertyAnimation, QEasingCurve, \
     QRect, QPixmap, Qt, pyqtProperty
 
 class SlideFlip(QWidget):

@@ -6,7 +6,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-from PyQt4.Qt import QWidget, pyqtSignal
+from PyQt5.Qt import QWidget, pyqtSignal
 
 from calibre.gui2 import error_dialog, question_dialog
 from calibre.gui2.preferences.save_template_ui import Ui_Form

@@ -11,7 +11,7 @@ import textwrap, unicodedata
 from future_builtins import map
 
 import regex
-from PyQt4.Qt import (
+from PyQt5.Qt import (
     QPlainTextEdit, QFontDatabase, QToolTip, QPalette, QFont, QKeySequence,
     QTextEdit, QTextFormat, QWidget, QSize, QPainter, Qt, QRect, pyqtSlot,
     QApplication, QMimeData, QColor, QColorDialog, QTimer, pyqtSignal)

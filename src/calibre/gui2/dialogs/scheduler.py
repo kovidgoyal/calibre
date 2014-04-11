@@ -11,7 +11,7 @@ from datetime import timedelta
 import calendar, textwrap
 from collections import OrderedDict
 
-from PyQt4.Qt import (QDialog, Qt, QTime, QObject, QMenu, QHBoxLayout,
+from PyQt5.Qt import (QDialog, Qt, QTime, QObject, QMenu, QHBoxLayout,
         QAction, QIcon, QMutex, QTimer, pyqtSignal, QWidget, QGridLayout,
         QCheckBox, QTimeEdit, QLabel, QLineEdit, QDoubleSpinBox)
 

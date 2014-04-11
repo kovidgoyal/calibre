@@ -10,10 +10,10 @@ __docformat__ = 'restructuredtext en'
 import json
 from base64 import b64encode
 
-from PyQt4.Qt import (QWidget, QGridLayout, QListWidget, QSize, Qt, QUrl,
+from PyQt5.Qt import (QWidget, QGridLayout, QListWidget, QSize, Qt, QUrl,
                       pyqtSlot, pyqtSignal, QVBoxLayout, QFrame, QLabel,
                       QLineEdit, QTimer, QPushButton, QIcon, QSplitter)
-from PyQt4.QtWebKit import QWebView, QWebPage, QWebElement
+from PyQt5.QtWebKit import QWebView, QWebPage, QWebElement
 
 from calibre.ebooks.oeb.display.webview import load_html
 from calibre.gui2 import error_dialog, question_dialog, gprefs

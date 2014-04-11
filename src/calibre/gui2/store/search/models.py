@@ -9,7 +9,7 @@ __docformat__ = 'restructuredtext en'
 import re, string
 from operator import attrgetter
 
-from PyQt4.Qt import (Qt, QAbstractItemModel, QVariant, QPixmap, QModelIndex, QSize,
+from PyQt5.Qt import (Qt, QAbstractItemModel, QVariant, QPixmap, QModelIndex, QSize,
                       pyqtSignal)
 
 from calibre.gui2 import NONE, FunctionDispatcher

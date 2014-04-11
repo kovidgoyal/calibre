@@ -9,7 +9,7 @@ import os
 from functools import partial
 from collections import defaultdict
 
-from PyQt4.Qt import QPixmap, QTimer
+from PyQt5.Qt import QPixmap, QTimer
 
 from calibre import as_unicode
 from calibre.gui2 import (error_dialog, choose_files, choose_dir,

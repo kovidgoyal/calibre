@@ -7,7 +7,7 @@ import re, os
 from collections import namedtuple, defaultdict
 from threading import Thread
 
-from PyQt4.Qt import Qt, QDialog, QGridLayout, QVBoxLayout, QFont, QLabel, \
+from PyQt5.Qt import Qt, QDialog, QGridLayout, QVBoxLayout, QFont, QLabel, \
                      pyqtSignal, QDialogButtonBox, QInputDialog, QLineEdit, \
                      QDateTime, QCompleter
 

@@ -7,7 +7,7 @@ __docformat__ = 'restructuredtext en'
 
 import os
 
-from PyQt4.Qt import Qt
+from PyQt5.Qt import Qt
 
 from calibre.gui2.preferences import ConfigWidgetBase, test_widget, \
     CommaSeparatedList, AbortCommit
@@ -136,7 +136,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         return changed or ret
 
 if __name__ == '__main__':
-    from PyQt4.Qt import QApplication
+    from PyQt5.Qt import QApplication
     app = QApplication([])
     test_widget('Import/Export', 'Adding')
 

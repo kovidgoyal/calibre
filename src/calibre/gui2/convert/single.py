@@ -8,7 +8,7 @@ __docformat__ = 'restructuredtext en'
 
 import cPickle, shutil
 
-from PyQt4.Qt import QString, QAbstractListModel, Qt, QVariant, QFont, QModelIndex
+from PyQt5.Qt import QString, QAbstractListModel, Qt, QVariant, QFont, QModelIndex
 
 from calibre.gui2 import ResizableDialog, NONE, gprefs
 from calibre.ebooks.conversion.config import (GuiRecommendations, save_specifics,

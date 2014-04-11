@@ -7,7 +7,7 @@ __docformat__ = 'restructuredtext en'
 
 from functools import partial
 
-from PyQt4.Qt import (QComboBox, QLabel, QSpinBox, QDoubleSpinBox, QDateTimeEdit,
+from PyQt5.Qt import (QComboBox, QLabel, QSpinBox, QDoubleSpinBox, QDateTimeEdit,
         QDateTime, QGroupBox, QVBoxLayout, QSizePolicy, QGridLayout,
         QSpacerItem, QIcon, QCheckBox, QWidget, QHBoxLayout,
         QPushButton, QMessageBox, QToolButton, Qt)

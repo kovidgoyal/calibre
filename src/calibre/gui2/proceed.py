@@ -9,7 +9,7 @@ __docformat__ = 'restructuredtext en'
 
 from collections import namedtuple
 
-from PyQt4.Qt import (QDialog, Qt, QLabel, QGridLayout, QPixmap,
+from PyQt5.Qt import (QDialog, Qt, QLabel, QGridLayout, QPixmap,
         QDialogButtonBox, QApplication, QSize, pyqtSignal, QIcon,
         QPlainTextEdit, QCheckBox)
 
@@ -239,7 +239,7 @@ class ProceedQuestion(QDialog):
 
 def main():
     from calibre.gui2 import Application
-    from PyQt4.QtGui import QMainWindow
+    from PyQt5.QtGui import QMainWindow
     app = Application([])
     w = QMainWindow()
     w.show()

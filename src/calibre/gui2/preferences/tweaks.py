@@ -19,7 +19,7 @@ from calibre.utils.icu import lower
 from calibre.utils.search_query_parser import (ParseException,
         SearchQueryParser)
 
-from PyQt4.Qt import (QAbstractListModel, Qt, QStyledItemDelegate, QStyle,
+from PyQt5.Qt import (QAbstractListModel, Qt, QStyledItemDelegate, QStyle,
     QStyleOptionViewItem, QFont, QDialogButtonBox, QDialog, QApplication,
     QVBoxLayout, QPlainTextEdit, QLabel, QModelIndex, QMenu, QIcon)
 

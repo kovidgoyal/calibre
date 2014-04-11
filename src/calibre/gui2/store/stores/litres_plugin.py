@@ -13,7 +13,7 @@ import urllib2
 
 from contextlib import closing
 from lxml import etree
-from PyQt4.Qt import QUrl
+from PyQt5.Qt import QUrl
 
 from calibre import browser, url_slash_cleaner, prints
 from calibre.ebooks.chardet import xml_to_unicode

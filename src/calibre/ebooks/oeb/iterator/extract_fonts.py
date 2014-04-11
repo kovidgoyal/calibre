@@ -41,7 +41,7 @@ class FamilyMap(dict):
             return self.pat.sub(sub, raw)
 
     def read_font_fule(self, basedir, css):
-        from PyQt4.Qt import QFontDatabase
+        from PyQt5.Qt import QFontDatabase
         import cssutils
         cssutils.log.setLevel(logging.ERROR)
         try:

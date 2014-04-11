@@ -2,8 +2,8 @@ __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 import collections, itertools, glob
 
-from PyQt4.QtCore import Qt, QByteArray, pyqtSignal
-from PyQt4.QtGui import QGraphicsRectItem, QGraphicsScene, QPen, \
+from PyQt5.QtCore import Qt, QByteArray, pyqtSignal
+from PyQt5.QtGui import QGraphicsRectItem, QGraphicsScene, QPen, \
                         QBrush, QColor, QFontDatabase, \
                         QGraphicsItem, QGraphicsLineItem
 

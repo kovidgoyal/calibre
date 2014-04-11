@@ -16,7 +16,7 @@ from collections import OrderedDict
 from io import BytesIO
 
 import apsw
-from PyQt4.Qt import (Qt, QTimer, QHelpEvent, QAction,
+from PyQt5.Qt import (Qt, QTimer, QHelpEvent, QAction,
                      QMenu, QIcon, pyqtSignal, QUrl, QFont,
                      QDialog, QSystemTrayIcon, QApplication)
 

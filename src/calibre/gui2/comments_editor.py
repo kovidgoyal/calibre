@@ -10,12 +10,12 @@ import re, os, json, weakref
 from lxml import html
 import sip
 
-from PyQt4.Qt import (QApplication, QFontInfo, QSize, QWidget, QPlainTextEdit,
+from PyQt5.Qt import (QApplication, QFontInfo, QSize, QWidget, QPlainTextEdit,
     QToolBar, QVBoxLayout, QAction, QIcon, Qt, QTabWidget, QUrl, QFormLayout,
     QSyntaxHighlighter, QColor, QChar, QColorDialog, QMenu, QDialog, QLabel,
     QHBoxLayout, QKeySequence, QLineEdit, QDialogButtonBox, QPushButton,
     QCheckBox)
-from PyQt4.QtWebKit import QWebView, QWebPage
+from PyQt5.QtWebKit import QWebView, QWebPage
 
 from calibre.ebooks.chardet import xml_to_unicode
 from calibre import xml_replace_entities, prepare_string_for_xml

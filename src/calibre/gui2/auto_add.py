@@ -10,7 +10,7 @@ __docformat__ = 'restructuredtext en'
 import os, tempfile, shutil, time
 from threading import Thread, Event
 
-from PyQt4.Qt import (QFileSystemWatcher, QObject, Qt, pyqtSignal, QTimer)
+from PyQt5.Qt import (QFileSystemWatcher, QObject, Qt, pyqtSignal, QTimer)
 
 from calibre import prints
 from calibre.ptempfile import PersistentTemporaryDirectory

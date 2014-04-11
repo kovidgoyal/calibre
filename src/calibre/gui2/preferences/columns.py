@@ -7,7 +7,7 @@ __docformat__ = 'restructuredtext en'
 
 import copy, sys
 
-from PyQt4.Qt import Qt, QVariant, QListWidgetItem, QIcon
+from PyQt5.Qt import Qt, QVariant, QListWidgetItem, QIcon
 
 from calibre.gui2.preferences import ConfigWidgetBase, test_widget
 from calibre.gui2.preferences.columns_ui import Ui_Form
@@ -174,7 +174,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
 
 
 if __name__ == '__main__':
-    from PyQt4.Qt import QApplication
+    from PyQt5.Qt import QApplication
     app = QApplication([])
     test_widget('Interface', 'Custom Columns')
 

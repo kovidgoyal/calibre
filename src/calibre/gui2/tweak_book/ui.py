@@ -11,7 +11,7 @@ from functools import partial
 from itertools import product
 from future_builtins import map
 
-from PyQt4.Qt import (
+from PyQt5.Qt import (
     QDockWidget, Qt, QLabel, QIcon, QAction, QApplication, QWidget, QEvent,
     QVBoxLayout, QStackedWidget, QTabWidget, QImage, QPixmap, pyqtSignal,
     QMenu, QHBoxLayout, QTimer, QUrl)

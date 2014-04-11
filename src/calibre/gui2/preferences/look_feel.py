@@ -8,7 +8,7 @@ __docformat__ = 'restructuredtext en'
 from threading import Thread
 from functools import partial
 
-from PyQt4.Qt import (
+from PyQt5.Qt import (
     QApplication, QFont, QFontInfo, QFontDialog, QColorDialog, QPainter,
     QAbstractListModel, Qt, QIcon, QKeySequence, QColor, pyqtSignal,
     QWidget, QSizePolicy, QBrush, QPixmap, QSize, QPushButton, QVBoxLayout)

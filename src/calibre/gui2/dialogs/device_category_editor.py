@@ -1,8 +1,8 @@
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
-from PyQt4.QtCore import Qt, QString
-from PyQt4.QtGui import QDialog, QListWidgetItem
+from PyQt5.QtCore import Qt, QString
+from PyQt5.QtGui import QDialog, QListWidgetItem
 
 from calibre.gui2.dialogs.device_category_editor_ui import Ui_DeviceCategoryEditor
 from calibre.gui2 import question_dialog, error_dialog

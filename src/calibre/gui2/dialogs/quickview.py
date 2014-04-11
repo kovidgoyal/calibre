@@ -4,7 +4,7 @@ __copyright__ = '2008, Kovid Goyal kovid@kovidgoyal.net'
 __docformat__ = 'restructuredtext en'
 
 
-from PyQt4.Qt import (Qt, QDialog, QAbstractItemView, QTableWidgetItem,
+from PyQt5.Qt import (Qt, QDialog, QAbstractItemView, QTableWidgetItem,
                       QListWidgetItem, QByteArray, QCoreApplication,
                       QApplication, pyqtSignal, QDialogButtonBox)
 

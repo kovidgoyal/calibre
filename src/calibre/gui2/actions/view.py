@@ -8,7 +8,7 @@ __docformat__ = 'restructuredtext en'
 import os, time
 from functools import partial
 
-from PyQt4.Qt import Qt, QAction, pyqtSignal
+from PyQt5.Qt import Qt, QAction, pyqtSignal
 
 from calibre.constants import isosx, iswindows
 from calibre.gui2 import (

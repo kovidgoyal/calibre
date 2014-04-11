@@ -7,7 +7,7 @@ __docformat__ = 'restructuredtext en'
 
 import textwrap
 
-from PyQt4.Qt import (QWidget, pyqtSignal, QCheckBox, QAbstractSpinBox,
+from PyQt5.Qt import (QWidget, pyqtSignal, QCheckBox, QAbstractSpinBox,
     QLineEdit, QComboBox, QVariant, Qt, QIcon, QDialog, QVBoxLayout,
     QDialogButtonBox)
 
@@ -385,7 +385,7 @@ def test_widget(category, name, gui=None):
     show_config_widget(category, name, gui=gui, show_restart_msg=True)
 
 def test_all():
-    from PyQt4.Qt import QApplication
+    from PyQt5.Qt import QApplication
     app = QApplication([])
     app
     gui = init_gui()

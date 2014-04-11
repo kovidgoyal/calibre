@@ -2,8 +2,8 @@ __license__   = 'GPL v3'
 
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
-from PyQt4.QtCore import Qt
-from PyQt4.QtGui import QDialog, QIcon, QListWidgetItem
+from PyQt5.QtCore import Qt
+from PyQt5.QtGui import QDialog, QIcon, QListWidgetItem
 
 from calibre.gui2.dialogs.tag_categories_ui import Ui_TagCategories
 from calibre.gui2.dialogs.confirm_delete import confirm

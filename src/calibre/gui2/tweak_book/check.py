@@ -8,7 +8,7 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import sys
 
-from PyQt4.Qt import (
+from PyQt5.Qt import (
      QIcon, Qt, QSplitter, QListWidget, QTextBrowser, QPalette, QMenu,
      QListWidgetItem, pyqtSignal, QApplication, QStyledItemDelegate)
 
@@ -96,7 +96,7 @@ class Check(QSplitter):
         items = []
         for item in (self.items.item(i) for i in xrange(self.items.count())):
             msg = unicode(item.text())
-            msg = prefix_for_level(item.data(Qt.UserRole).toPyObject().level) + msg
+            msg = prefix_for_level(item.data(Qt.UserRole).level) + msg
             items.append(msg)
         if items:
             QApplication.clipboard().setText('\n'.join(items))

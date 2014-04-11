@@ -10,9 +10,9 @@ Write content to PDF.
 
 import os, shutil, json
 
-from PyQt4.Qt import (QEventLoop, QObject, QPrinter, QSizeF, Qt, QPainter,
+from PyQt5.Qt import (QEventLoop, QObject, QPrinter, QSizeF, Qt, QPainter,
         QPixmap, QTimer, pyqtProperty, QString, QSize)
-from PyQt4.QtWebKit import QWebView, QWebPage, QWebSettings
+from PyQt5.QtWebKit import QWebView, QWebPage, QWebSettings
 
 from calibre.ptempfile import PersistentTemporaryDirectory
 from calibre.ebooks.pdf.pageoptions import (unit, paper_size)

@@ -10,7 +10,7 @@ from Queue import Queue, Empty
 from multiprocessing.connection import Listener, arbitrary_address
 from binascii import hexlify
 
-from PyQt4.Qt import QThread, pyqtSignal
+from PyQt5.Qt import QThread, pyqtSignal
 
 from calibre.utils.pyconsole import Process, iswindows, POLL_TIMEOUT
 

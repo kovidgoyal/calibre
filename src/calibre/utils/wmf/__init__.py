@@ -62,7 +62,7 @@ def to_png(bmp):
     # https://bugs.launchpad.net/calibre/+bug/934167
     # ImageMagick bug report:
     # http://www.imagemagick.org/discourse-server/viewtopic.php?f=3&t=20350
-    from PyQt4.Qt import QImage, QByteArray, QBuffer
+    from PyQt5.Qt import QImage, QByteArray, QBuffer
     i = QImage()
     if i.loadFromData(bmp):
         ba = QByteArray()

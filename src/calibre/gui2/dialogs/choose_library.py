@@ -7,7 +7,7 @@ __docformat__ = 'restructuredtext en'
 
 import os
 
-from PyQt4.Qt import QDialog
+from PyQt5.Qt import QDialog
 
 from calibre.gui2.dialogs.choose_library_ui import Ui_Dialog
 from calibre.gui2 import error_dialog, choose_dir

@@ -1,7 +1,7 @@
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
-from PyQt4.Qt import (Qt, QDialog, QTableWidgetItem, QIcon, QByteArray,
+from PyQt5.Qt import (Qt, QDialog, QTableWidgetItem, QIcon, QByteArray,
         QString, QSize)
 
 from calibre.gui2.dialogs.tag_list_editor_ui import Ui_TagListEditor

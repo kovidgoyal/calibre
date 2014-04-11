@@ -6,7 +6,7 @@ __docformat__ = 'restructuredtext en'
 
 import shutil
 
-from PyQt4.Qt import QString, QModelIndex
+from PyQt5.Qt import QString, QModelIndex
 
 from calibre.gui2.convert.single import (Config, sort_formats_by_preference,
     GroupModel, gprefs, get_output_formats)

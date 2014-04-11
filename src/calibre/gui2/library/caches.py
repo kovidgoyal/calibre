@@ -9,7 +9,7 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 from threading import Lock, current_thread
 from collections import OrderedDict
 
-from PyQt4.Qt import QImage, QPixmap
+from PyQt5.Qt import QImage, QPixmap
 
 from calibre.db.utils import ThumbnailCache as TC
 

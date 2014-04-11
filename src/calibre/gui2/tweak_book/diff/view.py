@@ -15,7 +15,7 @@ from difflib import SequenceMatcher
 from future_builtins import zip
 
 import regex
-from PyQt4.Qt import (
+from PyQt5.Qt import (
     QSplitter, QApplication, QTimer,
     QTextCursor, QTextCharFormat, Qt, QRect, QPainter, QPalette, QPen, QBrush,
     QColor, QTextLayout, QCursor, QFont, QSplitterHandle, QPainterPath,

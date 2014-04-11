@@ -6,7 +6,7 @@ __docformat__ = 'restructuredtext en'
 
 import re, os
 
-from PyQt4.Qt import (QDialog, QWidget, QDialogButtonBox,
+from PyQt5.Qt import (QDialog, QWidget, QDialogButtonBox,
         QBrush, QTextCursor, QTextEdit, QByteArray, Qt, pyqtSignal)
 
 from calibre.gui2.convert.regex_builder_ui import Ui_RegexBuilder

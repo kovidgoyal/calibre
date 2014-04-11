@@ -5,7 +5,7 @@ import sys, os, time, socket, traceback
 from functools import partial
 
 import apsw
-from PyQt4.Qt import (QCoreApplication, QIcon, QObject, QTimer,
+from PyQt5.Qt import (QCoreApplication, QIcon, QObject, QTimer,
         QPixmap, QSplashScreen, QApplication)
 
 from calibre import prints, plugins, force_unicode
@@ -130,7 +130,7 @@ def get_library_path(parent=None):
         if iswindows:
             base = winutil.special_folder_path(winutil.CSIDL_PERSONAL)
             if not base or not os.path.exists(base):
-                from PyQt4.Qt import QDir
+                from PyQt5.Qt import QDir
                 base = unicode(QDir.homePath()).replace('/', os.sep)
         candidate = choose_dir(None, 'choose calibre library',
                 _('Choose a location for your calibre e-book library'),
@@ -480,7 +480,7 @@ if __name__ == '__main__':
         if not iswindows:
             raise
         tb = traceback.format_exc()
-        from PyQt4.QtGui import QErrorMessage
+        from PyQt5.QtGui import QErrorMessage
         logfile = os.path.join(os.path.expanduser('~'), 'calibre.log')
         if os.path.exists(logfile):
             log = open(logfile).read().decode('utf-8', 'ignore')

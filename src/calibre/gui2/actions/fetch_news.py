@@ -7,7 +7,7 @@ __docformat__ = 'restructuredtext en'
 
 import gc
 
-from PyQt4.Qt import Qt
+from PyQt5.Qt import Qt
 
 from calibre.gui2 import Dispatcher
 from calibre.gui2.tools import fetch_scheduled_recipe

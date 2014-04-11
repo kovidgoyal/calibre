@@ -3,7 +3,7 @@ __copyright__ = '2008, Kovid Goyal kovid@kovidgoyal.net'
 __docformat__ = 'restructuredtext en'
 __license__   = 'GPL v3'
 
-from PyQt4.Qt import Qt, QDialog, QDialogButtonBox
+from PyQt5.Qt import Qt, QDialog, QDialogButtonBox
 
 from calibre.gui2 import gprefs
 from calibre.gui2.dialogs.comments_dialog_ui import Ui_CommentsDialog

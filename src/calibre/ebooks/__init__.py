@@ -41,7 +41,7 @@ class HTMLRenderer(object):
         self.exception = self.tb = None
 
     def __call__(self, ok):
-        from PyQt4.Qt import QImage, QPainter, QByteArray, QBuffer
+        from PyQt5.Qt import QImage, QPainter, QByteArray, QBuffer
         try:
             if not ok:
                 raise RuntimeError('Rendering of HTML failed.')
@@ -130,8 +130,8 @@ def render_html_svg_workaround(path_to_html, log, width=590, height=750):
 
 
 def render_html(path_to_html, width=590, height=750, as_xhtml=True):
-    from PyQt4.QtWebKit import QWebPage
-    from PyQt4.Qt import QEventLoop, QPalette, Qt, QUrl, QSize
+    from PyQt5.QtWebKit import QWebPage
+    from PyQt5.Qt import QEventLoop, QPalette, Qt, QUrl, QSize
     from calibre.gui2 import is_ok_to_use_qt
     if not is_ok_to_use_qt():
         return None
