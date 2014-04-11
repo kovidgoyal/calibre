@@ -17,16 +17,7 @@ def all_py_files():
             if n.endswith('.py'):
                 yield os.path.join(dirpath, n)
 
-def port_imports():
-    for path in all_py_files():
-        with open(path, 'r+b') as f:
-            raw = f.read()
-            nraw = raw.replace(b'from PyQt4.', b'from PyQt5.')
-            if nraw != raw:
-                f.seek(0), f.truncate()
-                f.write(nraw)
-
 
 if __name__ == '__main__':
-    port_imports()
+    pass
 

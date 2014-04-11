@@ -12,7 +12,7 @@ import sys, os, shutil, platform, subprocess, stat, py_compile, glob, \
 from setup import Command, modules, basenames, functions, __version__, \
     __appname__
 
-SITE_PACKAGES = ['PIL', 'dateutil', 'dns', 'PyQt4', 'mechanize',
+SITE_PACKAGES = ['PIL', 'dateutil', 'dns', 'PyQt5', 'mechanize',
         'sip.so', 'BeautifulSoup.py', 'cssutils', 'encutils', 'lxml',
         'sipconfig.py', 'xdg', 'dbus', '_dbus_bindings.so',
         '_dbus_glib_bindings.so', 'netifaces.so', '_psutil_posix.so',
@@ -363,7 +363,7 @@ class LinuxFreeze(Command):
             def set_qt_plugin_path():
                 import uuid
                 uuid.uuid4() # Workaround for libuuid/PyQt conflict
-                from PyQt4.Qt import QCoreApplication
+                from PyQt5.Qt import QCoreApplication
                 paths = list(map(unicode, QCoreApplication.libraryPaths()))
                 paths.insert(0, sys.frozen_path + '/lib/qt_plugins')
                 QCoreApplication.setLibraryPaths(paths)

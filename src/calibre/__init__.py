@@ -22,7 +22,7 @@ from calibre.constants import (iswindows, isosx, islinux, isfrozen,
 from calibre.startup import winutil, winutilerror
 
 if False and islinux and not getattr(sys, 'frozen', False):
-    # Imported before PyQt4 to workaround PyQt4 util-linux conflict discovered on gentoo
+    # Imported before PyQt to workaround PyQt util-linux conflict discovered on gentoo
     # See http://bugs.gentoo.org/show_bug.cgi?id=317557
     # Importing uuid is slow so get rid of this at some point, maybe in a few
     # years when even Debian has caught up

@@ -780,7 +780,7 @@ class PythonHighlighter(QSyntaxHighlighter):  # {{{
                 r"|\b[+-]?[0-9]+(?:\.[0-9]+)?(?:[eE][+-]?[0-9]+)?\b"),
                 "number"))
         PythonHighlighter.Rules.append((QRegExp(
-                r"\bPyQt4\b|\bQt?[A-Z][a-z]\w+\b"), "pyqt"))
+                r"\bPyQt5\b|\bQt?[A-Z][a-z]\w+\b"), "pyqt"))
         PythonHighlighter.Rules.append((QRegExp(r"\b@\w+\b"), "decorator"))
         stringRe = QRegExp(r"""(?:'[^']*'|"[^"]*")""")
         stringRe.setMinimal(True)

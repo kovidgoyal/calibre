@@ -13,7 +13,7 @@ if False:
     # You do not need this code in your plugins
     get_icons = get_resources = None
 
-from PyQt4.Qt import QDialog, QVBoxLayout, QPushButton, QMessageBox, QLabel
+from PyQt5.Qt import QDialog, QVBoxLayout, QPushButton, QMessageBox, QLabel
 
 from calibre_plugins.interface_demo.config import prefs
 
@@ -136,7 +136,8 @@ class DemoDialog(QDialog):
             mi = self.db.get_metadata(book_id, index_is_id=True,
                     get_cover=True, cover_as_data=True)
             fmts = self.db.formats(book_id, index_is_id=True)
-            if not fmts: continue
+            if not fmts:
+                continue
             for fmt in fmts.split(','):
                 fmt = fmt.lower()
                 # Get a python file object for the format. This will be either
@@ -149,9 +150,9 @@ class DemoDialog(QDialog):
                 # Now replace the file in the calibre library with the updated
                 # file. We dont use add_format_with_hooks as the hooks were
                 # already run when the file was first added to calibre.
-                ffile.name = 'xxx' # add_format() will not work if the file
-                                   # path of the file being added is the same
-                                   # as the path of the file being replaced
+                ffile.name = 'xxx'  # add_format() will not work if the file
+                                    # path of the file being added is the same
+                                    # as the path of the file being replaced
                 self.db.add_format(book_id, fmt, ffile, index_is_id=True)
 
         info_dialog(self, 'Updated files',

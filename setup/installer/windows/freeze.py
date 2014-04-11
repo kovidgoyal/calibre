@@ -216,7 +216,7 @@ class Win32Freeze(Command, WixMixIn):
             if os.path.isdir(folder):
                 self.fix_pyd_bootstraps_in(folder)
 
-        for pat in (r'PyQt4\uic\port_v3', ):
+        for pat in (r'PyQt5\uic\port_v3', ):
             x = glob.glob(self.j(self.lib_dir, 'site-packages', pat))[0]
             shutil.rmtree(x)
 

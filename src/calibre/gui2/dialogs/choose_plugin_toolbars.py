@@ -10,8 +10,7 @@ __license__   = 'GPL v3'
 
 
 from PyQt5.Qt import (QDialog, QVBoxLayout, QLabel, QDialogButtonBox,
-            QListWidget, QAbstractItemView)
-from PyQt4 import QtGui
+            QListWidget, QAbstractItemView, QSizePolicy)
 
 class ChoosePluginToolbarsDialog(QDialog):
 
@@ -32,8 +31,7 @@ class ChoosePluginToolbarsDialog(QDialog):
 
         self._locations_list = QListWidget(self)
         self._locations_list.setSelectionMode(QAbstractItemView.MultiSelection)
-        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Preferred,
-                QtGui.QSizePolicy.Minimum)
+        sizePolicy = QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Minimum)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         self._locations_list.setSizePolicy(sizePolicy)
