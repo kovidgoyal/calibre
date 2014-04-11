@@ -598,7 +598,7 @@ class Build(Command):
             if iswindows:
                 qmc += ['-spec', 'win32-msvc2008']
             self.check_call(qmc + [ext.name+'.pro'])
-            self.check_call([make, '-f', 'Makefile'])
+            self.check_call([make, '-f', 'Makefile']+([] if iswindows else ['-j%d'%(cpu_count() or 1)]))
             objects = glob.glob(obj_pat)
         return list(map(self.a, objects))
 
