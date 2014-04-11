@@ -6,6 +6,11 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
+# QT5XX: Implement a minimal QPA plugin to allow headless operation, see the
+# minimal example in the Qt source code and see
+# https://github.com/ariya/phantomjs/pull/173 for info on how to enable fonts
+# with fontconfig (probably needed for PDF output and SVG rendering)
+
 # QT5XX: Port def wheelEvent() (orientation() and delta() to be replaced by
 # angleDelta())
 
