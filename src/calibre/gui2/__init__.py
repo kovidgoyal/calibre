@@ -4,7 +4,7 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 import os, sys, Queue, threading, glob
 from threading import RLock
 from urllib import unquote
-from PyQt4.Qt import (QVariant, QFileInfo, QObject, QBuffer, Qt,
+from PyQt5.Qt import (QFileInfo, QObject, QBuffer, Qt,
                     QByteArray, QTranslator, QCoreApplication, QThread,
                     QEvent, QTimer, pyqtSignal, QDateTime, QDesktopServices,
                     QFileDialog, QFileIconProvider, QSettings, QColor,
@@ -134,7 +134,6 @@ defs['emblem_position'] = 'left'
 del defs
 # }}}
 
-NONE = QVariant()  # : Null value to return from the data function of item models
 UNDEFINED_QDATETIME = QDateTime(UNDEFINED_DATE)
 
 ALL_COLUMNS = ['title', 'ondevice', 'authors', 'size', 'timestamp', 'rating', 'publisher',
@@ -1134,7 +1133,7 @@ def form_to_compiled_form(form):
 
 def build_forms(srcdir, info=None, summary=False):
     import re, cStringIO
-    from PyQt4.uic import compileUi
+    from PyQt5.uic import compileUi
     forms = find_forms(srcdir)
     if info is None:
         from calibre import prints
@@ -1145,6 +1144,9 @@ def build_forms(srcdir, info=None, summary=False):
         return ans
 
     num = 0
+    transdef_pat = re.compile(r'^\s+_translate\s+=\s+QtCore.QCoreApplication.translate$', flags=re.M)
+    transpat = re.compile(r'_translate\s*\(.+?,\s+"(.+?)(?<!\\)"\)', re.DOTALL)
+
     for form in forms:
         compiled_form = form_to_compiled_form(form)
         if not os.path.exists(compiled_form) or os.stat(form).st_mtime > os.stat(compiled_form).st_mtime:
@@ -1154,14 +1156,11 @@ def build_forms(srcdir, info=None, summary=False):
             compileUi(form, buf)
             dat = buf.getvalue()
             dat = dat.replace('import images_rc', '')
-            dat = re.sub(r'^ {4}def _translate\(context, text, disambig\):\s+return.*$', '    pass', dat,
-                         flags=re.M)
-            dat = re.compile(r'(?:QtGui.QApplication.translate|(?<!def )_translate)\(.+?,\s+"(.+?)(?<!\\)",.+?\)', re.DOTALL).sub(r'_("\1")', dat)
+            dat = transdef_pat.sub('', dat)
+            dat = transpat.sub(r'_("\1")', dat)
             dat = dat.replace('_("MMM yyyy")', '"MMM yyyy"')
             dat = dat.replace('_("d MMM yyyy")', '"d MMM yyyy"')
             dat = pat.sub(sub, dat)
-            dat = dat.replace('from QtWebKit.QWebView import QWebView',
-                    'from PyQt4 import QtWebKit\nfrom PyQt4.QtWebKit import QWebView')
 
             open(compiled_form, 'wb').write(dat)
             num += 1
