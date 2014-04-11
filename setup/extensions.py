@@ -649,7 +649,7 @@ class Build(Command):
             os.chdir(src_dir)
             if self.newer(dest, sip['headers'] + sip['sources'] + ext.sources + ext.headers):
                 self.check_call([QMAKE] + qmc + [proname])
-                self.check_call([make])
+                self.check_call([make]+([] if iswindows else ['-j%d'%(cpu_count() or 1)]))
                 shutil.copy2(os.path.realpath(name), dest)
         finally:
             os.chdir(cwd)
