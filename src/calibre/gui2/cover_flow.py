@@ -105,7 +105,13 @@ if pictureflow is not None:
             return ''
 
         def reset(self):
+            self.beginResetModel(), self.endResetModel()
+
+        def beginResetModel(self):
             self.dataChanged.emit()
+
+        def endResetModel(self):
+            pass
 
         def image(self, index):
             return self.model.cover(index)

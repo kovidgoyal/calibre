@@ -77,9 +77,10 @@ class GlobalUndoHistory(QAbstractListModel):
         return self.states[self.pos - 1].container
 
     def open_book(self, container):
+        self.beginResetModel()
         self.states = [State(container)]
         self.pos = 0
-        self.reset()
+        self.endResetModel()
 
     def truncate(self):
         extra = self.states[self.pos+1:]

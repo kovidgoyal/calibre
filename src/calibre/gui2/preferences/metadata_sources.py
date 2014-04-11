@@ -30,11 +30,12 @@ class SourcesModel(QAbstractTableModel):  # {{{
         self.cover_overrides = {}
 
     def initialize(self):
+        self.beginResetModel()
         self.plugins = list(all_metadata_plugins())
         self.plugins.sort(key=attrgetter('name'))
         self.enabled_overrides = {}
         self.cover_overrides = {}
-        self.reset()
+        self.endResetModel()
 
     def rowCount(self, parent=None):
         return len(self.plugins)
@@ -135,12 +136,13 @@ class SourcesModel(QAbstractTableModel):  # {{{
         self.cover_overrides = {}
 
     def restore_defaults(self):
+        self.beginResetModel()
         self.enabled_overrides = dict([(p, (Qt.Unchecked if p.name in
             default_disabled_plugins else Qt.Checked)) for p in self.plugins])
         self.cover_overrides = dict([(p,
             msprefs.defaults['cover_priorities'].get(p.name, 1))
                 for p in self.plugins])
-        self.reset()
+        self.endResetModel()
 
 # }}}
 
@@ -173,12 +175,13 @@ class FieldsModel(QAbstractListModel):  # {{{
         fields = set()
         for p in all_metadata_plugins():
             fields |= p.touched_fields
+        self.beginResetModel()
         self.fields = []
         for x in fields:
             if not x.startswith('identifier:') and x not in self.exclude:
                 self.fields.append(x)
         self.fields.sort(key=lambda x:self.descs.get(x, x))
-        self.reset()
+        self.endResetModel()
 
     def state(self, field, defaults=False):
         src = msprefs.defaults if defaults else msprefs
@@ -201,16 +204,19 @@ class FieldsModel(QAbstractListModel):  # {{{
         return ans | Qt.ItemIsUserCheckable
 
     def restore_defaults(self):
+        self.beginResetModel()
         self.overrides = dict([(f, self.state(f, Qt.Checked)) for f in self.fields])
-        self.reset()
+        self.endResetModel()
 
     def select_all(self):
+        self.beginResetModel()
         self.overrides = dict([(f, Qt.Checked) for f in self.fields])
-        self.reset()
+        self.endResetModel()
 
     def clear_all(self):
+        self.beginResetModel()
         self.overrides = dict([(f, Qt.Unchecked) for f in self.fields])
-        self.reset()
+        self.endResetModel()
 
     def setData(self, index, val, role):
         try:
@@ -239,8 +245,9 @@ class FieldsModel(QAbstractListModel):  # {{{
                     else Qt.Checked)
 
     def select_user_defaults(self):
+        self.beginResetModel()
         self.overrides = dict([(f, self.user_default_state(f)) for f in self.fields])
-        self.reset()
+        self.endResetModel()
 
     def commit_user_defaults(self):
         default_ignored_fields = set([x for x in msprefs['user_default_ignore_fields'] if x not in

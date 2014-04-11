@@ -75,7 +75,7 @@ class FetchNewsAction(InterfaceAction):
             if ids_to_delete:
                 self.gui.library_view.model().delete_books_by_id(ids_to_delete)
 
-        self.gui.library_view.model().reset()
+        self.gui.library_view.model().beginResetModel(), self.gui.library_view.model().endResetModel()
         sync = self.gui.news_to_be_synced
         sync.add(id)
         self.gui.news_to_be_synced = sync

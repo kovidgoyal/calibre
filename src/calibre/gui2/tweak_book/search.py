@@ -417,11 +417,12 @@ class SearchesModel(QAbstractListModel):
 
     def do_filter(self, text):
         text = unicode(text)
+        self.beginResetModel()
         self.filtered_searches = []
         for i, search in enumerate(self.searches):
             if primary_contains(text, search['name']):
                 self.filtered_searches.append(i)
-        self.reset()
+        self.endResetModel()
 
     def move_entry(self, row, delta):
         a, b = row, row + delta
@@ -433,9 +434,10 @@ class SearchesModel(QAbstractListModel):
             tprefs['saved_searches'] = self.searches
 
     def add_searches(self, count=1):
+        self.beginResetModel()
         self.searches = tprefs['saved_searches']
         self.filtered_searches.extend(xrange(len(self.searches) - 1, len(self.searches) - 1 - count, -1))
-        self.reset()
+        self.endResetModel()
 
     def remove_searches(self, rows):
         rows = sorted(set(rows), reverse=True)

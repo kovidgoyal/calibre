@@ -10,7 +10,7 @@ import re, time
 from functools import partial
 
 
-from PyQt5.Qt import QComboBox, Qt, QLineEdit, QStringList, pyqtSlot, QDialog, \
+from PyQt5.Qt import QComboBox, Qt, QLineEdit, pyqtSlot, QDialog, \
                      pyqtSignal, QCompleter, QAction, QKeySequence, QTimer, \
                      QString, QIcon, QMenu
 
@@ -108,7 +108,7 @@ class SearchBox2(QComboBox):  # {{{
         for item in config[opt_name]:
             if item not in items:
                 items.append(item)
-        self.addItems(QStringList(items))
+        self.addItems(items)
         try:
             self.line_edit.setPlaceholderText(help_text)
         except:

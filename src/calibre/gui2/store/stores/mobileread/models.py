@@ -108,7 +108,7 @@ class BooksModel(QAbstractItemModel):
             lambda x: sort_key(unicode(self.data_as_text(x, col))),
             descending)
         if reset:
-            self.reset()
+            self.beginResetModel(), self.endResetModel()
 
 
 class SearchFilter(SearchQueryParser):

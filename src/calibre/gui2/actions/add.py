@@ -216,7 +216,7 @@ class AddAction(InterfaceAction):
                 ids.append(db.import_book(mi, fmts))
             self.gui.library_view.model().books_added(num)
             if hasattr(self.gui, 'db_images'):
-                self.gui.db_images.reset()
+                self.gui.db_images.beginResetModel(), self.gui.db_images.endResetModel()
             self.gui.tags_view.recount()
             if ids:
                 ids.reverse()
@@ -384,7 +384,7 @@ class AddAction(InterfaceAction):
             self.gui.library_view.model().books_added(self._adder.number_of_books_added)
             self.gui.library_view.set_current_row(0)
             if hasattr(self.gui, 'db_images'):
-                self.gui.db_images.reset()
+                self.gui.db_images.beginResetModel(), self.gui.db_images.endResetModel()
             self.gui.tags_view.recount()
 
         if getattr(self._adder, 'merged_books', False):

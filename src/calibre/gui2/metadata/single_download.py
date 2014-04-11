@@ -227,8 +227,9 @@ class ResultsModel(QAbstractTableModel):  # {{{
         elif key == 4:
             key = lambda x: bool(x.comments)
 
+        self.beginResetModel()
         self.results.sort(key=key, reverse=order==Qt.AscendingOrder)
-        self.reset()
+        self.endResetModel()
 
 # }}}
 
@@ -658,7 +659,7 @@ class CoversModel(QAbstractListModel):  # {{{
             self.plugin_map[plugin] = [i+1]
 
         if do_reset:
-            self.reset()
+            self.beginResetModel(), self.endResetModel()
 
     def get_item(self, src, pmap, waiting=False):
         sz = '%dx%d'%(pmap.width(), pmap.height())
@@ -711,7 +712,7 @@ class CoversModel(QAbstractListModel):  # {{{
                         pmap[plugin] = [len(good)-1]
         self.covers = good
         self.plugin_map = pmap
-        self.reset()
+        self.beginResetModel(), self.endResetModel()
 
     def pointer_from_index(self, index):
         row = index.row() if hasattr(index, 'row') else index

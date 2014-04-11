@@ -563,8 +563,9 @@ class CharModel(QAbstractListModel):
             self.chars[x] = None
         for x in reversed(codes):
             self.chars.insert(row, x)
+        self.beginResetModel()
         self.chars = [x for x in self.chars if x is not None]
-        self.reset()
+        self.endResetModel()
         tprefs['charmap_favorites'] = list(self.chars)
         return True
 
@@ -651,8 +652,9 @@ class CharView(QListView):
 
     def show_chars(self, name, codes):
         self.showing_favorites = name == _('Favorites')
+        self._model.beginResetModel()
         self._model.chars = codes
-        self._model.reset()
+        self._model.endResetModel()
         self.scrollToTop()
 
     def mouseMoveEvent(self, ev):
@@ -687,8 +689,9 @@ class CharView(QListView):
 
     def restore_defaults(self):
         del tprefs['charmap_favorites']
+        self.model().beginResetModel()
         self.model().chars = list(tprefs['charmap_favorites'])
-        self.model().reset()
+        self.model().endResetModel()
 
     def copy_to_clipboard(self, char_code):
         c = QApplication.clipboard()
@@ -702,8 +705,9 @@ class CharView(QListView):
         elif char_code in existing:
             existing.remove(char_code)
             tprefs['charmap_favorites'] = existing
+            self.model().beginResetModel()
             self.model().chars.remove(char_code)
-            self.model().reset()
+            self.model().endResetModel()
 
 class CharSelect(Dialog):
 

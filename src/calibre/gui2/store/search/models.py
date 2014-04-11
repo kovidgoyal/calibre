@@ -85,7 +85,7 @@ class Matches(QAbstractItemModel):
         self.cover_pool.abort()
         self.details_pool.abort()
         self.total_changed.emit(self.rowCount())
-        self.reset()
+        self.beginResetModel(), self.endResetModel()
 
     def add_result(self, result, store_plugin):
         if result not in self.all_matches:
@@ -287,7 +287,7 @@ class Matches(QAbstractItemModel):
             descending)
         self.reorder_matches()
         if reset:
-            self.reset()
+            self.beginResetModel(), self.endResetModel()
 
     def reorder_matches(self):
         def keygen(x):

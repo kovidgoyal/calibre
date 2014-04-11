@@ -37,8 +37,9 @@ class PluginModel(QAbstractItemModel, SearchQueryParser):  # {{{
 
     def toggle_shown_plugins(self, show_only_user_plugins):
         self.show_only_user_plugins = show_only_user_plugins
+        self.beginResetModel()
         self.populate()
-        self.reset()
+        self.endResetModel()
 
     def populate(self):
         self._data = {}
@@ -311,8 +312,9 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             except NameConflict as e:
                 return error_dialog(self, _('Already exists'),
                         unicode(e), show=True)
+            self._plugin_model.beginResetModel()
             self._plugin_model.populate()
-            self._plugin_model.reset()
+            self._plugin_model.endResetModel()
             self.changed_signal.emit()
             self.check_for_add_to_toolbars(plugin, previously_installed=plugin.name in installed_plugins)
             info_dialog(self, _('Success'),
@@ -371,8 +373,9 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
 
                 msg = _('Plugin <b>{0}</b> successfully removed').format(plugin.name)
                 if remove_plugin(plugin):
+                    self._plugin_model.beginResetModel()
                     self._plugin_model.populate()
-                    self._plugin_model.reset()
+                    self._plugin_model.endResetModel()
                     self.changed_signal.emit()
                     info_dialog(self, _('Success'), msg, show=True,
                             show_copy_button=False)
@@ -390,8 +393,9 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         mode = FILTER_NOT_INSTALLED if not_installed else FILTER_UPDATE_AVAILABLE
         d = PluginUpdaterDialog(self.gui, initial_filter=mode)
         d.exec_()
+        self._plugin_model.beginResetModel()
         self._plugin_model.populate()
-        self._plugin_model.reset()
+        self._plugin_model.endResetModel()
         self.changed_signal.emit()
         if d.do_restart:
             self.restart_now.emit()

@@ -10,7 +10,7 @@ from PyQt5.Qt import (QIcon, QFont, QLabel, QListWidget, QAction,
         QCursor, QColor, QWidget, QPixmap, QSplitterHandle, QToolButton,
         QVariant, Qt, pyqtSignal, QRegExp, QSize, QSplitter, QPainter,
         QLineEdit, QComboBox, QPen, QGraphicsScene, QMenu, QStringListModel,
-        QCompleter, QStringList, QTimer, QRect, QGraphicsView, QByteArray)
+        QCompleter, QTimer, QRect, QGraphicsView, QByteArray)
 
 from calibre.gui2 import (error_dialog, pixmap_to_data, gprefs,
         warning_dialog)
@@ -625,7 +625,7 @@ class HistoryLineEdit(QComboBox):  # {{{
 
     def initialize(self, name):
         self._name = name
-        self.addItems(QStringList(history.get(self.store_name, [])))
+        self.addItems(history.get(self.store_name, []))
         self.setEditText('')
         self.lineEdit().editingFinished.connect(self.save_history)
 

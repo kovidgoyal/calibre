@@ -79,7 +79,7 @@ class GenerateCatalogAction(InterfaceAction):
         if job.failed:
             return self.gui.job_exception(job)
         id = self.gui.library_view.model().add_catalog(job.catalog_file_path, job.catalog_title)
-        self.gui.library_view.model().reset()
+        self.gui.library_view.model().beginResetModel(), self.gui.library_view.model().endResetModel()
         if job.catalog_sync:
             sync = dynamic.get('catalogs_to_be_synced', set([]))
             sync.add(id)

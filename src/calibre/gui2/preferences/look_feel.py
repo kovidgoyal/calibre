@@ -35,10 +35,11 @@ class DisplayedFields(QAbstractListModel):  # {{{
         self.changed = False
 
     def initialize(self, use_defaults=False):
+        self.beginResetModel()
         self.fields = [[x[0], x[1]] for x in
                 get_field_list(self.db.field_metadata,
                     use_defaults=use_defaults)]
-        self.reset()
+        self.endResetModel()
         self.changed = True
 
     def rowCount(self, *args):
@@ -469,7 +470,8 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         return rr
 
     def refresh_gui(self, gui):
-        gui.library_view.model().reset()
+        m = gui.library_view.model()
+        m.beginResetModel(), m.endResetModel()
         self.update_font_display()
         gui.tags_view.reread_collapse_parameters()
         gui.library_view.refresh_book_details()

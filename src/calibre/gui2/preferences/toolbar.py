@@ -112,9 +112,10 @@ class AllModel(BaseModel):
         for name in names:
             if name is None or name.startswith('---'): continue
             actions.append(self.name_to_action(name, self.gui))
+        self.beginResetModel()
         self._data.extend(actions)
         self._data.sort()
-        self.reset()
+        self.endResetModel()
 
     def remove(self, indices, allowed):
         rows = [i.row() for i in indices]
@@ -128,13 +129,15 @@ class AllModel(BaseModel):
         for i, ac in enumerate(self._data):
             if i not in remove:
                 ndata.append(ac)
+        self.beginResetModel()
         self._data = ndata
-        self.reset()
+        self.endResetModel()
 
     def restore_defaults(self):
         current = gprefs.defaults[self.gprefs_name]
+        self.beginResetModel()
         self._data = self.get_all_actions(current)
-        self.reset()
+        self.endResetModel()
 
 class CurrentModel(BaseModel):
 
@@ -172,8 +175,9 @@ class CurrentModel(BaseModel):
             else:
                 actions.append(ac)
 
+        self.beginResetModel()
         self._data.extend(actions)
-        self.reset()
+        self.endResetModel()
         return reject
 
     def remove(self, indices):
@@ -189,8 +193,9 @@ class CurrentModel(BaseModel):
         for i, ac in enumerate(self._data):
             if i not in remove:
                 ndata.append(ac)
+        self.beginResetModel()
         self._data = ndata
-        self.reset()
+        self.endResetModel()
         return rejected
 
     def commit(self):
@@ -211,8 +216,9 @@ class CurrentModel(BaseModel):
 
     def restore_defaults(self):
         current = gprefs.defaults[self.gprefs_name]
+        self.beginResetModel()
         self._data =  [self.name_to_action(x, self.gui) for x in current]
-        self.reset()
+        self.endResetModel()
 
 
 class ConfigWidget(ConfigWidgetBase, Ui_Form):

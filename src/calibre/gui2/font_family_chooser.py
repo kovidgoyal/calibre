@@ -285,8 +285,9 @@ class FontFamilyDialog(QDialog):
         for f in files:
             shutil.copyfile(f, os.path.join(dest, os.path.basename(f)))
         self.font_scanner.do_scan()
+        self.m.beginResetModel()
         self.build_font_list()
-        self.m.reset()
+        self.m.endResetModel()
         self.view.setCurrentIndex(self.m.index(0))
         if families:
             for i, val in enumerate(self.families):

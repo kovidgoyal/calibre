@@ -373,8 +373,9 @@ class FilterModel(QSortFilterProxyModel):  # {{{
             except ParseException:
                 ok = False
         self.search_filter = val
+        self.beginResetModel()
         self.search_done.emit(ok)
-        self.reset()
+        self.endResetModel()
 
 # }}}
 
@@ -459,7 +460,7 @@ class JobsButton(QFrame):  # {{{
         if not horizontal:
             self.layout().setAlignment(self._jobs, Qt.AlignHCenter)
         self._jobs.setMargin(0)
-        self.layout().setMargin(0)
+        self.layout().setContentsMargins(0, 0, 0, 0)
         self._jobs.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
         self.setCursor(Qt.PointingHandCursor)
         b = _('Click to see list of jobs')
@@ -620,12 +621,12 @@ class JobsDialog(QDialog, Ui_JobsDialog):
             return error_dialog(self, _('No job'),
                 _('No job selected'), show=True)
         self.model.hide_jobs(rows)
-        self.proxy_model.reset()
+        self.proxy_model.beginResetModel(), self.proxy_model.endResetModel()
 
     def hide_all(self, *args):
         self.model.hide_jobs(list(xrange(0,
             self.model.rowCount(QModelIndex()))))
-        self.proxy_model.reset()
+        self.proxy_model.beginResetModel(), self.proxy_model.endResetModel()
 
     def show_hidden(self, *args):
         self.model.show_hidden_jobs()

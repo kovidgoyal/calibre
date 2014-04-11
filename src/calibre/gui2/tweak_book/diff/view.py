@@ -894,7 +894,7 @@ class DiffView(QWidget):  # {{{
         self.l = l = QHBoxLayout(self)
         self.setLayout(l)
         self.syncpos = 0
-        l.setMargin(0), l.setSpacing(0)
+        l.setContentsMargins(0, 0, 0, 0), l.setSpacing(0)
         self.view = DiffSplit(self, show_open_in_editor=show_open_in_editor)
         l.addWidget(self.view)
         self.add_diff = self.view.add_diff

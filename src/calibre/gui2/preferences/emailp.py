@@ -118,11 +118,12 @@ class EmailAccounts(QAbstractTableModel):  # {{{
 
     def make_default(self, index):
         if index.isValid():
+            self.beginResetModel()
             row = index.row()
             for x in self.accounts.values():
                 x[2] = False
             self.accounts[self.account_order[row]][2] = True
-            self.reset()
+            self.endResetModel()
 
     def add(self):
         x = _('new email address')
@@ -132,10 +133,11 @@ class EmailAccounts(QAbstractTableModel):  # {{{
             c += 1
             y = x + str(c)
         auto_send = len(self.accounts) < 1
+        self.beginResetModel()
         self.accounts[y] = ['MOBI, EPUB', auto_send,
                                                 len(self.account_order) == 0]
         self.account_order = sorted(self.accounts.keys())
-        self.reset()
+        self.endResetModel()
         return self.index(self.account_order.index(y), 0)
 
     def remove(self, index):
@@ -152,7 +154,8 @@ class EmailAccounts(QAbstractTableModel):  # {{{
             if not has_default and self.account_order:
                 self.accounts[self.account_order[0]][2] = True
 
-            self.reset()
+            self.beginResetModel()
+            self.endResetModel()
 
 # }}}
 

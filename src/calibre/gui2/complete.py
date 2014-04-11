@@ -26,13 +26,14 @@ class CompleteModel(QAbstractListModel):
 
     def set_items(self, items):
         items = [unicode(x.strip()) for x in items]
+        self.beginResetModel()
         if len(items) < 2500:
             self.items = sorted(items, key=sort_key)
             self.sorting = QCompleter.UnsortedModel
         else:
             self.items = sorted(items, key=lambda x:x.lower())
             self.sorting = QCompleter.CaseInsensitivelySortedModel
-        self.reset()
+        self.endResetModel()
 
     def rowCount(self, *args):
         return len(self.items)

@@ -15,7 +15,6 @@ from PyQt5.Qt import (QLineEdit, QAbstractListModel, Qt, pyqtSignal, QObject,
 
 from calibre.constants import isosx, get_osx_version
 from calibre.utils.icu import sort_key, primary_startswith, primary_contains
-from calibre.gui2 import NONE
 from calibre.gui2.widgets import EnComboBox, LineEditECM
 from calibre.utils.config import tweaks
 
@@ -34,9 +33,10 @@ class CompleteModel(QAbstractListModel):  # {{{
         items = [unicode(x.strip()) for x in items]
         items = [x for x in items if x]
         items = tuple(sorted(items, key=self.sort_func))
+        self.beginResetModel()
         self.all_items = self.current_items = items
         self.current_prefix = ''
-        self.reset()
+        self.endResetModel()
 
     def set_completion_prefix(self, prefix):
         old_prefix = self.current_prefix
@@ -44,14 +44,16 @@ class CompleteModel(QAbstractListModel):  # {{{
         if prefix == old_prefix:
             return
         if not prefix:
+            self.beginResetModel()
             self.current_items = self.all_items
-            self.reset()
+            self.endResetModel()
             return
         subset = prefix.startswith(old_prefix)
         universe = self.current_items if subset else self.all_items
         func = primary_startswith if tweaks['completion_mode'] == 'prefix' else containsq
+        self.beginResetModel()
         self.current_items = tuple(x for x in universe if func(x, prefix))
-        self.reset()
+        self.endResetModel()
 
     def rowCount(self, *args):
         return len(self.current_items)
@@ -62,7 +64,6 @@ class CompleteModel(QAbstractListModel):  # {{{
                 return self.current_items[index.row()]
             except IndexError:
                 pass
-        return NONE
 
     def index_for_prefix(self, prefix):
         for i, item in enumerate(self.current_items):

@@ -8,7 +8,7 @@ __docformat__ = 'restructuredtext en'
 
 import textwrap
 
-from PyQt5.Qt import QComboBox, QStringList, Qt
+from PyQt5.Qt import QComboBox, Qt
 
 from calibre.gui2 import config as gui_conf
 
@@ -32,7 +32,7 @@ class HistoryBox(QComboBox):
         if val not in history:
             history.append(val)
         self.clear()
-        self.addItems(QStringList(history))
+        self.addItems(history)
         self.setCurrentIndex(self.findText(val, Qt.MatchFixedString))
 
     def save_history(self, opt_name):

@@ -278,7 +278,7 @@ class BooksModel(QAbstractTableModel):  # {{{
                 self.headers[col] = self.custom_columns[col]['name']
 
         self.build_data_convertors()
-        self.reset()
+        self.beginResetModel(), self.endResetModel()
         self.database_changed.emit(db)
         self.stop_metadata_backup()
         self.start_metadata_backup()
@@ -312,7 +312,7 @@ class BooksModel(QAbstractTableModel):  # {{{
     def close(self):
         self.db.close()
         self.db = None
-        self.reset()
+        self.beginResetModel(), self.endResetModel()
 
     def add_books(self, paths, formats, metadata, add_duplicates=False,
             return_ids=False):
@@ -351,7 +351,7 @@ class BooksModel(QAbstractTableModel):  # {{{
 
     def books_deleted(self):
         self.count_changed()
-        self.reset()
+        self.beginResetModel(), self.endResetModel()
 
     def delete_books(self, indices, permanent=False):
         ids = map(self.id, indices)
@@ -410,7 +410,7 @@ class BooksModel(QAbstractTableModel):  # {{{
             self.current_highlighted_idx = 0
         else:
             self.current_highlighted_idx = None
-        self.reset()
+        self.beginResetModel(), self.endResetModel()
 
     def search(self, text, reset=True):
         try:
@@ -437,7 +437,7 @@ class BooksModel(QAbstractTableModel):  # {{{
             return
         self.last_search = text
         if reset:
-            self.reset()
+            self.beginResetModel(), self.endResetModel()
         if self.last_search:
             # Do not issue search done for the null search. It is used to clear
             # the search and count records for restrictions
@@ -460,7 +460,7 @@ class BooksModel(QAbstractTableModel):  # {{{
         self.about_to_be_sorted.emit(self.db.id)
         self.db.data.incremental_sort([(label, order)])
         if reset:
-            self.reset()
+            self.beginResetModel(), self.endResetModel()
         self.sorted_on = (label, order)
         self.sort_history.insert(0, self.sorted_on)
         self.sorting_done.emit(self.db.index)
@@ -469,16 +469,19 @@ class BooksModel(QAbstractTableModel):  # {{{
         self.db.refresh(field=None)
         self.resort(reset=reset)
 
-    def reset(self):
+    def beginResetModel(self):
         self._clear_caches()
-        QAbstractTableModel.reset(self)
+        QAbstractTableModel.beginResetModel(self)
+
+    def reset(self):
+        self.beginResetModel(), self.endResetModel()
 
     def resort(self, reset=True):
         if not self.db:
             return
         self.db.multisort(self.sort_history[:tweaks['maximum_resort_levels']])
         if reset:
-            self.reset()
+            self.beginResetModel(), self.endResetModel()
 
     def research(self, reset=True):
         self.search(self.last_search, reset=reset)
@@ -1251,7 +1254,7 @@ class DeviceBooksModel(BooksModel):  # {{{
         db_items = [self.db[i] for i in db_indices if -1 < i < len(self.db)]
         self.marked_for_deletion[job] = db_items
         if rows_are_ids:
-            self.reset()
+            self.beginResetModel(), self.endResetModel()
         else:
             for row in rows:
                 indices = self.row_indices(row)
@@ -1313,7 +1316,7 @@ class DeviceBooksModel(BooksModel):  # {{{
             app_id = getattr(data, 'application_id', None)
             if app_id is not None and app_id in db_ids:
                 data.in_library = to_what
-            self.reset()
+            self.beginResetModel(), self.endResetModel()
 
     def flags(self, index):
         if self.is_row_marked_for_deletion(index.row()):
@@ -1350,7 +1353,7 @@ class DeviceBooksModel(BooksModel):  # {{{
                     self.map.append(i)
         self.resort(reset=False)
         if reset:
-            self.reset()
+            self.beginResetModel(), self.endResetModel()
         self.last_search = text
         if self.last_search:
             self.searched.emit(True)
@@ -1399,14 +1402,14 @@ class DeviceBooksModel(BooksModel):  # {{{
         if hasattr(keygen, 'db'):
             keygen.db = None
         if reset:
-            self.reset()
+            self.beginResetModel(), self.endResetModel()
 
     def resort(self, reset=True):
         if self.sorted_on:
             self.sort(self.column_map.index(self.sorted_on[0]),
                       self.sorted_on[1], reset=False)
         if reset:
-            self.reset()
+            self.beginResetModel(), self.endResetModel()
 
     def columnCount(self, parent):
         if parent and parent.isValid():

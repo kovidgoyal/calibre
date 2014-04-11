@@ -24,12 +24,13 @@ class FieldsModel(FM): # {{{
 
     def initialize(self):
         fields = self.plugin.touched_fields
+        self.beginResetModel()
         self.fields = []
         for x in fields:
             if not x.startswith('identifier:') and x not in self.exclude:
                 self.fields.append(x)
         self.fields.sort(key=lambda x:self.descs.get(x, x))
-        self.reset()
+        self.endResetModel()
 
     def state(self, field, defaults=False):
         src = self.prefs.defaults if defaults else self.prefs
@@ -37,8 +38,9 @@ class FieldsModel(FM): # {{{
                     else Qt.Checked)
 
     def restore_defaults(self):
+        self.beginResetModel()
         self.overrides = dict([(f, self.state(f, True)) for f in self.fields])
-        self.reset()
+        self.endResetModel()
 
     def commit(self):
         ignored_fields = set([x for x in self.prefs['ignore_fields'] if x not in

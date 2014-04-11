@@ -150,8 +150,9 @@ class Images(QAbstractListModel):
                     self.image_names.append(name)
 
     def refresh(self):
+        self.beginResetModel()
         self.build()
-        self.reset()
+        self.endResetModel()
 
     def rowCount(self, *args):
         return len(self.image_names)

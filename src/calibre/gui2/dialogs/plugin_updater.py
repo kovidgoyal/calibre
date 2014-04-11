@@ -673,7 +673,7 @@ class PluginUpdaterDialog(SizePersistedDialog):
             return
         self._uninstall_plugin(display_plugin.name)
         if self.proxy_model.filter_criteria in [FILTER_INSTALLED, FILTER_UPDATE_AVAILABLE]:
-            self.model.reset()
+            self.model.beginResetModel(), self.model.endResetModel()
             self._select_and_focus_view()
         else:
             self._select_and_focus_view(change_selection=False)
@@ -755,7 +755,7 @@ class PluginUpdaterDialog(SizePersistedDialog):
 
         display_plugin.uninstall_plugins = []
         if self.proxy_model.filter_criteria in [FILTER_NOT_INSTALLED, FILTER_UPDATE_AVAILABLE]:
-            self.model.reset()
+            self.model.beginResetModel(), self.model.endResetModel()
             self._select_and_focus_view()
         else:
             self.model.refresh_plugin(display_plugin)

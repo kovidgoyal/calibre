@@ -10,7 +10,7 @@ from functools import partial
 
 from PyQt5.Qt import (
     Qt, QMenu, QPoint, QIcon, QDialog, QGridLayout, QLabel, QLineEdit, QComboBox,
-    QDialogButtonBox, QSize, QVBoxLayout, QListWidget, QStringList, QRadioButton, QAction)
+    QDialogButtonBox, QSize, QVBoxLayout, QListWidget, QRadioButton, QAction)
 
 from calibre.gui2 import error_dialog, question_dialog, gprefs
 from calibre.gui2.dialogs.confirm_delete import confirm
@@ -30,7 +30,7 @@ class SelectNames(QDialog):  # {{{
         l.addWidget(la)
 
         self._names = QListWidget(self)
-        self._names.addItems(QStringList(sorted(names, key=sort_key)))
+        self._names.addItems(sorted(names, key=sort_key))
         self._names.setSelectionMode(self._names.ExtendedSelection)
         l.addWidget(self._names)
 

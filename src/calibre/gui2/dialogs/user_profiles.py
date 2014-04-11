@@ -57,8 +57,9 @@ class CustomRecipeModel(QAbstractListModel):
             if x.get('title', False) == title:
                 urn = x.get('id')
         if urn is not None:
+            self.beginResetModel()
             self.recipe_model.update_custom_recipe(urn, title, script)
-            self.reset()
+            self.endResetModel()
 
     def replace_many_by_title(self, scriptmap):
         script_urn_map = {}
@@ -71,16 +72,19 @@ class CustomRecipeModel(QAbstractListModel):
                 script_urn_map.update({urn: (title, script)})
 
         if script_urn_map:
+            self.beginResetModel()
             self.recipe_model.update_custom_recipes(script_urn_map)
-            self.reset()
+            self.endResetModel()
 
     def add(self, title, script):
+        self.beginResetModel()
         self.recipe_model.add_custom_recipe(title, script)
-        self.reset()
+        self.endResetModel()
 
     def add_many(self, scriptmap):
+        self.beginResetModel()
         self.recipe_model.add_custom_recipes(scriptmap)
-        self.reset()
+        self.endResetModel()
 
     def remove(self, rows):
         urns = []
@@ -90,8 +94,9 @@ class CustomRecipeModel(QAbstractListModel):
                 urns.append(urn)
             except:
                 pass
+        self.beginResetModel()
         self.recipe_model.remove_custom_recipes(urns)
-        self.reset()
+        self.endResetModel()
 
 class UserProfiles(ResizableDialog, Ui_Dialog):
 
