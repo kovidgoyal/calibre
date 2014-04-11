@@ -1,12 +1,12 @@
 #include "QProgressIndicator.h"
 
 #include <QPainter>
-#include <QStylePlugin>
+#include <QtWidgets/QStylePlugin>
 #include <QPluginLoader>
-#include <QStyle>
-#include <QApplication>
+#include <QtWidgets/QStyle>
+#include <QtWidgets/QApplication>
 #include <QDebug>
-#include <QProxyStyle>
+#include <QtWidgets/QProxyStyle>
 
 QProgressIndicator::QProgressIndicator(QWidget* parent, int size)
         : QWidget(parent),

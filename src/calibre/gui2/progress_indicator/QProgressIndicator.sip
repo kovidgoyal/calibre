@@ -3,8 +3,7 @@
 
 %Module(name=progress_indicator, version=1)
 
-%Import QtCore/QtCoremod.sip
-%Import QtGui/QtGuimod.sip
+%Import QtWidgets/QtWidgetsmod.sip
 
 %ModuleHeaderCode
 int load_style(QString &path, QString &name);
