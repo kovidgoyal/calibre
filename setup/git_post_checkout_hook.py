@@ -6,13 +6,15 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import os, subprocess, sys
+import os, subprocess, sys, shutil
 
 prev_rev, current_rev, flags = [x.decode('utf-8') if isinstance(x, bytes) else x for x in sys.argv[1:]]
 def get_branch_name(rev):
     return subprocess.check_output(['git', 'name-rev', '--name-only', rev]).decode('utf-8').strip()
 
 if flags == '1':  # A branch checkout
+    base = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
+    os.chdir(base)
 
     prev_branch, cur_branch = map(get_branch_name, (prev_rev, current_rev))
     is_qt5_transition = 'qt5' in (prev_branch, cur_branch)
@@ -24,8 +26,13 @@ if flags == '1':  # A branch checkout
                 if f.endswith('_ui.py'):
                     os.remove(os.path.join(dirpath, f))
 
-    base = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
-    os.chdir(base)
+        # Rebuild PyQt extensions
+        for ext in ('progress_indicator',):
+            extdir = os.path.join('build', 'pyqt', ext)
+            if os.path.exists(extdir):
+                shutil.rmtree(extdir)
+            subprocess.check_call(['python', 'setup.py', 'build', '--only', ext])
+
     subprocess.check_call(['python', 'setup.py', 'gui'])
 
     # Remove .pyc files as some of them might have been orphaned
