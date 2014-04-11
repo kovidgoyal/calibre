@@ -20,6 +20,44 @@
 #   new recipes:
 #     - title: 
 
+- version: 1.32.0
+  date: 2014-04-11
+
+  new features:
+    - title: "Fetch news: Allow automatically creating custom news sources by importing OPML files. Many RSS news reader programs can export their list of RSS feeds in the OPML format."
+
+    - title: "Conversion: When inserting metadata as a jacket page, alter the font sizes in the jacket so that the sizes match the sizes used in the rest of the book. Also pretty print the generated jacket HTML."
+
+    - title: "Allow searching for books by id and uuid using the id: and uuid: prefixes"
+
+    - title: "Allow specifying arbitrary colors for column coloring rules"
+
+  bug fixes:
+    - title: "Update the version of openssl shipped in the binary builds (the version in the windows 64bit build was vulnerable to the Heartbleed bug)"
+
+    - title: "Edit Book: Fix book being marked as modified even when no actual changes were done by various automated tools such as Smarten Punctuation, Subset Fonts, etc."
+
+    - title: "Fix ebook-device cp -f failing when destination file already exists"
+      tickets: [1303181] 
+
+    - title: "Ensure that the rendered dates in the book list and edit metadata dialogs are always in the same language as the calibre interface, regardless of system language setting"
+
+    - title: "Edit metadata dialog: Remember window size for the cover download window"
+
+    - title: "DOCX Input: Dont fail on DOCX files that contain pages with zero effective width."
+      tickets: [1303022]
+
+    - title: "Content server: Fix page not found error when clicking on a category that has only a single item in it"
+
+    - title: "Send books to the Books folder for the Tolino Vision, as it cannot find books placed outside this folder"
+
+    - title: "Edit book: Fix error when beautifying HTML files that contain un-indented <script> or <style> tags"
+
+  improved recipes:
+    - Ekantipur
+    - NRC Handelsblad
+    - Frontline
+
 - version: 1.31.0
   date: 2014-04-04
 
