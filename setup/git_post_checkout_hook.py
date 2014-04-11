@@ -38,7 +38,14 @@ if flags == '1':  # A branch checkout
     # Remove .pyc files as some of them might have been orphaned
     for dirpath, dirnames, filenames in os.walk('.'):
         for f in filenames:
+            fpath = os.path.join(dirpath, f)
             if f.endswith('.pyc'):
-                os.remove(os.path.join(dirpath, f))
+                os.remove(fpath)
+            elif cur_branch == 'qt5' and f.endswith('.py') and 'qtcurve' not in fpath and (b'PyQt' + b'4') in open(fpath, 'rb').read():
+                red = ('\033[%dm'%31).encode('ascii')
+                reset = ('\033[%dm'%31).encode('ascii')
+                sys.stdout.write(red)
+                print ('\nPyQt' + '4 present in:', fpath)
+                sys.stdout.write(reset)
 
 
