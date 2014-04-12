@@ -20,7 +20,7 @@ NS_MAP = {
 }
 
 XPath = lambda x: etree.XPath(x, namespaces=NS_MAP)
-BUILTIN_LOCALES = {'en-US'}
+BUILTIN_LOCALES = {'en-US', 'en-GB', 'es-ES'}
 
 def parse_xcu(raw, origin='%origin%'):
     ' Get the dictionary and affix file names as well as supported locales for each dictionary '

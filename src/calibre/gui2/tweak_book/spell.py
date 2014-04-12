@@ -290,6 +290,7 @@ class ManageDictionaries(Dialog):
         dprefs['preferred_dictionaries'] = pl
 
 if __name__ == '__main__':
-    app = QApplication([])  # noqa
+    app = QApplication([])
     d = ManageDictionaries()
     d.exec_()
+    del app
