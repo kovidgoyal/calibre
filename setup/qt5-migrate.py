@@ -14,6 +14,10 @@ __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 # QT5XX: Port def wheelEvent() (orientation() and delta() to be replaced by
 # angleDelta())
 
+# QT5XX: Add a import checker that looks for all from PyQt5.* imports and runs
+# them to check that they work. This can probably be made part of python
+# setup.py check.
+
 # QT5XX: Delete this file after migration is completed
 
 import os
