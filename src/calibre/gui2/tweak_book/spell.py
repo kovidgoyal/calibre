@@ -113,7 +113,7 @@ class AddDictionary(QDialog):  # {{{
         QDialog.accept(self)
 # }}}
 
-class ManageDictionaries(Dialog):
+class ManageDictionaries(Dialog):  # {{{
 
     def __init__(self, parent=None):
         Dialog.__init__(self, _('Manage dictionaries'), 'manage-dictionaries', parent=parent)
@@ -288,6 +288,7 @@ class ManageDictionaries(Dialog):
         pl = dprefs['preferred_dictionaries']
         pl[locale] = d.id
         dprefs['preferred_dictionaries'] = pl
+# }}}
 
 if __name__ == '__main__':
     app = QApplication([])
