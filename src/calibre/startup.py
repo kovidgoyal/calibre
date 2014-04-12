@@ -72,7 +72,7 @@ if not _run_once:
     import string
     string
     try:
-        locale.setlocale(locale.LC_ALL, '')
+        locale.setlocale(locale.LC_ALL, '')  # set the locale to the user's default locale
     except:
         dl = locale.getdefaultlocale()
         try:
