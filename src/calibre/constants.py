@@ -298,8 +298,3 @@ def get_windows_user_locale_name():
         return None
     return u'_'.join(buf.value.split(u'-')[:2])
 
-def is_modern_webkit():
-    # Check if we are using QtWebKit >= 2.3
-    from PyQt5.QtWebKit import qWebKitMajorVersion
-    return qWebKitMajorVersion() >= 537
-

@@ -10,7 +10,7 @@ import os
 from urlparse import urlparse
 
 from PyQt5.Qt import QNetworkCookieJar, QFileDialog, QNetworkProxy
-from PyQt5.QtWebKit import QWebView, QWebPage
+from PyQt5.QtWebKitWidgets import QWebView, QWebPage
 
 from calibre import USER_AGENT, get_proxies, get_download_filename
 from calibre.ebooks import BOOK_EXTENSIONS

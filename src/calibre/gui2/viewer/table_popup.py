@@ -9,7 +9,7 @@ __docformat__ = 'restructuredtext en'
 
 from PyQt5.Qt import (QDialog, QDialogButtonBox, QVBoxLayout, QApplication,
                       QSize, QIcon, Qt)
-from PyQt5.QtWebKit import QWebView
+from PyQt5.QtWebKitWidgets import QWebView
 
 from calibre.gui2 import gprefs, error_dialog
 

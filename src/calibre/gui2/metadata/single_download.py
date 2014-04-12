@@ -22,7 +22,7 @@ from PyQt5.Qt import (
     QWidget, QTableView, QGridLayout, QFontInfo, QPalette, QTimer, pyqtSignal,
     QAbstractTableModel, QVariant, QSize, QListView, QPixmap, QModelIndex,
     QAbstractListModel, QColor, QRect, QTextBrowser, QStringListModel, QMenu, QCursor)
-from PyQt5.QtWebKit import QWebView
+from PyQt5.QtWebKitWidgets import QWebView
 
 from calibre.customize.ui import metadata_plugins
 from calibre.ebooks.metadata import authors_to_string

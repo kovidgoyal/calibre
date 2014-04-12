@@ -11,7 +11,8 @@ from functools import partial
 from PyQt5.Qt import (QSize, QSizePolicy, QUrl, Qt, pyqtProperty,
         QPainter, QPalette, QBrush, QDialog, QColor, QPoint, QImage, QRegion,
         QIcon, QAction, QMenu, QString, pyqtSignal, QApplication, pyqtSlot)
-from PyQt5.QtWebKit import QWebPage, QWebView, QWebSettings, QWebElement
+from PyQt5.QtWebKitWidgets import QWebPage, QWebView
+from PyQt5.QtWebKit import QWebSettings, QWebElement
 
 from calibre.gui2.viewer.flip import SlideFlip
 from calibre.gui2.shortcuts import Shortcuts

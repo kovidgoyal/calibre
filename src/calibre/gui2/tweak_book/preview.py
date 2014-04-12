@@ -20,7 +20,7 @@ from PyQt5.Qt import (
     QWidget, QVBoxLayout, QApplication, QSize, QNetworkAccessManager, QMenu, QIcon,
     QNetworkReply, QTimer, QNetworkRequest, QUrl, Qt, QNetworkDiskCache, QToolBar,
     pyqtSlot, pyqtSignal, QFontDatabase)
-from PyQt5.QtWebKit import QWebView, QWebInspector, QWebPage
+from PyQt5.QtWebKitWidgets import QWebView, QWebInspector, QWebPage
 
 from calibre import prints
 from calibre.constants import iswindows

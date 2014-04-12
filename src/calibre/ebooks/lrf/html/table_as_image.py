@@ -9,7 +9,7 @@ Render HTML tables as images.
 import os, tempfile, atexit, shutil
 from PyQt5.Qt import QUrl, QApplication, QSize, QEventLoop, \
                      QPainter, QImage, QObject, Qt
-from PyQt5.QtWebKit import QWebPage
+from PyQt5.QtWebKitWidgets import QWebPage
 
 class HTMLTableRenderer(QObject):
 

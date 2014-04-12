@@ -85,12 +85,12 @@
   <customwidget>
    <class>QWebView</class>
    <extends>QWidget</extends>
-   <header>QtWebKit/QWebView</header>
+   <header>QtWebKitWidgets/QWebView</header>
   </customwidget>
   <customwidget>
    <class>NPWebView</class>
    <extends>QWebView</extends>
-   <header>web_control.h</header>
+   <header>calibre/gui2/store/web_control.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

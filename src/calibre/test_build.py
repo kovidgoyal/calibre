@@ -77,7 +77,7 @@ def test_apsw():
 
 def test_qt():
     from PyQt5.Qt import (QDialog, QImageReader, QNetworkAccessManager)
-    from PyQt5.QtWebKit import QWebView
+    from PyQt5.QtWebKitWidgets import QWebView
     fmts = set(map(unicode, QImageReader.supportedImageFormats()))
     testf = set(['jpg', 'png', 'mng', 'svg', 'ico', 'gif'])
     if testf.intersection(fmts) != testf:

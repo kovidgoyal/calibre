@@ -12,7 +12,8 @@ import os, shutil, json
 
 from PyQt5.Qt import (QEventLoop, QObject, QPrinter, QSizeF, Qt, QPainter,
         QPixmap, QTimer, pyqtProperty, QString, QSize)
-from PyQt5.QtWebKit import QWebView, QWebPage, QWebSettings
+from PyQt5.QtWebKit import QWebSettings
+from PyQt5.QtWebKitWidgets import QWebView, QWebPage
 
 from calibre.ptempfile import PersistentTemporaryDirectory
 from calibre.ebooks.pdf.pageoptions import (unit, paper_size)

@@ -14,7 +14,8 @@ from collections import defaultdict
 
 from PyQt5.Qt import (QObject, QPainter, Qt, QSize, QString, QTimer,
                       pyqtProperty, QEventLoop, QPixmap, QRect, pyqtSlot)
-from PyQt5.QtWebKit import QWebView, QWebPage, QWebSettings
+from PyQt5.QtWebKit import QWebSettings
+from PyQt5.QtWebKitWidgets import QWebView, QWebPage
 
 from calibre import fit_image
 from calibre.constants import iswindows

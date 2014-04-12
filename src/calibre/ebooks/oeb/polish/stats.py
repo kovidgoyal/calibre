@@ -14,7 +14,7 @@ from collections import defaultdict
 from cssutils import CSSParser
 from PyQt5.Qt import (pyqtProperty, QString, QEventLoop, Qt, QSize, QTimer,
                       pyqtSlot)
-from PyQt5.QtWebKit import QWebPage, QWebView
+from PyQt5.QtWebKitWidgets import QWebPage, QWebView
 
 from calibre.constants import iswindows
 from calibre.ebooks.oeb.display.webview import load_html
