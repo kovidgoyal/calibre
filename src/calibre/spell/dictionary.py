@@ -12,7 +12,7 @@ from operator import attrgetter
 
 from calibre.constants import plugins, config_dir
 from calibre.utils.config import JSONConfig
-from calibre.utils.localization import get_lang, canonicalize_lang
+from calibre.utils.localization import get_lang, canonicalize_lang, get_system_locale
 
 DictionaryLocale = namedtuple('DictionaryLocale', 'langcode countrycode')
 Dictionary = namedtuple('Dictionary', 'primary_locale locales dicpath affpath builtin name id')
@@ -82,7 +82,11 @@ def custom_dictionaries(reread=False):
         _custom = frozenset(dics)
     return _custom
 
-default_preferred_locales = {'eng':'en-US', 'deu':'de-DE', 'spa':'es-ES', 'fra':'fr-FR'}
+default_en_locale = 'en-US'
+ul = parse_lang_code(get_system_locale())
+if ul is not None and ul.langcode == 'eng' and ul.countrycode in 'GB BS BZ GH IE IN JM NZ TT'.split():
+    default_en_locale = 'en-' + ul.countrycode
+default_preferred_locales = {'eng':default_en_locale, 'deu':'de-DE', 'spa':'es-ES', 'fra':'fr-FR'}
 
 def best_locale_for_language(langcode):
     best_locale = dprefs['preferred_locales'].get(langcode, default_preferred_locales.get(langcode, None))
