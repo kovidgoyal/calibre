@@ -78,7 +78,7 @@ class GuiRecommendations(dict):
     def from_string(self, raw):
         try:
             d = eval(raw)
-        except SyntaxError:
+        except (SyntaxError, TypeError):
             d = None
         if d:
             self.update(d)
@@ -89,7 +89,8 @@ class GuiRecommendations(dict):
             if only_existing and name not in self:
                 continue
             opt = get_option(name)
-            if opt is None: continue
+            if opt is None:
+                continue
             if opt.level == OptionRecommendation.HIGH:
                 self[name] = opt.recommended_value
                 self.disabled_options.add(name)
