@@ -8,9 +8,9 @@ import re, os
 from PyQt5.Qt import (QIcon, QFont, QLabel, QListWidget, QAction,
         QListWidgetItem, QTextCharFormat, QApplication, QSyntaxHighlighter,
         QCursor, QColor, QWidget, QPixmap, QSplitterHandle, QToolButton,
-        QVariant, Qt, pyqtSignal, QRegExp, QSize, QSplitter, QPainter,
+        Qt, pyqtSignal, QRegExp, QSize, QSplitter, QPainter,
         QLineEdit, QComboBox, QPen, QGraphicsScene, QMenu, QStringListModel,
-        QCompleter, QTimer, QRect, QGraphicsView, QByteArray)
+        QCompleter, QTimer, QRect, QGraphicsView)
 
 from calibre.gui2 import (error_dialog, pixmap_to_data, gprefs,
         warning_dialog)
@@ -737,7 +737,6 @@ class PythonHighlighter(QSyntaxHighlighter):  # {{{
 
     Rules = []
     Formats = {}
-    Config = {}
 
     KEYWORDS = ["and", "as", "assert", "break", "class", "continue", "def",
         "del", "elif", "else", "except", "exec", "finally", "for", "from",
@@ -760,8 +759,6 @@ class PythonHighlighter(QSyntaxHighlighter):  # {{{
 
     def __init__(self, parent=None):
         super(PythonHighlighter, self).__init__(parent)
-        if not self.Config:
-            self.loadConfig()
 
         self.initializeFormats()
 
@@ -792,31 +789,12 @@ class PythonHighlighter(QSyntaxHighlighter):  # {{{
         self.tripleDoubleRe = QRegExp(r'''"""(?!')''')
 
     @classmethod
-    def loadConfig(cls):
-        Config = cls.Config
-
-        for name in ("window", "shell"):
-            Config["%swidth" % name] = QVariant(QApplication.desktop().availableGeometry().width() / 2).toInt()[0]
-            Config["%sheight" % name] = QVariant(QApplication.desktop().availableGeometry().height() / 2).toInt()[0]
-            Config["%sy" % name] = QVariant(0).toInt()[0]
-        Config["toolbars"] = QByteArray(b'')
-        Config["splitter"] = QByteArray(b'')
-        Config["shellx"] = QVariant(0).toInt()[0]
-        Config["windowx"] = QVariant(QApplication.desktop().availableGeometry().width() / 2).toInt()[0]
-        Config["remembergeometry"] = QVariant(True).toBool()
-        Config["startwithshell"] = QVariant(True).toBool()
-        Config["showwindowinfo"] = QVariant(True).toBool()
-        Config["backupsuffix"] = QVariant(".bak").toString()
-        Config["cwd"]  = QVariant(".").toString()
-        Config["tooltipsize"] = QVariant(150).toInt()[0]
-        Config["maxlinestoscan"] = QVariant(5000).toInt()[0]
-        Config["pythondocpath"] = QVariant("http://docs.python.org").toString()
-        Config["autohidefinddialog"] = QVariant(True).toBool()
-        Config["findcasesensitive"] = QVariant(False).toBool()
-        Config["findwholewords"] = QVariant(False).toBool()
-        Config["tabwidth"] = QVariant(4).toInt()[0]
-        Config["fontfamily"] = QVariant("monospace").toString()
-        Config["fontsize"] = QVariant(10).toInt()[0]
+    def initializeFormats(cls):
+        if cls.Formats:
+            return
+        baseFormat = QTextCharFormat()
+        baseFormat.setFontFamily('monospace')
+        baseFormat.setFontPointSize(11)
         for name, color, bold, italic in (
                 ("normal", "#000000", False, False),
                 ("keyword", "#000080", True, False),
@@ -828,42 +806,30 @@ class PythonHighlighter(QSyntaxHighlighter):  # {{{
                 ("number", "#924900", False, False),
                 ("error", "#FF0000", False, False),
                 ("pyqt", "#50621A", False, False)):
-            Config["%sfontcolor" % name] = QVariant(color).toString()
-            Config["%sfontbold" % name] = QVariant(bold).toBool()
-            Config["%sfontitalic" % name] = QVariant(italic).toBool()
 
-    @classmethod
-    def initializeFormats(cls):
-        Config = cls.Config
-        baseFormat = QTextCharFormat()
-        baseFormat.setFontFamily(Config["fontfamily"])
-        baseFormat.setFontPointSize(Config["fontsize"])
-        for name in ("normal", "keyword", "builtin", "constant",
-                "decorator", "comment", "string", "number", "error",
-                "pyqt"):
             format = QTextCharFormat(baseFormat)
-            format.setForeground(QColor(Config["%sfontcolor" % name]))
-            if Config["%sfontbold" % name]:
+            format.setForeground(QColor(color))
+            if bold:
                 format.setFontWeight(QFont.Bold)
-            format.setFontItalic(Config["%sfontitalic" % name])
-            PythonHighlighter.Formats[name] = format
+            format.setFontItalic(italic)
+            cls.Formats[name] = format
 
     def highlightBlock(self, text):
         NORMAL, TRIPLESINGLE, TRIPLEDOUBLE, ERROR = range(4)
 
-        textLength = text.length()
+        textLength = len(text)
         prevState = self.previousBlockState()
 
         self.setFormat(0, textLength,
                        PythonHighlighter.Formats["normal"])
 
-        if text.startsWith("Traceback") or text.startsWith("Error: "):
+        if text.startswith(u"Traceback") or text.startswith(u"Error: "):
             self.setCurrentBlockState(ERROR)
             self.setFormat(0, textLength,
                            PythonHighlighter.Formats["error"])
             return
         if prevState == ERROR and \
-           not (text.startsWith('>>>') or text.startsWith("#")):
+           not (text.startswith(u'>>>') or text.startswith(u"#")):
             self.setCurrentBlockState(ERROR)
             self.setFormat(0, textLength,
                            PythonHighlighter.Formats["error"])
@@ -880,21 +846,21 @@ class PythonHighlighter(QSyntaxHighlighter):  # {{{
         # Slow but good quality highlighting for comments. For more
         # speed, comment this out and add the following to __init__:
         # PythonHighlighter.Rules.append((QRegExp(r"#.*"), "comment"))
-        if text.isEmpty():
+        if not text:
             pass
-        elif text[0] == "#":
-            self.setFormat(0, text.length(),
+        elif text[0] == u"#":
+            self.setFormat(0, len(text),
                            PythonHighlighter.Formats["comment"])
         else:
             stack = []
             for i, c in enumerate(text):
-                if c in ('"', "'"):
+                if c in (u'"', u"'"):
                     if stack and stack[-1] == c:
                         stack.pop()
                     else:
                         stack.append(c)
-                elif c == "#" and len(stack) == 0:
-                    self.setFormat(i, text.length(),
+                elif c == u"#" and len(stack) == 0:
+                    self.setFormat(i, len(text),
                                    PythonHighlighter.Formats["comment"])
                     break
 
@@ -909,13 +875,13 @@ class PythonHighlighter(QSyntaxHighlighter):  # {{{
                           TRIPLEDOUBLE)):
             if self.previousBlockState() == state:
                 if i == -1:
-                    i = text.length()
+                    i = len(text)
                     self.setCurrentBlockState(state)
                 self.setFormat(0, i + 3,
                                PythonHighlighter.Formats["string"])
             elif i > -1:
                 self.setCurrentBlockState(state)
-                self.setFormat(i, text.length(),
+                self.setFormat(i, len(text),
                                PythonHighlighter.Formats["string"])
 
     def rehighlight(self):
@@ -1162,4 +1128,12 @@ class Splitter(QSplitter):
 
 # }}}
 
-
+if __name__ == '__main__':
+    from PyQt5.Qt import QTextEdit
+    app = QApplication([])
+    w = QTextEdit()
+    s = PythonHighlighter(w)
+    # w.setSyntaxHighlighter(s)
+    w.setText(open(__file__, 'rb').read().decode('utf-8'))
+    w.show()
+    app.exec_()

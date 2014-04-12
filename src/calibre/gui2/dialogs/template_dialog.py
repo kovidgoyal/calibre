@@ -108,14 +108,14 @@ class TemplateHighlighter(QSyntaxHighlighter):
 
     def highlightBlock(self, text):
         bn = self.currentBlock().blockNumber()
-        textLength = text.length()
+        textLength = len(text)
 
         self.setFormat(0, textLength, self.Formats["normal"])
 
-        if text.isEmpty():
+        if not text:
             pass
-        elif text[0] == "#":
-            self.setFormat(0, text.length(), self.Formats["comment"])
+        elif text[0] == u"#":
+            self.setFormat(0, textLength, self.Formats["comment"])
             return
 
         for regex, format in TemplateHighlighter.Rules:
@@ -436,3 +436,9 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
         else:
             self.rule = ('', txt)
         QDialog.accept(self)
+
+if __name__ == '__main__':
+    app = QApplication([])
+    d = TemplateDialog(None, '{title}')
+    d.exec_()
+    del app
