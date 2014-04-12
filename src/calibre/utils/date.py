@@ -13,6 +13,7 @@ from functools import partial
 from dateutil.tz import tzlocal, tzutc, EPOCHORDINAL
 
 from calibre import strftime
+from calibre.constants import iswindows
 from calibre.utils.localization import lcdata
 
 class SafeLocalTimeZone(tzlocal):
@@ -52,21 +53,37 @@ class SafeLocalTimeZone(tzlocal):
             pass
         return False
 
-def compute_locale_info_for_parse_date():
-    try:
-        dt = datetime.strptime('1/5/2000', "%x")
-    except:
-        try:
-            dt = datetime.strptime('1/5/01', '%x')
-        except:
-            return False
-    if dt.month == 5:
-        return True
-    return False
-
-parse_date_day_first = compute_locale_info_for_parse_date()
 utc_tz = _utc_tz = tzutc()
 local_tz = _local_tz = SafeLocalTimeZone()
+
+# When parsing ambiguous dates that could be either dd-MM Or MM-dd use the
+# user's locale preferences
+if iswindows:
+    import ctypes
+    LOCALE_SSHORTDATE, LOCALE_USER_DEFAULT = 0x1f, 0
+    buf = ctypes.create_string_buffer(b'\0', 255)
+    try:
+        ctypes.windll.kernel32.GetLocaleInfoA(LOCALE_USER_DEFAULT, LOCALE_SSHORTDATE, buf, 255)
+        parse_date_day_first = buf.value.index(b'd') < buf.value.index(b'M')
+    except:
+        parse_date_day_first = False
+    del ctypes, LOCALE_SSHORTDATE, buf, LOCALE_USER_DEFAULT
+else:
+    try:
+        def first_index(raw, queries):
+            for q in queries:
+                try:
+                    return raw.index(q)
+                except ValueError:
+                    pass
+            return -1
+
+        import locale
+        raw = locale.nl_langinfo(locale.D_FMT)
+        parse_date_day_first = first_index(raw, ('%d', '%a', '%A')) < first_index(raw, ('%m', '%b', '%B'))
+        del raw, first_index
+    except:
+        parse_date_day_first = False
 
 UNDEFINED_DATE = datetime(101,1,1, tzinfo=utc_tz)
 DEFAULT_DATE = datetime(2000,1,1, tzinfo=utc_tz)
