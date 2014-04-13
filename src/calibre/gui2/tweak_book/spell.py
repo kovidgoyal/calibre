@@ -6,23 +6,27 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import cPickle, os
+import cPickle, os, sys
 from collections import defaultdict
+from threading import Thread
 
 from PyQt4.Qt import (
-    QGridLayout, QApplication, QTreeWidget, QTreeWidgetItem, Qt, QFont,
+    QGridLayout, QApplication, QTreeWidget, QTreeWidgetItem, Qt, QFont, QSize,
     QStackedLayout, QLabel, QVBoxLayout, QVariant, QWidget, QPushButton, QIcon,
-    QDialogButtonBox, QLineEdit, QDialog, QToolButton, QFormLayout, QHBoxLayout)
+    QDialogButtonBox, QLineEdit, QDialog, QToolButton, QFormLayout, QHBoxLayout,
+    pyqtSignal, QAbstractTableModel, QModelIndex, QTimer, QTableView)
 
 from calibre.constants import __appname__
 from calibre.gui2 import choose_files, error_dialog
+from calibre.gui2.progress_indicator import ProgressIndicator
+from calibre.gui2.tweak_book import dictionaries, current_container, set_book_locale, tprefs
 from calibre.gui2.tweak_book.widgets import Dialog
 from calibre.spell.dictionary import (
     builtin_dictionaries, custom_dictionaries, best_locale_for_language,
     get_dictionary, DictionaryLocale, dprefs, remove_dictionary, rename_dictionary)
 from calibre.spell.import_from import import_from_oxt
 from calibre.utils.localization import calibre_langcode_to_name
-from calibre.utils.icu import sort_key
+from calibre.utils.icu import sort_key, primary_sort_key, primary_contains
 
 LANG = 0
 COUNTRY = 1
@@ -288,10 +292,291 @@ class ManageDictionaries(Dialog):  # {{{
         pl = dprefs['preferred_dictionaries']
         pl[locale] = d.id
         dprefs['preferred_dictionaries'] = pl
+
+    @classmethod
+    def test(cls):
+        d = cls()
+        d.exec_()
 # }}}
 
+class WordsModel(QAbstractTableModel):
+
+    def __init__(self, parent=None):
+        QAbstractTableModel.__init__(self, parent)
+        self.words = {}
+        self.spell_map = {}
+        self.sort_on = (0, False)
+        self.items = []
+        self.filter_expression = None
+        self.show_only_misspelt = True
+        self.headers = (_('Word'), _('Count'), _('Language'), _('Misspelled?'))
+
+    def rowCount(self, parent=QModelIndex()):
+        return len(self.items)
+
+    def columnCount(self, parent=QModelIndex()):
+        return len(self.headers)
+
+    def clear(self):
+        self.beginResetModel()
+        self.words = {}
+        self.spell_map = {}
+        self.items =[]
+        self.endResetModel()
+
+    def headerData(self, section, orientation, role=Qt.DisplayRole):
+        if orientation == Qt.Horizontal:
+            if role == Qt.DisplayRole:
+                try:
+                    return self.headers[section]
+                except IndexError:
+                    pass
+            elif role == Qt.InitialSortOrderRole:
+                return Qt.DescendingOrder if section == 1 else Qt.AscendingOrder
+
+    def data(self, index, role=Qt.DisplayRole):
+        try:
+            word, locale = self.items[index.row()]
+        except IndexError:
+            return
+        if role == Qt.DisplayRole:
+            col = index.column()
+            if col == 0:
+                return word
+            if col == 1:
+                return '%d' % len(self.words[(word, locale)])
+            if col == 2:
+                pl = calibre_langcode_to_name(locale.langcode)
+                countrycode = locale.countrycode
+                if countrycode:
+                    pl = '%s (%s)' % (pl, countrycode)
+                return pl
+            if col == 3:
+                return '' if self.spell_map[(word, locale)] else '✓'
+        if role == Qt.TextAlignmentRole:
+            return Qt.AlignVCenter | (Qt.AlignLeft if index.column() == 0 else Qt.AlignHCenter)
+
+    def sort(self, column, order=Qt.AscendingOrder):
+        reverse = order != Qt.AscendingOrder
+        self.sort_on = (column, reverse)
+        self.beginResetModel()
+        self.do_sort()
+        self.endResetModel()
+
+    def filter(self, filter_text, only_misspelt):
+        self.filter_expression = filter_text or None
+        self.show_only_misspelt = only_misspelt
+        self.beginResetModel()
+        self.do_filter()
+        self.do_sort()
+        self.endResetModel()
+
+    def do_sort(self):
+        col, reverse = self.sort_on
+        if col == 0:
+            def key(w):
+                return primary_sort_key(w[0])
+        elif col == 1:
+            def key(w):
+                return len(self.words[w])
+        elif col == 2:
+            def key(w):
+                locale = w[1]
+                return (calibre_langcode_to_name(locale.langcode), locale.countrycode)
+        else:
+            key = self.spell_map.get
+        self.items.sort(key=key, reverse=reverse)
+
+    def set_data(self, words, spell_map):
+        self.words, self.spell_map = words, spell_map
+        self.beginResetModel()
+        self.do_filter()
+        self.do_sort()
+        self.endResetModel()
+
+    def do_filter(self):
+        def filter_item(x):
+            if self.show_only_misspelt and self.spell_map[x]:
+                return False
+            if self.filter_expression is not None and not primary_contains(self.filter_expression, x[0]):
+                return False
+            return True
+        self.items = filter(filter_item, self.words)
+
+    def word_for_row(self, row):
+        try:
+            return self.items[row]
+        except IndexError:
+            pass
+
+    def row_for_word(self, word):
+        try:
+            return self.items.index(word)
+        except ValueError:
+            return -1
+
+class SpellCheck(Dialog):
+
+    work_finished = pyqtSignal(object, object)
+
+    def __init__(self, parent=None):
+        self.__current_word = None
+        self.thread = None
+        self.cancel = False
+        Dialog.__init__(self, _('Check spelling'), 'spell-check', parent)
+        self.work_finished.connect(self.work_done, type=Qt.QueuedConnection)
+        self.setAttribute(Qt.WA_DeleteOnClose, False)
+
+    def setup_ui(self):
+        self.setWindowIcon(QIcon(I('spell-check.png')))
+        self.l = l = QVBoxLayout(self)
+        self.setLayout(l)
+        self.stack = s = QStackedLayout()
+        l.addLayout(s)
+        l.addWidget(self.bb)
+        self.bb.clear()
+        self.bb.addButton(self.bb.Close)
+        b = self.bb.addButton(_('&Refresh'), self.bb.ActionRole)
+        b.setToolTip('<p>' + _('Re-scan the book for words, useful if you have edited the book since opening this dialog'))
+        b.setIcon(QIcon(I('view-refresh.png')))
+        b.clicked.connect(self.refresh)
+
+        self.progress = p = QWidget(self)
+        s.addWidget(p)
+        p.l = l = QVBoxLayout(p)
+        l.setAlignment(Qt.AlignCenter)
+        self.progress_indicator = pi = ProgressIndicator(self, 256)
+        l.addWidget(pi, alignment=Qt.AlignHCenter), l.addSpacing(10)
+        p.la = la = QLabel(_('Checking, please wait...'))
+        la.setStyleSheet('QLabel { font-size: 30pt; font-weight: bold }')
+        l.addWidget(la, alignment=Qt.AlignHCenter)
+
+        self.main = m = QWidget(self)
+        s.addWidget(m)
+        m.l = l = QVBoxLayout(m)
+        m.h1 = h = QHBoxLayout()
+        l.addLayout(h)
+        self.filter_text = t = QLineEdit(self)
+        t.setPlaceholderText(_('Filter the list of words'))
+        t.textChanged.connect(self.do_filter)
+        m.fc = b = QToolButton(m)
+        b.setIcon(QIcon(I('clear_left.png'))), b.setToolTip(_('Clear filter'))
+        b.clicked.connect(t.clear)
+        h.addWidget(t), h.addWidget(b)
+
+        m.h2 = h = QHBoxLayout()
+        l.addLayout(h)
+        self.words_view = w = QTableView(m)
+        state = tprefs.get('spell-check-table-state', None)
+        hh = self.words_view.horizontalHeader()
+        w.setSortingEnabled(True), w.setShowGrid(False), w.setAlternatingRowColors(True)
+        w.setSelectionBehavior(w.SelectRows)
+        w.verticalHeader().close()
+        h.addWidget(w)
+        self.words_model = m = WordsModel(self)
+        w.setModel(m)
+        if state is not None:
+            hh.restoreState(state)
+            # Sort by the restored state, if any
+            w.sortByColumn(hh.sortIndicatorSection(), hh.sortIndicatorOrder())
+
+    def highlight_row(self, row):
+        idx = self.words_model.index(row, 0)
+        if idx.isValid():
+            self.words_view.selectRow(row)
+            self.words_view.setCurrentIndex(idx)
+            self.words_view.scrollTo(idx)
+
+    def __enter__(self):
+        idx = self.words_view.currentIndex().row()
+        self.__current_word = self.words_model.word_for_row(idx)
+
+    def __exit__(self, *args):
+        if self.__current_word is not None:
+            row = self.words_model.row_for_word(self.__current_word)
+            self.highlight_row(max(0, row))
+        self.__current_word = None
+
+    def do_filter(self):
+        text = unicode(self.filter_text.text()).strip()
+        with self:
+            self.words_model.filter(text, True)
+
+    def refresh(self):
+        if not self.isVisible():
+            return
+        self.cancel = True
+        if self.thread is not None:
+            self.thread.join()
+        self.stack.setCurrentIndex(0)
+        self.progress_indicator.startAnimation()
+        self.thread = Thread(target=self.get_words)
+        self.thread.daemon = True
+        self.cancel = False
+        self.thread.start()
+
+    def get_words(self):
+        from calibre.ebooks.oeb.polish.spell import get_all_words
+
+        try:
+            words = get_all_words(current_container(), dictionaries.default_locale)
+            spell_map = {w:dictionaries.recognized(*w) for w in words}
+        except:
+            import traceback
+            traceback.print_exc()
+            words = traceback.format_exc()
+            spell_map = {}
+
+        if self.cancel:
+            self.end_work()
+        else:
+            self.work_finished.emit(words, spell_map)
+
+    def end_work(self):
+        self.stack.setCurrentIndex(1)
+        self.progress_indicator.stopAnimation()
+        self.words_model.clear()
+
+    def work_done(self, words, spell_map):
+        self.end_work()
+        if not isinstance(words, dict):
+            return error_dialog(self, _('Failed to check spelling'), _(
+                'Failed to check spelling, click "Show details" for the full error information.'),
+                                det_msg=words, show=True)
+        if not self.isVisible():
+            return
+        self.words_model.set_data(words, spell_map)
+        col, reverse = self.words_model.sort_on
+        self.words_view.horizontalHeader().setSortIndicator(
+            col, Qt.DescendingOrder if reverse else Qt.AscendingOrder)
+        self.highlight_row(0)
+
+    def sizeHint(self):
+        return QSize(1000, 650)
+
+    def show(self):
+        Dialog.show(self)
+        QTimer.singleShot(0, self.refresh)
+
+    def accept(self):
+        tprefs['spell-check-table-state'] = bytearray(self.words_view.horizontalHeader().saveState())
+        Dialog.accept(self)
+
+    def reject(self):
+        tprefs['spell-check-table-state'] = bytearray(self.words_view.horizontalHeader().saveState())
+        Dialog.reject(self)
+
+    @classmethod
+    def test(cls):
+        from calibre.ebooks.oeb.polish.container import get_container
+        from calibre.gui2.tweak_book import set_current_container
+        set_current_container(get_container(sys.argv[-1], tweak_mode=True))
+        set_book_locale(current_container().mi.language)
+        d = cls()
+        QTimer.singleShot(0, d.refresh)
+        d.exec_()
+# }}}
 if __name__ == '__main__':
     app = QApplication([])
-    d = ManageDictionaries()
-    d.exec_()
+    SpellCheck.test()
     del app
