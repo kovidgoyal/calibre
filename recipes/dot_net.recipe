@@ -1,47 +1,41 @@
+__license__   = 'GPL v3'
+__copyright__ = '2014, Bonni Salles - post in forum for help'
+'''
+Creative Blog (formerly .net magazine)
+'''
+
 from calibre.web.feeds.news import BasicNewsRecipe
 
-class dotnetMagazine (BasicNewsRecipe):
-    __author__ = u'Bonni Salles'
-    __version__ = '1.1'
-    __license__   = 'GPL v3'
-    __copyright__ = u'2013, Bonni Salles'
-    title                 = '.net magazine'
-    oldest_article        = 7
-    no_stylesheets        = True
-    encoding              = 'utf8'
-    use_embedded_content  = False
-    auto_cleanup = True
-    # recursion = 1
-    language              = 'en'
+class creativeblog(BasicNewsRecipe):
+    title          = u'Creative Blog'
+    __author__     = 'Bonni Salles'
+    oldest_article = 7
+    publication_type = 'blog'
+    max_articles_per_feed = 100
+    description    = 'Web Design and Tutorials from Creative Blog (part of .Net Magazine and others)'
+    publisher      = 'Creative Blog'
+    category       = 'internet, web design'
+    language       = 'en'
+    encoding      = 'utf-8'
+    ignore_duplicate_articles = {'title', 'url'}
     remove_empty_feeds    = True
-    extra_css             = ' body{font-family: Arial,Helvetica,sans-serif } img{margin-bottom: 0.4em} '
-    cover_url = u'http://media.netmagazine.futurecdn.net/sites/all/themes/netmag/logo.png'
+    auto_cleanup = True
+# presently this is set to download the whole group of blogs for the feed.  If you want
+# to limit it to the specific sections of the blog that you want to download.
 
-    #remove_tags_after = dict(name='footer', id=lambda x:not x)
-    #remove_tags_before = dict(name='header', id=lambda x:not x)
-
-    #remove_tags = [
-         #dict(name='div', attrs={'class': 'item-list'}),
-         #dict(name='h4', attrs={'class': 'std-hdr'}),
-         #dict(name='div', attrs={'class': 'item-list share-links'}),  # removes share links
-         #dict(name=['script', 'noscript']),
-         #dict(name='div', attrs={'id': 'comments-form'}),  # comment these out if you want the comments to show
-         #dict(name='div', attrs={'id': re.compile('advertorial_block_($|| )')}),
-         #dict(name='div', attrs={'id': 'right-col'}),
-         #dict(name='div', attrs={'id': 'comments'}),  # comment these out if you want the comments to show
-         #dict(name='div', attrs={'class': 'item-list related-content'}),
-
-         #]
-
-    feeds = [
-               (u'net', u'http://feeds.feedburner.com/creativebloq/')
-            ]
-
-    def skip_ad_pages(self, soup):
-        text = soup.find(text='click here to continue to article')
-        if text:
-            a = text.parent
-            url = a.get('href')
-            if url:
-                return self.index_to_soup(url, raw=True)
-
+    feeds          = [
+                      (u'Creative Blog', u'http://www.creativebloq.com/feed/'),
+#                      (u'3D', u'http://www.creativebloq.com/feed/3d'),
+#                      (u'Adobe', u'http://www.creativebloq.com/feed/adobe'),
+#                      (u'Animation', u'http://www.creativebloq.com/feed/animation'),
+#                      (u'Apple', u'http://www.creativebloq.com/feed/apple'),
+#                      (u'Branding', u'http://www.creativebloq.com/feed/branding'),
+#                      (u'Graphic Design', u'http://www.creativebloq.com/feed/graphic-design'),
+#                      (u'Illustration', u'http://www.creativebloq.com/feed/illustration'),
+#                      (u'News', u'http://www.creativebloq.com/feed/news'),
+#                      (u'Opinion', u'http://www.creativebloq.com/feed/opinion'),
+#                      (u'Tutorials', u'http://www.creativebloq.com/feed/tutorial'),
+#                      (u'Typography', u'http://www.creativebloq.com/feed/typography'),
+#                      (u'Video', u'http://www.creativebloq.com/feed/video'),
+#                      (u'web design', u'http://www.creativebloq.com/feed/web-design'),
+                     ]
