@@ -9,6 +9,7 @@ __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 import sys
 from collections import defaultdict
 
+from calibre.spell.break_iterator import has_break_iterator, split_into_words
 from calibre.spell.dictionary import parse_lang_code
 from calibre.ebooks.oeb.base import barename
 from calibre.ebooks.oeb.polish.container import OPF_NAMESPACES, get_container
@@ -38,10 +39,10 @@ def patterns():
 
 class Location(object):
 
-    __slots__ = ('file_name', 'sourceline')
+    __slots__ = ('file_name', 'sourceline', 'original_word')
 
-    def __init__(self, file_name=None, sourceline=None):
-        self.file_name, self.sourceline = file_name, sourceline
+    def __init__(self, file_name=None, sourceline=None, original_word=None):
+        self.file_name, self.sourceline, self.original_word = file_name, sourceline, original_word
 
     def __repr__(self):
         return '%s:%s' % (self.file_name, self.sourceline)
@@ -55,45 +56,55 @@ def filter_words(word):
         return False
     return True
 
-def get_words(text):
-    p = patterns()
-    text = p.sanitize_invisible_pat.sub('', text)
-    return filter(filter_words, p.split_pat.split(text))
+if has_break_iterator:
+    def get_words(text, lang):
+        try:
+            ans = split_into_words(unicode(text), lang)
+        except (TypeError, ValueError):
+            return ()
+        return filter(filter_words, ans)
+else:
+    def get_words(text, lang):
+        p = patterns()
+        return filter(filter_words, p.split_pat.split(text))
 
-def add_words(candidates, sourceline, words, file_name, locale):
+def add_words(text, sourceline, words, file_name, locale):
+    candidates = get_words(text, locale.langcode)
     if candidates:
-        loc = Location(file_name, sourceline)
+        p = patterns()
         for word in candidates:
-            words[(word, locale)].append(loc)
+            sword = p.sanitize_invisible_pat.sub('', word)
+            loc = Location(file_name, sourceline, word)
+            words[(sword, locale)].append(loc)
 
 def read_words_from_opf(root, words, file_name, book_locale):
     for tag in root.xpath('//*[namespace-uri()="%s"]' % OPF_NAMESPACES['dc']):
         tagname = barename(tag.tag)
         if not tag.text or tagname in {'identifier', 'language'}:
             continue
-        add_words(get_words(tag.text), tag.sourceline, words, file_name, book_locale)
+        add_words(tag.text, tag.sourceline, words, file_name, book_locale)
         file_as = '{%s}file-as' % OPF_NAMESPACES['opf']
         file_as = tag.get(file_as, None)
         if file_as:
-            add_words(get_words(file_as), tag.sourceline, words, file_name, book_locale)
+            add_words(file_as, tag.sourceline, words, file_name, book_locale)
 
 def read_words_from_ncx(root, words, file_name, book_locale):
     for tag in root.xpath('//*[local-name()="text"]'):
         if not tag.text:
             continue
-        add_words(get_words(tag.text), tag.sourceline, words, file_name, book_locale)
+        add_words(tag.text, tag.sourceline, words, file_name, book_locale)
 
 def read_words_from_html_tag(tag, words, file_name, parent_locale, locale):
     tagname = barename(tag.tag)
     if tagname not in {'script', 'style', 'link', 'head'}:
         if tag.text is not None:
-            add_words(get_words(tag.text), tag.sourceline, words, file_name, locale)
+            add_words(tag.text, tag.sourceline, words, file_name, locale)
         for attr in {'alt', 'title'}:
             text = tag.get(attr, None)
             if text:
-                add_words(get_words(text), tag.sourceline, words, file_name, locale)
+                add_words(text, tag.sourceline, words, file_name, locale)
     if tag.tail is not None:
-        add_words(get_words(tag.tail), tag.sourceline, words, file_name, parent_locale)
+        add_words(tag.tail, tag.sourceline, words, file_name, parent_locale)
 
 def locale_from_tag(tag):
     if 'lang' in tag.attrib:
