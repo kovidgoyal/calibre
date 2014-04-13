@@ -129,17 +129,33 @@ class TestICU(unittest.TestCase):
                 {' ':[''], 'A':['A1', 'a1'], '\U0001f431':['\U0001f431', '\U0001f431x']})
 
     def test_roundtrip(self):
+        ' Test roundtripping '
         for r in (u'xxx\0\u2219\U0001f431xxx', u'\0', u'', u'simple'):
             self.ae(r, icu._icu.roundtrip(r))
 
     def test_character_name(self):
+        ' Test character naming '
         self.ae(icu.character_name('\U0001f431'), 'CAT FACE')
 
     def test_contractions(self):
+        ' Test contractions '
         c = icu._icu.Collator('cs')
         self.ae(icu.contractions(c), frozenset({u'Z\u030c', u'z\u030c', u'Ch',
             u'C\u030c', u'ch', u'cH', u'c\u030c', u's\u030c', u'r\u030c', u'CH',
             u'S\u030c', u'R\u030c'}))
+
+    def test_break_iterator(self):
+        ' Test the break iterator '
+        from calibre.spell.break_iterator import split_into_words as split, index_of
+        for q in ('one two three', ' one two three', 'one\ntwo  three ', 'one-two,three'):
+            self.ae(split(unicode(q)), ['one', 'two', 'three'], 'Failed to split: %r' % q)
+        self.ae(split(u'I I\'m'), ['I', "I'm"])
+        self.ae(0, index_of('i', 'i'))
+        self.ae(4, index_of('i', 'six i'))
+        self.ae(-1, index_of('i', ''))
+        self.ae(-1, index_of('', ''))
+        self.ae(-1, index_of('', 'i'))
+        self.ae(-1, index_of('i', 'six clicks'))
 
 class TestRunner(unittest.main):
 

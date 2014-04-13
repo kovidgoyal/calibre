@@ -528,6 +528,202 @@ icu_Collator_clone(icu_Collator *self, PyObject *args, PyObject *kwargs)
 
 // }}}
 
+// BreakIterator object definition {{{
+typedef struct {
+    PyObject_HEAD
+    // Type-specific fields go here.
+    UBreakIterator *break_iterator;
+    UChar *text;
+    int32_t text_len;
+    UBreakIteratorType type;
+
+} icu_BreakIterator;
+
+static void
+icu_BreakIterator_dealloc(icu_BreakIterator* self)
+{
+    if (self->break_iterator != NULL) ubrk_close(self->break_iterator);
+    if (self->text != NULL) free(self->text);
+    self->break_iterator = NULL; self->text = NULL;
+    self->ob_type->tp_free((PyObject*)self);
+}
+
+
+static PyObject *
+icu_BreakIterator_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    icu_BreakIterator *self = NULL;
+    const char *locale = NULL;
+    int break_iterator_type = UBRK_WORD;
+    UErrorCode status = U_ZERO_ERROR;
+    UBreakIterator *break_iterator;
+
+    if (!PyArg_ParseTuple(args, "is", &break_iterator_type, &locale)) return NULL;
+    break_iterator = ubrk_open(break_iterator_type, locale, NULL, 0, &status);
+    if (break_iterator == NULL || U_FAILURE(status)) { 
+        PyErr_SetString(PyExc_ValueError, u_errorName(status));
+        return NULL;
+    }
+
+    self = (icu_BreakIterator *)type->tp_alloc(type, 0);
+    if (self != NULL) {
+        self->break_iterator = break_iterator;
+    }
+    self->text = NULL; self->text_len = 0; self->type = break_iterator_type;
+
+    return (PyObject *)self;
+}
+
+// BreakIterator.set_text {{{
+static PyObject *
+icu_BreakIterator_set_text(icu_BreakIterator *self, PyObject *args, PyObject *kwargs) {
+    int32_t sz = 0;
+    UChar *buf = NULL;
+    UErrorCode status = U_ZERO_ERROR;
+    PyObject *input = NULL;
+  
+    if (!PyArg_ParseTuple(args, "O", &input)) return NULL;
+    buf = python_to_icu(input, &sz, 1);
+    if (buf == NULL) return NULL;
+    ubrk_setText(self->break_iterator, buf, sz, &status);
+    if (U_FAILURE(status)) {
+        free(buf); buf = NULL;
+        PyErr_SetString(PyExc_ValueError, u_errorName(status));
+    } else { self->text = buf; self->text_len = sz; }
+
+    Py_RETURN_NONE;
+
+} // }}}
+
+// BreakIterator.split {{{
+static PyObject *
+icu_BreakIterator_split(icu_BreakIterator *self, PyObject *args, PyObject *kwargs) {
+    int32_t prev = 0, p = 0, sz = 0;
+    PyObject *ans = NULL, *token = NULL;
+  
+    ans = PyList_New(0);
+    if (ans == NULL) return PyErr_NoMemory();
+
+    p = ubrk_first(self->break_iterator);
+    while (p != UBRK_DONE) {
+        prev = p; p = ubrk_next(self->break_iterator);
+        if (self->type == UBRK_WORD && ubrk_getRuleStatus(self->break_iterator) == UBRK_WORD_NONE) 
+            continue;  // We are not at the start of a word
+        sz = (p == UBRK_DONE) ? self->text_len - prev : p - prev;
+        if (sz > 0) {
+            token = icu_to_python(self->text + prev, sz);
+            if (token == NULL) {
+                Py_DECREF(ans); ans = NULL; break; 
+            }
+            if (PyList_Append(ans, token) != 0) {
+                Py_DECREF(token); Py_DECREF(ans); ans = NULL; break; 
+            }
+            Py_DECREF(token);
+        }
+    }
+
+    return ans;
+
+} // }}}
+
+// BreakIterator.index {{{
+static PyObject *
+icu_BreakIterator_index(icu_BreakIterator *self, PyObject *args, PyObject *kwargs) {
+#if PY_VERSION_HEX >= 0x03030000 
+#error Not implemented for python >= 3.3
+#endif
+
+    UChar *buf = NULL;
+    int32_t prev = 0, p = 0, sz = 0, tsz = 0, ans = -1;
+    PyObject *token = NULL;
+  
+    if (!PyArg_ParseTuple(args, "O", &token)) return NULL;
+    buf = python_to_icu(token, &sz, 1);
+    if (buf == NULL) return NULL;
+    if (sz < 1) goto end;
+
+    p = ubrk_first(self->break_iterator);
+    while (p != UBRK_DONE) {
+        prev = p; p = ubrk_next(self->break_iterator);
+        if (self->type == UBRK_WORD && ubrk_getRuleStatus(self->break_iterator) == UBRK_WORD_NONE) 
+            continue;  // We are not at the start of a word
+        tsz = (p == UBRK_DONE) ? self->text_len - prev : p - prev;
+        if (sz == tsz && memcmp(self->text + prev, buf, sz * sizeof(UChar)) == 0) { 
+#ifdef PY_UNICODE_WIDE
+            ans = u_countChar32(self->text, prev);
+#else
+            ans = prev; 
+#endif
+            break;
+        }
+    }
+
+end:
+    free(buf);
+    return Py_BuildValue("i", ans);
+
+} // }}}
+
+static PyMethodDef icu_BreakIterator_methods[] = {
+    {"set_text", (PyCFunction)icu_BreakIterator_set_text, METH_VARARGS,
+     "set_text(unicode object) -> Set the text this iterator will operate on"
+    },
+
+    {"split", (PyCFunction)icu_BreakIterator_split, METH_VARARGS,
+     "split() -> Split the current text into tokens, returning a list of tokens"
+    },
+
+    {"index", (PyCFunction)icu_BreakIterator_index, METH_VARARGS,
+     "index(token) -> Find the index of the first match for token. Useful to find, for example, words that could also be a part of a larger word. For example, index('i') in 'string i' will be 7 not 3. Returns -1 if not found."
+    },
+
+    {NULL}  /* Sentinel */
+};
+
+
+static PyTypeObject icu_BreakIteratorType = { // {{{
+    PyObject_HEAD_INIT(NULL)
+    0,                         /*ob_size*/
+    "icu.BreakIterator",            /*tp_name*/
+    sizeof(icu_BreakIterator),      /*tp_basicsize*/
+    0,                         /*tp_itemsize*/
+    (destructor)icu_BreakIterator_dealloc, /*tp_dealloc*/
+    0,                         /*tp_print*/
+    0,                         /*tp_getattr*/
+    0,                         /*tp_setattr*/
+    0,                         /*tp_compare*/
+    0,                         /*tp_repr*/
+    0,                         /*tp_as_number*/
+    0,                         /*tp_as_sequence*/
+    0,                         /*tp_as_mapping*/
+    0,                         /*tp_hash */
+    0,                         /*tp_call*/
+    0,                         /*tp_str*/
+    0,                         /*tp_getattro*/
+    0,                         /*tp_setattro*/
+    0,                         /*tp_as_buffer*/
+    Py_TPFLAGS_DEFAULT|Py_TPFLAGS_BASETYPE,        /*tp_flags*/
+    "Break Iterator",                  /* tp_doc */
+    0,		               /* tp_traverse */
+    0,		               /* tp_clear */
+    0,		               /* tp_richcompare */
+    0,		               /* tp_weaklistoffset */
+    0,		               /* tp_iter */
+    0,		               /* tp_iternext */
+    icu_BreakIterator_methods,             /* tp_methods */
+    0,             /* tp_members */
+    0,                         /* tp_getset */
+    0,                         /* tp_base */
+    0,                         /* tp_dict */
+    0,                         /* tp_descr_get */
+    0,                         /* tp_descr_set */
+    0,                         /* tp_dictoffset */
+    0,      /* tp_init */
+    0,                         /* tp_alloc */
+    icu_BreakIterator_new,                 /* tp_new */
+}; // }}}
+
+// }}}
 
 // change_case {{{
 
@@ -755,6 +951,28 @@ icu_roundtrip(PyObject *self, PyObject *args) {
     return ret;
 } // }}}
 
+// available_locales_for_break_iterator {{{
+static PyObject *
+icu_break_iterator_locales(PyObject *self, PyObject *args) {
+    int32_t count = 0, i = 0;
+    const char *loc = NULL;
+    PyObject *ret = NULL, *t = NULL;
+
+    count = ubrk_countAvailable();
+    ret = PyTuple_New(count);
+    if (ret != NULL) {
+        for (i = 0; i < count; i++) {
+            loc = ubrk_getAvailable(i);
+            if (!loc) loc = "";
+            t = PyBytes_FromString(loc);
+            if (t == NULL) { Py_DECREF(ret); ret = NULL; PyErr_NoMemory(); break; }
+            PyTuple_SET_ITEM(ret, i, t);
+        }
+    }
+  
+    return ret;
+} // }}}
+
 // Module initialization {{{
 static PyMethodDef icu_methods[] = {
     {"change_case", icu_change_case, METH_VARARGS,
@@ -793,6 +1011,9 @@ static PyMethodDef icu_methods[] = {
      "roundtrip(string) -> Roundtrip a unicode object from python to ICU back to python (useful for testing)"
     },
 
+    {"available_locales_for_break_iterator", icu_break_iterator_locales, METH_VARARGS, 
+     "available_locales_for_break_iterator() -> Return tuple of all available locales for the BreakIterator"
+    },
 
     {NULL}  /* Sentinel */
 };
@@ -824,12 +1045,15 @@ initicu(void)
 
     if (PyType_Ready(&icu_CollatorType) < 0)
         return;
+    if (PyType_Ready(&icu_BreakIteratorType) < 0)
+        return;
 
     m = Py_InitModule3("icu", icu_methods,
                        "Wrapper for the ICU internationalization library");
 
-    Py_INCREF(&icu_CollatorType);
+    Py_INCREF(&icu_CollatorType); Py_INCREF(&icu_BreakIteratorType);
     PyModule_AddObject(m, "Collator", (PyObject *)&icu_CollatorType);
+    PyModule_AddObject(m, "BreakIterator", (PyObject *)&icu_BreakIteratorType);
     // uint8_t must be the same size as char
     PyModule_AddIntConstant(m, "ok", (U_SUCCESS(status) && sizeof(uint8_t) == sizeof(char)) ? 1 : 0);
     PyModule_AddStringConstant(m, "icu_version", version);
@@ -863,6 +1087,11 @@ initicu(void)
     ADDUCONST(UPPER_CASE);
     ADDUCONST(LOWER_CASE);
     ADDUCONST(TITLE_CASE);
+
+    ADDUCONST(UBRK_CHARACTER);
+    ADDUCONST(UBRK_WORD);
+    ADDUCONST(UBRK_LINE);
+    ADDUCONST(UBRK_SENTENCE);
 
 }
 // }}}
