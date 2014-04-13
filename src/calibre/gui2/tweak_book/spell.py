@@ -364,9 +364,8 @@ class WordsModel(QAbstractTableModel):
         self.do_sort()
         self.endResetModel()
 
-    def filter(self, filter_text, only_misspelt):
+    def filter(self, filter_text):
         self.filter_expression = filter_text or None
-        self.show_only_misspelt = only_misspelt
         self.beginResetModel()
         self.do_filter()
         self.do_sort()
@@ -517,7 +516,7 @@ class SpellCheck(Dialog):
     def do_filter(self):
         text = unicode(self.filter_text.text()).strip()
         with self:
-            self.words_model.filter(text, True)
+            self.words_model.filter(text)
 
     def refresh(self):
         if not self.isVisible():
