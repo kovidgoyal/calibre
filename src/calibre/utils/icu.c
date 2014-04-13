@@ -642,6 +642,7 @@ icu_BreakIterator_index(icu_BreakIterator *self, PyObject *args, PyObject *kwarg
     if (buf == NULL) return NULL;
     if (sz < 1) goto end;
 
+    Py_BEGIN_ALLOW_THREADS;
     p = ubrk_first(self->break_iterator);
     while (p != UBRK_DONE) {
         prev = p; p = ubrk_next(self->break_iterator);
@@ -657,6 +658,7 @@ icu_BreakIterator_index(icu_BreakIterator *self, PyObject *args, PyObject *kwarg
             break;
         }
     }
+    Py_END_ALLOW_THREADS;
 
 end:
     free(buf);
