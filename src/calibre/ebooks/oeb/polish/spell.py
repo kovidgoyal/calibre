@@ -85,14 +85,15 @@ def read_words_from_ncx(root, words, file_name, book_locale):
 
 def read_words_from_html_tag(tag, words, file_name, parent_locale, locale):
     tagname = barename(tag.tag)
-    if tagname not in {'script', 'style'} and tag.text is not None:
-        add_words(get_words(tag.text), tag.sourceline, words, file_name, locale)
+    if tagname not in {'script', 'style', 'link', 'head'}:
+        if tag.text is not None:
+            add_words(get_words(tag.text), tag.sourceline, words, file_name, locale)
+        for attr in {'alt', 'title'}:
+            text = tag.get(attr, None)
+            if text:
+                add_words(get_words(text), tag.sourceline, words, file_name, locale)
     if tag.tail is not None:
         add_words(get_words(tag.tail), tag.sourceline, words, file_name, parent_locale)
-    for attr in ('alt', 'title'):
-        text = tag.get(attr, None)
-        if text:
-            add_words(get_words(text), tag.sourceline, words, file_name, locale)
 
 def locale_from_tag(tag):
     if 'lang' in tag.attrib:
