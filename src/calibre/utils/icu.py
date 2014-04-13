@@ -30,9 +30,10 @@ del err
 icu_unicode_version = getattr(_icu, 'unicode_version', None)
 _nmodes = {m:getattr(_icu, 'UNORM_'+m, None) for m in ('NFC', 'NFD', 'NFKC', 'NFKD', 'NONE', 'DEFAULT', 'FCD')}
 
+ascii_encodings = {b'ansi_x3.4-1968', b'ascii'}
 try:
     senc = sys.getdefaultencoding()
-    if not senc or senc.lower() == b'ascii':
+    if not senc or senc.lower() in ascii_encodings:
         _icu.set_default_encoding(b'utf-8')
     del senc
 except:
@@ -41,12 +42,13 @@ except:
 
 try:
     fenc = sys.getfilesystemencoding()
-    if not fenc or fenc.lower() == b'ascii':
+    if not fenc or fenc.lower() in ascii_encodings:
         _icu.set_filesystem_encoding(b'utf-8')
     del fenc
 except:
     import traceback
     traceback.print_exc()
+del ascii_encodings
 
 def collator():
     global _collator, _locale
