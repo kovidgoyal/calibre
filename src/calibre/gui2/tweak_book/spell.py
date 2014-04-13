@@ -303,6 +303,7 @@ class WordsModel(QAbstractTableModel):
 
     def __init__(self, parent=None):
         QAbstractTableModel.__init__(self, parent)
+        self.counts = (0, 0)
         self.words = {}
         self.spell_map = {}
         self.sort_on = (0, False)
@@ -392,6 +393,7 @@ class WordsModel(QAbstractTableModel):
         self.beginResetModel()
         self.do_filter()
         self.do_sort()
+        self.counts = (len([None for w, recognized in spell_map.iteritems() if not recognized]), len(self.words))
         self.endResetModel()
 
     def do_filter(self):
@@ -480,6 +482,9 @@ class SpellCheck(Dialog):
             # Sort by the restored state, if any
             w.sortByColumn(hh.sortIndicatorSection(), hh.sortIndicatorOrder())
 
+        self.summary = s = QLabel('')
+        l.addWidget(s)
+
     def highlight_row(self, row):
         idx = self.words_model.index(row, 0)
         if idx.isValid():
@@ -550,6 +555,10 @@ class SpellCheck(Dialog):
         self.words_view.horizontalHeader().setSortIndicator(
             col, Qt.DescendingOrder if reverse else Qt.AscendingOrder)
         self.highlight_row(0)
+        self.update_summary()
+
+    def update_summary(self):
+        self.summary.setText(_('Misspelled words: {0} Total words: {1}').format(*self.words_model.counts))
 
     def sizeHint(self):
         return QSize(1000, 650)
