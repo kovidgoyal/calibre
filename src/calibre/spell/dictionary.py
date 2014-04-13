@@ -27,7 +27,7 @@ not_present = object()
 
 ccodes, ccodemap, country_names = None, None, None
 def get_codes():
-    global ccodes, ccodemap
+    global ccodes, ccodemap, country_names
     if ccodes is None:
         data = cPickle.loads(P('localization/iso3166.pickle', allow_user_override=False, data=True))
         ccodes, ccodemap, country_names = data['codes'], data['three_map'], data['names']
