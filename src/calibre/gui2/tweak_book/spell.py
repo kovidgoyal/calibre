@@ -14,7 +14,7 @@ from PyQt4.Qt import (
     QGridLayout, QApplication, QTreeWidget, QTreeWidgetItem, Qt, QFont, QSize,
     QStackedLayout, QLabel, QVBoxLayout, QVariant, QWidget, QPushButton, QIcon,
     QDialogButtonBox, QLineEdit, QDialog, QToolButton, QFormLayout, QHBoxLayout,
-    pyqtSignal, QAbstractTableModel, QModelIndex, QTimer, QTableView)
+    pyqtSignal, QAbstractTableModel, QModelIndex, QTimer, QTableView, QCheckBox)
 
 from calibre.constants import __appname__
 from calibre.gui2 import choose_files, error_dialog
@@ -481,9 +481,21 @@ class SpellCheck(Dialog):
             hh.restoreState(state)
             # Sort by the restored state, if any
             w.sortByColumn(hh.sortIndicatorSection(), hh.sortIndicatorOrder())
+            m.show_only_misspelt = hh.isSectionHidden(3)
 
+        hh.setSectionHidden(3, m.show_only_misspelt)
+        self.show_only_misspelled = om = QCheckBox(_('Show only misspelled words'))
+        om.setChecked(m.show_only_misspelt)
+        om.stateChanged.connect(self.update_show_only_misspelt)
+        self.hb = h = QHBoxLayout()
         self.summary = s = QLabel('')
-        l.addWidget(s)
+        l.addLayout(h), h.addWidget(s), h.addWidget(om), h.addStretch(10)
+
+    def update_show_only_misspelt(self):
+        m = self.words_model
+        m.show_only_misspelt = self.show_only_misspelled.isChecked()
+        self.words_view.horizontalHeader().setSectionHidden(3, m.show_only_misspelt)
+        self.do_filter()
 
     def highlight_row(self, row):
         idx = self.words_model.index(row, 0)
