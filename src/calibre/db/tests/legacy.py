@@ -285,7 +285,7 @@ class LegacyTest(BaseTest):
         ndb = self.init_legacy()
         db = self.init_old()
         all_ids = ndb.new_api.all_book_ids()
-        op1, op2 = {'xx':'yy'}, {'yy':'zz'}
+        op1 = {'xx':'yy'}
         for x in (
             ('has_conversion_options', all_ids),
             ('conversion_options', 1, 'PIPE'),

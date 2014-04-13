@@ -200,11 +200,11 @@ def dnd_get_image(md, image_exts=IMAGE_EXTENSIONS):
                 md.urls()]
         purls = [urlparse(u) for u in urls]
         # First look for a local file
-        images = [u2p(x) for x in purls if x.scheme in ('', 'file')]
-        images = [x for x in images if
-                posixpath.splitext(urllib.unquote(x))[1][1:].lower() in
+        images = [u2p(xu) for xu in purls if xu.scheme in ('', 'file')]
+        images = [xi for xi in images if
+                posixpath.splitext(urllib.unquote(xi))[1][1:].lower() in
                 image_exts]
-        images = [x for x in images if os.path.exists(x)]
+        images = [xi for xi in images if os.path.exists(xi)]
         p = QPixmap()
         for path in images:
             try:
@@ -223,8 +223,8 @@ def dnd_get_image(md, image_exts=IMAGE_EXTENSIONS):
         if rurl and fname:
             return rurl, fname
         # Look through all remaining URLs
-        remote_urls = [x for x in purls if x.scheme in ('http', 'https',
-            'ftp') and posixpath.splitext(x.path)[1][1:].lower() in image_exts]
+        remote_urls = [xu for xu in purls if xu.scheme in ('http', 'https',
+            'ftp') and posixpath.splitext(xu.path)[1][1:].lower() in image_exts]
         if remote_urls:
             rurl = remote_urls[0]
             fname = posixpath.basename(urllib.unquote(rurl.path))

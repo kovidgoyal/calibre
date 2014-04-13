@@ -1811,7 +1811,7 @@ Enter SQL statements terminated with a ";"
             identity=lambda x:x
             for i in range(ncols):
                 if len(datas[i])>1:
-                    raise self.Error("Column #%d \"%s\" has ambiguous data format - %s" % (i+1, header[i], ", ".join([d.__name__ for d in datas[i]])))
+                    raise self.Error("Column #%d \"%s\" has ambiguous data format - %s" % (i+1, header[i], ", ".join([dl.__name__ for dl in datas[i]])))
                 if datas[i]:
                     datas[i]=datas[i][0]
                 else:

@@ -211,7 +211,7 @@ class AddRemoveTest(BaseTest):
         'Test removal of books'
         cl = self.cloned_library
         cache = self.init_cache()
-        af, ae, at = self.assertFalse, self.assertEqual, self.assertTrue
+        af, ae = self.assertFalse, self.assertEqual
         authors = cache.fields['authors'].table
 
         # Delete a single book, with no formats and check cleaning

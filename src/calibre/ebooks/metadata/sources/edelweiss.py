@@ -299,8 +299,8 @@ class Edelweiss(Source):
         if not entries:
             return
 
-        workers = [Worker(sku, url, i, result_queue, br.clone_browser(), timeout, log, self)
-                   for i, (url, sku) in enumerate(entries[:5])]
+        workers = [Worker(skul, url, i, result_queue, br.clone_browser(), timeout, log, self)
+                   for i, (url, skul) in enumerate(entries[:5])]
 
         for w in workers:
             w.start()

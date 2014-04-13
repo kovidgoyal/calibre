@@ -115,7 +115,7 @@ def get_decoded_raw(name):
                 enc = force_encoding(raw, verbose=True)
             try:
                 raw = raw.decode(enc)
-            except ValueError:
+            except (LookupError, ValueError):
                 pass
     return raw, syntax
 

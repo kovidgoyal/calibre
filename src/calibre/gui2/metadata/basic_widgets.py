@@ -763,7 +763,7 @@ class FormatsManager(QWidget):
                 db.add_format(id_, ext, spool, notify=False,
                         index_is_id=True)
         dbfmts = db.formats(id_, index_is_id=True)
-        db_extensions = set([f.lower() for f in (dbfmts.split(',') if dbfmts
+        db_extensions = set([fl.lower() for fl in (dbfmts.split(',') if dbfmts
             else [])])
         extensions = new_extensions.union(old_extensions)
         for ext in db_extensions:
@@ -1310,7 +1310,7 @@ class IdentifiersEdit(QLineEdit):  # {{{
                     if v is not None:
                         val[k] = v
             ids = sorted(val.iteritems(), key=keygen)
-            txt = ', '.join(['%s:%s'%(k.lower(), v) for k, v in ids])
+            txt = ', '.join(['%s:%s'%(k.lower(), vl) for k, vl in ids])
             # Use clear + insert instead of setText so that undo works
             self.clear()
             self.insert(txt.strip())

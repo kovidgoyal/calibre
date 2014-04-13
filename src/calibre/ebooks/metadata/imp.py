@@ -23,13 +23,15 @@ def get_metadata(stream):
             while 1:
                 data = stream.read(1)
                 if data == '\x00':
-                    if not skip: return result
+                    if not skip:
+                        return result
                     skip -= 1
                     result, data = '', ''
                 result += data
 
-        stream.read(38) # skip past some uninteresting headers
-        _, category, title, author = cString(), cString(), cString(1), cString(2)
+        stream.read(38)  # skip past some uninteresting headers
+        cString()
+        category, title, author = cString(), cString(1), cString(2)
 
         if title:
             mi.title = title

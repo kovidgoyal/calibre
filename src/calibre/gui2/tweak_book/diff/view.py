@@ -636,7 +636,7 @@ class DiffSplit(QSplitter):  # {{{
                 for x, val in v.line_number_map.iteritems():
                     dict.__setitem__(lnm, mapnum(x), val)
                 v.line_number_map = lnm
-                v.changes = [(mapnum(t), mapnum(b), kind) for t, b, kind in v.changes]
+                v.changes = [(mapnum(t), mapnum(b), k) for t, b, k in v.changes]
                 v.headers = [(mapnum(x), name) for x, name in v.headers]
                 v.images = OrderedDict((mapnum(x), v) for x, v in v.images.iteritems())
             v.viewport().update()
@@ -826,7 +826,6 @@ class DiffSplit(QSplitter):  # {{{
         self.replace_helper(alo, best_i, blo, best_j)
 
         # do intraline marking on the synch pair
-        aelt, belt = a[best_i], b[best_j]
         if eqi is None:
             self.do_replace(best_i, best_i+1, best_j, best_j+1)
         else:

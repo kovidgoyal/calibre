@@ -1601,7 +1601,7 @@ class BasicNewsRecipe(Recipe):
                 parsed_feeds.append(feed)
                 self.log.exception(msg)
 
-        remove = [f for f in parsed_feeds if len(f) == 0 and
+        remove = [fl for fl in parsed_feeds if len(fl) == 0 and
                 self.remove_empty_feeds]
         for f in remove:
             parsed_feeds.remove(f)

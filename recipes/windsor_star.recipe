@@ -217,5 +217,5 @@ class CanWestPaper(BasicNewsRecipe):
                     articles[key] = []
                 articles[key].append(dict(title=title,url=url,date=pubdate,description=description,author=author,content=''))
 
-        ans = [(key, articles[key]) for key in ans if articles.has_key(key)]
+        ans = [(keyl, articles[keyl]) for keyl in ans if articles.has_key(keyl)]
         return ans

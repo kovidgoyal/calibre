@@ -282,8 +282,8 @@ class BrowseServer(object):
         ans = ans.replace('{Search}', _('Search'))
         opts = ['<option %svalue="%s">%s</option>' % (
             'selected="selected" ' if k==sort else '',
-            xml(k), xml(n), ) for k, n in
-                sorted(sort_opts, key=lambda x: sort_key(operator.itemgetter(1)(x))) if k and n]
+            xml(k), xml(nl), ) for k, nl in
+                sorted(sort_opts, key=lambda x: sort_key(operator.itemgetter(1)(x))) if k and nl]
         ans = ans.replace('{sort_select_options}', ('\n'+' '*20).join(opts))
         lp = self.db.library_path
         if isbytestring(lp):

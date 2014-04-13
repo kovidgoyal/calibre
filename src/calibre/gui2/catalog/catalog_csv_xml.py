@@ -56,6 +56,6 @@ class PluginWidget(QWidget, Ui_Form):
 
         # Return a dictionary with current options for this widget
         if len(self.db_fields.selectedItems()):
-            return {'fields':[unicode(item.text()) for item in self.db_fields.selectedItems()]}
+            return {'fields':[unicode(i.text()) for i in self.db_fields.selectedItems()]}
         else:
             return {'fields':['all']}

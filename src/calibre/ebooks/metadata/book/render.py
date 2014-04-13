@@ -126,8 +126,8 @@ def mi_to_html(mi, field_list=None, default_author_link=None, use_roman_numbers=
             ans.append((field, row % (name, u', '.join(fmts))))
         elif field == 'identifiers':
             urls = urls_from_identifiers(mi.identifiers)
-            links = [u'<a href="%s" title="%s:%s">%s</a>' % (a(url), a(id_typ), a(id_val), p(name))
-                    for name, id_typ, id_val, url in urls]
+            links = [u'<a href="%s" title="%s:%s">%s</a>' % (a(url), a(id_typ), a(id_val), p(namel))
+                    for namel, id_typ, id_val, url in urls]
             links = u', '.join(links)
             if links:
                 ans.append((field, row % (_('Ids')+':', links)))
@@ -189,8 +189,8 @@ def mi_to_html(mi, field_list=None, default_author_link=None, use_roman_numbers=
             dt = 'text'
         return 'datatype_%s'%dt
 
-    ans = [u'<tr id="%s" class="%s">%s</tr>'%(field.replace('#', '_'),
-        classname(field), html) for field, html in ans]
+    ans = [u'<tr id="%s" class="%s">%s</tr>'%(fieldl.replace('#', '_'),
+        classname(fieldl), html) for fieldl, html in ans]
     # print '\n'.join(ans)
     return u'<table class="fields">%s</table>'%(u'\n'.join(ans)), comment_fields
 

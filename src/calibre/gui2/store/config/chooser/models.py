@@ -148,7 +148,7 @@ class Matches(QAbstractItemModel):
     def setData(self, index, data, role):
         if not index.isValid():
             return False
-        row, col = index.row(), index.column()
+        col = index.column()
         if col == 0:
             if data.toBool():
                 enable_plugin(self.get_plugin(index))
@@ -225,7 +225,7 @@ class SearchFilter(SearchQueryParser):
             elif query.startswith('~'):
                 matchkind = REGEXP_MATCH
                 query = query[1:]
-        if matchkind != REGEXP_MATCH: ### leave case in regexps because it can be significant e.g. \S \W \D
+        if matchkind != REGEXP_MATCH:  # leave case in regexps because it can be significant e.g. \S \W \D
             query = query.lower()
 
         if location not in self.USABLE_LOCATIONS:
@@ -265,9 +265,9 @@ class SearchFilter(SearchQueryParser):
                 if locvalue in ('affiliate', 'drm', 'enabled'):
                     continue
                 try:
-                    ### Can't separate authors because comma is used for name sep and author sep
-                    ### Exact match might not get what you want. For that reason, turn author
-                    ### exactmatch searches into contains searches.
+                    # Can't separate authors because comma is used for name sep and author sep
+                    # Exact match might not get what you want. For that reason, turn author
+                    # exactmatch searches into contains searches.
                     if locvalue == 'name' and matchkind == EQUALS_MATCH:
                         m = CONTAINS_MATCH
                     else:
@@ -280,7 +280,7 @@ class SearchFilter(SearchQueryParser):
                     if _match(query, vals, m, use_primary_find_in_search=upf):
                         matches.add(sr)
                         break
-                except ValueError: # Unicode errors
+                except ValueError:  # Unicode errors
                     import traceback
                     traceback.print_exc()
         return matches

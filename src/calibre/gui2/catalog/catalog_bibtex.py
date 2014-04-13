@@ -16,9 +16,9 @@ class PluginWidget(QWidget, Ui_Form):
     TITLE = _('BibTeX Options')
     HELP  = _('Options specific to')+' BibTeX '+_('output')
     OPTION_FIELDS = [('bib_cit','{authors}{id}'),
-                     ('bib_entry', 0), #mixed
-                     ('bibfile_enc', 0), #utf-8
-                     ('bibfile_enctag', 0), #strict
+                     ('bib_entry', 0),  # mixed
+                     ('bibfile_enc', 0),  # utf-8
+                     ('bibfile_enctag', 0),  # strict
                      ('impcit', True),
                      ('addfiles', False),
                      ]
@@ -30,16 +30,16 @@ class PluginWidget(QWidget, Ui_Form):
         QWidget.__init__(self, parent)
         self.setupUi(self)
 
-    def initialize(self, name, db): #not working properly to update
+    def initialize(self, name, db):  # not working properly to update
         from calibre.library.catalogs import FIELDS
 
         self.all_fields = [x for x in FIELDS if x != 'all']
-        #add custom columns
+        # add custom columns
         for x in sorted(db.custom_field_keys()):
             self.all_fields.append(x)
             if db.field_metadata[x]['datatype'] == 'series':
                 self.all_fields.append(x+'_index')
-        #populate
+        # populate
         for x in self.all_fields:
             QListWidgetItem(x, self.db_fields)
 
@@ -78,7 +78,7 @@ class PluginWidget(QWidget, Ui_Form):
 
         # Dictionary currently activated fields
         if len(self.db_fields.selectedItems()):
-            opts_dict = {'fields':[unicode(item.text()) for item in self.db_fields.selectedItems()]}
+            opts_dict = {'fields':[unicode(i.text()) for i in self.db_fields.selectedItems()]}
         else:
             opts_dict = {'fields':['all']}
 

@@ -114,5 +114,5 @@ class ElDiplo_Recipe(BasicNewsRecipe):
                 articles[section].append(dict(title=title,author=auth,url=url,date=None,description=description,content=''))
 
         #ans = self.sort_index_by(ans, {'The Front Page':-1, 'Dining In, Dining Out':1, 'Obituaries':2})
-        ans = [(section, articles[section]) for section in ans if articles.has_key(section)]
+        ans = [(s, articles[s]) for s in ans if articles.has_key(s)]
         return ans

@@ -680,7 +680,7 @@ class FileList(QTreeWidget):
         l.addWidget(bb)
         if d.exec_() == d.Accepted:
             tprefs['remove_existing_links_when_linking_sheets'] = r.isChecked()
-            sheets = [unicode(s.item(i).text()) for i in xrange(s.count()) if s.item(i).checkState() == Qt.Checked]
+            sheets = [unicode(s.item(il).text()) for il in xrange(s.count()) if s.item(il).checkState() == Qt.Checked]
             if sheets:
                 self.link_stylesheets_requested.emit(names, sheets, r.isChecked())
 

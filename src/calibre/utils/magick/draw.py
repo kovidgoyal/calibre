@@ -74,8 +74,8 @@ def save_cover_data_to(data, path, bgcolor='#ffffff', resize_to=None,
     fmt = normalize_format_name(fmt[1:])
 
     if grayscale:
-       img.type = "GrayscaleType"
-       changed = True
+        img.type = "GrayscaleType"
+        changed = True
 
     if resize_to is not None:
         img.size = (resize_to[0], resize_to[1])
@@ -192,7 +192,7 @@ def _get_line(img, dw, tokens, line_width):
     line, rest = tokens, []
     while True:
         m = img.font_metrics(dw, ' '.join(line))
-        width, height = m.text_width, m.text_height
+        width = m.text_width
         if width < line_width:
             return line, rest
         rest = line[-1:] + rest

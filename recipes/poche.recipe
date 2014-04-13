@@ -46,5 +46,5 @@ class NYTimes(BasicNewsRecipe):
             if feed not in articles:
                 articles[feed] = []
             articles[feed].append(dict(title=title, url=url, date=pubdate,description=description,content=''))
-        ans = [(key, articles[key]) for key in articles.keys()]
+        ans = [(keyl, articles[keyl]) for keyl in articles.keys()]
         return ans

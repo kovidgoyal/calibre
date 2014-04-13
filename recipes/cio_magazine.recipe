@@ -124,5 +124,5 @@ class CIO_Magazine(BasicNewsRecipe):
                                dict(title=title, url=url, date=pubdate,
                                     description=description,
                                     content=''))
-        feeds = [(key, articles[key]) for key in feeds if articles.has_key(key)]
+        feeds = [(k, articles[k]) for k in feeds if articles.has_key(k)]
         return feeds

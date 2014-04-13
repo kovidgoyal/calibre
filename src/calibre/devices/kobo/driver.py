@@ -720,7 +720,7 @@ class KOBO(USBMS):
         return book
 
     def get_device_paths(self):
-        paths, prefixes = {}, {}
+        paths = {}
         for prefix, path, source_id in [
                 ('main', 'metadata.calibre', 0),
                 ('card_a', 'metadata.calibre', 1),
@@ -1380,7 +1380,7 @@ class KOBOTOUCH(KOBO):
                           }
     GLO_COVER_FILE_ENDINGS = {      # Glo and Aura share resolution, so the image sizes should be the same.
                           ' - N3_FULL.parsed':[(758,1024),0, 99,True,],           # Used for screensaver, home screen
-                          ' - N3_LIBRARY_FULL.parsed':[(355,479),0, 99,False,],   # Used for Details screen before FW2.8.1, then for current book tile on home screen 
+                          ' - N3_LIBRARY_FULL.parsed':[(355,479),0, 99,False,],   # Used for Details screen before FW2.8.1, then for current book tile on home screen
                           ' - N3_LIBRARY_GRID.parsed':[(149,201),0, 99,False,],   # Used for library lists
                           ' - AndroidBookLoadTablet_Aspect.parsed':[(355,479), 88, 99,False,],   # Used for Details screen from FW2.8.1
                           }

@@ -231,7 +231,7 @@ class AutoAdder(QObject):
                 paths.extend(p)
                 formats.extend(f)
                 metadata.extend(mis)
-            dups = [(mi, mi.cover, [p]) for mi, p in zip(metadata, paths)]
+            dups = [(mic, mic.cover, [p]) for mic, p in zip(metadata, paths)]
             d = DuplicatesQuestion(m.db, dups, parent=gui)
             dups = tuple(d.duplicates)
             if dups:

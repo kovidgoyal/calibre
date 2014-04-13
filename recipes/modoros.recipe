@@ -80,7 +80,7 @@ class ModorosBlogHu(BasicNewsRecipe):
                 for h in cur_items:
                     f.write(h+'\n')
 
-        remove = [f for f in feeds if len(f) == 0 and
+        remove = [fl for fl in feeds if len(fl) == 0 and
                 self.remove_empty_feeds]
         for f in remove:
             feeds.remove(f)

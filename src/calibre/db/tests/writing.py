@@ -337,7 +337,7 @@ class WritingTest(BaseTest):
         'Test the automatic backup of changed metadata'
         cl = self.cloned_library
         cache = self.init_cache(cl)
-        ae, af, sf, ff = self.assertEqual, self.assertFalse, cache.set_field, cache.field_for
+        ae, af, sf = self.assertEqual, self.assertFalse, cache.set_field
         # First empty dirtied
         cache.dump_metadata()
         af(cache.dirtied_cache)

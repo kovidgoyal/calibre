@@ -493,7 +493,7 @@ class ReadingTest(BaseTest):
         cache = self.init_cache()
         cache._search_api.cache = c = TestCache()
 
-        ae, at = self.assertEqual, self.assertTrue
+        ae = self.assertEqual
 
         def test(hit, result, *args):
             c.cc
