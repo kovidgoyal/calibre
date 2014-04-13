@@ -487,6 +487,7 @@ class Worker(Thread):  # Get details {{{
         return sanitize_comments_html(desc)
 
     def parse_comments(self, root):
+        ans = ''
         ns = CSSSelect('#bookDescription_feature_div noscript')(root)
         if ns:
             ns = ns[0]
@@ -496,12 +497,11 @@ class Worker(Thread):  # Get details {{{
                 ns = html5lib.parseFragment('<div>%s</div>' % (ns.text), treebuilder='lxml', namespaceHTMLElements=False)[0]
             else:
                 ns.tag = 'div'
-            return self._render_comments(ns)
-
-        ans = ''
-        desc = root.xpath('//div[@id="ps-content"]/div[@class="content"]')
-        if desc:
-            ans = self._render_comments(desc[0])
+            ans = self._render_comments(ns)
+        else:
+            desc = root.xpath('//div[@id="ps-content"]/div[@class="content"]')
+            if desc:
+                ans = self._render_comments(desc[0])
 
         desc = root.xpath('//div[@id="productDescription"]/*[@class="content"]')
         if desc:
@@ -1038,11 +1038,12 @@ if __name__ == '__main__':  # tests {{{
               ]
              ),
 
+
             (  # noscript description
                 {'identifiers':{'amazon':'0756407117'}},
                 [title_test(
                 "Throne of the Crescent Moon"),
-                comments_test('Makhslood'),
+                comments_test('Makhslood'), comments_test('Publishers Weekly'),
                 ]
             ),
 
