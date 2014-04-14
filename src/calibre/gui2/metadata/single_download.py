@@ -475,9 +475,6 @@ class IdentifyWidget(QWidget):  # {{{
         self.results_view.show_details_signal.connect(self.comments_view.show_data)
 
         self.query = QLabel('download starting...')
-        f = self.query.font()
-        f.setPointSize(f.pointSize()-2)
-        self.query.setFont(f)
         self.query.setWordWrap(True)
         l.addWidget(self.query, 2, 0, 1, 2)
 
@@ -505,15 +502,19 @@ class IdentifyWidget(QWidget):  # {{{
     def start(self, title=None, authors=None, identifiers={}):
         self.log.clear()
         self.log('Starting download')
-        parts = []
+        parts, simple_desc = [], ''
         if title:
             parts.append('title:'+title)
+            simple_desc += _('Title: %s ') % title
         if authors:
             parts.append('authors:'+authors_to_string(authors))
+            simple_desc += _('Authors: %s ') % authors_to_string(authors)
         if identifiers:
             x = ', '.join('%s:%s'%(k, v) for k, v in identifiers.iteritems())
             parts.append(x)
-        self.query.setText(_('Query: ')+'; '.join(parts))
+            if 'isbn' in identifiers:
+                simple_desc += ' ISBN: %s' % identifiers['isbn']
+        self.query.setText(simple_desc)
         self.log(unicode(self.query.text()))
 
         self.worker = IdentifyWorker(self.log, self.abort, title,
