@@ -50,10 +50,9 @@ def default_image():
 
 class ColumnColor(object):  # {{{
 
-    def __init__(self, formatter, colors):
+    def __init__(self, formatter):
         self.mi = None
         self.formatter = formatter
-        self.colors = colors
 
     def __call__(self, id_, key, fmt, db, color_cache):
         if id_ in color_cache and key in color_cache[id_]:
@@ -62,14 +61,12 @@ class ColumnColor(object):  # {{{
         try:
             if self.mi is None:
                 self.mi = db.new_api.get_proxy_metadata(id_)
-            color = self.formatter.safe_format(fmt, self.mi, '', self.mi)
-            if color in self.colors:
-                color = QColor(color)
-                if color.isValid():
-                    color = QVariant(color)
-                    color_cache[id_][key] = color
-                    self.mi = None
-                    return color
+            color = QColor(self.formatter.safe_format(fmt, self.mi, '', self.mi))
+            if color.isValid():
+                color = QVariant(color)
+                color_cache[id_][key] = color
+                self.mi = None
+                return color
         except:
             pass
 # }}}
@@ -172,9 +169,8 @@ class BooksModel(QAbstractTableModel):  # {{{
         self.db = None
 
         self.formatter = SafeFormat()
-        self.colors = frozenset([unicode(c) for c in QColor.colorNames()])
         self._clear_caches()
-        self.column_color = ColumnColor(self.formatter, self.colors)
+        self.column_color = ColumnColor(self.formatter)
         self.column_icon = ColumnIcon(self.formatter, self)
 
         self.book_on_device = None
