@@ -162,6 +162,7 @@ class Dictionaries(object):
     def __init__(self):
         self.dictionaries = {}
         self.word_cache = {}
+        self.ignored_words = set()
         try:
             self.default_locale = parse_lang_code(get_lang())
         except ValueError:
@@ -170,6 +171,9 @@ class Dictionaries(object):
 
     def clear_caches(self):
         self.dictionaries.clear(), self.word_cache.clear()
+
+    def clear_ignored(self):
+        self.ignored_words.clear()
 
     def dictionary_for_locale(self, locale):
         ans = self.dictionaries.get(locale, not_present)
@@ -180,6 +184,17 @@ class Dictionaries(object):
             self.dictionaries[locale] = ans
         return ans
 
+    def ignore_word(self, word, locale):
+        self.ignored_words.add((word, locale))
+        self.word_cache[(word, locale)] = True
+
+    def unignore_word(self, word, locale):
+        self.ignored_words.discard((word, locale))
+        self.word_cache.pop((word, locale), None)
+
+    def is_word_ignored(self, word, locale):
+        return (word, locale) in self.ignored_words
+
     def recognized(self, word, locale=None):
         locale = locale or self.default_locale
         if not isinstance(locale, DictionaryLocale):
@@ -188,12 +203,15 @@ class Dictionaries(object):
         ans = self.word_cache.get(key, None)
         if ans is None:
             ans = False
-            d = self.dictionary_for_locale(locale)
-            if d is not None:
-                try:
-                    ans = d.obj.recognized(word)
-                except ValueError:
-                    pass
+            if key in self.ignored_words:
+                ans = True
+            else:
+                d = self.dictionary_for_locale(locale)
+                if d is not None:
+                    try:
+                        ans = d.obj.recognized(word)
+                    except ValueError:
+                        pass
             self.word_cache[key] = ans
         return ans
 

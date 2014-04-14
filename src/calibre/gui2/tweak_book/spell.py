@@ -304,10 +304,10 @@ class WordsModel(QAbstractTableModel):
     def __init__(self, parent=None):
         QAbstractTableModel.__init__(self, parent)
         self.counts = (0, 0)
-        self.words = {}
-        self.spell_map = {}
+        self.words = {}  # Map of (word, locale) to location data for the word
+        self.spell_map = {}  # Map of (word, locale) to dictionaries.recognized(word, locale)
         self.sort_on = (0, False)
-        self.items = []
+        self.items = []  # The currently displayed items
         self.filter_expression = None
         self.show_only_misspelt = True
         self.headers = (_('Word'), _('Count'), _('Language'), _('Misspelled?'))
@@ -371,8 +371,7 @@ class WordsModel(QAbstractTableModel):
         self.do_sort()
         self.endResetModel()
 
-    def do_sort(self):
-        col, reverse = self.sort_on
+    def sort_key(self, col):
         if col == 0:
             def key(w):
                 return primary_sort_key(w[0])
@@ -385,7 +384,11 @@ class WordsModel(QAbstractTableModel):
                 return (calibre_langcode_to_name(locale.langcode), locale.countrycode)
         else:
             key = self.spell_map.get
-        self.items.sort(key=key, reverse=reverse)
+        return key
+
+    def do_sort(self):
+        col, reverse = self.sort_on
+        self.items.sort(key=self.sort_key(col), reverse=reverse)
 
     def set_data(self, words, spell_map):
         self.words, self.spell_map = words, spell_map
@@ -395,14 +398,38 @@ class WordsModel(QAbstractTableModel):
         self.counts = (len([None for w, recognized in spell_map.iteritems() if not recognized]), len(self.words))
         self.endResetModel()
 
+    def filter_item(self, x):
+        if self.show_only_misspelt and self.spell_map[x]:
+            return False
+        if self.filter_expression is not None and not primary_contains(self.filter_expression, x[0]):
+            return False
+        return True
+
     def do_filter(self):
-        def filter_item(x):
-            if self.show_only_misspelt and self.spell_map[x]:
-                return False
-            if self.filter_expression is not None and not primary_contains(self.filter_expression, x[0]):
-                return False
-            return True
-        self.items = filter(filter_item, self.words)
+        self.items = filter(self.filter_item, self.words)
+
+    def toggle_ignored(self, row):
+        w = self.word_for_row(row)
+        if w is not None:
+            ignored = dictionaries.is_word_ignored(*w)
+            (dictionaries.unignore_word if ignored else dictionaries.ignore_word)(*w)
+            self.spell_map[w] = dictionaries.recognized(*w)
+            self.update_word(w)
+
+    def update_word(self, w):
+        should_be_filtered = not self.filter_item(w)
+        row = self.row_for_word(w)
+        if should_be_filtered and row != -1:
+            self.beginRemoveRows(QModelIndex(), row, row)
+            del self.items[row]
+            self.endRemoveRows()
+        elif not should_be_filtered and row == -1:
+            self.items.append(w)
+            self.do_sort()
+            row = self.row_for_word(w)
+            self.beginInsertRows(QModelIndex(), row, row)
+            self.endInsertRows()
+        self.dataChanged.emit(self.index(row, 3), self.index(row, 3))
 
     def word_for_row(self, row):
         try:
@@ -468,6 +495,7 @@ class SpellCheck(Dialog):
         m.h2 = h = QHBoxLayout()
         l.addLayout(h)
         self.words_view = w = QTableView(m)
+        w.currentChanged = self.current_word_changed
         state = tprefs.get('spell-check-table-state', None)
         hh = self.words_view.horizontalHeader()
         w.setSortingEnabled(True), w.setShowGrid(False), w.setAlternatingRowColors(True)
@@ -476,11 +504,21 @@ class SpellCheck(Dialog):
         h.addWidget(w)
         self.words_model = m = WordsModel(self)
         w.setModel(m)
+        m.dataChanged.connect(self.current_word_changed)
+        m.modelReset.connect(self.current_word_changed)
         if state is not None:
             hh.restoreState(state)
             # Sort by the restored state, if any
             w.sortByColumn(hh.sortIndicatorSection(), hh.sortIndicatorOrder())
             m.show_only_misspelt = hh.isSectionHidden(3)
+
+        self.ignore_button = b = QPushButton(_('&Ignore'))
+        b.ign_text, b.unign_text = unicode(b.text()), _('Un&ignore')
+        b.clicked.connect(self.toggle_ignore)
+        l = QVBoxLayout()
+        l.addStrut(250)
+        h.addLayout(l)
+        l.addWidget(b)
 
         hh.setSectionHidden(3, m.show_only_misspelt)
         self.show_only_misspelled = om = QCheckBox(_('Show only misspelled words'))
@@ -488,7 +526,32 @@ class SpellCheck(Dialog):
         om.stateChanged.connect(self.update_show_only_misspelt)
         self.hb = h = QHBoxLayout()
         self.summary = s = QLabel('')
-        l.addLayout(h), h.addWidget(s), h.addWidget(om), h.addStretch(10)
+        self.main.l.addLayout(h), h.addWidget(s), h.addWidget(om), h.addStretch(10)
+
+    def current_word_changed(self, *args):
+        ignored = recognized = False
+        current = self.words_view.currentIndex()
+        current_word = ''
+        if current.isValid():
+            row = current.row()
+            w = self.words_model.word_for_row(row)
+            if w is not None:
+                ignored = dictionaries.is_word_ignored(*w)
+                recognized = self.words_model.spell_map[w]
+                current_word = w[0]
+
+        try:
+            b = self.ignore_button
+        except AttributeError:
+            return
+        prefix = b.unign_text if ignored else b.ign_text
+        b.setText(prefix + ' ' + current_word)
+        b.setEnabled(current.isValid() and (ignored or not recognized))
+
+    def toggle_ignore(self):
+        current = self.words_view.currentIndex()
+        if current.isValid():
+            self.words_model.toggle_ignored(current.row())
 
     def update_show_only_misspelt(self):
         m = self.words_model
