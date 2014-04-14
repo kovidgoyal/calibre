@@ -57,8 +57,8 @@ class TOLINO(EB600):
     FORMATS = ['epub', 'pdf', 'txt']
     PRODUCT_ID  = EB600.PRODUCT_ID + [0x6033]
     BCD         = [0x226, 0x9999]
-    VENDOR_NAME      = ['DEUTSCHE']
-    WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = ['_TELEKOMTOLINO']
+    VENDOR_NAME      = ['DEUTSCHE', 'LINUX']
+    WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = ['_TELEKOMTOLINO', 'FILE-CD_GADGET']
 
     EXTRA_CUSTOMIZATION_MESSAGE = [
         _('Swap main and card A') +
