@@ -1344,6 +1344,25 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                         print_debug_info=False,
                         wait_for_response=False)
 
+                if not self.have_bad_sync_columns:
+                    # Update the local copy of the device's read info just in case
+                    # the device is re-synced. This emulates what happens on the device
+                    # when the metadata is received.
+                    try:
+                        if bool(self.is_read_sync_col):
+                            book.set('_is_read_', book.get(self.is_read_sync_col, None))
+                    except:
+                        self._debug('failed to set local copy of _is_read_')
+                        traceback.print_exc()
+
+                    try:
+                        if bool(self.is_read_date_sync_col):
+                            book.set('_last_read_date_',
+                                     book.get(self.is_read_date_sync_col, None))
+                    except:
+                        self._debug('failed to set local copy of _last_read_date_')
+                        traceback.print_exc()
+
     @synchronous('sync_lock')
     def eject(self):
         self._debug()
