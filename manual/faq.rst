@@ -684,16 +684,13 @@ if you are willing to live with that risk. In particular, be aware that
 Google Drive, **you will suffer data loss**. See `this thread
 <http://www.mobileread.com/forums/showthread.php?t=205581>`_ for details.
 
-Content From The Web
----------------------
+
+Miscellaneous
+--------------
+
 .. contents:: Contents
   :depth: 1
   :local:
-
-
-I obtained a recipe for a news site as a .py file from somewhere, how do I use it?
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Start the :guilabel:`Add custom news sources` dialog (from the :guilabel:`Fetch news` menu) and click the :guilabel:`Switch to advanced mode` button. Delete everything in the box with the recipe source code and copy paste the contents of your .py file into the box. Click :guilabel:`Add/update recipe`.
 
 
 I want |app| to download news from my favorite news website.
@@ -702,16 +699,6 @@ If you are reasonably proficient with computers, you can teach |app| to download
 
 Otherwise, you can request a particular news site by posting in the `calibre Recipes forum <http://www.mobileread.com/forums/forumdisplay.php?f=228>`_.
 
-Can I use web2disk to download an arbitrary website?
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-``web2disk http://mywebsite.com``
-
-Miscellaneous
---------------
-
-.. contents:: Contents
-  :depth: 1
-  :local:
 
 Why the name calibre?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
