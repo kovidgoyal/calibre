@@ -1,0 +1,31 @@
+# vim:fileencoding=utf-8
+from __future__ import unicode_literals
+from calibre.web.feeds.news import BasicNewsRecipe
+import urllib
+
+class GrandesCorresponsalesRecipe (BasicNewsRecipe):
+    __author__ = 'Marc Busqué <marc@lamarciana.com>'
+    __url__ = 'http://www.lamarciana.com'
+    __version__ = '1.0.0'
+    __license__   = 'GPL v3'
+    __copyright__ = '2014, Marc Busqué <marc@lamarciana.com>'
+    title = u'Grandes corresponsales'
+    description = u'Corresponsales de verdad, de los que no se quedan en el hotel.'
+    language = 'es'
+    tags = 'información, internacional '
+    oldest_article = 30
+    remove_empty_feeds = True
+    no_stylesheets = True
+    extra_css = urllib.urlopen('https://raw.githubusercontent.com/laMarciana/gutenweb/master/dist/gutenweb.css').read().replace('@charset "UTF-8";', '')
+
+    feeds = [
+          (u'Rafael Poch', u'http://blogs.lavanguardia.com/berlin/feed'),
+          (u'Andy Robinson', u'http://blogs.lavanguardia.com/diario-itinerante/feed'),
+          (u'Rafael Ramos', u'http://blogs.lavanguardia.com/londres/feed'),
+          (u'Mikel Ayestaran', u'http://www.mikelayestaran.com/blog/?feed=rss2'),
+          (u'Gervasio Sánchez', u'http://blogs.heraldo.es/gervasiosanchez/?feed=rss2'),
+          (u'Olga Rodríguez', u'http://olgarodriguez.org/feed/'),
+          (u'Hernán Zin', u'http://blogs.20minutos.es/enguerra/tag/corresponsales-guerra/feed/'),
+          (u'Arturo Pérez-Reverte', u'http://feeds.feedburner.com/ArtculosDeArturoPrez-reverte'),
+          (u'Ramón Lobo', u'http://www.ramonlobo.com/feed/'),
+          ]
