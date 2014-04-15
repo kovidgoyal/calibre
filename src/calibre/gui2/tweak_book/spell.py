@@ -529,13 +529,17 @@ class SpellCheck(Dialog):
 
         self.ignore_button = b = QPushButton(_('&Ignore'))
         b.ign_text, b.unign_text = unicode(b.text()), _('Un&ignore')
+        b.ign_tt = _('Ignore the current word for the rest of this session')
+        b.unign_tt = _('Stop ignoring the current word')
         b.clicked.connect(self.toggle_ignore)
         l = QVBoxLayout()
         l.addStrut(250)
         h.addLayout(l)
         l.addWidget(b), l.addSpacing(20)
-        self.add_button = b = QPushButton(_('&Add word to user dictionary:'))
-        b.add_text, b.remove_text = unicode(b.text()), _('&Remove word from user dictionaries')
+        self.add_button = b = QPushButton(_('Add to &dictionary:'))
+        b.add_text, b.remove_text = unicode(b.text()), _('Remove from &dictionaries')
+        b.add_tt = _('Add the current word to the specified user dictionary')
+        b.remove_tt = _('Remove the current word from all active user dictionaries')
         b.clicked.connect(self.add_remove)
         self.user_dictionaries = d = QComboBox(self)
         self.user_dictionaries_missing_label = la = QLabel(_(
@@ -587,10 +591,12 @@ class SpellCheck(Dialog):
 
         prefix = b.unign_text if ignored else b.ign_text
         b.setText(prefix + ' ' + current_word)
+        b.setToolTip(b.unign_tt if ignored else b.ign_tt)
         b.setEnabled(current.isValid() and (ignored or not recognized))
         if not self.user_dictionaries_missing_label.isVisible():
             b = self.add_button
             b.setText(b.remove_text if in_user_dictionary else b.add_text)
+            b.setToolTip(b.remove_tt if in_user_dictionary else b.add_tt)
             self.user_dictionaries.setVisible(not in_user_dictionary)
 
     def toggle_ignore(self):
