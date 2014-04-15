@@ -534,7 +534,7 @@ class SpellCheck(Dialog):
         l.addStrut(250)
         h.addLayout(l)
         l.addWidget(b), l.addSpacing(20)
-        self.add_button = b = QPushButton(_('&Add word to dictionary:'))
+        self.add_button = b = QPushButton(_('&Add word to user dictionary:'))
         b.add_text, b.remove_text = unicode(b.text()), _('&Remove word from user dictionaries')
         b.clicked.connect(self.add_remove)
         self.user_dictionaries = d = QComboBox(self)
