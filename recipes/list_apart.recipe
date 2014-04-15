@@ -1,7 +1,8 @@
-# vim:fileencoding=UTF-8
+# vim:fileencoding=utf-8
 from __future__ import unicode_literals
 from calibre.web.feeds.news import BasicNewsRecipe
 import re
+import urllib
 
 class AListApart (BasicNewsRecipe):
     __author__ = 'Marc Busqué <marc@lamarciana.com>'
@@ -17,7 +18,7 @@ class AListApart (BasicNewsRecipe):
     remove_empty_feeds = True
     encoding = 'utf8'
     cover_url = u'http://alistapart.com/pix/alalogo.gif'
-    extra_css = u'img {max-width: 100%; display: block; margin: auto;}'
+    extra_css = urllib.urlopen('https://raw.githubusercontent.com/laMarciana/gutenweb/master/dist/gutenweb.css').read().replace('@charset "UTF-8";', '')
 
     feeds = [
           (u'A List Apart', u'http://feeds.feedburner.com/alistapart/abridged'),
