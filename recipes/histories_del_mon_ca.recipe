@@ -1,0 +1,25 @@
+# vim:fileencoding=utf-8
+from __future__ import unicode_literals
+from calibre.web.feeds.news import BasicNewsRecipe
+import urllib
+
+class HistoriesDelMon (BasicNewsRecipe):
+    __author__ = 'Marc Busqué <marc@lamarciana.com>'
+    __url__ = 'http://www.lamarciana.com'
+    __version__ = '1.0.1'
+    __license__   = 'GPL v3'
+    __copyright__ = '2012, Marc Busqué <marc@lamarciana.com>'
+    title = u'Històries del Món'
+    description = u'Històries del Món explicades pel Marc Busqué'
+    url = 'http://www.marcbusque.org'
+    language = 'ca'
+    tags = 'viatges, social'
+    oldest_article = 120
+    remove_empty_feeds = True
+    no_stylesheets = True
+    cover_url = u'http://www.marcbusque.org/wp-content/uploads/2011/12/cuchitril.png'
+    extra_css = urllib.urlopen('https://raw.githubusercontent.com/laMarciana/gutenweb/master/dist/gutenweb.css').read().replace('@charset "UTF-8";', '')
+
+    feeds = [
+          (u'Històries del Món', u'http://www.marcbusque.org/ca/feed/'),
+          ]
