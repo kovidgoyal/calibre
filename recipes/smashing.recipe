@@ -1,12 +1,12 @@
-# vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 from calibre.web.feeds.news import BasicNewsRecipe
+import urllib
 
 class SmashingMagazine (BasicNewsRecipe):
-   __author__ = u'Marc Busqué <marc@lamarciana.com>'
+   __author__ = 'Marc Busqué <marc@lamarciana.com>'
    __url__ = 'http://www.lamarciana.com'
-   __version__ = '1.0.1'
+   __version__ = '1.0.2'
    __license__   = 'GPL v3'
-   __copyright__ = u'2012, Marc Busqué <marc@lamarciana.com>'
+   __copyright__ = '2012, Marc Busqué <marc@lamarciana.com>'
    title = u'Smashing Magazine'
    description = u'Founded in September 2006, Smashing Magazine delivers useful and innovative information to Web designers and developers. Our aim is to inform our readers about the latest trends and techniques in Web development. We try to persuade you not with the quantity but with the quality of the information we present. Smashing Magazine is and always has been independent.'
    language = 'en'
@@ -17,7 +17,7 @@ class SmashingMagazine (BasicNewsRecipe):
    encoding = 'utf8'
    cover_url = u'http://media.smashingmagazine.com/themes/smashingv4/images/logo.png'
    remove_attributes = ['border', 'cellspacing', 'align', 'cellpadding', 'colspan', 'valign', 'vspace', 'hspace', 'alt', 'width', 'height', 'style']
-   extra_css = u'body div table:first-child {display: none;} img {max-width: 100%; display: block; margin: auto;}'
+   extra_css = urllib.urlopen('https://raw.githubusercontent.com/laMarciana/gutenweb/master/dist/gutenweb.css').read().replace('@charset "UTF-8";', '')
 
    feeds = [
          (u'Smashing Magazine', u'http://rss1.smashingmagazine.com/feed/'),
