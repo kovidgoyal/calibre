@@ -1,30 +1,29 @@
-# vim:fileencoding=UTF-8
-from __future__ import unicode_literals
 from calibre.web.feeds.news import BasicNewsRecipe
 import re
+import urllib
 
 class AListApart (BasicNewsRecipe):
-    __author__ = 'Marc Busqué <marc@lamarciana.com>'
-    __url__ = 'http://www.lamarciana.com'
-    __version__ = '2.0.1'
-    __license__   = 'GPL v3'
-    __copyright__ = '2012, Marc Busqué <marc@lamarciana.com>'
-    title = u'A List Apart'
-    description = u'A List Apart Magazine (ISSN: 1534-0295) explores the design, development, and meaning of web content, with a special focus on web standards and best practices. This recipe retrieve articles and columns.'
-    language = 'en'
-    tags = 'web development, software'
-    oldest_article = 120
-    remove_empty_feeds = True
-    encoding = 'utf8'
-    cover_url = u'http://alistapart.com/pix/alalogo.gif'
-    extra_css = u'img {max-width: 100%; display: block; margin: auto;}'
+   __author__ = 'Marc Busqué <marc@lamarciana.com>'
+   __url__ = 'http://www.lamarciana.com'
+   __version__ = '2.0.1'
+   __license__   = 'GPL v3'
+   __copyright__ = '2012, Marc Busqué <marc@lamarciana.com>'
+   title = u'A List Apart'
+   description = u'A List Apart Magazine (ISSN: 1534-0295) explores the design, development, and meaning of web content, with a special focus on web standards and best practices. This recipe retrieve articles and columns.'
+   language = 'en'
+   tags = 'web development, software'
+   oldest_article = 120
+   remove_empty_feeds = True
+   encoding = 'utf8'
+   cover_url = u'http://alistapart.com/pix/alalogo.gif'
+   extra_css = urllib.urlopen('https://raw.githubusercontent.com/laMarciana/gutenweb/master/dist/gutenweb.css').read().replace('@charset "UTF-8";', '')
 
-    feeds = [
-          (u'A List Apart', u'http://feeds.feedburner.com/alistapart/abridged'),
-          ]
+   feeds = [
+         (u'A List Apart', u'http://feeds.feedburner.com/alistapart/abridged'),
+         ]
 
-    def image_url_processor(self, baseurl, url):
-        if re.findall('alistapart\.com', url):
-            return 'http:'+url
-        else:
-            return url
+   def image_url_processor(self, baseurl, url):
+     if re.findall('alistapart\.com', url):
+       return 'http:'+url 
+     else:
+       return url
