@@ -74,6 +74,7 @@ TOP = object()
 dictionaries = Dictionaries()
 
 def set_book_locale(lang):
+    dictionaries.initialize()
     try:
         dictionaries.default_locale = parse_lang_code(lang)
         if dictionaries.default_locale.langcode == 'und':

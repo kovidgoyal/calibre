@@ -9,6 +9,7 @@ __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 import cPickle, os, glob, shutil
 from collections import namedtuple
 from operator import attrgetter
+from itertools import chain
 
 from calibre.constants import plugins, config_dir
 from calibre.utils.config import JSONConfig
@@ -23,7 +24,21 @@ if hunspell is None:
 dprefs = JSONConfig('dictionaries/prefs.json')
 dprefs.defaults['preferred_dictionaries'] = {}
 dprefs.defaults['preferred_locales'] = {}
+dprefs.defaults['user_dictionaries'] = [{'name':_('Default'), 'is_active':True, 'words':[]}]
 not_present = object()
+
+class UserDictionary(object):
+
+    __slots__ = ('name', 'is_active', 'words')
+
+    def __init__(self, **kwargs):
+        self.name = kwargs['name']
+        self.is_active = kwargs['is_active']
+        self.words = {(w, langcode) for w, langcode in kwargs['words']}
+
+    def serialize(self):
+        return {'name':self.name, 'is_active': self.is_active, 'words':[
+            (w, l) for w, l in self.words]}
 
 ccodes, ccodemap, country_names = None, None, None
 def get_codes():
@@ -169,6 +184,10 @@ class Dictionaries(object):
             self.default_locale = parse_lang_code('en-US')
         self.ui_locale = self.default_locale
 
+    def initialize(self):
+        if not hasattr(self, 'active_user_dictionaries'):
+            self.read_user_dictionaries()
+
     def clear_caches(self):
         self.dictionaries.clear(), self.word_cache.clear()
 
@@ -185,37 +204,98 @@ class Dictionaries(object):
         return ans
 
     def ignore_word(self, word, locale):
-        self.ignored_words.add((word, locale))
+        self.ignored_words.add((word, locale.langcode))
         self.word_cache[(word, locale)] = True
 
     def unignore_word(self, word, locale):
-        self.ignored_words.discard((word, locale))
+        self.ignored_words.discard((word, locale.langcode))
         self.word_cache.pop((word, locale), None)
 
     def is_word_ignored(self, word, locale):
-        return (word, locale) in self.ignored_words
+        return (word, locale.langcode) in self.ignored_words
+
+    @property
+    def all_user_dictionaries(self):
+        return chain(self.active_user_dictionaries, self.inactive_user_dictionaries)
+
+    def user_dictionary(self, name):
+        for ud in self.all_user_dictionaries:
+            if ud.name == name:
+                return ud
+
+    def read_user_dictionaries(self):
+        self.active_user_dictionaries = []
+        self.inactive_user_dictionaries = []
+        for d in dprefs['user_dictionaries']:
+            d = UserDictionary(**d)
+            (self.active_user_dictionaries if d.is_active else self.inactive_user_dictionaries).append(d)
+
+    def save_user_dictionaries(self):
+        dprefs['user_dictionaries'] = [d.serialize() for d in self.all_user_dictionaries]
+
+    def add_to_user_dictionary(self, name, word, locale):
+        ud = self.user_dictionary(name)
+        if ud is None:
+            raise ValueError('Cannot add to the dictionary named: %s as no such dictionary exists' % name)
+        wl = len(ud.words)
+        ud.words.add((word, locale.langcode))
+        if len(ud.words) > wl:
+            self.save_user_dictionaries()
+            self.word_cache.pop((word, locale), None)
+            return True
+        return False
+
+    def remove_from_user_dictionaries(self, word, locale):
+        key = (word, locale.langcode)
+        changed = False
+        for ud in self.active_user_dictionaries:
+            if key in ud.words:
+                changed = True
+                ud.words.discard(key)
+        if changed:
+            self.word_cache.pop((word, locale), None)
+            self.save_user_dictionaries()
+        return changed
+
+    def word_in_user_dictionary(self, word, locale):
+        key = (word, locale.langcode)
+        for ud in self.active_user_dictionaries:
+            if key in ud.words:
+                return ud.name
+
+    def create_user_dictionary(self, name):
+        if name in {d.name for d in self.all_user_dictionaries}:
+            raise ValueError('A dictionary named %s already exists' % name)
+        d = UserDictionary(name=name, is_active=True, words=())
+        self.active_user_dictionaries.append(d)
+        self.save_user_dictionaries()
 
     def recognized(self, word, locale=None):
         locale = locale or self.default_locale
-        if not isinstance(locale, DictionaryLocale):
-            locale = parse_lang_code(locale)
         key = (word, locale)
         ans = self.word_cache.get(key, None)
         if ans is None:
+            lkey = (word, locale.langcode)
             ans = False
-            if key in self.ignored_words:
+            if lkey in self.ignored_words:
                 ans = True
             else:
-                d = self.dictionary_for_locale(locale)
-                if d is not None:
-                    try:
-                        ans = d.obj.recognized(word)
-                    except ValueError:
-                        pass
+                for ud in self.active_user_dictionaries:
+                    if lkey in ud.words:
+                        ans = True
+                        break
+                else:
+                    d = self.dictionary_for_locale(locale)
+                    if d is not None:
+                        try:
+                            ans = d.obj.recognized(word)
+                        except ValueError:
+                            pass
             self.word_cache[key] = ans
         return ans
 
 
 if __name__ == '__main__':
     dictionaries = Dictionaries()
-    print (dictionaries.recognized('recognized', 'en'))
+    dictionaries.initialize()
+    print (dictionaries.recognized('recognized', parse_lang_code('en')))

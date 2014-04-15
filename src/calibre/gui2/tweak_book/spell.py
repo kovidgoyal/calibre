@@ -14,7 +14,8 @@ from PyQt4.Qt import (
     QGridLayout, QApplication, QTreeWidget, QTreeWidgetItem, Qt, QFont, QSize,
     QStackedLayout, QLabel, QVBoxLayout, QVariant, QWidget, QPushButton, QIcon,
     QDialogButtonBox, QLineEdit, QDialog, QToolButton, QFormLayout, QHBoxLayout,
-    pyqtSignal, QAbstractTableModel, QModelIndex, QTimer, QTableView, QCheckBox)
+    pyqtSignal, QAbstractTableModel, QModelIndex, QTimer, QTableView, QCheckBox,
+    QComboBox)
 
 from calibre.constants import __appname__
 from calibre.gui2 import choose_files, error_dialog
@@ -416,6 +417,20 @@ class WordsModel(QAbstractTableModel):
             self.spell_map[w] = dictionaries.recognized(*w)
             self.update_word(w)
 
+    def add_word(self, row, udname):
+        w = self.word_for_row(row)
+        if w is not None:
+            if dictionaries.add_to_user_dictionary(udname, *w):
+                self.spell_map[w] = dictionaries.recognized(*w)
+                self.update_word(w)
+
+    def remove_word(self, row):
+        w = self.word_for_row(row)
+        if w is not None:
+            if dictionaries.remove_from_user_dictionaries(*w):
+                self.spell_map[w] = dictionaries.recognized(*w)
+                self.update_word(w)
+
     def update_word(self, w):
         should_be_filtered = not self.filter_item(w)
         row = self.row_for_word(w)
@@ -518,7 +533,20 @@ class SpellCheck(Dialog):
         l = QVBoxLayout()
         l.addStrut(250)
         h.addLayout(l)
-        l.addWidget(b)
+        l.addWidget(b), l.addSpacing(20)
+        self.add_button = b = QPushButton(_('&Add word to dictionary:'))
+        b.add_text, b.remove_text = unicode(b.text()), _('&Remove word from user dictionaries')
+        b.clicked.connect(self.add_remove)
+        self.user_dictionaries = d = QComboBox(self)
+        self.user_dictionaries_missing_label = la = QLabel(_(
+            'You have no active user dictionaries. You must'
+            ' choose at least one active user dictionary via'
+            ' Preferences->Editor->Manage spelling dictionaries'))
+        la.setWordWrap(True)
+        self.initialize_user_dictionaries()
+        d.setMinimumContentsLength(25)
+        l.addWidget(b), l.addWidget(d), l.addWidget(la)
+        l.addStretch(1)
 
         hh.setSectionHidden(3, m.show_only_misspelt)
         self.show_only_misspelled = om = QCheckBox(_('Show only misspelled words'))
@@ -528,8 +556,23 @@ class SpellCheck(Dialog):
         self.summary = s = QLabel('')
         self.main.l.addLayout(h), h.addWidget(s), h.addWidget(om), h.addStretch(10)
 
+    def initialize_user_dictionaries(self):
+        ct = unicode(self.user_dictionaries.currentText())
+        self.user_dictionaries.clear()
+        self.user_dictionaries.addItems([d.name for d in dictionaries.active_user_dictionaries])
+        if ct:
+            idx = self.user_dictionaries.findText(ct)
+            if idx > -1:
+                self.user_dictionaries.setCurrentIndex(idx)
+        self.user_dictionaries.setVisible(self.user_dictionaries.count() > 0)
+        self.user_dictionaries_missing_label.setVisible(not self.user_dictionaries.isVisible())
+
     def current_word_changed(self, *args):
-        ignored = recognized = False
+        try:
+            b = self.ignore_button
+        except AttributeError:
+            return
+        ignored = recognized = in_user_dictionary = False
         current = self.words_view.currentIndex()
         current_word = ''
         if current.isValid():
@@ -539,19 +582,30 @@ class SpellCheck(Dialog):
                 ignored = dictionaries.is_word_ignored(*w)
                 recognized = self.words_model.spell_map[w]
                 current_word = w[0]
+                if recognized:
+                    in_user_dictionary = dictionaries.word_in_user_dictionary(*w)
 
-        try:
-            b = self.ignore_button
-        except AttributeError:
-            return
         prefix = b.unign_text if ignored else b.ign_text
         b.setText(prefix + ' ' + current_word)
         b.setEnabled(current.isValid() and (ignored or not recognized))
+        if not self.user_dictionaries_missing_label.isVisible():
+            b = self.add_button
+            b.setText(b.remove_text if in_user_dictionary else b.add_text)
+            self.user_dictionaries.setVisible(not in_user_dictionary)
 
     def toggle_ignore(self):
         current = self.words_view.currentIndex()
         if current.isValid():
             self.words_model.toggle_ignored(current.row())
+
+    def add_remove(self):
+        current = self.words_view.currentIndex()
+        if current.isValid():
+            if self.user_dictionaries.isVisible():  # add
+                udname = unicode(self.user_dictionaries.currentText())
+                self.words_model.add_word(current.row(), udname)
+            else:
+                self.words_model.remove_word(current.row())
 
     def update_show_only_misspelt(self):
         m = self.words_model
@@ -630,6 +684,7 @@ class SpellCheck(Dialog):
             col, Qt.DescendingOrder if reverse else Qt.AscendingOrder)
         self.highlight_row(0)
         self.update_summary()
+        self.initialize_user_dictionaries()
 
     def update_summary(self):
         self.summary.setText(_('Misspelled words: {0} Total words: {1}').format(*self.words_model.counts))
