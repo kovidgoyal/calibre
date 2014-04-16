@@ -55,6 +55,12 @@ def read_color(parent, dest):
         ans = simple_color(val)
     setattr(dest, 'color', ans)
 
+def convert_highlight_color(val):
+    return {
+        'darkBlue': '#000080', 'darkCyan': '#008080', 'darkGray': '#808080',
+        'darkGreen': '#008000', 'darkMagenta': '#800080', 'darkRed': '#800000', 'darkYellow': '#808000',
+        'lightGray': '#c0c0c0'}.get(val, val)
+
 def read_highlight(parent, dest):
     ans = inherit
     for col in XPath('./w:highlight[@w:val]')(parent):
@@ -63,6 +69,8 @@ def read_highlight(parent, dest):
             continue
         if not val or val == 'none':
             val = 'transparent'
+        else:
+            val = convert_highlight_color(val)
         ans = val
     setattr(dest, 'highlight', ans)
 
