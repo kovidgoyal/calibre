@@ -230,6 +230,14 @@ class Dictionaries(object):
             d = UserDictionary(**d)
             (self.active_user_dictionaries if d.is_active else self.inactive_user_dictionaries).append(d)
 
+    def mark_user_dictionary_as_active(self, name, is_active=True):
+        d = self.user_dictionary(name)
+        if d is not None:
+            d.is_active = is_active
+            self.save_user_dictionaries()
+            return True
+        return False
+
     def save_user_dictionaries(self):
         dprefs['user_dictionaries'] = [d.serialize() for d in self.all_user_dictionaries]
 
@@ -255,6 +263,21 @@ class Dictionaries(object):
         if changed:
             self.word_cache.pop((word, locale), None)
             self.save_user_dictionaries()
+        return changed
+
+    def remove_from_user_dictionary(self, name, words):
+        changed = False
+        keys = [(w, l.langcode) for w, l in words]
+        for d in self.all_user_dictionaries:
+            if d.name == name:
+                for key in keys:
+                    if key in d.words:
+                        d.words.discard(key)
+                        changed = True
+        if changed:
+            for key in words:
+                self.word_cache.pop(key, None)
+                self.save_user_dictionaries()
         return changed
 
     def word_in_user_dictionary(self, word, locale):

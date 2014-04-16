@@ -15,10 +15,11 @@ from PyQt4.Qt import (
     QStackedLayout, QLabel, QVBoxLayout, QVariant, QWidget, QPushButton, QIcon,
     QDialogButtonBox, QLineEdit, QDialog, QToolButton, QFormLayout, QHBoxLayout,
     pyqtSignal, QAbstractTableModel, QModelIndex, QTimer, QTableView, QCheckBox,
-    QComboBox)
+    QComboBox, QListWidget, QListWidgetItem)
 
 from calibre.constants import __appname__
 from calibre.gui2 import choose_files, error_dialog
+from calibre.gui2.languages import LanguagesEdit
 from calibre.gui2.progress_indicator import ProgressIndicator
 from calibre.gui2.tweak_book import dictionaries, current_container, set_book_locale, tprefs
 from calibre.gui2.tweak_book.widgets import Dialog
@@ -26,7 +27,7 @@ from calibre.spell.dictionary import (
     builtin_dictionaries, custom_dictionaries, best_locale_for_language,
     get_dictionary, DictionaryLocale, dprefs, remove_dictionary, rename_dictionary)
 from calibre.spell.import_from import import_from_oxt
-from calibre.utils.localization import calibre_langcode_to_name
+from calibre.utils.localization import calibre_langcode_to_name, get_language, get_lang, canonicalize_lang
 from calibre.utils.icu import sort_key, primary_sort_key, primary_contains
 
 LANG = 0
@@ -116,6 +117,137 @@ class AddDictionary(QDialog):  # {{{
             return error_dialog(self, _('No dictionaries'), _(
                 'No dictionaries were found in %s') % oxt, show=True)
         QDialog.accept(self)
+# }}}
+
+class ManageUserDictionaries(Dialog):  # {{{
+
+    def __init__(self, parent=None):
+        self.dictionaries_changed = False
+        Dialog.__init__(self, _('Manage user dictionaries'), 'manage-user-dictionaries', parent=parent)
+
+    def setup_ui(self):
+        self.l = l = QVBoxLayout(self)
+        self.h = h = QHBoxLayout()
+        l.addLayout(h)
+        l.addWidget(self.bb)
+        self.bb.clear(), self.bb.addButton(self.bb.Close)
+
+        self.dictionaries = d = QListWidget(self)
+        self.emph_font = f = QFont(self.font())
+        f.setBold(True)
+        for dic in sorted(dictionaries.all_user_dictionaries, key=lambda d:sort_key(d.name)):
+            i = QListWidgetItem(dic.name, d)
+            i.setData(Qt.UserRole, dic)
+            if dic.is_active:
+                i.setData(Qt.FontRole, f)
+        if d.count() > 0:
+            d.setCurrentRow(0)
+        d.currentItemChanged.connect(self.show_current_dictionary)
+        h.addWidget(d)
+
+        l = QVBoxLayout()
+        h.addLayout(l)
+        self.dlabel = la = QLabel('')
+        l.addWidget(la)
+        self.is_active = a = QCheckBox(_('Mark this dictionary as active'))
+        self.is_active.stateChanged.connect(self.active_toggled)
+        l.addWidget(a)
+        self.la = la = QLabel(_('Words in this dictionary:'))
+        l.addWidget(la)
+        self.words = w = QListWidget(self)
+        w.setSelectionMode(w.ExtendedSelection)
+        l.addWidget(w)
+        self.add_word_button = b = QPushButton(_('&Add word'), self)
+        b.clicked.connect(self.add_word)
+        b.setIcon(QIcon(I('plus.png')))
+        l.h = h = QHBoxLayout()
+        l.addLayout(h)
+        h.addWidget(b)
+        self.remove_word_button = b = QPushButton(_('&Remove selected words'), self)
+        b.clicked.connect(self.remove_word)
+        b.setIcon(QIcon(I('minus.png')))
+        h.addWidget(b)
+
+        self.show_current_dictionary()
+
+    @property
+    def current_dictionary(self):
+        d = self.dictionaries.currentItem()
+        if d is None:
+            return
+        return d.data(Qt.UserRole).toPyObject()
+
+    def active_toggled(self):
+        d = self.current_dictionary
+        if d is not None:
+            dictionaries.mark_user_dictionary_as_active(d.name, self.is_active.isChecked())
+            self.dictionaries_changed = True
+            for item in (self.dictionaries.item(i) for i in xrange(self.dictionaries.count())):
+                d = item.data(Qt.UserRole).toPyObject()
+                item.setData(Qt.FontRole, self.emph_font if d.is_active else None)
+
+    def show_current_dictionary(self, *args):
+        d = self.current_dictionary
+        self.dlabel.setText(_('Configure the dictionary: <b>%s') % d.name)
+        self.is_active.blockSignals(True)
+        self.is_active.setChecked(d.is_active)
+        self.is_active.blockSignals(False)
+        self.words.clear()
+        for word, lang in sorted(d.words, key=lambda x:sort_key(x[0])):
+            i = QListWidgetItem('%s [%s]' % (word, get_language(lang)), self.words)
+            i.setData(Qt.UserRole, (word, lang))
+
+    def add_word(self):
+        d = QDialog(self)
+        d.l = l = QFormLayout(d)
+        d.setWindowTitle(_('Add a word'))
+        d.w = w = QLineEdit(d)
+        w.setPlaceholderText(_('Word to add'))
+        l.addRow(_('&Word:'), w)
+        d.loc = loc = LanguagesEdit(parent=d)
+        l.addRow(_('&Language:'), d.loc)
+        loc.lang_codes = [canonicalize_lang(get_lang())]
+        d.bb = bb = QDialogButtonBox(QDialogButtonBox.Ok|QDialogButtonBox.Cancel)
+        bb.accepted.connect(d.accept), bb.rejected.connect(d.reject)
+        l.addRow(bb)
+        if d.exec_() != d.Accepted:
+            return
+        word = unicode(w.text())
+        lang = (loc.lang_codes or [canonicalize_lang(get_lang())])[0]
+        if not word:
+            return
+        if (word, lang) not in self.current_dictionary.words:
+            dictionaries.add_to_user_dictionary(self.current_dictionary.name, word, DictionaryLocale(lang, None))
+            dictionaries.clear_caches()
+            self.show_current_dictionary()
+            self.dictionaries_changed = True
+        idx = self.find_word(word, lang)
+        if idx > -1:
+            self.words.scrollToItem(self.words.item(idx))
+
+    def remove_word(self):
+        words = {i.data(Qt.UserRole).toPyObject() for i in self.words.selectedItems()}
+        if words:
+            kwords = [(w, DictionaryLocale(l, None)) for w, l in words]
+            d = self.current_dictionary
+            if dictionaries.remove_from_user_dictionary(d.name, kwords):
+                dictionaries.clear_caches()
+                self.show_current_dictionary()
+                self.dictionaries_changed = True
+
+    def find_word(self, word, lang):
+        key = (word, lang)
+        for i in xrange(self.words.count()):
+            if self.words.item(i).data(Qt.UserRole).toPyObject() == key:
+                return i
+        return -1
+
+    @classmethod
+    def test(cls):
+        d = cls()
+        d.exec_()
+
+
 # }}}
 
 class ManageDictionaries(Dialog):  # {{{
@@ -724,5 +856,6 @@ class SpellCheck(Dialog):
 
 if __name__ == '__main__':
     app = QApplication([])
-    SpellCheck.test()
+    dictionaries.initialize()
+    ManageUserDictionaries.test()
     del app
