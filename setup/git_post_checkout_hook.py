@@ -18,6 +18,7 @@ if flags == '1':  # A branch checkout
 
     prev_branch, cur_branch = map(get_branch_name, (prev_rev, current_rev))
     is_qt5_transition = 'qt5' in (prev_branch, cur_branch)
+    print ('Transitioning from', prev_branch, 'to', cur_branch)
 
     if is_qt5_transition:
         # Remove compiled .ui files as they must be re-generated
@@ -27,11 +28,12 @@ if flags == '1':  # A branch checkout
                     os.remove(os.path.join(dirpath, f))
 
         # Rebuild PyQt extensions
-        for ext in ('progress_indicator',):
-            extdir = os.path.join('build', 'pyqt', ext)
-            if os.path.exists(extdir):
-                shutil.rmtree(extdir)
-            subprocess.check_call(['python', 'setup.py', 'build', '--only', ext])
+        if not os.path.exists('.git/rebase-merge'):  # Dont rebuild if we are rebasing
+            for ext in ('progress_indicator',):
+                extdir = os.path.join('build', 'pyqt', ext)
+                if os.path.exists(extdir):
+                    shutil.rmtree(extdir)
+                subprocess.check_call(['python', 'setup.py', 'build', '--only', ext])
 
     subprocess.check_call(['python', 'setup.py', 'gui', '--summary'])
 
