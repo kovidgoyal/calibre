@@ -226,7 +226,7 @@ class Dictionaries(object):
     def read_user_dictionaries(self):
         self.active_user_dictionaries = []
         self.inactive_user_dictionaries = []
-        for d in dprefs['user_dictionaries']:
+        for d in dprefs['user_dictionaries'] or dprefs.defaults['user_dictionaries']:
             d = UserDictionary(**d)
             (self.active_user_dictionaries if d.is_active else self.inactive_user_dictionaries).append(d)
 
@@ -292,6 +292,28 @@ class Dictionaries(object):
         d = UserDictionary(name=name, is_active=True, words=())
         self.active_user_dictionaries.append(d)
         self.save_user_dictionaries()
+
+    def remove_user_dictionary(self, name):
+        changed = False
+        for x in (self.active_user_dictionaries, self.inactive_user_dictionaries):
+            for d in tuple(x):
+                if d.name == name:
+                    x.remove(d)
+                    changed = True
+        if changed:
+            self.save_user_dictionaries()
+            self.clear_caches()
+        return changed
+
+    def rename_user_dictionary(self, name, new_name):
+        changed = False
+        for d in self.all_user_dictionaries:
+            if d.name == name:
+                d.name = new_name
+                changed = True
+        if changed:
+            self.save_user_dictionaries()
+        return changed
 
     def recognized(self, word, locale=None):
         locale = locale or self.default_locale

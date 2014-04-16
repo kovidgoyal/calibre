@@ -15,7 +15,7 @@ from PyQt4.Qt import (
     QStackedLayout, QLabel, QVBoxLayout, QVariant, QWidget, QPushButton, QIcon,
     QDialogButtonBox, QLineEdit, QDialog, QToolButton, QFormLayout, QHBoxLayout,
     pyqtSignal, QAbstractTableModel, QModelIndex, QTimer, QTableView, QCheckBox,
-    QComboBox, QListWidget, QListWidgetItem)
+    QComboBox, QListWidget, QListWidgetItem, QInputDialog)
 
 from calibre.constants import __appname__
 from calibre.gui2 import choose_files, error_dialog
@@ -131,24 +131,29 @@ class ManageUserDictionaries(Dialog):  # {{{
         l.addLayout(h)
         l.addWidget(self.bb)
         self.bb.clear(), self.bb.addButton(self.bb.Close)
+        b = self.bb.addButton(_('&New dictionary'), self.bb.ActionRole)
+        b.setIcon(QIcon(I('spell-check.png')))
+        b.clicked.connect(self.new_dictionary)
 
         self.dictionaries = d = QListWidget(self)
         self.emph_font = f = QFont(self.font())
         f.setBold(True)
-        for dic in sorted(dictionaries.all_user_dictionaries, key=lambda d:sort_key(d.name)):
-            i = QListWidgetItem(dic.name, d)
-            i.setData(Qt.UserRole, dic)
-            if dic.is_active:
-                i.setData(Qt.FontRole, f)
-        if d.count() > 0:
-            d.setCurrentRow(0)
+        self.build_dictionaries()
         d.currentItemChanged.connect(self.show_current_dictionary)
         h.addWidget(d)
 
         l = QVBoxLayout()
         h.addLayout(l)
+        h = QHBoxLayout()
+        self.remove_button = b = QPushButton(QIcon(I('trash.png')), _('&Remove dictionary'), self)
+        b.clicked.connect(self.remove_dictionary)
+        h.addWidget(b)
+        self.rename_button = b = QPushButton(QIcon(I('modified.png')), _('Re&name dictionary'), self)
+        b.clicked.connect(self.rename_dictionary)
+        h.addWidget(b)
         self.dlabel = la = QLabel('')
         l.addWidget(la)
+        l.addLayout(h)
         self.is_active = a = QCheckBox(_('Mark this dictionary as active'))
         self.is_active.stateChanged.connect(self.active_toggled)
         l.addWidget(a)
@@ -170,6 +175,61 @@ class ManageUserDictionaries(Dialog):  # {{{
 
         self.show_current_dictionary()
 
+    def sizeHint(self):
+        return Dialog.sizeHint(self) + QSize(30, 100)
+
+    def build_dictionaries(self, current=None):
+        self.dictionaries.clear()
+        for dic in sorted(dictionaries.all_user_dictionaries, key=lambda d:sort_key(d.name)):
+            i = QListWidgetItem(dic.name, self.dictionaries)
+            i.setData(Qt.UserRole, dic)
+            if dic.is_active:
+                i.setData(Qt.FontRole, self.emph_font)
+            if current == dic.name:
+                self.dictionaries.setCurrentItem(i)
+        if current is None and self.dictionaries.count() > 0:
+            self.dictionaries.setCurrentRow(0)
+
+    def new_dictionary(self):
+        name, ok = QInputDialog.getText(self, _('New dictionary'), _(
+            'Name of the new dictionary'))
+        if ok:
+            name = unicode(name)
+            if name in {d.name for d in dictionaries.all_user_dictionaries}:
+                return error_dialog(self, _('Already used'), _(
+                    'A dictionary with the name %s already exists') % name, show=True)
+            dictionaries.create_user_dictionary(name)
+            self.dictionaries_changed = True
+            self.build_dictionaries(name)
+            self.show_current_dictionary()
+
+    def remove_dictionary(self):
+        d = self.current_dictionary
+        if d is None:
+            return
+        if dictionaries.remove_user_dictionary(d.name):
+            self.build_dictionaries()
+            self.dictionaries_changed = True
+            self.show_current_dictionary()
+
+    def rename_dictionary(self):
+        d = self.current_dictionary
+        if d is None:
+            return
+        name, ok = QInputDialog.getText(self, _('New name'), _(
+            'New name for the dictionary'))
+        if ok:
+            name = unicode(name)
+            if name == d.name:
+                return
+            if name in {d.name for d in dictionaries.all_user_dictionaries}:
+                return error_dialog(self, _('Already used'), _(
+                    'A dictionary with the name %s already exists') % name, show=True)
+            if dictionaries.rename_user_dictionary(d.name, name):
+                self.build_dictionaries(name)
+                self.dictionaries_changed = True
+                self.show_current_dictionary()
+
     @property
     def current_dictionary(self):
         d = self.dictionaries.currentItem()
@@ -188,6 +248,8 @@ class ManageUserDictionaries(Dialog):  # {{{
 
     def show_current_dictionary(self, *args):
         d = self.current_dictionary
+        if d is None:
+            return
         self.dlabel.setText(_('Configure the dictionary: <b>%s') % d.name)
         self.is_active.blockSignals(True)
         self.is_active.setChecked(d.is_active)
@@ -296,10 +358,23 @@ class ManageDictionaries(Dialog):  # {{{
 
         self.bb.clear()
         self.bb.addButton(self.bb.Close)
+        b = self.bb.addButton(_('Manage &user dictionaries'), self.bb.ActionRole)
+        b.setIcon(QIcon(I('user_profile.png')))
+        b.setToolTip(_(
+            'Mange the list of user dictionaries (dictionaries to which you can add words)'))
+        b.clicked.connect(self.manage_user_dictionaries)
         b = self.bb.addButton(_('&Add dictionary'), self.bb.ActionRole)
+        b.setToolTip(_(
+            'Add a new dictionary that you downloaded from the internet'))
         b.setIcon(QIcon(I('plus.png')))
         b.clicked.connect(self.add_dictionary)
         l.addWidget(self.bb, l.rowCount(), 0, 1, l.columnCount())
+
+    def manage_user_dictionaries(self):
+        d = ManageUserDictionaries(self)
+        d.exec_()
+        if d.dictionaries_changed:
+            self.dictionaries_changed = True
 
     def data_changed(self, item, column):
         if column == 0 and item.type() == DICTIONARY:
@@ -857,5 +932,5 @@ class SpellCheck(Dialog):
 if __name__ == '__main__':
     app = QApplication([])
     dictionaries.initialize()
-    ManageUserDictionaries.test()
+    ManageDictionaries.test()
     del app
