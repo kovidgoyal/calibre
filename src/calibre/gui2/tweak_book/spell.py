@@ -300,6 +300,7 @@ class ManageDictionaries(Dialog):  # {{{
         d.exec_()
 # }}}
 
+# Spell Check Dialog {{{
 class WordsModel(QAbstractTableModel):
 
     def __init__(self, parent=None):
@@ -720,6 +721,7 @@ class SpellCheck(Dialog):
         QTimer.singleShot(0, d.refresh)
         d.exec_()
 # }}}
+
 if __name__ == '__main__':
     app = QApplication([])
     SpellCheck.test()
