@@ -98,7 +98,7 @@ def custom_dictionaries(reread=False):
     return _custom
 
 default_en_locale = 'en-US'
-ul = parse_lang_code(get_system_locale())
+ul = parse_lang_code(get_system_locale() or 'en-US')
 if ul is not None and ul.langcode == 'eng' and ul.countrycode in 'GB BS BZ GH IE IN JM NZ TT'.split():
     default_en_locale = 'en-' + ul.countrycode
 default_preferred_locales = {'eng':default_en_locale, 'deu':'de-DE', 'spa':'es-ES', 'fra':'fr-FR'}
