@@ -905,6 +905,12 @@ class Boss(QObject):
         c.parent().raise_()
         c.run_checks(current_container())
 
+    def spell_check_requested(self):
+        if current_container() is None:
+            return
+        self.commit_all_editors_to_container()
+        self.gui.spell_check.show()
+
     @in_thread_job
     def fix_requested(self, errors):
         self.add_savepoint(_('Before: Auto-fix errors'))

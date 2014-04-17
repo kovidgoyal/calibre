@@ -675,6 +675,7 @@ class SpellCheck(Dialog):
         self.__current_word = None
         self.thread = None
         self.cancel = False
+        dictionaries.initialize()
         Dialog.__init__(self, _('Check spelling'), 'spell-check', parent)
         self.work_finished.connect(self.work_done, type=Qt.QueuedConnection)
         self.setAttribute(Qt.WA_DeleteOnClose, False)
@@ -818,7 +819,6 @@ class SpellCheck(Dialog):
                 if i == 0:
                     self.suggested_list.setCurrentItem(item)
                     self.suggested_word.setText(s)
-            self.change_button.setFocus(Qt.OtherFocusReason)
 
         prefix = b.unign_text if ignored else b.ign_text
         b.setText(prefix + ' ' + current_word)

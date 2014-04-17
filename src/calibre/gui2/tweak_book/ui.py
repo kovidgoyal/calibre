@@ -29,6 +29,7 @@ from calibre.gui2.tweak_book.undo import CheckpointView
 from calibre.gui2.tweak_book.preview import Preview
 from calibre.gui2.tweak_book.search import SearchPanel
 from calibre.gui2.tweak_book.check import Check
+from calibre.gui2.tweak_book.spell import SpellCheck
 from calibre.gui2.tweak_book.search import SavedSearches
 from calibre.gui2.tweak_book.toc import TOCViewer
 from calibre.gui2.tweak_book.char_select import CharSelect
@@ -221,6 +222,7 @@ class Main(MainWindow):
         self.central = Central(self)
         self.setCentralWidget(self.central)
         self.check_book = Check(self)
+        self.spell_check = SpellCheck(parent=self)
         self.toc_view = TOCViewer(self)
         self.saved_searches = SavedSearches(self)
         self.image_browser = InsertImage(self, for_browsing=True)
@@ -400,6 +402,8 @@ class Main(MainWindow):
         # Check Book actions
         group = _('Check Book')
         self.action_check_book = reg('debug.png', _('&Check Book'), self.boss.check_requested, 'check-book', ('F7'), _('Check book for errors'))
+        self.action_spell_check_book = reg('spell-check.png', _('Check &spelling'), self.boss.spell_check_requested, 'spell-check-book', ('Alt+F7'), _(
+            'Check book for spelling errors'))
         self.action_check_book_next = reg('forward.png', _('&Next error'), partial(
             self.check_book.next_error, delta=1), 'check-book-next', ('Ctrl+F7'), _('Show next error'))
         self.action_check_book_previous = reg('back.png', _('&Previous error'), partial(
@@ -478,6 +482,7 @@ class Main(MainWindow):
         e.addAction(self.action_pretty_all)
         e.addAction(self.action_rationalize_folders)
         e.addAction(self.action_set_semantics)
+        e.addAction(self.action_spell_check_book)
         e.addAction(self.action_check_book)
 
         e = b.addMenu(_('&View'))
@@ -536,7 +541,7 @@ class Main(MainWindow):
             return b
 
         a = create(_('Book tool bar'), 'global').addAction
-        for x in ('new_file', 'open_book', None, 'global_undo', 'global_redo', 'create_checkpoint', 'save', None, 'toc', 'check_book'):
+        for x in ('new_file', 'open_book', None, 'global_undo', 'global_redo', 'create_checkpoint', 'save', None, 'toc', 'check_book', 'spell_check_book'):
             if x is None:
                 self.global_bar.addSeparator()
                 continue
