@@ -18,6 +18,7 @@ from PyQt4.Qt import (
     QComboBox, QListWidget, QListWidgetItem, QInputDialog)
 
 from calibre.constants import __appname__, plugins
+from calibre.ebooks.oeb.polish.spell import replace_word, get_all_words, merge_locations
 from calibre.gui2 import choose_files, error_dialog
 from calibre.gui2.complete2 import LineEdit
 from calibre.gui2.languages import LanguagesEdit
@@ -640,6 +641,25 @@ class WordsModel(QAbstractTableModel):
                 self.spell_map[w] = dictionaries.recognized(*w)
                 self.update_word(w)
 
+    def replace_word(self, w, new_word):
+        if w[0] == new_word:
+            return w
+        new_key = (new_word, w[1])
+        if new_key in self.words:
+            self.words[new_key] = merge_locations(self.words[new_key], self.words[w])
+            row = self.row_for_word(w)
+            self.dataChanged.emit(self.index(row, 1), self.index(row, 1))
+        else:
+            self.words[new_key] = self.words[w]
+            self.spell_map[new_key] = dictionaries.recognized(*new_key)
+            self.update_word(new_key)
+        row = self.row_for_word(w)
+        if row > -1:
+            self.beginRemoveRows(QModelIndex(), row, row)
+            del self.items[row]
+            self.endRemoveRows()
+        return new_key
+
     def update_word(self, w):
         should_be_filtered = not self.filter_item(w)
         row = self.row_for_word(w)
@@ -672,6 +692,7 @@ class SpellCheck(Dialog):
     work_finished = pyqtSignal(object, object)
     find_word = pyqtSignal(object, object)
     refresh_requested = pyqtSignal()
+    word_replaced = pyqtSignal(object)
 
     def __init__(self, parent=None):
         self.__current_word = None
@@ -855,7 +876,21 @@ class SpellCheck(Dialog):
             pass  # item is None
 
     def change_word(self):
-        pass
+        current = self.words_view.currentIndex()
+        if not current.isValid():
+            return
+        row = current.row()
+        w = self.words_model.word_for_row(row)
+        if w is None:
+            return
+        new_word = unicode(self.suggested_word.text())
+        changed_files = replace_word(current_container(), new_word, self.words_model.words[w], w[1])
+        if changed_files:
+            self.word_replaced.emit(changed_files)
+            w = self.words_model.replace_word(w, new_word)
+            row = self.words_model.row_for_word(w)
+            if row > -1:
+                self.highlight_row(row)
 
     def toggle_ignore(self):
         current = self.words_view.currentIndex()
@@ -914,8 +949,6 @@ class SpellCheck(Dialog):
         self.thread.start()
 
     def get_words(self):
-        from calibre.ebooks.oeb.polish.spell import get_all_words
-
         try:
             words = get_all_words(current_container(), dictionaries.default_locale)
             spell_map = {w:dictionaries.recognized(*w) for w in words}

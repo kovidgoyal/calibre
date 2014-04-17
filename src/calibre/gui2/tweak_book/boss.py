@@ -113,6 +113,7 @@ class Boss(QObject):
         self.gui.central.search_panel.show_saved_searches.connect(self.show_saved_searches)
         self.gui.spell_check.find_word.connect(self.find_word)
         self.gui.spell_check.refresh_requested.connect(self.commit_all_editors_to_container)
+        self.gui.spell_check.word_replaced.connect(self.word_replaced)
 
     def preferences(self):
         p = Preferences(self.gui)
@@ -708,6 +709,10 @@ class Boss(QObject):
                 name = n
                 break
         find_next_word(word, locations, ed, name, self.gui, self.show_editor, self.edit_file)
+
+    def word_replaced(self, changed_names):
+        self.set_modified()
+        self.update_editors_from_container(names=set(changed_names))
 
     def saved_searches(self):
         self.gui.saved_searches.show(), self.gui.saved_searches.raise_()
