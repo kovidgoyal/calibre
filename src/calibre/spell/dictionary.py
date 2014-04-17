@@ -339,6 +339,15 @@ class Dictionaries(object):
             self.word_cache[key] = ans
         return ans
 
+    def suggestions(self, word, locale=None):
+        locale = locale or self.default_locale
+        d = self.dictionary_for_locale(locale)
+        if d is not None:
+            try:
+                return d.obj.suggest(unicode(word))
+            except ValueError:
+                pass
+        return ()
 
 if __name__ == '__main__':
     dictionaries = Dictionaries()

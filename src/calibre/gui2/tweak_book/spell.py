@@ -17,8 +17,9 @@ from PyQt4.Qt import (
     pyqtSignal, QAbstractTableModel, QModelIndex, QTimer, QTableView, QCheckBox,
     QComboBox, QListWidget, QListWidgetItem, QInputDialog)
 
-from calibre.constants import __appname__
+from calibre.constants import __appname__, plugins
 from calibre.gui2 import choose_files, error_dialog
+from calibre.gui2.complete2 import LineEdit
 from calibre.gui2.languages import LanguagesEdit
 from calibre.gui2.progress_indicator import ProgressIndicator
 from calibre.gui2.tweak_book import dictionaries, current_container, set_book_locale, tprefs
@@ -741,8 +742,8 @@ class SpellCheck(Dialog):
         b.unign_tt = _('Stop ignoring the current word')
         b.clicked.connect(self.toggle_ignore)
         l = QVBoxLayout()
-        l.addStrut(250)
         h.addLayout(l)
+        h.setStretch(0, 1)
         l.addWidget(b), l.addSpacing(20)
         self.add_button = b = QPushButton(_('Add to &dictionary:'))
         b.add_text, b.remove_text = unicode(b.text()), _('Remove from &dictionaries')
@@ -759,6 +760,20 @@ class SpellCheck(Dialog):
         d.setMinimumContentsLength(25)
         l.addWidget(b), l.addWidget(d), l.addWidget(la)
         l.addStretch(1)
+
+        self.change_button = b = QPushButton(_('&Change selected word to:'), self)
+        b.clicked.connect(self.change_word)
+        l.addWidget(b)
+        self.suggested_word = sw = LineEdit(self)
+        sw.set_separator(None)
+        sw.setPlaceholderText(_('The replacement word'))
+        l.addWidget(sw)
+        self.suggested_list = sl = QListWidget(self)
+        sl.currentItemChanged.connect(self.current_suggestion_changed)
+        sl.itemActivated.connect(self.change_word)
+        pi = plugins['progress_indicator'][0]
+        pi.set_no_activate_on_click(sl)
+        l.addWidget(sl)
 
         hh.setSectionHidden(3, m.show_only_misspelt)
         self.show_only_misspelled = om = QCheckBox(_('Show only misspelled words'))
@@ -796,6 +811,14 @@ class SpellCheck(Dialog):
                 current_word = w[0]
                 if recognized:
                     in_user_dictionary = dictionaries.word_in_user_dictionary(*w)
+            suggestions = dictionaries.suggestions(*w)
+            self.suggested_list.clear()
+            for i, s in enumerate(suggestions):
+                item = QListWidgetItem(s, self.suggested_list)
+                if i == 0:
+                    self.suggested_list.setCurrentItem(item)
+                    self.suggested_word.setText(s)
+            self.change_button.setFocus(Qt.OtherFocusReason)
 
         prefix = b.unign_text if ignored else b.ign_text
         b.setText(prefix + ' ' + current_word)
@@ -806,6 +829,15 @@ class SpellCheck(Dialog):
             b.setText(b.remove_text if in_user_dictionary else b.add_text)
             b.setToolTip(b.remove_tt if in_user_dictionary else b.add_tt)
             self.user_dictionaries.setVisible(not in_user_dictionary)
+
+    def current_suggestion_changed(self, item):
+        try:
+            self.suggested_word.setText(item.text())
+        except AttributeError:
+            pass  # item is None
+
+    def change_word(self):
+        pass
 
     def toggle_ignore(self):
         current = self.words_view.currentIndex()
@@ -932,5 +964,5 @@ class SpellCheck(Dialog):
 if __name__ == '__main__':
     app = QApplication([])
     dictionaries.initialize()
-    ManageDictionaries.test()
+    SpellCheck.test()
     del app
