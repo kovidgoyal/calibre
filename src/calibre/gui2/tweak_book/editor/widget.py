@@ -189,6 +189,9 @@ class Editor(QMainWindow):
     def find(self, *args, **kwargs):
         return self.editor.find(*args, **kwargs)
 
+    def find_word_in_line(self, *args, **kwargs):
+        return self.editor.find_word_in_line(*args, **kwargs)
+
     def replace(self, *args, **kwargs):
         return self.editor.replace(*args, **kwargs)
 

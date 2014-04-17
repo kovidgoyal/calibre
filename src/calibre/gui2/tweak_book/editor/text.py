@@ -25,7 +25,8 @@ from calibre.gui2.tweak_book.editor.syntax.html import HTMLHighlighter, XMLHighl
 from calibre.gui2.tweak_book.editor.syntax.css import CSSHighlighter
 from calibre.gui2.tweak_book.editor.smart import NullSmarts
 from calibre.gui2.tweak_book.editor.smart.html import HTMLSmarts
-from calibre.utils.icu import safe_chr
+from calibre.spell.break_iterator import index_of
+from calibre.utils.icu import safe_chr, string_length
 
 PARAGRAPH_SEPARATOR = '\u2029'
 entity_pat = re.compile(r'&(#{0,1}[a-zA-Z0-9]{1,8});')
@@ -375,6 +376,29 @@ class TextEdit(PlainTextEdit):
         self.centerCursor()
         if save_match is not None:
             self.saved_matches[save_match] = (pat, m)
+        return True
+
+    def find_word_in_line(self, word, lang, lnum, from_cursor=True):
+        c = self.textCursor()
+        c.setPosition(c.position())
+        if not from_cursor or c.blockNumber() != lnum - 1:
+            lnum = max(1, min(self.blockCount(), lnum))
+            c.movePosition(c.Start)
+            c.movePosition(c.NextBlock, n=lnum - 1)
+            c.movePosition(c.StartOfLine)
+            c.movePosition(c.EndOfBlock, c.KeepAnchor)
+            offset = c.block().position()
+        else:
+            offset = c.block().position() + c.positionInBlock()
+            c.movePosition(c.EndOfBlock, c.KeepAnchor)
+        text = unicode(c.selectedText()).rstrip('\0')
+        idx = index_of(word, text, lang=lang)
+        if idx == -1:
+            return False
+        c.setPosition(offset + idx)
+        c.setPosition(c.position() + string_length(word), c.KeepAnchor)
+        self.setTextCursor(c)
+        self.centerCursor()
         return True
 
     def replace(self, pat, template, saved_match='gui'):

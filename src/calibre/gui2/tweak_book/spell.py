@@ -7,7 +7,7 @@ __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import cPickle, os, sys
-from collections import defaultdict
+from collections import defaultdict, OrderedDict
 from threading import Thread
 
 from PyQt4.Qt import (
@@ -22,7 +22,7 @@ from calibre.gui2 import choose_files, error_dialog
 from calibre.gui2.complete2 import LineEdit
 from calibre.gui2.languages import LanguagesEdit
 from calibre.gui2.progress_indicator import ProgressIndicator
-from calibre.gui2.tweak_book import dictionaries, current_container, set_book_locale, tprefs
+from calibre.gui2.tweak_book import dictionaries, current_container, set_book_locale, tprefs, editors
 from calibre.gui2.tweak_book.widgets import Dialog
 from calibre.spell.dictionary import (
     builtin_dictionaries, custom_dictionaries, best_locale_for_language,
@@ -670,6 +670,7 @@ class WordsModel(QAbstractTableModel):
 class SpellCheck(Dialog):
 
     work_finished = pyqtSignal(object, object)
+    find_word = pyqtSignal(object, object)
 
     def __init__(self, parent=None):
         self.__current_word = None
@@ -681,6 +682,7 @@ class SpellCheck(Dialog):
         self.setAttribute(Qt.WA_DeleteOnClose, False)
 
     def setup_ui(self):
+        set_no_activate_on_click = plugins['progress_indicator'][0].set_no_activate_on_click
         self.setWindowIcon(QIcon(I('spell-check.png')))
         self.l = l = QVBoxLayout(self)
         self.setLayout(l)
@@ -720,6 +722,8 @@ class SpellCheck(Dialog):
         m.h2 = h = QHBoxLayout()
         l.addLayout(h)
         self.words_view = w = QTableView(m)
+        set_no_activate_on_click(w)
+        w.activated.connect(self.word_activated)
         w.currentChanged = self.current_word_changed
         state = tprefs.get('spell-check-table-state', None)
         hh = self.words_view.horizontalHeader()
@@ -760,6 +764,11 @@ class SpellCheck(Dialog):
         self.initialize_user_dictionaries()
         d.setMinimumContentsLength(25)
         l.addWidget(b), l.addWidget(d), l.addWidget(la)
+        self.next_occurrence = b = QPushButton(_('Show &next occurrence'), self)
+        b.setToolTip('<p>' + _(
+            'Show the next occurrence of the selected word in the editor, so you can edit it manually'))
+        b.clicked.connect(self.show_next_occurrence)
+        l.addSpacing(20), l.addWidget(b)
         l.addStretch(1)
 
         self.change_button = b = QPushButton(_('&Change selected word to:'), self)
@@ -772,8 +781,7 @@ class SpellCheck(Dialog):
         self.suggested_list = sl = QListWidget(self)
         sl.currentItemChanged.connect(self.current_suggestion_changed)
         sl.itemActivated.connect(self.change_word)
-        pi = plugins['progress_indicator'][0]
-        pi.set_no_activate_on_click(sl)
+        set_no_activate_on_click(sl)
         l.addWidget(sl)
 
         hh.setSectionHidden(3, m.show_only_misspelt)
@@ -783,6 +791,15 @@ class SpellCheck(Dialog):
         self.hb = h = QHBoxLayout()
         self.summary = s = QLabel('')
         self.main.l.addLayout(h), h.addWidget(s), h.addWidget(om), h.addStretch(10)
+
+    def show_next_occurrence(self):
+        self.word_activated(self.words_view.currentIndex())
+
+    def word_activated(self, index):
+        w = self.words_model.word_for_row(index.row())
+        if w is None:
+            return
+        self.find_word.emit(w, self.words_model.words[w])
 
     def initialize_user_dictionaries(self):
         ct = unicode(self.user_dictionaries.currentText())
@@ -960,6 +977,42 @@ class SpellCheck(Dialog):
         QTimer.singleShot(0, d.refresh)
         d.exec_()
 # }}}
+
+def find_next(word, locations, current_editor, current_editor_name,
+              gui_parent, show_editor, edit_file):
+    files = OrderedDict()
+    for l in locations:
+        try:
+            files[l.file_name].append(l)
+        except KeyError:
+            files[l.file_name] = [l]
+    start_locations = set()
+
+    if current_editor_name not in files:
+        current_editor = current_editor_name = None
+    else:
+        # Re-order the list of locations to search so that we search int he
+        # current editor first
+        lfiles = list(files)
+        idx = lfiles.index(current_editor_name)
+        before, after = lfiles[:idx], lfiles[idx+1:]
+        lfiles = after + before + [current_editor_name]
+        lnum = current_editor.current_line
+        start_locations = [l for l in files[current_editor_name] if l.sourceline >= lnum]
+        locations = list(start_locations)
+        for fname in lfiles:
+            locations.extend(files[fname])
+        start_locations = set(start_locations)
+
+    for location in locations:
+        ed = editors.get(location.file_name, None)
+        if ed is None:
+            edit_file(location.file_name)
+            ed = editors[location.file_name]
+        if ed.find_word_in_line(location.original_word, word[1].langcode, location.sourceline, from_cursor=location in start_locations):
+            show_editor(location.file_name)
+            return True
+    return False
 
 if __name__ == '__main__':
     app = QApplication([])

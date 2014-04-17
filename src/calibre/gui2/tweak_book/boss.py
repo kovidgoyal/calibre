@@ -38,6 +38,7 @@ from calibre.gui2.tweak_book.editor import editor_from_syntax, syntax_from_mime
 from calibre.gui2.tweak_book.editor.insert_resource import get_resource_data, NewBook
 from calibre.gui2.tweak_book.preferences import Preferences
 from calibre.gui2.tweak_book.search import validate_search_request, run_search
+from calibre.gui2.tweak_book.spell import find_next as find_next_word
 from calibre.gui2.tweak_book.widgets import (
     RationalizeFolders, MultiSplit, ImportForeign, QuickOpen, InsertLink,
     InsertSemantics, BusyCursor, InsertTag)
@@ -110,6 +111,7 @@ class Boss(QObject):
         self.gui.saved_searches.run_saved_searches.connect(self.run_saved_searches)
         self.gui.central.search_panel.save_search.connect(self.save_search)
         self.gui.central.search_panel.show_saved_searches.connect(self.show_saved_searches)
+        self.gui.spell_check.find_word.connect(self.find_word)
 
     def preferences(self):
         p = Preferences(self.gui)
@@ -696,6 +698,16 @@ class Boss(QObject):
         run_search(state, action, ed, name, searchable_names,
                    self.gui, self.show_editor, self.edit_file, self.show_current_diff, self.add_savepoint, self.rewind_savepoint, self.set_modified)
 
+    def find_word(self, word, locations):
+        ' Go to a word from the spell check dialog '
+        ed = self.gui.central.current_editor
+        name = None
+        for n, x in editors.iteritems():
+            if x is ed:
+                name = n
+                break
+        find_next_word(word, locations, ed, name, self.gui, self.show_editor, self.edit_file)
+
     def saved_searches(self):
         self.gui.saved_searches.show(), self.gui.saved_searches.raise_()
 
@@ -1002,9 +1014,10 @@ class Boss(QObject):
         editor.modification_state_changed.connect(self.editor_modification_state_changed)
         self.gui.central.add_editor(name, editor)
 
-    def edit_file(self, name, syntax, use_template=None):
+    def edit_file(self, name, syntax=None, use_template=None):
         editor = editors.get(name, None)
         if editor is None:
+            syntax = syntax or syntax_from_mime(name, guess_type(name))
             if use_template is None:
                 data = current_container().raw_data(name)
                 if isbytestring(data) and syntax in {'html', 'css', 'text', 'xml'}:
