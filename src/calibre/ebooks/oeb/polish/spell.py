@@ -86,7 +86,7 @@ _opf_file_as = '{%s}file-as' % OPF_NAMESPACES['opf']
 def read_words_from_opf(root, words, file_name, book_locale):
     for tag in root.xpath('//*[namespace-uri()="%s"]' % OPF_NAMESPACES['dc']):
         tagname = barename(tag.tag)
-        if not tag.text or tagname in {'identifier', 'language'}:
+        if not tag.text or tagname in {'identifier', 'language', 'date'}:
             continue
         add_words_from_text(tag, 'text', words, file_name, book_locale)
         add_words_from_attr(tag, _opf_file_as, words, file_name, book_locale)
