@@ -120,6 +120,7 @@ class Boss(QObject):
         if p.exec_() == p.Accepted:
             if p.dictionaries_changed:
                 dictionaries.clear_caches()
+                dictionaries.initialize(force=True)  # Reread user dictionaries
             for ed in editors.itervalues():
                 ed.apply_settings(dictionaries_changed=p.dictionaries_changed)
             setup_cssutils_serialization()

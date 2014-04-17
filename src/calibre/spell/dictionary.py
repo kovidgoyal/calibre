@@ -184,8 +184,8 @@ class Dictionaries(object):
             self.default_locale = parse_lang_code('en-US')
         self.ui_locale = self.default_locale
 
-    def initialize(self):
-        if not hasattr(self, 'active_user_dictionaries'):
+    def initialize(self, force=False):
+        if force or not hasattr(self, 'active_user_dictionaries'):
             self.read_user_dictionaries()
 
     def clear_caches(self):
