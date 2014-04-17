@@ -671,6 +671,7 @@ class SpellCheck(Dialog):
 
     work_finished = pyqtSignal(object, object)
     find_word = pyqtSignal(object, object)
+    refresh_requested = pyqtSignal()
 
     def __init__(self, parent=None):
         self.__current_word = None
@@ -906,6 +907,7 @@ class SpellCheck(Dialog):
             self.thread.join()
         self.stack.setCurrentIndex(0)
         self.progress_indicator.startAnimation()
+        self.refresh_requested.emit()
         self.thread = Thread(target=self.get_words)
         self.thread.daemon = True
         self.cancel = False

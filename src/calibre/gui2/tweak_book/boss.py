@@ -112,6 +112,7 @@ class Boss(QObject):
         self.gui.central.search_panel.save_search.connect(self.save_search)
         self.gui.central.search_panel.show_saved_searches.connect(self.show_saved_searches)
         self.gui.spell_check.find_word.connect(self.find_word)
+        self.gui.spell_check.refresh_requested.connect(self.commit_all_editors_to_container)
 
     def preferences(self):
         p = Preferences(self.gui)
