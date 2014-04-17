@@ -132,6 +132,8 @@ class TestICU(unittest.TestCase):
         ' Test roundtripping '
         for r in (u'xxx\0\u2219\U0001f431xxx', u'\0', u'', u'simple'):
             self.ae(r, icu._icu.roundtrip(r))
+        for x, l in [('', 0), ('a', 1), ('\U0001f431', 1)]:
+            self.ae(icu._icu.string_length(x), l)
 
     def test_character_name(self):
         ' Test character naming '

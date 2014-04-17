@@ -975,6 +975,25 @@ icu_break_iterator_locales(PyObject *self, PyObject *args) {
     return ret;
 } // }}}
 
+// string_length {{{
+static PyObject *
+icu_string_length(PyObject *self, PyObject *args) {
+#if PY_VERSION_HEX >= 0x03030000 
+#error Not implemented for python >= 3.3
+#endif
+
+    int32_t sz = 0;
+    UChar *icu = NULL;
+    PyObject *src = NULL;
+  
+    if (!PyArg_ParseTuple(args, "O", &src)) return NULL;
+    icu = python_to_icu(src, &sz, 1);
+    if (icu == NULL) return NULL;
+    sz = u_countChar32(icu, sz);
+    free(icu);
+    return Py_BuildValue("i", sz);
+} // }}}
+
 // Module initialization {{{
 static PyMethodDef icu_methods[] = {
     {"change_case", icu_change_case, METH_VARARGS,
@@ -1015,6 +1034,10 @@ static PyMethodDef icu_methods[] = {
 
     {"available_locales_for_break_iterator", icu_break_iterator_locales, METH_VARARGS, 
      "available_locales_for_break_iterator() -> Return tuple of all available locales for the BreakIterator"
+    },
+
+    {"string_length", icu_string_length, METH_VARARGS, 
+     "string_length(string) -> Return the length of a string (number of unicode code points in the string). Useful on anrrow python builds where len() returns an incorrect answer if the string contains surrogate pairs."
     },
 
     {NULL}  /* Sentinel */
