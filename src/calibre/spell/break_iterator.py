@@ -14,8 +14,6 @@ from calibre.utils.localization import lang_as_iso639_1
 _iterators = {}
 _lock = Lock()
 
-has_break_iterator = hasattr(_icu, 'BreakIterator')
-
 def split_into_words(text, lang='en'):
     with _lock:
         it = _iterators.get(lang, None)

@@ -9,7 +9,7 @@ __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 import sys
 from collections import defaultdict
 
-from calibre.spell.break_iterator import has_break_iterator, split_into_words
+from calibre.spell.break_iterator import split_into_words
 from calibre.spell.dictionary import parse_lang_code
 from calibre.ebooks.oeb.base import barename
 from calibre.ebooks.oeb.polish.container import OPF_NAMESPACES, get_container
@@ -56,17 +56,12 @@ def filter_words(word):
         return False
     return True
 
-if has_break_iterator:
-    def get_words(text, lang):
-        try:
-            ans = split_into_words(unicode(text), lang)
-        except (TypeError, ValueError):
-            return ()
-        return filter(filter_words, ans)
-else:
-    def get_words(text, lang):
-        p = patterns()
-        return filter(filter_words, p.split_pat.split(text))
+def get_words(text, lang):
+    try:
+        ans = split_into_words(unicode(text), lang)
+    except (TypeError, ValueError):
+        return ()
+    return filter(filter_words, ans)
 
 def add_words(text, sourceline, words, file_name, locale):
     candidates = get_words(text, locale.langcode)
