@@ -1,4 +1,4 @@
-#!usr/bin/env python
+#!/usr/bin/env python
 
 __license__ = 'GPL v3'
 __copyright__ = 'MrStefan, teepel'
@@ -23,7 +23,7 @@ class mojegotowanie(BasicNewsRecipe):
     no_stylesheets=True
 
     keep_only_tags =[]
-    keep_only_tags.append(dict(name = 'div', attrs = {'class' : 'content'}))
+    keep_only_tags.append(dict(name='div', attrs={'class' : 'content'}))
 
     feeds = [(u'Artykuły', u'http://mojegotowanie.pl/rss/feed/artykuly'),
                  (u'Przepisy', u'http://mojegotowanie.pl/rss/feed/przepisy')]
