@@ -491,6 +491,58 @@ You can right click to edit the Table of Contents, refresh the view or
 expand/collapse all items. Access this view via :guilabel:`Views->Table of
 Contents`.
 
+Checking the spelling of words in the book
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+You can run a spelling checker via :guilabel:`Tools->Check spelling`. 
+
+.. image:: images/edit-book-spell.png
+    :alt: The Check Spelling tool
+    :align: center
+    :class: fit-img
+
+Words are shown with the number of times they occur in the book and the
+language the word belongs to. Language information is taken from the books
+metadata and from ``lang`` attributes in the HTML files. This allows the spell
+checker to work well even with books that contain text in multiple languages.
+
+.. note::
+    You can double click a word to highlight the next occurrence of that word
+    in the editor. This is useful if you wish to manually edit the word, or see
+    what context it is in.
+
+To change a word, simply double click one of the suggested alternative
+spellings on the right, or type in your own corrected spelling and click the
+:guilabel:`Change selected word to` button. This will replace all occurrences
+of the word in the book.
+
+You can have the spelling checker ignore a word for the current session by
+clicking the :guilabel:`Ignore` button. You can also add a word to the user
+dictionary by clicking the :guilabel:`Add to dictionary` button. The spelling
+checker supports multiple user dictionaries, so you can select the dictionary
+you want the word added to.
+
+You can also have the spelling checker display all the words in your book, not
+just the incorrectly spelled ones. This is useful to see what words are most
+common in your book and to run a simple search and replace on individual words.
+
+.. note::
+    If you make any changes to the book by editing files while the spell check
+    tool is open, you should click the :guilabel:`Refresh` button in the spell
+    check tool. If you do not do this and continue to use the spell check tool,
+    you could lose the changes you have made in the editor.
+
+Adding new dictionaries
+###########################
+
+The spelling checker comes with builtin dictionaries for the English and
+Spansih languages. You can install your own dictionaries via
+:guilabel:`Preferences->Editor->Manage spelling dictionaries`. The spell
+checker can use dictionaries from the OpenOffice program (in the .oxt
+format). You can download these dictionaries from
+`The OpenOffice Extensions repository <http://extensions.openoffice.org/>`_.
+
+
 Inserting special characters
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
