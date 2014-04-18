@@ -190,6 +190,11 @@ As a convenience, you can select multiple HTML files in the Files Browser,
 right click and choose Link stylesheets to have |app| automatically insert the
 <link> tags for those stylesheets into all the selected HTML files.
 
+.. raw:: html epub
+    
+    <div style="clear:both"></div>
+
+
 Search & Replace
 -------------------
 
@@ -476,6 +481,9 @@ right clicking inside the file in the editor and choosing :guilabel:`Split at
 multiple locations`. This will allow you to easily split a large file at all
 heading tags or all tags having a certain class and so on.
 
+.. raw:: html epub
+    
+    <div style="clear:both"></div>
 
 Miscellaneous Tools
 ----------------------

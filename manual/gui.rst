@@ -512,6 +512,11 @@ There is a search bar at the top of the Tag Browser that allows you to easily fi
 
 You can control how items are sorted in the Tag browser via the box at the bottom of the Tag Browser. You can choose to sort by name, average rating or popularity (popularity is the number of books with an item in your library; for example, the popularity of Isaac Asimov is the number of books in your library by Isaac Asimov).
 
+.. raw:: html epub
+    
+    <div style="clear:both"></div>
+
+
 Quickview
 ----------
 
@@ -537,12 +542,20 @@ You can see if a column can be Quickview'ed by hovering your mouse over the colu
 
 Quickview respects the virtual library setting, showing only books in the current virtual library.
 
+.. raw:: html epub
+    
+    <div style="clear:both"></div>
+
 Jobs
 -----
 .. image:: images/jobs.png
     :class: float-left-img
 
 The Jobs panel shows the number of currently running jobs. Jobs are tasks that run in a separate process. They include converting ebooks and talking to your reader device. You can click on the jobs panel to access the list of jobs. Once a job has completed you can see a detailed log from that job by double-clicking it in the list. This is useful to debug jobs that may not have completed successfully.
+
+.. raw:: html epub
+    
+    <div style="clear:both"></div>
 
 Keyboard Shortcuts
 ---------------------
