@@ -28,7 +28,13 @@ def parse_xcu(raw, origin='%origin%'):
     root = etree.fromstring(raw)
 
     for node in XPath('//prop[@oor:name="Format"]/value[text()="DICT_SPELL"]/../..')(root):
-        paths = ''.join(XPath('descendant::prop[@oor:name="Locations"]/value/text()')(node)).replace('%origin%', origin).split()
+        value = XPath('descendant::prop[@oor:name="Locations"]/value')(node)
+        if len(value[0]) == 0:
+            # The value node has no children, use its text
+            paths = ''.join(XPath('descendant::prop[@oor:name="Locations"]/value/text()')(node)).replace('%origin%', origin).split()
+        else:
+            # Use the text of the value nodes children
+            paths = [c.text.replace('%origin%', origin) for v in value for c in v.iterchildren('*') if c.text]
         aff, dic = paths if paths[0].endswith('.aff') else reversed(paths)
         locales = ''.join(XPath('descendant::prop[@oor:name="Locales"]/value/text()')(node)).split()
         ans[(dic, aff)] = locales
