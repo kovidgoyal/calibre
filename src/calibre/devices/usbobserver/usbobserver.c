@@ -318,17 +318,49 @@ usbobserver_user_locale(PyObject *self, PyObject *args) {
     	CFStringRef id = NULL;
         CFLocaleRef loc = NULL;
         char buf[512] = {0};
+        PyObject *ans = NULL;
+        int ok = 0;
 
         loc = CFLocaleCopyCurrent();
         if (loc) {
             id = CFLocaleGetIdentifier(loc);
-            if (id) {
-                if (CFStringGetCString(id, buf, 512, kCFStringEncodingUTF8)) 
-                    return PyUnicode_FromString(buf);
+            if (id && CFStringGetCString(id, buf, 512, kCFStringEncodingUTF8)) {
+                ok = 1;
+                ans = PyUnicode_FromString(buf);
             }
         }
+
+        if (loc) CFRelease(loc);
+        if (ok) return ans;
         Py_RETURN_NONE;
 }
+
+static PyObject*
+usbobserver_date_fmt(PyObject *self, PyObject *args) {
+    	CFStringRef fmt = NULL;
+        CFLocaleRef loc = NULL;
+        CFDateFormatterRef formatter = NULL;
+        char buf[512] = {0};
+        PyObject *ans = NULL;
+        int ok = 0;
+
+        loc = CFLocaleCopyCurrent();
+        if (loc) {
+            formatter = CFDateFormatterCreate(kCFAllocatorDefault, loc, kCFDateFormatterShortStyle, kCFDateFormatterNoStyle);
+            if (formatter) {
+                fmt = CFDateFormatterGetFormat(formatter);
+                if (fmt && CFStringGetCString(fmt, buf, 512, kCFStringEncodingUTF8)) {
+                    ok = 1;
+                    ans = PyUnicode_FromString(buf);
+                }
+            }
+        }
+        if (formatter) CFRelease(formatter);
+        if (loc) CFRelease(loc);
+        if (ok) return ans;
+        Py_RETURN_NONE;
+}
+
 
 static PyMethodDef usbobserver_methods[] = {
     {"get_usb_devices", usbobserver_get_usb_devices, METH_VARARGS, 
@@ -346,6 +378,10 @@ static PyMethodDef usbobserver_methods[] = {
     {"user_locale", usbobserver_user_locale, METH_VARARGS, 
      "user_locale() -> The name of the current user's locale or None if an error occurred"
     },
+    {"date_format", usbobserver_date_fmt, METH_VARARGS, 
+     "date_format() -> The (short) date format used by the user's current locale"
+    },
+
 
 
     {NULL, NULL, 0, NULL}
