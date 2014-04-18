@@ -105,8 +105,15 @@ class EPUBInput(InputFormatPlugin):
         # Remove from spine as covers must be treated
         # specially
         if not self.for_viewer:
-            spine[0].getparent().remove(spine[0])
-            removed = guide_cover
+            if len(spine) == 1:
+                log.warn('There is only a single spine item and it is marked as the cover. Removing cover marking.')
+                for guide_elem in tuple(opf.iterguide()):
+                    if guide_elem.get('type', '').lower() == 'cover':
+                        guide_elem.getparent().remove(guide_elem)
+                return
+            else:
+                spine[0].getparent().remove(spine[0])
+                removed = guide_cover
         else:
             # Ensure the cover is displayed as the first item in the book, some
             # epub files have it set with linear='no' which causes the cover to
