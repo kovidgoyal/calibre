@@ -1046,7 +1046,7 @@ def find_next(word, locations, current_editor, current_editor_name,
         idx = lfiles.index(current_editor_name)
         before, after = lfiles[:idx], lfiles[idx+1:]
         lfiles = after + before + [current_editor_name]
-        lnum = current_editor.current_line
+        lnum = current_editor.current_line + 1
         start_locations = [l for l in files[current_editor_name] if l.sourceline >= lnum]
         locations = list(start_locations)
         for fname in lfiles:
@@ -1058,7 +1058,7 @@ def find_next(word, locations, current_editor, current_editor_name,
         if ed is None:
             edit_file(location.file_name)
             ed = editors[location.file_name]
-        if ed.find_word_in_line(location.original_word, word[1].langcode, location.sourceline, from_cursor=location in start_locations):
+        if ed.find_word_from_line(location.original_word, word[1].langcode, location.sourceline, from_cursor=location in start_locations):
             show_editor(location.file_name)
             return True
     return False

@@ -378,7 +378,7 @@ class TextEdit(PlainTextEdit):
             self.saved_matches[save_match] = (pat, m)
         return True
 
-    def find_word_in_line(self, word, lang, lnum, from_cursor=True):
+    def find_word_from_line(self, word, lang, lnum, from_cursor=True):
         c = self.textCursor()
         c.setPosition(c.position())
         if not from_cursor or c.blockNumber() != lnum - 1:
@@ -386,11 +386,11 @@ class TextEdit(PlainTextEdit):
             c.movePosition(c.Start)
             c.movePosition(c.NextBlock, n=lnum - 1)
             c.movePosition(c.StartOfLine)
-            c.movePosition(c.EndOfBlock, c.KeepAnchor)
             offset = c.block().position()
+            c.movePosition(c.End, c.KeepAnchor)
         else:
             offset = c.block().position() + c.positionInBlock()
-            c.movePosition(c.EndOfBlock, c.KeepAnchor)
+            c.movePosition(c.End, c.KeepAnchor)
         text = unicode(c.selectedText()).rstrip('\0')
         idx = index_of(word, text, lang=lang)
         if idx == -1:
