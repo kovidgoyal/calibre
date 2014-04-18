@@ -1265,7 +1265,7 @@ class KOBOTOUCH(KOBO):
     min_dbversion_activity          = 77
     min_dbversion_keywords          = 82
 
-    max_supported_fwversion         = (3, 2, 1)
+    max_supported_fwversion         = (3, 3, 1)
     min_fwversion_shelves           = (2, 0, 0)
     min_fwversion_images_on_sdcard  = (2, 4, 1)
     min_fwversion_images_tree       = (2, 9, 0)  # Cover images stored in tree under .kobo-images
