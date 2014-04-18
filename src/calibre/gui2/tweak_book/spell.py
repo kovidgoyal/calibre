@@ -994,6 +994,9 @@ class SpellCheck(Dialog):
         self.highlight_row(0)
         self.update_summary()
         self.initialize_user_dictionaries()
+        if self.words_model.rowCount() > 0:
+            self.words_view.resizeRowToContents(0)
+            self.words_view.verticalHeader().setDefaultSectionSize(self.words_view.rowHeight(0))
 
     def update_summary(self):
         self.summary.setText(_('Misspelled words: {0} Total words: {1}').format(*self.words_model.counts))
