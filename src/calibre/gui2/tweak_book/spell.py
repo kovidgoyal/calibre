@@ -751,7 +751,7 @@ class SpellCheck(Dialog):
         state = tprefs.get('spell-check-table-state', None)
         hh = self.words_view.horizontalHeader()
         w.setSortingEnabled(True), w.setShowGrid(False), w.setAlternatingRowColors(True)
-        w.setSelectionBehavior(w.SelectRows)
+        w.setSelectionBehavior(w.SelectRows), w.setSelectionMode(w.SingleSelection)
         w.verticalHeader().close()
         h.addWidget(w)
         self.words_model = m = WordsModel(self)
