@@ -313,6 +313,23 @@ usbobserver_get_mounted_filesystems(PyObject *self, PyObject *args) {
 
 }
 
+static PyObject*
+usbobserver_user_locale(PyObject *self, PyObject *args) {
+    	CFStringRef id = NULL;
+        CFLocaleRef loc = NULL;
+        char buf[512] = {0};
+
+        loc = CFLocaleCopyCurrent();
+        if (loc) {
+            id = CFLocaleGetIdentifier(loc);
+            if (id) {
+                if (CFStringGetCString(id, buf, 512, kCFStringEncodingUTF8)) 
+                    return PyUnicode_FromString(buf);
+            }
+        }
+        Py_RETURN_NONE;
+}
+
 static PyMethodDef usbobserver_methods[] = {
     {"get_usb_devices", usbobserver_get_usb_devices, METH_VARARGS, 
      "Get list of connected USB devices. Returns a list of tuples. Each tuple is of the form (vendor_id, product_id, bcd, manufacturer, product, serial number)."
@@ -326,6 +343,10 @@ static PyMethodDef usbobserver_methods[] = {
     {"send2trash", usbobserver_send2trash, METH_VARARGS, 
      "send2trash(unicode object) -> Send specified file/dir to trash"
     },
+    {"user_locale", usbobserver_user_locale, METH_VARARGS, 
+     "user_locale() -> The name of the current user's locale or None if an error occurred"
+    },
+
 
     {NULL, NULL, 0, NULL}
 };
