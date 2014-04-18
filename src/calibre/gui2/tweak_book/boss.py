@@ -117,14 +117,16 @@ class Boss(QObject):
 
     def preferences(self):
         p = Preferences(self.gui)
-        if p.exec_() == p.Accepted:
-            if p.dictionaries_changed:
-                dictionaries.clear_caches()
-                dictionaries.initialize(force=True)  # Reread user dictionaries
-            for ed in editors.itervalues():
-                ed.apply_settings(dictionaries_changed=p.dictionaries_changed)
+        ret = p.exec_()
+        if p.dictionaries_changed:
+            dictionaries.clear_caches()
+            dictionaries.initialize(force=True)  # Reread user dictionaries
+        if ret == p.Accepted:
             setup_cssutils_serialization()
             self.gui.apply_settings()
+        if ret == p.Accepted or p.dictionaries_changed:
+            for ed in editors.itervalues():
+                ed.apply_settings(dictionaries_changed=p.dictionaries_changed)
 
     def mark_requested(self, name, action):
         self.commit_dirty_opf()
