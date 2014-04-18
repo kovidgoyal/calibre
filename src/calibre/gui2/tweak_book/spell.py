@@ -11,7 +11,7 @@ from collections import defaultdict, OrderedDict
 from threading import Thread
 from functools import partial
 
-from PyQt4.Qt import (
+from PyQt5.Qt import (
     QGridLayout, QApplication, QTreeWidget, QTreeWidgetItem, Qt, QFont, QSize,
     QStackedLayout, QLabel, QVBoxLayout, QWidget, QPushButton, QIcon, QMenu,
     QDialogButtonBox, QLineEdit, QDialog, QToolButton, QFormLayout, QHBoxLayout,
