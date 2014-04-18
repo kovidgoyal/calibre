@@ -13,7 +13,7 @@ from functools import partial
 from dateutil.tz import tzlocal, tzutc, EPOCHORDINAL
 
 from calibre import strftime
-from calibre.constants import iswindows
+from calibre.constants import iswindows, isosx, plugins
 from calibre.utils.localization import lcdata
 
 class SafeLocalTimeZone(tzlocal):
@@ -68,6 +68,12 @@ if iswindows:
     except:
         parse_date_day_first = False
     del ctypes, LOCALE_SSHORTDATE, buf, LOCALE_USER_DEFAULT
+elif isosx:
+    try:
+        date_fmt = plugins['usbobserver'][0].date_format()
+        parse_date_day_first = date_fmt.index(u'd') < date_fmt.index(u'M')
+    except:
+        parse_date_day_first = False
 else:
     try:
         def first_index(raw, queries):
