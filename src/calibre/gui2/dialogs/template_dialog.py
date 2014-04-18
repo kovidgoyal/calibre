@@ -266,6 +266,14 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
             self.mi.languages = ['eng']
             if fm is not None:
                 self.mi.set_all_user_metadata(fm.custom_field_metadata())
+            else:
+                # No field metadata. Grab a copy from the current library so
+                # that we can validate any custom column names. The values for
+                # the columns will all be empty, which in some very unusual
+                # cases might cause formatter errors. We can live with that.
+                from calibre.gui2.ui import get_gui
+                self.mi.set_all_user_metadata(
+                      get_gui().current_db.new_api.field_metadata.custom_field_metadata())
 
         # Remove help icon on title bar
         icon = self.windowIcon()
