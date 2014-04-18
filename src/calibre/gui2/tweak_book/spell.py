@@ -106,7 +106,7 @@ class AddDictionary(QDialog):  # {{{
                 'You must specify a nickname for this dictionary'), show=True)
         if nick in {d.name for d in custom_dictionaries()}:
             return error_dialog(self, _('Nickname already used'), _(
-                'A dictionary with the nick name "%s" already exists.'), show=True)
+                'A dictionary with the nick name "%s" already exists.') % nick, show=True)
         oxt = unicode(self.path.text())
         try:
             num = import_from_oxt(oxt, nick)
