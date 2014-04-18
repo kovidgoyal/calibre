@@ -12,7 +12,7 @@ from threading import Thread
 
 from PyQt4.Qt import (
     QGridLayout, QApplication, QTreeWidget, QTreeWidgetItem, Qt, QFont, QSize,
-    QStackedLayout, QLabel, QVBoxLayout, QVariant, QWidget, QPushButton, QIcon,
+    QStackedLayout, QLabel, QVBoxLayout, QWidget, QPushButton, QIcon,
     QDialogButtonBox, QLineEdit, QDialog, QToolButton, QFormLayout, QHBoxLayout,
     pyqtSignal, QAbstractTableModel, QModelIndex, QTimer, QTableView, QCheckBox,
     QComboBox, QListWidget, QListWidgetItem, QInputDialog)
@@ -473,7 +473,7 @@ class ManageDictionaries(Dialog):  # {{{
         bf = QFont(self.dictionaries.font())
         bf.setBold(True)
         for x in (item.parent().child(i) for i in xrange(item.parent().childCount())):
-            x.setData(0, Qt.FontRole, bf if x is item else QVariant())
+            x.setData(0, Qt.FontRole, bf if x is item else None)
         lc = unicode(item.parent().data(0, Qt.UserRole).toPyObject())
         pl = dprefs['preferred_locales']
         pl[lc] = '%s-%s' % (lc, unicode(item.data(0, Qt.UserRole).toPyObject()))
@@ -494,7 +494,7 @@ class ManageDictionaries(Dialog):  # {{{
         bf = QFont(self.dictionaries.font())
         bf.setItalic(True)
         for x in (item.parent().child(i) for i in xrange(item.parent().childCount())):
-            x.setData(0, Qt.FontRole, bf if x is item else QVariant())
+            x.setData(0, Qt.FontRole, bf if x is item else None)
         cc = unicode(item.parent().data(0, Qt.UserRole).toPyObject())
         lc = unicode(item.parent().parent().data(0, Qt.UserRole).toPyObject())
         d = item.data(0, Qt.UserRole).toPyObject()
