@@ -1040,7 +1040,7 @@ def find_next(word, locations, current_editor, current_editor_name,
     if current_editor_name not in files:
         current_editor = current_editor_name = None
     else:
-        # Re-order the list of locations to search so that we search int he
+        # Re-order the list of locations to search so that we search in the
         # current editor first
         lfiles = list(files)
         idx = lfiles.index(current_editor_name)

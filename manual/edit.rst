@@ -513,6 +513,10 @@ Words are shown with the number of times they occur in the book and the
 language the word belongs to. Language information is taken from the books
 metadata and from ``lang`` attributes in the HTML files. This allows the spell
 checker to work well even with books that contain text in multiple languages.
+For example, in the following HTML extract, the word color will be checked
+using American English and the word colour using British English::
+
+    <div lang="en_US">color <span lang="en_GB">colour</span></div>
 
 .. note::
     You can double click a word to highlight the next occurrence of that word
