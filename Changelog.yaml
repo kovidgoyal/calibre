@@ -20,6 +20,36 @@
 #   new recipes:
 #     - title: 
 
+- version: 1.33.0
+  date: 2014-04-18
+
+  new features:
+    - title: "Edit book: Add a tool to check spellings, access it via Tools->Check spelling"
+      type: major
+      description: "The calibre book editor now has builtin spellcheck. You can install new dictionaries via Preferences->Editor->Manage spelling dictionaries. It comes with builtin dictionaries for English and Spanish. You can add OpenOffice dictionaries (in .oxt format). The tool checks spellings in all HTML/OPF/NCX files in the book, taking into account any language declarations in the book, so that it will work correctly on multi-lingual books as well. The code is very new, so there may well be bugs. As you type spell checking is not yet implemented."
+
+    - title: "Kobo driver: Support firmware version 3.3"
+
+    - title: "Device driver for Tolino Vision on windows"
+
+  bug fixes:
+    - title: "Amazon metadata download: Fix Editorial Reviews not downloading into the comments section for some books"
+
+    - title: "DOCX Input: Fix some text highlighting colors in the DOCX file not being correctly translated during conversion."
+      ticket: [1308181]
+
+    - title: "Wireless device driver: Fix incorrect syncing behavior when book matching is run for a second time while connected. This happens when the user changes the library or selects 'Update cached metadata on device'."
+
+    - title: "Searching: Fix searching by date not using the system locale to interpret dd/mm vs mm/dd dates on windows"
+
+  improved recipes:
+    - Barrons 
+    - Creative Blog
+
+  new recipes:
+    - title: "Various new and updated Spanish news sources"
+      author: Marc Busque
+
 - version: 1.32.0
   date: 2014-04-11
 
