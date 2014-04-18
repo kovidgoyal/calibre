@@ -10,8 +10,7 @@ from functools import partial
 
 from PyQt4.Qt import (QSize, QSizePolicy, QUrl, Qt, pyqtProperty,
         QPainter, QPalette, QBrush, QDialog, QColor, QPoint, QImage, QRegion,
-        QIcon, pyqtSignature, QAction, QMenu, QString, pyqtSignal,
-        QApplication, pyqtSlot)
+        QIcon, QAction, QMenu, QString, pyqtSignal, QApplication, pyqtSlot)
 from PyQt4.QtWebKit import QWebPage, QWebView, QWebSettings, QWebElement
 
 from calibre.gui2.viewer.flip import SlideFlip
@@ -205,7 +204,7 @@ class Document(QWebPage):  # {{{
             pl.load_javascript(evaljs)
         evaljs('py_bridge.mark_element.connect(window.calibre_extract.mark)')
 
-    @pyqtSignature("")
+    @pyqtSlot()
     def animated_scroll_done(self):
         self.animated_scroll_done_signal.emit()
 
@@ -214,7 +213,7 @@ class Document(QWebPage):  # {{{
         # Qt fails to render soft hyphens correctly on windows xp
         return not isxp and self.hyphenate and getattr(self, 'loaded_lang', '')
 
-    @pyqtSignature("")
+    @pyqtSlot()
     def init_hyphenate(self):
         if self.hyphenatable:
             self.javascript('do_hyphenation("%s")'%self.loaded_lang)
@@ -325,9 +324,9 @@ class Document(QWebPage):  # {{{
         self.javascript('full_screen.off(%s)'%('true' if self.in_paged_mode
             else 'false'))
 
-    @pyqtSignature("QString")
+    @pyqtSlot(str)
     def debug(self, msg):
-        prints(msg)
+        prints(unicode(msg))
 
     def reference_mode(self, enable):
         self.javascript(('enter' if enable else 'leave')+'_reference_mode()')
