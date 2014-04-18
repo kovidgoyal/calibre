@@ -584,8 +584,9 @@ class WordsModel(QAbstractTableModel):
 
     def sort_key(self, col):
         if col == 0:
+            f = (lambda x: x) if tprefs['spell_check_case_sensitive_sort'] else primary_sort_key
             def key(w):
-                return primary_sort_key(w[0])
+                return f(w[0])
         elif col == 1:
             def key(w):
                 return len(self.words[w])
@@ -807,12 +808,22 @@ class SpellCheck(Dialog):
         l.addWidget(sl)
 
         hh.setSectionHidden(3, m.show_only_misspelt)
-        self.show_only_misspelled = om = QCheckBox(_('Show only misspelled words'))
+        self.show_only_misspelled = om = QCheckBox(_('Show &only misspelled words'))
         om.setChecked(m.show_only_misspelt)
         om.stateChanged.connect(self.update_show_only_misspelt)
+        self.case_sensitive_sort = cs = QCheckBox(_('Case &sensitive sort'))
+        cs.setChecked(tprefs['spell_check_case_sensitive_sort'])
+        cs.stateChanged.connect(self.sort_type_changed)
         self.hb = h = QHBoxLayout()
         self.summary = s = QLabel('')
-        self.main.l.addLayout(h), h.addWidget(s), h.addWidget(om), h.addStretch(10)
+        self.main.l.addLayout(h), h.addWidget(s), h.addWidget(om), h.addWidget(cs), h.addStretch(1)
+
+    def sort_type_changed(self):
+        tprefs['spell_check_case_sensitive_sort'] = bool(self.case_sensitive_sort.isChecked())
+        if self.words_model.sort_on[0] == 0:
+            with self:
+                hh = self.words_view.horizontalHeader()
+                self.words_view.sortByColumn(hh.sortIndicatorSection(), hh.sortIndicatorOrder())
 
     def show_next_occurrence(self):
         self.word_activated(self.words_view.currentIndex())
