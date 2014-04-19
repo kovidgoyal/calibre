@@ -752,6 +752,7 @@ class SpellCheck(Dialog):
         hh = self.words_view.horizontalHeader()
         w.setSortingEnabled(True), w.setShowGrid(False), w.setAlternatingRowColors(True)
         w.setSelectionBehavior(w.SelectRows), w.setSelectionMode(w.SingleSelection)
+        w.setTabKeyNavigation(False)
         w.verticalHeader().close()
         h.addWidget(w)
         self.words_model = m = WordsModel(self)
