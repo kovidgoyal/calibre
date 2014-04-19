@@ -14,6 +14,7 @@ from PyQt4.Qt import QTextEdit
 
 from calibre import prepare_string_for_xml
 from calibre.gui2 import error_dialog
+from calibre.gui2.tweak_book.editor.syntax.html import ATTR_NAME, ATTR_END
 
 get_offset = itemgetter(0)
 PARAGRAPH_SEPARATOR = '\u2029'
@@ -38,6 +39,20 @@ def next_tag_boundary(block, offset, forward=True):
                 if forward and boundary.offset > offset:
                     return block, boundary
                 if not forward and boundary.offset < offset:
+                    return block, boundary
+        block = block.next() if forward else block.previous()
+        offset = -1 if forward else sys.maxint
+    return None, None
+
+def next_attr_boundary(block, offset, forward=True):
+    while block.isValid():
+        ud = block.userData()
+        if ud is not None:
+            attributes = sorted(ud.attributes, key=get_offset, reverse=not forward)
+            for boundary in attributes:
+                if forward and boundary.offset >= offset:
+                    return block, boundary
+                if not forward and boundary.offset <= offset:
                     return block, boundary
         block = block.next() if forward else block.previous()
         offset = -1 if forward else sys.maxint
@@ -78,6 +93,29 @@ def find_closest_containing_tag(block, offset, max_tags=sys.maxint):
         block, tag_end = prev_tag_boundary(sblock, tag_start.offset)
         max_tags -= 1
     return None  # Could not find a containing tag
+
+def find_tag_definition(block, offset):
+    ''' Return the <tag | > definition, if any that (block, offset) is inside. '''
+    block, boundary = next_tag_boundary(block, offset, forward=False)
+    if not boundary.is_start:
+        return None, False
+    tag_start = boundary
+    closing = tag_start.closing
+    tag = tag_start.name or tag_start.prefix
+    if tag_start.name and tag_start.prefix:
+        tag = tag_start.prefix + ':' + tag
+    return tag, closing
+
+def find_containing_attribute(block, offset):
+    block, boundary = next_attr_boundary(block, offset, forward=False)
+    if block is None:
+        return None
+    if boundary.type is ATTR_NAME or boundary.data is ATTR_END:
+        return None  # offset is not inside an attribute value
+    block, boundary = next_attr_boundary(block, boundary.offset - 1, forward=False)
+    if block is not None and boundary.type == ATTR_NAME:
+        return boundary.data
+    return None
 
 def find_closing_tag(tag, max_tags=sys.maxint):
     ''' Find the closing tag corresponding to the specified tag. To find it we
@@ -240,4 +278,34 @@ class HTMLSmarts(NullSmarts):
         c.insertText('<{0}>{1}</{0}>'.format(name, text))
         c.setPosition(pos + 1 + len(name))
         editor.setTextCursor(c)
+
+    def verify_for_spellcheck(self, cursor, highlighter):
+        # Return True iff the cursor is in a location where spelling is
+        # checked (inside a tag or inside a checked attribute)
+        block = cursor.block()
+        start_pos = cursor.anchor() - block.position()
+        end_pos = cursor.position() - block.position()
+        start_tag, closing = find_tag_definition(block, start_pos)
+        if closing:
+            return False
+        end_tag, closing = find_tag_definition(block, end_pos)
+        if closing:
+            return False
+        if start_tag is None and end_tag is None:
+            # We are in normal text, check that the containing tag is
+            # allowed for spell checking.
+            tag = find_closest_containing_tag(block, start_pos)
+            if tag is not None and highlighter.tag_ok_for_spell(tag.name.split(':')[-1]):
+                return True
+        if start_tag != end_tag:
+            return False
+
+        # Now we check if we are in an allowed attribute
+        sa = find_containing_attribute(block, start_pos)
+        ea = find_containing_attribute(block, end_pos)
+
+        if sa == ea and sa in highlighter.spell_attributes:
+            return True
+
+        return False
 

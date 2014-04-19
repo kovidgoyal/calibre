@@ -1036,10 +1036,10 @@ def find_next(word, locations, current_editor, current_editor_name,
             files[l.file_name].append(l)
         except KeyError:
             files[l.file_name] = [l]
-    start_locations = set()
 
     if current_editor_name not in files:
-        current_editor = current_editor_name = None
+        current_editor_name = None
+        locations = [(fname, {l.original_word for l in _locations}, False) for fname, _locations in files.iteritems()]
     else:
         # Re-order the list of locations to search so that we search in the
         # current editor first
@@ -1047,20 +1047,17 @@ def find_next(word, locations, current_editor, current_editor_name,
         idx = lfiles.index(current_editor_name)
         before, after = lfiles[:idx], lfiles[idx+1:]
         lfiles = after + before + [current_editor_name]
-        lnum = current_editor.current_line + 1
-        start_locations = [l for l in files[current_editor_name] if l.sourceline >= lnum]
-        locations = list(start_locations)
+        locations = [(current_editor_name, {l.original_word for l in files[current_editor_name]}, True)]
         for fname in lfiles:
-            locations.extend(files[fname])
-        start_locations = set(start_locations)
+            locations.append((fname, {l.original_word for l in files[fname]}, False))
 
-    for location in locations:
-        ed = editors.get(location.file_name, None)
+    for file_name, original_words, from_cursor in locations:
+        ed = editors.get(file_name, None)
         if ed is None:
-            edit_file(location.file_name)
-            ed = editors[location.file_name]
-        if ed.find_word_from_line(location.original_word, word[1].langcode, location.sourceline, from_cursor=location in start_locations):
-            show_editor(location.file_name)
+            edit_file(file_name)
+            ed = editors[file_name]
+        if ed.find_spell_word(original_words, word[1].langcode, from_cursor=from_cursor):
+            show_editor(file_name)
             return True
     return False
 

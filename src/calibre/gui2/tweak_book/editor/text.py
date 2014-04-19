@@ -378,28 +378,35 @@ class TextEdit(PlainTextEdit):
             self.saved_matches[save_match] = (pat, m)
         return True
 
-    def find_word_from_line(self, word, lang, lnum, from_cursor=True):
+    def find_spell_word(self, original_words, lang, from_cursor=True):
         c = self.textCursor()
         c.setPosition(c.position())
-        if not from_cursor or c.blockNumber() != lnum - 1:
-            lnum = max(1, min(self.blockCount(), lnum))
+        if not from_cursor:
             c.movePosition(c.Start)
-            c.movePosition(c.NextBlock, n=lnum - 1)
-            c.movePosition(c.StartOfLine)
-            offset = c.block().position()
+        c.movePosition(c.End, c.KeepAnchor)
+
+        def find_word(haystack):
+            for w in original_words:
+                idx = index_of(w, haystack, lang=lang)
+                if idx > -1:
+                    return idx, w
+            return -1, None
+
+        while True:
+            text = unicode(c.selectedText()).rstrip('\0')
+            idx, word = find_word(text)
+            if idx == -1:
+                return False
+            c.setPosition(c.anchor() + idx)
+            c.setPosition(c.position() + string_length(word), c.KeepAnchor)
+            if self.smarts.verify_for_spellcheck(c, self.highlighter):
+                self.setTextCursor(c)
+                self.centerCursor()
+                return True
+            c.setPosition(c.position())
             c.movePosition(c.End, c.KeepAnchor)
-        else:
-            offset = c.block().position() + c.positionInBlock()
-            c.movePosition(c.End, c.KeepAnchor)
-        text = unicode(c.selectedText()).rstrip('\0')
-        idx = index_of(word, text, lang=lang)
-        if idx == -1:
-            return False
-        c.setPosition(offset + idx)
-        c.setPosition(c.position() + string_length(word), c.KeepAnchor)
-        self.setTextCursor(c)
-        self.centerCursor()
-        return True
+
+        return False
 
     def replace(self, pat, template, saved_match='gui'):
         c = self.textCursor()

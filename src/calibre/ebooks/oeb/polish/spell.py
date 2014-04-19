@@ -83,28 +83,33 @@ def add_words_from_text(node, attr, words, file_name, locale):
 
 _opf_file_as = '{%s}file-as' % OPF_NAMESPACES['opf']
 
+opf_spell_tags = {'title', 'creator', 'subject', 'description', 'publisher'}
+
+# We can only use barename() for tag names and simple attribute checks so that
+# this code matches up with the syntax highlighter base spell checking
+
 def read_words_from_opf(root, words, file_name, book_locale):
-    for tag in root.xpath('//*[namespace-uri()="%s"]' % OPF_NAMESPACES['dc']):
-        tagname = barename(tag.tag)
-        if not tag.text or tagname in {'identifier', 'language', 'date'}:
-            continue
-        add_words_from_text(tag, 'text', words, file_name, book_locale)
+    for tag in root.iterdescendants('*'):
+        if tag.text is not None and barename(tag.tag) in opf_spell_tags:
+            add_words_from_text(tag, 'text', words, file_name, book_locale)
         add_words_from_attr(tag, _opf_file_as, words, file_name, book_locale)
+
+ncx_spell_tags = {'text'}
+xml_spell_tags = opf_spell_tags | ncx_spell_tags
 
 def read_words_from_ncx(root, words, file_name, book_locale):
     for tag in root.xpath('//*[local-name()="text"]'):
-        if not tag.text:
-            continue
-        add_words_from_text(tag, 'text', words, file_name, book_locale)
+        if tag.text is not None:
+            add_words_from_text(tag, 'text', words, file_name, book_locale)
+
+html_spell_tags = {'script', 'style', 'link'}
 
 def read_words_from_html_tag(tag, words, file_name, parent_locale, locale):
-    tagname = barename(tag.tag)
-    if tagname not in {'script', 'style', 'link', 'head'}:
-        if tag.text is not None:
-            add_words_from_text(tag, 'text', words, file_name, locale)
-        for attr in {'alt', 'title'}:
-            add_words_from_attr(tag, attr, words, file_name, locale)
-    if tag.tail is not None:
+    if tag.text is not None and barename(tag.tag) not in html_spell_tags:
+        add_words_from_text(tag, 'text', words, file_name, locale)
+    for attr in {'alt', 'title'}:
+        add_words_from_attr(tag, attr, words, file_name, locale)
+    if tag.tail is not None and tag.getparent() is not None and barename(tag.getparent().tag) not in html_spell_tags:
         add_words_from_text(tag, 'tail', words, file_name, parent_locale)
 
 def locale_from_tag(tag):

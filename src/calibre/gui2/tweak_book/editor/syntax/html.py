@@ -12,6 +12,7 @@ from collections import namedtuple
 
 from PyQt4.Qt import QFont, QTextBlockUserData
 
+from calibre.ebooks.oeb.polish.spell import html_spell_tags, xml_spell_tags
 from calibre.gui2.tweak_book.editor import SyntaxTextCharFormat
 from calibre.gui2.tweak_book.editor.syntax.base import SyntaxHighlighter, run_loop
 from calibre.gui2.tweak_book.editor.syntax.css import create_formats as create_css_formats, state_map as css_state_map, State as CSSState
@@ -46,6 +47,7 @@ CSS = 11
 
 TagStart = namedtuple('TagStart', 'offset prefix name closing is_start')
 TagEnd = namedtuple('TagEnd', 'offset self_closing is_start')
+Attr = namedtuple('Attr', 'offset type data')
 
 class Tag(object):
 
@@ -76,13 +78,14 @@ class State(object):
 
     __slots__ = ('tag_being_defined', 'tags', 'is_bold', 'is_italic',
                  'current_lang', 'parse', 'get_user_data', 'set_user_data',
-                 'css_formats', 'stack', 'sub_parser_state', 'default_lang')
+                 'css_formats', 'stack', 'sub_parser_state', 'default_lang',
+                 'attribute_name',)
 
     def __init__(self):
         self.tags = []
         self.is_bold = self.is_italic = False
         self.tag_being_defined = self.current_lang = self.get_user_data = self.set_user_data = \
-            self.css_formats = self.stack = self.sub_parser_state = self.default_lang = None
+            self.css_formats = self.stack = self.sub_parser_state = self.default_lang = self.attribute_name = None
         self.parse = NORMAL
 
     def copy(self):
@@ -101,13 +104,14 @@ class State(object):
         return self.stack.index_for(self)
 
     def __hash__(self):
-        return hash((self.parse, self.sub_parser_state, self.tag_being_defined, tuple(self.tags)))
+        return hash((self.parse, self.sub_parser_state, self.tag_being_defined, self.attribute_name, tuple(self.tags)))
 
     def __eq__(self, other):
         return (
             self.parse == getattr(other, 'parse', -1) and
             self.sub_parser_state == getattr(other, 'sub_parser_state', -1) and
             self.tag_being_defined == getattr(other, 'tag_being_defined', False) and
+            self.attribute_name == getattr(other, 'attribute_name', False) and
             self.tags == getattr(other, 'tags', None)
         )
 
@@ -194,12 +198,23 @@ class HTMLUserData(QTextBlockUserData):
     def __init__(self):
         QTextBlockUserData.__init__(self)
         self.tags = []
+        self.attributes = []
 
 def add_tag_data(state, tag):
     ud = q = state.get_user_data()
     if ud is None:
         ud = HTMLUserData()
     ud.tags.append(tag)
+    if q is None:
+        state.set_user_data(ud)
+
+ATTR_NAME, ATTR_VALUE, ATTR_START, ATTR_END = object(), object(), object(), object()
+
+def add_attr_data(state, data_type, data, offset):
+    ud = q = state.get_user_data()
+    if ud is None:
+        ud = HTMLUserData()
+    ud.attributes.append(Attr(offset, data_type, data))
     if q is None:
         state.set_user_data(ud)
 
@@ -320,7 +335,9 @@ def opening_tag(cdata_tags, state, text, i, formats):
     if m is None:
         return [(1, formats['?'])]
     state.parse = ATTRIBUTE_NAME
-    prefix, name = m.group().partition(':')[0::2]
+    attrname = state.attribute_name = m.group()
+    add_attr_data(state, ATTR_NAME, attrname, m.start())
+    prefix, name = attrname.partition(':')[0::2]
     if prefix and name:
         return [(len(prefix) + 1, formats['nsprefix']), (len(name), formats['attr'])]
     return [(len(prefix), formats['attr'])]
@@ -333,11 +350,9 @@ def attribute_name(state, text, i, formats):
     if ch == '=':
         state.parse = ATTRIBUTE_VALUE
         return [(1, formats['attr'])]
+    # Standalone attribute with no value
     state.parse = IN_OPENING_TAG
-    if ch in {'>', '/'}:
-        # Standalone attribute with no value
-        return [(0, None)]
-    return [(1, formats['no-attr-value'])]
+    return [(0, None)]
 
 def attribute_value(state, text, i, formats):
     ' After attribute = '
@@ -356,12 +371,14 @@ def attribute_value(state, text, i, formats):
 def quoted_val(state, text, i, formats):
     ' A quoted attribute value '
     quote = '"' if state.parse is DQ_VAL else "'"
+    add_attr_data(state, ATTR_VALUE, ATTR_START, i)
     pos = text.find(quote, i)
     if pos == -1:
         num = len(text) - i
     else:
         num = pos - i + 1
         state.parse = IN_OPENING_TAG
+        add_attr_data(state, ATTR_VALUE, ATTR_END, i + num)
     return [(num, formats['string'])]
 
 def closing_tag(state, text, i, formats):
@@ -447,6 +464,7 @@ class HTMLHighlighter(SyntaxHighlighter):
 
     state_map = state_map
     create_formats_func = create_formats
+    spell_attributes = ('alt', 'title')
 
     def create_formats(self):
         super(HTMLHighlighter, self).create_formats()
@@ -460,9 +478,16 @@ class HTMLHighlighter(SyntaxHighlighter):
         ans = self.default_state.stack.state_for(val) or self.default_state
         return ans.copy()
 
+    def tag_ok_for_spell(self, name):
+        return name not in html_spell_tags
+
 class XMLHighlighter(HTMLHighlighter):
 
     state_map = xml_state_map
+    spell_attributes = ('opf:file-as',)
+
+    def tag_ok_for_spell(self, name):
+        return name in xml_spell_tags
 
 if __name__ == '__main__':
     from calibre.gui2.tweak_book.editor.widget import launch_editor

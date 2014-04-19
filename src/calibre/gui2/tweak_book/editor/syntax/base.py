@@ -31,6 +31,8 @@ class SyntaxHighlighter(QSyntaxHighlighter):
 
     state_map = {0:lambda state, text, i, formats:[(len(text), None)]}
     create_formats_func = lambda highlighter: {}
+    spell_attributes = ()
+    tag_ok_for_spell = lambda x: False
 
     def __init__(self, *args, **kwargs):
         QSyntaxHighlighter.__init__(self, *args, **kwargs)
