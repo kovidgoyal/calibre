@@ -68,6 +68,7 @@ def import_from_libreoffice_source_tree(source_path):
         raise Exception('Failed to find dictionaries for some wanted locales: %s' % want_locales)
 
 def import_from_oxt(source_path, name, dest_dir=None, prefix='dic-'):
+    from calibre.spell.dictionary import parse_lang_code
     dest_dir = dest_dir or os.path.join(config_dir, 'dictionaries')
     if not os.path.exists(dest_dir):
         os.makedirs(dest_dir)
@@ -79,6 +80,9 @@ def import_from_oxt(source_path, name, dest_dir=None, prefix='dic-'):
         for (dic, aff), locales in parse_xcu(zf.open(xcu).read(), origin='').iteritems():
             dic, aff = dic.lstrip('/'), aff.lstrip('/')
             d = tempfile.mkdtemp(prefix=prefix, dir=dest_dir)
+            locales = [x for x in locales if parse_lang_code(x).countrycode]
+            if not locales:
+                continue
             metadata = [name] + locales
             with open(os.path.join(d, 'locales'), 'wb') as f:
                 f.write(('\n'.join(metadata)).encode('utf-8'))
