@@ -91,8 +91,11 @@ def custom_dictionaries(reread=False):
             except IndexError:
                 continue
             base = os.path.dirname(lc)
+            ploc = parse_lang_code(locale)
+            if ploc.countrycode is None:
+                continue
             dics.append(Dictionary(
-                parse_lang_code(locale), frozenset(map(parse_lang_code, locales)), os.path.join(base, '%s.dic' % locale),
+                ploc, frozenset(filter(lambda x:x.countrycode is not None, map(parse_lang_code, locales))), os.path.join(base, '%s.dic' % locale),
                 os.path.join(base, '%s.aff' % locale), False, name, os.path.basename(base)))
         _custom = frozenset(dics)
     return _custom
