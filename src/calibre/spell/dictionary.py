@@ -249,7 +249,10 @@ class Dictionaries(object):
         if ud is None:
             raise ValueError('Cannot add to the dictionary named: %s as no such dictionary exists' % name)
         wl = len(ud.words)
-        ud.words.add((word, locale.langcode))
+        if isinstance(word, (set, frozenset)):
+            ud.words |= word
+        else:
+            ud.words.add((word, locale.langcode))
         if len(ud.words) > wl:
             self.save_user_dictionaries()
             self.word_cache.pop((word, locale), None)

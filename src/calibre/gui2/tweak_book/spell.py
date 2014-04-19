@@ -15,7 +15,7 @@ from PyQt4.Qt import (
     QStackedLayout, QLabel, QVBoxLayout, QWidget, QPushButton, QIcon,
     QDialogButtonBox, QLineEdit, QDialog, QToolButton, QFormLayout, QHBoxLayout,
     pyqtSignal, QAbstractTableModel, QModelIndex, QTimer, QTableView, QCheckBox,
-    QComboBox, QListWidget, QListWidgetItem, QInputDialog)
+    QComboBox, QListWidget, QListWidgetItem, QInputDialog, QPlainTextEdit)
 
 from calibre.constants import __appname__, plugins
 from calibre.ebooks.oeb.polish.spell import replace_word, get_all_words, merge_locations
@@ -174,6 +174,9 @@ class ManageUserDictionaries(Dialog):  # {{{
         b.clicked.connect(self.remove_word)
         b.setIcon(QIcon(I('minus.png')))
         h.addWidget(b)
+        self.import_words_button = b = QPushButton(_('&Import list of words'), self)
+        b.clicked.connect(self.import_words)
+        l.addWidget(b)
 
         self.show_current_dictionary()
 
@@ -288,6 +291,42 @@ class ManageUserDictionaries(Dialog):  # {{{
         idx = self.find_word(word, lang)
         if idx > -1:
             self.words.scrollToItem(self.words.item(idx))
+
+    def import_words(self):
+        d = QDialog(self)
+        d.l = l = QFormLayout(d)
+        d.setWindowTitle(_('Import list of words'))
+        d.w = w = QPlainTextEdit(d)
+        l.addRow(QLabel(_('Enter a list of words, one per line')))
+        l.addRow(w)
+        d.b = b = QPushButton(_('Paste from clipboard'))
+        l.addRow(b)
+        b.clicked.connect(w.paste)
+        d.la = la = QLabel(_('Words in the user dictionary must have an associated language. Choose the language below:'))
+        la.setWordWrap(True)
+        l.addRow(la)
+        d.le = le = LanguagesEdit(d)
+        lc = canonicalize_lang(get_lang())
+        if lc:
+            le.lang_codes = [lc]
+        l.addRow(_('&Language:'), le)
+        d.bb = bb = QDialogButtonBox(QDialogButtonBox.Ok|QDialogButtonBox.Cancel)
+        l.addRow(bb)
+        bb.accepted.connect(d.accept), bb.rejected.connect(d.reject)
+
+        if d.exec_() != d.Accepted:
+            return
+        lc = le.lang_codes
+        if not lc:
+            return error_dialog(self, _('Must specify language'), _(
+                'You must specify a language to import words'), show=True)
+        words = set(filter(None, [x.strip() for x in unicode(w.toPlainText()).splitlines()]))
+        lang = lc[0]
+        words = {(w, lang) for w in words} - self.current_dictionary.words
+        if dictionaries.add_to_user_dictionary(self.current_dictionary.name, words, None):
+            dictionaries.clear_caches()
+            self.show_current_dictionary()
+            self.dictionaries_changed = True
 
     def remove_word(self):
         words = {i.data(Qt.UserRole).toPyObject() for i in self.words.selectedItems()}
@@ -1064,5 +1103,5 @@ def find_next(word, locations, current_editor, current_editor_name,
 if __name__ == '__main__':
     app = QApplication([])
     dictionaries.initialize()
-    SpellCheck.test()
+    ManageUserDictionaries.test()
     del app
