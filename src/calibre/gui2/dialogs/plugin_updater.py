@@ -13,8 +13,7 @@ from PyQt5.Qt import (Qt, QUrl, QFrame, QVBoxLayout, QLabel, QBrush, QTextEdit,
                       QComboBox, QAbstractItemView, QHBoxLayout, QDialogButtonBox,
                       QAbstractTableModel, QVariant, QTableView, QModelIndex,
                       QSortFilterProxyModel, QAction, QIcon, QDialog,
-                      QFont, QPixmap, QSize)
-from PyQt5.QtGui import QLineEdit
+                      QFont, QPixmap, QSize, QLineEdit)
 
 from calibre import browser, prints
 from calibre.constants import numeric_version, iswindows, isosx, DEBUG, __appname__, __version__

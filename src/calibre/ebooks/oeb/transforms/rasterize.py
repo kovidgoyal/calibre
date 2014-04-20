@@ -8,15 +8,10 @@ __copyright__ = '2008, Marshall T. Vandegrift <llasram@gmail.com>'
 
 import os, re
 from urlparse import urldefrag
+
 from lxml import etree
-from PyQt5.QtCore import Qt
-from PyQt5.QtCore import QByteArray
-from PyQt5.QtCore import QBuffer
-from PyQt5.QtCore import QIODevice
-from PyQt5.QtGui import QColor
-from PyQt5.QtGui import QImage
-from PyQt5.QtGui import QPainter
-from PyQt5.QtSvg import QSvgRenderer
+from PyQt5.Qt import (
+    Qt, QByteArray, QBuffer, QIODevice, QColor, QImage, QPainter, QSvgRenderer)
 from calibre.ebooks.oeb.base import XHTML, XLINK
 from calibre.ebooks.oeb.base import SVG_MIME, PNG_MIME
 from calibre.ebooks.oeb.base import xml2str, xpath

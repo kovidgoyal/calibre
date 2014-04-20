@@ -3,8 +3,7 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
 from functools import partial
 
-from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QDialog
+from PyQt5.Qt import Qt, QDialog
 
 from calibre.gui2.dialogs.tag_editor_ui import Ui_TagEditor
 from calibre.gui2 import question_dialog, error_dialog, gprefs

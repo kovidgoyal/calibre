@@ -480,7 +480,7 @@ if __name__ == '__main__':
         if not iswindows:
             raise
         tb = traceback.format_exc()
-        from PyQt5.QtGui import QErrorMessage
+        from PyQt5.Qt import QErrorMessage
         logfile = os.path.join(os.path.expanduser('~'), 'calibre.log')
         if os.path.exists(logfile):
             log = open(logfile).read().decode('utf-8', 'ignore')

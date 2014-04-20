@@ -239,7 +239,7 @@ class ProceedQuestion(QDialog):
 
 def main():
     from calibre.gui2 import Application
-    from PyQt5.QtGui import QMainWindow
+    from PyQt5.Qt import QMainWindow
     app = Application([])
     w = QMainWindow()
     w.show()
