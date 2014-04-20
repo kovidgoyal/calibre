@@ -526,7 +526,8 @@ using American English and the word colour using British English::
 To change a word, simply double click one of the suggested alternative
 spellings on the right, or type in your own corrected spelling and click the
 :guilabel:`Change selected word to` button. This will replace all occurrences
-of the word in the book.
+of the word in the book. You can also right click on a word in the main word
+list to change the word conveniently from the right click menu.
 
 You can have the spelling checker ignore a word for the current session by
 clicking the :guilabel:`Ignore` button. You can also add a word to the user
