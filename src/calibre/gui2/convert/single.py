@@ -8,7 +8,7 @@ __docformat__ = 'restructuredtext en'
 
 import cPickle, shutil
 
-from PyQt5.Qt import QString, QAbstractListModel, Qt, QVariant, QFont, QModelIndex
+from PyQt5.Qt import QAbstractListModel, Qt, QVariant, QFont, QModelIndex
 
 from calibre.gui2 import ResizableDialog, NONE, gprefs
 from calibre.ebooks.conversion.config import (GuiRecommendations, save_specifics,
@@ -254,9 +254,9 @@ class Config(ResizableDialog, Ui_Dialog):
             preferred_output_format in output_formats else \
             sort_formats_by_preference(output_formats,
                     [prefs['output_format']])[0]
-        self.input_formats.addItems(list(map(QString, [x.upper() for x in
+        self.input_formats.addItems(list(map(unicode, [x.upper() for x in
             input_formats])))
-        self.output_formats.addItems(list(map(QString, [x.upper() for x in
+        self.output_formats.addItems(list(map(unicode, [x.upper() for x in
             output_formats])))
         self.input_formats.setCurrentIndex(input_formats.index(input_format))
         self.output_formats.setCurrentIndex(output_formats.index(preferred_output_format))

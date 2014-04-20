@@ -11,7 +11,7 @@ Write content to PDF.
 import os, shutil, json
 
 from PyQt5.Qt import (QEventLoop, QObject, QPrinter, QSizeF, Qt, QPainter,
-        QPixmap, QTimer, pyqtProperty, QString, QSize)
+        QPixmap, QTimer, pyqtProperty, QSize)
 from PyQt5.QtWebKit import QWebSettings
 from PyQt5.QtWebKitWidgets import QWebView, QWebPage
 
@@ -221,12 +221,12 @@ class PDFWriter(QObject): # {{{
 
     def _pass_json_value_getter(self):
         val = json.dumps(self.bridge_value)
-        return QString(val)
+        return val
 
     def _pass_json_value_setter(self, value):
         self.bridge_value = json.loads(unicode(value))
 
-    _pass_json_value = pyqtProperty(QString, fget=_pass_json_value_getter,
+    _pass_json_value = pyqtProperty(str, fget=_pass_json_value_getter,
             fset=_pass_json_value_setter)
 
     def setup_printer(self, outpath):

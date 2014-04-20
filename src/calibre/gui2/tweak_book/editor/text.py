@@ -82,15 +82,7 @@ class PlainTextEdit(QPlainTextEdit):
         ans = c.selectedText().replace(PARAGRAPH_SEPARATOR, '\n')
         # QTextCursor pads the return value of selectedText with null bytes if
         # non BMP characters such as 0x1f431 are present.
-        if hasattr(ans, 'rstrip'):
-            ans = ans.rstrip('\0')
-        else:  # QString
-            try:
-                while ans[-1] == '\0':
-                    ans.chop(1)
-            except IndexError:
-                pass  # ans is an empty string
-        return ans
+        return ans.rstrip('\0')
 
     @pyqtSlot()
     def copy(self):

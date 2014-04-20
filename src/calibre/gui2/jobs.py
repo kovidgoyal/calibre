@@ -12,7 +12,7 @@ from Queue import Empty, Queue
 
 from PyQt5.Qt import (QAbstractTableModel, QVariant, QModelIndex, Qt,
     QTimer, pyqtSignal, QIcon, QDialog, QAbstractItemDelegate, QApplication,
-    QSize, QStyleOptionProgressBarV2, QString, QStyle, QToolTip, QFrame,
+    QSize, QStyleOptionProgressBar, QStyle, QToolTip, QFrame,
     QHBoxLayout, QVBoxLayout, QSizePolicy, QLabel, QCoreApplication, QAction,
     QByteArray, QSortFilterProxyModel)
 
@@ -387,7 +387,7 @@ class ProgressBarDelegate(QAbstractItemDelegate):  # {{{
         return QSize(120, 30)
 
     def paint(self, painter, option, index):
-        opts = QStyleOptionProgressBarV2()
+        opts = QStyleOptionProgressBar()
         opts.rect = option.rect
         opts.minimum = 1
         opts.maximum = 100
@@ -396,7 +396,7 @@ class ProgressBarDelegate(QAbstractItemDelegate):  # {{{
         if not ok:
             percent = 0
         opts.progress = percent
-        opts.text = QString(_('Unavailable') if percent == 0 else '%d%%'%percent)
+        opts.text = (_('Unavailable') if percent == 0 else '%d%%'%percent)
         QApplication.style().drawControl(QStyle.CE_ProgressBar, opts, painter)
 # }}}
 

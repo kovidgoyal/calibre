@@ -10,7 +10,7 @@ __docformat__ = 'restructuredtext en'
 from functools import partial
 
 from PyQt5.Qt import (Qt, QIcon, QWidget, QHBoxLayout, QVBoxLayout, QShortcut,
-        QKeySequence, QToolButton, QString, QLabel, QFrame, QTimer,
+        QKeySequence, QToolButton, QLabel, QFrame, QTimer,
         QMenu, QPushButton, QActionGroup)
 
 from calibre.gui2 import error_dialog, question_dialog
@@ -370,7 +370,7 @@ class TagBrowserWidget(QWidget):  # {{{
         self.item_search.initialize('tag_browser_search')
         self.item_search.lineEdit().returnPressed.connect(self.do_find)
         self.item_search.lineEdit().textEdited.connect(self.find_text_changed)
-        self.item_search.activated[QString].connect(self.do_find)
+        self.item_search.activated[str].connect(self.do_find)
         self.item_search.completer().setCaseSensitivity(Qt.CaseSensitive)
 
         parent.tags_view = TagsView(parent)

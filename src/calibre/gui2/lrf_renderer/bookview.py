@@ -1,8 +1,7 @@
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
-from PyQt5.QtGui import QGraphicsView
-from PyQt5.QtCore import QSize
+from PyQt5.Qt import QGraphicsView, QSize
 
 class BookView(QGraphicsView):
 

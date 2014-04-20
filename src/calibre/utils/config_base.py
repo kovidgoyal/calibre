@@ -195,10 +195,14 @@ class OptionSet(object):
                     src = src.decode('utf-8')
                 src = src.replace(u'PyQt5.QtCore', u'PyQt4.QtCore')
                 exec src in options
-            except:
-                print 'Failed to parse options string:'
-                print repr(src)
-                traceback.print_exc()
+            except RuntimeError:
+                try:
+                    src = src.replace('PyQt' + '4', 'PyQt5')
+                    exec src in options
+                except:
+                    print 'Failed to parse options string:'
+                    print repr(src)
+                    traceback.print_exc()
         opts = OptionValues()
         for pref in self.preferences:
             val = options.get(pref.name, pref.default)
@@ -228,8 +232,6 @@ class OptionSet(object):
         if val is val is True or val is False or val is None or \
            isinstance(val, (int, float, long, basestring)):
             return repr(val)
-        if val.__class__.__name__ == 'QString':
-            return repr(unicode(val))
         pickle = cPickle.dumps(val, -1)
         return 'cPickle.loads(%s)'%repr(pickle)
 

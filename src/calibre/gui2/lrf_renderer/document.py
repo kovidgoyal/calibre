@@ -2,10 +2,9 @@ __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 import collections, itertools, glob
 
-from PyQt5.QtCore import Qt, QByteArray, pyqtSignal
-from PyQt5.QtGui import QGraphicsRectItem, QGraphicsScene, QPen, \
-                        QBrush, QColor, QFontDatabase, \
-                        QGraphicsItem, QGraphicsLineItem
+from PyQt5.Qt import (
+    Qt, QByteArray, pyqtSignal, QGraphicsRectItem, QGraphicsScene, QPen,
+    QBrush, QColor, QFontDatabase, QGraphicsItem, QGraphicsLineItem)
 
 from calibre.gui2.lrf_renderer.text import TextBlock, FontLoader, COLOR, PixmapItem
 

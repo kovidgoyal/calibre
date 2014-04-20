@@ -2,8 +2,8 @@ __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 import sys, logging, os, traceback, time
 
-from PyQt5.QtGui import QKeySequence, QPainter, QDialog, QSpinBox, QSlider, QIcon
-from PyQt5.QtCore import Qt, QCoreApplication, QThread
+from PyQt5.Qt import (
+    QKeySequence, QPainter, QDialog, QSpinBox, QSlider, QIcon, Qt, QCoreApplication, QThread, QScrollBar)
 
 from calibre import __appname__, setup_cli_handlers, islinux, isbsd
 from calibre.ebooks.lrf.lrfparser import LRFDocument
@@ -162,7 +162,6 @@ class Main(MainWindow, Ui_MainWindow):
                                             self.renderer.lrf.device_info.height
             hdelta = self.tool_bar.height()+3
 
-            from PyQt5.QtGui import QScrollBar
             s = QScrollBar(self)
             scrollbar_adjust = min(s.width(), s.height())
             self.graphics_view.resize_for(width+scrollbar_adjust, height+scrollbar_adjust)

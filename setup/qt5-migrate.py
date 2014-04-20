@@ -18,6 +18,8 @@ __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 # them to check that they work. This can probably be made part of python
 # setup.py check.
 
+# QT5XX: Check that DeviceCategoryEditor and TagListEditor work
+
 # QT5XX: Delete this file after migration is completed
 
 import os

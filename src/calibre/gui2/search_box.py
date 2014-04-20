@@ -12,7 +12,7 @@ from functools import partial
 
 from PyQt5.Qt import QComboBox, Qt, QLineEdit, pyqtSlot, QDialog, \
                      pyqtSignal, QCompleter, QAction, QKeySequence, QTimer, \
-                     QString, QIcon, QMenu
+                     QIcon, QMenu
 
 from calibre.gui2 import config, error_dialog, question_dialog, gprefs
 from calibre.gui2.dialogs.confirm_delete import confirm
@@ -84,8 +84,8 @@ class SearchBox2(QComboBox):  # {{{
 
         c = self.line_edit.completer()
         c.setCompletionMode(c.PopupCompletion)
-        c.highlighted[QString].connect(self.completer_used)
-        c.activated[QString].connect(self.history_selected)
+        c.highlighted[str].connect(self.completer_used)
+        c.activated[str].connect(self.history_selected)
 
         self.line_edit.key_pressed.connect(self.key_pressed, type=Qt.DirectConnection)
         self.activated.connect(self.history_selected)

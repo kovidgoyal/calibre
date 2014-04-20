@@ -2,9 +2,9 @@ __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 import sys, collections, operator, copy, re
 
-from PyQt5.QtCore import Qt, QRectF, QString
-from PyQt5.QtGui import QFont, QColor, QPixmap, QGraphicsPixmapItem, \
-                        QGraphicsItem, QFontMetrics, QPen, QBrush, QGraphicsRectItem
+from PyQt5.Qt import (
+    Qt, QRectF, QFont, QColor, QPixmap, QGraphicsPixmapItem, QGraphicsItem,
+    QFontMetrics, QPen, QBrush, QGraphicsRectItem)
 
 from calibre.ebooks.lrf.fonts import LIBERATION_FONT_MAP
 from calibre.ebooks.BeautifulSoup import Tag
@@ -565,7 +565,7 @@ class Line(QGraphicsItem):
 class Word(object):
 
     def __init__(self, string, width, height, ts, font, valign):
-        self.string, self.width, self.height = QString(string), width, height
+        self.string, self.width, self.height = string, width, height
         self.font = font
         self.text_color = ts.textcolor
         self.highlight = False

@@ -1,8 +1,7 @@
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
-from PyQt5.QtCore import Qt, QString
-from PyQt5.QtGui import QDialog, QListWidgetItem
+from PyQt5.Qt import Qt, QDialog, QListWidgetItem
 
 from calibre.gui2.dialogs.device_category_editor_ui import Ui_DeviceCategoryEditor
 from calibre.gui2 import question_dialog, error_dialog
@@ -11,9 +10,9 @@ class ListWidgetItem(QListWidgetItem):
 
     def __init__(self, txt):
         QListWidgetItem.__init__(self, txt)
-        self.initial_value = QString(txt)
-        self.current_value = QString(txt)
-        self.previous_value = QString(txt)
+        self.initial_value = txt
+        self.current_value = txt
+        self.previous_value = txt
 
     def data(self, role):
         if role == Qt.DisplayRole:
@@ -30,7 +29,7 @@ class ListWidgetItem(QListWidgetItem):
     def setData(self, role, data):
         if role == Qt.EditRole:
             self.previous_value = self.current_value
-            self.current_value = data.toString()
+            self.current_value = data
         QListWidgetItem.setData(self, role, data)
 
     def text(self):
@@ -68,7 +67,7 @@ class DeviceCategoryEditor(QDialog, Ui_DeviceCategoryEditor):
         for tag in sorted(self.all_tags.keys(), key=key):
             item = ListWidgetItem(tag)
             item.setData(Qt.UserRole, self.all_tags[tag])
-            item.setFlags (item.flags() | Qt.ItemIsEditable)
+            item.setFlags(item.flags() | Qt.ItemIsEditable)
             self.available_tags.addItem(item)
 
         if tag_to_match is not None:

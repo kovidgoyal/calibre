@@ -9,7 +9,7 @@ Logic for setting up conversion jobs
 
 import cPickle, os
 
-from PyQt5.Qt import QDialog, QProgressDialog, QString, QTimer
+from PyQt5.Qt import QDialog, QProgressDialog, QTimer
 
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.gui2 import warning_dialog, question_dialog
@@ -151,7 +151,7 @@ class QueueBulk(QProgressDialog):
     def __init__(self, parent, book_ids, output_format, queue, db, user_recs,
             args, use_saved_single_settings=True):
         QProgressDialog.__init__(self, '',
-                QString(), 0, len(book_ids), parent)
+                None, 0, len(book_ids), parent)
         self.setWindowTitle(_('Queueing books for bulk conversion'))
         self.book_ids, self.output_format, self.queue, self.db, self.args, self.user_recs = \
                 book_ids, output_format, queue, db, args, user_recs

@@ -12,7 +12,7 @@ from urllib import unquote
 from collections import defaultdict
 
 from cssutils import CSSParser
-from PyQt5.Qt import (pyqtProperty, QString, QEventLoop, Qt, QSize, QTimer,
+from PyQt5.Qt import (pyqtProperty, QEventLoop, Qt, QSize, QTimer,
                       pyqtSlot)
 from PyQt5.QtWebKitWidgets import QWebPage, QWebView
 
@@ -130,14 +130,14 @@ class Page(QWebPage):  # {{{
 
     def _pass_json_value_getter(self):
         val = json.dumps(self.bridge_value)
-        return QString(val)
+        return val
 
     def _pass_json_value_setter(self, value):
         # Qt WebKit in Qt 4.x adds extra null bytes to the end of the string
         # if the JSON contains non-BMP characters
         self.bridge_value = json.loads(unicode(value).rstrip('\0'))
 
-    _pass_json_value = pyqtProperty(QString, fget=_pass_json_value_getter,
+    _pass_json_value = pyqtProperty(str, fget=_pass_json_value_getter,
             fset=_pass_json_value_setter)
 
     def load_js(self):

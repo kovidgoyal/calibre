@@ -10,7 +10,7 @@ from functools import partial
 
 from PyQt5.Qt import (QSize, QSizePolicy, QUrl, Qt, pyqtProperty,
         QPainter, QPalette, QBrush, QDialog, QColor, QPoint, QImage, QRegion,
-        QIcon, QAction, QMenu, QString, pyqtSignal, QApplication, pyqtSlot)
+        QIcon, QAction, QMenu, pyqtSignal, QApplication, pyqtSlot)
 from PyQt5.QtWebKitWidgets import QWebPage, QWebView
 from PyQt5.QtWebKit import QWebSettings, QWebElement
 
@@ -225,12 +225,12 @@ class Document(QWebPage):  # {{{
 
     def _pass_json_value_getter(self):
         val = json.dumps(self.bridge_value)
-        return QString(val)
+        return val
 
     def _pass_json_value_setter(self, value):
         self.bridge_value = json.loads(unicode(value))
 
-    _pass_json_value = pyqtProperty(QString, fget=_pass_json_value_getter,
+    _pass_json_value = pyqtProperty(str, fget=_pass_json_value_getter,
             fset=_pass_json_value_setter)
 
     def after_load(self, last_loaded_path=None):

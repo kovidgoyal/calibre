@@ -1,8 +1,7 @@
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
-from PyQt5.Qt import (Qt, QDialog, QTableWidgetItem, QIcon, QByteArray,
-        QString, QSize)
+from PyQt5.Qt import (Qt, QDialog, QTableWidgetItem, QIcon, QByteArray, QSize)
 
 from calibre.gui2.dialogs.tag_list_editor_ui import Ui_TagListEditor
 from calibre.gui2 import question_dialog, error_dialog, info_dialog, gprefs
@@ -12,9 +11,9 @@ class NameTableWidgetItem(QTableWidgetItem):
 
     def __init__(self, txt):
         QTableWidgetItem.__init__(self, txt)
-        self.initial_value = QString(txt)
-        self.current_value = QString(txt)
-        self.previous_value = QString(txt)
+        self.initial_value = txt
+        self.current_value = txt
+        self.previous_value = txt
 
     def data(self, role):
         if role == Qt.DisplayRole:
@@ -27,7 +26,7 @@ class NameTableWidgetItem(QTableWidgetItem):
     def setData(self, role, data):
         if role == Qt.EditRole:
             self.previous_value = self.current_value
-            self.current_value = data.toString()
+            self.current_value = data
         QTableWidgetItem.setData(self, role, data)
 
     def text(self):
@@ -113,7 +112,7 @@ class TagListEditor(QDialog, Ui_TagListEditor):
         self.count_col.setIcon(self.blank_icon)
 
         # Capture clicks on the horizontal header to sort the table columns
-        hh = self.table.horizontalHeader();
+        hh = self.table.horizontalHeader()
         hh.setClickable(True)
         hh.sectionClicked.connect(self.header_clicked)
         hh.sectionResized.connect(self.table_column_resized)
@@ -127,16 +126,16 @@ class TagListEditor(QDialog, Ui_TagListEditor):
         for row,tag in enumerate(sorted(self.all_tags.keys(), key=sorter)):
             item = NameTableWidgetItem(tag)
             item.setData(Qt.UserRole, self.all_tags[tag])
-            item.setFlags (item.flags() | Qt.ItemIsSelectable | Qt.ItemIsEditable)
+            item.setFlags(item.flags() | Qt.ItemIsSelectable | Qt.ItemIsEditable)
             self.table.setItem(row, 0, item)
             if tag == tag_to_match:
                 select_item = item
             item = CountTableWidgetItem(self.counts[tag])
             # only the name column can be selected
-            item.setFlags (item.flags() & ~(Qt.ItemIsSelectable|Qt.ItemIsEditable))
+            item.setFlags(item.flags() & ~(Qt.ItemIsSelectable|Qt.ItemIsEditable))
             self.table.setItem(row, 1, item)
             item = QTableWidgetItem('')
-            item.setFlags (item.flags() & ~(Qt.ItemIsSelectable|Qt.ItemIsEditable))
+            item.setFlags(item.flags() & ~(Qt.ItemIsSelectable|Qt.ItemIsEditable))
             self.table.setItem(row, 2, item)
 
         # Scroll to the selected item if there is one
@@ -266,7 +265,7 @@ class TagListEditor(QDialog, Ui_TagListEditor):
         self.count_col.setIcon(self.blank_icon)
         self.was_col.setIcon(self.blank_icon)
 
-    def do_sort_by_count (self):
+    def do_sort_by_count(self):
         self.count_order = 1 if self.count_order == 0 else 0
         self.table.sortByColumn(1, self.count_order)
         self.count_col.setIcon(self.down_arrow_icon if self.count_order

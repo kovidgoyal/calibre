@@ -6,7 +6,7 @@ __docformat__ = 'restructuredtext en'
 
 import shutil
 
-from PyQt5.Qt import QString, QModelIndex
+from PyQt5.Qt import QModelIndex
 
 from calibre.gui2.convert.single import (Config, sort_formats_by_preference,
     GroupModel, gprefs, get_output_formats)
@@ -120,7 +120,7 @@ class BulkConfig(Config):
             preferred_output_format and preferred_output_format \
             in output_formats else sort_formats_by_preference(output_formats,
                     [prefs['output_format']])[0]
-        self.output_formats.addItems(list(map(QString, [x.upper() for x in
+        self.output_formats.addItems(list(map(unicode, [x.upper() for x in
             output_formats])))
         self.output_formats.setCurrentIndex(output_formats.index(preferred_output_format))
 
