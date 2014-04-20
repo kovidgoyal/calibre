@@ -807,6 +807,9 @@ class SpellCheck(Dialog):
         self.thread = None
         self.cancel = False
         dictionaries.initialize()
+        self.current_word_changed_timer = t = QTimer()
+        t.timeout.connect(self.do_current_word_changed)
+        t.setSingleShot(True), t.setInterval(100)
         Dialog.__init__(self, _('Check spelling'), 'spell-check', parent)
         self.work_finished.connect(self.work_done, type=Qt.QueuedConnection)
         self.setAttribute(Qt.WA_DeleteOnClose, False)
@@ -960,6 +963,9 @@ class SpellCheck(Dialog):
         self.user_dictionaries_missing_label.setVisible(not self.user_dictionaries.isVisible())
 
     def current_word_changed(self, *args):
+        self.current_word_changed_timer.start(self.current_word_changed_timer.interval())
+
+    def do_current_word_changed(self):
         try:
             b = self.ignore_button
         except AttributeError:
