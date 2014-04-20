@@ -727,6 +727,30 @@ class WordsModel(QAbstractTableModel):
         except ValueError:
             return -1
 
+class WordsView(QTableView):
+
+    def __init__(self, parent=None):
+        QTableView.__init__(self, parent)
+        self.setSortingEnabled(True), self.setShowGrid(False), self.setAlternatingRowColors(True)
+        self.setSelectionBehavior(self.SelectRows), self.setSelectionMode(self.SingleSelection)
+        self.setTabKeyNavigation(False)
+        self.verticalHeader().close()
+
+    def keyPressEvent(self, ev):
+        ret = QTableView.keyPressEvent(self, ev)
+        if ev.key() in (Qt.Key_PageUp, Qt.Key_PageDown, Qt.Key_Up, Qt.Key_Down):
+            idx = self.currentIndex()
+            if idx.isValid():
+                self.scrollTo(idx)
+        return ret
+
+    def highlight_row(self, row):
+        idx = self.model().index(row, 0)
+        if idx.isValid():
+            self.selectRow(row)
+            self.setCurrentIndex(idx)
+            self.scrollTo(idx)
+
 class SpellCheck(Dialog):
 
     work_finished = pyqtSignal(object, object)
@@ -783,16 +807,12 @@ class SpellCheck(Dialog):
 
         m.h2 = h = QHBoxLayout()
         l.addLayout(h)
-        self.words_view = w = QTableView(m)
+        self.words_view = w = WordsView(m)
         set_no_activate_on_click(w)
         w.activated.connect(self.word_activated)
         w.currentChanged = self.current_word_changed
         state = tprefs.get('spell-check-table-state', None)
         hh = self.words_view.horizontalHeader()
-        w.setSortingEnabled(True), w.setShowGrid(False), w.setAlternatingRowColors(True)
-        w.setSelectionBehavior(w.SelectRows), w.setSelectionMode(w.SingleSelection)
-        w.setTabKeyNavigation(False)
-        w.verticalHeader().close()
         h.addWidget(w)
         self.words_model = m = WordsModel(self)
         w.setModel(m)
@@ -941,7 +961,7 @@ class SpellCheck(Dialog):
             w = self.words_model.replace_word(w, new_word)
             row = self.words_model.row_for_word(w)
             if row > -1:
-                self.highlight_row(row)
+                self.words_view.highlight_row(row)
 
     def toggle_ignore(self):
         current = self.words_view.currentIndex()
@@ -963,13 +983,6 @@ class SpellCheck(Dialog):
         self.words_view.horizontalHeader().setSectionHidden(3, m.show_only_misspelt)
         self.do_filter()
 
-    def highlight_row(self, row):
-        idx = self.words_model.index(row, 0)
-        if idx.isValid():
-            self.words_view.selectRow(row)
-            self.words_view.setCurrentIndex(idx)
-            self.words_view.scrollTo(idx)
-
     def __enter__(self):
         idx = self.words_view.currentIndex().row()
         self.__current_word = self.words_model.word_for_row(idx)
@@ -977,7 +990,7 @@ class SpellCheck(Dialog):
     def __exit__(self, *args):
         if self.__current_word is not None:
             row = self.words_model.row_for_word(self.__current_word)
-            self.highlight_row(max(0, row))
+            self.words_view.highlight_row(max(0, row))
         self.__current_word = None
 
     def do_filter(self):
@@ -1031,7 +1044,7 @@ class SpellCheck(Dialog):
         col, reverse = self.words_model.sort_on
         self.words_view.horizontalHeader().setSortIndicator(
             col, Qt.DescendingOrder if reverse else Qt.AscendingOrder)
-        self.highlight_row(0)
+        self.words_view.highlight_row(0)
         self.update_summary()
         self.initialize_user_dictionaries()
         if self.words_model.rowCount() > 0:
@@ -1103,5 +1116,5 @@ def find_next(word, locations, current_editor, current_editor_name,
 if __name__ == '__main__':
     app = QApplication([])
     dictionaries.initialize()
-    ManageUserDictionaries.test()
+    SpellCheck.test()
     del app
