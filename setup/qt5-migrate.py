@@ -22,7 +22,7 @@ __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
 # QT5XX: Delete this file after migration is completed
 
-import os
+import os, re
 
 def all_py_files():
     base = os.path.dirname(os.path.dirname(os.path.basename(__file__)))
@@ -31,7 +31,21 @@ def all_py_files():
             if n.endswith('.py'):
                 yield os.path.join(dirpath, n)
 
+def detect_qvariant():
+    count = 0
+    pat = re.compile(b'|'.join(b'QVariant NONE toInt toBool toString toPyObject canConvert toBitArray toByteArray toHash toFloat toMap toLine toPoint toReal toRect toTime toUInt toUrl'.split()))  # noqa
+    for path in all_py_files():
+        if os.path.basename(path) in {
+                'BeautifulSoup.py', 'icu.py', 'smtp.py', 'Zeroconf.py', 'date.py', 'apsw_shell.py', } or 'pylrs' in path:
+            continue
+        raw = open(path, 'rb').read()
+        m = pat.search(raw)
+        if m is not None:
+            print (path, '\t', m.group())
+            count += 1
+    print ('Detected %d files with possible usage of QVariant' % count)
+
 
 if __name__ == '__main__':
-    pass
+    detect_qvariant()
 
