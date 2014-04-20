@@ -3,8 +3,7 @@
 
 %Module(name=pictureflow, version=1)
 
-%Import QtCore/QtCoremod.sip
-%Import QtGui/QtGuimod.sip
+%Import QtWidgets/QtWidgetsmod.sip
 
 class FlowImages : QObject {
 
