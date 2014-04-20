@@ -860,6 +860,7 @@ class SpellCheck(Dialog):
         self.suggested_word = sw = LineEdit(self)
         sw.set_separator(None)
         sw.setPlaceholderText(_('The replacement word'))
+        sw.returnPressed.connect(self.change_word)
         l.addWidget(sw)
         self.suggested_list = sl = QListWidget(self)
         sl.currentItemChanged.connect(self.current_suggestion_changed)
@@ -877,6 +878,12 @@ class SpellCheck(Dialog):
         self.hb = h = QHBoxLayout()
         self.summary = s = QLabel('')
         self.main.l.addLayout(h), h.addWidget(s), h.addWidget(om), h.addWidget(cs), h.addStretch(1)
+
+    def keyPressEvent(self, ev):
+        if ev.key() in (Qt.Key_Enter, Qt.Key_Return):
+            ev.accept()
+            return
+        return Dialog.keyPressEvent(self, ev)
 
     def sort_type_changed(self):
         tprefs['spell_check_case_sensitive_sort'] = bool(self.case_sensitive_sort.isChecked())
