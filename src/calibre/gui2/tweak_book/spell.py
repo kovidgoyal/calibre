@@ -9,10 +9,11 @@ __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 import cPickle, os, sys
 from collections import defaultdict, OrderedDict
 from threading import Thread
+from functools import partial
 
 from PyQt4.Qt import (
     QGridLayout, QApplication, QTreeWidget, QTreeWidgetItem, Qt, QFont, QSize,
-    QStackedLayout, QLabel, QVBoxLayout, QWidget, QPushButton, QIcon,
+    QStackedLayout, QLabel, QVBoxLayout, QWidget, QPushButton, QIcon, QMenu,
     QDialogButtonBox, QLineEdit, QDialog, QToolButton, QFormLayout, QHBoxLayout,
     pyqtSignal, QAbstractTableModel, QModelIndex, QTimer, QTableView, QCheckBox,
     QComboBox, QListWidget, QListWidgetItem, QInputDialog, QPlainTextEdit)
@@ -667,12 +668,30 @@ class WordsModel(QAbstractTableModel):
             self.spell_map[w] = dictionaries.recognized(*w)
             self.update_word(w)
 
+    def ignore_words(self, rows):
+        words = {self.word_for_row(r) for r in rows}
+        words.discard(None)
+        for w in words:
+            ignored = dictionaries.is_word_ignored(*w)
+            (dictionaries.unignore_word if ignored else dictionaries.ignore_word)(*w)
+            self.spell_map[w] = dictionaries.recognized(*w)
+            self.update_word(w)
+
     def add_word(self, row, udname):
         w = self.word_for_row(row)
         if w is not None:
             if dictionaries.add_to_user_dictionary(udname, *w):
                 self.spell_map[w] = dictionaries.recognized(*w)
                 self.update_word(w)
+
+    def add_words(self, dicname, rows):
+        words = {self.word_for_row(r) for r in rows}
+        words.discard(None)
+        for w in words:
+            if not dictionaries.add_to_user_dictionary(dicname, *w):
+                dictionaries.remove_from_user_dictionary(dicname, [w])
+            self.spell_map[w] = dictionaries.recognized(*w)
+            self.update_word(w)
 
     def remove_word(self, row):
         w = self.word_for_row(row)
@@ -729,10 +748,14 @@ class WordsModel(QAbstractTableModel):
 
 class WordsView(QTableView):
 
+    ignore_all = pyqtSignal()
+    add_all = pyqtSignal(object)
+    change_to = pyqtSignal(object, object)
+
     def __init__(self, parent=None):
         QTableView.__init__(self, parent)
         self.setSortingEnabled(True), self.setShowGrid(False), self.setAlternatingRowColors(True)
-        self.setSelectionBehavior(self.SelectRows), self.setSelectionMode(self.SingleSelection)
+        self.setSelectionBehavior(self.SelectRows)
         self.setTabKeyNavigation(False)
         self.verticalHeader().close()
 
@@ -750,6 +773,27 @@ class WordsView(QTableView):
             self.selectRow(row)
             self.setCurrentIndex(idx)
             self.scrollTo(idx)
+
+    def contextMenuEvent(self, ev):
+        m = QMenu(self)
+        w = self.model().word_for_row(self.currentIndex().row())
+        if w is not None:
+            a = m.addAction(_('Change %s to') % w[0])
+            cm = QMenu()
+            a.setMenu(cm)
+            cm.addAction(_('Specify replacement manually'), partial(self.change_to.emit, w, None))
+            cm.addSeparator()
+            for s in dictionaries.suggestions(*w):
+                cm.addAction(s, partial(self.change_to.emit, w, s))
+
+        m.addAction(_('Ignore/Unignore all selected words'), self.ignore_all)
+        a = m.addAction(_('Add/Remove all selected words'))
+        am = QMenu()
+        a.setMenu(am)
+        for dic in sorted(dictionaries.active_user_dictionaries, key=lambda x:sort_key(x.name)):
+            am.addAction(dic.name, partial(self.add_all.emit, dic.name))
+
+        m.exec_(ev.globalPos())
 
 class SpellCheck(Dialog):
 
@@ -809,7 +853,10 @@ class SpellCheck(Dialog):
         l.addLayout(h)
         self.words_view = w = WordsView(m)
         set_no_activate_on_click(w)
+        w.ignore_all.connect(self.ignore_all)
+        w.add_all.connect(self.add_all)
         w.activated.connect(self.word_activated)
+        w.change_to.connect(self.change_to)
         w.currentChanged = self.current_word_changed
         state = tprefs.get('spell-check-table-state', None)
         hh = self.words_view.horizontalHeader()
@@ -833,7 +880,7 @@ class SpellCheck(Dialog):
         h.addLayout(l)
         h.setStretch(0, 1)
         l.addWidget(b), l.addSpacing(20)
-        self.add_button = b = QPushButton(_('Add to &dictionary:'))
+        self.add_button = b = QPushButton(_('Add word to &dictionary:'))
         b.add_text, b.remove_text = unicode(b.text()), _('Remove from &dictionaries')
         b.add_tt = _('Add the current word to the specified user dictionary')
         b.remove_tt = _('Remove the current word from all active user dictionaries')
@@ -962,6 +1009,16 @@ class SpellCheck(Dialog):
         if w is None:
             return
         new_word = unicode(self.suggested_word.text())
+        self.do_change_word(w, new_word)
+
+    def change_to(self, w, new_word):
+        if new_word is None:
+            self.suggested_word.setFocus(Qt.OtherFocusReason)
+            self.suggested_word.clear()
+            return
+        self.do_change_word(w, new_word)
+
+    def do_change_word(self, w, new_word):
         changed_files = replace_word(current_container(), new_word, self.words_model.words[w], w[1])
         if changed_files:
             self.word_replaced.emit(changed_files)
@@ -974,6 +1031,18 @@ class SpellCheck(Dialog):
         current = self.words_view.currentIndex()
         if current.isValid():
             self.words_model.toggle_ignored(current.row())
+
+    def ignore_all(self):
+        rows = {i.row() for i in self.words_view.selectionModel().selectedRows()}
+        rows.discard(-1)
+        if rows:
+            self.words_model.ignore_words(rows)
+
+    def add_all(self, dicname):
+        rows = {i.row() for i in self.words_view.selectionModel().selectedRows()}
+        rows.discard(-1)
+        if rows:
+            self.words_model.add_words(dicname, rows)
 
     def add_remove(self):
         current = self.words_view.currentIndex()
