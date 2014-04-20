@@ -701,6 +701,8 @@ class WordsModel(QAbstractTableModel):
                 self.update_word(w)
 
     def replace_word(self, w, new_word):
+        for location in self.words[w]:
+            location.original_word = new_word
         if w[0] == new_word:
             return w
         new_key = (new_word, w[1])
