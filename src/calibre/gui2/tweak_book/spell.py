@@ -702,7 +702,7 @@ class WordsModel(QAbstractTableModel):
 
     def replace_word(self, w, new_word):
         for location in self.words[w]:
-            location.original_word = new_word
+            location.replace(new_word)
         if w[0] == new_word:
             return w
         new_key = (new_word, w[1])
@@ -1164,6 +1164,7 @@ class SpellCheck(Dialog):
         d.exec_()
 # }}}
 
+# Find next occurrence  {{{
 def find_next(word, locations, current_editor, current_editor_name,
               gui_parent, show_editor, edit_file):
     files = OrderedDict()
@@ -1196,6 +1197,7 @@ def find_next(word, locations, current_editor, current_editor_name,
             show_editor(file_name)
             return True
     return False
+# }}}
 
 if __name__ == '__main__':
     app = QApplication([])

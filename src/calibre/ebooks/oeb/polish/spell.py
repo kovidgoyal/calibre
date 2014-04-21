@@ -19,7 +19,7 @@ _patterns = None
 
 class Patterns(object):
 
-    __slots__ = ('sanitize_invisible_pat', 'split_pat', 'digit_pat')
+    __slots__ = ('sanitize_invisible_pat', 'split_pat', 'digit_pat', 'fr_elision_pat')
 
     def __init__(self):
         import regex
@@ -30,6 +30,10 @@ class Patterns(object):
             r'\W+', flags=regex.VERSION1 | regex.WORD | regex.FULLCASE | regex.UNICODE)
         self.digit_pat = regex.compile(
             r'^\d+$', flags=regex.VERSION1 | regex.WORD | regex.UNICODE)
+        # French words with prefixes are reduced to the stem word, so that the
+        # words appear only once in the word list
+        self.fr_elision_pat = regex.compile(
+            u"^(?:l|d|m|t|s|j|c|ç|lorsqu|puisqu|quoiqu|qu)['’]", flags=regex.UNICODE | regex.VERSION1 | regex.IGNORECASE)
 
 def patterns():
     global _patterns
@@ -39,15 +43,18 @@ def patterns():
 
 class Location(object):
 
-    __slots__ = ('file_name', 'sourceline', 'original_word', 'location_node', 'node_item')
+    __slots__ = ('file_name', 'sourceline', 'original_word', 'location_node', 'node_item', 'elided_prefix')
 
-    def __init__(self, file_name=None, sourceline=None, original_word=None, location_node=None, node_item=(None, None)):
-        self.file_name, self.sourceline, self.original_word = file_name, sourceline, original_word
-        self.location_node, self.node_item = location_node, node_item
+    def __init__(self, file_name=None, elided_prefix='', original_word=None, location_node=None, node_item=(None, None)):
+        self.file_name, self.elided_prefix, self.original_word = file_name, elided_prefix, original_word
+        self.location_node, self.node_item, self.sourceline = location_node, node_item, location_node.sourceline
 
     def __repr__(self):
-        return '%s:%s' % (self.file_name, self.sourceline)
+        return '%s @ %s:%s' % (self.original_word, self.file_name, self.sourceline)
     __str__ = __repr__
+
+    def replace(self, new_word):
+        self.original_word = self.elided_prefix + new_word
 
 def filter_words(word):
     if not word:
@@ -68,9 +75,16 @@ def add_words(text, node, words, file_name, locale, node_item):
     candidates = get_words(text, locale.langcode)
     if candidates:
         p = patterns()
+        is_fr = locale.langcode == 'fra'
         for word in candidates:
             sword = p.sanitize_invisible_pat.sub('', word)
-            loc = Location(file_name, node.sourceline, word, node, node_item)
+            elided_prefix = ''
+            if is_fr:
+                m = p.fr_elision_pat.match(sword)
+                if m is not None and len(sword) > len(elided_prefix):
+                    elided_prefix = m.group()
+                    sword = sword[len(elided_prefix):]
+            loc = Location(file_name, elided_prefix, word, node, node_item)
             words[(sword, locale)].append(loc)
 
 def add_words_from_attr(node, attr, words, file_name, locale):
@@ -184,7 +198,8 @@ def replace_word(container, new_word, locations, locale):
             text = node.get(attr)
         else:
             text = getattr(node, attr)
-        text, replaced = replace(text, loc.original_word, new_word, locale.langcode)
+        replacement = loc.elided_prefix + new_word
+        text, replaced = replace(text, loc.original_word, replacement, locale.langcode)
         if replaced:
             if is_attr:
                 node.set(attr, text)
