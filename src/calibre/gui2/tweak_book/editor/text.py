@@ -385,16 +385,17 @@ class TextEdit(PlainTextEdit):
             c.movePosition(c.Start)
         c.movePosition(c.End, c.KeepAnchor)
 
-        def find_word(haystack):
+        def find_first_word(haystack):
+            match_pos, match_word = -1, None
             for w in original_words:
                 idx = index_of(w, haystack, lang=lang)
-                if idx > -1:
-                    return idx, w
-            return -1, None
+                if idx > -1 and (match_pos == -1 or match_pos > idx):
+                    match_pos, match_word = idx, w
+            return match_pos, match_word
 
         while True:
             text = unicode(c.selectedText()).rstrip('\0')
-            idx, word = find_word(text)
+            idx, word = find_first_word(text)
             if idx == -1:
                 return False
             c.setPosition(c.anchor() + idx)
