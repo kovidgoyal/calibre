@@ -47,7 +47,7 @@ elif flags in ('master', 'qt5'):
     if is_qt5_transition:
         # Rebuild PyQt extensions
         if not os.path.exists('.git/rebase-merge'):  # Dont rebuild if we are rebasing
-            for ext in ('progress_indicator',):
+            for ext in ('progress_indicator', 'pictureflow'):
                 extdir = os.path.join('build', 'pyqt', ext)
                 if os.path.exists(extdir):
                     shutil.rmtree(extdir)
