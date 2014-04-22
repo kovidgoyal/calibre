@@ -26,7 +26,7 @@ from calibre.gui2 import (file_icon_provider, UNDEFINED_QDATETIME,
 from calibre.gui2.complete2 import EditWithComplete
 from calibre.utils.date import (
     local_tz, qt_to_dt, as_local_time, UNDEFINED_DATE, is_date_undefined)
-from calibre import strftime
+from calibre import strftime, force_unicode
 from calibre.ebooks import BOOK_EXTENSIONS
 from calibre.customize.ui import run_plugins_on_import
 from calibre.utils.date import utcfromtimestamp
@@ -298,7 +298,7 @@ class AuthorsEdit(EditWithComplete):
                     error_dialog(self, _('Permission denied'),
                             _('Could not change the on disk location of this'
                                 ' book. Is it open in another program?'),
-                            det_msg=p+traceback.format_exc(), show=True)
+                            det_msg=p+force_unicode(traceback.format_exc()), show=True)
                     return False
                 raise
         return True
