@@ -254,7 +254,7 @@ if iswindows:
 
 def available_heights():
     desktop  = QCoreApplication.instance().desktop()
-    return map(lambda x: x.height(), map(desktop.availableGeometry, range(desktop.numScreens())))
+    return map(lambda x: x.height(), map(desktop.availableGeometry, range(desktop.screenCount())))
 
 def available_height():
     desktop  = QCoreApplication.instance().desktop()
