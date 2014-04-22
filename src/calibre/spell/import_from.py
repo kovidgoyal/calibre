@@ -62,6 +62,7 @@ def import_from_libreoffice_source_tree(source_path):
                 df = os.path.join(dest, locale + os.path.splitext(src)[1])
                 shutil.copyfile(src, df)
             with open(os.path.join(dest, 'locales'), 'wb') as f:
+                locales.sort(key=lambda x: (0, x) if x == locale else (1, x))
                 f.write(('\n'.join(locales)).encode('utf-8'))
 
     if want_locales:
