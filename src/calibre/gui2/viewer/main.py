@@ -136,7 +136,7 @@ class EbookViewer(MainWindow):
                 _('Clear list of recently opened books'), self)
         self.clear_recent_history_action.triggered.connect(self.clear_recent_history)
         self.build_recent_menu()
-        self.open_history_menu.triggered[QAction].connect(self.open_recent)
+        self.open_history_menu.triggered.connect(self.open_recent)
 
         for x in ('tool_bar', 'tool_bar2'):
             x = getattr(self, x)
