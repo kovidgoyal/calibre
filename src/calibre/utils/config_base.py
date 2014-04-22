@@ -195,7 +195,7 @@ class OptionSet(object):
                     src = src.decode('utf-8')
                 src = src.replace(u'PyQt5.QtCore', u'PyQt4.QtCore')
                 exec src in options
-            except RuntimeError:
+            except (SystemError, RuntimeError):
                 try:
                     src = src.replace('PyQt' + '4', 'PyQt5')
                     exec src in options
