@@ -1161,18 +1161,21 @@ class DocumentView(QWebView):  # {{{
         painter.end()
 
     def wheelEvent(self, event):
+        if event.phase() != Qt.ScrollUpdate:
+            return
         mods = event.modifiers()
+        num_degrees = event.angleDelta().y() // 8
         if mods & Qt.CTRL:
-            if self.manager is not None and event.delta() != 0:
-                (self.manager.font_size_larger if event.delta() > 0 else
+            if self.manager is not None and num_degrees != 0:
+                (self.manager.font_size_larger if num_degrees > 0 else
                         self.manager.font_size_smaller)()
                 return
 
         if self.document.in_paged_mode:
-            if abs(event.delta()) < 15:
+            if abs(num_degrees) < 15:
                 return
             typ = 'screen' if self.document.wheel_flips_pages else 'col'
-            direction = 'next' if event.delta() < 0 else 'previous'
+            direction = 'next' if num_degrees < 0 else 'previous'
             loc = self.document.javascript('paged_display.%s_%s_location()'%(
                 direction, typ), typ='int')
             if loc > -1:
@@ -1188,7 +1191,7 @@ class DocumentView(QWebView):  # {{{
                 event.accept()
             return
 
-        if event.delta() < -14:
+        if num_degrees < -14:
             if self.document.wheel_flips_pages:
                 self.next_page()
                 event.accept()
@@ -1199,7 +1202,7 @@ class DocumentView(QWebView):  # {{{
                     self.manager.next_document()
                     event.accept()
                     return
-        elif event.delta() > 14:
+        elif num_degrees > 14:
             if self.document.wheel_flips_pages:
                 self.previous_page()
                 event.accept()
@@ -1213,8 +1216,10 @@ class DocumentView(QWebView):  # {{{
 
         ret = QWebView.wheelEvent(self, event)
 
-        scroll_amount = (event.delta() / 120.0) * .2 * -1
-        if event.orientation() == Qt.Vertical:
+        num_degrees_h = event.angleDelta().x() // 8
+        vertical = abs(num_degrees) > abs(num_degrees_h)
+        scroll_amount = ((num_degrees if vertical else num_degrees_h)/ 120.0) * .2 * -1
+        if vertical:
             self.scroll_by(0, self.document.viewportSize().height() * scroll_amount)
         else:
             self.scroll_by(self.document.viewportSize().width() * scroll_amount, 0)
