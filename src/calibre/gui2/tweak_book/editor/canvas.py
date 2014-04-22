@@ -10,7 +10,7 @@ import sys, weakref
 from functools import wraps
 
 from PyQt5.Qt import (
-    QWidget, QPainter, QColor, QApplication, Qt, QPixmap, QRectF, QMatrix,
+    QWidget, QPainter, QColor, QApplication, Qt, QPixmap, QRectF, QTransform,
     QPointF, QPen, pyqtSignal, QUndoCommand, QUndoStack, QIcon, QImage, QByteArray)
 
 from calibre import fit_image
@@ -152,7 +152,7 @@ class Rotate(Command):
 
     def __call__(self, canvas):
         img = canvas.current_image
-        m = QMatrix()
+        m = QTransform()
         m.rotate(90)
         return img.transformed(m, Qt.SmoothTransformation)
 
