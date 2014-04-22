@@ -7,7 +7,7 @@ __docformat__ = 'restructuredtext en'
 
 import sys
 
-from PyQt5.Qt import (Qt, QApplication, QStyle, QIcon,  QDoubleSpinBox, QStyleOptionViewItemV4,
+from PyQt5.Qt import (Qt, QApplication, QStyle, QIcon,  QDoubleSpinBox, QStyleOptionViewItem,
         QVariant, QSpinBox, QStyledItemDelegate, QComboBox, QTextDocument, QSize,
         QAbstractTextDocumentLayout, QFont, QFontInfo, QDate, QDateTimeEdit, QDateTime)
 
@@ -453,7 +453,7 @@ class CcBoolDelegate(QStyledItemDelegate):  # {{{
     def updateEditorGeometry(self, editor, option, index):
         if editor is None:
             return
-        opt = QStyleOptionViewItemV4(option)
+        opt = QStyleOptionViewItem(option)
         self.initStyleOption(opt, index)
         opt.showDecorationSelected = True
         opt.decorationSize = QSize(0, 0)  # We want the editor to cover the decoration
