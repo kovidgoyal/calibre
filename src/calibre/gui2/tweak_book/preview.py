@@ -212,7 +212,7 @@ class NetworkAccessManager(QNetworkAccessManager):
         self.cache.setMaximumCacheSize(0)
 
     def createRequest(self, operation, request, data):
-        url = unicode(request.url().toString())
+        url = unicode(request.url().toString(QUrl.None))
         if operation == self.GetOperation and url.startswith('file://'):
             path = url[7:]
             if iswindows and path.startswith('/'):
@@ -320,12 +320,13 @@ class WebPage(QWebPage):
     def line_numbers(self):
         if self._line_numbers is None:
             def atoi(x):
-                ans, ok = x.toUInt()
-                if not ok:
+                try:
+                    ans = int(x)
+                except (TypeError, ValueError):
                     ans = None
                 return ans
-            self._line_numbers = sorted(uniq(filter(lambda x:x is not None, map(atoi, self.mainFrame().evaluateJavaScript(
-                'window.calibre_preview_integration.line_numbers()').toStringList()))))
+            val = self.mainFrame().evaluateJavaScript('window.calibre_preview_integration.line_numbers()')
+            self._line_numbers = sorted(uniq(filter(lambda x:x is not None, map(atoi, val))))
         return self._line_numbers
 
     def go_to_line(self, lnum):

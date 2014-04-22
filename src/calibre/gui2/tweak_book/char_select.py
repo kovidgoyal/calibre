@@ -12,13 +12,12 @@ from functools import partial
 from collections import defaultdict
 
 from PyQt5.Qt import (
-    QAbstractItemModel, QModelIndex, Qt, QVariant, pyqtSignal, QApplication,
+    QAbstractItemModel, QModelIndex, Qt, pyqtSignal, QApplication,
     QTreeView, QSize, QGridLayout, QAbstractListModel, QListView, QPen, QMenu,
     QStyledItemDelegate, QSplitter, QLabel, QSizePolicy, QIcon, QMimeData,
     QPushButton, QToolButton, QInputMethodEvent)
 
 from calibre.constants import plugins, cache_dir
-from calibre.gui2 import NONE
 from calibre.gui2.widgets2 import HistoryLineEdit2
 from calibre.gui2.tweak_book import tprefs
 from calibre.gui2.tweak_book.widgets import Dialog, BusyCursor
@@ -435,20 +434,20 @@ class CategoryModel(QAbstractItemModel):
 
     def data(self, index, role=Qt.DisplayRole):
         if not index.isValid():
-            return NONE
+            return None
         pid = index.internalId()
         if pid == 0:
             if role == Qt.DisplayRole:
-                return QVariant(self.categories[index.row()][0])
+                return self.categories[index.row()][0]
             if role == Qt.FontRole:
-                return QVariant(self.bold_font)
+                return self.bold_font
             if role == Qt.DecorationRole and index.row() == 0:
-                return QVariant(self.fav_icon)
+                return self.fav_icon
         else:
             if role == Qt.DisplayRole:
                 item = self.categories[pid - 1][1][index.row()]
-                return QVariant(item[0])
-        return NONE
+                return item[0]
+        return None
 
     def get_range(self, index):
         if index.isValid():
@@ -532,8 +531,8 @@ class CharModel(QAbstractListModel):
 
     def data(self, index, role):
         if role == Qt.UserRole and -1 < index.row() < len(self.chars):
-            return QVariant(self.chars[index.row()])
-        return NONE
+            return self.chars[index.row()]
+        return None
 
     def flags(self, index):
         ans = Qt.ItemIsEnabled
@@ -581,8 +580,9 @@ class CharDelegate(QStyledItemDelegate):
 
     def paint(self, painter, option, index):
         QStyledItemDelegate.paint(self, painter, option, index)
-        charcode, ok = index.data(Qt.UserRole).toInt()
-        if not ok:
+        try:
+            charcode = int(index.data(Qt.UserRole))
+        except (TypeError, ValueError):
             return
         painter.save()
         try:
@@ -632,8 +632,11 @@ class CharView(QListView):
         self.clicked.connect(self.item_activated)
 
     def item_activated(self, index):
-        char_code, ok = self.model().data(index, Qt.UserRole).toInt()
-        if ok:
+        try:
+            char_code = int(self.model().data(index, Qt.UserRole))
+        except (TypeError, ValueError):
+            pass
+        else:
             self.char_selected.emit(chr(char_code))
 
     def set_allow_drag_and_drop(self, enabled):
@@ -663,8 +666,11 @@ class CharView(QListView):
             row = index.row()
             if row != self.last_mouse_idx:
                 self.last_mouse_idx = row
-                char_code, ok = self.model().data(index, Qt.UserRole).toInt()
-                if ok:
+                try:
+                    char_code = int(self.model().data(index, Qt.UserRole))
+                except (TypeError, ValueError):
+                    pass
+                else:
                     self.show_name.emit(char_code)
             self.setCursor(Qt.PointingHandCursor)
         else:
@@ -676,8 +682,11 @@ class CharView(QListView):
     def context_menu(self, pos):
         index = self.indexAt(pos)
         if index.isValid():
-            char_code, ok = self.model().data(index, Qt.UserRole).toInt()
-            if ok:
+            try:
+                char_code = int(self.model().data(index, Qt.UserRole))
+            except (TypeError, ValueError):
+                pass
+            else:
                 m = QMenu(self)
                 m.addAction(QIcon(I('edit-copy.png')), _('Copy %s to clipboard') % chr(char_code), partial(self.copy_to_clipboard, char_code))
                 m.addAction(QIcon(I('rating.png')),

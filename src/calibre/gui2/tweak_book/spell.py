@@ -275,7 +275,7 @@ class ManageUserDictionaries(Dialog):
         d = self.dictionaries.currentItem()
         if d is None:
             return
-        return d.data(Qt.UserRole).toPyObject()
+        return d.data(Qt.UserRole)
 
     def active_toggled(self):
         d = self.current_dictionary
@@ -283,7 +283,7 @@ class ManageUserDictionaries(Dialog):
             dictionaries.mark_user_dictionary_as_active(d.name, self.is_active.isChecked())
             self.dictionaries_changed = True
             for item in (self.dictionaries.item(i) for i in xrange(self.dictionaries.count())):
-                d = item.data(Qt.UserRole).toPyObject()
+                d = item.data(Qt.UserRole)
                 item.setData(Qt.FontRole, self.emph_font if d.is_active else None)
 
     def show_current_dictionary(self, *args):
@@ -364,7 +364,7 @@ class ManageUserDictionaries(Dialog):
             self.dictionaries_changed = True
 
     def remove_word(self):
-        words = {i.data(Qt.UserRole).toPyObject() for i in self.words.selectedItems()}
+        words = {i.data(Qt.UserRole) for i in self.words.selectedItems()}
         if words:
             kwords = [(w, DictionaryLocale(l, None)) for w, l in words]
             d = self.current_dictionary
@@ -376,7 +376,7 @@ class ManageUserDictionaries(Dialog):
     def find_word(self, word, lang):
         key = (word, lang)
         for i in xrange(self.words.count()):
-            if self.words.item(i).data(Qt.UserRole).toPyObject() == key:
+            if self.words.item(i).data(Qt.UserRole) == key:
                 return i
         return -1
 
@@ -454,7 +454,7 @@ class ManageDictionaries(Dialog):  # {{{
 
     def data_changed(self, item, column):
         if column == 0 and item.type() == DICTIONARY:
-            d = item.data(0, Qt.UserRole).toPyObject()
+            d = item.data(0, Qt.UserRole)
             if not d.builtin and unicode(item.text(0)) != d.name:
                 rename_dictionary(d, unicode(item.text(0)))
 
@@ -504,7 +504,7 @@ class ManageDictionaries(Dialog):  # {{{
     def remove_dictionary(self):
         item = self.dictionaries.currentItem()
         if item is not None and item.type() == DICTIONARY:
-            dic = item.data(0, Qt.UserRole).toPyObject()
+            dic = item.data(0, Qt.UserRole)
             if not dic.builtin:
                 remove_dictionary(dic)
                 self.build_dictionaries(reread=True)
@@ -534,7 +534,7 @@ class ManageDictionaries(Dialog):  # {{{
 
     def init_country(self, item):
         pc = self.pcb
-        font = item.data(0, Qt.FontRole).toPyObject()
+        font = item.data(0, Qt.FontRole)
         preferred = bool(font and font.bold())
         pc.setText((_(
             'This is already the preferred variant for the {1} language') if preferred else _(
@@ -548,20 +548,20 @@ class ManageDictionaries(Dialog):  # {{{
         bf.setBold(True)
         for x in (item.parent().child(i) for i in xrange(item.parent().childCount())):
             x.setData(0, Qt.FontRole, bf if x is item else None)
-        lc = unicode(item.parent().data(0, Qt.UserRole).toPyObject())
+        lc = unicode(item.parent().data(0, Qt.UserRole))
         pl = dprefs['preferred_locales']
-        pl[lc] = '%s-%s' % (lc, unicode(item.data(0, Qt.UserRole).toPyObject()))
+        pl[lc] = '%s-%s' % (lc, unicode(item.data(0, Qt.UserRole)))
         dprefs['preferred_locales'] = pl
 
     def init_dictionary(self, item):
         saf = self.fb
-        font = item.data(0, Qt.FontRole).toPyObject()
+        font = item.data(0, Qt.FontRole)
         preferred = bool(font and font.italic())
         saf.setText((_(
             'This is already the preferred dictionary') if preferred else
             _('Use this as the preferred dictionary')))
         saf.setEnabled(not preferred)
-        self.remove_dictionary_button.setEnabled(not item.data(0, Qt.UserRole).toPyObject().builtin)
+        self.remove_dictionary_button.setEnabled(not item.data(0, Qt.UserRole).builtin)
 
     def set_favorite(self):
         item = self.dictionaries.currentItem()
@@ -569,9 +569,9 @@ class ManageDictionaries(Dialog):  # {{{
         bf.setItalic(True)
         for x in (item.parent().child(i) for i in xrange(item.parent().childCount())):
             x.setData(0, Qt.FontRole, bf if x is item else None)
-        cc = unicode(item.parent().data(0, Qt.UserRole).toPyObject())
-        lc = unicode(item.parent().parent().data(0, Qt.UserRole).toPyObject())
-        d = item.data(0, Qt.UserRole).toPyObject()
+        cc = unicode(item.parent().data(0, Qt.UserRole))
+        lc = unicode(item.parent().parent().data(0, Qt.UserRole))
+        d = item.data(0, Qt.UserRole)
         locale = '%s-%s' % (lc, cc)
         pl = dprefs['preferred_dictionaries']
         pl[locale] = d.id

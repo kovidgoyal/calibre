@@ -72,7 +72,7 @@ class BasicSettings(QWidget):  # {{{
             widget.addItem(human or key, key)
 
         def getter(w):
-            ans = unicode(w.itemData(w.currentIndex()).toString())
+            ans = unicode(w.itemData(w.currentIndex()) or '')
             return {none_val:None}.get(ans, ans)
 
         def setter(w, val):

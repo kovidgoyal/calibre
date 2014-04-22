@@ -9,10 +9,10 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 import shutil
 
 from PyQt5.Qt import (
-    QAbstractListModel, Qt, QModelIndex, QVariant, QApplication, QWidget,
+    QAbstractListModel, Qt, QModelIndex, QApplication, QWidget,
     QGridLayout, QListView, QStyledItemDelegate, pyqtSignal, QPushButton, QIcon)
 
-from calibre.gui2 import NONE, error_dialog
+from calibre.gui2 import error_dialog
 
 ROOT = QModelIndex()
 
@@ -44,14 +44,14 @@ class GlobalUndoHistory(QAbstractListModel):
 
     def data(self, index, role=Qt.DisplayRole):
         if role == Qt.DisplayRole:
-            return QVariant(self.label_for_row(index.row()))
+            return self.label_for_row(index.row())
         if role == Qt.FontRole and index.row() == self.pos:
             f = QApplication.instance().font()
             f.setBold(True)
-            return QVariant(f)
+            return f
         if role == Qt.UserRole:
-            return QVariant(self.states[index.row()])
-        return NONE
+            return self.states[index.row()]
+        return None
 
     def label_for_row(self, row):
         msg = self.states[row].message

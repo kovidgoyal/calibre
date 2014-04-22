@@ -182,8 +182,8 @@ class TOCViewer(QWidget):
     def emit_navigate(self, *args):
         item = self.view.currentItem()
         if item is not None:
-            dest = unicode(item.data(0, DEST_ROLE).toString())
-            frag = unicode(item.data(0, FRAG_ROLE).toString())
+            dest = unicode(item.data(0, DEST_ROLE) or '')
+            frag = unicode(item.data(0, FRAG_ROLE) or '')
             if not frag:
                 frag = TOP
             self.navigate_requested.emit(dest, frag)

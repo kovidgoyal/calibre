@@ -602,7 +602,7 @@ class TextEdit(PlainTextEdit):
             return
         pos = cursor.positionInBlock()
         for r in cursor.block().layout().additionalFormats():
-            if r.start <= pos < r.start + r.length and r.format.property(SYNTAX_PROPERTY).toBool():
+            if r.start <= pos < r.start + r.length and r.format.property(SYNTAX_PROPERTY):
                 return r
 
     def syntax_format_for_cursor(self, cursor):
@@ -617,6 +617,7 @@ class TextEdit(PlainTextEdit):
                 QToolTip.setFont(self.tooltip_font)
                 QToolTip.setPalette(self.tooltip_palette)
                 QToolTip.showText(ev.globalPos(), textwrap.fill(tt))
+                return
         QToolTip.hideText()
         ev.ignore()
     # }}}

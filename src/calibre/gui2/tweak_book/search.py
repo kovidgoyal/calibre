@@ -14,12 +14,12 @@ from PyQt5.Qt import (
     QWidget, QToolBar, Qt, QHBoxLayout, QSize, QIcon, QGridLayout, QLabel, QTimer,
     QPushButton, pyqtSignal, QComboBox, QCheckBox, QSizePolicy, QVBoxLayout, QFont,
     QLineEdit, QToolButton, QListView, QFrame, QApplication, QStyledItemDelegate,
-    QAbstractListModel, QVariant, QFormLayout, QModelIndex, QMenu, QItemSelection)
+    QAbstractListModel, QFormLayout, QModelIndex, QMenu, QItemSelection)
 
 import regex
 
 from calibre import prepare_string_for_xml
-from calibre.gui2 import NONE, error_dialog, info_dialog, choose_files, choose_save_file
+from calibre.gui2 import error_dialog, info_dialog, choose_files, choose_save_file
 from calibre.gui2.dialogs.message_box import MessageBox
 from calibre.gui2.widgets2 import HistoryComboBox
 from calibre.gui2.tweak_book import tprefs, editors, current_container
@@ -403,17 +403,17 @@ class SearchesModel(QAbstractListModel):
         try:
             if role == Qt.DisplayRole:
                 search = self.searches[self.filtered_searches[index.row()]]
-                return QVariant(search['name'])
+                return search['name']
             if role == Qt.ToolTipRole:
                 search = self.searches[self.filtered_searches[index.row()]]
                 tt = '\n'.join((search['find'], search['replace']))
-                return QVariant(tt)
+                return tt
             if role == Qt.UserRole:
                 search = self.searches[self.filtered_searches[index.row()]]
-                return QVariant((self.filtered_searches[index.row()], search))
+                return (self.filtered_searches[index.row()], search)
         except IndexError:
             pass
-        return NONE
+        return None
 
     def do_filter(self, text):
         text = unicode(text)
@@ -696,7 +696,7 @@ class SavedSearches(Dialog):
             seen.add(index.row())
             search = SearchWidget.DEFAULT_STATE.copy()
             del search['mode']
-            search_index, s = index.data(Qt.UserRole).toPyObject()
+            search_index, s = index.data(Qt.UserRole)
             search.update(s)
             search['wrap'] = self.wrap
             search['direction'] = self.direction
@@ -722,7 +722,7 @@ class SavedSearches(Dialog):
     def edit_search(self):
         index = self.searches.currentIndex()
         if index.isValid():
-            search_index, search = index.data(Qt.UserRole).toPyObject()
+            search_index, search = index.data(Qt.UserRole)
             d = EditSearch(search=search, search_index=search_index, parent=self)
             if d.exec_() == d.Accepted:
                 self.model.dataChanged.emit(index, index)
@@ -753,7 +753,7 @@ class SavedSearches(Dialog):
         self.description.setText(' \n \n ')
         i = self.searches.currentIndex()
         if i.isValid():
-            search_index, search = i.data(Qt.UserRole).toPyObject()
+            search_index, search = i.data(Qt.UserRole)
             cs = '✓' if search.get('case_sensitive', SearchWidget.DEFAULT_STATE['case_sensitive']) else '✗'
             da = '✓' if search.get('dot_all', SearchWidget.DEFAULT_STATE['dot_all']) else '✗'
             if search.get('mode', SearchWidget.DEFAULT_STATE['mode']) == 'regex':
@@ -799,7 +799,7 @@ class SavedSearches(Dialog):
         else:
             searches = []
             for index in self.searches.selectionModel().selectedIndexes():
-                search = index.data(Qt.UserRole).toPyObject()[-1]
+                search = index.data(Qt.UserRole)[-1]
                 searches.append(search.copy())
             if not searches:
                 return error_dialog(self, _('No searches'), _(

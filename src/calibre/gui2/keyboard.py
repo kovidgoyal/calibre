@@ -19,7 +19,7 @@ from calibre.utils.config import JSONConfig
 from calibre.constants import DEBUG
 from calibre import prints
 from calibre.utils.icu import sort_key, lower
-from calibre.gui2 import NONE, error_dialog, info_dialog
+from calibre.gui2 import error_dialog, info_dialog
 from calibre.utils.search_query_parser import SearchQueryParser, ParseException
 from calibre.gui2.search_box import SearchBox2
 
@@ -224,7 +224,7 @@ class ConfigModel(QAbstractItemModel, SearchQueryParser):
         ip = index.internalPointer()
         if ip is not None and role == Qt.UserRole:
             return ip
-        return NONE
+        return None
 
     def flags(self, index):
         ans = QAbstractItemModel.flags(self, index)
@@ -498,7 +498,7 @@ class Delegate(QStyledItemDelegate):  # {{{
         self.closeEditor.connect(self.editing_done)
 
     def to_doc(self, index):
-        data = index.data(Qt.UserRole).toPyObject()
+        data = index.data(Qt.UserRole)
         if data is None:
             html = _('<b>This shortcut no longer exists</b>')
         elif data.is_shortcut:

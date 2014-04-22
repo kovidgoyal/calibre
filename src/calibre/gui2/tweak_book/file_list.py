@@ -87,7 +87,7 @@ class ItemDelegate(QStyledItemDelegate):  # {{{
     rename_requested = pyqtSignal(object, object)
 
     def setEditorData(self, editor, index):
-        name = unicode(index.data(NAME_ROLE).toString())
+        name = unicode(index.data(NAME_ROLE) or '')
         # We do this because Qt calls selectAll() unconditionally on the
         # editor, and we want only a part of the file name to be selected
         QTimer.singleShot(0, partial(self.set_editor_data, name, editor))
@@ -105,7 +105,7 @@ class ItemDelegate(QStyledItemDelegate):  # {{{
 
     def setModelData(self, editor, model, index):
         newname = unicode(editor.text())
-        oldname = unicode(index.data(NAME_ROLE).toString())
+        oldname = unicode(index.data(NAME_ROLE) or '')
         if newname != oldname:
             self.rename_requested.emit(oldname, newname)
 
@@ -123,7 +123,7 @@ class ItemDelegate(QStyledItemDelegate):  # {{{
                 suffix = '%s(%d)' % (NBSP, index.model().rowCount(index))
             else:
                 try:
-                    suffix = NBSP + human_readable(current_container().filesize(unicode(index.data(NAME_ROLE).toString())))
+                    suffix = NBSP + human_readable(current_container().filesize(unicode(index.data(NAME_ROLE) or '')))
                 except EnvironmentError:
                     suffix = NBSP + human_readable(0)
             br = painter.boundingRect(option.rect, Qt.AlignRight|Qt.AlignVCenter, suffix)
@@ -195,7 +195,7 @@ class FileList(QTreeWidget):
     def get_state(self):
         s = {'pos':self.verticalScrollBar().value()}
         s['expanded'] = {c for c, item in self.categories.iteritems() if item.isExpanded()}
-        s['selected'] = {unicode(i.data(0, NAME_ROLE).toString()) for i in self.selectedItems()}
+        s['selected'] = {unicode(i.data(0, NAME_ROLE) or '') for i in self.selectedItems()}
         return s
 
     def set_state(self, state):
@@ -204,21 +204,21 @@ class FileList(QTreeWidget):
         self.verticalScrollBar().setValue(state['pos'])
         for parent in self.categories.itervalues():
             for c in (parent.child(i) for i in xrange(parent.childCount())):
-                name = unicode(c.data(0, NAME_ROLE).toString())
+                name = unicode(c.data(0, NAME_ROLE) or '')
                 if name in state['selected']:
                     c.setSelected(True)
 
     def item_from_name(self, name):
         for parent in self.categories.itervalues():
             for c in (parent.child(i) for i in xrange(parent.childCount())):
-                q = unicode(c.data(0, NAME_ROLE).toString())
+                q = unicode(c.data(0, NAME_ROLE) or '')
                 if q == name:
                     return c
 
     def select_name(self, name):
         for parent in self.categories.itervalues():
             for c in (parent.child(i) for i in xrange(parent.childCount())):
-                q = unicode(c.data(0, NAME_ROLE).toString())
+                q = unicode(c.data(0, NAME_ROLE) or '')
                 c.setSelected(q == name)
                 if q == name:
                     self.scrollToItem(c)
@@ -421,9 +421,9 @@ class FileList(QTreeWidget):
         container = current_container()
         ci = self.currentItem()
         if ci is not None:
-            cn = unicode(ci.data(0, NAME_ROLE).toString())
-            mt = unicode(ci.data(0, MIME_ROLE).toString())
-            cat = unicode(ci.data(0, CATEGORY_ROLE).toString())
+            cn = unicode(ci.data(0, NAME_ROLE) or '')
+            mt = unicode(ci.data(0, MIME_ROLE) or '')
+            cat = unicode(ci.data(0, CATEGORY_ROLE) or '')
             n = elided_text(cn.rpartition('/')[-1])
             m.addAction(QIcon(I('save.png')), _('Export %s') % n, partial(self.export, cn))
             if cn not in container.names_that_must_not_be_changed and cn not in container.names_that_must_not_be_removed and mt not in OEB_FONTS:
@@ -446,7 +446,7 @@ class FileList(QTreeWidget):
 
         selected_map = defaultdict(list)
         for item in sel:
-            selected_map[unicode(item.data(0, CATEGORY_ROLE).toString())].append(unicode(item.data(0, NAME_ROLE).toString()))
+            selected_map[unicode(item.data(0, CATEGORY_ROLE) or '')].append(unicode(item.data(0, NAME_ROLE) or ''))
 
         for items in selected_map.itervalues():
             items.sort(key=self.index_of_name)
@@ -466,7 +466,7 @@ class FileList(QTreeWidget):
         for category, parent in self.categories.iteritems():
             for i in xrange(parent.childCount()):
                 item = parent.child(i)
-                if unicode(item.data(0, NAME_ROLE).toString()) == name:
+                if unicode(item.data(0, NAME_ROLE) or '') == name:
                     return (category, i)
         return (None, -1)
 
@@ -483,7 +483,7 @@ class FileList(QTreeWidget):
         self.mark_requested.emit(name, 'cover')
 
     def mark_as_titlepage(self, name):
-        first = unicode(self.categories['text'].child(0).data(0, NAME_ROLE).toString()) == name
+        first = unicode(self.categories['text'].child(0).data(0, NAME_ROLE) or '') == name
         move_to_start = False
         if not first:
             move_to_start = question_dialog(self, _('Not first item'), _(
@@ -500,7 +500,7 @@ class FileList(QTreeWidget):
             return QTreeWidget.keyPressEvent(self, ev)
 
     def request_bulk_rename(self):
-        names = {unicode(item.data(0, NAME_ROLE).toString()) for item in self.selectedItems()}
+        names = {unicode(item.data(0, NAME_ROLE) or '') for item in self.selectedItems()}
         bad = names & current_container().names_that_must_not_be_changed
         if bad:
             return error_dialog(self, _('Cannot rename'),
@@ -517,7 +517,7 @@ class FileList(QTreeWidget):
             self.bulk_rename_requested.emit(name_map)
 
     def request_delete(self):
-        names = {unicode(item.data(0, NAME_ROLE).toString()) for item in self.selectedItems()}
+        names = {unicode(item.data(0, NAME_ROLE) or '') for item in self.selectedItems()}
         bad = names & current_container().names_that_must_not_be_removed
         if bad:
             return error_dialog(self, _('Cannot delete'),
@@ -525,9 +525,9 @@ class FileList(QTreeWidget):
 
         text = self.categories['text']
         children = (text.child(i) for i in xrange(text.childCount()))
-        spine_removals = [(unicode(item.data(0, NAME_ROLE).toString()), item.isSelected()) for item in children]
-        other_removals = {unicode(item.data(0, NAME_ROLE).toString()) for item in self.selectedItems()
-                          if unicode(item.data(0, CATEGORY_ROLE).toString()) != 'text'}
+        spine_removals = [(unicode(item.data(0, NAME_ROLE) or ''), item.isSelected()) for item in children]
+        other_removals = {unicode(item.data(0, NAME_ROLE) or '') for item in self.selectedItems()
+                          if unicode(item.data(0, CATEGORY_ROLE) or '') != 'text'}
         self.delete_requested.emit(spine_removals, other_removals)
 
     def delete_done(self, spine_removals, other_removals):
@@ -539,7 +539,7 @@ class FileList(QTreeWidget):
             if category != 'text':
                 for i in xrange(parent.childCount()):
                     child = parent.child(i)
-                    if unicode(child.data(0, NAME_ROLE).toString()) in other_removals:
+                    if unicode(child.data(0, NAME_ROLE) or '') in other_removals:
                         removals.append(child)
 
         # The sorting by index is necessary otherwise Qt crashes with recursive
@@ -563,8 +563,8 @@ class FileList(QTreeWidget):
         if current_order != pre_drop_order:
             order = []
             for child in (text.child(i) for i in xrange(text.childCount())):
-                name = unicode(child.data(0, NAME_ROLE).toString())
-                linear = child.data(0, LINEAR_ROLE).toBool()
+                name = unicode(child.data(0, NAME_ROLE) or '')
+                linear = bool(child.data(0, LINEAR_ROLE))
                 order.append([name, linear])
             # Ensure that all non-linear items are at the end, any non-linear
             # items not at the end will be made linear
@@ -579,9 +579,9 @@ class FileList(QTreeWidget):
             self._request_edit(item)
 
     def _request_edit(self, item):
-        category = unicode(item.data(0, CATEGORY_ROLE).toString())
-        mime = unicode(item.data(0, MIME_ROLE).toString())
-        name = unicode(item.data(0, NAME_ROLE).toString())
+        category = unicode(item.data(0, CATEGORY_ROLE) or '')
+        mime = unicode(item.data(0, MIME_ROLE) or '')
+        name = unicode(item.data(0, NAME_ROLE) or '')
         syntax = {'text':'html', 'styles':'css'}.get(category, None)
         self.edit_file.emit(name, syntax, mime)
 
@@ -601,9 +601,9 @@ class FileList(QTreeWidget):
     def searchable_names(self):
         ans = {'text':OrderedDict(), 'styles':OrderedDict(), 'selected':OrderedDict()}
         for item in self.all_files:
-            category = unicode(item.data(0, CATEGORY_ROLE).toString())
-            mime = unicode(item.data(0, MIME_ROLE).toString())
-            name = unicode(item.data(0, NAME_ROLE).toString())
+            category = unicode(item.data(0, CATEGORY_ROLE) or '')
+            mime = unicode(item.data(0, MIME_ROLE) or '')
+            name = unicode(item.data(0, NAME_ROLE) or '')
             ok = category in {'text', 'styles'}
             if ok:
                 ans[category][name] = syntax_from_mime(name, mime)
@@ -646,7 +646,7 @@ class FileList(QTreeWidget):
 
     def link_stylesheets(self, names):
         s = self.categories['styles']
-        sheets = [unicode(s.child(i).data(0, NAME_ROLE).toString()) for i in xrange(s.childCount())]
+        sheets = [unicode(s.child(i).data(0, NAME_ROLE) or '') for i in xrange(s.childCount())]
         if not sheets:
             return error_dialog(self, _('No stylesheets'), _(
                 'This book currently has no stylesheets. You must first create a stylesheet'

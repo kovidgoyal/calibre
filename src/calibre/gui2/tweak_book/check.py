@@ -9,7 +9,7 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 import sys
 
 from PyQt5.Qt import (
-     QIcon, Qt, QSplitter, QListWidget, QTextBrowser, QPalette, QMenu,
+     QIcon, Qt, QSplitter, QListWidget, QTextBrowser, QPalette, QUrl, QMenu,
      QListWidgetItem, pyqtSignal, QApplication, QStyledItemDelegate)
 
 from calibre.ebooks.oeb.polish.check.base import WARN, INFO, DEBUG, ERROR, CRITICAL
@@ -111,17 +111,17 @@ class Check(QSplitter):
             msg, _('Click to run a check on the book'), _('Run check')))
 
     def link_clicked(self, url):
-        url = unicode(url.toString())
+        url = unicode(url.toString(QUrl.None))
         if url == 'activate:item':
             self.current_item_activated()
         elif url == 'run:check':
             self.check_requested.emit()
         elif url == 'fix:errors':
-            errors = [self.items.item(i).data(Qt.UserRole).toPyObject() for i in xrange(self.items.count())]
+            errors = [self.items.item(i).data(Qt.UserRole) for i in xrange(self.items.count())]
             self.fix_requested.emit(errors)
         elif url.startswith('fix:error,'):
             num = int(url.rpartition(',')[-1])
-            errors = [self.items.item(num).data(Qt.UserRole).toPyObject()]
+            errors = [self.items.item(num).data(Qt.UserRole)]
             self.fix_requested.emit(errors)
         elif url.startswith('activate:item:'):
             index = int(url.rpartition(':')[-1])
@@ -138,7 +138,7 @@ class Check(QSplitter):
     def current_item_activated(self, *args):
         i = self.items.currentItem()
         if i is not None:
-            err = i.data(Qt.UserRole).toPyObject()
+            err = i.data(Qt.UserRole)
             if err.has_multiple_locations:
                 self.location_activated(0)
             else:
@@ -147,7 +147,7 @@ class Check(QSplitter):
     def location_activated(self, index):
         i = self.items.currentItem()
         if i is not None:
-            err = i.data(Qt.UserRole).toPyObject()
+            err = i.data(Qt.UserRole)
             err.current_location_index = index
             self.item_activated.emit(err)
 
@@ -165,7 +165,7 @@ class Check(QSplitter):
             return loc
 
         if i is not None:
-            err = i.data(Qt.UserRole).toPyObject()
+            err = i.data(Qt.UserRole)
             header = {DEBUG:_('Debug'), INFO:_('Information'), WARN:_('Warning'), ERROR:_('Error'), CRITICAL:_('Error')}[err.level]
             ifix = ''
             loc = loc_to_string(err.line, err.col)
