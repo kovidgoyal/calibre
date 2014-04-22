@@ -163,7 +163,7 @@ class Node(object):
         for child in self.children:
             yield child
 
-class ConfigModel(QAbstractItemModel, SearchQueryParser):
+class ConfigModel(SearchQueryParser, QAbstractItemModel):
 
     def __init__(self, keyboard, parent=None):
         QAbstractItemModel.__init__(self, parent)
@@ -556,7 +556,7 @@ class Delegate(QStyledItemDelegate):  # {{{
     def setModelData(self, editor, model, index):
         self.closeEditor.emit(editor, self.NoHint)
         custom_keys = editor.custom_keys
-        sc = index.data(Qt.UserRole).toPyObject().data
+        sc = index.data(Qt.UserRole).data
         if custom_keys is None:
             candidates = []
             for ckey in sc['default_keys']:
