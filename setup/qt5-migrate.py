@@ -33,15 +33,16 @@ def all_py_files():
 
 def detect_qvariant():
     count = 0
-    pat = re.compile(b'|'.join(b'QVariant NONE toInt toBool toString toPyObject canConvert toBitArray toByteArray toHash toFloat toMap toLine toPoint toReal toRect toTime toUInt toUrl'.split()))  # noqa
+    pat = re.compile(b'|'.join(br'QVariant NONE toInt toBool toString\(\) toPyObject canConvert toBitArray toByteArray toHash toFloat toMap toLine toPoint toReal toRect toTime toUInt toUrl'.split()))  # noqa
+    exclusions = {}
     for path in all_py_files():
         if os.path.basename(path) in {
                 'BeautifulSoup.py', 'icu.py', 'smtp.py', 'Zeroconf.py', 'date.py', 'apsw_shell.py', } or 'pylrs' in path:
             continue
         raw = open(path, 'rb').read()
-        m = pat.search(raw)
-        if m is not None:
-            print (path, '\t', m.group())
+        matches = set(pat.findall(raw)) - exclusions.get(path, set())
+        if matches:
+            print (path, '\t', ', '.join(matches))
             count += 1
     print ('Detected %d files with possible usage of QVariant' % count)
 
