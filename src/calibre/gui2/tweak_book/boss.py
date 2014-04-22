@@ -18,7 +18,7 @@ from calibre import prints, isbytestring
 from calibre.ptempfile import PersistentTemporaryDirectory, TemporaryDirectory
 from calibre.ebooks.oeb.base import urlnormalize
 from calibre.ebooks.oeb.polish.main import SUPPORTED, tweak_polish
-from calibre.ebooks.oeb.polish.container import get_container as _gc, clone_container, guess_type, OEB_FONTS, OEB_DOCS, OEB_STYLES
+from calibre.ebooks.oeb.polish.container import get_container as _gc, clone_container, guess_type, OEB_DOCS, OEB_STYLES
 from calibre.ebooks.oeb.polish.cover import mark_as_cover, mark_as_titlepage, set_cover
 from calibre.ebooks.oeb.polish.css import filter_css
 from calibre.ebooks.oeb.polish.pretty import fix_all_html, pretty_all
@@ -34,7 +34,7 @@ from calibre.gui2.tweak_book import (
 from calibre.gui2.tweak_book.undo import GlobalUndoHistory
 from calibre.gui2.tweak_book.file_list import NewFileDialog
 from calibre.gui2.tweak_book.save import SaveManager, save_container, find_first_existing_ancestor
-from calibre.gui2.tweak_book.preview import parse_worker, font_cache
+from calibre.gui2.tweak_book.preview import parse_worker
 from calibre.gui2.tweak_book.toc import TOCEditor
 from calibre.gui2.tweak_book.editor import editor_from_syntax, syntax_from_mime
 from calibre.gui2.tweak_book.editor.insert_resource import get_resource_data, NewBook
@@ -50,14 +50,6 @@ _diff_dialogs = []
 def get_container(*args, **kwargs):
     kwargs['tweak_mode'] = True
     container = _gc(*args, **kwargs)
-    # We preload the embedded fonts from this book, so that the preview panel
-    # works
-    font_cache.remove_fonts()
-    for name, mt in container.mime_map.iteritems():
-        if mt in OEB_FONTS and container.exists(name):
-            with container.open(name, 'rb') as f:
-                raw = f.read()
-            font_cache.add_font(raw)
     return container
 
 def setup_cssutils_serialization():

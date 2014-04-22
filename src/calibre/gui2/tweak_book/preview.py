@@ -12,19 +12,17 @@ from base64 import b64encode
 from future_builtins import map
 from threading import Thread
 from Queue import Queue, Empty
-from collections import namedtuple
 from functools import partial
 from urlparse import urlparse
 
 from PyQt5.Qt import (
     QWidget, QVBoxLayout, QApplication, QSize, QNetworkAccessManager, QMenu, QIcon,
     QNetworkReply, QTimer, QNetworkRequest, QUrl, Qt, QNetworkDiskCache, QToolBar,
-    pyqtSlot, pyqtSignal, QFontDatabase)
+    pyqtSlot, pyqtSignal)
 from PyQt5.QtWebKitWidgets import QWebView, QWebInspector, QWebPage
 
 from calibre import prints
 from calibre.constants import iswindows
-from calibre.ebooks.oeb.polish.container import OEB_FONTS
 from calibre.ebooks.oeb.polish.parsing import parse
 from calibre.ebooks.oeb.base import serialize, OEB_DOCS
 from calibre.ptempfile import PersistentTemporaryDirectory
@@ -42,31 +40,6 @@ def get_data(name):
     if name in editors:
         return editors[name].get_raw_data()
     return current_container().raw_data(name)
-
-class FontCache(object):
-
-    def __init__(self):
-        self.cache = {}
-        self.entry = namedtuple('Entry', 'size hash families')
-
-    def remove_fonts(self):
-        for font_id in self.cache:
-            QFontDatabase.removeApplicationFont(font_id)
-        self.cache.clear()
-
-    def add_font(self, data):
-        existing = None
-        for font_id, entry in self.cache.iteritems():
-            if entry.size == len(data) and entry.hash == hash(data):
-                existing = entry
-                break
-        if existing is None:
-            font_id = QFontDatabase.addApplicationFontFromData(data)
-            if font_id > -1:
-                families = frozenset(map(lambda x:icu_lower(unicode(x)), QFontDatabase.applicationFontFamilies(font_id)))
-                self.cache[font_id] = self.entry(len(data), hash(data), families)
-
-font_cache = FontCache()
 
 # Parsing of html to add linenumbers {{{
 def parse_html(raw):
@@ -182,12 +155,6 @@ class NetworkReply(QNetworkReply):
             self.setHeader(QNetworkRequest.ContentTypeHeader, mime_type)
             self.setHeader(QNetworkRequest.ContentLengthHeader, len(self.__data))
             QTimer.singleShot(0, self.finalize_reply)
-            if mime_type in OEB_FONTS:
-                font_cache.add_font(data)
-                # We prevent the use of the embedded font because of the the
-                # bug in Qt WebKit,
-                # https://bugs.webkit.org/show_bug.cgi?id=29433
-                self.__data = b''
 
     def check_for_parse(self):
         if self._aborted:
@@ -422,8 +389,8 @@ class WebView(QWebView):
 
             <p style="font-size:x-small; color: gray">Note that this is a quick preview
             only, it is not intended to simulate an actual ebook reader. Some
-            aspects of your ebook will not work, such as, page breaks,
-            page margins and embedded fonts that use font name aliasing.
+            aspects of your ebook will not work, such as, page breaks and
+            page margins.
 
             '''))
         self.page().current_root = None
