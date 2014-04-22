@@ -193,6 +193,7 @@ class OptionSet(object):
             try:
                 if not isinstance(src, unicode):
                     src = src.decode('utf-8')
+                src = src.replace(u'PyQt5.QtCore', u'PyQt4.QtCore')
                 exec src in options
             except:
                 print 'Failed to parse options string:'
