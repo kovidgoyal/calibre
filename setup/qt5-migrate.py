@@ -20,6 +20,8 @@ __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
 # QT5XX: Check that DeviceCategoryEditor and TagListEditor work
 
+# QT5XX: Test touchscreen support on windows 8 in the viewer
+
 # QT5XX: Delete this file after migration is completed
 
 import os, re
