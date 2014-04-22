@@ -134,7 +134,10 @@ class UpdateNotification(QDialog):
 
 class UpdateMixin(object):
 
-    def __init__(self, opts):
+    def __init__(self, *args, **kw):
+        pass
+
+    def init_update_mixin(self, opts):
         self.last_newest_calibre_version = NO_CALIBRE_UPDATE
         if not opts.no_update_check:
             self.update_checker = CheckForUpdates(self)

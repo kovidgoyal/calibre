@@ -146,7 +146,7 @@ def _config():  # {{{
     c.add_opt('confirm_delete', default=False,
               help=_('Confirm before deleting'))
     c.add_opt('main_window_geometry', default=None,
-              help=_('Main window geometry'))  # value QVariant.toByteArray
+              help=_('Main window geometry'))
     c.add_opt('new_version_notification', default=True,
               help=_('Notify when a new version is available'))
     c.add_opt('use_roman_numerals_for_series_number', default=True,

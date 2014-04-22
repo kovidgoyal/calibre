@@ -66,7 +66,7 @@ class FontFamilyDelegate(QStyledItemDelegate):
             return QSize(300, 50)
 
     def do_size_hint(self, option, index):
-        text = index.data(Qt.DisplayRole).toString()
+        text = index.data(Qt.DisplayRole) or ''
         font = QFont(option.font)
         font.setPointSize(QFontInfo(font).pointSize() * 1.5)
         m = QFontMetrics(font)
@@ -82,7 +82,7 @@ class FontFamilyDelegate(QStyledItemDelegate):
         painter.restore()
 
     def do_paint(self, painter, option, index):
-        text = unicode(index.data(Qt.DisplayRole).toString())
+        text = unicode(index.data(Qt.DisplayRole) or '')
         font = QFont(option.font)
         font.setPointSize(QFontInfo(font).pointSize() * 1.5)
         font2 = QFont(font)

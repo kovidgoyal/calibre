@@ -8,7 +8,7 @@ __docformat__ = 'restructuredtext en'
 import textwrap, os
 from collections import OrderedDict
 
-from PyQt5.Qt import (Qt, QModelIndex, QAbstractItemModel, QVariant, QIcon,
+from PyQt5.Qt import (Qt, QModelIndex, QAbstractItemModel, QIcon,
         QBrush)
 
 from calibre.gui2.preferences import ConfigWidgetBase, test_widget
@@ -16,7 +16,7 @@ from calibre.gui2.preferences.plugins_ui import Ui_Form
 from calibre.customize.ui import (initialized_plugins, is_disabled, enable_plugin,
                                  disable_plugin, plugin_customization, add_plugin,
                                  remove_plugin, NameConflict)
-from calibre.gui2 import (NONE, error_dialog, info_dialog, choose_files,
+from calibre.gui2 import (error_dialog, info_dialog, choose_files,
         question_dialog, gprefs)
 from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.utils.search_query_parser import SearchQueryParser
@@ -29,9 +29,9 @@ class PluginModel(QAbstractItemModel, SearchQueryParser):  # {{{
         QAbstractItemModel.__init__(self)
         SearchQueryParser.__init__(self, ['all'])
         self.show_only_user_plugins = show_only_user_plugins
-        self.icon = QVariant(QIcon(I('plugins.png')))
+        self.icon = QIcon(I('plugins.png'))
         p = QIcon(self.icon).pixmap(64, 64, QIcon.Disabled, QIcon.On)
-        self.disabled_icon = QVariant(QIcon(p))
+        self.disabled_icon = QIcon(p)
         self._p = p
         self.populate()
 
@@ -187,11 +187,11 @@ class PluginModel(QAbstractItemModel, SearchQueryParser):  # {{{
 
     def data(self, index, role):
         if not index.isValid():
-            return NONE
+            return None
         if index.internalId() == 0:
             if role == Qt.DisplayRole:
                 category = self.categories[index.row()]
-                return QVariant(_("%(plugin_type)s %(plugins)s")%
+                return (_("%(plugin_type)s %(plugins)s")%
                         dict(plugin_type=category, plugins=_('plugins')))
         else:
             plugin = self.index_to_plugin(index)
@@ -205,14 +205,14 @@ class PluginModel(QAbstractItemModel, SearchQueryParser):  # {{{
                     ans += _('\nCustomization: ')+c
                 if disabled:
                     ans += _('\n\nThis plugin has been disabled')
-                return QVariant(ans)
+                return (ans)
             if role == Qt.DecorationRole:
                 return self.disabled_icon if disabled else self.icon
             if role == Qt.ForegroundRole and disabled:
-                return QVariant(QBrush(Qt.gray))
+                return (QBrush(Qt.gray))
             if role == Qt.UserRole:
                 return plugin
-        return NONE
+        return None
 
 
 # }}}
@@ -333,7 +333,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         index = self.plugin_view.currentIndex()
         if index.isValid():
             if not index.parent().isValid():
-                name = unicode(index.data().toString())
+                name = unicode(index.data() or '')
                 return error_dialog(self, _('Error'), '<p>'+
                         _('Select an actual plugin under <b>%s</b> to customize')%name,
                         show=True, show_copy_button=False)

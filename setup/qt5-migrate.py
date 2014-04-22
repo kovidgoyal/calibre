@@ -51,6 +51,8 @@ def detect_qvariant():
     pat = re.compile(b'|'.join(br'QVariant NONE toDateTime toDate toInt toBool toString\(\) toPyObject canConvert toBitArray toByteArray toHash toFloat toMap toLine toPoint toReal toRect toTime toUInt toUrl'.split()))  # noqa
     exclusions = {
         'src/calibre/gui2/viewer/gestures.py': {'toPoint'},
+        'src/calibre/utils/serve_coffee.py': {'toString()'},
+        'src/calibre/gui2/job_indicator.py': {'toPoint'},
     }
     for path in all_py_files():
         if os.path.basename(path) in {

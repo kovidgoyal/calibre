@@ -13,7 +13,7 @@ from threading import Thread
 from Queue import Queue, Empty
 
 from PyQt5.Qt import QPixmap, Qt, QDialog, QLabel, QVBoxLayout, \
-        QDialogButtonBox, QProgressBar, QTimer
+        QDialogButtonBox, QProgressBar, QTimer, QUrl
 
 from calibre.constants import DEBUG, iswindows
 from calibre.ptempfile import PersistentTemporaryFile
@@ -145,7 +145,7 @@ def dnd_has_extension(md, extensions):
     if has_firefox_ext(md, extensions):
         return True
     if md.hasUrls():
-        urls = [unicode(u.toString()) for u in
+        urls = [unicode(u.toString(QUrl.None)) for u in
                 md.urls()]
         paths = [path_from_qurl(u) for u in md.urls()]
         exts = frozenset([posixpath.splitext(u)[1][1:].lower() for u in
@@ -196,7 +196,7 @@ def dnd_get_image(md, image_exts=IMAGE_EXTENSIONS):
 
     # No image, look for a URL pointing to an image
     if md.hasUrls():
-        urls = [unicode(u.toString()) for u in
+        urls = [unicode(u.toString(QUrl.None)) for u in
                 md.urls()]
         purls = [urlparse(u) for u in urls]
         # First look for a local file
@@ -243,7 +243,7 @@ def dnd_get_files(md, exts):
     '''
     # Look for a URL pointing to a file
     if md.hasUrls():
-        urls = [unicode(u.toString()) for u in
+        urls = [unicode(u.toString(QUrl.None)) for u in
                 md.urls()]
         purls = [urlparse(u) for u in urls]
         # First look for a local file

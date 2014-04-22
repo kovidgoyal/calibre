@@ -861,7 +861,10 @@ device_signals = DeviceSignals()
 
 class DeviceMixin(object):  # {{{
 
-    def __init__(self):
+    def __init__(self, *args, **kwargs):
+        pass
+
+    def init_device_mixin(self):
         self.device_error_dialog = error_dialog(self, _('Error'),
                 _('Error communicating with device'), ' ')
         self.device_error_dialog.setModal(Qt.NonModal)

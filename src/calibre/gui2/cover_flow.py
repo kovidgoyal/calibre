@@ -237,7 +237,10 @@ class CBDialog(QDialog):
 
 class CoverFlowMixin(object):
 
-    def __init__(self):
+    def __init__(self, *args, **kwargs):
+        pass
+
+    def init_cover_flow_mixin(self):
         self.cover_flow = None
         if CoverFlow is not None:
             self.cf_last_updated_at = None

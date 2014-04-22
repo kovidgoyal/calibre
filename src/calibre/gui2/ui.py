@@ -245,7 +245,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
                 _('&Donate to support calibre'), self)
         for st in self.istores.values():
             st.do_genesis()
-        MainWindowMixin.__init__(self, db)
+        MainWindowMixin.init_main_window_mixin(self, db)
 
         # Jobs Button {{{
         self.job_manager = JobManager()
@@ -254,10 +254,8 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
         self.jobs_button.initialize(self.jobs_dialog, self.job_manager)
         # }}}
 
-        LayoutMixin.__init__(self)
-        EmailMixin.__init__(self)
-        EbookDownloadMixin.__init__(self)
-        DeviceMixin.__init__(self)
+        LayoutMixin.init_layout_mixin(self)
+        DeviceMixin.init_device_mixin(self)
 
         self.progress_indicator = ProgressIndicator(self)
         self.progress_indicator.pos = (0, 20)
@@ -335,15 +333,15 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
         self.eject_action.triggered.connect(self.device_manager.umount_device)
 
         #################### Update notification ###################
-        UpdateMixin.__init__(self, opts)
+        UpdateMixin.init_update_mixin(self, opts)
 
         ####################### Search boxes ########################
-        SearchRestrictionMixin.__init__(self)
-        SavedSearchBoxMixin.__init__(self)
+        SearchRestrictionMixin.init_search_restirction_mixin(self)
+        SavedSearchBoxMixin.init_saved_seach_box_mixin(self)
 
         ####################### Library view ########################
-        LibraryViewMixin.__init__(self, db)
-        SearchBoxMixin.__init__(self)  # Requires current_db
+        LibraryViewMixin.init_library_view_mixin(self, db)
+        SearchBoxMixin.init_search_box_mixin(self)  # Requires current_db
 
         if show_gui:
             self.show()
@@ -369,7 +367,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
                 type=Qt.QueuedConnection)
 
         ########################### Tags Browser ##############################
-        TagBrowserMixin.__init__(self, db)
+        TagBrowserMixin.init_tag_browser_mixin(self, db)
 
         ######################### Search Restriction ##########################
         if db.prefs['virtual_lib_on_startup']:
@@ -378,7 +376,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
 
         ########################### Cover Flow ################################
 
-        CoverFlowMixin.__init__(self)
+        CoverFlowMixin.init_cover_flow_mixin(self)
 
         self._calculated_available_height = min(max_available_height()-15,
                 self.height())

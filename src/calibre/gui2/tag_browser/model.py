@@ -10,11 +10,11 @@ __docformat__ = 'restructuredtext en'
 
 import traceback, cPickle, copy, os
 
-from PyQt5.Qt import (QAbstractItemModel, QIcon, QVariant, QFont, Qt,
+from PyQt5.Qt import (QAbstractItemModel, QIcon, QFont, Qt,
         QMimeData, QModelIndex, pyqtSignal, QObject)
 
 from calibre.constants import config_dir
-from calibre.gui2 import NONE, gprefs, config, error_dialog
+from calibre.gui2 import gprefs, config, error_dialog
 from calibre.db.categories import Tag
 from calibre.utils.config import tweaks
 from calibre.utils.icu import sort_key, lower, strcmp, collation_order
@@ -31,7 +31,7 @@ def bf():
     if _bf is None:
         _bf = QFont()
         _bf.setBold(True)
-        _bf = QVariant(_bf)
+        _bf = (_bf)
     return _bf
 
 class TagTreeItem(object):  # {{{
@@ -48,7 +48,7 @@ class TagTreeItem(object):  # {{{
         self.id_set = set()
         self.is_gst = False
         self.boxed = False
-        self.icon_state_map = list(map(QVariant, icon_map))
+        self.icon_state_map = list(icon_map)
         if self.parent is not None:
             self.parent.append(self)
 
@@ -58,7 +58,7 @@ class TagTreeItem(object):  # {{{
             self.type = self.TAG if category_icon is None else self.CATEGORY
 
         if self.type == self.CATEGORY:
-            self.name, self.icon = map(QVariant, (data, category_icon))
+            self.name, self.icon = data, category_icon
             self.py_name = data
             self.category_key = category_key
             self.temporary = temporary
@@ -67,7 +67,7 @@ class TagTreeItem(object):  # {{{
                             ['news', 'search', 'identifiers', 'languages'],
                    is_searchable=category_key not in ['search'])
         elif self.type == self.TAG:
-            self.icon_state_map[0] = QVariant(data.icon)
+            self.icon_state_map[0] = (data.icon)
             self.tag = data
 
         self.tooltip = (tooltip + ' ') if tooltip else ''
@@ -80,8 +80,8 @@ class TagTreeItem(object):  # {{{
         if self.type == self.ROOT:
             return 'ROOT'
         if self.type == self.CATEGORY:
-            return 'CATEGORY:'+str(QVariant.toString(
-                self.name))+':%d'%len(getattr(self,
+            return 'CATEGORY:'+str(
+                self.name)+':%d'%len(getattr(self,
                     'children', []))
         return 'TAG: %s'%self.tag.name
 
@@ -101,13 +101,13 @@ class TagTreeItem(object):  # {{{
             return self.tag_data(role)
         if self.type == self.CATEGORY:
             return self.category_data(role)
-        return NONE
+        return None
 
     def category_data(self, role):
         if role == Qt.DisplayRole:
-            return QVariant(self.py_name + ' [%d]'%len(self.child_tags()))
+            return (self.py_name + ' [%d]'%len(self.child_tags()))
         if role == Qt.EditRole:
-            return QVariant(self.py_name)
+            return (self.py_name)
         if role == Qt.DecorationRole:
             if self.tag.state:
                 return self.icon_state_map[self.tag.state]
@@ -115,8 +115,8 @@ class TagTreeItem(object):  # {{{
         if role == Qt.FontRole:
             return bf()
         if role == Qt.ToolTipRole and self.tooltip is not None:
-            return QVariant(self.tooltip)
-        return NONE
+            return (self.tooltip)
+        return None
 
     def tag_data(self, role):
         tag = self.tag
@@ -136,24 +136,24 @@ class TagTreeItem(object):  # {{{
             count = len(self.id_set)
             count = count if count > 0 else tag.count
             if count == 0:
-                return QVariant('%s'%(name))
+                return ('%s'%(name))
             else:
-                return QVariant('[%d] %s'%(count, name))
+                return ('[%d] %s'%(count, name))
         if role == Qt.EditRole:
-            return QVariant(tag.original_name)
+            return (tag.original_name)
         if role == Qt.DecorationRole:
             return self.icon_state_map[tag.state]
         if role == Qt.ToolTipRole:
             if tt_author:
                 if tag.tooltip is not None:
-                    return QVariant('(%s) %s'%(tag.name, tag.tooltip))
+                    return ('(%s) %s'%(tag.name, tag.tooltip))
                 else:
-                    return QVariant(tag.name)
+                    return (tag.name)
             if tag.tooltip:
-                return QVariant(self.tooltip + tag.tooltip)
+                return (self.tooltip + tag.tooltip)
             else:
-                return QVariant(self.tooltip)
-        return NONE
+                return (self.tooltip)
+        return None
 
     def toggle(self, set_to=None):
         '''
@@ -940,7 +940,7 @@ class TagsModel(QAbstractItemModel):  # {{{
 
     def data(self, index, role):
         if not index.isValid():
-            return NONE
+            return None
         item = self.get_node(index)
         return item.data(role)
 
@@ -950,7 +950,7 @@ class TagsModel(QAbstractItemModel):  # {{{
         # set up to reposition at the same item. We can do this except if
         # working with the last item and that item is deleted, in which case
         # we position at the parent label
-        val = unicode(value.toString()).strip()
+        val = unicode(value or '').strip()
         if not val:
             error_dialog(self.gui_parent, _('Item is blank'),
                         _('An item cannot be set to nothing. Delete it instead.')).exec_()
@@ -1014,7 +1014,7 @@ class TagsModel(QAbstractItemModel):  # {{{
                 error_dialog(self.gui_parent, _('Duplicate search name'),
                     _('The saved search name %s is already used.')%val).exec_()
                 return False
-            self.db.saved_search_rename(unicode(item.data(role).toString()), val)
+            self.db.saved_search_rename(unicode(item.data(role) or ''), val)
             item.tag.name = val
             self.search_item_renamed.emit()  # Does a refresh
         else:
@@ -1079,7 +1079,7 @@ class TagsModel(QAbstractItemModel):  # {{{
             self.db.prefs.set('user_categories', user_cats)
 
     def headerData(self, *args):
-        return NONE
+        return None
 
     def flags(self, index, *args):
         ans = Qt.ItemIsEnabled|Qt.ItemIsEditable

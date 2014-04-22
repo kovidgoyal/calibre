@@ -31,7 +31,10 @@ def partial(*args, **kwargs):
 
 class LibraryViewMixin(object):  # {{{
 
-    def __init__(self, db):
+    def __init__(self, *args, **kwargs):
+        pass
+
+    def init_library_view_mixin(self, db):
         self.library_view.files_dropped.connect(self.iactions['Add Books'].files_dropped, type=Qt.QueuedConnection)
         self.library_view.add_column_signal.connect(partial(self.iactions['Preferences'].do_config,
             initial_plugin=('Interface', 'Custom Columns')),
@@ -294,14 +297,14 @@ class VLTabs(QTabBar):  # {{{
         self.setVisible(False)
 
     def tab_changed(self, idx):
-        vl = unicode(self.tabData(idx).toString()).strip() or None
+        vl = unicode(self.tabData(idx) or '').strip() or None
         self.gui.apply_virtual_library(vl)
 
     def tab_moved(self, from_, to):
-        self.current_db.prefs['virt_libs_order'] = [unicode(self.tabData(i).toString()) for i in range(self.count())]
+        self.current_db.prefs['virt_libs_order'] = [unicode(self.tabData(i) or '') for i in range(self.count())]
 
     def tab_close(self, index):
-        vl = unicode(self.tabData(index).toString())
+        vl = unicode(self.tabData(index) or '')
         if vl:  # Dont allow closing the All Books tab
             self.current_db.prefs['virt_libs_hidden'] = list(
                 self.current_db.prefs['virt_libs_hidden']) + [vl]
@@ -381,7 +384,10 @@ class VLTabs(QTabBar):  # {{{
 
 class LayoutMixin(object):  # {{{
 
-    def __init__(self):
+    def __init__(self, *args, **kwargs):
+        pass
+
+    def init_layout_mixin(self):
         self.vl_tabs = VLTabs(self)
         self.centralwidget.layout().addWidget(self.vl_tabs)
 

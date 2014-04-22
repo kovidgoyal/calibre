@@ -325,7 +325,7 @@ class BookInfo(QWebView):
         self._link_clicked = True
         if unicode(link.scheme()) in ('http', 'https'):
             return open_url(link)
-        link = unicode(link.toString())
+        link = unicode(link.toString(QUrl.None))
         self.link_clicked.emit(link)
 
     def turnoff_scrollbar(self, *args):
@@ -349,7 +349,7 @@ class BookInfo(QWebView):
         p = self.page()
         mf = p.mainFrame()
         r = mf.hitTestContent(ev.pos())
-        url = unicode(r.linkUrl().toString()).strip()
+        url = unicode(r.linkUrl().toString(QUrl.None)).strip()
         menu = p.createStandardContextMenu()
         ca = self.pageAction(p.Copy)
         for action in list(menu.actions()):

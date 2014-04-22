@@ -8,9 +8,8 @@ __docformat__ = 'restructuredtext en'
 
 from operator import attrgetter
 
-from PyQt5.Qt import (Qt, QAbstractItemModel, QModelIndex, QVariant, pyqtSignal)
+from PyQt5.Qt import (Qt, QAbstractItemModel, QModelIndex, pyqtSignal)
 
-from calibre.gui2 import NONE
 from calibre.db.search import _match, CONTAINS_MATCH, EQUALS_MATCH, REGEXP_MATCH
 from calibre.utils.config_base import prefs
 from calibre.utils.icu import sort_key
@@ -67,26 +66,26 @@ class BooksModel(QAbstractItemModel):
 
     def headerData(self, section, orientation, role):
         if role != Qt.DisplayRole:
-            return NONE
+            return None
         text = ''
         if orientation == Qt.Horizontal:
             if section < len(self.HEADERS):
                 text = self.HEADERS[section]
-            return QVariant(text)
+            return (text)
         else:
-            return QVariant(section+1)
+            return (section+1)
 
     def data(self, index, role):
         row, col = index.row(), index.column()
         result = self.books[row]
         if role == Qt.DisplayRole:
             if col == 0:
-                return QVariant(result.title)
+                return (result.title)
             elif col == 1:
-                return QVariant(result.author)
+                return (result.author)
             elif col == 2:
-                return QVariant(result.formats)
-        return NONE
+                return (result.formats)
+        return None
 
     def data_as_text(self, result, col):
         text = ''

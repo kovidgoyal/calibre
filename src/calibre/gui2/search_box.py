@@ -398,7 +398,10 @@ class SavedSearchBox(QComboBox):  # {{{
 
 class SearchBoxMixin(object):  # {{{
 
-    def __init__(self):
+    def __init__(self, *args, **kwargs):
+        pass
+
+    def init_search_box_mixin(self):
         self.search.initialize('main_search_history', colorize=True,
                 help_text=_('Search (For Advanced Search click the button to the left)'))
         self.search.cleared.connect(self.search_box_cleared)
@@ -413,7 +416,7 @@ class SearchBoxMixin(object):  # {{{
         self.search.setMaximumWidth(self.width()-150)
         self.action_focus_search = QAction(self)
         shortcuts = list(
-                map(lambda x:unicode(x.toString()),
+                map(lambda x:unicode(x.toString(QKeySequence.PortableText)),
                 QKeySequence.keyBindings(QKeySequence.Find)))
         shortcuts += ['/', 'Alt+S']
         self.keyboard.register_shortcut('start search', _('Start search'),
@@ -478,7 +481,10 @@ class SearchBoxMixin(object):  # {{{
 
 class SavedSearchBoxMixin(object):  # {{{
 
-    def __init__(self):
+    def __init__(self, *args, **kwargs):
+        pass
+
+    def init_saved_seach_box_mixin(self):
         self.saved_search.changed.connect(self.saved_searches_changed)
         self.clear_button.clicked.connect(self.saved_search.clear)
         self.save_search_button.clicked.connect(

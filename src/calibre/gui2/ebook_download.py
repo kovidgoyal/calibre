@@ -96,6 +96,9 @@ def start_ebook_download(callback, job_manager, gui, cookie_file=None, url='', f
 
 class EbookDownloadMixin(object):
 
+    def __init__(self, *args, **kwargs):
+        pass
+
     def download_ebook(self, url='', cookie_file=None, filename='', save_loc='', add_to_lib=True, tags=[]):
         if tags:
             if isinstance(tags, basestring):

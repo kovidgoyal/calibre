@@ -25,7 +25,10 @@ from calibre.gui2.dialogs.edit_authors_dialog import EditAuthorsDialog
 
 class TagBrowserMixin(object):  # {{{
 
-    def __init__(self, db):
+    def __init__(self, *args, **kwargs):
+        pass
+
+    def init_tag_browser_mixin(self, db):
         self.library_view.model().count_changed_signal.connect(self.tags_view.recount)
         self.tags_view.set_database(db, self.alter_tb)
         self.tags_view.tags_marked.connect(self.search.set_search_string)

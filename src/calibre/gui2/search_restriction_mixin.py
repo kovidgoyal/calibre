@@ -50,7 +50,7 @@ class SelectNames(QDialog):  # {{{
     @property
     def names(self):
         for item in self._names.selectedItems():
-            yield unicode(item.data(Qt.DisplayRole).toString())
+            yield unicode(item.data(Qt.DisplayRole) or '')
 
     @property
     def match_type(self):
@@ -231,7 +231,7 @@ class CreateVirtualLibrary(QDialog):  # {{{
                 return
         self.new_name = self.editing = self.vl_name.currentText()
         self.original_index = dex
-        self.original_search = unicode(self.vl_name.itemData(dex).toString())
+        self.original_search = unicode(self.vl_name.itemData(dex) or '')
         self.vl_text.setText(self.original_search)
 
     def link_activated(self, url):
@@ -308,7 +308,10 @@ class SearchRestrictionMixin(object):
 
     no_restriction = _('<None>')
 
-    def __init__(self):
+    def __init__(self, *args, **kwargs):
+        pass
+
+    def init_search_restirction_mixin(self):
         self.checked = QIcon(I('ok.png'))
         self.empty = QIcon(I('blank.png'))
         self.current_search_action = QAction(self.empty, _('*current search'), self)

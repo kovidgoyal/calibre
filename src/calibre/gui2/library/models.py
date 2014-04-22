@@ -9,9 +9,9 @@ import functools, re, os, traceback, errno, time
 from collections import defaultdict, namedtuple
 
 from PyQt5.Qt import (QAbstractTableModel, Qt, pyqtSignal, QIcon, QImage,
-        QModelIndex, QVariant, QDateTime, QColor, QPixmap, QPainter)
+        QModelIndex, QDateTime, QColor, QPixmap, QPainter)
 
-from calibre.gui2 import NONE, error_dialog
+from calibre.gui2 import error_dialog
 from calibre.utils.search_query_parser import ParseException
 from calibre.ebooks.metadata import fmt_sidx, authors_to_string, string_to_authors
 from calibre.ebooks.metadata.book.formatter import SafeFormat
@@ -60,7 +60,7 @@ class ColumnColor(object):  # {{{
             self.mi = None
             color = color_cache[id_][key]
             if color.isValid():
-                return QVariant(color)
+                return color
             return None
         try:
             if self.mi is None:
@@ -70,7 +70,6 @@ class ColumnColor(object):  # {{{
                                                   template_cache=template_cache))
             color_cache[id_][key] = color
             if color.isValid():
-                color = QVariant(color)
                 self.mi = None
                 return color
         except:
@@ -199,7 +198,7 @@ class BooksModel(QAbstractTableModel):  # {{{
         self.bool_no_icon = QIcon(I('list_remove.png'))
         self.bool_blank_icon = QIcon(I('blank.png'))
         self.marked_icon = QIcon(I('marked.png'))
-        self.row_decoration = NONE
+        self.row_decoration = None
         self.device_connected = False
         self.ids_to_highlight = []
         self.ids_to_highlight_set = set()
@@ -712,19 +711,19 @@ class BooksModel(QAbstractTableModel):  # {{{
                 def func(idx):
                     val = force_to_bool(fffunc(field_obj, idfunc(idx)))
                     if val is None:
-                        return NONE if bt else bn
+                        return None if bt else bn
                     return by if val else bn
             elif field == 'size':
                 sz_mult = 1.0/(1024**2)
                 def func(idx):
                     val = fffunc(field_obj, idfunc(idx), default_value=0) or 0
                     if val is 0:
-                        return NONE
+                        return None
                     ans = u'%.1f' % (val * sz_mult)
-                    return QVariant(u'<0.1' if ans == u'0.0' else ans)
+                    return (u'<0.1' if ans == u'0.0' else ans)
             elif field == 'languages':
                 def func(idx):
-                    return QVariant(', '.join(calibre_langcode_to_name(x) for x in fffunc(field_obj, idfunc(idx))))
+                    return (', '.join(calibre_langcode_to_name(x) for x in fffunc(field_obj, idfunc(idx))))
             elif field == 'ondevice' and decorator:
                 by = self.bool_yes_icon
                 bb = self.bool_blank_icon
@@ -739,54 +738,54 @@ class BooksModel(QAbstractTableModel):  # {{{
                             sv = m['is_multiple']['cache_to_list']
                             def func(idx):
                                 val = fffunc(field_obj, idfunc(idx), default_value='') or ''
-                                return QVariant(jv.join(sorted((x.strip() for x in val.split(sv)), key=sort_key)))
+                                return (jv.join(sorted((x.strip() for x in val.split(sv)), key=sort_key)))
                         else:
                             def func(idx):
-                                return QVariant(fffunc(field_obj, idfunc(idx), default_value=''))
+                                return (fffunc(field_obj, idfunc(idx), default_value=''))
                     else:
                         if do_sort:
                             def func(idx):
-                                return QVariant(jv.join(sorted(fffunc(field_obj, idfunc(idx), default_value=()), key=sort_key)))
+                                return (jv.join(sorted(fffunc(field_obj, idfunc(idx), default_value=()), key=sort_key)))
                         else:
                             def func(idx):
-                                return QVariant(jv.join(fffunc(field_obj, idfunc(idx), default_value=())))
+                                return (jv.join(fffunc(field_obj, idfunc(idx), default_value=())))
                 else:
                     if dt in {'text', 'composite', 'enumeration'} and m['display'].get('use_decorations', False):
                         def func(idx):
                             text = fffunc(field_obj, idfunc(idx))
-                            return QVariant(text) if force_to_bool(text) is None else NONE
+                            return (text) if force_to_bool(text) is None else None
                     else:
                         def func(idx):
-                            return QVariant(fffunc(field_obj, idfunc(idx), default_value=''))
+                            return (fffunc(field_obj, idfunc(idx), default_value=''))
             elif dt == 'datetime':
                 def func(idx):
-                    return QVariant(QDateTime(as_local_time(fffunc(field_obj, idfunc(idx), default_value=UNDEFINED_DATE))))
+                    return (QDateTime(as_local_time(fffunc(field_obj, idfunc(idx), default_value=UNDEFINED_DATE))))
             elif dt == 'rating':
                 def func(idx):
-                    return QVariant(int(fffunc(field_obj, idfunc(idx), default_value=0)/2.0))
+                    return (int(fffunc(field_obj, idfunc(idx), default_value=0)/2.0))
             elif dt == 'series':
                 sidx_field = self.db.new_api.fields[field + '_index']
                 def func(idx):
                     book_id = idfunc(idx)
                     series = fffunc(field_obj, book_id, default_value=False)
                     if series:
-                        return QVariant('%s [%s]' % (series, fmt_sidx(fffunc(sidx_field, book_id, default_value=1.0))))
-                    return NONE
+                        return ('%s [%s]' % (series, fmt_sidx(fffunc(sidx_field, book_id, default_value=1.0))))
+                    return None
             elif dt in {'int', 'float'}:
                 fmt = m['display'].get('number_format', None)
                 def func(idx):
                     val = fffunc(field_obj, idfunc(idx))
                     if val is None:
-                        return NONE
+                        return None
                     if fmt:
                         try:
-                            return QVariant(fmt.format(val))
+                            return (fmt.format(val))
                         except (TypeError, ValueError, AttributeError, IndexError, KeyError):
                             pass
-                    return QVariant(val)
+                    return (val)
             else:
                 def func(idx):
-                    return NONE
+                    return None
 
             return func
 
@@ -813,7 +812,7 @@ class BooksModel(QAbstractTableModel):  # {{{
         # the column map does not accurately represent the screen. In these cases,
         # we will get asked to display columns we don't know about. Must test for this.
         if col >= len(self.column_to_dc_map):
-            return NONE
+            return None
         if role == Qt.DisplayRole:
             rules = self.db.prefs['column_icon_rules']
             if rules:
@@ -833,14 +832,14 @@ class BooksModel(QAbstractTableModel):  # {{{
                                       self.icon_cache, self.icon_bitmap_cache,
                                       self.icon_template_cache)
                     if ccicon is not None:
-                        return NONE
+                        return None
                     self.icon_cache[id_][cache_index] = None
             return self.column_to_dc_map[col](index.row())
         elif role in (Qt.EditRole, Qt.ToolTipRole):
             return self.column_to_dc_map[col](index.row())
         elif role == Qt.BackgroundRole:
             if self.id(index) in self.ids_to_highlight_set:
-                return QVariant(QColor('lightgreen'))
+                return (QColor('lightgreen'))
         elif role == Qt.ForegroundRole:
             key = self.column_map[col]
             id_ = self.id(index)
@@ -862,13 +861,13 @@ class BooksModel(QAbstractTableModel):  # {{{
                 cc = self.custom_columns[self.column_map[col]]['display']
                 colors = cc.get('enum_colors', [])
                 values = cc.get('enum_values', [])
-                txt = unicode(index.data(Qt.DisplayRole).toString())
+                txt = unicode(index.data(Qt.DisplayRole) or '')
                 if len(colors) > 0 and txt in values:
                     try:
                         color = QColor(colors[values.index(txt)])
                         if color.isValid():
                             self.column_color.mi = None
-                            return QVariant(color)
+                            return (color)
                     except:
                         pass
 
@@ -879,11 +878,11 @@ class BooksModel(QAbstractTableModel):  # {{{
                     return ccol
 
             self.column_color.mi = None
-            return NONE
+            return None
         elif role == Qt.DecorationRole:
             if self.column_to_dc_decorator_map[col] is not None:
                 ccicon = self.column_to_dc_decorator_map[index.column()](index.row())
-                if ccicon != NONE:
+                if ccicon is not None:
                     return ccicon
 
             rules = self.db.prefs['column_icon_rules']
@@ -915,11 +914,11 @@ class BooksModel(QAbstractTableModel):  # {{{
             cname = self.column_map[index.column()]
             ans = Qt.AlignVCenter | ALIGNMENT_MAP[self.alignment_map.get(cname,
                 'left')]
-            return QVariant(ans)
+            return (ans)
         # elif role == Qt.ToolTipRole and index.isValid():
         #    if self.column_map[index.column()] in self.editable_cols:
-        #        return QVariant(_("Double click to <b>edit</b> me<br><br>"))
-        return NONE
+        #        return (_("Double click to <b>edit</b> me<br><br>"))
+        return None
 
     def headerData(self, section, orientation, role):
         if orientation == Qt.Horizontal:
@@ -933,22 +932,22 @@ class BooksModel(QAbstractTableModel):  # {{{
                     is_cat = '.\n\n' + _('Click in this column and press Q to Quickview books with the same %s') % ht
                 else:
                     is_cat = ''
-                return QVariant(_('The lookup/search name is "{0}"{1}').format(ht, is_cat))
+                return (_('The lookup/search name is "{0}"{1}').format(ht, is_cat))
             if role == Qt.DisplayRole:
-                return QVariant(self.headers[self.column_map[section]])
-            return NONE
+                return (self.headers[self.column_map[section]])
+            return None
         if DEBUG and role == Qt.ToolTipRole and orientation == Qt.Vertical:
                 col = self.db.field_metadata['uuid']['rec_index']
-                return QVariant(_('This book\'s UUID is "{0}"').format(self.db.data[section][col]))
+                return (_('This book\'s UUID is "{0}"').format(self.db.data[section][col]))
 
         if role == Qt.DisplayRole:  # orientation is vertical
-            return QVariant(section+1)
+            return (section+1)
         if role == Qt.DecorationRole:
             try:
                 return self.marked_icon if self.db.data.get_marked(self.db.data.index_to_id(section)) else self.row_decoration
             except (ValueError, IndexError):
                 pass
-        return NONE
+        return None
 
     def flags(self, index):
         flags = QAbstractTableModel.flags(self, index)
@@ -967,24 +966,24 @@ class BooksModel(QAbstractTableModel):  # {{{
         label=self.db.field_metadata.key_to_label(colhead)
         s_index = None
         if typ in ('text', 'comments'):
-            val = unicode(value.toString()).strip()
+            val = unicode(value or '').strip()
             val = val if val else None
         elif typ == 'enumeration':
-            val = unicode(value.toString()).strip()
+            val = unicode(value or '').strip()
             if not val:
                 val = None
         elif typ == 'bool':
-            val = value.toPyObject()
+            val = bool(value)
         elif typ == 'rating':
-            val = value.toInt()[0]
+            val = int(value)
             val = 0 if val < 0 else 5 if val > 5 else val
             val *= 2
         elif typ in ('int', 'float'):
-            val = unicode(value.toString()).strip()
+            val = unicode(value or '').strip()
             if not val:
                 val = None
         elif typ == 'datetime':
-            val = value.toDateTime()
+            val = value
             if val.isNull():
                 val = None
             else:
@@ -992,7 +991,7 @@ class BooksModel(QAbstractTableModel):  # {{{
                     return False
                 val = qt_to_dt(val, as_utc=False)
         elif typ == 'series':
-            val = unicode(value.toString()).strip()
+            val = unicode(value or '').strip()
             if val:
                 pat = re.compile(r'\[([.0-9]+)\]')
                 match = pat.search(val)
@@ -1006,7 +1005,7 @@ class BooksModel(QAbstractTableModel):  # {{{
                         s_index = self.db.get_next_cc_series_num_for(val,
                                                         label=label, num=None)
         elif typ == 'composite':
-            tmpl = unicode(value.toString()).strip()
+            tmpl = unicode(value or '').strip()
             disp = cc['display']
             disp['composite_template'] = tmpl
             self.db.set_custom_column_metadata(cc['colnum'], display=disp,
@@ -1057,9 +1056,9 @@ class BooksModel(QAbstractTableModel):  # {{{
         else:
             if column not in self.editable_cols:
                 return False
-            val = (int(value.toInt()[0]) if column == 'rating' else
-                    value.toDateTime() if column in ('timestamp', 'pubdate')
-                    else re.sub(ur'\s', u' ', unicode(value.toString()).strip()))
+            val = (int(value) if column == 'rating' else
+                    value if column in ('timestamp', 'pubdate')
+                    else re.sub(ur'\s', u' ', unicode(value or '').strip()))
             id = self.db.id(row)
             books_to_refresh = set([id])
             if column == 'rating':
@@ -1543,17 +1542,17 @@ class DeviceBooksModel(BooksModel):  # {{{
                 text = self.db[self.map[row]].title
                 if not text:
                     text = self.unknown
-                return QVariant(text)
+                return (text)
             elif cname == 'authors':
                 au = self.db[self.map[row]].authors
                 if not au:
                     au = [_('Unknown')]
-                return QVariant(authors_to_string(au))
+                return (authors_to_string(au))
             elif cname == 'size':
                 size = self.db[self.map[row]].size
                 if not isinstance(size, (float, int)):
                     size = 0
-                return QVariant(human_readable(size))
+                return (human_readable(size))
             elif cname == 'timestamp':
                 dt = self.db[self.map[row]].datetime
                 try:
@@ -1561,49 +1560,49 @@ class DeviceBooksModel(BooksModel):  # {{{
                 except OverflowError:
                     dt = dt_factory(time.gmtime(), assume_utc=True,
                                     as_utc=False)
-                return QVariant(strftime(TIME_FMT, dt.timetuple()))
+                return (strftime(TIME_FMT, dt.timetuple()))
             elif cname == 'collections':
                 tags = self.db[self.map[row]].device_collections
                 if tags:
                     tags.sort(key=sort_key)
-                    return QVariant(', '.join(tags))
+                    return (', '.join(tags))
             elif DEBUG and cname == 'inlibrary':
-                return QVariant(self.db[self.map[row]].in_library)
+                return (self.db[self.map[row]].in_library)
         elif role == Qt.ToolTipRole and index.isValid():
             if col == 0 and hasattr(self.db[self.map[row]], 'in_library_waiting'):
-                return QVariant(_('Waiting for metadata to be updated'))
+                return (_('Waiting for metadata to be updated'))
             if self.is_row_marked_for_deletion(row):
-                return QVariant(_('Marked for deletion'))
+                return (_('Marked for deletion'))
             if cname in ['title', 'authors'] or (cname == 'collections' and
                     self.db.supports_collections()):
-                return QVariant(_("Double click to <b>edit</b> me<br><br>"))
+                return (_("Double click to <b>edit</b> me<br><br>"))
         elif role == Qt.DecorationRole and cname == 'inlibrary':
             if hasattr(self.db[self.map[row]], 'in_library_waiting'):
-                return QVariant(self.sync_icon)
+                return (self.sync_icon)
             elif self.db[self.map[row]].in_library:
-                return QVariant(self.bool_yes_icon)
+                return (self.bool_yes_icon)
             elif self.db[self.map[row]].in_library is not None:
-                return QVariant(self.bool_no_icon)
+                return (self.bool_no_icon)
         elif role == Qt.TextAlignmentRole:
             cname = self.column_map[index.column()]
             ans = Qt.AlignVCenter | ALIGNMENT_MAP[self.alignment_map.get(cname,
                 'left')]
-            return QVariant(ans)
-        return NONE
+            return (ans)
+        return None
 
     def headerData(self, section, orientation, role):
         if role == Qt.ToolTipRole and orientation == Qt.Horizontal:
-            return QVariant(_('The lookup/search name is "{0}"').format(self.column_map[section]))
+            return (_('The lookup/search name is "{0}"').format(self.column_map[section]))
         if DEBUG and role == Qt.ToolTipRole and orientation == Qt.Vertical:
-            return QVariant(_('This book\'s UUID is "{0}"').format(self.db[self.map[section]].uuid))
+            return (_('This book\'s UUID is "{0}"').format(self.db[self.map[section]].uuid))
         if role != Qt.DisplayRole:
-            return NONE
+            return None
         if orientation == Qt.Horizontal:
             cname = self.column_map[section]
             text = self.headers[cname]
-            return QVariant(text)
+            return (text)
         else:
-            return QVariant(section+1)
+            return (section+1)
 
     def setData(self, index, value, role):
         done = False
@@ -1612,7 +1611,7 @@ class DeviceBooksModel(BooksModel):  # {{{
             cname = self.column_map[col]
             if cname in ('size', 'timestamp', 'inlibrary'):
                 return False
-            val = unicode(value.toString()).strip()
+            val = unicode(value or '').strip()
             idx = self.map[row]
             if cname == 'collections':
                 tags = [i.strip() for i in val.split(',')]

@@ -8,11 +8,10 @@ __docformat__ = 'restructuredtext en'
 
 import copy, zipfile
 
-from PyQt5.Qt import QAbstractItemModel, QVariant, Qt, QColor, QFont, QIcon, \
+from PyQt5.Qt import QAbstractItemModel, Qt, QColor, QFont, QIcon, \
         QModelIndex, pyqtSignal, QPixmap
 
 from calibre.utils.search_query_parser import SearchQueryParser
-from calibre.gui2 import NONE
 from calibre.utils.localization import get_language
 from calibre.web.feeds.recipes.collection import \
         get_builtin_recipe_collection, get_custom_recipe_collection, \
@@ -41,7 +40,7 @@ class NewsTreeItem(object):
         self.children.append(child)
 
     def data(self, role):
-        return NONE
+        return None
 
     def flags(self):
         return Qt.ItemIsEnabled|Qt.ItemIsSelectable
@@ -65,16 +64,16 @@ class NewsCategory(NewsTreeItem):
         self.cdata = get_language(self.category)
         self.bold_font = QFont()
         self.bold_font.setBold(True)
-        self.bold_font = QVariant(self.bold_font)
+        self.bold_font = (self.bold_font)
 
     def data(self, role):
         if role == Qt.DisplayRole:
-            return QVariant(self.cdata + ' [%d]'%len(self.children))
+            return (self.cdata + ' [%d]'%len(self.children))
         elif role == Qt.FontRole:
             return self.bold_font
         elif role == Qt.ForegroundRole and self.category == _('Scheduled'):
-            return QVariant(QColor(0, 255, 0))
-        return NONE
+            return (QColor(0, 255, 0))
+        return None
 
     def flags(self):
         return Qt.ItemIsEnabled
@@ -106,7 +105,7 @@ class NewsItem(NewsTreeItem):
 
     def data(self, role):
         if role == Qt.DisplayRole:
-            return QVariant(self.title)
+            return (self.title)
         if role == Qt.DecorationRole:
             if self.icon is None:
                 icon = '%s.png'%self.urn[8:]
@@ -118,11 +117,11 @@ class NewsItem(NewsTreeItem):
                     except:
                         pass
                 if not p.isNull():
-                    self.icon = QVariant(QIcon(p))
+                    self.icon = (QIcon(p))
                 else:
                     self.icon = self.default_icon
             return self.icon
-        return NONE
+        return None
 
     def __cmp__(self, other):
         return cmp(self.title.lower(), getattr(other, 'title', '').lower())
@@ -135,8 +134,8 @@ class RecipeModel(QAbstractItemModel, SearchQueryParser):
     def __init__(self, *args):
         QAbstractItemModel.__init__(self, *args)
         SearchQueryParser.__init__(self, locations=['all'])
-        self.default_icon = QVariant(QIcon(I('news.png')))
-        self.custom_icon = QVariant(QIcon(I('user_profile.png')))
+        self.default_icon = (QIcon(I('news.png')))
+        self.custom_icon = (QIcon(I('user_profile.png')))
         self.builtin_recipe_collection = get_builtin_recipe_collection()
         self.scheduler_config = SchedulerConfig()
         try:
@@ -300,12 +299,12 @@ class RecipeModel(QAbstractItemModel, SearchQueryParser):
 
     def data(self, index, role):
         if not index.isValid():
-            return NONE
+            return None
         item = index.internalPointer()
         return item.data(role)
 
     def headerData(self, *args):
-        return NONE
+        return None
 
     def flags(self, index):
         if not index.isValid():

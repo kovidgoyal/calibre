@@ -270,7 +270,7 @@ class SelectRecipients(QDialog):  # {{{
         ans = []
         for i in self.items:
             if i.checkState() == Qt.Checked:
-                to = unicode(i.data(Qt.UserRole).toString())
+                to = unicode(i.data(Qt.UserRole) or '')
                 fmts = tuple(x.strip().upper() for x in (opts.accounts[to][0] or '').split(','))
                 subject = opts.subjects.get(to, '')
                 ans.append((to, fmts, subject))
@@ -284,6 +284,9 @@ def select_recipients(parent=None):
 # }}}
 
 class EmailMixin(object):  # {{{
+
+    def __init__(self, *args, **kwargs):
+        pass
 
     def send_multiple_by_mail(self, recipients, delete_from_library):
         ids = set(self.library_view.model().id(r) for r in self.library_view.selectionModel().selectedRows())

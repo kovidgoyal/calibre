@@ -8,9 +8,9 @@ __docformat__ = 'restructuredtext en'
 
 import cPickle, shutil
 
-from PyQt5.Qt import QAbstractListModel, Qt, QVariant, QFont, QModelIndex
+from PyQt5.Qt import QAbstractListModel, Qt, QFont, QModelIndex
 
-from calibre.gui2 import ResizableDialog, NONE, gprefs
+from calibre.gui2 import ResizableDialog, gprefs
 from calibre.ebooks.conversion.config import (GuiRecommendations, save_specifics,
         load_specifics)
 from calibre.gui2.convert.single_ui import Ui_Dialog
@@ -75,16 +75,16 @@ class GroupModel(QAbstractListModel):
         try:
             widget = self.widgets[index.row()]
         except:
-            return NONE
+            return None
         if role == Qt.DisplayRole:
-            return QVariant(widget.config_title())
+            return (widget.config_title())
         if role == Qt.DecorationRole:
-            return QVariant(widget.config_icon())
+            return (widget.config_icon())
         if role == Qt.FontRole:
             f = QFont()
             f.setBold(True)
-            return QVariant(f)
-        return NONE
+            return (f)
+        return None
 
 def get_preferred_input_format_for_book(db, book_id):
     recs = load_specifics(db, book_id)

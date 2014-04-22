@@ -267,7 +267,10 @@ class Spacer(QWidget):  # {{{
 
 class MainWindowMixin(object):  # {{{
 
-    def __init__(self, db):
+    def __init__(self, *args, **kwargs):
+        pass
+
+    def init_main_window_mixin(self, db):
         self.setObjectName('MainWindow')
         self.setWindowIcon(QIcon(I('lt.png')))
         self.setWindowTitle(__appname__)
