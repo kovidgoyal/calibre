@@ -48,7 +48,7 @@ def all_py_files():
 
 def detect_qvariant():
     count = 0
-    pat = re.compile(b'|'.join(br'QVariant NONE toDateTime toDate isValid toInt toBool toString\(\) toPyObject canConvert toBitArray toByteArray toHash toFloat toMap toLine toPoint toReal toRect toTime toUInt toUrl'.split()))  # noqa
+    pat = re.compile(b'|'.join(br'QVariant NONE toDateTime toDate toInt toBool toString\(\) toPyObject canConvert toBitArray toByteArray toHash toFloat toMap toLine toPoint toReal toRect toTime toUInt toUrl'.split()))  # noqa
     exclusions = {
         'src/calibre/gui2/viewer/gestures.py': {'toPoint'},
     }
