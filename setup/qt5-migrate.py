@@ -34,7 +34,9 @@ def all_py_files():
 def detect_qvariant():
     count = 0
     pat = re.compile(b'|'.join(br'QVariant NONE toInt toBool toString\(\) toPyObject canConvert toBitArray toByteArray toHash toFloat toMap toLine toPoint toReal toRect toTime toUInt toUrl'.split()))  # noqa
-    exclusions = {}
+    exclusions = {
+        'src/calibre/gui2/viewer/gestures.py': {'toPoint'},
+    }
     for path in all_py_files():
         if os.path.basename(path) in {
                 'BeautifulSoup.py', 'icu.py', 'smtp.py', 'Zeroconf.py', 'date.py', 'apsw_shell.py', } or 'pylrs' in path:

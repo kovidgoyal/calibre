@@ -82,9 +82,13 @@ class Printing(QObject):
                         printer.newPage()
                     first = False
                     self.mf.render(painter)
-                nsl = evaljs('paged_display.next_screen_location()').toInt()
-                if not nsl[1] or nsl[0] <= 0: break
-                evaljs('window.scrollTo(%d, 0)'%nsl[0])
+                try:
+                    nsl = int(evaljs('paged_display.next_screen_location()'))
+                except (TypeError, ValueError):
+                    break
+                if nsl <= 0:
+                    break
+                evaljs('window.scrollTo(%d, 0)'%nsl)
 
         painter.end()
 

@@ -145,7 +145,7 @@ class BookmarkManager(QWidget):
 
     def item_changed(self, item):
         self.bookmarks_list.blockSignals(True)
-        title = unicode(item.data(Qt.DisplayRole).toString())
+        title = unicode(item.data(Qt.DisplayRole))
         if not title:
             title = _('Unknown')
             item.setData(Qt.DisplayRole, title)
@@ -186,7 +186,7 @@ class BookmarkManager(QWidget):
         return bytearray(cPickle.dumps(bm, -1))
 
     def item_to_bm(self, item):
-        return cPickle.loads(bytes(item.data(Qt.UserRole).toPyObject()))
+        return cPickle.loads(bytes(item.data(Qt.UserRole)))
 
     def get_bookmarks(self):
         return list(self)

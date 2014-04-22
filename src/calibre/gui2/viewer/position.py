@@ -16,8 +16,7 @@ class PagePosition(object):
 
     @property
     def viewport_cfi(self):
-        ans = None
-        res = self.document.mainFrame().evaluateJavaScript('''
+        ans = self.document.mainFrame().evaluateJavaScript('''
             ans = 'undefined';
             if (window.paged_display) {
                 ans = window.paged_display.current_cfi();
@@ -25,10 +24,8 @@ class PagePosition(object):
             }
             ans;
         ''')
-        if res.isValid() and not res.isNull() and res.type() == res.String:
-            c = unicode(res.toString())
-            if c != 'undefined':
-                ans = c
+        if ans in {'', 'undefined'}:
+            ans = None
         return ans
 
     def scroll_to_cfi(self, cfi):
@@ -51,11 +48,13 @@ class PagePosition(object):
         self.restore()
 
     def save(self, overwrite=True):
-        if not overwrite and self._cpos is not None: return
+        if not overwrite and self._cpos is not None:
+            return
         self._cpos = self.current_pos
 
     def restore(self):
-        if self._cpos is None: return
+        if self._cpos is None:
+            return
         self.to_pos(self._cpos)
         self._cpos = None
 

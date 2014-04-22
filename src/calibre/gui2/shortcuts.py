@@ -10,9 +10,9 @@ from functools import partial
 
 from PyQt5.Qt import QAbstractListModel, Qt, QKeySequence, QListView, \
         QHBoxLayout, QWidget, QApplication, QStyledItemDelegate, QStyle, \
-        QVariant, QTextDocument, QRectF, QFrame, QSize, QFont, QKeyEvent
+        QTextDocument, QRectF, QFrame, QSize, QFont, QKeyEvent
 
-from calibre.gui2 import NONE, error_dialog
+from calibre.gui2 import error_dialog
 from calibre.utils.config import XMLConfig
 from calibre.utils.icu import sort_key
 from calibre.gui2.shortcuts_ui import Ui_Frame
@@ -72,13 +72,13 @@ class Customize(QFrame, Ui_Frame):
         font = QFont()
         button.setFont(font)
         sequence = QKeySequence(code|(int(ev.modifiers())&~Qt.KeypadModifier))
-        button.setText(sequence.toString())
+        button.setText(sequence.toString(QKeySequence.NativeText))
         self.capture = 0
         setattr(self, 'shortcut%d'%which, sequence)
         dup_desc = self.dup_check(sequence, self.key)
         if dup_desc is not None:
             error_dialog(self, _('Already assigned'),
-                    unicode(sequence.toString()) + ' ' +
+                    unicode(sequence.toString(QKeySequence.NativeText)) + ' ' +
                     _('already assigned to') + ' ' + dup_desc, show=True)
             self.clear_clicked(which=which)
 
@@ -92,7 +92,7 @@ class Delegate(QStyledItemDelegate):
 
     def to_doc(self, index):
         doc =  QTextDocument()
-        doc.setHtml(index.data().toString())
+        doc.setHtml(index.data())
         return doc
 
     def editing_done(self, editor, hint):
@@ -128,14 +128,14 @@ class Delegate(QStyledItemDelegate):
         return w
 
     def setEditorData(self, editor, index):
-        defs = index.data(DEFAULTS).toPyObject()
+        defs = index.data(DEFAULTS)
         defs = _(' or ').join([unicode(x.toString(x.NativeText)) for x in defs])
-        editor.key = unicode(index.data(KEY).toString())
+        editor.key = unicode(index.data(KEY))
         editor.default_shortcuts.setText(_('&Default') + ': %s' % defs)
         editor.default_shortcuts.setChecked(True)
         editor.header.setText('<b>%s: %s</b>'%(_('Customize shortcuts for'),
-            unicode(index.data(DESCRIPTION).toString())))
-        custom = index.data(CUSTOM).toPyObject()
+            unicode(index.data(DESCRIPTION))))
+        custom = index.data(CUSTOM)
         if custom:
             editor.custom.setChecked(True)
             for x in (0, 1):
@@ -212,37 +212,35 @@ class Shortcuts(QAbstractListModel):
         return [unicode(x.toString(x.NativeText)) for x in
                 self.get_sequences(key)]
 
-
     def data(self, index, role):
         row = index.row()
         if row < 0 or row >= len(self.order):
-            return NONE
+            return None
         key = self.order[row]
         if role == Qt.DisplayRole:
-            return QVariant(self.TEMPLATE.format(self.descriptions[key],
-                    _(' or ').join(self.get_shortcuts(key)), _('Keys')))
+            return self.TEMPLATE.format(self.descriptions[key],
+                    _(' or ').join(self.get_shortcuts(key)), _('Keys'))
         if role == Qt.ToolTipRole:
-            return QVariant(_('Double click to change'))
+            return _('Double click to change')
         if role == DEFAULTS:
-            return QVariant(self.sequences[key])
+            return self.sequences[key]
         if role == DESCRIPTION:
-            return QVariant(self.descriptions[key])
+            return self.descriptions[key]
         if role == CUSTOM:
             if key in self.custom:
-                return QVariant(self.custom[key])
+                return self.custom[key]
             else:
-                return QVariant([])
+                return []
         if role == KEY:
-            return QVariant(key)
-        return NONE
+            return key
+        return None
 
     def set_data(self, index, custom):
         key = self.order[index.row()]
         if custom:
-            self.custom[key] = [unicode(x.toString()) for x in custom]
+            self.custom[key] = [unicode(x.toString(QKeySequence.PortableText)) for x in custom]
         elif key in self.custom:
             del self.custom[key]
-
 
     def flags(self, index):
         if not index.isValid():

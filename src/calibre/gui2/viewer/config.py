@@ -10,7 +10,7 @@ __docformat__ = 'restructuredtext en'
 import zipfile
 from functools import partial
 
-from PyQt5.Qt import (QFont, QVariant, QDialog, Qt, QColor, QColorDialog,
+from PyQt5.Qt import (QFont, QDialog, Qt, QColor, QColorDialog,
         QMenu, QInputDialog)
 
 from calibre.constants import iswindows, isxp
@@ -120,7 +120,7 @@ class ConfigDialog(QDialog, Ui_Dialog):
         for i in range(len(pats)):
             pmap[names[i]] = pats[i]
         for x in sorted(names):
-            self.hyphenate_default_lang.addItem(x, QVariant(pmap[x]))
+            self.hyphenate_default_lang.addItem(x, pmap[x])
         self.hyphenate_pats = pats
         self.hyphenate_names = names
         p = self.tabs.widget(1)
@@ -304,7 +304,7 @@ class ConfigDialog(QDialog, Ui_Dialog):
                 float(self.opt_font_mag_step.value())/100.)
         idx = self.hyphenate_default_lang.currentIndex()
         c.set('hyphenate_default_lang',
-                str(self.hyphenate_default_lang.itemData(idx).toString()))
+                self.hyphenate_default_lang.itemData(idx))
         c.set('line_scrolling_stops_on_pagebreaks',
                 self.opt_line_scrolling_stops_on_pagebreaks.isChecked())
         c.set('fullscreen_clock', self.opt_fullscreen_clock.isChecked())

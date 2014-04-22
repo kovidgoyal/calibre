@@ -145,7 +145,7 @@ class Document(QWebPage):  # {{{
             q = unicode(q)
             hyphenated_q = self.javascript(
                 'hyphenate_text(%s, "%s")' % (json.dumps(q, ensure_ascii=False), self.loaded_lang), typ='string')
-            if QWebPage.findText(self, hyphenated_q, flags):
+            if hyphenated_q and QWebPage.findText(self, hyphenated_q, flags):
                 return True
         return QWebPage.findText(self, q, flags)
 
@@ -351,17 +351,19 @@ class Document(QWebPage):  # {{{
     def javascript(self, string, typ=None):
         ans = self.mainFrame().evaluateJavaScript(string)
         if typ in {'int', int}:
-            ans = ans.toInt()
-            if ans[1]:
-                return ans[0]
-            return 0
+            try:
+                return int(ans)
+            except (TypeError, ValueError):
+                return 0
         if typ in {'float', float}:
-            ans = ans.toReal()
-            return ans[0] if ans[1] else 0.0
+            try:
+                return float(ans)
+            except (TypeError, ValueError):
+                return 0.0
         if typ == 'string':
-            return unicode(ans.toString())
+            return ans or u''
         if typ in {bool, 'bool'}:
-            return ans.toBool()
+            return bool(ans)
         return ans
 
     def javaScriptConsoleMessage(self, msg, lineno, msgid):
@@ -386,8 +388,9 @@ class Document(QWebPage):  # {{{
         self.javascript('window.paged_display.jump_to_anchor("%s")'%anchor)
 
     def element_ypos(self, elem):
-        ans, ok = elem.evaluateJavaScript('$(this).offset().top').toInt()
-        if not ok:
+        try:
+            ans = int(elem.evaluateJavaScript('$(this).offset().top'))
+        except (TypeError, ValueError):
             raise ValueError('No ypos found')
         return ans
 
@@ -482,7 +485,7 @@ class Document(QWebPage):  # {{{
 
     def extract_node(self):
         return unicode(self.mainFrame().evaluateJavaScript(
-            'window.calibre_extract.extract()').toString())
+            'window.calibre_extract.extract()'))
 
 # }}}
 
