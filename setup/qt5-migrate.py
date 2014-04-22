@@ -22,6 +22,10 @@ __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
 # QT5XX: Test touchscreen support on windows 8 in the viewer
 
+# Look for obsolete classes and functions from the list here:
+# http://qt-project.org/doc/qt-5/obsoleteclasses.html as these will not be
+# present in PyQt5
+
 # QT5XX: Delete this file after migration is completed
 
 import os, re
