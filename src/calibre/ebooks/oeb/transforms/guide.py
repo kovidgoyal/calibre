@@ -43,8 +43,12 @@ class Clean(object):
             self.oeb.guide.remove('start')
 
         for x in list(self.oeb.guide):
-            if x.lower() not in {'cover', 'titlepage', 'masthead', 'toc',
-                    'title-page', 'copyright-page', 'text'}:
+            if x.lower() not in {
+                    'cover', 'titlepage', 'masthead', 'toc', 'title-page',
+                    'copyright-page', 'text', 'index', 'glossary',
+                    'acknowledgements', 'bibliography', 'colophon',
+                    'copyright-page', 'dedication', 'epigraph', 'foreword',
+                    'loi', 'lot', 'notes', 'preface'}:
                 item = self.oeb.guide[x]
                 if item.title and item.title.lower() == 'start':
                     continue
