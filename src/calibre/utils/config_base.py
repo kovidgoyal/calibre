@@ -193,16 +193,12 @@ class OptionSet(object):
             try:
                 if not isinstance(src, unicode):
                     src = src.decode('utf-8')
-                src = src.replace(u'PyQt5.QtCore', u'PyQt4.QtCore')
+                src = src.replace(u'PyQt4.QtCore', u'PyQt5.QtCore')
                 exec src in options
-            except (SystemError, RuntimeError):
-                try:
-                    src = src.replace('PyQt' + '4', 'PyQt5')
-                    exec src in options
-                except:
-                    print 'Failed to parse options string:'
-                    print repr(src)
-                    traceback.print_exc()
+            except:
+                print 'Failed to parse options string:'
+                print repr(src)
+                traceback.print_exc()
         opts = OptionValues()
         for pref in self.preferences:
             val = options.get(pref.name, pref.default)
