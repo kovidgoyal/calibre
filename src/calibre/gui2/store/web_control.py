@@ -9,11 +9,12 @@ __docformat__ = 'restructuredtext en'
 import os
 from urlparse import urlparse
 
-from PyQt5.Qt import QNetworkCookieJar, QFileDialog, QNetworkProxy
+from PyQt5.Qt import QNetworkCookieJar, QNetworkProxy
 from PyQt5.QtWebKitWidgets import QWebView, QWebPage
 
 from calibre import USER_AGENT, get_proxies, get_download_filename
 from calibre.ebooks import BOOK_EXTENSIONS
+from calibre.gui2 import choose_save_file
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.utils.filenames import ascii_filename
 
@@ -85,13 +86,8 @@ class NPWebView(QWebView):
                           'the ADE library folder.'),
                           'acsm_download', self):
                     return
-            home = os.path.expanduser('~')
-            name = QFileDialog.getSaveFileName(self,
-                _('File is not a supported ebook type. Save to disk?'),
-                os.path.join(home, filename),
-                '*.*')
+            name = choose_save_file(self, 'web-store-download-unknown', _('File is not a supported ebook type. Save to disk?'), initial_filename=filename)
             if name:
-                name = unicode(name)
                 self.gui.download_ebook(url, cf, name, name, False)
         else:
             self.gui.download_ebook(url, cf, filename, tags=self.tags)

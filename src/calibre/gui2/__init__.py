@@ -666,28 +666,29 @@ class FileDialog(QObject):
             if not use_native_dialog:
                 opts |= QFileDialog.DontUseNativeDialog
             if mode == QFileDialog.AnyFile:
-                f = unicode(QFileDialog.getSaveFileName(parent, title,
-                    initial_dir, ftext, "", opts))
-                if f:
-                    self.selected_files.append(f)
+                f = QFileDialog.getSaveFileName(parent, title,
+                    initial_dir, ftext, "", opts)
+                if f and f[0]:
+                    self.selected_files.append(f[0])
             elif mode == QFileDialog.ExistingFile:
-                f = unicode(QFileDialog.getOpenFileName(parent, title,
-                    initial_dir, ftext, "", opts))
-                if f and os.path.exists(f):
-                    self.selected_files.append(f)
+                f = QFileDialog.getOpenFileName(parent, title,
+                    initial_dir, ftext, "", opts)
+                if f and f[0] and os.path.exists(f[0]):
+                    self.selected_files.append(f[0])
             elif mode == QFileDialog.ExistingFiles:
                 fs = QFileDialog.getOpenFileNames(parent, title, initial_dir,
                         ftext, "", opts)
-                for f in fs:
-                    f = unicode(f)
-                    if not f:
-                        continue
-                    if not os.path.exists(f):
-                        # QFileDialog for some reason quotes spaces
-                        # on linux if there is more than one space in a row
-                        f = unquote(f)
-                    if f and os.path.exists(f):
-                        self.selected_files.append(f)
+                if fs and fs[0]:
+                    for f in fs[0]:
+                        f = unicode(f)
+                        if not f:
+                            continue
+                        if not os.path.exists(f):
+                            # QFileDialog for some reason quotes spaces
+                            # on linux if there is more than one space in a row
+                            f = unquote(f)
+                        if f and os.path.exists(f):
+                            self.selected_files.append(f)
             else:
                 if mode == QFileDialog.Directory:
                     opts |= QFileDialog.ShowDirsOnly
