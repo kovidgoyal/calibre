@@ -125,7 +125,7 @@ class WebPage(QWebPage):  # {{{
 
     @property
     def ready_state(self):
-        return unicode(self.mainFrame().evaluateJavaScript('document.readyState').toString())
+        return unicode(self.mainFrame().evaluateJavaScript('document.readyState') or '')
 
     @pyqtSlot(QPixmap)
     def transfer_image(self, img):
@@ -210,7 +210,7 @@ class NetworkAccessManager(QNetworkAccessManager):  # {{{
         reply.ignoreSslErrors()
 
     def createRequest(self, operation, request, data):
-        url = unicode(request.url().toString())
+        url = unicode(request.url().toString(QUrl.None))
         operation_name = self.OPERATION_NAMES[operation]
         debug = []
         debug.append(('Request: %s %s' % (operation_name, url)))
@@ -245,7 +245,7 @@ class NetworkAccessManager(QNetworkAccessManager):  # {{{
             self.report_reply(reply)
 
     def report_reply(self, reply):
-        reply_url = unicode(reply.url().toString())
+        reply_url = unicode(reply.url().toString(QUrl.None))
         self.reply_count += 1
         err = reply.error()
 

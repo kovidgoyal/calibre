@@ -101,14 +101,14 @@ def download_resources(browser, resource_cache, output_dir):
     for img in browser.css_select('img[src]', all=True):
         # Using javascript ensures that absolute URLs are returned, direct
         # attribute access does not do that
-        src = unicode(img.evaluateJavaScript('this.src').toString()).strip()
+        src = unicode(img.evaluateJavaScript('this.src') or '').strip()
         if src:
             resources[src].append(img)
     for link in browser.css_select('link[href]', all=True):
         lt = unicode(link.attribute('type')).strip() or 'text/css'
         rel = unicode(link.attribute('rel')).strip() or 'stylesheet'
         if lt == 'text/css' and rel == 'stylesheet':
-            href = unicode(link.evaluateJavaScript('this.href').toString()).strip()
+            href = unicode(link.evaluateJavaScript('this.href') or '').strip()
             if href:
                 resources[href].append(link)
             else:
@@ -165,7 +165,7 @@ def links_from_selectors(selectors, recursions, browser, url, recursion_level):
     if recursions > recursion_level:
         for selector in selectors:
             for a in browser.css_select(selector, all=True):
-                href = unicode(a.evaluateJavaScript('this.href').toString()).strip()
+                href = unicode(a.evaluateJavaScript('this.href') or '').strip()
                 if href:
                     ans.append(href)
     return ans

@@ -11,7 +11,7 @@ import sys, os, textwrap
 from threading import Thread
 from functools import partial
 
-from PyQt5.Qt import (QPushButton, QFrame, QVariant, QMenu, QInputDialog,
+from PyQt5.Qt import (QPushButton, QFrame, QMenu, QInputDialog,
     QDialog, QVBoxLayout, QDialogButtonBox, QSize, QStackedWidget, QWidget,
     QLabel, Qt, pyqtSignal, QIcon, QTreeWidget, QGridLayout, QTreeWidgetItem,
     QToolButton, QItemSelectionModel, QCursor, QKeySequence)
@@ -330,12 +330,12 @@ class ItemView(QFrame):  # {{{
 
     def populate_item_pane(self):
         item = self.current_item
-        name = unicode(item.data(0, Qt.DisplayRole).toString())
+        name = unicode(item.data(0, Qt.DisplayRole) or '')
         self.item_pane.heading.setText('<h2>%s</h2>'%name)
         self.icon_label.setPixmap(item.data(0, Qt.DecorationRole
-                                            ).toPyObject().pixmap(32, 32))
+                                            ).pixmap(32, 32))
         tt = _('This entry points to an existing destination')
-        toc = item.data(0, Qt.UserRole).toPyObject()
+        toc = item.data(0, Qt.UserRole)
         if toc.dest_exists is False:
             tt = _('The location this entry points to does not exist')
         elif toc.dest_exists is None:
@@ -487,7 +487,7 @@ class TreeWidget(QTreeWidget):  # {{{
     def title_case(self):
         from calibre.utils.titlecase import titlecase
         for item in self.selectedItems():
-            t = unicode(item.data(0, Qt.DisplayRole).toString())
+            t = unicode(item.data(0, Qt.DisplayRole) or '')
             item.setData(0, Qt.DisplayRole, titlecase(t))
 
     def bulk_rename(self):
@@ -526,7 +526,7 @@ class TreeWidget(QTreeWidget):  # {{{
 
         if item is not None:
             m = QMenu()
-            ci = unicode(item.data(0, Qt.DisplayRole).toString())
+            ci = unicode(item.data(0, Qt.DisplayRole) or '')
             p = item.parent() or self.invisibleRootItem()
             idx = p.indexOfChild(item)
             if idx > 0:
@@ -622,7 +622,7 @@ class TOCView(QWidget):  # {{{
         return super(TOCView, self).event(e)
 
     def item_title(self, item):
-        return unicode(item.data(0, Qt.DisplayRole).toString())
+        return unicode(item.data(0, Qt.DisplayRole) or '')
 
     def del_items(self):
         self.tocw.del_items()
@@ -672,7 +672,7 @@ class TOCView(QWidget):  # {{{
         self.tocw.move_down()
 
     def update_status_tip(self, item):
-        c = item.data(0, Qt.UserRole).toPyObject()
+        c = item.data(0, Qt.UserRole)
         if c is not None:
             frag = c.frag or ''
             if frag:
@@ -683,8 +683,8 @@ class TOCView(QWidget):  # {{{
     def data_changed(self, top_left, bottom_right):
         for r in xrange(top_left.row(), bottom_right.row()+1):
             idx = self.tocw.model().index(r, 0, top_left.parent())
-            new_title = unicode(idx.data(Qt.DisplayRole).toString()).strip()
-            toc = idx.data(Qt.UserRole).toPyObject()
+            new_title = unicode(idx.data(Qt.DisplayRole) or '').strip()
+            toc = idx.data(Qt.UserRole)
             if toc is not None:
                 toc.title = new_title or _('(Untitled)')
             item = self.tocw.itemFromIndex(idx)
@@ -711,7 +711,7 @@ class TOCView(QWidget):  # {{{
                 'The location this entry point to does not exist:\n%s')
                 %child.dest_error)
         else:
-            c.setData(0, Qt.ToolTipRole, QVariant())
+            c.setData(0, Qt.ToolTipRole, None)
 
         self.update_status_tip(c)
 
@@ -774,8 +774,8 @@ class TOCView(QWidget):  # {{{
         def process_node(parent, toc_parent):
             for i in xrange(parent.childCount()):
                 item = parent.child(i)
-                title = unicode(item.data(0, Qt.DisplayRole).toString()).strip()
-                toc = item.data(0, Qt.UserRole).toPyObject()
+                title = unicode(item.data(0, Qt.DisplayRole) or '').strip()
+                toc = item.data(0, Qt.UserRole)
                 dest, frag = toc.dest, toc.frag
                 toc = toc_parent.add(title, dest, frag)
                 process_node(item, toc)

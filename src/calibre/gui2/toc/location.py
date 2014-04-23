@@ -88,8 +88,9 @@ class WebView(QWebView):  # {{{
 
     @property
     def scroll_frac(self):
-        val, ok = self.page().evaljs('window.pageYOffset/document.body.scrollHeight').toFloat()
-        if not ok:
+        try:
+            val = float(self.page().evaljs('window.pageYOffset/document.body.scrollHeight'))
+        except (TypeError, ValueError):
             val = 0
         return val
 # }}}
@@ -190,9 +191,9 @@ class ItemEdit(QWidget):
                     _('No match found for: %s')%text, show=True)
 
             delta = 1 if forwards else -1
-            current = unicode(d.currentItem().data(Qt.DisplayRole).toString())
+            current = unicode(d.currentItem().data(Qt.DisplayRole) or '')
             next_index = (d.currentRow() + delta)%d.count()
-            next = unicode(d.item(next_index).data(Qt.DisplayRole).toString())
+            next = unicode(d.item(next_index).data(Qt.DisplayRole) or '')
             msg = '<p>'+_('No matches for %(text)s found in the current file [%(current)s].'
                           ' Do you want to search in the %(which)s file [%(next)s]?')
             msg = msg%dict(text=text, current=current, next=next,
@@ -215,7 +216,7 @@ class ItemEdit(QWidget):
         self.dest_list.addItems(spine_names)
 
     def current_changed(self, item):
-        name = self.current_name = unicode(item.data(Qt.DisplayRole).toString())
+        name = self.current_name = unicode(item.data(Qt.DisplayRole) or '')
         path = self.container.name_to_abspath(name)
         # Ensure encoding map is populated
         root = self.container.parsed(name)
@@ -248,13 +249,13 @@ class ItemEdit(QWidget):
         dest_index, frag = 0, None
         if item is not None:
             if where is None:
-                self.name.setText(item.data(0, Qt.DisplayRole).toString())
+                self.name.setText(item.data(0, Qt.DisplayRole) or '')
                 self.name.setCursorPosition(0)
-            toc = item.data(0, Qt.UserRole).toPyObject()
+            toc = item.data(0, Qt.UserRole)
             if toc.dest:
                 for i in xrange(self.dest_list.count()):
                     litem = self.dest_list.item(i)
-                    if unicode(litem.data(Qt.DisplayRole).toString()) == toc.dest:
+                    if unicode(litem.data(Qt.DisplayRole) or '') == toc.dest:
                         dest_index = i
                         frag = toc.frag
                         break
