@@ -65,7 +65,7 @@ class FilenamePattern(QWidget, Ui_Form):  # {{{
         QWidget.__init__(self, parent)
         self.setupUi(self)
 
-        self.test_button.clicked[()].connect(self.do_test)
+        self.test_button.clicked.connect(self.do_test)
         self.re.lineEdit().returnPressed[()].connect(self.do_test)
         self.filename.returnPressed[()].connect(self.do_test)
         self.re.lineEdit().textChanged.connect(lambda x: self.changed_signal.emit())

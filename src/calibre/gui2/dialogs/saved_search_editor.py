@@ -19,9 +19,9 @@ class SavedSearchEditor(QDialog, Ui_SavedSearchEditor):
         Ui_SavedSearchEditor.__init__(self)
         self.setupUi(self)
 
-        self.add_search_button.clicked[()].connect(self.add_search)
+        self.add_search_button.clicked.connect(self.add_search)
         self.search_name_box.currentIndexChanged[(int)].connect(self.current_index_changed)
-        self.delete_search_button.clicked[()].connect(self.del_search)
+        self.delete_search_button.clicked.connect(self.del_search)
         self.rename_button.clicked.connect(self.rename_search)
 
         self.current_search_name = None

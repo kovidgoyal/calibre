@@ -19,7 +19,7 @@ class FontKeyChooser(QDialog, Ui_Dialog):
         self.default_font_key       = font_key
         self.default_base_font_size = base_font_size
         self.buttonBox.clicked.connect(self.button_clicked)
-        self.button_use_default.clicked[()].connect(self.use_default)
+        self.button_use_default.clicked.connect(self.use_default)
 
         for x in ('input_base_font_size', 'input_font_size',
                 'output_base_font_size'):

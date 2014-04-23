@@ -157,7 +157,7 @@ class Config(ResizableDialog, Ui_Dialog):
         self.groups.entered[(QModelIndex)].connect(self.show_group_help)
         rb = self.buttonBox.button(self.buttonBox.RestoreDefaults)
         rb.setText(_('Restore &Defaults'))
-        rb.clicked[()].connect(self.restore_defaults)
+        rb.clicked.connect(self.restore_defaults)
         self.groups.setMouseTracking(True)
         geom = gprefs.get('convert_single_dialog_geom', None)
         if geom:

@@ -50,10 +50,10 @@ class TagEditor(QDialog, Ui_TagEditor):
             if tag not in tags:
                 self.available_tags.addItem(tag)
 
-        self.apply_button.clicked[()].connect(self.apply_tags)
-        self.unapply_button.clicked[()].connect(self.unapply_tags)
-        self.add_tag_button.clicked[()].connect(self.add_tag)
-        self.delete_button.clicked[()].connect(self.delete_tags)
+        self.apply_button.clicked.connect(lambda: self.apply_tags())
+        self.unapply_button.clicked.connect(lambda: self.unapply_tags())
+        self.add_tag_button.clicked.connect(self.add_tag)
+        self.delete_button.clicked.connect(lambda: self.delete_tags())
         self.add_tag_input.returnPressed[()].connect(self.add_tag)
         # add the handlers for the filter input clear buttons
         for x in ('available', 'applied'):

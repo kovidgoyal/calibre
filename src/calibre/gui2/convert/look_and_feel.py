@@ -52,7 +52,7 @@ class LookAndFeelWidget(Widget, Ui_Form):
         self.initialize_options(get_option, get_help, db, book_id)
         self.opt_disable_font_rescaling.toggle()
         self.opt_disable_font_rescaling.toggle()
-        self.button_font_key.clicked[()].connect(self.font_key_wizard)
+        self.button_font_key.clicked.connect(self.font_key_wizard)
         self.opt_remove_paragraph_spacing.toggle()
         self.opt_remove_paragraph_spacing.toggle()
         self.opt_smarten_punctuation.stateChanged.connect(

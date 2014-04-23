@@ -63,7 +63,7 @@ class XPathEdit(QWidget, Ui_Edit):
     def __init__(self, parent=None):
         QWidget.__init__(self, parent)
         self.setupUi(self)
-        self.button.clicked[()].connect(self.wizard)
+        self.button.clicked.connect(self.wizard)
 
     def wizard(self):
         wiz = Wizard(self)
