@@ -172,6 +172,11 @@ def pretty_html_tree(container, root):
             pretty_xml_tree(child)
     for body in root.findall('h:body', namespaces=XPNSMAP):
         pretty_block(body)
+        # Special case the handling of a body that contains a single block tag
+        # with all content. In this case we prettify the containing block tag
+        # even if it has non block children.
+        if len(body) == 1 and not callable(body[0].tag) and isblock(body[0]) and not has_only_blocks(body[0]) and barename(body[0].tag) != 'pre':
+            pretty_block(body[0], level=2)
 
     if container is not None:
         # Handle <script> and <style> tags
