@@ -62,7 +62,8 @@ class Help(QDialog):  # {{{
 
             <dt>Swipe</dt>
             <dd>Swipe to the left to go to the next page and to the right to go to the previous page.
-            This mimics turning pages in a paper book.</dd>
+            This mimics turning pages in a paper book. When the viewer is not in paged mode, swiping
+            scrolls the text line by line instead of page by page.</dd>
 
             <dt>Pinch</dt>
             <dd>Pinch in or out to decrease or increase the font size</dd>
@@ -115,6 +116,12 @@ class TouchPoint(object):
         axis = (Left, Right) if xabs > yabs else (Up, Down)
         return axis[0 if d < 0 else 1]
 
+    @property
+    def swipe_live(self):
+        x_movement = self.current_screen_position.x() - self.previous_screen_position.x()
+        y_movement = self.current_screen_position.y() - self.previous_screen_position.y()
+        return (x_movement, y_movement)
+
 def get_pinch(p1, p2):
     starts = [p1.start_screen_position, p2.start_screen_position]
     ends = [p1.current_screen_position, p2.current_screen_position]
@@ -132,6 +139,7 @@ class State(QObject):
 
     tapped = pyqtSignal(object)
     swiped = pyqtSignal(object)
+    swiping = pyqtSignal(object, object)
     pinched = pyqtSignal(object)
     tap_hold_started = pyqtSignal(object)
     tap_hold_updated = pyqtSignal(object)
@@ -175,6 +183,9 @@ class State(QObject):
             self.clear()
         else:
             self.check_for_holds()
+            if {Swipe, SwipeAndHold} & self.possible_gestures:
+                tp = next(self.touch_points.itervalues())
+                self.swiping.emit(*tp.swipe_live)
 
     def check_for_holds(self):
         if not {SwipeAndHold, TapAndHold} & self.possible_gestures:
@@ -247,6 +258,7 @@ class GestureHandler(QObject):
         self.last_swipe_hold_update = None
         self.state.swiped.connect(self.handle_swipe)
         self.state.tapped.connect(self.handle_tap)
+        self.state.swiping.connect(self.handle_swiping)
         self.state.tap_hold_started.connect(partial(self.handle_tap_hold, 'start'))
         self.state.tap_hold_updated.connect(partial(self.handle_tap_hold, 'update'))
         self.state.tap_hold_finished.connect(partial(self.handle_tap_hold, 'end'))
@@ -314,8 +326,28 @@ class GestureHandler(QObject):
         if self.close_open_menu():
             return
         view = self.parent()
+        if not view.document.in_paged_mode:
+            return
         func = {Left:'next_page', Right: 'previous_page', Up:'goto_previous_section', Down:'goto_next_section'}[direction]
         getattr(view, func)()
+
+    def handle_swiping(self, x, y):
+        if max(abs(x), abs(y)) < 1:
+            return
+        view = self.parent()
+        if view.document.in_paged_mode:
+            return
+        ydirection = Up if y < 0 else Down
+        if view.manager is not None and abs(y) > 0:
+            if ydirection is Up and view.document.at_bottom:
+                view.manager.next_document()
+                return
+            elif ydirection is Down and view.document.at_top:
+                view.manager.previous_document()
+                return
+        view.scroll_by(x=-x, y=-y)
+        if view.manager is not None:
+            view.manager.scrolled(view.scroll_fraction)
 
     def current_position(self, tp):
         return self.parent().mapFromGlobal(tp.current_screen_position.toPoint())
@@ -346,6 +378,8 @@ class GestureHandler(QObject):
 
     def handle_swipe_hold(self, action, direction):
         view = self.parent()
+        if not view.document.in_paged_mode:
+            return
         if action == 'start':
             self.last_swipe_hold_update = time.time()
             try:
