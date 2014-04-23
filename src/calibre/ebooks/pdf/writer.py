@@ -24,7 +24,7 @@ from calibre.ebooks.oeb.display.webview import load_html
 
 def get_custom_size(opts):
     custom_size = None
-    if opts.custom_size != None:
+    if opts.custom_size is not None:
         width, sep, height = opts.custom_size.partition('x')
         if height:
             try:
@@ -35,7 +35,7 @@ def get_custom_size(opts):
                 custom_size = None
     return custom_size
 
-def get_pdf_printer(opts, for_comic=False, output_file_name=None): # {{{
+def get_pdf_printer(opts, for_comic=False, output_file_name=None):  # {{{
     from calibre.gui2 import is_ok_to_use_qt
     if not is_ok_to_use_qt():
         raise Exception('Not OK to use Qt')
@@ -89,7 +89,7 @@ def draw_image_page(printer, painter, p, preserve_aspect_ratio=True):
         nw, nh = page_rect.width(), page_rect.height()
         if aspect_ratio > 1:
             nh = int(page_rect.width()/aspect_ratio)
-        else: # Width is smaller than height
+        else:  # Width is smaller than height
             nw = page_rect.height()*aspect_ratio
         __, nnw, nnh = fit_image(nw, nh, page_rect.width(),
                 page_rect.height())
@@ -101,7 +101,7 @@ def draw_image_page(printer, painter, p, preserve_aspect_ratio=True):
     painter.drawPixmap(page_rect, p, p.rect())
 
 
-class Page(QWebPage): # {{{
+class Page(QWebPage):  # {{{
 
     def __init__(self, opts, log):
         self.log = log
@@ -134,7 +134,7 @@ class Page(QWebPage): # {{{
         self.log(unicode(msg))
 # }}}
 
-class PDFWriter(QObject): # {{{
+class PDFWriter(QObject):  # {{{
 
     def __init__(self, opts, log, cover_data=None, toc=None):
         from calibre.gui2 import is_ok_to_use_qt
@@ -274,15 +274,19 @@ class PDFWriter(QObject): # {{{
                     self.current_page_num += 1
             self.first_page = False
             mf.render(self.painter)
-            nsl = evaljs('paged_display.next_screen_location()').toInt()
-            if not nsl[1] or nsl[0] <= 0: break
-            evaljs('window.scrollTo(%d, 0)'%nsl[0])
+            try:
+                nsl = int(evaljs('paged_display.next_screen_location()'))
+            except (TypeError, ValueError):
+                break
+            if nsl <= 0:
+                break
+            evaljs('window.scrollTo(%d, 0)'%nsl)
 
         self.bridge_value = tuple(self.outline.anchor_map[self.current_item])
         evaljs('py_bridge.value = book_indexing.anchor_positions(py_bridge.value)')
         amap = self.bridge_value
         if not isinstance(amap, dict):
-            amap = {} # Some javascript error occurred
+            amap = {}  # Some javascript error occurred
         self.outline.set_pos(self.current_item, None, start_page, 0)
         for anchor, x in amap.iteritems():
             pagenum, ypos = x
@@ -339,7 +343,7 @@ class PDFWriter(QObject): # {{{
 
 # }}}
 
-class ImagePDFWriter(object): # {{{
+class ImagePDFWriter(object):  # {{{
 
     def __init__(self, opts, log, cover_data=None, toc=None):
         self.opts = opts

@@ -302,12 +302,12 @@ class PDFWriter(QObject):
         mjpath = P(u'viewer/mathjax').replace(os.sep, '/')
         if iswindows:
             mjpath = u'/' + mjpath
-        if evaljs('''
+        if bool(evaljs('''
                     window.mathjax.base = %s;
                     mathjax.check_for_math(); mathjax.math_present
-                    '''%(json.dumps(mjpath, ensure_ascii=False))).toBool():
+                    '''%(json.dumps(mjpath, ensure_ascii=False)))):
             self.log.debug('Math present, loading MathJax')
-            while not evaljs('mathjax.math_loaded').toBool():
+            while not bool(evaljs('mathjax.math_loaded')):
                 self.loop.processEvents(self.loop.ExcludeUserInputEvents)
             evaljs('document.getElementById("MathJax_Message").style.display="none";')
 
@@ -392,11 +392,14 @@ class PDFWriter(QObject):
             self.painter.save()
             mf.render(self.painter)
             self.painter.restore()
-            nsl = evaljs('paged_display.next_screen_location()').toInt()
-            self.doc.end_page()
-            if not nsl[1] or nsl[0] <= 0:
+            try:
+                nsl = int(evaljs('paged_display.next_screen_location()'))
+            except (TypeError, ValueError):
                 break
-            evaljs('window.scrollTo(%d, 0); paged_display.position_header_footer();'%nsl[0])
+            self.doc.end_page()
+            if nsl <= 0:
+                break
+            evaljs('window.scrollTo(%d, 0); paged_display.position_header_footer();'%nsl)
             if self.doc.errors_occurred:
                 break
             col += 1
