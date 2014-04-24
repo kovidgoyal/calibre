@@ -549,7 +549,7 @@ class JobsDialog(QDialog, Ui_JobsDialog):
         self.pb_delegate = ProgressBarDelegate(self)
         self.jobs_view.setItemDelegateForColumn(2, self.pb_delegate)
         self.jobs_view.doubleClicked.connect(self.show_job_details)
-        self.jobs_view.horizontalHeader().setMovable(True)
+        self.jobs_view.horizontalHeader().setSectionsMovable(True)
         self.hide_button.clicked.connect(self.hide_selected)
         self.hide_all_button.clicked.connect(self.hide_all)
         self.show_button.clicked.connect(self.show_hidden)

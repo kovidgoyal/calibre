@@ -113,7 +113,7 @@ class TagListEditor(QDialog, Ui_TagListEditor):
 
         # Capture clicks on the horizontal header to sort the table columns
         hh = self.table.horizontalHeader()
-        hh.setClickable(True)
+        hh.setSectionsClickable(True)
         hh.sectionClicked.connect(self.header_clicked)
         hh.sectionResized.connect(self.table_column_resized)
         self.name_order = 0
