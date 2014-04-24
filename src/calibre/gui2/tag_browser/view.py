@@ -22,7 +22,7 @@ from calibre.gui2.tag_browser.model import (TagTreeItem, TAG_SEARCH_STATES,
 from calibre.gui2 import config, gprefs, choose_files, pixmap_to_data
 from calibre.utils.icu import sort_key
 
-class TagDelegate(QStyledItemDelegate): # {{{
+class TagDelegate(QStyledItemDelegate):  # {{{
 
     def __init__(self, *args, **kwargs):
         QStyledItemDelegate.__init__(self, *args, **kwargs)
@@ -68,7 +68,7 @@ class TagDelegate(QStyledItemDelegate): # {{{
 
     # }}}
 
-class TagsView(QTreeView): # {{{
+class TagsView(QTreeView):  # {{{
 
     refresh_required        = pyqtSignal()
     tags_marked             = pyqtSignal(object)
@@ -178,7 +178,7 @@ class TagsView(QTreeView): # {{{
     def set_database(self, db, alter_tb):
         self._model.set_database(db)
         self.alter_tb = alter_tb
-        self.pane_is_visible = True # because TagsModel.set_database did a recount
+        self.pane_is_visible = True  # because TagsModel.set_database did a recount
         self.setModel(self._model)
         self.setContextMenuPolicy(Qt.CustomContextMenu)
         pop = self.db.CATEGORY_SORTS.index(config['sort_tags_by'])
@@ -396,7 +396,7 @@ class TagsView(QTreeView): # {{{
             return
 
     def show_context_menu(self, point):
-        def display_name( tag):
+        def display_name(tag):
             if tag.category == 'search':
                 n = tag.name
                 if len(n) > 45:
@@ -486,7 +486,7 @@ class TagsView(QTreeView): # {{{
                                             dict(item=display_name(tag), cat=item.py_name),
                                 partial(self.context_menu_handler,
                                         action='delete_item_from_user_category',
-                                        key = key, index = tag_item))
+                                        key=key, index=tag_item))
                     if tag.is_searchable:
                         # Add the search for value items. All leaf nodes are searchable
                         self.context_menu.addAction(self.search_icon,
@@ -581,7 +581,6 @@ class TagsView(QTreeView): # {{{
                 self.context_menu.addSeparator()
             self.context_menu.addAction(_('Show all categories'),
                         partial(self.context_menu_handler, action='defaults'))
-
 
         m = self.context_menu.addMenu(_('Change sub-categorization scheme'))
         da = m.addAction(_('Disable'),
