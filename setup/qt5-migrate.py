@@ -18,8 +18,6 @@ __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 # them to check that they work. This can probably be made part of python
 # setup.py check.
 
-# QT5XX: Check that DeviceCategoryEditor and TagListEditor work
-
 # QT5XX: Test touchscreen support on windows 8 in the viewer
 
 # QT5XX: Look for obsolete classes and functions from the list here:
