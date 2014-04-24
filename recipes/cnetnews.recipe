@@ -27,6 +27,7 @@ class CnetNews(BasicNewsRecipe):
     language              = 'en'  # AGe 2014-03-28
     oldest_article        = 7
     max_articles_per_feed = 100
+    compress_news_images  = True
     ignore_duplicate_articles = {'title', 'url'}
     remove_empty_feeds    = True
     use_embedded_content  = False
