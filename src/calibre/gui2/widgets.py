@@ -574,7 +574,7 @@ class EnComboBox(QComboBox):  # {{{
     def __init__(self, *args):
         QComboBox.__init__(self, *args)
         self.setLineEdit(EnLineEdit(self))
-        self.setAutoCompletionCaseSensitivity(Qt.CaseInsensitive)
+        self.completer().setCaseSensitivity(Qt.CaseInsensitive)
         self.setMinimumContentsLength(20)
 
     def text(self):
