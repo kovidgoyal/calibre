@@ -8,10 +8,10 @@ __docformat__ = 'restructuredtext en'
 from functools import partial
 
 from PyQt5.Qt import QAbstractListModel, Qt, QIcon, \
-        QVariant, QItemSelectionModel
+        QItemSelectionModel
 
 from calibre.gui2.preferences.toolbar_ui import Ui_Form
-from calibre.gui2 import gprefs, NONE, warning_dialog
+from calibre.gui2 import gprefs, warning_dialog
 from calibre.gui2.preferences import ConfigWidgetBase, test_widget
 
 
@@ -58,19 +58,19 @@ class BaseModel(QAbstractListModel):
             text = text.replace('&', '')
             if text == _('%d books'):
                 text = _('Choose library')
-            return QVariant(text)
+            return (text)
         if role == Qt.DecorationRole:
             if hasattr(self._data[row], 'qaction'):
                 icon = self._data[row].qaction.icon()
                 if not icon.isNull():
-                    return QVariant(icon)
+                    return (icon)
             ic = action[1]
             if ic is None:
                 ic = 'blank.png'
-            return QVariant(QIcon(I(ic)))
+            return (QIcon(I(ic)))
         if role == Qt.ToolTipRole and action[2] is not None:
-            return QVariant(action[2])
-        return NONE
+            return (action[2])
+        return None
 
     def names(self, indexes):
         rows = [i.row() for i in indexes]
@@ -110,7 +110,8 @@ class AllModel(BaseModel):
     def add(self, names):
         actions = []
         for name in names:
-            if name is None or name.startswith('---'): continue
+            if name is None or name.startswith('---'):
+                continue
             actions.append(self.name_to_action(name, self.gui))
         self.beginResetModel()
         self._data.extend(actions)
@@ -122,7 +123,8 @@ class AllModel(BaseModel):
         remove = set([])
         for row in rows:
             ac = self._data[row]
-            if ac.name.startswith('---'): continue
+            if ac.name.startswith('---'):
+                continue
             if ac.name in allowed:
                 remove.add(row)
         ndata = []
@@ -260,15 +262,15 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.current_actions.entered.connect(self.current_entered)
 
     def all_entered(self, index):
-        tt = self.all_actions.model().data(index, Qt.ToolTipRole).toString()
+        tt = self.all_actions.model().data(index, Qt.ToolTipRole) or ''
         self.help_text.setText(tt)
 
     def current_entered(self, index):
-       tt = self.current_actions.model().data(index, Qt.ToolTipRole).toString()
-       self.help_text.setText(tt)
+        tt = self.current_actions.model().data(index, Qt.ToolTipRole) or ''
+        self.help_text.setText(tt)
 
     def what_changed(self, idx):
-        key = unicode(self.what.itemData(idx).toString())
+        key = unicode(self.what.itemData(idx) or '')
         if key == 'blank':
             self.actions_widget.setVisible(False)
             self.spacer_widget.setVisible(True)
@@ -358,4 +360,3 @@ if __name__ == '__main__':
     from PyQt5.Qt import QApplication
     app = QApplication([])
     test_widget('Interface', 'Toolbar')
-

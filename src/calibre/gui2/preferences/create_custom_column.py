@@ -6,7 +6,7 @@ __copyright__ = '2010, Kovid Goyal <kovid at kovidgoyal.net>'
 import re
 from functools import partial
 
-from PyQt5.Qt import QDialog, Qt, QListWidgetItem, QVariant, QColor, QIcon
+from PyQt5.Qt import QDialog, Qt, QListWidgetItem, QColor, QIcon
 
 from calibre.gui2.preferences.create_custom_column_ui import Ui_QCreateCustomColumn
 from calibre.gui2 import error_dialog
@@ -101,7 +101,7 @@ class CreateCustomColumn(QDialog, Ui_QCreateCustomColumn):
             self.simple_error(_('No column selected'),
                     _('No column has been selected'))
             return
-        col = unicode(parent.opt_columns.item(idx).data(Qt.UserRole).toString())
+        col = unicode(parent.opt_columns.item(idx).data(Qt.UserRole) or '')
         if col not in parent.custcols:
             self.simple_error('', _('Selected column is not a user-defined column'))
             return
@@ -324,8 +324,8 @@ class CreateCustomColumn(QDialog, Ui_QCreateCustomColumn):
                     'is_multiple':is_multiple,
                 }
             item = QListWidgetItem(col_heading, self.parent.opt_columns)
-            item.setData(Qt.UserRole, QVariant(key))
-            item.setData(Qt.DecorationRole, QVariant(QIcon(I('column.png'))))
+            item.setData(Qt.UserRole, (key))
+            item.setData(Qt.DecorationRole, (QIcon(I('column.png'))))
             item.setFlags(Qt.ItemIsEnabled|Qt.ItemIsUserCheckable|Qt.ItemIsSelectable)
             item.setCheckState(Qt.Checked)
         else:

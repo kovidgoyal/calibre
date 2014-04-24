@@ -286,7 +286,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
                         validation_formatter.validate(s)
                     except Exception as err:
                         error_dialog(self, _('Invalid template'),
-                                '<p>'+_('The template %s is invalid:')%s + \
+                                '<p>'+_('The template %s is invalid:')%s +
                                 '<br>'+str(err), show=True)
                         return
                     pb.append((s, self.dest_fields[d]))
@@ -321,7 +321,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.refill_all_boxes()
 
     def existing_pb_clicked(self, Qitem):
-        item = Qitem.data(Qt.UserRole).toPyObject()
+        item = Qitem.data(Qt.UserRole)
         self.edit_format.setCurrentIndex(self.edit_format.findText(item[0]))
         self.edit_device.setCurrentIndex(self.edit_device.findText(item[1]))
 

@@ -7,7 +7,7 @@ __docformat__ = 'restructuredtext en'
 
 import re
 
-from PyQt5.Qt import Qt, QVariant, QListWidgetItem
+from PyQt5.Qt import Qt, QListWidgetItem
 
 from calibre.gui2.preferences import ConfigWidgetBase, test_widget, Setting
 from calibre.gui2.preferences.behavior_ui import Ui_Form
@@ -81,7 +81,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
 
     def commit(self):
         input_map = prefs['input_format_order']
-        input_cols = [unicode(self.opt_input_order.item(i).data(Qt.UserRole).toString()) for
+        input_cols = [unicode(self.opt_input_order.item(i).data(Qt.UserRole) or '') for
                 i in range(self.opt_input_order.count())]
         if input_map != input_cols:
             prefs['input_format_order'] = input_cols
@@ -142,7 +142,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             all_formats.add(fmt.upper())
         for format in input_map + list(all_formats.difference(input_map)):
             item = QListWidgetItem(format, self.opt_input_order)
-            item.setData(Qt.UserRole, QVariant(format))
+            item.setData(Qt.UserRole, (format))
             item.setFlags(Qt.ItemIsEnabled|Qt.ItemIsSelectable)
 
     def up_input(self, *args):

@@ -16,7 +16,7 @@ from PyQt5.Qt import (
 from calibre import human_readable
 from calibre.gui2.preferences import ConfigWidgetBase, test_widget, CommaSeparatedList
 from calibre.gui2.preferences.look_feel_ui import Ui_Form
-from calibre.gui2 import config, gprefs, qt_app, NONE, open_local_file, question_dialog
+from calibre.gui2 import config, gprefs, qt_app, open_local_file, question_dialog
 from calibre.utils.localization import (available_translations,
     get_language, get_lang)
 from calibre.utils.config import prefs
@@ -49,7 +49,7 @@ class DisplayedFields(QAbstractListModel):  # {{{
         try:
             field, visible = self.fields[index.row()]
         except:
-            return NONE
+            return None
         if role == Qt.DisplayRole:
             name = field
             try:
@@ -63,7 +63,7 @@ class DisplayedFields(QAbstractListModel):  # {{{
             return Qt.Checked if visible else Qt.Unchecked
         if role == Qt.DecorationRole and field.startswith('#'):
             return QIcon(I('column.png'))
-        return NONE
+        return None
 
     def flags(self, index):
         ans = QAbstractListModel.flags(self, index)
@@ -72,12 +72,10 @@ class DisplayedFields(QAbstractListModel):  # {{{
     def setData(self, index, val, role):
         ret = False
         if role == Qt.CheckStateRole:
-            val, ok = val.toInt()
-            if ok:
-                self.fields[index.row()][1] = bool(val)
-                self.changed = True
-                ret = True
-                self.dataChanged.emit(index, index)
+            self.fields[index.row()][1] = bool(val)
+            self.changed = True
+            ret = True
+            self.dataChanged.emit(index, index)
         return ret
 
     def restore_defaults(self):

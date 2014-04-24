@@ -7,7 +7,7 @@ __docformat__ = 'restructuredtext en'
 
 import copy, sys
 
-from PyQt5.Qt import Qt, QVariant, QListWidgetItem, QIcon
+from PyQt5.Qt import Qt, QListWidgetItem, QIcon
 
 from calibre.gui2.preferences import ConfigWidgetBase, test_widget
 from calibre.gui2.preferences.columns_ui import Ui_Form
@@ -66,9 +66,9 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.opt_columns.clear()
         for col in colmap:
             item = QListWidgetItem(model.headers[col], self.opt_columns)
-            item.setData(Qt.UserRole, QVariant(col))
+            item.setData(Qt.UserRole, (col))
             if col.startswith('#'):
-                item.setData(Qt.DecorationRole, QVariant(QIcon(I('column.png'))))
+                item.setData(Qt.DecorationRole, (QIcon(I('column.png'))))
             flags = Qt.ItemIsEnabled|Qt.ItemIsSelectable
             if col != 'ondevice':
                 flags |= Qt.ItemIsUserCheckable
@@ -97,7 +97,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         if idx < 0:
             return error_dialog(self, '', _('You must select a column to delete it'),
                     show=True)
-        col = unicode(self.opt_columns.item(idx).data(Qt.UserRole).toString())
+        col = unicode(self.opt_columns.item(idx).data(Qt.UserRole) or '')
         if col not in self.custcols:
             return error_dialog(self, '',
                     _('The selected column is not a custom column'), show=True)
@@ -126,12 +126,12 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
     def apply_custom_column_changes(self):
         model = self.gui.library_view.model()
         db = model.db
-        config_cols = [unicode(self.opt_columns.item(i).data(Qt.UserRole).toString())\
+        config_cols = [unicode(self.opt_columns.item(i).data(Qt.UserRole) or '')\
                  for i in range(self.opt_columns.count())]
         if not config_cols:
             config_cols = ['title']
         removed_cols = set(model.column_map) - set(config_cols)
-        hidden_cols = set([unicode(self.opt_columns.item(i).data(Qt.UserRole).toString())\
+        hidden_cols = set([unicode(self.opt_columns.item(i).data(Qt.UserRole) or '')\
                  for i in range(self.opt_columns.count()) \
                  if self.opt_columns.item(i).checkState()==Qt.Unchecked])
         hidden_cols = hidden_cols.union(removed_cols) # Hide removed cols

@@ -7,7 +7,7 @@ __docformat__ = 'restructuredtext en'
 
 import importlib
 
-from PyQt5.Qt import QIcon, Qt, QStringListModel, QVariant
+from PyQt5.Qt import QIcon, Qt, QStringListModel
 
 from calibre.gui2.preferences import ConfigWidgetBase, test_widget, AbortCommit
 from calibre.ebooks.conversion.plumber import Plumber
@@ -33,7 +33,7 @@ class Model(QStringListModel):
         if role == Qt.DecorationRole:
             w = self.widgets[index.row()]
             if w.ICON:
-                return QVariant(QIcon(w.ICON))
+                return (QIcon(w.ICON))
         return QStringListModel.data(self, index, role)
 
 class Base(ConfigWidgetBase, Ui_Form):

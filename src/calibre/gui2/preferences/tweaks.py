@@ -11,7 +11,7 @@ from collections import OrderedDict
 
 from calibre.gui2.preferences import ConfigWidgetBase, test_widget, AbortCommit
 from calibre.gui2.preferences.tweaks_ui import Ui_Form
-from calibre.gui2 import error_dialog, NONE, info_dialog
+from calibre.gui2 import error_dialog, info_dialog
 from calibre.utils.config import read_raw_tweaks, write_tweaks
 from calibre.gui2.widgets import PythonHighlighter
 from calibre import isbytestring
@@ -115,7 +115,7 @@ class Tweaks(QAbstractListModel, SearchQueryParser):  # {{{
         try:
             tweak = self.tweaks[row]
         except:
-            return NONE
+            return None
         if role == Qt.DisplayRole:
             return textwrap.fill(tweak.name, 40)
         if role == Qt.FontRole and tweak.is_customized:
@@ -132,7 +132,7 @@ class Tweaks(QAbstractListModel, SearchQueryParser):  # {{{
             return textwrap.fill(tt)
         if role == Qt.UserRole:
             return tweak
-        return NONE
+        return None
 
     def parse_tweaks(self, defaults, custom):
         l, g = {}, {}
@@ -195,7 +195,7 @@ class Tweaks(QAbstractListModel, SearchQueryParser):  # {{{
 
     def restore_to_default(self, idx):
         tweak = self.data(idx, Qt.UserRole)
-        if tweak is not NONE:
+        if tweak is not None:
             tweak.restore_to_default()
             self.dataChanged.emit(idx, idx)
 
@@ -206,7 +206,7 @@ class Tweaks(QAbstractListModel, SearchQueryParser):  # {{{
 
     def update_tweak(self, idx, varmap):
         tweak = self.data(idx, Qt.UserRole)
-        if tweak is not NONE:
+        if tweak is not None:
             tweak.update(varmap)
             self.dataChanged.emit(idx, idx)
 

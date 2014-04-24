@@ -140,10 +140,10 @@ class ConditionEditor(QWidget):  # {{{
     def current_col(self):
         def fget(self):
             idx = self.column_box.currentIndex()
-            return unicode(self.column_box.itemData(idx).toString())
+            return unicode(self.column_box.itemData(idx) or '')
         def fset(self, val):
             for idx in range(self.column_box.count()):
-                c = unicode(self.column_box.itemData(idx).toString())
+                c = unicode(self.column_box.itemData(idx) or '')
                 if c == val:
                     self.column_box.setCurrentIndex(idx)
                     return
@@ -154,10 +154,10 @@ class ConditionEditor(QWidget):  # {{{
     def current_action(self):
         def fget(self):
             idx = self.action_box.currentIndex()
-            return unicode(self.action_box.itemData(idx).toString())
+            return unicode(self.action_box.itemData(idx) or '')
         def fset(self, val):
             for idx in range(self.action_box.count()):
-                c = unicode(self.action_box.itemData(idx).toString())
+                c = unicode(self.action_box.itemData(idx) or '')
                 if c == val:
                     self.action_box.setCurrentIndex(idx)
                     return
@@ -595,7 +595,7 @@ class RuleEditor(QDialog):  # {{{
             self.update_icon_filenames_in_box()
 
         for i in range(self.column_box.count()):
-            c = unicode(self.column_box.itemData(i).toString())
+            c = unicode(self.column_box.itemData(i) or '')
             if col == c:
                 self.column_box.setCurrentIndex(i)
                 break
@@ -649,14 +649,14 @@ class RuleEditor(QDialog):  # {{{
         else:
             r.color = self.color_box.color
         idx = self.column_box.currentIndex()
-        col = unicode(self.column_box.itemData(idx).toString())
+        col = unicode(self.column_box.itemData(idx) or '')
         for c in self.conditions:
             condition = c.condition
             if condition is not None:
                 r.add_condition(*condition)
         if self.rule_kind == 'icon':
             kind = unicode(self.kind_box.itemData(
-                                    self.kind_box.currentIndex()).toString())
+                                    self.kind_box.currentIndex()) or '')
         else:
             kind = self.rule_kind
 

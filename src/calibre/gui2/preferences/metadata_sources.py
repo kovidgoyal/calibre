@@ -17,7 +17,7 @@ from calibre.gui2.preferences.metadata_sources_ui import Ui_Form
 from calibre.ebooks.metadata.sources.prefs import msprefs
 from calibre.customize.ui import (all_metadata_plugins, is_disabled,
         enable_plugin, disable_plugin, default_disabled_plugins)
-from calibre.gui2 import NONE, error_dialog, question_dialog
+from calibre.gui2 import error_dialog, question_dialog
 
 class SourcesModel(QAbstractTableModel):  # {{{
 
@@ -49,13 +49,13 @@ class SourcesModel(QAbstractTableModel):  # {{{
                 return _('Source')
             if section == 1:
                 return _('Cover priority')
-        return NONE
+        return None
 
     def data(self, index, role):
         try:
             plugin = self.plugins[index.row()]
         except:
-            return NONE
+            return None
         col = index.column()
 
         if role == Qt.DisplayRole:
@@ -77,7 +77,7 @@ class SourcesModel(QAbstractTableModel):  # {{{
             if plugin.is_configured():
                 return base + _('This source is configured and ready to go')
             return base + _('This source needs configuration')
-        return NONE
+        return None
 
     def setData(self, index, val, role):
         try:
@@ -87,24 +87,20 @@ class SourcesModel(QAbstractTableModel):  # {{{
         col = index.column()
         ret = False
         if col == 0 and role == Qt.CheckStateRole:
-            val, ok = val.toInt()
-            if ok:
-                if val == Qt.Checked and 'Douban' in plugin.name:
-                    if not question_dialog(self.gui_parent,
-                        _('Are you sure?'), '<p>'+
-                        _('This plugin is useful only for <b>Chinese</b>'
-                            ' language books. It can return incorrect'
-                            ' results for books in English. Are you'
-                            ' sure you want to enable it?'),
-                        show_copy_button=False):
-                        return ret
-                self.enabled_overrides[plugin] = val
-                ret = True
+            if val == Qt.Checked and 'Douban' in plugin.name:
+                if not question_dialog(self.gui_parent,
+                    _('Are you sure?'), '<p>'+
+                    _('This plugin is useful only for <b>Chinese</b>'
+                        ' language books. It can return incorrect'
+                        ' results for books in English. Are you'
+                        ' sure you want to enable it?'),
+                    show_copy_button=False):
+                    return ret
+            self.enabled_overrides[plugin] = int(val)
+            ret = True
         if col == 1 and role == Qt.EditRole:
-            val, ok = val.toInt()
-            if ok:
-                self.cover_overrides[plugin] = val
-                ret = True
+            self.cover_overrides[plugin] = int(val)
+            ret = True
         if ret:
             self.dataChanged.emit(index, index)
         return ret
@@ -197,7 +193,7 @@ class FieldsModel(QAbstractListModel):  # {{{
             return self.descs.get(field, field)
         if role == Qt.CheckStateRole:
             return self.overrides.get(field, self.state(field))
-        return NONE
+        return None
 
     def flags(self, index):
         ans = QAbstractTableModel.flags(self, index)
@@ -225,10 +221,8 @@ class FieldsModel(QAbstractListModel):  # {{{
             return False
         ret = False
         if role == Qt.CheckStateRole:
-            val, ok = val.toInt()
-            if ok:
-                self.overrides[field] = val
-                ret = True
+            self.overrides[field] = int(val)
+            ret = True
         if ret:
             self.dataChanged.emit(index, index)
         return ret
@@ -326,7 +320,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
     def configure_plugin(self):
         for index in self.sources_view.selectionModel().selectedRows():
             plugin = self.sources_model.data(index, Qt.UserRole)
-            if plugin is not NONE:
+            if plugin is not None:
                 return self.do_config(plugin)
         error_dialog(self, _('No source selected'),
                 _('No source selected, cannot configure.'), show=True)

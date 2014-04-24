@@ -141,7 +141,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
                                 _('The search term cannot be blank'),
                                 show=True)
         if idx != 0:
-            orig_name = unicode(self.gst_names.itemData(idx).toString())
+            orig_name = unicode(self.gst_names.itemData(idx) or '')
         else:
             orig_name = ''
         if name != orig_name:
@@ -206,7 +206,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         if idx == 0:
             self.gst_value.setText('')
         else:
-            name = unicode(self.gst_names.itemData(idx).toString())
+            name = unicode(self.gst_names.itemData(idx) or '')
             self.gst_value.setText(','.join(self.gst[name]))
         self.gst_value.blockSignals(False)
 

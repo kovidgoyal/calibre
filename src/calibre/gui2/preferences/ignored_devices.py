@@ -79,7 +79,7 @@ class ConfigWidget(ConfigWidgetBase):
         devs = {}
         for i in xrange(0, self.devices.count()):
             e = self.devices.item(i)
-            dev, uid = e.data(Qt.UserRole).toPyObject()
+            dev, uid = e.data(Qt.UserRole)
             if dev not in devs:
                 devs[dev] = []
             if e.checkState() == Qt.Checked:
@@ -90,11 +90,11 @@ class ConfigWidget(ConfigWidgetBase):
 
         for i in xrange(self.device_plugins.count()):
             e = self.device_plugins.item(i)
-            dev = e.data(Qt.UserRole).toPyObject()
+            dev = e.data(Qt.UserRole)
             if e.checkState() == Qt.Unchecked:
                 enable_plugin(dev)
 
-        return True # Restart required
+        return True  # Restart required
 
 if __name__ == '__main__':
     from PyQt5.Qt import QApplication
