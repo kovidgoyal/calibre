@@ -126,7 +126,12 @@ class NewsItem(NewsTreeItem):
     def __cmp__(self, other):
         return cmp(self.title.lower(), getattr(other, 'title', '').lower())
 
-class RecipeModel(QAbstractItemModel, SearchQueryParser):
+class AdaptSQP(SearchQueryParser):
+
+    def __init__(self, *args, **kwargs):
+        pass
+
+class RecipeModel(QAbstractItemModel, AdaptSQP):
 
     LOCATIONS = ['all']
     searched = pyqtSignal(object)
@@ -249,6 +254,9 @@ class RecipeModel(QAbstractItemModel, SearchQueryParser):
         new_root.sort()
         self.root = new_root
         self.reset()
+
+    def reset(self):
+        self.beginResetModel(), self.endResetModel()
 
     def recipe_from_urn(self, urn):
         coll = self.custom_recipe_collection if 'custom:' in urn else \

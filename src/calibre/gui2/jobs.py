@@ -29,7 +29,13 @@ from calibre.gui2.threaded_jobs import ThreadedJobServer, ThreadedJob
 from calibre.utils.search_query_parser import SearchQueryParser, ParseException
 from calibre.utils.icu import lower
 
-class JobManager(QAbstractTableModel, SearchQueryParser):  # {{{
+class AdaptSQP(SearchQueryParser):
+
+    def __init__(self, *args, **kwargs):
+        pass
+
+
+class JobManager(QAbstractTableModel, AdaptSQP):  # {{{
 
     job_added = pyqtSignal(int)
     job_done  = pyqtSignal(int)
