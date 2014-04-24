@@ -6,9 +6,8 @@ __license__ = 'GPL 3'
 __copyright__ = '2011, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
-from PyQt5.Qt import (Qt, QAbstractItemModel, QIcon, QVariant, QModelIndex, QSize)
+from PyQt5.Qt import (Qt, QAbstractItemModel, QIcon, QModelIndex, QSize)
 
-from calibre.gui2 import NONE
 from calibre.customize.ui import is_disabled, disable_plugin, enable_plugin
 from calibre.db.search import _match, CONTAINS_MATCH, EQUALS_MATCH, REGEXP_MATCH
 from calibre.utils.config_base import prefs
@@ -58,13 +57,13 @@ class Matches(QAbstractItemModel):
     def enable_all(self):
         for i in xrange(len(self.matches)):
             index = self.createIndex(i, 0)
-            data = QVariant(True)
+            data = (True)
             self.setData(index, data, Qt.CheckStateRole)
 
     def enable_none(self):
         for i in xrange(len(self.matches)):
             index = self.createIndex(i, 0)
-            data = QVariant(False)
+            data = (False)
             self.setData(index, data, Qt.CheckStateRole)
 
     def enable_invert(self):
@@ -73,7 +72,7 @@ class Matches(QAbstractItemModel):
 
     def toggle_plugin(self, index):
         new_index = self.createIndex(index.row(), 0)
-        data = QVariant(is_disabled(self.get_plugin(index)))
+        data = (is_disabled(self.get_plugin(index)))
         self.setData(new_index, data, Qt.CheckStateRole)
 
     def index(self, row, column, parent=QModelIndex()):
@@ -92,32 +91,32 @@ class Matches(QAbstractItemModel):
 
     def headerData(self, section, orientation, role):
         if role != Qt.DisplayRole:
-            return NONE
+            return None
         text = ''
         if orientation == Qt.Horizontal:
             if section < len(self.HEADERS):
                 text = self.HEADERS[section]
-            return QVariant(text)
+            return (text)
         else:
-            return QVariant(section+1)
+            return (section+1)
 
     def data(self, index, role):
         row, col = index.row(), index.column()
         result = self.matches[row]
         if role in (Qt.DisplayRole, Qt.EditRole):
             if col == 1:
-                return QVariant('<b>%s</b><br><i>%s</i>' % (result.name, result.description))
+                return ('<b>%s</b><br><i>%s</i>' % (result.name, result.description))
             elif col == 3:
-                return QVariant(result.headquarters)
+                return (result.headquarters)
             elif col == 5:
-                return QVariant(', '.join(result.formats).upper())
+                return (', '.join(result.formats).upper())
         elif role == Qt.DecorationRole:
             if col == 2:
                 if result.drm_free_only:
-                    return QVariant(self.NO_DRM_ICON)
+                    return (self.NO_DRM_ICON)
             if col == 4:
                 if result.affiliate:
-                    return QVariant(self.DONATE_ICON)
+                    return (self.DONATE_ICON)
         elif role == Qt.CheckStateRole:
             if col == 0:
                 if is_disabled(result):
@@ -126,31 +125,31 @@ class Matches(QAbstractItemModel):
         elif role == Qt.ToolTipRole:
             if col == 0:
                 if is_disabled(result):
-                    return QVariant('<p>' + _('This store is currently disabled and cannot be used in other parts of calibre.') + '</p>')
+                    return ('<p>' + _('This store is currently disabled and cannot be used in other parts of calibre.') + '</p>')
                 else:
-                    return QVariant('<p>' + _('This store is currently enabled and can be used in other parts of calibre.') + '</p>')
+                    return ('<p>' + _('This store is currently enabled and can be used in other parts of calibre.') + '</p>')
             elif col == 1:
-                return QVariant('<p>%s</p>' % result.description)
+                return ('<p>%s</p>' % result.description)
             elif col == 2:
                 if result.drm_free_only:
-                    return QVariant('<p>' + _('This store only distributes ebooks without DRM.') + '</p>')
+                    return ('<p>' + _('This store only distributes ebooks without DRM.') + '</p>')
                 else:
-                    return QVariant('<p>' + _('This store distributes ebooks with DRM. It may have some titles without DRM, but you will need to check on a per title basis.') + '</p>')
+                    return ('<p>' + _('This store distributes ebooks with DRM. It may have some titles without DRM, but you will need to check on a per title basis.') + '</p>')
             elif col == 3:
-                return QVariant('<p>' + _('This store is headquartered in %s. This is a good indication of what market the store caters to. However, this does not necessarily mean that the store is limited to that market only.') % result.headquarters + '</p>')
+                return ('<p>' + _('This store is headquartered in %s. This is a good indication of what market the store caters to. However, this does not necessarily mean that the store is limited to that market only.') % result.headquarters + '</p>')
             elif col == 4:
                 if result.affiliate:
-                    return QVariant('<p>' + _('Buying from this store supports the calibre developer: %s.') % result.author + '</p>')
+                    return ('<p>' + _('Buying from this store supports the calibre developer: %s.') % result.author + '</p>')
             elif col == 5:
-                return QVariant('<p>' + _('This store distributes ebooks in the following formats: %s') % ', '.join(result.formats) + '</p>')
-        return NONE
+                return ('<p>' + _('This store distributes ebooks in the following formats: %s') % ', '.join(result.formats) + '</p>')
+        return None
 
     def setData(self, index, data, role):
         if not index.isValid():
             return False
         col = index.column()
         if col == 0:
-            if data.toBool():
+            if bool(data):
                 enable_plugin(self.get_plugin(index))
             else:
                 disable_plugin(self.get_plugin(index))

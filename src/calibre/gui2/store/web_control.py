@@ -9,7 +9,7 @@ __docformat__ = 'restructuredtext en'
 import os
 from urlparse import urlparse
 
-from PyQt5.Qt import QNetworkCookieJar, QNetworkProxy
+from PyQt5.Qt import QNetworkCookieJar, QNetworkProxy, QUrl
 from PyQt5.QtWebKitWidgets import QWebView, QWebPage
 
 from calibre import USER_AGENT, get_proxies, get_download_filename
@@ -66,7 +66,7 @@ class NPWebView(QWebView):
         if not self.gui:
             return
 
-        url = unicode(request.url().toString())
+        url = unicode(request.url().toString(QUrl.None))
         cf = self.get_cookies()
 
         filename = get_download_filename(url, cf)

@@ -9,10 +9,10 @@ __docformat__ = 'restructuredtext en'
 import re, string
 from operator import attrgetter
 
-from PyQt5.Qt import (Qt, QAbstractItemModel, QVariant, QPixmap, QModelIndex, QSize,
+from PyQt5.Qt import (Qt, QAbstractItemModel, QPixmap, QModelIndex, QSize,
                       pyqtSignal)
 
-from calibre.gui2 import NONE, FunctionDispatcher
+from calibre.gui2 import FunctionDispatcher
 from calibre.gui2.store.search_result import SearchResult
 from calibre.gui2.store.search.download_thread import DetailsThreadPool, \
     CoverThreadPool
@@ -183,71 +183,71 @@ class Matches(QAbstractItemModel):
 
     def headerData(self, section, orientation, role):
         if role != Qt.DisplayRole:
-            return NONE
+            return None
         text = ''
         if orientation == Qt.Horizontal:
             if section < len(self.HEADERS):
                 text = self.HEADERS[section]
-            return QVariant(text)
+            return (text)
         else:
-            return QVariant(section+1)
+            return (section+1)
 
     def data(self, index, role):
         row, col = index.row(), index.column()
         if row >= len(self.matches):
-            return NONE
+            return None
         result = self.matches[row]
         if role == Qt.DisplayRole:
             if col == 1:
                 t = result.title if result.title else _('Unknown')
                 a = result.author if result.author else ''
-                return QVariant('<b>%s</b><br><i>%s</i>' % (t, a))
+                return ('<b>%s</b><br><i>%s</i>' % (t, a))
             elif col == 2:
-                return QVariant(result.price)
+                return (result.price)
             elif col == 4:
-                return QVariant('%s<br>%s' % (result.store_name, result.formats))
-            return NONE
+                return ('%s<br>%s' % (result.store_name, result.formats))
+            return None
         elif role == Qt.DecorationRole:
             if col == 0 and result.cover_data:
                 p = QPixmap()
                 p.loadFromData(result.cover_data)
-                return QVariant(p)
+                return (p)
             if col == 3:
                 if result.drm == SearchResult.DRM_LOCKED:
-                    return QVariant(self.DRM_LOCKED_ICON)
+                    return (self.DRM_LOCKED_ICON)
                 elif result.drm == SearchResult.DRM_UNLOCKED:
-                    return QVariant(self.DRM_UNLOCKED_ICON)
+                    return (self.DRM_UNLOCKED_ICON)
                 elif result.drm == SearchResult.DRM_UNKNOWN:
-                    return QVariant(self.DRM_UNKNOWN_ICON)
+                    return (self.DRM_UNKNOWN_ICON)
             if col == 5:
                 if result.downloads:
-                    return QVariant(self.DOWNLOAD_ICON)
+                    return (self.DOWNLOAD_ICON)
             if col == 6:
                 if result.affiliate:
-                    return QVariant(self.DONATE_ICON)
+                    return (self.DONATE_ICON)
         elif role == Qt.ToolTipRole:
             if col == 1:
-                return QVariant('<p>%s</p>' % result.title)
+                return ('<p>%s</p>' % result.title)
             elif col == 2:
-                return QVariant('<p>' + _('Detected price as: %s. Check with the store before making a purchase to verify this price is correct. This price often does not include promotions the store may be running.') % result.price + '</p>')  # noqa
+                return ('<p>' + _('Detected price as: %s. Check with the store before making a purchase to verify this price is correct. This price often does not include promotions the store may be running.') % result.price + '</p>')  # noqa
             elif col == 3:
                 if result.drm == SearchResult.DRM_LOCKED:
-                    return QVariant('<p>' + _('This book as been detected as having DRM restrictions. This book may not work with your reader and you will have limitations placed upon you as to what you can do with this book. Check with the store before making any purchases to ensure you can actually read this book.') + '</p>')  # noqa
+                    return ('<p>' + _('This book as been detected as having DRM restrictions. This book may not work with your reader and you will have limitations placed upon you as to what you can do with this book. Check with the store before making any purchases to ensure you can actually read this book.') + '</p>')  # noqa
                 elif result.drm == SearchResult.DRM_UNLOCKED:
-                    return QVariant('<p>' + _('This book has been detected as being DRM Free. You should be able to use this book on any device provided it is in a format calibre supports for conversion. However, before making a purchase double check the DRM status with the store. The store may not be disclosing the use of DRM.') + '</p>')  # noqa
+                    return ('<p>' + _('This book has been detected as being DRM Free. You should be able to use this book on any device provided it is in a format calibre supports for conversion. However, before making a purchase double check the DRM status with the store. The store may not be disclosing the use of DRM.') + '</p>')  # noqa
                 else:
-                    return QVariant('<p>' + _('The DRM status of this book could not be determined. There is a very high likelihood that this book is actually DRM restricted.') + '</p>')  # noqa
+                    return ('<p>' + _('The DRM status of this book could not be determined. There is a very high likelihood that this book is actually DRM restricted.') + '</p>')  # noqa
             elif col == 4:
-                return QVariant('<p>%s</p>' % result.formats)
+                return ('<p>%s</p>' % result.formats)
             elif col == 5:
                 if result.downloads:
-                    return QVariant('<p>' + _('The following formats can be downloaded directly: %s.') % ', '.join(result.downloads.keys()) + '</p>')
+                    return ('<p>' + _('The following formats can be downloaded directly: %s.') % ', '.join(result.downloads.keys()) + '</p>')
             elif col == 6:
                 if result.affiliate:
-                    return QVariant('<p>' + _('Buying from this store supports the calibre developer: %s.') % result.plugin_author + '</p>')
+                    return ('<p>' + _('Buying from this store supports the calibre developer: %s.') % result.plugin_author + '</p>')
         elif role == Qt.SizeHintRole:
             return QSize(64, 64)
-        return NONE
+        return None
 
     def data_as_text(self, result, col):
         text = ''

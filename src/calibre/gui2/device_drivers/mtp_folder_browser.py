@@ -53,7 +53,7 @@ class Storage(QTreeWidget):
     def current_item(self):
         item = self.currentItem()
         if item is not None:
-            return (self.object_id, item.data(0, Qt.UserRole).toPyObject())
+            return (self.object_id, item.data(0, Qt.UserRole))
         return None
 
 class Folders(QTabWidget):
@@ -195,7 +195,7 @@ class IgnoredFolders(QDialog):
             for node in self.iterchildren(w.invisibleRootItem()):
                 if node.checkState(0) == Qt.Checked:
                     continue
-                path = unicode(node.data(0, Qt.UserRole).toString())
+                path = unicode(node.data(0, Qt.UserRole) or '')
                 parent = path.rpartition('/')[0]
                 if '/' not in path or icu_lower(parent) not in folders:
                     folders.add(icu_lower(path))

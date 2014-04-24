@@ -6,7 +6,7 @@ __docformat__ = 'restructuredtext en'
 
 import textwrap
 
-from PyQt5.Qt import (QWidget, QListWidgetItem, Qt, QVariant, QLabel,
+from PyQt5.Qt import (QWidget, QListWidgetItem, Qt, QLabel,
         QLineEdit, QCheckBox, QComboBox)
 
 from calibre.gui2 import error_dialog, question_dialog
@@ -39,7 +39,7 @@ class ConfigWidget(QWidget, Ui_ConfigWidget):
         disabled_formats = list(set(all_formats).difference(format_map))
         for format in format_map + list(sorted(disabled_formats)):
             item = QListWidgetItem(format, self.columns)
-            item.setData(Qt.UserRole, QVariant(format))
+            item.setData(Qt.UserRole, (format))
             item.setFlags(Qt.ItemIsEnabled|Qt.ItemIsUserCheckable|Qt.ItemIsSelectable)
             item.setCheckState(Qt.Checked if format in format_map else Qt.Unchecked)
 
@@ -133,8 +133,7 @@ class ConfigWidget(QWidget, Ui_ConfigWidget):
             self.columns.setCurrentRow(idx+1)
 
     def format_map(self):
-        formats = [unicode(self.columns.item(i).data(Qt.UserRole).toString())
-                           for i in range(self.columns.count()) if self.columns.item(i).checkState()==Qt.Checked]
+        formats = [unicode(self.columns.item(i).data(Qt.UserRole) or '') for i in range(self.columns.count()) if self.columns.item(i).checkState()==Qt.Checked]
         return formats
 
     def use_subdirs(self):

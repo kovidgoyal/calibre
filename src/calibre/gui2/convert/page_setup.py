@@ -66,7 +66,7 @@ class PageSetupWidget(Widget, Ui_Form):
         self.opt_output_profile.setToolTip('<p>'+it.replace('t.','ce.\n<br>'))
 
     def show_desc(self, index):
-        desc = index.model().data(index, Qt.StatusTipRole).toString()
+        desc = unicode(index.model().data(index, Qt.StatusTipRole) or '')
         self.profile_description.setText(desc)
 
     def connect_gui_obj_handler(self, g, slot):
