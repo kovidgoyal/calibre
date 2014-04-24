@@ -130,8 +130,8 @@ class TagsView(QTreeView):  # {{{
         self.setStyleSheet('''
                 QTreeView::item {
                     border: 1px solid transparent;
-                    padding-top:0.9ex;
-                    padding-bottom:0.9ex;
+                    padding-top:0.8ex;
+                    padding-bottom:0.8ex;
                 }
 
                 QTreeView::item:hover {
@@ -142,6 +142,9 @@ class TagsView(QTreeView):  # {{{
         ''' + ('' if gprefs['tag_browser_old_look'] else stylish_tb))
         if gprefs['tag_browser_old_look']:
             self.setAlternatingRowColors(True)
+        # Allowing keyboard focus looks bad in the Qt Fusion style and is useless
+        # anyway since the enter/spacebar keys do nothing
+        self.setFocusPolicy(Qt.NoFocus)
 
     @property
     def hidden_categories(self):
