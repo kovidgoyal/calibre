@@ -940,7 +940,7 @@ class EpubContainer(Container):
         if not fonts:
             return
 
-        package_id = unique_identifier = idpf_key = None
+        package_id = raw_unique_identifier = idpf_key = None
         for attrib, val in self.opf.attrib.iteritems():
             if attrib.endswith('unique-identifier'):
                 package_id = val
@@ -948,10 +948,12 @@ class EpubContainer(Container):
         if package_id is not None:
             for elem in self.opf_xpath('//*[@id=%r]'%package_id):
                 if elem.text:
-                    unique_identifier = elem.text.rpartition(':')[-1]
+                    raw_unique_identifier = elem.text
                     break
-        if unique_identifier is not None:
-            idpf_key = hashlib.sha1(unique_identifier).digest()
+        if raw_unique_identifier is not None:
+            idpf_key = raw_unique_identifier
+            idpf_key = re.sub(u'\u0020\u0009\u000d\u000a', u'', idpf_key)
+            idpf_key = hashlib.sha1(idpf_key.encode('utf-8')).digest()
         key = None
         for item in self.opf_xpath('//*[local-name()="metadata"]/*'
                                    '[local-name()="identifier"]'):

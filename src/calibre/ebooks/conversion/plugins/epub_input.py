@@ -3,7 +3,7 @@ __license__ = 'GPL 3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os
+import os, re
 from itertools import cycle
 
 from calibre.customize.conversion import InputFormatPlugin, OptionRecommendation
@@ -37,9 +37,10 @@ class EPUBInput(InputFormatPlugin):
     def process_encryption(self, encfile, opf, log):
         from lxml import etree
         import uuid, hashlib
-        idpf_key = opf.unique_identifier
+        idpf_key = opf.raw_unique_identifier
         if idpf_key:
-            idpf_key = hashlib.sha1(idpf_key).digest()
+            idpf_key = re.sub(u'\u0020\u0009\u000d\u000a', u'', idpf_key)
+            idpf_key = hashlib.sha1(idpf_key.encode('utf-8')).digest()
         key = None
         for item in opf.identifier_iter():
             scheme = None
