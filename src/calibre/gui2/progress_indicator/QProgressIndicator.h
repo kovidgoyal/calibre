@@ -2,6 +2,7 @@
 
 #include <QtWidgets/QWidget>
 #include <QColor>
+#include <QHash>
 
 /*! 
     \class QProgressIndicator
@@ -98,7 +99,7 @@ private:
  * \param name The name of the style plugin to load
  * \return 1 if succeeds 0 otherwise. The objectName of the loaded style is set to name
  */
-int load_style(QString &path, QString &name);
+int load_style(QHash<int,QString> icon_map);
 
 bool do_notify(QObject *receiver, QEvent *event);
 

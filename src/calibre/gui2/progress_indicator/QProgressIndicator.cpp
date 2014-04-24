@@ -1,12 +1,12 @@
 #include "QProgressIndicator.h"
 
 #include <QPainter>
-#include <QtWidgets/QStylePlugin>
-#include <QPluginLoader>
 #include <QtWidgets/QStyle>
 #include <QtWidgets/QApplication>
 #include <QDebug>
+#include <QStyleFactory>
 #include <QtWidgets/QProxyStyle>
+#include <QStyleOptionToolButton>
 
 QProgressIndicator::QProgressIndicator(QWidget* parent, int size)
         : QWidget(parent),
@@ -129,23 +129,86 @@ void QProgressIndicator::paintEvent(QPaintEvent * /*event*/)
     }
 }
 
-int load_style(QString &path, QString &name) {
-    int ret = 0;
-    QStyle *s;
-    QPluginLoader pl(path);
-    QObject *o = pl.instance();
-    if (o != 0) {
-        QStylePlugin *sp = qobject_cast<QStylePlugin *>(o);
-        if (sp != 0) {
-            s = sp->create(name);
-            if (s != 0) {
-                s->setObjectName(name);
-                QApplication::setStyle(s);
-                ret = 1;
-            }
+class CalibreStyle: public QProxyStyle {
+    private:
+        QHash<int, QString> icon_map;
+
+    public:
+        CalibreStyle(QStyle *base, QHash<int, QString> icmap) : QProxyStyle(base), icon_map(icmap) {
+            setObjectName(QString("calibre"));
         }
-    }
-    return ret;
+
+        int styleHint(StyleHint hint, const QStyleOption *option = 0,
+                   const QWidget *widget = 0, QStyleHintReturn *returnData = 0) const {
+            switch (hint) {
+                case SH_DialogButtonBox_ButtonsHaveIcons:
+                    return 1;  // We want icons on dialog button box buttons
+                default:
+                    break;
+            }
+            return QProxyStyle::styleHint(hint, option, widget, returnData);
+        }
+
+        QIcon standardIcon(StandardPixmap standardIcon, const QStyleOption * option = 0, const QWidget * widget = 0) const {
+            if (icon_map.contains(standardIcon)) return QIcon(icon_map.value(standardIcon));
+            return QProxyStyle::standardIcon(standardIcon, option, widget);
+        }
+
+        int pixelMetric(PixelMetric metric, const QStyleOption * option = 0, const QWidget * widget = 0) const {
+            switch (metric) {
+                case PM_TabBarTabVSpace:
+                    return 8;  // Make tab bars a little narrower, the value for the Fusion style is 12
+                default:
+                    break;
+            }
+            return QProxyStyle::pixelMetric(metric, option, widget);
+        }
+
+        void drawComplexControl(ComplexControl control, const QStyleOptionComplex * option, QPainter * painter, const QWidget * widget = 0) const {
+            const QStyleOptionToolButton *toolbutton = NULL;
+            switch (control) {
+                case CC_ToolButton:
+                    // We do not want an arrow if the toolbutton has an instant popup
+                    toolbutton = qstyleoption_cast<const QStyleOptionToolButton *>(option);
+                    if (toolbutton && toolbutton->features & QStyleOptionToolButton::HasMenu & ~QStyleOptionToolButton::PopupDelay) {
+                        QStyleOptionToolButton opt = QStyleOptionToolButton(*toolbutton);
+                        opt.features = toolbutton->features & ~QStyleOptionToolButton::HasMenu;
+                        return QProxyStyle::drawComplexControl(control, &opt, painter, widget);
+                    }
+                    break;
+                default:
+                    break;
+            }
+            return QProxyStyle::drawComplexControl(control, option, painter, widget);
+        }
+
+        void drawPrimitive(PrimitiveElement element, const QStyleOption * option, QPainter * painter, const QWidget * widget = 0) const {
+            const QStyleOptionViewItem *vopt = NULL;
+            switch (element) {
+                case PE_PanelItemViewItem:
+                    // Highlight the current, selected item with a different background in an item view if the highlight current item property is set
+                    if (option->state & QStyle::State_HasFocus && (vopt = qstyleoption_cast<const QStyleOptionViewItem *>(option)) && widget && widget->property("highlight_current_item").toBool()) {
+                        QColor color = vopt->palette.color(QPalette::Normal, QPalette::Highlight);
+                        QStyleOptionViewItem opt = QStyleOptionViewItem(*vopt);
+                        if (color.lightness() > 128)
+                            color = color.darker(widget->property("highlight_current_item").toInt());
+                        else
+                            color = color.lighter(125);
+                        opt.palette.setColor(QPalette::Highlight, color);
+                        return QProxyStyle::drawPrimitive(element, &opt, painter, widget);
+                    }
+                    break;
+                default:
+                    break;
+            }
+            return QProxyStyle::drawPrimitive(element, option, painter, widget);
+        }
+};
+
+int load_style(QHash<int,QString> icon_map) {
+    QStyle *base_style = QStyleFactory::create(QString("Fusion"));
+    QApplication::setStyle(new CalibreStyle(base_style, icon_map));
+    return 0;
 }
 
 bool do_notify(QObject *receiver, QEvent *event) {

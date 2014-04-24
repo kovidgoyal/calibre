@@ -6,7 +6,7 @@
 %Import QtWidgets/QtWidgetsmod.sip
 
 %ModuleHeaderCode
-int load_style(QString &path, QString &name);
+int load_style(QHash<int,QString> icon_map);
 bool do_notify(QObject *receiver, QEvent *event);
 void set_no_activate_on_click(QWidget *widget);
 void set_touch_menu_style(QWidget *widget, int margin);
@@ -57,7 +57,7 @@ protected:
 
 };
 
-int load_style(QString &path, QString &name);
+int load_style(QHash<int,QString> icon_map);
 
 bool do_notify(QObject *receiver, QEvent *event);
 

@@ -4,12 +4,11 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 import os, sys, Queue, threading, glob
 from threading import RLock
 from urllib import unquote
-from PyQt5.Qt import (QFileInfo, QObject, QBuffer, Qt,
-                    QByteArray, QTranslator, QCoreApplication, QThread,
-                    QEvent, QTimer, pyqtSignal, QDateTime, QDesktopServices,
-                    QFileDialog, QFileIconProvider, QSettings, QColor,
-                    QIcon, QApplication, QDialog, QUrl, QFont, QPalette,
-                    QFontDatabase, QLocale)
+from PyQt5.Qt import (
+    QFileInfo, QObject, QBuffer, Qt, QStyle, QByteArray, QTranslator,
+    QCoreApplication, QThread, QEvent, QTimer, pyqtSignal, QDateTime,
+    QDesktopServices, QFileDialog, QFileIconProvider, QSettings, QIcon,
+    QApplication, QDialog, QUrl, QFont, QFontDatabase, QLocale)
 
 ORG_NAME = 'KovidsBrain'
 APP_UID  = 'libprs500'
@@ -885,7 +884,11 @@ class Application(QApplication):
         self.pi = plugins['progress_indicator'][0]
         if DEBUG:
             self.redirect_notify = True
+        self.setup_styles(force_calibre_style)
         QApplication.__init__(self, qargs)
+        if not self.using_calibre_style and self.style().objectName() == 'fusion':
+            # Since Qt is using the fusion style anyway, specialize it
+            self.load_calibre_style()
         dl = QLocale(get_lang())
         if unicode(dl.bcp47Name()) != u'C':
             QLocale.setDefault(dl)
@@ -896,7 +899,6 @@ class Application(QApplication):
         qt_app = self
         self._file_open_paths = []
         self._file_open_lock = RLock()
-        self.setup_styles(force_calibre_style)
     if DEBUG:
         def notify(self, receiver, event):
             if self.redirect_notify:
@@ -915,60 +917,7 @@ class Application(QApplication):
 
         load_builtin_fonts()
 
-    def load_calibre_style(self):
-        # On OS X QtCurve resets the palette, so we preserve it explicitly
-        orig_pal = QPalette(self.palette())
-
-        path = os.path.join(sys.extensions_location, 'calibre_style.'+(
-            'pyd' if iswindows else 'so'))
-        if not self.pi.load_style(path, 'Calibre'):
-            prints('Failed to load calibre style')
-        # On OSX, on some machines, colors can be invalid. See https://bugs.launchpad.net/bugs/1014900
-        for role in (orig_pal.Button, orig_pal.Window):
-            c = orig_pal.brush(role).color()
-            if not c.isValid() or not c.toRgb().isValid():
-                orig_pal.setColor(role, QColor(u'lightgray'))
-
-        self.setPalette(orig_pal)
-        style = self.style()
-        icon_map = {}
-        pcache = {}
-        for k, v in {
-            'DialogYesButton': u'ok.png',
-            'DialogNoButton': u'window-close.png',
-            'DialogCloseButton': u'window-close.png',
-            'DialogOkButton': u'ok.png',
-            'DialogCancelButton': u'window-close.png',
-            'DialogHelpButton': u'help.png',
-            'DialogOpenButton': u'document_open.png',
-            'DialogSaveButton': u'save.png',
-            'DialogApplyButton': u'ok.png',
-            'DialogDiscardButton': u'trash.png',
-            'MessageBoxInformation': u'dialog_information.png',
-            'MessageBoxWarning': u'dialog_warning.png',
-            'MessageBoxCritical': u'dialog_error.png',
-            'MessageBoxQuestion': u'dialog_question.png',
-            'BrowserReload': u'view-refresh.png',
-            # These two are used to calculate the sizes for the doc widget
-            # title bar buttons, therefore, they have to exist. The actual
-            # icon is not used.
-            'TitleBarCloseButton': u'window-close.png',
-            'TitleBarNormalButton': u'window-close.png',
-            'DockWidgetCloseButton': u'window-close.png',
-        }.iteritems():
-            if v not in pcache:
-                p = I(v)
-                if isinstance(p, bytes):
-                    p = p.decode(filesystem_encoding)
-                # if not os.path.exists(p): raise ValueError(p)
-                pcache[v] = p
-            v = pcache[v]
-            icon_map[type('')(getattr(style, 'SP_'+k))] = v
-        style.setProperty(u'calibre_icon_map', icon_map)
-        self.__icon_map_memory_ = icon_map
-
     def setup_styles(self, force_calibre_style):
-        self.original_font = QFont(QApplication.font())
         fi = gprefs['font']
         if fi is not None:
             font = QFont(*(fi[:4]))
@@ -989,20 +938,39 @@ class Application(QApplication):
             if not depth_ok:
                 prints('Color depth is less than 32 bits disabling modern look')
 
-        if force_calibre_style or (depth_ok and gprefs['ui_style'] !=
-                'system'):
+        self.using_calibre_style = force_calibre_style or (depth_ok and gprefs['ui_style'] != 'system')
+        if self.using_calibre_style:
             self.load_calibre_style()
-        else:
-            st = self.style()
-            if st is not None:
-                st = unicode(st.objectName()).lower()
-            if (islinux or isbsd) and st in ('windows', 'motif', 'cde'):
-                from PyQt5.Qt import QStyleFactory
-                styles = set(map(unicode, QStyleFactory.keys()))
-                if os.environ.get('KDE_FULL_SESSION', False):
-                    self.load_calibre_style()
-                elif 'Cleanlooks' in styles:
-                    self.setStyle('Cleanlooks')
+
+    def load_calibre_style(self):
+        icon_map = self.__icon_map_memory_ = {}
+        pcache = {}
+        for k, v in {
+            'DialogYesButton': u'ok.png',
+            'DialogNoButton': u'window-close.png',
+            'DialogCloseButton': u'window-close.png',
+            'DialogOkButton': u'ok.png',
+            'DialogCancelButton': u'window-close.png',
+            'DialogHelpButton': u'help.png',
+            'DialogOpenButton': u'document_open.png',
+            'DialogSaveButton': u'save.png',
+            'DialogApplyButton': u'ok.png',
+            'DialogDiscardButton': u'trash.png',
+            'MessageBoxInformation': u'dialog_information.png',
+            'MessageBoxWarning': u'dialog_warning.png',
+            'MessageBoxCritical': u'dialog_error.png',
+            'MessageBoxQuestion': u'dialog_question.png',
+            'BrowserReload': u'view-refresh.png',
+        }.iteritems():
+            if v not in pcache:
+                p = I(v)
+                if isinstance(p, bytes):
+                    p = p.decode(filesystem_encoding)
+                # if not os.path.exists(p): raise ValueError(p)
+                pcache[v] = p
+            v = pcache[v]
+            icon_map[getattr(QStyle, 'SP_'+k)] = v
+        self.pi.load_style(icon_map)
 
     def _send_file_open_events(self):
         with self._file_open_lock:
