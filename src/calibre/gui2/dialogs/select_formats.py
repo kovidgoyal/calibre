@@ -8,9 +8,9 @@ __docformat__ = 'restructuredtext en'
 
 
 from PyQt5.Qt import QVBoxLayout, QDialog, QLabel, QDialogButtonBox, Qt, \
-        QAbstractListModel, QVariant, QListView, QSize
+        QAbstractListModel, QListView, QSize
 
-from calibre.gui2 import NONE, file_icon_provider
+from calibre.gui2 import file_icon_provider
 
 class Formats(QAbstractListModel):
 
@@ -28,16 +28,16 @@ class Formats(QAbstractListModel):
         if role == Qt.DisplayRole:
             fmt = self.fmts[row]
             count = self.counts[fmt]
-            return QVariant('%s [%d]'%(fmt.upper(), count))
+            return ('%s [%d]'%(fmt.upper(), count))
         if role == Qt.DecorationRole:
-            return QVariant(self.fi.icon_from_ext(self.fmts[row].lower()))
+            return (self.fi.icon_from_ext(self.fmts[row].lower()))
         if role == Qt.ToolTipRole:
             fmt = self.fmts[row]
             count = self.counts[fmt]
-            return QVariant(
+            return (
                 _('There are %(count)d book(s) with the %(fmt)s format')%dict(
                     count=count, fmt=fmt.upper()))
-        return NONE
+        return None
 
     def flags(self, index):
         return Qt.ItemIsSelectable|Qt.ItemIsEnabled

@@ -87,7 +87,7 @@ class DeviceCategoryEditor(QDialog, Ui_DeviceCategoryEditor):
                 item.setText(item.previous_text())
                 return
         if item.text() != item.initial_text():
-            id_ = item.data(Qt.UserRole).toInt()[0]
+            id_ = int(item.data(Qt.UserRole))
             self.to_rename[id_] = unicode(item.text())
 
     def rename_tag(self):
@@ -113,7 +113,7 @@ class DeviceCategoryEditor(QDialog, Ui_DeviceCategoryEditor):
             return
         row = self.available_tags.row(deletes[0])
         for item in deletes:
-            (id,ign) = item.data(Qt.UserRole).toInt()
+            id = int(item.data(Qt.UserRole))
             self.to_delete.add(id)
             self.available_tags.takeItem(self.available_tags.row(item))
 

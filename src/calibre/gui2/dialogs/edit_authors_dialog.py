@@ -274,7 +274,7 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
         self.save_state()
         self.result = []
         for row in range(0,self.table.rowCount()):
-            id   = self.table.item(row, 0).data(Qt.UserRole).toInt()[0]
+            id   = int(self.table.item(row, 0).data(Qt.UserRole))
             aut  = unicode(self.table.item(row, 0).text()).strip()
             sort = unicode(self.table.item(row, 1).text()).strip()
             link = unicode(self.table.item(row, 2).text()).strip()

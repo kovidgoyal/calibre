@@ -29,7 +29,7 @@ class ItemDelegate(QStyledItemDelegate):
         return QStyledItemDelegate.sizeHint(self, *args) + QSize(0, 15)
 
     def setEditorData(self, editor, index):
-        name = unicode(index.data(Qt.DisplayRole).toString())
+        name = unicode(index.data(Qt.DisplayRole) or '')
         editor.setText(name)
         editor.lineEdit().selectAll()
 

@@ -277,7 +277,7 @@ class Quickview(QDialog, Ui_Quickview):
     def book_doubleclicked(self, row, column):
         if self.no_valid_items:
             return
-        book_id = self.books_table.item(row, self.title_column).data(Qt.UserRole).toInt()[0]
+        book_id = int(self.books_table.item(row, self.title_column).data(Qt.UserRole))
         self.view.select_rows([book_id])
         modifiers = int(QApplication.keyboardModifiers())
         if modifiers in (Qt.CTRL, Qt.SHIFT):

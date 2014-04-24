@@ -3,14 +3,14 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import time, os
 
-from PyQt5.Qt import (QUrl, QAbstractListModel, Qt, QVariant, QFont)
+from PyQt5.Qt import (QUrl, QAbstractListModel, Qt, QFont)
 
 from calibre.web.feeds.recipes import compile_recipe, custom_recipes
 from calibre.web.feeds.news import AutomaticNewsRecipe
 from calibre.gui2.dialogs.user_profiles_ui import Ui_Dialog
 from calibre.gui2 import (
     error_dialog, question_dialog, open_url, choose_files, ResizableDialog,
-    NONE, open_local_file)
+    open_local_file)
 from calibre.gui2.widgets import PythonHighlighter
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.utils.icu import sort_key
@@ -48,8 +48,8 @@ class CustomRecipeModel(QAbstractListModel):
         if role == Qt.DisplayRole:
             ans = self.title(index)
             if ans is not None:
-                return QVariant(ans)
-        return NONE
+                return (ans)
+        return None
 
     def replace_by_title(self, title, script):
         urn = None
@@ -330,8 +330,8 @@ class %(classname)s(%(base_class)s):
         if not items:
             return
         item = items[-1]
-        id_ = unicode(item.data(Qt.UserRole).toString())
-        title = unicode(item.data(Qt.DisplayRole).toString()).rpartition(' [')[0]
+        id_ = unicode(item.data(Qt.UserRole) or '')
+        title = unicode(item.data(Qt.DisplayRole) or '').rpartition(' [')[0]
         profile = get_builtin_recipe_by_id(id_, download_recipe=True)
         if profile is None:
             raise Exception('Something weird happened')

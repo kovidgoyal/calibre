@@ -135,7 +135,7 @@ class DuplicatesQuestion(QDialog):
         for i in xrange(self.dup_list.topLevelItemCount()):
             x = self.dup_list.topLevelItem(i)
             if x.checkState(0) == Qt.Checked:
-                yield x.data(0, Qt.UserRole).toPyObject()
+                yield x.data(0, Qt.UserRole)
 
     @property
     def as_text(self):

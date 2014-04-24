@@ -569,12 +569,12 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
     def s_r_sf_itemdata(self, idx):
         if idx is None:
             idx = self.search_field.currentIndex()
-        return unicode(self.search_field.itemData(idx).toString())
+        return unicode(self.search_field.itemData(idx) or '')
 
     def s_r_df_itemdata(self, idx):
         if idx is None:
             idx = self.destination_field.currentIndex()
-        return unicode(self.destination_field.itemData(idx).toString())
+        return unicode(self.destination_field.itemData(idx) or '')
 
     def s_r_get_field(self, mi, field):
         if field:

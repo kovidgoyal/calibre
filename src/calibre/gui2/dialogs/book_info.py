@@ -9,7 +9,7 @@ __docformat__ = 'restructuredtext en'
 from PyQt5.Qt import (
     QCoreApplication, QModelIndex, QTimer, Qt, pyqtSignal, QWidget,
     QGridLayout, QDialog, QPixmap, QSize, QPalette, QShortcut, QKeySequence,
-    QSplitter, QVBoxLayout, QCheckBox, QPushButton, QIcon, QBrush)
+    QSplitter, QVBoxLayout, QCheckBox, QPushButton, QIcon, QBrush, QUrl)
 from PyQt5.QtWebKitWidgets import QWebView
 
 from calibre.gui2 import gprefs
@@ -103,7 +103,7 @@ class BookInfo(QDialog):
                 pass
 
     def link_clicked(self, qurl):
-        link = unicode(qurl.toString())
+        link = unicode(qurl.toString(QUrl.None))
         self.link_delegate(link)
 
     def done(self, r):

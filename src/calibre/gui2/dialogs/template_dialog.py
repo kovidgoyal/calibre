@@ -7,7 +7,7 @@ import json, os, traceback
 
 from PyQt5.Qt import (Qt, QDialog, QDialogButtonBox, QSyntaxHighlighter, QFont,
                       QRegExp, QApplication, QTextCharFormat, QColor, QCursor,
-                      QIcon, QSize, QVariant)
+                      QIcon, QSize)
 
 from calibre import sanitize_file_name_unicode
 from calibre.constants import config_dir
@@ -248,7 +248,7 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
             from calibre.gui2.preferences.coloring import icon_rule_kinds
             for i,tup in enumerate(icon_rule_kinds):
                 txt,val = tup
-                self.icon_kind.addItem(txt, userData=QVariant(val))
+                self.icon_kind.addItem(txt, userData=(val))
                 if val == icon_rule_kind:
                     dex = i
             self.icon_kind.setCurrentIndex(dex)
@@ -426,12 +426,12 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
                 return
 
             self.rule = (unicode(self.colored_field.itemData(
-                                self.colored_field.currentIndex()).toString()), txt)
+                                self.colored_field.currentIndex()) or ''), txt)
         elif self.iconing:
-            rt = unicode(self.icon_kind.itemData(self.icon_kind.currentIndex()).toString())
+            rt = unicode(self.icon_kind.itemData(self.icon_kind.currentIndex()) or '')
             self.rule = (rt,
                          unicode(self.icon_field.itemData(
-                                self.icon_field.currentIndex()).toString()),
+                                self.icon_field.currentIndex()) or ''),
                          txt)
         else:
             self.rule = ('', txt)

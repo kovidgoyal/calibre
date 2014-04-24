@@ -168,7 +168,7 @@ class MatchBooks(QDialog, Ui_MatchBooks):
 
     def book_clicked(self, row, column):
         self.book_selected = True
-        id_ = self.books_table.item(row, 0).data(Qt.UserRole).toInt()[0]
+        id_ = int(self.books_table.item(row, 0).data(Qt.UserRole))
         self.current_library_book_id = id_
 
     def book_doubleclicked(self, row, column):

@@ -210,7 +210,7 @@ class TagListEditor(QDialog, Ui_TagListEditor):
                 item.setText(item.previous_text())
                 return
         if item.text() != item.initial_text():
-            id_ = item.data(Qt.UserRole).toInt()[0]
+            id_ = int(item.data(Qt.UserRole))
             self.to_rename[id_] = unicode(item.text())
             orig = self.table.item(item.row(), 2)
             self.table.blockSignals(True)
@@ -240,7 +240,7 @@ class TagListEditor(QDialog, Ui_TagListEditor):
             return
         row = self.table.row(deletes[0])
         for item in deletes:
-            (id,ign) = item.data(Qt.UserRole).toInt()
+            id = int(item.data(Qt.UserRole))
             self.to_delete.add(id)
             self.table.removeRow(self.table.row(item))
 

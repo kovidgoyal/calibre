@@ -165,7 +165,7 @@ class TagCategories(QDialog, Ui_TagCategories):
             return
         nodes = self.available_items_box.selectedItems() if node is None else [node]
         for node in nodes:
-            index = self.all_items[node.data(Qt.UserRole).toPyObject()].index
+            index = self.all_items[node.data(Qt.UserRole)].index
             if index not in self.applied_items:
                 self.applied_items.append(index)
         self.applied_items.sort(key=lambda x:sort_key(self.all_items[x].name))
@@ -177,7 +177,7 @@ class TagCategories(QDialog, Ui_TagCategories):
     def unapply_tags(self, node=None):
         nodes = self.applied_items_box.selectedItems() if node is None else [node]
         for node in nodes:
-            index = self.all_items[node.data(Qt.UserRole).toPyObject()].index
+            index = self.all_items[node.data(Qt.UserRole)].index
             self.applied_items.remove(index)
         self.display_filtered_categories(None)
 
