@@ -21,7 +21,7 @@ from calibre.customize.ui import (plugin_for_input_format,
         plugin_for_output_format)
 from calibre.ebooks.chardet import xml_to_unicode
 from calibre.ebooks.conversion.plugins.epub_input import (
-    ADOBE_OBFUSCATION, IDPF_OBFUSCATION, decrypt_font)
+    ADOBE_OBFUSCATION, IDPF_OBFUSCATION, decrypt_font_data)
 from calibre.ebooks.conversion.preprocess import HTMLPreProcessor, CSSPreProcessor as cssp
 from calibre.ebooks.mobi import MobiError
 from calibre.ebooks.mobi.reader.headers import MetadataHeader
@@ -969,27 +969,35 @@ class EpubContainer(Container):
                     key = None
 
         for font, alg in fonts.iteritems():
-            path = self.name_path_map[font]
             tkey = key if alg == ADOBE_OBFUSCATION else idpf_key
             if not tkey:
                 raise InvalidBook('Failed to find obfuscation key')
-            decrypt_font(tkey, path, alg)
+            raw = self.raw_data(font, decode=False)
+            raw = decrypt_font_data(tkey, raw, alg)
+            with self.open(font, 'wb') as f:
+                f.write(raw)
             self.obfuscated_fonts[font] = (alg, tkey)
 
     def commit(self, outpath=None, keep_parsed=False):
         super(EpubContainer, self).commit(keep_parsed=keep_parsed)
+        restore_fonts = {}
         for name in self.obfuscated_fonts:
             if name not in self.name_path_map:
                 continue
             alg, key = self.obfuscated_fonts[name]
             # Decrypting and encrypting are the same operation (XOR with key)
-            decrypt_font(key, self.name_path_map[name], alg)
+            restore_fonts[name] = data = self.raw_data(name, decode=False)
+            with self.open(name, 'wb') as f:
+                f.write(decrypt_font_data(key, data, alg))
         if outpath is None:
             outpath = self.pathtoepub
         from calibre.ebooks.tweak import zip_rebuilder
         with open(join(self.root, 'mimetype'), 'wb') as f:
             f.write(guess_type('a.epub'))
         zip_rebuilder(self.root, outpath)
+        for name, data in restore_fonts.iteritems():
+            with self.open(name, 'wb') as f:
+                f.write(data)
 
     @dynamic_property
     def path_to_ebook(self):
