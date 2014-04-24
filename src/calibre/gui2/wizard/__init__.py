@@ -12,7 +12,7 @@ from contextlib import closing
 
 
 from PyQt5.Qt import (QWizard, QWizardPage, QPixmap, Qt, QAbstractListModel,
-    QVariant, QItemSelectionModel, QObject, QTimer, pyqtSignal, QItemSelection)
+    QItemSelectionModel, QObject, QTimer, pyqtSignal, QItemSelection)
 from calibre import __appname__, patheq
 from calibre.library.move import MoveLibrary
 from calibre.constants import (filesystem_encoding, iswindows, plugins,
@@ -26,7 +26,7 @@ from calibre.gui2.wizard.stanza_ui import Ui_WizardPage as StanzaUI
 from calibre.gui2 import min_available_height, available_width
 
 from calibre.utils.config import dynamic, prefs
-from calibre.gui2 import NONE, choose_dir, error_dialog
+from calibre.gui2 import choose_dir, error_dialog
 from calibre.gui2.dialogs.progress import ProgressDialog
 
 if iswindows:
@@ -387,10 +387,10 @@ class ManufacturerModel(QAbstractListModel):
 
     def data(self, index, role):
         if role == Qt.DisplayRole:
-            return QVariant(self.manufacturers[index.row()])
+            return (self.manufacturers[index.row()])
         if role == Qt.UserRole:
             return self.manufacturers[index.row()]
-        return NONE
+        return None
 
     def index_of(self, man):
         for i, x in enumerate(self.manufacturers):
@@ -411,10 +411,10 @@ class DeviceModel(QAbstractListModel):
 
     def data(self, index, role):
         if role == Qt.DisplayRole:
-            return QVariant(self.devices[index.row()].name)
+            return (self.devices[index.row()].name)
         if role == Qt.UserRole:
             return self.devices[index.row()]
-        return NONE
+        return None
 
     def index_of(self, dev):
         for i, device in enumerate(self.devices):
@@ -702,19 +702,19 @@ class LibraryPage(QWizardPage, LibraryUI):
                 return 'English'
             return get_language(l)
 
-        self.language.addItem(get_esc_lang(lang), QVariant(lang))
+        self.language.addItem(get_esc_lang(lang), (lang))
         items = [(l, get_esc_lang(l)) for l in available_translations()
                  if l != lang]
         if lang != 'en':
             items.append(('en', get_esc_lang('en')))
         items.sort(cmp=lambda x, y: cmp(x[1], y[1]))
         for item in items:
-            self.language.addItem(item[1], QVariant(item[0]))
+            self.language.addItem(item[1], (item[0]))
         self.language.blockSignals(False)
-        prefs['language'] = str(self.language.itemData(self.language.currentIndex()).toString())
+        prefs['language'] = str(self.language.itemData(self.language.currentIndex()) or '')
 
     def change_language(self, idx):
-        prefs['language'] = str(self.language.itemData(self.language.currentIndex()).toString())
+        prefs['language'] = str(self.language.itemData(self.language.currentIndex()) or '')
         import __builtin__
         __builtin__.__dict__['_'] = lambda(x): x
         from calibre.utils.localization import set_translators

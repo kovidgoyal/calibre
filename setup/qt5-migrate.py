@@ -54,6 +54,7 @@ def detect_qvariant():
         'src/calibre/utils/serve_coffee.py': {'toString()'},
         'src/calibre/gui2/job_indicator.py': {'toPoint'},
         'src/calibre/ebooks/pdf/render/engine.py': {'toRect'},
+        'src/calibre/gui2/wizard/send_email.py': {'NONE'},
     }
     for path in all_py_files():
         if os.path.basename(path) in {

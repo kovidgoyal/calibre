@@ -10,7 +10,7 @@ __docformat__ = 'restructuredtext en'
 import textwrap
 
 from PyQt5.Qt import (QWidget, QGridLayout, QGroupBox, QListView, Qt, QSpinBox,
-        QDoubleSpinBox, QCheckBox, QLineEdit, QComboBox, QLabel, QVariant)
+        QDoubleSpinBox, QCheckBox, QLineEdit, QComboBox, QLabel)
 
 from calibre.gui2.preferences.metadata_sources import FieldsModel as FM
 
@@ -98,8 +98,8 @@ class ConfigWidget(QWidget):
         elif opt.type == 'choices':
             widget = QComboBox(self)
             for key, label in opt.choices.iteritems():
-                widget.addItem(label, QVariant(key))
-            idx = widget.findData(QVariant(val))
+                widget.addItem(label, (key))
+            idx = widget.findData((val))
             widget.setCurrentIndex(idx)
         widget.opt = opt
         widget.setToolTip(textwrap.fill(opt.desc))
@@ -127,7 +127,7 @@ class ConfigWidget(QWidget):
                 val = w.isChecked()
             elif isinstance(w, QComboBox):
                 idx = w.currentIndex()
-                val = unicode(w.itemData(idx).toString())
+                val = unicode(w.itemData(idx) or '')
             self.plugin.prefs[w.opt.name] = val
 
 

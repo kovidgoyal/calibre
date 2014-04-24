@@ -51,7 +51,7 @@ class HeaderView(QHeaderView):  # {{{
         opt.orientation = self.orientation()
         opt.textAlignment = Qt.AlignHCenter | Qt.AlignVCenter
         model = self.parent().model()
-        opt.text = model.headerData(logical_index, opt.orientation, Qt.DisplayRole).toString()
+        opt.text = unicode(model.headerData(logical_index, opt.orientation, Qt.DisplayRole) or '')
         if self.isSortIndicatorShown() and self.sortIndicatorSection() == logical_index:
             opt.sortIndicator = QStyleOptionHeader.SortDown if self.sortIndicatorOrder() == Qt.AscendingOrder else QStyleOptionHeader.SortUp
         opt.text = opt.fontMetrics.elidedText(opt.text, Qt.ElideRight, rect.width() - 4)
@@ -294,7 +294,7 @@ class BooksView(QTableView):  # {{{
         if idx > -1 and idx < len(self.column_map):
             col = self.column_map[idx]
             name = unicode(self.model().headerData(idx, Qt.Horizontal,
-                    Qt.DisplayRole).toString())
+                    Qt.DisplayRole) or '')
             self.column_header_context_menu = QMenu(self)
             if col != 'ondevice':
                 self.column_header_context_menu.addAction(_('Hide column %s') %
@@ -352,7 +352,7 @@ class BooksView(QTableView):  # {{{
                 for col in hidden_cols:
                     hidx = self.column_map.index(col)
                     name = unicode(self.model().headerData(hidx, Qt.Horizontal,
-                            Qt.DisplayRole).toString())
+                            Qt.DisplayRole) or '')
                     m.addAction(name,
                         partial(self.column_header_context_handler,
                         action='show', column=col))
