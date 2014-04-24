@@ -25,6 +25,11 @@ from PyQt5.Qt import (QAbstractListModel, Qt, QStyledItemDelegate, QStyle,
 
 ROOT = QModelIndex()
 
+class AdaptSQP(SearchQueryParser):
+
+    def __init__(self, *args, **kwargs):
+        pass
+
 class Delegate(QStyledItemDelegate):  # {{{
     def __init__(self, view):
         QStyledItemDelegate.__init__(self, view)
@@ -98,7 +103,7 @@ class Tweak(object):  # {{{
 
 # }}}
 
-class Tweaks(QAbstractListModel, SearchQueryParser):  # {{{
+class Tweaks(QAbstractListModel, AdaptSQP):  # {{{
 
     def __init__(self, parent=None):
         QAbstractListModel.__init__(self, parent)

@@ -23,7 +23,12 @@ from calibre.utils.search_query_parser import SearchQueryParser
 from calibre.utils.icu import lower
 from calibre.constants import iswindows
 
-class PluginModel(QAbstractItemModel, SearchQueryParser):  # {{{
+class AdaptSQP(SearchQueryParser):
+
+    def __init__(self, *args, **kwargs):
+        pass
+
+class PluginModel(QAbstractItemModel, AdaptSQP):  # {{{
 
     def __init__(self, show_only_user_plugins=False):
         QAbstractItemModel.__init__(self)

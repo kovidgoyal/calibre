@@ -26,15 +26,6 @@ __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 # http://qt-project.org/doc/qt-5/obsoleteclasses.html as these will not be
 # present in PyQt5
 
-# QT5XX: For classes that inherit both a QObject based class and
-# SearchQueryParser, PyQt5 class the SearchQueryParser __init__ method when
-# calling the QObject based classes __init__ method. The simplest fix is to
-# make SearchQueryParser the first base class instead of the second. An
-# alternative fix is to create a derived class from SearchQueryParser whose
-# __init__ method accepts any args and does nothing and inherit from that. Do
-# this porting and test the results when possible. Porting already done and
-# tested for keyboard.py
-
 # QT5XX: Delete this file after migration is completed
 
 import os, re
