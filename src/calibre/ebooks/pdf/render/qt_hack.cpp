@@ -39,16 +39,16 @@ GlyphInfo* get_glyphs(QPointF &p, const QTextItem &text_item) {
         points[i].setY(positions[i].y.toReal());
     }
 
-    QVector<unsigned int> indices = QVector<unsigned int>(glyphs.count());
+    QVector<quint32> indices = QVector<quint32>(glyphs.count());
     for (int i = 0; i < glyphs.count(); i++)
-        indices[i] = (unsigned int)glyphs[i];
+        indices[i] = (quint32)glyphs[i];
 
     const quint32 *tag = reinterpret_cast<const quint32 *>("name");
 
     return new GlyphInfo(fe->getSfntTable(qToBigEndian(*tag)), size, stretch, points, indices);
 }
 
-GlyphInfo::GlyphInfo(const QByteArray& name, qreal size, qreal stretch, const QVector<QPointF> &positions, const QVector<unsigned int> &indices) :name(name), positions(positions), size(size), stretch(stretch), indices(indices) {
+GlyphInfo::GlyphInfo(const QByteArray& name, qreal size, qreal stretch, const QVector<QPointF> &positions, const QVector<quint32> &indices) :name(name), positions(positions), size(size), stretch(stretch), indices(indices) {
 }
 
 QByteArray get_sfnt_table(const QTextItem &text_item, const char* tag_name) {
@@ -57,15 +57,15 @@ QByteArray get_sfnt_table(const QTextItem &text_item, const char* tag_name) {
     return ti.fontEngine->getSfntTable(qToBigEndian(*tag));
 }
 
-QVector<unsigned int>* get_glyph_map(const QTextItem &text_item) {
+QVector<quint32>* get_glyph_map(const QTextItem &text_item) {
     QTextItemInt ti = static_cast<const QTextItemInt &>(text_item);
-    QVector<unsigned int> *ans = new QVector<unsigned int>(0x10000);
+    QVector<quint32> *ans = new QVector<quint32>(0x10000);
     QGlyphLayoutArray<10> glyphs;
     int nglyphs = 10;
 
     for (uint uc = 0; uc < 0x10000; ++uc) {
         QChar ch(uc);
-        ti.fontEngine->stringToCMap(&ch, 1, &glyphs, &nglyphs, QTextEngine::GlyphIndicesOnly);
+        ti.fontEngine->stringToCMap(&ch, 1, &glyphs, &nglyphs, QFontEngine::GlyphIndicesOnly);
         (*ans)[uc] = glyphs.glyphs[0];
     }
     return ans;

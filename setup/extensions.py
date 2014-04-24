@@ -227,7 +227,7 @@ extensions = [
 
     Extension('qt_hack',
                 ['calibre/ebooks/pdf/render/qt_hack.cpp'],
-                inc_dirs=['calibre/ebooks/pdf/render', 'qt-harfbuzz/src'],
+                inc_dirs=['calibre/ebooks/pdf/render'],
                 headers=['calibre/ebooks/pdf/render/qt_hack.h'],
                 qt_private=['core', 'gui'],
                 sip_files=['calibre/ebooks/pdf/render/qt_hack.sip']

@@ -18,9 +18,9 @@ class GlyphInfo {
         QVector<QPointF> positions;
         qreal size;
         qreal stretch;
-        QVector<unsigned int> indices;
+        QVector<quint32> indices;
 
-        GlyphInfo(const QByteArray &name, qreal size, qreal stretch, const QVector<QPointF> &positions, const QVector<unsigned int> &indices);
+        GlyphInfo(const QByteArray &name, qreal size, qreal stretch, const QVector<QPointF> &positions, const QVector<quint32> &indices);
 
     private:
         GlyphInfo(const GlyphInfo&);
@@ -31,5 +31,5 @@ GlyphInfo* get_glyphs(QPointF &p, const QTextItem &text_item);
 
 QByteArray get_sfnt_table(const QTextItem &text_item, const char* tag_name);
 
-QVector<unsigned int>* get_glyph_map(const QTextItem &text_item);
+QVector<quint32>* get_glyph_map(const QTextItem &text_item);
 
