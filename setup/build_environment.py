@@ -101,7 +101,6 @@ pyqt['default_sip_dir'] = c.default_sip_dir
 pyqt['sip_inc_dir'] = c.sip_inc_dir
 
 qt_inc = pyqt['inc']
-qt_private_inc = []
 qt_lib = pyqt['lib']
 ft_lib_dirs = []
 ft_libs = []
@@ -162,7 +161,6 @@ elif isosx:
     ft_libs = ['freetype']
     ft_inc_dirs = ['/sw/include/freetype2']
     bq = glob.glob('/sw/build/qt-*/include')[-1]
-    qt_private_inc = ['%s/%s'%(bq, m) for m in ('QtGui', 'QtCore')]
 else:
     # Include directories
     png_inc_dirs = pkgconfig_include_dirs('libpng', 'PNG_INC_DIR',

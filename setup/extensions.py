@@ -16,7 +16,7 @@ from setup.build_environment import (chmlib_inc_dirs,
         msvc, MT, win_inc, win_lib, win_ddk, magick_inc_dirs, magick_lib_dirs,
         magick_libs, chmlib_lib_dirs, sqlite_inc_dirs, icu_inc_dirs,
         icu_lib_dirs, win_ddk_lib_dirs, ft_libs, ft_lib_dirs, ft_inc_dirs,
-        zlib_libs, zlib_lib_dirs, zlib_inc_dirs, is64bit, qt_private_inc)
+        zlib_libs, zlib_lib_dirs, zlib_inc_dirs, is64bit)
 MT
 isunix = islinux or isosx or isbsd
 
@@ -52,6 +52,7 @@ class Extension(object):
             flag = '/O%d' if iswindows else '-O%d'
             of = flag % of
         self.cflags.insert(0, of)
+        self.qt_private_headers = kwargs.get('qt_private', [])
 
     def preflight(self, obj_dir, compiler, linker, builder, cflags, ldflags):
         pass
@@ -226,8 +227,9 @@ extensions = [
 
     Extension('qt_hack',
                 ['calibre/ebooks/pdf/render/qt_hack.cpp'],
-                inc_dirs=qt_private_inc + ['calibre/ebooks/pdf/render', 'qt-harfbuzz/src'],
+                inc_dirs=['calibre/ebooks/pdf/render', 'qt-harfbuzz/src'],
                 headers=['calibre/ebooks/pdf/render/qt_hack.h'],
+                qt_private=['core', 'gui'],
                 sip_files=['calibre/ebooks/pdf/render/qt_hack.sip']
                 ),
 
@@ -551,6 +553,9 @@ class Build(Command):
             pro += '\nQMAKE_LFLAGS += -Wl,--version-script=%s.exp' % sip['target']
             with open(os.path.join(src_dir, sip['target'] + '.exp'), 'wb') as f:
                 f.write(('{ global: init%s; local: *; };' % sip['target']).encode('utf-8'))
+        if ext.qt_private_headers:
+            qph = ' '.join(x + '-private' for x in ext.qt_private_headers)
+            pro += '\nQT += ' + qph
         proname = '%s.pro' % sip['target']
         with open(os.path.join(src_dir, proname), 'wb') as f:
             f.write(pro.encode('utf-8'))
