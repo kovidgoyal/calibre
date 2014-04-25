@@ -143,6 +143,14 @@ class CalibreStyle: public QProxyStyle {
             switch (hint) {
                 case SH_DialogButtonBox_ButtonsHaveIcons:
                     return 1;  // We want icons on dialog button box buttons
+                case SH_DialogButtonLayout:
+                    // Use platform specific button orders always
+#ifdef Q_OS_WIN32
+                    return QDialogButtonBox::WinLayout;
+#elif defined(Q_OS_MAC)
+                    return QDialogButtonBox::MacLayout;
+#endif
+                    break;
                 default:
                     break;
             }
