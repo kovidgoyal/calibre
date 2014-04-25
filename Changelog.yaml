@@ -20,6 +20,51 @@
 #   new recipes:
 #     - title: 
 
+- version: 1.34.0
+  date: 2014-04-25
+
+  new features:
+    - title: "E-book viewer: When in flow mode, handle swiping on the touchscreen differently. Swiping now scrolls line by line in flow mode instead of page by page. If you wish to scroll page by page in flow mode, tap instead of swiping."
+
+    - title: "Conversion: Preserve all guide entries that are of a type present in the EPUB 2.0 specification. These entries are used by newer Kindle readers to populate the Go To jump list"
+
+    - title: "When adding MOBI files if the author name is in LN, FN format, auto change it to FN LN format, as the MOBI format has no author sort field. This behavior can be disabled by setting Preferences->Tweaks->Author sort name algorithm to copy."
+      tickets: [1306748]
+
+    - title: "Spellcheck: When checking French text list all words that have the same stem as a single word. So j'aime and aime are listed as a single word."
+
+    - title: "Spell check: Add a context (right click) menu that allows for quick operations on all selected words"
+      tickets: [1309559]
+
+    - title: "Manage user dictionaries: Add a button to import a list of words in bulk into the user dictionary"
+
+    - title: "Spell check dialog: Allow sorting words case sensitively"
+
+  bug fixes:
+    - title: "EPUB Input: Fix incorrect handling of obfuscated fonts using the IDPF obfuscation algorithm when the epub unique identifier starts with urn:uuid"
+      tickets: [1311650]
+
+    - title: "Edit book: Fix obfuscated fonts in EPUB files not being handled correctly when editing the book (obfuscated fonts would get corrupted when making changes)."
+      tickets: [1311650]
+
+    - title: "Edit book: Fix a bug that caused spell checking to fail when using the builtin spanish dictionary"
+
+    - title: "Spell check: Fix replacing a word and then replacing the new word again not working without doing a refresh in between"
+
+    - title: "Spell check: Fix language declarations not being respected for nested tags."
+      tickets: [1310000]
+
+    - title: "Spell check: Fix 'Show next occurrence' sometimes showing the word in an incorrect location, for example in an attribute where spell check is not performed."
+
+    - title: "Allow import of dictionaries that deviate from the spec in minor ways"
+
+    - title: "Edit Book: Fix the Show next occurrence button in the spell check dialog sometimes failing to show next occurrence"
+
+    - title: "OS X: Detect the users default interface language correctly. Also fix parsing of ambiguous dates in mm/dd vs dd/mm formats, based on the users locale settings in OS X."
+
+  improved recipes:
+    - Hindustan Times
+
 - version: 1.33.0
   date: 2014-04-18
 
