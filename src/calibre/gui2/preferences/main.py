@@ -156,6 +156,7 @@ class Browser(QScrollArea):  # {{{
             self.widgets.append(w)
             self._layout.addWidget(w)
             w.plugin_activated.connect(self.show_plugin.emit)
+        self._layout.addStretch(1)
 
 
 # }}}
