@@ -886,9 +886,18 @@ class Application(QApplication):
             self.redirect_notify = True
         self.setup_styles(force_calibre_style)
         QApplication.__init__(self, qargs)
+        self.original_font = QFont(QApplication.font())
         if not self.using_calibre_style and self.style().objectName() == 'fusion':
             # Since Qt is using the fusion style anyway, specialize it
             self.load_calibre_style()
+        fi = gprefs['font']
+        if fi is not None:
+            font = QFont(*(fi[:4]))
+            s = gprefs.get('font_stretch', None)
+            if s is not None:
+                font.setStretch(s)
+            QApplication.setFont(font)
+
         dl = QLocale(get_lang())
         if unicode(dl.bcp47Name()) != u'C':
             QLocale.setDefault(dl)
@@ -918,14 +927,6 @@ class Application(QApplication):
         load_builtin_fonts()
 
     def setup_styles(self, force_calibre_style):
-        fi = gprefs['font']
-        if fi is not None:
-            font = QFont(*(fi[:4]))
-            s = gprefs.get('font_stretch', None)
-            if s is not None:
-                font.setStretch(s)
-            QApplication.setFont(font)
-
         depth_ok = True
         if iswindows:
             # There are some people that still run 16 bit winxp installs. The
