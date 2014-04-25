@@ -255,7 +255,10 @@ class Dictionaries(object):
             ud.words.add((word, locale.langcode))
         if len(ud.words) > wl:
             self.save_user_dictionaries()
-            self.word_cache.pop((word, locale), None)
+            try:
+                self.word_cache.pop((word, locale), None)
+            except TypeError:
+                pass  # word is a set, ignore
             return True
         return False
 
