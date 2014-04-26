@@ -2,7 +2,7 @@ import re
 from calibre import strftime
 
 __license__   = 'GPL v3'
-__copyright__ = '2012, Bernd Leinfelder <skoll1975 at gmail.com> '
+__copyright__ = '2012-14, Bernd Leinfelder <skoll1975 at gmail.com> '
 
 '''
 webpaper.nzz.ch
@@ -35,7 +35,7 @@ class Nzz(BasicNewsRecipe):
                             ,'publisher' : publisher
                          }
 
-    remove_tags = [dict(name='footer') , dict({'class' : 'fullarticle__related'})]
+    remove_tags = [dict(name='footer') , dict({'class' : ['sharebox' , 'fullarticle__related']})]
 
     remove_tags_before = dict(name='article')
     remove_tags_after= dict(name='footer')
@@ -47,6 +47,7 @@ class Nzz(BasicNewsRecipe):
         # print soup.prettify()
 
         articles = {}
+        key = None
         sections = []
         ans = []
         issue = soup.find("link",rel="prefetch")
@@ -61,7 +62,7 @@ class Nzz(BasicNewsRecipe):
         for art in articlesoup:
             # print art.prettify()
             section=art['data-department']
-            print "section is "+section
+            # print "section is "+section
 
             if section != lastsection:
                 sections.append(section)
@@ -71,14 +72,14 @@ class Nzz(BasicNewsRecipe):
             caption = art.find("h2")
 
             self.temp_files.append(PersistentTemporaryFile('_fa.html'))
-            self.temp_files[-1].write(art.prettify())
+            self.temp_files[-1].write("<html><head/><body>"+art.prettify()+"</body></html>")
             self.temp_files[-1].close()
             filename = self.temp_files[-1].name
 
             articles[section].append(
                            dict(title=caption.string,url='file://'+filename, date=pubdate, description='', content=''))
 
-        ans = [(key, articles[key]) for key in sections if key in articles]
+        ans = [(key, articles[key]) for key in sections if articles.has_key(key)]
 
         # pprint.pprint(ans)
 
