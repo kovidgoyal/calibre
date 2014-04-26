@@ -882,8 +882,6 @@ class Application(QApplication):
             args = [override_program_name] + args[1:]
         qargs = [i.encode('utf-8') if isinstance(i, unicode) else i for i in args]
         self.pi = plugins['progress_indicator'][0]
-        if DEBUG:
-            self.redirect_notify = True
         self.setup_styles(force_calibre_style)
         QApplication.__init__(self, qargs)
         f = QFont(QApplication.font())
@@ -913,15 +911,6 @@ class Application(QApplication):
         qt_app = self
         self._file_open_paths = []
         self._file_open_lock = RLock()
-    if DEBUG:
-        def notify(self, receiver, event):
-            if self.redirect_notify:
-                self.redirect_notify = False
-                return self.pi.do_notify(receiver, event)
-            else:
-                ret = QApplication.notify(self, receiver, event)
-                self.redirect_notify = True
-                return ret
 
     def load_builtin_fonts(self, scan_for_fonts=False):
         if scan_for_fonts:

@@ -219,18 +219,6 @@ int load_style(QHash<int,QString> icon_map) {
     return 0;
 }
 
-bool do_notify(QObject *receiver, QEvent *event) {
-    try {
-        return QApplication::instance()->notify(receiver, event);
-    } catch (std::exception& e) {
-        qCritical() << "C++ exception thrown in slot: " << e.what();
-    } catch (...) {
-        qCritical() << "Unknown C++ exception thrown in slot";
-    }
-    qCritical() << "Receiver name:" << receiver->objectName() << "Receiver class:" << receiver->metaObject()->className() << "Event type: " << event->type();
-    return false;
-}
-
 class NoActivateStyle: public QProxyStyle { 
  	public: 
         int styleHint(StyleHint hint, const QStyleOption *option = 0, const QWidget *widget = 0, QStyleHintReturn *returnData = 0) const { 
