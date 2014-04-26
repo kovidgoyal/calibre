@@ -163,6 +163,7 @@ class BooksView(QTableView):  # {{{
 
     def __init__(self, parent, modelcls=BooksModel, use_edit_metadata_dialog=True):
         QTableView.__init__(self, parent)
+        self.default_row_height = self.verticalHeader().defaultSectionSize()
         self.gui = parent
         self.setProperty('highlight_current_item', 150)
         self.row_sizing_done = False
@@ -658,9 +659,8 @@ class BooksView(QTableView):  # {{{
     def do_row_sizing(self):
         # Resize all rows to have the correct height
         if not self.row_sizing_done and self.model().rowCount(QModelIndex()) > 0:
-            self.resizeRowToContents(0)
-            self.verticalHeader().setDefaultSectionSize(self.rowHeight(0) +
-                                            gprefs['extra_row_spacing'])
+            vh = self.verticalHeader()
+            vh.setDefaultSectionSize(max(vh.minimumSectionSize(), self.default_row_height + gprefs['book_list_extra_row_spacing']))
             self._model.set_row_height(self.rowHeight(0))
             self.row_sizing_done = True
 

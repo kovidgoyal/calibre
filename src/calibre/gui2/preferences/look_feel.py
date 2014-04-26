@@ -157,6 +157,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         r('emblem_size', gprefs)
         r('emblem_position', gprefs, choices=[
             (_('Left'), 'left'), (_('Top'), 'top'), (_('Right'), 'right'), (_('Bottom'), 'bottom')])
+        r('book_list_extra_row_spacing', gprefs)
 
         def get_esc_lang(l):
             if l == 'en':
