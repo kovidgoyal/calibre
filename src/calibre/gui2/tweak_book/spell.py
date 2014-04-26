@@ -16,7 +16,8 @@ from PyQt5.Qt import (
     QStackedLayout, QLabel, QVBoxLayout, QWidget, QPushButton, QIcon, QMenu,
     QDialogButtonBox, QLineEdit, QDialog, QToolButton, QFormLayout, QHBoxLayout,
     pyqtSignal, QAbstractTableModel, QModelIndex, QTimer, QTableView, QCheckBox,
-    QComboBox, QListWidget, QListWidgetItem, QInputDialog, QPlainTextEdit, QKeySequence)
+    QComboBox, QListWidget, QListWidgetItem, QInputDialog, QPlainTextEdit, QKeySequence,
+    QT_VERSION_STR)
 
 from calibre.constants import __appname__, plugins
 from calibre.ebooks.oeb.polish.spell import replace_word, get_all_words, merge_locations, get_checkable_file_names
@@ -879,6 +880,7 @@ class SpellCheck(Dialog):
         self.setAttribute(Qt.WA_DeleteOnClose, False)
 
     def setup_ui(self):
+        self.state_name = 'spell-check-table-state-' + QT_VERSION_STR.partition('.')[0]
         set_no_activate_on_click = plugins['progress_indicator'][0].set_no_activate_on_click
         self.setWindowIcon(QIcon(I('spell-check.png')))
         self.l = l = QVBoxLayout(self)
@@ -925,7 +927,7 @@ class SpellCheck(Dialog):
         w.activated.connect(self.word_activated)
         w.change_to.connect(self.change_to)
         w.currentChanged = self.current_word_changed
-        state = tprefs.get('spell-check-table-state', None)
+        state = tprefs.get(self.state_name, None)
         hh = self.words_view.horizontalHeader()
         h.addWidget(w)
         self.words_model = m = WordsModel(self)
@@ -1230,11 +1232,11 @@ class SpellCheck(Dialog):
         QTimer.singleShot(0, self.refresh)
 
     def accept(self):
-        tprefs['spell-check-table-state'] = bytearray(self.words_view.horizontalHeader().saveState())
+        tprefs[self.state_name] = bytearray(self.words_view.horizontalHeader().saveState())
         Dialog.accept(self)
 
     def reject(self):
-        tprefs['spell-check-table-state'] = bytearray(self.words_view.horizontalHeader().saveState())
+        tprefs[self.state_name] = bytearray(self.words_view.horizontalHeader().saveState())
         Dialog.reject(self)
 
     @classmethod
