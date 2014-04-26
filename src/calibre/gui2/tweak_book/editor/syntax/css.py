@@ -73,7 +73,7 @@ content_tokens = [(re.compile(k), v, n) for k, v, n in [
     r'relative|repeat-x|repeat-y|repeat|rgb|ridge|right-side|'
     r'rightwards|s-resize|sans-serif|scroll|se-resize|'
     r'semi-condensed|semi-expanded|separate|serif|show|silent|'
-    r'slow|slower|small-caps|small-caption|smaller|soft|solid|'
+    r'slow|slower|small-caps|small-caption|smaller|small|soft|solid|'
     r'spell-out|square|static|status-bar|super|sub|sw-resize|'
     r'table-caption|table-cell|table-column|table-column-group|'
     r'table-footer-group|table-header-group|'
