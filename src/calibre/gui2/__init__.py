@@ -8,7 +8,7 @@ from PyQt5.Qt import (
     QFileInfo, QObject, QBuffer, Qt, QStyle, QByteArray, QTranslator,
     QCoreApplication, QThread, QEvent, QTimer, pyqtSignal, QDateTime,
     QDesktopServices, QFileDialog, QFileIconProvider, QSettings, QIcon,
-    QApplication, QDialog, QUrl, QFont, QFontDatabase, QLocale)
+    QApplication, QDialog, QUrl, QFont, QFontDatabase, QLocale, QFontInfo)
 
 ORG_NAME = 'KovidsBrain'
 APP_UID  = 'libprs500'
@@ -886,7 +886,12 @@ class Application(QApplication):
             self.redirect_notify = True
         self.setup_styles(force_calibre_style)
         QApplication.__init__(self, qargs)
-        self.original_font = QFont(QApplication.font())
+        f = QFont(QApplication.font())
+        if (f.family(), f.pointSize()) == ('Sans Serif', 9):  # Hard coded Qt settings, no user preference detected
+            f.setPointSize(10)
+            QApplication.setFont(f)
+        f = QFontInfo(f)
+        self.original_font = (f.family(), f.pointSize(), f.weight(), f.italic(), 100)
         if not self.using_calibre_style and self.style().objectName() == 'fusion':
             # Since Qt is using the fusion style anyway, specialize it
             self.load_calibre_style()

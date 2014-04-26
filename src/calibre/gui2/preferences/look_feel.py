@@ -405,12 +405,9 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.changed_signal.emit()
 
     def build_font_obj(self):
-        font_info = self.current_font
-        if font_info is not None:
-            font = QFont(*(font_info[:4]))
-            font.setStretch(font_info[4])
-        else:
-            font = qt_app.original_font
+        font_info = qt_app.original_font if self.current_font is None else self.current_font
+        font = QFont(*(font_info[:4]))
+        font.setStretch(font_info[4])
         return font
 
     def update_font_display(self):
