@@ -248,6 +248,7 @@ def parse_html(data, log=None, decoder=None, preprocessor=None,
     # Remove DOCTYPE declaration as it messes up parsing
     # In particular, it causes tostring to insert xmlns
     # declarations, which messes up the coercing logic
+    pre = ''
     idx = data.find('<html')
     if idx == -1:
         idx = data.find('<HTML')
