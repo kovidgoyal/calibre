@@ -25,7 +25,8 @@ py_lib_dir = os.path.join(sys.prefix, 'lib')
 
 class Extension(object):
 
-    def absolutize(self, paths):
+    @classmethod
+    def absolutize(cls, paths):
         return list(set([x if os.path.isabs(x) else os.path.join(SRC, x.replace('/',
             os.sep)) for x in paths]))
 
@@ -391,7 +392,7 @@ class Build(Command):
         ''')
 
     def add_options(self, parser):
-        choices = [e.name for e in extensions]+['all', 'style']
+        choices = [e.name for e in extensions]+['all', 'headless']
         parser.add_option('-1', '--only', choices=choices, default='all',
                 help=('Build only the named extension. Available: '+
                     ', '.join(choices)+'. Default:%default'))
@@ -419,10 +420,12 @@ class Build(Command):
                 os.makedirs(self.d(dest))
             self.info('\n####### Building extension', ext.name, '#'*7)
             self.build(ext, dest)
+        if opts.only in {'all', 'headless'}:
+            self.build_headless()
 
     def dest(self, ext):
         ex = '.pyd' if iswindows else '.so'
-        return os.path.join(SRC, 'calibre', 'plugins', ext.name)+ex
+        return os.path.join(SRC, 'calibre', 'plugins', getattr(ext, 'name', ext))+ex
 
     def inc_dirs_to_cflags(self, dirs):
         return ['-I'+x for x in dirs]
@@ -499,6 +502,46 @@ class Build(Command):
             cmdline = ' '.join(['"%s"' % (arg) if ' ' in arg else arg for arg in args[0]])
             print "Error while executing: %s\n" % (cmdline)
             raise
+
+    def build_headless(self):
+        if iswindows or isosx:
+            return  # Dont have headless operation on these platforms
+        self.info('\n####### Building headless QPA plugin', '#'*7)
+        a = Extension.absolutize
+        headers = a(['calibre/headless/headless_backingstore.h', 'calibre/headless/headless_integration.h'])
+        sources = a(['calibre/headless/main.cpp', 'calibre/headless/headless_backingstore.cpp', 'calibre/headless/headless_integration.cpp'])
+        others = a(['calibre/headless/headless.json'])
+        target = self.dest('headless')
+        if not self.newer(target, headers + sources + others):
+            return
+        pro = textwrap.dedent(
+        '''\
+            TARGET = headless
+            PLUGIN_TYPE = platforms
+            PLUGIN_CLASS_NAME = HeadlessIntegrationPlugin
+            load(qt_plugin)
+            QT += core-private gui-private platformsupport-private
+            HEADERS = {headers}
+            SOURCES = {sources}
+            OTHER_FILES = {others}
+            DESTDIR = {destdir}
+            CONFIG -= create_cmake  # Prevent qmake from generating a cmake build file which it puts in the calibre src directory
+            ''').format(
+                headers=' '.join(headers), sources=' '.join(sources), others=' '.join(others), destdir=self.d(target))
+        bdir = self.j(self.d(self.SRC), 'build', 'headless')
+        if not os.path.exists(bdir):
+            os.makedirs(bdir)
+        pf = self.j(bdir, 'headless.pro')
+        open(self.j(bdir, '.qmake.conf'), 'wb').close()
+        with open(pf, 'wb') as f:
+            f.write(pro.encode('utf-8'))
+        cwd = os.getcwd()
+        os.chdir(bdir)
+        try:
+            self.check_call([QMAKE] + [self.b(pf)])
+            self.check_call([make] + ['-j%d'%(cpu_count() or 1)])
+        finally:
+            os.chdir(cwd)
 
     def build_sip_files(self, ext, src_dir):
         sip_files = ext.sip_files

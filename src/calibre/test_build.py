@@ -12,7 +12,7 @@ __docformat__ = 'restructuredtext en'
 Test a binary calibre build to ensure that all needed binary images/libraries have loaded.
 '''
 
-import cStringIO
+import cStringIO, os
 from calibre.constants import plugins, iswindows, islinux
 
 def test_dbus():
@@ -76,17 +76,23 @@ def test_apsw():
     print ('apsw OK!')
 
 def test_qt():
-    from PyQt5.Qt import (QDialog, QImageReader, QNetworkAccessManager)
+    from calibre.gui2 import Application
+    from PyQt5.Qt import (QImageReader, QNetworkAccessManager)
     from PyQt5.QtWebKitWidgets import QWebView
+    os.environ.pop('DISPLAY', None)
+    app = Application([], headless=islinux)
     fmts = set(map(unicode, QImageReader.supportedImageFormats()))
     testf = set(['jpg', 'png', 'mng', 'svg', 'ico', 'gif'])
     if testf.intersection(fmts) != testf:
         raise RuntimeError(
             "Qt doesn't seem to be able to load its image plugins")
-    QWebView, QDialog
+    QWebView()
+    del QWebView
     na = QNetworkAccessManager()
     if not hasattr(na, 'sslErrors'):
         raise RuntimeError('Qt not compiled with openssl')
+    del na
+    del app
     print ('Qt OK!')
 
 def test_imaging():

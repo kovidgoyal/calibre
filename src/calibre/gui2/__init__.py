@@ -875,11 +875,14 @@ def detach_gui():
 
 class Application(QApplication):
 
-    def __init__(self, args, force_calibre_style=False,
-            override_program_name=None):
+    def __init__(self, args, force_calibre_style=False, override_program_name=None, headless=False):
         self.file_event_hook = None
         if override_program_name:
             args = [override_program_name] + args[1:]
+        if headless:
+            if not args:
+                args = sys.argv[:1]
+            args.extend(['-platformpluginpath', sys.extensions_location, '-platform', 'headless'])
         qargs = [i.encode('utf-8') if isinstance(i, unicode) else i for i in args]
         self.pi = plugins['progress_indicator'][0]
         self.setup_styles(force_calibre_style)
