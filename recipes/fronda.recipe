@@ -62,34 +62,25 @@ class Fronda(BasicNewsRecipe):
             except:
                 continue
             articles[genName] = []
-            for item in soup.findAll('li'):
-                article_h = item.find('h2')
-                if not article_h:
-                    continue
-                article_date = self.tag_to_string(item.find('b'))
-                if self.date_cut(article_date):
-                    continue
-                article_a = article_h.find('a')
+            for item in soup.findAll('article',attrs={'class':'article article-wide'}):
+                article_a = item.find('a')
                 article_url = 'http://www.fronda.pl' + article_a['href']
                 article_title = self.tag_to_string(article_a)
-                articles[genName].append( { 'title' : article_title, 'url' : article_url, 'date' : article_date })
+                articles[genName].append( { 'title' : article_title, 'url' : article_url })
             if articles[genName]:
                 feeds.append((genName, articles[genName]))
         return feeds
 
     keep_only_tags = [
-        dict(name='div', attrs={'class':'yui-g'})
+        dict(name='div', attrs={'class':'content content-70 phone-100'})
         ]
 
     remove_tags = [
-        dict(name='div', attrs={'class':['related-articles','button right','pagination','related-articles content']}),
-        dict(name='h3', attrs={'class':'block-header article comments'}),
-        dict(name='ul', attrs={'class':['comment-list','category','tag-list']}),
-        dict(name='p', attrs={'id':'comments-disclaimer'}),
-        dict(name='div', attrs={'style':'text-align: left; margin-bottom: 15px;'}),
-        dict(name='div', attrs={'style':'text-align: left; margin-top: 15px; margin-bottom: 30px;'}),
-        dict(name='div', attrs={'id':'comment-form'}),
-        dict(name='span', attrs={'class':'separator'})
+        dict(name='div', attrs={'class':['clearfix','last-articles clearfix','comments clearfix','related-articles','social-buttons clearfix']}),
+        dict(name='span', attrs={'class':'small-info'}),
+        dict(name='ul', attrs={'class':'nav nav-tags clearfix'}),
+        dict(name='h3', attrs={'class':'section-header'}),
+        dict(name='article', attrs={'class':['slided-article hidden-phone', 'article article-wide hidden-phone']})
         ]
 
     preprocess_regexps = [
