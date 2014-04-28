@@ -68,6 +68,18 @@ def import_from_libreoffice_source_tree(source_path):
     if want_locales:
         raise Exception('Failed to find dictionaries for some wanted locales: %s' % want_locales)
 
+def fill_country_code(x):
+    return {'lt':'lt_LT'}.get(x, x)
+
+def uniq(vals, kmap=lambda x:x):
+    ''' Remove all duplicates from vals, while preserving order. kmap must be a
+    callable that returns a hashable value for every item in vals '''
+    vals = vals or ()
+    lvals = (kmap(x) for x in vals)
+    seen = set()
+    seen_add = seen.add
+    return tuple(x for x, k in zip(vals, lvals) if k not in seen and not seen_add(k))
+
 def import_from_oxt(source_path, name, dest_dir=None, prefix='dic-'):
     from calibre.spell.dictionary import parse_lang_code
     dest_dir = dest_dir or os.path.join(config_dir, 'dictionaries')
@@ -81,10 +93,10 @@ def import_from_oxt(source_path, name, dest_dir=None, prefix='dic-'):
         for (dic, aff), locales in parse_xcu(zf.open(xcu).read(), origin='').iteritems():
             dic, aff = dic.lstrip('/'), aff.lstrip('/')
             d = tempfile.mkdtemp(prefix=prefix, dir=dest_dir)
-            locales = [x for x in locales if parse_lang_code(x).countrycode]
+            locales = uniq([x for x in map(fill_country_code, locales) if parse_lang_code(x).countrycode])
             if not locales:
                 continue
-            metadata = [name] + locales
+            metadata = [name] + list(locales)
             with open(os.path.join(d, 'locales'), 'wb') as f:
                 f.write(('\n'.join(metadata)).encode('utf-8'))
             with open(os.path.join(d, '%s.dic' % locales[0]), 'wb') as f:
