@@ -830,6 +830,7 @@ class Boss(QObject):
         if self.doing_terminal_save:
             prints(tb, file=sys.stderr)
             return
+        self.gui.action_save.setEnabled(True)
         error_dialog(self.gui, _('Could not save'),
                      _('Saving of the book failed. Click "Show Details"'
                        ' for more information. You can try to save a copy'
