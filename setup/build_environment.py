@@ -43,14 +43,12 @@ if iswindows:
     ICU = os.environ.get('ICU_DIR', r'Q:\icu')
 
 QMAKE = '/Volumes/sw/qt/bin/qmake' if isosx else 'qmake'
-if find_executable('qmake-qt4'):
-    QMAKE = find_executable('qmake-qt4')
-elif find_executable('qmake'):
-    QMAKE = find_executable('qmake')
+for x in ('qmake-qt5', 'qt5-qmake', 'qmake'):
+    q = find_executable(x)
+    if q:
+        QMAKE = q
+        break
 QMAKE = os.environ.get('QMAKE', QMAKE)
-
-# QT5XX: Change this to real qmake detection
-QMAKE = '/opt/qt5/bin/qmake'
 
 PKGCONFIG = find_executable('pkg-config')
 PKGCONFIG = os.environ.get('PKG_CONFIG', PKGCONFIG)
@@ -58,9 +56,10 @@ PKGCONFIG = os.environ.get('PKG_CONFIG', PKGCONFIG)
 def run_pkgconfig(name, envvar, default, flag, prefix):
     ans = []
     if envvar:
-        ans = os.environ.get(envvar, default)
-        ans = [x.strip() for x in ans.split(os.pathsep)]
-        ans = [x for x in ans if x and (prefix=='-l' or os.path.exists(x))]
+        ev = os.environ.get(envvar, None)
+        if ev:
+            ans = [x.strip() for x in ev.split(os.pathsep)]
+            ans = [x for x in ans if x and (prefix=='-l' or os.path.exists(x))]
     if not ans:
         try:
             raw = subprocess.Popen([PKGCONFIG, flag, name],
@@ -70,7 +69,7 @@ def run_pkgconfig(name, envvar, default, flag, prefix):
         except:
             print 'Failed to run pkg-config:', PKGCONFIG, 'for:', name
 
-    return ans
+    return ans or ([default] if default else [])
 
 def pkgconfig_include_dirs(name, envvar, default):
     return run_pkgconfig(name, envvar, default, '--cflags-only-I', '-I')
@@ -90,6 +89,7 @@ qraw = subprocess.check_output([QMAKE, '-query']).decode('utf-8')
 def readvar(name):
     return re.search('%s:(.+)$' % name, qraw, flags=re.M).group(1).strip()
 
+
 pyqt = {x:readvar(y) for x, y in (
     ('inc', 'QT_INSTALL_HEADERS'), ('lib', 'QT_INSTALL_LIBS')
 )}
@@ -97,9 +97,16 @@ c = sipconfig.Configuration()
 pyqt['sip_bin'] = c.sip_bin
 from PyQt5.QtCore import PYQT_CONFIGURATION
 pyqt['sip_flags'] = PYQT_CONFIGURATION['sip_flags']
-pyqt['default_sip_dir'] = c.default_sip_dir
+def get_sip_dir(q):
+    for x in ('', 'PyQt5', 'sip/PyQt5'):
+        base = os.path.join(q, x)
+        if os.path.exists(os.path.join(base, 'QtWidgets')):
+            return base
+    return q
+pyqt['pyqt_sip_dir'] = get_sip_dir(c.default_sip_dir)
 pyqt['sip_inc_dir'] = c.sip_inc_dir
 
+glib_flags = subprocess.check_output([PKGCONFIG, '--libs', 'glib-2.0']) if islinux else ''
 qt_inc = pyqt['inc']
 qt_lib = pyqt['lib']
 ft_lib_dirs = []
