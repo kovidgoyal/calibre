@@ -123,7 +123,9 @@ Changing text file order
 
 You can re-arrange the order in which text (HTML) files are opened when reading
 the book by simply dragging and dropping them in the Files browser. For the
-technically inclined, this is called re-ordering the book spine.
+technically inclined, this is called re-ordering the book spine. Note that you
+have to drop the items *between* other items, not on top of them, this can be a
+little fiddly until you get used to it.
 
 Marking the cover
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
