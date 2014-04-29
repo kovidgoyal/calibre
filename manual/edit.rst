@@ -78,7 +78,7 @@ sum of the individual file sizes.
 Many files have special meaning, in the book. These will typically have
 an icon next to their names, indicating the special meaning. For example, in
 the picture to the left, you can see that the files :guilabel:`cover_image.jpg`
-and :guilabel:`titlepage.xhtml` have the ocon of a cover next to them, this
+and :guilabel:`titlepage.xhtml` have the icon of a cover next to them, this
 indicates they are the book cover image and titlepage. Similarly, the
 :guilabel:`content.opf` file has a metadata icon next to it, indicating the
 book metadata is present in it and the the :guilabel:`toc.ncx` file has a T
