@@ -234,7 +234,7 @@ def css(state, text, i, formats):
     if m is not None:
         state.sub_parser_state = 0
         state.parse = IN_CLOSING_TAG
-        add_tag_data(state, TagStart(m.start(), 'style', '', True, True))
+        add_tag_data(state, TagStart(m.start(), '', 'style', True, True))
         ans.extend([(2, formats['end_tag']), (len(m.group()) - 2, formats['tag_name'])])
     return ans
 
@@ -248,7 +248,7 @@ def cdata(state, text, i, formats):
         return [(len(text) - i, fmt)]
     state.parse = IN_CLOSING_TAG
     num = m.start() - i
-    add_tag_data(state, TagStart(m.start(), name, '', True, True))
+    add_tag_data(state, TagStart(m.start(), '', name, True, True))
     return [(num, fmt), (2, formats['end_tag']), (len(m.group()) - 2, formats['tag_name'])]
 
 def mark_nbsp(state, text, nbsp_format):
@@ -288,18 +288,23 @@ def normal(state, text, i, formats):
         if m is None:
             return [(1, formats['<'])]
 
-        name = m.group()
-        closing = name.startswith('/')
-        state.parse = IN_CLOSING_TAG if closing else IN_OPENING_TAG
-        ans = [(2 if closing else 1, formats['end_tag' if closing else 'tag'])]
+        tname = m.group()
+        closing = tname.startswith('/')
         if closing:
-            name = name[1:]
-        prefix, name = name.partition(':')[0::2]
-        if prefix and name:
+            tname = tname[1:]
+        if ':' in tname:
+            prefix, name = tname.split(':', 1)
+        else:
+            prefix, name = '', tname
+        if prefix and not name:
+            return [(len(m.group()) + 1, formats['only-prefix'])]
+        ans = [(2 if closing else 1, formats['end_tag' if closing else 'tag'])]
+        if prefix:
             ans.append((len(prefix)+1, formats['nsprefix']))
-        ans.append((len(name or prefix), formats['tag_name']))
+        ans.append((len(name), formats['tag_name']))
+        state.parse = IN_CLOSING_TAG if closing else IN_OPENING_TAG
         add_tag_data(state, TagStart(i, prefix, name, closing, True))
-        (state.close_tag if closing else state.open_tag)(name or prefix)
+        (state.close_tag if closing else state.open_tag)(name)
         return ans
 
     if ch == '&':
@@ -445,13 +450,14 @@ def create_formats(highlighter):
         'nbsp': t['SpecialCharacter'],
     }
     for name, msg in {
-        '<': _('An unescaped < is not allowed. Replace it with &lt;'),
-        '&': _('An unescaped ampersand is not allowed. Replace it with &amp;'),
-        '>': _('An unescaped > is not allowed. Replace it with &gt;'),
-        '/': _('/ not allowed except at the end of the tag'),
-        '?': _('Unknown character'),
-        'bad-closing': _('A closing tag must contain only the tag name and nothing else'),
-        'no-attr-value': _('Expecting an attribute value'),
+            '<': _('An unescaped < is not allowed. Replace it with &lt;'),
+            '&': _('An unescaped ampersand is not allowed. Replace it with &amp;'),
+            '>': _('An unescaped > is not allowed. Replace it with &gt;'),
+            '/': _('/ not allowed except at the end of the tag'),
+            '?': _('Unknown character'),
+            'bad-closing': _('A closing tag must contain only the tag name and nothing else'),
+            'no-attr-value': _('Expecting an attribute value'),
+            'only-prefix': _('A tag name cannot end with a colon'),
     }.iteritems():
         f = formats[name] = SyntaxTextCharFormat(formats['error'])
         f.setToolTip(msg)
@@ -507,7 +513,7 @@ if __name__ == '__main__':
         </style>
         <style type="text/css">p.small { font-size: x-small; color:gray }</style>
     </head id="invalid attribute on closing tag">
-    <body>
+    <body><p:
         <!-- The start of the actual body text -->
         <h1>A heading that should appear in bold, with an <i>italic</i> word</h1>
         <p>Some text with inline formatting, that is syntax highlighted. A <b>bold</b> word, and an <em>italic</em> word. \
