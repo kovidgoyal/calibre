@@ -1,31 +1,38 @@
+import re
+
 from calibre.web.feeds.news import BasicNewsRecipe
 
 class AdvancedUserRecipe1359406781(BasicNewsRecipe):
     title          = u'Private Eye'
-    oldest_article = 15
+    publication_type = 'magazine'
+    description = u'Private Eye is a fortnightly British satirical and current affairs magazine, edited by Ian Hislop'
+    oldest_article = 13
     max_articles_per_feed = 100
     remove_empty_feeds = True
     remove_javascript     = True
     no_stylesheets = True
     ignore_duplicate_articles = {'title'}
     language = 'en_GB'
-    __author__ = 'Martyn Pritchard'
-    encoding     =  'iso-8859-1'
-    compress_news_images = True
-    compress_news_images_auto_size = 8
-    scale_news_images_to_device = False
-    scale_news_images = (220, 300)
+    encoding   =  'iso-8859-1'
+    __author__ = u'MartynPritchard@yahoo.com'
+    __copyright__ = '2014, Martyn Pritchard <MartynPritchard@yahoo.com>'
 
     def get_cover_url(self):
-            soup = self.index_to_soup('http://www.private-eye.co.uk')
-            cov = soup.find(attrs={'width' : '180', 'border' : '0'})
-            cover_url = 'http://www.private-eye.co.uk/'+cov['src']
-            return cover_url
+        cover_url = None
+        soup = self.index_to_soup('http://www.private-eye.co.uk/current_issue.php')
+        for citem in soup.findAll('img'):
+            if citem['src'].endswith('big.jpg'):
+                return 'http://www.private-eye.co.uk/' + citem['src']
+        return cover_url
 
-    keep_only_tags = [dict(name='table', attrs={'width':['100%'], 'border':['0'], 'align': ['center'], 'cellspacing':['0'], 'cellpadding':['0']}),
-                      dict(name='table', attrs={'width':['480'], 'cellspacing':['0'], 'cellpadding':['0']}),
-                      dict(name='table', attrs={'width':['490'], 'border':['0'], 'align': ['left'], 'cellspacing':['0'], 'cellpadding':['1']}),
-                      dict(name='table', attrs={'width':['500'], 'cellspacing':['0'], 'cellpadding':['0']}),
-                     ]
+    remove_tags_before = {'class':"sub_dave"}
+    remove_tags = [dict(name='td', attrs={'class':'sub_dave'})]
+
+    preprocess_regexps = [
+                   (re.compile(r'../grfx', re.DOTALL|re.IGNORECASE), lambda match: 'http://www.private-eye.co.uk/grfx'),
+                   (re.compile(r'More From This Issue.*</body>', re.DOTALL|re.IGNORECASE), lambda match: '</body>'),
+                   (re.compile(r'More top stories in the latest issue:.*</body>', re.DOTALL|re.IGNORECASE), lambda match: '</body>'),
+                   (re.compile(r'Also Available Online.*</body>', re.DOTALL|re.IGNORECASE), lambda match: '</body>'),
+                         ]
 
     feeds          = [(u'Private Eye', u'http://www.private-eye.co.uk/rss/rss.php')]
