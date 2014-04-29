@@ -419,7 +419,7 @@ def merge_css(container, names, master):
 
         # Remove charset rules
         cr = [r for r in sheet.cssRules if r.type == r.CHARSET_RULE]
-        [sheet.remove(r) for r in cr]
+        [sheet.deleteRule(sheet.cssRules.index(r)) for r in cr]
         for rule in sheet.cssRules:
             msheet.add(rule)
 
