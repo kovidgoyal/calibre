@@ -41,7 +41,6 @@ class SyntaxHighlighter(QSyntaxHighlighter):
         return SimpleState(max(0, num))
 
     def rehighlight(self):
-        self.outlineexplorer_data = {}
         QApplication.setOverrideCursor(QCursor(Qt.WaitCursor))
         QSyntaxHighlighter.rehighlight(self)
         QApplication.restoreOverrideCursor()
