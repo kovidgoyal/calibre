@@ -3,15 +3,16 @@
 # Based on veezh's original recipe, Kovid Goyal's New York Times recipe and Snaabs nrc Handelsblad recipe
 
 __license__   = 'GPL v3'
-__copyright__ = '2013, Niels Giesen'
+__copyright__ = '2014, Niels Giesen'
 
 '''
 www.nrc.nl
 '''
 import os, zipfile
-import time
+from io import BytesIO
+
 from calibre.web.feeds.news import BasicNewsRecipe
-from calibre.ptempfile import PersistentTemporaryFile
+from datetime import date, timedelta
 
 
 class NRCNext(BasicNewsRecipe):
@@ -19,8 +20,8 @@ class NRCNext(BasicNewsRecipe):
     title = u'nrc•next'
     description = u'De ePaper-versie van nrc•next'
     language = 'nl'
-    lang = 'nl-NL'
     needs_subscription = True
+    requires_version = (1, 24, 0)
 
     __author__ = 'Niels Giesen'
 
@@ -28,48 +29,33 @@ class NRCNext(BasicNewsRecipe):
         'no_default_epub_cover' : True
     }
 
-    def get_browser(self):
-        br = BasicNewsRecipe.get_browser(self)
-        if self.username is not None and self.password is not None:
-            br.open('http://login.nrc.nl/login')
-            br.select_form(nr=0)
-            br['username'] = self.username
-            br['password'] = self.password
-            br.submit()
-        return br
-
     def build_index(self):
+        from calibre.web.jsbrowser.browser import Browser, ElementNotFound
+        br = Browser()
+        br.visit('http://login.nrc.nl/login', timeout=60)
+        f = br.select_form('#command')
+        f['username'] = self.username
+        f['password'] = self.password
+        br.submit()
+        raw = br.html
+        if '>log out<' not in raw:
+            raise ValueError('Failed to login, check username and password')
+        epubraw = None
+        for today in (date.today(), date.today() - timedelta(days=1),):
+            url = 'http://digitaleeditie.nrc.nl/digitaleeditie/NN/%s/3/%s___/downloads.html' % (today.strftime('%Y'), today.strftime('%Y%m%d'))
+            self.log('Trying to download epub from:', url)
+            br.start_load(url, timeout=60)
+            try:
+                epubraw = br.download_file('#CompleteDownloads .download-list .download-button')
+                break
+            except ElementNotFound:
+                self.log('%r not available yet' % url)
+                continue
 
-        today = time.strftime("%Y%m%d")
-
-        domain = "http://digitaleeditie.nrc.nl"
-
-        url = domain + "/digitaleeditie/helekrant/epub/nn_" + today + ".epub"
-        #print url
-
-        try:
-            br = self.get_browser()
-            f = br.open(url)
-        except:
-            self.report_progress(0,_('Kan niet inloggen om editie te downloaden'))
+        if epubraw is None:
             raise ValueError('Krant van vandaag nog niet beschikbaar')
 
-        tmp = PersistentTemporaryFile(suffix='.epub')
-        self.report_progress(0,_('downloading epub'))
-        tmp.write(f.read())
-        f.close()
-        br.close()
-        if zipfile.is_zipfile(tmp):
-            try:
-                zfile = zipfile.ZipFile(tmp.name, 'r')
-                zfile.extractall(self.output_dir)
-                self.report_progress(0,_('extracting epub'))
-            except zipfile.BadZipfile:
-                self.report_progress(0,_('BadZip error, continuing'))
-
-        tmp.close()
+        zfile = zipfile.ZipFile(BytesIO(epubraw), 'r')
+        zfile.extractall(self.output_dir)
         index = os.path.join(self.output_dir, 'metadata.opf')
-
-        self.report_progress(1,_('epub downloaded and extracted'))
-
         return index
