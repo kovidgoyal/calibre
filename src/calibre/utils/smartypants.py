@@ -859,8 +859,8 @@ def _tokenize(str):
 
     tokens = []
 
-    #depth = 6
-    #nested_tags = "|".join(['(?:<(?:[^<>]',] * depth) + (')*>)' * depth)
+    # depth = 6
+    # nested_tags = "|".join(['(?:<(?:[^<>]',] * depth) + (')*>)' * depth)
     # match = r"""(?: <! ( -- .*? -- \s* )+ > ) |  # comments
     # (?: <\? .*? \?> ) |  # directives
     # %s  # nested tags       """ % (nested_tags,)
