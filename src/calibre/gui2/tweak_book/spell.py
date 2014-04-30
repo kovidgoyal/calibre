@@ -16,7 +16,7 @@ from PyQt4.Qt import (
     QStackedLayout, QLabel, QVBoxLayout, QWidget, QPushButton, QIcon, QMenu,
     QDialogButtonBox, QLineEdit, QDialog, QToolButton, QFormLayout, QHBoxLayout,
     pyqtSignal, QAbstractTableModel, QModelIndex, QTimer, QTableView, QCheckBox,
-    QComboBox, QListWidget, QListWidgetItem, QInputDialog, QPlainTextEdit)
+    QComboBox, QListWidget, QListWidgetItem, QInputDialog, QPlainTextEdit, QKeySequence)
 
 from calibre.constants import __appname__, plugins
 from calibre.ebooks.oeb.polish.spell import replace_word, get_all_words, merge_locations
@@ -762,6 +762,10 @@ class WordsView(QTableView):
         self.verticalHeader().close()
 
     def keyPressEvent(self, ev):
+        if ev == QKeySequence.Copy:
+            self.copy_to_clipboard()
+            ev.accept()
+            return
         ret = QTableView.keyPressEvent(self, ev)
         if ev.key() in (Qt.Key_PageUp, Qt.Key_PageDown, Qt.Key_Up, Qt.Key_Down):
             idx = self.currentIndex()
