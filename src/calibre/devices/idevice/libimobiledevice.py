@@ -233,15 +233,37 @@ class libiMobileDevice():
         dst: file to be created on iOS filesystem
         '''
         self._log_location("src:{0} dst:{1}".format(repr(src), repr(dst)))
-        mode = 'rb'
-        with open(src, mode) as f:
-            content = bytearray(f.read())
+        BUFFER_SIZE = 10 * 1024 * 1024
 
-        mode = 'wb'
-        handle = self._afc_file_open(str(dst), mode=mode)
+        handle = self._afc_file_open(str(dst), mode='wb')
         if handle is not None:
-            success = self._afc_file_write(handle, content, mode=mode)
-            self._log(" success: {0}".format(success))
+            # Get the file size
+            file_stats = os.stat(src)
+            file_size = file_stats.st_size
+            self._log("file_size: {:,} bytes".format(file_size))
+            if file_size > BUFFER_SIZE:
+                bytes_remaining = file_size
+                with open(src, 'rb') as f:
+                    while bytes_remaining:
+                        if bytes_remaining > BUFFER_SIZE:
+                            self._log("copying {:,} byte chunk".format(BUFFER_SIZE))
+                            content = bytearray(f.read(BUFFER_SIZE))
+                            success = self._afc_file_write(handle, content, mode='wb')
+                            bytes_remaining -= BUFFER_SIZE
+                        else:
+                            self._log("copying final {:,} bytes".format(bytes_remaining))
+                            content = bytearray(f.read(bytes_remaining))
+                            success = self._afc_file_write(handle, content, mode='wb')
+                            bytes_remaining = 0
+                            self._log(" success: {0}".format(success))
+            else:
+                with open(src, 'rb') as f:
+                    content = bytearray(f.read())
+                handle = self._afc_file_open(str(dst), mode='wb')
+                if handle is not None:
+                    success = self._afc_file_write(handle, content, mode='wb')
+                    self._log(" success: {0}".format(success))
+
             self._afc_file_close(handle)
         else:
             self._log(" could not create copy")
