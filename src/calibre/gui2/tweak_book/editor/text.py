@@ -135,7 +135,7 @@ class TextEdit(PlainTextEdit):
         self.smarts = NullSmarts(self)
         self.current_cursor_line = None
         self.current_search_mark = None
-        self.highlighter = SyntaxHighlighter(self)
+        self.highlighter = SyntaxHighlighter()
         self.line_number_area = LineNumbers(self)
         self.apply_settings()
         self.setMouseTracking(True)
@@ -206,9 +206,9 @@ class TextEdit(PlainTextEdit):
 
     def load_text(self, text, syntax='html', process_template=False):
         self.syntax = syntax
-        self.highlighter = get_highlighter(syntax)(self)
+        self.highlighter = get_highlighter(syntax)()
         self.highlighter.apply_theme(self.theme)
-        self.highlighter.setDocument(self.document())
+        self.highlighter.set_document(self.document())
         sclass = {'html':HTMLSmarts, 'xml':HTMLSmarts}.get(syntax, None)
         if sclass is not None:
             self.smarts = sclass(self)
