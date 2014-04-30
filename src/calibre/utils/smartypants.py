@@ -696,6 +696,10 @@ def educateQuotes(str):
             """ % (close_class,), re.VERBOSE)
     str = closing_double_quotes_regex.sub(r"""\1&#8221;""", str)
 
+    if str.endswith('-"'):
+        # A string that endswith -" is sometimes used for dialogue
+        str = str[:-1] + '&#8221;'
+
     # Any remaining quotes should be opening ones.
     str = re.sub(r'"', r"""&#8220;""", str)
 
