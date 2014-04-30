@@ -794,8 +794,18 @@ class WordsView(QTableView):
         a.setMenu(am)
         for dic in sorted(dictionaries.active_user_dictionaries, key=lambda x:sort_key(x.name)):
             am.addAction(dic.name, partial(self.add_all.emit, dic.name))
+        m.addSeparator()
+        m.addAction(_('Copy selected words to clipboard'), self.copy_to_clipboard)
 
         m.exec_(ev.globalPos())
+
+    def copy_to_clipboard(self):
+        rows = {i.row() for i in self.selectedIndexes()}
+        words = {self.model().word_for_row(r) for r in rows}
+        words.discard(None)
+        words = sorted({w[0] for w in words}, key=sort_key)
+        if words:
+            QApplication.clipboard().setText('\n'.join(words))
 
 class SpellCheck(Dialog):
 
