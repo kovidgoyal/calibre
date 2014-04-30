@@ -586,6 +586,11 @@ class WordsModel(QAbstractTableModel):
             elif role == Qt.InitialSortOrderRole:
                 return Qt.DescendingOrder if section == 1 else Qt.AscendingOrder
 
+    def misspelled_text(self, w):
+        if self.spell_map[w]:
+            return _('Ignored') if dictionaries.is_word_ignored(*w) else ''
+        return '✓'
+
     def data(self, index, role=Qt.DisplayRole):
         try:
             word, locale = self.items[index.row()]
@@ -604,7 +609,7 @@ class WordsModel(QAbstractTableModel):
                     pl = '%s (%s)' % (pl, countrycode)
                 return pl
             if col == 3:
-                return '' if self.spell_map[(word, locale)] else '✓'
+                return self.misspelled_text((word, locale))
         if role == Qt.TextAlignmentRole:
             return Qt.AlignVCenter | (Qt.AlignLeft if index.column() == 0 else Qt.AlignHCenter)
 
@@ -635,7 +640,7 @@ class WordsModel(QAbstractTableModel):
                 locale = w[1]
                 return (calibre_langcode_to_name(locale.langcode), locale.countrycode)
         else:
-            key = self.spell_map.get
+            key = self.misspelled_text
         return key
 
     def do_sort(self):
