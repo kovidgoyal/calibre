@@ -6,7 +6,7 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
-from PyQt4.Qt import QTextCharFormat
+from PyQt4.Qt import QTextCharFormat, QFont
 
 from calibre.ebooks.oeb.base import OEB_DOCS, OEB_STYLES
 from calibre.ebooks.oeb.polish.container import guess_type
@@ -40,4 +40,10 @@ class SyntaxTextCharFormat(QTextCharFormat):
     def __init__(self, *args):
         QTextCharFormat.__init__(self, *args)
         self.setProperty(SYNTAX_PROPERTY, True)
+
+    def __repr__(self):
+        return 'SyntaxFormat(id=%s, color=%s, italic=%s, bold=%s)' % (
+            id(self), self.foreground().color().name(), self.fontItalic(), self.fontWeight() >= QFont.DemiBold)
+    __str__ = __repr__
+
 
