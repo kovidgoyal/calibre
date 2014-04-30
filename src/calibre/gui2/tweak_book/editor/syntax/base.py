@@ -228,7 +228,7 @@ class SyntaxHighlighter(object):
     def apply_format_changes(self, block, formats):
         layout = block.layout()
         preedit_start = layout.preeditAreaPosition()
-        preedit_length = layout.preeditAreaText().length()
+        preedit_length = len(layout.preeditAreaText())
         if preedit_length != 0 and preedit_start != 0:
             for r in formats:
                 # Adjust range by pre-edit text, if any
