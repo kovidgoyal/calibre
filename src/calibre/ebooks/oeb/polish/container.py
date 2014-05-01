@@ -1022,20 +1022,9 @@ def do_explode(path, dest):
         mr = MobiReader(stream, default_log, None, None)
 
         with CurrentDir(dest):
-            mr = Mobi8Reader(mr, default_log)
+            mr = Mobi8Reader(mr, default_log, for_tweak=True)
             opf = os.path.abspath(mr())
             obfuscated_fonts = mr.encrypted_fonts
-            # If there are no images then the azw3 input plugin dumps all
-            # binary records as .unknown images, remove them
-            if os.path.exists('images') and os.path.isdir('images'):
-                files = os.listdir('images')
-                unknown = [x for x in files if x.endswith('.unknown')]
-                if len(files) == len(unknown):
-                    [os.remove('images/'+f) for f in files]
-            try:
-                os.remove('debug-raw.html')
-            except:
-                pass
 
     return opf, obfuscated_fonts
 

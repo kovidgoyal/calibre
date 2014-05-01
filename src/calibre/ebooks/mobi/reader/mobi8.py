@@ -61,7 +61,8 @@ def reverse_tag_iter(block):
 
 class Mobi8Reader(object):
 
-    def __init__(self, mobi6_reader, log):
+    def __init__(self, mobi6_reader, log, for_tweak=False):
+        self.for_tweak = for_tweak
         self.mobi6_reader, self.log = mobi6_reader, log
         self.header = mobi6_reader.book_header
         self.encrypted_fonts = []
@@ -458,6 +459,20 @@ class Mobi8Reader(object):
 
         def exclude(path):
             return os.path.basename(path) == 'debug-raw.html'
+
+        # If there are no images then the azw3 input plugin dumps all
+        # binary records as .unknown images, remove them
+        if self.for_tweak and os.path.exists('images') and os.path.isdir('images'):
+            files = os.listdir('images')
+            unknown = [x for x in files if x.endswith('.unknown')]
+            if len(files) == len(unknown):
+                [os.remove('images/'+f) for f in files]
+
+        if self.for_tweak:
+            try:
+                os.remove('debug-raw.html')
+            except:
+                pass
 
         opf.create_manifest_from_files_in([os.getcwdu()], exclude=exclude)
         for entry in opf.manifest:
