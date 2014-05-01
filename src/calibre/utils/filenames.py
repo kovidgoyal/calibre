@@ -459,3 +459,34 @@ def atomic_rename(oldpath, newpath):
                 time.sleep(1)
     else:
         os.rename(oldpath, newpath)
+
+def remove_dir_if_empty(path, ignore_metadata_caches=False):
+    ''' Remove a directory if it is empty or contains only the folder metadata
+    caches from different OSes. To delete the folder if it contains only
+    metadata caches, set ignore_metadata_caches to True.'''
+    try:
+        os.rmdir(path)
+    except OSError as e:
+        if e.errno == errno.ENOTEMPTY or len(os.listdir(path)) > 0:
+            # Some linux systems appear to raise an EPERM instead of an
+            # ENOTEMPTY, see https://bugs.launchpad.net/bugs/1240797
+            if ignore_metadata_caches:
+                try:
+                    found = False
+                    for x in os.listdir(path):
+                        if x.lower() in {'.ds_store', 'thumbs.db'}:
+                            found = True
+                            x = os.path.join(path, x)
+                            if os.path.isdir(x):
+                                import shutil
+                                shutil.rmtree(x)
+                            else:
+                                os.remove(x)
+                except Exception:  # We could get an error, if, for example, windows has locked Thumbs.db
+                    found = False
+                if found:
+                    remove_dir_if_empty(path)
+            return
+        raise
+
+
