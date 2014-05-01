@@ -119,7 +119,7 @@ def process_index(field, index, xe_fields, log):
 
     return hyperlinks, blocks
 
-def split_up_block(block, a, text, parts):
+def split_up_block(block, a, text, parts, ldict):
     prefix = parts[:-1]
     a.text = parts[-1]
     parent = a.getparent()
@@ -127,31 +127,100 @@ def split_up_block(block, a, text, parts):
     for i, prefix in enumerate(prefix):
         m = 1.5 * i
         span = parent.makeelement('span', style=style % m)
+        ldict[span]    = i
         parent.append(span)
         span.text = prefix
     span = parent.makeelement('span', style=style % ((i + 1) * 1.5))
     parent.append(span)
     span.append(a)
+    ldict[span]    = len(prefix)
 
-def merge_blocks(prev_block, next_block, prev_path, next_path):
-    pa, na = prev_block.xpath('descendant::a'), next_block.xpath('descendant::a[1]')
-    if not pa or not na:
-        return
-    pa, na = pa[-1], na[0]
-    if prev_path == next_path:
+"""
+The merge algorithm is a little tricky.
+We start with a list of elementary blocks. Each is an HtmlElement, a p node
+with a list of child nodes. The last child is a link, and the earlier ones are 
+just text.
+The list is in reverse order from what we want in the index.
+There is a dictionary ldict which records the level of each child node.
+
+Now we want to do a reduce-like operation, combining all blocks with the same
+top level index entry into a single block representing the structure of all
+references, subentries, etc. under that top entry.
+Here's the algorithm.
+
+Given a block p and the next block n, and the top level entries p1 and n1 in each
+block, which we assume have the same text:
+
+Start with (p, p1) and (n, n1).
+
+Given (p, p1, ..., pk) and (n, n1, ..., nk) which we want to merge:
+
+If there are no more levels in n, then add the link from nk to the links for pk.
+This might be the first link for pk, or we might get a list of references.
+
+Otherwise nk+1 is the next level in n. Look for a matching entry in p. It must have
+the same text, it must follow pk, it must come before we find any other p entries at 
+the same level as pk, and it must have the same level as nk+1.
+
+If we find such a matching entry, go back to the start with (p ... pk+1) and (n ... nk+1).
+
+If there is no matching entry, then because of the original reversed order we want
+to insert nk+1 and all following entries from n into p immediately following pk.
+"""
+
+def find_match(prev_block, pind, nextent, ldict):
+    curlevel = ldict[prev_block[pind]]
+    for p in range(pind+1, len(prev_block)):
+        trylev = ldict[prev_block[p]]
+        if trylev <= curlevel:
+            return -1
+        if trylev > (curlevel+1):
+            continue
+        if prev_block[p].text_content() == nextent.text_content():
+            return p
+    return -1
+
+def add_link(pent, nent, ldict):
+    na = nent.xpath('descendant::a[1]')
+    na = na[0]
+    pa = pent.xpath('descendant::a')
+    if pa and len(pa) > 0:
         # Put on same line with a comma
+        pa = pa[-1]
         pa.tail = ', '
         p = pa.getparent()
         p.insert(p.index(pa) + 1, na)
     else:
-        # Add a line to the previous block
-        ps, ns = pa.getparent(), na.getparent()
-        p = ps.getparent()
-        p.insert(p.index(ps) + 1, ns)
+        # substitute link na for plain text in pent
+        pent.text = ""
+        pent.append(na)
+
+def merge_blocks(prev_block, next_block, pind, nind, next_path, ldict):
+    # First elements match. Any more in next?
+    if len(next_path) == (nind + 1):
+        nextent = next_block[nind]
+        add_link(prev_block[pind], nextent, ldict)
+        return
+
+    nind = nind + 1
+    nextent = next_block[nind]
+    prevent = find_match(prev_block, pind, nextent, ldict)
+    if prevent > 0:
+        merge_blocks(prev_block, next_block, prevent, nind, next_path, ldict)
+        return
+    
+    # Want to insert elements into previous block
+    while nind < len(next_block):
+        # insert takes it out of old
+        pind = pind + 1
+        prev_block.insert(pind, next_block[nind])
+
     next_block.getparent().remove(next_block)
 
 def polish_index_markup(index, blocks):
+    # Blocks are in reverse order at this point
     path_map = {}
+    ldict = {}
     for block in blocks:
         cls = block.get('class', '') or ''
         block.set('class', (cls + ' index-entry').lstrip())
@@ -162,20 +231,22 @@ def polish_index_markup(index, blocks):
         if ':' in text:
             path_map[block] = parts = filter(None, (x.strip() for x in text.split(':')))
             if len(parts) > 1:
-                split_up_block(block, a[0], text, parts)
+                split_up_block(block, a[0], text, parts, ldict)
         else:
+            # try using a span all the time
             path_map[block] = [text]
+            parent = a[0].getparent()
+            span = parent.makeelement('span', style='display:block; margin-left: 0em')
+            parent.append(span)
+            span.append(a[0])
+            ldict[span] = 0
 
+    # We want a single block for each main entry
     prev_block = blocks[0]
     for block in blocks[1:]:
         pp, pn = path_map[prev_block], path_map[block]
-        if pp == pn:
-            merge_blocks(prev_block, block, pp, pn)
-        elif len(pp) > 1 and len(pn) >= len(pp):
-            if pn[:-1] in (pp[:-1], pp):
-                merge_blocks(prev_block, block, pp, pn)
-            # It's possible to have pn starting with pp but having more
-            # than one extra entry, but until I see that in the wild, I'm not
-            # going to bother
-        prev_block = block
+        if pp[0] == pn[0]:
+            merge_blocks(prev_block, block, 0, 0, pn, ldict)
+        else:
+            prev_block = block
 
