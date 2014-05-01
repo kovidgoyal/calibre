@@ -139,7 +139,7 @@ class Mobi8Reader(object):
 
             for i, ref_type in enumerate(table.iterkeys()):
                 tag_map = table[ref_type]
-                 # ref_type, ref_title, div/frag number
+                # ref_type, ref_title, div/frag number
                 title = cncx[tag_map[1][0]]
                 fileno = None
                 if 3 in tag_map.keys():
@@ -193,7 +193,7 @@ class Mobi8Reader(object):
                     if not inspos_warned:
                         self.log.warn(
                             'The div table for %s has incorrect insert '
-                                'positions. Calculating manually.'%skelname)
+                            'positions. Calculating manually.'%skelname)
                         inspos_warned = True
                     bp, ep = locate_beg_end_of_tag(skeleton, aidtext if
                         isinstance(aidtext, bytes) else aidtext.encode('utf-8'))
@@ -539,4 +539,3 @@ class Mobi8Reader(object):
                 parent.add_item(href, frag, text)
                 current_depth = depth
         return ans
-
