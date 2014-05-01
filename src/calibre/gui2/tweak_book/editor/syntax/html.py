@@ -441,7 +441,9 @@ class XMLHighlighter(HTMLHighlighter):
 
     state_map = xml_state_map
     spell_attributes = ('opf:file-as',)
-    create_formats_func = partial(create_formats, add_css=False)
+
+    def create_formats_func(self):
+        return create_formats(self, add_css=False)
 
     def tag_ok_for_spell(self, name):
         return name in xml_spell_tags
