@@ -302,6 +302,8 @@ def opening_tag(cdata_tags, state, text, i, formats, user_data):
     attrname = state.attribute_name = m.group()
     add_attr_data(user_data, ATTR_NAME, attrname, m.start())
     prefix, name = attrname.partition(':')[0::2]
+    if not prefix and not name:
+        return [(len(attrname), formats['?'])]
     if prefix and name:
         return [(len(prefix) + 1, formats['nsprefix']), (len(name), formats['attr'])]
     return [(len(prefix), formats['attr'])]
