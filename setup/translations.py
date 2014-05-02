@@ -13,10 +13,11 @@ from functools import partial
 from setup import Command, __appname__, __version__, require_git_master
 
 def qt_sources():
-    qtdir = glob.glob('/usr/src/qt-*')[-1]
+    # QT5XX: Change this
+    qtdir = '/usr/src/qt4'
     j = partial(os.path.join, qtdir)
     return list(map(j, [
-            'src/gui/widgets/qdialogbuttonbox.cpp',
+            'gui/widgets/qdialogbuttonbox.cpp',
     ]))
 
 class POT(Command):  # {{{
@@ -152,7 +153,8 @@ class Translations(POT):  # {{{
 
     def run(self, opts):
         l = {}
-        execfile(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'lc_data.py'), l, l)
+        exec(compile(open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'lc_data.py'))
+             .read(), os.path.join(os.path.dirname(os.path.abspath(__file__)), 'lc_data.py'), 'exec'), l, l)
         lcdata = {k:{k1:v1 for k1, v1 in v} for k, v in l['data']}
         self.iso639_errors = []
         for f in self.po_files():
@@ -308,14 +310,14 @@ class GetTranslations(Translations):  # {{{
         os.mkdir(errors)
         pofilter = ('pofilter', '-i', self.LP_PATH, '-o', errors,
                 '-t', 'accelerators', '-t', 'escapes', '-t', 'variables',
-                #'-t', 'xmltags',
-                #'-t', 'brackets',
-                #'-t', 'emails',
-                #'-t', 'doublequoting',
-                #'-t', 'filepaths',
-                #'-t', 'numbers',
+                # '-t', 'xmltags',
+                # '-t', 'brackets',
+                # '-t', 'emails',
+                # '-t', 'doublequoting',
+                # '-t', 'filepaths',
+                # '-t', 'numbers',
                 '-t', 'options',
-                #'-t', 'urls',
+                # '-t', 'urls',
                 '-t', 'printf')
         subprocess.check_call(pofilter)
         errfiles = glob.glob(errors+os.sep+'*.po')
