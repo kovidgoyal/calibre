@@ -145,7 +145,7 @@ class UserWordList(QListWidget):
         words = []
         for item in (self.item(i) for i in xrange(self.count())):
             if item.isSelected():
-                words.append(item.data(Qt.UserRole).toPyObject()[0])
+                words.append(item.data(Qt.UserRole)[0])
         if words:
             QApplication.clipboard().setText('\n'.join(words))
 
