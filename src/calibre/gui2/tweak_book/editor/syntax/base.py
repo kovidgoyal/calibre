@@ -6,8 +6,6 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import weakref
-
 from PyQt4.Qt import (
     QTextCursor, pyqtSlot, QTextBlockUserData, QTextLayout)
 
@@ -52,7 +50,7 @@ class SyntaxHighlighter(object):
     user_data_factory = SimpleUserData
 
     def __init__(self):
-        self.document_ref = lambda : None
+        self.doc = None
 
     def apply_theme(self, theme):
         self.theme = {k:highlight_to_char_format(v) for k, v in theme.iteritems()}
@@ -63,7 +61,7 @@ class SyntaxHighlighter(object):
         self.formats = self.create_formats_func()
 
     def set_document(self, doc):
-        old_doc = self.document_ref()
+        old_doc = self.doc
         if old_doc is not None:
             old_doc.contentsChange.disconnect(self.reformat_blocks)
             c = QTextCursor(old_doc)
@@ -73,15 +71,14 @@ class SyntaxHighlighter(object):
                 blk.layout().clearAdditionalFormats()
                 blk = blk.next()
             c.endEditBlock()
+        self.doc = None
         if doc is not None:
-            self.document_ref = weakref.ref(doc)
+            self.doc = doc
             doc.contentsChange.connect(self.reformat_blocks)
             self.rehighlight()
-        else:
-            self.document_ref = lambda : None
 
     def rehighlight(self):
-        doc = self.document_ref()
+        doc = self.doc
         if doc is None:
             return
         lb = doc.lastBlock()
@@ -99,7 +96,7 @@ class SyntaxHighlighter(object):
 
     @pyqtSlot(int, int, int)
     def reformat_blocks(self, position, removed, added):
-        doc = self.document_ref()
+        doc = self.doc
         if doc is None:
             return
         last_block = doc.findBlock(position + added + (1 if removed > 0 else 0))
