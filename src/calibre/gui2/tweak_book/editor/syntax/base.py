@@ -6,6 +6,8 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
+from collections import defaultdict
+
 from PyQt4.Qt import (
     QTextCursor, pyqtSlot, QTextBlockUserData, QTextLayout)
 
@@ -15,11 +17,19 @@ from calibre.gui2.tweak_book.widgets import BusyCursor
 def run_loop(user_data, state_map, formats, text):
     state = user_data.state
     i = 0
+    seen_states = defaultdict(set)
     while i < len(text):
+        orig_i = i
+        seen_states[i].add(state.parse)
         fmt = state_map[state.parse](state, text, i, formats, user_data)
         for num, f in fmt:
-            yield i, num, f
-            i += num
+            if num > 0:
+                yield i, num, f
+                i += num
+        if orig_i == i and state.parse in seen_states[i]:
+            # Something went wrong in the syntax highlighter
+            print ('Syntax highlighter returned a zero length format, parse state:', state.parse)
+            break
 
 class SimpleState(object):
 
