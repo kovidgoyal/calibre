@@ -15,6 +15,7 @@ import os, subprocess, time, re, sys, glob
 from itertools import repeat
 
 from calibre import prints, as_unicode
+from calibre.constants import DEBUG
 from calibre.devices.interface import DevicePlugin
 from calibre.devices.errors import DeviceError
 from calibre.devices.usbms.deviceconfig import DeviceConfig
@@ -615,6 +616,8 @@ class Device(DeviceConfig, DevicePlugin):
             'the device has already been ejected, or your '
             'kernel is exporting a deprecated version of SYSFS.')
                     %self.__class__.__name__)
+        if DEBUG:
+            print '\nFound device nodes:', main, carda, cardb
 
         self._linux_mount_map = {}
         mp, ret = mount(main, 'main')
@@ -659,6 +662,8 @@ class Device(DeviceConfig, DevicePlugin):
                     os.remove(path)
                 except:
                     pass
+            if DEBUG and ro:
+                print '\nThe mountpoint', mp, 'is readonly, ignoring it'
             return ro
 
         for mp in ('_main_prefix', '_card_a_prefix', '_card_b_prefix'):
@@ -722,7 +727,7 @@ class Device(DeviceConfig, DevicePlugin):
                         d.serial == objif.GetProperty('usb.serial'):
                     dpaths = manager.FindDeviceStringMatch('storage.originating_device', path)
                     for dpath in dpaths:
-                        #devif = dbus.Interface(bus.get_object('org.freedesktop.Hal', dpath), 'org.freedesktop.Hal.Device')
+                        # devif = dbus.Interface(bus.get_object('org.freedesktop.Hal', dpath), 'org.freedesktop.Hal.Device')
                         try:
                             vpaths = manager.FindDeviceStringMatch('block.storage_device', dpath)
                             for vpath in vpaths:
@@ -740,13 +745,13 @@ class Device(DeviceConfig, DevicePlugin):
                                             'vol': volif,
                                             'label': vdevif.GetProperty('volume.label')}
                                     vols.append(vol)
-                                except dbus.exceptions.DBusException, e:
+                                except dbus.exceptions.DBusException as e:
                                     print e
                                     continue
-                        except dbus.exceptions.DBusException, e:
+                        except dbus.exceptions.DBusException as e:
                             print e
                             continue
-            except dbus.exceptions.DBusException, e:
+            except dbus.exceptions.DBusException as e:
                 continue
 
         def ocmp(x,y):
@@ -779,7 +784,7 @@ class Device(DeviceConfig, DevicePlugin):
                             print "ERROR: Timeout waiting for mount to complete"
                             continue
                     mp = vol['dev'].GetProperty('volume.mount_point')
-                except dbus.exceptions.DBusException, e:
+                except dbus.exceptions.DBusException as e:
                     print "Failed to mount ", e
                     continue
 
@@ -828,7 +833,7 @@ class Device(DeviceConfig, DevicePlugin):
                 print "FBSD:	umount main:", self._main_prefix
             try:
                 self._main_vol.Unmount([])
-            except dbus.exceptions.DBusException, e:
+            except dbus.exceptions.DBusException as e:
                 print 'Unable to eject ', e
 
         if self._card_a_prefix:
@@ -836,7 +841,7 @@ class Device(DeviceConfig, DevicePlugin):
                 print "FBSD:	umount card a:", self._card_a_prefix
             try:
                 self._card_a_vol.Unmount([])
-            except dbus.exceptions.DBusException, e:
+            except dbus.exceptions.DBusException as e:
                 print 'Unable to eject ', e
 
         if self._card_b_prefix:
@@ -844,7 +849,7 @@ class Device(DeviceConfig, DevicePlugin):
                 print "FBSD:	umount card b:", self._card_b_prefix
             try:
                 self._card_b_vol.Unmount([])
-            except dbus.exceptions.DBusException, e:
+            except dbus.exceptions.DBusException as e:
                 print 'Unable to eject ', e
 
         self._main_prefix = None
