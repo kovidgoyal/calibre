@@ -20,6 +20,56 @@
 #   new recipes:
 #     - title: 
 
+- version: 1.35.0
+  date: 2014-05-02
+
+  new features:
+    - title: "Edit Book: Redesign the syntax highlighter to improve performance for large documents and extended editing sessions."
+      tickets: [1314339]
+
+    - title: "Edit book: Make cursor movement smooth by not highlighting matching tags while the cursor is moving. Only match highlighting tags if the cursor stays still for a time."
+
+    - title: "Spellcheck dialog: Indicate whether a word is ignored in the Misspelled column"
+
+    - title: "Spellcheck dialog: Pressing Ctrl+C on the words list copies only selected words, regardless of current cell"
+
+    - title: "Add a copy to clipboard action to the context menu for the spell check dialog"
+
+    - title: "Edit book: Fix save button incorrectly disabled after a failed save"
+      tickets: [1313567]
+
+  bug fixes:
+    - title: "Edit Book: Fix an error when merging CSS stylesheets that contain @charset rules"
+
+    - title: "Edit book: Fix extra invalid entries being generated in the manifest when editing an AZW3 file that has no images."
+
+    - title: "Edit book: Fix a hang when editing an HTML or XML file with text of the form <abc: (i.e. a tag name with a trailing colon)."
+      tickets: [1314009]
+
+    - title: "Fix regression that prevented the ebook editor from starting on linux systems with locale set to 'C'"
+      tickets: [1315064] 
+
+    - title: "DOCX Input: Fix formatting of the generated Index when the index is complex, i.e. with lots of references to the same item, multiple level of sub-items, etc."
+
+    - title: "Smarten punctuation: Fix a double quote preceded by a hyphen at the end of a sentence (before the start of the next tag) being converted into an opening quote instead of closing quote."
+      tickets: [1286477]
+
+    - title: "News download: Fix very long URLs for links to pages causing errors on windows because of max path length restrictions."
+      tickets: [1313982]
+
+    - title: "Edit book: Fix saved search dialog causing high CPU usage"
+
+    - title: "Edit book: Fix importing of Lithuanian dictionary from OpenOffice, that does not specify a country code."
+      tickets: [1313315]
+
+  improved recipes:
+    - Ars Technica
+    - Daily Mirror
+    - Birmingham Evening Mail
+    - NRC - Next
+    - Private Eye
+    - NZZ
+
 - version: 1.34.0
   date: 2014-04-25
 
