@@ -50,7 +50,8 @@ class ArsTechnica(BasicNewsRecipe):
 
 
     feeds = [
-              (u'Infinite Loop (Apple content)'        , u'http://feeds.arstechnica.com/arstechnica/apple/'      )
+              (u'Risk Assessment (Security content)'   , u'http://feeds.arstechnica.com/arstechnica/security/'   )
+             ,(u'Infinite Loop (Apple content)'        , u'http://feeds.arstechnica.com/arstechnica/apple/'      )
              ,(u'Opposable Thumbs (Gaming content)'    , u'http://feeds.arstechnica.com/arstechnica/gaming/'     )
              ,(u'Gear and Gadgets'                     , u'http://feeds.arstechnica.com/arstechnica/gadgets/'    )
              ,(u'Uptime (IT content)'                  , u'http://feeds.arstechnica.com/arstechnica/business/'   )
