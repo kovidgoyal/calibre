@@ -122,7 +122,40 @@ class AddDictionary(QDialog):  # {{{
         QDialog.accept(self)
 # }}}
 
-class ManageUserDictionaries(Dialog):  # {{{
+# User Dictionaries {{{
+
+class UserWordList(QListWidget):
+
+    def __init__(self, parent=None):
+        QListWidget.__init__(self, parent)
+
+    def contextMenuEvent(self, ev):
+        m = QMenu(self)
+        m.addAction(_('Copy selected words to clipboard'), self.copy_to_clipboard)
+        m.addAction(_('Select all words'), self.select_all)
+        m.exec_(ev.globalPos())
+
+    def select_all(self):
+        for item in (self.item(i) for i in xrange(self.count())):
+            item.setSelected(True)
+
+    def copy_to_clipboard(self):
+        words = []
+        for item in (self.item(i) for i in xrange(self.count())):
+            if item.isSelected():
+                words.append(item.data(Qt.UserRole).toPyObject()[0])
+        if words:
+            QApplication.clipboard().setText('\n'.join(words))
+
+    def keyPressEvent(self, ev):
+        if ev == QKeySequence.Copy:
+            self.copy_to_clipboard()
+            ev.accept()
+            return
+        return QListWidget.keyPressEvent(self, ev)
+
+
+class ManageUserDictionaries(Dialog):
 
     def __init__(self, parent=None):
         self.dictionaries_changed = False
@@ -162,7 +195,7 @@ class ManageUserDictionaries(Dialog):  # {{{
         l.addWidget(a)
         self.la = la = QLabel(_('Words in this dictionary:'))
         l.addWidget(la)
-        self.words = w = QListWidget(self)
+        self.words = w = UserWordList(self)
         w.setSelectionMode(w.ExtendedSelection)
         l.addWidget(w)
         self.add_word_button = b = QPushButton(_('&Add word'), self)
@@ -1221,5 +1254,5 @@ def find_next(word, locations, current_editor, current_editor_name,
 if __name__ == '__main__':
     app = QApplication([])
     dictionaries.initialize()
-    SpellCheck.test()
+    ManageUserDictionaries.test()
     del app
