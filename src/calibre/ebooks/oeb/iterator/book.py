@@ -75,7 +75,7 @@ class EbookIterator(BookmarksMixin):
                     return i
 
     def __enter__(self, processed=False, only_input_plugin=False,
-            run_char_count=True, read_anchor_map=True,
+            run_char_count=True, read_anchor_map=True, view_kepub=False,
             extract_embedded_fonts_for_qt=False):
         ''' Convert an ebook file into an exploded OEB book suitable for
         display in viewers/preprocessing etc. '''
@@ -85,7 +85,7 @@ class EbookIterator(BookmarksMixin):
         self.delete_on_exit = []
         self._tdir = TemporaryDirectory('_ebook_iter')
         self.base  = self._tdir.__enter__()
-        plumber = Plumber(self.pathtoebook, self.base, self.log)
+        plumber = Plumber(self.pathtoebook, self.base, self.log, view_kepub=view_kepub)
         plumber.setup_options()
         if self.pathtoebook.lower().endswith('.opf'):
             plumber.opts.dont_package = True

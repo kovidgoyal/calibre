@@ -77,7 +77,7 @@ class Plumber(object):
 
     def __init__(self, input, output, log, report_progress=DummyReporter(),
             dummy=False, merge_plugin_recs=True, abort_after_input_dump=False,
-            override_input_metadata=False, for_regex_wizard=False):
+            override_input_metadata=False, for_regex_wizard=False, view_kepub=False):
         '''
         :param input: Path to input file.
         :param output: Path to output file/directory
@@ -702,6 +702,8 @@ OptionRecommendation(name='search_replace',
         if not input_fmt:
             raise ValueError('Input file must have an extension')
         input_fmt = input_fmt[1:].lower().replace('original_', '')
+        if view_kepub and input_fmt.lower() == 'kepub':
+            input_fmt = 'epub'
         self.archive_input_tdir = None
         if input_fmt in ARCHIVE_FMTS:
             self.log('Processing archive...')
