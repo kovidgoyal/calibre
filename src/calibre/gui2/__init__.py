@@ -854,8 +854,8 @@ def setup_gui_option_parser(parser):
                           help='Detach from the controlling terminal, if any (linux only)')
 
 def detach_gui():
-    if islinux and not DEBUG and sys.stdout.isatty():
-        # We are a GUI process running in a terminal so detach from the controlling terminal
+    if islinux and not DEBUG:
+        # Detach from the controlling process.
         if os.fork() != 0:
             raise SystemExit(0)
         os.setsid()
