@@ -126,3 +126,27 @@ def link_stylesheets(container, names, sheets, remove=False, mtype='text/css'):
             container.dirty(name)
 
     return changed_names
+
+def lead_text(top_elem, num_words=10):
+    ''' Return the leading text contained in top_elem (including descendants)
+    upto a maximum of num_words words. More efficient than using
+    etree.tostring(method='text') as it does not have to serialize the entire
+    sub-tree rooted at top_elem.'''
+    pat = re.compile(r'\s+', flags=re.UNICODE)
+    words = []
+
+    def get_text(x, attr='text'):
+        ans = getattr(x, attr)
+        if ans:
+            words.extend(filter(None, pat.split(ans)))
+
+    stack = [(top_elem, 'text')]
+    while stack and len(words) < num_words:
+        elem, attr = stack.pop()
+        get_text(elem, attr)
+        if attr == 'text':
+            if elem is not top_elem:
+                stack.append((elem, 'tail'))
+            stack.extend(reversed(list((c, 'text') for c in elem.iterchildren('*'))))
+    return ' '.join(words[:num_words])
+

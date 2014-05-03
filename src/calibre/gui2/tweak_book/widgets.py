@@ -18,9 +18,10 @@ from PyQt4.Qt import (
     QListView, QTextDocument, QSize, QComboBox, QFrame, QCursor)
 
 from calibre import prepare_string_for_xml
+from calibre.ebooks.oeb.polish.utils import lead_text
 from calibre.gui2 import error_dialog, choose_files, choose_save_file, NONE, info_dialog
 from calibre.gui2.tweak_book import tprefs
-from calibre.utils.icu import primary_sort_key, sort_key
+from calibre.utils.icu import primary_sort_key, sort_key, primary_contains
 from calibre.utils.matcher import get_char, Matcher
 from calibre.gui2.complete2 import EditWithComplete
 
@@ -568,13 +569,14 @@ class NamesModel(QAbstractListModel):
             if text == name:
                 return i
 
-def create_filterable_names_list(names, filter_text=None, parent=None):
+def create_filterable_names_list(names, filter_text=None, parent=None, model=NamesModel):
     nl = QListView(parent)
-    nl.m = m = NamesModel(names, parent=nl)
+    nl.m = m = model(names, parent=nl)
     m.filtered.connect(lambda all_items: nl.scrollTo(m.index(0)))
     nl.setModel(m)
-    nl.d = NamesDelegate(nl)
-    nl.setItemDelegate(nl.d)
+    if model is NamesModel:
+        nl.d = NamesDelegate(nl)
+        nl.setItemDelegate(nl.d)
     f = QLineEdit(parent)
     f.setPlaceholderText(filter_text or '')
     f.textEdited.connect(m.filter)
@@ -583,6 +585,39 @@ def create_filterable_names_list(names, filter_text=None, parent=None):
 # }}}
 
 # Insert Link {{{
+
+class AnchorsModel(QAbstractListModel):
+
+    filtered = pyqtSignal(object)
+
+    def __init__(self, names, parent=None):
+        self.items = []
+        self.names = []
+        QAbstractListModel.__init__(self, parent=parent)
+
+    def rowCount(self, parent=ROOT):
+        return len(self.items)
+
+    def data(self, index, role):
+        if role == Qt.UserRole:
+            return self.items[index.row()]
+        if role == Qt.DisplayRole:
+            return '\n'.join(self.items[index.row()])
+        if role == Qt.ToolTipRole:
+            text, frag = self.items[index.row()]
+            return _('Anchor: %s\nLeading text: %s') % (frag, text)
+
+    def set_names(self, names):
+        self.names = names
+        self.filter('')
+
+    def filter(self, query):
+        query = unicode(query or '')
+        self.beginResetModel()
+        self.items = [x for x in self.names if primary_contains(query, x[0]) or primary_contains(query, x[1])]
+        self.endResetModel()
+        self.filtered.emit(not bool(query))
+
 class InsertLink(Dialog):
 
     def __init__(self, container, source_name, initial_text=None, parent=None):
@@ -612,7 +647,8 @@ class InsertLink(Dialog):
         fnl.addWidget(la), fnl.addWidget(f), fnl.addWidget(fn)
         h.addLayout(fnl), h.setStretch(0, 2)
 
-        fn, f = create_filterable_names_list([], filter_text=_('Filter locations'), parent=self)
+        fn, f = create_filterable_names_list([], filter_text=_('Filter locations'), parent=self, model=AnchorsModel)
+        fn.setSpacing(5)
         self.anchor_names, self.anchor_names_filter = fn, f
         fn.selectionModel().selectionChanged.connect(self.update_target)
         fn.doubleClicked.connect(self.accept, type=Qt.QueuedConnection)
@@ -648,8 +684,12 @@ class InsertLink(Dialog):
         if name not in self.anchor_cache:
             from calibre.ebooks.oeb.base import XHTML_NS
             root = self.container.parsed(name)
-            self.anchor_cache[name] = sorted(
-                (set(root.xpath('//*/@id')) | set(root.xpath('//h:a/@name', namespaces={'h':XHTML_NS}))) - {''}, key=primary_sort_key)
+            ac = self.anchor_cache[name] = []
+            for item in set(root.xpath('//*[@id]')) | set(root.xpath('//h:a[@name]', namespaces={'h':XHTML_NS})):
+                frag = item.get('id', None) or item.get('name')
+                text = lead_text(item, num_words=4)
+                ac.append((text, frag))
+            ac.sort(key=lambda (text, frag): primary_sort_key(text))
         self.anchor_names.model().set_names(self.anchor_cache[name])
         self.update_target()
 
@@ -665,7 +705,7 @@ class InsertLink(Dialog):
         frag = ''
         rows = list(self.anchor_names.selectionModel().selectedRows())
         if rows:
-            anchor = self.anchor_names.model().data(rows[0], Qt.UserRole).toPyObject()[0]
+            anchor = self.anchor_names.model().data(rows[0], Qt.UserRole)[1]
             if anchor:
                 frag = '#' + anchor
         href += frag
@@ -886,4 +926,4 @@ class InsertSemantics(Dialog):
 
 if __name__ == '__main__':
     app = QApplication([])
-    InsertTag.test()
+    InsertLink.test()
