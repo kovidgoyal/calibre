@@ -15,15 +15,9 @@ class NationalGeographicNews(BasicNewsRecipe):
     remove_javascript = True
     no_stylesheets = True
     use_embedded_content = False
+    auto_cleanup = True
 
     feeds          = [(u'news', u'http://feeds.nationalgeographic.com/ng/News/News_Main')]
-
-    remove_tags_before = dict(id='page_head')
-    remove_tags_after = [dict(id='social_buttons'),{'class':'aside'}]
-    remove_tags = [
-                       {'class':'hidden'}
-
-                     ]
 
     def parse_feeds(self):
         feeds = BasicNewsRecipe.parse_feeds(self)
