@@ -814,7 +814,7 @@ class Search(object):
     def _update_caches(self, sqp, book_ids):
         book_ids = sqp.all_book_ids = set(book_ids)
         remove = set()
-        for query, result in self.cache:
+        for query, result in tuple(self.cache):
             try:
                 matches = sqp.parse(query)
             except ParseException:
