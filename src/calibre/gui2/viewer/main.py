@@ -774,7 +774,7 @@ class EbookViewer(MainWindow):
             self.iterator.__exit__()
         self.iterator = EbookIterator(pathtoebook)
         self.open_progress_indicator(_('Loading ebook...'))
-        worker = Worker(target=partial(self.iterator.__enter__, view_kpepub=True))
+        worker = Worker(target=partial(self.iterator.__enter__, view_kepub=True))
         worker.start()
         while worker.isAlive():
             worker.join(0.1)
