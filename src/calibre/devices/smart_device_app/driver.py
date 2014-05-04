@@ -525,10 +525,15 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
     # Network functions
 
     def _read_binary_from_net(self, length):
-        self.device_socket.settimeout(self.MAX_CLIENT_COMM_TIMEOUT)
-        v = self.device_socket.recv(length)
-        self.device_socket.settimeout(None)
-        return v
+        try:
+            self.device_socket.settimeout(self.MAX_CLIENT_COMM_TIMEOUT)
+            v = self.device_socket.recv(length)
+            self.device_socket.settimeout(None)
+            return v
+        except:
+            self._close_device_socket()
+            raise
+
 
     def _read_string_from_net(self):
         data = bytes(0)
@@ -556,23 +561,30 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
     def _send_byte_string(self, sock, s):
         if not isinstance(s, bytes):
             self._debug('given a non-byte string!')
+            self._close_device_socket()
             raise PacketError("Internal error: found a string that isn't bytes")
         sent_len = 0
         total_len = len(s)
         while sent_len < total_len:
             try:
+                sock.settimeout(self.MAX_CLIENT_COMM_TIMEOUT)
                 if sent_len == 0:
                     amt_sent = sock.send(s)
                 else:
                     amt_sent = sock.send(s[sent_len:])
+                sock.settimeout(None)
                 if amt_sent <= 0:
                     raise IOError('Bad write on socket')
                 sent_len += amt_sent
             except socket.error as e:
                 self._debug('socket error', e, e.errno)
                 if e.args[0] != EAGAIN and e.args[0] != EINTR:
+                    self._close_device_socket()
                     raise
                 time.sleep(0.1)  # lets not hammer the OS too hard
+            except:
+                self._close_device_socket()
+                raise
 
     # This must be protected by a lock because it is called from the GUI thread
     # (the sync stuff) and the device manager thread
@@ -592,7 +604,6 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
             s = self._json_encode(self.opcodes[op], arg)
             if print_debug_info and extra_debug:
                 self._debug('send string', s)
-            self.device_socket.settimeout(self.MAX_CLIENT_COMM_TIMEOUT)
             self._send_byte_string(self.device_socket, (b'%d' % len(s)) + s)
             if not wait_for_response:
                 return None, None
@@ -617,7 +628,6 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
         extra_debug = self.settings().extra_customization[self.OPT_EXTRA_DEBUG]
         try:
             v = self._read_string_from_net()
-            self.device_socket.settimeout(None)
             if print_debug_info and extra_debug:
                 self._debug('received string', v)
             if v:
@@ -655,10 +665,10 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                                'metadata': book_metadata, 'thisBook': this_book,
                                'totalBooks': total_books,
                                'willStreamBooks': True,
-                               'willStreamBinary' : True},
+                               'willStreamBinary' : True,
+                               'wantsSendOkToSendbook' : self.can_send_ok_to_sendbook},
                           print_debug_info=False,
-                          wait_for_response=False)
-
+                          wait_for_response=self.can_send_ok_to_sendbook)
         self._set_known_metadata(book_metadata)
         pos = 0
         failed = False
@@ -1029,6 +1039,8 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
             self._debug('Device can use cached metadata', self.client_can_use_metadata_cache)
             self.client_cache_uses_lpaths = result.get('cacheUsesLpaths', False)
             self._debug('Cache uses lpaths', self.client_cache_uses_lpaths)
+            self.can_send_ok_to_sendbook = result.get('canSendOkToSendbook', False)
+            self._debug('Can send OK to sendbook', self.can_send_ok_to_sendbook)
 
             if not self.settings().extra_customization[self.OPT_USE_METADATA_CACHE]:
                 self.client_can_use_metadata_cache = False
