@@ -1,7 +1,7 @@
 #!/usr/bin/env  python
 
 __license__   = 'GPL v3'
-__copyright__ = u'2010-2013, Tomasz Dlugosz <tomek3d@gmail.com>'
+__copyright__ = u'2010-2014, Tomasz Dlugosz <tomek3d@gmail.com>'
 '''
 fronda.pl
 '''
@@ -70,6 +70,14 @@ class Fronda(BasicNewsRecipe):
             if articles[genName]:
                 feeds.append((genName, articles[genName]))
         return feeds
+
+    def preprocess_html(self, soup):
+        r = soup.find('small')
+        timestamp = str(r.contents)[3:].split(',')[0]
+        parts = timestamp.split('.')
+        art_date = date(int(parts[2]),int(parts[1]),int(parts[0]))
+        if self.earliest_date < art_date :
+            return soup
 
     keep_only_tags = [
         dict(name='div', attrs={'class':'content content-70 phone-100'})
