@@ -10,30 +10,13 @@
 #include <QtGui/private/qguiapplication_p.h>
 #include <qpa/qplatformwindow.h>
 #include <qpa/qplatformfontdatabase.h>
+#include <QtPlatformSupport/private/qfontconfigdatabase_p.h>
 
 QT_BEGIN_NAMESPACE
 
-static const char debugBackingStoreEnvironmentVariable[] = "QT_DEBUG_BACKINGSTORE";
-
-static inline unsigned parseOptions(const QStringList &paramList)
-{
-    unsigned options = 0;
-    foreach (const QString &param, paramList) {
-        if (param == QLatin1String("enable_fonts"))
-            options |= HeadlessIntegration::EnableFonts;
-    }
-    return options;
-}
-
 HeadlessIntegration::HeadlessIntegration(const QStringList &parameters)
-    : m_dummyFontDatabase(0)
-    , m_options(parseOptions(parameters))
 {
-    if (qEnvironmentVariableIsSet(debugBackingStoreEnvironmentVariable)
-        && qgetenv(debugBackingStoreEnvironmentVariable).toInt() > 0) {
-        m_options |= DebugBackingStore | EnableFonts;
-    }
-
+    Q_UNUSED(parameters);
     HeadlessScreen *mPrimaryScreen = new HeadlessScreen();
 
     mPrimaryScreen->mGeometry = QRect(0, 0, 240, 320);
@@ -41,11 +24,11 @@ HeadlessIntegration::HeadlessIntegration(const QStringList &parameters)
     mPrimaryScreen->mFormat = QImage::Format_ARGB32_Premultiplied;
 
     screenAdded(mPrimaryScreen);
+    m_fontDatabase.reset(new QFontconfigDatabase());
 }
 
 HeadlessIntegration::~HeadlessIntegration()
 {
-    delete m_dummyFontDatabase;
 }
 
 bool HeadlessIntegration::hasCapability(QPlatformIntegration::Capability cap) const
@@ -68,11 +51,7 @@ public:
 
 QPlatformFontDatabase *HeadlessIntegration::fontDatabase() const
 {
-    if (m_options & EnableFonts)
-        return QPlatformIntegration::fontDatabase();
-    if (!m_dummyFontDatabase)
-        m_dummyFontDatabase = new DummyFontDatabase;
-    return m_dummyFontDatabase;
+    return m_fontDatabase.data();
 }
 
 QPlatformWindow *HeadlessIntegration::createPlatformWindow(QWindow *window) const
@@ -90,11 +69,7 @@ QPlatformBackingStore *HeadlessIntegration::createPlatformBackingStore(QWindow *
 
 QAbstractEventDispatcher *HeadlessIntegration::createEventDispatcher() const
 {
-#ifdef Q_OS_WIN
-    return new QEventDispatcherWin32;
-#else
     return createUnixEventDispatcher();
-#endif
 }
 
 HeadlessIntegration *HeadlessIntegration::instance()

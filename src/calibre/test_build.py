@@ -77,10 +77,12 @@ def test_apsw():
 
 def test_qt():
     from calibre.gui2 import Application
-    from PyQt5.Qt import (QImageReader, QNetworkAccessManager)
+    from PyQt5.Qt import (QImageReader, QNetworkAccessManager, QFontDatabase)
     from PyQt5.QtWebKitWidgets import QWebView
     os.environ.pop('DISPLAY', None)
     app = Application([], headless=islinux)
+    if len(QFontDatabase().families()) < 5:
+        raise RuntimeError('The QPA headless plugin is not able to locate enough system fonts via fontconfig')
     fmts = set(map(unicode, QImageReader.supportedImageFormats()))
     testf = set(['jpg', 'png', 'mng', 'svg', 'ico', 'gif'])
     if testf.intersection(fmts) != testf:

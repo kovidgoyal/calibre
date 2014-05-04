@@ -9,7 +9,7 @@ QT_BEGIN_NAMESPACE
 
 HeadlessBackingStore::HeadlessBackingStore(QWindow *window)
     : QPlatformBackingStore(window)
-    , mDebug(HeadlessIntegration::instance()->options() & HeadlessIntegration::DebugBackingStore)
+    , mDebug(0)
 {
     if (mDebug)
         qDebug() << "HeadlessBackingStore::HeadlessBackingStore:" << (quintptr)this;

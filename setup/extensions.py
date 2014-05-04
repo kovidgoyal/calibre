@@ -16,7 +16,7 @@ from setup.build_environment import (chmlib_inc_dirs,
         msvc, MT, win_inc, win_lib, win_ddk, magick_inc_dirs, magick_lib_dirs,
         magick_libs, chmlib_lib_dirs, sqlite_inc_dirs, icu_inc_dirs,
         icu_lib_dirs, win_ddk_lib_dirs, ft_libs, ft_lib_dirs, ft_inc_dirs,
-        zlib_libs, zlib_lib_dirs, zlib_inc_dirs, is64bit, glib_flags)
+        zlib_libs, zlib_lib_dirs, zlib_inc_dirs, is64bit, glib_flags, fontconfig_flags)
 MT
 isunix = islinux or isosx or isbsd
 
@@ -515,7 +515,7 @@ class Build(Command):
         if not self.newer(target, headers + sources + others):
             return
         # Arch monkey patches qmake as a result of which it fails to add
-        # glib-2.0 to the list of library dependencies. Compiling QPA
+        # glib-2.0 and freetype2 to the list of library dependencies. Compiling QPA
         # plugins uses the static libQt5PlatformSupport.a which needs glib
         # to be specified after it for linking to succeed, so we add it to
         # QMAKE_LIBS_PRIVATE (we cannot use LIBS as that would put -lglib-2.0
@@ -533,9 +533,10 @@ class Build(Command):
             OTHER_FILES = {others}
             DESTDIR = {destdir}
             CONFIG -= create_cmake  # Prevent qmake from generating a cmake build file which it puts in the calibre src directory
-            QMAKE_LIBS_PRIVATE += {glib}
+            QMAKE_LIBS_PRIVATE += {glib} {fontconfig}
             ''').format(
-                headers=' '.join(headers), sources=' '.join(sources), others=' '.join(others), destdir=self.d(target), glib=glib_flags)
+                headers=' '.join(headers), sources=' '.join(sources), others=' '.join(others), destdir=self.d(
+                    target), glib=glib_flags, fontconfig=fontconfig_flags)
         bdir = self.j(self.d(self.SRC), 'build', 'headless')
         if not os.path.exists(bdir):
             os.makedirs(bdir)

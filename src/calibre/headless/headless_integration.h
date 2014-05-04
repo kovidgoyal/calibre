@@ -2,6 +2,7 @@
 
 #include <qpa/qplatformintegration.h>
 #include <qpa/qplatformscreen.h>
+#include <QScopedPointer>
 
 QT_BEGIN_NAMESPACE
 
@@ -25,10 +26,6 @@ public:
 class HeadlessIntegration : public QPlatformIntegration
 {
 public:
-    enum Options { // Options to be passed on command line or determined from environment
-        DebugBackingStore = 0x1,
-        EnableFonts = 0x2
-    };
 
     explicit HeadlessIntegration(const QStringList &parameters);
     ~HeadlessIntegration();
@@ -40,13 +37,12 @@ public:
     QPlatformBackingStore *createPlatformBackingStore(QWindow *window) const;
     QAbstractEventDispatcher *createEventDispatcher() const;
 
-    unsigned options() const { return m_options; }
+    unsigned options() const { return 0; }
 
     static HeadlessIntegration *instance();
 
 private:
-    mutable QPlatformFontDatabase *m_dummyFontDatabase;
-    unsigned m_options;
+    QScopedPointer<QPlatformFontDatabase> m_fontDatabase;
 };
 
 QT_END_NAMESPACE

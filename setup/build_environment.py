@@ -106,7 +106,8 @@ def get_sip_dir(q):
 pyqt['pyqt_sip_dir'] = get_sip_dir(c.default_sip_dir)
 pyqt['sip_inc_dir'] = c.sip_inc_dir
 
-glib_flags = subprocess.check_output([PKGCONFIG, '--libs', 'glib-2.0']) if islinux else ''
+glib_flags = subprocess.check_output([PKGCONFIG, '--libs', 'glib-2.0']).strip() if islinux else ''
+fontconfig_flags = subprocess.check_output([PKGCONFIG, '--libs', 'fontconfig']).strip() if islinux else ''
 qt_inc = pyqt['inc']
 qt_lib = pyqt['lib']
 ft_lib_dirs = []
