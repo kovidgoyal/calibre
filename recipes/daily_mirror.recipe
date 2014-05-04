@@ -7,80 +7,70 @@ class AdvancedUserRecipe1306061239(BasicNewsRecipe):
     description = 'News as provided by The Daily Mirror -UK'
 
     __author__ = 'Dave Asbury'
-    # last updated 27/8/13
+    # last updated 1/5/14
     language = 'en_GB'
-    #cover_url = 'http://yookeo.com/screens/m/i/mirror.co.uk.jpg'
+    # cover_url = 'http://yookeo.com/screens/m/i/mirror.co.uk.jpg'
 
     masthead_url = 'http://www.nmauk.co.uk/nma/images/daily_mirror.gif'
-    #recursions = 10
+
     compress_news_images = True
     compress_news_images_max_size = 30
     oldest_article = 1.5
-    max_articles_per_feed = 10
+    max_articles_per_feed = 12
     remove_empty_feeds = True
     remove_javascript     = True
     no_stylesheets = True
-    ignore_duplicate_articles = {'url'}
+    ignore_duplicate_articles = {'title'}
 
-    #auto_cleanup = True
-    #conversion_options = { 'linearize_tables' : True }
-
-    keep_only_tags = [dict(name='h1'),
-                         dict(name='div',attrs={'class' : 'lead-text'}),
-                         dict(attrs={'class' : 'tools clearfix'}),
-                         dict(name='div',attrs={'class' : 'widget relatedContents pictures widget-editable viziwyg-section-245 inpage-widget-158123'}),
-                        # dict(name='figure',attrs={'class' : 'clearfix'}),
-                         dict(name='div',attrs={'class' :'body '}),
-                 dict(name='div',attrs={'class' :'thumb'}),
-                         dict(attrs={'img alt' : ['Perishers','Horace']}),
-                 #dict(attrs={'class' : 'tmRow span-15-5 col-1 article-page'}),
-       #dict(attrs={'class' : ['article-attr','byline append-1','published']}),
-       # dict(name='p'),
-        ]
+    keep_only_tags = [
+        dict(name='h1'),
+        dict(name='div',attrs={'class' : 'lead-text'}),
+        dict(name='figure',attrs={'class' : 'inline-image clearfix '}),
+        dict(name='div',attrs={'class' : 'styleGroup clearfix'}),
+        dict(name='div',attrs={
+            'class' : 'widget relatedContents pictures widget-editable viziwyg-section-70 inpage-widget-2230659'}),
+        dict(name='div',attrs={'class' :'body '}),
+    ]
 
     remove_tags = [
-           dict(attrs={'class' : ['article sa-teaser type-opinion','last','gallery-caption','gallery-data','ir btn-fullscreen','avatar']}),  # ,'image-gallery'
+           dict(attrs={'class' : ['article sa-teaser type-opinion','image-gallery','gallery-caption']}),
            dict(attrs={'class' : 'comment'}),
            dict(name='title'),
+           dict(name='ul'),
            dict(name='ul',attrs={'class' :  'clearfix breadcrumbs '}),
            dict(name='ul',attrs={'id' : 'login-201109171215'}),
-           #'widget navigation breadcrumb widget-editable viziwyg-section-198 inpage-widget-80721 span-17','image-credit'
            dict(name='div',attrs={'class' : ['inline-ad span-16 last','caption']}),
-                    ]
+    ]
 
     preprocess_regexps = [
-        (re.compile(r'- mirror.co.uk', re.IGNORECASE | re.DOTALL), lambda match: '')]
+        (re.compile(r'- mirror.co.uk', re.IGNORECASE | re.DOTALL), lambda match: ''),
+        (re.compile(r'<span class="image-credit">Getty</span>', re.IGNORECASE | re.DOTALL), lambda match: ''),
+        ]
 
     feeds          = [
-        (u'News',u'http://www.mirror.co.uk/news/rss.xml'),
+        (u'UK News',u'http://www.mirror.co.uk/news/uk-news/rss.xml'),
+        (u'world News',u'http://www.mirror.co.uk/news/world-news/rss.xml'),
         (u'Sports',u'http://www.mirror.co.uk/sport/rss.xml'),
         (u'3AM',u'http://www.mirror.co.uk/3am/rss.xml'),
         (u'Lifestyle',u'http://www.mirror.co.uk/lifestyle/rss.xml')
 
 
-
-
-           # example of commented out feed not needed ,(u'Travel','http://www.mirror.co.uk/advice/travel/rss.xml')
+        # example of commented out feed not needed ,(u'Travel','http://www.mirror.co.uk/advice/travel/rss.xml')
   ]
     extra_css = '''
-                    h1{font-family:Arial,Helvetica,sans-serif; font-weight:bold;font-size:170%;}
-                    .article figure figcaption {display: block;margin-left: auto;margin-right: auto;
-                    width:100%;font-family:Arial,Helvetica,sans-serif;font-size:40%;}
-
-                    #h2{font-family:Arial,Helvetica,sans-serif; font-weight:normal;}
-                    p{font-family:Arial,Helvetica,sans-serif;}
-                    body{font-family:Helvetica,Arial,sans-serif;}
-                    .article figure{display: block;margin-left: auto;margin-right: auto;width:100%;}
-                    .lead-text p {font-size:150%}
+    h1{font-family:Arial,Helvetica,sans-serif; font-weight:bold;font-size:large;}
+    h2{font-family:Arial,Helvetica,sans-serif; font-weight:normal;font-size:small;}
+    p{font-family:Arial,Helvetica,sans-serif;font-size:small;}
+    body{font-family:Helvetica,Arial,sans-serif;font-size:small;}
     '''
 
     def get_cover_url(self):
         soup = self.index_to_soup('http://www.politicshome.com/uk/latest_frontpage.html')
-        # look for the block containing the mirror button and url
+# look for the block containing the mirror button and url
         cov = soup.find(attrs={'style' : 'background-image: url(http://www.politicshome.com/images/sources/source_frontpage_button_92.gif);'})
         cov2 = str(cov)
         cov2='http://www.politicshome.com'+cov2[9:-142]
-        # cov2 now contains url of the page containing pic
+# cov2 now contains url of the page containing pic
         soup = self.index_to_soup(cov2)
         cov = soup.find(attrs={'id' : 'large'})
         cov=str(cov)
@@ -96,7 +86,4 @@ class AdvancedUserRecipe1306061239(BasicNewsRecipe):
         except:
             cover_url ='http://profile.ak.fbcdn.net/hprofile-ak-snc4/373019_6149699161_1710984811_n.jpg'
 
-        # print '******** string is  ', cov2,' ***'
-        #cover_url = cov2
-        #cover_url = 'http://www.thesun.co.uk/img/global/new-masthead-logo.png'
         return cover_url

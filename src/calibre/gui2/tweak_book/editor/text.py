@@ -14,7 +14,7 @@ import regex
 from PyQt4.Qt import (
     QPlainTextEdit, QFontDatabase, QToolTip, QPalette, QFont, QKeySequence,
     QTextEdit, QTextFormat, QWidget, QSize, QPainter, Qt, QRect, pyqtSlot,
-    QApplication, QMimeData, QColor, QColorDialog)
+    QApplication, QMimeData, QColor, QColorDialog, QTimer)
 
 from calibre import prepare_string_for_xml, xml_entity_to_unicode
 from calibre.gui2.tweak_book import tprefs, TOP
@@ -135,7 +135,9 @@ class TextEdit(PlainTextEdit):
         self.smarts = NullSmarts(self)
         self.current_cursor_line = None
         self.current_search_mark = None
-        self.highlighter = SyntaxHighlighter(self)
+        self.smarts_highlight_timer = t = QTimer()
+        t.setInterval(750), t.setSingleShot(True), t.timeout.connect(self.update_extra_selections)
+        self.highlighter = SyntaxHighlighter()
         self.line_number_area = LineNumbers(self)
         self.apply_settings()
         self.setMouseTracking(True)
@@ -206,9 +208,9 @@ class TextEdit(PlainTextEdit):
 
     def load_text(self, text, syntax='html', process_template=False):
         self.syntax = syntax
-        self.highlighter = get_highlighter(syntax)(self)
+        self.highlighter = get_highlighter(syntax)()
         self.highlighter.apply_theme(self.theme)
-        self.highlighter.setDocument(self.document())
+        self.highlighter.set_document(self.document())
         sclass = {'html':HTMLSmarts, 'xml':HTMLSmarts}.get(syntax, None)
         if sclass is not None:
             self.smarts = sclass(self)
@@ -252,13 +254,16 @@ class TextEdit(PlainTextEdit):
         self.setTextCursor(c)
         self.ensureCursorVisible()
 
-    def update_extra_selections(self):
+    def update_extra_selections(self, instant=True):
         sel = []
         if self.current_cursor_line is not None:
             sel.append(self.current_cursor_line)
         if self.current_search_mark is not None:
             sel.append(self.current_search_mark)
-        sel.extend(self.smarts.get_extra_selections(self))
+        if instant:
+            sel.extend(self.smarts.get_extra_selections(self))
+        else:
+            self.smarts_highlight_timer.start()
         self.setExtraSelections(sel)
 
     # Search and replace {{{
@@ -456,7 +461,7 @@ class TextEdit(PlainTextEdit):
         sel.cursor = self.textCursor()
         sel.cursor.clearSelection()
         self.current_cursor_line = sel
-        self.update_extra_selections()
+        self.update_extra_selections(instant=False)
         # Update the cursor line's line number in the line number area
         try:
             self.line_number_area.update(0, self.last_current_lnum[0], self.line_number_area.width(), self.last_current_lnum[1])

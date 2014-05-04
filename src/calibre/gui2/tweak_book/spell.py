@@ -16,7 +16,7 @@ from PyQt4.Qt import (
     QStackedLayout, QLabel, QVBoxLayout, QWidget, QPushButton, QIcon, QMenu,
     QDialogButtonBox, QLineEdit, QDialog, QToolButton, QFormLayout, QHBoxLayout,
     pyqtSignal, QAbstractTableModel, QModelIndex, QTimer, QTableView, QCheckBox,
-    QComboBox, QListWidget, QListWidgetItem, QInputDialog, QPlainTextEdit)
+    QComboBox, QListWidget, QListWidgetItem, QInputDialog, QPlainTextEdit, QKeySequence)
 
 from calibre.constants import __appname__, plugins
 from calibre.ebooks.oeb.polish.spell import replace_word, get_all_words, merge_locations
@@ -122,7 +122,40 @@ class AddDictionary(QDialog):  # {{{
         QDialog.accept(self)
 # }}}
 
-class ManageUserDictionaries(Dialog):  # {{{
+# User Dictionaries {{{
+
+class UserWordList(QListWidget):
+
+    def __init__(self, parent=None):
+        QListWidget.__init__(self, parent)
+
+    def contextMenuEvent(self, ev):
+        m = QMenu(self)
+        m.addAction(_('Copy selected words to clipboard'), self.copy_to_clipboard)
+        m.addAction(_('Select all words'), self.select_all)
+        m.exec_(ev.globalPos())
+
+    def select_all(self):
+        for item in (self.item(i) for i in xrange(self.count())):
+            item.setSelected(True)
+
+    def copy_to_clipboard(self):
+        words = []
+        for item in (self.item(i) for i in xrange(self.count())):
+            if item.isSelected():
+                words.append(item.data(Qt.UserRole).toPyObject()[0])
+        if words:
+            QApplication.clipboard().setText('\n'.join(words))
+
+    def keyPressEvent(self, ev):
+        if ev == QKeySequence.Copy:
+            self.copy_to_clipboard()
+            ev.accept()
+            return
+        return QListWidget.keyPressEvent(self, ev)
+
+
+class ManageUserDictionaries(Dialog):
 
     def __init__(self, parent=None):
         self.dictionaries_changed = False
@@ -162,7 +195,7 @@ class ManageUserDictionaries(Dialog):  # {{{
         l.addWidget(a)
         self.la = la = QLabel(_('Words in this dictionary:'))
         l.addWidget(la)
-        self.words = w = QListWidget(self)
+        self.words = w = UserWordList(self)
         w.setSelectionMode(w.ExtendedSelection)
         l.addWidget(w)
         self.add_word_button = b = QPushButton(_('&Add word'), self)
@@ -586,6 +619,11 @@ class WordsModel(QAbstractTableModel):
             elif role == Qt.InitialSortOrderRole:
                 return Qt.DescendingOrder if section == 1 else Qt.AscendingOrder
 
+    def misspelled_text(self, w):
+        if self.spell_map[w]:
+            return _('Ignored') if dictionaries.is_word_ignored(*w) else ''
+        return '✓'
+
     def data(self, index, role=Qt.DisplayRole):
         try:
             word, locale = self.items[index.row()]
@@ -604,7 +642,7 @@ class WordsModel(QAbstractTableModel):
                     pl = '%s (%s)' % (pl, countrycode)
                 return pl
             if col == 3:
-                return '' if self.spell_map[(word, locale)] else '✓'
+                return self.misspelled_text((word, locale))
         if role == Qt.TextAlignmentRole:
             return Qt.AlignVCenter | (Qt.AlignLeft if index.column() == 0 else Qt.AlignHCenter)
 
@@ -635,7 +673,7 @@ class WordsModel(QAbstractTableModel):
                 locale = w[1]
                 return (calibre_langcode_to_name(locale.langcode), locale.countrycode)
         else:
-            key = self.spell_map.get
+            key = self.misspelled_text
         return key
 
     def do_sort(self):
@@ -762,6 +800,10 @@ class WordsView(QTableView):
         self.verticalHeader().close()
 
     def keyPressEvent(self, ev):
+        if ev == QKeySequence.Copy:
+            self.copy_to_clipboard()
+            ev.accept()
+            return
         ret = QTableView.keyPressEvent(self, ev)
         if ev.key() in (Qt.Key_PageUp, Qt.Key_PageDown, Qt.Key_Up, Qt.Key_Down):
             idx = self.currentIndex()
@@ -794,8 +836,18 @@ class WordsView(QTableView):
         a.setMenu(am)
         for dic in sorted(dictionaries.active_user_dictionaries, key=lambda x:sort_key(x.name)):
             am.addAction(dic.name, partial(self.add_all.emit, dic.name))
+        m.addSeparator()
+        m.addAction(_('Copy selected words to clipboard'), self.copy_to_clipboard)
 
         m.exec_(ev.globalPos())
+
+    def copy_to_clipboard(self):
+        rows = {i.row() for i in self.selectedIndexes()}
+        words = {self.model().word_for_row(r) for r in rows}
+        words.discard(None)
+        words = sorted({w[0] for w in words}, key=sort_key)
+        if words:
+            QApplication.clipboard().setText('\n'.join(words))
 
 class SpellCheck(Dialog):
 
@@ -1202,5 +1254,5 @@ def find_next(word, locations, current_editor, current_editor_name,
 if __name__ == '__main__':
     app = QApplication([])
     dictionaries.initialize()
-    SpellCheck.test()
+    ManageUserDictionaries.test()
     del app

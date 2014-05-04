@@ -28,9 +28,8 @@ bit.
    (First check if the version of VS 2008 you have is not already SP1)
 3) Install The Windows SDK. You need to install a version that is built for VS
 2008. Get it from here: http://www.microsoft.com/en-us/download/details.aspx?id=3138
-4) If you are building 64bit, edit the properties of the Visual Studio command
-prompt shortcut to pass "amd64" instead of "x86" to the vsvars.bat file so that
-it uses the 64 bit tools.
+4) If you are building 64bit, remember to use the 64bit version of the visual
+studio command prompt.
 
 I've read that it is possible to use the 64-bit compiler that comes with the
 Windows SDK With VS 2008 Express Edition, but I can't be bothered figuring it

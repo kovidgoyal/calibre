@@ -929,7 +929,7 @@ Name=E-book Viewer
 GenericName=Viewer for E-books
 Comment=Viewer for E-books in all the major formats
 TryExec=ebook-viewer
-Exec=ebook-viewer %f
+Exec=ebook-viewer --detach %f
 Icon=calibre-viewer
 Categories=Graphics;Viewer;
 '''
@@ -942,7 +942,7 @@ Name=Edit E-book
 GenericName=Edit E-books
 Comment=Edit e-books in various formats
 TryExec=ebook-edit
-Exec=ebook-edit %f
+Exec=ebook-edit --detach %f
 Icon=calibre-ebook-edit
 Categories=Office;
 '''
@@ -955,7 +955,7 @@ Name=calibre
 GenericName=E-book library management
 Comment=E-book library management: Convert, view, share, catalogue all your e-books
 TryExec=calibre
-Exec=calibre %F
+Exec=calibre --detach %F
 Icon=calibre-gui
 Categories=Office;
 '''

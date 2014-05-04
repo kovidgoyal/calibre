@@ -11,6 +11,7 @@ from threading import Thread
 from Queue import Queue
 
 from calibre.ptempfile import remove_dir
+from calibre.utils.filenames import remove_dir_if_empty
 from calibre.utils.recycle_bin import delete_tree, delete_file
 
 class DeleteService(Thread):
@@ -93,10 +94,10 @@ class DeleteService(Thread):
                     time.sleep(1)
                     shutil.move(path, dest)
                 if delete_empty_parent:
-                    self.remove_dir_if_empty(os.path.dirname(path))
+                    remove_dir_if_empty(os.path.dirname(path), ignore_metadata_caches=True)
                 requests.append(dest)
         if not requests:
-            self.remove_dir_if_empty(tdir)
+            remove_dir_if_empty(tdir)
         else:
             self.requests.put(tdir)
 

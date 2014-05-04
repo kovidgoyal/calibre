@@ -15,7 +15,8 @@ from PyQt4.Qt import QFont, QTextBlockUserData
 from calibre.ebooks.oeb.polish.spell import html_spell_tags, xml_spell_tags
 from calibre.gui2.tweak_book.editor import SyntaxTextCharFormat
 from calibre.gui2.tweak_book.editor.syntax.base import SyntaxHighlighter, run_loop
-from calibre.gui2.tweak_book.editor.syntax.css import create_formats as create_css_formats, state_map as css_state_map, State as CSSState
+from calibre.gui2.tweak_book.editor.syntax.css import (
+    create_formats as create_css_formats, state_map as css_state_map, CSSState, CSSUserData)
 
 from html5lib.constants import cdataElements, rcdataElements
 
@@ -51,41 +52,33 @@ Attr = namedtuple('Attr', 'offset type data')
 
 class Tag(object):
 
-    __slots__ = ('name', 'bold', 'italic', 'lang', 'hash')
+    __slots__ = ('name', 'bold', 'italic', 'lang')
 
     def __init__(self, name, bold=None, italic=None):
         self.name = name
         self.bold = name in bold_tags if bold is None else bold
         self.italic = name in italic_tags if italic is None else italic
         self.lang = None
-        self.hash = 0
-
-    def __hash__(self):
-        return self.hash
 
     def __eq__(self, other):
         return self.name == getattr(other, 'name', None) and self.lang == getattr(other, 'lang', False)
 
     def copy(self):
         ans = Tag(self.name, self.bold, self.italic)
-        ans.lang, ans.hash = self.lang, self.hash
+        ans.lang = self.lang
         return ans
-
-    def update_hash(self):
-        self.hash = hash((self.name, self.lang))
 
 class State(object):
 
-    __slots__ = ('tag_being_defined', 'tags', 'is_bold', 'is_italic',
-                 'current_lang', 'parse', 'get_user_data', 'set_user_data',
-                 'css_formats', 'stack', 'sub_parser_state', 'default_lang',
-                 'attribute_name',)
+    __slots__ = (
+        'tag_being_defined', 'tags', 'is_bold', 'is_italic', 'current_lang',
+        'parse', 'css_formats', 'sub_parser_state', 'default_lang', 'attribute_name',)
 
     def __init__(self):
         self.tags = []
         self.is_bold = self.is_italic = False
-        self.tag_being_defined = self.current_lang = self.get_user_data = self.set_user_data = \
-            self.css_formats = self.stack = self.sub_parser_state = self.default_lang = self.attribute_name = None
+        self.tag_being_defined = self.current_lang =  self.css_formats = \
+            self.sub_parser_state = self.default_lang = self.attribute_name = None
         self.parse = NORMAL
 
     def copy(self):
@@ -95,16 +88,9 @@ class State(object):
         self.tags = [x.copy() for x in self.tags]
         if self.tag_being_defined is not None:
             self.tag_being_defined = self.tag_being_defined.copy()
+        if self.sub_parser_state is not None:
+            ans.sub_parser_state = self.sub_parser_state.copy()
         return ans
-
-    @property
-    def value(self):
-        if self.tag_being_defined is not None:
-            self.tag_being_defined.update_hash()
-        return self.stack.index_for(self)
-
-    def __hash__(self):
-        return hash((self.parse, self.sub_parser_state, self.tag_being_defined, self.attribute_name, tuple(self.tags)))
 
     def __eq__(self, other):
         return (
@@ -114,6 +100,9 @@ class State(object):
             self.attribute_name == getattr(other, 'attribute_name', False) and
             self.tags == getattr(other, 'tags', None)
         )
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
 
     def open_tag(self, name):
         self.tag_being_defined = Tag(name)
@@ -128,7 +117,7 @@ class State(object):
             return  # No matching open tag found, ignore the closing tag
         # Remove all tags upto the matching open tag
         self.tags = self.tags[:-len(removed_tags)]
-        self.sub_parser_state = 0
+        self.sub_parser_state = None
         # Check if we should still be bold or italic
         if self.is_bold:
             self.is_bold = False
@@ -154,44 +143,18 @@ class State(object):
         if self.tag_being_defined is None:
             return
         t, self.tag_being_defined = self.tag_being_defined, None
-        t.update_hash()
         self.tags.append(t)
         self.is_bold = self.is_bold or t.bold
         self.is_italic = self.is_italic or t.italic
         self.current_lang = t.lang or self.current_lang
         if t.name in cdata_tags:
             self.parse = CSS if t.name == 'style' else CDATA
-            self.sub_parser_state = 0
+            self.sub_parser_state = None
 
     def __repr__(self):
         return '<State %s is_bold=%s is_italic=%s current_lang=%s>' % (
             '->'.join(x.name for x in self.tags), self.is_bold, self.is_italic, self.current_lang)
     __str__ = __repr__
-
-class Stack(object):
-
-    ''' Maintain an efficient bi-directional mapping between states and index
-    numbers. Ensures that if state1 == state2 then their corresponding index
-    numbers are the same and vice versa. This is need so that the state number
-    passed to Qt does not change unless the underlying state has actually
-    changed. '''
-
-    def __init__(self):
-        self.index_map = []
-        self.state_map = {}
-
-    def index_for(self, state):
-        ans = self.state_map.get(state, None)
-        if ans is None:
-            self.state_map[state] = ans = len(self.index_map)
-            self.index_map.append(state)
-        return ans
-
-    def state_for(self, index):
-        try:
-            return self.index_map[index]
-        except IndexError:
-            return None
 
 class HTMLUserData(QTextBlockUserData):
 
@@ -199,26 +162,22 @@ class HTMLUserData(QTextBlockUserData):
         QTextBlockUserData.__init__(self)
         self.tags = []
         self.attributes = []
+        self.state = State()
+        self.css_user_data = None
 
-def add_tag_data(state, tag):
-    ud = q = state.get_user_data()
-    if ud is None:
-        ud = HTMLUserData()
-    ud.tags.append(tag)
-    if q is None:
-        state.set_user_data(ud)
+    def clear(self, state=None):
+        self.tags, self.attributes = [], []
+        self.state = State() if state is None else state
+
+def add_tag_data(user_data, tag):
+    user_data.tags.append(tag)
 
 ATTR_NAME, ATTR_VALUE, ATTR_START, ATTR_END = object(), object(), object(), object()
 
-def add_attr_data(state, data_type, data, offset):
-    ud = q = state.get_user_data()
-    if ud is None:
-        ud = HTMLUserData()
-    ud.attributes.append(Attr(offset, data_type, data))
-    if q is None:
-        state.set_user_data(ud)
+def add_attr_data(user_data, data_type, data, offset):
+    user_data.attributes.append(Attr(offset, data_type, data))
 
-def css(state, text, i, formats):
+def css(state, text, i, formats, user_data):
     ' Inside a <style> tag '
     pat = cdata_close_pats['style']
     m = pat.search(text, i)
@@ -227,18 +186,18 @@ def css(state, text, i, formats):
     else:
         css_text = text[i:m.start()]
     ans = []
-    css_state = CSSState(state.sub_parser_state)
-    for j, num, fmt in run_loop(css_state, css_state_map, state.css_formats, css_text):
+    css_user_data = user_data.css_user_data = user_data.css_user_data or CSSUserData()
+    state.sub_parser_state = css_user_data.state = state.sub_parser_state or CSSState()
+    for j, num, fmt in run_loop(css_user_data, css_state_map, formats['css_sub_formats'], css_text):
         ans.append((num, fmt))
-    state.sub_parser_state = css_state.value
     if m is not None:
-        state.sub_parser_state = 0
+        state.sub_parser_state = None
         state.parse = IN_CLOSING_TAG
-        add_tag_data(state, TagStart(m.start(), 'style', '', True, True))
+        add_tag_data(user_data, TagStart(m.start(), '', 'style', True, True))
         ans.extend([(2, formats['end_tag']), (len(m.group()) - 2, formats['tag_name'])])
     return ans
 
-def cdata(state, text, i, formats):
+def cdata(state, text, i, formats, user_data):
     'CDATA inside tags like <title> or <style>'
     name = state.tags[-1].name
     pat = cdata_close_pats[name]
@@ -248,7 +207,7 @@ def cdata(state, text, i, formats):
         return [(len(text) - i, fmt)]
     state.parse = IN_CLOSING_TAG
     num = m.start() - i
-    add_tag_data(state, TagStart(m.start(), name, '', True, True))
+    add_tag_data(user_data, TagStart(m.start(), '', name, True, True))
     return [(num, fmt), (2, formats['end_tag']), (len(m.group()) - 2, formats['tag_name'])]
 
 def mark_nbsp(state, text, nbsp_format):
@@ -268,7 +227,7 @@ def mark_nbsp(state, text, nbsp_format):
         ans = [(len(text), fmt)]
     return ans
 
-def normal(state, text, i, formats):
+def normal(state, text, i, formats, user_data):
     ' The normal state in between tags '
     ch = text[i]
     if ch == '<':
@@ -288,18 +247,23 @@ def normal(state, text, i, formats):
         if m is None:
             return [(1, formats['<'])]
 
-        name = m.group()
-        closing = name.startswith('/')
-        state.parse = IN_CLOSING_TAG if closing else IN_OPENING_TAG
-        ans = [(2 if closing else 1, formats['end_tag' if closing else 'tag'])]
+        tname = m.group()
+        closing = tname.startswith('/')
         if closing:
-            name = name[1:]
-        prefix, name = name.partition(':')[0::2]
-        if prefix and name:
+            tname = tname[1:]
+        if ':' in tname:
+            prefix, name = tname.split(':', 1)
+        else:
+            prefix, name = '', tname
+        if prefix and not name:
+            return [(len(m.group()) + 1, formats['only-prefix'])]
+        ans = [(2 if closing else 1, formats['end_tag' if closing else 'tag'])]
+        if prefix:
             ans.append((len(prefix)+1, formats['nsprefix']))
-        ans.append((len(name or prefix), formats['tag_name']))
-        add_tag_data(state, TagStart(i, prefix, name, closing, True))
-        (state.close_tag if closing else state.open_tag)(name or prefix)
+        ans.append((len(name), formats['tag_name']))
+        state.parse = IN_CLOSING_TAG if closing else IN_OPENING_TAG
+        add_tag_data(user_data, TagStart(i, prefix, name, closing, True))
+        (state.close_tag if closing else state.open_tag)(name)
         return ans
 
     if ch == '&':
@@ -314,7 +278,7 @@ def normal(state, text, i, formats):
     t = normal_pat.search(text, i).group()
     return mark_nbsp(state, t, formats['nbsp'])
 
-def opening_tag(cdata_tags, state, text, i, formats):
+def opening_tag(cdata_tags, state, text, i, formats, user_data):
     'An opening tag, like <a>'
     ch = text[i]
     if ch in space_chars:
@@ -325,24 +289,26 @@ def opening_tag(cdata_tags, state, text, i, formats):
             return [(1, formats['/'])]
         state.parse = NORMAL
         l = len(m.group())
-        add_tag_data(state, TagEnd(i + l - 1, True, False))
+        add_tag_data(user_data, TagEnd(i + l - 1, True, False))
         return [(l, formats['tag'])]
     if ch == '>':
         state.finish_opening_tag(cdata_tags)
-        add_tag_data(state, TagEnd(i, False, False))
+        add_tag_data(user_data, TagEnd(i, False, False))
         return [(1, formats['tag'])]
     m = attribute_name_pat.match(text, i)
     if m is None:
         return [(1, formats['?'])]
     state.parse = ATTRIBUTE_NAME
     attrname = state.attribute_name = m.group()
-    add_attr_data(state, ATTR_NAME, attrname, m.start())
+    add_attr_data(user_data, ATTR_NAME, attrname, m.start())
     prefix, name = attrname.partition(':')[0::2]
+    if not prefix and not name:
+        return [(len(attrname), formats['?'])]
     if prefix and name:
         return [(len(prefix) + 1, formats['nsprefix']), (len(name), formats['attr'])]
     return [(len(prefix), formats['attr'])]
 
-def attribute_name(state, text, i, formats):
+def attribute_name(state, text, i, formats, user_data):
     ' After attribute name '
     ch = text[i]
     if ch in space_chars:
@@ -354,7 +320,7 @@ def attribute_name(state, text, i, formats):
     state.parse = IN_OPENING_TAG
     return [(0, None)]
 
-def attribute_value(state, text, i, formats):
+def attribute_value(state, text, i, formats, user_data):
     ' After attribute = '
     ch = text[i]
     if ch in space_chars:
@@ -368,20 +334,20 @@ def attribute_value(state, text, i, formats):
         return [(1, formats['no-attr-value'])]
     return [(len(m.group()), formats['string'])]
 
-def quoted_val(state, text, i, formats):
+def quoted_val(state, text, i, formats, user_data):
     ' A quoted attribute value '
     quote = '"' if state.parse is DQ_VAL else "'"
-    add_attr_data(state, ATTR_VALUE, ATTR_START, i)
+    add_attr_data(user_data, ATTR_VALUE, ATTR_START, i)
     pos = text.find(quote, i)
     if pos == -1:
         num = len(text) - i
     else:
         num = pos - i + 1
         state.parse = IN_OPENING_TAG
-        add_attr_data(state, ATTR_VALUE, ATTR_END, i + num)
+        add_attr_data(user_data, ATTR_VALUE, ATTR_END, i + num)
     return [(num, formats['string'])]
 
-def closing_tag(state, text, i, formats):
+def closing_tag(state, text, i, formats, user_data):
     ' A closing tag like </a> '
     ch = text[i]
     if ch in space_chars:
@@ -394,10 +360,10 @@ def closing_tag(state, text, i, formats):
     ans = [(1, formats['end_tag'])]
     if num > 1:
         ans.insert(0, (num - 1, formats['bad-closing']))
-    add_tag_data(state, TagEnd(pos, False, False))
+    add_tag_data(user_data, TagEnd(pos, False, False))
     return ans
 
-def in_comment(state, text, i, formats):
+def in_comment(state, text, i, formats, user_data):
     ' Comment, processing instruction or doctype '
     end = {IN_COMMENT:'-->', IN_PI:'?>'}.get(state.parse, '>')
     pos = text.find(end, i)
@@ -428,7 +394,7 @@ for x in (SQ_VAL, DQ_VAL):
 xml_state_map = state_map.copy()
 xml_state_map[IN_OPENING_TAG] = partial(opening_tag, set())
 
-def create_formats(highlighter):
+def create_formats(highlighter, add_css=True):
     t = highlighter.theme
     formats = {
         'tag': t['Function'],
@@ -445,18 +411,21 @@ def create_formats(highlighter):
         'nbsp': t['SpecialCharacter'],
     }
     for name, msg in {
-        '<': _('An unescaped < is not allowed. Replace it with &lt;'),
-        '&': _('An unescaped ampersand is not allowed. Replace it with &amp;'),
-        '>': _('An unescaped > is not allowed. Replace it with &gt;'),
-        '/': _('/ not allowed except at the end of the tag'),
-        '?': _('Unknown character'),
-        'bad-closing': _('A closing tag must contain only the tag name and nothing else'),
-        'no-attr-value': _('Expecting an attribute value'),
+            '<': _('An unescaped < is not allowed. Replace it with &lt;'),
+            '&': _('An unescaped ampersand is not allowed. Replace it with &amp;'),
+            '>': _('An unescaped > is not allowed. Replace it with &gt;'),
+            '/': _('/ not allowed except at the end of the tag'),
+            '?': _('Unknown character'),
+            'bad-closing': _('A closing tag must contain only the tag name and nothing else'),
+            'no-attr-value': _('Expecting an attribute value'),
+            'only-prefix': _('A tag name cannot end with a colon'),
     }.iteritems():
         f = formats[name] = SyntaxTextCharFormat(formats['error'])
         f.setToolTip(msg)
     f = formats['title'] = SyntaxTextCharFormat()
     f.setFontWeight(QFont.Bold)
+    if add_css:
+        formats['css_sub_formats'] = create_css_formats(highlighter)
     return formats
 
 
@@ -465,18 +434,7 @@ class HTMLHighlighter(SyntaxHighlighter):
     state_map = state_map
     create_formats_func = create_formats
     spell_attributes = ('alt', 'title')
-
-    def create_formats(self):
-        super(HTMLHighlighter, self).create_formats()
-        self.default_state = State()
-        self.default_state.css_formats = create_css_formats(self)
-        self.default_state.stack = Stack()
-
-    def create_state(self, val):
-        if val < 0:
-            return self.default_state.copy()
-        ans = self.default_state.stack.state_for(val) or self.default_state
-        return ans.copy()
+    user_data_factory = HTMLUserData
 
     def tag_ok_for_spell(self, name):
         return name not in html_spell_tags
@@ -485,6 +443,9 @@ class XMLHighlighter(HTMLHighlighter):
 
     state_map = xml_state_map
     spell_attributes = ('opf:file-as',)
+
+    def create_formats_func(self):
+        return create_formats(self, add_css=False)
 
     def tag_ok_for_spell(self, name):
         return name in xml_spell_tags
@@ -507,7 +468,7 @@ if __name__ == '__main__':
         </style>
         <style type="text/css">p.small { font-size: x-small; color:gray }</style>
     </head id="invalid attribute on closing tag">
-    <body>
+    <body><p:
         <!-- The start of the actual body text -->
         <h1>A heading that should appear in bold, with an <i>italic</i> word</h1>
         <p>Some text with inline formatting, that is syntax highlighted. A <b>bold</b> word, and an <em>italic</em> word. \

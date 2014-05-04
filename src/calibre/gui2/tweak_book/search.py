@@ -84,6 +84,11 @@ class WhereBox(QComboBox):
             <dd>Search only within the marked text in the currently opened file. You can mark text using the Search menu.</dd>
             </dl>'''))
         self.emphasize = emphasize
+        self.ofont = QFont(self.font())
+        if emphasize:
+            f = self.emph_font = QFont(self.ofont)
+            f.setBold(True), f.setItalic(True)
+            self.setFont(f)
 
     @dynamic_property
     def where(self):
@@ -94,16 +99,16 @@ class WhereBox(QComboBox):
             self.setCurrentIndex({v:k for k, v in wm.iteritems()}[val])
         return property(fget=fget, fset=fset)
 
-    def paintEvent(self, ev):
+    def showPopup(self):
         # We do it like this so that the popup uses a normal font
         if self.emphasize:
-            ofont = self.font()
-            f = QFont(ofont)
-            f.setBold(True), f.setItalic(True)
-            self.setFont(f)
-        QComboBox.paintEvent(self, ev)
+            self.setFont(self.ofont)
+        QComboBox.showPopup(self)
+
+    def hidePopup(self):
         if self.emphasize:
-            self.setFont(ofont)
+            self.setFont(self.emph_font)
+        QComboBox.hidePopup(self)
 
 class DirectionBox(QComboBox):
 
@@ -766,7 +771,7 @@ class SavedSearches(Dialog):
             def err():
                 error_dialog(self, _('Invalid data'), _(
                     'The file %s does not contain valid saved searches') % path, show=True)
-            if not isinstance(obj, dict) or not 'version' in obj or not 'searches' in obj or obj['version'] not in (1,):
+            if not isinstance(obj, dict) or 'version' not in obj or 'searches' not in obj or obj['version'] not in (1,):
                 return err()
             searches = []
             for item in obj['searches']:

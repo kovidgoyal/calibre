@@ -14,7 +14,7 @@ from calibre.customize.ui import available_input_formats
 def is_supported(path):
     ext = os.path.splitext(path)[1].replace('.', '').lower()
     ext = re.sub(r'(x{0,1})htm(l{0,1})', 'html', ext)
-    return ext in available_input_formats()
+    return ext in available_input_formats() or ext == 'kepub'
 
 class UnsupportedFormatError(Exception):
 

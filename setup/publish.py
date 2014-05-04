@@ -81,7 +81,7 @@ class Manual(Command):
                 os.makedirs('.build'+os.sep+'html')
             os.environ['__appname__'] = __appname__
             os.environ['__version__'] = __version__
-            subprocess.check_call(['sphinx-build', '-b', 'html', '-t', 'online',
+            subprocess.check_call(['sphinx-build2', '-b', 'html', '-t', 'online',
                                    '-d', '.build/doctrees', '.', '.build/html'])
             subprocess.check_call(['sphinx-build', '-b', 'myepub', '-d',
                                    '.build/doctrees', '.', '.build/epub'])

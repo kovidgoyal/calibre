@@ -47,7 +47,6 @@ class Nzz(BasicNewsRecipe):
         # print soup.prettify()
 
         articles = {}
-        key = None
         sections = []
         ans = []
         issue = soup.find("link",rel="prefetch")

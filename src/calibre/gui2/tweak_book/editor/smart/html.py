@@ -24,8 +24,8 @@ class Tag(object):
     def __init__(self, start_block, tag_start, end_block, tag_end, self_closing=False):
         self.start_block, self.end_block = start_block, end_block
         self.start_offset, self.end_offset = tag_start.offset, tag_end.offset
-        tag = tag_start.name or tag_start.prefix
-        if tag_start.name and tag_start.prefix:
+        tag = tag_start.name
+        if tag_start.prefix:
             tag = tag_start.prefix + ':' + tag
         self.name = tag
         self.self_closing = self_closing
@@ -101,8 +101,8 @@ def find_tag_definition(block, offset):
         return None, False
     tag_start = boundary
     closing = tag_start.closing
-    tag = tag_start.name or tag_start.prefix
-    if tag_start.name and tag_start.prefix:
+    tag = tag_start.name
+    if tag_start.prefix:
         tag = tag_start.prefix + ':' + tag
     return tag, closing
 

@@ -8,6 +8,8 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import re
 
+from PyQt4.Qt import QTextBlockUserData
+
 from calibre.gui2.tweak_book.editor import SyntaxTextCharFormat
 from calibre.gui2.tweak_book.editor.syntax.base import SyntaxHighlighter
 
@@ -118,41 +120,63 @@ content_tokens = [(re.compile(k), v, n) for k, v, n in [
 
 ]]
 
-class State(object):
+NORMAL = 0
+IN_COMMENT_NORMAL = 1
+IN_SQS = 2
+IN_DQS = 3
+IN_CONTENT = 4
+IN_COMMENT_CONTENT = 5
 
-    NORMAL = 0
-    IN_COMMENT_NORMAL = 1
-    IN_SQS = 2
-    IN_DQS = 3
-    IN_CONTENT = 4
-    IN_COMMENT_CONTENT = 5
+class CSSState(object):
 
-    def __init__(self, num):
-        self.parse  = num & 0b1111
-        self.blocks = num >> 4
+    __slots__ = ('parse', 'blocks')
 
-    @property
-    def value(self):
-        return ((self.parse & 0b1111) | (max(0, self.blocks) << 4))
+    def __init__(self):
+        self.parse  = NORMAL
+        self.blocks = 0
 
+    def copy(self):
+        s = CSSState()
+        s.parse, s.blocks = self.parse, self.blocks
+        return s
 
-def normal(state, text, i, formats):
+    def __eq__(self, other):
+        return self.parse == getattr(other, 'parse', -1) and \
+            self.blocks == getattr(other, 'blocks', -1)
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
+    def __repr__(self):
+        return "CSSState(parse=%s, blocks=%s)" % (self.parse, self.blocks)
+    __str__ = __repr__
+
+class CSSUserData(QTextBlockUserData):
+
+    def __init__(self):
+        QTextBlockUserData.__init__(self)
+        self.state = CSSState()
+
+    def clear(self, state=None):
+        self.state = CSSState() if state is None else state
+
+def normal(state, text, i, formats, user_data):
     ' The normal state (outside content blocks {})'
     m = space_pat.match(text, i)
     if m is not None:
         return [(len(m.group()), None)]
     cdo = cdo_pat.match(text, i)
     if cdo is not None:
-        state.parse = State.IN_COMMENT_NORMAL
+        state.parse = IN_COMMENT_NORMAL
         return [(len(cdo.group()), formats['comment'])]
     if text[i] == '"':
-        state.parse = State.IN_DQS
+        state.parse = IN_DQS
         return [(1, formats['string'])]
     if text[i] == "'":
-        state.parse = State.IN_SQS
+        state.parse = IN_SQS
         return [(1, formats['string'])]
     if text[i] == '{':
-        state.parse = State.IN_CONTENT
+        state.parse = IN_CONTENT
         state.blocks += 1
         return [(1, formats['bracket'])]
     for token, fmt, name in sheet_tokens:
@@ -162,24 +186,24 @@ def normal(state, text, i, formats):
 
     return [(len(text) - i, formats['unknown-normal'])]
 
-def content(state, text, i, formats):
+def content(state, text, i, formats, user_data):
     ' Inside content blocks '
     m = space_pat.match(text, i)
     if m is not None:
         return [(len(m.group()), None)]
     cdo = cdo_pat.match(text, i)
     if cdo is not None:
-        state.parse = State.IN_COMMENT_CONTENT
+        state.parse = IN_COMMENT_CONTENT
         return [(len(cdo.group()), formats['comment'])]
     if text[i] == '"':
-        state.parse = State.IN_DQS
+        state.parse = IN_DQS
         return [(1, formats['string'])]
     if text[i] == "'":
-        state.parse = State.IN_SQS
+        state.parse = IN_SQS
         return [(1, formats['string'])]
     if text[i] == '}':
         state.blocks -= 1
-        state.parse = State.NORMAL if state.blocks < 1 else State.IN_CONTENT
+        state.parse = NORMAL if state.blocks < 1 else IN_CONTENT
         return [(1, formats['bracket'])]
     if text[i] == '{':
         state.blocks += 1
@@ -191,34 +215,34 @@ def content(state, text, i, formats):
 
     return [(len(text) - i, formats['unknown-normal'])]
 
-def comment(state, text, i, formats):
+def comment(state, text, i, formats, user_data):
     ' Inside a comment '
     pos = text.find('*/', i)
     if pos == -1:
         return [(len(text), formats['comment'])]
-    state.parse = State.NORMAL if state.parse == State.IN_COMMENT_NORMAL else State.IN_CONTENT
+    state.parse = NORMAL if state.parse == IN_COMMENT_NORMAL else IN_CONTENT
     return [(pos - i + 2, formats['comment'])]
 
-def in_string(state, text, i, formats):
+def in_string(state, text, i, formats, user_data):
     'Inside a string'
-    q = '"' if state.parse == State.IN_DQS else "'"
+    q = '"' if state.parse == IN_DQS else "'"
     pos = text.find(q, i)
     if pos == -1:
         if text[-1] == '\\':
             # Multi-line string
             return [(len(text) - i, formats['string'])]
-        state.parse = (State.NORMAL if state.blocks < 1 else State.IN_CONTENT)
+        state.parse = (NORMAL if state.blocks < 1 else IN_CONTENT)
         return [(len(text) - i, formats['unterminated-string'])]
-    state.parse = (State.NORMAL if state.blocks < 1 else State.IN_CONTENT)
+    state.parse = (NORMAL if state.blocks < 1 else IN_CONTENT)
     return [(pos - i + len(q), formats['string'])]
 
 state_map = {
-    State.NORMAL:normal,
-    State.IN_COMMENT_NORMAL: comment,
-    State.IN_COMMENT_CONTENT: comment,
-    State.IN_SQS: in_string,
-    State.IN_DQS: in_string,
-    State.IN_CONTENT: content,
+    NORMAL:normal,
+    IN_COMMENT_NORMAL: comment,
+    IN_COMMENT_CONTENT: comment,
+    IN_SQS: in_string,
+    IN_DQS: in_string,
+    IN_CONTENT: content,
 }
 
 def create_formats(highlighter):
@@ -252,9 +276,8 @@ class CSSHighlighter(SyntaxHighlighter):
 
     state_map = state_map
     create_formats_func = create_formats
+    user_data_factory = CSSUserData
 
-    def create_state(self, num):
-        return State(max(0, num))
 
 if __name__ == '__main__':
     from calibre.gui2.tweak_book.editor.widget import launch_editor

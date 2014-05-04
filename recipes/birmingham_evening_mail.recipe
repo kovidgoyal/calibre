@@ -5,30 +5,36 @@ import re
 class AdvancedUserRecipe1306097511(BasicNewsRecipe):
     title          = u'Birmingham Evening Mail'
     description = 'News for Birmingham UK'
-    #timefmt = ''
+    # timefmt = ''
     __author__ = 'Dave Asbury'
-    # v1 21/12/13
+    # 1/5/14
     masthead_url        = 'http://images.icnetwork.co.uk/upl/icbirmingham/apr2004/6/5/0007417F-982A-107F-969980BFB6FA0000.jpg'
-    oldest_article = 1
+    oldest_article = 2
     max_articles_per_feed = 10
-    #linearize_tables = True
+    # linearize_tables = True
     remove_empty_feeds = True
     remove_javascript     = True
     no_stylesheets = True
     remove_attributes = ['style']
-    #auto_cleanup = True
+    # auto_cleanup = True
     language = 'en_GB'
     compress_news_images = True
     compress_news_images_max_size = 30
     ignore_duplicate_articles = {'title', 'url'}
 
     remove_tags = [
-                dict(attrs={'class' : 'gallery-data'}),
-                dict(attrs={'class' : 'ir btn-fullscreen'}),
-                dict(attrs={'class' : 'tools clearfix'}),
+        dict(attrs={'class' : 'gallery-data'}),
+        dict(attrs={'class' : 'ir btn-fullscreen'}),
+        dict(attrs={'class' : 'tools clearfix'}),
+        dict(attrs={'class' : 'shareButtons'}),
+
                 ]
     keep_only_tags = [
-                        dict(attrs={'class' : 'tmCol article'}),]
+        dict(name='h1'),
+        dict(attrs={'class' : 'lead-text'}),
+        # dict(attrs={'class' : 'styleGroup article-header'}),
+        # dict(attrs={'class' : 'body '}),
+        dict(attrs={'class' : 'tmCol article'}),]
 
     feeds          = [
         (u'Local News', u'http://www.birminghammail.co.uk/news/local-news/rss.xml'),
@@ -38,11 +44,15 @@ class AdvancedUserRecipe1306097511(BasicNewsRecipe):
         (u'Lifestyle',u'http://www.birminghammail.co.uk/lifestyle/rss.xml'),
         ]
     extra_css = '''
-                    h1{font-weight:bold;font-size: 175%;}
-                    h2{font-weight:normal;font-size:75%;}
-                    figure {font-size:50%;}
-                    img {display: block;margin-left: auto;margin-right: auto;width:100%;font-size:50%;}
-                      '''
+        h1{font-weight:bold;}
+        h2{font-weight:normal;font-size:75%;}
+        figure {font-size:50%;}
+        #body{font-size:14px;}
+        #.photo-caption {display: block;margin-left: auto;margin-right: auto;width:100%;font-size:40%;}
+        #.publish-info {font-size:50%;}
+        img {display: block;margin-left: auto;margin-right: auto;width:100%;font-size:50%;}
+    '''
+
     def get_cover_url(self):
         soup = self.index_to_soup('http://www.birminghammail.co.uk')
         cov = soup.find(attrs={'src' : re.compile('http://images.icnetwork.co.uk/upl/birm')})

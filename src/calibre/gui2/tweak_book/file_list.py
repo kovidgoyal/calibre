@@ -393,9 +393,6 @@ class FileList(QTreeWidget):
         for name, linear in container.spine_names:
             processed[name] = create_item(name, linear=linear)
 
-        all_files = list(container.manifest_type_map.iteritems())
-        all_files.append((guess_type('a.opf'), [container.opf_name]))
-
         for name in container.name_path_map:
             if name in processed:
                 continue

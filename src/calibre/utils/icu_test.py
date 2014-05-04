@@ -116,13 +116,12 @@ class TestICU(unittest.TestCase):
         for group in [
             ('Šaa', 'Smith', 'Solženicyn', 'Štepánek'),
             ('01', '1'),
-            ('1', '11', '13'),
         ]:
             last = None
             for x in group:
                 order, length = icu.numeric_collator().collation_order(x)
                 if last is not None:
-                    self.ae(last, order)
+                    self.ae(last, order, 'Order for %s not correct: %s != %s' % (x, last, order))
                 last = order
 
         self.ae(dict(icu.partition_by_first_letter(['A1', '', 'a1', '\U0001f431', '\U0001f431x'])),

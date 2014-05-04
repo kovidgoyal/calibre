@@ -28,73 +28,71 @@ class ArsTechnica(BasicNewsRecipe):
                             img{display: block}
                             .caption-text{font-size:small; font-style:italic}
                             .caption-byline{font-size:small; font-style:italic; font-weight:bold}
-				            '''
+    '''
 
     conversion_options = {
-                             'comments'  : description
+                            'comments'  : description
                             ,'tags'      : category
                             ,'language'  : language
                             ,'publisher' : publisher
                          }
 
     keep_only_tags = [
-                       dict(attrs={'class':'standalone'})
+                      dict(attrs={'class':'standalone'})
                       ,dict(attrs={'id':'article-guts'})
                      ]
 
     remove_tags = [
-                     dict(name=['object','link','embed','iframe','meta'])
+                    dict(name=['object','link','embed','iframe','meta'])
                     ,dict(attrs={'class':'corner-info'})
                   ]
     remove_attributes = ['lang']
 
-
     feeds = [
-              (u'Infinite Loop (Apple content)'        , u'http://feeds.arstechnica.com/arstechnica/apple/'      )
-             ,(u'Opposable Thumbs (Gaming content)'    , u'http://feeds.arstechnica.com/arstechnica/gaming/'     )
-             ,(u'Gear and Gadgets'                     , u'http://feeds.arstechnica.com/arstechnica/gadgets/'    )
-             ,(u'Uptime (IT content)'                  , u'http://feeds.arstechnica.com/arstechnica/business/'   )
+             (u'Infinite Loop (Apple content)'        , u'http://feeds.arstechnica.com/arstechnica/apple/')
+             ,(u'Opposable Thumbs (Gaming content)'    , u'http://feeds.arstechnica.com/arstechnica/gaming/')
+             ,(u'Gear and Gadgets'                     , u'http://feeds.arstechnica.com/arstechnica/gadgets/')
+             ,(u'Uptime (IT content)'                  , u'http://feeds.arstechnica.com/arstechnica/business/')
              ,(u'Open Ended (Open Source content)'     , u'http://feeds.arstechnica.com/arstechnica/open-source/')
-             ,(u'One Microsoft Way'                    , u'http://feeds.arstechnica.com/arstechnica/microsoft/'  )
-             ,(u'Scientific method (Science content)'       , u'http://feeds.arstechnica.com/arstechnica/science/'    )
+             ,(u'One Microsoft Way'                    , u'http://feeds.arstechnica.com/arstechnica/microsoft/')
+             ,(u'Scientific method (Science content)'       , u'http://feeds.arstechnica.com/arstechnica/science/')
              ,(u'Law & Disorder (Tech policy content)' , u'http://feeds.arstechnica.com/arstechnica/tech-policy/')
+             ,(u'Risk Assessment (Security content)'   , u'http://feeds.arstechnica.com/arstechnica/security/')
             ]
 
     def append_page(self, soup, appendtag, position):
         pager = soup.find(attrs={'class':'numbers'})
         if pager:
-           nexttag = pager.find(attrs={'class':'next'})
-           if nexttag:
-              nurl = nexttag.parent['href']
-              rawc = self.index_to_soup(nurl,True)
-              soup2 = BeautifulSoup(rawc, fromEncoding=self.encoding)
-              texttag = soup2.find(attrs={'id':'article-guts'})
-              newpos = len(texttag.contents)
-              self.append_page(soup2,texttag,newpos)
-              texttag.extract()
-              pager.extract()
-              appendtag.insert(position,texttag)
-
+            nexttag = pager.find(attrs={'class':'next'})
+            if nexttag:
+                nurl = nexttag.parent['href']
+                rawc = self.index_to_soup(nurl,True)
+                soup2 = BeautifulSoup(rawc, fromEncoding=self.encoding)
+                texttag = soup2.find(attrs={'id':'article-guts'})
+                newpos = len(texttag.contents)
+                self.append_page(soup2,texttag,newpos)
+                texttag.extract()
+                pager.extract()
+                appendtag.insert(position,texttag)
 
     def preprocess_html(self, soup):
         self.append_page(soup, soup.body, 3)
         for item in soup.findAll('a'):
             limg = item.find('img')
             if item.string is not None:
-               str = item.string
-               item.replaceWith(str)
+                str = item.string
+                item.replaceWith(str)
             else:
-               if limg:
-                  item.name = 'div'
-                  item.attrs = []
-               else:
-                   str = self.tag_to_string(item)
-                   item.replaceWith(str)
+                if limg:
+                    item.name = 'div'
+                    item.attrs = []
+                else:
+                    str = self.tag_to_string(item)
+                    item.replaceWith(str)
         for item in soup.findAll('img'):
-            if not item.has_key('alt'):
-               item['alt'] = 'image'
+            if 'alt' not in item:
+                item['alt'] = 'image'
         return soup
 
     def preprocess_raw_html(self, raw, url):
-       return '<html><head>'+raw[raw.find('</head>'):]
-
+        return '<html><head>'+raw[raw.find('</head>'):]

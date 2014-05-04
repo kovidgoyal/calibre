@@ -28,9 +28,9 @@ class QtHighlighter(QTextDocument):
         QTextDocument.__init__(self, parent)
         self.l = QPlainTextDocumentLayout(self)
         self.setDocumentLayout(self.l)
-        self.highlighter = hlclass(self)
+        self.highlighter = hlclass()
         self.highlighter.apply_theme(get_theme())
-        self.highlighter.setDocument(self)
+        self.highlighter.set_document(self)
         self.setPlainText(text)
 
     def copy_lines(self, lo, hi, cursor):
