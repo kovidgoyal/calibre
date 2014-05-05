@@ -140,6 +140,7 @@ class TestICU(unittest.TestCase):
 
     def test_contractions(self):
         ' Test contractions '
+        self.skipTest('Skipping as this depends too much on ICU version')
         c = icu._icu.Collator('cs')
         self.ae(icu.contractions(c), frozenset({u'Z\u030c', u'z\u030c', u'Ch',
             u'C\u030c', u'ch', u'cH', u'c\u030c', u's\u030c', u'r\u030c', u'CH',
