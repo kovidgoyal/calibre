@@ -168,20 +168,20 @@ http://www.nasm.us/pub/nasm/releasebuilds/2.11/win32/nasm-2.11-win32.zip
 and put it somewhere on your PATH (I chose ~/sw/bin)
 
 Download and untar the openssl tarball.
-To install use a private prefix such as --prefix=C:/cygwin/home/kovid/sw/private/openssl
+To install use a private prefix such as --prefix=C:/cygwin64/home/kovid/sw/private/openssl
 
 The following *MUST BE RUN* in a Visual Studio Command prompt and not in a cygwin
 environment.
 
 For 32-bit::
-    perl Configure VC-WIN32 no-asm enable-static-engine --prefix=C:/cygwin/home/kovid/sw/private/openssl
+    perl Configure VC-WIN32 no-asm enable-static-engine --prefix=C:/cygwin64/home/kovid/sw/private/openssl
     ms\do_ms.bat
     nmake -f ms\ntdll.mak
     nmake -f ms\ntdll.mak test
     nmake -f ms\ntdll.mak install
 
 For 64-bit::
-    perl Configure VC-WIN64A no-asm enable-static-engine --prefix=C:/cygwin/home/kovid/sw/private/openssl
+    perl Configure VC-WIN64A no-asm enable-static-engine --prefix=C:/cygwin64/home/kovid/sw/private/openssl
     ms\do_win64a.bat
     nmake -f ms\ntdll.mak
     nmake -f ms\ntdll.mak test
@@ -198,7 +198,7 @@ Add Q:\icu\bin to PATH and reboot
 
 In a Visual Studio Command Prompt
 cd to <ICU>\source
-Run set PATH=%PATH%;c:\cygwin\bin
+Run set PATH=%PATH%;c:\cygwin64\bin
 Run dos2unix on configure and runConfigureICU
 
 Run bash ./runConfigureICU Cygwin/MSVC
