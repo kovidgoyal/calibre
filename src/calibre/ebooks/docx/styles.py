@@ -94,8 +94,30 @@ class Style(object):
 
         if self.style_type in {'numbering', 'paragraph'}:
             self.numbering_style_link = None
+            self.numbering_style_level = None
             for x in XPath('./w:pPr/w:numPr/w:numId[@w:val]')(elem):
                 self.numbering_style_link = get(x, 'w:val')
+            if self.style_type == 'paragraph':
+                for x in XPath('./w:pPr/w:numPr/w:ilvl[@w:val]')(elem):
+                    self.numbering_style_level = int(get(x, 'w:val'))
+
+    def number_def(self, styles, nlevel=None):
+        """
+        Look for numId and ilvl in this style and predecessor styles.
+        """
+        if self.numbering_style_link is not None:
+            if nlevel is None:
+                nlevel = self.numbering_style_level
+                if nlevel is None:
+                    nlevel = 0
+            return (self.numbering_style_link, nlevel)
+
+        if nlevel is None:
+            nlevel = self.numbering_style_level
+        if self.based_on is not None:
+            s = styles.get(self.based_on)
+            if s is not None:
+                return s.number_def(styles, nlevel)
 
     def resolve_based_on(self, parent):
         if parent.table_style is not None:
@@ -128,6 +150,7 @@ class Styles(object):
         self.default_styles = {}
         self.tables = tables
         self.numbering_style_links = {}
+        self.numbering_style_defs = {}
 
     def __iter__(self):
         for s in self.id_map.itervalues():
@@ -181,6 +204,19 @@ class Styles(object):
         for s in self:
             if not s.resolved:
                 resolve(s, self.get(s.based_on))
+
+        # Set up fully resolved numbering information in numbering_style_defs.
+        # This is different from numbering_style_links because it includes level
+        # information attached to the styles, and because it follows the based_on
+        # chains to get information on all styles which should be numbered.
+        # Should this extra information be folded back into the links dictionary?
+        # The purpose of this information is to let resolve_numbering work properly,
+        # but perhaps we should let material here replace it.
+        for s in self:
+            if s.style_type == 'paragraph':
+                sninfo = s.number_def(self)
+                if sninfo is not None:
+                    self.numbering_style_defs[s.style_id] = sninfo
 
     def para_val(self, parent_styles, direct_formatting, attr):
         val = getattr(direct_formatting, attr)
@@ -389,15 +425,30 @@ class Styles(object):
     def resolve_numbering(self, numbering):
         # When a numPr element appears inside a paragraph style, the lvl info
         # must be discarded and pStyle used instead.
+        # We were having problems here because of numbered styles in which
+        # the numbering information was only specified in a predecessor (based_on)
+        # style.
+        # This change fixes it for my test document, but I'm not sure it is right
+        # in general.
         self.numbering = numbering
         for style in self:
             ps = style.paragraph_style
+            if ps is not None:
+                numinfo = style.number_def(self)
+                if numinfo is not None:
+                    lvl = numbering.get_pstyle(numinfo[0], style.style_id)
+                    if lvl is None:
+                        ps.numbering = inherit
+                    else:
+                        ps.numbering = (numinfo[0], lvl)
+            """
             if ps is not None and ps.numbering is not inherit:
                 lvl = numbering.get_pstyle(ps.numbering[0], style.style_id)
                 if lvl is None:
                     ps.numbering = inherit
                 else:
                     ps.numbering = (ps.numbering[0], lvl)
+            """
 
     def apply_contextual_spacing(self, paras):
         last_para = None

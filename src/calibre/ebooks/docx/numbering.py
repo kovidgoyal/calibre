@@ -229,6 +229,24 @@ class Numbering(object):
             d = self.definitions.get(an_id, None)
             if d is not None:
                 self.instances[num_id] = create_instance(n, d)
+        
+        """
+        This change fixes numbering in the test document, but I'm not sure it's
+        correct. We were failing to number paragraphs with styles like
+        ListNumber and ListBullet2 because there is no para_link that associates
+        a level in a numbering definition with the style id.
+        This seems like the place to make that association because we have just
+        resolved the map between numId and the abstract number ids, and we have
+        a dictionary linking the numId's with the style ids.
+        """
+        for style, numinf in styles.numbering_style_defs.iteritems():
+            d = None
+            try:
+                d = self.instances[numinf[0]]
+            except KeyError:
+                pass
+            if d is not None:
+                d.levels[numinf[1]].para_link = style
 
         for num_id, d in self.instances.iteritems():
             self.starts[num_id] = {lvl:d.levels[lvl].start for lvl in d.levels}
