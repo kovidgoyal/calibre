@@ -41,7 +41,7 @@ Cygwin
 This is needed for automation of the build process, and the ease of use of the
 unix shell (bash).
 
-Install, vim, rsync, openssh, unzip, wget, make, zsh, bash-completion, curl at a minimum.
+Install vim, dos2unix, rsync, openssh, unzip, wget, make, zsh, bash-completion, curl at a minimum.
 
 After installing python run::
     python setup/vcvars.py && echo 'source ~/.vcvars' >> ~/.bash_profile
