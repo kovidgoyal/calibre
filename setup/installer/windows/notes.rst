@@ -41,7 +41,7 @@ Cygwin
 This is needed for automation of the build process, and the ease of use of the
 unix shell (bash).
 
-Install, vim, rsync, openssh, unzip, wget, make at a minimum.
+Install, vim, rsync, openssh, unzip, wget, make, zsh, bash-completion, curl at a minimum.
 
 After installing python run::
     python setup/vcvars.py && echo 'source ~/.vcvars' >> ~/.bash_profile
@@ -147,27 +147,34 @@ Put sqlite3*.h from the sqlite windows amalgamation in ~/sw/include
 APSW
 -----
 
-Download source from http://code.google.com/p/apsw/downloads/list and run in visual studio prompt
+Download source from http://code.google.com/p/apsw/downloads/list and run 
 
 python setup.py fetch --all --missing-checksum-ok build --enable-all-extensions install test
+
+Build requirements
+-------------------
+
+Install perl and ruby (needed to build openssl and qt):
+Perl: http://www.activestate.com/activeperl
+Ruby: http://rubyinstaller.org/
+
+Put both perl.exe and ruby.exe in the PATH
 
 OpenSSL
 --------
 
-First install ActiveState Perl if you dont already have perl in windows
+Get nasm.exe from
+http://www.nasm.us/pub/nasm/releasebuilds/2.11/win32/nasm-2.11-win32.zip
+and put it somewhere on your PATH (I chose ~/sw/bin)
 
-Then, get nasm.exe from
-http://www.nasm.us/pub/nasm/releasebuilds/2.05/nasm-2.05-win32.zip and put it
-somewhere on your PATH (I chose ~/sw/bin)
-
-Download and untar the openssl tarball, follow the instructions in INSTALL.(W32|W64)
-to install use prefix q:\openssl
+Download and untar the openssl tarball.
+To install use a private prefix such as --prefix=C:/cygwin/home/kovid/sw/private/openssl
 
 The following *MUST BE RUN* in a Visual Studio Command prompt and not in a cygwin
 environment.
 
 For 32-bit::
-    perl Configure VC-WIN32 no-asm enable-static-engine --prefix=Q:/openssl
+    perl Configure VC-WIN32 no-asm enable-static-engine --prefix=C:/cygwin/home/kovid/sw/private/openssl
     ms\do_ms.bat
     nmake -f ms\ntdll.mak
     nmake -f ms\ntdll.mak test
@@ -179,6 +186,27 @@ For 64-bit::
     nmake -f ms\ntdll.mak
     nmake -f ms\ntdll.mak test
     nmake -f ms\ntdll.mak install
+
+ICU
+-------
+
+Download the win32 source .zip from http://www.icu-project.org/download
+
+Extract to q:\icu
+
+Add Q:\icu\bin to PATH and reboot
+
+In a Visual Studio Command Prompt
+cd to <ICU>\source
+Run set PATH=%PATH%;c:\cygwin\bin
+Run dos2unix on configure and runConfigureICU
+
+Run bash ./runConfigureICU Cygwin/MSVC
+
+Run make (note that you must have GNU make installed in cygwin)
+
+Optionally run make check
+
 
 Qt
 --------
@@ -224,26 +252,6 @@ Compiling instructions::
     python configure.py -c -j5 -e QtCore -e QtGui -e QtSvg -e QtNetwork -e QtWebKit -e QtXmlPatterns --verbose --confirm-license
     nmake
     nmake install
-
-ICU
--------
-
-Download the win32 source .zip from http://www.icu-project.org/download
-
-Extract to q:\icu
-
-Add Q:\icu\bin to PATH and reboot
-
-In a Visual Studio Command Prompt
-cd to <ICU>\source
-Run set PATH=%PATH%;c:\cygwin\bin
-Run dos2unix on configure and runConfigureICU
-
-Run bash ./runConfigureICU Cygwin/MSVC
-
-Run make (note that you must have GNU make installed in cygwin)
-
-Optionally run make check
 
 zlib
 ------
