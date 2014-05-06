@@ -44,7 +44,7 @@ unix shell (bash).
 Install vim, dos2unix, rsync, openssh, unzip, wget, make, zsh, bash-completion, curl at a minimum.
 
 After installing python run::
-    python setup/vcvars.py && echo 'source ~/.vcvars' >> ~/.bash_profile
+    python setup/vcvars.py && echo 'source ~/.vcvars' >> ~/.zshrc
 
 To allow you to use the visual studio tools in the cygwin shell.
 
@@ -160,15 +160,15 @@ Ruby: http://rubyinstaller.org/
 
 Put both perl.exe and ruby.exe in the PATH
 
+Get nasm.exe from (needed for openssl and libjpeg-turbo)
+http://www.nasm.us/pub/nasm/releasebuilds/2.11/win32/nasm-2.11-win32.zip
+and put it in ~/sw/bin (which must be in PATH)
+
 OpenSSL
 --------
 
-Get nasm.exe from
-http://www.nasm.us/pub/nasm/releasebuilds/2.11/win32/nasm-2.11-win32.zip
-and put it somewhere on your PATH (I chose ~/sw/bin)
-
 Download and untar the openssl tarball.
-To install use a private prefix such as --prefix=C:/cygwin64/home/kovid/sw/private/openssl
+To install use a private prefix: --prefix=C:/cygwin64/home/kovid/sw/private/openssl
 
 The following *MUST BE RUN* in a Visual Studio Command prompt and not in a cygwin
 environment.
@@ -190,79 +190,28 @@ For 64-bit::
 ICU
 -------
 
-Download the win32 source .zip from http://www.icu-project.org/download
+Download the win32 *source* .zip from http://www.icu-project.org/download
 
-Extract to q:\icu
+Extract to C:\cygwin64\home\kovid\sw\private\icu
 
-Add Q:\icu\bin to PATH and reboot
+The following must be run in the VS Command Prompt, not the cygwin ssh shell
 
-In a Visual Studio Command Prompt
-cd to <ICU>\source
-Run set PATH=%PATH%;c:\cygwin64\bin
-Run dos2unix on configure and runConfigureICU
+cd to <ICU>\source::
 
-Run bash ./runConfigureICU Cygwin/MSVC
-
-Run make (note that you must have GNU make installed in cygwin)
-
-Optionally run make check
-
-
-Qt
---------
-Download Qt sourcecode (.zip) from: http://download.qt-project.org/official_releases/qt/
-
-Qt uses its own routine to locate and load "system libraries" including the
-openssl libraries needed for "Get Books". This means that we have to apply the
-following patch to have Qt load the openssl libraries bundled with calibre:
-
-
---- src/corelib/plugin/qsystemlibrary.cpp	2011-02-22 05:04:00.000000000 -0700
-+++ src/corelib/plugin/qsystemlibrary.cpp	2011-04-25 20:53:13.635247466 -0600
-@@ -110,7 +110,7 @@ HINSTANCE QSystemLibrary::load(const wch
- 
- #if !defined(QT_BOOTSTRAPPED)
-     if (!onlySystemDirectory)
--        searchOrder << QFileInfo(qAppFileName()).path();
-+        searchOrder << (QFileInfo(qAppFileName()).path().replace(QLatin1Char('/'), QLatin1Char('\\')) + QString::fromLatin1("\\DLLs\\"));
- #endif
-     searchOrder << qSystemDirectory();
- 
-
-Now, run configure and make:
-
--no-plugin-manifests is needed so that loading the plugins does not fail looking for the CRT assembly
-
-    ./configure.exe -ltcg -opensource -release -qt-zlib -qt-libmng -qt-libpng -qt-libtiff -qt-libjpeg -release -platform win32-msvc2008 -no-qt3support -webkit -xmlpatterns -no-phonon -no-style-plastique -no-style-cleanlooks -no-style-motif -no-style-cde -no-declarative -no-scripttools -no-audio-backend -no-multimedia -no-dbus -no-openvg -no-opengl -no-qt3support -confirm-license -nomake examples -nomake demos -nomake docs -nomake tools -no-plugin-manifests -openssl -I $OPENSSL_DIR/include -L $OPENSSL_DIR/lib && nmake
-
-Add the path to the bin folder inside the Qt dir to your system PATH.
-
-SIP
------
-
-Available from: http://www.riverbankcomputing.co.uk/software/sip/download ::
-
-    python configure.py -p win32-msvc2008 && nmake && nmake install
-
-PyQt4
-----------
-
-Compiling instructions::
-
-    python configure.py -c -j5 -e QtCore -e QtGui -e QtSvg -e QtNetwork -e QtWebKit -e QtXmlPatterns --verbose --confirm-license
-    nmake
-    nmake install
+    set PATH=%PATH%;C:\cygwin64\bin
+    dos2unix runConfigureICU
+    bash ./runConfigureICU Cygwin/MSVC
+    make
 
 zlib
 ------
 
+http://www.zlib.net/
+
 Build with::
     nmake -f win32/Makefile.msc
     nmake -f win32/Makefile.msc test
-
-    cp zlib1.dll* ../../bin
-    cp zlib.lib zdll.* ../../lib
-    cp zconf.h zlib.h ../../include
+    cp zlib1.dll* ~/sw/bin && cp zlib.lib zdll.* ~/sw/lib/ && cp zconf.h zlib.h ~/sw/include/
 
 jpeg-8
 -------
@@ -270,12 +219,10 @@ jpeg-8
 Get the source code from: http://sourceforge.net/projects/libjpeg-turbo/files/
 
 Run::
-    chmod +x cmakescripts/* && cd build 
+    chmod +x cmakescripts/* && mkdir -p build && cd build 
     cmake -G "NMake Makefiles" -DCMAKE_BUILD_TYPE=Release -DWITH_JPEG8=1 ..
     nmake
-    cp sharedlib/jpeg8.dll* ~/sw/bin/
-    cp sharedlib/jpeg.lib ~/sw/lib/
-    cp jconfig.h ../jerror.h ../jpeglib.h ../jmorecfg.h ~/sw/include
+    cp sharedlib/jpeg8.dll* ~/sw/bin/ && cp sharedlib/jpeg.lib ~/sw/lib/ && cp jconfig.h ../jerror.h ../jpeglib.h ../jmorecfg.h ~/sw/include
 
 libpng
 ---------
@@ -284,12 +231,10 @@ Download the libpng .zip source file from:
 http://www.libpng.org/pub/png/libpng.html
 
 Run::
-    mkdir build && cd build
-    cmake -G "NMake Makefiles" -DCMAKE_BUILD_TYPE=Release -DZLIB_INCLUDE_DIR=C:/cygwin/home/kovid/sw/include -DZLIB_LIBRARY=C:/cygwin/home/kovid/sw/lib/zdll.lib ..
+    mkdir -p build && cd build
+    cmake -G "NMake Makefiles" -DPNG_SHARED=1 -DCMAKE_BUILD_TYPE=Release -DZLIB_INCLUDE_DIR=C:/cygwin64/home/kovid/sw/include -DZLIB_LIBRARY=C:/cygwin64/home/kovid/sw/lib/zdll.lib ..
     nmake
-    cp libpng*.dll ~/sw/bin/
-    cp libpng*.lib ~/sw/lib/
-    cp pnglibconf.h ../png.h ../pngconf.h ~/sw/include/
+    cp libpng*.dll ~/sw/bin/ && cp libpng*.lib ~/sw/lib/ && cp pnglibconf.h ../png.h ../pngconf.h ~/sw/include/
 
 freetype
 -----------
@@ -302,25 +247,22 @@ and a correct dll
 #define FT_EXPORT(return_type) __declspec(dllexport) return_type 
 #define FT_EXPORT_DEF(return_type) __declspec(dllexport) return_type
 
-
 VS 2008 .sln file is present, open it
 
     * If you are doing x64 build, click the Win32 dropdown, select
       Configuration manager->Active solution platform -> New -> x64
 
-    * Change active build type to release mutithreaded
+    * Change active build type to release multithreaded
 
     * Project->Properties->Configuration Properties change configuration type
       to dll and build solution
 
-cp "`find . -name *.dll`" ~/sw/bin/
-cp "`find . -name freetype.lib`" ~/sw/lib/
+cp "`find . -name freetype.dll`" ~/sw/bin/ && cp "`find . -name freetype.lib`" ~/sw/lib/
 
 Now change configuration back to static for .lib and build solution
-cp "`find . -name freetype*MT.lib`" ~/sw/lib/
 
-cp build/freetype-2.3.9/objs/win32/vc2008/freetype239MT.lib lib/
-cp -rf include/* ~/sw/include/
+cp "`find . -name 'freetype*MT.lib'`" ~/sw/lib/
+cp -rf include ~/sw/include/freetype2 && rm -rf ~/sw/include/freetype2/internal
 
 TODO: Test if this bloody thing actually works on 64 bit (apparently freetype
 assumes sizeof(long) == sizeof(ptr) which is not true in Win64. See for
@@ -555,6 +497,52 @@ Run::
 Then open ChmLib.dsw in Visual Studio, change the configuration to Release
 (Win32|x64) and build solution, this will generate a static library in
 Release/ChmLib.lib
+
+Qt
+--------
+Download Qt sourcecode (.zip) from: http://download.qt-project.org/official_releases/qt/
+
+Qt uses its own routine to locate and load "system libraries" including the
+openssl libraries needed for "Get Books". This means that we have to apply the
+following patch to have Qt load the openssl libraries bundled with calibre:
+
+
+--- src/corelib/plugin/qsystemlibrary.cpp	2011-02-22 05:04:00.000000000 -0700
++++ src/corelib/plugin/qsystemlibrary.cpp	2011-04-25 20:53:13.635247466 -0600
+@@ -110,7 +110,7 @@ HINSTANCE QSystemLibrary::load(const wch
+ 
+ #if !defined(QT_BOOTSTRAPPED)
+     if (!onlySystemDirectory)
+-        searchOrder << QFileInfo(qAppFileName()).path();
++        searchOrder << (QFileInfo(qAppFileName()).path().replace(QLatin1Char('/'), QLatin1Char('\\')) + QString::fromLatin1("\\DLLs\\"));
+ #endif
+     searchOrder << qSystemDirectory();
+ 
+
+Now, run configure and make:
+
+-no-plugin-manifests is needed so that loading the plugins does not fail looking for the CRT assembly
+
+    ./configure.exe -ltcg -opensource -release -qt-zlib -qt-libmng -qt-libpng -qt-libtiff -qt-libjpeg -release -platform win32-msvc2008 -no-qt3support -webkit -xmlpatterns -no-phonon -no-style-plastique -no-style-cleanlooks -no-style-motif -no-style-cde -no-declarative -no-scripttools -no-audio-backend -no-multimedia -no-dbus -no-openvg -no-opengl -no-qt3support -confirm-license -nomake examples -nomake demos -nomake docs -nomake tools -no-plugin-manifests -openssl -I $OPENSSL_DIR/include -L $OPENSSL_DIR/lib && nmake
+
+Add the path to the bin folder inside the Qt dir to your system PATH.
+
+SIP
+-----
+
+Available from: http://www.riverbankcomputing.co.uk/software/sip/download ::
+
+    python configure.py -p win32-msvc2008 && nmake && nmake install
+
+PyQt4
+----------
+
+Compiling instructions::
+
+    python configure.py -c -j5 -e QtCore -e QtGui -e QtSvg -e QtNetwork -e QtWebKit -e QtXmlPatterns --verbose --confirm-license
+    nmake
+    nmake install
+
 
 libimobiledevice
 ------------------
