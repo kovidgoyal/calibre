@@ -378,26 +378,6 @@ line feature.want('lcms') and prefix it with ``False and``.
 Build and install with::
     python setup.py install
 
-kdewin32-msvc
-----------------
-
-I dont think this is needed any more, I've left it here just in case I'm wrong.
-
-Get it from http://www.winkde.org/pub/kde/ports/win32/repository/kdesupport/
-mkdir build
-Run cmake
-
-Set build type to release and configuration to dll
-
-Build
-
-cp build/kdewin32-msvc-0.3.9/build/include/* include/
-cp build/kdewin32-msvc-0.3.9/build/bin/Release/*.dll bin/
-cp build/kdewin32-msvc-0.3.9/build/bin/Release/*.lib lib/
-cp build/kdewin32-msvc-0.3.9/build/bin/Release/*.exp lib/
-cp -r build/kdewin32-msvc-0.3.9/include/msvc/ include/
-cp build/kdewin32-msvc-0.3.9/include/*.h include/
-
 poppler
 -------------
 
@@ -408,7 +388,7 @@ On 64 bit cmake might not let you choose Visual Studio 2008, in whcih case
 leave the source field blank, click configure choose Visual Studio 2008 and
 then enter the source field.
 
-In Cmake: disable GTK, Qt, OPenjpeg, cpp, lcms, gtk_tests, qt_tests. Enable
+In cmake: disable GTK, Qt, openjpeg, cpp, lcms, gtk_tests, qt_tests. Enable
 jpeg, png and zlib::
 
     cp build/utils/Release/*.exe ../../bin/
