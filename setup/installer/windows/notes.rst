@@ -277,9 +277,8 @@ Apparently expat requires stdint.h which VS 2008 does not have. So we get our
 own.
 
 Run::
-    cd lib
-    wget http://msinttypes.googlecode.com/svn/trunk/stdint.h
-    mkdir build && cd build
+    cd lib && wget http://msinttypes.googlecode.com/svn/trunk/stdint.h && cd ..
+    mkdir -p build && cd build
     cmake -G "NMake Makefiles" -DCMAKE_BUILD_TYPE=Release ..
     nmake
     cp expat.dll ~/sw/bin/ && cp expat.lib ~/sw/lib/
@@ -294,11 +293,12 @@ Run::
 Then follow these instructions:
 http://www.codeproject.com/Articles/302012/How-to-Build-libiconv-with-Microsoft-Visual-Studio
 
+NOTE: Built as MT rather than MD so no manifest
+
 Change the type to Release and config to x64 or Win32 and Build solution and
 then::
-    cp "`find . -name *.dll`" ~/sw/bin/
-    cp "`find . -name *.dll.manifest`" ~/sw/bin/
-    cp "`find . -name *.lib`" ~/sw/lib/iconv.lib
+    cp "`find . -name '*.dll'`" ~/sw/bin/
+    cp "`find . -name '*.lib'`" ~/sw/lib/iconv.lib
     cp "`find . -name iconv.h`" ~/sw/include/
 
 Information for using a static version of libiconv is at the link above.
@@ -310,10 +310,10 @@ Get it from: ftp://xmlsoft.org/libxml2/
 
 Run::
     cd win32
-    cscript.exe configure.js include=C:/cygwin/home/kovid/sw/include lib=C:/cygwin/home/kovid/sw/lib prefix=C:/cygwin/home/kovid/sw zlib=yes iconv=yes
+    cscript.exe configure.js include=C:/cygwin64/home/kovid/sw/include lib=C:/cygwin64/home/kovid/sw/lib prefix=C:/cygwin64/home/kovid/sw zlib=yes iconv=yes
     nmake /f Makefile.msvc
-    mkdir -p ~/sw/include/libxml2/libxml
-    cp include/libxml/*.h ~/sw/include/libxml2/libxml/
+    cd ..
+    mkdir -p ~/sw/include/libxml2/libxml && cp include/libxml/*.h ~/sw/include/libxml2/libxml/
     find . -type f \( -name "*.dll" -o -name "*.dll.manifest" \)  -exec cp "{}" ~/sw/bin/ \;
     find .  -name libxml2.lib -exec cp "{}" ~/sw/lib/ \;
 
@@ -324,13 +324,14 @@ Get it from: ftp://xmlsoft.org/libxml2/
 
 Run::
     cd win32
-    cscript.exe configure.js include=C:/cygwin/home/kovid/sw/include include=C:/cygwin/home/kovid/sw/include/libxml2 lib=C:/cygwin/home/kovid/sw/lib prefix=C:/cygwin/home/kovid/sw zlib=yes iconv=yes
+    cscript.exe configure.js include=C:/cygwin64/home/kovid/sw/include include=C:/cygwin64/home/kovid/sw/include/libxml2 lib=C:/cygwin64/home/kovid/sw/lib prefix=C:/cygwin64/home/kovid/sw zlib=yes iconv=yes
     nmake /f Makefile.msvc
     mkdir -p ~/sw/include/libxslt ~/sw/include/libexslt
+    cd ..
     cp libxslt/*.h ~/sw/include/libxslt/
     cp libexslt/*.h ~/sw/include/libexslt/
     find . -type f \( -name "*.dll" -o -name "*.dll.manifest" \)  -exec cp "{}" ~/sw/bin/ \;
-    find .  -name lib*xslt.lib -exec cp "{}" ~/sw/lib/ \;
+    find .  -name 'lib*xslt.lib' -exec cp "{}" ~/sw/lib/ \;
 
 lxml
 ------
@@ -340,45 +341,42 @@ Get the source from: http://pypi.python.org/pypi/lxml
 Change the include dirs and lib dirs by editing setupinfo.py and changing the
 library_dirs() function to return::
 
-    return ['C:/cygwin/home/kovid/sw/lib']
+    return ['C:/cygwin64/home/kovid/sw/lib']
 
 and the include_dirs() function to return
 
-    return ['C:/cygwin/home/kovid/sw/include/libxml2', 'C:/cygwin/home/kovid/sw/include']
+    return ['C:/cygwin64/home/kovid/sw/include/libxml2', 'C:/cygwin64/home/kovid/sw/include']
 
 Run::
     python setup.py install
 
+lcms2
+------------
+
+Use the VS .sln in the Projects/VS2008 folder to build (remeber to set build
+type to Release and choose x64 is needed)::
+
+    cp include/*.h ~/sw/include/
+    find . -type f \( -name "*.dll" -o -name "*.dll.manifest" \)  -exec cp "{}" ~/sw/bin/ \;
+    find . -type f \( -name "*.lib" \)  -exec cp "{}" ~/sw/lib/ \;
+
+
 Python Imaging Library
 ------------------------
 
-For 32-bit:
-Install as normal using installer at http://www.lfd.uci.edu/~gohlke/pythonlibs/
-
-For 64-bit:
 Download from http://pypi.python.org/pypi/Pillow/
 Edit setup.py setting the ROOT values, like this::
 
-    SW = r'C:\cygwin\home\kovid\sw'
+    SW = r'C:\cygwin64\home\kovid\sw'
     JPEG_ROOT = ZLIB_ROOT = FREETYPE_ROOT = (SW+r'\lib', SW+r'\include')
 
+Set zip_safe=False
+
+PIL needs lcms 1.x we have lcms 2.x so disable the lcms module. Look for the
+line feature.want('lcms') and prefix it with ``False and``.
+
 Build and install with::
-    python setup.py build
     python setup.py install
-
-Note that the lcms module will not be built. PIL requires lcms-1.x but only
-lcms-2.x can be compiled as a 64 bit library.
-
-Pillow >= 2.2 installs itself as a .egg file. calibre needs it to be a PIL
-directory. Extract the PIL directory as follows:
-    cd /cygdrive/c/Python27/Lib/site-packages
-    mkdir p && cd p
-    unzip ../Pillow-*.egg
-    cd .. && rm Pillow-*.egg && mv p/PIL . && chmod +x PIL/*.pyd
-
-Test it on the target system with
-
-calibre-debug -c "from PIL import Image; import _imaging, _imagingmath, _imagingft"
 
 kdewin32-msvc
 ----------------
