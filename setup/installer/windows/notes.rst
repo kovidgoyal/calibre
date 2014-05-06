@@ -350,16 +350,6 @@ and the include_dirs() function to return
 Run::
     python setup.py install
 
-lcms2
-------------
-
-Use the VS .sln in the Projects/VS2008 folder to build (remeber to set build
-type to Release and choose x64 is needed)::
-
-    cp include/*.h ~/sw/include/
-    find . -type f \( -name "*.dll" -o -name "*.dll.manifest" \)  -exec cp "{}" ~/sw/bin/ \;
-    find . -type f \( -name "*.lib" \)  -exec cp "{}" ~/sw/lib/ \;
-
 
 Python Imaging Library
 ------------------------
@@ -371,9 +361,6 @@ Edit setup.py setting the ROOT values, like this::
     JPEG_ROOT = ZLIB_ROOT = FREETYPE_ROOT = (SW+r'\lib', SW+r'\include')
 
 Set zip_safe=False
-
-PIL needs lcms 1.x we have lcms 2.x so disable the lcms module. Look for the
-line feature.want('lcms') and prefix it with ``False and``.
 
 Build and install with::
     python setup.py install
@@ -391,7 +378,7 @@ then enter the source field.
 In cmake: disable GTK, Qt, openjpeg, cpp, lcms, gtk_tests, qt_tests. Enable
 jpeg, png and zlib::
 
-    cp build/utils/Release/*.exe ../../bin/
+    cp build/utils/Release/*.exe ~/sw/bin
 
 podofo
 ----------
