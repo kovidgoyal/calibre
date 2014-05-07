@@ -1382,3 +1382,4 @@ application/vnd.ms-opentype                otf
 application/font-woff                      woff
 application/x-font-truetype                ttf
 text/xml                                   plist
+application/x-ibooks+zip                   ibook
