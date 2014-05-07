@@ -926,7 +926,8 @@ class InsertSemantics(Dialog):
 
 class FilterCSS(Dialog):  # {{{
 
-    def __init__(self, parent=None):
+    def __init__(self, current_name=None, parent=None):
+        self.current_name = current_name
         Dialog.__init__(self, _('Filter Style Information'), 'filter-css', parent=parent)
 
     def setup_ui(self):
@@ -951,7 +952,17 @@ class FilterCSS(Dialog):  # {{{
         l.addRow(_('&Other CSS properties:'), o)
         o.setToolTip(f.filter_css_others.toolTip())
 
+        if self.current_name is not None:
+            self.filter_current = c = QCheckBox(_('Only filter CSS in the current file (%s)') % self.current_name)
+            l.addRow(c)
+
         l.addRow(self.bb)
+
+    @property
+    def filter_names(self):
+        if self.current_name is not None and self.filter_current.isChecked():
+            return (self.current_name,)
+        return ()
 
     @property
     def filtered_properties(self):
