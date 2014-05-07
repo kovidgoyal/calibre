@@ -1,5 +1,5 @@
 __license__   = 'GPL v3'
-__copyright__ = '2010, Hiroshi Miura <miurahr@linux.com>'
+__copyright__ = '2010,2014, Hiroshi Miura <miurahr@linux.com>'
 '''
 www.yomiuri.co.jp
 '''
@@ -16,16 +16,12 @@ class YOLNews(BasicNewsRecipe):
     publisher      = 'Yomiuri Online News'
     category       = 'news, japan'
     language       = 'ja'
-    encoding       = 'Shift_JIS'
+    encoding       = 'UTF-8'
     index          = 'http://www.yomiuri.co.jp/world/'
     remove_javascript = True
     masthead_title = u"YOMIURI ONLINE"
 
-    keep_only_tags = [{'class':"article-def"}]
-    remove_tags = [{'class':"RelatedArticle"},
-                   {'class':"sbtns"}
-                    ]
-    remove_tags_after = {'class':"date-def"}
+    keep_only_tags = [{'class':"article text-resizeable"}]
 
     def parse_feeds(self):
         feeds = BasicNewsRecipe.parse_feeds(self)
@@ -42,20 +38,36 @@ class YOLNews(BasicNewsRecipe):
 
     def parse_index(self):
         feeds = []
+        newsarticles = []
         soup   = self.index_to_soup(self.index)
-        topstories = soup.find('ul',attrs={'class':'list-def'})
-        if topstories:
-           newsarticles = []
-           for itt in topstories.findAll('li'):
-                itema = itt.find('a',href=True)
-                if itema:
-                    itd1 = itema.findNextSibling(text = True)
-                    newsarticles.append({
-                                      'title'      :itema.string
-                                     ,'date'       :''.join([itd1])
-                                     ,'url'        :'http://www.yomiuri.co.jp' + itema['href']
-                                     ,'description':''
-                                    })
-           feeds.append(('World', newsarticles))
+        mainspan = soup.find('div', attrs={'class':'pbNested span-main-inr'})
+        if mainspan:
+            topstories = mainspan.find('ul',attrs={'class':'list-top'})
+            if topstories:
+                for itt in topstories.findAll('li'):
+                    itema = itt.find('a',href=True)
+                    if itema:
+                        item_headline = itema.find('span',attrs={'class':'headline'})
+                        item_date     = item_headline.find('span',attrs={'class':'update'})
+                        newsarticles.append({
+                               'title'      :item_headline.contents[0]
+                              ,'date'       :item_date
+                              ,'url'        :itema['href']
+                              ,'description':''
+                        })
+            secondstories = mainspan.find('ul', attrs={'class':'list-common'})
+            if secondstories:
+                for itt in secondstories.findAll('li'):
+                    itema = itt.find('a',href=True)
+                    if itema:
+                        item_headline = itema.find('span',attrs={'class':'headline'})
+                        item_date     = item_headline.find('span',attrs={'class':'update'})
+                        newsarticles.append({
+                               'title'      :item_headline.contents[0]
+                              ,'date'       :item_date
+                              ,'url'        :itema['href']
+                              ,'description':''
+                        })
+        feeds.append(('World', newsarticles))
         return feeds
 

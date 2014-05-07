@@ -1,5 +1,5 @@
 __license__   = 'GPL v3'
-__copyright__ = '2010, Hiroshi Miura <miurahr@linux.com>'
+__copyright__ = '2010,2014, Hiroshi Miura <miurahr@linux.com>'
 '''
 www.kahoku.co.jp
 '''
@@ -21,11 +21,5 @@ class KahokuShinpoNews(BasicNewsRecipe):
 
     feeds          = [(u'news', u'http://www.kahoku.co.jp/rss/index_thk.xml')]
 
-    keep_only_tags = [ dict(id="page_title"),
-                                   dict(id="news_detail"),
-                                   dict(id="bt_title"),
-                                   {'class':"photoLeft"},
-                                   dict(id="bt_body")
-                                 ]
-    remove_tags = [ {'class':"button"}]
+    keep_only_tags = [ {'class':"category"},{'class':"ttl"},{'class':'photoimg'},{'class':"txt"},{'class':"data"}]
 

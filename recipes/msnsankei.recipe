@@ -1,6 +1,6 @@
 
 __license__   = 'GPL v3'
-__copyright__ = '2010, Hiroshi Miura <miurahr@linux.com>'
+__copyright__ = '2010,2014, Hiroshi Miura <miurahr@linux.com>'
 '''
 sankei.jp.msn.com
 '''
@@ -20,5 +20,4 @@ class MSNSankeiNewsProduct(BasicNewsRecipe):
 
     feeds          = [(u'\u65b0\u5546\u54c1', u'http://sankei.jp.msn.com/rss/news/release.xml')]
 
-    remove_tags_before = dict(id="NewsTitle")
-    remove_tags_after  = dict(id="RelatedTitle")
+    keep_only_tags = [dict(id=['MainContent'])]

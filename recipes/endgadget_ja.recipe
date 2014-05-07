@@ -1,5 +1,5 @@
 __license__   = 'GPL v3'
-__copyright__ = '2010, Hiroshi Miura <miurahr@linux.com>'
+__copyright__ = '2010,2014, Hiroshi Miura <miurahr@linux.com>'
 '''
 japan.engadget.com
 '''
@@ -20,19 +20,20 @@ class EndgadgetJapan(BasicNewsRecipe):
     index = 'http://japanese.engadget.com/'
     remove_javascript = True
 
-    remove_tags_before = dict(name="h1", attrs={'class':"post_title"})
-    remove_tags_after = dict(name='div', attrs={'class':'post_body'})
+    remove_tags_before = dict(name="header", attrs={'class':"header"})
+    remove_tags_after = dict(name='div', attrs={'class':'post-meta'})
 
     def parse_index(self):
         feeds = []
         newsarticles = []
         soup   = self.index_to_soup(self.index)
-        for topstories in soup.findAll('div',attrs={'class':'post_content'}):
-           itt = topstories.find('h4')
+        for topstories in soup.findAll('header',attrs={'class':'post-header'}):
+           itt = topstories.find('h2')
            itema = itt.find('a',href=True)
+           itemtime = topstories.find('span',attrs={'class':'time'})
            newsarticles.append({
                                       'title'      :itema.string
-                                     ,'date'       :''
+                                     ,'date'       :itemtime.string
                                      ,'url'        :itema['href']
                                      ,'description':''
                                     })
