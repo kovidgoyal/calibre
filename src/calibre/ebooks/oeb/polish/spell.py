@@ -128,11 +128,17 @@ def read_words_from_html_tag(tag, words, file_name, parent_locale, locale):
 
 def locale_from_tag(tag):
     if 'lang' in tag.attrib:
-        loc = parse_lang_code(tag.get('lang'))
+        try:
+            loc = parse_lang_code(tag.get('lang'))
+        except ValueError:
+            loc = None
         if loc is not None:
             return loc
     if '{http://www.w3.org/XML/1998/namespace}lang' in tag.attrib:
-        loc = parse_lang_code(tag.get('{http://www.w3.org/XML/1998/namespace}lang'))
+        try:
+            loc = parse_lang_code(tag.get('{http://www.w3.org/XML/1998/namespace}lang'))
+        except ValueError:
+            loc = None
         if loc is not None:
             return loc
 

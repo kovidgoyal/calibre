@@ -21,7 +21,7 @@ class InvalidPlugin(ValueError):
     pass
 
 
-class Plugin(object): # {{{
+class Plugin(object):  # {{{
     '''
     A calibre plugin. Useful members include:
 
@@ -225,7 +225,6 @@ class Plugin(object): # {{{
                     ans[candidate] = zf.read(candidate)
         return ans
 
-
     def customization_help(self, gui=False):
         '''
         Return a string giving help on how to customize this plugin.
@@ -284,7 +283,6 @@ class Plugin(object): # {{{
                 sys.path.insert(0, self.sys_insertion_path)
             zf.close()
 
-
     def __exit__(self, *args):
         ip, it = getattr(self, 'sys_insertion_path', None), getattr(self,
                 '_sys_insertion_tdir', None)
@@ -304,7 +302,7 @@ class Plugin(object): # {{{
 
 # }}}
 
-class FileTypePlugin(Plugin): # {{{
+class FileTypePlugin(Plugin):  # {{{
     '''
     A plugin that is associated with a particular set of file types.
     '''
@@ -356,13 +354,13 @@ class FileTypePlugin(Plugin): # {{{
 
         :param book_id: Database id of the added book.
         :param book_format: The file type of the book that was added.
-		:param db: Library database.
+                :param db: Library database.
         '''
-        pass # Default implementation does nothing
+        pass  # Default implementation does nothing
 
 # }}}
 
-class MetadataReaderPlugin(Plugin): # {{{
+class MetadataReaderPlugin(Plugin):  # {{{
     '''
     A plugin that implements reading metadata from a set of file types.
     '''
@@ -392,7 +390,7 @@ class MetadataReaderPlugin(Plugin): # {{{
         return None
 # }}}
 
-class MetadataWriterPlugin(Plugin): # {{{
+class MetadataWriterPlugin(Plugin):  # {{{
     '''
     A plugin that implements reading metadata from a set of file types.
     '''
@@ -423,7 +421,7 @@ class MetadataWriterPlugin(Plugin): # {{{
 
 # }}}
 
-class CatalogPlugin(Plugin): # {{{
+class CatalogPlugin(Plugin):  # {{{
     '''
     A plugin that implements a catalog generator.
     '''
@@ -516,8 +514,7 @@ class CatalogPlugin(Plugin): # {{{
         from calibre.customize.ui import config
         from calibre.ptempfile import PersistentTemporaryDirectory
 
-        if not type(self) in builtin_plugins and \
-           not self.name in config['disabled_plugins']:
+        if not type(self) in builtin_plugins and self.name not in config['disabled_plugins']:
             files_to_copy = ["%s.%s" % (self.name.lower(),ext) for ext in ["ui","py"]]
             resources = zipfile.ZipFile(self.plugin_path,'r')
 
@@ -553,7 +550,7 @@ class CatalogPlugin(Plugin): # {{{
 
 # }}}
 
-class InterfaceActionBase(Plugin): # {{{
+class InterfaceActionBase(Plugin):  # {{{
 
     supported_platforms = ['windows', 'osx', 'linux']
     author         = 'Kovid Goyal'
@@ -580,7 +577,7 @@ class InterfaceActionBase(Plugin): # {{{
 
 # }}}
 
-class PreferencesPlugin(Plugin): # {{{
+class PreferencesPlugin(Plugin):  # {{{
 
     '''
     A plugin representing a widget displayed in the Preferences dialog.
@@ -639,7 +636,7 @@ class PreferencesPlugin(Plugin): # {{{
 
 # }}}
 
-class StoreBase(Plugin): # {{{
+class StoreBase(Plugin):  # {{{
 
     supported_platforms = ['windows', 'osx', 'linux']
     author         = 'John Schember'
@@ -688,7 +685,7 @@ class StoreBase(Plugin): # {{{
 
 # }}}
 
-class ViewerPlugin(Plugin): # {{{
+class ViewerPlugin(Plugin):  # {{{
 
     '''
     These plugins are used to add functionality to the calibre viewer.
@@ -733,6 +730,7 @@ class ViewerPlugin(Plugin): # {{{
         example, you can modify the toolbars via ui.tool_bar and ui.tool_bar2.
         '''
         pass
+
     def customize_context_menu(self, menu, event, hit_test_result):
         '''
         This method is called every time the context (right-click) menu is
@@ -743,4 +741,3 @@ class ViewerPlugin(Plugin): # {{{
         pass
 
 # }}}
-

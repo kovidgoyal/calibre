@@ -41,10 +41,10 @@ Cygwin
 This is needed for automation of the build process, and the ease of use of the
 unix shell (bash).
 
-Install, vim, rsync, openssh, unzip, wget, make at a minimum.
+Install vim, dos2unix, rsync, openssh, unzip, wget, make, zsh, bash-completion, curl at a minimum.
 
 After installing python run::
-    python setup/vcvars.py && echo 'source ~/.vcvars' >> ~/.bash_profile
+    python setup/vcvars.py && echo 'source ~/.vcvars' >> ~/.zshrc
 
 To allow you to use the visual studio tools in the cygwin shell.
 
@@ -147,38 +147,333 @@ Put sqlite3*.h from the sqlite windows amalgamation in ~/sw/include
 APSW
 -----
 
-Download source from http://code.google.com/p/apsw/downloads/list and run in visual studio prompt
+Download source from http://code.google.com/p/apsw/downloads/list and run 
 
 python setup.py fetch --all --missing-checksum-ok build --enable-all-extensions install test
+
+Build requirements
+-------------------
+
+Install perl and ruby (needed to build openssl and qt):
+Perl: http://www.activestate.com/activeperl
+Ruby: http://rubyinstaller.org/
+
+Put both perl.exe and ruby.exe in the PATH
+
+Get nasm.exe from (needed for openssl and libjpeg-turbo)
+http://www.nasm.us/pub/nasm/releasebuilds/2.11/win32/nasm-2.11-win32.zip
+and put it in ~/sw/bin (which must be in PATH)
 
 OpenSSL
 --------
 
-First install ActiveState Perl if you dont already have perl in windows
-
-Then, get nasm.exe from
-http://www.nasm.us/pub/nasm/releasebuilds/2.05/nasm-2.05-win32.zip and put it
-somewhere on your PATH (I chose ~/sw/bin)
-
-Download and untar the openssl tarball, follow the instructions in INSTALL.(W32|W64)
-to install use prefix q:\openssl
+Download and untar the openssl tarball.
+To install use a private prefix: --prefix=C:/cygwin64/home/kovid/sw/private/openssl
 
 The following *MUST BE RUN* in a Visual Studio Command prompt and not in a cygwin
 environment.
 
 For 32-bit::
-    perl Configure VC-WIN32 no-asm enable-static-engine --prefix=Q:/openssl
+    perl Configure VC-WIN32 no-asm enable-static-engine --prefix=C:/cygwin64/home/kovid/sw/private/openssl
     ms\do_ms.bat
     nmake -f ms\ntdll.mak
     nmake -f ms\ntdll.mak test
     nmake -f ms\ntdll.mak install
 
 For 64-bit::
-    perl Configure VC-WIN64A no-asm enable-static-engine --prefix=C:/cygwin/home/kovid/sw/private/openssl
+    perl Configure VC-WIN64A no-asm enable-static-engine --prefix=C:/cygwin64/home/kovid/sw/private/openssl
     ms\do_win64a.bat
     nmake -f ms\ntdll.mak
     nmake -f ms\ntdll.mak test
     nmake -f ms\ntdll.mak install
+
+ICU
+-------
+
+Download the win32 *source* .zip from http://www.icu-project.org/download
+
+Extract to C:\cygwin64\home\kovid\sw\private\icu
+
+The following must be run in the VS Command Prompt, not the cygwin ssh shell
+
+cd to <ICU>\source::
+
+    set PATH=%PATH%;C:\cygwin64\bin
+    dos2unix runConfigureICU
+    bash ./runConfigureICU Cygwin/MSVC
+    make
+
+zlib
+------
+
+http://www.zlib.net/
+
+Build with::
+    nmake -f win32/Makefile.msc
+    nmake -f win32/Makefile.msc test
+    cp zlib1.dll* ~/sw/bin && cp zlib.lib zdll.* ~/sw/lib/ && cp zconf.h zlib.h ~/sw/include/
+
+jpeg-8
+-------
+
+Get the source code from: http://sourceforge.net/projects/libjpeg-turbo/files/
+
+Run::
+    chmod +x cmakescripts/* && mkdir -p build && cd build 
+    cmake -G "NMake Makefiles" -DCMAKE_BUILD_TYPE=Release -DWITH_JPEG8=1 ..
+    nmake
+    cp sharedlib/jpeg8.dll* ~/sw/bin/ && cp sharedlib/jpeg.lib ~/sw/lib/ && cp jconfig.h ../jerror.h ../jpeglib.h ../jmorecfg.h ~/sw/include
+
+libpng
+---------
+
+Download the libpng .zip source file from:
+http://www.libpng.org/pub/png/libpng.html
+
+Run::
+    mkdir -p build && cd build
+    cmake -G "NMake Makefiles" -DPNG_SHARED=1 -DCMAKE_BUILD_TYPE=Release -DZLIB_INCLUDE_DIR=C:/cygwin64/home/kovid/sw/include -DZLIB_LIBRARY=C:/cygwin64/home/kovid/sw/lib/zdll.lib ..
+    nmake
+    cp libpng*.dll ~/sw/bin/ && cp libpng*.lib ~/sw/lib/ && cp pnglibconf.h ../png.h ../pngconf.h ~/sw/include/
+
+freetype
+-----------
+
+Get the .zip source from: http://download.savannah.gnu.org/releases/freetype/
+
+Edit *all copies* of the file ftoption.h and add to generate a .lib
+and a correct dll
+
+#define FT_EXPORT(return_type) __declspec(dllexport) return_type 
+#define FT_EXPORT_DEF(return_type) __declspec(dllexport) return_type
+
+VS 2008 .sln file is present, open it
+
+    * If you are doing x64 build, click the Win32 dropdown, select
+      Configuration manager->Active solution platform -> New -> x64
+
+    * Change active build type to release multithreaded
+
+    * Project->Properties->Configuration Properties change configuration type
+      to dll and build solution
+
+cp "`find . -name freetype.dll`" ~/sw/bin/ && cp "`find . -name freetype.lib`" ~/sw/lib/
+
+Now change configuration back to static for .lib and build solution
+
+cp "`find . -name 'freetype*MT.lib'`" ~/sw/lib/
+cp -rf include ~/sw/include/freetype2 && rm -rf ~/sw/include/freetype2/internal
+
+TODO: Test if this bloody thing actually works on 64 bit (apparently freetype
+assumes sizeof(long) == sizeof(ptr) which is not true in Win64. See for
+example: http://forum.openscenegraph.org/viewtopic.php?t=2880
+
+expat
+--------
+
+Get from: http://sourceforge.net/projects/expat/files/expat/
+
+Apparently expat requires stdint.h which VS 2008 does not have. So we get our
+own.
+
+Run::
+    cd lib && wget http://msinttypes.googlecode.com/svn/trunk/stdint.h && cd ..
+    mkdir -p build && cd build
+    cmake -G "NMake Makefiles" -DCMAKE_BUILD_TYPE=Release ..
+    nmake
+    cp expat.dll ~/sw/bin/ && cp expat.lib ~/sw/lib/
+    cp ../lib/expat.h ../lib/expat_external.h ~/sw/include
+
+libiconv
+----------
+
+Run::
+    mkdir vs2008 && cd vs2008
+
+Then follow these instructions:
+http://www.codeproject.com/Articles/302012/How-to-Build-libiconv-with-Microsoft-Visual-Studio
+
+NOTE: Built as MT rather than MD so no manifest
+
+Change the type to Release and config to x64 or Win32 and Build solution and
+then::
+    cp "`find . -name '*.dll'`" ~/sw/bin/
+    cp "`find . -name '*.lib'`" ~/sw/lib/iconv.lib
+    cp "`find . -name iconv.h`" ~/sw/include/
+
+Information for using a static version of libiconv is at the link above.
+
+libxml2
+-------------
+
+Get it from: ftp://xmlsoft.org/libxml2/
+
+Run::
+    cd win32
+    cscript.exe configure.js include=C:/cygwin64/home/kovid/sw/include lib=C:/cygwin64/home/kovid/sw/lib prefix=C:/cygwin64/home/kovid/sw zlib=yes iconv=yes
+    nmake /f Makefile.msvc
+    cd ..
+    mkdir -p ~/sw/include/libxml2/libxml && cp include/libxml/*.h ~/sw/include/libxml2/libxml/
+    find . -type f \( -name "*.dll" -o -name "*.dll.manifest" \)  -exec cp "{}" ~/sw/bin/ \;
+    find .  -name libxml2.lib -exec cp "{}" ~/sw/lib/ \;
+
+libxslt
+---------
+
+Get it from: ftp://xmlsoft.org/libxml2/
+
+Run::
+    cd win32
+    cscript.exe configure.js include=C:/cygwin64/home/kovid/sw/include include=C:/cygwin64/home/kovid/sw/include/libxml2 lib=C:/cygwin64/home/kovid/sw/lib prefix=C:/cygwin64/home/kovid/sw zlib=yes iconv=yes
+    nmake /f Makefile.msvc
+    mkdir -p ~/sw/include/libxslt ~/sw/include/libexslt
+    cd ..
+    cp libxslt/*.h ~/sw/include/libxslt/
+    cp libexslt/*.h ~/sw/include/libexslt/
+    find . -type f \( -name "*.dll" -o -name "*.dll.manifest" \)  -exec cp "{}" ~/sw/bin/ \;
+    find .  -name 'lib*xslt.lib' -exec cp "{}" ~/sw/lib/ \;
+
+lxml
+------
+
+Get the source from: http://pypi.python.org/pypi/lxml
+
+Change the include dirs and lib dirs by editing setupinfo.py and changing the
+library_dirs() function to return::
+
+    return ['C:/cygwin64/home/kovid/sw/lib']
+
+and the include_dirs() function to return
+
+    return ['C:/cygwin64/home/kovid/sw/include/libxml2', 'C:/cygwin64/home/kovid/sw/include']
+
+Run::
+    python setup.py install
+
+
+Python Imaging Library
+------------------------
+
+Download from http://pypi.python.org/pypi/Pillow/
+Edit setup.py setting the ROOT values, like this::
+
+    SW = r'C:\cygwin64\home\kovid\sw'
+    JPEG_ROOT = ZLIB_ROOT = FREETYPE_ROOT = (SW+r'\lib', SW+r'\include')
+
+Set zip_safe=False
+
+Build and install with::
+    python setup.py install
+
+poppler
+-------------
+
+mkdir build
+
+Run the cmake GUI which will find the various dependencies automatically.
+On 64 bit cmake might not let you choose Visual Studio 2008, in whcih case
+leave the source field blank, click configure choose Visual Studio 2008 and
+then enter the source field.
+
+In cmake: disable GTK, Qt, openjpeg, cpp, lcms, gtk_tests, qt_tests. Enable
+jpeg, png and zlib::
+
+    cp build/utils/Release/*.exe ~/sw/bin
+
+podofo
+----------
+
+Download from http://podofo.sourceforge.net/download.html
+
+mkdir build
+
+Add the following three lines near the top of CMakeLists.txt
+SET(WANT_LIB64 FALSE)
+SET(PODOFO_BUILD_SHARED TRUE)
+SET(PODOFO_BUILD_STATIC FALSE)
+
+PoDoFo's CMakeLists.txt is pretty bad. Run the cmake-gui and fill in values for
+freetype2 and open ssl (choose any one .lib for the libcrypto variable, you
+will have to fix it manually in Visual Studio later anyway). Then generate the
+VisualStudio solution. In the solution. In the Solution got to
+Project->Properties->Linker->Input and add the second ssl library. And in
+C++->General add the openssl include dir.
+
+Now build only the project podofo_shared (release mode)
+
+Run::
+    cp "`find . -name '*.dll'`" ~/sw/bin/
+    cp "`find . -name '*.lib'`" ~/sw/lib/
+    mkdir ~/sw/include/podofo
+    cp build/podofo_config.h ~/sw/include/podofo
+    cp -r src/* ~/sw/include/podofo/
+
+
+ImageMagick
+--------------
+
+Get the source from: http://www.imagemagick.org/download/windows/ImageMagick-windows.zip
+Unzip it and then run::
+    chmod +x `find . -name '*.exe'`
+
+Edit VisualMagick/configure/configure.cpp to set
+
+int projectType = MULTITHREADEDDLL;
+
+Open configure.sln and build it to create configure.exe
+
+Run configure.exe set 32/64 bit disable X11 and OpenMPI and click the Edit
+magick-baseconfig.h button
+
+Undefine ProvideDllMain 
+
+Now open VisualMagick/VisualDynamicMT.sln set to Release
+
+Remove the UTIL_IMdisplay and CORE_Magick++ projects.
+
+F7 for build solution.
+
+netifaces
+------------
+
+Download the source tarball from http://alastairs-place.net/projects/netifaces/
+
+Rename netifaces.c to netifaces.cpp and make the same change in setup.py
+
+Run:: 
+    python setup.py build
+    cp `find build/ -name *.pyd` /cygdrive/c/Python27/Lib/site-packages/
+
+
+psutil
+--------
+
+Download the source tarball
+
+Run
+
+Python setup.py build
+cp -r build/lib.win32-*/* /cygdrive/c/Python27/Lib/site-packages/
+
+easylzma
+----------
+
+This is only needed to build the portable installer.
+
+Get it from http://lloyd.github.com/easylzma/ (use the trunk version)
+
+Run cmake and build the Visual Studio solution (generates CLI tools and dll and
+static lib automatically)
+
+chmlib
+-------
+
+Download the zip source code from: http://www.jedrea.com/chmlib/
+Run::
+    cd src && unzip ./ChmLib-ds6.zip
+Then open ChmLib.dsw in Visual Studio, change the configuration to Release
+(Win32|x64) and build solution, this will generate a static library in
+Release/ChmLib.lib
 
 Qt
 --------
@@ -225,328 +520,6 @@ Compiling instructions::
     nmake
     nmake install
 
-ICU
--------
-
-Download the win32 source .zip from http://www.icu-project.org/download
-
-Extract to q:\icu
-
-Add Q:\icu\bin to PATH and reboot
-
-In a Visual Studio Command Prompt
-cd to <ICU>\source
-Run set PATH=%PATH%;c:\cygwin\bin
-Run dos2unix on configure and runConfigureICU
-
-Run bash ./runConfigureICU Cygwin/MSVC
-
-Run make (note that you must have GNU make installed in cygwin)
-
-Optionally run make check
-
-zlib
-------
-
-Build with::
-    nmake -f win32/Makefile.msc
-    nmake -f win32/Makefile.msc test
-
-    cp zlib1.dll* ../../bin
-    cp zlib.lib zdll.* ../../lib
-    cp zconf.h zlib.h ../../include
-
-jpeg-8
--------
-
-Get the source code from: http://sourceforge.net/projects/libjpeg-turbo/files/
-
-Run::
-    chmod +x cmakescripts/* && cd build 
-    cmake -G "NMake Makefiles" -DCMAKE_BUILD_TYPE=Release -DWITH_JPEG8=1 ..
-    nmake
-    cp sharedlib/jpeg8.dll* ~/sw/bin/
-    cp sharedlib/jpeg.lib ~/sw/lib/
-    cp jconfig.h ../jerror.h ../jpeglib.h ../jmorecfg.h ~/sw/include
-
-libpng
----------
-
-Download the libpng .zip source file from:
-http://www.libpng.org/pub/png/libpng.html
-
-Run::
-    mkdir build && cd build
-    cmake -G "NMake Makefiles" -DCMAKE_BUILD_TYPE=Release -DZLIB_INCLUDE_DIR=C:/cygwin/home/kovid/sw/include -DZLIB_LIBRARY=C:/cygwin/home/kovid/sw/lib/zdll.lib ..
-    nmake
-    cp libpng*.dll ~/sw/bin/
-    cp libpng*.lib ~/sw/lib/
-    cp pnglibconf.h ../png.h ../pngconf.h ~/sw/include/
-
-freetype
------------
-
-Get the .zip source from: http://download.savannah.gnu.org/releases/freetype/
-
-Edit *all copies* of the file ftoption.h and add to generate a .lib
-and a correct dll
-
-#define FT_EXPORT(return_type) __declspec(dllexport) return_type 
-#define FT_EXPORT_DEF(return_type) __declspec(dllexport) return_type
-
-
-VS 2008 .sln file is present, open it
-
-    * If you are doing x64 build, click the Win32 dropdown, select
-      Configuration manager->Active solution platform -> New -> x64
-
-    * Change active build type to release mutithreaded
-
-    * Project->Properties->Configuration Properties change configuration type
-      to dll and build solution
-
-cp "`find . -name *.dll`" ~/sw/bin/
-cp "`find . -name freetype.lib`" ~/sw/lib/
-
-Now change configuration back to static for .lib and build solution
-cp "`find . -name freetype*MT.lib`" ~/sw/lib/
-
-cp build/freetype-2.3.9/objs/win32/vc2008/freetype239MT.lib lib/
-cp -rf include/* ~/sw/include/
-
-TODO: Test if this bloody thing actually works on 64 bit (apparently freetype
-assumes sizeof(long) == sizeof(ptr) which is not true in Win64. See for
-example: http://forum.openscenegraph.org/viewtopic.php?t=2880
-
-expat
---------
-
-Get from: http://sourceforge.net/projects/expat/files/expat/
-
-Apparently expat requires stdint.h which VS 2008 does not have. So we get our
-own.
-
-Run::
-    cd lib
-    wget http://msinttypes.googlecode.com/svn/trunk/stdint.h
-    mkdir build && cd build
-    cmake -G "NMake Makefiles" -DCMAKE_BUILD_TYPE=Release ..
-    nmake
-    cp expat.dll ~/sw/bin/ && cp expat.lib ~/sw/lib/
-    cp ../lib/expat.h ../lib/expat_external.h ~/sw/include
-
-libiconv
-----------
-
-Run::
-    mkdir vs2008 && cd vs2008
-
-Then follow these instructions:
-http://www.codeproject.com/Articles/302012/How-to-Build-libiconv-with-Microsoft-Visual-Studio
-
-Change the type to Release and config to x64 or Win32 and Build solution and
-then::
-    cp "`find . -name *.dll`" ~/sw/bin/
-    cp "`find . -name *.dll.manifest`" ~/sw/bin/
-    cp "`find . -name *.lib`" ~/sw/lib/iconv.lib
-    cp "`find . -name iconv.h`" ~/sw/include/
-
-Information for using a static version of libiconv is at the link above.
-
-libxml2
--------------
-
-Get it from: ftp://xmlsoft.org/libxml2/
-
-Run::
-    cd win32
-    cscript.exe configure.js include=C:/cygwin/home/kovid/sw/include lib=C:/cygwin/home/kovid/sw/lib prefix=C:/cygwin/home/kovid/sw zlib=yes iconv=yes
-    nmake /f Makefile.msvc
-    mkdir -p ~/sw/include/libxml2/libxml
-    cp include/libxml/*.h ~/sw/include/libxml2/libxml/
-    find . -type f \( -name "*.dll" -o -name "*.dll.manifest" \)  -exec cp "{}" ~/sw/bin/ \;
-    find .  -name libxml2.lib -exec cp "{}" ~/sw/lib/ \;
-
-libxslt
----------
-
-Get it from: ftp://xmlsoft.org/libxml2/
-
-Run::
-    cd win32
-    cscript.exe configure.js include=C:/cygwin/home/kovid/sw/include include=C:/cygwin/home/kovid/sw/include/libxml2 lib=C:/cygwin/home/kovid/sw/lib prefix=C:/cygwin/home/kovid/sw zlib=yes iconv=yes
-    nmake /f Makefile.msvc
-    mkdir -p ~/sw/include/libxslt ~/sw/include/libexslt
-    cp libxslt/*.h ~/sw/include/libxslt/
-    cp libexslt/*.h ~/sw/include/libexslt/
-    find . -type f \( -name "*.dll" -o -name "*.dll.manifest" \)  -exec cp "{}" ~/sw/bin/ \;
-    find .  -name lib*xslt.lib -exec cp "{}" ~/sw/lib/ \;
-
-lxml
-------
-
-Get the source from: http://pypi.python.org/pypi/lxml
-
-Change the include dirs and lib dirs by editing setupinfo.py and changing the
-library_dirs() function to return::
-
-    return ['C:/cygwin/home/kovid/sw/lib']
-
-and the include_dirs() function to return
-
-    return ['C:/cygwin/home/kovid/sw/include/libxml2', 'C:/cygwin/home/kovid/sw/include']
-
-Run::
-    python setup.py install
-
-Python Imaging Library
-------------------------
-
-For 32-bit:
-Install as normal using installer at http://www.lfd.uci.edu/~gohlke/pythonlibs/
-
-For 64-bit:
-Download from http://pypi.python.org/pypi/Pillow/
-Edit setup.py setting the ROOT values, like this::
-
-    SW = r'C:\cygwin\home\kovid\sw'
-    JPEG_ROOT = ZLIB_ROOT = FREETYPE_ROOT = (SW+r'\lib', SW+r'\include')
-
-Build and install with::
-    python setup.py build
-    python setup.py install
-
-Note that the lcms module will not be built. PIL requires lcms-1.x but only
-lcms-2.x can be compiled as a 64 bit library.
-
-Pillow >= 2.2 installs itself as a .egg file. calibre needs it to be a PIL
-directory. Extract the PIL directory as follows:
-    cd /cygdrive/c/Python27/Lib/site-packages
-    mkdir p && cd p
-    unzip ../Pillow-*.egg
-    cd .. && rm Pillow-*.egg && mv p/PIL . && chmod +x PIL/*.pyd
-
-Test it on the target system with
-
-calibre-debug -c "from PIL import Image; import _imaging, _imagingmath, _imagingft"
-
-kdewin32-msvc
-----------------
-
-I dont think this is needed any more, I've left it here just in case I'm wrong.
-
-Get it from http://www.winkde.org/pub/kde/ports/win32/repository/kdesupport/
-mkdir build
-Run cmake
-
-Set build type to release and configuration to dll
-
-Build
-
-cp build/kdewin32-msvc-0.3.9/build/include/* include/
-cp build/kdewin32-msvc-0.3.9/build/bin/Release/*.dll bin/
-cp build/kdewin32-msvc-0.3.9/build/bin/Release/*.lib lib/
-cp build/kdewin32-msvc-0.3.9/build/bin/Release/*.exp lib/
-cp -r build/kdewin32-msvc-0.3.9/include/msvc/ include/
-cp build/kdewin32-msvc-0.3.9/include/*.h include/
-
-poppler
--------------
-
-mkdir build
-
-Run the cmake GUI which will find the various dependencies automatically.
-On 64 bit cmake might not let you choose Visual Studio 2008, in whcih case
-leave the source field blank, click configure choose Visual Studio 2008 and
-then enter the source field.
-
-In Cmake: disable GTK, Qt, OPenjpeg, cpp, lcms, gtk_tests, qt_tests. Enable
-jpeg, png and zlib::
-
-    cp build/utils/Release/*.exe ../../bin/
-
-podofo
-----------
-
-Download from http://podofo.sourceforge.net/download.html
-
-Add the following three lines near the top of CMakeLists.txt
-SET(WANT_LIB64 FALSE)
-SET(PODOFO_BUILD_SHARED TRUE)
-SET(PODOFO_BUILD_STATIC FALSE)
-
-Run::
-    cp "`find . -name *.dll`" ~/sw/bin/
-    cp "`find . -name *.lib`" ~/sw/lib/
-    mkdir ~/sw/include/podofo
-    cp build/podofo_config.h ~/sw/include/podofo
-    cp -r src/* ~/sw/include/podofo/
-
-
-ImageMagick
---------------
-
-Get the source from: http://www.imagemagick.org/download/windows/ImageMagick-windows.zip
-
-Edit VisualMagick/configure/configure.cpp to set
-
-int projectType = MULTITHREADEDDLL;
-
-Run configure.bat in a  visual studio command prompt
-
-Run configure.exe generated by configure.bat
-
-Edit magick/magick-config.h
-
-Undefine ProvideDllMain and MAGICKCORE_X11_DELEGATE
-
-Now open VisualMagick/VisualDynamicMT.sln set to Release
-Remove the CORE_xlib, UTIL_Imdisplay and CORE_Magick++ projects.
-
-F7 for build solution, you will get one error due to the removal of xlib, ignore
-it.
-
-netifaces
-------------
-
-Download the source tarball from http://alastairs-place.net/projects/netifaces/
-
-Rename netifaces.c to netifaces.cpp and make the same change in setup.py
-
-Run:: 
-    python setup.py build
-    cp `find build/ -name *.pyd` /cygdrive/c/Python27/Lib/site-packages/
-
-
-psutil
---------
-
-Download the source tarball
-
-Run
-
-Python setup.py build
-cp -r build/lib.win32-*/* /cygdrive/c/Python27/Lib/site-packages/
-
-easylzma
-----------
-
-This is only needed to build the portable installer.
-
-Get it from http://lloyd.github.com/easylzma/ (use the trunk version)
-
-Run cmake and build the Visual Studio solution (generates CLI tools and dll and
-static lib automatically)
-
-chmlib
--------
-
-Download the zip source code from: http://www.jedrea.com/chmlib/
-Run::
-    cd src && unzip ./ChmLib-ds6.zip
-Then open ChmLib.dsw in Visual Studio, change the configuration to Release
-(Win32|x64) and build solution, this will generate a static library in
-Release/ChmLib.lib
 
 libimobiledevice
 ------------------

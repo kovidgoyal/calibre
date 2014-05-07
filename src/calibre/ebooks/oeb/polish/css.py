@@ -14,6 +14,7 @@ from cssselect.xpath import XPathExpr, is_safe_name
 
 from calibre import force_unicode
 from calibre.ebooks.oeb.base import OEB_STYLES, OEB_DOCS, XPNSMAP, XHTML_NS
+from calibre.ebooks.oeb.normalize_css import normalize_filter_css, normalizers
 from calibre.ebooks.oeb.stylizer import MIN_SPACE_RE, is_non_whitespace, xpath_lower_case, fix_namespace
 from calibre.ebooks.oeb.polish.pretty import pretty_script_or_style
 
@@ -167,3 +168,80 @@ def remove_unused_css(container, report):
     else:
         report(_('No unused CSS style rules found'))
     return num_of_removed_rules > 0
+
+def filter_declaration(style, properties):
+    changed = False
+    for prop in properties:
+        if style.removeProperty(prop) != '':
+            changed = True
+    all_props = set(style.keys())
+    for prop in style.getProperties():
+        n = normalizers.get(prop.name, None)
+        if n is not None:
+            normalized = n(prop.name, prop.propertyValue)
+            removed = properties.intersection(set(normalized))
+            if removed:
+                changed = True
+                style.removeProperty(prop.name)
+                for prop in set(normalized) - removed - all_props:
+                    style.setProperty(prop, normalized[prop])
+    return changed
+
+def filter_sheet(sheet, properties):
+    from cssutils.css import CSSRule
+    changed = False
+    remove = []
+    for rule in sheet.cssRules.rulesOfType(CSSRule.STYLE_RULE):
+        if filter_declaration(rule.style, properties):
+            changed = True
+            if rule.style.length == 0:
+                remove.append(rule)
+    for rule in remove:
+        sheet.cssRules.remove(rule)
+    return changed
+
+
+def filter_css(container, properties, names=()):
+    if not names:
+        types = OEB_STYLES | OEB_DOCS
+        names = []
+        for name, mt in container.mime_map.iteritems():
+            if mt in types:
+                names.append(name)
+    properties = normalize_filter_css(properties)
+    doc_changed = False
+
+    for name in names:
+        mt = container.mime_map[name]
+        if mt in OEB_STYLES:
+            sheet = container.parsed(name)
+            filtered = filter_sheet(sheet, properties)
+            if filtered:
+                container.dirty(name)
+                doc_changed = True
+        elif mt in OEB_DOCS:
+            root = container.parsed(name)
+            changed = False
+            for style in root.xpath('//*[local-name()="style"]'):
+                if style.text and style.get('type', 'text/css') in {None, '', 'text/css'}:
+                    sheet = container.parse_css(style.text)
+                    if filter_sheet(sheet, properties):
+                        changed = True
+                        style.text = force_unicode(sheet.cssText, 'utf-8')
+                        pretty_script_or_style(container, style)
+            for elem in root.xpath('//*[@style]'):
+                text = elem.get('style', None)
+                if text:
+                    style = container.parse_css(text, is_declaration=True)
+                    if filter_declaration(style, properties):
+                        changed = True
+                        if style.length == 0:
+                            del elem.attrib['style']
+                        else:
+                            elem.set('style', force_unicode(style.getCssText(separator=' '), 'utf-8'))
+            if changed:
+                container.dirty(name)
+                doc_changed = True
+
+    return doc_changed
+

@@ -400,6 +400,17 @@ If you use this tool multiple times, each invocation will cause the previously
 created inline Table of Contents to be replaced. The tool can be accessed via
 :guilabel:`Tools->Table of Contents->Insert inline Table of Contents`.
 
+Filter style information
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+This tool can be used to easily remove specified CSS style properties from the
+entire book. You can tell it what properties you want removed, for example,
+``color, background-color, line-height`` and it will remove them from
+everywhere they occur --- stylesheets, ``<style>`` tags and inline ``style``
+attributes. After removing the style information, a summary of all the changes
+made is displayed so you can see exactly what was changed. The tool can be
+accessed via :guilabel:`Tools->Filter style information`.
+
 .. _checkpoints:
 
 Checkpoints

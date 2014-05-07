@@ -18,8 +18,9 @@ from calibre import prints, isbytestring
 from calibre.ptempfile import PersistentTemporaryDirectory, TemporaryDirectory
 from calibre.ebooks.oeb.base import urlnormalize
 from calibre.ebooks.oeb.polish.main import SUPPORTED, tweak_polish
-from calibre.ebooks.oeb.polish.container import get_container as _gc, clone_container, guess_type, OEB_FONTS
+from calibre.ebooks.oeb.polish.container import get_container as _gc, clone_container, guess_type, OEB_FONTS, OEB_DOCS, OEB_STYLES
 from calibre.ebooks.oeb.polish.cover import mark_as_cover, mark_as_titlepage
+from calibre.ebooks.oeb.polish.css import filter_css
 from calibre.ebooks.oeb.polish.pretty import fix_all_html, pretty_all
 from calibre.ebooks.oeb.polish.replace import rename_files, replace_file, get_recommended_folders, rationalize_folders
 from calibre.ebooks.oeb.polish.split import split, merge, AbortError, multisplit
@@ -41,7 +42,7 @@ from calibre.gui2.tweak_book.search import validate_search_request, run_search
 from calibre.gui2.tweak_book.spell import find_next as find_next_word
 from calibre.gui2.tweak_book.widgets import (
     RationalizeFolders, MultiSplit, ImportForeign, QuickOpen, InsertLink,
-    InsertSemantics, BusyCursor, InsertTag)
+    InsertSemantics, BusyCursor, InsertTag, FilterCSS)
 
 _diff_dialogs = []
 
@@ -673,6 +674,31 @@ class Boss(QObject):
             self.add_savepoint(_('Before: Set Semantics'))
             d.apply_changes(current_container())
             self.apply_container_update_to_gui()
+
+    def filter_css(self):
+        self.commit_all_editors_to_container()
+        c = current_container()
+        ed = self.gui.central.current_editor
+        for name, q in editors.iteritems():
+            if ed is q:
+                current_name = name
+                break
+        else:
+            current_name = None
+        if current_name and c.mime_map[current_name] not in OEB_DOCS | OEB_STYLES:
+            current_name = None
+        d = FilterCSS(current_name=current_name, parent=self.gui)
+        if d.exec_() == d.Accepted and d.filtered_properties:
+            self.add_savepoint(_('Before: Filter style information'))
+            with BusyCursor():
+                changed = filter_css(current_container(), d.filtered_properties, names=d.filter_names)
+            if changed:
+                self.apply_container_update_to_gui()
+                self.show_current_diff()
+            else:
+                self.rewind_savepoint()
+                return info_dialog(self.gui, _('No matches'), _(
+                    'No matching style rules were found'), show=True)
 
     def show_find(self):
         self.gui.central.show_find()

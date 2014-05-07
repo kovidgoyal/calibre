@@ -253,6 +253,10 @@ class StatsCollector(object):
             src = rule.get('src', None)
             if not src:
                 continue
+            if src.startswith('url(') and src.endswith(')') and src[4] not in {'"', "'"}:
+                # Quote the url otherwise cssutils fails to parse it if it has
+                # ' or " in it
+                src = "url('" + src[4:-1].replace("'", "\\'") + "')"
             style = self.parser.parseStyle('background-image:%s'%src, validate=False)
             src = style.getProperty('background-image').propertyValue[0].uri
             name = self.href_to_name(src, '@font-face rule')

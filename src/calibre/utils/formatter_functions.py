@@ -178,6 +178,27 @@ class BuiltinCmp(BuiltinFormatterFunction):
             return eq
         return gt
 
+class BuiltinFirstMatchingCmp(BuiltinFormatterFunction):
+    name = 'first_matching_cmp'
+    category = 'Relational'
+    arg_count = -1
+    __doc__ = doc =   _('first_matching_cmp(val, cmp1, result1, cmp2, r2, ..., else_result) -- '
+            'compares "val < cmpN" in sequence, returning resultN for '
+            'the first comparison that succeeds. Returns else_result '
+            'if no comparison succeeds. Example: '
+            'first_matching_cmp(10,5,"small",10,"middle",15,"large","giant") '
+            'returns "middle". The same example with a first value of 16 returns "giant".')
+
+    def evaluate(self, formatter, kwargs, mi, locals, *args):
+        if (len(args) % 2) != 0:
+            raise ValueError(_('first_matching_cmp requires an even number of arguments'))
+        val = float(args[0] if args[0] and args[0] != 'None' else 0)
+        for i in range(1, len(args) - 1, 2):
+            c = float(args[i] if args[i] and args[i] != 'None' else 0)
+            if val < c:
+                return args[i+1]
+        return args[len(args)-1]
+
 class BuiltinStrcat(BuiltinFormatterFunction):
     name = 'strcat'
     arg_count = -1
@@ -1310,9 +1331,9 @@ _formatter_builtins = [
     BuiltinCapitalize(), BuiltinCmp(), BuiltinContains(), BuiltinCount(),
     BuiltinCurrentLibraryName(), BuiltinCurrentLibraryPath(),
     BuiltinDaysBetween(), BuiltinDivide(), BuiltinEval(), BuiltinFirstNonEmpty(),
-    BuiltinField(), BuiltinFinishFormatting(), BuiltinFormatDate(),
-    BuiltinFormatNumber(), BuiltinFormatsModtimes(), BuiltinFormatsPaths(),
-    BuiltinFormatsSizes(),
+    BuiltinField(), BuiltinFinishFormatting(), BuiltinFirstMatchingCmp(),
+    BuiltinFormatDate(), BuiltinFormatNumber(), BuiltinFormatsModtimes(),
+    BuiltinFormatsPaths(), BuiltinFormatsSizes(),
     BuiltinHasCover(), BuiltinHumanReadable(), BuiltinIdentifierInList(),
     BuiltinIfempty(), BuiltinLanguageCodes(), BuiltinLanguageStrings(),
     BuiltinInList(), BuiltinListDifference(), BuiltinListEquals(),

@@ -9,7 +9,7 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 import sys
 
 from PyQt4.Qt import (
-     QIcon, Qt, QSplitter, QListWidget, QTextBrowser, QPalette,
+     QIcon, Qt, QSplitter, QListWidget, QTextBrowser, QPalette, QMenu,
      QListWidgetItem, pyqtSignal, QApplication, QStyledItemDelegate)
 
 from calibre.ebooks.oeb.polish.check.base import WARN, INFO, DEBUG, ERROR, CRITICAL
@@ -27,6 +27,19 @@ def icon_for_level(level):
     else:
         icon = None
     return QIcon(I(icon)) if icon else QIcon()
+
+def prefix_for_level(level):
+    if level > WARN:
+        text = _('ERROR')
+    elif level == WARN:
+        text = _('WARNING')
+    elif level == INFO:
+        text = _('INFO')
+    else:
+        text = ''
+    if text:
+        text += ': '
+    return text
 
 class Delegate(QStyledItemDelegate):
 
@@ -47,6 +60,8 @@ class Check(QSplitter):
         self.setChildrenCollapsible(False)
 
         self.items = i = QListWidget(self)
+        i.setContextMenuPolicy(Qt.CustomContextMenu)
+        i.customContextMenuRequested.connect(self.context_menu)
         self.items.setSpacing(3)
         self.items.itemDoubleClicked.connect(self.current_item_activated)
         self.items.currentItemChanged.connect(self.current_item_changed)
@@ -65,6 +80,22 @@ class Check(QSplitter):
         state = tprefs.get('check-book-splitter-state', None)
         if state is not None:
             self.restoreState(state)
+
+    def context_menu(self, pos):
+        m = QMenu()
+        if self.items.count() > 0:
+            m.addAction(QIcon(I('edit-copy.png')), _('Copy list of errors to clipboard'), self.copy_to_clipboard)
+        if list(m.actions()):
+            m.exec_(self.mapToGlobal(pos))
+
+    def copy_to_clipboard(self):
+        items = []
+        for item in (self.items.item(i) for i in xrange(self.items.count())):
+            msg = unicode(item.text())
+            msg = prefix_for_level(item.data(Qt.UserRole).toPyObject().level) + msg
+            items.append(msg)
+        if items:
+            QApplication.clipboard().setText('\n'.join(items))
 
     def save_state(self):
         tprefs.set('check-book-splitter-state', bytearray(self.saveState()))

@@ -1,5 +1,5 @@
 __license__   = 'GPL v3'
-__copyright__ = '2010, Hiroshi Miura <miurahr@linux.com>'
+__copyright__ = '2010,2014, Hiroshi Miura <miurahr@linux.com>'
 '''
 http://ameblo.jp/sauta19/
 '''
@@ -18,7 +18,7 @@ class UniNoHimituKichiBlog(BasicNewsRecipe):
     category       = 'cat, pet, japan'
     language       = 'ja'
     encoding      = 'utf-8'
-
+    keep_only_tags = [{'class':'entry_head'},{'class':'subContentsInner'}]
     feeds          = [(u'blog', u'http://feedblog.ameba.jp/rss/ameblo/sauta19/rss20.xml')]
 
     def parse_feeds(self):
