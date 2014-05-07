@@ -20,6 +20,7 @@ from calibre.ebooks.oeb.base import urlnormalize
 from calibre.ebooks.oeb.polish.main import SUPPORTED, tweak_polish
 from calibre.ebooks.oeb.polish.container import get_container as _gc, clone_container, guess_type, OEB_FONTS
 from calibre.ebooks.oeb.polish.cover import mark_as_cover, mark_as_titlepage
+from calibre.ebooks.oeb.polish.css import filter_css
 from calibre.ebooks.oeb.polish.pretty import fix_all_html, pretty_all
 from calibre.ebooks.oeb.polish.replace import rename_files, replace_file, get_recommended_folders, rationalize_folders
 from calibre.ebooks.oeb.polish.split import split, merge, AbortError, multisplit
@@ -41,7 +42,7 @@ from calibre.gui2.tweak_book.search import validate_search_request, run_search
 from calibre.gui2.tweak_book.spell import find_next as find_next_word
 from calibre.gui2.tweak_book.widgets import (
     RationalizeFolders, MultiSplit, ImportForeign, QuickOpen, InsertLink,
-    InsertSemantics, BusyCursor, InsertTag)
+    InsertSemantics, BusyCursor, InsertTag, FilterCSS)
 
 _diff_dialogs = []
 
@@ -673,6 +674,21 @@ class Boss(QObject):
             self.add_savepoint(_('Before: Set Semantics'))
             d.apply_changes(current_container())
             self.apply_container_update_to_gui()
+
+    def filter_css(self):
+        self.commit_all_editors_to_container()
+        d = FilterCSS(parent=self.gui)
+        if d.exec_() == d.Accepted and d.filtered_properties:
+            self.add_savepoint(_('Before: Filter style information'))
+            with BusyCursor():
+                changed = filter_css(current_container(), d.filtered_properties)
+            if changed:
+                self.apply_container_update_to_gui()
+                self.show_current_diff()
+            else:
+                self.rewind_savepoint()
+                return info_dialog(self.gui, _('No matches'), _(
+                    'No matching style rules were found'), show=True)
 
     def show_find(self):
         self.gui.central.show_find()

@@ -349,6 +349,8 @@ class Main(MainWindow):
                                       _('Arrange into folders'))
         self.action_set_semantics = reg('tags.png', _('Set &Semantics'), self.boss.set_semantics, 'set-semantics', (),
                                         _('Set Semantics'))
+        self.action_filter_css = reg('filter.png', _('&Filter style information'), self.boss.filter_css, 'filter-css', (),
+                                     _('Filter style information'))
 
         # Polish actions
         group = _('Polish Book')
@@ -482,6 +484,7 @@ class Main(MainWindow):
         e.addAction(self.action_pretty_all)
         e.addAction(self.action_rationalize_folders)
         e.addAction(self.action_set_semantics)
+        e.addAction(self.action_filter_css)
         e.addAction(self.action_spell_check_book)
         e.addAction(self.action_check_book)
 

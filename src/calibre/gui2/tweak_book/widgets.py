@@ -15,7 +15,7 @@ from PyQt4.Qt import (
     QFormLayout, QHBoxLayout, QToolButton, QIcon, QApplication, Qt, QWidget,
     QPoint, QSizePolicy, QPainter, QStaticText, pyqtSignal, QTextOption,
     QAbstractListModel, QModelIndex, QVariant, QStyledItemDelegate, QStyle,
-    QListView, QTextDocument, QSize, QComboBox, QFrame, QCursor)
+    QListView, QTextDocument, QSize, QComboBox, QFrame, QCursor, QCheckBox)
 
 from calibre import prepare_string_for_xml
 from calibre.ebooks.oeb.polish.utils import lead_text
@@ -689,7 +689,7 @@ class InsertLink(Dialog):
                 frag = item.get('id', None) or item.get('name')
                 text = lead_text(item, num_words=4)
                 ac.append((text, frag))
-            ac.sort(key=lambda (text, frag): primary_sort_key(text))
+            ac.sort(key=lambda text_frag: primary_sort_key(text_frag[0]))
         self.anchor_names.model().set_names(self.anchor_cache[name])
         self.update_target()
 
@@ -924,6 +924,64 @@ class InsertSemantics(Dialog):
 
 # }}}
 
+class FilterCSS(Dialog):  # {{{
+
+    def __init__(self, parent=None):
+        Dialog.__init__(self, _('Filter Style Information'), 'filter-css', parent=parent)
+
+    def setup_ui(self):
+        from calibre.gui2.convert.look_and_feel_ui import Ui_Form
+        f, w = Ui_Form(), QWidget()
+        f.setupUi(w)
+        self.l = l = QFormLayout(self)
+        self.setLayout(l)
+
+        l.addRow(QLabel(_('Select what style information you want completely removed:')))
+        self.h = h = QHBoxLayout()
+
+        for name, text in {
+                'fonts':_('&Fonts'), 'margins':_('&Margins'), 'padding':_('&Padding'), 'floats':_('Flo&ats'), 'colors':_('&Colors')}.iteritems():
+            c = QCheckBox(text)
+            setattr(self, 'opt_' + name, c)
+            h.addWidget(c)
+            c.setToolTip(getattr(f, 'filter_css_' + name).toolTip())
+        l.addRow(h)
+
+        self.others = o = QLineEdit(self)
+        l.addRow(_('&Other CSS properties:'), o)
+        o.setToolTip(f.filter_css_others.toolTip())
+
+        l.addRow(self.bb)
+
+    @property
+    def filtered_properties(self):
+        ans = set()
+        a = ans.add
+        if self.opt_fonts.isChecked():
+            a('font-family')
+        if self.opt_margins.isChecked():
+            a('margin')
+        if self.opt_padding.isChecked():
+            a('padding')
+        if self.opt_floats.isChecked():
+            a('float'), a('clear')
+        if self.opt_colors.isChecked():
+            a('color'), a('background-color')
+        for x in unicode(self.others.text()).split(','):
+            x = x.strip()
+            if x:
+                a(x)
+        return ans
+
+    @classmethod
+    def test(cls):
+        d = cls()
+        if d.exec_() == d.Accepted:
+            print (d.filtered_properties)
+
+# }}}
+
+
 if __name__ == '__main__':
     app = QApplication([])
-    InsertLink.test()
+    FilterCSS.test()
