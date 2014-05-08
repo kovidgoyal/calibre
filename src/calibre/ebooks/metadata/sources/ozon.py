@@ -50,7 +50,7 @@ class Ozon(Source):
         ozon_id = identifiers.get('ozon', None)
         res = None
         if ozon_id:
-            #no affiliateId is used in search/detail
+            # no affiliateId is used in search/detail
             url = '{}/context/detail/id/{}'.format(self.ozon_url, urllib2.quote(ozon_id), _get_affiliateId())
             res = ('ozon', ozon_id, url)
         return res
@@ -64,7 +64,7 @@ class Ozon(Source):
 
         # for ozon.ru search we have to format ISBN with '-'
         isbn = _format_isbn(log, identifiers.get('isbn', None))
-        if isbn and not '-' in isbn:
+        if isbn and '-' not in isbn:
             log.error("%s requires formatted ISBN for search. %s cannot be formated - removed. (only Russian ISBN format is supported now)"
                       % (self.name, isbn))
             isbn = None
@@ -96,7 +96,7 @@ class Ozon(Source):
 
     def identify(self, log, result_queue, abort, title=None, authors=None,
             identifiers={}, timeout=90):  # {{{
-        from lxml import html, etree
+        from lxml import html
         from calibre.ebooks.chardet import xml_to_unicode
 
         if not self.is_configured():
@@ -115,23 +115,23 @@ class Ozon(Source):
             return as_unicode(e)
 
         try:
-            doc = html.fromstring(xml_to_unicode(raw, verbose=True)[0])            
-            entries = doc.xpath(u'//div[@class="SearchResults"]//div[@itemprop="itemListElement"]')            
-            
+            doc = html.fromstring(xml_to_unicode(raw, verbose=True)[0])
+            entries = doc.xpath(u'//div[@class="SearchResults"]//div[@itemprop="itemListElement"]')
+
             if entries:
-                #for entry in entries:
+                # for entry in entries:
                 #    log.debug('entries %s' % etree.tostring(entry))
                 metadata = self.get_metadata(log, entries, title, authors, identifiers)
                 self.get_all_details(log, metadata, abort, result_queue, identifiers, timeout)
             else:
                 mainentry = doc.xpath(u'//div[contains(@class, "details-main")]')
-                if mainentry: 
+                if mainentry:
                     metadata = self.get_metadata_from_detail(log, mainentry[0], title, authors, identifiers)
                     ozon_id = unicode(metadata.identifiers['ozon'])
                     self.get_all_details(log, [metadata], abort, result_queue, identifiers, timeout, {ozon_id : doc})
-                else:    
+                else:
                     log.error('No SearchResults/itemListElement entries in Ozon.ru responce found')
-                    
+
         except Exception as e:
             log.exception('Failed to parse identify results')
             return as_unicode(e)
@@ -139,30 +139,30 @@ class Ozon(Source):
 
     def get_metadata_from_detail(self, log, entry, title, authors, identifiers):  # {{{
         title = unicode(entry.xpath(u'normalize-space(.//h1[@itemprop="name"][1]/text())'))
-        #log.debug(u'Tile (from_detail): -----> %s' % title)
+        # log.debug(u'Tile (from_detail): -----> %s' % title)
 
         author = unicode(entry.xpath(u'normalize-space(.//a[contains(@href, "person")][1]/text())'))
-        #log.debug(u'Author (from_detail): -----> %s' % author)
-        
+        # log.debug(u'Author (from_detail): -----> %s' % author)
+
         norm_authors = map(_normalizeAuthorNameWithInitials, map(unicode.strip, unicode(author).split(u',')))
         mi = Metadata(title, norm_authors)
 
         ozon_id = entry.xpath(u'substring-before(substring-after(normalize-space(.//a[starts-with(@href, "/context/detail/id/")][1]/@href), "id/"), "/")')
         if ozon_id:
-            #log.debug(u'ozon_id (from_detail): -----> %s' % ozon_id)
+            # log.debug(u'ozon_id (from_detail): -----> %s' % ozon_id)
             mi.identifiers = {'ozon':ozon_id}
 
         mi.ozon_cover_url = None
         cover = entry.xpath(u'normalize-space(.//img[1]/@src)')
         if cover:
             mi.ozon_cover_url = _translateToBigCoverUrl(cover)
-            #log.debug(u'mi.ozon_cover_url  (from_detail): -----> %s' % mi.ozon_cover_url)
+            # log.debug(u'mi.ozon_cover_url  (from_detail): -----> %s' % mi.ozon_cover_url)
 
         mi.rating = self.get_rating(entry)
-        #log.debug(u'mi.rating  (from_detail): -----> %s' % mi.rating)
+        # log.debug(u'mi.rating  (from_detail): -----> %s' % mi.rating)
         if not mi.rating:
-            log.debug('No rating (from_detail) found. ozon_id:%s'%ozon_id)        
-        
+            log.debug('No rating (from_detail) found. ozon_id:%s'%ozon_id)
+
         return mi
     # }}}
 
@@ -248,7 +248,7 @@ class Ozon(Source):
         return metadata
     # }}}
 
-    def get_all_details(self, log, metadata, abort, result_queue, identifiers, timeout, cachedPagesDict = {}):  # {{{
+    def get_all_details(self, log, metadata, abort, result_queue, identifiers, timeout, cachedPagesDict={}):  # {{{
         req_isbn = identifiers.get('isbn', None)
 
         for mi in metadata:
@@ -258,7 +258,7 @@ class Ozon(Source):
                 ozon_id = mi.identifiers['ozon']
 
                 try:
-                    self.get_book_details(log, mi, timeout, cachedPagesDict[ozon_id] if cachedPagesDict and cachedPagesDict.has_key(ozon_id) else None)
+                    self.get_book_details(log, mi, timeout, cachedPagesDict[ozon_id] if cachedPagesDict and ozon_id in cachedPagesDict else None)
                 except:
                     log.exception(u'Failed to get details for metadata: %s' % mi.title)
 
@@ -281,35 +281,35 @@ class Ozon(Source):
 
     def to_metadata(self, log, entry):  # {{{
         title = unicode(entry.xpath(u'normalize-space(.//span[@itemprop="name"][1]/text())'))
-        #log.debug(u'Tile: -----> %s' % title)
+        # log.debug(u'Tile: -----> %s' % title)
 
         author = unicode(entry.xpath(u'normalize-space(.//a[contains(@href, "person")][1]/text())'))
-        #log.debug(u'Author: -----> %s' % author)
-        
+        # log.debug(u'Author: -----> %s' % author)
+
         norm_authors = map(_normalizeAuthorNameWithInitials, map(unicode.strip, unicode(author).split(u',')))
         mi = Metadata(title, norm_authors)
 
         ozon_id = entry.xpath(u'substring-before(substring-after(normalize-space(.//a[starts-with(@href, "/context/detail/id/")][1]/@href), "id/"), "/")')
         if ozon_id:
             mi.identifiers = {'ozon':ozon_id}
-            #log.debug(u'ozon_id: -----> %s' % ozon_id)
+            # log.debug(u'ozon_id: -----> %s' % ozon_id)
 
         mi.ozon_cover_url = None
         cover = entry.xpath(u'normalize-space(.//img[1]/@src)')
-        #log.debug(u'cover: -----> %s' % cover)
+        # log.debug(u'cover: -----> %s' % cover)
         if cover:
             mi.ozon_cover_url = _translateToBigCoverUrl(cover)
-            #log.debug(u'mi.ozon_cover_url: -----> %s' % mi.ozon_cover_url)
+            # log.debug(u'mi.ozon_cover_url: -----> %s' % mi.ozon_cover_url)
 
         pub_year = None
         if pub_year:
             mi.pubdate = toPubdate(log, pub_year)
-            #log.debug('pubdate %s' % mi.pubdate)
+            # log.debug('pubdate %s' % mi.pubdate)
 
         mi.rating = self.get_rating(entry)
-        #if not mi.rating:
-        #    log.debug('No rating found. ozon_id:%s'%ozon_id)        
-            
+        # if not mi.rating:
+        #    log.debug('No rating found. ozon_id:%s'%ozon_id)
+
         return mi
     # }}}
 
@@ -392,14 +392,14 @@ class Ozon(Source):
 
         if not cachedPage:
             url = self.get_book_url(metadata.get_identifiers())[2]
-            #log.debug(u'book_details_url', url)
+            # log.debug(u'book_details_url', url)
 
             raw = self.browser.open_novisit(url, timeout=timeout).read()
             fulldoc = html.fromstring(xml_to_unicode(raw, verbose=True)[0])
         else:
-            fulldoc = cachedPage   
-            #log.debug(u'book_details -> using cached page')
-        
+            fulldoc = cachedPage
+            # log.debug(u'book_details -> using cached page')
+
         doc = fulldoc.xpath(u'//div[@id="PageContent"][1]')[0]
 
         xpt_tmpl_base = u'.//text()[starts-with(translate(normalize-space(.), " \t", ""), "%s")]'
@@ -409,7 +409,7 @@ class Ozon(Source):
         series = doc.xpath(xpt_tmpl_a % u'Сери')
         if series:
             metadata.series = series
-        #log.debug(u'Seria: ', metadata.series)
+        # log.debug(u'Seria: ', metadata.series)
 
         xpt_isbn = u'normalize-space(' + xpt_tmpl_base + u')'
         isbn_str = doc.xpath(xpt_isbn % u'ISBN')
@@ -433,9 +433,9 @@ class Ozon(Source):
             lng_splt = langs.split(u',')
             if lng_splt:
                 displ_lang = lng_splt[0].strip()
-                #log.debug(u'displ_lang1: ', displ_lang)
+                # log.debug(u'displ_lang1: ', displ_lang)
         metadata.language = _translageLanguageToCode(displ_lang)
-        #log.debug(u'Language: ', metadata.language)
+        # log.debug(u'Language: ', metadata.language)
 
         # can be set before from xml search responce
         if not metadata.pubdate:
@@ -484,7 +484,7 @@ def _translateToBigCoverUrl(coverUrl):  # {{{
     # http://www.ozon.ru/multimedia/books_covers/1009493080.jpg
     m = re.match(r'.+\/([^\.\\]+).+$', coverUrl)
     if m:
-        coverUrl = 'http://www.ozon.ru/multimedia/books_covers/' + m.group(1) + '.jpg' 
+        coverUrl = 'http://www.ozon.ru/multimedia/books_covers/' + m.group(1) + '.jpg'
     return coverUrl
 # }}}
 
@@ -537,7 +537,7 @@ def _format_isbn(log, isbn):  # {{{
 
 def _translageLanguageToCode(displayLang):  # {{{
     displayLang = unicode(displayLang).strip() if displayLang else None
-    langTbl = { None: 'ru',
+    langTbl = {None: 'ru',
                 u'Русский': 'ru',
                 u'Немецкий': 'de',
                 u'Английский': 'en',
