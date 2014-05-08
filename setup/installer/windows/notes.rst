@@ -438,11 +438,9 @@ netifaces
 
 Download the source tarball from http://alastairs-place.net/projects/netifaces/
 
-Rename netifaces.c to netifaces.cpp and make the same change in setup.py
-
 Run:: 
     python setup.py build
-    cp `find build/ -name *.pyd` /cygdrive/c/Python27/Lib/site-packages/
+    cp `find build/ -name '*.pyd'` /cygdrive/c/Python27/Lib/site-packages/
 
 
 psutil
@@ -453,7 +451,7 @@ Download the source tarball
 Run
 
 Python setup.py build
-cp -r build/lib.win32-*/* /cygdrive/c/Python27/Lib/site-packages/
+cp -r build/lib.win*/* /cygdrive/c/Python27/Lib/site-packages/
 
 easylzma
 ----------
@@ -470,7 +468,7 @@ chmlib
 
 Download the zip source code from: http://www.jedrea.com/chmlib/
 Run::
-    cd src && unzip ./ChmLib-ds6.zip
+    cd src && unzip ../ChmLib-ds6.zip
 Then open ChmLib.dsw in Visual Studio, change the configuration to Release
 (Win32|x64) and build solution, this will generate a static library in
 Release/ChmLib.lib
