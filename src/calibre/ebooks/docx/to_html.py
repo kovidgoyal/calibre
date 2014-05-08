@@ -629,7 +629,7 @@ class Convert(object):
             if last_run[-1][1] == style:
                 last_run.append((html_obj, style))
             else:
-                self.framed.append((html_obj, style))
+                self.framed[-1].append((html_obj, style))
         else:
             last_run.append((html_obj, style))
 
