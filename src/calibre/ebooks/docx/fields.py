@@ -84,6 +84,13 @@ parse_index = parser('index',
     ' f:entry-type g:page-range-separator h:heading k:crossref-separator'
     ' l:page-number-separator p:letter-range s:sequence-name r:run-together y:yomi z:langcode')
 
+parse_ref = parser('ref',
+    'd:separator f:footnote h:hyperlink n:number p:position r:relative-number t:suppress w:number-full-context')
+
+parse_noteref = parser('noteref',
+                   'f:footnote h:hyperlink p:position')
+
+
 class Fields(object):
 
     def __init__(self):
@@ -117,7 +124,7 @@ class Fields(object):
                 if stack:
                     stack[-1].contents.append(elem)
 
-        field_types = ('hyperlink', 'xe', 'index')
+        field_types = ('hyperlink', 'xe', 'index', 'ref', 'noteref')
         parsers = {x.upper():getattr(self, 'parse_'+x) for x in field_types}
         field_parsers = {f.upper():globals()['parse_%s' % f] for f in field_types}
 
@@ -131,27 +138,41 @@ class Fields(object):
                 if func is not None:
                     func(field, field_parsers[field.name], log)
 
+    def get_runs(self, field):
+        all_runs = []
+        current_runs = []
+        # We only handle spans in a single paragraph
+        # being wrapped in <a>
+        for x in field.contents:
+            if x.tag.endswith('}p'):
+                if current_runs:
+                    all_runs.append(current_runs)
+                current_runs = []
+            elif x.tag.endswith('}r'):
+                current_runs.append(x)
+        if current_runs:
+            all_runs.append(current_runs)
+        return all_runs
+
     def parse_hyperlink(self, field, parse_func, log):
         # Parse hyperlink fields
         hl = parse_func(field.instructions, log)
         if hl:
             if 'target' in hl and hl['target'] is None:
                 hl['target'] = '_blank'
-            all_runs = []
-            current_runs = []
-            # We only handle spans in a single paragraph
-            # being wrapped in <a>
-            for x in field.contents:
-                if x.tag.endswith('}p'):
-                    if current_runs:
-                        all_runs.append(current_runs)
-                    current_runs = []
-                elif x.tag.endswith('}r'):
-                    current_runs.append(x)
-            if current_runs:
-                all_runs.append(current_runs)
-            for runs in all_runs:
+            for runs in self.get_runs(field):
                 self.hyperlink_fields.append((hl, runs))
+
+    def parse_ref(self, field, parse_func, log):
+        ref = parse_func(field.instructions, log)
+        dest = ref.get(None, None)
+        if dest is not None and 'hyperlink' in ref:
+            for runs in self.get_runs(field):
+                self.hyperlink_fields.append(({'anchor':dest}, runs))
+        else:
+            self.log.warn('Unsupported reference field (%s), ignoring: %r' % (field.name, ref))
+
+    parse_noteref = parse_ref
 
     def parse_xe(self, field, parse_func, log):
         # Parse XE fields
