@@ -1677,16 +1677,6 @@ class StoreWolneLekturyStore(StoreBase):
     headquarters = 'PL'
     formats = ['EPUB', 'MOBI', 'PDF', 'TXT', 'FB2']
 
-class StoreWoblinkStore(StoreBase):
-    name = 'Woblink'
-    author = u'Tomasz Długosz'
-    description = u'Czytanie zdarza się wszędzie!'
-    actual_plugin = 'calibre.gui2.store.stores.woblink_plugin:WoblinkStore'
-
-    headquarters = 'PL'
-    formats = ['EPUB', 'MOBI', 'PDF', 'WOBLINK']
-    affiliate = True
-
 class XinXiiStore(StoreBase):
     name = 'XinXii'
     description = ''
@@ -1742,7 +1732,6 @@ plugins += [
     StoreWeightlessBooksStore,
     StoreWHSmithUKStore,
     StoreWolneLekturyStore,
-    StoreWoblinkStore,
     XinXiiStore
 ]
 
