@@ -1,6 +1,6 @@
 #!/usr/bin/env  python2
 # -*- coding: utf-8 -*-
-#Based on veezh's original recipe and Kovid Goyal's New York Times recipe
+# Based on veezh's original recipe and Kovid Goyal's New York Times recipe
 
 __license__   = 'GPL v3'
 __copyright__ = '2011, Snaab'
@@ -42,7 +42,7 @@ class NRCHandelsblad(BasicNewsRecipe):
             raise ValueError('Failed to login, check username and password')
         epubraw = None
         for today in (date.today(), date.today() - timedelta(days=1),):
-            url = 'http://digitaleeditie.nrc.nl/digitaleeditie/NH/%s/3/%s___/downloads.html' % (today.strftime('%Y'), today.strftime('%Y%m%d'))
+            url = 'http://digitaleeditie.nrc.nl/digitaleeditie/NH/%s/%d/%s___/downloads.html' % (today.strftime('%Y'), today.month - 1, today.strftime('%Y%m%d'))
             self.log('Trying to download epub from:', url)
             br.start_load(url, timeout=60)
             try:
