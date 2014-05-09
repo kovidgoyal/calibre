@@ -91,13 +91,6 @@
      </property>
     </spacer>
    </item>
-   <item row="8" column="0" colspan="2">
-    <widget class="QPushButton" name="button_open_config_dir">
-     <property name="text">
-      <string>Open calibre &amp;configuration directory</string>
-     </property>
-    </widget>
-   </item>
    <item row="9" column="0">
     <spacer name="verticalSpacer_8">
      <property name="orientation">
@@ -111,14 +104,14 @@
      </property>
     </spacer>
    </item>
-   <item row="10" column="0" colspan="2">
-    <widget class="QPushButton" name="button_osx_symlinks">
+   <item row="8" column="0" colspan="2">
+    <widget class="QPushButton" name="button_open_config_dir">
      <property name="text">
-      <string>&amp;Install command line tools</string>
+      <string>Open calibre &amp;configuration directory</string>
      </property>
     </widget>
    </item>
-   <item row="22" column="0">
+   <item row="21" column="0">
     <spacer name="verticalSpacer_9">
      <property name="orientation">
       <enum>Qt::Vertical</enum>
@@ -131,7 +124,7 @@
      </property>
     </spacer>
    </item>
-   <item row="11" column="0" colspan="2">
+   <item row="10" column="0" colspan="2">
     <widget class="QLabel" name="proxies">
      <property name="text">
       <string/>

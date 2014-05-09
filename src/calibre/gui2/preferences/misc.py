@@ -9,9 +9,7 @@ import textwrap
 
 from calibre.gui2.preferences import ConfigWidgetBase, test_widget, Setting
 from calibre.gui2.preferences.misc_ui import Ui_Form
-from calibre.gui2 import (error_dialog, config, open_local_file, info_dialog,
-        gprefs)
-from calibre.constants import isosx
+from calibre.gui2 import (config, open_local_file, gprefs)
 from calibre import get_proxies
 
 class WorkersSetting(Setting):
@@ -40,8 +38,6 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.device_detection_button.clicked.connect(self.debug_device_detection)
         self.button_open_config_dir.clicked.connect(self.open_config_dir)
         self.user_defined_device_button.clicked.connect(self.user_defined_device)
-        self.button_osx_symlinks.clicked.connect(self.create_symlinks)
-        self.button_osx_symlinks.setVisible(isosx)
         proxies = get_proxies(debug=False)
         txt = _('No proxies used')
         if proxies:
@@ -63,21 +59,6 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
     def open_config_dir(self, *args):
         from calibre.utils.config import config_dir
         open_local_file(config_dir)
-
-    def create_symlinks(self):
-        from calibre.utils.osx_symlinks import create_symlinks
-        loc, paths = create_symlinks()
-        if loc is None:
-            error_dialog(self, _('Error'),
-                    _('Failed to install command line tools.'),
-                    det_msg=paths, show=True)
-        else:
-            info_dialog(self, _('Command line tools installed'),
-            '<p>'+_('Command line tools installed in')+' '+loc+
-            '<br>'+ _('If you move calibre.app, you have to re-install '
-                    'the command line tools.'),
-                det_msg='\n'.join(paths), show=True)
-
 
 if __name__ == '__main__':
     from PyQt5.Qt import QApplication

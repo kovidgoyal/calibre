@@ -38,9 +38,9 @@ the directory in which you created :file:`__init__.py`::
     calibre-customize -b .
 
 .. note:: 
-    On OS X you have to first install the |app| command line tools, by
-    going to :guilabel:`Preferences->Miscellaneous` and clicking the
-    :guilabel:`Install command line tools` button.
+    On OS X, the command line tools are inside the |app| bundle, for example,
+    if you installed calibre in :file:`/Applications` the command line tools
+    are in :file:`/Applications/calibre.app/Contents/MacOS/calibre`.
 
 You can download the Hello World plugin from 
 `helloworld_plugin.zip  <http://calibre-ebook.com/downloads/helloworld_plugin.zip>`_. 

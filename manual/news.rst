@@ -295,7 +295,10 @@ Once the download is complete, you can look at the downloaded :term:`HTML` by op
 
 If you're satisfied with your recipe, and you feel there is enough demand to justify its inclusion into the set of built-in recipes, post your recipe in the `calibre recipes forum <http://www.mobileread.com/forums/forumdisplay.php?f=228>`_ to share it with other calibre users.
 
-.. note:: On OS X, the ebook-convert command will not be available by default. Go to Preferences->Miscellaneous and click the install command line tools button to make it available.
+.. note:: 
+    On OS X, the command line tools are inside the |app| bundle, for example,
+    if you installed calibre in :file:`/Applications` the command line tools
+    are in :file:`/Applications/calibre.app/Contents/MacOS/calibre`.
 
 .. seealso::
 
