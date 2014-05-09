@@ -20,6 +20,50 @@
 #   new recipes:
 #     - title: 
 
+- version: 1.36.0
+  date: 2014-05-09
+
+  new features:
+    - title: "Edit Book: A new tool to filter style information (Tools->Filter style information). Useful to easily remove some CSS properties from the entire book."
+
+    - title: "DOCX Input: Add support for cross references. Cross references that are used to insert hyperlinks are now converted into hyperlinks in the output document. Features to insert paragraph/page numbers are not supported."
+
+    - title: "Add support for viewing kepub files in the calibre viewer, by treating them as plain epub files"
+
+    - title: "Edit book: In the Insert Link tool show a few words of text alongside the location anchor name, to make it easier to know what a location is"
+
+    - title: "Manage user dictionaries: Allow copying all selected words by right clicking them and choosing 'Copy to clipboard'."
+      tickets: [1315340]
+
+    - title: "Content server: Make .ibook format files available in OPDS feeds"
+
+    - title: "Edit book: Allow copying the list of errors from the Check Book tool to the clipboard by right clicking on the list of errors"
+
+    - title: "Book polishing: If the books being polished have an ORIGINAL_EPUB/AZW3 format, warn the user that polishing will use it as the source and ask for confirmation." 
+      tickets: [1316158]
+
+  bug fixes:
+    - title: "Fix metadata plugin to download metadata from OZON for website changes."
+      tickets: [1300383]
+
+    - title: "Subsetting embedded fonts: Fix an error when subsetting embedded fonts on windows if the username contains quotes or apostrophes."
+      tickets: [1316533]
+
+    - title: "Edit Book: Fix error when checking spelling if one of the files in the book declares an invalid (empty) language code."
+      tickets: [1316170]
+
+    - title: "Linux install: Have the calibre GUI programs redirect stdout and stderr to null when launched via .desktop files to workaround systems where the GUI launchers are broken."
+      tickets: [1315458]
+
+    - title: "Edit Book: Fix inserting a < in text that contains a colon causing a hang."
+
+    - title: "DOCX Input: Fix error when converting document with nested frames."
+      tickets: [1317543]
+
+  improved recipes:
+    - Various Japanese news sources
+    - National Geographic
+
 - version: 1.35.0
   date: 2014-05-02
 
