@@ -69,6 +69,12 @@ def test_sqlite():
         raise RuntimeError('Failed to load sqlite extension')
     print ('sqlite OK!')
 
+def test_apsw():
+    import apsw
+    conn = apsw.Connection(':memory:')
+    conn.close()
+    print ('apsw OK!')
+
 def test_qt():
     from PyQt4.Qt import (QDialog, QImageReader, QNetworkAccessManager)
     from PyQt4.QtWebKit import QWebView
@@ -145,6 +151,7 @@ def test():
     test_lxml()
     test_ssl()
     test_sqlite()
+    test_apsw()
     test_imaging()
     test_unrar()
     test_icu()
