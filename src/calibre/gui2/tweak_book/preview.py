@@ -28,7 +28,7 @@ from calibre.ebooks.oeb.polish.container import OEB_FONTS
 from calibre.ebooks.oeb.polish.parsing import parse
 from calibre.ebooks.oeb.base import serialize, OEB_DOCS
 from calibre.ptempfile import PersistentTemporaryDirectory
-from calibre.gui2 import error_dialog
+from calibre.gui2 import error_dialog, open_url
 from calibre.gui2.tweak_book import current_container, editors, tprefs, actions, TOP
 from calibre.gui2.viewer.documentview import apply_settings
 from calibre.gui2.viewer.config import config
@@ -416,11 +416,17 @@ class WebView(QWebView):
 
     def contextMenuEvent(self, ev):
         menu = QMenu(self)
+        p = self.page()
+        mf = p.mainFrame()
+        r = mf.hitTestContent(ev.pos())
+        url = unicode(r.linkUrl().toString(QUrl.None)).strip()
         ca = self.pageAction(QWebPage.Copy)
         if ca.isEnabled():
             menu.addAction(ca)
         menu.addAction(actions['reload-preview'])
         menu.addAction(QIcon(I('debug.png')), _('Inspect element'), self.inspect)
+        if url.partition(':')[0].lower() in {'http', 'https'}:
+            menu.addAction(_('Open link'), partial(open_url, r.linkUrl()))
         menu.exec_(ev.globalPos())
 
 class Preview(QWidget):
