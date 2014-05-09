@@ -437,7 +437,7 @@ class Py2App(object):
     @flush
     def add_misc_libraries(self):
         for x in ('usb-1.0.0', 'mtp.9', 'readline.6.1', 'wmflite-0.2.7',
-                  'chm.0', 'sqlite3.0'):
+                  'chm.0', 'sqlite3.0', 'icudata.53', 'icui18n.53', 'icuio.53', 'icuuc.53'):
             info('\nAdding', x)
             x = 'lib%s.dylib'%x
             shutil.copy2(join(SW, 'lib', x), self.frameworks_dir)

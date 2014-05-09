@@ -65,9 +65,6 @@ icu_libs = ['icudata', 'icui18n', 'icuuc', 'icuio']
 icu_cflags = []
 if iswindows:
     icu_libs = ['icudt', 'icuin', 'icuuc', 'icuio']
-if isosx:
-    icu_libs = ['icucore']
-    icu_cflags = ['-DU_DISABLE_RENAMING']  # Needed to use system libicucore.dylib
 
 extensions = [
 

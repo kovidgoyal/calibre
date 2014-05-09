@@ -156,19 +156,20 @@ if iswindows:
     podofo_inc = os.path.join(sw_inc_dir, 'podofo')
     podofo_lib = sw_lib_dir
 elif isosx:
-    podofo_inc = '/sw/podofo'
-    podofo_lib = '/sw/lib'
-    magick_inc_dirs = consolidate('MAGICK_INC',
-        '/sw/include/ImageMagick')
-    magick_lib_dirs = consolidate('MAGICK_LIB',
-        '/sw/lib')
+    sw = os.environ.get('SW', '/sw')
+    podofo_inc = os.path.join(sw, 'podofo')
+    podofo_lib = os.path.join(sw, 'lib')
+    magick_inc_dirs = consolidate('MAGICK_INC', sw + '/include/ImageMagick')
+    magick_lib_dirs = consolidate('MAGICK_LIB', sw + '/lib')
     magick_libs = ['MagickWand', 'MagickCore']
-    png_inc_dirs = consolidate('PNG_INC_DIR', '/sw/include')
-    png_lib_dirs = consolidate('PNG_LIB_DIR', '/sw/lib')
+    png_inc_dirs = consolidate('PNG_INC_DIR', sw + '/include')
+    png_lib_dirs = consolidate('PNG_LIB_DIR', sw + '/lib')
     png_libs = ['png12']
     ft_libs = ['freetype']
-    ft_inc_dirs = ['/sw/include/freetype2']
-    bq = glob.glob('/sw/build/qt-*/include')[-1]
+    ft_inc_dirs = [sw + '/include/freetype2']
+    bq = glob.glob(sw + '/build/qt-*/include')[-1]
+    icu_inc_dirs = [sw + '/include']
+    icu_lib_dirs = [sw + '/lib']
 else:
     # Include directories
     png_inc_dirs = pkgconfig_include_dirs('libpng', 'PNG_INC_DIR',
