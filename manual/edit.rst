@@ -562,7 +562,7 @@ Adding new dictionaries
 ###########################
 
 The spelling checker comes with builtin dictionaries for the English and
-Spansih languages. You can install your own dictionaries via
+Spanish languages. You can install your own dictionaries via
 :guilabel:`Preferences->Editor->Manage spelling dictionaries`. The spell
 checker can use dictionaries from the OpenOffice program (in the .oxt
 format). You can download these dictionaries from
