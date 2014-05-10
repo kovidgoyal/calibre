@@ -605,7 +605,7 @@ class AnchorsModel(QAbstractListModel):
             return '\n'.join(self.items[index.row()])
         if role == Qt.ToolTipRole:
             text, frag = self.items[index.row()]
-            return _('Anchor: %s\nLeading text: %s') % (frag, text)
+            return _('Anchor: {0}\nLeading text: {1}').format(frag, text)
 
     def set_names(self, names):
         self.names = names
