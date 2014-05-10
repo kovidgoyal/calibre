@@ -110,6 +110,7 @@ class Delegate(QStyledItemDelegate):
 class TOCViewer(QWidget):
 
     navigate_requested = pyqtSignal(object, object)
+    refresh_requested = pyqtSignal()
 
     def __init__(self, parent=None):
         QWidget.__init__(self, parent)
@@ -134,7 +135,11 @@ class TOCViewer(QWidget):
         l.addWidget(self.view)
 
         self.refresh_action = QAction(QIcon(I('view-refresh.png')), _('&Refresh'), self)
-        self.refresh_action.triggered.connect(self.build)
+        self.refresh_action.triggered.connect(self.refresh)
+
+    def refresh(self):
+        self.refresh_requested.emit()  # Give boos a chance to commit dirty editors to the container
+        self.build()
 
     def item_pressed(self, item):
         if QApplication.mouseButtons() & Qt.LeftButton:

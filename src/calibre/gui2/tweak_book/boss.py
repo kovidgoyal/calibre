@@ -106,6 +106,7 @@ class Boss(QObject):
         self.gui.check_book.check_requested.connect(self.check_requested)
         self.gui.check_book.fix_requested.connect(self.fix_requested)
         self.gui.toc_view.navigate_requested.connect(self.link_clicked)
+        self.gui.toc_view.refresh_requested.connect(self.commit_all_editors_to_container)
         self.gui.image_browser.image_activated.connect(self.image_activated)
         self.gui.checkpoints.revert_requested.connect(self.revert_requested)
         self.gui.checkpoints.compare_requested.connect(self.compare_requested)
