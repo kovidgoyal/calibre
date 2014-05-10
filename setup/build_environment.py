@@ -6,12 +6,8 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, socket, struct, subprocess, glob, re, sys
+import os, socket, struct, subprocess, glob, re
 from distutils.spawn import find_executable
-
-# QT5XX: Remove this import once migration is complete, ensuring that sipconfig
-# comes from PyQt5
-sys.path.insert(0, os.environ.get('PYQT5_IMPORT_PATH', '/opt/pyqt5/lib'))
 
 import sipconfig
 
