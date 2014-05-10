@@ -174,6 +174,10 @@ def test_psutil():
     psutil.Process(os.getpid())
     print ('psutil OK!')
 
+def test_podofo():
+    from calibre.utils.podofo import test_podofo as dotest
+    dotest()
+
 def test():
     test_plugins()
     test_lxml()
@@ -191,6 +195,7 @@ def test():
     test_tokenizer()
     test_netifaces()
     test_psutil()
+    test_podofo()
     if iswindows:
         test_winutil()
         test_wpd()
