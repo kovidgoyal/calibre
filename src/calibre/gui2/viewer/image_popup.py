@@ -18,7 +18,7 @@ class ImageView(QDialog):
     def __init__(self, parent, current_img, current_url, geom_name='viewer_image_popup_geometry'):
         QDialog.__init__(self)
         dw = QApplication.instance().desktop()
-        self.avail_geom = dw.availableGeometry(parent)
+        self.avail_geom = dw.availableGeometry(parent if parent is not None else self)
         self.current_img = current_img
         self.current_url = current_url
         self.factor = 1.0
@@ -113,12 +113,10 @@ class ImageView(QDialog):
         return QDialog.done(self, e)
 
     def wheelEvent(self, event):
-        if event.delta() < -14:
-            self.zoom_out()
+        d = event.angleDelta().y()
+        if abs(d) > 0 and not self.scrollarea.verticalScrollBar().isVisible():
             event.accept()
-        elif event.delta() > 14:
-            event.accept()
-            self.zoom_in()
+            (self.zoom_out if d < 0 else self.zoom_in)()
 
 class ImagePopup(object):
 

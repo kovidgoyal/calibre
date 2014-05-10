@@ -235,9 +235,10 @@ class Main(MainWindow, Ui_MainWindow):
         self.document.back()
 
     def wheelEvent(self, ev):
-        if ev.delta() >= 0:
+        d = ev.angleDelta().y()
+        if d > 0:
             self.document.previous()
-        else:
+        elif d < 0:
             self.document.next()
 
     def closeEvent(self, event):

@@ -154,11 +154,10 @@ if pictureflow is not None:
             return self.minimumSize()
 
         def wheelEvent(self, ev):
-            ev.accept()
-            if ev.delta() < 0:
-                self.showNext()
-            elif ev.delta() > 0:
-                self.showPrevious()
+            d = ev.angleDelta().y()
+            if abs(d) > 0:
+                ev.accept()
+                (self.showNext if d < 0 else self.showPrevious)()
 
         def dataChanged(self):
             self.dc_signal.emit()
