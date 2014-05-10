@@ -402,7 +402,7 @@ class Browser(QObject, FormsMixin):
         return lw.loaded_ok
 
     def _wait_for_replies(self, reply_count, timeout):
-        final_time = time.time() + timeout
+        final_time = time.time() + (self.default_timeout if timeout is default_timeout else timeout)
         loop = QEventLoop(self)
         while (time.time() < final_time and self.nam.reply_count <
                 reply_count):
