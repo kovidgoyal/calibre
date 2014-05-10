@@ -348,7 +348,7 @@ class Py2App(object):
                 CFBundleSignature='????',
                 CFBundleExecutable='calibre',
                 CFBundleDocumentTypes=docs,
-                LSMinimumSystemVersion='10.5.2',
+                LSMinimumSystemVersion='10.7.2',
                 LSRequiresNativeExecution=True,
                 NSAppleScriptEnabled=False,
                 NSHumanReadableCopyright='Copyright 2010, Kovid Goyal',
