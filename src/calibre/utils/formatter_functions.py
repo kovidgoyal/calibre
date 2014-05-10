@@ -187,7 +187,7 @@ class BuiltinFirstMatchingCmp(BuiltinFormatterFunction):
             'the first comparison that succeeds. Returns else_result '
             'if no comparison succeeds. Example: '
             'first_matching_cmp(10,5,"small",10,"middle",15,"large","giant") '
-            'returns "middle". The same example with a first value of 16 returns "giant".')
+            'returns "large". The same example with a first value of 16 returns "giant".')
 
     def evaluate(self, formatter, kwargs, mi, locals, *args):
         if (len(args) % 2) != 0:
