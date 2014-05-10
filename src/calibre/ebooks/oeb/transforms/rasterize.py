@@ -28,9 +28,8 @@ class Unavailable(Exception):
 
 class SVGRasterizer(object):
     def __init__(self):
-        from calibre.gui2 import is_ok_to_use_qt
-        if not is_ok_to_use_qt():
-            raise Unavailable('Not OK to use Qt')
+        from calibre.gui2 import must_use_qt
+        must_use_qt()
 
     @classmethod
     def config(cls, cfg):

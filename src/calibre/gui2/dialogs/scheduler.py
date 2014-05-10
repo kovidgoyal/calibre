@@ -197,8 +197,7 @@ class SchedulerDialog(QDialog, Ui_Dialog):
         self.recipe_model.do_refresh()
         self.count_label.setText(
             # NOTE: Number of news sources
-            _('%s news sources') %
-                self.recipe_model.showing_count)
+            _('%s news sources') % self.recipe_model.showing_count)
 
         self.schedule_widgets = []
         for key in reversed(self.SCHEDULE_TYPES):
@@ -583,8 +582,9 @@ class Scheduler(QObject):
                 break
 
 if __name__ == '__main__':
-    from calibre.gui2 import is_ok_to_use_qt
-    is_ok_to_use_qt()
+    from PyQt5.Qt import QApplication
+    app = QApplication([])
     d = SchedulerDialog(RecipeModel())
     d.exec_()
+    del app
 

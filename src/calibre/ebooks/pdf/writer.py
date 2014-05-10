@@ -36,9 +36,8 @@ def get_custom_size(opts):
     return custom_size
 
 def get_pdf_printer(opts, for_comic=False, output_file_name=None):  # {{{
-    from calibre.gui2 import is_ok_to_use_qt
-    if not is_ok_to_use_qt():
-        raise Exception('Not OK to use Qt')
+    from calibre.gui2 import must_use_qt
+    must_use_qt()
 
     printer = QPrinter(QPrinter.HighResolution)
     custom_size = get_custom_size(opts)
@@ -137,10 +136,9 @@ class Page(QWebPage):  # {{{
 class PDFWriter(QObject):  # {{{
 
     def __init__(self, opts, log, cover_data=None, toc=None):
-        from calibre.gui2 import is_ok_to_use_qt
+        from calibre.gui2 import must_use_qt
         from calibre.utils.podofo import get_podofo
-        if not is_ok_to_use_qt():
-            raise Exception('Not OK to use Qt')
+        must_use_qt()
         QObject.__init__(self)
 
         self.logger = self.log = log

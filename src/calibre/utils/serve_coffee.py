@@ -22,54 +22,14 @@ import time, BaseHTTPServer, os, sys, re, SocketServer
 from threading import Lock
 from SimpleHTTPServer import SimpleHTTPRequestHandler
 
-
 # Compiler {{{
-try:
-    from PyQt5.Qt import QJSEngine, QJSValue
-
-    class Compiler(QJSEngine):
-
-        '''
-        You can use this class in any thread, but make sure you instantiate it in
-        the main thread. Alternatively, construct a QCoreApplication in the main
-        thread, after which you can instantiate this class and use it in any
-        thread.
-        '''
-
-        def __init__(self):
-            from PyQt5.Qt import QCoreApplication
-            if QCoreApplication.instance() is None:
-                self.__app_ = QCoreApplication([])
-
-            QJSEngine.__init__(self)
-            res = self.evaluate(CS_JS, 'coffee-script.js')
-            if res.isError():
-                raise Exception('Failed to run the coffee script compiler: %s'%
-                        res.toString())
-            self.lock = Lock()
-
-        def __call__(self, raw, filename=None):
-            with self.lock:
-                if not isinstance(raw, unicode):
-                    raw = raw.decode('utf-8')
-                if not filename:
-                    filename = '<string>'
-                go = self.globalObject()
-                go.setProperty('coffee_src', QJSValue(raw))
-                res = self.evaluate('this.CoffeeScript.compile(this.coffee_src)',
-                        filename)
-                if res.isError():
-                    return '', [res.toString()]
-                return res.toString(), []
-except ImportError:
-    pass
 
 def do_compile(raw, filename=None):
     from calibre.gui2 import must_use_qt
     must_use_qt()
     from PyQt5.Qt import QWebPage, QApplication
     import json
-    app = QApplication([])
+    app = QApplication.instance()
 
     class C(QWebPage):
 
@@ -95,19 +55,13 @@ def do_compile(raw, filename=None):
 # }}}
 
 def compile_coffeescript(raw, filename=None):
-    from calibre.gui2 import is_ok_to_use_qt
+    from calibre.utils.ipc.simple_worker import fork_job, WorkerError
     try:
-        if is_ok_to_use_qt():
-            raise NameError('The WebKit based compiler is much faster than QJSEngine')
-        return Compiler()(raw, filename)
-    except NameError:
-        from calibre.utils.ipc.simple_worker import fork_job, WorkerError
-        try:
-            return fork_job('calibre.utils.serve_coffee', 'do_compile',
-                    args=(raw,), no_output=True)['result']
-        except WorkerError as err:
-            print (err.orig_tb)
-            raise
+        return fork_job('calibre.utils.serve_coffee', 'do_compile',
+                args=(raw,), no_output=True)['result']
+    except WorkerError as err:
+        print (err.orig_tb)
+        raise
 
 def check_coffeescript(filename):
     with open(filename, 'rb') as f:
@@ -369,10 +323,8 @@ def main():
     cc.add_argument('--highlight', default=False, action='store_true',
             help='Syntax highlight the output (requires Pygments)')
 
-    cs.add_argument('--port', type=int, default=8000, help=
-            'The port on which to serve. Default: %default')
-    cs.add_argument('--host', default='0.0.0.0', help=
-            'The IP address on which to listen. Default is to listen on all'
+    cs.add_argument('--port', type=int, default=8000, help='The port on which to serve. Default: %default')
+    cs.add_argument('--host', default='0.0.0.0', help='The IP address on which to listen. Default is to listen on all'
             ' IPv4 addresses (0.0.0.0)')
     args = parser.parse_args()
     if args.which == 'compile':

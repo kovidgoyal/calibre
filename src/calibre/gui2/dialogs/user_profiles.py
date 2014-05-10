@@ -440,9 +440,10 @@ class %(classname)s(%(base_class)s):
             ResizableDialog.reject(self)
 
 if __name__ == '__main__':
-    from calibre.gui2 import is_ok_to_use_qt
-    is_ok_to_use_qt()
+    from PyQt5.Qt import QApplication
+    app = QApplication([])
     from calibre.web.feeds.recipes.model import RecipeModel
     d=UserProfiles(None, RecipeModel())
     d.exec_()
+    del app
 

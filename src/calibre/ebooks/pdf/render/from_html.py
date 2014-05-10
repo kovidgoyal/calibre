@@ -146,9 +146,8 @@ class PDFWriter(QObject):
         return self.current_section
 
     def __init__(self, opts, log, cover_data=None, toc=None):
-        from calibre.gui2 import is_ok_to_use_qt
-        if not is_ok_to_use_qt():
-            raise Exception('Not OK to use Qt')
+        from calibre.gui2 import must_use_qt
+        must_use_qt()
         QObject.__init__(self)
 
         self.logger = self.log = log

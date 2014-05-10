@@ -270,11 +270,10 @@ class ShortcutConfig(QWidget):
 
 
 if __name__ == '__main__':
-    from calibre.gui2 import is_ok_to_use_qt
+    app = QApplication([])
     from calibre.gui2.viewer.keys import SHORTCUTS
-    is_ok_to_use_qt()
     model = Shortcuts(SHORTCUTS, 'shortcuts/viewer')
     conf = ShortcutConfig(model)
     conf.resize(400, 500)
     conf.show()
-    QApplication.instance().exec_()
+    app.exec_()

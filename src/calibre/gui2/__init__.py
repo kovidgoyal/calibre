@@ -1039,12 +1039,16 @@ def open_local_file(path):
         open_url(url)
 
 def must_use_qt():
+    ''' This function should be called if you want to use Qt for some non-GUI
+    task like rendering HTML/SVG or using a headless browser. It will raise a
+    RuntimeError if using Qt is not possible, which will happen if the current
+    thread is not the main GUI thread. On linux, it uses a special QPA headless
+    plugin, so that the X server does not need to be running. '''
     global gui_thread, _store_app
-    if (islinux or isbsd) and ':' not in os.environ.get('DISPLAY', ''):
-        raise RuntimeError('X server required. If you are running on a'
-                ' headless machine, use xvfb')
     if _store_app is None and QApplication.instance() is None:
-        _store_app = QApplication([])
+        if islinux or isbsd:
+            args = sys.argv[:1] + ['-platformpluginpath', sys.extensions_location, '-platform', 'headless']
+        _store_app = QApplication(args)
     if gui_thread is None:
         gui_thread = QThread.currentThread()
     if gui_thread is not QThread.currentThread():
