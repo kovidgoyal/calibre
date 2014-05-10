@@ -272,11 +272,14 @@ class HTMLSmarts(NullSmarts):
         editor.setTextCursor(c)
 
     def insert_tag(self, editor, name):
+        name = name.lstrip()
         text = self.get_smart_selection(editor, update=True)
         c = editor.textCursor()
         pos = min(c.position(), c.anchor())
-        c.insertText('<{0}>{1}</{0}>'.format(name, text))
-        c.setPosition(pos + 1 + len(name))
+        m = re.match(r'[a-zA-Z0-9:-]+', name)
+        cname = name if m is None else m.group()
+        c.insertText('<{0}>{1}</{2}>'.format(name, text, cname))
+        c.setPosition(pos + 2 + len(name))
         editor.setTextCursor(c)
 
     def verify_for_spellcheck(self, cursor, highlighter):
