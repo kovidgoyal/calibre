@@ -107,7 +107,7 @@ class SyntaxHighlighter(object):
     @pyqtSlot(int, int, int)
     def reformat_blocks(self, position, removed, added):
         doc = self.doc
-        if doc is None:
+        if doc is None or not hasattr(self, 'state_map'):
             return
         last_block = doc.findBlock(position + added + (1 if removed > 0 else 0))
         if not last_block.isValid():
