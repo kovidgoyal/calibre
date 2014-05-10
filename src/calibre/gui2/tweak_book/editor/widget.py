@@ -254,7 +254,10 @@ class Editor(QMainWindow):
                 m.addAction(actions['rename-block-tag-%s' % name])
 
     def break_cycles(self):
-        self.modification_state_changed.disconnect()
+        try:
+            self.modification_state_changed.disconnect()
+        except TypeError:
+            pass  # in case this signal was never connected
         self.undo_redo_state_changed.disconnect()
         self.copy_available_state_changed.disconnect()
         self.cursor_position_changed.disconnect()
