@@ -147,7 +147,12 @@ class TOCViewer(QWidget):
 
     def auto_refresh(self):
         if self.isVisible():
-            self.refresh()
+            try:
+                self.refresh()
+            except Exception:
+                # ignore errors during live refresh of the toc
+                import traceback
+                traceback.print_exc()
 
     def refresh(self):
         self.refresh_requested.emit()  # Give boss a chance to commit dirty editors to the container
