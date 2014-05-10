@@ -13,11 +13,10 @@ from functools import partial
 from setup import Command, __appname__, __version__, require_git_master
 
 def qt_sources():
-    # QT5XX: Change this
-    qtdir = '/usr/src/qt4'
+    qtdir = '/usr/src/qt5'
     j = partial(os.path.join, qtdir)
     return list(map(j, [
-            'gui/widgets/qdialogbuttonbox.cpp',
+            'qtbase/src/widgets/widgets/qdialogbuttonbox.cpp',
     ]))
 
 class POT(Command):  # {{{
