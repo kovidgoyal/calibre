@@ -1122,6 +1122,10 @@ class Boss(QObject):
 
     def editor_data_changed(self, editor):
         self.gui.preview.start_refresh_timer()
+        for name, ed in editors.iteritems():
+            if ed is editor:
+                self.gui.toc_view.start_refresh_timer(name)
+                break
 
     def editor_undo_redo_state_changed(self, *args):
         self.apply_current_editor_state()

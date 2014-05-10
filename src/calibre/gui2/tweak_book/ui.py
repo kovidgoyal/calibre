@@ -612,7 +612,6 @@ class Main(MainWindow):
         d.setWidget(self.toc_view)
         self.addDockWidget(Qt.LeftDockWidgetArea, d)
         d.close()  # Hidden by default
-        d.visibilityChanged.connect(self.toc_view.visibility_changed)
 
         d = create(_('Checkpoints'), 'checkpoints')
         d.setAllowedAreas(Qt.LeftDockWidgetArea | Qt.RightDockWidgetArea | Qt.BottomDockWidgetArea | Qt.TopDockWidgetArea)

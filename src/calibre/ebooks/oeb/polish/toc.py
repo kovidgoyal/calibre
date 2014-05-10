@@ -186,9 +186,10 @@ def get_toc(container, verify_destinations=True):
     toc = find_existing_toc(container)
     if toc is None or not container.has_name(toc):
         ans = TOC()
-        ans.lang = ans.uid = None
+        ans.lang = ans.uid = ans.toc_file_name = None
         return ans
     ans = parse_ncx(container, toc)
+    ans.toc_file_name = toc
     if verify_destinations:
         verify_toc_destinations(container, ans)
     return ans

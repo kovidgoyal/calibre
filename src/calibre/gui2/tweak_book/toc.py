@@ -118,7 +118,6 @@ class TOCViewer(QWidget):
         self.setLayout(l)
         l.setContentsMargins(0, 0, 0, 0)
 
-        self.is_visible = False
         self.view = QTreeWidget(self)
         self.delegate = Delegate(self.view)
         self.view.setItemDelegate(self.delegate)
@@ -136,9 +135,22 @@ class TOCViewer(QWidget):
 
         self.refresh_action = QAction(QIcon(I('view-refresh.png')), _('&Refresh'), self)
         self.refresh_action.triggered.connect(self.refresh)
+        self.refresh_timer = t = QTimer(self)
+        t.setInterval(1000), t.setSingleShot(True)
+        t.timeout.connect(self.auto_refresh)
+        self.toc_name = None
+        self.currently_editing = None
+
+    def start_refresh_timer(self, name):
+        if self.isVisible() and self.toc_name == name:
+            self.refresh_timer.start()
+
+    def auto_refresh(self):
+        if self.isVisible():
+            self.refresh()
 
     def refresh(self):
-        self.refresh_requested.emit()  # Give boos a chance to commit dirty editors to the container
+        self.refresh_requested.emit()  # Give boss a chance to commit dirty editors to the container
         self.build()
 
     def item_pressed(self, item):
@@ -176,6 +188,7 @@ class TOCViewer(QWidget):
         if c is None:
             return
         toc = get_toc(c, verify_destinations=False)
+        self.toc_name = getattr(toc, 'toc_file_name', None)
 
         def process_node(toc, parent):
             for child in toc:
@@ -191,12 +204,12 @@ class TOCViewer(QWidget):
         self.view.clear()
         process_node(toc, self.view.invisibleRootItem())
 
-    def visibility_changed(self, visible):
-        self.is_visible = visible
-        if visible:
+    def showEvent(self, ev):
+        if self.toc_name is None or not ev.spontaneous():
             self.build()
+        return super(TOCViewer, self).showEvent(ev)
 
     def update_if_visible(self):
-        if self.is_visible:
+        if self.isVisible():
             self.build()
 
