@@ -6,7 +6,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, cPickle, re, shutil, marshal, zipfile, glob, time, subprocess, sys, hashlib, json
+import os, cPickle, re, shutil, marshal, zipfile, glob, time, sys, hashlib, json
 from zlib import compress
 from itertools import chain
 
@@ -38,8 +38,6 @@ class Coffee(Command):  # {{{
                 help='Display the generated javascript')
 
     def run(self, opts):
-        cc = self.j(self.SRC, 'calibre', 'utils', 'serve_coffee.py')
-        self.compiler = [sys.executable, cc, 'compile']
         self.do_coffee_compile(opts)
         if opts.watch:
             try:
@@ -57,6 +55,7 @@ class Coffee(Command):  # {{{
         print highlight(raw, JavascriptLexer(), TerminalFormatter())
 
     def do_coffee_compile(self, opts, timestamp=False, ignore_errors=False):
+        from calibre.utils.serve_coffee import compile_coffeescript
         src_files = {}
         for src in self.COFFEE_DIRS:
             for f in glob.glob(self.j(self.SRC, __appname__, src,
@@ -85,12 +84,11 @@ class Coffee(Command):  # {{{
             print ('\t%sCompiling %s'%(time.strftime('[%H:%M:%S] ') if
                         timestamp else '', name))
             src, sig = src_files[arcname]
-            try:
-                js = subprocess.check_output(self.compiler +
-                        [src]).decode('utf-8')
-            except Exception as e:
+            js, errors = compile_coffeescript(open(src, 'rb').read(), filename=src)
+            if errors:
                 print ('\n\tCompilation of %s failed'%name)
-                print (e)
+                for line in errors:
+                    print >>sys.stderr, line
                 if ignore_errors:
                     js = u'# Compilation from coffeescript failed'
                 else:
@@ -280,7 +278,7 @@ class Resources(Command):  # {{{
             from calibre.ebooks.conversion.cli import create_option_parser
             from calibre.utils.logging import Log
             log = Log()
-            #log.outputs = []
+            # log.outputs = []
             for inf in supported_input_formats():
                 if inf in ('zip', 'rar', 'oebzip'):
                     continue
