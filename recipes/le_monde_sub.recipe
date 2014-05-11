@@ -22,7 +22,7 @@ class LeMonde(BasicNewsRecipe):
     date_url           = 'http://www.lemonde.fr/journalelectronique/donnees/libre/%Y%m%d/index.html'
     login_url          = 'http://www.lemonde.fr/web/journal_electronique/identification/1,56-0,45-0,0.html'
     journal_url        = 'http://www.lemonde.fr/journalelectronique/donnees/protege/%Y%m%d/%Y%m%d_ipad.xml'
-    masthead_url       = 'http://upload.wikimedia.org/wikipedia/fr/thumb/c/c5/Le_Monde_logo.svg/300px-Le_Monde_logo.svg.png'
+    masthead_url       = 'http://upload.wikimedia.org/wikipedia/fr/thumb/c/c5/Le_Monde_logo.svg/800px-Le_Monde_logo.svg.png'
     couverture_url     = 'http://medias.lemonde.fr/abonnes/editionelectronique/%Y%m%d/html/data/img/%y%m%d01.jpg'
 
     extra_css = '''
