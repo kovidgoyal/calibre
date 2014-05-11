@@ -109,15 +109,22 @@ class CalibreUtils
         if range == null
             return null
         node = range.startContainer
-        if node.nodeType != Node.TEXT_NODE
+        if node?.nodeType != Node.TEXT_NODE
             return null
         offset = range.startOffset
         range = document.createRange()
         range.selectNodeContents(node)
-        range.setStart(node, offset)
-        range.setEnd(node, offset+1)
+        try
+            range.setStart(node, offset)
+            range.setEnd(node, offset+1)
+        catch error  # Happens if offset is invalid
+            null
         range.expand('word')
-        return range.toString()
+        ans = range.toString().trim()
+        range.detach()
+        matches = ans.split(/\b/)
+        return if matches.length > 0 then matches[0] else null
+
     # }}}
 
 if window?
