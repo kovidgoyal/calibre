@@ -11,7 +11,7 @@ For more information, see the [calibre About page](http://calibre-ebook.com/abou
 
 Screenshots
 -------------
-[Screenshots page](https://calibre-ebook.com/demo)
+[Screenshots page](http://calibre-ebook.com/demo)
 
 Usage
 -------
