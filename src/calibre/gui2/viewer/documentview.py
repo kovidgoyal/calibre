@@ -27,7 +27,7 @@ from calibre.gui2.viewer.table_popup import TablePopup
 from calibre.gui2.viewer.inspector import WebInspector
 from calibre.gui2.viewer.gestures import GestureHandler
 from calibre.ebooks.oeb.display.webview import load_html
-from calibre.constants import isxp, iswindows
+from calibre.constants import isxp, iswindows, DEBUG
 # }}}
 
 def apply_settings(settings, opts):
@@ -364,10 +364,11 @@ class Document(QWebPage):  # {{{
         return ans
 
     def javaScriptConsoleMessage(self, msg, lineno, msgid):
-        prints(msg)
+        if DEBUG:
+            prints(msg)
 
     def javaScriptAlert(self, frame, msg):
-        if self.debug_javascript:
+        if DEBUG:
             prints(msg)
         else:
             return QWebPage.javaScriptAlert(self, frame, msg)
