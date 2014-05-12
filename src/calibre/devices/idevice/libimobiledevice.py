@@ -259,10 +259,8 @@ class libiMobileDevice():
             else:
                 with open(src, 'rb') as f:
                     content = bytearray(f.read())
-                handle = self._afc_file_open(str(dst), mode='wb')
-                if handle is not None:
-                    success = self._afc_file_write(handle, content, mode='wb')
-                    self._log(" success: {0}".format(success))
+                success = self._afc_file_write(handle, content, mode='wb')
+                self._log(" success: {0}".format(success))
 
             self._afc_file_close(handle)
         else:
