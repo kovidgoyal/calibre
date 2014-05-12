@@ -63,5 +63,7 @@ elif flags in ('master', 'qt5'):
                     sys.stdout.write(red)
                     print ('\nPyQt' + '4 present in:', fpath)
                     sys.stdout.write(reset)
+        print ('\n')
+        subprocess.check_call(['python', 'setup/qt5-migrate.py'])
 
 
