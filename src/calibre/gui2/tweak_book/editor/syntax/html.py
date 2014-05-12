@@ -13,6 +13,7 @@ from collections import namedtuple
 from PyQt4.Qt import QFont, QTextBlockUserData
 
 from calibre.ebooks.oeb.polish.spell import html_spell_tags, xml_spell_tags
+from calibre.spell.dictionary import parse_lang_code
 from calibre.gui2.tweak_book.editor import SyntaxTextCharFormat
 from calibre.gui2.tweak_book.editor.syntax.base import SyntaxHighlighter, run_loop
 from calibre.gui2.tweak_book.editor.syntax.css import (
@@ -318,6 +319,7 @@ def attribute_name(state, text, i, formats, user_data):
         return [(1, formats['attr'])]
     # Standalone attribute with no value
     state.parse = IN_OPENING_TAG
+    state.attribute_name = None
     return [(0, None)]
 
 def attribute_value(state, text, i, formats, user_data):
@@ -329,6 +331,7 @@ def attribute_value(state, text, i, formats, user_data):
         state.parse = SQ_VAL if ch == "'" else DQ_VAL
         return [(1, formats['string'])]
     state.parse = IN_OPENING_TAG
+    state.attribute_name = None
     m = unquoted_val_pat.match(text, i)
     if m is None:
         return [(1, formats['no-attr-value'])]
@@ -344,6 +347,11 @@ def quoted_val(state, text, i, formats, user_data):
     else:
         num = pos - i + 1
         state.parse = IN_OPENING_TAG
+        if state.tag_being_defined is not None and state.attribute_name in ('lang', 'xml:lang'):
+            try:
+                state.tag_being_defined.lang = parse_lang_code(text[i:pos])
+            except ValueError:
+                pass
         add_attr_data(user_data, ATTR_VALUE, ATTR_END, i + num)
     return [(num, formats['string'])]
 
@@ -468,9 +476,9 @@ if __name__ == '__main__':
         </style>
         <style type="text/css">p.small { font-size: x-small; color:gray }</style>
     </head id="invalid attribute on closing tag">
-    <body><p:
+    <body lang="en_IN"><p:
         <!-- The start of the actual body text -->
-        <h1>A heading that should appear in bold, with an <i>italic</i> word</h1>
+        <h1 lang="en_US">A heading that should appear in bold, with an <i>italic</i> word</h1>
         <p>Some text with inline formatting, that is syntax highlighted. A <b>bold</b> word, and an <em>italic</em> word. \
 <i>Some italic text with a <b>bold-italic</b> word in </i>the middle.</p>
         <!-- Let's see what exotic constructs like namespace prefixes and empty attributes look like -->
