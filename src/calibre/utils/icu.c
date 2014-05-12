@@ -666,6 +666,45 @@ end:
 
 } // }}}
 
+// BreakIterator.split2 {{{
+static PyObject *
+icu_BreakIterator_split2(icu_BreakIterator *self, PyObject *args, PyObject *kwargs) {
+#if PY_VERSION_HEX >= 0x03030000 
+#error Not implemented for python >= 3.3
+#endif
+
+    int32_t prev = 0, p = 0, sz = 0;
+    PyObject *ans = NULL, *temp = NULL;
+  
+    ans = PyList_New(0);
+    if (ans == NULL) return PyErr_NoMemory();
+
+    p = ubrk_first(self->break_iterator);
+    while (p != UBRK_DONE) {
+        prev = p; p = ubrk_next(self->break_iterator);
+        if (self->type == UBRK_WORD && ubrk_getRuleStatus(self->break_iterator) == UBRK_WORD_NONE) 
+            continue;  // We are not at the start of a word
+        sz = (p == UBRK_DONE) ? self->text_len - prev : p - prev;
+        if (sz > 0) {
+#ifdef Py_UNICODE_WIDE
+            sz = u_countChar32(self->text + prev, sz);
+            prev = u_countChar32(self->text, prev);
+#endif
+            temp = Py_BuildValue("II", prev, sz); 
+            if (temp == NULL) {
+                Py_DECREF(ans); ans = NULL; break; 
+            } 
+            if (PyList_Append(ans, temp) != 0) {
+                Py_DECREF(temp); Py_DECREF(ans); ans = NULL; break; 
+            }
+            Py_DECREF(temp);
+        }
+    }
+
+    return ans;
+
+} // }}}
+
 static PyMethodDef icu_BreakIterator_methods[] = {
     {"set_text", (PyCFunction)icu_BreakIterator_set_text, METH_VARARGS,
      "set_text(unicode object) -> Set the text this iterator will operate on"
@@ -673,6 +712,10 @@ static PyMethodDef icu_BreakIterator_methods[] = {
 
     {"split", (PyCFunction)icu_BreakIterator_split, METH_VARARGS,
      "split() -> Split the current text into tokens, returning a list of tokens"
+    },
+
+    {"split2", (PyCFunction)icu_BreakIterator_split2, METH_VARARGS,
+     "split2() -> Split the current text into tokens, returning a list of 2-tuples of the form (position of token, length of token). The numbers are suitable for indexing python strings regardless of narrow/wide builds."
     },
 
     {"index", (PyCFunction)icu_BreakIterator_index, METH_VARARGS,

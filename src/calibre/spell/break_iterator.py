@@ -22,6 +22,16 @@ def split_into_words(text, lang='en'):
         it.set_text(text)
         return it.split()
 
+
+def split_into_words_and_positions(text, lang='en'):
+    with _lock:
+        it = _iterators.get(lang, None)
+        if it is None:
+            it = _iterators[lang] = _icu.BreakIterator(_icu.UBRK_WORD, lang_as_iso639_1(lang) or lang)
+        it.set_text(text)
+        return it.split2()
+
+
 def index_of(needle, haystack, lang='en'):
     with _lock:
         it = _iterators.get(lang, None)
