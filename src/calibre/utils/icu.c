@@ -993,14 +993,26 @@ icu_string_length(PyObject *self, PyObject *args) {
 // utf16_length {{{
 static PyObject *
 icu_utf16_length(PyObject *self, PyObject *args) {
+#if PY_VERSION_HEX >= 0x03030000 
+#error Not implemented for python >= 3.3
+#endif
+
     int32_t sz = 0;
-    UChar *icu = NULL;
     PyObject *src = NULL;
+#ifdef Py_UNICODE_WIDE
+    int32_t i = 0, t = 0;
+    Py_UNICODE *data = NULL;
+#endif
   
-    if (!PyArg_ParseTuple(args, "O", &src)) return NULL;
-    icu = python_to_icu(src, &sz, 1);
-    if (icu == NULL) return NULL;
-    free(icu);
+    if (!PyArg_ParseTuple(args, "U", &src)) return NULL;
+    sz = PyUnicode_GET_SIZE(src);
+#ifdef Py_UNICODE_WIDE
+    data = PyUnicode_AS_UNICODE(src);
+    for (i = 0; i < sz; i++) {
+        t += (data[i] > 0xffff) ? 2 : 1;
+    }
+    sz = t;
+#endif
     return Py_BuildValue("i", sz);
 } // }}}
 
