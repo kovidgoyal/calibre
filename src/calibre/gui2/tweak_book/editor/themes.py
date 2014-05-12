@@ -60,6 +60,7 @@ SOLARIZED = \
     SpecialCharacter bg={base02}
 
     Error        us=wave uc={red}
+    SpellError   us=wave uc={orange}
     Tooltip      fg=black bg=ffffed
 
     DiffDelete   bg={base02} fg={red}
@@ -100,6 +101,7 @@ THEMES = {
     Keyword      fg={keyword}
     Special      fg=e7f6da
     Error        us=wave uc=red
+    SpellError   us=wave uc=orange
     SpecialCharacter bg={cursor_loc}
 
     DiffDelete   bg=341414 fg=642424
@@ -146,6 +148,7 @@ THEMES = {
     Special      fg=70a0d0 italic
     SpecialCharacter bg={cursor_loc}
     Error        us=wave uc=red
+    SpellError   us=wave uc=orange
 
     DiffDelete   bg=rgb(255,180,200) fg=rgb(200,80,110)
     DiffInsert   bg=rgb(180,255,180) fg=rgb(80,210,80)
