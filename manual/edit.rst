@@ -386,6 +386,13 @@ broken HTML/CSS. Therefore, if you dont want any auto-fixing to be performed,
 first use the Check Book tool to correct all problems and only then run
 beautify.  Accessed via :guilabel:`Tools->Beautify all files`.
 
+.. note::
+    In HTML any text can have significant whitespace, via the CSS white-space
+    directive. Therefor, beautification could potentially change the rendering
+    of the HTML. To avoid this, as much as possible, the beautify algorithm
+    only beautifies block level tags that contain other block level tags. So,
+    for example, text inside a <p> tag will not have its whitespace changed.
+
 
 Insert inline Table of Contents
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
