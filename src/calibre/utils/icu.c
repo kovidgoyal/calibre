@@ -978,10 +978,6 @@ icu_break_iterator_locales(PyObject *self, PyObject *args) {
 // string_length {{{
 static PyObject *
 icu_string_length(PyObject *self, PyObject *args) {
-#if PY_VERSION_HEX >= 0x03030000 
-#error Not implemented for python >= 3.3
-#endif
-
     int32_t sz = 0;
     UChar *icu = NULL;
     PyObject *src = NULL;
@@ -990,6 +986,20 @@ icu_string_length(PyObject *self, PyObject *args) {
     icu = python_to_icu(src, &sz, 1);
     if (icu == NULL) return NULL;
     sz = u_countChar32(icu, sz);
+    free(icu);
+    return Py_BuildValue("i", sz);
+} // }}}
+
+// utf16_length {{{
+static PyObject *
+icu_utf16_length(PyObject *self, PyObject *args) {
+    int32_t sz = 0;
+    UChar *icu = NULL;
+    PyObject *src = NULL;
+  
+    if (!PyArg_ParseTuple(args, "O", &src)) return NULL;
+    icu = python_to_icu(src, &sz, 1);
+    if (icu == NULL) return NULL;
     free(icu);
     return Py_BuildValue("i", sz);
 } // }}}
@@ -1037,7 +1047,11 @@ static PyMethodDef icu_methods[] = {
     },
 
     {"string_length", icu_string_length, METH_VARARGS, 
-     "string_length(string) -> Return the length of a string (number of unicode code points in the string). Useful on anrrow python builds where len() returns an incorrect answer if the string contains surrogate pairs."
+     "string_length(string) -> Return the length of a string (number of unicode code points in the string). Useful on narrow python builds where len() returns an incorrect answer if the string contains surrogate pairs."
+    },
+
+    {"utf16_length", icu_utf16_length, METH_VARARGS, 
+     "utf16_length(string) -> Return the length of a string (number of UTF-16 code points in the string). Useful on wide python builds where len() returns an incorrect answer if the string contains surrogate pairs."
     },
 
     {NULL}  /* Sentinel */

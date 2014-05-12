@@ -133,6 +133,8 @@ class TestICU(unittest.TestCase):
             self.ae(r, icu._icu.roundtrip(r))
         for x, l in [('', 0), ('a', 1), ('\U0001f431', 1)]:
             self.ae(icu._icu.string_length(x), l)
+        for x, l in [('', 0), ('a', 1), ('\U0001f431', 2)]:
+            self.ae(icu._icu.utf16_length(x), l)
 
     def test_character_name(self):
         ' Test character naming '

@@ -281,6 +281,12 @@ def partition_by_first_letter(items, reverse=False, key=lambda x:x):
 # Return the number of unicode codepoints in a string
 string_length = _icu.string_length if is_narrow_build else len
 
+# Return the number of UTF-16 codepoints in a string
+try:
+    utf16_length = len if is_narrow_build else _icu.utf16_length
+except AttributeError:
+    utf16_length = len  # People running from source
+
 ################################################################################
 
 if __name__ == '__main__':
