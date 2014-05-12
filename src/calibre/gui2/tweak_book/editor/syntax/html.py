@@ -486,6 +486,7 @@ if __name__ == '__main__':
         <input disabled><input disabled /><span attr=<></span>
         <!-- Non-breaking spaces are rendered differently from normal spaces, so that they stand out -->
         <p>Some\xa0words\xa0separated\xa0by\xa0non\u2011breaking\xa0spaces and non\u2011breaking hyphens.</p>
+        <p>Some non-BMP unicode text:\U0001f431\U0001f431\U0001f431</p>
     </body>
 </html>
 ''', path_is_raw=True)

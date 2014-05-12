@@ -6,6 +6,7 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
+import sys
 from collections import defaultdict
 
 from PyQt4.Qt import (
@@ -13,10 +14,14 @@ from PyQt4.Qt import (
 
 from ..themes import highlight_to_char_format
 from calibre.gui2.tweak_book.widgets import BusyCursor
+from calibre.utils.icu import utf16_length
+
+is_wide_build = sys.maxunicode >= 0x10ffff
 
 def run_loop(user_data, state_map, formats, text):
     state = user_data.state
     i = 0
+    fix_offsets = is_wide_build and utf16_length(text) != len(text)
     seen_states = defaultdict(set)
     while i < len(text):
         orig_i = i
@@ -24,7 +29,12 @@ def run_loop(user_data, state_map, formats, text):
         fmt = state_map[state.parse](state, text, i, formats, user_data)
         for num, f in fmt:
             if num > 0:
-                yield i, num, f
+                if fix_offsets:
+                    # We need to map offsets/lengths from UCS-4 to UTF-16 in
+                    # which non-BMP characters are two code points wide
+                    yield utf16_length(text[:i]), utf16_length(text[i:i+num]), f
+                else:
+                    yield i, num, f
                 i += num
         if orig_i == i and state.parse in seen_states[i]:
             # Something went wrong in the syntax highlighter
