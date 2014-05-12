@@ -91,7 +91,7 @@
    <item row="3" column="0">
     <widget class="QCheckBox" name="opt_write_opf">
      <property name="text">
-      <string>Save metadata in &amp;OPF file</string>
+      <string>Save metadata in a separate &amp;OPF file</string>
      </property>
     </widget>
    </item>
