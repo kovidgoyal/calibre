@@ -75,6 +75,11 @@ editors = NonReplaceDict()
 TOP = object()
 dictionaries = Dictionaries()
 
+def editor_name(editor):
+    for n, ed in editors.iteritems():
+        if ed is editor:
+            return n
+
 def set_book_locale(lang):
     dictionaries.initialize()
     try:

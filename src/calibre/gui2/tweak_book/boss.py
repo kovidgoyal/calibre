@@ -29,7 +29,8 @@ from calibre.ebooks.oeb.polish.utils import link_stylesheets, setup_cssutils_ser
 from calibre.gui2 import error_dialog, choose_files, question_dialog, info_dialog, choose_save_file
 from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.gui2.tweak_book import (
-    set_current_container, current_container, tprefs, actions, editors, set_book_locale, dictionaries)
+    set_current_container, current_container, tprefs, actions, editors,
+    set_book_locale, dictionaries, editor_name)
 from calibre.gui2.tweak_book.undo import GlobalUndoHistory
 from calibre.gui2.tweak_book.file_list import NewFileDialog
 from calibre.gui2.tweak_book.save import SaveManager, save_container, find_first_existing_ancestor
@@ -618,10 +619,7 @@ class Boss(QObject):
     def pretty_print(self, current):
         if current:
             ed = self.gui.central.current_editor
-            for name, x in editors.iteritems():
-                if x is ed:
-                    break
-            ed.pretty_print(name)
+            ed.pretty_print(editor_name(ed))
         else:
             with BusyCursor():
                 self.add_savepoint(_('Before: Beautify files'))
@@ -638,10 +636,7 @@ class Boss(QObject):
 
     def editor_action(self, action):
         ed = self.gui.central.current_editor
-        for n, x in editors.iteritems():
-            if x is ed:
-                edname = n
-                break
+        edname = editor_name(ed)
         if hasattr(ed, 'action_triggered'):
             if action and action[0] == 'insert_resource':
                 rtype = action[1]
@@ -688,12 +683,7 @@ class Boss(QObject):
         self.commit_all_editors_to_container()
         c = current_container()
         ed = self.gui.central.current_editor
-        for name, q in editors.iteritems():
-            if ed is q:
-                current_name = name
-                break
-        else:
-            current_name = None
+        current_name = editor_name(ed)
         if current_name and c.mime_map[current_name] not in OEB_DOCS | OEB_STYLES:
             current_name = None
         d = FilterCSS(current_name=current_name, parent=self.gui)
@@ -723,11 +713,7 @@ class Boss(QObject):
         # Ensure the search panel is visible
         sp.setVisible(True)
         ed = self.gui.central.current_editor
-        name = None
-        for n, x in editors.iteritems():
-            if x is ed:
-                name = n
-                break
+        name = editor_name(ed)
         state = sp.state
         if overrides:
             state.update(overrides)
@@ -741,21 +727,13 @@ class Boss(QObject):
     def find_word(self, word, locations):
         ' Go to a word from the spell check dialog '
         ed = self.gui.central.current_editor
-        name = None
-        for n, x in editors.iteritems():
-            if x is ed:
-                name = n
-                break
+        name = editor_name(ed)
         find_next_word(word, locations, ed, name, self.gui, self.show_editor, self.edit_file)
 
     def next_spell_error(self):
         ' Go to the next spelling error '
         ed = self.gui.central.current_editor
-        name = None
-        for n, x in editors.iteritems():
-            if x is ed:
-                name = n
-                break
+        name = editor_name(ed)
         find_next_error(ed, name, self.gui, self.show_editor, self.edit_file)
 
     def word_replaced(self, changed_names):
@@ -783,11 +761,7 @@ class Boss(QObject):
 
     def run_saved_searches(self, searches, action):
         ed = self.gui.central.current_editor
-        name = None
-        for n, x in editors.iteritems():
-            if x is ed:
-                name = n
-                break
+        name = editor_name(ed)
         searchable_names = self.gui.file_list.searchable_names
         if not searches or not validate_search_request(name, searchable_names, getattr(ed, 'has_marked_text', False), searches[0], self.gui):
             return
@@ -916,11 +890,7 @@ class Boss(QObject):
         ed = self.gui.central.current_editor
         if ed.syntax != 'html':
             return
-        name = None
-        for n, x in editors.iteritems():
-            if ed is x:
-                name = n
-                break
+        name = editor_name(ed)
         if name is None:
             return
         d = MultiSplit(self.gui)
@@ -1054,11 +1024,7 @@ class Boss(QObject):
             return
         ed = self.gui.central.current_editor
         if ed is not None:
-            name = None
-            for n, x in editors.iteritems():
-                if ed is x:
-                    name = n
-                    break
+            name = editor_name(ed)
             if name is not None and getattr(ed, 'syntax', None) == 'html':
                 self.gui.preview.sync_to_editor(name, ed.current_line)
 
@@ -1177,11 +1143,7 @@ class Boss(QObject):
             actions['editor-cut'].setEnabled(ed.cut_available)
             actions['go-to-line-number'].setEnabled(ed.has_line_numbers)
             actions['fix-html-current'].setEnabled(ed.syntax == 'html')
-            name = None
-            for n, x in editors.iteritems():
-                if ed is x:
-                    name = n
-                    break
+            name = editor_name(ed)
             if name is not None and getattr(ed, 'syntax', None) == 'html':
                 if self.gui.preview.show(name):
                     # The file being displayed by the preview has changed.
@@ -1207,10 +1169,7 @@ class Boss(QObject):
             self.gui.cursor_position_widget.update_position()
 
     def editor_close_requested(self, editor):
-        name = None
-        for n, ed in editors.iteritems():
-            if ed is editor:
-                name = n
+        name = editor_name(editor)
         if not name:
             return
         if not editor.is_synced_to_container:
