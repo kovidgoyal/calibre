@@ -426,11 +426,11 @@ class Editor(QMainWindow):
         c = self.editor.cursorForPosition(pos)
         origc = QTextCursor(c)
         r = origr = self.editor.syntax_range_for_cursor(c)
-        if (r is None or not r.format.property(SPELL_PROPERTY).toBool()) and c.positionInBlock() > 0:
+        if (r is None or not r.format.property(SPELL_PROPERTY)) and c.positionInBlock() > 0:
             c.setPosition(c.position() - 1)
             r = self.editor.syntax_range_for_cursor(c)
 
-        if r is not None and r.format.property(SPELL_PROPERTY).toBool():
+        if r is not None and r.format.property(SPELL_PROPERTY):
             word = self.editor.text_for_range(c.block(), r)
             locale = self.editor.spellcheck_locale_for_cursor(c)
             orig_pos = c.position()
