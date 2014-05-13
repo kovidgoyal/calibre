@@ -19,7 +19,7 @@ from PyQt4.Qt import (
     QComboBox, QListWidget, QListWidgetItem, QInputDialog, QPlainTextEdit, QKeySequence)
 
 from calibre.constants import __appname__, plugins
-from calibre.ebooks.oeb.polish.spell import replace_word, get_all_words, merge_locations
+from calibre.ebooks.oeb.polish.spell import replace_word, get_all_words, merge_locations, get_checkable_file_names
 from calibre.gui2 import choose_files, error_dialog
 from calibre.gui2.complete2 import LineEdit
 from calibre.gui2.languages import LanguagesEdit
@@ -585,6 +585,8 @@ class ManageDictionaries(Dialog):  # {{{
 # Spell Check Dialog {{{
 class WordsModel(QAbstractTableModel):
 
+    word_ignored = pyqtSignal(object, object)
+
     def __init__(self, parent=None):
         QAbstractTableModel.__init__(self, parent)
         self.counts = (0, 0)
@@ -705,6 +707,7 @@ class WordsModel(QAbstractTableModel):
             (dictionaries.unignore_word if ignored else dictionaries.ignore_word)(*w)
             self.spell_map[w] = dictionaries.recognized(*w)
             self.update_word(w)
+            self.word_ignored.emit(*w)
 
     def ignore_words(self, rows):
         words = {self.word_for_row(r) for r in rows}
@@ -714,6 +717,7 @@ class WordsModel(QAbstractTableModel):
             (dictionaries.unignore_word if ignored else dictionaries.ignore_word)(*w)
             self.spell_map[w] = dictionaries.recognized(*w)
             self.update_word(w)
+            self.word_ignored.emit(*w)
 
     def add_word(self, row, udname):
         w = self.word_for_row(row)
@@ -721,6 +725,7 @@ class WordsModel(QAbstractTableModel):
             if dictionaries.add_to_user_dictionary(udname, *w):
                 self.spell_map[w] = dictionaries.recognized(*w)
                 self.update_word(w)
+                self.word_ignored.emit(*w)
 
     def add_words(self, dicname, rows):
         words = {self.word_for_row(r) for r in rows}
@@ -730,6 +735,7 @@ class WordsModel(QAbstractTableModel):
                 dictionaries.remove_from_user_dictionary(dicname, [w])
             self.spell_map[w] = dictionaries.recognized(*w)
             self.update_word(w)
+            self.word_ignored.emit(*w)
 
     def remove_word(self, row):
         w = self.word_for_row(row)
@@ -855,6 +861,7 @@ class SpellCheck(Dialog):
     find_word = pyqtSignal(object, object)
     refresh_requested = pyqtSignal()
     word_replaced = pyqtSignal(object)
+    word_ignored = pyqtSignal(object, object)
 
     def __init__(self, parent=None):
         self.__current_word = None
@@ -922,6 +929,7 @@ class SpellCheck(Dialog):
         w.setModel(m)
         m.dataChanged.connect(self.current_word_changed)
         m.modelReset.connect(self.current_word_changed)
+        m.word_ignored.connect(self.word_ignored)
         if state is not None:
             hh.restoreState(state)
             # Sort by the restored state, if any
@@ -1249,6 +1257,30 @@ def find_next(word, locations, current_editor, current_editor_name,
             show_editor(file_name)
             return True
     return False
+
+def find_next_error(current_editor, current_editor_name, gui_parent, show_editor, edit_file):
+    files = get_checkable_file_names(current_container())[0]
+    if current_editor_name not in files:
+        current_editor_name = None
+    else:
+        idx = files.index(current_editor_name)
+        before, after = files[:idx], files[idx+1:]
+        files = [current_editor_name] + after + before + [current_editor_name]
+
+    for file_name in files:
+        from_cursor = False
+        if file_name == current_editor_name:
+            from_cursor = True
+            current_editor_name = None
+        ed = editors.get(file_name, None)
+        if ed is None:
+            edit_file(file_name)
+            ed = editors[file_name]
+        if ed.editor.find_next_spell_error(from_cursor=from_cursor):
+            show_editor(file_name)
+            return True
+    return False
+
 # }}}
 
 if __name__ == '__main__':

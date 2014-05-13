@@ -194,6 +194,13 @@ class EditorSettings(BasicSettings):
             ' time you open a HTML/CSS/etc. file for editing.'))
         l.addRow(lw)
 
+        lw = self('inline_spell_check')
+        lw.setText(_('Show misspelled words underlined in the code view'))
+        lw.setToolTip('<p>' + _(
+            'This will cause spelling errors to be highlighted in the code view'
+            ' for easy correction as you type.'))
+        l.addRow(lw)
+
         self.dictionaries = d = QPushButton(_('Manage &spelling dictionaries'), self)
         d.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
         d.clicked.connect(self.manage_dictionaries)

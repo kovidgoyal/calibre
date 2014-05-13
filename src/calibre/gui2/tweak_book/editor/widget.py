@@ -14,8 +14,10 @@ from PyQt4.Qt import (
     QImage, QColor, QIcon, QPixmap, QToolButton)
 
 from calibre.gui2 import error_dialog
-from calibre.gui2.tweak_book import actions, current_container, tprefs
+from calibre.gui2.tweak_book import actions, current_container, tprefs, dictionaries
+from calibre.gui2.tweak_book.editor import SPELL_PROPERTY
 from calibre.gui2.tweak_book.editor.text import TextEdit
+from calibre.utils.icu import utf16_length
 
 def create_icon(text, palette=None, sz=32, divider=2):
     if palette is None:
@@ -79,6 +81,7 @@ class Editor(QMainWindow):
     copy_available_state_changed = pyqtSignal(object)
     data_changed = pyqtSignal(object)
     cursor_position_changed = pyqtSignal()
+    word_ignored = pyqtSignal(object, object)
 
     def __init__(self, syntax, parent=None):
         QMainWindow.__init__(self, parent)
@@ -258,6 +261,10 @@ class Editor(QMainWindow):
             self.modification_state_changed.disconnect()
         except TypeError:
             pass  # in case this signal was never connected
+        try:
+            self.word_ignored.disconnect()
+        except TypeError:
+            pass  # in case this signal was never connected
         self.undo_redo_state_changed.disconnect()
         self.copy_available_state_changed.disconnect()
         self.cursor_position_changed.disconnect()
@@ -344,6 +351,43 @@ class Editor(QMainWindow):
     def show_context_menu(self, pos):
         m = QMenu(self)
         a = m.addAction
+        c = self.editor.cursorForPosition(pos)
+        fmt = self.editor.syntax_format_for_cursor(c)
+        spell = fmt.property(SPELL_PROPERTY).toPyObject() if fmt is not None else None
+        if spell is not None:
+            word, locale = spell
+            orig_pos = c.position()
+            c.setPosition(orig_pos - utf16_length(word))
+            found = False
+            self.editor.setTextCursor(c)
+            if self.editor.find_spell_word([word], locale.langcode, center_on_cursor=False):
+                found = True
+                fc = self.editor.textCursor()
+                if fc.position() < c.position():
+                    self.editor.find_spell_word([word], locale.langcode, center_on_cursor=False)
+            if found:
+                suggestions = dictionaries.suggestions(word, locale)[:7]
+                if suggestions:
+                    for suggestion in suggestions:
+                        ac = m.addAction(suggestion, partial(self.editor.simple_replace, suggestion))
+                        f = ac.font()
+                        f.setBold(True), ac.setFont(f)
+                    m.addSeparator()
+                m.addAction(actions['spell-next'])
+                m.addAction(_('Ignore this word'), partial(self._nuke_word, None, word, locale))
+                dics = dictionaries.active_user_dictionaries
+                if len(dics) > 0:
+                    if len(dics) == 1:
+                        m.addAction(_('Add this word to the dictionary: {0}').format(dics[0].name), partial(
+                            self._nuke_word, dics[0].name, word, locale))
+                    else:
+                        ac = m.addAction(_('Add this word to the dictionary'))
+                        dmenu = QMenu(m)
+                        ac.setMenu(dmenu)
+                        for dic in dics:
+                            dmenu.addAction(dic.name, partial(self._nuke_word, dic.name, word, locale))
+                m.addSeparator()
+
         for x in ('undo', 'redo'):
             a(actions['editor-%s' % x])
         m.addSeparator()
@@ -356,6 +400,12 @@ class Editor(QMainWindow):
             m.addAction(actions['multisplit'])
         m.exec_(self.editor.mapToGlobal(pos))
 
+    def _nuke_word(self, dic, word, locale):
+        if dic is None:
+            dictionaries.ignore_word(word, locale)
+        else:
+            dictionaries.add_to_user_dictionary(dic, word, locale)
+        self.word_ignored.emit(word, locale)
 
 def launch_editor(path_to_edit, path_is_raw=False, syntax='html'):
     from calibre.gui2.tweak_book.main import option_parser

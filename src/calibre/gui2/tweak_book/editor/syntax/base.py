@@ -151,6 +151,10 @@ class SyntaxHighlighter(object):
         finally:
             doc.contentsChange.connect(self.reformat_blocks)
 
+    def reformat_block(self, block):
+        if block.isValid():
+            self.reformat_blocks(block.position(), 0, 1)
+
     def apply_format_changes(self, doc, block, formats):
         layout = block.layout()
         preedit_start = layout.preeditAreaPosition()

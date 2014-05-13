@@ -410,6 +410,8 @@ class Main(MainWindow):
             self.check_book.next_error, delta=1), 'check-book-next', ('Ctrl+F7'), _('Show next error'))
         self.action_check_book_previous = reg('back.png', _('&Previous error'), partial(
             self.check_book.next_error, delta=-1), 'check-book-previous', ('Ctrl+Shift+F7'), _('Show previous error'))
+        self.action_spell_check_next = reg('forward.png', _('&Next spelling mistake'),
+            self.boss.next_spell_error, 'spell-next', ('F8'), _('Go to next spelling mistake'))
 
         # Miscellaneous actions
         group = _('Miscellaneous')

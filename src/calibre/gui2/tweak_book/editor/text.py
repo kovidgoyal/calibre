@@ -18,7 +18,7 @@ from PyQt4.Qt import (
 
 from calibre import prepare_string_for_xml, xml_entity_to_unicode
 from calibre.gui2.tweak_book import tprefs, TOP
-from calibre.gui2.tweak_book.editor import SYNTAX_PROPERTY
+from calibre.gui2.tweak_book.editor import SYNTAX_PROPERTY, SPELL_PROPERTY
 from calibre.gui2.tweak_book.editor.themes import THEMES, default_theme, theme_color, theme_format
 from calibre.gui2.tweak_book.editor.syntax.base import SyntaxHighlighter
 from calibre.gui2.tweak_book.editor.syntax.html import HTMLHighlighter, XMLHighlighter
@@ -231,6 +231,11 @@ class TextEdit(PlainTextEdit):
         self.setTextCursor(c)
         self.ensureCursorVisible()
 
+    def simple_replace(self, text):
+        c = self.textCursor()
+        c.insertText(unicodedata.normalize('NFC', text))
+        self.setTextCursor(c)
+
     def go_to_line(self, lnum, col=None):
         lnum = max(1, min(self.blockCount(), lnum))
         c = self.textCursor()
@@ -383,7 +388,7 @@ class TextEdit(PlainTextEdit):
             self.saved_matches[save_match] = (pat, m)
         return True
 
-    def find_spell_word(self, original_words, lang, from_cursor=True):
+    def find_spell_word(self, original_words, lang, from_cursor=True, center_on_cursor=True):
         c = self.textCursor()
         c.setPosition(c.position())
         if not from_cursor:
@@ -407,11 +412,28 @@ class TextEdit(PlainTextEdit):
             c.setPosition(c.position() + string_length(word), c.KeepAnchor)
             if self.smarts.verify_for_spellcheck(c, self.highlighter):
                 self.setTextCursor(c)
-                self.centerCursor()
+                if center_on_cursor:
+                    self.centerCursor()
                 return True
             c.setPosition(c.position())
             c.movePosition(c.End, c.KeepAnchor)
 
+        return False
+
+    def find_next_spell_error(self, from_cursor=True):
+        c = self.textCursor()
+        if not from_cursor:
+            c.movePosition(c.Start)
+        block = c.block()
+        while block.isValid():
+            for r in block.layout().additionalFormats():
+                if r.format.property(SPELL_PROPERTY).toPyObject() is not None:
+                    if not from_cursor or block.position() + r.start + r.length > c.position():
+                        c.setPosition(block.position() + r.start)
+                        c.setPosition(c.position() + r.length, c.KeepAnchor)
+                        self.setTextCursor(c)
+                        return True
+            block = block.next()
         return False
 
     def replace(self, pat, template, saved_match='gui'):
@@ -545,6 +567,18 @@ class TextEdit(PlainTextEdit):
                 ev.ignore()
                 return False
         return QPlainTextEdit.event(self, ev)
+
+    def recheck_word(self, word, locale):
+        c = self.textCursor()
+        c.movePosition(c.Start)
+        block = c.block()
+        while block.isValid():
+            for r in block.layout().additionalFormats():
+                x = r.format.property(SPELL_PROPERTY).toPyObject()
+                if x is not None and word == x[0]:
+                    self.highlighter.reformat_block(block)
+                    break
+            block = block.next()
 
     # Tooltips {{{
     def syntax_format_for_cursor(self, cursor):

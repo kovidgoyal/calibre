@@ -14,7 +14,9 @@ from PyQt4.Qt import QFont, QTextBlockUserData
 
 from calibre.ebooks.oeb.polish.spell import html_spell_tags, xml_spell_tags
 from calibre.spell.dictionary import parse_lang_code
-from calibre.gui2.tweak_book.editor import SyntaxTextCharFormat
+from calibre.spell.break_iterator import split_into_words_and_positions
+from calibre.gui2.tweak_book import dictionaries, tprefs
+from calibre.gui2.tweak_book.editor import SyntaxTextCharFormat, SPELL_PROPERTY
 from calibre.gui2.tweak_book.editor.syntax.base import SyntaxHighlighter, run_loop
 from calibre.gui2.tweak_book.editor.syntax.css import (
     create_formats as create_css_formats, state_map as css_state_map, CSSState, CSSUserData)
@@ -170,6 +172,16 @@ class HTMLUserData(QTextBlockUserData):
         self.tags, self.attributes = [], []
         self.state = State() if state is None else state
 
+    @classmethod
+    def tag_ok_for_spell(cls, name):
+        return name not in html_spell_tags
+
+class XMLUserData(HTMLUserData):
+
+    @classmethod
+    def tag_ok_for_spell(cls, name):
+        return name in xml_spell_tags
+
 def add_tag_data(user_data, tag):
     user_data.tags.append(tag)
 
@@ -211,7 +223,7 @@ def cdata(state, text, i, formats, user_data):
     add_tag_data(user_data, TagStart(m.start(), '', name, True, True))
     return [(num, fmt), (2, formats['end_tag']), (len(m.group()) - 2, formats['tag_name'])]
 
-def mark_nbsp(state, text, nbsp_format):
+def process_text(state, text, nbsp_format, spell_format, user_data):
     ans = []
     fmt = None
     if state.is_bold or state.is_italic:
@@ -226,6 +238,36 @@ def mark_nbsp(state, text, nbsp_format):
         last = m.end()
     if not ans:
         ans = [(len(text), fmt)]
+
+    if tprefs['inline_spell_check'] and state.tags and user_data.tag_ok_for_spell(state.tags[-1].name):
+        split_ans = []
+        locale = state.current_lang or dictionaries.default_locale
+        sfmt = SyntaxTextCharFormat(spell_format)
+        if fmt is not None:
+            sfmt.merge(fmt)
+
+        tpos = 0
+        for tlen, fmt in ans:
+            if fmt is nbsp_format:
+                split_ans.append((tlen, fmt))
+            else:
+                ctext = text[tpos:tpos+tlen]
+                ppos = 0
+                for start, length in split_into_words_and_positions(ctext, lang=locale.langcode):
+                    if start > ppos:
+                        split_ans.append((start - ppos, fmt))
+                    ppos = start + length
+                    recognized = dictionaries.recognized(ctext[start:ppos], locale)
+                    if not recognized:
+                        wsfmt = SyntaxTextCharFormat(sfmt)
+                        wsfmt.setProperty(SPELL_PROPERTY, (ctext[start:ppos], locale))
+                    split_ans.append((length, fmt if recognized else wsfmt))
+                if ppos == 0:
+                    split_ans.append((tlen, fmt))
+
+            tpos += tlen
+        ans = split_ans
+
     return ans
 
 def normal(state, text, i, formats, user_data):
@@ -277,7 +319,7 @@ def normal(state, text, i, formats, user_data):
         return [(1, formats['>'])]
 
     t = normal_pat.search(text, i).group()
-    return mark_nbsp(state, t, formats['nbsp'])
+    return process_text(state, t, formats['nbsp'], formats['spell'], user_data)
 
 def opening_tag(cdata_tags, state, text, i, formats, user_data):
     'An opening tag, like <a>'
@@ -417,6 +459,7 @@ def create_formats(highlighter, add_css=True):
         'nsprefix': t['Constant'],
         'preproc': t['PreProc'],
         'nbsp': t['SpecialCharacter'],
+        'spell': t['SpellError'],
     }
     for name, msg in {
             '<': _('An unescaped < is not allowed. Replace it with &lt;'),
@@ -445,18 +488,19 @@ class HTMLHighlighter(SyntaxHighlighter):
     user_data_factory = HTMLUserData
 
     def tag_ok_for_spell(self, name):
-        return name not in html_spell_tags
+        return HTMLUserData.tag_ok_for_spell(name)
 
 class XMLHighlighter(HTMLHighlighter):
 
     state_map = xml_state_map
     spell_attributes = ('opf:file-as',)
+    user_data_factory = XMLUserData
 
     def create_formats_func(self):
         return create_formats(self, add_css=False)
 
     def tag_ok_for_spell(self, name):
-        return name in xml_spell_tags
+        return XMLUserData.tag_ok_for_spell(name)
 
 if __name__ == '__main__':
     from calibre.gui2.tweak_book.editor.widget import launch_editor

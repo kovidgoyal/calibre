@@ -39,7 +39,7 @@ from calibre.gui2.tweak_book.editor import editor_from_syntax, syntax_from_mime
 from calibre.gui2.tweak_book.editor.insert_resource import get_resource_data, NewBook
 from calibre.gui2.tweak_book.preferences import Preferences
 from calibre.gui2.tweak_book.search import validate_search_request, run_search
-from calibre.gui2.tweak_book.spell import find_next as find_next_word
+from calibre.gui2.tweak_book.spell import find_next as find_next_word, find_next_error
 from calibre.gui2.tweak_book.widgets import (
     RationalizeFolders, MultiSplit, ImportForeign, QuickOpen, InsertLink,
     InsertSemantics, BusyCursor, InsertTag, FilterCSS)
@@ -116,10 +116,12 @@ class Boss(QObject):
         self.gui.spell_check.find_word.connect(self.find_word)
         self.gui.spell_check.refresh_requested.connect(self.commit_all_editors_to_container)
         self.gui.spell_check.word_replaced.connect(self.word_replaced)
+        self.gui.spell_check.word_ignored.connect(self.word_ignored)
 
     def preferences(self):
         p = Preferences(self.gui)
         ret = p.exec_()
+        orig_spell = tprefs['inline_spell_check']
         if p.dictionaries_changed:
             dictionaries.clear_caches()
             dictionaries.initialize(force=True)  # Reread user dictionaries
@@ -129,6 +131,12 @@ class Boss(QObject):
         if ret == p.Accepted or p.dictionaries_changed:
             for ed in editors.itervalues():
                 ed.apply_settings(dictionaries_changed=p.dictionaries_changed)
+        if orig_spell != tprefs['inline_spell_check']:
+            for ed in editors.itervalues():
+                try:
+                    ed.editor.highlighter.rehighlight()
+                except AttributeError:
+                    pass
 
     def mark_requested(self, name, action):
         self.commit_dirty_opf()
@@ -740,9 +748,27 @@ class Boss(QObject):
                 break
         find_next_word(word, locations, ed, name, self.gui, self.show_editor, self.edit_file)
 
+    def next_spell_error(self):
+        ' Go to the next spelling error '
+        ed = self.gui.central.current_editor
+        name = None
+        for n, x in editors.iteritems():
+            if x is ed:
+                name = n
+                break
+        find_next_error(ed, name, self.gui, self.show_editor, self.edit_file)
+
     def word_replaced(self, changed_names):
         self.set_modified()
         self.update_editors_from_container(names=set(changed_names))
+
+    def word_ignored(self, word, locale):
+        if tprefs['inline_spell_check']:
+            for ed in editors.itervalues():
+                try:
+                    ed.editor.recheck_word(word, locale)
+                except AttributeError:
+                    pass
 
     def saved_searches(self):
         self.gui.saved_searches.show(), self.gui.saved_searches.raise_()
@@ -1042,6 +1068,8 @@ class Boss(QObject):
         editor.copy_available_state_changed.connect(self.editor_copy_available_state_changed)
         editor.cursor_position_changed.connect(self.sync_preview_to_editor)
         editor.cursor_position_changed.connect(self.update_cursor_position)
+        if hasattr(editor, 'word_ignored'):
+            editor.word_ignored.connect(self.word_ignored)
         if data is not None:
             if use_template:
                 editor.init_from_template(data)
