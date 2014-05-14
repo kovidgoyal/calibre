@@ -215,7 +215,8 @@ def check_opf(container):
     seen, dups = {}, {}
     for item in container.opf_xpath('/opf:package/opf:manifest/opf:item[@href]'):
         href = item.get('href')
-        if not container.exists(container.href_to_name(href, container.opf_name)):
+        hname = container.href_to_name(href, container.opf_name)
+        if not hname or not container.exists(hname):
             errors.append(MissingHref(container.opf_name, href, item.sourceline))
         if href in seen:
             if href not in dups:
