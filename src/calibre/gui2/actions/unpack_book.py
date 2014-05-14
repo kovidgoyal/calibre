@@ -286,7 +286,7 @@ class UnpackBook(QDialog):
 class UnpackBookAction(InterfaceAction):
 
     name = 'Unpack Book'
-    action_spec = (_('Unpack Book'), 'unpack-book.png',
+    action_spec = (_('Unpack book'), 'unpack-book.png',
             _('Unpack books in the EPUB, AZW3, HTMLZ formats into their individual components'), 'U')
     dont_add_to = frozenset(['context-menu-device'])
     action_type = 'current'

@@ -54,7 +54,7 @@ class Choose(QDialog):
 class TweakEpubAction(InterfaceAction):
 
     name = 'Tweak ePub'
-    action_spec = (_('Edit Book'), 'tweak.png', _('Edit eBooks'), _('T'))
+    action_spec = (_('Edit book'), 'tweak.png', _('Edit books in the EPUB or AZW formats'), _('T'))
     dont_add_to = frozenset(['context-menu-device'])
     action_type = 'current'
 
