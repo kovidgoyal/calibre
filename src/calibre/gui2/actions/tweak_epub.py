@@ -135,8 +135,9 @@ class TweakEpubAction(InterfaceAction):
         if tprefs['update_metadata_from_calibre']:
             from calibre.ebooks.metadata.opf2 import pretty_print
             from calibre.ebooks.metadata.meta import set_metadata
+            from calibre.customize.ui import apply_null_metadata
             mi = db.new_api.get_metadata(book_id, get_cover=True)
-            with pretty_print, open(path, 'r+b') as f:
+            with pretty_print, apply_null_metadata, open(path, 'r+b') as f:
                 set_metadata(f, mi, stream_type=fmt.lower())
         notify = '%d:%s:%s:%s' % (book_id, fmt, db.library_id, db.library_path)
         try:
