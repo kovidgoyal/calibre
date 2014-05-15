@@ -274,6 +274,8 @@ def update_metadata(opf, mi, apply_null=False, update_timestamp=False, force_ide
             opf.isbn = None
         if not getattr(mi, 'comments', None):
             opf.comments = None
+        if not getattr(mi, 'publisher', None):
+            opf.publisher = None
     if apply_null or force_identifiers:
         opf.set_identifiers(mi.get_identifiers())
     else:
