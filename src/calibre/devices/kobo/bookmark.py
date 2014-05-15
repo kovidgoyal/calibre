@@ -41,30 +41,48 @@ class Bookmark(): # {{{
             cursor = connection.cursor()
             t = (self.contentid,)
 
-            cursor.execute('select bm.bookmarkid, bm.contentid, bm.volumeid, '
-                                'bm.text, bm.annotation, bm.ChapterProgress, '
-                                'bm.StartContainerChildIndex, bm.StartOffset, c.BookTitle, '
-                                'c.TITLE, c.volumeIndex, c.___NumPages '
-                            'from Bookmark bm inner join Content c on '
-                                'bm.contentid = c.contentid and '
-                                'bm.volumeid = ? order by bm.volumeid, bm.chapterprogress', t)
+            kepub_chapter_query = (
+                               'SELECT Title, volumeIndex '
+                               'FROM content '
+                               'WHERE ContentID LIKE ? '
+                               )
+            bookmark_query = ('SELECT bm.bookmarkid, bm.ContentID, bm.text, bm.annotation, '
+                                'bm.ChapterProgress, bm.StartContainerChildIndex, bm.StartOffset, '
+                                'c.BookTitle, c.TITLE, c.volumeIndex, c.MimeType '
+                            'FROM Bookmark bm LEFT OUTER JOIN Content c ON '
+                                'c.ContentID = bm.ContentID '
+                            'WHERE bm.Hidden = "false" '
+                                'AND bm.volumeid = ? '
+                            'ORDER BY bm.ContentID, bm.chapterprogress')
+            cursor.execute(bookmark_query, t)
 
             previous_chapter = 0
             bm_count = 0
             for row in cursor:
-                current_chapter = row[10]
+                current_chapter = row[9]
+                chapter_title = row[8]
+                # For kepubs on newer firmware, the title needs to come from an 899 row.
+                if not row[10] or row[10] == 'application/xhtml+xml' or row[10] == 'application/x-kobo-epub+zip':
+                    cursor2 = connection.cursor()
+                    kepub_chapter_data = ('{0}-%'.format(row[1]), )
+                    cursor2.execute(kepub_chapter_query, kepub_chapter_data)
+                    kepub_chapter = cursor2.fetchone()
+                    if kepub_chapter:
+                        chapter_title = kepub_chapter[0]
+                        current_chapter = kepub_chapter[1]
+                    cursor2.close
                 if previous_chapter == current_chapter:
                     bm_count = bm_count + 1
                 else:
                     bm_count = 0
 
-                text = row[3]
-                annotation = row[4]
+                text = row[2]
+                annotation = row[3]
 
                 # A dog ear (bent upper right corner) is a bookmark
-                if row[6] == row[7] == 0:   # StartContainerChildIndex = StartOffset = 0
+                if row[5] == row[6] == 0:   # StartContainerChildIndex = StartOffset = 0
                     e_type = 'Bookmark'
-                    text = row[9]
+                    text = row[8]
                 # highlight is text with no annotation
                 elif text is not None and (annotation is None or annotation == ""):
                     e_type = 'Highlight'
@@ -73,19 +91,19 @@ class Bookmark(): # {{{
                 else:
                     e_type = 'Unknown annotation type'
 
-                note_id = row[10] + bm_count
-                chapter_title = row[9]
+                note_id = current_chapter * 1000 + bm_count
+
                 # book_title = row[8]
-                chapter_progress = min(round(float(100*row[5]),2),100)
+                chapter_progress = min(round(float(100*row[4]),2),100)
                 user_notes[note_id] = dict(id=self.id,
                                         displayed_location=note_id,
                                         type=e_type,
                                         text=text,
                                         annotation=annotation,
-                                        chapter=row[10],
+                                        chapter=current_chapter,
                                         chapter_title=chapter_title,
                                         chapter_progress=chapter_progress)
-                previous_chapter = row[10]
+                previous_chapter = current_chapter
                 # debug_print("e_type:" , e_type, '\t', 'loc: ', note_id, 'text: ', text,
                         # 'annotation: ', annotation, 'chapter_title: ', chapter_title,
                         # 'chapter_progress: ', chapter_progress, 'date: ')
