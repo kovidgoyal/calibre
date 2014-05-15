@@ -591,7 +591,7 @@ class TextEdit(PlainTextEdit):
         block = c.block()
         while block.isValid():
             for r in block.layout().additionalFormats():
-                if r.format.property(SPELL_PROPERTY).toBool() and self.text_for_range(block, r) == word:
+                if r.format.property(SPELL_PROPERTY) and self.text_for_range(block, r) == word:
                     self.highlighter.reformat_block(block)
                     break
             block = block.next()
