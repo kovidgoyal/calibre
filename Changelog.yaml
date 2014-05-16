@@ -20,6 +20,48 @@
 #   new recipes:
 #     - title: 
 
+- version: 1.37.0
+  date: 2014-05-16
+
+  new features:
+    - title: "Edit Book: Live spell checking in the code view. Now spelling errors are highlighted in the code view for convenient correction as you type. This can be turned off via Preferences->Editor."
+
+    - title: "E-book viewer: When using the tap and hold gesture on a touchscreen, allow lookup  of the word currently under the finger in the dictionary or online."
+      tickets: [1318242]
+
+    - title: "Edit Book: Allow putting the editor into replace mode by pressing the Insert key"
+
+    - title: "Content server: Add more descriptive titles to the OPDS feeds, where possible."
+
+    - title: "Edit Book: Update the Table of Contents view automatically when the ncx file is edited."
+
+    - title: "Edit book: Insert tag button: Allow entering attributes along with the tag name to make it easy to repeatedly insert, for example, <span class='special'></span>."
+
+    - title: "Windows driver for Woxter Scriba 190."
+      tickets: [1317892]
+
+    - title: "Edit Book: Add an entry to the context menu of the preview panel to open external URLs when a link is right clicked on"
+
+  bug fixes:
+    - title: "Edit Book: Fix error in the Check Book tool when items in the opf have paths starting with a leading slash."
+      tickets: [1319378]
+
+    - title: "Book polishing: Fix publisher field in epub not being cleared when updating metadata."
+      tickets: [1319732]
+
+    - title: "Kobo driver: Update to handle changes to annotation processing in newer Kobo firmware."
+
+    - title: "DOCX Input: Handle docx files with index fields that have their field names incorrectly lower cased."
+      tickets: [1318670]
+
+    - title: "Edit book: Fix incorrect syntax highlighting on linux if the text contains non-BMP unicode characters."
+
+    - title: "Edit book: Fix regression that caused an error when trying to edit files with no defined syntax, such as plain .txt files."
+      tickets: [1318139]
+
+  improved recipes:
+    - Wall Street Journal 
+
 - version: 1.36.0
   date: 2014-05-09
 
