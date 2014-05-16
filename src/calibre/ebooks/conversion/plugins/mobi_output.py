@@ -56,7 +56,12 @@ class MOBIOutput(OutputFormatPlugin):
             help=_('Disable compression of the file contents.')
         ),
         OptionRecommendation(name='personal_doc', recommended_value='[PDOC]',
-            help=_('Tag marking book to be filed with Personal Docs')
+            help=_('Tag marking book to be filed with Personal Docs.'
+                   ' If the book being converted has this tag in its metadata,'
+                   ' then the generated MOBI file'
+                   ' will be marked as a personal document. If you want to ensure'
+                   ' that the generated file is always marked as a personal document,'
+                   ' use the --tags option in addition.')
         ),
         OptionRecommendation(name='mobi_ignore_margins',
             recommended_value=False,
