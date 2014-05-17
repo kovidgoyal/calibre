@@ -111,7 +111,7 @@ def check_fonts(container):
             sheets.append((name, container.parsed(name), None))
         elif mt in OEB_DOCS:
             for style in container.parsed(name).xpath('//*[local-name()="style"]'):
-                if style.get('type', 'text/css') == 'text/css':
+                if style.get('type', 'text/css') == 'text/css' and style.text:
                     sheets.append((name, container.parse_css(style.text), style.sourceline))
 
     for name, sheet, line_offset in sheets:
