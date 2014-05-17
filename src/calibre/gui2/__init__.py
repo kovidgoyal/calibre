@@ -20,6 +20,7 @@ from calibre.utils.config import Config, ConfigProxy, dynamic, JSONConfig
 from calibre.ebooks.metadata import MetaInformation
 from calibre.utils.date import UNDEFINED_DATE
 from calibre.utils.localization import get_lang
+from calibre.utils.filenames import expanduser
 
 # Setup gprefs {{{
 gprefs = JSONConfig('gui')
@@ -598,7 +599,7 @@ def select_initial_dir(q):
         if os.path.exists(c):
             return c
         q = c
-    return os.path.expanduser('~')
+    return expanduser(u'~')
 
 class FileDialog(QObject):
     def __init__(self, title=_('Choose Files'),
@@ -608,7 +609,7 @@ class FileDialog(QObject):
                        modal=True,
                        name='',
                        mode=QFileDialog.ExistingFiles,
-                       default_dir='~',
+                       default_dir=u'~',
                        no_save_dir=False,
                        combine_file_and_saved_dir=False
                        ):
@@ -632,20 +633,20 @@ class FileDialog(QObject):
         if combine_file_and_saved_dir:
             bn = os.path.basename(default_dir)
             prev = dynamic.get(self.dialog_name,
-                    os.path.expanduser(u'~'))
+                    expanduser(u'~'))
             if os.path.exists(prev):
                 if os.path.isfile(prev):
                     prev = os.path.dirname(prev)
             else:
-                prev = os.path.expanduser(u'~')
+                prev = expanduser(u'~')
             initial_dir = os.path.join(prev, bn)
         elif no_save_dir:
-            initial_dir = os.path.expanduser(default_dir)
+            initial_dir = expanduser(default_dir)
         else:
             initial_dir = dynamic.get(self.dialog_name,
-                    os.path.expanduser(default_dir))
+                    expanduser(default_dir))
         if not isinstance(initial_dir, basestring):
-            initial_dir = os.path.expanduser(default_dir)
+            initial_dir = expanduser(default_dir)
         if not initial_dir or (not os.path.exists(initial_dir) and not (
                 mode == QFileDialog.AnyFile and (no_save_dir or combine_file_and_saved_dir))):
             initial_dir = select_initial_dir(initial_dir)

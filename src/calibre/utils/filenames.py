@@ -489,4 +489,18 @@ def remove_dir_if_empty(path, ignore_metadata_caches=False):
             return
         raise
 
-
+if iswindows:
+    # Python's expanduser is broken for non-ASCII usernames
+    def expanduser(path):
+        if isinstance(path, bytes):
+            path = path.decode(filesystem_encoding)
+        if path[:1] != u'~':
+            return path
+        i, n = 1, len(path)
+        while i < n and path[i] not in u'/\\':
+            i += 1
+        from win32com.shell import shell, shellcon
+        userhome = shell.SHGetFolderPath(0, shellcon.CSIDL_PROFILE, None, 0)
+        return userhome + path[i:]
+else:
+    expanduser = os.path.expanduser
