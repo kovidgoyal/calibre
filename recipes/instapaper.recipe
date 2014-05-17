@@ -55,10 +55,10 @@ class AdvancedUserRecipe1299694372(BasicNewsRecipe):
             self.report_progress(0, 'Fetching feed'+' %s...'%(feedtitle if feedtitle else feedurl))
             articles = []
             soup = self.index_to_soup(feedurl)
-            for item in soup.findAll('div', attrs={'class':'title_row'}):
-                #description = self.tag_to_string(item.div)
+            for item in soup.findAll('div', attrs={'class':'js_title_row title_row'}):
+                # description = self.tag_to_string(item.div)
                 atag = item.a
-                if atag and atag.has_key('href'):
+                if atag and 'href' in atag:
                     url         = atag['href']
                     articles.append({
                                      'url'        :url
