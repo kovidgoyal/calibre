@@ -112,6 +112,9 @@ class Editor(QMainWindow):
             self.editor.go_to_line(val)
         return property(fget=fget, fset=fset)
 
+    def current_tag(self):
+        return self.editor.current_tag()
+
     @property
     def number_of_lines(self):
         return self.editor.blockCount()

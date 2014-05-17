@@ -312,3 +312,26 @@ class HTMLSmarts(NullSmarts):
 
         return False
 
+    def cursor_position_with_sourceline(self, cursor):
+        ''' Return the tag containing the current cursor as a source line
+        number and a list of tags defined on that line upto and including the
+        containing tag. '''
+        block = cursor.block()
+        offset = cursor.position() - block.position()
+        block, boundary = next_tag_boundary(block, offset, forward=False)
+        if block is None:
+            return None, None
+        if boundary.is_start:
+            # We are inside a tag, use this tag
+            start_block, start_offset = block, boundary.offset
+        else:
+            tag = find_closest_containing_tag(block, offset)
+            if tag is None:
+                return None, None
+            start_block, start_offset = tag.start_block, tag.start_offset
+        sourceline = start_block.blockNumber()
+        ud = start_block.userData()
+        if ud is None:
+            return None, None
+        all_tags = [t.name for t in ud.tags if (t.is_start and not t.closing and t.offset <= start_offset)]
+        return sourceline, all_tags

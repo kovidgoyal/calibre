@@ -20,3 +20,6 @@ class NullSmarts(object):
     def verify_for_spellcheck(self, cursor, highlighter):
         return False
 
+    def cursor_position_with_sourceline(self, cursor):
+        return None, None
+

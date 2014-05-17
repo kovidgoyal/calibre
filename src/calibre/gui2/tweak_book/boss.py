@@ -228,6 +228,7 @@ class Boss(QObject):
         for name in tuple(editors):
             self.close_editor(name)
         self.gui.preview.clear()
+        self.gui.live_css.clear()
         self.container_count = -1
         if self.tdir:
             shutil.rmtree(self.tdir, ignore_errors=True)
@@ -311,6 +312,7 @@ class Boss(QObject):
                 self.close_editor(name)
         if not editors:
             self.gui.preview.clear()
+            self.gui.live_css.clear()
         if remove_names_from_toc(current_container(), spine_names + list(other_items)):
             self.gui.toc_view.update_if_visible()
             toc = find_existing_toc(current_container())
@@ -1028,11 +1030,19 @@ class Boss(QObject):
             if name is not None and getattr(ed, 'syntax', None) == 'html':
                 self.gui.preview.sync_to_editor(name, ed.current_line)
 
+    def sync_live_css_to_editor(self):
+        ed = self.gui.central.current_editor
+        if ed is not None:
+            name = editor_name(ed)
+            if name is not None and getattr(ed, 'syntax', None) == 'html':
+                self.gui.live_css.sync_to_editor(name)
+
     def init_editor(self, name, editor, data=None, use_template=False):
         editor.undo_redo_state_changed.connect(self.editor_undo_redo_state_changed)
         editor.data_changed.connect(self.editor_data_changed)
         editor.copy_available_state_changed.connect(self.editor_copy_available_state_changed)
         editor.cursor_position_changed.connect(self.sync_preview_to_editor)
+        editor.cursor_position_changed.connect(self.sync_live_css_to_editor)
         editor.cursor_position_changed.connect(self.update_cursor_position)
         if hasattr(editor, 'word_ignored'):
             editor.word_ignored.connect(self.word_ignored)
@@ -1153,6 +1163,7 @@ class Boss(QObject):
                     # focused. This is not inefficient since multiple requests
                     # to sync are de-bounced with a 100 msec wait.
                     self.sync_preview_to_editor()
+                self.sync_live_css_to_editor()
             if name is not None:
                 self.gui.file_list.mark_name_as_current(name)
             if ed.has_line_numbers:
@@ -1182,6 +1193,7 @@ class Boss(QObject):
         editor.break_cycles()
         if not editors or getattr(self.gui.central.current_editor, 'syntax', None) != 'html':
             self.gui.preview.clear()
+            self.gui.live_css.clear()
 
     def insert_character(self):
         self.gui.insert_char.show()
@@ -1251,6 +1263,7 @@ class Boss(QObject):
 
     def shutdown(self):
         self.gui.preview.stop_refresh_timer()
+        self.gui.live_css.stop_update_timer()
         self.save_state()
         [x.reject() for x in _diff_dialogs]
         del _diff_dialogs[:]

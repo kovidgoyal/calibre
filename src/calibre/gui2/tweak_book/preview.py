@@ -435,6 +435,7 @@ class Preview(QWidget):
     split_requested = pyqtSignal(object, object, object)
     split_start_requested = pyqtSignal()
     link_clicked = pyqtSignal(object, object)
+    refreshed = pyqtSignal()
 
     def __init__(self, parent=None):
         QWidget.__init__(self, parent)
@@ -558,6 +559,7 @@ class Preview(QWidget):
                 self.view.setUrl(current_url)
             else:
                 self.view.refresh()
+            self.refreshed.emit()
 
     def clear(self):
         self.view.clear()
@@ -567,14 +569,26 @@ class Preview(QWidget):
     def is_visible(self):
         return actions['preview-dock'].isChecked()
 
+    @property
+    def live_css_is_visible(self):
+        try:
+            return actions['live-css-dock'].isChecked()
+        except KeyError:
+            return False
+
     def start_refresh_timer(self):
-        if self.is_visible and actions['auto-reload-preview'].isChecked():
+        if self.live_css_is_visible or (self.is_visible and actions['auto-reload-preview'].isChecked()):
             self.refresh_timer.start(tprefs['preview_refresh_time'] * 1000)
 
     def stop_refresh_timer(self):
         self.refresh_timer.stop()
 
     def auto_reload_toggled(self, checked):
+        if self.live_css_is_visible and not actions['auto-reload-preview'].isChecked():
+            actions['auto-reload-preview'].setChecked(True)
+            error_dialog(self, _('Cannot disable'), _(
+                'Auto reloading of the preview panel cannot be disabled while the'
+                ' Live CSS panel is open.'), show=True)
         actions['auto-reload-preview'].setToolTip(_(
             'Auto reload preview when text changes in editor') if not checked else _(
                 'Disable auto reload of preview'))

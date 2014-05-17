@@ -33,6 +33,7 @@ from calibre.gui2.tweak_book.spell import SpellCheck
 from calibre.gui2.tweak_book.search import SavedSearches
 from calibre.gui2.tweak_book.toc import TOCViewer
 from calibre.gui2.tweak_book.char_select import CharSelect
+from calibre.gui2.tweak_book.live_css import LiveCSS
 from calibre.gui2.tweak_book.editor.widget import register_text_editor_actions
 from calibre.gui2.tweak_book.editor.insert_resource import InsertImage
 from calibre.utils.icu import character_name
@@ -594,6 +595,13 @@ class Main(MainWindow):
         self.preview = Preview(d)
         d.setWidget(self.preview)
         self.addDockWidget(Qt.RightDockWidgetArea, d)
+
+        d = create(_('Live CSS'), 'live-css')
+        d.setAllowedAreas(Qt.LeftDockWidgetArea | Qt.RightDockWidgetArea | Qt.BottomDockWidgetArea | Qt.TopDockWidgetArea)
+        self.live_css = LiveCSS(self.preview, parent=d)
+        d.setWidget(self.live_css)
+        self.addDockWidget(Qt.RightDockWidgetArea, d)
+        d.close()  # Hidden by default
 
         d = create(_('Check Book'), 'check-book')
         d.setAllowedAreas(Qt.LeftDockWidgetArea | Qt.RightDockWidgetArea | Qt.BottomDockWidgetArea | Qt.TopDockWidgetArea)
