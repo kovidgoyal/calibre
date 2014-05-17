@@ -1021,6 +1021,7 @@ initwinutil(void) {
     PyModule_AddIntConstant(m, "CSIDL_PROGRAM_FILES_COMMON", CSIDL_PROGRAM_FILES_COMMON);
     PyModule_AddIntConstant(m, "CSIDL_SYSTEM", CSIDL_SYSTEM);
     PyModule_AddIntConstant(m, "CSIDL_WINDOWS", CSIDL_WINDOWS);
+    PyModule_AddIntConstant(m, "CSIDL_PROFILE", CSIDL_PROFILE);
 
 }
 
