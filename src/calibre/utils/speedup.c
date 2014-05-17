@@ -2,6 +2,7 @@
 #include <Python.h>
 
 #include <stdlib.h>
+#include <fcntl.h>
 
 #define min(x, y) ((x < y) ? x : y)
 #define max(x, y) ((x > y) ? x : y)
@@ -116,4 +117,7 @@ initspeedup(void) {
     "Implementation of methods in C for speed."
     );
     if (m == NULL) return;
+#ifdef O_CLOEXEC
+    PyModule_AddIntConstant(m, "O_CLOEXEC", O_CLOEXEC);
+#endif
 }
