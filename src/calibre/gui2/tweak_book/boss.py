@@ -1093,6 +1093,9 @@ class Boss(QObject):
 
     def quick_open(self):
         c = current_container()
+        if c is None:
+            return error_dialog(self.gui, _('No open book'), _(
+                'No book is currently open. You must first open a book to edit.'), show=True)
         files = [name for name, mime in c.mime_map.iteritems() if c.exists(name) and syntax_from_mime(name, mime) is not None]
         d = QuickOpen(files, parent=self.gui)
         if d.exec_() == d.Accepted and d.selected_result is not None:
