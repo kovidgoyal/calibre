@@ -162,6 +162,32 @@ get_style_properties = (style, all_properties, node_style, is_ancestor) ->
         i += 1
     return properties
 
+process_rules = (node, cssRules, address, sheet, matching_selectors, all_properties, node_style, is_ancestor, ans) ->
+    num = -1
+    for rule in cssRules
+        num += 1
+        rule_address = address + [num]
+        if rule.type == CSSRule.MEDIA_RULE
+            process_rules(node, rule.cssRules, rule_address, sheet, matching_selectors, all_properties, node_style, is_ancestor, ans)
+            continue
+        if rule.type != CSSRule.STYLE_RULE
+            continue
+        # As a performance improvement, instead of running the match on every
+        # rule, we simply check if its selector is one of the matching
+        # selectors returned by getMatchedCSSRules. However,
+        # getMatchedCSSRules ignores rules in media queries that dont apply, so we check them manually
+        st = rule.selectorText
+        if st and (matching_selectors.hasOwnProperty(st) or (rule_address.length > 1 and node.webkitMatchesSelector(st)))
+            type = 'sheet'
+            href = sheet.href
+            if href == null
+                href = get_sourceline_address(sheet.ownerNode)
+                type = 'elem'
+            properties = get_style_properties(rule.style, all_properties, node_style, is_ancestor)
+            if properties.length > 0
+                data = {'selector':st, 'type':type, 'href':href, 'properties':properties, 'is_ancestor':is_ancestor, 'rule_address':rule_address}
+                ans.push(data)
+
 get_matched_css = (node, is_ancestor, all_properties) ->
     # WebKit sets parentStyleSheet == null for rules returned by getMatchedCSSRules so we cannot use them directly
     rules = node.ownerDocument.defaultView.getMatchedCSSRules(node, '')
@@ -176,30 +202,16 @@ get_matched_css = (node, is_ancestor, all_properties) ->
     for sheet in document.styleSheets
         if sheet.disabled
             continue
-        for rule in sheet.cssRules
-            if rule.type != CSSRule.STYLE_RULE
-                continue
-            # Either use matching_selectors for speed or matches for
-            # correctness
-            # if rule.selectorText and node.webkitMatchesSelector(rule.selectorText)
-            if rule.selectorText and matching_selectors.hasOwnProperty(rule.selectorText)
-                type = 'sheet'
-                href = sheet.href
-                if href == null
-                    href = get_sourceline_address(sheet.ownerNode)
-                    type = 'elem'
-                properties = get_style_properties(rule.style, all_properties, node_style, is_ancestor)
-                if properties.length > 0
-                    data = {'selector':rule.selectorText, 'type':type, 'href':href, 'properties':properties, 'is_ancestor':is_ancestor}
-                    ans.push(data)
+        process_rules(node, sheet.cssRules, [], sheet, matching_selectors, all_properties, node_style, is_ancestor, ans)
 
     if node.getAttribute('style')
         properties = get_style_properties(node.style, all_properties, node_style, is_ancestor)
         if properties.length > 0
-            data = {'selector':null, 'type':'inline', 'href':get_sourceline_address(node), 'properties':properties, 'is_ancestor':is_ancestor}
+            data = {'selector':null, 'type':'inline', 'href':get_sourceline_address(node), 'properties':properties, 'is_ancestor':is_ancestor, 'rule_address':null}
             ans.push(data)
 
     return ans.reverse()
+
 
 class PreviewIntegration
 
