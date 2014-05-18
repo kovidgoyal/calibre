@@ -6,9 +6,12 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
+import json
+
 from PyQt4.Qt import (QWidget, QTimer)
 
-from calibre.gui2.tweak_book import editors, actions
+from calibre.constants import iswindows
+from calibre.gui2.tweak_book import editors, actions, current_container
 
 class LiveCSS(QWidget):
 
@@ -27,7 +30,29 @@ class LiveCSS(QWidget):
         if sourceline is None:
             self.clear()
         else:
-            pass  # TODO: Do update
+            data = self.read_data(sourceline, tags)
+            if data is None:
+                self.clear()
+                return
+
+    def read_data(self, sourceline, tags):
+        mf = self.preview.view.page().mainFrame()
+        tags = [x.lower() for x in tags]
+        result = unicode(mf.evaluateJavaScript(
+            'window.calibre_preview_integration.live_css(%s, %s)' % (
+                json.dumps(sourceline), json.dumps(tags))).toString())
+        result = json.loads(result)
+        if result is not None:
+            for node in result['nodes']:
+                for item in node['css']:
+                    href = item['href']
+                    if hasattr(href, 'startswith') and href.startswith('file://'):
+                        href = href[len('file://'):]
+                        if iswindows and href.startswith('/'):
+                            href = href[1:]
+                        if href:
+                            item['href'] = current_container().abspath_to_name(href, root=self.preview.current_root)
+        return result
 
     @property
     def current_name(self):

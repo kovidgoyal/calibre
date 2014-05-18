@@ -33,6 +33,174 @@ find_containing_block = (elem) ->
         elem = elem.parentNode
     return elem
 
+INHERITED_PROPS = {  # {{{
+		'azimuth':						'2',
+		'border-collapse':				'2',
+		'border-spacing':				'2',
+		'caption-side':					'2',
+		'color':						'2',
+		'cursor':						'2',
+		'direction':					'2',
+		'elevation':					'2',
+		'empty-cells':					'2',
+		'fit':							'3',
+		'fit-position':					'3',
+		'font':							'2',
+		'font-family':					'2',
+		'font-size':					'2',
+		'font-size-adjust':				'2',
+		'font-stretch':					'2',
+		'font-style':					'2',
+		'font-variant':					'2',
+		'font-weight':					'2',
+		'hanging-punctuation':			'3',
+		'hyphenate-after':				'3',
+		'hyphenate-before':				'3',
+		'hyphenate-character':			'3',
+		'hyphenate-lines':				'3',
+		'hyphenate-resource':			'3',
+		'hyphens':						'3',
+		'image-resolution':				'3',
+		'letter-spacing':				'2',
+		'line-height':					'2',
+		'line-stacking':				'3',
+		'line-stacking-ruby':			'3',
+		'line-stacking-shift':			'3',
+		'line-stacking-strategy':		'3',
+		'list-style':					'2',
+		'list-style-image':				'2',
+		'list-style-position':			'2',
+		'list-style-type':				'2',
+		'marquee-direction':			'3',
+		'orphans':						'2',
+		'overflow-style':				'3',
+		'page':							'2',
+		'page-break-inside':			'2',
+		'pitch':						'2',
+		'pitch-range':					'2',
+		'presentation-level':			'3',
+		'punctuation-trim':				'3',
+		'quotes':						'2',
+		'richness':						'2',
+		'ruby-align':					'3',
+		'ruby-overhang':				'3',
+		'ruby-position':				'3',
+		'speak':						'2',
+		'speak-header':					'2',
+		'speak-numeral':				'2',
+		'speak-punctuation':			'2',
+		'speech-rate':					'2',
+		'stress':						'2',
+		'text-align':					'2',
+		'text-align-last':				'3',
+		'text-emphasis':				'3',
+		'text-height':					'3',
+		'text-indent':					'2',
+		'text-justify':					'3',
+		'text-outline':					'3',
+		'text-replace':					'?',
+		'text-shadow':					'3',
+		'text-transform':				'2',
+		'text-wrap':					'3',
+		'visibility':					'2',
+		'voice-balance':				'3',
+		'voice-family':					'2',
+		'voice-rate':					'3',
+		'voice-pitch':					'3',
+		'voice-pitch-range':			'3',
+		'voice-stress':					'3',
+		'voice-volume':					'3',
+		'volume':						'2',
+		'white-space':					'2',
+		'white-space-collapse':			'3',
+		'widows':						'2',
+		'word-break':					'3',
+		'word-spacing':					'2',
+		'word-wrap':					'3',
+
+        # the mozilla extensions are all proprietary properties
+		'-moz-force-broken-image-icon':	'm',
+		'-moz-image-region':			'm',
+		'-moz-stack-sizing':			'm',
+		'-moz-user-input':				'm',
+		'-x-system-font':				'm',
+
+        # the opera extensions are all draft implementations of CSS3 properties
+		'-xv-voice-balance':			'o',
+		'-xv-voice-pitch':				'o',
+		'-xv-voice-pitch-range':		'o',
+		'-xv-voice-rate':				'o',
+		'-xv-voice-stress':				'o',
+		'-xv-voice-volume':				'o',
+
+        # the explorer extensions are all draft implementations of CSS3 properties
+		'-ms-text-align-last':			'e',
+		'-ms-text-justify':				'e',
+		'-ms-word-break':				'e',
+		'-ms-word-wrap':				'e'
+}  # }}}
+
+get_sourceline_address = (node) ->
+    sourceline = parseInt(node.getAttribute('data-lnum'))
+    tags = []
+    for elem in document.querySelectorAll('[data-lnum="' + sourceline + '"]')
+        tags.push(elem.tagName.toLowerCase())
+        if elem is node
+            break
+    return [sourceline, tags]
+
+get_style_properties = (style, all_properties, node_style, is_ancestor) ->
+    i = 0
+    properties = []
+    while i < style.length
+        property = style.item(i)?.toLowerCase()
+        val = style.getPropertyValue(property)
+        if property and val and (not is_ancestor or INHERITED_PROPS.hasOwnProperty(property))
+            properties.push([property, val])
+            if not all_properties.hasOwnProperty(property)
+                all_properties[property] = node_style.getPropertyValue(property)
+        i += 1
+    return properties
+
+get_matched_css = (node, is_ancestor, all_properties) ->
+    # WebKit sets parentStyleSheet == null for rules returned by getMatchedCSSRules so we cannot use them directly
+    rules = node.ownerDocument.defaultView.getMatchedCSSRules(node, '')
+    if not rules
+        rules = []
+    matching_selectors = {}
+    for rule in rules
+        matching_selectors[rule.selectorText] = true
+    ans = []
+    node_style = window.getComputedStyle(node)
+
+    for sheet in document.styleSheets
+        if sheet.disabled
+            continue
+        for rule in sheet.cssRules
+            if rule.type != CSSRule.STYLE_RULE
+                continue
+            # Either use matching_selectors for speed or matches for
+            # correctness
+            # if rule.selectorText and node.webkitMatchesSelector(rule.selectorText)
+            if rule.selectorText and matching_selectors.hasOwnProperty(rule.selectorText)
+                type = 'sheet'
+                href = sheet.href
+                if href == null
+                    href = get_sourceline_address(sheet.ownerNode)
+                    type = 'elem'
+                properties = get_style_properties(rule.style, all_properties, node_style, is_ancestor)
+                if properties.length > 0
+                    data = {'selector':rule.selectorText, 'type':type, 'href':href, 'properties':properties, 'is_ancestor':is_ancestor}
+                    ans.push(data)
+
+    if node.getAttribute('style')
+        properties = get_style_properties(node.style, all_properties, node_style, is_ancestor)
+        if properties.length > 0
+            data = {'selector':null, 'type':'inline', 'href':get_sourceline_address(node), 'properties':properties, 'is_ancestor':is_ancestor}
+            ans.push(data)
+
+    return ans.reverse()
+
 class PreviewIntegration
 
     ###
@@ -124,6 +292,29 @@ class PreviewIntegration
             elem.scrollIntoView()
             lnum = elem.getAttribute('data-lnum')
         window.py_bridge.request_sync('', '', lnum)
+
+    live_css: (sourceline, tags) =>
+        target = null
+        i = 0
+        for node in document.querySelectorAll('[data-lnum="' + sourceline + '"]')
+            if node.tagName?.toLowerCase() != tags[i]
+                return JSON.stringify(null)
+            i += 1
+            target = node
+            if i >= tags.length
+                break
+        all_properties = {}
+        original_target = target
+        ans = {'nodes':[], 'computed_css':all_properties}
+        is_ancestor = false
+        while target and target.ownerDocument
+            css = get_matched_css(target, is_ancestor, all_properties)
+            if css.length > 0
+                ans['nodes'].push({'name':target.tagName?.toLowerCase(), 'css':css})
+            target = target.parentNode
+            is_ancestor = true
+        return JSON.stringify(ans)
+
 
 window.calibre_preview_integration = new PreviewIntegration()
 window.onload = window.calibre_preview_integration.onload

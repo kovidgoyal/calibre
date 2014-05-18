@@ -329,7 +329,7 @@ class HTMLSmarts(NullSmarts):
             if tag is None:
                 return None, None
             start_block, start_offset = tag.start_block, tag.start_offset
-        sourceline = start_block.blockNumber()
+        sourceline = start_block.blockNumber() + 1  # blockNumber() is zero based
         ud = start_block.userData()
         if ud is None:
             return None, None
