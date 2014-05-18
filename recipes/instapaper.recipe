@@ -12,17 +12,24 @@ class AdvancedUserRecipe1299694372(BasicNewsRecipe):
     category                      = 'info, custom, Instapaper'
     oldest_article               = 365
     max_articles_per_feed = 100
-    no_stylesheets        = True
+    oldest_article        = 0
+    no_stylesheets        = False
+    extra_css = 'q { font-style: italic; } .size3mode { color: black; }'
     remove_javascript     = True
     remove_tags              = [
-    dict(name='div', attrs={'id':'text_controls_toggle'})
-    ,dict(name='script')
-    ,dict(name='div', attrs={'id':'text_controls'})
-    ,dict(name='div', attrs={'id':'editing_controls'})
-    ,dict(name='div', attrs={'class':'bar bottom'})
-    ,dict(name='div', attrs={'id':'controlbar_container'})
-    ,dict(name='div', attrs={'id':'footer'})
-     ]
+        dict(name='div', attrs={'id':'text_controls_toggle'})
+        ,dict(name='script')
+        ,dict(name='div', attrs={'id':'text_controls'})
+        ,dict(name='section', attrs={'class':'primary_bar'})
+        ,dict(name='div', attrs={'class':'modal_group'})
+        ,dict(name='div', attrs={'id':'editing_controls'})
+        ,dict(name='div', attrs={'class':'modal_name'})
+        ,dict(name='div', attrs={'class':'highlight_popover'})
+        ,dict(name='div', attrs={'class':'bar bottom'})
+        ,dict(name='div', attrs={'id':'controlbar_container'})
+        ,dict(name='div', attrs={'id':'footer'})
+        ,dict(name='label')
+         ]
     use_embedded_content  = False
     needs_subscription    = True
     INDEX                 = u'http://www.instapaper.com'
