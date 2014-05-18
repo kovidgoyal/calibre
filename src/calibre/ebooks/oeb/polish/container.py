@@ -310,8 +310,8 @@ class Container(object):  # {{{
             for elem in self.parsed(name).xpath('//*[@src]'):
                 yield (elem.get('src'), elem.sourceline, 0) if get_line_numbers else elem.get('src')
 
-    def abspath_to_name(self, fullpath):
-        return self.relpath(os.path.abspath(fullpath)).replace(os.sep, '/')
+    def abspath_to_name(self, fullpath, root=None):
+        return self.relpath(os.path.abspath(fullpath), base=root).replace(os.sep, '/')
 
     def name_to_abspath(self, name):
         return os.path.abspath(join(self.root, *name.split('/')))

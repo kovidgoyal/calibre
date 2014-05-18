@@ -238,6 +238,7 @@ class NetworkAccessManager(QNetworkAccessManager):
 
     def __init__(self, *args):
         QNetworkAccessManager.__init__(self, *args)
+        self.current_root = None
         self.cache = QNetworkDiskCache(self)
         self.setCache(self.cache)
         self.cache.setCacheDirectory(PersistentTemporaryDirectory(prefix='disk_cache_'))
@@ -251,7 +252,7 @@ class NetworkAccessManager(QNetworkAccessManager):
                 path = path[1:]
             c = current_container()
             try:
-                name = c.abspath_to_name(path)
+                name = c.abspath_to_name(path, root=self.current_root)
             except ValueError:  # Happens on windows with absolute paths on different drives
                 name = None
             if c.has_name(name):
@@ -305,6 +306,14 @@ class WebPage(QWebPage):
         self.setLinkDelegationPolicy(self.DelegateAllLinks)
         self.mainFrame().javaScriptWindowObjectCleared.connect(self.init_javascript)
         self.init_javascript()
+
+    @dynamic_property
+    def current_root(self):
+        def fget(self):
+            return self.networkAccessManager().current_root
+        def fset(self, val):
+            self.networkAccessManager().current_root = val
+        return property(fget=fget, fset=fset)
 
     def javaScriptConsoleMessage(self, msg, lineno, source_id):
         prints('preview js:%s:%s:'%(unicode(source_id), lineno), unicode(msg))
@@ -408,6 +417,11 @@ class WebView(QWebView):
             page margins and embedded fonts that use font name aliasing.
 
             '''))
+        self.page().current_root = None
+
+    def setUrl(self, qurl):
+        self.page().current_root = current_container().root
+        return QWebView.setUrl(self, qurl)
 
     def inspect(self):
         self.inspector.parent().show()
@@ -564,6 +578,10 @@ class Preview(QWidget):
     def clear(self):
         self.view.clear()
         self.current_name = None
+
+    @property
+    def current_root(self):
+        return self.view.page().current_root
 
     @property
     def is_visible(self):
