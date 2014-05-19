@@ -24,11 +24,12 @@ class Slate(BasicNewsRecipe):
 
     keep_only_tags = [
         dict(name='header', attrs={'class':'article-header'}),
-        dict(name='section', attrs={'class':'content'}),
+        dict(name='section', attrs={'class':lambda x: x and 'content' == x.strip()}),
     ]
     remove_tags = [
         dict(id='header_social'),
-        dict(attrs={'class':['prop-name', 'prop-desc', 'authorbox']}),
+        dict(attrs={'class':['prop-name', 'prop-desc', 'authorbox', 'twitter', 'email', 'facebook', 'follow-links', 'join-in']}),
+        dict(attrs={'class':lambda x: x and 'sharing-buttons' in x.split()}),
     ]
 
     def print_version(self, url):
