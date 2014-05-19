@@ -355,7 +355,6 @@ class Py2App(object):
                 CFBundleGetInfoString=('calibre, an E-book management '
                 'application. Visit http://calibre-ebook.com for details.'),
                 CFBundleIconFile='library.icns',
-                LSMultipleInstancesProhibited=True,
                 NSHighResolutionCapable=True,
                 LSApplicationCategoryType='public.app-category.productivity',
                 LSEnvironment=env
