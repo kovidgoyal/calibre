@@ -597,7 +597,7 @@ class Main(MainWindow):
         self.addDockWidget(Qt.RightDockWidgetArea, d)
 
         d = create(_('Live CSS'), 'live-css')
-        d.setAllowedAreas(Qt.LeftDockWidgetArea | Qt.RightDockWidgetArea | Qt.BottomDockWidgetArea | Qt.TopDockWidgetArea)
+        d.setAllowedAreas(Qt.LeftDockWidgetArea | Qt.RightDockWidgetArea)
         self.live_css = LiveCSS(self.preview, parent=d)
         d.setWidget(self.live_css)
         self.addDockWidget(Qt.RightDockWidgetArea, d)
