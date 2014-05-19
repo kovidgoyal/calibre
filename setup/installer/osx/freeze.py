@@ -409,7 +409,6 @@ def main():
                                         'CFBundleShortVersionString':VERSION,
                                         'CFBundleVersion':APPNAME + ' ' + VERSION,
                                         'LSMinimumSystemVersion':'10.4.3',
-                                        'LSMultipleInstancesProhibited':'true',
                                         'NSHumanReadableCopyright':'Copyright 2008, Kovid Goyal',
                                         'LSEnvironment':{
                                                          'FC_CONFIG_DIR':'@executable_path/../Resources/fonts',
