@@ -156,19 +156,17 @@ get_style_properties = (style, all_properties, node_style, is_ancestor) ->
         property = style.item(i)?.toLowerCase()
         val = style.getPropertyValue(property)
         if property and val and (not is_ancestor or INHERITED_PROPS.hasOwnProperty(property))
-            properties.push([property, val])
+            properties.push([property, val, style.getPropertyPriority(property)])
             if not all_properties.hasOwnProperty(property)
                 all_properties[property] = node_style.getPropertyValue(property)
         i += 1
     return properties
 
-process_rules = (node, cssRules, address, sheet, matching_selectors, all_properties, node_style, is_ancestor, ans) ->
-    num = -1
-    for rule in cssRules
-        num += 1
-        rule_address = address + [num]
+process_rules = (node, cssRules, address, sheet, sheet_index, matching_selectors, all_properties, node_style, is_ancestor, ans) ->
+    for rule, rule_index in cssRules
+        rule_address = address + [rule_index]
         if rule.type == CSSRule.MEDIA_RULE
-            process_rules(node, rule.cssRules, rule_address, sheet, matching_selectors, all_properties, node_style, is_ancestor, ans)
+            process_rules(node, rule.cssRules, rule_address, sheet, sheet_index, matching_selectors, all_properties, node_style, is_ancestor, ans)
             continue
         if rule.type != CSSRule.STYLE_RULE
             continue
@@ -183,9 +181,15 @@ process_rules = (node, cssRules, address, sheet, matching_selectors, all_propert
             if href == null
                 href = get_sourceline_address(sheet.ownerNode)
                 type = 'elem'
+            parts = st.split(',')  # We only want the first matching selector
+            if parts.length > 1
+                for q in parts
+                    if node.webkitMatchesSelector(q)
+                        st = q
+                        break
             properties = get_style_properties(rule.style, all_properties, node_style, is_ancestor)
             if properties.length > 0
-                data = {'selector':st, 'type':type, 'href':href, 'properties':properties, 'is_ancestor':is_ancestor, 'rule_address':rule_address}
+                data = {'selector':st, 'type':type, 'href':href, 'properties':properties, 'is_ancestor':is_ancestor, 'rule_address':rule_address, 'sheet_index':sheet_index}
                 ans.push(data)
 
 get_matched_css = (node, is_ancestor, all_properties) ->
@@ -199,15 +203,15 @@ get_matched_css = (node, is_ancestor, all_properties) ->
     ans = []
     node_style = window.getComputedStyle(node)
 
-    for sheet in document.styleSheets
+    for sheet, sheet_index in document.styleSheets
         if sheet.disabled
             continue
-        process_rules(node, sheet.cssRules, [], sheet, matching_selectors, all_properties, node_style, is_ancestor, ans)
+        process_rules(node, sheet.cssRules, [], sheet, sheet_index, matching_selectors, all_properties, node_style, is_ancestor, ans)
 
     if node.getAttribute('style')
         properties = get_style_properties(node.style, all_properties, node_style, is_ancestor)
         if properties.length > 0
-            data = {'selector':null, 'type':'inline', 'href':get_sourceline_address(node), 'properties':properties, 'is_ancestor':is_ancestor, 'rule_address':null}
+            data = {'selector':null, 'type':'inline', 'href':get_sourceline_address(node), 'properties':properties, 'is_ancestor':is_ancestor, 'rule_address':null, 'sheet_index':null}
             ans.push(data)
 
     return ans.reverse()
