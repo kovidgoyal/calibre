@@ -10,14 +10,15 @@ import json, math
 
 from PyQt4.Qt import (
     QWidget, QTimer, QStackedLayout, QLabel, QScrollArea, QVBoxLayout,
-    QPainter, Qt, QFontInfo, QPalette, QRect, QSize, QSizePolicy, pyqtSignal)
+    QPainter, Qt, QFontInfo, QPalette, QRect, QSize, QSizePolicy, pyqtSignal,
+    QColor)
 
 from calibre.constants import iswindows
 from calibre.gui2.tweak_book import editors, actions, current_container, tprefs
 from calibre.gui2.tweak_book.editor.themes import THEMES, default_theme, theme_color
 from calibre.gui2.tweak_book.editor.text import default_font_family
 
-class Heading(QWidget):
+class Heading(QWidget):  # {{{
 
     toggled = pyqtSignal(object)
 
@@ -79,6 +80,7 @@ class Heading(QWidget):
         self.hovering = False
         self.update()
         return QWidget.leaveEvent(self, ev)
+# }}}
 
 class Cell(object):
 
@@ -89,13 +91,14 @@ class Cell(object):
         self.rect, self.text = rect, text
         self.right_align = right_align
         self.color_role = color_role
+        self.override_color = None
 
     def draw(self, painter, width, palette):
         flags = self.FLAGS | (Qt.AlignRight if self.right_align else Qt.AlignLeft)
         rect = QRect(self.rect)
         if self.right_align:
             rect.setRight(width - self.SIDE_MARGIN)
-        painter.setPen(palette.color(self.color_role))
+        painter.setPen(palette.color(self.color_role) if self.override_color is None else self.override_color)
         painter.drawText(rect, flags, self.text)
 
 class Declaration(QWidget):
@@ -107,6 +110,7 @@ class Declaration(QWidget):
         self.is_first = is_first
         self.html_name = html_name
         self.do_layout()
+        self.setMouseTracking(True)
 
     def do_layout(self):
         fm = self.fontMetrics()
@@ -167,6 +171,34 @@ class Declaration(QWidget):
         finally:
             p.end()
 
+    def mouseMoveEvent(self, ev):
+        if hasattr(self, 'hyperlink_rect'):
+            pos = ev.pos()
+            hovering = self.hyperlink_rect.contains(pos)
+            self.update_hover(hovering)
+            cursor = Qt.ArrowCursor
+            for r, row in enumerate(self.rows):
+                for cell in row:
+                    if cell.rect.contains(pos):
+                        cursor = Qt.PointingHandCursor if cell.rect is self.hyperlink_rect else Qt.IBeamCursor
+                    if r == 0:
+                        break
+                if cursor != Qt.ArrowCursor:
+                    break
+            self.setCursor(cursor)
+        return QWidget.mouseMoveEvent(self, ev)
+
+    def leaveEvent(self, ev):
+        self.update_hover(False)
+        self.setCursor(Qt.ArrowCursor)
+        return QWidget.leaveEvent(self, ev)
+
+    def update_hover(self, hovering):
+        cell = self.rows[0][0]
+        if (hovering and cell.override_color is None) or (
+                not hovering and cell.override_color is not None):
+            cell.override_color = QColor(Qt.red) if hovering else None
+            self.update()
 
 class Box(QWidget):
 
