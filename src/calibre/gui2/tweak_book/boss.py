@@ -118,6 +118,7 @@ class Boss(QObject):
         self.gui.spell_check.refresh_requested.connect(self.commit_all_editors_to_container)
         self.gui.spell_check.word_replaced.connect(self.word_replaced)
         self.gui.spell_check.word_ignored.connect(self.word_ignored)
+        self.gui.live_css.goto_declaration.connect(self.goto_style_declaration)
 
     def preferences(self):
         p = Preferences(self.gui)
@@ -1036,6 +1037,11 @@ class Boss(QObject):
             name = editor_name(ed)
             if name is not None and getattr(ed, 'syntax', None) == 'html':
                 self.gui.live_css.sync_to_editor(name)
+
+    def goto_style_declaration(self, data):
+        name = data['name']
+        editor = self.edit_file(name, syntax=data['syntax'])
+        self.gui.live_css.navigate_to_declaration(data, editor)
 
     def init_editor(self, name, editor, data=None, use_template=False):
         editor.undo_redo_state_changed.connect(self.editor_undo_redo_state_changed)

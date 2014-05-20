@@ -174,7 +174,7 @@ get_style_properties = (style, all_properties, node_style, is_ancestor) ->
 
 process_rules = (node, cssRules, address, sheet, sheet_index, matching_selectors, all_properties, node_style, is_ancestor, ans) ->
     for rule, rule_index in cssRules
-        rule_address = address + [rule_index]
+        rule_address = address.concat([rule_index])
         if rule.type == CSSRule.MEDIA_RULE
             process_rules(node, rule.cssRules, rule_address, sheet, sheet_index, matching_selectors, all_properties, node_style, is_ancestor, ans)
             continue

@@ -112,6 +112,8 @@ class Cell(object):  # {{{
 
 class Declaration(QWidget):
 
+    hyperlink_activated = pyqtSignal(object)
+
     def __init__(self, html_name, data, is_first=False, parent=None):
         QWidget.__init__(self, parent)
         self.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Minimum)
@@ -197,6 +199,27 @@ class Declaration(QWidget):
             self.setCursor(cursor)
         return QWidget.mouseMoveEvent(self, ev)
 
+    def mousePressEvent(self, ev):
+        if hasattr(self, 'hyperlink_rect'):
+            pos = ev.pos()
+            if self.hyperlink_rect.contains(pos):
+                self.emit_hyperlink_activated()
+        return QWidget.mouseMoveEvent(self, ev)
+
+    def emit_hyperlink_activated(self):
+        dt = self.data['type']
+        data = {'type':dt, 'name':self.html_name, 'syntax':'html'}
+        if dt == 'inline':  # style attribute
+            data['sourceline_address'] = self.data['href']
+        elif dt == 'elem':  # <style> tag
+            data['sourceline_address'] = self.data['href']
+            data['rule_address'] = self.data['rule_address']
+        else:  # stylesheet
+            data['name'] = self.data['href']
+            data['rule_address'] = self.data['rule_address']
+            data['syntax'] = 'css'
+        self.hyperlink_activated.emit(data)
+
     def leaveEvent(self, ev):
         self.update_hover(False)
         self.setCursor(Qt.ArrowCursor)
@@ -211,6 +234,8 @@ class Declaration(QWidget):
 
 class Box(QWidget):
 
+    hyperlink_activated = pyqtSignal(object)
+
     def __init__(self, parent=None):
         QWidget.__init__(self, parent)
         self.l = l = QVBoxLayout(self)
@@ -221,9 +246,12 @@ class Box(QWidget):
     def show_data(self, data):
         for w in self.widgets:
             self.layout().removeWidget(w)
-            for x in ('toggled',):
+            for x in ('toggled', 'hyperlink_activated'):
                 if hasattr(w, x):
-                    getattr(w, x).disconnect()
+                    try:
+                        getattr(w, x).disconnect()
+                    except TypeError:
+                        pass
             w.deleteLater()
         self.widgets = []
         for node in data['nodes']:
@@ -237,6 +265,7 @@ class Box(QWidget):
             self.widgets.append(h), self.layout().addWidget(h)
             for i, declaration in enumerate(node['css']):
                 d = Declaration(data['html_name'], declaration, is_first=i == 0, parent=self)
+                d.hyperlink_activated.connect(self.hyperlink_activated)
                 self.widgets.append(d), self.layout().addWidget(d)
 
         h = Heading(_('Computed final style'), parent=self)
@@ -263,6 +292,8 @@ class Box(QWidget):
 
 class LiveCSS(QWidget):
 
+    goto_declaration = pyqtSignal(object)
+
     def __init__(self, preview, parent=None):
         QWidget.__init__(self, parent)
         self.preview = preview
@@ -285,6 +316,7 @@ class LiveCSS(QWidget):
         s.addWidget(la)
 
         self.box = box = Box(self)
+        box.hyperlink_activated.connect(self.goto_declaration)
         self.scroll = sc = QScrollArea(self)
         sc.setWidget(box)
         sc.setWidgetResizable(True)
@@ -375,4 +407,7 @@ class LiveCSS(QWidget):
 
     def stop_update_timer(self):
         self.update_timer.stop()
+
+    def navigate_to_declaration(self, data, editor):
+        print (data)  # TODO: Implement this
 
