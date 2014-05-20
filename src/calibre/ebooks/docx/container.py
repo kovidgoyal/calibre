@@ -55,7 +55,7 @@ def read_doc_props(raw, mi):
     if desc:
         raw = etree.tostring(desc[0], method='text', encoding=unicode)
         raw = raw.replace('_x000d_', '')  # Word 2007 mangles newlines in the summary
-        mi.comments = raw
+        mi.comments = raw.strip()
 
     langs = []
     for lang in XPath('//dc:language')(root):
