@@ -10,7 +10,7 @@ import json, math
 
 from PyQt4.Qt import (
     QWidget, QTimer, QStackedLayout, QLabel, QScrollArea, QVBoxLayout,
-    QPainter, Qt, QFontInfo, QPalette, QRect, QSize, QSizePolicy)
+    QPainter, Qt, QFontInfo, QPalette, QRect, QSize, QSizePolicy, pyqtSignal)
 
 from calibre.constants import iswindows
 from calibre.gui2.tweak_book import editors, actions, current_container, tprefs
@@ -18,6 +18,8 @@ from calibre.gui2.tweak_book.editor.themes import THEMES, default_theme, theme_c
 from calibre.gui2.tweak_book.editor.text import default_font_family
 
 class Heading(QWidget):
+
+    toggled = pyqtSignal(object)
 
     def __init__(self, text, expanded=True, parent=None):
         QWidget.__init__(self, parent)
@@ -37,6 +39,15 @@ class Heading(QWidget):
         sz = QFontInfo(f).pointSize()
         f.setPointSize(int(math.ceil(1.2 * sz)))
         self.setFont(f)
+
+    def mousePressEvent(self, ev):
+        if ev.button() == Qt.LeftButton:
+            ev.accept()
+            self.expanded ^= True
+            self.toggled.emit(self)
+            self.update()
+        else:
+            return QWidget.mousePressEvent(self, ev)
 
     @property
     def rendered_text(self):
@@ -169,6 +180,9 @@ class Box(QWidget):
     def show_data(self, data):
         for w in self.widgets:
             self.layout().removeWidget(w)
+            for x in ('toggled',):
+                if hasattr(w, x):
+                    getattr(w, x).disconnect()
             w.deleteLater()
         self.widgets = []
         for node in data['nodes']:
@@ -178,17 +192,28 @@ class Box(QWidget):
             else:
                 title = _('Matched CSS rules for %s') % node_name
             h = Heading(title, parent=self)
+            h.toggled.connect(self.heading_toggled)
             self.widgets.append(h), self.layout().addWidget(h)
             for i, declaration in enumerate(node['css']):
                 d = Declaration(data['html_name'], declaration, is_first=i == 0, parent=self)
                 self.widgets.append(d), self.layout().addWidget(d)
 
         h = Heading(_('Computed final style'), parent=self)
+        h.toggled.connect(self.heading_toggled)
         self.widgets.append(h), self.layout().addWidget(h)
         keys = sorted(data['computed_css'])
         declaration = {'properties':[[k, data['computed_css'][k], ''] for k in keys]}
         d = Declaration(None, declaration, is_first=True, parent=self)
         self.widgets.append(d), self.layout().addWidget(d)
+
+    def heading_toggled(self, heading):
+        for i, w in enumerate(self.widgets):
+            if w is heading:
+                for b in self.widgets[i + 1:]:
+                    if isinstance(b, Heading):
+                        break
+                    b.setVisible(heading.expanded)
+                break
 
     def relayout(self):
         for w in self.widgets:
