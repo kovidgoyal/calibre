@@ -64,9 +64,9 @@ class Heading(QWidget):
         bg = self.palette().color(QPalette.AlternateBase)
         if self.hovering:
             bg = bg.lighter(115)
-        p.fillRect(ev.rect(), bg)
+        p.fillRect(self.rect(), bg)
         try:
-            p.drawText(ev.rect(), Qt.AlignLeft|Qt.AlignVCenter|Qt.TextSingleLine, self.rendered_text)
+            p.drawText(self.rect(), Qt.AlignLeft|Qt.AlignVCenter|Qt.TextSingleLine, self.rendered_text)
         finally:
             p.end()
 
