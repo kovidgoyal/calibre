@@ -82,7 +82,9 @@ class Heading(QWidget):  # {{{
         return QWidget.leaveEvent(self, ev)
 # }}}
 
-class Cell(object):
+class Cell(object):  # {{{
+
+    __slots__ = ('rect', 'text', 'right_align', 'color_role', 'override_color')
 
     SIDE_MARGIN = 5
     FLAGS = Qt.AlignVCenter | Qt.TextSingleLine | Qt.TextIncludeTrailingSpaces
@@ -100,6 +102,7 @@ class Cell(object):
             rect.setRight(width - self.SIDE_MARGIN)
         painter.setPen(palette.color(self.color_role) if self.override_color is None else self.override_color)
         painter.drawText(rect, flags, self.text)
+# }}}
 
 class Declaration(QWidget):
 
