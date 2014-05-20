@@ -189,7 +189,7 @@ process_rules = (node, cssRules, address, sheet, sheet_index, matching_selectors
                         break
             properties = get_style_properties(rule.style, all_properties, node_style, is_ancestor)
             if properties.length > 0
-                data = {'selector':st, 'type':type, 'href':href, 'properties':properties, 'is_ancestor':is_ancestor, 'rule_address':rule_address, 'sheet_index':sheet_index}
+                data = {'selector':st, 'type':type, 'href':href, 'properties':properties, 'rule_address':rule_address, 'sheet_index':sheet_index}
                 ans.push(data)
 
 get_matched_css = (node, is_ancestor, all_properties) ->
@@ -211,7 +211,7 @@ get_matched_css = (node, is_ancestor, all_properties) ->
     if node.getAttribute('style')
         properties = get_style_properties(node.style, all_properties, node_style, is_ancestor)
         if properties.length > 0
-            data = {'selector':null, 'type':'inline', 'href':get_sourceline_address(node), 'properties':properties, 'is_ancestor':is_ancestor, 'rule_address':null, 'sheet_index':null}
+            data = {'selector':null, 'type':'inline', 'href':get_sourceline_address(node), 'properties':properties, 'rule_address':null, 'sheet_index':null}
             ans.push(data)
 
     return ans.reverse()
@@ -326,7 +326,7 @@ class PreviewIntegration
         while target and target.ownerDocument
             css = get_matched_css(target, is_ancestor, all_properties)
             if css.length > 0
-                ans['nodes'].push({'name':target.tagName?.toLowerCase(), 'css':css})
+                ans['nodes'].push({'name':target.tagName?.toLowerCase(), 'css':css, 'is_ancestor':is_ancestor})
             target = target.parentNode
             is_ancestor = true
         return JSON.stringify(ans)

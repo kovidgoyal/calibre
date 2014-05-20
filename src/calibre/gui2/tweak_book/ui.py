@@ -261,6 +261,7 @@ class Main(MainWindow):
             area = getattr(Qt, '%sDockWidgetArea' % capitalize({'vertical':h, 'horizontal':v}[pref]))
             self.setCorner(getattr(Qt, '%s%sCorner' % tuple(map(capitalize, (v, h)))), area)
         self.preview.apply_settings()
+        self.live_css.apply_theme()
 
     def show_status_message(self, msg, timeout=5):
         self.status_bar.showMessage(msg, int(timeout*1000))
