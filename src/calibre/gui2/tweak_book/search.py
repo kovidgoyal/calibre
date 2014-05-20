@@ -829,6 +829,12 @@ def validate_search_request(name, searchable_names, has_marked_text, state, gui_
         return False
     return True
 
+class InvalidRegex(regex.error):
+
+    def __init__(self, raw, e):
+        regex.error.__init__(self, e.message)
+        self.regex = raw
+
 def get_search_regex(state):
     raw = state['find']
     if state['mode'] != 'regex':
@@ -842,7 +848,11 @@ def get_search_regex(state):
         flags |= regex.REVERSE
     ans = regex_cache.get((flags, raw), None)
     if ans is None:
-        ans = regex_cache[(flags, raw)] = regex.compile(raw, flags=flags)
+        try:
+            ans = regex_cache[(flags, raw)] = regex.compile(raw, flags=flags)
+        except regex.error as e:
+            raise InvalidRegex(raw, e)
+
     return ans
 
 def initialize_search_request(state, action, current_editor, current_editor_name, searchable_names):
@@ -894,7 +904,12 @@ def run_search(
     if len(searches) > 1:
         errfind = _('the selected searches')
 
-    searches = [(get_search_regex(search), search['replace']) for search in searches]
+    try:
+        searches = [(get_search_regex(search), search['replace']) for search in searches]
+    except InvalidRegex as e:
+        return error_dialog(gui_parent, _('Invalid regex'), '<p>' + _(
+            'The regular expression you entered is invalid: <pre>{0}</pre>With error: {1}').format(
+                prepare_string_for_xml(e.regex), e.message), show=True)
 
     def no_match():
         QApplication.restoreOverrideCursor()
