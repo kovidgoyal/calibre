@@ -25,6 +25,19 @@ ALL_ENTITIES = HTML_ENTITTIES | XML_ENTITIES
 replace_pat = re.compile('&(%s);' % '|'.join(re.escape(x) for x in sorted((HTML_ENTITTIES - XML_ENTITIES))))
 mismatch_pat = re.compile('tag mismatch:.+?line (\d+).+?line \d+')
 
+class DecodeError(BaseError):
+
+    is_parsing_error = True
+
+    HELP = _('A decoding errors means that the contents of the file could not'
+             ' be interpreted as text. This usually happens if the file has'
+             ' an incorrect character encoding declaration or if the file is actually'
+             ' a binary file, like an image or font that is mislabelled with'
+             ' an incorrect media type in the OPF.')
+
+    def __init__(self, name):
+        BaseError.__init__(self, _('Parsing of %s failed, could not decode') % name, name)
+
 class XMLParseError(BaseError):
 
     is_parsing_error = True
@@ -200,6 +213,8 @@ def check_xml_parsing(name, mt, raw):
 
     try:
         root = fromstring(eraw, parser=parser)
+    except UnicodeDecodeError:
+        return errors + [DecodeError(name)]
     except XMLSyntaxError as err:
         try:
             line, col = err.position
@@ -312,7 +327,10 @@ def check_css_parsing(name, raw, line_offset=0, is_declaration=False):
     if is_declaration:
         parser.parseStyle(raw, validate=True)
     else:
-        parser.parseString(raw, validate=True)
+        try:
+            parser.parseString(raw, validate=True)
+        except UnicodeDecodeError:
+            return [DecodeError(name)]
     for err in log.errors:
         err.line += line_offset
     return log.errors
