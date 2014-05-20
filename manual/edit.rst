@@ -407,6 +407,16 @@ If you use this tool multiple times, each invocation will cause the previously
 created inline Table of Contents to be replaced. The tool can be accessed via
 :guilabel:`Tools->Table of Contents->Insert inline Table of Contents`.
 
+Set Semantics
+^^^^^^^^^^^^^^^^^
+
+This tool is used to set *semantics* in EPUB files. Semantics are simply,
+links in the OPF file that identify certain locations in the book as having
+special meaning. You can use them to identify the foreword, dedication, cover,
+table of contents, etc. Simply choose the type of semantic information you want
+to specify and then select the location in the book the link should point to.
+This tool can be accessed via :guilabel:`Tools->Set semantics`.
+
 Filter style information
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
