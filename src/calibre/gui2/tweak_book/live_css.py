@@ -84,16 +84,19 @@ class Heading(QWidget):  # {{{
 
 class Cell(object):  # {{{
 
-    __slots__ = ('rect', 'text', 'right_align', 'color_role', 'override_color')
+    __slots__ = ('rect', 'text', 'right_align', 'color_role', 'override_color', 'swatch')
 
     SIDE_MARGIN = 5
     FLAGS = Qt.AlignVCenter | Qt.TextSingleLine | Qt.TextIncludeTrailingSpaces
 
-    def __init__(self, text, rect, right_align=False, color_role=QPalette.WindowText):
+    def __init__(self, text, rect, right_align=False, color_role=QPalette.WindowText, swatch=None):
         self.rect, self.text = rect, text
         self.right_align = right_align
         self.color_role = color_role
         self.override_color = None
+        self.swatch = swatch
+        if swatch is not None:
+            self.swatch = QColor(swatch[0], swatch[1], swatch[2], int(255 * swatch[3]))
 
     def draw(self, painter, width, palette):
         flags = self.FLAGS | (Qt.AlignRight if self.right_align else Qt.AlignLeft)
@@ -101,7 +104,10 @@ class Cell(object):  # {{{
         if self.right_align:
             rect.setRight(width - self.SIDE_MARGIN)
         painter.setPen(palette.color(self.color_role) if self.override_color is None else self.override_color)
-        painter.drawText(rect, flags, self.text)
+        br = painter.drawText(rect, flags, self.text)
+        if self.swatch is not None:
+            r = QRect(br.right() + self.SIDE_MARGIN // 2, br.top() + 2, br.height() - 4, br.height() - 4)
+            painter.fillRect(r, self.swatch)
 # }}}
 
 class Declaration(QWidget):
@@ -138,14 +144,14 @@ class Declaration(QWidget):
             ])
             ypos += max(br1.height(), br2.height()) + 2 * line_spacing
 
-        for (name, value, important) in self.data['properties']:
+        for (name, value, important, color) in self.data['properties']:
             text = name + ':\xa0'
             br1 = bounding_rect(text)
             vtext = value + '\xa0' + ('!' if important else '') + important
             br2 = bounding_rect(vtext)
             self.rows.append([
                 Cell(text, QRect(side_margin, ypos, br1.width(), br1.height()), color_role=QPalette.LinkVisited),
-                Cell(vtext, QRect(br1.right() + side_margin, ypos, br2.width(), br2.height()))
+                Cell(vtext, QRect(br1.right() + side_margin, ypos, br2.width(), br2.height()), swatch=color)
             ])
             ypos += max(br1.height(), br2.height()) + line_spacing
 
@@ -236,8 +242,8 @@ class Box(QWidget):
         h = Heading(_('Computed final style'), parent=self)
         h.toggled.connect(self.heading_toggled)
         self.widgets.append(h), self.layout().addWidget(h)
-        keys = sorted(data['computed_css'])
-        declaration = {'properties':[[k, data['computed_css'][k], ''] for k in keys]}
+        ccss = data['computed_css']
+        declaration = {'properties':[[k, ccss[k][0], '', ccss[k][1]] for k in sorted(ccss)]}
         d = Declaration(None, declaration, is_first=True, parent=self)
         self.widgets.append(d), self.layout().addWidget(d)
 

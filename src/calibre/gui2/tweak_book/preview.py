@@ -322,6 +322,7 @@ class WebPage(QWebPage):
         if not hasattr(self, 'js'):
             from calibre.utils.resources import compiled_coffeescript
             self.js = compiled_coffeescript('ebooks.oeb.display.utils', dynamic=False)
+            self.js += P('csscolorparser.js', data=True, allow_user_override=False)
             self.js += compiled_coffeescript('ebooks.oeb.polish.preview', dynamic=False)
         self._line_numbers = None
         mf = self.mainFrame()

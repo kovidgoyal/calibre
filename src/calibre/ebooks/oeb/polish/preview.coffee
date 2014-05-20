@@ -149,6 +149,15 @@ get_sourceline_address = (node) ->
             break
     return [sourceline, tags]
 
+get_color = (property, val) ->
+    color = null
+    if property.indexOf('color') > -1
+        try
+            color = parseCSSColor(val)  # Use the csscolor library to get an rgba 4-tuple
+        catch error
+            color = null
+    return color
+
 get_style_properties = (style, all_properties, node_style, is_ancestor) ->
     i = 0
     properties = []
@@ -156,9 +165,10 @@ get_style_properties = (style, all_properties, node_style, is_ancestor) ->
         property = style.item(i)?.toLowerCase()
         val = style.getPropertyValue(property)
         if property and val and (not is_ancestor or INHERITED_PROPS.hasOwnProperty(property))
-            properties.push([property, val, style.getPropertyPriority(property)])
+            properties.push([property, val, style.getPropertyPriority(property), get_color(property, val)])
             if not all_properties.hasOwnProperty(property)
-                all_properties[property] = node_style.getPropertyValue(property)
+                cval = node_style.getPropertyValue(property)
+                all_properties[property] = [cval, get_color(property, cval)]
         i += 1
     return properties
 
