@@ -318,12 +318,12 @@ class HTMLSmarts(NullSmarts):
         containing tag. '''
         block = cursor.block()
         offset = cursor.position() - block.position()
-        block, boundary = next_tag_boundary(block, offset, forward=False)
-        if block is None:
+        nblock, boundary = next_tag_boundary(block, offset, forward=False)
+        if nblock is None:
             return None, None
         if boundary.is_start:
             # We are inside a tag, use this tag
-            start_block, start_offset = block, boundary.offset
+            start_block, start_offset = nblock, boundary.offset
         else:
             tag = find_closest_containing_tag(block, offset)
             if tag is None:
