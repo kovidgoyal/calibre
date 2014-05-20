@@ -227,7 +227,7 @@ class Box(QWidget):
             w.deleteLater()
         self.widgets = []
         for node in data['nodes']:
-            node_name = node['name']
+            node_name = node['name'] + ' @%s' % node['sourceline']
             if node['is_ancestor']:
                 title = _('Inherited from %s') % node_name
             else:
