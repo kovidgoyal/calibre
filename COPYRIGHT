@@ -53,6 +53,10 @@ License: other
  are permitted in any medium without royalty provided the copyright
  notice and this notice are preserved.
 
+Files: src/tinycss/*
+Copyright: Simon Sapin
+License: BSD
+
 Files: src/calibre/ebooks/readability/*
 Copyright: Unknown
 License: Apache 2.0
