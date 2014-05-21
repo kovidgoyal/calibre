@@ -403,6 +403,9 @@ class Editor(QMainWindow):
             m.addAction(actions['multisplit'])
         m.exec_(self.editor.mapToGlobal(pos))
 
+    def goto_sourceline(self, *args, **kwargs):
+        return self.editor.goto_sourceline(*args, **kwargs)
+
     def _nuke_word(self, dic, word, locale):
         if dic is None:
             dictionaries.ignore_word(word, locale)

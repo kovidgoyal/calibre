@@ -752,3 +752,6 @@ class TextEdit(PlainTextEdit):
     def current_tag(self):
         return self.smarts.cursor_position_with_sourceline(self.textCursor())
 
+    def goto_sourceline(self, sourceline, tags, attribute=None):
+        return self.smarts.goto_sourceline(self, sourceline, tags, attribute=attribute)
+

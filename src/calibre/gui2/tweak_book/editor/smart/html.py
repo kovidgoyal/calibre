@@ -14,7 +14,7 @@ from PyQt4.Qt import QTextEdit
 
 from calibre import prepare_string_for_xml
 from calibre.gui2 import error_dialog
-from calibre.gui2.tweak_book.editor.syntax.html import ATTR_NAME, ATTR_END
+from calibre.gui2.tweak_book.editor.syntax.html import ATTR_NAME, ATTR_END, ATTR_START, ATTR_VALUE
 
 get_offset = itemgetter(0)
 PARAGRAPH_SEPARATOR = '\u2029'
@@ -116,6 +116,28 @@ def find_containing_attribute(block, offset):
     if block is not None and boundary.type == ATTR_NAME:
         return boundary.data
     return None
+
+def find_attribute_in_tag(block, offset, attr_name):
+    end_block, boundary = next_tag_boundary(block, offset)
+    if boundary.is_start:
+        return None, None
+    end_offset = boundary.offset
+    end_pos = (end_block.blockNumber(), end_offset)
+    current_block, current_offset = block, offset
+    found_attr = False
+    while True:
+        current_block, boundary = next_attr_boundary(current_block, current_offset)
+        if current_block is None or (current_block.blockNumber(), boundary.offset) > end_pos:
+            return None, None
+        current_offset = boundary.offset
+        if found_attr:
+            if boundary.type is not ATTR_VALUE or boundary.data is not ATTR_START:
+                return None, None
+            return current_block, current_offset
+        else:
+            if boundary.type is ATTR_NAME and boundary.data.lower() == attr_name.lower():
+                found_attr = True
+            current_offset += 1
 
 def find_closing_tag(tag, max_tags=sys.maxint):
     ''' Find the closing tag corresponding to the specified tag. To find it we
@@ -335,3 +357,29 @@ class HTMLSmarts(NullSmarts):
             return None, None
         all_tags = [t.name for t in ud.tags if (t.is_start and not t.closing and t.offset <= start_offset)]
         return sourceline, all_tags
+
+    def goto_sourceline(self, editor, sourceline, tags, attribute=None):
+        ''' Move the cursor to the tag identified by sourceline and tags (a
+        list of tags names on the specified line). If attribute is specified
+        the cursor will be placed at the start of the attribute value. '''
+        block = editor.document().findBlockByNumber(sourceline - 1)  # blockNumber() is zero based
+        found_tag = False
+        if not block.isValid():
+            return found_tag
+        c = editor.textCursor()
+        ud = block.userData()
+        all_tags = [] if ud is None else [t for t in ud.tags if (t.is_start and not t.closing)]
+        tag_names = [t.name for t in all_tags]
+        if tag_names[:len(tags)] == tags:
+            c.setPosition(block.position() + all_tags[len(tags)-1].offset)
+            found_tag = True
+        else:
+            c.setPosition(block.position())
+        if found_tag and attribute is not None:
+            start_offset = c.position() - block.position()
+            nblock, offset = find_attribute_in_tag(block, start_offset, attribute)
+            if nblock is not None:
+                c.setPosition(nblock.position() + offset)
+        editor.setTextCursor(c)
+        return found_tag
+

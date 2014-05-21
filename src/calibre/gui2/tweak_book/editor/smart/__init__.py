@@ -23,3 +23,5 @@ class NullSmarts(object):
     def cursor_position_with_sourceline(self, cursor):
         return None, None
 
+    def goto_sourceline(self, editor, sourceline, tags, attribute=None):
+        return False

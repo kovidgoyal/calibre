@@ -204,7 +204,7 @@ class Declaration(QWidget):
             pos = ev.pos()
             if self.hyperlink_rect.contains(pos):
                 self.emit_hyperlink_activated()
-        return QWidget.mouseMoveEvent(self, ev)
+        return QWidget.mousePressEvent(self, ev)
 
     def emit_hyperlink_activated(self):
         dt = self.data['type']
@@ -316,7 +316,7 @@ class LiveCSS(QWidget):
         s.addWidget(la)
 
         self.box = box = Box(self)
-        box.hyperlink_activated.connect(self.goto_declaration)
+        box.hyperlink_activated.connect(self.goto_declaration, type=Qt.QueuedConnection)
         self.scroll = sc = QScrollArea(self)
         sc.setWidget(box)
         sc.setWidgetResizable(True)
@@ -409,5 +409,7 @@ class LiveCSS(QWidget):
         self.update_timer.stop()
 
     def navigate_to_declaration(self, data, editor):
-        print (data)  # TODO: Implement this
+        if data['type'] == 'inline':
+            sourceline, tags = data['sourceline_address']
+            editor.goto_sourceline(sourceline, tags, attribute='style')
 
