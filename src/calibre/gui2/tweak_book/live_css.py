@@ -9,7 +9,7 @@ __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 import json
 
 from cssselect import parse
-from PyQt4.Qt import (
+from PyQt5.Qt import (
     QWidget, QTimer, QStackedLayout, QLabel, QScrollArea, QVBoxLayout,
     QPainter, Qt, QPalette, QRect, QSize, QSizePolicy, pyqtSignal,
     QColor)
@@ -408,7 +408,7 @@ class LiveCSS(QWidget):
         tags = [x.lower() for x in tags]
         result = unicode(mf.evaluateJavaScript(
             'window.calibre_preview_integration.live_css(%s, %s)' % (
-                json.dumps(sourceline), json.dumps(tags))).toString())
+                json.dumps(sourceline), json.dumps(tags))) or '')
         try:
             result = json.loads(result)
         except ValueError:
