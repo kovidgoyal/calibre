@@ -88,7 +88,7 @@ class CSSPage3Parser(CSS21Parser):
 
     """
 
-    PAGE_MARGIN_AT_KEYWORDS = [
+    PAGE_MARGIN_AT_KEYWORDS = {
         '@top-left-corner',
         '@top-left',
         '@top-center',
@@ -105,7 +105,7 @@ class CSSPage3Parser(CSS21Parser):
         '@right-top',
         '@right-middle',
         '@right-bottom',
-    ]
+    }
 
     def parse_at_rule(self, rule, previous_rules, errors, context):
         if rule.at_keyword in self.PAGE_MARGIN_AT_KEYWORDS:
