@@ -56,7 +56,7 @@ def tokenize_flat(css_source, ignore_comments=True,
             codepoint = min(ord(char), 160)
             for _index, type_, regexp in tokens_dispatch[codepoint]:
                 match = regexp(css_source, pos)
-                if match:
+                if match is not None:
                     # First match is the longest. See comments on TOKENS above.
                     css_value = match.group()
                     break
