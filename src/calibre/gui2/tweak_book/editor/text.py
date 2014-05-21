@@ -25,6 +25,7 @@ from calibre.gui2.tweak_book.editor.syntax.html import HTMLHighlighter, XMLHighl
 from calibre.gui2.tweak_book.editor.syntax.css import CSSHighlighter
 from calibre.gui2.tweak_book.editor.smart import NullSmarts
 from calibre.gui2.tweak_book.editor.smart.html import HTMLSmarts
+from calibre.gui2.tweak_book.editor.smart.css import CSSSmarts
 from calibre.spell.break_iterator import index_of
 from calibre.utils.icu import safe_chr, string_length
 
@@ -211,7 +212,7 @@ class TextEdit(PlainTextEdit):
         self.highlighter = get_highlighter(syntax)()
         self.highlighter.apply_theme(self.theme)
         self.highlighter.set_document(self.document())
-        sclass = {'html':HTMLSmarts, 'xml':HTMLSmarts}.get(syntax, None)
+        sclass = {'html':HTMLSmarts, 'xml':HTMLSmarts, 'css':CSSSmarts}.get(syntax, None)
         if sclass is not None:
             self.smarts = sclass(self)
         self.setPlainText(unicodedata.normalize('NFC', text))
@@ -755,3 +756,31 @@ class TextEdit(PlainTextEdit):
     def goto_sourceline(self, sourceline, tags, attribute=None):
         return self.smarts.goto_sourceline(self, sourceline, tags, attribute=attribute)
 
+    def get_tag_contents(self):
+        c = self.smarts.get_inner_HTML(self)
+        if c is not None:
+            return self.selected_text_from_cursor(c)
+
+    def goto_css_rule(self, rule_address, sourceline_address=None):
+        from calibre.gui2.tweak_book.editor.smart.css import find_rule
+        block = None
+        if self.syntax == 'css':
+            raw = unicode(self.toPlainText())
+            line, col = find_rule(raw, rule_address)
+            if line is not None:
+                block = self.document().findBlockByNumber(line - 1)
+        elif sourceline_address is not None:
+            sourceline, tags = sourceline_address
+            if self.goto_sourceline(sourceline, tags):
+                c = self.textCursor()
+                c.setPosition(c.position() + 1)
+                self.setTextCursor(c)
+                raw = self.get_tag_contents()
+                line, col = find_rule(raw, rule_address)
+                if line is not None:
+                    block = self.document().findBlockByNumber(c.blockNumber() + line - 1)
+
+        if block is not None and block.isValid():
+            c = self.textCursor()
+            c.setPosition(block.position() + col)
+            self.setTextCursor(c)

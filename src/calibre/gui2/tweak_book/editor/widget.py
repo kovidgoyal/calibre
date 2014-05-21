@@ -406,6 +406,12 @@ class Editor(QMainWindow):
     def goto_sourceline(self, *args, **kwargs):
         return self.editor.goto_sourceline(*args, **kwargs)
 
+    def goto_css_rule(self, *args, **kwargs):
+        return self.editor.goto_css_rule(*args, **kwargs)
+
+    def get_tag_contents(self, *args, **kwargs):
+        return self.editor.get_tag_contents(*args, **kwargs)
+
     def _nuke_word(self, dic, word, locale):
         if dic is None:
             dictionaries.ignore_word(word, locale)

@@ -412,4 +412,8 @@ class LiveCSS(QWidget):
         if data['type'] == 'inline':
             sourceline, tags = data['sourceline_address']
             editor.goto_sourceline(sourceline, tags, attribute='style')
+        elif data['type'] == 'sheet':
+            editor.goto_css_rule(data['rule_address'])
+        elif data['type'] == 'elem':
+            editor.goto_css_rule(data['rule_address'], sourceline_address=data['sourceline_address'])
 

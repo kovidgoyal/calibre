@@ -383,3 +383,27 @@ class HTMLSmarts(NullSmarts):
         editor.setTextCursor(c)
         return found_tag
 
+    def get_inner_HTML(self, editor):
+        ''' Select the inner HTML of the current tag. Return a cursor with the
+        inner HTML selected or None. '''
+        c = editor.textCursor()
+        block = c.block()
+        offset = c.position() - block.position()
+        nblock, boundary = next_tag_boundary(block, offset)
+        if boundary.is_start:
+            # We are within the contents of a tag already
+            tag = find_closest_containing_tag(block, offset)
+        else:
+            # We are inside a tag definition < | >
+            if boundary.self_closing:
+                return None  # self closing tags have no inner html
+            tag = find_closest_containing_tag(nblock, boundary.offset + 1)
+        if tag is None:
+            return None
+        ctag = find_closing_tag(tag)
+        if ctag is None:
+            return None
+        c.setPosition(tag.end_block.position() + tag.end_offset + 1)
+        c.setPosition(ctag.start_block.position() + ctag.start_offset, c.KeepAnchor)
+        return c
+
