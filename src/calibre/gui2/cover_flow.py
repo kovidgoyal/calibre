@@ -97,10 +97,11 @@ if pictureflow is not None:
             return ans
 
         def subtitle(self, index):
-            try:
-                return u'\u2605'*self.model.rating(index)
-            except:
-                pass
+            if gprefs['show_rating_in_cover_browser']:
+                try:
+                    return u'\u2605'*self.model.rating(index)
+                except:
+                    pass
             return ''
 
         def reset(self):

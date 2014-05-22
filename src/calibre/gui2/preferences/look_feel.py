@@ -137,10 +137,8 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
 
         r = self.register
 
-        r('gui_layout', config, restart_required=True, choices=
-                [(_('Wide'), 'wide'), (_('Narrow'), 'narrow')])
-        r('ui_style', gprefs, restart_required=True, choices=
-                [(_('System default'), 'system'), (_('Calibre style'),
+        r('gui_layout', config, restart_required=True, choices=[(_('Wide'), 'wide'), (_('Narrow'), 'narrow')])
+        r('ui_style', gprefs, restart_required=True, choices=[(_('System default'), 'system'), (_('Calibre style'),
                     'calibre')])
         r('book_list_tooltips', gprefs)
         r('tag_browser_old_look', gprefs, restart_required=True)
@@ -155,6 +153,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
 
         r('cover_flow_queue_length', config, restart_required=True)
         r('cover_browser_reflections', gprefs)
+        r('show_rating_in_cover_browser', gprefs)
         r('extra_row_spacing', gprefs)
 
         def get_esc_lang(l):
