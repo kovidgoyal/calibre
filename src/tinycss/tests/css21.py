@@ -11,7 +11,7 @@ import os
 import tempfile
 
 from tinycss.css21 import CSS21Parser
-from tinycss.tests.tokenizer import jsonify
+from tinycss.tests.tokenizing import jsonify
 from tinycss.tests import BaseTest
 
 class CoreParser(CSS21Parser):

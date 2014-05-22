@@ -8,7 +8,7 @@ __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
 from tinycss.page3 import CSSPage3Parser
 from tinycss.tests import BaseTest
-from tinycss.tests.tokenizer import jsonify
+from tinycss.tests.tokenizing import jsonify
 
 class TestPage3(BaseTest):
 
