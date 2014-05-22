@@ -238,6 +238,8 @@ def process_text(state, text, nbsp_format, spell_format, user_data):
         last = m.end()
     if not ans:
         ans = [(len(text), fmt)]
+    elif last < len(text):
+        ans.append((len(text) - last, fmt))
 
     if tprefs['inline_spell_check'] and state.tags and user_data.tag_ok_for_spell(state.tags[-1].name) and hasattr(dictionaries, 'active_user_dictionaries'):
         split_ans = []
@@ -262,8 +264,8 @@ def process_text(state, text, nbsp_format, spell_format, user_data):
                         wsfmt = SyntaxTextCharFormat(sfmt)
                         wsfmt.setProperty(SPELL_PROPERTY, (ctext[start:ppos], locale))
                     split_ans.append((length, fmt if recognized else wsfmt))
-                if ppos == 0:
-                    split_ans.append((tlen, fmt))
+                if ppos < tlen:
+                    split_ans.append((tlen - ppos, fmt))
 
             tpos += tlen
         ans = split_ans
