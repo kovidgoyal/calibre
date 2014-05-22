@@ -297,12 +297,16 @@ class LiveCSS(QWidget):
     def __init__(self, preview, parent=None):
         QWidget.__init__(self, parent)
         self.preview = preview
-        preview.refreshed.connect(self.update_data)
+        self.preview_is_refreshing = False
+        preview.refresh_starting.connect(self.preview_refresh_starting)
+        preview.refreshed.connect(self.preview_refreshed)
         self.apply_theme()
         self.setAutoFillBackground(True)
         self.update_timer = QTimer(self)
         self.update_timer.timeout.connect(self.update_data)
         self.update_timer.setSingleShot(True)
+        self.update_timer.setInterval(500)
+        self.now_showing = (None, None, None)
 
         self.stack = s = QStackedLayout(self)
         self.setLayout(s)
@@ -321,6 +325,15 @@ class LiveCSS(QWidget):
         sc.setWidget(box)
         sc.setWidgetResizable(True)
         s.addWidget(sc)
+
+    def preview_refresh_starting(self):
+        self.preview_is_refreshing = True
+
+    def preview_refreshed(self):
+        self.preview_is_refreshing = False
+        # We must let the event loop run otherwise the webview will return
+        # stale data in read_data()
+        self.start_update_timer()
 
     def apply_theme(self):
         f = self.font()
@@ -344,13 +357,29 @@ class LiveCSS(QWidget):
         self.stack.setCurrentIndex(0)
 
     def show_data(self, editor_name, sourceline, tags):
+        if self.preview_is_refreshing:
+            return
         if sourceline is None:
             self.clear()
         else:
             data = self.read_data(sourceline, tags)
             if data is None or len(data['computed_css']) < 1:
-                self.clear()
-                return
+                if editor_name == self.current_name and (editor_name, sourceline, tags) == self.now_showing:
+                    # Try again in a little while in case there was a transient
+                    # error in the web view
+                    self.start_update_timer()
+                    return
+                if self.now_showing == (None, None, None) or self.now_showing[0] != self.current_name:
+                    self.clear()
+                    return
+                # Try to refresh the data for the currently shown tag instead
+                # of clearing
+                editor_name, sourceline, tags = self.now_showing
+                data = self.read_data(sourceline, tags)
+                if data is None or len(data['computed_css']) < 1:
+                    self.clear()
+                    return
+            self.now_showing = (editor_name, sourceline, tags)
             data['html_name'] = editor_name
             self.box.show_data(data)
             self.stack.setCurrentIndex(1)
@@ -391,7 +420,7 @@ class LiveCSS(QWidget):
         self.start_update_timer()
 
     def update_data(self):
-        if not self.is_visible:
+        if not self.is_visible or self.preview_is_refreshing:
             return
         editor_name = self.current_name
         ed = editors.get(editor_name, None)
@@ -403,7 +432,7 @@ class LiveCSS(QWidget):
 
     def start_update_timer(self):
         if self.is_visible:
-            self.update_timer.start(1000)
+            self.update_timer.start()
 
     def stop_update_timer(self):
         self.update_timer.stop()

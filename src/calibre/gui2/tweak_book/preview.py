@@ -450,6 +450,7 @@ class Preview(QWidget):
     split_requested = pyqtSignal(object, object, object)
     split_start_requested = pyqtSignal()
     link_clicked = pyqtSignal(object, object)
+    refresh_starting = pyqtSignal()
     refreshed = pyqtSignal()
 
     def __init__(self, parent=None):
@@ -569,6 +570,7 @@ class Preview(QWidget):
             parse_worker.add_request(self.current_name)
             # Tell webkit to reload all html and associated resources
             current_url = QUrl.fromLocalFile(current_container().name_to_abspath(self.current_name))
+            self.refresh_starting.emit()
             if current_url != self.view.url():
                 # The container was changed
                 self.view.setUrl(current_url)
