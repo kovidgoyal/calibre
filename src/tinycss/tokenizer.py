@@ -14,7 +14,7 @@
 
 from __future__ import unicode_literals
 
-from . import token_data
+from tinycss import token_data
 
 
 def tokenize_flat(css_source, ignore_comments=True,
@@ -206,11 +206,10 @@ def tokenize_grouped(css_source, ignore_comments=True):
 # Optional Cython version of tokenize_flat
 # Make both versions available with explicit names for tests.
 python_tokenize_flat = tokenize_flat
+
 try:
-    from . import speedups
-except ImportError:
-    cython_tokenize_flat = None
+    tok = token_data.load_c_tokenizer()
+except (ImportError, RuntimeError):
+    c_tokenize_flat = None
 else:
-    cython_tokenize_flat = speedups.tokenize_flat
-    # Default to the Cython version if available
-    tokenize_flat = cython_tokenize_flat
+    c_tokenize_flat = lambda s, ignore_comments=False:tok.tokenize_flat(s, ignore_comments)

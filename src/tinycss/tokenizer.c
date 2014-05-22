@@ -14,6 +14,7 @@
 typedef struct {
     PyObject_HEAD
     // Type-specific fields go here.
+    PyObject *is_container;
     PyObject *type;
     PyObject *_as_css;
     PyObject *value;
@@ -26,6 +27,7 @@ typedef struct {
 static void
 tokenizer_Token_dealloc(tokenizer_Token* self)
 {
+    Py_XDECREF(self->is_container); self->is_container = NULL;
     Py_XDECREF(self->type); self->type = NULL;
     Py_XDECREF(self->_as_css); self->_as_css = NULL;
     Py_XDECREF(self->value); self->value = NULL;
@@ -47,6 +49,7 @@ tokenizer_Token_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         self->ob_type->tp_free((PyObject*)self); return NULL;
     }
     Py_INCREF(self->type); Py_INCREF(self->_as_css); Py_INCREF(self->value); Py_INCREF(self->unit); Py_INCREF(self->line); Py_INCREF(self->column);
+    self->is_container = Py_False; Py_INCREF(self->is_container);
 
     return (PyObject *)self;
 }
@@ -81,6 +84,7 @@ tokenizer_Token_as_css(tokenizer_Token *self, PyObject *args, PyObject *kwargs) 
 }
 
 static PyMemberDef tokenizer_Token_members[] = {
+    {"is_container", T_OBJECT_EX, offsetof(tokenizer_Token, is_container), 0, "False unless this token is a  container for other tokens"},
     {"type", T_OBJECT_EX, offsetof(tokenizer_Token, type), 0, "The token type"},
     {"_as_css", T_OBJECT_EX, offsetof(tokenizer_Token, _as_css), 0, "Internal variable, use as_css() method instead."},
     {"value", T_OBJECT_EX, offsetof(tokenizer_Token, value), 0, "The token value"},
@@ -217,7 +221,7 @@ static PyObject* clone_unicode(Py_UNICODE *x, Py_ssize_t sz) {
 #endif
     PyObject *ans = PyUnicode_FromUnicode(NULL, sz);
     if (ans == NULL) return PyErr_NoMemory();
-    memcpy(PyUnicode_AS_UNICODE(ans), x, sz);
+    memcpy(PyUnicode_AS_UNICODE(ans), x, sz * sizeof(Py_UNICODE));
     return ans;
 }
 
@@ -237,8 +241,8 @@ tokenize_flat(PyObject *self, PyObject *args) {
         PyErr_SetString(PyExc_RuntimeError, "tokenizer module not initialized. You must call init() first."); return NULL;
     }
 
-    if (!PyArg_ParseTuple(args, "U|O", &py_source, &ic)) return NULL;
-    if (ic != NULL && PyObject_IsTrue(ic)) ignore_comments = 1;
+    if (!PyArg_ParseTuple(args, "UO", &py_source, &ic)) return NULL;
+    if (PyObject_IsTrue(ic)) ignore_comments = 1;
     source_len = PyUnicode_GET_SIZE(py_source);
     css_source = PyUnicode_AS_UNICODE(py_source);
 
@@ -300,8 +304,7 @@ tokenize_flat(PyObject *self, PyObject *args) {
                 if (PyUnicode_GET_SIZE(css_value) > 0) {
                     value = clone_unicode(PyUnicode_AS_UNICODE(css_value), PyUnicode_GET_SIZE(css_value) - 1);
                     if (value == NULL) goto error;
-                }
-                else { value = css_value; Py_INCREF(value); }
+                } else { value = css_value; Py_INCREF(value); }
                 if (value == NULL) goto error;
                 TONUMBER(value);
                 unit = PyUnicode_FromString("%");
@@ -331,7 +334,10 @@ tokenize_flat(PyObject *self, PyObject *args) {
                     item = clone_unicode(PyUnicode_AS_UNICODE(value) + 1, PyUnicode_GET_SIZE(value) - 2);
                     if (item == NULL) goto error;
                     Py_DECREF(value); value = item; item = NULL;
+                    UNESCAPE(value, NEWLINE_UNESCAPE);
                 }
+                UNESCAPE(value, SIMPLE_UNESCAPE);
+                UNESCAPE(value, UNICODE_UNESCAPE);
             } else
 
             if (type_ == STRING) {
@@ -394,7 +400,7 @@ error:
 
 static PyMethodDef tokenizer_methods[] = {
     {"tokenize_flat", tokenize_flat, METH_VARARGS,
-        "tokenize_flat()\n\n"
+        "tokenize_flat(css_source, ignore_comments)\n\n Convert CSS source into a flat list of tokens"
     },
 
     {"init", tokenize_init, METH_VARARGS,
