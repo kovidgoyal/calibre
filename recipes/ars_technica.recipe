@@ -10,7 +10,7 @@ from calibre.ebooks.BeautifulSoup import BeautifulSoup
 class ArsTechnica(BasicNewsRecipe):
     title                 = u'Ars Technica'
     language              = 'en'
-    __author__            = 'Darko Miletic, Sujata Raman, Alexis Rohou'
+    __author__            = 'Darko Miletic, Sujata Raman, Alexis Rohou, Tom Sparks'
     description           = 'Ars Technica: Serving the technologist for 1.2 decades'
     publisher             = 'Conde Nast Publications'
     category              = 'news, IT, technology'
@@ -49,7 +49,12 @@ class ArsTechnica(BasicNewsRecipe):
     remove_attributes = ['lang']
 
     feeds = [
-             (u'Infinite Loop (Apple content)'        , u'http://feeds.arstechnica.com/arstechnica/apple/')
+
+             (u'Ars Features (All our long-form feature articles)'        , u'http://feeds.arstechnica.com/arstechnica/features')
+             , (u'Technology Lab (Information Technology)'        , u'http://feeds.arstechnica.com/arstechnica/technology-lab/')
+             ,(u'Ministry of Innovation (Business of Technology)'        , u'http://feeds.arstechnica.com/arstechnica/business')
+             ,(u'Staff Blogs (From the Minds of Ars)'        , u'http://feeds.arstechnica.com/arstechnica/staff-blogs')
+             ,(u'Infinite Loop (Apple content)'        , u'http://feeds.arstechnica.com/arstechnica/apple/')
              ,(u'Opposable Thumbs (Gaming content)'    , u'http://feeds.arstechnica.com/arstechnica/gaming/')
              ,(u'Gear and Gadgets'                     , u'http://feeds.arstechnica.com/arstechnica/gadgets/')
              ,(u'Uptime (IT content)'                  , u'http://feeds.arstechnica.com/arstechnica/business/')
