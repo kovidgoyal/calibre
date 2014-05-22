@@ -139,6 +139,7 @@ def test_woff():
     print ('WOFF ok!')
 
 def test_magick():
+    print ('Testing tinycss tokenizer')
     from calibre.utils.magick import create_canvas
     i = create_canvas(100, 100)
     from calibre.gui2.tweak_book.editor.canvas import qimage_to_magick, magick_to_qimage
