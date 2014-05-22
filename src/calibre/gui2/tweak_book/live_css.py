@@ -298,6 +298,7 @@ class LiveCSS(QWidget):
         QWidget.__init__(self, parent)
         self.preview = preview
         self.preview_is_refreshing = False
+        self.refresh_needed = False
         preview.refresh_starting.connect(self.preview_refresh_starting)
         preview.refreshed.connect(self.preview_refreshed)
         self.apply_theme()
@@ -333,6 +334,7 @@ class LiveCSS(QWidget):
         self.preview_is_refreshing = False
         # We must let the event loop run otherwise the webview will return
         # stale data in read_data()
+        self.refresh_needed = True
         self.start_update_timer()
 
     def apply_theme(self):
@@ -382,6 +384,7 @@ class LiveCSS(QWidget):
             self.now_showing = (editor_name, sourceline, tags)
             data['html_name'] = editor_name
             self.box.show_data(data)
+            self.refresh_needed = False
             self.stack.setCurrentIndex(1)
 
     def read_data(self, sourceline, tags):
@@ -428,7 +431,8 @@ class LiveCSS(QWidget):
             return QTimer.singleShot(100, self.update_data)
         if ed is not None:
             sourceline, tags = ed.current_tag()
-            self.show_data(editor_name, sourceline, tags)
+            if self.refresh_needed or self.now_showing != (editor_name, sourceline, tags):
+                self.show_data(editor_name, sourceline, tags)
 
     def start_update_timer(self):
         if self.is_visible:
