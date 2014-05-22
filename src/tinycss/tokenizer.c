@@ -372,6 +372,7 @@ tokenize_flat(PyObject *self, PyObject *args) {
             Py_DECREF(item); item = NULL;
             if (token == NULL) goto error;
             if (PyList_Append(tokens, token) != 0) { Py_DECREF(token); token = NULL; goto error; }
+            Py_DECREF(token);
 
         }  // if(!(ignore_comments...
 
