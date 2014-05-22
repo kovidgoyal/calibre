@@ -8,6 +8,7 @@ __docformat__ = 'restructuredtext en'
 Generates and writes an APNX page mapping file.
 '''
 
+import re
 import struct
 
 from calibre.ebooks.mobi.reader.mobi6 import MobiReader
@@ -22,7 +23,7 @@ class APNXBuilder(object):
     Create an APNX file using a pseudo page mapping.
     '''
 
-    def write_apnx(self, mobi_file_path, apnx_path, accurate=True, page_count=0):
+    def write_apnx(self, mobi_file_path, apnx_path, method=None, page_count=0):
         '''
         If you want a fixed number of pages (such as from a custom column) then
         pass in a value to page_count, otherwise a count will be estimated
@@ -60,15 +61,17 @@ class APNXBuilder(object):
         if page_count:
             pages = self.get_pages_exact(mobi_file_path, page_count)
         else:
-            if accurate:
-                try:
+            try:
+                if method='accurate':
                     pages = self.get_pages_accurate(mobi_file_path)
-                except:
-                    # Fall back to the fast parser if we can't
-                    # use the accurate one. Typically this is
-                    # due to the file having DRM.
-                    pages = self.get_pages_fast(mobi_file_path)
-            else:
+                elif method='pagebreak':
+                    pages = self.get_pages_pagebreak_tag(mobi_file_path)
+                else:
+                    raise('no valid accurate method chosen use fast')
+            except:
+                # Fall back to the fast parser if we can't
+                # use the accurate one. Typically this is
+                # due to the file having DRM.
                 pages = self.get_pages_fast(mobi_file_path)
 
         if not pages:
@@ -259,5 +262,25 @@ class APNXBuilder(object):
         # Every 30 lines is a new page
         for i in xrange(0, len(lines), 32):
             pages.append(lines[i])
+
+        return pages
+
+    def get_pages_pagebreak_tag(self, mobi_file_path):
+        '''
+        Determine pages based on the presense of
+        <mbp:pagebreak>.
+        '''
+        pages = []
+
+        # Get the MOBI html.
+        mr = MobiReader(mobi_file_path, default_log)
+        if mr.book_header.encryption_type != 0:
+            # DRMed book
+            return self.get_pages_fast(mobi_file_path)
+        mr.extract_text()
+
+        html = mr.mobi_html.lower()
+        for m in re.finditer('<\s*(mbp:)?pagebreak[^>]*>'):
+        	pages.append(m.end())
 
         return pages
