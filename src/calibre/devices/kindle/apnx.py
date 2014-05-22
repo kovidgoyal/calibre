@@ -280,7 +280,7 @@ class APNXBuilder(object):
         mr.extract_text()
 
         html = mr.mobi_html.lower()
-        for m in re.finditer('<\s*(mbp:)?pagebreak[^>]*>', html):
+        for m in re.finditer('<[^>]*pagebreak[^>]*>', html):
             pages.append(m.end())
 
         return pages
