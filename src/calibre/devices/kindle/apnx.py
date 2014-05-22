@@ -62,9 +62,9 @@ class APNXBuilder(object):
             pages = self.get_pages_exact(mobi_file_path, page_count)
         else:
             try:
-                if method='accurate':
+                if method == 'accurate':
                     pages = self.get_pages_accurate(mobi_file_path)
-                elif method='pagebreak':
+                elif method == 'pagebreak':
                     pages = self.get_pages_pagebreak_tag(mobi_file_path)
                 else:
                     raise('no valid accurate method chosen use fast')
