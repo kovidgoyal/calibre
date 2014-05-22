@@ -281,6 +281,6 @@ class APNXBuilder(object):
 
         html = mr.mobi_html.lower()
         for m in re.finditer('<\s*(mbp:)?pagebreak[^>]*>'):
-        	pages.append(m.end())
+            pages.append(m.end())
 
         return pages
