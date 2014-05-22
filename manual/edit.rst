@@ -533,6 +533,8 @@ well as rules that are inherited from parent tags are shown.
 The panel also shows you what the finally calculated styles for the tag are, so
 you can see which rules were applied and which were overridden.
 
+You can enable the Live CSS panel via :guilabel:`View->Live CSS`.
+
 .. raw:: html epub
     
     <div style="clear:both"></div>
