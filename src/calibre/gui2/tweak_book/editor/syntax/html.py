@@ -239,7 +239,7 @@ def process_text(state, text, nbsp_format, spell_format, user_data):
     if not ans:
         ans = [(len(text), fmt)]
 
-    if tprefs['inline_spell_check'] and state.tags and user_data.tag_ok_for_spell(state.tags[-1].name):
+    if tprefs['inline_spell_check'] and state.tags and user_data.tag_ok_for_spell(state.tags[-1].name) and hasattr(dictionaries, 'active_user_dictionaries'):
         split_ans = []
         locale = state.current_lang or dictionaries.default_locale
         sfmt = SyntaxTextCharFormat(spell_format)
