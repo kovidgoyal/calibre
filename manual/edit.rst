@@ -515,6 +515,28 @@ heading tags or all tags having a certain class and so on.
     
     <div style="clear:both"></div>
 
+The Live CSS panel
+---------------------
+
+.. image:: images/live_css.png
+    :alt: The Live Preview Panel
+    :class: float-left-img
+
+
+The :guilabel:`Live CSS` panel shows you all the style rules that apply to the
+tag you are currently editing. It is a great way to quickly see which style
+rules apply to any tag. The view also has clickable links (in blue), which take you
+directly to the location where the style was defined, in case you wish to make
+any changes to the style rules. Style rules that apply directly to the tag, as
+well as rules that are inherited from parent tags are shown.
+
+The panel also shows you what the finally calculated styles for the tag are, so
+you can see which rules were applied and which were overridden.
+
+.. raw:: html epub
+    
+    <div style="clear:both"></div>
+
 Miscellaneous Tools
 ----------------------
 
