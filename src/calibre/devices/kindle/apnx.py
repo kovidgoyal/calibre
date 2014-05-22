@@ -66,6 +66,8 @@ class APNXBuilder(object):
                     pages = self.get_pages_accurate(mobi_file_path)
                 elif method == 'pagebreak':
                     pages = self.get_pages_pagebreak_tag(mobi_file_path)
+                    if not pages:
+                        pages = self.get_pages_accurate(mobi_file_path)
                 else:
                     raise('no valid accurate method chosen use fast')
             except:
@@ -74,6 +76,8 @@ class APNXBuilder(object):
                 # due to the file having DRM.
                 pages = self.get_pages_fast(mobi_file_path)
 
+        if not pages:
+            pages = self.get_pages_fast(mobi_file_path)
         if not pages:
             raise Exception(_('Could not generate page mapping.'))
 
