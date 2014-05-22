@@ -89,6 +89,10 @@ extensions = [
         ['calibre/utils/speedup.c'],
         ),
 
+    Extension('tokenizer',
+        ['tinycss/tokenizer.c'],
+        ),
+
     Extension('_patiencediff_c',
         ['calibre/gui2/tweak_book/diff/_patiencediff_c.c'],
         ),
@@ -343,8 +347,8 @@ if iswindows:
     cc = cxx = msvc.cc
     cflags = '/c /nologo /MD /W3 /EHsc /DNDEBUG'.split()
     ldflags = '/DLL /nologo /INCREMENTAL:NO /NODEFAULTLIB:libcmt.lib'.split()
-    #cflags = '/c /nologo /Ox /MD /W3 /EHsc /Zi'.split()
-    #ldflags = '/DLL /nologo /INCREMENTAL:NO /DEBUG'.split()
+    # cflags = '/c /nologo /Ox /MD /W3 /EHsc /Zi'.split()
+    # ldflags = '/DLL /nologo /INCREMENTAL:NO /DEBUG'.split()
     if is64bit:
         cflags.append('/GS-')
 
@@ -469,8 +473,8 @@ class Build(Command):
             self.info('\n\n', ' '.join(cmd), '\n\n')
             self.check_call(cmd)
             if iswindows:
-                #manifest = dest+'.manifest'
-                #cmd = [MT, '-manifest', manifest, '-outputresource:%s;2'%dest]
+                # manifest = dest+'.manifest'
+                # cmd = [MT, '-manifest', manifest, '-outputresource:%s;2'%dest]
                 # self.info(*cmd)
                 # self.check_call(cmd)
                 # os.remove(manifest)

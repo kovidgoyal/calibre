@@ -210,7 +210,7 @@ SIMPLE_UNESCAPE = functools.partial(
     # Same as r'\1', but faster on CPython
     operator.methodcaller('group', 1))
 
-FIND_NEWLINES = re.compile(COMPILED_MACROS['nl']).finditer
+FIND_NEWLINES = lambda x : list(re.compile(COMPILED_MACROS['nl']).finditer(x))
 
 
 class Token(object):
@@ -439,3 +439,12 @@ class TokenList(list):
         as parsed in the source.
         """
         return ''.join(token.as_css() for token in self)
+
+def load_c_tokenizer():
+    from calibre.constants import plugins
+    tokenizer, err = plugins['tokenizer']
+    if err:
+        raise RuntimeError('Failed to load module tokenizer: %s' % err)
+    tokens = list(':;(){}[]') + ['DELIM', 'INTEGER', 'STRING']
+    tokenizer.init(COMPILED_TOKEN_REGEXPS, UNICODE_UNESCAPE, NEWLINE_UNESCAPE, SIMPLE_UNESCAPE, FIND_NEWLINES, TOKEN_DISPATCH, COMPILED_TOKEN_INDEXES, *tokens)
+    return tokenizer

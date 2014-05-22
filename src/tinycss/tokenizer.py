@@ -127,7 +127,7 @@ def tokenize_flat(css_source, ignore_comments=True,
             tokens.append(Token(type_, css_value, value, unit, line, column))
 
         pos = next_pos
-        newlines = list(find_newlines(css_value))
+        newlines = find_newlines(css_value)
         if newlines:
             line += len(newlines)
             # Add 1 to have lines start at column 1, not 0

@@ -144,6 +144,7 @@ class Plugins(collections.Mapping):
                 '_patiencediff_c',
                 'bzzdec',
                 'matcher',
+                'tokenizer',
             ]
         if iswindows:
             plugins.extend(['winutil', 'wpd', 'winfonts'])
