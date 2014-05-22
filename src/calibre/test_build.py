@@ -146,6 +146,14 @@ def test_magick():
     i = qimage_to_magick(img)
     print ('magick OK!')
 
+def test_tokenizer():
+    from tinycss.tokenizer import c_tokenize_flat
+    if c_tokenize_flat is None:
+        raise ValueError('tinycss C tokenizer not loaded')
+    from tinycss.tests.main import run_tests
+    run_tests(for_build=True)
+    print('tinycss tokenizer OK!')
+
 def test():
     test_plugins()
     test_lxml()
@@ -160,6 +168,7 @@ def test():
     test_html5lib()
     test_regex()
     test_magick()
+    test_tokenizer()
     if iswindows:
         test_winutil()
         test_wpd()

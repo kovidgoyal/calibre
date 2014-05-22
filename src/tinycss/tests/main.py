@@ -11,12 +11,13 @@ import unittest, os, argparse
 def find_tests():
     return unittest.defaultTestLoader.discover(os.path.dirname(os.path.abspath(__file__)), pattern='*.py')
 
-def run_tests(find_tests=find_tests):
-    parser = argparse.ArgumentParser()
-    parser.add_argument('name', nargs='?', default=None,
-                        help='The name of the test to run')
-    args = parser.parse_args()
-    if args.name and args.name.startswith('.'):
+def run_tests(find_tests=find_tests, for_build=False):
+    if not for_build:
+        parser = argparse.ArgumentParser()
+        parser.add_argument('name', nargs='?', default=None,
+                            help='The name of the test to run')
+        args = parser.parse_args()
+    if not for_build and args.name and args.name.startswith('.'):
         tests = find_tests()
         q = args.name[1:]
         if not q.startswith('test_'):
@@ -38,9 +39,15 @@ def run_tests(find_tests=find_tests):
             raise SystemExit(1)
         tests = ans
     else:
-        tests = unittest.defaultTestLoader.loadTestsFromName(args.name) if args.name else find_tests()
+        tests = unittest.defaultTestLoader.loadTestsFromName(args.name) if not for_build and args.name else find_tests()
     r = unittest.TextTestRunner
-    r(verbosity=4).run(tests)
+    if for_build:
+        r = r(verbosity=0, buffer=True, failfast=True)
+    else:
+        r = r(verbosity=4)
+    result = r.run(tests)
+    if for_build and result.errors or result.failures:
+        raise SystemExit(1)
 
 if __name__ == '__main__':
     run_tests()
