@@ -477,13 +477,16 @@ Qt
 --------
 Download Qt sourcecode (.zip) from: http://download.qt-project.org/official_releases/qt/
 
+Run::
+    chmod +x configure.bat qtbase/configure.*
+
 Qt uses its own routine to locate and load "system libraries" including the
 openssl libraries needed for "Get Books". This means that we have to apply the
 following patch to have Qt load the openssl libraries bundled with calibre:
 
 
---- src/corelib/plugin/qsystemlibrary.cpp	2011-02-22 05:04:00.000000000 -0700
-+++ src/corelib/plugin/qsystemlibrary.cpp	2011-04-25 20:53:13.635247466 -0600
+--- qtbase/src/corelib/plugin/qsystemlibrary.cpp	2011-02-22 05:04:00.000000000 -0700
++++ qtbase/src/corelib/plugin/qsystemlibrary.cpp	2011-04-25 20:53:13.635247466 -0600
 @@ -110,7 +110,7 @@ HINSTANCE QSystemLibrary::load(const wch
  
  #if !defined(QT_BOOTSTRAPPED)
@@ -493,12 +496,13 @@ following patch to have Qt load the openssl libraries bundled with calibre:
  #endif
      searchOrder << qSystemDirectory();
  
-
-Now, run configure and make:
-
 -no-plugin-manifests is needed so that loading the plugins does not fail looking for the CRT assembly
 
-    ./configure.exe -ltcg -opensource -release -qt-zlib -qt-libmng -qt-libpng -qt-libtiff -qt-libjpeg -release -platform win32-msvc2008 -no-qt3support -webkit -xmlpatterns -no-phonon -no-style-plastique -no-style-cleanlooks -no-style-motif -no-style-cde -no-declarative -no-scripttools -no-audio-backend -no-multimedia -no-dbus -no-openvg -no-opengl -no-qt3support -confirm-license -nomake examples -nomake demos -nomake docs -nomake tools -no-plugin-manifests -openssl -I $OPENSSL_DIR/include -L $OPENSSL_DIR/lib && nmake
+Now, run configure and make::
+
+    mkdir -p build && cd build
+    ../configure.bat -prefix $SW/private/qt -ltcg -opensource -release -platform win32-msvc2008 -no-dbus -no-openvg -mp -confirm-license -nomake examples -nomake tests -no-plugin-manifests -openssl -I $SW/private/openssl/include -L $SW/private/openssl/lib -I $SW/private/icu/source/common -I $SW/private/icu/source/i18n -L $SW/private/icu/source/lib -no-qml-debug -skip script -skip serialport -skip webkit-examples -no-sql-mysql -no-sql-odbc -no-sql-sqlite2 -icu -no-angle -opengl desktop 
+    nmake
 
 Add the path to the bin folder inside the Qt dir to your system PATH.
 
