@@ -524,11 +524,14 @@ The Live CSS panel
 
 
 The :guilabel:`Live CSS` panel shows you all the style rules that apply to the
-tag you are currently editing. It is a great way to quickly see which style
-rules apply to any tag. The view also has clickable links (in blue), which take you
-directly to the location where the style was defined, in case you wish to make
-any changes to the style rules. Style rules that apply directly to the tag, as
-well as rules that are inherited from parent tags are shown.
+tag you are currently editing. The name of tag, along with its line number in
+the editor are displayed, followed by a list of matching style rules.
+
+It is a great way to quickly see which style rules apply to any tag. The view
+also has clickable links (in blue), which take you directly to the location
+where the style was defined, in case you wish to make any changes to the style
+rules. Style rules that apply directly to the tag, as well as rules that are
+inherited from parent tags are shown.
 
 The panel also shows you what the finally calculated styles for the tag are, so
 you can see which rules were applied and which were overridden.
