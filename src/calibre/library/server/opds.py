@@ -437,7 +437,7 @@ class OPDSServer(object):
         meta = category_meta.get(category, {})
         category_name = meta.get('name', which)
         which = unhexlify(which)
-        feed_title = default_feed_title + ' :: ' + _('By %s :: %s') % (category_name, which)
+        feed_title = default_feed_title + ' :: ' + (_('By {0} :: {1}').format(category_name, which))
         owhich = hexlify('N'+which)
         up_url = url_for('opdsnavcatalog', version, which=owhich)
         items = categories[category]
