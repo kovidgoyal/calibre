@@ -348,6 +348,8 @@ class Dictionaries(object):
                             ans = d.obj.recognized(word)
                         except ValueError:
                             pass
+                    else:
+                        ans = True
             self.word_cache[key] = ans
         return ans
 
