@@ -36,7 +36,10 @@ def norm_title(title):
     return normalize_entities(normalize_spaces(title))
 
 def get_title(doc):
-    title = doc.find('.//title').text
+    try:
+        title = doc.find('.//title').text
+    except AttributeError:
+        title = None
     if not title:
         return '[no-title]'
 
@@ -101,7 +104,7 @@ def shorten_title(doc):
     return title
 
 def get_body(doc):
-    [ elem.drop_tree() for elem in doc.xpath('.//script | .//link | .//style') ]
+    [elem.drop_tree() for elem in doc.xpath('.//script | .//link | .//style')]
     raw_html = unicode(tostring(doc.body or doc))
     return clean_attributes(raw_html)
 
