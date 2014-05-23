@@ -1,12 +1,7 @@
-# adapted from old recipe by Darko Miletic <darko.miletic at gmail.com>
-
+import re
 from calibre.web.feeds.recipes import BasicNewsRecipe
 
 class TheIndependentNew(BasicNewsRecipe):
-
-     # used for converting rating to stars
-    _STAR_URL = 'http://www.independent.co.uk/skins/ind/images/rating_star.png'
-    _NO_STAR_URL = 'http://www.independent.co.uk/skins/ind/images/rating_star_grey.png'
 
     title                   = u'The Independent'
     __author__              = 'Krittika Goyal'
@@ -23,12 +18,19 @@ class TheIndependentNew(BasicNewsRecipe):
     no_stylesheets          = True
     use_embedded_content    = False
     remove_empty_feeds      = True
-    auto_cleanup = True
     language                = 'en_GB'
     publication_type        = 'newspaper'
     masthead_url            = 'http://www.independent.co.uk/independent.co.uk/editorial/logo/independent_Masthead.png'
     encoding                = 'utf-8'
     compress_news_images    = True
+
+    keep_only_tags = [dict(id='main')]
+    remove_tags = [
+        dict(attrs={'class':['column-2', 'article-links', 'second-gallery', 'buttons']}),
+        dict(attrs={'class':lambda x: x and 'share-tool-ctr' in x.split()}),
+        dict(id=lambda x: x and re.match(r'slideshow-\d+', x)),
+        dict(id=['anchor-href-comment', 'anchor-href-reply', 'commentReference']),
+    ]
 
     feeds = [
         (u'News - UK',
@@ -139,5 +141,3 @@ class TheIndependentNew(BasicNewsRecipe):
         (u'IndyBest',
          u'http://www.independent.co.uk/extras/indybest/?service=rss'),
         ]
-
-
