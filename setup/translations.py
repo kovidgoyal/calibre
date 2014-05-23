@@ -176,7 +176,7 @@ class Translations(POT):  # {{{
             elif locale not in {
                 'en_GB', 'en_CA', 'en_AU', 'si', 'ur', 'sc', 'ltg', 'nds',
                 'te', 'yi', 'fo', 'sq', 'ast', 'ml', 'ku', 'fr_CA', 'him',
-                'jv', 'ka', 'fur', 'ber', 'my', 'fil'}:
+                'jv', 'ka', 'fur', 'ber', 'my', 'fil', 'hy'}:
                 self.warn('No ISO 639 translations for locale:', locale)
 
             ln = normalize_locale(locale).partition('.')[0]
