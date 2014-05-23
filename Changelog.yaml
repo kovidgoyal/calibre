@@ -20,6 +20,54 @@
 #   new recipes:
 #     - title: 
 
+- version: 1.38.0
+  date: 2014-05-23
+
+  new features:
+    - title: "Edit Book: A 'Live CSS' tool that shows all the style rules for the tag you are currently editing."
+      description: "You can use it to easily jump to any style rules that affect the current tag. Enable it via View->Live CSS. See http://manual.calibre-ebook.com/edit.html#the-live-css-panel for details"
+      type: major
+
+    - title: "Add an option to hide the book rating in the cover browser (Preferences->Look & Feel->Cover Browser)."
+      tickets: [1319476]
+
+    - title: "DOCX Input: if no language is defined in the metadata, use the language specified in the document default style."
+      tickets: [1321346]
+
+  bug fixes:
+    - title: "Edit book: Fix regression that sometimes caused incorrect syntax highlighting when non-breaking spaces/typographic hyphens are present in the text."
+      tickets: [1321317]
+
+    - title: "Fix a regression that broke the compare books tool when used outside the book editor."
+      tickets: [1321975]
+
+    - title: "Get Books: Update the Woblink plugin to handle changes to the Woblink website"
+
+    - title: "DOCX Input: Workaround buggy version of Microsoft Word converting newlines in the document summary into _x000d_. They are now ignored when reading metadata from docx files."
+      tickets: [1321343]
+
+    - title: "Edit book: Fix Check Book failing if a binary file such as an image or font is mislabelled in the OPF as being a text file."
+      tickets: [1320977]
+
+    - title: "OS X Build: Fix a bug that was preventing multiple instances of calibre being used by different user accounts on the same computer."
+      tickets: [1320347]
+
+    - title: "Edit book: Dont show an error message when trying to use quick open with no book open"
+
+    - title: "Content server: Add .ibooks (note the trailing s) as an allowed format as well."
+
+    - title: "Edit Book: Fix an error when running the Check Book tool on files with empty <style> tags."
+      tickets: [1320459]
+
+    - title: "Edit Book: A more complete fix for non ascii usernames on windows when using the export file dialog."
+      tickets: [1298071]
+
+  improved recipes:
+    - Ars Technica
+    - Slate
+    - Instapaper
+    - The Independent
+
 - version: 1.37.0
   date: 2014-05-16
 
