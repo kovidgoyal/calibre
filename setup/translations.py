@@ -23,19 +23,10 @@ def qt_sources():
 class POT(Command):  # {{{
 
     description = 'Update the .pot translation template and upload it'
-    LP_BASE = os.path.join(os.path.dirname(Command.SRC))
-    if not os.path.exists(os.path.join(LP_BASE, 'setup', 'iso_639')):
-        # We are in a git checkout, translations are assumed to be in a
-        # directory called calibre-translations at the same level as the
-        # calibre directory.
-        LP_BASE = os.path.join(os.path.dirname(os.path.dirname(Command.SRC)), 'calibre-translations')
-    LP_SRC = os.path.join(LP_BASE, 'src')
-    LP_PATH = os.path.join(LP_SRC, os.path.join(__appname__, 'translations'))
-    LP_ISO_PATH = os.path.join(LP_BASE, 'setup', 'iso_639')
+    TRANSLATIONS = os.path.join(os.path.dirname(Command.SRC), 'translations')
 
     def upload_pot(self, pot):
-        msg = 'Updated translations template'
-        subprocess.check_call(['bzr', 'commit', '-m', msg, pot])
+        return  # TODO: Implement this
 
     def source_files(self):
         ans = []
@@ -78,7 +69,7 @@ class POT(Command):  # {{{
         return '\n'.join(ans)
 
     def run(self, opts):
-        require_git_master()
+        # require_git_master() TODO: Re-enable this once migration is done
         pot_header = textwrap.dedent('''\
         # Translation template file..
         # Copyright (C) %(year)s Kovid Goyal
@@ -126,7 +117,10 @@ class POT(Command):  # {{{
             os.remove(out.name)
             src = pot_header + '\n' + src
             src += '\n\n' + self.get_tweaks_docs()
-            pot = os.path.join(self.LP_PATH, __appname__+'.pot')
+            bdir = os.path.join(self.TRANSLATIONS, __appname__)
+            if not os.path.exists(bdir):
+                os.makedirs(bdir)
+            pot = os.path.join(bdir, 'main.pot')
             # Workaround for bug in xgettext:
             # https://savannah.gnu.org/bugs/index.php?41668
             src = re.sub(r'#, python-brace-format\s+msgid ""\s+.*<code>{0:</code>',
@@ -265,7 +259,6 @@ class GetTranslations(Translations):  # {{{
 
     description = 'Get updated translations from Launchpad'
     BRANCH = 'lp:~kovid/calibre/translations'
-    LP_BASE = os.path.dirname(POT.LP_SRC)
     CMSG = 'Updated translations'
 
     @property
