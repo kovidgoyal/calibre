@@ -8,6 +8,7 @@ __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import json
 
+from cssselect import parse
 from PyQt4.Qt import (
     QWidget, QTimer, QStackedLayout, QLabel, QScrollArea, QVBoxLayout,
     QPainter, Qt, QPalette, QRect, QSize, QSizePolicy, pyqtSignal,
@@ -82,14 +83,15 @@ class Heading(QWidget):  # {{{
 
 class Cell(object):  # {{{
 
-    __slots__ = ('rect', 'text', 'right_align', 'color_role', 'override_color', 'swatch')
+    __slots__ = ('rect', 'text', 'right_align', 'color_role', 'override_color', 'swatch', 'is_overriden')
 
     SIDE_MARGIN = 5
     FLAGS = Qt.AlignVCenter | Qt.TextSingleLine | Qt.TextIncludeTrailingSpaces
 
-    def __init__(self, text, rect, right_align=False, color_role=QPalette.WindowText, swatch=None):
+    def __init__(self, text, rect, right_align=False, color_role=QPalette.WindowText, swatch=None, is_overriden=False):
         self.rect, self.text = rect, text
         self.right_align = right_align
+        self.is_overriden = is_overriden
         self.color_role = color_role
         self.override_color = None
         self.swatch = swatch
@@ -106,6 +108,10 @@ class Cell(object):  # {{{
         if self.swatch is not None:
             r = QRect(br.right() + self.SIDE_MARGIN // 2, br.top() + 2, br.height() - 4, br.height() - 4)
             painter.fillRect(r, self.swatch)
+            br.setRight(r.right())
+        if self.is_overriden:
+            painter.setPen(palette.color(QPalette.WindowText))
+            painter.drawLine(br.left(), br.top() + br.height() // 2, br.right(), br.top() + br.height() // 2)
 # }}}
 
 class Declaration(QWidget):
@@ -144,14 +150,14 @@ class Declaration(QWidget):
             ])
             ypos += max(br1.height(), br2.height()) + 2 * line_spacing
 
-        for (name, value, important, color) in self.data['properties']:
-            text = name + ':\xa0'
+        for prop in self.data['properties']:
+            text = prop.name + ':\xa0'
             br1 = bounding_rect(text)
-            vtext = value + '\xa0' + ('!' if important else '') + important
+            vtext = prop.value + '\xa0' + ('!' if prop.important else '') + prop.important
             br2 = bounding_rect(vtext)
             self.rows.append([
-                Cell(text, QRect(side_margin, ypos, br1.width(), br1.height()), color_role=QPalette.LinkVisited),
-                Cell(vtext, QRect(br1.right() + side_margin, ypos, br2.width(), br2.height()), swatch=color)
+                Cell(text, QRect(side_margin, ypos, br1.width(), br1.height()), color_role=QPalette.LinkVisited, is_overriden=prop.is_overriden),
+                Cell(vtext, QRect(br1.right() + side_margin, ypos, br2.width(), br2.height()), swatch=prop.color, is_overriden=prop.is_overriden)
             ])
             ypos += max(br1.height(), br2.height()) + line_spacing
 
@@ -270,7 +276,7 @@ class Box(QWidget):
         h.toggled.connect(self.heading_toggled)
         self.widgets.append(h), self.layout().addWidget(h)
         ccss = data['computed_css']
-        declaration = {'properties':[[k, ccss[k][0], '', ccss[k][1]] for k in sorted(ccss)]}
+        declaration = {'properties':[Property([k, ccss[k][0], '', ccss[k][1]]) for k in sorted(ccss)]}
         d = Declaration(None, declaration, is_first=True, parent=self)
         self.widgets.append(d), self.layout().addWidget(d)
 
@@ -287,6 +293,19 @@ class Box(QWidget):
         for w in self.widgets:
             w.do_layout()
             w.updateGeometry()
+
+class Property(object):
+
+    __slots__ = 'name', 'value', 'important', 'color', 'specificity', 'is_overriden'
+
+    def __init__(self, prop, specificity=()):
+        self.name, self.value, self.important, self.color = prop
+        self.specificity = tuple(specificity)
+        self.is_overriden = False
+
+    def __repr__(self):
+        return '<Property name=%s value=%s important=%s color=%s specificity=%s is_overriden=%s>' % (
+            self.name, self.value, self.important, self.color, self.specificity, self.is_overriden)
 
 class LiveCSS(QWidget):
 
@@ -393,16 +412,48 @@ class LiveCSS(QWidget):
                 json.dumps(sourceline), json.dumps(tags))).toString())
         result = json.loads(result)
         if result is not None:
+            maximum_specificities = {}
             for node in result['nodes']:
-                for item in node['css']:
-                    href = item['href']
-                    if hasattr(href, 'startswith') and href.startswith('file://'):
-                        href = href[len('file://'):]
-                        if iswindows and href.startswith('/'):
-                            href = href[1:]
-                        if href:
-                            item['href'] = current_container().abspath_to_name(href, root=self.preview.current_root)
+                is_ancestor = node['is_ancestor']
+                for rule in node['css']:
+                    self.process_rule(rule, is_ancestor, maximum_specificities)
+            for node in result['nodes']:
+                for rule in node['css']:
+                    for prop in rule['properties']:
+                        if prop.specificity < maximum_specificities[prop.name]:
+                            prop.is_overriden = True
+
         return result
+
+    def process_rule(self, rule, is_ancestor, maximum_specificities):
+        selector = rule['selector']
+        sheet_index = rule['sheet_index']
+        rule_address = rule['rule_address'] or ()
+        if selector is not None:
+            try:
+                specificity = [0] + list(parse(selector)[0].specificity())
+            except (AttributeError, TypeError):
+                specificity = [0, 0, 0, 0]
+        else:  # style attribute
+            specificity = [1, 0, 0, 0]
+        specificity.extend((sheet_index, tuple(rule_address)))
+        ancestor_specificity = 0 if is_ancestor else 1
+        properties = []
+        for prop in rule['properties']:
+            important = 1 if prop[-1] == 'important' else 0
+            p = Property(prop, [ancestor_specificity] + [important] + specificity)
+            properties.append(p)
+            if p.specificity > maximum_specificities.get(p.name, (0,0,0,0,0,0)):
+                maximum_specificities[p.name] = p.specificity
+        rule['properties'] = properties
+
+        href = rule['href']
+        if hasattr(href, 'startswith') and href.startswith('file://'):
+            href = href[len('file://'):]
+            if iswindows and href.startswith('/'):
+                href = href[1:]
+            if href:
+                rule['href'] = current_container().abspath_to_name(href, root=self.preview.current_root)
 
     @property
     def current_name(self):

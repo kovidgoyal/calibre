@@ -533,8 +533,9 @@ where the style was defined, in case you wish to make any changes to the style
 rules. Style rules that apply directly to the tag, as well as rules that are
 inherited from parent tags are shown.
 
-The panel also shows you what the finally calculated styles for the tag are, so
-you can see which rules were applied and which were overridden.
+The panel also shows you what the finally calculated styles for the tag are.
+Properties in the list that are superseded by higher priority rules are shown
+with a line through them.
 
 You can enable the Live CSS panel via :guilabel:`View->Live CSS`.
 
