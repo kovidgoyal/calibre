@@ -103,6 +103,8 @@ class DeviceConfig(object):
                         continue
                     if hasattr(config_widget.opt_extra_customization[i], 'isChecked'):
                         ec.append(config_widget.opt_extra_customization[i].isChecked())
+                    elif hasattr(config_widget.opt_extra_customization[i], 'currentText'):
+                        ec.append(unicode(config_widget.opt_extra_customization[i].currentText()).strip())
                     else:
                         ec.append(unicode(config_widget.opt_extra_customization[i].text()).strip())
             else:
@@ -124,6 +126,15 @@ class DeviceConfig(object):
             for i,d in enumerate(cls.EXTRA_CUSTOMIZATION_DEFAULT):
                 if i >= len(opts.extra_customization):
                     opts.extra_customization.append(d)
+                # Take the currently selected opt and put it at the front of
+                # the list.
+                if isinstance(d, list):
+                    if not isinstance(opts.extra_customization[i], list):
+                        o = opts.extra_customization[i]
+                        if o in d:
+                            d.remove(o)
+                        d.insert(0, o)
+                    opts.extra_customization[i] = d
         return opts
 
     @classmethod

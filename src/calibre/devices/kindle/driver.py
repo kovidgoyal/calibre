@@ -305,20 +305,21 @@ class KINDLE2(KINDLE):
               ' this information to the Kindle when uploading MOBI files by'
               ' USB. Note that the page numbers do not correspond to any paper'
               ' book.'),
-        _('Use slower but more accurate page number calculation') +
+        _('Page count calculation method') +
             ':::' +
-            _('There are two ways to generate the page number information. Using the more accurate '
-              'generator will produce pages that correspond better to a printed book. '
-              'However, this method is slower and will slow down sending files '
-              'to the Kindle.'),
-        _('Accurate calculation method') +
-            ':::' +
-            _('There are multiple methods to accuratly calculate the page numbers. "accurate" which '
-              'is an estimation based on the number of chapters, paragraphs, and visible lines in the book. '
+            _('There are multiple ways to generate the page number information. '
+              'If a page count is given then the book will be divided into that many pages. '
+              'Otherwise the number of pages will be approximated using one of the following '
+              'methods.\n\n'
+              '* fast: 2300 characters of uncompressed text per page.\n\n'
+              '* accurate: Based on the number of chapters, paragraphs, and visible lines in the book. '
               'This method is designed to simulate an average paperback book where there are 32 lines per '
-              'page and a maximum of 70 characters per line. \n\n'
-              'The "pagebreak" method uses the presense of <mbp:pagebreak> tags within the book to '
-              'determine pages.'),
+              'page and a maximum of 70 characters per line.\n\n'
+              '* pagebreak: The "pagebreak" method uses the presense of <mbp:pagebreak> tags within '
+              'the book to determine pages.\n\n'
+              'Methods other than "fast" are going to be much slower. '
+              'Further, if "pagebreak" fails to determine a page count accurate will be used, and if '
+              '"accurate" fails fast will be used.'),
         _('Custom column name to retrieve page counts from') +
             ':::' +
             _('If you have a custom column in your library that you use to '
@@ -329,14 +330,12 @@ class KINDLE2(KINDLE):
     ]
     EXTRA_CUSTOMIZATION_DEFAULT = [
         True,
-        False,
-        'accurate',
+        ['fast', 'accurate', 'pagebreak'],
         '',
     ]
     OPT_APNX                 = 0
-    OPT_APNX_ACCURATE        = 1
-    OPT_APNX_ACCURATE_METHOD = 2
-    OPT_APNX_CUST_COL        = 3
+    OPT_APNX_ACCURATE_METHOD = 1
+    OPT_APNX_CUST_COL        = 2
     # x330 on the PaperWhite
     THUMBNAIL_HEIGHT         = 330
     # x262 on the Touch. Doesn't choke on x330, though.
@@ -451,9 +450,12 @@ class KINDLE2(KINDLE):
         apnx_path = '%s.apnx' % os.path.join(path, filename)
         apnx_builder = APNXBuilder()
         try:
-            method = None
-            if opts.extra_customization[self.OPT_APNX_ACCURATE]:
-            	method = opts.extra_customization[self.OPT_APNX_ACCURATE_METHOD]
+            method = opts.extra_customization[self.OPT_APNX_ACCURATE_METHOD]
+            if isinstance(method, list):
+                if len(method) > 0:
+                    method = method[0]
+                else:
+                    method = None
             apnx_builder.write_apnx(filepath, apnx_path,
                                     method=method,
                                     page_count=custom_page_count)

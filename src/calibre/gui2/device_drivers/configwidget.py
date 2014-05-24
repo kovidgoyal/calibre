@@ -7,7 +7,7 @@ __docformat__ = 'restructuredtext en'
 import textwrap
 
 from PyQt4.Qt import (QWidget, QListWidgetItem, Qt, QVariant, QLabel,
-        QLineEdit, QCheckBox)
+        QLineEdit, QCheckBox, QComboBox)
 
 from calibre.gui2 import error_dialog, question_dialog
 from calibre.gui2.device_drivers.configwidget_ui import Ui_ConfigWidget
@@ -84,6 +84,18 @@ class ConfigWidget(QWidget, Ui_ConfigWidget):
                         self.opt_extra_customization.append(QCheckBox(label_text))
                         self.opt_extra_customization[-1].setToolTip(tt)
                         self.opt_extra_customization[i].setChecked(bool(settings.extra_customization[i]))
+                    elif isinstance(settings.extra_customization[i], list):
+                        self.opt_extra_customization.append(QComboBox(self))
+                        l = QLabel(label_text)
+                        l.setToolTip(tt)
+                        self.opt_extra_customization[i].setToolTip(tt)
+                        l.setBuddy(self.opt_extra_customization[i])
+                        for li in settings.extra_customization[i]:
+                            print(li)
+                            if not li:
+                                continue
+                            self.opt_extra_customization[i].addItem(li)
+                        self.opt_extra_customization[i].setCurrentIndex(0)
                     else:
                         self.opt_extra_customization.append(QLineEdit(self))
                         l = QLabel(label_text)
