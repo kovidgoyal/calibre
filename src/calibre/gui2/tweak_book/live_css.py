@@ -6,11 +6,11 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import json, math
+import json
 
 from PyQt4.Qt import (
     QWidget, QTimer, QStackedLayout, QLabel, QScrollArea, QVBoxLayout,
-    QPainter, Qt, QFontInfo, QPalette, QRect, QSize, QSizePolicy, pyqtSignal,
+    QPainter, Qt, QPalette, QRect, QSize, QSizePolicy, pyqtSignal,
     QColor)
 
 from calibre.constants import iswindows
@@ -37,8 +37,6 @@ class Heading(QWidget):  # {{{
         except AttributeError:
             return
         f.setBold(True)
-        sz = QFontInfo(f).pointSize()
-        f.setPointSize(int(math.ceil(1.2 * sz)))
         self.setFont(f)
 
     def mousePressEvent(self, ev):
