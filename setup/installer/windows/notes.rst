@@ -203,6 +203,9 @@ cd to <ICU>\source::
     bash ./runConfigureICU Cygwin/MSVC
     make
 
+Make sure the folder containing the ICU dlls is in the PATH. ($SW/private/icu/source/lib)
+This is needed for building Qt.
+
 zlib
 ------
 
@@ -477,8 +480,16 @@ Qt
 --------
 Download Qt sourcecode (.zip) from: http://download.qt-project.org/official_releases/qt/
 
-Run::
-    chmod +x configure.bat qtbase/configure.*
+Extract it to C:\qt (the default location for building $SW/build) does not work
+as Qt's build system generates paths that are too long for windows when used
+from there.
+
+Make sure the folder containing the ICU dlls is in the PATH. ($SW/private/icu/source/lib)
+
+Edit qtwinextras/src/winextras/winshobjidl_p.h and comment out the declaration
+of SHARDAPPIDINFOLINK (just replace the containing ifdef with #if 0). This
+struct is already defined in the header files from the windows sdk and this
+redefinition will cause a compiler error.
 
 Qt uses its own routine to locate and load "system libraries" including the
 openssl libraries needed for "Get Books". This means that we have to apply the
@@ -500,11 +511,11 @@ following patch to have Qt load the openssl libraries bundled with calibre:
 
 Now, run configure and make::
 
-    mkdir -p build && cd build
-    ../configure.bat -prefix $SW/private/qt -ltcg -opensource -release -platform win32-msvc2008 -no-dbus -no-openvg -mp -confirm-license -nomake examples -nomake tests -no-plugin-manifests -openssl -I $SW/private/openssl/include -L $SW/private/openssl/lib -I $SW/private/icu/source/common -I $SW/private/icu/source/i18n -L $SW/private/icu/source/lib -no-qml-debug -skip script -skip serialport -skip webkit-examples -no-sql-mysql -no-sql-odbc -no-sql-sqlite2 -icu -no-angle -opengl desktop 
-    nmake
+    chmod +x configure.bat qtbase/configure.*
+    rm -rf build && mkdir -p build && cd build
+    ../configure.bat -prefix $SW/private/qt -ltcg -opensource -release -platform win32-msvc2008 -no-dbus -no-openvg -mp -confirm-license -nomake examples -nomake tests -no-plugin-manifests -openssl -I $SW/private/openssl/include -L $SW/private/openssl/lib -I $SW/private/icu/source/common -I $SW/private/icu/source/i18n -L $SW/private/icu/source/lib -no-qml-debug -skip script -skip serialport -skip webkit-examples -no-sql-mysql -no-sql-odbc -no-sql-sqlite2 -icu -no-angle -opengl desktop && nmake
 
-Add the path to the bin folder inside the Qt dir to your system PATH.
+Add $SW/private/qt/bin to PATH
 
 SIP
 -----
