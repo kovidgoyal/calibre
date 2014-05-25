@@ -480,21 +480,25 @@ Qt
 --------
 Download Qt sourcecode (.zip) from: http://download.qt-project.org/official_releases/qt/
 
-Extract it to C:\qt (the default location for building $SW/build) does not work
-as Qt's build system generates paths that are too long for windows when used
-from there.
+    * Extract it to C:\qt (the default location for building $SW/build) does
+      not work as Qt's build system generates paths that are too long for
+      windows when used from there.
 
-Make sure the folder containing the ICU dlls is in the PATH. ($SW/private/icu/source/lib)
+    * Make sure the folder containing the ICU dlls is in the PATH. ($SW/private/icu/source/lib)
 
-Edit qtwinextras/src/winextras/winshobjidl_p.h and comment out the declaration
-of SHARDAPPIDINFOLINK (just replace the containing ifdef with #if 0). This
-struct is already defined in the header files from the windows sdk and this
-redefinition will cause a compiler error.
+    * Edit qtwinextras/src/winextras/winshobjidl_p.h and comment out the
+      declaration of SHARDAPPIDINFOLINK (just replace the containing ifdef with
+      #if 0). This struct is already defined in the header files from the
+      windows sdk and this redefinition will cause a compiler error.
 
-Qt uses its own routine to locate and load "system libraries" including the
-openssl libraries needed for "Get Books". This means that we have to apply the
-following patch to have Qt load the openssl libraries bundled with calibre:
+    * VS 2008 does not have stdint.h which WebKit needs, so run the following::
+        wget -O qtwebkit/Source/ThirdParty/leveldb/include/stdint.h 'http://msinttypes.googlecode.com/svn/trunk/stdint.h'
+        cp qtwebkit/Source/ThirdParty/leveldb/include/stdint.h qtwebkit/Source/JavaScriptCore/os-win32
 
+    * Qt uses its own routine to locate and load "system libraries" including
+      the openssl libraries needed for "Get Books". This means that we have to
+      apply the following patch to have Qt load the openssl libraries bundled
+      with calibre:
 
 --- qtbase/src/corelib/plugin/qsystemlibrary.cpp	2011-02-22 05:04:00.000000000 -0700
 +++ qtbase/src/corelib/plugin/qsystemlibrary.cpp	2011-04-25 20:53:13.635247466 -0600
@@ -511,9 +515,10 @@ following patch to have Qt load the openssl libraries bundled with calibre:
 
 Now, run configure and make::
 
-    chmod +x configure.bat qtbase/configure.*
+    chmod +x configure.bat qtbase/configure.* gnuwin32/bin/*
     rm -rf build && mkdir -p build && cd build
-    ../configure.bat -prefix $SW/private/qt -ltcg -opensource -release -platform win32-msvc2008 -no-dbus -no-openvg -mp -confirm-license -nomake examples -nomake tests -no-plugin-manifests -openssl -I $SW/private/openssl/include -L $SW/private/openssl/lib -I $SW/private/icu/source/common -I $SW/private/icu/source/i18n -L $SW/private/icu/source/lib -no-qml-debug -skip script -skip serialport -skip webkit-examples -no-sql-mysql -no-sql-odbc -no-sql-sqlite2 -icu -no-angle -opengl desktop && nmake
+    PATH=/cygdrive/c/Perl64/bin:$PATH ../configure.bat -prefix $SW/private/qt -ltcg -opensource -release -platform win32-msvc2008 -mp -confirm-license -nomake examples -nomake tests -no-plugin-manifests -icu -openssl -I $SW/private/openssl/include -L $SW/private/openssl/lib -I $SW/private/icu/source/common -I $SW/private/icu/source/i18n -L $SW/private/icu/source/lib -no-angle -opengl desktop
+    PATH=/cygdrive/c/Perl64/bin:/cygdrive/c/qt/gnuwin32/bin:$PATH nmake
 
 Add $SW/private/qt/bin to PATH
 
