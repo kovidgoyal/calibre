@@ -27,9 +27,13 @@ class DeviceConfig(object):
     #: EXTRA_CUSTOMIZATION_MESSAGE you *must* set this as well.
     EXTRA_CUSTOMIZATION_DEFAULT = None
 
+    #: A dictionary providing choices for options that should be displayed as a
+    #: combo box to the user. The dictionary maps extra #: customization indexes
+    #: to a set of choices.
+    EXTRA_CUSTOMIZATION_CHOICES = None
+
     SUPPORTS_SUB_DIRS = False
-    SUPPORTS_SUB_DIRS_FOR_SCAN = False # This setting is used when scanning for
-                                       # books when SUPPORTS_SUB_DIRS is False
+    SUPPORTS_SUB_DIRS_FOR_SCAN = False  # This setting is used when scanning for books when SUPPORTS_SUB_DIRS is False
     SUPPORTS_SUB_DIRS_DEFAULT = True
 
     MUST_READ_METADATA = False
@@ -40,7 +44,6 @@ class DeviceConfig(object):
 
     #: If True the user can add new formats to the driver
     USER_CAN_ADD_NEW_FORMATS = True
-
 
     @classmethod
     def _default_save_template(cls):
@@ -81,7 +84,7 @@ class DeviceConfig(object):
         from calibre.gui2.device_drivers.configwidget import ConfigWidget
         cw = ConfigWidget(cls.settings(), cls.FORMATS, cls.SUPPORTS_SUB_DIRS,
             cls.MUST_READ_METADATA, cls.SUPPORTS_USE_AUTHOR_SORT,
-            cls.EXTRA_CUSTOMIZATION_MESSAGE, cls)
+            cls.EXTRA_CUSTOMIZATION_MESSAGE, cls, extra_customization_choices=cls.EXTRA_CUSTOMIZATION_CHOICES)
         return cw
 
     @classmethod
@@ -103,6 +106,8 @@ class DeviceConfig(object):
                         continue
                     if hasattr(config_widget.opt_extra_customization[i], 'isChecked'):
                         ec.append(config_widget.opt_extra_customization[i].isChecked())
+                    elif hasattr(config_widget.opt_extra_customization[i], 'currentText'):
+                        ec.append(unicode(config_widget.opt_extra_customization[i].currentText()).strip())
                     else:
                         ec.append(unicode(config_widget.opt_extra_customization[i].text()).strip())
             else:
@@ -114,6 +119,10 @@ class DeviceConfig(object):
         proxy['save_template'] = st
 
     @classmethod
+    def migrate_extra_customization(cls, vals):
+        return vals
+
+    @classmethod
     def settings(cls):
         opts = cls._config().parse()
         if isinstance(cls.EXTRA_CUSTOMIZATION_DEFAULT, list):
@@ -121,9 +130,7 @@ class DeviceConfig(object):
                 opts.extra_customization = []
             if not isinstance(opts.extra_customization, list):
                 opts.extra_customization = [opts.extra_customization]
-            for i,d in enumerate(cls.EXTRA_CUSTOMIZATION_DEFAULT):
-                if i >= len(opts.extra_customization):
-                    opts.extra_customization.append(d)
+            opts.extra_customization = cls.migrate_extra_customization(opts.extra_customization)
         return opts
 
     @classmethod

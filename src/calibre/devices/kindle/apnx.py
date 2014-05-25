@@ -69,7 +69,7 @@ class APNXBuilder(object):
                     if not pages:
                         pages = self.get_pages_accurate(mobi_file_path)
                 else:
-                    raise('no valid accurate method chosen use fast')
+                    raise Exception('%r is not a valid apnx generation method' % method)
             except:
                 # Fall back to the fast parser if we can't
                 # use the accurate one. Typically this is

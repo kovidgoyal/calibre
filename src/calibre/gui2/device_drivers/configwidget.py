@@ -7,7 +7,7 @@ __docformat__ = 'restructuredtext en'
 import textwrap
 
 from PyQt4.Qt import (QWidget, QListWidgetItem, Qt, QVariant, QLabel,
-        QLineEdit, QCheckBox)
+        QLineEdit, QCheckBox, QComboBox)
 
 from calibre.gui2 import error_dialog, question_dialog
 from calibre.gui2.device_drivers.configwidget_ui import Ui_ConfigWidget
@@ -18,7 +18,7 @@ class ConfigWidget(QWidget, Ui_ConfigWidget):
 
     def __init__(self, settings, all_formats, supports_subdirs,
         must_read_metadata, supports_use_author_sort,
-        extra_customization_message, device):
+        extra_customization_message, device, extra_customization_choices=None):
 
         QWidget.__init__(self)
         Ui_ConfigWidget.__init__(self)
@@ -62,6 +62,7 @@ class ConfigWidget(QWidget, Ui_ConfigWidget):
         else:
             self.opt_use_author_sort.hide()
         if extra_customization_message:
+            extra_customization_choices = extra_customization_choices or {}
             def parse_msg(m):
                 msg, _, tt = m.partition(':::') if m else ('', '', '')
                 return msg.strip(), textwrap.fill(tt.strip(), 100)
@@ -84,6 +85,14 @@ class ConfigWidget(QWidget, Ui_ConfigWidget):
                         self.opt_extra_customization.append(QCheckBox(label_text))
                         self.opt_extra_customization[-1].setToolTip(tt)
                         self.opt_extra_customization[i].setChecked(bool(settings.extra_customization[i]))
+                    elif i in extra_customization_choices:
+                        cb = QComboBox(self)
+                        self.opt_extra_customization.append(cb)
+                        l = QLabel(label_text)
+                        l.setToolTip(tt), cb.setToolTip(tt), l.setBuddy(cb), cb.setToolTip(tt)
+                        for li in sorted(extra_customization_choices[i]):
+                            self.opt_extra_customization[i].addItem(li)
+                        cb.setCurrentIndex(max(0, cb.findText(settings.extra_customization[i])))
                     else:
                         self.opt_extra_customization.append(QLineEdit(self))
                         l = QLabel(label_text)
@@ -111,7 +120,6 @@ class ConfigWidget(QWidget, Ui_ConfigWidget):
                 self.extra_layout.addWidget(self.opt_extra_customization, 1, 0)
         self.opt_save_template.setText(settings.save_template)
 
-
     def up_column(self):
         idx = self.columns.currentRow()
         if idx > 0:
@@ -125,7 +133,8 @@ class ConfigWidget(QWidget, Ui_ConfigWidget):
             self.columns.setCurrentRow(idx+1)
 
     def format_map(self):
-        formats = [unicode(self.columns.item(i).data(Qt.UserRole).toString()) for i in range(self.columns.count()) if self.columns.item(i).checkState()==Qt.Checked]
+        formats = [unicode(self.columns.item(i).data(Qt.UserRole).toString())
+                           for i in range(self.columns.count()) if self.columns.item(i).checkState()==Qt.Checked]
         return formats
 
     def use_subdirs(self):
@@ -156,7 +165,7 @@ class ConfigWidget(QWidget, Ui_ConfigWidget):
             return True
         except Exception as err:
             error_dialog(self, _('Invalid template'),
-                    '<p>'+_('The template %s is invalid:')%tmpl + \
+                    '<p>'+_('The template %s is invalid:')%tmpl +
                     '<br>'+unicode(err), show=True)
 
             return False

@@ -83,7 +83,6 @@ class KINDLE(USBMS):
                                                'replace')
         return mi
 
-
     def get_annotations(self, path_map):
         MBP_FORMATS = [u'azw', u'mobi', u'prc', u'txt']
         mbp_formats = set(MBP_FORMATS)
@@ -182,16 +181,16 @@ class KINDLE(USBMS):
         spanTag['style'] = 'font-weight:bold'
         if bookmark.book_format == 'pdf':
             spanTag.insert(0,NavigableString(
-                _("%(time)s<br />Last Page Read: %(loc)d (%(pr)d%%)") % \
-                            dict(time=strftime(u'%x', timestamp.timetuple()),
-                            loc=last_read_location,
-                            pr=percent_read)))
+                _("%(time)s<br />Last Page Read: %(loc)d (%(pr)d%%)") % dict(
+                    time=strftime(u'%x', timestamp.timetuple()),
+                    loc=last_read_location,
+                    pr=percent_read)))
         else:
             spanTag.insert(0,NavigableString(
-                _("%(time)s<br />Last Page Read: Location %(loc)d (%(pr)d%%)") % \
-                            dict(time=strftime(u'%x', timestamp.timetuple()),
-                            loc=last_read_location,
-                            pr=percent_read)))
+                _("%(time)s<br />Last Page Read: Location %(loc)d (%(pr)d%%)") % dict(
+                    time=strftime(u'%x', timestamp.timetuple()),
+                    loc=last_read_location,
+                    pr=percent_read)))
 
         divTag.insert(dtc, spanTag)
         dtc += 1
@@ -207,23 +206,23 @@ class KINDLE(USBMS):
             for location in sorted(user_notes):
                 if user_notes[location]['text']:
                     annotations.append(
-                            _('<b>Location %(dl)d &bull; %(typ)s</b><br />%(text)s<br />') % \
-                                        dict(dl=user_notes[location]['displayed_location'],
-                                            typ=user_notes[location]['type'],
-                                            text=(user_notes[location]['text'] if \
-                                            user_notes[location]['type'] == 'Note' else \
-                                            '<i>%s</i>' % user_notes[location]['text'])))
+                            _('<b>Location %(dl)d &bull; %(typ)s</b><br />%(text)s<br />') % dict(
+                                dl=user_notes[location]['displayed_location'],
+                                typ=user_notes[location]['type'],
+                                text=(user_notes[location]['text'] if
+                                      user_notes[location]['type'] == 'Note' else
+                                      '<i>%s</i>' % user_notes[location]['text'])))
                 else:
                     if bookmark.book_format == 'pdf':
                         annotations.append(
-                                _('<b>Page %(dl)d &bull; %(typ)s</b><br />') % \
-                                    dict(dl=user_notes[location]['displayed_location'],
-                                        typ=user_notes[location]['type']))
+                                _('<b>Page %(dl)d &bull; %(typ)s</b><br />') % dict(
+                                    dl=user_notes[location]['displayed_location'],
+                                    typ=user_notes[location]['type']))
                     else:
                         annotations.append(
-                                _('<b>Location %(dl)d &bull; %(typ)s</b><br />') % \
-                                    dict(dl=user_notes[location]['displayed_location'],
-                                        typ=user_notes[location]['type']))
+                                _('<b>Location %(dl)d &bull; %(typ)s</b><br />') % dict(
+                                    dl=user_notes[location]['displayed_location'],
+                                    typ=user_notes[location]['type']))
 
             for annotation in annotations:
                 divTag.insert(dtc, annotation)
@@ -231,7 +230,6 @@ class KINDLE(USBMS):
 
         ka_soup.insert(0,divTag)
         return ka_soup
-
 
     def add_annotation_to_library(self, db, db_id, annotation):
         from calibre.ebooks.BeautifulSoup import Tag
@@ -278,7 +276,7 @@ class KINDLE(USBMS):
                 mi.comments = last_update
                 db.set_metadata(mc_id[0], mi)
             else:
-                mi = MetaInformation('My Clippings', authors = ['Kindle'])
+                mi = MetaInformation('My Clippings', authors=['Kindle'])
                 mi.tags = ['Clippings']
                 mi.comments = last_update
                 db.add_books([bm.value['path']], ['txt'], [mi])
@@ -290,7 +288,9 @@ class KINDLE2(KINDLE):
 
     FORMATS     = ['azw', 'mobi', 'azw3', 'prc', 'azw1', 'tpz', 'azw4', 'pobi', 'pdf', 'txt']
     DELETE_EXTS    = KINDLE.DELETE_EXTS + ['.mbp1', '.mbs', '.sdr', '.han']
-    # On the Touch, there's also .asc files, but not using the same basename (for X-Ray & End Actions), azw3f & azw3r files, but all of them are in the .sdr sidecar folder
+    # On the Touch, there's also .asc files, but not using the same basename
+    # (for X-Ray & End Actions), azw3f & azw3r files, but all of them are in
+    # the .sdr sidecar folder
 
     PRODUCT_ID = [0x0002, 0x0004]
     BCD        = [0x0100]
@@ -298,48 +298,53 @@ class KINDLE2(KINDLE):
     # SUPPORTS_SUB_DIRS_FOR_SCAN = True
 
     EXTRA_CUSTOMIZATION_MESSAGE = [
-        _('Send page number information when sending books') +
-            ':::' +
-            _('The Kindle 3 and newer versions can use page number information '
-              'in MOBI files. With this option, calibre will calculate and send'
-              ' this information to the Kindle when uploading MOBI files by'
-              ' USB. Note that the page numbers do not correspond to any paper'
-              ' book.'),
-        _('Use slower but more accurate page number calculation') +
-            ':::' +
-            _('There are two ways to generate the page number information. Using the more accurate '
-              'generator will produce pages that correspond better to a printed book. '
-              'However, this method is slower and will slow down sending files '
-              'to the Kindle.'),
-        _('Accurate calculation method') +
-            ':::' +
-            _('There are multiple methods to accurately calculate the page numbers. "accurate" which '
-              'is an estimation based on the number of chapters, paragraphs, and visible lines in the book. '
-              'This method is designed to simulate an average paperback book where there are 32 lines per '
-              'page and a maximum of 70 characters per line. \n\n'
-              'The "pagebreak" method uses the presense of <mbp:pagebreak> tags within the book to '
-              'determine pages.'),
-        _('Custom column name to retrieve page counts from') +
-            ':::' +
-            _('If you have a custom column in your library that you use to '
-              'store the page count of books, you can have calibre use that '
-              'information, instead of calculating a page count. Specify the '
-              'name of the custom column here, for example, #pages. '),
+        _('Send page number information when sending books') + ':::' + _(
+            'The Kindle 3 and newer versions can use page number information'
+            ' in MOBI files. With this option, calibre will calculate and send'
+            ' this information to the Kindle when uploading MOBI files by'
+            ' USB. Note that the page numbers do not correspond to any paper'
+            ' book.'),
+        _('Page count calculation method') + ':::' + '<p>' + _(
+            'There are multiple ways to generate the page number information.'
+            ' If a page count is given then the book will be divided into that many pages.'
+            ' Otherwise the number of pages will be approximated using one of the following'
+            ' methods.<ul>'
+            ' <li>fast: 2300 characters of uncompressed text per page.\n\n'
+            ' <li>accurate: Based on the number of chapters, paragraphs, and visible lines in the book.'
+            ' This method is designed to simulate an average paperback book where there are 32 lines per'
+            ' page and a maximum of 70 characters per line.\n\n'
+            ' <li>pagebreak: The "pagebreak" method uses the presense of <mbp:pagebreak> tags within'
+            ' the book to determine pages.</ul>'
+            'Methods other than "fast" are going to be much slower.'
+            ' Further, if "pagebreak" fails to determine a page count accurate will be used, and if '
+            ' "accurate" fails fast will be used.'),
+        _('Custom column name to retrieve page counts from') + ':::' + _(
+            'If you have a custom column in your library that you use to'
+            ' store the page count of books, you can have calibre use that'
+            ' information, instead of calculating a page count. Specify the'
+            ' name of the custom column here, for example, #pages.'),
 
     ]
     EXTRA_CUSTOMIZATION_DEFAULT = [
         True,
-        False,
-        'accurate',
+        'fast',
         '',
     ]
     OPT_APNX                 = 0
-    OPT_APNX_ACCURATE        = 1
-    OPT_APNX_ACCURATE_METHOD = 2
-    OPT_APNX_CUST_COL        = 3
+    OPT_APNX_METHOD          = 1
+    OPT_APNX_CUST_COL        = 2
+    EXTRA_CUSTOMIZATION_CHOICES = {OPT_APNX_METHOD:{'fast', 'accurate', 'pagebreak'}}
+
     # x330 on the PaperWhite
     THUMBNAIL_HEIGHT         = 330
     # x262 on the Touch. Doesn't choke on x330, though.
+
+    @classmethod
+    def migrate_extra_customization(cls, vals):
+        if isinstance(vals[cls.OPT_APNX_METHOD], bool):
+            # Previously this option used to be a bool
+            vals[cls.OPT_APNX_METHOD] = 'accurate' if vals[cls.OPT_APNX_METHOD] else 'fast'
+        return vals
 
     def formats_to_scan_for(self):
         ans = USBMS.formats_to_scan_for(self) | {'azw3'}
@@ -408,7 +413,8 @@ class KINDLE2(KINDLE):
         if not coverdata or not coverdata[2]:
             return
         thumb_dir = os.path.join(self._main_prefix, 'system', 'thumbnails')
-        if not os.path.exists(thumb_dir): return
+        if not os.path.exists(thumb_dir):
+            return
 
         from calibre.ebooks.mobi.reader.headers import MetadataHeader
         with lopen(filepath, 'rb') as f:
@@ -451,12 +457,8 @@ class KINDLE2(KINDLE):
         apnx_path = '%s.apnx' % os.path.join(path, filename)
         apnx_builder = APNXBuilder()
         try:
-            method = None
-            if opts.extra_customization[self.OPT_APNX_ACCURATE]:
-            	method = opts.extra_customization[self.OPT_APNX_ACCURATE_METHOD]
-            apnx_builder.write_apnx(filepath, apnx_path,
-                                    method=method,
-                                    page_count=custom_page_count)
+            method = opts.extra_customization[self.OPT_APNX_METHOD]
+            apnx_builder.write_apnx(filepath, apnx_path, method=method, page_count=custom_page_count)
         except:
             print 'Failed to generate APNX'
             import traceback
