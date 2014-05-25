@@ -8,6 +8,7 @@ __docformat__ = 'restructuredtext en'
 Generates and writes an APNX page mapping file.
 '''
 
+import re
 import struct
 
 from calibre.ebooks.mobi.reader.mobi6 import MobiReader
@@ -22,15 +23,15 @@ class APNXBuilder(object):
     Create an APNX file using a pseudo page mapping.
     '''
 
-    def write_apnx(self, mobi_file_path, apnx_path, accurate=True, page_count=0):
+    def write_apnx(self, mobi_file_path, apnx_path, method=None, page_count=0):
         '''
         If you want a fixed number of pages (such as from a custom column) then
         pass in a value to page_count, otherwise a count will be estimated
         using either the fast or accurate algorithm.
         '''
         import uuid
-        apnx_meta = { 'guid': str(uuid.uuid4()).replace('-', '')[:8], 'asin':
-                '', 'cdetype': 'EBOK', 'format': 'MOBI_7', 'acr': '' }
+        apnx_meta = {'guid': str(uuid.uuid4()).replace('-', '')[:8], 'asin':
+                '', 'cdetype': 'EBOK', 'format': 'MOBI_7', 'acr': ''}
 
         with open(mobi_file_path, 'rb') as mf:
             ident = PdbHeaderReader(mf).identity()
@@ -60,17 +61,23 @@ class APNXBuilder(object):
         if page_count:
             pages = self.get_pages_exact(mobi_file_path, page_count)
         else:
-            if accurate:
-                try:
+            try:
+                if method == 'accurate':
                     pages = self.get_pages_accurate(mobi_file_path)
-                except:
-                    # Fall back to the fast parser if we can't
-                    # use the accurate one. Typically this is
-                    # due to the file having DRM.
-                    pages = self.get_pages_fast(mobi_file_path)
-            else:
+                elif method == 'pagebreak':
+                    pages = self.get_pages_pagebreak_tag(mobi_file_path)
+                    if not pages:
+                        pages = self.get_pages_accurate(mobi_file_path)
+                else:
+                    raise('no valid accurate method chosen use fast')
+            except:
+                # Fall back to the fast parser if we can't
+                # use the accurate one. Typically this is
+                # due to the file having DRM.
                 pages = self.get_pages_fast(mobi_file_path)
 
+        if not pages:
+            pages = self.get_pages_fast(mobi_file_path)
         if not pages:
             raise Exception(_('Could not generate page mapping.'))
 
@@ -94,9 +101,11 @@ class APNXBuilder(object):
 
         # Updated header if we have a KF8 file...
         if apnx_meta['format'] == 'MOBI_8':
-            content_header = '{"contentGuid":"%(guid)s","asin":"%(asin)s","cdeType":"%(cdetype)s","format":"%(format)s","fileRevisionId":"1","acr":"%(acr)s"}' % apnx_meta
+            content_header = '{"contentGuid":"%(guid)s","asin":"%(asin)s","cdeType":"%(cdetype)s","format":"%(format)s","fileRevisionId":"1","acr":"%(acr)s"}' % apnx_meta  # noqa
         else:
-            # My 5.1.x Touch & 3.4 K3 seem to handle the 'extended' header fine for legacy mobi files, too. But, since they still handle this one too, let's try not to break old devices, and keep using the simple header ;).
+            # My 5.1.x Touch & 3.4 K3 seem to handle the 'extended' header fine for
+            # legacy mobi files, too. But, since they still handle this one too, let's
+            # try not to break old devices, and keep using the simple header ;).
             content_header = '{"contentGuid":"%(guid)s","asin":"%(asin)s","cdeType":"%(cdetype)s","fileRevisionId":"1"}' % apnx_meta
         page_header = '{"asin":"%(asin)s","pageMap":"(1,a,1)"}' % apnx_meta
 
@@ -259,5 +268,25 @@ class APNXBuilder(object):
         # Every 30 lines is a new page
         for i in xrange(0, len(lines), 32):
             pages.append(lines[i])
+
+        return pages
+
+    def get_pages_pagebreak_tag(self, mobi_file_path):
+        '''
+        Determine pages based on the presense of
+        <mbp:pagebreak>.
+        '''
+        pages = []
+
+        # Get the MOBI html.
+        mr = MobiReader(mobi_file_path, default_log)
+        if mr.book_header.encryption_type != 0:
+            # DRMed book
+            return self.get_pages_fast(mobi_file_path)
+        mr.extract_text()
+
+        html = mr.mobi_html.lower()
+        for m in re.finditer('<[^>]*pagebreak[^>]*>', html):
+            pages.append(m.end())
 
         return pages
