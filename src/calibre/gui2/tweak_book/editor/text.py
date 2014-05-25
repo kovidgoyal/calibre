@@ -19,7 +19,7 @@ from PyQt4.Qt import (
 from calibre import prepare_string_for_xml, xml_entity_to_unicode
 from calibre.gui2.tweak_book import tprefs, TOP
 from calibre.gui2.tweak_book.editor import SYNTAX_PROPERTY, SPELL_PROPERTY
-from calibre.gui2.tweak_book.editor.themes import THEMES, default_theme, theme_color, theme_format
+from calibre.gui2.tweak_book.editor.themes import get_theme, theme_color, theme_format
 from calibre.gui2.tweak_book.editor.syntax.base import SyntaxHighlighter
 from calibre.gui2.tweak_book.editor.syntax.html import HTMLHighlighter, XMLHighlighter
 from calibre.gui2.tweak_book.editor.syntax.css import CSSHighlighter
@@ -163,9 +163,7 @@ class TextEdit(PlainTextEdit):
     def apply_settings(self, prefs=None, dictionaries_changed=False):  # {{{
         prefs = prefs or tprefs
         self.setLineWrapMode(QPlainTextEdit.WidgetWidth if prefs['editor_line_wrap'] else QPlainTextEdit.NoWrap)
-        theme = THEMES.get(prefs['editor_theme'], None)
-        if theme is None:
-            theme = THEMES[default_theme()]
+        theme = get_theme(prefs['editor_theme'])
         self.apply_theme(theme)
         w = self.fontMetrics()
         self.space_width = w.width(' ')

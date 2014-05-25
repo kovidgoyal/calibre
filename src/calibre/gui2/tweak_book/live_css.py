@@ -16,7 +16,7 @@ from PyQt4.Qt import (
 
 from calibre.constants import iswindows
 from calibre.gui2.tweak_book import editors, actions, current_container, tprefs
-from calibre.gui2.tweak_book.editor.themes import THEMES, default_theme, theme_color
+from calibre.gui2.tweak_book.editor.themes import get_theme, theme_color
 from calibre.gui2.tweak_book.editor.text import default_font_family
 
 class Heading(QWidget):  # {{{
@@ -359,9 +359,7 @@ class LiveCSS(QWidget):
         f.setFamily(tprefs['editor_font_family'] or default_font_family())
         f.setPointSize(tprefs['editor_font_size'])
         self.setFont(f)
-        theme = THEMES.get(tprefs['editor_theme'], None)
-        if theme is None:
-            theme = THEMES[default_theme()]
+        theme = get_theme(tprefs['editor_theme'])
         pal = self.palette()
         pal.setColor(pal.Window, theme_color(theme, 'Normal', 'bg'))
         pal.setColor(pal.WindowText, theme_color(theme, 'Normal', 'fg'))

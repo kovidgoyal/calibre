@@ -226,6 +226,12 @@ def u(x):
     return x + 'Underline'
 underline_styles = {x:getattr(SyntaxTextCharFormat, u(x)) for x in underline_styles}
 
+def get_theme(name):
+    try:
+        return THEMES[name]
+    except KeyError:
+        return THEMES[default_theme()]
+
 def highlight_to_char_format(h):
     ans = SyntaxTextCharFormat()
     if h.bold:

@@ -26,9 +26,9 @@ from calibre import human_readable, fit_image
 from calibre.gui2 import info_dialog
 from calibre.gui2.tweak_book import tprefs
 from calibre.gui2.tweak_book.editor.text import PlainTextEdit, default_font_family, LineNumbers
-from calibre.gui2.tweak_book.editor.themes import theme_color
+from calibre.gui2.tweak_book.editor.themes import theme_color, get_theme
 from calibre.gui2.tweak_book.diff import get_sequence_matcher
-from calibre.gui2.tweak_book.diff.highlight import get_theme, get_highlighter
+from calibre.gui2.tweak_book.diff.highlight import get_highlighter
 
 Change = namedtuple('Change', 'ltop lbot rtop rbot kind')
 
@@ -119,7 +119,7 @@ class TextBrowser(PlainTextEdit):  # {{{
         font = self.heading_font = QFont(self.font())
         font.setPointSize(int(tprefs['editor_font_size'] * 1.5))
         font.setBold(True)
-        theme = get_theme()
+        theme = get_theme(tprefs['editor_theme'])
         pal = self.palette()
         pal.setColor(pal.Base, theme_color(theme, 'Normal', 'bg'))
         pal.setColor(pal.AlternateBase, theme_color(theme, 'CursorLine', 'bg'))
