@@ -513,12 +513,12 @@ Download Qt sourcecode (.zip) from: http://download.qt-project.org/official_rele
  
 -no-plugin-manifests is needed so that loading the plugins does not fail looking for the CRT assembly
 
-Now, run configure and make::
+Now, run configure and make (we have to make sure the windows perl and not cygwin perl is used)::
 
     chmod +x configure.bat qtbase/configure.* gnuwin32/bin/*
     rm -rf build && mkdir -p build && cd build
-    PATH=/cygdrive/c/Perl64/bin:$PATH ../configure.bat -prefix $SW/private/qt -ltcg -opensource -release -platform win32-msvc2008 -mp -confirm-license -nomake examples -nomake tests -no-plugin-manifests -icu -openssl -I $SW/private/openssl/include -L $SW/private/openssl/lib -I $SW/private/icu/source/common -I $SW/private/icu/source/i18n -L $SW/private/icu/source/lib -no-angle -opengl desktop
-    PATH=/cygdrive/c/Perl64/bin:/cygdrive/c/qt/gnuwin32/bin:$PATH nmake
+    PATH=`ls -d /cygdrive/c/Perl*/bin`:$PATH ../configure.bat -prefix $SW/private/qt -ltcg -opensource -release -platform win32-msvc2008 -mp -confirm-license -nomake examples -nomake tests -no-plugin-manifests -icu -openssl -I $SW/private/openssl/include -L $SW/private/openssl/lib -I $SW/private/icu/source/common -I $SW/private/icu/source/i18n -L $SW/private/icu/source/lib -no-angle -opengl desktop
+    PATH=`ls -d /cygdrive/c/Perl*/bin`:/cygdrive/c/qt/gnuwin32/bin:$PATH nmake
     rm -rf $SW/private/qt && nmake install
 
 Add $SW/private/qt/bin to PATH
