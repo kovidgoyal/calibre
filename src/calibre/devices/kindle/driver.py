@@ -340,6 +340,16 @@ class KINDLE2(KINDLE):
     THUMBNAIL_HEIGHT         = 330
     # x262 on the Touch. Doesn't choke on x330, though.
 
+    def settings(self):
+        s = super(KINDLE, self).settings()
+        # Previous versions used OPT_APNX_ACCURATE as a bool to enable accurate apnx algorithm.
+        # Later versions changed to OPT_APNX_ACCURATE_METHOD which takes a string representing
+        # the algorithm to use. Convert any stored bool values to accurate or fast which were
+        # the previous meanings of bool.
+        if isinstance(s[self.OPT_APNX_ACCURATE_METHOD], bool):
+            s[self.OPT_APNX_ACCURATE_METHOD] = 'accurate' if s[self.OPT_APNX_ACCURATE_METHOD] else 'fast'
+        return s
+
     def formats_to_scan_for(self):
         ans = USBMS.formats_to_scan_for(self) | {'azw3'}
         return ans
