@@ -519,6 +519,7 @@ Now, run configure and make::
     rm -rf build && mkdir -p build && cd build
     PATH=/cygdrive/c/Perl64/bin:$PATH ../configure.bat -prefix $SW/private/qt -ltcg -opensource -release -platform win32-msvc2008 -mp -confirm-license -nomake examples -nomake tests -no-plugin-manifests -icu -openssl -I $SW/private/openssl/include -L $SW/private/openssl/lib -I $SW/private/icu/source/common -I $SW/private/icu/source/i18n -L $SW/private/icu/source/lib -no-angle -opengl desktop
     PATH=/cygdrive/c/Perl64/bin:/cygdrive/c/qt/gnuwin32/bin:$PATH nmake
+    rm -rf $SW/private/qt && nmake install
 
 Add $SW/private/qt/bin to PATH
 
