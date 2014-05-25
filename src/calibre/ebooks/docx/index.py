@@ -60,7 +60,10 @@ def add_xe(xe, t):
     text = xe.get('text', '')
     pt = xe.get('page-number-text', None)
     t.text = text or ' '
-    if pt:
+    if False and pt:
+        # We ignore the page numbering text as it breaks the merging code
+        # below, which assumes every block ends with a link. I dont have the
+        # time/motivation right now to fix the merging code.
         p = t.getparent().getparent()
         r = p.makeelement(expand('w:r'))
         p.append(r)
