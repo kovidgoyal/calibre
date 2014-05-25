@@ -330,9 +330,9 @@ class WebPage(QWebPage):
         mf.evaluateJavaScript(self.js)
 
     @pyqtSlot(str, str, str)
-    def request_sync(self, tag_name, href, lnum):
+    def request_sync(self, tag_name, href, sourceline_address):
         try:
-            self.sync_requested.emit(unicode(tag_name), unicode(href), int(unicode(lnum)))
+            self.sync_requested.emit(unicode(tag_name), unicode(href), json.loads(unicode(sourceline_address)))
         except (TypeError, ValueError, OverflowError, AttributeError):
             pass
 
@@ -368,6 +368,14 @@ class WebPage(QWebPage):
             return
         self.mainFrame().evaluateJavaScript(
             'window.calibre_preview_integration.go_to_line(%d)' % lnum)
+
+    def go_to_sourceline_address(self, sourceline_address):
+        lnum, tags = sourceline_address
+        if lnum is None:
+            return
+        tags = [x.lower() for x in tags]
+        self.mainFrame().evaluateJavaScript(
+            'window.calibre_preview_integration.go_to_sourceline_address(%d, %s)' % (lnum, json.dumps(tags)))
 
     def split_mode(self, enabled):
         self.mainFrame().evaluateJavaScript(
@@ -538,8 +546,8 @@ class Preview(QWidget):
         if self.current_name:
             self.split_requested.emit(self.current_name, loc, totals)
 
-    def sync_to_editor(self, name, lnum):
-        self.current_sync_request = (name, lnum)
+    def sync_to_editor(self, name, sourceline_address):
+        self.current_sync_request = (name, sourceline_address)
         QTimer.singleShot(100, self._sync_to_editor)
 
     def _sync_to_editor(self):
@@ -550,9 +558,9 @@ class Preview(QWidget):
                 return QTimer.singleShot(100, self._sync_to_editor)
         except TypeError:
             return  # Happens if current_sync_request is None
-        lnum = self.current_sync_request[1]
+        sourceline_address = self.current_sync_request[1]
         self.current_sync_request = None
-        self.view.page().go_to_line(lnum)
+        self.view.page().go_to_sourceline_address(sourceline_address)
 
     def show(self, name):
         if name != self.current_name:

@@ -1014,11 +1014,11 @@ class Boss(QObject):
         mt = current_container().mime_map.get(name, guess_type(name))
         self.edit_file_requested(name, None, mt)
 
-    def sync_editor_to_preview(self, name, lnum):
+    def sync_editor_to_preview(self, name, sourceline_address):
         editor = self.edit_file(name, 'html')
         self.ignore_preview_to_editor_sync = True
         try:
-            editor.current_line = lnum
+            editor.goto_sourceline(*sourceline_address)
         finally:
             self.ignore_preview_to_editor_sync = False
 
@@ -1029,7 +1029,7 @@ class Boss(QObject):
         if ed is not None:
             name = editor_name(ed)
             if name is not None and getattr(ed, 'syntax', None) == 'html':
-                self.gui.preview.sync_to_editor(name, ed.current_line)
+                self.gui.preview.sync_to_editor(name, ed.current_tag())
 
     def sync_live_css_to_editor(self):
         ed = self.gui.central.current_editor

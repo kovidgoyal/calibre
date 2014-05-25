@@ -226,6 +226,11 @@ get_matched_css = (node, is_ancestor, all_properties) ->
 
     return ans.reverse()
 
+scroll_to_node = (node) ->
+    if node is document.body
+        window.scrollTo(0, 0)
+    else
+        node.scrollIntoView()
 
 class PreviewIntegration
 
@@ -244,11 +249,15 @@ class PreviewIntegration
         for node in document.querySelectorAll('[data-lnum="' + lnum + '"]')
             if is_hidden(node)
                 continue
-            if node is document.body
-                window.scrollTo(0, 0)
-            else
-                node.scrollIntoView()
-            return
+            scroll_to_node(node)
+
+    go_to_sourceline_address: (sourceline, tags) =>
+        for node, index in document.querySelectorAll('[data-lnum="' + sourceline + '"]')
+            if index >= tags.length or node.tagName.toLowerCase() != tags[index]
+                break
+            if index == tags.length - 1 and not is_hidden(node)
+                return scroll_to_node(node)
+        this.go_to_line(sourceline)
 
     line_numbers: () =>
         found_body = false
@@ -300,14 +309,14 @@ class PreviewIntegration
             this.report_split(event.target)
         else
             e = event.target
+            address = get_sourceline_address(e)
             # Find the closest containing link, if any
-            lnum = e.getAttribute('data-lnum')
             href = tn = ''
             while e and e != document.body and e != document and (tn != 'a' or not href)
                 tn = e.tagName?.toLowerCase()
                 href = e.getAttribute('href')
                 e = e.parentNode
-            window.py_bridge.request_sync(tn, href, lnum)
+            window.py_bridge.request_sync(tn, href, JSON.stringify(address))
         return false
 
     go_to_anchor: (anchor, lnum) =>
