@@ -265,10 +265,18 @@ class GetTranslations(Translations):  # {{{
 
     description = 'Get updated translations from Transifex'
 
+    @property
+    def is_modified(self):
+        return bool(subprocess.check_output('git status --porcelain'.split(), cwd=self.TRANSLATIONS))
+
     def run(self, opts):
         require_git_master()
         self.tx('pull -a')
-        self.check_for_errors()
+        if self.is_modified:
+            self.check_for_errors()
+            self.upload_to_vcs()
+        else:
+            print ('No translations were updated')
 
     def check_for_errors(self):
         errors = os.path.join(tempfile.gettempdir(), 'calibre-translation-errors')
@@ -309,6 +317,13 @@ class GetTranslations(Translations):  # {{{
                 self.tx('push -r calibre.main -t -l ' + ','.join(languages))
             return True
         return False
+
+    def upload_to_vcs(self):
+        print ('Uploading updated translations to version control')
+        cc = partial(subprocess.check_call, cwd=self.TRANSLATIONS)
+        cc('git add */*.po'.split())
+        cc('git commit -am'.split() + ['Updated translations'])
+        cc('git push'.split())
 
 # }}}
 
