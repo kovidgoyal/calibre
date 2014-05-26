@@ -99,7 +99,6 @@ class LibraryViewMixin(object):  # {{{
                     if v is self.library_view and v.row_count() == 0:
                         self.book_details.reset_info()
 
-
     # }}}
 
 class LibraryWidget(Splitter):  # {{{
@@ -317,13 +316,17 @@ class VLTabs(QTabBar):  # {{{
         db = self.current_db
         vl_map = db.prefs.get('virtual_libraries', {})
         virt_libs = frozenset(vl_map)
-        hidden = frozenset(db.prefs['virt_libs_hidden'])
+        hidden = set(db.prefs['virt_libs_hidden'])
         if hidden - virt_libs:
-            db.prefs['virt_libs_hidden'] = list(hidden.intersection(virt_libs))
+            hidden = hidden.intersection(virt_libs)
+            db.prefs['virt_libs_hidden'] = list(hidden)
         order = db.prefs['virt_libs_order']
         while self.count():
             self.removeTab(0)
         current_lib = db.data.get_base_restriction_name()
+        if current_lib in hidden:
+            hidden.discard(current_lib)
+            db.prefs['virt_libs_hidden'] = list(hidden)
         current_idx = all_idx = None
         virt_libs = (set(virt_libs) - hidden) | {''}
         order = {x:i for i, x in enumerate(order)}
