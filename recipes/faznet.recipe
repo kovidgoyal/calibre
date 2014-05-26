@@ -53,10 +53,10 @@ class FazNet(BasicNewsRecipe):
             nexturl = self.INDEX + pager['href']
             soup2 = self.index_to_soup(nexturl)
             texttag = soup2.find('div', attrs={'class':'FAZArtikelContent'})
-            texttag.find('div', attrs={'class':'ArtikelFooter'}).extract()
-            texttag.find('div', attrs={'class':'ArtikelAbbinder'}).extract()
-            texttag.find('div', attrs={'class':'ArtikelKommentieren Artikelfuss GETS;tk;boxen.top-lesermeinungen;tp;content'}).extract()
-            texttag.find('div', attrs={'class':'Anzeige GoogleAdsBuehne'}).extract()
+            for cls in ('ArtikelFooter', 'ArtikelAbbinder', 'ArtikelKommentieren Artikelfuss GETS;tk;boxen.top-lesermeinungen;tp;content', 'Anzeige GoogleAdsBuehne'):
+                div = texttag.find(attrs={'class':cls})
+                if div is not None:
+                    div.extract()
             newpos = len(texttag.contents)
             self.append_page(soup2,texttag,newpos)
             texttag.extract()
