@@ -6,7 +6,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, tempfile, shutil, subprocess, glob, re, time, textwrap, cPickle
+import os, tempfile, shutil, subprocess, glob, re, time, textwrap, cPickle, shlex
 from locale import normalize as normalize_locale
 from functools import partial
 
@@ -25,8 +25,14 @@ class POT(Command):  # {{{
     description = 'Update the .pot translation template and upload it'
     TRANSLATIONS = os.path.join(os.path.dirname(Command.SRC), 'translations')
 
+    def tx(self, cmd, **kw):
+        kw['cwd'] = kw.get('cwd', self.TRANSLATIONS)
+        if hasattr(cmd, 'format'):
+            cmd = shlex.split(cmd)
+        return subprocess.check_call(['tx'] + cmd, **kw)
+
     def upload_pot(self, pot):
-        return  # TODO: Implement this
+        self.tx('push -r calibre.main -s', cwd=self.TRANSLATIONS)
 
     def source_files(self):
         ans = []
@@ -69,7 +75,7 @@ class POT(Command):  # {{{
         return '\n'.join(ans)
 
     def run(self, opts):
-        # require_git_master() TODO: Re-enable this once migration is done
+        require_git_master()
         pot_header = textwrap.dedent('''\
         # Translation template file..
         # Copyright (C) %(year)s Kovid Goyal
@@ -139,7 +145,7 @@ class Translations(POT):  # {{{
             'locales')
 
     def po_files(self):
-        return glob.glob(os.path.join(self.LP_PATH, '*.po'))
+        return glob.glob(os.path.join(self.TRANSLATIONS, __appname__, '*.po'))
 
     def mo_file(self, po_file):
         locale = os.path.splitext(os.path.basename(po_file))[0]
@@ -159,7 +165,7 @@ class Translations(POT):  # {{{
             self.info('\tCompiling translations for', locale)
             subprocess.check_call(['msgfmt', '-o', dest, f])
             iscpo = {'bn':'bn_IN', 'zh_HK':'zh_CN'}.get(locale, locale)
-            iso639 = self.j(self.LP_ISO_PATH, '%s.po'%iscpo)
+            iso639 = self.j(self.TRANSLATIONS, 'iso_639', '%s.po'%iscpo)
 
             if os.path.exists(iso639):
                 self.check_iso639(iso639)
@@ -170,7 +176,7 @@ class Translations(POT):  # {{{
             elif locale not in {
                 'en_GB', 'en_CA', 'en_AU', 'si', 'ur', 'sc', 'ltg', 'nds',
                 'te', 'yi', 'fo', 'sq', 'ast', 'ml', 'ku', 'fr_CA', 'him',
-                'jv', 'ka', 'fur', 'ber', 'my', 'fil', 'hy'}:
+                'jv', 'ka', 'fur', 'ber', 'my', 'fil', 'hy', 'ug'}:
                 self.warn('No ISO 639 translations for locale:', locale)
 
             ln = normalize_locale(locale).partition('.')[0]
@@ -234,7 +240,7 @@ class Translations(POT):  # {{{
         if not self.newer(dest, files):
             return
         self.info('Calculating translation statistics...')
-        raw = self.get_stats(self.j(self.LP_PATH, 'calibre.pot'))
+        raw = self.get_stats(self.j(self.TRANSLATIONS, __appname__, 'main.pot'))
         total = int(raw.split(',')[-1].strip().split()[0])
         stats = {}
         for f in files:
@@ -257,8 +263,7 @@ class Translations(POT):  # {{{
 
 class GetTranslations(Translations):  # {{{
 
-    description = 'Get updated translations from Launchpad'
-    BRANCH = 'lp:~kovid/calibre/translations'
+    description = 'Get updated translations from Transifex'
     CMSG = 'Updated translations'
 
     @property
