@@ -264,49 +264,19 @@ class Translations(POT):  # {{{
 class GetTranslations(Translations):  # {{{
 
     description = 'Get updated translations from Transifex'
-    CMSG = 'Updated translations'
-
-    @property
-    def modified_translations(self):
-        raw = subprocess.check_output(['bzr', 'status', '-S', self.LP_PATH]).strip()
-        ans = []
-        for line in raw.splitlines():
-            line = line.strip()
-            if line.startswith('M') and line.endswith('.po'):
-                ans.append(line.split()[-1])
-        return ans
-
-    def resolve_conflicts(self):
-        conflict = False
-        for line in subprocess.check_output(['bzr', 'status'], cwd=self.LP_BASE).splitlines():
-            if line == 'conflicts:':
-                conflict = True
-                break
-        if not conflict:
-            raise Exception('bzr merge failed and no conflicts found')
-        subprocess.check_call(['bzr', 'resolve', '--take-other'], cwd=self.LP_BASE)
 
     def run(self, opts):
         require_git_master()
-        if not self.modified_translations:
-            try:
-                subprocess.check_call(['bzr', 'merge', self.BRANCH], cwd=self.LP_BASE)
-            except subprocess.CalledProcessError:
-                self.resolve_conflicts()
+        self.tx('pull -a')
         self.check_for_errors()
-
-        if self.modified_translations:
-            subprocess.check_call(['bzr', 'commit', '-m',
-                self.CMSG], cwd=self.LP_BASE)
-        else:
-            print('No updated translations available')
 
     def check_for_errors(self):
         errors = os.path.join(tempfile.gettempdir(), 'calibre-translation-errors')
         if os.path.exists(errors):
             shutil.rmtree(errors)
         os.mkdir(errors)
-        pofilter = ('pofilter', '-i', self.LP_PATH, '-o', errors,
+        tpath = self.j(self.TRANSLATIONS, __appname__)
+        pofilter = ('pofilter', '-i', tpath, '-o', errors,
                 '-t', 'accelerators', '-t', 'escapes', '-t', 'variables',
                 # '-t', 'xmltags',
                 # '-t', 'brackets',
@@ -329,8 +299,14 @@ class GetTranslations(Translations):  # {{{
                     f.truncate()
                     f.write(raw)
 
-            subprocess.check_call(['pomerge', '-t', self.LP_PATH, '-i', errors, '-o',
-                self.LP_PATH])
+            subprocess.check_call(['pomerge', '-t', tpath, '-i', errors, '-o', tpath])
+            languages = []
+            for f in glob.glob(self.j(errors, '*.po')):
+                lc = os.path.basename(f).rpartition('.')[0]
+                languages.append(lc)
+            if languages:
+                print('Pushing fixes for languages: %s', ', '.join(languages))
+                self.tx('push -r calibre.main -t -l ' + ','.join(languages))
             return True
         return False
 
