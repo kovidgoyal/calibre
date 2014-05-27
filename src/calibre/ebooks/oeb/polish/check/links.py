@@ -95,10 +95,21 @@ class Unmanifested(BadLink):
              ' it is good practice to list all files in the manifest. Either list this'
              ' file in the manifest or remove it from the book if it is an unnecessary file.')
 
-    def __init__(self, name):
+    def __init__(self, name, unreferenced=None):
         BadLink.__init__(self, _(
             'The file %s is not listed in the manifest') % name, name)
+        self.file_action = None
+        if unreferenced is not None:
+            self.INDIVIDUAL_FIX = _(
+                'Remove %s from the book') % name if unreferenced else _(
+                    'Add %s to the manifest') % name
+            self.file_action = 'remove' if unreferenced else 'add'
 
+    def __call__(self, container):
+        if self.file_action == 'remove':
+            container.remove_item(self.name)
+        else:
+            container.add_name_to_manifest(self.name)
 
 class Bookmarks(BadLink):
 
@@ -251,7 +262,7 @@ def check_links(container):
     manifest_names = set(container.manifest_id_map.itervalues())
     for name in container.mime_map:
         if name not in manifest_names and not container.ok_to_be_unmanifested(name):
-            a(Unmanifested(name))
+            a(Unmanifested(name, unreferenced=name in unreferenced))
         if name == 'META-INF/calibre_bookmarks.txt':
             a(Bookmarks(name))
 
