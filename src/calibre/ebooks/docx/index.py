@@ -60,10 +60,7 @@ def add_xe(xe, t):
     text = xe.get('text', '')
     pt = xe.get('page-number-text', None)
     t.text = text or ' '
-    if False and pt:
-        # We ignore the page numbering text as it breaks the merging code
-        # below, which assumes every block ends with a link. I dont have the
-        # time/motivation right now to fix the merging code.
+    if pt:
         p = t.getparent().getparent()
         r = p.makeelement(expand('w:r'))
         p.append(r)
@@ -141,7 +138,7 @@ def split_up_block(block, a, text, parts, ldict):
 """
 The merge algorithm is a little tricky.
 We start with a list of elementary blocks. Each is an HtmlElement, a p node
-with a list of child nodes. The last child is a link, and the earlier ones are
+with a list of child nodes. The last child may be a link, and the earlier ones are
 just text.
 The list is in reverse order from what we want in the index.
 There is a dictionary ldict which records the level of each child node.
@@ -158,7 +155,8 @@ Start with (p, p1) and (n, n1).
 
 Given (p, p1, ..., pk) and (n, n1, ..., nk) which we want to merge:
 
-If there are no more levels in n, then add the link from nk to the links for pk.
+If there are no more levels in n, and we have a link in nk,
+then add the link from nk to the links for pk.
 This might be the first link for pk, or we might get a list of references.
 
 Otherwise nk+1 is the next level in n. Look for a matching entry in p. It must have
@@ -172,9 +170,11 @@ to insert nk+1 and all following entries from n into p immediately following pk.
 """
 
 def find_match(prev_block, pind, nextent, ldict):
-    curlevel = ldict[prev_block[pind]]
+    curlevel = ldict.get(prev_block[pind], -1)
+    if curlevel < 0:
+        return -1
     for p in range(pind+1, len(prev_block)):
-        trylev = ldict[prev_block[p]]
+        trylev = ldict.get(prev_block[p], -1)
         if trylev <= curlevel:
             return -1
         if trylev > (curlevel+1):
@@ -185,6 +185,9 @@ def find_match(prev_block, pind, nextent, ldict):
 
 def add_link(pent, nent, ldict):
     na = nent.xpath('descendant::a[1]')
+    # If there is no link, leave it as text
+    if not na or len(na) == 0:
+        return
     na = na[0]
     pa = pent.xpath('descendant::a')
     if pa and len(pa) > 0:
