@@ -40,7 +40,7 @@ if isosx:
     defs['action-layout-toolbar'] = (
         'Add Books', 'Edit Metadata', None, 'Convert Books', 'View', None,
         'Choose Library', 'Donate', None, 'Fetch News', 'Store', 'Save To Disk',
-        'Connect Share', None, 'Remove Books',
+        'Connect Share', None, 'Remove Books', 'Tweak ePub'
         )
     defs['action-layout-toolbar-device'] = (
         'Add Books', 'Edit Metadata', None, 'Convert Books', 'View',
@@ -55,7 +55,7 @@ else:
         'Add Books', 'Edit Metadata', None, 'Convert Books', 'View', None,
         'Store', 'Donate', 'Fetch News', 'Help', None,
         'Remove Books', 'Choose Library', 'Save To Disk',
-        'Connect Share', 'Preferences',
+        'Connect Share', 'Tweak ePub', 'Preferences',
         )
     defs['action-layout-toolbar-device'] = (
         'Add Books', 'Edit Metadata', None, 'Convert Books', 'View',
