@@ -130,8 +130,9 @@ class PlainTextEdit(QPlainTextEdit):
 
 class TextEdit(PlainTextEdit):
 
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, expected_geometry=(100, 50)):
         PlainTextEdit.__init__(self, parent)
+        self.expected_geometry = expected_geometry
         self.saved_matches = {}
         self.smarts = NullSmarts(self)
         self.current_cursor_line = None
@@ -200,7 +201,7 @@ class TextEdit(PlainTextEdit):
         self.highlighter.apply_theme(theme)
         w = self.fontMetrics()
         self.number_width = max(map(lambda x:w.width(str(x)), xrange(10)))
-        self.size_hint = QSize(100 * w.averageCharWidth(), 50 * w.height())
+        self.size_hint = QSize(self.expected_geometry[0] * w.averageCharWidth(), self.expected_geometry[1] * w.height())
         self.highlight_color = theme_color(theme, 'HighlightRegion', 'bg')
         self.highlight_cursor_line()
     # }}}

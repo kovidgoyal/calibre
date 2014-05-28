@@ -6,13 +6,14 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
+import textwrap
 from collections import namedtuple
 
 from PyQt4.Qt import (
     QColor, QBrush, QFont, QApplication, QPalette, QComboBox,
     QPushButton, QIcon, QFormLayout, QLineEdit, QWidget, QScrollArea,
     QVBoxLayout, Qt, QHBoxLayout, pyqtSignal, QPixmap, QColorDialog,
-    QToolButton, QCheckBox, QSize, QLabel)
+    QToolButton, QCheckBox, QSize, QLabel, QSplitter)
 
 from calibre.gui2 import error_dialog
 from calibre.gui2.tweak_book import tprefs
@@ -235,9 +236,14 @@ underline_styles = {x:getattr(SyntaxTextCharFormat, u(x)) for x in underline_sty
 
 def to_highlight(data):
     data = data.copy()
-    for c in ('fg', 'bg', 'uc'):
-        data[c] = read_color(data[c]) if c in data else None
+    for c in ('fg', 'bg', 'underline_color'):
+        data[c] = read_color(data[c]) if data.get(c, None) is not None else None
     return Highlight(**data)
+
+def read_custom_theme(data):
+    dt = THEMES[default_theme()].copy()
+    dt.update({k:to_highlight(v) for k, v in data.iteritems()})
+    return dt
 
 def get_theme(name):
     try:
@@ -248,9 +254,7 @@ def get_theme(name):
         except KeyError:
             return THEMES[default_theme()]
         else:
-            dt = THEMES[default_theme()].copy()
-            dt.update({k:to_highlight(v) for k, v in ans.iteritems()})
-            return dt
+            return read_custom_theme(ans)
 
 def highlight_to_char_format(h):
     ans = SyntaxTextCharFormat()
@@ -445,7 +449,7 @@ class Property(QWidget):
 class ThemeEditor(Dialog):
 
     def __init__(self, parent=None):
-        Dialog.__init__(self, _('Create/edit custom theme'), 'custom-theme-editor', parent=parent)
+        Dialog.__init__(self, _('Create/edit custom theme'), 'custom-theme-editor8', parent=parent)
 
     def setup_ui(self):
         self.block_show = False
@@ -473,10 +477,91 @@ class ThemeEditor(Dialog):
         self.scroll = s = QScrollArea(self)
         self.w = w = QWidget(self)
         s.setWidget(w), s.setWidgetResizable(True)
-
         self.cl = cl = QVBoxLayout()
         w.setLayout(cl)
-        l.addWidget(s)
+
+        from calibre.gui2.tweak_book.editor.text import TextEdit
+        self.preview = p = TextEdit(self, expected_geometry=(73, 50))
+        p.load_text(textwrap.dedent(_(
+        '''\
+            <h2>Creating a custom theme</h2>
+
+            <p id="attribute">You can create a custom syntax highlighting
+            theme, with your own colors and font styles. The most important
+            types of highlighting rules are described below. Note that not
+            every rule supports every kind of customization, for example,
+            changing font or underline styles for the <code>Cursor</code> rule
+            does not have any effect as that rule is used only for the color of
+            the blinking cursor.</p>
+
+            <p>As you make changes to your them on the left, the changes will
+            be reflected live in this panel.</p>
+
+            <p xml:lang="xyz">
+            {0}
+                The most important rule. Sets the
+                foreground and background colors for the editor as well as the
+                style of "normal" text, that is, text that does not match any
+                special syntax.
+
+            {1}
+                Defines the colors for text selected by the mouse.
+
+            {2}
+                Defines the color for the line containing the cursor.
+
+            {3}
+                Defines the colors for the line numbers on the left.
+
+            {4}
+                Defines the colors for matching tags in HTML and matching
+                braces in CSS.
+
+            {5}
+                Used for highlighting tags in HTML
+
+            {6}
+                Used for highlighting attributes in HTML
+
+            {7}
+                Tag names in HTML
+
+            {8}
+                Namespace prefixes in XML and constants in CSS
+
+            {9}
+                Non-breaking spaces/hyphens in HTML
+
+            {10}
+                Syntax errors such as <this <>
+
+            {11}
+                Misspelled words such as <span lang="en">thisword</span>
+
+            {12}
+                Comments like <!-- this one -->
+            </p>
+
+            <style type="text/css">
+            /* Some CSS so you can see how the highlighting rules affect it */
+
+            p.someclass {{
+                font-family: serif;
+                font-size: 12px;
+                line-height: 1.2;
+            }}
+            </style>
+            ''')).format(
+                *['<b>%s</b>' % x for x in (
+                    'Normal', 'Visual', 'CursorLine', 'LineNr', 'MatchParen',
+                    'Function', 'Type', 'Statement', 'Constant', 'SpecialCharacter', 'Error', 'SpellError', 'Comment'
+                )]
+            ))
+        p.setMaximumWidth(p.size_hint.width() + 5)
+        s.setMinimumWidth(600)
+        self.splitter = sp = QSplitter(self)
+        l.addWidget(sp)
+        sp.addWidget(s), sp.addWidget(p)
 
         self.bb.clear()
         self.bb.addButton(self.bb.Close)
@@ -517,9 +602,12 @@ class ThemeEditor(Dialog):
             self.cl.addWidget(w)
         for p in self.properties:
             p.label.setMinimumWidth(maxw), p.label.setMaximumWidth(maxw)
+        self.preview.apply_theme(read_custom_theme(data))
 
     def changed(self):
-        pass
+        name = unicode(self.theme.currentText())
+        data = self.update_theme(name)
+        self.preview.apply_theme(read_custom_theme(data))
 
     def create_new_theme(self):
         d = CreateNewTheme(self)
@@ -539,7 +627,8 @@ class ThemeEditor(Dialog):
             self.show_theme()
 
     def sizeHint(self):
-        return QSize(1000, 650)
+        g = QApplication.instance().desktop().availableGeometry(self.parent() or self)
+        return QSize(min(1500, g.width() - 25), 650)
 
 if __name__ == '__main__':
     app = QApplication([])
