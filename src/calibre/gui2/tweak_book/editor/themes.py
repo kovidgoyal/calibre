@@ -294,6 +294,8 @@ def builtin_theme_names():
 def all_theme_names():
     return builtin_theme_names() + custom_theme_names()
 
+# Custom theme creation/editing {{{
+
 class CreateNewTheme(Dialog):
 
     def __init__(self, parent=None):
@@ -610,8 +612,12 @@ class ThemeEditor(Dialog):
             p.label.setMinimumWidth(maxw), p.label.setMaximumWidth(maxw)
         self.preview.apply_theme(read_custom_theme(data))
 
+    @property
+    def theme_name(self):
+        return unicode(self.theme.currentText())
+
     def changed(self):
-        name = unicode(self.theme.currentText())
+        name = self.theme_name
         data = self.update_theme(name)
         self.preview.apply_theme(read_custom_theme(data))
 
@@ -633,7 +639,7 @@ class ThemeEditor(Dialog):
             self.show_theme()
 
     def remove_theme(self):
-        name = unicode(self.theme.currentText())
+        name = self.theme_name
         if name:
             tprefs['custom_themes'].pop(name, None)
             tprefs['custom_themes'] = tprefs['custom_themes']
@@ -648,6 +654,7 @@ class ThemeEditor(Dialog):
     def sizeHint(self):
         g = QApplication.instance().desktop().availableGeometry(self.parent() or self)
         return QSize(min(1500, g.width() - 25), 650)
+# }}}
 
 if __name__ == '__main__':
     app = QApplication([])

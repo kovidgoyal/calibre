@@ -15,11 +15,11 @@ from PyQt4.Qt import (
     QDialog, QGridLayout, QStackedWidget, QDialogButtonBox, QListWidget,
     QListWidgetItem, QIcon, QWidget, QSize, QFormLayout, Qt, QSpinBox,
     QCheckBox, pyqtSignal, QDoubleSpinBox, QComboBox, QLabel, QFont,
-    QFontComboBox, QPushButton, QSizePolicy)
+    QFontComboBox, QPushButton, QSizePolicy, QHBoxLayout)
 
 from calibre.gui2.keyboard import ShortcutConfig
 from calibre.gui2.tweak_book import tprefs
-from calibre.gui2.tweak_book.editor.themes import default_theme, THEMES
+from calibre.gui2.tweak_book.editor.themes import default_theme, all_theme_names, ThemeEditor
 from calibre.gui2.tweak_book.spell import ManageDictionaries
 from calibre.gui2.font_family_chooser import FontFamilyChooser
 
@@ -64,7 +64,7 @@ class BasicSettings(QWidget):  # {{{
         prefs = prefs or tprefs
         widget = QComboBox(self)
         widget.currentIndexChanged[int].connect(self.emit_changed)
-        for key, human in choices.iteritems():
+        for key, human in sorted(choices.iteritems(), key=lambda (key, human): human or key):
             widget.addItem(human or key, key)
 
         def getter(w):
@@ -161,11 +161,14 @@ class EditorSettings(BasicSettings):
         fs.setMinimum(8), fs.setSuffix(' pt'), fs.setMaximum(50)
         l.addRow(_('Editor font &size:'), fs)
 
-        auto_theme = _('Automatic (%s)') % default_theme()
-        choices = {k:k for k in THEMES}
-        choices['auto'] = auto_theme
+        choices = self.theme_choices()
         theme = self.choices_widget('editor_theme', choices, 'auto', 'auto')
-        l.addRow(_('&Color scheme:'), theme)
+        self.custom_theme_button = b = QPushButton(_('Create/edit &custom color schemes'))
+        b.clicked.connect(self.custom_theme)
+        h = QHBoxLayout()
+        h.addWidget(theme), h.addWidget(b)
+        l.addRow(_('&Color scheme:'), h)
+        l.labelForField(h).setBuddy(theme)
 
         tw = self('editor_tab_stop_width')
         tw.setMinimum(2), tw.setSuffix(_(' characters')), tw.setMaximum(20)
@@ -210,6 +213,24 @@ class EditorSettings(BasicSettings):
         d = ManageDictionaries(self)
         d.exec_()
         self.dictionaries_changed = True
+
+    def theme_choices(self):
+        choices = {k:k for k in all_theme_names()}
+        choices['auto'] = _('Automatic (%s)') % default_theme()
+        return choices
+
+    def custom_theme(self):
+        d = ThemeEditor(parent=self)
+        d.exec_()
+        choices = self.theme_choices()
+        s = self.settings['editor_theme']
+        current_val = s.getter(s.widget)
+        s.widget.clear()
+        for key, human in sorted(choices.iteritems(), key=lambda (key, human): human or key):
+            s.widget.addItem(human or key, key)
+        s.setter(s.widget, current_val)
+        if d.theme_name:
+            s.setter(s.widget, d.theme_name)
 
 class IntegrationSettings(BasicSettings):
 
