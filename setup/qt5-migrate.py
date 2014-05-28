@@ -12,6 +12,8 @@ __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
 # QT5XX: Test touchscreen support on windows 8 in the viewer
 
+# QT5XX: See if you can figure out why the splash screen does not work in linux
+
 # QT5XX: Look for obsolete classes and functions from the list here:
 # http://qt-project.org/doc/qt-5/obsoleteclasses.html as these will not be
 # present in PyQt5
