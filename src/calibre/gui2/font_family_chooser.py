@@ -333,6 +333,7 @@ class FontFamilyChooser(QWidget):
         self.setToolTip = self.button.setToolTip
         self.toolTip = self.button.toolTip
         self.clear_button.setToolTip(_('Clear the font family'))
+        l.addStretch(1)
 
     def clear_family(self):
         self.font_family = None
