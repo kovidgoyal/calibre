@@ -449,7 +449,7 @@ class Property(QWidget):
 class ThemeEditor(Dialog):
 
     def __init__(self, parent=None):
-        Dialog.__init__(self, _('Create/edit custom theme'), 'custom-theme-editor8', parent=parent)
+        Dialog.__init__(self, _('Create/edit custom theme'), 'custom-theme-editor', parent=parent)
 
     def setup_ui(self):
         self.block_show = False
@@ -471,6 +471,10 @@ class ThemeEditor(Dialog):
 
         self.add_button = b = QPushButton(QIcon(I('plus.png')), _('Add &new theme'), self)
         b.clicked.connect(self.create_new_theme)
+        h.addWidget(b)
+
+        self.remove_button = b = QPushButton(QIcon(I('minus.png')), _('&Remove theme'), self)
+        b.clicked.connect(self.remove_theme)
         h.addWidget(b)
         h.addStretch(1)
 
@@ -592,6 +596,8 @@ class ThemeEditor(Dialog):
             c.deleteLater()
         self.properties = []
         name = unicode(self.theme.currentText())
+        if not name:
+            return
         data = self.update_theme(name)
         maxw = 0
         for k in sorted(data):
@@ -623,6 +629,19 @@ class ThemeEditor(Dialog):
             self.block_show = True
             t.clear(), t.addItems(sorted(custom_theme_names()))
             t.setCurrentIndex(t.findText(name))
+            self.block_show = False
+            self.show_theme()
+
+    def remove_theme(self):
+        name = unicode(self.theme.currentText())
+        if name:
+            tprefs['custom_themes'].pop(name, None)
+            tprefs['custom_themes'] = tprefs['custom_themes']
+            t = self.theme
+            self.block_show = True
+            t.clear(), t.addItems(sorted(custom_theme_names()))
+            if t.count() > 0:
+                t.setCurrentIndex(0)
             self.block_show = False
             self.show_theme()
 
