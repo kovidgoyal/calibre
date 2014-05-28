@@ -492,7 +492,7 @@ class ThemeEditor(Dialog):
         '''\
             <h2>Creating a custom theme</h2>
 
-            <p id="attribute">You can create a custom syntax highlighting
+            <p id="attribute" lang="und">You can create a custom syntax highlighting
             theme, with your own colors and font styles. The most important
             types of highlighting rules are described below. Note that not
             every rule supports every kind of customization, for example,
@@ -503,7 +503,7 @@ class ThemeEditor(Dialog):
             <p>As you make changes to your them on the left, the changes will
             be reflected live in this panel.</p>
 
-            <p xml:lang="xyz">
+            <p xml:lang="und">
             {0}
                 The most important rule. Sets the
                 foreground and background colors for the editor as well as the
