@@ -7,6 +7,7 @@
 #include <QStyleFactory>
 #include <QtWidgets/QProxyStyle>
 #include <QStyleOptionToolButton>
+#include <QFormLayout>
 
 QProgressIndicator::QProgressIndicator(QWidget* parent, int size)
         : QWidget(parent),
@@ -151,6 +152,8 @@ class CalibreStyle: public QProxyStyle {
                     return QDialogButtonBox::MacLayout;
 #endif
                     break;
+                case SH_FormLayoutFieldGrowthPolicy:
+                    return QFormLayout::FieldsStayAtSizeHint;  // Do not have fields expand to fill all available space in QFormLayout
                 default:
                     break;
             }
