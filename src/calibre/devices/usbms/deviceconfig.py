@@ -130,6 +130,9 @@ class DeviceConfig(object):
                 opts.extra_customization = []
             if not isinstance(opts.extra_customization, list):
                 opts.extra_customization = [opts.extra_customization]
+            for i,d in enumerate(cls.EXTRA_CUSTOMIZATION_DEFAULT):
+                if i >= len(opts.extra_customization):
+                    opts.extra_customization.append(d)
             opts.extra_customization = cls.migrate_extra_customization(opts.extra_customization)
         return opts
 
