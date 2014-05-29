@@ -20,6 +20,32 @@
 #   new recipes:
 #     - title: 
 
+- version: 1.39.0
+  date: 2014-05-29
+
+  new features:
+    - title: "Edit Book: Allow creation of custom color schemes for the editor (Preferences->Editor settings)"
+
+    - title: "Check Book: When reporting unmanifested file warnings, allow auto fixing by adding the file to the manifest if it is referenced elsewhere or removing the file if it is not."
+      tickets: [1323362]
+
+    - title: "Edit book: Preview panel: Allow syncing of position more accurately when there are multiple tags on the same source code line"
+
+    - title: "Edit book: Live CSS: Indicate which CSS properties are overridden by higher priority rules"
+
+    - title: "Kindle driver: When generating page numbers automatically, add an additional method to detect page boundaries, using the presence of <mbp:pagebreak> tags in the source of the book. You can use this setting by right clicking on the Kindle icon in calibre when the kindle is connected and choosing customize this device."
+      tickets: [1321761]
+
+  bug fixes:
+    - title: "Virtual Libraries: If the user selects a virtual library whose tab has been closed via the Virtual Library button, re-open the tab instead of displaying the virtual library in the All Books tab."
+      tickets: [1322474]
+
+    - title: "DOCX Input: Fix a regression that broke conversion of documents with an index that contains fields with special page text."
+      tickets: [1322637]
+
+    - title: "Edit Book: When editing a book in a language for which no dictionary is installed, consider all words to be correctly spelt, rather than misspelt."
+      tickets: [1320829]
+
 - version: 1.38.0
   date: 2014-05-23
 
