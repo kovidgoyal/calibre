@@ -271,22 +271,22 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
 
     EXTRA_CUSTOMIZATION_MESSAGE = [
         _('Enable connections at startup') + ':::<p>' +
-            _('Check this box to allow connections when calibre starts') + '</p>',
+        _('Check this box to allow connections when calibre starts') + '</p>',
         '',
         _('Security password') + ':::<p>' +
-            _('Enter a password that the device app must use to connect to calibre') + '</p>',
+        _('Enter a password that the device app must use to connect to calibre') + '</p>',
         '',
         _('Use fixed network port') + ':::<p>' +
-            _('If checked, use the port number in the "Port" box, otherwise '
+        _('If checked, use the port number in the "Port" box, otherwise '
               'the driver will pick a random port') + '</p>',
         _('Port number: ') + ':::<p>' +
-            _('Enter the port number the driver is to use if the "fixed port" box is checked') + '</p>',
+        _('Enter the port number the driver is to use if the "fixed port" box is checked') + '</p>',
         _('Print extra debug information') + ':::<p>' +
-            _('Check this box if requested when reporting problems') + '</p>',
+        _('Check this box if requested when reporting problems') + '</p>',
         '',
         _('Comma separated list of metadata fields '
             'to turn into collections on the device.') + ':::<p>' +
-            _('Possibilities include: series, tags, authors, etc' +
+        _('Possibilities include: series, tags, authors, etc' +
               '. Three special collections are available: %(abt)s:%(abtv)s, '
               '%(aba)s:%(abav)s, and %(abs)s:%(absv)s. Add  '
               'these values to the list to enable them. The collections will be '
@@ -295,23 +295,23 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                     abs='abs', absv=ALL_BY_SOMETHING),
         '',
         _('Enable the no-activity timeout') + ':::<p>' +
-            _('If this box is checked, calibre will automatically disconnect if '
+        _('If this box is checked, calibre will automatically disconnect if '
               'a connected device does nothing for %d minutes. Unchecking this '
               ' box disables this timeout, so calibre will never automatically '
               'disconnect.')%(DISCONNECT_AFTER_N_SECONDS/60,) + '</p>',
         _('Use this IP address') + ':::<p>' +
-            _('Use this option if you want to force the driver to listen on a '
+        _('Use this option if you want to force the driver to listen on a '
               'particular IP address. The driver will listen only on the '
               'entered address, and this address will be the one advertized '
               'over mDNS (bonjour).') + '</p>',
         _('Replace books with same calibre ID') + ':::<p>' +
-            _('Use this option to overwrite a book on the device if that book '
+        _('Use this option to overwrite a book on the device if that book '
               'has the same calibre identifier as the book being sent. The file name of the '
               'book will not change even if the save template produces a '
               'different result. Using this option in most cases prevents '
               'having multiple copies of a book on the device.') + '</p>',
         _('Cover thumbnail compression quality') + ':::<p>' +
-            _('Use this option to control the size and quality of the cover '
+        _('Use this option to control the size and quality of the cover '
               'file sent to the device. It must be between 50 and 99. '
               'The larger the number the higher quality the cover, but also '
               'the larger the file. For example, changing this from 70 to 90 '
@@ -321,7 +321,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
               'the metadata for the book (updating the last modification '
               'time) or resending the book itself.') + '</p>',
         _('Use metadata cache') + ':::<p>' +
-            _('Setting this option allows calibre to keep a copy of metadata '
+        _('Setting this option allows calibre to keep a copy of metadata '
               'on the device, speeding up device connections. Unsetting this '
               'option disables keeping the copy, forcing the device to send '
               'metadata to calibre on every connect. Unset this option if '
@@ -533,7 +533,6 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
         except:
             self._close_device_socket()
             raise
-
 
     def _read_string_from_net(self):
         data = bytes(0)
@@ -1562,7 +1561,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
             if self.have_bad_sync_columns:
                 return None
 
-        sync_type = book.get('_sync_type_', None);
+        sync_type = book.get('_sync_type_', None)
         # We need to check if our attributes are in the book. If they are not
         # then this is metadata coming from calibre to the device for the first
         # time, in which case we must not sync it.
@@ -1574,7 +1573,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
 
         if hasattr(book, '_last_read_date_'):
             # parse_date returns UNDEFINED_DATE if the value is None
-            is_read_date = parse_date(book.get('_last_read_date_', None));
+            is_read_date = parse_date(book.get('_last_read_date_', None))
             if is_date_undefined(is_read_date):
                 is_read_date = None
             has_is_read_date = True
