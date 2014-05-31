@@ -105,7 +105,6 @@ class Fields(object):
 
     def __call__(self, doc, log):
         all_ids = frozenset(XPath('//*/@w:id')(doc))
-        # import pydevd;pydevd.settrace()
         c = 0
         while self.index_bookmark_prefix in all_ids:
             c += 1
