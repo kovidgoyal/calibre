@@ -26,7 +26,12 @@ class Field(object):
         if not raw:
             return
         if self.name is None:
-            self.name, raw = raw.strip().partition(' ')[0::2]
+            # There are cases where partial index entries end with 
+            # a significant space, along the lines of
+            # <>Summary <>  ...  <>Hearing<>.
+            # No known examples of starting with a space yet.
+            # self.name, raw = raw.strip().partition(' ')[0::2]
+            self.name, raw = raw.lstrip().partition(' ')[0::2]
         self.buf.append(raw)
 
     def finalize(self):
@@ -100,6 +105,7 @@ class Fields(object):
 
     def __call__(self, doc, log):
         all_ids = frozenset(XPath('//*/@w:id')(doc))
+        # import pydevd;pydevd.settrace()
         c = 0
         while self.index_bookmark_prefix in all_ids:
             c += 1
