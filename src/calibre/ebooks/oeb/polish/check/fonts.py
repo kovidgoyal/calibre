@@ -108,7 +108,10 @@ def check_fonts(container):
     sheets = []
     for name, mt in container.mime_map.iteritems():
         if mt in OEB_STYLES:
-            sheets.append((name, container.parsed(name), None))
+            try:
+                sheets.append((name, container.parsed(name), None))
+            except Exception:
+                pass  # Could not parse, ignore
         elif mt in OEB_DOCS:
             for style in container.parsed(name).xpath('//*[local-name()="style"]'):
                 if style.get('type', 'text/css') == 'text/css' and style.text:
