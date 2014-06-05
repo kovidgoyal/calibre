@@ -29,7 +29,9 @@ def get_metadata(stream):
                 name, data = extract_member(stream, match=None, name=f)
                 stream = BytesIO(data)
                 stream.name = os.path.basename(name)
-                return get_metadata(stream, stream_type)
+                mi = get_metadata(stream, stream_type)
+                mi.timestamp = None
+                return mi
     raise ValueError('No ebook found in RAR archive')
 
 

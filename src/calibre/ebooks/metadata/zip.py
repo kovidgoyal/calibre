@@ -28,14 +28,16 @@ def get_metadata(stream):
                     with CurrentDir(tdir):
                         path = zf.extract(f)
                         mi = get_metadata(open(path,'rb'), stream_type)
-                        if stream_type == 'opf' and mi.application_id == None:
+                        if stream_type == 'opf' and mi.application_id is None:
                             try:
                                 # zip archive opf files without an application_id were assumed not to have a cover
                                 # reparse the opf and if cover exists read its data from zip archive for the metadata
                                 nmi = zip_opf_metadata(path, zf)
+                                nmi.timestamp = None
                                 return nmi
                             except:
                                 pass
+                        mi.timestamp = None
                         return mi
     raise ValueError('No ebook found in ZIP archive')
 
