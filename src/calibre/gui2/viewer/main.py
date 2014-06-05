@@ -972,7 +972,8 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
 
     def set_bookmarks(self, bookmarks):
         self.bookmarks_menu.clear()
-        self.bookmarks_menu.addAction(_("Bookmark this location"), self.bookmark)
+        sc = _(' or ').join(self.view.shortcuts.get_shortcuts('Bookmark'))
+        self.bookmarks_menu.addAction(_("Bookmark this location [%s]") % sc, self.bookmark)
         self.bookmarks_menu.addAction(_("Manage Bookmarks"), self.manage_bookmarks)
         self.bookmarks_menu.addSeparator()
         current_page = None
@@ -1126,6 +1127,10 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
             key = self.view.shortcuts.get_match(event)
         except AttributeError:
             return MainWindow.keyPressEvent(self, event)
+        try:
+            bac = self.bookmarks_menu.actions()[0]
+        except (AttributeError, TypeError, IndexError, KeyError):
+            bac = None
         action = {
             'Quit':self.action_quit,
             'Show metadata':self.action_metadata,
@@ -1138,6 +1143,7 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
             'Search online': self.view.search_online_action,
             'Lookup word': self.view.dictionary_action,
             'Next occurrence': self.view.search_action,
+            'Bookmark': bac,
         }.get(key, None)
         if action is not None:
             event.accept()
