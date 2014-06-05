@@ -6,42 +6,39 @@
 from calibre.web.feeds.news import BasicNewsRecipe
 
 class AdvancedUserRecipe1299694372(BasicNewsRecipe):
-    title                             = u'Instapaper'
-    __author__                    = 'Darko Miletic, Stanislav Khromov, Jim Ramsay'
-    publisher                     = 'Instapaper.com'
-    category                      = 'info, custom, Instapaper'
-    oldest_article               = 365
+    title = u'Instapaper'
+    __author__ = 'Darko Miletic, Stanislav Khromov, Jim Ramsay'
+    publisher = 'Instapaper.com'
+    category = 'info, custom, Instapaper'
+    oldest_article = 365
     max_articles_per_feed = 100
-    oldest_article        = 0
-    no_stylesheets        = False
+    reverse_article_order = True
+    no_stylesheets = False
     extra_css = 'q { font-style: italic; } .size3mode { color: black; }'
-    remove_javascript     = True
-    remove_tags              = [
-        dict(name='div', attrs={'id':'text_controls_toggle'})
-        ,dict(name='script')
-        ,dict(name='div', attrs={'id':'text_controls'})
-        ,dict(name='section', attrs={'class':'primary_bar'})
-        ,dict(name='div', attrs={'class':'modal_group'})
-        ,dict(name='div', attrs={'id':'editing_controls'})
-        ,dict(name='div', attrs={'class':'modal_name'})
-        ,dict(name='div', attrs={'class':'highlight_popover'})
-        ,dict(name='div', attrs={'class':'bar bottom'})
-        ,dict(name='div', attrs={'id':'controlbar_container'})
-        ,dict(name='div', attrs={'id':'footer'})
-        ,dict(name='label')
-         ]
-    use_embedded_content  = False
-    needs_subscription    = True
-    INDEX                 = u'http://www.instapaper.com'
-    LOGIN                 = INDEX + u'/user/login'
+    remove_javascript = True
+    remove_tags = [
+            dict(name='div', attrs={'id':'text_controls_toggle'}),
+            dict(name='script'),
+            dict(name='div', attrs={'id':'text_controls'}),
+            dict(name='section', attrs={'class':'primary_bar'}),
+            dict(name='div', attrs={'class':'modal_group'}),
+            dict(name='div', attrs={'id':'editing_controls'}),
+            dict(name='div', attrs={'class':'modal_name'}),
+            dict(name='div', attrs={'class':'highlight_popover'}),
+            dict(name='div', attrs={'class':'bar bottom'}),
+            dict(name='div', attrs={'id':'controlbar_container'}),
+            dict(name='div', attrs={'id':'footer'}),
+            dict(name='label')
+    ]
+    use_embedded_content = False
+    needs_subscription = True
+    INDEX = u'http://www.instapaper.com'
+    LOGIN = INDEX + u'/user/login'
 
-    feeds          = [
-            (u'Instapaper Unread', u'http://www.instapaper.com/u'),
+    feeds = [
+            (u'Instapaper Unread', u'https://www.instapaper.com/u'),
             (u'Instapaper Starred', u'http://www.instapaper.com/starred')
-            ]
-
-    # Adds the title tag to the body of the recipe. Use this if your articles miss headings.
-    add_title_tag = False
+    ]
 
     def get_browser(self):
         br = BasicNewsRecipe.get_browser(self)
@@ -62,28 +59,13 @@ class AdvancedUserRecipe1299694372(BasicNewsRecipe):
             self.report_progress(0, 'Fetching feed'+' %s...'%(feedtitle if feedtitle else feedurl))
             articles = []
             soup = self.index_to_soup(feedurl)
-            for item in soup.findAll('div', attrs={'class':'js_title_row title_row'}):
-                # description = self.tag_to_string(item.div)
-                atag = item.a
-                if atag and 'href' in atag:
-                    url         = atag['href']
-                    articles.append({
-                                     'url'        :url
-                                    })
+            for item in soup.findAll('a', attrs={'class': 'article_title'}):
+                articles.append({
+                        'url': item['href'],
+                        'title': item['title']
+                })
             totalfeeds.append((feedtitle, articles))
         return totalfeeds
 
     def print_version(self, url):
         return 'http://www.instapaper.com' + url
-
-    def populate_article_metadata(self, article, soup, first):
-        article.title  = soup.find('title').contents[0].strip()
-
-    def postprocess_html(self, soup, first_fetch):
-        # adds the title to each story, as it is not always included
-        if self.add_title_tag:
-            for link_tag in soup.findAll(attrs={"id" : "story"}):
-                link_tag.insert(0,'<h1>'+soup.find('title').contents[0].strip()+'</h1>')
-
-        # print repr(soup)
-        return soup
