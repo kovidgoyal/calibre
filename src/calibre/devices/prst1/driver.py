@@ -16,6 +16,7 @@ from contextlib import closing
 from datetime import date
 
 from calibre import fsync
+from calibre.devices.mime import mime_type_ext
 from calibre.devices.errors import DeviceError
 from calibre.devices.usbms.driver import USBMS, debug_print
 from calibre.devices.usbms.device import USBDevice
@@ -435,6 +436,7 @@ class PRST1(USBMS):
 
     def update_device_books(self, connection, booklist, source_id, plugboard,
             dbpath):
+        from calibre.ebooks.metadata.meta import path_to_ext
         opts = self.settings()
         upload_covers = opts.extra_customization[self.OPT_UPLOAD_COVERS]
         refresh_covers = opts.extra_customization[self.OPT_REFRESH_COVERS]
@@ -484,7 +486,7 @@ class PRST1(USBMS):
                 '''
                 t = (title, author, source_id, int(time.time() * 1000),
                         modified_date, lpath,
-                        os.path.basename(lpath), book.size, book.mime)
+                        os.path.basename(lpath), book.size, book.mime or mime_type_ext(path_to_ext(lpath)))
                 cursor.execute(query, t)
                 book.bookId = self.get_lastrowid(cursor)
                 if upload_covers:
