@@ -266,7 +266,7 @@ def highlight_to_char_format(h):
         ans.setForeground(h.fg)
     if h.bg is not None:
         ans.setBackground(h.bg)
-    if h.underline is not None:
+    if h.underline:
         ans.setUnderlineStyle(underline_styles[h.underline])
         if h.underline_color is not None:
             ans.setUnderlineColor(h.underline_color.color())
@@ -445,7 +445,7 @@ class Property(QWidget):
         l.addStretch(1)
 
     def us_changed(self):
-        self.data['underline'] = unicode(self.underline.currentText())
+        self.data['underline'] = unicode(self.underline.currentText()) or None
         self.changed.emit()
 
 class ThemeEditor(Dialog):
