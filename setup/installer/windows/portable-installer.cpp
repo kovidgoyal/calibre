@@ -136,7 +136,7 @@ static HANDLE temp_file(LPWSTR name) {
     if (res == 0) { show_last_error(L"Failed to create temporary file to decompress portable data"); return INVALID_HANDLE_VALUE; }
 
     h = CreateFile(name, GENERIC_READ | GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
-    if (h == INVALID_HANDLE_VALUE) { show_last_error(L"Failed to open temp file t decomress portable data"); }
+    if (h == INVALID_HANDLE_VALUE) { show_last_error(L"Failed to open temp file to decompress portable data"); }
     return h;
 
 }
