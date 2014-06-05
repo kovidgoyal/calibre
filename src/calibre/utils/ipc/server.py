@@ -87,6 +87,7 @@ class CriticalError(Exception):
 _name_counter = 0
 
 if islinux:
+    import fcntl
     class LinuxListener(Listener):
 
         def __init__(self, *args, **kwargs):
@@ -94,6 +95,14 @@ if islinux:
             # multiprocessing tries to call unlink even on abstract
             # named sockets, prevent it from doing so.
             self._listener._unlink.cancel()
+            # Prevent child processes from inheriting this socket
+            # If we dont do this child processes not created by calibre, will
+            # inherit this socket, preventing the calibre GUI from being restarted.
+            # Examples of such processes are external viewers launched by Qt
+            # using openUrl().
+            fd = self._listener._socket.fileno()
+            old_flags = fcntl.fcntl(fd, fcntl.F_GETFD)
+            fcntl.fcntl(fd, fcntl.F_SETFD, old_flags | fcntl.FD_CLOEXEC)
 
         def close(self):
             # To ensure that the socket is released, we have to call
