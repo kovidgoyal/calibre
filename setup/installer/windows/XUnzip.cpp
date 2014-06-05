@@ -4187,7 +4187,7 @@ unsigned int FormatZipMessageU(ZRESULT code, char *buf,unsigned int len)
   const char *msg="unknown zip result code";
   switch (code)
   { case ZR_OK: msg="Success"; break;
-    case ZR_NODUPH: msg="Culdn't duplicate handle"; break;
+    case ZR_NODUPH: msg="Couldn't duplicate handle"; break;
     case ZR_NOFILE: msg="Couldn't create/open file"; break;
     case ZR_NOALLOC: msg="Failed to allocate memory"; break;
     case ZR_WRITE: msg="Error writing to file"; break;
@@ -4206,7 +4206,7 @@ unsigned int FormatZipMessageU(ZRESULT code, char *buf,unsigned int len)
     case ZR_SEEK: msg="Zip-bug: trying to seek the unseekable"; break;
     case ZR_MISSIZE: msg="Zip-bug: the anticipated size turned out wrong"; break;
     case ZR_NOCHANGE: msg="Zip-bug: tried to change mind, but not allowed"; break;
-    case ZR_FLATE: msg="Zip-bug: an internal error during flation"; break;
+    case ZR_FLATE: msg="Zip-bug: an internal error during inflation"; break;
   }
   unsigned int mlen=(unsigned int)strlen(msg);
   if (buf==0 || len==0) return mlen;
