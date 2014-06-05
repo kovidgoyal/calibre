@@ -313,7 +313,7 @@ class KINDLE2(KINDLE):
             ' <li>accurate: Based on the number of chapters, paragraphs, and visible lines in the book.'
             ' This method is designed to simulate an average paperback book where there are 32 lines per'
             ' page and a maximum of 70 characters per line.\n\n'
-            ' <li>pagebreak: The "pagebreak" method uses the presense of <mbp:pagebreak> tags within'
+            ' <li>pagebreak: The "pagebreak" method uses the presence of <mbp:pagebreak> tags within'
             ' the book to determine pages.</ul>'
             'Methods other than "fast" are going to be much slower.'
             ' Further, if "pagebreak" fails to determine a page count accurate will be used, and if '

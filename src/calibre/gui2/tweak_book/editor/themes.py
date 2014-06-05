@@ -500,7 +500,7 @@ class ThemeEditor(Dialog):
             does not have any effect as that rule is used only for the color of
             the blinking cursor.</p>
 
-            <p>As you make changes to your them on the left, the changes will
+            <p>As you make changes to your theme on the left, the changes will
             be reflected live in this panel.</p>
 
             <p xml:lang="und">
