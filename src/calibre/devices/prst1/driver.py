@@ -40,8 +40,7 @@ class PRST1(USBMS):
     path_sep = '/'
     booklist_class = CollectionsBookList
 
-    FORMATS      = ['epub', 'pdf', 'txt', 'book', 'zbf']  # The last two are
-                                                          # used in japan
+    FORMATS      = ['epub', 'pdf', 'txt', 'book', 'zbf']  # The last two are used in japan
     CAN_SET_METADATA = ['collections']
     CAN_DO_DEVICE_DB_PLUGBOARD = True
 
@@ -67,31 +66,31 @@ class PRST1(USBMS):
 
     EXTRA_CUSTOMIZATION_MESSAGE = [
         _('Comma separated list of metadata fields '
-            'to turn into collections on the device. Possibilities include: ')+
-                    'series, tags, authors',
+        'to turn into collections on the device. Possibilities include: ')+
+        'series, tags, authors',
         _('Upload separate cover thumbnails for books') +
-             ':::'+_('Normally, the SONY readers get the cover image from the'
-             ' ebook file itself. With this option, calibre will send a '
-             'separate cover image to the reader, useful if you are '
-             'sending DRMed books in which you cannot change the cover.'),
+        ':::'+_('Normally, the SONY readers get the cover image from the'
+                ' ebook file itself. With this option, calibre will send a '
+                'separate cover image to the reader, useful if you are '
+                'sending DRMed books in which you cannot change the cover.'),
         _('Refresh separate covers when using automatic management') +
-             ':::' +
-              _('Set this option to have separate book covers uploaded '
-                'every time you connect your device. Unset this option if '
-                'you have so many books on the reader that performance is '
-                'unacceptable.'),
+        ':::' +
+        _('Set this option to have separate book covers uploaded '
+          'every time you connect your device. Unset this option if '
+          'you have so many books on the reader that performance is '
+          'unacceptable.'),
         _('Preserve cover aspect ratio when building thumbnails') +
-              ':::' +
-              _('Set this option if you want the cover thumbnails to have '
-                'the same aspect ratio (width to height) as the cover. '
-                'Unset it if you want the thumbnail to be the maximum size, '
-                'ignoring aspect ratio.'),
+        ':::' +
+        _('Set this option if you want the cover thumbnails to have '
+          'the same aspect ratio (width to height) as the cover. '
+          'Unset it if you want the thumbnail to be the maximum size, '
+          'ignoring aspect ratio.'),
         _('Use SONY Author Format (First Author Only)') +
-              ':::' +
-              _('Set this option if you want the author on the Sony to '
-                'appear the same way the T1 sets it. This means it will '
-                'only show the first author for books with multiple authors. '
-                'Leave this disabled if you use Metadata Plugboards.')
+        ':::' +
+        _('Set this option if you want the author on the Sony to '
+          'appear the same way the T1 sets it. This means it will '
+          'only show the first author for books with multiple authors. '
+          'Leave this disabled if you use Metadata Plugboards.')
     ]
     EXTRA_CUSTOMIZATION_DEFAULT = [
                 ', '.join(['series', 'tags']),
