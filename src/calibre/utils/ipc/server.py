@@ -162,8 +162,7 @@ class Server(Thread):
             redirect_output = not gui
 
         env = {
-                'CALIBRE_WORKER_ADDRESS' :
-                    hexlify(cPickle.dumps(self.listener.address, -1)),
+                'CALIBRE_WORKER_ADDRESS' : hexlify(cPickle.dumps(self.listener.address, -1)),
                 'CALIBRE_WORKER_KEY' : hexlify(self.auth_key),
                 'CALIBRE_WORKER_RESULT' : hexlify(rfile.encode('utf-8')),
               }
