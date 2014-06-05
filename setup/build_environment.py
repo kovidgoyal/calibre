@@ -11,7 +11,7 @@ from distutils.spawn import find_executable
 
 from PyQt4 import pyqtconfig
 
-from setup import isosx, iswindows, islinux, is64bit
+from setup import isosx, iswindows, is64bit
 is64bit
 
 OSX_SDK = '/Developer/SDKs/MacOSX10.5.sdk'
@@ -189,19 +189,19 @@ def get_ip_address(ifname):
         struct.pack('256s', ifname[:15])
     )[20:24])
 
+HOST='192.168.1.2'
 try:
-    if islinux:
-        HOST=get_ip_address('eth0')
-    else:
-        HOST='192.168.1.2'
-except:
-    try:
-        HOST=get_ip_address('wlan0')
-    except:
-        try:
-            HOST=get_ip_address('ppp0')
-        except:
-            HOST='192.168.1.2'
+    import netifaces
+    for iface in netifaces.interfaces():
+        addrs = netifaces.ifaddresses(iface).get(netifaces.AF_INET, [])
+        if len(addrs) > 0 and 'addr' in addrs[0]:
+            q = addrs[0]['addr']
+            if q.startswith('192.168.1.'):
+                HOST = q
+                break
+except (Exception, ImportError) as e:
+    print ('Failed to detect host ip address with error: %s' % e)
+
 
 PROJECT=os.path.basename(os.path.abspath('.'))
 
