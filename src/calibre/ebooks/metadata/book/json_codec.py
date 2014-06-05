@@ -149,7 +149,7 @@ class JsonCodec(object):
         value = book.get(key)
         if key == 'thumbnail':
             return encode_thumbnail(value)
-        elif isbytestring(value): # str includes bytes
+        elif isbytestring(value):  # str includes bytes
             enc = filesystem_encoding if key == 'lpath' else preferred_encoding
             return object_to_unicode(value, enc=enc)
         elif datatype == 'datetime':
