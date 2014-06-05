@@ -30,7 +30,7 @@ def fix_declaration(style, css_name, font_name):
     if ff is not None:
         for i in xrange(ff.length):
             val = ff.item(i)
-            if val.value and val.value.lower() == css_name.lower():
+            if hasattr(val.value, 'lower') and val.value.lower() == css_name.lower():
                 val.value = font_name
                 # If val.type == 'IDENT' cssutils will not serialize the font
                 # name properly (it will not enclose it in quotes). There we
