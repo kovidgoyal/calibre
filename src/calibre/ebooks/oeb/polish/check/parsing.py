@@ -48,6 +48,7 @@ class XMLParseError(BaseError):
              ' "do the wrong thing".')
 
     def __init__(self, msg, *args, **kwargs):
+        msg = msg or ''
         BaseError.__init__(self, 'Parsing failed: ' + msg, *args, **kwargs)
         m = mismatch_pat.search(msg)
         if m is not None:
