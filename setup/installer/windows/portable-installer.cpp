@@ -188,6 +188,7 @@ output_callback(void *ctx, const void *buf, size_t size)
             return 0;
         }
         written = SetFilePointer(ds->out, 0, NULL, FILE_CURRENT);
+        FlushFileBuffers(ds->out); // Ensure progress is accurate, otherwise there is a long pause after the decompressing phase while the OS flushes to a slow flash drive
         ds->pd->SetProgress(written, UNCOMPRESSED_SIZE);
     }  
    
@@ -245,8 +246,6 @@ static BOOL extract(LPVOID cdata, DWORD csz) {
 
     pd->StartProgressDialog(NULL, NULL, PROGDLG_NORMAL | PROGDLG_AUTOTIME | PROGDLG_NOCANCEL, NULL);
     if (!decompress(cdata, csz, h, pd)) { ret = false; goto end; }
-    pd->SetLine(1, L"Reading manifest", true, NULL);
-    pd->SetProgress(1, 1000);
     SetFilePointer(h, 0, NULL, FILE_BEGIN);
     zipf = OpenZip(h, 0, ZIP_HANDLE);
     if (zipf == 0) { show_last_error(L"Failed to open zipped portable data"); ret = false; goto end; }
