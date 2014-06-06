@@ -107,7 +107,10 @@ def get_title_sort_pat(lang=None):
             q = get_lang()
     q = canonicalize_lang(q) if q else q
     data = tweaks['per_language_title_sort_articles']
-    ans = data.get(q, None)
+    try:
+        ans = data.get(q, None)
+    except AttributeError:
+        ans = None  # invalid tweak value
     try:
         ans = frozenset(ans) if ans else frozenset(data['eng'])
     except:
