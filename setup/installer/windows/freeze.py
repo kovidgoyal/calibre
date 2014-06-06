@@ -69,6 +69,7 @@ class Win32Freeze(Command, WixMixIn):
 
     def run(self, opts):
         self.SW = SW
+        self.portable_uncompressed_size = 0
         self.opts = opts
         self.src_root = self.d(self.SRC)
         self.base = self.j(self.d(self.SRC), 'build', 'winfrozen')
@@ -407,7 +408,7 @@ class Win32Freeze(Command, WixMixIn):
 
     def build_portable_installer(self):
         zf = self.a(self.j('dist', 'calibre-portable-%s.zip.lz'%VERSION))
-        usz = os.path.getsize(zf)
+        usz = self.portable_uncompressed_size or os.path.getsize(zf)
         def cc(src, obj):
             cflags  = '/c /EHsc /MT /W4 /Ox /nologo /D_UNICODE /DUNICODE /DPSAPI_VERSION=1'.split()
             cflags.append(r'/I%s\include'%LZMA)
@@ -504,6 +505,7 @@ class Win32Freeze(Command, WixMixIn):
         with zipfile.ZipFile(name, 'w', zipfile.ZIP_STORED) as zf:
             self.add_dir_to_zip(zf, base, 'Calibre Portable')
 
+        self.portable_uncompressed_size = os.path.getsize(name)
         subprocess.check_call([LZMA + r'\bin\elzma.exe', '-9', '--lzip', name])
 
     def sign_installers(self):

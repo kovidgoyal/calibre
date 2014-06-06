@@ -188,7 +188,6 @@ output_callback(void *ctx, const void *buf, size_t size)
             return 0;
         }
         written = SetFilePointer(ds->out, 0, NULL, FILE_CURRENT);
-        FlushFileBuffers(ds->out); // Ensure progress is accurate, otherwise there is a long pause after the decompressing phase while the OS flushes to a slow flash drive
         ds->pd->SetProgress(written, UNCOMPRESSED_SIZE);
     }  
    
