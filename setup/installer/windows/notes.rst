@@ -175,17 +175,11 @@ environment.
 
 For 32-bit::
     perl Configure VC-WIN32 no-asm enable-static-engine --prefix=C:/cygwin64/home/kovid/sw/private/openssl
-    ms\do_ms.bat
-    nmake -f ms\ntdll.mak
-    nmake -f ms\ntdll.mak test
-    nmake -f ms\ntdll.mak install
+    ms\do_ms.bat && nmake -f ms\ntdll.mak && nmake -f ms\ntdll.mak test && nmake -f ms\ntdll.mak install
 
 For 64-bit::
     perl Configure VC-WIN64A no-asm enable-static-engine --prefix=C:/cygwin64/home/kovid/sw/private/openssl
-    ms\do_win64a.bat
-    nmake -f ms\ntdll.mak
-    nmake -f ms\ntdll.mak test
-    nmake -f ms\ntdll.mak install
+    ms\do_win64a.bat && nmake -f ms\ntdll.mak && nmake -f ms\ntdll.mak test && nmake -f ms\ntdll.mak install
 
 ICU
 -------
