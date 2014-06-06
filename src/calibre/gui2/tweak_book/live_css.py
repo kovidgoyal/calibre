@@ -364,6 +364,7 @@ class LiveCSS(QWidget):
         pal.setColor(pal.Window, theme_color(theme, 'Normal', 'bg'))
         pal.setColor(pal.WindowText, theme_color(theme, 'Normal', 'fg'))
         pal.setColor(pal.AlternateBase, theme_color(theme, 'HighlightRegion', 'bg'))
+        pal.setColor(pal.Link, theme_color(theme, 'Link', 'fg'))
         pal.setColor(pal.LinkVisited, theme_color(theme, 'Keyword', 'fg'))
         self.setPalette(pal)
         if hasattr(self, 'box'):

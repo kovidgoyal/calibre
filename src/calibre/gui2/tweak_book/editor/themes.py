@@ -70,6 +70,7 @@ SOLARIZED = \
     Error        us=wave uc={red}
     SpellError   us=wave uc={orange}
     Tooltip      fg=black bg=ffffed
+    Link         fg={blue}
 
     DiffDelete   bg={base02} fg={red}
     DiffInsert   bg={base02} fg={green}
@@ -111,6 +112,7 @@ THEMES = {
     Error        us=wave uc=red
     SpellError   us=wave uc=orange
     SpecialCharacter bg={cursor_loc}
+    Link         fg=cyan
 
     DiffDelete   bg=341414 fg=642424
     DiffInsert   bg=143414 fg=246424
@@ -157,6 +159,7 @@ THEMES = {
     SpecialCharacter bg={cursor_loc}
     Error        us=wave uc=red
     SpellError   us=wave uc=magenta
+    Link         fg=blue
 
     DiffDelete   bg=rgb(255,180,200) fg=rgb(200,80,110)
     DiffInsert   bg=rgb(180,255,180) fg=rgb(80,210,80)
@@ -223,7 +226,6 @@ def read_theme(raw):
         if name is not None:
             ans[name] = Highlight(fg, bg, bold, italic, underline, underline_color)
     return ans
-
 
 THEMES = {k:read_theme(raw) for k, raw in THEMES.iteritems()}
 
@@ -584,6 +586,9 @@ class ThemeEditor(Dialog):
             data.pop(k)
         for k in missing:
             data[k] = dict(THEMES[default_theme()][k]._asdict())
+            for nk, nv in data[k].iteritems():
+                if isinstance(nv, QBrush):
+                    data[k][nk] = unicode(nv.color().name())
         if extra or missing:
             tprefs['custom_themes'][name] = data
         return data
