@@ -10,7 +10,7 @@ from calibre.gui2.tweak_book.editor.smart import NullSmarts
 
 def find_rule(raw, rule_address):
     import tinycss
-    parser = tinycss.make_parser()
+    parser = tinycss.make_parser('page3', 'fonts3')
     sheet = parser.parse_stylesheet(raw)
     rules = sheet.rules
     ans = None, None

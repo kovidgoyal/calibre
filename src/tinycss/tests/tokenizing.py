@@ -6,19 +6,8 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
-from tinycss.tests import BaseTest
+from tinycss.tests import BaseTest, jsonify
 from tinycss.tokenizer import python_tokenize_flat, c_tokenize_flat, regroup
-
-def jsonify(tokens):
-    """Turn tokens into "JSON-compatible" data structures."""
-    for token in tokens:
-        if token.type == 'FUNCTION':
-            yield (token.type, token.function_name,
-                   list(jsonify(token.content)))
-        elif token.is_container:
-            yield token.type, list(jsonify(token.content))
-        else:
-            yield token.type, token.value
 
 if c_tokenize_flat is None:
     tokenizers = (python_tokenize_flat,)

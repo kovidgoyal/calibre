@@ -8,7 +8,6 @@ __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
 from tinycss.page3 import CSSPage3Parser
 from tinycss.tests import BaseTest
-from tinycss.tests.tokenizing import jsonify
 
 class TestPage3(BaseTest):
 
@@ -79,14 +78,10 @@ class TestPage3(BaseTest):
             stylesheet = CSSPage3Parser().parse_stylesheet(css)
             self.assert_errors(stylesheet.errors, expected_errors)
 
-            def declarations(rule):
-                return [(decl.name, list(jsonify(decl.value)))
-                        for decl in rule.declarations]
-
             self.ae(len(stylesheet.rules), 1)
             rule = stylesheet.rules[0]
             self.ae(rule.at_keyword, '@page')
-            self.ae(declarations(rule), expected_declarations)
-            rules = [(margin_rule.at_keyword, declarations(margin_rule))
+            self.ae(self.jsonify_declarations(rule), expected_declarations)
+            rules = [(margin_rule.at_keyword, self.jsonify_declarations(margin_rule))
                     for margin_rule in rule.at_rules]
             self.ae(rules, expected_rules)

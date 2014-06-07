@@ -13,6 +13,17 @@ try:
 except NameError:
     unicode = str
 
+def jsonify(tokens):
+    """Turn tokens into "JSON-compatible" data structures."""
+    for token in tokens:
+        if token.type == 'FUNCTION':
+            yield (token.type, token.function_name,
+                   list(jsonify(token.content)))
+        elif token.is_container:
+            yield token.type, list(jsonify(token.content))
+        else:
+            yield token.type, token.value
+
 class BaseTest(unittest.TestCase):
 
     longMessage = True
@@ -24,4 +35,9 @@ class BaseTest(unittest.TestCase):
         self.ae(len(errors), len(expected_errors))
         for error, expected in zip(errors, expected_errors):
             self.assertIn(expected, unicode(error))
+
+    def jsonify_declarations(self, rule):
+        return [(decl.name, list(jsonify(decl.value)))
+                for decl in rule.declarations]
+
 

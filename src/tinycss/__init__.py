@@ -9,17 +9,17 @@
     :license: BSD, see LICENSE for more details.
 """
 
-import sys
-
 from .version import VERSION
 __version__ = VERSION
 
 from .css21 import CSS21Parser
 from .page3 import CSSPage3Parser
+from .fonts3 import CSSFonts3Parser
 
 
 PARSER_MODULES = {
     'page3': CSSPage3Parser,
+    'fonts3': CSSFonts3Parser,
 }
 
 
