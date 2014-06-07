@@ -117,9 +117,24 @@ icu_lib_dirs = []
 zlib_inc_dirs = []
 zlib_lib_dirs = []
 zlib_libs = ['z']
+ICU = sw = ''
+
+QT_DLLS = ['Qt5' + x for x in (
+'Core', 'Gui', 'Multimedia', 'MultimediaWidgets', 'OpenGL', 'Network',
+'PrintSupport', 'Positioning', 'Quick', 'Qml', 'Sensors', 'Sql', 'Svg',
+'WebKit', 'WebKitWidgets', 'Widgets',  # 'Xml', 'XmlPatterns'
+)]
+QT_PLUGINS = ('imageformats', 'audio', 'iconengines', 'mediaservice', 'platforms', 'playlistformats', 'printsupport', 'sqldrivers')
+
+PYQT_MODULES = ('Qt', 'QtCore', 'QtGui', 'QtNetwork', 'QtMultimedia', 'QtMultimediaWidgets',
+                'QtPrintSupport', 'QtSensors', 'QtSvg', 'QtWebKit', 'QtWebKitWidgets', 'QtWidgets')
 
 if iswindows:
-    prefix  = r'C:\cygwin64\home\kovid\sw'
+    QT_DLLS += ['Qt5WinExtras']
+    QT_DLLS = {x + '.dll' for x in QT_DLLS}
+    PYQT_MODULES += ('QtWinExtras',)
+    PYQT_MODULES = {x + '.pyd' for x in PYQT_MODULES}
+    prefix  = sw = os.environ.get('SW', r'C:\cygwin64\home\kovid\sw')
     sw_inc_dir  = os.path.join(prefix, 'include')
     sw_lib_dir  = os.path.join(prefix, 'lib')
     ICU = os.environ.get('ICU_DIR', os.path.join(prefix, 'private', 'icu'))

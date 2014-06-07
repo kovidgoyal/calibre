@@ -7,21 +7,20 @@ __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import sys, os, shutil, glob, py_compile, subprocess, re, zipfile, time, textwrap
+from itertools import chain
 
 from setup import (Command, modules, functions, basenames, __version__,
     __appname__)
-from setup.build_environment import msvc, MT, RC, is64bit
+from setup.build_environment import (
+    msvc, MT, RC, is64bit, ICU as ICU_DIR, sw as SW, QT_DLLS, QMAKE, QT_PLUGINS, PYQT_MODULES)
 from setup.installer.windows.wix import WixMixIn
 
-ICU_DIR = os.environ.get('ICU_DIR', r'Q:\icu')
-OPENSSL_DIR = os.environ.get('OPENSSL_DIR', r'Q:\openssl')
-QT_DIR = os.environ.get('QT_DIR', 'Q:\\Qt\\current')
-QT_DLLS = ['Core', 'Gui', 'Network', 'Svg', 'WebKit', 'Xml', 'XmlPatterns']
-SW               = r'C:\cygwin\home\kovid\sw'
-IMAGEMAGICK = os.path.join(SW, 'build',
-                            'ImageMagick-*\\VisualMagick\\bin')
+OPENSSL_DIR = os.environ.get('OPENSSL_DIR', os.path.join(SW, 'private', 'openssl'))
+SW               = r'C:\cygwin64\home\kovid\sw'
+IMAGEMAGICK = os.path.join(SW, 'build', 'ImageMagick-*\\VisualMagick\\bin')
 CRT = r'C:\Microsoft.VC90.CRT'
-LZMA = r'Q:\easylzma\build\easylzma-0.0.8'
+LZMA = os.path.join(SW, *('private/easylzma/build/easylzma-0.0.8'.split('/')))
+QT_DIR = subprocess.check_output([QMAKE, '-query', 'QT_INSTALL_PREFIX']).decode('utf-8').strip()
 
 VERSION = re.sub('[a-z]\d+', '', __version__)
 WINVER = VERSION+'.0'
@@ -106,9 +105,10 @@ class Win32Freeze(Command, WixMixIn):
         repl_pat = re.compile(
             r'(?is)<dependency>.*?Microsoft\.VC\d+\.CRT.*?</dependency>')
 
-        for dll in (glob.glob(self.j(self.dll_dir, '*.dll')) +
-                    glob.glob(self.j(self.plugins_dir, '*.pyd'))):
+        for dll in chain(walk(self.dll_dir), walk(self.plugins_dir)):
             bn = self.b(dll)
+            if bn.rpartition('.')[-1] not in {'dll', 'pyd'}:
+                continue
             with open(dll, 'rb') as f:
                 raw = f.read()
             match = search_pat.search(raw)
@@ -175,10 +175,8 @@ class Win32Freeze(Command, WixMixIn):
             shutil.copy2(x, self.dll_dir)
         for x in glob.glob(self.j(ICU_DIR, 'source', 'lib', '*.dll')):
             shutil.copy2(x, self.dll_dir)
+
         for x in QT_DLLS:
-            x += '4.dll'
-            if not x.startswith('phonon'):
-                x = 'Qt'+x
             shutil.copy2(os.path.join(QT_DIR, 'bin', x), self.dll_dir)
         shutil.copy2(r'C:\windows\system32\python%s.dll'%self.py_ver,
                     self.dll_dir)
@@ -219,6 +217,9 @@ class Win32Freeze(Command, WixMixIn):
         for pat in (r'PyQt5\uic\port_v3', ):
             x = glob.glob(self.j(self.lib_dir, 'site-packages', pat))[0]
             shutil.rmtree(x)
+        pyqt = self.j(self.lib_dir, 'site-packages', 'PyQt5')
+        for x in {x for x in os.listdir(pyqt) if x.endswith('.pyd')} - PYQT_MODULES:
+            os.remove(self.j(pyqt, x))
 
         self.info('Adding calibre sources...')
         for x in glob.glob(self.j(self.SRC, '*')):
@@ -262,7 +263,7 @@ class Win32Freeze(Command, WixMixIn):
         qt_prefix = QT_DIR
         plugdir = self.j(qt_prefix, 'plugins')
         tdir = self.j(self.base, 'qt_plugins')
-        for d in ('imageformats', 'codecs', 'iconengines'):
+        for d in QT_PLUGINS:
             self.info('\t', d)
             imfd = os.path.join(plugdir, d)
             tg = os.path.join(tdir, d)
@@ -655,12 +656,12 @@ class Win32Freeze(Command, WixMixIn):
 
             sp = self.j(self.lib_dir, 'site-packages')
             # Special handling for PIL and pywin32
-            handled = set(['PIL.pth', 'pywin32.pth', 'PIL', 'win32'])
+            handled = set(['pywin32.pth', 'win32'])
+            pil_dir = glob.glob(self.j(sp, 'Pillow*', 'PIL'))[-1]
             if is64bit:
                 # PIL can raise exceptions, which cause crashes on 64bit
-                shutil.copytree(self.j(sp, 'PIL'), self.j(self.dll_dir, 'PIL'))
-            else:
-                self.add_to_zipfile(zf, 'PIL', sp)
+                shutil.copytree(pil_dir, self.j(self.dll_dir, 'PIL'))
+                handled.add(self.b(self.d(pil_dir)))
             base = self.j(sp, 'win32', 'lib')
             for x in os.listdir(base):
                 if os.path.splitext(x)[1] not in ('.exe',):
@@ -676,7 +677,10 @@ class Win32Freeze(Command, WixMixIn):
             handled.add('site.pyo')
 
             for d in self.get_pth_dirs(self.j(sp, 'easy-install.pth')):
-                handled.add(self.b(d))
+                hname = self.b(d)
+                if hname in handled:
+                    continue
+                handled.add(hname)
                 if os.path.basename(d).startswith('six-'):
                     continue  # We prefer the version bundled with calibre
                 for x in os.listdir(d):
