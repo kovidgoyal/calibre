@@ -13,6 +13,7 @@ from lxml import html
 from lxml.html.builder import (
     HTML, HEAD, TITLE, BODY, LINK, META, P, SPAN, BR, DIV, SUP, A, DT, DL, DD, H1)
 
+from calibre import guess_type
 from calibre.ebooks.docx.container import DOCX, fromstring
 from calibre.ebooks.docx.names import (
     XPath, is_tag, XML, STYLES, NUMBERING, FONTS, get, generate_anchor,
@@ -340,6 +341,9 @@ class Convert(object):
         opf = OPFCreator(self.dest_dir, self.mi)
         opf.toc = toc
         opf.create_manifest_from_files_in([self.dest_dir])
+        for item in opf.manifest:
+            if item.media_type == 'text/html':
+                item.media_type = guess_type('a.xhtml')[0]
         opf.create_spine(['index.html'])
         if self.cover_image is not None:
             opf.guide.set_cover(self.cover_image)
