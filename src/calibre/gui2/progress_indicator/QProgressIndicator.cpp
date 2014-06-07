@@ -8,6 +8,7 @@
 #include <QtWidgets/QProxyStyle>
 #include <QStyleOptionToolButton>
 #include <QFormLayout>
+#include <QDialogButtonBox>
 
 QProgressIndicator::QProgressIndicator(QWidget* parent, int size)
         : QWidget(parent),
