@@ -11,7 +11,7 @@ from distutils.spawn import find_executable
 
 import sipconfig
 
-from setup import isosx, iswindows, is64bit
+from setup import isosx, iswindows, is64bit, islinux
 is64bit
 
 OSX_SDK = '/Developer/SDKs/MacOSX10.5.sdk'
