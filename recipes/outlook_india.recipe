@@ -39,7 +39,9 @@ class OutlookIndia(BasicNewsRecipe):
                               "ctl00_cphpagemiddle_divregulars",
                               "ctl00_cphpagemiddle_divquotes"]}),
                     ]
-    remove_tags = [dict(name=['script','object','hr']),]
+    remove_tags = [
+        dict(name=['script','object','hr']),
+    ]
 
     def get_browser(self):
         br = BasicNewsRecipe.get_browser(self)
@@ -51,7 +53,6 @@ class OutlookIndia(BasicNewsRecipe):
         return br
 
     def parse_index(self):
-
         soup = self.index_to_soup('http://www.outlookindia.com/issues.aspx')
         # find cover pic
         cover = soup.find('img', attrs={'id':"ctl00_cphpagemiddle_dlissues_ctl00_imgcoverpic"}, src=True)
@@ -62,52 +63,20 @@ class OutlookIndia(BasicNewsRecipe):
         # end find cover pic
         # find current issue
         div = soup.find('div', attrs={'class':re.compile('cententcellpadding')})
-
-        if div is None:
-            return None
-        href = div.find('a')['href']
+        soup = self.index_to_soup(div.find('a')['href'])
         # end find current issue
-        soup = self.index_to_soup(href)
 
         articles = []
-
-        for a in soup.findAll('a', attrs={'class':['contentpgsubheadinglink',"contentpgtext",]}):
-            if a and 'href' in a:
-
-                url = 'http://www.outlookindia.com/' + a['href']
-            else:
-                url =''
-
+        for a in soup.findAll('a', href=True, attrs={'class':['contentpgsubheadinglink',"contentpgtext",]}) + \
+                soup.findAll('a', href=True, attrs={'id':["ctl00_cphpageleft_hlglitterati","ctl00_cphpageleft_hlposcape",]}):
+            if a['href'].startswith('http:'):
+                continue  # Clarification type article, has different markup
+            url = 'http://www.outlookindia.com/' + a['href']
             title = self.tag_to_string(a)
-
-            desc = ''
-            date = ''
-            articles.append({
-                                 'title':title,
-                                 'date':date,
-                                 'url':url,
-                                 'description':desc,
-                                })
-        for a in soup.findAll('a', attrs={'id':["ctl00_cphpageleft_hlglitterati","ctl00_cphpageleft_hlposcape",]}):
-
-            if a and 'href' in a:
-
-                url = 'http://www.outlookindia.com/' + a['href']
-            else:
-                url =''
-
-            title = self.tag_to_string(a)
-
-            desc = ''
-            date = ''
-            articles.append({
-                                 'title':title,
-                                 'date':date,
-                                 'url':url,
-                                 'description':desc,
-                                })
-
-        return [('Current Issue', articles)]
+            self.log('Found article:', title, 'at', url)
+            articles.append({'title':title, 'date':'', 'url':url, 'description':''})
+        if articles:
+            return [('Current Issue', articles)]
 
     def preprocess_html(self, soup):
         for item in soup.findAll(style=True):
