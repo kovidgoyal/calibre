@@ -7,7 +7,7 @@ __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
 
-from .css21 import CSS21Parser, ParseError
+from tinycss.css21 import CSS21Parser, ParseError
 
 class FontFaceRule(object):
 
@@ -17,6 +17,10 @@ class FontFaceRule(object):
         self.declarations = declarations
         self.line = line
         self.column = column
+
+    def __repr__(self):
+        return ('<{0.__class__.__name__} at {0.line}:{0.column}>'
+                .format(self))
 
 class CSSFonts3Parser(CSS21Parser):
 
