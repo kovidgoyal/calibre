@@ -8,7 +8,7 @@ __docformat__ = 'restructuredtext en'
 
 import os, shutil, subprocess
 
-from setup import Command, __appname__, __version__, installer_name
+from setup import Command, __appname__, __version__
 from setup.installer import VMInstaller
 
 class Win(Command):
@@ -30,14 +30,7 @@ class WinBase(VMInstaller):
 class Win32(WinBase):
 
     description = 'Build 32bit windows binary installer'
-
-    VM_NAME = 'xp_build'
-    VM = '/vmware/bin/%s'%VM_NAME
-    VM_CHECK = 'calibre_windows_xp_home'
-
-    @property
-    def msi64(self):
-        return installer_name('msi', is64bit=True)
+    VM_NAME = 'win32-build'
 
     def do_dl(self, installer, errmsg):
         subprocess.check_call(('scp',
@@ -59,15 +52,6 @@ class Win64(WinBase):
 
     description = 'Build 64bit windows binary installer'
 
-    VM_NAME = 'win64'
-    VM = '/vmware/bin/%s'%VM_NAME
-    VM_CHECK = 'win64'
+    VM_NAME = 'win64-build'
     IS_64_BIT = True
-    BUILD_PREFIX = WinBase.BUILD_PREFIX + [
-        'if [ -f "$HOME/.bash_profile" ] ; then',
-        '    source "$HOME/.bash_profile"',
-        'fi',
-    ]
-
-
 
