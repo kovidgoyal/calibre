@@ -102,7 +102,7 @@ class VMInstaller(Command):
 
     BUILD_CMD = 'ssh -t %s bash build-calibre'
     BUILD_PREFIX = ['#!/bin/bash', 'export CALIBRE_BUILDBOT=1']
-    BUILD_RSYNC  = [r'cd ~/build/{project}', Rsync.SYNC_CMD]
+    BUILD_RSYNC  = ['mkdir -p ~/build/{project}', r'cd ~/build/{project}', Rsync.SYNC_CMD]
     BUILD_CLEAN  = ['rm -rf dist/* build/* src/calibre/plugins/*']
     BUILD_BUILD  = ['python setup.py build',]
     FORCE_SHUTDOWN = 0  # number of seconds to wait before doing a forced power off (0 means disabled)

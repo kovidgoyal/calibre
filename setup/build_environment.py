@@ -86,7 +86,8 @@ pyqt = {x:readvar(y) for x, y in (
     ('inc', 'QT_INSTALL_HEADERS'), ('lib', 'QT_INSTALL_LIBS')
 )}
 c = sipconfig.Configuration()
-pyqt['sip_bin'] = c.sip_bin
+pyqt['sip_bin'] = c.sip_bin + ('.exe' if iswindows and not c.sip_bin.endswith('.exe') else '')
+
 from PyQt5.QtCore import PYQT_CONFIGURATION
 pyqt['sip_flags'] = PYQT_CONFIGURATION['sip_flags']
 def get_sip_dir(q):
@@ -137,7 +138,7 @@ if iswindows:
     jpg_libs = ['jpeg']
     ft_lib_dirs = [sw_lib_dir]
     ft_libs = ['freetype']
-    ft_inc_dirs = [sw_inc_dir]
+    ft_inc_dirs = [os.path.join(sw_inc_dir, 'freetype2'), sw_inc_dir]
     zlib_inc_dirs = [sw_inc_dir]
     zlib_lib_dirs = [sw_lib_dir]
     zlib_libs = ['zlib']

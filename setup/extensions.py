@@ -21,7 +21,7 @@ MT
 isunix = islinux or isosx or isbsd
 
 make = 'make' if isunix else NMAKE
-py_lib_dir = os.path.join(sys.prefix, 'lib')
+py_lib = os.path.join(sys.prefix, 'libs', 'python%d%d.lib' % sys.version_info[:2])
 
 class Extension(object):
 
@@ -579,14 +579,15 @@ class Build(Command):
         INCLUDEPATH += {sipinc} {pyinc}
         VERSION = {ver}
         win32 {{
-            LIBS += {py_lib_dir}
+            LIBS += {py_lib}
+            TARGET_EXT = .dll
         }}
         macx {{
             QMAKE_LFLAGS += "-undefined dynamic_lookup"
         }}
         ''').format(
             target=sip['target'], headers=' '.join(sip['headers'] + ext.headers), sources=' '.join(ext.sources + sip['sources']),
-            sipinc=pyqt['sip_inc_dir'], pyinc=sysconfig.get_python_inc(), py_lib_dir=py_lib_dir,
+            sipinc=pyqt['sip_inc_dir'], pyinc=sysconfig.get_python_inc(), py_lib=py_lib,
             ver=__version__
         )
         for incdir in ext.inc_dirs:
@@ -607,13 +608,16 @@ class Build(Command):
         if iswindows:
             qmc += ['-spec', 'win32-msvc2008']
         fext = 'dll' if iswindows else 'dylib' if isosx else 'so'
-        name = '%s%s.%s' % ('' if iswindows else 'lib', sip['target'], fext)
+        name = '%s%s.%s' % ('release/' if iswindows else 'lib', sip['target'], fext)
         try:
             os.chdir(src_dir)
             if self.newer(dest, sip['headers'] + sip['sources'] + ext.sources + ext.headers):
                 self.check_call([QMAKE] + qmc + [proname])
                 self.check_call([make]+([] if iswindows else ['-j%d'%(cpu_count() or 1)]))
                 shutil.copy2(os.path.realpath(name), dest)
+                if iswindows:
+                    shutil.copy2(name + '.manifest', dest + '.manifest')
+
         finally:
             os.chdir(cwd)
 
