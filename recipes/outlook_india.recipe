@@ -23,8 +23,22 @@ class OutlookIndia(BasicNewsRecipe):
                 .fspphotocredit{color:##999999; font-family:Arial,Helvetica,sans-serif; font-size:xx-small;}
                 '''
     keep_only_tags = [
-                      dict(name='div', attrs={'id':["ctl00_cphpagemiddle_reparticle_ctl00_divfullstorytext","ctl00_cphpagemiddle_reparticle_ctl00_divartpic","ctl00_cphpagemiddle_reparticle_ctl00_divfspheading", "ctl00_cphpagemiddle_reparticle_ctl00_divartpiccaption",  "ctl00_cphpagemiddle_reparticle_ctl00_divartpiccredit","ctl00_cphpagemiddle_reparticle_ctl00_divfspintro", "ctl00_cphpagemiddle_reparticle_ctl00_divartbyline", "ctl00_cphpagemiddle_divglitteratiregulars","ctl00_cphpagemiddle_divcartoon","feedbackslatestfirst","ctl00_cphpagemiddle_divregulars","ctl00_cphpagemiddle_divquotes"]}),
-                           ]
+                      dict(
+                          name='div',
+                          attrs={'id':[
+                              "ctl00_cphpagemiddle_reparticle_ctl00_divfullstorytext",
+                              "ctl00_cphpagemiddle_reparticle_ctl00_divartpic",
+                              "ctl00_cphpagemiddle_reparticle_ctl00_divfspheading",
+                              "ctl00_cphpagemiddle_reparticle_ctl00_divartpiccaption",
+                              "ctl00_cphpagemiddle_reparticle_ctl00_divartpiccredit",
+                              "ctl00_cphpagemiddle_reparticle_ctl00_divfspintro",
+                              "ctl00_cphpagemiddle_reparticle_ctl00_divartbyline",
+                              "ctl00_cphpagemiddle_divglitteratiregulars",
+                              "ctl00_cphpagemiddle_divcartoon",
+                              "feedbackslatestfirst",
+                              "ctl00_cphpagemiddle_divregulars",
+                              "ctl00_cphpagemiddle_divquotes"]}),
+                    ]
     remove_tags = [dict(name=['script','object','hr']),]
 
     def get_browser(self):
@@ -38,42 +52,27 @@ class OutlookIndia(BasicNewsRecipe):
 
     def parse_index(self):
 
-
         soup = self.index_to_soup('http://www.outlookindia.com/issues.aspx')
         # find cover pic
-        div = soup.find('div', attrs={'class':re.compile('cententcellpadding')})
-
-        if div is None: return None
-        a = div.find('a')
-
-        if a is not None:
-            href =  'http://www.outlookindia.com/' + a['href']
-
-        soup = self.index_to_soup(href)
         cover = soup.find('img', attrs={'id':"ctl00_cphpagemiddle_dlissues_ctl00_imgcoverpic"}, src=True)
         if cover is not None:
 
             self.cover_url = cover['src']
 
-         # end find cover pic
-         #find current issue
-        div = soup.find('table', attrs={'id':re.compile('ctl00_cphpagemiddle_dlissues')})
+        # end find cover pic
+        # find current issue
+        div = soup.find('div', attrs={'class':re.compile('cententcellpadding')})
 
-        if div is None: return None
-        a = div.find('a')
-
-        if a is not None:
-            href =  'http://www.outlookindia.com/' + a['href']
-
+        if div is None:
+            return None
+        href = div.find('a')['href']
+        # end find current issue
         soup = self.index_to_soup(href)
-        #find current issue
 
-        #find the articles in the current issue
         articles = []
 
-        for a in soup.findAll('a', attrs={'class':['contentpgsubheadinglink',"contentpgtext6",]}):
-
-            if a and a.has_key('href'):
+        for a in soup.findAll('a', attrs={'class':['contentpgsubheadinglink',"contentpgtext",]}):
+            if a and 'href' in a:
 
                 url = 'http://www.outlookindia.com/' + a['href']
             else:
@@ -91,7 +90,7 @@ class OutlookIndia(BasicNewsRecipe):
                                 })
         for a in soup.findAll('a', attrs={'id':["ctl00_cphpageleft_hlglitterati","ctl00_cphpageleft_hlposcape",]}):
 
-            if a and a.has_key('href'):
+            if a and 'href' in a:
 
                 url = 'http://www.outlookindia.com/' + a['href']
             else:
@@ -108,7 +107,6 @@ class OutlookIndia(BasicNewsRecipe):
                                  'description':desc,
                                 })
 
-
         return [('Current Issue', articles)]
 
     def preprocess_html(self, soup):
@@ -116,11 +114,9 @@ class OutlookIndia(BasicNewsRecipe):
             del item['style']
         return self.adeify_images(soup)
 
-
-
     def postrocess_html(self, soup, first):
 
-            for item in soup.findAll(align = "left"):
+            for item in soup.findAll(align="left"):
                 del item['align']
 
             for tag in soup.findAll(name=['table', 'tr','td','tbody','ul','li','font','span']):
