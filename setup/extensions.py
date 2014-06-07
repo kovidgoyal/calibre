@@ -13,9 +13,9 @@ from multiprocessing import cpu_count
 from setup import Command, islinux, isbsd, isosx, SRC, iswindows, __version__
 from setup.build_environment import (chmlib_inc_dirs,
         podofo_inc, podofo_lib, podofo_error, pyqt, OSX_SDK, NMAKE, QMAKE,
-        msvc, MT, win_inc, win_lib, win_ddk, magick_inc_dirs, magick_lib_dirs,
+        msvc, MT, win_inc, win_lib, magick_inc_dirs, magick_lib_dirs,
         magick_libs, chmlib_lib_dirs, sqlite_inc_dirs, icu_inc_dirs,
-        icu_lib_dirs, win_ddk_lib_dirs, ft_libs, ft_lib_dirs, ft_inc_dirs,
+        icu_lib_dirs, ft_libs, ft_lib_dirs, ft_inc_dirs,
         zlib_libs, zlib_lib_dirs, zlib_inc_dirs, is64bit, glib_flags, fontconfig_flags)
 MT
 isunix = islinux or isosx or isbsd
@@ -45,7 +45,6 @@ class Extension(object):
         self.cflags = kwargs.get('cflags', [])
         self.ldflags = kwargs.get('ldflags', [])
         self.optional = kwargs.get('optional', False)
-        self.needs_ddk = kwargs.get('needs_ddk', False)
         of = kwargs.get('optimize_level', None)
         if of is None:
             of = '/Ox' if iswindows else '-O3'
@@ -271,7 +270,6 @@ if iswindows:
                 'calibre/devices/mtp/windows/global.h',
             ],
             libraries=['ole32', 'oleaut32', 'portabledeviceguids', 'user32'],
-            # needs_ddk=True,
             cflags=['/X']
             ),
         Extension('winfonts',
@@ -445,10 +443,6 @@ class Build(Command):
         obj_dir = self.j(self.obj_dir, ext.name)
         ext.preflight(obj_dir, compiler, linker, self, cflags, ldflags)
         einc = self.inc_dirs_to_cflags(ext.inc_dirs)
-        if ext.needs_ddk:
-            ddk_flags = ['-I'+x for x in win_ddk]
-            cflags.extend(ddk_flags)
-            ldflags.extend(['/LIBPATH:'+x for x in win_ddk_lib_dirs])
         if not os.path.exists(obj_dir):
             os.makedirs(obj_dir)
         for src in ext.sources:

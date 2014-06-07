@@ -6,7 +6,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, socket, struct, subprocess, glob, re
+import os, subprocess, glob, re
 from distutils.spawn import find_executable
 
 import sipconfig
@@ -18,25 +18,21 @@ OSX_SDK = '/Developer/SDKs/MacOSX10.5.sdk'
 
 os.environ['MACOSX_DEPLOYMENT_TARGET'] = '10.5'
 
-NMAKE = RC = msvc = MT = win_inc = win_lib = win_ddk = win_ddk_lib_dirs = None
+NMAKE = RC = msvc = MT = win_inc = win_lib = None
 if iswindows:
     from distutils import msvc9compiler
     msvc = msvc9compiler.MSVCCompiler()
     msvc.initialize()
     NMAKE = msvc.find_exe('nmake.exe')
     RC = msvc.find_exe('rc.exe')
-    SDK = os.environ.get('WINSDK', r'C:\Program Files\Microsoft SDKs\Windows\v6.0A')
-    DDK = os.environ.get('WINDDK', r'Q:\WinDDK\7600.16385.0')
-    win_ddk = [DDK+'\\inc\\'+x for x in ('atl71',)]
-    win_ddk_lib_dirs = [DDK+'\\lib\\ATL\\i386']
+    SDK = os.environ.get('WINSDK', r'C:\Program Files\Microsoft SDKs\Windows\v7.0')
     win_inc = os.environ['include'].split(';')
     win_lib = os.environ['lib'].split(';')
     for p in win_inc:
         if 'SDK' in p:
             MT = os.path.join(os.path.dirname(p), 'bin', 'mt.exe')
-    MT = os.path.join(SDK, 'bin', 'mt.exe')
-    os.environ['QMAKESPEC'] = 'win32-msvc'
-    ICU = os.environ.get('ICU_DIR', r'Q:\icu')
+    MT = os.path.join(SDK, 'Bin', 'mt.exe')
+    os.environ['QMAKESPEC'] = 'win32-msvc2008'
 
 QMAKE = '/Volumes/sw/qt/bin/qmake' if isosx else 'qmake'
 for x in ('qmake-qt5', 'qt5-qmake', 'qmake'):
@@ -122,9 +118,10 @@ zlib_lib_dirs = []
 zlib_libs = ['z']
 
 if iswindows:
-    prefix  = r'C:\cygwin\home\kovid\sw'
+    prefix  = r'C:\cygwin64\home\kovid\sw'
     sw_inc_dir  = os.path.join(prefix, 'include')
     sw_lib_dir  = os.path.join(prefix, 'lib')
+    ICU = os.environ.get('ICU_DIR', os.path.join(prefix, 'private', 'icu'))
     icu_inc_dirs = [os.path.join(ICU, 'source', 'common'), os.path.join(ICU,
         'source', 'i18n')]
     icu_lib_dirs = [os.path.join(ICU, 'source', 'lib')]
@@ -135,7 +132,7 @@ if iswindows:
         'build', 'chmlib-0.40', 'src', 'Release'))
     png_inc_dirs = [sw_inc_dir]
     png_lib_dirs = [sw_lib_dir]
-    png_libs = ['png12']
+    png_libs = ['png16']
     jpg_lib_dirs = [sw_lib_dir]
     jpg_libs = ['jpeg']
     ft_lib_dirs = [sw_lib_dir]
@@ -202,29 +199,7 @@ podofo_error = None if os.path.exists(os.path.join(podofo_inc, 'podofo.h')) else
     ' functionality will not work. Use the PODOFO_INC_DIR and',
     ' PODOFO_LIB_DIR environment variables.')
 
-def get_ip_address(ifname):
-    import fcntl
-    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    return socket.inet_ntoa(fcntl.ioctl(
-        s.fileno(),
-        0x8915,  # SIOCGIFADDR
-        struct.pack('256s', ifname[:15])
-    )[20:24])
-
-HOST='192.168.1.2'
-try:
-    import netifaces
-    for iface in netifaces.interfaces():
-        addrs = netifaces.ifaddresses(iface).get(netifaces.AF_INET, [])
-        if len(addrs) > 0 and 'addr' in addrs[0]:
-            q = addrs[0]['addr']
-            if q.startswith('192.168.1.'):
-                HOST = q
-                break
-except (Exception, ImportError) as e:
-    print ('Failed to detect host ip address with error: %s' % e)
-
-
+BUILD_HOST='192.168.81.1'
 PROJECT=os.path.basename(os.path.abspath('.'))
 
 
