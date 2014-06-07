@@ -88,7 +88,7 @@ class CSSPage3Parser(CSS21Parser):
 
     """
 
-    PAGE_MARGIN_AT_KEYWORDS = {
+    PAGE_MARGIN_AT_KEYWORDS = (
         '@top-left-corner',
         '@top-left',
         '@top-center',
@@ -105,23 +105,25 @@ class CSSPage3Parser(CSS21Parser):
         '@right-top',
         '@right-middle',
         '@right-bottom',
-    }
+    )
 
-    def parse_at_rule(self, rule, previous_rules, errors, context):
-        if rule.at_keyword in self.PAGE_MARGIN_AT_KEYWORDS:
-            if context != '@page':
-                raise ParseError(rule,
-                    '%s rule not allowed in %s' % (rule.at_keyword, context))
-            if rule.head:
-                raise ParseError(rule.head[0],
-                    'unexpected %s token in %s rule header'
-                    % (rule.head[0].type, rule.at_keyword))
-            declarations, body_errors = self.parse_declaration_list(rule.body)
-            errors.extend(body_errors)
-            return MarginRule(rule.at_keyword, declarations,
-                              rule.line, rule.column)
-        return super(CSSPage3Parser, self).parse_at_rule(
-            rule, previous_rules, errors, context)
+    def __init__(self):
+        super(CSSPage3Parser, self).__init__()
+        for x in self.PAGE_MARGIN_AT_KEYWORDS:
+            self.at_parsers[x] = self.parse_page_margin_rule
+
+    def parse_page_margin_rule(self, rule, previous_rules, errors, context):
+        if context != '@page':
+            raise ParseError(rule,
+                '%s rule not allowed in %s' % (rule.at_keyword, context))
+        if rule.head:
+            raise ParseError(rule.head[0],
+                'unexpected %s token in %s rule header'
+                % (rule.head[0].type, rule.at_keyword))
+        declarations, body_errors = self.parse_declaration_list(rule.body)
+        errors.extend(body_errors)
+        return MarginRule(rule.at_keyword, declarations,
+                            rule.line, rule.column)
 
     def parse_page_selector(self, head):
         """Parse an @page selector.

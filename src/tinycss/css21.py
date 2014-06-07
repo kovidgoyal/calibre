@@ -13,11 +13,12 @@
 from __future__ import unicode_literals
 from itertools import chain, islice
 
-from .decoding import decode
-from .token_data import TokenList
-from .tokenizer import tokenize_grouped
-from .parsing import (strip_whitespace, remove_whitespace, split_on_comma,
-                      validate_value, validate_block, validate_any, ParseError)
+from tinycss.decoding import decode
+from tinycss.token_data import TokenList
+from tinycss.tokenizer import tokenize_grouped
+from tinycss.parsing import (
+    strip_whitespace, remove_whitespace, split_on_comma, validate_value,
+    validate_any, ParseError)
 
 
 #  stylesheet  : [ CDO | CDC | S | statement ]*;
@@ -293,7 +294,6 @@ class ImportRule(object):
                 ' {0.uri}>'.format(self))
 
 
-
 def _remove_at_charset(tokens):
     """Remove any valid @charset at the beggining of a token stream.
 
@@ -327,6 +327,10 @@ class CSS21Parser(object):
     subclassing and overriding its methods.
 
     """
+
+    def __init__(self):
+        self.at_parsers = {
+            '@' + x:getattr(self, 'parse_%s_rule' % x) for x in ('media', 'page', 'import', 'charset')}
 
     # User API:
 
@@ -507,66 +511,70 @@ class CSS21Parser(object):
             A parsed at-rule
 
         """
-        if rule.at_keyword == '@page':
-            if context != 'stylesheet':
-                raise ParseError(rule, '@page rule not allowed in ' + context)
-            selector, specificity = self.parse_page_selector(rule.head)
-            if rule.body is None:
-                raise ParseError(rule,
-                    'invalid {0} rule: missing block'.format(rule.at_keyword))
-            declarations, at_rules, rule_errors = \
-                self.parse_declarations_and_at_rules(rule.body, '@page')
-            errors.extend(rule_errors)
-            return PageRule(selector, specificity, declarations, at_rules,
-                            rule.line, rule.column)
-
-        elif rule.at_keyword == '@media':
-            if context != 'stylesheet':
-                raise ParseError(rule, '@media rule not allowed in ' + context)
-            if not rule.head:
-                raise ParseError(rule, 'expected media types for @media')
-            media = self.parse_media(rule.head)
-            if rule.body is None:
-                raise ParseError(rule,
-                    'invalid {0} rule: missing block'.format(rule.at_keyword))
-            rules, rule_errors = self.parse_rules(rule.body, '@media')
-            errors.extend(rule_errors)
-            return MediaRule(media, rules, rule.line, rule.column)
-
-        elif rule.at_keyword == '@import':
-            if context != 'stylesheet':
-                raise ParseError(rule,
-                    '@import rule not allowed in ' + context)
-            for previous_rule in previous_rules:
-                if previous_rule.at_keyword not in ('@charset', '@import'):
-                    if previous_rule.at_keyword:
-                        type_ = 'an {0} rule'.format(previous_rule.at_keyword)
-                    else:
-                        type_ = 'a ruleset'
-                    raise ParseError(previous_rule,
-                        '@import rule not allowed after ' + type_)
-            head = rule.head
-            if not head:
-                raise ParseError(rule,
-                    'expected URI or STRING for @import rule')
-            if head[0].type not in ('URI', 'STRING'):
-                raise ParseError(rule,
-                    'expected URI or STRING for @import rule, got '
-                    + head[0].type)
-            uri = head[0].value
-            media = self.parse_media(strip_whitespace(head[1:]))
-            if rule.body is not None:
-                # The position of the ';' token would be best, but we don’t
-                # have it anymore here.
-                raise ParseError(head[-1], "expected ';', got a block")
-            return ImportRule(uri, media, rule.line, rule.column)
-
-        elif rule.at_keyword == '@charset':
-            raise ParseError(rule, 'mis-placed or malformed @charset rule')
-
-        else:
+        try:
+            parser = self.at_parsers[rule.at_keyword]
+        except KeyError:
             raise ParseError(rule, 'unknown at-rule in {0} context: {1}'
                                     .format(context, rule.at_keyword))
+        else:
+            return parser(rule, previous_rules, errors, context)
+
+    def parse_page_rule(self, rule, previous_rules, errors, context):
+        if context != 'stylesheet':
+            raise ParseError(rule, '@page rule not allowed in ' + context)
+        selector, specificity = self.parse_page_selector(rule.head)
+        if rule.body is None:
+            raise ParseError(rule,
+                'invalid {0} rule: missing block'.format(rule.at_keyword))
+        declarations, at_rules, rule_errors = \
+            self.parse_declarations_and_at_rules(rule.body, '@page')
+        errors.extend(rule_errors)
+        return PageRule(selector, specificity, declarations, at_rules,
+                        rule.line, rule.column)
+
+    def parse_media_rule(self, rule, previous_rules, errors, context):
+        if context != 'stylesheet':
+            raise ParseError(rule, '@media rule not allowed in ' + context)
+        if not rule.head:
+            raise ParseError(rule, 'expected media types for @media')
+        media = self.parse_media(rule.head)
+        if rule.body is None:
+            raise ParseError(rule,
+                'invalid {0} rule: missing block'.format(rule.at_keyword))
+        rules, rule_errors = self.parse_rules(rule.body, '@media')
+        errors.extend(rule_errors)
+        return MediaRule(media, rules, rule.line, rule.column)
+
+    def parse_import_rule(self, rule, previous_rules, errors, context):
+        if context != 'stylesheet':
+            raise ParseError(rule,
+                '@import rule not allowed in ' + context)
+        for previous_rule in previous_rules:
+            if previous_rule.at_keyword not in ('@charset', '@import'):
+                if previous_rule.at_keyword:
+                    type_ = 'an {0} rule'.format(previous_rule.at_keyword)
+                else:
+                    type_ = 'a ruleset'
+                raise ParseError(previous_rule,
+                    '@import rule not allowed after ' + type_)
+        head = rule.head
+        if not head:
+            raise ParseError(rule,
+                'expected URI or STRING for @import rule')
+        if head[0].type not in ('URI', 'STRING'):
+            raise ParseError(rule,
+                'expected URI or STRING for @import rule, got '
+                + head[0].type)
+        uri = head[0].value
+        media = self.parse_media(strip_whitespace(head[1:]))
+        if rule.body is not None:
+            # The position of the ';' token would be best, but we don’t
+            # have it anymore here.
+            raise ParseError(head[-1], "expected ';', got a block")
+        return ImportRule(uri, media, rule.line, rule.column)
+
+    def parse_charset_rule(self, rule, previous_rules, errors, context):
+        raise ParseError(rule, 'mis-placed or malformed @charset rule')
 
     def parse_media(self, tokens):
         """For CSS 2.1, parse a list of media types.

@@ -26,13 +26,14 @@ class CSSFonts3Parser(CSS21Parser):
 
     ''' Parse @font-face rules from the CSS 3 fonts module '''
 
-    ALLOWED_CONTEXTS = {'stylesheet', '@media', '@page'}
+    ALLOWED_CONTEXTS_FOR_FONT_FACE = {'stylesheet', '@media', '@page'}
 
-    def parse_at_rule(self, rule, previous_rules, errors, context):
-        if rule.at_keyword != '@font-face':
-            return super(CSSFonts3Parser, self).parse_at_rule(
-                rule, previous_rules, errors, context)
-        if context not in self.ALLOWED_CONTEXTS:
+    def __init__(self):
+        super(CSSFonts3Parser, self).__init__()
+        self.at_parsers['@font-face'] = self.parse_font_face_rule
+
+    def parse_font_face_rule(self, rule, previous_rules, errors, context):
+        if context not in self.ALLOWED_CONTEXTS_FOR_FONT_FACE:
             raise ParseError(rule,
                 '@font-face rule not allowed in ' + context)
         if rule.body is None:
