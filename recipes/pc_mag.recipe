@@ -29,6 +29,7 @@ class pcMag(BasicNewsRecipe):
     oldest_article        = 15
     max_articles_per_feed = 25
     use_embedded_content  = False
+    auto_cleanup = True
     recursion             = 10
 
     remove_javascript     = True
@@ -47,13 +48,13 @@ class pcMag(BasicNewsRecipe):
                        (u'Technology News from Ziff Davis', u'http://rssnewsapps.ziffdavis.com/pcmagbreakingnews.xml')
                      ]
 
-    keep_only_tags = [dict(attrs={'class':'content-page'})]
-    remove_tags         = [
-                            dict(attrs={'class':['control-side','comment','highlights_content','btn-holder','subscribe-panel',
-                                'grey-box comments-box']}),
-                            dict(id=['inlineDigg']),
-                            dict(text=lambda text:isinstance(text, Comment)),
-                            dict(name='img', width='1'),
-                        ]
-    preprocess_regexps = [(re.compile(r"<img '[^']+?'"), lambda m : '<img ')]
+    #keep_only_tags = [dict(attrs={'class':'content-page'})]
+    #remove_tags         = [
+                            #dict(attrs={'class':['control-side','comment','highlights_content','btn-holder','subscribe-panel',
+                                #'grey-box comments-box']}),
+                            #dict(id=['inlineDigg']),
+                            #dict(text=lambda text:isinstance(text, Comment)),
+                            #dict(name='img', width='1'),
+                        #]
+    #preprocess_regexps = [(re.compile(r"<img '[^']+?'"), lambda m : '<img ')]
 
