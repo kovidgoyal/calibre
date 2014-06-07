@@ -343,8 +343,11 @@ class Convert(object):
         opf.create_spine(['index.html'])
         if self.cover_image is not None:
             opf.guide.set_cover(self.cover_image)
-        with open(os.path.join(self.dest_dir, 'metadata.opf'), 'wb') as of, open(os.path.join(self.dest_dir, 'toc.ncx'), 'wb') as ncx:
+        toc_file = os.path.join(self.dest_dir, 'toc.ncx')
+        with open(os.path.join(self.dest_dir, 'metadata.opf'), 'wb') as of, open(toc_file, 'wb') as ncx:
             opf.render(of, ncx, 'toc.ncx')
+        if os.path.getsize(toc_file) == 0:
+            os.remove(toc_file)
         return os.path.join(self.dest_dir, 'metadata.opf')
 
     def read_block_anchors(self, doc):

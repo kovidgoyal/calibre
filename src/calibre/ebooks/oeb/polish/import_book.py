@@ -23,10 +23,10 @@ def auto_fill_manifest(container):
 
     for name, mt in container.mime_map.iteritems():
         if name not in manifest_name_map and not container.ok_to_be_unmanifested(name):
-            mitem = container.generate_item(name)
+            mitem = container.generate_item(name, unique_href=False)
             gname = container.href_to_name(mitem.get('href'), container.opf_name)
             if gname != name:
-                raise ValueError('This should never happen (gname=%r, name=%r)' % (gname, name))
+                raise ValueError('This should never happen (gname=%r, name=%r, href=%r)' % (gname, name, mitem.get('href')))
             manifest_name_map[name] = mitem.get('id')
             manifest_id_map[mitem.get('id')] = name
 

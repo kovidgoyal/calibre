@@ -661,7 +661,7 @@ class Container(object):  # {{{
         package.append(item)
         return item
 
-    def generate_item(self, name, id_prefix=None, media_type=None):
+    def generate_item(self, name, id_prefix=None, media_type=None, unique_href=True):
         '''Add an item to the manifest with href derived from the given
         name. Ensures uniqueness of href and id automatically. Returns
         generated item.'''
@@ -681,10 +681,11 @@ class Container(object):  # {{{
         def exists(h):
             return self.exists(self.href_to_name(h, self.opf_name))
 
-        c = 0
-        while href in all_names or exists(href):
-            c += 1
-            href = '%s_%d.%s'%(base, c, ext)
+        if unique_href:
+            c = 0
+            while href in all_names or exists(href):
+                c += 1
+                href = '%s_%d.%s'%(base, c, ext)
         manifest = self.opf_xpath('//opf:manifest')[0]
         item = manifest.makeelement(OPF('item'),
                                     id=item_id, href=href)
