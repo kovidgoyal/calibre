@@ -54,6 +54,8 @@ class MarginRule(object):
 
     """
 
+    __slots__ = 'at_keyword', 'declarations', 'line', 'column'
+
     def __init__(self, at_keyword, declarations, line, column):
         self.at_keyword = at_keyword
         self.declarations = declarations

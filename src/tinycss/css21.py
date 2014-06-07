@@ -100,6 +100,9 @@ class AtRule(object):
     the user API.
 
     """
+
+    __slots__ = 'at_keyword', 'head', 'body', 'line', 'column'
+
     def __init__(self, at_keyword, head, body, line, column):
         self.at_keyword = at_keyword
         self.head = TokenList(head)
@@ -134,6 +137,7 @@ class RuleSet(object):
     """
 
     at_keyword = None
+    __slots__ = 'selector', 'declarations', 'line', 'column'
 
     def __init__(self, selector, declarations, line, column):
         self.selector = TokenList(selector)
@@ -171,6 +175,8 @@ class Declaration(object):
         Either the string ``'important'`` or ``None``.
 
     """
+    __slots__ = 'name', 'value', 'priority', 'line', 'column'
+
     def __init__(self, name, value, priority, line, column):
         self.name = name
         self.value = TokenList(value)
@@ -215,6 +221,7 @@ class PageRule(object):
 
     """
     at_keyword = '@page'
+    __slots__ = 'selector', 'specificity', 'declarations', 'at_rules', 'line', 'column'
 
     def __init__(self, selector, specificity, declarations, at_rules,
                  line, column):
@@ -249,6 +256,7 @@ class MediaRule(object):
 
     """
     at_keyword = '@media'
+    __slots__ = 'media', 'rules', 'line', 'column'
 
     def __init__(self, media, rules, line, column):
         self.media = media
@@ -282,6 +290,7 @@ class ImportRule(object):
 
     """
     at_keyword = '@import'
+    __slots__ = 'uri', 'media', 'line', 'column'
 
     def __init__(self, uri, media, line, column):
         self.uri = uri

@@ -12,6 +12,7 @@ from tinycss.css21 import CSS21Parser, ParseError
 class FontFaceRule(object):
 
     at_keyword = '@font-face'
+    __slots__ = 'declarations', 'line', 'column'
 
     def __init__(self, declarations, line, column):
         self.declarations = declarations
