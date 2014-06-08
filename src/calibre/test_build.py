@@ -43,7 +43,7 @@ def test_plugins():
         if err or not mod:
             raise RuntimeError('Plugin %s failed to load with error: %s' %
                     (name, err))
-        print (mod, 'loaded')
+    print ('Loaded all plugins successfully!')
 
 def test_lxml():
     from lxml import etree
@@ -56,7 +56,13 @@ def test_lxml():
 
 def test_winutil():
     from calibre.devices.scanner import win_pnp_drives
-    matches = win_pnp_drives.scanner()
+    from calibre.constants import plugins
+    winutil = plugins['winutil'][0]
+    try:
+        matches = win_pnp_drives.scanner()
+    except winutil.DriveError:
+        print ('No removable drives found, skipping win_pnp_drives test!')
+        return
     if len(matches) < 1:
         raise RuntimeError('win_pnp_drives returned no drives')
     print ('win_pnp_drives OK!')
@@ -140,6 +146,7 @@ def test_wpd():
         print ('This computer does not have WPD')
     else:
         wpd.uninit()
+    print ('WPD OK!')
 
 def test_woff():
     from calibre.utils.fonts.woff import test
@@ -147,7 +154,6 @@ def test_woff():
     print ('WOFF ok!')
 
 def test_magick():
-    print ('Testing tinycss tokenizer')
     from calibre.utils.magick import create_canvas
     i = create_canvas(100, 100)
     from calibre.gui2.tweak_book.editor.canvas import qimage_to_magick, magick_to_qimage
@@ -156,6 +162,7 @@ def test_magick():
     print ('magick OK!')
 
 def test_tokenizer():
+    print ('Testing tinycss tokenizer')
     from tinycss.tokenizer import c_tokenize_flat
     if c_tokenize_flat is None:
         raise ValueError('tinycss C tokenizer not loaded')
@@ -197,8 +204,8 @@ def test():
     test_psutil()
     test_podofo()
     if iswindows:
-        test_winutil()
         test_wpd()
+        test_winutil()
     if islinux:
         test_dbus()
 

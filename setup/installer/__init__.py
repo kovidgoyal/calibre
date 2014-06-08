@@ -76,7 +76,7 @@ class Push(Command):
                 r'Owner@winxp:/cygdrive/c/Documents\ and\ Settings/Owner/calibre':'winxp',
                 'kovid@ox:calibre':None,
                 r'kovid@win7:/cygdrive/c/Users/kovid/calibre':'Windows 7',
-                'kovid@win7-x64:calibre-src':'win7-x64',
+                'kovid@win7-x64:calibre':'win7-x64',
                 'kovid@tiny:calibre':None,
                 'kovid@getafix:calibre-src':None,
                 }.iteritems():
