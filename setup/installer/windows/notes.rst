@@ -489,6 +489,12 @@ Download Qt sourcecode (.zip) from: http://download.qt-project.org/official_rele
         wget -O qtwebkit/Source/ThirdParty/leveldb/include/stdint.h 'http://msinttypes.googlecode.com/svn/trunk/stdint.h'
         cp qtwebkit/Source/ThirdParty/leveldb/include/stdint.h qtwebkit/Source/JavaScriptCore/os-win32
 
+    * Slim down Qt by not building various things we dont need. Edit
+      :file:`qtwebkit/Tools/qmake/mkspecs/features/configure.prf` and remove
+      build_webkit2. Edit qt.pro and comment out the addModule() lines for
+      qtxmlpatterns, qtdeclarative, qtquick1, qtwebsockets. Change the
+      addModule line for qtwebkit to depend on qtbase instead of qtdeclarative.
+
     * Qt uses its own routine to locate and load "system libraries" including
       the openssl libraries needed for "Get Books". This means that we have to
       apply the following patch to have Qt load the openssl libraries bundled
@@ -524,13 +530,14 @@ Available from: http://www.riverbankcomputing.co.uk/software/sip/download ::
 
     python configure.py -p win32-msvc2008 && nmake && nmake install
 
-PyQt4
+PyQt5
 ----------
 
 Compiling instructions::
 
-    python configure.py -c -j5 --no-designer-plugin --no-qml-plugin --verbose --confirm-license
-    nmake && nmake install
+    rm -rf build && mkdir build && cd build
+    python ../configure.py -c -j5 --no-designer-plugin --no-qml-plugin --verbose --confirm-license
+    nmake && rm -rf /cygdrive/c/Python27/Lib/site-packages/PyQt5 && nmake install
 
 
 libimobiledevice
