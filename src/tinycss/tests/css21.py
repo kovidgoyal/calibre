@@ -303,10 +303,10 @@ class TestCSS21(BaseTest):
     def test_at_media(self):
         for (css_source, expected_rules, expected_errors) in [
             (' /* hey */\n', [], []),
+            ('@media  {}', [(['all'], [])], []),
             ('@media all {}', [(['all'], [])], []),
             ('@media screen, print {}', [(['screen', 'print'], [])], []),
             ('@media all;', [], ['invalid @media rule: missing block']),
-            ('@media  {}', [], ['expected media types for @media']),
             ('@media 4 {}', [], ['expected a media type, got INTEGER']),
             ('@media , screen {}', [], ['expected a media type']),
             ('@media screen, {}', [], ['expected a media type']),

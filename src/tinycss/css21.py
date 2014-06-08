@@ -544,9 +544,7 @@ class CSS21Parser(object):
     def parse_media_rule(self, rule, previous_rules, errors, context):
         if context != 'stylesheet':
             raise ParseError(rule, '@media rule not allowed in ' + context)
-        if not rule.head:
-            raise ParseError(rule, 'expected media types for @media')
-        media = self.parse_media(rule.head)
+        media = self.parse_media(rule.head, errors)
         if rule.body is None:
             raise ParseError(rule,
                 'invalid {0} rule: missing block'.format(rule.at_keyword))
@@ -575,7 +573,7 @@ class CSS21Parser(object):
                 'expected URI or STRING for @import rule, got '
                 + head[0].type)
         uri = head[0].value
-        media = self.parse_media(strip_whitespace(head[1:]))
+        media = self.parse_media(strip_whitespace(head[1:]), errors)
         if rule.body is not None:
             # The position of the ';' token would be best, but we don’t
             # have it anymore here.
@@ -585,7 +583,7 @@ class CSS21Parser(object):
     def parse_charset_rule(self, rule, previous_rules, errors, context):
         raise ParseError(rule, 'mis-placed or malformed @charset rule')
 
-    def parse_media(self, tokens):
+    def parse_media(self, tokens, errors):
         """For CSS 2.1, parse a list of media types.
 
         Media Queries are expected to override this.
