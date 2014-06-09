@@ -6,37 +6,39 @@ class JerusalemPost(BasicNewsRecipe):
     title       = 'Jerusalem Post'
     description = 'News from Israel and the Middle East'
     use_embedded_content   = False
+    auto_cleanup = True
+    auto_cleanup_keep = '//img[@id="ctl00_ContentPlaceHolder1_article_control_image"]'
     language = 'en'
 
     __author__ = 'Kovid Goyal'
     max_articles_per_feed = 10
     no_stylesheets = True
 
-    feeds =  [ ('Front Page', 'http://www.jpost.com/servlet/Satellite?pagename=JPost/Page/RSS&cid=1123495333346'),
-               ('Israel News', 'http://www.jpost.com/servlet/Satellite?pagename=JPost/Page/RSS&cid=1178443463156'),
-               ('Middle East News', 'http://www.jpost.com/servlet/Satellite?pagename=JPost/Page/RSS&cid=1123495333498'),
-               ('International News', 'http://www.jpost.com/servlet/Satellite?pagename=JPost/Page/RSS&cid=1178443463144'),
-               ('Editorials', 'http://www.jpost.com/servlet/Satellite?pagename=JPost/Page/RSS&cid=1123495333211'),
+    feeds =  [ ('Front Page', 'http://www.jpost.com/Rss/RssFeedsFrontPage.aspx'),
+               ('Israel News', 'http://www.jpost.com/Rss/RssFeedsIsraelNews.aspx'),
+               ('Middle East News', 'http://www.jpost.com/Rss/RssFeedsMiddleEastNews.aspx'),
+               ('International News', 'http://www.jpost.com/Rss/RssFeedsInternationalNews.aspx'),
+               ('Editorials', 'http://www.jpost.com/Rss/RssFeedsEditorialsNews.aspx'),
           ]
 
-    remove_tags = [
-            dict(id=lambda x: x and 'ads.' in x),
-            dict(attrs={'class':['printinfo', 'tt1']}),
-            dict(onclick='DoPrint()'),
-            dict(name='input'),
-            ]
+    #remove_tags = [
+            #dict(id=lambda x: x and 'ads.' in x),
+            #dict(attrs={'class':['printinfo', 'tt1']}),
+            #dict(onclick='DoPrint()'),
+            #dict(name='input'),
+            #]
 
-    conversion_options = {'linearize_tables':True}
+    #conversion_options = {'linearize_tables':True}
 
-    def preprocess_html(self, soup):
-        for tag in soup.findAll('form'):
-            tag.name = 'div'
-        return soup
+    #def preprocess_html(self, soup):
+        #for tag in soup.findAll('form'):
+            #tag.name = 'div'
+        #return soup
 
-    def print_version(self, url):
-        m = re.search(r'(ID|id)=(\d+)', url)
-        if m is not None:
-            id_ = m.group(2)
-            return 'http://www.jpost.com/LandedPages/PrintArticle.aspx?id=%s'%id_
-        return url
+    #def print_version(self, url):
+        #m = re.search(r'(ID|id)=(\d+)', url)
+        #if m is not None:
+            #id_ = m.group(2)
+            #return 'http://www.jpost.com/LandedPages/PrintArticle.aspx?id=%s'%id_
+        #return url
 
