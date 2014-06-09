@@ -634,7 +634,7 @@ class BasicNewsRecipe(Recipe):
         '''
         pass
 
-    def index_to_soup(self, url_or_raw, raw=False):
+    def index_to_soup(self, url_or_raw, raw=False, as_tree=False):
         '''
         Convenience method that takes an URL to the index page and returns
         a `BeautifulSoup <http://www.crummy.com/software/BeautifulSoup/documentation.html>`_
@@ -662,6 +662,16 @@ class BasicNewsRecipe(Recipe):
                 _raw = self.encoding(_raw)
             else:
                 _raw = _raw.decode(self.encoding, 'replace')
+        if as_tree:
+            import html5lib
+            from calibre.ebooks.chardet import strip_encoding_declarations, xml_to_unicode
+            from calibre.utils.cleantext import clean_xml_chars
+            if isinstance(_raw, unicode):
+                _raw = strip_encoding_declarations(_raw)
+            else:
+                _raw = xml_to_unicode(_raw, strip_encoding_pats=True, resolve_entities=True)[0]
+            return html5lib.parse(clean_xml_chars(_raw), treebuilder='lxml', namespaceHTMLElements=False)
+
         massage = list(BeautifulSoup.MARKUP_MASSAGE)
         enc = 'cp1252' if callable(self.encoding) or self.encoding is None else self.encoding
         massage.append((re.compile(r'&(\S+?);'), lambda match:
@@ -1157,8 +1167,6 @@ class BasicNewsRecipe(Recipe):
         if self.ignore_duplicate_articles is not None:
             feeds = self.remove_duplicate_articles(feeds)
 
-        #feeds = FeedCollection(feeds)
-
         self.report_progress(0, _('Trying to download cover...'))
         self.download_cover()
         self.report_progress(0, _('Generating masthead...'))
@@ -1227,8 +1235,6 @@ class BasicNewsRecipe(Recipe):
                 time.sleep(0.1)
             except NoResultsPending:
                 break
-
-        #feeds.restore_duplicates()
 
         for f, feed in enumerate(feeds):
             html = self.feed2index(f,feeds)
@@ -1622,24 +1628,28 @@ class BasicNewsRecipe(Recipe):
         `tag`: `BeautifulSoup <http://www.crummy.com/software/BeautifulSoup/documentation.html>`_
         `Tag`
         '''
-        if not tag:
+        if tag is None:
             return ''
         if isinstance(tag, basestring):
             return tag
-        strings = []
-        for item in tag.contents:
-            if isinstance(item, (NavigableString, CData)):
-                strings.append(item.string)
-            elif isinstance(item, Tag):
-                res = self.tag_to_string(item)
-                if res:
-                    strings.append(res)
-                elif use_alt:
-                    try:
-                        strings.append(item['alt'])
-                    except KeyError:
-                        pass
-        ans = u''.join(strings)
+        if callable(getattr(tag, 'xpath', None)) and not hasattr(tag, 'contents'):  # a lxml tag
+            from lxml.etree import tostring
+            ans = tostring(tag, method='text', encoding=unicode, with_tail=False)
+        else:
+            strings = []
+            for item in tag.contents:
+                if isinstance(item, (NavigableString, CData)):
+                    strings.append(item.string)
+                elif isinstance(item, Tag):
+                    res = self.tag_to_string(item)
+                    if res:
+                        strings.append(res)
+                    elif use_alt:
+                        try:
+                            strings.append(item['alt'])
+                        except KeyError:
+                            pass
+            ans = u''.join(strings)
         if normalize_whitespace:
             ans = re.sub(r'\s+', ' ', ans)
         return ans
