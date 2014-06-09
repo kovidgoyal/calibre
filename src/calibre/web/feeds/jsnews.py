@@ -16,6 +16,7 @@ from calibre.web.feeds import feeds_from_index
 from calibre.web.feeds.news import BasicNewsRecipe
 from calibre.web.fetch.javascript import fetch_page,  AbortFetch, links_from_selectors
 from calibre.ebooks.chardet import xml_to_unicode, strip_encoding_declarations
+from calibre.utils.cleantext import clean_xml_chars
 
 def image_data_to_url(data, base='cover'):
     from calibre.utils.imghdr import what
@@ -221,7 +222,7 @@ class JavascriptRecipe(BasicNewsRecipe):
         if raw:
             return html
         import html5lib
-        root = html5lib.parse(html, treebuilder='lxml', namespaceHTMLElements=False).getroot()
+        root = html5lib.parse(clean_xml_chars(html), treebuilder='lxml', namespaceHTMLElements=False).getroot()
         return root
 
 # ***************************** Internal API *****************************
