@@ -120,13 +120,12 @@ zlib_libs = ['z']
 ICU = sw = ''
 
 QT_DLLS = ['Qt5' + x for x in (
-'Core', 'Gui', 'Multimedia', 'MultimediaWidgets', 'OpenGL', 'Network',
-'PrintSupport', 'Positioning', 'Quick', 'Qml', 'Sensors', 'Sql', 'Svg',
-'WebKit', 'WebKitWidgets', 'Widgets',  # 'Xml', 'XmlPatterns'
+'Core', 'Gui',  'OpenGL', 'Network', 'PrintSupport', 'Positioning', 'Sensors', 'Sql', 'Svg',
+'WebKit', 'WebKitWidgets', 'Widgets',  'Multimedia', 'MultimediaWidgets',  # 'Xml', 'XmlPatterns',
 )]
 QT_PLUGINS = ('imageformats', 'audio', 'iconengines', 'mediaservice', 'platforms', 'playlistformats', 'printsupport', 'sqldrivers')
 
-PYQT_MODULES = ('Qt', 'QtCore', 'QtGui', 'QtNetwork', 'QtMultimedia', 'QtMultimediaWidgets',
+PYQT_MODULES = ('Qt', 'QtCore', 'QtGui', 'QtNetwork',  # 'QtMultimedia', 'QtMultimediaWidgets',
                 'QtPrintSupport', 'QtSensors', 'QtSvg', 'QtWebKit', 'QtWebKitWidgets', 'QtWidgets')
 
 if iswindows:
