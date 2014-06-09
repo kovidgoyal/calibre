@@ -388,10 +388,14 @@ beautify.  Accessed via :guilabel:`Tools->Beautify all files`.
 
 .. note::
     In HTML any text can have significant whitespace, via the CSS white-space
-    directive. Therefor, beautification could potentially change the rendering
-    of the HTML. To avoid this, as much as possible, the beautify algorithm
+    directive. Therefore, beautification could potentially change the rendering
+    of the HTML. To avoid this as far as possible, the beautify algorithm
     only beautifies block level tags that contain other block level tags. So,
     for example, text inside a <p> tag will not have its whitespace changed.
+    This can sometimes mean that some HTML files will not be affected by
+    beautify as they have no suitable block level tags. In such cases you can
+    try different beautification tools, that are less careful, for example: 
+    `HTML Tidy <http://infohound.net/tidy/>`_.
 
 
 Insert inline Table of Contents
