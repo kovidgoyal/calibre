@@ -1661,6 +1661,8 @@ static PyMethodDef magick_methods[] = {
 };
 // }}}
 
+// }}}
+
 // Module initialization {{{
 PyMODINIT_FUNC
 initmagick(void) 
