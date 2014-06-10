@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
-from __future__ import with_statement
+from __future__ import with_statement, print_function
 
 __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -50,6 +50,50 @@ def walk(dir):
         for f in record[-1]:
             yield os.path.join(record[0], f)
 
+# Remove CRT dep from manifests {{{
+def get_manifest_from_dll(dll):
+    import win32api, pywintypes
+    LOAD_LIBRARY_AS_DATAFILE = 2
+    d = win32api.LoadLibraryEx(os.path.abspath(dll), 0, LOAD_LIBRARY_AS_DATAFILE)
+    try:
+        resources = win32api.EnumResourceNames(d, 24)
+    except pywintypes.error as err:
+        if err.winerror == 1812:
+            return None, None  # no resource section (probably a .pyd file)
+        raise
+    if resources:
+        return resources[0], win32api.LoadResource(d, 24, resources[0])
+    return None, None
+
+def update_manifest(dll, rnum, manifest):
+    import win32api
+    h = win32api.BeginUpdateResource(dll, 0)
+    win32api.UpdateResource(h, 24, rnum, manifest)
+    win32api.EndUpdateResource(h, 0)
+
+_crt_pat = re.compile(r'Microsoft\.VC\d+\.CRT')
+
+def remove_CRT_from_manifest(dll, log=print):
+    from lxml import etree
+    rnum, manifest = get_manifest_from_dll(dll)
+    if manifest is None:
+        return
+    root = etree.fromstring(manifest)
+    found = False
+    for ai in root.xpath('//*[local-name()="assemblyIdentity" and @name]'):
+        name = ai.get('name')
+        if _crt_pat.match(name):
+            p = ai.getparent()
+            pp = p.getparent()
+            pp.remove(p)
+            if len(pp) == 0:
+                pp.getparent().remove(pp)
+            found = True
+    if found:
+        manifest = etree.tostring(root, pretty_print=True)
+        update_manifest(dll, rnum, manifest)
+        log('\t', os.path.basename(dll))
+# }}}
 
 class Win32Freeze(Command, WixMixIn):
 
@@ -101,26 +145,12 @@ class Win32Freeze(Command, WixMixIn):
         The dependency on the CRT is removed from the manifests of all DLLs.
         This allows the CRT loaded by the .exe files to be used instead.
         '''
-        search_pat = re.compile(r'(?is)<dependency>.*Microsoft\.VC\d+\.CRT')
-        repl_pat = re.compile(
-            r'(?is)<dependency>.*?Microsoft\.VC\d+\.CRT.*?</dependency>')
-
+        self.info('Removing CRT dependency from manifests of:')
         for dll in chain(walk(self.dll_dir), walk(self.plugins_dir)):
             bn = self.b(dll)
-            if bn.rpartition('.')[-1] not in {'dll', 'pyd'}:
+            if bn.lower().rpartition('.')[-1] not in {'dll', 'pyd'}:
                 continue
-            with open(dll, 'rb') as f:
-                raw = f.read()
-            match = search_pat.search(raw)
-            if match is None:
-                continue
-            self.info('Removing CRT dependency from manifest of: %s'%bn)
-            # Blank out the bytes corresponding to the dependency specification
-            nraw = repl_pat.sub(lambda m: b' '*len(m.group()), raw)
-            if len(nraw) != len(raw) or nraw == raw:
-                raise Exception('Something went wrong with %s'%bn)
-            with open(dll, 'wb') as f:
-                f.write(nraw)
+            remove_CRT_from_manifest(dll, self.info)
 
     def initbase(self):
         if self.e(self.base):
@@ -276,10 +306,9 @@ class Win32Freeze(Command, WixMixIn):
                 if not x.endswith('.dll'):
                     os.remove(self.j(dirpath, x))
 
-        print
-        print 'Adding third party dependencies'
+        self.info('\nAdding third party dependencies')
 
-        print '\tAdding misc binary deps'
+        self.info('\tAdding misc binary deps')
         bindir = os.path.join(SW, 'bin')
         for x in ('pdftohtml', 'pdfinfo', 'pdftoppm'):
             shutil.copy2(os.path.join(bindir, x+'.exe'), self.base)
