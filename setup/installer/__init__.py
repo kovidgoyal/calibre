@@ -7,7 +7,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import subprocess, tempfile, os, time, socket
+import subprocess, os, time, socket
 
 from setup import Command, installer_name
 from setup.build_environment import BUILD_HOST, PROJECT
@@ -100,7 +100,6 @@ class VMInstaller(Command):
     SHUTDOWN_CMD = ['sudo', 'shutdown', '-h', 'now']
     IS_64_BIT = False
 
-    BUILD_CMD = 'ssh -t %s bash build-calibre'
     BUILD_PREFIX = ['#!/bin/bash', 'export CALIBRE_BUILDBOT=1']
     BUILD_RSYNC  = ['mkdir -p ~/build/{project}', r'cd ~/build/{project}', Rsync.SYNC_CMD]
     BUILD_CLEAN  = ['rm -rf dist/* build/* src/calibre/plugins/*']
@@ -140,12 +139,18 @@ class VMInstaller(Command):
     def run_vm_builder(self):
         ssh_host = self.VM_NAME
         build_script = self.get_build_script()
-        t = tempfile.NamedTemporaryFile(suffix='.sh')
-        t.write(build_script)
-        t.flush()
+        build_script = build_script.encode('utf-8') if isinstance(build_script, unicode) else build_script
         print ('Running VM builder')
-        subprocess.check_call(('scp', t.name, ssh_host+':build-calibre'))
-        subprocess.check_call(self.BUILD_CMD%ssh_host, shell=True)
+        p = subprocess.Popen(['ssh', ssh_host, 'bash -s'], stdin=subprocess.PIPE)
+        p.stdin.write(build_script), p.stdin.flush(), p.stdin.close()
+        # Save the build script on the build machine for convenient manual
+        # invocation, if needed
+        p2 = subprocess.Popen(['ssh', ssh_host, 'cat > build-calibre'], stdin=subprocess.PIPE)
+        p2.stdin.write(build_script), p2.stdin.flush(), p2.stdin.close()
+        p2.wait()
+        rc = p.wait()
+        if rc != 0:
+            raise SystemExit(rc)
         self.download_installer()
 
     def installer(self):
