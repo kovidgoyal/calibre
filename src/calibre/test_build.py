@@ -12,8 +12,25 @@ __docformat__ = 'restructuredtext en'
 Test a binary calibre build to ensure that all needed binary images/libraries have loaded.
 '''
 
-import cStringIO, os
+import cStringIO, os, ctypes
 from calibre.constants import plugins, iswindows, islinux
+
+def test_dlls():
+    import win32api
+    base = win32api.GetDllDirectory()
+    errors = []
+    for x in os.listdir(base):
+        if x.lower().endswith('.dll'):
+            try:
+                ctypes.WinDLL(os.path.join(base, x))
+            except Exception as err:
+                errors.append('Failed to load DLL %s with error: %s' % (x, err))
+                print (errors[-1])
+    if errors:
+        print ('Loading %d dll(s) failed!' % len(errors))
+        raise SystemExit(1)
+    print ('DLLs OK!')
+
 
 def test_dbus():
     import dbus
@@ -186,6 +203,8 @@ def test_podofo():
     dotest()
 
 def test():
+    if iswindows:
+        test_dlls()
     test_plugins()
     test_lxml()
     test_ssl()
