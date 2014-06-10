@@ -419,7 +419,7 @@ int projectType = MULTITHREADEDDLL;
 
 Open configure.sln and build it to create configure.exe
 
-Run configure.exe set 32/64 bit disable X11 and OpenMPI and click the Edit
+Run configure.exe set 32/64 bit disable X11 and OpenMP and click the Edit
 magick-baseconfig.h button
 
 Undefine ProvideDllMain 
