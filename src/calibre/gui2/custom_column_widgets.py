@@ -327,7 +327,8 @@ class Text(Base):
         self.widgets[1].update_items_cache(values)
         val = self.db.get_custom(book_id, num=self.col_id, index_is_id=True)
         if isinstance(val, list):
-            val.sort(key=sort_key)
+            if not self.col_metadata.get('display', {}).get('is_names', False):
+                val.sort(key=sort_key)
         self.initial_val = val
         val = self.normalize_db_val(val)
 
