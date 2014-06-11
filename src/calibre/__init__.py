@@ -8,6 +8,8 @@ __builtin__.__dict__['dynamic_property'] = lambda func: func(None)
 from math import floor
 from functools import partial
 
+print(u'Our version')
+
 warnings.simplefilter('ignore', DeprecationWarning)
 try:
     os.getcwdu()
