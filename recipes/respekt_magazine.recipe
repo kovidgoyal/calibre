@@ -8,7 +8,7 @@ __copyright__   = 'tomashnyk@gmail.com'
 
 import re
 from calibre.web.feeds.recipes import BasicNewsRecipe
-from calibre.ebooks.BeautifulSoup import BeautifulSoup,Tag
+from calibre.ebooks.BeautifulSoup import BeautifulSoup
 #This imports the version bundled with Calibre
 import lxml
 from lxml.builder import E
@@ -34,7 +34,7 @@ class respektRecipe(BasicNewsRecipe):
     dict(name='p', attrs={'class':['detail-vykrik']}), \
     dict(name='div', attrs={'id':['col123d-video','col123d-infographic','col123d-gallery','col12d-discussion']}),  # soup>lxml>soup in preprocess requires this
     dict(name='strong', attrs={'class':['detail-vykrik']}),
-    dict(name='script')] 
+    dict(name='script')]
     # this makes authors left-aligned by not using the author class)
     preprocess_regexps = [(re.compile(r'<div class="author">', re.DOTALL|re.IGNORECASE), lambda match: '<div class="">')]
     # remove empty tags
@@ -48,7 +48,7 @@ class respektRecipe(BasicNewsRecipe):
         soup = self.index_to_soup('http://respekt.ihned.cz/')
         cover = soup.findAll('div', attrs={'class':'cover'})[0].find('img')['src']
         return cover
-    
+
     needs_subscription = True
 
     def get_browser(self):
@@ -82,14 +82,14 @@ class respektRecipe(BasicNewsRecipe):
     def cleanup(self):
         self.browser.open('http://muj-ucet.ihned.cz/?login[logout]=1')
 
-      
+
     def preprocess_html(self,soup):
         raw = u''.join(unicode(a) for a in soup.contents)
         root = lxml.html.fromstring(raw)
 
         # Make image captions visible
         body = root.xpath("//div[@id='text']")[0]
-        add = 0 
+        add = 0
         for index, element in enumerate(body):
             try:
                 if element.tag == 'img':
@@ -104,7 +104,7 @@ class respektRecipe(BasicNewsRecipe):
 
         # Make perex (subheading) start on a new line
         root.xpath("//h1")[0].append(E.br(''))
-        
+
          # Indent paragraphs when typographically suitable
         parse = True
         # There are only single paragraphs in these sections

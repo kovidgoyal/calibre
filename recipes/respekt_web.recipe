@@ -8,9 +8,9 @@ __copyright__   = 'tomashnyk@gmail.com'
 
 import re,os,datetime
 from calibre.web.feeds.recipes import BasicNewsRecipe
-from calibre.ebooks.BeautifulSoup import BeautifulSoup,Tag
-from calibre.constants import config_dir, CONFIG_DIR_MODE
-#This imports the version bundled with Calibre
+from calibre.ebooks.BeautifulSoup import BeautifulSoup
+from calibre.constants import config_dir
+# This imports the version bundled with Calibre
 import lxml
 from lxml.builder import E
 
@@ -30,13 +30,13 @@ class respektWebRecipe(BasicNewsRecipe):
                  p.indent_first_line {text-indent:30px;}'
     remove_tags_before = dict(name='div',attrs={'class':['l']})
     remove_tags_after = dict(id='text')
-    remove_tags = [dict(name='ul', attrs={'class':['tabs-d'],'id':['comm']}), \
-    dict(name='div',attrs={'class':['slot','reklama','date']}), \
-    dict(name='span', attrs={'class':['detail-vykrik']}), \
-    dict(name='p', attrs={'class':['detail-vykrik']}), \
+    remove_tags = [dict(name='ul', attrs={'class':['tabs-d'],'id':['comm']}),
+    dict(name='div',attrs={'class':['slot','reklama','date']}),
+    dict(name='span', attrs={'class':['detail-vykrik']}),
+    dict(name='p', attrs={'class':['detail-vykrik']}),
     dict(name='div', attrs={'id':['col123d-video','col123d-infographic','col123d-gallery','col12d-discussion']}),  # soup>lxml>soup in prprocess requires this
     dict(name='strong', attrs={'class':['detail-vykrik']}),
-    dict(name='script')] 
+    dict(name='script')]
     # this makes authors left-aligned by not using the author class)
     preprocess_regexps = [(re.compile(r'<div class="author">', re.DOTALL|re.IGNORECASE), lambda match: '<div class="">')]
     # remove empty tags
@@ -45,17 +45,17 @@ class respektWebRecipe(BasicNewsRecipe):
     preprocess_regexps.append((re.compile(r'<p></p>', re.DOTALL|re.IGNORECASE), lambda match: ''))
     preprocess_regexps.append((re.compile(r'font-size: 12px', re.DOTALL|re.IGNORECASE), lambda match: ''))
     preprocess_regexps.append((re.compile(r'color: #[0-9]*', re.DOTALL|re.IGNORECASE), lambda match: ''))
-    
+
     def parse_index(self):
         # Read already downloaded articles
         recipe_dir = os.path.join(config_dir,'recipes')
-        old_articles = os.path.join(recipe_dir,self.title.encode('utf-8').replace('/',':'))
+        old_articles = os.path.join(recipe_dir,self.title)
         past_items = []
         if os.path.exists(old_articles):
-           with file(old_articles) as f:
-               for h in f:
-                   l = h.strip().split(" ")
-                   past_items.append((l[0]," ".join(l[1:])))
+            with file(old_articles) as f:
+                for h in f:
+                    l = h.strip().split(" ")
+                    past_items.append((l[0]," ".join(l[1:])))
         old_urls = [x[0] for x in past_items]
         count_items = {}
         current_items = []
@@ -112,7 +112,7 @@ class respektWebRecipe(BasicNewsRecipe):
             if section[1] == 'Respekt DJ':
                 if list_of_articles:
                     if datetime.datetime.today().weekday() in range(0,5) and 6 < datetime.datetime.utcnow().hour  < 17:
-                        #list_of_articles = list_of_articles[:-1]
+                        # list_of_articles = list_of_articles[:-1]
                         current_items = current_items[:-1]
             if list_of_articles:
                 ans.append((section[1],list_of_articles))
@@ -131,7 +131,7 @@ class respektWebRecipe(BasicNewsRecipe):
         root = lxml.html.fromstring(raw)
         # Make image captions visible
         body = root.xpath("//div[@id='text']")[0]
-        add = 0 
+        add = 0
         for index, element in enumerate(body):
             try:
                 if element.tag == 'img':
@@ -146,17 +146,17 @@ class respektWebRecipe(BasicNewsRecipe):
             pass
         # For DJ, the perex is always the same, so remove it
         if root.xpath("//title")[0].text.split("|")[-1] == u' Respekt DJ - RESPEKT.CZ':
-            
+
             perex = root.xpath("//div[@id='perex']")[0]
             clean = root.xpath("//div[@class='clean']")[0]
             perex.getparent().remove(perex)
             clean.getparent().remove(clean)
-                
+
             # DJ section gets mal-formatted on kindle otherwise
             for i in root.xpath("//h2[@class='d-dj-t']"):
                 i.attrib['class'] = ''
                 E.style = "font-size:60%;font-weight:normal;"
-                time = E('span',i.getprevious().text_content(),style = E.style)
+                time = E('span',i.getprevious().text_content(),style=E.style)
                 # Time should be ahead of the title
                 time.tail = ' ' + i.text
                 i.text = ''
@@ -176,13 +176,13 @@ class respektWebRecipe(BasicNewsRecipe):
             dj_body = entries[0].getparent()
             for entry in entries:
                 dj_body.remove(entry)
-                dj_body.append(entry) 
+                dj_body.append(entry)
 
         # We are not interested in this paragraph as it stays the same and is essentialy an ad
         if root.xpath("//title")[0].text.split("|")[-1] == u' Audit Jana Macháčka - Respekt.iHNed.cz':
             ad = root.xpath("//p[@id='ajmonf']")[0]
             ad.getparent().remove(ad)
-        
+
         # Add length of the articles in words after author
         article_length = str(len(body.text_content().split(' '))) + ' slov'
         root.xpath("//div[@class='author-image']/div[@class='']/ul")[0].append(E.li(article_length))

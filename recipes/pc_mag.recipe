@@ -9,9 +9,7 @@ __description__ = 'PCMag (www.pcmag.com) delivers authoritative, labs-based comp
 '''
 http://www.pcmag.com/
 '''
-import re
 from calibre.web.feeds.news import BasicNewsRecipe
-from calibre.ebooks.BeautifulSoup import Comment
 
 class pcMag(BasicNewsRecipe):
     __author__     = 'Lorenzo Vigentini'
