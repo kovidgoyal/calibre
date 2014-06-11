@@ -577,7 +577,7 @@ class Browser(QObject, FormsMixin):
                     ans[url] = raw
                     urls.discard(url)
 
-        while urls and time.time() - start_time < timeout and self.page.ready_state not in {'complete', 'completed'}:
+        while urls and time.time() - start_time < timeout and not self.load_completed:
             get_resources()
             if urls:
                 self.run_for_a_time(0.1)
@@ -585,6 +585,10 @@ class Browser(QObject, FormsMixin):
         if urls:
             get_resources()
         return ans
+
+    @property
+    def load_completed(self):
+        return self.page.ready_state in {'complete', 'completed'}
 
     def get_resource(self, url, rtype='img', use_cache=True, timeout=default_timeout):
         '''
