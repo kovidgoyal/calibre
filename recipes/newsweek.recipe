@@ -7,8 +7,8 @@ def CSSSelect(expr):
     return XPath(HTMLTranslator().css_to_xpath(expr))
 
 BASE = 'http://www.newsweek.com'
-def href_to_url(a):
-    return BASE + a.get('href') + '?piano_t=1'
+def href_to_url(a, add_piano=False):
+    return BASE + a.get('href') + ('?piano_t=1' if add_piano else '')
 
 class Newsweek(JavascriptRecipe):
 
@@ -25,6 +25,7 @@ class Newsweek(JavascriptRecipe):
         'meta', '.block-openadstream', '.block-ibtmedia-social', '.issue-next',
         '.most-popular', '.ibt-media-stories', '.user-btn-group',
         '#taboola-below-main-column', '.trc_related_container',
+        '#block-nw-magazine-magazine-more-from-issue', '.block-ibtmedia-top-stories',
     ]
     LOGIN = 'https://bar.piano-media.com/lite/authent/login//custom/newsweek/?service_id=25&loc=http%3A%2F%2Fwww.newsweek.com%2F'  # noqa
 
@@ -41,7 +42,7 @@ class Newsweek(JavascriptRecipe):
         root = self.index_to_soup(browser.html)
         for a in CSSSelect('nav.main-menu a[href]')(root):
             if a.text and a.text.strip() == 'This Week\'s Edition':
-                return self.get_newsweek_publication_data(browser, href_to_url(a))
+                return self.get_newsweek_publication_data(browser, href_to_url(a, True))
 
     def get_newsweek_publication_data(self, browser, url):
         root = self.index_to_soup(url)
@@ -97,17 +98,24 @@ class Newsweek(JavascriptRecipe):
         ans['index'] = sections
         return ans
 
+    def load_complete(self, browser, url, recursion_level):
+        browser.wait_for_element('div.article-body')
+        return browser.load_completed  # This is needed to allow the parallax images to load
+
     def preprocess_stage1(self, article, browser, url, recursion_level):
         # Parallax images in the articles are loaded as background images
         # on <span> tags. Convert them to normal images.
         for span in browser.css_select('span.parallax-image', all=True):
             bg = unicode(span.styleProperty('background-image', span.InlineStyle))
             if bg:
-                url = bg.partition('(')[-1][:-1]
+                url = bg.strip().partition('(')[-1][:-1]
                 span.appendInside('<img src="%s"></img>' % url)
             span.setAttribute('style', '')
+        browser.run_for_a_time(0.1)  # This is needed to give the DOM time to update
 
     def postprocess_html(self, article, root, url, recursion_level):
+        for x in root.xpath('//*[local-name()="body" and @style]'):
+            del x.attrib['style']  # body has a fixed height, which causes problems with epub viewers
         for x in root.xpath('//*[@id="piano-root"]'):
             x.getparent().remove(x)
         return root
