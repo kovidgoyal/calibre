@@ -23,7 +23,7 @@ def font_family_data_from_declaration(style, families):
             font_families = f
     f = style.getProperty('font-family')
     if f is not None:
-        font_families = [x.cssText for x in f]
+        font_families = [x.cssText for x in f.cssValue]
 
     for f in font_families:
         f = unquote(f)
@@ -36,8 +36,8 @@ def font_family_data_from_sheet(sheet, families):
         elif rule.type == rule.FONT_FACE_RULE:
             ff = rule.style.getProperty('font-family')
             if ff is not None:
-                for f in ff:
-                    families[unquote(f)] = True
+                for f in ff.cssValue:
+                    families[unquote(f.cssText)] = True
 
 def font_family_data(container):
     families = {}
