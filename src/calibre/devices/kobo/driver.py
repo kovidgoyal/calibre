@@ -1279,9 +1279,9 @@ class KOBOTOUCH(KOBO):
     KOBO_EXTRA_CSSFILE = 'kobo_extra.css'
 
     EXTRA_CUSTOMIZATION_MESSAGE = [
-            _('The Kobo Touch from firmware V2.0.0 supports bookshelves.')+
-                    'These are created on the Kobo Touch. ' +
-                    _('Specify a tags type column for automatic management'),
+            _('The Kobo Touch from firmware V2.0.0 supports bookshelves.'
+                ' These are created on the Kobo Touch. ' +
+                'Specify a tags type column for automatic management.'),
             _('Create Bookshelves') +
             ':::'+_('Create new bookshelves on the Kobo Touch if they do not exist. This is only for firmware V2.0.0 or later.'),
             _('Delete Empty Bookshelves') +
@@ -1310,9 +1310,10 @@ class KOBOTOUCH(KOBO):
                     'Enable if you wish to set series information.'),
             _('Modify CSS') +
             ':::'+_('This allows addition of user CSS rules and removal of some CSS. '
-                    'When sending a book, the driver adds the contents of ' + KOBO_EXTRA_CSSFILE + ' to all stylesheets in the ePub. '
+                    'When sending a book, the driver adds the contents of {0} to all stylesheets in the ePub. '
                     'This file is searched for in the root directory of the main memory of the device. '
-                    'As well as this, if the file contains settings for the "orphans" or "widows", these are removed for all styles in the original stylesheet.'),
+                    'As well as this, if the file contains settings for the "orphans" or "widows", '
+                    'these are removed for all styles in the original stylesheet.').format(KOBO_EXTRA_CSSFILE),
             _('Attempt to support newer firmware') +
             ':::'+_('Kobo routinely updates the firmware and the '
                 'database version.  With this option Calibre will attempt '
