@@ -106,8 +106,7 @@ class ChangeFontFamily(Dialog):
         self._family = f = QLineEdit(self)
         l.addRow(_('&New font:'), f)
         f.textChanged.connect(self.updated_family)
-        self.embed_status = e = QLabel('')
-        e.setWordWrap(True)
+        self.embed_status = e = QLabel('\xa0')
         l.addRow(e)
         l.addRow(self.bb)
 
@@ -129,9 +128,9 @@ class ChangeFontFamily(Dialog):
     def updated_family(self):
         family = self.family
         found = icu_lower(family) in self.local_families
-        t = _('The font %s <b>exists</b> on your computer and can be embedded') if found else _(
-            'The font %s <b>does not exist</b> on your computer and cannot be embedded')
-        t = (t % family) if family else ''
+        t = _('The font <i>%s</i> <b>exists</b> on your computer') if found else _(
+            'The font <i>%s</i> <b>does not exist</b> on your computer')
+        t = (t % family) if family else '\xa0'
         self.embed_status.setText(t)
         self.resize(self.sizeHint())
 
