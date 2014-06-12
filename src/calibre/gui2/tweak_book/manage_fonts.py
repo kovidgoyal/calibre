@@ -19,7 +19,7 @@ from calibre.gui2 import error_dialog
 from calibre.gui2.tweak_book import current_container, set_current_container
 from calibre.gui2.tweak_book.widgets import Dialog, BusyCursor
 from calibre.utils.icu import primary_sort_key as sort_key
-from calibre.utils.fonts.scanner import font_scanner
+from calibre.utils.fonts.scanner import font_scanner, NoFonts
 
 class AllFonts(QAbstractTableModel):
 
@@ -115,6 +115,17 @@ class ChangeFontFamily(Dialog):
     def family(self):
         return unicode(self._family.text())
 
+    @property
+    def normalized_family(self):
+        ans = self.family
+        try:
+            ans = font_scanner.fonts_for_family(ans)[0]['font-family']
+        except (NoFonts, IndexError, KeyError):
+            pass
+        if icu_lower(ans) == 'sansserif':
+            ans = 'sans-serif'
+        return ans
+
     def updated_family(self):
         family = self.family
         found = icu_lower(family) in self.local_families
@@ -209,7 +220,7 @@ class ManageFonts(Dialog):
         if d.exec_() != d.Accepted:
             return
         changed = False
-        new_family = d.family
+        new_family = d.normalized_family
         for font in fonts:
             changed |= change_font(current_container(), font, new_family)
         if changed:
