@@ -34,6 +34,7 @@ from calibre.gui2.tweak_book.search import SavedSearches
 from calibre.gui2.tweak_book.toc import TOCViewer
 from calibre.gui2.tweak_book.char_select import CharSelect
 from calibre.gui2.tweak_book.live_css import LiveCSS
+from calibre.gui2.tweak_book.manage_fonts import ManageFonts
 from calibre.gui2.tweak_book.editor.widget import register_text_editor_actions
 from calibre.gui2.tweak_book.editor.insert_resource import InsertImage
 from calibre.utils.icu import character_name
@@ -228,6 +229,7 @@ class Main(MainWindow):
         self.saved_searches = SavedSearches(self)
         self.image_browser = InsertImage(self, for_browsing=True)
         self.insert_char = CharSelect(self)
+        self.manage_fonts = ManageFonts(self)
 
         self.create_actions()
         self.create_toolbars()
@@ -353,6 +355,7 @@ class Main(MainWindow):
                                         _('Set Semantics'))
         self.action_filter_css = reg('filter.png', _('&Filter style information'), self.boss.filter_css, 'filter-css', (),
                                      _('Filter style information'))
+        self.action_manage_fonts = reg('font.png', _('Manage &fonts'), self.boss.manage_fonts, 'manage-fonts', (), _('Manage fonts in the book'))
 
         # Polish actions
         group = _('Polish Book')
@@ -480,6 +483,7 @@ class Main(MainWindow):
         tm = e.addMenu(_('Table of Contents'))
         tm.addAction(self.action_toc)
         tm.addAction(self.action_inline_toc)
+        e.addAction(self.action_manage_fonts)
         e.addAction(self.action_embed_fonts)
         e.addAction(self.action_subset_fonts)
         e.addAction(self.action_smarten_punctuation)
@@ -568,7 +572,7 @@ class Main(MainWindow):
         a(self.action_help)
 
         a = create(_('Polish book tool bar'), 'polish').addAction
-        for x in ('embed_fonts', 'subset_fonts', 'smarten_punctuation', 'remove_unused_css'):
+        for x in ('manage_fonts', 'embed_fonts', 'subset_fonts', 'smarten_punctuation', 'remove_unused_css'):
             a(getattr(self, 'action_' + x))
 
     def create_docks(self):

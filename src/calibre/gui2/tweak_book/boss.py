@@ -119,6 +119,9 @@ class Boss(QObject):
         self.gui.spell_check.word_replaced.connect(self.word_replaced)
         self.gui.spell_check.word_ignored.connect(self.word_ignored)
         self.gui.live_css.goto_declaration.connect(self.goto_style_declaration)
+        self.gui.manage_fonts.container_changed.connect(self.apply_container_update_to_gui)
+        self.gui.manage_fonts.embed_all_fonts.connect(self.manage_fonts_embed)
+        self.gui.manage_fonts.subset_all_fonts.connect(self.manage_fonts_subset)
 
     def preferences(self):
         p = Preferences(self.gui)
@@ -421,7 +424,7 @@ class Boss(QObject):
         self.apply_container_update_to_gui()
         self.edit_file(name, 'html')
 
-    def polish(self, action, name):
+    def polish(self, action, name, parent=None):
         with BusyCursor():
             self.add_savepoint(_('Before: %s') % name)
             try:
@@ -435,7 +438,7 @@ class Boss(QObject):
             report = markdown('# %s\n\n'%self.current_metadata.title + '\n\n'.join(report), output_format='html4')
         if not changed:
             self.rewind_savepoint()
-        d = QDialog(self.gui)
+        d = QDialog(parent or self.gui)
         d.l = QVBoxLayout()
         d.setLayout(d.l)
         d.e = QTextBrowser(d)
@@ -452,6 +455,17 @@ class Boss(QObject):
         d.bb.accepted.connect(d.accept)
         d.resize(600, 400)
         d.exec_()
+
+    def manage_fonts(self):
+        self.commit_all_editors_to_container()
+        self.gui.manage_fonts.display()
+
+    def manage_fonts_embed(self):
+        self.polish('embed', _('Embed all fonts'), parent=self.gui.manage_fonts)
+        self.gui.manage_fonts.refresh()
+
+    def manage_fonts_subset(self):
+        self.polish('subset', _('Subset all fonts'), parent=self.gui.manage_fonts)
 
     # Renaming {{{
 

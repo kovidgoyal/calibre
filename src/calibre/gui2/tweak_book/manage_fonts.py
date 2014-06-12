@@ -10,13 +10,16 @@ import sys
 
 from PyQt4.Qt import (
     QSplitter, QVBoxLayout, QTableView, QWidget, QLabel, QAbstractTableModel,
-    Qt, QApplication, QTimer, QPushButton)
+    Qt, QApplication, QTimer, QPushButton, pyqtSignal, QFormLayout, QLineEdit,
+    QIcon)
 
 from calibre.ebooks.oeb.polish.container import get_container
-from calibre.ebooks.oeb.polish.fonts import font_family_data
+from calibre.ebooks.oeb.polish.fonts import font_family_data, change_font
+from calibre.gui2 import error_dialog
 from calibre.gui2.tweak_book import current_container, set_current_container
 from calibre.gui2.tweak_book.widgets import Dialog, BusyCursor
 from calibre.utils.icu import primary_sort_key as sort_key
+from calibre.utils.fonts.scanner import font_scanner
 
 class AllFonts(QAbstractTableModel):
 
@@ -59,6 +62,10 @@ class AllFonts(QAbstractTableModel):
             except (IndexError, KeyError):
                 return
             return name if col == 1 else embedded
+        if role == Qt.TextAlignmentRole:
+            col = index.column()
+            if col == 0:
+                return Qt.AlignHCenter
 
     def sort(self, col, order=Qt.AscendingOrder):
         sorted_on = (('name' if col == 1 else 'embedded'), order == Qt.AscendingOrder)
@@ -68,12 +75,67 @@ class AllFonts(QAbstractTableModel):
             self.do_sort()
             self.endResetModel()
 
+    def data_for_indices(self, indices):
+        ans = {}
+        for idx in indices:
+            try:
+                name = self.items[idx.row()]
+                ans[name] = self.font_data[name]
+            except (IndexError, KeyError):
+                pass
+        return ans
+
+class ChangeFontFamily(Dialog):
+
+    def __init__(self, old_family, embedded_families, parent=None):
+        self.old_family = old_family
+        self.local_families = {icu_lower(f) for f in font_scanner.find_font_families()} | {
+            icu_lower(f) for f in embedded_families}
+        Dialog.__init__(self, _('Change font'), 'change-font-family', parent=parent)
+        self.setMinimumWidth(300)
+        self.resize(self.sizeHint())
+
+    def setup_ui(self):
+        self.l = l = QFormLayout(self)
+        self.setLayout(l)
+        self.la = la = QLabel(ngettext(
+            'Change the font %s to:', 'Change the fonts %s to:',
+            self.old_family.count(',')+1) % self.old_family)
+        la.setWordWrap(True)
+        l.addRow(la)
+        self._family = f = QLineEdit(self)
+        l.addRow(_('&New font:'), f)
+        f.textChanged.connect(self.updated_family)
+        self.embed_status = e = QLabel('')
+        e.setWordWrap(True)
+        l.addRow(e)
+        l.addRow(self.bb)
+
+    @property
+    def family(self):
+        return unicode(self._family.text())
+
+    def updated_family(self):
+        family = self.family
+        found = icu_lower(family) in self.local_families
+        t = _('The font %s <b>exists</b> on your computer and can be embedded') if found else _(
+            'The font %s <b>does not exist</b> on your computer and cannot be embedded')
+        t = (t % family) if family else ''
+        self.embed_status.setText(t)
+        self.resize(self.sizeHint())
+
+
 class ManageFonts(Dialog):
+
+    container_changed = pyqtSignal()
+    embed_all_fonts = pyqtSignal()
+    subset_all_fonts = pyqtSignal()
 
     def __init__(self, parent=None):
         Dialog.__init__(self, _('Manage Fonts'), 'manage-fonts', parent=parent)
 
     def setup_ui(self):
+        self.setAttribute(Qt.WA_DeleteOnClose, False)
         self.l = l = QVBoxLayout(self)
         self.setLayout(l)
 
@@ -98,14 +160,25 @@ class ManageFonts(Dialog):
         s.addWidget(fv), s.addWidget(c)
 
         self.cb = b = QPushButton(_('&Change selected fonts'))
+        b.setIcon(QIcon(I('auto_author_sort.png')))
         b.clicked.connect(self.change_fonts)
         l.addWidget(b)
         self.rb = b = QPushButton(_('&Remove selected fonts'))
         b.clicked.connect(self.remove_fonts)
+        b.setIcon(QIcon(I('trash.png')))
         l.addWidget(b)
         self.eb = b = QPushButton(_('&Embed all fonts'))
+        b.setIcon(QIcon(I('embed-fonts.png')))
         b.clicked.connect(self.embed_fonts)
         l.addWidget(b)
+        self.sb = b = QPushButton(_('&Subset all fonts'))
+        b.setIcon(QIcon(I('subset-fonts.png')))
+        b.clicked.connect(self.subset_fonts)
+        l.addWidget(b)
+        self.refresh_button = b = self.bb.addButton(_('&Refresh'), self.bb.ActionRole)
+        b.setToolTip(_('Rescan the book for fonts in case you have made changes'))
+        b.setIcon(QIcon(I('view-refresh.png')))
+        b.clicked.connect(self.refresh)
 
         self.la = la = QLabel('<p>' + _(
         ''' All the fonts declared in this book are shown to the left, along with whether they are embedded or not.
@@ -114,16 +187,54 @@ class ManageFonts(Dialog):
         l.addWidget(la)
 
         l.setAlignment(Qt.AlignTop | Qt.AlignHCenter)
-        QTimer.singleShot(0, m.build)
+
+    def display(self):
+        if not self.isVisible():
+            self.show()
+        self.raise_()
+        QTimer.singleShot(0, self.model.build)
+
+    def get_selected_data(self):
+        ans = self.model.data_for_indices(list(self.fonts_view.selectedIndexes()))
+        if not ans:
+            error_dialog(self, _('No fonts selected'), _(
+                'No fonts selected, you must first select some fonts in the left panel'), show=True)
+        return ans
 
     def change_fonts(self):
-        pass
+        fonts = self.get_selected_data()
+        if not fonts:
+            return
+        d = ChangeFontFamily(', '.join(fonts), {f for f, embedded in self.model.font_data.iteritems() if embedded}, self)
+        if d.exec_() != d.Accepted:
+            return
+        changed = False
+        new_family = d.family
+        for font in fonts:
+            changed |= change_font(current_container(), font, new_family)
+        if changed:
+            self.model.build()
+            self.container_changed.emit()
 
     def remove_fonts(self):
-        pass
+        fonts = self.get_selected_data()
+        if not fonts:
+            return
+        changed = False
+        for font in fonts:
+            changed |= change_font(current_container(), font)
+        if changed:
+            self.model.build()
+            self.container_changed.emit()
 
     def embed_fonts(self):
-        pass
+        self.embed_all_fonts.emit()
+
+    def subset_fonts(self):
+        self.subset_all_fonts.emit()
+
+    def refresh(self):
+        self.model.build()
 
 if __name__ == '__main__':
     app = QApplication([])

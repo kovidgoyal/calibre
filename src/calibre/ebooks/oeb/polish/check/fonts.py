@@ -13,6 +13,7 @@ from calibre.constants import plugins
 from calibre.ebooks.oeb.base import OEB_DOCS, OEB_STYLES
 from calibre.ebooks.oeb.polish.check.base import BaseError, WARN
 from calibre.ebooks.oeb.polish.container import OEB_FONTS
+from calibre.ebooks.oeb.polish.fonts import change_font_family_value
 from calibre.ebooks.oeb.polish.utils import guess_type
 from calibre.ebooks.oeb.polish.pretty import pretty_script_or_style
 from calibre.utils.fonts.utils import get_all_font_names
@@ -31,12 +32,7 @@ def fix_declaration(style, css_name, font_name):
         for i in xrange(ff.length):
             val = ff.item(i)
             if hasattr(val.value, 'lower') and val.value.lower() == css_name.lower():
-                val.value = font_name
-                # If val.type == 'IDENT' cssutils will not serialize the font
-                # name properly (it will not enclose it in quotes). There we
-                # use the following hack (setting an internal property of the
-                # Value class)
-                val._type = 'STRING'
+                change_font_family_value(val, font_name)
                 changed = True
     return changed
 
