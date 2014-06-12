@@ -25,15 +25,22 @@ class InvalidFont(BaseError):
     HELP = _('This font could not be processed. It most likely will'
              ' not work in an ebook reader, either')
 
-def fix_declaration(style, css_name, font_name):
-    ff = style.getPropertyCSSValue('font-family')
+def fix_property(prop, css_name, font_name):
     changed = False
-    if ff is not None:
-        for i in xrange(ff.length):
-            val = ff.item(i)
-            if hasattr(val.value, 'lower') and val.value.lower() == css_name.lower():
-                change_font_family_value(val, font_name)
-                changed = True
+    ff = prop.propertyValue
+    for i in xrange(ff.length):
+        val = ff.item(i)
+        if hasattr(val.value, 'lower') and val.value.lower() == css_name.lower():
+            change_font_family_value(val, font_name)
+            changed = True
+    return changed
+
+def fix_declaration(style, css_name, font_name):
+    changed = False
+    for x in ('font-family', 'font'):
+        prop = style.getProperty(x)
+        if prop is not None:
+            changed |= fix_property(prop, css_name, font_name)
     return changed
 
 def fix_sheet(sheet, css_name, font_name):
