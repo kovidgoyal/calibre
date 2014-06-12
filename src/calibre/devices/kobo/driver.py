@@ -1279,13 +1279,13 @@ class KOBOTOUCH(KOBO):
     KOBO_EXTRA_CSSFILE = 'kobo_extra.css'
 
     EXTRA_CUSTOMIZATION_MESSAGE = [
-            _('The Kobo Touch from firmware V2.0.0 supports bookshelves.'
-                ' These are created on the Kobo Touch. ' +
+            _('The Kobo from firmware V2.0.0 supports bookshelves.'
+                ' These are created on the Kobo. ' +
                 'Specify a tags type column for automatic management.'),
             _('Create Bookshelves') +
-            ':::'+_('Create new bookshelves on the Kobo Touch if they do not exist. This is only for firmware V2.0.0 or later.'),
+            ':::'+_('Create new bookshelves on the Kobo if they do not exist. This is only for firmware V2.0.0 or later.'),
             _('Delete Empty Bookshelves') +
-            ':::'+_('Delete any empty bookshelves from the Kobo Touch when syncing is finished. This is only for firmware V2.0.0 or later.'),
+            ':::'+_('Delete any empty bookshelves from the Kobo when syncing is finished. This is only for firmware V2.0.0 or later.'),
             _('Upload covers for books') +
             ':::'+_('Upload cover images from the calibre library when sending books to the device.'),
             _('Upload Black and White Covers'),
@@ -1320,7 +1320,7 @@ class KOBOTOUCH(KOBO):
                 'to perform full read-write functionality - Here be Dragons!! '
                 'Enable only if you are comfortable with restoring your kobo '
                 'to factory defaults and testing software. '
-                'This driver supports firmware V2.x.x and DBVersion up to ' + unicode(supported_dbversion)),
+                'This driver supports firmware V2.x.x and DBVersion up to ') + unicode(supported_dbversion),
             _('Title to test when debugging') +
             ':::'+_('Part of title of a book that can be used when doing some tests for debugging. '
                     'The test is to see if the string is contained in the title of a book. '
