@@ -3,7 +3,7 @@ from future_builtins import map
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal kovid@kovidgoyal.net'
 __docformat__ = 'restructuredtext en'
-__appname__   = u'calibre'
+__appname__   = u"Edited by Thorsa 2014. calibre" #u'calibre'
 numeric_version = (1, 39, 0)
 __version__   = u'.'.join(map(unicode, numeric_version))
 __author__    = u"Kovid Goyal <kovid@kovidgoyal.net>"
