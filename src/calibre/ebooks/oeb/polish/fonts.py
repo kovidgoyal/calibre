@@ -22,13 +22,12 @@ def font_family_data_from_declaration(style, families):
     if f is not None:
         f = normalize_font(f.propertyValue, font_family_as_list=True).get('font-family', None)
         if f is not None:
-            font_families = f
+            font_families = [unquote(x) for x in f]
     f = style.getProperty('font-family')
     if f is not None:
-        font_families = [x.cssText for x in f.propertyValue]
+        font_families = [x.value for x in f.propertyValue]
 
     for f in font_families:
-        f = unquote(f)
         families[f] = families.get(f, False)
 
 def font_family_data_from_sheet(sheet, families):
@@ -39,7 +38,7 @@ def font_family_data_from_sheet(sheet, families):
             ff = rule.style.getProperty('font-family')
             if ff is not None:
                 for f in ff.propertyValue:
-                    families[unquote(f.cssText)] = True
+                    families[f.value] = True
 
 def font_family_data(container):
     families = {}
@@ -69,12 +68,12 @@ def change_font_family_value(cssvalue, new_name):
 
 def change_font_family_in_property(style, prop, old_name, new_name=None):
     changed = False
-    families = {unquote(x.cssText) for x in prop.propertyValue}
+    families = {x.value for x in prop.propertyValue}
     _dummy_family = 'd7d81cf1-1c8c-4993-b788-e1ab596c0f1f'
     if new_name and new_name in families:
         new_name = None  # new name already exists in this property, so simply remove old_name
     for val in prop.propertyValue:
-        if unquote(val.cssText) == old_name:
+        if val.value == old_name:
             change_font_family_value(val, new_name or _dummy_family)
             changed = True
     if changed and not new_name:
@@ -119,7 +118,7 @@ def change_font_in_sheet(container, sheet, old_name, new_name, sheet_name):
         elif rule.type == rule.FONT_FACE_RULE:
             ff = rule.style.getProperty('font-family')
             if ff is not None:
-                families = {unquote(x.cssText) for x in ff.propertyValue}
+                families = {x.value for x in ff.propertyValue}
                 if old_name in families:
                     changed = True
                     removals.append(rule)
