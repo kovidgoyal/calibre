@@ -313,7 +313,7 @@ class GetTranslations(Translations):  # {{{
                 lc = os.path.basename(f).rpartition('.')[0]
                 languages.append(lc)
             if languages:
-                print('Pushing fixes for languages: %s', ', '.join(languages))
+                print('Pushing fixes for languages: %s' % (', '.join(languages)))
                 self.tx('push -r calibre.main -t -l ' + ','.join(languages))
             return True
         return False
