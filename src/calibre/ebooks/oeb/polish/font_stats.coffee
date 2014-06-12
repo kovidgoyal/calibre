@@ -85,6 +85,10 @@ class FontStats
                     family = style.getPropertyValue('font-family')
                     if family
                         ans[family] = true
+            if node.getAttribute('style')
+                family = node.style.getPropertyValue('font-family')
+                if family
+                    ans[family] = true
         py_bridge.value = ans
 
 if window?
