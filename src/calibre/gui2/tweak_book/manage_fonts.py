@@ -11,7 +11,7 @@ import sys
 from PyQt4.Qt import (
     QSplitter, QVBoxLayout, QTableView, QWidget, QLabel, QAbstractTableModel,
     Qt, QApplication, QTimer, QPushButton, pyqtSignal, QFormLayout, QLineEdit,
-    QIcon)
+    QIcon, QSize)
 
 from calibre.ebooks.oeb.polish.container import get_container
 from calibre.ebooks.oeb.polish.fonts import font_family_data, change_font
@@ -197,6 +197,9 @@ class ManageFonts(Dialog):
         l.addWidget(la)
 
         l.setAlignment(Qt.AlignTop | Qt.AlignHCenter)
+
+    def sizeHint(self):
+        return Dialog.sizeHint(self) + QSize(100, 50)
 
     def display(self):
         if not self.isVisible():
