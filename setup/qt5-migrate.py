@@ -14,6 +14,9 @@ __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
 # QT5XX: See if you can figure out why the splash screen does not work in linux
 
+# See why some dialog boxes are positioned in top left corner instead of center
+# on linux
+
 # QT5XX: Look for obsolete classes and functions from the list here:
 # http://qt-project.org/doc/qt-5/obsoleteclasses.html as these will not be
 # present in PyQt5
