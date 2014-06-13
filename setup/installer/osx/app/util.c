@@ -11,8 +11,7 @@ static const char *ERR_OOM = "Out of memory";
 
 static int
 report_error(const char *msg) {
-    fprintf(stderr, msg);
-    fprintf(stderr, "\n");
+    fprintf(stderr, "%s\n", msg);
     fflush(stderr);
     return -1;
 }

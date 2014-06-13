@@ -10,21 +10,23 @@ import sys, os, shutil, plistlib, subprocess, glob, zipfile, tempfile, \
     py_compile, stat, operator
 abspath, join, basename = os.path.abspath, os.path.join, os.path.basename
 
-from setup import __version__ as VERSION, __appname__ as APPNAME, basenames, \
-        modules as main_modules, Command, SRC, functions as main_functions
+from setup import (
+    __version__ as VERSION, __appname__ as APPNAME, basenames, modules as
+    main_modules, Command, SRC, functions as main_functions)
+from setup.build_environment import sw as SW, QT_FRAMEWORKS, QT_PLUGINS, PYQT_MODULES
+
 LICENSE = open('LICENSE', 'rb').read()
 MAGICK_HOME='@executable_path/../Frameworks/ImageMagick'
 ENV = dict(
         FONTCONFIG_PATH='@executable_path/../Resources/fonts',
         FONTCONFIG_FILE='@executable_path/../Resources/fonts/fonts.conf',
-        MAGICK_CONFIGURE_PATH=MAGICK_HOME+'/config',
+        MAGICK_CONFIGURE_PATH=MAGICK_HOME+'/config-Q16',
         MAGICK_CODER_MODULE_PATH=MAGICK_HOME+'/modules-Q16/coders',
-        MAGICK_CODER_FILTER_PATH=MAGICK_HOME+'/modules-Q16/filter',
-        QT_PLUGIN_PATH='@executable_path/../MacOS',
+        MAGICK_CODER_FILTER_PATH=MAGICK_HOME+'/modules-Q16/filters',
+        QT_PLUGIN_PATH='@executable_path/../MacOS/qt-plugins',
         PYTHONIOENCODING='UTF-8',
         )
 
-SW = os.environ.get('SW', '/sw')
 
 info = warn = None
 
@@ -47,15 +49,15 @@ def compile_launcher_lib(contents_dir, gcc, base):
     fd = join(contents_dir, 'Frameworks')
     dest = join(fd, 'calibre-launcher.dylib')
     src = join(base, 'util.c')
-    cmd = [gcc] + '-Wall -arch i386 -arch x86_64 -dynamiclib -std=gnu99'.split() + [src] + \
+    cmd = [gcc] + '-Wall -dynamiclib -std=gnu99'.split() + [src] + \
             ['-I'+base] + \
-            ['-I/sw/python/Python.framework/Versions/Current/Headers'] + \
+            ['-I%s/python/Python.framework/Versions/Current/Headers' % SW] + \
             '-current_version 1.0 -compatibility_version 1.0'.split() + \
             '-fvisibility=hidden -o'.split() + [dest] + \
             ['-install_name',
                 '@executable_path/../Frameworks/'+os.path.basename(dest)] + \
-            ['-F/sw/python', '-framework', 'Python', '-framework', 'CoreFoundation', '-headerpad_max_install_names']
-    info('\t'+' '.join(cmd))
+            [('-F%s/python' % SW), '-framework', 'Python', '-framework', 'CoreFoundation', '-headerpad_max_install_names']
+    # info('\t'+' '.join(cmd))
     sys.stdout.flush()
     subprocess.check_call(cmd)
     return dest
@@ -87,10 +89,9 @@ def compile_launchers(contents_dir, xprograms, pyver):
         fsrc = '/tmp/%s.c'%program
         with open(fsrc, 'wb') as f:
             f.write(psrc)
-        cmd = [gcc, '-Wall', '-arch', 'x86_64', '-arch', 'i386',
-                '-I'+base, fsrc, lib, '-o', out,
+        cmd = [gcc, '-Wall', '-I'+base, fsrc, lib, '-o', out,
             '-headerpad_max_install_names']
-        info('\t'+' '.join(cmd))
+        # info('\t'+' '.join(cmd))
         sys.stdout.flush()
         subprocess.check_call(cmd)
     return programs
@@ -230,50 +231,49 @@ class Py2App(object):
 
     @flush
     def get_dependencies(self, path_to_lib):
-        raw = subprocess.Popen(['otool', '-L', path_to_lib],
-                stdout=subprocess.PIPE).stdout.read()
+        install_name = subprocess.check_output(['otool', '-D', path_to_lib]).splitlines()[-1].strip()
+        raw = subprocess.check_output(['otool', '-L', path_to_lib])
         for line in raw.splitlines():
             if 'compatibility' not in line or line.strip().endswith(':'):
                 continue
             idx = line.find('(')
             path = line[:idx].strip()
-            yield path
+            yield path, path == install_name
 
     @flush
     def get_local_dependencies(self, path_to_lib):
-        for x in self.get_dependencies(path_to_lib):
-            for y in (SW+'/lib/', '/usr/local/lib/', SW+'/qt/lib/',
-                    '/opt/local/lib/',
-                    SW+'/python/Python.framework/', SW+'/freetype/lib/'):
+        for x, is_id in self.get_dependencies(path_to_lib):
+            for y in (SW+'/lib/', SW+'/qt/lib/', SW+'/python/Python.framework/',):
                 if x.startswith(y):
                     if y == SW+'/python/Python.framework/':
                         y = SW+'/python/'
-                    yield x, x[len(y):]
+                    yield x, x[len(y):], is_id
                     break
 
     @flush
-    def change_dep(self, old_dep, new_dep, path_to_lib):
-        info('\tResolving dependency %s to'%old_dep, new_dep)
-        subprocess.check_call(['install_name_tool', '-change', old_dep, new_dep,
-            path_to_lib])
+    def change_dep(self, old_dep, new_dep, is_id, path_to_lib):
+        cmd = ['-id', new_dep] if is_id else ['-change', old_dep, new_dep]
+        subprocess.check_call(['install_name_tool'] + cmd + [path_to_lib])
 
     @flush
     def fix_dependencies_in_lib(self, path_to_lib):
-        info('\nFixing dependencies in', path_to_lib)
         self.to_strip.append(path_to_lib)
         old_mode = flipwritable(path_to_lib)
-        for dep, bname in self.get_local_dependencies(path_to_lib):
+        for dep, bname, is_id in self.get_local_dependencies(path_to_lib):
             ndep = self.FID+'/'+bname
-            self.change_dep(dep, ndep, path_to_lib)
-        if list(self.get_local_dependencies(path_to_lib)):
-            raise Exception('Failed to resolve deps in: '+path_to_lib)
+            self.change_dep(dep, ndep, is_id, path_to_lib)
+        ldeps = list(self.get_local_dependencies(path_to_lib))
+        if ldeps:
+            info('\nFailed to fix dependencies in', path_to_lib)
+            info('Remaining local dependencies:', ldeps)
+            raise SystemExit(1)
         if old_mode is not None:
             flipwritable(path_to_lib, old_mode)
 
     @flush
     def add_python_framework(self):
         info('\nAdding Python framework')
-        src = join('/sw/python', 'Python.framework')
+        src = join(SW + '/python', 'Python.framework')
         x = join(self.frameworks_dir, 'Python.framework')
         curr = os.path.realpath(join(src, 'Versions', 'Current'))
         currd = join(x, 'Versions', basename(curr))
@@ -286,18 +286,19 @@ class Py2App(object):
 
     @flush
     def add_qt_frameworks(self):
-        info('\nAdding Qt Framework')
-        for f in ('QtCore', 'QtGui', 'QtXml', 'QtNetwork', 'QtSvg', 'QtWebKit',
-                'QtXmlPatterns'):
+        info('\nAdding Qt Frameworks')
+        for f in QT_FRAMEWORKS:
             self.add_qt_framework(f)
-        for d in glob.glob(join(SW, 'qt', 'plugins', '*')):
-            shutil.copytree(d, join(self.contents_dir, 'MacOS', basename(d)))
-        for l in glob.glob(join(self.contents_dir, 'MacOS', '*/*.dylib')):
+        pdir = join(SW, 'qt', 'plugins')
+        ddir = join(self.contents_dir, 'MacOS', 'qt-plugins')
+        os.mkdir(ddir)
+        for x in QT_PLUGINS:
+            shutil.copytree(join(pdir, x), join(ddir, x))
+        for l in glob.glob(join(ddir, '*/*.dylib')):
             self.fix_dependencies_in_lib(l)
-            x = os.path.relpath(l, join(self.contents_dir, 'MacOS'))
+            x = os.path.relpath(l, ddir)
             self.set_id(l, '@executable_path/'+x)
 
-    @flush
     def add_qt_framework(self, f):
         libname = f
         f = f+'.framework'
@@ -351,7 +352,7 @@ class Py2App(object):
                 LSMinimumSystemVersion='10.7.2',
                 LSRequiresNativeExecution=True,
                 NSAppleScriptEnabled=False,
-                NSHumanReadableCopyright='Copyright 2010, Kovid Goyal',
+                NSHumanReadableCopyright='Copyright 2014, Kovid Goyal',
                 CFBundleGetInfoString=('calibre, an E-book management '
                 'application. Visit http://calibre-ebook.com for details.'),
                 CFBundleIconFile='library.icns',
@@ -378,7 +379,7 @@ class Py2App(object):
     @flush
     def add_poppler(self):
         info('\nAdding poppler')
-        for x in ('libpoppler.37.dylib',):
+        for x in ('libpoppler.46.dylib',):
             self.install_dylib(os.path.join(SW, 'lib', x))
         for x in ('pdftohtml', 'pdftoppm', 'pdfinfo'):
             self.install_dylib(os.path.join(SW, 'bin', x), False)
@@ -391,14 +392,13 @@ class Py2App(object):
     @flush
     def add_libpng(self):
         info('\nAdding libpng')
-        self.install_dylib(os.path.join(SW, 'lib', 'libpng12.0.dylib'))
-        self.install_dylib(os.path.join(SW, 'lib', 'libpng.3.dylib'))
+        self.install_dylib(os.path.join(SW, 'lib', 'libpng16.16.dylib'))
 
     @flush
     def add_fontconfig(self):
         info('\nAdding fontconfig')
         for x in ('fontconfig.1', 'freetype.6', 'expat.1',
-                  'plist.1', 'usbmuxd.2', 'imobiledevice.4'):
+                  'plist.2', 'usbmuxd.2', 'imobiledevice.4'):
             src = os.path.join(SW, 'lib', 'lib'+x+'.dylib')
             self.install_dylib(src)
         dst = os.path.join(self.resources_dir, 'fonts')
@@ -421,8 +421,8 @@ class Py2App(object):
     @flush
     def add_imagemagick(self):
         info('\nAdding ImageMagick')
-        for x in ('Wand', 'Core'):
-            self.install_dylib(os.path.join(SW, 'lib', 'libMagick%s.5.dylib'%x))
+        for x in ('Wand-6', 'Core-6'):
+            self.install_dylib(os.path.join(SW, 'lib', 'libMagick%s.Q16.2.dylib'%x))
         idir = glob.glob(os.path.join(SW, 'lib', 'ImageMagick-*'))[-1]
         dest = os.path.join(self.frameworks_dir, 'ImageMagick')
         if os.path.exists(dest):
@@ -433,6 +433,10 @@ class Py2App(object):
                 if f.endswith('.so'):
                     f = join(x[0], f)
                     self.fix_dependencies_in_lib(f)
+        for d in ('etc', 'share'):
+            base = os.path.join(SW, d, 'ImageMagick-6')
+            for x in os.listdir(base):
+                shutil.copy2(os.path.join(base, x), os.path.join(dest, 'config-Q16'))
 
     @flush
     def add_misc_libraries(self):
@@ -476,7 +480,12 @@ class Py2App(object):
                 if tdir is not None:
                     shutil.rmtree(tdir)
         shutil.rmtree(os.path.join(self.site_packages, 'calibre', 'plugins'))
-        self.remove_bytecode(join(self.resources_dir, 'Python', 'site-packages'))
+        sp = join(self.resources_dir, 'Python', 'site-packages')
+        for x in os.listdir(join(sp, 'PyQt5')):
+            if x.endswith('.so') and x.rpartition('.')[0] not in PYQT_MODULES:
+                os.remove(join(sp, 'PyQt5', x))
+        os.remove(join(sp, 'PyQt5', 'uic/port_v3/proxy_base.py'))
+        self.remove_bytecode(sp)
 
     @flush
     def add_modules_from_dir(self, src):
@@ -528,7 +537,7 @@ class Py2App(object):
     @flush
     def add_stdlib(self):
         info('\nAdding python stdlib')
-        src = '/sw/python/Python.framework/Versions/Current/lib/python'
+        src = SW + '/python/Python.framework/Versions/Current/lib/python'
         src += self.version_info
         dest = join(self.resources_dir, 'Python', 'lib', 'python')
         dest += self.version_info
@@ -596,6 +605,8 @@ class Py2App(object):
             else:
                 os.symlink(join('../..', x),
                            join(cc_dir, x))
+        # Comes from the terminal-notifier project:
+        # https://github.com/alloy/terminal-notifier
         shutil.copytree(join(SW, 'build/notifier.app'), join(
             self.contents_dir, 'calibre-notifier.app'))
 
