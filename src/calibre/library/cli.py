@@ -211,7 +211,7 @@ def command_list(args, dbpath):
     else:
         fields = []
 
-    if not opts.sort_by in afields and opts.sort_by is not None:
+    if opts.sort_by not in afields and opts.sort_by is not None:
         parser.print_help()
         print
         prints(_('Invalid sort field. Available fields:'), ','.join(afields),
@@ -232,7 +232,7 @@ NULL = DevNull()
 def do_add(db, paths, one_book_per_directory, recurse, add_duplicates, otitle,
         oauthors, oisbn, otags, oseries, oseries_index, ocover, olanguages):
     orig = sys.stdout
-    #sys.stdout = NULL
+    # sys.stdout = NULL
     try:
         files, dirs = [], []
         for path in paths:
@@ -838,7 +838,7 @@ def catalog_option_parser(args):
         output = os.path.abspath(args[0])
         file_extension = output[output.rfind('.') + 1:].lower()
 
-        if not file_extension in available_catalog_formats():
+        if file_extension not in available_catalog_formats():
             parser.print_help()
             log.error("No catalog plugin available for extension '%s'.\n" % file_extension +
                       "Catalog plugins available for %s\n" % ', '.join(available_catalog_formats()))
