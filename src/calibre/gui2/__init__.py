@@ -4,7 +4,7 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 import os, sys, Queue, threading, glob
 from threading import RLock
 from urllib import unquote
-import PyQt5.QtWebKitWidgets  # This is needed to ensure that import from the Qt shortcut module work
+import PyQt5.QtWebKitWidgets  # This is needed to ensure that imports from the Qt shortcut module work
 from PyQt5.Qt import (
     QFileInfo, QObject, QBuffer, Qt, QStyle, QByteArray, QTranslator,
     QCoreApplication, QThread, QEvent, QTimer, pyqtSignal, QDateTime,
