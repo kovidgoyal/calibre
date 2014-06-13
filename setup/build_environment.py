@@ -14,10 +14,6 @@ import sipconfig
 from setup import isosx, iswindows, is64bit, islinux
 is64bit
 
-OSX_SDK = '/Developer/SDKs/MacOSX10.5.sdk'
-
-os.environ['MACOSX_DEPLOYMENT_TARGET'] = '10.5'
-
 NMAKE = RC = msvc = MT = win_inc = win_lib = None
 if iswindows:
     from distutils import msvc9compiler
@@ -34,7 +30,7 @@ if iswindows:
     MT = os.path.join(SDK, 'Bin', 'mt.exe')
     os.environ['QMAKESPEC'] = 'win32-msvc2008'
 
-QMAKE = '/Volumes/sw/qt/bin/qmake' if isosx else 'qmake'
+QMAKE = 'qmake'
 for x in ('qmake-qt5', 'qt5-qmake', 'qmake'):
     q = find_executable(x)
     if q:
@@ -164,18 +160,17 @@ if iswindows:
     podofo_inc = os.path.join(sw_inc_dir, 'podofo')
     podofo_lib = sw_lib_dir
 elif isosx:
-    sw = os.environ.get('SW', '/sw')
-    podofo_inc = os.path.join(sw, 'podofo')
+    sw = os.environ.get('SW', os.path.expanduser('~/sw'))
+    podofo_inc = os.path.join(sw, 'include', 'podofo')
     podofo_lib = os.path.join(sw, 'lib')
-    magick_inc_dirs = consolidate('MAGICK_INC', sw + '/include/ImageMagick')
+    magick_inc_dirs = consolidate('MAGICK_INC', sw + '/include/ImageMagick-6')
     magick_lib_dirs = consolidate('MAGICK_LIB', sw + '/lib')
-    magick_libs = ['MagickWand', 'MagickCore']
+    magick_libs = ['MagickWand-6.Q16', 'MagickCore-6.Q16']
     png_inc_dirs = consolidate('PNG_INC_DIR', sw + '/include')
     png_lib_dirs = consolidate('PNG_LIB_DIR', sw + '/lib')
     png_libs = ['png12']
     ft_libs = ['freetype']
     ft_inc_dirs = [sw + '/include/freetype2']
-    bq = glob.glob(sw + '/build/qt-*/include')[-1]
     icu_inc_dirs = [sw + '/include']
     icu_lib_dirs = [sw + '/lib']
 else:

@@ -12,7 +12,7 @@ from multiprocessing import cpu_count
 
 from setup import Command, islinux, isbsd, isosx, SRC, iswindows, __version__
 from setup.build_environment import (chmlib_inc_dirs,
-        podofo_inc, podofo_lib, podofo_error, pyqt, OSX_SDK, NMAKE, QMAKE,
+        podofo_inc, podofo_lib, podofo_error, pyqt, NMAKE, QMAKE,
         msvc, MT, win_inc, win_lib, magick_inc_dirs, magick_lib_dirs,
         magick_libs, chmlib_lib_dirs, sqlite_inc_dirs, icu_inc_dirs,
         icu_lib_dirs, ft_libs, ft_lib_dirs, ft_inc_dirs,
@@ -333,16 +333,10 @@ if isbsd:
 
 
 if isosx:
-    x, p = ('i386', 'x86_64')
-    archs = ['-arch', x, '-arch', p, '-isysroot',
-                OSX_SDK]
     cflags.append('-D_OSX')
-    cflags.extend(archs)
-    ldflags.extend(archs)
     ldflags.extend('-bundle -undefined dynamic_lookup'.split())
     cflags.extend(['-fno-common', '-dynamic'])
     cflags.append('-I'+sysconfig.get_python_inc())
-
 
 if iswindows:
     cc = cxx = msvc.cc
