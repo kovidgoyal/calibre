@@ -667,6 +667,8 @@ def command_set_metadata(args, dbpath):
                     print >>sys.stderr, 'Cannot set index for series before setting the series name'
                     raise SystemExit(1)
                 mi.set(field[:-6], sname, extra=val)
+                if field == 'series_index':
+                    mi.series_index = val  # extra has no effect for the builtin series field
             else:
                 mi.set(field, val)
         db.set_metadata(book_id, mi, force_changes=True)
