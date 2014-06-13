@@ -150,7 +150,7 @@ ffus (unsigned char* byte, int* bit, size_t *length) {
 }
 
 
-inline uint64_t
+static inline uint64_t
 sr_int(unsigned char* byte, int* bit,
        unsigned char s, unsigned char r, size_t *length)
 {
@@ -227,7 +227,7 @@ sr_int(unsigned char* byte, int* bit,
 }
 
             
-inline uint32_t
+static inline uint32_t
 get_leaf_node_offset(struct chmFile *chmfile,
                      const char *text,
                      uint32_t initial_offset,
@@ -300,7 +300,7 @@ get_leaf_node_offset(struct chmFile *chmfile,
   return initial_offset;
 }
 
-inline int 
+static inline int 
 pychm_process_wlc (struct chmFile *chmfile,
                    uint64_t wlc_count, uint64_t wlc_size,
                    uint32_t wlc_offset, unsigned char ds,
