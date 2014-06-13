@@ -123,6 +123,7 @@ QT_PLUGINS = ('imageformats', 'audio', 'iconengines', 'mediaservice', 'platforms
 
 PYQT_MODULES = ('Qt', 'QtCore', 'QtGui', 'QtNetwork',  # 'QtMultimedia', 'QtMultimediaWidgets',
                 'QtPrintSupport', 'QtSensors', 'QtSvg', 'QtWebKit', 'QtWebKitWidgets', 'QtWidgets')
+QT_FRAMEWORKS = []
 
 if iswindows:
     QT_DLLS += ['Qt5WinExtras']
