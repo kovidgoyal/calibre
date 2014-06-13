@@ -63,6 +63,18 @@ class BadDestinationType(BaseError):
                           link_elem.get('href'), link_dest)
         self.bad_href = link_elem.get('href')
 
+class BadDestinationFragment(BaseError):
+
+    level = WARN
+
+    def __init__(self, link_source, link_dest, link_elem, fragment):
+        BaseError.__init__(self, _('Link points to a location not present in the target file'), link_source, line=link_elem.sourceline)
+        self.bad_href = link_elem.get('href')
+        self.HELP = _('The link "{0}" points to a location <i>{1}</i> in the file {2} that does not exist.'
+                      ' You should either remove the location so that the link points to the top of the file,'
+                      ' or change the link to point to the correct location.').format(
+                          self.bad_href, fragment, link_dest)
+
 class FileLink(BadLink):
 
     HELP = _('This link uses the file:// URL scheme. This does not work with many ebook readers.'
@@ -183,14 +195,43 @@ def check_mimetypes(container):
             a(MimetypeMismatch(container, name, mt, gt))
     return errors
 
+def check_link_destination(container, dest_map, name, href, a, errors):
+    tname = container.href_to_name(href, name)
+    if tname and tname in container.mime_map:
+        if container.mime_map[tname] not in OEB_DOCS:
+            errors.append(BadDestinationType(name, tname, a))
+        else:
+            root = container.parsed(tname)
+            if hasattr(root, 'xpath'):
+                if tname not in dest_map:
+                    dest_map[tname] = set(root.xpath('//*/@id|//*/@name'))
+                purl = urlparse(href)
+                if purl.fragment and purl.fragment not in dest_map[tname]:
+                    errors.append(BadDestinationFragment(name, tname, a, purl.fragment))
+            else:
+                errors.append(BadDestinationType(name, tname, a))
+
+
 def check_link_destinations(container):
+    ' Check destinations of links that point to HTML files '
     errors = []
+    dest_map = {}
+    opf_type = guess_type('a.opf')
+    ncx_type = guess_type('a.ncx')
     for name, mt in container.mime_map.iteritems():
         if mt in OEB_DOCS:
             for a in container.parsed(name).xpath('//*[local-name()="a" and @href]'):
-                tname = container.href_to_name(a.get('href'), name)
-                if tname and tname in container.mime_map and container.mime_map[tname] not in OEB_DOCS:
-                    errors.append(BadDestinationType(name, tname, a))
+                href = a.get('href')
+                check_link_destination(container, dest_map, name, href, a, errors)
+        elif mt == opf_type:
+            for a in container.opf_xpath('//opf:reference[@href]'):
+                href = a.get('href')
+                check_link_destination(container, dest_map, name, href, a, errors)
+        elif mt == ncx_type:
+            for a in container.parsed(name).xpath('//*[local-name() = "content" and @src]'):
+                href = a.get('src')
+                check_link_destination(container, dest_map, name, href, a, errors)
+
     return errors
 
 def check_links(container):
