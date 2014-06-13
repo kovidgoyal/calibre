@@ -101,6 +101,13 @@ class QtNotifier(Notifier):
             except:
                 pass
 
+class DummyNotifier(Notifier):
+
+    ok = True
+
+    def __call__(self, body, summary=None, replaces_id=None, timeout=0):
+        pass
+
 class AppleNotifier(Notifier):
 
     def __init__(self):
@@ -145,10 +152,15 @@ def get_notifier(systray=None):
             ans = FDONotifier()
             if not ans.ok:
                 ans = None
-    elif isosx and get_osx_version() >= (10, 8, 0):
-        ans = AppleNotifier()
-        if not ans.ok:
-            ans = None
+    elif isosx:
+        if get_osx_version() >= (10, 8, 0):
+            ans = AppleNotifier()
+            if not ans.ok:
+                ans = DummyNotifier()
+        else:
+            # We dont use Qt's systray based notifier as it uses Growl and is
+            # broken with different versions of Growl
+            ans = DummyNotifier()
     if ans is None:
         ans = QtNotifier(systray)
         if not ans.ok:
