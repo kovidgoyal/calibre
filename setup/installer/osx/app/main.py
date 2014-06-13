@@ -447,8 +447,7 @@ class Py2App(object):
             shutil.copy2(join(SW, 'lib', x), self.frameworks_dir)
             dest = join(self.frameworks_dir, x)
             self.set_id(dest, self.FID+'/'+x)
-            if 'mtp' in x:
-                self.fix_dependencies_in_lib(dest)
+            self.fix_dependencies_in_lib(dest)
 
     @flush
     def add_site_packages(self):
