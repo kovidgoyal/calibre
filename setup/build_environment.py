@@ -117,7 +117,7 @@ ICU = sw = ''
 
 QT_DLLS = ['Qt5' + x for x in (
 'Core', 'Gui',  'OpenGL', 'Network', 'PrintSupport', 'Positioning', 'Sensors', 'Sql', 'Svg',
-'WebKit', 'WebKitWidgets', 'Widgets',  'Multimedia', 'MultimediaWidgets',  # 'Xml', 'XmlPatterns',
+'WebKit', 'WebKitWidgets', 'Widgets',  'Multimedia', 'MultimediaWidgets', 'Xml',  # 'XmlPatterns',
 )]
 QT_PLUGINS = ('imageformats', 'audio', 'iconengines', 'mediaservice', 'platforms', 'playlistformats', 'printsupport', 'sqldrivers')
 
