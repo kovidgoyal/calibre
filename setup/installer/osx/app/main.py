@@ -433,10 +433,6 @@ class Py2App(object):
                 if f.endswith('.so'):
                     f = join(x[0], f)
                     self.fix_dependencies_in_lib(f)
-        for d in ('etc', 'share'):
-            base = os.path.join(SW, d, 'ImageMagick-6')
-            for x in os.listdir(base):
-                shutil.copy2(os.path.join(base, x), os.path.join(dest, 'config-Q16'))
 
     @flush
     def add_misc_libraries(self):
