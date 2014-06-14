@@ -25,6 +25,18 @@ ALL_ENTITIES = HTML_ENTITTIES | XML_ENTITIES
 replace_pat = re.compile('&(%s);' % '|'.join(re.escape(x) for x in sorted((HTML_ENTITTIES - XML_ENTITIES))))
 mismatch_pat = re.compile('tag mismatch:.+?line (\d+).+?line \d+')
 
+class EmptyFile(BaseError):
+
+    HELP = _('This file is empty, it contains nothing, you should probably remove it.')
+    INDIVIDUAL_FIX = _('Remove this file')
+
+    def __init__(self, name):
+        BaseError.__init__(self, _('The file %s is empty') % name, name)
+
+    def __call__(self, container):
+        container.remove_item(self.name)
+        return True
+
 class DecodeError(BaseError):
 
     is_parsing_error = True
@@ -197,6 +209,8 @@ def check_html_size(name, mt, raw):
 entity_pat = re.compile(br'&(#{0,1}[a-zA-Z0-9]{1,8});')
 
 def check_xml_parsing(name, mt, raw):
+    if not raw:
+        return [EmptyFile(name)]
     raw = raw.replace(b'\r\n', b'\n').replace(b'\r', b'\n')
     # Get rid of entities as named entities trip up the XML parser
     eproc = EntitityProcessor(mt)
