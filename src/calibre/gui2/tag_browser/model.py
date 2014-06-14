@@ -286,7 +286,7 @@ class TagsModel(QAbstractItemModel):  # {{{
             traceback.print_stack()
             return
         # traceback.print_stack()
-        #print ()
+        # print ()
         self._build_in_progress = True
         self.beginResetModel()
         self._run_rebuild(state_map=state_map)
@@ -726,9 +726,9 @@ class TagsModel(QAbstractItemModel):  # {{{
                     ('tags', 'series', 'authors', 'rating', 'publisher') or \
                     (fm['is_custom'] and (
                             fm['datatype'] in ['text', 'rating', 'series',
-                                               'enumeration'] or
-                                (fm['datatype'] == 'composite' and
-                                 fm['display'].get('make_category', False)))):
+                                               'enumeration'] or (
+                                                   fm['datatype'] == 'composite' and
+                                                   fm['display'].get('make_category', False)))):
                     mime = 'application/calibre+from_library'
                     ids = list(map(int, str(md.data(mime)).split()))
                     self.handle_drop(node, ids)
