@@ -120,7 +120,13 @@ def preserve_htmlns_prefix(sheet, prefix):
 
 def remove_unused_css(container, report):
     from cssutils.css import CSSRule
-    sheets = {name:container.parsed(name) for name, mt in container.mime_map.iteritems() if mt in OEB_STYLES}
+    def safe_parse(name):
+        try:
+            return container.parsed(name)
+        except TypeError:
+            pass
+    sheets = {name:safe_parse(name) for name, mt in container.mime_map.iteritems() if mt in OEB_STYLES}
+    sheets = {k:v for k, v in sheets.iteritems() if v is not None}
     sheet_namespace = {}
     for sheet in sheets.itervalues():
         sheet_namespace[sheet] = process_namespaces(sheet)
