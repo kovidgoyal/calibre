@@ -450,7 +450,7 @@ class Property(QWidget):
         self.changed.emit()
 
 # Help text {{{
-HELP_TEXT = '''\
+HELP_TEXT = _('''\
 <h2>Creating a custom theme</h2>
 
 <p id="attribute" lang="und">You can create a custom syntax highlighting
@@ -518,7 +518,7 @@ p.someclass {{
     line-height: 1.2;
 }}
 </style>
-'''  # }}}
+''')  # }}}
 
 class ThemeEditor(Dialog):
 
