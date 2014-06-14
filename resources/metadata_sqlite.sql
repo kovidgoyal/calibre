@@ -30,9 +30,9 @@ CREATE TABLE books_languages_link ( id INTEGER PRIMARY KEY,
                                             UNIQUE(book, lang_code)
         );
 CREATE TABLE books_plugin_data(id INTEGER PRIMARY KEY,
-                                     book INTEGER NON NULL,
-                                     name TEXT NON NULL,
-                                     val TEXT NON NULL,
+                                     book INTEGER NOT NULL,
+                                     name TEXT NOT NULL,
+                                     val TEXT NOT NULL,
                                      UNIQUE(book,name));
 CREATE TABLE books_publishers_link ( id INTEGER PRIMARY KEY,
                                           book INTEGER NOT NULL,
@@ -55,8 +55,8 @@ CREATE TABLE books_tags_link ( id INTEGER PRIMARY KEY,
                                           UNIQUE(book, tag)
                                         );
 CREATE TABLE comments ( id INTEGER PRIMARY KEY,
-                              book INTEGER NON NULL,
-                              text TEXT NON NULL COLLATE NOCASE,
+                              book INTEGER NOT NULL,
+                              text TEXT NOT NULL COLLATE NOCASE,
                               UNIQUE(book)
                             );
 CREATE TABLE conversion_options ( id INTEGER PRIMARY KEY,
@@ -78,10 +78,10 @@ CREATE TABLE custom_columns (
                     UNIQUE(label)
                 );
 CREATE TABLE data ( id     INTEGER PRIMARY KEY,
-                            book   INTEGER NON NULL,
-                            format TEXT NON NULL COLLATE NOCASE,
-                            uncompressed_size INTEGER NON NULL,
-                            name TEXT NON NULL,
+                            book   INTEGER NOT NULL,
+                            format TEXT NOT NULL COLLATE NOCASE,
+                            uncompressed_size INTEGER NOT NULL,
+                            name TEXT NOT NULL,
                             UNIQUE(book, format)
 );
 CREATE TABLE feeds ( id   INTEGER PRIMARY KEY,
@@ -90,13 +90,13 @@ CREATE TABLE feeds ( id   INTEGER PRIMARY KEY,
                               UNIQUE(title)
                              );
 CREATE TABLE identifiers  ( id     INTEGER PRIMARY KEY,
-                                    book   INTEGER NON NULL,
-                                    type   TEXT NON NULL DEFAULT "isbn" COLLATE NOCASE,
-                                    val    TEXT NON NULL COLLATE NOCASE,
+                                    book   INTEGER NOT NULL,
+                                    type   TEXT NOT NULL DEFAULT "isbn" COLLATE NOCASE,
+                                    val    TEXT NOT NULL COLLATE NOCASE,
                                     UNIQUE(book, type)
         );
 CREATE TABLE languages    ( id        INTEGER PRIMARY KEY,
-                                    lang_code TEXT NON NULL COLLATE NOCASE,
+                                    lang_code TEXT NOT NULL COLLATE NOCASE,
                                     UNIQUE(lang_code)
         );
 CREATE TABLE library_id ( id   INTEGER PRIMARY KEY,
@@ -107,8 +107,8 @@ CREATE TABLE metadata_dirtied(id INTEGER PRIMARY KEY,
                              book INTEGER NOT NULL,
                              UNIQUE(book));
 CREATE TABLE preferences(id INTEGER PRIMARY KEY,
-                                 key TEXT NON NULL,
-                                 val TEXT NON NULL,
+                                 key TEXT NOT NULL,
+                                 val TEXT NOT NULL,
                                  UNIQUE(key));
 CREATE TABLE publishers ( id   INTEGER PRIMARY KEY,
                                   name TEXT NOT NULL COLLATE NOCASE,

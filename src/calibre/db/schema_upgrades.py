@@ -400,8 +400,8 @@ class SchemaUpgrade(object):
         script = '''
         DROP TABLE IF EXISTS preferences;
         CREATE TABLE preferences(id INTEGER PRIMARY KEY,
-                                 key TEXT NON NULL,
-                                 val TEXT NON NULL,
+                                 key TEXT NOT NULL,
+                                 val TEXT NOT NULL,
                                  UNIQUE(key));
         '''
         self.db.execute(script)
@@ -453,9 +453,9 @@ class SchemaUpgrade(object):
         script = '''
         DROP TABLE IF EXISTS books_plugin_data;
         CREATE TABLE books_plugin_data(id INTEGER PRIMARY KEY,
-                                     book INTEGER NON NULL,
-                                     name TEXT NON NULL,
-                                     val TEXT NON NULL,
+                                     book INTEGER NOT NULL,
+                                     name TEXT NOT NULL,
+                                     val TEXT NOT NULL,
                                      UNIQUE(book,name));
         DROP TRIGGER IF EXISTS books_delete_trg;
         CREATE TRIGGER books_delete_trg
@@ -492,15 +492,15 @@ class SchemaUpgrade(object):
 
         DROP TABLE IF EXISTS identifiers;
         CREATE TABLE identifiers  ( id     INTEGER PRIMARY KEY,
-                                    book   INTEGER NON NULL,
-                                    type   TEXT NON NULL DEFAULT "isbn" COLLATE NOCASE,
-                                    val    TEXT NON NULL COLLATE NOCASE,
+                                    book   INTEGER NOT NULL,
+                                    type   TEXT NOT NULL DEFAULT "isbn" COLLATE NOCASE,
+                                    val    TEXT NOT NULL COLLATE NOCASE,
                                     UNIQUE(book, type)
         );
 
         DROP TABLE IF EXISTS languages;
         CREATE TABLE languages    ( id        INTEGER PRIMARY KEY,
-                                    lang_code TEXT NON NULL COLLATE NOCASE,
+                                    lang_code TEXT NOT NULL COLLATE NOCASE,
                                     UNIQUE(lang_code)
         );
 
