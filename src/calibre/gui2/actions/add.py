@@ -106,7 +106,7 @@ class AddAction(InterfaceAction):
         ids = [view.model().id(r) for r in rows]
 
         if len(ids) > 1 and not question_dialog(self.gui,
-                _('Are you sure'),
+                _('Are you sure?'),
             _('Are you sure you want to add the same'
                 ' files to all %d books? If the format'
                 ' already exists for a book, it will be replaced.')%len(ids)):
@@ -128,7 +128,7 @@ class AddAction(InterfaceAction):
                     title = db.title(ids[0], index_is_id=True)
                     msg = _('The {0} format(s) will be replaced in the book {1}. Are you sure?').format(
                         ', '.join(override), title)
-                    if not confirm(msg, 'confirm_format_override_on_add', title=_('Are you sure'), parent=self.gui):
+                    if not confirm(msg, 'confirm_format_override_on_add', title=_('Are you sure?'), parent=self.gui):
                         return
 
         for id_ in ids:

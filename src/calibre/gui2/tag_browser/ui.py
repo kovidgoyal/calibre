@@ -252,8 +252,7 @@ class TagBrowserMixin(object):  # {{{
         if not question_dialog(self.tags_view,
                     title=_('Delete item'),
                     msg='<p>'+
-                    _('%s will be deleted from all books. Are you sure?')
-                                %orig_name,
+                    _('%s will be deleted from all books. Are you sure?') %orig_name,
                     skip_dialog_name='tag_item_delete',
                     skip_dialog_msg=_('Show this confirmation again')):
             return
@@ -436,7 +435,7 @@ class TagBrowserWidget(QWidget):  # {{{
                     'match any or all of them'))
         ma.setStatusTip(ma.toolTip())
 
-        mt = l.m.addAction(_('Manage authors, tags, etc'))
+        mt = l.m.addAction(_('Manage authors, tags, etc.'))
         mt.setToolTip(_('All of these category_managers are available by right-clicking '
                        'on items in the tag browser above'))
         mt.m = l.manage_menu = QMenu(l.m)

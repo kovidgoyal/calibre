@@ -6,7 +6,6 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import textwrap
 from collections import namedtuple
 
 from PyQt4.Qt import (
@@ -450,6 +449,77 @@ class Property(QWidget):
         self.data['underline'] = unicode(self.underline.currentText()) or None
         self.changed.emit()
 
+# Help text {{{
+HELP_TEXT = '''\
+<h2>Creating a custom theme</h2>
+
+<p id="attribute" lang="und">You can create a custom syntax highlighting
+theme, with your own colors and font styles. The most important
+types of highlighting rules are described below. Note that not
+every rule supports every kind of customization, for example,
+changing font or underline styles for the <code>Cursor</code> rule
+does not have any effect as that rule is used only for the color of
+the blinking cursor.</p>
+
+<p>As you make changes to your theme on the left, the changes will
+be reflected live in this panel.</p>
+
+<p xml:lang="und">
+{0}
+    The most important rule. Sets the
+    foreground and background colors for the editor as well as the
+    style of "normal" text, that is, text that does not match any
+    special syntax.
+
+{1}
+    Defines the colors for text selected by the mouse.
+
+{2}
+    Defines the color for the line containing the cursor.
+
+{3}
+    Defines the colors for the line numbers on the left.
+
+{4}
+    Defines the colors for matching tags in HTML and matching
+    braces in CSS.
+
+{5}
+    Used for highlighting tags in HTML
+
+{6}
+    Used for highlighting attributes in HTML
+
+{7}
+    Tag names in HTML
+
+{8}
+    Namespace prefixes in XML and constants in CSS
+
+{9}
+    Non-breaking spaces/hyphens in HTML
+
+{10}
+    Syntax errors such as <this <>
+
+{11}
+    Misspelled words such as <span lang="en">thisword</span>
+
+{12}
+    Comments like <!-- this one -->
+</p>
+
+<style type="text/css">
+/* Some CSS so you can see how the highlighting rules affect it */
+
+p.someclass {{
+    font-family: serif;
+    font-size: 12px;
+    line-height: 1.2;
+}}
+</style>
+'''  # }}}
+
 class ThemeEditor(Dialog):
 
     def __init__(self, parent=None):
@@ -490,76 +560,7 @@ class ThemeEditor(Dialog):
 
         from calibre.gui2.tweak_book.editor.text import TextEdit
         self.preview = p = TextEdit(self, expected_geometry=(73, 50))
-        p.load_text(textwrap.dedent(_(
-        '''\
-            <h2>Creating a custom theme</h2>
-
-            <p id="attribute" lang="und">You can create a custom syntax highlighting
-            theme, with your own colors and font styles. The most important
-            types of highlighting rules are described below. Note that not
-            every rule supports every kind of customization, for example,
-            changing font or underline styles for the <code>Cursor</code> rule
-            does not have any effect as that rule is used only for the color of
-            the blinking cursor.</p>
-
-            <p>As you make changes to your theme on the left, the changes will
-            be reflected live in this panel.</p>
-
-            <p xml:lang="und">
-            {0}
-                The most important rule. Sets the
-                foreground and background colors for the editor as well as the
-                style of "normal" text, that is, text that does not match any
-                special syntax.
-
-            {1}
-                Defines the colors for text selected by the mouse.
-
-            {2}
-                Defines the color for the line containing the cursor.
-
-            {3}
-                Defines the colors for the line numbers on the left.
-
-            {4}
-                Defines the colors for matching tags in HTML and matching
-                braces in CSS.
-
-            {5}
-                Used for highlighting tags in HTML
-
-            {6}
-                Used for highlighting attributes in HTML
-
-            {7}
-                Tag names in HTML
-
-            {8}
-                Namespace prefixes in XML and constants in CSS
-
-            {9}
-                Non-breaking spaces/hyphens in HTML
-
-            {10}
-                Syntax errors such as <this <>
-
-            {11}
-                Misspelled words such as <span lang="en">thisword</span>
-
-            {12}
-                Comments like <!-- this one -->
-            </p>
-
-            <style type="text/css">
-            /* Some CSS so you can see how the highlighting rules affect it */
-
-            p.someclass {{
-                font-family: serif;
-                font-size: 12px;
-                line-height: 1.2;
-            }}
-            </style>
-            ''')).format(
+        p.load_text(HELP_TEXT.format(
                 *['<b>%s</b>' % x for x in (
                     'Normal', 'Visual', 'CursorLine', 'LineNr', 'MatchParen',
                     'Function', 'Type', 'Statement', 'Constant', 'SpecialCharacter', 'Error', 'SpellError', 'Comment'

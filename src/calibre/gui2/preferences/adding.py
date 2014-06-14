@@ -120,7 +120,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
                             _('You do not have read/write permissions for '
                                 'the folder: %s')%path, show=True)
                     raise AbortCommit('invalid auto-add folder')
-                if not question_dialog(self, _('Are you sure'),
+                if not question_dialog(self, _('Are you sure?'),
                         _('<b>WARNING:</b> Any files you place in %s will be '
                             'automatically deleted after being added to '
                             'calibre. Are you sure?')%path):
