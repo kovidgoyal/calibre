@@ -70,16 +70,11 @@ class LibraryViewMixin(object):  # {{{
         self.library_view.model().set_highlight_only(config['highlight_search_matches'])
 
     def build_context_menus(self):
+        from calibre.gui2.bars import populate_menu
         lm = QMenu(self)
-        def populate_menu(m, items):
-            for what in items:
-                if what is None:
-                    m.addSeparator()
-                elif what in self.iactions:
-                    m.addAction(self.iactions[what].qaction)
-        populate_menu(lm, gprefs['action-layout-context-menu'])
+        populate_menu(lm, gprefs['action-layout-context-menu'], self.iactions)
         dm = QMenu(self)
-        populate_menu(dm, gprefs['action-layout-context-menu-device'])
+        populate_menu(dm, gprefs['action-layout-context-menu-device'], self.iactions)
         ec = self.iactions['Edit Collections'].qaction
         self.library_view.set_context_menu(lm, ec)
         for v in (self.memory_view, self.card_a_view, self.card_b_view):
@@ -88,7 +83,7 @@ class LibraryViewMixin(object):  # {{{
         if self.cover_flow is not None:
             cm = QMenu(self.cover_flow)
             populate_menu(cm,
-                    gprefs['action-layout-context-menu-cover-browser'])
+                    gprefs['action-layout-context-menu-cover-browser'], self.iactions)
             self.cover_flow.set_context_menu(cm)
 
     def search_done(self, view, ok):

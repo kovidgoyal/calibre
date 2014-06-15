@@ -359,6 +359,9 @@ class ChooseLibraryAction(InterfaceAction):
         self.gui.location_manager.set_switch_actions(quick_actions,
                 rename_actions, delete_actions, qs_actions,
                 self.action_choose)
+        # Allow the cloned actions in the OS X global menubar to update
+        for a in (self.qaction, self.menuless_qaction):
+            a.changed.emit()
 
     def location_selected(self, loc):
         enabled = loc == 'library'

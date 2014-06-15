@@ -43,10 +43,10 @@ class GarbageCollector(QObject):
         self.threshold = gc.get_threshold()
         gc.disable()
         self.timer.start(self.INTERVAL)
-        #gc.set_debug(gc.DEBUG_SAVEALL)
+        # gc.set_debug(gc.DEBUG_SAVEALL)
 
     def check(self):
-        #return self.debug_cycles()
+        # return self.debug_cycles()
         l0, l1, l2 = gc.get_count()
         if self.debug:
             print ('gc_check called:', l0, l1, l2)
@@ -96,6 +96,10 @@ class MainWindow(QMainWindow):
         preferences_action.setMenuRole(QAction.PreferencesRole)
         quit_action.setMenuRole(QAction.QuitRole)
         return preferences_action, quit_action
+
+    @property
+    def native_menubar(self):
+        return self.___menu_bar
 
     def __init__(self, opts, parent=None, disable_automatic_gc=False):
         QMainWindow.__init__(self, parent)
