@@ -11,8 +11,7 @@ from functools import partial, wraps
 
 from PyQt4.Qt import (
     QObject, QApplication, QDialog, QGridLayout, QLabel, QSize, Qt,
-    QDialogButtonBox, QIcon, QTimer, QPixmap, QTextBrowser, QVBoxLayout,
-    QInputDialog)
+    QDialogButtonBox, QIcon, QTimer, QPixmap, QInputDialog)
 
 from calibre import prints, isbytestring
 from calibre.ptempfile import PersistentTemporaryDirectory, TemporaryDirectory
@@ -425,36 +424,22 @@ class Boss(QObject):
         self.edit_file(name, 'html')
 
     def polish(self, action, name, parent=None):
+        from calibre.gui2.tweak_book.polish import get_customization, show_report
+        customization = get_customization(action, name, parent or self.gui)
+        if customization is None:
+            return
         with BusyCursor():
             self.add_savepoint(_('Before: %s') % name)
             try:
-                report, changed = tweak_polish(current_container(), {action:True})
+                report, changed = tweak_polish(current_container(), {action:True}, customization=customization)
             except:
                 self.rewind_savepoint()
                 raise
             if changed:
                 self.apply_container_update_to_gui()
-            from calibre.ebooks.markdown import markdown
-            report = markdown('# %s\n\n'%self.current_metadata.title + '\n\n'.join(report), output_format='html4')
         if not changed:
             self.rewind_savepoint()
-        d = QDialog(parent or self.gui)
-        d.l = QVBoxLayout()
-        d.setLayout(d.l)
-        d.e = QTextBrowser(d)
-        d.l.addWidget(d.e)
-        d.e.setHtml(report)
-        d.bb = QDialogButtonBox(QDialogButtonBox.Close)
-        if changed:
-            b = d.b = d.bb.addButton(_('See what &changed'), d.bb.AcceptRole)
-            b.setIcon(QIcon(I('diff.png'))), b.setAutoDefault(False)
-            b.clicked.connect(partial(self.show_current_diff, allow_revert=True))
-        d.bb.button(d.bb.Close).setDefault(True)
-        d.l.addWidget(d.bb)
-        d.bb.rejected.connect(d.reject)
-        d.bb.accepted.connect(d.accept)
-        d.resize(600, 400)
-        d.exec_()
+        show_report(changed, self.current_metadata.title, report, parent or self.gui, self.show_current_diff)
 
     def manage_fonts(self):
         self.commit_all_editors_to_container()

@@ -33,6 +33,10 @@ ALL_OPTS = {
     'remove_unused_css':False,
 }
 
+CUSTOMIZATION = {
+    'remove_unused_classes': False,
+}
+
 SUPPORTED = {'EPUB', 'AZW3'}
 
 # Help {{{
@@ -129,10 +133,11 @@ def update_metadata(ebook, new_opf):
         stream.truncate()
         stream.write(opf.render())
 
-def polish_one(ebook, opts, report):
+def polish_one(ebook, opts, report, customization=None):
     rt = lambda x: report('\n### ' + x)
     jacket = None
     changed = False
+    customization = customization or CUSTOMIZATION.copy()
 
     if opts.subset or opts.embed:
         stats = StatsCollector(ebook, do_embed=opts.embed)
@@ -194,7 +199,7 @@ def polish_one(ebook, opts, report):
 
     if opts.remove_unused_css:
         rt(_('Removing unused CSS rules'))
-        if remove_unused_css(ebook, report):
+        if remove_unused_css(ebook, report, remove_unused_classes=customization['remove_unused_classes']):
             changed = True
         report('')
 
@@ -233,13 +238,13 @@ def gui_polish(data):
         log(msg)
     return '\n\n'.join(report)
 
-def tweak_polish(container, actions):
+def tweak_polish(container, actions, customization=None):
     opts = ALL_OPTS.copy()
     opts.update(actions)
     O = namedtuple('Options', ' '.join(ALL_OPTS.iterkeys()))
     opts = O(**opts)
     report = []
-    changed = polish_one(container, opts, report.append)
+    changed = polish_one(container, opts, report.append, customization=customization)
     return report, changed
 
 def option_parser():
