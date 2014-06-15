@@ -312,9 +312,8 @@ if isosx:
                     action = self.gui.iactions[what]
                     self.build_menu(action.qaction)
 
-        def build_menu(self, ac, visible=True):
+        def build_menu(self, ac):
             ans = CloneAction(ac, self.native_menubar, is_top_level=True)
-            ans.setVisible(visible)
             if ans.menu() is None:
                 m = QMenu()
                 m.addAction(CloneAction(ac, self.native_menubar))
