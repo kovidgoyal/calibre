@@ -58,8 +58,7 @@ class Worker(object):
         e = self.exe_name
         if iswindows:
             return os.path.join(os.path.dirname(sys.executable),
-                   e+'.exe' if isfrozen else \
-                           'Scripts\\%s.exe'%e)
+                   e+'.exe' if isfrozen else 'Scripts\\%s.exe'%e)
         if isosx:
             return os.path.join(sys.console_binaries_path, e)
 
@@ -72,11 +71,12 @@ class Worker(object):
                 return c
         return e
 
-
     @property
     def gui_executable(self):
         if isosx:
-           return os.path.join(sys.binaries_path, self.exe_name)
+            if self.job_name in {'ebook-viewer', 'ebook-edit'}:
+                return self.executable.replace('/console.app/', '/%s.app/' % self.job_name)
+            return os.path.join(sys.binaries_path, self.exe_name)
 
         return self.executable
 
@@ -111,13 +111,15 @@ class Worker(object):
 
     @property
     def returncode(self):
-        if not hasattr(self, 'child'): return None
+        if not hasattr(self, 'child'):
+            return None
         self.child.poll()
         return self.child.returncode
 
     @property
     def pid(self):
-        if not hasattr(self, 'child'): return None
+        if not hasattr(self, 'child'):
+            return None
         return getattr(self.child, 'pid', None)
 
     def close_log_file(self):
@@ -143,9 +145,10 @@ class Worker(object):
         except:
             pass
 
-    def __init__(self, env, gui=False):
+    def __init__(self, env, gui=False, job_name=None):
         self._env = {}
         self.gui = gui
+        self.job_name = job_name
         # Windows cannot handle unicode env vars
         for k, v in env.iteritems():
             try:

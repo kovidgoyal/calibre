@@ -188,6 +188,7 @@ class Py2App(object):
             self.compile_py_modules()
 
             self.create_console_app()
+            self.create_gui_apps()
 
         self.copy_site()
         self.create_exe()
@@ -317,8 +318,12 @@ class Py2App(object):
         c = join(self.build_dir, 'Contents')
         for x in ('Frameworks', 'MacOS', 'Resources'):
             os.makedirs(join(c, x))
-        for x in ('library.icns', 'book.icns'):
+        for x in ('book.icns',):
             shutil.copyfile(join('icons', x), join(self.resources_dir, x))
+        for x in glob.glob(join('icons', 'icns', '*.iconset')):
+            subprocess.check_call([
+                'iconutil', '-c', 'icns', x, '-o', join(
+                    self.resources_dir, basename(x).partition('.')[0] + '.icns')])
 
     @flush
     def add_calibre_plugins(self):
@@ -355,7 +360,7 @@ class Py2App(object):
                 NSHumanReadableCopyright='Copyright 2014, Kovid Goyal',
                 CFBundleGetInfoString=('calibre, an E-book management '
                 'application. Visit http://calibre-ebook.com for details.'),
-                CFBundleIconFile='library.icns',
+                CFBundleIconFile='calibre.icns',
                 NSHighResolutionCapable=True,
                 LSApplicationCategoryType='public.app-category.productivity',
                 LSEnvironment=env
@@ -590,11 +595,12 @@ class Py2App(object):
         cc_dir = os.path.join(self.contents_dir, 'console.app', 'Contents')
         os.makedirs(cc_dir)
         for x in os.listdir(self.contents_dir):
-            if x == 'console.app':
+            if x.endswith('.app'):
                 continue
             if x == 'Info.plist':
                 plist = plistlib.readPlist(join(self.contents_dir, x))
                 plist['LSUIElement'] = '1'
+                plist['CFBundleIdentifier'] = 'com.calibre-ebook.console'
                 plist.pop('CFBundleDocumentTypes')
                 plistlib.writePlist(plist, join(cc_dir, x))
             else:
@@ -604,6 +610,26 @@ class Py2App(object):
         # https://github.com/alloy/terminal-notifier
         shutil.copytree(join(SW, 'build/notifier.app'), join(
             self.contents_dir, 'calibre-notifier.app'))
+
+    @flush
+    def create_gui_apps(self):
+        info('\nCreating launcher apps for viewer and editor')
+        for launcher in ('ebook-viewer', 'ebook-edit'):
+            cc_dir = os.path.join(self.contents_dir, launcher + '.app', 'Contents')
+            os.makedirs(cc_dir)
+            for x in os.listdir(self.contents_dir):
+                if x.endswith('.app'):
+                    continue
+                if x == 'Info.plist':
+                    plist = plistlib.readPlist(join(self.contents_dir, x))
+                    plist['CFBundleDisplayName'] = plist['CFBundleName'] = {'ebook-viewer':'E-book Viewer', 'ebook-edit':'Edit Book'}[launcher]
+                    plist['CFBundleExecutable'] = launcher
+                    plist['CFBundleIconFile'] = launcher + '.icns'
+                    plist['CFBundleIdentifier'] = 'com.calibre-ebook.' + launcher
+                    plist.pop('CFBundleDocumentTypes')
+                    plistlib.writePlist(plist, join(cc_dir, x))
+                else:
+                    os.symlink(join('../..', x), join(cc_dir, x))
 
     @flush
     def copy_site(self):

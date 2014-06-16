@@ -159,7 +159,7 @@ class Server(Thread):
 
         self.start()
 
-    def launch_worker(self, gui=False, redirect_output=None):
+    def launch_worker(self, gui=False, redirect_output=None, job_name=None):
         start = time.time()
         with self._worker_launch_lock:
             self.launched_worker_count += 1
@@ -175,15 +175,15 @@ class Server(Thread):
                 'CALIBRE_WORKER_KEY' : hexlify(self.auth_key),
                 'CALIBRE_WORKER_RESULT' : hexlify(rfile.encode('utf-8')),
               }
-        cw = self.do_launch(env, gui, redirect_output, rfile)
+        cw = self.do_launch(env, gui, redirect_output, rfile, job_name=job_name)
         if isinstance(cw, basestring):
             raise CriticalError('Failed to launch worker process:\n'+cw)
         if DEBUG:
             print 'Worker Launch took:', time.time() - start
         return cw
 
-    def do_launch(self, env, gui, redirect_output, rfile):
-        w = Worker(env, gui=gui)
+    def do_launch(self, env, gui, redirect_output, rfile, job_name=None):
+        w = Worker(env, gui=gui, job_name=job_name)
 
         try:
             w(redirect_output=redirect_output)
@@ -204,7 +204,7 @@ class Server(Thread):
         self.add_jobs_queue.put(job)
 
     def run_job(self, job, gui=True, redirect_output=False):
-        w = self.launch_worker(gui=gui, redirect_output=redirect_output)
+        w = self.launch_worker(gui=gui, redirect_output=redirect_output, job_name=getattr(job, 'name', None))
         w.start_job(job)
 
     def run(self):
