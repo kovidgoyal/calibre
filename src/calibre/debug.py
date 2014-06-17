@@ -12,23 +12,23 @@ from calibre.constants import iswindows
 from calibre import prints
 
 def option_parser():
-    parser = OptionParser(usage='''\
+    parser = OptionParser(usage=_('''\
 %prog [options]
 
 Various command line interfaces useful for debugging calibre. With no options,
 this command starts an embedded python interpreter. You can also run the main
-calibre GUI and the calibre viewer in debug mode.
+calibre GUI, the calibre viewer and the calibre editor in debug mode.
 
 It also contains interfaces to various bits of calibre that do not have
-dedicated command line tools, such as font subsetting, editing ebooks and so
+dedicated command line tools, such as font subsetting, the ebook diff tool and so
 on.
 
 You can also use %prog to run standalone scripts. To do that use it like this:
 
-    %prog mysrcipt.py -- --option1 --option2 file1 file2 ...
+    %prog myscript.py -- --option1 --option2 file1 file2 ...
 
 Everything after the -- is passed to the script.
-''')
+'''))
     parser.add_option('-c', '--command', help='Run python code.')
     parser.add_option('-e', '--exec-file', help='Run the python code in file.')
     parser.add_option('-f', '--subset-font', help='Subset the specified font')
