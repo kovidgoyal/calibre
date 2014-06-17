@@ -109,7 +109,7 @@ def get_decoded_raw(name):
             raw = xml_to_unicode(raw, verbose=True)[0]
         else:
             m = re.search(r"coding[:=]\s*([-\w.]+)", raw[:1024], flags=re.I)
-            if m is not None:
+            if m is not None and m.group(1) != '8bit':
                 enc = m.group(1)
             else:
                 enc = force_encoding(raw, verbose=True)
@@ -137,6 +137,7 @@ def dir_diff(left, right):
                 path = os.path.join(dirpath, filename)
                 name = os.path.relpath(path, base)
                 data[name], smap[name] = get_decoded_raw(path)
+                print (1111111, name, type(data[name]))
     cache, changed_names, renamed_names, removed_names, added_names = changed_files(
         ldata, rdata, ldata.get, rdata.get)
 
