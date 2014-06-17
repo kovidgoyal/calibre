@@ -263,11 +263,11 @@ Remove books
 
     3. **Remove all formats from selected books, except...**: Allows you to **permanently** remove ebook files of any format except a specified format from books that are selected in the book list.
 
-    3. **Remove all formats from selected books**: Allows you to **permanently** remove all ebook files from books that are selected in the book list. Only the metadata will remain.
+    4. **Remove all formats from selected books**: Allows you to **permanently** remove all ebook files from books that are selected in the book list. Only the metadata will remain.
 
-    4. **Remove covers from selected books**: Allows you to **permanently** remove cover image files from books that are selected in the book list.
+    5. **Remove covers from selected books**: Allows you to **permanently** remove cover image files from books that are selected in the book list.
 
-    5. **Remove matching books from device**: Allows you to remove ebook files from a connected device that match the books that are selected in the book list.
+    6. **Remove matching books from device**: Allows you to remove ebook files from a connected device that match the books that are selected in the book list.
 
 .. note::
     Note that when you use Remove books to delete books from your |app| library, the book record is permanently deleted, but on Windows and OS X the files are placed into the recycle bin. This allows you to recover them if you change your mind.
