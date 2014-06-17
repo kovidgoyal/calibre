@@ -13,7 +13,7 @@ from PyQt4.Qt import QPixmap, QTimer
 
 from calibre import as_unicode
 from calibre.gui2 import (error_dialog, choose_files, choose_dir,
-        warning_dialog, info_dialog)
+        warning_dialog, info_dialog, gprefs)
 from calibre.gui2.dialogs.add_empty_book import AddEmptyBookDialog
 from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.gui2.dialogs.progress import ProgressDialog
@@ -25,6 +25,7 @@ from calibre.constants import filesystem_encoding
 from calibre.gui2.actions import InterfaceAction
 from calibre.gui2 import question_dialog
 from calibre.ebooks.metadata import MetaInformation
+from calibre.ptempfile import PersistentTemporaryFile
 
 def get_filters():
     return [
@@ -194,6 +195,7 @@ class AddAction(InterfaceAction):
         dlg = AddEmptyBookDialog(self.gui, self.gui.library_view.model().db,
                                  author, series)
         if dlg.exec_() == dlg.Accepted:
+            temp_files = []
             num = dlg.qty_to_add
             series = dlg.selected_series
             db = self.gui.library_view.model().db
@@ -203,7 +205,15 @@ class AddAction(InterfaceAction):
                 if series:
                     mi.series = series
                     mi.series_index = db.get_next_series_num_for(series)
-                ids.append(db.import_book(mi, []))
+                fmts = []
+                if gprefs.get('create_empty_epub_file', False):
+                    from calibre.ebooks.oeb.polish.create import create_book
+                    pt = PersistentTemporaryFile(suffix='.epub')
+                    pt.close()
+                    temp_files.append(pt.name)
+                    create_book(mi, pt.name)
+                    fmts = [pt.name]
+                ids.append(db.import_book(mi, fmts))
             self.gui.library_view.model().books_added(num)
             if hasattr(self.gui, 'db_images'):
                 self.gui.db_images.reset()
@@ -211,6 +221,8 @@ class AddAction(InterfaceAction):
             if ids:
                 ids.reverse()
                 self.gui.library_view.select_rows(ids)
+            for path in temp_files:
+                os.remove(path)
 
     def add_isbns(self, books, add_tags=[]):
         self.isbn_books = list(books)

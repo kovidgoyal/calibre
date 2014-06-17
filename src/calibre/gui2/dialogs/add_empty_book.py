@@ -5,10 +5,11 @@ __license__   = 'GPL v3'
 
 
 from PyQt4.Qt import QDialog, QGridLayout, QLabel, QDialogButtonBox,  \
-            QApplication, QSpinBox, QToolButton, QIcon
+            QApplication, QSpinBox, QToolButton, QIcon, QCheckBox
 from calibre.ebooks.metadata import string_to_authors
 from calibre.gui2.complete2 import EditWithComplete
 from calibre.utils.config import tweaks
+from calibre.gui2 import gprefs
 
 class AddEmptyBookDialog(QDialog):
 
@@ -61,11 +62,22 @@ class AddEmptyBookDialog(QDialog):
         self.sclear_button.clicked.connect(self.reset_series)
         self._layout.addWidget(self.sclear_button, 5, 1, 1, 1)
 
-        button_box = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
+        self.create_epub = c = QCheckBox(_('Create an empty EPUB file as well'))
+        c.setChecked(gprefs.get('create_empty_epub_file', False))
+        c.setToolTip(_('Also create an empty EPUB file that you can subsequently edit'))
+        self._layout.addWidget(c, 6, 0, 1, -1)
+
+        button_box = self.bb = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
         button_box.accepted.connect(self.accept)
         button_box.rejected.connect(self.reject)
-        self._layout.addWidget(button_box)
+        self._layout.addWidget(button_box, 7, 0, 1, -1)
         self.resize(self.sizeHint())
+
+    def accept(self):
+        oval = gprefs.get('create_empty_epub_file', False)
+        if self.create_epub.isChecked() != oval:
+            gprefs['create_empty_epub_file'] = self.create_epub.isChecked()
+        return QDialog.accept(self)
 
     def reset_author(self, *args):
         self.authors_combo.setEditText(_('Unknown'))
