@@ -184,10 +184,16 @@ def render_options(cmd, groups, options_header=True, add_program=True):
                 y.get_opt_string())):
             help = opt.help if opt.help else ''
             help = help.replace('\n', ' ').replace('*', '\\*').replace('%default', str(opt.default))
+            help = mark_options(help)
             opt = opt.get_opt_string() + ((', '+', '.join(opt._short_opts)) if opt._short_opts else '')
             opt = '.. cmdoption:: '+opt
             lines.extend([opt, '', '    '+help, ''])
     return lines
+
+def mark_options(raw):
+    raw = re.sub(r'(\s+)--(\s+)', r'\1``--``\2', raw)
+    raw = re.sub(r'(--[a-zA-Z0-9_=,-]+)', r':option:`\1`', raw)
+    return raw
 
 def cli_docs(app):
     info = app.builder.info
@@ -209,8 +215,8 @@ def cli_docs(app):
     documented_cmds.sort(cmp=lambda x, y: cmp(x[0], y[0]))
     undocumented_cmds.sort()
 
-    documented = [' '*4 + cmd[0] for cmd in documented_cmds]
-    undocumented = ['  * ' + cmd for cmd in undocumented_cmds]
+    documented = [' '*4 + c[0] for c in documented_cmds]
+    undocumented = ['  * ' + c for c in undocumented_cmds]
 
     raw = CLI_INDEX.format(documented='\n'.join(documented),
             undocumented='\n'.join(undocumented))
@@ -219,7 +225,7 @@ def cli_docs(app):
     update_cli_doc(os.path.join('cli', 'cli-index.rst'), raw, info)
 
     for cmd, parser in documented_cmds:
-        usage = [i for i in parser.usage.replace('%prog', cmd).splitlines()]
+        usage = [mark_options(i) for i in parser.usage.replace('%prog', cmd).splitlines()]
         cmdline = usage[0]
         usage = usage[1:]
         usage = [i.replace(cmd, ':command:`%s`'%cmd) for i in usage]
