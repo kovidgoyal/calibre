@@ -302,6 +302,7 @@ class Sdist(Command):
                 dest = self.j(destdir, self.b(y))
                 if not os.path.exists(dest):
                     shutil.copy2(y, dest)
+        shutil.copytree(self.j(tbase, 'manual'), self.j(tdir, 'translations', 'manual'))
 
         self.info('\tCreating tarfile...')
         subprocess.check_call(['tar', '-cJf', self.a(self.DEST),

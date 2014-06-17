@@ -24,6 +24,7 @@ class POT(Command):  # {{{
 
     description = 'Update the .pot translation template and upload it'
     TRANSLATIONS = os.path.join(os.path.dirname(Command.SRC), 'translations')
+    MANUAL = os.path.join(os.path.dirname(Command.SRC), 'manual')
 
     def tx(self, cmd, **kw):
         kw['cwd'] = kw.get('cwd', self.TRANSLATIONS)
@@ -31,8 +32,15 @@ class POT(Command):  # {{{
             cmd = shlex.split(cmd)
         return subprocess.check_call(['tx'] + cmd, **kw)
 
-    def upload_pot(self, pot):
-        self.tx('push -r calibre.main -s', cwd=self.TRANSLATIONS)
+    def git(self, cmd, **kw):
+        kw['cwd'] = kw.get('cwd', self.TRANSLATIONS)
+        if hasattr(cmd, 'format'):
+            cmd = shlex.split(cmd)
+        f = getattr(subprocess, ('call' if kw.pop('use_call', False) else 'check_call'))
+        return f(['git'] + cmd, **kw)
+
+    def upload_pot(self, pot, resource='main'):
+        self.tx(['push', '-r', 'calibre.'+resource, '-s'], cwd=self.TRANSLATIONS)
 
     def source_files(self):
         ans = []
@@ -74,8 +82,40 @@ class POT(Command):  # {{{
 
         return '\n'.join(ans)
 
+    def get_user_manual_docs(self):
+        self.info('Generating translation templates for user_manual')
+        base = '.build/gettext'
+        subprocess.check_call(['sphinx-build', '-b', 'gettext', '.', base], cwd=self.MANUAL)
+        base, tbase = self.j(self.MANUAL, base), self.j(self.TRANSLATIONS, 'manual')
+        for x in os.listdir(base):
+            if not x.endswith('.pot'):
+                continue
+            src, dest = self.j(base, x), self.j(tbase, x)
+            needs_import = not os.path.exists(dest)
+            with open(src, 'rb') as s, open(dest, 'wb') as d:
+                shutil.copyfileobj(s, d)
+            bname = os.path.splitext(x)[0]
+            slug = 'user_manual_' + bname
+            if needs_import:
+                self.tx(['set', '-r', 'calibre.' + slug, '--source', '-l', 'en', '-t', 'PO', dest])
+                with open(self.j(self.d(tbase), '.tx/config'), 'r+b') as f:
+                    lines = f.read().splitlines()
+                    for i in xrange(len(lines)):
+                        line = lines[i]
+                        if line == '[calibre.%s]' % slug:
+                            lines.insert(i+1, 'file_filter = manual/<lang>/%s.po' % bname)
+                            f.seek(0), f.truncate(), f.write('\n'.join(lines))
+                            break
+                    else:
+                        self.info('Failed to add file_filter to config file')
+                        raise SystemExit(1)
+                self.git('add .tx/config')
+            self.upload_pot(dest, resource=slug)
+            self.git(['add', dest])
+
     def run(self, opts):
         require_git_master()
+        self.get_user_manual_docs()
         pot_header = textwrap.dedent('''\
         # Translation template file..
         # Copyright (C) %(year)s Kovid Goyal
@@ -135,6 +175,12 @@ class POT(Command):  # {{{
                 f.write(src)
             self.info('Translations template:', os.path.abspath(pot))
             self.upload_pot(os.path.abspath(pot))
+
+            self.git(['add', os.path.abspath(pot)])
+
+        if self.git('diff-index --cached --quiet --ignore-submodules HEAD --', use_call=True) != 0:
+            self.git(['commit', '-m', 'Updated translation templates'])
+            self.git('push')
 
         return pot
 # }}}
