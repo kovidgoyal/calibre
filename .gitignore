@@ -30,9 +30,7 @@ src/cssutils/stylesheets/.svn/
 src/odf/.svn
 tags
 nbproject/
-translations/calibre/*.po
-translations/calibre/*.pot
-translations/iso_639/*.po
+translations/
 *.mdproj
 *.pidb
 *.sln
