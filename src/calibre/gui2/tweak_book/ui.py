@@ -16,12 +16,13 @@ from PyQt4.Qt import (
     QVBoxLayout, QStackedWidget, QTabWidget, QImage, QPixmap, pyqtSignal,
     QMenu, QHBoxLayout, QTimer, QUrl)
 
-from calibre.constants import __appname__, get_version, isosx
+from calibre import prints
+from calibre.constants import __appname__, get_version, isosx, DEBUG
 from calibre.gui2 import elided_text, open_url
 from calibre.gui2.keyboard import Manager as KeyboardManager
 from calibre.gui2.main_window import MainWindow
 from calibre.gui2.throbber import ThrobbingButton, create_donate_widget
-from calibre.gui2.tweak_book import current_container, tprefs, actions, capitalize
+from calibre.gui2.tweak_book import current_container, tprefs, actions, capitalize, toolbar_actions
 from calibre.gui2.tweak_book.file_list import FileListWidget
 from calibre.gui2.tweak_book.job import BlockingJob
 from calibre.gui2.tweak_book.boss import Boss
@@ -278,11 +279,13 @@ class Main(MainWindow):
     def create_actions(self):
         group = _('Global Actions')
 
-        def reg(icon, text, target, sid, keys, description):
+        def reg(icon, text, target, sid, keys, description, toolbar_allowed=False):
             if not isinstance(icon, QIcon):
                 icon = QIcon(I(icon))
             ac = actions[sid] = QAction(icon, text, self) if icon else QAction(text, self)
             ac.setObjectName('action-' + sid)
+            if toolbar_allowed:
+                toolbar_actions[sid] = ac
             if target is not None:
                 ac.triggered.connect(target)
             if isinstance(keys, type('')):
@@ -291,26 +294,28 @@ class Main(MainWindow):
                 sid, unicode(ac.text()).replace('&', ''), default_keys=keys, description=description, action=ac, group=group)
             self.addAction(ac)
             return ac
+        def treg(icon, text, target, sid, keys, description):
+            return reg(icon, text, target, sid, keys, description, toolbar_allowed=icon is not None)
 
-        self.action_new_file = reg('document-new.png', _('&New file (images/fonts/HTML/etc.)'), self.boss.add_file,
+        self.action_new_file = treg('document-new.png', _('&New file (images/fonts/HTML/etc.)'), self.boss.add_file,
                                    'new-file', (), _('Create a new file in the current book'))
-        self.action_import_files = reg(None, _('&Import files into book'), self.boss.add_files, 'new-files', (), _('Import files into book'))
-        self.action_open_book = reg('document_open.png', _('Open &book'), self.boss.open_book, 'open-book', 'Ctrl+O', _('Open a new book'))
+        self.action_import_files = treg(None, _('&Import files into book'), self.boss.add_files, 'new-files', (), _('Import files into book'))
+        self.action_open_book = treg('document_open.png', _('Open &book'), self.boss.open_book, 'open-book', 'Ctrl+O', _('Open a new book'))
         # Qt does not generate shortcut overrides for cmd+arrow on os x which
         # means these shortcuts interfere with editing
-        self.action_global_undo = reg('back.png', _('&Revert to before'), self.boss.do_global_undo, 'global-undo', () if isosx else 'Ctrl+Left',
+        self.action_global_undo = treg('back.png', _('&Revert to before'), self.boss.do_global_undo, 'global-undo', () if isosx else 'Ctrl+Left',
                                       _('Revert book to before the last action (Undo)'))
-        self.action_global_redo = reg('forward.png', _('&Revert to after'), self.boss.do_global_redo, 'global-redo', () if isosx else 'Ctrl+Right',
+        self.action_global_redo = treg('forward.png', _('&Revert to after'), self.boss.do_global_redo, 'global-redo', () if isosx else 'Ctrl+Right',
                                       _('Revert book state to after the next action (Redo)'))
-        self.action_save = reg('save.png', _('&Save'), self.boss.save_book, 'save-book', 'Ctrl+S', _('Save book'))
+        self.action_save = treg('save.png', _('&Save'), self.boss.save_book, 'save-book', 'Ctrl+S', _('Save book'))
         self.action_save.setEnabled(False)
-        self.action_save_copy = reg('save.png', _('Save a &copy'), self.boss.save_copy, 'save-copy', 'Ctrl+Alt+S', _('Save a copy of the book'))
-        self.action_quit = reg('quit.png', _('&Quit'), self.boss.quit, 'quit', 'Ctrl+Q', _('Quit'))
-        self.action_preferences = reg('config.png', _('&Preferences'), self.boss.preferences, 'preferences', 'Ctrl+P', _('Preferences'))
-        self.action_new_book = reg('book.png', _('Create &new, empty book'), self.boss.new_book, 'new-book', (), _('Create a new, empty book'))
-        self.action_import_book = reg('book.png', _('&Import an HTML or DOCX file as a new book'),
+        self.action_save_copy = treg('save.png', _('Save a &copy'), self.boss.save_copy, 'save-copy', 'Ctrl+Alt+S', _('Save a copy of the book'))
+        self.action_quit = treg('quit.png', _('&Quit'), self.boss.quit, 'quit', 'Ctrl+Q', _('Quit'))
+        self.action_preferences = treg('config.png', _('&Preferences'), self.boss.preferences, 'preferences', 'Ctrl+P', _('Preferences'))
+        self.action_new_book = treg('book.png', _('Create &new, empty book'), self.boss.new_book, 'new-book', (), _('Create a new, empty book'))
+        self.action_import_book = treg('book.png', _('&Import an HTML or DOCX file as a new book'),
                                       self.boss.import_book, 'import-book', (), _('Import an HTML or DOCX file as a new book'))
-        self.action_quick_edit = reg('modified.png', _('&Quick open a file to edit'), self.boss.quick_open, 'quick-open', ('Ctrl+T'), _(
+        self.action_quick_edit = treg('modified.png', _('&Quick open a file to edit'), self.boss.quick_open, 'quick-open', ('Ctrl+T'), _(
             'Quickly open a file from the book to edit it'))
 
         # Editor actions
@@ -330,45 +335,45 @@ class Main(MainWindow):
         self.action_editor_undo.setEnabled(False)
         self.action_editor_redo.setEnabled(False)
 
+        # Tool actions
+        group = _('Tools')
+        self.action_toc = treg('toc.png', _('&Edit Table of Contents'), self.boss.edit_toc, 'edit-toc', (), _('Edit Table of Contents'))
+        self.action_inline_toc = treg('chapters.png', _('&Insert inline Table of Contents'),
+                                     self.boss.insert_inline_toc, 'insert-inline-toc', (), _('Insert inline Table of Contents'))
+        self.action_fix_html_current = reg('html-fix.png', _('&Fix HTML'), partial(self.boss.fix_html, True), 'fix-html-current', (),
+                                           _('Fix HTML in the current file'))
+        self.action_fix_html_all = treg('html-fix.png', _('&Fix HTML - all files'), partial(self.boss.fix_html, False), 'fix-html-all', (),
+                                       _('Fix HTML in all files'))
+        self.action_pretty_current = reg('beautify.png', _('&Beautify current file'), partial(self.boss.pretty_print, True), 'pretty-current', (),
+                                           _('Beautify current file'))
+        self.action_pretty_all = treg('beautify.png', _('&Beautify all files'), partial(self.boss.pretty_print, False), 'pretty-all', (),
+                                       _('Beautify all files'))
+        self.action_insert_char = treg('character-set.png', _('&Insert special character'), self.boss.insert_character, 'insert-character', (),
+                                      _('Insert special character'))
+        self.action_rationalize_folders = treg('mimetypes/dir.png', _('&Arrange into folders'), self.boss.rationalize_folders, 'rationalize-folders', (),
+                                      _('Arrange into folders'))
+        self.action_set_semantics = treg('tags.png', _('Set &Semantics'), self.boss.set_semantics, 'set-semantics', (),
+                                        _('Set Semantics'))
+        self.action_filter_css = treg('filter.png', _('&Filter style information'), self.boss.filter_css, 'filter-css', (),
+                                     _('Filter style information'))
+        self.action_manage_fonts = treg('font.png', _('Manage &fonts'), self.boss.manage_fonts, 'manage-fonts', (), _('Manage fonts in the book'))
+
         def ereg(icon, text, target, sid, keys, description):
             return reg(icon, text, partial(self.boss.editor_action, target), sid, keys, description)
         register_text_editor_actions(ereg, self.palette())
 
-        # Tool actions
-        group = _('Tools')
-        self.action_toc = reg('toc.png', _('&Edit Table of Contents'), self.boss.edit_toc, 'edit-toc', (), _('Edit Table of Contents'))
-        self.action_inline_toc = reg('chapters.png', _('&Insert inline Table of Contents'),
-                                     self.boss.insert_inline_toc, 'insert-inline-toc', (), _('Insert inline Table of Contents'))
-        self.action_fix_html_current = reg('html-fix.png', _('&Fix HTML'), partial(self.boss.fix_html, True), 'fix-html-current', (),
-                                           _('Fix HTML in the current file'))
-        self.action_fix_html_all = reg('html-fix.png', _('&Fix HTML - all files'), partial(self.boss.fix_html, False), 'fix-html-all', (),
-                                       _('Fix HTML in all files'))
-        self.action_pretty_current = reg('beautify.png', _('&Beautify current file'), partial(self.boss.pretty_print, True), 'pretty-current', (),
-                                           _('Beautify current file'))
-        self.action_pretty_all = reg('beautify.png', _('&Beautify all files'), partial(self.boss.pretty_print, False), 'pretty-all', (),
-                                       _('Beautify all files'))
-        self.action_insert_char = reg('character-set.png', _('&Insert special character'), self.boss.insert_character, 'insert-character', (),
-                                      _('Insert special character'))
-        self.action_rationalize_folders = reg('mimetypes/dir.png', _('&Arrange into folders'), self.boss.rationalize_folders, 'rationalize-folders', (),
-                                      _('Arrange into folders'))
-        self.action_set_semantics = reg('tags.png', _('Set &Semantics'), self.boss.set_semantics, 'set-semantics', (),
-                                        _('Set Semantics'))
-        self.action_filter_css = reg('filter.png', _('&Filter style information'), self.boss.filter_css, 'filter-css', (),
-                                     _('Filter style information'))
-        self.action_manage_fonts = reg('font.png', _('Manage &fonts'), self.boss.manage_fonts, 'manage-fonts', (), _('Manage fonts in the book'))
-
         # Polish actions
         group = _('Polish Book')
-        self.action_subset_fonts = reg(
+        self.action_subset_fonts = treg(
             'subset-fonts.png', _('&Subset embedded fonts'), partial(
                 self.boss.polish, 'subset', _('Subset fonts')), 'subset-fonts', (), _('Subset embedded fonts'))
-        self.action_embed_fonts = reg(
+        self.action_embed_fonts = treg(
             'embed-fonts.png', _('&Embed referenced fonts'), partial(
                 self.boss.polish, 'embed', _('Embed fonts')), 'embed-fonts', (), _('Embed referenced fonts'))
-        self.action_smarten_punctuation = reg(
+        self.action_smarten_punctuation = treg(
             'smarten-punctuation.png', _('&Smarten punctuation'), partial(
                 self.boss.polish, 'smarten_punctuation', _('Smarten punctuation')), 'smarten-punctuation', (), _('Smarten punctuation'))
-        self.action_remove_unused_css = reg(
+        self.action_remove_unused_css = treg(
             'edit-clear.png', _('Remove &unused CSS rules'), partial(
                 self.boss.polish, 'remove_unused_css', _('Remove unused CSS rules')), 'remove-unused-css', (), _('Remove unused CSS rules'))
 
@@ -385,7 +390,7 @@ class Main(MainWindow):
 
         # Search actions
         group = _('Search')
-        self.action_find = reg('search.png', _('&Find/Replace'), self.boss.show_find, 'find-replace', ('Ctrl+F',), _('Show the Find/Replace panel'))
+        self.action_find = treg('search.png', _('&Find/Replace'), self.boss.show_find, 'find-replace', ('Ctrl+F',), _('Show the Find/Replace panel'))
         def sreg(name, text, action, overrides={}, keys=(), description=None, icon=None):
             return reg(icon, text, partial(self.boss.search, action, overrides), name, keys, description or text.replace('&', ''))
         self.action_find_next = sreg('find-next', _('Find &Next'),
@@ -408,8 +413,8 @@ class Main(MainWindow):
 
         # Check Book actions
         group = _('Check Book')
-        self.action_check_book = reg('debug.png', _('&Check Book'), self.boss.check_requested, 'check-book', ('F7'), _('Check book for errors'))
-        self.action_spell_check_book = reg('spell-check.png', _('Check &spelling'), self.boss.spell_check_requested, 'spell-check-book', ('Alt+F7'), _(
+        self.action_check_book = treg('debug.png', _('&Check Book'), self.boss.check_requested, 'check-book', ('F7'), _('Check book for errors'))
+        self.action_spell_check_book = treg('spell-check.png', _('Check &spelling'), self.boss.spell_check_requested, 'spell-check-book', ('Alt+F7'), _(
             'Check book for spelling errors'))
         self.action_check_book_next = reg('forward.png', _('&Next error'), partial(
             self.check_book.next_error, delta=1), 'check-book-next', ('Ctrl+F7'), _('Show next error'))
@@ -420,7 +425,7 @@ class Main(MainWindow):
 
         # Miscellaneous actions
         group = _('Miscellaneous')
-        self.action_create_checkpoint = reg(
+        self.action_create_checkpoint = treg(
             'marked.png', _('&Create checkpoint'), self.boss.create_checkpoint, 'create-checkpoint', (), _(
                 'Create a checkpoint with the current state of the book'))
         self.action_close_current_tab = reg(
@@ -429,16 +434,16 @@ class Main(MainWindow):
         self.action_close_all_but_current_tab = reg(
             'edit-clear.png', _('&Close other tabs'), self.central.close_all_but_current_editor, 'close-all-but-current-tab', 'Ctrl+Alt+W', _(
                 'Close all tabs except the current tab'))
-        self.action_help = reg(
+        self.action_help = treg(
             'help.png', _('User &Manual'), lambda : open_url(QUrl('http://manual.calibre-ebook.com/edit.html')), 'user-manual', 'F1', _(
                 'Show User Manual'))
-        self.action_browse_images = reg(
+        self.action_browse_images = treg(
             'view-image.png', _('&Browse images in book'), self.boss.browse_images, 'browse-images', (), _(
                 'Browse images in the books visually'))
-        self.action_multiple_split = reg(
+        self.action_multiple_split = treg(
             'auto_author_sort.png', _('&Split at multiple locations'), self.boss.multisplit, 'multisplit', (), _(
                 'Split HTML file at multiple locations'))
-        self.action_compare_book = reg('diff.png', _('&Compare to another book'), self.boss.compare_book, 'compare-book', (), _(
+        self.action_compare_book = treg('diff.png', _('&Compare to another book'), self.boss.compare_book, 'compare-book', (), _(
             'Compare to another book'))
 
     def create_menubar(self):
@@ -547,33 +552,43 @@ class Main(MainWindow):
             name += '-bar'
             b = self.addToolBar(text)
             b.setObjectName(name)  # Needed for saveState
-            setattr(self, name.replace('-', '_'), b)
             actions[name] = b.toggleViewAction()
             return b
+        self.global_bar = create(_('Book tool bar'), 'global')
+        self.tools_bar = create(_('Tools tool bar'), 'tools')
+        self.populate_toolbars(animate=True)
 
-        a = create(_('Book tool bar'), 'global').addAction
-        for x in ('new_file', 'open_book', None, 'global_undo', 'global_redo', 'create_checkpoint', 'save', None, 'toc', 'check_book', 'spell_check_book'):
-            if x is None:
-                self.global_bar.addSeparator()
-                continue
-            a(getattr(self, 'action_' + x))
-        self.donate_button = b = ThrobbingButton(self)
-        b.clicked.connect(open_donate)
-        b.setAutoRaise(True)
-        self.donate_widget = w = create_donate_widget(b)
-        if hasattr(w, 'filler'):
-            w.filler.setVisible(False)
-        b.set_normal_icon_size(self.global_bar.iconSize().width(), self.global_bar.iconSize().height())
-        b.setIcon(QIcon(I('donate.png')))
-        b.setToolTip(_('Donate to support calibre development'))
-        QTimer.singleShot(10, b.start_animation)
-        self.global_bar.addWidget(w)
-        self.global_bar.addAction(self.action_insert_char)
-        a(self.action_help)
+    def populate_toolbars(self, animate=False):
+        self.global_bar.clear(), self.tools_bar.clear()
+        def add(bar, ac):
+            if ac is None:
+                bar.addSeparator()
+            elif ac == 'donate':
+                if not hasattr(self, 'donate_button'):
+                    self.donate_button = b = ThrobbingButton(self)
+                    b.clicked.connect(open_donate)
+                    b.setAutoRaise(True)
+                    self.donate_widget = w = create_donate_widget(b)
+                    if hasattr(w, 'filler'):
+                        w.filler.setVisible(False)
+                    b.set_normal_icon_size(self.global_bar.iconSize().width(), self.global_bar.iconSize().height())
+                    b.setIcon(QIcon(I('donate.png')))
+                    b.setToolTip(_('Donate to support calibre development'))
+                    if animate:
+                        QTimer.singleShot(10, b.start_animation)
+                    bar.addWidget(w)
+            else:
+                try:
+                    bar.addAction(actions[ac])
+                except KeyError:
+                    if DEBUG:
+                        prints('Unknown action for toolbar %r: %r' % (unicode(bar.objectName()), ac))
 
-        a = create(_('Polish book tool bar'), 'polish').addAction
-        for x in ('manage_fonts', 'embed_fonts', 'subset_fonts', 'smarten_punctuation', 'remove_unused_css'):
-            a(getattr(self, 'action_' + x))
+        for x in tprefs['global_book_toolbar']:
+            add(self.global_bar, x)
+
+        for x in tprefs['global_tools_toolbar']:
+            add(self.tools_bar, x)
 
     def create_docks(self):
 

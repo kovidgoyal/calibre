@@ -49,6 +49,14 @@ d['spell_check_case_sensitive_sort'] = False
 d['inline_spell_check'] = True
 d['custom_themes'] = {}
 d['remove_unused_classes'] = False
+d['global_book_toolbar'] = [
+'new-file', 'open-book',  'save-book', None, 'global-undo', 'global-redo', 'create-checkpoint', None, 'donate', 'user-manual']
+d['global_tools_toolbar'] = ['check-book', 'spell-check-book', 'edit-toc', 'insert-character', 'manage-fonts', 'smarten-punctuation', 'remove-unused-css']
+d['editor_css_toolbar'] = ['pretty-current', 'insert-image']
+d['editor_xml_toolbar'] = ['pretty-current', 'insert-tag']
+d['editor_html_toolbar'] = ['fix-html-current', 'pretty-current', 'insert-image', 'insert-hyperlink', 'insert-tag', 'change-paragraph']
+d['editor_format_toolbar'] = [('format-text-' + x) for x in (
+'bold', 'italic', 'underline', 'strikethrough', 'subscript', 'superscript', 'color', 'background-color')]
 
 del d
 
@@ -74,6 +82,10 @@ class NonReplaceDict(dict):
 
 actions = NonReplaceDict()
 editors = NonReplaceDict()
+toolbar_actions = NonReplaceDict()
+editor_toolbar_actions = {
+    'html':NonReplaceDict(), 'xml':NonReplaceDict(), 'css':NonReplaceDict()}
+
 TOP = object()
 dictionaries = Dictionaries()
 

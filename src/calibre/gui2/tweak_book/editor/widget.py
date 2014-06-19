@@ -11,10 +11,12 @@ from functools import partial
 
 from PyQt4.Qt import (
     QMainWindow, Qt, QApplication, pyqtSignal, QMenu, qDrawShadeRect, QPainter,
-    QImage, QColor, QIcon, QPixmap, QToolButton)
+    QImage, QColor, QIcon, QPixmap, QToolButton, QAction)
 
+from calibre import prints
+from calibre.constants import DEBUG
 from calibre.gui2 import error_dialog
-from calibre.gui2.tweak_book import actions, current_container, tprefs, dictionaries
+from calibre.gui2.tweak_book import actions, current_container, tprefs, dictionaries, editor_toolbar_actions
 from calibre.gui2.tweak_book.editor import SPELL_PROPERTY
 from calibre.gui2.tweak_book.editor.text import TextEdit
 from calibre.utils.icu import utf16_length
@@ -34,7 +36,13 @@ def create_icon(text, palette=None, sz=32, divider=2):
     p.end()
     return QIcon(QPixmap.fromImage(img))
 
-def register_text_editor_actions(reg, palette):
+def register_text_editor_actions(_reg, palette):
+    def reg(*args, **kw):
+        ac = _reg(*args)
+        for s in kw.get('syntaxes', ('html',)):
+            editor_toolbar_actions[s][args[3]] = ac
+        return ac
+
     ac = reg('format-text-bold', _('&Bold'), ('format_text', 'bold'), 'format-text-bold', 'Ctrl+B', _('Make the selected text bold'))
     ac.setToolTip(_('<h3>Bold</h3>Make the selected text bold'))
     ac = reg('format-text-italic', _('&Italic'), ('format_text', 'italic'), 'format-text-italic', 'Ctrl+I', _('Make the selected text italic'))
@@ -56,21 +64,26 @@ def register_text_editor_actions(reg, palette):
              'format-text-background-color', (), _('Change background color of text'))
     ac.setToolTip(_('<h3>Background Color</h3>Change the background color of the selected text'))
 
-    ac = reg('view-image', _('&Insert image'), ('insert_resource', 'image'), 'insert-image', (), _('Insert an image into the text'))
+    ac = reg('view-image', _('&Insert image'), ('insert_resource', 'image'), 'insert-image', (), _('Insert an image into the text'), syntaxes=('html', 'css'))
     ac.setToolTip(_('<h3>Insert image</h3>Insert an image into the text'))
 
-    ac = reg('insert-link', _('Insert &hyperlink'), ('insert_hyperlink',), 'insert-hyperlink', (), _('Insert hyperlink'))
+    ac = reg('insert-link', _('Insert &hyperlink'), ('insert_hyperlink',), 'insert-hyperlink', (), _('Insert hyperlink'), syntaxes=('html', 'css'))
     ac.setToolTip(_('<h3>Insert hyperlink</h3>Insert a hyperlink into the text'))
 
     for i, name in enumerate(('h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p')):
         text = ('&' + name) if name == 'p' else (name[0] + '&' + name[1])
         desc = _('Convert the paragraph to &lt;%s&gt;') % name
-        ac = reg(create_icon(name), text, ('rename_block_tag', name), 'rename-block-tag-' + name, 'Ctrl+%d' % (i + 1), desc)
+        ac = reg(create_icon(name), text, ('rename_block_tag', name), 'rename-block-tag-' + name, 'Ctrl+%d' % (i + 1), desc, syntaxes=())
         ac.setToolTip(desc)
 
-    ac = reg('code', _('Insert &tag'), ('insert_tag',), 'insert-tag', ('Ctrl+<'), _('Insert tag'))
+    ac = reg('code', _('Insert &tag'), ('insert_tag',), 'insert-tag', ('Ctrl+<'), _('Insert tag'), syntaxes=('html', 'xml'))
     ac.setToolTip(_('<h3>Insert tag</h3>Insert a tag, if some text is selected the tag will be inserted around the selected text'))
 
+    editor_toolbar_actions['html']['fix-html-current'] = actions['fix-html-current']
+    for s in ('xml', 'html', 'css'):
+        editor_toolbar_actions[s]['pretty-current'] = actions['pretty-current']
+    editor_toolbar_actions['html']['change-paragraph'] = actions['change-paragraph'] = QAction(
+        QIcon(I('format-text-heading.png')), _('Change paragraph to heading'), ac.parent())
 
 class Editor(QMainWindow):
 
@@ -159,7 +172,7 @@ class Editor(QMainWindow):
         self.editor.insert_hyperlink(href, text)
 
     def _build_insert_tag_button_menu(self):
-        m = self.insert_tag_button.menu()
+        m = self.insert_tag_menu
         m.clear()
         for name in tprefs['insert_tag_mru']:
             m.addAction(name, partial(self.insert_tag, name))
@@ -231,33 +244,42 @@ class Editor(QMainWindow):
         self.tools_bar = b = self.addToolBar(_('Editor tools'))
         b.setObjectName('tools_bar')
         if self.syntax == 'html':
-            b.addAction(actions['fix-html-current'])
-        if self.syntax in {'xml', 'html', 'css'}:
-            b.addAction(actions['pretty-current'])
-        if self.syntax in {'html', 'css'}:
-            b.addAction(actions['insert-image'])
-        if self.syntax == 'html':
-            b.addAction(actions['insert-hyperlink'])
-        if self.syntax in {'xml', 'html'}:
-            b.addAction(actions['insert-tag'])
-            w = self.insert_tag_button = b.widgetForAction(actions['insert-tag'])
-            w.setPopupMode(QToolButton.MenuButtonPopup)
-            w.m = m = QMenu()
-            w.setMenu(m)
-            w.setContextMenuPolicy(Qt.CustomContextMenu)
-            w.customContextMenuRequested.connect(self.insert_tag_button.showMenu)
-            self._build_insert_tag_button_menu()
-        if self.syntax == 'html':
             self.format_bar = b = self.addToolBar(_('Format text'))
             b.setObjectName('html_format_bar')
-            for x in ('bold', 'italic', 'underline', 'strikethrough', 'subscript', 'superscript', 'color', 'background-color'):
-                b.addAction(actions['format-text-%s' % x])
-            ac = b.addAction(QIcon(I('format-text-heading.png')), _('Change paragraph to heading'))
-            m = QMenu()
-            ac.setMenu(m)
-            b.widgetForAction(ac).setPopupMode(QToolButton.InstantPopup)
-            for name in tuple('h%d' % d for d in range(1, 7)) + ('p',):
-                m.addAction(actions['rename-block-tag-%s' % name])
+        self.insert_tag_menu = QMenu(self)
+        self.populate_toolbars()
+
+    def populate_toolbars(self):
+        self.tools_bar.clear()
+        def add_action(name, bar):
+            try:
+                ac = actions[name]
+            except KeyError:
+                if DEBUG:
+                    prints('Unknown editor tool: %r' % name)
+                return
+            bar.addAction(ac)
+            if name == 'insert-tag':
+                w = bar.widgetForAction(ac)
+                w.setPopupMode(QToolButton.MenuButtonPopup)
+                w.setMenu(self.insert_tag_menu)
+                w.setContextMenuPolicy(Qt.CustomContextMenu)
+                w.customContextMenuRequested.connect(w.showMenu)
+                self._build_insert_tag_button_menu()
+            elif name == 'change-paragraph':
+                m = ac.m = QMenu()
+                ac.setMenu(m)
+                bar.widgetForAction(ac).setPopupMode(QToolButton.InstantPopup)
+                for name in tuple('h%d' % d for d in range(1, 7)) + ('p',):
+                    m.addAction(actions['rename-block-tag-%s' % name])
+
+        for name in tprefs.get('editor_%s_toolbar' % self.syntax, ()):
+            add_action(name, self.tools_bar)
+
+        if self.syntax == 'html':
+            self.format_bar.clear()
+            for name in tprefs['editor_format_toolbar']:
+                add_action(name, self.format_bar)
 
     def break_cycles(self):
         try:
