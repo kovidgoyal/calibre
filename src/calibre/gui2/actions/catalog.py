@@ -18,8 +18,8 @@ from calibre import sanitize_file_name_unicode
 class GenerateCatalogAction(InterfaceAction):
 
     name = 'Generate Catalog'
-    action_spec = (_('Create catalog'), 'catalog.png',
-                   _('Create a catalog of the books in your calibre library in different formats'), ())
+    action_spec = (_('Create catalogue'), 'catalog.png', #ÞGB change spelling on catalog(ue) 19.06.2014
+                   _('Create a catalogue of the books in your calibre library in different formats'), ())
     dont_add_to = frozenset(['context-menu-device'])
 
     def genesis(self):
@@ -60,7 +60,7 @@ class GenerateCatalogAction(InterfaceAction):
         job.catalog_file_path = out
         job.fmt = fmt
         job.catalog_sync, job.catalog_title = sync, title
-        self.gui.status_bar.show_message(_('Generating %s catalog...')%fmt)
+        self.gui.status_bar.show_message(_('Generating %s catalogue...')%fmt)
 
     def catalog_generated(self, job):
         if job.result:

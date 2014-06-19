@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
+# ÞGB 19.06.2014. Change the spelling on Catalaog(ue) under the option "Convert books" -- "Generate catalogue"
 
 __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -59,7 +60,7 @@ class ConvertAction(InterfaceAction):
                 triggered=partial(self.convert_ebook, False, bulk=True))
         m.addSeparator()
         cm('create-catalog',
-                _('Create a catalog of the books in your calibre library'),
+                _('Create a catalogue of the books in your calibre library'), #change by ÞGB 19.06.2014
                 icon='catalog.png', shortcut=False,
                 triggered=self.gui.iactions['Generate Catalog'].generate_catalog)
         self.qaction.triggered.connect(self.convert_ebook)

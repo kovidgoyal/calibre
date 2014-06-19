@@ -461,7 +461,7 @@ class EPUB_MOBI(CatalogPlugin):
 
             if self.opts.use_existing_cover and existing_cover:
                 recommendations.append(('cover', cpath, OptionRecommendation.HIGH))
-                log.info("using existing catalog cover")
+                log.info("using existing catalogue cover") #ÞGB change spelling on catalog(ue) 19.06.2014
             else:
                 log.info("replacing catalog cover")
                 new_cover_path = PersistentTemporaryFile(suffix='.jpg')
