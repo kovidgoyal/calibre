@@ -351,7 +351,7 @@ def get_file_type_metadata(stream, ftype):
                         continue
     return mi
 
-def set_file_type_metadata(stream, mi, ftype):
+def set_file_type_metadata(stream, mi, ftype, report_error=None):
     ftype = ftype.lower().strip()
     if _metadata_writers.has_key(ftype):
         for plugin in _metadata_writers[ftype]:
@@ -363,8 +363,11 @@ def set_file_type_metadata(stream, mi, ftype):
                         plugin.set_metadata(stream, mi, ftype.lower().strip())
                         break
                     except:
-                        print 'Failed to set metadata for', repr(getattr(mi, 'title', ''))
-                        traceback.print_exc()
+                        if report_error is None:
+                            print 'Failed to set metadata for', repr(getattr(mi, 'title', ''))
+                            traceback.print_exc()
+                        else:
+                            report_error(mi, ftype, traceback.format_exc())
 
 # }}}
 

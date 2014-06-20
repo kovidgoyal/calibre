@@ -1797,7 +1797,7 @@ class Cache(object):
         return {k:tuple(sorted(v, key=sort_key)) for k, v in ans.iteritems()}
 
     @write_api
-    def embed_metadata(self, book_ids, only_fmts=None):
+    def embed_metadata(self, book_ids, only_fmts=None, report_error=None):
         ''' Update metadata in all formats of the specified book_ids to current metadata in the database. '''
         field = self.fields['formats']
         from calibre.ebooks.metadata.opf2 import pretty_print
@@ -1808,7 +1808,7 @@ class Cache(object):
 
         def doit(fmt, mi, stream):
             with apply_null_metadata, pretty_print:
-                set_metadata(stream, mi, stream_type=fmt)
+                set_metadata(stream, mi, stream_type=fmt, report_error=report_error)
             stream.seek(0, os.SEEK_END)
             return stream.tell()
 

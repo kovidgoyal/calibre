@@ -809,6 +809,11 @@ class ActionDelete(InterfaceActionBase):
     actual_plugin = 'calibre.gui2.actions.delete:DeleteAction'
     description = _('Delete books from your calibre library or connected device')
 
+class ActionEmbed(InterfaceActionBase):
+    name = 'Embed Metadata'
+    actual_plugin = 'calibre.gui2.actions.embed:EmbedAction'
+    description = _('Embed updated metadata into the actual book files in your calibre library')
+
 class ActionEditMetadata(InterfaceActionBase):
     name = 'Edit Metadata'
     actual_plugin = 'calibre.gui2.actions.edit_metadata:EditMetadataAction'
@@ -964,7 +969,7 @@ plugins += [ActionAdd, ActionFetchAnnotations, ActionGenerateCatalog,
         ActionAddToLibrary, ActionEditCollections, ActionMatchBooks, ActionChooseLibrary,
         ActionCopyToLibrary, ActionTweakEpub, ActionUnpackBook, ActionNextMatch, ActionStore,
         ActionPluginUpdater, ActionPickRandom, ActionEditToC, ActionSortBy,
-        ActionMarkBooks]
+        ActionMarkBooks, ActionEmbed]
 
 # }}}
 
