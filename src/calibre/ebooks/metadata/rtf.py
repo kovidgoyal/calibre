@@ -6,6 +6,7 @@ Edit metadata in RTF files.
 """
 import re, cStringIO, codecs
 
+from calibre import force_unicode
 from calibre.ebooks.metadata import MetaInformation, string_to_authors
 
 title_pat    = re.compile(r'\{\\info.*?\{\\title(.*?)(?<!\\)\}', re.DOTALL)
@@ -70,6 +71,11 @@ def detect_codepage(stream):
         except:
             pass
 
+def encode(unistr):
+    if not isinstance(unistr, unicode):
+        unistr = force_unicode(unistr)
+    return ''.join([str(c) if ord(c) < 128 else '\\u' + str(ord(c)) + '?' for c in unistr])
+
 def decode(raw, codec):
     if codec is not None:
         def codepage(match):
@@ -79,7 +85,7 @@ def decode(raw, codec):
 
     def uni(match):
         return unichr(int(match.group(1)))
-    raw = re.sub(r'\\u([0-9]{4}).', uni, raw)
+    raw = re.sub(r'\\u([0-9]{3,4}).', uni, raw)
     return raw
 
 def get_metadata(stream):
@@ -118,7 +124,7 @@ def get_metadata(stream):
     tags_match = tags_pat.search(block)
     if tags_match is not None:
         tags = decode(tags_match.group(1).strip(), cpg)
-        mi.tags = tags
+        mi.tags = list(filter(None, (x.strip() for x in tags.split(','))))
     publisher_match = publisher_pat.search(block)
     if publisher_match is not None:
         publisher = decode(publisher_match.group(1).strip(), cpg)
@@ -129,24 +135,24 @@ def get_metadata(stream):
 def create_metadata(stream, options):
     md = [r'{\info']
     if options.title:
-        title = options.title.encode('ascii', 'ignore')
+        title = encode(options.title)
         md.append(r'{\title %s}'%(title,))
     if options.authors:
         au = options.authors
         if not isinstance(au, basestring):
             au = u', '.join(au)
-        author = au.encode('ascii', 'ignore')
+        author = encode(au)
         md.append(r'{\author %s}'%(author,))
     comp = options.comment if hasattr(options, 'comment') else options.comments
     if comp:
-        comment = comp.encode('ascii', 'ignore')
+        comment = encode(comp)
         md.append(r'{\subject %s}'%(comment,))
     if options.publisher:
-        publisher = options.publisher.encode('ascii', 'ignore')
+        publisher = encode(options.publisher)
         md.append(r'{\manager %s}'%(publisher,))
     if options.tags:
         tags = u', '.join(options.tags)
-        tags = tags.encode('ascii', 'ignore')
+        tags = encode(tags)
         md.append(r'{\category %s}'%(tags,))
     if len(md) > 1:
         md.append('}')
@@ -165,7 +171,7 @@ def set_metadata(stream, options):
         index = src.rindex('}')
         return src[:index] + r'{\ '[:-1] + name + ' ' + val + '}}'
     src, pos = get_document_info(stream)
-    if src is not None:
+    if src is None:
         create_metadata(stream, options)
     else:
         olen = len(src)
@@ -173,7 +179,7 @@ def set_metadata(stream, options):
         base_pat = r'\{\\name(.*?)(?<!\\)\}'
         title = options.title
         if title is not None:
-            title = title.encode('ascii', 'replace')
+            title = encode(title)
             pat = re.compile(base_pat.replace('name', 'title'), re.DOTALL)
             if pat.search(src):
                 src = pat.sub(r'{\\title ' + title + r'}', src)
@@ -181,7 +187,7 @@ def set_metadata(stream, options):
                 src = add_metadata_item(src, 'title', title)
         comment = options.comments
         if comment is not None:
-            comment = comment.encode('ascii', 'replace')
+            comment = encode(comment)
             pat = re.compile(base_pat.replace('name', 'subject'), re.DOTALL)
             if pat.search(src):
                 src = pat.sub(r'{\\subject ' + comment + r'}', src)
@@ -190,7 +196,7 @@ def set_metadata(stream, options):
         author = options.authors
         if author is not None:
             author =  ', '.join(author)
-            author = author.encode('ascii', 'ignore')
+            author = encode(author)
             pat = re.compile(base_pat.replace('name', 'author'), re.DOTALL)
             if pat.search(src):
                 src = pat.sub(r'{\\author ' + author + r'}', src)
@@ -199,7 +205,7 @@ def set_metadata(stream, options):
         tags = options.tags
         if tags is not None:
             tags =  ', '.join(tags)
-            tags = tags.encode('ascii', 'replace')
+            tags = encode(tags)
             pat = re.compile(base_pat.replace('name', 'category'), re.DOTALL)
             if pat.search(src):
                 src = pat.sub(r'{\\category ' + tags + r'}', src)
@@ -207,7 +213,7 @@ def set_metadata(stream, options):
                 src = add_metadata_item(src, 'category', tags)
         publisher = options.publisher
         if publisher is not None:
-            publisher = publisher.encode('ascii', 'replace')
+            publisher = encode(publisher)
             pat = re.compile(base_pat.replace('name', 'manager'), re.DOTALL)
             if pat.search(src):
                 src = pat.sub(r'{\\manager ' + publisher + r'}', src)
