@@ -10,7 +10,7 @@ __docformat__ = 'restructuredtext en'
 import os, traceback, random, shutil, re, operator
 from io import BytesIO
 from collections import defaultdict
-from functools import wraps
+from functools import wraps, partial
 from future_builtins import zip
 
 from calibre import isbytestring
@@ -1685,8 +1685,7 @@ class Cache(object):
         identical_book_ids = set()
         if mi.authors:
             try:
-                quathors = mi.authors[:20]  # Too many authors causes parsing of
-                                            # the search expression to fail
+                quathors = mi.authors[:20]  # Too many authors causes parsing of the search expression to fail
                 query = ' and '.join('authors:"=%s"'%(a.replace('"', '')) for a in quathors)
                 qauthors = mi.authors[20:]
             except ValueError:
@@ -1796,6 +1795,45 @@ class Cache(object):
                 if book in books:
                     ans[book].append(lib)
         return {k:tuple(sorted(v, key=sort_key)) for k, v in ans.iteritems()}
+
+    @write_api
+    def embed_metadata(self, book_ids, only_fmts=None):
+        ''' Update metadata in all formats of the specified book_ids to current metadata in the database. '''
+        field = self.fields['formats']
+        from calibre.ebooks.metadata.opf2 import pretty_print
+        from calibre.customize.ui import apply_null_metadata
+        from calibre.ebooks.metadata.meta import set_metadata
+        if only_fmts:
+            only_fmts = {f.lower() for f in only_fmts}
+
+        def doit(fmt, mi, stream):
+            with apply_null_metadata, pretty_print:
+                set_metadata(stream, mi, stream_type=fmt)
+            stream.seek(0, os.SEEK_END)
+            return stream.tell()
+
+        for book_id in book_ids:
+            fmts = field.table.book_col_map.get(book_id, ())
+            if not fmts:
+                continue
+            mi = self.get_metadata(book_id, get_cover=True, cover_as_data=True)
+            try:
+                path = self._field_for('path', book_id).replace('/', os.sep)
+            except:
+                continue
+            for fmt in fmts:
+                if only_fmts is not None and fmt.lower() not in only_fmts:
+                    continue
+                try:
+                    name = self.fields['formats'].format_fname(book_id, fmt)
+                except:
+                    continue
+                if name and path:
+                    new_size = self.backend.apply_to_format(book_id, path, name, fmt, partial(doit, fmt, mi))
+                    if new_size is not None:
+                        self.format_metadata_cache[book_id].get(fmt, {})['size'] = new_size
+                        max_size = self.fields['formats'].table.update_fmt(book_id, fmt, name, new_size, self.backend)
+                        self.fields['size'].table.update_sizes({book_id: max_size})
 
     # }}}
 

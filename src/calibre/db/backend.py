@@ -1214,6 +1214,13 @@ class DB(object):
             shutil.copyfile(candidates[0], fmt_path)
             return fmt_path
 
+    def apply_to_format(self, book_id, path, fname, fmt, func, missing_value=None):
+        path = self.format_abspath(book_id, fmt, fname, path)
+        if path is None:
+            return missing_value
+        with lopen(path, 'r+b') as f:
+            return func(f)
+
     def format_hash(self, book_id, fmt, fname, path):
         path = self.format_abspath(book_id, fmt, fname, path)
         if path is None:
