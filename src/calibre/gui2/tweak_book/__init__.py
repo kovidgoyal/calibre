@@ -84,7 +84,7 @@ actions = NonReplaceDict()
 editors = NonReplaceDict()
 toolbar_actions = NonReplaceDict()
 editor_toolbar_actions = {
-    'html':NonReplaceDict(), 'xml':NonReplaceDict(), 'css':NonReplaceDict()}
+    'format':NonReplaceDict(), 'html':NonReplaceDict(), 'xml':NonReplaceDict(), 'css':NonReplaceDict()}
 
 TOP = object()
 dictionaries = Dictionaries()

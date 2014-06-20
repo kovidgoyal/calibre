@@ -10,15 +10,18 @@ from operator import attrgetter, methodcaller
 from collections import namedtuple
 from future_builtins import map
 from itertools import product
+from functools import partial
+from copy import copy, deepcopy
 
 from PyQt4.Qt import (
     QDialog, QGridLayout, QStackedWidget, QDialogButtonBox, QListWidget,
     QListWidgetItem, QIcon, QWidget, QSize, QFormLayout, Qt, QSpinBox,
     QCheckBox, pyqtSignal, QDoubleSpinBox, QComboBox, QLabel, QFont,
-    QFontComboBox, QPushButton, QSizePolicy, QHBoxLayout)
+    QFontComboBox, QPushButton, QSizePolicy, QHBoxLayout, QGroupBox,
+    QToolButton, QVBoxLayout, QSpacerItem)
 
 from calibre.gui2.keyboard import ShortcutConfig
-from calibre.gui2.tweak_book import tprefs
+from calibre.gui2.tweak_book import tprefs, toolbar_actions, editor_toolbar_actions
 from calibre.gui2.tweak_book.editor.themes import default_theme, all_theme_names, ThemeEditor
 from calibre.gui2.tweak_book.spell import ManageDictionaries
 from calibre.gui2.font_family_chooser import FontFamilyChooser
@@ -64,7 +67,7 @@ class BasicSettings(QWidget):  # {{{
         prefs = prefs or tprefs
         widget = QComboBox(self)
         widget.currentIndexChanged[int].connect(self.emit_changed)
-        for key, human in sorted(choices.iteritems(), key=lambda (key, human): human or key):
+        for key, human in sorted(choices.iteritems(), key=lambda key_human: key_human[1] or key_human[0]):
             widget.addItem(human or key, key)
 
         def getter(w):
@@ -226,7 +229,7 @@ class EditorSettings(BasicSettings):
         s = self.settings['editor_theme']
         current_val = s.getter(s.widget)
         s.widget.clear()
-        for key, human in sorted(choices.iteritems(), key=lambda (key, human): human or key):
+        for key, human in sorted(choices.iteritems(), key=lambda key_human1: key_human1[1] or key_human1[0]):
             s.widget.addItem(human or key, key)
         s.setter(s.widget, current_val)
         if d.theme_name:
@@ -312,6 +315,193 @@ class PreviewSettings(BasicSettings):
         w.setMinimum(4), w.setMaximum(100), w.setSuffix(' px')
         l.addRow(_('Mi&nimum font size:'), w)
 
+# ToolbarSettings  {{{
+
+class ToolbarList(QListWidget):
+
+    def __init__(self, parent=None):
+        QListWidget.__init__(self, parent)
+        self.setSelectionMode(self.ExtendedSelection)
+
+class ToolbarSettings(QWidget):
+
+    changed_signal = pyqtSignal()
+
+    def __init__(self, parent=None):
+        QWidget.__init__(self, parent)
+        self.l = gl = QGridLayout(self)
+        self.setLayout(gl)
+        self.changed = False
+
+        self.bars = b = QComboBox(self)
+        b.addItem(_('Choose which toolbar you want to customize'))
+        ft = _('Tools for %s editors')
+        for name, text in (
+                ('global_book_toolbar', _('Book wide actions'),),
+                ('global_tools_toolbar', _('Book wide tools'),),
+                ('editor_html_toolbar', ft % 'HTML',),
+                ('editor_css_toolbar', ft % 'CSS',),
+                ('editor_xml_toolbar', ft % 'XML',),
+                ('editor_format_toolbar', _('Text formatting actions'),),
+        ):
+            b.addItem(text, name)
+        self.la = la = QLabel(_('&Toolbar to customize:'))
+        la.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+        la.setBuddy(b)
+        gl.addWidget(la), gl.addWidget(b, 0, 1)
+        self.sl = l = QGridLayout()
+        gl.addLayout(l, 1, 0, 1, -1)
+
+        self.gb1 = gb1 = QGroupBox(_('A&vailable actions'), self)
+        self.gb2 = gb2 = QGroupBox(_('&Current actions'), self)
+        gb1.setFlat(True), gb2.setFlat(True)
+        gb1.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        gb2.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        l.addWidget(gb1, 0, 0, -1, 1), l.addWidget(gb2, 0, 2, -1, 1)
+        self.available, self.current = ToolbarList(self), ToolbarList(self)
+        self.ub = b = QToolButton(self)
+        b.clicked.connect(partial(self.move, up=True))
+        b.setToolTip(_('Move selected action up')), b.setIcon(QIcon(I('arrow-up.png')))
+        self.db = b = QToolButton(self)
+        b.clicked.connect(partial(self.move, up=False))
+        b.setToolTip(_('Move selected action down')), b.setIcon(QIcon(I('arrow-down.png')))
+        self.gl1 = gl1 = QVBoxLayout()
+        gl1.addWidget(self.available), gb1.setLayout(gl1)
+        self.gl2 = gl2 = QGridLayout()
+        gl2.addWidget(self.current, 0, 0, -1, 1)
+        gl2.addWidget(self.ub, 0, 1), gl2.addWidget(self.db, 2, 1)
+        gb2.setLayout(gl2)
+        self.lb = b = QToolButton(self)
+        b.setToolTip(_('Add selected actions to toolbar')), b.setIcon(QIcon(I('forward.png')))
+        l.addWidget(b, 1, 1), b.clicked.connect(self.add_action)
+        self.rb = b = QToolButton(self)
+        b.setToolTip(_('Remove selected actions from toolbar')), b.setIcon(QIcon(I('back.png')))
+        l.addWidget(b, 3, 1), b.clicked.connect(self.remove_action)
+        self.si = QSpacerItem(20, 10, hPolicy=QSizePolicy.Preferred, vPolicy=QSizePolicy.Expanding)
+        l.setRowStretch(0, 10), l.setRowStretch(2, 10), l.setRowStretch(4, 10)
+        l.addItem(self.si, 4, 1)
+
+        self.read_settings()
+        self.toggle_visibility(False)
+        self.bars.currentIndexChanged.connect(self.bar_changed)
+
+    def read_settings(self, prefs=None):
+        prefs = prefs or tprefs
+        val = self.original_settings = {}
+        for i in xrange(1, self.bars.count()):
+            name = unicode(self.bars.itemData(i).toString())
+            val[name] = copy(prefs[name])
+        self.current_settings = deepcopy(val)
+
+    @property
+    def current_name(self):
+        return unicode(self.bars.itemData(self.bars.currentIndex()).toString())
+
+    def build_lists(self):
+        self.available.clear(), self.current.clear()
+        name = self.current_name
+        if not name:
+            return
+        items = self.current_settings[name]
+        applied = set(items)
+        all_items = toolbar_actions if name.startswith('global_') else editor_toolbar_actions[name.split('_')[1]]
+        blank = QIcon(I('blank.png'))
+
+        def to_item(key, ac, parent):
+            ic = ac.icon()
+            if not ic or ic.isNull():
+                ic = blank
+            ans = QListWidgetItem(ic, unicode(ac.text()).replace('&', ''), parent)
+            ans.setData(Qt.UserRole, key)
+            ans.setToolTip(ac.toolTip())
+            return ans
+
+        for key, ac in sorted(all_items.iteritems(), key=lambda k_ac: unicode(k_ac[1].text())):
+            if key not in applied:
+                to_item(key, ac, self.available)
+        if name == 'global_book_toolbar' and 'donate' not in applied:
+            QListWidgetItem(QIcon(I('donate.png')), _('Donate'), self.available).setData(Qt.UserRole, 'donate')
+
+        QListWidgetItem(blank, '--- %s ---' % _('Separator'), self.available)
+        for key in items:
+            if key is None:
+                QListWidgetItem(blank, '--- %s ---' % _('Separator'), self.current)
+            else:
+                if key == 'donate':
+                    QListWidgetItem(QIcon(I('donate.png')), _('Donate'), self.current).setData(Qt.UserRole, 'donate')
+                else:
+                    try:
+                        ac = all_items[key]
+                    except KeyError:
+                        pass
+                    to_item(key, ac, self.current)
+
+    def bar_changed(self):
+        name = self.current_name
+        self.toggle_visibility(bool(name))
+        self.build_lists()
+
+    def toggle_visibility(self, visible):
+        for x in ('gb1', 'gb2', 'lb', 'rb'):
+            getattr(self, x).setVisible(visible)
+
+    def move(self, up=True):
+        r = self.current.currentRow()
+        v = self.current
+        if r < 0 or (r < 1 and up) or (r > v.count() - 2 and not up):
+            return
+        try:
+            s = self.current_settings[self.current_name]
+        except KeyError:
+            return
+        item = v.takeItem(r)
+        nr = r + (-1 if up else 1)
+        v.insertItem(nr, item)
+        v.setCurrentItem(item)
+        s[r], s[nr] = s[nr], s[r]
+        self.changed_signal.emit()
+
+    def add_action(self):
+        try:
+            s = self.current_settings[self.current_name]
+        except KeyError:
+            return
+        names = [unicode(i.data(Qt.UserRole).toString()) for i in self.available.selectedItems()]
+        if not names:
+            return
+        for n in names:
+            s.append(n or None)
+        self.build_lists()
+        self.changed_signal.emit()
+
+    def remove_action(self):
+        try:
+            s = self.current_settings[self.current_name]
+        except KeyError:
+            return
+        rows = sorted({self.current.row(i) for i in self.current.selectedItems()}, reverse=True)
+        if not rows:
+            return
+        for r in rows:
+            s.pop(r)
+        self.build_lists()
+        self.changed_signal.emit()
+
+    def restore_defaults(self):
+        o = self.original_settings
+        self.read_settings(tprefs.defaults)
+        self.original_settings = o
+        self.build_lists()
+        self.changed_signal.emit()
+
+    def commit(self):
+        if self.original_settings != self.current_settings:
+            self.changed = True
+            with tprefs:
+                tprefs.update(self.current_settings)
+
+# }}}
+
 class Preferences(QDialog):
 
     def __init__(self, gui, initial_panel=None):
@@ -357,12 +547,14 @@ class Preferences(QDialog):
         self.integration_panel = IntegrationSettings(self)
         self.main_window_panel = MainWindowSettings(self)
         self.preview_panel = PreviewSettings(self)
+        self.toolbars_panel = ToolbarSettings(self)
 
         for name, icon, panel in [
             (_('Main window'), 'page.png', 'main_window'),
             (_('Editor settings'), 'modified.png', 'editor'),
             (_('Preview settings'), 'viewer.png', 'preview'),
             (_('Keyboard shortcuts'), 'keyboard-prefs.png', 'keyboard'),
+            (_('Toolbars'), 'wizard.png', 'toolbars'),
             (_('Integration with calibre'), 'lt.png', 'integration'),
         ]:
             i = QListWidgetItem(QIcon(I(icon)), name, cl)
@@ -382,6 +574,10 @@ class Preferences(QDialog):
     @property
     def dictionaries_changed(self):
         return self.editor_panel.dictionaries_changed
+
+    @property
+    def toolbars_changed(self):
+        return self.toolbars_panel.changed
 
     def restore_all_defaults(self):
         for i in xrange(self.stacks.count()):

@@ -39,7 +39,7 @@ def create_icon(text, palette=None, sz=32, divider=2):
 def register_text_editor_actions(_reg, palette):
     def reg(*args, **kw):
         ac = _reg(*args)
-        for s in kw.get('syntaxes', ('html',)):
+        for s in kw.get('syntaxes', ('format',)):
             editor_toolbar_actions[s][args[3]] = ac
         return ac
 
@@ -67,7 +67,7 @@ def register_text_editor_actions(_reg, palette):
     ac = reg('view-image', _('&Insert image'), ('insert_resource', 'image'), 'insert-image', (), _('Insert an image into the text'), syntaxes=('html', 'css'))
     ac.setToolTip(_('<h3>Insert image</h3>Insert an image into the text'))
 
-    ac = reg('insert-link', _('Insert &hyperlink'), ('insert_hyperlink',), 'insert-hyperlink', (), _('Insert hyperlink'), syntaxes=('html', 'css'))
+    ac = reg('insert-link', _('Insert &hyperlink'), ('insert_hyperlink',), 'insert-hyperlink', (), _('Insert hyperlink'), syntaxes=('html',))
     ac.setToolTip(_('<h3>Insert hyperlink</h3>Insert a hyperlink into the text'))
 
     for i, name in enumerate(('h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p')):

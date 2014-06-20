@@ -129,6 +129,11 @@ class Boss(QObject):
         if p.dictionaries_changed:
             dictionaries.clear_caches()
             dictionaries.initialize(force=True)  # Reread user dictionaries
+        if p.toolbars_changed:
+            self.gui.populate_toolbars()
+            for ed in editors.itervalues():
+                if hasattr(ed, 'populate_toolbars'):
+                    ed.populate_toolbars()
         if ret == p.Accepted:
             setup_cssutils_serialization()
             self.gui.apply_settings()

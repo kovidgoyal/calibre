@@ -310,7 +310,7 @@ class Main(MainWindow):
         self.action_save = treg('save.png', _('&Save'), self.boss.save_book, 'save-book', 'Ctrl+S', _('Save book'))
         self.action_save.setEnabled(False)
         self.action_save_copy = treg('save.png', _('Save a &copy'), self.boss.save_copy, 'save-copy', 'Ctrl+Alt+S', _('Save a copy of the book'))
-        self.action_quit = treg('quit.png', _('&Quit'), self.boss.quit, 'quit', 'Ctrl+Q', _('Quit'))
+        self.action_quit = treg('window-close.png', _('&Quit'), self.boss.quit, 'quit', 'Ctrl+Q', _('Quit'))
         self.action_preferences = treg('config.png', _('&Preferences'), self.boss.preferences, 'preferences', 'Ctrl+P', _('Preferences'))
         self.action_new_book = treg('book.png', _('Create &new, empty book'), self.boss.new_book, 'new-book', (), _('Create a new, empty book'))
         self.action_import_book = treg('book.png', _('&Import an HTML or DOCX file as a new book'),
@@ -564,19 +564,18 @@ class Main(MainWindow):
             if ac is None:
                 bar.addSeparator()
             elif ac == 'donate':
-                if not hasattr(self, 'donate_button'):
-                    self.donate_button = b = ThrobbingButton(self)
-                    b.clicked.connect(open_donate)
-                    b.setAutoRaise(True)
-                    self.donate_widget = w = create_donate_widget(b)
-                    if hasattr(w, 'filler'):
-                        w.filler.setVisible(False)
-                    b.set_normal_icon_size(self.global_bar.iconSize().width(), self.global_bar.iconSize().height())
-                    b.setIcon(QIcon(I('donate.png')))
-                    b.setToolTip(_('Donate to support calibre development'))
-                    if animate:
-                        QTimer.singleShot(10, b.start_animation)
-                    bar.addWidget(w)
+                self.donate_button = b = ThrobbingButton(self)
+                b.clicked.connect(open_donate)
+                b.setAutoRaise(True)
+                self.donate_widget = w = create_donate_widget(b)
+                if hasattr(w, 'filler'):
+                    w.filler.setVisible(False)
+                b.set_normal_icon_size(self.global_bar.iconSize().width(), self.global_bar.iconSize().height())
+                b.setIcon(QIcon(I('donate.png')))
+                b.setToolTip(_('Donate to support calibre development'))
+                if animate:
+                    QTimer.singleShot(10, b.start_animation)
+                bar.addWidget(w)
             else:
                 try:
                     bar.addAction(actions[ac])
