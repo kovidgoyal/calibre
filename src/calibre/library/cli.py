@@ -583,6 +583,43 @@ an OPF file.
         ' with the --field option'))
     return parser
 
+def embed_metadata_option_parser():
+    parser = get_parser(_(
+'''
+%prog embed_metadata [options] book_id
+
+Update the metadata in the actual book files stored in the calibre library from
+the metadata in the calibre database.  Normally, metadata is updated only when
+exporting files from calibre, this command is useful if you want the files to
+be updated in place. Note that different file formats support different amounts
+of metadata. You can use the special value 'all' for book_id to update metadata
+in all books. You can also specify many book ids separated by spaces and id ranges
+separated by hyphens. For example: %prog embed_metadata 1 2 10-15 23'''))
+    parser.add_option('-f', '--only-formats', action='append', default=[], help=_(
+        'Only update metadata in files of the specified format. Specify it multiple'
+        ' times for multiple formats. Be default, all formats are updated.'))
+    return parser
+
+def command_embed_metadata(args, dbpath):
+    parser = embed_metadata_option_parser()
+    opts, args = parser.parse_args(sys.argv[0:1]+args)
+    db = get_db(dbpath, opts)
+    ids = set()
+    for x in args[1:]:
+        if x == 'all':
+            ids = db.new_api.all_book_ids()
+            break
+        parts = x.split('-')
+        if len(parts) == 1:
+            ids.add(int(parts[0]))
+        else:
+            ids |= {x for x in xrange(int(parts[0], int(parts[1])))}
+    only_fmts = opts.only_formats or None
+    def progress(i, total, mi):
+        prints(_('Processed {0} ({1} of {2})').format(mi.title, i, total))
+    db.new_api.embed_metadata(ids, only_fmts=only_fmts, report_progress=progress)
+    send_message()
+
 def command_set_metadata(args, dbpath):
     parser = set_metadata_option_parser()
     opts, args = parser.parse_args(sys.argv[0:1]+args)
@@ -1463,7 +1500,7 @@ COMMANDS = ('list', 'add', 'remove', 'add_format', 'remove_format',
             'saved_searches', 'add_custom_column', 'custom_columns',
             'remove_custom_column', 'set_custom', 'restore_database',
             'check_library', 'list_categories', 'backup_metadata',
-            'clone')
+            'clone', 'embed_metadata')
 
 
 def option_parser():

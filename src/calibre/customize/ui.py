@@ -364,7 +364,8 @@ def set_file_type_metadata(stream, mi, ftype, report_error=None):
                         break
                     except:
                         if report_error is None:
-                            print 'Failed to set metadata for', repr(getattr(mi, 'title', ''))
+                            from calibre import prints
+                            prints('Failed to set metadata for the', ftype.upper(), 'format of:', getattr(mi, 'title', ''), file=sys.stderr)
                             traceback.print_exc()
                         else:
                             report_error(mi, ftype, traceback.format_exc())

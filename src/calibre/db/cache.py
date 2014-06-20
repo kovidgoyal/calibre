@@ -1797,7 +1797,7 @@ class Cache(object):
         return {k:tuple(sorted(v, key=sort_key)) for k, v in ans.iteritems()}
 
     @write_api
-    def embed_metadata(self, book_ids, only_fmts=None, report_error=None):
+    def embed_metadata(self, book_ids, only_fmts=None, report_error=None, report_progress=None):
         ''' Update metadata in all formats of the specified book_ids to current metadata in the database. '''
         field = self.fields['formats']
         from calibre.ebooks.metadata.opf2 import pretty_print
@@ -1812,7 +1812,7 @@ class Cache(object):
             stream.seek(0, os.SEEK_END)
             return stream.tell()
 
-        for book_id in book_ids:
+        for i, book_id in enumerate(book_ids):
             fmts = field.table.book_col_map.get(book_id, ())
             if not fmts:
                 continue
@@ -1834,6 +1834,8 @@ class Cache(object):
                         self.format_metadata_cache[book_id].get(fmt, {})['size'] = new_size
                         max_size = self.fields['formats'].table.update_fmt(book_id, fmt, name, new_size, self.backend)
                         self.fields['size'].table.update_sizes({book_id: max_size})
+            if report_progress is not None:
+                report_progress(i+1, len(book_ids), mi)
 
     # }}}
 
