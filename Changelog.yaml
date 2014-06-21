@@ -20,6 +20,40 @@
 #   new recipes:
 #     - title: 
 
+- version: 1.41.0
+  date: 2014-06-21
+
+  new features:
+    - title: "New tool to set metadata in the actual book files in the calibre library from the updated metadata in the calibre database."
+      description: "To use it go to Preferences->Toolbars and add the 'Embed metadata' tool to the main toolbar. Then simply select the books whose files you want to update and click the Embed metadata button. Normally, calibre updated metadata in the book files whenever a file is exported from calibre. This tool is useful for people who want the files int he calibre library to have updated metadata as well."
+      type: major
+
+    - title: "calibredb: Add a new 'embed_metadata' command to update metadata in the actual book files in the calibre library from the calibre database."
+
+    - title: "Edit Book: Allow customization of toolbars"
+
+    - title: "Add empty book: When adding empty book records to the library, add an option to also create empty EPUB files. Useful if you intend to subsequently edit these files with the calibre editor. You can access the add empty books feature by right clicking the Add Books button."
+
+    - title: "Edit book: Remove unused CSS: Add an option to also remove unused class attributes from the HTML"
+
+    - title: "Edit book: Check Book: Add checks for empty HTML/XML/CSS/image files in the book."
+      tickets: [1329971]
+
+    - title: "Edit Book: Check Book: Add checks for links whose fragment (the part after the #) points to a location that does not exist"
+
+  bug fixes:
+    - title: "RTF metadata: Add proper support for unicode characters when reading and writing metadata to RTF files"
+
+    - title: "RTF metadata: Fix failure to write metadata to RTF files that do not already have an \\info block"
+
+    - title: "Edit Book: Remove unused CSS: Handle @import rules when checking for unused CSS"
+
+    - title: "Edit Book: Remove unused css: Prevent failure when book has invalid items marked as stylesheets"
+
+    - title: "calibredb: Fix set_metadata not working for the series_index field."
+      tickets: [1329724]
+
+
 - version: 1.40.0
   date: 2014-06-12
 
