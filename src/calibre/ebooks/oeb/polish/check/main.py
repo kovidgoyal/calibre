@@ -77,7 +77,10 @@ def fix_errors(container, errors):
     # Fix parsing
     changed = False
     for name in {e.name for e in errors if getattr(e, 'is_parsing_error', False)}:
-        root = container.parsed(name)
+        try:
+            root = container.parsed(name)
+        except TypeError:
+            continue
         container.dirty(name)
         if container.mime_map[name] in OEB_DOCS:
             for style in root.xpath('//*[local-name()="style"]'):
