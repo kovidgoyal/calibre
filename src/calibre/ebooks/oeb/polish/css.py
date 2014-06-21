@@ -184,8 +184,9 @@ def remove_unused_css(container, report, remove_unused_classes=False):
 
         for link in root.xpath('//*[local-name()="link" and @href]'):
             sname = container.href_to_name(link.get('href'), name)
-            if sname in sheets:
-                style_rules[sname] = tuple(filter_used_rules(root, style_rules[sname], container.log, pseudo_pat, cache))
+            if sname not in sheets:
+                continue
+            style_rules[sname] = tuple(filter_used_rules(root, style_rules[sname], container.log, pseudo_pat, cache))
             if remove_unused_classes:
                 used_classes |= class_map[sname]
 
