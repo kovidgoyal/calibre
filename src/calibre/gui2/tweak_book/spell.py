@@ -31,7 +31,7 @@ from calibre.spell.dictionary import (
     get_dictionary, DictionaryLocale, dprefs, remove_dictionary, rename_dictionary)
 from calibre.spell.import_from import import_from_oxt
 from calibre.utils.localization import calibre_langcode_to_name, get_language, get_lang, canonicalize_lang
-from calibre.utils.icu import sort_key, primary_sort_key, primary_contains
+from calibre.utils.icu import sort_key, primary_sort_key, primary_contains, contains
 
 LANG = 0
 COUNTRY = 1
@@ -693,7 +693,8 @@ class WordsModel(QAbstractTableModel):
     def filter_item(self, x):
         if self.show_only_misspelt and self.spell_map[x]:
             return False
-        if self.filter_expression is not None and not primary_contains(self.filter_expression, x[0]):
+        func = contains if tprefs['spell_check_case_sensitive_search'] else primary_contains
+        if self.filter_expression is not None and not func(self.filter_expression, x[0]):
             return False
         return True
 
@@ -986,10 +987,15 @@ class SpellCheck(Dialog):
         om.stateChanged.connect(self.update_show_only_misspelt)
         self.case_sensitive_sort = cs = QCheckBox(_('Case &sensitive sort'))
         cs.setChecked(tprefs['spell_check_case_sensitive_sort'])
+        cs.setToolTip(_('When sorting the list of words, be case sensitive'))
         cs.stateChanged.connect(self.sort_type_changed)
+        self.case_sensitive_search = cs2 = QCheckBox(_('Case sensitive sea&rch'))
+        cs2.setToolTip(_('When filtering the list of words, be case sensitive'))
+        cs2.setChecked(tprefs['spell_check_case_sensitive_search'])
+        cs2.stateChanged.connect(self.search_type_changed)
         self.hb = h = QHBoxLayout()
         self.summary = s = QLabel('')
-        self.main.l.addLayout(h), h.addWidget(s), h.addWidget(om), h.addWidget(cs), h.addStretch(1)
+        self.main.l.addLayout(h), h.addWidget(s), h.addWidget(om), h.addWidget(cs), h.addWidget(cs2), h.addStretch(1)
 
     def keyPressEvent(self, ev):
         if ev.key() in (Qt.Key_Enter, Qt.Key_Return):
@@ -1003,6 +1009,11 @@ class SpellCheck(Dialog):
             with self:
                 hh = self.words_view.horizontalHeader()
                 self.words_view.sortByColumn(hh.sortIndicatorSection(), hh.sortIndicatorOrder())
+
+    def search_type_changed(self):
+        tprefs['spell_check_case_sensitive_search'] = bool(self.case_sensitive_search.isChecked())
+        if unicode(self.filter_text.text()).strip():
+            self.do_filter()
 
     def show_next_occurrence(self):
         self.word_activated(self.words_view.currentIndex())

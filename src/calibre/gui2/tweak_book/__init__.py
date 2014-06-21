@@ -57,7 +57,7 @@ d['editor_xml_toolbar'] = ['pretty-current', 'insert-tag']
 d['editor_html_toolbar'] = ['fix-html-current', 'pretty-current', 'insert-image', 'insert-hyperlink', 'insert-tag', 'change-paragraph']
 d['editor_format_toolbar'] = [('format-text-' + x) for x in (
 'bold', 'italic', 'underline', 'strikethrough', 'subscript', 'superscript', 'color', 'background-color')]
-
+d['spell_check_case_sensitive_search'] = False
 del d
 
 ucase_map = {l:string.ascii_uppercase[i] for i, l in enumerate(string.ascii_lowercase)}
