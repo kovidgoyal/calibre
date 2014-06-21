@@ -16,7 +16,7 @@ EXCLUDES = []
 for x in [
     'src/calibre/plugins', 'manual',
     '.bzr', '.git', '.build', '.svn', 'build', 'dist', 'imgsrc', '*.pyc', '*.pyo', '*.swp',
-    '*.swo', 'format_docs']:
+    '*.swo', 'format_docs', 'translations']:
     EXCLUDES.extend(['--exclude', x])
 SAFE_EXCLUDES = ['"%s"'%x if '*' in x else x for x in EXCLUDES]
 
