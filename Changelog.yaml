@@ -25,7 +25,7 @@
 
   new features:
     - title: "New tool to set metadata in the actual book files in the calibre library from the updated metadata in the calibre database."
-      description: "To use it go to Preferences->Toolbars and add the 'Embed metadata' tool to the main toolbar. Then simply select the books whose files you want to update and click the Embed metadata button. Normally, calibre updated metadata in the book files whenever a file is exported from calibre. This tool is useful for people who want the files int he calibre library to have updated metadata as well."
+      description: "To use it go to Preferences->Toolbars and add the 'Embed metadata' tool to the main toolbar. Then simply select the books whose files you want to update and click the Embed metadata button. Normally, calibre updates metadata in the book files whenever a file is exported from calibre. This tool is useful for people who want the files in the calibre library to have updated metadata as well."
       type: major
 
     - title: "calibredb: Add a new 'embed_metadata' command to update metadata in the actual book files in the calibre library from the calibre database."
