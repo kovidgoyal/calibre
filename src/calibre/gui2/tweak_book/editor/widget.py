@@ -145,6 +145,8 @@ class Editor(QMainWindow):
         self.editor.load_text(template, syntax=self.syntax, process_template=True)
 
     def get_raw_data(self):
+        # The EPUB spec requires NFC normalization, see section 1.3.6 of
+        # http://www.idpf.org/epub/20/spec/OPS_2.0.1_draft.htm
         return unicodedata.normalize('NFC', unicode(self.editor.toPlainText()).rstrip('\0'))
 
     def replace_data(self, raw, only_if_different=True):
