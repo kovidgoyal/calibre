@@ -7,7 +7,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, logging, sys, hashlib, uuid, re, shutil
+import os, logging, sys, hashlib, uuid, re, shutil, unicodedata
 from collections import defaultdict
 from io import BytesIO
 from urlparse import urlparse
@@ -17,6 +17,7 @@ from lxml import etree
 from cssutils import replaceUrls, getUrls
 
 from calibre import CurrentDir
+from calibre.constants import isosx
 from calibre.customize.ui import (plugin_for_input_format,
         plugin_for_output_format)
 from calibre.ebooks.chardet import xml_to_unicode
@@ -125,6 +126,17 @@ class Container(object):  # {{{
             for f in filenames:
                 path = join(dirpath, f)
                 name = self.abspath_to_name(path)
+                if isosx:
+                    # OS X silently changes all file names to NFD form. The
+                    # EPUB spec requires all text including filenames to be in
+                    # NFC form. The proper fix is to implement a VFS that maps
+                    # between canonical names and their filesystem
+                    # representation, however, I dont have the time for that
+                    # now, so this will at least fix the problem for books that
+                    # properly use the NFC form. Books that use the NFD form
+                    # will be broken by this, but that's the price you pay for
+                    # using OS X.
+                    name = unicodedata.normalize('NFC', name)
                 self.name_path_map[name] = path
                 self.mime_map[name] = guess_type(path)
                 # Special case if we have stumbled onto the opf
