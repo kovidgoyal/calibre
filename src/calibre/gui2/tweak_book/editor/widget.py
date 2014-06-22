@@ -15,6 +15,7 @@ from PyQt4.Qt import (
 
 from calibre import prints
 from calibre.constants import DEBUG
+from calibre.ebooks.chardet import replace_encoding_declarations
 from calibre.gui2 import error_dialog
 from calibre.gui2.tweak_book import actions, current_container, tprefs, dictionaries, editor_toolbar_actions
 from calibre.gui2.tweak_book.editor import SPELL_PROPERTY
@@ -136,6 +137,9 @@ class Editor(QMainWindow):
     def data(self):
         def fget(self):
             ans = self.get_raw_data()
+            ans, changed = replace_encoding_declarations(ans, enc='utf-8', limit=4*1024)
+            if changed:
+                self.data = ans
             return ans.encode('utf-8')
         def fset(self, val):
             self.editor.load_text(val, syntax=self.syntax)
