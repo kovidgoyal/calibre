@@ -17,9 +17,7 @@ from lxml import etree
 from cssutils import replaceUrls, getUrls
 
 from calibre import CurrentDir
-from calibre.constants import isosx
-from calibre.customize.ui import (plugin_for_input_format,
-        plugin_for_output_format)
+from calibre.customize.ui import (plugin_for_input_format, plugin_for_output_format)
 from calibre.ebooks.chardet import xml_to_unicode
 from calibre.ebooks.conversion.plugins.epub_input import (
     ADOBE_OBFUSCATION, IDPF_OBFUSCATION, decrypt_font_data)
@@ -126,17 +124,15 @@ class Container(object):  # {{{
             for f in filenames:
                 path = join(dirpath, f)
                 name = self.abspath_to_name(path)
-                if isosx:
-                    # OS X silently changes all file names to NFD form. The
-                    # EPUB spec requires all text including filenames to be in
-                    # NFC form. The proper fix is to implement a VFS that maps
-                    # between canonical names and their filesystem
-                    # representation, however, I dont have the time for that
-                    # now, so this will at least fix the problem for books that
-                    # properly use the NFC form. Books that use the NFD form
-                    # will be broken by this, but that's the price you pay for
-                    # using OS X.
-                    name = unicodedata.normalize('NFC', name)
+                # OS X silently changes all file names to NFD form. The EPUB
+                # spec requires all text including filenames to be in NFC form.
+                # The proper fix is to implement a VFS that maps between
+                # canonical names and their file system representation, however,
+                # I dont have the time for that now. Note that the container
+                # ensures that all text files are normalized to NFC when
+                # decoding them anyway, so there should be no mismatch between
+                # names in the text and NFC canonical file names.
+                name = unicodedata.normalize('NFC', name)
                 self.name_path_map[name] = path
                 self.mime_map[name] = guess_type(path)
                 # Special case if we have stumbled onto the opf
@@ -373,7 +369,7 @@ class Container(object):  # {{{
         abspath_to_name() for that.'''
         return relpath(path, base or self.root)
 
-    def decode(self, data):
+    def decode(self, data, normalize_to_nfc=True):
         """Automatically decode :param:`data` into a `unicode` object."""
         def fix_data(d):
             return d.replace('\r\n', '\n').replace('\r', '\n')
@@ -402,6 +398,8 @@ class Container(object):  # {{{
         except UnicodeDecodeError:
             pass
         data, self.used_encoding = xml_to_unicode(data)
+        if normalize_to_nfc:
+            data = unicodedata.normalize('NFC', data)
         return fix_data(data)
 
     def ok_to_be_unmanifested(self, name):
@@ -422,6 +420,7 @@ class Container(object):  # {{{
     def parse_xml(self, data):
         data, self.used_encoding = xml_to_unicode(
             data, strip_encoding_pats=True, assume_utf8=True, resolve_entities=True)
+        data = unicodedata.normalize('NFC', data)
         return etree.fromstring(data, parser=RECOVER_PARSER)
 
     def parse_xhtml(self, data, fname='<string>', force_html5_parse=False):
@@ -447,11 +446,11 @@ class Container(object):  # {{{
             data = self.parse_css(data, self.relpath(path))
         return data
 
-    def raw_data(self, name, decode=True):
+    def raw_data(self, name, decode=True, normalize_to_nfc=True):
         ans = self.open(name).read()
         mime = self.mime_map.get(name, guess_type(name))
         if decode and (mime in OEB_STYLES or mime in OEB_DOCS or mime == 'text/plain' or mime[-4:] in {'+xml', '/xml'}):
-            ans = self.decode(ans)
+            ans = self.decode(ans, normalize_to_nfc=normalize_to_nfc)
         return ans
 
     def parse_css(self, data, fname='<string>', is_declaration=False):

@@ -7,7 +7,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import sys, os, shlex, subprocess, shutil
+import sys, os, shlex, subprocess, shutil, unicodedata
 
 from calibre import prints, as_unicode, walk
 from calibre.constants import iswindows, __appname__
@@ -67,7 +67,7 @@ def zip_rebuilder(tdir, path):
                 if fn in exclude_files:
                     continue
                 absfn = os.path.join(root, fn)
-                zfn = os.path.relpath(absfn, tdir).replace(os.sep, '/')
+                zfn = unicodedata.normalize('NFC', os.path.relpath(absfn, tdir).replace(os.sep, '/'))
                 zf.write(absfn, zfn)
 
 def get_tools(fmt):
