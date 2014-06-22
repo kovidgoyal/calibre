@@ -597,7 +597,7 @@ in all books. You can also specify many book ids separated by spaces and id rang
 separated by hyphens. For example: %prog embed_metadata 1 2 10-15 23'''))
     parser.add_option('-f', '--only-formats', action='append', default=[], help=_(
         'Only update metadata in files of the specified format. Specify it multiple'
-        ' times for multiple formats. Be default, all formats are updated.'))
+        ' times for multiple formats. By default, all formats are updated.'))
     return parser
 
 def command_embed_metadata(args, dbpath):
