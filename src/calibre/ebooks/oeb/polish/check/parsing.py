@@ -12,6 +12,7 @@ from lxml.etree import XMLParser, fromstring, XMLSyntaxError
 import cssutils
 
 from calibre import force_unicode, human_readable, prepare_string_for_xml
+from calibre.ebooks.chardet import replace_encoding_declarations, find_declared_encoding
 from calibre.ebooks.html_entities import html5_entities
 from calibre.ebooks.oeb.polish.pretty import pretty_script_or_style as fix_style_tag
 from calibre.ebooks.oeb.polish.utils import PositionFinder, guess_type
@@ -166,6 +167,24 @@ class BadNamespace(BaseError):
         container.dirty(self.name)
         return True
 
+class NonUTF8(BaseError):
+
+    level = WARN
+    INDIVIDUAL_FIX = _("Change this file's encoding to UTF-8")
+
+    def __init__(self, name, enc):
+        BaseError.__init__(self, _('Non UTF-8 encoding declaration'), name)
+        self.HELP = _('This file has its encoding declared as %s. Some'
+                      ' reader software cannot handle non-UTF8 encoded files.'
+                      ' You should change the encoding to UTF-8.')
+
+    def __call__(self, container):
+        raw = container.raw_data(self.name)
+        if isinstance(raw, type('')):
+            raw, changed = replace_encoding_declarations(raw)
+            if changed:
+                container.open(self.name, 'wb').write(raw.encode('utf-8'))
+                return True
 
 class EntitityProcessor(object):
 
@@ -207,6 +226,13 @@ def check_html_size(name, mt, raw):
     return errors
 
 entity_pat = re.compile(br'&(#{0,1}[a-zA-Z0-9]{1,8});')
+
+def check_encoding_declarations(name, container):
+    errors = []
+    enc = find_declared_encoding(container.raw_data(name))
+    if enc is not None and enc.lower() != 'utf-8':
+        errors.append(NonUTF8(name, enc))
+    return errors
 
 def check_xml_parsing(name, mt, raw):
     if not raw:

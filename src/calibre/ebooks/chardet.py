@@ -44,6 +44,13 @@ def replace_encoding_declarations(raw, enc='utf-8', limit=50*1024):
     raw = prefix + suffix
     return raw, changed[0]
 
+def find_declared_encoding(raw, limit=50*1024):
+    prefix = raw[:limit]
+    for pat in ENCODING_PATS:
+        m = pat.search(prefix)
+        if m is not None:
+            return m.group(1)
+
 def substitute_entites(raw):
     from calibre import xml_entity_to_unicode
     return ENTITY_PATTERN.sub(xml_entity_to_unicode, raw)
