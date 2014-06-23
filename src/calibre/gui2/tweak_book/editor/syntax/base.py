@@ -166,9 +166,9 @@ class SyntaxHighlighter(object):
         layout = block.layout()
         preedit_start = layout.preeditAreaPosition()
         preedit_length = layout.preeditAreaText().length()
-        for r in formats:
-            # Adjust range by pre-edit text, if any
-            if preedit_start != 0:
+        if preedit_length != 0 and preedit_start != 0:
+            for r in formats:
+                # Adjust range by pre-edit text, if any
                 if r.start >= preedit_start:
                     r.start += preedit_length
                 elif r.start + r.length >= preedit_start:
