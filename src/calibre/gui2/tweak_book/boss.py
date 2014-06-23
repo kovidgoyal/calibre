@@ -123,9 +123,9 @@ class Boss(QObject):
         self.gui.manage_fonts.subset_all_fonts.connect(self.manage_fonts_subset)
 
     def preferences(self):
+        orig_spell = tprefs['inline_spell_check']
         p = Preferences(self.gui)
         ret = p.exec_()
-        orig_spell = tprefs['inline_spell_check']
         if p.dictionaries_changed:
             dictionaries.clear_caches()
             dictionaries.initialize(force=True)  # Reread user dictionaries
@@ -141,6 +141,8 @@ class Boss(QObject):
             for ed in editors.itervalues():
                 ed.apply_settings(dictionaries_changed=p.dictionaries_changed)
         if orig_spell != tprefs['inline_spell_check']:
+            from calibre.gui2.tweak_book.editor.syntax.html import refresh_spell_check_status
+            refresh_spell_check_status()
             for ed in editors.itervalues():
                 try:
                     ed.editor.highlighter.rehighlight()

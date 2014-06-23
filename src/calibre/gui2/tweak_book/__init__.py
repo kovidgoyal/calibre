@@ -102,3 +102,5 @@ def set_book_locale(lang):
             raise ValueError('')
     except ValueError:
         dictionaries.default_locale = dictionaries.ui_locale
+    from calibre.gui2.tweak_book.editor.syntax.html import refresh_spell_check_status
+    refresh_spell_check_status()

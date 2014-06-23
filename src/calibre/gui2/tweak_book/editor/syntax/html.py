@@ -53,6 +53,12 @@ TagStart = namedtuple('TagStart', 'offset prefix name closing is_start')
 TagEnd = namedtuple('TagEnd', 'offset self_closing is_start')
 Attr = namedtuple('Attr', 'offset type data')
 
+do_spell_check = False
+
+def refresh_spell_check_status():
+    global do_spell_check
+    do_spell_check = tprefs['inline_spell_check'] and hasattr(dictionaries, 'active_user_dictionaries')
+
 class Tag(object):
 
     __slots__ = ('name', 'bold', 'italic', 'lang')
@@ -263,7 +269,7 @@ def process_text(state, text, nbsp_format, spell_format, user_data):
     elif last < len(text):
         ans.append((len(text) - last, fmt))
 
-    if tprefs['inline_spell_check'] and state.tags and user_data.tag_ok_for_spell(state.tags[-1].name) and hasattr(dictionaries, 'active_user_dictionaries'):
+    if do_spell_check and state.tags and user_data.tag_ok_for_spell(state.tags[-1].name):
         split_ans = []
         locale = state.current_lang or dictionaries.default_locale
         sfmt = QTextCharFormat(spell_format)
