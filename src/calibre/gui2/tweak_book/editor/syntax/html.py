@@ -239,17 +239,17 @@ def cdata(state, text, i, formats, user_data):
 
 def check_spelling(text, tpos, tlen, fmt, locale, sfmt):
     split_ans = []
-    ctext = text[tpos:tpos+tlen]
     ppos = 0
-    for start, length in split_into_words_and_positions(ctext, lang=locale.langcode):
+    sl = store_locale.enabled
+    for start, length in split_into_words_and_positions(text[tpos:tpos+tlen], lang=locale.langcode):
         if start > ppos:
             split_ans.append((start - ppos, fmt))
         ppos = start + length
-        recognized = dictionaries.recognized(ctext[start:ppos], locale)
+        recognized = dictionaries.recognized(text[tpos + start:ppos], locale)
         if recognized:
             split_ans.append((length, fmt))
         else:
-            if store_locale.enabled:
+            if sl:
                 s = QTextCharFormat(sfmt)
                 s.setProperty(SPELL_LOCALE_PROPERTY, locale)
                 split_ans.append((length, s))
