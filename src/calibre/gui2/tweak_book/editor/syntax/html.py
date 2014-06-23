@@ -223,6 +223,25 @@ def cdata(state, text, i, formats, user_data):
     add_tag_data(user_data, TagStart(m.start(), '', name, True, True))
     return [(num, fmt), (2, formats['end_tag']), (len(m.group()) - 2, formats['tag_name'])]
 
+def check_spelling(text, tpos, tlen, fmt, locale, sfmt):
+    split_ans = []
+    ctext = text[tpos:tpos+tlen]
+    ppos = 0
+    for start, length in split_into_words_and_positions(ctext, lang=locale.langcode):
+        if start > ppos:
+            split_ans.append((start - ppos, fmt))
+        ppos = start + length
+        recognized = dictionaries.recognized(ctext[start:ppos], locale)
+        if recognized:
+            split_ans.append((length, fmt))
+        else:
+            wsfmt = SyntaxTextCharFormat(sfmt)
+            wsfmt.setProperty(SPELL_PROPERTY, (ctext[start:ppos], locale))
+            split_ans.append((length, wsfmt))
+    if ppos < tlen:
+        split_ans.append((tlen - ppos, fmt))
+    return split_ans
+
 def process_text(state, text, nbsp_format, spell_format, user_data):
     ans = []
     fmt = None
@@ -253,19 +272,7 @@ def process_text(state, text, nbsp_format, spell_format, user_data):
             if fmt is nbsp_format:
                 split_ans.append((tlen, fmt))
             else:
-                ctext = text[tpos:tpos+tlen]
-                ppos = 0
-                for start, length in split_into_words_and_positions(ctext, lang=locale.langcode):
-                    if start > ppos:
-                        split_ans.append((start - ppos, fmt))
-                    ppos = start + length
-                    recognized = dictionaries.recognized(ctext[start:ppos], locale)
-                    if not recognized:
-                        wsfmt = SyntaxTextCharFormat(sfmt)
-                        wsfmt.setProperty(SPELL_PROPERTY, (ctext[start:ppos], locale))
-                    split_ans.append((length, fmt if recognized else wsfmt))
-                if ppos < tlen:
-                    split_ans.append((tlen - ppos, fmt))
+                split_ans.extend(check_spelling(text, tpos, tlen, fmt, locale, sfmt))
 
             tpos += tlen
         ans = split_ans
@@ -503,6 +510,29 @@ class XMLHighlighter(HTMLHighlighter):
 
     def tag_ok_for_spell(self, name):
         return XMLUserData.tag_ok_for_spell(name)
+
+def profile():
+    import sys
+    from PyQt4.Qt import QTextDocument
+    from calibre.gui2 import Application
+    from calibre.gui2.tweak_book import set_book_locale
+    from calibre.gui2.tweak_book.editor.themes import get_theme
+    app = Application([])
+    set_book_locale('en')
+    raw = open(sys.argv[-2], 'rb').read().decode('utf-8')
+    doc = QTextDocument()
+    doc.setPlainText(raw)
+    h = HTMLHighlighter()
+    theme = get_theme(tprefs['editor_theme'])
+    h.apply_theme(theme)
+    h.set_document(doc)
+    import cProfile
+    print ('Running profile on', sys.argv[-2])
+    cProfile.runctx('h.rehighlight()', {}, {'h':h}, sys.argv[-1])
+    print ('Stats saved to:', sys.argv[-1])
+    del h
+    del doc
+    del app
 
 if __name__ == '__main__':
     from calibre.gui2.tweak_book.editor.widget import launch_editor
