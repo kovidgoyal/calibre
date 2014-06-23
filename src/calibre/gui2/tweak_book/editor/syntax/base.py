@@ -136,7 +136,7 @@ class SyntaxHighlighter(object):
             doc.contentsChange.connect(self.reformat_blocks)
 
     def parse_single_block(self, block):
-        ud, new_ud = self.get_user_data(block)
+        ud, is_new_ud = self.get_user_data(block)
         orig_state = ud.state
         pblock = block.previous()
         if pblock.isValid():
@@ -152,7 +152,7 @@ class SyntaxHighlighter(object):
         for i, num, fmt in run_loop(ud, self.state_map, self.formats, unicode(block.text())):
             if fmt is not None:
                 formats.append((i, num, fmt))
-        force_next_highlight = new_ud or ud.state != orig_state
+        force_next_highlight = is_new_ud or ud.state != orig_state
         return formats, force_next_highlight
 
     def reformat_block(self, block):
