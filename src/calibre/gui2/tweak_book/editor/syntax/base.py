@@ -130,7 +130,8 @@ class SyntaxHighlighter(object):
             block = doc.findBlock(position)
             while block.isValid() and (block.position() < end_pos or force_next_highlight):
                 formats, force_next_highlight = self.parse_single_block(block)
-                self.apply_format_changes(doc, block, formats)
+                self.apply_format_changes(block, formats)
+                doc.markContentsDirty(block.position(), block.length())
                 block = block.next()
         finally:
             doc.contentsChange.connect(self.reformat_blocks)
@@ -151,7 +152,9 @@ class SyntaxHighlighter(object):
         formats = []
         for i, num, fmt in run_loop(ud, self.state_map, self.formats, unicode(block.text())):
             if fmt is not None:
-                formats.append((i, num, fmt))
+                r = QTextLayout.FormatRange()
+                r.start, r.length, r.format = i, num, fmt
+                formats.append(r)
         force_next_highlight = is_new_ud or ud.state != orig_state
         return formats, force_next_highlight
 
@@ -159,22 +162,16 @@ class SyntaxHighlighter(object):
         if block.isValid():
             self.reformat_blocks(block.position(), 0, 1)
 
-    def apply_format_changes(self, doc, block, formats):
+    def apply_format_changes(self, block, formats):
         layout = block.layout()
         preedit_start = layout.preeditAreaPosition()
         preedit_length = layout.preeditAreaText().length()
-        ranges = []
-        R = QTextLayout.FormatRange
-        for i, num, fmt in formats:
+        for r in formats:
             # Adjust range by pre-edit text, if any
             if preedit_start != 0:
-                if i >= preedit_start:
-                    i += preedit_length
-                elif i + num >= preedit_start:
-                    num += preedit_length
-            r = R()
-            r.start, r.length, r.format = i, num, fmt
-            ranges.append(r)
-        layout.setAdditionalFormats(ranges)
-        doc.markContentsDirty(block.position(), block.length())
+                if r.start >= preedit_start:
+                    r.start += preedit_length
+                elif r.start + r.length >= preedit_start:
+                    r.length += preedit_length
+        layout.setAdditionalFormats(formats)
 
