@@ -135,6 +135,7 @@ class Plugins(collections.Mapping):
                 'chm_extra',
                 'icu',
                 'speedup',
+                'html',
                 'freetype',
                 'woff',
                 'unrar',

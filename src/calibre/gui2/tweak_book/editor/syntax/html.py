@@ -24,8 +24,6 @@ from calibre.gui2.tweak_book.editor.syntax.css import (
 from html5lib.constants import cdataElements, rcdataElements
 
 cdata_tags = cdataElements | rcdataElements
-bold_tags = {'b', 'strong'} | {'h%d' % d for d in range(1, 7)}
-italic_tags = {'i', 'em'}
 normal_pat = re.compile(r'[^<>&]+')
 entity_pat = re.compile(r'&#{0,1}[a-zA-Z0-9]{1,8};')
 tag_name_pat = re.compile(r'/{0,1}[a-zA-Z0-9:]+')
@@ -59,111 +57,121 @@ def refresh_spell_check_status():
     global do_spell_check
     do_spell_check = tprefs['inline_spell_check'] and hasattr(dictionaries, 'active_user_dictionaries')
 
-class Tag(object):
+from calibre.constants import plugins
 
-    __slots__ = ('name', 'bold', 'italic', 'lang')
+_speedup = plugins['html'][0]
+if _speedup is not None:
+    Tag = _speedup.Tag
+    bold_tags, italic_tags = _speedup.bold_tags, _speedup.italic_tags
+    State = _speedup.State
+else:
+    bold_tags = {'b', 'strong'} | {'h%d' % d for d in range(1, 7)}
+    italic_tags = {'i', 'em'}
 
-    def __init__(self, name, bold=None, italic=None):
-        self.name = name
-        self.bold = name in bold_tags if bold is None else bold
-        self.italic = name in italic_tags if italic is None else italic
-        self.lang = None
+    class Tag(object):
 
-    def __eq__(self, other):
-        return self.name == getattr(other, 'name', None) and self.lang == getattr(other, 'lang', False)
+        __slots__ = ('name', 'bold', 'italic', 'lang')
 
-    def copy(self):
-        ans = Tag(self.name, self.bold, self.italic)
-        ans.lang = self.lang
-        return ans
+        def __init__(self, name, bold=None, italic=None, lang=None):
+            self.name = name
+            self.bold = name in bold_tags if bold is None else bold
+            self.italic = name in italic_tags if italic is None else italic
+            self.lang = lang
 
-class State(object):
+        def __eq__(self, other):
+            return self.name == other.name and self.lang == other.lang
 
-    __slots__ = (
-        'tag_being_defined', 'tags', 'is_bold', 'is_italic', 'current_lang',
-        'parse', 'css_formats', 'sub_parser_state', 'default_lang', 'attribute_name',)
+        def copy(self):
+            ans = Tag(self.name, self.bold, self.italic, self.lang)
+            return ans
 
-    def __init__(self):
-        self.tags = []
-        self.is_bold = self.is_italic = False
-        self.tag_being_defined = self.current_lang =  self.css_formats = \
-            self.sub_parser_state = self.default_lang = self.attribute_name = None
-        self.parse = NORMAL
+    class State(object):
 
-    def copy(self):
-        ans = State()
-        for x in self.__slots__:
-            setattr(ans, x, getattr(self, x))
-        self.tags = [x.copy() for x in self.tags]
-        if self.tag_being_defined is not None:
-            self.tag_being_defined = self.tag_being_defined.copy()
-        if self.sub_parser_state is not None:
-            ans.sub_parser_state = self.sub_parser_state.copy()
-        return ans
+        __slots__ = (
+            'tag_being_defined', 'tags', 'is_bold', 'is_italic', 'current_lang',
+            'parse', 'css_formats', 'sub_parser_state', 'default_lang', 'attribute_name',)
 
-    def __eq__(self, other):
-        return (
-            self.parse == getattr(other, 'parse', -1) and
-            self.sub_parser_state == getattr(other, 'sub_parser_state', -1) and
-            self.tag_being_defined == getattr(other, 'tag_being_defined', False) and
-            self.attribute_name == getattr(other, 'attribute_name', False) and
-            self.tags == getattr(other, 'tags', None)
-        )
+        def __init__(self, tags=None):
+            self.tags = []
+            self.is_bold = self.is_italic = False
+            self.tag_being_defined = self.current_lang =  self.css_formats = \
+                self.sub_parser_state = self.default_lang = self.attribute_name = None
+            self.parse = NORMAL
 
-    def __ne__(self, other):
-        return not self.__eq__(other)
+        def copy(self):
+            ans = State()
+            for x in self.__slots__:
+                setattr(ans, x, getattr(self, x))
+            self.tags = [x.copy() for x in self.tags]
+            if self.tag_being_defined is not None:
+                self.tag_being_defined = self.tag_being_defined.copy()
+            if self.sub_parser_state is not None:
+                ans.sub_parser_state = self.sub_parser_state.copy()
+            return ans
 
-    def open_tag(self, name):
-        self.tag_being_defined = Tag(name)
+        def __eq__(self, other):
+            return (
+                self.parse == other.parse and
+                self.sub_parser_state == other.sub_parser_state and
+                self.tag_being_defined == other.tag_being_defined and
+                self.attribute_name == other.attribute_name and
+                self.tags == other.tags
+            )
 
-    def close_tag(self, name):
-        removed_tags = []
-        for tag in reversed(self.tags):
-            removed_tags.append(tag)
-            if tag.name == name:
+        def __ne__(self, other):
+            return not self.__eq__(other)
+
+        def __repr__(self):
+            return '<State %s is_bold=%s is_italic=%s current_lang=%s>' % (
+                '->'.join(x.name for x in self.tags), self.is_bold, self.is_italic, self.current_lang)
+        __str__ = __repr__
+
+
+del _speedup
+
+def finish_opening_tag(state, cdata_tags):
+    state.parse = NORMAL
+    if state.tag_being_defined is None:
+        return
+    t, state.tag_being_defined = state.tag_being_defined, None
+    state.tags.append(t)
+    state.is_bold = state.is_bold or t.bold
+    state.is_italic = state.is_italic or t.italic
+    state.current_lang = t.lang or state.current_lang
+    if t.name in cdata_tags:
+        state.parse = CSS if t.name == 'style' else CDATA
+        state.sub_parser_state = None
+
+def close_tag(state, name):
+    removed_tags = []
+    for tag in reversed(state.tags):
+        removed_tags.append(tag)
+        if tag.name == name:
+            break
+    else:
+        return  # No matching open tag found, ignore the closing tag
+    # Remove all tags upto the matching open tag
+    state.tags = state.tags[:-len(removed_tags)]
+    state.sub_parser_state = None
+    # Check if we should still be bold or italic
+    if state.is_bold:
+        state.is_bold = False
+        for tag in reversed(state.tags):
+            if tag.bold:
+                state.is_bold = True
                 break
-        else:
-            return  # No matching open tag found, ignore the closing tag
-        # Remove all tags upto the matching open tag
-        self.tags = self.tags[:-len(removed_tags)]
-        self.sub_parser_state = None
-        # Check if we should still be bold or italic
-        if self.is_bold:
-            self.is_bold = False
-            for tag in reversed(self.tags):
-                if tag.bold:
-                    self.is_bold = True
-                    break
-        if self.is_italic:
-            self.is_italic = False
-            for tag in reversed(self.tags):
-                if tag.italic:
-                    self.is_italic = True
-                    break
-        # Set the current language to the first lang attribute in a still open tag
-        self.current_lang = None
-        for tag in reversed(self.tags):
-            if tag.lang is not None:
-                self.current_lang = tag.lang
+    if state.is_italic:
+        state.is_italic = False
+        for tag in reversed(state.tags):
+            if tag.italic:
+                state.is_italic = True
                 break
-
-    def finish_opening_tag(self, cdata_tags):
-        self.parse = NORMAL
-        if self.tag_being_defined is None:
-            return
-        t, self.tag_being_defined = self.tag_being_defined, None
-        self.tags.append(t)
-        self.is_bold = self.is_bold or t.bold
-        self.is_italic = self.is_italic or t.italic
-        self.current_lang = t.lang or self.current_lang
-        if t.name in cdata_tags:
-            self.parse = CSS if t.name == 'style' else CDATA
-            self.sub_parser_state = None
-
-    def __repr__(self):
-        return '<State %s is_bold=%s is_italic=%s current_lang=%s>' % (
-            '->'.join(x.name for x in self.tags), self.is_bold, self.is_italic, self.current_lang)
-    __str__ = __repr__
+    # Set the current language to the first lang attribute in a still open tag
+    state.current_lang = None
+    for tag in reversed(state.tags):
+        if tag.lang is not None:
+            state.current_lang = tag.lang
+            break
 
 class HTMLUserData(QTextBlockUserData):
 
@@ -324,7 +332,10 @@ def normal(state, text, i, formats, user_data):
         ans.append((len(name), formats['tag_name']))
         state.parse = IN_CLOSING_TAG if closing else IN_OPENING_TAG
         add_tag_data(user_data, TagStart(i, prefix, name, closing, True))
-        (state.close_tag if closing else state.open_tag)(name)
+        if closing:
+            close_tag(state, name)
+        else:
+            state.tag_being_defined = Tag(name)
         return ans
 
     if ch == '&':
@@ -353,7 +364,7 @@ def opening_tag(cdata_tags, state, text, i, formats, user_data):
         add_tag_data(user_data, TagEnd(i + l - 1, True, False))
         return [(l, formats['tag'])]
     if ch == '>':
-        state.finish_opening_tag(cdata_tags)
+        finish_opening_tag(state, cdata_tags)
         add_tag_data(user_data, TagEnd(i, False, False))
         return [(1, formats['tag'])]
     m = attribute_name_pat.match(text, i)

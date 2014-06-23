@@ -89,6 +89,10 @@ extensions = [
         ['calibre/utils/speedup.c'],
         ),
 
+    Extension('html',
+        ['calibre/gui2/tweak_book/editor/syntax/html.c'],
+        ),
+
     Extension('tokenizer',
         ['tinycss/tokenizer.c'],
         ),
