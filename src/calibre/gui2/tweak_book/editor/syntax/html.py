@@ -10,13 +10,13 @@ import re
 from functools import partial
 from collections import namedtuple
 
-from PyQt4.Qt import QFont, QTextBlockUserData
+from PyQt4.Qt import QFont, QTextBlockUserData, QTextCharFormat
 
 from calibre.ebooks.oeb.polish.spell import html_spell_tags, xml_spell_tags
 from calibre.spell.dictionary import parse_lang_code
 from calibre.spell.break_iterator import split_into_words_and_positions
 from calibre.gui2.tweak_book import dictionaries, tprefs
-from calibre.gui2.tweak_book.editor import SyntaxTextCharFormat, SPELL_PROPERTY, SPELL_LOCALE_PROPERTY, store_locale
+from calibre.gui2.tweak_book.editor import syntax_text_char_format, SPELL_PROPERTY, SPELL_LOCALE_PROPERTY, store_locale
 from calibre.gui2.tweak_book.editor.syntax.base import SyntaxHighlighter, run_loop
 from calibre.gui2.tweak_book.editor.syntax.css import (
     create_formats as create_css_formats, state_map as css_state_map, CSSState, CSSUserData)
@@ -236,7 +236,7 @@ def check_spelling(text, tpos, tlen, fmt, locale, sfmt):
             split_ans.append((length, fmt))
         else:
             if store_locale.enabled:
-                s = SyntaxTextCharFormat(sfmt)
+                s = QTextCharFormat(sfmt)
                 s.setProperty(SPELL_LOCALE_PROPERTY, locale)
                 split_ans.append((length, s))
             else:
@@ -249,7 +249,7 @@ def process_text(state, text, nbsp_format, spell_format, user_data):
     ans = []
     fmt = None
     if state.is_bold or state.is_italic:
-        fmt = SyntaxTextCharFormat()
+        fmt = syntax_text_char_format()
         if state.is_bold:
             fmt.setFontWeight(QFont.Bold)
         if state.is_italic:
@@ -266,7 +266,7 @@ def process_text(state, text, nbsp_format, spell_format, user_data):
     if tprefs['inline_spell_check'] and state.tags and user_data.tag_ok_for_spell(state.tags[-1].name) and hasattr(dictionaries, 'active_user_dictionaries'):
         split_ans = []
         locale = state.current_lang or dictionaries.default_locale
-        sfmt = SyntaxTextCharFormat(spell_format)
+        sfmt = QTextCharFormat(spell_format)
         if fmt is not None:
             sfmt.merge(fmt)
 
@@ -483,9 +483,9 @@ def create_formats(highlighter, add_css=True):
             'no-attr-value': _('Expecting an attribute value'),
             'only-prefix': _('A tag name cannot end with a colon'),
     }.iteritems():
-        f = formats[name] = SyntaxTextCharFormat(formats['error'])
+        f = formats[name] = syntax_text_char_format(formats['error'])
         f.setToolTip(msg)
-    f = formats['title'] = SyntaxTextCharFormat()
+    f = formats['title'] = syntax_text_char_format()
     f.setFontWeight(QFont.Bold)
     if add_css:
         formats['css_sub_formats'] = create_css_formats(highlighter)

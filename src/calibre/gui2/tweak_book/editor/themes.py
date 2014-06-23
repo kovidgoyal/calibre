@@ -12,11 +12,11 @@ from PyQt4.Qt import (
     QColor, QBrush, QFont, QApplication, QPalette, QComboBox,
     QPushButton, QIcon, QFormLayout, QLineEdit, QWidget, QScrollArea,
     QVBoxLayout, Qt, QHBoxLayout, pyqtSignal, QPixmap, QColorDialog,
-    QToolButton, QCheckBox, QSize, QLabel, QSplitter)
+    QToolButton, QCheckBox, QSize, QLabel, QSplitter, QTextCharFormat)
 
 from calibre.gui2 import error_dialog
 from calibre.gui2.tweak_book import tprefs
-from calibre.gui2.tweak_book.editor import SyntaxTextCharFormat
+from calibre.gui2.tweak_book.editor import syntax_text_char_format
 from calibre.gui2.tweak_book.widgets import Dialog
 
 underline_styles = {'single', 'dash', 'dot', 'dash_dot', 'dash_dot_dot', 'wave', 'spell'}
@@ -233,7 +233,7 @@ def u(x):
     if 'Dot' in x:
         return x + 'Line'
     return x + 'Underline'
-underline_styles = {x:getattr(SyntaxTextCharFormat, u(x)) for x in underline_styles}
+underline_styles = {x:getattr(QTextCharFormat, u(x)) for x in underline_styles}
 
 def to_highlight(data):
     data = data.copy()
@@ -258,7 +258,7 @@ def get_theme(name):
             return read_custom_theme(ans)
 
 def highlight_to_char_format(h):
-    ans = SyntaxTextCharFormat()
+    ans = syntax_text_char_format()
     if h.bold:
         ans.setFontWeight(QFont.Bold)
     if h.italic:

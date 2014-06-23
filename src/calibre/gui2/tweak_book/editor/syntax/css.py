@@ -10,7 +10,7 @@ import re
 
 from PyQt4.Qt import QTextBlockUserData
 
-from calibre.gui2.tweak_book.editor import SyntaxTextCharFormat
+from calibre.gui2.tweak_book.editor import syntax_text_char_format
 from calibre.gui2.tweak_book.editor.syntax.base import SyntaxHighlighter
 
 space_pat = re.compile(r'[ \n\t\r\f]+')
@@ -267,7 +267,7 @@ def create_formats(highlighter):
         'unknown-normal': _('Invalid text'),
         'unterminated-string': _('Unterminated string'),
     }.iteritems():
-        f = formats[name] = SyntaxTextCharFormat(formats['error'])
+        f = formats[name] = syntax_text_char_format(formats['error'])
         f.setToolTip(msg)
     return formats
 
