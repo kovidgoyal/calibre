@@ -35,6 +35,7 @@ def editor_from_syntax(syntax, parent=None):
 
 SYNTAX_PROPERTY = QTextCharFormat.UserProperty
 SPELL_PROPERTY = SYNTAX_PROPERTY + 1
+SPELL_LOCALE_PROPERTY = SPELL_PROPERTY + 1
 
 class SyntaxTextCharFormat(QTextCharFormat):
 
@@ -47,4 +48,16 @@ class SyntaxTextCharFormat(QTextCharFormat):
             id(self), self.foreground().color().name(), self.fontItalic(), self.fontWeight() >= QFont.DemiBold)
     __str__ = __repr__
 
+class StoreLocale(object):
 
+    __slots__ = ('enabled',)
+
+    def __init__(self):
+        self.enabled = False
+
+    def __enter__(self):
+        self.enabled = True
+
+    def __exit__(self, *args):
+        self.enabled = False
+store_locale = StoreLocale()

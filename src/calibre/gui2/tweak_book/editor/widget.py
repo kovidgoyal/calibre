@@ -383,10 +383,10 @@ class Editor(QMainWindow):
         m = QMenu(self)
         a = m.addAction
         c = self.editor.cursorForPosition(pos)
-        fmt = self.editor.syntax_format_for_cursor(c)
-        spell = fmt.property(SPELL_PROPERTY).toPyObject() if fmt is not None else None
-        if spell is not None:
-            word, locale = spell
+        r = self.editor.syntax_range_for_cursor(c)
+        if r.format.property(SPELL_PROPERTY).toBool():
+            word = self.editor.text_for_range(c.block(), r)
+            locale = self.editor.spellcheck_locale_for_cursor(c)
             orig_pos = c.position()
             c.setPosition(orig_pos - utf16_length(word))
             found = False

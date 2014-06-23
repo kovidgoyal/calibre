@@ -18,7 +18,7 @@ from PyQt4.Qt import (
 
 from calibre import prepare_string_for_xml, xml_entity_to_unicode
 from calibre.gui2.tweak_book import tprefs, TOP
-from calibre.gui2.tweak_book.editor import SYNTAX_PROPERTY, SPELL_PROPERTY
+from calibre.gui2.tweak_book.editor import SYNTAX_PROPERTY, SPELL_PROPERTY, SPELL_LOCALE_PROPERTY, store_locale
 from calibre.gui2.tweak_book.editor.themes import get_theme, theme_color, theme_format
 from calibre.gui2.tweak_book.editor.syntax.base import SyntaxHighlighter
 from calibre.gui2.tweak_book.editor.syntax.html import HTMLHighlighter, XMLHighlighter
@@ -427,7 +427,7 @@ class TextEdit(PlainTextEdit):
         block = c.block()
         while block.isValid():
             for r in block.layout().additionalFormats():
-                if r.format.property(SPELL_PROPERTY).toPyObject() is not None:
+                if r.format.property(SPELL_PROPERTY).toBool():
                     if not from_cursor or block.position() + r.start + r.length > c.position():
                         c.setPosition(block.position() + r.start)
                         c.setPosition(c.position() + r.length, c.KeepAnchor)
@@ -568,26 +568,42 @@ class TextEdit(PlainTextEdit):
                 return False
         return QPlainTextEdit.event(self, ev)
 
+    def text_for_range(self, block, r):
+        c = self.textCursor()
+        c.setPosition(block.position() + r.start)
+        c.setPosition(c.position() + r.length, c.KeepAnchor)
+        return unicode(c.selectedText())
+
+    def spellcheck_locale_for_cursor(self, c):
+        with store_locale:
+            formats = self.highlighter.parse_single_block(c.block())[0]
+        pos = c.positionInBlock()
+        for i, num, fmt in formats:
+            if i <= pos < i + num and fmt.property(SPELL_PROPERTY).toBool():
+                return fmt.property(SPELL_LOCALE_PROPERTY).toPyObject()
+
     def recheck_word(self, word, locale):
         c = self.textCursor()
         c.movePosition(c.Start)
         block = c.block()
         while block.isValid():
             for r in block.layout().additionalFormats():
-                x = r.format.property(SPELL_PROPERTY).toPyObject()
-                if x is not None and word == x[0]:
+                if r.format.property(SPELL_PROPERTY).toBool() and self.text_for_range(block, r) == word:
                     self.highlighter.reformat_block(block)
                     break
             block = block.next()
 
     # Tooltips {{{
-    def syntax_format_for_cursor(self, cursor):
+    def syntax_range_for_cursor(self, cursor):
         if cursor.isNull():
             return
         pos = cursor.positionInBlock()
         for r in cursor.block().layout().additionalFormats():
             if r.start <= pos < r.start + r.length and r.format.property(SYNTAX_PROPERTY).toBool():
-                return r.format
+                return r
+
+    def syntax_format_for_cursor(self, cursor):
+        return getattr(self.syntax_range_for_cursor(cursor), 'format', None)
 
     def show_tooltip(self, ev):
         c = self.cursorForPosition(ev.pos())

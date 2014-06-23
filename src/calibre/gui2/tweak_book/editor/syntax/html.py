@@ -16,7 +16,7 @@ from calibre.ebooks.oeb.polish.spell import html_spell_tags, xml_spell_tags
 from calibre.spell.dictionary import parse_lang_code
 from calibre.spell.break_iterator import split_into_words_and_positions
 from calibre.gui2.tweak_book import dictionaries, tprefs
-from calibre.gui2.tweak_book.editor import SyntaxTextCharFormat, SPELL_PROPERTY
+from calibre.gui2.tweak_book.editor import SyntaxTextCharFormat, SPELL_PROPERTY, SPELL_LOCALE_PROPERTY, store_locale
 from calibre.gui2.tweak_book.editor.syntax.base import SyntaxHighlighter, run_loop
 from calibre.gui2.tweak_book.editor.syntax.css import (
     create_formats as create_css_formats, state_map as css_state_map, CSSState, CSSUserData)
@@ -235,9 +235,12 @@ def check_spelling(text, tpos, tlen, fmt, locale, sfmt):
         if recognized:
             split_ans.append((length, fmt))
         else:
-            wsfmt = SyntaxTextCharFormat(sfmt)
-            wsfmt.setProperty(SPELL_PROPERTY, (ctext[start:ppos], locale))
-            split_ans.append((length, wsfmt))
+            if store_locale.enabled:
+                s = SyntaxTextCharFormat(sfmt)
+                s.setProperty(SPELL_LOCALE_PROPERTY, locale)
+                split_ans.append((length, s))
+            else:
+                split_ans.append((length, sfmt))
     if ppos < tlen:
         split_ans.append((tlen - ppos, fmt))
     return split_ans
@@ -486,6 +489,7 @@ def create_formats(highlighter, add_css=True):
     f.setFontWeight(QFont.Bold)
     if add_css:
         formats['css_sub_formats'] = create_css_formats(highlighter)
+    formats['spell'].setProperty(SPELL_PROPERTY, True)
     return formats
 
 

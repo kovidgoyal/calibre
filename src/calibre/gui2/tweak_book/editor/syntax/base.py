@@ -129,27 +129,31 @@ class SyntaxHighlighter(object):
         try:
             block = doc.findBlock(position)
             while block.isValid() and (block.position() < end_pos or force_next_highlight):
-                ud, new_ud = self.get_user_data(block)
-                orig_state = ud.state
-                pblock = block.previous()
-                if pblock.isValid():
-                    start_state = pblock.userData()
-                    if start_state is None:
-                        start_state = self.user_data_factory().state
-                    else:
-                        start_state = start_state.state.copy()
-                else:
-                    start_state = self.user_data_factory().state
-                ud.clear(state=start_state)  # Ensure no stale user data lingers
-                formats = []
-                for i, num, fmt in run_loop(ud, self.state_map, self.formats, unicode(block.text())):
-                    if fmt is not None:
-                        formats.append((i, num, fmt))
+                formats, force_next_highlight = self.parse_single_block(block)
                 self.apply_format_changes(doc, block, formats)
-                force_next_highlight = new_ud or ud.state != orig_state
                 block = block.next()
         finally:
             doc.contentsChange.connect(self.reformat_blocks)
+
+    def parse_single_block(self, block):
+        ud, new_ud = self.get_user_data(block)
+        orig_state = ud.state
+        pblock = block.previous()
+        if pblock.isValid():
+            start_state = pblock.userData()
+            if start_state is None:
+                start_state = self.user_data_factory().state
+            else:
+                start_state = start_state.state.copy()
+        else:
+            start_state = self.user_data_factory().state
+        ud.clear(state=start_state)  # Ensure no stale user data lingers
+        formats = []
+        for i, num, fmt in run_loop(ud, self.state_map, self.formats, unicode(block.text())):
+            if fmt is not None:
+                formats.append((i, num, fmt))
+        force_next_highlight = new_ud or ud.state != orig_state
+        return formats, force_next_highlight
 
     def reformat_block(self, block):
         if block.isValid():
