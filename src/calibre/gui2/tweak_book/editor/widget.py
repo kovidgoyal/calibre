@@ -448,8 +448,12 @@ class Editor(QMainWindow):
         self.word_ignored.emit(word, locale)
 
 def launch_editor(path_to_edit, path_is_raw=False, syntax='html'):
+    from calibre.gui2.tweak_book import dictionaries
     from calibre.gui2.tweak_book.main import option_parser
     from calibre.gui2.tweak_book.ui import Main
+    from calibre.gui2.tweak_book.editor.syntax.html import refresh_spell_check_status
+    dictionaries.initialize()
+    refresh_spell_check_status()
     opts = option_parser().parse_args([])
     app = QApplication([])
     # Create the actions that are placed into the editors toolbars
