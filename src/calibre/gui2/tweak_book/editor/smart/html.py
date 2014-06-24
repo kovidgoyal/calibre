@@ -238,6 +238,7 @@ class HTMLSmarts(NullSmarts):
         return ans
 
     def rename_block_tag(self, editor, new_name):
+        editor.highlighter.join()
         c = editor.textCursor()
         block, offset = c.block(), c.positionInBlock()
         tag = None
@@ -268,6 +269,7 @@ class HTMLSmarts(NullSmarts):
                 'No suitable block level tag was found to rename'), show=True)
 
     def get_smart_selection(self, editor, update=True):
+        editor.highlighter.join()
         cursor = editor.textCursor()
         if not cursor.hasSelection():
             return ''
@@ -288,6 +290,7 @@ class HTMLSmarts(NullSmarts):
         return editor.selected_text_from_cursor(cursor)
 
     def insert_hyperlink(self, editor, target, text):
+        editor.highlighter.join()
         c = editor.textCursor()
         if c.hasSelection():
             c.insertText('')  # delete any existing selected text
@@ -301,6 +304,7 @@ class HTMLSmarts(NullSmarts):
         editor.setTextCursor(c)
 
     def insert_tag(self, editor, name):
+        editor.highlighter.join()
         name = name.lstrip()
         text = self.get_smart_selection(editor, update=True)
         c = editor.textCursor()
@@ -314,6 +318,7 @@ class HTMLSmarts(NullSmarts):
     def verify_for_spellcheck(self, cursor, highlighter):
         # Return True iff the cursor is in a location where spelling is
         # checked (inside a tag or inside a checked attribute)
+        highlighter.join()
         block = cursor.block()
         start_pos = cursor.anchor() - block.position()
         end_pos = cursor.position() - block.position()
@@ -393,6 +398,7 @@ class HTMLSmarts(NullSmarts):
     def get_inner_HTML(self, editor):
         ''' Select the inner HTML of the current tag. Return a cursor with the
         inner HTML selected or None. '''
+        editor.highlighter.join()
         c = editor.textCursor()
         block = c.block()
         offset = c.position() - block.position()

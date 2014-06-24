@@ -7,10 +7,10 @@ __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import sys
-from collections import defaultdict
+from collections import defaultdict, deque
 
 from PyQt4.Qt import (
-    QTextCursor, pyqtSlot, QTextBlockUserData, QTextLayout)
+    QTextCursor, pyqtSlot, QTextBlockUserData, QTextLayout, QTimer)
 
 from ..themes import highlight_to_char_format
 from calibre.gui2.tweak_book.widgets import BusyCursor
@@ -71,6 +71,12 @@ class SyntaxHighlighter(object):
 
     def __init__(self):
         self.doc = None
+        self.requests = deque()
+        self.ignore_requests = False
+
+    @property
+    def has_requests(self):
+        return bool(self.requests)
 
     def apply_theme(self, theme):
         self.theme = {k:highlight_to_char_format(v) for k, v in theme.iteritems()}
@@ -117,24 +123,77 @@ class SyntaxHighlighter(object):
     @pyqtSlot(int, int, int)
     def reformat_blocks(self, position, removed, added):
         doc = self.doc
-        if doc is None or not hasattr(self, 'state_map'):
+        if doc is None or self.ignore_requests or not hasattr(self, 'state_map'):
             return
+
+        block = doc.findBlock(position)
+        if not block.isValid():
+            return
+        start_cursor = QTextCursor(block)
         last_block = doc.findBlock(position + added + (1 if removed > 0 else 0))
         if not last_block.isValid():
             last_block = doc.lastBlock()
-        end_pos = last_block.position() + last_block.length()
-        force_next_highlight = False
+        end_cursor = QTextCursor(last_block)
+        end_cursor.movePosition(end_cursor.EndOfBlock)
+        self.requests.append((start_cursor, end_cursor))
+        QTimer.singleShot(0, self.do_one_block)
 
-        doc.contentsChange.disconnect(self.reformat_blocks)
+    def do_one_block(self):
         try:
-            block = doc.findBlock(position)
-            while block.isValid() and (block.position() < end_pos or force_next_highlight):
-                formats, force_next_highlight = self.parse_single_block(block)
-                self.apply_format_changes(block, formats)
-                doc.markContentsDirty(block.position(), block.length())
-                block = block.next()
+            start_cursor, end_cursor = self.requests[0]
+        except IndexError:
+            return
+        self.ignore_requests = True
+        try:
+            block = start_cursor.block()
+            if not block.isValid():
+                self.requests.popleft()
+                return
+            formats, force_next_highlight = self.parse_single_block(block)
+            self.apply_format_changes(block, formats)
+            try:
+                self.doc.markContentsDirty(block.position(), block.length())
+            except AttributeError:
+                self.requests.clear()
+                return
+            ok = start_cursor.movePosition(start_cursor.NextBlock)
+            if not ok:
+                self.requests.popleft()
+                return
+            next_block = start_cursor.block()
+            if next_block.position() > end_cursor.position():
+                if force_next_highlight:
+                    end_cursor.setPosition(next_block.position() + 1)
+                else:
+                    self.requests.popleft()
+                return
         finally:
-            doc.contentsChange.connect(self.reformat_blocks)
+            self.ignore_requests = False
+            QTimer.singleShot(0, self.do_one_block)
+
+    def join(self):
+        ''' Blocks until all pending highlighting requests are handled '''
+        doc = self.doc
+        if doc is None:
+            self.requests.clear()
+            return
+        self.ignore_requests = True
+        try:
+            while self.requests:
+                start_cursor, end_cursor = self.requests.popleft()
+                block = start_cursor.block()
+                last_block = end_cursor.block()
+                if not last_block.isValid():
+                    last_block = doc.lastBlock()
+                end_pos = last_block.position() + last_block.length()
+                force_next_highlight = False
+                while block.isValid() and (force_next_highlight or block.position() < end_pos):
+                    formats, force_next_highlight = self.parse_single_block(block)
+                    self.apply_format_changes(block, formats)
+                    doc.markContentsDirty(block.position(), block.length())
+                    block = block.next()
+        finally:
+            self.ignore_requests = False
 
     def parse_single_block(self, block):
         ud, is_new_ud = self.get_user_data(block)

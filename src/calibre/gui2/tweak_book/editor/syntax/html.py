@@ -554,9 +554,11 @@ def profile():
     theme = get_theme(tprefs['editor_theme'])
     h.apply_theme(theme)
     h.set_document(doc)
+    h.join()
     import cProfile
     print ('Running profile on', sys.argv[-2])
-    cProfile.runctx('h.rehighlight()', {}, {'h':h}, sys.argv[-1])
+    h.rehighlight()
+    cProfile.runctx('h.join()', {}, {'h':h}, sys.argv[-1])
     print ('Stats saved to:', sys.argv[-1])
     del h
     del doc
