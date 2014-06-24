@@ -245,7 +245,7 @@ def check_spelling(text, tpos, tlen, fmt, locale, sfmt):
         if start > ppos:
             split_ans.append((start - ppos, fmt))
         ppos = start + length
-        recognized = dictionaries.recognized(text[tpos + start:ppos], locale)
+        recognized = dictionaries.recognized(text[tpos + start:tpos + ppos], locale)
         if recognized:
             split_ans.append((length, fmt))
         else:
