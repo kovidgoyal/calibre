@@ -1,0 +1,33 @@
+from calibre.web.feeds.news import BasicNewsRecipe
+
+
+class Politics(BasicNewsRecipe):
+    title          = u'Economic and Political Weekly'
+    description    = 'Economic and Political news from India'
+    language       = 'en_IN'
+    __author__     = 'Krittika Goyal'
+    oldest_article = 15  # days
+    max_articles_per_feed = 20
+    use_embedded_content = False
+
+    no_stylesheets = True
+    auto_cleanup = True
+
+    feeds          = [
+
+('Editorials', ' http://www.epw.in/feed/editorials.xml'),
+
+('Commentry', ' http://www.epw.in/feed/commentary.xml'),
+
+('Insight', ' http://www.epw.in/feed/insight.xml'),
+
+('Book Reviews', ' http://www.epw.in/feed/book-reviews.xml'),
+
+('Perspectives', ' http://www.epw.in/feed/perspectives.xml'),
+
+('Special Articles', ' http://www.epw.in/feed/special-articles.xml'),
+
+('Discussion', ' http://www.epw.in/feed/discussion.xml'),
+
+('Web Exclusives', ' http://www.epw.in/feed/web-exclusives.xml'),
+]
