@@ -383,7 +383,6 @@ html_check_spelling(PyObject *self, PyObject *args) {
     long text_len = 0, start = 0, length = 0, ppos = 0; 
     int store_locale = 0, ok = 0;
     Py_ssize_t i = 0, j = 0;
-    Py_UNICODE *buf = NULL;
 
     if (!PyArg_ParseTuple(args, "OlOOOO", &text, &text_len, &fmt, &locale, &sfmt, &_store_locale)) return NULL;
     store_locale = PyObject_IsTrue(_store_locale);
@@ -394,7 +393,6 @@ html_check_spelling(PyObject *self, PyObject *args) {
     if (items == NULL) goto error;
     ans = PyTuple_New((2 * PyList_GET_SIZE(items)) + 1);
     if (ans == NULL) { PyErr_NoMemory(); goto error; }
-    buf = PyUnicode_AS_UNICODE(text);
 
 #define APPEND(x, y) t = Py_BuildValue("lO", (x), y); if (t == NULL) goto error; PyTuple_SET_ITEM(ans, j, t); j += 1;
 
@@ -406,7 +404,7 @@ html_check_spelling(PyObject *self, PyObject *args) {
         if (start > ppos) { APPEND(start - ppos, fmt) }
         ppos = start + length;
 
-        utmp = PyUnicode_FromUnicode(buf + start, length);
+        utmp = PyUnicode_FromUnicode(PyUnicode_AS_UNICODE(text) + start, length);
         if (utmp == NULL) { PyErr_NoMemory(); goto error; }
         temp = PyObject_CallFunctionObjArgs(recognized, utmp, locale, NULL);
         Py_DECREF(utmp); utmp = NULL;
