@@ -81,7 +81,7 @@ class EXTHHeader(object):  # {{{
                         self.mi.language = lang
                 except:
                     pass
-            #else:
+            # else:
             #    print 'unknown record', idx, repr(content)
         if title:
             self.mi.title = replace_entities(clean_xml_chars(clean_ascii_chars(title)))
@@ -125,6 +125,8 @@ class EXTHHeader(object):  # {{{
                 pass
         elif idx == 108:
             self.mi.book_producer = clean_xml_chars(self.decode(content).strip())
+        elif idx == 109:
+            self.mi.rights = clean_xml_chars(self.decode(content).strip())
         elif idx == 112:  # dc:source set in some EBSP amazon samples
             try:
                 content = content.decode(codec).strip()
@@ -153,7 +155,7 @@ class EXTHHeader(object):  # {{{
             self.kf8_header, = struct.unpack(b'>L', content)
             if self.kf8_header == NULL_INDEX:
                 self.kf8_header = None
-        #else:
+        # else:
         #    print 'unhandled metadata record', idx, repr(content)
 # }}}
 
