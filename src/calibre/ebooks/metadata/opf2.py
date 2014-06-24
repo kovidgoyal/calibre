@@ -1421,6 +1421,7 @@ class OPFCreator(Metadata):
                 a(CAL_ELEM('calibre:series_index', self.format_series_index()))
         if self.title_sort:
             a(CAL_ELEM('calibre:title_sort', self.title_sort))
+        print(self.title_sort)
         if self.rating is not None:
             a(CAL_ELEM('calibre:rating', str(self.rating)))
         if self.timestamp is not None:

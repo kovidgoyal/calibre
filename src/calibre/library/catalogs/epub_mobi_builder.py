@@ -284,13 +284,13 @@ class CatalogBuilder(object):
             self.generate_html_by_genres()
             # If this is the only Section, and there are no genres, bail
             if self.opts.section_list == ['Genres'] and not self.genres:
-                error_msg = _("No genres to catalog.\n")
+                error_msg = _("No genres to catalogue.\n") #ÞGB change on spelling
                 if not self.opts.cli_environment:
                     error_msg += _("Check 'Excluded genres' regex in E-book options.\n")
                 self.opts.log.error(error_msg)
-                self.error.append(_('No books available to catalog'))
+                self.error.append(_('No books available to catalogue'))
                 self.error.append(error_msg)
-                raise EmptyCatalogException, "No genres to catalog"
+                raise EmptyCatalogException, "No genres to catalogue"
         if self.opts.generate_recently_added:
             self.generate_html_by_date_added()
             if self.generate_recently_read:

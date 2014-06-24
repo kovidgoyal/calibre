@@ -174,6 +174,7 @@ def select_tag(cursor, tag):
     return unicode(cursor.selectedText()).replace(PARAGRAPH_SEPARATOR, '\n').rstrip('\0')
 
 def rename_tag(cursor, opening_tag, closing_tag, new_name, insert=False):
+
     cursor.beginEditBlock()
     text = select_tag(cursor, closing_tag)
     if insert:
@@ -236,6 +237,7 @@ class HTMLSmarts(NullSmarts):
         tag = None
 
         while True:
+
             tag = find_closest_containing_tag(block, offset)
             if tag is None:
                 break

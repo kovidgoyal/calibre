@@ -359,9 +359,9 @@ def generate_catalog(parent, dbspec, ids, device_manager, db):  # {{{
 
     # This returns to gui2.actions.catalog:generate_catalog()
     # Which then calls gui2.convert.gui_conversion:gui_catalog() with the args inline
-    return 'gui_catalog', args, _('Generate catalog'), out.name, d.catalog_sync, \
+    return 'gui_catalog', args, _('Generate catalog'), out.name, d.catalog_sync,\
             d.catalog_title
-# }}}
+#}}}
 
 def convert_existing(parent, db, book_ids, output_format):  # {{{
     already_converted_ids = []
