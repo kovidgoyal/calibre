@@ -11,7 +11,7 @@
 #include <structmember.h>
 
 #define COMPARE(attr, op) (PyObject_RichCompareBool(a->attr, b->attr, op) == 1)
-static PyObject *bold_tags = NULL, *italic_tags = NULL, *zero = NULL;
+static PyObject *bold_tags = NULL, *italic_tags = NULL, *zero = NULL, *spell_property = NULL, *recognized = NULL, *split = NULL;
 
 // Tag type definition {{{
 
@@ -365,7 +365,91 @@ static PyTypeObject html_StateType = { // {{{
     html_State_new,                 /* tp_new */
 }; // }}}
 // }}}
+
+static PyObject*
+html_init(PyObject *self, PyObject *args) {
+    Py_XDECREF(spell_property); Py_XDECREF(recognized); Py_XDECREF(split);
+    if (!PyArg_ParseTuple(args, "OOO", &spell_property, &recognized, &split)) return NULL;
+    Py_INCREF(spell_property); Py_INCREF(recognized); Py_INCREF(split);
+    Py_RETURN_NONE;
+}
+
+static PyObject*
+html_check_spelling(PyObject *self, PyObject *args) {
+#if PY_VERSION_HEX >= 0x03030000 
+#error Not implemented for python >= 3.3
+#endif
+    PyObject *ans = NULL, *temp = NULL, *items = NULL, *text = NULL, *fmt = NULL, *locale = NULL, *sfmt = NULL, *_store_locale = NULL, *t = NULL, *utmp = NULL;
+    long text_len = 0, start = 0, length = 0, ppos = 0; 
+    int store_locale = 0, ok = 0;
+    Py_ssize_t i = 0, j = 0;
+    Py_UNICODE *buf = NULL;
+
+    if (!PyArg_ParseTuple(args, "OlOOOO", &text, &text_len, &fmt, &locale, &sfmt, &_store_locale)) return NULL;
+    store_locale = PyObject_IsTrue(_store_locale);
+    temp = PyObject_GetAttrString(locale, "langcode");
+    if (temp == NULL) goto error;
+    items = PyObject_CallFunctionObjArgs(split, text, temp, NULL); 
+    Py_DECREF(temp); temp = NULL;
+    if (items == NULL) goto error;
+    ans = PyTuple_New((2 * PyList_GET_SIZE(items)) + 1);
+    if (ans == NULL) { PyErr_NoMemory(); goto error; }
+    buf = PyUnicode_AS_UNICODE(text);
+
+#define APPEND(x, y) t = Py_BuildValue("lO", (x), y); if (t == NULL) goto error; PyTuple_SET_ITEM(ans, j, t); j += 1;
+
+    for (i = 0, j = 0; i < PyList_GET_SIZE(items); i++) {
+        temp = PyList_GET_ITEM(items, i);
+        start = PyInt_AS_LONG(PyTuple_GET_ITEM(temp, 0)); length = PyInt_AS_LONG(PyTuple_GET_ITEM(temp, 1));
+        temp = NULL;
+
+        if (start > ppos) { APPEND(start - ppos, fmt) }
+        ppos = start + length;
+
+        utmp = PyUnicode_FromUnicode(buf + start, length);
+        if (utmp == NULL) { PyErr_NoMemory(); goto error; }
+        temp = PyObject_CallFunctionObjArgs(recognized, utmp, locale, NULL);
+        Py_DECREF(utmp); utmp = NULL;
+        if (temp == NULL) goto error;
+        ok = PyObject_IsTrue(temp);
+        Py_DECREF(temp); temp = NULL;
+
+        if (ok) {
+            APPEND(length, fmt)
+        } else {
+            if (store_locale) {
+                temp = PyObject_CallFunctionObjArgs(spell_property, sfmt, locale, NULL);
+                if (temp == NULL) goto error;
+                APPEND(length, temp);
+                Py_DECREF(temp); temp = NULL;
+            } else {
+                APPEND(length, sfmt);
+            }
+        }
+    }
+    if (ppos < text_len) {
+        APPEND(text_len - ppos, fmt)
+    }
+
+    if (j < PyTuple_GET_SIZE(ans)) _PyTuple_Resize(&ans, j);
+    goto end;
+
+error:
+    Py_XDECREF(ans); ans = NULL;
+end:
+    Py_XDECREF(items); Py_XDECREF(temp); 
+    return ans;
+}
+
 static PyMethodDef html_methods[] = {
+    {"init", html_init, METH_VARARGS,
+        "init()\n\n Initialize this module"
+    },
+
+    {"check_spelling", html_check_spelling, METH_VARARGS,
+        "html_check_spelling()\n\n Speedup inner loop for spell check"
+    },
+
     {NULL, NULL, 0, NULL}
 };
 

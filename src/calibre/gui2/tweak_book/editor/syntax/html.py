@@ -64,6 +64,13 @@ if _speedup is not None:
     Tag = _speedup.Tag
     bold_tags, italic_tags = _speedup.bold_tags, _speedup.italic_tags
     State = _speedup.State
+    def spell_property(sfmt, locale):
+        s = QTextCharFormat(sfmt)
+        s.setProperty(SPELL_LOCALE_PROPERTY, locale)
+        return s
+    _speedup.init(spell_property, dictionaries.recognized, split_into_words_and_positions)
+    del spell_property
+    check_spelling = _speedup.check_spelling
 else:
     bold_tags = {'b', 'strong'} | {'h%d' % d for d in range(1, 7)}
     italic_tags = {'i', 'em'}
@@ -125,6 +132,28 @@ else:
             return '<State %s is_bold=%s is_italic=%s current_lang=%s>' % (
                 '->'.join(x.name for x in self.tags), self.is_bold, self.is_italic, self.current_lang)
         __str__ = __repr__
+
+    def check_spelling(text, tlen, fmt, locale, sfmt, store_locale):
+        split_ans = []
+        ppos = 0
+        r, a = dictionaries.recognized, split_ans.append
+        for start, length in split_into_words_and_positions(text, lang=locale.langcode):
+            if start > ppos:
+                a((start - ppos, fmt))
+            ppos = start + length
+            recognized = r(text[start:ppos], locale)
+            if recognized:
+                a((length, fmt))
+            else:
+                if store_locale:
+                    s = QTextCharFormat(sfmt)
+                    s.setProperty(SPELL_LOCALE_PROPERTY, locale)
+                    a((length, s))
+                else:
+                    a((length, sfmt))
+        if ppos < tlen:
+            a((tlen - ppos, fmt))
+        return split_ans
 
 
 del _speedup
@@ -237,28 +266,6 @@ def cdata(state, text, i, formats, user_data):
     add_tag_data(user_data, TagStart(m.start(), '', name, True, True))
     return [(num, fmt), (2, formats['end_tag']), (len(m.group()) - 2, formats['tag_name'])]
 
-def check_spelling(text, tpos, tlen, fmt, locale, sfmt):
-    split_ans = []
-    ppos = 0
-    sl = store_locale.enabled
-    for start, length in split_into_words_and_positions(text[tpos:tpos+tlen], lang=locale.langcode):
-        if start > ppos:
-            split_ans.append((start - ppos, fmt))
-        ppos = start + length
-        recognized = dictionaries.recognized(text[tpos + start:tpos + ppos], locale)
-        if recognized:
-            split_ans.append((length, fmt))
-        else:
-            if sl:
-                s = QTextCharFormat(sfmt)
-                s.setProperty(SPELL_LOCALE_PROPERTY, locale)
-                split_ans.append((length, s))
-            else:
-                split_ans.append((length, sfmt))
-    if ppos < tlen:
-        split_ans.append((tlen - ppos, fmt))
-    return split_ans
-
 def process_text(state, text, nbsp_format, spell_format, user_data):
     ans = []
     fmt = None
@@ -289,7 +296,7 @@ def process_text(state, text, nbsp_format, spell_format, user_data):
             if fmt is nbsp_format:
                 split_ans.append((tlen, fmt))
             else:
-                split_ans.extend(check_spelling(text, tpos, tlen, fmt, locale, sfmt))
+                split_ans.extend(check_spelling(text[tpos:tpos+tlen], tlen, fmt, locale, sfmt, store_locale.enabled))
 
             tpos += tlen
         ans = split_ans
