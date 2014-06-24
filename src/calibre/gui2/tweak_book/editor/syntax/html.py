@@ -567,7 +567,7 @@ class XMLHighlighter(HTMLHighlighter):
 
 def profile():
     import sys
-    from PyQt4.Qt import QTextDocument
+    from PyQt5.Qt import QTextDocument
     from calibre.gui2 import Application
     from calibre.gui2.tweak_book import set_book_locale
     from calibre.gui2.tweak_book.editor.themes import get_theme

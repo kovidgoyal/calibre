@@ -582,8 +582,8 @@ class TextEdit(PlainTextEdit):
             formats = self.highlighter.parse_single_block(c.block())[0]
         pos = c.positionInBlock()
         for r in formats:
-            if r.start <= pos < r.start + r.length and r.format.property(SPELL_PROPERTY).toBool():
-                return r.format.property(SPELL_LOCALE_PROPERTY).toPyObject()
+            if r.start <= pos < r.start + r.length and r.format.property(SPELL_PROPERTY):
+                return r.format.property(SPELL_LOCALE_PROPERTY)
 
     def recheck_word(self, word, locale):
         c = self.textCursor()
