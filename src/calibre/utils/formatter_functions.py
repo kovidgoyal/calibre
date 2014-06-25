@@ -568,23 +568,24 @@ class BuiltinReGroup(BuiltinFormatterFunction):
             'with more than one word and uppercases the first word: '
             "{series:'re_group($, \"(\S* )(.*)\", \"[[$:uppercase()]]\", \"[[$]]\")'}")
 
-    def evaluate(self, formatter, kwargs, mi, locals, *args):
+    def evaluate(self, formatter, kwargs, mi, locals, val, pattern, *args):
         from formatter import EvalFormatter
 
-        if (len(args) < 2):
-            return('re_group: incorrect number of arguments')
         def repl(mo):
             res = ''
-            for dex in range(1, mo.lastindex+1):
-                if len(args) > dex + 1:
-                    template = args[dex+1].replace('[[', '{').replace(']]', '}')
-                    res += EvalFormatter().safe_format(template,
-                                       {'$': mo.group(dex)}, 'EVAL', None,
-                                       strip_results=False)
-                else:
-                    res += mo.group(dex)
+            if mo and mo.lastindex:
+                for dex in range(0, mo.lastindex):
+                    gv = mo.group(dex+1)
+                    if gv is None:
+                        continue
+                    if len(args) > dex:
+                        template = args[dex].replace('[[', '{').replace(']]', '}')
+                        res += EvalFormatter().safe_format(template, {'$': gv},
+                                           'EVAL', None, strip_results=False)
+                    else:
+                        res += gv
             return res
-        return re.sub(args[1], repl, args[0], flags=re.I)
+        return re.sub(pattern, repl, val, flags=re.I)
 
 class BuiltinSwapAroundComma(BuiltinFormatterFunction):
     name = 'swap_around_comma'
@@ -1193,21 +1194,60 @@ class BuiltinListRe(BuiltinFormatterFunction):
     name = 'list_re'
     arg_count = 4
     category = 'List manipulation'
-    __doc__ = doc = _('list_re(src_list, separator, search_re, opt_replace) -- '
+    __doc__ = doc = _('list_re(src_list, separator, include_re, opt_replace) -- '
             'Construct a list by first separating src_list into items using '
             'the separator character. For each item in the list, check if it '
-            'matches search_re. If it does, then add it to the list to be '
+            'matches include_re. If it does, then add it to the list to be '
             'returned. If opt_replace is not the empty string, then apply the '
             'replacement before adding the item to the returned list.')
 
-    def evaluate(self, formatter, kwargs, mi, locals, src_list, separator, search_re, opt_replace):
+    def evaluate(self, formatter, kwargs, mi, locals, src_list, separator, include_re, opt_replace):
         l = [l.strip() for l in src_list.split(separator) if l.strip()]
         res = []
         for item in l:
-            if re.search(search_re, item, flags=re.I) is not None:
+            if re.search(include_re, item, flags=re.I) is not None:
                 if opt_replace:
-                    item = re.sub(search_re, opt_replace, item)
-                for i in [t.strip() for t in item.split(',') if t.strip()]:
+                    item = re.sub(include_re, opt_replace, item)
+                for i in [t.strip() for t in item.split(separator) if t.strip()]:
+                    if i not in res:
+                        res.append(i)
+        if separator == ',':
+            return ', '.join(res)
+        return separator.join(res)
+
+class BuiltinListReGroup(BuiltinFormatterFunction):
+    name = 'list_re_group'
+    arg_count = -1
+    category = 'List manipulation'
+    __doc__ = doc = _('list_re(src_list, separator, include_re, search_re, group_1_template, ...) -- '
+                      'Like list_re except replacements are not optional. It '
+                      'uses re_group(list_item, search_re, group_1_template, ...) when '
+                      'doing the replacements on the resulting list.')
+
+    def evaluate(self, formatter, kwargs, mi, locals, src_list, separator, include_re,
+                 search_re, *args):
+        from formatter import EvalFormatter
+
+        l = [l.strip() for l in src_list.split(separator) if l.strip()]
+        res = []
+        for item in l:
+            def repl(mo):
+                newval = ''
+                if mo and mo.lastindex:
+                    for dex in range(0, mo.lastindex):
+                        gv = mo.group(dex+1)
+                        if gv is None:
+                            continue
+                        if len(args) > dex:
+                            template = args[dex].replace('[[', '{').replace(']]', '}')
+                            newval += EvalFormatter().safe_format(template, {'$': gv},
+                                              'EVAL', None, strip_results=False)
+                        else:
+                            newval += gv
+                return newval
+            if re.search(include_re, item, flags=re.I) is not None:
+                item = re.sub(search_re, repl, item, flags=re.I)
+                for i in [t.strip() for t in item.split(separator) if t.strip()]:
                     if i not in res:
                         res.append(i)
         if separator == ',':
@@ -1371,7 +1411,7 @@ _formatter_builtins = [
     BuiltinIfempty(), BuiltinLanguageCodes(), BuiltinLanguageStrings(),
     BuiltinInList(), BuiltinListDifference(), BuiltinListEquals(),
     BuiltinListIntersection(), BuiltinListitem(), BuiltinListRe(),
-    BuiltinListSort(), BuiltinListUnion(), BuiltinLookup(),
+    BuiltinListReGroup(), BuiltinListSort(), BuiltinListUnion(), BuiltinLookup(),
     BuiltinLowercase(), BuiltinMultiply(), BuiltinNot(),
     BuiltinOndevice(), BuiltinOr(), BuiltinPrint(), BuiltinRawField(),
     BuiltinRe(), BuiltinReGroup(), BuiltinSelect(), BuiltinSeriesSort(),
