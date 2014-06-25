@@ -574,7 +574,9 @@ class FileList(QTreeWidget):
             self.reorder_spine.emit(order)
 
     def item_double_clicked(self, item, column):
-        self._request_edit(item)
+        category = unicode(item.data(0, CATEGORY_ROLE).toString())
+        if category:
+            self._request_edit(item)
 
     def _request_edit(self, item):
         category = unicode(item.data(0, CATEGORY_ROLE).toString())
