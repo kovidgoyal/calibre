@@ -68,16 +68,26 @@ html_Tag_copy(html_Tag *self, PyObject *args, PyObject *kwargs) {
 
 static PyObject *
 html_Tag_compare(html_Tag *a, html_Tag *b, int op) {
-    if (!PyObject_TypeCheck(a, &html_TagType) || !PyObject_TypeCheck(b, &html_TagType)) Py_RETURN_FALSE;
-    switch (op) {
-        case Py_EQ:
-            if (COMPARE(name, Py_EQ) && COMPARE(lang, Py_EQ)) Py_RETURN_TRUE;
-            Py_RETURN_FALSE;
-        case Py_NE:
-            if (COMPARE(name, Py_NE) || COMPARE(lang, Py_NE)) Py_RETURN_TRUE;
-            Py_RETURN_FALSE;
-        default:
-            break;
+    if (!PyObject_TypeCheck(a, &html_TagType) || !PyObject_TypeCheck(b, &html_TagType)) {
+        switch (op) {
+            case Py_EQ:
+                Py_RETURN_FALSE;
+            case Py_NE:
+                Py_RETURN_TRUE;
+            default:
+                break;
+        }
+    } else {
+        switch (op) {
+            case Py_EQ:
+                if (COMPARE(name, Py_EQ) && COMPARE(lang, Py_EQ)) Py_RETURN_TRUE;
+                Py_RETURN_FALSE;
+            case Py_NE:
+                if (COMPARE(name, Py_NE) || COMPARE(lang, Py_NE)) Py_RETURN_TRUE;
+                Py_RETURN_FALSE;
+            default:
+                break;
+        }
     }
     PyErr_SetString(PyExc_TypeError, "Only equals comparison is supported for Tag objects");
     return NULL;
@@ -278,16 +288,26 @@ end:
 
 static PyObject *
 html_State_compare(html_State *a, html_State *b, int op) {
-    if (!PyObject_TypeCheck(a, &html_StateType) || !PyObject_TypeCheck(b, &html_StateType)) Py_RETURN_FALSE;
-    switch (op) {
-        case Py_EQ:
-            if (COMPARE(parse, Py_EQ) && COMPARE(sub_parser_state, Py_EQ) && COMPARE(tag_being_defined, Py_EQ) && COMPARE(attribute_name, Py_EQ) && COMPARE(tags, Py_EQ)) Py_RETURN_TRUE;
-            Py_RETURN_FALSE;
-        case Py_NE:
-            if (COMPARE(parse, Py_NE) || COMPARE(sub_parser_state, Py_NE) || COMPARE(tag_being_defined, Py_NE) || COMPARE(attribute_name, Py_NE) || COMPARE(tags, Py_NE)) Py_RETURN_TRUE;
-            Py_RETURN_FALSE;
-        default:
-            break;
+    if (!PyObject_TypeCheck(a, &html_StateType) || !PyObject_TypeCheck(b, &html_StateType)) {
+        switch (op) {
+            case Py_EQ:
+                Py_RETURN_FALSE;
+            case Py_NE:
+                Py_RETURN_TRUE;
+            default:
+                break;
+        }
+    } else {
+        switch (op) {
+            case Py_EQ:
+                if (COMPARE(parse, Py_EQ) && COMPARE(sub_parser_state, Py_EQ) && COMPARE(tag_being_defined, Py_EQ) && COMPARE(attribute_name, Py_EQ) && COMPARE(tags, Py_EQ)) Py_RETURN_TRUE;
+                Py_RETURN_FALSE;
+            case Py_NE:
+                if (COMPARE(parse, Py_NE) || COMPARE(sub_parser_state, Py_NE) || COMPARE(tag_being_defined, Py_NE) || COMPARE(attribute_name, Py_NE) || COMPARE(tags, Py_NE)) Py_RETURN_TRUE;
+                Py_RETURN_FALSE;
+            default:
+                break;
+        }
     }
     PyErr_SetString(PyExc_TypeError, "Only equals comparison is supported for State objects");
     return NULL;
