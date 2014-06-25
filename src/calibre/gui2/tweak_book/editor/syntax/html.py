@@ -86,7 +86,10 @@ else:
             self.lang = lang
 
         def __eq__(self, other):
-            return self.name == other.name and self.lang == other.lang
+            try:
+                return self.name == other.name and self.lang == other.lang
+            except AttributeError:
+                return False
 
         def copy(self):
             ans = Tag(self.name, self.bold, self.italic, self.lang)
@@ -117,13 +120,16 @@ else:
             return ans
 
         def __eq__(self, other):
-            return (
-                self.parse == other.parse and
-                self.sub_parser_state == other.sub_parser_state and
-                self.tag_being_defined == other.tag_being_defined and
-                self.attribute_name == other.attribute_name and
-                self.tags == other.tags
-            )
+            try:
+                return (
+                    self.parse == other.parse and
+                    self.sub_parser_state == other.sub_parser_state and
+                    self.tag_being_defined == other.tag_being_defined and
+                    self.attribute_name == other.attribute_name and
+                    self.tags == other.tags
+                )
+            except AttributeError:
+                return False
 
         def __ne__(self, other):
             return not self.__eq__(other)
