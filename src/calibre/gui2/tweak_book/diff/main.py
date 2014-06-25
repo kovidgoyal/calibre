@@ -137,7 +137,6 @@ def dir_diff(left, right):
                 path = os.path.join(dirpath, filename)
                 name = os.path.relpath(path, base)
                 data[name], smap[name] = get_decoded_raw(path)
-                print (1111111, name, type(data[name]))
     cache, changed_names, renamed_names, removed_names, added_names = changed_files(
         ldata, rdata, ldata.get, rdata.get)
 
