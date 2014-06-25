@@ -6,7 +6,7 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import os
+import os, textwrap
 from itertools import izip
 from collections import OrderedDict
 
@@ -15,12 +15,13 @@ from PyQt4.Qt import (
     QFormLayout, QHBoxLayout, QToolButton, QIcon, QApplication, Qt, QWidget,
     QPoint, QSizePolicy, QPainter, QStaticText, pyqtSignal, QTextOption,
     QAbstractListModel, QModelIndex, QVariant, QStyledItemDelegate, QStyle,
-    QListView, QTextDocument, QSize, QComboBox, QFrame, QCursor, QCheckBox)
+    QListView, QTextDocument, QSize, QComboBox, QFrame, QCursor, QCheckBox,
+    QSplitter, QPixmap, QRect)
 
-from calibre import prepare_string_for_xml
-from calibre.ebooks.oeb.polish.utils import lead_text
-from calibre.gui2 import error_dialog, choose_files, choose_save_file, NONE, info_dialog
-from calibre.gui2.tweak_book import tprefs
+from calibre import prepare_string_for_xml, human_readable
+from calibre.ebooks.oeb.polish.utils import lead_text, guess_type
+from calibre.gui2 import error_dialog, choose_files, choose_save_file, NONE, info_dialog, choose_images
+from calibre.gui2.tweak_book import tprefs, current_container
 from calibre.utils.icu import primary_sort_key, sort_key, primary_contains
 from calibre.utils.matcher import get_char, Matcher
 from calibre.gui2.complete2 import EditWithComplete
@@ -569,6 +570,12 @@ class NamesModel(QAbstractListModel):
             if text == name:
                 return i
 
+    def name_for_index(self, index):
+        try:
+            return self.items[index.row()][0]
+        except IndexError:
+            pass
+
 def create_filterable_names_list(names, filter_text=None, parent=None, model=NamesModel):
     nl = QListView(parent)
     nl.m = m = model(names, parent=nl)
@@ -992,7 +999,130 @@ class FilterCSS(Dialog):  # {{{
 
 # }}}
 
+# Add Cover {{{
+
+class CoverView(QWidget):
+
+    def __init__(self, parent=None):
+        QWidget.__init__(self, parent)
+        self.current_pixmap_size = QSize(0, 0)
+        self.pixmap = QPixmap()
+        self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+
+    def set_pixmap(self, data):
+        self.pixmap.loadFromData(data)
+        self.current_pixmap_size = self.pixmap.size()
+        self.update()
+
+    def paintEvent(self, event):
+        if self.pixmap.isNull():
+            return
+        canvas_size = self.rect()
+        width = self.current_pixmap_size.width()
+        extrax = canvas_size.width() - width
+        if extrax < 0:
+            extrax = 0
+        x = int(extrax/2.)
+        height = self.current_pixmap_size.height()
+        extray = canvas_size.height() - height
+        if extray < 0:
+            extray = 0
+        y = int(extray/2.)
+        target = QRect(x, y, min(canvas_size.width(), width), min(canvas_size.height(), height))
+        p = QPainter(self)
+        p.setRenderHints(QPainter.Antialiasing | QPainter.SmoothPixmapTransform)
+        p.drawPixmap(target, self.pixmap.scaled(target.size(),
+            Qt.KeepAspectRatio, Qt.SmoothTransformation))
+        p.end()
+
+    def sizeHint(self):
+        return QSize(300, 400)
+
+class AddCover(Dialog):
+
+    import_requested = pyqtSignal(object, object)
+
+    def __init__(self, container, parent=None):
+        self.container = container
+        Dialog.__init__(self, _('Add a cover'), 'add-cover-wizard', parent)
+
+    @property
+    def image_names(self):
+        img_types = {guess_type('a.'+x) for x in ('png', 'jpeg', 'gif')}
+        for name, mt in self.container.mime_map.iteritems():
+            if mt.lower() in img_types:
+                yield name
+
+    def setup_ui(self):
+        self.l = l = QVBoxLayout(self)
+        self.setLayout(l)
+        self.names, self.names_filter = create_filterable_names_list(sorted(self.image_names, key=sort_key), filter_text=_('Filter the list of images'))
+        self.cover_view = CoverView(self)
+        l.addWidget(self.names_filter)
+
+        self.splitter = s = QSplitter(self)
+        l.addWidget(s)
+        s.addWidget(self.names)
+        s.addWidget(self.cover_view)
+
+        self.h = h = QHBoxLayout()
+        self.preserve = p = QCheckBox(_('Preserve aspect ratio'))
+        p.setToolTip(textwrap.fill(_('If enabled the cover image you select will be embedded'
+                       ' into the book in such a way that when viewed, its aspect'
+                       ' ratio (ratio of width to height) will be preserved.'
+                       ' This will mean blank spaces around the image if the screen'
+                       ' the book is being viewed on has an aspect ratio different'
+                       ' to the image.')))
+        p.setChecked(tprefs['add_cover_preserve_aspect_ratio'])
+        p.setVisible(self.container.book_type != 'azw3')
+        p.stateChanged.connect(lambda s:tprefs.set('add_cover_preserve_aspect_ratio', s == Qt.Checked))
+        self.info_label = il = QLabel('\xa0')
+        h.addWidget(p), h.addStretch(1), h.addWidget(il)
+        l.addLayout(h)
+
+        l.addWidget(self.bb)
+        b = self.bb.addButton(_('Import &image'), self.bb.ActionRole)
+        b.clicked.connect(self.import_image)
+        b.setIcon(QIcon(I('document_open.png')))
+        self.names.setFocus(Qt.OtherFocusReason)
+        self.names.selectionModel().currentChanged.connect(self.current_image_changed)
+
+    def current_image_changed(self):
+        self.info_label.setText('')
+        name = self.names.model().name_for_index(self.names.currentIndex())
+        if name is not None:
+            data = self.container.raw_data(name, decode=False)
+            self.cover_view.set_pixmap(data)
+            self.info_label.setText('{0}x{1}px | {2}'.format(
+                self.cover_view.pixmap.width(), self.cover_view.pixmap.height(), human_readable(len(data))))
+
+    def import_image(self):
+        ans = choose_images(self, 'add-cover-choose-image', _('Choose a cover image'), formats=(
+            'jpg', 'jpeg', 'png', 'gif'))
+        if ans:
+            from calibre.gui2.tweak_book.file_list import NewFileDialog
+            d = NewFileDialog(self)
+            d.do_import_file(ans[0], hide_button=True)
+            if d.exec_() == d.Accepted:
+                self.import_requested.emit(d.file_name, d.file_data)
+                self.container = current_container()
+                self.names_filter.clear()
+                self.names.model().set_names(sorted(self.image_names, key=sort_key))
+                i = self.names.model().find_name(d.file_name)
+                self.names.setCurrentIndex(self.names.model().index(i))
+                self.current_image_changed()
+
+    @classmethod
+    def test(cls):
+        import sys
+        from calibre.ebooks.oeb.polish.container import get_container
+        c = get_container(sys.argv[-1], tweak_mode=True)
+        d = cls(c)
+        if d.exec_() == d.Accepted:
+            pass
+
+# }}}
 
 if __name__ == '__main__':
     app = QApplication([])
-    FilterCSS.test()
+    AddCover.test()

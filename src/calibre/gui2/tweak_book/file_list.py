@@ -685,7 +685,7 @@ class FileList(QTreeWidget):
 
 class NewFileDialog(QDialog):  # {{{
 
-    def __init__(self, initial_choice='html', parent=None):
+    def __init__(self, parent=None):
         QDialog.__init__(self, parent)
         self.l = l = QVBoxLayout()
         self.setLayout(l)
@@ -715,6 +715,7 @@ class NewFileDialog(QDialog):  # {{{
 
         self.file_data = b''
         self.using_template = False
+        self.setMinimumWidth(350)
 
     def show_error(self, msg):
         self.err_label.setText('<p style="color:red">' + msg)
@@ -723,15 +724,19 @@ class NewFileDialog(QDialog):  # {{{
     def import_file(self):
         path = choose_files(self, 'tweak-book-new-resource-file', _('Choose file'), select_only_single_file=True)
         if path:
-            path = path[0]
-            with open(path, 'rb') as f:
-                self.file_data = f.read()
-            name = os.path.basename(path)
-            fmap = get_recommended_folders(current_container(), (name,))
-            if fmap[name]:
-                name = '/'.join((fmap[name], name))
-            self.name.setText(name)
-            self.la.setText(_('Choose a name for the imported file'))
+            self.do_import_file(path[0])
+
+    def do_import_file(self, path, hide_button=False):
+        with open(path, 'rb') as f:
+            self.file_data = f.read()
+        name = os.path.basename(path)
+        fmap = get_recommended_folders(current_container(), (name,))
+        if fmap[name]:
+            name = '/'.join((fmap[name], name))
+        self.name.setText(name)
+        self.la.setText(_('Choose a name for the imported file'))
+        if hide_button:
+            self.imp_button.setVisible(False)
 
     @property
     def name_is_ok(self):

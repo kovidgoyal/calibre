@@ -42,7 +42,7 @@ from calibre.gui2.tweak_book.search import validate_search_request, run_search
 from calibre.gui2.tweak_book.spell import find_next as find_next_word, find_next_error
 from calibre.gui2.tweak_book.widgets import (
     RationalizeFolders, MultiSplit, ImportForeign, QuickOpen, InsertLink,
-    InsertSemantics, BusyCursor, InsertTag, FilterCSS)
+    InsertSemantics, BusyCursor, InsertTag, FilterCSS, AddCover)
 
 _diff_dialogs = []
 
@@ -353,27 +353,29 @@ class Boss(QObject):
         d = NewFileDialog(self.gui)
         if d.exec_() != d.Accepted:
             return
-        self.add_savepoint(_('Before: Add file %s') % self.gui.elided_text(d.file_name))
+        self.do_add_file(d.file_name, d.file_data, using_template=d.using_template, edit_file=True)
+
+    def do_add_file(self, file_name, data, using_template=False, edit_file=False):
+        self.add_savepoint(_('Before: Add file %s') % self.gui.elided_text(file_name))
         c = current_container()
-        data = d.file_data
-        if d.using_template:
+        if using_template:
             data = data.replace(b'%CURSOR%', b'')
         try:
-            c.add_file(d.file_name, data)
+            c.add_file(file_name, data)
         except:
             self.rewind_savepoint()
             raise
         self.gui.file_list.build(c)
-        self.gui.file_list.select_name(d.file_name)
+        self.gui.file_list.select_name(file_name)
         if c.opf_name in editors:
             editors[c.opf_name].replace_data(c.raw_data(c.opf_name))
-        mt = c.mime_map[d.file_name]
-        syntax = syntax_from_mime(d.file_name, mt)
-        if syntax:
-            if d.using_template:
-                self.edit_file(d.file_name, syntax, use_template=d.file_data.decode('utf-8'))
+        mt = c.mime_map[file_name]
+        syntax = syntax_from_mime(file_name, mt)
+        if syntax and edit_file:
+            if using_template:
+                self.edit_file(file_name, syntax, use_template=data.decode('utf-8'))
             else:
-                self.edit_file(d.file_name, syntax)
+                self.edit_file(file_name, syntax)
         self.set_modified()
 
     def add_files(self):
@@ -405,6 +407,15 @@ class Boss(QObject):
             if c.opf_name in editors:
                 editors[c.opf_name].replace_data(c.raw_data(c.opf_name))
             self.set_modified()
+
+    def add_cover(self):
+        d = AddCover(current_container(), self.gui)
+        d.import_requested.connect(self.do_add_file)
+        try:
+            if d.exec_() == d.Accepted:
+                pass
+        finally:
+            d.import_requested.disconnect()
 
     def edit_toc(self):
         if current_container() is None:
