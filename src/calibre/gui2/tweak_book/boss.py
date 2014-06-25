@@ -407,6 +407,9 @@ class Boss(QObject):
             self.set_modified()
 
     def edit_toc(self):
+        if current_container() is None:
+            return error_dialog(self.gui, _('No book opened'), _(
+                'You must open a book before trying to edit the Table of Contents.'), show=True)
         self.add_savepoint(_('Before: Edit Table of Contents'))
         d = TOCEditor(title=self.current_metadata.title, parent=self.gui)
         if d.exec_() != d.Accepted:
