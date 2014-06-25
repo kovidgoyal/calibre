@@ -553,6 +553,39 @@ class BuiltinRe(BuiltinFormatterFunction):
     def evaluate(self, formatter, kwargs, mi, locals, val, pattern, replacement):
         return re.sub(pattern, replacement, val, flags=re.I)
 
+class BuiltinReGroup(BuiltinFormatterFunction):
+    name = 're_group'
+    arg_count = -1
+    category = 'String manipulation'
+    __doc__ = doc = _('re_group(val, pattern, template_for_group_1, for_group_2, ...) -- '
+            'return a string made by applying the reqular expression pattern '
+            'to the val and replacing each matched instance with the string '
+            'computed by replacing each matched group by the value returned '
+            'by the corresponding template. The original matched value for the '
+            'group is available as $. In template program mode, like for '
+            'the template and the eval functions, you use [[ for { and ]] for }.'
+            ' The following example in template program mode looks for series '
+            'with more than one word and uppercases the first word: '
+            "{series:'re_group($, \"(\S* )(.*)\", \"[[$:uppercase()]]\", \"[[$]]\")'}")
+
+    def evaluate(self, formatter, kwargs, mi, locals, *args):
+        from formatter import EvalFormatter
+
+        if (len(args) < 2):
+            return('re_group: incorrect number of arguments')
+        def repl(mo):
+            res = ''
+            for dex in range(1, mo.lastindex+1):
+                if len(args) > dex + 1:
+                    template = args[dex+1].replace('[[', '{').replace(']]', '}')
+                    res += EvalFormatter().safe_format(template,
+                                       {'$': mo.group(dex)}, 'EVAL', None,
+                                       strip_results=False)
+                else:
+                    res += mo.group(dex)
+            return res
+        return re.sub(args[1], repl, args[0], flags=re.I)
+
 class BuiltinSwapAroundComma(BuiltinFormatterFunction):
     name = 'swap_around_comma'
     arg_count = 1
@@ -1341,8 +1374,8 @@ _formatter_builtins = [
     BuiltinListSort(), BuiltinListUnion(), BuiltinLookup(),
     BuiltinLowercase(), BuiltinMultiply(), BuiltinNot(),
     BuiltinOndevice(), BuiltinOr(), BuiltinPrint(), BuiltinRawField(),
-    BuiltinRe(), BuiltinSelect(), BuiltinSeriesSort(), BuiltinShorten(),
-    BuiltinStrcat(), BuiltinStrcatMax(),
+    BuiltinRe(), BuiltinReGroup(), BuiltinSelect(), BuiltinSeriesSort(),
+    BuiltinShorten(), BuiltinStrcat(), BuiltinStrcatMax(),
     BuiltinStrcmp(), BuiltinStrInList(), BuiltinStrlen(), BuiltinSubitems(),
     BuiltinSublist(),BuiltinSubstr(), BuiltinSubtract(), BuiltinSwapAroundComma(),
     BuiltinSwitch(), BuiltinTemplate(), BuiltinTest(), BuiltinTitlecase(),
