@@ -30,7 +30,7 @@ class Deadspin(BasicNewsRecipe):
             {'class': 'feedflare'},
     ]
 
-    feeds = [(u'Articles', u'http://feeds.gawker.com/deadspin/vip?format=xml')]
+    feeds = [(u'Articles', u'http://deadspin.com/rss/vip')]
 
     def preprocess_html(self, soup):
         return self.adeify_images(soup)
