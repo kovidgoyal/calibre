@@ -11,6 +11,7 @@ from PyQt4.Qt import (Qt, QDialog, QDialogButtonBox, QSyntaxHighlighter, QFont,
 
 from calibre import sanitize_file_name_unicode
 from calibre.constants import config_dir
+from calibre.gui2 import gprefs
 from calibre.gui2.dialogs.template_dialog_ui import Ui_TemplateDialog
 from calibre.utils.formatter_functions import formatter_functions
 from calibre.utils.icu import sort_key
@@ -75,7 +76,6 @@ class TemplateHighlighter(QSyntaxHighlighter):
     def initializeFormats(self):
         Config = self.Config
         Config["fontfamily"] = "monospace"
-        #Config["fontsize"] = 10
         for name, color, bold, italic in (
                 ("normal", "#000000", False, False),
                 ("keyword", "#000080", True, False),
@@ -88,10 +88,10 @@ class TemplateHighlighter(QSyntaxHighlighter):
             Config["%sfontcolor" % name] = color
             Config["%sfontbold" % name] = bold
             Config["%sfontitalic" % name] = italic
-
         baseFormat = QTextCharFormat()
         baseFormat.setFontFamily(Config["fontfamily"])
-        #baseFormat.setFontPointSize(Config["fontsize"])
+        Config["fontsize"] = gprefs['gpm_template_editor_font_size']
+        baseFormat.setFontPointSize(Config["fontsize"])
 
         for name in ("normal", "keyword", "builtin", "comment",
                      "string", "number", "lparen", "rparen"):
@@ -324,6 +324,14 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
         self.template_func_reference.setText(
                 '<a href="http://manual.calibre-ebook.com/template_ref.html">'
                 '%s</a>'%tt)
+
+        self.font_size_box.setValue(gprefs['gpm_template_editor_font_size'])
+        self.font_size_box.valueChanged.connect(self.font_size_changed)
+
+    def font_size_changed(self, toWhat):
+        gprefs['gpm_template_editor_font_size'] = toWhat
+        self.highlighter.initializeFormats()
+        self.highlighter.rehighlight()
 
     def filename_button_clicked(self):
         try:
