@@ -166,17 +166,51 @@
        </property>
       </widget>
      </item>
-     <item row="6" column="1">
-      <widget class="QDialogButtonBox" name="buttonBox">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-       <property name="standardButtons">
-        <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+     <item row="6" column="0">
+      <widget class="QLabel" name="label">
+       <property name="text">
+        <string>Font size:</string>
        </property>
       </widget>
      </item>
-     <item row="6" column="0">
+     <item row="6" column="1">
+      <layout class="QGridLayout" name="gridLayout">
+       <item row="1" column="0">
+        <widget class="QSpinBox" name="font_size_box"/>
+       </item>
+       <item row="1" column="1">
+        <spacer>
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>0</width>
+           <height>0</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item row="1" column="2">
+        <widget class="QDialogButtonBox" name="buttonBox">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="standardButtons">
+          <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+     <item row="7" column="0" colspan="2">
+      <widget class="QFrame">
+       <property name="frameShape">
+        <enum>QFrame::HLine</enum>
+       </property>
+      </widget>
+     </item>
+     <item row="8" column="0">
       <widget class="QLabel" name="label">
        <property name="text">
         <string>Function &amp;name:</string>
@@ -186,10 +220,10 @@
        </property>
       </widget>
      </item>
-     <item row="7" column="1">
+     <item row="8" column="1">
       <widget class="QComboBox" name="function"/>
      </item>
-     <item row="8" column="0">
+     <item row="9" column="0">
       <widget class="QLabel" name="label_2">
        <property name="text">
         <string>&amp;Documentation:</string>
@@ -202,7 +236,7 @@
        </property>
       </widget>
      </item>
-     <item row="9" column="0">
+     <item row="10" column="0">
       <widget class="QLabel" name="label_3">
        <property name="text">
         <string>Python &amp;code:</string>
@@ -215,7 +249,7 @@
        </property>
       </widget>
      </item>
-     <item row="8" column="1">
+     <item row="9" column="1">
       <widget class="QPlainTextEdit" name="documentation">
        <property name="maximumSize">
         <size>
@@ -225,17 +259,17 @@
        </property>
       </widget>
      </item>
-     <item row="9" column="1">
+     <item row="10" column="1">
       <widget class="QPlainTextEdit" name="source_code"/>
      </item>
-     <item row="10" column="1">
+     <item row="11" column="1">
       <widget class="QLabel" name="template_tutorial">
        <property name="openExternalLinks">
         <bool>true</bool>
        </property>
       </widget>
      </item>
-     <item row="11" column="1">
+     <item row="12" column="1">
       <widget class="QLabel" name="template_func_reference">
        <property name="openExternalLinks">
         <bool>true</bool>

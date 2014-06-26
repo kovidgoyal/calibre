@@ -127,6 +127,7 @@ defs['show_highlight_toggle_button'] = False
 defs['add_comments_to_email'] = False
 defs['cb_preserve_aspect_ratio'] = False
 defs['show_rating_in_cover_browser'] = True
+defs['gpm_template_editor_font_size'] = 10
 del defs
 # }}}
 

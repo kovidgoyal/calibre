@@ -501,12 +501,6 @@ change_book_details_font_size_by = 0
 # No compile: compile_gpm_templates = False
 compile_gpm_templates = True
 
-#: Change the font size in the General Program Mode template editor
-# Change the font size used when editing GPM templates. This changes the size
-# of the font in the editing pane. Set it to a positive or
-# negative number to increase or decrease the font size.
-change_template_editor_font_size_by = 0
-
 #: What format to default to when using the Tweak feature
 # The Tweak feature of calibre allows direct editing of a book format.
 # If multiple formats are available, calibre will offer you a choice
