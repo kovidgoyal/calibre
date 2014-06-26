@@ -16,7 +16,7 @@ from PyQt4.Qt import (
     QPoint, QSizePolicy, QPainter, QStaticText, pyqtSignal, QTextOption,
     QAbstractListModel, QModelIndex, QVariant, QStyledItemDelegate, QStyle,
     QListView, QTextDocument, QSize, QComboBox, QFrame, QCursor, QCheckBox,
-    QSplitter, QPixmap, QRect)
+    QSplitter, QPixmap, QRect, QGroupBox)
 
 from calibre import prepare_string_for_xml, human_readable
 from calibre.ebooks.oeb.polish.utils import lead_text, guess_type
@@ -1056,13 +1056,19 @@ class AddCover(Dialog):
     def setup_ui(self):
         self.l = l = QVBoxLayout(self)
         self.setLayout(l)
-        self.names, self.names_filter = create_filterable_names_list(sorted(self.image_names, key=sort_key), filter_text=_('Filter the list of images'))
+        self.gb  = gb = QGroupBox(_('&Images in book'), self)
+        self.v = v = QVBoxLayout(gb)
+        gb.setLayout(v), gb.setFlat(True)
+        self.names, self.names_filter = create_filterable_names_list(
+            sorted(self.image_names, key=sort_key), filter_text=_('Filter the list of images'), parent=self)
+        self.names.doubleClicked.connect(self.double_clicked, type=Qt.QueuedConnection)
         self.cover_view = CoverView(self)
         l.addWidget(self.names_filter)
+        v.addWidget(self.names)
 
         self.splitter = s = QSplitter(self)
         l.addWidget(s)
-        s.addWidget(self.names)
+        s.addWidget(gb)
         s.addWidget(self.cover_view)
 
         self.h = h = QHBoxLayout()
@@ -1087,9 +1093,16 @@ class AddCover(Dialog):
         self.names.setFocus(Qt.OtherFocusReason)
         self.names.selectionModel().currentChanged.connect(self.current_image_changed)
 
+    def double_clicked(self):
+        self.accept()
+
+    @property
+    def file_name(self):
+        return self.names.model().name_for_index(self.names.currentIndex())
+
     def current_image_changed(self):
         self.info_label.setText('')
-        name = self.names.model().name_for_index(self.names.currentIndex())
+        name = self.file_name
         if name is not None:
             data = self.container.raw_data(name, decode=False)
             self.cover_view.set_pixmap(data)

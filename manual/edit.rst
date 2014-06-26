@@ -327,6 +327,17 @@ Some of the checks performed are:
     * Various compatibility checks for known problems that can cause the book
       to malfunction on reader devices.
 
+Add a cover
+^^^^^^^^^^^^
+
+You can easily add a cover to the book via :guilabel:`Tools->Add cover`. This
+allows you to either choose an existing image in the book as the cover or
+import a new image into the book and make it the cover. When editing EPUB
+files, the HTML wrapper for the cover is automatically generated. If an
+existing cover in the book is found, it is replaced. The tool also
+automatically takes care of correctly marking the cover files as covers in the
+OPF.
+
 Embedding referenced fonts
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 

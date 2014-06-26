@@ -18,7 +18,7 @@ from calibre.ptempfile import PersistentTemporaryDirectory, TemporaryDirectory
 from calibre.ebooks.oeb.base import urlnormalize
 from calibre.ebooks.oeb.polish.main import SUPPORTED, tweak_polish
 from calibre.ebooks.oeb.polish.container import get_container as _gc, clone_container, guess_type, OEB_FONTS, OEB_DOCS, OEB_STYLES
-from calibre.ebooks.oeb.polish.cover import mark_as_cover, mark_as_titlepage
+from calibre.ebooks.oeb.polish.cover import mark_as_cover, mark_as_titlepage, set_cover
 from calibre.ebooks.oeb.polish.css import filter_css
 from calibre.ebooks.oeb.polish.pretty import fix_all_html, pretty_all
 from calibre.ebooks.oeb.polish.replace import rename_files, replace_file, get_recommended_folders, rationalize_folders
@@ -412,8 +412,13 @@ class Boss(QObject):
         d = AddCover(current_container(), self.gui)
         d.import_requested.connect(self.do_add_file)
         try:
-            if d.exec_() == d.Accepted:
-                pass
+            if d.exec_() == d.Accepted and d.file_name is not None:
+                report = []
+                with BusyCursor():
+                    self.add_savepoint(_('Before: Add cover'))
+                    set_cover(current_container(), d.file_name, report.append, options={
+                        'existing_image':True, 'keep_aspect':tprefs['add_cover_preserve_aspect_ratio']})
+                    self.apply_container_update_to_gui()
         finally:
             d.import_requested.disconnect()
 
