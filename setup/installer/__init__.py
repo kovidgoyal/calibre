@@ -11,7 +11,7 @@ import subprocess, tempfile, os, time, socket
 from setup import Command, installer_name
 from setup.build_environment import HOST, PROJECT
 
-BASE_RSYNC = ['rsync', '-avz', '--delete', '--force']
+BASE_RSYNC = ['rsync', '-av', '--delete', '--force']
 EXCLUDES = []
 for x in [
     'src/calibre/plugins', 'manual',
