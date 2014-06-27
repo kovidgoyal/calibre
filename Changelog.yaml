@@ -20,6 +20,44 @@
 #   new recipes:
 #     - title: 
 
+- version: 1.42.0
+  date: 2014-06-27
+
+  new features:
+    - title: "Edit Book: new tool to easily add a cover to the book. It automatically generates the HTML wrapper and takes care of marking the covers files as covers in the OPF."
+
+    - title: "Edit Book: Improve the performance of inline spell checking, especially noticeable when editing large HTML files (over 100KB in size)."
+
+    - title: "Edit Book: Run syntax highlighting in the background, reducing user interface latency when editing large files"
+
+    - title: "Template language: Add a new function (group_re) to use grouping regular expressions with groups, where you can replace the matched groups with result of another template."
+
+    - title: "Edit Book: Check Book: Add a check for HTML files with non UTF-8 encoding declarations"
+
+    - title: "Edit Book: Spell check dialog: Add an option to make filtering the word list case sensitive"
+
+  bug fixes:
+    - title: "Get Books: Fix integration with ebook.de broken by website changes"
+
+    - title: "MOBI Input: Preserve the dc:rights metadata during conversion."
+      tickets: [1333468]
+
+    - title: "Edit Book: Fix non-BMP unicode characters causing matching tag highlighting to be slightly off on linux"
+
+    - title: "Edit Book: When editing HTML files that have charset encoding declarations, automatically change the declared encoding (if any) to UTF-8 on save, since the editor always saves files in the UTF-8 encoding."
+
+    - title: "Edit Book: Fix various problems when editing EPUB files with non-ascii internal filenames on OS X."
+      tickets: [1317883]
+
+    - title: "Edit Book: Remove unused CSS: Fix an error if an HTML file links to a missing stylesheet"
+
+  improved recipes:
+    - Deadspin
+
+  new recipes:
+    - title: Economic and Political Weekly 
+      author: Krittika Goyal
+
 - version: 1.41.0
   date: 2014-06-21
 
