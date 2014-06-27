@@ -384,7 +384,7 @@ class Editor(QMainWindow):
         a = m.addAction
         c = self.editor.cursorForPosition(pos)
         r = self.editor.syntax_range_for_cursor(c)
-        if r.format.property(SPELL_PROPERTY).toBool():
+        if r is not None and r.format.property(SPELL_PROPERTY).toBool():
             word = self.editor.text_for_range(c.block(), r)
             locale = self.editor.spellcheck_locale_for_cursor(c)
             orig_pos = c.position()
