@@ -1376,6 +1376,7 @@ class StoreCdpStore(StoreBase):
     drm_free_only = True
     headquarters = 'PL'
     formats = ['EPUB', 'MOBI', 'PDF']
+    affiliate = True
 
 class StoreChitankaStore(StoreBase):
     name = u'Моята библиотека'
