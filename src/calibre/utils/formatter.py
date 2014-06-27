@@ -506,7 +506,7 @@ class TemplateFormatter(string.Formatter):
         self.book = book
         self.composite_values = {}
         self.locals = {}
-        return self.evaluate(fmt, [], kwargs).strip()
+        return self.evaluate(fmt, [], kwargs)
 
     ########## a formatter guaranteed not to throw an exception ############
 
