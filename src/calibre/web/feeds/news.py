@@ -218,7 +218,7 @@ class BasicNewsRecipe(Recipe):
     #:     attrs     : a dictionary, #e.g. {class: 'advertisment'}
     #:    }
     #:
-    #: All keys are optional. For a full explanantion of the search criteria, see
+    #: All keys are optional. For a full explanation of the search criteria, see
     #: `Beautiful Soup <http://www.crummy.com/software/BeautifulSoup/bs3/documentation.html#Searching%20the%20Parse%20Tree>`_
     #: A common example::
     #:
