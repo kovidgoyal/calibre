@@ -176,7 +176,7 @@ class NonUTF8(BaseError):
         BaseError.__init__(self, _('Non UTF-8 encoding declaration'), name)
         self.HELP = _('This file has its encoding declared as %s. Some'
                       ' reader software cannot handle non-UTF8 encoded files.'
-                      ' You should change the encoding to UTF-8.')
+                      ' You should change the encoding to UTF-8.') % enc
 
     def __call__(self, container):
         raw = container.raw_data(self.name)
