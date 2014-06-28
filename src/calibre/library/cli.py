@@ -890,7 +890,7 @@ def catalog_option_parser(args):
     %prog catalog /path/to/destination.(CSV|EPUB|MOBI|XML ...) [options]
 
     Export a catalog in format specified by path/to/destination extension.
-    Options control how entries are displayed in the generated catalog ouput.
+    Options control how entries are displayed in the generated catalog output.
     '''))
 
     # Confirm that a plugin handler exists for specified output file extension
