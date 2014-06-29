@@ -305,7 +305,7 @@ if isosx:
                     continue
                 elif what == 'Location Manager':
                     for ac in self.location_manager.available_actions:
-                        self.build_menu(ac, ac.isVisible())
+                        self.build_menu(ac)
                 elif what == 'Donate':
                     mb.addAction(self.donate_action)
                 elif what in self.gui.iactions:
