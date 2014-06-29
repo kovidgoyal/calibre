@@ -27,7 +27,10 @@ def config_widget_for_input_plugin(plugin):
         return importlib.import_module(
                 'calibre.gui2.convert.'+name).PluginWidget
     except ImportError:
-        pass
+        try:
+            return importlib.import_module(plugin.__module__+'.'+name).PluginWidget
+        except ImportError:
+            pass
 
 def bulk_defaults_for_input_format(fmt):
     plugin = plugin_for_input_format(fmt)
