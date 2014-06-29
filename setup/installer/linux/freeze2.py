@@ -260,10 +260,12 @@ class LinuxFreeze(Command):
                     tf.add(x)
             finally:
                 os.chdir(cwd)
-        subprocess.check_call(['bzip2', '-f', '-9', dist])
-        dist += '.bz2'
-        self.info('Archive %s created: %.2f MB'%(dist,
-            os.stat(dist).st_size/(1024.**2)))
+        self.info('Compressing archive...')
+        subprocess.check_call(['xz', '-f', '-9', dist])
+        ans = dist.rpartition('.')[0] + '.txz'
+        os.rename(dist + '.xz', ans)
+        self.info('Archive %s created: %.2f MB'%(
+            os.path.basename(ans), os.stat(ans).st_size/(1024.**2)))
 
     def build_launchers(self):
         self.obj_dir = self.j(self.src_root, 'build', 'launcher')

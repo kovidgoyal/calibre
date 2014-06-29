@@ -14,7 +14,7 @@ class Linux32(VMInstaller):
 
     description = 'Build 32bit linux binary installer'
 
-    INSTALLER_EXT = 'tar.bz2'
+    INSTALLER_EXT = 'txz'
     VM_NAME = 'linux32-build'
     FREEZE_COMMAND = 'linux_freeze'
     FREEZE_TEMPLATE = 'python -OO setup.py {freeze_command}'
