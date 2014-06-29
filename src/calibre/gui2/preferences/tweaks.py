@@ -129,7 +129,7 @@ class Tweaks(QAbstractListModel, SearchQueryParser):  # {{{
                 tt += '<pre>'
                 for varn, val in tweak.custom_values.iteritems():
                     tt += '%s = %r\n\n'%(varn, val)
-            return tt
+            return textwrap.fill(tt)
         if role == Qt.UserRole:
             return tweak
         return NONE
@@ -137,13 +137,13 @@ class Tweaks(QAbstractListModel, SearchQueryParser):  # {{{
     def parse_tweaks(self, defaults, custom):
         l, g = {}, {}
         try:
-            exec custom in g, l
+            exec(custom, g, l)
         except:
             print 'Failed to load custom tweaks file'
             import traceback
             traceback.print_exc()
         dl, dg = {}, {}
-        exec defaults in dg, dl
+        exec(defaults, dg, dl)
         lines = defaults.splitlines()
         pos = 0
         self.tweaks = []
@@ -331,8 +331,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.splitter.setStretchFactor(1, 100)
         self.next_button.clicked.connect(self.find_next)
         self.previous_button.clicked.connect(self.find_previous)
-        self.search.initialize('tweaks_search_history', help_text=
-                _('Search for tweak'))
+        self.search.initialize('tweaks_search_history', help_text=_('Search for tweak'))
         self.search.search.connect(self.find)
         self.view.setContextMenuPolicy(Qt.CustomContextMenu)
         self.view.customContextMenuRequested.connect(self.show_context_menu)
@@ -364,7 +363,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         if d.exec_() == d.Accepted:
             g, l = {}, {}
             try:
-                exec unicode(d.edit.toPlainText()) in g, l
+                exec(unicode(d.edit.toPlainText()), g, l)
             except:
                 import traceback
                 return error_dialog(self, _('Failed'),
@@ -405,7 +404,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         if idx.isValid():
             l, g = {}, {}
             try:
-                exec unicode(self.edit_tweak.toPlainText()) in g, l
+                exec(unicode(self.edit_tweak.toPlainText()), g, l)
             except:
                 import traceback
                 error_dialog(self.gui, _('Failed'),
@@ -419,7 +418,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
     def commit(self):
         raw = self.tweaks.to_string()
         try:
-            exec raw
+            exec(raw)
         except:
             import traceback
             error_dialog(self, _('Invalid tweaks'),
