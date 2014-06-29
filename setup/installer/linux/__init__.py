@@ -17,7 +17,7 @@ class Linux32(VMInstaller):
     INSTALLER_EXT = 'tar.bz2'
     VM_NAME = 'linux32-build'
     FREEZE_COMMAND = 'linux_freeze'
-    FREEZE_TEMPLATE = 'sudo python -OO setup.py {freeze_command}'
+    FREEZE_TEMPLATE = 'python -OO setup.py {freeze_command}'
 
 
 class Linux64(Linux32):

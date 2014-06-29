@@ -81,6 +81,7 @@ def readvar(name):
 pyqt = {x:readvar(y) for x, y in (
     ('inc', 'QT_INSTALL_HEADERS'), ('lib', 'QT_INSTALL_LIBS')
 )}
+qt = {x:readvar(y) for x, y in {'libs':'QT_INSTALL_LIBS', 'plugins':'QT_INSTALL_PLUGINS'}.iteritems()}
 c = sipconfig.Configuration()
 pyqt['sip_bin'] = c.sip_bin + ('.exe' if iswindows and not c.sip_bin.endswith('.exe') else '')
 
@@ -194,6 +195,9 @@ else:
             '/usr/include/freetype2')
     ft_lib_dirs = pkgconfig_lib_dirs('freetype2', 'FT_LIB_DIR', '/usr/lib')
     ft_libs = pkgconfig_libs('freetype2', '', '')
+    sw = os.environ.get('SW', os.path.expanduser('~/sw'))
+    podofo_inc = os.path.join(sw, 'include', 'podofo')
+    podofo_lib = os.path.join(sw, 'lib')
 
 
 magick_error = None

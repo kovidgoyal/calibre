@@ -202,6 +202,12 @@ def test_podofo():
     from calibre.utils.podofo import test_podofo as dotest
     dotest()
 
+def test_terminal():
+    import readline, curses
+    curses.setupterm()
+    del readline
+    print ('readline and curses OK!')
+
 def test():
     if iswindows:
         test_dlls()
@@ -225,6 +231,8 @@ def test():
     if iswindows:
         test_wpd()
         test_winutil()
+    else:
+        test_terminal()
     if islinux:
         test_dbus()
 
