@@ -409,7 +409,10 @@ class LiveCSS(QWidget):
         result = unicode(mf.evaluateJavaScript(
             'window.calibre_preview_integration.live_css(%s, %s)' % (
                 json.dumps(sourceline), json.dumps(tags))).toString())
-        result = json.loads(result)
+        try:
+            result = json.loads(result)
+        except ValueError:
+            result = None
         if result is not None:
             maximum_specificities = {}
             for node in result['nodes']:
