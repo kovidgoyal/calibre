@@ -540,14 +540,14 @@ magick_Image_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 // Image.constitute {{{
 static PyObject *
 magick_Image_constitute(magick_Image *self, PyObject *args) {
-    const char *map;
-	Py_ssize_t width, height;
-    PyObject *capsule;
-    MagickBooleanType res;
-    void *data;
+    const char *map = NULL;
+    unsigned int width = 0, height = 0;
+    PyObject *capsule = NULL;
+    MagickBooleanType res = MagickFalse;
+    void *data = NULL;
     
     NULL_CHECK(NULL)
-    if (!PyArg_ParseTuple(args, "iisO", &width, &height, &map, &capsule)) return NULL;
+    if (!PyArg_ParseTuple(args, "IIsO", &width, &height, &map, &capsule)) return NULL;
 
     if (!PyCapsule_CheckExact(capsule)) {
         PyErr_SetString(PyExc_TypeError, "data is not a capsule object");
@@ -557,7 +557,7 @@ magick_Image_constitute(magick_Image *self, PyObject *args) {
     data = PyCapsule_GetPointer(capsule,  PyCapsule_GetName(capsule));
     if (data == NULL) return NULL;
 
-    res = MagickConstituteImage(self->wand, width, height, map, CharPixel, data);
+    res = MagickConstituteImage(self->wand, (size_t)width, (size_t)height, map, CharPixel, data);
 
     if (!res)
         return magick_set_exception(self->wand);
