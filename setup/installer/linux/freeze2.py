@@ -262,9 +262,12 @@ class LinuxFreeze(Command):
             finally:
                 os.chdir(cwd)
         self.info('Compressing archive...')
-        subprocess.check_call(['xz', '-f', '-9', dist])
         ans = dist.rpartition('.')[0] + '.txz'
-        os.rename(dist + '.xz', ans)
+        if False:
+            os.rename(dist, ans)
+        else:
+            subprocess.check_call(['xz', '-f', '-9', dist])
+            os.rename(dist + '.xz', ans)
         self.info('Archive %s created: %.2f MB'%(
             os.path.basename(ans), os.stat(ans).st_size/(1024.**2)))
 
