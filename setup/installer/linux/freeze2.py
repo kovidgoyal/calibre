@@ -53,6 +53,7 @@ path=(~/bin "$path[@]")
 '''
 
 import sys, os, shutil, platform, subprocess, stat, py_compile, glob, textwrap, tarfile
+from functools import partial
 
 from setup import Command, modules, basenames, functions, __version__,  __appname__
 from setup.build_environment import QT_DLLS, QT_PLUGINS, qt, PYQT_MODULES, sw as SW
@@ -87,12 +88,14 @@ def binary_includes():
 
 arch = 'x86_64' if is64bit else 'i686'
 
-def ignore_in_lib(base, items):
+def ignore_in_lib(base, items, ignored_dirs=None):
     ans = []
+    if ignored_dirs is None:
+        ignored_dirs = {'.svn', '.bzr', '.git', 'test', 'tests', 'testing'}
     for name in items:
         path = os.path.join(base, name)
         if os.path.isdir(path):
-            if name in {'.svn', '.bzr', '.git', 'test', 'tests', 'testing'} or not os.path.exists(j(path, '__init__.py')):
+            if name in ignored_dirs or not os.path.exists(j(path, '__init__.py')):
                 if name != 'plugins':
                     ans.append(name)
         else:
@@ -210,7 +213,7 @@ class LinuxFreeze(Command):
         for x in os.listdir(self.SRC):
             c = self.j(self.SRC, x)
             if os.path.exists(self.j(c, '__init__.py')):
-                shutil.copytree(c, self.j(dest, x), ignore=ignore_in_lib)
+                shutil.copytree(c, self.j(dest, x), ignore=partial(ignore_in_lib, ignored_dirs={}))
             elif os.path.isfile(c):
                 shutil.copy2(c, self.j(dest, x))
 
