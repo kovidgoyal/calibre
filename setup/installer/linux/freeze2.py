@@ -73,7 +73,7 @@ def binary_includes():
         'exslt.so.0', 'imobiledevice.so.4', 'usbmuxd.so.2', 'plist.so.2',
         'MagickCore-6.Q16.so.2', 'MagickWand-6.Q16.so.2', 'ssl.so.1.0.0',
         'crypto.so.1.0.0', 'readline.so.6', 'chm.so.0', 'icudata.so.53',
-        'icui18n.so.53', 'icuuc.so.53', 'icuio.so.53', 'python%s.so' % py_ver
+        'icui18n.so.53', 'icuuc.so.53', 'icuio.so.53', 'python%s.so.1.0' % py_ver
     )] + [
 
     glob.glob('/lib/*/lib' + x)[-1] for x in (
@@ -82,6 +82,7 @@ def binary_includes():
 
     glob.glob('/usr/lib/*/lib' + x)[-1] for x in (
         'gobject-2.0.so.0', 'gthread-2.0.so.0', 'gmodule-2.0.so.0', 'gstreamer-0.10.so.0', 'gstbase-0.10.so.0', 'gstpbutils-0.10.so.0', 'gio-2.0.so.0',
+        'gstapp-0.10.so.0', 'gstinterfaces-0.10.so.0', 'gstvideo-0.10.so.0', 'orc-0.4.so.0',
         'ffi.so.5',
         # 'stdc++.so.6',
         # We dont include libstdc++.so as the OpenGL dlls on the target
