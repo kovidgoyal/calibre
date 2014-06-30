@@ -82,7 +82,14 @@ def binary_includes():
 
     glob.glob('/usr/lib/*/lib' + x)[-1] for x in (
         'gobject-2.0.so.0', 'gthread-2.0.so.0', 'gmodule-2.0.so.0', 'gstreamer-0.10.so.0', 'gstbase-0.10.so.0', 'gstpbutils-0.10.so.0', 'gio-2.0.so.0',
-        'ffi.so.5', 'stdc++.so.6',
+        'ffi.so.5',
+        # 'stdc++.so.6',
+        # We dont include libstdc++.so as the OpenGL dlls on the target
+        # computer fail to load in the QPA xcb plugin if they were compiled
+        # with a newer version of gcc than the one on the build computer.
+        # libstdc++, like glibc is forward compatible and I dont think any
+        # distros do not have libstdc++.so.6, so it should be safe to leave it out.
+        # https://gcc.gnu.org/onlinedocs/libstdc++/manual/abi.html
     )] + [
         j(qt['libs'], 'lib%s.so.5' % x) for x in QT_DLLS]
 
