@@ -177,6 +177,7 @@ elif isosx:
     icu_inc_dirs = [sw + '/include']
     icu_lib_dirs = [sw + '/lib']
 else:
+    QT_DLLS += ['Qt5DBus']
     # Include directories
     png_inc_dirs = pkgconfig_include_dirs('libpng', 'PNG_INC_DIR',
         '/usr/include')
