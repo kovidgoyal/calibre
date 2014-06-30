@@ -22,7 +22,7 @@ sudo apt-get install build-essential module-assistant vim zsh vim-scripts rsync 
     htop nasm unzip libdbus-1-dev cmake libltdl-dev libudev-dev apt-file \
     libdbus-glib-1-dev libcups2-dev "^libxcb.*" libx11-xcb-dev libglu1-mesa-dev \
     libxrender-dev flex bison gperf libasound2-dev libgstreamer0.10-dev \
-    libgstreamer-plugins-base0.10-dev libpulse-dev
+    libgstreamer-plugins-base0.10-dev libpulse-dev libgtk2.0-dev
 apt-file update
 
 # For recent enough version of debian (>= sid) also install libxkbcommon-dev
@@ -90,7 +90,8 @@ def binary_includes():
         # with a newer version of gcc than the one on the build computer.
         # libstdc++, like glibc is forward compatible and I dont think any
         # distros do not have libstdc++.so.6, so it should be safe to leave it out.
-        # https://gcc.gnu.org/onlinedocs/libstdc++/manual/abi.html
+        # https://gcc.gnu.org/onlinedocs/libstdc++/manual/abi.html (The current
+        # debian stable libstdc++ is  libstdc++.so.6.0.17)
     )] + [
         j(qt['libs'], 'lib%s.so.5' % x) for x in QT_DLLS]
 
