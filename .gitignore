@@ -6,7 +6,6 @@
 .check-cache.pickle
 src/calibre/plugins
 resources/images.qrc
-src/calibre/ebooks/oeb/display/test/*.js
 manual/.build/
 manual/cli/
 manual/template_ref.rst
@@ -21,13 +20,6 @@ resources/builtin_recipes.zip
 resources/template-functions.json
 icons/icns/*.iconset
 setup/installer/windows/calibre/build.log
-src/calibre/translations/.errors
-src/cssutils/.svn/
-src/cssutils/_todo/
-src/cssutils/scripts/
-src/cssutils/css/.svn/
-src/cssutils/stylesheets/.svn/
-src/odf/.svn
 tags
 nbproject/
 translations/
