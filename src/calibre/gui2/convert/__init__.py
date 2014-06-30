@@ -29,7 +29,7 @@ def config_widget_for_input_plugin(plugin):
         # If this is not a builtin plugin, we have to import it differently
         try:
             ans = importlib.import_module(plugin.__module__+'.'+name).PluginWidget
-        except (ImportError, AttributeError):
+        except (ImportError, AttributeError, TypeError):
             pass
         else:
             if issubclass(ans, Widget):
