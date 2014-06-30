@@ -52,7 +52,6 @@ path=(~/bin "$path[@]")
 
 '''
 
-
 import sys, os, shutil, platform, subprocess, stat, py_compile, glob, textwrap, tarfile
 
 from setup import Command, modules, basenames, functions, __version__,  __appname__
@@ -77,11 +76,12 @@ def binary_includes():
     )] + [
 
     glob.glob('/lib/*/lib' + x)[-1] for x in (
-        'glib-2.0.so.0', 'gcrypt.so.11', 'gpg-error.so.0', 'dbus-1.so.3', 'pcre.so.3',
+        'glib-2.0.so.0', 'gcrypt.so.11', 'gpg-error.so.0', 'dbus-1.so.3', 'pcre.so.3', 'selinux.so.1',
     )] + [
 
     glob.glob('/usr/lib/*/lib' + x)[-1] for x in (
-        'gthread-2.0.so.0', 'ffi.so.5', 'stdc++.so.6',
+        'gobject-2.0.so.0', 'gthread-2.0.so.0', 'gmodule-2.0.so.0', 'gstreamer-0.10.so.0', 'gstbase-0.10.so.0', 'gstpbutils-0.10.so.0', 'gio-2.0.so.0',
+        'ffi.so.5', 'stdc++.so.6',
     )] + [
         j(qt['libs'], 'lib%s.so.5' % x) for x in QT_DLLS]
 
@@ -89,27 +89,28 @@ arch = 'x86_64' if is64bit else 'i686'
 
 def ignore_in_lib(base, items):
     ans = []
-    for y in items:
-        x = os.path.join(base, y)
-        if (os.path.isfile(x) and os.path.splitext(x)[1] in ('.so',
-                '.py')) or \
-            (os.path.isdir(x) and x not in ('.svn', '.bzr', '.git', 'test', 'tests',
-                'testing')):
-            continue
-        ans.append(y)
+    for name in items:
+        path = os.path.join(base, name)
+        if os.path.isdir(path):
+            if name in {'.svn', '.bzr', '.git', 'test', 'tests', 'testing'} or not os.path.exists(j(path, '__init__.py')):
+                if name != 'plugins':
+                    ans.append(name)
+        else:
+            if name.rpartition('.')[-1] not in ('so', 'py'):
+                ans.append(name)
     return ans
 
 def import_site_packages(srcdir, dest):
     if not os.path.exists(dest):
         os.mkdir(dest)
     for x in os.listdir(srcdir):
-        ext = x.rpartition('.')
+        ext = x.rpartition('.')[-1]
         f = j(srcdir, x)
         if ext in ('py', 'so'):
             shutil.copy2(f, dest)
         elif ext == 'pth' and x != 'setuptools.pth':
-            for line in open(f, 'rb').readlines():
-                src = j(srcdir, line)
+            for line in open(f, 'rb').read().splitlines():
+                src = os.path.abspath(j(srcdir, line))
                 if os.path.exists(src) and os.path.isdir(src):
                     import_site_packages(src, dest)
         elif os.path.exists(j(f, '__init__.py')):
@@ -176,7 +177,7 @@ class LinuxFreeze(Command):
         im = glob.glob(SW + '/lib/ImageMagick-*')[-1]
         self.magick_base = os.path.basename(im)
         dest = self.j(self.lib_dir, self.magick_base)
-        shutil.copytree(im, dest, ignore=shutil.ignore_patterns('*.a', '*.la'))
+        shutil.copytree(im, dest, ignore=shutil.ignore_patterns('*.a'))
 
     def copy_python(self):
         self.info('Copying python...')
@@ -207,11 +208,11 @@ class LinuxFreeze(Command):
                 os.remove(self.j(pyqt, x))
 
         for x in os.listdir(self.SRC):
-            if os.path.isdir(self.j(self.SRC, x)):
-                shutil.copytree(self.j(self.SRC, x), self.j(dest, x),
-                        ignore=ignore_in_lib)
-            else:
-                shutil.copy2(self.j(self.SRC, x), self.j(dest, x))
+            c = self.j(self.SRC, x)
+            if os.path.exists(self.j(c, '__init__.py')):
+                shutil.copytree(c, self.j(dest, x), ignore=ignore_in_lib)
+            elif os.path.isfile(c):
+                shutil.copy2(c, self.j(dest, x))
 
         shutil.copytree(self.j(self.src_root, 'resources'), self.j(self.base,
                 'resources'))
@@ -349,7 +350,7 @@ class LinuxFreeze(Command):
         with open(self.j(self.py_dir, 'site.py'), 'wb') as f:
             f.write(textwrap.dedent('''\
             import sys
-            import encodings
+            import encodings  # noqa
             import __builtin__
             import locale
             import os
@@ -359,7 +360,7 @@ class LinuxFreeze(Command):
                 try:
                     locale.setlocale(locale.LC_ALL, '')
                 except:
-                    print 'WARNING: Failed to set default libc locale, using en_US.UTF-8'
+                    print ('WARNING: Failed to set default libc locale, using en_US.UTF-8')
                     locale.setlocale(locale.LC_ALL, 'en_US.UTF-8')
                 enc = locale.getdefaultlocale()[1]
                 if not enc:
@@ -389,15 +390,6 @@ class LinuxFreeze(Command):
             def set_helper():
                 __builtin__.help = _Helper()
 
-            def set_qt_plugin_path():
-                import uuid
-                uuid.uuid4() # Workaround for libuuid/PyQt conflict
-                from PyQt5.Qt import QCoreApplication
-                paths = list(map(unicode, QCoreApplication.libraryPaths()))
-                paths.insert(0, sys.frozen_path + '/lib/qt_plugins')
-                QCoreApplication.setLibraryPaths(paths)
-
-
             def main():
                 try:
                     sys.argv[0] = sys.calibre_basename
@@ -406,7 +398,6 @@ class LinuxFreeze(Command):
                         sys.path.insert(0, os.path.abspath(dfv))
                     set_default_encoding()
                     set_helper()
-                    set_qt_plugin_path()
                     mod = __import__(sys.calibre_module, fromlist=[1])
                     func = getattr(mod, sys.calibre_function)
                     return func()

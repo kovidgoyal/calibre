@@ -196,8 +196,11 @@ else:
     ft_lib_dirs = pkgconfig_lib_dirs('freetype2', 'FT_LIB_DIR', '/usr/lib')
     ft_libs = pkgconfig_libs('freetype2', '', '')
     sw = os.environ.get('SW', os.path.expanduser('~/sw'))
-    podofo_inc = os.path.join(sw, 'include', 'podofo')
-    podofo_lib = os.path.join(sw, 'lib')
+    podofo_inc = '/usr/include/podofo'
+    podofo_lib = '/usr/lib'
+    if not os.path.exists(podofo_inc + '/podofo.h'):
+        podofo_inc = os.path.join(sw, 'include', 'podofo')
+        podofo_lib = os.path.join(sw, 'lib')
 
 
 magick_error = None

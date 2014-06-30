@@ -1009,10 +1009,19 @@ class SanitizeLibraryPath(object):
             npaths = [x for x in paths if x != sys.frozen_path+'/lib']
             os.environ['LD_LIBRARY_PATH'] = os.pathsep.join(npaths)
             self.changed = True
+        self.orig2 = os.environ.get('QT_PLUGIN_PATH', '')
+        self.changed2 = False
+        paths = [x for x in self.orig2.split(os.pathsep) if x]
+        if isfrozen and islinux and paths:
+            npaths = [x for x in paths if x != sys.frozen_path+'/lib/qt_plugins']
+            os.environ['QT_PLUGIN_PATH'] = os.pathsep.join(npaths)
+            self.changed2 = True
 
     def __exit__(self, *args):
         if self.changed:
             os.environ['LD_LIBRARY_PATH'] = self.orig
+        if self.changed2:
+            os.environ['QT_PLUGIN_PATH'] = self.orig2
 
 def open_url(qurl):
     if isinstance(qurl, basestring):

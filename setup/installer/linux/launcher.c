@@ -13,6 +13,8 @@
 
 #define PATHLEN 1023
 
+#define SET(x, y) if (setenv(x, y, 1) != 0) { fprintf(stderr, "Failed to set environment variable with error: %s\n", strerror(errno)); return 1; }
+
 int main(int argc, char **argv) {
     static char buf[PATHLEN+1] = {0}, lib[PATHLEN+1] = {0}, base[PATHLEN+1] = {0}, exe[PATHLEN+1] = {0}, *ldp = NULL;
 
@@ -27,39 +29,23 @@ int main(int argc, char **argv) {
     snprintf(lib, PATHLEN, "%s/lib", base);
 
     /* qt-at-spi causes crashes and performance issues in various distros, so disable it */
-    if (setenv("QT_ACCESSIBILITY", "0", 1) != 0) {
-        fprintf(stderr, "Failed to set environment variable with error: %s\n", strerror(errno));
-        return 1;
-    }
+    SET("QT_ACCESSIBILITY", "0")
+    memset(buf, 0, PATHLEN); 
+    ldp = getenv("QT_PLUGIN_PATH");
+    if (ldp == NULL) snprintf(buf, PATHLEN, "%s/qt_plugins", lib);
+    else snprintf(buf, PATHLEN, "%s/qt_plugins:%s", lib, ldp);
+    SET("QT_PLUGIN_PATH", buf);
 
-    if (setenv("MAGICK_HOME", base, 1) != 0) {
-        fprintf(stderr, "Failed to set environment variable with error: %s\n", strerror(errno));
-        return 1;
-    }
-    memset(buf, 0, PATHLEN); snprintf(buf, PATHLEN, "%s/%s/config", lib, MAGICK_BASE);
-    if (setenv("MAGICK_CONFIGURE_PATH", buf, 1) != 0) {
-        fprintf(stderr, "Failed to set environment variable with error: %s\n", strerror(errno));
-        return 1;
-    }
     memset(buf, 0, PATHLEN); snprintf(buf, PATHLEN, "%s/%s/modules-Q16/coders", lib, MAGICK_BASE);
-    if (setenv("MAGICK_CODER_MODULE_PATH", buf, 1) != 0) {
-        fprintf(stderr, "Failed to set environment variable with error: %s\n", strerror(errno));
-        return 1;
-    }
+    SET("MAGICK_CODER_MODULE_PATH", buf)
     memset(buf, 0, PATHLEN); snprintf(buf, PATHLEN, "%s/%s/modules-Q16/filters", lib, MAGICK_BASE);
-    if (setenv("MAGICK_CODER_FILTER_PATH", buf, 1) != 0) {
-        fprintf(stderr, "Failed to set environment variable with error: %s\n", strerror(errno));
-        return 1;
-    }
+    SET("MAGICK_CODER_FILTER_PATH", buf)
 
     memset(buf, 0, PATHLEN);
     ldp = getenv("LD_LIBRARY_PATH");
     if (ldp == NULL) strncpy(buf, lib, PATHLEN);
     else snprintf(buf, PATHLEN, "%s:%s", lib, ldp);
-    if (setenv("LD_LIBRARY_PATH", buf, 1) != 0) {
-        fprintf(stderr, "Failed to set environment variable with error: %s\n", strerror(errno));
-        return 1;
-    }
+    SET("LD_LIBRARY_PATH", buf)
 
     argv[0] = exe;
     if (execv(exe, argv) == -1) {
