@@ -353,16 +353,23 @@ class HTMLSmarts(NullSmarts):
         block = cursor.block()
         offset = cursor.position() - block.position()
         nblock, boundary = next_tag_boundary(block, offset, forward=False)
-        if nblock is None:
+        if boundary is None:
             return None, None
         if boundary.is_start:
             # We are inside a tag, use this tag
             start_block, start_offset = nblock, boundary.offset
         else:
-            tag = find_closest_containing_tag(block, offset)
-            if tag is None:
-                return None, None
-            start_block, start_offset = tag.start_block, tag.start_offset
+            start_block = None
+            while start_block is None and block.isValid():
+                ud = block.userData()
+                if ud is not None:
+                    for boundary in reversed(ud.tags):
+                        if boundary.is_start and not boundary.closing and boundary.offset <= offset:
+                            start_block, start_offset = block, boundary.offset
+                            break
+                block, offset = block.previous(), sys.maxint
+        if start_block is None:
+            return None, None
         sourceline = start_block.blockNumber() + 1  # blockNumber() is zero based
         ud = start_block.userData()
         if ud is None:
