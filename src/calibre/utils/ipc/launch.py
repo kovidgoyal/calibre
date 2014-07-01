@@ -20,7 +20,7 @@ if iswindows:
     except:
         raise RuntimeError('NUL file missing in windows. This indicates a'
                 ' corrupted windows. You should contact Microsoft'
-                ' for assistance.')
+                ' for assistance and/or follow the steps described here: http://bytes.com/topic/net/answers/264804-compile-error-null-device-missing')
 
 def renice(niceness):
     try:
