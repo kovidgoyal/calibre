@@ -22,7 +22,7 @@ sudo apt-get install build-essential module-assistant vim zsh vim-scripts rsync 
     htop nasm unzip libdbus-1-dev cmake libltdl-dev libudev-dev apt-file \
     libdbus-glib-1-dev libcups2-dev "^libxcb.*" libx11-xcb-dev libglu1-mesa-dev \
     libxrender-dev flex bison gperf libasound2-dev libgstreamer0.10-dev \
-    libgstreamer-plugins-base0.10-dev libpulse-dev libgtk2.0-dev
+    libgstreamer-plugins-base0.10-dev libpulse-dev libgtk2.0-dev libffi-dev
 apt-file update
 
 # For recent enough version of debian (>= sid) also install libxkbcommon-dev
@@ -61,6 +61,8 @@ from setup.build_environment import QT_DLLS, QT_PLUGINS, qt, PYQT_MODULES, sw as
 j = os.path.join
 is64bit = platform.architecture()[0] == '64bit'
 py_ver = '.'.join(map(str, sys.version_info[:2]))
+arch = 'x86_64' if is64bit else 'i686'
+
 
 def binary_includes():
     return [
@@ -73,15 +75,17 @@ def binary_includes():
         'exslt.so.0', 'imobiledevice.so.4', 'usbmuxd.so.2', 'plist.so.2',
         'MagickCore-6.Q16.so.2', 'MagickWand-6.Q16.so.2', 'ssl.so.1.0.0',
         'crypto.so.1.0.0', 'readline.so.6', 'chm.so.0', 'icudata.so.53',
-        'icui18n.so.53', 'icuuc.so.53', 'icuio.so.53', 'python%s.so.1.0' % py_ver
+        'icui18n.so.53', 'icuuc.so.53', 'icuio.so.53', 'python%s.so.1.0' % py_ver,
+        'gcrypt.so.20', 'gpg-error.so.0', 'gobject-2.0.so.0', 'glib-2.0.so.0',
+        'gthread-2.0.so.0', 'gmodule-2.0.so.0', 'gio-2.0.so.0',
     )] + [
 
     glob.glob('/lib/*/lib' + x)[-1] for x in (
-        'glib-2.0.so.0', 'gcrypt.so.11', 'gpg-error.so.0', 'dbus-1.so.3', 'pcre.so.3', 'selinux.so.1',
+        'dbus-1.so.3',  'pcre.so.3'
     )] + [
 
     glob.glob('/usr/lib/*/lib' + x)[-1] for x in (
-        'gobject-2.0.so.0', 'gthread-2.0.so.0', 'gmodule-2.0.so.0', 'gstreamer-0.10.so.0', 'gstbase-0.10.so.0', 'gstpbutils-0.10.so.0', 'gio-2.0.so.0',
+        'gstreamer-0.10.so.0', 'gstbase-0.10.so.0', 'gstpbutils-0.10.so.0',
         'gstapp-0.10.so.0', 'gstinterfaces-0.10.so.0', 'gstvideo-0.10.so.0', 'orc-0.4.so.0',
         'ffi.so.5',
         # 'stdc++.so.6',
@@ -95,7 +99,6 @@ def binary_includes():
     )] + [
         j(qt['libs'], 'lib%s.so.5' % x) for x in QT_DLLS]
 
-arch = 'x86_64' if is64bit else 'i686'
 
 def ignore_in_lib(base, items, ignored_dirs=None):
     ans = []
