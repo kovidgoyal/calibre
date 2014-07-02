@@ -71,7 +71,7 @@ class FilenamePattern(QWidget, Ui_Form):  # {{{
         self.re.lineEdit().textChanged.connect(lambda x: self.changed_signal.emit())
 
     def initialize(self, defaults=False):
-        # Get all items in the combobox. If we are resting
+        # Get all items in the combobox. If we are reseting
         # to defaults we don't want to lose what the user
         # has added.
         val_hist = [unicode(self.re.lineEdit().text())] + [unicode(self.re.itemText(i)) for i in xrange(self.re.count())]
