@@ -1001,27 +1001,26 @@ class SanitizeLibraryPath(object):
     '''Remove the bundled calibre libraries from LD_LIBRARY_PATH on linux. This
     is needed to prevent library conflicts when launching external utilities.'''
 
+    env_vars = {'LD_LIBRARY_PATH':'/lib', 'QT_PLUGIN_PATH':'/lib/qt_plugins'}
+
     def __enter__(self):
-        self.orig = os.environ.get('LD_LIBRARY_PATH', '')
-        self.changed = False
-        paths = [x for x in self.orig.split(os.pathsep) if x]
-        if isfrozen and islinux and paths:
-            npaths = [x for x in paths if x != sys.frozen_path+'/lib']
-            os.environ['LD_LIBRARY_PATH'] = os.pathsep.join(npaths)
-            self.changed = True
-        self.orig2 = os.environ.get('QT_PLUGIN_PATH', '')
-        self.changed2 = False
-        paths = [x for x in self.orig2.split(os.pathsep) if x]
-        if isfrozen and islinux and paths:
-            npaths = [x for x in paths if x != sys.frozen_path+'/lib/qt_plugins']
-            os.environ['QT_PLUGIN_PATH'] = os.pathsep.join(npaths)
-            self.changed2 = True
+        self.originals = {x:os.environ.get(x, '') for x in self.env_vars}
+        self.changed = {x:False for x in self.env_vars}
+        if isfrozen and islinux:
+            for var, suffix in self.env_vars.iteritems():
+                paths = [x for x in self.originals[var].split(os.pathsep) if x]
+                npaths = [x for x in paths if x != sys.frozen_path + suffix]
+                if len(npaths) < len(paths):
+                    if npaths:
+                        os.environ[var] = os.pathsep.join(npaths)
+                    else:
+                        del os.environ[var]
+                    self.changed[var] = True
 
     def __exit__(self, *args):
-        if self.changed:
-            os.environ['LD_LIBRARY_PATH'] = self.orig
-        if self.changed2:
-            os.environ['QT_PLUGIN_PATH'] = self.orig2
+        for var, orig in self.originals.iteritems():
+            if self.changed[var]:
+                os.environ[var] = orig
 
 def open_url(qurl):
     if isinstance(qurl, basestring):
