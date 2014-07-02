@@ -71,7 +71,7 @@ class FilenamePattern(QWidget, Ui_Form):  # {{{
         self.re.lineEdit().textChanged.connect(lambda x: self.changed_signal.emit())
 
     def initialize(self, defaults=False):
-        # Get all itmes in the combobox. If we are resting
+        # Get all items in the combobox. If we are resting
         # to defaults we don't want to lose what the user
         # has added.
         val_hist = [unicode(self.re.lineEdit().text())] + [unicode(self.re.itemText(i)) for i in xrange(self.re.count())]
@@ -95,6 +95,7 @@ class FilenamePattern(QWidget, Ui_Form):  # {{{
         self.re.setCurrentIndex(0)
 
     def do_test(self):
+        from calibre.ebooks.metadata import authors_to_string
         from calibre.ebooks.metadata.meta import metadata_from_filename
         fname = unicode(self.filename.text())
         ext = os.path.splitext(fname)[1][1:].lower()
@@ -116,7 +117,7 @@ class FilenamePattern(QWidget, Ui_Form):  # {{{
         else:
             self.title.setText(_('No match'))
         if mi.authors:
-            self.authors.setText(', '.join(mi.authors))
+            self.authors.setText(authors_to_string(mi.authors))
         else:
             self.authors.setText(_('No match'))
 
@@ -132,11 +133,16 @@ class FilenamePattern(QWidget, Ui_Form):  # {{{
 
         if mi.publisher:
             self.publisher.setText(mi.publisher)
+        else:
+            self.publisher.setText(_('No match'))
 
         if mi.pubdate:
             self.pubdate.setText(mi.pubdate.strftime('%Y-%m-%d'))
+        else:
+            self.pubdate.setText(_('No match'))
 
         self.isbn.setText(_('No match') if mi.isbn is None else str(mi.isbn))
+        self.comments.setText(mi.comments if mi.comments else _('No match'))
 
     def pattern(self):
         pat = unicode(self.re.lineEdit().text())
@@ -148,7 +154,7 @@ class FilenamePattern(QWidget, Ui_Form):  # {{{
 
         history = []
         history_pats = [unicode(self.re.lineEdit().text())] + [unicode(self.re.itemText(i)) for i in xrange(self.re.count())]
-        for p in history_pats[:14]:
+        for p in history_pats[:24]:
             # Ensure we don't have duplicate items.
             if p and p not in history:
                 history.append(p)

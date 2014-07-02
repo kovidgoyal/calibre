@@ -184,6 +184,11 @@ def metadata_from_filename(name, pat=None, fallback_pat=None):
                 mi.pubdate = parse_only_date(pubdate)
         except:
             pass
+        try:
+            comments = match.group('comments')
+            mi.comments = comments
+        except (IndexError, ValueError):
+            pass
 
     if mi.is_null('title'):
         mi.title = name
