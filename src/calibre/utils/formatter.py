@@ -322,6 +322,7 @@ class TemplateFormatter(string.Formatter):
         string.Formatter.__init__(self)
         self.book = None
         self.kwargs = None
+        self.strip_results = True
         self.locals = {}
 
     def _do_format(self, val, fmt):
