@@ -2,6 +2,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import re, copy
+from datetime import date
 
 from PyQt4.Qt import QDialog, QDialogButtonBox
 
@@ -10,15 +11,45 @@ from calibre.library.caches import CONTAINS_MATCH, EQUALS_MATCH
 from calibre.gui2 import gprefs
 from calibre.utils.icu import sort_key
 from calibre.utils.config import tweaks
+from calibre.utils.date import now
 
 box_values = {}
 last_matchkind = CONTAINS_MATCH
+
+def init_dateop(cb):
+    for op, desc in [
+            ('=', _('equal to')),
+            ('<', _('before')),
+            ('>', _('after')),
+            ('<=', _('before or equal to')),
+            ('>=', _('after or equal to')),
+    ]:
+        cb.addItem(desc, op)
+
+def current_dateop(cb):
+    return unicode(cb.itemData(cb.currentIndex()).toString())
 
 class SearchDialog(QDialog, Ui_Dialog):
 
     def __init__(self, parent, db):
         QDialog.__init__(self, parent)
         self.setupUi(self)
+        for val, text in [(0, '')] + [(i, date(2010, i, 1).strftime('%B')) for i in xrange(1, 13)]:
+            self.date_month.addItem(text, val)
+        for val, text in [('today', _('Today')), ('yesterday', _('Yesterday')), ('thismonth', _('This month'))]:
+            self.date_human.addItem(text, val)
+        self.date_year.setValue(now().year)
+        vals = [((v['search_terms'] or [k])[0], v['name'] or k) for k, v in db.field_metadata.iteritems() if v.get('datatype', None) == 'datetime']
+        for k, v in sorted(vals, key=lambda (k, v): sort_key(v)):
+            self.date_field.addItem(v, k)
+
+        self.date_year.valueChanged.connect(lambda : self.sel_date.setChecked(True))
+        self.date_month.currentIndexChanged.connect(lambda : self.sel_date.setChecked(True))
+        self.date_day.valueChanged.connect(lambda : self.sel_date.setChecked(True))
+        self.date_daysago.valueChanged.connect(lambda : self.sel_daysago.setChecked(True))
+        self.date_human.currentIndexChanged.connect(lambda : self.sel_human.setChecked(True))
+        init_dateop(self.dateop_date)
+        self.sel_date.setChecked(True)
         self.mc = ''
         searchables = sorted(db.field_metadata.searchable_fields(),
                              key=lambda x: sort_key(x if x[0] != '#' else x[1:]))
@@ -50,11 +81,7 @@ class SearchDialog(QDialog, Ui_Dialog):
             self.general_combo.setCurrentIndex(
                     self.general_combo.findText(self.box_last_values['general_index']))
 
-        self.buttonBox.accepted.connect(self.advanced_search_button_pushed)
-        self.tab_2_button_box.accepted.connect(self.accept)
-        self.tab_2_button_box.rejected.connect(self.reject)
         self.clear_button.clicked.connect(self.clear_button_pushed)
-        self.adv_search_used = False
 
         current_tab = gprefs.get('advanced search dialog current tab', 0)
         self.tabWidget.setCurrentIndex(current_tab)
@@ -77,14 +104,8 @@ class SearchDialog(QDialog, Ui_Dialog):
         return QDialog.reject(self)
 
     def tab_changed(self, idx):
-        if idx == 1:
-            self.tab_2_button_box.button(QDialogButtonBox.Ok).setDefault(True)
-        else:
-            self.buttonBox.button(QDialogButtonBox.Ok).setDefault(True)
-
-    def advanced_search_button_pushed(self):
-        self.adv_search_used = True
-        self.accept()
+        bb = (self.buttonBox, self.tab_2_button_box, self.tab_3_button_box)[idx]
+        bb.button(QDialogButtonBox.Ok).setDefault(True)
 
     def clear_button_pushed(self):
         self.title_box.setText('')
@@ -101,10 +122,25 @@ class SearchDialog(QDialog, Ui_Dialog):
         return ['"' + self.mc + t + '"' for t in phrases + [r.strip() for r in raw.split()]]
 
     def search_string(self):
-        if self.adv_search_used:
-            return self.adv_search_string()
-        else:
-            return self.box_search_string()
+        i = self.tabWidget.currentIndex()
+        return (self.adv_search_string, self.box_search_string, self.date_search_string)[i]()
+
+    def date_search_string(self):
+        field = unicode(self.date_field.itemData(self.date_field.currentIndex()).toString())
+        op = current_dateop(self.dateop_date)
+        prefix = '%s:%s' % (field, op)
+        if self.sel_date.isChecked():
+            ans = '%s%s' % (prefix, self.date_year.value())
+            m = self.date_month.itemData(self.date_month.currentIndex()).toPyObject()
+            if m > 0:
+                ans += '-%s' % m
+                d = self.date_day.value()
+                if d > 0:
+                    ans += '-%s' % d
+            return ans
+        if self.sel_daysago.isChecked():
+            return '%s%sdaysago' % (prefix, self.date_daysago.value())
+        return '%s%s' % (prefix, unicode(self.date_human.itemData(self.date_human.currentIndex()).toString()))
 
     def adv_search_string(self):
         mk = self.matchkind.currentIndex()

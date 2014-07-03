@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>731</width>
+    <width>872</width>
     <height>411</height>
    </rect>
   </property>
@@ -36,7 +36,7 @@
          </size>
         </property>
         <property name="text">
-         <string>&lt;p&gt;You can also perform other kinds of advanced searches, for example searching date columns for dates after a particular date, or checking for books that have no covers and  so on. See the &lt;a href=&quot;http://manual.calibre-ebook.com/gui.html#the-search-interface&quot;&gt;The Search Interface&lt;/a&gt; for more information.</string>
+         <string>&lt;p&gt;You can also perform other kinds of advanced searches, for example checking for books that have no covers, combining multiple search expression using Boolean operators and so on. See the &lt;a href=&quot;http://manual.calibre-ebook.com/gui.html#the-search-interface&quot;&gt;The Search Interface&lt;/a&gt; for more information.</string>
         </property>
         <property name="wordWrap">
          <bool>true</bool>
@@ -47,6 +47,35 @@
        </widget>
       </item>
      </layout>
+    </widget>
+   </item>
+   <item row="0" column="0">
+    <widget class="QLabel" name="label_5">
+     <property name="text">
+      <string>&amp;What kind of match to use:</string>
+     </property>
+     <property name="buddy">
+      <cstring>matchkind</cstring>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="1">
+    <widget class="QComboBox" name="matchkind">
+     <item>
+      <property name="text">
+       <string>Contains: the word or phrase matches anywhere in the metadata field</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Equals: the word or phrase must match the entire metadata field</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Regular expression: the expression must match anywhere in the metadata field</string>
+      </property>
+     </item>
     </widget>
    </item>
    <item row="2" column="0" colspan="2">
@@ -289,35 +318,222 @@
        </item>
       </layout>
      </widget>
-    </widget>
-   </item>
-   <item row="0" column="0">
-    <widget class="QLabel" name="label_5">
-     <property name="text">
-      <string>&amp;What kind of match to use:</string>
-     </property>
-     <property name="buddy">
-      <cstring>matchkind</cstring>
-     </property>
-    </widget>
-   </item>
-   <item row="0" column="1">
-    <widget class="QComboBox" name="matchkind">
-     <item>
-      <property name="text">
-       <string>Contains: the word or phrase matches anywhere in the metadata field</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>Equals: the word or phrase must match the entire metadata field</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>Regular expression: the expression must match anywhere in the metadata field</string>
-      </property>
-     </item>
+     <widget class="QWidget" name="tab_3">
+      <attribute name="title">
+       <string>&amp;Date searches</string>
+      </attribute>
+      <layout class="QVBoxLayout" name="verticalLayout_4">
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayout_5">
+         <item>
+          <widget class="QLabel" name="label_6">
+           <property name="text">
+            <string>&amp;Search the</string>
+           </property>
+           <property name="buddy">
+            <cstring>date_field</cstring>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QComboBox" name="date_field"/>
+         </item>
+         <item>
+          <widget class="QLabel" name="label_13">
+           <property name="text">
+            <string>date column for books whose date is </string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QComboBox" name="dateop_date"/>
+         </item>
+         <item>
+          <widget class="QLabel" name="label_17">
+           <property name="text">
+            <string>...</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <spacer name="horizontalSpacer">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayout_7">
+         <item>
+          <widget class="QRadioButton" name="sel_date">
+           <property name="text">
+            <string/>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="label_14">
+           <property name="text">
+            <string>&amp;year</string>
+           </property>
+           <property name="buddy">
+            <cstring>date_year</cstring>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QSpinBox" name="date_year">
+           <property name="minimum">
+            <number>102</number>
+           </property>
+           <property name="maximum">
+            <number>10000</number>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="label_15">
+           <property name="text">
+            <string>&amp;month</string>
+           </property>
+           <property name="buddy">
+            <cstring>date_month</cstring>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QComboBox" name="date_month"/>
+         </item>
+         <item>
+          <widget class="QLabel" name="label_16">
+           <property name="text">
+            <string>&amp;day</string>
+           </property>
+           <property name="buddy">
+            <cstring>date_day</cstring>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QSpinBox" name="date_day">
+           <property name="specialValueText">
+            <string>  </string>
+           </property>
+           <property name="maximum">
+            <number>31</number>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <spacer name="horizontalSpacer_2">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayout_8">
+         <item>
+          <widget class="QRadioButton" name="sel_daysago">
+           <property name="text">
+            <string/>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QSpinBox" name="date_daysago">
+           <property name="maximum">
+            <number>999999</number>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="label_18">
+           <property name="text">
+            <string>days ago</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <spacer name="horizontalSpacer_3">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayout_9">
+         <item>
+          <widget class="QRadioButton" name="sel_human">
+           <property name="text">
+            <string/>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QComboBox" name="date_human"/>
+         </item>
+         <item>
+          <spacer name="horizontalSpacer_4">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <spacer name="verticalSpacer_3">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>40</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item>
+        <widget class="QDialogButtonBox" name="tab_3_button_box">
+         <property name="standardButtons">
+          <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
     </widget>
    </item>
   </layout>
@@ -360,8 +576,8 @@
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>248</x>
-     <y>254</y>
+     <x>256</x>
+     <y>396</y>
     </hint>
     <hint type="destinationlabel">
      <x>157</x>
@@ -376,12 +592,76 @@
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>316</x>
-     <y>260</y>
+     <x>324</x>
+     <y>396</y>
     </hint>
     <hint type="destinationlabel">
      <x>286</x>
      <y>274</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>tab_3_button_box</sender>
+   <signal>accepted()</signal>
+   <receiver>Dialog</receiver>
+   <slot>accept()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>101</x>
+     <y>370</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>697</x>
+     <y>0</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>tab_3_button_box</sender>
+   <signal>rejected()</signal>
+   <receiver>Dialog</receiver>
+   <slot>reject()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>101</x>
+     <y>370</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>696</x>
+     <y>36</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>tab_2_button_box</sender>
+   <signal>accepted()</signal>
+   <receiver>Dialog</receiver>
+   <slot>accept()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>508</x>
+     <y>378</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>697</x>
+     <y>353</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>tab_2_button_box</sender>
+   <signal>rejected()</signal>
+   <receiver>Dialog</receiver>
+   <slot>reject()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>350</x>
+     <y>376</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>697</x>
+     <y>269</y>
     </hint>
    </hints>
   </connection>
