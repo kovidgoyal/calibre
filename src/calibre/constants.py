@@ -161,6 +161,10 @@ class Plugins(collections.Mapping):
             return
         sys.path.insert(0, sys.extensions_location)
         try:
+            del sys.modules[name]
+        except KeyError:
+            pass
+        try:
             p, err = importlib.import_module(name), ''
         except Exception as err:
             p = None
