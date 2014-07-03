@@ -111,6 +111,7 @@ class ANDROID(USBMS):
                 0x0ff9 : [0x0226],
                 0xc91  : HTC_BCDS,
                 0xdddd : [0x216],
+                0x0d02 : [0x9999],
                 0xdeed : [0x231, 0x226],
             },
 
