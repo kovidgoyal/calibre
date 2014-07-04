@@ -301,8 +301,6 @@ class Cache(object):
         return mi
     # }}}
 
-    # Cache Layer API {{{
-
     @api
     def init(self):
         '''
@@ -335,27 +333,25 @@ class Cache(object):
             self.update_last_modified(self.all_book_ids())
             self.backend.prefs.set('update_all_last_mod_dates_on_start', False)
 
+    # Cache Layer API {{{
+
     @read_api
     def field_for(self, name, book_id, default_value=None):
         '''
-        Return the value of the field ``name`` for the book identified by
-        ``book_id``. If no such book exists or it has no defined value for the
-        field ``name`` or no such field exists, then ``default_value`` is returned.
+        Return the value of the field ``name`` for the book identified
+        by ``book_id``. If no such book exists or it has no defined
+        value for the field ``name` or no such field exists, then
+        ``default_value`` is returned.
 
-        default_value is not used for title, title_sort, authors, author_sort
+        ``default_value`` is not used for title, title_sort, authors, author_sort
         and series_index. This is because these always have values in the db.
-        default_value is used for all custom columns.
+        ``default_value`` is used for all custom columns.
 
         The returned value for is_multiple fields are always tuples, even when
         no values are found (in other words, default_value is ignored). The
         exception is identifiers for which the returned value is always a dict.
-
-        WARNING: For is_multiple fields this method returns tuples, the old
-        interface generally returned lists.
-
-        WARNING: For is_multiple fields the order of items is always in link
-        order (order in which they were entered), whereas the old db had them
-        in random order for fields other than author.
+        The returned tuples are always in link order, that is, the order in
+        which they were created.
         '''
         if self.composites and name in self.composites:
             return self.composite_for(name, book_id,
@@ -454,6 +450,8 @@ class Cache(object):
 
     @read_api
     def get_usage_count_by_id(self, field):
+        ''' Return a mapping of id to usage count for all values of the specified
+        field, which must be a many-one or many-many field. '''
         try:
             return {k:len(v) for k, v in self.fields[field].table.col_book_map.iteritems()}
         except AttributeError:
@@ -461,6 +459,9 @@ class Cache(object):
 
     @read_api
     def get_id_map(self, field):
+        ''' Return a mapping of id numbers to values for the specified field.
+        The field must be a many-one or many-many field, otherwise a ValueError
+        is raised. '''
         try:
             return self.fields[field].table.id_map.copy()
         except AttributeError:
@@ -470,6 +471,8 @@ class Cache(object):
 
     @read_api
     def get_item_name(self, field, item_id):
+        ''' Return the item name for the item specified by item_id in the
+        specified field. See also :meth:`get_id_map`.'''
         return self.fields[field].table.id_map[item_id]
 
     @read_api
@@ -499,6 +502,8 @@ class Cache(object):
 
     @read_api
     def format_hash(self, book_id, fmt):
+        ''' Return the hash of the specified format for the specified book. The
+        kind of hash is backend dependent, but is usually SHA-256. '''
         try:
             name = self.fields['formats'].format_fname(book_id, fmt)
             path = self._field_for('path', book_id).replace('/', os.sep)
@@ -753,7 +758,7 @@ class Cache(object):
 
         :param as_file: If True the ebook format is returned as a file object. Note
                         that the file object is a SpooledTemporaryFile, so if what you want to
-                        do is copy the format to another file, use :method:`copy_format_to`
+                        do is copy the format to another file, use :meth:`copy_format_to`
                         instead for performance.
         :param as_path: Copies the format file to a temp file and returns the
                         path to the temp file
@@ -1344,6 +1349,9 @@ class Cache(object):
 
     @read_api
     def has_book(self, mi):
+        ''' Return True iff the database contains an entry with the same title
+        as the passed in Metadata object. The comparison is case-insensitive.
+        '''
         title = mi.title
         if title:
             if isbytestring(title):
@@ -1409,6 +1417,10 @@ class Cache(object):
         2-tuples, each 2-tuple of the form (mi, format_map) where mi is a
         Metadata object and format_map is a dictionary of the form {fmt: path_or_stream},
         for example: {'EPUB': '/path/to/file.epub'}.
+
+        Returns a pair of lists: ids, duplicates. ``ids`` contains the book ids for all newly created books in the
+        database. ``duplicates`` contains the (mi, format_map) for all books that already exist in the database
+        as per the simple duplicate detection heuristic used by :meth:`has_book`.
         '''
         duplicates, ids = [], []
         for mi, format_map in books:
@@ -1569,12 +1581,15 @@ class Cache(object):
         than the specified time. tag comparison is case insensitive.
 
         :param delta: A timedelta object or None. If None, then all ids with
-        the tag are returned.
+            the tag are returned.
+
         :param must_have_tag: If not None the list of matches will be
-        restricted to books that have this tag
+            restricted to books that have this tag
+
         :param must_have_authors: A list of authors. If not None the list of
-        matches will be restricted to books that have these authors (case
-        insensitive).
+            matches will be restricted to books that have these authors (case
+            insensitive).
+
         '''
         tag_map = {icu_lower(v):k for k, v in self._get_id_map('tags').iteritems()}
         tag = icu_lower(tag.strip())

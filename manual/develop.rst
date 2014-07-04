@@ -61,8 +61,10 @@ All the |app| python code is in the ``calibre`` package. This package contains t
           code for editing is in ``ebooks.oeb.polish`` in particular the
           container object is in ``ebooks.oeb.polish.container``.
 
-    * db - The database back-end. See ``db.cache`` for the interface to the |app| library. With a DB object you can access this API via ``db.new_api``. The db object itself exposes a legacy API that should not be used in new code. The legacy API is in ``library.database2``.
+    * db - The database back-end. See :ref:`db_api` for the interface to the |app| library. 
+
     * content server: ``library.server`` is the |app| Content Server.
+
     * gui2 - The Graphical User Interface. GUI initialization happens in ``gui2.main`` and ``gui2.ui``. The ebook-viewer is in ``gui2.viewer``. The ebook editor is in ``gui2.tweak_book``.
 
 If you want to locate the entry points for all the various |app| executables,
@@ -395,4 +397,9 @@ you can also directly import |app|, as follows::
 
 It is essential that you import the init_calibre module before any other |app| modules/packages as
 it sets up the interpreter to run |app| code.
+
+.. toctree::
+    :hidden:
+
+    db_api
 
