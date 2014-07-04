@@ -1487,12 +1487,12 @@ class Cache(object):
     def add_books(self, books, add_duplicates=True, apply_import_tags=True, preserve_uuid=False, run_hooks=True, dbapi=None):
         '''
         Add the specified books to the library. Books should be an iterable of
-        2-tuples, each 2-tuple of the form (mi, format_map) where mi is a
-        Metadata object and format_map is a dictionary of the form {fmt: path_or_stream},
-        for example: {'EPUB': '/path/to/file.epub'}.
+        2-tuples, each 2-tuple of the form :code:`(mi, format_map)` where mi is a
+        Metadata object and format_map is a dictionary of the form :code:`{fmt: path_or_stream}`,
+        for example: :code:`{'EPUB': '/path/to/file.epub'}`.
 
-        Returns a pair of lists: ids, duplicates. ``ids`` contains the book ids for all newly created books in the
-        database. ``duplicates`` contains the (mi, format_map) for all books that already exist in the database
+        Returns a pair of lists: :code:`ids, duplicates`. ``ids`` contains the book ids for all newly created books in the
+        database. ``duplicates`` contains the :code:`(mi, format_map)` for all books that already exist in the database
         as per the simple duplicate detection heuristic used by :meth:`has_book`.
         '''
         duplicates, ids = [], []
