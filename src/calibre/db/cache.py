@@ -1404,6 +1404,12 @@ class Cache(object):
 
     @api
     def add_books(self, books, add_duplicates=True, apply_import_tags=True, preserve_uuid=False, run_hooks=True, dbapi=None):
+        '''
+        Add the specified books to the library. Books should be an iterable of
+        2-tuples, each 2-tuple of the form (mi, format_map) where mi is a
+        Metadata object and format_map is a dictionary of the form {fmt: path_or_stream},
+        for example: {'EPUB': '/path/to/file.epub'}.
+        '''
         duplicates, ids = [], []
         for mi, format_map in books:
             book_id = self.create_book_entry(mi, add_duplicates=add_duplicates, apply_import_tags=apply_import_tags, preserve_uuid=preserve_uuid)
