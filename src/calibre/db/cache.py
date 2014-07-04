@@ -87,6 +87,16 @@ def _add_newbook_tag(mi):
 
 class Cache(object):
 
+    '''
+    An in-memory cache of the metadata.db file from a calibre library.
+    This class also serves as a threadsafe API for accessing the database.
+    The in-memory cache is maintained in normal form for maximum performance.
+
+    SQLITE is simply used as a way to read and write from metadata.db robustly.
+    All table reading/sorting/searching/caching logic is re-implemented. This
+    was necessary for maximum performance and flexibility.
+    '''
+
     def __init__(self, backend):
         self.backend = backend
         self.fields = {}
@@ -513,6 +523,18 @@ class Cache(object):
 
     @api
     def format_metadata(self, book_id, fmt, allow_cache=True, update_db=False):
+        '''
+        Return the path, size and mtime for the specified format for the specified book.
+        You should not use path unless you absolutely have to,
+        since accessing it directly breaks the threadsafe guarantees of this API. Instead use
+        the :meth:`copy_format_to` method.
+
+        :param allow_cache: If ``True`` cached values are used, otherwise a
+            slow filesystem access is done. The cache values could be out of date
+            if access was performed to the filesystem outside of this API.
+
+        :param update_db: If ``True`` The max_size field of the database is updates for this book.
+        '''
         if not fmt:
             return {}
         fmt = fmt.upper()
@@ -546,10 +568,12 @@ class Cache(object):
 
     @read_api
     def pref(self, name, default=None):
+        ' Return the value for the specified preference or the value specified as ``default`` if the preference is not set. '
         return self.backend.prefs.get(name, default)
 
     @write_api
     def set_pref(self, name, val):
+        ' Set the specified preference to the specified value. See also :meth:`pref`. '
         self.backend.prefs.set(name, val)
         if name == 'grouped_search_terms':
             self._clear_search_caches()
@@ -579,6 +603,10 @@ class Cache(object):
 
     @read_api
     def get_proxy_metadata(self, book_id):
+        ''' Like :meth:`get_metadata` except that it returns a ProxyMetadata
+        object that only reads values from the database on demand. This is much
+        faster than get_metadata when only a small number of fields need to be
+        accessed from the reutrned metadata object. '''
         return ProxyMetadata(self, book_id)
 
     @api
@@ -675,14 +703,16 @@ class Cache(object):
     @read_api
     def format_abspath(self, book_id, fmt):
         '''
-        Return absolute path to the ebook file of format `format`
+        Return absolute path to the ebook file of format `format`. You should
+        almost never use this, as it breaks the threadsafe promise of this API.
+        Instead use, :meth:`copy_format_to`.
 
         Currently used only in calibredb list, the viewer, edit book,
         compare_format to original format and the catalogs (via
         get_data_as_dict()).
 
-        Apart from the viewer, I don't believe any of the others do any file
-        I/O with the results of this call.
+        Apart from the viewer and edit book, I don't believe any of the others
+        do any file write I/O with the results of this call.
         '''
         fmt = (fmt or '').upper()
         try:
@@ -706,6 +736,7 @@ class Cache(object):
 
     @api
     def save_original_format(self, book_id, fmt):
+        ' Save a copy of the specified format as ORIGINAL_FORMAT, overwriting any existing ORIGINAL_FORMAT. '
         fmt = fmt.upper()
         if 'ORIGINAL' in fmt:
             raise ValueError('Cannot save original of an original fmt')
@@ -718,6 +749,9 @@ class Cache(object):
 
     @api
     def restore_original_format(self, book_id, original_fmt):
+        ''' Restore the specified format from the previously saved
+        ORIGINAL_FORMAT, if any. Return True on success. The ORIGINAL_FORMAT is
+        deleted after a successful restore. '''
         original_fmt = original_fmt.upper()
         fmtfile = self.format(book_id, original_fmt, as_file=True)
         if fmtfile is not None:
@@ -893,10 +927,22 @@ class Cache(object):
 
     @read_api
     def search(self, query, restriction='', virtual_fields=None, book_ids=None):
+        '''
+        Search the database for the specified query, returning a set of matched book ids.
+
+        :param restriction: A restriction that is ANDed to the specified query. Note that
+            restrictions are cached, therefore the search for a AND b will be slower than a with restriction b.
+
+        :param virtual_fields: Used internally (virtual fields such as on_device to search over).
+
+        :param book_ids: If not None, a set of book ids for which books will
+            be searched instead of searching all books.
+        '''
         return self._search_api(self, query, restriction, virtual_fields=virtual_fields, book_ids=book_ids)
 
     @api
     def get_categories(self, sort='name', book_ids=None, icon_map=None, already_fixed=None):
+        ' Used internally to implement the Tag Browser '
         try:
             with self.safe_read_lock:
                 return get_categories(self, sort=sort, book_ids=book_ids, icon_map=icon_map)
@@ -943,6 +989,16 @@ class Cache(object):
 
     @write_api
     def set_field(self, name, book_id_to_val_map, allow_case_change=True, do_path_update=True):
+        '''
+        Set the values of the field specified by ``name``. Returns the set of all book ids that were affected by the change.
+
+        :param book_id_to_val_map: Mapping of book_ids to values that should be applied.
+        :param allow_case_change: If True, the case of many-one or many-many fields will be changed.
+            For example, if a  book has the tag ``tag1`` and you set the tag for another book to ``Tag1``
+            then the both books will have the tag ``Tag1`` if allow_case_change is True, otherwise they will
+            both have the tag ``tag1``.
+        :param do_path_update: Used internally, you should never change it.
+        '''
         f = self.fields[name]
         is_series = f.metadata['datatype'] == 'series'
         update_path = name in {'title', 'authors'}
@@ -1021,11 +1077,9 @@ class Cache(object):
 
     @write_api
     def clear_dirtied(self, book_id, sequence):
-        '''
-        Clear the dirtied indicator for the books. This is used when fetching
-        metadata, creating an OPF, and writing a file are separated into steps.
-        The last step is clearing the indicator
-        '''
+        # Clear the dirtied indicator for the books. This is used when fetching
+        # metadata, creating an OPF, and writing a file are separated into steps.
+        # The last step is clearing the indicator
         dc_sequence = self.dirtied_cache.get(book_id, None)
         if dc_sequence is None or sequence is None or dc_sequence == sequence:
             self.backend.execute('DELETE FROM metadata_dirtied WHERE book=?',
@@ -1062,12 +1116,10 @@ class Cache(object):
     @write_api
     def dump_metadata(self, book_ids=None, remove_from_dirtied=True,
             callback=None):
-        '''
-        Write metadata for each record to an individual OPF file. If callback
-        is not None, it is called once at the start with the number of book_ids
-        being processed. And once for every book_id, with arguments (book_id,
-        mi, ok).
-        '''
+        # Write metadata for each record to an individual OPF file. If callback
+        # is not None, it is called once at the start with the number of book_ids
+        # being processed. And once for every book_id, with arguments (book_id,
+        # mi, ok).
         if book_ids is None:
             book_ids = set(self.dirtied_cache)
 
@@ -1240,6 +1292,13 @@ class Cache(object):
 
     @api
     def add_format(self, book_id, fmt, stream_or_path, replace=True, run_hooks=True, dbapi=None):
+        '''
+        Add a format to the specified book. Return True of the format was added successfully.
+
+        :param replace: If True replace existing format, otherwise if the format already exists, return False.
+        :param run_hooks: If True, file type plugins are run on the format before and after being added.
+        :param dbapi: Internal use only.
+        '''
         if run_hooks:
             # Run import plugins, the write lock is not held to cater for
             # broken plugins that might spin the event loop by popping up a
@@ -1289,6 +1348,12 @@ class Cache(object):
 
     @write_api
     def remove_formats(self, formats_map, db_only=False):
+        '''
+        Remove the specified formats from the specified books.
+
+        :param formats_map: A mapping of book_id to a list of formats to be removed from the book.
+        :param db_only: If True, only remove the record fo the format from the db, dont delete the actual format file from the filesystem.
+        '''
         table = self.fields['formats'].table
         formats_map = {book_id:frozenset((f or '').upper() for f in fmts) for book_id, fmts in formats_map.iteritems()}
 
@@ -1319,6 +1384,13 @@ class Cache(object):
 
     @read_api
     def get_next_series_num_for(self, series, field='series', current_indices=False):
+        '''
+        Return the next series index for the specified series, taking into account the various preferences that
+        control next series number generation.
+
+        :param field: The series-like field (defaults to the builtin series column)
+        :param current_indices: If True, returns a mapping of book_id to current series_index value instead.
+        '''
         books = ()
         sf = self.fields[field]
         if series:
@@ -1364,6 +1436,7 @@ class Cache(object):
 
     @read_api
     def has_id(self, book_id):
+        ' Return True iff the specified book_id exists in the db '''
         return book_id in self.fields['title'].table.book_col_map
 
     @write_api
@@ -1435,6 +1508,9 @@ class Cache(object):
 
     @write_api
     def remove_books(self, book_ids, permanent=False):
+        ''' Remove the books specified by the book_ids from the database and delete
+        their format files. If ``permanent`` is False, then the format files
+        are not deleted. '''
         path_map = {}
         for book_id in book_ids:
             try:
@@ -1470,6 +1546,11 @@ class Cache(object):
 
     @write_api
     def rename_items(self, field, item_id_to_new_name_map, change_index=True):
+        '''
+        Rename items from a many-one or many-many field such as tags or series.
+
+        :param change_index: When renaming in a series-like field also change the series_index values.
+        '''
         f = self.fields[field]
         try:
             func = f.table.rename_item
