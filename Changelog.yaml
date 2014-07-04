@@ -20,6 +20,40 @@
 #   new recipes:
 #     - title: 
 
+- version: 1.43.0
+  date: 2014-07-04
+
+  new features:
+    - title: "Add a wizard for easily searching date fields in your library. To use it click the advanced search button to the left of the search field. Allows you to search for books whose date is older/newer than a specified date or less/more than a number of days from today and so on."
+
+    - title: "Driver for Onyx T68."
+      tickets: [1336868]
+
+    - title: "When reading metadata from file names, allow setting the comments field as well, in addition to title/authros/publisher/series/etc."
+      tickets: [1332582]
+
+  bug fixes:
+    - title: "Fix a regression in the previous release that broke changing Save to Disk preferences"
+
+    - title: "Recognize leading articles for the Esperanto language when auto-generating title sorts. "
+      tickets: [1336639]
+
+    - title: "Edit Book: Fix a regression that caused syncing of the preview panel to the editor cursor position to not work when the cursor is positioned on a blank line in between two tag definitions"
+
+    - title: "Metadata download: Round the downloaded ratings so that, for example, 3.6 stars becomes 4 stars instead of 3 stars."
+      tickets: [1335696]
+
+    - title: "Edit Book: Fix a crash when performing some image editing operations on 64 bit calibre builds"
+
+    - title: "Recognize additional leading articles in the titles of Italian language books"
+      tickets: [1332837] 
+
+    - title: "Edit Book: Fix an occasional spurious error message when using the Live CSS feature"
+
+  new recipes:
+    - title: Dark Reading 
+      author: Brandon Allberry
+
 - version: 1.42.0
   date: 2014-06-27
 
