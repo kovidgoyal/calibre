@@ -11,10 +11,17 @@
                         SummaryCodepage='1252' />
 
                 <Media Id="1" Cabinet="{app}.cab" CompressionLevel="{compression}" EmbedCab="yes" />
-                <!-- The following line ensures that DLLs are replaced even if their version is the same as before. This
-                     is necessary because of the manifest nuking that was part of making calibre isolated. But I think it
-                     is more rigorous anyway. -->
-                <Property Id='REINSTALLMODE' Value='emus'/>
+                <!-- The following line ensures that DLLs are replaced even if
+                     their version is the same as before or they dont have
+                     versions. Microsoft's brain dead installer will otherwise
+                     use file dates to determine whether to install a file or
+                     not. Simply not robust. And since we dont install any
+                     system files whatsoever, we can never replace a system
+                     file with an older version. This way the calibre install
+                     should always result in a consistent set of files being
+                     present in the installation folder, though of course, with
+                     Microsoft there are no guarantees of anything. -->
+                <Property Id='REINSTALLMODE' Value='amus'/>
 
                 <Upgrade Id="{upgrade_code}">
                     <UpgradeVersion Maximum="{version}"
