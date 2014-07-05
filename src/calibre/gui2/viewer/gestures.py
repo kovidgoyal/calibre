@@ -173,6 +173,7 @@ class State(QObject):
             self.possible_gestures &= {Pinch}
 
         if boundary == 'end':
+            self.check_for_holds()
             self.finalize()
             self.clear()
         else:
