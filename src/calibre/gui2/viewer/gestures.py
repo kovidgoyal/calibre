@@ -17,13 +17,7 @@ from calibre.constants import iswindows
 touch_supported = False
 if iswindows and sys.getwindowsversion()[:2] >= (6, 2):  # At least windows 7
     from ctypes import wintypes
-    try:
-        RegisterTouchWindow = ctypes.windll.user32.RegisterTouchWindow
-        RegisterTouchWindow.argtypes = (wintypes.HWND, wintypes.ULONG)
-        RegisterTouchWindow.restype = wintypes.BOOL
-        touch_supported = True
-    except Exception:
-        pass
+    touch_supported = True
 
 SWIPE_HOLD_INTERVAL = 0.5  # seconds
 HOLD_THRESHOLD = 1.0  # seconds
@@ -283,20 +277,9 @@ class GestureHandler(QObject):
                     ans = (val & SIGNATURE_MASK) == MI_WP_SIGNATURE
                     return ans
                 self.is_fake_mouse_event = is_fake_mouse_event
-                QApplication.instance().focusChanged.connect(self.register_for_wm_touch)
             except Exception:
                 import traceback
                 traceback.print_exc()
-
-    def register_for_wm_touch(self, *args):
-        if touch_supported and iswindows:
-            # For some reason performing certain actions like toggling the ToC
-            # view causes windows to stop sending WM_TOUCH events. This works
-            # around that bug.
-            # This might need to be changed for Qt 5 and effectivewinid returns
-            # a different kind of object.
-            hwnd = int(self.parent().effectiveWinId())
-            RegisterTouchWindow(hwnd, 0)
 
     def __call__(self, ev):
         if not touch_supported:
