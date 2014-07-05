@@ -72,6 +72,16 @@ class LinkRebaser(object):
 
 
 def replace_links(container, link_map, frag_map=lambda name, frag:frag, replace_in_opf=False):
+    '''
+    Replace links to files in the container. Will iterate over all files in the container and change the specified links in them.
+
+    :param link_map: A mapping of old canonical name to new canonical name. For example: :code:`{'images/old.png': 'images/new.png'}`
+    :param frag_map: A callable that takes two arguments ``(name, anchor)`` and
+        returns a new anchor. This is useful if you need to change the anchors in
+        HTML files. By default, it does nothing.
+    :param replace_in_opf: If False, links are not replaced in the OPF file.
+
+    '''
     for name, media_type in container.mime_map.iteritems():
         if name == container.opf_name and not replace_in_opf:
             continue
@@ -107,6 +117,12 @@ def smarten_punctuation(container, report):
     return smartened
 
 def rename_files(container, file_map):
+    '''
+    Rename files in the container, automatically updating all links to them.
+
+    :param file_map: A mapping of old canonical name to new canonical name, for
+        example: :code:`{'text/chapter1.html': 'chapter1.html'}`.
+    '''
     overlap = set(file_map).intersection(set(file_map.itervalues()))
     if overlap:
         raise ValueError('Circular rename detected. The files %s are both rename targets and destinations' % ', '.join(overlap))
@@ -166,7 +182,9 @@ def mt_to_category(container, mt):
     return category
 
 def get_recommended_folders(container, names):
-    ' Return the folders that are recommended for the given filenames '
+    ''' Return the folders that are recommended for the given filenames. The
+    recommendation is based on where the majority of files of the same type are
+    located in the container. '''
     from calibre.ebooks.oeb.polish.utils import guess_type
     counts = defaultdict(Counter)
     for name, mt in container.mime_map.iteritems():

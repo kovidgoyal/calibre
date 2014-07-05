@@ -26,7 +26,7 @@ for the book being edited like this::
     from calibre.gui2.tweak_book import current_container
     container = current_container()
     if container is None:
-        # No book has been opened yet
+        report_error # No book has been opened yet
 
 
 The Container object
@@ -35,4 +35,14 @@ The Container object
 .. autoclass:: Container
    :members:
 
+Tools for dealing with component files in a container
+--------------------------------------------------------
+
+.. module:: calibre.ebooks.oeb.polish.replace
+
+.. autofunction:: replace_links
+
+.. autofunction:: rename_files
+
+.. autofunction:: get_recommended_folders
 

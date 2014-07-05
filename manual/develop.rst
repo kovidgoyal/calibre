@@ -397,9 +397,14 @@ you can also directly import |app|, as follows::
 It is essential that you import the init_calibre module before any other |app| modules/packages as
 it sets up the interpreter to run |app| code.
 
-.. toctree::
-    :hidden:
+API documentation for various parts of |app|
+------------------------------------------------
 
+.. toctree::
+    :maxdepth: 1
+
+    news_recipe
+    plugins
     db_api
     polish
 
