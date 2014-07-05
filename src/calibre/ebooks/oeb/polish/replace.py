@@ -184,15 +184,21 @@ def mt_to_category(container, mt):
 def get_recommended_folders(container, names):
     ''' Return the folders that are recommended for the given filenames. The
     recommendation is based on where the majority of files of the same type are
-    located in the container. '''
+    located in the container. If no files of a particular type are present, the
+    recommended folder is assumed to be the folder containing the OPF file. '''
     from calibre.ebooks.oeb.polish.utils import guess_type
     counts = defaultdict(Counter)
     for name, mt in container.mime_map.iteritems():
         folder = name.rpartition('/')[0] if '/' in name else ''
         counts[mt_to_category(container, mt)][folder] += 1
 
+    try:
+        opf_folder = counts['opf'].most_common(1)[0][0]
+    except KeyError:
+        opf_folder = ''
+
     recommendations = {category:counter.most_common(1)[0][0] for category, counter in counts.iteritems()}
-    return {n:recommendations.get(mt_to_category(container, guess_type(os.path.basename(n))), '') for n in names}
+    return {n:recommendations.get(mt_to_category(container, guess_type(os.path.basename(n))), opf_folder) for n in names}
 
 def rationalize_folders(container, folder_type_map):
     all_names = set(container.mime_map)
