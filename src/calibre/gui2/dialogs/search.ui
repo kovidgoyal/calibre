@@ -424,9 +424,6 @@
          </item>
          <item>
           <widget class="QSpinBox" name="date_day">
-           <property name="specialValueText">
-            <string>  </string>
-           </property>
            <property name="maximum">
             <number>31</number>
            </property>

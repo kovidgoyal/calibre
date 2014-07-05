@@ -39,6 +39,7 @@ class SearchDialog(QDialog, Ui_Dialog):
         for val, text in [('today', _('Today')), ('yesterday', _('Yesterday')), ('thismonth', _('This month'))]:
             self.date_human.addItem(text, val)
         self.date_year.setValue(now().year)
+        self.date_day.setSpecialValueText(u' \xa0')
         vals = [((v['search_terms'] or [k])[0], v['name'] or k) for k, v in db.field_metadata.iteritems() if v.get('datatype', None) == 'datetime']
         for k, v in sorted(vals, key=lambda (k, v): sort_key(v)):
             self.date_field.addItem(v, k)
