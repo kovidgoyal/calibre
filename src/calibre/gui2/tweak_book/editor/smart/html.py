@@ -209,6 +209,20 @@ def ensure_not_within_tag_definition(cursor, forward=True):
 
     return False
 
+def find_closest_containing_block_tag(block, offset, block_tag_names=frozenset((
+        'address', 'article', 'aside', 'blockquote', 'center', 'dir',
+        'fieldset', 'isindex', 'menu', 'noframes', 'hgroup', 'noscript', 'pre',
+        'section', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'header', 'p', 'div', 'dd',
+        'dl', 'ul', 'ol', 'li', 'body', 'td', 'th'))):
+    while True:
+        tag = find_closest_containing_tag(block, offset)
+        if tag is None:
+            break
+        if tag.name in block_tag_names:
+            return tag
+        block, offset = tag.start_block, tag.start_offset
+
+
 class HTMLSmarts(NullSmarts):
 
     def get_extra_selections(self, editor):
@@ -241,21 +255,7 @@ class HTMLSmarts(NullSmarts):
         editor.highlighter.join()
         c = editor.textCursor()
         block, offset = c.block(), c.positionInBlock()
-        tag = None
-
-        while True:
-            tag = find_closest_containing_tag(block, offset)
-            if tag is None:
-                break
-            block, offset = tag.start_block, tag.start_offset
-            if tag.name in {
-                    'address', 'article', 'aside', 'blockquote', 'center',
-                    'dir', 'fieldset', 'isindex', 'menu', 'noframes', 'hgroup',
-                    'noscript', 'pre', 'section', 'h1', 'h2', 'h3', 'h4', 'h5',
-                    'h6', 'header', 'p', 'div', 'dd', 'dl', 'ul', 'ol', 'li', 'body',
-                    'td', 'th'}:
-                break
-            tag = None
+        tag = find_closest_containing_block_tag(block, offset)
 
         if tag is not None:
             closing_tag = find_closing_tag(tag)
