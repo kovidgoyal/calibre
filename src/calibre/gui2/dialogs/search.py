@@ -27,7 +27,7 @@ def init_dateop(cb):
         cb.addItem(desc, op)
 
 def current_dateop(cb):
-    return unicode(cb.itemData(cb.currentIndex()).toString())
+    return unicode(cb.itemData(cb.currentIndex()) or '')
 
 class SearchDialog(QDialog, Ui_Dialog):
 
@@ -127,12 +127,12 @@ class SearchDialog(QDialog, Ui_Dialog):
         return (self.adv_search_string, self.box_search_string, self.date_search_string)[i]()
 
     def date_search_string(self):
-        field = unicode(self.date_field.itemData(self.date_field.currentIndex()).toString())
+        field = unicode(self.date_field.itemData(self.date_field.currentIndex()) or '')
         op = current_dateop(self.dateop_date)
         prefix = '%s:%s' % (field, op)
         if self.sel_date.isChecked():
             ans = '%s%s' % (prefix, self.date_year.value())
-            m = self.date_month.itemData(self.date_month.currentIndex()).toPyObject()
+            m = self.date_month.itemData(self.date_month.currentIndex())
             if m > 0:
                 ans += '-%s' % m
                 d = self.date_day.value()
@@ -141,7 +141,7 @@ class SearchDialog(QDialog, Ui_Dialog):
             return ans
         if self.sel_daysago.isChecked():
             return '%s%sdaysago' % (prefix, self.date_daysago.value())
-        return '%s%s' % (prefix, unicode(self.date_human.itemData(self.date_human.currentIndex()).toString()))
+        return '%s%s' % (prefix, unicode(self.date_human.itemData(self.date_human.currentIndex()) or ''))
 
     def adv_search_string(self):
         mk = self.matchkind.currentIndex()
