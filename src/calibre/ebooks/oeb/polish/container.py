@@ -96,7 +96,9 @@ class Container(object):  # {{{
     class, they assume all hrefs are quoted.
     '''
 
+    #: The type of book (epub for EPUB files and azw3 for AZW3 files)
     book_type = 'oeb'
+
     SUPPORTS_TITLEPAGES = True
     SUPPORTS_FILENAMES = True
 

@@ -37,7 +37,7 @@ def set_azw3_cover(container, cover_path, report, options=None):
         with open(cover_path, 'rb') as src, container.open(name, 'wb') as dest:
             shutil.copyfileobj(src, dest)
     container.dirty(container.opf_name)
-    report('Cover updated' if found else 'Cover inserted')
+    report(_('Cover updated') if found else _('Cover inserted'))
 
 def get_azw3_raster_cover_name(container):
     items = container.opf_xpath('//opf:guide/opf:reference[@href and contains(@type, "cover")]')
@@ -66,13 +66,30 @@ def get_cover_page_name(container):
         return
     return find_cover_page(container)
 
-def set_cover(container, cover_path, report, options=None):
+def set_cover(container, cover_path, report=None, options=None):
+    '''
+    Set the cover of the book to the image pointed to by cover_path.
+
+    :param cover_path: Either the absolute path to an image file or the
+        canonical name of an image in the book. When using an image int he book,
+        you must also set options, see below.
+    :param report: An optional callable that takes a single argument. It will
+        be called with information about the tasks being processed.
+    :param options: None or a dictionary that controls how the cover is set. The dictionary can have entries:
+        **keep_aspect**: True or False  (Preserve aspect ratio of covers in EPUB)
+        **no_svg**: True or False  (Use an SVG cover wrapper in the EPUB titlepage)
+        **existing**: True or False  (``cover_path`` refers to an existing image in the book)
+    '''
+    report = report or (lambda x:x)
     if container.book_type == 'azw3':
         set_azw3_cover(container, cover_path, report, options=options)
     else:
         set_epub_cover(container, cover_path, report, options=options)
 
 def mark_as_cover(container, name):
+    '''
+    Mark the specified image as the cover image.
+    '''
     if name not in container.mime_map:
         raise ValueError('Cannot mark %s as cover as it does not exist' % name)
     mt = container.mime_map[name]
@@ -169,6 +186,11 @@ def mark_as_cover_epub(container, name):
     container.dirty(container.opf_name)
 
 def mark_as_titlepage(container, name, move_to_start=True):
+    '''
+    Mark the specified HTML file as the titlepage of the EPUB.
+
+    :param move_to_start: If True the HTML file is moved to the start of the spine
+    '''
     if move_to_start:
         for item, q, linear in container.spine_iter:
             if name == q:
@@ -381,7 +403,7 @@ def set_epub_cover(container, cover_path, report, options=None):
     # Insert the new cover
     raster_cover, titlepage = create_epub_cover(container, cover_path, existing_image, options=options)
 
-    report('Cover updated' if updated else 'Cover inserted')
+    report(_('Cover updated') if updated else _('Cover inserted'))
 
     # Replace links to the old cover image/cover page
     link_sub = {s:d for s, d in {

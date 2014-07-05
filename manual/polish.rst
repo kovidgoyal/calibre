@@ -35,7 +35,7 @@ The Container object
 .. autoclass:: Container
    :members:
 
-Tools for dealing with component files in a container
+Managing component files in a container
 --------------------------------------------------------
 
 .. module:: calibre.ebooks.oeb.polish.replace
@@ -45,4 +45,78 @@ Tools for dealing with component files in a container
 .. autofunction:: rename_files
 
 .. autofunction:: get_recommended_folders
+
+Pretty printing and auto fixing parse errors
+--------------------------------------------------------
+
+.. module:: calibre.ebooks.oeb.polish.pretty
+
+.. autofunction:: fix_html
+
+.. autofunction:: fix_all_html
+
+.. autofunction:: pretty_html
+
+.. autofunction:: pretty_css
+
+.. autofunction:: pretty_xml
+
+.. autofunction:: pretty_all
+
+
+Managing book jackets
+-----------------------
+
+.. module:: calibre.ebooks.oeb.polish.jacket
+
+.. autofunction:: remove_jacket
+
+.. autofunction:: add_or_replace_jacket
+
+Splitting and merging of files
+---------------------------------
+
+.. module:: calibre.ebooks.oeb.polish.split
+
+.. autofunction:: split
+
+.. autofunction:: multisplit
+
+.. autofunction:: merge
+
+Managing covers
+-------------------
+
+.. module:: calibre.ebooks.oeb.polish.cover
+
+.. autofunction:: set_cover
+
+.. autofunction:: mark_as_cover
+
+.. autofunction:: mark_as_titlepage
+
+Working with CSS
+-------------------
+
+.. autofunction:: calibre.ebooks.oeb.polish.fonts.change_font
+
+.. module:: calibre.ebooks.oeb.polish.css
+
+.. autofunction:: remove_unused_css
+
+.. autofunction:: filter_css
+
+
+Working with the Table of Contents
+-----------------------------------
+
+.. module:: calibre.ebooks.oeb.polish.toc
+
+.. autofunction:: from_xpaths
+
+.. autofunction:: from_links
+
+.. autofunction:: from_files
+
+.. autofunction:: create_inline_toc
 

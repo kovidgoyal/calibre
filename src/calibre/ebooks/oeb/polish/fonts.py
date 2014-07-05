@@ -127,6 +127,12 @@ def change_font_in_sheet(container, sheet, old_name, new_name, sheet_name):
     return changed
 
 def change_font(container, old_name, new_name=None):
+    '''
+    Change a font family from old_name to new_name. Changes all occurrences of
+    the font family in stylesheets, style tags and style attributes.
+    If the old_name refers to an embedded font, it is removed. You can set
+    new_name to None to remove the font family instead of changing it.
+    '''
     changed = False
     for name, mt in tuple(container.mime_map.iteritems()):
         if mt in OEB_STYLES:

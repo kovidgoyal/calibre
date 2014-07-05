@@ -164,7 +164,17 @@ class SplitLinkReplacer(object):
         return url
 
 def split(container, name, loc_or_xpath, before=True, totals=None):
-    ''' Split the file specified by name at the position specified by loc_or_xpath. '''
+    '''
+    Split the file specified by name at the position specified by loc_or_xpath.
+    Splitting automatically migrates all links and references to the affected
+    files.
+
+    :param loc_or_xpath: Should be an XPath expression such as
+        //h:div[@id="split_here"]. Can also be a *loc* which is used internally to
+        implement splitting in the preview panel.
+    :param before: If True the split occurs before the identified element otherwise after it.
+    :param totals: Used internally
+    '''
 
     root = container.parsed(name)
     if isinstance(loc_or_xpath, type('')):
@@ -238,6 +248,13 @@ def split(container, name, loc_or_xpath, before=True, totals=None):
     return bottom_name
 
 def multisplit(container, name, xpath, before=True):
+    '''
+    Split the specified file at multiple locations (all tags that match the specified XPath expression. See also: :func:`split`.
+    Splitting automatically migrates all links and references to the affected
+    files.
+
+    :param before: If True the splits occur before the identified element otherwise after it.
+    '''
     root = container.parsed(name)
     nodes = root.xpath(xpath, namespaces=XPNSMAP)
     if not nodes:
@@ -447,6 +464,14 @@ def merge_css(container, names, master):
 
 
 def merge(container, category, names, master):
+    '''
+    Merge the specified files into a single file, automatically migrating all
+    links and references to the affected files. The file must all either be HTML or CSS files.
+
+    :param category: Must be either ``'text'`` for HTML files or ``'styles'`` for CSS files
+    :param names: The list of files to be merged
+    :param master: Which of the merged files is the *master* file, that is, the file that will remain after merging.
+    '''
     if category not in {'text', 'styles'}:
         raise AbortError('Cannot merge files of type: %s' % category)
     if len(names) < 2:

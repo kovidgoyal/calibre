@@ -240,6 +240,12 @@ def item_at_top(elem):
     return True
 
 def from_xpaths(container, xpaths):
+    '''
+    Generate a Table of Contents from a list of XPath expressions. Each
+    expression in the list corresponds to a level of the generate ToC. For
+    example: :code:`['//h:h1', '//h:h2', '//h:h3']` will generate a three level
+    table of contents from the ``<h1>``, ``<h2>`` and ``<h3>`` tags.
+    '''
     tocroot = TOC()
     xpaths = [XPath(xp) for xp in xpaths]
     level_prev = {i+1:None for i in xrange(len(xpaths))}
@@ -295,6 +301,9 @@ def from_xpaths(container, xpaths):
     return tocroot
 
 def from_links(container):
+    '''
+    Generate a Table of Contents from links in the book.
+    '''
     toc = TOC()
     link_path = XPath('//h:a[@href]')
     seen_titles, seen_dests = set(), set()
@@ -338,6 +347,9 @@ def find_text(node):
                 return text
 
 def from_files(container):
+    '''
+    Generate a Table of Contents from files in the book.
+    '''
     toc = TOC()
     for i, spinepath in enumerate(container.spine_items):
         name = container.abspath_to_name(spinepath)
@@ -484,6 +496,11 @@ def find_inline_toc(container):
             return name
 
 def create_inline_toc(container, title=None):
+    '''
+    Create an inline (HTML) Table of Contents from an existing NCX table of contents.
+
+    :param title: The title for this table of contents.
+    '''
     lang = get_book_language(container)
     default_title = 'Table of Contents'
     if lang:

@@ -59,6 +59,7 @@ def replace_jacket(container, name):
     container.dirty(name)
 
 def remove_jacket(container):
+    ' Remove an existing jacket, if ant. Returns False if no existing jacket was found. '
     name = find_existing_jacket(container)
     if name is not None:
         remove_jacket_images(container, name)
@@ -74,6 +75,8 @@ def remove_jacket_images(container, name):
             container.remove_item(iname)
 
 def add_or_replace_jacket(container):
+    ''' Either create a new jacket from the book's metadata or replace an
+    existing jacket. Returns True if an existing jacket was replaced. '''
     name = find_existing_jacket(container)
     found = True
     if name is None:

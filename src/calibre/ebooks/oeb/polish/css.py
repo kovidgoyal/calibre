@@ -134,7 +134,15 @@ def get_imported_sheets(name, container, sheets, recursion_level=10, sheet=None)
     ans.discard(name)
     return ans
 
-def remove_unused_css(container, report, remove_unused_classes=False):
+def remove_unused_css(container, report=None, remove_unused_classes=False):
+    '''
+    Remove all unused CSS rules from the book. An unused CSS rule is one that does not match any actual content.
+
+    :param report: An optional callable that takes a single argument. It is called with information about the operations being performed.
+    :param remove_unused_classes: If True, class attributes in the HTML that do not match any CSS rules are also removed.
+    '''
+    report = report or (lambda x:x)
+
     def safe_parse(name):
         try:
             return container.parsed(name)
@@ -263,6 +271,12 @@ def filter_sheet(sheet, properties):
 
 
 def filter_css(container, properties, names=()):
+    '''
+    Remove the specified CSS properties from all CSS rules in the book.
+
+    :param properties: Set of properties to remove. For example: :code:`{'font-family', 'color'}`.
+    :param names: The files from which to remove the properties. Defaults to all HTML and CSS files in the book.
+    '''
     if not names:
         types = OEB_STYLES | OEB_DOCS
         names = []
