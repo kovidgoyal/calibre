@@ -18,7 +18,7 @@ class AsianReviewOfBooks(BasicNewsRecipe):
     no_stylesheets        = True
     use_embedded_content  = False
     encoding              = 'cp1252'
-    language              = 'en_HK'
+    language              = 'en_CN'
     publication_type      = 'magazine'
     masthead_url          = 'http://www.asianreviewofbooks.com/new/images/mob_arb.png'
     extra_css             = """
@@ -45,7 +45,7 @@ class AsianReviewOfBooks(BasicNewsRecipe):
     def print_version(self, url):
         root, sep, artid = url.rpartition('?ID=')
         return root + 'getarticle.php?articleID=' + artid + '&stats=web'
-        
+
     def preprocess_raw_html(self, raw, url):
        return '<html><head><title>title</title></head><body>' + raw + '</body></html>'
-       
+
