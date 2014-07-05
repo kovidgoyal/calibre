@@ -10,7 +10,7 @@ __docformat__ = 'restructuredtext en'
 import shutil, re, os
 
 from calibre.ebooks.oeb.base import OPF, OEB_DOCS, XPath, XLINK, xml2text
-from calibre.ebooks.oeb.polish.replace import replace_links
+from calibre.ebooks.oeb.polish.replace import replace_links, get_recommended_folders
 from calibre.utils.magick.draw import identify, identify_data
 
 def set_azw3_cover(container, cover_path, report, options=None):
@@ -237,12 +237,18 @@ def create_epub_cover(container, cover_path, existing_image, options=None):
     from calibre.ebooks.oeb.transforms.cover import CoverManager
 
     ext = cover_path.rpartition('.')[-1].lower()
+    cname, tname = 'cover.' + ext, 'titlepage.xhtml'
+    recommended_folders = get_recommended_folders(container, (cname, tname))
+
     if existing_image:
         raster_cover = existing_image
         manifest_id = {v:k for k, v in container.manifest_id_map.iteritems()}[existing_image]
         raster_cover_item = container.opf_xpath('//opf:manifest/*[@id="%s"]' % manifest_id)[0]
     else:
-        raster_cover_item = container.generate_item('cover.'+ext, id_prefix='cover')
+        folder = recommended_folders[cname]
+        if folder:
+            cname = folder + '/' + cname
+        raster_cover_item = container.generate_item(cname, id_prefix='cover')
         raster_cover = container.href_to_name(raster_cover_item.get('href'), container.opf_name)
 
         with open(cover_path, 'rb') as src, container.open(raster_cover, 'wb') as dest:
@@ -271,11 +277,13 @@ def create_epub_cover(container, cover_path, existing_image, options=None):
         templ = templ.replace('__viewbox__', '0 0 %d %d'%(width, height))
         templ = templ.replace('__width__', str(width))
         templ = templ.replace('__height__', str(height))
-    titlepage_item = container.generate_item('titlepage.xhtml',
-                                             id_prefix='titlepage')
+    folder = recommended_folders[tname]
+    if folder:
+        tname = folder + '/' + tname
+    titlepage_item = container.generate_item(tname, id_prefix='titlepage')
     titlepage = container.href_to_name(titlepage_item.get('href'),
                                           container.opf_name)
-    raw = templ%container.name_to_href(raster_cover).encode('utf-8')
+    raw = templ%container.name_to_href(raster_cover, titlepage).encode('utf-8')
     with container.open(titlepage, 'wb') as f:
         f.write(raw)
 
