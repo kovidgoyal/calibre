@@ -210,10 +210,12 @@ class Win32Freeze(Command, WixMixIn):
             shutil.copy2(os.path.join(QT_DIR, 'bin', x), self.dll_dir)
         shutil.copy2(r'C:\windows\system32\python%s.dll'%self.py_ver,
                     self.dll_dir)
-        for x in os.walk(r'C:\Python%s\Lib'%self.py_ver):
-            for f in x[-1]:
+        for dirpath, dirnames, filenames in os.walk(r'C:\Python%s\Lib'%self.py_ver):
+            if os.path.basename(dirpath) == 'pythonwin':
+                continue
+            for f in filenames:
                 if f.lower().endswith('.dll'):
-                    f = self.j(x[0], f)
+                    f = self.j(dirpath, f)
                     shutil.copy2(f, self.dll_dir)
         shutil.copy2(
             r'C:\Python%(v)s\Lib\site-packages\pywin32_system32\pywintypes%(v)s.dll'
