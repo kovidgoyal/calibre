@@ -57,9 +57,8 @@ All the |app| python code is in the ``calibre`` package. This package contains t
           various transformations that are applied to the book during
           conversions live in :file:`oeb/transforms/*.py`. And the input and output
           plugins live in :file:`conversion/plugins/*.py`.
-        * Ebook editing happens using a different container object. All the
-          code for editing is in ``ebooks.oeb.polish`` in particular the
-          container object is in ``ebooks.oeb.polish.container``.
+        * Ebook editing happens using a different container object. It is
+          documented in :ref:`polish_api`.
 
     * db - The database back-end. See :ref:`db_api` for the interface to the |app| library. 
 
@@ -402,4 +401,5 @@ it sets up the interpreter to run |app| code.
     :hidden:
 
     db_api
+    polish
 

@@ -84,7 +84,13 @@ class Container(object):  # {{{
         * Names: These are paths to the books' files relative to the root
           directory. They always contain POSIX separators and are unquoted. They
           can be thought of as canonical identifiers for files in the book.
-          Most methods on the container object work with names.
+          Most methods on the container object work with names. Names are always
+          in the NFC unicode normal form.
+
+        * Clones: the container object supports efficient on-disk cloning, which is used to
+          implement checkpoints in the ebook editor. In order to make this work, you should
+          never access files on the filesystem directly. Instead, use :meth:`raw_data` or
+          :meth:`open` to read/write to component files in the book.
 
     When converting between hrefs and names use the methods provided by this
     class, they assume all hrefs are quoted.
@@ -172,6 +178,7 @@ class Container(object):  # {{{
         }
 
     def guess_type(self, name):
+        ' Return the expected mimetype for the specified file name based on its extension. '
         # epubcheck complains if the mimetype for text documents is set to
         # text/html in EPUB 2 books. Sigh.
         ans = guess_type(name)
@@ -180,6 +187,7 @@ class Container(object):  # {{{
         return ans
 
     def add_name_to_manifest(self, name):
+        ' Add an entry to the manifest for a file with the specified name. Returns the manifest id. '
         all_ids = {x.get('id') for x in self.opf_xpath('//*[@id]')}
         c = 0
         item_id = 'id'
@@ -325,12 +333,23 @@ class Container(object):  # {{{
                 yield (elem.get('src'), elem.sourceline, 0) if get_line_numbers else elem.get('src')
 
     def abspath_to_name(self, fullpath, root=None):
+        '''
+        Convert an absolute path to a canonical name relative to :attr:`root`
+
+        :param root: The base directory. By default the root for this container object is used.
+        '''
         return self.relpath(os.path.abspath(fullpath), base=root).replace(os.sep, '/')
 
     def name_to_abspath(self, name):
+        ' Convert a canonical name to an absolute OS dependant path '
         return os.path.abspath(join(self.root, *name.split('/')))
 
     def exists(self, name):
+        ''' True iff a file corresponding to the canonical name exists. Note
+        that this function suffers from the limitations of the underlying OS
+        filesystem, in particular case (in)sensitivity. So on a case
+        insensitive filesystem this will return True even if the case of name
+        is different from the case of the underlying filesystem file. See also :meth:`has_name`'''
         return os.path.exists(self.name_to_abspath(name))
 
     def href_to_name(self, href, base=None):
@@ -358,19 +377,25 @@ class Container(object):  # {{{
         return urlquote(path)
 
     def opf_xpath(self, expr):
+        ' Convenience method to evaluate an XPath expression on the OPF file, has the opf: and dc: namespace prefixes pre-defined. '
         return self.opf.xpath(expr, namespaces=OPF_NAMESPACES)
 
     def has_name(self, name):
+        ''' Return True iff a file with the same canonical name as that specified exists. Unlike :meth:`exists` this method is always case-sensitive. '''
         return name and name in self.name_path_map
 
     def relpath(self, path, base=None):
         '''Convert an absolute path (with os separators) to a path relative to
         base (defaults to self.root). The relative path is *not* a name. Use
-        abspath_to_name() for that.'''
+        :meth:`abspath_to_name` for that.'''
         return relpath(path, base or self.root)
 
     def decode(self, data, normalize_to_nfc=True):
-        """Automatically decode :param:`data` into a `unicode` object."""
+        """
+        Automatically decode ``data`` into a ``unicode`` object.
+
+        :param normalize_to_nfc: Normalize returned unicode to the NFC normal form as is required by both the EPUB and AZW3 formats.
+        """
         def fix_data(d):
             return d.replace('\r\n', '\n').replace('\r', '\n')
         if isinstance(data, unicode):
@@ -407,14 +432,17 @@ class Container(object):  # {{{
 
     @property
     def names_that_need_not_be_manifested(self):
+        ' Set of names that are allowed to be missing from the manifest. Depends on the ebook file format. '
         return {self.opf_name}
 
     @property
     def names_that_must_not_be_removed(self):
+        ' Set of names that must never be deleted from the container. Depends on the ebook file format. '
         return {self.opf_name}
 
     @property
     def names_that_must_not_be_changed(self):
+        ' Set of names that must never be renamed. Depends on the ebook file format. '
         return set()
 
     def parse_xml(self, data):
@@ -447,6 +475,12 @@ class Container(object):  # {{{
         return data
 
     def raw_data(self, name, decode=True, normalize_to_nfc=True):
+        '''
+        Return the raw data corresponding to the file specified by name
+
+        :param decode: If True and the file has a text based mimetype, decode it and return a unicode object instead of raw bytes.
+        :param normalize_to_nfc: If True the returned unicode object is normalized to the NFC normal form as is required for the EPUB and AZW3 file formats.
+        '''
         ans = self.open(name).read()
         mime = self.mime_map.get(name, guess_type(name))
         if decode and (mime in OEB_STYLES or mime in OEB_DOCS or mime == 'text/plain' or mime[-4:] in {'+xml', '/xml'}):
@@ -471,6 +505,11 @@ class Container(object):  # {{{
         return data
 
     def parsed(self, name):
+        ''' Return a parsed representation of the file specified by name. For
+        HTML and XML files an lxml tree is returned. For CSS files a cssutils
+        stylesheet is returned. Note that parsed objects are cached for
+        performance. If you make any changes to the parsed object, you must
+        call :meth:`dirty` so that the container knows to update the cache. See also :meth:`replace`.'''
         ans = self.parsed_cache.get(name, None)
         if ans is None:
             self.used_encoding = None
@@ -481,15 +520,24 @@ class Container(object):  # {{{
         return ans
 
     def replace(self, name, obj):
+        '''
+        Replace the parsed object corresponding to name with obj, which must be
+        a similar object, i.e. an lxml tree for HTML/XML or a cssutils
+        stylesheet for a CSS file.
+        '''
         self.parsed_cache[name] = obj
         self.dirty(name)
 
     @property
     def opf(self):
+        ' The parsed OPF file '
         return self.parsed(self.opf_name)
 
     @property
     def mi(self):
+        ''' The metadata of this book as a Metadata object. Note that this
+        object is constructed on the fly every time this property is requested,
+        so use it sparingly. '''
         from calibre.ebooks.metadata.opf2 import OPF as O
         mi = self.serialize_item(self.opf_name)
         return O(BytesIO(mi), basedir=self.opf_dir, unquote_urls=False,
@@ -497,11 +545,13 @@ class Container(object):  # {{{
 
     @property
     def manifest_id_map(self):
+        ' Mapping of manifest id to canonical names '
         return {item.get('id'):self.href_to_name(item.get('href'), self.opf_name)
             for item in self.opf_xpath('//opf:manifest/opf:item[@href and @id]')}
 
     @property
     def manifest_type_map(self):
+        ' Mapping of manifest media-type to list of canonical names of that media-type '
         ans = defaultdict(list)
         for item in self.opf_xpath('//opf:manifest/opf:item[@href and @media-type]'):
             ans[item.get('media-type').lower()].append(self.href_to_name(
@@ -510,11 +560,15 @@ class Container(object):  # {{{
 
     @property
     def guide_type_map(self):
+        ' Mapping of guide type to canonical name '
         return {item.get('type', ''):self.href_to_name(item.get('href'), self.opf_name)
             for item in self.opf_xpath('//opf:guide/opf:reference[@href and @type]')}
 
     @property
     def spine_iter(self):
+        ''' An iterator that yields item, name is_linear for every item in the
+        books' spine. item is the lxml element, name is the canonical file name
+        and is_linear is True if the item is linear. See also: :attr:`spine_names` and :attr:`spine_items`. '''
         manifest_id_map = self.manifest_id_map
         non_linear = []
         for item in self.opf_xpath('//opf:spine/opf:itemref[@idref]'):
@@ -531,15 +585,23 @@ class Container(object):  # {{{
 
     @property
     def spine_names(self):
+        ''' An iterator yielding name and is_linear for every item in the
+        books' spine. See also: :attr:`spine_iter` and :attr:`spine_items`. '''
         for item, name, linear in self.spine_iter:
             yield name, linear
 
     @property
     def spine_items(self):
+        ''' An iterator yielding canonical name for every item in the
+        books' spine. See also: :attr:`spine_iter` and :attr:`spine_items`. '''
         for name, linear in self.spine_names:
             yield self.name_path_map[name]
 
     def remove_from_spine(self, spine_items, remove_if_no_longer_in_spine=True):
+        '''
+        Remove the specified items (by canonical name) from the spine. If ``remove_if_no_longer_in_spine``
+        is True, the items are also deleted from the book, not just from the spine.
+        '''
         nixed = set()
         for (name, remove), (item, xname, linear) in zip(spine_items, self.spine_iter):
             if remove and name == xname:
@@ -619,6 +681,7 @@ class Container(object):  # {{{
         self.dirtied.discard(name)
 
     def dirty(self, name):
+        ''' Mark the parsed object corresponding to name as dirty. See also: :meth:`parsed`. '''
         self.dirtied.add(name)
 
     def remove_from_xml(self, item):
@@ -662,6 +725,9 @@ class Container(object):  # {{{
                 parent[idx-1].tail = parent.text
 
     def opf_get_or_create(self, name):
+        ''' Convenience method to either return the first XML element with the
+        specified name or create it under the opf:package element and then
+        return it, if it does not already exist. '''
         ans = self.opf_xpath('//opf:'+name)
         if ans:
             return ans[0]
@@ -741,6 +807,7 @@ class Container(object):  # {{{
                 meta.set('content', meta.attrib.pop('content'))
 
     def serialize_item(self, name):
+        ''' Convert a parsed object (identified by canonical name) into a bytestring. See :meth:`parsed`. '''
         data = self.parsed(name)
         if name == self.opf_name:
             self.format_opf()
@@ -753,6 +820,9 @@ class Container(object):  # {{{
         return data
 
     def commit_item(self, name, keep_parsed=False):
+        ''' Commit a parsed object to disk (it is serialized and written to the
+        underlying file). If ``keep_parsed`` is True the parsed representation
+        is retained in the cache. See also: :meth:`parsed` '''
         if name not in self.parsed_cache:
             return
         data = self.serialize_item(name)
@@ -767,6 +837,9 @@ class Container(object):  # {{{
             f.write(data)
 
     def filesize(self, name):
+        ''' Return the size in bytes of the file represented by the specified
+        canonical name. Automatically handles dirtied parsed objects. See also:
+        :meth:`parsed` '''
         if name in self.dirtied:
             self.commit_item(name, keep_parsed=True)
         path = self.name_to_abspath(name)
@@ -794,6 +867,11 @@ class Container(object):  # {{{
         return open(path, mode)
 
     def commit(self, outpath=None, keep_parsed=False):
+        '''
+        Commit all dirtied parsed objects to the filesystem and write out the ebook file at outpath.
+        :param output: The path to write the saved ebook file to. If None, the path of the original book file is used.
+        :param keep_parsed: If True the parsed representations of committed items are kept in the cache.
+        '''
         for name in tuple(self.dirtied):
             self.commit_item(name, keep_parsed=keep_parsed)
 
