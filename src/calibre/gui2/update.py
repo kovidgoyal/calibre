@@ -150,7 +150,8 @@ class UpdateMixin(object):
 
     def update_found(self, calibre_version, number_of_plugin_updates, force=False, no_show_popup=False):
         self.last_newest_calibre_version = calibre_version
-        has_calibre_update = calibre_version != NO_CALIBRE_UPDATE
+        is_beta = numeric_version[0] == 1 and numeric_version[1] >= 900
+        has_calibre_update = calibre_version != NO_CALIBRE_UPDATE and not is_beta
         has_plugin_updates = number_of_plugin_updates > 0
         self.plugin_update_found(number_of_plugin_updates)
         version_url = binascii.hexlify(cPickle.dumps((calibre_version, number_of_plugin_updates), -1))
