@@ -54,17 +54,22 @@ class ColumnColor(object):  # {{{
         self.mi = None
         self.formatter = formatter
 
-    def __call__(self, id_, key, fmt, db, color_cache):
+    def __call__(self, id_, key, fmt, db, color_cache, template_cache):
         if id_ in color_cache and key in color_cache[id_]:
             self.mi = None
-            return color_cache[id_][key]
+            color = color_cache[id_][key]
+            if color.isValid():
+                return QVariant(color)
+            return None
         try:
             if self.mi is None:
                 self.mi = db.new_api.get_proxy_metadata(id_)
-            color = QColor(self.formatter.safe_format(fmt, self.mi, '', self.mi))
+            color = QColor(self.formatter.safe_format(fmt, self.mi, '', self.mi,
+                                                  column_name=key,
+                                                  template_cache=template_cache))
+            color_cache[id_][key] = color
             if color.isValid():
                 color = QVariant(color)
-                color_cache[id_][key] = color
                 self.mi = None
                 return color
         except:
@@ -78,7 +83,8 @@ class ColumnIcon(object):  # {{{
         self.formatter = formatter
         self.model = model
 
-    def __call__(self, id_, key, fmts, cache_index, db, icon_cache, icon_bitmap_cache):
+    def __call__(self, id_, fmts, cache_index, db, icon_cache, icon_bitmap_cache,
+             template_cache):
         if id_ in icon_cache and cache_index in icon_cache[id_]:
             self.mi = None
             return icon_cache[id_][cache_index]
@@ -87,7 +93,8 @@ class ColumnIcon(object):  # {{{
                 self.mi = db.new_api.get_proxy_metadata(id_)
             icons = []
             for kind, fmt in fmts:
-                rule_icons = self.formatter.safe_format(fmt, self.mi, '', self.mi)
+                rule_icons = self.formatter.safe_format(fmt, self.mi, '', self.mi,
+                                    column_name=cache_index, template_cache=template_cache)
                 if not rule_icons:
                     continue
                 icon_list = [ic.strip() for ic in rule_icons.split(':')]
@@ -204,6 +211,8 @@ class BooksModel(QAbstractTableModel):  # {{{
         self.icon_cache = defaultdict(dict)
         self.icon_bitmap_cache = {}
         self.color_row_fmt_cache = None
+        self.color_template_cache = {}
+        self.icon_template_cache = {}
 
     def set_row_height(self, height):
         self.row_height = height
@@ -815,8 +824,9 @@ class BooksModel(QAbstractTableModel):  # {{{
 
                 if fmts:
                     cache_index = key + ':DisplayRole'
-                    ccicon = self.column_icon(id_, key, fmts, cache_index, self.db,
-                                      self.icon_cache, self.icon_bitmap_cache)
+                    ccicon = self.column_icon(id_, fmts, cache_index, self.db,
+                                      self.icon_cache, self.icon_bitmap_cache,
+                                      self.icon_template_cache)
                     if ccicon is not None:
                         return NONE
                     self.icon_cache[id_][cache_index] = None
@@ -838,7 +848,7 @@ class BooksModel(QAbstractTableModel):  # {{{
             for k, fmt in self.db.prefs['column_color_rules']:
                 if k == key:
                     ccol = self.column_color(id_, key, fmt, self.db,
-                                             self.color_cache)
+                                         self.color_cache, self.color_template_cache)
                     if ccol is not None:
                         return ccol
 
@@ -859,7 +869,7 @@ class BooksModel(QAbstractTableModel):  # {{{
 
             for fmt in self.color_row_fmt_cache:
                 ccol = self.column_color(id_, color_row_key, fmt, self.db,
-                                         self.color_cache)
+                                         self.color_cache, self.color_template_cache)
                 if ccol is not None:
                     return ccol
 
@@ -887,8 +897,9 @@ class BooksModel(QAbstractTableModel):  # {{{
                             need_icon_with_text = True
                 if fmts:
                     cache_index = key + ':DecorationRole'
-                    ccicon = self.column_icon(id_, key, fmts, cache_index, self.db,
-                                  self.icon_cache, self.icon_bitmap_cache)
+                    ccicon = self.column_icon(id_, fmts, cache_index, self.db,
+                                  self.icon_cache, self.icon_bitmap_cache,
+                                  self.icon_template_cache)
                     if ccicon is not None:
                         return ccicon
                     if need_icon_with_text:
