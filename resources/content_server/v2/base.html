@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html  lang="zh-CN">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="baidu_union_verify" content="bac70eff3a1f61b08dd19e20cb34c635">
+        <link href="/m/css/bootstrap.min.css?v=20140103" rel="stylesheet">
+        <script src="/m/js/jquery.min.js?v=20140103"></script>
+        <style>
+            .logo { cursor: pointer; }
+            .logo .money { color: red; }
+            .logo .charts { color: green; }
+            .logo:hover { text-decoration: none; }
+            .logo:hover .money { color: green; }
+            .logo:hover .charts { color: red; }
+        </style>
+        {% block meta %}{% endblock %}
+    </head>
+
+    <body>
+        <nav class="navbar navbar-default" role="navigation">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand logo" href="/"><span class="money">Money</span><span class="charts">Charts</span></a>
+            </div>
+            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                <ul class="nav navbar-nav">
+                    <li {%if user.view == "index" %}class="active"{% endif %} ><a href="/">首页</a></li>
+                    <li {%if user.view == "chart_k"%}class="active"{% endif %} ><a href="/chart/k/">资金线</a></li>
+                    <li {%if user.view == "chart_e"%}class="active"{% endif %} ><a href="/chart/e/">收益</a></li>
+                    <li {%if user.view == "stock_list"%}class="active"{% endif %} ><a href="/stock/list/">持股</a></li>
+                    <li {%if user.view == "analyse"%}class="active"{% endif %} ><a href="/analyse/">分析</a></li>
+                    <li {%if user.view == "about"%}class="active"{% endif %} ><a href="/about/">关于</a></li>
+                </ul>
+                <ul class="nav navbar-nav navbar-right">
+                    {% if not user.is_authenticated() %}
+                    <li><a href="/account/login/">登入</a></li>
+                    {% else %}
+                    <li class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">{{user.username}}<b class="caret"></b></a>
+                    <ul class="dropdown-menu">
+                        <li><a href="/account/edit/">编辑账户信息</a></li>
+                        <li class="divider"></li>
+                        <li><a href="/account/logout/">退出账户</a></li>
+                    </ul>
+                    </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </nav>
+
+        {% if user.is_authenticated() and user.profile.is_outdate %}
+        <div class="container">
+            <div class="row">
+                <div class="offset2 span8">
+                    <div class="alert">
+                        <p>系统正在更新您的数据，请稍候1分钟。</p>
+                    </div>
+                    <div style="margin: 250px auto;">
+                        <div id="loading"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% else %}
+
+        {% block container %}
+        <div class="container">
+            <div class="row">
+                <div class="col-md-12">
+                    {% if messages %}
+                    <ul class="messages alert alert-error unstyled">
+                        {% for message in messages %}
+                        <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+                        {% endfor %}
+                    </ul>
+                    {% endif %}
+                    {% if user.view != "index" and user.view != "about" %}
+                    {% if user.is_authenticated() and user.bill_set.count() == 0 %}
+                    <div class="alert alert-warning"><p><a href="/">请先在首页更新您的资金数据。</a></p></div>
+                    {% endif %}
+                    {% endif %}
+                    {% block main %}{% endblock %}
+                </div>
+            </div>
+        </div>
+        {% endblock %}
+
+        {% endif %}
+
+        <script src="/m/js/bootstrap.min.js?v=20140103"></script>
+        <script src="/m/js/spin.min.js?v=20140103"></script>
+        <!--<script src="http://tajs.qq.com/stats?sId=29043744"></script>-->
+        {% if user.is_authenticated() and user.profile.is_outdate %}
+        <script>
+            function rebuild() {
+                var opts = {
+                    lines: 12, // The number of lines to draw
+                    length: 7, // The length of each line
+                    width: 5, // The line thickness
+                    radius: 10, // The radius of the inner circle
+                    corners: 1, // Corner roundness (0..1)
+                    rotate: 0, // The rotation offset
+                    direction: 1, // 1: clockwise, -1: counterclockwise
+                    color: '#000', // #rgb or #rrggbb or array of colors
+                    speed: 1, // Rounds per second
+                    trail: 100, // Afterglow percentage
+                    shadow: true, // Whether to render a shadow
+                    hwaccel: false, // Whether to use hardware acceleration
+                    className: 'spinner', // The CSS class to assign to the spinner
+                    zIndex: 2e9, // The z-index (defaults to 2000000000)
+                    top: 'auto', // Top position relative to parent in px
+                    left: 'auto' // Left position relative to parent in px
+                };
+                var target = document.getElementById('loading');
+                var spinner = new Spinner(opts).spin(target);
+                $.ajax({
+                    url: '/chart/build/',
+                    type: 'GET',
+                    dataType: 'html',
+                    success: function(html) {
+                        location.reload();
+                    },
+                    error: function() {
+                        alert("Error happend! Please try again.")
+                    }
+                });
+            }
+
+            $(document).ready(function() { rebuild(); });
+        </script>
+        {% endif %}
+        <p>粤ICP备08128977号</p>
+    </body>
+</html>
