@@ -188,3 +188,10 @@ Preferences Plugins
    :members:
    :member-order: bysource
 
+Viewer plugins
+----------------
+
+.. autoclass:: calibre.customize.ViewerPlugin
+   :show-inheritance:
+   :members:
+   :member-order: bysource

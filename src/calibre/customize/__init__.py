@@ -693,7 +693,7 @@ class ViewerPlugin(Plugin):  # {{{
 
     def load_fonts(self):
         '''
-        This method is called once at viewer starup. It should load any fonts
+        This method is called once at viewer startup. It should load any fonts
         it wants to make available. For example::
 
             def load_fonts():
@@ -734,7 +734,7 @@ class ViewerPlugin(Plugin):  # {{{
     def customize_context_menu(self, menu, event, hit_test_result):
         '''
         This method is called every time the context (right-click) menu is
-        shown. You can use it to customize the context menu. event is the
+        shown. You can use it to customize the context menu. ``event`` is the
         context menu event and hit_test_result is the QWebHitTestResult for this
         event in the currently loaded document.
         '''
