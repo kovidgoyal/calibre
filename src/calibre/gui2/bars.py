@@ -219,6 +219,7 @@ if isosx:
 
         def __init__(self, clone, parent, is_top_level=False, clone_shortcuts=True):
             QAction.__init__(self, clone.text(), parent)
+            self.setMenuRole(QAction.NoRole)  # ensure this action is not moved around by Qt
             self.is_top_level = is_top_level
             self.clone_shortcuts = clone_shortcuts
             self.clone = clone
