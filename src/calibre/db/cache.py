@@ -1352,7 +1352,7 @@ class Cache(object):
         Remove the specified formats from the specified books.
 
         :param formats_map: A mapping of book_id to a list of formats to be removed from the book.
-        :param db_only: If True, only remove the record fo the format from the db, dont delete the actual format file from the filesystem.
+        :param db_only: If True, only remove the record for the format from the db, do not delete the actual format file from the filesystem.
         '''
         table = self.fields['formats'].table
         formats_map = {book_id:frozenset((f or '').upper() for f in fmts) for book_id, fmts in formats_map.iteritems()}
