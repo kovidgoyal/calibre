@@ -256,6 +256,11 @@ class Boss(QObject):
             if 'DRMError:' in job.traceback:
                 from calibre.gui2.dialogs.drm_error import DRMErrorMessage
                 return DRMErrorMessage(self.gui).exec_()
+            if 'ObfuscationKeyMissing:' in job.traceback:
+                return error_dialog(self.gui, _('Failed to open book'), _(
+                    'Failed to open book, it has obfuscated fonts, but the obfuscation key is missing from the OPF.'
+                    ' Do an EPUB to EPUB conversion before trying to edit this book.'), show=True)
+
             return error_dialog(self.gui, _('Failed to open book'),
                     _('Failed to open book, click Show details for more information.'),
                                 det_msg=job.traceback, show=True)

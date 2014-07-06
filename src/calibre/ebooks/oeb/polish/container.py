@@ -893,6 +893,9 @@ class Container(object):  # {{{
 class InvalidEpub(InvalidBook):
     pass
 
+class ObfuscationKeyMissing(InvalidEpub):
+    pass
+
 OCF_NS = 'urn:oasis:names:tc:opendocument:xmlns:container'
 
 class EpubContainer(Container):
@@ -1071,7 +1074,7 @@ class EpubContainer(Container):
         for font, alg in fonts.iteritems():
             tkey = key if alg == ADOBE_OBFUSCATION else idpf_key
             if not tkey:
-                raise InvalidBook('Failed to find obfuscation key')
+                raise ObfuscationKeyMissing('Failed to find obfuscation key')
             raw = self.raw_data(font, decode=False)
             raw = decrypt_font_data(tkey, raw, alg)
             with self.open(font, 'wb') as f:
