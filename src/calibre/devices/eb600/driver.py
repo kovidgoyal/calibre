@@ -62,9 +62,9 @@ class TOLINO(EB600):
 
     EXTRA_CUSTOMIZATION_MESSAGE = [
         _('Swap main and card A') +
-            ':::' +
-            _('Check this box if the device\'s main memory is being seen as card a and the card '
-              'is being seen as main memory. Some Tolino devices may need this option.'),
+        ':::' +
+        _('Check this box if the device\'s main memory is being seen as card a and the card '
+            'is being seen as main memory. Some Tolino devices may need this option.'),
     ]
 
     EXTRA_CUSTOMIZATION_DEFAULT = [
@@ -98,8 +98,9 @@ class TOLINO(EB600):
 
     def post_open_callback(self):
         # The Tolino Vision only handles books inside the Books folder
-        product_id = self.device_being_opened[1]
-        self.ebook_dir_for_upload = 'Books' if product_id == 0x6033 else ''
+        product_id, bcd = self.device_being_opened[1], self.device_being_opened[2]
+        is_tolino = product_id == 0x6033 or (product_id == 0x1688 and bcd == 0x226)
+        self.ebook_dir_for_upload = 'Books' if is_tolino else ''
 
     def get_main_ebook_dir(self, for_upload=False):
         if for_upload:
