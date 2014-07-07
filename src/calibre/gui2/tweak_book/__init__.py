@@ -55,8 +55,10 @@ d['global_tools_toolbar'] = ['check-book', 'spell-check-book', 'edit-toc', 'inse
 d['editor_css_toolbar'] = ['pretty-current', 'insert-image']
 d['editor_xml_toolbar'] = ['pretty-current', 'insert-tag']
 d['editor_html_toolbar'] = ['fix-html-current', 'pretty-current', 'insert-image', 'insert-hyperlink', 'insert-tag', 'change-paragraph']
-d['editor_format_toolbar'] = [('format-text-' + x) for x in (
-'bold', 'italic', 'underline', 'strikethrough', 'subscript', 'superscript', 'color', 'background-color')]
+d['editor_format_toolbar'] = [('format-text-' + x) if x else x for x in (
+'bold', 'italic', 'underline', 'strikethrough', 'subscript', 'superscript',
+    None, 'color', 'background-color', None, 'justify-left', 'justify-center',
+    'justify-right', 'justify-fill')]
 d['spell_check_case_sensitive_search'] = False
 d['add_cover_preserve_aspect_ratio'] = False
 del d

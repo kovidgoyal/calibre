@@ -64,6 +64,14 @@ def register_text_editor_actions(_reg, palette):
     ac = reg('format-fill-color', _('&Background Color'), ('format_text', 'background-color'),
              'format-text-background-color', (), _('Change background color of text'))
     ac.setToolTip(_('<h3>Background Color</h3>Change the background color of the selected text'))
+    ac = reg('format-justify-left', _('Align &left'), ('format_text', 'justify_left'), 'format-text-justify-left', (), _('Align left'))
+    ac.setToolTip(_('<h3>Align left</h3>Align the paragraph to the left'))
+    ac = reg('format-justify-center', _('&Center'), ('format_text', 'justify_center'), 'format-text-justify-center', (), _('Center'))
+    ac.setToolTip(_('<h3>Center</h3>Center the paragraph'))
+    ac = reg('format-justify-right', _('Align &right'), ('format_text', 'justify_right'), 'format-text-justify-right', (), _('Align right'))
+    ac.setToolTip(_('<h3>Align right</h3>Align the paragraph to the right'))
+    ac = reg('format-justify-fill', _('&Justify'), ('format_text', 'justify_justify'), 'format-text-justify-fill', (), _('Justify'))
+    ac.setToolTip(_('<h3>Justify</h3>Align the paragraph to both the left and right margins'))
 
     ac = reg('view-image', _('&Insert image'), ('insert_resource', 'image'), 'insert-image', (), _('Insert an image into the text'), syntaxes=('html', 'css'))
     ac.setToolTip(_('<h3>Insert image</h3>Insert an image into the text'))
@@ -85,6 +93,7 @@ def register_text_editor_actions(_reg, palette):
         editor_toolbar_actions[s]['pretty-current'] = actions['pretty-current']
     editor_toolbar_actions['html']['change-paragraph'] = actions['change-paragraph'] = QAction(
         QIcon(I('format-text-heading.png')), _('Change paragraph to heading'), ac.parent())
+
 
 class Editor(QMainWindow):
 
@@ -258,6 +267,9 @@ class Editor(QMainWindow):
     def populate_toolbars(self):
         self.tools_bar.clear()
         def add_action(name, bar):
+            if name is None:
+                bar.addSeparator()
+                return
             try:
                 ac = actions[name]
             except KeyError:

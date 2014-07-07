@@ -642,6 +642,8 @@ class TextEdit(PlainTextEdit):
     def format_text(self, formatting):
         if self.syntax != 'html':
             return
+        if formatting.startswith('justify_'):
+            return self.smarts.set_text_alignment(self, formatting.partition('_')[-1])
         color = 'currentColor'
         if formatting in {'color', 'background-color'}:
             color = QColorDialog.getColor(QColor(Qt.black if formatting == 'color' else Qt.white), self, _('Choose color'), QColorDialog.ShowAlphaChannel)

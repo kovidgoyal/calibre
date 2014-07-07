@@ -8,14 +8,15 @@ __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import sys, re
 from operator import itemgetter
-from . import NullSmarts
 
+from cssutils import parseStyle
 from PyQt4.Qt import QTextEdit
 
 from calibre import prepare_string_for_xml
 from calibre.gui2 import error_dialog
 from calibre.gui2.tweak_book.editor.syntax.html import ATTR_NAME, ATTR_END, ATTR_START, ATTR_VALUE
 from calibre.utils.icu import utf16_length
+from calibre.gui2.tweak_book.editor.smart import NullSmarts
 
 get_offset = itemgetter(0)
 PARAGRAPH_SEPARATOR = '\u2029'
@@ -119,6 +120,7 @@ def find_containing_attribute(block, offset):
     return None
 
 def find_attribute_in_tag(block, offset, attr_name):
+    ' Return the start of the attribute value as block, offset or None, None if attribute not found '
     end_block, boundary = next_tag_boundary(block, offset)
     if boundary.is_start:
         return None, None
@@ -139,6 +141,15 @@ def find_attribute_in_tag(block, offset, attr_name):
             if boundary.type is ATTR_NAME and boundary.data.lower() == attr_name.lower():
                 found_attr = True
             current_offset += 1
+
+def find_end_of_attribute(block, offset):
+    ' Find the end of an attribute that occurs somewhere after the position specified by (block, offset) '
+    block, boundary = next_attr_boundary(block, offset)
+    if block is None or boundary is None:
+        return None, None
+    if boundary.type is not ATTR_VALUE or boundary.data is not ATTR_END:
+        return None, None
+    return block, boundary.offset
 
 def find_closing_tag(tag, max_tags=sys.maxint):
     ''' Find the closing tag corresponding to the specified tag. To find it we
@@ -209,11 +220,13 @@ def ensure_not_within_tag_definition(cursor, forward=True):
 
     return False
 
-def find_closest_containing_block_tag(block, offset, block_tag_names=frozenset((
-        'address', 'article', 'aside', 'blockquote', 'center', 'dir',
-        'fieldset', 'isindex', 'menu', 'noframes', 'hgroup', 'noscript', 'pre',
-        'section', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'header', 'p', 'div', 'dd',
-        'dl', 'ul', 'ol', 'li', 'body', 'td', 'th'))):
+BLOCK_TAG_NAMES = frozenset((
+    'address', 'article', 'aside', 'blockquote', 'center', 'dir', 'fieldset',
+    'isindex', 'menu', 'noframes', 'hgroup', 'noscript', 'pre', 'section',
+    'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'header', 'p', 'div', 'dd', 'dl', 'ul',
+    'ol', 'li', 'body', 'td', 'th'))
+
+def find_closest_containing_block_tag(block, offset, block_tag_names=BLOCK_TAG_NAMES):
     while True:
         tag = find_closest_containing_tag(block, offset)
         if tag is None:
@@ -222,6 +235,31 @@ def find_closest_containing_block_tag(block, offset, block_tag_names=frozenset((
             return tag
         block, offset = tag.start_block, tag.start_offset
 
+def set_style_property(tag, property_name, value, editor):
+    '''
+    Set a style property, i.e. a CSS property inside the style attribute of the tag.
+    Any existing style attribute is updated or a new attribute is inserted.
+    '''
+    block, offset = find_attribute_in_tag(tag.start_block, tag.start_offset + 1, 'style')
+    c = editor.textCursor()
+    def css(d):
+        return d.cssText.replace('\n', ' ')
+    if block is None or offset is None:
+        d = parseStyle('')
+        d.setProperty(property_name, value)
+        c.setPosition(tag.end_block.position() + tag.end_offset)
+        c.insertText(' style="%s"' % css(d))
+    else:
+        c.setPosition(block.position() + offset - 1)
+        end_block, end_offset = find_end_of_attribute(block, offset + 1)
+        if end_block is None:
+            return error_dialog(editor, _('Invalid markup'), _(
+                'The current block tag has an existing unclosed style attribute. Run the Fix HTML'
+                ' tool first.'), show=True)
+        c.setPosition(end_block.position() + end_offset, c.KeepAnchor)
+        d = parseStyle(editor.selected_text_from_cursor(c)[1:-1])
+        d.setProperty(property_name, value)
+        c.insertText('"%s"' % css(d))
 
 class HTMLSmarts(NullSmarts):
 
@@ -426,4 +464,34 @@ class HTMLSmarts(NullSmarts):
         c.setPosition(tag.end_block.position() + tag.end_offset + 1)
         c.setPosition(ctag.start_block.position() + ctag.start_offset, c.KeepAnchor)
         return c
+
+    def set_text_alignment(self, editor, value):
+        ''' Set the text-align property on the current block tag(s) '''
+        editor.highlighter.join()
+        block_tag_names = BLOCK_TAG_NAMES - {'body'}  # ignore body since setting text-align globally on body is almost never what is wanted
+        tags = []
+        c = editor.textCursor()
+        if c.hasSelection():
+            start, end = min(c.anchor(), c.position()), max(c.anchor(), c.position())
+            c.setPosition(start)
+            block = c.block()
+            while block.isValid() and block.position() < end:
+                ud = block.userData()
+                if ud is not None:
+                    for tb in ud.tags:
+                        if tb.is_start and not tb.closing and tb.name.lower() in block_tag_names:
+                            nblock, boundary = next_tag_boundary(block, tb.offset)
+                            if boundary is not None and not boundary.is_start and not boundary.self_closing:
+                                tags.append(Tag(block, tb, nblock, boundary))
+                block = block.next()
+        if not tags:
+            c = editor.textCursor()
+            block, offset = c.block(), c.positionInBlock()
+            tag = find_closest_containing_block_tag(block, offset, block_tag_names)
+            if tag is None:
+                return error_dialog(editor, _('Not in a block tag'), _(
+                    'Cannot change text alignment as the cursor is not inside a block level tag, such as a <p> or <div> tag.'), show=True)
+            tags = [tag]
+        for tag in reversed(tags):
+            set_style_property(tag, 'text-align', value, editor)
 
