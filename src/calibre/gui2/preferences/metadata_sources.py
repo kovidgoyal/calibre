@@ -196,7 +196,7 @@ class FieldsModel(QAbstractListModel):  # {{{
         return None
 
     def flags(self, index):
-        ans = QAbstractTableModel.flags(self, index)
+        ans = QAbstractListModel.flags(self, index)
         return ans | Qt.ItemIsUserCheckable
 
     def restore_defaults(self):
