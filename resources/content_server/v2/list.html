@@ -46,7 +46,6 @@ legend {
             <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
                 <ul class="nav navbar-nav">
                     <li class="active" ><a href="/">我的书库</a></li>
-                    <li ><a href="/chart/k/">团队书库</a></li>
                 </ul>
                 <ul class="nav navbar-nav navbar-right">
                     <li class="dropdown">
@@ -68,7 +67,11 @@ legend {
 <div class="col-sm-12 col-md-12">
     <div class="sorter">
         <small class="pull-left">
-            综合排序  /  按出版日期排序  /  按评价排序
+            <a href="alert('action')">按书名排序排序</a>
+            /
+            <a href="alert('action')">按出版日期排序</a>
+            /
+            <a href="alert('action')">按评价排序</a>
         </small>
     </div>
 </div>
@@ -77,7 +80,7 @@ legend {
     <div class="media bookitem">
         <a class="pull-left" href="/book.html"><img class="media-object" data-src="holder.js/105x145" alt="..."></a>
         <div class="media-body">
-            <h4 class="media-heading">光晕（1~7部）</h4>
+            <h4 class="media-heading"><a href="book.html">光晕（1~7部）</a></h4>
             <p>
             作者：<span>(美)埃里克·尼伦德</span>/上海人民出版社 / 2006-5 <br/>
             <br/>
@@ -93,7 +96,7 @@ legend {
     <div class="media bookitem">
         <a class="pull-left" href="/book.html"><img class="media-object" data-src="holder.js/105x145" alt="..."></a>
         <div class="media-body">
-            <h4 class="media-heading">冰与火之歌（卷一至卷五）</h4>
+            <h4 class="media-heading"><a href="book.html">冰与火之歌（卷一至卷五）</a></h4>
             <p>
             作者：<span>乔治*马丁</span>/上海人民出版社 / 2006-5 <br/>
             <br/>
@@ -110,7 +113,7 @@ legend {
     <div class="media bookitem">
         <a class="pull-left" href="/book.html"><img class="media-object" data-src="holder.js/105x145" alt="..."></a>
         <div class="media-body">
-            <h4 class="media-heading">时间旅行者的妻子</h4>
+            <h4 class="media-heading"><a href="book.html">时间旅行者的妻子</a></h4>
             <p>
             作者：<span>[美] 奥德丽·尼芬格</span>/上海人民出版社 / 2006-5 <br/>
             <br/>
@@ -152,17 +155,17 @@ legend {
 
     <legend>分类查找</legend>
     <div class="list-group">
-      <a href="#" class="list-group-item"><span class="badge">1234</span> 所有书籍</a>
-      <a href="#" class="list-group-item"><span class="badge">4</span> 出版社</a>
-      <a href="#" class="list-group-item"><span class="badge">54</span> 标签</a>
-      <a href="#" class="list-group-item">评分</a>
+      <a href="list.html" class="list-group-item"><span class="badge">1234</span> 所有书籍</a>
+      <a href="list.html" class="list-group-item active"><span class="badge">4</span> 出版社</a>
+      <a href="list.html" class="list-group-item"><span class="badge">54</span> 标签</a>
+      <a href="list.html" class="list-group-item">评分</a>
     </div>
 
     <legend>帮助</legend>
     <div class="list-group">
       <a href="#" class="list-group-item">Wiki帮助</a>
-      <a href="#" class="list-group-item"><span class="badge">34</span> 用户数</a>
-      <a href="#" class="list-group-item"><span class="badge">4</span> 团队</a>
+      <a href="#" class="list-group-item"><span class="pull-right">1.4.13</span> 系统版本</a>
+      <a href="#" class="list-group-item"><span class="pull-right">2014-04-18</span> 最后更新</a>
     </div>
 
 </div>
