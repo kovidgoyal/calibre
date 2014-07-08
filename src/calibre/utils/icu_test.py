@@ -151,9 +151,11 @@ class TestICU(unittest.TestCase):
     def test_break_iterator(self):
         ' Test the break iterator '
         from calibre.spell.break_iterator import split_into_words as split, index_of, split_into_words_and_positions
-        for q in ('one two three', ' one two three', 'one\ntwo  three ', 'one-two,three'):
+        for q in ('one two three', ' one two three', 'one\ntwo  three ', ):
             self.ae(split(unicode(q)), ['one', 'two', 'three'], 'Failed to split: %r' % q)
         self.ae(split(u'I I\'m'), ['I', "I'm"])
+        self.ae(split(u'out-of-the-box'), ['out-of-the-box'])
+        self.ae(split(u'-one two-'), ['one', 'two'])
         self.ae(split_into_words_and_positions('one \U0001f431 three'), [(0, 3), (6 if sys.maxunicode >= 0x10ffff else 7, 5)])
         self.ae(0, index_of('i', 'i'))
         self.ae(4, index_of('i', 'six i'))
