@@ -21,6 +21,7 @@ from calibre.gui2.dialogs.search import SearchDialog
 
 class SearchLineEdit(QLineEdit):  # {{{
     key_pressed = pyqtSignal(object)
+    select_on_mouse_press = False
 
     def keyPressEvent(self, event):
         self.key_pressed.emit(event)
@@ -38,6 +39,16 @@ class SearchLineEdit(QLineEdit):  # {{{
     def paste(self, *args):
         self.parent().normalize_state()
         return QLineEdit.paste(self)
+
+    def focusInEvent(self, ev):
+        self.select_on_mouse_press = True
+        return QLineEdit.focusInEvent(self, ev)
+
+    def mousePressEvent(self, ev):
+        QLineEdit.mousePressEvent(self, ev)
+        if self.select_on_mouse_press:
+            self.select_on_mouse_press = False
+            self.selectAll()
 # }}}
 
 class SearchBox2(QComboBox):  # {{{
