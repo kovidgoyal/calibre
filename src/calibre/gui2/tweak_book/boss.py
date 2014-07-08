@@ -117,6 +117,7 @@ class Boss(QObject):
         self.gui.spell_check.refresh_requested.connect(self.commit_all_editors_to_container)
         self.gui.spell_check.word_replaced.connect(self.word_replaced)
         self.gui.spell_check.word_ignored.connect(self.word_ignored)
+        self.gui.spell_check.change_requested.connect(self.word_change_requested)
         self.gui.live_css.goto_declaration.connect(self.goto_style_declaration)
         self.gui.manage_fonts.container_changed.connect(self.apply_container_update_to_gui)
         self.gui.manage_fonts.embed_all_fonts.connect(self.manage_fonts_embed)
@@ -769,6 +770,12 @@ class Boss(QObject):
         name = editor_name(ed)
         find_next_error(ed, name, self.gui, self.show_editor, self.edit_file)
 
+    def word_change_requested(self, w, new_word):
+        if self.commit_all_editors_to_container():
+            self.gui.spell_check.change_word_after_update(w, new_word)
+        else:
+            self.gui.spell_check.do_change_word(w, new_word)
+
     def word_replaced(self, changed_names):
         self.set_modified()
         self.update_editors_from_container(names=set(changed_names))
@@ -822,11 +829,14 @@ class Boss(QObject):
                 self.gui.file_list.build(container)
 
     def commit_all_editors_to_container(self):
+        changed = False
         with BusyCursor():
             for name, ed in editors.iteritems():
                 if not ed.is_synced_to_container:
                     self.commit_editor_to_container(name)
                     ed.is_synced_to_container = True
+                    changed = True
+        return changed
 
     def save_book(self):
         c = current_container()
