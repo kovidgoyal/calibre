@@ -492,13 +492,9 @@ class SavedSearchBoxMixin(object):  # {{{
                             _('Create saved search'),
                             self.saved_search.save_search_button_clicked)
         self.save_search_button.menu().addAction(
-                             QIcon(I('trash.png')),
-                             _('Delete saved search'),
-                            self.saved_search.delete_current_search)
+            QIcon(I('trash.png')), _('Delete saved search'), self.saved_search.delete_current_search)
         self.save_search_button.menu().addAction(
-                             QIcon(I('search.png')),
-                            _('Manage saved searches'),
-                            partial(self.do_saved_search_edit, None))
+            QIcon(I('search.png')), _('Manage saved searches'), partial(self.do_saved_search_edit, None))
 
     def saved_searches_changed(self, set_restriction=None, recount=True):
         self.build_search_restriction_list()
