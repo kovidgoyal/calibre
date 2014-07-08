@@ -109,7 +109,7 @@ def add_catalog(cache, path, title):
     new_book_added = False
     with lopen(path, 'rb') as stream:
         with cache.write_lock:
-            matches = cache._search('title:="%s" and tags:="%s"' % (title.replace('"', '\\"'), _('Catalog')), None)
+            matches = cache._search('title:="%s" and tags:="%s"' % (title.replace('"', '\\"'), _('Catalogue')), None)
             db_id = None
             if matches:
                 db_id = list(matches)[0]
@@ -120,7 +120,7 @@ def add_catalog(cache, path, title):
                 mi = Metadata(title, ['calibre'])
             mi.title, mi.authors = title, ['calibre']
             mi.author_sort = 'calibre'  # The MOBI/AZW3 format sets author sort to date
-            mi.tags = [_('Catalog')]
+            mi.tags = [_('_Catalogue')] #Set Catalog(ue) at top in Tags and change spelling.TGB 08.07.2014
             mi.pubdate = mi.timestamp = utcnow()
             if fmt == 'mobi':
                 mi.cover, mi.cover_data = None, (None, None)

@@ -71,7 +71,7 @@ class EPUB_MOBI(CatalogPlugin):
                           default="(('Catalogs','Tags','Catalog'),)",
                           dest='exclusion_rules',
                           action=None,
-                          help=_("Specifies the rules used to exclude books from the generated catalog.\n"
+                          help=("Specifies the rules used to exclude books from the generated catalog.\n"
                           "The model for an exclusion rule is either\n('<rule name>','Tags','<comma-separated list of tags>') or\n"
                           "('<rule name>','<custom column>','<pattern>').\n"
                           "For example:\n"
