@@ -59,7 +59,7 @@ class ConvertAction(InterfaceAction):
                 triggered=partial(self.convert_ebook, False, bulk=True))
         m.addSeparator()
         cm('create-catalog',
-                _('Create a catalog of the books in your calibre library'),
+                _('Create a catalogue of the books in your calibre library'), #Change spelling, Catalogue.TGB.08.07.2014
                 icon='catalog.png', shortcut=False,
                 triggered=self.gui.iactions['Generate Catalog'].generate_catalog)
         self.qaction.triggered.connect(self.convert_ebook)

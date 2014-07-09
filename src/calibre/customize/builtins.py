@@ -787,7 +787,7 @@ class ActionFetchAnnotations(InterfaceActionBase):
 class ActionGenerateCatalog(InterfaceActionBase):
     name = 'Generate Catalog'
     actual_plugin = 'calibre.gui2.actions.catalog:GenerateCatalogAction'
-    description = _('Generate a catalog of the books in your calibre library')
+    description = _('Generate a catalogue of the books in your calibre library') #Change spelling, Catalogue.TGB.08.07.2014
 
 class ActionConvert(InterfaceActionBase):
     name = 'Convert Books'

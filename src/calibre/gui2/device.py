@@ -1318,7 +1318,7 @@ class DeviceMixin(object):  # {{{
                 self.upload_books(files, names, metadata,
                         on_card=on_card,
                         memory=[files, remove])
-                self.status_bar.show_message(_('Sending catalogs to device.'), 5000)
+                self.status_bar.show_message(_('Sending catalogues to device.'), 5000) #Change spelling, Catalogue.TGB.08.07.2014
 
     @dynamic_property
     def news_to_be_synced(self):

@@ -19,7 +19,7 @@ class GenerateCatalogAction(InterfaceAction):
 
     name = 'Generate Catalog'
     action_spec = (_('Create catalog'), 'catalog.png',
-                   _('Create a catalog of the books in your calibre library in different formats'), ())
+                   _('Create a catalogue of the books in your calibre library in different formats'), ()) #Change spelling.TGB.08.07.2014
     dont_add_to = frozenset(['context-menu-device'])
 
     def genesis(self):
@@ -37,7 +37,7 @@ class GenerateCatalogAction(InterfaceAction):
 
         if not ids:
             return error_dialog(self.gui, _('No books selected'),
-                    _('No books selected for catalog generation'),
+                    _('No books selected for catalogue generation'), #Change spelling, Catalogue.TGB.08.07.2014
                     show=True)
 
         db = self.gui.library_view.model().db
@@ -60,7 +60,7 @@ class GenerateCatalogAction(InterfaceAction):
         job.catalog_file_path = out
         job.fmt = fmt
         job.catalog_sync, job.catalog_title = sync, title
-        self.gui.status_bar.show_message(_('Generating %s catalog...')%fmt)
+        self.gui.status_bar.show_message(_('Generating %s catalogue...')%fmt) #Change spelling, Catalogue.TGB.08.07.2014
 
     def catalog_generated(self, job):
         if job.result:
@@ -69,10 +69,10 @@ class GenerateCatalogAction(InterfaceAction):
             # Subsequent strings are error messages
             dialog_title = job.result.pop(0)
             if re.search('warning', job.result[0].lower()):
-                msg = _("Catalog generation complete, with warnings.")
+                msg = _("Catalogue generation complete, with warnings.") #Change spelling, Catalogue.TGB.08.07.2014
                 warning_dialog(self.gui, dialog_title, msg, det_msg='\n'.join(job.result), show=True)
             else:
-                job.result.append("Catalog generation terminated.")
+                job.result.append("Catalogue generation terminated.") #Change spelling, Catalogue.TGB.08.07.2014
                 error_dialog(self.gui, dialog_title,'\n'.join(job.result),show=True)
                 return
 
@@ -84,7 +84,7 @@ class GenerateCatalogAction(InterfaceAction):
             sync = dynamic.get('catalogs_to_be_synced', set([]))
             sync.add(id)
             dynamic.set('catalogs_to_be_synced', sync)
-        self.gui.status_bar.show_message(_('Catalog generated.'), 3000)
+        self.gui.status_bar.show_message(_('Catalogue generated.'), 3000) #Change spelling, Catalogue.TGB.08.07.2014
         self.gui.sync_catalogs()
         if job.fmt not in {'EPUB','MOBI', 'AZW3'}:
             export_dir = choose_dir(self.gui, _('Export Catalog Directory'),
