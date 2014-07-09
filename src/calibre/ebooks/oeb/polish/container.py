@@ -26,11 +26,11 @@ from calibre.ebooks.mobi import MobiError
 from calibre.ebooks.mobi.reader.headers import MetadataHeader
 from calibre.ebooks.mobi.tweak import set_cover
 from calibre.ebooks.oeb.base import (
-    serialize, OEB_DOCS, _css_logger, OEB_STYLES, OPF2_NS, DC11_NS, OPF,
+    serialize, OEB_DOCS, OEB_STYLES, OPF2_NS, DC11_NS, OPF, Manifest,
     rewrite_links, iterlinks, itercsslinks, urlquote, urlunquote)
 from calibre.ebooks.oeb.polish.errors import InvalidBook, DRMError
 from calibre.ebooks.oeb.polish.parsing import parse as parse_html_tweak
-from calibre.ebooks.oeb.polish.utils import PositionFinder, CommentFinder, guess_type
+from calibre.ebooks.oeb.polish.utils import PositionFinder, CommentFinder, guess_type, parse_css
 from calibre.ebooks.oeb.parse_utils import NotHTML, parse_html, RECOVER_PARSER
 from calibre.ptempfile import PersistentTemporaryDirectory, PersistentTemporaryFile
 from calibre.utils.filenames import nlinks_file, hardlink_file
@@ -490,21 +490,8 @@ class Container(object):  # {{{
         return ans
 
     def parse_css(self, data, fname='<string>', is_declaration=False):
-        from cssutils import CSSParser, log
-        log.setLevel(logging.WARN)
-        log.raiseExceptions = False
-        if isinstance(data, bytes):
-            data = self.decode(data)
-        if not self.tweak_mode:
-            data = self.css_preprocessor(data)
-        parser = CSSParser(loglevel=logging.WARNING,
-                           # We dont care about @import rules
-                           fetcher=lambda x: (None, None), log=_css_logger)
-        if is_declaration:
-            data = parser.parseStyle(data, validate=False)
-        else:
-            data = parser.parseString(data, href=fname, validate=False)
-        return data
+        return parse_css(data, fname=fname, is_declaration=is_declaration, decode=self.decode, log_level=logging.WARNING,
+                         css_preprocessor=(None if self.tweak_mode else self.css_preprocessor))
 
     def parsed(self, name):
         ''' Return a parsed representation of the file specified by name. For
@@ -1129,16 +1116,28 @@ def do_explode(path, dest):
 
     return opf, obfuscated_fonts
 
-def opf_to_azw3(opf, outpath, log):
+
+def opf_to_azw3(opf, outpath, container):
     from calibre.ebooks.conversion.plumber import Plumber, create_oebbook
-    plumber = Plumber(opf, outpath, log)
+
+    class Item(Manifest.Item):
+
+        def _parse_css(self, data):
+            # The default CSS parser used by oeb.base inserts the h namespace
+            # and resolves all @import rules. We dont want that.
+            return container.parse_css(data)
+
+    def specialize(oeb):
+        oeb.manifest.Item = Item
+
+    plumber = Plumber(opf, outpath, container.log)
     plumber.setup_options()
     inp = plugin_for_input_format('azw3')
     outp = plugin_for_output_format('azw3')
     plumber.opts.mobi_passthrough = True
-    oeb = create_oebbook(log, opf, plumber.opts)
+    oeb = create_oebbook(container.log, opf, plumber.opts, specialize=specialize)
     set_cover(oeb)
-    outp.convert(oeb, outpath, inp, plumber.opts, log)
+    outp.convert(oeb, outpath, inp, plumber.opts, container.log)
 
 
 class AZW3Container(Container):
@@ -1205,7 +1204,7 @@ class AZW3Container(Container):
         super(AZW3Container, self).commit(keep_parsed=keep_parsed)
         if outpath is None:
             outpath = self.pathtoazw3
-        opf_to_azw3(self.name_path_map[self.opf_name], outpath, self.log)
+        opf_to_azw3(self.name_path_map[self.opf_name], outpath, self)
 
     @dynamic_property
     def path_to_ebook(self):
