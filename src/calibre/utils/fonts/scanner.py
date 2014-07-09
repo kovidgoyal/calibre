@@ -78,15 +78,20 @@ def fc_list():
     end(str_list)
     if len(ans) < 3:
         return default_font_dirs()
-    parents = []
+
+    parents, visited = [], set()
     for f in ans:
-        found = False
-        for p in parents:
-            if f.startswith(p):
-                found = True
+        path = os.path.normpath(os.path.abspath(os.path.realpath(f)))
+        if path == '/':
+            continue
+        head, tail = os.path.split(path)
+        while head and tail:
+            if head in visited:
                 break
-        if not found:
-            parents.append(f)
+            head, tail = os.path.split(head)
+        else:
+            parents.append(path)
+            visited.add(path)
     return parents
 
 
