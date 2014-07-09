@@ -92,9 +92,10 @@ class ColumnIcon(object):  # {{{
             if self.mi is None:
                 self.mi = db.new_api.get_proxy_metadata(id_)
             icons = []
-            for kind, fmt in fmts:
+            for dex, (kind, fmt) in enumerate(fmts):
                 rule_icons = self.formatter.safe_format(fmt, self.mi, '', self.mi,
-                                    column_name=cache_index, template_cache=template_cache)
+                                    column_name=cache_index+str(dex),
+                                    template_cache=template_cache)
                 if not rule_icons:
                     continue
                 icon_list = [ic.strip() for ic in rule_icons.split(':')]
