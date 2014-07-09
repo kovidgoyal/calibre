@@ -8,10 +8,11 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import tempfile, shutil, sys, os
 from functools import partial, wraps
+from urlparse import urlparse
 
 from PyQt4.Qt import (
     QObject, QApplication, QDialog, QGridLayout, QLabel, QSize, Qt,
-    QDialogButtonBox, QIcon, QTimer, QPixmap, QInputDialog)
+    QDialogButtonBox, QIcon, QTimer, QPixmap, QInputDialog, QUrl)
 
 from calibre import prints, isbytestring
 from calibre.ptempfile import PersistentTemporaryDirectory, TemporaryDirectory
@@ -25,7 +26,7 @@ from calibre.ebooks.oeb.polish.replace import rename_files, replace_file, get_re
 from calibre.ebooks.oeb.polish.split import split, merge, AbortError, multisplit
 from calibre.ebooks.oeb.polish.toc import remove_names_from_toc, find_existing_toc, create_inline_toc
 from calibre.ebooks.oeb.polish.utils import link_stylesheets, setup_cssutils_serialization as scs
-from calibre.gui2 import error_dialog, choose_files, question_dialog, info_dialog, choose_save_file
+from calibre.gui2 import error_dialog, choose_files, question_dialog, info_dialog, choose_save_file, open_url
 from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.gui2.tweak_book import (
     set_current_container, current_container, tprefs, actions, editors,
@@ -788,6 +789,21 @@ class Boss(QObject):
                 except AttributeError:
                     pass
 
+    def editor_link_clicked(self, url):
+        ed = self.gui.central.current_editor
+        name = editor_name(ed)
+        target = current_container().href_to_name(url, name)
+        frag = url.partition('#')[-1]
+        if current_container().has_name(target):
+            self.link_clicked(target, frag)
+        else:
+            purl = urlparse(url)
+            if purl.scheme not in {'', 'file'}:
+                open_url(QUrl(url))
+            else:
+                error_dialog(self, _('Not found'), _(
+                    'No file with the name %s was found in the book') % target, show=True)
+
     def saved_searches(self):
         self.gui.saved_searches.show(), self.gui.saved_searches.raise_()
 
@@ -1092,6 +1108,8 @@ class Boss(QObject):
         editor.cursor_position_changed.connect(self.update_cursor_position)
         if hasattr(editor, 'word_ignored'):
             editor.word_ignored.connect(self.word_ignored)
+        if hasattr(editor, 'link_clicked'):
+            editor.link_clicked.connect(self.editor_link_clicked)
         if data is not None:
             if use_template:
                 editor.init_from_template(data)

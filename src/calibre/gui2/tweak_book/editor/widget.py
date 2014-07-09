@@ -105,6 +105,7 @@ class Editor(QMainWindow):
     data_changed = pyqtSignal(object)
     cursor_position_changed = pyqtSignal()
     word_ignored = pyqtSignal(object, object)
+    link_clicked = pyqtSignal(object)
 
     def __init__(self, syntax, parent=None):
         QMainWindow.__init__(self, parent)
@@ -126,6 +127,7 @@ class Editor(QMainWindow):
         self.editor.textChanged.connect(self._data_changed)
         self.editor.copyAvailable.connect(self._copy_available)
         self.editor.cursorPositionChanged.connect(self._cursor_position_changed)
+        self.editor.link_clicked.connect(self.link_clicked)
 
     @dynamic_property
     def current_line(self):
@@ -300,14 +302,11 @@ class Editor(QMainWindow):
                 add_action(name, self.format_bar)
 
     def break_cycles(self):
-        try:
-            self.modification_state_changed.disconnect()
-        except TypeError:
-            pass  # in case this signal was never connected
-        try:
-            self.word_ignored.disconnect()
-        except TypeError:
-            pass  # in case this signal was never connected
+        for x in ('modification_state_changed', 'word_ignored', 'link_clicked'):
+            try:
+                getattr(self, x).disconnect()
+            except TypeError:
+                pass  # in case this signal was never connected
         self.undo_redo_state_changed.disconnect()
         self.copy_available_state_changed.disconnect()
         self.cursor_position_changed.disconnect()
@@ -318,6 +317,7 @@ class Editor(QMainWindow):
         self.editor.textChanged.disconnect()
         self.editor.copyAvailable.disconnect()
         self.editor.cursorPositionChanged.disconnect()
+        self.editor.link_clicked.disconnect()
         self.editor.setPlainText('')
         self.editor.smarts = None
 

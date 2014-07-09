@@ -36,6 +36,7 @@ def editor_from_syntax(syntax, parent=None):
 SYNTAX_PROPERTY = QTextCharFormat.UserProperty
 SPELL_PROPERTY = SYNTAX_PROPERTY + 1
 SPELL_LOCALE_PROPERTY = SPELL_PROPERTY + 1
+LINK_PROPERTY = SPELL_LOCALE_PROPERTY + 1
 
 def syntax_text_char_format(*args):
     ans = QTextCharFormat(*args)

@@ -14,11 +14,12 @@ import regex
 from PyQt4.Qt import (
     QPlainTextEdit, QFontDatabase, QToolTip, QPalette, QFont, QKeySequence,
     QTextEdit, QTextFormat, QWidget, QSize, QPainter, Qt, QRect, pyqtSlot,
-    QApplication, QMimeData, QColor, QColorDialog, QTimer)
+    QApplication, QMimeData, QColor, QColorDialog, QTimer, pyqtSignal)
 
 from calibre import prepare_string_for_xml, xml_entity_to_unicode
 from calibre.gui2.tweak_book import tprefs, TOP
-from calibre.gui2.tweak_book.editor import SYNTAX_PROPERTY, SPELL_PROPERTY, SPELL_LOCALE_PROPERTY, store_locale
+from calibre.gui2.tweak_book.editor import (
+    SYNTAX_PROPERTY, SPELL_PROPERTY, SPELL_LOCALE_PROPERTY, store_locale, LINK_PROPERTY)
 from calibre.gui2.tweak_book.editor.themes import get_theme, theme_color, theme_format
 from calibre.gui2.tweak_book.editor.syntax.base import SyntaxHighlighter
 from calibre.gui2.tweak_book.editor.syntax.html import HTMLHighlighter, XMLHighlighter
@@ -129,6 +130,8 @@ class PlainTextEdit(QPlainTextEdit):
         return QPlainTextEdit.event(self, ev)
 
 class TextEdit(PlainTextEdit):
+
+    link_clicked = pyqtSignal(object)
 
     def __init__(self, parent=None, expected_geometry=(100, 50)):
         PlainTextEdit.__init__(self, parent)
@@ -617,6 +620,21 @@ class TextEdit(PlainTextEdit):
         QToolTip.hideText()
         ev.ignore()
     # }}}
+
+    def link_for_position(self, pos):
+        c = self.cursorForPosition(pos)
+        r = self.syntax_range_for_cursor(c)
+        if r is not None and r.format.property(LINK_PROPERTY).toBool():
+            return self.text_for_range(c.block(), r)
+
+    def mousePressEvent(self, ev):
+        if ev.modifiers() & Qt.CTRL:
+            url = self.link_for_position(ev.pos())
+            if url is not None:
+                ev.accept()
+                self.link_clicked.emit(url)
+                return
+        return PlainTextEdit.mousePressEvent(self, ev)
 
     def get_range_inside_tag(self):
         c = self.textCursor()

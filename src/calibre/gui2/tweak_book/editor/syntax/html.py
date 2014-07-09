@@ -16,7 +16,8 @@ from calibre.ebooks.oeb.polish.spell import html_spell_tags, xml_spell_tags
 from calibre.spell.dictionary import parse_lang_code
 from calibre.spell.break_iterator import split_into_words_and_positions
 from calibre.gui2.tweak_book import dictionaries, tprefs
-from calibre.gui2.tweak_book.editor import syntax_text_char_format, SPELL_PROPERTY, SPELL_LOCALE_PROPERTY, store_locale
+from calibre.gui2.tweak_book.editor import (
+    syntax_text_char_format, SPELL_PROPERTY, SPELL_LOCALE_PROPERTY, store_locale, LINK_PROPERTY)
 from calibre.gui2.tweak_book.editor.syntax.base import SyntaxHighlighter, run_loop
 from calibre.gui2.tweak_book.editor.syntax.css import (
     create_formats as create_css_formats, state_map as css_state_map, CSSState, CSSUserData)
@@ -428,6 +429,7 @@ def quoted_val(state, text, i, formats, user_data):
     pos = text.find(quote, i)
     if pos == -1:
         num = len(text) - i
+        is_link = False
     else:
         num = pos - i + 1
         state.parse = IN_OPENING_TAG
@@ -437,6 +439,10 @@ def quoted_val(state, text, i, formats, user_data):
             except ValueError:
                 pass
         add_attr_data(user_data, ATTR_VALUE, ATTR_END, i + num)
+        is_link = state.attribute_name in {'href', 'src'}
+
+    if is_link:
+        return [(num - 1, formats['link']), (1, formats['string'])]
     return [(num, formats['string'])]
 
 def closing_tag(state, text, i, formats, user_data):
@@ -502,6 +508,7 @@ def create_formats(highlighter, add_css=True):
         'preproc': t['PreProc'],
         'nbsp': t['SpecialCharacter'],
         'spell': t['SpellError'],
+        'link': t['Link'],
     }
     for name, msg in {
             '<': _('An unescaped < is not allowed. Replace it with &lt;'),
@@ -520,6 +527,8 @@ def create_formats(highlighter, add_css=True):
     if add_css:
         formats['css_sub_formats'] = create_css_formats(highlighter)
     formats['spell'].setProperty(SPELL_PROPERTY, True)
+    formats['link'].setProperty(LINK_PROPERTY, True)
+    formats['link'].setToolTip(_('Hold down the Ctrl key and click to open this link'))
     return formats
 
 
