@@ -984,7 +984,7 @@ class BooksModel(QAbstractTableModel):  # {{{
                 val = None
         elif typ == 'datetime':
             val = value
-            if val.isNull():
+            if val is None:
                 val = None
             else:
                 if not val.isValid():
@@ -1087,11 +1087,11 @@ class BooksModel(QAbstractTableModel):  # {{{
                         books_to_refresh |= self.db.set_series(id, val,
                                                     allow_case_change=True)
             elif column == 'timestamp':
-                if val.isNull() or not val.isValid():
+                if val is None or not val.isValid():
                     return False
                 self.db.set_timestamp(id, qt_to_dt(val, as_utc=False))
             elif column == 'pubdate':
-                if val.isNull() or not val.isValid():
+                if val is None or not val.isValid():
                     return False
                 self.db.set_pubdate(id, qt_to_dt(val, as_utc=False))
             elif column == 'languages':
