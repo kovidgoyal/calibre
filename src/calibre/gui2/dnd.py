@@ -131,7 +131,9 @@ def data_as_string(f, md):
     return raw
 
 def path_from_qurl(qurl):
-    raw = bytes(bytearray(qurl.encodedPath()))
+    raw = bytes(qurl.toEncoded(
+        QUrl.PreferLocalFile | QUrl.RemoveScheme | QUrl.RemovePassword | QUrl.RemoveUserInfo |
+        QUrl.RemovePort | QUrl.RemoveAuthority | QUrl.RemoveQuery | QUrl.RemoveFragment))
     return urllib.unquote(raw).decode('utf-8')
 
 def dnd_has_extension(md, extensions):
