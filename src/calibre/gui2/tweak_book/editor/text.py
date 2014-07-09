@@ -625,7 +625,7 @@ class TextEdit(PlainTextEdit):
     def link_for_position(self, pos):
         c = self.cursorForPosition(pos)
         r = self.syntax_range_for_cursor(c)
-        if r is not None and r.format.property(LINK_PROPERTY).toBool():
+        if r is not None and r.format.property(LINK_PROPERTY):
             return self.text_for_range(c.block(), r)
 
     def mousePressEvent(self, ev):
