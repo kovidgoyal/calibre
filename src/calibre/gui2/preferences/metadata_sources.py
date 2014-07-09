@@ -58,7 +58,7 @@ class SourcesModel(QAbstractTableModel):  # {{{
             return None
         col = index.column()
 
-        if role == Qt.DisplayRole:
+        if role in (Qt.DisplayRole, Qt.EditRole):
             if col == 0:
                 return plugin.name
             elif col == 1:
@@ -99,8 +99,11 @@ class SourcesModel(QAbstractTableModel):  # {{{
             self.enabled_overrides[plugin] = int(val)
             ret = True
         if col == 1 and role == Qt.EditRole:
-            self.cover_overrides[plugin] = int(val)
-            ret = True
+            try:
+                self.cover_overrides[plugin] = max(1, int(val))
+                ret = True
+            except (ValueError, TypeError):
+                pass
         if ret:
             self.dataChanged.emit(index, index)
         return ret
