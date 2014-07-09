@@ -963,7 +963,6 @@ class Boss(QObject):
                     raise
                 self.apply_container_update_to_gui()
 
-    @in_thread_job
     def link_clicked(self, name, anchor):
         if not name:
             return
@@ -979,8 +978,12 @@ class Boss(QObject):
                     ' the Table of Contents, you may'
                     ' need to refresh it by right-clicking and choosing "Refresh".') % name, show=True)
             syntax = syntax_from_mime(name, mt)
+            if not syntax:
+                return error_dialog(
+                    self.gui, _('Unsupported file format'),
+                    _('Editing files of type %s is not supported' % mt), show=True)
             editor = self.edit_file(name, syntax)
-        if anchor:
+        if anchor and editor is not None:
             editor.go_to_anchor(anchor)
 
     @in_thread_job

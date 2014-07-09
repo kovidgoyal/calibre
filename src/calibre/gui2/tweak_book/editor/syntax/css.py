@@ -10,7 +10,7 @@ import re
 
 from PyQt4.Qt import QTextBlockUserData
 
-from calibre.gui2.tweak_book.editor import syntax_text_char_format
+from calibre.gui2.tweak_book.editor import syntax_text_char_format, LINK_PROPERTY
 from calibre.gui2.tweak_book.editor.syntax.base import SyntaxHighlighter
 
 space_pat = re.compile(r'[ \n\t\r\f]+')
@@ -24,8 +24,10 @@ sheet_tokens = [(re.compile(k), v, n) for k, v, n in [
     (r'[~\^\*!%&\[\]\(\)<>\|+=@:;,./?-]', 'operator', 'operator'),
 ]]
 
+URL_TOKEN = 'url'
+
 content_tokens = [(re.compile(k), v, n) for k, v, n in [
-    (r'url\(.*?\)', 'string', 'url'),
+    (r'url\(.*?\)', 'string', URL_TOKEN),
     (r'@\S+', 'preproc', 'at-rule'),
     (r'(azimuth|background-attachment|background-color|'
     r'background-image|background-position|background-repeat|'
@@ -211,6 +213,14 @@ def content(state, text, i, formats, user_data):
     for token, fmt, name in content_tokens:
         m = token.match(text, i)
         if m is not None:
+            if name is URL_TOKEN:
+                url = m.group()
+                prefix, main, suffix = url[:4], url[4:-1], url[-1]
+                if len(main) > 1 and main[0] in ('"', "'") and main[0] == main[-1]:
+                    prefix += main[0]
+                    suffix = main[-1] + suffix
+                    main = main[1:-1]
+                return [(len(prefix), formats[fmt]), (len(main), formats['link']), (len(suffix), formats[fmt])]
             return [(len(m.group()), formats[fmt])]
 
     return [(len(text) - i, formats['unknown-normal'])]
@@ -262,6 +272,7 @@ def create_formats(highlighter):
         'class_selector': theme['Special'],
         'pseudo_selector': theme['Special'],
         'tag': theme['Identifier'],
+        'link': theme['Link'],
     }
     for name, msg in {
         'unknown-normal': _('Invalid text'),
@@ -269,6 +280,8 @@ def create_formats(highlighter):
     }.iteritems():
         f = formats[name] = syntax_text_char_format(formats['error'])
         f.setToolTip(msg)
+    formats['link'].setToolTip(_('Hold down the Ctrl key and click to open this link'))
+    formats['link'].setProperty(LINK_PROPERTY, True)
     return formats
 
 
