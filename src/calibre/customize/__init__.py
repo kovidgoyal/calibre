@@ -741,3 +741,8 @@ class ViewerPlugin(Plugin):  # {{{
         pass
 
 # }}}
+
+class EditBookToolPlugin(Plugin):  # {{{
+    pass
+# }}}
+
