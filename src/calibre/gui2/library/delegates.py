@@ -138,6 +138,8 @@ class PubDateDelegate(QStyledItemDelegate):  # {{{
         val = index.data(Qt.EditRole)
         if is_date_undefined(val):
             val = QDate(2000, 1, 1)
+        if isinstance(val, QDateTime):
+            val = val.date()
         editor.setDate(val)
 
 # }}}
