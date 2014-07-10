@@ -4,11 +4,11 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 ''' Post installation script for linux '''
 
 import sys, os, cPickle, textwrap, stat, errno
-from subprocess import check_call
+from subprocess import check_call, check_output
 from functools import partial
 
 from calibre import __appname__, prints, guess_type
-from calibre.constants import islinux, isnetbsd, isbsd
+from calibre.constants import islinux, isbsd
 from calibre.customize.ui import all_input_formats
 from calibre.ptempfile import TemporaryDirectory
 from calibre import CurrentDir
@@ -161,6 +161,8 @@ if mimetype_icons and raw_input('Remove the ebook format icons? [y/n]:').lower()
 '''
 
 # }}}
+
+# Completion {{{
 
 class ZshCompleter(object):  # {{{
 
@@ -434,6 +436,154 @@ class ZshCompleter(object):  # {{{
                 f.write('esac\n')
 # }}}
 
+def get_bash_completion_path(root, share, info):
+    if root == '/usr':
+        # Try to get the system bash completion dir since we are installing to
+        # /usr
+        try:
+            path = check_output('pkg-config --variable=completionsdir bash-completion'.split()).strip().partition(os.pathsep)[0]
+        except Exception:
+            info('Failed to find directory to install bash completions, skipping.')
+            return None
+        else:
+            if os.path.exists(path):
+                return os.path.join(path, 'calibre')
+    else:
+        # Use the default bash-completion dir under staging_share
+        return os.path.join(share, 'bash-completion', 'completions', 'calibre')
+
+def write_completion(bash_comp_dest, zsh):
+    from calibre.ebooks.metadata.cli import option_parser as metaop, filetypes as meta_filetypes
+    from calibre.ebooks.lrf.lrfparser import option_parser as lrf2lrsop
+    from calibre.gui2.lrf_renderer.main import option_parser as lrfviewerop
+    from calibre.gui2.viewer.main import option_parser as viewer_op
+    from calibre.gui2.tweak_book.main import option_parser as tweak_op
+    from calibre.ebooks.metadata.sources.cli import option_parser as fem_op
+    from calibre.gui2.main import option_parser as guiop
+    from calibre.utils.smtp import option_parser as smtp_op
+    from calibre.library.server.main import option_parser as serv_op
+    from calibre.ebooks.oeb.polish.main import option_parser as polish_op, SUPPORTED
+    from calibre.ebooks.oeb.polish.import_book import IMPORTABLE
+    from calibre.debug import option_parser as debug_op
+    from calibre.ebooks import BOOK_EXTENSIONS
+    from calibre.customize.ui import available_input_formats
+    input_formats = sorted(all_input_formats())
+    tweak_formats = sorted(x.lower() for x in SUPPORTED|IMPORTABLE)
+
+    if bash_comp_dest and not os.path.exists(os.path.dirname(bash_comp_dest)):
+        os.makedirs(os.path.dirname(bash_comp_dest))
+
+    complete = 'calibre-complete'
+    if getattr(sys, 'frozen_path', None):
+        complete = os.path.join(getattr(sys, 'frozen_path'), complete)
+
+    with open(bash_comp_dest or os.devnull, 'wb') as f:
+        def o_and_e(*args, **kwargs):
+            f.write(opts_and_exts(*args, **kwargs))
+            zsh.opts_and_exts(*args, **kwargs)
+        def o_and_w(*args, **kwargs):
+            f.write(opts_and_words(*args, **kwargs))
+            zsh.opts_and_words(*args, **kwargs)
+
+        f.write('# calibre Bash Shell Completion\n')
+        o_and_e('calibre', guiop, BOOK_EXTENSIONS)
+        o_and_e('lrf2lrs', lrf2lrsop, ['lrf'], file_map={'--output':['lrs']})
+        o_and_e('ebook-meta', metaop,
+                list(meta_filetypes()), cover_opts=['--cover', '-c'],
+                opf_opts=['--to-opf', '--from-opf'])
+        o_and_e('ebook-polish', polish_op,
+                [x.lower() for x in SUPPORTED], cover_opts=['--cover', '-c'],
+                opf_opts=['--opf', '-o'])
+        o_and_e('lrfviewer', lrfviewerop, ['lrf'])
+        o_and_e('ebook-viewer', viewer_op, input_formats)
+        o_and_e('ebook-edit', tweak_op, tweak_formats)
+        o_and_w('fetch-ebook-metadata', fem_op, [])
+        o_and_w('calibre-smtp', smtp_op, [])
+        o_and_w('calibre-server', serv_op, [])
+        o_and_e('calibre-debug', debug_op, ['py', 'recipe', 'mobi', 'azw', 'azw3', 'docx'], file_map={
+            '--tweak-book':['epub', 'azw3', 'mobi'],
+            '--subset-font':['ttf', 'otf'],
+            '--exec-file':['py', 'recipe'],
+            '--add-simple-plugin':['py'],
+            '--inspect-mobi':['mobi', 'azw', 'azw3'],
+            '--viewer':list(available_input_formats()),
+        })
+        f.write(textwrap.dedent('''
+        _ebook_device_ls()
+        {
+        local pattern search listing prefix
+        pattern="$1"
+        search="$1"
+        if [[ -n "{$pattern}" ]]; then
+            if [[ "${pattern:(-1)}" == "/" ]]; then
+            pattern=""
+            else
+            pattern="$(basename ${pattern} 2> /dev/null)"
+            search="$(dirname ${search} 2> /dev/null)"
+            fi
+        fi
+
+        if [[  "x${search}" == "x" || "x${search}" == "x." ]]; then
+            search="/"
+        fi
+
+        listing="$(ebook-device ls ${search} 2>/dev/null)"
+
+        prefix="${search}"
+        if [[ "x${prefix:(-1)}" != "x/" ]]; then
+            prefix="${prefix}/"
+        fi
+
+        echo $(compgen -P "${prefix}" -W "${listing}" "${pattern}")
+        }
+
+        _ebook_device()
+        {
+        local cur prev
+        cur="${COMP_WORDS[COMP_CWORD]}"
+        prev="${COMP_WORDS[COMP_CWORD-1]}"
+        COMPREPLY=()
+        case "${prev}" in
+            ls|rm|mkdir|touch|cat )
+                COMPREPLY=( $(_ebook_device_ls "${cur}") )
+                return 0
+                ;;
+            cp )
+                if [[ ${cur} == dev:* ]]; then
+                COMPREPLY=( $(_ebook_device_ls "${cur:7}") )
+                return 0
+                else
+                _filedir
+                return 0
+                fi
+                ;;
+            dev )
+                COMPREPLY=( $(compgen -W "cp ls rm mkdir touch cat info books df" "${cur}") )
+                return 0
+                ;;
+            * )
+                if [[ ${cur} == dev:* ]]; then
+                COMPREPLY=( $(_ebook_device_ls "${cur:7}") )
+                return 0
+                else
+                if [[ ${prev} == dev:* ]]; then
+                    _filedir
+                    return 0
+                else
+                    COMPREPLY=( $(compgen -W "dev:" "${cur}") )
+                    return 0
+                fi
+                return 0
+                fi
+            ;;
+        esac
+        }
+        complete -o nospace  -F _ebook_device ebook-device
+
+        complete -o nospace -C %s ebook-convert
+        ''')%complete)
+# }}}
+
 class PostInstall:
 
     def task_failed(self, msg):
@@ -539,151 +689,15 @@ class PostInstall:
     def setup_completion(self):  # {{{
         try:
             self.info('Setting up command-line completion...')
-            from calibre.ebooks.metadata.cli import option_parser as metaop, filetypes as meta_filetypes
-            from calibre.ebooks.lrf.lrfparser import option_parser as lrf2lrsop
-            from calibre.gui2.lrf_renderer.main import option_parser as lrfviewerop
-            from calibre.gui2.viewer.main import option_parser as viewer_op
-            from calibre.gui2.tweak_book.main import option_parser as tweak_op
-            from calibre.ebooks.metadata.sources.cli import option_parser as fem_op
-            from calibre.gui2.main import option_parser as guiop
-            from calibre.utils.smtp import option_parser as smtp_op
-            from calibre.library.server.main import option_parser as serv_op
-            from calibre.ebooks.oeb.polish.main import option_parser as polish_op, SUPPORTED
-            from calibre.ebooks.oeb.polish.import_book import IMPORTABLE
-            from calibre.debug import option_parser as debug_op
-            from calibre.ebooks import BOOK_EXTENSIONS
-            from calibre.customize.ui import available_input_formats
-            input_formats = sorted(all_input_formats())
-            tweak_formats = sorted(x.lower() for x in SUPPORTED|IMPORTABLE)
             zsh = ZshCompleter(self.opts)
-            bc = os.path.join(os.path.dirname(self.opts.staging_sharedir),
-                'bash-completion')
-            if os.path.exists(bc):
-                f = os.path.join(bc, 'calibre')
-            else:
-                if isnetbsd:
-                    f = os.path.join(self.opts.staging_root, 'share/bash_completion.d/calibre')
-                else:
-                    f = os.path.join(self.opts.staging_etc, 'bash_completion.d/calibre')
-            if not os.path.exists(os.path.dirname(f)):
-                os.makedirs(os.path.dirname(f))
-            bash_comp_dest, zsh_comp_dest = f, None
             if zsh.dest:
                 self.info('Installing zsh completion to:', zsh.dest)
                 self.manifest.append(zsh.dest)
-                zsh_comp_dest = zsh.dest
-            complete = 'calibre-complete'
-            if getattr(sys, 'frozen_path', None):
-                complete = os.path.join(getattr(sys, 'frozen_path'), complete)
-
-            self.info('Installing bash completion to', f)
-            with open(f, 'wb') as f:
-                def o_and_e(*args, **kwargs):
-                    f.write(opts_and_exts(*args, **kwargs))
-                    zsh.opts_and_exts(*args, **kwargs)
-                def o_and_w(*args, **kwargs):
-                    f.write(opts_and_words(*args, **kwargs))
-                    zsh.opts_and_words(*args, **kwargs)
-
-                f.write('# calibre Bash Shell Completion\n')
-                o_and_e('calibre', guiop, BOOK_EXTENSIONS)
-                o_and_e('lrf2lrs', lrf2lrsop, ['lrf'], file_map={'--output':['lrs']})
-                o_and_e('ebook-meta', metaop,
-                        list(meta_filetypes()), cover_opts=['--cover', '-c'],
-                        opf_opts=['--to-opf', '--from-opf'])
-                o_and_e('ebook-polish', polish_op,
-                        [x.lower() for x in SUPPORTED], cover_opts=['--cover', '-c'],
-                        opf_opts=['--opf', '-o'])
-                o_and_e('lrfviewer', lrfviewerop, ['lrf'])
-                o_and_e('ebook-viewer', viewer_op, input_formats)
-                o_and_e('ebook-edit', tweak_op, tweak_formats)
-                o_and_w('fetch-ebook-metadata', fem_op, [])
-                o_and_w('calibre-smtp', smtp_op, [])
-                o_and_w('calibre-server', serv_op, [])
-                o_and_e('calibre-debug', debug_op, ['py', 'recipe', 'mobi', 'azw', 'azw3', 'docx'], file_map={
-                    '--tweak-book':['epub', 'azw3', 'mobi'],
-                    '--subset-font':['ttf', 'otf'],
-                    '--exec-file':['py', 'recipe'],
-                    '--add-simple-plugin':['py'],
-                    '--inspect-mobi':['mobi', 'azw', 'azw3'],
-                    '--viewer':list(available_input_formats()),
-                })
-                f.write(textwrap.dedent('''
-                _ebook_device_ls()
-                {
-                local pattern search listing prefix
-                pattern="$1"
-                search="$1"
-                if [[ -n "{$pattern}" ]]; then
-                    if [[ "${pattern:(-1)}" == "/" ]]; then
-                    pattern=""
-                    else
-                    pattern="$(basename ${pattern} 2> /dev/null)"
-                    search="$(dirname ${search} 2> /dev/null)"
-                    fi
-                fi
-
-                if [[  "x${search}" == "x" || "x${search}" == "x." ]]; then
-                    search="/"
-                fi
-
-                listing="$(ebook-device ls ${search} 2>/dev/null)"
-
-                prefix="${search}"
-                if [[ "x${prefix:(-1)}" != "x/" ]]; then
-                    prefix="${prefix}/"
-                fi
-
-                echo $(compgen -P "${prefix}" -W "${listing}" "${pattern}")
-                }
-
-                _ebook_device()
-                {
-                local cur prev
-                cur="${COMP_WORDS[COMP_CWORD]}"
-                prev="${COMP_WORDS[COMP_CWORD-1]}"
-                COMPREPLY=()
-                case "${prev}" in
-                    ls|rm|mkdir|touch|cat )
-                        COMPREPLY=( $(_ebook_device_ls "${cur}") )
-                        return 0
-                        ;;
-                    cp )
-                        if [[ ${cur} == dev:* ]]; then
-                        COMPREPLY=( $(_ebook_device_ls "${cur:7}") )
-                        return 0
-                        else
-                        _filedir
-                        return 0
-                        fi
-                        ;;
-                    dev )
-                        COMPREPLY=( $(compgen -W "cp ls rm mkdir touch cat info books df" "${cur}") )
-                        return 0
-                        ;;
-                    * )
-                        if [[ ${cur} == dev:* ]]; then
-                        COMPREPLY=( $(_ebook_device_ls "${cur:7}") )
-                        return 0
-                        else
-                        if [[ ${prev} == dev:* ]]; then
-                            _filedir
-                            return 0
-                        else
-                            COMPREPLY=( $(compgen -W "dev:" "${cur}") )
-                            return 0
-                        fi
-                        return 0
-                        fi
-                    ;;
-                esac
-                }
-                complete -o nospace  -F _ebook_device ebook-device
-
-                complete -o nospace -C %s ebook-convert
-                ''')%complete)
-            zsh.write()
-            self.manifest.extend((bash_comp_dest, zsh_comp_dest))
+            bash_comp_dest = get_bash_completion_path(self.opts.staging_root, os.path.dirname(self.opts.staging_sharedir), self.info)
+            if bash_comp_dest is not None:
+                self.info('Installing bash completion to:', bash_comp_dest)
+                self.manifest.append(bash_comp_dest)
+            write_completion(bash_comp_dest, zsh)
         except TypeError as err:
             if 'resolve_entities' in str(err):
                 print 'You need python-lxml >= 2.0.5 for calibre'
@@ -692,6 +706,9 @@ class PostInstall:
         except EnvironmentError as e:
             if e.errno == errno.EACCES:
                 self.warning('Failed to setup completion, permission denied')
+            if self.opts.fatal_errors:
+                raise
+            self.task_failed('Setting up completion failed')
         except:
             if self.opts.fatal_errors:
                 raise
