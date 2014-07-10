@@ -17,7 +17,6 @@ except ImportError:
 from lxml import html, etree
 
 from calibre import (xml_entity_to_unicode, entity_to_unicode)
-from calibre.utils.filenames import ascii_filename
 from calibre.utils.cleantext import clean_ascii_chars
 from calibre.ebooks import DRMError, unit_convert
 from calibre.ebooks.chardet import ENCODING_PATS
@@ -265,12 +264,7 @@ class MobiReader(object):
             self.read_embedded_metadata(root, metadata_elems[0], guide)
         for elem in guides + metadata_elems:
             elem.getparent().remove(elem)
-        fname = self.name.encode('ascii', 'replace')
-        fname = re.sub(r'[\x08\x15\0]+', '', fname)
-        if not fname:
-            fname = 'dummy'
-        htmlfile = os.path.join(output_dir,
-            ascii_filename(fname) + '.html')
+        htmlfile = os.path.join(output_dir, 'index.html')
         try:
             for ref in guide.xpath('descendant::reference'):
                 if 'href' in ref.attrib:
