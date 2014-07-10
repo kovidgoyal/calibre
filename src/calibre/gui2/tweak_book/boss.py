@@ -804,7 +804,7 @@ class Boss(QObject):
             target = current_container().href_to_name(url, name)
         frag = url.partition('#')[-1]
         if current_container().has_name(target):
-            self.link_clicked(target, frag)
+            self.link_clicked(target, frag, show_anchor_not_found=True)
         else:
             purl = urlparse(url)
             if purl.scheme not in {'', 'file'}:
@@ -972,7 +972,7 @@ class Boss(QObject):
                     raise
                 self.apply_container_update_to_gui()
 
-    def link_clicked(self, name, anchor):
+    def link_clicked(self, name, anchor, show_anchor_not_found=False):
         if not name:
             return
         if name in editors:
@@ -993,7 +993,9 @@ class Boss(QObject):
                     _('Editing files of type %s is not supported' % mt), show=True)
             editor = self.edit_file(name, syntax)
         if anchor and editor is not None:
-            editor.go_to_anchor(anchor)
+            if not editor.go_to_anchor(anchor) and show_anchor_not_found:
+                error_dialog(self.gui, _('Not found'), _(
+                    'The anchor %s was not found in this file') % anchor, show=True)
 
     @in_thread_job
     def check_item_activated(self, item):
