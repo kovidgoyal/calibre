@@ -70,9 +70,14 @@ def in_thread_job(func):
             return func(*args, **kwargs)
     return ans
 
+_boss = None
+def get_boss():
+    return _boss
+
 class Boss(QObject):
 
     def __init__(self, parent, notify=None):
+        global _boss
         QObject.__init__(self, parent)
         self.global_undo = GlobalUndoHistory()
         self.container_count = 0
@@ -82,6 +87,7 @@ class Boss(QObject):
         self.doing_terminal_save = False
         self.ignore_preview_to_editor_sync = False
         setup_cssutils_serialization()
+        _boss = self
 
     def __call__(self, gui):
         self.gui = gui
