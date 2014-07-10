@@ -52,7 +52,7 @@ TagStart = namedtuple('TagStart', 'offset prefix name closing is_start')
 TagEnd = namedtuple('TagEnd', 'offset self_closing is_start')
 Attr = namedtuple('Attr', 'offset type data')
 
-LINK_ATTRS = {'href', 'src', 'poster', 'xlink:href'}
+LINK_ATTRS = frozenset(('href', 'src', 'poster', 'xlink:href'))
 
 do_spell_check = False
 
