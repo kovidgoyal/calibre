@@ -272,7 +272,6 @@ def create_formats(highlighter):
         'class_selector': theme['Special'],
         'pseudo_selector': theme['Special'],
         'tag': theme['Identifier'],
-        'link': theme['Link'],
     }
     for name, msg in {
         'unknown-normal': _('Invalid text'),
@@ -280,6 +279,7 @@ def create_formats(highlighter):
     }.iteritems():
         f = formats[name] = syntax_text_char_format(formats['error'])
         f.setToolTip(msg)
+    formats['link'] = syntax_text_char_format(theme['Link'])
     formats['link'].setToolTip(_('Hold down the Ctrl key and click to open this link'))
     formats['link'].setProperty(LINK_PROPERTY, True)
     return formats

@@ -508,7 +508,6 @@ def create_formats(highlighter, add_css=True):
         'preproc': t['PreProc'],
         'nbsp': t['SpecialCharacter'],
         'spell': t['SpellError'],
-        'link': t['Link'],
     }
     for name, msg in {
             '<': _('An unescaped < is not allowed. Replace it with &lt;'),
@@ -527,6 +526,7 @@ def create_formats(highlighter, add_css=True):
     if add_css:
         formats['css_sub_formats'] = create_css_formats(highlighter)
     formats['spell'].setProperty(SPELL_PROPERTY, True)
+    formats['link'] = syntax_text_char_format(t['Link'])
     formats['link'].setProperty(LINK_PROPERTY, True)
     formats['link'].setToolTip(_('Hold down the Ctrl key and click to open this link'))
     return formats
