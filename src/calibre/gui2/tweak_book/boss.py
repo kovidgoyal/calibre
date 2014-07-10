@@ -801,7 +801,7 @@ class Boss(QObject):
             if purl.scheme not in {'', 'file'}:
                 open_url(QUrl(url))
             else:
-                error_dialog(self, _('Not found'), _(
+                error_dialog(self.gui, _('Not found'), _(
                     'No file with the name %s was found in the book') % target, show=True)
 
     def saved_searches(self):
