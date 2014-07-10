@@ -52,6 +52,8 @@ TagStart = namedtuple('TagStart', 'offset prefix name closing is_start')
 TagEnd = namedtuple('TagEnd', 'offset self_closing is_start')
 Attr = namedtuple('Attr', 'offset type data')
 
+LINK_ATTRS = {'href', 'src', 'poster', 'xlink:href'}
+
 do_spell_check = False
 
 def refresh_spell_check_status():
@@ -439,7 +441,7 @@ def quoted_val(state, text, i, formats, user_data):
             except ValueError:
                 pass
         add_attr_data(user_data, ATTR_VALUE, ATTR_END, i + num)
-        is_link = state.attribute_name in {'href', 'src'}
+        is_link = state.attribute_name in LINK_ATTRS
 
     if is_link:
         return [(num - 1, formats['link']), (1, formats['string'])]
