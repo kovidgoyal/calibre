@@ -217,7 +217,7 @@
           <string> px</string>
          </property>
          <property name="minimum">
-          <number>-5</number>
+          <number>-15</number>
          </property>
         </widget>
        </item>
