@@ -443,11 +443,10 @@ def get_bash_completion_path(root, share, info):
         try:
             path = check_output('pkg-config --variable=completionsdir bash-completion'.split()).strip().partition(os.pathsep)[0]
         except Exception:
-            info('Failed to find directory to install bash completions, skipping.')
-            return None
-        else:
-            if os.path.exists(path):
-                return os.path.join(path, 'calibre')
+            info('Failed to find directory to install bash completions, using default.')
+            path = '/usr/share/bash-completion/completions'
+        if path and os.path.exists(path) and os.path.isdir(path):
+            return os.path.join(path, 'calibre')
     else:
         # Use the default bash-completion dir under staging_share
         return os.path.join(share, 'bash-completion', 'completions', 'calibre')
