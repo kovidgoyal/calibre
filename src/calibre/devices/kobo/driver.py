@@ -1256,7 +1256,7 @@ class KOBOTOUCH(KOBO):
     description = 'Communicate with the Kobo Touch, Glo, Mini and Aura HD ereaders. Based on the existing Kobo driver by %s.' % (KOBO.author)
 #    icon        = I('devices/kobotouch.jpg')
 
-    supported_dbversion             = 98
+    supported_dbversion             = 105
     min_supported_dbversion         = 53
     min_dbversion_series            = 65
     min_dbversion_externalid        = 65
@@ -1265,7 +1265,7 @@ class KOBOTOUCH(KOBO):
     min_dbversion_activity          = 77
     min_dbversion_keywords          = 82
 
-    max_supported_fwversion         = (3, 4, 2)
+    max_supported_fwversion         = (3, 5, 1)
     min_fwversion_shelves           = (2, 0, 0)
     min_fwversion_images_on_sdcard  = (2, 4, 1)
     min_fwversion_images_tree       = (2, 9, 0)  # Cover images stored in tree under .kobo-images
@@ -1371,25 +1371,27 @@ class KOBOTOUCH(KOBO):
     BCD = [0x0110, 0x0326]
 
     # Image file name endings. Made up of: image size, min_dbversion, max_dbversion, isFullSize,
+    # Note: "200" has been used just as a much larger number than the current versions. It is just a lazy 
+    #    way of making it open ended.
     COVER_FILE_ENDINGS = {
-                          ' - N3_FULL.parsed':[(600,800),0, 99,True,],            # Used for screensaver, home screen
-                          ' - N3_LIBRARY_FULL.parsed':[(355,473),0, 99,False,],   # Used for Details screen before FW2.8.1, then for current book tile on home screen
-                          ' - N3_LIBRARY_GRID.parsed':[(149,198),0, 99,False,],   # Used for library lists
+                          ' - N3_FULL.parsed':[(600,800),0, 200,True,],            # Used for screensaver, home screen
+                          ' - N3_LIBRARY_FULL.parsed':[(355,473),0, 200,False,],   # Used for Details screen before FW2.8.1, then for current book tile on home screen
+                          ' - N3_LIBRARY_GRID.parsed':[(149,198),0, 200,False,],   # Used for library lists
                           ' - N3_LIBRARY_LIST.parsed':[(60,90),0, 53,False,],
-                          ' - AndroidBookLoadTablet_Aspect.parsed':[(355,473), 82, 99,False,],   # Used for Details screen from FW2.8.1
+                          ' - AndroidBookLoadTablet_Aspect.parsed':[(355,473), 82, 200,False,],   # Used for Details screen from FW2.8.1
 #                          ' - N3_LIBRARY_SHELF.parsed': [(40,60),0, 52,],
                           }
     GLO_COVER_FILE_ENDINGS = {      # Glo and Aura share resolution, so the image sizes should be the same.
-                          ' - N3_FULL.parsed':[(758,1024),0, 99,True,],           # Used for screensaver, home screen
-                          ' - N3_LIBRARY_FULL.parsed':[(355,479),0, 99,False,],   # Used for Details screen before FW2.8.1, then for current book tile on home screen
-                          ' - N3_LIBRARY_GRID.parsed':[(149,201),0, 99,False,],   # Used for library lists
-                          ' - AndroidBookLoadTablet_Aspect.parsed':[(355,479), 88, 99,False,],   # Used for Details screen from FW2.8.1
+                          ' - N3_FULL.parsed':[(758,1024),0, 200,True,],           # Used for screensaver, home screen
+                          ' - N3_LIBRARY_FULL.parsed':[(355,479),0, 200,False,],   # Used for Details screen before FW2.8.1, then for current book tile on home screen
+                          ' - N3_LIBRARY_GRID.parsed':[(149,201),0, 200,False,],   # Used for library lists
+                          ' - AndroidBookLoadTablet_Aspect.parsed':[(355,479), 88, 200,False,],   # Used for Details screen from FW2.8.1
                           }
     AURA_HD_COVER_FILE_ENDINGS = {
-                          ' - N3_FULL.parsed':        [(1080,1440), 0, 99,True,],  # Used for screensaver, home screen
-                          ' - N3_LIBRARY_FULL.parsed':[(355,  471), 0, 99,False,],  # Used for Details screen before FW2.8.1, then for current book tile on home screen
-                          ' - N3_LIBRARY_GRID.parsed':[(149,  198), 0, 99,False,],  # Used for library lists
-                          ' - AndroidBookLoadTablet_Aspect.parsed':[(355,  471), 88, 99,False,],   # Used for Details screen from FW2.8.1
+                          ' - N3_FULL.parsed':        [(1080,1440), 0, 200,True,],  # Used for screensaver, home screen
+                          ' - N3_LIBRARY_FULL.parsed':[(355,  471), 0, 200,False,],  # Used for Details screen before FW2.8.1, then for current book tile on home screen
+                          ' - N3_LIBRARY_GRID.parsed':[(149,  198), 0, 200,False,],  # Used for library lists
+                          ' - AndroidBookLoadTablet_Aspect.parsed':[(355,  471), 88, 200,False,],   # Used for Details screen from FW2.8.1
                           }
     # Following are the sizes used with pre2.1.4 firmware
 #    COVER_FILE_ENDINGS = {
