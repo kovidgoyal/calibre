@@ -798,7 +798,10 @@ class Boss(QObject):
     def editor_link_clicked(self, url):
         ed = self.gui.central.current_editor
         name = editor_name(ed)
-        target = current_container().href_to_name(url, name)
+        if url.startswith('#'):
+            target = name
+        else:
+            target = current_container().href_to_name(url, name)
         frag = url.partition('#')[-1]
         if current_container().has_name(target):
             self.link_clicked(target, frag)
