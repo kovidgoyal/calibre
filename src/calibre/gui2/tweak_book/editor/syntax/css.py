@@ -10,6 +10,7 @@ import re
 
 from PyQt4.Qt import QTextBlockUserData
 
+from calibre.gui2.tweak_book import verify_link
 from calibre.gui2.tweak_book.editor import syntax_text_char_format, LINK_PROPERTY
 from calibre.gui2.tweak_book.editor.syntax.base import SyntaxHighlighter
 
@@ -158,9 +159,11 @@ class CSSUserData(QTextBlockUserData):
     def __init__(self):
         QTextBlockUserData.__init__(self)
         self.state = CSSState()
+        self.doc_name = None
 
-    def clear(self, state=None):
+    def clear(self, state=None, doc_name=None):
         self.state = CSSState() if state is None else state
+        self.doc_name = doc_name
 
 def normal(state, text, i, formats, user_data):
     ' The normal state (outside content blocks {})'
@@ -220,7 +223,8 @@ def content(state, text, i, formats, user_data):
                     prefix += main[0]
                     suffix = main[-1] + suffix
                     main = main[1:-1]
-                return [(len(prefix), formats[fmt]), (len(main), formats['link']), (len(suffix), formats[fmt])]
+                    h = 'bad_link' if verify_link(main, user_data.doc_name) is False else 'link'
+                return [(len(prefix), formats[fmt]), (len(main), formats[h]), (len(suffix), formats[fmt])]
             return [(len(m.group()), formats[fmt])]
 
     return [(len(text) - i, formats['unknown-normal'])]
@@ -282,6 +286,9 @@ def create_formats(highlighter):
     formats['link'] = syntax_text_char_format(theme['Link'])
     formats['link'].setToolTip(_('Hold down the Ctrl key and click to open this link'))
     formats['link'].setProperty(LINK_PROPERTY, True)
+    formats['bad_link'] = syntax_text_char_format(theme['BadLink'])
+    formats['bad_link'].setProperty(LINK_PROPERTY, True)
+    formats['bad_link'].setToolTip(_('This link points to a file that is not present in the book'))
     return formats
 
 

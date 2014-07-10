@@ -107,3 +107,13 @@ def set_book_locale(lang):
         dictionaries.default_locale = dictionaries.ui_locale
     from calibre.gui2.tweak_book.editor.syntax.html import refresh_spell_check_status
     refresh_spell_check_status()
+
+def verify_link(url, name=None):
+    if _current_container is None or name is None:
+        return None
+    target = _current_container.href_to_name(url, name)
+    if _current_container.has_name(target):
+        return True
+    if url.partition(':')[0] in {'http', 'https', 'mailto'}:
+        return True
+    return False

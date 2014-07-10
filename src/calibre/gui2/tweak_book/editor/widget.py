@@ -17,7 +17,7 @@ from calibre import prints
 from calibre.constants import DEBUG
 from calibre.ebooks.chardet import replace_encoding_declarations
 from calibre.gui2 import error_dialog
-from calibre.gui2.tweak_book import actions, current_container, tprefs, dictionaries, editor_toolbar_actions
+from calibre.gui2.tweak_book import actions, current_container, tprefs, dictionaries, editor_toolbar_actions, editor_name
 from calibre.gui2.tweak_book.editor import SPELL_PROPERTY
 from calibre.gui2.tweak_book.editor.text import TextEdit
 from calibre.utils.icu import utf16_length
@@ -153,11 +153,11 @@ class Editor(QMainWindow):
                 self.data = ans
             return ans.encode('utf-8')
         def fset(self, val):
-            self.editor.load_text(val, syntax=self.syntax)
+            self.editor.load_text(val, syntax=self.syntax, doc_name=editor_name(self))
         return property(fget=fget, fset=fset)
 
     def init_from_template(self, template):
-        self.editor.load_text(template, syntax=self.syntax, process_template=True)
+        self.editor.load_text(template, syntax=self.syntax, process_template=True, doc_name=editor_name(self))
 
     def get_raw_data(self):
         # The EPUB spec requires NFC normalization, see section 1.3.6 of

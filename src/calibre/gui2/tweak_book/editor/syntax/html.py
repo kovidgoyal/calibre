@@ -15,7 +15,7 @@ from PyQt4.Qt import QFont, QTextBlockUserData, QTextCharFormat
 from calibre.ebooks.oeb.polish.spell import html_spell_tags, xml_spell_tags
 from calibre.spell.dictionary import parse_lang_code
 from calibre.spell.break_iterator import split_into_words_and_positions
-from calibre.gui2.tweak_book import dictionaries, tprefs
+from calibre.gui2.tweak_book import dictionaries, tprefs, verify_link
 from calibre.gui2.tweak_book.editor import (
     syntax_text_char_format, SPELL_PROPERTY, SPELL_LOCALE_PROPERTY, store_locale, LINK_PROPERTY)
 from calibre.gui2.tweak_book.editor.syntax.base import SyntaxHighlighter, run_loop
@@ -219,10 +219,12 @@ class HTMLUserData(QTextBlockUserData):
         self.attributes = []
         self.state = State()
         self.css_user_data = None
+        self.doc_name = None
 
-    def clear(self, state=None):
+    def clear(self, state=None, doc_name=None):
         self.tags, self.attributes = [], []
         self.state = State() if state is None else state
+        self.doc_name = doc_name
 
     @classmethod
     def tag_ok_for_spell(cls, name):
@@ -444,6 +446,8 @@ def quoted_val(state, text, i, formats, user_data):
         is_link = state.attribute_name in LINK_ATTRS
 
     if is_link:
+        if verify_link(text[i:i+num - 1], user_data.doc_name) is False:
+            return [(num - 1, formats['bad_link']), (1, formats['string'])]
         return [(num - 1, formats['link']), (1, formats['string'])]
     return [(num, formats['string'])]
 
@@ -531,6 +535,9 @@ def create_formats(highlighter, add_css=True):
     formats['link'] = syntax_text_char_format(t['Link'])
     formats['link'].setProperty(LINK_PROPERTY, True)
     formats['link'].setToolTip(_('Hold down the Ctrl key and click to open this link'))
+    formats['bad_link'] = syntax_text_char_format(t['BadLink'])
+    formats['bad_link'].setProperty(LINK_PROPERTY, True)
+    formats['bad_link'].setToolTip(_('This link points to a file that is not present in the book'))
     return formats
 
 

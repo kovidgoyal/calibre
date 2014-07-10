@@ -209,11 +209,11 @@ class TextEdit(PlainTextEdit):
         self.highlight_cursor_line()
     # }}}
 
-    def load_text(self, text, syntax='html', process_template=False):
+    def load_text(self, text, syntax='html', process_template=False, doc_name=None):
         self.syntax = syntax
         self.highlighter = get_highlighter(syntax)()
         self.highlighter.apply_theme(self.theme)
-        self.highlighter.set_document(self.document())
+        self.highlighter.set_document(self.document(), doc_name=doc_name)
         sclass = {'html':HTMLSmarts, 'xml':HTMLSmarts, 'css':CSSSmarts}.get(syntax, None)
         if sclass is not None:
             self.smarts = sclass(self)
