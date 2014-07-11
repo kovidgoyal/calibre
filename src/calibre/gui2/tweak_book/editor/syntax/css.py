@@ -217,6 +217,7 @@ def content(state, text, i, formats, user_data):
         m = token.match(text, i)
         if m is not None:
             if name is URL_TOKEN:
+                h = 'link'
                 url = m.group()
                 prefix, main, suffix = url[:4], url[4:-1], url[-1]
                 if len(main) > 1 and main[0] in ('"', "'") and main[0] == main[-1]:
