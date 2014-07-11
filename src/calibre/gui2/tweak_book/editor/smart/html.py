@@ -490,7 +490,7 @@ class HTMLSmarts(NullSmarts):
             tag = find_closest_containing_block_tag(block, offset, block_tag_names)
             if tag is None:
                 return error_dialog(editor, _('Not in a block tag'), _(
-                    'Cannot change text alignment as the cursor is not inside a block level tag, such as a <p> or <div> tag.'), show=True)
+                    'Cannot change text alignment as the cursor is not inside a block level tag, such as a &lt;p&gt; or &lt;div&gt; tag.'), show=True)
             tags = [tag]
         for tag in reversed(tags):
             set_style_property(tag, 'text-align', value, editor)
