@@ -24,12 +24,15 @@ class NOAA(BasicNewsRecipe):
     lang                   = 'en-US'
     language = 'en'
 
+    remove_tags        = [dict(name=['embed','object'])
+                         ,dict(name='div', attrs={'id':'leftNav'})
+                         ,dict(name='div', attrs={'id':'topNav'})
+                         ,dict(name='div', attrs={'class':'feedback_box'})
+                         ,dict(name='div', attrs={'id':'midBlock'})
+                         ,dict(name='div', attrs={'id':'footer'})
+                         ]
 
-
-    remove_tags        = [dict(name=['embed','object'])]
-    keep_only_tags     = [dict(name='div', attrs={'id':'contentArea'})]
-
-    feeds          = [(u'NOAA articles', u'http://www.rss.noaa.gov/noaarss.xml')]
+    feeds          = [(u'NOAA articles', u'http://www.noaa.gov/rss/noaarss.xml')]
 
     def preprocess_html(self, soup):
         soup.html['xml:lang'] = self.lang
@@ -39,4 +42,3 @@ class NOAA(BasicNewsRecipe):
         soup.head.insert(0,mlang)
         soup.head.insert(1,mcharset)
         return self.adeify_images(soup)
-
