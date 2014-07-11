@@ -55,6 +55,7 @@ class ColumnColor(object):  # {{{
         self.formatter = formatter
 
     def __call__(self, id_, key, fmt, db, color_cache, template_cache):
+        key += str(hash(fmt))
         if id_ in color_cache and key in color_cache[id_]:
             self.mi = None
             color = color_cache[id_][key]
