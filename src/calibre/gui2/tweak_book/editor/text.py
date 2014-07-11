@@ -224,7 +224,7 @@ class TextEdit(PlainTextEdit):
 
     def change_document_name(self, newname):
         self.highlighter.doc_name = newname
-        self.highlighter.rehighlight()  # Ensure links are checked w.r.t. to the new name correctly
+        self.highlighter.rehighlight()  # Ensure links are checked w.r.t. the new name correctly
 
     def replace_text(self, text):
         c = self.textCursor()
