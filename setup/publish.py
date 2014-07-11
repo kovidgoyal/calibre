@@ -84,6 +84,8 @@ class Manual(Command):
             subprocess.check_call(['sphinx-build2', '-b', 'html', '-t', 'online',
                                    '-d', '.build/doctrees', '.', '.build/html'])
             with self:
+                # This is needed as without it the ToC is doubled in EPUB and
+                # the both the ToC and the content is doubled in PDF
                 subprocess.check_call(['sphinx-build', '-b', 'myepub', '-d',
                                    '.build/doctrees', '.', '.build/epub'])
                 subprocess.check_call(['sphinx-build', '-b', 'mylatex', '-d',
