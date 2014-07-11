@@ -552,7 +552,8 @@ class Boss(QObject):
         self.set_modified()
         for oldname, newname in name_map.iteritems():
             if oldname in editors:
-                editors[newname] = editors.pop(oldname)
+                editors[newname] = ed = editors.pop(oldname)
+                ed.change_document_name(newname)
                 self.gui.central.rename_editor(editors[newname], newname)
             if self.gui.preview.current_name == oldname:
                 self.gui.preview.current_name = newname

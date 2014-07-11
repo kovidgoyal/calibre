@@ -159,6 +159,9 @@ class Editor(QMainWindow):
     def init_from_template(self, template):
         self.editor.load_text(template, syntax=self.syntax, process_template=True, doc_name=editor_name(self))
 
+    def change_document_name(self, newname):
+        self.editor.change_document_name(newname)
+
     def get_raw_data(self):
         # The EPUB spec requires NFC normalization, see section 1.3.6 of
         # http://www.idpf.org/epub/20/spec/OPS_2.0.1_draft.htm
