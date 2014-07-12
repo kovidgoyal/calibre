@@ -166,6 +166,7 @@ class TestICU(unittest.TestCase):
                 ('one', 'one-two one', 8),
                 ('one-two', 'one-two-three one-two', 14),
                 ('one', 'onet one', 5),
+                ('two', 'one-two two', 8),
                 ('i', 'i', 0),
                 ('i', 'six i', 4),
                 ('i', '', -1), ('', '', -1), ('', 'i', -1),

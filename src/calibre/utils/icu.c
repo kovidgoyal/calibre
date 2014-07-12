@@ -618,7 +618,8 @@ icu_BreakIterator_index(icu_BreakIterator *self, PyObject *args, PyObject *kwarg
         if (self->type == UBRK_WORD && ubrk_getRuleStatus(self->break_iterator) == UBRK_WORD_NONE) 
             continue;  // We are not at the start of a word
         if (self->text_len >= prev + sz && memcmp(self->text + prev, buf, sz * sizeof(UChar)) == 0) {
-            // Needle is present at text[prev:] we have to check if it is followed by a non-hyphen boundary
+            // Needle is present at text[prev:] we have to check if it is not surrounded by hyphen boundaries
+            if (prev > 0 && (self->text[prev-1] == 0x2d || self->text[prev-1] == 0x2010)) continue; // At a hyphen boundary
             if(
                 ubrk_isBoundary(self->break_iterator, prev + sz) &&
                 (self->text_len == prev + sz || (self->text[prev + sz] != 0x2d && self->text[prev + sz] != 0x2010))
