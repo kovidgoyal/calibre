@@ -376,16 +376,21 @@ class LineEdit(QLineEdit, LineEditECM):
 
 class EditWithComplete(EnComboBox):
 
-    def __init__(self, *args):
+    def __init__(self, *args, **kwargs):
         EnComboBox.__init__(self, *args)
-        self.setLineEdit(LineEdit(self, completer_widget=self))
+        self.setLineEdit(LineEdit(self, completer_widget=self, sort_func=kwargs.get('sort_func', sort_key)))
         self.setCompleter(None)
         self.eat_focus_out = True
         self.installEventFilter(self)
 
     # Interface {{{
     def showPopup(self):
-        self.lineEdit().complete(show_all=True)
+        orig = self.disable_popup
+        self.disable_popup = False
+        try:
+            self.lineEdit().complete(show_all=True)
+        finally:
+            self.disable_popup = orig
 
     def update_items_cache(self, complete_items):
         self.lineEdit().update_items_cache(complete_items)
@@ -412,7 +417,15 @@ class EditWithComplete(EnComboBox):
             self.lineEdit().all_items = val
         return property(fget=fget, fset=fset)
 
+    @dynamic_property
+    def disable_popup(self):
+        def fget(self):
+            return self.lineEdit().disable_popup
+        def fset(self, val):
+            self.lineEdit().disable_popup = bool(val)
+        return property(fget=fget, fset=fset)
     # }}}
+
     def text(self):
         return unicode(self.lineEdit().text())
 

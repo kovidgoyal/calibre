@@ -21,7 +21,7 @@ import regex
 from calibre import prepare_string_for_xml
 from calibre.gui2 import NONE, error_dialog, info_dialog, choose_files, choose_save_file
 from calibre.gui2.dialogs.message_box import MessageBox
-from calibre.gui2.widgets2 import HistoryLineEdit2
+from calibre.gui2.widgets2 import HistoryComboBox
 from calibre.gui2.tweak_book import tprefs, editors, current_container
 from calibre.gui2.tweak_book.widgets import Dialog, BusyCursor
 
@@ -37,19 +37,19 @@ class PushButton(QPushButton):
         QPushButton.__init__(self, text, parent)
         self.clicked.connect(lambda : parent.search_triggered.emit(action))
 
-class HistoryLineEdit(HistoryLineEdit2):
+class HistoryBox(HistoryComboBox):
 
     max_history_items = 100
     save_search = pyqtSignal()
     show_saved_searches = pyqtSignal()
 
     def __init__(self, parent, clear_msg):
-        HistoryLineEdit2.__init__(self, parent)
+        HistoryComboBox.__init__(self, parent)
         self.disable_popup = tprefs['disable_completion_popup_for_search']
         self.clear_msg = clear_msg
 
     def contextMenuEvent(self, event):
-        menu = self.createStandardContextMenu()
+        menu = self.lineEdit().createStandardContextMenu()
         menu.addSeparator()
         menu.addAction(self.clear_msg, self.clear_history)
         menu.addAction((_('Enable completion based on search history') if self.disable_popup else _(
@@ -179,18 +179,18 @@ class SearchWidget(QWidget):
 
         self.fl = fl = QLabel(_('&Find:'))
         fl.setAlignment(Qt.AlignRight | Qt.AlignCenter)
-        self.find_text = ft = HistoryLineEdit(self, _('Clear search history'))
+        self.find_text = ft = HistoryBox(self, _('Clear search history'))
         ft.save_search.connect(self.save_search)
         ft.show_saved_searches.connect(self.show_saved_searches)
         ft.initialize('tweak_book_find_edit')
-        ft.returnPressed.connect(lambda : self.search_triggered.emit('find'))
+        ft.lineEdit().returnPressed.connect(lambda : self.search_triggered.emit('find'))
         fl.setBuddy(ft)
         l.addWidget(fl, 0, 0)
         l.addWidget(ft, 0, 1)
 
         self.rl = rl = QLabel(_('&Replace:'))
         rl.setAlignment(Qt.AlignRight | Qt.AlignCenter)
-        self.replace_text = rt = HistoryLineEdit(self, _('Clear replace history'))
+        self.replace_text = rt = HistoryBox(self, _('Clear replace history'))
         rt.save_search.connect(self.save_search)
         rt.show_saved_searches.connect(self.show_saved_searches)
         rt.initialize('tweak_book_replace_edit')
