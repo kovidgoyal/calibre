@@ -157,9 +157,12 @@ class VMInstaller(Command):
 
     def run(self, opts):
         subprocess.call(['chmod', '-R', '+r', 'recipes'])
+        start_time = time.time()
         self.start_vm()
+        startup_time = time.time() - start_time
         start_time = time.time()
         self.run_vm_builder()
+        print ('Startup completed in %d seconds' % round(startup_time))
         print ('Build completed in %d seconds' % round(time.time() - start_time))
         if not opts.dont_shutdown:
             print ('Shutting down', self.VM_NAME)

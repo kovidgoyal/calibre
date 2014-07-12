@@ -282,7 +282,7 @@ class LinuxFreeze(Command):
             os.rename(dist, ans)
         else:
             start_time = time.time()
-            subprocess.check_call(['xz', '-f', '-9', dist])
+            subprocess.check_call(['xz', '--threads=0', '-f', '-9', dist])
             self.info('Compressed in %d seconds' % round(time.time() - start_time))
             os.rename(dist + '.xz', ans)
         self.info('Archive %s created: %.2f MB'%(
