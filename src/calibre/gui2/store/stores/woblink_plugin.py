@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import (unicode_literals, division, absolute_import, print_function)
-store_version = 8  # Needed for dynamic plugin loading
+store_version = 9  # Needed for dynamic plugin loading
 
 __license__ = 'GPL 3'
 __copyright__ = '2011-2014, Tomasz Długosz <tomek3d@gmail.com>'
@@ -31,7 +31,7 @@ import urllib
 def get_results(url, timeout):
     browser = Browser(default_timeout=timeout)
     browser.visit(url)
-    browser.wait_for_element('#nw_content_list')
+    browser.wait_for_element('#nw_content_main')
     return browser.html
     '''
 
@@ -56,7 +56,7 @@ class WoblinkStore(BasicStoreConfig, StorePlugin):
             d.exec_()
 
     def search(self, query, max_results=10, timeout=60):
-        url = 'http://woblink.com/katalog-ebooki?query=' + urllib.quote_plus(query.encode('utf-8'))
+        url = 'http://woblink.com/ebooki-kategorie?query=' + urllib.quote_plus(query.encode('utf-8'))
         if max_results > 10:
             if max_results > 20:
                 url += '&limit=30'
