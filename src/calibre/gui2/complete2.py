@@ -115,7 +115,14 @@ class Completer(QListView):  # {{{
             self.relayout_needed.emit()
 
     def item_entered(self, idx):
-        self.setCurrentIndex(idx)
+        if self.visualRect(idx).top() < self.viewport().rect().bottom() - 5:
+            # Prevent any bottom item in the list that is only partially
+            # visible from triggering setCurrentIndex()
+            self.entered.disconnect()
+            try:
+                self.setCurrentIndex(idx)
+            finally:
+                self.entered.connect(self.item_entered)
 
     def next_match(self, previous=False):
         c = self.currentIndex()
