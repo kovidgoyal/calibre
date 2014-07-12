@@ -1054,8 +1054,9 @@ def must_use_qt():
     plugin, so that the X server does not need to be running. '''
     global gui_thread, _store_app
     if _store_app is None and QApplication.instance() is None:
+        args = sys.argv[:1]
         if islinux or isbsd:
-            args = sys.argv[:1] + ['-platformpluginpath', sys.extensions_location, '-platform', 'headless']
+            args += ['-platformpluginpath', sys.extensions_location, '-platform', 'headless']
         _store_app = QApplication(args)
     if gui_thread is None:
         gui_thread = QThread.currentThread()
