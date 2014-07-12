@@ -226,7 +226,7 @@ end:
     if (a != NULL) free(a);
     if (b != NULL) free(b);
 
-    return (PyErr_Occurred()) ? NULL : Py_BuildValue("ii", pos, length);
+    return (PyErr_Occurred()) ? NULL : Py_BuildValue("ll", (long)pos, (long)length);
 } // }}}
 
 // Collator.contains {{{
@@ -1022,7 +1022,7 @@ icu_string_length(PyObject *self, PyObject *args) {
     if (icu == NULL) return NULL;
     sz = u_countChar32(icu, sz);
     free(icu);
-    return Py_BuildValue("i", sz);
+    return Py_BuildValue("l", (long)sz);
 } // }}}
 
 // utf16_length {{{
@@ -1048,7 +1048,7 @@ icu_utf16_length(PyObject *self, PyObject *args) {
     }
     sz = t;
 #endif
-    return Py_BuildValue("i", sz);
+    return Py_BuildValue("l", (long)sz);
 } // }}}
 
 // Module initialization {{{
