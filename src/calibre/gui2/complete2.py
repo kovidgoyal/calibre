@@ -245,7 +245,7 @@ class Completer(QListView):  # {{{
             if e.isAccepted():
                 return True
         elif etype == e.MouseButtonPress:
-            if not self.underMouse():
+            if not self.rect().contains(self.mapFromGlobal(e.globalPos())):
                 QTimer.singleShot(0, self.hide)
                 e.accept()
                 return True
