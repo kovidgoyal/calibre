@@ -636,7 +636,7 @@ icu_BreakIterator_index(icu_BreakIterator *self, PyObject *args, PyObject *kwarg
 
 end:
     free(buf);
-    return Py_BuildValue("l", (long int)ans);
+    return Py_BuildValue("l", (long)ans);
 
 } // }}}
 
@@ -685,7 +685,7 @@ icu_BreakIterator_split2(icu_BreakIterator *self, PyObject *args, PyObject *kwar
                 PyTuple_SET_ITEM(temp, 1, t);
             } else {
                 last_sz = sz;
-                temp = Py_BuildValue("II", (unsigned int)prev, (unsigned int)sz); 
+                temp = Py_BuildValue("ll", (long)prev, (long)sz); 
                 if (temp == NULL) {
                     Py_DECREF(ans); ans = NULL; break; 
                 } 
