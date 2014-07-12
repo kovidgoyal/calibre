@@ -17,10 +17,9 @@ class RescaleImages(object):
 
     def __call__(self, oeb, opts):
         self.oeb, self.opts, self.log = oeb, opts, oeb.log
-        from calibre.gui2 import is_ok_to_use_qt
-        self.rescale(qt=is_ok_to_use_qt())
+        self.rescale()
 
-    def rescale(self, qt=True):
+    def rescale(self):
         from calibre.utils.magick.draw import Image
 
         is_image_collection = getattr(self.opts, 'is_image_collection', False)
@@ -91,6 +90,3 @@ class RescaleImages(object):
                     else:
                         item.data = data
                         item.unload_data_from_memory()
-
-
-
