@@ -471,16 +471,18 @@ class CurrentDir(object):
 
 def detect_ncpus():
     """Detects the number of effective CPUs in the system"""
-    import multiprocessing
-    ans = -1
-    try:
-        ans = multiprocessing.cpu_count()
-    except:
-        from PyQt5.Qt import QThread
-        ans = QThread.idealThreadCount()
-    if ans < 1:
-        ans = 1
-    return ans
+    if iswindows:
+        import win32api
+        ans = win32api.GetSystemInfo()[5]
+    else:
+        import multiprocessing
+        ans = -1
+        try:
+            ans = multiprocessing.cpu_count()
+        except Exception:
+            from PyQt5.Qt import QThread
+            ans = QThread.idealThreadCount()
+    return max(1, ans)
 
 
 relpath = os.path.relpath
