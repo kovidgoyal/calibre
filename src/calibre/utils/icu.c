@@ -603,7 +603,7 @@ icu_BreakIterator_index(icu_BreakIterator *self, PyObject *args, PyObject *kwarg
 #endif
 
     UChar *buf = NULL;
-    int32_t prev = 0, p = 0, sz = 0, tsz = 0, ans = -1;
+    int32_t prev = 0, p = 0, sz = 0, ans = -1;
     PyObject *token = NULL;
   
     if (!PyArg_ParseTuple(args, "O", &token)) return NULL;
@@ -617,21 +617,26 @@ icu_BreakIterator_index(icu_BreakIterator *self, PyObject *args, PyObject *kwarg
         prev = p; p = ubrk_next(self->break_iterator);
         if (self->type == UBRK_WORD && ubrk_getRuleStatus(self->break_iterator) == UBRK_WORD_NONE) 
             continue;  // We are not at the start of a word
-        tsz = (p == UBRK_DONE) ? self->text_len - prev : p - prev;
-        if (sz == tsz && memcmp(self->text + prev, buf, sz * sizeof(UChar)) == 0) { 
-#ifdef PY_UNICODE_WIDE
-            ans = u_countChar32(self->text, prev);
-#else
-            ans = prev; 
-#endif
-            break;
+        if (self->text_len >= prev + sz && memcmp(self->text + prev, buf, sz * sizeof(UChar)) == 0) {
+            // Needle is present at text[prev:] we have to check if it is followed by a non-hyphen boundary
+            if(
+                ubrk_isBoundary(self->break_iterator, prev + sz) &&
+                (self->text_len == prev + sz || (self->text[prev + sz] != 0x2d && self->text[prev + sz] != 0x2010))
+            ) {
+                ans = prev; break; // Found word surrounded by non-hyphen boundaries
+            } 
+            if (p != UBRK_DONE) ubrk_isBoundary(self->break_iterator, p); // Reset the iterator to its position before the call to ubrk_isBoundary
         }
     }
+#ifdef Py_UNICODE_WIDE
+    if (ans > 0) ans = u_countChar32(self->text, ans);
+#endif
     Py_END_ALLOW_THREADS;
+
 
 end:
     free(buf);
-    return Py_BuildValue("i", ans);
+    return Py_BuildValue("l", (long int)ans);
 
 } // }}}
 
