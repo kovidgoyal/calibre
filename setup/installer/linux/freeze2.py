@@ -52,7 +52,7 @@ path=(~/bin "$path[@]")
 
 '''
 
-import sys, os, shutil, platform, subprocess, stat, py_compile, glob, textwrap, tarfile
+import sys, os, shutil, platform, subprocess, stat, py_compile, glob, textwrap, tarfile, time
 from functools import partial
 
 from setup import Command, modules, basenames, functions, __version__,  __appname__
@@ -281,7 +281,9 @@ class LinuxFreeze(Command):
         if False:
             os.rename(dist, ans)
         else:
+            start_time = time.time()
             subprocess.check_call(['xz', '-f', '-9', dist])
+            self.info('Compressed in %d seconds' % round(time.time() - start_time))
             os.rename(dist + '.xz', ans)
         self.info('Archive %s created: %.2f MB'%(
             os.path.basename(ans), os.stat(ans).st_size/(1024.**2)))
