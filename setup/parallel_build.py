@@ -26,12 +26,13 @@ def run_worker(job):
 def create_job(cmd, human_text=None):
     return (cmd, human_text)
 
-def parallel_build(jobs, log):
+def parallel_build(jobs, log, verbose=True):
     p = Pool(cpu_count)
     for ok, stdout, stderr in p.imap(run_worker, jobs):
-        log(stdout)
-        if stderr:
-            log(stderr)
+        if verbose or not ok:
+            log(stdout)
+            if stderr:
+                log(stderr)
         if not ok:
             return False
     return True

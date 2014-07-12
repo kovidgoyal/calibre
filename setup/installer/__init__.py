@@ -163,7 +163,8 @@ class VMInstaller(Command):
         start_time = time.time()
         self.run_vm_builder()
         print ('Startup completed in %d seconds' % round(startup_time))
-        print ('Build completed in %d seconds' % round(time.time() - start_time))
+        secs = time.time() - start_time
+        print ('Build completed in %d minutes %d seconds' % (secs // 60, secs % 60))
         if not opts.dont_shutdown:
             print ('Shutting down', self.VM_NAME)
             subprocess.call(['ssh', self.VM_NAME]+self.SHUTDOWN_CMD)

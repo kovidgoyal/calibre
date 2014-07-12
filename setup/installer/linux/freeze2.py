@@ -57,6 +57,7 @@ from functools import partial
 
 from setup import Command, modules, basenames, functions, __version__,  __appname__
 from setup.build_environment import QT_DLLS, QT_PLUGINS, qt, PYQT_MODULES, sw as SW
+from setup.parallel_build import create_job, parallel_build
 
 j = os.path.join
 is64bit = platform.architecture()[0] == '64bit'
@@ -283,7 +284,8 @@ class LinuxFreeze(Command):
         else:
             start_time = time.time()
             subprocess.check_call(['xz', '--threads=0', '-f', '-9', dist])
-            self.info('Compressed in %d seconds' % round(time.time() - start_time))
+            secs = time.time() - start_time
+            self.info('Compressed in %d minutes %d seconds' % (secs // 60, secs % 60))
             os.rename(dist + '.xz', ans)
         self.info('Archive %s created: %.2f MB'%(
             os.path.basename(ans), os.stat(ans).st_size/(1024.**2)))
@@ -322,8 +324,9 @@ class LinuxFreeze(Command):
         self.info('Compiling launcher')
         self.run_builder(cmd, verbose=False)
 
+        jobs = []
+        self.info('Processing launchers')
         for typ in ('console', 'gui', ):
-            self.info('Processing %s launchers'%typ)
             for mod, bname, func in zip(modules[typ], basenames[typ],
                     functions[typ]):
                 xflags = list(cflags)
@@ -331,25 +334,17 @@ class LinuxFreeze(Command):
                 xflags += ['-DMODULE="%s"'%mod, '-DBASENAME="%s"'%bname,
                     '-DFUNCTION="%s"'%func]
 
-                dest = self.j(self.obj_dir, bname+'.o')
-                if self.newer(dest, [src, __file__]+headers):
-                    cmd = ['gcc'] + xflags + [src, '-o', dest]
-                    self.run_builder(cmd, verbose=False)
                 exe = self.j(self.bin_dir, bname)
+                if self.newer(exe, [src, __file__]+headers):
+                    cmd = ['gcc'] + xflags + [src, '-o', exe, '-L' + self.lib_dir, '-lcalibre-launcher']
+                    jobs.append(create_job(cmd))
                 sh = self.j(self.base, bname)
                 shutil.copy2(c_launcher, sh)
                 os.chmod(sh,
                     stat.S_IREAD|stat.S_IEXEC|stat.S_IWRITE|stat.S_IRGRP|stat.S_IXGRP|stat.S_IROTH|stat.S_IXOTH)
-
-                if self.newer(exe, [dest, __file__]):
-                    cmd = ['gcc', '-O2',
-                            '-o', exe,
-                            dest,
-                            '-L'+self.lib_dir,
-                            '-lcalibre-launcher',
-                            ]
-
-                    self.run_builder(cmd, verbose=False)
+        if jobs:
+            if not parallel_build(jobs, self.info, verbose=False):
+                raise SystemExit(1)
 
     def strip_files(self):
         from calibre import walk
