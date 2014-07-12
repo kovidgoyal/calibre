@@ -41,6 +41,16 @@ QMAKE = os.environ.get('QMAKE', QMAKE)
 PKGCONFIG = find_executable('pkg-config')
 PKGCONFIG = os.environ.get('PKG_CONFIG', PKGCONFIG)
 
+if iswindows:
+    import win32api
+    cpu_count = win32api.GetSystemInfo()[5]
+else:
+    from multiprocessing import cpu_count
+    try:
+        cpu_count = cpu_count()
+    except NotImplementedError:
+        cpu_count = 1
+
 def run_pkgconfig(name, envvar, default, flag, prefix):
     ans = []
     if envvar:

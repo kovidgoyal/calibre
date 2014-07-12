@@ -8,16 +8,15 @@ __docformat__ = 'restructuredtext en'
 
 import textwrap, os, shlex, subprocess, glob, shutil, re, sys
 from distutils import sysconfig
-from multiprocessing import cpu_count
 
 from setup import Command, islinux, isbsd, isosx, SRC, iswindows, __version__
 from setup.build_environment import (chmlib_inc_dirs,
         podofo_inc, podofo_lib, podofo_error, pyqt, NMAKE, QMAKE,
-        msvc, MT, win_inc, win_lib, magick_inc_dirs, magick_lib_dirs,
+        msvc, win_inc, win_lib, magick_inc_dirs, magick_lib_dirs,
         magick_libs, chmlib_lib_dirs, sqlite_inc_dirs, icu_inc_dirs,
-        icu_lib_dirs, ft_libs, ft_lib_dirs, ft_inc_dirs,
+        icu_lib_dirs, ft_libs, ft_lib_dirs, ft_inc_dirs, cpu_count,
         zlib_libs, zlib_lib_dirs, zlib_inc_dirs, is64bit, glib_flags, fontconfig_flags)
-MT
+from setup.parallel_build import create_job, parallel_build
 isunix = islinux or isosx or isbsd
 
 make = 'make' if isunix else NMAKE
@@ -439,6 +438,8 @@ class Build(Command):
         einc = self.inc_dirs_to_cflags(ext.inc_dirs)
         if not os.path.exists(obj_dir):
             os.makedirs(obj_dir)
+
+        jobs = []
         for src in ext.sources:
             obj = self.j(obj_dir, os.path.splitext(self.b(src))[0]+'.o')
             objects.append(obj)
@@ -447,14 +448,17 @@ class Build(Command):
                 sinc = [inf+src] if iswindows else ['-c', src]
                 oinc = ['/Fo'+obj] if iswindows else ['-o', obj]
                 cmd = [compiler] + cflags + ext.cflags + einc + sinc + oinc
-                self.info(' '.join(cmd))
-                self.check_call(cmd)
+                jobs.append(create_job(cmd))
+        if jobs:
+            self.info('Compiling', ext.name)
+            if not parallel_build(jobs, self.info):
+                raise SystemExit(1)
 
         dest = self.dest(ext)
         elib = self.lib_dirs_to_ldflags(ext.lib_dirs)
         xlib = self.libraries_to_ldflags(ext.libraries)
         if self.newer(dest, objects+ext.extra_objs):
-            print 'Linking', ext.name
+            self.info('Linking', ext.name)
             cmd = [linker]
             if iswindows:
                 cmd += ldflags + ext.ldflags + elib + xlib + \
@@ -464,11 +468,6 @@ class Build(Command):
             self.info('\n\n', ' '.join(cmd), '\n\n')
             self.check_call(cmd)
             if iswindows:
-                # manifest = dest+'.manifest'
-                # cmd = [MT, '-manifest', manifest, '-outputresource:%s;2'%dest]
-                # self.info(*cmd)
-                # self.check_call(cmd)
-                # os.remove(manifest)
                 for x in ('.exp', '.lib'):
                     x = os.path.splitext(dest)[0]+x
                     if os.path.exists(x):
@@ -533,7 +532,7 @@ class Build(Command):
         os.chdir(bdir)
         try:
             self.check_call([QMAKE] + [self.b(pf)])
-            self.check_call([make] + ['-j%d'%(cpu_count() or 1)])
+            self.check_call([make] + ['-j%d'%(cpu_count or 1)])
         finally:
             os.chdir(cwd)
 
@@ -607,7 +606,7 @@ class Build(Command):
             os.chdir(src_dir)
             if self.newer(dest, sip['headers'] + sip['sources'] + ext.sources + ext.headers):
                 self.check_call([QMAKE] + qmc + [proname])
-                self.check_call([make]+([] if iswindows else ['-j%d'%(cpu_count() or 1)]))
+                self.check_call([make]+([] if iswindows else ['-j%d'%(cpu_count or 1)]))
                 shutil.copy2(os.path.realpath(name), dest)
                 if iswindows:
                     shutil.copy2(name + '.manifest', dest + '.manifest')
