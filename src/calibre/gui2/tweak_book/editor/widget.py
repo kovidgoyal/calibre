@@ -465,13 +465,13 @@ class Editor(QMainWindow):
                             dmenu.addAction(dic.name, partial(self._nuke_word, dic.name, word, locale))
                 m.addSeparator()
 
-        if origr is not None and origr.format.property(LINK_PROPERTY).toBool():
+        if origr is not None and origr.format.property(LINK_PROPERTY):
             href = self.editor.text_for_range(origc.block(), origr)
             m.addAction(_('Open %s') % href, partial(self.link_clicked.emit, href))
 
-        if origr is not None and (origr.format.property(TAG_NAME_PROPERTY).toBool() or origr.format.property(CSS_PROPERTY).toBool()):
+        if origr is not None and (origr.format.property(TAG_NAME_PROPERTY) or origr.format.property(CSS_PROPERTY)):
             word = self.editor.text_for_range(origc.block(), origr)
-            item_type = 'tag_name' if origr.format.property(TAG_NAME_PROPERTY).toBool() else 'css_property'
+            item_type = 'tag_name' if origr.format.property(TAG_NAME_PROPERTY) else 'css_property'
             url = help_url(word, item_type, self.editor.highlighter.doc_name, extra_data=current_container().opf_version)
             if url is not None:
                 m.addAction(_('Show help for: %s') % word, partial(open_url, url))
