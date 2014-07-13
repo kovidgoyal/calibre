@@ -1,0 +1,18 @@
+{% extends "content_server/v2/base.html" %}
+{% block content %}
+<legend>{{title}}</legend>
+
+<form action="/book/upload" class="form-inline" role="form" method="post" enctype="multipart/form-data">
+    <div class="form-group">
+        <label class="sr-only" for="exampleInputEmail2">Select Files</label>
+        <input type="file" class="form-control" id="id_ebook_file" name="ebook_file" placeholder="Select file">
+    </div>
+
+    <input class="btn btn-primary" type="submit"/>
+</form>
+
+{% endblock %}
+
+{% block sidebar %}
+{% include "content_server/v2/sidebar/basic.html" %}
+{% endblock %}

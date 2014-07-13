@@ -1,0 +1,41 @@
+{% extends "content_server/v2/base.html" %}
+{% block content %}
+<legend>
+    {{title}}
+        <div class="sorter pull-right">
+            <a href="alert('action')">按书名排序排序</a>
+            /
+            <a href="alert('action')">按出版日期排序</a>
+            /
+            <a href="alert('action')">按评价排序</a>
+        </div>
+</legend>
+
+{% for book in books %}
+<div class="col-sm-12 col-md-12">
+    <div class="media bookitem">
+        <a class="pull-left" href="/book/{{book.id}}"><img class="media-object" width=105 height=145 src="/get/thumb_105_145/{{book.id}}.jpg" alt="..."></a>
+        <div class="media-body">
+            <h4 class="media-heading"><a href="/book/{{book.id}}">{{book.title}}</a></h4>
+            <p>
+                <a href="/author/{{book.author_sort}}">{{book.authors|join(", ")}}</a> /
+                <a href="/pub/{{book.publisher}}">{{book.publisher}}</a> /
+                {{book.pubdate}}<br/>
+                <br/>
+                <span class="brief">{% if book.comments %}{{book.comments|striptags}}{%endif%}</span>
+            </p>
+        </div>
+    </div>
+</div>
+{% endfor %}
+
+<ul class="pager">
+    {% if page_prev %}<li><a href="/v2/list/all/{{page_prev}}">上一页</a></li>{% else %}<li class="disabled"><a href="#">上一页</a></li>{% endif %}
+    <li>&nbsp;{{page_now}}/{{page_max}}&nbsp;</li>
+    {% if page_next %}<li><a href="/v2/list/all/{{page_next}}">上一页</a></li>{% else %}<li class="disabled"><a href="#">下一页</a></li>{% endif %}
+</ul>
+{% endblock %}
+
+{% block sidebar %}
+{% include "content_server/v2/sidebar/basic.html" %}
+{% endblock %}
