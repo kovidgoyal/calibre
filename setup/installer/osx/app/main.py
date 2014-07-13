@@ -38,11 +38,14 @@ class OSX32_Freeze(Command):
         parser.add_option('--test-launchers', default=False,
                 action='store_true',
                 help='Only build launchers')
+        if not parser.has_option('--dont-strip'):
+            parser.add_option('-x', '--dont-strip', default=False,
+                action='store_true', help='Dont strip the generated binaries')
 
     def run(self, opts):
         global info, warn
         info, warn = self.info, self.warn
-        main(opts.test_launchers)
+        main(opts.test_launchers, opts.dont_strip)
 
 def compile_launcher_lib(contents_dir, gcc, base):
     info('\tCompiling calibre_launcher.dylib')
@@ -147,8 +150,9 @@ class Py2App(object):
 
     FID = '@executable_path/../Frameworks'
 
-    def __init__(self, build_dir, test_launchers=False):
+    def __init__(self, build_dir, test_launchers=False, dont_strip=False):
         self.build_dir = build_dir
+        self.dont_strip = dont_strip
         self.contents_dir = join(self.build_dir, 'Contents')
         self.resources_dir = join(self.contents_dir, 'Resources')
         self.frameworks_dir = join(self.contents_dir, 'Frameworks')
@@ -192,7 +196,7 @@ class Py2App(object):
 
         self.copy_site()
         self.create_exe()
-        if not test_launchers:
+        if not test_launchers and not self.dont_strip:
             self.strip_files()
 
         ret = self.makedmg(self.build_dir, APPNAME+'-'+VERSION)
@@ -671,11 +675,11 @@ def test_exe():
     return 0
 
 
-def main(test=False):
+def main(test=False, dont_strip=False):
     if 'test_exe' in sys.argv:
         return test_exe()
     build_dir = abspath(join(os.path.dirname(SRC), 'build', APPNAME+'.app'))
-    Py2App(build_dir, test_launchers=test)
+    Py2App(build_dir, test_launchers=test, dont_strip=dont_strip)
     return 0
 
 

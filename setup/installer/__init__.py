@@ -109,6 +109,9 @@ class VMInstaller(Command):
         if not parser.has_option('--dont-shutdown'):
             parser.add_option('-s', '--dont-shutdown', default=False,
                 action='store_true', help='Dont shutdown the VM after building')
+        if not parser.has_option('--dont-strip'):
+            parser.add_option('-x', '--dont-strip', default=False,
+                action='store_true', help='Dont strip the generated binaries')
 
     def get_build_script(self):
         rs = ['export RSYNC_PASSWORD=%s'%get_rsync_pw()]
@@ -156,6 +159,8 @@ class VMInstaller(Command):
         return installer_name(self.INSTALLER_EXT, self.IS_64_BIT)
 
     def run(self, opts):
+        if opts.dont_strip:
+            self.FREEZE_COMMAND += ' --dont-strip'
         subprocess.call(['chmod', '-R', '+r', 'recipes'])
         start_time = time.time()
         self.start_vm()

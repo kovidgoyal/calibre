@@ -155,6 +155,11 @@ def strip_files(files, argv_max=(256 * 1024)):
 
 class LinuxFreeze(Command):
 
+    def add_options(self, parser):
+        if not parser.has_option('--dont-strip'):
+            parser.add_option('-x', '--dont-strip', default=False,
+                action='store_true', help='Dont strip the generated binaries')
+
     def run(self, opts):
         self.drop_privileges()
         self.opts = opts
@@ -167,7 +172,8 @@ class LinuxFreeze(Command):
         self.copy_libs()
         self.copy_python()
         self.build_launchers()
-        self.strip_files()
+        if not self.opts.dont_strip:
+            self.strip_files()
         self.create_tarfile()
 
     def initbase(self):

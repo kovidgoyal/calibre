@@ -109,6 +109,9 @@ class Win32Freeze(Command, WixMixIn):
             help='Keep human readable site.py')
         parser.add_option('--verbose', default=0, action="count",
                 help="Be more verbose")
+        if not parser.has_option('--dont-strip'):
+            parser.add_option('-x', '--dont-strip', default=False,
+                action='store_true', help='Dont strip the generated binaries (no-op on windows)')
 
     def run(self, opts):
         self.SW = SW
