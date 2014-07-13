@@ -11,14 +11,14 @@ from functools import partial
 
 from PyQt4.Qt import (
     QMainWindow, Qt, QApplication, pyqtSignal, QMenu, qDrawShadeRect, QPainter,
-    QImage, QColor, QIcon, QPixmap, QToolButton, QAction)
+    QImage, QColor, QIcon, QPixmap, QToolButton, QAction, QTextCursor)
 
 from calibre import prints
 from calibre.constants import DEBUG
 from calibre.ebooks.chardet import replace_encoding_declarations
 from calibre.gui2 import error_dialog
 from calibre.gui2.tweak_book import actions, current_container, tprefs, dictionaries, editor_toolbar_actions, editor_name
-from calibre.gui2.tweak_book.editor import SPELL_PROPERTY
+from calibre.gui2.tweak_book.editor import SPELL_PROPERTY, LINK_PROPERTY
 from calibre.gui2.tweak_book.editor.text import TextEdit
 from calibre.utils.icu import utf16_length
 
@@ -398,7 +398,8 @@ class Editor(QMainWindow):
         m = QMenu(self)
         a = m.addAction
         c = self.editor.cursorForPosition(pos)
-        r = self.editor.syntax_range_for_cursor(c)
+        origc = QTextCursor(c)
+        r = origr = self.editor.syntax_range_for_cursor(c)
         if (r is None or not r.format.property(SPELL_PROPERTY).toBool()) and c.positionInBlock() > 0:
             c.setPosition(c.position() - 1)
             r = self.editor.syntax_range_for_cursor(c)
@@ -437,6 +438,10 @@ class Editor(QMainWindow):
                         for dic in dics:
                             dmenu.addAction(dic.name, partial(self._nuke_word, dic.name, word, locale))
                 m.addSeparator()
+
+        if origr is not None and origr.format.property(LINK_PROPERTY).toBool():
+            href = self.editor.text_for_range(origc.block(), origr)
+            m.addAction(_('Open %s') % href, partial(self.link_clicked.emit, href))
 
         for x in ('undo', 'redo'):
             a(actions['editor-%s' % x])
