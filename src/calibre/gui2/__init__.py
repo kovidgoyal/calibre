@@ -723,14 +723,14 @@ def choose_files(window, name, title,
                  filters=[], all_files=True, select_only_single_file=False):
     '''
     Ask user to choose a bunch of files.
-    @param name: Unique dialog name used to store the opened directory
-    @param title: Title to show in dialogs titlebar
-    @param filters: list of allowable extensions. Each element of the list
-                     must be a 2-tuple with first element a string describing
-                     the type of files to be filtered and second element a list
-                     of extensions.
-    @param all_files: If True add All files to filters.
-    @param select_only_single_file: If True only one file can be selected
+    :param name: Unique dialog name used to store the opened directory
+    :param title: Title to show in dialogs titlebar
+    :param filters: list of allowable extensions. Each element of the list
+                    must be a 2-tuple with first element a string describing
+                    the type of files to be filtered and second element a list
+                    of extensions.
+    :param all_files: If True add All files to filters.
+    :param select_only_single_file: If True only one file can be selected
     '''
     mode = QFileDialog.ExistingFile if select_only_single_file else QFileDialog.ExistingFiles
     fd = FileDialog(title=title, name=name, filters=filters,
