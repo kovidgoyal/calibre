@@ -1039,6 +1039,8 @@ class SanitizeLibraryPath(object):
             os.environ['LD_LIBRARY_PATH'] = self.orig
 
 def open_url(qurl):
+    if isinstance(qurl, basestring):
+        qurl = QUrl(qurl)
     with SanitizeLibraryPath():
         QDesktopServices.openUrl(qurl)
 

@@ -533,6 +533,14 @@ class Container(object):  # {{{
                 populate_spine=False).to_book_metadata()
 
     @property
+    def opf_version(self):
+        ' The version set on the OPF\'s <package> element '
+        try:
+            return self.opf_xpath('//opf:package/@version')[0]
+        except IndexError:
+            return ''
+
+    @property
     def manifest_id_map(self):
         ' Mapping of manifest id to canonical names '
         return {item.get('id'):self.href_to_name(item.get('href'), self.opf_name)

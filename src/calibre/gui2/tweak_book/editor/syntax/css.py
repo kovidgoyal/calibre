@@ -11,7 +11,7 @@ import re
 from PyQt4.Qt import QTextBlockUserData
 
 from calibre.gui2.tweak_book import verify_link
-from calibre.gui2.tweak_book.editor import syntax_text_char_format, LINK_PROPERTY
+from calibre.gui2.tweak_book.editor import syntax_text_char_format, LINK_PROPERTY, CSS_PROPERTY
 from calibre.gui2.tweak_book.editor.syntax.base import SyntaxHighlighter
 
 space_pat = re.compile(r'[ \n\t\r\f]+')
@@ -29,7 +29,9 @@ URL_TOKEN = 'url'
 
 content_tokens = [(re.compile(k), v, n) for k, v, n in [
     (r'url\(.*?\)', 'string', URL_TOKEN),
+
     (r'@\S+', 'preproc', 'at-rule'),
+
     (r'(azimuth|background-attachment|background-color|'
     r'background-image|background-position|background-repeat|'
     r'background|border-bottom-color|border-bottom-style|'
@@ -86,7 +88,8 @@ content_tokens = [(re.compile(k), v, n) for k, v, n in [
     r'transparent|ultra-condensed|ultra-expanded|underline|'
     r'upper-alpha|upper-latin|upper-roman|uppercase|url|'
     r'visible|w-resize|wait|wider|x-fast|x-high|x-large|x-loud|'
-    r'x-low|x-small|x-soft|xx-large|xx-small|yes)\b', 'keyword', 'keyword'),
+    r'x-low|x-small|x-soft|xx-large|xx-small|yes|src)\b', 'keyword', 'keyword'),
+
     (r'(indigo|gold|firebrick|indianred|yellow|darkolivegreen|'
     r'darkseagreen|mediumvioletred|mediumorchid|chartreuse|'
     r'mediumslateblue|black|springgreen|crimson|lightsalmon|brown|'
@@ -112,13 +115,21 @@ content_tokens = [(re.compile(k), v, n) for k, v, n in [
     r'lightslategray|lawngreen|lightgreen|tomato|hotpink|'
     r'lightyellow|lavenderblush|linen|mediumaquamarine|green|'
     r'blueviolet|peachpuff)\b', 'colorname', 'colorname'),
+
     (r'\!important', 'preproc', 'important'),
+
     (r'\#[a-zA-Z0-9]{1,6}', 'number', 'hexnumber'),
+
     (r'[\.-]?[0-9]*[\.]?[0-9]+(em|px|pt|pc|in|mm|cm|ex|s|rem)\b', 'number', 'dimension'),
+
     (r'[\.-]?[0-9]*[\.]?[0-9]+%(?=$|[ \n\t\f\r;}{()\[\]])', 'number', 'dimension'),
+
     (r'-?[0-9]+', 'number', 'number'),
+
     (r'[~\^\*!%&<>\|+=@:,./?-]+', 'operator', 'operator'),
+
     (r'[\[\]();]+', 'bracket', 'bracket'),
+
     (r'[a-zA-Z_][a-zA-Z0-9_]*', 'identifier', 'ident')
 
 ]]
@@ -266,8 +277,6 @@ def create_formats(highlighter):
         'comment': theme['Comment'],
         'error': theme['Error'],
         'string': theme['String'],
-        'preproc': theme['PreProc'],
-        'keyword': theme['Keyword'],
         'colorname': theme['Constant'],
         'number': theme['Number'],
         'operator': theme['Function'],
@@ -290,6 +299,10 @@ def create_formats(highlighter):
     formats['bad_link'] = syntax_text_char_format(theme['BadLink'])
     formats['bad_link'].setProperty(LINK_PROPERTY, True)
     formats['bad_link'].setToolTip(_('This link points to a file that is not present in the book'))
+    formats['preproc'] = f = syntax_text_char_format(theme['PreProc'])
+    f.setProperty(CSS_PROPERTY, True)
+    formats['keyword'] = f = syntax_text_char_format(theme['Keyword'])
+    f.setProperty(CSS_PROPERTY, True)
     return formats
 
 

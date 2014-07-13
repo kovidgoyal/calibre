@@ -17,7 +17,8 @@ from calibre.spell.dictionary import parse_lang_code
 from calibre.spell.break_iterator import split_into_words_and_positions
 from calibre.gui2.tweak_book import dictionaries, tprefs, verify_link
 from calibre.gui2.tweak_book.editor import (
-    syntax_text_char_format, SPELL_PROPERTY, SPELL_LOCALE_PROPERTY, store_locale, LINK_PROPERTY)
+    syntax_text_char_format, SPELL_PROPERTY, SPELL_LOCALE_PROPERTY,
+    store_locale, LINK_PROPERTY, TAG_NAME_PROPERTY)
 from calibre.gui2.tweak_book.editor.syntax.base import SyntaxHighlighter, run_loop
 from calibre.gui2.tweak_book.editor.syntax.css import (
     create_formats as create_css_formats, state_map as css_state_map, CSSState, CSSUserData)
@@ -504,7 +505,6 @@ def create_formats(highlighter, add_css=True):
         'tag': t['Function'],
         'end_tag': t['Function'],
         'attr': t['Type'],
-        'tag_name' : t['Statement'],
         'entity': t['Special'],
         'error': t['Error'],
         'comment': t['Comment'],
@@ -538,6 +538,8 @@ def create_formats(highlighter, add_css=True):
     formats['bad_link'] = syntax_text_char_format(t['BadLink'])
     formats['bad_link'].setProperty(LINK_PROPERTY, True)
     formats['bad_link'].setToolTip(_('This link points to a file that is not present in the book'))
+    formats['tag_name'] = f = syntax_text_char_format(t['Statement'])
+    f.setProperty(TAG_NAME_PROPERTY, True)
     return formats
 
 

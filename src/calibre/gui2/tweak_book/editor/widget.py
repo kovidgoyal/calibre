@@ -16,9 +16,10 @@ from PyQt4.Qt import (
 from calibre import prints
 from calibre.constants import DEBUG
 from calibre.ebooks.chardet import replace_encoding_declarations
-from calibre.gui2 import error_dialog
+from calibre.gui2 import error_dialog, open_url
 from calibre.gui2.tweak_book import actions, current_container, tprefs, dictionaries, editor_toolbar_actions, editor_name
-from calibre.gui2.tweak_book.editor import SPELL_PROPERTY, LINK_PROPERTY
+from calibre.gui2.tweak_book.editor import SPELL_PROPERTY, LINK_PROPERTY, TAG_NAME_PROPERTY, CSS_PROPERTY
+from calibre.gui2.tweak_book.editor.help import help_url
 from calibre.gui2.tweak_book.editor.text import TextEdit
 from calibre.utils.icu import utf16_length
 
@@ -442,6 +443,13 @@ class Editor(QMainWindow):
         if origr is not None and origr.format.property(LINK_PROPERTY).toBool():
             href = self.editor.text_for_range(origc.block(), origr)
             m.addAction(_('Open %s') % href, partial(self.link_clicked.emit, href))
+
+        if origr is not None and (origr.format.property(TAG_NAME_PROPERTY).toBool() or origr.format.property(CSS_PROPERTY).toBool()):
+            word = self.editor.text_for_range(origc.block(), origr)
+            item_type = 'tag_name' if origr.format.property(TAG_NAME_PROPERTY).toBool() else 'css_property'
+            url = help_url(word, item_type, self.editor.highlighter.doc_name, extra_data=current_container().opf_version)
+            if url is not None:
+                m.addAction(_('Show help for: %s') % word, partial(open_url, url))
 
         for x in ('undo', 'redo'):
             a(actions['editor-%s' % x])

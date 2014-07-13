@@ -1,0 +1,22 @@
+{
+  "bindings": "http://www.idpf.org/epub/301/spec/epub-publications.html#sec-bindings-elem", 
+  "collection": "http://www.idpf.org/epub/301/spec/epub-publications.html#sec-collection-elem", 
+  "contributor": "http://www.idpf.org/epub/301/spec/epub-publications.html#sec-opf-dccontributor", 
+  "creator": "http://www.idpf.org/epub/301/spec/epub-publications.html#sec-opf-dccreator", 
+  "date": "http://www.idpf.org/epub/301/spec/epub-publications.html#sec-opf-dcdate", 
+  "guide": "http://www.idpf.org/epub/301/spec/epub-publications.html#sec-guide-elem", 
+  "identifier": "http://www.idpf.org/epub/301/spec/epub-publications.html#sec-identifier-elem", 
+  "item": "http://www.idpf.org/epub/301/spec/epub-publications.html#sec-item-elem", 
+  "itemref": "http://www.idpf.org/epub/301/spec/epub-publications.html#sec-itemref-elem", 
+  "language": "http://www.idpf.org/epub/301/spec/epub-publications.html#sec-language-elem", 
+  "link": "http://www.idpf.org/epub/301/spec/epub-publications.html#sec-link-elem", 
+  "manifest": "http://www.idpf.org/epub/301/spec/epub-publications.html#sec-manifest-elem", 
+  "mediatype": "http://www.idpf.org/epub/301/spec/epub-publications.html#sec-mediaType-elem", 
+  "meta": "http://www.idpf.org/epub/301/spec/epub-publications.html#sec-meta-elem", 
+  "metadata": "http://www.idpf.org/epub/301/spec/epub-publications.html#sec-metadata-elem", 
+  "package": "http://www.idpf.org/epub/301/spec/epub-publications.html#sec-package-elem", 
+  "source": "http://www.idpf.org/epub/301/spec/epub-publications.html#sec-opf-dcsource", 
+  "spine": "http://www.idpf.org/epub/301/spec/epub-publications.html#sec-spine-elem", 
+  "title": "http://www.idpf.org/epub/301/spec/epub-publications.html#sec-title-elem", 
+  "type": "http://www.idpf.org/epub/301/spec/epub-publications.html#sec-opf-dctype"
+}
