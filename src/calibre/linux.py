@@ -581,6 +581,7 @@ def write_completion(bash_comp_dest, zsh):
 
         complete -o nospace -C %s ebook-convert
         ''')%complete)
+    zsh.write()
 # }}}
 
 class PostInstall:
