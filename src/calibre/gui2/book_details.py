@@ -5,6 +5,8 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
+from binascii import unhexlify
+
 from PyQt4.Qt import (QPixmap, QSize, QWidget, Qt, pyqtSignal, QUrl, QIcon,
     QPropertyAnimation, QEasingCurve, QApplication, QFontInfo, QAction,
     QSizePolicy, QPainter, QRect, pyqtProperty, QLayout, QPalette, QMenu,
@@ -500,6 +502,7 @@ class BookDetails(QWidget):  # {{{
     show_book_info = pyqtSignal()
     open_containing_folder = pyqtSignal(int)
     view_specific_format = pyqtSignal(int, object)
+    search_requested = pyqtSignal(object)
     remove_specific_format = pyqtSignal(int, object)
     save_specific_format = pyqtSignal(int, object)
     restore_specific_format = pyqtSignal(int, object)
@@ -581,7 +584,7 @@ class BookDetails(QWidget):  # {{{
         self.setCursor(Qt.PointingHandCursor)
 
     def handle_click(self, link):
-        typ, _, val = link.partition(':')
+        typ, val = link.partition(':')[0::2]
         if typ == 'path':
             self.open_containing_folder.emit(int(val))
         elif typ == 'format':
@@ -589,6 +592,8 @@ class BookDetails(QWidget):  # {{{
             self.view_specific_format.emit(int(id_), fmt)
         elif typ == 'devpath':
             self.view_device_book.emit(val)
+        elif typ == 'search':
+            self.search_requested.emit(unhexlify(val).decode('utf-8'))
         else:
             try:
                 open_url(QUrl(link, QUrl.TolerantMode))

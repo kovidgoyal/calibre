@@ -445,6 +445,7 @@ class LayoutMixin(object):  # {{{
                 type=Qt.QueuedConnection)
         self.book_details.open_containing_folder.connect(self.iactions['View'].view_folder_for_id)
         self.book_details.view_specific_format.connect(self.iactions['View'].view_format_by_id)
+        self.book_details.search_requested.connect(self.search.set_search_string)
         self.book_details.remove_specific_format.connect(
                 self.iactions['Remove Books'].remove_format_by_id)
         self.book_details.save_specific_format.connect(
