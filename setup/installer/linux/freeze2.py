@@ -336,6 +336,7 @@ class LinuxFreeze(Command):
             for mod, bname, func in zip(modules[typ], basenames[typ],
                     functions[typ]):
                 xflags = list(cflags)
+                xflags.remove('-c')
                 xflags += ['-DGUI_APP='+('1' if typ == 'gui' else '0')]
                 xflags += ['-DMODULE="%s"'%mod, '-DBASENAME="%s"'%bname,
                     '-DFUNCTION="%s"'%func]
