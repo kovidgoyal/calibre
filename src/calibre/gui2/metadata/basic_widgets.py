@@ -7,7 +7,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import textwrap, re, os, errno, shutil
+import textwrap, re, os, shutil
 
 from PyQt4.Qt import (
     Qt, QDateTimeEdit, pyqtSignal, QMessageBox, QIcon, QToolButton, QWidget,
@@ -26,7 +26,7 @@ from calibre.gui2 import (file_icon_provider, UNDEFINED_QDATETIME,
 from calibre.gui2.complete2 import EditWithComplete
 from calibre.utils.date import (
     local_tz, qt_to_dt, as_local_time, UNDEFINED_DATE, is_date_undefined)
-from calibre import strftime, force_unicode
+from calibre import strftime
 from calibre.ebooks import BOOK_EXTENSIONS
 from calibre.customize.ui import run_plugins_on_import
 from calibre.utils.date import utcfromtimestamp
@@ -74,7 +74,6 @@ class BasicMetadataWidget(object):
 class TitleEdit(EnLineEdit):
 
     TITLE_ATTR = 'title'
-    COMMIT = True
     TOOLTIP = _('Change the title of this book')
     LABEL = _('&Title:')
 
@@ -92,29 +91,16 @@ class TitleEdit(EnLineEdit):
         self.current_val = title
         self.original_val = self.current_val
 
+    @property
+    def changed(self):
+        return self.original_val != self.current_val
+
     def commit(self, db, id_):
         title = self.current_val
-        if title != self.original_val:
+        if self.changed:
             # Only try to commit if changed. This allow setting of other fields
             # to work even if some of the book files are opened in windows.
-            try:
-                if self.COMMIT:
-                    getattr(db, 'set_'+ self.TITLE_ATTR)(id_, title, notify=False)
-                else:
-                    getattr(db, 'set_'+ self.TITLE_ATTR)(id_, title, notify=False,
-                            commit=False)
-            except (IOError, OSError) as err:
-                if getattr(err, 'errno', None) == errno.EACCES:  # Permission denied
-                    import traceback
-                    fname = getattr(err, 'filename', None)
-                    p = 'Locked file: %s\n\n'%fname if fname else ''
-                    error_dialog(self, _('Permission denied'),
-                            _('Could not change the on disk location of this'
-                                ' book. Is it open in another program?'),
-                            det_msg=p+traceback.format_exc(), show=True)
-                    return False
-                raise
-        return True
+            getattr(db, 'set_'+ self.TITLE_ATTR)(id_, title, notify=False)
 
     @dynamic_property
     def current_val(self):
@@ -141,7 +127,6 @@ class TitleEdit(EnLineEdit):
 class TitleSortEdit(TitleEdit):
 
     TITLE_ATTR = 'title_sort'
-    COMMIT = False
     TOOLTIP = _('Specify how this book should be sorted when by title.'
             ' For example, The Exorcist might be sorted as Exorcist, The.')
     LABEL = _('Title &sort:')
@@ -169,6 +154,10 @@ class TitleSortEdit(TitleEdit):
         languages_edit.editTextChanged.connect(self.update_state)
         languages_edit.currentIndexChanged.connect(self.update_state)
         self.update_state()
+
+    @property
+    def changed(self):
+        return self.title_edit.changed or self.original_val != self.current_val
 
     @property
     def book_lang(self):
@@ -219,7 +208,7 @@ class AuthorsEdit(EditWithComplete):
 
     def __init__(self, parent, manage_authors):
         self.dialog = parent
-        self.books_to_refresh = set([])
+        self.books_to_refresh = set()
         EditWithComplete.__init__(self, parent)
         self.setToolTip(self.TOOLTIP)
         self.setWhatsThis(self.TOOLTIP)
@@ -267,6 +256,10 @@ class AuthorsEdit(EditWithComplete):
     def get_default(self):
         return _('Unknown')
 
+    @property
+    def changed(self):
+        return self.original_val != self.current_val
+
     def initialize(self, db, id_):
         self.books_to_refresh = set([])
         self.set_separator('&')
@@ -287,21 +280,8 @@ class AuthorsEdit(EditWithComplete):
         if authors != self.original_val:
             # Only try to commit if changed. This allow setting of other fields
             # to work even if some of the book files are opened in windows.
-            try:
-                self.books_to_refresh |= db.set_authors(id_, authors, notify=False,
-                    allow_case_change=True)
-            except (IOError, OSError) as err:
-                if getattr(err, 'errno', None) == errno.EACCES:  # Permission denied
-                    import traceback
-                    fname = getattr(err, 'filename', None)
-                    p = 'Locked file: %s\n\n'%fname if fname else ''
-                    error_dialog(self, _('Permission denied'),
-                            _('Could not change the on disk location of this'
-                                ' book. Is it open in another program?'),
-                            det_msg=p+force_unicode(traceback.format_exc()), show=True)
-                    return False
-                raise
-        return True
+            self.books_to_refresh |= db.set_authors(id_, authors, notify=False,
+                allow_case_change=True)
 
     @dynamic_property
     def current_val(self):
@@ -364,6 +344,7 @@ class AuthorSortEdit(EnLineEdit):
         copy_as_to_a_action.triggered.connect(self.copy_to_authors)
         a_to_as.triggered.connect(self.author_to_sort)
         as_to_a.triggered.connect(self.sort_to_author)
+        self.original_val = ''
         self.update_state()
 
     @dynamic_property
@@ -437,10 +418,12 @@ class AuthorSortEdit(EnLineEdit):
 
     def initialize(self, db, id_):
         self.current_val = db.author_sort(id_, index_is_id=True)
+        self.original_val = self.current_val
 
     def commit(self, db, id_):
         aus = self.current_val
-        db.set_author_sort(id_, aus, notify=False, commit=False)
+        if aus != self.original_val or self.authors_edit.original_val != self.authors_edit.current_val:
+            db.set_author_sort(id_, aus, notify=False, commit=False)
         return True
 
     def break_cycles(self):
@@ -511,13 +494,13 @@ class SeriesEdit(EditWithComplete):
             if i[0] == series_id:
                 inval = i[1]
                 break
-        self.original_val = self.current_val = inval
+        self.current_val = inval
+        self.original_val = self.current_val
 
     def commit(self, db, id_):
         series = self.current_val
-        self.books_to_refresh |= db.set_series(id_, series, notify=False,
-                                            commit=True, allow_case_change=True)
-        return True
+        if series != self.original_val:
+            self.books_to_refresh |= db.set_series(id_, series, notify=False, commit=True, allow_case_change=True)
 
     def break_cycles(self):
         self.dialog = None
@@ -567,8 +550,8 @@ class SeriesIndexEdit(QDoubleSpinBox):
         self.original_series_name = self.series_edit.original_val
 
     def commit(self, db, id_):
-        db.set_series_index(id_, self.current_val, notify=False, commit=False)
-        return True
+        if self.series_edit.original_val != self.series_edit.current_val or self.current_val != self.original_val:
+            db.set_series_index(id_, self.current_val, notify=False, commit=False)
 
     def increment(self):
         if tweaks['series_index_auto_increment'] != 'no_change' and self.db is not None:
@@ -743,7 +726,7 @@ class FormatsManager(QWidget):
 
     def commit(self, db, id_):
         if not self.changed:
-            return True
+            return
         old_extensions, new_extensions, paths = set(), set(), {}
         for row in range(self.formats.count()):
             fmt = self.formats.item(row)
@@ -771,7 +754,7 @@ class FormatsManager(QWidget):
                 db.remove_format(id_, ext, notify=False, index_is_id=True)
 
         self.changed = False
-        return True
+        return
 
     def add_format(self, *args):
         files = choose_files(self, 'add formats dialog',
@@ -1087,7 +1070,6 @@ class Cover(ImageView):  # {{{
                 db.set_cover(id_, self.current_val, notify=False, commit=False)
             else:
                 db.remove_cover(id_, notify=False, commit=False)
-        return True
 
     def break_cycles(self):
         try:
@@ -1118,8 +1100,9 @@ class CommentsEdit(Editor):  # {{{
         self.original_val = self.current_val
 
     def commit(self, db, id_):
-        db.set_comment(id_, self.current_val, notify=False, commit=False)
-        return True
+        val = self.current_val
+        if val != self.original_val:
+            db.set_comment(id_, self.current_val, notify=False, commit=False)
 # }}}
 
 class RatingEdit(QSpinBox):  # {{{
@@ -1251,21 +1234,20 @@ class LanguagesEdit(LE):  # {{{
         langs = db.languages(id_, index_is_id=True)
         if langs:
             lc = [x.strip() for x in langs.split(',')]
-        self.current_val = self.original_val = lc
+        self.current_val = lc
+        self.original_val = self.current_val
 
-    def commit(self, db, id_):
+    def validate_for_commit(self):
         bad = self.validate()
         if bad:
-            error_dialog(self, _('Unknown language'),
-                    ngettext('The language %s is not recognized',
-                        'The languages %s are not recognized', len(bad))%(
-                            ', '.join(bad)),
-                    show=True)
-            return False
+            msg = ngettext('The language %s is not recognized', 'The languages %s are not recognized', len(bad)) % (', '.join(bad))
+            return _('Unknown language'), msg, ''
+        return None, None, None
+
+    def commit(self, db, id_):
         cv = self.current_val
         if cv != self.original_val:
             db.set_languages(id_, cv)
-        return True
 # }}}
 
 class IdentifiersEdit(QLineEdit):  # {{{
@@ -1324,7 +1306,6 @@ class IdentifiersEdit(QLineEdit):  # {{{
     def commit(self, db, id_):
         if self.original_val != self.current_val:
             db.set_identifiers(id_, self.current_val, notify=False, commit=False)
-        return True
 
     def validate(self, *args):
         identifiers = self.current_val
