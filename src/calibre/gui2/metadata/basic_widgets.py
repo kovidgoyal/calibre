@@ -146,7 +146,7 @@ class TitleSortEdit(TitleEdit):
                   'No action is required if this is what you want.'))
         self.tooltips = (ok_tooltip, bad_tooltip)
 
-        self.title_edit.textChanged.connect(self.update_state)
+        self.title_edit.textChanged.connect(self.update_state_and_val)
         self.textChanged.connect(self.update_state)
 
         self.autogen_button = autogen_button
@@ -166,6 +166,13 @@ class TitleSortEdit(TitleEdit):
         except:
             book_lang = None
         return book_lang
+
+    def update_state_and_val(self):
+        # Handle case change if the title's case and nothing else was changed
+        ts = title_sort(self.title_edit.current_val, lang=self.book_lang)
+        if strcmp(ts, self.current_val) == 0:
+            self.current_val = ts
+        self.update_state()
 
     def update_state(self, *args):
         ts = title_sort(self.title_edit.current_val, lang=self.book_lang)
