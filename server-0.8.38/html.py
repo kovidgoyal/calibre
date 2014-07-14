@@ -74,8 +74,9 @@ class HtmlServer(object):
         connect('book_list',     '/book',         self.book_list)
         connect('book_add',      '/book/add',     self.book_add)
         connect('book_upload',   '/book/upload',  self.book_upload)
+        connect('book_delete',   '/book/{id}/delete',  self.book_delete)
+        connect('book_download', '/book/{id}.{fmt}',   self.book_download)
         connect('book_detail',   '/book/{id}',    self.book_detail)
-        connect('book_deleta',   '/book/{id}/delete',  self.book_delete)
         connect('author_list',   '/author',       self.author_list)
         connect('author_detail', '/author/{name}',self.author_detail)
         connect('tag_list',      '/tag',          self.tag_list)
@@ -145,6 +146,20 @@ class HtmlServer(object):
     def book_delete(self, id):
         self.db.delete_book(int(id))
         raise cherrypy.HTTPRedirect("/book", 302)
+
+    def book_download(self, id, fmt):
+        book_id = int(id)
+        books = self.db.get_data_as_dict(ids=[book_id])
+        book = books[0]
+        if 'fmt_%s'%fmt not in book:
+            raise cherrypy.HTTPError(404, '%s.%s not found'%(name,fmt))
+        path = book['fmt_%s'%fmt]
+        att = 'attachment; filename="%s"' % (book['title'])
+        cherrypy.response.headers['Content-Disposition'] = att
+        cherrypy.response.headers['Content-Type'] = 'application/octet-stream'
+        with open(path, 'rb') as f:
+            ans = f.read()
+        return ans;
 
     def book_add(self, file_input_name="ebook_file"):
         title = _('Upload Book')
