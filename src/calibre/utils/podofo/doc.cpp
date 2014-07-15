@@ -280,18 +280,20 @@ PDFDoc_set_xmp_metadata(PDFDoc *self, PyObject *args) {
     long len = 0;
     PoDoFo::PdfObject *metadata = NULL, *catalog = NULL;
     PoDoFo::PdfStream *str = NULL;
+    TVecFilters compressed(1); 
+    compressed[0] = ePdfFilter_FlateDecode;
 
     if (!PyArg_ParseTuple(args, "s#", &raw, &len)) return NULL;
     try {
         if ((metadata = self->doc->GetMetadata()) != NULL) {
             if ((str = metadata->GetStream()) == NULL) { PyErr_NoMemory(); goto error; }
-            str->Set(raw, len, PoDoFo::TVecFilters());
+            str->Set(raw, len, compressed);
         } else {
             if ((catalog = self->doc->GetCatalog()) == NULL) { PyErr_SetString(PyExc_ValueError, "Cannot set XML metadata as this document has no catalog"); goto error; }
             if ((metadata = self->doc->GetObjects().CreateObject("Metadata")) == NULL) { PyErr_NoMemory(); goto error; }
             if ((str = metadata->GetStream()) == NULL) { PyErr_NoMemory(); goto error; }
             metadata->GetDictionary().AddKey(PoDoFo::PdfName("Subtype"), PoDoFo::PdfName("XML"));
-            str->Set(raw, len, PoDoFo::TVecFilters());
+            str->Set(raw, len, compressed);
             catalog->GetDictionary().AddKey(PoDoFo::PdfName("Metadata"), metadata->Reference());
         }
     } catch(const PdfError & err) {
