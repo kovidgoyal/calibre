@@ -331,7 +331,7 @@ class SearchWidget(QWidget):
         if self.mode == 'regex':
             text = regex.escape(text, special_only=True)
         self.find = text
-        self.find_text.setSelection(0, len(text)+10)
+        self.find_text.lineEdit().setSelection(0, len(text)+10)
 
 # }}}
 
