@@ -82,11 +82,11 @@
   </layout>
  </widget>
  <customwidgets>
-  <customwidget>
-   <class>QWebView</class>
-   <extends>QWidget</extends>
-   <header>QtWebKitWidgets/QWebView</header>
-  </customwidget>
+       <customwidget>
+           <class>QWebView</class>
+           <extends>QWidget</extends>
+           <header>PyQt5/QtWebKitWidgets</header>
+       </customwidget>
   <customwidget>
    <class>NPWebView</class>
    <extends>QWebView</extends>
