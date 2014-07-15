@@ -6,6 +6,7 @@
         <meta name="baidu_union_verify" content="bac70eff3a1f61b08dd19e20cb34c635">
         <link href="{{M}}/css/bootstrap.min.css" rel="stylesheet">
         <link href="{{M}}/css/star-rating.css" rel="stylesheet">
+        <title>Calibre</title>
 <style>
 legend {
     margin-top: 10px;
@@ -17,8 +18,6 @@ legend {
 .brief {
     display: block;
     height: 5.9em;
-    overflow: hidden;
-    text-overflow: ellipsis;
 }
 .brief-intro {
     height: 5.9em;
@@ -31,6 +30,47 @@ legend {
     margin-bottom: 20px;
     border-bottom: 1px solid #ddd;
 }
+.new-book {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-bottom: 25px;
+}
+.book-title {
+    white-space: nowrap;
+    height: 1em;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    text-overflow: clip;
+}
+
+.random-book-img {
+    width: 155px;
+    height: 220px;
+}
+
+.new-book-img {
+    width: 68px;
+    height: 90px;
+}
+
+.new-book {
+}
+
+.new-book .book-comments {
+    text-indent: 2em;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    text-overflow: clip;
+}
+
+.phone-search .form-group {
+    display: inline-block;
+    width: 70%;
+}
+
 </style>
     </head>
 
@@ -47,24 +87,30 @@ legend {
             </div>
             <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
                 <ul class="nav navbar-nav">
-                    <li class="active" ><a href="/">我的书库</a></li>
+                    <li {%if not nav %}class="active"{%endif%} ><a href="/">书库</a></li>
+                    <li {%if nav == "user"%}class="active"{%endif%} ><a href="/user">设置</a></li>
                 </ul>
-                <ul class="nav navbar-nav navbar-right">
-                    <li class="dropdown">
-                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">username<b class="caret"></b></a>
-                        <ul class="dropdown-menu">
-                            <li><a href="/account/edit/">编辑账户信息</a></li>
-                            <li class="divider"></li>
-                            <li><a href="/account/logout/">退出账户</a></li>
-                        </ul>
-                    </li>
-                </ul>
+                <form class="hidden-xs navbar-form navbar-left" action="/search" role="search">
+                    <div class="form-group">
+                        <input type="text" name="name" class="form-control" placeholder="Search">
+                    </div>
+                    <button type="submit" class="btn btn-default">搜索</button>
+                </form>
+                <a class="pull-right btn navbar-btn btn-primary" href="/book/add"><span class="glyphicon glyphicon-cloud-upload"></span> 添加书籍</a>
             </div>
         </nav>
 
         <div class="container">
             <div class="row">
                 <div class="col-md-8">
+                    <div class="visible-xs-block phone-search">
+                        <form class="form-inline" action="/search" role="search">
+                            <div class="form-group">
+                                <input type="text" name="name" class="form-control" placeholder="Search">
+                            </div>
+                            <button type="submit" class="btn btn-default">搜索</button>
+                        </form>
+                    </div>
                     {% block content %}{% endblock %}
                 </div>
 

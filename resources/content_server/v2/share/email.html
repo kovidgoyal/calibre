@@ -1,13 +1,8 @@
 {% extends "content_server/v2/base.html" %}
 {% block content %}
 <legend>{{title}}</legend>
-
-<ul class="list-inline">
-{% for id, name in publishers %}
-    <li class="lead"><a href="/pub/{{name|urlencode}}">{{name}}</a></li>
-{% endfor %}
-</ul>
-
+{% if success_msg %}<div class="alert alert-success" role="alert">{{success_msg}}</div>{% endif %}
+{% if error_msg %}<div class="alert alert-danger" role="alert">{{error_msg}}</div>{% endif %}
 {% endblock %}
 
 {% block sidebar %}

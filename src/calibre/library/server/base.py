@@ -18,13 +18,14 @@ from calibre.library.server import listen_on, log_access_file, log_error_file
 from calibre.library.server.utils import expose, AuthController
 from calibre.utils.mdns import publish as publish_zeroconf, \
             unpublish as unpublish_zeroconf, get_external_ip, verify_ipV4_address
-from calibre.library.server.content import ContentServer
-from calibre.library.server.mobile import MobileServer
+#from calibre.library.server.content import ContentServer
+#from calibre.library.server.mobile import MobileServer
+from calibre.library.server.html import HtmlServer
 from calibre.library.server.xml import XMLServer
 from calibre.library.server.opds import OPDSServer
 from calibre.library.server.cache import Cache
-from calibre.library.server.browse import BrowseServer
-from calibre.library.server.ajax import AjaxServer
+#from calibre.library.server.browse import BrowseServer
+#from calibre.library.server.ajax import AjaxServer
 from calibre import prints, as_unicode
 
 
@@ -119,8 +120,7 @@ cherrypy.engine.bonjour = BonJour(cherrypy.engine)
 
 # }}}
 
-class LibraryServer(ContentServer, MobileServer, XMLServer, OPDSServer, Cache,
-        BrowseServer, AjaxServer):
+class LibraryServer(HtmlServer, XMLServer, OPDSServer, Cache):
 
     server_name = __appname__ + '/' + __version__
 

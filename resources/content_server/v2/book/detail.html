@@ -1,48 +1,50 @@
 {% extends "content_server/v2/base.html" %}
 {% block content %}
 <div class="row">
-    <div class="page-header">
-        <h1>《{{book.title}}》</h1>
-    </div>
+    <div class="col-md-12">
+        <div class="center-block">
+            <h1>《{{book.title}}》</h1>
+        </div>
 
-    <div class="media">
-        <img class="col-md-6 media-object" src="/get/thumb_300_420/{{book.id}}.jpg" alt="...">
-        <div class="media-body">
-            <p class="lead">
-            <br/>
-            作者: {{book.authors|join(",")}}<br/>
-            语言: {{book.languages}}<br/>
-            日期: {{book.pubdate}}<br/>
-            出版: {{book.publisher}}<br/>
-            标签: {{book.tags|join("/")}}<br/>
-            </p>
+        <div class="media">
+            <img class="col-md-6 media-object" src="/get/thumb_300_420/{{book.id}}.jpg" alt="...">
+            <div class="media-body">
+                <p class="lead">
+                <br/>
+                作者: <a href="/author/{{book.author_sort|urlencode}}">{{book.author_sort}}</a><br/>
+                出版: <a href="/pub/{{book.publisher|urlencode}}">{{book.publisher}}</a><br/>
+                日期: {{book.pubdate|day}}<br/>
+                语言: {{book.languages}}<br/>
+                标签: {{book.tags|join("/")}}<br/>
+                </p>
+            </div>
+        </div>
+
+        <legend>目录</legend>
+        <div class="well">
+            <p>balabala</p>
         </div>
     </div>
-
-    <legend>目录</legend>
-    <div class="well">
-        <p>balabala</p>
-    </div>
-
 </div>
 {% endblock %}
 
 {% block sidebar %}
 <div class="col-md-12">
-    <div class="well well-lg">
+    <div class="well well-lg hidden">
         <a class="btn btn-lg btn-block btn-info" href="/"><span class="glyphicon glyphicon-book"></span> 在线阅读</a>
     </div>
 
     <legend>推送</legend>
     <div class="list-group">
-        <a href="#" class="list-group-item"><span class="glyphicon glyphicon-phone"></span> Kindle</a>
+        <a href="/book/{{book.id}}/share/kindle" class="list-group-item"><span class="glyphicon glyphicon-phone"></span> Kindle</a>
         <a href="#" class="list-group-item"><span class="glyphicon glyphicon-cloud"></span> 电子邮件...</a>
     </div>
 
-    <legend>下载</legend>
+    <legend>阅读</legend>
     <div class="list-group">
+        <a class="list-group-item" href="/book/{{book.id}}/read"><span class="glyphicon glyphicon-book"></span> 在线阅读</a>
         {% for format, size in sizes %}
-        <a href="#" class="list-group-item"><span class="glyphicon glyphicon-save"></span> <span class="badge">{{size//1024}} KB</span> {{format}}</a>
+        <a href="/book/{{book.id}}.{{format}}" class="list-group-item"><span class="glyphicon glyphicon-save"></span> <span class="badge">{{size//1024}} KB</span> {{format}}</a>
         {% endfor %}
     </div>
 
@@ -53,9 +55,11 @@
       <a href="#" class="list-group-item"><span class="glyphicon glyphicon-refresh"></span> <span class="badge">豆瓣</span> 自动更新</a>
     </div>
 
-    <legend>删除</legend>
+    {% if db.prefs.show_delete %}
+    <legend>管理员</legend>
     <div class="list-group">
-        <a href="/book/{{book.id}}/delete" class="btn btn-danger list-group-item"><span class="glyphicon glyphicon-remove"></span> 删除</a>
+        <a href="/book/{{book.id}}/delete" class="btn btn-danger btn-block"><span class="glyphicon glyphicon-remove"></span> 删除</a>
     </div>
+    {% endif %}
 </div>
 {% endblock %}

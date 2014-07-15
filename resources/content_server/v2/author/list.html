@@ -3,8 +3,8 @@
 <legend>{{title}}</legend>
 
 <ul class="list-inline">
-{% for id, name in publishers %}
-    <li class="lead"><a href="/pub/{{name|urlencode}}">{{name}}</a></li>
+{% for id, name in authors %}
+    <li class="lead"><a href="/author/{{name|urlencode}}">{{name}}</a></li>
 {% endfor %}
 </ul>
 

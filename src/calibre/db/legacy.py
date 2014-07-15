@@ -844,7 +844,7 @@ for field in ('authors', 'tags', 'publisher', 'series'):
 LibraryDatabase.all_formats = MT(lambda self:self.new_api.all_field_names('formats'))
 LibraryDatabase.all_custom = MT(lambda self, label=None, num=None:self.new_api.all_field_names(self.custom_field_name(label, num)))
 
-for func, field in {'all_authors':'authors', 'all_titles':'title', 'all_tags2':'tags', 'all_series':'series', 'all_publishers':'publisher'}.iteritems():
+for func, field in {'all_authors':'authors', 'all_titles':'title', 'all_tags2':'tags', 'all_series':'series', 'all_publishers':'publisher', 'all_ratings': 'rating'}.iteritems():
     def getter(field):
         def func(self):
             return self.field_id_map(field)
@@ -855,8 +855,14 @@ LibraryDatabase.all_tags = MT(lambda self: list(self.all_tag_names()))
 LibraryDatabase.get_all_identifier_types = MT(lambda self: list(self.new_api.fields['identifiers'].table.all_identifier_types()))
 LibraryDatabase.get_authors_with_ids = MT(
     lambda self: [[aid, adata['name'], adata['sort'], adata['link']] for aid, adata in self.new_api.author_data().iteritems()])
+LibraryDatabase.get_tag_id = MT(
+    lambda self, tag: {icu_lower(v):k for k, v in self.new_api.get_id_map('tags').iteritems()}.get(icu_lower(tag), None))
 LibraryDatabase.get_author_id = MT(
     lambda self, author: {icu_lower(v):k for k, v in self.new_api.get_id_map('authors').iteritems()}.get(icu_lower(author), None))
+LibraryDatabase.get_publisher_id = MT(
+    lambda self, publisher: {icu_lower(v):k for k, v in self.new_api.get_id_map('publisher').iteritems()}.get(icu_lower(publisher), None))
+LibraryDatabase.get_rating_id = MT(
+    lambda self, rating: {v:k for k, v in self.new_api.get_id_map('rating').iteritems()}.get(int(rating), None))
 
 for field in ('tags', 'series', 'publishers', 'ratings', 'languages'):
     def getter(field):

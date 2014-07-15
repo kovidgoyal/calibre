@@ -1,222 +1,40 @@
 {% extends "content_server/v2/base.html" %}
 {% block content %}
-<legend>最近阅读</legend>
+<legend>推荐阅读</legend>
 <div class="row">
-
-    <div class="col-sm-4 col-md-3">
+    {% for book in random_books %}
+    <div class="col-xs-6 col-sm-3">
         <div class="thumbnail">
-            <a href="book.html"><img data-src="holder.js/155x220" alt="..."></a>
+            <a href="/book/{{book.id}}"><img class="random-book-img" src="/get/thumb_155_220/{{book.id}}.jpg" alt="cover"/></a>
             <div class="caption">
-                <h5><a href="book.html">致远星的沦陷</a></h5>
-                <span><input class="rating" value=3 data-min=0 data-max=5 data-size="xs" ></span>
+                <span><input class="rating" value={{book.rating}} data-min=0 data-max=10 data-size="xs" ></span>
+                <h5><a class="book-title" href="/book/{{book.id}}">{{book.title}}</a></h5>
             </div>
         </div>
     </div>
-
-
-    <div class="col-sm-4 col-md-3">
-        <div class="thumbnail">
-            <a href="book.html"><img data-src="holder.js/155x220" alt="..."></a>
-            <div class="caption">
-                <h5><a href="book.html">致远星的沦陷</a></h5>
-                <span><input class="rating" value=3 data-min=0 data-max=5 data-size="xs" ></span>
-            </div>
-        </div>
-    </div>
-
-
-    <div class="col-sm-4 col-md-3">
-        <div class="thumbnail">
-            <a href="book.html"><img data-src="holder.js/155x220" alt="..."></a>
-            <div class="caption">
-                <h5><a href="book.html">致远星的沦陷</a></h5>
-                <span><input class="rating" value=3 data-min=0 data-max=5 data-size="xs" ></span>
-            </div>
-        </div>
-    </div>
-
-
-    <div class="col-sm-4 col-md-3">
-        <div class="thumbnail">
-            <a href="book.html"><img data-src="holder.js/155x220" alt="..."></a>
-            <div class="caption">
-                <h5><a href="book.html">致远星的沦陷</a></h5>
-                <span><input class="rating" value=3 data-min=0 data-max=5 data-size="xs" ></span>
-            </div>
-        </div>
-    </div>
-
+    {% endfor %}
 </div>
 
 <legend>新书推荐</legend>
 <div class="row">
-
-
-    <div class="col-sm-12 col-md-6">
-        <div class="media">
-            <a class="pull-left" href="#">
-                <img class="media-object" data-src="holder.js/68x90" alt="...">
-            </a>
+    {% for book in new_books %}
+    <div class="col-sm-6">
+        <div class="media new-book">
+            <a class="pull-left" href="/book/{{book.id}}"><img class="new-book-img media-object" src="/get/thumb_68_90/{{book.id}}.jpg" alt="cover"/></a>
             <div class="media-body">
-                <h4 class="media-heading">光晕（1~7部）</h4>
+                <h4 class="media-heading"><a class="book-title" href="/book/{{book.id}}">{{book.title}}</a></h4>
                 <p>
-                作者：<span>(美)埃里克·尼伦德</span><br/>
-                小说<br/>
-                <br/>
+                作者：{{book.authors|join(",")}}<br/>
+                出版：{{book.publisher}}<br/>
+                日期：{{book.pubdate|day}}<br/>
                 </p>
             </div>
             <div>
-                <p class="brief-intro">依照太空史诗的惯例，通常这时候就该有一帮强大而极具威胁的外星入侵看闪亮登台了。在《光晕》中，圣约人（Covenant），出演了这个任重道远的角色。圣约人其实是一个以宗教为纽带建立起的庞大团体，包括了许多外星种族，他们宣称人类对天神有侮辱轻蔑之意，亵渎了其信仰，于是悍然发动了针对人类的全面战争。战争，由此开始。</p>
+                <p class="book-comments">{% if book.comments %}{{book.comments|striptags}}{%endif%}</p>
             </div>
         </div>
     </div>
-
-    <div class="col-sm-12 col-md-6">
-        <div class="media">
-            <a class="pull-left" href="#">
-                <img class="media-object" data-src="holder.js/68x90" alt="...">
-            </a>
-            <div class="media-body">
-                <h4 class="media-heading">冰与火之歌（卷一至卷五）</h4>
-                <p>
-                作者：<span>乔治*马丁</span><br/>
-                玄幻/奇幻<br/>
-                <br/>
-                </p>
-            </div>
-            <div>
-                <p class="brief-intro">
-                《冰与火之歌》( A Song of Ice and Fire )由美国著名科幻奇幻小说家乔治·R·R·马丁 ( George R.R. Martin )所著，是当代奇幻文学一部影响深远的里程碑式的作品。
-                </p>
-            </div>
-        </div>
-    </div>
-
-
-    <div class="col-sm-12 col-md-6">
-        <div class="media">
-            <a class="pull-left" href="#">
-                <img class="media-object" data-src="holder.js/68x90" alt="...">
-            </a>
-            <div class="media-body">
-                <h4 class="media-heading">时间旅行者的妻子</h4>
-                <p>
-                作者：<span>[美] 奥德丽·尼芬格</span><br/>
-                小说<br/>
-                <br/>
-                </p>
-            </div>
-            <div>
-                <p class="brief-intro">
-                相遇那年，她6岁，他36岁；
-                结婚那年，她23岁，他31岁；
-                离别后再度重逢时，她82岁，他43岁。
-                相对于如此真实、强烈的感觉，时间，微不足道……
-                亨利，一位年轻帅气、爱冒险的图书管理员，可是他有慢性时间错位症，会不知不觉地游离在时间之间。
-                克莱尔，亨利的妻子，一位生活秩序很规律的艺术家。
-                亨利以为他在28岁时第一次遇到他20岁的妻子克莱尔，而克莱尔却说：“我从小就认识你了”。和克莱尔结婚多年的亨利，却又突然发现自己回到了童年，遇见了他6岁的妻子。
-                如果生命是一场旅行，亨利的旅程肯定比常人更迂回更深刻，那些不由自主地消失，不得不一再体验曾经遭受的经历，他只能旁观、重复品味着那些快乐、悲伤和痛苦。可是在时间的正常旅途中行走的克莱尔呢？她只能被亨利远远抛在了后面，渴望，焦急，等着爱人回到她的身边。她虽然拥有时间，却只能通过捉摸亨利来触摸时间。
-                时间过滤着这一对恋人炙热的爱意，他们在时间与爱的复杂交错中勇敢地探索，最终谱写了一曲高昂的颂歌，踏上常人不可思议的浪漫之旅。
-                </p>
-            </div>
-        </div>
-    </div>
-
-
-
-
-
-    <div class="col-sm-12 col-md-6">
-        <div class="media">
-            <a class="pull-left" href="#">
-                <img class="media-object" data-src="holder.js/68x90" alt="...">
-            </a>
-            <div class="media-body">
-                <h4 class="media-heading">光晕（1~7部）</h4>
-                <p>
-                作者：<span>(美)埃里克·尼伦德</span><br/>
-                小说<br/>
-                <br/>
-                </p>
-            </div>
-            <div>
-                <p class="brief-intro">依照太空史诗的惯例，通常这时候就该有一帮强大而极具威胁的外星入侵看闪亮登台了。在《光晕》中，圣约人（Covenant），出演了这个任重道远的角色。圣约人其实是一个以宗教为纽带建立起的庞大团体，包括了许多外星种族，他们宣称人类对天神有侮辱轻蔑之意，亵渎了其信仰，于是悍然发动了针对人类的全面战争。战争，由此开始。</p>
-            </div>
-        </div>
-    </div>
-    <div class="col-sm-12 col-md-6">
-        <div class="media">
-            <a class="pull-left" href="#">
-                <img class="media-object" data-src="holder.js/68x90" alt="...">
-            </a>
-            <div class="media-body">
-                <h4 class="media-heading">光晕（1~7部）</h4>
-                <p>
-                作者：<span>(美)埃里克·尼伦德</span><br/>
-                小说<br/>
-                <br/>
-                </p>
-            </div>
-            <div>
-                <p class="brief-intro">依照太空史诗的惯例，通常这时候就该有一帮强大而极具威胁的外星入侵看闪亮登台了。在《光晕》中，圣约人（Covenant），出演了这个任重道远的角色。圣约人其实是一个以宗教为纽带建立起的庞大团体，包括了许多外星种族，他们宣称人类对天神有侮辱轻蔑之意，亵渎了其信仰，于是悍然发动了针对人类的全面战争。战争，由此开始。</p>
-            </div>
-        </div>
-    </div>
-    <div class="col-sm-12 col-md-6">
-        <div class="media">
-            <a class="pull-left" href="#">
-                <img class="media-object" data-src="holder.js/68x90" alt="...">
-            </a>
-            <div class="media-body">
-                <h4 class="media-heading">光晕（1~7部）</h4>
-                <p>
-                作者：<span>(美)埃里克·尼伦德</span><br/>
-                小说<br/>
-                <br/>
-                </p>
-            </div>
-            <div>
-                <p class="brief-intro">依照太空史诗的惯例，通常这时候就该有一帮强大而极具威胁的外星入侵看闪亮登台了。在《光晕》中，圣约人（Covenant），出演了这个任重道远的角色。圣约人其实是一个以宗教为纽带建立起的庞大团体，包括了许多外星种族，他们宣称人类对天神有侮辱轻蔑之意，亵渎了其信仰，于是悍然发动了针对人类的全面战争。战争，由此开始。</p>
-            </div>
-        </div>
-    </div>
-    <div class="col-sm-12 col-md-6">
-        <div class="media">
-            <a class="pull-left" href="#">
-                <img class="media-object" data-src="holder.js/68x90" alt="...">
-            </a>
-            <div class="media-body">
-                <h4 class="media-heading">光晕（1~7部）</h4>
-                <p>
-                作者：<span>(美)埃里克·尼伦德</span><br/>
-                小说<br/>
-                <br/>
-                </p>
-            </div>
-            <div>
-                <p class="brief-intro">依照太空史诗的惯例，通常这时候就该有一帮强大而极具威胁的外星入侵看闪亮登台了。在《光晕》中，圣约人（Covenant），出演了这个任重道远的角色。圣约人其实是一个以宗教为纽带建立起的庞大团体，包括了许多外星种族，他们宣称人类对天神有侮辱轻蔑之意，亵渎了其信仰，于是悍然发动了针对人类的全面战争。战争，由此开始。</p>
-            </div>
-        </div>
-    </div>
-
-    <div class="col-sm-12 col-md-6">
-        <div class="media">
-            <a class="pull-left" href="#">
-                <img class="media-object" data-src="holder.js/68x90" alt="...">
-            </a>
-            <div class="media-body">
-                <h4 class="media-heading">光晕（1~7部）</h4>
-                <p>
-                作者：<span>(美)埃里克·尼伦德</span><br/>
-                小说<br/>
-                <br/>
-                </p>
-            </div>
-            <div>
-                <p class="brief-intro">依照太空史诗的惯例，通常这时候就该有一帮强大而极具威胁的外星入侵看闪亮登台了。在《光晕》中，圣约人（Covenant），出演了这个任重道远的角色。圣约人其实是一个以宗教为纽带建立起的庞大团体，包括了许多外星种族，他们宣称人类对天神有侮辱轻蔑之意，亵渎了其信仰，于是悍然发动了针对人类的全面战争。战争，由此开始。</p>
-            </div>
-        </div>
-    </div>
+    {% endfor %}
 </div>
 {% endblock %}
 
