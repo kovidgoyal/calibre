@@ -7,13 +7,15 @@ __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
+from functools import partial
+
 import sip
 from PyQt5.Qt import (Qt, QAction, QMenu, QMenuBar, QObject,
     QToolBar, QToolButton, QSize, pyqtSignal, QTimer)
 
 from calibre.constants import isosx
 from calibre.gui2.throbber import create_donate_widget
-from calibre.gui2 import gprefs
+from calibre.gui2 import gprefs, workaround_broken_under_mouse
 
 class ToolBar(QToolBar):  # {{{
 
@@ -106,8 +108,12 @@ class ToolBar(QToolBar):  # {{{
             ch = self.child_bar.widgetForAction(ac)
         ch.setCursor(Qt.PointingHandCursor)
         ch.setAutoRaise(True)
-        if ac.menu() is not None and menu_mode is not None:
-            ch.setPopupMode(menu_mode)
+        m = ac.menu()
+        if m is not None:
+            if workaround_broken_under_mouse is not None:
+                m.aboutToHide.connect(partial(workaround_broken_under_mouse, ch))
+            if menu_mode is not None:
+                ch.setPopupMode(menu_mode)
         return ch
 
     # support drag&drop from/to library, from/to reader/card, enabled plugins

@@ -1152,3 +1152,14 @@ if _df and os.path.exists(_df):
     build_forms(_df)
 
 
+if islinux or isbsd:
+    def workaround_broken_under_mouse(ch):
+        import sip
+        from PyQt5.Qt import QCursor, QToolButton
+        # See https://bugreports.qt-project.org/browse/QTBUG-40233
+        if isinstance(ch, QToolButton) and not sip.isdeleted(ch):
+            ch.setAttribute(Qt.WA_UnderMouse, ch.rect().contains(ch.mapFromGlobal(QCursor.pos())))
+            ch.update()
+else:
+    workaround_broken_under_mouse = None
+

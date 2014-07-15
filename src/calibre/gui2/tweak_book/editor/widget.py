@@ -16,8 +16,8 @@ from PyQt5.Qt import (
 from calibre import prints
 from calibre.constants import DEBUG
 from calibre.ebooks.chardet import replace_encoding_declarations
-from calibre.gui2 import error_dialog, open_url
 from calibre.gui2.tweak_book import actions, current_container, tprefs, dictionaries, editor_toolbar_actions, editor_name, editors
+from calibre.gui2 import error_dialog, open_url, workaround_broken_under_mouse
 from calibre.gui2.tweak_book.editor import SPELL_PROPERTY, LINK_PROPERTY, TAG_NAME_PROPERTY, CSS_PROPERTY
 from calibre.gui2.tweak_book.editor.help import help_url
 from calibre.gui2.tweak_book.editor.text import TextEdit
@@ -310,10 +310,19 @@ class Editor(QMainWindow):
                 w.setContextMenuPolicy(Qt.CustomContextMenu)
                 w.customContextMenuRequested.connect(w.showMenu)
                 self._build_insert_tag_button_menu()
+                if workaround_broken_under_mouse is not None:
+                    try:
+                        self.insert_tag_menu.aboutToHide.disconnect()
+                    except TypeError:
+                        pass
+                    self.insert_tag_menu.aboutToHide.connect(partial(workaround_broken_under_mouse, w))
             elif name == 'change-paragraph':
                 m = ac.m = QMenu()
                 ac.setMenu(m)
-                bar.widgetForAction(ac).setPopupMode(QToolButton.InstantPopup)
+                ch = bar.widgetForAction(ac)
+                ch.setPopupMode(QToolButton.InstantPopup)
+                if workaround_broken_under_mouse is not None:
+                    m.aboutToHide.connect(partial(workaround_broken_under_mouse, ch))
                 for name in tuple('h%d' % d for d in range(1, 7)) + ('p',):
                     m.addAction(actions['rename-block-tag-%s' % name])
 
