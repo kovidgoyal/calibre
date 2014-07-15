@@ -21,8 +21,8 @@
 </legend>
 
 {% for book in books %}
-    <div class="media bookitem">
-        <a class="pull-left" href="/book/{{book.id}}"><img class="media-object" width=105 height=145 src="/get/thumb_105_145/{{book.id}}.jpg" ></a>
+    <div class="media list-book">
+        <a class="pull-left" href="/book/{{book.id}}"><img class="list-book-img media-object" src="/get/thumb_105_145/{{book.id}}.jpg" ></a>
         <div class="media-body">
             <h4 class="media-heading"><a href="/book/{{book.id}}">{{book.title}}</a></h4>
             <p>
