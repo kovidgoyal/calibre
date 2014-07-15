@@ -311,8 +311,8 @@ class Mobi8Reader(object):
         if plt == npos or pgt < plt:
             npos = pgt + 1
         textblock = textblock[0:npos]
-        id_re = re.compile(br'''<[^>]+\sid\s*=\s*['"]([^'"]+)['"]''')
-        name_re = re.compile(br'''<\s*a\s*\sname\s*=\s*['"]([^'"]+)['"]''')
+        id_re = re.compile(br'''<[^>]+\s(?:id|ID)\s*=\s*['"]([^'"]+)['"]''')
+        name_re = re.compile(br'''<\s*a\s*\s(?:name|NAME)\s*=\s*['"]([^'"]+)['"]''')
         for tag in reverse_tag_iter(textblock):
             m = id_re.match(tag) or name_re.match(tag)
             if m is not None:
