@@ -12,6 +12,7 @@ import sys, os, struct, textwrap
 from itertools import izip
 
 from calibre import CurrentDir
+from calibre.ebooks.mobi.debug.containers import ContainerHeader
 from calibre.ebooks.mobi.debug.headers import TextRecord
 from calibre.ebooks.mobi.debug.index import (SKELIndex, SECTIndex, NCXIndex,
         GuideIndex)
@@ -152,9 +153,11 @@ class MOBIFile(object):
 
     def extract_resources(self, records):
         self.resource_map = []
+        self.containers = []
         known_types = {b'FLIS', b'FCIS', b'SRCS',
                     b'\xe9\x8e\r\n', b'RESC', b'BOUN', b'FDST', b'DATP',
                     b'AUDI', b'VIDE', b'CRES', b'CONT', b'CMET'}
+        container = None
 
         for i, rec in enumerate(records):
             for (l, r, offset) in self.resource_ranges:
@@ -181,7 +184,27 @@ class MOBIFile(object):
                 payload = (font['font_data'] if font['font_data'] else
                         font['raw_data'])
                 prefix, ext = 'fonts', font['ext']
+            elif sig == b'CONT':
+                if payload == b'CONTBOUNDARY':
+                    self.containers.append(container)
+                    container = None
+                    continue
+                container = ContainerHeader(payload)
+            elif sig == b'CRES':
+                container.resources.append(payload)
+                if container.is_image_container:
+                    payload = payload[12:]
+                    q = what(None, payload)
+                    if q:
+                        prefix, ext = 'hd-images', q
+                        resource_index = len(container.resources)
+            elif sig == b'\xa0\xa0\xa0\xa0' and len(payload) == 4:
+                container.resources.append(None)
+                continue
             elif sig not in known_types:
+                if container is not None and len(container.resources) == container.num_of_resource_records:
+                    container.add_hrefs(payload)
+                    continue
                 q = what(None, rec.raw)
                 if q:
                     prefix, ext = 'images', q
@@ -274,7 +297,7 @@ def inspect_mobi(mobi_file, ddir):
     with open(alltext, 'wb') as of:
         of.write(f.raw_text)
 
-    for x in ('text_records', 'images', 'fonts', 'binary', 'files', 'flows'):
+    for x in ('text_records', 'images', 'fonts', 'binary', 'files', 'flows', 'hd-images',):
         os.mkdir(os.path.join(ddir, x))
 
     for rec in f.text_records:
@@ -283,6 +306,10 @@ def inspect_mobi(mobi_file, ddir):
     for href, payload in f.resource_map:
         with open(os.path.join(ddir, href), 'wb') as fo:
             fo.write(payload)
+
+    for i, container in enumerate(f.containers):
+        with open(os.path.join(ddir, 'container%d.txt' % (i + 1)), 'wb') as cf:
+            cf.write(str(container).encode('utf-8'))
 
     if f.fdst:
         with open(os.path.join(ddir, 'fdst.record'), 'wb') as fo:
