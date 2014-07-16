@@ -219,6 +219,7 @@ class KF8Book(object):
     def __init__(self, writer, for_joint=False):
         self.build_records(writer, for_joint)
         self.used_images = writer.used_images
+        self.page_progression_direction = writer.oeb.spine.page_progression_direction
 
     def build_records(self, writer, for_joint):
         metadata = writer.oeb.metadata
@@ -297,15 +298,18 @@ class KF8Book(object):
         code to customize various values after build_records() has been
         called'''
         opts = self.opts
-        self.exth = build_exth(self.metadata,
-                prefer_author_sort=opts.prefer_author_sort,
-                is_periodical=opts.mobi_periodical,
-                share_not_sync=opts.share_not_sync,
-                cover_offset=self.cover_offset,
-                thumbnail_offset=self.thumbnail_offset,
-                num_of_resources=self.num_of_resources,
-                kf8_unknown_count=self.kuc, be_kindlegen2=True,
-                start_offset=self.start_offset, mobi_doctype=self.book_type)
+        self.exth = build_exth(
+            self.metadata,
+            prefer_author_sort=opts.prefer_author_sort,
+            is_periodical=opts.mobi_periodical,
+            share_not_sync=opts.share_not_sync,
+            cover_offset=self.cover_offset,
+            thumbnail_offset=self.thumbnail_offset,
+            num_of_resources=self.num_of_resources,
+            kf8_unknown_count=self.kuc, be_kindlegen2=True,
+            start_offset=self.start_offset, mobi_doctype=self.book_type,
+            page_progression_direction=self.page_progression_direction
+        )
 
         kwargs = {field:getattr(self, field) for field in HEADER_FIELDS}
         return MOBIHeader()(**kwargs)
