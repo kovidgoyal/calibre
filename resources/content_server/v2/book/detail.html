@@ -16,9 +16,15 @@
                 日期: {{book.pubdate|day}}<br/>
                 语言: {{book.languages}}<br/>
                 标签: {{book.tags|join("/")}}<br/>
+                ISBN: {{book.isbn}}<br/>
                 </p>
             </div>
         </div>
+        <p>&nbsp;</p>
+
+        <legend>简介</legend>
+        <p>{{book.comments}}</p>
+        <p>&nbsp;</p>
 
         <legend>目录</legend>
         <div class="well">

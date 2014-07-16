@@ -33,7 +33,10 @@ class CSSortKeyGenerator(SortKeyGenerator):
         return self.itervals(record).next()
 
 def day_format(value, format='%Y-%m-%d'):
-    return value.strftime(format)
+    try:
+        return value.strftime(format)
+    except:
+        return "1990-01-01"
 
 def T(name):
     from jinja2 import Environment, FileSystemLoader
@@ -101,18 +104,16 @@ class HtmlServer(object):
             return self.opds(version=0)
         return self.html_index()
 
-    def sort2(self, items, field, order):
-        items.sort(cmp=lambda x,y: x[field] > y[field], reverse=not order)
+    def do_sort(self, items, field, order):
+        items.sort(cmp=lambda x,y: cmp(x[field], y[field]), reverse=not order)
 
     def sort_books(self, items, field):
-        sort='title'
-        self.sort2(items, sort, True)
+        self.do_sort(items, 'title', True)
         fm = self.db.field_metadata
         keys = frozenset(fm.sortable_field_keys())
         if field in keys:
-            sort = field
             ascending = fm[field]['datatype'] not in ('rating', 'datetime', 'series')
-            self.sort2(items, sort, ascending)
+            self.do_sort(items, 'field', ascending)
         return sort
 
     @cherrypy.expose
@@ -129,7 +130,8 @@ class HtmlServer(object):
             raise cherrypy.HTTPError(404, 'This library has no books')
 
         books = self.db.get_data_as_dict(ids=ids)
-        self.sort_books(books, 'timestamp')
+        self.sort_books(books, 'datetime')
+        books.reverse()
         new_books = books[:8]
         try:
             random_books = random.sample(books, 4)
@@ -140,19 +142,26 @@ class HtmlServer(object):
     @cherrypy.expose
     def book_list(self, start=0, sort='title'):
         title = _('All books')
-        delta = 20
-        try: page = int(page)
-        except: page = 0
-
-        category_type = "list_all"
-        category_name = _('All books')
+        category_name = 'books'
         ids = self.search_cache('')
-        page_now = page*delta
-        page_max = len(ids)
-        page_prev = None if page - 1 < 0 else page - 1
-        page_next = None if page + 1 > page_max else page + 1
-        books = self.db.get_data_as_dict(ids=ids)[page:page+delta]
-        return self.html_page('content_server/v2/book/list.html', vars())
+        books = self.db.get_data_as_dict(ids=ids)
+        return self.render_book_list(books, start, sort, vars());
+        #return self.html_page('content_server/v2/book/list.html', vars())
+
+    def render_book_list(self, all_books, start, sort, vars_):
+        try: start = int(start)
+        except: start = 0
+        self.sort_books(all_books, sort)
+        delta = 20
+        page_max = len(all_books) / delta
+        page_now = start / delta
+        pages = []
+        for p in range(page_now-4, page_now+4):
+            if 0 <= p and p <= page_max:
+                pages.append(p)
+        books = all_books[start:start+delta]
+        vars_.update(vars())
+        return self.html_page('content_server/v2/book/list.html', vars_)
 
     def book_detail(self, id):
         book_id = int(id)
@@ -218,27 +227,33 @@ class HtmlServer(object):
         tags = self.db.all_tags2()
         return self.html_page('content_server/v2/tag/list.html', vars())
 
-    def tag_detail(self, name):
+    @cherrypy.expose
+    def tag_detail(self, name, start=0, sort="title"):
         title = _('Books of tag: %') % name
         category = "tags"
         tag_id = self.db.get_tag_id(name)
         ids = self.db.get_books_for_category(category, tag_id)
         books = self.db.get_data_as_dict(ids=ids)
-        return self.html_page('content_server/v2/book/list.html', vars())
+        return self.render_book_list(books, start, sort, vars());
 
     def author_list(self):
         title = _('All authors')
         category = "authors"
         authors = self.db.all_authors()
+        authors.sort(cmp=lambda x,y: cmp(ascii_filename(x[1]).lower(), ascii_filename(y[1]).lower()))
+        authors.sort(cmp=lambda x,y: cmp(x[1], y[1]))
+        logging.error(authors)
         return self.html_page('content_server/v2/author/list.html', vars())
 
-    def author_detail(self, name):
+    @cherrypy.expose
+    def author_detail(self, name, start=0, sort="title"):
         title = _('Books of author: %s') % name
         category = "authors"
         author_id = self.db.get_author_id(name)
         ids = self.db.get_books_for_category(category, author_id)
         books = self.db.get_data_as_dict(ids=ids)
-        return self.html_page('content_server/v2/book/list.html', vars())
+        return self.render_book_list(books, start, sort, vars());
+        #return self.html_page('content_server/v2/book/list.html', vars())
 
     def pub_list(self):
         title = _('All publishers')
@@ -246,17 +261,15 @@ class HtmlServer(object):
         publishers = self.db.all_publishers()
         return self.html_page('content_server/v2/publisher/list.html', vars())
 
-    def pub_detail(self, name):
+    @cherrypy.expose
+    def pub_detail(self, name, start=0, sort="title"):
         title = _('Books of publisher: %s ') % name
         category = "publisher"
-        import code
-        db = self.db
-        logging.error(dir(self.db.__module__))
         publisher_id = self.db.get_publisher_id(name)
         ids = self.db.get_books_for_category(category, publisher_id)
-        #code.interact("hello",local=vars())
         books = self.db.get_data_as_dict(ids=ids)
-        return self.html_page('content_server/v2/book/list.html', vars())
+        return self.render_book_list(books, start, sort, vars());
+        #return self.html_page('content_server/v2/book/list.html', vars())
 
     def rating_list(self):
         title = _('All ratings')
@@ -264,13 +277,15 @@ class HtmlServer(object):
         ratings = self.db.all_ratings()
         return self.html_page('content_server/v2/rating/list.html', vars())
 
-    def rating_detail(self, name):
+    @cherrypy.expose
+    def rating_detail(self, name, start=0, sort="title"):
         title = _('Books of rating: %s ') % name
         category = "rating"
         rating_id = self.db.get_rating_id(name)
         ids = self.db.get_books_for_category(category, rating_id)
         books = self.db.get_data_as_dict(ids=ids)
-        return self.html_page('content_server/v2/book/list.html', vars())
+        return self.render_book_list(books, start, sort, vars());
+        #return self.html_page('content_server/v2/book/list.html', vars())
 
     def user_view(self):
         nav = "user"
@@ -419,10 +434,6 @@ class HtmlServer(object):
         if path.endswith('.css'):
             ans = ans.replace('/static/', self.opts.url_prefix + '/static/')
         return ans
-
-    def old(self, **kwargs):
-        return self.static('index.html').replace('{prefix}',
-                self.opts.url_prefix)
 
     # Actually get content from the database {{{
     def get_cover(self, id, thumbnail=False, thumb_width=60, thumb_height=80):

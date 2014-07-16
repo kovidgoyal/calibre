@@ -4,13 +4,11 @@
 <div class="row">
     {% for book in random_books %}
     <div class="col-xs-6 col-sm-3">
-        <div class="thumbnail">
             <a href="/book/{{book.id}}"><img class="random-book-img" src="/get/thumb_155_220/{{book.id}}.jpg" alt="cover"/></a>
             <div class="caption">
                 <span><input class="rating" value={{book.rating}} data-min=0 data-max=10 data-size="xs" ></span>
                 <h5><a class="book-title" href="/book/{{book.id}}">{{book.title}}</a></h5>
             </div>
-        </div>
     </div>
     {% endfor %}
 </div>
@@ -24,9 +22,8 @@
             <div class="media-body">
                 <h4 class="media-heading"><a class="book-title" href="/book/{{book.id}}">{{book.title}}</a></h4>
                 <p>
-                作者：{{book.authors|join(",")}}<br/>
-                出版：{{book.publisher}}<br/>
-                日期：{{book.pubdate|day}}<br/>
+                {{book.authors|join(",")}}<br/>
+                {{book.publisher}} / {{book.pubdate|day}}<br/>
                 </p>
             </div>
             <div>
@@ -34,6 +31,9 @@
             </div>
         </div>
     </div>
+    {% if loop.index is divisibleby(2) %}
+    <div class="clearfix"></div>
+    {% endif %}
     {% endfor %}
 </div>
 {% endblock %}
