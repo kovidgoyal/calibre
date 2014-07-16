@@ -73,12 +73,11 @@ class MOBIFile(object):
         h, h8 = mf.mobi_header, mf.mobi8_header
         first_text_record = 1
         offset = 0
-        res_end = len(mf.records)
+        self.resource_ranges = [(h8.first_resource_record, h8.last_resource_record, h8.first_image_index)]
         if mf.kf8_type == 'joint':
             offset = h.exth.kf8_header_index
-            res_end = offset - 1
+            self.resource_ranges.insert(0, (h.first_resource_record, h.last_resource_record, h.first_image_index))
 
-        self.resource_records = mf.records[h.first_non_book_record:res_end]
         self.text_records = [TextRecord(i, r, h8.extra_data_flags,
             mf.decompress8) for i, r in
             enumerate(mf.records[first_text_record+offset:
@@ -86,7 +85,7 @@ class MOBIFile(object):
 
         self.raw_text = b''.join(r.raw for r in self.text_records)
         self.header = self.mf.mobi8_header
-        self.extract_resources()
+        self.extract_resources(mf.records)
         self.read_fdst()
         self.read_indices()
         self.build_files()
@@ -151,13 +150,21 @@ class MOBIFile(object):
             with open(os.path.join(ddir, 'flow%04d.txt'%i), 'wb') as f:
                 f.write(raw)
 
-    def extract_resources(self):
+    def extract_resources(self, records):
         self.resource_map = []
         known_types = {b'FLIS', b'FCIS', b'SRCS',
                     b'\xe9\x8e\r\n', b'RESC', b'BOUN', b'FDST', b'DATP',
-                    b'AUDI', b'VIDE'}
+                    b'AUDI', b'VIDE', b'CRES', b'CONT', b'CMET'}
 
-        for i, rec in enumerate(self.resource_records):
+        for i, rec in enumerate(records):
+            for (l, r, offset) in self.resource_ranges:
+                if l <= i <= r:
+                    resource_index = i + 1
+                    if offset is not None and resource_index >= offset:
+                        resource_index -= offset
+                    break
+            else:
+                continue
             sig = rec.raw[:4]
             payload = rec.raw
             ext = 'dat'
@@ -185,7 +192,7 @@ class MOBIFile(object):
                 elif sig in known_types:
                     suffix = '-' + sig.decode('ascii')
 
-            self.resource_map.append(('%s/%06d%s.%s'%(prefix, i, suffix, ext),
+            self.resource_map.append(('%s/%06d%s.%s'%(prefix, resource_index, suffix, ext),
                 payload))
 
     def read_tbs(self):

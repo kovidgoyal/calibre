@@ -383,6 +383,13 @@ class MOBIHeader(object):  # {{{
             if hasattr(self, x) and getattr(self, x) != NULL_INDEX:
                 setattr(self, x, self.header_offset+getattr(self, x))
 
+        # Try to find the first non-text record
+        self.first_resource_record = offset + 1 + self.number_of_text_records  # Default to first record after all text records
+        pointer = min(getattr(self, 'first_non_book_record', NULL_INDEX), getattr(self, 'first_image_index', NULL_INDEX))
+        if pointer != NULL_INDEX:
+            self.first_resource_record = max(pointer, self.first_resource_record)
+        self.last_resource_record = NULL_INDEX
+
         if self.has_exth:
             self.exth_offset = 16 + self.length
 
@@ -390,6 +397,10 @@ class MOBIHeader(object):  # {{{
 
             self.end_of_exth = self.exth_offset + self.exth.length
             self.bytes_after_exth = self.raw[self.end_of_exth:self.fullname_offset]
+
+            if self.exth.kf8_header_index is not None and offset == 0:
+                # MOBI 6 header in a joint file, adjust self.last_resource_record
+                self.last_resource_record = self.exth.kf8_header_index - 2
 
     def __str__(self):
         ans = ['*'*20 + ' MOBI %d Header '%self.file_version+ '*'*20]
