@@ -1,6 +1,6 @@
 {% extends "content_server/v2/base.html" %}
 {% block content %}
-<legend>推荐阅读</legend>
+<legend>{{ gettext("Random Books") }}</legend>
 <div class="row">
     {% for book in random_books %}
     <div class="col-xs-6 col-sm-3">
@@ -13,7 +13,7 @@
     {% endfor %}
 </div>
 
-<legend>新书推荐</legend>
+<legend>{{ gettext("New Books") }}</legend>
 <div class="row">
     {% for book in new_books %}
     <div class="col-sm-6">

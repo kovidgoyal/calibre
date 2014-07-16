@@ -1,9 +1,18 @@
 {% extends "content_server/v2/base.html" %}
+{% block msgbar %}
+<div id="id_edit_tip" class="hidden col-md-12">
+    <div class="alert alert-warning alert-dismissible" role="alert">
+        <button type="button" class="close" data-dismiss="alert"><span aria-hidden="true">&times;</span></button>
+        <strong>{{ gettext("You are now in Edit Mode!") }}</strong>
+        <p>{{ gettext("Click the title fields (or other), edit and it will auto save.") }}</p>
+    </div>
+</div>
+{% endblock %}
 {% block content %}
 <div class="row">
     <div class="col-md-12">
         <div class="center-block">
-            <h1>《{{book.title}}》</h1>
+            <h1 class="book-edit" data-meta="title">{{book.title}}</h1>
         </div>
 
         <div class="media">
@@ -11,61 +20,61 @@
             <div class="media-body">
                 <p class="lead">
                 <br/>
-                作者: <a href="/author/{{book.author_sort|urlencode}}">{{book.author_sort}}</a><br/>
-                出版: <a href="/pub/{{book.publisher|urlencode}}">{{book.publisher}}</a><br/>
-                日期: {{book.pubdate|day}}<br/>
-                语言: {{book.languages}}<br/>
-                标签: {{book.tags|join("/")}}<br/>
-                ISBN: {{book.isbn}}<br/>
+                {{ gettext("Author: ") }}   <a href="/author/{{book.author_sort|urlencode}}">{{book.author_sort}}</a><br/>
+                {{ gettext("Publisher: ") }}<a href="/pub/{{book.publisher|urlencode}}">{{book.publisher}}</a><br/>
+                {{ gettext("Date: ") }}     <span class="book-edit" data-meta="pubdate">{{book.pubdate|day}}</span><br/>
+                {{ gettext("Language: ") }} <span class="book-edit" data-meta="pubdate">{{book.languages}}</span><br/>
+                {{ gettext("Tags: ") }}     <span class="book-edit" data-meta="pubdate">{{book.tags|join("/")}}</span><br/>
+                {{ gettext("Series: ") }}   <span class="book-edit" data-meta="pubdate">{{book.series}}</span><br/>
+                {{ gettext("ISBN: ") }}     <span class="book-edit" data-meta="pubdate">{{book.isbn}}</span><br/>
                 </p>
             </div>
         </div>
         <p>&nbsp;</p>
 
-        <legend>简介</legend>
-        <p>{{book.comments}}</p>
+        <legend>{{ gettext("Brief") }}</legend>
+        <p class="book-edit" data-meta="comments">{{book.comments}}</p>
         <p>&nbsp;</p>
-
-        <legend>目录</legend>
-        <div class="well">
-            <p>balabala</p>
-        </div>
+        <p>{% for k,v in book.items() %} {{k}}: {{v|rex}}<br/>{% endfor %}</p>
     </div>
 </div>
 {% endblock %}
 
 {% block sidebar %}
 <div class="col-md-12">
-    <div class="well well-lg hidden">
-        <a class="btn btn-lg btn-block btn-info" href="/"><span class="glyphicon glyphicon-book"></span> 在线阅读</a>
+    <legend>{{ gettext("Push") }}</legend>
+    <div class="list-group">
+        <a href="/book/{{book.id}}/share/kindle" class="list-group-item"><span class="glyphicon glyphicon-phone"></span> {{ gettext("Kindle") }}</a>
+        <a href="#" class="list-group-item"><span class="glyphicon glyphicon-cloud"></span> {{ gettext("Email...") }}</a>
     </div>
 
-    <legend>推送</legend>
+    <legend>{{ gettext("Read") }}</legend>
     <div class="list-group">
-        <a href="/book/{{book.id}}/share/kindle" class="list-group-item"><span class="glyphicon glyphicon-phone"></span> Kindle</a>
-        <a href="#" class="list-group-item"><span class="glyphicon glyphicon-cloud"></span> 电子邮件...</a>
-    </div>
-
-    <legend>阅读</legend>
-    <div class="list-group">
-        <a class="list-group-item" href="/book/{{book.id}}/read"><span class="glyphicon glyphicon-book"></span> 在线阅读</a>
+        <a class="list-group-item" href="/book/{{book.id}}/read"><span class="glyphicon glyphicon-book"></span> {{ gettext("Read online") }}</a>
         {% for format, size in sizes %}
         <a href="/book/{{book.id}}.{{format}}" class="list-group-item"><span class="glyphicon glyphicon-save"></span> <span class="badge">{{size//1024}} KB</span> {{format}}</a>
         {% endfor %}
     </div>
 
 
-    <legend>编辑</legend>
+    <legend>{{ gettext("Edit") }}</legend>
     <div class="list-group">
-      <a href="#" class="list-group-item"><span class="glyphicon glyphicon-cog"></span> 手动填写书籍信息</a>
-      <a href="#" class="list-group-item"><span class="glyphicon glyphicon-refresh"></span> <span class="badge">豆瓣</span> 自动更新</a>
+        <a href="#" onclick="return bind_book_editable({{book.id}})" class="list-group-item"><span class="glyphicon glyphicon-cog"></span> {{ gettext("Manual edit") }}</a>
+        <a href="/book/{{book.id}}/update" class="list-group-item"><span class="glyphicon glyphicon-refresh"></span> <span class="badge">{{ gettext("Douban") }}</span> {{ gettext("Auto update") }}</a>
     </div>
 
     {% if db.prefs.show_delete %}
-    <legend>管理员</legend>
+    <legend>{{ gettext("Admin") }}</legend>
     <div class="list-group">
-        <a href="/book/{{book.id}}/delete" class="btn btn-danger btn-block"><span class="glyphicon glyphicon-remove"></span> 删除</a>
+        <a href="/book/{{book.id}}/delete" class="btn btn-danger btn-block"><span class="glyphicon glyphicon-remove"></span> {{ gettext("Delete") }}</a>
     </div>
     {% endif %}
 </div>
 {% endblock %}
+
+{% block script %}
+<script>
+    //jQuery(document).ready(bind_book_editable);
+</script>
+{% endblock %}
+

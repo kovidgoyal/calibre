@@ -3,16 +3,16 @@
 <legend class="visible-xs-block">{{title}}</legend>
 <div class="visible-xs-block">
         <div class="well">
-            {% if sort != "title" %}<a href="?sort=title&start={{start}}">{% endif %}按书名排序{% if sort != "title" %}</a>{% endif%} /
-            {% if sort != "pubdate" %}<a href="?sort=pubdate&start={{start}}">{% endif %}按出版日期排序{% if sort != "pubdate" %}</a>{% endif%} /
-            {% if sort != "rating" %}<a href="?sort=rating&start={{start}}">{% endif %}按评价排序{% if sort != "rating" %}</a>{% endif%}
+            {% if sort != "title" %}<a href="?sort=title&start={{start}}">{% endif %}{{ gettext("Sort by title") }}{% if sort != "title" %}</a>{% endif%} /
+            {% if sort != "pubdate" %}<a href="?sort=pubdate&start={{start}}">{% endif %}{{ gettext("Sort by date") }}{% if sort != "pubdate" %}</a>{% endif%} /
+            {% if sort != "rating" %}<a href="?sort=rating&start={{start}}">{% endif %}{{ gettext("Sort by rating") }}{% if sort != "rating" %}</a>{% endif%}
         </div>
 </div>
 <legend class="hidden-xs">{{title}}
         <div class="sorter pull-right">
-            {% if sort != "title" %}<a href="?sort=title&start={{start}}">{% endif %}按书名排序{% if sort != "title" %}</a>{% endif%} /
-            {% if sort != "pubdate" %}<a href="?sort=pubdate&start={{start}}">{% endif %}按出版日期排序{% if sort != "pubdate" %}</a>{% endif%} /
-            {% if sort != "rating" %}<a href="?sort=rating&start={{start}}">{% endif %}按评价排序{% if sort != "rating" %}</a>{% endif%}
+            {% if sort != "title" %}<a href="?sort=title&start={{start}}">{% endif %}{{ gettext("Sort by title") }}{% if sort != "title" %}</a>{% endif%} /
+            {% if sort != "pubdate" %}<a href="?sort=pubdate&start={{start}}">{% endif %}{{ gettext("Sort by date") }}{% if sort != "pubdate" %}</a>{% endif%} /
+            {% if sort != "rating" %}<a href="?sort=rating&start={{start}}">{% endif %}{{ gettext("Sort by rating") }}{% if sort != "rating" %}</a>{% endif%}
         </div>
 </legend>
 
@@ -33,7 +33,7 @@
 {% endfor %}
 
 <ul class="pagination">
-    <li {% if page_now == 0 %}class="disabled"{%endif%}><a href="?sort={{sort}}&start={{page_now*delta-delta}}">&laquo; 前页</a></li>
+    <li {% if page_now == 0 %}class="disabled"{%endif%}><a href="?sort={{sort}}&start={{page_now*delta-delta}}">&laquo; {{ gettext("Prev") }}</a></li>
 
     {% for p in pages %}
     <li {%if page_now == p %}class="active"{%endif%}><a href="?sort={{sort}}&start={{p*delta}}">{{p+1}}</a></li>
@@ -44,7 +44,7 @@
     <li><a href="?sort={{sort}}&start={{page_max*delta}}">{{page_max+1}}</a></li>
     {% endif %}
 
-    <li {% if page_now == page_max %}class="disabled"{%endif%}><a href="?sort={{sort}}&start={{page_now*delta+delta}}">后页 &raquo;</a></li>
+    <li {% if page_now == page_max %}class="disabled"{%endif%}><a href="?sort={{sort}}&start={{page_now*delta+delta}}">{{ gettext("Next") }} &raquo;</a></li>
 </ul>
 {% endblock %}
 

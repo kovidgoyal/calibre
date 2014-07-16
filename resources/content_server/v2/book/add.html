@@ -4,11 +4,11 @@
 
 <form action="/book/upload" class="form-inline" role="form" method="post" enctype="multipart/form-data">
     <div class="form-group">
-        <label class="sr-only" for="exampleInputEmail2">Select Files</label>
-        <input type="file" class="form-control" id="id_ebook_file" name="ebook_file" placeholder="Select file">
+        <label class="sr-only" for="exampleInputEmail2">{{ gettext("Select ebook files") }}</label>
+        <input type="file" class="form-control" id="id_ebook_file" name="ebook_file" placeholder="{{ gettext('Select ebook file') }}">
     </div>
 
-    <input class="btn btn-primary" type="submit"/>
+    <button class="btn btn-primary" type="submit">{{ gettext("Upload Book") }}</button>
 </form>
 
 {% endblock %}

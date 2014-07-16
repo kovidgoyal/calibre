@@ -1,75 +1,13 @@
 <!DOCTYPE html>
-<html  lang="zh-CN">
+<html lang="{{language}}">
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <meta name="baidu_union_verify" content="bac70eff3a1f61b08dd19e20cb34c635">
         <link href="{{M}}/css/bootstrap.min.css" rel="stylesheet">
         <link href="{{M}}/css/star-rating.css" rel="stylesheet">
-        <title>Calibre</title>
-<style>
-legend {
-    margin-top: 10px;
-}
-.sorter {
-    margin-top: 10px;
-    font-size: 50%;
-}
-.brief {
-    display: block;
-    height: 5.9em;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    margin: 10px 0 10px;
-}
-.list-book {
-    padding-bottom: 10px;
-    margin-bottom: 20px;
-    border-bottom: 1px solid #ddd;
-}
-.new-book {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    margin-bottom: 25px;
-}
-.book-title {
-    display: block;
-    height: 2em;
-}
-
-a>img.random-book-img {
-    width: 155px;
-    height: 220px;
-}
-
-.new-book-img {
-    width: 68px;
-    height: 90px;
-}
-
-.list-book-img {
-    width: 105px;
-    height: 145px;
-}
-
-.new-book {
-}
-
-.new-book .book-comments {
-    text-indent: 2em;
-    overflow: hidden;
-    display: -webkit-box;
-    -webkit-line-clamp: 3;
-    -webkit-box-orient: vertical;
-    text-overflow: clip;
-}
-
-.phone-search .form-group {
-    display: inline-block;
-    width: 70%;
-}
-
-</style>
+        <link href="{{M}}/css/calibre.css" rel="stylesheet">
+        <title>{% if title %}{{title}} - {%endif%}{{ gettext('Calibre') }}</title>
     </head>
 
     <body>
@@ -81,32 +19,33 @@ a>img.random-book-img {
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
                 </button>
-                <a class="navbar-brand logo" href="/">Calibre</a>
+                <a class="navbar-brand logo" href="/">{{ gettext('Calibre') }}</a>
             </div>
             <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
                 <ul class="nav navbar-nav">
-                    <li {%if not nav %}class="active"{%endif%} ><a href="/">书库</a></li>
-                    <li {%if nav == "user"%}class="active"{%endif%} ><a href="/user">设置</a></li>
+                    <li {%if not nav %}class="active"{%endif%} ><a href="/">{{ gettext("Library")}}</a></li>
+                    <li {%if nav == "user"%}class="active"{%endif%} ><a href="/user">{{ gettext("Setting")}}</a></li>
                 </ul>
                 <form class="hidden-xs navbar-form navbar-left" action="/search" role="search">
                     <div class="form-group">
-                        <input type="text" name="name" class="form-control" placeholder="Search">
+                        <input type="text" name="name" class="form-control" placeholder="{{ gettext('Search book') }}">
                     </div>
-                    <button type="submit" class="btn btn-default">搜索</button>
+                    <button type="submit" class="btn btn-default">{{ gettext("Search") }}</button>
                 </form>
-                <a class="pull-right btn navbar-btn btn-primary" href="/book/add"><span class="glyphicon glyphicon-cloud-upload"></span> 添加书籍</a>
+                <a class="pull-right btn navbar-btn btn-primary" href="/book/add"><span class="glyphicon glyphicon-cloud-upload"></span> {{ gettext("Upload Book") }}</a>
             </div>
         </nav>
 
         <div class="container">
             <div class="row">
+                {% block msgbar %}{% endblock %}
                 <div class="col-md-8">
                     <div class="visible-xs-block phone-search">
                         <form class="form-inline" action="/search" role="search">
                             <div class="form-group">
-                                <input type="text" name="name" class="form-control" placeholder="Search">
+                                <input type="text" name="name" class="form-control" placeholder="{{ gettext('Search book') }}">
                             </div>
-                            <button type="submit" class="btn btn-default">搜索</button>
+                            <button type="submit" class="btn btn-default">{{ gettext("Search") }}</button>
                         </form>
                     </div>
                     {% block content %}{% endblock %}
@@ -125,8 +64,7 @@ a>img.random-book-img {
             </div>
             <div class="row">
                 <p>&nbsp;</p>
-                <p class="pull-left text-muted">[/data/books/library]</p>
-                <p class="pull-right text-info">Calibre is Created by Kovid Goyal</p>
+                <p class="center-block text-info">{{ gettext("Calibre - ebook management") }}</p>
             </div>
         </div>
 
@@ -135,8 +73,11 @@ a>img.random-book-img {
         <script src="{{M}}/js/spin.min.js"></script>
         <script src="{{M}}/js/holder.js"></script>
         <script src="{{M}}/js/star-rating.min.js"></script>
+        <script src="{{M}}/js/jquery.editable.min.js"></script>
+        <script src="{{M}}/js/calibre.js"></script>
         <script>
             $(".rating").rating({showClear: false, showCaption: false});
         </script>
+        {% block script %}{% endblock %}
     </body>
 </html>

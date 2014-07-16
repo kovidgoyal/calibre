@@ -5,21 +5,25 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import re, os, posixpath, cherrypy, cgi, tempfile, logging, sys
+import re, os, posixpath, cherrypy, cgi, tempfile, logging, sys, json
+from gettext import gettext,ngettext
 from calibre.ebooks.metadata.meta import get_metadata
 
 from calibre import fit_image, guess_type
 from calibre.utils.date import fromtimestamp
-from calibre.library.caches import SortKeyGenerator
-from calibre.library.save_to_disk import find_plugboard
-from calibre.ebooks.metadata import authors_to_string
+from calibre.utils.smtp import sendmail, create_mail
+from calibre.utils.logging import Log
+from calibre.utils.filenames import ascii_filename
 from calibre.utils.magick.draw import (save_cover_data_to, Image,
         thumbnail as generate_thumbnail)
-from calibre.utils.filenames import ascii_filename
 from calibre.ebooks.metadata.opf2 import metadata_to_opf
 from calibre.ebooks.metadata.meta import set_metadata
 from calibre.ebooks.metadata import authors_to_string
-from calibre.utils.smtp import sendmail, create_mail
+from calibre.ebooks.conversion.plumber import Plumber
+from calibre.library.caches import SortKeyGenerator
+from calibre.library.save_to_disk import find_plugboard
+
+import douban
 
 plugboard_content_server_value = 'content_server'
 plugboard_content_server_formats = ['epub']
@@ -38,11 +42,17 @@ def day_format(value, format='%Y-%m-%d'):
     except:
         return "1990-01-01"
 
+def rex(value):
+    try: return unicode(value)
+    except: return ""
+
 def T(name):
     from jinja2 import Environment, FileSystemLoader
     loader = FileSystemLoader(sys.resources_location)
-    env = Environment(loader=loader)
+    env = Environment(loader=loader, extensions=['jinja2.ext.i18n'])
+    env.install_gettext_callables(gettext, ngettext, newstyle=False)
     env.filters['day'] = day_format
+    env.filters['rex'] = rex
     return env.get_template(name)
 
 class HtmlServer(object):
@@ -55,12 +65,15 @@ class HtmlServer(object):
         connect('book_list',     '/book',         self.book_list)
         connect('book_add',      '/book/add',     self.book_add)
         connect('book_upload',   '/book/upload',  self.book_upload)
-        connect('book_detail',   '/book/{id}',    self.book_detail)
         connect('book_delete',   '/book/{id}/delete',       self.book_delete)
+        connect('book_edit',     '/book/{id}/edit',         self.book_edit)
+        connect('book_update',   '/book/{id}/update',       self.book_update)
         connect('book_download', '/book/{id}.{fmt}',        self.book_download)
         connect('share_kindle',  '/book/{id}/share/kindle', self.share_kindle)
+        connect('book_detail',   '/book/{id}',    self.book_detail)
         connect('author_list',   '/author',       self.author_list)
         connect('author_detail', '/author/{name}',self.author_detail)
+        connect('author_update', '/author/{name}/update',self.author_books_update)
         connect('tag_list',      '/tag',          self.tag_list)
         connect('tag_detail',    '/tag/{name}',   self.tag_detail)
         connect('pub_list',      '/pub',          self.pub_list)
@@ -113,15 +126,15 @@ class HtmlServer(object):
         keys = frozenset(fm.sortable_field_keys())
         if field in keys:
             ascending = fm[field]['datatype'] not in ('rating', 'datetime', 'series')
-            self.do_sort(items, 'field', ascending)
-        return sort
+            self.do_sort(items, field, ascending)
+        return None
 
     @cherrypy.expose
-    def search_book(self, name=None, start=0):
+    def search_book(self, name=None, start=0, sort='title'):
         title = _('Search for: %s') % name
         ids = self.search_for_books(name)
         books = self.db.get_data_as_dict(ids=ids)
-        return self.html_page('content_server/v2/book/list.html', vars())
+        return self.render_book_list(books, start, sort, vars());
 
     def html_index(self):
         import random
@@ -146,7 +159,6 @@ class HtmlServer(object):
         ids = self.search_cache('')
         books = self.db.get_data_as_dict(ids=ids)
         return self.render_book_list(books, start, sort, vars());
-        #return self.html_page('content_server/v2/book/list.html', vars())
 
     def render_book_list(self, all_books, start, sort, vars_):
         try: start = int(start)
@@ -166,10 +178,42 @@ class HtmlServer(object):
     def book_detail(self, id):
         book_id = int(id)
         books = self.db.get_data_as_dict(ids=[book_id])
+        if not books:
+            raise cherrypy.HTTPError(404, 'book not found')
         book = books[0]
         try: sizes = [ (f, self.db.sizeof_format(book['id'], f, index_is_id=True)) for f in book['available_formats'] ]
         except: sizes = []
+        title = book['title']
         return self.html_page('content_server/v2/book/detail.html', vars())
+
+    def do_book_update(self, id):
+        book_id = int(id)
+        mi = self.db.get_metadata(book_id, index_is_id=True)
+        douban_mi = douban.get_douban_metadata(mi.title)
+        if mi.cover_data[0]:
+            douban_mi.cover_data = None
+        mi.smart_update(douban_mi, replace_metadata=True)
+        self.db.set_metadata(book_id, mi)
+        return book_id
+
+    def book_update(self, id):
+        book_id = self.do_book_update(id)
+        raise cherrypy.HTTPRedirect('/book/%d'%book_id, 302)
+
+    @cherrypy.expose
+    def book_edit(self, id, field, content):
+        book_id = int(id)
+        mi = self.db.get_metadata(book_id, index_is_id=True)
+        if not mi.has_key(field):
+            return json.dumps({'ecode': 1, 'msg': _("field not support")})
+        if field == 'pubdate':
+            try:
+                content = datetime.datetime.strptime(content, "%Y-%m-%d")
+            except:
+                return json.dumps({'ecode': 2, 'msg': _("date format error!")})
+        mi.set(field, content)
+        self.db.set_metadata(book_id, mi)
+        return json.dumps({'ecode': 0, 'msg': _("edit OK")})
 
     def book_delete(self, id):
         self.db.delete_book(int(id))
@@ -200,10 +244,11 @@ class HtmlServer(object):
         cherrypy.response.timeout = 3600
 
         name = ebook_file.filename
-        format = os.path.splitext(name)[1]
-        format = format[1:] if format else None
-        if not format:
+        fmt = os.path.splitext(name)[1]
+        fmt = fmt[1:] if fmt else None
+        if not fmt:
             return "bad file name: %s" % name
+        fmt = fmt.lower()
 
         # save file
         data = ''
@@ -217,9 +262,21 @@ class HtmlServer(object):
 
         # read ebook meta
         stream = open(fpath, 'rb')
-        mi = get_metadata(stream, stream_type=format, use_libprs_metadata=True)
-        ret = self.db.import_book(mi, [fpath] )
-        raise cherrypy.HTTPRedirect('/book/%d'%ret)
+        mi = get_metadata(stream, stream_type=fmt, use_libprs_metadata=True)
+        books = self.db.books_with_same_title(mi)
+        if books:
+            book_id = books.pop()
+            raise cherrypy.HTTPRedirect('/book/%d'%book_id)
+
+        # convert another format
+        new_fmt = {'epub': 'mobi', 'mobi': 'epub'}.get(fmt)
+        new_path = '/tmp/calibre-tmp.'+new_fmt
+        log = Log()
+        plumber = Plumber(fpath, new_path, log)
+        plumber.run()
+
+        book_id = self.db.import_book(mi, [fpath, new_path] )
+        raise cherrypy.HTTPRedirect('/book/%d'%book_id)
 
     def tag_list(self):
         title = _('All tags')
@@ -253,7 +310,16 @@ class HtmlServer(object):
         ids = self.db.get_books_for_category(category, author_id)
         books = self.db.get_data_as_dict(ids=ids)
         return self.render_book_list(books, start, sort, vars());
-        #return self.html_page('content_server/v2/book/list.html', vars())
+
+    @cherrypy.expose
+    def author_books_update(self, name):
+        cherrypy.response.timeout = 3600
+        category = "authors"
+        author_id = self.db.get_author_id(name)
+        ids = self.db.get_books_for_category(category, author_id)
+        for book_id in list(ids):
+            self.do_book_update(book_id)
+        raise cherrypy.HTTPRedirect('/author/%s'%name, 302)
 
     def pub_list(self):
         title = _('All publishers')
@@ -269,7 +335,6 @@ class HtmlServer(object):
         ids = self.db.get_books_for_category(category, publisher_id)
         books = self.db.get_data_as_dict(ids=ids)
         return self.render_book_list(books, start, sort, vars());
-        #return self.html_page('content_server/v2/book/list.html', vars())
 
     def rating_list(self):
         title = _('All ratings')
@@ -285,7 +350,6 @@ class HtmlServer(object):
         ids = self.db.get_books_for_category(category, rating_id)
         books = self.db.get_data_as_dict(ids=ids)
         return self.render_book_list(books, start, sort, vars());
-        #return self.html_page('content_server/v2/book/list.html', vars())
 
     def user_view(self):
         nav = "user"
@@ -293,6 +357,7 @@ class HtmlServer(object):
         msg = None
         return self.html_page('content_server/v2/user/view.html', vars())
 
+    @cherrypy.expose
     def user_save(self, share_kindle=None, show_delete=False):
         nav = "user"
         title = _('User Settings')
