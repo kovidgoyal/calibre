@@ -121,9 +121,9 @@ class EXTHRecord(object):
         self.data = data
         self.length = length
         self.name = {
-                  1 : 'Drm Server Id',
-                  2 : 'Drm Commerce Id',
-                  3 : 'Drm Ebookbase Book Id',
+                1   : 'Drm Server Id',
+                2   : 'Drm Commerce Id',
+                3   : 'Drm Ebookbase Book Id',
                 100 : 'Creator',
                 101 : 'Publisher',
                 102 : 'Imprint',
@@ -174,10 +174,20 @@ class EXTHRecord(object):
                 502 : 'last_update_time',
                 503 : 'Updated Title',
                 504 : 'ASIN [5xx]',
+                508 : 'Unknown Title Furigana?',
+                517 : 'Unknown Creator Furigana?',
+                522 : 'Unknown Publisher Furigana?',
                 524 : 'Language',
-                525 : 'TextDirection',
-                528 : 'Unknown_Logical_Value',
+                525 : 'primary-writing-mode',
+                527 : 'page-progression-direction',
+                528 : 'Override Kindle fonts',
+                534 : 'Input Source Type',
                 535 : 'Kindlegen Build-Rev Number',
+                536 : 'Container Info',  # CONT_Header is 0, Ends with CONTAINER_BOUNDARY (or Asset_Type?)
+                538 : 'Container Resolution',
+                539 : 'Container Mimetype',
+                542 : 'Unknown but changes with file name only',
+                543 : 'Container id',  # FONT_CONTAINER, BW_CONTAINER, HD_CONTAINER
         }.get(self.type, repr(self.type))
 
         if (self.name in {'sample', 'StartOffset', 'CoverOffset', 'ThumbOffset', 'Fake Cover',
