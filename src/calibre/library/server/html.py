@@ -317,7 +317,7 @@ class HtmlServer(object):
         category = "authors"
         author_id = self.db.get_author_id(name)
         ids = self.db.get_books_for_category(category, author_id)
-        for book_id in list(ids):
+        for book_id in list(ids)[:40]:
             self.do_book_update(book_id)
         raise cherrypy.HTTPRedirect('/author/%s'%name, 302)
 
@@ -332,8 +332,14 @@ class HtmlServer(object):
         title = _('Books of publisher: %s ') % name
         category = "publisher"
         publisher_id = self.db.get_publisher_id(name)
-        ids = self.db.get_books_for_category(category, publisher_id)
-        books = self.db.get_data_as_dict(ids=ids)
+        logging.error(publisher_id)
+        if publisher_id:
+            ids = self.db.get_books_for_category(category, publisher_id)
+            books = self.db.get_data_as_dict(ids=ids)
+        else:
+            ids = self.search_for_books('')
+            books = self.db.get_data_as_dict(ids=ids)
+            books = [ b for b in books if not b['publisher'] ]
         return self.render_book_list(books, start, sort, vars());
 
     def rating_list(self):

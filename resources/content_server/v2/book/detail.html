@@ -23,10 +23,10 @@
                 {{ gettext("Author: ") }}   <a href="/author/{{book.author_sort|urlencode}}">{{book.author_sort}}</a><br/>
                 {{ gettext("Publisher: ") }}<a href="/pub/{{book.publisher|urlencode}}">{{book.publisher}}</a><br/>
                 {{ gettext("Date: ") }}     <span class="book-edit" data-meta="pubdate">{{book.pubdate|day}}</span><br/>
-                {{ gettext("Language: ") }} <span class="book-edit" data-meta="pubdate">{{book.languages}}</span><br/>
-                {{ gettext("Tags: ") }}     <span class="book-edit" data-meta="pubdate">{{book.tags|join("/")}}</span><br/>
-                {{ gettext("Series: ") }}   <span class="book-edit" data-meta="pubdate">{{book.series}}</span><br/>
-                {{ gettext("ISBN: ") }}     <span class="book-edit" data-meta="pubdate">{{book.isbn}}</span><br/>
+                {{ gettext("Language: ") }} <span class="book-edit" data-meta="language">{{book.languages}}</span><br/>
+                {{ gettext("Tags: ") }}     <span class="book-edit" data-meta="tags">{{book.tags|join("/")}}</span><br/>
+                {{ gettext("Series: ") }}   <span class="book-edit" data-meta="series">{{book.series}}</span><br/>
+                {{ gettext("ISBN: ") }}     <span class="book-edit" data-meta="isbn">{{book.isbn}}</span><br/>
                 </p>
             </div>
         </div>
@@ -35,7 +35,6 @@
         <legend>{{ gettext("Brief") }}</legend>
         <p class="book-edit" data-meta="comments">{{book.comments}}</p>
         <p>&nbsp;</p>
-        <p>{% for k,v in book.items() %} {{k}}: {{v|rex}}<br/>{% endfor %}</p>
     </div>
 </div>
 {% endblock %}
