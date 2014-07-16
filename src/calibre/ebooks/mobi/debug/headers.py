@@ -186,7 +186,6 @@ class EXTHRecord(object):
                 536 : 'Container Info',  # CONT_Header is 0, Ends with CONTAINER_BOUNDARY (or Asset_Type?)
                 538 : 'Container Resolution',
                 539 : 'Container Mimetype',
-                542 : 'Unknown but changes with file name only',
                 543 : 'Container id',  # FONT_CONTAINER, BW_CONTAINER, HD_CONTAINER
         }.get(self.type, repr(self.type))
 
