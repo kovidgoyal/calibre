@@ -156,7 +156,7 @@ class MOBIFile(object):
         self.containers = []
         known_types = {b'FLIS', b'FCIS', b'SRCS',
                     b'\xe9\x8e\r\n', b'RESC', b'BOUN', b'FDST', b'DATP',
-                    b'AUDI', b'VIDE', b'CRES', b'CONT', b'CMET'}
+                    b'AUDI', b'VIDE', b'CRES', b'CONT', b'CMET', b'PAGE'}
         container = None
 
         for i, rec in enumerate(records):
