@@ -16,17 +16,46 @@
         </div>
 
         <div class="media">
-            <img class="col-md-6 media-object" src="/get/thumb_300_420/{{book.id}}.jpg" alt="...">
+            <img class="col-md-5 media-object" src="/get/thumb_300_420/{{book.id}}.jpg" alt="...">
             <div class="media-body">
                 <p class="lead">
+
+                {{ gettext("Author: ") }}
+                <span class="hidden book-edit" data-meta="authors">{{book.author_sort}}</span>
+                <a id="id_authors" class="meta-link" href="/author/{{book.author_sort|urlencode}}">{{book.author_sort}}</a><br/>
+
+                {% if book.tags %} {{ gettext("Tags: ") }}
+                <span class="hidden book-edit" data-meta="tags">{{book.tags|join(" / ")}}</span>
+                <span id="id_tags" class="meta-link">
+                {% for tag in book.tags %}
+                <a href="/tag/{{tag|urlencode}}">{{tag}}</a>
+                {% if not loop.last %} / {% endif %}
+                {% endfor%}
+                </span>
                 <br/>
-                {{ gettext("Author: ") }}   <a href="/author/{{book.author_sort|urlencode}}">{{book.author_sort}}</a><br/>
-                {{ gettext("Publisher: ") }}<a href="/pub/{{book.publisher|urlencode}}">{{book.publisher}}</a><br/>
-                {{ gettext("Date: ") }}     <span class="book-edit" data-meta="pubdate">{{book.pubdate|day}}</span><br/>
-                {{ gettext("Language: ") }} <span class="book-edit" data-meta="language">{{book.languages}}</span><br/>
-                {{ gettext("Series: ") }}   <span class="book-edit" data-meta="series">{{book.series}}</span><br/>
-                {{ gettext("ISBN: ") }}     <span class="book-edit" data-meta="isbn">{{book.isbn}}</span><br/>
-                {{ gettext("Tags: ") }}     <span class="book-edit" data-meta="tags">{{book.tags|join("/")}}</span><br/>
+                {% endif %}
+
+                {% if book.publisher %} {{ gettext("Publisher: ") }}
+                <span class="hidden book-edit" data-meta="publisher">{{book.publisher}}</span>
+                <a id="id_publisher" class="meta-link" href="/pub/{{book.publisher|urlencode}}">{{book.publisher}}</a><br/>
+                {% endif %}
+
+                {% if book.series %} {{ gettext("Series: ") }}
+                <span class="book-edit" data-meta="series">{{book.series}}</span><br/>
+                {% endif %}
+
+                {% if book.pubdate %} {{ gettext("Date: ") }}
+                <span class="book-edit" data-meta="pubdate">{{book.pubdate|day}}</span><br/>
+                {% endif %}
+
+                {% if book.language %} {{ gettext("Language: ") }}
+                <span class="book-edit" data-meta="language">{{book.language}}</span><br/>
+                {% endif %}
+
+                {% if book.isbn %} {{ gettext("ISBN: ") }}
+                <span class="book-edit" data-meta="isbn">{{book.isbn}}</span><br/>
+                {% endif %}
+
                 </p>
             </div>
         </div>
@@ -72,11 +101,5 @@
 
     {% endif %}
 </div>
-{% endblock %}
-
-{% block script %}
-<script>
-    //jQuery(document).ready(bind_book_editable);
-</script>
 {% endblock %}
 

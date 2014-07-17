@@ -52,6 +52,7 @@ a>img.random-book-img {
     -webkit-line-clamp: 3;
     -webkit-box-orient: vertical;
     text-overflow: clip;
+    margin-top: 6px;
 }
 
 .phone-search .form-group {
@@ -65,5 +66,12 @@ a>img.random-book-img {
 
 .book-edit.book-edit-new {
     color: #428bca;
+}
+
+.footer p {
+    border-top: 1px solid #eee;
+    margin: 20px 0;
+    padding: 20px 0;
+    text-align: center;
 }
 

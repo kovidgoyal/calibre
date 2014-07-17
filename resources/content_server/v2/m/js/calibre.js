@@ -5,10 +5,10 @@ function bind_book_editable(book_id) {
     // will be called when textarea gets blurred.
     $(".book-edit").editable({
         touch : true, // Whether or not to support touch (default true)
-        lineBreaks : false, // Whether or not to convert \n to <br /> (default true)
+        lineBreaks : true, // Whether or not to convert \n to <br /> (default true)
         toggleFontSize : false,
         closeOnEnter : false,
-        event : 'click',
+        event : 'dblclick',
         emptyMessage : '<em>Please write something.</em>', // HTML that will be added to the editable element in case it gets empty (default false)
         callback : function( data ) {
             var self = data.$el;
@@ -22,9 +22,11 @@ function bind_book_editable(book_id) {
                     type: 'get',
                     data: {field: field, content: data.content },
                     dataType: 'json',
-                    success: function(data) {
-                        if ( data.ecode != 0 ) {
-                            alert(data.msg);
+                    success: function(rsp) {
+                        if ( rsp.ecode != 0 ) {
+                            alert(rsp.msg);
+                        } else {
+                            $("#id_" + field).html(data.content);
                         }
                     },
                     error: function(data) {
@@ -35,6 +37,8 @@ function bind_book_editable(book_id) {
             //self.effect('blink');
         }
     });
+    $(".meta-link").addClass("hidden");
+    $(".book-edit").removeClass("hidden");
     $("#id_edit_tip").removeClass("hidden");
     $(".book-edit").addClass("book-edit-orig");
 }
