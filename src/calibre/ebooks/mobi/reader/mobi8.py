@@ -18,12 +18,12 @@ from calibre.ebooks.mobi.reader.headers import NULL_INDEX
 from calibre.ebooks.mobi.reader.index import read_index
 from calibre.ebooks.mobi.reader.ncx import read_ncx, build_toc
 from calibre.ebooks.mobi.reader.markup import expand_mobi8_markup
+from calibre.ebooks.mobi.reader.containers import Container, find_imgtype
 from calibre.ebooks.metadata.opf2 import Guide, OPFCreator
 from calibre.ebooks.metadata.toc import TOC
 from calibre.ebooks.mobi.utils import read_font_record
 from calibre.ebooks.oeb.parse_utils import parse_html
 from calibre.ebooks.oeb.base import XPath, XHTML, xml2text
-from calibre.utils.imghdr import what
 
 Part = namedtuple('Part',
     'num type filename start end aid')
@@ -59,6 +59,12 @@ def reverse_tag_iter(block):
         yield block[plt:pgt+1]
         end = plt
 
+def get_first_resource_index(first_image_index, num_of_text_records, first_text_record_number):
+    first_resource_index = first_image_index
+    if first_resource_index in {-1, NULL_INDEX}:
+        first_resource_index = num_of_text_records + first_text_record_number
+    return first_resource_index
+
 class Mobi8Reader(object):
 
     def __init__(self, mobi6_reader, log, for_tweak=False):
@@ -69,11 +75,16 @@ class Mobi8Reader(object):
 
     def __call__(self):
         self.mobi6_reader.check_for_drm()
-        offset = 1
-        res_end = len(self.mobi6_reader.sections)
+        bh = self.mobi6_reader.book_header
         if self.mobi6_reader.kf8_type == 'joint':
             offset = self.mobi6_reader.kf8_boundary + 2
-            res_end = self.mobi6_reader.kf8_boundary
+            self.resource_offsets = [
+                (get_first_resource_index(bh.first_image_index, bh.mobi6_records, 1), offset - 2),
+                (get_first_resource_index(bh.kf8_first_image_index, bh.records, offset), len(self.mobi6_reader.sections)),
+            ]
+        else:
+            offset = 1
+            self.resource_offsets = [(get_first_resource_index(bh.first_image_index, bh.records, offset), len(self.mobi6_reader.sections))]
 
         self.processed_records = self.mobi6_reader.extract_text(offset=offset)
         self.raw_ml = self.mobi6_reader.mobi_html
@@ -81,18 +92,14 @@ class Mobi8Reader(object):
             f.write(self.raw_ml)
 
         self.kf8_sections = self.mobi6_reader.sections[offset-1:]
-        first_resource_index = self.header.first_image_index
-        if first_resource_index in {-1, NULL_INDEX}:
-            first_resource_index = self.header.records + 1
-        self.resource_sections = \
-                self.mobi6_reader.sections[first_resource_index:res_end]
+
         self.cover_offset = getattr(self.header.exth, 'cover_offset', None)
 
         self.read_indices()
         self.build_parts()
         guide = self.create_guide()
         ncx = self.create_ncx()
-        resource_map = self.extract_resources()
+        resource_map = self.extract_resources(self.mobi6_reader.sections)
         spine = self.expand_text(resource_map)
         return self.write_opf(guide, ncx, spine, resource_map)
 
@@ -385,47 +392,56 @@ class Mobi8Reader(object):
         # Build the TOC object
         return build_toc(index_entries)
 
-    def extract_resources(self):
+    def extract_resources(self, sections):
         from calibre.ebooks.mobi.writer2.resources import PLACEHOLDER_GIF
         resource_map = []
+        container = None
         for x in ('fonts', 'images'):
             os.mkdir(x)
 
-        for i, sec in enumerate(self.resource_sections):
-            fname_idx = i+1
-            data = sec[0]
-            typ = data[:4]
-            href = None
-            if typ in {b'FLIS', b'FCIS', b'SRCS', b'\xe9\x8e\r\n', b'BOUN',
-                       b'FDST', b'DATP', b'AUDI', b'VIDE', b'RESC', b'CMET'}:
-                pass  # Ignore these records
-            elif typ == b'FONT':
-                font = read_font_record(data)
-                href = "fonts/%05d.%s" % (fname_idx, font['ext'])
-                if font['err']:
-                    self.log.warn('Reading font record %d failed: %s'%(
-                        fname_idx, font['err']))
-                    if font['headers']:
-                        self.log.debug('Font record headers: %s'%font['headers'])
-                with open(href.replace('/', os.sep), 'wb') as f:
-                    f.write(font['font_data'] if font['font_data'] else
-                            font['raw_data'])
-                if font['encrypted']:
-                    self.encrypted_fonts.append(href)
-            else:
-                if not (len(data) == len(PLACEHOLDER_GIF) and data == PLACEHOLDER_GIF):
-                    imgtype = what(None, data)
-                    if imgtype is None:
-                        from calibre.utils.magick.draw import identify_data
-                        try:
-                            imgtype = identify_data(data)[2]
-                        except Exception:
-                            imgtype = 'unknown'
-                    href = 'images/%05d.%s'%(fname_idx, imgtype)
+        for start, end in self.resource_offsets:
+            for i, sec in enumerate(sections[start:end]):
+                fname_idx = i+1
+                data = sec[0]
+                typ = data[:4]
+                href = None
+                if typ in {b'FLIS', b'FCIS', b'SRCS', b'\xe9\x8e\r\n', b'BOUN',
+                        b'FDST', b'DATP', b'AUDI', b'VIDE', b'RESC', b'CMET', b'PAGE'}:
+                    pass  # Ignore these records
+                elif typ == b'FONT':
+                    font = read_font_record(data)
+                    href = "fonts/%05d.%s" % (fname_idx, font['ext'])
+                    if font['err']:
+                        self.log.warn('Reading font record %d failed: %s'%(
+                            fname_idx, font['err']))
+                        if font['headers']:
+                            self.log.debug('Font record headers: %s'%font['headers'])
                     with open(href.replace('/', os.sep), 'wb') as f:
-                        f.write(data)
+                        f.write(font['font_data'] if font['font_data'] else
+                                font['raw_data'])
+                    if font['encrypted']:
+                        self.encrypted_fonts.append(href)
+                elif typ == b'CONT':
+                    if data == b'CONTBOUNDARY':
+                        container = None
+                        continue
+                    container = Container(data)
+                elif typ == b'CRES':
+                    data, imgtype = container.load_image(data)
+                    if data is not None:
+                        href = 'images/%05d.%s'%(container.resource_index, imgtype)
+                        with open(href.replace('/', os.sep), 'wb') as f:
+                            f.write(data)
+                elif typ == b'\xa0\xa0\xa0\xa0' and len(data) == 4:
+                    container.resource_index += 1
+                elif container is None:
+                    if not (len(data) == len(PLACEHOLDER_GIF) and data == PLACEHOLDER_GIF):
+                        imgtype = find_imgtype(data)
+                        href = 'images/%05d.%s'%(fname_idx, imgtype)
+                        with open(href.replace('/', os.sep), 'wb') as f:
+                            f.write(data)
 
-            resource_map.append(href)
+                resource_map.append(href)
 
         return resource_map
 

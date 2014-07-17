@@ -119,9 +119,10 @@ class MobiReader(object):
                 try:
                     self.book_header = BookHeader(self.sections[k8i][0],
                             self.ident, user_encoding, self.log)
+                    self.book_header.kf8_first_image_index = self.book_header.first_image_index + k8i
+                    self.book_header.mobi6_records = bh.records
 
-                    # Only the first_image_index from the MOBI 6 header is
-                    # useful
+                    # Need the first_image_index from the mobi 6 header as well
                     for x in ('first_image_index',):
                         setattr(self.book_header, x, getattr(bh, x))
 
