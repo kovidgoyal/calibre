@@ -8,7 +8,7 @@ __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import importlib
 
-from PyQt4.Qt import QToolButton
+from PyQt5.Qt import QToolButton
 
 from calibre import prints
 from calibre.customize.ui import all_edit_book_tool_plugins
