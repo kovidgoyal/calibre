@@ -139,6 +139,9 @@ class Editor(QMainWindow):
     def pretty_print(self, name):
         return False
 
+    def change_document_name(self, newname):
+        pass
+
     def get_raw_data(self):
         return self.canvas.get_image_data(quality=self.quality)
 

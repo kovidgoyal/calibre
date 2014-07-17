@@ -70,6 +70,7 @@ SOLARIZED = \
     SpellError   us=wave uc={orange}
     Tooltip      fg=black bg=ffffed
     Link         fg={blue}
+    BadLink      fg={cyan} us=wave uc={red}
 
     DiffDelete   bg={base02} fg={red}
     DiffInsert   bg={base02} fg={green}
@@ -112,6 +113,7 @@ THEMES = {
     SpellError   us=wave uc=orange
     SpecialCharacter bg={cursor_loc}
     Link         fg=cyan
+    BadLink      fg={string} us=wave uc=red
 
     DiffDelete   bg=341414 fg=642424
     DiffInsert   bg=143414 fg=246424
@@ -159,6 +161,7 @@ THEMES = {
     Error        us=wave uc=red
     SpellError   us=wave uc=magenta
     Link         fg=blue
+    BadLink      fg={string} us=wave uc=red
 
     DiffDelete   bg=rgb(255,180,200) fg=rgb(200,80,110)
     DiffInsert   bg=rgb(180,255,180) fg=rgb(80,210,80)

@@ -1328,7 +1328,10 @@ class Cache(object):
 
             path = path.replace('/', os.sep)
             title = self._field_for('title', book_id, default_value=_('Unknown'))
-            author = self._field_for('authors', book_id, default_value=(_('Unknown'),))[0]
+            try:
+                author = self._field_for('authors', book_id, default_value=(_('Unknown'),))[0]
+            except IndexError:
+                author = _('Unknown')
             stream = stream_or_path if hasattr(stream_or_path, 'read') else lopen(stream_or_path, 'rb')
 
             size, fname = self.backend.add_format(book_id, fmt, stream, title, author, path, name)

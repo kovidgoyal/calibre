@@ -218,6 +218,8 @@ class Chunker(object):
         # preceding layers should have removed svg and any other non html
         # namespaced tags.
         attrib = {'lang':lang} if lang else {}
+        if 'class' in root.attrib:
+            attrib['class'] = root.attrib['class']
         nroot = etree.Element('html', attrib=attrib)
         nroot.text = root.text
         nroot.tail = '\n'

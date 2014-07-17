@@ -472,14 +472,39 @@ will be interpreted to have the title: Foundation and Earth and author: Isaac As
 
 .. _book_details:
 
+
 Book Details
 -------------
 .. image:: images/book_details.png
-    :align: center
+   :class: float-left-img
 
-The Book Details display shows extra information and the cover for the currently selected book.
+The Book Details display shows the cover and all the metadata for the currently
+selected book. It can be hidden via the button in the lower right corner of the
+main |app| window. The author names shown in the Book Detail panel are
+clickable, they will by default take you to the Wikipedia page for the author.
+This can be customized by right clicking on the author name and selecting
+Manage this author.
 
-.. _jobs:
+Similarly, if you download metadata for the book, the Book details panel will
+automatically show you links pointing to the web pages for the book on amazon,
+worldcat, etc. from where the metadata was downloaded.
+
+You can right click on individual ebook formats in the Book Details panel to
+delete them, compare them to their original versions, save them to disk, etc.
+
+You can change the cover of the book by simply drag and dropping an
+image onto the book details panel. You can also add ebook files to the current
+book by drag and dropping the files onto the book details panel.
+
+Double clicking the book details panel will open it up in a separate popup
+window.
+
+Finally, you can customize exactly what information is displayed in the Book
+Details panel via :guilabel:`Preferences->Look & Feel->Book Details`.
+
+.. raw:: html epub
+    
+    <div style="clear:both"></div>
 
 .. _tag_browser:
 
@@ -510,12 +535,37 @@ You can drag and drop items in the Tag browser onto user categories to add them 
 
 There is a search bar at the top of the Tag Browser that allows you to easily find any item in the Tag Browser. In addition, you can right click on any item and choose one of several operations. Some examples are to hide the it, rename it, or open a "Manage x" dialog that allows you to manage items of that kind. For example, the "Manage Authors" dialog allows you to rename authors and control how their names are sorted.
 
-You can control how items are sorted in the Tag browser via the box at the bottom of the Tag Browser. You can choose to sort by name, average rating or popularity (popularity is the number of books with an item in your library; for example, the popularity of Isaac Asimov is the number of books in your library by Isaac Asimov).
+You can control how items are sorted in the Tag browser via the :guilabel:`Alter Tag Browser` button at the bottom of the Tag Browser. You can choose to sort by name, average rating or popularity (popularity is the number of books with an item in your library; for example, the popularity of Isaac Asimov is the number of books in your library by Isaac Asimov).
 
 .. raw:: html epub
     
     <div style="clear:both"></div>
 
+Cover Grid
+-----------
+
+.. image:: images/cover_grid.png
+    :align: center
+
+You can have |app| display a grid of book covers instead of a list of books, if
+you prefer to browse your collection by covers instead. The :guilabel:`Cover
+Grid` is activated by clicking the grid button in the bottom right corner of
+the main |app| window. You can customize the cover sizes and the background of
+the cover grid via :guilabel:`Preferences->Look & Feel->Cover Grid`. You can
+even have |app| display any specified field under the covers, such as title or
+authors or rating or a custom column of your own devising.
+
+Cover Browser
+---------------
+
+.. image:: images/cover_browser.png
+    :align: center
+
+In addition to the cover grid described above, you can also have |app| display
+covers in the single row. This is activated via a button in the lower right
+corner of the main window. In :guilabel:`Preferences->Look & Feel->Cover
+Browser` you can change the number of covers displayed, and even have the cover
+browser display itself in a separate popup window.
 
 Quickview
 ----------
@@ -545,6 +595,8 @@ Quickview respects the virtual library setting, showing only books in the curren
 .. raw:: html epub
     
     <div style="clear:both"></div>
+
+.. _jobs:
 
 Jobs
 -----

@@ -15,8 +15,10 @@ from PyQt4.Qt import QFont, QTextBlockUserData, QTextCharFormat
 from calibre.ebooks.oeb.polish.spell import html_spell_tags, xml_spell_tags
 from calibre.spell.dictionary import parse_lang_code
 from calibre.spell.break_iterator import split_into_words_and_positions
-from calibre.gui2.tweak_book import dictionaries, tprefs
-from calibre.gui2.tweak_book.editor import syntax_text_char_format, SPELL_PROPERTY, SPELL_LOCALE_PROPERTY, store_locale
+from calibre.gui2.tweak_book import dictionaries, tprefs, verify_link
+from calibre.gui2.tweak_book.editor import (
+    syntax_text_char_format, SPELL_PROPERTY, SPELL_LOCALE_PROPERTY,
+    store_locale, LINK_PROPERTY, TAG_NAME_PROPERTY)
 from calibre.gui2.tweak_book.editor.syntax.base import SyntaxHighlighter, run_loop
 from calibre.gui2.tweak_book.editor.syntax.css import (
     create_formats as create_css_formats, state_map as css_state_map, CSSState, CSSUserData)
@@ -50,6 +52,8 @@ CSS = 11
 TagStart = namedtuple('TagStart', 'offset prefix name closing is_start')
 TagEnd = namedtuple('TagEnd', 'offset self_closing is_start')
 Attr = namedtuple('Attr', 'offset type data')
+
+LINK_ATTRS = frozenset(('href', 'src', 'poster', 'xlink:href'))
 
 do_spell_check = False
 
@@ -216,10 +220,12 @@ class HTMLUserData(QTextBlockUserData):
         self.attributes = []
         self.state = State()
         self.css_user_data = None
+        self.doc_name = None
 
-    def clear(self, state=None):
+    def clear(self, state=None, doc_name=None):
         self.tags, self.attributes = [], []
         self.state = State() if state is None else state
+        self.doc_name = doc_name
 
     @classmethod
     def tag_ok_for_spell(cls, name):
@@ -428,6 +434,7 @@ def quoted_val(state, text, i, formats, user_data):
     pos = text.find(quote, i)
     if pos == -1:
         num = len(text) - i
+        is_link = False
     else:
         num = pos - i + 1
         state.parse = IN_OPENING_TAG
@@ -437,6 +444,12 @@ def quoted_val(state, text, i, formats, user_data):
             except ValueError:
                 pass
         add_attr_data(user_data, ATTR_VALUE, ATTR_END, i + num)
+        is_link = state.attribute_name in LINK_ATTRS
+
+    if is_link:
+        if verify_link(text[i:i+num - 1], user_data.doc_name) is False:
+            return [(num - 1, formats['bad_link']), (1, formats['string'])]
+        return [(num - 1, formats['link']), (1, formats['string'])]
     return [(num, formats['string'])]
 
 def closing_tag(state, text, i, formats, user_data):
@@ -492,7 +505,6 @@ def create_formats(highlighter, add_css=True):
         'tag': t['Function'],
         'end_tag': t['Function'],
         'attr': t['Type'],
-        'tag_name' : t['Statement'],
         'entity': t['Special'],
         'error': t['Error'],
         'comment': t['Comment'],
@@ -520,6 +532,14 @@ def create_formats(highlighter, add_css=True):
     if add_css:
         formats['css_sub_formats'] = create_css_formats(highlighter)
     formats['spell'].setProperty(SPELL_PROPERTY, True)
+    formats['link'] = syntax_text_char_format(t['Link'])
+    formats['link'].setProperty(LINK_PROPERTY, True)
+    formats['link'].setToolTip(_('Hold down the Ctrl key and click to open this link'))
+    formats['bad_link'] = syntax_text_char_format(t['BadLink'])
+    formats['bad_link'].setProperty(LINK_PROPERTY, True)
+    formats['bad_link'].setToolTip(_('This link points to a file that is not present in the book'))
+    formats['tag_name'] = f = syntax_text_char_format(t['Statement'])
+    f.setProperty(TAG_NAME_PROPERTY, True)
     return formats
 
 

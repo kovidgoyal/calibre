@@ -12,6 +12,7 @@ import sys, os, struct, textwrap
 from itertools import izip
 
 from calibre import CurrentDir
+from calibre.ebooks.mobi.debug.containers import ContainerHeader
 from calibre.ebooks.mobi.debug.headers import TextRecord
 from calibre.ebooks.mobi.debug.index import (SKELIndex, SECTIndex, NCXIndex,
         GuideIndex)
@@ -73,12 +74,11 @@ class MOBIFile(object):
         h, h8 = mf.mobi_header, mf.mobi8_header
         first_text_record = 1
         offset = 0
-        res_end = len(mf.records)
+        self.resource_ranges = [(h8.first_resource_record, h8.last_resource_record, h8.first_image_index)]
         if mf.kf8_type == 'joint':
             offset = h.exth.kf8_header_index
-            res_end = offset - 1
+            self.resource_ranges.insert(0, (h.first_resource_record, h.last_resource_record, h.first_image_index))
 
-        self.resource_records = mf.records[h.first_non_book_record:res_end]
         self.text_records = [TextRecord(i, r, h8.extra_data_flags,
             mf.decompress8) for i, r in
             enumerate(mf.records[first_text_record+offset:
@@ -86,7 +86,7 @@ class MOBIFile(object):
 
         self.raw_text = b''.join(r.raw for r in self.text_records)
         self.header = self.mf.mobi8_header
-        self.extract_resources()
+        self.extract_resources(mf.records)
         self.read_fdst()
         self.read_indices()
         self.build_files()
@@ -151,13 +151,23 @@ class MOBIFile(object):
             with open(os.path.join(ddir, 'flow%04d.txt'%i), 'wb') as f:
                 f.write(raw)
 
-    def extract_resources(self):
+    def extract_resources(self, records):
         self.resource_map = []
+        self.containers = []
         known_types = {b'FLIS', b'FCIS', b'SRCS',
                     b'\xe9\x8e\r\n', b'RESC', b'BOUN', b'FDST', b'DATP',
-                    b'AUDI', b'VIDE'}
+                    b'AUDI', b'VIDE', b'CRES', b'CONT', b'CMET'}
+        container = None
 
-        for i, rec in enumerate(self.resource_records):
+        for i, rec in enumerate(records):
+            for (l, r, offset) in self.resource_ranges:
+                if l <= i <= r:
+                    resource_index = i + 1
+                    if offset is not None and resource_index >= offset:
+                        resource_index -= offset
+                    break
+            else:
+                continue
             sig = rec.raw[:4]
             payload = rec.raw
             ext = 'dat'
@@ -174,7 +184,27 @@ class MOBIFile(object):
                 payload = (font['font_data'] if font['font_data'] else
                         font['raw_data'])
                 prefix, ext = 'fonts', font['ext']
+            elif sig == b'CONT':
+                if payload == b'CONTBOUNDARY':
+                    self.containers.append(container)
+                    container = None
+                    continue
+                container = ContainerHeader(payload)
+            elif sig == b'CRES':
+                container.resources.append(payload)
+                if container.is_image_container:
+                    payload = payload[12:]
+                    q = what(None, payload)
+                    if q:
+                        prefix, ext = 'hd-images', q
+                        resource_index = len(container.resources)
+            elif sig == b'\xa0\xa0\xa0\xa0' and len(payload) == 4:
+                container.resources.append(None)
+                continue
             elif sig not in known_types:
+                if container is not None and len(container.resources) == container.num_of_resource_records:
+                    container.add_hrefs(payload)
+                    continue
                 q = what(None, rec.raw)
                 if q:
                     prefix, ext = 'images', q
@@ -185,7 +215,7 @@ class MOBIFile(object):
                 elif sig in known_types:
                     suffix = '-' + sig.decode('ascii')
 
-            self.resource_map.append(('%s/%06d%s.%s'%(prefix, i, suffix, ext),
+            self.resource_map.append(('%s/%06d%s.%s'%(prefix, resource_index, suffix, ext),
                 payload))
 
     def read_tbs(self):
@@ -267,7 +297,7 @@ def inspect_mobi(mobi_file, ddir):
     with open(alltext, 'wb') as of:
         of.write(f.raw_text)
 
-    for x in ('text_records', 'images', 'fonts', 'binary', 'files', 'flows'):
+    for x in ('text_records', 'images', 'fonts', 'binary', 'files', 'flows', 'hd-images',):
         os.mkdir(os.path.join(ddir, x))
 
     for rec in f.text_records:
@@ -276,6 +306,10 @@ def inspect_mobi(mobi_file, ddir):
     for href, payload in f.resource_map:
         with open(os.path.join(ddir, href), 'wb') as fo:
             fo.write(payload)
+
+    for i, container in enumerate(f.containers):
+        with open(os.path.join(ddir, 'container%d.txt' % (i + 1)), 'wb') as cf:
+            cf.write(str(container).encode('utf-8'))
 
     if f.fdst:
         with open(os.path.join(ddir, 'fdst.record'), 'wb') as fo:

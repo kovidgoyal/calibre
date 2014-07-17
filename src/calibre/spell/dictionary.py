@@ -6,7 +6,7 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import cPickle, os, glob, shutil
+import cPickle, os, glob, shutil, re
 from collections import namedtuple
 from operator import attrgetter
 from itertools import chain
@@ -181,6 +181,7 @@ def load_dictionary(dictionary):
 class Dictionaries(object):
 
     def __init__(self):
+        self.remove_hyphenation = re.compile('[\u2010-]+')
         self.dictionaries = {}
         self.word_cache = {}
         self.ignored_words = set()
@@ -356,14 +357,21 @@ class Dictionaries(object):
     def suggestions(self, word, locale=None):
         locale = locale or self.default_locale
         d = self.dictionary_for_locale(locale)
+        ans = ()
         if d is not None:
             try:
-                return d.obj.suggest(unicode(word))
+                ans = d.obj.suggest(unicode(word))
             except ValueError:
                 pass
-        return ()
+            else:
+                dehyphenated_word = self.remove_hyphenation.sub('', word)
+                if len(dehyphenated_word) != len(word) and self.recognized(dehyphenated_word, locale):
+                    # Ensure the de-hyphenated word is present and is the first suggestion
+                    ans = (dehyphenated_word,) + tuple(x for x in ans if x != dehyphenated_word)
+        return ans
 
 if __name__ == '__main__':
     dictionaries = Dictionaries()
     dictionaries.initialize()
     print (dictionaries.recognized('recognized', parse_lang_code('en')))
+    print (dictionaries.suggestions('ade-quately', parse_lang_code('en')))

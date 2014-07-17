@@ -10,7 +10,8 @@ import re
 
 from PyQt4.Qt import QTextBlockUserData
 
-from calibre.gui2.tweak_book.editor import syntax_text_char_format
+from calibre.gui2.tweak_book import verify_link
+from calibre.gui2.tweak_book.editor import syntax_text_char_format, LINK_PROPERTY, CSS_PROPERTY
 from calibre.gui2.tweak_book.editor.syntax.base import SyntaxHighlighter
 
 space_pat = re.compile(r'[ \n\t\r\f]+')
@@ -24,9 +25,13 @@ sheet_tokens = [(re.compile(k), v, n) for k, v, n in [
     (r'[~\^\*!%&\[\]\(\)<>\|+=@:;,./?-]', 'operator', 'operator'),
 ]]
 
+URL_TOKEN = 'url'
+
 content_tokens = [(re.compile(k), v, n) for k, v, n in [
-    (r'url\(.*?\)', 'string', 'url'),
+    (r'url\(.*?\)', 'string', URL_TOKEN),
+
     (r'@\S+', 'preproc', 'at-rule'),
+
     (r'(azimuth|background-attachment|background-color|'
     r'background-image|background-position|background-repeat|'
     r'background|border-bottom-color|border-bottom-style|'
@@ -83,7 +88,8 @@ content_tokens = [(re.compile(k), v, n) for k, v, n in [
     r'transparent|ultra-condensed|ultra-expanded|underline|'
     r'upper-alpha|upper-latin|upper-roman|uppercase|url|'
     r'visible|w-resize|wait|wider|x-fast|x-high|x-large|x-loud|'
-    r'x-low|x-small|x-soft|xx-large|xx-small|yes)\b', 'keyword', 'keyword'),
+    r'x-low|x-small|x-soft|xx-large|xx-small|yes|src)\b', 'keyword', 'keyword'),
+
     (r'(indigo|gold|firebrick|indianred|yellow|darkolivegreen|'
     r'darkseagreen|mediumvioletred|mediumorchid|chartreuse|'
     r'mediumslateblue|black|springgreen|crimson|lightsalmon|brown|'
@@ -109,13 +115,21 @@ content_tokens = [(re.compile(k), v, n) for k, v, n in [
     r'lightslategray|lawngreen|lightgreen|tomato|hotpink|'
     r'lightyellow|lavenderblush|linen|mediumaquamarine|green|'
     r'blueviolet|peachpuff)\b', 'colorname', 'colorname'),
+
     (r'\!important', 'preproc', 'important'),
+
     (r'\#[a-zA-Z0-9]{1,6}', 'number', 'hexnumber'),
+
     (r'[\.-]?[0-9]*[\.]?[0-9]+(em|px|pt|pc|in|mm|cm|ex|s|rem)\b', 'number', 'dimension'),
+
     (r'[\.-]?[0-9]*[\.]?[0-9]+%(?=$|[ \n\t\f\r;}{()\[\]])', 'number', 'dimension'),
+
     (r'-?[0-9]+', 'number', 'number'),
+
     (r'[~\^\*!%&<>\|+=@:,./?-]+', 'operator', 'operator'),
+
     (r'[\[\]();]+', 'bracket', 'bracket'),
+
     (r'[a-zA-Z_][a-zA-Z0-9_]*', 'identifier', 'ident')
 
 ]]
@@ -156,9 +170,11 @@ class CSSUserData(QTextBlockUserData):
     def __init__(self):
         QTextBlockUserData.__init__(self)
         self.state = CSSState()
+        self.doc_name = None
 
-    def clear(self, state=None):
+    def clear(self, state=None, doc_name=None):
         self.state = CSSState() if state is None else state
+        self.doc_name = doc_name
 
 def normal(state, text, i, formats, user_data):
     ' The normal state (outside content blocks {})'
@@ -211,6 +227,16 @@ def content(state, text, i, formats, user_data):
     for token, fmt, name in content_tokens:
         m = token.match(text, i)
         if m is not None:
+            if name is URL_TOKEN:
+                h = 'link'
+                url = m.group()
+                prefix, main, suffix = url[:4], url[4:-1], url[-1]
+                if len(main) > 1 and main[0] in ('"', "'") and main[0] == main[-1]:
+                    prefix += main[0]
+                    suffix = main[-1] + suffix
+                    main = main[1:-1]
+                    h = 'bad_link' if verify_link(main, user_data.doc_name) is False else 'link'
+                return [(len(prefix), formats[fmt]), (len(main), formats[h]), (len(suffix), formats[fmt])]
             return [(len(m.group()), formats[fmt])]
 
     return [(len(text) - i, formats['unknown-normal'])]
@@ -251,8 +277,6 @@ def create_formats(highlighter):
         'comment': theme['Comment'],
         'error': theme['Error'],
         'string': theme['String'],
-        'preproc': theme['PreProc'],
-        'keyword': theme['Keyword'],
         'colorname': theme['Constant'],
         'number': theme['Number'],
         'operator': theme['Function'],
@@ -269,6 +293,16 @@ def create_formats(highlighter):
     }.iteritems():
         f = formats[name] = syntax_text_char_format(formats['error'])
         f.setToolTip(msg)
+    formats['link'] = syntax_text_char_format(theme['Link'])
+    formats['link'].setToolTip(_('Hold down the Ctrl key and click to open this link'))
+    formats['link'].setProperty(LINK_PROPERTY, True)
+    formats['bad_link'] = syntax_text_char_format(theme['BadLink'])
+    formats['bad_link'].setProperty(LINK_PROPERTY, True)
+    formats['bad_link'].setToolTip(_('This link points to a file that is not present in the book'))
+    formats['preproc'] = f = syntax_text_char_format(theme['PreProc'])
+    f.setProperty(CSS_PROPERTY, True)
+    formats['keyword'] = f = syntax_text_char_format(theme['Keyword'])
+    f.setProperty(CSS_PROPERTY, True)
     return formats
 
 

@@ -151,16 +151,30 @@ class TestICU(unittest.TestCase):
     def test_break_iterator(self):
         ' Test the break iterator '
         from calibre.spell.break_iterator import split_into_words as split, index_of, split_into_words_and_positions
-        for q in ('one two three', ' one two three', 'one\ntwo  three ', 'one-two,three'):
+        for q in ('one two three', ' one two three', 'one\ntwo  three ', ):
             self.ae(split(unicode(q)), ['one', 'two', 'three'], 'Failed to split: %r' % q)
         self.ae(split(u'I I\'m'), ['I', "I'm"])
-        self.ae(split_into_words_and_positions('one \U0001f431 three'), [(0, 3), (6 if sys.maxunicode >= 0x10ffff else 7, 5)])
-        self.ae(0, index_of('i', 'i'))
-        self.ae(4, index_of('i', 'six i'))
-        self.ae(-1, index_of('i', ''))
-        self.ae(-1, index_of('', ''))
-        self.ae(-1, index_of('', 'i'))
-        self.ae(-1, index_of('i', 'six clicks'))
+        self.ae(split(u'out-of-the-box'), ['out-of-the-box'])
+        self.ae(split(u'-one two-'), ['one', 'two'])
+        self.ae(split_into_words_and_positions('one \U0001f431 three'), [(0, 3), (7 if icu.is_narrow_build else 6, 5)])
+        for needle, haystack, pos in (
+                ('word', 'a word b', 2),
+                ('word', 'a word', 2),
+                ('one-two', 'a one-two punch', 2),
+                ('one-two', 'one-two punch', 0),
+                ('one-two', 'one-two', 0),
+                ('one', 'one-two one', 8),
+                ('one-two', 'one-two-three one-two', 14),
+                ('one', 'onet one', 5),
+                ('two', 'one-two two', 8),
+                ('i', 'i', 0),
+                ('i', 'six i', 4),
+                ('i', '', -1), ('', '', -1), ('', 'i', -1),
+                ('i', 'six clicks', -1),
+                ('i', '\U0001f431 i', (3 if icu.is_narrow_build else 2)),
+        ):
+            fpos = index_of(needle, haystack)
+            self.ae(pos, fpos, 'Failed to find index of %r in %r (%d != %d)' % (needle, haystack, pos, fpos))
 
 class TestRunner(unittest.main):
 

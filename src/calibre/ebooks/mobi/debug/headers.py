@@ -121,9 +121,9 @@ class EXTHRecord(object):
         self.data = data
         self.length = length
         self.name = {
-                  1 : 'Drm Server Id',
-                  2 : 'Drm Commerce Id',
-                  3 : 'Drm Ebookbase Book Id',
+                1   : 'Drm Server Id',
+                2   : 'Drm Commerce Id',
+                3   : 'Drm Ebookbase Book Id',
                 100 : 'Creator',
                 101 : 'Publisher',
                 102 : 'Imprint',
@@ -174,10 +174,19 @@ class EXTHRecord(object):
                 502 : 'last_update_time',
                 503 : 'Updated Title',
                 504 : 'ASIN [5xx]',
+                508 : 'Unknown Title Furigana?',
+                517 : 'Unknown Creator Furigana?',
+                522 : 'Unknown Publisher Furigana?',
                 524 : 'Language',
-                525 : 'TextDirection',
-                528 : 'Unknown_Logical_Value',
+                525 : 'primary-writing-mode',
+                527 : 'page-progression-direction',
+                528 : 'Override Kindle fonts',
+                534 : 'Input Source Type',
                 535 : 'Kindlegen Build-Rev Number',
+                536 : 'Container Info',  # CONT_Header is 0, Ends with CONTAINER_BOUNDARY (or Asset_Type?)
+                538 : 'Container Resolution',
+                539 : 'Container Mimetype',
+                543 : 'Container id',  # FONT_CONTAINER, BW_CONTAINER, HD_CONTAINER
         }.get(self.type, repr(self.type))
 
         if (self.name in {'sample', 'StartOffset', 'CoverOffset', 'ThumbOffset', 'Fake Cover',
@@ -374,6 +383,13 @@ class MOBIHeader(object):  # {{{
             if hasattr(self, x) and getattr(self, x) != NULL_INDEX:
                 setattr(self, x, self.header_offset+getattr(self, x))
 
+        # Try to find the first non-text record
+        self.first_resource_record = offset + 1 + self.number_of_text_records  # Default to first record after all text records
+        pointer = min(getattr(self, 'first_non_book_record', NULL_INDEX), getattr(self, 'first_image_index', NULL_INDEX))
+        if pointer != NULL_INDEX:
+            self.first_resource_record = max(pointer, self.first_resource_record)
+        self.last_resource_record = NULL_INDEX
+
         if self.has_exth:
             self.exth_offset = 16 + self.length
 
@@ -381,6 +397,10 @@ class MOBIHeader(object):  # {{{
 
             self.end_of_exth = self.exth_offset + self.exth.length
             self.bytes_after_exth = self.raw[self.end_of_exth:self.fullname_offset]
+
+            if self.exth.kf8_header_index is not None and offset == 0:
+                # MOBI 6 header in a joint file, adjust self.last_resource_record
+                self.last_resource_record = self.exth.kf8_header_index - 2
 
     def __str__(self):
         ans = ['*'*20 + ' MOBI %d Header '%self.file_version+ '*'*20]

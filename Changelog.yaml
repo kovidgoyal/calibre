@@ -20,6 +20,50 @@
 #   new recipes:
 #     - title: 
 
+- version: 1.44.0
+  date: 2014-07-11
+
+  new features:
+    - title: "Edit Book: Syntax highlight links, images, stylesheet includes, etc. Links that point to missing files are marked as errors. You can Ctrl + click on a highlighted link to jump to the file it points to directly."
+
+    - title: "Edit Book: Check Book: Add a check for manifest items missing href attributes."
+      tickets: [1339766]
+
+    - title: "When clicking in the search box, select all existing text, for easy replacement."
+      tickets: [1338862]
+
+    - title: "Edit Book: Add buttons to change the text alignment of the current paragraph. If you do not see them, go to Preferences->Toolbars and add them to the Text formatting actions toolbar."
+
+    - title: "Improve performance of rendering the book list when lots of column coloring rules are used"
+
+    - title: "Kobo driver: Support for new firmware version 3.5"
+
+  bug fixes:
+    - title: "Edit Book/Book polishing: Do not auto-resolve @import rules in AZW3 files. Also do not add a @namespace rule to all stylesheets that contain tag selectors."
+
+    - title: "Edit book/Book polishing: Preserve the class attribute on the <html> tag in AZW3 format files."
+      tickets: [1339055]
+
+    - title: "Edit Book: Fix inline spell check context menu not working when triggered by context menu key or a right clicking at the right edge of the word."
+
+    - title: "Fix some font directories from fonts.conf being ignored on linux when scanning the system for installed fonts."
+      tickets: [1339257]
+
+    - title: "Edit book: Spell checker: Treat hyphenated words as single words for spell checking"
+
+    - title: "Edit Book: When using the spell check dialog to change words, detect any changes made to open files outside the spell check dialog and automatically integrate them, to prevent those changes from being lost."
+
+    - title: "Update driver for Tolino Shine to handle new firmware"
+      tickets: [1338219] 
+
+    - title: "Book polishing: When changing the cover in an EPUB file, place the newly created cover image in the same folder as other images in the book, rather than the root"
+
+    - title: "Linux installer: Use pkg-config to get the location for installing the calibre bash completion scripts. pkg-config is used only when installing to /usr."
+      tickets: [1340023]
+
+  improved recipes:
+    - Science Daily
+
 - version: 1.43.0
   date: 2014-07-04
 

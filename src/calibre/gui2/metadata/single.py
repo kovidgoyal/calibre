@@ -299,8 +299,7 @@ class MetadataSingleDialogBase(ResizableDialog):
             title = title[:50] + u'\u2026'
         self.setWindowTitle(BASE_TITLE + ' - ' +
                 title + ' - ' +
-                _(' [%(num)d of %(tot)d]')%dict(num=
-                    self.current_row+1,
+                _(' [%(num)d of %(tot)d]')%dict(num=self.current_row+1,
                 tot=len(self.row_list)))
 
     def swap_title_author(self, *args):
@@ -472,10 +471,13 @@ class MetadataSingleDialogBase(ResizableDialog):
             return True
         for widget in self.basic_metadata_widgets:
             try:
-                if not widget.commit(self.db, self.book_id):
-                    return False
-                self.books_to_refresh |= getattr(widget, 'books_to_refresh',
-                        set([]))
+                if hasattr(widget, 'validate_for_commit'):
+                    title, msg, det_msg = widget.validate_for_commit()
+                    if title is not None:
+                        error_dialog(self, title, msg, det_msg=det_msg, show=True)
+                        return False
+                widget.commit(self.db, self.book_id)
+                self.books_to_refresh |= getattr(widget, 'books_to_refresh', set())
             except (IOError, OSError) as err:
                 if getattr(err, 'errno', None) == errno.EACCES:  # Permission denied
                     import traceback
@@ -1036,8 +1038,8 @@ def edit_metadata(db, row_list, current_row, parent=None, view_slot=None,
 if __name__ == '__main__':
     from calibre.gui2 import Application as QApplication
     app = QApplication([])
-    from calibre.library import db as db_
-    db = db_()
+    from calibre.library import db
+    db = db()
     row_list = list(range(len(db.data)))
     edit_metadata(db, row_list, 0)
 

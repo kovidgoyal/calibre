@@ -62,6 +62,25 @@ class IncorrectToc(BaseError):
             self.HELP = _('The media type for the table of contents must be %s') % guess_type('a.ncx')
         BaseError.__init__(self, msg, name, lnum)
 
+class NoHref(BaseError):
+
+    HELP = _('This manifest entry has no href attribute. Either add the href attribute or remove the entry.')
+    INDIVIDUAL_FIX = _('Remove this manifest entry')
+
+    def __init__(self, name, item_id, lnum):
+        BaseError.__init__(self, _('Item in manifest has no href attribute'), name, lnum)
+        self.item_id = item_id
+
+    def __call__(self, container):
+        changed = False
+        for item in container.opf_xpath('/opf:package/opf:manifest/opf:item'):
+            if item.get('id', None) == self.item_id:
+                changed = True
+                container.remove_from_xml(item)
+                container.dirty(container.opf_name)
+        return changed
+
+
 class MissingHref(BaseError):
 
     HELP = _('A file listed in the manifest is missing, you should either remove'
@@ -213,17 +232,20 @@ def check_opf(container):
         errors.append(NonLinearItems(container.opf_name, nl_items))
 
     seen, dups = {}, {}
-    for item in container.opf_xpath('/opf:package/opf:manifest/opf:item[@href]'):
-        href = item.get('href')
-        hname = container.href_to_name(href, container.opf_name)
-        if not hname or not container.exists(hname):
-            errors.append(MissingHref(container.opf_name, href, item.sourceline))
-        if href in seen:
-            if href not in dups:
-                dups[href] = [seen[href]]
-            dups[href].append(item.sourceline)
+    for item in container.opf_xpath('/opf:package/opf:manifest/opf:item'):
+        href = item.get('href', None)
+        if href is None:
+            errors.append(NoHref(container.opf_name, item.get('id', None), item.sourceline))
         else:
-            seen[href] = item.sourceline
+            hname = container.href_to_name(href, container.opf_name)
+            if not hname or not container.exists(hname):
+                errors.append(MissingHref(container.opf_name, href, item.sourceline))
+            if href in seen:
+                if href not in dups:
+                    dups[href] = [seen[href]]
+                dups[href].append(item.sourceline)
+            else:
+                seen[href] = item.sourceline
     errors.extend(DuplicateHref(container.opf_name, eid, locs) for eid, locs in dups.iteritems())
 
     seen, dups = {}, {}

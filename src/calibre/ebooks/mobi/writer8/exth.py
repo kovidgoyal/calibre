@@ -40,6 +40,7 @@ EXTH_CODES = {
     'lastupdatetime': 502,
     'title': 503,
     'language': 524,
+    'page_progression_direction': 527,
 }
 
 COLLAPSE_RE = re.compile(r'[ \t\r\n\v]+')
@@ -47,7 +48,8 @@ COLLAPSE_RE = re.compile(r'[ \t\r\n\v]+')
 def build_exth(metadata, prefer_author_sort=False, is_periodical=False,
         share_not_sync=True, cover_offset=None, thumbnail_offset=None,
         start_offset=None, mobi_doctype=2, num_of_resources=None,
-        kf8_unknown_count=0, be_kindlegen2=False, kf8_header_index=None):
+        kf8_unknown_count=0, be_kindlegen2=False, kf8_header_index=None,
+        page_progression_direction=None):
     exth = BytesIO()
     nrecs = 0
 
@@ -203,6 +205,12 @@ def build_exth(metadata, prefer_author_sort=False, is_periodical=False,
     if kf8_unknown_count is not None:
         exth.write(pack(b'>III', EXTH_CODES['kf8_unknown_count'], 12,
             kf8_unknown_count))
+        nrecs += 1
+
+    if page_progression_direction in {'rtl', 'ltr', 'default'}:
+        ppd = bytes(page_progression_direction)
+        exth.write(pack(b'>II', EXTH_CODES['page_progression_direction'], len(ppd) + 8))
+        exth.write(ppd)
         nrecs += 1
 
     exth = exth.getvalue()

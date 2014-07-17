@@ -41,7 +41,7 @@ class SecondaryIndexHeader(object):  # {{{
     def __init__(self, record):
         self.record = record
         raw = self.record.raw
-        #open('/t/index_header.bin', 'wb').write(raw)
+        # open('/t/index_header.bin', 'wb').write(raw)
         if raw[:4] != b'INDX':
             raise ValueError('Invalid Secondary Index Record')
         self.header_length, = struct.unpack('>I', raw[4:8])
@@ -136,7 +136,7 @@ class IndexHeader(object):  # {{{
     def __init__(self, record):
         self.record = record
         raw = self.record.raw
-        #open('/t/index_header.bin', 'wb').write(raw)
+        # open('/t/index_header.bin', 'wb').write(raw)
         if raw[:4] != b'INDX':
             raise ValueError('Invalid Primary Index Record')
 
@@ -492,7 +492,7 @@ class BinaryRecord(object):  # {{{
         sig = self.raw[:4]
         name = '%06d'%idx
         if sig in {b'FCIS', b'FLIS', b'SRCS', b'DATP', b'RESC', b'BOUN',
-                b'FDST', b'AUDI', b'VIDE',}:
+                b'FDST', b'AUDI', b'VIDE', b'CRES', b'CONT', b'CMET'}:
             name += '-' + sig.decode('ascii')
         elif sig == b'\xe9\x8e\r\n':
             name += '-' + 'EOF'
@@ -743,17 +743,14 @@ class MOBIFile(object):  # {{{
             self.indexing_record_nums |= set(xrange(sir+1, sir+1+numi))
 
         ntr = self.mobi_header.number_of_text_records
-        fntbr = self.mobi_header.first_non_book_record
         fii = self.mobi_header.first_image_index
-        if fntbr == NULL_INDEX:
-            fntbr = len(self.records)
         self.text_records = [TextRecord(r, self.records[r],
             self.mobi_header.extra_data_flags, mf.decompress6) for r in xrange(1,
             min(len(self.records), ntr+1))]
         self.image_records, self.binary_records = [], []
         self.font_records = []
         image_index = 0
-        for i in xrange(fntbr, len(self.records)):
+        for i in xrange(self.mobi_header.first_resource_record, min(self.mobi_header.last_resource_record, len(self.records))):
             if i in self.indexing_record_nums or i in self.huffman_record_nums:
                 continue
             image_index += 1
@@ -761,7 +758,7 @@ class MOBIFile(object):  # {{{
             fmt = None
             if i >= fii and r.raw[:4] not in {b'FLIS', b'FCIS', b'SRCS',
                     b'\xe9\x8e\r\n', b'RESC', b'BOUN', b'FDST', b'DATP',
-                    b'AUDI', b'VIDE', b'FONT'}:
+                    b'AUDI', b'VIDE', b'FONT', b'CRES', b'CONT', b'CMET'}:
                 try:
                     fmt = what(None, r.raw)
                 except:
@@ -830,7 +827,6 @@ def inspect_mobi(mobi_file, ddir):
         os.mkdir(tdir)
         for rec in getattr(f, attr):
             rec.dump(tdir)
-
 
 
 # }}}

@@ -226,7 +226,7 @@ end:
     if (a != NULL) free(a);
     if (b != NULL) free(b);
 
-    return (PyErr_Occurred()) ? NULL : Py_BuildValue("ii", pos, length);
+    return (PyErr_Occurred()) ? NULL : Py_BuildValue("ll", (long)pos, (long)length);
 } // }}}
 
 // Collator.contains {{{
@@ -595,37 +595,6 @@ icu_BreakIterator_set_text(icu_BreakIterator *self, PyObject *args, PyObject *kw
 
 } // }}}
 
-// BreakIterator.split {{{
-static PyObject *
-icu_BreakIterator_split(icu_BreakIterator *self, PyObject *args, PyObject *kwargs) {
-    int32_t prev = 0, p = 0, sz = 0;
-    PyObject *ans = NULL, *token = NULL;
-  
-    ans = PyList_New(0);
-    if (ans == NULL) return PyErr_NoMemory();
-
-    p = ubrk_first(self->break_iterator);
-    while (p != UBRK_DONE) {
-        prev = p; p = ubrk_next(self->break_iterator);
-        if (self->type == UBRK_WORD && ubrk_getRuleStatus(self->break_iterator) == UBRK_WORD_NONE) 
-            continue;  // We are not at the start of a word
-        sz = (p == UBRK_DONE) ? self->text_len - prev : p - prev;
-        if (sz > 0) {
-            token = icu_to_python(self->text + prev, sz);
-            if (token == NULL) {
-                Py_DECREF(ans); ans = NULL; break; 
-            }
-            if (PyList_Append(ans, token) != 0) {
-                Py_DECREF(token); Py_DECREF(ans); ans = NULL; break; 
-            }
-            Py_DECREF(token);
-        }
-    }
-
-    return ans;
-
-} // }}}
-
 // BreakIterator.index {{{
 static PyObject *
 icu_BreakIterator_index(icu_BreakIterator *self, PyObject *args, PyObject *kwargs) {
@@ -634,7 +603,7 @@ icu_BreakIterator_index(icu_BreakIterator *self, PyObject *args, PyObject *kwarg
 #endif
 
     UChar *buf = NULL;
-    int32_t prev = 0, p = 0, sz = 0, tsz = 0, ans = -1;
+    int32_t prev = 0, p = 0, sz = 0, ans = -1;
     PyObject *token = NULL;
   
     if (!PyArg_ParseTuple(args, "O", &token)) return NULL;
@@ -648,21 +617,27 @@ icu_BreakIterator_index(icu_BreakIterator *self, PyObject *args, PyObject *kwarg
         prev = p; p = ubrk_next(self->break_iterator);
         if (self->type == UBRK_WORD && ubrk_getRuleStatus(self->break_iterator) == UBRK_WORD_NONE) 
             continue;  // We are not at the start of a word
-        tsz = (p == UBRK_DONE) ? self->text_len - prev : p - prev;
-        if (sz == tsz && memcmp(self->text + prev, buf, sz * sizeof(UChar)) == 0) { 
-#ifdef PY_UNICODE_WIDE
-            ans = u_countChar32(self->text, prev);
-#else
-            ans = prev; 
-#endif
-            break;
+        if (self->text_len >= prev + sz && memcmp(self->text + prev, buf, sz * sizeof(UChar)) == 0) {
+            // Needle is present at text[prev:] we have to check if it is not surrounded by hyphen boundaries
+            if (prev > 0 && (self->text[prev-1] == 0x2d || self->text[prev-1] == 0x2010)) continue; // At a hyphen boundary
+            if(
+                ubrk_isBoundary(self->break_iterator, prev + sz) &&
+                (self->text_len == prev + sz || (self->text[prev + sz] != 0x2d && self->text[prev + sz] != 0x2010))
+            ) {
+                ans = prev; break; // Found word surrounded by non-hyphen boundaries
+            } 
+            if (p != UBRK_DONE) ubrk_isBoundary(self->break_iterator, p); // Reset the iterator to its position before the call to ubrk_isBoundary
         }
     }
+#ifdef Py_UNICODE_WIDE
+    if (ans > 0) ans = u_countChar32(self->text, ans);
+#endif
     Py_END_ALLOW_THREADS;
+
 
 end:
     free(buf);
-    return Py_BuildValue("i", ans);
+    return Py_BuildValue("l", (long)ans);
 
 } // }}}
 
@@ -673,8 +648,10 @@ icu_BreakIterator_split2(icu_BreakIterator *self, PyObject *args, PyObject *kwar
 #error Not implemented for python >= 3.3
 #endif
 
-    int32_t prev = 0, p = 0, sz = 0;
-    PyObject *ans = NULL, *temp = NULL;
+    int32_t prev = 0, p = 0, sz = 0, last_pos = 0, last_sz = 0;
+    int is_hyphen_sep = 0;
+    UChar sep = 0;
+    PyObject *ans = NULL, *temp = NULL, *t = NULL;
   
     ans = PyList_New(0);
     if (ans == NULL) return PyErr_NoMemory();
@@ -686,18 +663,38 @@ icu_BreakIterator_split2(icu_BreakIterator *self, PyObject *args, PyObject *kwar
             continue;  // We are not at the start of a word
         sz = (p == UBRK_DONE) ? self->text_len - prev : p - prev;
         if (sz > 0) {
+            // ICU breaks on words containing hyphens, we do not want that, so we recombine manually
+            is_hyphen_sep = 0;
+            if (last_pos > 0) {
+                if (prev - last_pos == 1) {
+                    sep = *(self->text + last_pos);
+                    if (sep == 0x2d || sep == 0x2010) is_hyphen_sep = 1;
+                }
+            }
+            last_pos = p;
 #ifdef Py_UNICODE_WIDE
             sz = u_countChar32(self->text + prev, sz);
             prev = u_countChar32(self->text, prev);
 #endif
-            temp = Py_BuildValue("II", prev, sz); 
-            if (temp == NULL) {
-                Py_DECREF(ans); ans = NULL; break; 
-            } 
-            if (PyList_Append(ans, temp) != 0) {
-                Py_DECREF(temp); Py_DECREF(ans); ans = NULL; break; 
+            if (is_hyphen_sep && PyList_GET_SIZE(ans) > 0) {
+                sz = last_sz + sz + 1;
+                last_sz = sz;
+                t = PyInt_FromLong((long)sz);
+                if (t == NULL) { Py_DECREF(ans); ans = NULL; break; }
+                temp = PyList_GET_ITEM(ans, PyList_GET_SIZE(ans) - 1);
+                Py_DECREF(PyTuple_GET_ITEM(temp, 1));
+                PyTuple_SET_ITEM(temp, 1, t);
+            } else {
+                last_sz = sz;
+                temp = Py_BuildValue("ll", (long)prev, (long)sz); 
+                if (temp == NULL) {
+                    Py_DECREF(ans); ans = NULL; break; 
+                } 
+                if (PyList_Append(ans, temp) != 0) {
+                    Py_DECREF(temp); Py_DECREF(ans); ans = NULL; break; 
+                }
+                Py_DECREF(temp);
             }
-            Py_DECREF(temp);
         }
     }
 
@@ -708,10 +705,6 @@ icu_BreakIterator_split2(icu_BreakIterator *self, PyObject *args, PyObject *kwar
 static PyMethodDef icu_BreakIterator_methods[] = {
     {"set_text", (PyCFunction)icu_BreakIterator_set_text, METH_VARARGS,
      "set_text(unicode object) -> Set the text this iterator will operate on"
-    },
-
-    {"split", (PyCFunction)icu_BreakIterator_split, METH_VARARGS,
-     "split() -> Split the current text into tokens, returning a list of tokens"
     },
 
     {"split2", (PyCFunction)icu_BreakIterator_split2, METH_VARARGS,
@@ -1030,7 +1023,7 @@ icu_string_length(PyObject *self, PyObject *args) {
     if (icu == NULL) return NULL;
     sz = u_countChar32(icu, sz);
     free(icu);
-    return Py_BuildValue("i", sz);
+    return Py_BuildValue("l", (long)sz);
 } // }}}
 
 // utf16_length {{{
@@ -1056,7 +1049,7 @@ icu_utf16_length(PyObject *self, PyObject *args) {
     }
     sz = t;
 #endif
-    return Py_BuildValue("i", sz);
+    return Py_BuildValue("l", (long)sz);
 } // }}}
 
 // Module initialization {{{

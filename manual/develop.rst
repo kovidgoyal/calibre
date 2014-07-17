@@ -225,7 +225,7 @@ used in Windows and OS X. Alternatively, you can install |app| from source. Inst
 environment from source are in the INSTALL file in the source tree. Here we will address using the binary at runtime, which is the
 recommended method.
 
-Install the |app| using the binary installer. Then open a terminal and change to the previously checked out |app| code directory, for example::
+Install |app| using the binary installer. Then open a terminal and change to the previously checked out |app| code directory, for example::
 
     cd /home/kovid/work/calibre
 

@@ -11,14 +11,15 @@ from functools import partial
 
 from PyQt4.Qt import (
     QMainWindow, Qt, QApplication, pyqtSignal, QMenu, qDrawShadeRect, QPainter,
-    QImage, QColor, QIcon, QPixmap, QToolButton, QAction)
+    QImage, QColor, QIcon, QPixmap, QToolButton, QAction, QTextCursor)
 
 from calibre import prints
 from calibre.constants import DEBUG
 from calibre.ebooks.chardet import replace_encoding_declarations
-from calibre.gui2 import error_dialog
-from calibre.gui2.tweak_book import actions, current_container, tprefs, dictionaries, editor_toolbar_actions
-from calibre.gui2.tweak_book.editor import SPELL_PROPERTY
+from calibre.gui2 import error_dialog, open_url
+from calibre.gui2.tweak_book import actions, current_container, tprefs, dictionaries, editor_toolbar_actions, editor_name
+from calibre.gui2.tweak_book.editor import SPELL_PROPERTY, LINK_PROPERTY, TAG_NAME_PROPERTY, CSS_PROPERTY
+from calibre.gui2.tweak_book.editor.help import help_url
 from calibre.gui2.tweak_book.editor.text import TextEdit
 from calibre.utils.icu import utf16_length
 
@@ -64,6 +65,14 @@ def register_text_editor_actions(_reg, palette):
     ac = reg('format-fill-color', _('&Background Color'), ('format_text', 'background-color'),
              'format-text-background-color', (), _('Change background color of text'))
     ac.setToolTip(_('<h3>Background Color</h3>Change the background color of the selected text'))
+    ac = reg('format-justify-left', _('Align &left'), ('format_text', 'justify_left'), 'format-text-justify-left', (), _('Align left'))
+    ac.setToolTip(_('<h3>Align left</h3>Align the paragraph to the left'))
+    ac = reg('format-justify-center', _('&Center'), ('format_text', 'justify_center'), 'format-text-justify-center', (), _('Center'))
+    ac.setToolTip(_('<h3>Center</h3>Center the paragraph'))
+    ac = reg('format-justify-right', _('Align &right'), ('format_text', 'justify_right'), 'format-text-justify-right', (), _('Align right'))
+    ac.setToolTip(_('<h3>Align right</h3>Align the paragraph to the right'))
+    ac = reg('format-justify-fill', _('&Justify'), ('format_text', 'justify_justify'), 'format-text-justify-fill', (), _('Justify'))
+    ac.setToolTip(_('<h3>Justify</h3>Align the paragraph to both the left and right margins'))
 
     ac = reg('view-image', _('&Insert image'), ('insert_resource', 'image'), 'insert-image', (), _('Insert an image into the text'), syntaxes=('html', 'css'))
     ac.setToolTip(_('<h3>Insert image</h3>Insert an image into the text'))
@@ -86,6 +95,7 @@ def register_text_editor_actions(_reg, palette):
     editor_toolbar_actions['html']['change-paragraph'] = actions['change-paragraph'] = QAction(
         QIcon(I('format-text-heading.png')), _('Change paragraph to heading'), ac.parent())
 
+
 class Editor(QMainWindow):
 
     has_line_numbers = True
@@ -96,6 +106,7 @@ class Editor(QMainWindow):
     data_changed = pyqtSignal(object)
     cursor_position_changed = pyqtSignal()
     word_ignored = pyqtSignal(object, object)
+    link_clicked = pyqtSignal(object)
 
     def __init__(self, syntax, parent=None):
         QMainWindow.__init__(self, parent)
@@ -117,6 +128,7 @@ class Editor(QMainWindow):
         self.editor.textChanged.connect(self._data_changed)
         self.editor.copyAvailable.connect(self._copy_available)
         self.editor.cursorPositionChanged.connect(self._cursor_position_changed)
+        self.editor.link_clicked.connect(self.link_clicked)
 
     @dynamic_property
     def current_line(self):
@@ -142,11 +154,14 @@ class Editor(QMainWindow):
                 self.data = ans
             return ans.encode('utf-8')
         def fset(self, val):
-            self.editor.load_text(val, syntax=self.syntax)
+            self.editor.load_text(val, syntax=self.syntax, doc_name=editor_name(self))
         return property(fget=fget, fset=fset)
 
     def init_from_template(self, template):
-        self.editor.load_text(template, syntax=self.syntax, process_template=True)
+        self.editor.load_text(template, syntax=self.syntax, process_template=True, doc_name=editor_name(self))
+
+    def change_document_name(self, newname):
+        self.editor.change_document_name(newname)
 
     def get_raw_data(self):
         # The EPUB spec requires NFC normalization, see section 1.3.6 of
@@ -258,6 +273,9 @@ class Editor(QMainWindow):
     def populate_toolbars(self):
         self.tools_bar.clear()
         def add_action(name, bar):
+            if name is None:
+                bar.addSeparator()
+                return
             try:
                 ac = actions[name]
             except KeyError:
@@ -288,14 +306,11 @@ class Editor(QMainWindow):
                 add_action(name, self.format_bar)
 
     def break_cycles(self):
-        try:
-            self.modification_state_changed.disconnect()
-        except TypeError:
-            pass  # in case this signal was never connected
-        try:
-            self.word_ignored.disconnect()
-        except TypeError:
-            pass  # in case this signal was never connected
+        for x in ('modification_state_changed', 'word_ignored', 'link_clicked'):
+            try:
+                getattr(self, x).disconnect()
+            except TypeError:
+                pass  # in case this signal was never connected
         self.undo_redo_state_changed.disconnect()
         self.copy_available_state_changed.disconnect()
         self.cursor_position_changed.disconnect()
@@ -306,6 +321,7 @@ class Editor(QMainWindow):
         self.editor.textChanged.disconnect()
         self.editor.copyAvailable.disconnect()
         self.editor.cursorPositionChanged.disconnect()
+        self.editor.link_clicked.disconnect()
         self.editor.setPlainText('')
         self.editor.smarts = None
 
@@ -383,7 +399,12 @@ class Editor(QMainWindow):
         m = QMenu(self)
         a = m.addAction
         c = self.editor.cursorForPosition(pos)
-        r = self.editor.syntax_range_for_cursor(c)
+        origc = QTextCursor(c)
+        r = origr = self.editor.syntax_range_for_cursor(c)
+        if (r is None or not r.format.property(SPELL_PROPERTY).toBool()) and c.positionInBlock() > 0:
+            c.setPosition(c.position() - 1)
+            r = self.editor.syntax_range_for_cursor(c)
+
         if r is not None and r.format.property(SPELL_PROPERTY).toBool():
             word = self.editor.text_for_range(c.block(), r)
             locale = self.editor.spellcheck_locale_for_cursor(c)
@@ -418,6 +439,17 @@ class Editor(QMainWindow):
                         for dic in dics:
                             dmenu.addAction(dic.name, partial(self._nuke_word, dic.name, word, locale))
                 m.addSeparator()
+
+        if origr is not None and origr.format.property(LINK_PROPERTY).toBool():
+            href = self.editor.text_for_range(origc.block(), origr)
+            m.addAction(_('Open %s') % href, partial(self.link_clicked.emit, href))
+
+        if origr is not None and (origr.format.property(TAG_NAME_PROPERTY).toBool() or origr.format.property(CSS_PROPERTY).toBool()):
+            word = self.editor.text_for_range(origc.block(), origr)
+            item_type = 'tag_name' if origr.format.property(TAG_NAME_PROPERTY).toBool() else 'css_property'
+            url = help_url(word, item_type, self.editor.highlighter.doc_name, extra_data=current_container().opf_version)
+            if url is not None:
+                m.addAction(_('Show help for: %s') % word, partial(open_url, url))
 
         for x in ('undo', 'redo'):
             a(actions['editor-%s' % x])

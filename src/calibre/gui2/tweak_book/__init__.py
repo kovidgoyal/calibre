@@ -55,8 +55,10 @@ d['global_tools_toolbar'] = ['check-book', 'spell-check-book', 'edit-toc', 'inse
 d['editor_css_toolbar'] = ['pretty-current', 'insert-image']
 d['editor_xml_toolbar'] = ['pretty-current', 'insert-tag']
 d['editor_html_toolbar'] = ['fix-html-current', 'pretty-current', 'insert-image', 'insert-hyperlink', 'insert-tag', 'change-paragraph']
-d['editor_format_toolbar'] = [('format-text-' + x) for x in (
-'bold', 'italic', 'underline', 'strikethrough', 'subscript', 'superscript', 'color', 'background-color')]
+d['editor_format_toolbar'] = [('format-text-' + x) if x else x for x in (
+'bold', 'italic', 'underline', 'strikethrough', 'subscript', 'superscript',
+    None, 'color', 'background-color', None, 'justify-left', 'justify-center',
+    'justify-right', 'justify-fill')]
 d['spell_check_case_sensitive_search'] = False
 d['add_cover_preserve_aspect_ratio'] = False
 del d
@@ -105,3 +107,15 @@ def set_book_locale(lang):
         dictionaries.default_locale = dictionaries.ui_locale
     from calibre.gui2.tweak_book.editor.syntax.html import refresh_spell_check_status
     refresh_spell_check_status()
+
+def verify_link(url, name=None):
+    if _current_container is None or name is None:
+        return None
+    target = _current_container.href_to_name(url, name)
+    if _current_container.has_name(target):
+        return True
+    if url.startswith('#'):
+        return True
+    if url.partition(':')[0] in {'http', 'https', 'mailto'}:
+        return True
+    return False

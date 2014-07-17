@@ -10,37 +10,39 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 class Carta(BasicNewsRecipe):
 
-    title = u'Carta'
-    description = 'News about electronic publishing'
-    __author__ = 'Oliver Niesner' # AGe Update 2013-10-13
-    use_embedded_content   = False
-    timefmt = ' [%a %d %b %Y]'
-    oldest_article = 7
-    max_articles_per_feed = 50
-    no_stylesheets = True
-    remove_javascript = True
-    #html2epub_options = 'linearize_tables = True\nbase_font_size2=14'
-    encoding = 'utf-8'
-    language = 'de'
+    title           = u'Carta'
+    description     = 'News about electronic publishing'
+    __author__      = 'Armin Geller'  # AGe Update 2014-07-15
 
+    timefmt                = ' [%a %d %b %Y]'
+    oldest_article         = 7
+    max_articles_per_feed  = 50
+    # no_stylesheets        = True
+    # use_embedded_content  = False
+    remove_javascript      = True
+    encoding               = 'utf-8'
+    language               = 'de'
 
+    cover_source   = 'http://carta.info/carta/wp-content/uploads/2012/09/gross.jpg'
+    masthead_url   = 'http://www.carta.info/carta/wp-content/themes/carta4/images/logo.png'
+    extra_css      =  '''
+                      h2 {font-size: 1.3em; font-style: italic}
+                      .excerpt {font-size: 1.2em; font-style: italic}
+                      '''
 
-    remove_tags_after = [dict(name='div', attrs={'id':'BlogContent'})] # AGe
+    keep_only_tags = [
+                       dict(name='div', attrs={'class':'postarea'}),
+                      ]
 
-    remove_tags = [dict(name='p', attrs={'class':'print'}),
-                   dict(name='p', attrs={'class':'tags-blog'}),
-                   dict(name='p', attrs={'class':'mail'}),
-                   dict(name='p', attrs={'style':'text-align: center;'}),
-                   dict(name='p', attrs={'align':'left'}),
-                   dict(name='p', attrs={'class':'date'}),
-                   dict(id='comments'),
-                   dict(id='headerleft'),
-                   dict(id='subnav'),
-                   dict(id='headerright')]
+    remove_tags_after = [
+                          dict(name='div', attrs={'class':'the-content'})
+                         ]
 
+    remove_tags = [
+                   dict(name='div', attrs={'id':['header', 'subnavbar']}),
+                   dict(name='div', attrs={'addthis':'title'}),
+                   dict(name='p', attrs={'class':'print'}),
+                   dict(name='div', attrs={'style':'clear: both;'}),
+                   ]
 
-    feeds =  [ (u'Carta', u'http://feeds2.feedburner.com/carta-standard-rss') ]
-
-
-    def print_version(self, url):
-        return url + 'print/'
+    feeds =  [(u'Carta', u'http://feeds2.feedburner.com/carta-standard-rss')]

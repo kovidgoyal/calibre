@@ -252,10 +252,15 @@ def parse_html(data, log=None, decoder=None, preprocessor=None,
     idx = data.find('<html')
     if idx == -1:
         idx = data.find('<HTML')
+    has_html4_doctype = False
     if idx > -1:
         pre = data[:idx]
         data = data[idx:]
         if '<!DOCTYPE' in pre:  # Handle user defined entities
+            has_html4_doctype = re.search(r'<!DOCTYPE\s+[^>]+HTML\s+4.0[^.]+>', pre) is not None
+            # kindlegen produces invalid xhtml with uppercase attribute names
+            # if fed HTML 4 with uppercase attribute names, so try to detect
+            # and compensate for that.
             user_entities = {}
             for match in re.finditer(r'<!ENTITY\s+(\S+)\s+([^>]+)', pre):
                 val = match.group(2)
@@ -292,7 +297,7 @@ def parse_html(data, log=None, decoder=None, preprocessor=None,
                     'HTML 5 parsing failed, falling back to older parsers')
                 data = _html4_parse(data)
 
-    if data.tag == 'HTML':
+    if has_html4_doctype or data.tag == 'HTML':
         # Lower case all tag and attribute names
         data.tag = data.tag.lower()
         for x in data.iterdescendants():

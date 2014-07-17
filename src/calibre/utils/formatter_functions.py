@@ -1219,7 +1219,7 @@ class BuiltinListReGroup(BuiltinFormatterFunction):
     name = 'list_re_group'
     arg_count = -1
     category = 'List manipulation'
-    __doc__ = doc = _('list_re(src_list, separator, include_re, search_re, group_1_template, ...) -- '
+    __doc__ = doc = _('list_re_group(src_list, separator, include_re, search_re, group_1_template, ...) -- '
                       'Like list_re except replacements are not optional. It '
                       'uses re_group(list_item, search_re, group_1_template, ...) when '
                       'doing the replacements on the resulting list.')

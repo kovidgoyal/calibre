@@ -8,15 +8,15 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
 from PyQt4.Qt import QPushButton, QPixmap, QIcon, QColor, Qt, QColorDialog, pyqtSignal
 
-from calibre.gui2.complete2 import LineEdit
+from calibre.gui2.complete2 import LineEdit, EditWithComplete
 from calibre.gui2.widgets import history
 
-class HistoryLineEdit2(LineEdit):
+class HistoryMixin(object):
 
     max_history_items = None
 
-    def __init__(self, parent=None, completer_widget=None, sort_func=lambda x:None):
-        LineEdit.__init__(self, parent=parent, completer_widget=completer_widget, sort_func=sort_func)
+    def __init__(self, *args, **kwargs):
+        pass
 
     @property
     def store_name(self):
@@ -28,7 +28,10 @@ class HistoryLineEdit2(LineEdit):
         self.set_separator(None)
         self.update_items_cache(self.history)
         self.setText('')
-        self.editingFinished.connect(self.save_history)
+        try:
+            self.editingFinished.connect(self.save_history)
+        except AttributeError:
+            self.lineEdit().editingFinished.connect(self.save_history)
 
     def save_history(self):
         ct = unicode(self.text())
@@ -47,6 +50,16 @@ class HistoryLineEdit2(LineEdit):
         self.history = []
         history.set(self.store_name, self.history)
         self.update_items_cache(self.history)
+
+class HistoryLineEdit2(LineEdit, HistoryMixin):
+
+    def __init__(self, parent=None, completer_widget=None, sort_func=lambda x:None):
+        LineEdit.__init__(self, parent=parent, completer_widget=completer_widget, sort_func=sort_func)
+
+class HistoryComboBox(EditWithComplete, HistoryMixin):
+
+    def __init__(self, parent=None):
+        EditWithComplete.__init__(self, parent, sort_func=lambda x:None)
 
 class ColorButton(QPushButton):
 

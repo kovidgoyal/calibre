@@ -20,7 +20,7 @@ from calibre.ebooks.mobi.reader.ncx import read_ncx, build_toc
 from calibre.ebooks.mobi.reader.markup import expand_mobi8_markup
 from calibre.ebooks.metadata.opf2 import Guide, OPFCreator
 from calibre.ebooks.metadata.toc import TOC
-from calibre.ebooks.mobi.utils import read_font_record, read_resc_record
+from calibre.ebooks.mobi.utils import read_font_record
 from calibre.ebooks.oeb.parse_utils import parse_html
 from calibre.ebooks.oeb.base import XPath, XHTML, xml2text
 from calibre.utils.imghdr import what
@@ -66,7 +66,6 @@ class Mobi8Reader(object):
         self.mobi6_reader, self.log = mobi6_reader, log
         self.header = mobi6_reader.book_header
         self.encrypted_fonts = []
-        self.resc_data = {}
 
     def __call__(self):
         self.mobi6_reader.check_for_drm()
@@ -311,8 +310,8 @@ class Mobi8Reader(object):
         if plt == npos or pgt < plt:
             npos = pgt + 1
         textblock = textblock[0:npos]
-        id_re = re.compile(br'''<[^>]+\sid\s*=\s*['"]([^'"]+)['"]''')
-        name_re = re.compile(br'''<\s*a\s*\sname\s*=\s*['"]([^'"]+)['"]''')
+        id_re = re.compile(br'''<[^>]+\s(?:id|ID)\s*=\s*['"]([^'"]+)['"]''')
+        name_re = re.compile(br'''<\s*a\s*\s(?:name|NAME)\s*=\s*['"]([^'"]+)['"]''')
         for tag in reverse_tag_iter(textblock):
             m = id_re.match(tag) or name_re.match(tag)
             if m is not None:
@@ -398,10 +397,8 @@ class Mobi8Reader(object):
             typ = data[:4]
             href = None
             if typ in {b'FLIS', b'FCIS', b'SRCS', b'\xe9\x8e\r\n', b'BOUN',
-                       b'FDST', b'DATP', b'AUDI', b'VIDE'}:
+                       b'FDST', b'DATP', b'AUDI', b'VIDE', b'RESC', b'CMET'}:
                 pass  # Ignore these records
-            elif typ == b'RESC':
-                self.resc_data = read_resc_record(data)
             elif typ == b'FONT':
                 font = read_font_record(data)
                 href = "fonts/%05d.%s" % (fname_idx, font['ext'])
@@ -480,8 +477,8 @@ class Mobi8Reader(object):
                 entry.mime_type = 'application/xhtml+xml'
         opf.create_spine(spine)
         opf.set_toc(toc)
-        ppd = self.resc_data.get('page-progression-direction', None)
-        if ppd:
+        ppd = getattr(self.header.exth, 'page_progression_direction', None)
+        if ppd in {'ltr', 'rtl', 'default'}:
             opf.page_progression_direction = ppd
 
         with open('metadata.opf', 'wb') as of, open('toc.ncx', 'wb') as ncx:

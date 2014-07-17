@@ -8,6 +8,7 @@ __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import os
 from functools import partial
+from binascii import hexlify
 
 from calibre import prepare_string_for_xml, force_unicode
 from calibre.ebooks.metadata import fmt_sidx
@@ -44,6 +45,10 @@ def displayable_field_keys(mi):
 def get_field_list(mi):
     for field in sorted(displayable_field_keys(mi), key=partial(field_sort, mi)):
         yield field, True
+
+def search_href(search_term, value):
+    search = '%s:"=%s"' % (search_term, value.replace('"', '\\"'))
+    return prepare_string_for_xml('search:' + hexlify(search.encode('utf-8')), True)
 
 def mi_to_html(mi, field_list=None, default_author_link=None, use_roman_numbers=True, rating_font='Liberation Serif'):
     if field_list is None:
@@ -166,13 +171,36 @@ def mi_to_html(mi, field_list=None, default_author_link=None, use_roman_numbers=
                 sidx = mi.get(field+'_index')
                 if sidx is None:
                     sidx = 1.0
-                val = _('Book %(sidx)s of <span class="series_name">%(series)s</span>')%dict(
-                        sidx=fmt_sidx(sidx, use_roman=use_roman_numbers),
-                        series=p(getattr(mi, field)))
+                try:
+                    st = metadata['search_terms'][0]
+                except Exception:
+                    st = field
+                series = getattr(mi, field)
+                val = _(
+                    'Book %(sidx)s of <a href="%(href)s" title="%(tt)s">'
+                    '<span class="%(cls)s">%(series)s</span></a>') % dict(
+                        sidx=fmt_sidx(sidx, use_roman=use_roman_numbers), cls="series_name",
+                        series=p(series), href=search_href(st, series),
+                        tt=p(_('Click to see books in this series')))
             elif metadata['datatype'] == 'datetime':
                 aval = getattr(mi, field)
                 if is_date_undefined(aval):
                     continue
+            elif metadata['datatype'] == 'text' and metadata['is_multiple']:
+                try:
+                    st = metadata['search_terms'][0]
+                except Exception:
+                    st = field
+                links = ['<a href="%s" title="%s">%s</a>' % (
+                    search_href(st, x), _('Click to see books with {0}: {1}').format(metadata['name'], x), x)
+                         for x in mi.get(field)]
+                val = metadata['is_multiple']['list_to_ui'].join(links)
+            elif metadata['datatype'] == 'enumeration':
+                try:
+                    st = metadata['search_terms'][0]
+                except Exception:
+                    st = field
+                val = '<a href="%s" title="%s">%s</a>' % (search_href(st, val), _('Click to see books with {0}: {1}').format(metadata['name'], val), val)
 
             ans.append((field, row % (name, val)))
 

@@ -7,7 +7,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import struct, string, zlib, os, re
+import struct, string, zlib, os
 from collections import OrderedDict
 from io import BytesIO
 
@@ -394,15 +394,6 @@ def mobify_image(data):
         im.load(data)
         data = im.export('gif')
     return data
-
-def read_resc_record(data):
-    ans = {}
-    match = re.search(br'''<spine [^>]*page-progression-direction=['"](.+?)['"]''', data)
-    if match is not None:
-        ppd = match.group(1).lower()
-        if ppd in {b'ltr', b'rtl'}:
-            ans['page-progression-direction'] = ppd.decode('ascii')
-    return ans
 
 # Font records {{{
 def read_font_record(data, extent=1040):

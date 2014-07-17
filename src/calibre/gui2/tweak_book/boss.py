@@ -8,10 +8,11 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import tempfile, shutil, sys, os
 from functools import partial, wraps
+from urlparse import urlparse
 
 from PyQt4.Qt import (
     QObject, QApplication, QDialog, QGridLayout, QLabel, QSize, Qt,
-    QDialogButtonBox, QIcon, QTimer, QPixmap, QInputDialog)
+    QDialogButtonBox, QIcon, QTimer, QPixmap, QInputDialog, QUrl)
 
 from calibre import prints, isbytestring
 from calibre.ptempfile import PersistentTemporaryDirectory, TemporaryDirectory
@@ -25,7 +26,7 @@ from calibre.ebooks.oeb.polish.replace import rename_files, replace_file, get_re
 from calibre.ebooks.oeb.polish.split import split, merge, AbortError, multisplit
 from calibre.ebooks.oeb.polish.toc import remove_names_from_toc, find_existing_toc, create_inline_toc
 from calibre.ebooks.oeb.polish.utils import link_stylesheets, setup_cssutils_serialization as scs
-from calibre.gui2 import error_dialog, choose_files, question_dialog, info_dialog, choose_save_file
+from calibre.gui2 import error_dialog, choose_files, question_dialog, info_dialog, choose_save_file, open_url
 from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.gui2.tweak_book import (
     set_current_container, current_container, tprefs, actions, editors,
@@ -69,9 +70,14 @@ def in_thread_job(func):
             return func(*args, **kwargs)
     return ans
 
+_boss = None
+def get_boss():
+    return _boss
+
 class Boss(QObject):
 
     def __init__(self, parent, notify=None):
+        global _boss
         QObject.__init__(self, parent)
         self.global_undo = GlobalUndoHistory()
         self.container_count = 0
@@ -81,6 +87,7 @@ class Boss(QObject):
         self.doing_terminal_save = False
         self.ignore_preview_to_editor_sync = False
         setup_cssutils_serialization()
+        _boss = self
 
     def __call__(self, gui):
         self.gui = gui
@@ -117,6 +124,7 @@ class Boss(QObject):
         self.gui.spell_check.refresh_requested.connect(self.commit_all_editors_to_container)
         self.gui.spell_check.word_replaced.connect(self.word_replaced)
         self.gui.spell_check.word_ignored.connect(self.word_ignored)
+        self.gui.spell_check.change_requested.connect(self.word_change_requested)
         self.gui.live_css.goto_declaration.connect(self.goto_style_declaration)
         self.gui.manage_fonts.container_changed.connect(self.apply_container_update_to_gui)
         self.gui.manage_fonts.embed_all_fonts.connect(self.manage_fonts_embed)
@@ -544,7 +552,8 @@ class Boss(QObject):
         self.set_modified()
         for oldname, newname in name_map.iteritems():
             if oldname in editors:
-                editors[newname] = editors.pop(oldname)
+                editors[newname] = ed = editors.pop(oldname)
+                ed.change_document_name(newname)
                 self.gui.central.rename_editor(editors[newname], newname)
             if self.gui.preview.current_name == oldname:
                 self.gui.preview.current_name = newname
@@ -769,6 +778,12 @@ class Boss(QObject):
         name = editor_name(ed)
         find_next_error(ed, name, self.gui, self.show_editor, self.edit_file)
 
+    def word_change_requested(self, w, new_word):
+        if self.commit_all_editors_to_container():
+            self.gui.spell_check.change_word_after_update(w, new_word)
+        else:
+            self.gui.spell_check.do_change_word(w, new_word)
+
     def word_replaced(self, changed_names):
         self.set_modified()
         self.update_editors_from_container(names=set(changed_names))
@@ -780,6 +795,24 @@ class Boss(QObject):
                     ed.editor.recheck_word(word, locale)
                 except AttributeError:
                     pass
+
+    def editor_link_clicked(self, url):
+        ed = self.gui.central.current_editor
+        name = editor_name(ed)
+        if url.startswith('#'):
+            target = name
+        else:
+            target = current_container().href_to_name(url, name)
+        frag = url.partition('#')[-1]
+        if current_container().has_name(target):
+            self.link_clicked(target, frag, show_anchor_not_found=True)
+        else:
+            purl = urlparse(url)
+            if purl.scheme not in {'', 'file'}:
+                open_url(QUrl(url))
+            else:
+                error_dialog(self.gui, _('Not found'), _(
+                    'No file with the name %s was found in the book') % target, show=True)
 
     def saved_searches(self):
         self.gui.saved_searches.show(), self.gui.saved_searches.raise_()
@@ -822,11 +855,14 @@ class Boss(QObject):
                 self.gui.file_list.build(container)
 
     def commit_all_editors_to_container(self):
+        changed = False
         with BusyCursor():
             for name, ed in editors.iteritems():
                 if not ed.is_synced_to_container:
                     self.commit_editor_to_container(name)
                     ed.is_synced_to_container = True
+                    changed = True
+        return changed
 
     def save_book(self):
         c = current_container()
@@ -937,8 +973,7 @@ class Boss(QObject):
                     raise
                 self.apply_container_update_to_gui()
 
-    @in_thread_job
-    def link_clicked(self, name, anchor):
+    def link_clicked(self, name, anchor, show_anchor_not_found=False):
         if not name:
             return
         if name in editors:
@@ -953,9 +988,15 @@ class Boss(QObject):
                     ' the Table of Contents, you may'
                     ' need to refresh it by right-clicking and choosing "Refresh".') % name, show=True)
             syntax = syntax_from_mime(name, mt)
+            if not syntax:
+                return error_dialog(
+                    self.gui, _('Unsupported file format'),
+                    _('Editing files of type %s is not supported' % mt), show=True)
             editor = self.edit_file(name, syntax)
-        if anchor:
-            editor.go_to_anchor(anchor)
+        if anchor and editor is not None:
+            if not editor.go_to_anchor(anchor) and show_anchor_not_found:
+                error_dialog(self.gui, _('Not found'), _(
+                    'The anchor %s was not found in this file') % anchor, show=True)
 
     @in_thread_job
     def check_item_activated(self, item):
@@ -1082,6 +1123,8 @@ class Boss(QObject):
         editor.cursor_position_changed.connect(self.update_cursor_position)
         if hasattr(editor, 'word_ignored'):
             editor.word_ignored.connect(self.word_ignored)
+        if hasattr(editor, 'link_clicked'):
+            editor.link_clicked.connect(self.editor_link_clicked)
         if data is not None:
             if use_template:
                 editor.init_from_template(data)

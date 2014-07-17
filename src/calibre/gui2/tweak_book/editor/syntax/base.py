@@ -58,9 +58,11 @@ class SimpleUserData(QTextBlockUserData):
     def __init__(self):
         QTextBlockUserData.__init__(self)
         self.state = SimpleState()
+        self.doc_name = None
 
-    def clear(self, state=None):
+    def clear(self, state=None, doc_name=None):
         self.state = SimpleState() if state is None else state
+        self.doc_name = doc_name
 
 class SyntaxHighlighter(object):
 
@@ -71,6 +73,7 @@ class SyntaxHighlighter(object):
 
     def __init__(self):
         self.doc = None
+        self.doc_name = None
         self.requests = deque()
         self.ignore_requests = False
 
@@ -86,7 +89,7 @@ class SyntaxHighlighter(object):
     def create_formats(self):
         self.formats = self.create_formats_func()
 
-    def set_document(self, doc):
+    def set_document(self, doc, doc_name=None):
         old_doc = self.doc
         if old_doc is not None:
             old_doc.contentsChange.disconnect(self.reformat_blocks)
@@ -97,9 +100,10 @@ class SyntaxHighlighter(object):
                 blk.layout().clearAdditionalFormats()
                 blk = blk.next()
             c.endEditBlock()
-        self.doc = None
+        self.doc = self.doc_name = None
         if doc is not None:
             self.doc = doc
+            self.doc_name = doc_name
             doc.contentsChange.connect(self.reformat_blocks)
             self.rehighlight()
 
@@ -207,7 +211,7 @@ class SyntaxHighlighter(object):
                 start_state = start_state.state.copy()
         else:
             start_state = self.user_data_factory().state
-        ud.clear(state=start_state)  # Ensure no stale user data lingers
+        ud.clear(state=start_state, doc_name=self.doc_name)  # Ensure no stale user data lingers
         formats = []
         for i, num, fmt in run_loop(ud, self.state_map, self.formats, unicode(block.text())):
             if fmt is not None:

@@ -20,8 +20,7 @@ def split_into_words(text, lang='en'):
         if it is None:
             it = _iterators[lang] = _icu.BreakIterator(_icu.UBRK_WORD, lang_as_iso639_1(lang) or lang)
         it.set_text(text)
-        return it.split()
-
+        return [text[p:p+s] for p, s in it.split2()]
 
 def split_into_words_and_positions(text, lang='en'):
     with _lock:

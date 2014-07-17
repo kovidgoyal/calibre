@@ -6,7 +6,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import re
+import re, time
 from functools import partial
 
 
@@ -21,6 +21,7 @@ from calibre.gui2.dialogs.search import SearchDialog
 
 class SearchLineEdit(QLineEdit):  # {{{
     key_pressed = pyqtSignal(object)
+    select_on_mouse_press = None
 
     def keyPressEvent(self, event):
         self.key_pressed.emit(event)
@@ -38,6 +39,16 @@ class SearchLineEdit(QLineEdit):  # {{{
     def paste(self, *args):
         self.parent().normalize_state()
         return QLineEdit.paste(self)
+
+    def focusInEvent(self, ev):
+        self.select_on_mouse_press = time.time()
+        return QLineEdit.focusInEvent(self, ev)
+
+    def mousePressEvent(self, ev):
+        QLineEdit.mousePressEvent(self, ev)
+        if self.select_on_mouse_press is not None and abs(time.time() - self.select_on_mouse_press) < 0.2:
+            self.selectAll()
+        self.select_on_mouse_press = None
 # }}}
 
 class SearchBox2(QComboBox):  # {{{
@@ -492,13 +503,9 @@ class SavedSearchBoxMixin(object):  # {{{
                             _('Create saved search'),
                             self.saved_search.save_search_button_clicked)
         self.save_search_button.menu().addAction(
-                             QIcon(I('trash.png')),
-                             _('Delete saved search'),
-                            self.saved_search.delete_current_search)
+            QIcon(I('trash.png')), _('Delete saved search'), self.saved_search.delete_current_search)
         self.save_search_button.menu().addAction(
-                             QIcon(I('search.png')),
-                            _('Manage saved searches'),
-                            partial(self.do_saved_search_edit, None))
+            QIcon(I('search.png')), _('Manage saved searches'), partial(self.do_saved_search_edit, None))
 
     def saved_searches_changed(self, set_restriction=None, recount=True):
         self.build_search_restriction_list()

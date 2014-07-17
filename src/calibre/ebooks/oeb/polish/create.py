@@ -15,7 +15,7 @@ from calibre.ptempfile import TemporaryDirectory
 from calibre.ebooks.oeb.base import serialize
 from calibre.ebooks.metadata.opf2 import metadata_to_opf
 from calibre.ebooks.oeb.polish.parsing import parse
-from calibre.ebooks.oeb.polish.container import OPF_NAMESPACES, opf_to_azw3
+from calibre.ebooks.oeb.polish.container import OPF_NAMESPACES, opf_to_azw3, Container
 from calibre.ebooks.oeb.polish.utils import guess_type
 from calibre.ebooks.oeb.polish.pretty import pretty_xml_tree, pretty_html_tree
 from calibre.ebooks.oeb.polish.toc import TOC, create_ncx
@@ -87,7 +87,8 @@ def create_book(mi, path, fmt='epub', opf_name='metadata.opf', html_name='start.
             for name, data in ((opf_name, opf), (html_name, HTML), (toc_name, ncx)):
                 with open(name, 'wb') as f:
                     f.write(data)
-            opf_to_azw3(opf_name, path, DevNull())
+            c = Container(os.path.dirname(os.path.abspath(opf_name)), opf_name, DevNull())
+            opf_to_azw3(opf_name, path, c)
     else:
         with ZipFile(path, 'w', compression=ZIP_STORED) as zf:
             zf.writestr('mimetype', b'application/epub+zip', compression=ZIP_STORED)

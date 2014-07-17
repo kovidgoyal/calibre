@@ -150,3 +150,24 @@ def lead_text(top_elem, num_words=10):
             stack.extend(reversed(list((c, 'text') for c in elem.iterchildren('*'))))
     return ' '.join(words[:num_words])
 
+def parse_css(data, fname='<string>', is_declaration=False, decode=None, log_level=None, css_preprocessor=None):
+    if log_level is None:
+        import logging
+        log_level = logging.WARNING
+    from cssutils import CSSParser, log
+    from calibre.ebooks.oeb.base import _css_logger
+    log.setLevel(log_level)
+    log.raiseExceptions = False
+    if isinstance(data, bytes):
+        data = data.decode('utf-8') if decode is None else decode(data)
+    if css_preprocessor is not None:
+        data = css_preprocessor(data)
+    parser = CSSParser(loglevel=log_level,
+                        # We dont care about @import rules
+                        fetcher=lambda x: (None, None), log=_css_logger)
+    if is_declaration:
+        data = parser.parseStyle(data, validate=False)
+    else:
+        data = parser.parseString(data, href=fname, validate=False)
+    return data
+

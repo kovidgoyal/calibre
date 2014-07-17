@@ -83,9 +83,11 @@ class Manual(Command):
             os.environ['__version__'] = __version__
             subprocess.check_call(['sphinx-build2', '-b', 'html', '-t', 'online',
                                    '-d', '.build/doctrees', '.', '.build/html'])
-            subprocess.check_call(['sphinx-build', '-b', 'myepub', '-d',
-                                   '.build/doctrees', '.', '.build/epub'])
             with self:
+                # This is needed as without it the ToC is doubled in EPUB and
+                # the both the ToC and the content is doubled in PDF
+                subprocess.check_call(['sphinx-build', '-b', 'myepub', '-d',
+                                   '.build/doctrees', '.', '.build/epub'])
                 subprocess.check_call(['sphinx-build', '-b', 'mylatex', '-d',
                                    '.build/doctrees', '.', '.build/latex'])
             pwd = os.getcwdu()

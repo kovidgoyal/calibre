@@ -14,7 +14,7 @@ class AdvancedUserRecipe1301860159(BasicNewsRecipe):
     use_embedded_content   = False
     remove_javascript = True
     keep_only_tags = [dict(name='div', attrs={'class':'modSectionTd2'})]
-    remove_tags = [dict(name='a'),dict(name='hr')]
+    remove_tags = [dict(name='hr')]
 
     feeds          = [(u'Weblog', u'http://www.f-secure.com/weblog/weblog.rss')]
     def get_cover_url(self):

@@ -858,11 +858,12 @@ class WordsView(QTableView):
 
 class SpellCheck(Dialog):
 
-    work_finished = pyqtSignal(object, object)
+    work_finished = pyqtSignal(object, object, object)
     find_word = pyqtSignal(object, object)
     refresh_requested = pyqtSignal()
     word_replaced = pyqtSignal(object)
     word_ignored = pyqtSignal(object, object)
+    change_requested = pyqtSignal(object, object)
 
     def __init__(self, parent=None):
         self.__current_word = None
@@ -889,7 +890,7 @@ class SpellCheck(Dialog):
         b = self.bb.addButton(_('&Refresh'), self.bb.ActionRole)
         b.setToolTip('<p>' + _('Re-scan the book for words, useful if you have edited the book since opening this dialog'))
         b.setIcon(QIcon(I('view-refresh.png')))
-        b.clicked.connect(self.refresh)
+        b.clicked.connect(partial(self.refresh, change_request=None))
 
         self.progress = p = QWidget(self)
         s.addWidget(p)
@@ -1088,14 +1089,17 @@ class SpellCheck(Dialog):
         if w is None:
             return
         new_word = unicode(self.suggested_word.text())
-        self.do_change_word(w, new_word)
+        self.change_requested.emit(w, new_word)
+
+    def change_word_after_update(self, w, new_word):
+        self.refresh(change_request=(w, new_word))
 
     def change_to(self, w, new_word):
         if new_word is None:
             self.suggested_word.setFocus(Qt.OtherFocusReason)
             self.suggested_word.clear()
             return
-        self.do_change_word(w, new_word)
+        self.change_requested.emit(w, new_word)
 
     def do_change_word(self, w, new_word):
         changed_files = replace_word(current_container(), new_word, self.words_model.words[w], w[1])
@@ -1153,7 +1157,7 @@ class SpellCheck(Dialog):
         with self:
             self.words_model.filter(text)
 
-    def refresh(self):
+    def refresh(self, change_request=None):
         if not self.isVisible():
             return
         self.cancel = True
@@ -1162,12 +1166,12 @@ class SpellCheck(Dialog):
         self.stack.setCurrentIndex(0)
         self.progress_indicator.startAnimation()
         self.refresh_requested.emit()
-        self.thread = Thread(target=self.get_words)
+        self.thread = Thread(target=partial(self.get_words, change_request=change_request))
         self.thread.daemon = True
         self.cancel = False
         self.thread.start()
 
-    def get_words(self):
+    def get_words(self, change_request=None):
         try:
             words = get_all_words(current_container(), dictionaries.default_locale)
             spell_map = {w:dictionaries.recognized(*w) for w in words}
@@ -1180,14 +1184,14 @@ class SpellCheck(Dialog):
         if self.cancel:
             self.end_work()
         else:
-            self.work_finished.emit(words, spell_map)
+            self.work_finished.emit(words, spell_map, change_request)
 
     def end_work(self):
         self.stack.setCurrentIndex(1)
         self.progress_indicator.stopAnimation()
         self.words_model.clear()
 
-    def work_done(self, words, spell_map):
+    def work_done(self, words, spell_map, change_request):
         self.end_work()
         if not isinstance(words, dict):
             return error_dialog(self, _('Failed to check spelling'), _(
@@ -1205,6 +1209,14 @@ class SpellCheck(Dialog):
         if self.words_model.rowCount() > 0:
             self.words_view.resizeRowToContents(0)
             self.words_view.verticalHeader().setDefaultSectionSize(self.words_view.rowHeight(0))
+        if change_request is not None:
+            w, new_word = change_request
+            if w in self.words_model.words:
+                self.do_change_word(w, new_word)
+            else:
+                error_dialog(self, _('Files edited'), _(
+                    'The files in the editor were edited outside the spell check dialog,'
+                    ' and the word %s no longer exists.') % w[0], show=True)
 
     def update_summary(self):
         self.summary.setText(_('Misspelled words: {0} Total words: {1}').format(*self.words_model.counts))

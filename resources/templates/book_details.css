@@ -31,12 +31,12 @@ table.fields td.title {
 }
 
 /*
-The HTML that this styleshhet applies to looks like this:
+The HTML that this stylesheet applies to looks like this:
 
 <table class="fields">
     <tr id="formats" class="datatype_text"><td class="title">Formats:</td><td><a href="format:572:EPUB">EPUB</a>, <a href="format:572:LIT">LIT</a></td></tr>
-    <tr id="series" class="datatype_series"><td class="title">Series:</td><td>Book II of <span class="series_name">The Sea Beggars</span></td></tr>
-    <tr id="tags" class="datatype_text"><td class="title">Tags:</td><td>Fantasy, Fiction</td></tr>
+    <tr id="series" class="datatype_series"><td class="title">Series:</td><td>Book II of <a href="..."><span class="series_name">The Sea Beggars</span></a></td></tr>
+    <tr id="tags" class="datatype_text"><td class="title">Tags:</td><td><a href="...">Fantasy</a>, <a href="...">Fiction</a></td></tr>
     <tr id="path" class="datatype_text"><td class="title">Path:</td><td><a href="path:572" title="/home/kovid/test library/Paul Kearney/This Forsaken Earth (572)">Click to open</a></td></tr>
 </table>
 

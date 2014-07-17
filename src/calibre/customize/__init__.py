@@ -741,3 +741,10 @@ class ViewerPlugin(Plugin):  # {{{
         pass
 
 # }}}
+
+class EditBookToolPlugin(Plugin):  # {{{
+
+    minimum_calibre_version = (1, 45, 0)
+
+# }}}
+

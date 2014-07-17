@@ -14,11 +14,12 @@ import regex
 from PyQt4.Qt import (
     QPlainTextEdit, QFontDatabase, QToolTip, QPalette, QFont, QKeySequence,
     QTextEdit, QTextFormat, QWidget, QSize, QPainter, Qt, QRect, pyqtSlot,
-    QApplication, QMimeData, QColor, QColorDialog, QTimer)
+    QApplication, QMimeData, QColor, QColorDialog, QTimer, pyqtSignal)
 
 from calibre import prepare_string_for_xml, xml_entity_to_unicode
 from calibre.gui2.tweak_book import tprefs, TOP
-from calibre.gui2.tweak_book.editor import SYNTAX_PROPERTY, SPELL_PROPERTY, SPELL_LOCALE_PROPERTY, store_locale
+from calibre.gui2.tweak_book.editor import (
+    SYNTAX_PROPERTY, SPELL_PROPERTY, SPELL_LOCALE_PROPERTY, store_locale, LINK_PROPERTY)
 from calibre.gui2.tweak_book.editor.themes import get_theme, theme_color, theme_format
 from calibre.gui2.tweak_book.editor.syntax.base import SyntaxHighlighter
 from calibre.gui2.tweak_book.editor.syntax.html import HTMLHighlighter, XMLHighlighter
@@ -130,6 +131,8 @@ class PlainTextEdit(QPlainTextEdit):
 
 class TextEdit(PlainTextEdit):
 
+    link_clicked = pyqtSignal(object)
+
     def __init__(self, parent=None, expected_geometry=(100, 50)):
         PlainTextEdit.__init__(self, parent)
         self.expected_geometry = expected_geometry
@@ -206,11 +209,11 @@ class TextEdit(PlainTextEdit):
         self.highlight_cursor_line()
     # }}}
 
-    def load_text(self, text, syntax='html', process_template=False):
+    def load_text(self, text, syntax='html', process_template=False, doc_name=None):
         self.syntax = syntax
         self.highlighter = get_highlighter(syntax)()
         self.highlighter.apply_theme(self.theme)
-        self.highlighter.set_document(self.document())
+        self.highlighter.set_document(self.document(), doc_name=doc_name)
         sclass = {'html':HTMLSmarts, 'xml':HTMLSmarts, 'css':CSSSmarts}.get(syntax, None)
         if sclass is not None:
             self.smarts = sclass(self)
@@ -218,6 +221,10 @@ class TextEdit(PlainTextEdit):
         if process_template and QPlainTextEdit.find(self, '%CURSOR%'):
             c = self.textCursor()
             c.insertText('')
+
+    def change_document_name(self, newname):
+        self.highlighter.doc_name = newname
+        self.highlighter.rehighlight()  # Ensure links are checked w.r.t. the new name correctly
 
     def replace_text(self, text):
         c = self.textCursor()
@@ -618,6 +625,21 @@ class TextEdit(PlainTextEdit):
         ev.ignore()
     # }}}
 
+    def link_for_position(self, pos):
+        c = self.cursorForPosition(pos)
+        r = self.syntax_range_for_cursor(c)
+        if r is not None and r.format.property(LINK_PROPERTY).toBool():
+            return self.text_for_range(c.block(), r)
+
+    def mousePressEvent(self, ev):
+        if ev.modifiers() & Qt.CTRL:
+            url = self.link_for_position(ev.pos())
+            if url is not None:
+                ev.accept()
+                self.link_clicked.emit(url)
+                return
+        return PlainTextEdit.mousePressEvent(self, ev)
+
     def get_range_inside_tag(self):
         c = self.textCursor()
         left = min(c.anchor(), c.position())
@@ -642,6 +664,8 @@ class TextEdit(PlainTextEdit):
     def format_text(self, formatting):
         if self.syntax != 'html':
             return
+        if formatting.startswith('justify_'):
+            return self.smarts.set_text_alignment(self, formatting.partition('_')[-1])
         color = 'currentColor'
         if formatting in {'color', 'background-color'}:
             color = QColorDialog.getColor(QColor(Qt.black if formatting == 'color' else Qt.white), self, _('Choose color'), QColorDialog.ShowAlphaChannel)

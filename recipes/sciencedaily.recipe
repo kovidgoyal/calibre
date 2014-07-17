@@ -14,21 +14,24 @@ class ScienceDaily(BasicNewsRecipe):
     oldest_article        = 7
     language = 'en'
 
-    max_articles_per_feed = 100
+    max_articles_per_feed = 150
     no_stylesheets        = True
     use_embedded_content  = False
-    
+
     cover_url = 'http://www.sciencedaily.com/images/logo.gif'
-    
-    keep_only_tags = [ 
-                        dict(name='h1', attrs={'class':'story'}) 
-                       ,dict(name='div', attrs={'id':'story'}) 
+
+    keep_only_tags = [
+                        dict(name='h1', attrs={'class':'story'})
+                       ,dict(name='div', attrs={'id':'story'})
                      ]
-                     
-    remove_tags_after = dict(name='div', attrs={'id':'citationbox'})
+    # @@@ float: righr; width: 500px (wtf)
+    remove_attributes = ['style', 'width']
+    remove_tags_after = dict(name='div', attrs={'id':'citations'})
     remove_tags = [
-                     dict(name='div', attrs={'id':'seealso'})
-                    ,dict(name='div', attrs={'id':'citationbox'})
+                     dict(name='div', attrs={'id':'sharing'})
+                    ,dict(name='div', attrs={'id':'citations'})
+                    ,dict(name='div', attrs={'class':'overlay'})
+                    ,dict(name='a', attrs={'class':'image'})
                   ]
-    
+
     feeds       = [(u"ScienceDaily", u'http://www.sciencedaily.com/newsfeed.xml')]

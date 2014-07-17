@@ -32,6 +32,7 @@ class EXTHHeader(object):  # {{{
         left = self.num_items
         self.kf8_header = None
         self.uuid = self.cdetype = None
+        self.page_progression_direction = None
 
         self.decode = lambda x : clean_ascii_chars(x.decode(codec, 'replace'))
 
@@ -80,6 +81,13 @@ class EXTHHeader(object):  # {{{
                     if lang:
                         self.mi.language = lang
                 except:
+                    pass
+            elif idx == 527:
+                try:
+                    ppd = content.decode(codec)
+                    if ppd:
+                        self.page_progression_direction = ppd
+                except Exception:
                     pass
             # else:
             #    print 'unknown record', idx, repr(content)

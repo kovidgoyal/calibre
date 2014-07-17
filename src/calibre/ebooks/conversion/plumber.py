@@ -1207,7 +1207,7 @@ def set_regex_wizard_callback(f):
     regex_wizard_callback = f
 
 def create_oebbook(log, path_or_stream, opts, reader=None,
-        encoding='utf-8', populate=True, for_regex_wizard=False):
+        encoding='utf-8', populate=True, for_regex_wizard=False, specialize=None):
     '''
     Create an OEBBook.
     '''
@@ -1219,6 +1219,8 @@ def create_oebbook(log, path_or_stream, opts, reader=None,
             pretty_print=opts.pretty_print, input_encoding=encoding)
     if not populate:
         return oeb
+    if specialize is not None:
+        oeb = specialize(oeb) or oeb
     # Read OEB Book into OEBBook
     log('Parsing all content...')
     if reader is None:

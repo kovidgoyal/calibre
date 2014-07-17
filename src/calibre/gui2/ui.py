@@ -9,10 +9,11 @@ __docformat__ = 'restructuredtext en'
 
 '''The main GUI'''
 
-import collections, os, sys, textwrap, time, gc
+import collections, os, sys, textwrap, time, gc, errno
 from Queue import Queue, Empty
 from threading import Thread
 from collections import OrderedDict
+from io import BytesIO
 
 import apsw
 from PyQt4.Qt import (Qt, QTimer, QHelpEvent, QAction,
@@ -98,6 +99,37 @@ _gui = None
 
 def get_gui():
     return _gui
+
+def add_quick_start_guide(library_view, db_images):
+    from calibre.ebooks.metadata.meta import get_metadata
+    from calibre.ebooks import calibre_cover
+    from calibre.utils.zipfile import safe_replace
+    from calibre.utils.localization import get_lang, canonicalize_lang
+    from calibre.ptempfile import PersistentTemporaryFile
+    l = canonicalize_lang(get_lang()) or 'eng'
+    gprefs['quick_start_guide_added'] = True
+    imgbuf = BytesIO(calibre_cover(_('Quick Start Guide'), '', author_size=8))
+    try:
+        with open(P('quick_start/%s.epub' % l), 'rb') as src:
+            buf = BytesIO(src.read())
+    except EnvironmentError as err:
+        if err.errno != errno.ENOENT:
+            raise
+        with open(P('quick_start/eng.epub'), 'rb') as src:
+            buf = BytesIO(src.read())
+    safe_replace(buf, 'images/cover.jpg', imgbuf)
+    buf.seek(0)
+    mi = get_metadata(buf, 'epub')
+    with PersistentTemporaryFile('.epub') as tmp:
+        tmp.write(buf.getvalue())
+    library_view.model().add_books([tmp.name], ['epub'], [mi])
+    os.remove(tmp.name)
+    library_view.model().books_added(1)
+    if hasattr(db_images, 'reset'):
+        db_images.reset()
+    if library_view.model().rowCount(None) < 3:
+        library_view.resizeColumnsToContents()
+
 
 class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
         TagBrowserMixin, CoverFlowMixin, LibraryViewMixin, SearchBoxMixin,
@@ -321,17 +353,11 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
         self.library_view.model().count_changed_signal.connect(
                 self.iactions['Choose Library'].count_changed)
         if not gprefs.get('quick_start_guide_added', False):
-            from calibre.ebooks.metadata.meta import get_metadata
-            mi = get_metadata(open(P('quick_start.epub'), 'rb'), 'epub')
-            self.library_view.model().add_books([P('quick_start.epub')], ['epub'],
-                    [mi])
-            gprefs['quick_start_guide_added'] = True
-            self.library_view.model().books_added(1)
-            if hasattr(self, 'db_images'):
-                self.db_images.reset()
-            if self.library_view.model().rowCount(None) < 3:
-                self.library_view.resizeColumnsToContents()
-
+            try:
+                add_quick_start_guide(self.library_view, getattr(self, 'db_images', None))
+            except:
+                import traceback
+                traceback.print_exc()
         for view in ('library', 'memory', 'card_a', 'card_b'):
             v = getattr(self, '%s_view' % view)
             v.selectionModel().selectionChanged.connect(self.update_status_bar)
