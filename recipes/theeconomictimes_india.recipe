@@ -1,5 +1,5 @@
 __license__   = 'GPL v3'
-__copyright__ = '2008-2010, Darko Miletic <darko.miletic at gmail.com>'
+__copyright__ = '2008-2014, Karthik <hashkendistro@gmail.com>, Darko Miletic <darko.miletic at gmail.com>'
 '''
 economictimes.indiatimes.com
 '''
@@ -9,11 +9,11 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 class TheEconomicTimes(BasicNewsRecipe):
     title                  = 'The Economic Times India'
-    __author__             = 'Darko Miletic'
+    __author__             = 'Karthik K, Darko Miletic'
     description            = 'Financial news from India'
     publisher              = 'economictimes.indiatimes.com'
     category               = 'news, finances, politics, India'
-    oldest_article         = 2
+    oldest_article         = 1
     max_articles_per_feed  = 100
     no_stylesheets         = True
     use_embedded_content   = False
@@ -24,31 +24,48 @@ class TheEconomicTimes(BasicNewsRecipe):
     masthead_url           = 'http://economictimes.indiatimes.com/photo/2676871.cms'
     extra_css              = """
                                  body{font-family: Arial,Helvetica,sans-serif}
+                                 .foto_mg{font-size: 60%; 
+                                          font-weight: 700;}
+                                 h1{font-size: 150%;}
+                                 div.dateformat{font-size: 60%}
+                                 div.storycontent{padding-top: 10px}
                              """
+    conversion_options     = {'comment'          : description, 
+                              'tags'             : category,
+                              'publisher'        : publisher,
+                              'language'         : language
+                             }
+    remove_tags_before     = dict(name='h1')
+    remove_tags_after      = dict(name='div', attrs={'class':'spacebw'})
+    remove_attributes      = ['xmlns']
+    feeds                  = [(u'Top Stories', u'http://economictimes.indiatimes.com/rssfeedstopstories.cms'),
+                              (u'News', u'http://economictimes.indiatimes.com/News/rssfeeds/1715249553.cms'),
+                              (u'Market', u'http://economictimes.indiatimes.com/Markets/markets/rssfeeds/1977021501.cms'),
+                              (u'Personal Finance', u'http://economictimes.indiatimes.com/rssfeeds/837555174.cms'),
+                              (u'Infotech', u'http://economictimes.indiatimes.com/Infotech/rssfeeds/13357270.cms'),
+                              (u'Job', u'http://economictimes.indiatimes.com/Infotech/rssfeeds/107115.cms'),
+                              (u'Opinion', u'http://economictimes.indiatimes.com/opinion/opinionshome/rssfeeds/897228639.cms'),
+                              (u'Features', u'http://economictimes.indiatimes.com/Features/etfeatures/rssfeeds/1466318837.cms'),
+                              (u'Environment', u'http://economictimes.indiatimes.com/rssfeeds/2647163.cms'),
+                              (u'NRI', u'http://economictimes.indiatimes.com/rssfeeds/7771250.cms')]
 
-    conversion_options = {
-                          'comment'          : description
-                        , 'tags'             : category
-                        , 'publisher'        : publisher
-                        , 'language'         : language
-                        }
 
 
-    remove_tags_before = dict(name='h1')
-    feeds          = [(u'All articles', u'http://economictimes.indiatimes.com/rssfeedsdefault.cms')]
-
+    #Uses the mobile print version. For web print version use 'http://economictimes.indiatimes.com/articleshow/<article_id>?prtpage=1'
     def print_version(self, url):
-        rest, sep, art = url.rpartition('/articleshow/')
-        return 'http://m.economictimes.com/PDAET/articleshow/' + art
-        return 'http://economictimes.indiatimes.com/articleshow/' + art + '?prtpage=1'
+        rest, sep, article_id = url.rpartition('/articleshow/')
+        return 'http://m.economictimes.com/PDAET/articleshow/' + article_id
 
     def get_article_url(self, article):
         rurl = article.get('guid',  None)
         if (rurl.find('/quickieslist/') > 0) or (rurl.find('/quickiearticleshow/') > 0):
-           return None
+            return None
         return rurl
 
     def preprocess_html(self, soup):
         for item in soup.findAll(style=True):
             del item['style']
+        return soup
+
+    def postprocess_html(self, soup, first_fetch):
         return self.adeify_images(soup)
