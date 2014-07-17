@@ -1,33 +1,47 @@
+__license__   = 'GPL v3'
+__copyright__ = '2014-2015, Karthik <hashkendistro@gmail.com>, Krittika Goyal'
+
 from calibre.web.feeds.news import BasicNewsRecipe
 
+class EconomicAndPoliticalWeekly(BasicNewsRecipe):
+    title                  = 'Economic and Poitical Weekly'
+    __author__             = 'Karthik K, Krittika Goyal'
+    description            = 'Economic and Political news from India'
+    publisher              = 'epw.in'
+    category               = 'news, finances, politics, India'
+    oldest_article         = 7
+    max_articles_per_feed  = 100
+    no_stylesheets         = True
+    use_embedded_content   = False
+    simultaneous_downloads = 1
+    encoding               = 'utf-8'
+    language               = 'en_IN'
+    publication_type       = 'newspaper'
+    #timefmt                = ''
+    masthead_url           = 'http://www.epw.in/system/files/epw_masthead.png'
+    extra_css              = """
+                                 body{font-family: Arial,Helvetica,sans-serif}
+                             """
+    conversion_options     = {'comment'          : description, 
+                              'tags'             : category,
+                              'publisher'        : publisher,
+                              'language'         : language
+                             }
+    remove_tags_before     = dict(name='h1', attrs={'class':'print-title'})
+    remove_tags_after      = dict(name='div', attrs={'class':'print-content'})
+    remove_tags            = [dict(name='div', attrs={'class':'terms'}),
+                              dict(name='span', attrs={'class':'print-link'})]
+    feeds                  = [(u'Editorials', u'http://www.epw.in/taxonomy/term/1/feed'),
+                              (u'Commentary', u'http://www.epw.in/taxonomy/term/3/feed'),
+                              (u'Insight', u'http://www.epw.in/taxonomy/term/14/feed'),
+                              (u'Book Reviews', u'http://www.epw.in/taxonomy/term/4/feed'),
+                              (u'Perspectives', u'http://www.epw.in/taxonomy/term/5/feed'),
+                              (u'Special Articles', u'http://www.epw.in/taxonomy/term/6/feed'),
+                              (u'Discussion', u'http://www.epw.in/taxonomy/term/7/feed'),
+                              (u'Web Exclusives', u'http://www.epw.in/taxonomy/term/11087/feed')]
 
-class Politics(BasicNewsRecipe):
-    title          = u'Economic and Political Weekly'
-    description    = 'Economic and Political news from India'
-    language       = 'en_IN'
-    __author__     = 'Krittika Goyal'
-    oldest_article = 15  # days
-    max_articles_per_feed = 20
-    use_embedded_content = False
+    def print_version(self, url):
+        return url.replace('http://www.epw.in', 'http://www.epw.in/print')
 
-    no_stylesheets = True
-    auto_cleanup = True
-
-    feeds          = [
-
-('Editorials', ' http://www.epw.in/feed/editorials.xml'),
-
-('Commentry', ' http://www.epw.in/feed/commentary.xml'),
-
-('Insight', ' http://www.epw.in/feed/insight.xml'),
-
-('Book Reviews', ' http://www.epw.in/feed/book-reviews.xml'),
-
-('Perspectives', ' http://www.epw.in/feed/perspectives.xml'),
-
-('Special Articles', ' http://www.epw.in/feed/special-articles.xml'),
-
-('Discussion', ' http://www.epw.in/feed/discussion.xml'),
-
-('Web Exclusives', ' http://www.epw.in/feed/web-exclusives.xml'),
-]
+    def postprocess_html(self, soup, first_fetch):
+        return self.adeify_images(soup)
