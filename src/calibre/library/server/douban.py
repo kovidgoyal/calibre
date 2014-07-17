@@ -2,7 +2,7 @@
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 
 __license__   = 'GPL v3'
-__copyright__ = '2014, Rex Liao <talebook@gmail.com>'
+__copyright__ = '2014, Rex Liao <talebook@foxmail.com>'
 __docformat__ = 'restructuredtext en'
 
 import datetime, json, logging

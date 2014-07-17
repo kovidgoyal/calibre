@@ -25,7 +25,7 @@ class XMLServer(object):
     'Serves XML and the Ajax based HTML frontend'
 
     def add_routes(self, connect):
-        connect('xml', '/xml', self.xml)
+        connect('/xml', self.xml)
 
     def xml(self, start='0', num='50', sort=None, search=None,
                 _=None, order='ascending'):

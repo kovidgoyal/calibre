@@ -24,9 +24,9 @@
                 {{ gettext("Publisher: ") }}<a href="/pub/{{book.publisher|urlencode}}">{{book.publisher}}</a><br/>
                 {{ gettext("Date: ") }}     <span class="book-edit" data-meta="pubdate">{{book.pubdate|day}}</span><br/>
                 {{ gettext("Language: ") }} <span class="book-edit" data-meta="language">{{book.languages}}</span><br/>
-                {{ gettext("Tags: ") }}     <span class="book-edit" data-meta="tags">{{book.tags|join("/")}}</span><br/>
                 {{ gettext("Series: ") }}   <span class="book-edit" data-meta="series">{{book.series}}</span><br/>
                 {{ gettext("ISBN: ") }}     <span class="book-edit" data-meta="isbn">{{book.isbn}}</span><br/>
+                {{ gettext("Tags: ") }}     <span class="book-edit" data-meta="tags">{{book.tags|join("/")}}</span><br/>
                 </p>
             </div>
         </div>
@@ -55,6 +55,7 @@
         {% endfor %}
     </div>
 
+    {% if db.prefs.allow_admin %}
 
     <legend>{{ gettext("Edit") }}</legend>
     <div class="list-group">
@@ -62,11 +63,13 @@
         <a href="/book/{{book.id}}/update" class="list-group-item"><span class="glyphicon glyphicon-refresh"></span> <span class="badge">{{ gettext("Douban") }}</span> {{ gettext("Auto update") }}</a>
     </div>
 
-    {% if db.prefs.show_delete %}
+    {% if db.prefs.allow_delete %}
     <legend>{{ gettext("Admin") }}</legend>
     <div class="list-group">
         <a href="/book/{{book.id}}/delete" class="btn btn-danger btn-block"><span class="glyphicon glyphicon-remove"></span> {{ gettext("Delete") }}</a>
     </div>
+    {% endif %}
+
     {% endif %}
 </div>
 {% endblock %}

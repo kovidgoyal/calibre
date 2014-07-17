@@ -7,10 +7,12 @@
         <link href="{{M}}/css/bootstrap.min.css" rel="stylesheet">
         <link href="{{M}}/css/star-rating.css" rel="stylesheet">
         <link href="{{M}}/css/calibre.css" rel="stylesheet">
-        <title>{% if title %}{{title}} - {%endif%}{{ gettext('Calibre') }}</title>
+        <title>{% if title %}{{title}} - {%endif%}Calibre</title>
     </head>
 
     <body>
+        <div class="container">
+            <div class="row">
         <nav class="navbar navbar-default" role="navigation">
             <div class="navbar-header">
                 <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
@@ -19,12 +21,12 @@
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
                 </button>
-                <a class="navbar-brand logo" href="/">{{ gettext('Calibre') }}</a>
+                <a class="navbar-brand logo" href="/">Calibre</a>
             </div>
             <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
                 <ul class="nav navbar-nav">
                     <li {%if not nav %}class="active"{%endif%} ><a href="/">{{ gettext("Library")}}</a></li>
-                    <li {%if nav == "user"%}class="active"{%endif%} ><a href="/user">{{ gettext("Setting")}}</a></li>
+                    <li {%if nav == "setting"%}class="active"{%endif%} ><a href="/setting">{{ gettext("Setting")}}</a></li>
                 </ul>
                 <form class="hidden-xs navbar-form navbar-left" action="/search" role="search">
                     <div class="form-group">
@@ -36,8 +38,6 @@
             </div>
         </nav>
 
-        <div class="container">
-            <div class="row">
                 {% block msgbar %}{% endblock %}
                 <div class="col-md-8">
                     <div class="visible-xs-block phone-search">
@@ -61,10 +61,7 @@
                     </div>
                 </div>
 
-            </div>
-            <div class="row">
                 <p>&nbsp;</p>
-                <p class="center-block text-info">{{ gettext("Calibre - ebook management") }}</p>
             </div>
         </div>
 

@@ -6,7 +6,6 @@ __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import re, os, posixpath, cherrypy, cgi, tempfile, logging, sys, json
-from gettext import gettext,ngettext
 from calibre.ebooks.metadata.meta import get_metadata
 
 from calibre import fit_image, guess_type
@@ -28,31 +27,18 @@ import douban
 plugboard_content_server_value = 'content_server'
 plugboard_content_server_formats = ['epub']
 
-class CSSortKeyGenerator(SortKeyGenerator):
-
-    def __init__(self, fields, fm, db_prefs):
-        SortKeyGenerator.__init__(self, fields, fm, None, db_prefs)
-
-    def __call__(self, record):
-        return self.itervals(record).next()
-
 def day_format(value, format='%Y-%m-%d'):
     try:
         return value.strftime(format)
     except:
         return "1990-01-01"
 
-def rex(value):
-    try: return unicode(value)
-    except: return ""
-
 def T(name):
     from jinja2 import Environment, FileSystemLoader
     loader = FileSystemLoader(sys.resources_location)
     env = Environment(loader=loader, extensions=['jinja2.ext.i18n'])
-    env.install_gettext_callables(gettext, ngettext, newstyle=False)
+    env.install_gettext_callables(_, _, newstyle=False)
     env.filters['day'] = day_format
-    env.filters['rex'] = rex
     return env.get_template(name)
 
 class HtmlServer(object):
@@ -61,32 +47,33 @@ class HtmlServer(object):
     a few utility methods.
     '''
     def add_routes(self, connect):
-        connect('index',         '/',             self.index)
-        connect('book_list',     '/book',         self.book_list)
-        connect('book_add',      '/book/add',     self.book_add)
-        connect('book_upload',   '/book/upload',  self.book_upload)
-        connect('book_delete',   '/book/{id}/delete',       self.book_delete)
-        connect('book_edit',     '/book/{id}/edit',         self.book_edit)
-        connect('book_update',   '/book/{id}/update',       self.book_update)
-        connect('book_download', '/book/{id}.{fmt}',        self.book_download)
-        connect('share_kindle',  '/book/{id}/share/kindle', self.share_kindle)
-        connect('book_detail',   '/book/{id}',    self.book_detail)
-        connect('author_list',   '/author',       self.author_list)
-        connect('author_detail', '/author/{name}',self.author_detail)
-        connect('author_update', '/author/{name}/update',self.author_books_update)
-        connect('tag_list',      '/tag',          self.tag_list)
-        connect('tag_detail',    '/tag/{name}',   self.tag_detail)
-        connect('pub_list',      '/pub',          self.pub_list)
-        connect('pub_detail',    '/pub/{name}',   self.pub_detail)
-        connect('rating_list',   '/rating',       self.rating_list)
-        connect('rating_detail', '/rating/{name}',self.rating_detail)
-        connect('search',        '/search',       self.search_book)
-        connect('user_view',     '/user',         self.user_view)
-        connect('user_save',     '/user/save',    self.user_save)
+        connect(         '/',                       self.index)
+        connect(     '/book',                   self.book_list)
+        connect(      '/book/add',               self.book_add)
+        connect(   '/book/upload',            self.book_upload)
+        connect(   '/book/{id}/delete',       self.book_delete)
+        connect(     '/book/{id}/edit',         self.book_edit)
+        connect(   '/book/{id}/update',       self.book_update)
+        connect( '/book/{id}.{fmt}',        self.book_download)
+        connect(  '/book/{id}/share/kindle', self.share_kindle)
+        connect(   '/book/{id}',              self.book_detail)
+        connect(   '/author',                 self.author_list)
+        connect( '/author/{name}',          self.author_detail)
+        connect( '/author/{name}/update',   self.author_books_update)
+        connect(      '/tag',                    self.tag_list)
+        connect(    '/tag/{name}',             self.tag_detail)
+        connect(      '/pub',                    self.pub_list)
+        connect(    '/pub/{name}',             self.pub_detail)
+        #connect(    '/pub/{name}/update',      self.pub_update)
+        connect(   '/rating',                 self.rating_list)
+        connect( '/rating/{name}',          self.rating_detail)
+        connect(        '/search',                 self.search_book)
+        connect(  '/setting',                self.setting_view)
+        connect(  '/setting/save',           self.setting_save)
 
-        connect('get',     '/get/{what}/{id}', self.get,
+        connect(     '/get/{fmt}/{id}', self.get,
                 conditions=dict(method=["GET", "HEAD"]))
-        connect('static',  '/static/{name:.*?}', self.static,
+        connect(  '/static/{name:.*?}', self.static,
                 conditions=dict(method=["GET", "HEAD"]))
 
     def html_page(self, template, *args, **kwargs):
@@ -138,6 +125,8 @@ class HtmlServer(object):
 
     def html_index(self):
         import random
+        logging.error(_)
+        title = _('All books')
         ids = self.search_for_books('')
         if not ids:
             raise cherrypy.HTTPError(404, 'This library has no books')
@@ -145,7 +134,7 @@ class HtmlServer(object):
         books = self.db.get_data_as_dict(ids=ids)
         self.sort_books(books, 'datetime')
         books.reverse()
-        new_books = books[:8]
+        new_books = random.sample(books[:40], 8)
         try:
             random_books = random.sample(books, 4)
         except:
@@ -357,63 +346,68 @@ class HtmlServer(object):
         books = self.db.get_data_as_dict(ids=ids)
         return self.render_book_list(books, start, sort, vars());
 
-    def user_view(self):
-        nav = "user"
-        title = _('User Settings')
+    def setting_view(self):
+        nav = "setting"
+        title = _('Setting')
         msg = None
-        return self.html_page('content_server/v2/user/view.html', vars())
+        prefs = self.db.prefs
+        return self.html_page('content_server/v2/setting/view.html', vars())
 
     @cherrypy.expose
-    def user_save(self, share_kindle=None, show_delete=False):
-        nav = "user"
-        title = _('User Settings')
-        if share_kindle:
-            self.db.prefs.set('share_kindle', share_kindle)
-        self.db.prefs.set('show_delete', show_delete)
-        msg = _('Settings saved!')
-        return self.html_page('content_server/v2/user/view.html', vars())
+    def setting_save(self, share_kindle="", allow_admin=False, allow_delete=False):
+        nav = "setting"
+        title = _('Setting')
+        self.db.prefs.set('share_kindle', share_kindle)
+        self.db.prefs.set('allow_admin', allow_admin)
+        self.db.prefs.set('allow_delete', allow_delete)
+        msg = _('Saved success!')
+        return self.html_page('content_server/v2/setting/view.html', vars())
 
-    def share_kindle(self, id=None, what="mobi"):
+    def share_kindle(self, id, fmt="mobi"):
         mail_to = self.db.prefs.get('share_kindle', None)
         if not mail_to:
-            raise cherrypy.HTTPRedirect("/user", 302)
-        try:
-            id_ = int(id)
-        except:
-            raise cherrypy.HTTPError(404, 'invalid id: %r'%id)
-        id = id_
-        if not self.db.has_id(id):
-            raise cherrypy.HTTPError(404, 'id:%d does not exist in database'%id)
+            raise cherrypy.HTTPRedirect("/setting", 302)
+
+        book_id = int(id)
+        books = self.db.get_data_as_dict(ids=[book_id])
+        if not books:
+            raise cherrypy.HTTPError(404, _("Sorry, book not found") )
+        book = books[0]
 
         # check format
-        what = what.upper()
-        fm = self.db.format_metadata(id, what, allow_cache=False)
-        if not fm:
-            raise cherrypy.HTTPError(404, 'book: %d does not have format: %s'%(id, what))
-        fmt = self.db.format(id, what, index_is_id=True, as_file=True, mode='rb')
-        if fmt is None:
-            raise cherrypy.HTTPError(404, 'book: %d does not have format: %s'%(id, what))
+        for fmt in ['mobi', 'azw']:
+            fpath = book.get("fmt_%s" % fmt, None)
+            if fpath:
+                return self.do_send_mail(book, mail_to, fmt, fpath)
+
+        # we do no have formats for kindle
+        if 'fmt_epub' not in book:
+            raise cherrypy.HTTPError(404, _("Sorry, there's no available format for kindle"))
+        fmt = 'mobi'
+        fpath = '/tmp/%s.%s' % (ascii_filename(book['title']), fmt)
+        log = Log()
+        plumber = Plumber(book['fmp_epub'], fpath, log)
+        plumber.run()
+        return self.do_send_mail(book, mail_to, fmt, fpath)
+
+    def do_send_mail(self, book, mail_to, fmt, fpath):
+        body = open(fpath).read()
 
         # read meta info
-        mi = self.db.get_metadata(id, index_is_id=True)
-        set_metadata(fmt, mi, what.lower())
-        au = authors_to_string(mi.authors if mi.authors else
-                [_('Unknown')])
-        title = mi.title if mi.title else _('Unknown')
-        fname = u'%s - %s_%s.%s'%(title[:30], au[:30], id, what.lower())
+        author = authors_to_string(book['authors'] if book['authors'] else [_('Unknown')])
+        title = book['title'] if book['title'] else _("No Title")
+        fname = u'%s - %s.%s'%(title, author, fmt)
         fname = ascii_filename(fname).replace('"', '_')
-        fmt.seek(0)
-        body = fmt.read()
 
         # content type
-        mt = guess_type('dummy.'+what.lower())[0]
+        mt = guess_type('dummy.'+fmt)[0]
         if mt is None:
             mt = 'application/octet-stream'
 
         # send mail
         mail_from = 'mailer@calibre-ebook.com'
-        mail_subject = _('Book of Calibre: %s') % title
-        mail_body = _('We Send this book %s to your kindle.') % title
+        mail_subject = _('Book of Calibre: ') + title
+        mail_body = _('We Send this book to your kindle.')
         success_msg = error_msg = None
         try:
             msg = create_mail(mail_from, mail_to, mail_subject,
@@ -445,7 +439,7 @@ class HtmlServer(object):
                  8:'Aug', 9:'Sep', 10:'Oct', 11:'Nov', 12:'Dec'}
         return lm.replace('month', month[updated.month])
 
-    def get(self, what, id):
+    def get(self, fmt, id):
         'Serves files, covers, thumbnails, metadata from the calibre database'
         try:
             id = int(id)
@@ -457,20 +451,20 @@ class HtmlServer(object):
             id = int(match.group())
         if not self.db.has_id(id):
             raise cherrypy.HTTPError(404, 'id:%d does not exist in database'%id)
-        if what == 'thumb' or what.startswith('thumb_'):
+        if fmt == 'thumb' or fmt.startswith('thumb_'):
             try:
-                width, height = map(int, what.split('_')[1:])
+                width, height = map(int, fmt.split('_')[1:])
             except:
                 width, height = 60, 80
             return self.get_cover(id, thumbnail=True, thumb_width=width,
                     thumb_height=height)
-        if what == 'cover':
+        if fmt == 'cover':
             return self.get_cover(id)
-        if what == 'opf':
+        if fmt == 'opf':
             return self.get_metadata_as_opf(id)
-        if what == 'json':
+        if fmt == 'json':
             raise cherrypy.InternalRedirect('/ajax/book/%d'%id)
-        return self.get_format(id, what)
+        return self.get_format(id, fmt)
 
     def static(self, name):
         'Serves static content'
