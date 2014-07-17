@@ -687,6 +687,8 @@ class StoreBase(Plugin):  # {{{
 
 class ViewerPlugin(Plugin):  # {{{
 
+    type = _('Viewer')
+
     '''
     These plugins are used to add functionality to the calibre viewer.
     '''
@@ -744,7 +746,8 @@ class ViewerPlugin(Plugin):  # {{{
 
 class EditBookToolPlugin(Plugin):  # {{{
 
-    minimum_calibre_version = (1, 45, 0)
+    type = _('Edit Book Tool')
+    minimum_calibre_version = (1, 46, 0)
 
 # }}}
 

@@ -304,6 +304,8 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
                         ' Are you sure you want to proceed?'),
                     show_copy_button=False):
                 return
+            from calibre.customize.ui import config
+            installed_plugins = frozenset(config['plugins'])
             try:
                 plugin = add_plugin(path)
             except NameConflict as e:
@@ -312,7 +314,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             self._plugin_model.populate()
             self._plugin_model.reset()
             self.changed_signal.emit()
-            self.check_for_add_to_toolbars(plugin)
+            self.check_for_add_to_toolbars(plugin, previously_installed=plugin.name in installed_plugins)
             info_dialog(self, _('Success'),
                     _('Plugin <b>{0}</b> successfully installed under <b>'
                         ' {1} plugins</b>. You may have to restart calibre '
@@ -399,9 +401,12 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         if 'Store' in self.gui.iactions:
             self.gui.iactions['Store'].load_menu()
 
-    def check_for_add_to_toolbars(self, plugin):
+    def check_for_add_to_toolbars(self, plugin, previously_installed=True):
         from calibre.gui2.preferences.toolbar import ConfigWidget
-        from calibre.customize import InterfaceActionBase
+        from calibre.customize import InterfaceActionBase, EditBookToolPlugin
+
+        if isinstance(plugin, EditBookToolPlugin):
+            return self.check_for_add_to_editor_toolbar(plugin, previously_installed)
 
         if not isinstance(plugin, InterfaceActionBase):
             return
@@ -436,6 +441,10 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
                 installed_actions.append(plugin_action.name)
                 gprefs['action-layout-'+key] = tuple(installed_actions)
 
+    def check_for_add_to_editor_toolbar(self, plugin, previously_installed):
+        if not previously_installed:
+            from calibre.gui2.tweak_book.plugin import install_plugin
+            install_plugin(plugin)
 
 if __name__ == '__main__':
     from PyQt4.Qt import QApplication

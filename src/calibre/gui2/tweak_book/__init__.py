@@ -52,6 +52,7 @@ d['remove_unused_classes'] = False
 d['global_book_toolbar'] = [
 'new-file', 'open-book',  'save-book', None, 'global-undo', 'global-redo', 'create-checkpoint', None, 'donate', 'user-manual']
 d['global_tools_toolbar'] = ['check-book', 'spell-check-book', 'edit-toc', 'insert-character', 'manage-fonts', 'smarten-punctuation', 'remove-unused-css']
+d['global_plugins_toolbar'] = []
 d['editor_css_toolbar'] = ['pretty-current', 'insert-image']
 d['editor_xml_toolbar'] = ['pretty-current', 'insert-tag']
 d['editor_html_toolbar'] = ['fix-html-current', 'pretty-current', 'insert-image', 'insert-hyperlink', 'insert-tag', 'change-paragraph']

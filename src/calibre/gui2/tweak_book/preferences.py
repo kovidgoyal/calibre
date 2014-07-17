@@ -339,6 +339,7 @@ class ToolbarSettings(QWidget):
         for name, text in (
                 ('global_book_toolbar', _('Book wide actions'),),
                 ('global_tools_toolbar', _('Book wide tools'),),
+                ('global_plugins_toolbar', _('Book wide tools from third party plugins'),),
                 ('editor_html_toolbar', ft % 'HTML',),
                 ('editor_css_toolbar', ft % 'CSS',),
                 ('editor_xml_toolbar', ft % 'XML',),

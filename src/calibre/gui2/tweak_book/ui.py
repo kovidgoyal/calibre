@@ -28,6 +28,7 @@ from calibre.gui2.tweak_book.job import BlockingJob
 from calibre.gui2.tweak_book.boss import Boss
 from calibre.gui2.tweak_book.undo import CheckpointView
 from calibre.gui2.tweak_book.preview import Preview
+from calibre.gui2.tweak_book.plugin import create_plugin_actions
 from calibre.gui2.tweak_book.search import SearchPanel
 from calibre.gui2.tweak_book.check import Check
 from calibre.gui2.tweak_book.spell import SpellCheck
@@ -38,7 +39,7 @@ from calibre.gui2.tweak_book.live_css import LiveCSS
 from calibre.gui2.tweak_book.manage_fonts import ManageFonts
 from calibre.gui2.tweak_book.editor.widget import register_text_editor_actions
 from calibre.gui2.tweak_book.editor.insert_resource import InsertImage
-from calibre.utils.icu import character_name
+from calibre.utils.icu import character_name, sort_key
 
 def open_donate():
     open_url(QUrl('http://calibre-ebook.com/donate'))
@@ -447,6 +448,10 @@ class Main(MainWindow):
         self.action_compare_book = treg('diff.png', _('&Compare to another book'), self.boss.compare_book, 'compare-book', (), _(
             'Compare to another book'))
 
+        self.plugin_menu_actions = []
+
+        create_plugin_actions(actions, toolbar_actions, self.plugin_menu_actions)
+
     def create_menubar(self):
         p, q = self.create_application_menubar()
         q.triggered.connect(self.action_quit.trigger)
@@ -536,6 +541,11 @@ class Main(MainWindow):
         e.addSeparator()
         a(self.action_saved_searches)
 
+        if self.plugin_menu_actions:
+            e = b.addMenu(_('&Plugins'))
+            for ac in sorted(self.plugin_menu_actions, key=lambda x:sort_key(unicode(x.text()))):
+                e.addAction(ac)
+
         e = b.addMenu(_('&Help'))
         a = e.addAction
         a(self.action_help)
@@ -558,10 +568,11 @@ class Main(MainWindow):
             return b
         self.global_bar = create(_('Book tool bar'), 'global')
         self.tools_bar = create(_('Tools tool bar'), 'tools')
+        self.plugins_bar = create(_('Plugins tool bar'), 'plugins')
         self.populate_toolbars(animate=True)
 
     def populate_toolbars(self, animate=False):
-        self.global_bar.clear(), self.tools_bar.clear()
+        self.global_bar.clear(), self.tools_bar.clear(), self.plugins_bar.clear()
         def add(bar, ac):
             if ac is None:
                 bar.addSeparator()
@@ -590,6 +601,10 @@ class Main(MainWindow):
 
         for x in tprefs['global_tools_toolbar']:
             add(self.tools_bar, x)
+
+        for x in tprefs['global_plugins_toolbar']:
+            add(self.plugins_bar, x)
+        self.plugins_bar.setVisible(bool(tprefs['global_plugins_toolbar']))
 
     def create_docks(self):
 

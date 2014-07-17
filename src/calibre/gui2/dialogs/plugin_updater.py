@@ -707,6 +707,8 @@ class PluginUpdaterDialog(SizePersistedDialog):
 
         do_restart = False
         try:
+            from calibre.customize.ui import config
+            installed_plugins = frozenset(config['plugins'])
             try:
                 plugin = add_plugin(zip_path)
             except NameConflict as e:
@@ -715,7 +717,7 @@ class PluginUpdaterDialog(SizePersistedDialog):
             # Check for any toolbars to add to.
             widget = ConfigWidget(self.gui)
             widget.gui = self.gui
-            widget.check_for_add_to_toolbars(plugin)
+            widget.check_for_add_to_toolbars(plugin, previously_installed=plugin.name in installed_plugins)
             self.gui.status_bar.showMessage(_('Plugin installed: %s') % display_plugin.name)
             d = info_dialog(self.gui, _('Success'),
                     _('Plugin <b>{0}</b> successfully installed under <b>'
