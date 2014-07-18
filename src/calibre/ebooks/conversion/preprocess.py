@@ -148,20 +148,20 @@ class DocAnalysis(object):
         maxLineLength=1900  # Discard larger than this to stay in range
         buckets=20  # Each line is divided into a bucket based on length
 
-        #print "there are "+str(len(lines))+" lines"
-        #max = 0
-        #for line in self.lines:
+        # print "there are "+str(len(lines))+" lines"
+        # max = 0
+        # for line in self.lines:
         #    l = len(line)
         #    if l > max:
         #        max = l
-        #print "max line found is "+str(max)
+        # print "max line found is "+str(max)
         # Build the line length histogram
         hRaw = [0 for i in range(0,buckets)]
         for line in self.lines:
             l = len(line)
             if l > minLineLength and l < maxLineLength:
                     l = int(l/100)
-                    #print "adding "+str(l)
+                    # print "adding "+str(l)
                     hRaw[l]+=1
 
         # Normalize the histogram into percents
@@ -170,8 +170,8 @@ class DocAnalysis(object):
             h = [float(count)/totalLines for count in hRaw]
         else:
             h = []
-        #print "\nhRaw histogram lengths are: "+str(hRaw)
-        #print "              percents are: "+str(h)+"\n"
+        # print "\nhRaw histogram lengths are: "+str(hRaw)
+        # print "              percents are: "+str(h)+"\n"
 
         # Find the biggest bucket
         maxValue = 0
@@ -180,10 +180,10 @@ class DocAnalysis(object):
                 maxValue = h[i]
 
         if maxValue < percent:
-            #print "Line lengths are too variable. Not unwrapping."
+            # print "Line lengths are too variable. Not unwrapping."
             return False
         else:
-            #print str(maxValue)+" of the lines were in one bucket"
+            # print str(maxValue)+" of the lines were in one bucket"
             return True
 
 class Dehyphenator(object):
@@ -577,7 +577,7 @@ class HTMLPreProcessor(object):
             docanalysis = DocAnalysis('pdf', html)
             length = docanalysis.line_length(getattr(self.extra_opts, 'unwrap_factor'))
             if length:
-                #print "The pdf line length returned is " + str(length)
+                # print "The pdf line length returned is " + str(length)
                 # unwrap em/en dashes
                 end_rules.append((re.compile(u'(?<=.{%i}[–—])\s*<p>\s*(?=[[a-z\d])' % length), lambda match: ''))
                 end_rules.append(
@@ -610,7 +610,7 @@ class HTMLPreProcessor(object):
                     with open(os.path.join(odir, name), 'wb') as f:
                         f.write(raw.encode('utf-8'))
 
-        #dump(html, 'pre-preprocess')
+        # dump(html, 'pre-preprocess')
 
         for rule in rules + end_rules:
             try:
@@ -636,7 +636,7 @@ class HTMLPreProcessor(object):
             if pdf_markup.get_word_count(html) > 7000:
                 html = pdf_markup.markup_chapters(html, totalwords, True)
 
-        #dump(html, 'post-preprocess')
+        # dump(html, 'post-preprocess')
 
         # Handle broken XHTML w/ SVG (ugh)
         if 'svg:' in html and SVG_NS not in html:
