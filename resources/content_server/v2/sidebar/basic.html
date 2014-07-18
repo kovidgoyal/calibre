@@ -1,5 +1,5 @@
 <div class="col-md-12">
-    <legend>{{ gettext("Category") }}</legend>
+    <span class="legend">{{ gettext("Category") }}</span>
     <div class="list-group">
         <a href="/book"     class="list-group-item {% if category == "books"      %}active{% endif %}"><span class="badge">{{db.count()}}</span> {{ gettext("All Books") }}</a>
         <a href="/pub"      class="list-group-item {% if category == "publishers" %}active{% endif %}"><span class="badge">{{db.all_publishers()|length}}</span> {{ gettext("Publisher") }}</a>
@@ -8,7 +8,7 @@
         <a href="/rating"   class="list-group-item {% if category == "ratings"    %}active{% endif %}">{{ gettext("Ratings") }}</a>
     </div>
 
-    <legend>{{ gettext("Help") }}</legend>
+    <span class="legend">{{ gettext("Help") }}</span>
     <div class="list-group">
         <a href="#" class="list-group-item">{{ gettext("Wiki") }}</a>
         <a href="#" class="list-group-item"><span class="pull-right">1.4.13</span> {{ gettext("System Version") }}</a>

@@ -118,7 +118,7 @@ class HtmlServer(object):
 
     @cherrypy.expose
     def search_book(self, name=None, start=0, sort='title'):
-        title = _('Search for: %s') % name
+        title = _('Search for: %(name)s') % vars()
         ids = self.search_for_books(name)
         books = self.db.get_data_as_dict(ids=ids)
         return self.render_book_list(books, start, sort, vars());
@@ -232,7 +232,7 @@ class HtmlServer(object):
         return self.html_page('content_server/v2/book/add.html', vars())
 
     @cherrypy.expose
-    def book_upload(self, ebook_file=None):
+    def book_upload(self, generate_fmt=True, ebook_file=None):
         from calibre.ebooks.metadata import MetaInformation
         cherrypy.response.timeout = 3600
 
@@ -261,14 +261,17 @@ class HtmlServer(object):
             book_id = books.pop()
             raise cherrypy.HTTPRedirect('/book/%d'%book_id)
 
-        # convert another format
-        new_fmt = {'epub': 'mobi', 'mobi': 'epub'}.get(fmt)
-        new_path = '/tmp/calibre-tmp.'+new_fmt
-        log = Log()
-        plumber = Plumber(fpath, new_path, log)
-        plumber.run()
+        fpaths = [fpath]
+        if generate_fmt:
+            # convert another format
+            new_fmt = {'epub': 'mobi', 'mobi': 'epub'}.get(fmt)
+            new_path = '/tmp/calibre-tmp.'+new_fmt
+            log = Log()
+            plumber = Plumber(fpath, new_path, log)
+            plumber.run()
+            fpaths.append( new_path )
 
-        book_id = self.db.import_book(mi, [fpath, new_path] )
+        book_id = self.db.import_book(mi, fpaths )
         raise cherrypy.HTTPRedirect('/book/%d'%book_id)
 
     def tag_list(self):
@@ -279,7 +282,7 @@ class HtmlServer(object):
 
     @cherrypy.expose
     def tag_detail(self, name, start=0, sort="title"):
-        title = _('Books of tag: ') + name
+        title = _('Books of tag: %(name)s') % vars()
         category = "tags"
         tag_id = self.db.get_tag_id(name)
         ids = self.db.get_books_for_category(category, tag_id)
@@ -297,7 +300,7 @@ class HtmlServer(object):
 
     @cherrypy.expose
     def author_detail(self, name, start=0, sort="title"):
-        title = _('Books of author: ') + name
+        title = _('Books of author: %(name)s') % vars()
         category = "authors"
         author_id = self.db.get_author_id(name)
         ids = self.db.get_books_for_category(category, author_id)
@@ -322,7 +325,7 @@ class HtmlServer(object):
 
     @cherrypy.expose
     def pub_detail(self, name, start=0, sort="title"):
-        title = _('Books of publisher: ') + name
+        title = _('Books of publisher: %(name)s') % vars()
         category = "publisher"
         publisher_id = self.db.get_publisher_id(name)
         logging.error(publisher_id)
@@ -357,11 +360,12 @@ class HtmlServer(object):
         title = _('All ratings')
         category = "rating"
         ratings = self.db.all_ratings()
+        ratings.sort(cmp=lambda x,y: cmp(x[1], y[1]))
         return self.html_page('content_server/v2/rating/list.html', vars())
 
     @cherrypy.expose
     def rating_detail(self, name, start=0, sort="title"):
-        title = _('Books of rating: %s ') + name
+        title = _('Books of rating: %(name)s') % vars()
         category = "rating"
         rating_id = self.db.get_rating_id(name)
         ids = self.db.get_books_for_category(category, rating_id)
@@ -428,7 +432,7 @@ class HtmlServer(object):
 
         # send mail
         mail_from = 'mailer@calibre-ebook.com'
-        mail_subject = _('Book of Calibre: ') + title
+        mail_subject = _('Book from Calibre: %(title)s') % vars()
         mail_body = _('We Send this book to your kindle.')
         success_msg = error_msg = None
         try:
@@ -437,7 +441,7 @@ class HtmlServer(object):
                     attachment_type = mt, attachment_name = fname
                     )
             sendmail(msg, from_=mail_from, to=[mail_to], timeout=30)
-            success_msg = _('Send to kindle success!! email: %s') % mail_to
+            success_msg = _('Send to kindle success!! email: %(mail_to)s') % vars()
         except:
             import traceback
             cherrypy.log.error('Failed to generate cover:')

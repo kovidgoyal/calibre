@@ -8,7 +8,9 @@
 {% endif %}
 
 <form action="/setting/save" method="POST" role="form">
-    <legend>{{ gettext("Push") }}</legend>
+    <div class="col-sm-12">
+        <span class="legend">{{ gettext("Push") }}</span>
+    </div>
     <div class="col-sm-10 col-sm-offset-1">
         <div class="form-group">
             <label for="exampleInputEmail1">{{ gettext("Kindle email address") }}</label>
@@ -16,7 +18,9 @@
         </div>
     </div>
     <p>&nbsp;</p>
-    <legend>{{ gettext("Management") }}</legend>
+    <div class="col-sm-12">
+        <span class="legend">{{ gettext("Management") }}</span>
+    </div>
     <div class="col-sm-10 col-sm-offset-1">
         <div class="checkbox">
             <label>

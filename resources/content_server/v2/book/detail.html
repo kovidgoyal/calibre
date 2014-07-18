@@ -61,7 +61,7 @@
         </div>
         <p>&nbsp;</p>
 
-        <legend>{{ gettext("Brief") }}</legend>
+        <span class="legend">{{ gettext("Brief") }}</span>
         <p class="book-edit" data-meta="comments">{{book.comments}}</p>
         <p>&nbsp;</p>
     </div>
@@ -70,13 +70,13 @@
 
 {% block sidebar %}
 <div class="col-md-12">
-    <legend>{{ gettext("Push") }}</legend>
+    <span class="legend">{{ gettext("Push") }}</span>
     <div class="list-group">
         <a href="/book/{{book.id}}/share/kindle" class="list-group-item"><span class="glyphicon glyphicon-phone"></span> {{ gettext("Kindle") }}</a>
         <a href="#" class="list-group-item"><span class="glyphicon glyphicon-cloud"></span> {{ gettext("Email...") }}</a>
     </div>
 
-    <legend>{{ gettext("Read") }}</legend>
+    <span class="legend">{{ gettext("Read") }}</span>
     <div class="list-group">
         <a class="list-group-item" href="/book/{{book.id}}/read"><span class="glyphicon glyphicon-book"></span> {{ gettext("Read online") }}</a>
         {% for format, size in sizes %}
@@ -86,14 +86,14 @@
 
     {% if db.prefs.allow_admin %}
 
-    <legend>{{ gettext("Edit") }}</legend>
+    <span class="legend">{{ gettext("Edit") }}</span>
     <div class="list-group">
         <a href="#" onclick="return bind_book_editable({{book.id}})" class="list-group-item"><span class="glyphicon glyphicon-cog"></span> {{ gettext("Manual edit") }}</a>
         <a href="/book/{{book.id}}/update" class="list-group-item"><span class="glyphicon glyphicon-refresh"></span> <span class="badge">{{ gettext("Douban") }}</span> {{ gettext("Auto update") }}</a>
     </div>
 
     {% if db.prefs.allow_delete %}
-    <legend>{{ gettext("Admin") }}</legend>
+    <span class="legend">{{ gettext("Admin") }}</span>
     <div class="list-group">
         <a href="/book/{{book.id}}/delete" class="btn btn-danger btn-block"><span class="glyphicon glyphicon-remove"></span> {{ gettext("Delete") }}</a>
     </div>

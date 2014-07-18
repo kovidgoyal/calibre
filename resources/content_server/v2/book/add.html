@@ -1,15 +1,26 @@
 {% extends "content_server/v2/base.html" %}
 {% block content %}
-<legend>{{title}}</legend>
+<span class="legend">{{title}}</span>
 
-<form action="/book/upload" class="form-inline" role="form" method="post" enctype="multipart/form-data">
+<div class="col-md-8 col-md-offset-2">
+<form action="/book/upload" class="form" role="form" method="post" enctype="multipart/form-data">
     <div class="form-group">
         <label class="sr-only" for="exampleInputEmail2">{{ gettext("Select ebook files") }}</label>
         <input type="file" class="form-control" id="id_ebook_file" name="ebook_file" placeholder="{{ gettext('Select ebook file') }}">
     </div>
 
+    <div class="checkbox">
+        <label>
+            <input name="generate_fmt" checked=checked type="checkbox"> {{ gettext("Generate both .epub and .mobi formats") }}
+        </label>
+    </div>
+
+    <br/>
+    <div class="col-md-4 col-md-offset-4">
     <button class="btn btn-primary" type="submit">{{ gettext("Upload Book") }}</button>
+    </div>
 </form>
+</div>
 
 {% endblock %}
 

@@ -1,6 +1,6 @@
 {% extends "content_server/v2/base.html" %}
 {% block content %}
-<legend>{{title}}</legend>
+<span class="legend">{{title}}</span>
 {% if success_msg %}<div class="alert alert-success" role="alert">{{success_msg}}</div>{% endif %}
 {% if error_msg %}<div class="alert alert-danger" role="alert">{{error_msg}}</div>{% endif %}
 {% endblock %}
