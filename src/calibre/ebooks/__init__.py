@@ -186,7 +186,9 @@ def calibre_cover(title, author_string, series_string=None,
     author_string = normalize(author_string)
     series_string = normalize(series_string)
     from calibre.utils.magick.draw import create_cover_page, TextLine
-    text = title + author_string + (series_string or u'')
+    import regex
+    pat = regex.compile(ur'\p{Cf}+', flags=regex.VERSION1)  # remove non-printing chars like the soft hyphen
+    text = pat.sub(u'', title + author_string + (series_string or u''))
     font_path = tweaks['generate_cover_title_font']
     if font_path is None:
         font_path = P('fonts/liberation/LiberationSerif-Bold.ttf')
@@ -203,10 +205,10 @@ def calibre_cover(title, author_string, series_string=None,
         font_path = pt.name
         cleanup = True
 
-    lines = [TextLine(title, title_size, font_path=font_path),
-            TextLine(author_string, author_size, font_path=font_path)]
+    lines = [TextLine(pat.sub(u'', title), title_size, font_path=font_path),
+            TextLine(pat.sub(u'', author_string), author_size, font_path=font_path)]
     if series_string:
-        lines.append(TextLine(series_string, author_size, font_path=font_path))
+        lines.append(TextLine(pat.sub(u'', series_string), author_size, font_path=font_path))
     if logo_path is None:
         logo_path = I('library.png')
     try:
