@@ -234,7 +234,7 @@ def check_qt5_compatibility(zf, names):
     for name in names:
         if name.endswith('.py'):
             raw = zf.read(name)
-            has_qt4 = b'PyQt4' in raw
+            has_qt4 = (b'PyQt' + b'4') in raw
             uses_qt = uses_qt or has_qt4
             if uses_qt and has_qt4 and b'PyQt5' not in raw:
                 return False
