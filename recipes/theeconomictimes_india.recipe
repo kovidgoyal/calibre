@@ -27,7 +27,8 @@ class TheEconomicTimes(BasicNewsRecipe):
                                  .foto_mg{font-size: 60%; 
                                           font-weight: 700;}
                                  h1{font-size: 150%;}
-                                 div.dateformat{font-size: 60%}
+                                 artdate{font-size: 60%}
+                                 artag{font-size: 60%}
                                  div.storycontent{padding-top: 10px}
                              """
     conversion_options     = {'comment'          : description, 
@@ -36,7 +37,7 @@ class TheEconomicTimes(BasicNewsRecipe):
                               'language'         : language
                              }
     remove_tags_before     = dict(name='h1')
-    remove_tags_after      = dict(name='div', attrs={'class':'spacebw'})
+    remove_tags_after      = dict(name='div', attrs={'class':'storycontent'})
     remove_attributes      = ['xmlns']
     feeds                  = [(u'Top Stories', u'http://economictimes.indiatimes.com/rssfeedstopstories.cms'),
                               (u'News', u'http://economictimes.indiatimes.com/News/rssfeeds/1715249553.cms'),
