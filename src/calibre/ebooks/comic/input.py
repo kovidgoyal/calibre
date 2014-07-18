@@ -45,7 +45,7 @@ def find_pages(dir, sort_on_mtime=False, verbose=False):
     :param sort_on_mtime: If True sort pages based on their last modified time.
                           Otherwise, sort alphabetically.
     '''
-    extensions = ['jpeg', 'jpg', 'gif', 'png']
+    extensions = {'jpeg', 'jpg', 'gif', 'png', 'webp'}
     pages = []
     for datum in os.walk(dir):
         for name in datum[-1]:
@@ -229,7 +229,7 @@ class Progress(object):
 
     def __call__(self, percent, msg=''):
         self.done += 1
-        #msg = msg%os.path.basename(job.args[0])
+        # msg = msg%os.path.basename(job.args[0])
         self.update(float(self.done)/self.total, msg)
 
 def process_pages(pages, opts, update, tdir):
