@@ -435,11 +435,11 @@ class LineEditECM(object):  # {{{
         action_title_case = case_menu.addAction(_('Title Case'))
         action_capitalize = case_menu.addAction(_('Capitalize'))
 
-        action_upper_case.triggered[()].connect(self.upper_case)
-        action_lower_case.triggered[()].connect(self.lower_case)
-        action_swap_case.triggered[()].connect(self.swap_case)
-        action_title_case.triggered[()].connect(self.title_case)
-        action_capitalize.triggered[()].connect(self.capitalize)
+        action_upper_case.triggered.connect(self.upper_case)
+        action_lower_case.triggered.connect(self.lower_case)
+        action_swap_case.triggered.connect(self.swap_case)
+        action_title_case.triggered.connect(self.title_case)
+        action_capitalize.triggered.connect(self.capitalize)
 
         menu.addMenu(case_menu)
         menu.exec_(event.globalPos())
