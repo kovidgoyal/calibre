@@ -328,7 +328,6 @@
         var args = Array.apply(null, arguments);
         args.shift();
         return this.each(function () {
-            window.rex = $(this);
             var $this = $(this),
                 data = $this.data('rating'),
                 options = typeof option === 'object' && option;

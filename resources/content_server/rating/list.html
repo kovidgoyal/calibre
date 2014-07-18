@@ -1,0 +1,16 @@
+{% extends "content_server/base.html" %}
+{% block content %}
+<span class="legend">{{title}} {{ ratings|length }}</span>
+
+{% for id, level in ratings %}
+<div class="col-sm-12 col-md-12">
+    <h3 class="col-sm-2 pull-left text-right"><a href="/rating/{{level}}">{{level}} {{ gettext("Stars ") }}</a></h3>
+    <span><input class="rating" value={{level}} data-min=0 data-max=10 data-size="sm" ></span>
+</div>
+{% endfor %}
+
+{% endblock %}
+
+{% block sidebar %}
+{% include "content_server/sidebar/basic.html" %}
+{% endblock %}

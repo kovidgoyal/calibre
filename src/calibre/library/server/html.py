@@ -22,8 +22,6 @@ from calibre.ebooks.conversion.plumber import Plumber
 from calibre.library.caches import SortKeyGenerator
 from calibre.library.save_to_disk import find_plugboard
 
-import douban
-
 plugboard_content_server_value = 'content_server'
 plugboard_content_server_formats = ['epub']
 
@@ -53,18 +51,15 @@ class HtmlServer(object):
         connect( '/book/upload',            self.book_upload)
         connect( '/book/{id}/delete',       self.book_delete)
         connect( '/book/{id}/edit',         self.book_edit)
-        connect( '/book/{id}/update',       self.book_update)
         connect( '/book/{id}.{fmt}',        self.book_download)
         connect( '/book/{id}/share/kindle', self.share_kindle)
         connect( '/book/{id}',              self.book_detail)
         connect( '/author',                 self.author_list)
         connect( '/author/{name}',          self.author_detail)
-        connect( '/author/{name}/update',   self.author_books_update)
         connect( '/tag',                    self.tag_list)
         connect( '/tag/{name}',             self.tag_detail)
         connect( '/pub',                    self.pub_list)
         connect( '/pub/{name}',             self.pub_detail)
-        connect( '/pub/{name}/update',      self.pub_books_update)
         connect( '/rating',                 self.rating_list)
         connect( '/rating/{name}',          self.rating_detail)
         connect( '/search',                 self.search_book)
@@ -78,7 +73,7 @@ class HtmlServer(object):
 
     def html_page(self, template, *args, **kwargs):
         url_prfix = self.opts.url_prefix
-        M = "/static/v2/m"
+        M = "/static/m"
         db = self.db
         vals = dict(*args, **kwargs)
         vals.update( vars() )
@@ -125,7 +120,6 @@ class HtmlServer(object):
 
     def html_index(self):
         import random
-        logging.error(_)
         title = _('All books')
         ids = self.search_for_books('')
         if not ids:
@@ -139,7 +133,7 @@ class HtmlServer(object):
             random_books = random.sample(books, 4)
         except:
             pass
-        return self.html_page('content_server/v2/index.html', vars())
+        return self.html_page('content_server/index.html', vars())
 
     @cherrypy.expose
     def book_list(self, start=0, sort='title'):
@@ -162,7 +156,7 @@ class HtmlServer(object):
                 pages.append(p)
         books = all_books[start:start+delta]
         vars_.update(vars())
-        return self.html_page('content_server/v2/book/list.html', vars_)
+        return self.html_page('content_server/book/list.html', vars_)
 
     def book_detail(self, id):
         book_id = int(id)
@@ -173,21 +167,7 @@ class HtmlServer(object):
         try: sizes = [ (f, self.db.sizeof_format(book['id'], f, index_is_id=True)) for f in book['available_formats'] ]
         except: sizes = []
         title = book['title']
-        return self.html_page('content_server/v2/book/detail.html', vars())
-
-    def do_book_update(self, id):
-        book_id = int(id)
-        mi = self.db.get_metadata(book_id, index_is_id=True)
-        douban_mi = douban.get_douban_metadata(mi.title)
-        if mi.cover_data[0]:
-            douban_mi.cover_data = None
-        mi.smart_update(douban_mi, replace_metadata=True)
-        self.db.set_metadata(book_id, mi)
-        return book_id
-
-    def book_update(self, id):
-        book_id = self.do_book_update(id)
-        raise cherrypy.HTTPRedirect('/book/%d'%book_id, 302)
+        return self.html_page('content_server/book/detail.html', vars())
 
     @cherrypy.expose
     def book_edit(self, id, field, content):
@@ -229,7 +209,7 @@ class HtmlServer(object):
 
     def book_add(self, file_input_name="ebook_file"):
         title = _('Upload Book')
-        return self.html_page('content_server/v2/book/add.html', vars())
+        return self.html_page('content_server/book/add.html', vars())
 
     @cherrypy.expose
     def book_upload(self, generate_fmt=True, ebook_file=None):
@@ -278,7 +258,7 @@ class HtmlServer(object):
         title = _('All tags')
         category = "tags"
         tags = self.db.all_tags2()
-        return self.html_page('content_server/v2/tag/list.html', vars())
+        return self.html_page('content_server/tag/list.html', vars())
 
     @cherrypy.expose
     def tag_detail(self, name, start=0, sort="title"):
@@ -295,8 +275,7 @@ class HtmlServer(object):
         authors = self.db.all_authors()
         authors.sort(cmp=lambda x,y: cmp(ascii_filename(x[1]).lower(), ascii_filename(y[1]).lower()))
         authors.sort(cmp=lambda x,y: cmp(x[1], y[1]))
-        logging.error(authors)
-        return self.html_page('content_server/v2/author/list.html', vars())
+        return self.html_page('content_server/author/list.html', vars())
 
     @cherrypy.expose
     def author_detail(self, name, start=0, sort="title"):
@@ -307,28 +286,17 @@ class HtmlServer(object):
         books = self.db.get_data_as_dict(ids=ids)
         return self.render_book_list(books, start, sort, vars());
 
-    @cherrypy.expose
-    def author_books_update(self, name):
-        cherrypy.response.timeout = 3600
-        category = "authors"
-        author_id = self.db.get_author_id(name)
-        ids = self.db.get_books_for_category(category, author_id)
-        for book_id in list(ids)[:40]:
-            self.do_book_update(book_id)
-        raise cherrypy.HTTPRedirect('/author/%s'%name, 302)
-
     def pub_list(self):
         title = _('All publishers')
         category = "publisher"
         publishers = self.db.all_publishers()
-        return self.html_page('content_server/v2/publisher/list.html', vars())
+        return self.html_page('content_server/publisher/list.html', vars())
 
     @cherrypy.expose
     def pub_detail(self, name, start=0, sort="title"):
         title = _('Books of publisher: %(name)s') % vars()
         category = "publisher"
         publisher_id = self.db.get_publisher_id(name)
-        logging.error(publisher_id)
         if publisher_id:
             ids = self.db.get_books_for_category(category, publisher_id)
             books = self.db.get_data_as_dict(ids=ids)
@@ -338,30 +306,12 @@ class HtmlServer(object):
             books = [ b for b in books if not b['publisher'] ]
         return self.render_book_list(books, start, sort, vars());
 
-    @cherrypy.expose
-    def pub_books_update(self, name):
-        cherrypy.response.timeout = 3600
-        category = "authors"
-        author_id = self.db.get_author_id(name)
-        ids = self.db.get_books_for_category(category, author_id)
-        category = "publisher"
-        publisher_id = self.db.get_publisher_id(name)
-        if publisher_id:
-            ids = self.db.get_books_for_category(category, publisher_id)
-        else:
-            ids = self.search_for_books('')
-            books = self.db.get_data_as_dict(ids=ids)
-            ids = [ b['id'] for b in books if not b['publisher'] ]
-        for book_id in list(ids)[:40]:
-            self.do_book_update(book_id)
-        raise cherrypy.HTTPRedirect('/pub/%s'%name, 302)
-
     def rating_list(self):
         title = _('All ratings')
         category = "rating"
         ratings = self.db.all_ratings()
         ratings.sort(cmp=lambda x,y: cmp(x[1], y[1]))
-        return self.html_page('content_server/v2/rating/list.html', vars())
+        return self.html_page('content_server/rating/list.html', vars())
 
     @cherrypy.expose
     def rating_detail(self, name, start=0, sort="title"):
@@ -377,7 +327,7 @@ class HtmlServer(object):
         title = _('Setting')
         msg = None
         prefs = self.db.prefs
-        return self.html_page('content_server/v2/setting/view.html', vars())
+        return self.html_page('content_server/setting/view.html', vars())
 
     @cherrypy.expose
     def setting_save(self, share_kindle="", allow_admin=False, allow_delete=False):
@@ -387,7 +337,7 @@ class HtmlServer(object):
         self.db.prefs.set('allow_admin', allow_admin)
         self.db.prefs.set('allow_delete', allow_delete)
         msg = _('Saved success!')
-        return self.html_page('content_server/v2/setting/view.html', vars())
+        return self.html_page('content_server/setting/view.html', vars())
 
     def share_kindle(self, id, fmt="mobi"):
         mail_to = self.db.prefs.get('share_kindle', None)
@@ -449,7 +399,7 @@ class HtmlServer(object):
             error_msg = traceback.format_exc()
 
         title = _('Send to kindle')
-        return self.html_page('content_server/v2/share/email.html', vars())
+        return self.html_page('content_server/share/email.html', vars())
 
 
     # Utility methods {{{

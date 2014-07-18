@@ -1,0 +1,53 @@
+{% extends "content_server/base.html" %}
+{% block content %}
+<span class="legend visible-xs-block">{{title}}</span>
+<div class="visible-xs-block">
+        <div class="well">
+            {% if sort != "title" %}<a href="?sort=title&start={{start}}">{% endif %}{{ gettext("Sort by title") }}{% if sort != "title" %}</a>{% endif%} /
+            {% if sort != "pubdate" %}<a href="?sort=pubdate&start={{start}}">{% endif %}{{ gettext("Sort by date") }}{% if sort != "pubdate" %}</a>{% endif%} /
+            {% if sort != "rating" %}<a href="?sort=rating&start={{start}}">{% endif %}{{ gettext("Sort by rating") }}{% if sort != "rating" %}</a>{% endif%}
+        </div>
+</div>
+<span class="legend hidden-xs">{{title}}
+        <div class="sorter pull-right">
+            {% if sort != "title" %}<a href="?sort=title&start={{start}}">{% endif %}{{ gettext("Sort by title") }}{% if sort != "title" %}</a>{% endif%} /
+            {% if sort != "pubdate" %}<a href="?sort=pubdate&start={{start}}">{% endif %}{{ gettext("Sort by date") }}{% if sort != "pubdate" %}</a>{% endif%} /
+            {% if sort != "rating" %}<a href="?sort=rating&start={{start}}">{% endif %}{{ gettext("Sort by rating") }}{% if sort != "rating" %}</a>{% endif%}
+        </div>
+</span>
+
+{% for book in books %}
+    <div class="media list-book">
+        <a class="pull-left" href="/book/{{book.id}}"><img class="list-book-img media-object" src="/get/thumb_105_145/{{book.id}}.jpg" ></a>
+        <div class="media-body">
+            <h4 class="media-heading"><a href="/book/{{book.id}}">{{book.title}}</a></h4>
+            <p>
+                <a href="/author/{{book.author_sort}}">{{book.authors|join(", ")}}</a> /
+                <a href="/pub/{{book.publisher}}">{{book.publisher}}</a> /
+                {{book.pubdate|day}}<br/>
+                <br/>
+                <span class="brief">{% if book.comments %}{{book.comments|striptags}}{%endif%}</span>
+            </p>
+        </div>
+    </div>
+{% endfor %}
+
+<ul class="pagination">
+    <li {% if page_now == 0 %}class="disabled"{%endif%}><a href="?sort={{sort}}&start={{page_now*delta-delta}}">&laquo; {{ gettext("Prev") }}</a></li>
+
+    {% for p in pages %}
+    <li {%if page_now == p %}class="active"{%endif%}><a href="?sort={{sort}}&start={{p*delta}}">{{p+1}}</a></li>
+    {% endfor %}
+
+    {% if page_max not in pages %}
+    <li class="disabled"><a href="#">...</a></li>
+    <li><a href="?sort={{sort}}&start={{page_max*delta}}">{{page_max+1}}</a></li>
+    {% endif %}
+
+    <li {% if page_now == page_max %}class="disabled"{%endif%}><a href="?sort={{sort}}&start={{page_now*delta+delta}}">{{ gettext("Next") }} &raquo;</a></li>
+</ul>
+{% endblock %}
+
+{% block sidebar %}
+{% include "content_server/sidebar/basic.html" %}
+{% endblock %}

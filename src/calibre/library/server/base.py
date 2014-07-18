@@ -141,7 +141,7 @@ class LibraryServer(HtmlServer, XMLServer, OPDSServer, Cache):
             self.max_cover_height = 1600
         path = P('content_server')
         self.build_time = fromtimestamp(os.stat(path).st_mtime)
-        self.default_cover = open(P('content_server/default_cover.jpg'), 'rb').read()
+        self.default_cover = open(P('content_server/m/img/default_cover.jpg'), 'rb').read()
         if not opts.url_prefix:
             opts.url_prefix = ''
 

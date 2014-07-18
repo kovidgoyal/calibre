@@ -1,0 +1,104 @@
+{% extends "content_server/base.html" %}
+{% block msgbar %}
+<div id="id_edit_tip" class="hidden col-md-12">
+    <div class="alert alert-warning alert-dismissible" role="alert">
+        <button type="button" class="close" data-dismiss="alert"><span aria-hidden="true">&times;</span></button>
+        <strong>{{ gettext("You are now in Edit Mode!") }}</strong>
+        <p>{{ gettext("Click the title fields (or other), edit and it will auto save.") }}</p>
+    </div>
+</div>
+{% endblock %}
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <div class="center-block">
+            <h1 class="book-edit" data-meta="title">{{book.title}}</h1>
+        </div>
+
+        <div class="media">
+            <img class="col-md-5 media-object" src="/get/thumb_300_420/{{book.id}}.jpg" alt="...">
+            <div class="media-body">
+                <p class="lead">
+
+                {{ gettext("Author: ") }}
+                <span class="hidden book-edit" data-meta="authors">{{book.author_sort}}</span>
+                <a id="id_authors" class="meta-link" href="/author/{{book.author_sort|urlencode}}">{{book.author_sort}}</a><br/>
+
+                {% if book.tags %} {{ gettext("Tags: ") }}
+                <span class="hidden book-edit" data-meta="tags">{{book.tags|join(" / ")}}</span>
+                <span id="id_tags" class="meta-link">
+                {% for tag in book.tags %}
+                <a href="/tag/{{tag|urlencode}}">{{tag}}</a>
+                {% if not loop.last %} / {% endif %}
+                {% endfor%}
+                </span>
+                <br/>
+                {% endif %}
+
+                {% if book.publisher %} {{ gettext("Publisher: ") }}
+                <span class="hidden book-edit" data-meta="publisher">{{book.publisher}}</span>
+                <a id="id_publisher" class="meta-link" href="/pub/{{book.publisher|urlencode}}">{{book.publisher}}</a><br/>
+                {% endif %}
+
+                {% if book.series %} {{ gettext("Series: ") }}
+                <span class="book-edit" data-meta="series">{{book.series}}</span><br/>
+                {% endif %}
+
+                {% if book.pubdate %} {{ gettext("Date: ") }}
+                <span class="book-edit" data-meta="pubdate">{{book.pubdate|day}}</span><br/>
+                {% endif %}
+
+                {% if book.language %} {{ gettext("Language: ") }}
+                <span class="book-edit" data-meta="language">{{book.language}}</span><br/>
+                {% endif %}
+
+                {% if book.isbn %} {{ gettext("ISBN: ") }}
+                <span class="book-edit" data-meta="isbn">{{book.isbn}}</span><br/>
+                {% endif %}
+
+                </p>
+            </div>
+        </div>
+        <p>&nbsp;</p>
+
+        <span class="legend">{{ gettext("Abstract") }}</span>
+        <p class="book-edit" data-meta="comments">{{book.comments}}</p>
+        <p>&nbsp;</p>
+    </div>
+</div>
+{% endblock %}
+
+{% block sidebar %}
+<div class="col-md-12">
+    <span class="legend">{{ gettext("Push") }}</span>
+    <div class="list-group">
+        <a href="/book/{{book.id}}/share/kindle" class="list-group-item"><span class="glyphicon glyphicon-phone"></span> {{ gettext("Kindle") }}</a>
+        <a href="#" class="list-group-item"><span class="glyphicon glyphicon-cloud"></span> {{ gettext("Email...") }}</a>
+    </div>
+
+    <span class="legend">{{ gettext("Read") }}</span>
+    <div class="list-group">
+        <a class="list-group-item" onclick="alert('{{ gettext("Coming Soon!!") }}')" href="#"><span class="glyphicon glyphicon-book"></span> {{ gettext("Read online") }}</a>
+        {% for format, size in sizes %}
+        <a href="/book/{{book.id}}.{{format}}" class="list-group-item"><span class="glyphicon glyphicon-save"></span> <span class="badge">{{size//1024}} KB</span> {{format}}</a>
+        {% endfor %}
+    </div>
+
+    {% if db.prefs.allow_admin %}
+
+    <span class="legend">{{ gettext("Edit") }}</span>
+    <div class="list-group">
+        <a href="#" onclick="return bind_book_editable({{book.id}})" class="list-group-item"><span class="glyphicon glyphicon-cog"></span> {{ gettext("Manual edit") }}</a>
+    </div>
+
+    {% if db.prefs.allow_delete %}
+    <span class="legend">{{ gettext("Admin") }}</span>
+    <div class="list-group">
+        <a href="/book/{{book.id}}/delete" class="btn btn-danger btn-block"><span class="glyphicon glyphicon-remove"></span> {{ gettext("Delete") }}</a>
+    </div>
+    {% endif %}
+
+    {% endif %}
+</div>
+{% endblock %}
+

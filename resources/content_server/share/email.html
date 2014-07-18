@@ -1,0 +1,10 @@
+{% extends "content_server/base.html" %}
+{% block content %}
+<span class="legend">{{title}}</span>
+{% if success_msg %}<div class="alert alert-success" role="alert">{{success_msg}}</div>{% endif %}
+{% if error_msg %}<div class="alert alert-danger" role="alert">{{error_msg}}</div>{% endif %}
+{% endblock %}
+
+{% block sidebar %}
+{% include "content_server/sidebar/basic.html" %}
+{% endblock %}
