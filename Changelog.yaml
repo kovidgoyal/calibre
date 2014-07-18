@@ -20,6 +20,64 @@
 #   new recipes:
 #     - title: 
 
+- version: 1.45.0
+  date: 2014-07-18
+
+  new features:
+    - title: "Edit Book: Add in-context help for HTML and CSS"
+      description: "Now, you can right click on any HTML/OPF/NCX tag name or CSS property and the editor will open some help for that item in your browser."
+
+    - title: "Book details panel: Make series and tags clickable. Clicking on them will search the calibre library for all books in the same series/ having the same tag"
+      tickets: [1341297]
+
+    - title: "Edit metadata dialog: Improve performance by only writing changed fields to the database when clicking OK or Next"
+
+    - title: "AZW3 Input: When converting from AZW3 files, use the high quality version of the image if the source AZW3 file contains both low and high quality images. These dual azw3 files are produced by kindlegen 2.9"
+
+    - title: "Edit Book: When right clicking on a link in the editor add a menu entry to open the link"
+
+    - title: "Edit Book: Search and replace panel: Add arrows to open the list of recently used search and replace expressions"
+
+    - title: "Driver for Motorola Milestone X2."
+      tickets: [1343704]
+
+  bug fixes:
+    - title: "AZW3: Preserve the page-progression-direction property when converting/editing/polishing AZW3 files"
+
+    - title: "AZW3 Input: Workaround broken AZW3 files produced by kindlegen that use uppercase attribute names."
+      tickets: [1341306]
+
+    - title: "PDF metadata: When updating the XMP metadata in PDF files, compress the XMP block written to the PDF. This is particularly useful when the PDF file has an existing XMP metadata block with very large amounts of data in it."
+      tickets: [1341549]
+
+    - title: "Fix searches on Yes/No columns using the terms ('blank', 'checked', 'unchecked') not working on non-English calibre installs"
+
+    - title: "Edit metadata dialog: Do not auto change the title sort field when clicking OK if the title was changed. Instead the title sort field must be changed explicitly."
+
+    - title: "Linux binary installer: Fix regression that caused ZSH completion to not be installed"
+      tickets: [1341240] 
+
+    - title: "Edit Book: Spell check: When suggesting alternative for a hyphenated word, ensure the first suggestion is the word formed by removing the hyphen, if that is a valid word"
+
+    - title: "Get Books: Update the Woblink plugin to handle changes to the woblink website"
+
+    - title: "Edit Book: Fix replacement of hyphenated words in the spell checker not working"
+
+    - title: "Edit Book: Fix live syntax highlighting of links not being updated correctly after renaming an open file"
+
+    - title: "Edit Book: Fix regression that caused crash while syntax highlighting CSS stylesheets that contain url() tokens without enclosing quotes"
+
+    - title: "Linux binary: Do not fail on system with invalid locale info. Instead default to using the UTF-8 encoding on these systems."
+      tickets: [1343444]
+
+  improved recipes:
+    - The Economic Times India
+    - EPW
+    - Carta
+    - The Hindu
+    - F-Secure
+    - NOAA Online
+
 - version: 1.44.0
   date: 2014-07-11
 
