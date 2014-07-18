@@ -68,6 +68,12 @@ def test_tiff(h, f):
 
 tests.append(test_tiff)
 
+def test_webp(h, f):
+    if h[:4] == b'RIFF' and h[8:12] == b'WEBP':
+        return 'webp'
+
+tests.append(test_webp)
+
 def test_rgb(h, f):
     """SGI image library"""
     if h[:2] == '\001\332':
