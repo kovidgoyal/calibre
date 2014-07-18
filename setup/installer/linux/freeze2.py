@@ -337,7 +337,10 @@ class LinuxFreeze(Command):
                     enc = locale.nl_langinfo(locale.CODESET)
                 if not enc or enc.lower() == 'ascii':
                     enc = 'UTF-8'
-                enc = codecs.lookup(enc).name
+                try:
+                    enc = codecs.lookup(enc).name
+                except LookupError:
+                    enc = 'UTF-8'
                 sys.setdefaultencoding(enc)
                 del sys.setdefaultencoding
 
