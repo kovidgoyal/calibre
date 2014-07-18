@@ -46,7 +46,7 @@ class WinPNPScanner(object):
     def drive_is_ok(self, letter, debug=False):
         import win32api, win32file
         with self.lock:
-            oldError = win32api.SetErrorMode(1) #SEM_FAILCRITICALERRORS = 1
+            oldError = win32api.SetErrorMode(1)  # SEM_FAILCRITICALERRORS = 1
             try:
                 ans = True
                 try:
@@ -76,8 +76,8 @@ class WinPNPScanner(object):
         return order
 
     def __call__(self, debug=False):
-        #import traceback
-        #traceback.print_stack()
+        # import traceback
+        # traceback.print_stack()
 
         if self.scanner is None:
             return {}
@@ -157,7 +157,8 @@ class LibUSBScanner(object):
             start = memory()
             for i in xrange(num):
                 self()
-            for i in xrange(3): gc.collect()
+            for i in xrange(3):
+                gc.collect()
             print 'Mem consumption increased by:', memory() - start, 'MB',
             print 'after', num, 'repeats'
 
@@ -239,52 +240,51 @@ class FreeBSDScanner(object):
         import dbus
 
         try:
-           bus = dbus.SystemBus()
-           manager = dbus.Interface(bus.get_object('org.freedesktop.Hal',
-                         '/org/freedesktop/Hal/Manager'), 'org.freedesktop.Hal.Manager')
-           paths = manager.FindDeviceStringMatch('freebsd.driver','da')
-           for path in paths:
-              obj = bus.get_object('org.freedesktop.Hal', path)
-              objif = dbus.Interface(obj, 'org.freedesktop.Hal.Device')
-              parentdriver = None
-              while parentdriver != 'umass':
-                 try:
-                    obj = bus.get_object('org.freedesktop.Hal',
-                          objif.GetProperty('info.parent'))
-                    objif = dbus.Interface(obj, 'org.freedesktop.Hal.Device')
+            bus = dbus.SystemBus()
+            manager = dbus.Interface(bus.get_object('org.freedesktop.Hal',
+                          '/org/freedesktop/Hal/Manager'), 'org.freedesktop.Hal.Manager')
+            paths = manager.FindDeviceStringMatch('freebsd.driver','da')
+            for path in paths:
+                obj = bus.get_object('org.freedesktop.Hal', path)
+                objif = dbus.Interface(obj, 'org.freedesktop.Hal.Device')
+                parentdriver = None
+                while parentdriver != 'umass':
                     try:
-                       parentdriver = objif.GetProperty('freebsd.driver')
-                    except dbus.exceptions.DBusException, e:
-                       continue
-                 except dbus.exceptions.DBusException, e:
-                    break
-              if parentdriver != 'umass':
-                  continue
-              dev = []
-              try:
-                 dev.append(objif.GetProperty('usb.vendor_id'))
-                 dev.append(objif.GetProperty('usb.product_id'))
-                 dev.append(objif.GetProperty('usb.device_revision_bcd'))
-              except dbus.exceptions.DBusException, e:
-                 continue
-              try:
-                 dev.append(objif.GetProperty('info.vendor'))
-              except:
-                 dev.append('')
-              try:
-                 dev.append(objif.GetProperty('info.product'))
-              except:
-                 dev.append('')
-              try:
-                 dev.append(objif.GetProperty('usb.serial'))
-              except:
-                 dev.append('')
-              dev.append(path)
-              ans.add(tuple(dev))
-        except dbus.exceptions.DBusException, e:
-           print >>sys.stderr, "Execution failed:", e
+                        obj = bus.get_object('org.freedesktop.Hal',
+                              objif.GetProperty('info.parent'))
+                        objif = dbus.Interface(obj, 'org.freedesktop.Hal.Device')
+                        try:
+                            parentdriver = objif.GetProperty('freebsd.driver')
+                        except dbus.exceptions.DBusException as e:
+                            continue
+                    except dbus.exceptions.DBusException as e:
+                        break
+                if parentdriver != 'umass':
+                    continue
+                dev = []
+                try:
+                    dev.append(objif.GetProperty('usb.vendor_id'))
+                    dev.append(objif.GetProperty('usb.product_id'))
+                    dev.append(objif.GetProperty('usb.device_revision_bcd'))
+                except dbus.exceptions.DBusException as e:
+                    continue
+                try:
+                    dev.append(objif.GetProperty('info.vendor'))
+                except:
+                    dev.append('')
+                try:
+                    dev.append(objif.GetProperty('info.product'))
+                except:
+                    dev.append('')
+                try:
+                    dev.append(objif.GetProperty('usb.serial'))
+                except:
+                    dev.append('')
+                dev.append(path)
+                ans.add(tuple(dev))
+        except dbus.exceptions.DBusException as e:
+            print >>sys.stderr, "Execution failed:", e
         return ans
-
 
 
 if islinux:
@@ -335,16 +335,19 @@ def test_for_mem_leak():
     gc.disable()
     scanner = DeviceScanner()
     scanner.scan()
-    memory() # load the psutil library
-    for i in xrange(3): gc.collect()
+    memory()  # load the psutil library
+    for i in xrange(3):
+        gc.collect()
 
     for reps in (1, 10, 100, 1000):
-        for i in xrange(3): gc.collect()
+        for i in xrange(3):
+            gc.collect()
         h1 = gc_histogram()
         startmem = memory()
         for i in xrange(reps):
             scanner.scan()
-        for i in xrange(3): gc.collect()
+        for i in xrange(3):
+            gc.collect()
         usedmem = memory(startmem)
         prints('Memory used in %d repetitions of scan(): %.5f KB'%(reps,
             1024*usedmem))
@@ -356,12 +359,14 @@ def test_for_mem_leak():
         return
 
     for reps in (1, 10, 100, 1000):
-        for i in xrange(3): gc.collect()
+        for i in xrange(3):
+            gc.collect()
         h1 = gc_histogram()
         startmem = memory()
         for i in xrange(reps):
             win_pnp_drives()
-        for i in xrange(3): gc.collect()
+        for i in xrange(3):
+            gc.collect()
         usedmem = memory(startmem)
         prints('Memory used in %d repetitions of pnp_scan(): %.5f KB'%(reps,
             1024*usedmem))
