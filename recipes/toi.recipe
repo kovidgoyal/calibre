@@ -1,58 +1,72 @@
-# vim:fileencoding=utf-8
+__license__   = 'GPL v3'
+__copyright__ = '2008-2014, Karthik <hashkendistro@gmail.com>'
+'''
+timesofindia.indiatimes.com
+'''
+
+
 from calibre.web.feeds.news import BasicNewsRecipe
-from lxml import html
 
-allowed_sections = {'Top Headlines', 'Opinion', 'Science', 'Education', 'US', 'Pakistan', 'India Business', 'Tech News', 'Cricket', 'Bollywood'}
-
-class TimesOfIndia(BasicNewsRecipe):
-    title          = u'Times of India Headlines'
-    language       = 'en'
-    description    = 'Headline news from the Indian daily Times of India'
-    __author__     = 'Kovid Goyal'
-
-    no_stylesheets = True
-    no_javascript = True
-    keep_only_tags = [dict(name='h1'), dict(id=['storydiv', 'contentarea'])]
-    remove_tags = [
-        dict(name='div', attrs={'class':['video_list', 'rightpart', 'clearfix mTop15', 'footer_slider', 'read_more', 'flR', 'hide_new']}),
-        dict(name='div', attrs={'id':[
-            'most_pop', 'relartstory', 'slidebox', 'tmpFbokk', 'twittersource',
-            'reportAbuseDiv', 'result', 'yahoobuzzsyn', 'fb-root']}),
-        dict(style='float:right;margin-left:5px;'),
-    ]
-
-    def parse_index(self):
-        index = 'http://timesofindia.indiatimes.com/home/headlines'
-        raw = self.index_to_soup(index, raw=True)
-        root = html.fromstring(raw)
-
-        feeds = []
-        current_section = None
-        current_articles = []
-
-        toc = root.xpath('//div[@align="center"]/descendant::table[@class="cnt"]')[0]
-
-        for x in toc.xpath('descendant::*[name()="h3" or (name()="ul" and @class="content")]'):
-            if x.tag == 'h3':
-                if current_articles and current_section in allowed_sections:
-                    feeds.append((current_section, current_articles))
-                current_section = html.tostring(x, method='text', encoding=unicode).strip()
-                current_articles = []
-                self.log(current_section)
-            else:
-                for a in x.xpath('descendant::li/descendant::a[@href]'):
-                    title = html.tostring(a, method='text', encoding=unicode).strip()
-                    url = a.get('href')
-                    if url.startswith('/'):
-                        url = 'http://timesofindia.indiatimes.com' + url
-                    self.log('  ', title)
-                    current_articles.append({'title':title, 'url':url})
-                self.log('')
-
-        if current_articles and current_section in allowed_sections:
-            feeds.append((current_section, current_articles))
-
-        return feeds
+class TheEconomicTimes(BasicNewsRecipe):
+    title                  = 'The Times of India'
+    __author__             = 'Karthik K'
+    description            = 'News from the Indian daily Times of India'
+    publisher              = 'timesofindia.indiatimes.com'
+    category               = 'news, finances, politics, sports, business, entertainment, India'
+    oldest_article         = 1
+    max_articles_per_feed  = 100
+    no_stylesheets         = True
+    use_embedded_content   = False
+    simultaneous_downloads = 1
+    encoding               = 'utf-8'
+    language               = 'en_IN'
+    publication_type       = 'newspaper'
+    masthead_url           = 'http://timesofindia.indiatimes.com/photo.cms?msid=2419189'
+    extra_css              = """
+                                 body{font-family: Arial,Helvetica,sans-serif}
+                                 .foto_mg{font-size: 60%; 
+                                          font-weight: 700;}
+                                 h1{font-size: 150%;}
+                                 artdate{font-size: 60%}
+                                 artag{font-size: 60%}
+                                 div.storycontent{padding-top: 10px}
+                             """
+    conversion_options     = {'comment'          : description, 
+                              'tags'             : category,
+                              'publisher'        : publisher,
+                              'language'         : language
+                             }
+    remove_tags_before     = dict(name='h1')
+    remove_tags_after      = dict(name='div', attrs={'class':'storycontent'})
+    remove_attributes      = ['xmlns']
+    feeds                  = [('Recent Stories', 'http://timesofindia.indiatimes.com/rssfeeds/1221656.cms'),
+                              ('India', 'http://timesofindia.indiatimes.com/rssfeeds/-2128936835.cms'),
+                              ('World', 'http://timesofindia.indiatimes.com/rssfeeds/296589292.cms'),
+                              ('Business', 'http://timesofindia.indiatimes.com/rssfeeds/1898055.cms'),
+                              ('Cricket', 'http://timesofindia.indiatimes.com/rssfeeds/4719161.cms'),
+                              ('Sports', 'http://timesofindia.indiatimes.com/rssfeeds/4719148.cms'),
+                              ('Tech', 'http://timesofindia.indiatimes.com/rssfeeds/5880659.cms'),
+                              ('Education', 'http://timesofindia.indiatimes.com/rssfeeds/913168846.cms'),
+                              ('Science', 'http://timesofindia.indiatimes.com/rssfeeds/-2128672765.cms'),
+                              ('Opinion', 'http://timesofindia.indiatimes.com/rssfeeds/784865811.cms'),
+                              ('Entertainment', 'http://timesofindia.indiatimes.com/rssfeeds/1081479906.cms')]
 
 
+    #Uses the mobile print version. For web print version use 'http://timesofindia.indiatimes.com/articleshow/<article_id>?prtpage=1'
+    def print_version(self, url):
+        rest, sep, article_id = url.rpartition('/articleshow/')
+        return 'http://m.timesofindia.com/PDAET/articleshow/' + article_id
 
+    def get_article_url(self, article):
+        rurl = article.get('guid',  None)
+        if (rurl.find('/quickieslist/') > 0) or (rurl.find('/quickiearticleshow/') > 0):
+            return None
+        return rurl
+
+    def preprocess_html(self, soup):
+        for item in soup.findAll(style=True):
+            del item['style']
+        return soup
+
+    def postprocess_html(self, soup, first_fetch):
+        return self.adeify_images(soup)
