@@ -524,6 +524,7 @@ def check_for_qt5_incompatibility():
                 else:
                     bad_plugins.append(info)
     plugs = ['<li>%s</li>' % x['name'] for x in bad_plugins]
+    gplugs = ('<li>%s</li>' % x['name'] for x in ok_plugins)
     stats = '''
 <!DOCTYPE html>
 <html>
@@ -538,6 +539,10 @@ h1 { text-align: center }
 <body>
 <h1><img src="http://manual.calibre-ebook.com/_static/logo.png">Stats for porting of calibre plugins to Qt 5</h1>
 <p>Number of Qt 5 compatible plugins: %s<br>Number of Qt 5 incompatible plugins: %s<br>Percentage of plugins ported: %.0f%%</p>
+<h2>Plugins that have been ported</h2>
+<ul>
+%s
+</ul>
 <h2>Plugins still to be ported</h2>
 <ul>
 %s
@@ -545,6 +550,7 @@ h1 { text-align: center }
 </body>
 </html>
     ''' % (len(ok_plugins), len(bad_plugins), len(ok_plugins)/(len(ok_plugins) + len(bad_plugins)) * 100,
+           '\n'.join(sorted(gplugs, key=lambda x:x.lower())),
            '\n'.join(sorted(plugs, key=lambda x:x.lower())))
     with open('porting.html', 'wb') as f:
         f.write(stats.encode('utf-8'))
