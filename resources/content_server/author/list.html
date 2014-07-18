@@ -1,0 +1,15 @@
+{% extends "content_server/base.html" %}
+{% block content %}
+<span class="legend">{{title}}</span>
+
+<ul class="list-inline">
+{% for id, name in authors %}
+    <li class="lead"><a href="/author/{{name|urlencode}}">{{name}}</a></li>
+{% endfor %}
+</ul>
+
+{% endblock %}
+
+{% block sidebar %}
+{% include "content_server/sidebar/basic.html" %}
+{% endblock %}

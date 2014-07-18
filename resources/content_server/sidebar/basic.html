@@ -1,0 +1,17 @@
+<div class="col-md-12">
+    <span class="legend">{{ gettext("Category") }}</span>
+    <div class="list-group">
+        <a href="/book"     class="list-group-item {% if category == "books"      %}active{% endif %}"><span class="badge">{{db.count()}}</span> {{ gettext("All Books") }}</a>
+        <a href="/pub"      class="list-group-item {% if category == "publishers" %}active{% endif %}"><span class="badge">{{db.all_publishers()|length}}</span> {{ gettext("Publisher") }}</a>
+        <a href="/author"   class="list-group-item {% if category == "authors"    %}active{% endif %}"><span class="badge">{{db.all_authors()|length}}</span> {{ gettext("Authors") }}</a>
+        <a href="/tag"      class="list-group-item {% if category == "tags"       %}active{% endif %}"><span class="badge">{{db.all_tags()|length}}</span> {{ gettext("Tags") }}</a>
+        <a href="/rating"   class="list-group-item {% if category == "ratings"    %}active{% endif %}">{{ gettext("Ratings") }}</a>
+    </div>
+
+    <span class="legend">{{ gettext("Help") }}</span>
+    <div class="list-group">
+        <a href="#" class="list-group-item">{{ gettext("Wiki") }}</a>
+        <a href="#" class="list-group-item"><span class="pull-right">1.4.13</span> {{ gettext("System Version") }}</a>
+        <a href="#" class="list-group-item"><span class="pull-right">{{db.last_modified()|day}}</span> {{ gettext("Last Update") }}</a>
+    </div>
+</div>

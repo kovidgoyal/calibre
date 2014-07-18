@@ -1048,12 +1048,31 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
         return self.conn.get('SELECT name FROM series WHERE id=%d'%series_id,
                 all=False)
 
+    def pub_id(self, publisher_name):
+        return self.conn.get('SELECT id FROM publishers WHERE name=?', publisher_name,
+                all=False)
+
+    def author_id(self, author_name):
+        return self.conn.get('SELECT id FROM authors WHERE name=?', author_name,
+                all=False)
+
     def author_name(self, author_id):
         return self.conn.get('SELECT name FROM authors WHERE id=%d'%author_id,
                 all=False)
 
+    def tag_id(self, tag_name):
+        return self.conn.get('SELECT id FROM tags WHERE name=?', (tag_name,), all=False)
+
     def tag_name(self, tag_id):
         return self.conn.get('SELECT name FROM tags WHERE id=%d'%tag_id,
+                all=False)
+
+    def rating_id(self, rating_level):
+        return self.conn.get('SELECT id FROM ratings WHERE rating=?', (rating_level,) ,
+                all=False)
+
+    def rating_level(self, rating_id):
+        return self.conn.get('SELECT rating FROM ratings WHERE id=?', (rating_id,) ,
                 all=False)
 
     def all_authors(self):
@@ -1078,6 +1097,10 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
     def all_titles(self):
         return [ (i[0], i[1]) for i in \
                 self.conn.get('SELECT id, title FROM books')]
+
+    def all_ratings(self):
+        return [ (i[0], i[1]) for i in \
+                self.conn.get('SELECT id, rating FROM ratings')]
 
     def conversion_options(self, id, format):
         data = self.conn.get('SELECT data FROM conversion_options WHERE book=? AND format=?', (id, format.upper()), all=False)

@@ -345,16 +345,16 @@ class OPDSServer(object):
         for version in (0, 1):
             base_href = BASE_HREFS[version]
             ver = str(version)
-            connect('opds_'+ver, base_href, self.opds, version=version)
-            connect('opdst_'+ver, base_href+'/', self.opds, version=version)
-            connect('opdsnavcatalog_'+ver, base_href+'/navcatalog/{which}',
-                    self.opds_navcatalog, version=version)
-            connect('opdscategory_'+ver, base_href+'/category/{category}/{which}',
-                    self.opds_category, version=version)
-            connect('opdscategorygroup_'+ver, base_href+'/categorygroup/{category}/{which}',
-                    self.opds_category_group, version=version)
-            connect('opdssearch_'+ver, base_href+'/search/{query}',
-                    self.opds_search, version=version)
+            connect(base_href, self.opds, name='opds_'+ver, version=version)
+            connect(base_href+'/', self.opds, name='opdst_'+ver, version=version)
+            connect(base_href+'/navcatalog/{which}', self.opds_navcatalog,
+                    name='opdsnavcatalog_'+ver, version=version)
+            connect(base_href+'/category/{category}/{which}', self.opds_category,
+                    name='opdscategory_'+ver, version=version)
+            connect(base_href+'/categorygroup/{category}/{which}', self.opds_category_group,
+                    name='opdscategorygroup_'+ver, version=version)
+            connect(base_href+'/search/{query}', self.opds_search,
+                    name='opdssearch_'+ver, version=version)
 
     def get_opds_allowed_ids_for_version(self, version):
         search = '' if version > 0 else ' or '.join(['format:='+x for x in

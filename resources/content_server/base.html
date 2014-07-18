@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="{{language}}">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link href="{{M}}/css/bootstrap.min.css" rel="stylesheet">
+        <link href="{{M}}/css/star-rating.css" rel="stylesheet">
+        <link href="{{M}}/css/calibre.css" rel="stylesheet">
+        <!- [if IE]><script src="{{M}}/js/respond.js"></script><![endif]->
+        <title>{% if title %}{{title}} - {%endif%}Calibre</title>
+    </head>
+
+    <body>
+        <div class="container">
+            <div class="row">
+        <nav class="navbar navbar-default" role="navigation">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand logo" href="/">Calibre</a>
+            </div>
+            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                <ul class="nav navbar-nav">
+                    <li {%if not nav %}class="active"{%endif%} ><a href="/">{{ gettext("Library")}}</a></li>
+                    <li {%if nav == "setting"%}class="active"{%endif%} ><a href="/setting">{{ gettext("Setting")}}</a></li>
+                </ul>
+                <form class="hidden-xs navbar-form navbar-left" action="/search" role="search">
+                    <div class="form-group">
+                        <input type="text" name="name" class="form-control" placeholder="{{ gettext('Search book') }}">
+                    </div>
+                    <button type="submit" class="btn btn-default">{{ gettext("Search") }}</button>
+                </form>
+                <a class="pull-right btn navbar-btn btn-primary" href="/book/add"><span class="glyphicon glyphicon-cloud-upload"></span> {{ gettext("Upload Book") }}</a>
+            </div>
+        </nav>
+
+                {% block msgbar %}{% endblock %}
+                <div class="col-md-8">
+                    <div class="visible-xs-block phone-search">
+                        <form class="form-inline" action="/search" role="search">
+                            <div class="form-group">
+                                <input type="text" name="name" class="form-control" placeholder="{{ gettext('Search book') }}">
+                            </div>
+                            <button type="submit" class="btn btn-default">{{ gettext("Search") }}</button>
+                        </form>
+                    </div>
+                    {% block content %}{% endblock %}
+                </div>
+
+
+
+
+                <!-- sidebar -->
+                <div class="col-md-4">
+                    <div class="row">
+                    {% block sidebar %}{% endblock %}
+                    </div>
+                </div>
+
+                <div class="col-md-12 footer">
+                    <p>
+                    {{ gettext("Power by <a href='http://www.calibre-ebook.com'>Calibre</a>.") }}
+                    {{ gettext("Develop by Kovid Goyal and Rex Liao.<br/>") }}
+                    {{ gettext("Thanks to all contributors.") }}
+                    </p>
+                </div>
+                <p>&nbsp;</p>
+            </div>
+        </div>
+
+        <script>
+        </script>
+        <script src="{{M}}/js/jquery-1.11.1.min.js"></scri>
+        <script src="{{M}}/js/bootstrap.min.js"></script>
+        <script src="{{M}}/js/spin.min.js"></script>
+        <script src="{{M}}/js/holder.js"></script>
+        <script src="{{M}}/js/star-rating.min.js"></script>
+        <script src="{{M}}/js/jquery.editable.min.js"></script>
+        <script src="{{M}}/js/calibre.js"></script>
+        <script>
+            (function() {
+                if (! window.console ) {
+                    window.console = {};
+                    window.console.log = function() { };
+                }
+                if ( ! Object.keys ) {
+                    Object.keys = function() { return [] };
+                }
+            }())
+            jQuery(".rating").rating({showClear: false, showCaption: false});
+        </script>
+        {% block script %}{% endblock %}
+    </body>
+</html>

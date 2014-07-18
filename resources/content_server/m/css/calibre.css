@@ -1,0 +1,87 @@
+
+.legend, legend {
+    margin-top: 10px;
+display: block;
+width: 100%;
+padding: 0;
+margin-bottom: 20px;
+font-size: 21px;
+line-height: inherit;
+color: #333;
+border: 0;
+border-bottom: 1px solid #e5e5e5;
+}
+.sorter {
+    margin-top: 10px;
+    font-size: 50%;
+}
+.brief {
+    display: block;
+    height: 5.9em;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin: 10px 0 10px;
+}
+.list-book {
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+    border-bottom: 1px solid #ddd;
+}
+.new-book {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-bottom: 25px;
+}
+.book-title {
+    display: block;
+    height: 2em;
+}
+
+a>img.random-book-img {
+    width: 155px;
+    height: 220px;
+}
+
+.new-book-img {
+    width: 68px;
+    height: 90px;
+}
+
+.list-book-img {
+    width: 105px;
+    height: 145px;
+}
+
+.new-book {
+}
+
+.new-book .book-comments {
+    text-indent: 2em;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    text-overflow: clip;
+    margin-top: 6px;
+}
+
+.phone-search .form-group {
+    display: inline-block;
+    width: 70%;
+}
+
+.book-edit.book-edit-orig {
+    color: #f5cbad;
+}
+
+.book-edit.book-edit-new {
+    color: #428bca;
+}
+
+.footer p {
+    border-top: 1px solid #eee;
+    margin: 20px 0;
+    padding: 20px 0;
+    text-align: center;
+}
+

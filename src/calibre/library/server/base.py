@@ -18,14 +18,12 @@ from calibre.library.server import listen_on, log_access_file, log_error_file
 from calibre.library.server.utils import expose, AuthController
 from calibre.utils.mdns import publish as publish_zeroconf, \
             unpublish as unpublish_zeroconf, get_external_ip, verify_ipV4_address
-from calibre.library.server.content import ContentServer
-from calibre.library.server.mobile import MobileServer
+from calibre.library.server.html import HtmlServer
 from calibre.library.server.xml import XMLServer
 from calibre.library.server.opds import OPDSServer
 from calibre.library.server.cache import Cache
-from calibre.library.server.browse import BrowseServer
-from calibre.library.server.ajax import AjaxServer
 from calibre import prints, as_unicode
+from calibre.utils.localization import get_all_translators
 
 
 class DispatchController(object):  # {{{
@@ -39,7 +37,11 @@ class DispatchController(object):  # {{{
         if wsgi:
             self.prefix = ''
 
-    def __call__(self, name, route, func, **kwargs):
+    def __call__(self, route, func, name=None, **kwargs):
+        if not name:
+            name = func.__name__
+            if 'im_class' in dir(func):
+                name = "%s.%s" % ( func.im_class.__name__, func.__name__)
         if name in self.seen:
             raise NameError('Route name: '+ repr(name) + ' already used')
         self.seen.add(name)
@@ -119,8 +121,8 @@ cherrypy.engine.bonjour = BonJour(cherrypy.engine)
 
 # }}}
 
-class LibraryServer(ContentServer, MobileServer, XMLServer, OPDSServer, Cache,
-        BrowseServer, AjaxServer):
+
+class LibraryServer(HtmlServer, XMLServer, OPDSServer, Cache):
 
     server_name = __appname__ + '/' + __version__
 
@@ -139,13 +141,18 @@ class LibraryServer(ContentServer, MobileServer, XMLServer, OPDSServer, Cache,
             self.max_cover_height = 1600
         path = P('content_server')
         self.build_time = fromtimestamp(os.stat(path).st_mtime)
-        self.default_cover = open(P('content_server/default_cover.jpg'), 'rb').read()
+        self.default_cover = open(P('content_server/m/img/default_cover.jpg'), 'rb').read()
         if not opts.url_prefix:
             opts.url_prefix = ''
+
 
         cherrypy.engine.bonjour.ip_address = listen_on
         cherrypy.engine.bonjour.port = opts.port
         cherrypy.engine.bonjour.prefix = opts.url_prefix
+
+        self.last_lang = "en"
+        self.all_langs = dict(get_all_translators())
+        cherrypy.request.hooks.attach('before_handler', self.update_lang)
 
         Cache.__init__(self)
 
@@ -203,6 +210,26 @@ class LibraryServer(ContentServer, MobileServer, XMLServer, OPDSServer, Cache,
         root_conf = self.config.get('/', {})
         root_conf['request.dispatch'] = self.__dispatcher__.dispatcher
         self.config['/'] = root_conf
+
+
+    def update_lang(self):
+        user_langs = [x.value.replace('-', '_') for x in
+                 cherrypy.request.headers.elements('Accept-Language')]
+        sessions_on = cherrypy.request.config.get('tools.sessions.on', False)
+        if sessions_on and cherrypy.session.get('_lang_', ''):
+            user_langs.insert(0, cherrypy.session.get('_lang_', '__'))
+        for lang in user_langs:
+            if lang == self.last_lang:
+                return
+            if lang in self.all_langs:
+                loc = self.all_langs[lang]
+                loc.install(unicode=True, names=('ngettext',))
+                cherrypy.response.i18n = loc
+                if sessions_on:
+                    cherrypy.session['_lang_'] = str(loc.locale)
+                self.last_lang = lang
+                return
+
 
     def set_database(self, db):
         self.db = db
