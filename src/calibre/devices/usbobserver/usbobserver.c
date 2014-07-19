@@ -361,6 +361,100 @@ usbobserver_date_fmt(PyObject *self, PyObject *args) {
         Py_RETURN_NONE;
 }
 
+static int
+usbobserver_has_mtp_interface(io_service_t usb_device) {
+    io_iterator_t iter = 0;
+    kern_return_t kr = KERN_FAILURE;
+    io_registry_entry_t entry = 0;
+    CFTypeRef prop = NULL;
+    int ans = 0, found = 0;
+    char buf[512] = {0};
+
+    kr = IORegistryEntryCreateIterator(usb_device, kIOServicePlane, kIORegistryIterateRecursively, &iter);
+    if (KERN_SUCCESS != kr) return 0;
+
+    while (!found && (entry = IOIteratorNext(iter))) {
+        prop = IORegistryEntryCreateCFProperty(entry, CFSTR("USB Interface Name"), kCFAllocatorDefault, 0);
+        buf[0] = 0;
+        if (prop) {
+            if (!CFStringGetCString(prop, buf, 512, kCFStringEncodingUTF8)) buf[0] = 0;
+            if (strncmp(buf, "MTP", 3) == 0) { found = 1; ans = 1; }
+            CFRelease(prop); prop = NULL;
+        }
+        IOObjectRelease(entry);
+    }
+
+    IOObjectRelease(iter);
+    return ans;
+}
+
+static PyObject*
+usbobserver_is_mtp(PyObject *self, PyObject * args) {
+    int serial_sz = 0;
+    long vendor_id = 0, product_id = 0, bcd = 0;
+    char *serial = NULL, buf[500] = {0};
+    CFNumberRef num = NULL;
+    CFMutableDictionaryRef matching_dict = NULL;
+    CFTypeRef prop = NULL;
+    PyObject *ans = NULL;
+    io_iterator_t iter = 0;
+    kern_return_t kr = KERN_FAILURE;
+    io_service_t usb_device = 0;
+
+    if (!PyArg_ParseTuple(args, "iiis#", &vendor_id, &product_id, &bcd, &serial, &serial_sz)) return NULL;
+
+    matching_dict = IOServiceMatching(kIOUSBDeviceClassName);
+    if (!matching_dict) {
+        PyErr_SetString(PyExc_RuntimeError, "Couldn't create a USB device matching dictionary");
+        return NULL;
+    }
+
+    Py_BEGIN_ALLOW_THREADS
+    num = CFNumberCreate(kCFAllocatorDefault, kCFNumberSInt32Type, &vendor_id);
+    if (num == NULL) { PyErr_NoMemory(); goto end; }
+    CFDictionarySetValue(matching_dict, CFSTR(kUSBVendorID), num);
+    CFRelease(num); num = NULL;
+
+    num = CFNumberCreate(kCFAllocatorDefault, kCFNumberSInt32Type, &product_id);
+    if (num == NULL) { PyErr_NoMemory(); goto end; }
+    CFDictionarySetValue(matching_dict, CFSTR(kUSBProductID), num);
+    CFRelease(num); num = NULL;
+
+    num = CFNumberCreate(kCFAllocatorDefault, kCFNumberSInt32Type, &bcd);
+    if (num == NULL) { PyErr_NoMemory(); goto end; }
+    CFDictionarySetValue(matching_dict, CFSTR(kUSBDeviceReleaseNumber), num);
+    CFRelease(num); num = NULL;
+
+    kr = IOServiceGetMatchingServices(kIOMasterPortDefault, matching_dict, &iter);
+    matching_dict = NULL;
+    if (KERN_SUCCESS != kr) {
+        PyErr_Format(PyExc_RuntimeError, "IOServiceGetMatchingServices returned 0x%x", kr);
+        goto end;
+    }
+
+    while (ans == NULL && (usb_device = IOIteratorNext(iter))) {
+        prop = IORegistryEntryCreateCFProperty(usb_device, CFSTR(kUSBSerialNumberString), kCFAllocatorDefault, 0);
+        buf[0] = 0;
+        if (prop) {
+            if (!CFStringGetCString(prop, buf, 500, kCFStringEncodingUTF8)) buf[0] = 0;
+            CFRelease(prop); prop = NULL;
+        }
+        if (strncmp(serial, buf, MIN(500, serial_sz)) == 0) {
+            // We have found the device now check for an MTP interface
+            ans = (usbobserver_has_mtp_interface(usb_device)) ? Py_True : Py_False;
+        }
+
+        IOObjectRelease(usb_device);
+    }
+    if (ans == NULL) ans = Py_None; // device not found
+end:
+    Py_END_ALLOW_THREADS
+    if (matching_dict) CFRelease(matching_dict);
+    if (num) CFRelease(num);
+    if (iter) IOObjectRelease(iter);
+    Py_XINCREF(ans);
+    return ans;
+}
 
 static PyMethodDef usbobserver_methods[] = {
     {"get_usb_devices", usbobserver_get_usb_devices, METH_VARARGS, 
@@ -381,8 +475,9 @@ static PyMethodDef usbobserver_methods[] = {
     {"date_format", usbobserver_date_fmt, METH_VARARGS, 
      "date_format() -> The (short) date format used by the user's current locale"
     },
-
-
+    {"is_mtp_device", usbobserver_is_mtp, METH_VARARGS, 
+     "is_mtp_device(vendor_id, product_id, bcd, serial) -> Return True if the specified device has an MTP interface"
+    },
 
     {NULL, NULL, 0, NULL}
 };
