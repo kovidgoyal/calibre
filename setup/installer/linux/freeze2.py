@@ -72,7 +72,7 @@ def binary_includes():
     j(SW, 'lib', 'lib' + x) for x in (
         'usb-1.0.so.0', 'mtp.so.9', 'expat.so.1', 'sqlite3.so.0',
         'podofo.so.0.9.1', 'z.so.1', 'bz2.so.1.0', 'poppler.so.46',
-        'iconv.so.2', 'xml2.so.2', 'xslt.so.1', 'jpeg.so.8', 'png16.so.16',
+        'iconv.so.2', 'xml2.so.2', 'xslt.so.1', 'jpeg.so.8', 'png16.so.16', 'webp.so.5',
         'exslt.so.0', 'imobiledevice.so.4', 'usbmuxd.so.2', 'plist.so.2',
         'MagickCore-6.Q16.so.2', 'MagickWand-6.Q16.so.2', 'ssl.so.1.0.0',
         'crypto.so.1.0.0', 'readline.so.6', 'chm.so.0', 'icudata.so.53',

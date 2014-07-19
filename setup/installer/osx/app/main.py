@@ -182,8 +182,7 @@ class Py2App(object):
             self.add_calibre_plugins()
             self.add_podofo()
             self.add_poppler()
-            self.add_libjpeg()
-            self.add_libpng()
+            self.add_imaging_libs()
             self.add_fontconfig()
             self.add_imagemagick()
             self.add_misc_libraries()
@@ -394,14 +393,10 @@ class Py2App(object):
             self.install_dylib(os.path.join(SW, 'bin', x), False)
 
     @flush
-    def add_libjpeg(self):
-        info('\nAdding libjpeg')
-        self.install_dylib(os.path.join(SW, 'lib', 'libjpeg.8.dylib'))
-
-    @flush
-    def add_libpng(self):
-        info('\nAdding libpng')
-        self.install_dylib(os.path.join(SW, 'lib', 'libpng16.16.dylib'))
+    def add_imaging_libs(self):
+        info('\nAdding libjpeg, libpng and libwebp')
+        for x in ('jpeg.8', 'png16.16', 'webp.5'):
+            self.install_dylib(os.path.join(SW, 'lib', 'lib%s.dylib' % x))
 
     @flush
     def add_fontconfig(self):
