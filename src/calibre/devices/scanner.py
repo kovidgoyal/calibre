@@ -291,7 +291,7 @@ if islinux:
     linux_scanner = LinuxScanner()
 
 libusb_scanner = LibUSBScanner()
-if isosx:
+if False and isosx:
     # Apparently libusb causes mem leaks on some Macs and hangs on others and
     # works on a few. OS X users will just have to live without MTP support.
     # See https://bugs.launchpad.net/calibre/+bug/1044706

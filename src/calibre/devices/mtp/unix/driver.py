@@ -13,7 +13,7 @@ from collections import namedtuple
 from functools import partial
 
 from calibre import prints, as_unicode
-from calibre.constants import plugins, islinux
+from calibre.constants import plugins, islinux, isosx
 from calibre.ptempfile import SpooledTemporaryFile
 from calibre.devices.errors import OpenFailed, DeviceError, BlacklistedDevice
 from calibre.devices.mtp.base import MTPDeviceBase, synchronous, debug
@@ -31,7 +31,7 @@ APPLE = 0x05ac
 class MTP_DEVICE(MTPDeviceBase):
 
     # libusb(x) does not work on OS X. So no MTP support for OS X
-    supported_platforms = ['linux']
+    supported_platforms = ['linux', 'osx']
 
     def __init__(self, *args, **kwargs):
         MTPDeviceBase.__init__(self, *args, **kwargs)
@@ -49,6 +49,11 @@ class MTP_DEVICE(MTPDeviceBase):
         if islinux:
             from calibre.devices.mtp.unix.sysfs import MTPDetect
             self._is_device_mtp = MTPDetect()
+        if isosx and 'osx' in self.supported_platforms:
+            self.usbobserver, err = plugins['usbobserver']
+            if err:
+                raise RuntimeError(err)
+            self._is_device_mtp = self.osx_is_device_mtp
 
     def is_device_mtp(self, d, debug=None):
         ''' Returns True iff the _is_device_mtp check returns True and libmtp
@@ -57,6 +62,21 @@ class MTP_DEVICE(MTPDeviceBase):
             return False
         return (self._is_device_mtp(d, debug=debug) and
                 self.libmtp.is_mtp_device(d.busnum, d.devnum))
+
+    def osx_is_device_mtp(self, d, debug=None):
+        if not d.serial:
+            ans = False
+        else:
+            try:
+                ans = self.usbobserver.is_mtp_device(d.vendor_id, d.product_id, d.bcd, d.serial)
+            except Exception:
+                if debug is not None:
+                    import traceback
+                    traceback.print_stack()
+                return False
+        if debug is not None and ans:
+            debug('Device {0} claims to be an MTP device in the IOKit registry'.format(d))
+        return bool(ans)
 
     def set_debug_level(self, lvl):
         self.libmtp.set_debug_level(lvl)
