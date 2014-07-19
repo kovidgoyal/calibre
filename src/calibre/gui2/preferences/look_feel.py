@@ -199,6 +199,9 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         r('default_author_link', gprefs)
         r('tag_browser_dont_collapse', gprefs, setting=CommaSeparatedList)
 
+        self.search_library_for_author_button.clicked.connect(
+            lambda : self.opt_default_author_link.setText('search-calibre'))
+
         choices = set([k for k in db.field_metadata.all_field_keys()
                 if (db.field_metadata[k]['is_category'] and
                    (db.field_metadata[k]['datatype'] in ['text', 'series', 'enumeration']) and

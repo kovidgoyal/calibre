@@ -623,16 +623,6 @@ A value of zero means calculate automatically.</string>
          </property>
         </widget>
        </item>
-       <item row="0" column="1">
-        <widget class="QCheckBox" name="opt_use_roman_numerals_for_series_number">
-         <property name="text">
-          <string>Use &amp;Roman numerals for series</string>
-         </property>
-         <property name="checked">
-          <bool>true</bool>
-         </property>
-        </widget>
-       </item>
        <item row="2" column="0" rowspan="2">
         <widget class="QGroupBox" name="groupBox">
          <property name="title">
@@ -684,7 +674,51 @@ A value of zero means calculate automatically.</string>
          </layout>
         </widget>
        </item>
-       <item row="0" column="0">
+       <item row="1" column="0" colspan="2">
+        <layout class="QHBoxLayout">
+         <item>
+          <widget class="QCheckBox" name="opt_bd_show_cover">
+           <property name="text">
+            <string>Show &amp;cover in the book details panel</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QCheckBox" name="opt_bd_overlay_cover_size">
+           <property name="toolTip">
+            <string>Show the size of the book's cover in pixels</string>
+           </property>
+           <property name="text">
+            <string>Show cover &amp;size</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QCheckBox" name="opt_use_roman_numerals_for_series_number">
+           <property name="text">
+            <string>Use &amp;Roman numerals for series</string>
+           </property>
+           <property name="checked">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <spacer name="horizontalSpacer_bd1">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>20</width>
+             <height>0</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+        </layout>
+       </item>
+       <item row="0" column="0" colspan="2">
         <layout class="QHBoxLayout">
          <item>
           <widget class="QLabel" name="label">
@@ -707,39 +741,15 @@ Manage Authors. You can use the values {author} and
            </property>
           </widget>
          </item>
-        </layout>
-       </item>
-       <item row="1" column="0" colspan="2">
-        <layout class="QHBoxLayout">
          <item>
-          <widget class="QCheckBox" name="opt_bd_show_cover">
-           <property name="text">
-            <string>Show &amp;cover in the book details panel</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QCheckBox" name="opt_bd_overlay_cover_size">
+          <widget class="QPushButton" name="search_library_for_author_button">
            <property name="toolTip">
-            <string>Show the size of the book's cover in pixels</string>
+            <string>Search the calibre library for the author, instead of opening a link</string>
            </property>
            <property name="text">
-            <string>Show cover &amp;size</string>
+            <string>Search &amp;calibre library for author</string>
            </property>
           </widget>
-         </item>
-         <item>
-          <spacer name="horizontalSpacer_bd1">
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>20</width>
-             <height>0</height>
-            </size>
-           </property>
-          </spacer>
          </item>
         </layout>
        </item>

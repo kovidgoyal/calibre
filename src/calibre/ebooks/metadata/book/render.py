@@ -144,16 +144,19 @@ def mi_to_html(mi, field_list=None, default_author_link=None, use_roman_numbers=
                 if mi.author_link_map[aut]:
                     link = mi.author_link_map[aut]
                 elif default_author_link:
-                    vals = {'author': aut.replace(' ', '+')}
-                    try:
-                        vals['author_sort'] =  mi.author_sort_map[aut].replace(' ', '+')
-                    except:
-                        vals['author_sort'] = aut.replace(' ', '+')
-                    link = formatter.safe_format(
-                            default_author_link, vals, '', vals)
+                    if default_author_link == 'search-calibre':
+                        link = search_href('authors', aut)
+                        lt = a(_('Search the calibre library for books by %s') % aut)
+                    else:
+                        vals = {'author': aut.replace(' ', '+')}
+                        try:
+                            vals['author_sort'] =  mi.author_sort_map[aut].replace(' ', '+')
+                        except:
+                            vals['author_sort'] = aut.replace(' ', '+')
+                        link = lt = a(formatter.safe_format(default_author_link, vals, '', vals))
                 aut = p(aut)
                 if link:
-                    authors.append(u'<a calibre-data="authors" title="%s" href="%s">%s</a>'%(a(link), a(link), aut))
+                    authors.append(u'<a calibre-data="authors" title="%s" href="%s">%s</a>'%(lt, link, aut))
                 else:
                     authors.append(aut)
             ans.append((field, row % (name, u' & '.join(authors))))
