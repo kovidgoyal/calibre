@@ -6,7 +6,7 @@ import urllib
 class GrandesCorresponsalesRecipe (BasicNewsRecipe):
     __author__ = 'Marc Busqué <marc@lamarciana.com>'
     __url__ = 'http://www.lamarciana.com'
-    __version__ = '1.0.0'
+    __version__ = '1.1.0'
     __license__   = 'GPL v3'
     __copyright__ = '2014, Marc Busqué <marc@lamarciana.com>'
     title = u'Grandes corresponsales'
@@ -21,11 +21,12 @@ class GrandesCorresponsalesRecipe (BasicNewsRecipe):
     feeds = [
           (u'Rafael Poch', u'http://blogs.lavanguardia.com/berlin/feed'),
           (u'Andy Robinson', u'http://blogs.lavanguardia.com/diario-itinerante/feed'),
-          (u'Rafael Ramos', u'http://blogs.lavanguardia.com/londres/feed'),
-          (u'Mikel Ayestaran', u'http://www.mikelayestaran.com/blog/?feed=rss2'),
+          (u'Eugenio García Gascón', u'http://blogs.publico.es/balagan/feed/'),
           (u'Gervasio Sánchez', u'http://blogs.heraldo.es/gervasiosanchez/?feed=rss2'),
+          (u'Rafael Ramos', u'http://blogs.lavanguardia.com/londres/feed'),
           (u'Olga Rodríguez', u'http://olgarodriguez.org/feed/'),
+          (u'Mikel Ayestaran', u'http://www.mikelayestaran.com/blog/?feed=rss2'),
           (u'Hernán Zin', u'http://blogs.20minutos.es/enguerra/tag/corresponsales-guerra/feed/'),
-          (u'Arturo Pérez-Reverte', u'http://feeds.feedburner.com/ArtculosDeArturoPrez-reverte'),
           (u'Ramón Lobo', u'http://www.ramonlobo.com/feed/'),
+          (u'Arturo Pérez-Reverte', u'http://feeds.feedburner.com/ArtculosDeArturoPrez-reverte'),
           ]
