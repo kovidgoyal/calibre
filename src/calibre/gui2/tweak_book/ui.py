@@ -411,7 +411,8 @@ class Main(MainWindow):
                                    'count', keys=('Ctrl+N'), description=_('Count number of matches'))
         self.action_mark = reg(None, _('&Mark selected text'), self.boss.mark_selected_text, 'mark-selected-text', ('Ctrl+Shift+M',), _('Mark selected text'))
         self.action_go_to_line = reg(None, _('Go to &line'), self.boss.go_to_line_number, 'go-to-line-number', ('Ctrl+.',), _('Go to line number'))
-        self.action_saved_searches = reg(None, _('Sa&ved searches'), self.boss.saved_searches, 'saved-searches', (), _('Show the saved searches dialog'))
+        self.action_saved_searches = treg('folder_saved_search.png', _('Sa&ved searches'),
+                                          self.boss.saved_searches, 'saved-searches', (), _('Show the saved searches dialog'))
 
         # Check Book actions
         group = _('Check Book')
