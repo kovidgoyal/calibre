@@ -14,7 +14,7 @@ from PyQt4.Qt import (
     QDialog, QSpinBox, QCheckBox, QDialogButtonBox, QToolButton, QMenu, QInputDialog)
 
 from calibre.gui2 import error_dialog
-from calibre.gui2.tweak_book import actions
+from calibre.gui2.tweak_book import actions, tprefs, editors
 from calibre.gui2.tweak_book.editor.canvas import Canvas
 
 class ResizeDialog(QDialog):  # {{{
@@ -164,6 +164,17 @@ class Editor(QMainWindow):
     def go_to_line(self, *args, **kwargs):
         pass
 
+    def save_state(self):
+        for bar in self.bars:
+            if bar.isFloating():
+                return
+        tprefs['image-editor-state'] = bytearray(self.saveState())
+
+    def restore_state(self):
+        state = tprefs.get('image-editor-state', None)
+        if state is not None:
+            self.restoreState(state)
+
     def set_focus(self):
         self.canvas.setFocus(Qt.OtherFocusReason)
 
@@ -234,6 +245,7 @@ class Editor(QMainWindow):
         for x in ('undo', 'redo'):
             b.addAction(getattr(self.canvas, '%s_action' % x))
         self.edit_bar = b = self.addToolBar(_('Edit actions tool bar'))
+        b.setObjectName('edit-actions-bar')
         for x in ('copy', 'paste'):
             ac = actions['editor-%s' % x]
             setattr(self, 'action_' + x, b.addAction(ac.icon(), x, getattr(self, x)))
@@ -254,11 +266,24 @@ class Editor(QMainWindow):
         m.addAction(_('De-speckle image'), self.canvas.despeckle_image)
 
         self.info_bar = b = self.addToolBar(_('Image information bar'))
+        b.setObjectName('image_info_bar')
         self.fmt_label = QLabel('')
         b.addWidget(self.fmt_label)
         b.addSeparator()
         self.size_label = QLabel('')
         b.addWidget(self.size_label)
+        self.bars = [self.action_bar, self.edit_bar, self.info_bar]
+        for x in self.bars:
+            x.setFloatable(False)
+            x.topLevelChanged.connect(self.toolbar_floated)
+        self.restore_state()
+
+    def toolbar_floated(self, floating):
+        if not floating:
+            self.save_state()
+            for ed in editors.itervalues():
+                if ed is not self:
+                    ed.restore_state()
 
     def update_clipboard_actions(self, *args):
         if self.canvas.has_selection:

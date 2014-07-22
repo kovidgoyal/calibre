@@ -22,7 +22,7 @@ from calibre.gui2 import elided_text, open_url
 from calibre.gui2.keyboard import Manager as KeyboardManager
 from calibre.gui2.main_window import MainWindow
 from calibre.gui2.throbber import ThrobbingButton, create_donate_widget
-from calibre.gui2.tweak_book import current_container, tprefs, actions, capitalize, toolbar_actions
+from calibre.gui2.tweak_book import current_container, tprefs, actions, capitalize, toolbar_actions, editors
 from calibre.gui2.tweak_book.file_list import FileListWidget
 from calibre.gui2.tweak_book.job import BlockingJob
 from calibre.gui2.tweak_book.boss import Boss
@@ -146,6 +146,10 @@ class Central(QStackedWidget):  # {{{
     def save_state(self):
         tprefs.set('search-panel-visible', self.search_panel.isVisible())
         self.search_panel.save_state()
+        for ed in editors.itervalues():
+            ed.save_state()
+        if self.current_editor is not None:
+            self.current_editor.save_state()  # Ensure the current editor saves it state last
 
     def restore_state(self):
         self.search_panel.setVisible(tprefs.get('search-panel-visible', False))

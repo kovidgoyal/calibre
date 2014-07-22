@@ -17,7 +17,7 @@ from calibre import prints
 from calibre.constants import DEBUG
 from calibre.ebooks.chardet import replace_encoding_declarations
 from calibre.gui2 import error_dialog, open_url
-from calibre.gui2.tweak_book import actions, current_container, tprefs, dictionaries, editor_toolbar_actions, editor_name
+from calibre.gui2.tweak_book import actions, current_container, tprefs, dictionaries, editor_toolbar_actions, editor_name, editors
 from calibre.gui2.tweak_book.editor import SPELL_PROPERTY, LINK_PROPERTY, TAG_NAME_PROPERTY, CSS_PROPERTY
 from calibre.gui2.tweak_book.editor.help import help_url
 from calibre.gui2.tweak_book.editor.text import TextEdit
@@ -259,11 +259,34 @@ class Editor(QMainWindow):
         b.setObjectName('action_bar')  # Needed for saveState
         self.tools_bar = b = self.addToolBar(_('Editor tools'))
         b.setObjectName('tools_bar')
+        self.bars = [self.action_bar, self.tools_bar]
         if self.syntax == 'html':
             self.format_bar = b = self.addToolBar(_('Format text'))
             b.setObjectName('html_format_bar')
+            self.bars.append(self.format_bar)
         self.insert_tag_menu = QMenu(self)
         self.populate_toolbars()
+        for x in self.bars:
+            x.setFloatable(False)
+            x.topLevelChanged.connect(self.toolbar_floated)
+
+    def toolbar_floated(self, floating):
+        if not floating:
+            self.save_state()
+            for ed in editors.itervalues():
+                if ed is not self:
+                    ed.restore_state()
+
+    def save_state(self):
+        for bar in self.bars:
+            if bar.isFloating():
+                return
+        tprefs['%s-editor-state' % self.syntax] = bytearray(self.saveState())
+
+    def restore_state(self):
+        state = tprefs.get('%s-editor-state' % self.syntax, None)
+        if state is not None:
+            self.restoreState(state)
 
     def populate_toolbars(self):
         self.action_bar.clear(), self.tools_bar.clear()
@@ -302,6 +325,7 @@ class Editor(QMainWindow):
             self.format_bar.clear()
             for name in tprefs['editor_format_toolbar']:
                 add_action(name, self.format_bar)
+        self.restore_state()
 
     def break_cycles(self):
         for x in ('modification_state_changed', 'word_ignored', 'link_clicked'):
