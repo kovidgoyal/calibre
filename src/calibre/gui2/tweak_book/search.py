@@ -471,6 +471,7 @@ class EditSearch(Dialog):  # {{{
 
     def setup_ui(self):
         self.l = l = QFormLayout(self)
+        l.setFieldGrowthPolicy(l.AllNonFixedFieldsGrow)
         self.setLayout(l)
 
         self.search_name = n = QLineEdit(self.search.get('name', ''), self)
@@ -495,6 +496,7 @@ class EditSearch(Dialog):  # {{{
 
         self.mode_box = m = ModeBox(self)
         self.mode_box.mode = self.search.get('mode', 'regex')
+        m.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
         l.addRow(_('&Mode:'), m)
 
         l.addRow(self.bb)
