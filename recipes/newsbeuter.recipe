@@ -1,0 +1,45 @@
+# vim:fileencoding=utf-8
+from calibre.web.feeds.news import BasicNewsRecipe
+from os.path import expanduser
+import urllib
+import re
+
+class NewsbeuterRecipe (BasicNewsRecipe):
+    __author__ = 'Marc Busqué <marc@lamarciana.com>'
+    __url__ = 'http://www.lamarciana.com'
+    __version__ = '1.0.4'
+    __license__   = 'GPL v3'
+    __copyright__ = '2014, Marc Busqué <marc@lamarciana.com>'
+    title = u'Newsbeuter feeds'
+    description = u"Dynamic recipe which is created from all feeds listed in newsbeuter url file (~/.newsbeuter/urls). Lines of that file must be in the format 'http://address_to_the_feed.com \"~Feed name\" tags'. It can filter by tags using the following from the command line: `ebook-convert newsbeuter.recipe .epub --tags=\"english,newspaper\"`. More information at: http://waiting-for-dev.github.io/blog/2014/07/20/read-your-newsbeuter-feeds-in-epub-format/"
+    tags = 'newsbeuter'
+    oldest_article = 10
+    max_articles_per_feed = 20
+    remove_empty_feeds = True
+    no_stylesheets = True
+    extra_css = urllib.urlopen('https://raw.githubusercontent.com/laMarciana/gutenweb/master/dist/gutenweb.css').read().replace('@charset "UTF-8";', '')
+    newsbeuter_url = expanduser('~')+'/.newsbeuter/urls'
+
+    def __init__(self, options, *args, **kwargs):
+        BasicNewsRecipe.__init__(self, options, *args, **kwargs)
+        if options.tags:
+          self.newsbeuter_tags = options.tags.strip().split(',')
+        else:
+          self.newsbeuter_tags = []
+
+
+    def get_feeds(self):
+        feeds = []
+        with open(self.newsbeuter_url) as f:
+            for line in f:
+                matches = re.compile('(.*)\s"~(.*)"\s(.*)').match(line)
+                url = unicode(matches.group(1))
+                title = unicode(matches.group(2))
+                matched_tags = matches.group(3).split(' ')
+                if self.newsbeuter_tags:
+                    if set(self.newsbeuter_tags).issubset(set(matched_tags)):
+                        feeds.append([title, url])
+                else:
+                    feeds.append([title, url])
+
+        return feeds
