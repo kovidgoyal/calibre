@@ -255,13 +255,8 @@ class Editor(QMainWindow):
         return property(fget=fget, fset=fset)
 
     def create_toolbars(self):
-        self.action_bar = b = self.addToolBar(_('File actions tool bar'))
+        self.action_bar = b = self.addToolBar(_('Edit actions tool bar'))
         b.setObjectName('action_bar')  # Needed for saveState
-        for x in ('undo', 'redo'):
-            b.addAction(actions['editor-%s' % x])
-        self.edit_bar = b = self.addToolBar(_('Edit actions tool bar'))
-        for x in ('cut', 'copy', 'paste'):
-            b.addAction(actions['editor-%s' % x])
         self.tools_bar = b = self.addToolBar(_('Editor tools'))
         b.setObjectName('tools_bar')
         if self.syntax == 'html':
@@ -271,7 +266,7 @@ class Editor(QMainWindow):
         self.populate_toolbars()
 
     def populate_toolbars(self):
-        self.tools_bar.clear()
+        self.action_bar.clear(), self.tools_bar.clear()
         def add_action(name, bar):
             if name is None:
                 bar.addSeparator()
@@ -296,6 +291,9 @@ class Editor(QMainWindow):
                 bar.widgetForAction(ac).setPopupMode(QToolButton.InstantPopup)
                 for name in tuple('h%d' % d for d in range(1, 7)) + ('p',):
                     m.addAction(actions['rename-block-tag-%s' % name])
+
+        for name in tprefs.get('editor_common_toolbar', ()):
+            add_action(name, self.action_bar)
 
         for name in tprefs.get('editor_%s_toolbar' % self.syntax, ()):
             add_action(name, self.tools_bar)

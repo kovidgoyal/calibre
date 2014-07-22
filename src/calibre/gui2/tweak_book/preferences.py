@@ -21,7 +21,7 @@ from PyQt4.Qt import (
     QToolButton, QVBoxLayout, QSpacerItem)
 
 from calibre.gui2.keyboard import ShortcutConfig
-from calibre.gui2.tweak_book import tprefs, toolbar_actions, editor_toolbar_actions
+from calibre.gui2.tweak_book import tprefs, toolbar_actions, editor_toolbar_actions, actions
 from calibre.gui2.tweak_book.editor.themes import default_theme, all_theme_names, ThemeEditor
 from calibre.gui2.tweak_book.spell import ManageDictionaries
 from calibre.gui2.font_family_chooser import FontFamilyChooser
@@ -340,6 +340,7 @@ class ToolbarSettings(QWidget):
                 ('global_book_toolbar', _('Book wide actions'),),
                 ('global_tools_toolbar', _('Book wide tools'),),
                 ('global_plugins_toolbar', _('Book wide tools from third party plugins'),),
+                ('editor_common_toolbar', ft % _('all')),
                 ('editor_html_toolbar', ft % 'HTML',),
                 ('editor_css_toolbar', ft % 'CSS',),
                 ('editor_xml_toolbar', ft % 'XML',),
@@ -405,7 +406,12 @@ class ToolbarSettings(QWidget):
             return
         items = self.current_settings[name]
         applied = set(items)
-        all_items = toolbar_actions if name.startswith('global_') else editor_toolbar_actions[name.split('_')[1]]
+        if name.startswith('global_'):
+            all_items = toolbar_actions
+        elif name == 'editor_common_toolbar':
+            all_items = {x:actions[x] for x in tprefs.defaults[name] if x}
+        else:
+            all_items = editor_toolbar_actions[name.split('_')[1]]
         blank = QIcon(I('blank.png'))
 
         def to_item(key, ac, parent):
