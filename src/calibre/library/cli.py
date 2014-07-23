@@ -67,7 +67,7 @@ def get_db(dbpath, options):
     return LibraryDatabase(dbpath)
 
 def do_list(db, fields, afields, sort_by, ascending, search_text, line_width, separator,
-            prefix, limit, subtitle='Books in the calibre database'):
+            prefix, limit, for_machine=False):
     from calibre.utils.terminal import ColoredStream, geometry
     if sort_by:
         db.sort(sort_by, ascending)
@@ -92,8 +92,13 @@ def do_list(db, fields, afields, sort_by, ascending, search_text, line_width, se
 
     for f in data:
         fmts = [x for x in f['formats'] if x is not None]
-        f['formats'] = u'[%s]'%u':'.join(fmts)
+        if for_machine:
+            f['formats'] = unicode(chr(28)).join(fmts)
+        else:
+            f['formats'] = u'[%s]'%u', '.join(fmts)
     widths = list(map(lambda x: 0, fields))
+    if for_machine:
+        line_width, separator = sys.maxsize, unicode(chr(29))
     for record in data:
         for f in record.keys():
             if hasattr(record[f], 'isoformat'):
@@ -129,8 +134,9 @@ def do_list(db, fields, afields, sort_by, ascending, search_text, line_width, se
     widths = list(base_widths)
     titles = map(lambda x, y: '%-*s%s'%(x-len(separator), y, separator),
             widths, title_fields)
-    with ColoredStream(sys.stdout, fg='green'):
-        print ''.join(titles)
+    if not for_machine:
+        with ColoredStream(sys.stdout, fg='green'):
+            print ''.join(titles)
 
     wrappers = [TextWrapper(x - 1).wrap if x > 1 else lambda y: y for x in widths]
     o = cStringIO.StringIO()
@@ -143,9 +149,12 @@ def do_list(db, fields, afields, sort_by, ascending, search_text, line_width, se
                 ft = text[i][l] if l < len(text[i]) else u''
                 o.write(ft.encode('utf-8'))
                 if i < len(text) - 1:
-                    filler = u'%*s'%(widths[i]-str_width(ft)-1, u'')
+                    filler = u'' if for_machine else (u'%*s'%(widths[i]-str_width(ft)-1, u''))
                     o.write((filler+separator).encode('utf-8'))
-            print >>o
+            if for_machine:
+                o.write(b'\x1e')
+            else:
+                print >>o
     return o.getvalue()
 
 def list_option_parser(db=None):
@@ -182,6 +191,10 @@ List the books available in the calibre database.
     parser.add_option('--separator', default=' ', help=_('The string used to separate fields. Default is a space.'))
     parser.add_option('--prefix', default=None, help=_('The prefix for all file paths. Default is the absolute path to the library folder.'))
     parser.add_option('--limit', default=-1, type=int, help=_('The maximum number of results to display. Default: all'))
+    parser.add_option('--for-machine', default=False, action='store_true', help=_(
+        'Generate output that is more suitable for machine parsing. Book entries are separates using the ASCII Record'
+        ' Separator character (30), individual fields in an entry using the Group Separator (29) and individual'
+        ' filenames using the File Separator (28)'))
     return parser
 
 
@@ -220,7 +233,7 @@ def command_list(args, dbpath):
         return 1
 
     print do_list(db, fields, afields, opts.sort_by, opts.ascending, opts.search, opts.line_width, opts.separator,
-            opts.prefix, opts.limit)
+            opts.prefix, opts.limit, for_machine=opts.for_machine)
     return 0
 
 
