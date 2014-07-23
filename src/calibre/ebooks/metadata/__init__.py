@@ -360,6 +360,20 @@ def check_isbn(isbn):
         return check_isbn13(isbn)
     return None
 
+def check_issn(issn):
+    if not issn:
+        return None
+    issn = re.sub(r'[^0-9X]', '', issn.upper())
+    try:
+        digits = map(int, issn[:7])
+        products = [(8 - i) * d for i, d in enumerate(digits)]
+        check = 11 - sum(products) % 11
+        if (check == 10 and issn[7] == 'X') or check == int(issn[7]):
+            return issn
+    except Exception:
+        pass
+    return None
+
 def format_isbn(isbn):
     cisbn = check_isbn(isbn)
     if not cisbn:
