@@ -141,9 +141,10 @@ def do_list(db, fields, afields, sort_by, ascending, search_text, line_width, se
         for l in range(lines):
             for i, field in enumerate(text):
                 ft = text[i][l] if l < len(text[i]) else u''
-                filler = u'%*s'%(widths[i]-str_width(ft)-1, u'')
                 o.write(ft.encode('utf-8'))
-                o.write((filler+separator).encode('utf-8'))
+                if i < len(text) - 1:
+                    filler = u'%*s'%(widths[i]-str_width(ft)-1, u'')
+                    o.write((filler+separator).encode('utf-8'))
             print >>o
     return o.getvalue()
 
