@@ -92,7 +92,7 @@ def do_list(db, fields, afields, sort_by, ascending, search_text, line_width, se
 
     for f in data:
         fmts = [x for x in f['formats'] if x is not None]
-        f['formats'] = u'[%s]'%u','.join(fmts)
+        f['formats'] = u'[%s]'%u':'.join(fmts)
     widths = list(map(lambda x: 0, fields))
     for record in data:
         for f in record.keys():
