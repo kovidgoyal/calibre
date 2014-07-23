@@ -680,15 +680,10 @@ class Main(MainWindow):
         self.setWindowTitle(self.current_metadata.title + ' [%s] :: %s :: %s' %(current_container().book_type.upper(), fname, self.APP_NAME))
 
     def closeEvent(self, e):
-        if not self.boss.confirm_quit():
+        if self.boss.quit():
+            e.accept()
+        else:
             e.ignore()
-            return
-        try:
-            self.boss.shutdown()
-        except:
-            import traceback
-            traceback.print_exc()
-        e.accept()
 
     def save_state(self):
         tprefs.set('main_window_geometry', bytearray(self.saveGeometry()))
