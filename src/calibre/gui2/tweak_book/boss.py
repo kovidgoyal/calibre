@@ -1281,23 +1281,27 @@ class Boss(QObject):
         self.gui.insert_char.show()
 
     # Shutdown {{{
-    def quit(self):
-        if not self.confirm_quit():
-            return
-        self.save_state()
-        self.shutdown()
-        QApplication.instance().quit()
 
-    def confirm_quit(self):
+    def quit(self):
         if self.doing_terminal_save:
             return False
         if self.save_manager.has_tasks:
-            if not question_dialog(
+            if question_dialog(
                 self.gui, _('Are you sure?'), _(
-                    'The current book is being saved in the background, quitting will abort'
-                    ' the save process, are you sure?'), default_yes=False):
+                    'The current book is being saved in the background. Quitting now will'
+                    ' <b>abort the save process</b>! Finish saving first?'),
+                    yes_text=_('Finish &saving first'), no_text=_('&Quit immediately')):
+                self.start_terminal_save_indicator()
                 return False
 
+        if not self.confirm_quit():
+            return False
+        self.save_state()
+        self.shutdown()
+        QApplication.instance().quit()
+        return True
+
+    def confirm_quit(self):
         if self.gui.action_save.isEnabled():
             d = QDialog(self.gui)
             d.l = QGridLayout(d)
@@ -1329,13 +1333,17 @@ class Boss(QObject):
                 return False
             if d.do_save:
                 self.gui.action_save.trigger()
-                self.gui.blocking_job.set_msg(_('Saving, please wait...'))
-                self.gui.blocking_job.start()
-                self.doing_terminal_save = True
-                QTimer.singleShot(50, self.check_terminal_save)
+                self.start_terminal_save_indicator()
                 return False
 
         return True
+
+    def start_terminal_save_indicator(self):
+        self.save_state()
+        self.gui.blocking_job.set_msg(_('Saving, please wait...'))
+        self.gui.blocking_job.start()
+        self.doing_terminal_save = True
+        QTimer.singleShot(50, self.check_terminal_save)
 
     def check_terminal_save(self):
         if self.save_manager.has_tasks:

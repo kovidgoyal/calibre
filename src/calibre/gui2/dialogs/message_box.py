@@ -25,7 +25,8 @@ class MessageBox(QDialog, Ui_Dialog):  # {{{
                  det_msg='',
                  q_icon=None,
                  show_copy_button=True,
-                 parent=None, default_yes=True):
+                 parent=None, default_yes=True,
+                 yes_text=None, no_text=None, yes_icon=None, no_icon=None):
         QDialog.__init__(self, parent)
         if q_icon is None:
             icon = {
@@ -71,6 +72,14 @@ class MessageBox(QDialog, Ui_Dialog):  # {{{
             self.bb.button(self.bb.Yes if default_yes else self.bb.No
                     ).setDefault(True)
             self.default_yes = default_yes
+            if yes_text is not None:
+                self.bb.button(self.bb.Yes).setText(yes_text)
+            if no_text is not None:
+                self.bb.button(self.bb.No).setText(no_text)
+            if yes_icon is not None:
+                self.bb.button(self.bb.Yes).setIcon(yes_icon if isinstance(yes_icon, QIcon) else QIcon(I(yes_icon)))
+            if no_icon is not None:
+                self.bb.button(self.bb.No).setIcon(yes_icon if isinstance(no_icon, QIcon) else QIcon(I(no_icon)))
         else:
             self.bb.button(self.bb.Ok).setDefault(True)
 
