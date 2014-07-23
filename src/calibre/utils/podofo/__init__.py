@@ -34,8 +34,9 @@ def set_metadata(stream, mi):
         xmp_packet = metadata_to_xmp_packet(mi)
 
         try:
-            touched = fork_job('calibre.utils.podofo', 'set_metadata_', (tdir,
+            result = fork_job('calibre.utils.podofo', 'set_metadata_', (tdir,
                 mi.title, mi.authors, mi.book_producer, mi.tags, xmp_packet))
+            touched = result['result']
         except WorkerError as e:
             raise Exception('Failed to set PDF metadata: %s'%e.orig_tb)
         if touched:
