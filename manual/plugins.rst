@@ -195,3 +195,13 @@ Viewer plugins
    :show-inheritance:
    :members:
    :member-order: bysource
+
+Edit Book plugins
+--------------------
+
+.. autoclass:: calibre.gui2.tweak_book.plugin.Tool
+   :show-inheritance:
+   :members:
+   :member-order: bysource
+
+

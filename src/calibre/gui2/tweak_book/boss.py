@@ -88,6 +88,7 @@ class Boss(QObject):
         self.ignore_preview_to_editor_sync = False
         setup_cssutils_serialization()
         _boss = self
+        self.gui = parent
 
     def __call__(self, gui):
         self.gui = gui
@@ -221,6 +222,11 @@ class Boss(QObject):
             self.gui.blocking_job('import_book', _('Importing book, please wait...'), self.book_opened, func, src, dest, tdir=self.mkdtemp())
 
     def open_book(self, path=None, edit_file=None, clear_notify_data=True):
+        '''
+        Open the ebook at ``path`` for editing. Will show an error if the ebook is not in a supported format or the current book has unsaved changes.
+
+        :param edit_file: The name of a file inside the newly openend book to start editing.
+        '''
         if not self._check_before_open():
             return
         if not hasattr(path, 'rpartition'):
@@ -314,6 +320,7 @@ class Boss(QObject):
         self.gui.file_list.build(container)
 
     def apply_container_update_to_gui(self):
+        ' Update all the components of the user interface to reflect the latest data in the current book container '
         self.refresh_file_list()
         self.update_global_history_actions()
         self.update_editors_from_container()
@@ -581,6 +588,7 @@ class Boss(QObject):
             ac.setText(text + ' "%s"'%(getattr(gu, x + '_msg') or '...'))
 
     def add_savepoint(self, msg):
+        ' Create a restore checkpoint with the name specified as ``msg`` '
         self.commit_all_editors_to_container()
         nc = clone_container(current_container(), self.mkdtemp())
         self.global_undo.add_savepoint(nc, msg)
@@ -588,6 +596,7 @@ class Boss(QObject):
         self.update_global_history_actions()
 
     def rewind_savepoint(self):
+        ' Undo the previous creation of a restore checkpoint, useful if you create a checkpoint, then abort the operation with no changes '
         container = self.global_undo.rewind_savepoint()
         if container is not None:
             set_current_container(container)
@@ -613,6 +622,12 @@ class Boss(QObject):
         return d
 
     def show_current_diff(self, allow_revert=True, to_container=None):
+        '''
+        Show the changes to the book from its last checkpointed state
+
+        :param allow_revert: If True the diff dialog will have a button to allow the user to revert all changes
+        :param to_container: A container object to compare the current container to. If None, the previously checkpointed container is used
+        '''
         self.commit_all_editors_to_container()
         d = self.create_diff_dialog()
         d.revert_requested.connect(partial(self.revert_requested, self.global_undo.previous_container))
@@ -644,6 +659,7 @@ class Boss(QObject):
     # }}}
 
     def set_modified(self):
+        ' Mark the book as having been modified '
         self.gui.action_save.setEnabled(True)
 
     def fix_html(self, current):
@@ -750,7 +766,7 @@ class Boss(QObject):
                 self.gui.central.pre_fill_search(text)
 
     def search(self, action, overrides=None):
-        ' Run a search/replace '
+        # Run a search/replace
         sp = self.gui.central.search_panel
         # Ensure the search panel is visible
         sp.setVisible(True)
@@ -767,13 +783,13 @@ class Boss(QObject):
                    self.gui, self.show_editor, self.edit_file, self.show_current_diff, self.add_savepoint, self.rewind_savepoint, self.set_modified)
 
     def find_word(self, word, locations):
-        ' Go to a word from the spell check dialog '
+        # Go to a word from the spell check dialog
         ed = self.gui.central.current_editor
         name = editor_name(ed)
         find_next_word(word, locations, ed, name, self.gui, self.show_editor, self.edit_file)
 
     def next_spell_error(self):
-        ' Go to the next spelling error '
+        # Go to the next spelling error
         ed = self.gui.central.current_editor
         name = editor_name(ed)
         find_next_error(ed, name, self.gui, self.show_editor, self.edit_file)
@@ -855,6 +871,9 @@ class Boss(QObject):
                 self.gui.file_list.build(container)
 
     def commit_all_editors_to_container(self):
+        ''' Commit any changes that the user has made to files open in editors to
+        the container. You should call this method before performing any
+        actions on the current container '''
         changed = False
         with BusyCursor():
             for name, ed in editors.iteritems():
@@ -865,6 +884,7 @@ class Boss(QObject):
         return changed
 
     def save_book(self):
+        ' Save the book. Saving is performed in the background '
         c = current_container()
         for name, ed in editors.iteritems():
             if ed.is_modified or not ed.is_synced_to_container:
@@ -1094,6 +1114,7 @@ class Boss(QObject):
             self.ignore_preview_to_editor_sync = False
 
     def sync_preview_to_editor(self):
+        ' Sync the position of the preview panel to the current cursor position in the current editor '
         if self.ignore_preview_to_editor_sync:
             return
         ed = self.gui.central.current_editor
@@ -1103,6 +1124,7 @@ class Boss(QObject):
                 self.gui.preview.sync_to_editor(name, ed.current_tag())
 
     def sync_live_css_to_editor(self):
+        ' Sync the Live CSS panel to the current cursor position in the current editor '
         ed = self.gui.central.current_editor
         if ed is not None:
             name = editor_name(ed)
@@ -1135,6 +1157,11 @@ class Boss(QObject):
         self.gui.central.add_editor(name, editor)
 
     def edit_file(self, name, syntax=None, use_template=None):
+        ''' Open the file specified by name in an editor
+
+        :param syntax: The media type of the file, for example, ``'text/html'``. If not specified it is guessed from the file extension.
+        :param use_template: A template to initialize the opened editor with
+        '''
         editor = editors.get(name, None)
         if editor is None:
             syntax = syntax or syntax_from_mime(name, guess_type(name))
@@ -1156,6 +1183,7 @@ class Boss(QObject):
         return editor
 
     def show_editor(self, name):
+        ' Show the editor that is editing the file specified by ``name`` '
         self.gui.central.show_editor(editors[name])
         editors[name].set_focus()
 
@@ -1270,6 +1298,7 @@ class Boss(QObject):
         self.close_editor(name)
 
     def close_editor(self, name):
+        ' Close the editor that is editing the file specified by ``name`` '
         editor = editors.pop(name)
         self.gui.central.close_editor(editor)
         editor.break_cycles()

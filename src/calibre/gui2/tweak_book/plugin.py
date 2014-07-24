@@ -12,7 +12,7 @@ from PyQt4.Qt import QToolButton
 
 from calibre import prints
 from calibre.customize.ui import all_edit_book_tool_plugins
-from calibre.gui2.tweak_book import tprefs
+from calibre.gui2.tweak_book import tprefs, current_container
 from calibre.gui2.tweak_book.boss import get_boss
 
 class Tool(object):
@@ -38,6 +38,11 @@ class Tool(object):
     def gui(self):
         ' The main window of the user interface '
         return self.boss.gui
+
+    @property
+    def current_container(self):
+        ' Return the current :class:`calibre.ebooks.oeb.polish.container.Container` object that represents the book being edited. '
+        return current_container()
 
     def register_shortcut(self, qaction, unique_name, default_keys=(), short_text=None, description=None, **extra_data):
         '''
@@ -103,12 +108,17 @@ def load_plugin_tools(plugin):
 def plugin_action_sid(plugin, tool, for_toolbar=True):
     return plugin.name + tool.name + ('toolbar' if for_toolbar else 'menu')
 
+plugin_toolbar_actions = []
+
 def create_plugin_action(plugin, tool, for_toolbar, actions=None, toolbar_actions=None, plugin_menu_actions=None):
     try:
         ac = tool.create_action(for_toolbar=for_toolbar)
+        if ac is None:
+            raise RuntimeError('create_action() failed to return an action')
     except Exception:
+        prints('Failed to create action for tool:', tool.name)
         import traceback
-        traceback.print_stack()
+        traceback.print_exc()
         return
     sid = plugin_action_sid(plugin, tool, for_toolbar)
     if actions is not None and sid in actions:
@@ -120,6 +130,7 @@ def create_plugin_action(plugin, tool, for_toolbar, actions=None, toolbar_action
         if for_toolbar:
             if toolbar_actions is not None:
                 toolbar_actions[sid] = ac
+                plugin_toolbar_actions.append(ac)
             ac.popup_mode = {'instant':QToolButton.InstantPopup, 'button':QToolButton.MenuButtonPopup}.get(
                 tool.toolbar_button_popup_mode, QToolButton.DelayedPopup)
         else:
@@ -127,9 +138,15 @@ def create_plugin_action(plugin, tool, for_toolbar, actions=None, toolbar_action
                 plugin_menu_actions.append(ac)
     return ac
 
+_tool_memory = []  # Needed to prevent the tool object from being garbage collected
+
 def create_plugin_actions(actions, toolbar_actions, plugin_menu_actions):
+    del _tool_memory[:]
+    del plugin_toolbar_actions[:]
+
     for plugin in all_edit_book_tool_plugins():
         for tool in load_plugin_tools(plugin):
+            _tool_memory.append(tool)
             if tool.allowed_in_toolbar:
                 create_plugin_action(plugin, tool, True, actions, toolbar_actions, plugin_menu_actions)
             if tool.allowed_in_menu:
@@ -141,3 +158,4 @@ def install_plugin(plugin):
             sid = plugin_action_sid(plugin, tool, True)
             if sid not in tprefs['global_plugins_toolbar']:
                 tprefs['global_plugins_toolbar'] = tprefs['global_plugins_toolbar'] + [sid]
+

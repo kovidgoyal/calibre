@@ -120,3 +120,16 @@ Working with the Table of Contents
 
 .. autofunction:: create_inline_toc
 
+
+Controlling the editor's user interface
+-----------------------------------------
+
+The ebook editor's user interface is controlled by a single global *Boss*
+object. This has many useful methods that can be used in plugin code to
+perform common tasks.
+
+.. module:: calibre.gui2.tweak_book.boss
+
+.. autoclass:: Boss
+   :members:
+

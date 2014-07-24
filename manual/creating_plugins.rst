@@ -59,6 +59,8 @@ and query the books database in |app|.
 
 You can download this plugin from `interface_demo_plugin.zip <http://calibre-ebook.com/downloads/interface_demo_plugin.zip>`_
 
+.. _import_name_txt:
+
 The first thing to note is that this zip file has a lot more files in it, explained below, pay particular attention to
 ``plugin-import-name-interface_demo.txt``.
 
@@ -179,6 +181,73 @@ You can see the ``prefs`` object being used in main.py:
 
 .. literalinclude:: plugin_examples/interface_demo/main.py
     :pyobject: DemoDialog.config
+
+
+Edit Book plugins
+------------------------------------------
+
+Now let's change gears for a bit and look at creating a plugin to add tools to
+the |app| book editor. The plugin is available here:
+`editor_demo_plugin.zip  <http://calibre-ebook.com/downloads/editor_demo_plugin.zip>`_. 
+
+The first step, as for all plugins is to create the
+import name empty txt file, as described :ref:`above <import_name_txt>`.
+We shall name the file ``plugin-import-name-editor_plugin_demo.txt``. 
+
+Now we create the mandatory ``__init__.py`` file that contains metadata about
+the plugin -- its name, author, version, etc.
+
+.. literalinclude:: plugin_examples/editor_demo/__init__.py
+    :lines: 8-
+
+A single editor plugin can provide multiple tools each tool corresponds to a
+single button in the toolbar and entry in the :guilabel:`Plugins` menu in the
+editor. These can have sub-menus in case the tool has multiple related actions.
+
+The tools must all be defined in the file ``main.py`` in your plugin. Every
+tool is a class that inherits from the
+:class:`calibre.gui2.tweak_book.plugin.Tool` class. Let's look at ``main.py``
+from the demo plugin, the source code is heavily commented and should be
+self-explanatory. Read the API documents of the
+:class:`calibre.gui2.tweak_book.plugin.Tool` class for more details.
+
+main.py
+^^^^^^^^^
+
+Here we will see the definition of a single tool that does a does a couple of
+simple things that demonstrate the editor API most plugins will use.
+
+.. literalinclude:: plugin_examples/editor_demo/main.py
+    :lines: 8-
+
+Let's break down ``main.py``. We see that it defines a single tool, named
+*Magnify fonts*. This tool will ask the user for a number and multiply all font
+sizes in the book by that number.
+
+The first important thing is the tool name which you must set to some
+relatively unique string as it will be used as the key for this tool.
+
+The next important entry point is the
+:meth:`calibre.gui2.tweak_book.plugin.Tool.create_action`. This method creates
+the QAction objects that appear in the plugins toolbar and plugin menu.
+It also, optionally, assigns a keyboard shortcut that the user can customize.
+The triggered signal from the QAction is connected to the ask_user() method
+that asks the user for the font size multiplier, and then runs the
+magnification code.
+
+The magnification code is well commented and fairly simple. The main things to
+note are that you get a reference to the editor window as ``self.gui`` and the
+editor *Boss* as ``self.boss``. The *Boss* is the object that controls the editor
+user interface. It has many useful methods, that are documented in the
+:class:`calibre.gui2.tweak_book.boss.Boss` class.
+
+Finally, there is ``self.current_container`` which is a reference to the book
+being edited as a :class:`calibre.ebooks.oeb.polish.container.Container`
+object. This represents the book as a collection of its constituent
+HTML/CSS/image files and has convenience methods for doing many useful things.
+The container object and various useful utility functions that can be reused in
+your plugin code are documented in :ref:`polish_api`.
+
 
 Adding translations to your plugin
 --------------------------------------

@@ -400,13 +400,16 @@ class ToolbarSettings(QWidget):
         return unicode(self.bars.itemData(self.bars.currentIndex()).toString())
 
     def build_lists(self):
+        from calibre.gui2.tweak_book.plugin import plugin_toolbar_actions
         self.available.clear(), self.current.clear()
         name = self.current_name
         if not name:
             return
         items = self.current_settings[name]
         applied = set(items)
-        if name.startswith('global_'):
+        if name == 'global_plugins_toolbar':
+            all_items = {x.sid:x for x in plugin_toolbar_actions}
+        elif name.startswith('global_'):
             all_items = toolbar_actions
         elif name == 'editor_common_toolbar':
             all_items = {x:actions[x] for x in tprefs.defaults[name] if x}
