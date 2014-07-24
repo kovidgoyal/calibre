@@ -330,7 +330,7 @@ class MetadataUpdater(object):
 
         if self.type != "BOOKMOBI":
                 raise MobiError("Setting metadata only supported for MOBI files of type 'BOOK'.\n"
-                                "\tThis is a '%s' file of type '%s'" % (self.type[0:4], self.type[4:8]))
+                                "\tThis is a %r file of type %r" % (self.type[0:4], self.type[4:8]))
 
         recs = []
         added_501 = False
