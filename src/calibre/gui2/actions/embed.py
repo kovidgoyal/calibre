@@ -96,7 +96,8 @@ class EmbedAction(InterfaceAction):
             self.job_data = None
             self.gui.library_view.model().refresh_ids(book_ids)
             if errors:
-                det_msg = [_('The {0} format of {1}:\n{2}').format((fmt or '').upper(), force_unicode(mi.title), force_unicode(tb)) for mi, fmt, tb in errors]
+                det_msg = [_('The {0} format of {1}:\n\n{2}\n').format(
+                    (fmt or '').upper(), force_unicode(mi.title), force_unicode(tb)) for mi, fmt, tb in errors]
                 warning_dialog(
                     self.gui, _('Failed for some files'), _(
                     'Failed to embed metadata into some book files. Click "Show details" for details.'),
