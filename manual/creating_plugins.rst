@@ -214,8 +214,10 @@ self-explanatory. Read the API documents of the
 main.py
 ^^^^^^^^^
 
-Here we will see the definition of a single tool that does a does a couple of
-simple things that demonstrate the editor API most plugins will use.
+Here we will see the definition of a single tool that will multiply all font
+sizes in the book by a number provided by the user. This tool demonstrates
+various important concepts that you will need in developing your own plugins,
+so you should read the (heavily commented) source code carefully.
 
 .. literalinclude:: plugin_examples/editor_demo/main.py
     :lines: 8-
