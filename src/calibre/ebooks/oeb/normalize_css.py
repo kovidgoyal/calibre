@@ -132,15 +132,19 @@ def normalize_font(cssvalue, font_family_as_list=False):
         if not families and text == 'inherit':
             families.append(text)
             continue
-        if cssprofiles.validate('font-size', text):
-            style['font-size'] = text
+        if cssprofiles.validate('line-height', text):
+            if not vals or not cssprofiles.validate('font-size', vals[-1]):
+                if cssprofiles.validate('font-size', text):
+                    style['font-size'] = text
+                    found_font_size = True
+                    break
+                return {}  # must have font-size here
+            style['line-height'] = text
+            style['font-size'] = vals.pop()
             found_font_size = True
             break
-        if cssprofiles.validate('line-height', text):
-            style['line-height'] = text
-            if not vals or not cssprofiles.validate('font-size', vals[-1]):
-                return {}  # must have font-size here
-            style['font-size'] = vals.pop()
+        if cssprofiles.validate('font-size', text):
+            style['font-size'] = text
             found_font_size = True
             break
         if families == ['inherit']:
@@ -293,6 +297,7 @@ def test_normalization():  # {{{
                 '1.2pt/1.4 A_Font': {'font-family':'A_Font', 'font-size':'1.2pt', 'line-height':'1.4'},
                 'bad font': {}, '10% serif': {'font-family':'serif', 'font-size':'10%'},
                 '12px "My Font", serif': {'font-family':'"My Font", serif', 'font-size': '12px'},
+                'normal 0.6em/135% arial,sans-serif': {'font-family': 'arial, sans-serif', 'font-size': '0.6em', 'line-height':'135%', 'font-style':'normal'},
                 'bold italic large serif': {'font-family':'serif', 'font-weight':'bold', 'font-style':'italic', 'font-size':'large'},
                 'bold italic small-caps larger/normal serif':
                 {'font-family':'serif', 'font-weight':'bold', 'font-style':'italic', 'font-size':'larger',
