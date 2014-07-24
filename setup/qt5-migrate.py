@@ -8,7 +8,9 @@ __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
 # QT5XX: Get rid of is_beta special processing in update.py
 
-# QT5XX: Get rid of the plugin porting stat colelction in plugins_mirror.py
+# QT5XX: Get rid of the plugin porting stat collection in plugins_mirror.py
+
+# QT5XX: Port the demo UI and editor plugin zip files on the server to Qt 5
 
 # QT5XX: Delete this file after migration is completed
 
