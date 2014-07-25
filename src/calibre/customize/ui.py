@@ -619,7 +619,7 @@ def build_plugin(path):
         raise SystemExit(1)
     t = PersistentTemporaryFile(u'.zip')
     with ZipFile(t, u'w', ZIP_STORED) as zf:
-        zf.add_dir(path)
+        zf.add_dir(path, simple_filter=lambda x:x in {'.git', '.bzr', '.svn', '.hg'})
     t.close()
     plugin = add_plugin(t.name)
     os.remove(t.name)

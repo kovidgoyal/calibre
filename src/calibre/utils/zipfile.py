@@ -1303,7 +1303,7 @@ class ZipFile:
         self.filelist.append(zinfo)
         self.NameToInfo[zinfo.filename] = zinfo
 
-    def add_dir(self, path, prefix=''):
+    def add_dir(self, path, prefix='', simple_filter=lambda x:False):
         '''
         Add a directory recursively to the zip file with an optional prefix.
         '''
@@ -1314,9 +1314,11 @@ class ZipFile:
             os.chdir(path)
             fp = (prefix + ('/' if prefix else '')).replace('//', '/')
             for f in os.listdir('.'):
+                if simple_filter(f):  # Added by Kovid
+                    continue
                 arcname = fp + f
                 if os.path.isdir(f):
-                    self.add_dir(f, prefix=arcname)
+                    self.add_dir(f, prefix=arcname, simple_filter=simple_filter)
                 else:
                     self.write(f, arcname)
         finally:
