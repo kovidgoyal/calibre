@@ -142,7 +142,7 @@ def mi_to_html(mi, field_list=None, default_author_link=None, use_roman_numbers=
             for aut in mi.authors:
                 link = ''
                 if mi.author_link_map[aut]:
-                    link = mi.author_link_map[aut]
+                    link = lt = mi.author_link_map[aut]
                 elif default_author_link:
                     if default_author_link == 'search-calibre':
                         link = search_href('authors', aut)
