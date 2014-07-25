@@ -61,6 +61,11 @@ class FamilyMap(dict):
                 src)))
             if font_file not in self.added_fonts:
                 self.added_fonts.add(font_file)
+                if not os.path.exists(font_file):
+                    from calibre.ebooks.oeb.base import urlunquote
+                    ff = urlunquote(font_file, error_handling='replace')
+                    if os.path.exists(ff):
+                        font_file = ff
                 if os.path.exists(font_file):
                     with open(font_file, 'rb') as f:
                         idx = QFontDatabase.addApplicationFontFromData(f.read())
