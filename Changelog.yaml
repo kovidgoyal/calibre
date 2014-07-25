@@ -20,6 +20,55 @@
 #   new recipes:
 #     - title: 
 
+- version: 1.46.0
+  date: 2014-07-25
+
+  new features:
+    - title: "Edit Book: Add support for third party plugins to extend the editors functionality."
+      description: "The editor now supports plugins that can be used to extend its functionality. Documentation of the plugin API and an example plugin are at: http://manual.calibre-ebook.com/creating_plugins.html#edit-book-plugins"
+      type: major
+
+    - title: "calibredb list: Add a --for-machine option that causes the output to be made in a form more easily parsed programmatically (it uses ASCII field and record separators)"
+
+    - title: "Book details panel: Automatically convert ISSN identifiers into links to the periodicals page on worldcat.org"
+
+    - title: "Edit Book: When re-arranging the toolbars inside an individual file editor, save the new toolbar layout so that it is re-used in the future.  Also apply the changed layout to all open editors of the same type."
+      tickets: [1346913]
+
+    - title: "Edit Book: Make the undo/redo/cut/copy/paste buttons on the editor toolbar also configurable, so they can be removed via Preferences->Toolbars, if needed."
+      tickets: [1346913]
+
+    - title: "Edit Book: Allow editing xpgt (Adobe Page Template) files as XML."
+      tickets: [1346543]
+
+    - title: "Edit Book: Allow the action to launch the saved searches dialog to be added to the global toolbars"
+
+    - title: "Book details panel: Add an option to make clicking on the author name search the calibre library for the author instead of opening the wikipedia page for the author. To use it got to Preferences->Look & Feel->Book Details."
+      tickets: [1344799]
+
+  bug fixes:
+    - title: "Fix published date not being merged when merging book records"
+
+    - title: "Embed metadata tool: Fix error when trying to embed metadata in corrupted MOBI files or files of other types that are marked as MOBI in the library"
+      tickets: [1348054] 
+
+    - title: "Edit Book: Make the warning dialog that pops up when you try to quit while the editor is saving changes in the background a little more clear."
+      tickets: [1347171]
+
+    - title: "When generating covers, do not render soft-hyphens in the text as hyphens."
+      tickets: [1344259]
+
+    - title: "Conversion: Fix a bug processing the CSS font shorthand property when the line-height is specified in em or percentage units"
+      tickets: [1348173]
+
+    - title: "calibre-customize: When building plugins from a directory, exclude known version control subdirectories"
+
+  improved recipes:
+    - Grandes corresponsales
+    - Times of India
+    - Economic Times of India 
+
+
 - version: 1.45.0
   date: 2014-07-18
 
