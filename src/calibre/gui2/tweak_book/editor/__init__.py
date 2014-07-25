@@ -15,12 +15,9 @@ _xml_types = {'application/oebps-page-map+xml', 'application/vnd.adobe-page-temp
             guess_type('a.'+x) for x in ('ncx', 'opf', 'svg', 'xpgt', 'xml')}
 
 def syntax_from_mime(name, mime):
-    if mime in OEB_DOCS:
-        return 'html'
-    if mime in OEB_STYLES:
-        return 'css'
-    if mime in _xml_types:
-        return 'xml'
+    for syntax, types in (('html', OEB_DOCS), ('css', OEB_STYLES), ('xml', _xml_types)):
+        if mime in types:
+            return syntax
     if mime.startswith('text/'):
         return 'text'
     if mime.startswith('image/') and mime.partition('/')[-1].lower() in {
