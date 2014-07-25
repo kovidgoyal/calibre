@@ -242,6 +242,7 @@ The following functions are available in addition to those described in single-f
     * ``add(x, y)`` -- returns x + y. Throws an exception if either x or y are not numbers.
     * ``assign(id, val)`` -- assigns val to id, then returns val. id must be an identifier, not an expression
     * ``approximate_formats()`` -- return a comma-separated list of formats that at one point were associated with the book. There is no guarantee that the list is correct, although it probably is. This function can be called in template program mode using the template ``{:'approximate_formats()'}``. Note that format names are always uppercase, as in EPUB.
+	* ``author_links()`` -- returns a string containing a list of authors and that author's link values in the form ``author1:author1link & author2:author2link`` etc. An author is separated from its link value by a : character. ``author:linkvalue`` pairs are separated by " & " (space ampersand space) characters. An author is included even if the author link is empty.
     * ``booksize()`` -- returns the value of the |app| 'size' field. Returns '' if there are no formats.
     * ``cmp(x, y, lt, eq, gt)`` -- compares x and y after converting both to numbers. Returns ``lt`` if x < y. Returns ``eq`` if x == y. Otherwise returns ``gt``.
     * ``current_library_name() -- `` return the last name on the path to the current calibre library. This function can be called in template program mode using the template ``{:'current_library_name()'}``.

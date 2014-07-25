@@ -1398,9 +1398,30 @@ class BuiltinTransliterate(BuiltinFormatterFunction):
         return ascii_text(source)
 
 
+class BuiltinAuthorLinks(BuiltinFormatterFunction):
+    name = 'author_links'
+    arg_count = 0
+    category = 'Get values from metadata'
+    __doc__ = doc = _('author_links() -- returns a string containing a list of '
+                      'authors and that author\'s link values in the form '
+                      'author1:author1link & author2:author2link etc. '
+                      'An author is separated from its link value by a : character. '
+                      'author:linkvalue pairs are separated by " & " (space ampersand '
+                      'space) characters. An author is included even if the '
+                      'author link is empty.')
+
+    def evaluate(self, formatter, kwargs, mi, locals):
+        if hasattr(mi, '_proxy_metadata'):
+            link_data = mi._proxy_metadata.author_link_map
+            if not link_data:
+                return ''
+            names = sorted(link_data.keys(), key=sort_key)
+            return ' & '.join(n + ':' + link_data[n] for n in names)
+        return _('This function can be used only in the GUI')
+
 _formatter_builtins = [
     BuiltinAdd(), BuiltinAnd(), BuiltinApproximateFormats(),
-    BuiltinAssign(), BuiltinBooksize(),
+    BuiltinAssign(), BuiltinAuthorLinks(), BuiltinBooksize(),
     BuiltinCapitalize(), BuiltinCmp(), BuiltinContains(), BuiltinCount(),
     BuiltinCurrentLibraryName(), BuiltinCurrentLibraryPath(),
     BuiltinDaysBetween(), BuiltinDivide(), BuiltinEval(), BuiltinFirstNonEmpty(),
