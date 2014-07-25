@@ -148,7 +148,7 @@ class Series(unicode):
     def __new__(self, series, series_index):
         series = roman = escape(series or u'')
         if series and series_index is not None:
-            roman = _('Book {1} of <em>{0}</em>').format(
+            roman = _('Number {1} of <em>{0}</em>').format(
                 escape(series), escape(fmt_sidx(series_index, use_roman=True)))
             series = escape(series + ' [%s]'%fmt_sidx(series_index, use_roman=False))
         s = unicode.__new__(self, series)
