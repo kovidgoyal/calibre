@@ -1400,23 +1400,27 @@ class BuiltinTransliterate(BuiltinFormatterFunction):
 
 class BuiltinAuthorLinks(BuiltinFormatterFunction):
     name = 'author_links'
-    arg_count = 0
+    arg_count = 2
     category = 'Get values from metadata'
-    __doc__ = doc = _('author_links() -- returns a string containing a list of '
-                      'authors and that author\'s link values in the form '
-                      'author1:author1link & author2:author2link etc. '
-                      'An author is separated from its link value by a : character. '
-                      'author:linkvalue pairs are separated by " & " (space ampersand '
-                      'space) characters. An author is included even if the '
-                      'author link is empty.')
+    __doc__ = doc = _('author_links(val_separator, pair_separator) -- returns '
+                      'a string containing a list of authors and that author\'s '
+                      'link values in the '
+                      'form author1 val_separator author1link pair_separator '
+                      'author2 val_separator author2link etc. An author is '
+                      'separated from its link value by the val_separator string '
+                      'with no added spaces. author:linkvalue pairs are separated '
+                      'by the pair_separator string argument with no added spaces. '
+                      'It is up to you to choose separator strings that do '
+                      'not occur in author names or links. An author is '
+                      'included even if the author link is empty.')
 
-    def evaluate(self, formatter, kwargs, mi, locals):
+    def evaluate(self, formatter, kwargs, mi, locals, val_sep, pair_sep):
         if hasattr(mi, '_proxy_metadata'):
             link_data = mi._proxy_metadata.author_link_map
             if not link_data:
                 return ''
             names = sorted(link_data.keys(), key=sort_key)
-            return ' & '.join(n + ':' + link_data[n] for n in names)
+            return pair_sep.join(n + val_sep + link_data[n] for n in names)
         return _('This function can be used only in the GUI')
 
 _formatter_builtins = [
