@@ -19,6 +19,7 @@ from calibre.ebooks.oeb.base import XPath, XHTML_NS, XHTML, xml2text, urldefrag
 from calibre.library.comments import comments_to_html
 from calibre.utils.date import is_date_undefined
 from calibre.ebooks.chardet import strip_encoding_declarations
+from calibre.ebooks.metadata import fmt_sidx
 
 JACKET_XPATH = '//h:meta[@name="calibre-content" and @content="jacket"]'
 
@@ -142,10 +143,23 @@ def get_rating(rating, rchar, e_rchar):
     ans = ("%s%s") % (rchar * int(num), e_rchar * (5 - int(num)))
     return ans
 
+class Series(unicode):
+
+    def __new__(self, series, series_index):
+        series = roman = escape(series or u'')
+        if series and series_index is not None:
+            roman = _('Book {1} of <em>{0}</em>').format(
+                escape(series), escape(fmt_sidx(series_index, use_roman=True)))
+            series = escape(series + ' [%s]'%fmt_sidx(series_index, use_roman=False))
+        s = unicode.__new__(self, series)
+        s.roman = roman
+        return s
+
 def render_jacket(mi, output_profile,
         alt_title=_('Unknown'), alt_tags=[], alt_comments='',
         alt_publisher=(''), rescale_fonts=False):
     css = P('jacket/stylesheet.css', data=True).decode('utf-8')
+    template = P('jacket/template.xhtml', data=True).decode('utf-8')
 
     try:
         title_str = mi.title if mi.title else alt_title
@@ -153,12 +167,7 @@ def render_jacket(mi, output_profile,
         title_str = _('Unknown')
     title = '<span class="title">%s</span>' % (escape(title_str))
 
-    series = escape(mi.series if mi.series else '')
-    if mi.series and mi.series_index is not None:
-        series += escape(' [%s]'%mi.format_series_index())
-    if not mi.series:
-        series = ''
-
+    series = Series(mi.series, mi.series_index)
     try:
         publisher = mi.publisher if mi.publisher else alt_publisher
     except:
@@ -227,8 +236,7 @@ def render_jacket(mi, output_profile,
         args['_genre'] = args.get('_genre', '{_genre}')
 
         formatter = SafeFormatter()
-        generated_html = formatter.format(P('jacket/template.xhtml',
-                data=True).decode('utf-8'), **args)
+        generated_html = formatter.format(template, **args)
 
         # Post-process the generated html to strip out empty header items
 
