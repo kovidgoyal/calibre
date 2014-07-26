@@ -444,7 +444,8 @@ class ToolbarSettings(QWidget):
                         ac = all_items[key]
                     except KeyError:
                         pass
-                    to_item(key, ac, self.current)
+                    else:
+                        to_item(key, ac, self.current)
 
     def bar_changed(self):
         name = self.current_name
