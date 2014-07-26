@@ -13,6 +13,7 @@ from Queue import Empty
 from calibre import extract, prints, walk
 from calibre.constants import filesystem_encoding
 from calibre.ptempfile import PersistentTemporaryDirectory
+from calibre.utils.icu import numeric_sort_key
 from calibre.utils.ipc.server import Server
 from calibre.utils.ipc.job import ParallelJob
 
@@ -57,11 +58,11 @@ def find_pages(dir, sort_on_mtime=False, verbose=False):
                     pages.append(path)
                     break
     if sort_on_mtime:
-        comparator = lambda x, y : cmp(os.stat(x).st_mtime, os.stat(y).st_mtime)
+        key = lambda x:os.stat(x).st_mtime
     else:
-        comparator = lambda x, y : cmp(os.path.basename(x), os.path.basename(y))
+        key = lambda x:numeric_sort_key(os.path.basename(x))
 
-    pages.sort(cmp=comparator)
+    pages.sort(key=key)
     if verbose:
         prints('Found comic pages...')
         prints('\t'+'\n\t'.join([os.path.basename(p) for p in pages]))
