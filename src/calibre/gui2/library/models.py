@@ -760,14 +760,11 @@ class BooksModel(QAbstractTableModel):  # {{{
                     return QVariant(int(fffunc(field_obj, idfunc(idx), default_value=0)/2.0))
             elif dt == 'series':
                 sidx_field = self.db.new_api.fields[field + '_index']
-                fffunc = self.db.new_api._fast_field_for
-                read_lock = self.db.new_api.read_lock
                 def func(idx):
                     book_id = idfunc(idx)
-                    with read_lock:
-                        series = fffunc(field_obj, book_id, default_value=False)
-                        if series:
-                            return QVariant('%s [%s]' % (series, fmt_sidx(fffunc(sidx_field, book_id, default_value=1.0))))
+                    series = fffunc(field_obj, book_id, default_value=False)
+                    if series:
+                        return QVariant('%s [%s]' % (series, fmt_sidx(fffunc(sidx_field, book_id, default_value=1.0))))
                     return NONE
             elif dt in {'int', 'float'}:
                 fmt = m['display'].get('number_format', None)
