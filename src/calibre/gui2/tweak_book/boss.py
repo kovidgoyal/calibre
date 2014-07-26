@@ -131,6 +131,11 @@ class Boss(QObject):
         self.gui.manage_fonts.embed_all_fonts.connect(self.manage_fonts_embed)
         self.gui.manage_fonts.subset_all_fonts.connect(self.manage_fonts_subset)
 
+    @property
+    def currently_editing(self):
+        ' Return the name of the file being edited currently or None if no file is being edited '
+        return editor_name(self.gui.current_editor)
+
     def preferences(self):
         orig_spell = tprefs['inline_spell_check']
         p = Preferences(self.gui)
