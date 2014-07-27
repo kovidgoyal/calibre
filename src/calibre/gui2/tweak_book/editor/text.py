@@ -348,9 +348,10 @@ class TextEdit(PlainTextEdit):
         else:
             raw, count = pat.subn(template, raw)
             if count > 0:
-                c.setKeepPositionOnInsert(True)
+                start_pos = min(c.anchor(), c.position())
                 c.insertText(raw)
-                c.setKeepPositionOnInsert(False)
+                end_pos = max(c.anchor(), c.position())
+                c.setPosition(start_pos), c.setPosition(end_pos, c.KeepAnchor)
                 self.update_extra_selections()
         return count
 
