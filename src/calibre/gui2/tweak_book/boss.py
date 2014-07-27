@@ -383,10 +383,9 @@ class Boss(QObject):
     def do_add_file(self, file_name, data, using_template=False, edit_file=False):
         self.add_savepoint(_('Before: Add file %s') % self.gui.elided_text(file_name))
         c = current_container()
-        if using_template:
-            data = data.replace(b'%CURSOR%', b'')
+        adata = data.replace(b'%CURSOR%', b'') if using_template else data
         try:
-            c.add_file(file_name, data)
+            c.add_file(file_name, adata)
         except:
             self.rewind_savepoint()
             raise
