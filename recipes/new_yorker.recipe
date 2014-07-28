@@ -7,7 +7,6 @@ from calibre.web.feeds.news import BasicNewsRecipe
 class NewYorker(BasicNewsRecipe):
 
     title = u'New Yorker Magazine'
-    newyorker_prefix = 'http://m.newyorker.com'
     description = u'Content from the New Yorker website'
 
     masthead_url = 'http://www.newyorker.com/images/elements/print/newyorker_printlogo.gif'
@@ -30,18 +29,15 @@ class NewYorker(BasicNewsRecipe):
                 .caption { font-size: xx-small; font-style: italic; font-weight: normal; }
                 '''
 
-    def get_cover_url(self):
-        cover_url = "http://www.newyorker.com/images/covers/1925/1925_02_21_p233.jpg"
-        soup = self.index_to_soup('http://www.newyorker.com/magazine?intcid=magazine')
-        cover_item = soup.find('div',attrs={'id':'media-count-1'})
-        if cover_item:
-            cover_url = 'http://www.newyorker.com' + cover_item.div.img['src'].strip()
-        return cover_url
-
     def parse_index(self):
         soup = self.index_to_soup('http://www.newyorker.com/magazine?intcid=magazine')
+        ph = soup.find('div', attrs={'class':lambda x: x and 'cover-info' in x.split()})
+        if ph is not None:
+            img = ph.find('img', src=True)
+            if img is not None:
+                self.cover_url = img['src'].replace('-320.jpg', '.jpg')
         articles = []
-        for story in soup.findAll('article', attrs={'itemtype':'http://schema.org/NewsArticle'}):
+        for story in soup.findAll('article', itemtype='http://schema.org/NewsArticle'):
             h2 = story.find('h2')
             url = h2.find('a', href=True)['href']
             a = h2.find('a')
