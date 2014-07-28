@@ -463,7 +463,7 @@ class CSSFlattener(object):
                 items = sorted(cssdict.iteritems())
                 css = u';\n'.join(u'%s: %s' % (key, val) for key, val in items)
                 classes = node.get('class', '').strip() or 'calibre'
-                klass = ascii_text(STRIPNUM.sub('', classes.split()[0].replace('_', '')))
+                klass = ascii_text(STRIPNUM.sub('', classes.split()[0]))
                 if css in styles:
                     match = styles[css]
                 else:
