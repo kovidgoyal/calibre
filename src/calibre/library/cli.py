@@ -192,7 +192,7 @@ List the books available in the calibre database.
     parser.add_option('--prefix', default=None, help=_('The prefix for all file paths. Default is the absolute path to the library folder.'))
     parser.add_option('--limit', default=-1, type=int, help=_('The maximum number of results to display. Default: all'))
     parser.add_option('--for-machine', default=False, action='store_true', help=_(
-        'Generate output that is more suitable for machine parsing. Book entries are separates using the ASCII Record'
+        'Generate output that is more suitable for machine parsing. Book entries are separated using the ASCII Record'
         ' Separator character (30), individual fields in an entry using the Group Separator (29) and individual'
         ' filenames using the File Separator (28)'))
     return parser
