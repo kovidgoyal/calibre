@@ -324,12 +324,18 @@ class Boss(QObject):
         container = current_container()
         self.gui.file_list.build(container)
 
-    def apply_container_update_to_gui(self):
-        ' Update all the components of the user interface to reflect the latest data in the current book container '
+    def apply_container_update_to_gui(self, mark_as_modified=True):
+        '''
+        Update all the components of the user interface to reflect the latest data in the current book container.
+
+        :param mark_as_modified: If True, the book will be marked as modified, so the user will be prompted to save it
+            when quitting.
+        '''
         self.refresh_file_list()
         self.update_global_history_actions()
         self.update_editors_from_container()
-        self.set_modified()
+        if mark_as_modified:
+            self.set_modified()
         self.gui.toc_view.update_if_visible()
 
     @in_thread_job
