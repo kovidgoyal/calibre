@@ -11,7 +11,7 @@ from functools import partial
 from PyQt4.Qt import (
     QApplication, QFont, QFontInfo, QFontDialog, QColorDialog, QPainter,
     QAbstractListModel, Qt, QIcon, QKeySequence, QColor, pyqtSignal,
-    QWidget, QSizePolicy, QBrush, QPixmap, QSize, QPushButton)
+    QWidget, QSizePolicy, QBrush, QPixmap, QSize, QPushButton, QVBoxLayout)
 
 from calibre import human_readable
 from calibre.gui2.preferences import ConfigWidgetBase, test_widget, CommaSeparatedList
@@ -240,6 +240,11 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.tabWidget.addTab(self.icon_rules,
                 QIcon(I('icon_choose.png')), _('Column icons'))
 
+        self.grid_rules = EditRules(self.emblems_tab)
+        self.grid_rules.changed.connect(self.changed_signal)
+        self.emblems_tab.setLayout(QVBoxLayout())
+        self.emblems_tab.layout().addWidget(self.grid_rules)
+
         self.tabWidget.setCurrentIndex(0)
         keys = [QKeySequence('F11', QKeySequence.PortableText), QKeySequence(
             'Ctrl+Shift+F', QKeySequence.PortableText)]
@@ -320,6 +325,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             mi=None
         self.edit_rules.initialize(db.field_metadata, db.prefs, mi, 'column_color_rules')
         self.icon_rules.initialize(db.field_metadata, db.prefs, mi, 'column_icon_rules')
+        self.grid_rules.initialize(db.field_metadata, db.prefs, mi, 'cover_grid_icon_rules')
         self.set_cg_color(gprefs['cover_grid_color'])
         self.set_cg_texture(gprefs['cover_grid_texture'])
         self.update_aspect_ratio()
@@ -365,6 +371,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.display_model.restore_defaults()
         self.edit_rules.clear()
         self.icon_rules.clear()
+        self.grid_rules.clear()
         self.changed_signal.emit()
         self.set_cg_color(gprefs.defaults['cover_grid_color'])
         self.set_cg_texture(gprefs.defaults['cover_grid_texture'])
@@ -453,6 +460,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.display_model.commit()
         self.edit_rules.commit(self.gui.current_db.prefs)
         self.icon_rules.commit(self.gui.current_db.prefs)
+        self.grid_rules.commit(self.gui.current_db.prefs)
         gprefs['cover_grid_color'] = tuple(self.cg_bg_widget.bcol.getRgb())[:3]
         gprefs['cover_grid_texture'] = self.cg_bg_widget.btex
         return rr
