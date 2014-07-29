@@ -8,12 +8,13 @@ __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import os, textwrap
+from functools import partial
 
 from PyQt4.Qt import (QWidget, QDialog, QLabel, QGridLayout, QComboBox, QSize,
         QLineEdit, QIntValidator, QDoubleValidator, QFrame, Qt, QIcon,
         QScrollArea, QPushButton, QVBoxLayout, QDialogButtonBox, QToolButton,
         QListView, QAbstractListModel, pyqtSignal, QSizePolicy, QSpacerItem,
-        QApplication, QStandardItem, QStandardItemModel, QCheckBox)
+        QApplication, QStandardItem, QStandardItemModel, QCheckBox, QMenu)
 
 from calibre import prepare_string_for_xml, sanitize_file_name_unicode
 from calibre.constants import config_dir
@@ -338,17 +339,9 @@ class RuleEditor(QDialog):  # {{{
         if self.rule_kind == 'emblem':
             l3.setVisible(False), self.column_box.setVisible(False), l4.setVisible(False)
 
-        def create_filename_box(folder='cc_icons'):
+        def create_filename_box():
             self.filename_box = QComboBox()
-            d = os.path.join(config_dir, folder)
-            self.icon_file_names = []
-            if os.path.exists(d):
-                for icon_file in os.listdir(d):
-                    icon_file = lower(icon_file)
-                    if os.path.exists(os.path.join(d, icon_file)):
-                        if icon_file.endswith('.png'):
-                            self.icon_file_names.append(icon_file)
-            self.icon_file_names.sort(key=sort_key)
+            self.populate_icon_filenames()
 
         if self.rule_kind == 'color':
             self.color_box = ColorButton(parent=self)
@@ -407,6 +400,11 @@ class RuleEditor(QDialog):  # {{{
         bb.accepted.connect(self.accept)
         bb.rejected.connect(self.reject)
         l.addWidget(bb, 7, 0, 1, 8)
+        if self.rule_kind != 'color':
+            self.remove_button = b = bb.addButton(_('Remove image'), bb.ActionRole)
+            b.setIcon(QIcon(I('minus.png')))
+            b.setMenu(QMenu())
+            self.update_remove_button()
 
         self.conditions_widget = QWidget(self)
         sa.setWidget(self.conditions_widget)
@@ -442,6 +440,20 @@ class RuleEditor(QDialog):  # {{{
         self.update_filename_box()
         self.update_icon_filenames_in_box()
 
+    @property
+    def icon_folder(self):
+        return os.path.join(config_dir, 'cc_icons')
+
+    def populate_icon_filenames(self):
+        d = self.icon_folder
+        self.icon_file_names = []
+        if os.path.exists(d):
+            for icon_file in os.listdir(d):
+                icon_file = lower(icon_file)
+                if os.path.exists(os.path.join(d, icon_file)) and icon_file.endswith('.png'):
+                    self.icon_file_names.append(icon_file)
+        self.icon_file_names.sort(key=sort_key)
+
     def update_filename_box(self):
         doing_multiple = self.doing_multiple
 
@@ -461,7 +473,7 @@ class RuleEditor(QDialog):  # {{{
                 item.setData(Qt.Unchecked, Qt.CheckStateRole)
             else:
                 item.setFlags(Qt.ItemIsEnabled | Qt.ItemIsSelectable)
-            icon = QIcon(os.path.join(config_dir, 'cc_icons', filename))
+            icon = QIcon(os.path.join(self.icon_folder, filename))
             item.setIcon(icon)
             model.appendRow(item)
 
@@ -489,9 +501,10 @@ class RuleEditor(QDialog):  # {{{
                 if icon_name not in self.icon_file_names:
                     self.icon_file_names.append(icon_name)
                     self.update_filename_box()
+                    self.update_remove_button()
                     try:
                         p = QIcon(icon_path).pixmap(QSize(128, 128))
-                        d = os.path.join(config_dir, 'cc_icons')
+                        d = self.icon_folder
                         if not os.path.exists(os.path.join(d, icon_name)):
                             if not os.path.exists(d):
                                 os.makedirs(d)
@@ -540,6 +553,24 @@ class RuleEditor(QDialog):  # {{{
                     if idx >= 0:
                         item = model.item(idx)
                         item.setCheckState(Qt.Checked)
+
+    def update_remove_button(self):
+        m = self.remove_button.menu()
+        m.clear()
+        for name in self.icon_file_names:
+            m.addAction(QIcon(os.path.join(self.icon_folder, name)), name).triggered.connect(partial(
+                self.remove_image, name))
+
+    def remove_image(self, name):
+        try:
+            os.remove(os.path.join(self.icon_folder, name))
+        except EnvironmentError:
+            pass
+        else:
+            self.populate_icon_filenames()
+            self.update_remove_button()
+            self.update_filename_box()
+            self.update_icon_filenames_in_box()
 
     def add_blank_condition(self):
         c = ConditionEditor(self.fm, parent=self.conditions_widget)
@@ -750,6 +781,9 @@ class RulesModel(QAbstractListModel):  # {{{
         sample = '' if kind != 'color' else (
                      _('(<span style="color: %s;">sample</span>)') % rule.color)
 
+        if kind == 'emblem':
+            return _('<p>Add the emblem <b>{0}</b> to the cover if the following conditions are met:</p>'
+                    '\n<ul>{1}</ul>').format(rule.color, ''.join(conditions))
         return _('''\
             <p>Set the <b>%(kind)s</b> of <b>%(col)s</b> to <b>%(color)s</b> %(sample)s
             if the following conditions are met:</p>
