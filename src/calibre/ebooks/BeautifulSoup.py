@@ -972,6 +972,7 @@ class BeautifulStoneSoup(Tag, SGMLParser):
     NESTABLE_TAGS = {}
     RESET_NESTING_TAGS = {}
     QUOTE_TAGS = {}
+    PRESERVE_WHITESPACE_TAGS = frozenset()
 
     MARKUP_MASSAGE = [(re.compile('(<[^<>]*)/>'),
                        lambda x: x.group(1) + ' />'),
@@ -1155,7 +1156,10 @@ class BeautifulStoneSoup(Tag, SGMLParser):
     def endData(self, containerClass=NavigableString):
         if self.currentData:
             currentData = ''.join(self.currentData)
-            if not currentData.translate(self.STRIP_ASCII_SPACES):
+            # Changed by Kovid to not clobber whitespace inside <pre> tags and the like
+            if ( (not currentData.translate(self.STRIP_ASCII_SPACES)) and (
+                    not frozenset(tag.name for tag in self.tagStack).intersection(
+                        self.PRESERVE_WHITESPACE_TAGS))):
                 if '\n' in currentData:
                     currentData = '\n'
                 else:
@@ -1442,6 +1446,8 @@ class BeautifulSoup(BeautifulStoneSoup):
     SELF_CLOSING_TAGS = buildTagMap(None,
                                     ['br' , 'hr', 'input', 'img', 'meta',
                                     'spacer', 'link', 'frame', 'base'])
+
+    PRESERVE_WHITESPACE_TAGS = frozenset(('pre', 'textarea'))
 
     QUOTE_TAGS = {'script' : None, 'textarea' : None}
 
