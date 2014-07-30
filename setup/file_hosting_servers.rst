@@ -57,6 +57,6 @@ SSH into sourceforge and downloadbestsoftware so that their host keys are
 stored.
 
    ssh -oStrictHostKeyChecking=no files.calibre-ebook.com echo done (and whatever other mirrors are present)
-   ssh -oStrictHostKeyChecking=no kovid@mirror1.fosshub.com echo done
+   ssh -oStrictHostKeyChecking=no kovid@mirror10.fosshub.com echo done
    ssh -oStrictHostKeyChecking=no kovidgoyal,calibre@frs.sourceforge.net
 
