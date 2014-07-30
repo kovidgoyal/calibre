@@ -133,7 +133,9 @@ class Page(QWebPage):  # {{{
         return QString(val)
 
     def _pass_json_value_setter(self, value):
-        self.bridge_value = json.loads(unicode(value))
+        # Qt WebKit in Qt 4.x adds extra null bytes to the end of the string
+        # if the JSON contains non-BMP characters
+        self.bridge_value = json.loads(unicode(value).rstrip('\0'))
 
     _pass_json_value = pyqtProperty(QString, fget=_pass_json_value_getter,
             fset=_pass_json_value_setter)
