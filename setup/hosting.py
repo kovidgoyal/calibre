@@ -98,7 +98,7 @@ class Base(object):  # {{{
         print('_'*50)
         sys.stdout.flush()
 
-#}}}
+# }}}
 
 class GoogleCode(Base):  # {{{
 
@@ -573,7 +573,7 @@ def cli_parser():
             epilog=epilog)
     cron = subparsers.add_parser('cron', help='Call script from cron')
     subparsers.add_parser('calibre', help='Upload to calibre file servers')
-    subparsers.add_parser('dbs', help='Upload to downloadbestsoftware.com')
+    subparsers.add_parser('dbs', help='Upload to fosshub.com')
 
     a = gc.add_argument
 
@@ -644,6 +644,3 @@ def main(args=None):
 if __name__ == '__main__':
     main()
 # }}}
-
-
-
