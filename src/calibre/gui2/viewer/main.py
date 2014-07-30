@@ -26,7 +26,6 @@ from calibre.constants import islinux, filesystem_encoding
 from calibre.utils.config import Config, StringConfig, JSONConfig
 from calibre.gui2.search_box import SearchBox2
 from calibre.customize.ui import available_input_formats
-from calibre.gui2.viewer.dictionary import Lookup
 from calibre import as_unicode, force_unicode, isbytestring
 from calibre.ptempfile import reset_base_dir
 from calibre.utils.zipfile import BadZipfile
@@ -213,9 +212,6 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
         self.selected_text     = None
         self.was_maximized     = False
         self.read_settings()
-        self.dictionary_box.hide()
-        self.close_dictionary_view.clicked.connect(lambda
-                x:self.dictionary_box.hide())
         self.history = History(self.action_back, self.action_forward)
         self.metadata = Metadata(self)
         self.pos = DoubleSpinBox()
@@ -481,23 +477,17 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
                 at_start=True)
 
     def lookup(self, word):
-        from calibre.gui2.viewer.documentview import config
-        opts = config().parse()
-        settings = self.dictionary_view.page().settings()
-        settings.setFontSize(settings.DefaultFontSize, opts.default_font_size)
-        settings.setFontSize(settings.DefaultFixedFontSize, opts.mono_font_size)
-        self.dictionary_view.setHtml('<html><body><p>'+
-            _('Connecting to dict.org to lookup: <b>%s</b>&hellip;')%word +
-            '</p></body></html>')
-        self.dictionary_box.show()
-        self._lookup = Lookup(word, parent=self)
-        self._lookup.finished.connect(self.looked_up)
-        self._lookup.start()
-
-    def looked_up(self, *args):
-        html = self._lookup.html_result
-        self._lookup = None
-        self.dictionary_view.setHtml(html)
+        from calibre.utils.localization import canonicalize_lang, lang_as_iso639_1
+        from urllib import quote
+        lang = lang_as_iso639_1(self.view.current_language)
+        if not lang:
+            lang = canonicalize_lang(lang) or 'en'
+        word = quote(word.encode('utf-8'))
+        if lang == 'en':
+            prefix = 'https://www.wordnik.com/words/'
+        else:
+            prefix = 'http://%s.wiktionary.org/wiki/' % lang
+        open_url(prefix + word)
 
     def get_remember_current_page_opt(self):
         from calibre.gui2.viewer.documentview import config
