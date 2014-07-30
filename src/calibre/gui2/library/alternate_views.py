@@ -446,25 +446,28 @@ class CoverDelegate(QStyledItemDelegate):
                     p = self.marked_emblem
                 except AttributeError:
                     p = self.marked_emblem = m.marked_icon.pixmap(48, 48)
-                drect = QRect(orect)
-                drect.setLeft(drect.left() + right_adjust)
-                drect.setRight(drect.left() + p.width())
-                drect.setBottom(drect.bottom() - self.title_height)
-                drect.setTop(drect.bottom() - p.height())
-                painter.drawPixmap(drect, p)
+                self.paint_embossed_emblem(p, painter, orect, right_adjust)
+
             if on_device:
                 try:
                     p = self.on_device_emblem
                 except AttributeError:
                     p = self.on_device_emblem = QPixmap(I('ok.png')).scaled(48, 48, transformMode=Qt.SmoothTransformation)
-                drect = QRect(orect)
-                drect.setRight(drect.right() - right_adjust)
-                drect.setBottom(drect.bottom() - self.title_height)
-                drect.setTop(drect.bottom() - p.height() + 1)
-                drect.setLeft(drect.right() - p.width() + 1)
-                painter.drawPixmap(drect, p)
+                self.paint_embossed_emblem(p, painter, orect, right_adjust, left=False)
         finally:
             painter.restore()
+
+    def paint_embossed_emblem(self, pixmap, painter, orect, right_adjust, left=True):
+        drect = QRect(orect)
+        if left:
+            drect.setLeft(drect.left() + right_adjust)
+            drect.setRight(drect.left() + pixmap.width())
+        else:
+            drect.setRight(drect.right() - right_adjust)
+            drect.setLeft(drect.right() - pixmap.width() + 1)
+        drect.setBottom(drect.bottom() - self.title_height)
+        drect.setTop(drect.bottom() - pixmap.height())
+        painter.drawPixmap(drect, pixmap)
 
     @pyqtSlot(QHelpEvent, QAbstractItemView, QStyleOptionViewItem, QModelIndex, result=bool)
     def helpEvent(self, event, view, option, index):
