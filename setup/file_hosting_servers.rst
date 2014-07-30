@@ -37,7 +37,7 @@ Add the following to crontab::
 
 If the server has a backup hard-disk, mount it at /mnt/backup and edit /etc/fstab so that it is auto-mounted.
 Then, add the following to crontab::
-    @daily     /usr/bin/rsync -ha /srv /mnt/backup
+    @daily     /usr/bin/rsync -ha /srv /mnt/backup --exclude /srv/plugins/stats.log
     @daily     /usr/bin/rsync -ha /etc /mnt/backup
 
 Nginx
