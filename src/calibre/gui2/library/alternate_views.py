@@ -337,7 +337,8 @@ class CoverDelegate(QStyledItemDelegate):
         width = self.original_width = gprefs['cover_grid_width']
         height = self.original_height = gprefs['cover_grid_height']
         self.original_show_title = show_title = gprefs['cover_grid_show_title']
-        self.emblem_size = gprefs['emblem_size'] if gprefs['show_emblems'] else 0
+        self.original_show_emblems = gprefs['show_emblems']
+        self.emblem_size = gprefs['emblem_size'] if self.original_show_emblems else 0
         try:
             self.gutter_position = getattr(self, gprefs['emblem_position'].upper())
         except Exception:
@@ -703,7 +704,8 @@ class GridView(QListView):
             gprefs['cover_grid_width'] != self.delegate.original_width or
             gprefs['cover_grid_height'] != self.delegate.original_height
         )
-        if (size_changed or gprefs['cover_grid_show_title'] != self.delegate.original_show_title):
+        if (size_changed or gprefs['cover_grid_show_title'] != self.delegate.original_show_title or
+                gprefs['show_emblems'] != self.delegate.original_show_emblems):
             self.delegate.set_dimensions()
             self.setSpacing(self.delegate.spacing)
             if size_changed:

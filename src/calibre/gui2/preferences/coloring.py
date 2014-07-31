@@ -19,7 +19,7 @@ from PyQt4.Qt import (QWidget, QDialog, QLabel, QGridLayout, QComboBox, QSize,
 from calibre import prepare_string_for_xml, sanitize_file_name_unicode
 from calibre.constants import config_dir
 from calibre.utils.icu import sort_key
-from calibre.gui2 import error_dialog, choose_files, pixmap_to_data
+from calibre.gui2 import error_dialog, choose_files, pixmap_to_data, gprefs
 from calibre.gui2.dialogs.template_dialog import TemplateDialog
 from calibre.gui2.metadata.single_download import RichTextDelegate
 from calibre.gui2.widgets2 import ColorButton
@@ -834,9 +834,14 @@ class EditRules(QWidget):  # {{{
         self.l = l = QGridLayout(self)
         self.setLayout(l)
 
+        self.enabled = c = QCheckBox(self)
+        l.addWidget(c, l.rowCount(), 0, 1, 2)
+        c.setVisible(False)
+        c.stateChanged.connect(self.changed)
+
         self.l1 = l1 = QLabel('')
         l1.setWordWrap(True)
-        l.addWidget(l1, 0, 0, 1, 2)
+        l.addWidget(l1, l.rowCount(), 0, 1, 2)
 
         self.add_button = QPushButton(QIcon(I('plus.png')), _('Add Rule'),
                 self)
@@ -844,8 +849,8 @@ class EditRules(QWidget):  # {{{
                 _('Remove Rule'), self)
         self.add_button.clicked.connect(self.add_rule)
         self.remove_button.clicked.connect(self.remove_rule)
-        l.addWidget(self.add_button, 1, 0)
-        l.addWidget(self.remove_button, 1, 1)
+        l.addWidget(self.add_button, l.rowCount(), 0)
+        l.addWidget(self.remove_button, l.rowCount() - 1, 1)
 
         self.g = g = QGridLayout()
         self.rules_view = QListView(self)
@@ -867,13 +872,13 @@ class EditRules(QWidget):  # {{{
         b.clicked.connect(self.move_down)
         g.addWidget(b, 1, 1, 1, 1, Qt.AlignBottom)
 
-        l.addLayout(g, 2, 0, 1, 2)
-        l.setRowStretch(2, 10)
+        l.addLayout(g, l.rowCount(), 0, 1, 2)
+        l.setRowStretch(l.rowCount() - 1, 10)
 
         self.add_advanced_button = b = QPushButton(QIcon(I('plus.png')),
                 _('Add Advanced Rule'), self)
         b.clicked.connect(self.add_advanced)
-        l.addWidget(b, 3, 0, 1, 2)
+        l.addWidget(b, l.rowCount(), 0, 1, 2)
 
     def initialize(self, fm, prefs, mi, pref_name):
         self.pref_name = pref_name
@@ -901,8 +906,21 @@ class EditRules(QWidget):  # {{{
                 ' what image to use. Click the Add Rule button below'
                 ' to get started.<p>You can <b>change an existing rule</b> by'
                 ' double clicking it.')
-#             self.add_advanced_button.setVisible(False)
+            self.enabled.setVisible(True)
+            self.enabled.setChecked(gprefs['show_emblems'])
+            self.enabled.setText(_('Show &emblems next to the covers'))
+            self.enabled.stateChanged.connect(self.enabled_toggled)
+            self.enabled.setToolTip(_(
+                'If checked, you can tell calibre to displays icons of your choosing'
+                ' next to the covers shown in the cover grid, controlled by the'
+                ' metadata of the book.'))
+            self.enabled_toggled()
         self.l1.setText('<p>'+ text)
+
+    def enabled_toggled(self):
+        enabled = self.enabled.isChecked()
+        for x in ('add_advanced_button', 'rules_view', 'up_button', 'down_button', 'add_button', 'remove_button'):
+            getattr(self, x).setEnabled(enabled)
 
     def add_rule(self):
         d = RuleEditor(self.model.fm, self.pref_name)
@@ -997,6 +1015,8 @@ class EditRules(QWidget):  # {{{
 
     def commit(self, prefs):
         self.model.commit(prefs)
+        if self.pref_name == 'cover_grid_icon_rules':
+            gprefs['show_emblems'] = self.enabled.isChecked()
 
 # }}}
 
