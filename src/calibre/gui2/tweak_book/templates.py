@@ -7,7 +7,7 @@ __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
 from calibre import prepare_string_for_xml
-from calibre.gui2.tweak_book import current_container
+from calibre.gui2.tweak_book import current_container, tprefs
 
 DEFAULT_TEMPLATES = {
     'html':
@@ -33,12 +33,15 @@ DEFAULT_TEMPLATES = {
 
 }
 
+def raw_template_for(syntax):
+    return tprefs['templates'].get(syntax, DEFAULT_TEMPLATES.get(syntax, ''))
+
 def template_for(syntax):
     mi = current_container().mi
     data = {
         'TITLE':mi.title,
         'AUTHOR': ' & '.join(mi.authors),
     }
-    template = DEFAULT_TEMPLATES.get(syntax, '')
-    return template.format(**{k:prepare_string_for_xml(v, True) for k, v in data.iteritems()})
+    return raw_template_for(syntax).format(
+        **{k:prepare_string_for_xml(v, True) for k, v in data.iteritems()})
 

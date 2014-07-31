@@ -18,13 +18,14 @@ from PyQt4.Qt import (
     QListWidgetItem, QIcon, QWidget, QSize, QFormLayout, Qt, QSpinBox,
     QCheckBox, pyqtSignal, QDoubleSpinBox, QComboBox, QLabel, QFont,
     QFontComboBox, QPushButton, QSizePolicy, QHBoxLayout, QGroupBox,
-    QToolButton, QVBoxLayout, QSpacerItem)
+    QToolButton, QVBoxLayout, QSpacerItem, QTimer)
 
 from calibre.gui2.keyboard import ShortcutConfig
 from calibre.gui2.tweak_book import tprefs, toolbar_actions, editor_toolbar_actions, actions
 from calibre.gui2.tweak_book.editor.themes import default_theme, all_theme_names, ThemeEditor
 from calibre.gui2.tweak_book.spell import ManageDictionaries
 from calibre.gui2.font_family_chooser import FontFamilyChooser
+from calibre.gui2.tweak_book.widgets import Dialog
 
 class BasicSettings(QWidget):  # {{{
 
@@ -199,6 +200,10 @@ class EditorSettings(BasicSettings):
             'This will cause the beautify current file action to be performed automatically every'
             ' time you open a HTML/CSS/etc. file for editing.'))
         l.addRow(lw)
+
+        self.tb = b = QPushButton(_('Change &templates'))
+        l.addRow(_('Change the templates for creating new files:'), b)
+        b.clicked.connect(lambda : TemplatesDialog(self).exec_())
 
         lw = self('inline_spell_check')
         lw.setText(_('Show misspelled words underlined in the code view'))
@@ -511,6 +516,77 @@ class ToolbarSettings(QWidget):
             with tprefs:
                 tprefs.update(self.current_settings)
 
+# }}}
+
+class TemplatesDialog(Dialog):  # {{{
+
+    def __init__(self, parent=None):
+        self.ignore_changes = False
+        Dialog.__init__(self, _('Customize templates'), 'customize-templates', parent=parent)
+
+    def setup_ui(self):
+        from calibre.gui2.tweak_book.templates import DEFAULT_TEMPLATES
+        from calibre.gui2.tweak_book.editor.text import TextEdit
+        self.l = l = QFormLayout(self)
+        self.setLayout(l)
+
+        self.syntaxes = s = QComboBox(self)
+        s.addItems(sorted(DEFAULT_TEMPLATES.iterkeys()))
+        s.setCurrentIndex(s.findText('html'))
+        l.addRow(_('Choose the &type of template to edit:'), s)
+        s.currentIndexChanged.connect(self.show_template)
+
+        self.helpl = la = QLabel(_(
+            'The variables {0} and {1} will be replaced with the title and author of the book. {2}'
+            ' is where the cursor will be positioned.').format('{TITLE}', '{AUTHOR}', '%CURSOR%'))
+        la.setWordWrap(True)
+        l.addRow(la)
+
+        self.save_timer = t = QTimer(self)
+        t.setSingleShot(True), t.setInterval(100)
+        t.timeout.connect(self._save_syntax)
+
+        self.editor = e = TextEdit(self)
+        l.addRow(e)
+        e.textChanged.connect(self.save_syntax)
+
+        self.show_template()
+
+        self.bb.clear()
+        self.bb.addButton(self.bb.Close)
+        self.rd = b = self.bb.addButton(self.bb.RestoreDefaults)
+        b.clicked.connect(self.restore_defaults)
+        l.addRow(self.bb)
+
+    @property
+    def current_syntax(self):
+        return unicode(self.syntaxes.currentText())
+
+    def show_template(self):
+        from calibre.gui2.tweak_book.templates import raw_template_for
+        syntax = self.current_syntax
+        self.ignore_changes = True
+        try:
+            self.editor.load_text(raw_template_for(syntax), syntax=syntax)
+        finally:
+            self.ignore_changes = False
+
+    def save_syntax(self):
+        if self.ignore_changes:
+            return
+        self.save_timer.start()
+
+    def _save_syntax(self):
+        custom = tprefs['templates']
+        custom[self.current_syntax] = unicode(self.editor.toPlainText())
+        tprefs['templates'] = custom
+
+    def restore_defaults(self):
+        custom = tprefs['templates']
+        custom.pop(self.current_syntax, None)
+        tprefs['templates'] = custom
+        self.show_template()
+        self._save_syntax()
 # }}}
 
 class Preferences(QDialog):
