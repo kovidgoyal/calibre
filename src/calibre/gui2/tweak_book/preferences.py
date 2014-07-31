@@ -178,6 +178,10 @@ class EditorSettings(BasicSettings):
         tw.setMinimum(2), tw.setSuffix(_(' characters')), tw.setMaximum(20)
         l.addRow(_('Width of &tabs:'), tw)
 
+        self.tb = b = QPushButton(_('Change &templates'))
+        l.addRow(_('Templates for new files:'), b)
+        b.clicked.connect(lambda : TemplatesDialog(self).exec_())
+
         lw = self('editor_line_wrap')
         lw.setText(_('&Wrap long lines in the editor'))
         l.addRow(lw)
@@ -200,10 +204,6 @@ class EditorSettings(BasicSettings):
             'This will cause the beautify current file action to be performed automatically every'
             ' time you open a HTML/CSS/etc. file for editing.'))
         l.addRow(lw)
-
-        self.tb = b = QPushButton(_('Change &templates'))
-        l.addRow(_('Change the templates for creating new files:'), b)
-        b.clicked.connect(lambda : TemplatesDialog(self).exec_())
 
         lw = self('inline_spell_check')
         lw.setText(_('Show misspelled words underlined in the code view'))
