@@ -1,63 +1,45 @@
-
-__license__   = 'GPL v3'
-__copyright__ = '2010, Franco Venturi <fventuri at comcast.net>'
 '''
-spectrum.ieee.org
+Fetch RSS-Feeds http://spectrum.ieee.org via feedburner.com
 '''
-
 from calibre.web.feeds.news import BasicNewsRecipe
-from string import capwords
-from urlparse import urljoin
 
-class IEEESpectrum(BasicNewsRecipe):
-    title                 = 'IEEE Spectrum'
-    __author__            = 'Franco Venturi'
-    description           = 'Electronics News from IEEE'
-    publisher             = 'IEEE'
-    category              = 'news, electronics, IT, computer science'
-    oldest_article        = 32
+class BasicUserRecipe1406801106(BasicNewsRecipe):
+    title          = u'IEEE-Spectrum Online'
+    description    = u'The world\'s largest professional association dedicated to advancing technological innovation and excellence for the benefit of humanity'
+    publisher      = u'IEEE.org'
+    __author__     = 'Armin Geller'
+    category       = 'news, electronics, IT, computer science'
+    # Version: 1.0 AGe 2014-07-31
+    language       = 'en'
+    encoding       = 'utf-8'
+    oldest_article = 7
     max_articles_per_feed = 100
-    no_stylesheets        = True
-    use_embedded_content  = False
-    language              = 'en'
-    index                 = 'http://spectrum.ieee.org/magazine/'
-    masthead_url          = 'http://spectrum.ieee.org/images/logo_hdr.png'
+    remove_empty_feeds = True
+    auto_cleanup = True
 
-    remove_javascript     = True
-    remove_tags           = [dict(name={'script':True, 'object':True})]
-    remove_attributes     = ['height','width','alt']
-    keep_only_tags        = [dict(attrs={'class': {'artSctn':True, 'artTitle':True, 'dekTitle': True}}), dict(attrs={'id':'artBody'})]
-
-
-    def parse_index(self):
-        soup = self.index_to_soup(self.index)
-        img = soup.find('img', image='cover.gif', src=True)
-        if img is not None:
-            self.cover_url = 'http://spectrum.ieee.org'+img['src']
-
-        content = soup.find(id='gnrlContent')
-        title = content.find(attrs={'class':'style4'}).string.strip()
-        date = ' '.join(title.split()[0:2])
-        self.timefmt = ' [' + date + ']'
-        contents = []
-        for tag in content.findAll(attrs={'class': {'style2':True, 'lstngTitle':True, 'lstngBody': True}}):
-            if tag['class'] == 'style2':
-                contents.append((capwords(tag.renderContents().strip()), []))
-            elif tag['class'] == 'lstngTitle':
-                url = urljoin(self.index, tag.findPrevious('a')['href']) + '/0'
-                contents[-1][1].append({'title': tag.renderContents().strip(),
-                                        'url': url,
-                                        'date': date,
-                                        'description': '',
-                                        'content': ''
-                                       })
-            elif tag['class'] == 'lstngBody':
-                contents[-1][1][-1]['description'] = tag.renderContents().strip()
-
-        return contents
-
-    def preprocess_html(self, soup):
-        for a in soup.findAll('a'):
-            if not a['href'].lower().startswith('http'):
-               a['href'] = urljoin(self.index, a['href'])
-        return soup
+    feeds          = [
+        (u'IEEE Spectrum Recent Content',
+         u'http://feeds.feedburner.com/IeeeSpectrum?format=xml'),
+        (u' - Aerospace',
+         u'http://feeds.feedburner.com/IeeeSpectrumAerospace?format=xml'),
+        (u' - Biomedical',
+         u'http://feeds.feedburner.com/IeeeSpectrumBiomedical?format=xml'),
+        (u' - Computing',
+         u'http://feeds.feedburner.com/IeeeSpectrumComputing?format=xml'),
+        (u' - Consumer Electronics',
+         u'http://feeds.feedburner.com/IeeeSpectrumConsumer?format=xml'),
+        (u' - Energy',
+         u'http://feeds.feedburner.com/IeeeSpectrumEnergy?format=xml'),
+        (u' - GreenTech',
+         u'http://feeds.feedburner.com/IeeeSpectrumGreenTech?format=xml'),
+        (u' - Robotics',
+         u'http://feeds.feedburner.com/IeeeSpectrumRobotics?format=xml'),
+        (u' - Semiconductors',
+         u'http://feeds.feedburner.com/IeeeSpectrumSemiconductors?format=xml'),
+        (u' - Telecom',
+         u'http://feeds.feedburner.com/IeeeSpectrumTelecom?format=xml'),
+        (u' - At Work',
+         u'http://feeds.feedburner.com/IeeeSpectrumAtWork?format=xml'),
+        (u' - Geek Life',
+         u'http://feeds.feedburner.com/IeeeSpectrumGeekLife?format=xml'),
+    ]
