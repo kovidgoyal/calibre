@@ -244,8 +244,8 @@
           <attribute name="title">
            <string>Main</string>
           </attribute>
-          <layout class="QVBoxLayout" name="verticalLayout_3">
-           <item>
+          <layout class="QFormLayout" name="formLayout_2">
+           <item row="0" column="0" colspan="2">
             <widget class="QLabel" name="label_19">
              <property name="text">
               <string>Control the cover grid view. You can enable this view by clicking the grid button in the bottom right corner of the main calibre window.</string>
@@ -255,7 +255,7 @@
              </property>
             </widget>
            </item>
-           <item>
+           <item row="3" column="1">
             <spacer name="verticalSpacer_6">
              <property name="orientation">
               <enum>Qt::Vertical</enum>
@@ -271,90 +271,49 @@
              </property>
             </spacer>
            </item>
-           <item>
-            <widget class="QCheckBox" name="opt_cover_grid_show_title">
+           <item row="5" column="0">
+            <widget class="QLabel" name="label_14">
              <property name="text">
-              <string>Show a field (such as title) &amp;under the covers</string>
+              <string>&amp;Field to show under the covers:</string>
+             </property>
+             <property name="buddy">
+              <cstring>opt_field_under_covers_in_grid</cstring>
              </property>
             </widget>
            </item>
-           <item>
-            <layout class="QHBoxLayout" name="horizontalLayout_2">
-             <item>
-              <widget class="QLabel" name="label_14">
-               <property name="text">
-                <string>&amp;Field to show under the covers:</string>
-               </property>
-               <property name="buddy">
-                <cstring>opt_field_under_covers_in_grid</cstring>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QComboBox" name="opt_field_under_covers_in_grid"/>
-             </item>
-             <item>
-              <spacer name="horizontalSpacer_2">
-               <property name="orientation">
-                <enum>Qt::Horizontal</enum>
-               </property>
-               <property name="sizeHint" stdset="0">
-                <size>
-                 <width>40</width>
-                 <height>20</height>
-                </size>
-               </property>
-              </spacer>
-             </item>
-            </layout>
+           <item row="5" column="1">
+            <widget class="QComboBox" name="opt_field_under_covers_in_grid"/>
            </item>
-           <item>
-            <layout class="QHBoxLayout" name="horizontalLayout_3">
-             <item>
-              <widget class="QLabel" name="label_16">
-               <property name="text">
-                <string>&amp;Spacing between covers:</string>
-               </property>
-               <property name="buddy">
-                <cstring>opt_cover_grid_spacing</cstring>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QDoubleSpinBox" name="opt_cover_grid_spacing">
-               <property name="toolTip">
-                <string>The spacing between covers. A value of zero means calculate automatically based on cover size.</string>
-               </property>
-               <property name="specialValueText">
-                <string>Automatic</string>
-               </property>
-               <property name="suffix">
-                <string> cm</string>
-               </property>
-               <property name="decimals">
-                <number>2</number>
-               </property>
-               <property name="singleStep">
-                <double>0.100000000000000</double>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <spacer name="horizontalSpacer">
-               <property name="orientation">
-                <enum>Qt::Horizontal</enum>
-               </property>
-               <property name="sizeHint" stdset="0">
-                <size>
-                 <width>40</width>
-                 <height>20</height>
-                </size>
-               </property>
-              </spacer>
-             </item>
-            </layout>
+           <item row="6" column="0">
+            <widget class="QLabel" name="label_16">
+             <property name="text">
+              <string>&amp;Spacing between covers:</string>
+             </property>
+             <property name="buddy">
+              <cstring>opt_cover_grid_spacing</cstring>
+             </property>
+            </widget>
            </item>
-           <item>
+           <item row="6" column="1">
+            <widget class="QDoubleSpinBox" name="opt_cover_grid_spacing">
+             <property name="toolTip">
+              <string>The spacing between covers. A value of zero means calculate automatically based on cover size.</string>
+             </property>
+             <property name="specialValueText">
+              <string>Automatic</string>
+             </property>
+             <property name="suffix">
+              <string> cm</string>
+             </property>
+             <property name="decimals">
+              <number>2</number>
+             </property>
+             <property name="singleStep">
+              <double>0.100000000000000</double>
+             </property>
+            </widget>
+           </item>
+           <item row="7" column="0" colspan="2">
             <widget class="QGroupBox" name="cg_background_box">
              <property name="title">
               <string>Background for the cover grid</string>
@@ -362,12 +321,22 @@
              <layout class="QGridLayout" name="gridLayout_5"/>
             </widget>
            </item>
-           <item>
+           <item row="10" column="0" colspan="2">
             <widget class="QGroupBox" name="groupBox_4">
              <property name="title">
               <string>Cover size</string>
              </property>
              <layout class="QGridLayout" name="gridLayout_4">
+              <item row="0" column="0" colspan="5">
+               <widget class="QLabel" name="label_20">
+                <property name="text">
+                 <string>By default, calibre chooses a cover size based on your computer's screen size. You can change the cover size here:</string>
+                </property>
+                <property name="wordWrap">
+                 <bool>true</bool>
+                </property>
+               </widget>
+              </item>
               <item row="3" column="0" colspan="5">
                <widget class="QLabel" name="cover_grid_aspect_ratio">
                 <property name="text">
@@ -457,6 +426,16 @@ A value of zero means calculate automatically.</string>
                 </property>
                </widget>
               </item>
+              <item row="1" column="3" rowspan="2">
+               <widget class="QPushButton" name="cover_grid_reset_size">
+                <property name="toolTip">
+                 <string>Reset size to automatic</string>
+                </property>
+                <property name="text">
+                 <string>&amp;Reset size</string>
+                </property>
+               </widget>
+              </item>
               <item row="1" column="4">
                <spacer name="horizontalSpacer_4">
                 <property name="orientation">
@@ -470,41 +449,51 @@ A value of zero means calculate automatically.</string>
                 </property>
                </spacer>
               </item>
-              <item row="0" column="0" colspan="5">
-               <widget class="QLabel" name="label_20">
-                <property name="text">
-                 <string>By default, calibre chooses a cover size based on your computer's screen size. You can change the cover size here:</string>
-                </property>
-                <property name="wordWrap">
-                 <bool>true</bool>
-                </property>
-               </widget>
-              </item>
-              <item row="1" column="3" rowspan="2">
-               <widget class="QPushButton" name="cover_grid_reset_size">
-                <property name="toolTip">
-                 <string>Reset size to automatic</string>
-                </property>
-                <property name="text">
-                 <string>&amp;Reset size</string>
-                </property>
-               </widget>
-              </item>
              </layout>
             </widget>
            </item>
-           <item>
-            <spacer name="verticalSpacer">
-             <property name="orientation">
-              <enum>Qt::Vertical</enum>
+           <item row="11" column="1">
+            <widget class="QSpinBox" name="opt_emblem_size">
+             <property name="suffix">
+              <string> px</string>
              </property>
-             <property name="sizeHint" stdset="0">
-              <size>
-               <width>20</width>
-               <height>170</height>
-              </size>
+             <property name="minimum">
+              <number>16</number>
              </property>
-            </spacer>
+             <property name="maximum">
+              <number>1000</number>
+             </property>
+            </widget>
+           </item>
+           <item row="11" column="0">
+            <widget class="QLabel" name="label_21">
+             <property name="text">
+              <string>&amp;Size of the emblems (if any) shown next to the covers: </string>
+             </property>
+             <property name="buddy">
+              <cstring>opt_emblem_size</cstring>
+             </property>
+            </widget>
+           </item>
+           <item row="4" column="0" colspan="2">
+            <widget class="QCheckBox" name="opt_cover_grid_show_title">
+             <property name="text">
+              <string>Show a field (such as title) &amp;under the covers</string>
+             </property>
+            </widget>
+           </item>
+           <item row="12" column="0">
+            <widget class="QLabel" name="label_22">
+             <property name="text">
+              <string>&amp;Location of the emblems shown next to the covers:</string>
+             </property>
+             <property name="buddy">
+              <cstring>opt_emblem_position</cstring>
+             </property>
+            </widget>
+           </item>
+           <item row="12" column="1">
+            <widget class="QComboBox" name="opt_emblem_position"/>
            </item>
           </layout>
          </widget>

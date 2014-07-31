@@ -155,6 +155,9 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         r('cover_browser_reflections', gprefs)
         r('show_rating_in_cover_browser', gprefs)
         r('extra_row_spacing', gprefs)
+        r('emblem_size', gprefs)
+        r('emblem_position', gprefs, choices=[
+            (_('Left'), 'left'), (_('Top'), 'top'), (_('Right'), 'right'), (_('Bottom'), 'bottom')])
 
         def get_esc_lang(l):
             if l == 'en':
