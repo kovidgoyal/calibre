@@ -100,7 +100,9 @@ class Check(QSplitter):
     def save_state(self):
         tprefs.set('check-book-splitter-state', bytearray(self.saveState()))
 
-    def clear_help(self, msg):
+    def clear_help(self, msg=None):
+        if msg is None:
+            msg = _('No problems found')
         self.help.setText('<h2>%s</h2><p><a style="text-decoration:none" title="%s" href="run:check">%s</a></p>' % (
             msg, _('Click to run a check on the book'), _('Run check')))
 
@@ -207,7 +209,7 @@ class Check(QSplitter):
             self.current_item_changed()
             self.items.setFocus(Qt.OtherFocusReason)
         else:
-            self.clear_help(_('No problems found'))
+            self.clear_help()
 
     def fix_errors(self, container, errors):
         with BusyCursor():
@@ -229,6 +231,10 @@ class Check(QSplitter):
         if ev.key() in (Qt.Key_Enter, Qt.Key_Return):
             self.current_item_activated()
         return super(Check, self).keyPressEvent(ev)
+
+    def clear(self):
+        self.items.clear()
+        self.clear_help()
 
 def main():
     from calibre.gui2 import Application
