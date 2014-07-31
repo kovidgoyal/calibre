@@ -790,8 +790,8 @@ class TextEdit(PlainTextEdit):
         if hasattr(self.smarts, 'rename_block_tag'):
             self.smarts.rename_block_tag(self, new_name)
 
-    def current_tag(self):
-        return self.smarts.cursor_position_with_sourceline(self.textCursor())
+    def current_tag(self, for_position_sync=True):
+        return self.smarts.cursor_position_with_sourceline(self.textCursor(), for_position_sync=for_position_sync)
 
     def goto_sourceline(self, sourceline, tags, attribute=None):
         return self.smarts.goto_sourceline(self, sourceline, tags, attribute=attribute)

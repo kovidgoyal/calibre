@@ -481,7 +481,7 @@ class LiveCSS(QWidget):
         if self.update_timer.isActive() or (ed is None and editor_name is not None):
             return QTimer.singleShot(100, self.update_data)
         if ed is not None:
-            sourceline, tags = ed.current_tag()
+            sourceline, tags = ed.current_tag(for_position_sync=False)
             if self.refresh_needed or self.now_showing != (editor_name, sourceline, tags):
                 self.show_data(editor_name, sourceline, tags)
 

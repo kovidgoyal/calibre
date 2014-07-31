@@ -138,8 +138,8 @@ class Editor(QMainWindow):
             self.editor.go_to_line(val)
         return property(fget=fget, fset=fset)
 
-    def current_tag(self):
-        return self.editor.current_tag()
+    def current_tag(self, for_position_sync=True):
+        return self.editor.current_tag(for_position_sync=for_position_sync)
 
     @property
     def number_of_lines(self):
