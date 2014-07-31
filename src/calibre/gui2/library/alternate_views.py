@@ -21,7 +21,7 @@ from PyQt4.Qt import (
     QStyleOptionViewItem, QToolTip, QByteArray, QBuffer, QBrush, qRed, qGreen, qBlue)
 
 from calibre import fit_image, prints, prepare_string_for_xml, human_readable
-from calibre.constants import DEBUG
+from calibre.constants import DEBUG, config_dir
 from calibre.ebooks.metadata import fmt_sidx
 from calibre.utils import join_with_timeout
 from calibre.gui2 import gprefs, config
@@ -311,6 +311,7 @@ class AlternateViews(object):
 class CoverDelegate(QStyledItemDelegate):
 
     MARGIN = 4
+    TOP, LEFT, RIGHT, BOTTOM = object(), object(), object(), object()
 
     @pyqtProperty(float)
     def animated_size(self):
@@ -336,6 +337,11 @@ class CoverDelegate(QStyledItemDelegate):
         width = self.original_width = gprefs['cover_grid_width']
         height = self.original_height = gprefs['cover_grid_height']
         self.original_show_title = show_title = gprefs['cover_grid_show_title']
+        self.emblem_size = gprefs['emblem_size'] if gprefs['show_emblems'] else 0
+        try:
+            self.gutter_position = getattr(self, gprefs['emblem_position'].upper())
+        except Exception:
+            self.gutter_position = self.TOP
 
         if height < 0.1:
             height = auto_height(self.parent())
@@ -355,6 +361,9 @@ class CoverDelegate(QStyledItemDelegate):
                 sz = f.pointSize() * self.parent().logicalDpiY() / 72.0
             self.title_height = max(25, sz + 10)
         self.item_size = self.cover_size + QSize(2 * self.MARGIN, (2 * self.MARGIN) + self.title_height)
+        if self.emblem_size > 0:
+            extra = self.emblem_size + self.MARGIN
+            self.item_size += QSize(extra, 0) if self.gutter_position in (self.LEFT, self.RIGHT) else QSize(0, extra)
         self.calculate_spacing()
         self.animation.setStartValue(1.0)
         self.animation.setKeyValueAt(0.5, 0.5)
@@ -387,6 +396,34 @@ class CoverDelegate(QStyledItemDelegate):
                 traceback.print_exc()
         return ''
 
+    def render_emblem(self, book_id, rule, cache, mi, db, formatter, template_cache):
+        ans = cache[book_id].get(rule, False)
+        if ans is not False:
+            return ans, mi
+        ans = None
+        if mi is None:
+            mi = db.get_proxy_metadata(book_id)
+        ans = formatter.safe_format(rule, mi, '', mi, column_name='cover_grid', template_cache=template_cache) or None
+        cache[book_id][rule] = ans
+        return ans, mi
+
+    def cached_emblem(self, cache, name, raw_icon=None):
+        ans = cache.get(name, False)
+        if ans is not False:
+            return ans
+        sz = self.emblem_size
+        ans = None
+        if raw_icon is not None:
+            ans = raw_icon.pixmap(sz, sz)
+        elif name == ':ondevice':
+            ans = QPixmap(I('ok.png')).scaled(sz, sz, transformMode=Qt.SmoothTransformation)
+        elif name:
+            pmap = QPixmap(os.path.join(config_dir, 'cc_icons', name))
+            if not pmap.isNull():
+                ans = pmap.scaled(sz, sz)
+        cache[name] = ans
+        return ans
+
     def paint(self, painter, option, index):
         QStyledItemDelegate.paint(self, painter, option, QModelIndex())  # draw the hover and selection highlights
         m = index.model()
@@ -408,11 +445,29 @@ class CoverDelegate(QStyledItemDelegate):
         cdata = self.cover_cache[book_id]
         device_connected = self.parent().gui.device_connected is not None
         on_device = device_connected and db.field_for('ondevice', book_id)
+
+        emblem_rules = db.pref('cover_grid_icon_rules', default=())
+        emblems = []
+        if self.emblem_size > 0:
+            mi = None
+            for kind, column, rule in emblem_rules:
+                icon_name, mi = self.render_emblem(book_id, rule, m.cover_grid_emblem_cache, mi, db, m.formatter, m.cover_grid_template_cache)
+                if icon_name is not None:
+                    pixmap = self.cached_emblem(m.cover_grid_bitmap_cache, icon_name)
+                    if pixmap is not None:
+                        emblems.append(pixmap)
+            if marked:
+                emblems.insert(0, self.cached_emblem(m.cover_grid_bitmap_cache, ':marked', m.marked_icon))
+            if on_device:
+                emblems.insert(0, self.cached_emblem(m.cover_grid_bitmap_cache, ':ondevice'))
+
         painter.save()
         right_adjust = 0
         try:
             rect = option.rect
             rect.adjust(self.MARGIN, self.MARGIN, -self.MARGIN, -self.MARGIN)
+            if self.emblem_size > 0:
+                self.paint_emblems(painter, rect, emblems)
             orect = QRect(rect)
             if cdata is None or cdata is False:
                 title = db.field_for('title', book_id, default_value='')
@@ -441,6 +496,8 @@ class CoverDelegate(QStyledItemDelegate):
                     painter.setPen(self.highlight_color)
                     painter.drawText(rect, Qt.AlignCenter|Qt.TextSingleLine,
                                      metrics.elidedText(title, Qt.ElideRight, rect.width()))
+            if self.emblem_size > 0:
+                return  # We dont draw embossed emblems as the ondevice/marked emblems are drawn in the gutter
             if marked:
                 try:
                     p = self.marked_emblem
@@ -454,6 +511,35 @@ class CoverDelegate(QStyledItemDelegate):
                 except AttributeError:
                     p = self.on_device_emblem = QPixmap(I('ok.png')).scaled(48, 48, transformMode=Qt.SmoothTransformation)
                 self.paint_embossed_emblem(p, painter, orect, right_adjust, left=False)
+        finally:
+            painter.restore()
+
+    def paint_emblems(self, painter, rect, emblems):
+        gutter = self.emblem_size + self.MARGIN
+        grect = QRect(rect)
+        gpos = self.gutter_position
+        if gpos is self.TOP:
+            grect.setBottom(grect.top() + gutter)
+            rect.setTop(rect.top() + gutter)
+        elif gpos is self.BOTTOM:
+            grect.setTop(grect.bottom() - gutter + self.MARGIN)
+            rect.setBottom(rect.bottom() - gutter)
+        elif gpos is self.LEFT:
+            grect.setRight(grect.left() + gutter)
+            rect.setLeft(rect.left() + gutter)
+        else:
+            grect.setLeft(grect.right() - gutter + self.MARGIN)
+            rect.setRight(rect.right() - gutter)
+        horizontal = gpos in (self.TOP, self.BOTTOM)
+        painter.save()
+        painter.setClipRect(grect)
+        try:
+            for i, emblem in enumerate(emblems):
+                delta = 0 if i == 0 else self.emblem_size + self.MARGIN
+                grect.moveLeft(grect.left() + delta) if horizontal else grect.moveTop(grect.top() + delta)
+                rect = QRect(grect)
+                rect.setWidth(emblem.width()), rect.setHeight(emblem.height())
+                painter.drawPixmap(rect, emblem)
         finally:
             painter.restore()
 

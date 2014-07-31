@@ -212,9 +212,12 @@ class BooksModel(QAbstractTableModel):  # {{{
         self.color_cache = defaultdict(dict)
         self.icon_cache = defaultdict(dict)
         self.icon_bitmap_cache = {}
+        self.cover_grid_emblem_cache = defaultdict(dict)
+        self.cover_grid_bitmap_cache = {}
         self.color_row_fmt_cache = None
         self.color_template_cache = {}
         self.icon_template_cache = {}
+        self.cover_grid_template_cache = {}
 
     def set_row_height(self, height):
         self.row_height = height
