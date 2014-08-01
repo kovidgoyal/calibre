@@ -340,7 +340,8 @@ class RuleEditor(QDialog):  # {{{
             l3.setVisible(False), self.column_box.setVisible(False), l4.setVisible(False)
 
         def create_filename_box():
-            self.filename_box = QComboBox()
+            self.filename_box = f = QComboBox()
+            f.setMinimumContentsLength(20), f.setSizeAdjustPolicy(f.AdjustToMinimumContentsLengthWithIcon)
             self.populate_icon_filenames()
 
         if self.rule_kind == 'color':
