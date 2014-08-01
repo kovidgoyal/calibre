@@ -67,14 +67,10 @@ class Publish(Command):
 
 class PublishBetas(Command):
 
-    sub_commands = ['sdist', 'stage2',]
+    sub_commands = ['stage2', 'sdist']
 
     def pre_sub_commands(self, opts):
         require_clean_git()
-        dist = self.a(self.j(self.d(self.SRC), 'dist'))
-        if os.path.exists(dist):
-            shutil.rmtree(dist)
-        os.mkdir(dist)
 
     def run(self, opts):
         dist = self.a(self.j(self.d(self.SRC), 'dist'))
