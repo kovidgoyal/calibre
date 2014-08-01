@@ -20,6 +20,58 @@
 #   new recipes:
 #     - title: 
 
+- version: 1.47.0
+  date: 2014-08-01
+
+  new features:
+    - title: "Cover Grid: Allow user defined emblems (icons) to be displayed next to covers"
+      type: major
+      description: "Now you can have your own custom icons displayed next to covers in the cover grid, based on simple rules you create. For example, you can display a heart icon next to books with a rating of more than four stars or a tick mark next to books you read and so on. To create these rules go to Preferences->Cover Grid and click the Emblems tab on the left."
+
+    - title: "E-book Viewer: Use wiktionary.org and wordnik.com as dictionary providers instead of dict.org"
+      description: "When looking up words, the word definition is now opened in a separate browser window.  The language of the dictionary to lookup is automatically selected based on the language of the current book. To lookup a word in the viewer simply select the word with your mouse and right click, then choose 'Lookup in dictionary'"
+      tickets: [1349548]
+
+    - title: "Edit Book: Allow customizing the templates used when creating new, blank HTML/CSS files via Preferences->Editor settings."
+      tickets: [1348986] 
+
+    - title: "Comic Input: When sorting the pages inside a comic, recognize numbers, so that page2 sorts before page10"
+
+    - title: "Conversion: When inserting a metadata jacket, format the series number using roman numerals. This behavior can be disabled by using a custom jacket template, as described here: http://manual.calibre-ebook.com/customize.html#overriding-icons-templates-et-cetera"
+
+  bug fixes:
+    - title: "Edit Book: Fix incorrect results when running replace all on marked text and more than one replacement is made."
+      tickets: [1348941]
+
+    - title: "Edit Book: Live CSS: Improve detection of which tag the cursor is inside when there are multiple tags on the same line."
+      tickets: [1350495]
+
+    - title: "Edit Book: Clear the Check Book panel when opening a new book"
+
+    - title: "Edit Book: Allow the import files into book action to be added to the toolbar"
+
+    - title: "Edit Book: Fix subsetting of fonts not working if the text contains non-BMP unicode characters."
+      tickets: [1349856]
+
+    - title: "News download: Fix HTML parser used in the news download subsystem not preserving whitespace inside <pre> tags"
+      tickets: [1349536]
+
+    - title: "Conversion: Do not strip underscores from classnames."
+      tickets: [1349442]
+
+    - title: "Edit Book: Fix cursor positioning not working when creating a new file from a template"
+
+    - title: "Fix a rare error that could happen when using series columns inside a custom column template"
+      tickets: [1348937]
+
+    - title: "E-book viewer: Handle quoted URLs inside @font-face rules"
+
+  improved recipes:
+    - New Yorker
+
+  new recipes:
+    - title: 
+
 - version: 1.46.0
   date: 2014-07-25
 
