@@ -305,8 +305,12 @@ class Sdist(Command):
         shutil.copytree(self.j(tbase, 'manual'), self.j(tdir, 'translations', 'manual'))
 
         self.info('\tCreating tarfile...')
-        subprocess.check_call(['tar', '-cJf', self.a(self.DEST),
-            'calibre'], cwd=self.d(tdir))
+        dest = self.DEST.rpartition('.')[0]
+        subprocess.check_call(['tar', '-cf', self.a(dest), 'calibre'], cwd=self.d(tdir))
+        self.info('\tCompressing tarfile...')
+        if os.path.exists(self.a(self.DEST)):
+            os.remove(self.a(self.DEST))
+        subprocess.check_call(['xz', '-9', self.a(dest)])
 
     def clean(self):
         if os.path.exists(self.DEST):
