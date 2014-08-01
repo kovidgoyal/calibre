@@ -395,9 +395,11 @@ class HTMLSmarts(NullSmarts):
         nblock, boundary = next_tag_boundary(block, offset, forward=False)
         if boundary is None:
             return None, None
+        in_tag_definition = False
         if boundary.is_start:
             # We are inside a tag, use this tag
             start_block, start_offset = nblock, boundary.offset
+            in_tag_definition = True
         else:
             start_block = None
             while start_block is None and block.isValid():
@@ -414,7 +416,7 @@ class HTMLSmarts(NullSmarts):
         ud = start_block.userData()
         if ud is None:
             return None, None
-        if for_position_sync:
+        if for_position_sync or in_tag_definition:
             return sourceline, [
                 t.name for t in ud.tags if (t.is_start and not t.closing and t.offset <= start_offset)]
         # We discard self-closing as well as tags that are both opened and
