@@ -1,23 +1,23 @@
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import traceback
+import re, binascii, cPickle
+from future_builtins import map
 
 from PyQt4.Qt import (QThread, pyqtSignal, Qt, QUrl, QDialog, QGridLayout,
         QLabel, QCheckBox, QDialogButtonBox, QIcon, QPixmap)
 import mechanize
 
 from calibre.constants import (__appname__, __version__, iswindows, isosx,
-        isportable, is64bit)
+        isportable, is64bit, numeric_version)
 from calibre import browser, prints, as_unicode
 from calibre.utils.config import prefs
 from calibre.gui2 import config, dynamic, open_url
 from calibre.gui2.dialogs.plugin_updater import get_plugin_updates_available
 
 URL = 'http://status.calibre-ebook.com/latest'
-#URL = 'http://localhost:8000/latest'
-NO_CALIBRE_UPDATE = '-0.0.0'
-VSEP = '|'
+# URL = 'http://localhost:8000/latest'
+NO_CALIBRE_UPDATE = (0, 0, 0)
 
 def get_download_url():
     which = ('portable' if isportable else 'windows' if iswindows
@@ -35,14 +35,18 @@ def get_newest_version():
     req.add_header('CALIBRE_INSTALL_UUID', prefs['installation_uuid'])
     version = br.open(req).read().strip()
     try:
-        version = version.decode('utf-8')
+        version = version.decode('utf-8').strip()
     except UnicodeDecodeError:
         version = u''
-    return version
+    ans = NO_CALIBRE_UPDATE
+    m = re.match(ur'(\d+)\.(\d+).(\d+)$', version)
+    if m is not None:
+        ans = tuple(map(int, (m.group(1), m.group(2), m.group(3))))
+    return ans
 
 class CheckForUpdates(QThread):
 
-    update_found = pyqtSignal(object)
+    update_found = pyqtSignal(object, object)
     INTERVAL = 24*60*60
 
     def __init__(self, parent):
@@ -54,7 +58,7 @@ class CheckForUpdates(QThread):
             plugins_update_found = 0
             try:
                 version = get_newest_version()
-                if version and version != __version__ and len(version) < 10:
+                if version[:2] > numeric_version[:2]:
                     calibre_update_version = version
             except Exception as e:
                 prints('Failed to check for calibre update:', as_unicode(e))
@@ -64,10 +68,8 @@ class CheckForUpdates(QThread):
                     plugins_update_found = len(update_plugins)
             except Exception as e:
                 prints('Failed to check for plugin update:', as_unicode(e))
-            if (calibre_update_version != NO_CALIBRE_UPDATE or
-                    plugins_update_found > 0):
-                self.update_found.emit('%s%s%d'%(calibre_update_version,
-                    VSEP, plugins_update_found))
+            if calibre_update_version != NO_CALIBRE_UPDATE or plugins_update_found > 0:
+                self.update_found.emit(calibre_update_version, plugins_update_found)
             self.sleep(self.INTERVAL)
 
 class UpdateNotification(QDialog):
@@ -141,20 +143,15 @@ class UpdateMixin(object):
             self.update_checker.start()
 
     def recalc_update_label(self, number_of_plugin_updates):
-        self.update_found('%s%s%d'%(self.last_newest_calibre_version, VSEP,
-            number_of_plugin_updates), no_show_popup=True)
+        self.update_found(self.last_newest_calibre_version, number_of_plugin_updates)
 
-    def update_found(self, version, force=False, no_show_popup=False):
-        try:
-            calibre_version, plugin_updates = version.split(VSEP)
-            plugin_updates = int(plugin_updates)
-        except:
-            traceback.print_exc()
-            return
+    def update_found(self, calibre_version, number_of_plugin_updates, force=False, no_show_popup=False):
         self.last_newest_calibre_version = calibre_version
-        has_calibre_update = calibre_version and calibre_version != NO_CALIBRE_UPDATE
-        has_plugin_updates = plugin_updates > 0
-        self.plugin_update_found(plugin_updates)
+        has_calibre_update = calibre_version != NO_CALIBRE_UPDATE
+        has_plugin_updates = number_of_plugin_updates > 0
+        self.plugin_update_found(number_of_plugin_updates)
+        version_url = binascii.hexlify(cPickle.dumps((calibre_version, number_of_plugin_updates), -1))
+        calibre_version = u'.'.join(map(unicode, calibre_version))
 
         if not has_calibre_update and not has_plugin_updates:
             self.status_bar.update_label.setVisible(False)
@@ -162,12 +159,12 @@ class UpdateMixin(object):
         if has_calibre_update:
             plt = u''
             if has_plugin_updates:
-                plt = _(' (%d plugin updates)')%plugin_updates
+                plt = _(' (%d plugin updates)')%number_of_plugin_updates
             msg = (u'<span style="color:green; font-weight: bold">%s: '
                     u'<a href="update:%s">%s%s</a></span>') % (
-                        _('Update found'), version, calibre_version, plt)
+                        _('Update found'), version_url, calibre_version, plt)
         else:
-            msg = (u'<a href="update:%s">%d %s</a>')%(version, plugin_updates,
+            msg = (u'<a href="update:%s">%d %s</a>')%(version_url, number_of_plugin_updates,
                     _('updated plugins'))
         self.status_bar.update_label.setText(msg)
         self.status_bar.update_label.setVisible(True)
@@ -177,7 +174,7 @@ class UpdateMixin(object):
                     dynamic.get('update to version %s'%calibre_version, True))):
                 if not no_show_popup:
                     self._update_notification__ = UpdateNotification(calibre_version,
-                            plugin_updates, parent=self)
+                            number_of_plugin_updates, parent=self)
                     self._update_notification__.show()
         elif has_plugin_updates:
             if force:
@@ -207,6 +204,6 @@ class UpdateMixin(object):
     def update_link_clicked(self, url):
         url = unicode(url)
         if url.startswith('update:'):
-            version = url[len('update:'):]
-            self.update_found(version, force=True)
+            calibre_version, number_of_plugin_updates = cPickle.loads(binascii.unhexlify(url[len('update:'):]))
+            self.update_found(calibre_version, number_of_plugin_updates, force=True)
 
