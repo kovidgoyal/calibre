@@ -268,10 +268,10 @@ class Sdist(Command):
             os.makedirs(self.d(self.DEST))
         tdir = tempfile.mkdtemp()
         atexit.register(shutil.rmtree, tdir)
-        tdir = self.j(tdir, 'calibre')
+        tdir = self.j(tdir, 'calibre-%s' % __version__)
         self.info('\tRunning git export...')
         os.mkdir(tdir)
-        subprocess.check_call('git archive master | tar -x -C ' + tdir, shell=True)
+        subprocess.check_call('git archive HEAD | tar -x -C ' + tdir, shell=True)
         for x in open('.gitignore').readlines():
             if not x.startswith('resources/'):
                 continue
@@ -306,7 +306,7 @@ class Sdist(Command):
 
         self.info('\tCreating tarfile...')
         dest = self.DEST.rpartition('.')[0]
-        subprocess.check_call(['tar', '-cf', self.a(dest), 'calibre'], cwd=self.d(tdir))
+        subprocess.check_call(['tar', '-cf', self.a(dest), 'calibre-%s' % __version__], cwd=self.d(tdir))
         self.info('\tCompressing tarfile...')
         if os.path.exists(self.a(self.DEST)):
             os.remove(self.a(self.DEST))
