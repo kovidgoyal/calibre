@@ -6,8 +6,6 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
-# QT5XX: Get rid of is_beta special processing in update.py
-
 # QT5XX: Get rid of the plugin porting stat collection in plugins_mirror.py
 
 # QT5XX: Port the demo UI and editor plugin zip files on the server to Qt 5
