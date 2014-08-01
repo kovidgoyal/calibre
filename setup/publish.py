@@ -75,7 +75,7 @@ class PublishBetas(Command):
     def run(self, opts):
         dist = self.a(self.j(self.d(self.SRC), 'dist'))
         subprocess.check_call(
-            ('rsync --partial -rh --progress --delete %s/ download.calibre-ebook.com:/srv/download/betas/' % dist).split())
+            ('rsync --partial -rh --progress --delete --delete-after %s/ download.calibre-ebook.com:/srv/download/betas/' % dist).split())
 
 class Manual(Command):
 
