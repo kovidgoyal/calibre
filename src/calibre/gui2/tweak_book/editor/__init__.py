@@ -11,7 +11,7 @@ from PyQt4.Qt import QTextCharFormat
 from calibre.ebooks.oeb.base import OEB_DOCS, OEB_STYLES
 from calibre.ebooks.oeb.polish.container import guess_type
 
-_xml_types = {'application/oebps-page-map+xml', 'application/vnd.adobe-page-template+xml'} | {
+_xml_types = {'application/oebps-page-map+xml', 'application/vnd.adobe-page-template+xml', 'application/page-template+xml'} | {
             guess_type('a.'+x) for x in ('ncx', 'opf', 'svg', 'xpgt', 'xml')}
 
 def syntax_from_mime(name, mime):
