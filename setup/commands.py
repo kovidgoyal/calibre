@@ -21,7 +21,7 @@ __all__ = [
         'linux32', 'linux64', 'linux', 'linux_freeze',
         'osx32_freeze', 'osx', 'rsync', 'push',
         'win32_freeze', 'win32', 'win64', 'win',
-        'stage1', 'stage2', 'stage3', 'stage4', 'stage5', 'publish'
+        'stage1', 'stage2', 'stage3', 'stage4', 'stage5', 'publish', 'publish_betas',
         ]
 
 
@@ -58,7 +58,7 @@ kakasi = Kakasi()
 coffee = Coffee()
 
 from setup.publish import Manual, TagRelease, Stage1, Stage2, \
-        Stage3, Stage4, Stage5, Publish
+        Stage3, Stage4, Stage5, Publish, PublishBetas
 manual = Manual()
 tag_release = TagRelease()
 stage1 = Stage1()
@@ -67,6 +67,7 @@ stage3 = Stage3()
 stage4 = Stage4()
 stage5 = Stage5()
 publish = Publish()
+publish_betas = PublishBetas()
 
 from setup.upload import (UploadUserManual, UploadDemo, UploadInstallers,
         UploadToServer, ReUpload)

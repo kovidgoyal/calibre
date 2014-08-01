@@ -65,6 +65,22 @@ class Publish(Command):
         require_git_master()
         require_clean_git()
 
+class PublishBetas(Command):
+
+    sub_commands = ['sdist', 'stage2',]
+
+    def pre_sub_commands(self, opts):
+        require_clean_git()
+        dist = self.a(self.j(self.d(self.SRC), 'dist'))
+        if os.path.exists(dist):
+            shutil.rmtree(dist)
+        os.mkdir(dist)
+
+    def run(self, opts):
+        dist = self.a(self.j(self.d(self.SRC), 'dist'))
+        subprocess.check_call(
+            ('rsync --partial -rh --progress --delete %s/ download.calibre-ebook.com:/srv/download/betas/' % dist).split())
+
 class Manual(Command):
 
     description='''Build the User Manual '''
