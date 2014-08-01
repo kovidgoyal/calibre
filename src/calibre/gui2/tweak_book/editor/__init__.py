@@ -23,6 +23,8 @@ def syntax_from_mime(name, mime):
     if mime.startswith('image/') and mime.partition('/')[-1].lower() in {
         'jpeg', 'jpg', 'gif', 'png'}:
         return 'raster_image'
+    if mime.endswith('+xml'):
+        return 'xml'
 
 def editor_from_syntax(syntax, parent=None):
     if syntax in {'text', 'html', 'css', 'xml'}:
