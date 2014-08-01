@@ -39,6 +39,8 @@
 
     - title: "Conversion: When inserting a metadata jacket, format the series number using roman numerals. This behavior can be disabled by using a custom jacket template, as described here: http://manual.calibre-ebook.com/customize.html#overriding-icons-templates-et-cetera"
 
+    - title: "Template language: New function author_links: for each author of a book returns the author link value entered in Manage Authors."
+
   bug fixes:
     - title: "Edit Book: Fix incorrect results when running replace all on marked text and more than one replacement is made."
       tickets: [1348941]
