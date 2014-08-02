@@ -344,7 +344,8 @@ class PreviewIntegration
         is_ancestor = false
         while target and target.ownerDocument
             css = get_matched_css(target, is_ancestor, all_properties)
-            if css.length > 0
+            # We want to show the Matched CSS rules header even if no rules matched
+            if css.length > 0 or not is_ancestor
                 ans['nodes'].push({'name':target.tagName?.toLowerCase(), 'css':css, 'is_ancestor':is_ancestor, 'sourceline':target.getAttribute('data-lnum')})
             target = target.parentNode
             is_ancestor = true
