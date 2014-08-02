@@ -396,79 +396,39 @@ class HTMLSmarts(NullSmarts):
         number and a list of tags defined on that line upto and including the
         containing tag. If ``for_position_sync`` is False then the tag
         *containing* the cursor is returned instead of the tag just before the
-        cursor. '''
-        block = cursor.block()
-        offset = cursor.positionInBlock()
-        nblock, boundary = next_tag_boundary(block, offset, forward=False)
-        if boundary is None:
-            return None, None
-        in_tag_definition = False
-        if boundary.is_start:
-            # We are inside a tag, use this tag
-            start_block, start_offset = nblock, boundary.offset
-            in_tag_definition = True
+        cursor. Note that finding the containing tag is relative expensive, so
+        use with care.'''
+        block, offset = cursor.block(), cursor.positionInBlock()
+        if for_position_sync:
+            nblock, boundary = next_tag_boundary(block, offset, forward=False)
+            if boundary is None:
+                return None, None
+            if boundary.is_start:
+                # We are inside a tag, use this tag
+                start_block, start_offset = nblock, boundary.offset
+            else:
+                start_block = None
+                while start_block is None and block.isValid():
+                    ud = block.userData()
+                    if ud is not None:
+                        for boundary in reversed(ud.tags):
+                            if boundary.is_start and not boundary.closing and boundary.offset <= offset:
+                                start_block, start_offset = block, boundary.offset
+                                break
+                    block, offset = block.previous(), sys.maxint
         else:
-            start_block = None
-            while start_block is None and block.isValid():
-                ud = block.userData()
-                if ud is not None:
-                    for boundary in reversed(ud.tags):
-                        if boundary.is_start and not boundary.closing and boundary.offset <= offset:
-                            start_block, start_offset = block, boundary.offset
-                            break
-                block, offset = block.previous(), sys.maxint
+            tag = find_closest_containing_tag(block, offset, max_tags=2000)
+            if tag is None:
+                return None, None
+            start_block, start_offset = tag.start_block, tag.start_offset
         if start_block is None:
             return None, None
         sourceline = start_block.blockNumber() + 1  # blockNumber() is zero based
         ud = start_block.userData()
         if ud is None:
             return None, None
-        if for_position_sync or in_tag_definition:
-            return sourceline, [
-                t.name for t in ud.tags if (t.is_start and not t.closing and t.offset <= start_offset)]
-        # We discard self-closing as well as tags that are both opened and
-        # closed from the end of the list of tags as we want the tag that
-        # contains the cursor, not the last tag before the cursor
-        class Tag(object):
-            __slots__ = 'name', 'is_closed'
-            def __init__(self, name, is_closed):
-                self.name = name
-                self.is_closed = is_closed
-            def __repr__(self):
-                return '<%s%s>' % (self.name, ('/' if self.is_closed else ''))
-
-        if cursor.block().blockNumber() == start_block.blockNumber():
-            offset = cursor.positionInBlock()
-        tag_stack = []
-        in_tag = None
-        for t in ud.tags:
-            if t.offset < offset:
-                if t.is_start:
-                    if t.closing:
-                        # </tag
-                        for tag in reversed(tag_stack):
-                            is_match = not tag.is_closed and tag.name == t.name
-                            tag.is_closed = True
-                            if is_match:
-                                break
-                    else:
-                        # <tag
-                        in_tag = t.name
-                else:
-                    # tag>
-                    if in_tag is not None:
-                        tag_stack.append(Tag(in_tag, t.self_closing))
-                        in_tag = None
-
-        all_tags = []
-        found_open = False
-        for tag in reversed(tag_stack):
-            if not tag.is_closed:
-                found_open = True
-            if found_open:
-                all_tags.append(tag.name)
-
-        return sourceline, list(reversed(all_tags))
+        return sourceline, [
+            t.name for t in ud.tags if (t.is_start and not t.closing and t.offset <= start_offset)]
 
     def goto_sourceline(self, editor, sourceline, tags, attribute=None):
         ''' Move the cursor to the tag identified by sourceline and tags (a
