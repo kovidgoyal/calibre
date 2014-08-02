@@ -70,9 +70,15 @@ def find_closest_containing_tag(block, offset, max_tags=sys.maxint):
     if block is None:
         return None
     if boundary.is_start:
-        # We are inside a tag, therefore the containing tag is the parent tag of
-        # this tag
-        return find_closest_containing_tag(block, boundary.offset)
+        # We are inside a tag already
+        if boundary.closing:
+            return find_closest_containing_tag(block, boundary.offset)
+        eblock, eboundary = next_tag_boundary(block, boundary.offset)
+        if eblock is None or eboundary is None or eboundary.is_start:
+            return None
+        if eboundary.self_closing:
+            return Tag(block, boundary, eblock, eboundary, self_closing=True)
+        return find_closest_containing_tag(eblock, eboundary.offset + 1)
     stack = []
     block, tag_end = block, boundary
     while block is not None and max_tags > 0:
@@ -155,7 +161,8 @@ def find_closing_tag(tag, max_tags=sys.maxint):
     ''' Find the closing tag corresponding to the specified tag. To find it we
     search for the first closing tag after the specified tag that does not
     match a previous opening tag. Search through at most max_tags. '''
-
+    if tag.self_closing:
+        return None
     stack = []
     block, offset = tag.end_block, tag.end_offset
     while block.isValid() and max_tags > 0:
