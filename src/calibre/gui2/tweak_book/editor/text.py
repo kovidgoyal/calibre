@@ -132,6 +132,7 @@ class PlainTextEdit(QPlainTextEdit):
 class TextEdit(PlainTextEdit):
 
     link_clicked = pyqtSignal(object)
+    smart_highlighting_updated = pyqtSignal()
 
     def __init__(self, parent=None, expected_geometry=(100, 50)):
         PlainTextEdit.__init__(self, parent)
@@ -274,6 +275,7 @@ class TextEdit(PlainTextEdit):
             sel.append(self.current_search_mark)
         if instant and not self.highlighter.has_requests:
             sel.extend(self.smarts.get_extra_selections(self))
+            self.smart_highlighting_updated.emit()
         else:
             self.smarts_highlight_timer.start()
         self.setExtraSelections(sel)

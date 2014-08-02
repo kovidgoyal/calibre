@@ -107,6 +107,7 @@ class Editor(QMainWindow):
     cursor_position_changed = pyqtSignal()
     word_ignored = pyqtSignal(object, object)
     link_clicked = pyqtSignal(object)
+    smart_highlighting_updated = pyqtSignal()
 
     def __init__(self, syntax, parent=None):
         QMainWindow.__init__(self, parent)
@@ -129,6 +130,7 @@ class Editor(QMainWindow):
         self.editor.copyAvailable.connect(self._copy_available)
         self.editor.cursorPositionChanged.connect(self._cursor_position_changed)
         self.editor.link_clicked.connect(self.link_clicked)
+        self.editor.smart_highlighting_updated.connect(self.smart_highlighting_updated)
 
     @dynamic_property
     def current_line(self):
@@ -328,7 +330,7 @@ class Editor(QMainWindow):
         self.restore_state()
 
     def break_cycles(self):
-        for x in ('modification_state_changed', 'word_ignored', 'link_clicked'):
+        for x in ('modification_state_changed', 'word_ignored', 'link_clicked', 'smart_highlighting_updated'):
             try:
                 getattr(self, x).disconnect()
             except TypeError:
@@ -344,6 +346,7 @@ class Editor(QMainWindow):
         self.editor.copyAvailable.disconnect()
         self.editor.cursorPositionChanged.disconnect()
         self.editor.link_clicked.disconnect()
+        self.editor.smart_highlighting_updated.disconnect()
         self.editor.setPlainText('')
         self.editor.smarts = None
 

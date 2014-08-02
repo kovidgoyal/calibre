@@ -1134,14 +1134,6 @@ class Boss(QObject):
             if name is not None and getattr(ed, 'syntax', None) == 'html':
                 self.gui.preview.sync_to_editor(name, ed.current_tag())
 
-    def sync_live_css_to_editor(self):
-        ' Sync the Live CSS panel to the current cursor position in the current editor '
-        ed = self.gui.central.current_editor
-        if ed is not None:
-            name = editor_name(ed)
-            if name is not None and getattr(ed, 'syntax', None) == 'html':
-                self.gui.live_css.sync_to_editor(name)
-
     def goto_style_declaration(self, data):
         name = data['name']
         editor = self.edit_file(name, syntax=data['syntax'])
@@ -1152,12 +1144,13 @@ class Boss(QObject):
         editor.data_changed.connect(self.editor_data_changed)
         editor.copy_available_state_changed.connect(self.editor_copy_available_state_changed)
         editor.cursor_position_changed.connect(self.sync_preview_to_editor)
-        editor.cursor_position_changed.connect(self.sync_live_css_to_editor)
         editor.cursor_position_changed.connect(self.update_cursor_position)
         if hasattr(editor, 'word_ignored'):
             editor.word_ignored.connect(self.word_ignored)
         if hasattr(editor, 'link_clicked'):
             editor.link_clicked.connect(self.editor_link_clicked)
+        if getattr(editor, 'syntax', None) == 'html':
+            editor.smart_highlighting_updated.connect(self.gui.live_css.sync_to_editor)
         if data is not None:
             if use_template:
                 editor.init_from_template(data)
@@ -1284,7 +1277,6 @@ class Boss(QObject):
                     # focused. This is not inefficient since multiple requests
                     # to sync are de-bounced with a 100 msec wait.
                     self.sync_preview_to_editor()
-                self.sync_live_css_to_editor()
             if name is not None:
                 self.gui.file_list.mark_name_as_current(name)
             if ed.has_line_numbers:

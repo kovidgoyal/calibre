@@ -470,8 +470,8 @@ class LiveCSS(QWidget):
         actions['auto-reload-preview'].setEnabled(True)
         return QWidget.showEvent(self, ev)
 
-    def sync_to_editor(self, name):
-        self.start_update_timer()
+    def sync_to_editor(self):
+        self.update_data()
 
     def update_data(self):
         if not self.is_visible or self.preview_is_refreshing:

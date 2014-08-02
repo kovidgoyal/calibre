@@ -270,6 +270,10 @@ def set_style_property(tag, property_name, value, editor):
 
 class HTMLSmarts(NullSmarts):
 
+    def __init__(self, *args, **kwargs):
+        NullSmarts.__init__(self, *args, **kwargs)
+        self.last_matched_tag = None
+
     def get_extra_selections(self, editor):
         ans = []
 
@@ -288,7 +292,7 @@ class HTMLSmarts(NullSmarts):
 
         c = editor.textCursor()
         block, offset = c.block(), c.positionInBlock()
-        tag = find_closest_containing_tag(block, offset, max_tags=2000)
+        tag = self.last_matched_tag = find_closest_containing_tag(block, offset, max_tags=2000)
         if tag is not None:
             add_tag(tag)
             tag = find_closing_tag(tag, max_tags=4000)
@@ -391,13 +395,14 @@ class HTMLSmarts(NullSmarts):
 
         return False
 
-    def cursor_position_with_sourceline(self, cursor, for_position_sync=True):
+    def cursor_position_with_sourceline(self, cursor, for_position_sync=True, use_matched_tag=True):
         ''' Return the tag just before the current cursor as a source line
         number and a list of tags defined on that line upto and including the
         containing tag. If ``for_position_sync`` is False then the tag
         *containing* the cursor is returned instead of the tag just before the
-        cursor. Note that finding the containing tag is relative expensive, so
-        use with care.'''
+        cursor. Note that finding the containing tag is expensive, so
+        use with care. As an optimization, the last tag matched by
+        get_extra_selections is used, unless use_matched_tag is False. '''
         block, offset = cursor.block(), cursor.positionInBlock()
         if for_position_sync:
             nblock, boundary = next_tag_boundary(block, offset, forward=False)
@@ -417,7 +422,11 @@ class HTMLSmarts(NullSmarts):
                                 break
                     block, offset = block.previous(), sys.maxint
         else:
-            tag = find_closest_containing_tag(block, offset, max_tags=2000)
+            tag = None
+            if use_matched_tag:
+                tag = self.last_matched_tag
+            if tag is None:
+                tag = find_closest_containing_tag(block, offset, max_tags=2000)
             if tag is None:
                 return None, None
             start_block, start_offset = tag.start_block, tag.start_offset
