@@ -677,7 +677,7 @@ class Metadata(object):
             elif datatype == 'text' and fmeta['is_multiple']:
                 if isinstance(res, dict):
                     res = [k + ':' + v for k,v in res.items()]
-                res = fmeta['is_multiple']['list_to_ui'].join(sorted(res, key=sort_key))
+                res = fmeta['is_multiple']['list_to_ui'].join(sorted(filter(None, res), key=sort_key))
             elif datatype == 'series' and series_with_index:
                 res = res + ' [%s]'%self.format_series_index()
             elif datatype == 'datetime':
