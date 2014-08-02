@@ -30,6 +30,9 @@ scp -r ~/work/vim/zsh-history-substring-search $server:work/vim
 cd /usr/local && git clone https://github.com/kovidgoyal/calibre.git
 echo '#!/bin/sh\ncd /usr/local/calibre && git pull -q' > /usr/local/bin/update-calibre && chmod +x /usr/local/bin/update-calibre
 
+Edit /etc/default/rcS and set
+FSCKFIX=yes
+
 Add the following to crontab::
     @hourly    /usr/bin/python /usr/local/calibre/setup/plugins_mirror.py
     @hourly    /usr/local/bin/update-calibre
