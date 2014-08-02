@@ -52,6 +52,9 @@ def run_checks(container):
             continue
         errors.extend(check_css_parsing(name, raw))
 
+    if errors:
+        return errors
+
     for name, mt, raw in html_items + xml_items:
         errors.extend(check_encoding_declarations(name, container))
 
