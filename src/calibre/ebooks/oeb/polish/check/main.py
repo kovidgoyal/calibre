@@ -45,15 +45,15 @@ def run_checks(container):
     errors.extend(run_checkers(check_xml_parsing, html_items))
     errors.extend(run_checkers(check_raster_images, raster_images))
 
+    if errors:
+        return errors
+
     # cssutils is not thread safe
     for name, mt, raw in stylesheets:
         if not raw:
             errors.append(EmptyFile(name))
             continue
         errors.extend(check_css_parsing(name, raw))
-
-    if errors:
-        return errors
 
     for name, mt, raw in html_items + xml_items:
         errors.extend(check_encoding_declarations(name, container))
