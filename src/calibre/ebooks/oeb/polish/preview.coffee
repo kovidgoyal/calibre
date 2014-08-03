@@ -325,8 +325,8 @@ class PreviewIntegration
             elem = document.querySelector('[name="' + anchor + '"]')
         if elem
             elem.scrollIntoView()
-            lnum = elem.getAttribute('data-lnum')
-        window.py_bridge.request_sync('', '', lnum)
+            address = get_sourceline_address(elem)
+        window.py_bridge.request_sync('', '', address)
 
     live_css: (sourceline, tags) =>
         target = null
