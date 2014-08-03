@@ -3,8 +3,8 @@ __license__     = 'GPL v3'
 __copyright__   = '08 Januery 2011, desUBIKado'
 __author__      = 'desUBIKado'
 __description__ = 'Daily newspaper from Biscay'
-__version__     = 'v0.10'
-__date__        = '07, August 2013'
+__version__     = 'v0.11'
+__date__        = '26, July 2014'
 '''
 http://www.elcorreo.com/
 '''
@@ -13,13 +13,13 @@ import time
 import re
 from calibre.web.feeds.news import BasicNewsRecipe
 
-class heraldo(BasicNewsRecipe):
+class elcorreo(BasicNewsRecipe):
     __author__            = 'desUBIKado'
     description           = 'Daily newspaper from Biscay'
     title                 = u'El Correo'
     publisher             = 'Vocento'
     category              = 'News, politics, culture, economy, general interest'
-    oldest_article        = 2
+    oldest_article        = 1
     delay                 = 1
     max_articles_per_feed = 100
     no_stylesheets        = True
@@ -27,42 +27,97 @@ class heraldo(BasicNewsRecipe):
     masthead_url          = 'http://www.elcorreo.com/vizcaya/noticias/201002/02/Media/logo-elcorreo-nuevo.png'
     language              = 'es'
     timefmt               = '[%a, %d %b, %Y]'
-    encoding              = 'iso-8859-1'
+    encoding              = 'utf-8'
     remove_empty_feeds    = True
-    remove_javascript     = False
+    remove_javascript     = True
 
     feeds              = [
-                           (u'Portada',       u'http://www.elcorreo.com/vizcaya/portada.xml'),
-                           (u'Local',         u'http://www.elcorreo.com/vizcaya/rss/feeds/vizcaya.xml'),
-                           (u'Internacional', u'hhttp://www.elcorreo.com/vizcaya/rss/feeds/internacional.xml'),
-                           (u'Econom\xeda',   u'http://www.elcorreo.com/vizcaya/rss/feeds/economia.xml'),
-                           (u'Pol\xedtica',   u'http://www.elcorreo.com/vizcaya/rss/feeds/politica.xml'),
-                           (u'Opini\xf3n',    u'http://www.elcorreo.com/vizcaya/rss/feeds/opinion.xml'),
-                           (u'Deportes',      u'http://www.elcorreo.com/vizcaya/rss/feeds/deportes.xml'),
-                           (u'Sociedad',      u'http://www.elcorreo.com/vizcaya/rss/feeds/sociedad.xml'),
-                           (u'Cultura',       u'http://www.elcorreo.com/vizcaya/rss/feeds/cultura.xml'),
-                           (u'Televisi\xf3n', u'http://www.elcorreo.com/vizcaya/rss/feeds/television.xml'),
-                           (u'Gente',         u'http://www.elcorreo.com/vizcaya/rss/feeds/gente.xml')
+                           (u'Portada',        u'http://www.elcorreo.com/bizkaia/rss/atom/portada'),
+                           (u'Mundo',         u'http://www.elcorreo.com/bizkaia/rss/atom?seccion=internacional'),
+                           (u'Bizkaia',          u'http://www.elcorreo.com/bizkaia/rss/atom?seccion=bizkaia'),
+                           (u'Guipuzkoa',        u'http://www.elcorreo.com/bizkaia/rss/atom?seccion=gipuzkoa'),
+                           (u'Araba',            u'http://www.elcorreo.com/bizkaia/rss/atom?seccion=araba'),
+                           (u'La Rioja',         u'http://www.elcorreo.com/bizkaia/rss/atom?seccion=larioja'),
+                           (u'Miranda',          u'http://www.elcorreo.com/bizkaia/rss/atom?seccion=miranda'),
+                           (u'Economía',         u'http://www.elcorreo.com/bizkaia/rss/atom?seccion=economia'),
+                           (u'Culturas',         u'http://www.elcorreo.com/bizkaia/rss/atom?seccion=culturas'),
+                           (u'Politica',         u'http://www.elcorreo.com/bizkaia/rss/atom?seccion=politica'),
+                           (u'Tecnología',       u'http://www.elcorreo.com/bizkaia/rss/atom?seccion=tecnologia'),
+                           (u'Gente - Estilo',   u'http://www.elcorreo.com/bizkaia/rss/atom?seccion=gente-estilo'),
+                           (u'Planes',           u'http://www.elcorreo.com/bizkaia/rss/atom?seccion=planes'),
+                           (u'Athletic',         u'http://www.elcorreo.com/bizkaia/rss/atom?seccion=athletic'),
+                           (u'Alavés',           u'http://www.elcorreo.com/bizkaia/rss/atom?seccion=alaves'),
+                           (u'Bilbao Basket',    u'http://www.elcorreo.com/bizkaia/rss/atom?seccion=bilbaobasket'),
+                           (u'Baskonia',         u'http://www.elcorreo.com/bizkaia/rss/atom?seccion=baskonia'),
+                           (u'Deportes',         u'http://www.elcorreo.com/bizkaia/rss/atom?seccion=deportes'),
+                           (u'Jaiak',            u'http://www.elcorreo.com/bizkaia/rss/atom?seccion=jaiak'),
+                           (u'La Blanca',        u'http://www.elcorreo.com/bizkaia/rss/atom?seccion=la-blanca-vitoria'),
+                           (u'Aste Nagusia',     u'http://www.elcorreo.com/bizkaia/rss/atom?seccion=aste-nagusia-bilbao'),
+                           (u'Semana Santa',     u'http://www.elcorreo.com/bizkaia/rss/atom?seccion=semana-santa'),
+                           (u'Festivales',       u'http://www.elcorreo.com/bizkaia/rss/atom?seccion=festivales')
                          ]
 
     keep_only_tags     = [
-                          dict(name='div', attrs={'class':['grouphead','date','art_head','story-texto','text','colC_articulo','contenido_comentarios']}),
-                          dict(name='div' , attrs={'id':['articulo','story-texto','story-entradilla']})
+                          dict(name='ul', attrs={'class':['media-list']})
                          ]
 
     remove_tags        = [
-                          dict(name='div', attrs={'class':['art_barra','detalles-opinion','formdenunciar','modulo calculadoras','nubetags','pie']}),
-                          dict(name='div', attrs={'class':['mod_lomas','bloque_lomas','blm_header','link-app3','link-app4','botones_listado']}),
-                          dict(name='div', attrs={'class':['navegacion_galeria','modulocanalpromocion','separa','separacion','compartir','tags_relacionados']}),
-                          dict(name='div', attrs={'class':['moduloBuscadorDeportes','modulo-gente','moddestacadopeq','OpcArt','articulopiniones']}),
-                          dict(name='div', attrs={'class':['modulo-especial','publiEspecial','carruselNoticias','vj','modulocomun2']}),
-                          dict(name='div', attrs={'id':['articulopina','webs_asociadas']}),
-                          dict(name='br', attrs={'class':'clear'}),
-                          dict(name='form', attrs={'name':'frm_conversor2'})
+                          dict(name='span', attrs={'class':['no-comments']})
                          ]
 
-    remove_tags_before = dict(name='div' , attrs={'class':'articulo  '})
-    remove_tags_after  = dict(name='div' , attrs={'class':'robapaginas'})
+    remove_tags_before = dict(name='ul' , attrs={'class':'media-list'})
+    remove_tags_after  = dict(name='ul' , attrs={'class':'media-list'})
+
+    # Usamos la versión para móviles
+
+    def print_version(self, url):
+        return url.replace('http://www.', 'http://m.')
+
+    _processed_links = []
+
+    def get_article_url(self, article):
+
+        link = article.get('link', None)
+
+        if link is None:
+            return article
+
+        # modificamos la url de las noticias de los equipos deportivos para que funcionen, por ejemplo:
+        # http://athletic.elcorreo.com/noticias/201407/27/muniain-estrella-athletic-para-20140727093046.html
+        # http://m.elcorreo.com/noticias/201407/27/muniain-estrella-athletic-para-20140727093046.html?external=deportes/athletic
+
+        parte = link.split('/')
+
+        if parte[2] == 'athletic.elcorreo.com':
+            link = 'http://m.elcorreo.com/' + parte[3] + '/' + parte[4] + '/' + parte[5] + '/' + parte[6] + '?external=deportes/athletic'
+        else:
+            if parte[2] == 'baskonia.elcorreo.com':
+                link = 'http://m.elcorreo.com/' + parte[3] + '/' + parte[4] + '/' + parte[5] + '/' + parte[6] + '?external=deportes/baskonia'
+            else:
+                if parte[2] == 'bilbaobasket.elcorreo.com':
+                    link = 'http://m.elcorreo.com/' + parte[3] + '/' + parte[4] + '/' + parte[5] + '/' + parte[6] + '?external=deportes/bilbaobasket'
+                else:
+                    if parte[2] == 'alaves.elcorreo.com':
+                        link = 'http://m.elcorreo.com/' + parte[3] + '/' + parte[4] + '/' + parte[5] + '/' + parte[6] + '?external=deportes/alaves'
+
+        # A veces el mismo articulo aparece en la versión de Alava y en la de Bizkaia. Por ejemplo:
+        # http://www.elcorreo.com/alava/deportes/motor/formula-1/201407/27/ecclestone-quiere-briatore-ayude-20140727140820-rc.html
+        # http://www.elcorreo.com/bizkaia/deportes/motor/formula-1/201407/27/ecclestone-quiere-briatore-ayude-20140727140820-rc.html
+        # para controlar los duplicados, unificamos las url para que sean siempre de bizkaia (excepto para la sección "araba")
+
+        if ((parte[3] == 'alava') and (parte[4] != 'araba')):
+            link = link.replace('elcorreo.com/alava', 'elcorreo.com/bizkaia')
+
+        # Controlamos si el artículo ha sido incluido en otro feed para eliminarlo
+
+        if not (link in self._processed_links):
+            self._processed_links.append(link)
+        else:
+            link = None
+
+        return link
+
+    # Recuperamos la portada de papel (la imagen format=1 tiene mayor resolucion)
 
     def get_cover_url(self):
         cover = None
@@ -70,7 +125,7 @@ class heraldo(BasicNewsRecipe):
         year = str(st.tm_year)
         month = "%.2d" % st.tm_mon
         day = "%.2d" % st.tm_mday
-                 # http://info.elcorreo.com/pdf/07082013-viz.pdf
+        # http://info.elcorreo.com/pdf/07082013-viz.pdf
         cover='http://info.elcorreo.com/pdf/'+ day +  month + year +'-viz.pdf'
         br = BasicNewsRecipe.get_browser(self)
         try:
@@ -80,40 +135,24 @@ class heraldo(BasicNewsRecipe):
             cover ='http://www.elcorreo.com/vizcaya/noticias/201002/02/Media/logo-elcorreo-nuevo.png'
         return cover
 
+    # Para cambiar el estilo del texto
+
     extra_css = '''
-                    h1, .headline {font-family:Arial,Helvetica,sans-serif; font-weight:bold;font-size:30px;}
-                    h2, .subhead {font-family:Arial,Helvetica,sans-serif; font-style:italic; font-weight:normal;font-size:18px;}
-                    h3, .overhead {font-family:Arial,Helvetica,sans-serif; font-weight:bold;font-size:16px;}
-                    h4 {font-family:Arial,Helvetica,sans-serif; font-weight:bold;font-size:16px;}
-                    h5 {font-family:Arial,Helvetica,sans-serif; font-weight:normal;font-size:16px;}
-                    h6 {font-family:Arial,Helvetica,sans-serif; font-weight:bold;font-size:16px;}
-                    .date,.byline, .photo {font-family:Arial,Helvetica,sans-serif; font-weight:bold;font-size:14px;}
-                    img{margin-bottom: 0.4em}
-                '''
+    h4 {font-family:Arial,Helvetica,sans-serif; font-weight:bold;font-size:28px;}
+    .place {font-family:Arial,Helvetica,sans-serif; font-weight:normal;font-size:12px;}
+    .name {font-family:Arial,Helvetica,sans-serif; font-weight:bold;font-size:12px;}
+    .overhead, .compLadillo, description {font-family:georgia,serif; font-weight:bold;font-size:18px;}
+    .compSumario, .detalle-titular {font-family:georgia,serif; font-style:italic; font-weight:normal;font-size:22px;color:#4D4D4D;}
+    img{margin-bottom: 0.4em}
+    '''
 
     preprocess_regexps = [
 
- # Para presentar la imagen de los video incrustados
-                           (re.compile(r'var RUTA_IMAGEN', re.DOTALL|re.IGNORECASE), lambda match: '</script><img src'),
-                           (re.compile(r'.jpg";', re.DOTALL|re.IGNORECASE), lambda match: '.jpg">'),
-                           (re.compile(r'var SITIO = "elcorreo";', re.DOTALL|re.IGNORECASE), lambda match: '<SCRIPT TYPE="text/JavaScript"'),
+    # Para presentar la imagen de los video incrustados
+                           (re.compile(r'stillURLVideo: \'', re.DOTALL|re.IGNORECASE), lambda match: '</script><img src="'),
+                           (re.compile(r'.jpg\',', re.DOTALL|re.IGNORECASE), lambda match: '.jpg"><SCRIPT TYPE="text/JavaScript"'),
 
-# Para separar los parrafos con una linea en blanco
-                           (re.compile(r'<div class="p"', re.DOTALL|re.IGNORECASE), lambda match: '<p></p><div class="p"'),
-
-# Para poner una linea en blanco entre el subttulo y la fecha y hora de la noticia
-                           (re.compile(r'<div class="date">', re.DOTALL|re.IGNORECASE), lambda match: '<br><div class="date">'),
-
-# Para poner una linea en blanco entre la entradilla de los videos incrustados y el texto anterior
-                           (re.compile(r'<div class="video"', re.DOTALL|re.IGNORECASE), lambda match: '<br><div class="video"'),
-
-# Para sacar las fotos a partir de la primera cuando se presentan como una galeria
-                           (re.compile(r'src="/img/shim.gif"', re.DOTALL|re.IGNORECASE), lambda match: ''),
-                           (re.compile(r'rel=', re.DOTALL|re.IGNORECASE), lambda match: 'src='),
-
-# Para quitar el enlace del titulo
-                           (re.compile(r'<h1 class="headline">\n<a href="', re.DOTALL|re.IGNORECASE), lambda match: '<h1 class="'),
-                           (re.compile(r'</a>\n</h1>', re.DOTALL|re.IGNORECASE), lambda match: '</h1>'),
+    # Para quitar el punto de la lista
+                           (re.compile(r'<li class="destacada">', re.DOTALL|re.IGNORECASE), lambda match: '<div class="destacada"></div>')
 
                          ]
-
