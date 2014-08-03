@@ -375,6 +375,7 @@ class Build(Command):
            PODOFO_LIB_DIR - podofo library files
 
            QMAKE          - Path to qmake
+           SIP_BIN        - Path to the sip binary
            VS90COMNTOOLS  - Location of Microsoft Visual Studio 9 Tools (windows only)
 
         ''')

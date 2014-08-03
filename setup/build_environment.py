@@ -6,10 +6,8 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, subprocess, glob, re
+import os, subprocess, glob, re, sys, sysconfig
 from distutils.spawn import find_executable
-
-import sipconfig
 
 from setup import isosx, iswindows, is64bit, islinux
 is64bit
@@ -92,19 +90,19 @@ pyqt = {x:readvar(y) for x, y in (
     ('inc', 'QT_INSTALL_HEADERS'), ('lib', 'QT_INSTALL_LIBS')
 )}
 qt = {x:readvar(y) for x, y in {'libs':'QT_INSTALL_LIBS', 'plugins':'QT_INSTALL_PLUGINS'}.iteritems()}
-c = sipconfig.Configuration()
-pyqt['sip_bin'] = c.sip_bin + ('.exe' if iswindows and not c.sip_bin.endswith('.exe') else '')
+
+pyqt['sip_bin'] = os.environ.get('SIP_BIN', 'sip')
 
 from PyQt5.QtCore import PYQT_CONFIGURATION
 pyqt['sip_flags'] = PYQT_CONFIGURATION['sip_flags']
 def get_sip_dir(q):
-    for x in ('', 'PyQt5', 'sip/PyQt5'):
+    for x in ('', 'Py2-PyQt5', 'PyQt5', 'sip/PyQt5'):
         base = os.path.join(q, x)
         if os.path.exists(os.path.join(base, 'QtWidgets')):
             return base
     return q
-pyqt['pyqt_sip_dir'] = get_sip_dir(c.default_sip_dir)
-pyqt['sip_inc_dir'] = c.sip_inc_dir
+pyqt['pyqt_sip_dir'] = get_sip_dir(sys.prefix if iswindows else os.path.join(sys.prefix, 'share', 'sip'))
+pyqt['sip_inc_dir'] = sysconfig.get_path('include')
 
 glib_flags = subprocess.check_output([PKGCONFIG, '--libs', 'glib-2.0']).strip() if islinux else ''
 fontconfig_flags = subprocess.check_output([PKGCONFIG, '--libs', 'fontconfig']).strip() if islinux else ''
