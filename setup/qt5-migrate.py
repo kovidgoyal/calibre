@@ -10,6 +10,8 @@ __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
 # QT5XX: Port the demo UI and editor plugin zip files on the server to Qt 5
 
+# QT5XX: Modify notes about glibc 2.13, os x 10.7 and new Qt/PyQt linux dependencies on the server
+
 # QT5XX: Delete this file after migration is completed
 
 import os, re
