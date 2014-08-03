@@ -100,7 +100,7 @@ def get_sip_dir(q):
         base = os.path.join(q, x)
         if os.path.exists(os.path.join(base, 'QtWidgets')):
             return base
-    return q
+    raise EnvironmentError('Failed to find the location of the PyQt5 .sip files')
 pyqt['pyqt_sip_dir'] = get_sip_dir(sys.prefix if iswindows else os.path.join(sys.prefix, 'share', 'sip'))
 pyqt['sip_inc_dir'] = sysconfig.get_path('include')
 
