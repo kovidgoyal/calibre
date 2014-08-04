@@ -121,6 +121,15 @@ Working with the Table of Contents
 .. autofunction:: create_inline_toc
 
 
+Edit Book Tool
+--------------------
+
+.. autoclass:: calibre.gui2.tweak_book.plugin.Tool
+   :show-inheritance:
+   :members:
+   :member-order: bysource
+
+
 Controlling the editor's user interface
 -----------------------------------------
 

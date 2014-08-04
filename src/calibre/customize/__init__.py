@@ -39,6 +39,8 @@ class Plugin(object):  # {{{
     Useful methods:
 
         * :meth:`temporary_file`
+        * :meth:`__enter__`
+        * :meth:`load_resources`
 
     '''
     #: List of platforms this plugin works on
@@ -263,6 +265,12 @@ class Plugin(object):  # {{{
             return False
 
     def __enter__(self, *args):
+        '''
+        Add this plugin to the python path so that it's contents become directly importable.
+        Useful when bundling large python libraries into the plugin. Use it like this::
+            with plugin:
+                import something
+        '''
         if self.plugin_path is not None:
             from calibre.utils.zipfile import ZipFile
             zf = ZipFile(self.plugin_path)
@@ -272,6 +280,7 @@ class Plugin(object):  # {{{
             for ext in ('pyd', 'so', 'dll', 'dylib'):
                 if ext in extensions:
                     zip_safe = False
+                    break
             if zip_safe:
                 sys.path.insert(0, self.plugin_path)
                 self.sys_insertion_path = self.plugin_path

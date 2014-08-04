@@ -17,6 +17,22 @@ from calibre.gui2.tweak_book.boss import get_boss
 
 class Tool(object):
 
+    '''
+    .. module:: calibre.gui2.tweak_book.plugin.Tool
+
+    The base class for individual tools in an Edit Book plugin. Useful members include:
+
+        * ``self.plugin``: A reference to the :class:`calibre.customize.Plugin` object to which this tool belongs.
+        * self. :attr:`boss`
+        * self. :attr:`gui`
+
+    Methods that must be overridden in sub classes:
+
+        * :meth:`create_action`
+        * :meth:`register_shortcut`
+
+    '''
+
     #: Set this to a unique name it will be used as a key
     name = None
 
@@ -103,7 +119,9 @@ def load_plugin_tools(plugin):
     else:
         for x in vars(main).itervalues():
             if isinstance(x, type) and x is not Tool and issubclass(x, Tool):
-                yield x()
+                ans = x()
+                ans.plugin = plugin
+                yield ans
 
 def plugin_action_sid(plugin, tool, for_toolbar=True):
     return plugin.name + tool.name + ('toolbar' if for_toolbar else 'menu')
