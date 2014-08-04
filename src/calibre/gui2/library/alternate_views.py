@@ -399,14 +399,14 @@ class CoverDelegate(QStyledItemDelegate):
                 traceback.print_exc()
         return ''
 
-    def render_emblem(self, book_id, rule, cache, mi, db, formatter, template_cache):
+    def render_emblem(self, book_id, rule, rule_index, cache, mi, db, formatter, template_cache):
         ans = cache[book_id].get(rule, False)
         if ans is not False:
             return ans, mi
         ans = None
         if mi is None:
             mi = db.get_proxy_metadata(book_id)
-        ans = formatter.safe_format(rule, mi, '', mi, column_name='cover_grid', template_cache=template_cache) or None
+        ans = formatter.safe_format(rule, mi, '', mi, column_name='cover_grid%d' % rule_index, template_cache=template_cache) or None
         cache[book_id][rule] = ans
         return ans, mi
 
@@ -453,8 +453,8 @@ class CoverDelegate(QStyledItemDelegate):
         emblems = []
         if self.emblem_size > 0:
             mi = None
-            for kind, column, rule in emblem_rules:
-                icon_name, mi = self.render_emblem(book_id, rule, m.cover_grid_emblem_cache, mi, db, m.formatter, m.cover_grid_template_cache)
+            for i, (kind, column, rule) in enumerate(emblem_rules):
+                icon_name, mi = self.render_emblem(book_id, rule, i, m.cover_grid_emblem_cache, mi, db, m.formatter, m.cover_grid_template_cache)
                 if icon_name is not None:
                     pixmap = self.cached_emblem(m.cover_grid_bitmap_cache, icon_name)
                     if pixmap is not None:
