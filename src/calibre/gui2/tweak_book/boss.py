@@ -285,7 +285,7 @@ class Boss(QObject):
                                 det_msg=job.traceback, show=True)
         if cn:
             self.save_manager.clear_notify_data()
-        self.gui.check_book.clear()
+        self.gui.check_book.clear_at_startup()
         dictionaries.clear_ignored(), dictionaries.clear_caches()
         parse_worker.clear()
         container = job.result

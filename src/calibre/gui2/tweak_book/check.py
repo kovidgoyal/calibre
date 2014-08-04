@@ -73,13 +73,16 @@ class Check(QSplitter):
         h.anchorClicked.connect(self.link_clicked)
         h.setOpenLinks(False)
         self.addWidget(h)
-        self.clear_help(_('Check has not been run'))
         self.setStretchFactor(0, 100)
         self.setStretchFactor(1, 50)
+        self.clear_at_startup()
 
         state = tprefs.get('check-book-splitter-state', None)
         if state is not None:
             self.restoreState(state)
+
+    def clear_at_startup(self):
+        self.clear_help(_('Check has not been run'))
 
     def context_menu(self, pos):
         m = QMenu()
