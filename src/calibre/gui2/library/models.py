@@ -973,7 +973,7 @@ class BooksModel(QAbstractTableModel):  # {{{
             if not val:
                 val = None
         elif typ == 'bool':
-            val = bool(value)
+            val = value if value is None else bool(value)
         elif typ == 'rating':
             val = int(value)
             val = 0 if val < 0 else 5 if val > 5 else val
