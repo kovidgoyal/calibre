@@ -242,7 +242,7 @@
          </property>
          <widget class="QWidget" name="tab_5">
           <attribute name="title">
-           <string>Main</string>
+           <string>Layout</string>
           </attribute>
           <layout class="QFormLayout" name="formLayout_2">
            <item row="0" column="0" colspan="2">
