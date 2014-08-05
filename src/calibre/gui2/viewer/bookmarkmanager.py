@@ -9,14 +9,16 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 import cPickle
 
 from PyQt4.Qt import (
-    Qt, QListWidget, QListWidgetItem, QItemSelectionModel,
+    Qt, QListWidget, QListWidgetItem, QItemSelectionModel, QAction,
     QGridLayout, QPushButton, QIcon, QWidget, pyqtSignal, QLabel)
 
 from calibre.gui2 import choose_save_file, choose_files
+from calibre.utils.icu import sort_key
 
 class BookmarksList(QListWidget):
 
     changed = pyqtSignal()
+    bookmark_activated = pyqtSignal(object)
 
     def __init__(self, parent=None):
         QListWidget.__init__(self, parent)
@@ -27,11 +29,27 @@ class BookmarksList(QListWidget):
         self.setStyleSheet('QListView::item { padding: 0.5ex }')
         self.viewport().setAcceptDrops(True)
         self.setDropIndicatorShown(True)
+        self.setContextMenuPolicy(Qt.ActionsContextMenu)
+        self.ac_edit = ac = QAction(_('Edit this bookmark'), self)
+        self.addAction(ac)
+        self.ac_sort = ac = QAction(_('Sort by name'), self)
+        self.addAction(ac)
+        self.ac_sort_pos = ac = QAction(_('Sort by position in book'), self)
+        self.addAction(ac)
 
     def dropEvent(self, ev):
         QListWidget.dropEvent(self, ev)
         if ev.isAccepted():
             self.changed.emit()
+
+    def keyPressEvent(self, ev):
+        if ev.key() in (Qt.Key_Enter, Qt.Key_Return):
+            i = self.currentItem()
+            if i is not None:
+                self.bookmark_activated.emit(i)
+                ev.accept()
+                return
+        return QListWidget.keyPressEvent(self, ev)
 
 
 class BookmarkManager(QWidget):
@@ -50,7 +68,11 @@ class BookmarkManager(QWidget):
         bl.itemChanged.connect(self.item_changed)
         l.addWidget(bl, 0, 0, 1, -1)
         bl.itemClicked.connect(self.item_activated)
+        bl.bookmark_activated.connect(self.item_activated)
         bl.changed.connect(lambda : self.edited.emit(self.get_bookmarks()))
+        bl.ac_edit.triggered.connect(self.edit_bookmark)
+        bl.ac_sort.triggered.connect(self.sort_by_name)
+        bl.ac_sort_pos.triggered.connect(self.sort_by_pos)
 
         self.la = la = QLabel(_(
             'Double click to edit and drag-and-drop to re-order the bookmarks'))
@@ -112,7 +134,22 @@ class BookmarkManager(QWidget):
         item = self.bookmarks_list.currentItem()
         if item is not None:
             self.bookmarks_list.editItem(item)
-            self.edited.emit(self.get_bookmarks())
+
+    def sort_by_name(self):
+        bm = self.get_bookmarks()
+        bm.sort(key=lambda x:sort_key(x['title']))
+        self.set_bookmarks(bm)
+        self.edited.emit(bm)
+
+    def sort_by_pos(self):
+        def pos_key(b):
+            if b.get('type', None) == 'cfi':
+                return b['spine'], b['pos']
+            return (None, None)
+        bm = self.get_bookmarks()
+        bm.sort(key=pos_key)
+        self.set_bookmarks(bm)
+        self.edited.emit(bm)
 
     def bm_to_item(self, bm):
         return bytearray(cPickle.dumps(bm, -1))
