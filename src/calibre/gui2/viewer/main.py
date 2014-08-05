@@ -11,7 +11,6 @@ from PyQt4.Qt import (
 
 from calibre.gui2.viewer.ui import Main as MainWindow
 from calibre.gui2.viewer.printing import Printing
-from calibre.gui2.viewer.bookmarkmanager import BookmarkManager
 from calibre.gui2.viewer.toc import TOC
 from calibre.gui2.widgets import ProgressIndicator
 from calibre.gui2 import (Application, ORG_NAME, APP_UID, choose_files,
@@ -109,6 +108,9 @@ class EbookViewer(MainWindow):
         self.search.focus_to_library.connect(lambda: self.view.setFocus(Qt.OtherFocusReason))
         self.toc.pressed[QModelIndex].connect(self.toc_clicked)
         self.reference.goto.connect(self.goto)
+        self.bookmarks.edited.connect(self.bookmarks_edited)
+        self.bookmarks.activated.connect(self.goto_bookmark)
+        self.bookmarks.create_requested.connect(self.bookmark)
 
         self.set_bookmarks([])
         self.load_theme_menu()
@@ -762,11 +764,16 @@ class EbookViewer(MainWindow):
             self.iterator.add_bookmark(bm)
             self.set_bookmarks(self.iterator.bookmarks)
 
-    def set_bookmarks(self, bookmarks):
+    def bookmarks_edited(self, bookmarks):
+        self.build_bookmarks_menu(bookmarks)
+        self.iterator.set_bookmarks(bookmarks)
+        self.iterator.save_bookmarks()
+
+    def build_bookmarks_menu(self, bookmarks):
         self.bookmarks_menu.clear()
         sc = _(' or ').join(self.view.shortcuts.get_shortcuts('Bookmark'))
         self.bookmarks_menu.addAction(_("Bookmark this location [%s]") % sc, self.bookmark)
-        self.bookmarks_menu.addAction(_("Manage Bookmarks"), self.manage_bookmarks)
+        self.bookmarks_menu.addAction(_("Show/hide Bookmarks"), self.bookmarks_dock.toggleViewAction().trigger)
         self.bookmarks_menu.addSeparator()
         current_page = None
         self.existing_bookmarks = []
@@ -779,17 +786,9 @@ class EbookViewer(MainWindow):
                 self.bookmarks_menu.addAction(bm['title'], partial(self.goto_bookmark, bm))
         return current_page
 
-    def manage_bookmarks(self):
-        bmm = BookmarkManager(self, self.iterator.bookmarks)
-        if bmm.exec_() != BookmarkManager.Accepted:
-            return
-
-        bookmarks = bmm.get_bookmarks()
-
-        if bookmarks != self.iterator.bookmarks:
-            self.iterator.set_bookmarks(bookmarks)
-            self.iterator.save_bookmarks()
-            self.set_bookmarks(bookmarks)
+    def set_bookmarks(self, bookmarks):
+        self.bookmarks.set_bookmarks(bookmarks)
+        return self.build_bookmarks_menu(bookmarks)
 
     def save_current_position(self):
         if not self.get_remember_current_page_opt():

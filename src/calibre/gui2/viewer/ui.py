@@ -19,6 +19,7 @@ from calibre.gui2 import rating_font
 from calibre.gui2.main_window import MainWindow
 from calibre.gui2.search_box import SearchBox2
 from calibre.gui2.viewer.documentview import DocumentView
+from calibre.gui2.viewer.bookmarkmanager import BookmarkManager
 from calibre.gui2.viewer.toc import TOCView
 
 class DoubleSpinBox(QDoubleSpinBox):  # {{{
@@ -213,6 +214,14 @@ class Main(MainWindow):
         d.setWidget(self.toc)
         d.close()  # starts out hidden
         self.addDockWidget(Qt.LeftDockWidgetArea, d)
+        d.setAllowedAreas(Qt.LeftDockWidgetArea | Qt.RightDockWidgetArea)
+
+        self.bookmarks_dock = d = QDockWidget(_('Bookmarks'), self)
+        self.bookmarks = BookmarkManager(self)
+        d.setObjectName('bookmarks-dock')
+        d.setWidget(self.bookmarks)
+        d.close()  # starts out hidden
+        self.addDockWidget(Qt.RightDockWidgetArea, d)
         d.setAllowedAreas(Qt.LeftDockWidgetArea | Qt.RightDockWidgetArea)
 
         self.create_actions()
