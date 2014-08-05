@@ -62,7 +62,7 @@ class Reference(QLineEdit):  # {{{
 class Metadata(QWebView):  # {{{
 
     def __init__(self, parent):
-        QWebView.__init__(self, parent.centralWidget())
+        QWebView.__init__(self, parent)
         s = self.settings()
         s.setAttribute(s.JavascriptEnabled, False)
         self.page().setLinkDelegationPolicy(self.page().DelegateAllLinks)
@@ -71,10 +71,10 @@ class Metadata(QWebView):  # {{{
         palette.setBrush(QPalette.Base, Qt.transparent)
         self.page().setPalette(palette)
         self.css = P('templates/book_details.css', data=True).decode('utf-8')
-
-        self.view = parent.centralwidget
-        self.setGeometry(self.view.geometry())
         self.setVisible(False)
+
+    def update_layout(self):
+        self.setGeometry(0, 0, self.parent().width(), self.parent().height())
 
     def show_opf(self, opf, ext=''):
         from calibre.gui2.book_details import render_html
@@ -89,7 +89,7 @@ class Metadata(QWebView):  # {{{
 
     def setVisible(self, x):
         if x:
-            self.setGeometry(self.view.geometry())
+            self.update_layout()
         QWebView.setVisible(self, x)
 
     def paintEvent(self, ev):
@@ -217,10 +217,15 @@ class Main(MainWindow):
 
         self.create_actions()
 
-        self.metadata = Metadata(self)
+        self.metadata = Metadata(self.centralwidget)
         self.history = History(self.action_back, self.action_forward)
 
         self.resize(653, 746)
+
+    def resizeEvent(self, ev):
+        if self.metadata.isVisible():
+            self.metadata.update_layout()
+        return MainWindow.resizeEvent(self, ev)
 
     def create_actions(self):
         def a(name, text, icon, tb=None, sc_name=None, menu_name=None, popup_mode=QToolButton.MenuButtonPopup):
