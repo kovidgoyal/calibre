@@ -12,7 +12,7 @@ from PyQt4.Qt import (
     QIcon, QWidget, Qt, QGridLayout, QScrollBar, QToolBar, QAction,
     QToolButton, QMenu, QDoubleSpinBox, pyqtSignal, QLineEdit,
     QRegExpValidator, QRegExp, QPalette, QColor, QBrush, QPainter,
-    QDockWidget, QSize)
+    QDockWidget, QSize, QLabel)
 from PyQt4.QtWebKit import QWebView
 
 from calibre.gui2 import rating_font
@@ -170,6 +170,7 @@ class Main(MainWindow):
         c.setLayout(cl), cl.setContentsMargins(0, 0, 0, 0)
 
         self.view = v = DocumentView(self)
+        v.setMinimumSize(100, 100)
         self.view.initialize_view(debug_javascript)
         v.setObjectName('view')
         cl.addWidget(v)
@@ -228,6 +229,50 @@ class Main(MainWindow):
 
         self.metadata = Metadata(self.centralwidget)
         self.history = History(self.action_back, self.action_forward)
+
+        self.full_screen_label = QLabel('''
+                <center>
+                <h1>%s</h1>
+                <h3>%s</h3>
+                <h3>%s</h3>
+                <h3>%s</h3>
+                </center>
+                '''%(_('Full screen mode'),
+                    _('Right click to show controls'),
+                    _('Tap in the left or right page margin to turn pages'),
+                    _('Press Esc to quit')),
+                    self.centralWidget())
+        self.full_screen_label.setVisible(False)
+        self.full_screen_label.final_height = 200
+        self.full_screen_label.setFocusPolicy(Qt.NoFocus)
+        self.full_screen_label.setStyleSheet('''
+        QLabel {
+            text-align: center;
+            background-color: white;
+            color: black;
+            border-width: 1px;
+            border-style: solid;
+            border-radius: 20px;
+        }
+        ''')
+        self.clock_label = QLabel('99:99', self.centralWidget())
+        self.clock_label.setVisible(False)
+        self.clock_label.setFocusPolicy(Qt.NoFocus)
+        self.info_label_style = '''
+            QLabel {
+                text-align: center;
+                border-width: 1px;
+                border-style: solid;
+                border-radius: 8px;
+                background-color: %s;
+                color: %s;
+                font-family: monospace;
+                font-size: larger;
+                padding: 5px;
+        }'''
+        self.pos_label = QLabel('2000/4000', self.centralWidget())
+        self.pos_label.setVisible(False)
+        self.pos_label.setFocusPolicy(Qt.NoFocus)
 
         self.resize(653, 746)
 

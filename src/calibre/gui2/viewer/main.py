@@ -6,7 +6,7 @@ from functools import partial
 from threading import Thread
 
 from PyQt4.Qt import (
-    QApplication, Qt, QIcon, QTimer, QByteArray, QSize, QTime, QLabel,
+    QApplication, Qt, QIcon, QTimer, QByteArray, QSize, QTime,
     QPropertyAnimation, QUrl, QInputDialog, QAction, QModelIndex)
 
 from calibre.gui2.viewer.ui import Main as MainWindow
@@ -118,30 +118,6 @@ class EbookViewer(MainWindow):
         if pathtoebook is not None:
             f = functools.partial(self.load_ebook, pathtoebook, open_at=open_at)
             QTimer.singleShot(50, f)
-        self.view.setMinimumSize(100, 100)
-        self.full_screen_label = QLabel('''
-                <center>
-                <h1>%s</h1>
-                <h3>%s</h3>
-                <h3>%s</h3>
-                <h3>%s</h3>
-                </center>
-                '''%(_('Full screen mode'),
-                    _('Right click to show controls'),
-                    _('Tap in the left or right page margin to turn pages'),
-                    _('Press Esc to quit')),
-                    self.centralWidget())
-        self.full_screen_label.setVisible(False)
-        self.full_screen_label.setStyleSheet('''
-        QLabel {
-            text-align: center;
-            background-color: white;
-            color: black;
-            border-width: 1px;
-            border-style: solid;
-            border-radius: 20px;
-        }
-        ''')
         self.window_mode_changed = None
         self.toggle_toolbar_action = QAction(_('Show/hide controls'), self)
         self.toggle_toolbar_action.setCheckable(True)
@@ -150,24 +126,6 @@ class EbookViewer(MainWindow):
         self.addAction(self.toggle_toolbar_action)
         self.full_screen_label_anim = QPropertyAnimation(
                 self.full_screen_label, 'size')
-        self.clock_label = QLabel('99:99', self.centralWidget())
-        self.clock_label.setVisible(False)
-        self.clock_label.setFocusPolicy(Qt.NoFocus)
-        self.info_label_style = '''
-            QLabel {
-                text-align: center;
-                border-width: 1px;
-                border-style: solid;
-                border-radius: 8px;
-                background-color: %s;
-                color: %s;
-                font-family: monospace;
-                font-size: larger;
-                padding: 5px;
-        }'''
-        self.pos_label = QLabel('2000/4000', self.centralWidget())
-        self.pos_label.setVisible(False)
-        self.pos_label.setFocusPolicy(Qt.NoFocus)
         self.clock_timer = QTimer(self)
         self.clock_timer.timeout.connect(self.update_clock)
 
@@ -338,7 +296,7 @@ class EbookViewer(MainWindow):
 
     def show_full_screen_label(self):
         f = self.full_screen_label
-        height = f.final_height = 200
+        height = f.final_height
         width = int(0.7*self.view.width())
         f.resize(width, height)
         if self.view.document.show_fullscreen_help:
