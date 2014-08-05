@@ -89,6 +89,16 @@ class BookmarkManager(QWidget):
         b.clicked.connect(self.delete_bookmark)
         l.addWidget(b, l.rowCount() - 1, 1)
 
+        self.button_delete = b = QPushButton(_('Sort &name'), self)
+        b.setToolTip(_('Sort bookmarks by name'))
+        b.clicked.connect(self.sort_by_name)
+        l.addWidget(b)
+
+        self.button_delete = b = QPushButton(_('Sort &position'), self)
+        b.setToolTip(_('Sort bookmarks by position in book'))
+        b.clicked.connect(self.sort_by_pos)
+        l.addWidget(b, l.rowCount() - 1, 1)
+
         self.button_export = b = QPushButton(QIcon(I('back.png')), _('E&xport'), self)
         b.clicked.connect(self.export_bookmarks)
         l.addWidget(b)
