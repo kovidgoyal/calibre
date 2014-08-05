@@ -143,7 +143,8 @@ def get_library_path(parent=None):
             os.makedirs(library_path)
         except:
             error_dialog(parent, _('Failed to create library'),
-                    _('Failed to create calibre library at: %r.')%library_path,
+                    _('Failed to create calibre library at: %r.\n'
+                      'You will be asked to choose a new library location.')%library_path,
                     det_msg=traceback.format_exc(), show=True)
             library_path = choose_dir(parent, 'choose calibre library',
                 _('Choose a location for your new calibre e-book library'),
