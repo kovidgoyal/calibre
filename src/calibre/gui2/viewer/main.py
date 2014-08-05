@@ -15,8 +15,7 @@ from calibre.gui2.viewer.toc import TOC
 from calibre.gui2.widgets import ProgressIndicator
 from calibre.gui2 import (
     Application, ORG_NAME, APP_UID, choose_files, info_dialog, error_dialog,
-    open_url, setup_gui_option_parser, detach_gui,
-    workaround_broken_under_mouse)
+    open_url, setup_gui_option_parser, detach_gui)
 from calibre.ebooks.oeb.iterator.book import EbookIterator
 from calibre.ebooks import DRMError
 from calibre.constants import islinux, filesystem_encoding
@@ -156,12 +155,6 @@ class EbookViewer(MainWindow):
         self.action_toggle_paged_mode.toggled[bool].connect(self.toggle_paged_mode)
         if (start_in_fullscreen or self.view.document.start_in_fullscreen):
             self.action_full_screen.trigger()
-        if workaround_broken_under_mouse is not None:
-            for bar in (self.tool_bar, self.tool_bar2):
-                for ac in bar.actions():
-                    m = ac.menu()
-                    if m is not None:
-                        m.aboutToHide.connect(partial(workaround_broken_under_mouse, bar.widgetForAction(ac)))
 
     def toggle_paged_mode(self, checked, at_start=False):
         in_paged_mode = not self.action_toggle_paged_mode.isChecked()

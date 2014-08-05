@@ -7,15 +7,15 @@ __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import textwrap
+from functools import partial
 
-from PyQt4.Qt import (
+from PyQt5.Qt import (
     QIcon, QWidget, Qt, QGridLayout, QScrollBar, QToolBar, QAction,
     QToolButton, QMenu, QDoubleSpinBox, pyqtSignal, QLineEdit,
     QRegExpValidator, QRegExp, QPalette, QColor, QBrush, QPainter,
-    QDockWidget, QSize, QLabel)
-from PyQt4.QtWebKit import QWebView
+    QDockWidget, QSize, QWebView, QLabel)
 
-from calibre.gui2 import rating_font
+from calibre.gui2 import rating_font, workaround_broken_under_mouse
 from calibre.gui2.main_window import MainWindow
 from calibre.gui2.search_box import SearchBox2
 from calibre.gui2.viewer.documentview import DocumentView
@@ -277,6 +277,13 @@ class Main(MainWindow):
         self.pos_label.setFocusPolicy(Qt.NoFocus)
 
         self.resize(653, 746)
+
+        if workaround_broken_under_mouse is not None:
+            for bar in (self.tool_bar, self.tool_bar2):
+                for ac in bar.actions():
+                    m = ac.menu()
+                    if m is not None:
+                        m.aboutToHide.connect(partial(workaround_broken_under_mouse, bar.widgetForAction(ac)))
 
     def resizeEvent(self, ev):
         if self.metadata.isVisible():
