@@ -130,7 +130,7 @@ class EbookViewer(MainWindow):
                     _('Right click to show controls'),
                     _('Tap in the left or right page margin to turn pages'),
                     _('Press Esc to quit')),
-                    self)
+                    self.centralWidget())
         self.full_screen_label.setVisible(False)
         self.full_screen_label.setStyleSheet('''
         QLabel {
@@ -150,7 +150,7 @@ class EbookViewer(MainWindow):
         self.addAction(self.toggle_toolbar_action)
         self.full_screen_label_anim = QPropertyAnimation(
                 self.full_screen_label, 'size')
-        self.clock_label = QLabel('99:99', self)
+        self.clock_label = QLabel('99:99', self.centralWidget())
         self.clock_label.setVisible(False)
         self.clock_label.setFocusPolicy(Qt.NoFocus)
         self.info_label_style = '''
@@ -165,7 +165,7 @@ class EbookViewer(MainWindow):
                 font-size: larger;
                 padding: 5px;
         }'''
-        self.pos_label = QLabel('2000/4000', self)
+        self.pos_label = QLabel('2000/4000', self.centralWidget())
         self.pos_label.setVisible(False)
         self.pos_label.setFocusPolicy(Qt.NoFocus)
         self.clock_timer = QTimer(self)
@@ -338,10 +338,9 @@ class EbookViewer(MainWindow):
 
     def show_full_screen_label(self):
         f = self.full_screen_label
-        height = 200
+        height = f.final_height = 200
         width = int(0.7*self.view.width())
         f.resize(width, height)
-        f.move((self.view.width() - width)//2, (self.view.height()-height)//2)
         if self.view.document.show_fullscreen_help:
             f.setVisible(True)
             a = self.full_screen_label_anim
@@ -355,6 +354,7 @@ class EbookViewer(MainWindow):
             self.show_clock()
         if self.view.document.fullscreen_pos:
             self.show_pos_label()
+        self.relayout_fullscreen_labels()
 
     def show_clock(self):
         self.clock_label.setVisible(True)
@@ -364,21 +364,23 @@ class EbookViewer(MainWindow):
         self.clock_label.setStyleSheet(self.info_label_style%(
                 'rgba(0, 0, 0, 0)', self.view.document.colors()[1]))
         self.clock_label.resize(self.clock_label.sizeHint())
-        sw = QApplication.desktop().screenGeometry(self.view)
-        vswidth = (self.vertical_scrollbar.width() if
-                self.vertical_scrollbar.isVisible() else 0)
-        self.clock_label.move(sw.width() - vswidth - 15
-                - self.clock_label.width(), sw.height() -
-                self.clock_label.height()-10)
         self.update_clock()
 
     def show_pos_label(self):
         self.pos_label.setVisible(True)
         self.pos_label.setStyleSheet(self.info_label_style%(
                 'rgba(0, 0, 0, 0)', self.view.document.colors()[1]))
-        sw = QApplication.desktop().screenGeometry(self.view)
-        self.pos_label.move(15, sw.height() - self.pos_label.height()-10)
         self.update_pos_label()
+
+    def relayout_fullscreen_labels(self):
+        vswidth = (self.vertical_scrollbar.width() if
+                self.vertical_scrollbar.isVisible() else 0)
+        p = self.pos_label
+        p.move(15, p.parent().height() - p.height()-10)
+        c = self.clock_label
+        c.move(c.parent().width() - vswidth - 15 - c.width(), c.parent().height() - c.height() - 10)
+        f = self.full_screen_label
+        f.move((f.parent().width() - f.width())//2, (f.parent().height() - f.final_height)//2)
 
     def update_clock(self):
         self.clock_label.setText(QTime.currentTime().toString(Qt.SystemLocaleShortDate))
@@ -705,6 +707,8 @@ class EbookViewer(MainWindow):
             self.handle_window_mode_toggle()
         else:
             self.view.document.page_position.restore()
+            if self.isFullScreen():
+                self.relayout_fullscreen_labels()
         self.view.document.after_resize()
         # For some reason scroll_fraction returns incorrect results in paged
         # mode for some time after a resize is finished. No way of knowing
