@@ -83,6 +83,7 @@ class Check(QSplitter):
 
     def clear_at_startup(self):
         self.clear_help(_('Check has not been run'))
+        self.items.clear()
 
     def context_menu(self, pos):
         m = QMenu()
