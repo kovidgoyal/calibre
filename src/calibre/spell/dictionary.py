@@ -6,16 +6,16 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import cPickle, os, glob, shutil, re
+import os, glob, shutil, re
 from collections import namedtuple
 from operator import attrgetter
 from itertools import chain
 
 from calibre.constants import plugins, config_dir
+from calibre.spell import parse_lang_code
 from calibre.utils.config import JSONConfig
-from calibre.utils.localization import get_lang, canonicalize_lang, get_system_locale
+from calibre.utils.localization import get_lang, get_system_locale
 
-DictionaryLocale = namedtuple('DictionaryLocale', 'langcode countrycode')
 Dictionary = namedtuple('Dictionary', 'primary_locale locales dicpath affpath builtin name id')
 LoadedDictionary = namedtuple('Dictionary', 'primary_locale locales obj builtin name id')
 hunspell = plugins['hunspell'][0]
@@ -39,30 +39,6 @@ class UserDictionary(object):
     def serialize(self):
         return {'name':self.name, 'is_active': self.is_active, 'words':[
             (w, l) for w, l in self.words]}
-
-ccodes, ccodemap, country_names = None, None, None
-def get_codes():
-    global ccodes, ccodemap, country_names
-    if ccodes is None:
-        data = cPickle.loads(P('localization/iso3166.pickle', allow_user_override=False, data=True))
-        ccodes, ccodemap, country_names = data['codes'], data['three_map'], data['names']
-    return ccodes, ccodemap
-
-def parse_lang_code(raw):
-    raw = raw or ''
-    parts = raw.replace('_', '-').split('-')
-    lc = canonicalize_lang(parts[0])
-    if lc is None:
-        raise ValueError('Invalid language code: %r' % raw)
-    cc = None
-    if len(parts) > 1:
-        ccodes, ccodemap = get_codes()[:2]
-        q = parts[1].upper()
-        if q in ccodes:
-            cc = q
-        else:
-            cc = ccodemap.get(q, None)
-    return DictionaryLocale(lc, cc)
 
 _builtins = _custom = None
 

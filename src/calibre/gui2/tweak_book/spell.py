@@ -26,9 +26,10 @@ from calibre.gui2.languages import LanguagesEdit
 from calibre.gui2.progress_indicator import ProgressIndicator
 from calibre.gui2.tweak_book import dictionaries, current_container, set_book_locale, tprefs, editors
 from calibre.gui2.tweak_book.widgets import Dialog
+from calibre.spell import DictionaryLocale
 from calibre.spell.dictionary import (
     builtin_dictionaries, custom_dictionaries, best_locale_for_language,
-    get_dictionary, DictionaryLocale, dprefs, remove_dictionary, rename_dictionary)
+    get_dictionary, dprefs, remove_dictionary, rename_dictionary)
 from calibre.spell.import_from import import_from_oxt
 from calibre.utils.localization import calibre_langcode_to_name, get_language, get_lang, canonicalize_lang
 from calibre.utils.icu import sort_key, primary_sort_key, primary_contains, contains
