@@ -239,9 +239,8 @@ class ZshCompleter(object):  # {{{
                       opf_opts=('--opf',), file_map={}):
         if not self.dest:
             return
-        exts = set(exts).union(x.upper() for x in exts)
-        pats = ('*.%s'%x for x in exts)
-        extra = ("'*:filename:_files -g \"%s\"' "%' '.join(pats),)
+        exts = sorted(set(exts))
+        extra = (''''*:filename:_files -g '(#i)*.(%s)' ''' % '|'.join(exts),)
         opts = '\\\n  '.join(tuple(self.get_options(
             op(), cover_opts=cover_opts, opf_opts=opf_opts, file_map=file_map)) + extra)
         txt = '_arguments -s \\\n  ' + opts
