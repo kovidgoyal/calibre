@@ -27,6 +27,7 @@ from calibre.utils.config import tweaks
 pretty_print_opf = False
 
 class PrettyPrint(object):
+
     def __enter__(self):
         global pretty_print_opf
         pretty_print_opf = True
@@ -42,6 +43,7 @@ def _pretty_print(root):
     pretty_xml_tree(root)
 
 class Resource(object):  # {{{
+
     '''
     Represents a resource (usually a file on the filesystem or a URL pointing
     to the web. Such resources are commonly referred to in OPF files.
@@ -1083,6 +1085,13 @@ class OPF(object):  # {{{
 
         return property(fget=fget, fset=fset)
 
+    @property
+    def raw_languages(self):
+        for match in self.languages_path(self.metadata):
+            t = self.get_text(match)
+            if t and t.strip():
+                yield t.strip()
+
     @dynamic_property
     def book_producer(self):
 
@@ -1728,6 +1737,6 @@ def test_user_metadata():
     print opf.render()
 
 if __name__ == '__main__':
-    #test_user_metadata()
+    # test_user_metadata()
     test_m2o()
     test()

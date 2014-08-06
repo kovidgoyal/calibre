@@ -8,6 +8,7 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 import os, re, posixpath
 from cStringIO import StringIO
 from contextlib import closing
+from future_builtins import map
 
 from calibre.utils.zipfile import ZipFile, BadZipfile, safe_replace
 from calibre.utils.localunzip import LocalZipFile
@@ -250,17 +251,31 @@ def _write_new_cover(new_cdata, cpath):
     save_cover_data_to(new_cdata, new_cover.name)
     return new_cover
 
+def normalize_languages(opf_languages, mi_languages):
+    ' Preserve original country codes and use 2-letter lang codes where possible '
+    from calibre.spell import parse_lang_code
+    def parse(x):
+        try:
+            return parse_lang_code(x)
+        except ValueError:
+            return None
+    opf_languages = filter(None, map(parse, opf_languages))
+    cc_map = {c.langcode:c.countrycode for c in opf_languages}
+    mi_languages = filter(None, map(parse, mi_languages))
+    def norm(x):
+        lc = x.langcode
+        cc = x.countrycode or cc_map.get(lc, None)
+        lc = lang_as_iso639_1(lc) or lc
+        if cc:
+            lc += '-' + cc
+        return lc
+    return list(map(norm, mi_languages))
+
 def update_metadata(opf, mi, apply_null=False, update_timestamp=False, force_identifiers=False):
     for x in ('guide', 'toc', 'manifest', 'spine'):
         setattr(mi, x, None)
     if mi.languages:
-        langs = []
-        for lc in mi.languages:
-            lc2 = lang_as_iso639_1(lc)
-            if lc2:
-                lc = lc2
-            langs.append(lc)
-        mi.languages = langs
+        mi.languages = normalize_languages(list(opf.raw_languages) or [], mi.languages)
 
     opf.smart_update(mi)
     if getattr(mi, 'uuid', None):
