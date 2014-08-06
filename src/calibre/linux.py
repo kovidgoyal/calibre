@@ -198,10 +198,7 @@ class ZshCompleter(object):  # {{{
                 lo = [x+'=' for x in lo]
                 so = [x+'+' for x in so]
             ostrings = lo + so
-            if len(ostrings) > 1:
-                ostrings = u'{%s}'%','.join(ostrings)
-            else:
-                ostrings = ostrings[0]
+            ostrings = u'{%s}'%','.join(ostrings) if len(ostrings) > 1 else ostrings[0]
             exclude = u''
             if opt.dest is None:
                 exclude = u"'(- *)'"
@@ -348,6 +345,55 @@ class ZshCompleter(object):  # {{{
         w("\n  ;;\n  esac\n  return ret")
         w('\n}\n')
 
+    def do_ebook_edit(self, f):
+        from calibre.ebooks.oeb.polish.main import SUPPORTED
+        from calibre.gui2.tweak_book.main import option_parser
+        parser = option_parser()
+        opt_lines = []
+        for opt in parser.option_list:
+            lo, so = opt._long_opts, opt._short_opts
+            if opt.takes_value():
+                lo = [x+'=' for x in lo]
+                so = [x+'+' for x in so]
+            ostrings = lo + so
+            ostrings = u'{%s}'%','.join(ostrings) if len(ostrings) > 1 else '"%s"'%ostrings[0]
+            h = opt.help or ''
+            h = h.replace('"', "'").replace('[', '(').replace(
+                ']', ')').replace('\n', ' ').replace(':', '\\:').replace('`', "'")
+            h = h.replace('%default', type(u'')(opt.default))
+            help_txt = u'"[%s]"'%h
+            opt_lines.append(ostrings + help_txt + ' \\')
+        opt_lines = ('\n' + (' ' * 8)).join(opt_lines)
+
+        f.write((ur'''
+_ebook_edit() {
+    local curcontext="$curcontext" state line ebookfile expl
+    typeset -A opt_args
+
+    _arguments -C -s \
+        %s
+        "1:ebook file:_files -g '(#i)*.(%s)'" \
+        '*:file in ebook:->files' && return 0
+
+    case $state in
+        files)
+            ebookfile=${~${(Q)line[1]}}
+
+            if [[ -f "$ebookfile" && "$ebookfile" =~ '\.[eE][pP][uU][bB]$' ]]; then
+                _zip_cache_name="$ebookfile"
+                _zip_cache_list=( ${(f)"$(zipinfo -1 $_zip_cache_name 2>/dev/null)"} )
+            else
+                return 1
+            fi
+            _wanted files expl 'file from ebook' \
+            _multi_parts / _zip_cache_list && return 0
+            ;;
+    esac
+
+    return 1
+}
+''' % (opt_lines, '|'.join(SUPPORTED)) + '\n\n').encode('utf-8'))
+
     def do_calibredb(self, f):
         import calibre.library.cli as cli
         from calibre.customize.ui import available_catalog_formats
@@ -419,12 +465,13 @@ class ZshCompleter(object):  # {{{
 
     def write(self):
         if self.dest:
-            self.commands['calibredb'] = '  _calibredb "$@"'
-            self.commands['ebook-convert'] = '  _ebook_convert "$@"'
+            for c in ('calibredb', 'ebook-convert', 'ebook-edit'):
+                self.commands[c] = ' _%s "$@"' % c.replace('-', '_')
             with open(self.dest, 'wb') as f:
                 f.write('#compdef ' + ' '.join(self.commands)+'\n')
                 self.do_ebook_convert(f)
                 self.do_calibredb(f)
+                self.do_ebook_edit(f)
                 f.write('case $service in\n')
                 for c, txt in self.commands.iteritems():
                     if isinstance(txt, type(u'')):
