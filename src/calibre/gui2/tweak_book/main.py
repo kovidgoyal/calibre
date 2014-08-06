@@ -17,13 +17,12 @@ from calibre.utils.config import OptionParser
 
 def option_parser():
     parser =  OptionParser(_('''\
-%prog [opts] [path_to_ebook]
+%prog [opts] [path_to_ebook] [name_of_file_inside_book ...]
 
-Launch the calibre edit book tool.
+Launch the calibre edit book tool. You can optionally also specify the names of
+files inside the book which will be opened for editing automatically.
 '''))
     setup_gui_option_parser(parser)
-    parser.add_option('--edit-file', help=_(
-        'Edit the named file inside the book'))
     return parser
 
 def gui_main(path=None, notify=None):
@@ -65,7 +64,7 @@ def _run(args, notify=None):
     sys.excepthook = main.unhandled_exception
     main.show()
     if len(args) > 1:
-        main.boss.open_book(args[1], edit_file=opts.edit_file, clear_notify_data=False)
+        main.boss.open_book(args[1], edit_file=args[2:], clear_notify_data=False)
     app.exec_()
     # Ensure that the parse worker has quit so that temp files can be deleted
     # on windows
