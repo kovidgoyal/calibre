@@ -335,4 +335,4 @@ class Main(MainWindow):
 
         a('find_next', _('Find next occurrence'), 'arrow-down.png', tb=self.tool_bar2)
         a('find_previous', _('Find previous occurrence'), 'arrow-up.png', tb=self.tool_bar2)
-        a('toggle_paged_mode', _('Toggle paged mode'), 'scroll.png', tb=self.tool_bar2)
+        a('toggle_paged_mode', _('Toggle paged mode'), 'scroll.png', tb=self.tool_bar2).setCheckable(True)
