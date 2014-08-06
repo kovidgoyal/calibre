@@ -88,17 +88,23 @@ def do_list(db, fields, afields, sort_by, ascending, search_text, line_width, se
             else:
                 ans = db.custom_column_label_map[f[1:]]['num']
         return ans
+    if for_machine:
+        import json
+        for record in data:
+            for key in set(record) - set(fields):
+                del record[key]
+            for key, val in tuple(record.iteritems()):
+                if hasattr(val, 'isoformat'):
+                    record[key] = isoformat(val, as_utc=True)
+                elif val is None:
+                    del record[key]
+        return json.dumps(data, indent=2, sort_keys=True)
     fields = list(map(field_name, fields))
 
     for f in data:
         fmts = [x for x in f['formats'] if x is not None]
-        if for_machine:
-            f['formats'] = unicode(chr(28)).join(fmts)
-        else:
-            f['formats'] = u'[%s]'%u', '.join(fmts)
+        f['formats'] = u'[%s]'%u', '.join(fmts)
     widths = list(map(lambda x: 0, fields))
-    if for_machine:
-        line_width, separator = sys.maxsize, unicode(chr(29))
     for record in data:
         for f in record.keys():
             if hasattr(record[f], 'isoformat'):
@@ -134,9 +140,8 @@ def do_list(db, fields, afields, sort_by, ascending, search_text, line_width, se
     widths = list(base_widths)
     titles = map(lambda x, y: '%-*s%s'%(x-len(separator), y, separator),
             widths, title_fields)
-    if not for_machine:
-        with ColoredStream(sys.stdout, fg='green'):
-            print ''.join(titles)
+    with ColoredStream(sys.stdout, fg='green'):
+        print ''.join(titles)
 
     wrappers = [TextWrapper(x - 1).wrap if x > 1 else lambda y: y for x in widths]
     o = cStringIO.StringIO()
@@ -149,12 +154,9 @@ def do_list(db, fields, afields, sort_by, ascending, search_text, line_width, se
                 ft = text[i][l] if l < len(text[i]) else u''
                 o.write(ft.encode('utf-8'))
                 if i < len(text) - 1:
-                    filler = u'' if for_machine else (u'%*s'%(widths[i]-str_width(ft)-1, u''))
+                    filler = (u'%*s'%(widths[i]-str_width(ft)-1, u''))
                     o.write((filler+separator).encode('utf-8'))
-            if for_machine:
-                o.write(b'\x1e')
-            else:
-                print >>o
+            print >>o
     return o.getvalue()
 
 def list_option_parser(db=None):
