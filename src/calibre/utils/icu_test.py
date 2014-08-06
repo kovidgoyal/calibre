@@ -90,6 +90,7 @@ class TestICU(unittest.TestCase):
             # capitals inside words
             self.ae(icu.title_case(x), titlecase(x).replace('machIne', 'Machine'))
             self.ae(icu.capitalize(x), x[0].upper() + x[1:].lower())
+            self.ae(icu.swapcase(x), x.swapcase())
 
     def test_find(self):
         ' Test searching for substrings '

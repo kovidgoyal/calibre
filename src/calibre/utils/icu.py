@@ -212,6 +212,11 @@ def capitalize(x):
     except (IndexError, TypeError, AttributeError):
         return x
 
+try:
+    swapcase = _icu.swap_case
+except AttributeError:  # For people running from source
+    swapcase = lambda x:x.swapcase()
+
 find = _make_func(_strcmp_template, 'find', collator='_collator', collator_func='collator', func='find')
 
 primary_find = _make_func(_strcmp_template, 'primary_find', collator='_primary_collator', collator_func='primary_collator', func='find')

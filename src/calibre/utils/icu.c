@@ -804,6 +804,40 @@ end:
 
 } // }}}
 
+// swap_case {{{
+
+static PyObject* icu_swap_case(PyObject *self, PyObject *args) {
+    PyObject *input = NULL, *result = NULL;
+    UErrorCode status = U_ZERO_ERROR;
+    UChar *input_buf = NULL, *output_buf = NULL;
+    UChar32 *buf = NULL;
+    int32_t sz = 0, sz32 = 0, i = 0;
+
+    if (!PyArg_ParseTuple(args, "O", &input)) return NULL;
+
+    input_buf = python_to_icu(input, &sz, 1);
+    if (input_buf == NULL) goto end;
+    output_buf = (UChar*) calloc(3 * sz, sizeof(UChar));
+    buf = (UChar32*) calloc(2 * sz, sizeof(UChar32));
+    if (output_buf == NULL || buf == NULL) { PyErr_NoMemory(); goto end; }
+    u_strToUTF32(buf, 2 * sz, &sz32, input_buf, sz, &status);
+
+    for (i = 0; i < sz32; i++) {
+        if (u_islower(buf[i])) buf[i] = u_toupper(buf[i]);
+        else if (u_isupper(buf[i])) buf[i] = u_tolower(buf[i]);
+    }
+    u_strFromUTF32(output_buf, 3*sz, &sz, buf, sz32, &status);
+    if (U_FAILURE(status)) { PyErr_SetString(PyExc_ValueError, u_errorName(status)); goto end; }
+    result = icu_to_python(output_buf, sz);
+
+end:
+    if (input_buf != NULL) free(input_buf);
+    if (output_buf != NULL) free(output_buf);
+    if (buf != NULL) free(buf);
+    return result;
+
+} // }}}
+
 // set_default_encoding {{{
 static PyObject *
 icu_set_default_encoding(PyObject *self, PyObject *args) {
@@ -1056,6 +1090,10 @@ icu_utf16_length(PyObject *self, PyObject *args) {
 static PyMethodDef icu_methods[] = {
     {"change_case", icu_change_case, METH_VARARGS,
         "change_case(unicode object, which, locale) -> change case to one of UPPER_CASE, LOWER_CASE, TITLE_CASE"
+    },
+
+    {"swap_case", icu_swap_case, METH_VARARGS,
+        "swap_case(unicode object) -> swaps the case using the simple, locale independent unicode algorithm"
     },
 
     {"set_default_encoding", icu_set_default_encoding, METH_VARARGS,
