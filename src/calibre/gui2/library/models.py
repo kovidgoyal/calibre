@@ -134,9 +134,9 @@ class ColumnIcon(object):  # {{{
                     result = icon_bitmaps[0]
 
                 # If the image height is less than the row height, leave it alone
-                # The -2 allows for a pixel above and below. Also ensure that
+                # The -4 allows for a margin above and below. Also ensure that
                 # it is always a bit positive
-                rh = max(2, self.model.row_height - 2)
+                rh = max(2, self.model.row_height - 4)
                 if result.height() > rh:
                     result = result.scaledToHeight(rh, mode=Qt.SmoothTransformation)
                 icon_cache[id_][cache_index] = result
