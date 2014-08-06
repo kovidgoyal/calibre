@@ -25,7 +25,7 @@ NAMESPACES = {
               'dc'   : 'http://purl.org/dc/terms',
               'gd'   : 'http://schemas.google.com/g/2005'
             }
-def get_details(browser, url, timeout): # {{{
+def get_details(browser, url, timeout):  # {{{
     try:
         raw = browser.open_novisit(url, timeout=timeout).read()
     except Exception as e:
@@ -39,7 +39,7 @@ def get_details(browser, url, timeout): # {{{
     return raw
 # }}}
 
-def to_metadata(browser, log, entry_, timeout): # {{{
+def to_metadata(browser, log, entry_, timeout):  # {{{
     from lxml import etree
     XPath = partial(etree.XPath, namespaces=NAMESPACES)
 
@@ -58,7 +58,6 @@ def to_metadata(browser, log, entry_, timeout): # {{{
     language       = XPath('descendant::dc:language')
     rating         = XPath('descendant::gd:rating[@average]')
 
-
     def get_text(extra, x):
         try:
             ans = x(extra)
@@ -69,7 +68,6 @@ def to_metadata(browser, log, entry_, timeout): # {{{
         except:
             log.exception('Programming error:')
         return None
-
 
     id_url = entry_id(entry_)[0].text
     google_id = id_url.split('/')[-1]
@@ -171,13 +169,13 @@ class GoogleBooks(Source):
 
     DUMMY_IMAGE_MD5 = frozenset(['0de4383ebad0adad5eeb8975cd796657'])
 
-    def get_book_url(self, identifiers): # {{{
+    def get_book_url(self, identifiers):  # {{{
         goog = identifiers.get('google', None)
         if goog is not None:
             return ('google', goog, 'http://books.google.com/books?id=%s'%goog)
     # }}}
 
-    def create_query(self, log, title=None, authors=None, identifiers={}): # {{{
+    def create_query(self, log, title=None, authors=None, identifiers={}):  # {{{
         from urllib import urlencode
         BASE_URL = 'http://books.google.com/books/feeds/volumes?'
         isbn = check_isbn(identifiers.get('isbn', None))
@@ -208,7 +206,7 @@ class GoogleBooks(Source):
             })
     # }}}
 
-    def download_cover(self, log, result_queue, abort, # {{{
+    def download_cover(self, log, result_queue, abort,  # {{{
             title=None, authors=None, identifiers={}, timeout=30, get_best_cover=False):
         cached_url = self.get_cached_cover_url(identifiers)
         if cached_url is None:
@@ -250,7 +248,7 @@ class GoogleBooks(Source):
 
     # }}}
 
-    def get_cached_cover_url(self, identifiers): # {{{
+    def get_cached_cover_url(self, identifiers):  # {{{
         url = None
         goog = identifiers.get('google', None)
         if goog is None:
@@ -263,7 +261,7 @@ class GoogleBooks(Source):
         return url
     # }}}
 
-    def get_all_details(self, br, log, entries, abort, # {{{
+    def get_all_details(self, br, log, entries, abort,  # {{{
             result_queue, timeout):
         from lxml import etree
         for relevance, i in enumerate(entries):
@@ -274,7 +272,7 @@ class GoogleBooks(Source):
                     goog = ans.identifiers['google']
                     for isbn in getattr(ans, 'all_isbns', []):
                         self.cache_isbn_to_identifier(isbn, goog)
-                    if ans.has_google_cover:
+                    if getattr(ans, 'has_google_cover', False):
                         self.cache_identifier_to_cover_url(goog,
                                 self.GOOGLE_COVER%goog)
                     self.clean_downloaded_metadata(ans)
@@ -287,7 +285,7 @@ class GoogleBooks(Source):
                 break
     # }}}
 
-    def identify(self, log, result_queue, abort, title=None, authors=None, # {{{
+    def identify(self, log, result_queue, abort, title=None, authors=None,  # {{{
             identifiers={}, timeout=30):
         from lxml import etree
         XPath = partial(etree.XPath, namespaces=NAMESPACES)
@@ -326,7 +324,7 @@ class GoogleBooks(Source):
         return None
     # }}}
 
-if __name__ == '__main__': # tests {{{
+if __name__ == '__main__':  # tests {{{
     # To run these test use: calibre-debug -e src/calibre/ebooks/metadata/sources/google.py
     from calibre.ebooks.metadata.sources.test import (test_identify_plugin,
             title_test, authors_test)
@@ -347,4 +345,3 @@ if __name__ == '__main__': # tests {{{
             ),
     ])
 # }}}
-
