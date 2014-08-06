@@ -292,7 +292,8 @@ class Boss(QObject):
         set_current_container(container)
         with BusyCursor():
             self.current_metadata = self.gui.current_metadata = container.mi
-            set_book_locale(self.current_metadata.language)
+            lang = container.opf_xpath('//dc:language/text()') or [self.current_metadata.language]
+            set_book_locale(lang[0])
             self.global_undo.open_book(container)
             self.gui.update_window_title()
             self.gui.file_list.current_edited_name = None
