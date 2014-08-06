@@ -159,6 +159,8 @@ class Main(MainWindow):
 
     def __init__(self, debug_javascript):
         MainWindow.__init__(self, None)
+        self.setWindowTitle(_('E-book viewer'))
+        self.base_window_title = unicode(self.windowTitle())
         self.setObjectName('EbookViewer')
         self.setWindowIcon(QIcon(I('viewer.png')))
         self.setDockOptions(self.AnimatedDocks | self.AllowTabbedDocks)
