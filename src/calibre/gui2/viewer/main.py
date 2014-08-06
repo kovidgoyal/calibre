@@ -176,6 +176,8 @@ class EbookViewer(MainWindow):
 
     def set_toc_visible(self, yes):
         self.toc_dock.setVisible(yes)
+        if not yes:
+            self.show_toc_on_open = False
 
     def clear_recent_history(self, *args):
         vprefs.set('viewer_open_history', [])
@@ -224,7 +226,7 @@ class EbookViewer(MainWindow):
         if not self.isFullScreen():
             vprefs.set('viewer_window_geometry', bytearray(self.saveGeometry()))
         if self.current_book_has_toc:
-            vprefs.set('viewer_toc_isvisible', bool(self.toc_dock.isVisible()))
+            vprefs.set('viewer_toc_isvisible', self.show_toc_on_open or bool(self.toc_dock.isVisible()))
         vprefs['multiplier'] = self.view.multiplier
         vprefs['in_paged_mode'] = not self.action_toggle_paged_mode.isChecked()
 
