@@ -725,6 +725,7 @@ class EbookViewer(MainWindow):
             bm['title'] = title
             self.iterator.add_bookmark(bm)
             self.set_bookmarks(self.iterator.bookmarks)
+            self.bookmarks.set_current_bookmark(bm)
 
     def bookmarks_edited(self, bookmarks):
         self.build_bookmarks_menu(bookmarks)

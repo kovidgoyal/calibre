@@ -122,6 +122,18 @@ class BookmarkManager(QWidget):
         if self.bookmarks_list.count() > 0:
             self.bookmarks_list.setCurrentItem(self.bookmarks_list.item(0), QItemSelectionModel.ClearAndSelect)
 
+    def set_current_bookmark(self, bm):
+        for i, q in enumerate(self):
+            if bm == q:
+                l = self.bookmarks_list
+                item = l.item(i)
+                l.setCurrentItem(item, QItemSelectionModel.ClearAndSelect)
+                l.scrollToItem(item)
+
+    def __iter__(self):
+        for i in xrange(self.bookmarks_list.count()):
+            yield self.item_to_bm(self.bookmarks_list.item(i))
+
     def item_changed(self, item):
         self.bookmarks_list.blockSignals(True)
         title = unicode(item.data(Qt.DisplayRole).toString())
@@ -168,8 +180,7 @@ class BookmarkManager(QWidget):
         return cPickle.loads(bytes(item.data(Qt.UserRole).toPyObject()))
 
     def get_bookmarks(self):
-        l = self.bookmarks_list
-        return [self.item_to_bm(l.item(i)) for i in xrange(l.count())]
+        return list(self)
 
     def export_bookmarks(self):
         filename = choose_save_file(
