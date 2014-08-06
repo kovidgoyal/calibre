@@ -28,7 +28,8 @@ from calibre.gui2.tweak_book.editor.smart import NullSmarts
 from calibre.gui2.tweak_book.editor.smart.html import HTMLSmarts
 from calibre.gui2.tweak_book.editor.smart.css import CSSSmarts
 from calibre.spell.break_iterator import index_of
-from calibre.utils.icu import safe_chr, string_length
+from calibre.utils.icu import safe_chr, string_length, capitalize, upper, lower, swapcase
+from calibre.utils.titlecase import titlecase
 
 PARAGRAPH_SEPARATOR = '\u2029'
 entity_pat = re.compile(r'&(#{0,1}[a-zA-Z0-9]{1,8});')
@@ -826,3 +827,10 @@ class TextEdit(PlainTextEdit):
             c = self.textCursor()
             c.setPosition(block.position() + col)
             self.setTextCursor(c)
+
+    def change_case(self, action, cursor=None):
+        cursor = cursor or self.textCursor()
+        text = self.selected_text_from_cursor(cursor)
+        text = {'lower':lower, 'upper':upper, 'capitalize':capitalize, 'title':titlecase, 'swap':swapcase}[action](text)
+        cursor.insertText(text)
+        self.setTextCursor(cursor)

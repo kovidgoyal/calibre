@@ -488,6 +488,14 @@ class Editor(QMainWindow):
         m.addSeparator()
         m.addAction(_('&Select all'), self.editor.select_all)
         m.addAction(actions['mark-selected-text'])
+        if self.syntax != 'css' and actions['editor-cut'].isEnabled():
+            cm = QMenu(_('Change &case'), m)
+            for ac, text in (
+                    ('upper', _('&Upper case')), ('lower', _('&Lower case')), ('swap', _('&Swap case')),
+                    ('title', _('&Title case')), ('capitalize', _('&Capitalize'))
+            ):
+                cm.addAction(text, partial(self.editor.change_case, ac))
+            m.addMenu(cm)
         if self.syntax == 'html':
             m.addAction(actions['multisplit'])
         m.exec_(self.editor.mapToGlobal(pos))
