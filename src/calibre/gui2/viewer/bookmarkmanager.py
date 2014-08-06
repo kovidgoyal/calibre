@@ -30,7 +30,9 @@ class BookmarksList(QListWidget):
         self.viewport().setAcceptDrops(True)
         self.setDropIndicatorShown(True)
         self.setContextMenuPolicy(Qt.ActionsContextMenu)
-        self.ac_edit = ac = QAction(_('Edit this bookmark'), self)
+        self.ac_edit = ac = QAction(QIcon(I('edit_input.png')), _('Edit this bookmark'), self)
+        self.addAction(ac)
+        self.ac_delete = ac = QAction(QIcon(I('trash.png')), _('Remove this bookmark'), self)
         self.addAction(ac)
         self.ac_sort = ac = QAction(_('Sort by name'), self)
         self.addAction(ac)
@@ -47,6 +49,12 @@ class BookmarksList(QListWidget):
             i = self.currentItem()
             if i is not None:
                 self.bookmark_activated.emit(i)
+                ev.accept()
+                return
+        if ev.key() in (Qt.Key_Delete, Qt.Key_Backspace):
+            i = self.currentItem()
+            if i is not None:
+                self.ac_delete.trigger()
                 ev.accept()
                 return
         return QListWidget.keyPressEvent(self, ev)
@@ -73,6 +81,7 @@ class BookmarkManager(QWidget):
         bl.ac_edit.triggered.connect(self.edit_bookmark)
         bl.ac_sort.triggered.connect(self.sort_by_name)
         bl.ac_sort_pos.triggered.connect(self.sort_by_pos)
+        bl.ac_delete.triggered.connect(self.delete_bookmark)
 
         self.la = la = QLabel(_(
             'Double click to edit and drag-and-drop to re-order the bookmarks'))
