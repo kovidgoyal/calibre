@@ -445,13 +445,16 @@ class LineEditECM(object):  # {{{
         menu.exec_(event.globalPos())
 
     def upper_case(self):
-        self.setText(unicode(self.text()).upper())
+        from calibre.utils.icu import upper
+        self.setText(upper(unicode(self.text())))
 
     def lower_case(self):
-        self.setText(unicode(self.text()).lower())
+        from calibre.utils.icu import lower
+        self.setText(lower(unicode(self.text())))
 
     def swap_case(self):
-        self.setText(unicode(self.text()).swapcase())
+        from calibre.utils.icu import swapcase
+        self.setText(swapcase(unicode(self.text())))
 
     def title_case(self):
         from calibre.utils.titlecase import titlecase
