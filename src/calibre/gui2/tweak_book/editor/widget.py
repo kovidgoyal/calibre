@@ -477,10 +477,14 @@ class Editor(QMainWindow):
                 m.addAction(_('Show help for: %s') % word, partial(open_url, url))
 
         for x in ('undo', 'redo'):
-            a(actions['editor-%s' % x])
+            ac = actions['editor-%s' % x]
+            if ac.isEnabled():
+                a(ac)
         m.addSeparator()
         for x in ('cut', 'copy', 'paste'):
-            a(actions['editor-' + x])
+            ac = actions['editor-' + x]
+            if ac.isEnabled():
+                a(ac)
         m.addSeparator()
         m.addAction(_('&Select all'), self.editor.select_all)
         m.addAction(actions['mark-selected-text'])
