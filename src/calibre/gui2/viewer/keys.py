@@ -87,4 +87,6 @@ SHORTCUTS = {
         'Bookmark': (['Ctrl+B'],
                      _('Bookmark the current location')),
 
+        'Reload': (['Ctrl+R', 'F5'],
+                     _('Reload the current book')),
 }

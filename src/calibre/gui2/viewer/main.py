@@ -905,6 +905,10 @@ class EbookViewer(MainWindow):
             return
         if key == 'Focus Search':
             self.search.setFocus(Qt.OtherFocusReason)
+            return
+        if key == 'Reload' and getattr(self.iterator, 'pathtoebook', None):
+            self.load_ebook(self.iterator.pathtoebook)
+            return
         if not self.view.handle_key_press(event):
             event.ignore()
 
