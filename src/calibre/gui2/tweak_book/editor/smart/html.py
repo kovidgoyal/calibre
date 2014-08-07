@@ -443,8 +443,7 @@ class HTMLSmarts(NullSmarts):
             return None, None
         tags = [t.name for t in ud.tags if (t.is_start and not t.closing and t.offset <= start_offset)]
         if start_block.blockNumber() != end_block.blockNumber():
-            # Multiline opening tag, it must be the first tag with on the line
-            # with the closing >
+            # Multiline opening tag, it must be the first tag on the line with the closing >
             del tags[:-1]
         return sourceline, tags
 
