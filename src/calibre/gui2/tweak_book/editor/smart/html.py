@@ -421,6 +421,11 @@ class HTMLSmarts(NullSmarts):
                                 start_block, start_offset = block, boundary.offset
                                 break
                     block, offset = block.previous(), sys.maxint
+            end_block = None
+            if start_block is not None:
+                end_block, boundary = next_tag_boundary(start_block, start_offset)
+                if boundary is None or boundary.is_start:
+                    return None, None
         else:
             tag = None
             if use_matched_tag:
@@ -429,15 +434,19 @@ class HTMLSmarts(NullSmarts):
                 tag = find_closest_containing_tag(block, offset, max_tags=2000)
             if tag is None:
                 return None, None
-            start_block, start_offset = tag.start_block, tag.start_offset
-        if start_block is None:
+            start_block, start_offset, end_block = tag.start_block, tag.start_offset, tag.end_block
+        if start_block is None or end_block is None:
             return None, None
-        sourceline = start_block.blockNumber() + 1  # blockNumber() is zero based
+        sourceline = end_block.blockNumber() + 1  # blockNumber() is zero based
         ud = start_block.userData()
         if ud is None:
             return None, None
-        return sourceline, [
-            t.name for t in ud.tags if (t.is_start and not t.closing and t.offset <= start_offset)]
+        tags = [t.name for t in ud.tags if (t.is_start and not t.closing and t.offset <= start_offset)]
+        if start_block.blockNumber() != end_block.blockNumber():
+            # Multiline opening tag, it must be the first tag with on the line
+            # with the closing >
+            del tags[:-1]
+        return sourceline, tags
 
     def goto_sourceline(self, editor, sourceline, tags, attribute=None):
         ''' Move the cursor to the tag identified by sourceline and tags (a
