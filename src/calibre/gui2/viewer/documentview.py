@@ -27,6 +27,7 @@ from calibre.gui2.viewer.image_popup import ImagePopup
 from calibre.gui2.viewer.table_popup import TablePopup
 from calibre.gui2.viewer.inspector import WebInspector
 from calibre.gui2.viewer.gestures import GestureHandler
+from calibre.gui2.viewer.footnote import Footnotes
 from calibre.ebooks.oeb.display.webview import load_html
 from calibre.constants import isxp, iswindows, DEBUG
 # }}}
@@ -507,6 +508,7 @@ class DocumentView(QWebView):  # {{{
         self.to_bottom = False
         self.document = Document(self.shortcuts, parent=self,
                 debug_javascript=debug_javascript)
+        self.footnotes = Footnotes(self.document)
         self.setPage(self.document)
         self.inspector = WebInspector(self, self.document)
         self.manager = None
@@ -1306,6 +1308,12 @@ class DocumentView(QWebView):  # {{{
         return QWebView.event(self, ev)
 
     def mouseReleaseEvent(self, ev):
+        url = self.document.mainFrame().hitTestContent(ev.pos()).linkUrl()
+        if url.isValid():
+            fd = self.footnotes.get_footnote_data(url)
+            if fd is not None:
+                print (fd)
+        return
         opos = self.document.ypos
         if self.manager is not None:
             prev_pos = self.manager.update_page_number()
