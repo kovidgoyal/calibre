@@ -12,6 +12,8 @@ __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
 # QT5XX: Modify notes about glibc 2.13, os x 10.7 and new Qt/PyQt linux dependencies on the server
 
+# Get rid of tarball compression type detection in linux-installer.py
+
 # QT5XX: Delete this file after migration is completed
 
 import os, re

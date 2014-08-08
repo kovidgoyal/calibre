@@ -593,7 +593,7 @@ def get_https_resource_securely(url, timeout=60, max_redirects=5, ssl_version=No
 # }}}
 
 def extract_tarball(raw, destdir):
-    c = 'j' if calibre_version.startswith('1.') else 'J'
+    c = 'j' if raw.startswith(b'BZh') else 'J'
     prints('Extracting application files...')
     with open('/dev/null', 'w') as null:
         p = subprocess.Popen(['tar', 'x%sof' % c, '-', '-C', destdir], stdout=null, stdin=subprocess.PIPE, close_fds=True,
