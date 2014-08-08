@@ -20,6 +20,54 @@
 #   new recipes:
 #     - title: 
 
+- version: 1.48.0
+  date: 2014-08-08
+
+  new features:
+    - title: "E-book viewer: Make the list of bookmarks a dockable window that can be kept open while reading the book"
+
+    - title: "E-book viewer: Make the Table of Contents panel a dockable window so it can be moved around and even made into a separate floating window"
+
+    - title: "E-book viewer: Allow reloading the current book by pressing F5 or Ctrl+R"
+      tickets: [1354059]
+
+    - title: "Edit Book: Allow changing the case of selected text by right clicking and choosing the appropriate change case action."
+      tickets: [1353263]
+
+    - title: "Driver for Kiano Booky Light."
+      tickets: [1353893]
+
+    - title: "calibredb list: Have --for-machine dump the output in JSON instead of using ASCII separators, as most scripting languages have JSON parsers builtin"
+
+    - title: "zsh completion: Complete filenames inside epub files for ebook-edit"
+
+    - title: "ebook-edit: Allow specifying multiple internal files to open and get rid of the no longer needed --edit-file option"
+
+  bug fixes:
+    - title: "Fix over-aggressive caching causing multiple cover grid emblem rules to not work."
+      tickets: [1352005]
+
+    - title: "Edit Book: Fix position syncing and Live CSS not working if the opening tag is split over multiple lines"
+
+    - title: "EPUB metadata: When updating the language in an EPUB file, preserve the country code, if the new language is the same as the original language in the EPUB file."
+
+    - title: "Edit Book: Fix choosing default dictionary based on language tag in the OPF ignoring the country code"
+
+    - title: "Edit Book: Fix a regression that caused clicking on links in the preview panel that lead to destinations in the same HTML file popping up a spurious error message."
+
+    - title: "Fix regression that caused tags to not be sorted when displayed in the book details panel."
+      tickets: [1351622]
+
+    - title: "Edit Book: More robust implementation of current tag detection for Live CSS. Now uses the same logic as matching tag highlighting."
+
+    - title: "Edit Book: When highlighting the tag the cursor is currently inside, if the cursor is inside the definition of an opening tag, highlight that tag rather than its parent."
+
+    - title: "Edit Book: Check Book: Do not run the rest of the checks if parsing errors are found, to prevent the checkers from raising unhandled errors"
+
+  improved recipes:
+    - Maximum PC
+    - El Correo
+
 - version: 1.47.0
   date: 2014-08-01
 
