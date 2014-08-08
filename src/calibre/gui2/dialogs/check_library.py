@@ -9,7 +9,7 @@ from threading import Thread
 from PyQt4.Qt import (
     QDialog, QVBoxLayout, QHBoxLayout, QTreeWidget, QLabel, QPushButton,
     QDialogButtonBox, QApplication, QTreeWidgetItem, QLineEdit, Qt, QSize,
-    QTimer, QIcon, QTextEdit, QSplitter, QWidget, pyqtSignal)
+    QTimer, QIcon, QTextEdit, QSplitter, QWidget, QGridLayout, pyqtSignal)
 
 from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.library.check_library import CheckLibrary, CHECKS
@@ -170,21 +170,31 @@ class CheckLibraryDialog(QDialog):
         self.ok_button = QPushButton(_('&Done'))
         self.ok_button.setDefault(True)
         self.ok_button.clicked.connect(self.accept)
+        self.mark_delete_button = QPushButton(_('Mark &all for delete'))
+        self.mark_delete_button.setToolTip(_('Mark all deletable subitems'))
+        self.mark_delete_button.setDefault(False)
+        self.mark_delete_button.clicked.connect(self.mark_for_delete)
         self.delete_button = QPushButton(_('Delete &marked'))
         self.delete_button.setToolTip(_('Delete marked files (checked subitems)'))
         self.delete_button.setDefault(False)
         self.delete_button.clicked.connect(self.delete_marked)
+        self.mark_fix_button = QPushButton(_('Mar&k all for fix'))
+        self.mark_fix_button.setToolTip(_('Mark all fixable items'))
+        self.mark_fix_button.setDefault(False)
+        self.mark_fix_button.clicked.connect(self.mark_for_fix)
         self.fix_button = QPushButton(_('&Fix marked'))
         self.fix_button.setDefault(False)
         self.fix_button.setEnabled(False)
         self.fix_button.setToolTip(_('Fix marked sections (checked fixable items)'))
         self.fix_button.clicked.connect(self.fix_items)
-        self.bbox = QDialogButtonBox(self)
-        self.bbox.addButton(self.check_button, QDialogButtonBox.ActionRole)
-        self.bbox.addButton(self.delete_button, QDialogButtonBox.ActionRole)
-        self.bbox.addButton(self.fix_button, QDialogButtonBox.ActionRole)
-        self.bbox.addButton(self.copy_button, QDialogButtonBox.ActionRole)
-        self.bbox.addButton(self.ok_button, QDialogButtonBox.AcceptRole)
+        self.bbox = QGridLayout()
+        self.bbox.addWidget(self.check_button, 0, 0)
+        self.bbox.addWidget(self.copy_button, 0, 1)
+        self.bbox.addWidget(self.ok_button, 0, 2)
+        self.bbox.addWidget(self.mark_delete_button, 1, 0)
+        self.bbox.addWidget(self.delete_button, 1, 1)
+        self.bbox.addWidget(self.mark_fix_button, 2, 0)
+        self.bbox.addWidget(self.fix_button, 2, 1)
 
         h = QHBoxLayout()
         ln = QLabel(_('Names to ignore:'))
@@ -205,9 +215,8 @@ class CheckLibraryDialog(QDialog):
         h.addWidget(self.ext_ignores)
         self._layout.addLayout(h)
 
-        self._layout.addWidget(self.bbox)
+        self._layout.addLayout(self.bbox)
         self.resize(950, 500)
-        self.bbox.setEnabled(True)
 
     def do_exec(self):
         self.run_the_check()
@@ -252,6 +261,8 @@ class CheckLibraryDialog(QDialog):
                 tl.setText(1, _('(fixable)'))
                 tl.setFlags(Qt.ItemIsEnabled | Qt.ItemIsUserCheckable)
                 tl.setCheckState(1, False)
+            else:
+                tl.setFlags(Qt.ItemIsEnabled)
             self.top_level_items[attr] = tl
 
             for problem in list:
@@ -282,6 +293,7 @@ class CheckLibraryDialog(QDialog):
         t.resizeColumnToContents(0)
         t.resizeColumnToContents(1)
         self.delete_button.setEnabled(False)
+        self.fix_button.setEnabled(False)
         self.text_results = '\n'.join(plaintext)
 
     def item_expanded_or_collapsed(self, item):
@@ -299,6 +311,16 @@ class CheckLibraryDialog(QDialog):
             if it.checkState(1):
                 self.delete_button.setEnabled(True)
                 return
+
+    def mark_for_fix(self):
+        for it in self.top_level_items.values():
+            if it.flags() & Qt.ItemIsUserCheckable:
+                it.setCheckState(1, Qt.Checked)
+
+    def mark_for_delete(self):
+        for it in self.all_items:
+            if it.flags() & Qt.ItemIsUserCheckable:
+                it.setCheckState(1, Qt.Checked)
 
     def delete_marked(self):
         if not confirm('<p>'+_('The marked files and folders will be '
