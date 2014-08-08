@@ -84,6 +84,8 @@ class EbookViewer(MainWindow):
         self.view_resized_timer.timeout.connect(self.viewport_resize_finished)
         self.view_resized_timer.setSingleShot(True)
         self.resize_in_progress = False
+        self.action_reload = QAction(_('&Reload book'), self)
+        self.action_reload.triggered.connect(self.reload_book)
         self.action_quit.triggered.connect(self.quit)
         self.action_reference_mode.triggered[bool].connect(self.view.reference_mode)
         self.action_metadata.triggered[bool].connect(self.metadata.setVisible)
@@ -898,6 +900,7 @@ class EbookViewer(MainWindow):
             'Lookup word': self.view.dictionary_action,
             'Next occurrence': self.view.search_action,
             'Bookmark': bac,
+            'Reload': self.action_reload,
         }.get(key, None)
         if action is not None:
             event.accept()
@@ -906,11 +909,13 @@ class EbookViewer(MainWindow):
         if key == 'Focus Search':
             self.search.setFocus(Qt.OtherFocusReason)
             return
-        if key == 'Reload' and getattr(self.iterator, 'pathtoebook', None):
-            self.load_ebook(self.iterator.pathtoebook)
-            return
         if not self.view.handle_key_press(event):
             event.ignore()
+
+    def reload_book(self):
+        if getattr(self.iterator, 'pathtoebook', None):
+            self.load_ebook(self.iterator.pathtoebook)
+            return
 
     def __enter__(self):
         return self

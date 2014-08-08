@@ -713,6 +713,7 @@ class DocumentView(QWebView):  # {{{
             menu.addAction(self.manager.action_full_screen)
 
             menu.addSeparator()
+            menu.addAction(self.manager.action_reload)
             menu.addAction(self.manager.action_quit)
 
         for plugin in self.document.all_viewer_plugins:
