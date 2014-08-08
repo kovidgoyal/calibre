@@ -8,7 +8,7 @@ __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import json
 
-from PyQt4.Qt import QUrl
+from PyQt5.Qt import QUrl
 
 class Footnotes(object):
 
