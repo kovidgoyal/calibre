@@ -913,6 +913,7 @@ class Manifest(object):
 
         def _parse_css(self, data):
             from cssutils import CSSParser, log, resolveImports
+            from cssutils.css import CSSRule
             log.setLevel(logging.WARN)
             log.raiseExceptions = False
             self.oeb.log.debug('Parsing', self.href, '...')
@@ -924,6 +925,8 @@ class Manifest(object):
             data = parser.parseString(data, href=self.href, validate=False)
             data = resolveImports(data)
             data.namespaces['h'] = XHTML_NS
+            for rule in tuple(data.cssRules.rulesOfType(CSSRule.PAGE_RULE)):
+                data.cssRules.remove(rule)
             return data
 
         def _fetch_css(self, path):

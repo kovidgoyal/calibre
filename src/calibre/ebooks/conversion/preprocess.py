@@ -282,7 +282,6 @@ class Dehyphenator(object):
 
 class CSSPreProcessor(object):
 
-    PAGE_PAT   = re.compile(r'@page[^{]*?{[^}]*?}')
     # Remove some of the broken CSS Microsoft products
     # create
     MS_PAT     = re.compile(r'''
@@ -304,7 +303,6 @@ class CSSPreProcessor(object):
 
     def __call__(self, data, add_namespace=False):
         from calibre.ebooks.oeb.base import XHTML_CSS_NAMESPACE
-        data = self.PAGE_PAT.sub('', data)
         data = self.MS_PAT.sub(self.ms_sub, data)
         if not add_namespace:
             return data
