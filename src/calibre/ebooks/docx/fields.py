@@ -26,7 +26,7 @@ class Field(object):
         if not raw:
             return
         if self.name is None:
-            # There are cases where partial index entries end with 
+            # There are cases where partial index entries end with
             # a significant space, along the lines of
             # <>Summary <>  ...  <>Hearing<>.
             # No known examples of starting with a space yet.
@@ -181,7 +181,7 @@ class Fields(object):
             for runs in self.get_runs(field):
                 self.hyperlink_fields.append(({'anchor':dest}, runs))
         else:
-            self.log.warn('Unsupported reference field (%s), ignoring: %r' % (field.name, ref))
+            log.warn('Unsupported reference field (%s), ignoring: %r' % (field.name, ref))
 
     parse_noteref = parse_ref
 
