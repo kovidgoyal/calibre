@@ -11,7 +11,7 @@ from future_builtins import map
 from calibre.ebooks.oeb.base import OEB_DOCS, OEB_STYLES
 from calibre.ebooks.oeb.polish.utils import guess_type
 from calibre.ebooks.oeb.polish.cover import is_raster_image
-from calibre.ebooks.oeb.polish.check.base import run_checkers
+from calibre.ebooks.oeb.polish.check.base import run_checkers, WARN
 from calibre.ebooks.oeb.polish.check.parsing import (
     check_filenames, check_xml_parsing, check_css_parsing, fix_style_tag,
     check_html_size, check_ids, EmptyFile, check_encoding_declarations)
@@ -45,8 +45,9 @@ def run_checks(container):
     errors.extend(run_checkers(check_xml_parsing, html_items))
     errors.extend(run_checkers(check_raster_images, raster_images))
 
-    if errors:
-        return errors
+    for err in errors:
+        if err.level > WARN:
+            return errors
 
     # cssutils is not thread safe
     for name, mt, raw in stylesheets:
