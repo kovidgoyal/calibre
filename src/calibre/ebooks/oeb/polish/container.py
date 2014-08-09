@@ -1230,7 +1230,7 @@ class AZW3Container(Container):
 def get_container(path, log=None, tdir=None, tweak_mode=False):
     if log is None:
         log = default_log
-    ebook = (AZW3Container if path.rpartition('.')[-1].lower() in {'azw3', 'mobi', 'original_azw3'}
+    ebook = (AZW3Container if path.rpartition('.')[-1].lower() in {'azw3', 'mobi', 'original_azw3', 'original_mobi'}
             else EpubContainer)(path, log, tdir=tdir)
     ebook.tweak_mode = tweak_mode
     return ebook
