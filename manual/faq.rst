@@ -747,8 +747,6 @@ There can be several causes for this:
     * If you get an error in the welcome wizard on an initial run of calibre, try choosing a folder like :file:`C:\\library` as the calibre library (calibre sometimes
       has trouble with library locations if the path contains non-English characters, or only numbers, etc.)
     * Try running it as Administrator (Right click on the icon and select "Run as Administrator")
-    * **Windows Vista**: If the folder :file:`C:\\Users\\Your User Name\\AppData\\Local\\VirtualStore\\Program Files\\calibre` exists, delete it. Uninstall |app|. Reboot. Re-install.
-    * **Any windows version**: Try disabling any antivirus program you have running and see if that fixes it. Also try disabling any firewall software that prevents connections to the local computer.
 
 If it still wont launch, start a command prompt (press the windows key and R; then type :command:`cmd.exe` in the Run dialog that appears). At the command prompt type the following command and press Enter::
 
