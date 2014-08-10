@@ -1,0 +1,41 @@
+(*
+Adapted from http://www.idpf.org/epub/linking/cfi/epub-cfi.html
+
+Changes from spec:
+
+1) Text location assertion is only allowed after a text offset instead of after any kind of offset
+
+2) An offset is not allowed immediately after a redirect as it makes no sense
+
+Intended to be used with grako, like this
+grako -n -w "" epubcfi.ebnf -o epubcfi.py
+*)
+
+fragment        = "epubcfi(" parent:path [ "," start:path "," end:path ] ")";
+
+path            = steps:( { step }+ ) [ ( "!" redirect:path ) | offset:offset ];
+
+step            = "/" num:integer [ "[" id_assertion:characters "]" ];
+
+text_offset     = ":" char_offset:integer [ "[" text_assertion:text_assertion "]" ];
+
+spatial_offset  = "@" x:number ":" y:number; 
+
+temporal_offset = "~" t:number;
+
+offset          = (text_offset:text_offset) | (spatio_temporal_offset:(temporal_offset spatial_offset)) | (temporal_offset:temporal_offset) | (spatial_offset:spatial_offset);
+
+text_assertion  = [ ( ( before:characters [ "," after:characters ] ) | ( "," after:characters ) ) ] [ parameters:{parameter} ];
+
+parameter       = ";" name:characters_no_space "=" { value+:characters [","] }+;
+
+(* No leading zeros allowed in integers *)
+integer         = /0|(?:[1-9][0-9]*)/;
+
+(* No leading zeros, except for numbers in (0, 1) and no trailing zeros for the fractional part *)
+number          = /(?:[1-9][0-9]*(?:[.][0-9]*[1-9]){0,1})|(?:0[.][0-9]*[1-9])/;
+
+(* All valid unicode characters, except for the special chars which are preceded by a ^ *)
+characters          = /(?:[-\u0009\u000a\u000d\u0020-\u0027\u002a\u002b\u002e-\u003a\u003c\u003e-\u005a\u005c\u005f-\ud7ff\ue000-\ufffd\U00010000-\U0010FFFF]|(?:\^[[\](),;=^]))+/;
+characters_no_space = /(?:[-\u0009\u000a\u000d\u0021-\u0027\u002a\u002b\u002e-\u003a\u003c\u003e-\u005a\u005c\u005f-\ud7ff\ue000-\ufffd\U00010000-\U0010FFFF]|(?:\^[[\](),;=^]))+/;
+

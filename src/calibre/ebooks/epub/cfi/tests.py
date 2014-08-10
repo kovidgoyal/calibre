@@ -1,0 +1,85 @@
+#!/usr/bin/env python
+# vim:fileencoding=utf-8
+from __future__ import (unicode_literals, division, absolute_import,
+                        print_function)
+
+__license__ = 'GPL v3'
+__copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
+
+import unittest
+from future_builtins import map
+
+from calibre.ebooks.epub.cfi.parse import parser
+
+class Tests(unittest.TestCase):
+
+    def test_parsing(self):
+        p = parser()
+        def step(x):
+            if isinstance(x, int):
+                return {'num': x}
+            return {'num':x[0], 'id':x[1]}
+        def s(*args):
+            return {'steps':list(map(step, args))}
+        def r(*args):
+            idx = args.index('!')
+            ans = s(*args[:idx])
+            ans['redirect'] = s(*args[idx+1:])
+            return ans
+        def o(*args):
+            ans = s(1)
+            step = ans['steps'][-1]
+            typ, val = args[:2]
+            step[{'@':'spatial_offset', '~':'temporal_offset', ':':'text_offset'}[typ]] = val
+            if len(args) == 4:
+                typ, val = args[2:]
+                step[{'@':'spatial_offset', '~':'temporal_offset'}[typ]] = val
+            return ans
+        def a(before=None, after=None, **params):
+            ans = o(':', 3)
+            step = ans['steps'][-1]
+            ta = {}
+            if before is not None:
+                ta['before'] = before
+            if after is not None:
+                ta['after'] = after
+            if params:
+                ta['params'] = {unicode(k):(v,) if isinstance(v, unicode) else v for k, v in params.iteritems()}
+            if ta:
+                step['text_assertion'] = ta
+            return ans
+
+        for raw, path, leftover in [
+            # Test parsing of steps
+            ('/2', s(2), ''),
+            ('/2/3/4', s(2, 3, 4), ''),
+            ('/1/2[some^,^^id]/3', s(1, (2, 'some,^id'), 3), ''),
+            ('/1/2!/3/4', r(1, 2, '!', 3, 4), ''),
+            ('/1/2[id]!/3/4', r(1, (2, 'id'), '!', 3, 4), ''),
+            ('/1!/2[id]/3/4', r(1, '!', (2, 'id'), 3, 4), ''),
+
+            # Test parsing of offsets
+            ('/1~0', o('~', 0), ''),
+            ('/1~7', o('~', 7), ''),
+            ('/1~43.1', o('~', 43.1), ''),
+            ('/1~0.01', o('~', 0.01), ''),
+            ('/1~1.301', o('~', 1.301), ''),
+            ('/1@23:34.1', o('@', (23, 34.1)), ''),
+            ('/1~3@3.1:2.3', o('~', 3.0, '@', (3.1, 2.3)), ''),
+            ('/1:0', o(':', 0), ''),
+            ('/1:3', o(':', 3), ''),
+
+            # Test parsing of text assertions
+            ('/1:3[aa^,b]', a('aa,b'), ''),
+            ('/1:3[aa^,b,c1]', a('aa,b', 'c1'), ''),
+            ('/1:3[,aa^,b]', a(after='aa,b'), ''),
+            ('/1:3[;s=a]', a(s='a'), ''),
+            ('/1:3[a;s=a]', a('a', s='a'), ''),
+            ('/1:3[a;s=a^,b,c^;d;x=y]', a('a', s=('a,b', 'c;d'), x='y'), ''),
+
+        ]:
+            self.assertEqual(p.parse_path(raw), (path, leftover))
+
+if __name__ == '__main__':
+    suite = unittest.TestLoader().loadTestsFromTestCase(Tests)
+    unittest.TextTestRunner(verbosity=2).run(suite)
