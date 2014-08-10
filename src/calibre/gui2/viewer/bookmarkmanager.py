@@ -173,9 +173,10 @@ class BookmarkManager(QWidget):
         self.edited.emit(bm)
 
     def sort_by_pos(self):
+        from calibre.ebooks.epub.cfi.parse import cfi_sort_key
         def pos_key(b):
             if b.get('type', None) == 'cfi':
-                return b['spine'], b['pos']
+                return b['spine'], cfi_sort_key(b['pos'])
             return (None, None)
         bm = self.get_bookmarks()
         bm.sort(key=pos_key)

@@ -9,9 +9,19 @@ __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 import unittest
 from future_builtins import map
 
-from calibre.ebooks.epub.cfi.parse import parser
+from calibre.ebooks.epub.cfi.parse import parser, cfi_sort_key
 
 class Tests(unittest.TestCase):
+
+    def test_sorting(self):
+        null_offsets = (0, (0, 0), 0)
+        for path, key in [
+                ('/1/2/3', ((1, 2, 3), null_offsets)),
+                ('/1[id]:34[yyyy]', ((1,), (0, (0, 0), 34))),
+                ('/1@1:2', ((1,), (0, (2, 1), 0))),
+                ('/1~1.2', ((1,), (1.2, (0, 0), 0))),
+        ]:
+            self.assertEqual(cfi_sort_key(path), key)
 
     def test_parsing(self):
         p = parser()

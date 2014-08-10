@@ -167,3 +167,32 @@ def parser():
         _parser = Parser()
     return _parser
 
+def get_steps(pcfi):
+    ans = tuple(pcfi['steps'])
+    if 'redirect' in pcfi:
+        ans += get_steps(pcfi['redirect'])
+    return ans
+
+def cfi_sort_key(cfi, only_path=True):
+    p = parser()
+    try:
+        if only_path:
+            pcfi = p.parse_path(cfi)[0]
+        else:
+            parent, start = p.parse_epubcfi(cfi)[:2]
+            pcfi = start or parent
+    except Exception:
+        import traceback
+        traceback.print_exc()
+        return ()
+    if not pcfi:
+        import sys
+        print ('Failed to parse CFI: %r' % pcfi, file=sys.stderr)
+        return ()
+    steps = get_steps(pcfi)
+    step_nums = tuple(s.get('num', 0) for s in steps)
+    step = steps[-1] if steps else {}
+    offsets = (step.get('temporal_offset', 0), tuple(reversed(step.get('spatial_offset', (0, 0)))), step.get('text_offset', 0), )
+    return (step_nums, offsets)
+
+
