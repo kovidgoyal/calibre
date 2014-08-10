@@ -8,11 +8,7 @@ __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
 # QT5XX: Get rid of the plugin porting stat collection in plugins_mirror.py
 
-# QT5XX: Port the demo UI and editor plugin zip files on the server to Qt 5
-
-# QT5XX: Modify notes about glibc 2.13, os x 10.7 and new Qt/PyQt linux dependencies on the server
-
-# Get rid of tarball compression type detection in linux-installer.py
+# QT5XX: Get rid of tarball compression type detection in linux-installer.py
 
 # QT5XX: Delete this file after migration is completed
 
