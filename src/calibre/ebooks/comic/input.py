@@ -50,22 +50,26 @@ def find_pages(dir, sort_on_mtime=False, verbose=False):
     pages = []
     for datum in os.walk(dir):
         for name in datum[-1]:
-            path = os.path.join(datum[0], name)
+            path = os.path.abspath(os.path.join(datum[0], name))
             if '__MACOSX' in path:
                 continue
             for ext in extensions:
                 if path.lower().endswith('.'+ext):
                     pages.append(path)
                     break
+    sep_counts = {x.replace(os.sep, '/').count('/') for x in pages}
+    # Use the full path to sort unless the files are in folders of different
+    # levels, in which case simply use the filenames.
+    basename = os.path.basename if len(sep_counts) > 1 else lambda x: x
     if sort_on_mtime:
         key = lambda x:os.stat(x).st_mtime
     else:
-        key = lambda x:numeric_sort_key(os.path.basename(x))
+        key = lambda x:numeric_sort_key(basename(x))
 
     pages.sort(key=key)
     if verbose:
         prints('Found comic pages...')
-        prints('\t'+'\n\t'.join([os.path.basename(p) for p in pages]))
+        prints('\t'+'\n\t'.join([os.path.relpath(p, dir) for p in pages]))
     return pages
 
 class PageProcessor(list):  # {{{
