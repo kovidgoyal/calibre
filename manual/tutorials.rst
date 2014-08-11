@@ -1,6 +1,3 @@
-
-.. include:: global.rst
-
 .. _tutorials:
 
 Tutorials

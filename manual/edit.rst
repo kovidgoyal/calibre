@@ -1,5 +1,3 @@
-.. include:: global.rst
-
 .. _edit:
 
 Editing E-books 

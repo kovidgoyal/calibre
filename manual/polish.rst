@@ -1,6 +1,3 @@
-
-.. include:: global.rst
-
 .. _polish_api:
 
 API Documentation for the ebook editing tools

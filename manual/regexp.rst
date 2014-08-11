@@ -1,5 +1,3 @@
-.. include:: global.rst
-
 .. _regexptutorial:
 
 All about using regular expressions in |app|

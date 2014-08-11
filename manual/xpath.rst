@@ -1,5 +1,3 @@
-.. include:: global.rst
-
 .. _xpath-tutorial:
 
 XPath Tutorial

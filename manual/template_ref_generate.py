@@ -7,8 +7,6 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 from collections import defaultdict
 
 PREAMBLE = '''\
-.. include:: global.rst
-
 .. _templaterefcalibre:
 
 Reference for all built-in template language functions

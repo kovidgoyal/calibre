@@ -1,5 +1,3 @@
-.. include:: global.rst
-
 .. _metadata:
 
 Editing Ebook Metadata

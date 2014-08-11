@@ -1,5 +1,3 @@
-.. include:: global.rst
-
 .. _gui:
 
 The Graphical User Interface

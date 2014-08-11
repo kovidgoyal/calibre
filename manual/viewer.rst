@@ -1,5 +1,3 @@
-.. include:: global.rst
-
 .. _viewer:
 
 The Ebook Viewer

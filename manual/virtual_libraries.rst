@@ -1,6 +1,3 @@
-
-.. include:: global.rst
-
 .. _virtual_libraries:
 
 

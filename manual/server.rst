@@ -1,5 +1,3 @@
-.. include:: global.rst
-
 .. _servertutorial:
 
 Integrating the |app| content server into other servers

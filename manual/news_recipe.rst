@@ -1,5 +1,3 @@
-.. include:: global.rst
-
 .. _news_recipe:
 
 API Documentation for recipes

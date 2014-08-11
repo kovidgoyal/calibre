@@ -1,5 +1,3 @@
-.. include:: global.rst
-
 .. _db_api:
 
 API Documentation for the database interface

@@ -20,8 +20,6 @@ def substitute(app, doctree):
     pass
 
 CLI_INDEX='''
-.. include:: ../global.rst
-
 .. _cli:
 
 Command Line Interface
@@ -52,8 +50,6 @@ in a terminal.
 '''
 
 CLI_PREAMBLE='''\
-.. include:: ../global.rst
-
 .. _{cmd}:
 
 ``{cmd}``

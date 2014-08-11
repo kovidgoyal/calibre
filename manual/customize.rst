@@ -1,5 +1,3 @@
-.. include:: global.rst
-
 .. currentmodule:: calibre.customize.__init__
 
 .. _customize:

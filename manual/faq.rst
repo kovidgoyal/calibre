@@ -1,5 +1,3 @@
-.. include:: global.rst
-
 .. _faq:
 
 Frequently Asked Questions

@@ -1,4 +1,3 @@
-.. include:: global.rst
 
 Glossary
 ==========
@@ -28,3 +27,4 @@ Glossary
 
     regexp
          **Regular expressions** provide a concise and flexible means for identifying strings of text of interest, such as particular characters, words, or patterns of characters. See `regexp syntax <http://docs.python.org/lib/re-syntax.html>`_ for the syntax of regular expressions used in Python.
+

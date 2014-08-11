@@ -1,5 +1,3 @@
-.. include:: global.rst
-
 .. _develop:
 
 Setting up a |app| development environment

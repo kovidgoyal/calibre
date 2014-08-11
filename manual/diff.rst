@@ -1,5 +1,3 @@
-.. include:: global.rst
-
 .. _diff:
 
 Comparing E-books 

@@ -1,6 +1,3 @@
-
-.. include:: global.rst
-
 .. _typesetting_math:
 
 

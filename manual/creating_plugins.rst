@@ -1,6 +1,3 @@
-
-.. include:: global.rst
-
 .. _pluginstutorial:
 
 Writing your own plugins to extend |app|'s functionality

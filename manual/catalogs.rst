@@ -1,6 +1,3 @@
-
-.. include:: global.rst
-
 .. _catalog_tut:
 
 Creating AZW3 • EPUB • MOBI Catalogs 

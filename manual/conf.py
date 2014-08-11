@@ -25,6 +25,8 @@ custom
 
 needs_sphinx = '1.0'
 
+rst_prolog = '.. |app| replace:: %s' % __appname__
+
 # Add any Sphinx extension module names here, as strings. They can be extensions
 # coming with Sphinx (named 'sphinx.addons.*') or your custom ones.
 extensions = ['sphinx.ext.autodoc', 'custom', 'sphinx.ext.viewcode']
@@ -36,7 +38,9 @@ templates_path = ['templates']
 source_suffix = '.rst'
 
 # The master toctree document.
-master_doc = 'index'
+master_doc = 'index' if tags.has('online') else 'simple_index'  # noqa
+# kill the warning about index/simple_index not being in a toctree
+exclude_patterns = ['simple_index.rst'] if master_doc == 'index' else ['index']
 
 # The language
 language = 'en'
@@ -93,7 +97,7 @@ html_sidebars = {
 }
 
 # The favicon
-html_favicon = 'favicon.ico'
+html_favicon = '../icons/favicon.ico'
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the built-in static files,

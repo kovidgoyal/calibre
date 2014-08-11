@@ -1,5 +1,3 @@
-.. include:: global.rst
-
 .. _plugins:
 
 API Documentation for plugins

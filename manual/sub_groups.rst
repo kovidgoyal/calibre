@@ -1,6 +1,3 @@
-
-.. include:: global.rst
-
 .. _subgroups-tutorial:
 
 Managing subgroups of books, for example "genre"
