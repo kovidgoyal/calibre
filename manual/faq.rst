@@ -503,7 +503,7 @@ disconnected from the computer, for the changes to the collections to be
 recognized. As such, it is unlikely that any |app| developers will ever feel
 motivated enough to support it. There is however, a |app| plugin that allows
 you to create collections on your Kindle from the |app| metadata. It is
-available `from here <http://www.mobileread.com/forums/showthread.php?t=244202`_. 
+available `from here <http://www.mobileread.com/forums/showthread.php?t=244202>`_. 
 
 .. note:: 
     Amazon have removed the ability to manipulate collections completely
