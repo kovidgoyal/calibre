@@ -1,8 +1,8 @@
 #!/usr/bin/env  python
 __license__   = 'GPL v3'
-__author__    = 'Lorenzo Vigentini'
+__author__    = 'Lorenzo Vigentini (updated by rrrrrrrrrrrryan at gmail.com)'
 __copyright__ = '2009, Lorenzo Vigentini <l.vigentini at gmail.com>'
-description   = 'News from the Orange county - v1.01 (29, January 2010)'
+description   = 'News from Orange county - v1.02 (10, August 2014)'
 
 '''
 http://www.ocregister.com/
@@ -27,14 +27,26 @@ class ocRegister(BasicNewsRecipe):
     use_embedded_content  = False
     recursion             = 10
 
-    remove_javascript     = True
+    # remove_javascript     = True
     no_stylesheets        = True
+
+    needs_subscription = "optional"
+
+    use_javascript_to_login = True
+
+    def javascript_login(self, browser, username, password):
+        browser.visit('http://www.ocregister.com/sections/login')
+        form = browser.select_form(nr=1)  # Select the second form on the page
+        form['username'] = username
+        form['password_temp'] = password
+        browser.submit(timeout=120)  # Submit the form and wait at most two minutes for loading to complete
 
     def print_version(self,url):
         printUrl    = 'http://www.ocregister.com/common/printer/view.php?db=ocregister&id='
         segments = url.split('/')
         subSegments = (segments[4]).split('.')
-        myArticle = (subSegments[0]).replace('-', '')
+        subSubSegments = (subSegments[0]).split('-')
+        myArticle = (subSubSegments[1])
         myURL= printUrl + myArticle
         return myURL
 
@@ -49,7 +61,7 @@ class ocRegister(BasicNewsRecipe):
 
     feeds          = [
                        (u'News', u'http://www.ocregister.com/common/rss/rss.php?catID=18800'),
-                       (u'Today paper', u'http://www.ocregister.com/common/rss/rss.php?catID=18976'),
+                       (u'Top Stories', u'http://www.ocregister.com/common/rss/rss.php?catID=23541'),
                        (u'Business', u'http://www.ocregister.com/common/rss/rss.php?catID=18909'),
                        (u'Cars', u'http://www.ocregister.com/common/rss/rss.php?catID=20128'),
                        (u'Entertainment', u'http://www.ocregister.com/common/rss/rss.php?catID=18926'),
