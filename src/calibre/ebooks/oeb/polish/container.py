@@ -1147,6 +1147,10 @@ def opf_to_azw3(opf, outpath, container):
     set_cover(oeb)
     outp.convert(oeb, outpath, inp, plumber.opts, container.log)
 
+def epub_to_azw3(epub, outpath=None):
+    container = get_container(epub, tweak_mode=True)
+    outpath = outpath or (epub.rpartition('.')[0] + '.azw3')
+    opf_to_azw3(container.name_to_abspath(container.opf_name), outpath, container)
 
 class AZW3Container(Container):
 
