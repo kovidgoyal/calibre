@@ -6,11 +6,12 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, tempfile, shutil, subprocess, glob, re, time, textwrap, cPickle, shlex
+import os, tempfile, shutil, subprocess, glob, re, time, textwrap, cPickle, shlex, json
 from locale import normalize as normalize_locale
 from functools import partial
 
 from setup import Command, __appname__, __version__, require_git_master
+from setup.parallel_build import parallel_check_output
 
 def qt_sources():
     qtdir = '/usr/src/qt5'
@@ -238,6 +239,7 @@ class Translations(POT):  # {{{
 
         self.write_stats()
         self.freeze_locales()
+        self.compile_user_manual_translations()
 
     def check_iso639(self, path):
         from calibre.utils.localization import langnames_to_langcodes
@@ -297,12 +299,53 @@ class Translations(POT):  # {{{
         import cPickle
         cPickle.dump(stats, open(dest, 'wb'), -1)
 
+    def compile_user_manual_translations(self):
+        self.info('Compiling user manual translations...')
+        srcbase = self.j(self.d(self.SRC), 'translations', 'manual')
+        destbase = self.j(self.d(self.SRC), 'manual', 'locale')
+        complete = {}
+        for x in os.listdir(srcbase):
+            q = self.j(srcbase, x)
+            if not os.path.isdir(q):
+                continue
+            dest = self.j(destbase, x, 'LC_MESSAGES')
+            if os.path.exists(dest):
+                shutil.rmtree(dest)
+            os.makedirs(dest)
+            jobs = []
+            for po in os.listdir(q):
+                if not po.endswith('.po'):
+                    continue
+                jobs.append([
+                    'msgfmt', '--statistics', '-o', self.j(
+                        dest, po.rpartition('.')[0] + '.mo'), self.j(q, po)])
+            stats = tuple(parallel_check_output(jobs, self.info))
+            translated = untranslated = 0
+            for line in stats:
+                m = re.search('(\d+).+(\d+)', line)
+                if m is None:
+                    translated += int(re.search('\d+', line).group())
+                else:
+                    translated += int(m.group(1))
+                    untranslated += int(m.group(2))
+            stats = {'translated':translated, 'untranslated':untranslated}
+            with open(self.j(self.d(dest), 'stats.json'), 'wb') as f:
+                json.dump(stats, f)
+            total = translated + untranslated
+            if total and (translated / float(total)) > 0.75:
+                complete[x] = stats
+        with open(self.j(destbase, 'completed.json'), 'wb') as f:
+            json.dump(complete, f)
+
     def clean(self):
         if os.path.exists(self.stats):
             os.remove(self.stats)
         zf = self.DEST + '.zip'
         if os.path.exists(zf):
             os.remove(zf)
+        destbase = self.j(self.d(self.SRC), 'manual', 'locale')
+        if os.path.exists(destbase):
+            shutil.rmtree(destbase)
 
 # }}}
 

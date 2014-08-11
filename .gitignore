@@ -9,6 +9,7 @@ resources/images.qrc
 manual/.build/
 manual/cli/
 manual/template_ref.rst
+manual/locale
 build
 dist
 docs

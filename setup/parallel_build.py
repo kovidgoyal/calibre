@@ -8,10 +8,11 @@ __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import subprocess
 from multiprocessing.dummy import Pool
+from functools import partial
 
 from setup.build_environment import cpu_count
 
-def run_worker(job):
+def run_worker(job, decorate=True):
     cmd, human_text = job
     human_text = human_text or b' '.join(cmd)
     try:
@@ -19,7 +20,8 @@ def run_worker(job):
     except Exception as err:
         return False, human_text, unicode(err)
     stdout, stderr = p.communicate()
-    stdout = human_text + b'\n' + (stdout or b'')
+    if decorate:
+        stdout = human_text + b'\n' + (stdout or b'')
     ok = p.returncode == 0
     return ok, stdout, (stderr or b'')
 
@@ -37,3 +39,13 @@ def parallel_build(jobs, log, verbose=True):
             return False
     return True
 
+def parallel_check_output(jobs, log):
+    p = Pool(cpu_count)
+    for ok, stdout, stderr in p.imap(
+            partial(run_worker, decorate=False), ((j, '') for j in jobs)):
+        if not ok:
+            log(stdout)
+            if stderr:
+                log(stderr)
+            raise SystemExit(1)
+        yield stdout
