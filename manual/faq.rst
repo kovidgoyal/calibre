@@ -492,19 +492,23 @@ will always be under /dev by examining the output of::
 Why does |app| not support collections on the Kindle or shelves on the Nook?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Neither the Kindle nor the Nook provide any way to manipulate collections over a USB connection.
-If you really care about using collections, I would urge you to sell your Kindle/Nook and get a SONY.
-Only SONY seems to understand that life is too short to be entering collections one by one on an
-e-ink screen :)
+Neither the Kindle nor the Nook provide any way to manipulate collections over
+a USB connection.  If you really care about using collections, I would urge you
+to sell your Kindle/Nook and get a Kobo.  Only Kobo seems to understand that
+life is too short to be entering collections one by one on an e-ink screen :)
 
-Note that in the case of the Kindle, there is a way to manipulate collections via USB,
-but it requires that the Kindle be rebooted *every time* it is disconnected from the computer, for the
-changes to the collections to be recognized. As such, it is unlikely that
-any |app| developers will ever feel motivated enough to support it. There is however, a |app| plugin
-that allows you to create collections on your Kindle from the |app| metadata. It is available
-`from here <http://www.mobileread.com/forums/showthread.php?t=118635>`_. 
+Note that in the case of the Kindle, there is a way to manipulate collections
+via USB, but it requires that the Kindle be rebooted *every time* it is
+disconnected from the computer, for the changes to the collections to be
+recognized. As such, it is unlikely that any |app| developers will ever feel
+motivated enough to support it. There is however, a |app| plugin that allows
+you to create collections on your Kindle from the |app| metadata. It is
+available `from here <http://www.mobileread.com/forums/showthread.php?t=244202`_. 
 
-.. note:: Amazon have removed the ability to manipulate collections completely in their newer models, like the Kindle Touch and Kindle Fire, making even the above plugin useless. If you really want the ability to manage collections on your Kindle via a USB connection, we encourage you to complain to Amazon about it, or get a reader where this is supported, like the SONY or Kobo Readers.
+.. note:: 
+    Amazon have removed the ability to manipulate collections completely
+    in their newer models, like the Kindle Touch and Kindle Fire, making even the
+    above plugin useless, unless you root your Kindle and install custom firmware.
 
 I am getting an error when I try to use |app| with my Kobo Touch/Glo/etc.?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
