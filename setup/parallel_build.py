@@ -21,7 +21,7 @@ def run_worker(job, decorate=True):
         return False, human_text, unicode(err)
     stdout, stderr = p.communicate()
     if decorate:
-        stdout = human_text + b'\n' + (stdout or b'')
+        stdout = bytes(human_text) + b'\n' + (stdout or b'')
     ok = p.returncode == 0
     return ok, stdout, (stderr or b'')
 

@@ -66,6 +66,7 @@ today_fmt = '%B %d, %Y'
 # List of documents that shouldn't be included in the build.
 unused_docs = ['global', 'cli/global']
 
+locale_dirs = ['locale/']
 
 # If true, '()' will be appended to :func: etc. cross-reference text.
 #add_function_parentheses = True

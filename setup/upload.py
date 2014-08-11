@@ -7,7 +7,7 @@ __docformat__ = 'restructuredtext en'
 
 import os, subprocess, hashlib, shutil, glob, stat, sys, time
 from subprocess import check_call
-from tempfile import NamedTemporaryFile, mkdtemp
+from tempfile import NamedTemporaryFile, mkdtemp, gettempdir
 from zipfile import ZipFile
 
 if __name__ == '__main__':
@@ -129,8 +129,7 @@ def run_remote_upload(args):
 class UploadInstallers(Command):  # {{{
 
     def add_options(self, parser):
-        parser.add_option('--replace', default=False, action='store_true', help=
-                'Replace existing installers')
+        parser.add_option('--replace', default=False, action='store_true', help='Replace existing installers')
 
     def run(self, opts):
         all_possible = set(installers())
@@ -207,7 +206,7 @@ class UploadInstallers(Command):  # {{{
 
 class UploadUserManual(Command):  # {{{
     description = 'Build and upload the User Manual'
-    sub_commands = ['manual']
+    # sub_commands = ['manual']
 
     def build_plugin_example(self, path):
         from calibre import CurrentDir
@@ -232,9 +231,10 @@ class UploadUserManual(Command):  # {{{
         for x in glob.glob(self.j(path, '*')):
             self.build_plugin_example(x)
 
+        srcdir = self.j(gettempdir(), 'user-manual-build', 'en', 'html') + '/'
         for host in ('download', 'files'):
-            check_call(' '.join(['rsync', '-z', '-r', '--progress',
-                'manual/.build/html/', '%s:/srv/manual/' % host]), shell=True)
+            check_call(' '.join(['rsync', '-zrl', '--progress',
+                srcdir, '%s:/srv/manual/' % host]), shell=True)
 # }}}
 
 class UploadDemo(Command):  # {{{
@@ -332,4 +332,3 @@ def test_google_uploader():
 
 if __name__ == '__main__':
     test_google_uploader()
-
