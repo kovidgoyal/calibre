@@ -84,9 +84,9 @@ class POT(Command):  # {{{
 
     def get_user_manual_docs(self):
         self.info('Generating translation templates for user_manual')
-        base = '.build/gettext'
-        subprocess.check_call(['sphinx-build', '-b', 'gettext', '.', base], cwd=self.MANUAL)
-        base, tbase = self.j(self.MANUAL, base), self.j(self.TRANSLATIONS, 'manual')
+        base = tempfile.mkdtemp()
+        subprocess.check_call(['calibre-debug', self.j(self.d(self.SRC), 'manual', 'build.py'), 'gettext', base])
+        tbase = self.j(self.TRANSLATIONS, 'manual')
         for x in os.listdir(base):
             if not x.endswith('.pot'):
                 continue
@@ -112,6 +112,7 @@ class POT(Command):  # {{{
                 self.git('add .tx/config')
             self.upload_pot(dest, resource=slug)
             self.git(['add', dest])
+        shutil.rmtree(base)
 
     def run(self, opts):
         require_git_master()

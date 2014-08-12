@@ -63,16 +63,27 @@ def build_manual(language, base):
     from calibre.ebooks.oeb.polish.container import epub_to_azw3
     epub_to_azw3(epub_dest)
 
+def build_pot(base):
+    cmd = [SPHINX_BUILD, '-b', 'gettext', '-t', 'online', '.', base]
+    print (' '.join(cmd))
+    subprocess.check_call(cmd)
+    os.remove(j(base, 'generated.pot'))
+    return base
+
 if __name__ == '__main__':
     os.chdir(d(a(__file__)))
     os.environ['__appname__'] = __appname__
     os.environ['__version__'] = __version__
     if len(sys.argv) == 1:
         base = j(tempfile.gettempdir(), 'manual')
-        os.environ['CALIBRE_OVERRIDE_LANG'] = 'en'
-        sphinx_build('en', base, t='online', quiet=False)
+        os.environ['CALIBRE_OVERRIDE_LANG'] = language = 'en'
+        sphinx_build(language, base, t='online', quiet=False)
     else:
         language, base  = sys.argv[1:]
-        os.environ['CALIBRE_OVERRIDE_LANG'] = language
-        build_manual(language, base)
-    print ('Manual for', language, 'built in', j(base, 'html'))
+        if language == 'gettext':
+            build_pot(base)
+        else:
+            os.environ['CALIBRE_OVERRIDE_LANG'] = language
+            build_manual(language, base)
+    if language != 'gettext':
+        print ('Manual for', language, 'built in', j(base, 'html'))
