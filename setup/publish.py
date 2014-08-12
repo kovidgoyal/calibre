@@ -8,7 +8,7 @@ __docformat__ = 'restructuredtext en'
 
 import os, shutil, subprocess, glob, tempfile, json, time, filecmp
 
-from setup import Command, __appname__, __version__, require_clean_git, require_git_master
+from setup import Command, __version__, require_clean_git, require_git_master
 from setup.parallel_build import parallel_build
 
 class Stage1(Command):
@@ -91,18 +91,17 @@ class Manual(Command):
             shutil.rmtree(tdir)
         os.mkdir(tdir)
         st = time.time()
-        for d in ('.build', 'cli'):
+        for d in ('generated'):
             if os.path.exists(d):
                 shutil.rmtree(d)
             os.makedirs(d)
         jobs = []
-        mandir = self.j(self.d(self.SRC), 'manual')
         languages = opts.language or list(json.load(open(self.j(self.d(self.SRC), 'manual', 'locale', 'completed.json'), 'rb')))
         for language in (['en'] + languages):
             jobs.append((['calibre-debug', self.j(self.d(self.SRC), 'manual', 'build.py'),
-                          language, self.j(tdir, language), mandir, __appname__, __version__],
+                          language, self.j(tdir, language)],
                          '\n\n**************** Building translations for: %s'%language))
-        self.info('Building translations for %d languages' % (len(jobs) - 1))
+        self.info('Building manual for %d languages' % len(jobs))
         if not parallel_build(jobs, self.info):
             raise SystemExit(1)
         os.chdir(self.j(tdir, 'en', 'html'))

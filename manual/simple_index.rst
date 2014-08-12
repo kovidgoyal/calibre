@@ -35,7 +35,7 @@ Sections
    faq 
    tutorials
    customize
-   cli/cli-index
+   generated/|lang|/cli-index
    develop
    glossary
 

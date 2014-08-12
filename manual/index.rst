@@ -86,7 +86,7 @@ The Command Line Interface
 .. toctree::
    :maxdepth: 2
 
-   cli/cli-index
+   generated/|lang|/cli-index
 
 Setting up a |app| development environment
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

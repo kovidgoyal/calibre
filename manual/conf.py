@@ -43,7 +43,9 @@ master_doc = 'index' if tags.has('online') else 'simple_index'  # noqa
 exclude_patterns = ['simple_index.rst'] if master_doc == 'index' else ['index']
 
 # The language
-language = 'en'
+language = os.environ.get('CALIBRE_OVERRIDE_LANG', 'en')
+# ignore generated files in languages other than the language we are building for
+exclude_patterns += ['generated/' + x for x in os.listdir('generated') if x != language]
 
 # General substitutions.
 project = __appname__

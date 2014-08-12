@@ -330,7 +330,7 @@ Function classification
 .. toctree::
     :maxdepth: 3
 
-    template_ref
+    generated/|lang|/template_ref
 
         
 .. _general_mode:
@@ -479,5 +479,5 @@ You might find the following tips useful.
 .. toctree::
   :hidden:
 
-  template_ref
+  generated/|lang|/template_ref
 

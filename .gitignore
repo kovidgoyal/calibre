@@ -6,9 +6,7 @@
 .check-cache.pickle
 src/calibre/plugins
 resources/images.qrc
-manual/.build/
-manual/cli/
-manual/template_ref.rst
+manual/generated
 manual/locale
 build
 dist
