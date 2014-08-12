@@ -81,6 +81,10 @@ class Manual(Command):
 
     description='''Build the User Manual '''
 
+    def add_options(self, parser):
+        parser.add_option('-l', '--language', action='append', default=[],
+                          help='Build translated versions for only the specified languages (can be specified multiple times)')
+
     def run(self, opts):
         tdir = self.j(tempfile.gettempdir(), 'user-manual-build')
         if os.path.exists(tdir):
@@ -93,11 +97,12 @@ class Manual(Command):
             os.makedirs(d)
         jobs = []
         mandir = self.j(self.d(self.SRC), 'manual')
-        for language in (['en'] + list(json.load(open(self.j(self.d(self.SRC), 'manual', 'locale', 'completed.json'), 'rb')))):
+        languages = opts.language or list(json.load(open(self.j(self.d(self.SRC), 'manual', 'locale', 'completed.json'), 'rb')))
+        for language in (['en'] + languages):
             jobs.append((['calibre-debug', self.j(self.d(self.SRC), 'manual', 'build.py'),
                           language, self.j(tdir, language), mandir, __appname__, __version__],
                          '\n\n**************** Building translations for: %s'%language))
-        self.info('Building translations for %d languages' % len(jobs))
+        self.info('Building translations for %d languages' % (len(jobs) - 1))
         if not parallel_build(jobs, self.info):
             raise SystemExit(1)
         os.chdir(self.j(tdir, 'en', 'html'))
