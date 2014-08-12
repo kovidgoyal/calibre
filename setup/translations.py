@@ -204,22 +204,20 @@ class Translations(POT):  # {{{
              .read(), os.path.join(os.path.dirname(os.path.abspath(__file__)), 'lc_data.py'), 'exec'), l, l)
         lcdata = {k:{k1:v1 for k1, v1 in v} for k, v in l['data']}
         self.iso639_errors = []
+        jobs = []
         for f in self.po_files():
             locale, dest = self.mo_file(f)
             base = os.path.dirname(dest)
             if not os.path.exists(base):
                 os.makedirs(base)
-            self.info('\tCompiling translations for', locale)
-            subprocess.check_call(['msgfmt', '-o', dest, f])
+            jobs.append(['msgfmt', '-o', dest, f])
             iscpo = {'bn':'bn_IN', 'zh_HK':'zh_CN'}.get(locale, locale)
             iso639 = self.j(self.TRANSLATIONS, 'iso_639', '%s.po'%iscpo)
 
-            if os.path.exists(iso639):
-                self.check_iso639(iso639)
+            if os.path.exists(iso639) and self.check_iso639(iso639):
                 dest = self.j(self.d(dest), 'iso639.mo')
                 if self.newer(dest, iso639):
-                    self.info('\tCopying ISO 639 translations for %s' % iscpo)
-                    subprocess.check_call(['msgfmt', '-o', dest, iso639])
+                    jobs.append(['msgfmt', '-o', dest, iso639])
             elif locale not in {
                 'en_GB', 'en_CA', 'en_AU', 'si', 'ur', 'sc', 'ltg', 'nds',
                 'te', 'yi', 'fo', 'sq', 'ast', 'ml', 'ku', 'fr_CA', 'him',
@@ -232,6 +230,8 @@ class Translations(POT):  # {{{
                 lcdest = self.j(self.d(dest), 'lcdata.pickle')
                 with open(lcdest, 'wb') as lcf:
                     lcf.write(cPickle.dumps(ld, -1))
+        self.info('\nCompiling %d translation files...' % len(jobs))
+        tuple(parallel_check_output(jobs, self.info))
 
         if self.iso639_errors:
             for err in self.iso639_errors:
@@ -248,6 +248,7 @@ class Translations(POT):  # {{{
             raw = f.read()
         rmap = {}
         msgid = None
+        has_errors = False
         for match in re.finditer(r'^(msgid|msgstr)\s+"(.*?)"', raw, re.M):
             if match.group(1) == 'msgid':
                 msgid = match.group(2)
@@ -259,10 +260,12 @@ class Translations(POT):  # {{{
                 if omsgid is not None:
                     cm = langnames_to_langcodes([omsgid, msgid])
                     if cm[msgid] and cm[omsgid] and cm[msgid] != cm[omsgid]:
+                        has_errors = True
                         self.iso639_errors.append('In file %s the name %s is used as translation for both %s and %s' % (
                             os.path.basename(path), msgstr, msgid, rmap[msgstr]))
                     # raise SystemExit(1)
                 rmap[msgstr] = msgid
+        return not has_errors
 
     def freeze_locales(self):
         zf = self.DEST + '.zip'
