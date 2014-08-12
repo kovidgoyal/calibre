@@ -206,7 +206,7 @@ class UploadInstallers(Command):  # {{{
 
 class UploadUserManual(Command):  # {{{
     description = 'Build and upload the User Manual'
-    # sub_commands = ['manual']
+    sub_commands = ['manual']
 
     def build_plugin_example(self, path):
         from calibre import CurrentDir
