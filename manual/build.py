@@ -6,6 +6,7 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
+import tempfile
 from functools import partial
 
 from calibre import __appname__, __version__
@@ -67,7 +68,7 @@ if __name__ == '__main__':
     os.environ['__appname__'] = __appname__
     os.environ['__version__'] = __version__
     if len(sys.argv) == 1:
-        base = '/tmp/manual'
+        base = j(tempfile.gettempdir(), 'manual')
         os.environ['CALIBRE_OVERRIDE_LANG'] = 'en'
         sphinx_build('en', base, t='online', quiet=False)
     else:
