@@ -647,6 +647,7 @@ class SavedSearches(Dialog):
 
         self.description = d = QLabel(' \n \n ')
         d.setTextFormat(Qt.PlainText)
+        d.setWordWrap(True)
         l.addWidget(d)
 
         l.addWidget(self.bb)
