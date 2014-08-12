@@ -6,7 +6,7 @@ SPHINXOPTS   =
 SPHINXBUILD  = sphinx-build2
 PAPER        =
 
-ALLSPHINXOPTS = -d .build/doctrees -D latex_paper_size=$(PAPER) \
+ALLSPHINXOPTS = -d .build/doctrees -D language=en -D latex_paper_size=$(PAPER) \
                 $(SPHINXOPTS) .
 
 .PHONY: help clean html web htmlhelp latex changes linkcheck
