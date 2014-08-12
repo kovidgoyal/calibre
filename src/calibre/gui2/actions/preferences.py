@@ -11,7 +11,7 @@ from PyQt5.Qt import QIcon, Qt
 
 from calibre.gui2.actions import InterfaceAction
 from calibre.gui2.preferences.main import Preferences
-from calibre.gui2 import error_dialog
+from calibre.gui2 import error_dialog, show_restart_warning
 from calibre.constants import DEBUG, isosx
 
 class PreferencesAction(InterfaceAction):
@@ -56,9 +56,9 @@ class PreferencesAction(InterfaceAction):
             d.exec_()
             return
         if self.gui.must_restart_before_config:
-            d = error_dialog(self.gui, _('Cannot configure'),
-                    _('Cannot configure before calibre is restarted.'))
-            d.exec_()
+            do_restart = show_restart_warning(_('Cannot configure before calibre is restarted.'))
+            if do_restart:
+                self.gui.quit(restart=True)
             return
         d = Preferences(self.gui, initial_plugin=initial_plugin,
                 close_after_initial=close_after_initial)
