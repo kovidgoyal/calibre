@@ -8,7 +8,7 @@ __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import posixpath, os, urllib, re
-from urlparse import urlparse, urlunparse
+from urlparse import urlparse
 from threading import Thread
 from Queue import Queue, Empty
 
@@ -19,6 +19,7 @@ from calibre.constants import DEBUG, iswindows
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre import browser, as_unicode, prints
 from calibre.gui2 import error_dialog
+from calibre.utils.imghdr import what
 
 IMAGE_EXTENSIONS = ['jpg', 'jpeg', 'gif', 'png', 'bmp']
 
@@ -119,7 +120,8 @@ class DownloadDialog(QDialog):  # {{{
 # }}}
 
 def dnd_has_image(md):
-    return md.hasImage()
+    # Chromium puts image data into application/octet-stream
+    return md.hasImage() or md.hasFormat('application/octet-stream') and what(None, bytes(md.data('application/octet-stream'))) in IMAGE_EXTENSIONS
 
 def data_as_string(f, md):
     raw = bytes(md.data(f))
@@ -130,15 +132,35 @@ def data_as_string(f, md):
             pass
     return raw
 
+def urls_from_md(md):
+    ans = list(md.urls())
+    if md.hasText():
+        # Chromium returns the url as text/plain on drag and drop of image
+        text = md.text()
+        if text and text.lstrip().partition(':')[0] in {'http', 'https', 'ftp'}:
+            u = QUrl(text.strip())
+            if u.isValid():
+                ans.append(u)
+    return ans
+
 def path_from_qurl(qurl):
     raw = bytes(qurl.toEncoded(
         QUrl.PreferLocalFile | QUrl.RemoveScheme | QUrl.RemovePassword | QUrl.RemoveUserInfo |
         QUrl.RemovePort | QUrl.RemoveAuthority | QUrl.RemoveQuery | QUrl.RemoveFragment))
-    return urllib.unquote(raw).decode('utf-8')
+    ans = urllib.unquote(raw).decode('utf-8', 'replace')
+    if iswindows and ans.startswith('/'):
+        ans = ans[1:]
+    return ans
+
+def remote_urls_from_qurl(qurls, allowed_exts):
+    for qurl in qurls:
+        if qurl.scheme() in {'http', 'https', 'ftp'} and posixpath.splitext(
+                qurl.path())[1][1:].lower() in allowed_exts:
+            yield bytes(qurl.toEncoded()), posixpath.basename(qurl.path())
 
 def dnd_has_extension(md, extensions):
     if DEBUG:
-        prints('Debugging DND event')
+        prints('\nDebugging DND event')
         for f in md.formats():
             f = unicode(f)
             raw = data_as_string(f, md)
@@ -146,35 +168,16 @@ def dnd_has_extension(md, extensions):
         print ()
     if has_firefox_ext(md, extensions):
         return True
-    if md.hasUrls():
-        urls = [unicode(u.toString(QUrl.None)) for u in
-                md.urls()]
-        paths = [path_from_qurl(u) for u in md.urls()]
-        exts = frozenset([posixpath.splitext(u)[1][1:].lower() for u in
-            paths if u])
-        if DEBUG:
-            prints('URLS:', urls)
-            prints('Paths:', paths)
-            prints('Extensions:', exts)
+    urls = urls_from_md(md)
+    paths = [path_from_qurl(u) for u in urls]
+    exts = frozenset([posixpath.splitext(u)[1][1:].lower() for u in paths if u])
+    if DEBUG:
+        repr_urls = [bytes(u.toEncoded()) for u in urls]
+        prints('URLS:', repr(repr_urls))
+        prints('Paths:', paths)
+        prints('Extensions:', exts)
 
-        return bool(exts.intersection(frozenset(extensions)))
-    return False
-
-def _u2p(raw):
-    path = raw
-    if iswindows and path.startswith('/'):
-        path = path[1:]
-    return path.replace('/', os.sep)
-
-def u2p(url):
-    path = url.path
-    ans = _u2p(path)
-    if not os.path.exists(ans):
-        ans = _u2p(url.path + '#' + url.fragment)
-    if os.path.exists(ans):
-        return ans
-    # Try unquoting the URL
-    return urllib.unquote(ans)
+    return bool(exts.intersection(frozenset(extensions)))
 
 def dnd_get_image(md, image_exts=IMAGE_EXTENSIONS):
     '''
@@ -185,7 +188,7 @@ def dnd_get_image(md, image_exts=IMAGE_EXTENSIONS):
              null
              url, filename if a URL that points to an image is found
     '''
-    if dnd_has_image(md):
+    if md.hasImage():
         for x in md.formats():
             x = unicode(x)
             if x.startswith('image/'):
@@ -195,44 +198,43 @@ def dnd_get_image(md, image_exts=IMAGE_EXTENSIONS):
                 if not pmap.isNull():
                     return pmap, None
                 break
+    if md.hasFormat('application/octet-stream'):
+        cdata = bytes(md.data('application/octet-stream'))
+        pmap = QPixmap()
+        pmap.loadFromData(cdata)
+        if not pmap.isNull():
+            return pmap, None
 
-    # No image, look for a URL pointing to an image
-    if md.hasUrls():
-        urls = [unicode(u.toString(QUrl.None)) for u in
-                md.urls()]
-        purls = [urlparse(u) for u in urls]
-        # First look for a local file
-        images = [u2p(xu) for xu in purls if xu.scheme in ('', 'file')]
-        images = [xi for xi in images if
-                posixpath.splitext(urllib.unquote(xi))[1][1:].lower() in
-                image_exts]
-        images = [xi for xi in images if os.path.exists(xi)]
-        p = QPixmap()
-        for path in images:
-            try:
-                with open(path, 'rb') as f:
-                    p.loadFromData(f.read())
-            except:
-                continue
-            if not p.isNull():
-                return p, None
+    # No image, look for an URL pointing to an image
+    urls = urls_from_md(md)
+    paths = [path_from_qurl(u) for u in urls]
+    # First look for a local file
+    images = [xi for xi in paths if
+            posixpath.splitext(urllib.unquote(xi))[1][1:].lower() in
+            image_exts]
+    images = [xi for xi in images if os.path.exists(xi)]
+    p = QPixmap()
+    for path in images:
+        try:
+            with open(path, 'rb') as f:
+                p.loadFromData(f.read())
+        except Exception:
+            continue
+        if not p.isNull():
+            return p, None
 
-        # No local images, look for remote ones
+    # No local images, look for remote ones
 
-        # First, see if this is from Firefox
-        rurl, fname = get_firefox_rurl(md, image_exts)
+    # First, see if this is from Firefox
+    rurl, fname = get_firefox_rurl(md, image_exts)
 
-        if rurl and fname:
-            return rurl, fname
-        # Look through all remaining URLs
-        remote_urls = [xu for xu in purls if xu.scheme in ('http', 'https',
-            'ftp') and posixpath.splitext(xu.path)[1][1:].lower() in image_exts]
-        if remote_urls:
-            rurl = remote_urls[0]
-            fname = posixpath.basename(urllib.unquote(rurl.path))
-            return urlunparse(rurl), fname
+    if rurl and fname:
+        return rurl, fname
+    # Look through all remaining URLs
+    for remote_url, filename in remote_urls_from_qurl(urls, image_exts):
+        return remote_url, filename
 
-        return None, None
+    return None, None
 
 def dnd_get_files(md, exts):
     '''
@@ -244,35 +246,31 @@ def dnd_get_files(md, exts):
              [urls], [filenames] if URLs that point to a files are found
     '''
     # Look for a URL pointing to a file
-    if md.hasUrls():
-        urls = [unicode(u.toString(QUrl.None)) for u in
-                md.urls()]
-        purls = [urlparse(u) for u in urls]
-        # First look for a local file
-        local_files = [u2p(x) for x in purls if x.scheme in ('', 'file')]
-        local_files = [p for p in local_files if
-                posixpath.splitext(urllib.unquote(p))[1][1:].lower() in
-                exts]
-        local_files = [x for x in local_files if os.path.exists(x)]
-        if local_files:
-            return local_files, None
+    urls = urls_from_md(md)
+    # First look for a local file
+    local_files = [path_from_qurl(x) for x in urls]
+    local_files = [p for p in local_files if
+            posixpath.splitext(urllib.unquote(p))[1][1:].lower() in
+            exts]
+    local_files = [x for x in local_files if os.path.exists(x)]
+    if local_files:
+        return local_files, None
 
-        # No local files, look for remote ones
+    # No local files, look for remote ones
 
-        # First, see if this is from Firefox
-        rurl, fname = get_firefox_rurl(md, exts)
-        if rurl and fname:
-            return [rurl], [fname]
+    # First, see if this is from Firefox
+    rurl, fname = get_firefox_rurl(md, exts)
+    if rurl and fname:
+        return [rurl], [fname]
 
-        # Look through all remaining URLs
-        remote_urls = [x for x in purls if x.scheme in ('http', 'https',
-            'ftp') and posixpath.splitext(x.path)[1][1:].lower() in exts]
-        if remote_urls:
-            filenames = [posixpath.basename(urllib.unquote(rurl2.path)) for rurl2 in
-                    remote_urls]
-            return [urlunparse(x) for x in remote_urls], filenames
+    # Look through all remaining URLs
+    rurls, filenames = [], []
+    for rurl, fname in remote_urls_from_qurl(urls, exts):
+        rurls.append(rurl), filenames.append(fname)
+    if rurls:
+        return rurls, filenames
 
-        return None, None
+    return None, None
 
 def _get_firefox_pair(md, exts, url, fname):
     url = bytes(md.data(url)).decode('utf-16')
