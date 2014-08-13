@@ -432,7 +432,7 @@ class Mobi8Reader(object):
                         href = 'images/%05d.%s'%(container.resource_index, imgtype)
                         with open(href.replace('/', os.sep), 'wb') as f:
                             f.write(data)
-                elif typ == b'\xa0\xa0\xa0\xa0' and len(data) == 4:
+                elif typ == b'\xa0\xa0\xa0\xa0' and len(data) == 4 and container is not None:
                     container.resource_index += 1
                 elif container is None:
                     if not (len(data) == len(PLACEHOLDER_GIF) and data == PLACEHOLDER_GIF):
