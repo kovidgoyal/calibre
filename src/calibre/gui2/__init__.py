@@ -1111,7 +1111,7 @@ def find_forms(srcdir):
 def form_to_compiled_form(form):
     return form.rpartition('.')[0]+'_ui.py'
 
-def build_forms(srcdir, info=None, summary=False):
+def build_forms(srcdir, info=None, summary=False, check_for_migration=False):
     import re, cStringIO
     from PyQt5.uic import compileUi
     forms = find_forms(srcdir)
@@ -1127,9 +1127,13 @@ def build_forms(srcdir, info=None, summary=False):
     transdef_pat = re.compile(r'^\s+_translate\s+=\s+QtCore.QCoreApplication.translate$', flags=re.M)
     transpat = re.compile(r'_translate\s*\(.+?,\s+"(.+?)(?<!\\)"\)', re.DOTALL)
 
+    # Ensure that people running from source have all their forms rebuilt for
+    # the qt5 migration
+    force_compile = check_for_migration and not gprefs.get('migrated_forms_to_qt5', False)
+
     for form in forms:
         compiled_form = form_to_compiled_form(form)
-        if not os.path.exists(compiled_form) or os.stat(form).st_mtime > os.stat(compiled_form).st_mtime:
+        if force_compile or not os.path.exists(compiled_form) or os.stat(form).st_mtime > os.stat(compiled_form).st_mtime:
             if not summary:
                 info('\tCompiling form', form)
             buf = cStringIO.StringIO()
@@ -1146,10 +1150,12 @@ def build_forms(srcdir, info=None, summary=False):
             num += 1
     if num:
         info('Compiled %d forms' % num)
+    if force_compile:
+        gprefs.set('migrated_forms_to_qt5', True)
 
 _df = os.environ.get('CALIBRE_DEVELOP_FROM', None)
 if _df and os.path.exists(_df):
-    build_forms(_df)
+    build_forms(_df, check_for_migration=True)
 
 
 if islinux or isbsd:
