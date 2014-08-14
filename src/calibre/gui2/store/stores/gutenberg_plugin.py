@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import (unicode_literals, division, absolute_import, print_function)
-store_version = 3 # Needed for dynamic plugin loading
+store_version = 3  # Needed for dynamic plugin loading
 
 __license__ = 'GPL 3'
 __copyright__ = '2011, 2013, John Schember <john@nachtimwald.com>'
@@ -40,7 +40,7 @@ class GutenbergStore(BasicStoreConfig, OpenSearchOPDSStore):
           * acquisition links are not part of the search result so we have
             to go to the odps item itself. Detail item pages have a nasty
             note saying:
-              DON'T USE THIS PAGE FOR SCRAPING. 
+              DON'T USE THIS PAGE FOR SCRAPING.
               Seriously. You'll only get your IP blocked.
             We're using the ODPS feed because people are getting blocked with
             the previous implementation so due to this using ODPS probably
