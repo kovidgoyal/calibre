@@ -105,7 +105,8 @@ OptionRecommendation(name='verbose',
             recommended_value=0, level=OptionRecommendation.LOW,
             short_switch='v',
             help=_('Level of verbosity. Specify multiple times for greater '
-                   'verbosity.')
+                   'verbosity. Specifying it twice will result in full '
+                   'verbosity, once medium and zero times least verbosity.')
         ),
 
 OptionRecommendation(name='debug_pipeline',
