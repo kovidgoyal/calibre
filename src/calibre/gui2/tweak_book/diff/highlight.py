@@ -31,6 +31,7 @@ class QtHighlighter(QTextDocument):
         ''' Copy specified lines from the syntax highlighted buffer into the
         destination cursor, preserving all formatting created by the syntax
         highlighter. '''
+        self.highlighter.join()
         num = hi - lo
         if num > 0:
             block = self.findBlockByNumber(lo)
