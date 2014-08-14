@@ -16,6 +16,7 @@ from PyQt5.Qt import (QObject, QKeySequence, QAbstractItemModel, QModelIndex,
         QGridLayout, QLabel, QRadioButton, QPushButton, QToolButton, QIcon)
 
 from calibre.utils.config import JSONConfig
+from calibre.utils.cleantext import clean_ascii_chars
 from calibre.constants import DEBUG
 from calibre import prints
 from calibre.utils.icu import sort_key, lower
@@ -58,7 +59,6 @@ def finalize(shortcuts, custom_keys_map={}):  # {{{
             seen[x] = shortcut
             keys.append(ks)
         keys = tuple(keys)
-        #print (111111, unique_name, candidates, keys)
 
         keys_map[unique_name] = keys
         ac = shortcut['action']
@@ -126,8 +126,6 @@ class Manager(QObject):  # {{{
         custom_keys_map = {un:tuple(keys) for un, keys in self.config.get(
             'map', {}).iteritems()}
         self.keys_map = finalize(self.shortcuts, custom_keys_map=custom_keys_map)
-        #import pprint
-        # pprint.pprint(self.keys_map)
 
     def replace_action(self, unique_name, new_action):
         '''
@@ -447,7 +445,9 @@ class Editor(QFrame):  # {{{
         button = getattr(self, 'button%d'%which)
         button.setStyleSheet('QPushButton { font-weight: normal}')
         mods = int(ev.modifiers()) & ~Qt.KeypadModifier
-        txt = unicode(ev.text())
+        # for some reason qt sometimes produces ascii control codes in text,
+        # for example ctrl+shift+u will give text == '\x15' on linux
+        txt = clean_ascii_chars(ev.text())
         if txt and txt.lower() == txt.upper():
             # We have a symbol like ! or > etc. In this case the value of code
             # already includes Shift, so remove it
@@ -695,4 +695,3 @@ class ShortcutConfig(QWidget):  # {{{
             self.view.setFocus(Qt.OtherFocusReason)
 
 # }}}
-
