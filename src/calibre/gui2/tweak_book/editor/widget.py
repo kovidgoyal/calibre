@@ -86,6 +86,13 @@ def register_text_editor_actions(_reg, palette):
         ac = reg(create_icon(name), text, ('rename_block_tag', name), 'rename-block-tag-' + name, 'Ctrl+%d' % (i + 1), desc, syntaxes=())
         ac.setToolTip(desc)
 
+    for transform, text in [
+            ('upper', _('&Upper case')), ('lower', _('&Lower case')), ('swap', _('&Swap case')),
+            ('title', _('&Title case')), ('capitalize', _('&Capitalize'))]:
+        desc = _('Change the case of the selected text: %s') % text
+        ac = reg(None, text, ('change_case', transform), 'transform-case-' + transform, (), desc, syntaxes=())
+        ac.setToolTip(desc)
+
     ac = reg('code', _('Insert &tag'), ('insert_tag',), 'insert-tag', ('Ctrl+<'), _('Insert tag'), syntaxes=('html', 'xml'))
     ac.setToolTip(_('<h3>Insert tag</h3>Insert a tag, if some text is selected the tag will be inserted around the selected text'))
 
@@ -499,11 +506,8 @@ class Editor(QMainWindow):
         m.addAction(actions['mark-selected-text'])
         if self.syntax != 'css' and actions['editor-cut'].isEnabled():
             cm = QMenu(_('Change &case'), m)
-            for ac, text in (
-                    ('upper', _('&Upper case')), ('lower', _('&Lower case')), ('swap', _('&Swap case')),
-                    ('title', _('&Title case')), ('capitalize', _('&Capitalize'))
-            ):
-                cm.addAction(text, partial(self.editor.change_case, ac))
+            for ac in 'upper lower swap title capitalize'.split():
+                cm.addAction(actions['transform-case-' + ac])
             m.addMenu(cm)
         if self.syntax == 'html':
             m.addAction(actions['multisplit'])
