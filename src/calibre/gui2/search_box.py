@@ -109,11 +109,7 @@ class SearchBox2(QComboBox):  # {{{
             if item not in items:
                 items.append(item)
         self.addItems(items)
-        try:
-            self.line_edit.setPlaceholderText(help_text)
-        except:
-            # Using Qt < 4.7
-            pass
+        self.line_edit.setPlaceholderText(help_text)
         self.colorize = colorize
         self.clear()
 
