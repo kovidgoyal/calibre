@@ -85,10 +85,10 @@ class SearchBox2(QComboBox):  # {{{
         c = self.line_edit.completer()
         c.setCompletionMode(c.PopupCompletion)
         c.highlighted[str].connect(self.completer_used)
-        c.activated[str].connect(self.history_selected)
 
         self.line_edit.key_pressed.connect(self.key_pressed, type=Qt.DirectConnection)
-        self.activated[str].connect(self.history_selected)
+        # QueuedConnection as workaround for https://bugreports.qt-project.org/browse/QTBUG-40807
+        self.activated[str].connect(self.history_selected, type=Qt.QueuedConnection)
         self.setEditable(True)
         self.as_you_type = True
         self.timer = QTimer()
@@ -245,7 +245,8 @@ class SearchBox2(QComboBox):  # {{{
             self.focus_to_library.emit()
         finally:
             if not store_in_history:
-                self.activated[str].connect(self.history_selected)
+                # QueuedConnection as workaround for https://bugreports.qt-project.org/browse/QTBUG-40807
+                self.activated[str].connect(self.history_selected, type=Qt.QueuedConnection)
 
     def search_as_you_type(self, enabled):
         self.as_you_type = enabled
