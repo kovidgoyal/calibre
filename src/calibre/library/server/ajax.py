@@ -198,7 +198,6 @@ class AjaxServer(object):
                 data['_filename_'] = create_upload_path(mi, '',
                                 tweaks['content_server_path_for_client'],
                                 sanitize, path_type=posixpath)
-                print('filename', data['_filename_'])
         return data, mi.last_modified
 
     @Endpoint(set_last_modified=False)
