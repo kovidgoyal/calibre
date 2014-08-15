@@ -88,7 +88,7 @@ class SearchBox2(QComboBox):  # {{{
         c.activated[str].connect(self.history_selected)
 
         self.line_edit.key_pressed.connect(self.key_pressed, type=Qt.DirectConnection)
-        self.activated.connect(self.history_selected)
+        self.activated[str].connect(self.history_selected)
         self.setEditable(True)
         self.as_you_type = True
         self.timer = QTimer()
@@ -226,7 +226,7 @@ class SearchBox2(QComboBox):  # {{{
 
     def set_search_string(self, txt, store_in_history=False, emit_changed=True):
         if not store_in_history:
-            self.activated.disconnect()
+            self.activated[str].disconnect()
         try:
             self.setFocus(Qt.OtherFocusReason)
             if not txt:
@@ -245,7 +245,7 @@ class SearchBox2(QComboBox):  # {{{
             self.focus_to_library.emit()
         finally:
             if not store_in_history:
-                self.activated.connect(self.history_selected)
+                self.activated[str].connect(self.history_selected)
 
     def search_as_you_type(self, enabled):
         self.as_you_type = enabled
