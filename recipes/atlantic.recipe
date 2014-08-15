@@ -6,107 +6,56 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 theatlantic.com
 '''
 import re
-
 from calibre.web.feeds.news import BasicNewsRecipe
-from calibre.ebooks.BeautifulSoup import Tag, NavigableString
 
 class TheAtlantic(BasicNewsRecipe):
 
     title      = 'The Atlantic'
-    __author__ = 'Kovid Goyal and Sujata Raman'
+    __author__ = 'Kovid Goyal'
     description = 'Current affairs and politics focussed on the US'
     INDEX = 'http://www.theatlantic.com/magazine/toc/0/'
     language = 'en'
+    encoding = 'utf-8'
 
-    keep_only_tags = [{'attrs':{'class':['article', 'articleHead', 'articleText']}}]
-    remove_tags        = [dict(attrs={'class':'footer'})]
+    keep_only_tags = [
+        {'attrs':{'class':['article-header', 'article-body', 'article-magazine']}},
+    ]
+    remove_tags        = [
+        {'name': ['meta', 'link']},
+        {'attrs':{'class':['offset-wrapper']}},
+        {'attrs':{'class':lambda x: x and 'article-tools' in x}},
+    ]
     no_stylesheets = True
-
     preprocess_regexps = [
         (re.compile(r'<!--.*?-->', re.DOTALL), lambda m: ''),
         (re.compile(r'.*<html', re.DOTALL|re.IGNORECASE), lambda m: '<html'),
     ]
 
     def print_version(self, url):
-        return url.replace('/archive/', '/print/')
+        return url + '?single_page=true'
 
     def parse_index(self):
-        articles = []
-
         soup = self.index_to_soup(self.INDEX)
-        ts = soup.find(id='magazineTopStories')
-        ds = self.tag_to_string(ts.find('h1')).split(':')[-1]
-        self.timefmt = ' [%s]'%ds
-
-        cover = soup.find('img', src=True, attrs={'class':'cover'})
-
-        if cover is not None:
-            self.cover_url = 'http:' + cover['src']
-            self.log(self.cover_url)
-
+        col = soup.find(attrs={'class':'contentColumn singleContent'})
+        current_section, current_articles = None, []
         feeds = []
-        seen_titles = set([])
-        for section in soup.findAll('div', attrs={'class':'magazineSection'}):
-            section_title = self.tag_to_string(section.find('h2'))
-            self.log('Found section:', section_title)
-            articles = []
-            for post in section.findAll('h3', attrs={'class':'headline'}):
-                a = post.find('a', href=True)
-                title = self.tag_to_string(a)
-                if title in seen_titles:
-                    continue
-                seen_titles.add(title)
-                url = a['href']
-                if url.startswith('/'):
-                    url = 'http://www.theatlantic.com'+url
-                p = post.parent.find('p', attrs={'class':'dek'})
-                desc = None
-                self.log('\tFound article:', title, 'at', url)
-                if p is not None:
-                    desc = self.tag_to_string(p)
-                    self.log('\t\t', desc)
-                articles.append({'title':title, 'url':url, 'description':desc,
-                    'date':''})
-            if articles:
-                feeds.append((section_title, articles))
-
-        rightContent=soup.find('div', attrs={'class':'rightContent'})
-        for module in rightContent.findAll('div', attrs={'class':'module'}):
-            section_title = self.tag_to_string(module.find('h2'))
-            articles = []
-            for post in module.findAll('div', attrs={'class':'post'}):
-                a = post.find('a', href=True)
-                title = self.tag_to_string(a)
-                if title in seen_titles:
-                    continue
-                seen_titles.add(title)
-                url = a['href']
-                if url.startswith('/'):
-                    url = 'http://www.theatlantic.com'+url
-                p = post.parent.find('p', attrs={'class':'dek'})
-                desc = None
-                self.log('\tFound article:', title, 'at', url)
-                if p is not None:
-                    desc = self.tag_to_string(p)
-                    self.log('\t\t', desc)
-                articles.append({'title':title, 'url':url, 'description':desc, 'date':''})
-            if articles:
-                feeds.append((section_title, articles))
-
+        for tag in col.findAll(name=['h2', 'li'], attrs={'class':['section-header', 'top-item', 'river-item']}):
+            if tag.name == 'h2':
+                if current_section and current_articles:
+                    feeds.append((current_section, current_articles))
+                current_section = self.tag_to_string(tag).capitalize()
+                current_articles = []
+                self.log('Found section:', current_section)
+            elif current_section:
+                a = tag.find('a', href=True)
+                if a is not None:
+                    title, url = self.tag_to_string(a), a['href']
+                    if title and url:
+                        p = tag.find('p', attrs={'class':'river-dek'})
+                        desc = self.tag_to_string(p) if p is not None else ''
+                        current_articles.append({'title':title, 'url':url, 'description':desc})
+                        self.log('\tArticle:', title, '[%s]' % url)
+                        self.log('\t\t', desc)
+        if current_section and current_articles:
+            feeds.append((current_section, current_articles))
         return feeds
-
-    def postprocess_html(self, soup, first):
-        for table in soup.findAll('table', align='right'):
-            img = table.find('img')
-            if img is not None:
-                img.extract()
-                caption = self.tag_to_string(table).strip()
-                div = Tag(soup, 'div')
-                div['style'] = 'text-align:center'
-                div.insert(0, img)
-                div.insert(1, Tag(soup, 'br'))
-                if caption:
-                    div.insert(2, NavigableString(caption))
-                table.replaceWith(div)
-
-        return soup
