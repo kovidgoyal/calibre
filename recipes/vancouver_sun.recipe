@@ -12,6 +12,7 @@ from calibre.ebooks.BeautifulSoup import BeautifulStoneSoup, Tag
 
 class CanWestPaper(BasicNewsRecipe):
 
+    compress_news_images = True
     postmedia_index_pages = [
         (u'Headlines',u'/index.html'),
         (u'Ottawa & Area',u'/news/ottawa/index.html'),
