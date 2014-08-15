@@ -119,7 +119,7 @@ class AjaxServer(object):
 
     # Get book metadata {{{
     def ajax_book_to_json(self, book_id, get_category_urls=True,
-                          device_compatible=False):
+                          device_compatible=False, device_for_template=None):
         mi = self.db.get_metadata(book_id, index_is_id=True)
 
         if not device_compatible:
@@ -191,18 +191,24 @@ class AjaxServer(object):
             else:
                 series = ''
             data['_series_sort_'] = series
-            if tweaks['content_server_path_for_client']:
+            if device_for_template:
                 import posixpath
                 from calibre.devices.utils import create_upload_path
                 from calibre.utils.filenames import ascii_filename as sanitize
-                data['_filename_'] = create_upload_path(mi, '',
-                                tweaks['content_server_path_for_client'],
-                                sanitize, path_type=posixpath)
+                from calibre.customize.ui import device_plugins
+
+                for device_class in device_plugins():
+                    if device_class.__class__.__name__ == device_for_template:
+                        template = device_class.save_template()
+                        data['_filename_'] = create_upload_path(mi, book_id,
+                                template, sanitize, path_type=posixpath)
+                        break;
+
         return data, mi.last_modified
 
     @Endpoint(set_last_modified=False)
     def ajax_book(self, book_id, category_urls='true', id_is_uuid='false',
-                  device_compatible='false'):
+                  device_compatible='false', device_for_template=None):
         '''
         Return the metadata of the book as a JSON dictionary.
 
@@ -219,7 +225,8 @@ class AjaxServer(object):
                 book_id = int(book_id)
             data, last_modified = self.ajax_book_to_json(book_id,
                     get_category_urls=category_urls.lower()=='true',
-                    device_compatible=device_compatible.lower()=='true')
+                    device_compatible=device_compatible.lower()=='true',
+                    device_for_template=device_for_template)
         except:
             raise cherrypy.HTTPError(404, 'No book with id: %r'%book_id)
 

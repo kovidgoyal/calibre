@@ -572,14 +572,3 @@ restrict_output_formats = None
 # numbers.
 # The value can be between 50 and 99
 content_server_thumbnail_compression_quality = 75
-
-#: Set the template for the file name supplied by the content server
-# Setting this tweak will make the content server supply the template's value
-# when a book's metadata is requested in "device compatible" mode. The client
-# can use this value as part of the path for the book when downloaded. Note
-# that the save_template_title_series_sorting tweak is used to control title
-# and series values.
-# Examples:
-#  content_server_path_for_client = "{title}-{author}"
-#  content_server_path_for_client = "{title_sort}-{:'series_sort()'||-}{author_sort}"
-content_server_path_for_client = ''
