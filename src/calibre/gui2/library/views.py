@@ -457,10 +457,6 @@ class BooksView(QTableView):  # {{{
     # Ondevice column {{{
     def set_ondevice_column_visibility(self):
         col, h = self._model.column_map.index('ondevice'), self.column_header
-        # Because of a bug in Qt 5 we have to ensure that the header is actually
-        # relaid out by changing this value, without this sometimes the ghost
-        # of the ondevice column remains visible when changing libraries
-        h.setSectionHidden(col, not h.isSectionHidden(col))
         h.setSectionHidden(col, not self._model.device_connected)
 
     def set_device_connected(self, is_connected):
@@ -564,6 +560,13 @@ class BooksView(QTableView):  # {{{
             if not h.isSectionHidden(i) and h.sectionSize(i) < 3:
                 sz = h.sectionSizeHint(i)
                 h.resizeSection(i, sz)
+        # Because of a bug in Qt 5 we have to ensure that the header is actually
+        # relaid out by changing this value, without this sometimes the ghost
+        # of the ondevice column remains visible when changing libraries
+        col = self._model.column_map.index('ondevice')
+        val = h.isSectionHidden(col)
+        h.setSectionHidden(col, not val)
+        h.setSectionHidden(col, val)
 
     def get_default_state(self):
         old_state = {
