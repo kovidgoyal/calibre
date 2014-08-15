@@ -16,7 +16,7 @@ __builtin__.__dict__['_'] = lambda s: s
 # immediately translated to the environment language
 __builtin__.__dict__['__'] = lambda s: s
 
-from calibre.constants import iswindows, preferred_encoding, plugins, isosx, islinux
+from calibre.constants import iswindows, preferred_encoding, plugins, isosx, islinux, isfrozen
 
 _run_once = False
 winutil = winutilerror = None
@@ -24,17 +24,18 @@ winutil = winutilerror = None
 if not _run_once:
     _run_once = True
 
-    # Prevent PyQt4 from being loaded
-    class PyQt4Ban(object):
+    if not isfrozen:
+        # Prevent PyQt4 from being loaded
+        class PyQt4Ban(object):
 
-        def find_module(self, fullname, path=None):
-            if fullname.startswith('PyQt4'):
-                return self
+            def find_module(self, fullname, path=None):
+                if fullname.startswith('PyQt4'):
+                    return self
 
-        def load_module(self, fullname):
-            raise ImportError('Importing PyQt4 is not allowed as calibre uses PyQt5')
+            def load_module(self, fullname):
+                raise ImportError('Importing PyQt4 is not allowed as calibre uses PyQt5')
 
-    sys.meta_path.insert(0, PyQt4Ban())
+        sys.meta_path.insert(0, PyQt4Ban())
 
     #
     # Platform specific modules
