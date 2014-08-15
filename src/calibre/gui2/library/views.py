@@ -762,7 +762,7 @@ class BooksView(QTableView):  # {{{
 
         self.restore_state()
         self.set_ondevice_column_visibility()
-        #}}}
+        # }}}
 
     # Context Menu {{{
     def set_context_menu(self, menu, edit_collections_action):
