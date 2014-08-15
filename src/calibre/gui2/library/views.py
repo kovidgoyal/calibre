@@ -456,9 +456,12 @@ class BooksView(QTableView):  # {{{
 
     # Ondevice column {{{
     def set_ondevice_column_visibility(self):
-        m  = self._model
-        self.column_header.setSectionHidden(m.column_map.index('ondevice'),
-                not m.device_connected)
+        col, h = self._model.column_map.index('ondevice'), self.column_header
+        # Because of a bug in Qt 5 we have to ensure that the header is actually
+        # relaid out by changing this value, without this sometimes the ghost
+        # of the ondevice column remains visible when changing libraries
+        h.setSectionHidden(col, not h.isSectionHidden(col))
+        h.setSectionHidden(col, not self._model.device_connected)
 
     def set_device_connected(self, is_connected):
         self._model.set_device_connected(is_connected)
