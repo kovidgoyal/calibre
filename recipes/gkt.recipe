@@ -1,0 +1,17 @@
+from calibre.web.feeds.news import BasicNewsRecipe
+
+
+class Politics(BasicNewsRecipe):
+    title          = u'General Knowledge Today '
+    language       = 'en_IN'
+    __author__     = 'Kanika G'
+    oldest_article = 7  # days
+    max_articles_per_feed = 20
+    use_embedded_content = False
+
+    no_stylesheets = True
+    auto_cleanup = True
+
+    feeds          = [
+        ('General Knowledge Today', 'http://feeds.feedburner.com/GeneralKnowledgeToday'),
+    ]
