@@ -182,7 +182,7 @@ class CalibreStyle: public QProxyStyle {
                 case CC_ToolButton:
                     // We do not want an arrow if the toolbutton has an instant popup
                     toolbutton = qstyleoption_cast<const QStyleOptionToolButton *>(option);
-                    if (toolbutton && toolbutton->features & QStyleOptionToolButton::HasMenu & ~QStyleOptionToolButton::PopupDelay) {
+                    if (toolbutton && (toolbutton->features & QStyleOptionToolButton::HasMenu) && !(toolbutton->features & QStyleOptionToolButton::PopupDelay)) {
                         QStyleOptionToolButton opt = QStyleOptionToolButton(*toolbutton);
                         opt.features = toolbutton->features & ~QStyleOptionToolButton::HasMenu;
                         return QProxyStyle::drawComplexControl(control, &opt, painter, widget);
