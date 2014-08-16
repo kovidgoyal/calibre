@@ -563,10 +563,14 @@ class BooksView(QTableView):  # {{{
         # Because of a bug in Qt 5 we have to ensure that the header is actually
         # relaid out by changing this value, without this sometimes the ghost
         # of the ondevice column remains visible when changing libraries
-        col = self._model.column_map.index('ondevice')
-        val = h.isSectionHidden(col)
-        h.setSectionHidden(col, not val)
-        h.setSectionHidden(col, val)
+        try:
+            col = self._model.column_map.index('ondevice')
+        except ValueError:
+            pass  # DeviceBooksView
+        else:
+            val = h.isSectionHidden(col)
+            h.setSectionHidden(col, not val)
+            h.setSectionHidden(col, val)
 
     def get_default_state(self):
         old_state = {
