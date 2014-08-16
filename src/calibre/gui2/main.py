@@ -287,12 +287,8 @@ class GuiRunner(QObject):
 
         self.initialize_db()
 
-def run_in_debug_mode(logpath=None):
+def get_debug_executable():
     e = sys.executable if getattr(sys, 'frozen', False) else sys.argv[0]
-    import tempfile, subprocess
-    fd, logpath = tempfile.mkstemp('.txt')
-    os.close(fd)
-
     if hasattr(sys, 'frameworks_dir'):
         base = os.path.dirname(sys.frameworks_dir)
         if 'console.app' not in base:
@@ -302,6 +298,14 @@ def run_in_debug_mode(logpath=None):
     else:
         base, ext = os.path.splitext(e)
         exe = base + '-debug' + ext
+    return exe
+
+def run_in_debug_mode(logpath=None):
+    import tempfile, subprocess
+    fd, logpath = tempfile.mkstemp('.txt')
+    os.close(fd)
+
+    exe = get_debug_executable()
     print 'Starting debug executable:', exe
     creationflags = 0
     if iswindows:
