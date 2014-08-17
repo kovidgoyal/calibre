@@ -20,7 +20,7 @@ if isosx and hasattr(sys, 'frameworks_dir'):
     PDFTOHTML = os.path.join(getattr(sys, 'frameworks_dir'), PDFTOHTML)
 if iswindows and hasattr(sys, 'frozen'):
     PDFTOHTML = os.path.join(os.path.dirname(sys.executable), 'pdftohtml.exe')
-    popen = partial(subprocess.Popen, creationflags=0x08) # CREATE_NO_WINDOW=0x08 so that no ugly console is popped up
+    popen = partial(subprocess.Popen, creationflags=0x08)  # CREATE_NO_WINDOW=0x08 so that no ugly console is popped up
 if (islinux or isbsd) and getattr(sys, 'frozen', False):
     PDFTOHTML = os.path.join(sys.executables_location, 'bin', 'pdftohtml')
 
@@ -121,13 +121,15 @@ def flip_images(raw):
     for match in re.finditer(b'<IMG[^>]+/?>', raw, flags=re.I):
         img = match.group()
         m = re.search(br'class="(x|y|xy)flip"', img)
-        if m is None: continue
+        if m is None:
+            continue
         flip = m.group(1)
         src = re.search(br'src="([^"]+)"', img)
-        if src is None: continue
+        if src is None:
+            continue
         img = src.group(1)
-        if not os.path.exists(img): continue
+        if not os.path.exists(img):
+            continue
         flip_image(img, flip)
     raw = re.sub(br'<STYLE.+?</STYLE>\s*', b'', raw, flags=re.I|re.DOTALL)
     return raw
-
