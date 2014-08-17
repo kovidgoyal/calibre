@@ -1,5 +1,5 @@
 #!/usr/bin/env  python
-
+from __future__ import unicode_literals
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 '''
@@ -21,14 +21,15 @@ class TheAtlantic(BasicNewsRecipe):
         {'attrs':{'class':['article-header', 'article-body', 'article-magazine']}},
     ]
     remove_tags        = [
-        {'name': ['meta', 'link']},
-        {'attrs':{'class':['offset-wrapper']}},
+        {'name': ['meta', 'link', 'noscript']},
+        {'attrs':{'class':['offset-wrapper', 'ad-boxfeatures-wrapper']}},
         {'attrs':{'class':lambda x: x and 'article-tools' in x}},
+        {'src':lambda x:x and 'spotxchange.com' in x},
     ]
     no_stylesheets = True
     preprocess_regexps = [
-        (re.compile(r'<!--.*?-->', re.DOTALL), lambda m: ''),
-        (re.compile(r'.*<html', re.DOTALL|re.IGNORECASE), lambda m: '<html'),
+        (re.compile(r'<script\b.+?</script>', re.DOTALL), lambda m: ''),
+        (re.compile(r'^.*<html', re.DOTALL|re.IGNORECASE), lambda m: '<html'),
     ]
 
     def print_version(self, url):
