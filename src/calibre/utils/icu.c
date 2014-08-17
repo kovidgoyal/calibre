@@ -139,13 +139,12 @@ icu_Collator_capsule(icu_Collator *self, void *closure) {
 
 // Collator.sort_key {{{
 static PyObject *
-icu_Collator_sort_key(icu_Collator *self, PyObject *args, PyObject *kwargs) {
+icu_Collator_sort_key(icu_Collator *self, PyObject *input) {
     int32_t sz = 0, key_size = 0, bsz = 0;
     UChar *buf = NULL;
     uint8_t *buf2 = NULL;
-    PyObject *ans = NULL, *input = NULL;
+    PyObject *ans = NULL;
   
-    if (!PyArg_ParseTuple(args, "O", &input)) return NULL;
     buf = python_to_icu(input, &sz, 1);
     if (buf == NULL) return NULL;
 
@@ -169,7 +168,7 @@ end:
 
 // Collator.strcmp {{{
 static PyObject *
-icu_Collator_strcmp(icu_Collator *self, PyObject *args, PyObject *kwargs) {
+icu_Collator_strcmp(icu_Collator *self, PyObject *args) {
     PyObject *a_ = NULL, *b_ = NULL;
     int32_t asz = 0, bsz = 0;
     UChar *a = NULL, *b = NULL;
@@ -190,7 +189,7 @@ end:
 
 // Collator.find {{{
 static PyObject *
-icu_Collator_find(icu_Collator *self, PyObject *args, PyObject *kwargs) {
+icu_Collator_find(icu_Collator *self, PyObject *args) {
 #if PY_VERSION_HEX >= 0x03030000 
 #error Not implemented for python >= 3.3
 #endif
@@ -231,7 +230,7 @@ end:
 
 // Collator.contains {{{
 static PyObject *
-icu_Collator_contains(icu_Collator *self, PyObject *args, PyObject *kwargs) {
+icu_Collator_contains(icu_Collator *self, PyObject *args) {
     PyObject *a_ = NULL, *b_ = NULL;
     UChar *a = NULL, *b = NULL;
     int32_t asz = 0, bsz = 0, pos = -1;
@@ -264,7 +263,7 @@ end:
 
 // Collator.contractions {{{
 static PyObject *
-icu_Collator_contractions(icu_Collator *self, PyObject *args, PyObject *kwargs) {
+icu_Collator_contractions(icu_Collator *self, PyObject *args) {
     UErrorCode status = U_ZERO_ERROR;
     UChar *str = NULL;
     UChar32 start=0, end=0;
@@ -305,7 +304,7 @@ end:
 
 // Collator.startswith {{{
 static PyObject *
-icu_Collator_startswith(icu_Collator *self, PyObject *args, PyObject *kwargs) {
+icu_Collator_startswith(icu_Collator *self, PyObject *args) {
     PyObject *a_ = NULL, *b_ = NULL;
     int32_t asz = 0, bsz = 0;
     UChar *a = NULL, *b = NULL;
@@ -334,16 +333,13 @@ end:
 
 // Collator.collation_order {{{
 static PyObject *
-icu_Collator_collation_order(icu_Collator *self, PyObject *args, PyObject *kwargs) {
-    PyObject *a_ = NULL;
+icu_Collator_collation_order(icu_Collator *self, PyObject *a_) {
     int32_t asz = 0;
     UChar *a = NULL;
     UErrorCode status = U_ZERO_ERROR;
     UCollationElements *iter = NULL;
     int order = 0, len = -1;
   
-    if (!PyArg_ParseTuple(args, "O", &a_)) return NULL;
-
     a = python_to_icu(a_, &asz, 1);
     if (a == NULL) goto end;
 
@@ -384,10 +380,10 @@ icu_Collator_set_upper_first(icu_Collator *self, PyObject *val, void *closure) {
 // }}}
 
 static PyObject*
-icu_Collator_clone(icu_Collator *self, PyObject *args, PyObject *kwargs);
+icu_Collator_clone(icu_Collator *self, PyObject *args);
 
 static PyMethodDef icu_Collator_methods[] = {
-    {"sort_key", (PyCFunction)icu_Collator_sort_key, METH_VARARGS,
+    {"sort_key", (PyCFunction)icu_Collator_sort_key, METH_O,
      "sort_key(unicode object) -> Return a sort key for the given object as a bytestring. The idea is that these bytestring will sort using the builtin cmp function, just like the original unicode strings would sort in the current locale with ICU."
     },
 
@@ -403,11 +399,11 @@ static PyMethodDef icu_Collator_methods[] = {
         "contains(pattern, source) -> return True iff the pattern was found in the source."
     },
 
-    {"contractions", (PyCFunction)icu_Collator_contractions, METH_VARARGS,
+    {"contractions", (PyCFunction)icu_Collator_contractions, METH_NOARGS,
         "contractions() -> returns the contractions defined for this collator."
     },
 
-    {"clone", (PyCFunction)icu_Collator_clone, METH_VARARGS,
+    {"clone", (PyCFunction)icu_Collator_clone, METH_NOARGS,
         "clone() -> returns a clone of this collator."
     },
 
@@ -415,7 +411,7 @@ static PyMethodDef icu_Collator_methods[] = {
         "startswith(a, b) -> returns True iff a startswith b, following the current collation rules."
     },
 
-    {"collation_order", (PyCFunction)icu_Collator_collation_order, METH_VARARGS,
+    {"collation_order", (PyCFunction)icu_Collator_collation_order, METH_O,
         "collation_order(string) -> returns (order, length) where order is an integer that gives the position of string in a list. length gives the number of characters used for order."
     },
 
@@ -502,7 +498,7 @@ static PyTypeObject icu_CollatorType = { // {{{
 
 // Collator.clone {{{
 static PyObject*
-icu_Collator_clone(icu_Collator *self, PyObject *args, PyObject *kwargs)
+icu_Collator_clone(icu_Collator *self, PyObject *args)
 {
     UCollator *collator;
     UErrorCode status = U_ZERO_ERROR;
@@ -576,13 +572,11 @@ icu_BreakIterator_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
 // BreakIterator.set_text {{{
 static PyObject *
-icu_BreakIterator_set_text(icu_BreakIterator *self, PyObject *args, PyObject *kwargs) {
+icu_BreakIterator_set_text(icu_BreakIterator *self, PyObject *input) {
     int32_t sz = 0;
     UChar *buf = NULL;
     UErrorCode status = U_ZERO_ERROR;
-    PyObject *input = NULL;
   
-    if (!PyArg_ParseTuple(args, "O", &input)) return NULL;
     buf = python_to_icu(input, &sz, 1);
     if (buf == NULL) return NULL;
     ubrk_setText(self->break_iterator, buf, sz, &status);
@@ -597,16 +591,14 @@ icu_BreakIterator_set_text(icu_BreakIterator *self, PyObject *args, PyObject *kw
 
 // BreakIterator.index {{{
 static PyObject *
-icu_BreakIterator_index(icu_BreakIterator *self, PyObject *args, PyObject *kwargs) {
+icu_BreakIterator_index(icu_BreakIterator *self, PyObject *token) {
 #if PY_VERSION_HEX >= 0x03030000 
 #error Not implemented for python >= 3.3
 #endif
 
     UChar *buf = NULL;
     int32_t prev = 0, p = 0, sz = 0, ans = -1;
-    PyObject *token = NULL;
   
-    if (!PyArg_ParseTuple(args, "O", &token)) return NULL;
     buf = python_to_icu(token, &sz, 1);
     if (buf == NULL) return NULL;
     if (sz < 1) goto end;
@@ -643,7 +635,7 @@ end:
 
 // BreakIterator.split2 {{{
 static PyObject *
-icu_BreakIterator_split2(icu_BreakIterator *self, PyObject *args, PyObject *kwargs) {
+icu_BreakIterator_split2(icu_BreakIterator *self, PyObject *args) {
 #if PY_VERSION_HEX >= 0x03030000 
 #error Not implemented for python >= 3.3
 #endif
@@ -703,15 +695,15 @@ icu_BreakIterator_split2(icu_BreakIterator *self, PyObject *args, PyObject *kwar
 } // }}}
 
 static PyMethodDef icu_BreakIterator_methods[] = {
-    {"set_text", (PyCFunction)icu_BreakIterator_set_text, METH_VARARGS,
+    {"set_text", (PyCFunction)icu_BreakIterator_set_text, METH_O,
      "set_text(unicode object) -> Set the text this iterator will operate on"
     },
 
-    {"split2", (PyCFunction)icu_BreakIterator_split2, METH_VARARGS,
+    {"split2", (PyCFunction)icu_BreakIterator_split2, METH_NOARGS,
      "split2() -> Split the current text into tokens, returning a list of 2-tuples of the form (position of token, length of token). The numbers are suitable for indexing python strings regardless of narrow/wide builds."
     },
 
-    {"index", (PyCFunction)icu_BreakIterator_index, METH_VARARGS,
+    {"index", (PyCFunction)icu_BreakIterator_index, METH_O,
      "index(token) -> Find the index of the first match for token. Useful to find, for example, words that could also be a part of a larger word. For example, index('i') in 'string i' will be 7 not 3. Returns -1 if not found."
     },
 
@@ -806,14 +798,12 @@ end:
 
 // swap_case {{{
 
-static PyObject* icu_swap_case(PyObject *self, PyObject *args) {
-    PyObject *input = NULL, *result = NULL;
+static PyObject* icu_swap_case(PyObject *self, PyObject *input) {
+    PyObject *result = NULL;
     UErrorCode status = U_ZERO_ERROR;
     UChar *input_buf = NULL, *output_buf = NULL;
     UChar32 *buf = NULL;
     int32_t sz = 0, sz32 = 0, i = 0;
-
-    if (!PyArg_ParseTuple(args, "O", &input)) return NULL;
 
     input_buf = python_to_icu(input, &sz, 1);
     if (input_buf == NULL) goto end;
@@ -1009,12 +999,11 @@ end:
 
 // roundtrip {{{
 static PyObject *
-icu_roundtrip(PyObject *self, PyObject *args) {
+icu_roundtrip(PyObject *self, PyObject *src) {
     int32_t sz = 0;
     UChar *icu = NULL;
-    PyObject *ret = NULL, *src = NULL;
+    PyObject *ret = NULL;
   
-    if (!PyArg_ParseTuple(args, "O", &src)) return NULL;
     icu = python_to_icu(src, &sz, 1);
     if (icu != NULL) {
         ret = icu_to_python(icu, sz);
@@ -1047,12 +1036,10 @@ icu_break_iterator_locales(PyObject *self, PyObject *args) {
 
 // string_length {{{
 static PyObject *
-icu_string_length(PyObject *self, PyObject *args) {
+icu_string_length(PyObject *self, PyObject *src) {
     int32_t sz = 0;
     UChar *icu = NULL;
-    PyObject *src = NULL;
   
-    if (!PyArg_ParseTuple(args, "O", &src)) return NULL;
     icu = python_to_icu(src, &sz, 1);
     if (icu == NULL) return NULL;
     sz = u_countChar32(icu, sz);
@@ -1062,19 +1049,18 @@ icu_string_length(PyObject *self, PyObject *args) {
 
 // utf16_length {{{
 static PyObject *
-icu_utf16_length(PyObject *self, PyObject *args) {
+icu_utf16_length(PyObject *self, PyObject *src) {
 #if PY_VERSION_HEX >= 0x03030000 
 #error Not implemented for python >= 3.3
 #endif
 
     int32_t sz = 0;
-    PyObject *src = NULL;
 #ifdef Py_UNICODE_WIDE
     int32_t i = 0, t = 0;
     Py_UNICODE *data = NULL;
 #endif
   
-    if (!PyArg_ParseTuple(args, "U", &src)) return NULL;
+    if (!PyUnicode_Check(src)) { PyErr_SetString(PyExc_TypeError, "Must be a unicode object"); return NULL; }
     sz = PyUnicode_GET_SIZE(src);
 #ifdef Py_UNICODE_WIDE
     data = PyUnicode_AS_UNICODE(src);
@@ -1092,7 +1078,7 @@ static PyMethodDef icu_methods[] = {
         "change_case(unicode object, which, locale) -> change case to one of UPPER_CASE, LOWER_CASE, TITLE_CASE"
     },
 
-    {"swap_case", icu_swap_case, METH_VARARGS,
+    {"swap_case", icu_swap_case, METH_O,
         "swap_case(unicode object) -> swaps the case using the simple, locale independent unicode algorithm"
     },
 
@@ -1104,7 +1090,7 @@ static PyMethodDef icu_methods[] = {
         "set_filesystem_encoding(encoding) -> Set the filesystem encoding for python."
     },
 
-    {"get_available_transliterators", icu_get_available_transliterators, METH_VARARGS,
+    {"get_available_transliterators", icu_get_available_transliterators, METH_NOARGS,
         "get_available_transliterators() -> Return list of available transliterators. This list is rather limited on OS X."
     },
 
@@ -1124,19 +1110,19 @@ static PyMethodDef icu_methods[] = {
      "normalize(mode, unicode_text) -> Return a python unicode string which is normalized in the specified mode."
     },
 
-    {"roundtrip", icu_roundtrip, METH_VARARGS, 
+    {"roundtrip", icu_roundtrip, METH_O, 
      "roundtrip(string) -> Roundtrip a unicode object from python to ICU back to python (useful for testing)"
     },
 
-    {"available_locales_for_break_iterator", icu_break_iterator_locales, METH_VARARGS, 
+    {"available_locales_for_break_iterator", icu_break_iterator_locales, METH_NOARGS, 
      "available_locales_for_break_iterator() -> Return tuple of all available locales for the BreakIterator"
     },
 
-    {"string_length", icu_string_length, METH_VARARGS, 
+    {"string_length", icu_string_length, METH_O, 
      "string_length(string) -> Return the length of a string (number of unicode code points in the string). Useful on narrow python builds where len() returns an incorrect answer if the string contains surrogate pairs."
     },
 
-    {"utf16_length", icu_utf16_length, METH_VARARGS, 
+    {"utf16_length", icu_utf16_length, METH_O, 
      "utf16_length(string) -> Return the length of a string (number of UTF-16 code points in the string). Useful on wide python builds where len() returns an incorrect answer if the string contains surrogate pairs."
     },
 
