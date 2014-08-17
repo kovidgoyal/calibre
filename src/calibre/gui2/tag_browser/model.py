@@ -453,7 +453,7 @@ class TagsModel(QAbstractItemModel):  # {{{
 
             is_formats = key == 'formats'
             if is_formats:
-                fip = file_icon_provider()
+                fip = file_icon_provider().icon_from_ext
 
             for idx,tag in enumerate(data[key]):
                 components = None
@@ -532,7 +532,7 @@ class TagsModel(QAbstractItemModel):  # {{{
                         not category_is_hierarchical or len(components) == 1):
                     if is_formats:
                         try:
-                            tag.icon = fip.icon_from_ext(tag.name.replace('ORIGINAL_', ''))
+                            tag.icon = fip(tag.name.replace('ORIGINAL_', ''))
                         except Exception:
                             tag.icon = self.category_custom_icons[key]
                     else:
