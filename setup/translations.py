@@ -327,20 +327,19 @@ class Translations(POT):  # {{{
             stats = tuple(parallel_check_output(jobs, self.info))
             translated = untranslated = 0
             for line in stats:
-                m = re.search('(\d+).+(\d+)', line)
-                if m is None:
-                    translated += int(re.search('\d+', line).group())
-                else:
-                    translated += int(m.group(1))
-                    untranslated += int(m.group(2))
+                nums = tuple(map(int, re.findall(r'\d+', line)))
+                translated += nums[0]
+                if len(nums) > 1:
+                    untranslated += nums[1]
             stats = {'translated':translated, 'untranslated':untranslated}
             with open(self.j(self.d(dest), 'stats.json'), 'wb') as f:
                 json.dump(stats, f)
             total = translated + untranslated
-            if total and (translated / float(total)) > 0.75:
+            # Raise the 20% threshold in the future
+            if total and (translated / float(total)) > 0.2:
                 complete[x] = stats
         with open(self.j(destbase, 'completed.json'), 'wb') as f:
-            json.dump(complete, f)
+            json.dump(complete, f, indent=True, sort_keys=True)
 
     def clean(self):
         if os.path.exists(self.stats):
