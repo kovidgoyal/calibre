@@ -27,6 +27,7 @@ class FetchError(Exception):
     pass
 
 class closing(object):
+
     'Context to automatically close something at the end of a block.'
 
     def __init__(self, thing):
@@ -95,13 +96,13 @@ def default_is_link_wanted(url, tag):
 class RecursiveFetcher(object):
     LINK_FILTER = tuple(re.compile(i, re.IGNORECASE) for i in
                 ('.exe\s*$', '.mp3\s*$', '.ogg\s*$', '^\s*mailto:', '^\s*$'))
-    #ADBLOCK_FILTER = tuple(re.compile(i, re.IGNORECASE) for it in
+    # ADBLOCK_FILTER = tuple(re.compile(i, re.IGNORECASE) for it in
     #                       (
     #
     #                        )
     #                       )
     CSS_IMPORT_PATTERN = re.compile(r'\@import\s+url\((.*?)\)', re.IGNORECASE)
-    default_timeout = socket.getdefaulttimeout() # Needed here as it is used in __del__
+    default_timeout = socket.getdefaulttimeout()  # Needed here as it is used in __del__
 
     def __init__(self, options, log, image_map={}, css_map={}, job_info=None):
         bd = options.dir
@@ -155,7 +156,7 @@ class RecursiveFetcher(object):
     def get_soup(self, src, url=None):
         nmassage = copy.copy(BeautifulSoup.MARKUP_MASSAGE)
         nmassage.extend(self.preprocess_regexps)
-        nmassage += [(re.compile(r'<!DOCTYPE .+?>', re.DOTALL), lambda m: '')] # Some websites have buggy doctype declarations that mess up beautifulsoup
+        nmassage += [(re.compile(r'<!DOCTYPE .+?>', re.DOTALL), lambda m: '')]  # Some websites have buggy doctype declarations that mess up beautifulsoup
         # Remove comments as they can leave detritus when extracting tags leaves
         # multiple nested comments
         nmassage.append((re.compile(r'<!--.*?-->', re.DOTALL), lambda m: ''))
@@ -176,7 +177,7 @@ class RecursiveFetcher(object):
                     for tag in soup.find('body').findAll(**spec):
                         body.insert(len(body.contents), tag)
                 soup.find('body').replaceWith(body)
-            except AttributeError: # soup has no body element
+            except AttributeError:  # soup has no body element
                 pass
 
         def remove_beyond(tag, next):
@@ -203,7 +204,6 @@ class RecursiveFetcher(object):
                 tag.extract()
         return self.preprocess_html_ext(soup)
 
-
     def fetch_url(self, url):
         data = None
         self.log.debug('Fetching', url)
@@ -223,8 +223,8 @@ class RecursiveFetcher(object):
                 url = url[1:]
             with open(url, 'rb') as f:
                 data = response(f.read())
-                data.newurl = 'file:'+url # This is what mechanize does for
-                                          # local URLs
+                data.newurl = 'file:'+url  # This is what mechanize does for
+                # local URLs
             return data
 
         delta = time.time() - self.last_fetch_at
@@ -246,11 +246,11 @@ class RecursiveFetcher(object):
                 data = response(f.read()+f.read())
                 data.newurl = f.geturl()
         except urllib2.URLError as err:
-            if hasattr(err, 'code') and responses.has_key(err.code):
-                raise FetchError, responses[err.code]
+            if hasattr(err, 'code') and err.code in responses:
+                raise FetchError(responses[err.code])
             if getattr(err, 'reason', [0])[0] == 104 or \
                 getattr(getattr(err, 'args', [None])[0], 'errno', None) in (-2,
-                        -3): # Connection reset by peer or Name or service not known
+                        -3):  # Connection reset by peer or Name or service not known
                 self.log.debug('Temporary error, retrying in 1 second')
                 time.sleep(1)
                 with closing(open_func(url, timeout=self.timeout)) as f:
@@ -261,7 +261,6 @@ class RecursiveFetcher(object):
         finally:
             self.last_fetch_at = time.time()
         return data
-
 
     def start_fetch(self, url):
         soup = BeautifulSoup(u'<a href="'+url+'" />')
@@ -345,7 +344,7 @@ class RecursiveFetcher(object):
 
     def rescale_image(self, data):
         orig_w, orig_h, ifmt = identify_data(data)
-        orig_data = data # save it in case compression fails
+        orig_data = data  # save it in case compression fails
         if self.scale_news_images is not None:
             wmax, hmax = self.scale_news_images
             scale, new_w, new_h = fit_image(orig_w, orig_h, wmax, hmax)
@@ -354,14 +353,14 @@ class RecursiveFetcher(object):
                 orig_w = new_w
                 orig_h = new_h
         if self.compress_news_images_max_size is None:
-            if self.compress_news_images_auto_size is None: # not compressing
+            if self.compress_news_images_auto_size is None:  # not compressing
                 return data
             else:
                 maxsizeb = (orig_w * orig_h)/self.compress_news_images_auto_size
         else:
             maxsizeb = self.compress_news_images_max_size * 1024
-        scaled_data = data # save it in case compression fails
-        if len(scaled_data) <= maxsizeb: # no compression required
+        scaled_data = data  # save it in case compression fails
+        if len(scaled_data) <= maxsizeb:  # no compression required
             return scaled_data
 
         img = Image()
@@ -372,10 +371,10 @@ class RecursiveFetcher(object):
             img.set_compression_quality(quality)
             data = img.export('jpg')
 
-        if len(data) >= len(scaled_data): # compression failed
+        if len(data) >= len(scaled_data):  # compression failed
             return orig_data if len(orig_data) <= len(scaled_data) else scaled_data
 
-        if len(data) >= len(orig_data): # no improvement
+        if len(data) >= len(orig_data):  # no improvement
             return orig_data
 
         return data
@@ -593,9 +592,16 @@ def option_parser(usage=_('%prog URL\n\nWhere URL is for example http://google.c
     parser.add_option('--encoding', default=None,
                       help=_('The character encoding for the websites you are trying to download. The default is to try and guess the encoding.'))
     parser.add_option('--match-regexp', default=[], action='append', dest='match_regexps',
-                      help=_('Only links that match this regular expression will be followed. This option can be specified multiple times, in which case as long as a link matches any one regexp, it will be followed. By default all links are followed.'))
+                      help=_('Only links that match this regular expression will be followed. '
+                             'This option can be specified multiple times, in which case as long '
+                             'as a link matches any one regexp, it will be followed. By default all '
+                             'links are followed.'))
     parser.add_option('--filter-regexp', default=[], action='append', dest='filter_regexps',
-                      help=_('Any link that matches this regular expression will be ignored. This option can be specified multiple times, in which case as long as any regexp matches a link, it will be ignored. By default, no links are ignored. If both filter regexp and match regexp are specified, then filter regexp is applied first.'))
+                      help=_('Any link that matches this regular expression will be ignored.'
+                             ' This option can be specified multiple times, in which case as'
+                             ' long as any regexp matches a link, it will be ignored. By'
+                             ' default, no links are ignored. If both filter regexp and match'
+                             ' regexp are specified, then filter regexp is applied first.'))
     parser.add_option('--dont-download-stylesheets', action='store_true', default=False,
                       help=_('Do not download CSS stylesheets.'), dest='no_stylesheets')
     parser.add_option('--verbose', help=_('Show detailed output information. Useful for debugging'),
