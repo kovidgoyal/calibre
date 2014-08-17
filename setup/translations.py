@@ -301,7 +301,6 @@ class Translations(POT):  # {{{
             locale = self.mo_file(f)[0]
             stats[locale] = min(1.0, float(trans)/total)
 
-        import cPickle
         cPickle.dump(stats, open(dest, 'wb'), -1)
 
     def compile_user_manual_translations(self):
@@ -470,11 +469,10 @@ class ISO639(Command):  # {{{
             base_name = name.lower()
             nm[base_name] = threet
 
-        from cPickle import dump
         x = {'by_2':by_2, 'by_3b':by_3b, 'by_3t':by_3t, 'codes2':codes2,
                 'codes3b':codes3b, 'codes3t':codes3t, '2to3':m2to3,
                 '3to2':m3to2, '3bto3t':m3bto3t, 'name_map':nm}
-        dump(x, open(dest, 'wb'), -1)
+        cPickle.dump(x, open(dest, 'wb'), -1)
 
     def clean(self):
         if os.path.exists(self.DEST):
@@ -512,7 +510,6 @@ class ISO3166(ISO639):  # {{{
             name_map[two] = x.get('name')
             if three:
                 three_map[three] = two
-        from cPickle import dump
         x = {'names':name_map, 'codes':frozenset(codes), 'three_map':three_map}
-        dump(x, open(dest, 'wb'), -1)
+        cPickle.dump(x, open(dest, 'wb'), -1)
 # }}}
