@@ -7,7 +7,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import sys, textwrap
+import sys
 from io import BytesIO
 from threading import Event
 
@@ -21,24 +21,23 @@ from calibre.ebooks.metadata.sources.identify import identify
 from calibre.ebooks.metadata.sources.covers import download_cover
 
 def option_parser():
-    parser = OptionParser(textwrap.dedent(
-        '''\
-        %prog [options]
+    parser = OptionParser(_('''\
+%prog [options]
 
-        Fetch book metadata from online sources. You must specify at least one
-        of title, authors or ISBN.
-        '''
+Fetch book metadata from online sources. You must specify at least one
+of title, authors or ISBN.
+'''
     ))
-    parser.add_option('-t', '--title', help='Book title')
-    parser.add_option('-a', '--authors', help='Book author(s)')
-    parser.add_option('-i', '--isbn', help='Book ISBN')
+    parser.add_option('-t', '--title', help=_('Book title'))
+    parser.add_option('-a', '--authors', help=_('Book author(s)'))
+    parser.add_option('-i', '--isbn', help=_('Book ISBN'))
     parser.add_option('-v', '--verbose', default=False, action='store_true',
-                      help='Print the log to the console (stderr)')
-    parser.add_option('-o', '--opf', help='Output the metadata in OPF format instead of human readable text.', action='store_true', default=False)
+                      help=_('Print the log to the console (stderr)'))
+    parser.add_option('-o', '--opf', help=_('Output the metadata in OPF format instead of human readable text.'), action='store_true', default=False)
     parser.add_option('-c', '--cover',
-            help='Specify a filename. The cover, if available, will be saved to it. Without this option, no cover will be downloaded.')
+            help=_('Specify a filename. The cover, if available, will be saved to it. Without this option, no cover will be downloaded.'))
     parser.add_option('-d', '--timeout', default='30',
-            help='Timeout in seconds. Default is 30')
+            help=_('Timeout in seconds. Default is 30'))
 
     return parser
 

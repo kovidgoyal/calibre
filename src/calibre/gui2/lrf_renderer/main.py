@@ -266,21 +266,21 @@ def file_renderer(stream, opts, parent=None, logger=None):
 
 def option_parser():
     from calibre.gui2.main_window import option_parser
-    parser = option_parser('''\
+    parser = option_parser(_('''\
 %prog [options] book.lrf
 
 Read the LRF ebook book.lrf
-''')
+'''))
     parser.add_option('--verbose', default=False, action='store_true', dest='verbose',
-                      help='Print more information about the rendering process')
-    parser.add_option('--visual-debug', help='Turn on visual aids to debugging the rendering engine',
+                      help=_('Print more information about the rendering process'))
+    parser.add_option('--visual-debug', help=_('Turn on visual aids to debugging the rendering engine'),
                       default=False, action='store_true', dest='visual_debug')
     parser.add_option('--disable-hyphenation', dest='hyphenate', default=True, action='store_false',
-                      help='Disable hyphenation. Should significantly speed up rendering.')
+                      help=_('Disable hyphenation. Should significantly speed up rendering.'))
     parser.add_option('--white-background', dest='white_background', default=False, action='store_true',
-                      help='By default the background is off white as I find this easier on the eyes. Use this option to make the background pure white.')
+                      help=_('By default the background is off white as I find this easier on the eyes. Use this option to make the background pure white.'))
     parser.add_option('--profile', dest='profile', default=False, action='store_true',
-                      help='Profile the LRF renderer')
+                      help=_('Profile the LRF renderer'))
     return parser
 
 def normalize_settings(parser, opts):

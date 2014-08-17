@@ -861,7 +861,7 @@ def load_builtin_fonts():
 def setup_gui_option_parser(parser):
     if islinux:
         parser.add_option('--detach', default=False, action='store_true',
-                          help='Detach from the controlling terminal, if any (linux only)')
+                          help=_('Detach from the controlling terminal, if any (linux only)'))
 
 def detach_gui():
     if islinux and not DEBUG:

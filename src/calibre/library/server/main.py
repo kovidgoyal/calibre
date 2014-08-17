@@ -54,7 +54,7 @@ The OPDS interface is advertised via BonJour automatically.
     parser.add_option('--pidfile', default=None,
             help=_('Write process PID to the specified file'))
     parser.add_option('--daemonize', default=False, action='store_true',
-            help='Run process in background as a daemon. No effect on windows.')
+            help=_('Run process in background as a daemon. No effect on windows.'))
     parser.add_option('--restriction', '--virtual-library', default=None,
             help=_('Specifies a virtual library to be used for this invocation. '
                    'This option overrides any per-library settings specified'

@@ -29,51 +29,51 @@ You can also use %prog to run standalone scripts. To do that use it like this:
 
 Everything after the -- is passed to the script.
 '''))
-    parser.add_option('-c', '--command', help='Run python code.')
-    parser.add_option('-e', '--exec-file', help='Run the python code in file.')
-    parser.add_option('-f', '--subset-font', help='Subset the specified font')
+    parser.add_option('-c', '--command', help=_('Run python code.'))
+    parser.add_option('-e', '--exec-file', help=_('Run the python code in file.'))
+    parser.add_option('-f', '--subset-font', help=_('Subset the specified font'))
     parser.add_option('-d', '--debug-device-driver', default=False, action='store_true',
-                      help='Debug device detection')
+                      help=_('Debug device detection'))
     parser.add_option('-g', '--gui',  default=False, action='store_true',
-                      help='Run the GUI with debugging enabled. Debug output is '
-                      'printed to stdout and stderr.')
+                      help=_('Run the GUI with debugging enabled. Debug output is '
+                      'printed to stdout and stderr.'))
     parser.add_option('--gui-debug',  default=None,
-                      help='Run the GUI with a debug console, logging to the'
+                      help=_('Run the GUI with a debug console, logging to the'
                       ' specified path. For internal use only, use the -g'
-                      ' option to run the GUI in debug mode',)
+                      ' option to run the GUI in debug mode'))
     parser.add_option('--show-gui-debug',  default=None,
-                      help='Display the specified log file. For internal use'
-                      ' only.',)
+                      help=_('Display the specified log file. For internal use'
+                      ' only.'))
     parser.add_option('-w', '--viewer',  default=False, action='store_true',
-                      help='Run the ebook viewer',)
+                      help=_('Run the ebook viewer in debug mode'))
     parser.add_option('--paths', default=False, action='store_true',
-            help='Output the paths necessary to setup the calibre environment')
+            help=_('Output the paths necessary to setup the calibre environment'))
     parser.add_option('--add-simple-plugin', default=None,
-            help='Add a simple plugin (i.e. a plugin that consists of only a '
+            help=_('Add a simple plugin (i.e. a plugin that consists of only a '
             '.py file), by specifying the path to the py file containing the '
-            'plugin code.')
+            'plugin code.'))
     parser.add_option('--reinitialize-db', default=None,
-            help='Re-initialize the sqlite calibre database at the '
-            'specified path. Useful to recover from db corruption.')
-    parser.add_option('-p', '--py-console', help='Run python console',
+            help=_('Re-initialize the sqlite calibre database at the '
+            'specified path. Useful to recover from db corruption.'))
+    parser.add_option('-p', '--py-console', help=_('Run python console'),
             default=False, action='store_true')
     parser.add_option('-m', '--inspect-mobi', action='store_true',
             default=False,
-            help='Inspect the MOBI file(s) at the specified path(s)')
+            help=_('Inspect the MOBI file(s) at the specified path(s)'))
     parser.add_option('-t', '--edit-book', action='store_true',
-            help='Launch the calibre Edit Book tool in debug mode.')
+            help=_('Launch the calibre Edit Book tool in debug mode.'))
     parser.add_option('-x', '--explode-book', default=None,
-            help='Explode the book (exports the book as a collection of HTML '
+            help=_('Explode the book (exports the book as a collection of HTML '
             'files and metadata, which you can edit using standard HTML '
             'editing tools, and then rebuilds the file from the edited HTML. '
             'Makes no additional changes to the HTML, unlike a full calibre '
-            'conversion).')
+            'conversion).'))
     parser.add_option('-s', '--shutdown-running-calibre', default=False,
             action='store_true',
             help=_('Cause a running calibre instance, if any, to be'
                 ' shutdown. Note that if there are running jobs, they '
                 'will be silently aborted, so use with care.'))
-    parser.add_option('--test-build', help='Test binary modules in build',
+    parser.add_option('--test-build', help=_('Test binary modules in build'),
             action='store_true', default=False)
     parser.add_option('-r', '--run-plugin', help=_(
         'Run a plugin that provides a command line interface. For example:\n'

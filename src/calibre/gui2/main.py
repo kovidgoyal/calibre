@@ -25,12 +25,12 @@ class AbortInit(Exception):
     pass
 
 def option_parser():
-    parser = _option_parser('''\
+    parser = _option_parser(_('''\
 %prog [opts] [path_to_ebook]
 
 Launch the main calibre Graphical User Interface and optionally add the ebook at
 path_to_ebook to the database.
-''')
+'''))
     parser.add_option('--with-library', default=None, action='store',
                       help=_('Use the library located at the specified path.'))
     parser.add_option('--start-in-tray', default=False, action='store_true',

@@ -149,52 +149,51 @@ def option_parser():
         OptionParser
     except ImportError:
         from optparse import OptionParser
-    import textwrap
-    parser = OptionParser(textwrap.dedent('''\
-    %prog [options] [from to text]
+    parser = OptionParser(_('''\
+%prog [options] [from to text]
 
-    Send mail using the SMTP protocol. %prog has two modes of operation. In the
-    compose mode you specify from to and text and these are used to build and
-    send an email message. In the filter mode, %prog reads a complete email
-    message from STDIN and sends it.
+Send mail using the SMTP protocol. %prog has two modes of operation. In the
+compose mode you specify from to and text and these are used to build and
+send an email message. In the filter mode, %prog reads a complete email
+message from STDIN and sends it.
 
-    text is the body of the email message.
-    If text is not specified, a complete email message is read from STDIN.
-    from is the email address of the sender and to is the email address
-    of the recipient. When a complete email is read from STDIN, from and to
-    are only used in the SMTP negotiation, the message headers are not modified.
-    '''))
+text is the body of the email message.
+If text is not specified, a complete email message is read from STDIN.
+from is the email address of the sender and to is the email address
+of the recipient. When a complete email is read from STDIN, from and to
+are only used in the SMTP negotiation, the message headers are not modified.
+'''))
     c=parser.add_option_group('COMPOSE MAIL',
-        'Options to compose an email. Ignored if text is not specified').add_option
-    c('-a', '--attachment', help='File to attach to the email')
-    c('-s', '--subject', help='Subject of the email')
+        _('Options to compose an email. Ignored if text is not specified')).add_option
+    c('-a', '--attachment', help=_('File to attach to the email'))
+    c('-s', '--subject', help=_('Subject of the email'))
 
     parser.add_option('-l', '--localhost',
-                      help=('Host name of localhost. Used when connecting '
+                      help=_('Host name of localhost. Used when connecting '
                             'to SMTP server.'))
     r=parser.add_option_group('SMTP RELAY',
-        'Options to use an SMTP relay server to send mail. '
+        _('Options to use an SMTP relay server to send mail. '
         'calibre will try to send the email directly unless --relay is '
-        'specified.').add_option
-    r('-r', '--relay', help=('An SMTP relay server to use to send mail.'))
+        'specified.')).add_option
+    r('-r', '--relay', help=_('An SMTP relay server to use to send mail.'))
     r('-p', '--port', default=-1,
-      help='Port to connect to on relay server. Default is to use 465 if '
-      'encryption method is SSL and 25 otherwise.')
-    r('-u', '--username', help='Username for relay')
-    r('-p', '--password', help='Password for relay')
+      help=_('Port to connect to on relay server. Default is to use 465 if '
+      'encryption method is SSL and 25 otherwise.'))
+    r('-u', '--username', help=_('Username for relay'))
+    r('-p', '--password', help=_('Password for relay'))
     r('-e', '--encryption-method', default='TLS',
       choices=['TLS', 'SSL', 'NONE'],
-      help='Encryption method to use when connecting to relay. Choices are '
-      'TLS, SSL and NONE. Default is TLS. WARNING: Choosing NONE is highly insecure')
-    parser.add_option('-o', '--outbox', help='Path to maildir folder to store '
-                      'failed email messages in.')
+      help=_('Encryption method to use when connecting to relay. Choices are '
+      'TLS, SSL and NONE. Default is TLS. WARNING: Choosing NONE is highly insecure'))
+    parser.add_option('-o', '--outbox', help=_('Path to maildir folder to store '
+                      'failed email messages in.'))
     parser.add_option('-f', '--fork', default=False, action='store_true',
-                      help='Fork and deliver message in background. '
+                      help=_('Fork and deliver message in background. '
                       'If you use this option, you should also use --outbox '
-                      'to handle delivery failures.')
-    parser.add_option('-t', '--timeout', help='Timeout for connection')
+                      'to handle delivery failures.'))
+    parser.add_option('-t', '--timeout', help=_('Timeout for connection'))
     parser.add_option('-v', '--verbose', default=0, action='count',
-                      help='Be more verbose')
+                      help=_('Be more verbose'))
     return parser
 
 def extract_email_address(raw):

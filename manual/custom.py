@@ -10,7 +10,7 @@ del init_calibre
 from sphinx.util.console import bold
 
 sys.path.append(os.path.abspath('../../../'))
-from calibre.linux import entry_points
+from calibre.linux import entry_points, cli_index_strings
 from epub import EPUBHelpBuilder
 from latex import LaTeXHelpBuilder
 
@@ -34,9 +34,7 @@ Command Line Interface
 .. image:: ../../images/cli.png
 
 .. note::
-    On OS X, the command line tools are inside the |app| bundle, for example,
-    if you installed calibre in :file:`/Applications` the command line tools
-    are in :file:`/Applications/calibre.app/Contents/MacOS/calibre`.
+    %s
 
 Documented Commands
 --------------------
@@ -51,8 +49,7 @@ Undocumented Commands
 
 {undocumented}
 
-You can see usage for undocumented commands by executing them without arguments
-in a terminal.
+%s
 '''
 
 CLI_PREAMBLE='''\
@@ -114,20 +111,12 @@ def generate_calibredb_help(preamble, app):
     update_cli_doc('calibredb', raw, app)
 
 def generate_ebook_convert_help(preamble, app):
-    from calibre.ebooks.conversion.cli import create_option_parser
+    from calibre.ebooks.conversion.cli import create_option_parser, manual_index_strings
     from calibre.customize.ui import input_format_plugins, output_format_plugins
     from calibre.utils.logging import default_log
     preamble = re.sub(r'http.*\.html', ':ref:`conversion`', preamble)
-    raw = preamble + textwrap.dedent('''
-    The options and default values for the options change depending on both the
-    input and output formats, so you should always check with::
 
-        ebook-convert myfile.input_format myfile.output_format -h
-
-    Below are the options that are common to all conversion, followed by the
-    options specific to every input and output format
-
-    ''')
+    raw = preamble + '\n\n' + manual_index_strings() % 'ebook-convert myfile.input_format myfile.output_format -h'
     parser, plumber = create_option_parser(['ebook-convert',
         'dummyi.mobi', 'dummyo.epub', '-h'], default_log)
     groups = [(None, None, parser.option_list)]
@@ -225,7 +214,7 @@ def cli_docs(app):
     documented = [' '*4 + c[0] for c in documented_cmds]
     undocumented = ['  * ' + c for c in undocumented_cmds]
 
-    raw = CLI_INDEX.format(documented='\n'.join(documented),
+    raw = (CLI_INDEX % cli_index_strings()).format(documented='\n'.join(documented),
             undocumented='\n'.join(undocumented))
     if not os.path.exists('cli'):
         os.makedirs('cli')

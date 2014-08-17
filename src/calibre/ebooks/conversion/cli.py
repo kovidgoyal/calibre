@@ -370,6 +370,17 @@ def main(args=sys.argv):
 
     return 0
 
+def manual_index_strings():
+    return _('''\
+The options and default values for the options change depending on both the
+input and output formats, so you should always check with::
+
+    %s
+
+Below are the options that are common to all conversion, followed by the
+options specific to every input and output format.''')
+
+
 if __name__ == '__main__':
     sys.exit(main())
 

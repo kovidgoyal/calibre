@@ -139,7 +139,7 @@ def option_parser():
     parser.add_option('--dont-output-resources', default=True, action='store_false',
                       help=_('Do not save embedded image and font files to disk'),
                       dest='output_resources')
-    parser.add_option('--verbose', default=False, action='store_true', dest='verbose')
+    parser.add_option('--verbose', default=False, action='store_true', dest='verbose', help=_('Be more verbose'))
     return parser
 
 def main(args=sys.argv, logger=None):
