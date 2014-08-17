@@ -29,6 +29,7 @@ from calibre.ptempfile import PersistentTemporaryFile
 from calibre.utils.date import now as nowf
 from calibre.utils.magick.draw import save_cover_data_to, add_borders_to_image
 from calibre.utils.localization import canonicalize_lang
+from calibre.utils.logging import ThreadSafeWrapper
 
 class LoginFailed(ValueError):
     pass
@@ -841,7 +842,7 @@ class BasicNewsRecipe(Recipe):
         :param parser:  Command line option parser. Used to intelligently merge options.
         :param progress_reporter: A Callable that takes two arguments: progress (a number between 0 and 1) and a string message. The message should be optional.
         '''
-        self.log = log
+        self.log = ThreadSafeWrapper(log)
         if not isinstance(self.title, unicode):
             self.title = unicode(self.title, 'utf-8', 'replace')
 

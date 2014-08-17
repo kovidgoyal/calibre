@@ -156,7 +156,8 @@ class RecursiveFetcher(object):
     def get_soup(self, src, url=None):
         nmassage = copy.copy(BeautifulSoup.MARKUP_MASSAGE)
         nmassage.extend(self.preprocess_regexps)
-        nmassage += [(re.compile(r'<!DOCTYPE .+?>', re.DOTALL), lambda m: '')]  # Some websites have buggy doctype declarations that mess up beautifulsoup
+        # Some websites have buggy doctype declarations that mess up beautifulsoup
+        nmassage += [(re.compile(r'<!DOCTYPE .+?>', re.DOTALL|re.IGNORECASE), lambda m: '')]
         # Remove comments as they can leave detritus when extracting tags leaves
         # multiple nested comments
         nmassage.append((re.compile(r'<!--.*?-->', re.DOTALL), lambda m: ''))
@@ -207,6 +208,7 @@ class RecursiveFetcher(object):
     def fetch_url(self, url):
         data = None
         self.log.debug('Fetching', url)
+        st = time.time()
 
         # Check for a URL pointing to the local filesystem and special case it
         # for efficiency and robustness. Bypasses delay checking as it does not
@@ -225,6 +227,7 @@ class RecursiveFetcher(object):
                 data = response(f.read())
                 data.newurl = 'file:'+url  # This is what mechanize does for
                 # local URLs
+            self.log.debug('Fetched %s in %f seconds' % (url, time.time() - st))
             return data
 
         delta = time.time() - self.last_fetch_at
@@ -260,11 +263,11 @@ class RecursiveFetcher(object):
                 raise err
         finally:
             self.last_fetch_at = time.time()
+        self.log.debug('Fetched %s in %f seconds' % (url, time.time() - st))
         return data
 
     def start_fetch(self, url):
         soup = BeautifulSoup(u'<a href="'+url+'" />')
-        self.log.debug('Downloading')
         res = self.process_links(soup, url, 0, into_dir='')
         self.log.debug(url, 'saved to', res)
         return res
@@ -526,7 +529,9 @@ class RecursiveFetcher(object):
                     else:
                         dsrc = xml_to_unicode(dsrc, self.verbose)[0]
 
+                    st = time.time()
                     soup = self.get_soup(dsrc, url=iurl)
+                    self.log.debug('Parsed %s in %f seconds' % (iurl, time.time() - st))
 
                     base = soup.find('base', href=True)
                     if base is not None:
