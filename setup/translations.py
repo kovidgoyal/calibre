@@ -281,23 +281,20 @@ class Translations(POT):  # {{{
     def stats(self):
         return self.j(self.d(self.DEST), 'stats.pickle')
 
-    def get_stats(self, path):
-        return subprocess.Popen(['msgfmt', '--statistics', '-o', '/dev/null',
-            path],
-            stderr=subprocess.PIPE).stderr.read()
-
     def write_stats(self):
         files = self.po_files()
         dest = self.stats
         if not self.newer(dest, files):
             return
         self.info('Calculating translation statistics...')
-        raw = self.get_stats(self.j(self.TRANSLATIONS, __appname__, 'main.pot'))
-        total = int(raw.split(',')[-1].strip().split()[0])
         stats = {}
-        for f in files:
-            raw = self.get_stats(f)
-            trans = int(raw.split()[0])
+        jobs = (
+            ['msgfmt', '--statistics', '-o', os.devnull, x] for x in files
+        )
+        for f, line in zip(files, parallel_check_output(jobs, self.info)):
+            nums = tuple(map(int, re.findall(r'\d+', line)))
+            trans = nums[0]
+            total = trans if len(nums) == 1 else (trans + nums[1])
             locale = self.mo_file(f)[0]
             stats[locale] = min(1.0, float(trans)/total)
 
