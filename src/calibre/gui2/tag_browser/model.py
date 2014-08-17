@@ -14,7 +14,7 @@ from PyQt5.Qt import (QAbstractItemModel, QIcon, QFont, Qt,
         QMimeData, QModelIndex, pyqtSignal, QObject)
 
 from calibre.constants import config_dir
-from calibre.gui2 import gprefs, config, error_dialog
+from calibre.gui2 import gprefs, config, error_dialog, file_icon_provider
 from calibre.db.categories import Tag
 from calibre.utils.config import tweaks
 from calibre.utils.icu import sort_key, lower, strcmp, collation_order
@@ -67,7 +67,7 @@ class TagTreeItem(object):  # {{{
                             ['news', 'search', 'identifiers', 'languages'],
                    is_searchable=category_key not in ['search'])
         elif self.type == self.TAG:
-            self.icon_state_map[0] = (data.icon)
+            self.icon_state_map[0] = data.icon
             self.tag = data
 
         self.tooltip = (tooltip + ' ') if tooltip else ''
@@ -451,6 +451,10 @@ class TagsModel(QAbstractItemModel):  # {{{
                 key not in self.db.prefs.get('categories_using_hierarchy', []) or
                 config['sort_tags_by'] != 'name')
 
+            is_formats = key == 'formats'
+            if is_formats:
+                fip = file_icon_provider()
+
             for idx,tag in enumerate(data[key]):
                 components = None
                 if clear_rating:
@@ -526,7 +530,13 @@ class TagsModel(QAbstractItemModel):  # {{{
                 if (not tag.is_hierarchical) and (in_uc or
                         (fm['is_custom'] and fm['display'].get('is_names', False)) or
                         not category_is_hierarchical or len(components) == 1):
-                    tag.icon = self.category_custom_icons[key]
+                    if is_formats:
+                        try:
+                            tag.icon = fip.icon_from_ext(tag.name.replace('ORIGINAL_', ''))
+                        except Exception:
+                            tag.icon = self.category_custom_icons[key]
+                    else:
+                        tag.icon = self.category_custom_icons[key]
                     n = self.create_node(parent=node_parent, data=tag, tooltip=tt,
                                     icon_map=self.icon_state_map)
                     if tag.id_set is not None:
