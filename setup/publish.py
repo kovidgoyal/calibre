@@ -91,12 +91,14 @@ class Manual(Command):
             shutil.rmtree(tdir)
         os.mkdir(tdir)
         st = time.time()
-        for d in ('generated'):
+        base = self.j(self.d(self.SRC), 'manual')
+        for d in ('generated', ):
+            d = self.j(base, d)
             if os.path.exists(d):
                 shutil.rmtree(d)
             os.makedirs(d)
         jobs = []
-        languages = opts.language or list(json.load(open(self.j(self.d(self.SRC), 'manual', 'locale', 'completed.json'), 'rb')))
+        languages = opts.language or list(json.load(open(self.j(base, 'locale', 'completed.json'), 'rb')))
         for language in (['en'] + languages):
             jobs.append((['calibre-debug', self.j(self.d(self.SRC), 'manual', 'build.py'),
                           language, self.j(tdir, language)],
