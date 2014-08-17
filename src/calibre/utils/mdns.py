@@ -115,9 +115,12 @@ def create_service(desc, type, port, properties, add_hostname, use_ip_address=No
 
     if add_hostname:
         try:
-            desc += ' (on %s)'%hostname
+            desc += ' (on %s port %d)'%(hostname, port)
         except:
-            pass
+            try:
+                desc += ' (on %s)'%hostname
+            except:
+                pass
 
     if use_ip_address:
         local_ip = use_ip_address
