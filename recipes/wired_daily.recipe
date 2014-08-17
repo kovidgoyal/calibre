@@ -1,45 +1,77 @@
-#!/usr/bin/env  python
 __license__   = 'GPL v3'
-__docformat__ = 'restructuredtext en'
-
+__copyright__ = '2014, Darko Miletic <darko.miletic at gmail.com>'
+'''
+www.wired.com
+'''
 
 from calibre.web.feeds.news import BasicNewsRecipe
 
-class Wired_Daily(BasicNewsRecipe):
+class WiredDailyNews(BasicNewsRecipe):
+    title                 = 'Wired Daily Edition'
+    __author__            = 'Darko Miletic'
+    description           = 'Wired is a full-color monthly American magazine, published in both print and online editions, that reports on how emerging technologies affect culture, the economy and politics.'
+    publisher             = 'Conde Nast'
+    category              = 'news, IT, computers, technology'
+    oldest_article        = 2
+    max_articles_per_feed = 200
+    no_stylesheets        = True
+    encoding              = 'utf-8'
+    use_embedded_content  = False
+    language              = 'en'
+    ignore_duplicate_articles = {'url'}
+    remove_empty_feeds    = True
+    publication_type      = 'newsportal'
+    masthead_url          = 'http://www.wired.com/images/home/wired_logo.gif'
+    extra_css             = """
+                            .entry-header{
+                                          text-transform: uppercase; 
+                                          vertical-align: baseline; 
+                                          display: inline;
+                                         }
+                            ul li{display: inline}             
+                            """
 
-    title = 'Wired Daily Edition'
-    __author__ = 'Kovid Goyal'
-    description = 'Technology news'
-    timefmt  = ' [%Y%b%d  %H%M]'
-    language = 'en'
-    use_embedded_content = False
-    no_stylesheets = True
+    conversion_options = {
+                          'comment'   : description
+                        , 'tags'      : category
+                        , 'publisher' : publisher
+                        , 'language'  : language
+                        }
 
-    keep_only_tags = [  # dict(name= 'div', id ='liveblog-hdr'),
-                      dict(name='div', attrs={'class': 'post'})]
-
-    remove_tags = [dict(name='div', attrs={'class': 'social-top'})]
+    remove_tags = [
+                     dict(name=['meta','link']),
+                     dict(name='div', attrs={'class':'podcast_storyboard'})
+                  ]
+    keep_only_tags=[
+                     dict(name='h1' , attrs={'id'   :'headline'    }), 
+                     dict(name='ul' , attrs={'class':'entry-header'}), 
+                     dict(name='div', attrs={'class':'entry'       })
+                   ]
 
     feeds = [
-        ('Top News', 'http://feeds.wired.com/wired/index'),
-        ('Product Reviews',
-            'http://www.wired.com/reviews/feeds/latestProductsRss'),
-        ('Autopia', 'http://www.wired.com/autopia/feed/'),
-        ('Danger Room', 'http://www.wired.com/dangerroom/feed/'),
-        ('Epicenter', 'http://www.wired.com/epicenter/feed/'),
-        ('Gadget Lab', 'http://www.wired.com/gadgetlab/feed/'),
-        ('Geek Dad', 'http://www.wired.com/geekdad/feed/'),
-        ('Playbook', 'http://www.wired.com/playbook/feed/'),
-        ('Rawfile', 'http://www.wired.com/rawfile/feed/'),
-        ('This Day in Tech', 'http://www.wired.com/thisdayintech/feed/'),
-        ('Threat Level', 'http://www.wired.com/threatlevel/feed/'),
-        ('Underwire', 'http://www.wired.com/underwire/feed/'),
-        ('Web Monkey', 'http://www.webmonkey.com/feed/'),
-        ('Science', 'http://www.wired.com/wiredscience/feed/'),
-        ]
+              (u'Top Stories'        , u'http://feeds.wired.com/wired/index'      )
+             ,(u'Product reviews'    , u'http://feeds.wired.com/WiredReviews'     )
+             ,(u'Autopia'            , u'http://feeds.wired.com/wiredautopia'     )
+             ,(u'Business'           , u'http://feeds.wired.com/wiredbusinessblog')
+             ,(u'Danger Room'        , u'http://feeds.wired.com/WiredDangerRoom'  )
+             ,(u'Gadget Lab'         , u'http://feeds.wired.com/GearFactor'       )
+             ,(u'Game Life'          , u'http://feeds.wired.com/Gamelife'         )
+             ,(u'GeekMom'            , u'http://feeds.wired.com/wiredgeekmom/'    )
+             ,(u'Innovation Insights', u'http://feeds.wired.com/wiredinsights'    )
+             ,(u'Opinion'            , u'http://feeds.wired.com/wiredopinion/'    )
+             ,(u'Playbook'           , u'http://feeds.wired.com/wiredplaybook/'   )
+             ,(u'This day in Tech'   , u'http://feeds.wired.com/ThisDayInTech'    )
+             ,(u'Threat level'       , u'http://feeds.wired.com/wired27b'         )
+             ,(u'Design'             , u'http://feeds.wired.com/wired/design'     )
+             ,(u'Underwire'          , u'http://feeds.wired.com/wiredunderwire'   )
+             ,(u'Enterprise'         , u'http://feeds.wired.com/wiredenterprise/' )
+             ,(u'Science'            , u'http://feeds.wired.com/wiredscience'     )
+            ]
 
-    def preprocess_html(self, soup):
-        for img in soup.findAll('img', attrs={'data-lazy-src':True}):
-            img['src'] = img['data-lazy-src']
-        return soup
-
+    def get_article_url(self, article):
+        url = article.get('guid',  None)
+        try:
+            return self.browser.open_novisit(url).geturl() # resolve redirect.
+        except:
+            return url 
+        
