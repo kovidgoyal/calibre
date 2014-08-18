@@ -543,13 +543,16 @@ class FileIconProvider(QFileIconProvider):
         if upath != bpath:
             # User has chosen to override mimetype icons
             path_map = {v:I('mimetypes/%s.png' % v) for v in set(self.ICONS.itervalues())}
+            icons = self.ICONS.copy()
             for uicon in glob.glob(os.path.join(upath, '*.png')):
                 ukey = os.path.basename(uicon).rpartition('.')[0].lower()
                 if ukey not in path_map:
                     path_map[ukey] = uicon
+                    icons[ukey] = ukey
         else:
             path_map = {v:os.path.join(bpath, v + '.png') for v in set(self.ICONS.itervalues())}
-        self.icons = {k:path_map[v] for k, v in self.ICONS.iteritems()}
+            icons = self.ICONS
+        self.icons = {k:path_map[v] for k, v in icons.iteritems()}
         self.icons['calibre'] = I('lt.png', allow_user_override=False)
         for i in ('dir', 'default', 'zero'):
             self.icons[i] = QIcon(self.icons[i])
