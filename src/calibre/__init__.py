@@ -641,50 +641,6 @@ def url_slash_cleaner(url):
     '''
     return re.sub(r'(?<!:)/{2,}', '/', url)
 
-def get_download_filename(url, cookie_file=None):
-    '''
-    Get a local filename for a URL using the content disposition header
-    Returns empty string if no content disposition header present
-    '''
-    from contextlib import closing
-    from urllib2 import unquote as urllib2_unquote
-
-    filename = ''
-
-    br = browser()
-    if cookie_file:
-        from mechanize import MozillaCookieJar
-        cj = MozillaCookieJar()
-        cj.load(cookie_file)
-        br.set_cookiejar(cj)
-
-    last_part_name = ''
-    try:
-        with closing(br.open(url)) as r:
-            last_part_name = r.geturl().split('/')[-1]
-            disposition = r.info().get('Content-disposition', '')
-            for p in disposition.split(';'):
-                if 'filename' in p:
-                    if '*=' in disposition:
-                        parts = disposition.split('*=')[-1]
-                        filename = parts.split('\'')[-1]
-                    else:
-                        filename = disposition.split('=')[-1]
-                    if filename[0] in ('\'', '"'):
-                        filename = filename[1:]
-                    if filename[-1] in ('\'', '"'):
-                        filename = filename[:-1]
-                    filename = urllib2_unquote(filename)
-                    break
-    except:
-        import traceback
-        traceback.print_exc()
-
-    if not filename:
-        filename = last_part_name
-
-    return filename
-
 def human_readable(size, sep=' '):
     """ Convert a size in bytes into a human readable form """
     divisor, suffix = 1, "B"

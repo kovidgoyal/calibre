@@ -11,12 +11,43 @@ import shutil
 from contextlib import closing
 from mechanize import MozillaCookieJar
 
-from calibre import browser, get_download_filename
+from calibre import browser
+from calibre.constants import __appname__, __version__
 from calibre.ebooks import BOOK_EXTENSIONS
 from calibre.gui2 import Dispatcher
 from calibre.gui2.threaded_jobs import ThreadedJob
 from calibre.ptempfile import PersistentTemporaryDirectory
 from calibre.utils.filenames import ascii_filename
+from calibre.web import get_download_filename_from_response
+
+def get_download_filename(response):
+    filename = get_download_filename_from_response(response)
+    filename, ext = os.path.splitext(filename)
+    filename = filename[:60] + ext
+    filename = ascii_filename(filename)
+    return filename
+
+def download_file(url, cookie_file=None, filename=None):
+    user_agent = None
+    if url.startswith('http://www.gutenberg.org'):
+        # Project Gutenberg returns an HTML page if the user agent is a normal
+        # browser user agent
+        user_agent = '%s/%s' % (__appname__, __version__)
+    br = browser(user_agent=user_agent)
+    if cookie_file:
+        cj = MozillaCookieJar()
+        cj.load(cookie_file)
+        br.set_cookiejar(cj)
+    with closing(br.open(url)) as r:
+        if not filename:
+            filename = get_download_filename(r)
+        temp_path = os.path.join(PersistentTemporaryDirectory(), filename)
+        with open(temp_path, 'w+b') as tf:
+            shutil.copyfileobj(r, tf)
+            dfilename = tf.name
+
+    return dfilename
+
 
 class EbookDownload(object):
 
@@ -36,32 +67,12 @@ class EbookDownload(object):
                 pass
 
     def _download(self, cookie_file, url, filename, save_loc, add_to_lib):
-        dfilename = ''
-
         if not url:
             raise Exception(_('No file specified to download.'))
         if not save_loc and not add_to_lib:
             # Nothing to do.
-            return dfilename
-
-        if not filename:
-            filename = get_download_filename(url, cookie_file)
-            filename, ext = os.path.splitext(filename)
-            filename = filename[:60] + ext
-            filename = ascii_filename(filename)
-
-        br = browser()
-        if cookie_file:
-            cj = MozillaCookieJar()
-            cj.load(cookie_file)
-            br.set_cookiejar(cj)
-        with closing(br.open(url)) as r:
-            temp_path = os.path.join(PersistentTemporaryDirectory(), filename)
-            tf = open(temp_path, 'w+b')
-            tf.write(r.read())
-            dfilename = tf.name
-
-        return dfilename
+            return ''
+        return download_file(url, cookie_file, filename)
 
     def _add(self, filename, gui, add_to_lib, tags):
         if not add_to_lib or not filename:
@@ -90,7 +101,9 @@ gui_ebook_download = EbookDownload()
 
 def start_ebook_download(callback, job_manager, gui, cookie_file=None, url='', filename='', save_loc='', add_to_lib=True, tags=[]):
     description = _('Downloading %s') % filename.decode('utf-8', 'ignore') if filename else url.decode('utf-8', 'ignore')
-    job = ThreadedJob('ebook_download', description, gui_ebook_download, (gui, cookie_file, url, filename, save_loc, add_to_lib, tags), {}, callback, max_concurrent_count=2, killable=False)
+    job = ThreadedJob('ebook_download', description, gui_ebook_download, (
+        gui, cookie_file, url, filename, save_loc, add_to_lib, tags), {},
+                      callback, max_concurrent_count=2, killable=False)
     job_manager.run_threaded_job(job)
 
 

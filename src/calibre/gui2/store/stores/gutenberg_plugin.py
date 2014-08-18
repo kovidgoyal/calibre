@@ -21,10 +21,67 @@ from calibre.gui2.store.basic_config import BasicStoreConfig
 from calibre.gui2.store.opensearch_store import OpenSearchOPDSStore
 from calibre.gui2.store.search_result import SearchResult
 
+web_url = 'http://m.gutenberg.org/'
+
+def search(query, max_results=10, timeout=60):
+    url = 'http://m.gutenberg.org/ebooks/search.opds/?query=' + urllib.quote_plus(query)
+
+    counter = max_results
+    br = browser(user_agent='calibre/'+__version__)
+    with closing(br.open(url, timeout=timeout)) as f:
+        doc = etree.fromstring(f.read())
+        for data in doc.xpath('//*[local-name() = "entry"]'):
+            if counter <= 0:
+                break
+
+            counter -= 1
+
+            s = SearchResult()
+
+            # We could use the <link rel="alternate" type="text/html" ...> tag from the
+            # detail odps page but this is easier.
+            id = ''.join(data.xpath('./*[local-name() = "id"]/text()')).strip()
+            s.detail_item = url_slash_cleaner('%s/ebooks/%s' % (web_url, re.sub('[^\d]', '', id)))
+            if not s.detail_item:
+                continue
+
+            s.title = ' '.join(data.xpath('./*[local-name() = "title"]//text()')).strip()
+            s.author = ', '.join(data.xpath('./*[local-name() = "content"]//text()')).strip()
+            if not s.title or not s.author:
+                continue
+
+            # Get the formats and direct download links.
+            with closing(br.open(id, timeout=timeout/4)) as nf:
+                ndoc = etree.fromstring(nf.read())
+                for link in ndoc.xpath('//*[local-name() = "link" and @rel = "http://opds-spec.org/acquisition"]'):
+                    type = link.get('type')
+                    href = link.get('href')
+                    if type:
+                        ext = mimetypes.guess_extension(type)
+                        if ext:
+                            ext = ext[1:].upper().strip()
+                            s.downloads[ext] = href
+
+            s.formats = ', '.join(s.downloads.keys())
+            if not s.formats:
+                continue
+
+            for link in data.xpath('./*[local-name() = "link"]'):
+                rel = link.get('rel')
+                href = link.get('href')
+                type = link.get('type')
+
+                if rel and href and type:
+                    if rel in ('http://opds-spec.org/thumbnail', 'http://opds-spec.org/image/thumbnail'):
+                        if href.startswith('data:image/png;base64,'):
+                            s.cover_data = base64.b64decode(href.replace('data:image/png;base64,', ''))
+
+            yield s
+
 class GutenbergStore(BasicStoreConfig, OpenSearchOPDSStore):
 
     open_search_url = 'http://www.gutenberg.org/catalog/osd-books.xml'
-    web_url = 'http://m.gutenberg.org/'
+    web_url = web_url
 
     def search(self, query, max_results=10, timeout=60):
         '''
@@ -48,57 +105,5 @@ class GutenbergStore(BasicStoreConfig, OpenSearchOPDSStore):
           * Images are not links but base64 encoded strings. They are also not
             real cover images but a little blue book thumbnail.
         '''
-
-        url = 'http://m.gutenberg.org/ebooks/search.opds/?query=' + urllib.quote_plus(query)
-
-        counter = max_results
-        br = browser(user_agent='calibre/'+__version__)
-        with closing(br.open(url, timeout=timeout)) as f:
-            doc = etree.fromstring(f.read())
-            for data in doc.xpath('//*[local-name() = "entry"]'):
-                if counter <= 0:
-                    break
-
-                counter -= 1
-
-                s = SearchResult()
-
-                # We could use the <link rel="alternate" type="text/html" ...> tag from the
-                # detail odps page but this is easier.
-                id = ''.join(data.xpath('./*[local-name() = "id"]/text()')).strip()
-                s.detail_item = url_slash_cleaner('%s/ebooks/%s' % (self.web_url, re.sub('[^\d]', '', id)))
-                if not s.detail_item:
-                    continue
-
-                s.title = ' '.join(data.xpath('./*[local-name() = "title"]//text()')).strip()
-                s.author = ', '.join(data.xpath('./*[local-name() = "content"]//text()')).strip()
-                if not s.title or not s.author:
-                    continue
-
-                # Get the formats and direct download links.
-                with closing(br.open(id, timeout=timeout/4)) as nf:
-                    ndoc = etree.fromstring(nf.read())
-                    for link in ndoc.xpath('//*[local-name() = "link" and @rel = "http://opds-spec.org/acquisition"]'):
-                        type = link.get('type')
-                        href = link.get('href')
-                        if type:
-                            ext = mimetypes.guess_extension(type)
-                            if ext:
-                                ext = ext[1:].upper().strip()
-                                s.downloads[ext] = href
-
-                s.formats = ', '.join(s.downloads.keys())
-                if not s.formats:
-                    continue
-
-                for link in data.xpath('./*[local-name() = "link"]'):
-                    rel = link.get('rel')
-                    href = link.get('href')
-                    type = link.get('type')
-
-                    if rel and href and type:
-                        if rel in ('http://opds-spec.org/thumbnail', 'http://opds-spec.org/image/thumbnail'):
-                            if href.startswith('data:image/png;base64,'):
-                                s.cover_data = base64.b64decode(href.replace('data:image/png;base64,', ''))
-
-                yield s
+        for result in search(query, max_results, timeout):
+            yield result
