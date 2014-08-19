@@ -2,6 +2,8 @@
 
 #include <qpa/qplatformintegration.h>
 #include <qpa/qplatformscreen.h>
+#include <qpa/qplatformservices.h>
+#include <QtPlatformSupport/private/qgenericunixservices_p.h>
 #include <QScopedPointer>
 
 QT_BEGIN_NAMESPACE
@@ -41,8 +43,11 @@ public:
 
     static HeadlessIntegration *instance();
 
+    virtual QPlatformServices *services() const { return platform_services.data(); }
+
 private:
     QScopedPointer<QPlatformFontDatabase> m_fontDatabase;
+    QScopedPointer<QPlatformServices> platform_services;
 };
 
 QT_END_NAMESPACE

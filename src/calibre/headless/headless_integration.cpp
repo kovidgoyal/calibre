@@ -25,6 +25,8 @@ HeadlessIntegration::HeadlessIntegration(const QStringList &parameters)
 
     screenAdded(mPrimaryScreen);
     m_fontDatabase.reset(new QFontconfigDatabase());
+
+    platform_services.reset(new QGenericUnixServices());
 }
 
 HeadlessIntegration::~HeadlessIntegration()

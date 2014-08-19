@@ -1032,6 +1032,9 @@ class SanitizeLibraryPath(object):
                 os.environ[var] = orig
 
 def open_url(qurl):
+    # Qt 5 requires QApplication to be constructed before trying to use
+    # QDesktopServices::openUrl()
+    ensure_app()
     if isinstance(qurl, basestring):
         qurl = QUrl(qurl)
     with SanitizeLibraryPath():
@@ -1057,6 +1060,14 @@ def open_local_file(path):
         url = QUrl.fromLocalFile(path)
         open_url(url)
 
+def ensure_app():
+    global _store_app
+    if _store_app is None and QApplication.instance() is None:
+        args = sys.argv[:1]
+        if islinux or isbsd:
+            args += ['-platformpluginpath', sys.extensions_location, '-platform', 'headless']
+        _store_app = QApplication(args)
+
 def must_use_qt():
     ''' This function should be called if you want to use Qt for some non-GUI
     task like rendering HTML/SVG or using a headless browser. It will raise a
@@ -1064,11 +1075,7 @@ def must_use_qt():
     thread is not the main GUI thread. On linux, it uses a special QPA headless
     plugin, so that the X server does not need to be running. '''
     global gui_thread, _store_app
-    if _store_app is None and QApplication.instance() is None:
-        args = sys.argv[:1]
-        if islinux or isbsd:
-            args += ['-platformpluginpath', sys.extensions_location, '-platform', 'headless']
-        _store_app = QApplication(args)
+    ensure_app()
     if gui_thread is None:
         gui_thread = QThread.currentThread()
     if gui_thread is not QThread.currentThread():
