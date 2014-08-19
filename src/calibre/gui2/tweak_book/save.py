@@ -99,6 +99,7 @@ class SaveManager(QObject):
     start_save = pyqtSignal()
     report_error = pyqtSignal(object)
     save_done = pyqtSignal()
+    check_for_completion = pyqtSignal()
 
     def __init__(self, parent, notify=None):
         QObject.__init__(self, parent)
@@ -128,14 +129,17 @@ class SaveManager(QObject):
                 self.requests.task_done()
                 self.__empty_queue()
                 break
+            error_occurred = True
             try:
                 count, tdir, container = x
-                self.process_save(count, tdir, container)
+                error_occurred = self.process_save(count, tdir, container)
             except:
                 import traceback
                 traceback.print_exc()
             finally:
                 self.requests.task_done()
+            if not error_occurred:
+                self.check_for_completion.emit()
 
     def notify_calibre(self):
         while True:
@@ -162,14 +166,17 @@ class SaveManager(QObject):
             return
         self.last_saved = count
         self.start_save.emit()
+        error_occurred = False
         try:
             self.do_save(tdir, container)
         except:
             import traceback
             self.report_error.emit(traceback.format_exc())
+            error_occurred = True
         self.save_done.emit()
         if self.notify_data:
             self.notify_requests.put(True)
+        return error_occurred
 
     def do_save(self, tdir, container):
         try:

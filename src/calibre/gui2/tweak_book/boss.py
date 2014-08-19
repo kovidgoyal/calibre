@@ -12,7 +12,7 @@ from urlparse import urlparse
 
 from PyQt5.Qt import (
     QObject, QApplication, QDialog, QGridLayout, QLabel, QSize, Qt,
-    QDialogButtonBox, QIcon, QTimer, QPixmap, QInputDialog, QUrl)
+    QDialogButtonBox, QIcon, QPixmap, QInputDialog, QUrl)
 
 from calibre import prints, isbytestring
 from calibre.ptempfile import PersistentTemporaryDirectory, TemporaryDirectory
@@ -76,6 +76,7 @@ class Boss(QObject):
         self.tdir = None
         self.save_manager = SaveManager(parent, notify)
         self.save_manager.report_error.connect(self.report_save_error)
+        self.save_manager.check_for_completion.connect(self.check_terminal_save)
         self.doing_terminal_save = False
         self.ignore_preview_to_editor_sync = False
         setup_cssutils_serialization()
@@ -951,8 +952,8 @@ class Boss(QObject):
     def report_save_error(self, tb):
         if self.doing_terminal_save:
             prints(tb, file=sys.stderr)
-            return
-        self.gui.action_save.setEnabled(True)
+            self.abort_terminal_save()
+        self.set_modified()
         error_dialog(self.gui, _('Could not save'),
                      _('Saving of the book failed. Click "Show Details"'
                        ' for more information. You can try to save a copy'
@@ -1370,13 +1371,15 @@ class Boss(QObject):
         self.gui.blocking_job.set_msg(_('Saving, please wait...'))
         self.gui.blocking_job.start()
         self.doing_terminal_save = True
-        QTimer.singleShot(50, self.check_terminal_save)
+
+    def abort_terminal_save(self):
+        self.doing_terminal_save = False
+        self.gui.blocking_job.stop()
 
     def check_terminal_save(self):
-        if self.save_manager.has_tasks:
-            return QTimer.singleShot(50, self.check_terminal_save)
-        self.shutdown()
-        QApplication.instance().quit()
+        if self.doing_terminal_save and not self.save_manager.has_tasks:  # terminal save could have been aborted
+            self.shutdown()
+            QApplication.instance().quit()
 
     def shutdown(self):
         self.gui.preview.stop_refresh_timer()
