@@ -169,6 +169,7 @@ class Main(MainWindow):
         c.setObjectName('centralwidget')
         self.setCentralWidget(c)
         self.central_layout = cl = QGridLayout(c)
+        cl.setSpacing(0)
         c.setLayout(cl), cl.setContentsMargins(0, 0, 0, 0)
 
         self.view = v = DocumentView(self)

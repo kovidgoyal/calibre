@@ -294,7 +294,6 @@ class EbookViewer(MainWindow):
         self.was_maximized = self.isMaximized()
         if not self.view.document.fullscreen_scrollbar:
             self.vertical_scrollbar.setVisible(False)
-        self.centralwidget.layout().setContentsMargins(0, 0, 0, 0)
 
         super(EbookViewer, self).showFullScreen()
 
