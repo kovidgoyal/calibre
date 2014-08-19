@@ -1382,6 +1382,7 @@ class Boss(QObject):
             QApplication.instance().quit()
 
     def shutdown(self):
+        self.save_manager.check_for_completion.disconnect()
         self.gui.preview.stop_refresh_timer()
         self.gui.live_css.stop_update_timer()
         self.save_state()
