@@ -1,7 +1,7 @@
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import sys, os, time, socket, traceback
+import sys, os, time, socket, traceback, re
 from functools import partial
 
 import apsw
@@ -349,14 +349,16 @@ def run_gui(opts, args, listener, app, gui_debug=None):
                 pass
     if getattr(runner.main, 'gui_debug', None) is not None:
         e = sys.executable if getattr(sys, 'frozen', False) else sys.argv[0]
-        import subprocess
-        creationflags = 0
+        debugfile = runner.main.gui_debug
+        from calibre.gui2 import open_local_file
         if iswindows:
-            import win32process
-            creationflags = win32process.CREATE_NO_WINDOW
-        subprocess.Popen([e, '--show-gui-debug', runner.main.gui_debug],
-            creationflags=creationflags, stdout=open(os.devnull, 'w'),
-            stderr=subprocess.PIPE, stdin=open(os.devnull, 'r'))
+            with open(debugfile, 'r+b') as f:
+                raw = f.read()
+                raw = re.sub(b'(?<!\r)\n', b'\r\n', raw)
+                f.seek(0)
+                f.truncate()
+                f.write(raw)
+        open_local_file(debugfile)
     return ret
 
 def cant_start(msg=_('If you are sure it is not running')+', ',

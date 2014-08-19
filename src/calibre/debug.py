@@ -41,9 +41,6 @@ Everything after the -- is passed to the script.
                       help=_('Run the GUI with a debug console, logging to the'
                       ' specified path. For internal use only, use the -g'
                       ' option to run the GUI in debug mode'))
-    parser.add_option('--show-gui-debug',  default=None,
-                      help=_('Display the specified log file. For internal use'
-                      ' only.'))
     parser.add_option('-w', '--viewer',  default=False, action='store_true',
                       help=_('Run the ebook viewer in debug mode'))
     parser.add_option('--paths', default=False, action='store_true',
@@ -220,18 +217,6 @@ def main(args=sys.argv):
         main(['calibre'])
     elif opts.gui_debug is not None:
         run_debug_gui(opts.gui_debug)
-    elif opts.show_gui_debug:
-        import time, re
-        time.sleep(1)
-        from calibre.gui2 import open_local_file
-        if iswindows:
-            with open(opts.show_gui_debug, 'r+b') as f:
-                raw = f.read()
-                raw = re.sub('(?<!\r)\n', '\r\n', raw)
-                f.seek(0)
-                f.truncate()
-                f.write(raw)
-        open_local_file(opts.show_gui_debug)
     elif opts.viewer:
         from calibre.gui2.viewer.main import main
         main(['ebook-viewer'] + args[1:])
