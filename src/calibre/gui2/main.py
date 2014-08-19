@@ -462,7 +462,7 @@ def main(args=sys.argv):
     otherinstance = False
     try:
         listener = create_listener()
-    except socket.error:  # Good si is correct (on UNIX)
+    except socket.error:  # Good singleinstance is correct (on UNIX)
         otherinstance = True
     else:
         # On windows only singleinstance can be trusted
