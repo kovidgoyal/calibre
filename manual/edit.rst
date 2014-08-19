@@ -25,6 +25,10 @@ You can use this editor by right clicking on any book in |app| and selecting
 Basic workflow
 ---------------
 
+.. note::
+    A video tour of the |app| editor is available `here
+    <http://calibre-ebook.com/demo#tutorials>`_.
+
 When you first open a book with the Edit book tool, you will be presented with
 a list of files on the left. These are the individual HTML files, stylesheets,
 images, etc. that make up the content of the book. Simply double click on a
