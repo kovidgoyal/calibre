@@ -91,7 +91,7 @@ class OptionParser(optparse.OptionParser):
         if epilog is None:
             epilog = _('Created by ')+colored(__author__, fg='cyan')
         usage += '\n\n'+_('''Whenever you pass arguments to %prog that have spaces in them, '''
-                 '''enclose the arguments in quotation marks.''')+'\n'
+                          '''enclose the arguments in quotation marks. For example "C:\\some path with spaces"''')+'\n'
         if version is None:
             version = '%%prog (%s %s)'%(__appname__, get_version())
         optparse.OptionParser.__init__(self, usage=usage, version=version, epilog=epilog,
@@ -176,7 +176,7 @@ class OptionParser(optparse.OptionParser):
         non default values in lower.
         '''
         for dest in lower.__dict__.keys():
-            if not dest in upper.__dict__:
+            if dest not in upper.__dict__:
                 continue
             opt = self.option_by_dest(dest)
             if lower.__dict__[dest] != opt.default and \
