@@ -756,19 +756,23 @@ class EbookViewer(MainWindow):
         self.bookmarks.set_bookmarks(bookmarks)
         return self.build_bookmarks_menu(bookmarks)
 
+    @property
+    def current_page_bookmark(self):
+        bm = self.view.bookmark()
+        bm['spine'] = self.current_index
+        bm['title'] = 'calibre_current_page_bookmark'
+        return bm
+
     def save_current_position(self):
         if not self.get_remember_current_page_opt():
             return
         if hasattr(self, 'current_index'):
             try:
-                bm = self.view.bookmark()
-                bm['spine'] = self.current_index
-                bm['title'] = 'calibre_current_page_bookmark'
-                self.iterator.add_bookmark(bm)
+                self.iterator.add_bookmark(self.current_page_bookmark)
             except:
                 traceback.print_exc()
 
-    def load_ebook(self, pathtoebook, open_at=None):
+    def load_ebook(self, pathtoebook, open_at=None, reopen_at=None):
         if self.iterator is not None:
             self.save_current_position()
             self.iterator.__exit__()
@@ -830,6 +834,8 @@ class EbookViewer(MainWindow):
             self.current_index = -1
             QApplication.instance().alert(self, 5000)
             previous = self.set_bookmarks(self.iterator.bookmarks)
+            if reopen_at is not None:
+                previous = reopen_at
             if open_at is None and previous is not None:
                 self.goto_bookmark(previous)
             else:
@@ -913,7 +919,11 @@ class EbookViewer(MainWindow):
 
     def reload_book(self):
         if getattr(self.iterator, 'pathtoebook', None):
-            self.load_ebook(self.iterator.pathtoebook)
+            try:
+                reopen_at = self.current_page_bookmark
+            except Exception:
+                reopen_at = None
+            self.load_ebook(self.iterator.pathtoebook, reopen_at=reopen_at)
             return
 
     def __enter__(self):
