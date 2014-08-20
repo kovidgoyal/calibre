@@ -13,19 +13,21 @@ class My_Feeds(BasicNewsRecipe):
     no_stylesheets 		   = True
     remove_javascript 	   = True
     center_navbar 		   = True
-    use_embedded_content   = True
+    use_embedded_content   = False
     remove_empty_feeds     = True
     remove_tags_before 	   = dict(name='div', id='PageContent')
     remove_tags_after 	   = [dict(name='div'),{'class':'taxonomy-terms'}]
-    remove_tags 		   =[dict(id=['comments','breadcrumb','node_related_stories']),
-							dict(attrs={'class':['commentCount', 'box']})
-							]
-    
-    feeds 		 = [(u'editor', u'http://www.downtoearth.org.in/taxonomy/term/20348/0/feed'), 
-					(u'cover story', u'http://www.downtoearth.org.in/taxonomy/term/20345/0/feed'), 
-					(u'special report', u'http://www.downtoearth.org.in/taxonomy/term/20384/0/feed'), 
-					(u'features', u'http://www.downtoearth.org.in/taxonomy/term/20350/0/feed'), 
-					(u'news', u'http://www.downtoearth.org.in/taxonomy/term/20366/0/feed'), 
-					(u'debate', u'http://www.downtoearth.org.in/taxonomy/term/20347/0/feed'), 
-					(u'natural disasters', u'http://www.downtoearth.org.in/taxonomy/term/20822/0/feed')
-					]
+    remove_tags 		   = [
+        dict(id=['comments','breadcrumb','node_related_stories']),
+        dict(attrs={'class':['commentCount', 'box']})
+    ]
+
+    feeds 		 = [
+        (u'editor', u'http://www.downtoearth.org.in/taxonomy/term/20348/0/feed'),
+        (u'cover story', u'http://www.downtoearth.org.in/taxonomy/term/20345/0/feed'),
+        (u'special report', u'http://www.downtoearth.org.in/taxonomy/term/20384/0/feed'),
+        (u'features', u'http://www.downtoearth.org.in/taxonomy/term/20350/0/feed'),
+        (u'news', u'http://www.downtoearth.org.in/taxonomy/term/20366/0/feed'),
+        (u'debate', u'http://www.downtoearth.org.in/taxonomy/term/20347/0/feed'),
+        (u'natural disasters', u'http://www.downtoearth.org.in/taxonomy/term/20822/0/feed')
+    ]
