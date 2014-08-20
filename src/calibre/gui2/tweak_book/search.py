@@ -370,6 +370,8 @@ class SearchPanel(QWidget):  # {{{
     def show_panel(self):
         self.setVisible(True)
         self.widget.find_text.setFocus(Qt.OtherFocusReason)
+        le = self.widget.find_text.lineEdit()
+        le.setSelection(0, le.maxLength())
 
     @property
     def state(self):
