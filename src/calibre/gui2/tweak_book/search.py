@@ -10,6 +10,7 @@ import json, copy
 from functools import partial
 from collections import OrderedDict
 
+import sip
 from PyQt5.Qt import (
     QWidget, QToolBar, Qt, QHBoxLayout, QSize, QIcon, QGridLayout, QLabel, QTimer,
     QPushButton, pyqtSignal, QComboBox, QCheckBox, QSizePolicy, QVBoxLayout, QFont,
@@ -466,6 +467,9 @@ class EditSearch(Dialog):  # {{{
             self.dot_all.setChecked(state['dot_all'])
             self.mode_box.mode = state.get('mode')
 
+    def show(self):
+        Dialog.show(self), self.raise_(), self.activateWindow()
+
     def sizeHint(self):
         ans = Dialog.sizeHint(self)
         ans.setWidth(600)
@@ -712,7 +716,14 @@ class SavedSearches(Dialog):
             return
         self.run_saved_searches.emit(searches, action)
 
+    @property
+    def editing_search(self):
+        d = getattr(self, 'current_edit_search', None)
+        return d is not None and not sip.isdeleted(d) and d.isVisible()
+
     def move_entry(self, delta):
+        if self.editing_search:
+            return
         rows = {index.row() for index in self.searches.selectionModel().selectedIndexes()} - {-1}
         if rows:
             with tprefs:
@@ -726,33 +737,40 @@ class SavedSearches(Dialog):
 
     def edit_search(self):
         index = self.searches.currentIndex()
-        if index.isValid():
+        if index.isValid() and not self.editing_search:
             search_index, search = index.data(Qt.UserRole)
-            d = EditSearch(search=search, search_index=search_index, parent=self)
-            if d.exec_() == d.Accepted:
-                self.model.dataChanged.emit(index, index)
+            d = self.current_edit_search = EditSearch(search=search, search_index=search_index, parent=self)
+            d.accepted.connect(partial(self.model.dataChanged.emit, index, index))
+            d.show()
 
     def remove_search(self):
+        if self.editing_search:
+            return
         rows = {index.row() for index in self.searches.selectionModel().selectedIndexes()} - {-1}
         self.model.remove_searches(rows)
         self.show_details()
 
     def add_search(self):
-        d = EditSearch(parent=self)
-        self._add_search(d)
+        if self.editing_search:
+            return
+        self.current_edit_search = d = EditSearch(parent=self)
+        d.accepted.connect(self._add_search)
+        d.show()
 
-    def _add_search(self, d):
-        if d.exec_() == d.Accepted:
-            self.model.add_searches()
-            index = self.model.index(self.model.rowCount() - 1)
-            self.searches.scrollTo(index)
-            sm = self.searches.selectionModel()
-            sm.setCurrentIndex(index, sm.ClearAndSelect)
-            self.show_details()
+    def _add_search(self):
+        self.model.add_searches()
+        index = self.model.index(self.model.rowCount() - 1)
+        self.searches.scrollTo(index)
+        sm = self.searches.selectionModel()
+        sm.setCurrentIndex(index, sm.ClearAndSelect)
+        self.show_details()
 
     def add_predefined_search(self, state):
-        d = EditSearch(parent=self, state=state)
-        self._add_search(d)
+        if self.editing_search:
+            return
+        self.current_edit_search = d = EditSearch(parent=self, state=state)
+        d.accepted.connect(self._add_search)
+        d.show()
 
     def show_details(self):
         self.description.setText(' \n \n ')
