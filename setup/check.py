@@ -41,7 +41,7 @@ class Check(Command):
                     continue
                 if (f.endswith('.py') and f not in (
                         'feedparser.py', 'markdown.py') and
-                        'prs500/driver.py' not in y):
+                        'prs500/driver.py' not in y) and not f.endswith('_ui.py'):
                     yield y, mtime
                 if f.endswith('.coffee'):
                     yield y, mtime
