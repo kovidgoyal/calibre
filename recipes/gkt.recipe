@@ -2,7 +2,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class Politics(BasicNewsRecipe):
-    title          = u'General Knowledge Today '
+    title          = u'General Knowledge Today'
     language       = 'en_IN'
     __author__     = 'Kanika G'
     oldest_article = 7  # days
@@ -10,8 +10,24 @@ class Politics(BasicNewsRecipe):
     use_embedded_content = False
 
     no_stylesheets = True
+    no_javascript = True
     auto_cleanup = True
 
-    feeds          = [
-        ('General Knowledge Today', 'http://feeds.feedburner.com/GeneralKnowledgeToday'),
-    ]
+    def parse_index(self):
+        soup = self.index_to_soup('http://www.gktoday.in/')
+
+        # Find TOC
+        toc = soup.find('div', attrs={'class':'entry clearfix'})
+        articles = []
+        for li in toc.findAll('li'):
+            a = li.find('a')
+            info = self.tag_to_string(a)
+            url = a['href']
+            desc = ''
+            self.log('Found article:', info)
+            self.log('\t', url)
+            self.log('\t', desc)
+            articles.append({'title':info, 'url':url, 'date':'',
+                'description':desc})
+
+        return [('Current Issue', articles)]
