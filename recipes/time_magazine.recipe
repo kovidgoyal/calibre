@@ -12,10 +12,6 @@ time.com
 from calibre.web.feeds.jsnews import JavascriptRecipe
 from lxml import html
 
-def wait_for_load(browser):
-    # This element is present next to the main TIME logo in the left hand side nav bar
-    browser.wait_for_element('.signedin-wrap a[href]', timeout=180)
-
 # Keep the login method as standalone, so it can be easily tested
 def do_login(browser, username, password):
     from calibre.web.jsbrowser.browser import Timeout
@@ -25,10 +21,17 @@ def do_login(browser, username, password):
     form['password'] = password
     browser.submit('#Sign_In')
     try:
-        wait_for_load(browser)
+        browser.wait_for_element('body.is-signed-in', timeout=180)
     except Timeout:
         raise ValueError('Failed to login to time.com, check your username and password and try again in a little while.')
 
+def evaljs(elem, js):
+    # Need this to work with both PyQt4 and PyQt5
+    ret = elem.evaluateJavaScript(js)
+    try:
+        return unicode(ret.toString())
+    except AttributeError:
+        return unicode(ret)
 
 class Time(JavascriptRecipe):
     title                 = u'Time'
@@ -50,7 +53,8 @@ class Time(JavascriptRecipe):
         selector = '#rail-articles img.magazine-thumb'
         cover = browser.css_select(selector)
         # URL for large cover
-        cover_url = unicode(cover.evaluateJavaScript('this.src').toString()).partition('?')[0] + '?w=814'
+        cover_url = evaljs(cover, 'this.src')
+        cover_url = cover_url.partition('?')[0] + '?w=814'
         return browser.get_resource(cover_url)
 
     def get_publication_data(self, browser):
@@ -74,6 +78,8 @@ class Time(JavascriptRecipe):
             desc = ''
             if h2:
                 desc = html.tostring(h2[0], encoding=unicode, method='text').strip()
+            if title.strip() == 'In the Latest Issue':
+                continue
             self.log('\nFound article:', title)
             self.log('\t' + desc)
             articles.append({'title':title, 'url':url, 'date':'', 'description':desc})
