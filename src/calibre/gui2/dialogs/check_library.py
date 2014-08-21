@@ -8,7 +8,7 @@ from threading import Thread
 
 from PyQt5.Qt import (
     QDialog, QVBoxLayout, QHBoxLayout, QTreeWidget, QLabel, QPushButton,
-    QDialogButtonBox, QApplication, QTreeWidgetItem, QLineEdit, Qt, QSize,
+    QApplication, QTreeWidgetItem, QLineEdit, Qt, QSize,
     QTimer, QIcon, QTextEdit, QSplitter, QWidget, QGridLayout, pyqtSignal)
 
 from calibre.gui2.dialogs.confirm_delete import confirm
