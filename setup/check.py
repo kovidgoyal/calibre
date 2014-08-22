@@ -80,7 +80,7 @@ class Check(Command):
         cPickle.dump(cache, open(self.CACHE, 'wb'), -1)
         wn_path = os.path.expanduser('~/work/servers/src/calibre_servers/main')
         if os.path.exists(wn_path):
-            sys.path.insert(0, wn_path)
+            sys.path.insert(0, self.d(self.d(wn_path))), sys.path.insert(0, wn_path)
             self.info('\tChecking Changelog...')
             os.environ['DJANGO_SETTINGS_MODULE'] = 'calibre_servers.status.settings'
             import whats_new
