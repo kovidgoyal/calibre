@@ -250,9 +250,9 @@ class UploadDemo(Command):  # {{{
            '''--mono-family  "/usr/share/fonts/corefonts, Andale Mono" '''
            ''''''%self.j(self.SRC, HTML2LRF), shell=True)
 
+        lrf = self.j(self.SRC, 'calibre', 'ebooks', 'lrf', 'html', 'demo')
         check_call(
-            'cd src/calibre/ebooks/lrf/html/demo/ && '
-            'zip -j /tmp/html-demo.zip * /tmp/html2lrf.lrf', shell=True)
+            'cd %s && zip -j /tmp/html-demo.zip * /tmp/html2lrf.lrf' % lrf, shell=True)
 
         check_call('scp /tmp/html-demo.zip divok:%s/'%(DOWNLOADS,), shell=True)
 # }}}

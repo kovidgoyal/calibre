@@ -106,14 +106,18 @@ class Manual(Command):
         self.info('Building manual for %d languages' % len(jobs))
         if not parallel_build(jobs, self.info):
             raise SystemExit(1)
-        os.chdir(self.j(tdir, 'en', 'html'))
-        for x in os.listdir(tdir):
-            if x != 'en':
-                shutil.copytree(self.j(tdir, x, 'html'), x)
-                self.replace_with_symlinks(x)
-            else:
-                os.symlink('..', 'en')
-        self.info('Built manual for %d languages in %s minutes' % (len(jobs), int((time.time() - st)/60.)))
+        cwd = os.getcwdu()
+        try:
+            os.chdir(self.j(tdir, 'en', 'html'))
+            for x in os.listdir(tdir):
+                if x != 'en':
+                    shutil.copytree(self.j(tdir, x, 'html'), x)
+                    self.replace_with_symlinks(x)
+                else:
+                    os.symlink('..', 'en')
+            self.info('Built manual for %d languages in %s minutes' % (len(jobs), int((time.time() - st)/60.)))
+        finally:
+            os.chdir(cwd)
 
     def replace_with_symlinks(self, lang_dir):
         ' Replace all identical files with symlinks to save disk space/upload bandwidth '
