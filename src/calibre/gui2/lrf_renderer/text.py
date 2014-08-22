@@ -327,7 +327,7 @@ class Link(QGraphicsRectItem):
         self.brush = self.__class__.inactive_brush
         self.setPen(QPen(Qt.NoPen))
         self.setCursor(Qt.PointingHandCursor)
-        self.setAcceptsHoverEvents(True)
+        self.setAcceptHoverEvents(True)
 
     def hoverEnterEvent(self, event):
         self.brush = self.__class__.active_brush
