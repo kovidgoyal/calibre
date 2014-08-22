@@ -20,6 +20,64 @@
 #   new recipes:
 #     - title: 
 
+- version: 2.0.0
+  date: 2014-08-21
+
+  new features:
+    - title: "For a summary of the major changes in calibre between 1.0 and 2.0, see http://calibre-ebook.com/new-in/eleven"
+      type: major
+
+    - title: "Add support for MTP devices (Android phones/tablets) on OS X"
+
+    - title: "Update the version of Qt used by calibre to Qt 5. This fixes various longstanding bugs in calibre that were caused by bugs in Qt 4."
+
+    - title: "Edit Book: Make the edit saved search/add saved search popup window non-modal."
+      tickets: [1354785]
+
+    - title: "Tag Browser: Show format specific icons for the format entries in the Tag Browser"
+
+    - title: "Library check: Add buttons to conveniently mark all fixable/deletable items."
+      tickets: [1353954]
+
+  bug fixes:
+    - title: "E-book viewer: Reloading the book now re-opens it at the current position even if the option to remember position when quitting is turned off"
+
+    - title: "E-book viewer: Remove extra spacing between document and scrollbars.  This is particularly noticeable when using a dark theme for the viewer."
+
+    - title: "PDF Output: Fix balanced parentheses in the text of items in the Table of Contents not being rendered properly by some PDF viewers."
+      tickets: [1358443]
+
+    - title: "Edit book: Abort terminal save on save error instead of quitting editor"
+
+    - title: "Get Books: Update the Project Gutenberg plugin for website changes"
+
+    - title: "Plugin loading: When multiple plugin classes are present in the __init__.py namespace, use the one with the qualified name that has the least components"
+
+    - title: "Edit Book: Prevent long saved searches from making the saved search dialog too wide"
+
+    - title: "Comic Input: Sort pages placed in sub-folders correctly (as long as all pages have the same number of parent folders)."
+
+    - title: "Conversion: Fix the word @page in a comment inside a stylesheet with no following {} causing the rest of the stylesheet to be ignored."
+
+    - title: "Fix comparing AZW3 to ORIGINAL_AZW3 from the book details panel not working"
+      tickets: [1354624] 
+
+  improved recipes:
+    - TIME Magazine
+    - The Atlantic
+    - Down to Earth
+    - Heraldo de Aragon
+    - Radikal (Turkey)
+    - Wired Daily Edition
+    - Orange County Register
+
+  new recipes:
+    - title: General Knowledge Today 
+      author: Kanika G
+
+    - title: BBC Arabic 
+      author: logophile777
+     
 - version: 1.48.0
   date: 2014-08-08
 
