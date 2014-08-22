@@ -445,7 +445,7 @@ def generate_index():  # {{{
                 if osx:
                     body.append('<dt>Apple Mac</dt><dd><a href="{0}" title="{1}">{1}</a></dd>'.format(
                         osx[0], 'OS X Disk Image (.dmg)'))
-                linux = [x for x in files if x.endswith('.txz')]
+                linux = [x for x in files if x.endswith('.txz') or x.endswith('tar.bz2')]
                 if linux:
                     linux = ['<li><a href="{0}" title="{1}">{1}</a></li>'.format(
                         x, 'Linux 64-bit binary' if 'x86_64' in x else 'Linux 32-bit binary')
