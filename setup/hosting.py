@@ -7,9 +7,9 @@ __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, time, sys, traceback, subprocess, urllib2, re, base64, httplib, shutil
+import os, time, sys, traceback, subprocess, urllib2, re, base64, httplib, shutil, glob
 from argparse import ArgumentParser, FileType
-from subprocess import check_call, CalledProcessError
+from subprocess import check_call, CalledProcessError, check_output
 from tempfile import NamedTemporaryFile
 from collections import OrderedDict
 
@@ -466,8 +466,10 @@ def generate_index():  # {{{
 
 # }}}
 
+SERVER_BASE = '/srv/download/'
+
 def upload_to_servers(files, version):  # {{{
-    base = '/srv/download/'
+    base = SERVER_BASE
     dest = os.path.join(base, version)
     if not os.path.exists(dest):
         os.mkdir(dest)
@@ -511,11 +513,19 @@ def upload_to_dbs(files, version):  # {{{
     sys.stdout.flush()
     server = 'mirror10.fosshub.com'
     rdir = 'release/'
-    check_call(['ssh', 'kovid@%s' % server, 'rm -f release/*'])
+    old_files = set(check_output(['ssh', 'kovid@' + server, 'ls ' + rdir]).decode('utf-8').split())
+    if len(files) < 7:
+        existing = set(map(os.path.basename, files))
+        # fosshub does not support partial re-uploads
+        for f in glob.glob('%s/%s/calibre-*' % (SERVER_BASE, version)):
+            if os.path.basename(f) not in existing:
+                files[f] = None
+
     for x in files:
         start = time.time()
         print ('Uploading', x)
         sys.stdout.flush()
+        old_files.discard(os.path.basename(x))
         for i in range(5):
             try:
                 check_call(['rsync', '-h', '-z', '--progress', '-e', 'ssh -x', x,
@@ -530,6 +540,8 @@ def upload_to_dbs(files, version):  # {{{
                 break
         print ('Uploaded in', int(time.time() - start), 'seconds\n\n')
         sys.stdout.flush()
+    if old_files:
+        check_call(['ssh', 'kovid@' + server, 'rm -f %s' % (' '.join(rdir + x for x in old_files))])
     try:
         check_call(['ssh', 'kovid@%s' % server, '/home/kovid/uploadFiles'])
     except CalledProcessError as err:
