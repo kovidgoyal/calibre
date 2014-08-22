@@ -796,7 +796,8 @@ There are several possible things I know of, that can cause this:
       See `How to set environment variables in windows <http://www.computerhope.com/issues/ch000549.htm>`_.
       Some |app| users have reported that uninstalling the SpiderOak encrypted
       backup software also fixes these crashes. If you do not wish to uninstall
-      tSpiderOak, you can also turn off "Enable OS integration" in the SpiderOak preferences.
+      SpiderOak, you can also turn off "Enable OS integration" in the SpiderOak
+      preferences.
 
 If none of the above apply to you, then there is some other program on your
 computer that is interfering with |app|. First reboot your computer in safe
