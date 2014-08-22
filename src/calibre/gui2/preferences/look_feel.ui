@@ -204,7 +204,7 @@
        <item row="8" column="0">
         <widget class="QLabel" name="label_4">
          <property name="text">
-          <string>Extra &amp;spacing to add between rows in the book list:</string>
+          <string>Extra &amp;spacing to add between rows in the book list (can be negative):</string>
          </property>
          <property name="buddy">
           <cstring>opt_book_list_extra_row_spacing</cstring>
