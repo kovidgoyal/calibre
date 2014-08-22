@@ -259,7 +259,7 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
         else:
             self.mi = Metadata(_('Title'), [_('Author')])
             self.mi.author_sort = _('Author Sort')
-            self.mi.series = _('Series')
+            self.mi.series = ngettext('Series', 'Series', 1)
             self.mi.series_index = 3
             self.mi.rating = 4.0
             self.mi.tags = [_('Tag 1'), _('Tag 2')]
