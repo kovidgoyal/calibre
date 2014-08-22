@@ -513,7 +513,18 @@ def upload_to_dbs(files, version):  # {{{
     sys.stdout.flush()
     server = 'mirror10.fosshub.com'
     rdir = 'release/'
-    old_files = set(check_output(['ssh', 'kovid@' + server, 'ls ' + rdir]).decode('utf-8').split())
+    def run_ssh(command, func=check_call):
+        cmd = ['ssh', '-x', 'kovid@%s' % server, command]
+        try:
+            return func(cmd)
+        except CalledProcessError as err:
+            # fosshub is being a little flaky sshing into it is failing the first
+            # time, needing a retry
+            if err.returncode != 255:
+                raise
+            return func(cmd)
+
+    old_files = set(run_ssh('ls ' + rdir, func=check_output).decode('utf-8').split())
     if len(files) < 7:
         existing = set(map(os.path.basename, files))
         # fosshub does not support partial re-uploads
@@ -540,17 +551,10 @@ def upload_to_dbs(files, version):  # {{{
                 break
         print ('Uploaded in', int(time.time() - start), 'seconds\n\n')
         sys.stdout.flush()
+
     if old_files:
-        check_call(['ssh', 'kovid@' + server, 'rm -f %s' % (' '.join(rdir + x for x in old_files))])
-    try:
-        check_call(['ssh', 'kovid@%s' % server, '/home/kovid/uploadFiles'])
-    except CalledProcessError as err:
-        # fosshub is being a little flaky sshing into it is failing the first
-        # time, needing a retry
-        if err.returncode == 255:
-            check_call(['ssh', 'kovid@%s' % server, '/home/kovid/uploadFiles'])
-        else:
-            raise
+        run_ssh('rm -f %s' % (' '.join(rdir + x for x in old_files)))
+    run_ssh('/home/kovid/uploadFiles')
 # }}}
 
 # CLI {{{
