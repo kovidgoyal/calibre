@@ -6,10 +6,10 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
-from functools import partial
 
 from PyQt5.Qt import (
-    QTextBrowser, QVBoxLayout, QDialog, QDialogButtonBox, QIcon, QLabel, QCheckBox)
+    QTextBrowser, QVBoxLayout, QDialog, QDialogButtonBox, QIcon, QLabel,
+    QCheckBox, Qt)
 
 from calibre.ebooks.oeb.polish.main import CUSTOMIZATION
 from calibre.gui2.tweak_book import tprefs
@@ -63,7 +63,7 @@ def show_report(changed, title, report, parent, show_current_diff):
     if changed:
         b = d.b = d.bb.addButton(_('See what &changed'), d.bb.AcceptRole)
         b.setIcon(QIcon(I('diff.png'))), b.setAutoDefault(False)
-        b.clicked.connect(partial(show_current_diff, allow_revert=True))
+        b.clicked.connect(lambda : show_current_diff(allow_revert=True), type=Qt.QueuedConnection)
     d.bb.button(d.bb.Close).setDefault(True)
     d.l.addWidget(d.bb)
     d.bb.rejected.connect(d.reject)
