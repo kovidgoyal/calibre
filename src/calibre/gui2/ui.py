@@ -21,7 +21,7 @@ from PyQt5.Qt import (Qt, QTimer, QHelpEvent, QAction,
                      QDialog, QSystemTrayIcon, QApplication)
 
 from calibre import prints, force_unicode
-from calibre.constants import __appname__, isosx, filesystem_encoding, DEBUG
+from calibre.constants import __appname__, isosx, filesystem_encoding, DEBUG, islinux, isbsd
 from calibre.utils.config import prefs, dynamic
 from calibre.utils.ipc.server import Server
 from calibre.db.legacy import LibraryDatabase
@@ -271,7 +271,10 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
         self.system_tray_icon.setToolTip('calibre')
         self.system_tray_icon.tooltip_requested.connect(
                 self.job_manager.show_tooltip)
-        if not config['systray_icon']:
+        systray_ok = config['systray_icon'] and not (islinux or isbsd)
+        # System tray icons are broken on linux, see
+        # https://bugreports.qt-project.org/browse/QTBUG-31762
+        if not systray_ok:
             self.system_tray_icon.hide()
         else:
             self.system_tray_icon.show()
