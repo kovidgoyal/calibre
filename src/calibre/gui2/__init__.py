@@ -14,7 +14,7 @@ ORG_NAME = 'KovidsBrain'
 APP_UID  = 'libprs500'
 from calibre import prints
 from calibre.constants import (islinux, iswindows, isbsd, isfrozen, isosx,
-        plugins, config_dir, filesystem_encoding, DEBUG)
+        plugins, config_dir, filesystem_encoding, DEBUG, isxp)
 from calibre.utils.config import Config, ConfigProxy, dynamic, JSONConfig
 from calibre.ebooks.metadata import MetaInformation
 from calibre.utils.date import UNDEFINED_DATE
@@ -925,6 +925,14 @@ class Application(QApplication):
         qt_app = self
         self._file_open_paths = []
         self._file_open_lock = RLock()
+
+        if isxp:
+            error_dialog(None, _('Windows XP not supported'), '<p>' + _(
+                'calibre versions newer than 2.0 do not run on Windows XP. This is'
+                ' because the graphics toolkit calibre uses (Qt 5) crashes a lot'
+                ' on Windows XP. We suggest you stay with <a href="%s">calibre 1.48</a>'
+                ' which works well on Windows XP.') % 'http://download.calibre-ebook.com/1.48.0/', show=True)
+            raise SystemExit(1)
 
     def load_builtin_fonts(self, scan_for_fonts=False):
         if scan_for_fonts:

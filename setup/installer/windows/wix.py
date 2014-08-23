@@ -14,10 +14,9 @@ from setup.build_environment import is64bit
 WIXP = r'C:\Program Files (x86)\WiX Toolset v3.8'
 if is64bit:
     UPGRADE_CODE = '5DD881FF-756B-4097-9D82-8C0F11D521EA'
-    MINVERHUMAN = 'Windows Vista'
 else:
     UPGRADE_CODE = 'BEB2A80D-E902-4DAD-ADF9-8BD2DA42CFE1'
-    MINVERHUMAN = 'Windows XP SP3'
+MINVERHUMAN = 'Windows Vista'
 
 CANDLE = WIXP+r'\bin\candle.exe'
 LIGHT = WIXP+r'\bin\light.exe'
@@ -42,7 +41,7 @@ class WixMixIn:
             ProgramFilesFolder = 'ProgramFiles64Folder' if is64bit else 'ProgramFilesFolder',
             x64                = ' 64bit' if is64bit else '',
             minverhuman        = MINVERHUMAN,
-            minver             = '600' if is64bit else '501',
+            minver             = '600',
             fix_wix = '<Custom Action="OverwriteWixSetDefaultPerMachineFolder" After="WixSetDefaultPerMachineFolder" />' if is64bit else '',
             compression        = self.opts.msi_compression,
             app_components     = components,
