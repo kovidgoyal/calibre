@@ -299,6 +299,7 @@ class PluginTweaks(QDialog):  # {{{
 
     def __init__(self, raw, parent=None):
         QDialog.__init__(self, parent)
+        self.setWindowTitle(_('Plugin tweaks'))
         self.edit = QPlainTextEdit(self)
         self.highlighter = PythonHighlighter(self.edit.document())
         self.l = QVBoxLayout()
