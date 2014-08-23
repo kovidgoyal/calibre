@@ -940,7 +940,7 @@ class EbookViewer(MainWindow):
             wg = vprefs.get('viewer_window_geometry', None)
             if wg is not None:
                 self.restoreGeometry(wg)
-            self.show_toc_on_open = vprefs.get('viewer_toc_isvisible', False)
+        self.show_toc_on_open = vprefs.get('viewer_toc_isvisible', False)
         desktop  = QApplication.instance().desktop()
         av = desktop.availableGeometry(self).height() - 30
         if self.height() > av:
