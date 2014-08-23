@@ -24,7 +24,7 @@ from calibre.gui2.library.alternate_views import AlternateViews, setup_dnd_inter
 from calibre.utils.config import tweaks, prefs
 from calibre.gui2 import error_dialog, gprefs, FunctionDispatcher
 from calibre.gui2.library import DEFAULT_SORT
-from calibre.constants import filesystem_encoding
+from calibre.constants import filesystem_encoding, isosx
 from calibre import force_unicode
 
 class HeaderView(QHeaderView):  # {{{
@@ -1060,6 +1060,18 @@ class BooksView(QTableView):  # {{{
 
     def row_count(self):
         return self._model.count()
+
+    if isosx:
+        # Qt 5 item view handling of return key on OS X seems to be broken
+        # See https://bugreports.qt-project.org/browse/QTBUG-40938
+        def keyPressEvent(self, ev):
+            if ev.key() in (Qt.Key_Enter, Qt.Key_Return) and self.state() != self.EditingState:
+                ci = self.currentIndex()
+                if ci.isValid() and ci.flags() & Qt.ItemIsEditable:
+                    if self.edit(ci, self.EditKeyPressed, ev):
+                        ev.accept()
+                        return
+            return QTableView.keyPressEvent(self, ev)
 
 # }}}
 
