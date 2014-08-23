@@ -734,6 +734,7 @@ directory in your home directory.
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 There can be several causes for this:
 
+    * If you are on Windows XP, try installing |app| `version 1.48 <http://download.calibre-ebook.com/1.48.0/>`_. |app| 2.0 and newer use Qt 5 which is known to be incompatible with *some* Windows XP machines. Simply un-install calibre and then install version 1.48, doing so will not affect your books/settings.
     * If you get an error about calibre not being able to open a file because it is in use by another program, do the following:
 
        * Uninstall calibre
