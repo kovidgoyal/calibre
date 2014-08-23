@@ -874,16 +874,19 @@ def setup_gui_option_parser(parser):
         parser.add_option('--detach', default=False, action='store_true',
                           help=_('Detach from the controlling terminal, if any (linux only)'))
 
+def do_detach():
+    # Detach from the controlling process.
+    if os.fork() != 0:
+        raise SystemExit(0)
+    os.setsid()
+    try:
+        plugins['speedup'][0].detach(os.devnull)
+    except AttributeError:
+        pass  # people running from source without updated binaries
+
 def detach_gui():
     if islinux and not DEBUG:
-        # Detach from the controlling process.
-        if os.fork() != 0:
-            raise SystemExit(0)
-        os.setsid()
-        try:
-            plugins['speedup'][0].detach(os.devnull)
-        except AttributeError:
-            pass  # people running from source without updated binaries
+        do_detach()
 
 class Application(QApplication):
 
