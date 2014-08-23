@@ -927,7 +927,7 @@ class EpubContainer(Container):
                         ' more forgiving ZIP parser')
                 from calibre.utils.localunzip import extractall
                 stream.seek(0)
-                extractall(stream)
+                extractall(stream, path=tdir)
         try:
             os.remove(join(tdir, 'mimetype'))
         except EnvironmentError:
