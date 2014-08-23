@@ -880,9 +880,10 @@ def detach_gui():
         if os.fork() != 0:
             raise SystemExit(0)
         os.setsid()
-        so, se = file(os.devnull, 'a+'), file(os.devnull, 'a+', 0)
-        os.dup2(so.fileno(), sys.__stdout__.fileno())
-        os.dup2(se.fileno(), sys.__stderr__.fileno())
+        si, so, se = os.open(os.devnull, os.O_RDONLY), os.open(os.devnull, os.O_WRONLY), os.open(os.devnull, os.O_WRONLY)
+        os.dup2(si, sys.__stdin__.fileno())
+        os.dup2(so, sys.__stdout__.fileno())
+        os.dup2(se, sys.__stderr__.fileno())
 
 class Application(QApplication):
 
