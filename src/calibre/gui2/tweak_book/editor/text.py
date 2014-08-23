@@ -17,6 +17,7 @@ from PyQt5.Qt import (
     QApplication, QMimeData, QColor, QColorDialog, QTimer, pyqtSignal)
 
 from calibre import prepare_string_for_xml, xml_entity_to_unicode
+from calibre.constants import isosx
 from calibre.gui2.tweak_book import tprefs, TOP
 from calibre.gui2.tweak_book.editor import (
     SYNTAX_PROPERTY, SPELL_PROPERTY, SPELL_LOCALE_PROPERTY, store_locale, LINK_PROPERTY)
@@ -734,6 +735,11 @@ class TextEdit(PlainTextEdit):
         if ev.key() == Qt.Key_Insert:
             self.setOverwriteMode(self.overwriteMode() ^ True)
             ev.accept()
+            return
+        if isosx and ev.modifiers() == Qt.ControlModifier and re.search(r'[a-zA-Z0-9]+', ev.text()) is not None:
+            # For some reason Qt 5 translates Cmd+key into text on OS X
+            # https://bugreports.qt-project.org/browse/QTBUG-40933
+            ev.setAccepted(False)
             return
         QPlainTextEdit.keyPressEvent(self, ev)
         if (ev.key() == Qt.Key_Semicolon or ';' in unicode(ev.text())) and tprefs['replace_entities_as_typed'] and self.syntax == 'html':
