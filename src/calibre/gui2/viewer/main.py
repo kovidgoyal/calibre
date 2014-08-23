@@ -399,6 +399,10 @@ class EbookViewer(MainWindow):
                 self.view.document.page_position.set_pos(bm['pos'])
             else:
                 self.view.goto_bookmark(bm)
+                # Going to a bookmark does not call scrolled() so we update the
+                # page position explicitly. Use a timer to ensure it is
+                # accurate.
+                QTimer.singleShot(100, self.update_page_number)
         else:
             self.pending_bookmark = bm
             if spine_index < 0 or spine_index >= len(self.iterator.spine):
