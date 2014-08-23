@@ -1221,7 +1221,7 @@ class DocumentView(QWebView):  # {{{
 
         num_degrees_h = event.angleDelta().x() // 8
         vertical = abs(num_degrees) > abs(num_degrees_h)
-        scroll_amount = ((num_degrees if vertical else num_degrees_h)/ 120.0) * .2 * -1
+        scroll_amount = ((num_degrees if vertical else num_degrees_h)/ 120.0) * .2 * -1 * 8
         if vertical:
             self.scroll_by(0, self.document.viewportSize().height() * scroll_amount)
         else:
