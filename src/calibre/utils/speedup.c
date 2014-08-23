@@ -3,6 +3,7 @@
 
 #include <stdlib.h>
 #include <fcntl.h>
+#include <stdio.h>
 
 #define min(x, y) ((x < y) ? x : y)
 #define max(x, y) ((x > y) ? x : y)
@@ -97,6 +98,16 @@ speedup_pdf_float(PyObject *self, PyObject *args) {
     return ret;
 }
 
+static PyObject*
+speedup_detach(PyObject *self, PyObject *args) {
+    char *devnull = NULL;
+    if (!PyArg_ParseTuple(args, "s", &devnull)) return NULL;
+    if (freopen(devnull, "r", stdin) == NULL) return PyErr_SetFromErrno(PyExc_EnvironmentError);
+    if (freopen(devnull, "w", stdout) == NULL) return PyErr_SetFromErrno(PyExc_EnvironmentError);
+    if (freopen(devnull, "w", stderr) == NULL)  return PyErr_SetFromErrno(PyExc_EnvironmentError);
+    Py_RETURN_NONE;
+}
+
 static PyMethodDef speedup_methods[] = {
     {"parse_date", speedup_parse_date, METH_VARARGS,
         "parse_date()\n\nParse ISO dates faster."
@@ -104,6 +115,10 @@ static PyMethodDef speedup_methods[] = {
 
     {"pdf_float", speedup_pdf_float, METH_VARARGS,
         "pdf_float()\n\nConvert float to a string representation suitable for PDF"
+    },
+
+    {"detach", speedup_detach, METH_VARARGS,
+        "detach()\n\nRedirect the standard I/O stream to the specified file (usually os.devnull)"
     },
 
     {NULL, NULL, 0, NULL}

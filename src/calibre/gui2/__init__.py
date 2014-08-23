@@ -880,10 +880,10 @@ def detach_gui():
         if os.fork() != 0:
             raise SystemExit(0)
         os.setsid()
-        si, so, se = os.open(os.devnull, os.O_RDONLY), os.open(os.devnull, os.O_WRONLY), os.open(os.devnull, os.O_WRONLY)
-        os.dup2(si, sys.__stdin__.fileno())
-        os.dup2(so, sys.__stdout__.fileno())
-        os.dup2(se, sys.__stderr__.fileno())
+        try:
+            plugins['speedup'][0].detach(os.devnull)
+        except AttributeError:
+            pass  # people running from source without updated binaries
 
 class Application(QApplication):
 
