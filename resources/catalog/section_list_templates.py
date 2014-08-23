@@ -9,13 +9,11 @@ __docformat__ = 'restructuredtext en'
     These templates control the content of titles displayed in the various sections
 
     Available fields:
-    {title}          Title of the book
-    {series}         Series name
-    {series_index}   Number of the book in the series
-    {rating}         Rating
-    {rating_parens}  Rating, in parentheses
-    {pubyear}        Year the book was published
-    {pubyear_parens} Year the book was published, in parentheses
+        Any column, custom or otherwise, defined for the book, plus
+        {rating_parens}  Rating, in parentheses
+        {pubyear}        Year the book was published
+        {pubyear_parens} Year the book was published, in parentheses
+
 
 '''
 # Books by Author
