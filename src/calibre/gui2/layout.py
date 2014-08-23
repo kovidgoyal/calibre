@@ -297,7 +297,10 @@ class MainWindowMixin(object):  # {{{
         # This is disabled because it introduces various toolbar related bugs
         # The width of the toolbar becomes the sum of both toolbars
         if tweaks['unified_title_toolbar_on_osx']:
-            self.setUnifiedTitleAndToolBarOnMac(True)
+            try:
+                self.setUnifiedTitleAndToolBarOnMac(True)
+            except AttributeError:
+                pass  # PyQt5 seems to be missing this property
 
         l = self.centralwidget.layout()
         l.addWidget(self.search_bar)
