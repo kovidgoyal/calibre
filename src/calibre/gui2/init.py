@@ -277,6 +277,7 @@ class VLTabs(QTabBar):  # {{{
         self.setMovable(True)
         self.setTabsClosable(True)
         self.gui = parent
+        self.ignore_tab_changed = False
         self.currentChanged.connect(self.tab_changed)
         self.tabMoved.connect(self.tab_moved, type=Qt.QueuedConnection)
         self.tabCloseRequested.connect(self.tab_close)
@@ -292,8 +293,10 @@ class VLTabs(QTabBar):  # {{{
         self.setVisible(False)
 
     def tab_changed(self, idx):
+        if self.ignore_tab_changed:
+            return
         vl = unicode(self.tabData(idx) or '').strip() or None
-        self.gui.apply_virtual_library(vl)
+        self.gui.apply_virtual_library(vl, update_tabs=False)
 
     def tab_moved(self, from_, to):
         self.current_db.prefs['virt_libs_order'] = [unicode(self.tabData(i) or '') for i in range(self.count())]
@@ -310,7 +313,13 @@ class VLTabs(QTabBar):  # {{{
         return self.gui.current_db
 
     def rebuild(self):
-        self.currentChanged.disconnect(self.tab_changed)
+        self.ignore_tab_changed = True
+        try:
+            self._rebuild()
+        finally:
+            self.ignore_tab_changed = False
+
+    def _rebuild(self):
         db = self.current_db
         vl_map = db.prefs.get('virtual_libraries', {})
         virt_libs = frozenset(vl_map)
@@ -341,7 +350,6 @@ class VLTabs(QTabBar):  # {{{
         self.setCurrentIndex(all_idx if current_idx is None else current_idx)
         if current_idx is None and current_lib:
             self.setTabText(all_idx, current_lib)
-        self.currentChanged.connect(self.tab_changed)
         try:
             self.tabButton(all_idx, self.RightSide).setVisible(False)
         except AttributeError:

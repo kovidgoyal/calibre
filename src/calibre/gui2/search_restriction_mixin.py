@@ -421,7 +421,7 @@ class SearchRestrictionMixin(object):
     def rebuild_vl_tabs(self):
         self.vl_tabs.rebuild()
 
-    def apply_virtual_library(self, library=None):
+    def apply_virtual_library(self, library=None, update_tabs=True):
         db = self.library_view.model().db
         virt_libs = db.prefs.get('virtual_libraries', {})
         if not library:
@@ -456,7 +456,8 @@ class SearchRestrictionMixin(object):
                                         db.data.get_base_restriction())
         self._apply_search_restriction(db.data.get_search_restriction(),
                                        db.data.get_search_restriction_name())
-        self.vl_tabs.update_current()
+        if update_tabs:
+            self.vl_tabs.update_current()
 
     def build_virtual_library_list(self, menu, handler):
         db = self.library_view.model().db
