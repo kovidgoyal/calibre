@@ -19,6 +19,7 @@ def qt_sources():
     return list(map(j, [
             'qtbase/src/widgets/widgets/qdialogbuttonbox.cpp',
             'qtbase/src/widgets/dialogs/qcolordialog.cpp',
+            'qtbase/src/widgets/dialogs/qfontdialog.cpp',
     ]))
 
 class POT(Command):  # {{{
