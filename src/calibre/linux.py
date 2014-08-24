@@ -34,11 +34,11 @@ entry_points = {
              'calibre-smtp = calibre.utils.smtp:main',
         ],
         'gui_scripts' : [
-            __appname__+' = calibre.gui2.main:main',
+            __appname__+' = calibre.gui_launch:calibre',
             'lrfviewer    = calibre.gui2.lrf_renderer.main:main',
-            'ebook-viewer = calibre.gui2.viewer.main:main',
-            'ebook-edit   = calibre.gui2.tweak_book.main:main',
-                            ],
+            'ebook-viewer = calibre.gui_launch:ebook_viewer',
+            'ebook-edit   = calibre.gui_launch:ebook_edit',
+        ],
       }
 
 class PreserveMIMEDefaults(object):

@@ -15,7 +15,7 @@ from calibre.gui2.viewer.toc import TOC
 from calibre.gui2.widgets import ProgressIndicator
 from calibre.gui2 import (
     Application, ORG_NAME, APP_UID, choose_files, info_dialog, error_dialog,
-    open_url, setup_gui_option_parser, detach_gui)
+    open_url, setup_gui_option_parser)
 from calibre.ebooks.oeb.iterator.book import EbookIterator
 from calibre.ebooks import DRMError
 from calibre.constants import islinux, filesystem_encoding
@@ -991,8 +991,6 @@ def main(args=sys.argv):
 
     parser = option_parser()
     opts, args = parser.parse_args(args)
-    if getattr(opts, 'detach', False):
-        detach_gui()
     open_at = float(opts.open_at.replace(',', '.')) if opts.open_at else None
     override = 'calibre-ebook-viewer' if islinux else None
     app = Application(args, override_program_name=override)
