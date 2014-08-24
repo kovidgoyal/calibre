@@ -14,6 +14,15 @@
 
 QT_BEGIN_NAMESPACE
 
+class GenericUnixServices : public QGenericUnixServices {
+    /* We must return desktop environment as UNKNOWN otherwise other parts of
+     * Qt will try to query the nativeInterface() without checking if it exists
+     * leading to a segfault.  For example, defaultHintStyleFromMatch() queries
+     * the nativeInterface() without checking that it is NULL. See
+     * https://bugreports.qt-project.org/browse/QTBUG-40946 */
+    QByteArray desktopEnvironment() const { return QByteArrayLiteral("UNKNOWN"); }
+};
+
 HeadlessIntegration::HeadlessIntegration(const QStringList &parameters)
 {
     Q_UNUSED(parameters);
@@ -26,7 +35,7 @@ HeadlessIntegration::HeadlessIntegration(const QStringList &parameters)
     screenAdded(mPrimaryScreen);
     m_fontDatabase.reset(new QFontconfigDatabase());
 
-    platform_services.reset(new QGenericUnixServices());
+    platform_services.reset(new GenericUnixServices());
 }
 
 HeadlessIntegration::~HeadlessIntegration()
