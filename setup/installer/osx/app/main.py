@@ -598,7 +598,7 @@ class Py2App(object):
                 continue
             if x == 'Info.plist':
                 plist = plistlib.readPlist(join(self.contents_dir, x))
-                plist['LSUIElement'] = '1'
+                plist['LSBackgroundOnly'] = '1'
                 plist['CFBundleIdentifier'] = 'com.calibre-ebook.console'
                 plist.pop('CFBundleDocumentTypes')
                 plistlib.writePlist(plist, join(cc_dir, x))
