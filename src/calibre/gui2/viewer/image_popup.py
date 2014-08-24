@@ -85,9 +85,13 @@ class ImageView(QDialog):
         pm = self.label.pixmap()
         t = QTransform()
         t.rotate(90)
-        pm = pm.transformed(t)
+        pm = self.current_img = pm.transformed(t)
         self.label.setPixmap(pm)
         self.label.adjustSize()
+        self.factor = 1
+        for sb in (self.scrollarea.horizontalScrollBar(),
+                self.scrollarea.verticalScrollBar()):
+            sb.setValue(0)
 
     def __call__(self, use_exec=False):
         geom = self.avail_geom
