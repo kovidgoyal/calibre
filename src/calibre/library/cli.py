@@ -179,7 +179,7 @@ List the books available in the calibre database.
                           ' database. Should be a comma separated list of'
                           ' fields.\nAvailable fields: %s\nDefault: %%default. The'
                           ' special field "all" can be used to select all fields.'
-                          )%','.join(sorted(fields)))
+                          )%', '.join(sorted(fields)))
     parser.add_option('--sort-by', default=None,
                       help=_('The field by which to sort the results.\nAvailable fields: %s\nDefault: %%default')%','.join(FIELDS))
     parser.add_option('--ascending', default=False, action='store_true',
