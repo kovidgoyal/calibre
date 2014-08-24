@@ -37,7 +37,7 @@ the directory in which you created :file:`__init__.py`::
 .. note:: 
     On OS X, the command line tools are inside the |app| bundle, for example,
     if you installed calibre in :file:`/Applications` the command line tools
-    are in :file:`/Applications/calibre.app/Contents/MacOS/calibre`.
+    are in :file:`/Applications/calibre.app/Contents/console.app/Contents/MacOS/`.
 
 You can download the Hello World plugin from 
 `helloworld_plugin.zip  <http://calibre-ebook.com/downloads/helloworld_plugin.zip>`_. 
