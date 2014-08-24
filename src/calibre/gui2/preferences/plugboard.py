@@ -6,6 +6,7 @@ __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import copy
+from collections import defaultdict
 
 from PyQt5.Qt import Qt, QComboBox, QListWidgetItem
 
@@ -15,7 +16,7 @@ from calibre.gui2.device import device_name_for_plugboards
 from calibre.gui2.dialogs.template_line_editor import TemplateLineEditor
 from calibre.gui2.preferences import ConfigWidgetBase, test_widget
 from calibre.gui2.preferences.plugboard_ui import Ui_Form
-from calibre.customize.ui import metadata_writers, device_plugins
+from calibre.customize.ui import metadata_writers, device_plugins, disabled_device_plugins
 from calibre.library.save_to_disk import plugboard_any_format_value, \
                     plugboard_any_device_value, plugboard_save_to_disk_value, \
                     find_plugboard
@@ -56,6 +57,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             self.device_label.setText(_('Device currently connected: None'))
 
         self.devices = ['', 'APPLE', 'FOLDER_DEVICE']
+        self.disabled_devices = []
         self.device_to_formats_map = {}
         for device in device_plugins():
             n = device_name_for_plugboards(device)
@@ -64,6 +66,12 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
                 self.device_to_formats_map[n].add('device_db')
             if n not in self.devices:
                 self.devices.append(n)
+
+        for device in disabled_device_plugins():
+            n = device_name_for_plugboards(device)
+            if n not in self.disabled_devices:
+                self.disabled_devices.append(n)
+
         self.devices.sort(cmp=lambda x, y: cmp(x.lower(), y.lower()))
         self.devices.insert(1, plugboard_save_to_disk_value)
         self.devices.insert(1, plugboard_content_server_value)
@@ -76,11 +84,12 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.new_device.addItems(self.devices)
 
         self.formats = ['']
+        self.format_to_writers_map = defaultdict(list)
         for w in metadata_writers():
-            if not is_disabled(w):
-                for f in w.file_types:
-                    if not f in self.formats:
-                        self.formats.append(f)
+            for f in w.file_types:
+                if f not in self.formats:
+                    self.formats.append(f)
+                self.format_to_writers_map[f].append(w)
         self.formats.append('device_db')
         self.formats.sort()
         self.formats.insert(1, plugboard_any_format_value)
@@ -173,11 +182,25 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             print 'edit_format_changed: none editable format!'
             return
         self.current_format = txt
+        self.check_if_writer_disabled(txt)
         devices = ['']
         for d in fpb:
             devices.append(d)
         self.edit_device.clear()
         self.edit_device.addItems(devices)
+
+    def check_if_writer_disabled(self, format_name):
+        if format_name in ['device_db', plugboard_any_format_value]:
+            return
+        show_message = True
+        for writer in self.format_to_writers_map[format_name]:
+            if not is_disabled(writer):
+                show_message = False
+        if show_message:
+            warning_dialog(self, '',
+                     _('That format has no metadata writers enabled. A plugboard '
+                       'will probably have no effect.'),
+                     show=True)
 
     def new_device_changed(self, txt):
         self.current_device = None
@@ -250,8 +273,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             if self.current_format not in allowable_formats:
                 error_dialog(self, '',
                      _('The {0} device does not support the {1} format.').
-                                format(self.current_device, self.current_format),
-                     show=True)
+                                format(self.current_device, self.current_format), show=True)
                 self.new_device.setCurrentIndex(0)
                 return
 
@@ -260,8 +282,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             warning_dialog(self, '',
                  _('The {0} device supports only the {1} format(s).').
                             format(plugboard_content_server_value,
-                                   ', '.join(plugboard_content_server_formats)),
-                 show=True)
+                                   ', '.join(plugboard_content_server_formats)), show=True)
 
         self.set_fields()
 
@@ -272,6 +293,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         if txt:
             self.clear_fields(edit_boxes=True)
             self.current_format = unicode(txt)
+            self.check_if_writer_disabled(self.current_format)
         else:
             self.clear_fields(edit_boxes=False)
 
@@ -320,10 +342,15 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.changed_signal.emit()
         self.refill_all_boxes()
 
-    def existing_pb_clicked(self, Qitem):
-        item = Qitem.data(Qt.UserRole)
-        self.edit_format.setCurrentIndex(self.edit_format.findText(item[0]))
-        self.edit_device.setCurrentIndex(self.edit_device.findText(item[1]))
+    def existing_pb_clicked(self, qitem):
+        item = qitem.data(Qt.UserRole)
+        if (qitem.flags() & Qt.ItemIsEnabled):
+            self.edit_format.setCurrentIndex(self.edit_format.findText(item[0]))
+            self.edit_device.setCurrentIndex(self.edit_device.findText(item[1]))
+        else:
+            warning_dialog(self, '',
+                 _('The {0} device plugin is disabled.').format(item[1]),
+                 show=True)
 
     def refill_all_boxes(self):
         if self.refilling:
@@ -344,7 +371,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         for f in self.formats:
             if f not in self.current_plugboards:
                 continue
-            for d in self.devices:
+            for d in sorted(self.devices + self.disabled_devices, key=lambda x:x.lower()):
                 if d not in self.current_plugboards[f]:
                     continue
                 ops = []
@@ -353,6 +380,8 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
                 txt = '%s:%s = %s\n'%(f, d, ', '.join(ops))
                 item = QListWidgetItem(txt)
                 item.setData(Qt.UserRole, (f, d))
+                if d in self.disabled_devices:
+                    item.setFlags(item.flags() & ~Qt.ItemIsEnabled)
                 self.existing_plugboards.addItem(item)
         self.refilling = False
 
