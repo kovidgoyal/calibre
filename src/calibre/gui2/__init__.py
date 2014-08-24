@@ -900,8 +900,8 @@ class Application(QApplication):
             args.extend(['-platformpluginpath', sys.extensions_location, '-platform', 'headless'])
         qargs = [i.encode('utf-8') if isinstance(i, unicode) else i for i in args]
         self.pi = plugins['progress_indicator'][0]
-        self.setup_styles(force_calibre_style)
         QApplication.__init__(self, qargs)
+        self.setup_styles(force_calibre_style)
         f = QFont(QApplication.font())
         if (f.family(), f.pointSize()) == ('Sans Serif', 9):  # Hard coded Qt settings, no user preference detected
             f.setPointSize(10)
