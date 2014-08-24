@@ -53,11 +53,11 @@ Add books
 
     4. **Add multiple books from archive (ZIP/RAR)**: Allows you to add multiple ebooks that are stored inside a single ZIP or RAR file. It is a convenient shortcut that avoids having to first unzip the archive and then add the books via one of the above two options.
 
-    4. **Add empty book. (Book Entry with no formats)**: Allows you to create a blank book record. This can be used to then manually fill out the information about a book that you may not have yet in your collection.
+    5. **Add empty book. (Book Entry with no formats)**: Allows you to create a blank book record. This can be used to then manually fill out the information about a book that you may not have yet in your collection.
 
-    5. **Add from ISBN**: Allows you to add one or more books by entering their ISBNs.
+    6. **Add from ISBN**: Allows you to add one or more books by entering their ISBNs.
 
-    6. **Add files to selected book records**: Allows you to add or update the files associated with an existing book in your library.
+    7. **Add files to selected book records**: Allows you to add or update the files associated with an existing book in your library.
 
 The :guilabel:`Add books` action can read metadata from a wide variety of ebook formats. In addition, it tries to guess metadata from the filename.
 See the :ref:`config_filename_metadata` section, to learn how to configure this.
