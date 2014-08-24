@@ -402,9 +402,8 @@ class SearchRestrictionMixin(object):
 
         if self.search_based_vl_name:
             a = m.addAction(
-                self.checked if db.data.get_base_restriction_name().startswith('*')
-                                            else self.empty,
-                             self.search_based_vl_name)
+                self.checked if db.data.get_base_restriction_name().startswith('*') else self.empty,
+                self.search_based_vl_name)
             a.triggered.connect(partial(self.apply_virtual_library,
                                 library=self.search_based_vl_name))
 
