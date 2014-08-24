@@ -993,10 +993,7 @@ def main(args=sys.argv):
     opts, args = parser.parse_args(args)
     if getattr(opts, 'detach', False):
         detach_gui()
-    try:
-        open_at = float(opts.open_at)
-    except:
-        open_at = None
+    open_at = float(opts.open_at.replace(',', '.')) if opts.open_at else None
     override = 'calibre-ebook-viewer' if islinux else None
     app = Application(args, override_program_name=override)
     app.load_builtin_fonts()
