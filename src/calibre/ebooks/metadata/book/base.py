@@ -471,7 +471,11 @@ class Metadata(object):
             if hasattr(other, 'title_sort'):
                 self.title_sort = other.title_sort
 
-        if other.authors and other.authors[0] != _('Unknown'):
+        if other.authors and (other.authors[0] != _('Unknown') or
+                       (not self.authors or (len(self.authors) == 1 and
+                                             self.authors[0] == _('Unknown') and
+                                             hasattr(self, 'author_sort') and
+                                             self.author_sort == _('Unknown')))):
             self.authors = list(other.authors)
             if hasattr(other, 'author_sort_map'):
                 self.author_sort_map = dict(other.author_sort_map)
