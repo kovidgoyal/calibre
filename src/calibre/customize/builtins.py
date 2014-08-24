@@ -834,6 +834,11 @@ class ActionQuickview(InterfaceActionBase):
     actual_plugin = 'calibre.gui2.actions.show_quickview:ShowQuickviewAction'
     description = _('Show a list of related books quickly')
 
+class ActionTemplateTester(InterfaceActionBase):
+    name = 'Template Tester'
+    actual_plugin = 'calibre.gui2.actions.show_template_tester:ShowTemplateTesterAction'
+    description = _('Show an editor for testing templates')
+
 class ActionSaveToDisk(InterfaceActionBase):
     name = 'Save To Disk'
     actual_plugin = 'calibre.gui2.actions.save_to_disk:SaveToDiskAction'
@@ -969,7 +974,7 @@ plugins += [ActionAdd, ActionFetchAnnotations, ActionGenerateCatalog,
         ActionAddToLibrary, ActionEditCollections, ActionMatchBooks, ActionChooseLibrary,
         ActionCopyToLibrary, ActionTweakEpub, ActionUnpackBook, ActionNextMatch, ActionStore,
         ActionPluginUpdater, ActionPickRandom, ActionEditToC, ActionSortBy,
-        ActionMarkBooks, ActionEmbed]
+        ActionMarkBooks, ActionEmbed, ActionTemplateTester]
 
 # }}}
 
