@@ -20,9 +20,21 @@ from calibre.library.catalogs import AuthorSortMismatchException, EmptyCatalogEx
 from calibre.ptempfile import PersistentTemporaryDirectory
 from calibre.utils.date import format_date, is_date_undefined, now as nowf, as_local_time
 from calibre.utils.filenames import ascii_text, shorten_components_to
+from calibre.utils.formatter import TemplateFormatter
 from calibre.utils.icu import capitalize, collation_order, sort_key
 from calibre.utils.magick.draw import thumbnail
 from calibre.utils.zipfile import ZipFile
+
+class Formatter(TemplateFormatter):
+
+    def get_value(self, key, args, kwargs):
+        if not key:
+            return ''
+        if key in kwargs:
+            return kwargs[key]
+        if key not in self.book.all_field_keys():
+            raise Exception(_('column not in book: ') + key)
+        return self.book.format_field(key, series_with_index=False)[1]
 
 
 class CatalogBuilder(object):
@@ -103,6 +115,7 @@ class CatalogBuilder(object):
                     stylesheet="content/stylesheet.css",
                     init_resources=True):
 
+        self.formatter = Formatter()
         self.db = db
         self.opts = _opts
         self.plugin = plugin
@@ -1542,10 +1555,16 @@ class CatalogBuilder(object):
             args = self.generate_format_args(book)
             if current_series:
                 #aTag.insert(0,'%s%s' % (escape(book['title'][len(book['series'])+1:]),pubyear))
-                formatted_title = self.by_authors_series_title_template.format(**args).rstrip()
+                formatted_title = self.formatter.safe_format(
+                        self.by_authors_series_title_template, args,
+                        _('error in') + ' by_authors_series_title_template:',
+                        self.db.new_api.get_proxy_metadata(book['id']))
             else:
                 #aTag.insert(0,'%s%s' % (escape(book['title']), pubyear))
-                formatted_title = self.by_authors_normal_title_template.format(**args).rstrip()
+                formatted_title = self.formatter.safe_format(
+                                 self.by_authors_normal_title_template, args,
+                                 _('error in') + ' by_authors_normal_title_template:',
+                        self.db.new_api.get_proxy_metadata(book['id']))
                 non_series_books += 1
             aTag.insert(0, NavigableString(escape(formatted_title)))
 
@@ -1688,9 +1707,15 @@ class CatalogBuilder(object):
                     # Generate the title from the template
                     args = self.generate_format_args(new_entry)
                     if current_series:
-                        formatted_title = self.by_month_added_series_title_template.format(**args).rstrip()
+                        formatted_title = self.formatter.safe_format(
+                                 self.by_month_added_series_title_template, args,
+                                 _('error in') + ' by_month_added_series_title_template:',
+                                 self.db.new_api.get_proxy_metadata(book['id']))
                     else:
-                        formatted_title = self.by_month_added_normal_title_template.format(**args).rstrip()
+                        formatted_title = self.formatter.safe_format(
+                                 self.by_month_added_normal_title_template, args,
+                                 _('error in') + ' by_month_added_normal_title_template:',
+                                 self.db.new_api.get_proxy_metadata(book['id']))
                         non_series_books += 1
                     aTag.insert(0, NavigableString(escape(formatted_title)))
                     spanTag.insert(stc, aTag)
@@ -1734,9 +1759,15 @@ class CatalogBuilder(object):
                     # Generate the title from the template
                     args = self.generate_format_args(new_entry)
                     if new_entry['series']:
-                        formatted_title = self.by_recently_added_series_title_template.format(**args).rstrip()
+                        formatted_title = self.formatter.safe_format(
+                                 self.by_recently_added_series_title_template, args,
+                                 _('error in') + ' by_recently_added_series_title_template:',
+                                 self.db.new_api.get_proxy_metadata(book['id']))
                     else:
-                        formatted_title = self.by_recently_added_normal_title_template.format(**args).rstrip()
+                        formatted_title = self.formatter.safe_format(
+                                 self.by_recently_added_normal_title_template, args,
+                                 _('error in') + ' by_recently_added_normal_title_template:',
+                                 self.db.new_api.get_proxy_metadata(book['id']))
                     aTag.insert(0, NavigableString(escape(formatted_title)))
                     spanTag.insert(stc, aTag)
                     stc += 1
@@ -2248,10 +2279,16 @@ class CatalogBuilder(object):
             args = self.generate_format_args(book)
             if current_series:
                 #aTag.insert(0,escape(book['title'][len(book['series'])+1:]))
-                formatted_title = self.by_genres_series_title_template.format(**args).rstrip()
+                formatted_title = self.formatter.safe_format(
+                                 self.by_genres_series_title_template, args,
+                                 _('error in') + ' by_genres_series_title_template:',
+                                 self.db.new_api.get_proxy_metadata(book['id']))
             else:
                 #aTag.insert(0,escape(book['title']))
-                formatted_title = self.by_genres_normal_title_template.format(**args).rstrip()
+                formatted_title = self.formatter.safe_format(
+                                 self.by_genres_normal_title_template, args,
+                                 _('error in') + ' by_genres_normal_title_template:',
+                                 self.db.new_api.get_proxy_metadata(book['id']))
                 non_series_books += 1
             aTag.insert(0, NavigableString(escape(formatted_title)))
 
@@ -2374,7 +2411,10 @@ class CatalogBuilder(object):
             #aTag.insert(0,'%d. %s &middot; %s' % (book['series_index'],escape(book['title']), ' & '.join(book['authors'])))
 
             args = self.generate_format_args(book)
-            formatted_title = self.by_series_title_template.format(**args).rstrip()
+            formatted_title = self.formatter.safe_format(
+                                self.by_series_title_template, args,
+                                _('error in') + ' by_series_title_template:',
+                                 self.db.new_api.get_proxy_metadata(book['id']))
             aTag.insert(0, NavigableString(escape(formatted_title)))
 
             spanTag.insert(stc, aTag)
@@ -2532,9 +2572,15 @@ class CatalogBuilder(object):
             # Generate the title from the template
             args = self.generate_format_args(book)
             if book['series']:
-                formatted_title = self.by_titles_series_title_template.format(**args).rstrip()
+                formatted_title = self.formatter.safe_format(
+                                 self.by_titles_series_title_template, args,
+                                 _('error in') + ' by_titles_series_title_template:',
+                                 self.db.new_api.get_proxy_metadata(book['id']))
             else:
-                formatted_title = self.by_titles_normal_title_template.format(**args).rstrip()
+                formatted_title = self.formatter.safe_format(
+                                 self.by_titles_normal_title_template, args,
+                                 _('error in') + ' by_titles_normal_title_template:',
+                                 self.db.new_api.get_proxy_metadata(book['id']))
             aTag.insert(0, NavigableString(escape(formatted_title)))
             spanTag.insert(stc, aTag)
             stc += 1
