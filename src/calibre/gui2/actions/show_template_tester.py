@@ -30,7 +30,7 @@ class ShowTemplateTesterAction(InterfaceAction):
         rows = view.selectionModel().selectedRows()
         if not rows:
             return error_dialog(self.gui, _('No books selected'),
-                    _('A book must be selected'), show=True)
+                    _('One book must be selected'), show=True)
         if len(rows) > 1:
             return error_dialog(self.gui, _('Selected multiple books'),
                     _('Only one book can be selected'), show=True)
@@ -38,8 +38,8 @@ class ShowTemplateTesterAction(InterfaceAction):
         index = rows[0]
         if index.isValid():
             db = view.model().db
-            t = TemplateDialog(self.gui, _('Enter a template to test'),
-                               mi=db.get_metadata(index.row(), index_is_id=False,
-                                                  get_cover=False))
+            t = TemplateDialog(self.gui,
+                   _('Enter a template to test using data from the selected book'),
+                   mi=db.get_metadata(index.row(), index_is_id=False, get_cover=False))
             t.setWindowTitle(_('Template tester'))
             t.exec_()
