@@ -14,7 +14,7 @@ ORG_NAME = 'KovidsBrain'
 APP_UID  = 'libprs500'
 from calibre import prints
 from calibre.constants import (islinux, iswindows, isbsd, isfrozen, isosx,
-        plugins, config_dir, filesystem_encoding, DEBUG, isxp)
+        plugins, config_dir, filesystem_encoding, isxp)
 from calibre.utils.config import Config, ConfigProxy, dynamic, JSONConfig
 from calibre.ebooks.metadata import MetaInformation
 from calibre.utils.date import UNDEFINED_DATE
@@ -242,8 +242,7 @@ config = _config()
 # }}}
 
 QSettings.setPath(QSettings.IniFormat, QSettings.UserScope, config_dir)
-QSettings.setPath(QSettings.IniFormat, QSettings.SystemScope,
-        config_dir)
+QSettings.setPath(QSettings.IniFormat, QSettings.SystemScope, config_dir)
 QSettings.setDefaultFormat(QSettings.IniFormat)
 
 # Turn off DeprecationWarnings in windows GUI
@@ -876,7 +875,7 @@ def setup_gui_option_parser(parser):
 
 class Application(QApplication):
 
-    def __init__(self, args, force_calibre_style=False, override_program_name=None, headless=False):
+    def __init__(self, args, force_calibre_style=False, override_program_name=None, headless=False, color_prefs=gprefs):
         self.file_event_hook = None
         if override_program_name:
             args = [override_program_name] + args[1:]
@@ -915,6 +914,13 @@ class Application(QApplication):
         qt_app = self
         self._file_open_paths = []
         self._file_open_lock = RLock()
+
+        if not isosx:
+            # OS X uses a native color dialog that does not support custom
+            # colors
+            self.color_prefs = color_prefs
+            self.read_custom_colors()
+            self.lastWindowClosed.connect(self.save_custom_colors)
 
         if isxp:
             error_dialog(None, _('Windows XP not supported'), '<p>' + _(
@@ -1001,6 +1007,29 @@ class Application(QApplication):
             return True
         else:
             return QApplication.event(self, e)
+
+    @dynamic_property
+    def current_custom_colors(self):
+        from PyQt5.Qt import QColorDialog, QColor
+        def fget(self):
+            return [col.getRgb() for col in
+                    (QColorDialog.customColor(i) for i in xrange(QColorDialog.customCount()))]
+        def fset(self, colors):
+            num = min(len(colors), QColorDialog.customCount())
+            for i in xrange(num):
+                QColorDialog.setCustomColor(i, QColor(*colors[i]))
+        return property(fget=fget, fset=fset)
+
+    def read_custom_colors(self):
+        colors = self.color_prefs.get('custom_colors_for_color_dialog', None)
+        if colors is not None:
+            self.current_custom_colors = colors
+
+    def save_custom_colors(self):
+        # Qt 5 regression, it no longer saves custom colors
+        colors = self.current_custom_colors
+        if colors != self.color_prefs.get('custom_colors_for_color_dialog', None):
+            self.color_prefs.set('custom_colors_for_color_dialog', colors)
 
 _store_app = None
 

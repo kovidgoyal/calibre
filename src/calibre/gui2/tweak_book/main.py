@@ -47,13 +47,14 @@ def _run(args, notify=None):
     # errors during initialization of plugins that use the polish container
     # infrastructure.
     importlib.import_module('calibre.customize.ui')
+    from calibre.gui2.tweak_book import tprefs
     from calibre.gui2.tweak_book.ui import Main
 
     parser = option_parser()
     opts, args = parser.parse_args(args)
     decouple('edit-book-')
     override = 'calibre-edit-book' if islinux else None
-    app = Application(args, override_program_name=override)
+    app = Application(args, override_program_name=override, color_prefs=tprefs)
     app.load_builtin_fonts()
     app.setWindowIcon(QIcon(I('tweak.png')))
     Application.setOrganizationName(ORG_NAME)

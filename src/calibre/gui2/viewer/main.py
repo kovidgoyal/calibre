@@ -993,7 +993,7 @@ def main(args=sys.argv):
     opts, args = parser.parse_args(args)
     open_at = float(opts.open_at.replace(',', '.')) if opts.open_at else None
     override = 'calibre-ebook-viewer' if islinux else None
-    app = Application(args, override_program_name=override)
+    app = Application(args, override_program_name=override, color_prefs=vprefs)
     app.load_builtin_fonts()
     app.setWindowIcon(QIcon(I('viewer.png')))
     QApplication.setOrganizationName(ORG_NAME)
