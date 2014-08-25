@@ -16,7 +16,6 @@ from PyQt5.Qt import (QObject, QKeySequence, QAbstractItemModel, QModelIndex,
         QGridLayout, QLabel, QRadioButton, QPushButton, QToolButton, QIcon)
 
 from calibre.utils.config import JSONConfig
-from calibre.utils.cleantext import clean_ascii_chars
 from calibre.constants import DEBUG
 from calibre import prints
 from calibre.utils.icu import sort_key, lower
@@ -28,6 +27,21 @@ ROOT = QModelIndex()
 
 class NameConflict(ValueError):
     pass
+
+def keysequence_from_event(ev):  # {{{
+    k, mods = ev.key(), int(ev.modifiers())
+    if k in (
+            0, Qt.Key_unknown, Qt.Key_Shift, Qt.Key_Control, Qt.Key_Alt,
+            Qt.Key_Meta, Qt.Key_AltGr, Qt.Key_CapsLock, Qt.Key_NumLock,
+            Qt.Key_ScrollLock):
+        return
+    letter = QKeySequence(k).toString(QKeySequence.PortableText)
+    if mods & Qt.SHIFT and letter.lower() == letter.upper():
+        # Something like Shift+* or Shift+> we have to remove the shift,
+        # since it is included in keycode.
+        mods = mods & ~Qt.SHIFT
+    return QKeySequence(k | mods)
+# }}}
 
 def finalize(shortcuts, custom_keys_map={}):  # {{{
     '''
@@ -437,22 +451,15 @@ class Editor(QFrame):  # {{{
         button.setText(_('None'))
 
     def key_press_event(self, ev, which=0):
-        code = ev.key()
-        if self.capture == 0 or code in (0, Qt.Key_unknown,
-                Qt.Key_Shift, Qt.Key_Control, Qt.Key_Alt, Qt.Key_Meta,
-                Qt.Key_AltGr, Qt.Key_CapsLock, Qt.Key_NumLock, Qt.Key_ScrollLock):
+        if self.capture == 0:
             return QWidget.keyPressEvent(self, ev)
+        sequence = keysequence_from_event(ev)
+        if sequence is None:
+            return QWidget.keyPressEvent(self, ev)
+        ev.accept()
+
         button = getattr(self, 'button%d'%which)
         button.setStyleSheet('QPushButton { font-weight: normal}')
-        mods = int(ev.modifiers()) & ~Qt.KeypadModifier
-        # for some reason qt sometimes produces ascii control codes in text,
-        # for example ctrl+shift+u will give text == '\x15' on linux
-        txt = clean_ascii_chars(ev.text())
-        if txt and txt.lower() == txt.upper():
-            # We have a symbol like ! or > etc. In this case the value of code
-            # already includes Shift, so remove it
-            mods &= ~Qt.ShiftModifier
-        sequence = QKeySequence(code|mods)
         button.setText(sequence.toString(QKeySequence.NativeText))
         self.capture = 0
         dup_desc = self.dup_check(sequence)
