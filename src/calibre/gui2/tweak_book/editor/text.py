@@ -738,7 +738,7 @@ class TextEdit(PlainTextEdit):
             return
         if isosx and ev.modifiers() == Qt.ControlModifier and re.search(r'[a-zA-Z0-9]+', ev.text()) is not None:
             # For some reason Qt 5 translates Cmd+key into text on OS X
-            # https://bugreports.qt-project.org/browse/QTBUG-40933
+            # https://bugreports.qt-project.org/browse/QTBUG-36281
             ev.setAccepted(False)
             return
         QPlainTextEdit.keyPressEvent(self, ev)
