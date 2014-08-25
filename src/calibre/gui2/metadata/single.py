@@ -1031,9 +1031,12 @@ def edit_metadata(db, row_list, current_row, parent=None, view_slot=None,
     if cls not in editors:
         cls = 'default'
     d = editors[cls](db, parent)
-    d.start(row_list, current_row, view_slot=view_slot,
-            set_current_callback=set_current_callback)
-    return d.changed, d.rows_to_refresh
+    try:
+        d.start(row_list, current_row, view_slot=view_slot,
+                set_current_callback=set_current_callback)
+        return d.changed, d.rows_to_refresh
+    finally:
+        d.hide()
 
 if __name__ == '__main__':
     from calibre.gui2 import Application as QApplication
