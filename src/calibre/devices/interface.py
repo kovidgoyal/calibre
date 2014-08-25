@@ -648,6 +648,14 @@ class DevicePlugin(Plugin):
         '''
         device_prefs.set_overrides()
 
+    def set_library_info(self, library_name, library_uuid, field_metadata):
+        '''
+        Implement this method if you want information about the current calibre
+        library. This method is called at startup and when the calibre library
+        changes while connected.
+        '''
+        pass
+
     # Dynamic control interface.
     # The following methods are probably called on the GUI thread. Any driver
     # that implements these methods must take pains to be thread safe, because

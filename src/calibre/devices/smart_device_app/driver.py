@@ -244,6 +244,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
         'OK'                     : 0,
         'BOOK_DONE'              : 11,
         'CALIBRE_BUSY'           : 18,
+        'SET_LIBRARY_INFO'       : 19,
         'DELETE_BOOK'            : 13,
         'DISPLAY_MESSAGE'        : 17,
         'FREE_SPACE'             : 5,
@@ -1040,6 +1041,8 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
             self._debug('Cache uses lpaths', self.client_cache_uses_lpaths)
             self.can_send_ok_to_sendbook = result.get('canSendOkToSendbook', False)
             self._debug('Can send OK to sendbook', self.can_send_ok_to_sendbook)
+            self.can_accept_library_info = result.get('canAcceptLibraryInfo', False)
+            self._debug('Can accept library info', self.can_accept_library_info)
 
             if not self.settings().extra_customization[self.OPT_USE_METADATA_CACHE]:
                 self.client_can_use_metadata_cache = False
@@ -1511,6 +1514,16 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
         self._debug()
         self.plugboards = plugboards
         self.plugboard_func = pb_func
+
+    @synchronous('sync_lock')
+    def set_library_info(self, library_name, library_uuid, field_metadata):
+        self._debug(library_name, library_uuid)
+        if self.can_accept_library_info:
+            self._call_client('SET_LIBRARY_INFO',
+                                    {'libraryName' : library_name,
+                                     'libraryUuid': library_uuid,
+                                     'fieldMetadata': field_metadata.all_metadata()},
+                                    print_debug_info=True)
 
     @synchronous('sync_lock')
     def specialize_global_preferences(self, device_prefs):
