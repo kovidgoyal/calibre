@@ -206,7 +206,7 @@ def normalize_filter_css(props):
 
 def condense_edge(vals):
     edges = {x.name.rpartition('-')[-1]:x.value for x in vals}
-    if len(edges) != 4:
+    if len(edges) != 4 or set(edges) != {'left', 'top', 'right', 'bottom'}:
         return
     ce = {}
     for (x, y) in [('left', 'right'), ('top', 'bottom')]:
