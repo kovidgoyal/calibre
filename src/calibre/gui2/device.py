@@ -34,6 +34,7 @@ from calibre.constants import DEBUG
 from calibre.utils.config import tweaks, device_prefs
 from calibre.utils.magick.draw import thumbnail
 from calibre.library.save_to_disk import find_plugboard
+from calibre.library import current_library_name
 # }}}
 
 class DeviceJob(BaseJob):  # {{{
@@ -471,6 +472,17 @@ class DeviceManager(Thread):  # {{{
     def get_device_information(self, done, add_as_step_to_job=None):
         '''Get device information and free space on device'''
         return self.create_job_step(self._get_device_information, done,
+                    description=_('Get device information'), to_job=add_as_step_to_job)
+
+    def _set_library_information(self, library_name, library_uuid, field_metadata):
+        '''Give the device the current library information'''
+        self.device.set_library_info(library_name, library_uuid, field_metadata)
+
+    def set_library_information(self, done, library_name, library_uuid,
+                                 field_metadata, add_as_step_to_job=None):
+        '''Give the device the current library information'''
+        return self.create_job_step(self._set_library_information, done,
+                    args=[library_name, library_uuid, field_metadata],
                     description=_('Get device information'), to_job=add_as_step_to_job)
 
     def slow_driveinfo(self):
@@ -1081,6 +1093,10 @@ class DeviceMixin(object):  # {{{
                 self.device_manager.device.icon)
         self.bars_manager.update_bars()
         self.status_bar.device_connected(info[0])
+        db = self.library_view.model().db
+        self.device_manager.set_library_information(None, current_library_name(),
+                                    db.library_id, db.field_metadata,
+                                    add_as_step_to_job=job)
         self.device_manager.books(FunctionDispatcher(self.metadata_downloaded),
                                   add_as_step_to_job=job)
 
@@ -1637,6 +1653,12 @@ class DeviceMixin(object):  # {{{
     def update_metadata_on_device(self):
         self.set_books_in_library(self.booklists(), reset=True, force_send=True)
         self.refresh_ondevice()
+
+    def set_current_library_information(self, library_name, library_uuid, field_metadata):
+        self.device_manager.set_current_library_uuid(library_uuid)
+        if self.device_manager.is_device_connected:
+            self.device_manager.set_library_information(None, library_name,
+                                            library_uuid, field_metadata)
 
     def book_on_device(self, id, reset=False):
         '''

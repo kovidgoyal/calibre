@@ -47,6 +47,7 @@ from calibre.gui2.auto_add import AutoAdder
 from calibre.gui2.proceed import ProceedQuestion
 from calibre.gui2.dialogs.message_box import JobError
 from calibre.gui2.job_indicator import Pointer
+from calibre.library import current_library_name
 
 class Listener(Thread):  # {{{
 
@@ -419,7 +420,8 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
                 traceback.print_exc()
                 if ac.plugin_path is None:
                     raise
-        self.device_manager.set_current_library_uuid(db.library_id)
+        self.set_current_library_information(current_library_name(), db.library_id,
+                                             db.field_metadata)
 
         self.keyboard.finalize()
         self.auto_adder = AutoAdder(gprefs['auto_add_path'], self)
@@ -693,7 +695,8 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
             self.memory_view.reset()
             self.card_a_view.reset()
             self.card_b_view.reset()
-        self.device_manager.set_current_library_uuid(db.library_id)
+        self.set_current_library_information(current_library_name(), db.library_id,
+                                             db.field_metadata)
         self.library_view.set_current_row(0)
         # Run a garbage collection now so that it does not freeze the
         # interface later
