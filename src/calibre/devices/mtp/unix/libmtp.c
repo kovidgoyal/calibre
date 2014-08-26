@@ -219,7 +219,7 @@ Device_init(Device *self, PyObject *args, PyObject *kwds)
             Py_BEGIN_ALLOW_THREADS;
             dev = LIBMTP_Open_Raw_Device_Uncached(&rdev);
             Py_END_ALLOW_THREADS;
-            if (dev == NULL) { free(rawdevs); PyErr_SetString(MTPError, "Unable to open raw device."); return -1; }
+            if (dev == NULL) { free(rawdevs); PyErr_Format(MTPError, "Unable to open raw device with busnum=%lu and devnum=%u", busnum, devnum); return -1; }
             break;
         }
     }
