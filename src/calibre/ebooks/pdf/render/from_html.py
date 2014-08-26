@@ -345,11 +345,9 @@ class PDFWriter(QObject):
         self.load_mathjax()
 
         evaljs('''
-        py_bridge.__defineGetter__('value', function() {
-            return JSON.parse(this._pass_json_value);
-        });
-        py_bridge.__defineSetter__('value', function(val) {
-            this._pass_json_value = JSON.stringify(val);
+        Object.defineProperty(py_bridge, 'value', {
+               get : function() { return JSON.parse(this._pass_json_value); },
+               set : function(val) { this._pass_json_value = JSON.stringify(val); }
         });
 
         document.body.style.backgroundColor = "white";
