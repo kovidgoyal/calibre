@@ -202,13 +202,14 @@ class TemplateHighlighter(QSyntaxHighlighter):
 class TemplateDialog(QDialog, Ui_TemplateDialog):
 
     def __init__(self, parent, text, mi=None, fm=None, color_field=None,
-                 icon_field_key=None, icon_rule_kind=None):
+                 icon_field_key=None, icon_rule_kind=None, doing_emblem=False):
         QDialog.__init__(self, parent)
         Ui_TemplateDialog.__init__(self)
         self.setupUi(self)
 
         self.coloring = color_field is not None
         self.iconing = icon_field_key is not None
+        self.embleming = doing_emblem
 
         cols = []
         if fm is not None:
@@ -229,8 +230,14 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
             for n1, k1 in cols:
                 self.colored_field.addItem(n1, k1)
             self.colored_field.setCurrentIndex(self.colored_field.findData(color_field))
-        elif self.iconing:
+        elif self.iconing or self.embleming:
             self.icon_layout.setVisible(True)
+            if self.embleming:
+                self.icon_kind_label.setVisible(False)
+                self.icon_kind.setVisible(False)
+                self.icon_chooser_label.setVisible(False)
+                self.icon_field.setVisible(False)
+
             for n1, k1 in cols:
                 self.icon_field.addItem(n1, k1)
             self.icon_file_names = []
@@ -244,15 +251,16 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
             self.icon_file_names.sort(key=sort_key)
             self.update_filename_box()
 
-            dex = 0
-            from calibre.gui2.preferences.coloring import icon_rule_kinds
-            for i,tup in enumerate(icon_rule_kinds):
-                txt,val = tup
-                self.icon_kind.addItem(txt, userData=(val))
-                if val == icon_rule_kind:
-                    dex = i
-            self.icon_kind.setCurrentIndex(dex)
-            self.icon_field.setCurrentIndex(self.icon_field.findData(icon_field_key))
+            if self.iconing:
+                dex = 0
+                from calibre.gui2.preferences.coloring import icon_rule_kinds
+                for i,tup in enumerate(icon_rule_kinds):
+                    txt,val = tup
+                    self.icon_kind.addItem(txt, userData=(val))
+                    if val == icon_rule_kind:
+                        dex = i
+                self.icon_kind.setCurrentIndex(dex)
+                self.icon_field.setCurrentIndex(self.icon_field.findData(icon_field_key))
 
         if mi:
             self.mi = mi
@@ -433,6 +441,8 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
                          unicode(self.icon_field.itemData(
                                 self.icon_field.currentIndex()) or ''),
                          txt)
+        elif self.embleming:
+            self.rule = ('icon', 'title', txt)
         else:
             self.rule = ('', txt)
         QDialog.accept(self)
