@@ -9,7 +9,6 @@ from functools import partial
 
 from PyQt5.Qt import QToolButton
 
-from calibre.constants import isosx
 from calibre.gui2.actions import InterfaceAction
 
 class SimilarBooksAction(InterfaceAction):
@@ -31,11 +30,6 @@ class SimilarBooksAction(InterfaceAction):
             ac = self.create_action(spec=(text, icon, None, shortcut),
                     attr=target)
             m.addAction(ac)
-            if isosx:
-                # For some reason with Qt 5 the keyboard shortcuts for these
-                # actions dont work unless the actions are added to the main
-                # window
-                self.gui.addAction(ac)
             ac.triggered.connect(partial(self.show_similar_books, target))
         self.qaction.setMenu(m)
 

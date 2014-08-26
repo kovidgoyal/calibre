@@ -12,6 +12,7 @@ from PyQt5.Qt import (QToolButton, QAction, QIcon, QObject, QMenu,
         QKeySequence)
 
 from calibre import prints
+from calibre.constants import isosx
 from calibre.gui2 import Dispatcher
 from calibre.gui2.keyboard import NameConflict
 
@@ -191,7 +192,11 @@ class InterfaceAction(QObject):
                         pass
                     shortcut_action.setShortcuts([QKeySequence(key,
                         QKeySequence.PortableText) for key in keys])
-
+                else:
+                    if isosx:
+                        # In Qt 5 keyboard shortcuts dont work unless the
+                        # action is explicitly added to the main window
+                        self.gui.addAction(shortcut_action)
 
         if attr is not None:
             setattr(self, attr, action)
@@ -253,6 +258,10 @@ class InterfaceAction(QObject):
             self.gui.keyboard.register_shortcut(unique_name,
                 shortcut_name, default_keys=keys,
                 action=ac, description=description, group=self.action_spec[0])
+            if isosx:
+                # In Qt 5 keyboard shortcuts dont work unless the
+                # action is explicitly added to the main window
+                self.gui.addAction(ac)
         if triggered is not None:
             ac.triggered.connect(triggered)
         return ac
