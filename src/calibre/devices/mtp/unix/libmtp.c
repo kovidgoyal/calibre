@@ -196,7 +196,7 @@ Device_init(Device *self, PyObject *args, PyObject *kwds)
     PyObject *usb_serialnum;
     char *vendor, *product, *friendly_name, *manufacturer_name, *model_name, *serial_number, *device_version;
     LIBMTP_raw_device_t *rawdevs = NULL, rdev;
-    int numdevs, c;
+    int numdevs, c, tried_count = 0;
     LIBMTP_mtpdevice_t *dev = NULL;
     LIBMTP_error_number_t err;
 
@@ -216,16 +216,20 @@ Device_init(Device *self, PyObject *args, PyObject *kwds)
     for (c = 0; c < numdevs; c++) {
         rdev = rawdevs[c];
         if (rdev.bus_location == (uint32_t)busnum && rdev.devnum == (uint8_t)devnum) {
+            tried_count += 1;
             Py_BEGIN_ALLOW_THREADS;
             dev = LIBMTP_Open_Raw_Device_Uncached(&rdev);
             Py_END_ALLOW_THREADS;
-            if (dev == NULL) { free(rawdevs); PyErr_Format(MTPError, "Unable to open raw device with busnum=%lu and devnum=%u", busnum, devnum); return -1; }
-            break;
+            if (dev != NULL) break;
         }
     }
 
     if (rawdevs != NULL) free(rawdevs);
-    if (dev == NULL) { PyErr_Format(MTPError, "No device with busnum=%lu and devnum=%u found", busnum, devnum); return -1; }
+    if (dev == NULL) { 
+        if (tried_count == 0) PyErr_Format(MTPError, "No device with busnum=%lu and devnum=%u found", busnum, devnum); 
+        else PyErr_Format(MTPError, "Unable to open MTP device with busnum=%lu and devnum=%u, tried %d such devices", busnum, devnum, tried_count); 
+        return -1;
+    }
 
     self->device = dev;
     self->ids = Py_BuildValue("kBHHO", busnum, devnum, vendor_id, product_id, usb_serialnum);
