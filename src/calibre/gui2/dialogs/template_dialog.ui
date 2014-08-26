@@ -71,7 +71,7 @@
       <item row="0" column="0" colspan="2">
        <layout class="QHBoxLayout">
         <item>
-         <widget class="QLabel">
+         <widget class="QLabel" name="icon_kind_label">
           <property name="text">
            <string>Kind:</string>
           </property>

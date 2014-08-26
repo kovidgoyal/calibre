@@ -683,7 +683,7 @@ class RulesModel(QAbstractListModel):  # {{{
                     rule = template
                 self.rules.append(('color', col, rule))
         else:
-            self.rule_kind = 'icon'
+            self.rule_kind = 'icon' if pref_name == 'column_icon_rules' else 'emblem'
             rules = list(prefs[pref_name])
             self.rules = []
             for kind, col, template in rules:
@@ -772,6 +772,11 @@ class RulesModel(QAbstractListModel):  # {{{
                 <p>Advanced Rule for column <b>%(col)s</b>:
                 <pre>%(rule)s</pre>
                 ''')%dict(col=col, rule=prepare_string_for_xml(rule))
+            elif self.rule_kind == 'emblem':
+                return _('''
+                <p>Advanced Rule:
+                <pre>%(rule)s</pre>
+                ''')%dict(rule=prepare_string_for_xml(rule))
             else:
                 return _('''
                 <p>Advanced Rule: set <b>%(typ)s</b> for column <b>%(col)s</b>:
@@ -946,7 +951,10 @@ class EditRules(QWidget):  # {{{
                     self.rules_view.scrollTo(idx)
                     self.changed.emit()
         else:
-            td = TemplateDialog(self, '', mi=self.mi, fm=self.fm, icon_field_key='')
+            if self.pref_name == 'cover_grid_icon_rules':
+                td = TemplateDialog(self, '', mi=self.mi, fm=self.fm, doing_emblem=True)
+            else:
+                td = TemplateDialog(self, '', mi=self.mi, fm=self.fm, icon_field_key='')
             if td.exec_() == td.Accepted:
                 print(td.rule)
                 typ, col, r = td.rule
@@ -965,6 +973,8 @@ class EditRules(QWidget):  # {{{
             d.apply_rule(kind, col, rule)
         elif self.pref_name == 'column_color_rules':
             d = TemplateDialog(self, rule, mi=self.mi, fm=self.fm, color_field=col)
+        elif self.pref_name == 'cover_grid_icon_rules':
+            d = TemplateDialog(self, rule, mi=self.mi, fm=self.fm, doing_emblem=True)
         else:
             d = TemplateDialog(self, rule, mi=self.mi, fm=self.fm, icon_field_key=col,
                                icon_rule_kind=kind)
