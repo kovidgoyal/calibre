@@ -18,7 +18,8 @@ from PyQt5.Qt import (
     QTimer, QPalette, QColor, QItemSelection, QPixmap, QMenu, QApplication,
     QMimeData, QUrl, QDrag, QPoint, QPainter, QRect, pyqtProperty, QEvent,
     QPropertyAnimation, QEasingCurve, pyqtSlot, QHelpEvent, QAbstractItemView,
-    QStyleOptionViewItem, QToolTip, QByteArray, QBuffer, QBrush, qRed, qGreen, qBlue)
+    QStyleOptionViewItem, QToolTip, QByteArray, QBuffer, QBrush, qRed, qGreen,
+    qBlue, QItemSelectionModel)
 
 from calibre import fit_image, prints, prepare_string_for_xml, human_readable
 from calibre.constants import DEBUG, config_dir
@@ -954,5 +955,10 @@ class GridView(QListView):
                 if 0 <= nr < self.model().rowCount(QModelIndex()):
                     index = self.model().index(nr, 0)
         return index
+
+    def selectionCommand(self, index, event):
+        if event and event.type() == event.KeyPress and event.key() in (Qt.Key_Home, Qt.Key_End) and event.modifiers() & Qt.CTRL:
+            return QItemSelectionModel.ClearAndSelect | QItemSelectionModel.Rows
+        return super(GridView, self).selectionCommand(index, event)
 
 # }}}

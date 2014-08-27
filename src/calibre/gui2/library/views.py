@@ -13,7 +13,7 @@ from collections import OrderedDict
 from PyQt5.Qt import (
     QTableView, Qt, QAbstractItemView, QMenu, pyqtSignal, QFont, QModelIndex,
     QIcon, QItemSelection, QMimeData, QDrag, QStyle, QPoint, QUrl, QHeaderView,
-    QStyleOptionHeader)
+    QStyleOptionHeader, QItemSelectionModel)
 
 from calibre.gui2.library.delegates import (RatingDelegate, PubDateDelegate,
     TextDelegate, DateDelegate, CompleteDelegate, CcTextDelegate,
@@ -903,6 +903,11 @@ class BooksView(QTableView):  # {{{
         elif action == QTableView.MoveEnd and modifiers & Qt.ControlModifier:
             return self.model().index(self.model().rowCount(QModelIndex()) - 1, orig.column())
         return index
+
+    def selectionCommand(self, index, event):
+        if event and event.type() == event.KeyPress and event.key() in (Qt.Key_Home, Qt.Key_End) and event.modifiers() & Qt.CTRL:
+            return QItemSelectionModel.ClearAndSelect | QItemSelectionModel.Rows
+        return super(BooksView, self).selectionCommand(index, event)
 
     def ids_to_rows(self, ids):
         row_map = OrderedDict()
