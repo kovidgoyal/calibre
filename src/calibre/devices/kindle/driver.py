@@ -323,16 +323,29 @@ class KINDLE2(KINDLE):
             ' store the page count of books, you can have calibre use that'
             ' information, instead of calculating a page count. Specify the'
             ' name of the custom column here, for example, #pages.'),
+        ### New option to indicate whether an existing apnx file on the kindle should be overwritten when sending to the device.
+        _('Overwrite existing apnx on device') + ':::' + _(
+            'Uncheck this option to allow an apnx file existing on the device'
+            ' to have priority over the version which calibre would send.'
+            ' Since apnx files are usually deleted when a book is removed from'
+            ' the Kindle, this is mostly useful when resending a book to the'
+            ' device which is already on the device (e.g. after making a'
+            ' modification.)'),
+        ###
 
     ]
     EXTRA_CUSTOMIZATION_DEFAULT = [
         True,
         'fast',
         '',
+        True,
     ]
     OPT_APNX                 = 0
     OPT_APNX_METHOD          = 1
     OPT_APNX_CUST_COL        = 2
+    ### New option
+    OPT_APNX_OVERWRITE       = 3
+    ###
     EXTRA_CUSTOMIZATION_CHOICES = {OPT_APNX_METHOD:{'fast', 'accurate', 'pagebreak'}}
 
     # x330 on the PaperWhite
@@ -456,13 +469,21 @@ class KINDLE2(KINDLE):
 
         apnx_path = '%s.apnx' % os.path.join(path, filename)
         apnx_builder = APNXBuilder()
-        try:
-            method = opts.extra_customization[self.OPT_APNX_METHOD]
-            apnx_builder.write_apnx(filepath, apnx_path, method=method, page_count=custom_page_count)
-        except:
-            print 'Failed to generate APNX'
-            import traceback
-            traceback.print_exc()
+        ### Check to see if there is an existing apnx file on Kindle we should keep.
+        apnx_file = '%s.apnx' % os.path.splitext(filepath.lower())[0]
+        if not opts.extra_customization[self.OPT_APNX_OVERWRITE] and os.path.isfile(apnx_path):
+            pass #do nothing, existing apnx file on the kindle is kept
+        else:
+            ### This was existing code just dedented one level
+            try:
+                method = opts.extra_customization[self.OPT_APNX_METHOD]
+                apnx_builder.write_apnx(filepath, apnx_path, method=method, page_count=custom_page_count)
+            except:
+                print 'Failed to generate APNX'
+                import traceback
+                traceback.print_exc()
+            ###
+        ###
 
 
 class KINDLE_DX(KINDLE2):
