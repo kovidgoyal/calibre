@@ -68,7 +68,7 @@ class KOBO(USBMS):
 
     dbversion = 0
     fwversion = 0
-    supported_dbversion = 98
+    supported_dbversion = 105
     has_kepubs = False
 
     supported_platforms = ['windows', 'osx', 'linux']
@@ -1265,10 +1265,11 @@ class KOBOTOUCH(KOBO):
     min_dbversion_activity          = 77
     min_dbversion_keywords          = 82
 
-    max_supported_fwversion         = (3, 5, 1)
+    max_supported_fwversion         = (3, 8, 1)
     min_fwversion_shelves           = (2, 0, 0)
     min_fwversion_images_on_sdcard  = (2, 4, 1)
     min_fwversion_images_tree       = (2, 9, 0)  # Cover images stored in tree under .kobo-images
+    min_aurah2o_fwversion           = (3, 7, 0) # Not used yet
 
     has_kepubs = True
 
@@ -1363,10 +1364,11 @@ class KOBOTOUCH(KOBO):
 
     AURA_PRODUCT_ID     = [0x4203]
     AURA_HD_PRODUCT_ID  = [0x4193]
+    AURA_H2O_PRODUCT_ID = [0x4293]
     GLO_PRODUCT_ID      = [0x4173]
     MINI_PRODUCT_ID     = [0x4183]
     TOUCH_PRODUCT_ID    = [0x4163]
-    PRODUCT_ID          = AURA_PRODUCT_ID + AURA_HD_PRODUCT_ID + GLO_PRODUCT_ID + MINI_PRODUCT_ID + TOUCH_PRODUCT_ID
+    PRODUCT_ID          = AURA_PRODUCT_ID + AURA_HD_PRODUCT_ID + AURA_H2O_PRODUCT_ID + GLO_PRODUCT_ID + MINI_PRODUCT_ID + TOUCH_PRODUCT_ID
 
     BCD = [0x0110, 0x0326]
 
@@ -2768,6 +2770,8 @@ class KOBOTOUCH(KOBO):
         return self.detected_device.idProduct in self.AURA_PRODUCT_ID
     def isAuraHD(self):
         return self.detected_device.idProduct in self.AURA_HD_PRODUCT_ID
+    def isAuraH2O(self):
+        return self.detected_device.idProduct in self.AURA_H2O_PRODUCT_ID
     def isGlo(self):
         return self.detected_device.idProduct in self.GLO_PRODUCT_ID
     def isMini(self):
@@ -2776,7 +2780,7 @@ class KOBOTOUCH(KOBO):
         return self.detected_device.idProduct in self.TOUCH_PRODUCT_ID
 
     def cover_file_endings(self):
-        return self.GLO_COVER_FILE_ENDINGS if self.isGlo() or self.isAura() else self.AURA_HD_COVER_FILE_ENDINGS if self.isAuraHD() else self.COVER_FILE_ENDINGS
+        return self.GLO_COVER_FILE_ENDINGS if self.isGlo() or self.isAura() else self.AURA_HD_COVER_FILE_ENDINGS if self.isAuraHD() or self.isAuraH2O() else self.COVER_FILE_ENDINGS
 
     def set_device_name(self):
         device_name = self.gui_name
@@ -2784,6 +2788,8 @@ class KOBOTOUCH(KOBO):
             device_name = 'Kobo Aura'
         elif self.isAuraHD():
             device_name = 'Kobo Aura HD'
+        elif self.isAuraH2O():
+            device_name = 'Kobo Aura H2O'
         elif self.isGlo():
             device_name = 'Kobo Glo'
         elif self.isMini():
