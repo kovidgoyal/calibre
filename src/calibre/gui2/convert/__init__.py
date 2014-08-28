@@ -27,13 +27,14 @@ def config_widget_for_input_plugin(plugin):
                 'calibre.gui2.convert.'+name).PluginWidget
     except ImportError:
         # If this is not a builtin plugin, we have to import it differently
-        try:
-            ans = importlib.import_module(plugin.__module__+'.'+name).PluginWidget
-        except (ImportError, AttributeError, TypeError):
-            pass
-        else:
-            if issubclass(ans, Widget):
-                return ans
+        if plugin.__module__ and plugin.__module__.startswith('calibre_plugins.'):
+            try:
+                ans = importlib.import_module(plugin.__module__+'.'+name).PluginWidget
+            except (ImportError, AttributeError, TypeError):
+                pass
+            else:
+                if issubclass(ans, Widget):
+                    return ans
 
 def bulk_defaults_for_input_format(fmt):
     plugin = plugin_for_input_format(fmt)

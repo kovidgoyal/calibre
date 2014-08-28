@@ -1048,6 +1048,11 @@ class InputOptions(PreferencesPlugin):
     config_widget = 'calibre.gui2.preferences.conversion:InputOptions'
     description = _('Set conversion options specific to each input format')
 
+    def create_widget(self, *args, **kwargs):
+        # The DOC Input plugin tries to override this
+        self.config_widget = 'calibre.gui2.preferences.conversion:InputOptions'
+        return PreferencesPlugin.create_widget(self, *args, **kwargs)
+
 class CommonOptions(PreferencesPlugin):
     name = 'Common Options'
     icon = I('convert.png')
