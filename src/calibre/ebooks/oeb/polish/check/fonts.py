@@ -74,7 +74,7 @@ class FontAliasing(BaseError):
                     changed = True
             elif mt in OEB_DOCS:
                 for style in container.parsed(name).xpath('//*[local-name()="style"]'):
-                    if style.get('type', 'text/css') == 'text/css':
+                    if style.get('type', 'text/css') == 'text/css' and style.text:
                         sheet = container.parse_css(style.text)
                         if fix_sheet(sheet, self.css_name, self.font_name):
                             style.text = force_unicode(sheet.cssText, 'utf-8')
