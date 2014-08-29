@@ -323,6 +323,14 @@ class KINDLE2(KINDLE):
             ' store the page count of books, you can have calibre use that'
             ' information, instead of calculating a page count. Specify the'
             ' name of the custom column here, for example, #pages.'),
+        ### New option to override page count calculation method on book-by-book basis
+        _('Custom column name to retrieve calculation method from') + ':::' + _(
+            'If you have a custom column in your library that you use to'
+            ' store the preferred method for calculating the number of pages'
+            ' for a book, you can have calibre use that method instead of the'
+            ' default one selected above.  Specify the name of the custom'
+            ' column here, for example, #pagemethod.'),
+        ###
         ### New option to indicate whether an existing apnx file on the kindle should be overwritten when sending to the device.
         _('Overwrite existing apnx on device') + ':::' + _(
             'Uncheck this option to allow an apnx file existing on the device'
@@ -338,13 +346,15 @@ class KINDLE2(KINDLE):
         True,
         'fast',
         '',
+        '',
         True,
     ]
     OPT_APNX                 = 0
     OPT_APNX_METHOD          = 1
     OPT_APNX_CUST_COL        = 2
-    ### New option
-    OPT_APNX_OVERWRITE       = 3
+    ### New options
+    OPT_APNX_METHOD_COL      = 3
+    OPT_APNX_OVERWRITE       = 4
     ###
     EXTRA_CUSTOMIZATION_CHOICES = {OPT_APNX_METHOD:{'fast', 'accurate', 'pagebreak'}}
 
@@ -357,6 +367,10 @@ class KINDLE2(KINDLE):
         if isinstance(vals[cls.OPT_APNX_METHOD], bool):
             # Previously this option used to be a bool
             vals[cls.OPT_APNX_METHOD] = 'accurate' if vals[cls.OPT_APNX_METHOD] else 'fast'
+        if isinstance(vals[cls.OPT_APNX_METHOD_COL], bool):
+            # The method column option was added before the overwrite option, so we need to shift the options around a bit
+            vals[cls.OPT_APNX_OVERWRITE] = vals[cls.OPT_APNX_METHOD_COL]
+            vals[cls.OPT_APNX_METHOD_COL] = ''
         return vals
 
     def formats_to_scan_for(self):
@@ -477,6 +491,20 @@ class KINDLE2(KINDLE):
             ### This was existing code just dedented one level
             try:
                 method = opts.extra_customization[self.OPT_APNX_METHOD]
+                ### New code to retreive override method, if available
+                cust_col_name = opts.extra_customization[self.OPT_APNX_METHOD_COL]
+                if cust_col_name:
+                    try:
+                        temp = str(metadata.get(cust_col_name, 0))
+                        if temp not in self.EXTRA_CUSTOMIZATION_CHOICES[self.OPT_APNX_METHOD]:
+                            print "Invalid method choice for this book, reverting to default."
+                        else:
+                            method = temp
+                    except:
+                        print 'Could not retreive override method choice, reverting to default.'
+                        pass
+                print 'Generating apnx with', method
+                ###
                 apnx_builder.write_apnx(filepath, apnx_path, method=method, page_count=custom_page_count)
             except:
                 print 'Failed to generate APNX'
