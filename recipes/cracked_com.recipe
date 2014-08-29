@@ -33,7 +33,7 @@ class Cracked(BasicNewsRecipe):
         pageNav = soup.find('nav', attrs={'class': 'PaginationContent'})
         if pageNav:
             # Check not at last page
-            nextPage = pageNav.find('a', attrs={'class': 'next'})
+            nextPage = pageNav.find('a', attrs={'class': 'next nativePagination'})
             if nextPage:
                 nextPageURL = nextPage['href']
                 nextPageSoup = self.index_to_soup(nextPageURL)
