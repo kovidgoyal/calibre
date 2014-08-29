@@ -20,6 +20,80 @@
 #   new recipes:
 #     - title: 
 
+- version: 2.1.0
+  date: 2014-09-28
+
+  new features:
+    - title: "Prevent calibre from installing or running on Windows XP as there have been many reports of Qt 5 crashing on Windows XP and Windows XP is now no longer supported by Microsoft. If you are on Windows XP, please stay with calibre 1.48 until you are ready to upgrade your windows."
+
+    - title: "Kobo driver: Add support for new Kobo Aura H2O and firmware 3.8.0"
+
+    - title: "Driver for HTC C."
+      tickets: [1360678]
+
+    - title: "Add a new tool to easily test templates. Go to Preferences->Toolbars to add the tool to one of the calibre toolbars."
+      tickets: [1360550]
+
+    - title: "EPUB and MOBI catalog generation: Allow using the full template language including all custom columns"
+
+  bug fixes:
+    - title: "E-book viewer: Fix soft-hyphens causing rendering artifacts with some fonts due to a bug in Qt 5"
+
+    - title: "OS X: Workaround for Qt 5 bug that causes the popup menu on the author to author sort button in the edit metadata dialog to not respond if the mouse button if not released once before clicking menu entries."
+      tickets: [1362338]
+
+    - title: "Book list: Fix Ctrl+Home/End not selecting the first/last book"
+
+    - title: "PDF Output: Fix header and footer templates not working in calibre 2.0"
+      tickets: [1361483]
+
+    - title: "OS X: Workaround for Qt 5 bug that caused many keyboard shortcuts to not work in OS X"
+
+    - title: "Workaround for Qt 5 regression causing custom colors in color chooser dialogs to not be remembered between calibre sessions"
+
+    - title: "Conversion: Fix error when converting EPUB/HTML files that contain invalid margin or padding declarations."
+      tickets: [1360842]
+
+    - title: "Fix for calibre 2.0 crashing on startup on some linux systems when used with --detach"
+
+    - title: "E-book viewer: When right clicking on an image to view it in its own popup window, fix the rotate button not working correctly with the zoom buttons"
+
+    - title: "Workaround for Qt 5 bug causing crash when running jobs (conversion to PDF or MOBI; reading metadata from an EPUB without a cover) that require Qt WebKit on Ubuntu."
+      tickets: [1360693]
+
+    - title: "OS X: Fix background jobs stealing input focus if they require the use of Qt WebKit"
+
+    - title: "Preferences->Metadata plugboards: Show plugboards for disabled devices and formats whose metadata writer plugins have been disabled."
+      tickets: [1360766]
+
+    - title: "Fix calibre 2.0 not using system color scheme on windows and OS X"
+
+    - title: "Fix regression in calibre 2.0 that caused crashes when using drag and drop to re-order virtual library tabs"
+
+    - title: "Linux: Disable the optional system tray icon because of bugs in the system tray icon implementation in Qt 5 on linux."
+      tickets: [1360652]
+
+    - title: "E-book viewer: Fix navigating to a bookmark not updating the displayed page number."
+      tickets: [1360621]
+
+    - title: "Fix the 'unified title and toolbar on OS X' tweak causing calibre to fail to work because of a bug in PyQt5"
+
+    - title: "E-book viewer: Fix a regression in 2.0 that changed the speed of scrolling with the mouse wheel in flow mode"
+
+    - title: "Edit book: Workaround for regression in Qt 5 that causes typing the Cmd+some letter to generate text in the editor instead of being ignored."
+
+    - title: "Book polishing: Fix EPUB files with corrupted ZIP central directories not working and leaving behind detritus in the current working directory."
+      tickets: [1360385]
+
+    - title: "Edit Book: Workaround for Qt 5 regression that caused the 'See what changed' tool to freeze the editor when closing the window showing the changes."
+
+    - title: "Fix regression in 2.0 that broke viewing of LRF format ebooks."
+      tickets: [1360332]
+
+    - title: "Fix for a Qt 5 regression that caused the Copy to Library right click menu to be empty on OS X."
+      tickets: [1360069]
+
+
 - version: 2.0.0
   date: 2014-08-21
 
