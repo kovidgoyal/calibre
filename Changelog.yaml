@@ -21,7 +21,7 @@
 #     - title: 
 
 - version: 2.1.0
-  date: 2014-09-28
+  date: 2014-08-29
 
   new features:
     - title: "Prevent calibre from installing or running on Windows XP as there have been many reports of Qt 5 crashing on Windows XP and Windows XP is now no longer supported by Microsoft. If you are on Windows XP, please stay with calibre 1.48 until you are ready to upgrade your windows. Apologies for the inconvenience."
