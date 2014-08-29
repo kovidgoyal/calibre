@@ -343,6 +343,7 @@ class Py2App(object):
         env['CALIBRE_LAUNCHED_FROM_BUNDLE']='1'
         docs = [{'CFBundleTypeName':'E-book',
             'CFBundleTypeExtensions':list(BOOK_EXTENSIONS),
+            'CFBundleTypeIconFile':'book.icns',
             'CFBundleTypeRole':'Viewer',
             }]
 
