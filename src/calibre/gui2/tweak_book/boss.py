@@ -1319,7 +1319,8 @@ class Boss(QObject):
                     'The current book is being saved in the background. Quitting now will'
                     ' <b>abort the save process</b>! Finish saving first?'),
                     yes_text=_('Finish &saving first'), no_text=_('&Quit immediately')):
-                self.start_terminal_save_indicator()
+                if self.save_manager.has_tasks:
+                    self.start_terminal_save_indicator()
                 return False
 
         if not self.confirm_quit():
