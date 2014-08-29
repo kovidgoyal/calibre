@@ -979,7 +979,10 @@ class BooksModel(QAbstractTableModel):  # {{{
             val = 0 if val < 0 else 5 if val > 5 else val
             val *= 2
         elif typ in ('int', 'float'):
-            val = unicode(value or '').strip()
+            if value == 0:
+                val = '0'
+            else:
+                val = unicode(value or '').strip()
             if not val:
                 val = None
         elif typ == 'datetime':
