@@ -41,18 +41,18 @@ class LATimes(BasicNewsRecipe):
                         }
 
     keep_only_tags = [
-                        dict(name='div', attrs={'class':'story'})
-                       ,dict(attrs={'class':['entry-header','time','entry-content']})
+                        dict(name='div', attrs={'class':'trb_article_articleHeader_head'})
+                       ,dict(name = 'section', attrs={'class':['trb_mainContent']})
                      ]
-    remove_tags_after=dict(name='p', attrs={'class':'copyright'})
-    remove_tags = [
-                     dict(name=['meta','link','iframe','object','embed'])
-                    ,dict(attrs={'class':['toolSet','articlerail','googleAd','entry-footer-left',
-                        'entry-footer-right','entry-footer-social','google-ad-story-bottom',
-                        'sphereTools', 'nextgen-share-tools']})
-                    ,dict(attrs={'id':['article-promo','googleads','moduleArticleToolsContainer','gallery-subcontent']})
-                  ]
-    remove_attributes=['lang','xmlns:fb','xmlns:og','border','xtags','i','article_body']
+    #remove_tags_after=dict(name='p', attrs={'class':'copyright'})
+    #remove_tags = [
+                     #dict(name=['meta','link','iframe','object','embed'])
+                    #,dict(attrs={'class':['toolSet','articlerail','googleAd','entry-footer-left',
+                        #'entry-footer-right','entry-footer-social','google-ad-story-bottom',
+                        #'sphereTools', 'nextgen-share-tools']})
+                    #,dict(attrs={'id':['article-promo','googleads','moduleArticleToolsContainer','gallery-subcontent']})
+                  #]
+    #remove_attributes=['lang','xmlns:fb','xmlns:og','border','xtags','i','article_body']
 
     feeds = [
               (u'Top News'             , u'http://feeds.latimes.com/latimes/news')
