@@ -542,6 +542,14 @@ class BooksView(QTableView):  # {{{
             if current_pos != pos:
                 h.moveSection(current_pos, pos)
 
+        # Because of a bug in Qt 5 we have to ensure that the header is actually
+        # relaid out by changing this value, without this sometimes ghost
+        # columns remain visible when changing libraries
+        for i in xrange(h.count()):
+            val = h.isSectionHidden(i)
+            h.setSectionHidden(i, not val)
+            h.setSectionHidden(i, val)
+
         sizes = state.get('column_sizes', {})
         for col, size in sizes.items():
             if col in cmap:
@@ -560,13 +568,6 @@ class BooksView(QTableView):  # {{{
             if not h.isSectionHidden(i) and h.sectionSize(i) < 3:
                 sz = h.sectionSizeHint(i)
                 h.resizeSection(i, sz)
-        # Because of a bug in Qt 5 we have to ensure that the header is actually
-        # relaid out by changing this value, without this sometimes ghost
-        # columns remain visible when changing libraries
-        for i in xrange(h.count()):
-            val = h.isSectionHidden(i)
-            h.setSectionHidden(i, not val)
-            h.setSectionHidden(i, val)
 
     def get_default_state(self):
         old_state = {
