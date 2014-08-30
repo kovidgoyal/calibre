@@ -484,7 +484,6 @@ class KINDLE2(KINDLE):
         apnx_path = '%s.apnx' % os.path.join(path, filename)
         apnx_builder = APNXBuilder()
         ### Check to see if there is an existing apnx file on Kindle we should keep.
-        apnx_file = '%s.apnx' % os.path.splitext(filepath.lower())[0]
         if not opts.extra_customization[self.OPT_APNX_OVERWRITE] and os.path.isfile(apnx_path):
             pass #do nothing, existing apnx file on the kindle is kept
         else:
