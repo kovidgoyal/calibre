@@ -70,6 +70,7 @@ class EbookViewer(MainWindow):
         self.pending_reference = None
         self.pending_bookmark  = None
         self.pending_restore   = False
+        self.cursor_hidden     = False
         self.existing_bookmarks= []
         self.selected_text     = None
         self.was_maximized     = False
@@ -155,6 +156,22 @@ class EbookViewer(MainWindow):
         self.action_toggle_paged_mode.toggled[bool].connect(self.toggle_paged_mode)
         if (start_in_fullscreen or self.view.document.start_in_fullscreen):
             self.action_full_screen.trigger()
+        self.hide_cursor_timer = t = QTimer(self)
+        t.setSingleShot(True), t.setInterval(3000)
+        t.timeout.connect(self.hide_cursor)
+        t.start()
+
+    def eventFilter(self, obj, ev):
+        if ev.type() == ev.MouseMove:
+            if self.cursor_hidden:
+                self.cursor_hidden = False
+                QApplication.instance().restoreOverrideCursor()
+            self.hide_cursor_timer.start()
+        return False
+
+    def hide_cursor(self):
+        self.cursor_hidden = True
+        QApplication.instance().setOverrideCursor(Qt.BlankCursor)
 
     def toggle_paged_mode(self, checked, at_start=False):
         in_paged_mode = not self.action_toggle_paged_mode.isChecked()
@@ -1001,6 +1018,7 @@ def main(args=sys.argv):
     main = EbookViewer(args[1] if len(args) > 1 else None,
             debug_javascript=opts.debug_javascript, open_at=open_at,
                        start_in_fullscreen=opts.full_screen)
+    app.installEventFilter(main)
     # This is needed for paged mode. Without it, the first document that is
     # loaded will have extra blank space at the bottom, as
     # turn_off_internal_scrollbars does not take effect for the first
