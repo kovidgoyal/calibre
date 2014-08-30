@@ -7,7 +7,7 @@ __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import sys, os, shutil, plistlib, subprocess, glob, zipfile, tempfile, \
-    py_compile, stat, operator
+    py_compile, stat, operator, time
 abspath, join, basename = os.path.abspath, os.path.join, os.path.basename
 
 from setup import (
@@ -360,7 +360,7 @@ class Py2App(object):
                 LSMinimumSystemVersion='10.7.2',
                 LSRequiresNativeExecution=True,
                 NSAppleScriptEnabled=False,
-                NSHumanReadableCopyright='Copyright 2014, Kovid Goyal',
+                NSHumanReadableCopyright=time.strftime('Copyright %Y, Kovid Goyal'),
                 CFBundleGetInfoString=('calibre, an E-book management '
                 'application. Visit http://calibre-ebook.com for details.'),
                 CFBundleIconFile='calibre.icns',
