@@ -19,7 +19,7 @@ from PyQt5.Qt import (QPushButton, QFrame, QMenu, QInputDialog,
 from calibre.ebooks.oeb.polish.container import get_container, AZW3Container
 from calibre.ebooks.oeb.polish.toc import (
     get_toc, add_id, TOC, commit_toc, from_xpaths, from_links, from_files)
-from calibre.gui2 import Application, error_dialog, gprefs
+from calibre.gui2 import Application, error_dialog, gprefs, info_dialog
 from calibre.gui2.progress_indicator import ProgressIndicator
 from calibre.gui2.toc.location import ItemEdit
 from calibre.gui2.convert.xpath_wizard import XPathEdit
@@ -402,7 +402,16 @@ class TreeWidget(QTreeWidget):  # {{{
         self.setCurrentItem(item, 0, QItemSelectionModel.ClearAndSelect)
         self.scrollToItem(item)
 
+    def check_multi_selection(self):
+        if len(self.selectedItems()) > 1:
+            return info_dialog(self, _('Multiple items selected'), _(
+                'You are trying to move multiple items at once, this is not supported. Instead use'
+                ' Drag and Drop to move multiple items'), show=True)
+        return True
+
     def move_left(self):
+        if not self.check_multi_selection():
+            return
         item = self.currentItem()
         if item is not None:
             parent = item.parent()
@@ -420,6 +429,8 @@ class TreeWidget(QTreeWidget):  # {{{
                 self.highlight_item(item)
 
     def move_right(self):
+        if not self.check_multi_selection():
+            return
         item = self.currentItem()
         if item is not None:
             parent = item.parent() or self.invisibleRootItem()
@@ -434,6 +445,8 @@ class TreeWidget(QTreeWidget):  # {{{
                 self.highlight_item(item)
 
     def move_down(self):
+        if not self.check_multi_selection():
+            return
         item = self.currentItem()
         if item is None:
             if self.root.childCount() == 0:
@@ -457,6 +470,8 @@ class TreeWidget(QTreeWidget):  # {{{
         self.highlight_item(item)
 
     def move_up(self):
+        if not self.check_multi_selection():
+            return
         item = self.currentItem()
         if item is None:
             if self.root.childCount() == 0:
@@ -961,4 +976,3 @@ if __name__ == '__main__':
     d.start()
     d.exec_()
     del d  # Needed to prevent sigsegv in exit cleanup
-
