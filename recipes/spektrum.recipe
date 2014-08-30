@@ -1,7 +1,7 @@
 ##
 ## Written:      October 2012 (new coding)
-## Version:      7.0
-## Last update:  2014-02-25
+## Version:      8.0
+## Last update:  2014-08-29
 ##
 
 __license__   = 'GPL v3'
@@ -22,7 +22,8 @@ class AdvancedUserRecipe1303841067(BasicNewsRecipe):
     remove_javascript     = True
     remove_empty_feeds    = True
     language              = 'de'
-
+    encoding              = 'cp1252' # AGe 2014-08-21 new
+#    recursions						= 0 # AGe 2014-08-21 new
     #conversion_options    = {'base_font_size': 20}
 
 
@@ -30,7 +31,7 @@ class AdvancedUserRecipe1303841067(BasicNewsRecipe):
     cover_url             = 'http://www16.zippyshare.com/scaled/52219516/file.html' # AGE 2013-07-26 new cover location
 
     masthead_url          = 'http://www.spektrum.de/fm/861/spektrum.de.png'
-    
+
     # AGE 2014-02-25 add .textbox-wide
     extra_css      =  '''
                       h1 {font-size: 1.6em; text-align: left}
@@ -44,24 +45,18 @@ class AdvancedUserRecipe1303841067(BasicNewsRecipe):
               (u'Spektrum.de', u'http://www.spektrum.de/alias/rss/spektrum-de-rss-feed/996406'),
               (u'Spektrum der Wissenschaft', u'http://www.spektrum.de/alias/rss/spektrum-der-wissenschaft-rss-feed/982623'),
               (u'Gehirn & Geist', u'http://www.spektrum.de/alias/rss/gehirn-geist-rss-feed/982626'),
-              (u'Epoc', u'http://www.spektrum.de/alias/rss/epoc-rss-feed/982625'),
               (u'Sterne und Weltraum', u'http://www.spektrum.de/alias/rss/sterne-und-weltraum-rss-feed/865248'),
-              (u'Editional', u'http://www.spektrum.de/alias/rss/spektrum-de-editorial/996044'),
-              (u'Pressemitteilungen', u'http://www.spektrum.de/alias/rss/pressemitteilungen/995265'),
+              (u'Pressemitteilungen', u'http://www.spektrum.de/alias/rss/pressemitteilungen/995265'), # AGe 2014-08-21 available but empty
+							(u'Meistgelesene Artikel',u'http://www.spektrum.de/alias/rss/spektrum-de-meistgelesene-artikel/1224665'), # AGe 2014-08-21 new
+
              ]
 
     keep_only_tags = [
-                        dict(name='div', attrs={'class':'border-h clearfix article-top'}),
-                        dict(name='div', attrs={'class':'clearfix'}),
-                        dict(name='div', attrs={'class':'bilderrahmenlinks'}),
-                        dict(name='div', attrs={'class':'relcontainer'}),
+                        dict(name='div', attrs={'class':'border-h clearfix article-top relcontainer'}),
+                        dict(name='article', attrs={'class':'clearfix'}),
                       ]
 
-    remove_tags_after=dict(name='div', attrs={'class':['sidebar-box-head']})
-
     remove_tags = [
-                    dict(attrs={'id':['recommend-article', 'dossierbox', 'cover', 'toc']}),
-                    dict(attrs={'class':['sidebar-box-full clearfix', 'linktotop' ]}),
-                    dict(name='a', attrs={'class':'button-petrol'}), # AGE 2014-02-25
-                    dict(name='hr', attrs={'class':['box-border left','box-border right']}), # AGE 2014-02-25
+                    dict(name='aside', attrs={'class':['bilderrahmenlinks','bilderrahmenrechts']}), # AGE 2014-08-29
+                    dict(name='div', attrs={'class':'textbox-wide clearfix'}), # AGE 2014-08-29
                   ]
