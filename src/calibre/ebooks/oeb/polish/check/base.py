@@ -8,6 +8,7 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
 from multiprocessing.pool import ThreadPool
 from functools import partial
+from contextlib import closing
 
 from calibre import detect_ncpus as cpu_count
 
@@ -31,13 +32,6 @@ class BaseError(object):
 
     __repr__ = __str__
 
-class Worker(object):
-
-    def __init__(self, func):
-        self.func = func
-        self.result = None
-        self.tb = None
-
 def worker(func, args):
     try:
         result = func(*args)
@@ -52,9 +46,10 @@ def run_checkers(func, args_list):
     num = cpu_count()
     pool = ThreadPool(num)
     ans = []
-    for result, tb in pool.map(partial(worker, func), args_list):
-        if tb is not None:
-            raise Exception('Failed to run worker: \n%s' % tb)
-        ans.extend(result)
+    with closing(pool):
+        for result, tb in pool.map(partial(worker, func), args_list):
+            if tb is not None:
+                raise Exception('Failed to run worker: \n%s' % tb)
+            ans.extend(result)
     return ans
 
