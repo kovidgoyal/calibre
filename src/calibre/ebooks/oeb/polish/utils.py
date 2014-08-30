@@ -158,6 +158,7 @@ def parse_css(data, fname='<string>', is_declaration=False, decode=None, log_lev
     from calibre.ebooks.oeb.base import _css_logger
     log.setLevel(log_level)
     log.raiseExceptions = False
+    data = data or ''
     if isinstance(data, bytes):
         data = data.decode('utf-8') if decode is None else decode(data)
     if css_preprocessor is not None:
