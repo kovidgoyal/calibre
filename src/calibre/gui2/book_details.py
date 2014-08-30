@@ -293,6 +293,7 @@ class BookInfo(QWebView):
             ac.current_url = None
             ac.triggered.connect(getattr(self, '%s_triggerred'%x))
             setattr(self, '%s_action'%x, ac)
+        self.setFocusPolicy(Qt.NoFocus)
 
     def context_action_triggered(self, which):
         f = getattr(self, '%s_action'%which).current_fmt
