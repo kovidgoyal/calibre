@@ -343,7 +343,8 @@ def fetch_plugins(old_index):
     ans = {}
     pool = ThreadPool(processes=10)
     entries = tuple(parse_index())
-    result = pool.map(partial(parallel_fetch, old_index), entries)
+    with closing(pool):
+        result = pool.map(partial(parallel_fetch, old_index), entries)
     for entry, plugin in zip(entries, result):
         if isinstance(plugin, dict):
             ans[entry.name] = plugin
