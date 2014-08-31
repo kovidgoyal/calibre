@@ -120,7 +120,7 @@ def get_custom_recipe_collection(*args):
 
 
 def update_custom_recipe(id_, title, script):
-    update_custom_recipes( [(id_, title, script)] )
+    update_custom_recipes([(id_, title, script)])
 
 def update_custom_recipes(script_ids):
     from calibre.web.feeds.recipes import custom_recipes, \
@@ -140,6 +140,9 @@ def update_custom_recipes(script_ids):
             script = script.encode('utf-8')
 
         custom_recipes[id_] = (title, fname)
+
+        if not os.path.exists(bdir):
+            os.makedirs(bdir)
 
         with open(os.path.join(bdir, fname), 'wb') as f:
             f.write(script)
@@ -165,6 +168,9 @@ def add_custom_recipes(script_map):
                 script = script.encode('utf-8')
 
             custom_recipes[fid] = (title, fname)
+
+            if not os.path.exists(bdir):
+                os.makedirs(bdir)
 
             with open(os.path.join(bdir, fname), 'wb') as f:
                 f.write(script)
@@ -538,4 +544,3 @@ class SchedulerConfig(object):
         recipe = {'id':urn, 'title':r['title']}
         self.schedule_recipe(recipe, typ, schedule,
         last_downloaded=r['last_downloaded'])
-
