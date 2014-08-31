@@ -491,8 +491,11 @@ class Scheduler(QObject):
     def customize_feeds(self, *args):
         from calibre.gui2.dialogs.user_profiles import UserProfiles
         d = UserProfiles(self._parent, self.recipe_model)
-        d.exec_()
-        d.break_cycles()
+        try:
+            d.exec_()
+            d.break_cycles()
+        finally:
+            d.deleteLater()
 
     def do_download(self, urn):
         self.lock.lock()

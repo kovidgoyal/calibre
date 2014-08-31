@@ -1048,7 +1048,8 @@ def edit_metadata(db, row_list, current_row, parent=None, view_slot=None,
                 set_current_callback=set_current_callback)
         return d.changed, d.rows_to_refresh
     finally:
-        d.hide()  # possible workaround for bug reports of occasional ghost edit metadata dialog on windows
+        # possible workaround for bug reports of occasional ghost edit metadata dialog on windows
+        d.deleteLater()
 
 if __name__ == '__main__':
     from calibre.gui2 import Application as QApplication
