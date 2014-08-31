@@ -22,6 +22,13 @@ class ChooseFormatDialog(QDialog, Ui_ChooseFormatDialog):
         self.formats.setCurrentRow(0)
         self._format = None
 
+    def book_converted(self, book_id, fmt):
+        fmt = fmt.upper()
+        if fmt not in self._formats:
+            self._formats.append(fmt)
+            self.formats.addItem(QListWidgetItem(
+                file_icon_provider().icon_from_ext(fmt.lower()), fmt.upper()))
+
     def activated_slot(self, *args):
         self.accept()
 

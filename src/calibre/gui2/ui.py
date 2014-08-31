@@ -142,6 +142,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
     'The main GUI'
 
     proceed_requested = pyqtSignal(object, object)
+    book_converted = pyqtSignal(object, object)
 
     def __init__(self, opts, parent=None, gui_debug=None):
         global _gui

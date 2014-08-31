@@ -158,8 +158,8 @@ class ViewAction(InterfaceAction):
 
         db = self.gui.library_view.model().db
         rows = [r.row() for r in rows]
-        formats = [db.formats(row) for row in rows]
-        formats = [list(f.upper().split(',')) if f else None for f in formats]
+        book_ids = [db.id(r) for r in rows]
+        formats = [[x.upper() for x in db.new_api.formats(book_id)] for book_id in book_ids]
         all_fmts = set([])
         for x in formats:
             if x:
@@ -171,7 +171,9 @@ class ViewAction(InterfaceAction):
             return
         d = ChooseFormatDialog(self.gui, _('Choose the format to view'),
                 list(sorted(all_fmts)))
+        self.gui.book_converted.connect(d.book_converted)
         if d.exec_() == d.Accepted:
+            formats = [[x.upper() for x in db.new_api.formats(book_id)] for book_id in book_ids]
             fmt = d.format()
             orig_num = len(rows)
             rows = [rows[i] for i in range(len(rows)) if formats[i] and fmt in
@@ -184,6 +186,7 @@ class ViewAction(InterfaceAction):
                             _('Not all the selected books were available in'
                                 ' the %s format. You should convert'
                                 ' them first.')%fmt, show=True)
+        self.gui.book_converted.disconnect(d.book_converted)
 
     def _view_check(self, num, max_=3):
         if num <= max_:
@@ -283,8 +286,7 @@ class ViewAction(InterfaceAction):
         self.persistent_files.append(pt)
         pt.close()
         self.gui.device_manager.view_book(
-                Dispatcher(self.book_downloaded_for_viewing),
-                                        path, pt.name)
+                Dispatcher(self.book_downloaded_for_viewing), path, pt.name)
 
     def _view_books(self, rows):
         if not rows or len(rows) == 0:
