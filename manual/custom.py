@@ -28,7 +28,7 @@ def source_read_handler(app, docname, source):
 CLI_INDEX='''
 .. _cli:
 
-Command Line Interface
+%s
 ==========================
 
 .. image:: ../../images/cli.png
@@ -36,7 +36,7 @@ Command Line Interface
 .. note::
     %s
 
-Documented Commands
+%s
 --------------------
 
 .. toctree::
@@ -44,7 +44,7 @@ Documented Commands
 
 {documented}
 
-Undocumented Commands
+%s
 -------------------------
 
 {undocumented}

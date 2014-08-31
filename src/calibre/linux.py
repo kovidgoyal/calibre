@@ -1101,9 +1101,11 @@ def main():
     return 0
 
 def cli_index_strings():
-    return _('On OS X, the command line tools are inside the |app| bundle, for example,'
+    return _('Command Line Interface'), _(
+        'On OS X, the command line tools are inside the |app| bundle, for example,'
     ' if you installed calibre in :file:`/Applications` the command line tools'
     ' are in :file:`/Applications/calibre.app/Contents/console.app/Contents/MacOS/`.'), _(
+        'Documented Commands'), _('Undocumented Commands'), _(
         'You can see usage for undocumented commands by executing them without arguments in a terminal.')
 
 
