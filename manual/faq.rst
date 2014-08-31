@@ -347,7 +347,10 @@ With the USB cable + iTunes
 
 Use the 'Connect to iTunes' method in the 'Getting started' instructions in `Calibre + Apple iDevices: Start here <http://www.mobileread.com/forums/showthread.php?t=118559>`_.
 
-This method only works on Windows XP and higher, and OS X 10.5 and higher. Linux is not supported (iTunes is not available in linux) and OS X 10.4 is not supported.
+This method only works on Windows Vista and higher, and OS X upto 10.8 and
+higher. Linux is not supported (iTunes is not available in linux) and OS X
+newer than 10.8 is not supported, as Apple removed the facility to use iTunes
+to manage books, replacing it with iBooks.
 
 How do I use |app| with my Android phone/tablet or Kindle Fire HD?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
