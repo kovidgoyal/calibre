@@ -930,6 +930,15 @@ class Application(QApplication):
                 ' which works well on Windows XP.') % 'http://download.calibre-ebook.com/1.48.0/', show=True)
             raise SystemExit(1)
 
+        if iswindows:
+            # On windows the highlighted colors for inactive widgets are the
+            # same as non highlighted colors. This is a regression from Qt 4.
+            # https://bugreports.qt-project.org/browse/QTBUG-41060
+            p = self.palette()
+            for role in (p.Highlight, p.HighlightedText, p.Base, p.AlternateBase):
+                p.setColor(p.Inactive, role, p.color(p.Active, role))
+            self.setPalette(p)
+
     def load_builtin_fonts(self, scan_for_fonts=False):
         if scan_for_fonts:
             from calibre.utils.fonts.scanner import font_scanner
