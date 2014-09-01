@@ -328,7 +328,8 @@ class KINDLE2(KINDLE):
             ' store the preferred method for calculating the number of pages'
             ' for a book, you can have calibre use that method instead of the'
             ' default one selected above.  Specify the name of the custom'
-            ' column here, for example, #pagemethod.'),
+            ' column here, for example, #pagemethod. The custom column should have the '
+            ' values: fast, accurate or pagebreak.'),
         _('Overwrite existing apnx on device') + ':::' + _(
             'Uncheck this option to allow an apnx file existing on the device'
             ' to have priority over the version which calibre would send.'
@@ -480,13 +481,13 @@ class KINDLE2(KINDLE):
                 cust_col_name = opts.extra_customization[self.OPT_APNX_METHOD_COL]
                 if cust_col_name:
                     try:
-                        temp = unicode(metadata.get(cust_col_name, 0))
+                        temp = unicode(metadata.get(cust_col_name)).lower()
                         if temp in self.EXTRA_CUSTOMIZATION_CHOICES[self.OPT_APNX_METHOD]:
                             method = temp
                         else:
-                            print "Invalid method choice for this book, reverting to default."
+                            print ("Invalid method choice for this book (%r), ignoring." % temp)
                     except:
-                        print 'Could not retrieve override method choice, reverting to default.'
+                        print 'Could not retrieve override method choice, using default.'
                 print 'Generating apnx with', method
                 apnx_builder.write_apnx(filepath, apnx_path, method=method, page_count=custom_page_count)
             except:
