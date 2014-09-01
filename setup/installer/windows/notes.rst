@@ -504,7 +504,7 @@ Download Qt sourcecode (.zip) from: http://download.qt-project.org/official_rele
          }
  
 -        if (shouldApplyFontTransforms() && glyphBuffer && Font::treatAsSpace(character))
-+        if (shouldApplyFontTransforms() && glyphBuffer && (Font::treatAsSpace(character) || character == 0xad || character == 0x200b || character == 0x200c || character == 0x2060))
++        if (shouldApplyFontTransforms() && glyphBuffer && (Font::treatAsSpace(character) || Font::treatAsZeroWidthSpace(character)))
              charactersTreatedAsSpace.append(make_pair(glyphBuffer->size(),
                  OriginalAdvancesForCharacterTreatedAsSpace(character == ' ', glyphBuffer->size() ? glyphBuffer->advanceAt(glyphBuffer->size() - 1).width() : 0, width)));
  
