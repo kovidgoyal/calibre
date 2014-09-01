@@ -590,7 +590,7 @@ class EditMetadataAction(InterfaceAction):
                 if (dt == 'series' and not dest_value and src_value):
                     src_index = db.get_custom_extra(src_id, num=colnum, index_is_id=True)
                     db.set_custom(dest_id, src_value, num=colnum, extra=src_index)
-                if (dt == 'enumeration' or (dt == 'text' and not fm['is_multiple']) and not dest_value):
+                if ((dt == 'enumeration' or (dt == 'text' and not fm['is_multiple'])) and not dest_value):
                     db.set_custom(dest_id, src_value, num=colnum)
                 if (dt == 'text' and fm['is_multiple'] and src_value):
                     if not dest_value:
