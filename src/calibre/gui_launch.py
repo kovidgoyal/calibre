@@ -49,3 +49,11 @@ def ebook_edit():
     from calibre.gui2.tweak_book.main import main
     main()
 
+def option_parser(basename):
+    if basename == 'calibre':
+        from calibre.gui2.main import option_parser
+    elif basename == 'ebook-viewer':
+        from calibre.gui2.viewer.main import option_parser
+    elif basename == 'ebook-edit':
+        from calibre.gui2.tweak_book.main import option_parser
+    return option_parser()
