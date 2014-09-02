@@ -199,7 +199,8 @@ class GuiRunner(QObject):
 
     def hide_splash_screen(self):
         if self.splash_screen is not None:
-            self.splash_screen.hide()
+            with self.app:
+                self.splash_screen.hide()
         self.splash_screen = None
 
     def choose_dir(self, initial_dir):
@@ -210,7 +211,8 @@ class GuiRunner(QObject):
 
     def show_error(self, title, msg, det_msg=''):
         self.hide_splash_screen()
-        error_dialog(self.main, title, msg, det_msg=det_msg, show=True)
+        with self.app:
+            error_dialog(self.main, title, msg, det_msg=det_msg, show=True)
 
     def initialization_failed(self):
         print 'Catastrophic failure initializing GUI, bailing out...'
@@ -254,14 +256,15 @@ class GuiRunner(QObject):
             db = LibraryDatabase(self.library_path)
         except apsw.Error:
             self.hide_splash_screen()
-            repair = question_dialog(None, _('Corrupted database'),
-                    _('The library database at %s appears to be corrupted. Do '
-                    'you want calibre to try and rebuild it automatically? '
-                    'The rebuild may not be completely successful. '
-                    'If you say No, a new empty calibre library will be created.')
-                    % force_unicode(self.library_path, filesystem_encoding),
-                    det_msg=traceback.format_exc()
-                    )
+            with self.app:
+                repair = question_dialog(None, _('Corrupted database'),
+                        _('The library database at %s appears to be corrupted. Do '
+                        'you want calibre to try and rebuild it automatically? '
+                        'The rebuild may not be completely successful. '
+                        'If you say No, a new empty calibre library will be created.')
+                        % force_unicode(self.library_path, filesystem_encoding),
+                        det_msg=traceback.format_exc()
+                        )
             if repair:
                 if repair_library(self.library_path):
                     db = LibraryDatabase(self.library_path)

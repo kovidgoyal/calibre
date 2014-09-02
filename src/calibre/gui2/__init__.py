@@ -1040,6 +1040,12 @@ class Application(QApplication):
         if colors != self.color_prefs.get('custom_colors_for_color_dialog', None):
             self.color_prefs.set('custom_colors_for_color_dialog', colors)
 
+    def __enter__(self):
+        self.setQuitOnLastWindowClosed(False)
+
+    def __exit__(self, *args):
+        self.setQuitOnLastWindowClosed(True)
+
 _store_app = None
 
 class SanitizeLibraryPath(object):
