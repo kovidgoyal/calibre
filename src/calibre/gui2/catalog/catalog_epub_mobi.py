@@ -51,19 +51,19 @@ class PluginWidget(QWidget,Ui_Form):
 
         for item in self.__dict__:
             if type(self.__dict__[item]) is QCheckBox:
-                CheckBoxControls.append(str(self.__dict__[item].objectName()))
+                CheckBoxControls.append(self.__dict__[item].objectName())
             elif type(self.__dict__[item]) is QComboBox:
-                ComboBoxControls.append(str(self.__dict__[item].objectName()))
+                ComboBoxControls.append(self.__dict__[item].objectName())
             elif type(self.__dict__[item]) is QDoubleSpinBox:
-                DoubleSpinBoxControls.append(str(self.__dict__[item].objectName()))
+                DoubleSpinBoxControls.append(self.__dict__[item].objectName())
             elif type(self.__dict__[item]) is QLineEdit:
-                LineEditControls.append(str(self.__dict__[item].objectName()))
+                LineEditControls.append(self.__dict__[item].objectName())
             elif type(self.__dict__[item]) is QRadioButton:
-                RadioButtonControls.append(str(self.__dict__[item].objectName()))
+                RadioButtonControls.append(self.__dict__[item].objectName())
             elif type(self.__dict__[item]) is QTableWidget:
-                TableWidgetControls.append(str(self.__dict__[item].objectName()))
+                TableWidgetControls.append(self.__dict__[item].objectName())
             elif type(self.__dict__[item]) is QTextEdit:
-                TextEditControls.append(str(self.__dict__[item].objectName()))
+                TextEditControls.append(self.__dict__[item].objectName())
 
         option_fields = zip(CheckBoxControls,
                             [True for i in CheckBoxControls],
@@ -79,7 +79,7 @@ class PluginWidget(QWidget,Ui_Form):
         option_fields += zip(['exclude_genre'],['\[.+\]|^\+$'],['line_edit'])
 
         # TextEditControls
-        #option_fields += zip(['exclude_genre_results'],['excluded genres will appear here'],['text_edit'])
+        # option_fields += zip(['exclude_genre_results'],['excluded genres will appear here'],['text_edit'])
 
         # SpinBoxControls
         option_fields += zip(['thumb_width'],[1.00],['spin_box'])
@@ -208,7 +208,7 @@ class PluginWidget(QWidget,Ui_Form):
             all_genre_tags = list(self.db.all_custom(self.db.field_metadata.key_to_label(self.genre_source_field_name)))
 
         try:
-            pattern = re.compile((str(regex)))
+            pattern = re.compile(regex)
         except:
             results = _("regex error: %s") % sys.exc_info()[1]
         else:
@@ -267,7 +267,7 @@ class PluginWidget(QWidget,Ui_Form):
         Process changes in the genre_source_field combo box
         Update Excluded genres preview
         '''
-        new_source = str(self.genre_source_field.currentText())
+        new_source = self.genre_source_field.currentText()
         self.genre_source_field_name = new_source
         if new_source != _('Tags'):
             genre_source_spec = self.genre_source_fields[unicode(new_source)]
@@ -284,7 +284,7 @@ class PluginWidget(QWidget,Ui_Form):
             elif peer.children():
                 for child in peer.children():
                     if child.objectName() == 'format':
-                        current_format = str(child.currentText()).strip()
+                        current_format = child.currentText().strip()
                     elif child.objectName() == 'title':
                         current_title = unicode(child.text()).strip()
         self.parentWidget().blockSignals(False)
@@ -294,7 +294,7 @@ class PluginWidget(QWidget,Ui_Form):
         '''
         Process changes in the header_note_source_field combo box
         '''
-        new_source = str(self.header_note_source_field.currentText())
+        new_source = self.header_note_source_field.currentText()
         self.header_note_source_field_name = new_source
         if new_source > '':
             header_note_source_spec = self.header_note_source_fields[unicode(new_source)]
@@ -338,7 +338,7 @@ class PluginWidget(QWidget,Ui_Form):
             c_name, c_def, c_type = opt
             opt_value = gprefs.get(self.name + '_' + c_name, c_def)
             if c_type in ['check_box']:
-                getattr(self, c_name).setChecked(eval(str(opt_value)))
+                getattr(self, c_name).setChecked(eval(unicode(opt_value)))
                 getattr(self, c_name).clicked.connect(partial(self.settings_changed, c_name))
             elif c_type in ['combo_box']:
                 if opt_value is None:
@@ -430,7 +430,7 @@ class PluginWidget(QWidget,Ui_Form):
         '''
         Process changes in the merge_source_field combo box
         '''
-        new_source = str(self.merge_source_field.currentText())
+        new_source = self.merge_source_field.currentText()
         self.merge_source_field_name = new_source
         if new_source > '':
             merge_source_spec = self.merge_source_fields[unicode(new_source)]
@@ -602,7 +602,7 @@ class PluginWidget(QWidget,Ui_Form):
         if not item_name:
             return
 
-        current_preset = str(self.preset_field.currentText())
+        current_preset = self.preset_field.currentText()
         options = self.presets[current_preset]
 
         exclusion_rules = []
@@ -619,9 +619,9 @@ class PluginWidget(QWidget,Ui_Form):
             else:
                 continue
             if c_type in ['check_box']:
-                getattr(self, c_name).setChecked(eval(str(opt_value)))
+                getattr(self, c_name).setChecked(eval(unicode(opt_value)))
                 if c_name == 'generate_genres':
-                    self.genre_source_field.setEnabled(eval(str(opt_value)))
+                    self.genre_source_field.setEnabled(eval(unicode(opt_value)))
             elif c_type in ['combo_box']:
                 if opt_value is None:
                     index = 0
@@ -1127,7 +1127,7 @@ class GenericRulesTable(QTableWidget):
     def source_index_changed(self, combo, row, pattern=''):
         # Populate the Pattern field based upon the Source field
 
-        source_field = str(combo.currentText())
+        source_field = combo.currentText()
 
         if source_field == '':
             values = []
@@ -1490,4 +1490,3 @@ class PrefixRules(GenericRulesTable):
         self.source_index_changed(source_combo, row, pattern=data['pattern'])
 
         self.blockSignals(False)
-
