@@ -6,7 +6,7 @@ meaning as possible.
 import os, errno, time
 from math import ceil
 
-from calibre import sanitize_file_name, isbytestring, force_unicode
+from calibre import sanitize_file_name, isbytestring, force_unicode, prints
 from calibre.constants import (preferred_encoding, iswindows,
         filesystem_encoding)
 from calibre.utils.localization import get_udc
@@ -368,9 +368,11 @@ class WindowsAtomicFolderMove(object):
                             _('File is open in another process'))
                     err.filename = f
                     raise err
+                prints('CreateFile failed for: %r' % f)
                 raise
             except:
                 self.close_handles()
+                prints('CreateFile failed for: %r' % f)
                 raise
             self.handle_map[f] = h
 
