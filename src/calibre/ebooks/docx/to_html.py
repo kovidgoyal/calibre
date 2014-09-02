@@ -615,6 +615,10 @@ class Convert(object):
                 text.add_elem(SPAN(NBSP * spaces))
                 ans.append(text.elem)
                 ans[-1].set('class', 'tab')
+            elif is_tag(child, 'w:noBreakHyphen'):
+                text.buf.append(u'\u2011')
+            elif is_tag(child, 'w:softHyphen'):
+                text.buf.append(u'\u00ad')
         if text.buf:
             setattr(text.elem, text.attr, ''.join(text.buf))
 
