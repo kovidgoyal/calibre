@@ -449,12 +449,13 @@ class EPUBOutput(OutputFormatPlugin):
                 if not in_table(tag):
                     tag.tag = XHTML('div')
 
+            # ADE fails to render non breaking hyphens/soft hyphens/zero width spaces
             special_chars = re.compile(u'[\u200b\u00ad]')
-            for elem in root.iterdescendants():
-                if getattr(elem, 'text', False):
+            for elem in root.iterdescendants('*'):
+                if elem.text:
                     elem.text = special_chars.sub('', elem.text)
                     elem.text = elem.text.replace(u'\u2011', '-')
-                if getattr(elem, 'tail', False):
+                if elem.tail:
                     elem.tail = special_chars.sub('', elem.tail)
                     elem.tail = elem.tail.replace(u'\u2011', '-')
 
