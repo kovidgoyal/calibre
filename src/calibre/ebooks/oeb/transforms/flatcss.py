@@ -463,6 +463,9 @@ class CSSFlattener(object):
                 items = sorted(cssdict.iteritems())
                 css = u';\n'.join(u'%s: %s' % (key, val) for key, val in items)
                 classes = node.get('class', '').strip() or 'calibre'
+                # lower() because otherwise if the document uses the same class
+                # name with different case, both cases will apply, leading
+                # to incorrect results.
                 klass = ascii_text(STRIPNUM.sub('', classes.split()[0])).lower()
                 if css in styles:
                     match = styles[css]
