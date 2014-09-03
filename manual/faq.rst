@@ -473,6 +473,10 @@ antivirus program.
           gmail you will need to 
           `allow less secure apps as descibed here <https://support.google.com/accounts/answer/6010255>`_.
 
+.. note:: If you are concerned about giving |app| access to your email
+          account, simply create a new free email account with Hotmail or Gmail
+          and use it only for |app|.
+
 Why is my device not detected in linux?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
