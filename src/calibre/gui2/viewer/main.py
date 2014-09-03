@@ -660,14 +660,6 @@ class EbookViewer(MainWindow):
         self.view.load_path(path, pos=pos)
 
     def viewport_resize_started(self, event):
-        old, curr = event.size(), event.oldSize()
-        if not self.window_mode_changed and old.width() == curr.width():
-            # No relayout changes, so page position does not need to be saved
-            # This is needed as Qt generates a viewport resized event that
-            # changes only the height after a file has been loaded. This can
-            # cause the last read position bookmark to become slightly
-            # inaccurate
-            return
         if not self.resize_in_progress:
             # First resize, so save the current page position
             self.resize_in_progress = True
