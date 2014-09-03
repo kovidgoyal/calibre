@@ -187,7 +187,13 @@ class SendEmail(QWidget, Ui_Form):
                     'port': 587,
                     'username': '@gmail.com',
                     'url': 'www.gmail.com',
-                    'extra': '',
+                    'extra': _(
+                        'Google recently deliberately broke their email sending protocol (SMTP) support in'
+                        ' an attempt to force everyone to use their web interface so they can'
+                        ' show you more ads. They are trying to claim that SMTP is insecure,'
+                        ' that is incorrect and simply an excuse. To use a gmail account'
+                        ' you will need to "allow less secure apps" as described'
+                        ' <a href="https://support.google.com/accounts/answer/6010255">here</a>.'),
                     'at_in_username': True,
                 },
                 'hotmail': {
@@ -199,9 +205,7 @@ class SendEmail(QWidget, Ui_Form):
                     'extra': _('If you are setting up a new'
                         ' hotmail account, Microsoft requires that you '
                         ' verify your account periodically, before it'
-                        ' will let calibre send email. In this case, I'
-                        ' strongly suggest you setup a free gmail account'
-                        ' instead.'),
+                        ' will let calibre send email.'),
                     'at_in_username': True,
                 }
         }[service]

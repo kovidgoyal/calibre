@@ -447,11 +447,14 @@ Because of the large amount of spam in email, sending email can be tricky, as di
 The most common problem is if you are sending email directly (without a mail relay) in |app|. Many servers (for example, Amazon) block email
 that does not come from a well known relay. The most robust way to setup email sending in |app| is to do the following:
 
-  * Create a free GMail account at `Google <http://www.gmail.com>`_. 
-  * Goto Preferences->Email in |app| and click the "Use Gmail" button and fill in the information asked for.
-  * |app| will then use GMail to send the mail.
+  * Create a free Hotmail account at `Hotmail <http://www.hotmail.com>`_. 
+  * Goto Preferences->Email in |app| and click the "Use Hotmail" button and fill in the information asked for.
+  * Microsoft sometimes requires you to manually send a few emails using their web
+    interface with a new account, until you do that, it will prevent automatic
+    sending of email by |app|. This is likely an anti-spam measure.
+  * |app| will then use Hotmail to send the mail.
   * If you are sending to your Kindle, remember to update the email preferences
-    on your Amazon Kindle page to allow email sent from your GMail email
+    on your Amazon Kindle page to allow email sent from your Hotmail email
     address. Also note that Amazon does not allow email delivery of AZW3 and
     new style (KF8) MOBI files.
 
@@ -459,9 +462,16 @@ Even after doing this, you may have problems. One common source of problems is t
 programs block |app| from opening a connection to send email. Try adding an exclusion for |app| in your
 antivirus program.
 
-.. note:: Google can disable your account if you use it to send large amounts of email. So, when using GMail to send mail |app| automatically restricts
+.. note:: Microsoft can disable your account if you use it to send large amounts of email. So, when using Hotmail to send mail |app| automatically restricts
           itself to sending one book every five minutes. If you don't mind risking your account being blocked you can reduce this wait interval by
           going to Preferences->Tweaks in |app|.
+
+.. note:: Google recently deliberately broke their email sending protocol (SMTP) support in
+          an attempt to force everyone to use their web interface so they can
+          show you more ads. They are trying to claim that SMTP is insecure,
+          that is incorrect and simply an excuse. If you have trouble with
+          gmail you will need to 
+          `allow less secure apps as descibed here <https://support.google.com/accounts/answer/6010255>`_.
 
 Why is my device not detected in linux?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

@@ -207,13 +207,13 @@
    <item row="1" column="1">
     <layout class="QVBoxLayout" name="verticalLayout_9">
      <item>
-      <widget class="QToolButton" name="relay_use_gmail">
+      <widget class="QToolButton" name="relay_use_hotmail">
        <property name="text">
-        <string>Use Gmail</string>
+        <string>Use Hotmail</string>
        </property>
        <property name="icon">
         <iconset resource="../../../../resources/images.qrc">
-         <normaloff>:/images/gmail_logo.png</normaloff>:/images/gmail_logo.png</iconset>
+         <normaloff>:/images/hotmail.png</normaloff>:/images/hotmail.png</iconset>
        </property>
        <property name="iconSize">
         <size>
@@ -227,13 +227,13 @@
       </widget>
      </item>
      <item>
-      <widget class="QToolButton" name="relay_use_hotmail">
+      <widget class="QToolButton" name="relay_use_gmail">
        <property name="text">
-        <string>Use Hotmail</string>
+        <string>Use Gmail</string>
        </property>
        <property name="icon">
         <iconset resource="../../../../resources/images.qrc">
-         <normaloff>:/images/hotmail.png</normaloff>:/images/hotmail.png</iconset>
+         <normaloff>:/images/gmail_logo.png</normaloff>:/images/gmail_logo.png</iconset>
        </property>
        <property name="iconSize">
         <size>
