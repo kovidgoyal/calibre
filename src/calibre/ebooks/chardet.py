@@ -12,10 +12,10 @@ import re, codecs
 ENCODING_PATS = [
     # XML declaration
     re.compile(r'<\?[^<>]+encoding\s*=\s*[\'"](.*?)[\'"][^<>]*>', re.IGNORECASE),
-    # HTML 4 Pragma directive
-    re.compile(r'''<meta\s+?[^<>]*?content\s*=\s*['"][^'"]*?charset=([-_a-z0-9]+)[^'"]*?['"][^<>]*>(?:\s*</meta>){0,1}''', re.IGNORECASE),
     # HTML 5 charset
     re.compile(r'''<meta\s+charset=['"]([-_a-z0-9]+)['"][^<>]*>(?:\s*</meta>){0,1}''', re.IGNORECASE),
+    # HTML 4 Pragma directive
+    re.compile(r'''<meta\s+?[^<>]*?content\s*=\s*['"][^'"]*?charset=([-_a-z0-9]+)[^'"]*?['"][^<>]*>(?:\s*</meta>){0,1}''', re.IGNORECASE),
 ]
 ENTITY_PATTERN = re.compile(r'&(\S+?);')
 
