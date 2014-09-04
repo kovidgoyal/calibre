@@ -18,6 +18,7 @@ from calibre.ebooks.BeautifulSoup import BeautifulSoup
 from calibre.ebooks.oeb.base import XPath, XHTML_NS, XHTML, xml2text, urldefrag
 from calibre.library.comments import comments_to_html
 from calibre.utils.date import is_date_undefined
+from calibre.utils.icu import sort_key
 from calibre.ebooks.chardet import strip_encoding_declarations
 from calibre.ebooks.metadata import fmt_sidx
 
@@ -155,6 +156,14 @@ class Series(unicode):
         s.roman = roman
         return s
 
+class Tags(unicode):
+
+    def __new__(self, tags, output_profile):
+        tags = tags or ()
+        t = unicode.__new__(self, output_profile.tags_to_string(tags))
+        t.alphabetical = output_profile.tags_to_string(sorted(tags, key=sort_key))
+        return t
+
 def render_jacket(mi, output_profile,
         alt_title=_('Unknown'), alt_tags=[], alt_comments='',
         alt_publisher=(''), rescale_fonts=False):
@@ -183,11 +192,7 @@ def render_jacket(mi, output_profile,
 
     rating = get_rating(mi.rating, output_profile.ratings_char, output_profile.empty_ratings_char)
 
-    tags = mi.tags if mi.tags else alt_tags
-    if tags:
-        tags = output_profile.tags_to_string(tags)
-    else:
-        tags = ''
+    tags = Tags((mi.tags if mi.tags else alt_tags), output_profile)
 
     comments = mi.comments if mi.comments else alt_comments
     comments = comments.strip()
