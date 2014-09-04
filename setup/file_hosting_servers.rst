@@ -13,10 +13,13 @@ Edit /etc/hosts and put in FQDN in the appropriate places, for example::
 
 echo "Asia/Kolkata" > /etc/timezone && dpkg-reconfigure -f noninteractive tzdata && ntpdate ntp.ubuntu.com
 apt-get update
-apt-get install vim nginx zsh python-lxml python-mechanize iotop htop smartmontools mosh git ntp vnstat vnstati
+apt-get install vim nginx zsh python-lxml python-mechanize iotop htop smartmontools mosh git ntp vnstat vnstati python-pyasn1 python-openssl
 chsh -s /bin/zsh
 mkdir -p /root/staging /root/work/vim /srv/download /srv/manual
-
+wget https://bootstrap.pypa.io/get-pip.py
+python get-pip.py
+apt-get remove requests
+pip install requests ndg-httpsclient
 Edit /etc/vnstat.conf and change the default interface to whatever the interface for
 the server is and change the max bandwidth to 1024
 
