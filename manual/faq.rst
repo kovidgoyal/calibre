@@ -447,14 +447,11 @@ Because of the large amount of spam in email, sending email can be tricky, as di
 The most common problem is if you are sending email directly (without a mail relay) in |app|. Many servers (for example, Amazon) block email
 that does not come from a well known relay. The most robust way to setup email sending in |app| is to do the following:
 
-  * Create a free Hotmail account at `Hotmail <http://www.hotmail.com>`_. 
-  * Goto Preferences->Email in |app| and click the "Use Hotmail" button and fill in the information asked for.
-  * Microsoft sometimes requires you to manually send a few emails using their web
-    interface with a new account, until you do that, it will prevent automatic
-    sending of email by |app|. This is likely an anti-spam measure.
-  * |app| will then use Hotmail to send the mail.
+  * Create a free GMX account at `GMX <http://www.gmx.com>`_. 
+  * Goto Preferences->Email in |app| and click the "Use GMX" button and fill in the information asked for.
+  * |app| will then use GMX to send the mail.
   * If you are sending to your Kindle, remember to update the email preferences
-    on your Amazon Kindle page to allow email sent from your Hotmail email
+    on your Amazon Kindle page to allow email sent from your GMX email
     address. Also note that Amazon does not allow email delivery of AZW3 and
     new style (KF8) MOBI files.
 
@@ -462,20 +459,25 @@ Even after doing this, you may have problems. One common source of problems is t
 programs block |app| from opening a connection to send email. Try adding an exclusion for |app| in your
 antivirus program.
 
-.. note:: Microsoft can disable your account if you use it to send large amounts of email. So, when using Hotmail to send mail |app| automatically restricts
-          itself to sending one book every five minutes. If you don't mind risking your account being blocked you can reduce this wait interval by
-          going to Preferences->Tweaks in |app|.
+.. note:: 
+    Microsoft/Google can disable your account if you use it to send large
+    amounts of email. So, when using Hotmail/Gmail to send mail |app| automatically
+    restricts itself to sending one book every five minutes. If you don't mind
+    risking your account being blocked you can reduce this wait interval by going
+    to Preferences->Tweaks in |app|.
 
-.. note:: Google recently deliberately broke their email sending protocol (SMTP) support in
-          an attempt to force everyone to use their web interface so they can
-          show you more ads. They are trying to claim that SMTP is insecure,
-          that is incorrect and simply an excuse. If you have trouble with
-          gmail you will need to 
-          `allow less secure apps as descibed here <https://support.google.com/accounts/answer/6010255>`_.
+.. note:: 
+    Google recently deliberately broke their email sending protocol (SMTP) support in
+    an attempt to force everyone to use their web interface so they can
+    show you more ads. They are trying to claim that SMTP is insecure,
+    that is incorrect and simply an excuse. If you have trouble with
+    gmail you will need to 
+    `allow less secure apps as descibed here <https://support.google.com/accounts/answer/6010255>`_.
 
-.. note:: If you are concerned about giving |app| access to your email
-          account, simply create a new free email account with Hotmail or Gmail
-          and use it only for |app|.
+.. note:: 
+    If you are concerned about giving |app| access to your email
+    account, simply create a new free email account with GMX or Hotmail
+    and use it only for |app|.
 
 Why is my device not detected in linux?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

@@ -134,7 +134,7 @@ class SendEmail(QWidget, Ui_Form):
         getattr(self, 'relay_'+opts.encryption.lower()).setChecked(True)
         self.relay_tls.toggled.connect(self.changed)
 
-        for x in ('gmail', 'hotmail'):
+        for x in ('gmx', 'hotmail'):
             button = getattr(self, 'relay_use_'+x)
             button.clicked.connect(partial(self.create_service_relay, x))
         self.relay_show_password.stateChanged.connect(
@@ -181,6 +181,15 @@ class SendEmail(QWidget, Ui_Form):
 
     def create_service_relay(self, service, *args):
         service = {
+                'gmx': {
+                    'name': 'GMX',
+                    'relay': 'mail.gmx.com',
+                    'port': 587,
+                    'username': '@gmx.com',
+                    'url': 'www.gmx.com',
+                    'extra': '',
+                    'at_in_username': True,
+                },
                 'gmail': {
                     'name': 'Gmail',
                     'relay': 'smtp.gmail.com',
