@@ -999,7 +999,8 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                     'pubdateFormat': tweaks['gui_pubdate_display_format'],
                     'timestampFormat': tweaks['gui_timestamp_display_format'],
                     'lastModifiedFormat': tweaks['gui_last_modified_display_format'],
-                    'calibre_version': numeric_version})
+                    'calibre_version': numeric_version,
+                    'canSupportUpdateBooks': True})
             if opcode != 'OK':
                 # Something wrong with the return. Close the socket
                 # and continue.
@@ -1043,6 +1044,8 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
             self._debug('Can send OK to sendbook', self.can_send_ok_to_sendbook)
             self.can_accept_library_info = result.get('canAcceptLibraryInfo', False)
             self._debug('Can accept library info', self.can_accept_library_info)
+            self.will_ask_for_update_books = result.get('willAskForUpdateBooks', False)
+            self._debug('Will ask for update books', self.will_ask_for_update_books)
 
             if not self.settings().extra_customization[self.OPT_USE_METADATA_CACHE]:
                 self.client_can_use_metadata_cache = False
@@ -1223,7 +1226,8 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                              'canScan':True,
                              'willUseCachedMetadata': self.client_can_use_metadata_cache,
                              'supportsSync': (bool(self.is_read_sync_col) or
-                                              bool(self.is_read_date_sync_col))})
+                                              bool(self.is_read_date_sync_col)),
+                             'canSupportBookFormatSync': True})
         bl = CollectionsBookList(None, self.PREFIX, self.settings)
         if opcode == 'OK':
             count = result['count']
@@ -1252,6 +1256,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                         book.set('_is_read_', r.get('_is_read_', None))
                         book.set('_sync_type_', r.get('_sync_type_', None))
                         book.set('_last_read_date_', r.get('_last_read_date_', None))
+                        book.set('_format_mtime_', r.get('_format_mtime_', None))
                     else:
                         books_to_send.append(r['priKey'])
 
@@ -1529,6 +1534,30 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
     def specialize_global_preferences(self, device_prefs):
         device_prefs.set_overrides(manage_device_metadata='on_connect')
 
+    def _check_if_format_send_needed(self, db, id_, book):
+        if not self.will_ask_for_update_books:
+            return None
+
+        from calibre.utils.date import parse_date, now, isoformat
+        try:
+            if not hasattr(book, '_format_mtime_'):
+                return None
+
+            cc_mtime = parse_date(book.get('_format_mtime_'), as_utc=False)
+            ext = posixpath.splitext(book.lpath)[1][1:]
+            fmt_metadata = db.new_api.format_metadata(id_, ext)
+            if fmt_metadata:
+                calibre_mtime = fmt_metadata['mtime']
+                self._debug(book.title, 'cal_mtime', calibre_mtime, 'cc_mtime', cc_mtime)
+                if cc_mtime < calibre_mtime:
+                    book.set('_format_mtime_', isoformat(now()))
+                    return posixpath.basename(book.lpath)
+        except:
+            self._debug('exception checking if must send format', book.title)
+            traceback.print_exc()
+        return None
+
+
     @synchronous('sync_lock')
     def synchronize_with_db(self, db, id_, book):
         from calibre.utils.date import parse_date, is_date_undefined
@@ -1540,7 +1569,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
         if self.have_bad_sync_columns or not (self.is_read_sync_col or
                                               self.is_read_date_sync_col):
             # Not syncing or sync columns are invalid
-            return None
+            return (None, self._check_if_format_send_needed(db, id_, book))
 
         # Check the validity of the columns once per connection. We do it
         # here because we have access to the db to get field_metadata
@@ -1572,7 +1601,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
 
             self.have_checked_sync_columns = True
             if self.have_bad_sync_columns:
-                return None
+                return (None, self._check_if_format_send_needed(db, id_, book))
 
         sync_type = book.get('_sync_type_', None)
         # We need to check if our attributes are in the book. If they are not
@@ -1697,14 +1726,14 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
         if changed_books or force_return_changed_books:
             # One of the two values was synced, giving a (perhaps empty) list of
             # changed books. Return that.
-            return changed_books
+            return (changed_books, self._check_if_format_send_needed(db, id_, book))
 
         # Nothing was synced. The user might have changed the value in calibre.
         # If so, that value will be sent to the device in the normal way. Note
         # that because any updated value has already been synced and so will
         # also be sent, the device should put the calibre value into its
         # checkbox (or whatever it uses)
-        return None
+        return (None, self._check_if_format_send_needed(db, id_, book))
 
     @synchronous('sync_lock')
     def startup(self):
