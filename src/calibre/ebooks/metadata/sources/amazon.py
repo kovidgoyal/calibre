@@ -45,7 +45,7 @@ class Worker(Thread):  # Get details {{{
         self.tostring = tostring
 
         months = {
-                'de': {
+            'de': {
             1: ['jän', 'januar'],
             2: ['februar'],
             3: ['märz'],
@@ -55,7 +55,7 @@ class Worker(Thread):  # Get details {{{
             10: ['okt', 'oktober'],
             12: ['dez', 'dezember']
             },
-                'it': {
+            'it': {
             1: ['enn'],
             2: ['febbr'],
             5: ['magg'],
@@ -66,7 +66,7 @@ class Worker(Thread):  # Get details {{{
             10: ['ott'],
             12: ['dic'],
             },
-                'fr': {
+            'fr': {
             1: ['janv'],
             2: ['févr'],
             3: ['mars'],
