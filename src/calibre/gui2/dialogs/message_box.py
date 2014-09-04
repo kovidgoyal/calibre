@@ -12,14 +12,44 @@ from PyQt5.Qt import (QDialog, QIcon, QApplication, QSize, QKeySequence,
     QLabel, QPlainTextEdit, QTextDocument, QCheckBox, pyqtSignal)
 
 from calibre.constants import __version__, isfrozen
-from calibre.gui2.dialogs.message_box_ui import Ui_Dialog
 
-class MessageBox(QDialog, Ui_Dialog):  # {{{
+class MessageBox(QDialog):  # {{{
 
     ERROR = 0
     WARNING = 1
     INFO = 2
     QUESTION = 3
+
+    resize_needed = pyqtSignal()
+
+    def setup_ui(self):
+        self.setObjectName("Dialog")
+        self.resize(497, 235)
+        self.gridLayout = l = QGridLayout(self)
+        l.setObjectName("gridLayout")
+        self.icon_label = la = QLabel('')
+        la.setMaximumSize(QSize(68, 68))
+        la.setScaledContents(True)
+        la.setObjectName("icon_label")
+        l.addWidget(la)
+        self.msg = la = QLabel(self)
+        la.setWordWrap(True)
+        la.setOpenExternalLinks(True)
+        la.setObjectName("msg")
+        l.addWidget(la, 0, 1, 1, 1)
+        self.det_msg = dm = QPlainTextEdit(self)
+        dm.setReadOnly(True)
+        dm.setObjectName("det_msg")
+        l.addWidget(dm, 1, 0, 1, 2)
+        self.bb = bb = QDialogButtonBox(self)
+        bb.setStandardButtons(QDialogButtonBox.Ok)
+        bb.setObjectName("bb")
+        bb.accepted.connect(self.accept)
+        bb.rejected.connect(self.reject)
+        l.addWidget(bb, 3, 0, 1, 2)
+        self.toggle_checkbox = tc = QCheckBox(self)
+        tc.setObjectName("toggle_checkbox")
+        l.addWidget(tc, 2, 0, 1, 2)
 
     def __init__(self, type_, title, msg,
                  det_msg='',
@@ -39,7 +69,7 @@ class MessageBox(QDialog, Ui_Dialog):  # {{{
             self.icon = QIcon(I(icon))
         else:
             self.icon = q_icon
-        self.setupUi(self)
+        self.setup_ui()
 
         self.setWindowTitle(title)
         self.setWindowIcon(self.icon)
@@ -86,20 +116,23 @@ class MessageBox(QDialog, Ui_Dialog):  # {{{
         if not det_msg:
             self.det_msg_toggle.setVisible(False)
 
+        self.resize_needed.connect(self.do_resize, type=Qt.QueuedConnection)
         self.do_resize()
+
+    def sizeHint(self):
+        ans = QDialog.sizeHint(self)
+        ans.setWidth(max(min(ans.width(), 500), self.bb.sizeHint().width() + 100))
+        ans.setHeight(min(ans.height(), 500))
+        return ans
 
     def toggle_det_msg(self, *args):
-        vis = unicode(self.det_msg_toggle.text()) == self.hide_det_msg
-        self.det_msg_toggle.setText(self.show_det_msg if vis else
-                self.hide_det_msg)
+        vis = self.det_msg.isVisible()
         self.det_msg.setVisible(not vis)
-        self.do_resize()
+        self.det_msg_toggle.setText(self.show_det_msg if vis else self.hide_det_msg)
+        self.resize_needed.emit()
 
     def do_resize(self):
-        sz = self.sizeHint() + QSize(100, 0)
-        sz.setWidth(min(500, sz.width()))
-        sz.setHeight(min(500, sz.height()))
-        self.resize(sz)
+        self.resize(self.sizeHint())
 
     def copy_to_clipboard(self, *args):
         QApplication.clipboard().setText(
@@ -129,7 +162,7 @@ class MessageBox(QDialog, Ui_Dialog):  # {{{
         self.det_msg_toggle.setText(self.show_det_msg)
         self.det_msg_toggle.setVisible(bool(msg))
         self.det_msg.setVisible(False)
-        self.do_resize()
+        self.resize_needed.emit()
 # }}}
 
 class ViewLog(QDialog):  # {{{
@@ -394,24 +427,8 @@ class JobError(QDialog):  # {{{
 
 if __name__ == '__main__':
     app = QApplication([])
-    d = JobError(None)
-    d.show_error('test title', 'some long meaningless test message', 'det msg')
-    d.show_error('test title', 'some long meaningless test message', 'det msg')
-    d.show_error('test title', 'some long meaningless test message', 'det msg')
-    d.show_error('test title', 'some long meaningless test message', 'det msg')
-    d.show_error('test title', 'some long meaningless test message', 'det msg')
-    d.show_error('test title', 'some long meaningless test message', 'det msg')
-    app.setQuitOnLastWindowClosed(False)
-    def checkd():
-        if not d.queue:
-            app.quit()
-    app.lastWindowClosed.connect(checkd)
-    app.exec_()
-
-# if __name__ == '__main__':
-#     app = QApplication([])
-#     from calibre.gui2 import question_dialog
-#     print question_dialog(None, 'title', 'msg <a href="http://google.com">goog</a> ',
-#             det_msg='det '*1000,
-#             show_copy_button=True)
+    from calibre.gui2 import question_dialog
+    print question_dialog(None, 'title', 'msg <a href="http://google.com">goog</a> ',
+            det_msg='det '*1000,
+            show_copy_button=True)
 
