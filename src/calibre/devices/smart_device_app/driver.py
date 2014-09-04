@@ -1018,6 +1018,8 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                 self._close_device_socket()
                 return False
 
+            # Set up to recheck the sync columns
+            self.have_checked_sync_columns = False
             client_can_stream_books = result.get('canStreamBooks', False)
             self._debug('Device can stream books', client_can_stream_books)
             client_can_stream_metadata = result.get('canStreamMetadata', False)
@@ -1046,6 +1048,10 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
             self._debug('Can accept library info', self.can_accept_library_info)
             self.will_ask_for_update_books = result.get('willAskForUpdateBooks', False)
             self._debug('Will ask for update books', self.will_ask_for_update_books)
+            self.set_temp_mark_when_syncing_read = \
+                                    result.get('setTempMarkWhenReadInfoSynced', False)
+            self._debug('Will set temp mark when syncing read',
+                                    self.set_temp_mark_when_syncing_read)
 
             if not self.settings().extra_customization[self.OPT_USE_METADATA_CACHE]:
                 self.client_can_use_metadata_cache = False
@@ -1603,6 +1609,11 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
             if self.have_bad_sync_columns:
                 return (None, self._check_if_format_send_needed(db, id_, book))
 
+            # if we are marking synced books, clear all the current marks
+            if self.set_temp_mark_when_syncing_read:
+                self._debug('clearing temp marks')
+                db.set_marked_ids(())
+
         sync_type = book.get('_sync_type_', None)
         # We need to check if our attributes are in the book. If they are not
         # then this is metadata coming from calibre to the device for the first
@@ -1653,6 +1664,8 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                                     book.get('title', 'huh?'), 'to', is_read, calibre_val)
                             changed_books = db.new_api.set_field(self.is_read_sync_col,
                                                                  {id_: is_read})
+                            if self.set_temp_mark_when_syncing_read:
+                                db.data.toggle_marked_ids({id_})
                     elif calibre_val is not None:
                         # Calibre value wins. Force the metadata for the
                         # book to be sent to the device even if the mod
@@ -1677,6 +1690,8 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                                 book.get('title', 'huh?'), 'to', is_read_date, calibre_val)
                             changed_books |= db.new_api.set_field(self.is_read_date_sync_col,
                                                                  {id_: is_read_date})
+                            if self.set_temp_mark_when_syncing_read:
+                                db.data.toggle_marked_ids({id_})
                     elif calibre_val is not None:
                         self._debug('special update is_read_date to calibre value',
                                     book.get('title', 'huh?'), 'to', calibre_val)
@@ -1703,6 +1718,8 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                                     'to', is_read, 'was', orig_is_read)
                         changed_books = db.new_api.set_field(self.is_read_sync_col,
                                                                  {id_: is_read})
+                        if self.set_temp_mark_when_syncing_read:
+                            db.data.toggle_marked_ids({id_})
                 except:
                     self._debug('exception standard syncing is_read', self.is_read_sync_col)
                     traceback.print_exc()
@@ -1718,6 +1735,8 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                                     'to', is_read_date, 'was', orig_is_read_date)
                         changed_books |= db.new_api.set_field(self.is_read_date_sync_col,
                                                           {id_: is_read_date})
+                        if self.set_temp_mark_when_syncing_read:
+                            db.data.toggle_marked_ids({id_})
                 except:
                     self._debug('Exception standard syncing is_read_date',
                                 self.is_read_date_sync_col)
