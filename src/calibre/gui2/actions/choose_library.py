@@ -413,14 +413,17 @@ class ChooseLibraryAction(InterfaceAction):
 
     def delete_requested(self, name, location):
         loc = location.replace('/', os.sep)
+        if not question_dialog(
+                self.gui, _('Library removed'), _(
+                'The library %s has been removed from calibre. '
+                'The files remain on your computer, if you want '
+                'to delete them, you will have to do so manually.') % ('<code>%s</code>' % loc),
+                override_icon='dialog_information.png',
+                yes_text=_('&OK'), no_text=_('&Undo'), yes_icon='ok.png', no_icon='edit-undo.png'):
+            return
         self.stats.remove(location)
         self.build_menus()
         self.gui.iactions['Copy To Library'].build_menus()
-        info_dialog(self.gui, _('Library removed'),
-                _('The library %s has been removed from calibre. '
-                    'The files remain on your computer, if you want '
-                    'to delete them, you will have to do so manually.') % loc,
-                show=True)
         if os.path.exists(loc):
             open_local_file(loc)
 
