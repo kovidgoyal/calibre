@@ -939,6 +939,20 @@ class Application(QApplication):
                 p.setColor(p.Inactive, role, p.color(p.Active, role))
             self.setPalette(p)
 
+        if iswindows:
+            # Prevent text copied to the clipboard from being lost on quit due to
+            # Qt 5 bug: https://bugreports.qt-project.org/browse/QTBUG-41125
+            self.aboutToQuit.connect(self.flush_clipboard)
+
+    def flush_clipboard(self):
+        try:
+            if self.clipboard().ownsClipboard():
+                import ctypes
+                ctypes.WinDLL('ole32.dll').OleFlushClipboard()
+        except Exception:
+            import traceback
+            traceback.print_exc()
+
     def load_builtin_fonts(self, scan_for_fonts=False):
         if scan_for_fonts:
             from calibre.utils.fonts.scanner import font_scanner
