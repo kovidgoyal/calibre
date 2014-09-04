@@ -33,7 +33,7 @@ class MessageBox(QDialog):  # {{{
         la.setObjectName("icon_label")
         l.addWidget(la)
         self.msg = la = QLabel(self)
-        la.setWordWrap(True)
+        la.setWordWrap(True), la.setMinimumWidth(400)
         la.setOpenExternalLinks(True)
         la.setObjectName("msg")
         l.addWidget(la, 0, 1, 1, 1)
@@ -68,7 +68,7 @@ class MessageBox(QDialog):  # {{{
             icon = 'dialog_%s.png'%icon
             self.icon = QIcon(I(icon))
         else:
-            self.icon = q_icon
+            self.icon = q_icon if isinstance(q_icon, QIcon) else QIcon(I(q_icon))
         self.setup_ui()
 
         self.setWindowTitle(title)
