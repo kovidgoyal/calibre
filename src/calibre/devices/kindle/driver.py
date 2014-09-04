@@ -488,7 +488,6 @@ class KINDLE2(KINDLE):
                             print ("Invalid method choice for this book (%r), ignoring." % temp)
                     except:
                         print 'Could not retrieve override method choice, using default.'
-                print 'Generating apnx with', method
                 apnx_builder.write_apnx(filepath, apnx_path, method=method, page_count=custom_page_count)
             except:
                 print 'Failed to generate APNX'
