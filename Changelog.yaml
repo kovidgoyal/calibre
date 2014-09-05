@@ -20,6 +20,73 @@
 #   new recipes:
 #     - title: 
 
+- version: 2.2.0
+  date: 2014-09-05
+
+  new features:
+    - title: "Kindle driver: Add option to not overwrite existing page number (apnx) files on the device when sending books to the device"
+
+    - title: "Kindle driver: Add option to allow customization of the page number (apnx) generation algorithm based on values in a custom column"
+
+    - title: "Metadata jacket: Allow customizing the jacket template to show the tags in alphabetical order"
+
+    - title: "View specific format window: If a conversion finishes in the background making a new format available, update the window."
+      tickets: [1363416]
+
+    - title: "E-book viewer: Automatically hide the mouse cursor if the mouse has not been used for a few seconds. This prevents the mouse cursor from obscuring text underneath it. The cursor will reappear automatically when you move the mouse."
+
+    - title: "Driver for SurfPad 3."
+      tickets: [1363025]
+
+  bug fixes:
+    - title: "Conversion: Fix incorrect conversion of CSS when the input document uses the same CSS class name in both upper and lower case."
+      tickets: [1328552]
+
+    - title: "Workaround for Qt 5 behavior change on OS X which prevented error handling during startup on OS X to not work"
+
+    - title: "DOCX Input: Fix non-breaking hyphens being ignored"
+
+    - title: "Workaround for Qt 5 bug that causes text copied to the clipboard to be lost when quitting the viewer on windows."
+
+    - title: "When detecting the encoding of HTML documents, if the document contains multiple charset declarations, prefer the HTML 5 syntax to the HTML 4 syntax."
+      tickets: [1364961]
+
+    - title: "E-book viewer: Fix text not being reflowed when resizing the viewer window and only the height changes."
+
+    - title: "Fix merging of book records not working correctly for custom columns of type text with fixed set of permitted values. Null values were incorrectly overwriting non-null values."
+
+    - title: "Creation of custom news sources failing on a computer on which no custom news sources have been previously created."
+      tickets: [1363666]
+
+    - title: "Workaround for Qt 5 on windows bug that makes the selected indication for items in any list/table disappear when the widget loses focus"
+      tickets: [1363420] 
+
+    - title: "Fix regression in 2.1 that prevented the saved column layout from being applied."
+      tickets: [1363470]
+
+    - title: "Edit Book: Fix the Check Book tool leaking threads"
+
+    - title: "Edit Book: Fix editor hanging when quitting during a background save operation and the save operation completes before the warning dialog is dismissed."
+      tickets: [1363122]
+
+    - title: "Fix a regression in calibre 2.0 that caused setting the value of a custom number column to zero via the book list to clear the field instead."
+      tickets: [1363076]
+
+    - title: "Check Book: Fix an error caused by empty style tags when auto-renaming mismatched font names."
+      tickets: [1363028]
+
+    - title: "When using the Embed Metadata or Polish Books tools to update metadata, fix custom columns values not being cleared in the book file even if they have been cleared in calibre"
+
+  improved recipes:
+    - Common Dreams
+    - LA Times
+    - Spektrum der Wissenschaft
+    - cracked.com
+
+  new recipes:
+    - title: The Hollywood Reporter 
+      author: Darko Miletic
+
 - version: 2.1.0
   date: 2014-08-29
 
