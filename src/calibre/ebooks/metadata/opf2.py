@@ -1262,8 +1262,10 @@ class OPF(object):  # {{{
             else:
                 setattr(self, attr, val)
         langs = getattr(mi, 'languages', [])
-        if langs and langs != ['und']:
-            self.languages = langs
+        if langs == ['und']:
+            langs = []
+        if apply_null or langs:
+            self.languages = langs or []
         temp = self.to_book_metadata()
         temp.smart_update(mi, replace_metadata=replace_metadata)
         if not replace_metadata and callable(getattr(temp, 'custom_field_keys', None)):
