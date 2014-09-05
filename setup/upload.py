@@ -95,6 +95,13 @@ def get_google_data():
         'project':'calibre-ebook'
     }
 
+def get_github_data():
+    with open(os.path.expanduser('~/work/env/private/github'), 'rb') as f:
+        un, pw = f.read().strip().split(':')
+    return {
+        'username':un, 'password':pw
+    }
+
 def get_sourceforge_data():
     return {'username':'kovidgoyal', 'project':'calibre'}
 
@@ -108,6 +115,9 @@ def gc_cmdline(ver, gdata):
                 gdata['gc_password'], '--path-map-server',
                 gdata['path_map_server'], '--path-map-location',
                 gdata['path_map_location']]
+
+def gh_cmdline(ver, data):
+    return [__appname__, ver, 'fmap', 'github', __appname__, data['username'], data['password']]
 
 def sf_cmdline(ver, sdata):
     return [__appname__, ver, 'fmap', 'sourceforge', sdata['project'],
@@ -151,6 +161,7 @@ class UploadInstallers(Command):  # {{{
                 upload_signatures()
             self.upload_to_sourceforge()
             self.upload_to_dbs()
+            self.upload_to_github(opts.replace)
             # self.upload_to_google(opts.replace)
         finally:
             shutil.rmtree(tdir, ignore_errors=True)
@@ -188,6 +199,13 @@ class UploadInstallers(Command):  # {{{
     def upload_to_google(self, replace):
         gdata = get_google_data()
         args = gc_cmdline(__version__, gdata)
+        if replace:
+            args = ['--replace'] + args
+        run_remote_upload(args)
+
+    def upload_to_github(self, replace):
+        data = get_github_data()
+        args = gh_cmdline(__version__, data)
         if replace:
             args = ['--replace'] + args
         run_remote_upload(args)
