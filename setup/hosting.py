@@ -387,13 +387,16 @@ class GitHub(Base):  # {{{
     def __init__(self, files, reponame, version, username, password, replace=False):
         self.files, self.reponame, self.version, self.username, self.password, self.replace = (
             files, reponame, version, username, password, replace)
+        self.current_tag_name = 'v' + self.version
         import requests
         self.requests = s = requests.Session()
         s.auth = (self.username, self.password)
         s.headers.update({'Accept': 'application/vnd.github.v3+json'})
 
     def __call__(self):
-        release = self.create_release()
+        releases = self.releases()
+        self.clean_older_releases(releases)
+        release = self.create_release(releases)
         upload_url = release['upload_url'].partition('{')[0]
         existing_assets = self.existing_assets(release['id'])
         for path, desc in self.files.iteritems():
@@ -412,6 +415,16 @@ class GitHub(Base):  # {{{
                                 data=json.dumps({'name':fname, 'label':desc}))
             if r.status_code != 200:
                 self.fail(r, 'Failed to set label for %s' % fname)
+
+    def clean_older_releases(self, releases):
+        for release in releases:
+            if release.get('assets', None) and release['tag_name'] != self.current_tag_name:
+                self.info('\nDeleting old released installers from: %s' % release['tag_name'])
+                for asset in release['assets']:
+                    r = self.requests.delete(self.API + 'repos/%s/%s/releases/assets/%s' % (self.username, self.reponame, asset['id']))
+                    if r.status_code != 204:
+                        self.fail(r, 'Failed to delete obsolete asset: %s for release: %s' % (
+                            asset['name'], release['tag_name']))
 
     def do_upload(self, url, path, desc, fname):
         mime_type = mimetypes.guess_type(fname)[0]
@@ -438,26 +451,29 @@ class GitHub(Base):  # {{{
             self.fail('Failed to get assets for release')
         return {asset['name']:asset['id'] for asset in r.json()}
 
-    def create_release(self):
+    def releases(self):
+        url = self.API + 'repos/%s/%s/releases' % (self.username, self.reponame)
+        r = self.requests.get(url)
+        if r.status_code != 200:
+            self.fail(r, 'Failed to list releases')
+        return r.json()
+
+    def create_release(self, releases):
         ' Create a release on GitHub or if it already exists, return the existing release '
+        for release in releases:
+            # Check for existing release
+            if release['tag_name'] == self.current_tag_name:
+                return release
         url = self.API + 'repos/%s/%s/releases' % (self.username, self.reponame)
         r = self.requests.post(url, data=json.dumps({
-            'tag_name':'v%s' % self.version,
+            'tag_name': self.current_tag_name,
             'target_commitish': 'master',
             'name': 'version %s' % self.version,
             'body': 'Release version %s' % self.version,
             'draft': False, 'prerelease':False
         }))
         if r.status_code != 201:
-            if not self.already_exists(r):
-                self.fail(r, 'Failed to create release for version: %s' % self.version)
-            # Find existing release
-            r = self.requests.get(url)
-            if r.status_code != 200:
-                self.fail(r, 'Failed to list releases')
-            for release in reversed(r.json()):
-                if release.get('tag_name', None) == 'v' + self.version:
-                    return release
+            self.fail(r, 'Failed to create release for version: %s' % self.version)
         return r.json()
 
 # }}}
