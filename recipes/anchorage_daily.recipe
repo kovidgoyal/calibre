@@ -8,12 +8,8 @@ class AdvancedUserRecipe1278347258(BasicNewsRecipe):
     auto_cleanup = True
 
 
-    feeds          = [(u'Alaska News', u'http://www.adn.com/news/alaska/index.xml'),
-    (u'Business', u'http://www.adn.com/money/index.xml'),
-    (u'Sports', u'http://www.adn.com/sports/index.xml'),
-    (u'Politics', u'http://www.adn.com/politics/index.xml'),
-    (u'Lifestyles', u'http://www.adn.com/life/index.xml'),
-    (u'Iditarod', u'http://www.adn.com/iditarod/index.xml')
+    feeds          = [(u'Alaska News', u'http://www.adn.com/rss-feeds/feed/all'),
+    (u'Politics', u'http://www.adn.com/rss-feeds/feed/politics'),
     ]
     description           = ''''Alaska's Newspaper'''
     publisher             = 'http://www.adn.com'
@@ -26,7 +22,7 @@ class AdvancedUserRecipe1278347258(BasicNewsRecipe):
     use_embedded_content   = False
     no_stylesheets = True
     language = 'en'
-    encoding               = 'latin-1'
+    encoding               = 'utf-8'
     conversion_options = {'linearize_tables':True}
     masthead_url = 'http://media.adn.com/includes/assets/images/adn_logo.2.gif'
 
