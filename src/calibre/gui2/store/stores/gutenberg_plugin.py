@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import (unicode_literals, division, absolute_import, print_function)
-store_version = 3  # Needed for dynamic plugin loading
+store_version = 4  # Needed for dynamic plugin loading
 
 __license__ = 'GPL 3'
 __copyright__ = '2011, 2013, John Schember <john@nachtimwald.com>'
@@ -23,6 +23,11 @@ from calibre.gui2.store.search_result import SearchResult
 
 web_url = 'http://m.gutenberg.org/'
 
+def fix_url(url):
+    if url and url.startswith('//'):
+        url = 'http:' + url
+    return url
+
 def search(query, max_results=10, timeout=60):
     url = 'http://m.gutenberg.org/ebooks/search.opds/?query=' + urllib.quote_plus(query)
 
@@ -41,7 +46,7 @@ def search(query, max_results=10, timeout=60):
             # We could use the <link rel="alternate" type="text/html" ...> tag from the
             # detail odps page but this is easier.
             id = ''.join(data.xpath('./*[local-name() = "id"]/text()')).strip()
-            s.detail_item = url_slash_cleaner('%s/ebooks/%s' % (web_url, re.sub('[^\d]', '', id)))
+            s.detail_item = fix_url(url_slash_cleaner('%s/ebooks/%s' % (web_url, re.sub('[^\d]', '', id))))
             if not s.detail_item:
                 continue
 
@@ -60,7 +65,7 @@ def search(query, max_results=10, timeout=60):
                         ext = mimetypes.guess_extension(type)
                         if ext:
                             ext = ext[1:].upper().strip()
-                            s.downloads[ext] = href
+                            s.downloads[ext] = fix_url(href)
 
             s.formats = ', '.join(s.downloads.keys())
             if not s.formats:
@@ -72,6 +77,7 @@ def search(query, max_results=10, timeout=60):
                 type = link.get('type')
 
                 if rel and href and type:
+                    href = fix_url(href)
                     if rel in ('http://opds-spec.org/thumbnail', 'http://opds-spec.org/image/thumbnail'):
                         if href.startswith('data:image/png;base64,'):
                             s.cover_data = base64.b64decode(href.replace('data:image/png;base64,', ''))
