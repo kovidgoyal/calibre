@@ -14,6 +14,7 @@ from PyQt5.Qt import (Qt, QDialog, QDialogButtonBox, QTimer, QCheckBox, QLabel,
 
 from calibre.gui2 import JSONConfig, info_dialog, error_dialog
 from calibre.gui2.dialogs.choose_format import ChooseFormatDialog
+from calibre.gui2.ebook_download import show_download_info
 from calibre.gui2.progress_indicator import ProgressIndicator
 from calibre.gui2.store.config.chooser.chooser_widget import StoreChooserWidget
 from calibre.gui2.store.config.search.search_widget import StoreConfigWidget
@@ -393,6 +394,7 @@ class SearchDialog(QDialog, Ui_Dialog):
             ext = d.format()
             fname = result.title[:60] + '.' + ext.lower()
             fname = ascii_filename(fname)
+            show_download_info(result.title, parent=self)
             self.gui.download_ebook(result.downloads[ext], filename=fname)
 
     def open_store(self, result):
