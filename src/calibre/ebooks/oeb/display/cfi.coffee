@@ -279,6 +279,7 @@ class CanonicalFragmentIdentifier
                                 node = child
                         if not child
                             error = "No matching child found for CFI: " + cfi
+                        cfi = cfi.substr(r[0].length)
                         break
                     index |= 1 # Increment index by 1 if it is even
                     if child.nodeType == 1
