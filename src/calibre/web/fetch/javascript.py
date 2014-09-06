@@ -14,7 +14,6 @@ from functools import partial
 from calibre import jsbrowser
 from calibre.ebooks.chardet import strip_encoding_declarations
 from calibre.utils.imghdr import what
-from calibre.web.jsbrowser.browser import Timeout
 
 # remove_comments() {{{
 remove_comments = '''
@@ -225,6 +224,7 @@ def fetch_page(
         while not load_complete(browser, url, recursion_level):
             browser.run_for_a_time(0.1)
             if time.time() - start_time > browser.default_timeout:
+                from calibre.web.jsbrowser.browser import Timeout
                 raise Timeout('Timed out while waiting for %s to load' % url)
 
     children = links(browser, url, recursion_level)
