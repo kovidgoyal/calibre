@@ -38,8 +38,8 @@ from calibre.ptempfile import PersistentTemporaryFile, SpooledTemporaryFile
 from calibre.gui2.languages import LanguagesEdit as LE
 from calibre.db import SPOOL_SIZE
 
-OK_COLOR = 'rgba(0, 255, 0, 15%)'
-ERR_COLOR = 'rgba(255, 0, 0, 15%)'
+OK_COLOR = 'rgba(0, 255, 0, 12%)'
+ERR_COLOR = 'rgba(255, 0, 0, 12%)'
 
 def save_dialog(parent, title, msg, det_msg=''):
     d = QMessageBox(parent)
