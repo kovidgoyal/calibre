@@ -26,7 +26,8 @@ class AmericanThinker(BasicNewsRecipe):
     ignore_duplicate_articles = {'title', 'url'}
 
     remove_javascript     = True
-    remove_tags_before = dict(name='h1')
+    auto_cleanup = True
+    #remove_tags_before = dict(name='h1')
 
     conversion_options = {
                           'comment'   : description
@@ -48,5 +49,5 @@ class AmericanThinker(BasicNewsRecipe):
                      (u'http://feeds.feedburner.com/AmericanThinkerBlog')
             ]
 
-    def print_version(self, url):
-        return 'http://www.americanthinker.com/assets/3rd_party/printpage/?url=' + url
+    #def print_version(self, url):
+        #return 'http://www.americanthinker.com/assets/3rd_party/printpage/?url=' + url
