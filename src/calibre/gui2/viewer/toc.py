@@ -52,8 +52,8 @@ class TOCItem(QStandardItem):
         self.abspath = toc.abspath if toc.href else None
         self.fragment = toc.fragment
         all_items.append(self)
-        self.bold_font = QFont(self.font())
-        self.bold_font.setBold(True)
+        self.emphasis_font = QFont(self.font())
+        self.emphasis_font.setBold(True), self.emphasis_font.setItalic(True)
         self.normal_font = self.font()
         for t in toc:
             self.appendRow(TOCItem(spine, t, depth+1, all_items, parent=self))
@@ -147,7 +147,7 @@ class TOCItem(QStandardItem):
         changed = is_being_viewed != self.is_being_viewed
         self.is_being_viewed = is_being_viewed
         if changed:
-            self.setFont(self.bold_font if is_being_viewed else self.normal_font)
+            self.setFont(self.emphasis_font if is_being_viewed else self.normal_font)
 
     def update_indexing_state_paged(self, spine_index, viewport_rect,
             anchor_map):
@@ -192,7 +192,7 @@ class TOCItem(QStandardItem):
         changed = is_being_viewed != self.is_being_viewed
         self.is_being_viewed = is_being_viewed
         if changed:
-            self.setFont(self.bold_font if is_being_viewed else self.normal_font)
+            self.setFont(self.emphasis_font if is_being_viewed else self.normal_font)
 
     def __repr__(self):
         return 'TOC Item: %s %s#%s'%(self.title, self.abspath, self.fragment)
