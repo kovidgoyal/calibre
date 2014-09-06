@@ -6,10 +6,12 @@ class Recipe(object):
     pass
 
 def get_download_filename_from_response(response):
+    from urlparse import urlparse
     from urllib2 import unquote as urllib2_unquote
     filename = last_part_name = ''
     try:
-        last_part_name = response.geturl().split('/')[-1]
+        purl = urlparse(response.geturl())
+        last_part_name = purl.path.split('/')[-1]
         disposition = response.info().get('Content-disposition', '')
         for p in disposition.split(';'):
             if 'filename' in p:
