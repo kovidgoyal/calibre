@@ -12,6 +12,26 @@ runscripts = (parent) ->
     for script in parent.getElementsByTagName('script')
         eval(script.text || script.textContent || script.innerHTML || '')
 
+first_child = (parent) ->
+    c = parent.firstChild
+    count = 0
+    while c?.nodeType != 1 and count < 20
+        c = c?.nextSibling
+        count += 1
+    if c?.nodeType == 1
+        return c
+    return null
+
+has_start_text = (elem) ->
+    # Returns true if elem has some non-whitespace text before its first child
+    # element
+    for c in elem.childNodes
+        if c.nodeType not in [Node.TEXT_NODE, Node.COMMENT_NODE, Node.PROCESSING_INSTRUCTION_NODE]
+            break
+        if c.nodeType == Node.TEXT_NODE and c.nodeValue != null and /\S/.test(c.nodeValue)
+            return true
+    return false
+
 class PagedDisplay
     # This class is a namespace to expose functions via the
     # window.paged_display object. The most important functions are:
@@ -144,13 +164,21 @@ class PagedDisplay
         # Otherwise, you could end up with an effective negative margin, I dont
         # understand exactly why, but see:
         # https://bugs.launchpad.net/calibre/+bug/1082640 for an example
-        c = document.body.firstChild
-        count = 0
-        while c?.nodeType != 1 and count < 20
-            c = c?.nextSibling
-            count += 1
-        if c?.nodeType == 1
+        c = first_child(document.body)
+        if c != null
             c.style.setProperty('-webkit-margin-before', '0')
+            # Remove page breaks on the first few elements to prevent blank pages
+            # at the start of a chapter
+            c.style.setProperty('-webkit-column-break-before', 'avoid')
+            if c.tagName?.toLowerCase() == 'div'
+                c2 = first_child(c)
+                if c2 != null and not has_start_text(c)
+                    # Common pattern of all content being enclosed in a wrapper
+                    # <div>, see for example: https://bugs.launchpad.net/bugs/1366074
+                    # In this case, we also modify the first child of the div
+                    # as long as there was no text before it.
+                    c2.style.setProperty('-webkit-column-break-before', 'avoid')
+
 
         this.effective_margin_top = this.margin_top
         this.effective_margin_bottom = this.margin_bottom
