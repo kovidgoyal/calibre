@@ -732,12 +732,23 @@ class DevicePlugin(Plugin):
         a book in calibre's db. The method is responsible for syncronizing
         data from the device to calibre's db (if needed).
 
-        The method must return a set of calibre book ids changed if calibre's
-        database was changed, None if the database was not changed. If the
-        method returns an empty set then the metadata for the book on the
-        device is updated with calibre's metadata and given back to the device,
-        but no GUI refresh of that book is done. This is useful when the calire
-        data is correct but must be sent to the device.
+        The method must return a two-value tuple. The first value is a set of
+        calibre book ids changed if calibre's database was changed or None if the
+        database was not changed. If the first value is an empty set then the
+        metadata for the book on the device is updated with calibre's metadata
+        and given back to the device, but no GUI refresh of that book is done.
+        This is useful when the calire data is correct but must be sent to the
+        device.
+
+        The second value in the tuple specifies whether a book format should be
+        sent to the device. The intent is to permit verifying that the book on
+        the device is the same as the book in calibre. Return None if no book is
+        to be sent, otherwise return the base file name on the device (a string
+        like foobar.epub). Be sure to include the extension in the name. The
+        device subsystem will construct a send_books job for all books with not-
+        None returned values. Note: other than to later retrieve the extension,
+        the name is ignored in cases where the device uses a template to
+        generate the file name, which most do.
 
         Extremely important: this method is called on the GUI thread. It must
         be threadsafe with respect to the device manager's thread.
@@ -745,7 +756,7 @@ class DevicePlugin(Plugin):
         book_id: the calibre id for the book in the database.
         book_metadata: the Metadata object for the book coming from the device.
         '''
-        return None
+        return None, None
 
 class BookList(list):
     '''

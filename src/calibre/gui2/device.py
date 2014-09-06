@@ -34,6 +34,7 @@ from calibre.constants import DEBUG
 from calibre.utils.config import tweaks, device_prefs
 from calibre.utils.magick.draw import thumbnail
 from calibre.library.save_to_disk import find_plugboard
+from calibre.ptempfile import PersistentTemporaryFile, force_unicode as filename_to_unicode
 # }}}
 
 class DeviceJob(BaseJob):  # {{{
@@ -1774,6 +1775,7 @@ class DeviceMixin(object):  # {{{
             self.db_book_uuid_cache = db_book_uuid_cache
 
         book_ids_to_refresh = set()
+        book_formats_to_send = []
 
         def update_book(id_, book) :
             if not update_metadata:
@@ -1789,7 +1791,10 @@ class DeviceMixin(object):  # {{{
                     return False
 
                 if self.device_manager.device is not None:
-                    set_of_ids = self.device_manager.device.synchronize_with_db(db, id_, book)
+                    set_of_ids, fmt_name = \
+                            self.device_manager.device.synchronize_with_db(db, id_, book)
+                    if fmt_name is not None:
+                        book_formats_to_send.append((id_, fmt_name))
                     if set_of_ids is not None:
                         book_ids_to_refresh.update(set_of_ids)
                         return True
@@ -1912,6 +1917,34 @@ class DeviceMixin(object):  # {{{
                 except:
                     # This shouldn't ever happen, but just in case ...
                     traceback.print_exc()
+
+            # Sync books if necessary
+            try:
+                files, names, metadata = [], [], []
+                for id_, fmt_name in book_formats_to_send:
+                    if DEBUG:
+                        prints('DeviceJob: Syncing book. id:', id_, 'name from device', fmt_name)
+                    ext = os.path.splitext(fmt_name)[1][1:]
+                    fmt_info = db.new_api.format_metadata(id_, ext)
+                    if fmt_info:
+                        try:
+                            pt = PersistentTemporaryFile(suffix='caltmpfmt.'+ext)
+                            db.new_api.copy_format_to(id_, ext, pt)
+                            pt.close()
+                            files.append(filename_to_unicode(os.path.abspath(pt.name)))
+                            names.append(fmt_name)
+                            metadata.append(db.new_api.get_metadata(id_, get_cover=True))
+                        except:
+                            prints('Problem creating temporary file for', fmt_name)
+                            traceback.print_exc()
+                    else:
+                        if DEBUG:
+                            prints("DeviceJob: book doesn't have that format")
+                if files:
+                    self.upload_books(files, names, metadata)
+            except:
+                # Shouldn't ever happen, but just in case
+                traceback.print_exc()
 
         if DEBUG:
             prints('DeviceJob: set_books_in_library finished: time=',
