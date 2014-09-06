@@ -344,6 +344,7 @@ def question_dialog(parent, title, msg, det_msg='', show_copy_button=False,
         tc.setVisible(True)
         tc.setText(skip_dialog_msg)
         tc.setChecked(bool(skip_dialog_skip_precheck))
+        d.resize_needed.emit()
 
     ret = d.exec_() == d.Accepted
 
