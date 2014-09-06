@@ -29,6 +29,8 @@ def get_download_filename(response):
 
 def download_file(url, cookie_file=None, filename=None):
     user_agent = None
+    if url.startswith('//'):
+        url = 'http:' + url
     if url.startswith('http://www.gutenberg.org'):
         # Project Gutenberg returns an HTML page if the user agent is a normal
         # browser user agent
@@ -57,8 +59,6 @@ class EbookDownload(object):
             dfilename = self._download(cookie_file, url, filename, save_loc, add_to_lib)
             self._add(dfilename, gui, add_to_lib, tags)
             self._save_as(dfilename, save_loc)
-        except Exception as e:
-            raise e
         finally:
             try:
                 if dfilename:
