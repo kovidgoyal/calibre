@@ -18,6 +18,8 @@ class ShowTemplateTesterAction(InterfaceAction):
     action_type = 'current'
 
     def genesis(self):
+        self.previous_text = _('Enter a template to test using data from the selected book')
+        self.first_time = True
         self.qaction.triggered.connect(self.show_template_editor)
 
     def show_template_editor(self, *args):
@@ -38,8 +40,10 @@ class ShowTemplateTesterAction(InterfaceAction):
         index = rows[0]
         if index.isValid():
             db = view.model().db
-            t = TemplateDialog(self.gui,
-                   _('Enter a template to test using data from the selected book'),
-                   mi=db.get_metadata(index.row(), index_is_id=False, get_cover=False))
+            t = TemplateDialog(self.gui, self.previous_text,
+                   mi=db.get_metadata(index.row(), index_is_id=False, get_cover=False),
+                   text_is_placeholder=self.first_time)
             t.setWindowTitle(_('Template tester'))
-            t.exec_()
+            if t.exec_() == t.Accepted:
+                self.previous_text = t.rule[1]
+                self.first_time = False
