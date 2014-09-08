@@ -294,8 +294,8 @@ def get_debug_executable():
     e = sys.executable if getattr(sys, 'frozen', False) else sys.argv[0]
     if hasattr(sys, 'frameworks_dir'):
         base = os.path.dirname(sys.frameworks_dir)
-        if 'console.app' not in base:
-            base = os.path.join(base, 'console.app', 'Contents')
+        if 'calibre-debug.app' not in base:
+            base = os.path.join(base, 'calibre-debug.app', 'Contents')
         exe = os.path.basename(e)
         if '-debug' not in exe:
             exe += '-debug'

@@ -612,7 +612,7 @@ class Py2App(object):
     @flush
     def create_gui_apps(self):
         info('\nCreating launcher apps for viewer and editor')
-        for launcher in ('ebook-viewer', 'ebook-edit'):
+        for launcher in ('ebook-viewer', 'ebook-edit', 'calibre-debug'):
             cc_dir = os.path.join(self.contents_dir, launcher + '.app', 'Contents')
             os.makedirs(cc_dir)
             for x in os.listdir(self.contents_dir):
@@ -620,9 +620,12 @@ class Py2App(object):
                     continue
                 if x == 'Info.plist':
                     plist = plistlib.readPlist(join(self.contents_dir, x))
-                    plist['CFBundleDisplayName'] = plist['CFBundleName'] = {'ebook-viewer':'E-book Viewer', 'ebook-edit':'Edit Book'}[launcher]
-                    plist['CFBundleExecutable'] = launcher
-                    plist['CFBundleIconFile'] = launcher + '.icns'
+                    plist['CFBundleDisplayName'] = plist['CFBundleName'] = {
+                        'ebook-viewer':'E-book Viewer', 'ebook-edit':'Edit Book', 'calibre-debug': 'calibre (debug)',
+                    }[launcher]
+                    if launcher != 'calibre-debug':
+                        plist['CFBundleExecutable'] = launcher
+                        plist['CFBundleIconFile'] = launcher + '.icns'
                     plist['CFBundleIdentifier'] = 'com.calibre-ebook.' + launcher
                     plist.pop('CFBundleDocumentTypes')
                     plistlib.writePlist(plist, join(cc_dir, x))
