@@ -851,10 +851,15 @@ gui_thread = None
 
 qt_app = None
 
+builtin_fonts_loaded = False
+
 def load_builtin_fonts():
-    global _rating_font
+    global _rating_font, builtin_fonts_loaded
     # Load the builtin fonts and any fonts added to calibre by the user to
     # Qt
+    if builtin_fonts_loaded:
+        return
+    builtin_fonts_loaded = True
     for ff in glob.glob(P('fonts/liberation/*.?tf')) + \
             [P('fonts/calibreSymbols.otf')] + \
             glob.glob(os.path.join(config_dir, 'fonts', '*.?tf')):
