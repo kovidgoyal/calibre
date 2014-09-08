@@ -956,7 +956,6 @@ class EditRules(QWidget):  # {{{
             else:
                 td = TemplateDialog(self, '', mi=self.mi, fm=self.fm, icon_field_key='')
             if td.exec_() == td.Accepted:
-                print(td.rule)
                 typ, col, r = td.rule
                 if typ and r and col:
                     idx = self.model.add_rule(typ, col, r)

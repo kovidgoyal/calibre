@@ -202,7 +202,8 @@ class TemplateHighlighter(QSyntaxHighlighter):
 class TemplateDialog(QDialog, Ui_TemplateDialog):
 
     def __init__(self, parent, text, mi=None, fm=None, color_field=None,
-                 icon_field_key=None, icon_rule_kind=None, doing_emblem=False):
+                 icon_field_key=None, icon_rule_kind=None, doing_emblem=False,
+                 text_is_placeholder=False):
         QDialog.__init__(self, parent)
         Ui_TemplateDialog.__init__(self)
         self.setupUi(self)
@@ -299,7 +300,10 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
         self.source_code.setReadOnly(True)
 
         if text is not None:
-            self.textbox.setPlainText(text)
+            if text_is_placeholder:
+                self.textbox.setPlaceholderText(text)
+            else:
+                self.textbox.setPlainText(text)
         self.buttonBox.button(QDialogButtonBox.Ok).setText(_('&OK'))
         self.buttonBox.button(QDialogButtonBox.Cancel).setText(_('&Cancel'))
         self.color_copy_button.clicked.connect(self.color_to_clipboard)
