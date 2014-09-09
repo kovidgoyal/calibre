@@ -20,6 +20,7 @@ from calibre.ebooks.conversion.preprocess import CSSPreProcessor
 from calibre import (isbytestring, as_unicode, get_types_map)
 from calibre.ebooks.oeb.parse_utils import (barename, XHTML_NS, RECOVER_PARSER,
         namespace, XHTML, parse_html, NotHTML)
+from calibre.utils.cleantext import clean_xml_chars
 
 XML_NS       = 'http://www.w3.org/XML/1998/namespace'
 OEB_DOC_NS   = 'http://openebook.org/namespaces/oeb-document/1.0/'
@@ -238,7 +239,7 @@ def rewrite_links(root, link_repl_func, resolve_base_href=False):
             repl = stylesheet.cssText
             if isbytestring(repl):
                 repl = repl.decode('utf-8')
-            el.text = '\n'+ repl + '\n'
+            el.text = '\n'+ clean_xml_chars(repl) + '\n'
 
         if 'style' in el.attrib:
             text = el.attrib['style']
