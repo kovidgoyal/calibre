@@ -322,6 +322,9 @@ def run_in_debug_mode(logpath=None):
             stderr=subprocess.STDOUT, stdin=open(os.devnull, 'r'),
             creationflags=creationflags)
 
+def shellquote(s):
+    return "'" + s.replace("'", "'\\''") + "'"
+
 def run_gui(opts, args, listener, app, gui_debug=None):
     initialize_file_icon_provider()
     app.load_builtin_fonts(scan_for_fonts=True)
@@ -344,8 +347,8 @@ def run_gui(opts, args, listener, app, gui_debug=None):
             import subprocess
             print 'Restarting with:', e, sys.argv
             if hasattr(sys, 'frameworks_dir'):
-                app = os.path.dirname(os.path.dirname(sys.frameworks_dir))
-                subprocess.Popen('sleep 3s; open '+app, shell=True)
+                app = os.path.dirname(os.path.dirname(os.path.realpath(sys.frameworks_dir)))
+                subprocess.Popen('sleep 3s; open ' + shellquote(app), shell=True)
             else:
                 if iswindows and hasattr(winutil, 'prepare_for_restart'):
                     winutil.prepare_for_restart()
