@@ -1260,7 +1260,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                     if book:
                         if self.client_cache_uses_lpaths:
                             lpaths_on_device.add(r.get('lpath'))
-                        bl.add_book(book, replace_metadata=True,
+                        bl.add_book_extended(book, replace_metadata=True,
                                 check_for_duplicates=not self.client_cache_uses_lpaths)
                         book.set('_is_read_', r.get('_is_read_', None))
                         book.set('_sync_type_', r.get('_sync_type_', None))
@@ -1307,7 +1307,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                     book.set('_is_read_', result.get('_is_read_', None))
                     book.set('_sync_type_', result.get('_sync_type_', None))
                     book.set('_last_read_date_', result.get('_last_read_date_', None))
-                    bl.add_book(book, replace_metadata=True,
+                    bl.add_book_extended(book, replace_metadata=True,
                                 check_for_duplicates=not self.client_cache_uses_lpaths)
                     if '_new_book_' in result:
                         book.set('_new_book_', True)
