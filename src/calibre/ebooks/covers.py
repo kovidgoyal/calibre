@@ -21,7 +21,7 @@ from PyQt5.Qt import (
 from calibre import force_unicode
 from calibre.ebooks.metadata import fmt_sidx
 from calibre.ebooks.metadata.book.formatter import SafeFormat
-from calibre.gui2 import ensure_app, config, load_builtin_fonts
+from calibre.gui2 import ensure_app, config, load_builtin_fonts, pixmap_to_data
 from calibre.utils.cleantext import clean_ascii_chars, clean_xml_chars
 from calibre.utils.config import JSONConfig
 
@@ -229,7 +229,7 @@ def format_text(mi, prefs):
         return tuple(format_fields(mi, prefs))
 # }}}
 
-def generate_cover(mi, prefs=None):
+def generate_cover(mi, prefs=None, as_qimage=False):
     ensure_app()
     load_builtin_fonts()
     prefs = prefs or cprefs
@@ -245,16 +245,18 @@ def generate_cover(mi, prefs=None):
     for block in (title_block, subtitle_block, footer_block):
         block.draw(p)
     p.end()
-    return img
+    if as_qimage:
+        return img
+    return pixmap_to_data(img)
 
 def test():
     from PyQt5.Qt import QLabel, QApplication, QPixmap, QMainWindow
     from calibre.ebooks.metadata.book.base import Metadata
     app = QApplication([])
-    mi = Metadata('Test title for מתכוני מיצים', ['Author One', 'Author A. Two', 'Author'])
+    mi = Metadata('Test title for Book', ['Author One', 'Author A. Two', 'Author'])
     mi.series = 'A Series of Tests'
     mi.series_index = 3
-    img = generate_cover(mi)
+    img = generate_cover(mi, as_qimage=True)
     l = QLabel()
     l.setPixmap(QPixmap.fromImage(img))
     m = QMainWindow()
