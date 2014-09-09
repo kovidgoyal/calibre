@@ -1246,6 +1246,8 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                     opcode, result = self._receive_from_client(print_debug_info=False)
                     books_on_device.append(result)
 
+                self._debug('received all books. count=', count)
+
                 books_to_send = []
                 lpaths_on_device = set()
                 for r in books_on_device:
@@ -1258,7 +1260,8 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                     if book:
                         if self.client_cache_uses_lpaths:
                             lpaths_on_device.add(r.get('lpath'))
-                        bl.add_book(book, replace_metadata=True)
+                        bl.add_book_extended(book, replace_metadata=True,
+                                check_for_duplicates=not self.client_cache_uses_lpaths)
                         book.set('_is_read_', r.get('_is_read_', None))
                         book.set('_sync_type_', r.get('_sync_type_', None))
                         book.set('_last_read_date_', r.get('_last_read_date_', None))
@@ -1266,9 +1269,10 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                     else:
                         books_to_send.append(r['priKey'])
 
+                self._debug('processed cache. count=', len(books_on_device))
                 count_of_cache_items_deleted = 0
                 if self.client_cache_uses_lpaths:
-                    for lpath in self.known_metadata.keys():
+                    for lpath in self.known_metadata.iterkeys():
                         if lpath not in lpaths_on_device:
                             try:
                                 uuid = self.known_metadata[lpath].get('uuid', None)
@@ -1299,10 +1303,12 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                     if '_series_sort_' in result:
                         del result['_series_sort_']
                     book = self.json_codec.raw_to_book(result, SDBook, self.PREFIX)
+                    self._debug('title', book.title)
                     book.set('_is_read_', result.get('_is_read_', None))
                     book.set('_sync_type_', result.get('_sync_type_', None))
                     book.set('_last_read_date_', result.get('_last_read_date_', None))
-                    bl.add_book(book, replace_metadata=True)
+                    bl.add_book_extended(book, replace_metadata=True,
+                                check_for_duplicates=not self.client_cache_uses_lpaths)
                     if '_new_book_' in result:
                         book.set('_new_book_', True)
                     else:
