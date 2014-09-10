@@ -67,6 +67,7 @@ class TagListEditor(QDialog, Ui_TagListEditor):
         QDialog.__init__(self, window)
         Ui_TagListEditor.__init__(self)
         self.setupUi(self)
+        self.search_box.setMinimumContentsLength(25)
 
         # Put the category name into the title bar
         t = self.windowTitle()
