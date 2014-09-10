@@ -7,15 +7,16 @@ __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import re
+from random import choice
 from collections import namedtuple
 from contextlib import contextmanager
 from math import ceil
-from future_builtins import map
-from itertools import chain
+from future_builtins import map, zip
+from itertools import chain, repeat
 
 from PyQt5.Qt import (
     QImage, Qt, QFont, QPainter, QPointF, QTextLayout, QTextOption,
-    QFontMetrics, QTextCharFormat
+    QFontMetrics, QTextCharFormat, QColor, QRect
 )
 
 from calibre import force_unicode
@@ -29,19 +30,23 @@ from calibre.utils.config import JSONConfig
 cprefs = JSONConfig('cover_generation')
 cprefs.defaults['title_font_size'] = 60  # px
 cprefs.defaults['subtitle_font_size'] = 40  # px
-cprefs.defaults['footer_font_size'] = 60  # px
+cprefs.defaults['footer_font_size'] = 40  # px
 cprefs.defaults['cover_width'] = 600  # px
 cprefs.defaults['cover_height'] = 800  # px
 cprefs.defaults['title_font_family'] = 'Liberation Serif'
 cprefs.defaults['subtitle_font_family'] = 'Liberation Sans'
-cprefs.defaults['footer_font_family'] = 'Liberation Sans'
+cprefs.defaults['footer_font_family'] = 'Liberation Serif'
+cprefs.defaults['color_themes'] = {}
+cprefs.defaults['disabled_color_themes'] = []
+cprefs.defaults['disabled_styles'] = []
 cprefs.defaults['title_template'] = '<b>{title}'
 cprefs.defaults['subtitle_template'] = '''{series:'test($, strcat("<i>", $, "</i> - ", raw_field("formatted_series_index")), "")'}'''
-cprefs.defaults['footer_template'] = '''program:
+cprefs.defaults['footer_template'] = r'''program:
 # Show at most two authors, on separate lines.
 authors = field('authors');
 num = count(authors, ' & ');
 authors = cmp(num, 2, authors, authors, sublist(authors, 0, 2, ' & '));
+authors = list_re(authors, ' & ', '(.+)', '<b>\1');
 authors = re(authors, ' & ', '<br>');
 re(authors, '&&', '&')
 '''
@@ -49,6 +54,9 @@ Prefs = namedtuple('Prefs', ' '.join(sorted(cprefs.defaults)))
 # }}}
 
 # Draw text {{{
+
+Point = namedtuple('Point', 'x y')
+
 def parse_text_formatting(text):
     pos = 0
     tokens = []
@@ -102,36 +110,41 @@ def parse_text_formatting(text):
 
 class Block(object):
 
-    def __init__(self, text='', width=0, font=None, img=None, max_height=100):
+    def __init__(self, text='', width=0, font=None, img=None, max_height=100, align=Qt.AlignCenter):
         self.layouts = []
-        self._position = 0, 0
-        self.leading = 0
+        self._position = Point(0, 0)
+        self.leading = self.line_spacing = 0
+        if font is not None:
+            fm = QFontMetrics(font, img)
+            self.leading = fm.leading()
+            self.line_spacing = fm.lineSpacing()
         for text in text.split('<br>') if text else ():
             text, formats = parse_text_formatting(text)
             l = QTextLayout(text, font, img)
             l.setAdditionalFormats(formats)
-            to = QTextOption(Qt.AlignHCenter | Qt.AlignTop)
+            to = QTextOption(align)
             to.setWrapMode(QTextOption.WrapAtWordBoundaryOrAnywhere)
             l.setTextOption(to)
 
-            fm = QFontMetrics(font, img)
             l.beginLayout()
-            height, leading = 0, fm.leading()
-            while height + 3*leading < max_height:
+            height = 0
+            while height + 3*self.leading < max_height:
                 line = l.createLine()
                 if not line.isValid():
                     break
                 line.setLineWidth(width)
-                height += leading
+                height += self.leading
                 line.setPosition(QPointF(0, height))
                 height += line.height()
             max_height -= height
             l.endLayout()
             if self.layouts:
-                self.layouts.append(leading)
+                self.layouts.append(self.leading)
             else:
-                self._position = l.position().x(), l.position().y()
+                self._position = Point(l.position().x(), l.position().y())
             self.layouts.append(l)
+        if self.layouts:
+            self.layouts.append(self.leading)
 
     @property
     def height(self):
@@ -142,7 +155,7 @@ class Block(object):
         def fget(self):
             return self._position
         def fset(self, (x, y)):
-            self._position = x, y
+            self._position = Point(x, y)
             if self.layouts:
                 self.layouts[0].setPosition(QPointF(x, y))
                 y += self.layouts[0].boundingRect().height()
@@ -159,11 +172,11 @@ class Block(object):
             if hasattr(l, 'draw'):
                 l.draw(painter, QPointF())
 
-def layout_text(prefs, img, title, subtitle, footer, max_height, hmargin=50, vmargin=50):
+def layout_text(prefs, img, title, subtitle, footer, max_height, style, hmargin=50, vmargin=50):
     width = img.width() - 2 * hmargin
     title_font = QFont(prefs.title_font_family)
     title_font.setPixelSize(prefs.title_font_size)
-    title_block = Block(title, width, title_font, img, max_height)
+    title_block = Block(title, width, title_font, img, max_height, style.TITLE_ALIGN)
     title_block.position = hmargin, vmargin
     subtitle_block = Block()
     if subtitle:
@@ -171,12 +184,12 @@ def layout_text(prefs, img, title, subtitle, footer, max_height, hmargin=50, vma
         subtitle_font.setPixelSize(prefs.subtitle_font_size)
         gap = 2 * title_block.leading
         mh = max_height - title_block.height - gap
-        subtitle_block = Block(subtitle, width, subtitle_font, img, mh)
+        subtitle_block = Block(subtitle, width, subtitle_font, img, mh, style.SUBTITLE_ALIGN)
         subtitle_block.position = hmargin, title_block.position[0] + title_block.height + gap
 
     footer_font = QFont(prefs.footer_font_family)
     footer_font.setPixelSize(prefs.footer_font_size)
-    footer_block = Block(footer, width, footer_font, img, max_height)
+    footer_block = Block(footer, width, footer_font, img, max_height, style.FOOTER_ALIGN)
     footer_block.position = hmargin, img.height() - vmargin - footer_block.height
 
     return title_block, subtitle_block, footer_block
@@ -184,9 +197,6 @@ def layout_text(prefs, img, title, subtitle, footer, max_height, hmargin=50, vma
 # }}}
 
 # Format text using templates {{{
-def fill_background(prefs, img):
-    img.fill(Qt.white)
-
 def sanitize(s):
     return clean_xml_chars(clean_ascii_chars(force_unicode(s or '')))
 
@@ -229,31 +239,130 @@ def format_text(mi, prefs):
         return tuple(format_fields(mi, prefs))
 # }}}
 
+default_color_themes = {
+    'Mocha': 'e8d9ac c7b07b 564628 000000',
+}
+
+ColorTheme = namedtuple('ColorTheme', 'color1 color2 contrast_color1 contrast_color2')
+
+def theme_to_colors(theme):
+    colors = [QColor('#' + c) for c in theme.split()]
+    colors += list(repeat(QColor(), len(ColorTheme._fields) - len(colors)))
+    return ColorTheme(*colors)
+
+def load_color_themes(prefs):
+    t = default_color_themes.copy()
+    t.update(prefs.color_themes)
+    disabled = frozenset(prefs.disabled_color_themes)
+    return [theme_to_colors(v) for k, v in t.iteritems() if k not in disabled]
+
+def color(color_theme, name, fallback=Qt.white):
+    ans = getattr(color_theme, name)
+    if not ans.isValid():
+        ans = QColor(fallback)
+    return ans
+
+def load_colors(color_theme):
+    c1 = color(color_theme, 'color1', Qt.white)
+    c2 = color(color_theme, 'color2', Qt.black)
+    cc1 = color(color_theme, 'contrast_color1', Qt.white)
+    cc2 = color(color_theme, 'contrast_color2', Qt.black)
+    return c1, c2, cc1, cc2
+
+class Style(object):
+
+    TITLE_ALIGN = SUBTITLE_ALIGN = FOOTER_ALIGN = Qt.AlignHCenter | Qt.AlignTop
+
+    def __init__(self, color_theme):
+        self.load_colors(color_theme)
+
+    def load_colors(self, color_theme):
+        self.color1 = color(color_theme, 'color1', Qt.white)
+        self.color2 = color(color_theme, 'color2', Qt.black)
+        self.ccolor1 = color(color_theme, 'contrast_color1', Qt.white)
+        self.ccolor2 = color(color_theme, 'contrast_color2', Qt.black)
+
+class Cross(Style):
+
+    NAME = 'The Cross'
+    GUI_NAME = _('The Cross')
+
+    def __call__(self, painter, rect, color_theme, title_block, subtitle_block, footer_block):
+        painter.fillRect(rect, self.color1)
+        r = QRect(0, 0, int(title_block.position.x), rect.height())
+        painter.fillRect(r, self.color2)
+        r = QRect(0, int(title_block.position.y), rect.width(), title_block.height + subtitle_block.height + title_block.line_spacing // 3)
+        painter.fillRect(r, self.color2)
+        return self.ccolor2, self.ccolor2, self.ccolor1
+
+class Half(Style):
+
+    NAME = 'Half and Half'
+    GUI_NAME = _('Half and Half')
+    FOOTER_ALIGN = Qt.AlignRight | Qt.AlignTop
+
+    def __call__(self, painter, rect, color_theme, title_block, subtitle_block, footer_block):
+        painter.fillRect(rect, self.color1)
+        r = rect.adjusted(0, 0, 0, -rect.height() // 2)
+        painter.fillRect(rect, self.color1)
+        r = rect.adjusted(0, rect.height() // 2, 0, 0)
+        painter.fillRect(r, self.color2)
+        return self.ccolor1, self.ccolor1, self.ccolor2
+
+def load_styles(prefs):
+    disabled = frozenset(prefs.disabled_styles)
+    return tuple(x for x in globals().itervalues() if
+            isinstance(x, type) and issubclass(x, Style) and x is not Style and x.NAME not in disabled)
+
 def generate_cover(mi, prefs=None, as_qimage=False):
     ensure_app()
     load_builtin_fonts()
     prefs = prefs or cprefs
     prefs = {k:prefs.get(k) for k in cprefs.defaults}
     prefs = Prefs(**prefs)
+    color_theme = choice(load_color_themes(prefs))
+    style = choice(load_styles(prefs))(color_theme)
     title, subtitle, footer = format_text(mi, prefs)
     img = QImage(prefs.cover_width, prefs.cover_height, QImage.Format_ARGB32)
-    fill_background(prefs, img)
     hmargin = vmargin = 50
     title_block, subtitle_block, footer_block = layout_text(
-        prefs, img, title, subtitle, footer, img.height() // 3, hmargin, vmargin)
+        prefs, img, title, subtitle, footer, img.height() // 3, style, hmargin, vmargin)
     p = QPainter(img)
-    for block in (title_block, subtitle_block, footer_block):
+    rect = QRect(0, 0, img.width(), img.height())
+    colors = style(p, rect, color_theme, title_block, subtitle_block, footer_block)
+    for block, color in zip((title_block, subtitle_block, footer_block), colors):
+        p.setPen(color)
         block.draw(p)
     p.end()
     if as_qimage:
         return img
     return pixmap_to_data(img)
 
+def override_prefs(base_prefs, **overrides):
+    ans = {k:overrides.get(k, base_prefs[k]) for k in cprefs.defaults}
+    override_color_theme = overrides.get('override_color_theme')
+    if override_color_theme is not None:
+        all_themes = set(default_color_themes) | set(ans['color_themes'])
+        if override_color_theme in all_themes:
+            all_themes.discard(override_color_theme)
+            ans['disabled_color_themes'] = all_themes
+    override_style = overrides.get('override_style')
+    if override_style is not None:
+        all_styles = set(
+            x.NAME for x in globals().itervalues() if
+            isinstance(x, type) and issubclass(x, Style) and x is not Style
+        )
+        if override_style in all_styles:
+            all_styles.discard(override_style)
+            ans['disabled_styles'] = all_styles
+
+    return ans
+
 def test():
     from PyQt5.Qt import QLabel, QApplication, QPixmap, QMainWindow
     from calibre.ebooks.metadata.book.base import Metadata
     app = QApplication([])
-    mi = Metadata('Test title for Book', ['Author One', 'Author A. Two', 'Author'])
+    mi = Metadata('An algorithmic cover', ['Kovid Goyal', 'John P. Doe', 'Author'])
     mi.series = 'A Series of Tests'
     mi.series_index = 3
     img = generate_cover(mi, as_qimage=True)
