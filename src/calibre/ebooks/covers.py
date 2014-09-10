@@ -6,8 +6,7 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import re
-from random import choice
+import re, random
 from collections import namedtuple
 from contextlib import contextmanager
 from math import ceil
@@ -350,8 +349,8 @@ def generate_cover(mi, prefs=None, as_qimage=False):
     prefs = prefs or cprefs
     prefs = {k:prefs.get(k) for k in cprefs.defaults}
     prefs = Prefs(**prefs)
-    color_theme = choice(load_color_themes(prefs))
-    style = choice(load_styles(prefs))(color_theme, prefs)
+    color_theme = random.choice(load_color_themes(prefs))
+    style = random.choice(load_styles(prefs))(color_theme, prefs)
     title, subtitle, footer = format_text(mi, prefs)
     img = QImage(prefs.cover_width, prefs.cover_height, QImage.Format_ARGB32)
     title_block, subtitle_block, footer_block = layout_text(
@@ -384,7 +383,7 @@ def override_prefs(base_prefs, **overrides):
 
     return ans
 
-def test():
+def test(scale=2):
     from PyQt5.Qt import QLabel, QApplication, QPixmap, QMainWindow, QWidget, QScrollArea, QGridLayout
     from calibre.ebooks.metadata.book.base import Metadata
     app = QApplication([])
@@ -403,7 +402,7 @@ def test():
             mi.title = 'An algorithmic cover [%s]' % color
             prefs = override_prefs(cprefs, override_color_theme=color, override_style=style)
             for x in ('cover_width', 'cover_height', 'title_font_size', 'subtitle_font_size', 'footer_font_size'):
-                prefs[x] //= 2
+                prefs[x] //= scale
             img = generate_cover(mi, prefs=prefs, as_qimage=True)
             la = QLabel()
             la.setPixmap(QPixmap.fromImage(img))
