@@ -12,7 +12,7 @@ class StrategyBusinessRecipe(BasicNewsRecipe):
     description = (u'Business magazine for senior business executives and the people who influence them.'
             'Go to http://www.strategy-business.com/registration to sign up for a free account')
 
-    oldest_article = 13 * 7 # 3 months
+    oldest_article = 13 * 7  # 3 months
     max_articles_per_feed = 100
     use_embedded_content = False
     remove_empty_feeds = True
@@ -33,10 +33,9 @@ class StrategyBusinessRecipe(BasicNewsRecipe):
                     elif c.name.endswith('_password'):
                         br[c.name] = self.password
                 raw = br.submit().read()
-                if 'You have been logged in' not in raw:
+                if '>Logout<' not in raw:
                     raise ValueError('Failed to login, check your username and password')
         return br
-
 
     extra_css = '''
                 body{font-family:verdana,arial,helvetica,geneva,sans-serif ;}
@@ -68,16 +67,16 @@ class StrategyBusinessRecipe(BasicNewsRecipe):
     feeds.append((u'Business Literature', u'http://feeds.feedburner.com/StrategyBusiness-BusinessLiterature?format=xml'))
     feeds.append((u'Recent Research', u'http://feeds.feedburner.com/StrategyBusiness-RecentResearch?format=xml'))
 
-
     keep_only_tags = []
-    keep_only_tags.append(dict(name = 'div', attrs = {'id': 'sb-column2'}))
+    keep_only_tags.append(dict(name='div', attrs={'id': 'sb-column2'}))
 
     remove_tags = []
-    remove_tags.append(dict(name = 'img', attrs = {'class': 'content1'}))
-    remove_tags.append(dict(name = 'img', attrs = {'src': '/media/image/end_of_story.gif'}))
-    remove_tags.append(dict(name = 'div', attrs = {'class': 'sb-adarea468'}))
-    remove_tags.append(dict(name = 'div', attrs = {'id': 'sb-paging'}))
-    remove_tags.append(dict(name = 'div', attrs = {'id': 'textsize'}))
+    remove_tags.append(dict(name='img', attrs={'class': 'content1'}))
+    remove_tags.append(dict(name='img', attrs={'src': '/media/image/end_of_story.gif'}))
+    remove_tags.append(dict(name='div', attrs={'class': ['sb-adarea468', 'GigyaShare', 'moreBlogLinks', 'clearboth', 'GigyaCommentsContainer']}))
+    remove_tags.append(dict(name='div', attrs={'id': 'sb-paging'}))
+    remove_tags.append(dict(name='div', attrs={'id': 'textsize'}))
+    remove_tags.append(dict(name='div', id=lambda x:x and x.startswith('div-gpt-ad-')))
 
     def print_version(self, url):
-        return url + '?pg=all'
+        return url.partition('?')[0] + '?pg=all'
