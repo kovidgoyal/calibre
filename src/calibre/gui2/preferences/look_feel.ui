@@ -582,10 +582,10 @@ A value of zero means calculate automatically.</string>
               <item row="1" column="0" colspan="2">
                <widget class="QLabel" name="label_15">
                 <property name="text">
-                 <string>Number of covers to cache in &amp;memory (keep this small):</string>
+                 <string>Number of screenfulls of covers to cache in &amp;memory (keep this small):</string>
                 </property>
                 <property name="buddy">
-                 <cstring>opt_cover_grid_cache_size</cstring>
+                 <cstring>opt_cover_grid_cache_size_multiple</cstring>
                 </property>
                </widget>
               </item>
@@ -604,12 +604,15 @@ A value of zero means calculate automatically.</string>
                </widget>
               </item>
               <item row="1" column="2">
-               <widget class="QSpinBox" name="opt_cover_grid_cache_size">
+               <widget class="QSpinBox" name="opt_cover_grid_cache_size_multiple">
                 <property name="toolTip">
-                 <string>The maximum number of covers to keep in memory. Increasing this will make rendering faster, at the cost of more memory usage.</string>
+                 <string>The maximum number of screenfulls of thumbnails to keep in memory. Increasing this will make rendering faster, at the cost of more memory usage. Note that regardless of this setting, a minimum of one hudred thumbnails are always kept in memory, to ensure flicker free rendering.</string>
+                </property>
+                <property name="minimum">
+                 <number>2</number>
                 </property>
                 <property name="maximum">
-                 <number>50000</number>
+                 <number>100</number>
                 </property>
                </widget>
               </item>

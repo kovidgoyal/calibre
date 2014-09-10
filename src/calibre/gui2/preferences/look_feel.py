@@ -146,7 +146,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         r('bd_overlay_cover_size', gprefs)
         r('cover_grid_width', gprefs)
         r('cover_grid_height', gprefs)
-        r('cover_grid_cache_size', gprefs)
+        r('cover_grid_cache_size_multiple', gprefs)
         r('cover_grid_disk_cache_size', gprefs)
         r('cover_grid_spacing', gprefs)
         r('cover_grid_show_title', gprefs)

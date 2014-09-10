@@ -635,6 +635,9 @@ class GridView(QListView):
         self.update_timer.setInterval(200)
         self.update_timer.timeout.connect(self.update_viewport)
         self.update_timer.setSingleShot(True)
+        self.resize_timer = t = QTimer(self)
+        t.setInterval(200), t.setSingleShot(True)
+        t.timeout.connect(self.update_memory_cover_cache_size)
 
     @property
     def first_visible_row(self):
@@ -719,14 +722,30 @@ class GridView(QListView):
             self.delegate.calculate_spacing()
             self.setSpacing(self.delegate.spacing)
         self.set_color()
-        self.delegate.cover_cache.set_limit(gprefs['cover_grid_cache_size'])
         if size_changed:
             self.thumbnail_cache.set_thumbnail_size(self.delegate.cover_size.width(), self.delegate.cover_size.height())
         cs = gprefs['cover_grid_disk_cache_size']
         if (cs*(1024**2)) != self.thumbnail_cache.max_size:
             self.thumbnail_cache.set_size(cs)
+        self.update_memory_cover_cache_size()
+
+    def resizeEvent(self, ev):
+        self.resize_timer.start()
+        return QListView.resizeEvent(self, ev)
+
+    def update_memory_cover_cache_size(self):
+        try:
+            sz = self.delegate.item_size
+        except AttributeError:
+            return
+        rows, cols = self.width() // sz.width(), self.height() // sz.height()
+        num = (rows + 1) * (cols + 1)
+        limit = max(100, num * max(2, gprefs['cover_grid_cache_size_multiple']))
+        if limit != self.delegate.cover_cache.limit:
+            self.delegate.cover_cache.set_limit(limit)
 
     def shown(self):
+        self.update_memory_cover_cache_size()
         if self.render_thread is None:
             self.thumbnail_cache.set_database(self.gui.current_db)
             self.render_thread = Thread(target=self.render_covers)
