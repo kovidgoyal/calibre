@@ -315,6 +315,15 @@ class Half(Style):
         painter.fillRect(rect, QBrush(g))
         return self.ccolor1, self.ccolor1, self.ccolor1
 
+# class Ribbon(Style):
+#
+#     NAME = 'Ribbon'
+#     GUI_NAME = _('Ribbon')
+#
+#     def __call__(self, painter, rect, color_theme, title_block, subtitle_block, footer_block):
+#         top = title_block.position.y
+#         height = title_block.height + subtitle_block.height + title_block.line_spacing // 3
+
 class Blocks(Style):
 
     NAME = 'Blocks'
@@ -383,7 +392,7 @@ def override_prefs(base_prefs, **overrides):
 
     return ans
 
-def test(scale=2):
+def test(scale=1):
     from PyQt5.Qt import QLabel, QApplication, QPixmap, QMainWindow, QWidget, QScrollArea, QGridLayout
     from calibre.ebooks.metadata.book.base import Metadata
     app = QApplication([])
@@ -402,7 +411,7 @@ def test(scale=2):
             mi.title = 'An algorithmic cover [%s]' % color
             prefs = override_prefs(cprefs, override_color_theme=color, override_style=style)
             for x in ('cover_width', 'cover_height', 'title_font_size', 'subtitle_font_size', 'footer_font_size'):
-                prefs[x] //= scale
+                prefs[x] = int(scale * prefs[x])
             img = generate_cover(mi, prefs=prefs, as_qimage=True)
             la = QLabel()
             la.setPixmap(QPixmap.fromImage(img))
