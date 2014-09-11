@@ -1,5 +1,4 @@
 from calibre.web.feeds.news import BasicNewsRecipe
-from calibre.ebooks.BeautifulSoup import Tag
 
 class DawnRecipe(BasicNewsRecipe):
     __license__  = 'GPL v3'
@@ -16,20 +15,17 @@ class DawnRecipe(BasicNewsRecipe):
     remove_empty_feeds = True
     oldest_article = 2
     max_articles_per_feed = 100
-    #auto_cleanup = True
-    #auto_cleanup_keep = '//dix[@class="slideshow"]'
-    
 
     no_stylesheets = True
     remove_javascript = True
     encoding = 'utf-8'
-    keep_only_tags = [dict(name='div', attrs={'class':'push-half--sides  push--top'}),
-		      dict(name='article', attrs={'class':'story  story--single  push-half'})]
+    keep_only_tags = [
+        dict(name='div', attrs={'class':'push-half--sides  push--top'}),
+        dict(name='article', attrs={'class':'story  story--single  push-half'})]
 
     # Feeds from http://www.dawn.com/wps/wcm/connect/dawn-content-library/dawn/services/rss
     feeds = []
     feeds.append((u'Latest News', u'http://feeds.feedburner.com/dawn-news'))
-    #feeds.append((u'', u''))
 
     conversion_options = {'comments': description, 'tags': category, 'language': 'en',
                           'publisher': publisher}
@@ -42,50 +38,3 @@ class DawnRecipe(BasicNewsRecipe):
                 span.news_byline {font-size: x-small; color: #696969; margin-top: 1em;}
                 '''
 
-    #def print_version(self, url):
-        #url = url.split('?')[0] + '/print'
-        #print(url)
-        #return url
-
-    #def preprocess_html(self, soup):
-        #newBody = Tag(soup, 'body')
-
-        #for cl in ['page_title', 'news_headline', 'news_byline']:
-            #tag = soup.find('span', attrs = {'class': cl})
-            #if tag:
-                ## They like their <br> tags; I don't: does not work well on small screens.
-                #if tag['class'] == 'news_byline':
-                    #for br in tag.findAll('br'):
-                        #br.extract()
-
-                #newBody.append(tag)
-
-        #table = soup.find('table', attrs = {'id': 'body table'})
-        #if table:
-            #for td in table.findAll('td', attrs = {'class': 'news_story'}):
-                #for tag in td.findAll(True):
-                    #if tag.has_key('id') and tag['id'] == 'banner-img_slide':
-                        #tag.extract()
-                    #elif tag.has_key('style'):
-                        #del tag['style']
-                    #elif tag.name == 'script':
-                        #tag.extract()
-
-                ## They like their <br> tags; I don't: does not work well on small screens.
-                #center = td.find('center')
-                #if center:
-                    #for br in center.findNextSiblings('br'):
-                        #br.extract()
-                    #for br in center.findPreviousSiblings('br'):
-                        #br.extract()
-
-                #for attr in ['align', 'valign']:
-                    #if td.has_key(attr):
-                        #del td[attr]
-
-                #td.name = 'div'
-                #newBody.append(td)
-
-            #soup.body.replaceWith(newBody)
-
-            #return soup
