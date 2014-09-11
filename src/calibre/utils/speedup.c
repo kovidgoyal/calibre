@@ -4,9 +4,12 @@
 #include <stdlib.h>
 #include <fcntl.h>
 #include <stdio.h>
+#include <math.h>
 
 #define min(x, y) ((x < y) ? x : y)
 #define max(x, y) ((x > y) ? x : y)
+#define CLAMP(value, lower, upper) ((value > upper) ? upper : ((value < lower) ? lower : value))
+#define STRIDE(width, r, c) ((width * (r)) + (c))
 
 static PyObject *
 speedup_parse_date(PyObject *self, PyObject *args) {
@@ -108,6 +111,88 @@ speedup_detach(PyObject *self, PyObject *args) {
     Py_RETURN_NONE;
 }
 
+static void calculate_gaussian_kernel(Py_ssize_t size, double *kernel, double radius) {
+    const double sqr = radius * radius;
+    const double factor = M_E / (2 * M_PI * sqr);
+    const double denom = 2 * sqr;
+    double *t, sum = 0;
+    Py_ssize_t r, c, center = size / 2;
+
+    for (r = 0; r < size; r++) {
+        t = kernel + (r * size);
+        for (c = 0; c < size; c++) {
+            t[c] = factor - ( ( (r - center) * (r - center) + (c - center) * (c - center) ) / denom );
+        }
+    }
+
+    // Normalize matrix
+    for (r = 0; r < size * size; r++) sum += kernel[r];
+    sum = 1 / sum;
+    for (r = 0; r < size * size; r++) kernel[r] *= sum;
+}
+
+static PyObject*
+speedup_create_texture(PyObject *self, PyObject *args, PyObject *kw) {
+    PyObject *ret = NULL;
+    Py_ssize_t width, height, weight = 3, i, j, r, c, half_weight;
+    double pixel, *mask = NULL, radius = 1, *kernel = NULL, blend_alpha = 0.1;
+    float density = 0.7;
+    unsigned char base_r, base_g, base_b, blend_r = 0, blend_g = 0, blend_b = 0, *ppm = NULL, *t = NULL;
+    char header[100] = {0};
+    static char* kwlist[] = {"blend_red", "blend_green", "blend_blue", "blend_alpha", "density", "weight", "radius", NULL};
+
+    if (!PyArg_ParseTupleAndKeywords(args, kw, "nnbbb|bbbdfnd", kwlist, &width, &height, &base_r, &base_g, &base_b, &blend_r, &blend_g, &blend_b, &blend_alpha, &density, &weight, &radius)) return NULL;
+    if (weight % 2 != 1 || weight < 1) { PyErr_SetString(PyExc_ValueError, "The weight must be an odd positive number"); return NULL; }
+    if (radius <= 0) { PyErr_SetString(PyExc_ValueError, "The radius must be positive"); return NULL; }
+    if (width > 100000 || height > 10000) { PyErr_SetString(PyExc_ValueError, "The width or height is too large"); return NULL; }
+    if (width < 1 || height < 1) { PyErr_SetString(PyExc_ValueError, "The width or height is too small"); return NULL; }
+    snprintf(header, 99, "P6\n%d %d\n255\n", (int)width, (int)height);
+
+    kernel = (double*)calloc(weight * weight, sizeof(double));
+    if (kernel == NULL) { PyErr_NoMemory(); return NULL; }
+    mask = (double*)calloc(width * height, sizeof(double));
+    if (mask == NULL) { free(kernel); PyErr_NoMemory(); return NULL;}
+    ppm = (unsigned char*)calloc(strlen(header) + (3 * width * height), sizeof(unsigned char));
+    if (ppm == NULL) { free(kernel); free(mask); PyErr_NoMemory(); return NULL; }
+
+    calculate_gaussian_kernel(weight, kernel, radius);
+
+    // Random noise, noisy pixels are blend_alpha, other pixels are 0
+    for (i = 0; i < width * height; i++) {
+        if (((float)(random()) / RAND_MAX) <= density) mask[i] = blend_alpha;
+    }
+
+    // Blur the noise using the gaussian kernel
+    half_weight = weight / 2;
+    for (r = 0; r < height; r++) {
+        for (c = 0; c < width; c++) {
+            pixel = 0;
+            for (i = -half_weight; i <= half_weight; i++) {
+                for (j = -half_weight; j <= half_weight; j++) {
+                    pixel += (*(mask + STRIDE(width, CLAMP(r + i, 0, height - 1), CLAMP(c + j, 0, width - 1)))) * (*(kernel + STRIDE(weight, half_weight + i, half_weight + j)));
+                }
+            }
+            *(mask + STRIDE(width, r, c)) = CLAMP(pixel, 0, 1);
+        }
+    }
+
+    // Create the texture in PPM (P6) format 
+    strncpy(ppm, header, strlen(header));
+    t = ppm + strlen(header);
+    for (i = 0, j = 0; j < width * height; i += 3, j += 1) {
+#define BLEND(src, dest) ( ((unsigned char)(src * mask[j])) + ((unsigned char)(dest * (1 - mask[j]))) )
+        t[i] = BLEND(blend_r, base_r);
+        t[i+1] = BLEND(blend_g, base_g);
+        t[i+2] = BLEND(blend_b, base_b);
+    }
+
+    ret = Py_BuildValue("s", ppm);
+    free(mask); mask = NULL;
+    free(kernel); kernel = NULL;
+    free(ppm); ppm = NULL;
+    return ret;
+}
+
 static PyMethodDef speedup_methods[] = {
     {"parse_date", speedup_parse_date, METH_VARARGS,
         "parse_date()\n\nParse ISO dates faster."
@@ -119,6 +204,16 @@ static PyMethodDef speedup_methods[] = {
 
     {"detach", speedup_detach, METH_VARARGS,
         "detach()\n\nRedirect the standard I/O stream to the specified file (usually os.devnull)"
+    },
+
+    {"create_texture", speedup_create_texture, METH_VARARGS | METH_KEYWORDS,
+        "create_texture(width, height, red, green, blue, blend_red=0, blend_green=0, blend_blue=0, blend_alpha=0.1, density=0.7, weight=3, radius=1)\n\n"
+            "Create a texture of the specified width and height from the specified color."
+            " The texture is created by blending in random noise of the specified blend color into a flat image."
+            " All colors are numbers between 0 and 255. 0 <= blend_alpha <= 1 with 0 being fully transparent."
+            " 0 <= density <= 1 is used to control the amount of noise in the texture."
+            " weight and radius control the Gaussian convolution used for blurring of the noise. weight must be an odd positive integer. Increasing the weight will tend to blur out the noise. Decreasing it will make it sharper."
+            " This function returns an image (bytestring) in the PPM format as the texture."
     },
 
     {NULL, NULL, 0, NULL}
