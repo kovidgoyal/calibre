@@ -339,7 +339,7 @@ class AuthorSortEdit(EnLineEdit):
                     'No action is required if this is what you want.'))
         self.tooltips = (ok_tooltip, bad_tooltip)
 
-        self.authors_edit.editTextChanged.connect(self.update_state_and_val)
+        self.authors_edit.editTextChanged.connect(self.update_state_and_val, type=Qt.QueuedConnection)
         self.textChanged.connect(self.update_state)
 
         self.autogen_button = autogen_button
