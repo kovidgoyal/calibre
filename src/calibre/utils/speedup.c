@@ -4,10 +4,12 @@
 #include <stdlib.h>
 #include <fcntl.h>
 #include <stdio.h>
+#define _USE_MATH_DEFINES
 #include <math.h>
+#include <string.h>
 
-#define min(x, y) ((x < y) ? x : y)
-#define max(x, y) ((x > y) ? x : y)
+#define MIN(x, y) ((x < y) ? x : y)
+#define MAX(x, y) ((x > y) ? x : y)
 #define CLAMP(value, lower, upper) ((value > upper) ? upper : ((value < lower) ? lower : value))
 #define STRIDE(width, r, c) ((width * (r)) + (c))
 
@@ -82,7 +84,7 @@ speedup_pdf_float(PyObject *self, PyObject *args) {
     a = fabs(f);
 
     if (a > 1.0e-7) {
-        if(a > 1) precision = min(max(0, 6-(int)log10(a)), 6);
+        if(a > 1) precision = MIN(MAX(0, 6-(int)log10(a)), 6);
         buf = PyOS_double_to_string(f, 'f', precision, 0, NULL);
         if (buf != NULL) {
             free_buf = (void*)buf;
@@ -136,7 +138,7 @@ speedup_create_texture(PyObject *self, PyObject *args, PyObject *kw) {
     PyObject *ret = NULL;
     Py_ssize_t width, height, weight = 3, i, j, r, c, half_weight;
     double pixel, *mask = NULL, radius = 1, *kernel = NULL, blend_alpha = 0.1;
-    float density = 0.7;
+    float density = 0.7f;
     unsigned char base_r, base_g, base_b, blend_r = 0, blend_g = 0, blend_b = 0, *ppm = NULL, *t = NULL;
     char header[100] = {0};
     static char* kwlist[] = {"blend_red", "blend_green", "blend_blue", "blend_alpha", "density", "weight", "radius", NULL};
@@ -159,7 +161,7 @@ speedup_create_texture(PyObject *self, PyObject *args, PyObject *kw) {
 
     // Random noise, noisy pixels are blend_alpha, other pixels are 0
     for (i = 0; i < width * height; i++) {
-        if (((float)(random()) / RAND_MAX) <= density) mask[i] = blend_alpha;
+        if (((float)(rand()) / RAND_MAX) <= density) mask[i] = blend_alpha;
     }
 
     // Blur the noise using the gaussian kernel
@@ -177,7 +179,7 @@ speedup_create_texture(PyObject *self, PyObject *args, PyObject *kw) {
     }
 
     // Create the texture in PPM (P6) format 
-    strncpy(ppm, header, strlen(header));
+    memcpy(ppm, header, strlen(header));
     t = ppm + strlen(header);
     for (i = 0, j = 0; j < width * height; i += 3, j += 1) {
 #define BLEND(src, dest) ( ((unsigned char)(src * mask[j])) + ((unsigned char)(dest * (1 - mask[j]))) )
@@ -206,7 +208,7 @@ static PyMethodDef speedup_methods[] = {
         "detach()\n\nRedirect the standard I/O stream to the specified file (usually os.devnull)"
     },
 
-    {"create_texture", speedup_create_texture, METH_VARARGS | METH_KEYWORDS,
+    {"create_texture", (PyCFunction)speedup_create_texture, METH_VARARGS | METH_KEYWORDS,
         "create_texture(width, height, red, green, blue, blend_red=0, blend_green=0, blend_blue=0, blend_alpha=0.1, density=0.7, weight=3, radius=1)\n\n"
             "Create a texture of the specified width and height from the specified color."
             " The texture is created by blending in random noise of the specified blend color into a flat image."

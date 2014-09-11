@@ -83,6 +83,7 @@ extensions = [
 
     Extension('speedup',
         ['calibre/utils/speedup.c'],
+        libraries=[] if iswindows else ['m']
         ),
 
     Extension('html',
