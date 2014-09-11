@@ -113,7 +113,7 @@ speedup_detach(PyObject *self, PyObject *args) {
 
 static void calculate_gaussian_kernel(Py_ssize_t size, double *kernel, double radius) {
     const double sqr = radius * radius;
-    const double factor = M_E / (2 * M_PI * sqr);
+    const double factor = 1.0 / (2 * M_PI * sqr);
     const double denom = 2 * sqr;
     double *t, sum = 0;
     Py_ssize_t r, c, center = size / 2;
@@ -121,7 +121,7 @@ static void calculate_gaussian_kernel(Py_ssize_t size, double *kernel, double ra
     for (r = 0; r < size; r++) {
         t = kernel + (r * size);
         for (c = 0; c < size; c++) {
-            t[c] = factor - ( ( (r - center) * (r - center) + (c - center) * (c - center) ) / denom );
+            t[c] = factor * pow(M_E, - ( ( (r - center) * (r - center) + (c - center) * (c - center) ) / denom ));
         }
     }
 
