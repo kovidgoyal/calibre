@@ -20,6 +20,40 @@
 #   new recipes:
 #     - title: 
 
+- version: 2.3.0
+  date: 2014-09-11
+
+  new features:
+    - title: "Cover Grid: Dynamically adjust the size of the in memory cover thumbnail cache based on the window size to ensure flicker free rendering even on very large screens."
+      tickets: [1367211]
+
+    - title: "Template tester: Remember last used template"
+
+    - title: "Get Books: When downloading books show a popup message telling the user that the books will be added to the calibre library automatically, to help new users understand what is happening. The popup message can be disabled."
+    - title: "E-book viewer: Try to detect when a chapter has a page break before the start of the chapter's text resulting in a leading blank page and override the page break."
+      tickets: [1366074]
+
+  bug fixes:
+    - title: "Edit metadata dialog: Fix the author sort field not being marked red initially when the author sort does not match the author due to a Qt 5 behavior change."
+      tickets: [1367943]
+
+    - title: "OS X: Fix restarting of calibre not working if calibre.app is placed in a location with spaces in the path"
+
+    - title: "Fix regression that caused calibre running in debug mode on OS X to not have a menubar or dock icon"
+
+    - title: "Get Books: Fix downloading ebooks from Project Gutenberg via the builtin browser not working because of changes to the Project Gutenberg website."
+      tickets: [1366240]
+
+    - title: "Get Books: Update Gutenberg plugin for changes to the Project Gutenberg website."
+      tickets: [1366245]
+
+  improved recipes:
+    - Strategy+Business
+    - Dawn
+    - American Thinker
+    - Anchorage Daily News
+    - Financial Times
+
 - version: 2.2.0
   date: 2014-09-05
 
