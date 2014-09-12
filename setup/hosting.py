@@ -411,7 +411,12 @@ class GitHub(Base):  # {{{
             r = self.do_upload(upload_url, path, desc, fname)
             if r.status_code != 201:
                 self.fail(r, 'Failed to upload file: %s' % fname)
-            r = self.requests.patch(url.format(r.json()['id']),
+            try:
+                r = self.requests.patch(url.format(r.json()['id']),
+                                data=json.dumps({'name':fname, 'label':desc}))
+            except Exception:
+                time.sleep(15)
+                r = self.requests.patch(url.format(r.json()['id']),
                                 data=json.dumps({'name':fname, 'label':desc}))
             if r.status_code != 200:
                 self.fail(r, 'Failed to set label for %s' % fname)
