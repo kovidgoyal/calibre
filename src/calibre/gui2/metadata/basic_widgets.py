@@ -149,7 +149,7 @@ class TitleSortEdit(TitleEdit):
                   'No action is required if this is what you want.'))
         self.tooltips = (ok_tooltip, bad_tooltip)
 
-        self.title_edit.textChanged.connect(self.update_state_and_val)
+        self.title_edit.textChanged.connect(self.update_state_and_val, type=Qt.QueuedConnection)
         self.textChanged.connect(self.update_state)
 
         self.autogen_button = autogen_button
