@@ -1423,9 +1423,30 @@ class BuiltinAuthorLinks(BuiltinFormatterFunction):
             return pair_sep.join(n + val_sep + link_data[n] for n in names)
         return _('This function can be used only in the GUI')
 
+class BuiltinAuthorSorts(BuiltinFormatterFunction):
+    name = 'author_sorts'
+    arg_count = 1
+    category = 'Get values from metadata'
+    __doc__ = doc = _('author_sorts(val_separator) -- returns a string '
+                      'containing a list of author\'s sort values for the '
+                      'authors of the book. The sort is the one in the author '
+                      'metadata (different from the author_sort in books). The '
+                      'returned list has the form author sort 1 val_separator '
+                      'author sort 2 etc. The author sort values in this list '
+                      'are in the same order as the authors of the book. If '
+                      'you want spaces around val_separator then include them '
+                      'in the separator string')
+
+    def evaluate(self, formatter, kwargs, mi, locals, val_sep):
+        sort_data = mi.author_sort_map
+        if not sort_data:
+            return ''
+        names = [sort_data.get(n) for n in mi.authors if n.strip()]
+        return val_sep.join(n for n in names)
+
 _formatter_builtins = [
-    BuiltinAdd(), BuiltinAnd(), BuiltinApproximateFormats(),
-    BuiltinAssign(), BuiltinAuthorLinks(), BuiltinBooksize(),
+    BuiltinAdd(), BuiltinAnd(), BuiltinApproximateFormats(), BuiltinAssign(),
+    BuiltinAuthorLinks(), BuiltinAuthorSorts(), BuiltinBooksize(),
     BuiltinCapitalize(), BuiltinCmp(), BuiltinContains(), BuiltinCount(),
     BuiltinCurrentLibraryName(), BuiltinCurrentLibraryPath(),
     BuiltinDaysBetween(), BuiltinDivide(), BuiltinEval(), BuiltinFirstNonEmpty(),
