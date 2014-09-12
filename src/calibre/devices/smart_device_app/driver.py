@@ -1272,7 +1272,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                 self._debug('processed cache. count=', len(books_on_device))
                 count_of_cache_items_deleted = 0
                 if self.client_cache_uses_lpaths:
-                    for lpath in self.known_metadata.iterkeys():
+                    for lpath in self.known_metadata.keys():
                         if lpath not in lpaths_on_device:
                             try:
                                 uuid = self.known_metadata[lpath].get('uuid', None)
