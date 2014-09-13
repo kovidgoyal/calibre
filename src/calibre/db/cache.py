@@ -670,7 +670,7 @@ class Cache(object):
         Copy the cover to the file like object ``dest``. Returns False
         if no cover exists or dest is the same file as the current cover.
         dest can also be a path in which case the cover is
-        copied to it iff the path is different from the current path (taking
+        copied to it if and only if the path is different from the current path (taking
         case sensitivity into account).
         '''
         try:
