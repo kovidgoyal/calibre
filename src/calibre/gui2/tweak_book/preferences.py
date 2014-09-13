@@ -538,7 +538,9 @@ class TemplatesDialog(Dialog):  # {{{
 
         self.helpl = la = QLabel(_(
             'The variables {0} and {1} will be replaced with the title and author of the book. {2}'
-            ' is where the cursor will be positioned.').format('{TITLE}', '{AUTHOR}', '%CURSOR%'))
+            ' is where the cursor will be positioned. If you want to include braces in your template,'
+            ' for example for CSS rules, you have to escape them, like this: {3}').format(*['<code>%s</code>'%x for x in
+                ['{TITLE}', '{AUTHOR}', '%CURSOR%', 'body {{ color: red }}']]))
         la.setWordWrap(True)
         l.addRow(la)
 
