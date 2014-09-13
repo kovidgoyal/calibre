@@ -16,7 +16,7 @@ from itertools import chain, repeat
 from PyQt5.Qt import (
     QImage, Qt, QFont, QPainter, QPointF, QTextLayout, QTextOption,
     QFontMetrics, QTextCharFormat, QColor, QRect, QBrush, QLinearGradient,
-    QPainterPath, QPen
+    QPainterPath, QPen, QRectF
 )
 
 from calibre import force_unicode
@@ -299,9 +299,15 @@ class Cross(Style):
 
     def __call__(self, painter, rect, color_theme, title_block, subtitle_block, footer_block):
         painter.fillRect(rect, self.color1)
-        r = QRect(0, 0, int(title_block.position.x), rect.height())
-        painter.fillRect(r, self.color2)
         r = QRect(0, int(title_block.position.y), rect.width(), title_block.height + subtitle_block.height + title_block.line_spacing // 3)
+        painter.save()
+        p = QPainterPath()
+        p.addRoundedRect(QRectF(r), 10, 10 * r.width()/r.height(), Qt.RelativeSize)
+        painter.setClipPath(p)
+        painter.setRenderHint(QPainter.Antialiasing)
+        painter.fillRect(r, self.color2)
+        painter.restore()
+        r = QRect(0, 0, int(title_block.position.x), rect.height())
         painter.fillRect(r, self.color2)
         return self.ccolor2, self.ccolor2, self.ccolor1
 
@@ -463,7 +469,7 @@ def override_prefs(base_prefs, **overrides):
 
     return ans
 
-def test(scale=1):
+def test(scale=0.7):
     from PyQt5.Qt import QLabel, QApplication, QPixmap, QMainWindow, QWidget, QScrollArea, QGridLayout
     from calibre.ebooks.metadata.book.base import Metadata
     app = QApplication([])
