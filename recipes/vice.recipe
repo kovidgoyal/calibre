@@ -1,0 +1,66 @@
+##
+## Title:        Vice News recipe for calibre
+## Author:       Adrian Tennessee
+## Contact:      adrian.tennessee at domainthatnobodytakes.com
+##
+## License:      GNU General Public License v3 - http://www.gnu.org/copyleft/gpl.html
+## Copyright:    Copyright 2014 Adrian Tennessee
+##
+## Written:      2014-09-13
+## Last Edited:  2014-09-13
+##
+
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class VICENews(BasicNewsRecipe):
+    __author__     = 'Adrian Tennessee (adrian.tennessee at domainthatnobodytakes.com)'
+    __license__    = 'GPLv3'
+    __copyright__  = '2014, Adrian Tennessee <adrian.tennessee at domainthatnobodytakes.com)'
+
+    title          = u'VICE News'
+    language       = 'en'
+    description    = u'VICE News web site ebook'
+    publisher      = 'VICE Media'
+    category       = 'news, world'
+    cover_url      = 'https://upload.wikimedia.org/wikipedia/commons/d/dc/Vice_News_logo.jpg'
+
+    oldest_article        = 7
+    max_articles_per_feed = 100
+    use_embedded_content  = False
+    no_stylesheets        = True
+    remove_javascript     = True
+    encoding              = 'utf-8'
+
+    # article-title modifies h1-tag of article title
+    extra_css = '.article-title { font-size:125%; font-weight:bold }'
+
+    keep_only_tags = [
+                      # this is the image. comment it out if you don't want it
+                      # desktop and lede version provide higher-res images
+                      {'class':'lede-image mobile'},
+                      #{'class':'lede-image desktop'},
+                      #{'class':'lede-image lede'},
+                      # publication information
+                      {'class':'article-header-inner'},
+                      {'class':'author'},
+                      {'class':'meta-time'},
+                      # actual article
+                      {'class':'left-column'}
+                     ]
+
+    remove_tags = [
+                   # remove topic section
+                   dict(name='p', attrs={'class':['article-topic']}),
+                   # remove side header
+                   dict(name='header', attrs={'class':['site-header article-site-header']}),
+                   # remove topic tags at end of article
+                   dict(name='div', attrs={'class':['article-topics-inner']}),
+                   # remove social media buttons
+                   dict(name='div', attrs={'class':['socials']}),
+                   # remove "Recommended"-header for recommended articles
+                   dict(name='header', attrs={'class':['widget-header']}),
+                   # remove recommended article links
+                   dict(name='div', attrs={'class':['widget-list-item article-feature-item']})
+                  ]
+
+    feeds          = [(u'VICE News', u'https://news.vice.com/rss')]
