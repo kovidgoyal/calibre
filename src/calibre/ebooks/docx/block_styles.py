@@ -350,6 +350,8 @@ class ParagraphStyle(object):
                 c['page-break-inside'] = 'avoid'
             if self.pageBreakBefore is True:
                 c['page-break-before'] = 'always'
+            if self.keepNext is True:
+                c['page-break-after'] = 'avoid'
             for edge in ('left', 'top', 'right', 'bottom'):
                 val = getattr(self, 'border_%s_width' % edge)
                 if val is not inherit:
@@ -377,4 +379,3 @@ class ParagraphStyle(object):
 
         return self._css
 
-        # TODO: keepNext must be done at markup level
