@@ -606,7 +606,7 @@ A value of zero means calculate automatically.</string>
               <item row="1" column="2">
                <widget class="QSpinBox" name="opt_cover_grid_cache_size_multiple">
                 <property name="toolTip">
-                 <string>The maximum number of screenfulls of thumbnails to keep in memory. Increasing this will make rendering faster, at the cost of more memory usage. Note that regardless of this setting, a minimum of one hudred thumbnails are always kept in memory, to ensure flicker free rendering.</string>
+                 <string>The maximum number of screenfulls of thumbnails to keep in memory. Increasing this will make rendering faster, at the cost of more memory usage. Note that regardless of this setting, a minimum of one hundred thumbnails are always kept in memory, to ensure flicker free rendering.</string>
                 </property>
                 <property name="minimum">
                  <number>2</number>
