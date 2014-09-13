@@ -14,7 +14,7 @@ from PyQt5.Qt import (QWidget, QDialog, QLabel, QGridLayout, QComboBox, QSize,
         QLineEdit, QIntValidator, QDoubleValidator, QFrame, Qt, QIcon,
         QScrollArea, QPushButton, QVBoxLayout, QDialogButtonBox, QToolButton,
         QListView, QAbstractListModel, pyqtSignal, QSizePolicy, QSpacerItem,
-        QApplication, QStandardItem, QStandardItemModel, QCheckBox, QMenu)
+        QApplication, QStandardItem, QStandardItemModel, QCheckBox, QMenu, QPixmap)
 
 from calibre import prepare_string_for_xml, sanitize_file_name_unicode
 from calibre.constants import config_dir
@@ -34,7 +34,6 @@ icon_rule_kinds = [(_('icon with text'), 'icon'),
                    (_('icon with no text'), 'icon_only'),
                    (_('composed icons w/text'), 'icon_composed'),
                    (_('composed icons w/no text'), 'icon_only_composed'),]
-
 
 class ConditionEditor(QWidget):  # {{{
 
@@ -341,6 +340,10 @@ class RuleEditor(QDialog):  # {{{
 
         def create_filename_box():
             self.filename_box = f = QComboBox()
+            self.filenamebox_view = v = QListView()
+            v.setIconSize(QSize(32, 32))
+            self.filename_box.setView(v)
+            self.orig_filenamebox_view = f.view()
             f.setMinimumContentsLength(20), f.setSizeAdjustPolicy(f.AdjustToMinimumContentsLengthWithIcon)
             self.populate_icon_filenames()
 
@@ -463,8 +466,10 @@ class RuleEditor(QDialog):  # {{{
         self.icon_file_names.sort(key=sort_key)
         if doing_multiple:
             item = QStandardItem(_('Open to see checkboxes'))
+            item.setIcon(QIcon(I('blank.png')))
         else:
             item = QStandardItem('')
+        item.setFlags(Qt.ItemFlag(0))
         model.appendRow(item)
 
         for i,filename in enumerate(self.icon_file_names):
@@ -474,7 +479,7 @@ class RuleEditor(QDialog):  # {{{
                 item.setData(Qt.Unchecked, Qt.CheckStateRole)
             else:
                 item.setFlags(Qt.ItemIsEnabled | Qt.ItemIsSelectable)
-            icon = QIcon(os.path.join(self.icon_folder, filename))
+            icon = QIcon(QPixmap(os.path.join(self.icon_folder, filename)).scaled(self.filenamebox_view.iconSize(), transformMode=Qt.SmoothTransformation))
             item.setIcon(icon)
             model.appendRow(item)
 
@@ -1041,7 +1046,7 @@ if __name__ == '__main__':
     db = db()
 
     if True:
-        d = RuleEditor(db.field_metadata, 'column_color_rules')
+        d = RuleEditor(db.field_metadata, 'column_icon_rules')
         d.add_blank_condition()
         d.exec_()
 
