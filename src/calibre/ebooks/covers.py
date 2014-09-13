@@ -9,13 +9,14 @@ __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 import re, random
 from collections import namedtuple
 from contextlib import contextmanager
-from math import ceil
+from math import ceil, sqrt, cos, sin, atan2
 from future_builtins import map, zip
 from itertools import chain, repeat
 
 from PyQt5.Qt import (
     QImage, Qt, QFont, QPainter, QPointF, QTextLayout, QTextOption,
-    QFontMetrics, QTextCharFormat, QColor, QRect, QBrush, QLinearGradient
+    QFontMetrics, QTextCharFormat, QColor, QRect, QBrush, QLinearGradient,
+    QPainterPath, QPen
 )
 
 from calibre import force_unicode
@@ -189,7 +190,7 @@ def layout_text(prefs, img, title, subtitle, footer, max_height, style):
         gap = 2 * title_block.leading
         mh = max_height - title_block.height - gap
         subtitle_block = Block(subtitle, width, subtitle_font, img, mh, style.SUBTITLE_ALIGN)
-        subtitle_block.position = style.hmargin, title_block.position[0] + title_block.height + gap
+        subtitle_block.position = style.hmargin, title_block.position.y + title_block.height + gap
 
     footer_font = QFont(prefs.footer_font_family)
     footer_font.setPixelSize(prefs.footer_font_size)
@@ -282,8 +283,8 @@ class Style(object):
         self.calculate_margins(prefs)
 
     def calculate_margins(self, prefs):
-        self.hmargin = (50 / 600) * prefs.cover_width
-        self.vmargin = (50 / 800) * prefs.cover_height
+        self.hmargin = int((50 / 600) * prefs.cover_width)
+        self.vmargin = int((50 / 800) * prefs.cover_height)
 
     def load_colors(self, color_theme):
         self.color1 = color(color_theme, 'color1', Qt.white)
@@ -315,14 +316,84 @@ class Half(Style):
         painter.fillRect(rect, QBrush(g))
         return self.ccolor1, self.ccolor1, self.ccolor1
 
-# class Ribbon(Style):
-#
-#     NAME = 'Ribbon'
-#     GUI_NAME = _('Ribbon')
-#
-#     def __call__(self, painter, rect, color_theme, title_block, subtitle_block, footer_block):
-#         top = title_block.position.y
-#         height = title_block.height + subtitle_block.height + title_block.line_spacing // 3
+def rotate_vector(angle, x, y):
+    return x * cos(angle) - y * sin(angle), x * sin(angle) + y * cos(angle)
+
+def draw_curved_line(painter_path, dx, dy, c1_frac, c1_amp, c2_frac, c2_amp):
+    length = sqrt(dx * dx + dy * dy)
+    angle = atan2(dy, dx)
+    c1 = QPointF(*rotate_vector(angle, c1_frac * length, c1_amp * length))
+    c2 = QPointF(*rotate_vector(angle, c2_frac * length, c2_amp * length))
+    pos = painter_path.currentPosition()
+    painter_path.cubicTo(pos + c1, pos + c2, pos + QPointF(dx, dy))
+
+class Banner(Style):
+
+    NAME = 'Banner'
+    GUI_NAME = _('Banner')
+    GRADE = 0.07
+
+    def calculate_margins(self, prefs):
+        Style.calculate_margins(self, prefs)
+        self.hmargin = int(0.15 * prefs.cover_width)
+        self.fold_width = int(0.1 * prefs.cover_width)
+
+    def __call__(self, painter, rect, color_theme, title_block, subtitle_block, footer_block):
+        painter.fillRect(rect, self.color1)
+        top = title_block.position.y + 10
+        height = title_block.height + subtitle_block.height + title_block.line_spacing // 2
+        right = rect.right() - self.hmargin
+        width = right - self.hmargin
+
+        # Draw main banner
+        p = main = QPainterPath(QPointF(self.hmargin, top))
+        draw_curved_line(p, rect.width() - 2 * self.hmargin, 0, 0.1, -0.1, 0.9, -0.1)
+        deltax = self.GRADE * height
+        p.lineTo(right + deltax, top + height)
+        right_corner = p.currentPosition()
+        draw_curved_line(p, - width - 2 * deltax, 0, 0.1, 0.05, 0.9, 0.05)
+        left_corner = p.currentPosition()
+        p.closeSubpath()
+
+        # Draw fold rectangles
+        rwidth = self.fold_width
+        yfrac = 0.1
+        width23 = int(0.67 * rwidth)
+        rtop = top + height * yfrac
+
+        def draw_fold(x, m=1, corner=left_corner):
+            ans = p = QPainterPath(QPointF(x, rtop))
+            draw_curved_line(p, rwidth*m, 0, 0.1, 0.1*m, 0.5, -0.2*m)
+            fold_upper = p.currentPosition()
+            p.lineTo(p.currentPosition() + QPointF(-deltax*m, height))
+            fold_corner = p.currentPosition()
+            draw_curved_line(p, -rwidth*m, 0, 0.2, -0.1*m, 0.8, -0.1*m)
+            draw_curved_line(p, deltax*m, -height, 0.2, 0.1*m, 0.8, 0.1*m)
+            p = inner_fold = QPainterPath(corner)
+            dp = fold_corner - p.currentPosition()
+            draw_curved_line(p, dp.x(), dp.y(), 0.5, 0.3*m, 1, 0*m)
+            p.lineTo(fold_upper), p.closeSubpath()
+            return ans, inner_fold
+
+        left_fold, left_inner = draw_fold(self.hmargin - width23)
+        right_fold, right_inner = draw_fold(right + width23, m=-1, corner=right_corner)
+
+        painter.save()
+        painter.setRenderHint(QPainter.Antialiasing)
+        pen = QPen(self.ccolor2)
+        pen.setWidth(3)
+        pen.setJoinStyle(Qt.RoundJoin)
+        painter.setPen(pen)
+        for r in (left_fold, right_fold):
+            painter.fillPath(r, QBrush(self.color2))
+            painter.drawPath(r)
+        for r in (left_inner, right_inner):
+            painter.fillPath(r, QBrush(self.color2.darker()))
+            painter.drawPath(r)
+        painter.fillPath(main, QBrush(self.color2))
+        painter.drawPath(main)
+        painter.restore()
+        return self.ccolor2, self.ccolor2, self.ccolor1
 
 class Blocks(Style):
 
