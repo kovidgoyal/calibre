@@ -259,6 +259,7 @@ class AuthorsEdit(EditWithComplete):
                                         select_sort=False)
         self.initialize(self.db, self.id_)
         self.dialog.author_sort.initialize(self.db, self.id_)
+        self.dialog.author_sort.update_state()
 
     def get_default(self):
         return _('Unknown')
