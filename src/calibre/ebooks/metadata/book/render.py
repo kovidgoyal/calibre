@@ -198,7 +198,7 @@ def mi_to_html(mi, field_list=None, default_author_link=None, use_roman_numbers=
                 if field == 'tags':
                     all_vals = sorted(all_vals, key=sort_key)
                 links = ['<a href="%s" title="%s">%s</a>' % (
-                    search_href(st, x), _('Click to see books with {0}: {1}').format(metadata['name'], x), x)
+                    search_href(st, x), _('Click to see books with {0}: {1}').format(metadata['name'], a(x)), p(x))
                          for x in all_vals]
                 val = metadata['is_multiple']['list_to_ui'].join(links)
             elif metadata['datatype'] == 'enumeration':
