@@ -1354,11 +1354,11 @@ class BasicNewsRecipe(Recipe):
         Create a generic cover for recipes that dont have a cover
         '''
         try:
-            from calibre.ebooks import calibre_cover
+            from calibre.ebooks.covers import create_cover
             title = self.title if isinstance(self.title, unicode) else \
                     self.title.decode(preferred_encoding, 'replace')
             date = strftime(self.timefmt)
-            img_data = calibre_cover(title, date)
+            img_data = create_cover(title, [date])
             cover_file.write(img_data)
             cover_file.flush()
         except:
