@@ -364,9 +364,14 @@ class Container(object):  # {{{
         else:
             base = os.path.dirname(self.name_to_abspath(base))
         purl = urlparse(href)
-        if purl.scheme or not purl.path or purl.path.startswith('/'):
+        if purl.scheme or not purl.path:
             return None
         href = urlunquote(purl.path)
+        if href.startswith('/') or (len(href) > 1 and href[1] == ':' and 'a' <= href[0].lower() <= 'z'):
+            # For paths that start with drive letter os.path.join(base, href)
+            # will discard base and return href on windows, so we assume that
+            # such paths are also absolute paths, on all platforms.
+            return None
         fullpath = os.path.join(base, *href.split('/'))
         return self.abspath_to_name(fullpath)
 
