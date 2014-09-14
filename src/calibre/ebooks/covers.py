@@ -22,6 +22,7 @@ from PyQt5.Qt import (
 from calibre import force_unicode
 from calibre.constants import __appname__, __version__
 from calibre.ebooks.metadata import fmt_sidx
+from calibre.ebooks.metadata.book.base import Metadata
 from calibre.ebooks.metadata.book.formatter import SafeFormat
 from calibre.gui2 import ensure_app, config, load_builtin_fonts, pixmap_to_data
 from calibre.utils.cleantext import clean_ascii_chars, clean_xml_chars
@@ -478,9 +479,19 @@ def override_prefs(base_prefs, **overrides):
 
     return ans
 
+def create_cover(title, authors, series=None, series_index=1, prefs=None, as_qimage=False):
+    ' Create a cover from the specified title, author and series. Any user set'
+    ' templates are ignored, to ensure that the specified metadata is used. '
+    mi = Metadata(title, authors)
+    if series:
+        mi.series, mi.series_index = series, series_index
+    d = cprefs.defaults
+    prefs = override_prefs(
+        prefs or cprefs, title_template=d['title_template'], subtitle_template=d['subtitle_template'], footer_template=d['footer_template'])
+    return generate_cover(mi, prefs=prefs, as_qimage=as_qimage)
+
 def test(scale=0.5):
     from PyQt5.Qt import QLabel, QApplication, QPixmap, QMainWindow, QWidget, QScrollArea, QGridLayout
-    from calibre.ebooks.metadata.book.base import Metadata
     app = QApplication([])
     mi = Metadata('xxx', ['Kovid Goyal', 'John Q. Doe', 'Author'])
     mi.series = 'A series of styles'
