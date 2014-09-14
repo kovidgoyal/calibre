@@ -20,6 +20,7 @@ from PyQt5.Qt import (
 )
 
 from calibre import force_unicode
+from calibre.constants import __appname__, __version__
 from calibre.ebooks.metadata import fmt_sidx
 from calibre.ebooks.metadata.book.formatter import SafeFormat
 from calibre.gui2 import ensure_app, config, load_builtin_fonts, pixmap_to_data
@@ -455,6 +456,7 @@ def generate_cover(mi, prefs=None, as_qimage=False):
         p.setPen(color)
         block.draw(p)
     p.end()
+    img.setText('Generated cover', '%s %s' % (__appname__, __version__))
     if as_qimage:
         return img
     return pixmap_to_data(img)
