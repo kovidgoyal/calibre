@@ -258,7 +258,7 @@ default_color_themes = {
     'Earth' : to_theme('e8d9ac c7b07b 564628 382d1a'),
     'Grass' : to_theme('d8edb5 abc8a4 375d3b 183128'),
     'Water' : to_theme('d3dcf2 829fe4 00448d 00305a'),
-    'Cloudy': to_theme('e6f1f5 aab3b6 6e7476 3b3e40'),
+    'Cloud' : to_theme('e6f1f5 aab3b6 6e7476 3b3e40'),
 }
 
 
