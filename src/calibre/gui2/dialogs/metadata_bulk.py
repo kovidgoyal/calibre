@@ -176,20 +176,10 @@ class MyBlockingBusy(QDialog):  # {{{
         if args.cover_action == 'remove':
             cache.set_cover({bid:None for bid in self.ids})
         elif args.cover_action == 'generate':
-            from calibre.ebooks import calibre_cover
-            from calibre.ebooks.metadata import fmt_sidx
-            from calibre.gui2 import config
+            from calibre.ebooks.covers import generate_cover
             for book_id in self.ids:
                 mi = self.db.get_metadata(book_id, index_is_id=True)
-                series_string = None
-                if mi.series:
-                    series_string = _('Book %(sidx)s of %(series)s')%dict(
-                        sidx=fmt_sidx(mi.series_index,
-                        use_roman=config['use_roman_numerals_for_series_number']),
-                        series=mi.series)
-
-                cdata = calibre_cover(mi.title, mi.format_field('authors')[-1],
-                        series_string=series_string)
+                cdata = generate_cover(mi)
                 cache.set_cover({book_id:cdata})
         elif args.cover_action == 'fromfmt':
             for book_id in self.ids:
