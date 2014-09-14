@@ -292,7 +292,7 @@ def fetch_plugin(old_index, entry):
     raw = read(entry.url)
     url, name = parse_plugin_zip_url(raw)
     if url is None:
-        raise ValueError('Failed to find zip file URL for entry: %s' % repr(entry), file=sys.stderr)
+        raise ValueError('Failed to find zip file URL for entry: %s' % repr(entry))
     plugin = lm_map.get(entry.thread_id, None)
 
     if plugin is not None:
