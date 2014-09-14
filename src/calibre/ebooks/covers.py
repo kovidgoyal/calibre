@@ -253,7 +253,10 @@ def to_theme(x):
 fallback_colors = to_theme('ffffff 000000 000000 ffffff')
 
 default_color_themes = {
-    'Mocha': to_theme('e8d9ac c7b07b 564628 382d1a'),
+    'Earth' : to_theme('e8d9ac c7b07b 564628 382d1a'),
+    'Grass' : to_theme('d8edb5 abc8a4 375d3b 183128'),
+    'Water' : to_theme('d3dcf2 829fe4 00448d 00305a'),
+    'Cloudy': to_theme('e6f1f5 aab3b6 6e7476 3b3e40'),
 }
 
 
@@ -473,7 +476,7 @@ def override_prefs(base_prefs, **overrides):
 
     return ans
 
-def test(scale=0.7):
+def test(scale=0.5):
     from PyQt5.Qt import QLabel, QApplication, QPixmap, QMainWindow, QWidget, QScrollArea, QGridLayout
     from calibre.ebooks.metadata.book.base import Metadata
     app = QApplication([])
