@@ -270,7 +270,11 @@ def load_color_themes(prefs):
     t = default_color_themes.copy()
     t.update(prefs.color_themes)
     disabled = frozenset(prefs.disabled_color_themes)
-    return [theme_to_colors(v) for k, v in t.iteritems() if k not in disabled]
+    ans = [theme_to_colors(v) for k, v in t.iteritems() if k not in disabled]
+    if not ans:
+        # Ignore disabled and return only the builtin color themes
+        ans = [theme_to_colors(v) for k, v in default_color_themes.iteritems()]
+    return ans
 
 def color(color_theme, name):
     ans = getattr(color_theme, name)
@@ -431,10 +435,15 @@ def all_styles():
         isinstance(x, type) and issubclass(x, Style) and x is not Style
     )
 
-def load_styles(prefs):
-    disabled = frozenset(prefs.disabled_styles)
-    return tuple(x for x in globals().itervalues() if
+def load_styles(prefs, respect_disabled=True):
+    disabled = frozenset(prefs.disabled_styles) if respect_disabled else ()
+    ans = tuple(x for x in globals().itervalues() if
             isinstance(x, type) and issubclass(x, Style) and x is not Style and x.NAME not in disabled)
+    if not ans and disabled:
+        # If all styles have been disabled, ignore the disabling and return all
+        # the styles
+        ans = load_styles(prefs, respect_disabled=False)
+    return ans
 
 # }}}
 
