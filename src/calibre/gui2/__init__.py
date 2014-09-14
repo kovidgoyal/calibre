@@ -2,7 +2,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 """ The GUI """
 import os, sys, Queue, threading, glob
-from threading import RLock
+from threading import RLock, Lock
 from urllib import unquote
 from PyQt5.Qt import (
     QFileInfo, QObject, QBuffer, Qt, QStyle, QByteArray, QTranslator,
@@ -1122,13 +1122,16 @@ def open_local_file(path):
         url = QUrl.fromLocalFile(path)
         open_url(url)
 
+_ea_lock = Lock()
+
 def ensure_app():
     global _store_app
-    if _store_app is None and QApplication.instance() is None:
-        args = sys.argv[:1]
-        if islinux or isbsd:
-            args += ['-platformpluginpath', sys.extensions_location, '-platform', 'headless']
-        _store_app = QApplication(args)
+    with _ea_lock:
+        if _store_app is None and QApplication.instance() is None:
+            args = sys.argv[:1]
+            if islinux or isbsd:
+                args += ['-platformpluginpath', sys.extensions_location, '-platform', 'headless']
+            _store_app = QApplication(args)
 
 def must_use_qt():
     ''' This function should be called if you want to use Qt for some non-GUI
