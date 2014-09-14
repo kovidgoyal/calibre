@@ -11,7 +11,7 @@ from collections import namedtuple
 from contextlib import contextmanager
 from math import ceil, sqrt, cos, sin, atan2
 from future_builtins import map, zip
-from itertools import chain, repeat
+from itertools import chain
 
 from PyQt5.Qt import (
     QImage, Qt, QFont, QPainter, QPointF, QTextLayout, QTextOption,
@@ -244,16 +244,22 @@ def format_text(mi, prefs):
         return tuple(format_fields(mi, prefs))
 # }}}
 
-default_color_themes = {
-    'Mocha': 'e8d9ac c7b07b 564628 382d1a',
-}
-
+# Colors {{{
 ColorTheme = namedtuple('ColorTheme', 'color1 color2 contrast_color1 contrast_color2')
 
+def to_theme(x):
+    return {k:v for k, v in zip(ColorTheme._fields[:4], x.split())}
+
+fallback_colors = to_theme('ffffff 000000 000000 ffffff')
+
+default_color_themes = {
+    'Mocha': to_theme('e8d9ac c7b07b 564628 382d1a'),
+}
+
+
 def theme_to_colors(theme):
-    colors = [QColor('#' + c) for c in theme.split()]
-    colors += list(repeat(QColor(), len(ColorTheme._fields) - len(colors)))
-    return ColorTheme(*colors)
+    colors = {k:QColor('#' + theme[k]) for k in ColorTheme._fields}
+    return ColorTheme(**colors)
 
 def load_color_themes(prefs):
     t = default_color_themes.copy()
@@ -261,19 +267,15 @@ def load_color_themes(prefs):
     disabled = frozenset(prefs.disabled_color_themes)
     return [theme_to_colors(v) for k, v in t.iteritems() if k not in disabled]
 
-def color(color_theme, name, fallback=Qt.white):
+def color(color_theme, name):
     ans = getattr(color_theme, name)
     if not ans.isValid():
-        ans = QColor(fallback)
+        ans = QColor('#' + fallback_colors[name])
     return ans
 
-def load_colors(color_theme):
-    c1 = color(color_theme, 'color1', Qt.white)
-    c2 = color(color_theme, 'color2', Qt.black)
-    cc1 = color(color_theme, 'contrast_color1', Qt.white)
-    cc2 = color(color_theme, 'contrast_color2', Qt.black)
-    return c1, c2, cc1, cc2
+# }}}
 
+# Styles {{{
 class Style(object):
 
     TITLE_ALIGN = SUBTITLE_ALIGN = FOOTER_ALIGN = Qt.AlignHCenter | Qt.AlignTop
@@ -287,10 +289,10 @@ class Style(object):
         self.vmargin = int((50 / 800) * prefs.cover_height)
 
     def load_colors(self, color_theme):
-        self.color1 = color(color_theme, 'color1', Qt.white)
-        self.color2 = color(color_theme, 'color2', Qt.black)
-        self.ccolor1 = color(color_theme, 'contrast_color1', Qt.white)
-        self.ccolor2 = color(color_theme, 'contrast_color2', Qt.black)
+        self.color1 = color(color_theme, 'color1')
+        self.color2 = color(color_theme, 'color2')
+        self.ccolor1 = color(color_theme, 'contrast_color1')
+        self.ccolor2 = color(color_theme, 'contrast_color2')
 
 class Cross(Style):
 
@@ -428,6 +430,8 @@ def load_styles(prefs):
     disabled = frozenset(prefs.disabled_styles)
     return tuple(x for x in globals().itervalues() if
             isinstance(x, type) and issubclass(x, Style) and x is not Style and x.NAME not in disabled)
+
+# }}}
 
 def generate_cover(mi, prefs=None, as_qimage=False):
     ensure_app()
