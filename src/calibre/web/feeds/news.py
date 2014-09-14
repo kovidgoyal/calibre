@@ -1357,7 +1357,7 @@ class BasicNewsRecipe(Recipe):
             from calibre.ebooks.covers import create_cover
             title = self.title if isinstance(self.title, unicode) else \
                     self.title.decode(preferred_encoding, 'replace')
-            date = strftime(self.timefmt)
+            date = strftime(self.timefmt).replace('[', '').replace(']', '')
             img_data = create_cover(title, [date])
             cover_file.write(img_data)
             cover_file.flush()
