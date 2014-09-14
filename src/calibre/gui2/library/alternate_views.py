@@ -948,6 +948,7 @@ class GridView(QListView):
 
     def restore_current_book_state(self, state):
         book_id = state
+        self.setFocus(Qt.OtherFocusReason)
         try:
             row = self.model().db.data.id_to_index(book_id)
         except (IndexError, ValueError, KeyError, TypeError, AttributeError):
