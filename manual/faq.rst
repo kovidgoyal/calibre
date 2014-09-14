@@ -817,13 +817,10 @@ There are several possible things I know of, that can cause this:
     * If the crashes happen specifically when you are using a file open dialog,
       like clicking on the Add Books button or the Save to Disk button, then
       you may have an issue with the windows file open dialogs on your
-      computer. You can tell calibre to use its own file open dialogs by
-      setting the environment variable ``CALIBRE_NO_NATIVE_FILEDIALOGS=1``.
-      See `How to set environment variables in windows <http://www.computerhope.com/issues/ch000549.htm>`_.
-      Some |app| users have reported that uninstalling the SpiderOak encrypted
-      backup software also fixes these crashes. If you do not wish to uninstall
-      SpiderOak, you can also turn off "Enable OS integration" in the SpiderOak
-      preferences.
+      computer.  Some |app| users have reported that uninstalling the SpiderOak
+      encrypted backup software also fixes these crashes. If you do not wish to
+      uninstall SpiderOak, you can also turn off "Enable OS integration" in the
+      SpiderOak preferences.
 
 If none of the above apply to you, then there is some other program on your
 computer that is interfering with |app|. First reboot your computer in safe
