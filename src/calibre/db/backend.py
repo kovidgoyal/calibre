@@ -1111,7 +1111,9 @@ class DB(object):
         book_id = ' (%d)' % book_id
         l = self.PATH_LIMIT - (len(book_id) // 2) - 2
         author = ascii_filename(author)[:l].decode('ascii', 'replace')
-        title  = ascii_filename(title)[:l].decode('ascii', 'replace')
+        title  = ascii_filename(title.lstrip())[:l].decode('ascii', 'replace').rstrip()
+        if not title:
+            title = 'Unknown'[:l]
         try:
             while author[-1] in (' ', '.'):
                 author = author[:-1]
@@ -1135,7 +1137,9 @@ class DB(object):
         if l < 5:
             raise ValueError('Extension length too long: %d' % extlen)
         author = ascii_filename(author)[:l].decode('ascii', 'replace')
-        title  = ascii_filename(title)[:l].decode('ascii', 'replace')
+        title  = ascii_filename(title.lstrip())[:l].decode('ascii', 'replace').rstrip()
+        if not title:
+            title = 'Unknown'[:l]
         name   = title + ' - ' + author
         while name.endswith('.'):
             name = name[:-1]
