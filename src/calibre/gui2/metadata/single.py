@@ -476,14 +476,15 @@ class MetadataSingleDialogBase(ResizableDialog):
     # }}}
 
     def to_book_metadata(self):
-        ans = Metadata(_('Unknown'))
+        mi = Metadata(_('Unknown'))
         if self.db is None:
-            return ans
+            return mi
+        mi.set_all_user_metadata(self.db.field_metadata.custom_field_metadata())
         for widget in self.basic_metadata_widgets:
-            widget.apply_to_metadata(ans)
+            widget.apply_to_metadata(mi)
         for widget in getattr(self, 'custom_metadata_widgets', []):
-            widget.apply_to_metadata(ans)
-        return ans
+            widget.apply_to_metadata(mi)
+        return mi
 
     def apply_changes(self):
         self.changed.add(self.book_id)
