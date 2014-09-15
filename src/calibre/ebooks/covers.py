@@ -310,7 +310,8 @@ class Cross(Style):
 
     def __call__(self, painter, rect, color_theme, title_block, subtitle_block, footer_block):
         painter.fillRect(rect, self.color1)
-        r = QRect(0, int(title_block.position.y), rect.width(), title_block.height + subtitle_block.height + title_block.line_spacing // 3)
+        r = QRect(0, int(title_block.position.y), rect.width(),
+                  title_block.height + subtitle_block.height + subtitle_block.line_spacing // 2 + title_block.leading)
         painter.save()
         p = QPainterPath()
         p.addRoundedRect(QRectF(r), 10, 10 * r.width()/r.height(), Qt.RelativeSize)
@@ -358,7 +359,7 @@ class Banner(Style):
     def __call__(self, painter, rect, color_theme, title_block, subtitle_block, footer_block):
         painter.fillRect(rect, self.color1)
         top = title_block.position.y + 10
-        height = title_block.height + subtitle_block.height + title_block.line_spacing // 2
+        height = title_block.height + subtitle_block.height + subtitle_block.line_spacing // 2 + title_block.leading
         right = rect.right() - self.hmargin
         width = right - self.hmargin
 
