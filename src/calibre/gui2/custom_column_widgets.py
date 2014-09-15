@@ -52,9 +52,7 @@ class Base(object):
             return set()
 
     def apply_to_metadata(self, mi):
-        val = self.current_val
-        if val is not None:
-            mi.set('#' + self.col_metadata['label'], val)
+        mi.set('#' + self.col_metadata['label'], self.current_val)
 
     def normalize_db_val(self, val):
         return val
@@ -459,8 +457,7 @@ class Series(Base):
 
     def apply_to_metadata(self, mi):
         val, s_index = self.current_val
-        if val:
-            mi.set('#' + self.col_metadata['label'], val, extra=s_index)
+        mi.set('#' + self.col_metadata['label'], val, extra=s_index)
 
 class Enumeration(Base):
 
