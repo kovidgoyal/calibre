@@ -316,6 +316,18 @@ class ResultsView(QTableView):  # {{{
     def get_result(self):
         self.select_index(self.currentIndex())
 
+    def keyPressEvent(self, ev):
+        if ev.key() in (Qt.Key_Left, Qt.Key_Right):
+            ac = self.MoveDown if ev.key() == Qt.Key_Right else self.MoveUp
+            index = self.moveCursor(ac, ev.modifiers())
+            if index.isValid() and index != self.currentIndex():
+                m = self.selectionModel()
+                m.select(index, m.Select|m.Current|m.Rows)
+                self.setCurrentIndex(index)
+                ev.accept()
+                return
+        return QTableView.keyPressEvent(self, ev)
+
 # }}}
 
 class Comments(QWebView):  # {{{
@@ -844,6 +856,13 @@ class CoversView(QListView):  # {{{
             pmap = self.model().cc
         if pmap is not None:
             QApplication.clipboard().setPixmap(pmap)
+
+    def keyPressEvent(self, ev):
+        if ev.key() in (Qt.Key_Enter, Qt.Key_Return):
+            self.chosen.emit()
+            ev.accept()
+            return
+        return QListView.keyPressEvent(self, ev)
 
 # }}}
 
