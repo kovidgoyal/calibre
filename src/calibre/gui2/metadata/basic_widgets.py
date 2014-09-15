@@ -18,8 +18,8 @@ from PyQt5.Qt import (
 from calibre.gui2.widgets import EnLineEdit, FormatList as _FormatList, ImageView
 from calibre.utils.icu import sort_key
 from calibre.utils.config import tweaks, prefs
-from calibre.ebooks.metadata import (title_sort, authors_to_string,
-        string_to_authors, check_isbn, authors_to_sort_string)
+from calibre.ebooks.metadata import (
+    title_sort, string_to_authors, check_isbn, authors_to_sort_string)
 from calibre.ebooks.metadata.meta import get_metadata
 from calibre.gui2 import (file_icon_provider, UNDEFINED_QDATETIME,
         choose_files, error_dialog, choose_images)
@@ -73,10 +73,17 @@ class BasicMetadataWidget(object):
         return property(fget=fget, fset=fset)
 '''
 
-# Title {{{
-class TitleEdit(EnLineEdit):
+class ToMetadataMixin(object):
 
-    TITLE_ATTR = 'title'
+    FIELD_NAME = None
+
+    def apply_to_metadata(self, mi):
+        mi.set(self.FIELD_NAME, self.current_val)
+
+# Title {{{
+class TitleEdit(EnLineEdit, ToMetadataMixin):
+
+    TITLE_ATTR = FIELD_NAME = 'title'
     TOOLTIP = _('Change the title of this book')
     LABEL = _('&Title:')
 
@@ -112,7 +119,7 @@ class TitleEdit(EnLineEdit):
             title = clean_text(unicode(self.text()))
             if not title:
                 title = self.get_default()
-            return title
+            return title.strip()
 
         def fset(self, val):
             if hasattr(val, 'strip'):
@@ -127,9 +134,9 @@ class TitleEdit(EnLineEdit):
     def break_cycles(self):
         self.dialog = None
 
-class TitleSortEdit(TitleEdit):
+class TitleSortEdit(TitleEdit, ToMetadataMixin):
 
-    TITLE_ATTR = 'title_sort'
+    TITLE_ATTR = FIELD_NAME = 'title_sort'
     TOOLTIP = _('Specify how this book should be sorted when by title.'
             ' For example, The Exorcist might be sorted as Exorcist, The.')
     LABEL = _('Title &sort:')
@@ -208,10 +215,11 @@ class TitleSortEdit(TitleEdit):
 # }}}
 
 # Authors {{{
-class AuthorsEdit(EditWithComplete):
+class AuthorsEdit(EditWithComplete, ToMetadataMixin):
 
     TOOLTIP = ''
     LABEL = _('&Author(s):')
+    FIELD_NAME = 'authors'
 
     def __init__(self, parent, manage_authors):
         self.dialog = parent
@@ -315,7 +323,7 @@ class AuthorsEdit(EditWithComplete):
         except:
             pass
 
-class AuthorSortEdit(EnLineEdit):
+class AuthorSortEdit(EnLineEdit, ToMetadataMixin):
 
     TOOLTIP = _('Specify how the author(s) of this book should be sorted. '
             'For example Charles Dickens should be sorted as Dickens, '
@@ -323,6 +331,7 @@ class AuthorSortEdit(EnLineEdit):
             'the individual author\'s sort strings. If it is colored '
             'red, then the authors and this text do not match.')
     LABEL = _('Author s&ort:')
+    FIELD_NAME = 'author_sort'
 
     def __init__(self, parent, authors_edit, autogen_button, db,
             copy_a_to_as_action, copy_as_to_a_action, a_to_as, as_to_a):
@@ -458,10 +467,11 @@ class AuthorSortEdit(EnLineEdit):
 # }}}
 
 # Series {{{
-class SeriesEdit(EditWithComplete):
+class SeriesEdit(EditWithComplete, ToMetadataMixin):
 
     TOOLTIP = _('List of known series. You can add new series.')
     LABEL = _('&Series:')
+    FIELD_NAME = 'series'
 
     def __init__(self, parent):
         EditWithComplete.__init__(self, parent)
@@ -511,10 +521,11 @@ class SeriesEdit(EditWithComplete):
         self.dialog = None
 
 
-class SeriesIndexEdit(QDoubleSpinBox):
+class SeriesIndexEdit(QDoubleSpinBox, ToMetadataMixin):
 
     TOOLTIP = ''
     LABEL = _('&Number:')
+    FIELD_NAME = 'series_index'
 
     def __init__(self, parent, series_edit):
         QDoubleSpinBox.__init__(self, parent)
@@ -728,6 +739,9 @@ class FormatsManager(QWidget):
                     continue
                 Format(self.formats, ext, size, timestamp=timestamp)
                 self.original_val.add(ext.lower())
+
+    def apply_to_metadata(self, mi):
+        pass
 
     def commit(self, db, id_):
         if not self.changed:
@@ -1005,24 +1019,9 @@ class Cover(ImageView):  # {{{
             self.cdata_before_trim = cdata
 
     def generate_cover(self, *args):
-        from calibre.ebooks import calibre_cover
-        from calibre.ebooks.metadata import fmt_sidx
-        from calibre.gui2 import config
-        title = self.dialog.title.current_val
-        author = authors_to_string(self.dialog.authors.current_val)
-        if not title or not author:
-            return error_dialog(self, _('Specify title and author'),
-                    _('You must specify a title and author before generating '
-                        'a cover'), show=True)
-        series = self.dialog.series.current_val
-        series_string = None
-        if series:
-            series_string = _('Book %(sidx)s of %(series)s')%dict(
-                    sidx=fmt_sidx(self.dialog.series_index.current_val,
-                    use_roman=config['use_roman_numerals_for_series_number']),
-                    series=series)
-        self.current_val = calibre_cover(title, author,
-                series_string=series_string)
+        from calibre.ebooks.covers import generate_cover
+        mi = self.dialog.to_book_metadata()
+        self.current_val = generate_cover(mi)
 
     def set_pixmap_from_data(self, data):
         if not data:
@@ -1083,9 +1082,17 @@ class Cover(ImageView):  # {{{
             pass
         self.dialog = self._cdata = self.current_val = self.original_val = None
 
+    def apply_to_metadata(self, mi):
+        from calibre.utils.imghdr import what
+        cdata = self.current_val
+        if cdata:
+            mi.cover_data = (what(None, cdata), cdata)
+
 # }}}
 
-class CommentsEdit(Editor):  # {{{
+class CommentsEdit(Editor, ToMetadataMixin):  # {{{
+
+    FIELD_NAME = 'comments'
 
     @dynamic_property
     def current_val(self):
@@ -1110,9 +1117,10 @@ class CommentsEdit(Editor):  # {{{
             db.set_comment(id_, self.current_val, notify=False, commit=False)
 # }}}
 
-class RatingEdit(QSpinBox):  # {{{
+class RatingEdit(QSpinBox, ToMetadataMixin):  # {{{
     LABEL = _('&Rating:')
     TOOLTIP = _('Rating of this book. 0-5 stars')
+    FIELD_NAME = 'rating'
 
     def __init__(self, parent):
         QSpinBox.__init__(self, parent)
@@ -1154,11 +1162,12 @@ class RatingEdit(QSpinBox):  # {{{
 
 # }}}
 
-class TagsEdit(EditWithComplete):  # {{{
+class TagsEdit(EditWithComplete, ToMetadataMixin):  # {{{
     LABEL = _('Ta&gs:')
     TOOLTIP = '<p>'+_('Tags categorize the book. This is particularly '
             'useful while searching. <br><br>They can be any words '
             'or phrases, separated by commas.')
+    FIELD_NAME = 'tags'
 
     def __init__(self, parent):
         EditWithComplete.__init__(self, parent)
@@ -1216,10 +1225,11 @@ class TagsEdit(EditWithComplete):  # {{{
 
 # }}}
 
-class LanguagesEdit(LE):  # {{{
+class LanguagesEdit(LE, ToMetadataMixin):  # {{{
 
     LABEL = _('&Languages:')
     TOOLTIP = _('A comma separated list of languages for this book')
+    FIELD_NAME = 'languages'
 
     def __init__(self, *args, **kwargs):
         LE.__init__(self, *args, **kwargs)
@@ -1255,11 +1265,12 @@ class LanguagesEdit(LE):  # {{{
             db.set_languages(id_, cv)
 # }}}
 
-class IdentifiersEdit(QLineEdit):  # {{{
+class IdentifiersEdit(QLineEdit, ToMetadataMixin):  # {{{
     LABEL = _('I&ds:')
     BASE_TT = _('Edit the identifiers for this book. '
             'For example: \n\n%s')%(
             'isbn:1565927249, doi:10.1000/182, amazon:1565927249')
+    FIELD_NAME = 'identifiers'
 
     def __init__(self, parent):
         QLineEdit.__init__(self, parent)
@@ -1395,8 +1406,9 @@ class ISBNDialog(QDialog):  # {{{
 
 # }}}
 
-class PublisherEdit(EditWithComplete):  # {{{
+class PublisherEdit(EditWithComplete, ToMetadataMixin):  # {{{
     LABEL = _('&Publisher:')
+    FIELD_NAME = 'publisher'
 
     def __init__(self, parent):
         EditWithComplete.__init__(self, parent)
@@ -1447,12 +1459,12 @@ class CalendarWidget(QCalendarWidget):
         if self.selectedDate().year() == UNDEFINED_DATE.year:
             self.setSelectedDate(QDate.currentDate())
 
-class DateEdit(QDateTimeEdit):
+class DateEdit(QDateTimeEdit, ToMetadataMixin):
 
     TOOLTIP = ''
     LABEL = _('&Date:')
     FMT = 'dd MMM yyyy hh:mm:ss'
-    ATTR = 'timestamp'
+    ATTR = FIELD_NAME = 'timestamp'
     TWEAK = 'gui_timestamp_display_format'
 
     def __init__(self, parent, create_clear_button=True):
@@ -1518,7 +1530,7 @@ class DateEdit(QDateTimeEdit):
 class PubdateEdit(DateEdit):
     LABEL = _('Publishe&d:')
     FMT = 'MMM yyyy'
-    ATTR = 'pubdate'
+    ATTR = FIELD_NAME = 'pubdate'
     TWEAK = 'gui_pubdate_display_format'
 
 # }}}

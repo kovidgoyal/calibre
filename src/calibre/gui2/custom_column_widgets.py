@@ -51,6 +51,11 @@ class Base(object):
         else:
             return set()
 
+    def apply_to_metadata(self, mi):
+        val = self.current_val
+        if val is not None:
+            mi.set('#' + self.col_metadata['label'], val)
+
     def normalize_db_val(self, val):
         return val
 
@@ -451,6 +456,11 @@ class Series(Base):
                                notify=notify, commit=False, allow_case_change=True)
         else:
             return set()
+
+    def apply_to_metadata(self, mi):
+        val, s_index = self.current_val
+        if val:
+            mi.set('#' + self.col_metadata['label'], val, extra=s_index)
 
 class Enumeration(Base):
 
