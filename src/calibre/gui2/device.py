@@ -1777,7 +1777,7 @@ class DeviceMixin(object):  # {{{
         book_ids_to_refresh = set()
         book_formats_to_send = []
         books_with_future_dates = []
-        self._first_call_to_synchronize_with_db = True
+        first_call_to_synchronize_with_db = [True]
 
         def update_book(id_, book) :
             if not update_metadata:
@@ -1795,8 +1795,8 @@ class DeviceMixin(object):  # {{{
                 if self.device_manager.device is not None:
                     set_of_ids, (fmt_name, date_bad) = \
                             self.device_manager.device.synchronize_with_db(db, id_, book,
-                                           self._first_call_to_synchronize_with_db)
-                    self._first_call_to_synchronize_with_db = False
+                                           first_call_to_synchronize_with_db[0])
+                    first_call_to_synchronize_with_db[0] = False
                     if date_bad:
                         books_with_future_dates.append(book.title)
                     elif fmt_name is not None:
