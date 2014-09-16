@@ -1546,36 +1546,49 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
     def specialize_global_preferences(self, device_prefs):
         device_prefs.set_overrides(manage_device_metadata='on_connect')
 
+    def _show_message(self, message):
+        self._call_client("DISPLAY_MESSAGE",
+                {'messageKind': self.MESSAGE_SHOW_TOAST,
+                 'message': message})
+
     def _check_if_format_send_needed(self, db, id_, book):
         if not self.will_ask_for_update_books:
             return None
 
-        from calibre.utils.date import parse_date, now, isoformat
+        from calibre.utils.date import parse_date, isoformat
         try:
             if not hasattr(book, '_format_mtime_'):
                 return None
 
-            cc_mtime = parse_date(book.get('_format_mtime_'), as_utc=False)
             ext = posixpath.splitext(book.lpath)[1][1:]
             fmt_metadata = db.new_api.format_metadata(id_, ext)
             if fmt_metadata:
                 calibre_mtime = fmt_metadata['mtime']
+                if calibre_mtime > self.now:
+                    if not self.have_sent_future_dated_book_message:
+                        self.have_sent_future_dated_book_message = True
+                        self._show_message(_('You have book formats in your library '
+                                             'with dates in the future. See calibre '
+                                             'for details'))
+                    return (None, True)
+
+                cc_mtime = parse_date(book.get('_format_mtime_'), as_utc=False)
                 self._debug(book.title, 'cal_mtime', calibre_mtime, 'cc_mtime', cc_mtime)
                 if cc_mtime < calibre_mtime:
-                    book.set('_format_mtime_', isoformat(now()))
-                    return posixpath.basename(book.lpath)
+                    book.set('_format_mtime_', isoformat(self.now))
+                    return (posixpath.basename(book.lpath), False)
         except:
             self._debug('exception checking if must send format', book.title)
             traceback.print_exc()
-        return None
+        return (None, False)
 
     @synchronous('sync_lock')
-    def synchronize_with_db(self, db, id_, book):
-        from calibre.utils.date import parse_date, is_date_undefined
-        def show_message(message):
-            self._call_client("DISPLAY_MESSAGE",
-                    {'messageKind': self.MESSAGE_SHOW_TOAST,
-                     'message': message})
+    def synchronize_with_db(self, db, id_, book, first_call):
+        from calibre.utils.date import parse_date, is_date_undefined, now
+
+        if first_call:
+            self.have_sent_future_dated_book_message = False
+            self.now = now()
 
         if self.have_bad_sync_columns or not (self.is_read_sync_col or
                                               self.is_read_date_sync_col):
@@ -1589,24 +1602,24 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
             if self.is_read_sync_col:
                 if self.is_read_sync_col not in fm:
                     self._debug('is_read_sync_col not in field_metadata')
-                    show_message(_("The read sync column %s is "
+                    self._show_message(_("The read sync column %s is "
                              "not in calibre's library")%self.is_read_sync_col)
                     self.have_bad_sync_columns = True
                 elif fm[self.is_read_sync_col]['datatype'] != 'bool':
                     self._debug('is_read_sync_col not bool type')
-                    show_message(_("The read sync column %s is "
+                    self._show_message(_("The read sync column %s is "
                              "not a Yes/No column")%self.is_read_sync_col)
                     self.have_bad_sync_columns = True
 
             if self.is_read_date_sync_col:
                 if self.is_read_date_sync_col not in fm:
                     self._debug('is_read_date_sync_col not in field_metadata')
-                    show_message(_("The read date sync column %s is "
+                    self._show_message(_("The read date sync column %s is "
                              "not in calibre's library")%self.is_read_date_sync_col)
                     self.have_bad_sync_columns = True
                 elif fm[self.is_read_date_sync_col]['datatype'] != 'datetime':
                     self._debug('is_read_date_sync_col not date type')
-                    show_message(_("The read date sync column %s is "
+                    self._show_message(_("The read date sync column %s is "
                              "not a Date column")%self.is_read_date_sync_col)
                     self.have_bad_sync_columns = True
 
@@ -1786,6 +1799,8 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
         self.is_read_date_sync_col = None
         self.have_checked_sync_columns = False
         self.have_bad_sync_columns = False
+        self.have_sent_future_dated_book_message = False
+        self.now = None
 
         message = None
         compression_quality_ok = True

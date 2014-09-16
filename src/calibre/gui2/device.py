@@ -1776,6 +1776,8 @@ class DeviceMixin(object):  # {{{
 
         book_ids_to_refresh = set()
         book_formats_to_send = []
+        books_with_future_dates = []
+        first_call_to_synchronize_with_db = [True]
 
         def update_book(id_, book) :
             if not update_metadata:
@@ -1791,9 +1793,13 @@ class DeviceMixin(object):  # {{{
                     return False
 
                 if self.device_manager.device is not None:
-                    set_of_ids, fmt_name = \
-                            self.device_manager.device.synchronize_with_db(db, id_, book)
-                    if fmt_name is not None:
+                    set_of_ids, (fmt_name, date_bad) = \
+                            self.device_manager.device.synchronize_with_db(db, id_, book,
+                                           first_call_to_synchronize_with_db[0])
+                    first_call_to_synchronize_with_db[0] = False
+                    if date_bad:
+                        books_with_future_dates.append(book.title)
+                    elif fmt_name is not None:
                         book_formats_to_send.append((id_, fmt_name))
                     if set_of_ids is not None:
                         book_ids_to_refresh.update(set_of_ids)
@@ -1944,6 +1950,19 @@ class DeviceMixin(object):  # {{{
                     self.upload_books(files, names, metadata)
             except:
                 # Shouldn't ever happen, but just in case
+                traceback.print_exc()
+
+            # Inform user about future-dated books
+            try:
+                if books_with_future_dates:
+                    d = error_dialog(self, _('Book format sync problem'),
+                                 _('Some book formats in your library cannot be '
+                                   'synced because they have dates in the future'),
+                                 det_msg='\n'.join(books_with_future_dates),
+                                 show=False,
+                                 show_copy_button=True)
+                    d.show()
+            except:
                 traceback.print_exc()
 
         if DEBUG:
