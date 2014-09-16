@@ -726,7 +726,7 @@ class DevicePlugin(Plugin):
         '''
         return False
 
-    def synchronize_with_db(self, db, book_id, book_metadata):
+    def synchronize_with_db(self, db, book_id, book_metadata, first_call):
         '''
         Called during book matching when a book on the device is matched with
         a book in calibre's db. The method is responsible for syncronizing
@@ -740,23 +740,28 @@ class DevicePlugin(Plugin):
         This is useful when the calire data is correct but must be sent to the
         device.
 
-        The second value in the tuple specifies whether a book format should be
-        sent to the device. The intent is to permit verifying that the book on
-        the device is the same as the book in calibre. Return None if no book is
-        to be sent, otherwise return the base file name on the device (a string
-        like foobar.epub). Be sure to include the extension in the name. The
-        device subsystem will construct a send_books job for all books with not-
-        None returned values. Note: other than to later retrieve the extension,
-        the name is ignored in cases where the device uses a template to
-        generate the file name, which most do.
+        The second value is itself a 2-value tuple. The first value in the tuple
+        specifies whether a book format should be sent to the device. The intent
+        is to permit verifying that the book on the device is the same as the
+        book in calibre. This value must be None if no book is to be sent,
+        otherwise return the base file name on the device (a string like
+        foobar.epub). Be sure to include the extension in the name. The device
+        subsystem will construct a send_books job for all books with not- None
+        returned values. Note: other than to later retrieve the extension, the
+        name is ignored in cases where the device uses a template to generate
+        the file name, which most do. The second value in the returned tuple
+        indicated whether the format is future-dated. Return True if it is,
+        otherwise return False. Calibre will display a dialog to the user
+        listing all future dated books.
 
         Extremely important: this method is called on the GUI thread. It must
         be threadsafe with respect to the device manager's thread.
 
         book_id: the calibre id for the book in the database.
         book_metadata: the Metadata object for the book coming from the device.
+        first_call: True if this is the first call during a sync, False otherwise
         '''
-        return None, None
+        return (None, (None, False))
 
 class BookList(list):
     '''
