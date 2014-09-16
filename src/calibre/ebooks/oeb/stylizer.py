@@ -257,7 +257,7 @@ class Stylizer(object):
         index = 0
         self.stylesheets = set()
         self.page_rule = {}
-        for stylesheet in stylesheets:
+        for sheet_index, stylesheet in enumerate(stylesheets):
             href = stylesheet.href
             self.stylesheets.add(href)
             for rule in stylesheet.cssRules:
@@ -267,10 +267,10 @@ class Stylizer(object):
                     if not media.intersection({'all', 'screen', 'amzn-kf8'}):
                         continue
                     for subrule in rule.cssRules:
-                        rules.extend(self.flatten_rule(subrule, href, index))
+                        rules.extend(self.flatten_rule(subrule, href, index, is_user_agent_sheet=sheet_index==0))
                         index += 1
                 else:
-                    rules.extend(self.flatten_rule(rule, href, index))
+                    rules.extend(self.flatten_rule(rule, href, index, is_user_agent_sheet=sheet_index==0))
                     index = index + 1
         rules.sort()
         self.rules = rules
@@ -351,12 +351,13 @@ class Stylizer(object):
         data = item.data.cssText
         return ('utf-8', data)
 
-    def flatten_rule(self, rule, href, index):
+    def flatten_rule(self, rule, href, index, is_user_agent_sheet=False):
         results = []
+        sheet_index = 0 if is_user_agent_sheet else 1
         if isinstance(rule, CSSStyleRule):
             style = self.flatten_style(rule.style)
             for selector in rule.selectorList:
-                specificity = selector.specificity + (index,)
+                specificity = (sheet_index,) + selector.specificity + (index,)
                 text = selector.selectorText
                 selector = list(selector.seq)
                 results.append((specificity, selector, style, text, href))
