@@ -35,9 +35,9 @@ cprefs.defaults['subtitle_font_size'] = 40  # px
 cprefs.defaults['footer_font_size'] = 40  # px
 cprefs.defaults['cover_width'] = 600  # px
 cprefs.defaults['cover_height'] = 800  # px
-cprefs.defaults['title_font_family'] = 'Liberation Serif'
-cprefs.defaults['subtitle_font_family'] = 'Liberation Sans'
-cprefs.defaults['footer_font_family'] = 'Liberation Serif'
+cprefs.defaults['title_font_family'] = None
+cprefs.defaults['subtitle_font_family'] = None
+cprefs.defaults['footer_font_family'] = None
 cprefs.defaults['color_themes'] = {}
 cprefs.defaults['disabled_color_themes'] = []
 cprefs.defaults['disabled_styles'] = []
@@ -181,20 +181,20 @@ class Block(object):
 
 def layout_text(prefs, img, title, subtitle, footer, max_height, style):
     width = img.width() - 2 * style.hmargin
-    title_font = QFont(prefs.title_font_family)
+    title_font = QFont(prefs.title_font_family or 'Liberation Serif')
     title_font.setPixelSize(prefs.title_font_size)
     title_block = Block(title, width, title_font, img, max_height, style.TITLE_ALIGN)
     title_block.position = style.hmargin, style.vmargin
     subtitle_block = Block()
     if subtitle:
-        subtitle_font = QFont(prefs.subtitle_font_family)
+        subtitle_font = QFont(prefs.subtitle_font_family or 'Liberation Sans')
         subtitle_font.setPixelSize(prefs.subtitle_font_size)
         gap = 2 * title_block.leading
         mh = max_height - title_block.height - gap
         subtitle_block = Block(subtitle, width, subtitle_font, img, mh, style.SUBTITLE_ALIGN)
         subtitle_block.position = style.hmargin, title_block.position.y + title_block.height + gap
 
-    footer_font = QFont(prefs.footer_font_family)
+    footer_font = QFont(prefs.footer_font_family or 'Liberation Serif')
     footer_font.setPixelSize(prefs.footer_font_size)
     footer_block = Block(footer, width, footer_font, img, max_height, style.FOOTER_ALIGN)
     footer_block.position = style.hmargin, img.height() - style.vmargin - footer_block.height
