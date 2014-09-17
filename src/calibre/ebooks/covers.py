@@ -359,7 +359,8 @@ class Banner(Style):
     def __call__(self, painter, rect, color_theme, title_block, subtitle_block, footer_block):
         painter.fillRect(rect, self.color1)
         top = title_block.position.y + 10
-        height = title_block.height + subtitle_block.height + subtitle_block.line_spacing // 2 + title_block.leading
+        extra_spacing = subtitle_block.line_spacing // 2 if subtitle_block.line_spacing else title_block.line_spacing // 3
+        height = title_block.height + subtitle_block.height + extra_spacing + title_block.leading
         right = rect.right() - self.hmargin
         width = right - self.hmargin
 
