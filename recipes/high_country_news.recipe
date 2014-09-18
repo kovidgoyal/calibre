@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
-#
+##
 # Written:      2012-01-28
-# Last Edited:  2013-09-06
-# Remark:       Version 1.3
-# Update cleanup for new web article design
-#
+# Last Edited:  2014-09-18
+# Remark:       Version 2.0 first check
+# Update cleanup for new web article design and extra css
+##
 __license__   = 'GPL v3'
 __copyright__ = '2013, Armin Geller'
 
@@ -32,12 +32,25 @@ class HighCountryNews(BasicNewsRecipe):
     use_embedded_content  = False
 
     masthead_url          = 'http://www.hcn.org/logo.jpg'
-    cover_source          = 'http://www.hcn.org'
+    cover_source          = 'http://www.hcn.org/issues'  # AGE 2014-09-18 new
 
     def get_cover_url(self):
         cover_source_soup = self.index_to_soup(self.cover_source)
-        preview_image_div = cover_source_soup.find(attrs={'class':' portaltype-Plone Site content--hcn template-homepage_view'})
-        return preview_image_div.div.img['src']
+        preview_image_div = cover_source_soup.find(attrs={'class':'articles'})  # AGE 2014-09-18 new
+        return preview_image_div.div.a.figure.img['src']  # AGE 2014-09-18 newm take always the first one (hopefully)
+
+    # AGe new extra css to get rid of ugly style
+    # li for delete disc style,
+    # caption and credit for description & author of pictures
+
+    extra_css      =  '''
+                      h1 {font-size: 1.6em; text-align: left}
+                      h2 {font-size: 1em; font-style: italic; font-weight: normal}
+                      h3 {font-size: 1.3em;text-align: left}
+                      h4, h5, h6, {font-size: 1em;text-align: left}
+                      li {list-style-type: none}
+                      .caption, .credit {font-size: 0.9em; font-style: italic}
+                      '''
 
     feeds = [
               (u'Most recent', u'http://feeds.feedburner.com/hcn/most-recent?format=xml'),
@@ -52,24 +65,23 @@ class HighCountryNews(BasicNewsRecipe):
               (u'High Country Views', u'http://feeds.feedburner.com/hcn/HighCountryViews'),
              ]
 
- # 2013-07-23 AGe New coding w/o using print_version
+    # 2014-09-18 AGe New coding related to design changes
 
     keep_only_tags    = [
-                          dict(name='div', attrs={'id':['content']}),
+                          dict(name='div', attrs={'id':'content'}),
+                          dict(name='div', attrs={'class':'opaque'}),
                         ]
 
     remove_tags = [
-                    dict(name='div', attrs={'class':['documentActions supercedeDocumentActions editorialDocumentActions',
-                                                      'documentActions supercedeDocumentActions editorialDocumentActions editorialFooterDocumentActions',
-                                                      'article-sidebar',
-                                                      'image-viewer-controls nojs',
-                                                      'protectedArticleWrapper',
-                                                      'visualClear',
-                                                      'feed-icons',  # 2013-09-06 AGe add
-                                                      'PayWallEmail',  # 2013-09-06 AGe add
-                                                     ]}),
-                    dict(name='div', attrs={'id':['offer-below-locked-article']}),  # 2013-09-06 AGe add
+                    dict(name='div', attrs={'class':[
+                       'large-4 columns right-portlets', 'small-12 columns',
+                       'pagination-share', 'tiny content f-dropdown', 'image-viewer-controls', ]}),
+                    dict(name='ul', attrs={'class':['document-actions', 'topics', ]}),
+                    dict(name='a', attrs={'name':['body', ]}),
                   ]
+
+    # AGE 2014-09-18 this will stay for a while
+    # but have no impact for now ...
 
     INDEX                 = ''
     def append_page(self, soup, appendtag, position):
