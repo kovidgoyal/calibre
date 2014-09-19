@@ -126,15 +126,20 @@ def set_use_primary_find_in_search(toWhat):
     global pref_use_primary_find_in_search
     pref_use_primary_find_in_search = toWhat
 
+_yes = icu_lower(_('yes'))
+_checked = icu_lower(_('checked'))
+_no = icu_lower(_('no'))
+_unchecked = icu_lower(_('unchecked'))
+
 def force_to_bool(val):
     if isinstance(val, (str, unicode)):
         try:
             val = icu_lower(val)
             if not val:
                 val = None
-            elif val in [_('yes'), _('checked'), 'true']:
+            elif val in [_yes, _checked, 'true']:
                 val = True
-            elif val in [_('no'), _('unchecked'), 'false']:
+            elif val in [_no, _unchecked, 'false']:
                 val = False
             else:
                 val = bool(int(val))
