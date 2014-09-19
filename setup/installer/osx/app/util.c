@@ -154,14 +154,13 @@ int
 run(const char **ENV_VARS, const char **ENV_VAR_VALS, char *PROGRAM,
         const char *MODULE, const char *FUNCTION, const char *PYVER,
         int argc, const char **argv, const char **envp) {
-    char *pathPtr = NULL;
+    char *pathPtr = NULL, *t = NULL;
     char buf[3*PATH_MAX];
     int ret = 0, i;
     PyObject *site, *mainf, *res;
-
-    
     uint32_t buf_size = PATH_MAX+1;
     char *ebuf = calloc(buf_size, sizeof(char));
+
     ret = _NSGetExecutablePath(ebuf, &buf_size);
     if (ret == -1) {
         free(ebuf);
@@ -173,14 +172,19 @@ run(const char **ENV_VARS, const char **ENV_VAR_VALS, char *PROGRAM,
     if (pathPtr == NULL) {
         return report_error(strerror(errno));
     }
-    char *t;
     for (i = 0; i < 3; i++) {
         t = rindex(pathPtr, '/');
         if (t == NULL) return report_error("Failed to determine bundle path.");
         *t = '\0';
     }
-
-        
+    if (strstr(pathPtr, "/calibre.app/Contents/") != NULL) {
+        // We are one of the duplicate executables created to workaround codesign's limitations
+        for (i = 0; i < 2; i++) {
+            t = rindex(pathPtr, '/');
+            if (t == NULL) return report_error("Failed to resolve bundle path in dummy executable");
+            *t = '\0';
+        }
+    }
 
     char rpath[PATH_MAX+1], exe_path[PATH_MAX+1];
     snprintf(exe_path, PATH_MAX+1, "%s/Contents", pathPtr);

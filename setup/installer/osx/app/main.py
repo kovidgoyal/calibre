@@ -8,12 +8,16 @@ __docformat__ = 'restructuredtext en'
 
 import sys, os, shutil, plistlib, subprocess, glob, zipfile, tempfile, \
     py_compile, stat, operator, time
+from functools import partial
+from contextlib import contextmanager
+
 abspath, join, basename = os.path.abspath, os.path.join, os.path.basename
 
 from setup import (
     __version__ as VERSION, __appname__ as APPNAME, basenames, modules as
     main_modules, Command, SRC, functions as main_functions)
 from setup.build_environment import sw as SW, QT_FRAMEWORKS, QT_PLUGINS, PYQT_MODULES
+from setup.installer.osx.app.sign import current_dir, sign_app
 
 LICENSE = open('LICENSE', 'rb').read()
 MAGICK_HOME='@executable_path/../Frameworks/ImageMagick'
@@ -29,6 +33,14 @@ ENV = dict(
 
 
 info = warn = None
+
+@contextmanager
+def timeit():
+    times = [0, 0]
+    st = time.time()
+    yield times
+    dt = time.time() - st
+    times[0], times[1] = dt // 60, dt % 60
 
 class OSX32_Freeze(Command):
 
@@ -190,13 +202,13 @@ class Py2App(object):
             self.add_resources()
             self.compile_py_modules()
 
-            self.create_console_app()
-            self.create_gui_apps()
-
         self.copy_site()
         self.create_exe()
         if not test_launchers and not self.dont_strip:
             self.strip_files()
+        if not test_launchers:
+            self.create_console_app()
+            self.create_gui_apps()
 
         ret = self.makedmg(self.build_dir, APPNAME+'-'+VERSION)
 
@@ -287,6 +299,11 @@ class Py2App(object):
         shutil.copy2(join(curr, 'Python'), currd)
         self.set_id(join(currd, 'Python'),
             self.FID+'/Python.framework/Versions/%s/Python'%basename(curr))
+        # The following is needed for codesign in OS X >= 10.9.5
+        with current_dir(x):
+            os.symlink(basename(curr), 'Versions/Current')
+            for y in ('Python', 'Resources'):
+                os.symlink('Versions/Current/%s'%y, y)
 
     @flush
     def add_qt_frameworks(self):
@@ -315,6 +332,14 @@ class Py2App(object):
         rpath = os.path.relpath(lib, self.frameworks_dir)
         self.set_id(lib, self.FID+'/'+rpath)
         self.fix_dependencies_in_lib(lib)
+        # The following is needed for codesign in OS X >= 10.9.5
+        # See https://bugreports.qt-project.org/browse/QTBUG-32895
+        with current_dir(dest):
+            os.rename('Contents', 'Versions/Current/Resources')
+            os.symlink('Versions/Current/Resources', 'Resources')
+            for x in os.listdir('.'):
+                if x != 'Versions' and not os.path.islink(x):
+                    os.remove(x)
 
     @flush
     def create_skeleton(self):
@@ -380,7 +405,7 @@ class Py2App(object):
     @flush
     def add_podofo(self):
         info('\nAdding PoDoFo')
-        pdf = join(SW, 'lib', 'libpodofo.0.9.1.dylib')
+        pdf = join(SW, 'lib', 'libpodofo.0.9.3.dylib')
         self.install_dylib(pdf)
 
     @flush
@@ -587,23 +612,38 @@ class Py2App(object):
                     except:
                         self.warn('WARNING: Failed to byte-compile', y)
 
-    @flush
-    def create_console_app(self):
-        info('\nCreating console.app')
-        cc_dir = os.path.join(self.contents_dir, 'console.app', 'Contents')
-        os.makedirs(cc_dir)
+    def create_app_clone(self, name, specialise_plist):
+        info('\nCreating ' + name)
+        cc_dir = os.path.join(self.contents_dir, name, 'Contents')
+        exe_dir = join(cc_dir, 'MacOS')
+        os.makedirs(exe_dir)
         for x in os.listdir(self.contents_dir):
             if x.endswith('.app'):
                 continue
             if x == 'Info.plist':
                 plist = plistlib.readPlist(join(self.contents_dir, x))
-                plist['LSBackgroundOnly'] = '1'
-                plist['CFBundleIdentifier'] = 'com.calibre-ebook.console'
+                specialise_plist(plist)
                 plist.pop('CFBundleDocumentTypes')
+                exe = plist['CFBundleExecutable']
+                # We cannot symlink the bundle executable as if we do,
+                # codesigning fails
+                nexe = plist['CFBundleExecutable'] = exe + '-placeholder-for-codesigning'
+                shutil.copy2(join(self.contents_dir, 'MacOS', exe), join(exe_dir, nexe))
+                exe = join(exe_dir, plist['CFBundleExecutable'])
                 plistlib.writePlist(plist, join(cc_dir, x))
+            elif x == 'MacOS':
+                for item in os.listdir(join(self.contents_dir, 'MacOS')):
+                    os.symlink('../../../MacOS/'+item, join(exe_dir, item))
             else:
-                os.symlink(join('../..', x),
-                           join(cc_dir, x))
+                os.symlink(join('../..', x), join(cc_dir, x))
+
+    @flush
+    def create_console_app(self):
+        def specialise_plist(plist):
+            plist['LSBackgroundOnly'] = '1'
+            plist['CFBundleIdentifier'] = 'com.calibre-ebook.console'
+            plist['CFBundleExecutable'] = 'calibre-parallel'
+        self.create_app_clone('console.app', specialise_plist)
         # Comes from the terminal-notifier project:
         # https://github.com/alloy/terminal-notifier
         shutil.copytree(join(SW, 'build/notifier.app'), join(
@@ -611,26 +651,16 @@ class Py2App(object):
 
     @flush
     def create_gui_apps(self):
-        info('\nCreating launcher apps for viewer and editor')
+        def specialise_plist(launcher, plist):
+            plist['CFBundleDisplayName'] = plist['CFBundleName'] = {
+                'ebook-viewer':'E-book Viewer', 'ebook-edit':'Edit Book', 'calibre-debug': 'calibre (debug)',
+            }[launcher]
+            plist['CFBundleExecutable'] = launcher
+            if launcher != 'calibre-debug':
+                plist['CFBundleIconFile'] = launcher + '.icns'
+            plist['CFBundleIdentifier'] = 'com.calibre-ebook.' + launcher
         for launcher in ('ebook-viewer', 'ebook-edit', 'calibre-debug'):
-            cc_dir = os.path.join(self.contents_dir, launcher + '.app', 'Contents')
-            os.makedirs(cc_dir)
-            for x in os.listdir(self.contents_dir):
-                if x.endswith('.app'):
-                    continue
-                if x == 'Info.plist':
-                    plist = plistlib.readPlist(join(self.contents_dir, x))
-                    plist['CFBundleDisplayName'] = plist['CFBundleName'] = {
-                        'ebook-viewer':'E-book Viewer', 'ebook-edit':'Edit Book', 'calibre-debug': 'calibre (debug)',
-                    }[launcher]
-                    if launcher != 'calibre-debug':
-                        plist['CFBundleExecutable'] = launcher
-                        plist['CFBundleIconFile'] = launcher + '.icns'
-                    plist['CFBundleIdentifier'] = 'com.calibre-ebook.' + launcher
-                    plist.pop('CFBundleDocumentTypes')
-                    plistlib.writePlist(plist, join(cc_dir, x))
-                else:
-                    os.symlink(join('../..', x), join(cc_dir, x))
+            self.create_app_clone(launcher + '.app', partial(specialise_plist, launcher))
 
     @flush
     def copy_site(self):
@@ -644,7 +674,7 @@ class Py2App(object):
                 internet_enable=True,
                 format='UDBZ'):
         ''' Copy a directory d into a dmg named volname '''
-        info('\nCreating dmg')
+        info('\nSigning...')
         sys.stdout.flush()
         if not os.path.exists(destdir):
             os.makedirs(destdir)
@@ -654,7 +684,9 @@ class Py2App(object):
         tdir = tempfile.mkdtemp()
         appdir = os.path.join(tdir, os.path.basename(d))
         shutil.copytree(d, appdir, symlinks=True)
-        subprocess.check_call(['/Users/kovid/sign.sh', appdir])
+        with timeit() as times:
+            sign_app(appdir)
+        info('Signing completed in %d minutes %d seconds' % tuple(times))
         os.symlink('/Applications', os.path.join(tdir, 'Applications'))
         size_in_mb = int(subprocess.check_output(['du', '-s', '-k', tdir]).decode('utf-8').split()[0]) / 1024.
         cmd = ['/usr/bin/hdiutil', 'create', '-srcfolder', tdir, '-volname', volname, '-format', format]
@@ -663,10 +695,13 @@ class Py2App(object):
             # srcfolder is close to 200MB hdiutil fails with
             # diskimages-helper: resize request is above maximum size allowed.
             cmd += ['-size', '255m']
-        subprocess.check_call(cmd + [dmg])
+        info('\nCreating dmg...')
+        with timeit() as times:
+            subprocess.check_call(cmd + [dmg])
+            if internet_enable:
+                subprocess.check_call(['/usr/bin/hdiutil', 'internet-enable', '-yes', dmg])
+        info('dmg created in %d minutes and %d seconds' % tuple(times))
         shutil.rmtree(tdir)
-        if internet_enable:
-            subprocess.check_call(['/usr/bin/hdiutil', 'internet-enable', '-yes', dmg])
         size = os.stat(dmg).st_size/(1024*1024.)
         info('\nInstaller size: %.2fMB\n'%size)
         return dmg
