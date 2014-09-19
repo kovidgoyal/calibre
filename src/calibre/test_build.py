@@ -62,7 +62,7 @@ def test_plugins():
             bad.append((name, err))
     if bad:
         for name, err in bad:
-            print ('Failed to load plugin:', name, 'with error:\n', err)
+            print ('Failed to load plugin:', name, 'with error:\n', err, '\n')
         raise SystemExit(1)
     print ('Loaded all plugins successfully!')
 
