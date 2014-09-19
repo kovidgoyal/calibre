@@ -205,6 +205,7 @@ def test_psutil():
 def test_podofo():
     from calibre.utils.podofo import test_podofo as dotest
     dotest()
+    print ('podofo OK!')
 
 def test_terminal():
     import readline, curses
