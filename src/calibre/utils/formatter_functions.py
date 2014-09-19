@@ -350,6 +350,20 @@ class BuiltinRawField(BuiltinFormatterFunction):
     def evaluate(self, formatter, kwargs, mi, locals, name):
         return unicode(getattr(mi, name, None))
 
+class BuiltinRawList(BuiltinFormatterFunction):
+    name = 'raw_list'
+    arg_count = 2
+    category = 'Get values from metadata'
+    __doc__ = doc = _('raw_list(name, separator) -- returns the metadata list '
+            'named by name without applying any formatting or sorting and '
+            'with items separated by separator.')
+
+    def evaluate(self, formatter, kwargs, mi, locals, name, separator):
+        res = getattr(mi, name, None)
+        if not isinstance(res, list):
+            return "%s is not a list" % name
+        return separator.join(res)
+
 class BuiltinSubstr(BuiltinFormatterFunction):
     name = 'substr'
     arg_count = 3
@@ -1458,8 +1472,8 @@ _formatter_builtins = [
     BuiltinInList(), BuiltinListDifference(), BuiltinListEquals(),
     BuiltinListIntersection(), BuiltinListitem(), BuiltinListRe(),
     BuiltinListReGroup(), BuiltinListSort(), BuiltinListUnion(), BuiltinLookup(),
-    BuiltinLowercase(), BuiltinMultiply(), BuiltinNot(),
-    BuiltinOndevice(), BuiltinOr(), BuiltinPrint(), BuiltinRawField(),
+    BuiltinLowercase(), BuiltinMultiply(), BuiltinNot(), BuiltinOndevice(),
+    BuiltinOr(), BuiltinPrint(), BuiltinRawField(), BuiltinRawList(),
     BuiltinRe(), BuiltinReGroup(), BuiltinSelect(), BuiltinSeriesSort(),
     BuiltinShorten(), BuiltinStrcat(), BuiltinStrcatMax(),
     BuiltinStrcmp(), BuiltinStrInList(), BuiltinStrlen(), BuiltinSubitems(),

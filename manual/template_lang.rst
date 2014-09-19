@@ -309,6 +309,7 @@ The following functions are available in addition to those described in single-f
     * ``or(value, value, ...)`` -- returns the string "1" if any value is not empty, otherwise returns the empty string. This function works well with test or first_non_empty. You can have as many values as you want.
     * ``print(a, b, ...)`` -- prints the arguments to standard output. Unless you start calibre from the command line (``calibre-debug -g``), the output will go to a black hole.
     * ``raw_field(name)`` -- returns the metadata field named by name without applying any formatting.
+	* ``raw_list(name, separator)`` -- returns the metadata list named by name without applying any formatting or sorting and with items separated by separator.
     * ``re_group(val, pattern, template_for_group_1, for_group_2, ...)`` --  return a string made by applying the reqular expression pattern to the val and replacing each matched instance with the string computed by replacing each matched group by the value returned by the corresponding template. The original matched value for the group is available as $. In template program mode, like for the template and the eval functions, you use [[ for { and ]] for }. The following example in template program mode looks for series with more than one word and uppercases the first word::
     
         {series:'re_group($, "(\S* )(.*)", "[[$:uppercase()]]", "[[$]]")'}
