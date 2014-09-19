@@ -55,11 +55,15 @@ def test_html5lib():
     print ('html5lib OK!')
 
 def test_plugins():
+    bad = []
     for name in plugins:
         mod, err = plugins[name]
         if err or not mod:
-            raise RuntimeError('Plugin %s failed to load with error: %s' %
-                    (name, err))
+            bad.append((name, err))
+    if bad:
+        for name, err in bad:
+            print ('Failed to load plugin:', name, 'with error:\n', err)
+        raise SystemExit(1)
     print ('Loaded all plugins successfully!')
 
 def test_lxml():
