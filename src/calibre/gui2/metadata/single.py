@@ -31,6 +31,9 @@ from calibre.utils.date import local_tz
 from calibre.library.comments import merge_comments as merge_two_comments
 
 BASE_TITLE = _('Edit Metadata')
+fetched_fields = ('title', 'title_sort', 'authors', 'author_sort', 'series',
+                  'series_index', 'languages', 'publisher', 'tags', 'rating',
+                  'comments', 'pubdate')
 
 class MetadataSingleDialogBase(ResizableDialog):
 
@@ -44,6 +47,7 @@ class MetadataSingleDialogBase(ResizableDialog):
         self.changed = set()
         self.books_to_refresh = set()
         self.rows_to_refresh = set()
+        self.metadata_before_fetch = None
         ResizableDialog.__init__(self, parent)
 
     def setupUi(self, *args):  # {{{
@@ -232,9 +236,13 @@ class MetadataSingleDialogBase(ResizableDialog):
         self.pubdate = PubdateEdit(self)
         self.basic_metadata_widgets.extend([self.timestamp, self.pubdate])
 
-        self.fetch_metadata_button = QPushButton(
-                _('&Download metadata'), self)
+        self.fetch_metadata_button = b = QToolButton(self)
+        b.setText(_('&Download metadata')), b.setPopupMode(b.DelayedPopup)
+        b.setSizePolicy(QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed))
         self.fetch_metadata_button.clicked.connect(self.fetch_metadata)
+        self.fetch_metadata_menu = m = QMenu(self.fetch_metadata_button)
+        m.addAction(QIcon(I('edit-undo.png')), _('Undo last metadata download'), self.undo_fetch_metadata)
+        self.fetch_metadata_button.setMenu(m)
         self.download_shortcut.activated.connect(self.fetch_metadata_button.click)
         font = self.fmb_font = QFont()
         font.setBold(True)
@@ -295,6 +303,7 @@ class MetadataSingleDialogBase(ResizableDialog):
     def __call__(self, id_):
         self.book_id = id_
         self.books_to_refresh = set([])
+        self.metadata_before_fetch = None
         for widget in self.basic_metadata_widgets:
             widget.initialize(self.db, id_)
         for widget in getattr(self, 'custom_metadata_widgets', []):
@@ -439,6 +448,7 @@ class MetadataSingleDialogBase(ResizableDialog):
         ret = d.start(title=self.title.current_val, authors=self.authors.current_val,
                 identifiers=self.identifiers.current_val)
         if ret == d.Accepted:
+            self.metadata_before_fetch = {f:getattr(self, f).current_val for f in fetched_fields}
             from calibre.ebooks.metadata.sources.prefs import msprefs
             mi = d.book
             dummy = Metadata(_('Unknown'))
@@ -457,6 +467,14 @@ class MetadataSingleDialogBase(ResizableDialog):
                 self.update_from_mi(mi, merge_comments=msprefs['append_comments'])
             if d.cover_pixmap is not None:
                 self.cover.current_val = pixmap_to_data(d.cover_pixmap)
+
+    def undo_fetch_metadata(self):
+        if self.metadata_before_fetch is None:
+            return error_dialog(self, _('No downloaded metadata'), _(
+                'There is no downloaded metadata to undo'), show=True)
+        for field, val in self.metadata_before_fetch.iteritems():
+            getattr(self, field).current_val = val
+        self.metadata_before_fetch = None
 
     def configure_metadata(self):
         from calibre.gui2.preferences import show_config_widget
