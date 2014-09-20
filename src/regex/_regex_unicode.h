@@ -41,6 +41,8 @@ typedef RE_UINT32 (*RE_GetPropertyFunc)(RE_UINT32 ch);
 #define RE_PROP_P 34
 #define RE_PROP_S 35
 #define RE_PROP_Z 36
+#define RE_PROP_ASSIGNED 38
+#define RE_PROP_CASEDLETTER 37
 
 #define RE_PROP_CN 0
 #define RE_PROP_LU 1
@@ -84,19 +86,17 @@ typedef RE_UINT32 (*RE_GetPropertyFunc)(RE_UINT32 ch);
 #define RE_PROP_ALNUM 0x460001
 #define RE_PROP_ALPHA 0x070001
 #define RE_PROP_ANY 0x470001
-#define RE_PROP_ASCII 0x480001
-#define RE_PROP_ASSIGNED 0x490001
-#define RE_PROP_BLANK 0x4A0001
+#define RE_PROP_ASCII 0x010001
+#define RE_PROP_BLANK 0x480001
 #define RE_PROP_CNTRL 0x00000F
 #define RE_PROP_DIGIT 0x000009
-#define RE_PROP_GRAPH 0x4B0001
+#define RE_PROP_GRAPH 0x490001
 #define RE_PROP_LOWER 0x080001
-#define RE_PROP_PRINT 0x4C0001
-#define RE_PROP_PUNCT 0x000022
+#define RE_PROP_PRINT 0x4A0001
 #define RE_PROP_SPACE 0x190001
 #define RE_PROP_UPPER 0x090001
-#define RE_PROP_WORD 0x4D0001
-#define RE_PROP_XDIGIT 0x4E0001
+#define RE_PROP_WORD 0x4B0001
+#define RE_PROP_XDIGIT 0x4C0001
 
 #define RE_BREAK_OTHER 0
 #define RE_BREAK_DOUBLEQUOTE 1
@@ -130,11 +130,11 @@ typedef RE_UINT32 (*RE_GetPropertyFunc)(RE_UINT32 ch);
 #define RE_GBREAK_LVT 11
 #define RE_GBREAK_PREPEND 12
 
-extern char* re_strings[1155];
-extern RE_Property re_properties[145];
-extern RE_PropertyValue re_property_values[1244];
+extern char* re_strings[1257];
+extern RE_Property re_properties[143];
+extern RE_PropertyValue re_property_values[1372];
 extern RE_UINT16 re_expand_on_folding[104];
-extern RE_GetPropertyFunc re_get_property[79];
+extern RE_GetPropertyFunc re_get_property[77];
 
 RE_UINT32 re_get_general_category(RE_UINT32 ch);
 RE_UINT32 re_get_block(RE_UINT32 ch);
@@ -208,8 +208,6 @@ RE_UINT32 re_get_indic_matra_category(RE_UINT32 ch);
 RE_UINT32 re_get_indic_syllabic_category(RE_UINT32 ch);
 RE_UINT32 re_get_alphanumeric(RE_UINT32 ch);
 RE_UINT32 re_get_any(RE_UINT32 ch);
-RE_UINT32 re_get_ascii(RE_UINT32 ch);
-RE_UINT32 re_get_assigned(RE_UINT32 ch);
 RE_UINT32 re_get_blank(RE_UINT32 ch);
 RE_UINT32 re_get_graph(RE_UINT32 ch);
 RE_UINT32 re_get_print(RE_UINT32 ch);

@@ -225,31 +225,31 @@ __all__ = ["compile", "escape", "findall", "finditer", "fullmatch", "match",
   "V0", "VERSION0", "V1", "VERSION1", "X", "VERBOSE", "W", "WORD", "error",
   "Regex"]
 
-__version__ = "2.4.39"
+__version__ = "2.4.48"
 
 # --------------------------------------------------------------------
 # Public interface.
 
-def match(pattern, string, flags=0, pos=None, endpos=None, concurrent=None,
-  **kwargs):
+def match(pattern, string, flags=0, pos=None, endpos=None, partial=False,
+  concurrent=None, **kwargs):
     """Try to apply the pattern at the start of the string, returning a match
     object, or None if no match was found."""
     return _compile(pattern, flags, kwargs).match(string, pos, endpos,
-      concurrent)
+      concurrent, partial)
 
-def fullmatch(pattern, string, flags=0, pos=None, endpos=None, concurrent=None,
-  **kwargs):
+def fullmatch(pattern, string, flags=0, pos=None, endpos=None, partial=False,
+  concurrent=None, **kwargs):
     """Try to apply the pattern against all of the string, returning a match
     object, or None if no match was found."""
     return _compile(pattern, flags, kwargs).fullmatch(string, pos, endpos,
-      concurrent)
+      concurrent, partial)
 
-def search(pattern, string, flags=0, pos=None, endpos=None, concurrent=None,
-  **kwargs):
+def search(pattern, string, flags=0, pos=None, endpos=None, partial=False,
+  concurrent=None, **kwargs):
     """Search through string looking for a match to the pattern, returning a
     match object, or None if no match was found."""
     return _compile(pattern, flags, kwargs).search(string, pos, endpos,
-      concurrent)
+      concurrent, partial)
 
 def sub(pattern, repl, string, count=0, flags=0, pos=None, endpos=None,
   concurrent=None, **kwargs):
@@ -319,12 +319,12 @@ def findall(pattern, string, flags=0, pos=None, endpos=None, overlapped=False,
       overlapped, concurrent)
 
 def finditer(pattern, string, flags=0, pos=None, endpos=None, overlapped=False,
-  concurrent=None, **kwargs):
+  partial=False, concurrent=None, **kwargs):
     """Return an iterator over all matches in the string. The matches may be
     overlapped if overlapped is True. For each match, the iterator returns a
     match object. Empty matches are included in the result."""
     return _compile(pattern, flags, kwargs).finditer(string, pos, endpos,
-      overlapped, concurrent)
+      overlapped, concurrent, partial)
 
 def compile(pattern, flags=0, **kwargs):
     "Compile a regular expression pattern, returning a pattern object."
@@ -392,6 +392,7 @@ from . import _regex_core
 from calibre.constants import plugins
 _regex = plugins['_regex'][0]
 from threading import RLock as _RLock
+from locale import getlocale as _getlocale
 from ._regex_core import *
 from ._regex_core import (_ALL_VERSIONS, _ALL_ENCODINGS, _FirstSetError,
   _UnscopedFlagSet, _check_group_features, _compile_firstset,
@@ -414,6 +415,7 @@ _cache = {}
 _cache_lock = _RLock()
 _named_args = {}
 _replacement_cache = {}
+_locale_sensitive = {}
 
 # Maximum size of the cache.
 _MAXCACHE = 500
@@ -421,6 +423,15 @@ _MAXREPCACHE = 500
 
 def _compile(pattern, flags=0, kwargs={}):
     "Compiles a regular expression to a PatternObject."
+    # What locale is this pattern using?
+    locale_key = (type(pattern), pattern)
+    if _locale_sensitive.get(locale_key, True) or (flags & LOCALE) != 0:
+        # This pattern is, or might be, locale-sensitive.
+        pattern_locale = _getlocale()
+    else:
+        # This pattern is definitely not locale-sensitive.
+        pattern_locale = None
+
     try:
         # Do we know what keyword arguments are needed?
         args_key = pattern, type(pattern), flags
@@ -433,13 +444,13 @@ def _compile(pattern, flags=0, kwargs={}):
                 try:
                     args_supplied.add((k, frozenset(kwargs[k])))
                 except KeyError:
-                    raise error("missing named list")
+                    raise error("missing named list: {!r}".format(k))
 
         args_supplied = frozenset(args_supplied)
 
         # Have we already seen this regular expression and named list?
         pattern_key = (pattern, type(pattern), flags, args_supplied,
-          DEFAULT_VERSION)
+          DEFAULT_VERSION, pattern_locale)
         return _cache[pattern_key]
     except KeyError:
         # It's a new pattern, or new named list for a known pattern.
@@ -462,18 +473,19 @@ def _compile(pattern, flags=0, kwargs={}):
     _regex_core.DEFAULT_VERSION = DEFAULT_VERSION
 
     caught_exception = None
+    global_flags = flags
 
     while True:
         try:
             source = _Source(pattern)
-            info = _Info(flags, source.char_type, kwargs)
+            info = _Info(global_flags, source.char_type, kwargs)
             info.guess_encoding = guess_encoding
             source.ignore_space = bool(info.flags & VERBOSE)
             parsed = _parse_pattern(source, info)
             break
         except _UnscopedFlagSet:
             # Remember the global flags for the next attempt.
-            flags = info.global_flags
+            global_flags = info.global_flags
         except error, e:
             caught_exception = e
 
@@ -499,6 +511,9 @@ def _compile(pattern, flags=0, kwargs={}):
 
     reverse = bool(info.flags & REVERSE)
     fuzzy = isinstance(parsed, _Fuzzy)
+
+    # Remember whether this pattern as an inline locale flag.
+    _locale_sensitive[locale_key] = info.inline_locale
 
     # Should we print the parsed pattern?
     if flags & DEBUG:
@@ -583,7 +598,8 @@ def _compile(pattern, flags=0, kwargs={}):
     args_needed = frozenset(args_needed)
 
     # Store this regular expression and named list.
-    pattern_key = (pattern, type(pattern), flags, args_needed, DEFAULT_VERSION)
+    pattern_key = (pattern, type(pattern), flags, args_needed, DEFAULT_VERSION,
+      pattern_locale)
     _cache[pattern_key] = compiled_pattern
 
     # Store what keyword arguments are needed.
