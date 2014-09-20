@@ -7,6 +7,7 @@ from functools import partial
 
 from PyQt5.Qt import QThread, QObject, Qt, QProgressDialog, pyqtSignal, QTimer
 
+from calibre.customize.ui import run_plugins_on_postimport
 from calibre.ptempfile import PersistentTemporaryDirectory
 from calibre.gui2.dialogs.progress import ProgressDialog
 from calibre.gui2 import (error_dialog, info_dialog, gprefs,
@@ -268,8 +269,11 @@ class DBAdder(QObject):  # {{{
         for path in formats:
             fmt = os.path.splitext(path)[-1].replace('.', '').upper()
             with open(path, 'rb') as f:
-                self.db.add_format(id, fmt, f, index_is_id=True,
-                        notify=False, replace=replace)
+                # At this point, the filetype on import plugins have already
+                # been run by the metadata reading code, so we only need to run
+                # the postimport plugins, on a successful add.
+                if self.db.add_format(id, fmt, f, index_is_id=True, notify=False, replace=replace):
+                    run_plugins_on_postimport(self.db, id, fmt)
 
 # }}}
 
