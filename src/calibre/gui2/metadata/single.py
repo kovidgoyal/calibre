@@ -466,6 +466,7 @@ class MetadataSingleDialogBase(ResizableDialog):
                             tzinfo=local_tz)
                 self.update_from_mi(mi, merge_comments=msprefs['append_comments'])
             if d.cover_pixmap is not None:
+                self.metadata_before_fetch['cover'] = self.cover.current_val
                 self.cover.current_val = pixmap_to_data(d.cover_pixmap)
 
     def undo_fetch_metadata(self):
@@ -609,6 +610,7 @@ class MetadataSingleDialogBase(ResizableDialog):
         # Break any reference cycles that could prevent python
         # from garbage collecting this dialog
         self.set_current_callback = self.db = None
+        self.metadata_before_fetch = None
         def disconnect(signal):
             try:
                 signal.disconnect()
