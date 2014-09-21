@@ -145,7 +145,7 @@ class History(list):  # {{{
         self.back_pos = self.forward_pos - 1
         if self.back_pos < 0:
             self.back_pos = None
-        self.insert_pos = self.back_pos or 0
+        self.insert_pos = min(len(self) - 1, (self.back_pos or 0) + 1)
         self.forward_pos = None if self.forward_pos > len(self) - 2 else self.forward_pos + 1
         self.set_actions()
         return item
@@ -171,13 +171,11 @@ def test_history():
     h = History()
     for i in xrange(4):
         h.add(i)
-    for i in reversed(xrange(4)):
+    for i in reversed(h):
         h.back(i)
-    print (h)
     h.forward(0)
-    print (h)
-    h.add(1)
-    print (h)
+    h.add(9)
+    assert h == [0, 9]
 # }}}
 
 class Main(MainWindow):
