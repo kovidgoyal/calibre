@@ -152,9 +152,9 @@ class PagedDisplay
 
         fgcolor = body_style.getPropertyValue('color')
 
-        bs.setProperty('-webkit-column-gap', (2*sm)+'px')
-        bs.setProperty('-webkit-column-width', col_width+'px')
-        bs.setProperty('-webkit-column-rule-color', fgcolor)
+        bs.setProperty('-webkit-column-gap', 2*sm + 'px')
+        bs.setProperty('-webkit-column-width', col_width + 'px')
+        bs.setProperty('-webkit-column-rule', '0px inset blue')
 
         # Without this, webkit bleeds the margin of the first block(s) of body
         # above the columns, which causes them to effectively be added to the
@@ -230,6 +230,14 @@ class PagedDisplay
             this.is_full_screen_layout = (only_img or has_svg) and single_screen and document.body.scrollWidth > body_width and document.body.scrollWidth < 2 * body_width
             if is_single_page
                 this.is_full_screen_layout = true
+
+        ncols = document.body.scrollWidth / this.page_width
+        if ncols != Math.floor(ncols) and not this.is_full_screen_layout
+            # In Qt 5 WebKit will sometimes adjust the individual column widths for
+            # better text layout. This is allowed as per the CSS spec, so the
+            # only way to ensure fixed column widths is to make sure the body
+            # width is an exact multiple of the column widths
+            bs.setProperty('width', Math.floor(ncols) * this.page_width - 2 * sm)
 
         this.in_paged_mode = true
         this.current_margin_side = sm
