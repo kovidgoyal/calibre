@@ -394,23 +394,24 @@ class MetadataSingleDialogBase(ResizableDialog):
             return
 
     def update_from_mi(self, mi, update_sorts=True, merge_tags=True, merge_comments=False):
+        fw = self.focusWidget()
         if not mi.is_null('title'):
-            self.title.current_val = mi.title
+            self.title.set_value(mi.title)
             if update_sorts:
                 self.title_sort.auto_generate()
         if not mi.is_null('authors'):
-            self.authors.current_val = mi.authors
+            self.authors.set_value(mi.authors)
         if not mi.is_null('author_sort'):
-            self.author_sort.current_val = mi.author_sort
+            self.author_sort.set_value(mi.author_sort)
         elif update_sorts:
             self.author_sort.auto_generate()
         if not mi.is_null('rating'):
             try:
-                self.rating.current_val = mi.rating
+                self.rating.set_value(mi.rating)
             except:
                 pass
         if not mi.is_null('publisher'):
-            self.publisher.current_val = mi.publisher
+            self.publisher.set_value(mi.publisher)
         if not mi.is_null('tags'):
             old_tags = self.tags.current_val
             tags = mi.tags if mi.tags else []
@@ -418,30 +419,32 @@ class MetadataSingleDialogBase(ResizableDialog):
                 ltags, lotags = {t.lower() for t in tags}, {t.lower() for t in
                         old_tags}
                 tags = [t for t in tags if t.lower() in ltags-lotags] + old_tags
-            self.tags.current_val = tags
+            self.tags.set_value(tags)
         if not mi.is_null('identifiers'):
             current = self.identifiers.current_val
             current.update(mi.identifiers)
-            self.identifiers.current_val = current
+            self.identifiers.set_value(current)
         if not mi.is_null('pubdate'):
-            self.pubdate.current_val = mi.pubdate
+            self.pubdate.set_value(mi.pubdate)
         if not mi.is_null('series') and mi.series.strip():
-            self.series.current_val = mi.series
+            self.series.set_value(mi.series)
             if mi.series_index is not None:
                 self.series_index.reset_original()
-                self.series_index.current_val = float(mi.series_index)
+                self.series_index.set_value(float(mi.series_index))
         if not mi.is_null('languages'):
             langs = [canonicalize_lang(x) for x in mi.languages]
             langs = [x for x in langs if x is not None]
             if langs:
-                self.languages.current_val = langs
+                self.languages.set_value(langs)
         if mi.comments and mi.comments.strip():
             val = mi.comments
             if val and merge_comments:
                 cval = self.comments.current_val
                 if cval:
                     val = merge_two_comments(cval, val)
-            self.comments.current_val = val
+            self.comments.set_value(val)
+        if fw is not None:
+            fw.setFocus(Qt.OtherFocusReason)
 
     def fetch_metadata(self, *args):
         d = FullFetch(self.cover.pixmap(), self)

@@ -58,14 +58,26 @@ class LanguagesEdit(EditWithComplete):
             return ans
 
         def fset(self, lang_codes):
-            ans = []
-            for lc in lang_codes:
-                name = self._lang_map.get(lc, None)
-                if name is not None:
-                    ans.append(name)
-            self.setEditText(', '.join(ans))
+            self.set_lang_codes(lang_codes, allow_undo=False)
 
         return property(fget=fget, fset=fset)
+
+    def set_lang_codes(self, lang_codes, allow_undo=True):
+        ans = []
+        for lc in lang_codes:
+            name = self._lang_map.get(lc, None)
+            if name is not None:
+                ans.append(name)
+        ans = ', '.join(ans)
+
+        if allow_undo:
+            orig, self.disable_popup = self.disable_popup, True
+            try:
+                self.lineEdit().selectAll(), self.lineEdit().insert(ans)
+            finally:
+                self.disable_popup = orig
+        else:
+            self.setEditText(ans)
 
     def validate(self):
         vals = self.vals

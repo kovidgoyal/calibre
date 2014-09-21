@@ -7,13 +7,14 @@ __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import textwrap, re, os, shutil
+import textwrap, re, os, shutil, weakref
 
 from PyQt5.Qt import (
     Qt, QDateTimeEdit, pyqtSignal, QMessageBox, QIcon, QToolButton, QWidget,
     QLabel, QGridLayout, QApplication, QDoubleSpinBox, QListWidgetItem, QSize,
-    QPixmap, QDialog, QMenu, QSpinBox, QLineEdit, QSizePolicy,
-    QDialogButtonBox, QAction, QCalendarWidget, QDate, QDateTime)
+    QPixmap, QDialog, QMenu, QSpinBox, QLineEdit, QSizePolicy, QKeySequence,
+    QDialogButtonBox, QAction, QCalendarWidget, QDate, QDateTime, QUndoCommand,
+    QUndoStack)
 
 from calibre.gui2.widgets import EnLineEdit, FormatList as _FormatList, ImageView
 from calibre.utils.icu import sort_key
@@ -76,9 +77,112 @@ class BasicMetadataWidget(object):
 class ToMetadataMixin(object):
 
     FIELD_NAME = None
+    allow_undo = False
 
     def apply_to_metadata(self, mi):
         mi.set(self.FIELD_NAME, self.current_val)
+
+    def set_value(self, val, allow_undo=True):
+        self.allow_undo = allow_undo
+        try:
+            self.current_val = val
+        finally:
+            self.allow_undo = False
+
+    def set_text(self, text):
+        if self.allow_undo:
+            self.selectAll(), self.insert(text)
+        else:
+            self.setText(text)
+
+    def set_edit_text(self, text):
+        if self.allow_undo:
+            orig, self.disable_popup = self.disable_popup, True
+            try:
+                self.lineEdit().selectAll(), self.lineEdit().insert(text)
+            finally:
+                self.disable_popup = orig
+        else:
+            self.setEditText(text)
+
+def make_undoable(spinbox):
+    'Add a proper undo/redo capability to spinbox which must be a sub-class of QAbstractSpinBox'
+
+    def access_key(k):
+        if QKeySequence.keyBindings(k):
+            return '\t' + QKeySequence(k).toString(QKeySequence.NativeText)
+        return ''
+
+    class UndoCommand(QUndoCommand):
+
+        def __init__(self, widget, val):
+            QUndoCommand.__init__(self)
+            self.widget = weakref.ref(widget)
+            if hasattr(widget, 'dateTime'):
+                self.undo_val = widget.dateTime()
+            elif hasattr(widget, 'value'):
+                self.undo_val = widget.value()
+            self.redo_val = val
+
+        def undo(self):
+            w = self.widget()
+            if hasattr(w, 'setDateTime'):
+                w.setDateTime(self.undo_val)
+            elif hasattr(w, 'setValue'):
+                w.setValue(self.undo_val)
+
+        def redo(self):
+            w = self.widget()
+            if hasattr(w, 'setDateTime'):
+                w.setDateTime(self.redo_val)
+            elif hasattr(w, 'setValue'):
+                w.setValue(self.redo_val)
+
+    class UndoableSpinbox(spinbox):
+
+        def __init__(self, parent=None):
+            spinbox.__init__(self, parent)
+            self.undo_stack = QUndoStack(self)
+            self.undo, self.redo = self.undo_stack.undo, self.undo_stack.redo
+
+        def keyPressEvent(self, ev):
+            if ev == QKeySequence.Undo:
+                self.undo()
+                return ev.accept()
+            if ev == QKeySequence.Redo:
+                self.redo()
+                return ev.accept()
+            return spinbox.keyPressEvent(self, ev)
+
+        def contextMenuEvent(self, ev):
+            m = QMenu(self)
+            m.addAction(_('&Undo') + access_key(QKeySequence.Undo), self.undo).setEnabled(self.undo_stack.canUndo())
+            m.addAction(_('&Redo') + access_key(QKeySequence.Redo), self.redo).setEnabled(self.undo_stack.canRedo())
+            m.addSeparator()
+            le = self.lineEdit()
+            m.addAction(_('Cu&t') + access_key(QKeySequence.Cut), le.cut).setEnabled(not le.isReadOnly() and le.hasSelectedText())
+            m.addAction(_('&Copy') + access_key(QKeySequence.Copy), le.copy).setEnabled(le.hasSelectedText())
+            m.addAction(_('&Paste') + access_key(QKeySequence.Paste), le.paste).setEnabled(not le.isReadOnly())
+            m.addAction(_('Delete') + access_key(QKeySequence.Delete), le.del_).setEnabled(not le.isReadOnly() and le.hasSelectedText())
+            m.addSeparator()
+            m.addAction(_('Select &All') + access_key(QKeySequence.SelectAll), self.selectAll)
+            m.addSeparator()
+            m.addAction(_('&Step up'), self.stepUp)
+            m.addAction(_('Step &down'), self.stepDown)
+            m.setAttribute(Qt.WA_DeleteOnClose)
+            m.popup(ev.globalPos())
+
+        def set_spinbox_value(self, val):
+            if self.allow_undo:
+                cmd = UndoCommand(self, val)
+                self.undo_stack.push(cmd)
+            if hasattr(self, 'setDateTime'):
+                self.setDateTime(val)
+            elif hasattr(self, 'setValue'):
+                self.setValue(val)
+
+    return UndoableSpinbox
+
 
 # Title {{{
 class TitleEdit(EnLineEdit, ToMetadataMixin):
@@ -126,7 +230,7 @@ class TitleEdit(EnLineEdit, ToMetadataMixin):
                 val = val.strip()
             if not val:
                 val = self.get_default()
-            self.setText(val)
+            self.set_text(val)
             self.setCursorPosition(0)
 
         return property(fget=fget, fset=fset)
@@ -311,7 +415,7 @@ class AuthorsEdit(EditWithComplete, ToMetadataMixin):
         def fset(self, val):
             if not val:
                 val = [self.get_default()]
-            self.setEditText(' & '.join([x.strip() for x in val]))
+            self.set_edit_text(' & '.join([x.strip() for x in val]))
             self.lineEdit().setCursorPosition(0)
 
         return property(fget=fget, fset=fset)
@@ -373,7 +477,7 @@ class AuthorSortEdit(EnLineEdit, ToMetadataMixin):
         def fset(self, val):
             if not val:
                 val = ''
-            self.setText(val.strip())
+            self.set_text(val.strip())
             self.setCursorPosition(0)
 
         return property(fget=fget, fset=fset)
@@ -493,7 +597,7 @@ class SeriesEdit(EditWithComplete, ToMetadataMixin):
         def fset(self, val):
             if not val:
                 val = ''
-            self.setEditText(val.strip())
+            self.set_edit_text(val.strip())
             self.lineEdit().setCursorPosition(0)
 
         return property(fget=fget, fset=fset)
@@ -521,14 +625,14 @@ class SeriesEdit(EditWithComplete, ToMetadataMixin):
         self.dialog = None
 
 
-class SeriesIndexEdit(QDoubleSpinBox, ToMetadataMixin):
+class SeriesIndexEdit(make_undoable(QDoubleSpinBox), ToMetadataMixin):
 
     TOOLTIP = ''
     LABEL = _('&Number:')
     FIELD_NAME = 'series_index'
 
     def __init__(self, parent, series_edit):
-        QDoubleSpinBox.__init__(self, parent)
+        super(SeriesIndexEdit, self).__init__(parent)
         self.dialog = parent
         self.db = self.original_series_name = None
         self.setMaximum(10000000)
@@ -551,7 +655,7 @@ class SeriesIndexEdit(QDoubleSpinBox, ToMetadataMixin):
             if val is None:
                 val = 1.0
             val = float(val)
-            self.setValue(val)
+            self.set_spinbox_value(val)
 
         return property(fget=fget, fset=fset)
 
@@ -1103,7 +1207,7 @@ class CommentsEdit(Editor, ToMetadataMixin):  # {{{
                 val = ''
             else:
                 val = comments_to_html(val)
-            self.html = val
+            self.set_html(val, self.allow_undo)
             self.wyswyg_dirtied()
         return property(fget=fget, fset=fset)
 
@@ -1117,13 +1221,13 @@ class CommentsEdit(Editor, ToMetadataMixin):  # {{{
             db.set_comment(id_, self.current_val, notify=False, commit=False)
 # }}}
 
-class RatingEdit(QSpinBox, ToMetadataMixin):  # {{{
+class RatingEdit(make_undoable(QSpinBox), ToMetadataMixin):  # {{{
     LABEL = _('&Rating:')
     TOOLTIP = _('Rating of this book. 0-5 stars')
     FIELD_NAME = 'rating'
 
     def __init__(self, parent):
-        QSpinBox.__init__(self, parent)
+        super(RatingEdit, self).__init__(parent)
         self.setToolTip(self.TOOLTIP)
         self.setWhatsThis(self.TOOLTIP)
         self.setMaximum(5)
@@ -1141,7 +1245,7 @@ class RatingEdit(QSpinBox, ToMetadataMixin):  # {{{
                 val = 0
             if val > 5:
                 val = 5
-            self.setValue(val)
+            self.set_spinbox_value(val)
         return property(fget=fget, fset=fset)
 
     def initialize(self, db, id_):
@@ -1182,7 +1286,7 @@ class TagsEdit(EditWithComplete, ToMetadataMixin):  # {{{
         def fset(self, val):
             if not val:
                 val = []
-            self.setText(', '.join([x.strip() for x in val]))
+            self.set_edit_text(', '.join([x.strip() for x in val]))
             self.setCursorPosition(0)
         return property(fget=fget, fset=fset)
 
@@ -1240,7 +1344,7 @@ class LanguagesEdit(LE, ToMetadataMixin):  # {{{
         def fget(self):
             return self.lang_codes
         def fset(self, val):
-            self.lang_codes = val
+            self.set_lang_codes(val, self.allow_undo)
         return property(fget=fget, fset=fset)
 
     def initialize(self, db, id_):
@@ -1309,9 +1413,8 @@ class IdentifiersEdit(QLineEdit, ToMetadataMixin):  # {{{
                         val[k] = v
             ids = sorted(val.iteritems(), key=keygen)
             txt = ', '.join(['%s:%s'%(k.lower(), vl) for k, vl in ids])
-            # Use clear + insert instead of setText so that undo works
-            self.clear()
-            self.insert(txt.strip())
+            # Use selectAll + insert instead of setText so that undo works
+            self.selectAll(), self.insert(txt.strip())
             self.setCursorPosition(0)
         return property(fget=fget, fset=fset)
 
@@ -1426,7 +1529,7 @@ class PublisherEdit(EditWithComplete, ToMetadataMixin):  # {{{
         def fset(self, val):
             if not val:
                 val = ''
-            self.setEditText(val.strip())
+            self.set_edit_text(val.strip())
             self.lineEdit().setCursorPosition(0)
 
         return property(fget=fget, fset=fset)
@@ -1459,7 +1562,7 @@ class CalendarWidget(QCalendarWidget):
         if self.selectedDate().year() == UNDEFINED_DATE.year:
             self.setSelectedDate(QDate.currentDate())
 
-class DateEdit(QDateTimeEdit, ToMetadataMixin):
+class DateEdit(make_undoable(QDateTimeEdit), ToMetadataMixin):
 
     TOOLTIP = ''
     LABEL = _('&Date:')
@@ -1468,7 +1571,7 @@ class DateEdit(QDateTimeEdit, ToMetadataMixin):
     TWEAK = 'gui_timestamp_display_format'
 
     def __init__(self, parent, create_clear_button=True):
-        QDateTimeEdit.__init__(self, parent)
+        super(DateEdit, self).__init__(parent)
         self.setToolTip(self.TOOLTIP)
         self.setWhatsThis(self.TOOLTIP)
         fmt = tweaks[self.TWEAK]
@@ -1499,7 +1602,7 @@ class DateEdit(QDateTimeEdit, ToMetadataMixin):
                 val = UNDEFINED_DATE
             else:
                 val = as_local_time(val)
-            self.setDateTime(val)
+            self.set_spinbox_value(val)
         return property(fget=fget, fset=fset)
 
     def initialize(self, db, id_):
@@ -1525,7 +1628,7 @@ class DateEdit(QDateTimeEdit, ToMetadataMixin):
             ev.accept()
             self.setDateTime(QDateTime.currentDateTime())
         else:
-            return QDateTimeEdit.keyPressEvent(self, ev)
+            return super(DateEdit, self).keyPressEvent(ev)
 
 class PubdateEdit(DateEdit):
     LABEL = _('Publishe&d:')

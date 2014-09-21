@@ -360,6 +360,15 @@ class EditorWidget(QWebView):  # {{{
             self.set_font_style()
         return property(fget=fget, fset=fset)
 
+    def set_html(self, val, allow_undo=True):
+        if not allow_undo or self.readonly:
+            self.html = val
+            return
+        mf = self.page().mainFrame()
+        mf.evaluateJavaScript('document.execCommand("selectAll", false, null)')
+        mf.evaluateJavaScript('document.execCommand("insertHTML", false, %s)' % json.dumps(unicode(val)))
+        self.set_font_style()
+
     def set_font_style(self):
         fi = QFontInfo(QApplication.font(self))
         f  = fi.pixelSize() + 1 + int(tweaks['change_book_details_font_size_by'])
@@ -622,6 +631,7 @@ class Editor(QWidget):  # {{{
             t = getattr(self, 'toolbar%d'%i)
             t.setIconSize(QSize(18, 18))
         self.editor = EditorWidget(self)
+        self.set_html = self.editor.set_html
         self.tabs = QTabWidget(self)
         self.tabs.setTabPosition(self.tabs.South)
         self.wyswyg = QWidget(self.tabs)
