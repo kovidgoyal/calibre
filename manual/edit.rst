@@ -138,7 +138,7 @@ designate some other image as the cover, you can do so by right clicking on the
 file and choosing :guilabel:`Mark as cover`.
 
 In addition, EPUB files has the concept of a *titlepage*. A title page is a
-HTML file that acts as the title page/cover for th book. You can mark an HTML
+HTML file that acts as the title page/cover for the book. You can mark an HTML
 file as the titlepage when editing EPUBs by right-clicking. Be careful that the
 file you mark contains only the cover information. If it contains other
 content, such as the first chapter, then that content will be lost if the user
