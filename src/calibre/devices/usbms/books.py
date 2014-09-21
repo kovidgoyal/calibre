@@ -73,7 +73,7 @@ class BookList(_BookList):
         return False
 
     def add_book(self, book, replace_metadata):
-        self.add_book_extended(book, replace_metadata, check_for_duplicates=True)
+        return self.add_book_extended(book, replace_metadata, check_for_duplicates=True)
 
     def add_book_extended(self, book, replace_metadata, check_for_duplicates):
         '''
