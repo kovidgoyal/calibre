@@ -62,8 +62,13 @@ class Coffee(Command):  # {{{
                 '*.coffee')):
                 bn = os.path.basename(f).rpartition('.')[0]
                 arcname = src.replace('/', '.') + '.' + bn + '.js'
-                with open(f, 'rb') as fs:
-                    src_files[arcname] = (f, hashlib.sha1(fs.read()).hexdigest())
+                try:
+                    with open(f, 'rb') as fs:
+                        src_files[arcname] = (f, hashlib.sha1(fs.read()).hexdigest())
+                except EnvironmentError:
+                    time.sleep(0.1)
+                    with open(f, 'rb') as fs:
+                        src_files[arcname] = (f, hashlib.sha1(fs.read()).hexdigest())
 
         existing = {}
         dest = self.j(self.RESOURCES, 'compiled_coffeescript.zip')
