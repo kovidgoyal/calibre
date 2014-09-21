@@ -120,21 +120,25 @@ class History(list):  # {{{
         if self.action_forward is not None:
             self.action_forward.setDisabled(self.forward_pos is None)
 
-    def back(self, from_pos):
+    def back(self, item_when_clicked):
         # Back clicked
         if self.back_pos is None:
             return None
         item = self[self.back_pos]
         self.forward_pos = self.back_pos+1
         if self.forward_pos >= len(self):
-            self.append(from_pos)
+            # We are at the head of the stack, append item to the stack so that
+            # clicking forward again will take us to where we were when we
+            # clicked back
+            self.append(item_when_clicked)
             self.forward_pos = len(self) - 1
         self.insert_pos = self.forward_pos
         self.back_pos = None if self.back_pos == 0 else self.back_pos - 1
         self.set_actions()
         return item
 
-    def forward(self, from_pos):
+    def forward(self, item_when_clicked):
+        # Forward clicked
         if self.forward_pos is None:
             return None
         item = self[self.forward_pos]
@@ -147,6 +151,7 @@ class History(list):  # {{{
         return item
 
     def add(self, item):
+        # Link clicked
         self[self.insert_pos:] = []
         while self.insert_pos > 0 and self[self.insert_pos-1] == item:
             self.insert_pos -= 1
