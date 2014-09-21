@@ -1306,10 +1306,12 @@ class DocumentView(QWebView):  # {{{
 
     def mouseReleaseEvent(self, ev):
         opos = self.document.ypos
+        if self.manager is not None:
+            prev_pos = self.manager.update_page_number()
         ret = QWebView.mouseReleaseEvent(self, ev)
         if self.manager is not None and opos != self.document.ypos:
-            self.manager.internal_link_clicked(opos)
             self.manager.scrolled(self.scroll_fraction)
+            self.manager.internal_link_clicked(prev_pos)
         return ret
 
 # }}}

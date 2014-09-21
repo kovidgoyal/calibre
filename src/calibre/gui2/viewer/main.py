@@ -546,9 +546,8 @@ class EbookViewer(MainWindow):
         if self.view.search(text, backwards=backwards):
             self.scrolled(self.view.scroll_fraction)
 
-    def internal_link_clicked(self, frac):
-        self.update_page_number()  # Ensure page number is accurate as it is used for history
-        self.history.add(self.pos.value())
+    def internal_link_clicked(self, prev_pos):
+        self.history.add(prev_pos)
 
     def link_clicked(self, url):
         path = os.path.abspath(unicode(url.toLocalFile()))
@@ -692,6 +691,7 @@ class EbookViewer(MainWindow):
 
     def update_page_number(self):
         self.set_page_number(self.view.document.scroll_fraction)
+        return self.pos.value()
 
     def close_progress_indicator(self):
         self.pi.stop()
