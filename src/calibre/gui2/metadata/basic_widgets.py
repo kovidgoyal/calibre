@@ -176,6 +176,8 @@ def make_undoable(spinbox):
             if self.allow_undo:
                 cmd = UndoCommand(self, val)
                 self.undo_stack.push(cmd)
+            else:
+                self.undo_stack.clear()
             if hasattr(self, 'setDateTime'):
                 self.setDateTime(val)
             elif hasattr(self, 'setValue'):
