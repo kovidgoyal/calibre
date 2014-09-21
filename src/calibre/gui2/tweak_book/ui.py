@@ -317,8 +317,8 @@ class Main(MainWindow):
         self.action_save_copy = treg('save.png', _('Save a &copy'), self.boss.save_copy, 'save-copy', 'Ctrl+Alt+S', _('Save a copy of the book'))
         self.action_quit = treg('window-close.png', _('&Quit'), self.boss.quit, 'quit', 'Ctrl+Q', _('Quit'))
         self.action_preferences = treg('config.png', _('&Preferences'), self.boss.preferences, 'preferences', 'Ctrl+P', _('Preferences'))
-        self.action_new_book = treg('book.png', _('Create &new, empty book'), self.boss.new_book, 'new-book', (), _('Create a new, empty book'))
-        self.action_import_book = treg('book.png', _('&Import an HTML or DOCX file as a new book'),
+        self.action_new_book = treg('plus.png', _('Create &new, empty book'), self.boss.new_book, 'new-book', (), _('Create a new, empty book'))
+        self.action_import_book = treg('add_book.png', _('&Import an HTML or DOCX file as a new book'),
                                       self.boss.import_book, 'import-book', (), _('Import an HTML or DOCX file as a new book'))
         self.action_quick_edit = treg('modified.png', _('&Quick open a file to edit'), self.boss.quick_open, 'quick-open', ('Ctrl+T'), _(
             'Quickly open a file from the book to edit it'))
