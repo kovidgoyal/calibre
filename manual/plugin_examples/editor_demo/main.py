@@ -75,7 +75,7 @@ class DemoTool(Tool):
 
         container = self.current_container  # The book being edited as a container object
 
-        # Iterate over all style declarations int he book, this means css
+        # Iterate over all style declarations in the book, this means css
         # stylesheets, <style> tags and style="" attributes
         for name, media_type in container.mime_map.iteritems():
             if media_type in OEB_STYLES:

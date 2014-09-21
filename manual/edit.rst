@@ -182,7 +182,7 @@ files into book.
 Replacing files
 ^^^^^^^^^^^^^^^^
 
-You can easily replace existing files int he book, by right clicking on the
+You can easily replace existing files in the book, by right clicking on the
 file and choosing replace. This will automatically update all links and
 references, in case the replacement file has a different name than the file
 being replaced.

@@ -71,7 +71,7 @@ def set_cover(container, cover_path, report=None, options=None):
     Set the cover of the book to the image pointed to by cover_path.
 
     :param cover_path: Either the absolute path to an image file or the
-        canonical name of an image in the book. When using an image int he book,
+        canonical name of an image in the book. When using an image in the book,
         you must also set options, see below.
     :param report: An optional callable that takes a single argument. It will
         be called with information about the tasks being processed.
