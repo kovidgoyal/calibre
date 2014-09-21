@@ -111,6 +111,9 @@ class History(list):  # {{{
         self.forward_pos = None
         self.set_actions()
 
+    def clear(self):
+        del self[:]
+
     def set_actions(self):
         if self.action_back is not None:
             self.action_back.setDisabled(self.back_pos is None)
