@@ -204,7 +204,7 @@ class USBMS(CLI, Device):
             else:
                 ebook_dir = self.normalize_path(
                             os.path.join(prefix, *(ebook_dir.split('/')))
-                                    if ebook_dir else prefix)
+                            if ebook_dir else prefix)
             debug_print('USBMS: scan from root', self.SCAN_FROM_ROOT, ebook_dir)
             if not os.path.exists(ebook_dir):
                 continue

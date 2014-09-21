@@ -16,6 +16,7 @@ from calibre.utils.config_base import tweaks
 from calibre.utils.icu import sort_key
 
 class Book(Metadata):
+
     def __init__(self, prefix, lpath, size=None, other=None):
         from calibre.ebooks.metadata.meta import path_to_ext
 
@@ -30,7 +31,7 @@ class Book(Metadata):
         else:
             self.lpath = lpath
         self.mime = mime_type_ext(path_to_ext(lpath))
-        self.size = size # will be set later if None
+        self.size = size  # will be set later if None
         try:
             self.datetime = time.gmtime(os.path.getctime(self.path))
         except:
@@ -193,12 +194,13 @@ class CollectionsBookList(BookList):
                 # values came from.
                 if attr == 'device_collections':
                     doing_dc = True
-                    val = book.device_collections # is a list
+                    val = book.device_collections  # is a list
                 else:
                     doing_dc = False
                     ign, val, orig_val, fm = book.format_field_extended(attr)
 
-                if not val: continue
+                if not val:
+                    continue
                 if isbytestring(val):
                     val = val.decode(preferred_encoding, 'replace')
                 if isinstance(val, (list, tuple)):
@@ -221,7 +223,7 @@ class CollectionsBookList(BookList):
                         # comparing it to the series name.
                         if category == book.series:
                             is_series = True
-                    elif fm['is_custom']: # is a custom field
+                    elif fm['is_custom']:  # is a custom field
                         if fm['datatype'] == 'text' and len(category) > 1 and \
                                 category[0] == '[' and category[-1] == ']':
                             continue
