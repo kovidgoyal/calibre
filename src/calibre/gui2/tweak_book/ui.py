@@ -413,7 +413,9 @@ class Main(MainWindow):
                                    'replace-all', keys=('Ctrl+A'), description=_('Replace all matches'))
         self.action_count = sreg('count-matches', _('&Count all'),
                                    'count', keys=('Ctrl+N'), description=_('Count number of matches'))
-        self.action_mark = reg(None, _('&Mark selected text'), self.boss.mark_selected_text, 'mark-selected-text', ('Ctrl+Shift+M',), _('Mark selected text'))
+        self.action_mark = reg(None, _('&Mark selected text'), self.boss.mark_selected_text, 'mark-selected-text', ('Ctrl+Shift+M',),
+                               _('Mark selected text or unmark already marked text'))
+        self.mark_text_string = self.action_mark.text()
         self.action_go_to_line = reg(None, _('Go to &line'), self.boss.go_to_line_number, 'go-to-line-number', ('Ctrl+.',), _('Go to line number'))
         self.action_saved_searches = treg('folder_saved_search.png', _('Sa&ved searches'),
                                           self.boss.saved_searches, 'saved-searches', (), _('Show the saved searches dialog'))
@@ -545,6 +547,7 @@ class Main(MainWindow):
         a(self.action_go_to_line)
         e.addSeparator()
         a(self.action_saved_searches)
+        e.aboutToShow.connect(self.search_menu_about_to_show)
 
         if self.plugin_menu_actions:
             e = b.addMenu(_('&Plugins'))
@@ -556,6 +559,12 @@ class Main(MainWindow):
         a(self.action_help)
         a(QIcon(I('donate.png')), _('Donate to support calibre development'), open_donate)
         a(self.action_preferences)
+
+    def search_menu_about_to_show(self):
+        ed = self.central.current_editor
+        if ed is not None and ed.has_line_numbers:
+            mark = bool(ed.selected_text) or not ed.has_marked_text
+            self.action_mark.setText(self.mark_text_string if mark else _('Unmark marked text'))
 
     def update_recent_books(self):
         m = self.recent_books_menu
