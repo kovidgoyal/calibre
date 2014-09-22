@@ -16,7 +16,9 @@ from PyQt5.Qt import (
 from calibre import prints
 from calibre.constants import DEBUG
 from calibre.ebooks.chardet import replace_encoding_declarations
-from calibre.gui2.tweak_book import actions, current_container, tprefs, dictionaries, editor_toolbar_actions, editor_name, editors
+from calibre.gui2.tweak_book import (
+    actions, current_container, tprefs, dictionaries, editor_toolbar_actions,
+    editor_name, editors, update_mark_text_action)
 from calibre.gui2 import error_dialog, open_url, workaround_broken_under_mouse
 from calibre.gui2.tweak_book.editor import SPELL_PROPERTY, LINK_PROPERTY, TAG_NAME_PROPERTY, CSS_PROPERTY
 from calibre.gui2.tweak_book.editor.help import help_url
@@ -503,7 +505,9 @@ class Editor(QMainWindow):
                 a(ac)
         m.addSeparator()
         m.addAction(_('&Select all'), self.editor.select_all)
-        m.addAction(actions['mark-selected-text'])
+        if self.selected_text or self.has_marked_text:
+            update_mark_text_action(self)
+            m.addAction(actions['mark-selected-text'])
         if self.syntax != 'css' and actions['editor-cut'].isEnabled():
             cm = QMenu(_('Change &case'), m)
             for ac in 'upper lower swap title capitalize'.split():

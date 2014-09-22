@@ -22,7 +22,8 @@ from calibre.gui2 import elided_text, open_url
 from calibre.gui2.keyboard import Manager as KeyboardManager
 from calibre.gui2.main_window import MainWindow
 from calibre.gui2.throbber import ThrobbingButton, create_donate_widget
-from calibre.gui2.tweak_book import current_container, tprefs, actions, capitalize, toolbar_actions, editors
+from calibre.gui2.tweak_book import (
+    current_container, tprefs, actions, capitalize, toolbar_actions, editors, update_mark_text_action)
 from calibre.gui2.tweak_book.file_list import FileListWidget
 from calibre.gui2.tweak_book.job import BlockingJob
 from calibre.gui2.tweak_book.boss import Boss
@@ -415,7 +416,7 @@ class Main(MainWindow):
                                    'count', keys=('Ctrl+N'), description=_('Count number of matches'))
         self.action_mark = reg(None, _('&Mark selected text'), self.boss.mark_selected_text, 'mark-selected-text', ('Ctrl+Shift+M',),
                                _('Mark selected text or unmark already marked text'))
-        self.mark_text_string = self.action_mark.text()
+        self.action_mark.default_text = self.action_mark.text()
         self.action_go_to_line = reg(None, _('Go to &line'), self.boss.go_to_line_number, 'go-to-line-number', ('Ctrl+.',), _('Go to line number'))
         self.action_saved_searches = treg('folder_saved_search.png', _('Sa&ved searches'),
                                           self.boss.saved_searches, 'saved-searches', (), _('Show the saved searches dialog'))
@@ -562,9 +563,7 @@ class Main(MainWindow):
 
     def search_menu_about_to_show(self):
         ed = self.central.current_editor
-        if ed is not None and ed.has_line_numbers:
-            mark = bool(ed.selected_text) or not ed.has_marked_text
-            self.action_mark.setText(self.mark_text_string if mark else _('Unmark marked text'))
+        update_mark_text_action(ed)
 
     def update_recent_books(self):
         m = self.recent_books_menu
