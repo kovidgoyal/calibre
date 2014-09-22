@@ -453,6 +453,7 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
 
 if __name__ == '__main__':
     app = QApplication([])
-    d = TemplateDialog(None, '{title}')
+    from calibre.ebooks.metadata.book.base import field_metadata
+    d = TemplateDialog(None, '{title}', fm=field_metadata)
     d.exec_()
     del app
