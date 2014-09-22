@@ -47,7 +47,7 @@ cprefs.defaults['footer_template'] = r'''program:
 # Show at most two authors, on separate lines.
 authors = field('authors');
 num = count(authors, ' & ');
-authors = cmp(num, 2, authors, authors, sublist(authors, 0, 2, ' & '));
+authors = sublist(authors, 0, 2, ' & ');
 authors = list_re(authors, ' & ', '(.+)', '<b>\1');
 authors = re(authors, ' & ', '<br>');
 re(authors, '&&', '&')
