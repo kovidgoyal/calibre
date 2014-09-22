@@ -7,12 +7,13 @@ __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
 from collections import OrderedDict
+from functools import partial
 
 from PyQt5.Qt import (
     QWidget, QHBoxLayout, QTabWidget, QLabel, QSizePolicy, QSize, QFormLayout,
     QSpinBox, pyqtSignal, QPixmap, QDialog, QVBoxLayout, QDialogButtonBox,
     QListWidget, QListWidgetItem, Qt, QGridLayout, QPushButton, QIcon,
-    QColorDialog, QToolButton, QLineEdit, QColor)
+    QColorDialog, QToolButton, QLineEdit, QColor, QFrame)
 
 from calibre.ebooks.covers import all_styles, cprefs, generate_cover, override_prefs, default_color_themes
 from calibre.gui2 import gprefs, error_dialog
@@ -219,6 +220,44 @@ class CoverSettingsWidget(QWidget):
             fs.valueChanged.connect(self.emit_changed)
             l.addRow(size_label, fs)
 
+        self.templates_page = tp = QWidget(st)
+        st.addTab(tp, _('Text'))
+        tp.l = l = QVBoxLayout()
+        tp.setLayout(l)
+        tp.la = la = QLabel(_(
+            'The text on the generated cover is taken from the metadata of the book.'
+            ' This is controlled via templates. You can use the <b>, <i> and <br> tags'
+            ' in the templates for bold, italic and line breaks, respectively. The'
+            ' default templates use the title, series and authors. You can change them to use'
+            ' whatever metadata you like.'))
+        la.setWordWrap(True), la.setTextFormat(Qt.PlainText)
+        l.addWidget(la)
+
+        def create_template_widget(title, which, button):
+            attr = which + '_template'
+            heading = QLabel('<h2>' + title)
+            setattr(tp, attr + '_heading', heading)
+            l.addWidget(heading)
+            la = QLabel(prefs[attr])
+            setattr(self, attr, la)
+            l.addWidget(la), la.setTextFormat(Qt.PlainText), la.setStyleSheet('QLabel {font-family: monospace}')
+            la.setWordWrap(True)
+            b = QPushButton(button)
+            b.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+            b.clicked.connect(partial(self.change_template, which))
+            setattr(self, attr + '_button', b)
+            l.addWidget(b)
+            if which != 'footer':
+                f = QFrame(tp)
+                setattr(tp, attr + '_sep', f), f.setFrameShape(QFrame.HLine)
+                l.addWidget(f)
+            l.addSpacing(10)
+
+        create_template_widget(_('The title template'), 'title', _('Change the &title template'))
+        create_template_widget(_('The sub-title template'), 'subtitle', _('Change the &sub-title template'))
+        create_template_widget(_('The footer template'), 'footer', _('Change the &footer template'))
+        l.addStretch(2)
+
         self.apply_prefs(prefs)
         self.changed.connect(self.update_preview)
         self.styles_list.itemSelectionChanged.connect(self.update_preview)
@@ -283,9 +322,12 @@ class CoverSettingsWidget(QWidget):
             prefs[attr] = getattr(self, attr).font_family
             attr = '%s_font_size' % x
             prefs[attr] = getattr(self, attr).value()
-            prefs['color_themes'] = self.custom_colors
-            prefs['disabled_styles'] = list(self.disabled_styles)
-            prefs['disabled_colors'] = list(self.disabled_colors)
+        prefs['color_themes'] = self.custom_colors
+        prefs['disabled_styles'] = list(self.disabled_styles)
+        prefs['disabled_colors'] = list(self.disabled_colors)
+        for x in ('title', 'subtitle', 'footer'):
+            x += '_template'
+            prefs[x] = getattr(self, x).text()
         return prefs
 
     def insert_scheme(self, name, li):
@@ -342,6 +384,22 @@ class CoverSettingsWidget(QWidget):
                     self.colors_list.item(i).setSelected(True)
                 self.emit_changed()
                 return
+
+    def change_template(self, which):
+        from calibre.gui2.dialogs.template_dialog import TemplateDialog
+        from calibre.gui2.ui import get_gui
+        gui = get_gui()
+        if gui is None:
+            from calibre.ebooks.metadata.book.base import field_metadata
+        else:
+            field_metadata = gui.current_db.new_api.field_metadata
+        attr = which + '_template'
+        templ = getattr(self, attr).text()
+        d = TemplateDialog(self, templ, mi=self.mi, fm=field_metadata)
+        if d.exec_() == d.Accepted:
+            templ = d.rule[1]
+            getattr(self, attr).setText(templ)
+            self.emit_changed()
 
     def update_preview(self):
         if self.ignore_changed:
