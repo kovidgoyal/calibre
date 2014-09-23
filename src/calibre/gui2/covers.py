@@ -89,11 +89,11 @@ class CreateColorScheme(QDialog):
         name = self.name.text()
         if not name or len(name) < 2 or not name.startswith('#'):
             return error_dialog(self, _('Invalid name'), _(
-                'The color scheme name %r is invalid. It must start with a # and be at least two characters long.') % name, show=True)
+                'The color scheme name "%s" is invalid. It must start with a # and be at least two characters long.') % name, show=True)
         if name in self.existing_names:
             if not self.is_editing or name != self.scheme_name:
                 return error_dialog(self, _('Invalid name'), _(
-                    'A color scheme with the name %r already exists.') % name, show=True)
+                    'A color scheme with the name "%s" already exists.') % name, show=True)
         QDialog.accept(self)
 
 class CoverSettingsWidget(QWidget):
@@ -103,6 +103,7 @@ class CoverSettingsWidget(QWidget):
     def __init__(self, mi=None, prefs=None, parent=None, for_global_prefs=False):
         QWidget.__init__(self, parent)
         self.ignore_changed = False
+        self.for_global_prefs = for_global_prefs
 
         self.l = l = QHBoxLayout(self)
         self.setLayout(l)
@@ -134,25 +135,7 @@ class CoverSettingsWidget(QWidget):
         l.addWidget(la, 0, 0, 1, -1)
         self.colors_list = cl = QListWidget(cp)
         l.addWidget(cl, 1, 0, 1, -1)
-        disabled = set(prefs['disabled_color_themes'])
         self.colors_map = OrderedDict()
-        color_themes = prefs['color_themes'].copy()
-        color_themes.update(default_color_themes)
-        for name in sorted(color_themes, key=sort_key):
-            self.colors_map[name] = li = QListWidgetItem(name, cl)
-            li.setFlags(li.flags() | Qt.ItemIsUserCheckable)
-            li.setCheckState(Qt.Unchecked if name in disabled else Qt.Checked)
-            li.setData(Qt.UserRole, color_themes[name])
-        lu = prefs.get('last_used_colors')
-        if not for_global_prefs and lu in self.colors_map and self.colors_map[lu].checkState() == Qt.Checked:
-            self.colors_map[lu].setSelected(True)
-        else:
-            for name, li in self.colors_map.iteritems():
-                if li.checkState() == Qt.Checked:
-                    li.setSelected(True)
-                    break
-            else:
-                next(self.colors_map.itervalues()).setSelected(True)
         self.ncs = ncs = QPushButton(QIcon(I('plus.png')), _('&New color scheme'), cp)
         ncs.clicked.connect(self.create_color_scheme)
         l.addWidget(ncs)
@@ -181,22 +164,7 @@ class CoverSettingsWidget(QWidget):
         l.addWidget(la)
         self.styles_list = sl = QListWidget(sp)
         l.addWidget(sl)
-        disabled = set(prefs['disabled_styles'])
         self.style_map = OrderedDict()
-        for name in sorted(all_styles(), key=sort_key):
-            self.style_map[name] = li = QListWidgetItem(name, sl)
-            li.setFlags(li.flags() | Qt.ItemIsUserCheckable)
-            li.setCheckState(Qt.Unchecked if name in disabled else Qt.Checked)
-        lu = prefs.get('last_used_style')
-        if not for_global_prefs and lu in self.style_map and self.style_map[lu].checkState() == Qt.Checked:
-            self.style_map[lu].setSelected(True)
-        else:
-            for name, li in self.style_map.iteritems():
-                if li.checkState() == Qt.Checked:
-                    li.setSelected(True)
-                    break
-            else:
-                next(self.style_map.itervalues()).setSelected(True)
 
         self.font_page = fp = QWidget(st)
         st.addTab(fp, _('Fonts'))
@@ -238,7 +206,7 @@ class CoverSettingsWidget(QWidget):
             heading = QLabel('<h2>' + title)
             setattr(tp, attr + '_heading', heading)
             l.addWidget(heading)
-            la = QLabel(prefs[attr])
+            la = QLabel()
             setattr(self, attr, la)
             l.addWidget(la), la.setTextFormat(Qt.PlainText), la.setStyleSheet('QLabel {font-family: monospace}')
             la.setWordWrap(True)
@@ -281,6 +249,49 @@ class CoverSettingsWidget(QWidget):
                 getattr(self, attr).font_family = prefs[attr]
                 attr = '%s_font_size' % x
                 getattr(self, attr).setValue(prefs[attr])
+
+        for x in ('title', 'subtitle', 'footer'):
+            x += '_template'
+            getattr(self, x).setText(prefs[x])
+
+        color_themes = prefs['color_themes'].copy()
+        color_themes.update(default_color_themes)
+        disabled = set(prefs['disabled_color_themes'])
+        self.colors_list.clear()
+        self.colors_map = {}
+        for name in sorted(color_themes, key=sort_key):
+            self.colors_map[name] = li = QListWidgetItem(name, self.colors_list)
+            li.setFlags(li.flags() | Qt.ItemIsUserCheckable)
+            li.setCheckState(Qt.Unchecked if name in disabled else Qt.Checked)
+            li.setData(Qt.UserRole, color_themes[name])
+        lu = prefs.get('last_used_colors')
+        if not self.for_global_prefs and lu in self.colors_map and self.colors_map[lu].checkState() == Qt.Checked:
+            self.colors_map[lu].setSelected(True)
+        else:
+            for name, li in self.colors_map.iteritems():
+                if li.checkState() == Qt.Checked:
+                    li.setSelected(True)
+                    break
+            else:
+                next(self.colors_map.itervalues()).setSelected(True)
+
+        disabled = set(prefs['disabled_styles'])
+        self.styles_list.clear()
+        self.style_map.clear()
+        for name in sorted(all_styles(), key=sort_key):
+            self.style_map[name] = li = QListWidgetItem(name, self.styles_list)
+            li.setFlags(li.flags() | Qt.ItemIsUserCheckable)
+            li.setCheckState(Qt.Unchecked if name in disabled else Qt.Checked)
+        lu = prefs.get('last_used_style')
+        if not self.for_global_prefs and lu in self.style_map and self.style_map[lu].checkState() == Qt.Checked:
+            self.style_map[lu].setSelected(True)
+        else:
+            for name, li in self.style_map.iteritems():
+                if li.checkState() == Qt.Checked:
+                    li.setSelected(True)
+                    break
+            else:
+                next(self.style_map.itervalues()).setSelected(True)
 
     @property
     def current_colors(self):
@@ -429,9 +440,9 @@ class CoverSettingsWidget(QWidget):
         return mi
 
     def restore_defaults(self):
-        # Dont delete custom color themes when restoring defaults
         defaults = self.original_prefs.defaults.copy()
-        defaults['colors_themes'] = self.custom_colors
+        # Dont delete custom color themes when restoring defaults
+        defaults['color_themes'] = self.custom_colors
         self.apply_prefs(defaults)
         self.update_preview()
 
