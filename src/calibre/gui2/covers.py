@@ -13,7 +13,7 @@ from PyQt5.Qt import (
     QWidget, QHBoxLayout, QTabWidget, QLabel, QSizePolicy, QSize, QFormLayout,
     QSpinBox, pyqtSignal, QPixmap, QDialog, QVBoxLayout, QDialogButtonBox,
     QListWidget, QListWidgetItem, Qt, QGridLayout, QPushButton, QIcon,
-    QColorDialog, QToolButton, QLineEdit, QColor, QFrame)
+    QColorDialog, QToolButton, QLineEdit, QColor, QFrame, QTimer)
 
 from calibre.ebooks.covers import all_styles, cprefs, generate_cover, override_prefs, default_color_themes
 from calibre.gui2 import gprefs, error_dialog
@@ -118,7 +118,7 @@ class CoverSettingsWidget(QWidget):
         self.mi = mi or self.default_mi()
 
         self.colors_page = cp = QWidget(st)
-        st.addTab(cp, _('Colors'))
+        st.addTab(cp, _('&Colors'))
         cp.l = l = QGridLayout()
         cp.setLayout(l)
         if for_global_prefs:
@@ -147,7 +147,7 @@ class CoverSettingsWidget(QWidget):
         l.addWidget(rcs, l.rowCount()-1, 2)
 
         self.styles_page = sp = QWidget(st)
-        st.addTab(sp, _('Styles'))
+        st.addTab(sp, _('&Styles'))
         sp.l = l = QVBoxLayout()
         sp.setLayout(l)
         if for_global_prefs:
@@ -167,9 +167,16 @@ class CoverSettingsWidget(QWidget):
         self.style_map = OrderedDict()
 
         self.font_page = fp = QWidget(st)
-        st.addTab(fp, _('Fonts'))
+        st.addTab(fp, _('&Fonts and Sizes'))
         fp.l = l = QFormLayout()
         fp.setLayout(l)
+        fp.f = []
+        def add_hline():
+            f = QFrame()
+            fp.f.append(f)
+            f.setFrameShape(f.HLine)
+            l.addRow(f)
+
         for x, label, size_label in (
                 ('title', _('&Title font family:'), _('&Title font size:')),
                 ('subtitle', _('&Subtitle font family'), _('&Subtitle font size:')),
@@ -187,9 +194,27 @@ class CoverSettingsWidget(QWidget):
             fs.setValue(prefs[attr])
             fs.valueChanged.connect(self.emit_changed)
             l.addRow(size_label, fs)
+            add_hline()
+        self.changed_timer = t = QTimer(self)
+        t.setSingleShot(True), t.setInterval(500), t.timeout.connect(self.emit_changed)
+        def create_sz(label):
+            ans = QSpinBox(self)
+            ans.setSuffix(' px'), ans.setMinimum(100), ans.setMaximum(10000)
+            l.addRow(label, ans)
+            ans.valueChanged.connect(self.changed_timer.start)
+            return ans
+
+        self.cover_width = create_sz(_('Cover &width:'))
+        self.cover_height = create_sz(_('Cover &height:'))
+        fp.cla = la = QLabel(_(
+            'Note that the preview to the side is of fixed aspect ratio, so changing the cover'
+            ' width above will not have any effect. If you change the height, you should also change the width nevertheless'
+            ' as it will be used in actual cover generation.'))
+        la.setWordWrap(True)
+        l.addRow(la)
 
         self.templates_page = tp = QWidget(st)
-        st.addTab(tp, _('Text'))
+        st.addTab(tp, _('&Text'))
         tp.l = l = QVBoxLayout()
         tp.setLayout(l)
         tp.la = la = QLabel(_(
@@ -244,15 +269,22 @@ class CoverSettingsWidget(QWidget):
 
     def apply_prefs(self, prefs):
         with self:
-            for x in ('title', 'subtitle', 'footer'):
-                attr = '%s_font_family' % x
-                getattr(self, attr).font_family = prefs[attr]
-                attr = '%s_font_size' % x
-                getattr(self, attr).setValue(prefs[attr])
+            self._apply_prefs(prefs)
+
+    def _apply_prefs(self, prefs):
+        for x in ('title', 'subtitle', 'footer'):
+            attr = '%s_font_family' % x
+            getattr(self, attr).font_family = prefs[attr]
+            attr = '%s_font_size' % x
+            getattr(self, attr).setValue(prefs[attr])
 
         for x in ('title', 'subtitle', 'footer'):
             x += '_template'
             getattr(self, x).setText(prefs[x])
+
+        for x in ('width', 'height'):
+            x = 'cover_' + x
+            getattr(self, x).setValue(prefs[x])
 
         color_themes = prefs['color_themes'].copy()
         color_themes.update(default_color_themes)
@@ -339,6 +371,9 @@ class CoverSettingsWidget(QWidget):
         for x in ('title', 'subtitle', 'footer'):
             x += '_template'
             prefs[x] = getattr(self, x).text()
+        for x in ('width', 'height'):
+            x = 'cover_' + x
+            prefs[x] = getattr(self, x).value()
         return prefs
 
     def insert_scheme(self, name, li):
@@ -412,16 +447,21 @@ class CoverSettingsWidget(QWidget):
             getattr(self, attr).setText(templ)
             self.emit_changed()
 
+    @property
+    def prefs_for_rendering(self):
+        prefs = self.current_prefs
+        prefs = override_prefs(prefs, override_style=self.current_style, override_color_theme=self.current_colors)
+        return prefs
+
     def update_preview(self):
         if self.ignore_changed:
             return
-        prefs = self.current_prefs
         w, h = self.preview_label.sizeHint().width(), self.preview_label.sizeHint().height()
+        prefs = self.prefs_for_rendering
         hr = h / prefs['cover_height']
         for x in ('title', 'subtitle', 'footer'):
             attr = '%s_font_size' % x
             prefs[attr] = int(prefs[attr] * hr)
-        prefs = override_prefs(prefs, override_style=self.current_style, override_color_theme=self.current_colors)
         prefs['cover_width'], prefs['cover_height'] = w, h
         img = generate_cover(self.mi, prefs=prefs, as_qimage=True)
         self.preview_label.setPixmap(QPixmap.fromImage(img))
@@ -446,15 +486,14 @@ class CoverSettingsWidget(QWidget):
         self.apply_prefs(defaults)
         self.update_preview()
 
-    def save_defaults(self):
-        cp = self.current_prefs
-        with self.original_prefs:
-            for k in self.original_prefs.defaults:
-                self.original_prefs[k] = cp[k]
-
     def save_state(self):
         self.original_prefs.set('last_used_colors', self.current_colors)
         self.original_prefs.set('last_used_style', self.current_style)
+
+    def save_as_prefs(self):
+        with self.original_prefs:
+            for k, v in self.current_prefs.iteritems():
+                self.original_prefs[k] = v
 
 class CoverSettingsDialog(QDialog):
 
@@ -468,11 +507,11 @@ class CoverSettingsDialog(QDialog):
         l.addWidget(bb)
         bb.accepted.connect(self.accept), bb.rejected.connect(self.reject)
         bb.b = b = bb.addButton(_('Restore &defaults'), bb.ActionRole)
-        b.clicked.connect(self.settings.restore_defaults)
-        bb.b2 = b = bb.addButton(_('&Save as default settings'), bb.ActionRole)
-        b.clicked.connect(self.settings.save_defaults)
+        b.clicked.connect(self.restore_defaults)
+        bb.b2 = b = bb.addButton(_('&Save settings'), bb.ActionRole)
+        b.clicked.connect(self.settings.save_as_prefs)
         b.setToolTip('<p>' + _(
-            'Save the current settings as the default settings. Remember that'
+            'Save the current settings as the settings to use always instead of just this time. Remember that'
             ' for styles and colors the actual style or color used is chosen at random from'
             ' the list of checked styles/colors.'))
 
@@ -480,6 +519,11 @@ class CoverSettingsDialog(QDialog):
         geom = gprefs.get('cover_settings_dialog_geom', None)
         if geom is not None:
             self.restoreGeometry(geom)
+        self.prefs_for_rendering = None
+
+    def restore_defaults(self):
+        self.settings.restore_defaults()
+        self.settings.save_as_prefs()
 
     def sizeHint(self):
         return QSize(800, 600)
@@ -487,6 +531,7 @@ class CoverSettingsDialog(QDialog):
     def accept(self):
         gprefs.set('cover_settings_dialog_geom', bytearray(self.saveGeometry()))
         self.settings.save_state()
+        self.prefs_for_rendering = self.settings.prefs_for_rendering
         QDialog.accept(self)
 
     def reject(self):

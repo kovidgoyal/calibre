@@ -1048,7 +1048,11 @@ class Cover(ImageView):  # {{{
         self.remove_cover_button = CB(_('&Remove'), 'trash.png', self.remove_cover)
 
         self.download_cover_button = CB(_('Download co&ver'), 'arrow-down.png', self.download_cover)
-        self.generate_cover_button = CB(_('&Generate cover'), 'default_cover.png', self.generate_cover)
+        self.generate_cover_button = b = CB(_('&Generate cover'), 'default_cover.png', self.generate_cover)
+        b.m = m = QMenu()
+        b.setMenu(m)
+        m.addAction(_('Customize the styles and colors of the generated cover'), self.custom_cover)
+        b.setPopupMode(b.DelayedPopup)
         self.buttons = [self.select_cover_button, self.remove_cover_button,
                 self.trim_cover_button, self.download_cover_button,
                 self.generate_cover_button]
@@ -1128,6 +1132,14 @@ class Cover(ImageView):  # {{{
         from calibre.ebooks.covers import generate_cover
         mi = self.dialog.to_book_metadata()
         self.current_val = generate_cover(mi)
+
+    def custom_cover(self):
+        from calibre.ebooks.covers import generate_cover
+        from calibre.gui2.covers import CoverSettingsDialog
+        mi = self.dialog.to_book_metadata()
+        d = CoverSettingsDialog(mi=mi, parent=self)
+        if d.exec_() == d.Accepted:
+            self.current_val = generate_cover(mi, prefs=d.prefs_for_rendering)
 
     def set_pixmap_from_data(self, data):
         if not data:
