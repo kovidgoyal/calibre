@@ -397,6 +397,7 @@ class CoverSettingsWidget(QWidget):
             li.setData(Qt.UserRole, scheme), li.setFlags(li.flags() | Qt.ItemIsUserCheckable), li.setCheckState(Qt.Checked)
             self.insert_scheme(name, li)
             self.emit_changed()
+            self.original_prefs['color_themes'] = self.current_prefs['color_themes']
 
     def edit_color_scheme(self):
         cs = self.current_colors
@@ -414,6 +415,7 @@ class CoverSettingsWidget(QWidget):
                 self.colors_map.pop(cs, None)
                 self.insert_scheme(name, li)
             self.emit_changed()
+            self.original_prefs['color_themes'] = self.current_prefs['color_themes']
 
     def remove_color_scheme(self):
         cs = self.current_colors
@@ -429,6 +431,7 @@ class CoverSettingsWidget(QWidget):
                     i = i % self.colors_list.count()
                     self.colors_list.item(i).setSelected(True)
                 self.emit_changed()
+                self.original_prefs['color_themes'] = self.current_prefs['color_themes']
                 return
 
     def change_template(self, which):
