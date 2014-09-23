@@ -6,7 +6,7 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import re, random
+import re, random, unicodedata
 from collections import namedtuple
 from contextlib import contextmanager
 from math import ceil, sqrt, cos, sin, atan2
@@ -46,11 +46,11 @@ cprefs.defaults['subtitle_template'] = '''{series:'test($, strcat("<i>", $, "</i
 cprefs.defaults['footer_template'] = r'''program:
 # Show at most two authors, on separate lines.
 authors = field('authors');
-num = count(authors, ' & ');
-authors = sublist(authors, 0, 2, ' & ');
-authors = list_re(authors, ' & ', '(.+)', '<b>\1');
-authors = re(authors, ' & ', '<br>');
-re(authors, '&&', '&')
+num = count(authors, ' &amp; ');
+authors = sublist(authors, 0, 2, ' &amp; ');
+authors = list_re(authors, ' &amp; ', '(.+)', '<b>\1');
+authors = re(authors, ' &amp; ', '<br>');
+re(authors, '&amp;&amp;', '&amp;')
 '''
 Prefs = namedtuple('Prefs', ' '.join(sorted(cprefs.defaults)))
 # }}}
@@ -121,8 +121,8 @@ class Block(object):
             self.leading = fm.leading()
             self.line_spacing = fm.lineSpacing()
         for text in text.split('<br>') if text else ():
-            text, formats = parse_text_formatting(text)
-            l = QTextLayout(text, font, img)
+            text, formats = parse_text_formatting(sanitize(text))
+            l = QTextLayout(unescape_formatting(text), font, img)
             l.setAdditionalFormats(formats)
             to = QTextOption(align)
             to.setWrapMode(QTextOption.WrapAtWordBoundaryOrAnywhere)
@@ -181,7 +181,7 @@ class Block(object):
 
 def layout_text(prefs, img, title, subtitle, footer, max_height, style):
     width = img.width() - 2 * style.hmargin
-    title, subtitle, footer = map(normalize, (title, subtitle, footer))
+    title, subtitle, footer = title, subtitle, footer
     title_font = QFont(prefs.title_font_family or 'Liberation Serif')
     title_font.setPixelSize(prefs.title_font_size)
     title_block = Block(title, width, title_font, img, max_height, style.TITLE_ALIGN)
@@ -206,23 +206,35 @@ def layout_text(prefs, img, title, subtitle, footer, max_height, style):
 
 # Format text using templates {{{
 def sanitize(s):
-    return clean_xml_chars(clean_ascii_chars(force_unicode(s or '')))
+    return unicodedata.normalize('NFC', clean_xml_chars(clean_ascii_chars(force_unicode(s or ''))))
 
 _formatter = None
 _template_cache = {}
 
+def escape_formatting(val):
+    return val.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;')
+
+def unescape_formatting(val):
+    return val.replace('&lt;', '<').replace('&gt;', '>').replace('&amp;', '&')
+
+class Formatter(SafeFormat):
+
+    def get_value(self, orig_key, args, kwargs):
+        ans = SafeFormat.get_value(self, orig_key, args, kwargs)
+        return escape_formatting(ans)
+
 def formatter():
     global _formatter
     if _formatter is None:
-        _formatter = SafeFormat()
+        _formatter = Formatter()
     return _formatter
 
 def format_fields(mi, prefs):
     f = formatter()
     def safe_format(field):
-        return sanitize(f.safe_format(
+        return f.safe_format(
             getattr(prefs, field), mi, _('Template error'), mi, template_cache=_template_cache
-        ))
+        )
     return map(safe_format, ('title_template', 'subtitle_template', 'footer_template'))
 
 @contextmanager
@@ -239,12 +251,6 @@ def preserve_fields(obj, fields):
                 delattr(obj, f)
             else:
                 setattr(obj, f, val)
-
-def normalize(x):
-    if isinstance(x, unicode):
-        import unicodedata
-        x = unicodedata.normalize('NFC', x)
-    return x
 
 def format_text(mi, prefs):
     with preserve_fields(mi, 'authors formatted_series_index'):
@@ -456,9 +462,12 @@ def load_styles(prefs, respect_disabled=True):
 
 # }}}
 
-def generate_cover(mi, prefs=None, as_qimage=False):
+def init_environment():
     ensure_app()
     load_builtin_fonts()
+
+def generate_cover(mi, prefs=None, as_qimage=False):
+    init_environment()
     prefs = prefs or cprefs
     prefs = {k:prefs.get(k) for k in cprefs.defaults}
     prefs = Prefs(**prefs)
