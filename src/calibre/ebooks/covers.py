@@ -181,6 +181,7 @@ class Block(object):
 
 def layout_text(prefs, img, title, subtitle, footer, max_height, style):
     width = img.width() - 2 * style.hmargin
+    title, subtitle, footer = map(normalize, (title, subtitle, footer))
     title_font = QFont(prefs.title_font_family or 'Liberation Serif')
     title_font.setPixelSize(prefs.title_font_size)
     title_block = Block(title, width, title_font, img, max_height, style.TITLE_ALIGN)
@@ -238,6 +239,12 @@ def preserve_fields(obj, fields):
                 delattr(obj, f)
             else:
                 setattr(obj, f, val)
+
+def normalize(x):
+    if isinstance(x, unicode):
+        import unicodedata
+        x = unicodedata.normalize('NFC', x)
+    return x
 
 def format_text(mi, prefs):
     with preserve_fields(mi, 'authors formatted_series_index'):
