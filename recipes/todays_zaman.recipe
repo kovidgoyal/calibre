@@ -1,58 +1,169 @@
-from calibre.web.feeds.news import BasicNewsRecipe
+#!/usr/bin/env  python
+# -*- coding: utf-8 -*-
+__license__   = 'GPL v3'
+__copyright__ = '2014, spswerling'
+'''
+www.todayszaman.com
+'''
+import re
+from urlparse import urljoin
+from calibre.web.feeds.recipes import BasicNewsRecipe
 
-class TodaysZaman_en(BasicNewsRecipe):
-    title          = u'Todays Zaman'
-    __author__            = u'thomass'
-    description            = 'a Turkey based daily for national and international news in the fields of business, diplomacy, politics, culture, arts, sports and economics, in addition to commentaries, specials and features'
-    oldest_article         = 2
-    max_articles_per_feed  =100
-    no_stylesheets         = True
-    #delay                  = 1
-    #use_embedded_content   = False
-    encoding               = 'utf-8'
-    #publisher              = '  '
-    category               = 'news, haberler,TR,gazete'
-    language               = 'en_TR'
+class TodaysZaman(BasicNewsRecipe):
+
+    title = u'Todays Zaman'
+    __author__  = u'spswerling'
+    description = 'English version of Turkish Daily "Zaman"'
+    max_articles_per_feed = 100
+    encoding = 'utf-8'
+    category = 'news'
+    language = 'en_TR'
     publication_type = 'newspaper'
-    #extra_css              = ' body{ font-family: Verdana,Helvetica,Arial,sans-serif } .introduction{font-weight: bold} .story-feature{display: block; padding: 0; border: 1px solid; width: 40%; font-size: small} .story-feature h2{text-align: center; text-transform: uppercase} '
-    #keep_only_tags    = [dict(name='font', attrs={'class':['newsDetail','agenda2NewsSpot']}),dict(name='span', attrs={'class':['agenda2Title']}),dict(name='div', attrs={'id':['gallery']})]
-    keep_only_tags    = [dict(name='h1', attrs={'class':['georgia_30']}),dict(name='span', attrs={'class':['left-date','detailDate','detailCName']}),dict(name='td', attrs={'id':['newsSpot','newsText']})] #resim ekleme:  ,dict(name='div', attrs={'id':['gallery','detailDate',]})
+    cover_img_url = 'http://medya.todayszaman.com/todayszaman/images/logo/todays_yenilogo.bmp'  # yep, bmp
+    masthead_url = cover_img_url
+    remove_empty_feeds = True
 
-    remove_attributes = ['aria-describedby']
-    remove_tags  = [dict(name='img', attrs={'src':['/images/icon_print.gif','http://gmodules.com/ig/images/plus_google.gif','/images/template/jazz/agenda/i1.jpg', 'http://medya.todayszaman.com/todayszaman/images/logo/logo.bmp']}),dict(name='hr', attrs={'class':[ 'interactive-hr']}),dict(name='div', attrs={'class':[ 'empty_height_18','empty_height_9']}) ,dict(name='td', attrs={'id':[ 'superTitle']}),dict(name='span', attrs={'class':[ 't-count enabled t-count-focus']}),dict(name='a', attrs={'id':[ 'count']}),dict(name='td', attrs={'class':[ 'left-date']})  ]
-    cover_img_url = 'http://medya.todayszaman.com/todayszaman/images/logo/logo.bmp'
-    masthead_url = 'http://medya.todayszaman.com/todayszaman/images/logo/logo.bmp'
-    remove_empty_feeds= True
-   # remove_attributes = ['width','height']
+    # on kindle, images can make things kind of fat. Slim them down.
+    recursions = 0
+    oldest_article = 1.5
+    compress_news_images = True
+    compress_news_images_max_size = 7
+    scale_news_images = (150,200)  # (kindle touch: 600x800)
+    useHighResImages = False
 
-    feeds          = [
-                      ( u'Home', u'http://www.todayszaman.com/0.rss'),
-                      ( u'Sports', u'http://www.todayszaman.com/5.rss'),
-                      ( u'Columnists', u'http://www.todayszaman.com/6.rss'),
-                      ( u'Interviews', u'http://www.todayszaman.com/9.rss'),
-                      ( u'News', u'http://www.todayszaman.com/100.rss'),
-                      ( u'National', u'http://www.todayszaman.com/101.rss'),
-                      ( u'Diplomacy', u'http://www.todayszaman.com/102.rss'),
-                      ( u'World', u'http://www.todayszaman.com/104.rss'),
-                      ( u'Business', u'http://www.todayszaman.com/105.rss'),
-                      ( u'Op-Ed', u'http://www.todayszaman.com/109.rss'),
-                      ( u'Arts & Culture', u'http://www.todayszaman.com/110.rss'),
-                      ( u'Features', u'http://www.todayszaman.com/116.rss'),
-                      ( u'Travel', u'http://www.todayszaman.com/117.rss'),
-                      ( u'Food', u'http://www.todayszaman.com/124.rss'),
-                      ( u'Press Review', u'http://www.todayszaman.com/130.rss'),
-                      ( u'Expat Zone', u'http://www.todayszaman.com/132.rss'),
-                      ( u'Life', u'http://www.todayszaman.com/133.rss'),
-                      ( u'Think Tanks', u'http://www.todayszaman.com/159.rss'),
-                      ( u'Almanac', u'http://www.todayszaman.com/161.rss'),
-                      ( u'Health', u'http://www.todayszaman.com/162.rss'),
-                      ( u'Fashion & Beauty', u'http://www.todayszaman.com/163.rss'),
-                      ( u'Science & Technology', u'http://www.todayszaman.com/349.rss'),
-                     ]
+    sections = [
+                (u'Columnists',u'columnists'),
+                (u'Opinion',u'op-ed'),
+                (u'World',u'world'),
+                (u'National',u'national'),
+                (u'Diplomacy',u'diplomacy'),
+                (u'Business',u'business'),
+                ]
 
-    #def preprocess_html(self, soup):
-     #   return self.adeify_images(soup)
-    #def print_version(self, url):       #there is a probem caused by table format
-     #return url.replace('http://www.todayszaman.com/newsDetail_getNewsById.action?load=detay&', 'http://www.todayszaman.com/newsDetail_openPrintPage.action?')
+    # util for creating remove_tags and keep_tags style regex matchers
+    def tag_matcher(elt, attr, str):
+        return dict(name=elt, attrs={attr:re.compile(str, re.IGNORECASE)})
 
+    keep_only_tags = [
+        tag_matcher('div', 'class', '^pageNewsDetailContainer$'),
+        tag_matcher('div', 'class', '^pageColumnistDetailContainer$'),
+    ]
 
+    remove_tags = [
+        tag_matcher('div', 'class', 'DetailKeyword'),
+        tag_matcher('div', 'class', 'MainContentSocial'),
+        tag_matcher('div', 'class','SocialNetwork'),
+        tag_matcher('div', 'class', 'DetailLeftOther'),
+        tag_matcher('div', 'class', 'RelatedNews'),
+        tag_matcher('div', 'class', '^topMenuWrapper$'),
+        tag_matcher('div', 'class', '^logo$'),
+        tag_matcher('a', 'class', 'cf_email'),
+    ]
+    articles = {}
+
+    def parse_index(self):
+        for (sect_title,sect_uri) in self.sections:
+            self.parse_section(sect_title, sect_uri)
+
+        ans = []
+        for k in self.articles:
+            ans.append((k, self.articles[k]))
+        return ans
+
+    def parse_section(self, sect_title, sect_uri):
+        url = 'http://www.todayszaman.com/'+sect_uri
+        print 'Start section ' + sect_title + ', ' + url
+        try:
+            soup = self.index_to_soup(url)
+        except:
+            return
+
+        # Find each article
+        for div in soup.findAll('div'):
+            div_class = div.get('class')
+            if div_class:
+                if div_class in ['pageColumnistsMainContent',
+                                  'pageCategoryContainer']:
+                    # print '  DIVCLASS' + div_class
+                    for link in div.findAll('a', href=True):
+                        self.process_link(sect_title, div_class, link)
+
+        print 'Finished section: ' + sect_title
+
+    def process_link(self, section_title, layout, link):
+        def p(s):
+            print '[PROCESS LINK] ' + s[0:80]
+
+        href = link['href']
+        full_href = urljoin('http://www.todayszaman.com/', href)
+        next_sib = link.nextSibling
+        child_h2 = link.find('h2')
+        link_text = self.tag_to_string(link).strip()
+        title_node = None
+
+        if layout in ['pageColumnistsMainContent']:
+            if child_h2:
+                title_node = child_h2
+            else:
+                return
+        elif layout in ['pageCategoryContainer']:
+            top_title = link.find(attrs={'class':'pageCategoryTopTitle'})
+            if top_title:
+                title_node = top_title
+            elif (not link_text) and (next_sib and next_sib.find('h4')):
+                title_node = next_sib.find('h4')
+            elif (not link_text) and (next_sib and next_sib.find('h3')):
+                title_node = next_sib.find('h3')
+        elif link_text:
+            title_node = link
+
+        if title_node:
+            title = self.tag_to_string(title_node)
+            # print '        BING: ' + href + ', ' + title
+            self.queue_article_link(section_title, full_href, title)
+
+    def queue_article_link(self, section, url, title):
+        if section not in self.articles:
+            self.articles[section] = []
+        self.articles[section].append(
+                        dict(title=title,
+                             url=url,
+                             date='',
+                             description='',
+                             author='',
+                             content=''))
+
+    def populate_article_metadata(self, article, soup, first):
+
+        def p(s):
+            print '[POPULATE METADATA] ' + s[0:80]
+
+        tnode =  soup.find('title')
+        if tnode:
+            tstring = self.tag_to_string(tnode)
+            if ' - ' in tstring:
+                author = tstring.split('-')[0]
+                if author:
+                    article.author = author
+                    article.title = author + ' - ' + article.title.strip()
+                    p('Add author to title:' + author)
+
+        # known matches: pageNewsDetailDate, pageColumnistDetailLeftDate
+        regex = re.compile('(DetailDate|DetailLeftDate)$', re.IGNORECASE)
+        date_node = soup.find('div', {'class':regex})
+        if date_node:
+            date = self.tag_to_string(date_node).__str__().split('/')[0]
+            date = ','.join(date.split(',')[:2]).strip()
+            article.title = date + ' - ' + article.title.strip()
+            article.date = date
+            p('Add date to title: ' + date)
+
+        strong = soup.find('strong')
+        if strong:
+            article.text_summary = self.tag_to_string(strong)
+            p('Summary: ' + article.text_summary)
+
+    def _dbg_soup_node(self, node):
+        s = '   cls: ' + node.get('class').__str__().strip() + \
+              ' txt: ' + self.tag_to_string(node).strip()
+        return s
