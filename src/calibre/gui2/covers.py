@@ -501,6 +501,7 @@ class CoverSettingsDialog(QDialog):
 
     def __init__(self, mi=None, prefs=None, parent=None):
         QDialog.__init__(self, parent)
+        self.setWindowTitle(_('Cover generation settings'))
         self.l = l = QVBoxLayout(self)
         self.setLayout(l)
         self.settings = CoverSettingsWidget(mi=mi, prefs=prefs, parent=self)
