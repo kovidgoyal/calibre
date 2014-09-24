@@ -13,7 +13,7 @@ from PyQt5.Qt import (
     QWidget, QHBoxLayout, QTabWidget, QLabel, QSizePolicy, QSize, QFormLayout,
     QSpinBox, pyqtSignal, QPixmap, QDialog, QVBoxLayout, QDialogButtonBox,
     QListWidget, QListWidgetItem, Qt, QGridLayout, QPushButton, QIcon,
-    QColorDialog, QToolButton, QLineEdit, QColor, QFrame, QTimer)
+    QColorDialog, QToolButton, QLineEdit, QColor, QFrame, QTimer, QCheckBox)
 
 from calibre.ebooks.covers import all_styles, cprefs, generate_cover, override_prefs, default_color_themes
 from calibre.gui2 import gprefs, error_dialog
@@ -106,6 +106,7 @@ class CoverSettingsWidget(QWidget):
         self.for_global_prefs = for_global_prefs
 
         self.l = l = QHBoxLayout(self)
+        l.setContentsMargins(0, 0, 0, 0)
         self.setLayout(l)
         self.settings_tabs = st = QTabWidget(self)
         l.addWidget(st)
@@ -128,8 +129,7 @@ class CoverSettingsWidget(QWidget):
         else:
             msg = _('Choose a color scheme to be used for this generated cover.') + '<p>' + _(
                 'In normal cover generation, the color scheme is chosen at random from the list of color schemes below. You'
-                ' can prevent an individual color scheme from being chosen by unchecking it here and clicking the'
-                ' "Save as default settings" button.')
+                ' can prevent an individual color scheme from being chosen by unchecking it here.')
         cp.la = la = QLabel('<p>' + msg)
         la.setWordWrap(True)
         l.addWidget(la, 0, 0, 1, -1)
@@ -157,8 +157,7 @@ class CoverSettingsWidget(QWidget):
         else:
             msg = _('Choose a style to be used for this generated cover.') + '<p>' + _(
                 'In normal cover generation, the style is chosen at random from the list of styles below. You'
-                ' can prevent an individual style from being chosen by unchecking it here and clicking the'
-                ' "Save as default settings" button.')
+                ' can prevent an individual style from being chosen by unchecking it here.')
         sp.la = la = QLabel('<p>' + msg)
         la.setWordWrap(True)
         l.addWidget(la)
@@ -506,14 +505,15 @@ class CoverSettingsDialog(QDialog):
         self.setLayout(l)
         self.settings = CoverSettingsWidget(mi=mi, prefs=prefs, parent=self)
         l.addWidget(self.settings)
+        self.save_settings = ss = QCheckBox(_('Save these settings as the &defaults for future use'))
+        ss.setChecked(gprefs.get('cover_generation_save_settings_for_future', True))
+        l.addWidget(ss)
         self.bb = bb = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
         l.addWidget(bb)
         bb.accepted.connect(self.accept), bb.rejected.connect(self.reject)
         bb.b = b = bb.addButton(_('Restore &defaults'), bb.ActionRole)
         b.clicked.connect(self.restore_defaults)
-        bb.b2 = b = bb.addButton(_('&Save settings'), bb.ActionRole)
-        b.clicked.connect(self.settings.save_as_prefs)
-        b.setToolTip('<p>' + _(
+        ss.setToolTip('<p>' + _(
             'Save the current settings as the settings to use always instead of just this time. Remember that'
             ' for styles and colors the actual style or color used is chosen at random from'
             ' the list of checked styles/colors.'))
@@ -528,18 +528,20 @@ class CoverSettingsDialog(QDialog):
         self.settings.restore_defaults()
         self.settings.save_as_prefs()
 
-    def sizeHint(self):
-        return QSize(800, 600)
-
-    def accept(self):
+    def _save_settings(self):
+        gprefs.set('cover_generation_save_settings_for_future', self.save_settings.isChecked())
         gprefs.set('cover_settings_dialog_geom', bytearray(self.saveGeometry()))
         self.settings.save_state()
+
+    def accept(self):
+        self._save_settings()
         self.prefs_for_rendering = self.settings.prefs_for_rendering
+        if self.save_settings.isChecked():
+            self.settings.save_as_prefs()
         QDialog.accept(self)
 
     def reject(self):
-        gprefs.set('cover_settings_dialog_geom', bytearray(self.saveGeometry()))
-        self.settings.save_state()
+        self._save_settings()
         QDialog.reject(self)
 
 if __name__ == '__main__':
