@@ -26,7 +26,7 @@ class WallStreetJournal(BasicNewsRecipe):
     keep_only_tags = [
         dict(name='h1'), dict(name='h2', attrs={'class':['subhead', 'subHed deck']}),
         dict(name='span', itemprop='author', rel='author'),
-        dict(name='article', id='articleBody'),
+        dict(name='article', id=['article-contents', 'articleBody']),
         dict(name='div', id='article_story_body'),
     ]
     remove_tags = [
