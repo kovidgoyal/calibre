@@ -13,7 +13,6 @@ from collections import namedtuple
 from calibre import strftime
 from calibre.customize import CatalogPlugin
 from calibre.customize.conversion import OptionRecommendation, DummyReporter
-from calibre.ebooks import calibre_cover
 from calibre.library import current_library_name
 from calibre.library.catalogs import AuthorSortMismatchException, EmptyCatalogException
 from calibre.ptempfile import PersistentTemporaryFile
@@ -463,9 +462,10 @@ class EPUB_MOBI(CatalogPlugin):
                 recommendations.append(('cover', cpath, OptionRecommendation.HIGH))
                 log.info("using existing catalog cover")
             else:
+                from calibre.ebooks.covers import calibre_cover2
                 log.info("replacing catalog cover")
                 new_cover_path = PersistentTemporaryFile(suffix='.jpg')
-                new_cover = calibre_cover(opts.catalog_title.replace('"', '\\"'), 'calibre')
+                new_cover = calibre_cover2(opts.catalog_title, 'calibre')
                 new_cover_path.write(new_cover)
                 new_cover_path.close()
                 recommendations.append(('cover', new_cover_path.name, OptionRecommendation.HIGH))

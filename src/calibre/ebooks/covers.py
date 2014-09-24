@@ -19,7 +19,7 @@ from PyQt5.Qt import (
     QPainterPath, QPen, QRectF
 )
 
-from calibre import force_unicode
+from calibre import force_unicode, fit_image
 from calibre.constants import __appname__, __version__
 from calibre.ebooks.metadata import fmt_sidx
 from calibre.ebooks.metadata.book.base import Metadata
@@ -517,10 +517,76 @@ def create_cover(title, authors, series=None, series_index=1, prefs=None, as_qim
         prefs or cprefs, title_template=d['title_template'], subtitle_template=d['subtitle_template'], footer_template=d['footer_template'])
     return generate_cover(mi, prefs=prefs, as_qimage=as_qimage)
 
+def calibre_cover2(title, author_string='', series_string='', prefs=None, as_qimage=False):
+    init_environment()
+    title, subtitle, footer = '<b>' + escape_formatting(title), '<i>' + escape_formatting(series_string), '<b>' + escape_formatting(author_string)
+    prefs = prefs or cprefs
+    prefs = {k:prefs.get(k) for k in cprefs.defaults}
+    scale = 800. / prefs['cover_height']
+    scale_cover(prefs, scale)
+    prefs = Prefs(**prefs)
+    img = QImage(prefs.cover_width, prefs.cover_height, QImage.Format_ARGB32)
+    img.fill(Qt.white)
+    # colors = to_theme('ffffff ffffff 000000 000000')
+    color_theme = theme_to_colors(fallback_colors)
+    class CalibeLogoStyle(Style):
+        NAME = GUI_NAME = 'calibre'
+        def __call__(self, painter, rect, color_theme, title_block, subtitle_block, footer_block):
+            top = title_block.position.y + 10
+            extra_spacing = subtitle_block.line_spacing // 2 if subtitle_block.line_spacing else title_block.line_spacing // 3
+            height = title_block.height + subtitle_block.height + extra_spacing + title_block.leading
+            top += height + 25
+            bottom = footer_block.position.y - 50
+            logo = QImage(I('library.png'))
+            pwidth, pheight = rect.width(), bottom - top
+            scaled, width, height = fit_image(logo.width(), logo.height(), pwidth, pheight)
+            x, y = (pwidth - width) // 2, (pheight - height) // 2
+            rect = QRect(x, top + y, width, height)
+            painter.setRenderHint(QPainter.SmoothPixmapTransform)
+            painter.drawImage(rect, logo)
+            return self.ccolor1, self.ccolor1, self.ccolor1
+    style = CalibeLogoStyle(color_theme, prefs)
+    title_block, subtitle_block, footer_block = layout_text(
+        prefs, img, title, subtitle, footer, img.height() // 3, style)
+    p = QPainter(img)
+    rect = QRect(0, 0, img.width(), img.height())
+    colors = style(p, rect, color_theme, title_block, subtitle_block, footer_block)
+    for block, color in zip((title_block, subtitle_block, footer_block), colors):
+        p.setPen(color)
+        block.draw(p)
+    p.end()
+    img.setText('Generated cover', '%s %s' % (__appname__, __version__))
+    if as_qimage:
+        return img
+    return pixmap_to_data(img)
+
+def scale_cover(prefs, scale):
+    for x in ('cover_width', 'cover_height', 'title_font_size', 'subtitle_font_size', 'footer_font_size'):
+        prefs[x] = int(scale * prefs[x])
+
+def generate_masthead(title, output_path=None, width=600, height=60, as_qimage=False, font_family=None):
+    init_environment()
+    font_family = font_family or cprefs['title_font_family'] or 'Liberation Serif'
+    img = QImage(width, height, QImage.Format_ARGB32)
+    img.fill(Qt.white)
+    p = QPainter(img)
+    f = QFont(font_family)
+    f.setPixelSize((height * 3) // 4), f.setBold(True)
+    p.setFont(f)
+    p.drawText(img.rect(), Qt.AlignLeft | Qt.AlignVCenter, sanitize(title))
+    p.end()
+    if as_qimage:
+        return img
+    data = pixmap_to_data(img)
+    if output_path is None:
+        return data
+    with open(output_path, 'wb') as f:
+        f.write(data)
+
 def test(scale=0.25):
     from PyQt5.Qt import QLabel, QApplication, QPixmap, QMainWindow, QWidget, QScrollArea, QGridLayout
     app = QApplication([])
-    mi = Metadata('xxx', ['Kovid Goyal', 'John Q. Doe', 'Author'])
+    mi = Metadata('xxx', ['Kovid Goyal', 'John & Doe', 'Author'])
     mi.series = 'A series of styles'
     m = QMainWindow()
     sa = QScrollArea(m)
@@ -534,8 +600,7 @@ def test(scale=0.25):
             mi.series_index = c + 1
             mi.title = 'An algorithmic cover [%s]' % color
             prefs = override_prefs(cprefs, override_color_theme=color, override_style=style)
-            for x in ('cover_width', 'cover_height', 'title_font_size', 'subtitle_font_size', 'footer_font_size'):
-                prefs[x] = int(scale * prefs[x])
+            scale_cover(prefs, scale)
             img = generate_cover(mi, prefs=prefs, as_qimage=True)
             la = QLabel()
             la.setPixmap(QPixmap.fromImage(img))

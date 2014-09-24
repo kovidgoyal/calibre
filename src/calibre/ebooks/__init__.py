@@ -8,8 +8,7 @@ from various formats.
 '''
 
 import traceback, os, re
-from cStringIO import StringIO
-from calibre import CurrentDir, force_unicode
+from calibre import CurrentDir
 
 class ConversionError(Exception):
 
@@ -181,7 +180,6 @@ def normalize(x):
 
 def calibre_cover(title, author_string, series_string=None,
         output_format='jpg', title_size=46, author_size=36, logo_path=None):
-    from calibre.utils.config_base import tweaks
     title = normalize(title)
     author_string = normalize(author_string)
     series_string = normalize(series_string)
@@ -189,9 +187,7 @@ def calibre_cover(title, author_string, series_string=None,
     import regex
     pat = regex.compile(ur'\p{Cf}+', flags=regex.VERSION1)  # remove non-printing chars like the soft hyphen
     text = pat.sub(u'', title + author_string + (series_string or u''))
-    font_path = tweaks['generate_cover_title_font']
-    if font_path is None:
-        font_path = P('fonts/liberation/LiberationSerif-Bold.ttf')
+    font_path = P('fonts/liberation/LiberationSerif-Bold.ttf')
 
     from calibre.utils.fonts.utils import get_font_for_text
     font = open(font_path, 'rb').read()
@@ -261,48 +257,8 @@ def unit_convert(value, base, font, dpi, body_font_size=12):
 
 def generate_masthead(title, output_path=None, width=600, height=60):
     from calibre.ebooks.conversion.config import load_defaults
-    from calibre.utils.config import tweaks
-    fp = tweaks['generate_cover_title_font']
-    if not fp:
-        fp = P('fonts/liberation/LiberationSerif-Bold.ttf')
-    font_path = default_font = fp
     recs = load_defaults('mobi_output')
-    masthead_font_family = recs.get('masthead_font', 'Default')
-
-    if masthead_font_family != 'Default':
-        from calibre.utils.fonts.scanner import font_scanner, NoFonts
-        try:
-            faces = font_scanner.fonts_for_family(masthead_font_family)
-        except NoFonts:
-            faces = []
-        if faces:
-            font_path = faces[0]['path']
-
-    if not font_path or not os.access(font_path, os.R_OK):
-        font_path = default_font
-
-    try:
-        from PIL import Image, ImageDraw, ImageFont
-        Image, ImageDraw, ImageFont
-    except ImportError:
-        import Image, ImageDraw, ImageFont
-
-    img = Image.new('RGB', (width, height), 'white')
-    draw = ImageDraw.Draw(img)
-    try:
-        font = ImageFont.truetype(font_path, 48, encoding='unic')
-    except:
-        font = ImageFont.truetype(default_font, 48, encoding='unic')
-    text = force_unicode(title)
-    width, height = draw.textsize(text, font=font)
-    left = max(int((width - width)/2.), 0)
-    top = max(int((height - height)/2.), 0)
-    draw.text((left, top), text, fill=(0,0,0), font=font)
-    if output_path is None:
-        f = StringIO()
-        img.save(f, 'JPEG')
-        return f.getvalue()
-    else:
-        with open(output_path, 'wb') as f:
-            img.save(f, 'JPEG')
+    masthead_font_family = recs.get('masthead_font', None)
+    from calibre.ebooks.covers import generate_masthead
+    return generate_masthead(title, output_path=output_path, width=width, height=height, font_family=masthead_font_family)
 

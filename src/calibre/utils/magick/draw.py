@@ -273,9 +273,7 @@ def create_cover_page(top_lines, logo_path, width=590, height=750,
         bottom += line.bottom_margin
     bottom -= top_lines[-1].bottom_margin
 
-    foot_font = tweaks['generate_cover_foot_font']
-    if not foot_font:
-        foot_font = P('fonts/liberation/LiberationMono-Regular.ttf')
+    foot_font = P('fonts/liberation/LiberationMono-Regular.ttf')
     vanity = create_text_arc(__appname__ + ' ' + __version__, 24,
             font=foot_font, bgcolor='#00000000')
     lwidth, lheight = vanity.size
