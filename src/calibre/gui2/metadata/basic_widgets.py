@@ -41,6 +41,7 @@ from calibre.db import SPOOL_SIZE
 
 OK_COLOR = 'rgba(0, 255, 0, 12%)'
 ERR_COLOR = 'rgba(255, 0, 0, 12%)'
+INDICATOR_SHEET = 'QLineEdit { color: black; background-color: %s }'
 
 def save_dialog(parent, title, msg, det_msg=''):
     d = QMessageBox(parent)
@@ -294,8 +295,7 @@ class TitleSortEdit(TitleEdit, ToMetadataMixin):
         ts = title_sort(self.title_edit.current_val, lang=self.book_lang)
         normal = ts == self.current_val
         col = OK_COLOR if normal else ERR_COLOR
-        self.setStyleSheet('QLineEdit { color: black; '
-                              'background-color: %s; }'%col)
+        self.setStyleSheet(INDICATOR_SHEET % col)
         tt = self.tooltips[0 if normal else 1]
         self.setToolTip(tt)
         self.setWhatsThis(tt)
@@ -498,8 +498,7 @@ class AuthorSortEdit(EnLineEdit, ToMetadataMixin):
 
         normal = strcmp(au, self.current_val) == 0
         col = OK_COLOR if normal else ERR_COLOR
-        self.setStyleSheet('QLineEdit { color: black; '
-                              'background-color: %s; }'%col)
+        self.setStyleSheet(INDICATOR_SHEET % col)
         tt = self.tooltips[0 if normal else 1]
         self.setToolTip(tt)
         self.setWhatsThis(tt)
@@ -1454,7 +1453,7 @@ class IdentifiersEdit(QLineEdit, ToMetadataMixin):  # {{{
             col = ERR_COLOR
             extra = '\n\n' + _('This ISBN number is invalid')
         self.setToolTip(tt+extra)
-        self.setStyleSheet('QLineEdit { background-color: %s }'%col)
+        self.setStyleSheet(INDICATOR_SHEET % col)
 
     def paste_isbn(self):
         text = unicode(QApplication.clipboard().text()).strip()
@@ -1516,7 +1515,7 @@ class ISBNDialog(QDialog):  # {{{
             col = ERR_COLOR
             extra = _('This ISBN number is invalid')
         self.line_edit.setToolTip(extra)
-        self.line_edit.setStyleSheet('QLineEdit { background-color: %s }'%col)
+        self.line_edit.setStyleSheet(INDICATOR_SHEET % col)
 
     def text(self):
         return check_isbn(unicode(self.line_edit.text()))
