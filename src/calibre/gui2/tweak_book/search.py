@@ -734,6 +734,17 @@ class SavedSearches(QWidget):
 
         self.searches.setFocus(Qt.OtherFocusReason)
 
+    def has_focus(self):
+        if self.hasFocus():
+            return True
+        for child in self.findChildren(QWidget):
+            if child.hasFocus():
+                return True
+        return False
+
+    def trigger_action(self, action, overrides=None):
+        self._run_search(action, overrides)
+
     def stack_current_changed(self, index):
         visible = index == 0
         for x in ('eb', 'ab', 'rb', 'upb', 'dnb', 'd2', 'filter_text', 'cft', 'd3', 'ib', 'eb2'):
@@ -768,6 +779,9 @@ class SavedSearches(QWidget):
         self.searches.scrollTo(self.model.index(0))
 
     def run_search(self, action):
+        return self._run_search(action)
+
+    def _run_search(self, action, overrides=None):
         searches = []
 
         def fill_in_search(search):
@@ -796,6 +810,8 @@ class SavedSearches(QWidget):
                 searches.append(search)
         if not searches:
             return
+        if overrides:
+            [sc.update(overrides) for sc in searches]
         self.run_saved_searches.emit(searches, action)
 
     @property

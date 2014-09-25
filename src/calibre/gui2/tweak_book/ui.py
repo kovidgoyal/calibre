@@ -399,7 +399,7 @@ class Main(MainWindow):
         group = _('Search')
         self.action_find = treg('search.png', _('&Find/Replace'), self.boss.show_find, 'find-replace', ('Ctrl+F',), _('Show the Find/Replace panel'))
         def sreg(name, text, action, overrides={}, keys=(), description=None, icon=None):
-            return reg(icon, text, partial(self.boss.search, action, overrides), name, keys, description or text.replace('&', ''))
+            return reg(icon, text, partial(self.boss.search_action_triggered, action, overrides), name, keys, description or text.replace('&', ''))
         self.action_find_next = sreg('find-next', _('Find &Next'),
                                      'find', {'direction':'down'}, ('F3', 'Ctrl+G'), _('Find next match'))
         self.action_find_previous = sreg('find-previous', _('Find &Previous'),
