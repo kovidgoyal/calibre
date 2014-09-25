@@ -10,12 +10,11 @@ import json, copy
 from functools import partial
 from collections import OrderedDict
 
-import sip
 from PyQt5.Qt import (
     QWidget, QToolBar, Qt, QHBoxLayout, QSize, QIcon, QGridLayout, QLabel, QTimer,
     QPushButton, pyqtSignal, QComboBox, QCheckBox, QSizePolicy, QVBoxLayout, QFont,
     QLineEdit, QToolButton, QListView, QFrame, QApplication, QStyledItemDelegate,
-    QAbstractListModel, QFormLayout, QModelIndex, QMenu, QItemSelection)
+    QAbstractListModel, QPlainTextEdit, QModelIndex, QMenu, QItemSelection, QStackedLayout)
 
 import regex
 
@@ -24,7 +23,7 @@ from calibre.gui2 import error_dialog, info_dialog, choose_files, choose_save_fi
 from calibre.gui2.dialogs.message_box import MessageBox
 from calibre.gui2.widgets2 import HistoryComboBox
 from calibre.gui2.tweak_book import tprefs, editors, current_container
-from calibre.gui2.tweak_book.widgets import Dialog, BusyCursor
+from calibre.gui2.tweak_book.widgets import BusyCursor
 
 from calibre.utils.icu import primary_contains
 
@@ -453,80 +452,134 @@ class SearchesModel(QAbstractListModel):
             del self.searches[idx]
         tprefs['saved_searches'] = self.searches
 
-class EditSearch(Dialog):  # {{{
+class EditSearch(QFrame):  # {{{
 
-    def __init__(self, search=None, search_index=-1, parent=None, state=None):
+    done = pyqtSignal(object)
+
+    def __init__(self, parent=None):
+        QFrame.__init__(self, parent)
+        self.setFrameShape(self.StyledPanel)
+        self.search_index = -1
+        self.search = {}
+        self.original_name = None
+
+        self.l = l = QVBoxLayout(self)
+        self.title = la = QLabel('<h2>Edit...')
+        self.ht = h = QHBoxLayout()
+        l.addLayout(h)
+        h.addWidget(la)
+        self.cb = cb = QToolButton(self)
+        cb.setIcon(QIcon(I('window-close.png')))
+        cb.setToolTip(_('Abort editing of search'))
+        h.addWidget(cb)
+        cb.clicked.connect(self.abort_editing)
+        self.search_name = n = QLineEdit('', self)
+        n.setPlaceholderText(_('The name with which to save this search'))
+        self.la1 = la = QLabel(_('&Name:'))
+        la.setBuddy(n)
+        self.h3 = h = QHBoxLayout()
+        h.addWidget(la), h.addWidget(n)
+        l.addLayout(h)
+
+        self.find = f = QPlainTextEdit('', self)
+        self.la2 = la = QLabel(_('&Find:'))
+        la.setBuddy(f)
+        l.addWidget(la), l.addWidget(f)
+
+        self.replace = r = QPlainTextEdit('', self)
+        self.la3 = la = QLabel(_('&Replace:'))
+        la.setBuddy(r)
+        l.addWidget(la), l.addWidget(r)
+
+        self.case_sensitive = c = QCheckBox(_('Case sensitive'))
+        self.h = h = QHBoxLayout()
+        l.addLayout(h)
+        h.addWidget(c)
+
+        self.dot_all = d = QCheckBox(_('Dot matches all'))
+        h.addWidget(d), h.addStretch(2)
+
+        self.h2 = h = QHBoxLayout()
+        l.addLayout(h)
+        self.mode_box = m = ModeBox(self)
+        m.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+        self.la4 = la = QLabel(_('&Mode:'))
+        la.setBuddy(m)
+        h.addWidget(la), h.addWidget(m), h.addStretch(2)
+
+        self.done_button = b = QPushButton(QIcon(I('ok.png')), _('&Done'))
+        b.setToolTip(_('Finish editing of search'))
+        h.addWidget(b)
+        b.clicked.connect(self.emit_done)
+
+    def show_search(self, search=None, search_index=-1, state=None):
+        self.title.setText('<h2>' + (_('Add search') if search_index == -1 else _('Edit search')))
         self.search = search or {}
         self.original_name = self.search.get('name', None)
         self.search_index = search_index
-        Dialog.__init__(self, _('Edit search'), 'edit-saved-search', parent=parent)
+
+        self.search_name.setText(self.search.get('name', ''))
+        self.find.setPlainText(self.search.get('find', ''))
+        self.replace.setPlainText(self.search.get('replace', ''))
+        self.case_sensitive.setChecked(self.search.get('case_sensitive', SearchWidget.DEFAULT_STATE['case_sensitive']))
+        self.dot_all.setChecked(self.search.get('dot_all', SearchWidget.DEFAULT_STATE['dot_all']))
+        self.mode_box.mode = self.search.get('mode', 'regex')
+
         if state is not None:
-            self.find.setText(state['find'])
-            self.replace.setText(state['replace'])
+            self.find.setPlainText(state['find'])
+            self.replace.setPlainText(state['replace'])
             self.case_sensitive.setChecked(state['case_sensitive'])
             self.dot_all.setChecked(state['dot_all'])
             self.mode_box.mode = state.get('mode')
 
-    def show(self):
-        Dialog.show(self), self.raise_(), self.activateWindow()
+    def emit_done(self):
+        self.done.emit(True)
 
-    def sizeHint(self):
-        ans = Dialog.sizeHint(self)
-        ans.setWidth(600)
-        return ans
+    def keyPressEvent(self, ev):
+        if ev.key() == Qt.Key_Escape:
+            self.abort_editing()
+            ev.accept()
+            return
+        return QFrame.keyPressEvent(self, ev)
 
-    def setup_ui(self):
-        self.l = l = QFormLayout(self)
-        l.setFieldGrowthPolicy(l.AllNonFixedFieldsGrow)
-        self.setLayout(l)
+    def abort_editing(self):
+        self.done.emit(False)
 
-        self.search_name = n = QLineEdit(self.search.get('name', ''), self)
-        n.setPlaceholderText(_('The name with which to save this search'))
-        l.addRow(_('&Name:'), n)
+    @property
+    def current_search(self):
+        search = self.search.copy()
+        f = unicode(self.find.toPlainText())
+        search['find'] = f
+        r = unicode(self.replace.toPlainText())
+        search['replace'] = r
+        search['dot_all'] = bool(self.dot_all.isChecked())
+        search['case_sensitive'] = bool(self.case_sensitive.isChecked())
+        search['mode'] = self.mode_box.mode
+        return search
 
-        self.find = f = QLineEdit(self.search.get('find', ''), self)
-        f.setPlaceholderText(_('The expression to search for'))
-        l.addRow(_('&Find:'), f)
-
-        self.replace = r = QLineEdit(self.search.get('replace', ''), self)
-        r.setPlaceholderText(_('The replace expression'))
-        l.addRow(_('&Replace:'), r)
-
-        self.case_sensitive = c = QCheckBox(_('Case sensitive'))
-        c.setChecked(self.search.get('case_sensitive', SearchWidget.DEFAULT_STATE['case_sensitive']))
-        l.addRow(c)
-
-        self.dot_all = d = QCheckBox(_('Dot matches all'))
-        d.setChecked(self.search.get('dot_all', SearchWidget.DEFAULT_STATE['dot_all']))
-        l.addRow(d)
-
-        self.mode_box = m = ModeBox(self)
-        self.mode_box.mode = self.search.get('mode', 'regex')
-        m.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
-        l.addRow(_('&Mode:'), m)
-
-        l.addRow(self.bb)
-
-    def accept(self):
+    def save_changes(self):
         searches = tprefs['saved_searches']
         all_names = {x['name'] for x in searches} - {self.original_name}
-        n = unicode(self.search_name.text()).strip()
-        search = self.search
+        n = self.search_name.text().strip()
         if not n:
-            return error_dialog(self, _('Must specify name'), _(
+            error_dialog(self, _('Must specify name'), _(
                 'You must specify a search name'), show=True)
+            return False
         if n in all_names:
-            return error_dialog(self, _('Name exists'), _(
+            error_dialog(self, _('Name exists'), _(
                 'Another search with the name %s already exists') % n, show=True)
+            return False
+        search = self.search
         search['name'] = n
 
-        f = unicode(self.find.text())
+        f = unicode(self.find.toPlainText())
         if not f:
-            return error_dialog(self, _('Must specify find'), _(
+            error_dialog(self, _('Must specify find'), _(
                 'You must specify a find expression'), show=True)
+            return False
         search['find'] = f
 
-        r = unicode(self.replace.text())
+        r = unicode(self.replace.toPlainText())
         search['replace'] = r
 
         search['dot_all'] = bool(self.dot_all.isChecked())
@@ -538,8 +591,8 @@ class EditSearch(Dialog):  # {{{
         else:
             searches[self.search_index] = search
         tprefs.set('saved_searches', searches)
+        return True
 
-        Dialog.accept(self)
 # }}}
 
 class SearchDelegate(QStyledItemDelegate):
@@ -549,15 +602,13 @@ class SearchDelegate(QStyledItemDelegate):
         ans.setHeight(ans.height() + 4)
         return ans
 
-class SavedSearches(Dialog):
+class SavedSearches(QWidget):
 
     run_saved_searches = pyqtSignal(object, object)
 
     def __init__(self, parent=None):
-        Dialog.__init__(self, _('Saved Searches'), 'saved-searches', parent=parent)
-
-    def sizeHint(self):
-        return QSize(800, 675)
+        QWidget.__init__(self, parent)
+        self.setup_ui()
 
     def setup_ui(self):
         self.l = l = QVBoxLayout(self)
@@ -576,6 +627,15 @@ class SavedSearches(Dialog):
 
         self.h2 = h = QHBoxLayout()
         self.searches = searches = QListView(self)
+        self.stack = stack = QStackedLayout()
+        self.main_widget = mw = QWidget(self)
+        stack.addWidget(mw)
+        self.edit_search_widget = es = EditSearch(mw)
+        stack.addWidget(es)
+        es.done.connect(self.search_editing_done)
+        mw.v = QVBoxLayout(mw)
+        mw.v.setContentsMargins(0, 0, 0, 0)
+        mw.v.addWidget(searches)
         searches.doubleClicked.connect(self.edit_search)
         self.model = SearchesModel(self.searches)
         self.model.dataChanged.connect(self.show_details)
@@ -585,10 +645,11 @@ class SavedSearches(Dialog):
         self.delegate = SearchDelegate(searches)
         searches.setItemDelegate(self.delegate)
         searches.setAlternatingRowColors(True)
-        h.addWidget(searches, stretch=10)
+        h.addLayout(stack, stretch=10)
         self.v = v = QVBoxLayout()
         h.addLayout(v)
         l.addLayout(h)
+        stack.currentChanged.connect(self.stack_current_changed)
 
         def pb(text, tooltip=None):
             b = QPushButton(text, self)
@@ -627,11 +688,11 @@ class SavedSearches(Dialog):
         b.clicked.connect(self.edit_search)
         v.addWidget(b)
 
-        self.eb = b = pb(_('Re&move search'), _('Remove the currently selected searches'))
+        self.rb = b = pb(_('Re&move search'), _('Remove the currently selected searches'))
         b.clicked.connect(self.remove_search)
         v.addWidget(b)
 
-        self.eb = b = pb(_('&Add search'), _('Add a new saved search'))
+        self.ab = b = pb(_('&Add search'), _('Add a new saved search'))
         b.clicked.connect(self.add_search)
         v.addWidget(b)
 
@@ -651,23 +712,32 @@ class SavedSearches(Dialog):
         self.wr.setChecked(SearchWidget.DEFAULT_STATE['wrap'])
         v.addWidget(wr)
 
+        self.d3 = d = QFrame(self)
+        d.setFrameStyle(QFrame.HLine)
+        v.addWidget(d)
+
         self.description = d = QLabel(' \n \n ')
         d.setTextFormat(Qt.PlainText)
         d.setWordWrap(True)
-        l.addWidget(d)
+        mw.v.addWidget(d)
 
-        l.addWidget(self.bb)
-        self.bb.clear()
-        self.bb.addButton(self.bb.Close)
-        self.ib = b = self.bb.addButton(_('&Import'), self.bb.ActionRole)
+        self.ib = b = pb(_('&Import'), _('Import saved searches'))
         b.clicked.connect(self.import_searches)
-        self.eb = b = self.bb.addButton(_('E&xport'), self.bb.ActionRole)
+        v.addWidget(b)
+
+        self.eb2 = b = pb(_('E&xport'), _('Export saved searches'))
+        v.addWidget(b)
         self.em = m = QMenu(_('Export'))
         m.addAction(_('Export All'), lambda : QTimer.singleShot(0, partial(self.export_searches, all=True)))
         m.addAction(_('Export Selected'), lambda : QTimer.singleShot(0, partial(self.export_searches, all=False)))
         b.setMenu(m)
 
         self.searches.setFocus(Qt.OtherFocusReason)
+
+    def stack_current_changed(self, index):
+        visible = index == 0
+        for x in ('eb', 'ab', 'rb', 'upb', 'dnb', 'd2', 'filter_text', 'cft', 'd3', 'ib', 'eb2'):
+            getattr(self, x).setVisible(visible)
 
     @dynamic_property
     def where(self):
@@ -698,28 +768,39 @@ class SavedSearches(Dialog):
         self.searches.scrollTo(self.model.index(0))
 
     def run_search(self, action):
-        searches, seen = [], set()
-        for index in self.searches.selectionModel().selectedIndexes():
-            if index.row() in seen:
-                continue
-            seen.add(index.row())
-            search = SearchWidget.DEFAULT_STATE.copy()
-            del search['mode']
-            search_index, s = index.data(Qt.UserRole)
-            search.update(s)
+        searches = []
+
+        def fill_in_search(search):
             search['wrap'] = self.wrap
             search['direction'] = self.direction
             search['where'] = self.where
             search['mode'] = search.get('mode', 'regex')
+
+        if self.editing_search:
+            search = SearchWidget.DEFAULT_STATE.copy()
+            del search['mode']
+            search.update(self.edit_search_widget.current_search)
+            fill_in_search(search)
             searches.append(search)
+        else:
+            seen = set()
+            for index in self.searches.selectionModel().selectedIndexes():
+                if index.row() in seen:
+                    continue
+                seen.add(index.row())
+                search = SearchWidget.DEFAULT_STATE.copy()
+                del search['mode']
+                search_index, s = index.data(Qt.UserRole)
+                search.update(s)
+                fill_in_search(search)
+                searches.append(search)
         if not searches:
             return
         self.run_saved_searches.emit(searches, action)
 
     @property
     def editing_search(self):
-        d = getattr(self, 'current_edit_search', None)
-        return d is not None and not sip.isdeleted(d) and d.isVisible()
+        return self.stack.currentIndex() != 0
 
     def move_entry(self, delta):
         if self.editing_search:
@@ -735,13 +816,28 @@ class SavedSearches(Dialog):
                 sm = self.searches.selectionModel()
                 sm.setCurrentIndex(index, sm.ClearAndSelect)
 
+    def search_editing_done(self, save_changes):
+        if save_changes and not self.edit_search_widget.save_changes():
+            return
+        self.stack.setCurrentIndex(0)
+        if save_changes:
+            if self.edit_search_widget.search_index == -1:
+                self._add_search()
+            else:
+                index = self.searches.currentIndex()
+                if index.isValid():
+                    self.model.dataChanged.emit(index, index)
+
     def edit_search(self):
         index = self.searches.currentIndex()
-        if index.isValid() and not self.editing_search:
+        if not index.isValid():
+            return error_dialog(self, _('Cannot edit'), _(
+                'Cannot edit search - no search selected.'), show=True)
+        if not self.editing_search:
             search_index, search = index.data(Qt.UserRole)
-            d = self.current_edit_search = EditSearch(search=search, search_index=search_index, parent=self)
-            d.accepted.connect(partial(self.model.dataChanged.emit, index, index))
-            d.show()
+            self.edit_search_widget.show_search(search=search, search_index=search_index)
+            self.stack.setCurrentIndex(1)
+            self.edit_search_widget.find.setFocus(Qt.OtherFocusReason)
 
     def remove_search(self):
         if self.editing_search:
@@ -753,9 +849,9 @@ class SavedSearches(Dialog):
     def add_search(self):
         if self.editing_search:
             return
-        self.current_edit_search = d = EditSearch(parent=self)
-        d.accepted.connect(self._add_search)
-        d.show()
+        self.edit_search_widget.show_search()
+        self.stack.setCurrentIndex(1)
+        self.edit_search_widget.search_name.setFocus(Qt.OtherFocusReason)
 
     def _add_search(self):
         self.model.add_searches()
@@ -768,9 +864,9 @@ class SavedSearches(Dialog):
     def add_predefined_search(self, state):
         if self.editing_search:
             return
-        self.current_edit_search = d = EditSearch(parent=self, state=state)
-        d.accepted.connect(self._add_search)
-        d.show()
+        self.edit_search_widget.show_search(state=state)
+        self.stack.setCurrentIndex(1)
+        self.edit_search_widget.search_name.setFocus(Qt.OtherFocusReason)
 
     def show_details(self):
         self.description.setText(' \n \n ')
@@ -1059,4 +1155,5 @@ def run_search(
 if __name__ == '__main__':
     app = QApplication([])
     d = SavedSearches()
-    d.exec_()
+    d.show()
+    app.exec_()

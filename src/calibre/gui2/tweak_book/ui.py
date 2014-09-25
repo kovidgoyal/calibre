@@ -679,6 +679,12 @@ class Main(MainWindow):
         self.addDockWidget(Qt.LeftDockWidgetArea, d)
         d.close()  # Hidden by default
 
+        d = create(_('Saved Searches'), 'saved-searches')
+        d.setAllowedAreas(Qt.LeftDockWidgetArea | Qt.RightDockWidgetArea | Qt.BottomDockWidgetArea | Qt.TopDockWidgetArea)
+        d.setWidget(self.saved_searches)
+        self.addDockWidget(Qt.LeftDockWidgetArea, d)
+        d.close()  # Hidden by default
+
     def resizeEvent(self, ev):
         self.blocking_job.resize(ev.size())
         return super(Main, self).resizeEvent(ev)

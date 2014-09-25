@@ -837,16 +837,14 @@ class Boss(QObject):
                 error_dialog(self.gui, _('Not found'), _(
                     'No file with the name %s was found in the book') % target, show=True)
 
-    def saved_searches(self):
-        self.gui.saved_searches.show(), self.gui.saved_searches.raise_()
-
     def save_search(self):
         state = self.gui.central.search_panel.state
         self.show_saved_searches()
         self.gui.saved_searches.add_predefined_search(state)
 
     def show_saved_searches(self):
-        self.gui.saved_searches.show(), self.gui.saved_searches.raise_()
+        self.gui.saved_searches_dock.show()
+    saved_searches = show_saved_searches
 
     def run_saved_searches(self, searches, action):
         ed = self.gui.central.current_editor
