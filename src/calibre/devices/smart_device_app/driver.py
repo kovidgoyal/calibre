@@ -1553,12 +1553,12 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
 
     def _check_if_format_send_needed(self, db, id_, book):
         if not self.will_ask_for_update_books:
-            return None
+            return (None, False)
 
         from calibre.utils.date import parse_date, isoformat
         try:
             if not hasattr(book, '_format_mtime_'):
-                return None
+                return (None, False)
 
             ext = posixpath.splitext(book.lpath)[1][1:]
             fmt_metadata = db.new_api.format_metadata(id_, ext)
