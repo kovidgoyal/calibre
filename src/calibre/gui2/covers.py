@@ -366,7 +366,7 @@ class CoverSettingsWidget(QWidget):
             prefs[attr] = getattr(self, attr).value()
         prefs['color_themes'] = self.custom_colors
         prefs['disabled_styles'] = list(self.disabled_styles)
-        prefs['disabled_colors'] = list(self.disabled_colors)
+        prefs['disabled_color_themes'] = list(self.disabled_colors)
         for x in ('title', 'subtitle', 'footer'):
             x += '_template'
             prefs[x] = getattr(self, x).text()
