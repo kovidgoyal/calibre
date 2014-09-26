@@ -20,6 +20,68 @@
 #   new recipes:
 #     - title: 
 
+- version: 2.4.0
+  date: 2014-09-25
+
+  new features:
+    - title: "An all new random cover generation algorithm, which generates covers using many different color schemes and cover styles"
+      description: "Now when you click the Generate cover button in the Edit Metadata dialog a cover based on the book metadata is generated using random colors and styles. You can customize the random cover generation by long clicking the Generate Cover button, which will popup a dialog where you can create new color schemes and customize other aspects of the generated cover as well."
+      type: major
+
+    - title: "Edit Book: Redesign the saved searches pop-up as a dockable window. Editing saved searches now happens inline and the global search/replace keyboard shortcuts work in the saved searches window"
+
+    - title: "Edit book: Change the text of the 'Mark selected text' menu entry depending on whether it will mark or unmark the text"
+
+    - title: 'Edit metadata dialog: Allow undoing a metadata download by long-clicking the Download metadata button and choosing "Undo last metadata download"'
+
+    - title: "Edit metadata dialog: Allow undoing the changes to individual fields by right clicking on the field and selecting Undo after a metadata download."
+      tickets: [1223367]
+
+    - title: 'Download metadata dialog: Allow using Enter key to select cover and left/right keys to move between metadata results.'
+      tickets: [1369178]
+
+    - title: 'Fix the row numbers in the book list remaining wide when switching libraries if some books were marked before the switch.'
+      tickets: [1369152]
+
+    - title: 'Fix keyboard focus not going to cover grid after doing a search.'
+      tickets: [1369160]
+
+    - title: 'DOCX Input: Support for the keepNext paragraph property to keep successive paragraphs on the same page.'
+
+    - title: 'Template language: New template functions: raw_list() to return the items in a list such as tags without any sorting/formatting applied to them; author_sorts() to return the author sort strings from the authors table for the authors in the book.'
+
+  bug fixes:
+    - title: "Fix a regression in 2.3 that broke creation of collections on the device when metadata management was set to manual."
+      tickets: [1371976]
+
+    - title: "E-book viewer: Fix displaying multiple pages per screen not working in calibre 2.x with some books, due to a change in Qt 5."
+      tickets: [1372066]
+
+    - title: "E-book viewer: Fix unintuitive behavior of back and forward buttons when going all the way back to the first item in the history."
+      tickets: [1367992 ]
+
+    - title: 'Conversion: Do not allow default (user-agent) style rules to ever override style rules defined in the input document, regardless of CSS selector specificity.'
+      tickets: [1369753]
+
+    - title: 'Workaround for Qt 5 regression that broke selecting multiple icons in Preferences->Column icon rules'
+
+    - title: 'Fix tags with angle brackets not being displayed in the Book Details panel'
+
+  improved recipes:
+    - Today's Zaman
+    - Wall Street Journal
+    - High Country News
+
+  new recipes:
+    - title: Hurriyet Daily News and Al Monitor 
+      author: spswerling
+
+    - title: VICE News 
+      author: Adrian Tennessee
+
+    - title: Jagran Josh 
+      author: Krittika Goyal
+
 - version: 2.3.0
   date: 2014-09-11
 
