@@ -72,7 +72,7 @@ Finally, I encourage you to ditch the content ToC and only have a metadata ToC i
     Kindle firmware tends to malfunction if you disable the generation of the
     end-of-file inline ToC. So it is recommended that you leave the generated
     ToC alone. If you create an AZW3 file with a metadata ToC and no
-    end-of-file generated ToC, some features ont he Kindle will not work, such
+    end-of-file generated ToC, some features on the Kindle will not work, such
     as the Page Flip feature.
 
 The covers for my MOBI files have stopped showing up in Kindle for PC/Kindle for Android/iPad etc.
@@ -93,7 +93,7 @@ this bug.
 
 How do I convert a collection of HTML files in a specific order?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-In order to convert a collection of HTML files in a specific oder, you have to
+In order to convert a collection of HTML files in a specific order, you have to
 create a table of contents file. That is, another HTML file that contains links
 to all the other files in the desired order. Such a file looks like::
 
