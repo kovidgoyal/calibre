@@ -1041,6 +1041,7 @@ class TagsModel(QAbstractItemModel):  # {{{
                                     label=self.db.field_metadata[key]['label'])
             self.tag_item_renamed.emit()
             item.tag.name = val
+            item.tag.state = TAG_SEARCH_STATES['clear']
             self.rename_item_in_all_user_categories(name, key, val)
             self.refresh_required.emit()
         return True
