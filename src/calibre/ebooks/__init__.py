@@ -8,7 +8,7 @@ from various formats.
 '''
 
 import traceback, os, re
-from calibre import CurrentDir
+from calibre import CurrentDir, prints
 
 class ConversionError(Exception):
 
@@ -123,10 +123,26 @@ def render_html_svg_workaround(path_to_html, log, width=590, height=750):
             pass
 
     if data is None:
-        renderer = render_html(path_to_html, width, height)
-        data = getattr(renderer, 'data', None)
+        from calibre.gui2 import is_ok_to_use_qt
+        if is_ok_to_use_qt():
+            data = render_html_data(path_to_html, width, height)
+        else:
+            from calibre.utils.ipc.simple_worker import fork_job, WorkerError
+            try:
+                result = fork_job('calibre.ebooks',
+                                  'render_html_data',
+                                  (path_to_html, width, height),
+                                  no_output=True)
+                data = result['result']
+            except WorkerError as err:
+                prints(err.orig_tb)
+            except:
+                traceback.print_exc()
     return data
 
+def render_html_data(path_to_html, width, height):
+    renderer = render_html(path_to_html, width, height)
+    return getattr(renderer, 'data', None)
 
 def render_html(path_to_html, width=590, height=750, as_xhtml=True):
     from PyQt5.QtWebKitWidgets import QWebPage
