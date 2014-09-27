@@ -733,7 +733,7 @@ class TagsModel(QAbstractItemModel):  # {{{
             if node.type == TagTreeItem.TAG:
                 fm = self.db.metadata_for_field(node.tag.category)
                 if node.tag.category in \
-                    ('tags', 'series', 'authors', 'rating', 'publisher') or \
+                    ('tags', 'series', 'authors', 'rating', 'publisher', 'languages') or \
                     (fm['is_custom'] and (
                             fm['datatype'] in ['text', 'rating', 'series',
                                                'enumeration'] or (
@@ -1101,7 +1101,7 @@ class TagsModel(QAbstractItemModel):  # {{{
                     ans |= Qt.ItemIsDragEnabled
                 fm = self.db.metadata_for_field(node.tag.category)
                 if node.tag.category in \
-                    ('tags', 'series', 'authors', 'rating', 'publisher') or \
+                    ('tags', 'series', 'authors', 'rating', 'publisher', 'languages') or \
                     (fm['is_custom'] and
                         fm['datatype'] in ['text', 'rating', 'series', 'enumeration']):
                     ans |= Qt.ItemIsDropEnabled
