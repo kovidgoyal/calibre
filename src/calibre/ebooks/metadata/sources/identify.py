@@ -461,7 +461,10 @@ def identify(log, abort,  # {{{
                 longest, lp = time_spent, plugin.name
         for r in presults:
             log('\n\n---')
-            log(unicode(r))
+            try:
+                log(unicode(r))
+            except TypeError:
+                log(repr(r))
         if plog:
             log(plog)
         log('\n'+'*'*80)
