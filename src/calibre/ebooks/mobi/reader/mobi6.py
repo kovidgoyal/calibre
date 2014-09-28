@@ -513,6 +513,11 @@ class MobiReader(object):
                     'div' and 'filepos-id' in attrib):
                 pagebreak_anchors.append(tag)
 
+            if 'color' in attrib:
+                styles.append('color: ' + attrib.pop('color'))
+            if 'bgcolor' in attrib:
+                styles.append('background-color: ' + attrib.pop('bgcolor'))
+
             if 'filepos-id' in attrib:
                 attrib['id'] = attrib.pop('filepos-id')
                 if 'name' in attrib and attrib['name'] != attrib['id']:
