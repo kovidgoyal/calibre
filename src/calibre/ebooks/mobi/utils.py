@@ -14,6 +14,7 @@ from io import BytesIO
 from calibre.utils.magick.draw import Image, save_cover_data_to, thumbnail
 from calibre.utils.imghdr import what
 from calibre.ebooks import normalize
+from tinycss.color3 import parse_color_string
 
 IMAGE_MAX_SIZE = 10 * 1024 * 1024
 RECORD_SIZE = 0x1000  # 4096 (Text record size (uncompressed))
@@ -604,3 +605,11 @@ def is_guide_ref_start(ref):
             (ref.type and ref.type.lower() in {'start',
                     'other.start', 'text'}))
 
+
+def convert_color_for_font_tag(val):
+    rgba = parse_color_string(unicode(val or ''))
+    if rgba is None or rgba == 'currentColor':
+        return val
+    clamp = lambda x: min(x, max(0, x), 1)
+    rgb = map(clamp, rgba[:3])
+    return '#' + ''.join(map(lambda x:'%02x' % int(x * 255), rgb))

@@ -13,6 +13,7 @@ from calibre.ebooks.oeb.base import namespace, barename
 from calibre.ebooks.oeb.base import XHTML, XHTML_NS, urlnormalize
 from calibre.ebooks.oeb.stylizer import Stylizer
 from calibre.ebooks.oeb.transforms.flatcss import KeyMapper
+from calibre.ebooks.mobi.utils import convert_color_for_font_tag
 from calibre.utils.magick.draw import identify_data
 
 MBP_NS = 'http://mobipocket.com/ns/mbp'
@@ -125,7 +126,7 @@ class MobiMLizer(object):
             self.mobimlize_elem(body, stylizer, BlockState(nbody),
                                 [FormatState()])
             item.data = nroot
-            #print etree.tostring(nroot)
+            # print etree.tostring(nroot)
 
     def mobimlize_font(self, ptsize):
         return self.fnums[self.fmap[ptsize]]
@@ -280,10 +281,10 @@ class MobiMLizer(object):
                 inline = etree.SubElement(inline, XHTML('b'))
             if istate.bgcolor is not None and istate.bgcolor != 'transparent' :
                 inline = etree.SubElement(inline, XHTML('span'),
-                        bgcolor=istate.bgcolor)
+                        bgcolor=convert_color_for_font_tag(istate.bgcolor))
             if istate.fgcolor != 'black':
                 inline = etree.SubElement(inline, XHTML('font'),
-                        color=unicode(istate.fgcolor))
+                        color=convert_color_for_font_tag(istate.fgcolor))
             if istate.strikethrough:
                 inline = etree.SubElement(inline, XHTML('s'))
             if istate.underline:
