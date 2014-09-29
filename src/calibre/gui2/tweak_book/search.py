@@ -31,10 +31,28 @@ REGEX_FLAGS = regex.VERSION1 | regex.WORD | regex.FULLCASE | regex.MULTILINE | r
 
 # The search panel {{{
 
-class PushButton(QPushButton):
+class AnimatablePushButton(QPushButton):
+
+    'A push button that can be animated without actually emitting a clicked signal'
+
+    def __init__(self, *args, **kwargs):
+        QPushButton.__init__(self, *args, **kwargs)
+        self.timer = t = QTimer(self)
+        t.setSingleShot(True), t.timeout.connect(self.animate_done)
+
+    def animate_click(self, msec=100):
+        self.setDown(True)
+        self.update()
+        self.timer.start(msec)
+
+    def animate_done(self):
+        self.setDown(False)
+        self.update()
+
+class PushButton(AnimatablePushButton):
 
     def __init__(self, text, action, parent):
-        QPushButton.__init__(self, text, parent)
+        AnimatablePushButton.__init__(self, text, parent)
         self.clicked.connect(lambda : parent.search_triggered.emit(action))
 
 class HistoryBox(HistoryComboBox):
@@ -652,12 +670,13 @@ class SavedSearches(QWidget):
         stack.currentChanged.connect(self.stack_current_changed)
 
         def pb(text, tooltip=None):
-            b = QPushButton(text, self)
+            b = AnimatablePushButton(text, self)
             b.setToolTip(tooltip or '')
             b.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Fixed)
             return b
 
         mulmsg = '\n\n' + _('The entries are tried in order until the first one matches.')
+        self.action_button_map = {}
 
         for text, action, tooltip in [
                 (_('&Find'), 'find', _('Run the search using the selected entries.') + mulmsg),
@@ -666,7 +685,7 @@ class SavedSearches(QWidget):
                 (_('Replace &all'), 'replace-all', _('Run Replace All for all selected entries in the order selected')),
                 (_('&Count all'), 'count', _('Run Count All for all selected entries')),
         ]:
-            b = pb(text, tooltip)
+            self.action_button_map[action] = b = pb(text, tooltip)
             v.addWidget(b)
             b.clicked.connect(partial(self.run_search, action))
 
@@ -743,6 +762,9 @@ class SavedSearches(QWidget):
         return False
 
     def trigger_action(self, action, overrides=None):
+        b = self.action_button_map.get(action)
+        if b is not None:
+            b.animate_click(300)
         self._run_search(action, overrides)
 
     def stack_current_changed(self, index):
@@ -809,7 +831,8 @@ class SavedSearches(QWidget):
                 fill_in_search(search)
                 searches.append(search)
         if not searches:
-            return
+            return error_dialog(self, _('Cannot search'), _(
+                'No saved search is selected'), show=True)
         if overrides:
             [sc.update(overrides) for sc in searches]
         self.run_saved_searches.emit(searches, action)
@@ -1062,22 +1085,23 @@ def run_search(
         for p, __ in searches:
             if editor is not None:
                 if editor.find(p, marked=marked, save_match='gui'):
-                    return
+                    return True
                 if wrap and not files and editor.find(p, wrap=True, marked=marked, save_match='gui'):
-                    return
+                    return True
             for fname, syntax in files.iteritems():
                 ed = editors.get(fname, None)
                 if ed is not None:
                     if not wrap and ed is editor:
                         continue
                     if ed.find(p, complete=True, save_match='gui'):
-                        return show_editor(fname)
+                        show_editor(fname)
+                        return True
                 else:
                     raw = current_container().raw_data(fname)
                     if p.search(raw) is not None:
                         edit_file(fname, syntax)
                         if editors[fname].find(p, complete=True, save_match='gui'):
-                            return
+                            return True
         return no_match()
 
     def no_replace(prefix=''):
