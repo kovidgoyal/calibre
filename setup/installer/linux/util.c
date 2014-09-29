@@ -183,6 +183,7 @@ void initialize_interpreter(int argc, char **argv, char *outr, char *errr,
     Py_NoUserSiteDirectory = 1;
     Py_VerboseFlag = 0;
     Py_DebugFlag = 0;
+    Py_HashRandomizationFlag = 1;
 
     Py_SetProgramName(exe_path);
     Py_SetPythonHome(base_dir);

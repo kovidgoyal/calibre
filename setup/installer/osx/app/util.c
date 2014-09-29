@@ -55,6 +55,7 @@ void initialize_interpreter(const char **ENV_VARS, const char **ENV_VAR_VALS,
     Py_DontWriteBytecodeFlag = 1;
     Py_IgnoreEnvironmentFlag = 1;
     Py_NoUserSiteDirectory = 1;
+    Py_HashRandomizationFlag = 1;
 
     //Py_VerboseFlag = 1;
     //Py_DebugFlag = 1;

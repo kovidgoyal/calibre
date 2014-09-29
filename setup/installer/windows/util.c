@@ -319,6 +319,9 @@ void initialize_interpreter(wchar_t *outr, wchar_t *errr,
     flag = (int*)GetProcAddress(dll, "Py_NoUserSiteDirectory");
     if (!flag) ExitProcess(_show_error(L"Failed to get user_site flag", L"", 1));
     *flag = 1;
+    flag = (int*)GetProcAddress(dll, "Py_HashRandomizationFlag ");
+    if (!flag) ExitProcess(_show_error(L"Failed to get hash randomization flag", L"", 1));
+    *flag = 1;
     flag = (int*)GetProcAddress(dll, "Py_VerboseFlag");
     if (!flag) ExitProcess(_show_error(L"Failed to get verbose flag", L"", 1));
     //*flag = 1;
