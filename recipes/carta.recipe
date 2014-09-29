@@ -12,37 +12,33 @@ class Carta(BasicNewsRecipe):
 
     title           = u'Carta'
     description     = 'News about electronic publishing'
-    __author__      = 'Armin Geller'  # AGe Update 2014-07-15
+    __author__      = 'Armin Geller' # AGe Update 2014-09-28
 
     timefmt                = ' [%a %d %b %Y]'
     oldest_article         = 7
     max_articles_per_feed  = 50
-    # no_stylesheets        = True
-    # use_embedded_content  = False
+    no_stylesheets        = True
+    #use_embedded_content  = False
     remove_javascript      = True
     encoding               = 'utf-8'
     language               = 'de'
 
-    cover_source   = 'http://carta.info/carta/wp-content/uploads/2012/09/gross.jpg'
-    masthead_url   = 'http://www.carta.info/carta/wp-content/themes/carta4/images/logo.png'
+    cover_url   = 'http://carta.info/carta/wp-content/uploads/2012/09/gross.jpg'
+    #masthead_url   = 'http://www.carta.info/carta/wp-content/themes/carta4/images/logo.png'
+    masthead_url   ='http://upload.wikimedia.org/wikipedia/de/b/ba/Carta_logo.png'
     extra_css      =  '''
                       h2 {font-size: 1.3em; font-style: italic}
                       .excerpt {font-size: 1.2em; font-style: italic}
                       '''
 
     keep_only_tags = [
-                       dict(name='div', attrs={'class':'postarea'}),
+                       dict(name='div', attrs={'class':['article-text','author']}),
+                       dict(name='p', attrs={'class':'tags'}),
                       ]
 
-    remove_tags_after = [
-                          dict(name='div', attrs={'class':'the-content'})
-                         ]
-
     remove_tags = [
-                   dict(name='div', attrs={'id':['header', 'subnavbar']}),
-                   dict(name='div', attrs={'addthis':'title'}),
-                   dict(name='p', attrs={'class':'print'}),
-                   dict(name='div', attrs={'style':'clear: both;'}),
+                   dict(name='ul', attrs={'class':'meta'}),
                    ]
 
-    feeds =  [(u'Carta', u'http://feeds2.feedburner.com/carta-standard-rss')]
+
+    feeds =  [ (u'Carta', u'http://feeds2.feedburner.com/carta-standard-rss') ]
