@@ -770,6 +770,7 @@ class WordsModel(QAbstractTableModel):
             self.beginRemoveRows(QModelIndex(), row, row)
             del self.items[row]
             self.endRemoveRows()
+        self.words.pop(w, None)
         return new_key
 
     def update_word(self, w):
