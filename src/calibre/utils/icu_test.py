@@ -156,7 +156,9 @@ class TestICU(unittest.TestCase):
             self.ae(split(unicode(q)), ['one', 'two', 'three'], 'Failed to split: %r' % q)
         self.ae(split(u'I I\'m'), ['I', "I'm"])
         self.ae(split(u'out-of-the-box'), ['out-of-the-box'])
-        self.ae(split(u'-one two-'), ['one', 'two'])
+        self.ae(split(u'-one two-'), ['-one', 'two-'])
+        self.ae(split(u'-one a-b-c-d e'), ['-one', 'a-b-c-d', 'e'])
+        self.ae(split(u'-one -a-b-c-d- e'), ['-one', '-a-b-c-d-', 'e'])
         self.ae(split_into_words_and_positions('one \U0001f431 three'), [(0, 3), (7 if icu.is_narrow_build else 6, 5)])
         for needle, haystack, pos in (
                 ('word', 'a word b', 2),
@@ -168,11 +170,26 @@ class TestICU(unittest.TestCase):
                 ('one-two', 'one-two-three one-two', 14),
                 ('one', 'onet one', 5),
                 ('two', 'one-two two', 8),
+                ('two', 'two-one two', 8),
+                ('-two', 'one-two -two', 8),
+                ('-two', 'two', -1),
                 ('i', 'i', 0),
                 ('i', 'six i', 4),
                 ('i', '', -1), ('', '', -1), ('', 'i', -1),
                 ('i', 'six clicks', -1),
                 ('i', '\U0001f431 i', (3 if icu.is_narrow_build else 2)),
+                ('-a', 'b -a', 2),
+                ('a-', 'a-b a- d', 4),
+                ('-a-', 'b -a -a-', 5),
+                ('-a-', '-a-', 0),
+                ('-a-', 'a-', -1),
+                ('-a-', '-a', -1),
+                ('-a-', 'a', -1),
+                ('a-', 'a-', 0),
+                ('-a', '-a', 0),
+                ('a-b-c-', 'a-b-c-d', -1),
+                ('a-b-c-', 'a-b-c-.', 0),
+                ('a-b-c-', 'a-b-c-d a-b-c- d', 8),
         ):
             fpos = index_of(needle, haystack)
             self.ae(pos, fpos, 'Failed to find index of %r in %r (%d != %d)' % (needle, haystack, pos, fpos))

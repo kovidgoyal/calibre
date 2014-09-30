@@ -158,6 +158,7 @@ class Dictionaries(object):
 
     def __init__(self):
         self.remove_hyphenation = re.compile('[\u2010-]+')
+        self.negative_pat = re.compile('-[.\d+]')
         self.dictionaries = {}
         self.word_cache = {}
         self.ignored_words = set()
@@ -327,6 +328,8 @@ class Dictionaries(object):
                             pass
                     else:
                         ans = True
+            if ans is False and self.negative_pat.match(word) is not None:
+                ans = True
             self.word_cache[key] = ans
         return ans
 

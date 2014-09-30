@@ -589,6 +589,8 @@ icu_BreakIterator_set_text(icu_BreakIterator *self, PyObject *input) {
 
 } // }}}
 
+#define IS_HYPHEN_CHAR(x) ((x) == 0x2d || (x) == 0x2010)
+
 // BreakIterator.index {{{
 static PyObject *
 icu_BreakIterator_index(icu_BreakIterator *self, PyObject *token) {
@@ -596,36 +598,52 @@ icu_BreakIterator_index(icu_BreakIterator *self, PyObject *token) {
 #error Not implemented for python >= 3.3
 #endif
 
-    UChar *buf = NULL;
-    int32_t prev = 0, p = 0, sz = 0, ans = -1;
+    UChar *buf = NULL, *needle = NULL;
+    int32_t word_start = 0, p = 0, sz = 0, ans = -1, leading_hyphen = 0, trailing_hyphen = 0;
   
     buf = python_to_icu(token, &sz, 1);
     if (buf == NULL) return NULL;
     if (sz < 1) goto end;
+    needle = buf;
+    if (sz > 1 && IS_HYPHEN_CHAR(buf[0])) { needle = buf + 1; leading_hyphen = 1; sz -= 1; }
+    if (sz > 1 && IS_HYPHEN_CHAR(buf[sz-1])) trailing_hyphen = 1;
 
     Py_BEGIN_ALLOW_THREADS;
     p = ubrk_first(self->break_iterator);
     while (p != UBRK_DONE) {
-        prev = p; p = ubrk_next(self->break_iterator);
+        word_start = p; p = ubrk_next(self->break_iterator);
         if (self->type == UBRK_WORD && ubrk_getRuleStatus(self->break_iterator) == UBRK_WORD_NONE) 
             continue;  // We are not at the start of a word
-        if (self->text_len >= prev + sz && memcmp(self->text + prev, buf, sz * sizeof(UChar)) == 0) {
-            // Needle is present at text[prev:] we have to check if it is not surrounded by hyphen boundaries
-            if (prev > 0 && (self->text[prev-1] == 0x2d || self->text[prev-1] == 0x2010)) continue; // At a hyphen boundary
-            if(
-                ubrk_isBoundary(self->break_iterator, prev + sz) &&
-                (self->text_len == prev + sz || (self->text[prev + sz] != 0x2d && self->text[prev + sz] != 0x2010))
-            ) {
-                ans = prev; break; // Found word surrounded by non-hyphen boundaries
-            } 
-            if (p != UBRK_DONE) ubrk_isBoundary(self->break_iterator, p); // Reset the iterator to its position before the call to ubrk_isBoundary
+
+        if (self->text_len >= word_start + sz && memcmp(self->text + word_start, needle, sz * sizeof(UChar)) == 0) {
+            if (word_start > 0 && (
+                    (leading_hyphen && !IS_HYPHEN_CHAR(self->text[word_start-1])) ||
+                    (!leading_hyphen && IS_HYPHEN_CHAR(self->text[word_start-1]))
+            )) continue;
+            if (!trailing_hyphen && IS_HYPHEN_CHAR(self->text[word_start + sz])) continue;
+
+            if (p == UBRK_DONE || self->text_len <= word_start + sz) { ans = word_start; break; }
+
+            if (
+                    // Check that the found word is followed by a word boundary
+                    ubrk_isBoundary(self->break_iterator, word_start + sz) &&
+                    // If there is a leading hyphen check  that the leading
+                    // hyphen is preceded by a word boundary
+                    (!leading_hyphen || (word_start > 1 && ubrk_isBoundary(self->break_iterator, word_start - 2))) &&
+                    // Check that there is a word boundary *after* the trailing
+                    // hyphen. We cannot rely on ubrk_isBoundary() as that
+                    // always returns true because of the trailing hyphen.
+                    (!trailing_hyphen || ubrk_following(self->break_iterator, word_start + sz) == UBRK_DONE || ubrk_getRuleStatus(self->break_iterator) == UBRK_WORD_NONE)
+            ) { ans = word_start; break; }
+
+            if (p != UBRK_DONE) ubrk_isBoundary(self->break_iterator, p); // Reset the iterator to its position before the call to ubrk_isBoundary()
         }
     }
+    if (leading_hyphen && ans > -1) ans -= 1;
 #ifdef Py_UNICODE_WIDE
     if (ans > 0) ans = u_countChar32(self->text, ans);
 #endif
     Py_END_ALLOW_THREADS;
-
 
 end:
     free(buf);
@@ -640,8 +658,8 @@ icu_BreakIterator_split2(icu_BreakIterator *self, PyObject *args) {
 #error Not implemented for python >= 3.3
 #endif
 
-    int32_t prev = 0, p = 0, sz = 0, last_pos = 0, last_sz = 0;
-    int is_hyphen_sep = 0;
+    int32_t word_start = 0, p = 0, sz = 0, last_pos = 0, last_sz = 0;
+    int is_hyphen_sep = 0, leading_hyphen = 0, trailing_hyphen = 0;
     UChar sep = 0;
     PyObject *ans = NULL, *temp = NULL, *t = NULL;
   
@@ -650,26 +668,31 @@ icu_BreakIterator_split2(icu_BreakIterator *self, PyObject *args) {
 
     p = ubrk_first(self->break_iterator);
     while (p != UBRK_DONE) {
-        prev = p; p = ubrk_next(self->break_iterator);
+        word_start = p; p = ubrk_next(self->break_iterator);
         if (self->type == UBRK_WORD && ubrk_getRuleStatus(self->break_iterator) == UBRK_WORD_NONE) 
             continue;  // We are not at the start of a word
-        sz = (p == UBRK_DONE) ? self->text_len - prev : p - prev;
+        sz = (p == UBRK_DONE) ? self->text_len - word_start : p - word_start;
         if (sz > 0) {
             // ICU breaks on words containing hyphens, we do not want that, so we recombine manually
-            is_hyphen_sep = 0;
-            if (last_pos > 0) {
-                if (prev - last_pos == 1) {
-                    sep = *(self->text + last_pos);
-                    if (sep == 0x2d || sep == 0x2010) is_hyphen_sep = 1;
+            is_hyphen_sep = 0; leading_hyphen = 0; trailing_hyphen = 0;
+            if (word_start > 0) { // Look for a leading hyphen
+                sep = *(self->text + word_start - 1);
+                if (IS_HYPHEN_CHAR(sep)) {
+                    leading_hyphen = 1;
+                    if (last_pos > 0 && word_start - last_pos == 1) is_hyphen_sep = 1;
                 }
+            }
+            if (word_start + sz < self->text_len) { // Look for a trailing hyphen
+                sep = *(self->text + word_start + sz);
+                if (IS_HYPHEN_CHAR(sep)) trailing_hyphen = 1;
             }
             last_pos = p;
 #ifdef Py_UNICODE_WIDE
-            sz = u_countChar32(self->text + prev, sz);
-            prev = u_countChar32(self->text, prev);
+            sz = u_countChar32(self->text + word_start, sz);
+            word_start = u_countChar32(self->text, word_start);
 #endif
             if (is_hyphen_sep && PyList_GET_SIZE(ans) > 0) {
-                sz = last_sz + sz + 1;
+                sz = last_sz + sz + trailing_hyphen;
                 last_sz = sz;
                 t = PyInt_FromLong((long)sz);
                 if (t == NULL) { Py_DECREF(ans); ans = NULL; break; }
@@ -677,8 +700,9 @@ icu_BreakIterator_split2(icu_BreakIterator *self, PyObject *args) {
                 Py_DECREF(PyTuple_GET_ITEM(temp, 1));
                 PyTuple_SET_ITEM(temp, 1, t);
             } else {
+                sz += leading_hyphen + trailing_hyphen;
                 last_sz = sz;
-                temp = Py_BuildValue("ll", (long)prev, (long)sz); 
+                temp = Py_BuildValue("ll", (long)(word_start - leading_hyphen), (long)sz); 
                 if (temp == NULL) {
                     Py_DECREF(ans); ans = NULL; break; 
                 } 
