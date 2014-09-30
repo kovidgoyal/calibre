@@ -32,6 +32,7 @@ from calibre.spell.dictionary import (
     builtin_dictionaries, custom_dictionaries, best_locale_for_language,
     get_dictionary, dprefs, remove_dictionary, rename_dictionary)
 from calibre.spell.import_from import import_from_oxt
+from calibre.spell.break_iterator import split_into_words
 from calibre.utils.localization import calibre_langcode_to_name, get_language, get_lang, canonicalize_lang
 from calibre.utils.icu import sort_key, primary_sort_key, primary_contains, contains
 
@@ -748,6 +749,9 @@ class WordsModel(QAbstractTableModel):
                 self.update_word(w)
 
     def replace_word(self, w, new_word):
+        # Hack to deal with replacement words that are actually multiple words,
+        # ignore all words except the first
+        new_word = split_into_words(new_word)[0]
         for location in self.words[w]:
             location.replace(new_word)
         if w[0] == new_word:
