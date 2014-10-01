@@ -5,12 +5,13 @@ __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 from calibre.web.feeds.news import BasicNewsRecipe
 import string
 
+
 class TheHindu(BasicNewsRecipe):
-    title                 = u'The Hindu'
+    title = u'The Hindu'
     language = 'en_IN'
 
-    oldest_article        = 1
-    __author__            = 'Kovid Goyal'
+    oldest_article = 1
+    __author__ = 'Kovid Goyal'
     max_articles_per_feed = 100
     no_stylesheets = True
 
@@ -26,7 +27,8 @@ class TheHindu(BasicNewsRecipe):
         # Finding all the section titles that are acceptable
         for x in nav_div.findAll(['a']):
             if self.is_accepted_entry(x):
-                section_list.append((string.capwords(self.tag_to_string(x)), x['href']))
+                section_list.append(
+                    (string.capwords(self.tag_to_string(x)), x['href']))
 
         # For each section title, fetch the article urls
         feeds = []
@@ -36,9 +38,9 @@ class TheHindu(BasicNewsRecipe):
             soup = self.index_to_soup(section_url)
             current_articles = []
 
-            div = soup.find('div', attrs={'id':'left-column'})
-            soup.find('div', attrs={'class':'newsection-title'}).extract()
-            soup.find('div', attrs={'id':'tpnav-bar'}).extract()
+            div = soup.find('div', attrs={'id': 'left-column'})
+            soup.find('span', attrs={'class': 'newsection-title'}).extract()
+            soup.find('div', attrs={'id': 'tpnav-bar'}).extract()
 
             for x in div.findAll(['a']):
                 title = self.tag_to_string(x)
@@ -47,8 +49,8 @@ class TheHindu(BasicNewsRecipe):
                     continue
                 self.log('\t\tFound article:', title)
                 self.log('\t\t\t', url)
-                current_articles.append({'title': title, 'url':url,
-                    'description':'', 'date':''})
+                current_articles.append({'title': title, 'url': url,
+                                         'description': '', 'date': ''})
 
             feeds.append((section_title, current_articles))
 
