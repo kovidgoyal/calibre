@@ -234,7 +234,7 @@ class TREKSTOR(USBMS):
             0x05cL,  # This is for the 4ink http://www.mobileread.com/forums/showthread.php?t=191318
             0x006c,  # This is for the 4ink http://www.mobileread.com/forums/showthread.php?t=218273
             0x006d,  # Another Pyrus? http://www.mobileread.com/forums/showthread.php?t=231982
-            0x73,    # This is for the Pyrus 2 LED http://www.mobileread.com/forums/showthread.php?t=230379
+            0x73,    # This is for the Pyrus 2 LED https://bugs.launchpad.net/bugs/1376018
             ]
     BCD         = [0x0002, 0x100, 0x0222, 0x2]
 
@@ -242,7 +242,7 @@ class TREKSTOR(USBMS):
 
     VENDOR_NAME = 'TREKSTOR'
     WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = ['EBOOK_PLAYER_7',
-            'EBOOK_PLAYER_5M', 'EBOOK-READER_3.0', 'EREADER_PYRUS', 'PYRUS_MINI', 'PYRUS_MAXI']
+            'EBOOK_PLAYER_5M', 'EBOOK-READER_3.0', 'EREADER_PYRUS', 'PYRUS_MINI', 'PYRUS_MAXI', 'PYRUS_2_LED']
     SUPPORTS_SUB_DIRS = True
     SUPPORTS_SUB_DIRS_DEFAULT = False
 
