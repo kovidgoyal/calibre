@@ -26,6 +26,7 @@ class WallStreetJournal(BasicNewsRecipe):
         dict(name='span', itemprop='author', rel='author'),
         dict(name='article', id=['article-contents', 'articleBody']),
         dict(name='div', id='article_story_body'),
+        dict(name='div', attrs={'class':'snippet-ad-login'}),
     ]
     remove_tags = [
         dict(attrs={'class':['insetButton', 'insettipBox']}),
@@ -108,6 +109,7 @@ class WallStreetJournal(BasicNewsRecipe):
                 desc = ''
             if feeds:
                 feeds[0][1].append({'title':title, 'url':url, 'description':desc, 'date':''})
+        feeds = [x for x in feeds if x[0] == 'Opinion']
         return feeds
 
     def wsj_find_wn_articles(self, url):
