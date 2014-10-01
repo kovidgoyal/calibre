@@ -133,5 +133,5 @@ Additional help resources
 
 For more information on |app|'s Catalog feature, see the MobileRead forum sticky `Creating Catalogs - Start here <http://www.mobileread.com/forums/showthread.php?t=118556>`_, where you can find information on how to customize the catalog templates, and how to submit a bug report.
 
-To ask questions or discuss calibre's Catalog feature with other users, visit the MobileRead forum `Calibre Catalogs <http://www.mobileread.com/forums/forumdisplay.php?f=238>`_.
+To ask questions or discuss calibre's Catalog feature with other users, visit the MobileRead forum `Calibre Catalogs <http://www.mobileread.com/forums/forumdisplay.php?f=236>`_.
 
