@@ -67,8 +67,8 @@ QToolBox::tab:hover {
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>811</width>
-            <height>380</height>
+            <width>371</width>
+            <height>236</height>
            </rect>
           </property>
           <attribute name="label">
@@ -240,8 +240,8 @@ QToolBox::tab:hover {
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>811</width>
-            <height>380</height>
+            <width>374</width>
+            <height>211</height>
            </rect>
           </property>
           <attribute name="label">
@@ -370,8 +370,8 @@ QToolBox::tab:hover {
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>811</width>
-            <height>380</height>
+            <width>799</width>
+            <height>378</height>
            </rect>
           </property>
           <attribute name="label">
@@ -472,8 +472,8 @@ QToolBox::tab:hover {
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>811</width>
-            <height>380</height>
+            <width>340</width>
+            <height>70</height>
            </rect>
           </property>
           <attribute name="label">
@@ -551,8 +551,8 @@ QToolBox::tab:hover {
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>811</width>
-            <height>380</height>
+            <width>384</width>
+            <height>115</height>
            </rect>
           </property>
           <attribute name="label">
@@ -622,8 +622,8 @@ QToolBox::tab:hover {
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>811</width>
-            <height>380</height>
+            <width>368</width>
+            <height>167</height>
            </rect>
           </property>
           <attribute name="label">
@@ -850,6 +850,81 @@ QToolBox::tab:hover {
           <string/>
          </property>
         </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="tab_5">
+      <attribute name="title">
+       <string>&amp;Dictionaries</string>
+      </attribute>
+      <layout class="QVBoxLayout" name="verticalLayout_4">
+       <item>
+        <widget class="QLabel" name="label_25">
+         <property name="text">
+          <string>When you lookup a word, the viewer opens the word's definition in a dictionary website. The dictionary website is chosen based on the language of the book. You can customize the website used for a particular language here.</string>
+         </property>
+         <property name="wordWrap">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QListWidget" name="dictionary_list"/>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayout_3">
+         <item>
+          <widget class="QPushButton" name="add_dictionary_website_button">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="text">
+            <string>&amp;Add website</string>
+           </property>
+           <property name="icon">
+            <iconset resource="../../../../resources/images.qrc">
+             <normaloff>:/images/plus.png</normaloff>:/images/plus.png</iconset>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="remove_dictionary_website_button">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="text">
+            <string>&amp;Remove website</string>
+           </property>
+           <property name="icon">
+            <iconset resource="../../../../resources/images.qrc">
+             <normaloff>:/images/minus.png</normaloff>:/images/minus.png</iconset>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="change_dictionary_website_button">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="text">
+            <string>&amp;Change website</string>
+           </property>
+           <property name="icon">
+            <iconset resource="../../../../resources/images.qrc">
+             <normaloff>:/images/edit_input.png</normaloff>:/images/edit_input.png</iconset>
+           </property>
+          </widget>
+         </item>
+        </layout>
        </item>
       </layout>
      </widget>

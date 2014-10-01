@@ -10,15 +10,18 @@ __docformat__ = 'restructuredtext en'
 import zipfile
 from functools import partial
 
-from PyQt5.Qt import (QFont, QDialog, Qt, QColor, QColorDialog,
-        QMenu, QInputDialog)
+from PyQt5.Qt import (
+    QFont, QDialog, Qt, QColor, QColorDialog, QMenu, QInputDialog,
+    QListWidgetItem, QFormLayout, QLabel, QLineEdit, QDialogButtonBox)
 
 from calibre.constants import iswindows, isxp
 from calibre.utils.config import Config, StringConfig, JSONConfig
-from calibre.gui2 import min_available_height
+from calibre.utils.icu import sort_key
+from calibre.utils.localization import get_language, calibre_langcode_to_name
+from calibre.gui2 import min_available_height, error_dialog
+from calibre.gui2.languages import LanguagesEdit
 from calibre.gui2.shortcuts import ShortcutConfig
 from calibre.gui2.viewer.config_ui import Ui_Dialog
-from calibre.utils.localization import get_language
 
 def config(defaults=None):
     desc = _('Options to customize the ebook viewer')
@@ -143,9 +146,13 @@ class ConfigDialog(QDialog, Ui_Dialog):
         opts = config().parse()
         self.load_options(opts)
         self.init_load_themes()
+        self.init_dictionaries()
 
         self.clear_search_history_button.clicked.connect(self.clear_search_history)
         self.resize(self.width(), min(self.height(), max(575, min_available_height()-25)))
+
+        for x in 'add remove change'.split():
+            getattr(self, x + '_dictionary_website_button').clicked.connect(getattr(self, x + '_dictionary_website'))
 
     def clear_search_history(self):
         from calibre.gui2 import config
@@ -190,9 +197,83 @@ class ConfigDialog(QDialog, Ui_Dialog):
         self.theming_message.setText(_('Deleted the theme named: %s')%
                 theme[len('theme_'):])
 
+    def init_dictionaries(self):
+        from calibre.gui2.viewer.main import dprefs
+        self.word_lookups = dprefs['word_lookups']
+
+    @dynamic_property
+    def word_lookups(self):
+        def fget(self):
+            return dict(self.dictionary_list.item(i).data(Qt.UserRole) for i in range(self.dictionary_list.count()))
+        def fset(self, wl):
+            self.dictionary_list.clear()
+            for langcode, url in sorted(wl.iteritems(), key=lambda (lc, url):sort_key(calibre_langcode_to_name(lc))):
+                i = QListWidgetItem('%s: %s' % (calibre_langcode_to_name(langcode), url), self.dictionary_list)
+                i.setData(Qt.UserRole, (langcode, url))
+        return property(fget=fget, fset=fset)
+
+    def add_dictionary_website(self):
+        class AD(QDialog):
+
+            def __init__(self, parent):
+                QDialog.__init__(self, parent)
+                self.setWindowTitle(_('Add a dictionary website'))
+                self.l = l = QFormLayout(self)
+                self.la = la = QLabel(
+                    _('Choose a language and enter the website address (URL) for it below.'
+                      ' The URL must have %s in it, which will be replaced by the actual word being'
+                      ' looked up') % '{word}')
+                la.setWordWrap(True)
+                l.addRow(la)
+                self.le = LanguagesEdit(self)
+                l.addRow(_('&Language:'), self.le)
+                self.url = u = QLineEdit(self)
+                u.setMinimumWidth(350)
+                u.setPlaceholderText(_('For example: %s') % 'http://dictionary.com/{word}')
+                l.addRow(_('&URL:'), u)
+                self.bb = bb = QDialogButtonBox(QDialogButtonBox.Ok|QDialogButtonBox.Cancel)
+                l.addRow(bb)
+                bb.accepted.connect(self.accept), bb.rejected.connect(self.reject)
+                self.resize(self.sizeHint())
+
+            def accept(self):
+                if '{word}' not in self.url.text():
+                    return error_dialog(self, _('Invalid URL'), _(
+                        'The URL {0} does not have {1} in it.').format(self.url.text(), '{word}'), show=True)
+                QDialog.accept(self)
+
+        d = AD(self)
+        if d.exec_() == d.Accepted:
+            url = d.url.text()
+            if url:
+                wl = self.word_lookups
+                for lc in d.le.lang_codes:
+                    wl[lc] = url
+                self.word_lookups = wl
+
+    def remove_dictionary_website(self):
+        idx = self.dictionary_list.currentIndex()
+        if idx.isValid():
+            lc, url = idx.data(Qt.UserRole)
+            wl = self.word_lookups
+            wl.pop(lc, None)
+            self.word_lookups = wl
+
+    def change_dictionary_website(self):
+        idx = self.dictionary_list.currentIndex()
+        if idx.isValid():
+            lc, url = idx.data(Qt.UserRole)
+            url, ok = QInputDialog.getText(self, _('Enter new website'), 'URL:', text=url)
+            if ok:
+                wl = self.word_lookups
+                wl[lc] = url
+                self.word_lookups = wl
+
     def restore_defaults(self):
         opts = config('').parse()
         self.load_options(opts)
+        from calibre.gui2.viewer.main import dprefs
+        self.word_lookups = dprefs.defaults['word_lookups']
 
     def load_options(self, opts):
         self.opt_remember_window_size.setChecked(opts.remember_window_size)
@@ -320,5 +401,5 @@ class ConfigDialog(QDialog, Ui_Dialog):
         c.set('show_controls', self.opt_show_controls.isChecked())
         for x in ('top', 'bottom', 'side'):
             c.set(x+'_margin', int(getattr(self, 'opt_%s_margin'%x).value()))
-
-
+        from calibre.gui2.viewer.main import dprefs
+        dprefs['word_lookups'] = self.word_lookups

@@ -24,8 +24,11 @@ from calibre.customize.ui import available_input_formats
 from calibre import as_unicode, force_unicode, isbytestring
 from calibre.ptempfile import reset_base_dir
 from calibre.utils.zipfile import BadZipfile
+from calibre.utils.localization import canonicalize_lang, lang_as_iso639_1
 
 vprefs = JSONConfig('viewer')
+dprefs = JSONConfig('viewer_dictionaries')
+dprefs.defaults['word_lookups'] = {}
 
 class Worker(Thread):
 
@@ -47,6 +50,18 @@ class RecentAction(QAction):
     def __init__(self, path, parent):
         self.path = path
         QAction.__init__(self, os.path.basename(path), parent)
+
+def default_lookup_website(lang):
+    lang = lang_as_iso639_1(lang) or lang
+    if lang == 'en':
+        prefix = 'https://www.wordnik.com/words/'
+    else:
+        prefix = 'http://%s.wiktionary.org/wiki/' % lang
+    return prefix + '{word}'
+
+def lookup_website(lang):
+    wm = dprefs['word_lookups']
+    return wm.get(lang, default_lookup_website(lang))
 
 class EbookViewer(MainWindow):
 
@@ -272,17 +287,14 @@ class EbookViewer(MainWindow):
                 at_start=True)
 
     def lookup(self, word):
-        from calibre.utils.localization import canonicalize_lang, lang_as_iso639_1
         from urllib import quote
-        lang = lang_as_iso639_1(self.view.current_language)
-        if not lang:
-            lang = canonicalize_lang(lang) or 'en'
         word = quote(word.encode('utf-8'))
-        if lang == 'en':
-            prefix = 'https://www.wordnik.com/words/'
-        else:
-            prefix = 'http://%s.wiktionary.org/wiki/' % lang
-        open_url(prefix + word)
+        try:
+            url = lookup_website(canonicalize_lang(self.view.current_language) or 'en').format(word=word)
+        except Exception:
+            traceback.print_exc()
+            url = default_lookup_website(canonicalize_lang(self.view.current_language) or 'en').format(word=word)
+        open_url(url)
 
     def get_remember_current_page_opt(self):
         from calibre.gui2.viewer.documentview import config
