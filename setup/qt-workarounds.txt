@@ -3,3 +3,6 @@ Undo manual patching for webkit soft hyphen redering bug when using qt
 
 Undo manual patching for OS X search box keyboard focus when using Qt >=
 5.3.2
+
+Undo manual fixing of Qt framework bundles in OS X setup script when
+using Qt >= 5.3.3
