@@ -21,7 +21,7 @@ class PDBOutput(OutputFormatPlugin):
             level=OptionRecommendation.LOW,
             short_switch='f', choices=list(ALL_FORMAT_WRITERS),
             help=(_('Format to use inside the pdb container. Choices are:')+\
-            ' %s' % list(ALL_FORMAT_WRITERS))),
+            ' %s' % sorted(ALL_FORMAT_WRITERS))),
         OptionRecommendation(name='pdb_output_encoding', recommended_value='cp1252',
             level=OptionRecommendation.LOW,
             help=_('Specify the character encoding of the output document. ' \

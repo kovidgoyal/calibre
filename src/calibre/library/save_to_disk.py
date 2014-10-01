@@ -98,7 +98,7 @@ def config(defaults=None):
                 'Default is "%(templ)s" which will save books into a per-author '
                 'subdirectory with filenames containing title and author. '
                 'Available controls are: {%(controls)s}')%dict(
-                    templ=DEFAULT_TEMPLATE, controls=', '.join(FORMAT_ARGS)))
+                    templ=DEFAULT_TEMPLATE, controls=', '.join(sorted(FORMAT_ARGS))))
     x('send_template', default=DEFAULT_SEND_TEMPLATE,
             help=_('The template to control the filename and directory structure of files '
                 'sent to the device. '

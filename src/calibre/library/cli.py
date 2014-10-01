@@ -181,7 +181,7 @@ List the books available in the calibre database.
                           ' special field "all" can be used to select all fields.'
                           )%', '.join(sorted(fields)))
     parser.add_option('--sort-by', default=None,
-                      help=_('The field by which to sort the results.\nAvailable fields: %s\nDefault: %%default')%','.join(FIELDS))
+                      help=_('The field by which to sort the results.\nAvailable fields: %s\nDefault: %%default')%','.join(sorted(FIELDS)))
     parser.add_option('--ascending', default=False, action='store_true',
                       help=_('Sort results in ascending order'))
     parser.add_option('-s', '--search', default=None,
@@ -804,7 +804,7 @@ def add_custom_column_option_parser():
 Create a custom column. label is the machine friendly name of the column. Should
 not contain spaces or colons. name is the human friendly name of the column.
 datatype is one of: {0}
-''').format(', '.join(CustomColumns.CUSTOM_DATA_TYPES)))
+''').format(', '.join(sorted(CustomColumns.CUSTOM_DATA_TYPES))))
 
     parser.add_option('--is-multiple', default=False, action='store_true',
                       help=_('This column stores tag like data (i.e. '
