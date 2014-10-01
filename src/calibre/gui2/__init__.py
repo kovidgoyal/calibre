@@ -1132,6 +1132,21 @@ def ensure_app():
             if islinux or isbsd:
                 args += ['-platformpluginpath', sys.extensions_location, '-platform', 'headless']
             _store_app = QApplication(args)
+            import traceback
+            # This is needed because as of PyQt 5.4 if sys.execpthook ==
+            # sys.__excepthook__ PyQt will abort the application on an
+            # unhandled python exception in a slot or virtual method. Since ensure_app()
+            # is used in worker processes for background work like rendering html
+            # or running a headless browser, we circumvent this as I really
+            # dont feel like going through all the code and making sure no
+            # unhandled exceptions ever occur. All the actual GUI apps already
+            # override sys.except_hook with a proper error handler.
+            def eh(t, v, tb):
+                try:
+                    traceback.print_exception(t, v, tb, file=sys.stderr)
+                except:
+                    pass
+            sys.excepthook = eh
 
 def must_use_qt():
     ''' This function should be called if you want to use Qt for some non-GUI
