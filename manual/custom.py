@@ -53,7 +53,7 @@ CLI_INDEX='''
 '''
 
 CLI_PREAMBLE='''\
-.. _{cmd}:
+.. _{cmdref}:
 
 ``{cmd}``
 ===================================================================
@@ -227,7 +227,7 @@ def cli_docs(app):
         usage = usage[1:]
         usage = [i.replace(cmd, ':command:`%s`'%cmd) for i in usage]
         usage = '\n'.join(usage)
-        preamble = CLI_PREAMBLE.format(cmd=cmd, cmdline=cmdline, usage=usage)
+        preamble = CLI_PREAMBLE.format(cmd=cmd, cmdref=cmd + '-' + app.config.language, cmdline=cmdline, usage=usage)
         if cmd == 'ebook-convert':
             generate_ebook_convert_help(preamble, app)
         elif cmd == 'calibredb':
@@ -247,7 +247,7 @@ def generate_docs(app):
 
 def template_docs(app):
     from template_ref_generate import generate_template_language_help
-    raw = generate_template_language_help()
+    raw = generate_template_language_help(app.config.language)
     update_cli_doc('template_ref', raw, app)
 
 def setup(app):

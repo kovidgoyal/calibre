@@ -7,7 +7,7 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 from collections import defaultdict
 
 PREAMBLE = '''\
-.. _templaterefcalibre:
+.. _templaterefcalibre-{}:
 
 Reference for all built-in template language functions
 ========================================================
@@ -58,7 +58,7 @@ The python implementation of the template functions is passed in a Metadata obje
 '''
 
 
-def generate_template_language_help():
+def generate_template_language_help(language):
     from calibre.utils.formatter_functions import formatter_functions
 
     funcs = defaultdict(dict)
@@ -74,7 +74,7 @@ def generate_template_language_help():
         func_cat = getattr(func, 'category')
         funcs[func_cat][func_sig] = class_name
 
-    output = PREAMBLE
+    output = PREAMBLE.format(language)
     cats = sorted(funcs.keys())
     for cat in cats:
         output += CATEGORY_TEMPLATE.format(category=cat, dashes='-'*len(cat))

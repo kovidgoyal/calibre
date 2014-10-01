@@ -300,7 +300,7 @@ If you're satisfied with your recipe, and you feel there is enough demand to jus
 
 .. seealso::
 
-    :ref:`ebook-convert`
+    :doc:`generated/|lang|/ebook-convert`
         The command line interface for all ebook conversion.
 
 
