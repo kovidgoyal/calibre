@@ -83,7 +83,7 @@ def generate_calibredb_help(preamble, app):
 
     global_options = '\n'.join(render_options('calibredb', groups, False, False))
 
-    lines, toc = [], []
+    lines = []
     for cmd in COMMANDS:
         args = []
         if cmd == 'catalog':
@@ -91,7 +91,6 @@ def generate_calibredb_help(preamble, app):
         parser = getattr(cli, cmd+'_option_parser')(*args)
         if cmd == 'catalog':
             parser = parser[0]
-        toc.append('  * :ref:`calibredb-%s`'%cmd)
         lines += ['.. _calibredb-'+cmd+':', '']
         lines += [cmd, '~'*20, '']
         usage = parser.usage.strip()
@@ -106,8 +105,7 @@ def generate_calibredb_help(preamble, app):
         lines += render_options('calibredb '+cmd, groups, False)
         lines += ['']
 
-    toc = '\n'.join(toc)
-    raw = preamble + '\n\n'+toc + '\n\n' + global_options+'\n\n'+'\n'.join(lines)
+    raw = preamble + '\n\n'+'.. contents::\n  :local:'+ '\n\n' + global_options+'\n\n'+'\n'.join(lines)
     update_cli_doc('calibredb', raw, app)
 
 def generate_ebook_convert_help(preamble, app):
