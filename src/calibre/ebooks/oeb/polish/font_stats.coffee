@@ -50,6 +50,29 @@ process_font_face_rule = (rule, font_faces) ->
     fd['src'] = rule.style.getPropertyValue('src')
     font_faces.push(fd)
 
+fl_pat = /:{1,2}(first-letter|first-line)/i
+
+process_sheet_for_pseudo = (sheet, rules) ->
+    for rule in sheet.cssRules
+        if rule.type == rule.STYLE_RULE
+            st = rule.selectorText
+            m = fl_pat.exec(st)
+            if m
+                pseudo = m[1].toLowerCase()
+                ff = rule.style.getPropertyValue('font-family')
+                if ff
+                    process_style_rule(st, rule.style, rules, pseudo)
+        else if rule.type == rule.IMPORT_RULE and rule.styleSheet
+            process_sheet_for_pseudo(rule.styleSheet, rules)
+
+process_style_rule = (selector_text, style, rules, pseudo) ->
+    selector_text = selector_text.replace(fl_pat, '')
+    fd = font_dict(style)
+    for element in document.querySelectorAll(selector_text)
+        text = element.innerText
+        if text
+            rules.push([fd, text, pseudo])
+
 class FontStats
     # This class is a namespace to expose functions via the
     # window.font_stats object.
@@ -73,6 +96,12 @@ class FontStats
             usage = font_usage(node)
             if usage != null
                 ans.push(usage)
+        py_bridge.value = ans
+
+    get_pseudo_element_font_usage: () ->
+        ans = []
+        for sheet in document.styleSheets
+            process_sheet_for_pseudo(sheet, ans)
         py_bridge.value = ans
 
     get_font_families: () ->
