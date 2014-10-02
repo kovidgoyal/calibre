@@ -4,6 +4,8 @@ __copyright__ = '2010, Darko Miletic <darko.miletic at gmail.com>'
 '''
 www.sueddeutsche.de/sz/
 '''
+# History
+# 2014.10.02 Fixed url Problem lala-rob(web@lala-rob.de)
 
 from calibre.web.feeds.news import BasicNewsRecipe
 from calibre import strftime
@@ -40,14 +42,21 @@ class SueddeutcheZeitung(BasicNewsRecipe):
     remove_attributes = ['height','width','style']
 
     def get_browser(self):
-        br = BasicNewsRecipe.get_browser(self)
-        if self.username is not None and self.password is not None:
-            br.open(self.INDEX)
-            br.select_form(name='lbox')
-            br['login_name'    ] = self.username
-            br['login_passwort'] = self.password
-            br.submit()
-        return br
+        browser = BasicNewsRecipe.get_browser(self)
+
+        # Login via fetching of Streiflicht -> Fill out login request
+        #url = self.root_url + 'show.php?id=streif'
+        url = 'https://id.sueddeutsche.de/login'
+        browser.open(url)
+
+        browser.select_form(nr=0) # to select the first form
+        browser['login'] = self.username
+        browser['password'] = self.password
+        browser.submit()
+
+        return browser
+
+
 
     remove_tags        =[
                          dict(attrs={'class':'hidePrint'})
