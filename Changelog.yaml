@@ -20,6 +20,52 @@
 #   new recipes:
 #     - title: 
 
+- version: 2.5.0
+  date: 2014-10-03
+
+  new features:
+    - title: "E-book viewer: Allow changing the website that is used as a dictionary for looking up words in the viewer. Click the Preferences button in the viewer and choose the dictionaries tab to customize the website."
+
+    - title: "Edit book/Book polishing: When embedding fonts or subsetting embedded fonts, handle the :first-letter and :first-line pseudo-element style rules."
+      tickets: [1373649]
+
+    - title: "Windows driver for Trekstor Pyrus 2 LED."
+      tickets: [1376018]
+
+  bug fixes:
+    - title: "Fix a typo preventing calibre from recognizing the new Kobo Aura H2O"
+
+    - title: 'Edit Book: Spell Check: Fix replaced words coming back into the list when toggling the "Show only misspelled words" setting'
+
+    - title: 'Edit Book: Spell Check: Fix replacing a word with multiple words causing the replacements to show up erroneously in the list of misspelled words'
+      tickets: [1370294] 
+
+    - title: 'Edit Book: Fix leading or trailing hyphens on words being ignored when spell checking.'
+      tickets: [1370288]
+
+    - title: 'E-book viewer: Fix a regression, caused by a Qt 5 behavior change, that caused incorrect colors to be shown when viewing MOBI files that use CSS 3 color specifications internally.'
+
+    - title: 'MOBI Output: Handle input documents that use CSS 3 syntax for colors by converting the color to the #RRGGBB format required for MOBI'
+
+    - title: 'Tag Browser: Fix drag and drop of books onto a language not setting the language.'
+      tickets: [1373504]
+
+    - title: 'Tag Browser: When renaming an item that is currently being searched for, remove the search indicator, as the search will no longer match the renamed item.'
+      tickets: [1374624]
+
+    - title: 'Bulk metadata edit: Fix getting cover from EPUB files that have no cover image by rendering the first page as the cover not working.'
+      tickets: [1374243]
+
+    - title: 'Custom cover generation: Fix disabled color schemes not being saved'
+      tickets: [1374337] 
+
+    - title: 'Wireless device driver: Fix a regression in 2.4 that caused book matching to run slowly when connecting to calibre companion'
+
+  improved recipes:
+    - Sueddeutsche Zeitung
+    - The Hindu
+    - Carta
+
 - version: 2.4.0
   date: 2014-09-25
 
