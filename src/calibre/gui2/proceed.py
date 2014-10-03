@@ -11,7 +11,7 @@ from collections import namedtuple
 
 from PyQt5.Qt import (QDialog, Qt, QLabel, QGridLayout, QPixmap,
         QDialogButtonBox, QApplication, QSize, pyqtSignal, QIcon,
-        QPlainTextEdit, QCheckBox)
+        QPlainTextEdit, QCheckBox, QDesktopWidget)
 
 from calibre.constants import __version__
 from calibre.gui2.dialogs.message_box import ViewLog
@@ -178,6 +178,17 @@ class ProceedQuestion(QDialog):
             button.setDefault(True)
             button.setFocus(Qt.OtherFocusReason)
 
+    def show(self):
+        QDialog.show(self)
+        if self.geom_pref is None:
+            if self.parent() is None:
+                geom = QDesktopWidget.screenGeometry(self)
+            else:
+                geom = self.parent().geometry()
+            x = max(50, geom.x() + geom.width() // 2 - self.width() // 2)
+            y = max(50, geom.y() + geom.height() // 2 - self.height() // 2)
+            self.move(x, y)
+
     def __call__(self, callback, payload, html_log, log_viewer_title, title,
             msg, det_msg='', show_copy_button=False, cancel_callback=None,
             log_is_file=False, checkbox_msg=None, checkbox_checked=False,
@@ -243,7 +254,7 @@ def main():
     app = Application([])
     w = QMainWindow()
     w.show()
-    p = ProceedQuestion(None)
+    p = ProceedQuestion(w)
     p(lambda p,q:None, None, 'ass', 'ass', 'testing', 'testing',
             checkbox_msg='testing the ruddy checkbox', det_msg='details')
     p(lambda p:None, None, 'ass2', 'ass2', 'testing2', 'testing2',
