@@ -254,7 +254,7 @@ class TagsView(QTreeView):  # {{{
             QTreeView.mouseMoveEvent(self, event)
             return
         md = self._model.mimeData([dex])
-        pixmap = dex.data(DRAG_IMAGE_ROLE).pixmap(25, 25)
+        pixmap = dex.data(DRAG_IMAGE_ROLE).pixmap(self.iconSize())
         drag = QDrag(self)
         drag.setPixmap(pixmap)
         drag.setMimeData(md)
