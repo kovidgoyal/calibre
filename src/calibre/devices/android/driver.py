@@ -115,6 +115,7 @@ class ANDROID(USBMS):
                 0xdddd : [0x216],
                 0x0d01 : [0x9999],
                 0x0d02 : [0x9999],
+                0x2d01 : [0x9999],
                 0xdeed : [0x231, 0x226],
             },
 
