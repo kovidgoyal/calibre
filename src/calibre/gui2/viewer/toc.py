@@ -17,9 +17,9 @@ class TOCView(QTreeView):
 
     def __init__(self, *args):
         QTreeView.__init__(self, *args)
-        self.setCursor(Qt.PointingHandCursor)
         self.setMinimumWidth(80)
         self.header().close()
+        self.setMouseTracking(True)
         self.setStyleSheet('''
                 QTreeView {
                     background-color: palette(window);
@@ -39,6 +39,13 @@ class TOCView(QTreeView):
                     border-radius: 6px;
                 }
         ''')
+
+    def mouseMoveEvent(self, ev):
+        if self.indexAt(ev.pos()).isValid():
+            self.setCursor(Qt.PointingHandCursor)
+        else:
+            self.unsetCursor()
+        return QTreeView.mouseMoveEvent(self, ev)
 
 class TOCItem(QStandardItem):
 
