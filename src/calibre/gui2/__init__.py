@@ -197,6 +197,8 @@ def _config():  # {{{
         help='Search history for the main GUI')
     c.add_opt('viewer_search_history', default=[],
         help='Search history for the ebook viewer')
+    c.add_opt('viewer_toc_search_history', default=[],
+        help='Search history for the ToC in the ebook viewer')
     c.add_opt('lrf_viewer_search_history', default=[],
         help='Search history for the LRF viewer')
     c.add_opt('scheduler_search_history', default=[],

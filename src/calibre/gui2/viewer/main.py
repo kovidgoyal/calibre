@@ -125,6 +125,7 @@ class EbookViewer(MainWindow):
         self.search.search.connect(self.find)
         self.search.focus_to_library.connect(lambda: self.view.setFocus(Qt.OtherFocusReason))
         self.toc.pressed[QModelIndex].connect(self.toc_clicked)
+        self.toc.searched.connect(partial(self.toc_clicked, force=True))
         self.reference.goto.connect(self.goto)
         self.bookmarks.edited.connect(self.bookmarks_edited)
         self.bookmarks.activated.connect(self.goto_bookmark)

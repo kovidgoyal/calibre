@@ -13,14 +13,14 @@ from PyQt5.Qt import (
     QIcon, QWidget, Qt, QGridLayout, QScrollBar, QToolBar, QAction,
     QToolButton, QMenu, QDoubleSpinBox, pyqtSignal, QLineEdit,
     QRegExpValidator, QRegExp, QPalette, QColor, QBrush, QPainter,
-    QDockWidget, QSize, QWebView, QLabel)
+    QDockWidget, QSize, QWebView, QLabel, QVBoxLayout)
 
 from calibre.gui2 import rating_font, workaround_broken_under_mouse
 from calibre.gui2.main_window import MainWindow
 from calibre.gui2.search_box import SearchBox2
 from calibre.gui2.viewer.documentview import DocumentView
 from calibre.gui2.viewer.bookmarkmanager import BookmarkManager
-from calibre.gui2.viewer.toc import TOCView
+from calibre.gui2.viewer.toc import TOCView, TOCSearch
 
 class DoubleSpinBox(QDoubleSpinBox):  # {{{
 
@@ -236,9 +236,13 @@ class Main(MainWindow):
         self.tool_bar2.addWidget(self.search)
 
         self.toc_dock = d = QDockWidget(_('Table of Contents'), self)
-        self.toc = TOCView(self)
+        self.toc_container = w = QWidget(self)
+        w.l = QVBoxLayout(w)
+        self.toc = TOCView(w)
+        self.toc_search = TOCSearch(self.toc, parent=w)
+        w.l.addWidget(self.toc), w.l.addWidget(self.toc_search), w.l.setContentsMargins(0, 0, 0, 0)
         d.setObjectName('toc-dock')
-        d.setWidget(self.toc)
+        d.setWidget(w)
         d.close()  # starts out hidden
         self.addDockWidget(Qt.LeftDockWidgetArea, d)
         d.setAllowedAreas(Qt.LeftDockWidgetArea | Qt.RightDockWidgetArea)
