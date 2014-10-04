@@ -65,7 +65,6 @@ class TagDelegate(QStyledItemDelegate):  # {{{
                     icon.On)
             painter.restore()
 
-
     # }}}
 
 class TagsView(QTreeView):  # {{{
@@ -89,10 +88,10 @@ class TagsView(QTreeView):  # {{{
 
     def __init__(self, parent=None):
         QTreeView.__init__(self, parent=None)
+        self.setMouseTracking(True)
         self.alter_tb = None
         self.disable_recounting = False
         self.setUniformRowHeights(True)
-        self.setCursor(Qt.PointingHandCursor)
         self.setIconSize(QSize(20, 20))
         self.setTabKeyNavigation(True)
         self.setAnimated(True)
@@ -236,6 +235,10 @@ class TagsView(QTreeView):  # {{{
 
     def mouseMoveEvent(self, event):
         dex = self.indexAt(event.pos())
+        if dex.isValid():
+            self.setCursor(Qt.PointingHandCursor)
+        else:
+            self.unsetCursor()
         if self.in_drag_drop or not dex.isValid():
             QTreeView.mouseMoveEvent(self, event)
             return
@@ -485,11 +488,11 @@ class TagsView(QTreeView):  # {{{
                                         action='delete_search', key=tag.original_name))
                     if key.startswith('@') and not item.is_gst:
                         self.context_menu.addAction(self.user_category_icon,
-                                _('Remove %(item)s from category %(cat)s')%
-                                            dict(item=display_name(tag), cat=item.py_name),
-                                partial(self.context_menu_handler,
-                                        action='delete_item_from_user_category',
-                                        key=key, index=tag_item))
+                            _('Remove %(item)s from category %(cat)s')%
+                            dict(item=display_name(tag), cat=item.py_name),
+                            partial(self.context_menu_handler,
+                                    action='delete_item_from_user_category',
+                                    key=key, index=tag_item))
                     if tag.is_searchable:
                         # Add the search for value items. All leaf nodes are searchable
                         self.context_menu.addAction(self.search_icon,
@@ -727,5 +730,3 @@ class TagsView(QTreeView):  # {{{
         self.setCurrentIndex(idx)
 
     # }}}
-
-
