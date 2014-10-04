@@ -239,6 +239,8 @@ class TagsView(QTreeView):  # {{{
             self.setCursor(Qt.PointingHandCursor)
         else:
             self.unsetCursor()
+        if not event.buttons() & Qt.LeftButton:
+            return
         if self.in_drag_drop or not dex.isValid():
             QTreeView.mouseMoveEvent(self, event)
             return
