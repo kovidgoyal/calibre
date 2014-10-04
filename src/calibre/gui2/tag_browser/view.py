@@ -18,7 +18,7 @@ from PyQt5.Qt import (QStyledItemDelegate, Qt, QTreeView, pyqtSignal, QSize,
 from calibre import sanitize_file_name_unicode
 from calibre.constants import config_dir
 from calibre.gui2.tag_browser.model import (TagTreeItem, TAG_SEARCH_STATES,
-        TagsModel)
+        TagsModel, DRAG_IMAGE_ROLE)
 from calibre.gui2 import config, gprefs, choose_files, pixmap_to_data
 from calibre.utils.icu import sort_key
 
@@ -254,7 +254,7 @@ class TagsView(QTreeView):  # {{{
             QTreeView.mouseMoveEvent(self, event)
             return
         md = self._model.mimeData([dex])
-        pixmap = dex.data(Qt.DecorationRole).pixmap(25, 25)
+        pixmap = dex.data(DRAG_IMAGE_ROLE).pixmap(25, 25)
         drag = QDrag(self)
         drag.setPixmap(pixmap)
         drag.setMimeData(md)

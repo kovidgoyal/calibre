@@ -24,6 +24,7 @@ from calibre.utils.formatter import EvalFormatter
 
 TAG_SEARCH_STATES = {'clear': 0, 'mark_plus': 1, 'mark_plusplus': 2,
                      'mark_minus': 3, 'mark_minusminus': 4}
+DRAG_IMAGE_ROLE = Qt.UserRole + 1000
 
 _bf = None
 def bf():
@@ -116,6 +117,8 @@ class TagTreeItem(object):  # {{{
             return bf()
         if role == Qt.ToolTipRole and self.tooltip is not None:
             return (self.tooltip)
+        if role == DRAG_IMAGE_ROLE:
+            return self.icon
         return None
 
     def tag_data(self, role):
@@ -153,6 +156,8 @@ class TagTreeItem(object):  # {{{
                 return (self.tooltip + tag.tooltip)
             else:
                 return (self.tooltip)
+        if role == DRAG_IMAGE_ROLE:
+            return self.icon_state_map[0]
         return None
 
     def toggle(self, set_to=None):
