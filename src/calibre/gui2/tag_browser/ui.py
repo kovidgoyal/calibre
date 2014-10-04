@@ -220,33 +220,21 @@ class TagBrowserMixin(object):  # {{{
             to_delete = d.to_delete  # list of ids
             orig_name = d.original_names  # dict of id: name
 
-            rename_func = None
-            if category == 'tags':
-                rename_func = db.rename_tag
-                delete_func = db.delete_tag_using_id
-            elif category == 'series':
-                rename_func = db.rename_series
-                delete_func = db.delete_series_using_id
-            elif category == 'publisher':
-                rename_func = db.rename_publisher
-                delete_func = db.delete_publisher_using_id
-            else:  # must be custom
-                cc_label = db.field_metadata[category]['label']
-                rename_func = partial(db.rename_custom_item, label=cc_label)
-                delete_func = partial(db.delete_custom_item_using_id, label=cc_label)
-            m = self.tags_view.model()
-            if rename_func:
+            if (category in ['tags', 'series', 'publisher'] or
+                    db.new_api.field_metadata.is_custom_field(category)):
+                m = self.tags_view.model()
                 for item in to_delete:
-                    delete_func(item)
                     m.delete_item_from_all_user_categories(orig_name[item], category)
                 for old_id in to_rename:
-                    rename_func(old_id, new_name=unicode(to_rename[old_id]))
                     m.rename_item_in_all_user_categories(orig_name[old_id],
                                             category, unicode(to_rename[old_id]))
 
-            # Clean up the library view
-            self.do_tag_item_renamed()
-            self.tags_view.recount()
+                db.new_api.remove_items(category, to_delete)
+                db.new_api.rename_items(category, to_rename, change_index=False)
+
+                # Clean up the library view
+                self.do_tag_item_renamed()
+                self.tags_view.recount()
 
     def do_tag_item_delete(self, category, item_id, orig_name):
         '''
