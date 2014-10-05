@@ -933,6 +933,7 @@ class EbookViewer(MainWindow):
             'Next occurrence': self.view.search_action,
             'Bookmark': bac,
             'Reload': self.action_reload,
+            'Table of Contents': self.action_table_of_contents,
         }.get(key, None)
         if action is not None:
             event.accept()

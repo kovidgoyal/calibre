@@ -78,6 +78,9 @@ SHORTCUTS = {
         'Search online': (['Ctrl+E'],
             _('Search online for word')),
 
+        'Table of Contents': (['Ctrl+T'],
+            _('Show/hide the Table of Contents')),
+
         'Lookup word': (['Ctrl+L'],
             _('Lookup word in dictionary')),
 

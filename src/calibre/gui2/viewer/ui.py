@@ -348,7 +348,7 @@ class Main(MainWindow):
         a('copy', _('Copy to clipboard'), 'edit-copy.png').setDisabled(True)
         a('font_size_larger', _('Increase font size'), 'font_size_larger.png')
         a('font_size_smaller', _('Decrease font size'), 'font_size_smaller.png')
-        a('table_of_contents', self.toc_dock, 'highlight_only_on.png')
+        a('table_of_contents', self.toc_dock, 'highlight_only_on.png', sc_name='Table of Contents')
         a('full_screen', _('Toggle full screen'), 'page.png', sc_name='Fullscreen').setCheckable(True)
         self.tool_bar.addSeparator()
 
