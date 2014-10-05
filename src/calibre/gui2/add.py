@@ -198,7 +198,7 @@ class DBAdder(QObject):  # {{{
             self.critical[name] = open(opf, 'rb').read().decode('utf-8', 'replace')
         else:
             try:
-                mi = OPF(opf).to_book_metadata()
+                mi = OPF(opf, try_to_guess_cover=False, basedir=os.path.dirname(opf)).to_book_metadata()
             except:
                 import traceback
                 mi = MetaInformation('', [_('Unknown')])

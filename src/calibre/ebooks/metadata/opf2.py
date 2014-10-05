@@ -560,12 +560,13 @@ class OPF(object):  # {{{
                                 formatter=json.loads, renderer=dump_dict)
 
     def __init__(self, stream, basedir=os.getcwdu(), unquote_urls=True,
-            populate_spine=True):
+            populate_spine=True, try_to_guess_cover=True):
         if not hasattr(stream, 'read'):
             stream = open(stream, 'rb')
         raw = stream.read()
         if not raw:
             raise ValueError('Empty file: '+getattr(stream, 'name', 'stream'))
+        self.try_to_guess_cover = try_to_guess_cover
         self.basedir  = self.base_dir = basedir
         self.path_to_html_toc = self.html_toc_fragment = None
         raw, self.encoding = xml_to_unicode(raw, strip_encoding_pats=True,
@@ -1186,7 +1187,8 @@ class OPF(object):  # {{{
                         if item.type and item.type.lower() == t:
                             return item.path
             try:
-                return self.guess_cover()
+                if self.try_to_guess_cover:
+                    return self.guess_cover()
             except:
                 pass
 
