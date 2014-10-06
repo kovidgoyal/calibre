@@ -123,7 +123,7 @@ conversion dialog to control how the Table of Contents is generated.
     and customizing the HTML to ZIP plugin.
 
 The EPUB I produced with |app| is not valid?
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 |app| does not guarantee that an EPUB produced by it is valid. The only
 guarantee it makes is that if you feed it valid XHTML 1.1 + CSS 2.1 it will
@@ -134,7 +134,7 @@ of its users. If you need a tool that always produces valid EPUBs, |app| is not
 for you.
 
 How do I use some of the advanced features of the conversion tools?
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~J
 You can get help on any individual feature of the converters by mousing over
 it in the GUI or running ``ebook-convert dummy.html .epub -h`` at a terminal.
 A good place to start is to look at the following demo file that demonstrates
@@ -150,7 +150,7 @@ Device Integration
   :local:
 
 What devices does |app| support?
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 |app| can directly connect to all the major (and most of the minor) ebook
 reading devices, smarthphones, tablets, etc.  In addition, using the
 :guilabel:`Connect to folder` function you can use it with any ebook reader
@@ -179,7 +179,7 @@ will appear in the next release of |app|. To send us the output, open a bug repo
 See `calibre bugs <http://calibre-ebook.com/bugs>`_.
 
 My device is not being detected by |app|?
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Follow these steps to find the problem:
 
@@ -276,7 +276,7 @@ simplest is to simply re-name the executable file that launches the library prog
 `in the forums <http://www.mobileread.com/forums/showthread.php?t=65809>`_.
 
 How do I use |app| with my iPad/iPhone/iPod touch?
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Over the air
 ^^^^^^^^^^^^^^
@@ -528,7 +528,7 @@ available `from here <http://www.mobileread.com/forums/showthread.php?t=244202>`
     above plugin useless, unless you root your Kindle and install custom firmware.
 
 I am getting an error when I try to use |app| with my Kobo Touch/Glo/etc.?
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The Kobo has very buggy firmware. Connecting to it has been known to fail at
 random. Certain combinations of motherboard, USB ports/cables/hubs can

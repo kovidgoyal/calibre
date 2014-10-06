@@ -1,7 +1,7 @@
 .. _develop:
 
 Setting up a |app| development environment
-===========================================
+===========================================================
 
 |app| is completely open source, licensed under the `GNU GPL v3 <http://www.gnu.org/copyleft/gpl.html>`_.
 This means that you are free to download and modify the program to your heart's content. In this section,
@@ -249,7 +249,7 @@ in your favorite editor and add the line::
 near the top of the file. Now run the command :command:`calibredb`. The very first line of output should be ``Hello, world!``.
 
 Having separate "normal" and "development" |app| installs on the same computer
--------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------------------------
 
 The |app| source tree is very stable and rarely breaks, but if you feel the need to run from source on a separate
 test library and run the released |app| version with your everyday library, you can achieve this easily using
