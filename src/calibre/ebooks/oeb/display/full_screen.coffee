@@ -50,7 +50,7 @@ class FullScreen
                 s.marginRight = this.initial_right_margin
 
     handle_click: (event) ->
-        if event.target != document.documentElement or event.button != 0
+        if event.target not in [document.documentElement, document.body] or event.button != 0
             return
         res = null
         if window.paged_display.in_paged_mode
