@@ -184,24 +184,32 @@ class CompletionPopup(QWidget):
         QWidget.hide(self)
         self.relayout_timer.stop()
 
+    def handle_keypress(self, ev):
+        key = ev.key()
+        if key == Qt.Key_Escape:
+            self.hide(), ev.accept()
+            return True
+        if key == Qt.Key_Tab:
+            self.choose_next_result(previous=ev.modifiers() & Qt.ShiftModifier)
+            ev.accept()
+            return True
+        if key == Qt.Key_Backtab:
+            self.choose_next_result(previous=ev.modifiers() & Qt.ShiftModifier)
+            return True
+        if key in (Qt.Key_Up, Qt.Key_Down):
+            self.choose_next_result(previous=key == Qt.Key_Up)
+            return True
+        return False
+
     def eventFilter(self, obj, ev):
         if obj is self.parent() and self.isVisible():
-            if ev.type() == ev.KeyPress:
-                key = ev.key()
-                if key == Qt.Key_Escape:
-                    self.hide()
-                    return True
-                if key == Qt.Key_Tab:
-                    self.choose_next_result(previous=ev.modifiers() & Qt.ShiftModifier)
-                    return True
-                if key == Qt.Key_Backtab:
-                    self.choose_next_result(previous=ev.modifiers() & Qt.ShiftModifier)
-                    return True
-                if key in (Qt.Key_Up, Qt.Key_Down):
-                    self.choose_next_result(previous=key == Qt.Key_Up)
-                    return True
-
-            elif ev.type() == ev.Resize:
+            etype = ev.type()
+            if etype == ev.KeyPress:
+                ret = self.handle_keypress(ev)
+                if ret:
+                    ev.accept()
+                return ret
+            elif etype == ev.Resize:
                 self.relayout_timer.start()
         return False
 
