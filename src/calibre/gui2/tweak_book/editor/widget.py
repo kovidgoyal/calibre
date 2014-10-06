@@ -533,7 +533,7 @@ class Editor(QMainWindow):
             dictionaries.add_to_user_dictionary(dic, word, locale)
         self.word_ignored.emit(word, locale)
 
-def launch_editor(path_to_edit, path_is_raw=False, syntax='html'):
+def launch_editor(path_to_edit, path_is_raw=False, syntax='html', callback=None):
     from calibre.gui2.tweak_book import dictionaries
     from calibre.gui2.tweak_book.main import option_parser
     from calibre.gui2.tweak_book.ui import Main
@@ -556,6 +556,8 @@ def launch_editor(path_to_edit, path_is_raw=False, syntax='html'):
             syntax = 'css'
     t = Editor(syntax)
     t.data = raw
+    if callback is not None:
+        callback(t)
     t.show()
     app.exec_()
 

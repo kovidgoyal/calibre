@@ -130,6 +130,7 @@ class TextEdit(PlainTextEdit):
 
     def __init__(self, parent=None, expected_geometry=(100, 50)):
         PlainTextEdit.__init__(self, parent)
+        self.gutter_width = 0
         self.expected_geometry = expected_geometry
         self.saved_matches = {}
         self.smarts = NullSmarts(self)
@@ -499,7 +500,8 @@ class TextEdit(PlainTextEdit):
         self.line_number_area.update(0, top, self.line_number_area.width(), height)
 
     def update_line_number_area_width(self, block_count=0):
-        self.setViewportMargins(self.line_number_area_width(), 0, 0, 0)
+        self.gutter_width = self.line_number_area_width()
+        self.setViewportMargins(self.gutter_width, 0, 0, 0)
 
     def line_number_area_width(self):
         digits = 1
