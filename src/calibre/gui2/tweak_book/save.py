@@ -16,7 +16,7 @@ from calibre.constants import iswindows
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.gui2.progress_indicator import ProgressIndicator
 from calibre.utils import join_with_timeout
-from calibre.utils.filenames import atomic_rename
+from calibre.utils.filenames import atomic_rename, format_permissions
 from calibre.utils.ipc import RC
 
 def save_container(container, path):
@@ -33,7 +33,13 @@ def save_container(container, path):
             # path may not exist if we are saving a copy, in which case we use
             # the metadata from the original book
             st = os.stat(container.path_to_ebook)
-        os.fchmod(fno, st.st_mode)
+        try:
+            os.fchmod(fno, st.st_mode)
+        except EnvironmentError as err:
+            if err.errno != errno.EPERM:
+                raise
+            raise EnvironmentError('Failed to change permissions of %s to %s (%s), with error: %s. Most likely the %s directory has a restrictive umask' % (
+                temp.name, oct(st.st_mode), format_permissions(st.st_mode), errno.errorcode[err.errno], os.path.dirname(temp.name)))
         try:
             os.fchown(fno, st.st_uid, st.st_gid)
         except EnvironmentError as err:

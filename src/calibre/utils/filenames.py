@@ -506,3 +506,20 @@ if iswindows:
         return userhome + path[i:]
 else:
     expanduser = os.path.expanduser
+
+def format_permissions(st_mode):
+    import stat
+    for func, letter in (x.split(':') for x in 'REG:- DIR:d BLK:b CHR:c FIFO:p LNK:l SOCK:s'.split()):
+        if getattr(stat, 'S_IS' + func)(st_mode):
+            break
+    else:
+        letter = '?'
+    rwx = ('---', '--x', '-w-', '-wx', 'r--', 'r-x', 'rw-', 'rwx')
+    ans = [letter] + list(rwx[(st_mode >> 6) & 7]) + list(rwx[(st_mode >> 3) & 7]) + list(rwx[(st_mode & 7)])
+    if st_mode & stat.S_ISUID:
+        ans[3] = 's' if (st_mode & stat.S_IXUSR) else 'S'
+    if st_mode & stat.S_ISGID:
+        ans[6] = 's' if (st_mode & stat.S_IXGRP) else 'l'
+    if st_mode & stat.S_ISVTX:
+        ans[9] = 't' if (st_mode & stat.S_IXUSR) else 'T'
+    return ''.join(ans)
