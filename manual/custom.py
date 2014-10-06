@@ -10,6 +10,7 @@ del init_calibre
 from sphinx.util.console import bold
 
 sys.path.append(os.path.abspath('../../../'))
+from calibre import __appname__
 from calibre.linux import entry_points, cli_index_strings
 from epub import EPUBHelpBuilder
 from latex import LaTeXHelpBuilder
@@ -17,13 +18,18 @@ from latex import LaTeXHelpBuilder
 def substitute(app, doctree):
     pass
 
+include_pat = re.compile(r'^.. include:: (\S+.rst)', re.M)
+
 def source_read_handler(app, docname, source):
-    source[0] = source[0].replace('/|lang|/', '/%s/' % app.config.language)
-    if docname == 'index':
-        # Sphinx does not call source_read_handle for the .. include directive
-        ss = [open('simple_index.rst', 'rb').read().decode('utf-8')]
-        source_read_handler(app, 'simple_index', ss)
-        source[0] = source[0].replace('.. include:: simple_index.rst', ss[0])
+    src = source[0]
+    src = src.replace('|lang|', app.config.language)
+    src = src.replace('|app|', __appname__)
+    # Sphinx does not call source_read_handle for the .. include directive
+    for m in reversed(tuple(include_pat.finditer(src))):
+        ss = [open(m.group(1)).read().decode('utf-8')]
+        source_read_handler(app, m.group(1).partition('.')[0], ss)
+        src = src[:m.start()] + ss[0] + src[m.end():]
+    source[0] = src
 
 CLI_INDEX='''
 .. _cli:
