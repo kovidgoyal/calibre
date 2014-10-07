@@ -91,6 +91,7 @@ class SearchDialog(QDialog, Ui_Dialog):
 
         self.tabWidget.currentChanged[int].connect(self.tab_changed)
         self.tab_changed(current_tab)
+        self.resize(self.sizeHint())
 
     def save_state(self):
         gprefs['advanced search dialog current tab'] = \
