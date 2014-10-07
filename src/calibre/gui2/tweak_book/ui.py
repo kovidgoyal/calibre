@@ -703,6 +703,7 @@ class Main(MainWindow):
         tprefs.set('main_window_geometry', bytearray(self.saveGeometry()))
         tprefs.set('main_window_state', bytearray(self.saveState(self.STATE_VERSION)))
         self.central.save_state()
+        self.saved_searches.save_state()
         self.check_book.save_state()
 
     def restore_state(self):
@@ -713,6 +714,7 @@ class Main(MainWindow):
         if state is not None:
             self.restoreState(state, self.STATE_VERSION)
         self.central.restore_state()
+        self.saved_searches.restore_state()
 
     def contextMenuEvent(self, ev):
         ev.ignore()

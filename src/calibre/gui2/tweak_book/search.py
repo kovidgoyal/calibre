@@ -753,6 +753,20 @@ class SavedSearches(QWidget):
 
         self.searches.setFocus(Qt.OtherFocusReason)
 
+    @dynamic_property
+    def state(self):
+        def fget(self):
+            return {'wrap':self.wrap, 'direction':self.direction, 'where':self.where}
+        def fset(self, val):
+            self.wrap, self.where, self.direction = val['wrap'], val['where'], val['direction']
+        return property(fget=fget, fset=fset)
+
+    def save_state(self):
+        tprefs['saved_seaches_state'] = self.state
+
+    def restore_state(self):
+        self.state = tprefs.get('saved_seaches_state', SearchWidget.DEFAULT_STATE)
+
     def has_focus(self):
         if self.hasFocus():
             return True
