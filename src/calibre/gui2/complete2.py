@@ -244,6 +244,12 @@ class Completer(QListView):  # {{{
                 self.hide()
             if e.isAccepted():
                 return True
+        elif isosx and etype == e.InputMethodQuery and e.queries() == (Qt.ImHints | Qt.ImEnabled) and self.isVisible():
+            # In Qt 5 the Esc key cause this event and the line edit does not
+            # handle it, which causes the parent dialog to be closed
+            # See https://bugreports.qt-project.org/browse/QTBUG-41806
+            self.hide(), e.accept()
+            return True
         elif etype == e.MouseButtonPress:
             if not self.rect().contains(self.mapFromGlobal(e.globalPos())):
                 QTimer.singleShot(0, self.hide)
