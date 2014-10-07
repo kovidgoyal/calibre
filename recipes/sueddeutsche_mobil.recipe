@@ -4,13 +4,15 @@ __copyright__ = '2012, 2013 Andreas Zeiser <andreas.zeiser@web.de>'
 szmobil.sueddeutsche.de/
 '''
 # History
+# 2014.10.06 Fixing Login URL and Article URL by lala-rob (web@lala-rob.de)
+#
 # 2013.01.09 Fixed bugs in article titles containing "strong" and
 #            other small changes
 # 2012.08.04 Initial release
 
 from calibre import strftime
 from calibre.web.feeds.recipes import BasicNewsRecipe
-import re    
+import re
 
 class SZmobil(BasicNewsRecipe):
     title       = u'Süddeutsche Zeitung mobil'
@@ -33,7 +35,7 @@ class SZmobil(BasicNewsRecipe):
     # timefmt = ''
     timefmt = ' [%a, %d %b, %Y]'
 
-    root_url ='http://szmobil.sueddeutsche.de/'
+    root_url ='http://epaper.sueddeutsche.de/app/service/epaper-mobil/'
     keep_only_tags = [dict(name='div', attrs={'class':'article'})]
 
     def get_cover_url(self):
@@ -45,22 +47,24 @@ class SZmobil(BasicNewsRecipe):
         browser = BasicNewsRecipe.get_browser(self)
 
         # Login via fetching of Streiflicht -> Fill out login request
-        url = self.root_url + 'show.php?id=streif'
+        url = 'https://id.sueddeutsche.de/login'
+        url2 = 'https://id.sueddeutsche.de/service/ticket?redirect_uri=http%3A%2F%2Fepaper.sueddeutsche.de%2Fapp%2Fservice%2Fepaper-mobil%2Flanding.php%3Fid%3Dstreif%26etag%3D1&service_id=epapermobile'
         browser.open(url)
 
         browser.select_form(nr=0) # to select the first form
-        browser['username'] = self.username
+        browser['login'] = self.username
         browser['password'] = self.password
         browser.submit()
+        browser.open(url2)
 
         return browser
 
     def parse_index(self):
         # find all sections
-        src = self.index_to_soup('http://szmobil.sueddeutsche.de')
+        src = self.index_to_soup('http://epaper.sueddeutsche.de/app/service/epaper-mobil/')
         feeds = []
         for itt in src.findAll('a',href=True):
-            if itt['href'].startswith('show.php?section'):
+            if itt['href'].startswith('section.php?section'):
                 feeds.append( (itt.string[0:-2],itt['href']) )
 
         all_articles = []
@@ -74,7 +78,7 @@ class SZmobil(BasicNewsRecipe):
             articles = []
             shorttitles = dict()
             for itt in src.findAll('a', href=True):
-                if itt['href'].startswith('show.php?id='):
+                if itt['href'].startswith('article.php?id='):
                     article_url = itt['href']
                     article_id = int(re.search("id=(\d*)&etag=", itt['href']).group(1))
 
