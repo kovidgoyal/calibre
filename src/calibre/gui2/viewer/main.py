@@ -53,13 +53,15 @@ class RecentAction(QAction):
 
 def default_lookup_website(lang):
     lang = lang_as_iso639_1(lang) or lang
-    if lang == 'en':
+    if lang in ('und', 'en'):
         prefix = 'https://www.wordnik.com/words/'
     else:
         prefix = 'http://%s.wiktionary.org/wiki/' % lang
     return prefix + '{word}'
 
 def lookup_website(lang):
+    if lang == 'und':
+        lang = 'en'
     wm = dprefs['word_lookups']
     return wm.get(lang, default_lookup_website(lang))
 
