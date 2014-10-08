@@ -382,17 +382,12 @@ class EditorWidget(QWebView):  # {{{
             body.setAttribute('style', style)
         self.page().setContentEditable(not self.readonly)
 
-    def keyPressEvent(self, ev):
-        if ev.key() in (Qt.Key_Tab, Qt.Key_Escape, Qt.Key_Backtab):
+    def event(self, ev):
+        if ev.type() in (ev.KeyPress, ev.KeyRelease, ev.ShortcutOverride) and ev.key() in (
+                Qt.Key_Tab, Qt.Key_Escape, Qt.Key_Backtab):
             ev.ignore()
-        else:
-            return QWebView.keyPressEvent(self, ev)
-
-    def keyReleaseEvent(self, ev):
-        if ev.key() in (Qt.Key_Tab, Qt.Key_Escape, Qt.Key_Backtab):
-            ev.ignore()
-        else:
-            return QWebView.keyReleaseEvent(self, ev)
+            return False
+        return QWebView.event(self, ev)
 
     def contextMenuEvent(self, ev):
         menu = self.page().createStandardContextMenu()
