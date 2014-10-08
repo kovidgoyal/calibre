@@ -27,6 +27,7 @@ class WallStreetJournal(BasicNewsRecipe):
         dict(name='article', id=['article-contents', 'articleBody']),
         dict(name='div', id='article_story_body'),
         dict(name='div', attrs={'class':'snippet-ad-login'}),
+        dict(name='div', attrs={'data-module-name':'resp.module.article.articleBody'}),
     ]
     remove_tags = [
         dict(attrs={'class':['insetButton', 'insettipBox']}),
