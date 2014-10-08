@@ -387,6 +387,7 @@ class EditorWidget(QWebView):  # {{{
                 Qt.Key_Tab, Qt.Key_Escape, Qt.Key_Backtab):
             if (ev.key() == Qt.Key_Tab and ev.modifiers() & Qt.ControlModifier and ev.type() == ev.KeyPress):
                 self.exec_command('insertHTML', '<span style="white-space:pre">\t</span>')
+                ev.accept()
                 return True
             ev.ignore()
             return False
