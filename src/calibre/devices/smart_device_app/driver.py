@@ -1303,7 +1303,6 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                     if '_series_sort_' in result:
                         del result['_series_sort_']
                     book = self.json_codec.raw_to_book(result, SDBook, self.PREFIX)
-                    self._debug('title', book.title)
                     book.set('_is_read_', result.get('_is_read_', None))
                     book.set('_sync_type_', result.get('_sync_type_', None))
                     book.set('_last_read_date_', result.get('_last_read_date_', None))
