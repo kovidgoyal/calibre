@@ -42,12 +42,13 @@ class MetadataSingleDialogBase(ResizableDialog):
     one_line_comments_toolbar = False
     use_toolbutton_for_config_metadata = True
 
-    def __init__(self, db, parent=None):
+    def __init__(self, db, parent=None, editing_multiple=False):
         self.db = db
         self.changed = set()
         self.books_to_refresh = set()
         self.rows_to_refresh = set()
         self.metadata_before_fetch = None
+        self.editing_multiple = editing_multiple
         ResizableDialog.__init__(self, parent)
 
     def setupUi(self, *args):  # {{{
@@ -548,6 +549,18 @@ class MetadataSingleDialogBase(ResizableDialog):
         self.save_state()
         if not self.apply_changes():
             return
+        if self.editing_multiple and self.current_row != len(self.row_list) - 1:
+            num = len(self.row_list) - 1 - self.current_row
+            from calibre.gui2 import question_dialog
+            if not question_dialog(
+                    self, _('Are you sure?'),
+                    _('There are still %d more books to edit in this set.'
+                      ' Are you sure you want to stop? Use the Next button'
+                      ' instead of the OK button to move through books in the set.') % num,
+                    yes_text=_('&Stop editing'), no_text=_('&Continue editing'),
+                    yes_icon='dot_red.png', no_icon='dot_green.png',
+                    default_yes=False, skip_dialog_name='edit-metadata-single-confirm-ok-on-multiple'):
+                return self.do_one(delta=1, apply_changes=False)
         ResizableDialog.accept(self)
 
     def reject(self):
@@ -1072,11 +1085,11 @@ editors = {'default': MetadataSingleDialog, 'alt1': MetadataSingleDialogAlt1,
            'alt2': MetadataSingleDialogAlt2}
 
 def edit_metadata(db, row_list, current_row, parent=None, view_slot=None,
-        set_current_callback=None):
+        set_current_callback=None, editing_multiple=False):
     cls = gprefs.get('edit_metadata_single_layout', '')
     if cls not in editors:
         cls = 'default'
-    d = editors[cls](db, parent)
+    d = editors[cls](db, parent, editing_multiple=editing_multiple)
     try:
         d.start(row_list, current_row, view_slot=view_slot,
                 set_current_callback=set_current_callback)

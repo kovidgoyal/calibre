@@ -298,8 +298,9 @@ class EditMetadataAction(InterfaceAction):
 
         current_row = 0
         row_list = rows
+        editing_multiple = len(row_list) > 1
 
-        if len(row_list) == 1:
+        if not editing_multiple:
             cr = row_list[0]
             row_list = \
                 list(range(self.gui.library_view.model().rowCount(QModelIndex())))
@@ -311,7 +312,7 @@ class EditMetadataAction(InterfaceAction):
         except Exception:
             hpos = 0
 
-        changed, rows_to_refresh = self.do_edit_metadata(row_list, current_row)
+        changed, rows_to_refresh = self.do_edit_metadata(row_list, current_row, editing_multiple)
 
         m = self.gui.library_view.model()
 
@@ -331,12 +332,12 @@ class EditMetadataAction(InterfaceAction):
             else:
                 view.horizontalScrollBar().setValue(hpos)
 
-    def do_edit_metadata(self, row_list, current_row):
+    def do_edit_metadata(self, row_list, current_row, editing_multiple):
         from calibre.gui2.metadata.single import edit_metadata
         db = self.gui.library_view.model().db
         changed, rows_to_refresh = edit_metadata(db, row_list, current_row,
                 parent=self.gui, view_slot=self.view_format_callback,
-                set_current_callback=self.set_current_callback)
+                set_current_callback=self.set_current_callback, editing_multiple=editing_multiple)
         return changed, rows_to_refresh
 
     def set_current_callback(self, id_):
