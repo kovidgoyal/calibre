@@ -474,7 +474,7 @@ class CatalogPlugin(Plugin):  # {{{
         return db.get_data_as_dict(ids=opts.ids)
 
     def get_output_fields(self, db, opts):
-        # Return a list of requested fields, with opts.sort_by first
+        # Return a list of requested fields
         all_std_fields = set(
                           ['author_sort','authors','comments','cover','formats',
                            'id','isbn','library_name','ondevice','pubdate','publisher',
@@ -489,7 +489,8 @@ class CatalogPlugin(Plugin):  # {{{
 
         if opts.fields != 'all':
             # Make a list from opts.fields
-            requested_fields = set(opts.fields.split(','))
+            of = [x.strip() for x in opts.fields.split(',')]
+            requested_fields = set(of)
 
             # Validate requested_fields
             if requested_fields - all_fields:
@@ -500,16 +501,13 @@ class CatalogPlugin(Plugin):  # {{{
                       (current_library_name(), ', '.join(sorted(list(all_fields)))))
                 raise ValueError("unable to generate catalog with specified fields")
 
-            fields = list(all_fields & requested_fields)
+            fields = [x for x in of if x in all_fields]
         else:
-            fields = list(all_fields)
+            fields = sorted(all_fields, key=self._field_sorter)
 
         if not opts.connected_device['is_device_connected'] and 'ondevice' in fields:
             fields.pop(int(fields.index('ondevice')))
 
-        fields = sorted(fields, key=self._field_sorter)
-        if opts.sort_by and opts.sort_by in fields:
-            fields.insert(0,fields.pop(int(fields.index(opts.sort_by))))
         return fields
 
     def initialize(self):
