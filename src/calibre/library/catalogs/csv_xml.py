@@ -14,6 +14,7 @@ from calibre.customize.conversion import DummyReporter
 
 
 class CSV_XML(CatalogPlugin):
+
     'CSV/XML catalog generator'
 
     Option = namedtuple('Option', 'option, default, dest, action, help')
@@ -88,7 +89,7 @@ class CSV_XML(CatalogPlugin):
 
         if not len(data):
             log.error("\nNo matching database entries for search criteria '%s'" % opts.search_text)
-            #raise SystemExit(1)
+            # raise SystemExit(1)
 
         # Get the requested output fields as a list
         fields = self.get_output_fields(db, opts)
@@ -135,7 +136,7 @@ class CSV_XML(CatalogPlugin):
                     elif field == 'isbn':
                         # Could be 9, 10 or 13 digits, with hyphens, possibly ending in 'X'
                         item = u'%s' % re.sub(r'[^\dX-]', '', item)
-                    elif field in ['pubdate', 'timestamp']:
+                    elif fm.get(field, {}).get('datatype') == 'datetime':
                         item = isoformat(item, as_utc=False)
                     elif field == 'comments':
                         item = item.replace(u'\r\n', u' ')
