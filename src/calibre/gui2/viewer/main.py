@@ -24,7 +24,7 @@ from calibre.customize.ui import available_input_formats
 from calibre import as_unicode, force_unicode, isbytestring
 from calibre.ptempfile import reset_base_dir
 from calibre.utils.zipfile import BadZipfile
-from calibre.utils.localization import canonicalize_lang, lang_as_iso639_1
+from calibre.utils.localization import canonicalize_lang, lang_as_iso639_1, get_lang
 
 vprefs = JSONConfig('viewer')
 dprefs = JSONConfig('viewer_dictionaries')
@@ -52,8 +52,10 @@ class RecentAction(QAction):
         QAction.__init__(self, os.path.basename(path), parent)
 
 def default_lookup_website(lang):
+    if lang == 'und':
+        lang = get_lang()
     lang = lang_as_iso639_1(lang) or lang
-    if lang in ('und', 'en'):
+    if lang == 'en':
         prefix = 'https://www.wordnik.com/words/'
     else:
         prefix = 'http://%s.wiktionary.org/wiki/' % lang
@@ -61,7 +63,7 @@ def default_lookup_website(lang):
 
 def lookup_website(lang):
     if lang == 'und':
-        lang = 'en'
+        lang = get_lang()
     wm = dprefs['word_lookups']
     return wm.get(lang, default_lookup_website(lang))
 
