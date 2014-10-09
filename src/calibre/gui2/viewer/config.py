@@ -220,9 +220,9 @@ class ConfigDialog(QDialog, Ui_Dialog):
                 QDialog.__init__(self, parent)
                 self.setWindowTitle(_('Add a dictionary website'))
                 self.l = l = QFormLayout(self)
-                self.la = la = QLabel(
+                self.la = la = QLabel('<p>'+
                     _('Choose a language and enter the website address (URL) for it below.'
-                      ' The URL must have %s in it, which will be replaced by the actual word being'
+                      ' The URL must have the placeholder <b>%s</b> in it, which will be replaced by the actual word being'
                       ' looked up') % '{word}')
                 la.setWordWrap(True)
                 l.addRow(la)
@@ -240,7 +240,7 @@ class ConfigDialog(QDialog, Ui_Dialog):
             def accept(self):
                 if '{word}' not in self.url.text():
                     return error_dialog(self, _('Invalid URL'), _(
-                        'The URL {0} does not have {1} in it.').format(self.url.text(), '{word}'), show=True)
+                        'The URL {0} does not have the placeholder <b>{1}</b> in it.').format(self.url.text(), '{word}'), show=True)
                 QDialog.accept(self)
 
         d = AD(self)
