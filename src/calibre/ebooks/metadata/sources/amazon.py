@@ -539,6 +539,18 @@ class Worker(Thread):  # Get details {{{
         return ans
 
     def parse_cover(self, root, raw=b""):
+        # Look for the image URL in javascript, using the first image in the
+        # image gallery as the cover
+        import json
+        imgpat = re.compile(r"""'imageGalleryData'\s*:\s*(\[\s*{.+])""")
+        for script in root.xpath('//script'):
+            m = imgpat.search(script.text or '')
+            if m is not None:
+                try:
+                    return json.loads(m.group(1))[0]['mainUrl']
+                except Exception:
+                    continue
+
         imgs = root.xpath('//img[(@id="prodImage" or @id="original-main-image" or @id="main-image") and @src]')
         if not imgs:
             imgs = root.xpath('//div[@class="main-image-inner-wrapper"]/img[@src]')
@@ -851,19 +863,29 @@ class Amazon(Source):
                     return False
             return True
 
-        for div in root.xpath(r'//div[starts-with(@id, "result_")]'):
-            links = div.xpath(r'descendant::a[@class="title" and @href]')
-            if not links:
-                # New amazon markup
-                links = div.xpath('descendant::h3/a[@href]')
-            for a in links:
-                title = tostring(a, method='text', encoding=unicode)
-                if title_ok(title):
-                    url = a.get('href')
-                    if url.startswith('/'):
-                        url = 'http://www.amazon.%s%s' % (self.get_website_domain(domain), url)
-                    matches.append(url)
-                break
+        for a in root.xpath(r'//li[starts-with(@id, "result_")]//a[@href and contains(@class, "s-access-detail-page")]'):
+            title = tostring(a, method='text', encoding=unicode)
+            if title_ok(title):
+                url = a.get('href')
+                if url.startswith('/'):
+                    url = 'http://www.amazon.%s%s' % (self.get_website_domain(domain), url)
+                matches.append(url)
+
+        if not matches:
+            # Previous generation of results page markup
+            for div in root.xpath(r'//div[starts-with(@id, "result_")]'):
+                links = div.xpath(r'descendant::a[@class="title" and @href]')
+                if not links:
+                    # New amazon markup
+                    links = div.xpath('descendant::h3/a[@href]')
+                for a in links:
+                    title = tostring(a, method='text', encoding=unicode)
+                    if title_ok(title):
+                        url = a.get('href')
+                        if url.startswith('/'):
+                            url = 'http://www.amazon.%s%s' % (self.get_website_domain(domain), url)
+                        matches.append(url)
+                    break
 
         if not matches:
             # This can happen for some user agents that Amazon thinks are
@@ -1043,7 +1065,7 @@ if __name__ == '__main__':  # tests {{{
                 {'identifiers':{'amazon':'0756407117'}},
                 [title_test(
                 "Throne of the Crescent Moon"),
-                comments_test('Makhslood'), comments_test('Publishers Weekly'),
+                comments_test('Makhslood'), comments_test('Dhamsawaat'),
                 ]
             ),
 
@@ -1059,7 +1081,7 @@ if __name__ == '__main__':  # tests {{{
             (  # # in title
                 {'title':'Expert C# 2008 Business Objects',
                     'authors':['Lhotka']},
-                [title_test('Expert C# 2008 Business Objects', exact=True),
+                [title_test('Expert C# 2008 Business Objects'),
                     authors_test(['Rockford Lhotka'])
                     ]
             ),
@@ -1097,7 +1119,7 @@ if __name__ == '__main__':  # tests {{{
             (
                 {'identifiers':{'isbn': '3548283519'}},
                 [title_test('Wer Wind Sät: Der Fünfte Fall Für Bodenstein Und Kirchhoff',
-                    exact=True), authors_test(['Nele Neuhaus'])
+                    exact=False), authors_test(['Nele Neuhaus'])
                  ]
 
             ),
