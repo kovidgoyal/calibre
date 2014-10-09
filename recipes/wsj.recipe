@@ -4,7 +4,7 @@ __copyright__ = '2008, Kovid Goyal kovid@kovidgoyal.net'
 __docformat__ = 'restructuredtext en'
 
 from calibre.web.feeds.news import BasicNewsRecipe
-import copy
+import copy, re
 
 # http://online.wsj.com/page/us_in_todays_paper.html
 
@@ -22,6 +22,7 @@ class WallStreetJournal(BasicNewsRecipe):
     timefmt  = ' [%a, %b %d, %Y]'
     no_stylesheets = True
     ignore_duplicate_articles = {'url'}
+    remove_attributes = ['style', 'data-scrim']
 
     keep_only_tags = [
         dict(name='h1'), dict(name='h2', attrs={'class':['subhead', 'subHed deck']}),
@@ -29,11 +30,15 @@ class WallStreetJournal(BasicNewsRecipe):
         dict(name='article', id=['article-contents', 'articleBody']),
         dict(name='div', id='article_story_body'),
         dict(name='div', attrs={'class':'snippet-ad-login'}),
-        dict(name='div', attrs={'data-module-name':'resp.module.article.articleBody'}),
     ]
     remove_tags = [
-        dict(attrs={'class':['insetButton', 'insettipBox']}),
+        dict(attrs={'class':['insetButton', 'insettipBox', 'author-info', 'media-object-video']}),
+        dict(attrs={'class':lambda x: x and 'article_tools' in x.split()}),
         dict(name='span', attrs={'data-country-code':True, 'data-ticker-code':True}),
+    ]
+    preprocess_regexps = [
+        (re.compile(r'<!--\[if lte IE 8\]>.+?<!\[endif\]-->', re.DOTALL), lambda m: ''),
+        (re.compile(r'<!\[if ! lte IE 8\]>.+?<!\[endif\]>', re.DOTALL), lambda m:''),
     ]
 
     use_javascript_to_login = True
@@ -47,7 +52,7 @@ class WallStreetJournal(BasicNewsRecipe):
 
     def populate_article_metadata(self, article, soup, first):
         if first and hasattr(self, 'add_toc_thumbnail'):
-            picdiv = soup.find('img')
+            picdiv = soup.find('img', src=True)
             if picdiv is not None:
                 self.add_toc_thumbnail(article,picdiv['src'])
 
@@ -57,6 +62,9 @@ class WallStreetJournal(BasicNewsRecipe):
             img = div.find('img')
             if img is not None:
                 img.extract()
+        # Use large images
+        for img in soup.findAll('img', attrs={'data-enlarge':True}):
+            img['src'] = img['data-enlarge']
 
         return soup
 
