@@ -364,7 +364,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                 return
             total_elapsed = time.time() - self.debug_start_time
             elapsed = time.time() - self.debug_time
-            prints('SMART_DEV (%7.2f:%7.3f) %s'%(total_elapsed, elapsed,
+            print('SMART_DEV (%7.2f:%7.3f) %s'%(total_elapsed, elapsed,
                                                    inspect.stack()[1][3]), end='')
             for a in args:
                 try:
@@ -803,13 +803,36 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                 traceback.print_exc()
 
     def _write_metadata_cache(self):
+        from calibre.utils.date import now
         self._debug()
-        # Write the cache in a non-daemon thread so that if calibre is closed then
-        # the write will finish. Wait for it here to simulate a method call
-        writer = CacheWriter(self.device_uuid, self.device_book_cache,
-                             self.PURGE_CACHE_ENTRIES_DAYS, self.json_codec)
-        writer.start()
-        writer.join()
+        from calibre.utils.config import to_json
+        cache_file_name = os.path.join(cache_dir(),
+                           'wireless_device_' + self.device_uuid +
+                                '_metadata_cache.json')
+        try:
+            purged = 0
+            count = 0
+            with open(cache_file_name, mode='wb') as fd:
+                for key,book in self.device_book_cache.iteritems():
+                    if (now() - book['last_used']).days > self.PURGE_CACHE_ENTRIES_DAYS:
+                        purged += 1
+                        continue
+                    json_metadata = defaultdict(dict)
+                    json_metadata[key]['book'] = self.json_codec.encode_book_metadata(book['book'])
+                    json_metadata[key]['last_used'] = book['last_used']
+                    result = json.dumps(json_metadata, indent=2, default=to_json)
+                    fd.write("%0.7d\n"%(len(result)+1))
+                    fd.write(result)
+                    fd.write('\n')
+                    count += 1
+                self._debug('wrote', count, 'entries, purged', purged, 'entries')
+        except:
+            traceback.print_exc()
+            try:
+                if os.path.exists(cache_file_name):
+                    os.remove(cache_file_name)
+            except:
+                traceback.print_exc()
 
     def _make_metadata_cache_key(self, uuid, lpath_or_ext):
         key = None
@@ -1930,54 +1953,4 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
     def is_running(self):
         return getattr(self, 'listen_socket', None) is not None
 
-class CacheWriter(Thread):
 
-    def __init__(self, device_uuid, device_book_cache, purge_delay, json_codec):
-        Thread.__init__(self)
-        # This thread must not be set as daemon. It seems that commonly people
-        # disconnect their device then close calibre immediately. If there are a
-        # lot of books on the device then writing the cache can take a long
-        # time, for example writing a 6000 book cache can take 12 seconds on one
-        # mac. We want to let this finish.
-        self.daemon = False
-        self.device_uuid = device_uuid
-        self.device_book_cache = device_book_cache
-        self.purge_delay = purge_delay
-        self.json_codec = json_codec
-
-        # Do the imports here to avoid violating the restrictions decribed in
-        # section 16.2.9 of the thread module in the python 2.7.8 docs
-        from calibre.utils.config import to_json
-        self.to_json = to_json
-        from calibre.utils.date import now
-        self.now = now()
-
-    def run(self):
-        cache_file_name = os.path.join(cache_dir(),
-                   'wireless_device_' + self.device_uuid + '_metadata_cache.json')
-        try:
-            purged = 0
-            count = 0
-            with open(cache_file_name, mode='wb') as fd:
-                for key,book in self.device_book_cache.iteritems():
-                    if (self.now - book['last_used']).days > self.purge_delay:
-                        purged += 1
-                        continue
-                    json_metadata = defaultdict(dict)
-                    json_metadata[key]['book'] = self.json_codec.encode_book_metadata(book['book'])
-                    json_metadata[key]['last_used'] = book['last_used']
-                    result = json.dumps(json_metadata, indent=2, default=self.to_json)
-                    fd.write("%0.7d\n"%(len(result)+1))
-                    fd.write(result)
-                    fd.write('\n')
-                    count += 1
-                if DEBUG:
-                    prints('SMART_DEV cache_writer', 'wrote', count,
-                           'entries, purged', purged, 'entries')
-        except:
-            traceback.print_exc()
-            try:
-                if os.path.exists(cache_file_name):
-                    os.remove(cache_file_name)
-            except:
-                traceback.print_exc()
