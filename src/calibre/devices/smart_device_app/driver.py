@@ -803,18 +803,18 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                 traceback.print_exc()
 
     def _write_metadata_cache(self):
-        from calibre.utils.date import now
         self._debug()
+        from calibre.utils.date import now
+        now_ = now()
         from calibre.utils.config import to_json
-        cache_file_name = os.path.join(cache_dir(),
-                           'wireless_device_' + self.device_uuid +
-                                '_metadata_cache.json')
         try:
             purged = 0
             count = 0
-            with open(cache_file_name, mode='wb') as fd:
+            prefix = os.path.join(cache_dir(),
+                        'wireless_device_' + self.device_uuid + '_metadata_cache')
+            with open(prefix + '.tmp', mode='wb') as fd:
                 for key,book in self.device_book_cache.iteritems():
-                    if (now() - book['last_used']).days > self.PURGE_CACHE_ENTRIES_DAYS:
+                    if (now_ - book['last_used']).days > self.PURGE_CACHE_ENTRIES_DAYS:
                         purged += 1
                         continue
                     json_metadata = defaultdict(dict)
@@ -825,14 +825,12 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                     fd.write(result)
                     fd.write('\n')
                     count += 1
-                self._debug('wrote', count, 'entries, purged', purged, 'entries')
+            self._debug('wrote', count, 'entries, purged', purged, 'entries')
+
+            from calibre.utils.filenames import atomic_rename
+            atomic_rename(fd.name, prefix + '.json')
         except:
             traceback.print_exc()
-            try:
-                if os.path.exists(cache_file_name):
-                    os.remove(cache_file_name)
-            except:
-                traceback.print_exc()
 
     def _make_metadata_cache_key(self, uuid, lpath_or_ext):
         key = None
@@ -1392,6 +1390,9 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                     except:
                         self._debug('failed to set local copy of _last_read_date_')
                         traceback.print_exc()
+        # Write the cache here so that if we are interrupted on disconnect then the
+        # almost-latest info will be available.
+        self._write_metadata_cache()
 
     @synchronous('sync_lock')
     def eject(self):
