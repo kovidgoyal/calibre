@@ -561,10 +561,11 @@ class TextEdit(PlainTextEdit):
             return True
         if ev.type() == ev.ShortcutOverride:
             if ev in (
-                # Let the global cut/copy/paste shortcuts work,this avoids the nbsp
+                # Let the global cut/copy/paste/undo/redo shortcuts work,this avoids the nbsp
                 # problem as well, since they use the overridden copy() method
-                # instead of the one from Qt
-                QKeySequence.Copy, QKeySequence.Cut, QKeySequence.Paste,
+                # instead of the one from Qt, and allows proper customization
+                # of the shortcuts
+                QKeySequence.Copy, QKeySequence.Cut, QKeySequence.Paste, QKeySequence.Undo, QKeySequence.Redo
             ) or (
                 # This is used to convert typed hex codes into unicode
                 # characters
