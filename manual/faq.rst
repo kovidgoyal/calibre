@@ -941,7 +941,7 @@ A permission denied error can occur because of many possible reasons, none of th
   * If your file is open in another program.
   * If the file resides on a device, you may have reached the limit of a maximum of 256 files in the root of the device. In this case you need to reformat the device/sd card referered to in the error message with a FAT32 filesystem, or delete some files from the SD card/device memory.
     
-You will need to fix the underlying cause of the permissions error before resuming to use |app|. Read the error message carefully, see what file it points to and fix the permissions on that file.
+You will need to fix the underlying cause of the permissions error before resuming to use |app|. Read the error message carefully, see what file it points to and fix the permissions on that file or its containing folders.
 
 Can I have the comment metadata show up on my reader?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
