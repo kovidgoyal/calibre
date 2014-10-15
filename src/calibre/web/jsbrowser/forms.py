@@ -187,8 +187,10 @@ class FormsMixin(object):
     def __init__(self):
         self.current_form = None
 
-    def find_form(self, css2_selector=None, nr=None):
+    def find_form(self, css2_selector=None, nr=None, qwebelement=None):
         mf = self.page.mainFrame()
+        if qwebelement is not None:
+            return Form(qwebelement)
         if css2_selector is not None:
             candidate = mf.findFirstElement(css2_selector)
             if not candidate.isNull():
@@ -206,7 +208,7 @@ class FormsMixin(object):
         mf = self.page.mainFrame()
         return list(map(Form, mf.findAllElements('form').toList()))
 
-    def select_form(self, css2_selector=None, nr=None):
+    def select_form(self, css2_selector=None, nr=None, qwebelement=None):
         '''
         Select a form for further processing. Specify the form either with
         css2_selector or nr. Raises ValueError if no matching form is found.
@@ -216,8 +218,10 @@ class FormsMixin(object):
 
         :param nr: An integer >= 0. Selects the nr'th form in the current page.
 
+        :param qwebelement: A QWebElement, useful is CSS selectors are insufficient
+
         '''
-        self.current_form = self.find_form(css2_selector=css2_selector, nr=nr)
+        self.current_form = self.find_form(css2_selector=css2_selector, nr=nr, qwebelement=qwebelement)
         if self.current_form is None:
             raise ValueError('No such form found')
         return self.current_form
