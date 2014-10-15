@@ -488,7 +488,7 @@ class Browser(QObject, FormsMixin):
         self.current_form = None
         self.page.load_url(url)
         if selector is not None:
-            self.wait_for_element(selector, timeout=timeout, url=url)
+            self.wait_for_element(selector, timeout=timeout)
         else:
             self.wait_till_dom_ready(timeout=timeout, url=url)
 
