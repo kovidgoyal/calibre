@@ -32,9 +32,7 @@ class StrategyBusinessRecipe(BasicNewsRecipe):
                         br[c.name] = self.username
                     elif c.name.endswith('_password'):
                         br[c.name] = self.password
-                raw = br.submit().read()
-                if '>Logout<' not in raw:
-                    raise ValueError('Failed to login, check your username and password')
+                br.submit().read()
         return br
 
     extra_css = '''
@@ -78,5 +76,6 @@ class StrategyBusinessRecipe(BasicNewsRecipe):
     remove_tags.append(dict(name='div', attrs={'id': 'textsize'}))
     remove_tags.append(dict(name='div', id=lambda x:x and x.startswith('div-gpt-ad-')))
 
-    def print_version(self, url):
+    def get_article_url(self, article):
+        url = BasicNewsRecipe.get_article_url(self, article)
         return url.partition('?')[0] + '?pg=all'
