@@ -426,7 +426,7 @@ class iPadOutput(OutputProfile):
                 }
 
         '''
-        # }}}
+    # }}}
 
 class iPad3Output(iPadOutput):
 
@@ -473,7 +473,7 @@ class SonyReaderOutput(OutputProfile):
     unsupported_unicode_chars = [u'\u201f', u'\u201b']
 
     epub_periodical_format = 'sony'
-    #periodical_date_in_title = False
+    # periodical_date_in_title = False
 
 
 class KoboReaderOutput(OutputProfile):
@@ -660,7 +660,7 @@ class KindleDXOutput(OutputProfile):
     screen_size               = (744, 1022)
     dpi                       = 150.0
     comic_screen_size = (771, 1116)
-    #comic_screen_size         = (741, 1022)
+    # comic_screen_size         = (741, 1022)
     supports_mobi_indexing = True
     periodical_date_in_title = False
     empty_ratings_char = u'\u2606'
@@ -682,6 +682,19 @@ class KindlePaperWhiteOutput(KindleOutput):
     screen_size               = (658, 940)
     dpi                       = 212.0
     comic_screen_size = screen_size
+
+class KindleVoyageOutput(KindleOutput):
+
+    name = 'Kindle Voyage'
+    short_name = 'kindle_voyage'
+    description = _('This profile is intended for the Amazon Kindle Voyage')
+
+    # Screen size is currently just the spec size, actual renderable area will
+    # depend on someone with the device doing tests.
+    screen_size               = (1080, 1430)
+    dpi                       = 300.0
+    comic_screen_size = screen_size
+
 
 class KindleFireOutput(KindleDXOutput):
 
@@ -807,6 +820,6 @@ output_profiles = [OutputProfile, SonyReaderOutput, SonyReader300Output,
         SonyReaderLandscapeOutput, KindleDXOutput, IlliadOutput, NookHD,
         IRexDR1000Output, IRexDR800Output, JetBook5Output, NookOutput,
         BambookOutput, NookColorOutput, PocketBook900Output, PocketBookPro912Output,
-        GenericEink, GenericEinkLarge, KindleFireOutput, KindlePaperWhiteOutput]
+        GenericEink, GenericEinkLarge, KindleFireOutput, KindlePaperWhiteOutput, KindleVoyageOutput]
 
 output_profiles.sort(cmp=lambda x,y:cmp(x.name.lower(), y.name.lower()))

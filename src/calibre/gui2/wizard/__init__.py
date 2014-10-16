@@ -121,6 +121,11 @@ class KindlePW(Kindle):
     id = 'kindle_pw'
     output_profile = 'kindle_pw'
 
+class KindleVoyage(Kindle):
+    name = 'Kindle Voyage'
+    id = 'kindle_voyage'
+    output_profile = 'kindle_voyage'
+
 class Sony505(Device):
 
     output_profile = 'sony'
@@ -567,7 +572,7 @@ class DevicePage(QWizardPage, DeviceUI):
     def nextId(self):
         idx = list(self.device_view.selectionModel().selectedIndexes())[0]
         dev = self.dev_model.data(idx, Qt.UserRole)
-        if dev in (Kindle, KindleDX, KindleFire, KindlePW):
+        if dev in (Kindle, KindleDX, KindleFire, KindlePW, KindleVoyage):
             return KindlePage.ID
         if dev is iPhone:
             return StanzaPage.ID
