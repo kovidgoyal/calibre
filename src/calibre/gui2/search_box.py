@@ -429,6 +429,9 @@ class SearchBoxMixin(object):  # {{{
         tt = _('Enable or disable search highlighting.') + '<br><br>'
         tt += config.help('highlight_search_matches')
         self.highlight_only_button.setToolTip(tt)
+        self.highlight_only_action = ac = QAction(self)
+        self.addAction(ac), ac.triggered.connect(self.highlight_only_clicked)
+        self.keyboard.register_shortcut('highlight search results', _('Highlight search results'), action=self.highlight_only_action)
 
     def highlight_only_clicked(self, state):
         if not config['highlight_search_matches'] and not question_dialog(self, _('Are you sure?'),
