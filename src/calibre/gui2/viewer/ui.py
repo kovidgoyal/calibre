@@ -178,6 +178,19 @@ def test_history():
     assert h == [0, 9]
 # }}}
 
+class ToolBar(QToolBar):  # {{{
+
+    def contextMenuEvent(self, ev):
+        ac = self.actionAt(ev.pos())
+        if ac is None:
+            return
+        ch = self.widgetForAction(ac)
+        sm = getattr(ch, 'showMenu', None)
+        if callable(sm):
+            ev.accept()
+            sm()
+# }}}
+
 class Main(MainWindow):
 
     def __init__(self, debug_javascript):
@@ -209,14 +222,14 @@ class Main(MainWindow):
         hs.setOrientation(Qt.Vertical), hs.setObjectName("horizontal_scrollbar")
         cl.addWidget(hs, 1, 0, 1, 1)
 
-        self.tool_bar = tb = QToolBar(self)
+        self.tool_bar = tb = ToolBar(self)
         tb.setObjectName('tool_bar'), tb.setIconSize(QSize(32, 32))
         self.addToolBar(Qt.LeftToolBarArea, tb)
 
         self.tool_bar2 = tb2 = QToolBar(self)
         tb2.setObjectName('tool_bar2')
         self.addToolBar(Qt.TopToolBarArea, tb2)
-        self.tool_bar.setContextMenuPolicy(Qt.PreventContextMenu)
+        self.tool_bar.setContextMenuPolicy(Qt.DefaultContextMenu)
         self.tool_bar2.setContextMenuPolicy(Qt.PreventContextMenu)
 
         self.pos = DoubleSpinBox()
