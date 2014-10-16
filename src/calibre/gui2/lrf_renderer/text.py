@@ -235,7 +235,7 @@ class TextBlock(object):
                     self.create_line()
                 else:
                     self.end_line()
-                    delta = self.current_style.parskip
+                    delta = getattr(self.current_style, 'parskip', 0)
                     if isinstance(self.lines[-1], ParSkip):
                         delta += self.current_style.baselineskip
                     self.lines.append(ParSkip(delta))
