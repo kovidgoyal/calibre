@@ -237,9 +237,12 @@ class Chunker(object):
                 tn = tag.tag
                 if tn is not None:
                     tn = tn.rpartition('}')[-1]
-                elem = nroot.makeelement(tn,
-                        attrib={k.rpartition('}')[-1]:v for k, v in
-                            tag.attrib.iteritems()})
+                attrib = {k.rpartition('}')[-1]:v for k, v in tag.attrib.iteritems()}
+                try:
+                    elem = nroot.makeelement(tn, attrib=attrib)
+                except ValueError:
+                    attrib = {k:v for k, v in attrib.iteritems() if ':' not in k}
+                    elem = nroot.makeelement(tn, attrib=attrib)
                 elem.text = tag.text
             elem.tail = tag.tail
             parent = node_from_path(nroot, path_to_node(tag.getparent()))
