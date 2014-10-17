@@ -38,7 +38,7 @@ source_suffix = '.rst'
 # The master toctree document.
 master_doc = 'index' if tags.has('online') else 'simple_index'  # noqa
 # kill the warning about index/simple_index not being in a toctree
-exclude_patterns = ['simple_index.rst'] if master_doc == 'index' else ['index']
+exclude_patterns = ['simple_index.rst'] if master_doc == 'index' else ['index.rst']
 
 # The language
 language = os.environ.get('CALIBRE_OVERRIDE_LANG', 'en')
@@ -158,7 +158,7 @@ latex_font_size = '10pt'
 
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title, author, document class [howto/manual]).
-latex_documents = [('index', 'calibre.tex', 'calibre User Manual',
+latex_documents = [(master_doc, 'calibre.tex', 'calibre User Manual',
     'Kovid Goyal', 'manual', False)]
 
 # Additional stuff for the LaTeX preamble.
