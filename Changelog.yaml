@@ -20,6 +20,60 @@
 #   new recipes:
 #     - title: 
 
+- version: 2.6.0
+  date: 2014-10-17
+
+  new features:
+    - title: "Catalogs: CSV Output: Allow changing the order of fields in the generated CSV catalog by using drag and drop to re-arrange the fields in the create catalog dialog."
+      tickets: [1379048]
+
+    - title: "Edit metadata dialog: When editing metadata individually for multiple books, popup a confirmation if the user clicks OK before finishing the editing of all the books."
+      tickets: [1378072]
+
+    - title: "Allow configuring a keyboard shortcut to toggle highlighting of search results via Preferences->Keyboard (under Miscellaneous)."
+      tickets: [1380528]
+
+    - title: "Edit Book: Saved searches window: Remember the last used values for where to search and search direction"
+
+    - title: "E-book viewer: Allow right clicking on the toolbar buttons to popup the optional menus, useful when using the viewer on a touch screen."
+      tickets: [1380359]
+
+    - title: "E-book viewer: Add a keyboard shortcut to toggle the Table of Contents [Ctrl+T]"
+
+    - title: "Performance improvement when renaming/deleting large numbers of items via the Manage Tags/Series/Publishers/etc dialogs"
+
+    - title: "Kobo driver: Update to support soon to be released firmware update from Kobo"
+
+  bug fixes:
+    - title: "Amazon metadata download: Update the amazon metadata download plugin to handle changes to the amazon.com website."
+      tickets: [1379305]
+
+    - title: "AZW3 Output: Ignore invalid attribute names in the input document rather than aborting the conversion on them."
+
+    - title: "Book details panel: Fix custom columns built from other columns with tag like values not clickable in the book details panel."
+      tickets: [1381323]
+
+    - title: "Edit Book: Fix changing the editor undo/redo keyboard shortcuts not preventing the old shortcuts from working."
+
+    - title: "CSV Catalogs: Output all custom datetime columns in the local timezone to match the format for builtin columns"
+
+    - title: "E-book viewer: When looking up words in the dictionary for a book that has no language set, use the current calibre interface language"
+
+    - title: "Fix comments editor widget in the edit metadata dialog swallowing Tab key presses, preventing the use of the keyboard to move between widgets. You can use Ctrl+Tab to insert literal tabs"
+
+    - title: "OS X: Workaround for regression in Qt 5 that causes pressing the Esc key to close the entire window instead of the current completion popup"
+
+    - title: "Fix Advanced search dialog not being sized correctly if the user selects a larger than normal interface font."
+      tickets: [1378045]
+
+    - title: "E-book viewer: Fix page turning by clicking in the margins in full screen mode (when displaying more than one page per screen) not working because of a Qt 5 behavior change."
+
+  improved recipes:
+    - nrcnext
+    - Wall Street Journal
+    - Smithsonian Magazine
+    - Sueddeutsche Zeitung mobil
+
 - version: 2.5.0
   date: 2014-10-03
 
