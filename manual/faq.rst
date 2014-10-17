@@ -134,7 +134,7 @@ of its users. If you need a tool that always produces valid EPUBs, calibre is no
 for you.
 
 How do I use some of the advanced features of the conversion tools?
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~J
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 You can get help on any individual feature of the converters by mousing over
 it in the GUI or running ``ebook-convert dummy.html .epub -h`` at a terminal.
 A good place to start is to look at the following demo file that demonstrates
