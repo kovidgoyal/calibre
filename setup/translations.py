@@ -332,8 +332,8 @@ class Translations(POT):  # {{{
             with open(self.j(self.d(dest), 'stats.json'), 'wb') as f:
                 json.dump(stats, f)
             total = translated + untranslated
-            # Raise the 20% threshold in the future
-            if total and (translated / float(total)) > 0.2:
+            # Raise the 30% threshold in the future
+            if total and (translated / float(total)) > 0.3:
                 complete[x] = stats
         with open(self.j(destbase, 'completed.json'), 'wb') as f:
             json.dump(complete, f, indent=True, sort_keys=True)
