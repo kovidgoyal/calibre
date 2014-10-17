@@ -43,7 +43,11 @@ exclude_patterns = ['simple_index.rst'] if master_doc == 'index' else ['index.rs
 # The language
 language = os.environ.get('CALIBRE_OVERRIDE_LANG', 'en')
 # ignore generated files in languages other than the language we are building for
-exclude_patterns += ['generated/' + x for x in os.listdir('generated') if x != language]
+ge = {'generated/' + x for x in os.listdir('generated')} | {
+    'generated/' + x for x in os.environ.get('ALL_USER_MANUAL_LANGUAGES', '').split()}
+ge.discard('generated/' + language)
+exclude_patterns += list(ge)
+del ge
 
 # General substitutions.
 project = __appname__
