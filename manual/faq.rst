@@ -131,7 +131,11 @@ output a valid EPUB. calibre tries hard to ensure that EPUBs it produces actuall
 work as intended on a wide variety of devices, a goal that is incompatible with
 producing valid EPUBs, and one that is far more important to the vast majority
 of its users. If you need a tool that always produces valid EPUBs, calibre is not
-for you.
+for you. This means, that if you want to send a calibre produced EPUB to an
+online store that uses an EPUB validity checker, you have to make sure that the
+EPUB is valid yourself, calibre will not do it for you -- in other words you
+must feed calibre valid XHTML + CSS as the input documents.
+
 
 How do I use some of the advanced features of the conversion tools?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
