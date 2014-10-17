@@ -181,7 +181,7 @@ List the books available in the calibre database.
                           ' special field "all" can be used to select all fields.'
                           )%', '.join(sorted(fields)))
     parser.add_option('--sort-by', default=None,
-                      help=_('The field by which to sort the results.\nAvailable fields: %s\nDefault: %%default')%','.join(sorted(FIELDS)))
+                      help=_('The field by which to sort the results.\nAvailable fields: %s\nDefault: %%default')%', '.join(sorted(FIELDS)))
     parser.add_option('--ascending', default=False, action='store_true',
                       help=_('Sort results in ascending order'))
     parser.add_option('-s', '--search', default=None,

@@ -97,7 +97,7 @@ def generate_calibredb_help(preamble, app):
         parser = getattr(cli, cmd+'_option_parser')(*args)
         if cmd == 'catalog':
             parser = parser[0]
-        lines += ['.. _calibredb-'+cmd+':', '']
+        lines += ['.. _calibredb-%s-%s:' % (app.config.language, cmd), '']
         lines += [cmd, '~'*20, '']
         usage = parser.usage.strip()
         usage = [i for i in usage.replace('%prog', 'calibredb').splitlines()]
