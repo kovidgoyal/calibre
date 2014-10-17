@@ -10,7 +10,6 @@ del init_calibre
 from sphinx.util.console import bold
 
 sys.path.append(os.path.abspath('../../../'))
-from calibre import __appname__
 from calibre.linux import entry_points, cli_index_strings
 from epub import EPUBHelpBuilder
 from latex import LaTeXHelpBuilder
@@ -23,7 +22,6 @@ include_pat = re.compile(r'^.. include:: (\S+.rst)', re.M)
 def source_read_handler(app, docname, source):
     src = source[0]
     src = src.replace('|lang|', app.config.language)
-    src = src.replace('|app|', __appname__)
     # Sphinx does not call source_read_handle for the .. include directive
     for m in reversed(tuple(include_pat.finditer(src))):
         ss = [open(m.group(1)).read().decode('utf-8')]
@@ -35,7 +33,7 @@ CLI_INDEX='''
 .. _cli:
 
 %s
-==========================
+=========================================================
 
 .. image:: ../../images/cli.png
 
@@ -77,7 +75,7 @@ def generate_calibredb_help(preamble, app):
     preamble = preamble[:preamble.find('\n\n\n', preamble.find('code-block'))]
     preamble += textwrap.dedent('''
 
-    :command:`calibredb` is the command line interface to the |app| database. It has
+    :command:`calibredb` is the command line interface to the calibre database. It has
     several sub-commands, documented below:
 
     ''')

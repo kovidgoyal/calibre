@@ -3,13 +3,13 @@
 Editing E-books 
 ========================
 
-|app| has an integrated e-book editor that can be used to edit books in the
+calibre has an integrated e-book editor that can be used to edit books in the
 EPUB and AZW3 (Kindle) formats. The editor shows you the HTML and CSS that is
 used internally inside the book files, with a live preview that updates as you
 make changes. It also contains various automated tools to perform common
 cleanup and fixing tasks.
 
-You can use this editor by right clicking on any book in |app| and selecting
+You can use this editor by right clicking on any book in calibre and selecting
 :guilabel:`Edit book`.
 
 .. image:: images/edit-book.png
@@ -26,7 +26,7 @@ Basic workflow
 ---------------
 
 .. note::
-    A video tour of the |app| editor is available `here
+    A video tour of the calibre editor is available `here
     <http://calibre-ebook.com/demo#tutorials>`_.
 
 When you first open a book with the Edit book tool, you will be presented with
@@ -94,7 +94,7 @@ Renaming files
 You can rename an individual file by right clicking it and selecting
 :guilabel:`Rename`. Renaming a file automatically updates all links and
 references to it throughout the book. So all you have to do is provide the new
-name, |app| will take care of the rest.
+name, calibre will take care of the rest.
 
 You can also bulk rename many files at once. This is useful
 if you want the files to have some simple name pattern. For example you might
@@ -115,7 +115,7 @@ when viewing the book in a typical ebook reader.
 To merge multiple files together, select them by holding the Ctrl key and
 clicking on them (make sure you only select files of one type, either all HTML
 files or all CSS files and so on). Then right click and select merge. That's
-all, |app| will merge the files, automatically taking care of migrating all
+all, calibre will merge the files, automatically taking care of migrating all
 links and references to the merged files. Note that merging files can sometimes
 cause text styling to change, since the individual files could have used
 different stylesheets.
@@ -142,8 +142,8 @@ HTML file that acts as the title page/cover for the book. You can mark an HTML
 file as the titlepage when editing EPUBs by right-clicking. Be careful that the
 file you mark contains only the cover information. If it contains other
 content, such as the first chapter, then that content will be lost if the user
-ever converts the EPUB file in |app| to another format. This is because when
-converting, |app| assumes that the marked title page contains only the cover
+ever converts the EPUB file in calibre to another format. This is because when
+converting, calibre assumes that the marked title page contains only the cover
 and no other content.
 
 Deleting files
@@ -191,7 +191,7 @@ Linking stylesheets to HTML files efficiently
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 As a convenience, you can select multiple HTML files in the Files Browser,
-right click and choose Link stylesheets to have |app| automatically insert the
+right click and choose Link stylesheets to have calibre automatically insert the
 <link> tags for those stylesheets into all the selected HTML files.
 
 .. raw:: html epub
@@ -304,7 +304,7 @@ Some of the checks performed are:
 
     * Malformed HTML markup. Any HTML markup that does not parse as well-formed
       XML is reported. Correcting it will ensure that your markup works as
-      intended in all contexts. |app| can also auto-fix these errors, but
+      intended in all contexts. calibre can also auto-fix these errors, but
       auto-fixing can sometimes have unexpected effects, so use with care. As
       always, a checkpoint is created before auto-fixing so you can easily
       revert all changes. Auto-fixing works by parsing the markup using the
@@ -417,7 +417,7 @@ Insert inline Table of Contents
 
 Normally in ebooks, the Table of Contents is separate from the main text and is
 typically accessed via a special Table of Contents button/menu in the ebook
-reading device. You can also have |app| automatically generate an *inline*
+reading device. You can also have calibre automatically generate an *inline*
 Table of Contents that becomes part of the text of the book. It is
 generated based on the currently defined Table of Contents. 
 

@@ -1,6 +1,6 @@
 .. include:: simple_index.rst
 
-The main |app| user interface
+The main calibre user interface
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. toctree::
@@ -8,7 +8,7 @@ The main |app| user interface
 
    gui
 
-Adding your favorite news website to |app|
+Adding your favorite news website to calibre
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. toctree::
@@ -16,7 +16,7 @@ Adding your favorite news website to |app|
 
    news
 
-The |app| ebook viewer
+The calibre ebook viewer
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. toctree::
@@ -24,7 +24,7 @@ The |app| ebook viewer
 
    viewer
 
-Customizing |app|'s ebook conversion
+Customizing calibre's ebook conversion
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. toctree::
@@ -72,7 +72,7 @@ Tutorials
 
    tutorials
 
-Customizing |app|
+Customizing calibre
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. toctree::
@@ -88,7 +88,7 @@ The Command Line Interface
 
    generated/|lang|/cli-index
 
-Setting up a |app| development environment
+Setting up a calibre development environment
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. toctree::

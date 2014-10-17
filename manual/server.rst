@@ -1,9 +1,9 @@
 .. _servertutorial:
 
-Integrating the |app| content server into other servers
+Integrating the calibre content server into other servers
 ==========================================================
 
-Here, we will show you how to integrate the |app| content server into another server. The most common reason for this is to make use of SSL or more sophisticated authentication. There are two main techniques: Running the |app| content server as a standalone process and using a reverse proxy to connect it with your main server or running the content server in process in your main server with WSGI. The examples below are all for Apache 2.x on linux, but should be easily adaptable to other platforms.
+Here, we will show you how to integrate the calibre content server into another server. The most common reason for this is to make use of SSL or more sophisticated authentication. There are two main techniques: Running the calibre content server as a standalone process and using a reverse proxy to connect it with your main server or running the content server in process in your main server with WSGI. The examples below are all for Apache 2.x on linux, but should be easily adaptable to other platforms.
 
 .. contents:: Contents
   :depth: 2
@@ -16,7 +16,7 @@ Using a reverse proxy
 
 A reverse proxy is when your normal server accepts incoming requests and passes them onto the calibre server. It then reads the response from the calibre server and forwards it to the client. This means that you can simply run the calibre server as normal without trying to integrate it closely with your main server, and you can take advantage of whatever authentication systems you main server has in place. This is the simplest approach as it allows you to use the binary calibre install with no external dependencies/system integration requirements. Below, is an example of how to achieve this with Apache as your main server, but it will work with any server that supports Reverse Proxies.
 
-First start the |app| content server as shown below::
+First start the calibre content server as shown below::
 
     calibre-server --url-prefix /calibre --port 8080 
 
@@ -35,7 +35,7 @@ The exact technique for enabling the proxy modules will vary depending on your A
     SetEnv force-proxy-request-1.0 1
     SetEnv proxy-nokeepalive 1
 
-That's all, you will now be able to access the |app| Content Server under the /calibre URL in your apache server. The above rules pass all requests under /calibre to the calibre server running on port 8080 and thanks to the --url-prefix option above, the calibre server handles them transparently.
+That's all, you will now be able to access the calibre Content Server under the /calibre URL in your apache server. The above rules pass all requests under /calibre to the calibre server running on port 8080 and thanks to the --url-prefix option above, the calibre server handles them transparently.
 
 .. note:: If you are willing to devote an entire VirtualHost to the content server, then there is no need to use --url-prefix and RewriteRule, instead just use the ProxyPass directive.
 
@@ -110,7 +110,7 @@ The exact technique for enabling the wsgi module will vary depending on your Apa
 
 Change the path to :file:`calibre-wsgi-adapter.py` to wherever you saved it previously (make sure Apache has access to it).
 
-That's all, you will now be able to access the |app| Content Server under the /calibre URL in your apache server.
+That's all, you will now be able to access the calibre Content Server under the /calibre URL in your apache server.
 
 .. note:: For more help with using mod_wsgi in Apache, see `mod_wsgi <http://code.google.com/p/modwsgi/wiki/WhereToGetHelp>`_.
 

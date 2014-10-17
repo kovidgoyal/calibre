@@ -3,7 +3,7 @@
 Adding your favorite news website
 ==================================
 
-|app| has a powerful, flexible and easy-to-use framework for downloading news from the Internet and converting it into an ebook. The following will show you, by means of examples, how to get news from various websites.
+calibre has a powerful, flexible and easy-to-use framework for downloading news from the Internet and converting it into an ebook. The following will show you, by means of examples, how to get news from various websites.
 
 To gain an understanding of how to use the framework, follow the examples in the order listed below:
 
@@ -14,7 +14,7 @@ To gain an understanding of how to use the framework, follow the examples in the
 Completely automatic fetching
 -------------------------------
 
-If your news source is simple enough, |app| may well be able to fetch it completely automatically, all you need to do is provide the URL. |app| gathers all the information needed to download a news source into a :term:`recipe`. In order to tell |app| about a news source, you have to create a :term:`recipe` for it. Let's see some examples:
+If your news source is simple enough, calibre may well be able to fetch it completely automatically, all you need to do is provide the URL. calibre gathers all the information needed to download a news source into a :term:`recipe`. In order to tell calibre about a news source, you have to create a :term:`recipe` for it. Let's see some examples:
 
 .. _portfolio:
 
@@ -28,7 +28,7 @@ Lets pick a couple of feeds that look interesting:
     #. Business Travel: http://feeds.portfolio.com/portfolio/businesstravel
     #. Tech Observer: http://feeds.portfolio.com/portfolio/thetechobserver
 
-I got the URLs by clicking the little orange RSS icon next to each feed name. To make |app| download the feeds and convert them into an ebook, you should right click the :guilabel:`Fetch news` button and then the :guilabel:`Add a custom news source` menu item. A dialog similar to that shown below should open up.
+I got the URLs by clicking the little orange RSS icon next to each feed name. To make calibre download the feeds and convert them into an ebook, you should right click the :guilabel:`Fetch news` button and then the :guilabel:`Add a custom news source` menu item. A dialog similar to that shown below should open up.
 
 .. image:: images/custom_news.png
     :align: center
@@ -53,7 +53,7 @@ Lets try the following two feeds from *The BBC*:
     #. News Front Page: http://newsrss.bbc.co.uk/rss/newsonline_world_edition/front_page/rss.xml
     #. Science/Nature: http://newsrss.bbc.co.uk/rss/newsonline_world_edition/science/nature/rss.xml
 
-Follow the procedure outlined in :ref:`portfolio` to create a recipe for *The BBC* (using the feeds above). Looking at the downloaded ebook, we see that |app| has done a creditable job of extracting only the content you care about from each article's webpage. However, the extraction process is not perfect. Sometimes it leaves in undesirable content like menus and navigation aids or it removes content that should have been left alone, like article headings. In order, to have perfect content extraction, we will need to customize the fetch process, as described in the next section. 
+Follow the procedure outlined in :ref:`portfolio` to create a recipe for *The BBC* (using the feeds above). Looking at the downloaded ebook, we see that calibre has done a creditable job of extracting only the content you care about from each article's webpage. However, the extraction process is not perfect. Sometimes it leaves in undesirable content like menus and navigation aids or it removes content that should have been left alone, like article headings. In order, to have perfect content extraction, we will need to customize the fetch process, as described in the next section. 
 
 Customizing the fetch process
 --------------------------------
@@ -94,7 +94,7 @@ This is python, so indentation is important. After you've added the lines, it sh
 .. image:: images/bbc_altered.png
     :align: center
 
-In the above, ``def print_version(self, url)`` defines a *method* that is called by |app| for every article. ``url`` is the URL of the original article. What ``print_version`` does is take that url and replace it with the new URL that points to the print version of the article. To learn about `python <http://www.python.org>`_ see the `tutorial <http://docs.python.org/tut/>`_.
+In the above, ``def print_version(self, url)`` defines a *method* that is called by calibre for every article. ``url`` is the URL of the original article. What ``print_version`` does is take that url and replace it with the new URL that points to the print version of the article. To learn about `python <http://www.python.org>`_ see the `tutorial <http://docs.python.org/tut/>`_.
 
 Now, click the :guilabel:`Add/update recipe` button and your changes will be saved. Re-download the ebook. You should have a much improved ebook. One of the problems with the new version is that the fonts on the print version webpage are too small. This is automatically fixed when converting to an ebook, but even after the fixing process, the font size of the menus and navigation bar to become too large relative to the article text. To fix this, we will do some more customization, in the next section.
 
@@ -117,7 +117,7 @@ The new version looks pretty good. If you're a perfectionist, you'll want to rea
 Slicing and dicing
 ~~~~~~~~~~~~~~~~~~~~~~~
 
-|app| contains very powerful and flexible abilities when it comes to manipulating downloaded content. To show off a couple of these, let's look at our old friend the :ref:`The BBC <bbc1>` recipe again. Looking at the source code (:term:`HTML`) of a couple of articles (print version), we see that they have a footer that contains no useful information, contained in 
+calibre contains very powerful and flexible abilities when it comes to manipulating downloaded content. To show off a couple of these, let's look at our old friend the :ref:`The BBC <bbc1>` recipe again. Looking at the source code (:term:`HTML`) of a couple of articles (print version), we see that they have a footer that contains no useful information, contained in 
 
 .. code-block:: html
 
@@ -133,11 +133,11 @@ to the recipe. Finally, lets replace some of the :term:`CSS` that we disabled ea
 
     extra_css      = '.headline {font-size: x-large;} \n .fact { padding-top: 10pt  }' 
 
-With these additions, our recipe has become "production quality", indeed it is very close to the actual recipe used by |app| for the *BBC*, shown below:
+With these additions, our recipe has become "production quality", indeed it is very close to the actual recipe used by calibre for the *BBC*, shown below:
 
 .. literalinclude:: ../../../recipes/bbc.recipe
 
-This :term:`recipe` explores only the tip of the iceberg when it comes to the power of |app|. To explore more of the abilities of |app| we'll examine a more complex real life example in the next section.
+This :term:`recipe` explores only the tip of the iceberg when it comes to the power of calibre. To explore more of the abilities of calibre we'll examine a more complex real life example in the next section.
 
 Real life example
 ~~~~~~~~~~~~~~~~~~~~~
@@ -250,7 +250,7 @@ The next interesting feature is::
     def get_browser(self):
         ...
 
-``needs_subscription = True`` tells |app| that this recipe needs a username and password in order to access the content. This causes, |app| to ask for a username and password whenever you try to use this recipe. The code in :meth:`calibre.web.feeds.news.BasicNewsRecipe.get_browser` actually does the login into the NYT website. Once logged in, |app| will use the same, logged in, browser instance to fetch all content. See `mechanize <http://wwwsearch.sourceforge.net/mechanize/>`_ to understand the code in ``get_browser``.
+``needs_subscription = True`` tells calibre that this recipe needs a username and password in order to access the content. This causes, calibre to ask for a username and password whenever you try to use this recipe. The code in :meth:`calibre.web.feeds.news.BasicNewsRecipe.get_browser` actually does the login into the NYT website. Once logged in, calibre will use the same, logged in, browser instance to fetch all content. See `mechanize <http://wwwsearch.sourceforge.net/mechanize/>`_ to understand the code in ``get_browser``.
 
 The next new feature is the
 :meth:`calibre.web.feeds.news.BasicNewsRecipe.parse_index` method. Its job is
@@ -294,7 +294,7 @@ Once the download is complete, you can look at the downloaded :term:`HTML` by op
 If you're satisfied with your recipe, and you feel there is enough demand to justify its inclusion into the set of built-in recipes, post your recipe in the `calibre recipes forum <http://www.mobileread.com/forums/forumdisplay.php?f=228>`_ to share it with other calibre users.
 
 .. note:: 
-    On OS X, the command line tools are inside the |app| bundle, for example,
+    On OS X, the command line tools are inside the calibre bundle, for example,
     if you installed calibre in :file:`/Applications` the command line tools
     are in :file:`/Applications/calibre.app/Contents/console.app/Contents/MacOS/`.
 
@@ -316,10 +316,10 @@ To learn more about writing advanced recipes using some of the facilities, avail
         The source code of ``BasicNewsRecipe``
 
     `Built-in recipes <http://bazaar.launchpad.net/~kovid/calibre/trunk/files/head:/recipes/>`_
-        The source code for the built-in recipes that come with |app|
+        The source code for the built-in recipes that come with calibre
 
     `The calibre recipes forum <http://www.mobileread.com/forums/forumdisplay.php?f=228>`_
-        Lots of knowledgeable |app| recipe writers hang out here.
+        Lots of knowledgeable calibre recipe writers hang out here.
 
 
 API documentation

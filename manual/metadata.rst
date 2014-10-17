@@ -8,7 +8,7 @@ Editing Ebook Metadata
   :local:
 
 Ebooks come in all shapes and sizes and more often than not, their metadata (things like title/author/series/publisher) is incomplete or incorrect.
-The simplest way to change metadata in |app| is to simply double click on an entry and type in the correct replacement.
+The simplest way to change metadata in calibre is to simply double click on an entry and type in the correct replacement.
 For more sophisticated, "power editing" use the edit metadata tools discussed below.
 
 Editing the metadata of one book at a time
@@ -17,27 +17,27 @@ Editing the metadata of one book at a time
 Click the book you want to edit and then click the :guilabel:`Edit metadata` button or press the ``E`` key. A dialog opens that allows you to edit all aspects of the metadata. It has various features to make editing faster and more efficient. A list of the commonly used tips:
 
     * You can click the button in between title and authors to swap them automatically. 
-    * You can click the button next to author sort to have |app| automatically fill it in using the sort values stored with each author. Use the :guilabel:`Manage authors` dialog to see and change the authors' sort values. This dialog can be opened by clicking and holding the button next to author sort.
+    * You can click the button next to author sort to have calibre automatically fill it in using the sort values stored with each author. Use the :guilabel:`Manage authors` dialog to see and change the authors' sort values. This dialog can be opened by clicking and holding the button next to author sort.
     * You can click the button next to tags to use the Tag Editor to manage the tags associated with the book.
     * The ISBN box will have a red background if you enter an invalid ISBN. It will be green for valid ISBNs
-    * The author sort box will be red if the author sort value differs from what |app| thinks it should be.
+    * The author sort box will be red if the author sort value differs from what calibre thinks it should be.
 
 Downloading metadata
 ^^^^^^^^^^^^^^^^^^^^^
 
-The nicest feature of the edit metadata dialog is its ability to automatically fill in many metadata fields by getting metadata from various websites. Currently, |app| uses isbndb.com, Google Books, Amazon and Library Thing. The metadata download can fill in Title, author, series, tags, rating, description and ISBN for you.
+The nicest feature of the edit metadata dialog is its ability to automatically fill in many metadata fields by getting metadata from various websites. Currently, calibre uses isbndb.com, Google Books, Amazon and Library Thing. The metadata download can fill in Title, author, series, tags, rating, description and ISBN for you.
 
-To use the download, fill in the title and author fields and click the :guilabel:`Fetch metadata` button. |app| will present you with a list of books that most closely match the title and author. If you fill in the ISBN field first, it will be used in preference to the title and author. If no matches are found, try making your search a little less specific by including only some key words in the title and only the author last name.
+To use the download, fill in the title and author fields and click the :guilabel:`Fetch metadata` button. calibre will present you with a list of books that most closely match the title and author. If you fill in the ISBN field first, it will be used in preference to the title and author. If no matches are found, try making your search a little less specific by including only some key words in the title and only the author last name.
 
 Managing book formats
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
-In |app|, a single book entry can have many different *formats* associated with it. For example you may have obtained the Complete Works of Shakespeare in EPUB format and later converted it to MOBI to read on your Kindle. |app| automatically manages multiple formats for you. In the :guilabel:`Available formats` section of the Edit metadata dialog, you can manage these formats. You can add a new format, delete an existing format and also ask |app| to set the metadata and cover for the book entry from the metadata in one of the formats.
+In calibre, a single book entry can have many different *formats* associated with it. For example you may have obtained the Complete Works of Shakespeare in EPUB format and later converted it to MOBI to read on your Kindle. calibre automatically manages multiple formats for you. In the :guilabel:`Available formats` section of the Edit metadata dialog, you can manage these formats. You can add a new format, delete an existing format and also ask calibre to set the metadata and cover for the book entry from the metadata in one of the formats.
 
 All about covers
 ^^^^^^^^^^^^^^^^^^^^^
 
-You can ask |app| to download book covers for you, provided the book has a known ISBN. Alternatively you can specify a file on your computer to use as the cover. |app| can even generate a default cover with basic metadata on it for you. You can drag and drop images onto the cover to change it and also right click to copy/paste cover images.
+You can ask calibre to download book covers for you, provided the book has a known ISBN. Alternatively you can specify a file on your computer to use as the cover. calibre can even generate a default cover with basic metadata on it for you. You can drag and drop images onto the cover to change it and also right click to copy/paste cover images.
 
 In addition, there is a button to automatically trim borders from the cover, in case your cover image has an ugly border.
 
@@ -60,7 +60,7 @@ If the field you are searching on is a `multiple` field like tags, then each tag
 
 If you want the search to ignore upper/lowercase differences, uncheck the `Case sensitive` box.
 
-You can have |app| change the case of the result (information after the replace has happened) by choosing one of the functions from the `Apply function after replace` box. The operations available are:
+You can have calibre change the case of the result (information after the replace has happened) by choosing one of the functions from the `Apply function after replace` box. The operations available are:
 
     * `Lower case` -- change all the characters in the field to lower case
     * `Upper case` -- change all the characters in the field to upper case
@@ -74,7 +74,7 @@ The third and most important is that the replace string can make reference to pa
 
 One useful pattern: assume you want to change the case of an entire field. The easiest way to do this is to use character mode, but lets further assume you want to use regular expression mode. The search expression should be `(.*)` the replace expression should be `\\1`, and the desired case change function should be selected.
 
-Finally, in regular expression mode you can copy values from one field to another. Simply make the source and destination field different. The copy can replace the destination field, prepend to the field (add to the front), or append to the field (add at the end). The 'use comma' checkbox tells |app| to (or not to) add a comma between the text and the destination field in prepend and append modes. If the destination is multiple (e.g., tags), then you cannot uncheck this box.
+Finally, in regular expression mode you can copy values from one field to another. Simply make the source and destination field different. The copy can replace the destination field, prepend to the field (add to the front), or append to the field (add at the end). The 'use comma' checkbox tells calibre to (or not to) add a comma between the text and the destination field in prepend and append modes. If the destination is multiple (e.g., tags), then you cannot uncheck this box.
 
 Search and replace is done after all the other metadata changes in the other tabs are applied. This can lead to some confusion, because the test boxes will show the information before the other changes, but the operation will be applied after the other changes. If you have any doubts about what is going to happen, do not mix search/replace with other changes.
 

@@ -2,14 +2,14 @@
 
 .. _customize:
 
-Customizing |app|
+Customizing calibre
 ==================================
 
-|app| has a highly modular design. Various parts of it can be customized. You can learn how to create
-*recipes* to add new sources of online content to |app| in the Section :ref:`news`. Here, you will learn,
-first, how to use environment variables and *tweaks* to customize |app|'s behavior,  and then how to
+calibre has a highly modular design. Various parts of it can be customized. You can learn how to create
+*recipes* to add new sources of online content to calibre in the Section :ref:`news`. Here, you will learn,
+first, how to use environment variables and *tweaks* to customize calibre's behavior,  and then how to
 specify your own static resources like icons and templates to override the defaults and finally how to 
-use *plugins* to add functionality to |app|.
+use *plugins* to add functionality to calibre.
 
 .. contents::
     :depth: 2
@@ -38,7 +38,7 @@ See `How to set environment variables in windows <http://www.computerhope.com/is
 Tweaks
 ------------
 
-Tweaks are small changes that you can specify to control various aspects of |app|'s behavior. You can change them by going to Preferences->Advanced->Tweaks.
+Tweaks are small changes that you can specify to control various aspects of calibre's behavior. You can change them by going to Preferences->Advanced->Tweaks.
 The default values for the tweaks are reproduced below
 
 .. literalinclude:: ../resources/default_tweaks.py
@@ -47,22 +47,22 @@ The default values for the tweaks are reproduced below
 Overriding icons, templates, et cetera
 ----------------------------------------
 
-|app| allows you to override the static resources, like icons, javascript and
+calibre allows you to override the static resources, like icons, javascript and
 templates for the metadata jacket, catalogs, etc. with customized versions that
 you like.  All static resources are stored in the resources sub-folder of the
 calibre install location. On Windows, this is usually :file:`C:/Program Files/Calibre2/resources`. 
 On OS X, :file:`/Applications/calibre.app/Contents/Resources/resources/`. On linux, if
 you are using the binary installer from the calibre website it will be
 :file:`/opt/calibre/resources`. These paths can change depending on where you
-choose to install |app|. 
+choose to install calibre. 
 
 You should not change the files in this resources folder, as your changes will
-get overwritten the next time you update |app|. Instead, go to
+get overwritten the next time you update calibre. Instead, go to
 :guilabel:`Preferences->Advanced->Miscellaneous` and click 
 :guilabel:`Open calibre configuration directory`. In this configuration directory, create a
 sub-folder called resources and place the files you want to override in it.
 Place the files in the appropriate sub folders, for example place images in
-:file:`resources/images`, etc. |app| will automatically use your custom file
+:file:`resources/images`, etc. calibre will automatically use your custom file
 in preference to the built-in one the next time it is started.
 
 For example, if you wanted to change the icon for the :guilabel:`Remove books`
@@ -73,10 +73,10 @@ the configuration directory as :file:`resources/images/trash.png`. All the
 icons used by the calibre user interface are in :file:`resources/images` and
 its sub-folders.
 
-Customizing |app| with plugins
+Customizing calibre with plugins
 --------------------------------
 
-|app| has a very modular design. Almost all functionality in |app| comes in the form of plugins. Plugins are used for conversion, for downloading news (though these are called recipes), for various components of the user interface, to connect to different devices, to process files when adding them to |app| and so on. You can get a complete list of all the built-in plugins in |app| by going to :guilabel:`Preferences->Plugins`.
+calibre has a very modular design. Almost all functionality in calibre comes in the form of plugins. Plugins are used for conversion, for downloading news (though these are called recipes), for various components of the user interface, to connect to different devices, to process files when adding them to calibre and so on. You can get a complete list of all the built-in plugins in calibre by going to :guilabel:`Preferences->Plugins`.
 
-You can write your own plugins to customize and extend the behavior of |app|. The plugin architecture in |app| is very simple, see the tutorial :ref:`pluginstutorial`.
+You can write your own plugins to customize and extend the behavior of calibre. The plugin architecture in calibre is very simple, see the tutorial :ref:`pluginstutorial`.
 

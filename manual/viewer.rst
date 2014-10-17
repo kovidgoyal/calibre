@@ -3,7 +3,7 @@
 The Ebook Viewer
 =============================
 
-|app| includes a built-in ebook viewer that can view all the major ebook formats. 
+calibre includes a built-in ebook viewer that can view all the major ebook formats. 
 The viewer is highly customizable and has many advanced features. 
 
 .. contents::
@@ -13,7 +13,7 @@ The viewer is highly customizable and has many advanced features.
 Starting the viewer
 --------------------
 
-You can view any of the books in your |app| library by selecting the book and pressing the View button. This
+You can view any of the books in your calibre library by selecting the book and pressing the View button. This
 will open up the book in the ebook viewer. You can also launch the viewer by itself from the Start menu in Windows
 or using the command :command:`ebook-viewer` in Linux and OS X (you have to install the command line tools on OS X
 first by going to :guilabel:`Preferences->Advanced->Miscellaneous`).
@@ -33,7 +33,7 @@ Navigating around an ebook
 
 
 You can "turn pages" in a book by using the :guilabel:`Page Next` and :guilabel:`Page Previous` buttons |pni|, or by pressing
-the Page Down/Page Up keys. Unlike most ebook viewers, |app| does not force you to view books in paged mode. You can
+the Page Down/Page Up keys. Unlike most ebook viewers, calibre does not force you to view books in paged mode. You can
 scroll by amounts less than a page by using the scroll bar or various customizable keyboard shortcuts. 
 
 Bookmarks
@@ -59,9 +59,9 @@ like this |navposi|. This is both your current position and the total length of 
 size you are viewing the book at, and they play a similar role to page numbers in paper books.
 You can enter any number you like to go to the corresponding location in the book. 
 
-|app| also has a very handy
+calibre also has a very handy
 reference mode. You can turn it on by clicking the Reference Mode button |refmi|. Once you do this, every time you move your
-mouse over a paragraph, |app| will display a unique number made up of the section and paragraph numbers. 
+mouse over a paragraph, calibre will display a unique number made up of the section and paragraph numbers. 
 
 .. image:: images/ref_mode.png
     :align: center
@@ -88,12 +88,12 @@ by the viewer to ones you like as well as the default font size when the viewer 
 
 More advanced customization can be achieved by the User Stylesheet setting. This is a stylesheet you can set that will be applied
 to every book. Using it you can do things like have white text on a black background, change paragraph styles, text justification, etc.
-For examples of custom stylesheets used by |app|'s users, see `the forums <http://www.mobileread.com/forums/showthread.php?t=51500>`_.
+For examples of custom stylesheets used by calibre's users, see `the forums <http://www.mobileread.com/forums/showthread.php?t=51500>`_.
 
 Dictionary lookup
 -------------------
 
-You can look up the meaning of words in the current book by right clicking on a word. |app| uses the publicly available dictionary
+You can look up the meaning of words in the current book by right clicking on a word. calibre uses the publicly available dictionary
 server at ``dict.org`` to look up words. The definition is displayed in a small box at the bottom of the screen. 
 
 Copying text and images

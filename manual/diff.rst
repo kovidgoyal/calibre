@@ -3,7 +3,7 @@
 Comparing E-books 
 ========================
 
-|app| includes an integrated e-book comparison tool that can be used to see
+calibre includes an integrated e-book comparison tool that can be used to see
 what has changed inside an ebook after editing or converting it. It can compare
 books in the EPUB and AZW3 formats.
 
@@ -68,10 +68,10 @@ right and the second file on the left.
 Comparing the ORIGINAL_FMT to FMT
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-When you do a conversion in |app| from a FMT to itself, the original file is
+When you do a conversion in calibre from a FMT to itself, the original file is
 saved as ORIGINAL_FMT. You can see what was changed by the conversion, by right
 clicking on the ORIGINAL_FMT entry in the :ref:`book_details` panel in the main
-|app| window and selecting :guilabel:`Compare to FMT`. The comparison view will
+calibre window and selecting :guilabel:`Compare to FMT`. The comparison view will
 open with ORIGINAL_FMT on the left and FMT on the right.
 
 Comparing a checkpoint to the current state of the book while editing

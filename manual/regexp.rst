@@ -1,9 +1,9 @@
 .. _regexptutorial:
 
-All about using regular expressions in |app|
+All about using regular expressions in calibre
 =======================================================
 
-Regular expressions are features used in many places in |app| to perform sophisticated manipulation of ebook content and metadata. This tutorial is a gentle introduction to getting you started with using regular expressions in |app|.
+Regular expressions are features used in many places in calibre to perform sophisticated manipulation of ebook content and metadata. This tutorial is a gentle introduction to getting you started with using regular expressions in calibre.
 
 .. contents:: Contents
   :depth: 2
@@ -15,17 +15,17 @@ First, a word of warning and a word of courage
 
 This is, inevitably, going to be somewhat technical- after all, regular expressions are a technical tool for doing technical stuff. I'm going to have to use some jargon and concepts that may seem complicated or convoluted. I'm going to try to explain those concepts as clearly as I can, but really can't do without using them at all. That being said, don't be discouraged by any jargon, as I've tried to explain everything new. And while regular expressions themselves may seem like an arcane, black magic (or, to be more prosaic, a random string of mumbo-jumbo letters and signs), I promise that they are not all that complicated. Even those who understand regular expressions really well have trouble reading the more complex ones, but writing them isn't as difficult- you construct the expression step by step. So, take a step and follow me into the rabbit hole.
 
-Where in |app| can you use regular expressions?
+Where in calibre can you use regular expressions?
 ---------------------------------------------------
 
-There are a few places |app| uses regular expressions. There's the Search & Replace in conversion options, metadata detection from filenames in the import settings and Search & Replace when editing the metadata of books in bulk.
+There are a few places calibre uses regular expressions. There's the Search & Replace in conversion options, metadata detection from filenames in the import settings and Search & Replace when editing the metadata of books in bulk.
 
 What on earth *is* a regular expression?
 ------------------------------------------------
 
 A regular expression is a way to describe sets of strings. A single regular expression can *match* a number of different strings. This is what makes regular expression so powerful -- they are a concise way of describing a potentially large number of variations.
 
-.. note:: I'm using string here in the sense it is used in programming languages: a string of one or more characters, characters including actual characters, numbers, punctuation and so-called whitespace (linebreaks, tabulators etc.). Please note that generally, uppercase and lowercase characters are not considered the same, thus "a" being a different character from "A" and so forth. In |app|, regular expressions are case insensitive in the search bar, but not in the conversion options. There's a way to make every regular expression case insensitive, but we'll discuss that later. It gets complicated because regular expressions allow for variations in the strings it matches, so one expression can match multiple strings, which is why people bother using them at all. More on that in a bit.
+.. note:: I'm using string here in the sense it is used in programming languages: a string of one or more characters, characters including actual characters, numbers, punctuation and so-called whitespace (linebreaks, tabulators etc.). Please note that generally, uppercase and lowercase characters are not considered the same, thus "a" being a different character from "A" and so forth. In calibre, regular expressions are case insensitive in the search bar, but not in the conversion options. There's a way to make every regular expression case insensitive, but we'll discuss that later. It gets complicated because regular expressions allow for variations in the strings it matches, so one expression can match multiple strings, which is why people bother using them at all. More on that in a bit.
 
 Care to explain?
 --------------------
@@ -81,17 +81,17 @@ You missed...
 In the beginning, you said there was a way to make a regular expression case insensitive?
 ------------------------------------------------------------------------------------------------------------------
 
-Yes, I did, thanks for paying attention and reminding me. You can tell |app| how you want certain things handled by using something called flags. You include flags in your expression by using the special construct ``(?flags go here)`` where, obviously, you'd replace "flags go here" with the specific flags you want. For ignoring case, the flag is ``i``, thus you include ``(?i)`` in your expression. Thus, ``test(?i)`` would match "Test", "tEst", "TEst" and any case variation you could think of.
+Yes, I did, thanks for paying attention and reminding me. You can tell calibre how you want certain things handled by using something called flags. You include flags in your expression by using the special construct ``(?flags go here)`` where, obviously, you'd replace "flags go here" with the specific flags you want. For ignoring case, the flag is ``i``, thus you include ``(?i)`` in your expression. Thus, ``test(?i)`` would match "Test", "tEst", "TEst" and any case variation you could think of.
 
 Another useful flag lets the dot match any character at all, *including* the newline, the flag ``s``. If you want to use multiple flags in an expression, just put them in the same statement: ``(?is)`` would ignore case and make the dot match all. It doesn't matter which flag you state first, ``(?si)`` would be equivalent to the above. By the way, good places for putting flags in your expression would be either the very beginning or the very end. That way, they don't get mixed up with anything else.
 
-I think I'm beginning to understand these regular expressions now... how do I use them in |app|?
+I think I'm beginning to understand these regular expressions now... how do I use them in calibre?
 -----------------------------------------------------------------------------------------------------
 
 Conversions
 ^^^^^^^^^^^^^^
 
-Let's begin with the conversion settings, which is really neat. In the Search and Replace part, you can input a regexp (short for regular expression) that describes the string that will be replaced during the conversion. The neat part is the wizard. Click on the wizard staff and you get a preview of what |app| "sees" during the conversion process. Scroll down to the string you want to remove, select and copy it, paste it into the regexp field on top of the window. If there are variable parts, like page numbers or so, use sets and quantifiers to cover those, and while you're at it, remember to escape special characters, if there are some. Hit the button labeled :guilabel:`Test` and |app| highlights the parts it would replace were you to use the regexp. Once you're satisfied, hit OK and convert. Be careful if your conversion source has tags like this example::
+Let's begin with the conversion settings, which is really neat. In the Search and Replace part, you can input a regexp (short for regular expression) that describes the string that will be replaced during the conversion. The neat part is the wizard. Click on the wizard staff and you get a preview of what calibre "sees" during the conversion process. Scroll down to the string you want to remove, select and copy it, paste it into the regexp field on top of the window. If there are variable parts, like page numbers or so, use sets and quantifiers to cover those, and while you're at it, remember to escape special characters, if there are some. Hit the button labeled :guilabel:`Test` and calibre highlights the parts it would replace were you to use the regexp. Once you're satisfied, hit OK and convert. Be careful if your conversion source has tags like this example::
 
     Maybe, but the cops feel like you do, Anita. What's one more dead vampire?
     New laws don't change that. </p>
@@ -101,13 +101,13 @@ Let's begin with the conversion settings, which is really neat. In the Search an
     <p class="calibre4"> It had only been two years since Addison v. Clark.
     The court case gave us a revised version of what life was
     
-(shamelessly ripped out of `this thread <http://www.mobileread.com/forums/showthread.php?t=75594">`_). You'd have to remove some of the tags as well. In this example, I'd recommend beginning with the tag ``<b class="calibre2">``, now you have to end with the corresponding closing tag (opening tags are ``<tag>``, closing tags are ``</tag>``), which is simply the next ``</b>`` in this case. (Refer to a good HTML manual or ask in the forum if you are unclear on this point.) The opening tag can be described using ``<b.*?>``, the closing tag using ``</b>``, thus we could remove everything between those tags using ``<b.*?>.*?</b>``. But using this expression would be a bad idea, because it removes everything enclosed by <b>- tags (which, by the way, render the enclosed text in bold print), and it's a fair bet that we'll remove portions of the book in this way. Instead, include the beginning of the enclosed string as well, making the regular expression ``<b.*?>\s*Generated\s+by\s+ABC\s+Amber\s+LIT.*?</b>`` The ``\s`` with quantifiers are included here instead of explicitly using the spaces as seen in the string to catch any variations of the string that might occur. Remember to check what |app| will remove to make sure you don't remove any portions you want to keep if you test a new expression. If you only check one occurrence, you might miss a mismatch somewhere else in the text. Also note that should you accidentally remove more or fewer tags than you actually wanted to, |app| tries to repair the damaged code after doing the removal.
+(shamelessly ripped out of `this thread <http://www.mobileread.com/forums/showthread.php?t=75594">`_). You'd have to remove some of the tags as well. In this example, I'd recommend beginning with the tag ``<b class="calibre2">``, now you have to end with the corresponding closing tag (opening tags are ``<tag>``, closing tags are ``</tag>``), which is simply the next ``</b>`` in this case. (Refer to a good HTML manual or ask in the forum if you are unclear on this point.) The opening tag can be described using ``<b.*?>``, the closing tag using ``</b>``, thus we could remove everything between those tags using ``<b.*?>.*?</b>``. But using this expression would be a bad idea, because it removes everything enclosed by <b>- tags (which, by the way, render the enclosed text in bold print), and it's a fair bet that we'll remove portions of the book in this way. Instead, include the beginning of the enclosed string as well, making the regular expression ``<b.*?>\s*Generated\s+by\s+ABC\s+Amber\s+LIT.*?</b>`` The ``\s`` with quantifiers are included here instead of explicitly using the spaces as seen in the string to catch any variations of the string that might occur. Remember to check what calibre will remove to make sure you don't remove any portions you want to keep if you test a new expression. If you only check one occurrence, you might miss a mismatch somewhere else in the text. Also note that should you accidentally remove more or fewer tags than you actually wanted to, calibre tries to repair the damaged code after doing the removal.
 
 Adding books
 ^^^^^^^^^^^^^^^^
 
 Another thing you can use regular expressions for is to extract metadata from filenames. You can find this feature in the "Adding books" part of the settings. There's a special feature here: You can use field names for metadata fields, for example ``(?P<title>)`` would indicate that calibre uses this part of the string as book title. The allowed field names are listed in the windows, together with another nice test field. An example: Say you want to import a whole bunch of files named like ``Classical Texts: The Divine Comedy by Dante Alighieri.mobi``.
-(Obviously, this is already in your library, since we all love classical italian poetry) or ``Science Fiction epics: The Foundation Trilogy by Isaac Asimov.epub``. This is obviously a naming scheme that |app| won't extract any meaningful data out of - its standard expression for extracting metadata is ``(?P<title>.+) - (?P<author>[^_]+)``. A regular expression that works here would be ``[a-zA-Z]+: (?P<title>.+) by (?P<author>.+)``. Please note that, inside the group for the metadata field, you need to use expressions to describe what the field actually matches. And also note that, when using the test field |app| provides, you need to add the file extension to your testing filename, otherwise you won't get any matches at all, despite using a working expression.
+(Obviously, this is already in your library, since we all love classical italian poetry) or ``Science Fiction epics: The Foundation Trilogy by Isaac Asimov.epub``. This is obviously a naming scheme that calibre won't extract any meaningful data out of - its standard expression for extracting metadata is ``(?P<title>.+) - (?P<author>[^_]+)``. A regular expression that works here would be ``[a-zA-Z]+: (?P<title>.+) by (?P<author>.+)``. Please note that, inside the group for the metadata field, you need to use expressions to describe what the field actually matches. And also note that, when using the test field calibre provides, you need to add the file extension to your testing filename, otherwise you won't get any matches at all, despite using a working expression.
 
 Bulk editing metadata
 ^^^^^^^^^^^^^^^^^^^^^^^
@@ -116,7 +116,7 @@ The last part is regular expression search and replace in metadata fields. You c
 
 Well, that just about concludes the very short introduction to regular expressions. Hopefully I'll have shown you enough to at least get you started and to enable you to continue learning by yourself- a good starting point would be the `Python documentation for regexps <http://docs.python.org/library/re.html>`_.
 
-One last word of warning, though: Regexps are powerful, but also really easy to get wrong. |app| provides really great testing possibilities to see if your expressions behave as you expect them to. Use them. Try not to shoot yourself in the foot. (God, I love that expression...) But should you, despite the warning, injure your foot (or any other body parts), try to learn from it.
+One last word of warning, though: Regexps are powerful, but also really easy to get wrong. calibre provides really great testing possibilities to see if your expressions behave as you expect them to. Use them. Try not to shoot yourself in the foot. (God, I love that expression...) But should you, despite the warning, injure your foot (or any other body parts), try to learn from it.
 
 Credits
 -------------

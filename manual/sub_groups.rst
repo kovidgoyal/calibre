@@ -5,7 +5,7 @@ Managing subgroups of books, for example "genre"
 
 Some people wish to organize the books in their library into subgroups, similar to subfolders. The most commonly provided reason is to create genre hierarchies, but there are many others. One user asked for a way to organize textbooks by subject and course number. Another wanted to keep track of gifts by subject and recipient. This tutorial will use the genre example for the rest of this post.
 
-Before going on, please note that we are not talking about folders on the hard disk. Subgroups are not file folders. Books will not be copied anywhere. Calibre's library file structure is not affected. Instead, we are presenting a way to organize and display subgroups of books within a |app| library.
+Before going on, please note that we are not talking about folders on the hard disk. Subgroups are not file folders. Books will not be copied anywhere. Calibre's library file structure is not affected. Instead, we are presenting a way to organize and display subgroups of books within a calibre library.
 
 .. contents::
     :depth: 1
@@ -17,7 +17,7 @@ Before going on, please note that we are not talking about folders on the hard d
 
 The commonly-provided requirements for subgroups such as genres are:
 
-    * A subgroup (e.g., a genre) must contain (point to) books, not categories of books. This is what distinguishes subgroups from |app| user categories.
+    * A subgroup (e.g., a genre) must contain (point to) books, not categories of books. This is what distinguishes subgroups from calibre user categories.
     * A book can be in multiple subgroups (genres). This distinguishes subgroups from physical file folders.
     * Subgroups (genres) must form a hierarchy; subgroups can contain subgroups.
 
@@ -53,19 +53,19 @@ Once a genre exists, that is at least one book has that genre, you can easily ap
 Setup
 ----------------------------------------
 
-By now, your question might be "How was all of this up?" There are three steps: 1) create the custom column, 2) tell |app| that the new column is to be treated as a hierarchy, and 3) add genres.
+By now, your question might be "How was all of this up?" There are three steps: 1) create the custom column, 2) tell calibre that the new column is to be treated as a hierarchy, and 3) add genres.
 
 You create the custom column in the usual way, using Preferences -> Add your own columns. This example uses "#genre" as the lookup name and "Genre" as the column heading. The column type is "Comma-separated text, like tags, shown in the tag browser." 
 
 .. image:: images/sg_cc.jpg
     :align: center
 
-Then after restarting |app|, you must tell |app| that the column is to be treated as a hierarchy. Go to Preferences -> Look and Feel -> Tag Browser and enter the lookup name "#genre" into the "Categories with hierarchical items" box. Press Apply, and you are done with setting up.
+Then after restarting calibre, you must tell calibre that the column is to be treated as a hierarchy. Go to Preferences -> Look and Feel -> Tag Browser and enter the lookup name "#genre" into the "Categories with hierarchical items" box. Press Apply, and you are done with setting up.
 
 .. image:: images/sg_pref.png
     :align: center
 
-At the point there are no genres in the column. We are left with the last step: how to apply a genre to a book. A genre does not exist in |app| until it appears on at least one book. To learn how to apply a genre for the first time, we must go into some detail about what a genre looks like in the metadata for a book.
+At the point there are no genres in the column. We are left with the last step: how to apply a genre to a book. A genre does not exist in calibre until it appears on at least one book. To learn how to apply a genre for the first time, we must go into some detail about what a genre looks like in the metadata for a book.
 
 A hierarchy of 'things' is built by creating an item consisting of phrases separated by periods. Continuing the genre example, these items would "History.Military", "Mysteries.Vampire", "Science Fiction.Space Opera", etc. Thus to create a new genre, you pick a book that should have that genre, edit its metadata, and enter the new genre into the column you created. Continuing our example, if you want to assign a new genre "Comics" with a sub-genre "Superheroes" to a book, you would 'edit metadata' for that (comic) book, choose the Custom metadata tab, and then enter "Comics.Superheroes" as shown in the following (ignore the other custom columns):
 
@@ -105,7 +105,7 @@ After creating the saved search, you can use it as a restriction.
 Useful Template Functions
 -------------------------
  
- You might want to use the genre information in a template, such as with save to disk or send to device. The question might then be "How do I get the outermost genre name or names?" A |app| template function, subitems, is provided to make doing this easier.
+ You might want to use the genre information in a template, such as with save to disk or send to device. The question might then be "How do I get the outermost genre name or names?" A calibre template function, subitems, is provided to make doing this easier.
  
  For example, assume you want to add the outermost genre level to the save-to-disk template to make genre folders, as in "History/The Gathering Storm - Churchill, Winston". To do this, you must extract the first level of the hierarchy and add it to the front along with a slash to indicate that it should make a folder. The template below accomplishes this::
  

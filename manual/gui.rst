@@ -5,13 +5,13 @@ The Graphical User Interface
 
 The Graphical User Interface *(GUI)* provides access to all
 library management and ebook format conversion features. The basic workflow
-for using |app| is to first add books to the library from your hard disk.
-|app| will automatically try to read metadata from the books and add them
+for using calibre is to first add books to the library from your hard disk.
+calibre will automatically try to read metadata from the books and add them
 to its internal database. Once they are in the database, you can perform various
 :ref:`actions` on them that include conversion from one format to another,
 transfer to the reading device, viewing on your computer, and editing metadata.
 The latter includes modifying the cover, description, and tags among other details.
-Note that |app| creates copies of the files you add to it. Your original files are left untouched.
+Note that calibre creates copies of the files you add to it. Your original files are left untouched.
 
 The interface is divided into various sections:
 
@@ -47,9 +47,9 @@ Add books
 
     1. **Add books from a single directory**: Opens a file chooser dialog and allows you to specify which books in a directory should be added. This action is *context sensitive*, i.e. it depends on which :ref:`catalog <catalogs>` you have selected. If you have selected the :guilabel:`Library`, books will be added to the library. If you have selected the ebook reader device, the books will be uploaded to the device, and so on.
 
-    2. **Add books from directories, including sub-directories (One book per directory, assumes every ebook file is the same book in a different format)**: Allows you to choose a directory. The directory and all its sub-directories are scanned recursively, and any ebooks found are added to the library. |app| assumes that each directory contains a single book. All ebook files in a directory are assumed to be the same book in different formats. This action is the inverse of the :ref:`Save to disk <save_to_disk_multiple>` action, i.e. you can :guilabel:`Save to disk`, delete the books and re-add them with no lost information except for the date (this assumes you have not changed any of the setting for the Save to disk action).
+    2. **Add books from directories, including sub-directories (One book per directory, assumes every ebook file is the same book in a different format)**: Allows you to choose a directory. The directory and all its sub-directories are scanned recursively, and any ebooks found are added to the library. calibre assumes that each directory contains a single book. All ebook files in a directory are assumed to be the same book in different formats. This action is the inverse of the :ref:`Save to disk <save_to_disk_multiple>` action, i.e. you can :guilabel:`Save to disk`, delete the books and re-add them with no lost information except for the date (this assumes you have not changed any of the setting for the Save to disk action).
 
-    3. **Add books from directories, including sub-directories (Multiple books per directory, assumes every ebook file is a different book)**: Allows you to choose a directory. The directory and all its sub-directories are scanned recursively and any ebooks found are added to the library. |app| assumes that each directory contains many books. All ebook files with the same name in a directory are assumed to be the same book in different formats. Ebooks with different names are added as different books. 
+    3. **Add books from directories, including sub-directories (Multiple books per directory, assumes every ebook file is a different book)**: Allows you to choose a directory. The directory and all its sub-directories are scanned recursively and any ebooks found are added to the library. calibre assumes that each directory contains many books. All ebook files with the same name in a directory are assumed to be the same book in different formats. Ebooks with different names are added as different books. 
 
     4. **Add multiple books from archive (ZIP/RAR)**: Allows you to add multiple ebooks that are stored inside a single ZIP or RAR file. It is a convenient shortcut that avoids having to first unzip the archive and then add the books via one of the above two options.
 
@@ -95,8 +95,8 @@ Convert books
 
 |cei| Ebooks can be converted from a number of formats into whatever format your ebook reader prefers.
 Many ebooks available for purchase will be protected by `Digital Rights Management <http://drmfree.calibre-ebook.com/about#drm>`_ *(DRM)* technology.
-|app| will not convert these ebooks. It is easy to remove the DRM from many formats, but as this may be illegal,
-you will have to find tools to liberate your books yourself and then use |app| to convert them.
+calibre will not convert these ebooks. It is easy to remove the DRM from many formats, but as this may be illegal,
+you will have to find tools to liberate your books yourself and then use calibre to convert them.
 
 For most people, conversion should be a simple one-click affair. If you want to learn more about the conversion process, see :ref:`conversion`.
 
@@ -120,7 +120,7 @@ View
 .. |vi| image:: images/view.png
     :class: float-right-img
 
-|vi| The :guilabel:`View` action displays the book in an ebook viewer program. |app| has a built-in viewer for many ebook formats.
+|vi| The :guilabel:`View` action displays the book in an ebook viewer program. calibre has a built-in viewer for many ebook formats.
 For other formats it uses the default operating system application. You can configure which formats should open with the internal viewer via
 Preferences->Behavior. If a book has more than one format, you can view a particular format by doing a right-click on the button.
 
@@ -138,10 +138,10 @@ Send to device
     2. **Send to card (A)**: The selected books are transferred to the storage card (A) on the ebook reader.
     3. **Send to card (B)**: The selected books are transferred to the storage card (B) on the ebook reader.
     4. **Send specific format to**: The selected books are transferred to the selected storage location on the device, in the format that you specify.
-    5. **Eject device**: Detaches the device from |app|.
+    5. **Eject device**: Detaches the device from calibre.
     6. **Set default send to device action**: Allows you to specify which of the options, 1 through 5 above or 7 below, will be the default action when you click the main button.
     7. **Send and delete from library**: The selected books are transferred to the selected storage location on the device and then **deleted** from the Library.
-    8. **Fetch Annotations (experimental)**: Transfers annotations you may have made on an ebook on your device to the comments metadata of the book in the |app| library.
+    8. **Fetch Annotations (experimental)**: Transfers annotations you may have made on an ebook on your device to the comments metadata of the book in the calibre library.
 
 You can control the file name and folder structure of files sent to the device by setting up a template in
 :guilabel:`Preferences->Import/Export->Sending books to devices`. Also see :ref:`templatelangcalibre`.
@@ -161,7 +161,7 @@ The :guilabel:`Fetch news` action has three variations, accessed by doing a righ
 
     1. **Schedule news download**: Allows you to schedule the download of of your selected news sources from a list of hundreds available.  Scheduling can be set individually for each news source you select and the scheduling is flexible allowing you to select specific days of the week or a frequency of days between downloads.
     2. **Add a custom news source**: Allows you to create a simple recipe for downloading news from a custom news site that you wish to access.  Creating the recipe can be as simple as specifying an RSS news feed URL, or you can be more prescriptive by creating Python-based code for the task. For more information see :ref:`news`.
-    3. **Download all scheduled news sources**: Causes |app| to immediately begin downloading all news sources that you have scheduled.
+    3. **Download all scheduled news sources**: Causes calibre to immediately begin downloading all news sources that you have scheduled.
 
 
 .. _library:
@@ -171,16 +171,16 @@ Library
 .. |lii| image:: images/library.png
     :class: float-right-img
 
-|lii| The :guilabel:`Library` action allows you to create, switch between, rename or remove a Library.  |app| allows you to create as many libraries as you wish. You could, for instance, create a fiction library, a non-fiction library, a foreign language library, a project library, or any structure that suits your needs. Libraries are the highest organizational structure within |app|. Each library has its own set of books, tags, categories and base storage location.
+|lii| The :guilabel:`Library` action allows you to create, switch between, rename or remove a Library.  calibre allows you to create as many libraries as you wish. You could, for instance, create a fiction library, a non-fiction library, a foreign language library, a project library, or any structure that suits your needs. Libraries are the highest organizational structure within calibre. Each library has its own set of books, tags, categories and base storage location.
 
-    1. **Switch/create library...**: Allows you to; a) connect to a pre-existing |app| library at another location, b) create an empty library at a new location or, c) move the current library to a newly specified location.
-    2. **Quick switch**: Allows you to switch between libraries that have been registered or created within |app|.
+    1. **Switch/create library...**: Allows you to; a) connect to a pre-existing calibre library at another location, b) create an empty library at a new location or, c) move the current library to a newly specified location.
+    2. **Quick switch**: Allows you to switch between libraries that have been registered or created within calibre.
     3. **Rename library**: Allows you to rename a Library.
-    4. **Delete library**: Allows you to unregister a library from |app|.
+    4. **Delete library**: Allows you to unregister a library from calibre.
     5. **<library name>**: Actions 5, 6 etc... give you immediate switch access between multiple libraries that you have created or attached to. This list contains only the 5 most frequently used libraries. For the complete list, use the Quick Switch menu.
     6. **Library maintenance**: Allows you to check the current library for data consistency issues and restore the current library's database from backups.
 
-.. note:: Metadata about your ebooks, e.g. title, author, and tags, is stored in a single file in your |app| library folder called metadata.db. If this file gets corrupted (a very rare event), you can lose the metadata. Fortunately, |app| automatically backs up the metadata for every individual book in the book's folder as an OPF file. By using the Restore database action under Library Maintenance described above, you can have |app| rebuild the metadata.db file from the individual OPF files for you.
+.. note:: Metadata about your ebooks, e.g. title, author, and tags, is stored in a single file in your calibre library folder called metadata.db. If this file gets corrupted (a very rare event), you can lose the metadata. Fortunately, calibre automatically backs up the metadata for every individual book in the book's folder as an OPF file. By using the Restore database action under Library Maintenance described above, you can have calibre rebuild the metadata.db file from the individual OPF files for you.
 
 You can copy or move books between different libraries (once you have more than one library setup) by right clicking on the book and selecting the action :guilabel:`Copy to library`.
 
@@ -191,8 +191,8 @@ Device
 .. |dvi| image:: images/device.png
     :class: float-right-img
 
-|dvi| The :guilabel:`Device` action allows you to view the books in the main memory or storage cards of your device, or to eject the device (detach it from |app|).
-This icon shows up automatically on the main |app| toolbar when you connect a supported device. You can click on it to see the books on your device. You can also drag and drop books from your |app| library onto the icon to transfer them to your device. Conversely, you can drag and drop books from your device onto the library icon on the toolbar to transfer books from your device to the |app| library.
+|dvi| The :guilabel:`Device` action allows you to view the books in the main memory or storage cards of your device, or to eject the device (detach it from calibre).
+This icon shows up automatically on the main calibre toolbar when you connect a supported device. You can click on it to see the books on your device. You can also drag and drop books from your calibre library onto the icon to transfer them to your device. Conversely, you can drag and drop books from your device onto the library icon on the toolbar to transfer books from your device to the calibre library.
 
 
 .. _save_to_disk:
@@ -234,17 +234,17 @@ Connect/Share
 .. |csi| image:: images/connect_share.png
     :class: float-right-img
 
-|csi| The :guilabel:`Connect/Share` action allows you to manually connect to a device or folder on your computer. It also allows you to set up you |app| library for access via a web browser or email.
+|csi| The :guilabel:`Connect/Share` action allows you to manually connect to a device or folder on your computer. It also allows you to set up you calibre library for access via a web browser or email.
 
     The :guilabel:`Connect/Share` action has four variations, accessed by doing a right-click on the button.
 
-    1. **Connect to folder**: Allows you to connect to any folder on your computer as though it were a device and use all the facilities |app| has for devices with that folder. Useful if your device cannot be supported by |app| but is available as a USB disk.
+    1. **Connect to folder**: Allows you to connect to any folder on your computer as though it were a device and use all the facilities calibre has for devices with that folder. Useful if your device cannot be supported by calibre but is available as a USB disk.
 
     2. **Connect to iTunes**: Allows you to connect to your iTunes books database as though it were a device. Once the books are sent to iTunes, you can use iTunes to make them available to your various iDevices.
 
-    3. **Start Content Server**: Starts |app|'s built-in web server.  When started, your |app| library will be accessible via a web browser from the Internet (if you choose). You can configure how the web server is accessed by setting preferences at :guilabel:`Preferences->Sharing->Sharing over the net`
+    3. **Start Content Server**: Starts calibre's built-in web server.  When started, your calibre library will be accessible via a web browser from the Internet (if you choose). You can configure how the web server is accessed by setting preferences at :guilabel:`Preferences->Sharing->Sharing over the net`
 
-    4. **Setup email based sharing of books**: Allows sharing of books and news feeds by email.  After setting up email addresses for this option, |app| will send news updates and book updates to the entered email addresses. You can configure how |app| sends email by setting preferences at :guilabel:`Preferences->Sharing->Sharing books by email`. Once you have set up one or more email addresses, this menu entry will be replaced by menu entries to send books to the configured email addresses.
+    4. **Setup email based sharing of books**: Allows sharing of books and news feeds by email.  After setting up email addresses for this option, calibre will send news updates and book updates to the entered email addresses. You can configure how calibre sends email by setting preferences at :guilabel:`Preferences->Sharing->Sharing books by email`. Once you have set up one or more email addresses, this menu entry will be replaced by menu entries to send books to the configured email addresses.
 
 .. _remove_books:
 
@@ -268,7 +268,7 @@ Remove books
     6. **Remove matching books from device**: Allows you to remove ebook files from a connected device that match the books that are selected in the book list.
 
 .. note::
-    Note that when you use Remove books to delete books from your |app| library, the book record is permanently deleted, but on Windows and OS X the files are placed into the recycle bin. This allows you to recover them if you change your mind.
+    Note that when you use Remove books to delete books from your calibre library, the book record is permanently deleted, but on Windows and OS X the files are placed into the recycle bin. This allows you to recover them if you change your mind.
 
 .. _configuration:
 
@@ -277,12 +277,12 @@ Preferences
 .. |cbi| image:: images/preferences.png
     :class: float-right-img
 
-|cbi| The :guilabel:`Preferences` action allows you to change the way various aspects of |app| work. It has four variations, accessed by doing a right-click on the button.
+|cbi| The :guilabel:`Preferences` action allows you to change the way various aspects of calibre work. It has four variations, accessed by doing a right-click on the button.
 
-    1. **Preferences**: Allows you to change the way various aspects of |app| work. Clicking the button also performs this action.
-    2. **Run welcome wizard**: Allows you to start the Welcome Wizard which appeared the first time you started |app|.
-    3. **Get plugins to enhance |app|**: Opens a new windows that shows plugins for |app|. These plugins are developed by third parties to extend |app|'s functionality.
-    4. **Restart in debug mode**: Allows you to enable a debugging mode that can assist the |app| developers in solving problems you encounter with the program. For most users this should remain disabled unless instructed by a developer to enable it.
+    1. **Preferences**: Allows you to change the way various aspects of calibre work. Clicking the button also performs this action.
+    2. **Run welcome wizard**: Allows you to start the Welcome Wizard which appeared the first time you started calibre.
+    3. **Get plugins to enhance calibre**: Opens a new windows that shows plugins for calibre. These plugins are developed by third parties to extend calibre's functionality.
+    4. **Restart in debug mode**: Allows you to enable a debugging mode that can assist the calibre developers in solving problems you encounter with the program. For most users this should remain disabled unless instructed by a developer to enable it.
 
 .. _catalogs:
 
@@ -291,13 +291,13 @@ Catalogs
 .. image:: images/catalogs.png
     :align: center
 
-A *catalog* is a collection of books. |app| can manage two types of different catalogs:
+A *catalog* is a collection of books. calibre can manage two types of different catalogs:
 
-    1. **Library**: This is a collection of books stored in your |app| library on your computer.
+    1. **Library**: This is a collection of books stored in your calibre library on your computer.
 
     2. **Device**:  This is a collection of books stored in your ebook reader. It will be available when you connect the reader to your computer.
 
-Many operations, such as adding books, deleting, viewing, etc., are context sensitive. So, for example, if you click the View button when you have the **Device** catalog selected, |app| will open the files on the device to view. If you have the **Library** catalog selected, files in your |app| library will be opened instead.
+Many operations, such as adding books, deleting, viewing, etc., are context sensitive. So, for example, if you click the View button when you have the **Device** catalog selected, calibre will open the files on the device to view. If you have the **Library** catalog selected, files in your calibre library will be opened instead.
 
 .. _search_sort:
 
@@ -437,7 +437,7 @@ Identifiers (e.g., isbn, doi, lccn etc) also use an extended syntax. First, note
 Saving searches
 -----------------
 
-|app| allows you to save a frequently used search under a special name and then reuse that search with a single click. To do this, create your search either by typing it in the search bar or using the Tag Browser. Then type the name you would like to give to the search in the Saved Searches box next to the search bar. Click the plus icon next to the saved searches box to save the search.
+calibre allows you to save a frequently used search under a special name and then reuse that search with a single click. To do this, create your search either by typing it in the search bar or using the Tag Browser. Then type the name you would like to give to the search in the Saved Searches box next to the search bar. Click the plus icon next to the saved searches box to save the search.
 
 Now you can access your saved search in the Tag Browser under "Searches". A single click will allow you to reuse any arbitrarily complex search easily, without needing to re-create it.
 
@@ -446,7 +446,7 @@ Now you can access your saved search in the Tag Browser under "Searches". A sing
 Virtual Libraries
 -------------------
 
-A :guilabel:`Virtual Library` is a way to pretend that your |app| library has
+A :guilabel:`Virtual Library` is a way to pretend that your calibre library has
 only a few books instead of its full collection. This is an excellent way to
 partition your large collection of books into smaller, manageable chunks. To
 learn how to create and use virtual libraries, see the tutorial:
@@ -454,7 +454,7 @@ learn how to create and use virtual libraries, see the tutorial:
 
 Guessing metadata from file names
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-In the :guilabel:`Add/Save` section of the configuration dialog, you can specify a regular expression that |app| will use to try and guess metadata from the names of ebook files
+In the :guilabel:`Add/Save` section of the configuration dialog, you can specify a regular expression that calibre will use to try and guess metadata from the names of ebook files
 that you add to the library. The default regular expression is::
 
     title - author
@@ -478,7 +478,7 @@ Book Details
 
 The Book Details display shows the cover and all the metadata for the currently
 selected book. It can be hidden via the button in the lower right corner of the
-main |app| window. The author names shown in the Book Detail panel are
+main calibre window. The author names shown in the Book Detail panel are
 clickable, they will by default take you to the Wikipedia page for the author.
 This can be customized by right clicking on the author name and selecting
 Manage this author.
@@ -545,12 +545,12 @@ Cover Grid
 .. image:: images/cover_grid.png
     :align: center
 
-You can have |app| display a grid of book covers instead of a list of books, if
+You can have calibre display a grid of book covers instead of a list of books, if
 you prefer to browse your collection by covers instead. The :guilabel:`Cover
 Grid` is activated by clicking the grid button in the bottom right corner of
-the main |app| window. You can customize the cover sizes and the background of
+the main calibre window. You can customize the cover sizes and the background of
 the cover grid via :guilabel:`Preferences->Look & Feel->Cover Grid`. You can
-even have |app| display any specified field under the covers, such as title or
+even have calibre display any specified field under the covers, such as title or
 authors or rating or a custom column of your own devising.
 
 Cover Browser
@@ -559,7 +559,7 @@ Cover Browser
 .. image:: images/cover_browser.png
     :align: center
 
-In addition to the cover grid described above, you can also have |app| display
+In addition to the cover grid described above, you can also have calibre display
 covers in the single row. This is activated via a button in the lower right
 corner of the main window. In :guilabel:`Preferences->Look & Feel->Cover
 Browser` you can change the number of covers displayed, and even have the cover
@@ -580,11 +580,11 @@ Some example Quickview usages: quickly seeing what other books:
 
 without changing the contents of the library view.
 
-The Quickview window opens on top of the |app| window and will stay open until you explicitly close it. You can use Quickview and the |app| library view at the same time. For example, if in the |app| library view you click on a category column (tags, series, publisher, authors, etc) for a book, the Quickview window contents will change to show you in the left-hand side pane the items in that category for the selected book (e.g., the tags for that book). The first item in that list will be selected, and Quickview will show you on the right-hand side pane all the books in your library that reference that item. Click on an different item in the left-hand pane to see the books with that different item. 
+The Quickview window opens on top of the calibre window and will stay open until you explicitly close it. You can use Quickview and the calibre library view at the same time. For example, if in the calibre library view you click on a category column (tags, series, publisher, authors, etc) for a book, the Quickview window contents will change to show you in the left-hand side pane the items in that category for the selected book (e.g., the tags for that book). The first item in that list will be selected, and Quickview will show you on the right-hand side pane all the books in your library that reference that item. Click on an different item in the left-hand pane to see the books with that different item. 
 
 Double-click on a book in the Quickview window to select that book in the library view. This will also change the items display in the QuickView window(the left-hand pane) to show the items in the newly-selected book.
 
-Shift- (or Ctrl-) double-click on a book in the Quickview window to open the edit metadata dialog on that book in the |app| window.
+Shift- (or Ctrl-) double-click on a book in the Quickview window to open the edit metadata dialog on that book in the calibre window.
 
 You can see if a column can be Quickview'ed by hovering your mouse over the column heading and looking at the tooltip for that heading. You can also know by right-clicking on the column heading to see of the "Quickview" option is shown in the menu, in which case choosing that Quickview option is equivalent to pressing 'Q' in the current cell.
 
@@ -610,7 +610,7 @@ The Jobs panel shows the number of currently running jobs. Jobs are tasks that r
 Keyboard Shortcuts
 ---------------------
 
-Calibre has several keyboard shortcuts to save you time and mouse movement. These shortcuts are active in the book list view (when you're not editing the details of a particular book), and most of them affect the title you have selected. The |app| ebook viewer has its own shortcuts which can be customised by clicking the Preferences button in the viewer.
+Calibre has several keyboard shortcuts to save you time and mouse movement. These shortcuts are active in the book list view (when you're not editing the details of a particular book), and most of them affect the title you have selected. The calibre ebook viewer has its own shortcuts which can be customised by clicking the Preferences button in the viewer.
 
 .. note::
 

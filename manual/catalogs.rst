@@ -3,7 +3,7 @@
 Creating AZW3 • EPUB • MOBI Catalogs 
 =====================================
 
-|app|'s Create catalog feature enables you to create a catalog of your library in a variety of formats. This help file describes cataloging options when generating a catalog in AZW3, EPUB and MOBI formats.
+calibre's Create catalog feature enables you to create a catalog of your library in a variety of formats. This help file describes cataloging options when generating a catalog in AZW3, EPUB and MOBI formats.
 
 .. contents::
     :depth: 1
@@ -16,7 +16,7 @@ If you want *all* of your library cataloged, remove any search or filtering crit
 
 If you want only *some* of your library cataloged, you have two options:
 
-    * Create a multiple selection of the books you want cataloged. With more than one book selected in |app|'s main window, only the selected books will be cataloged.
+    * Create a multiple selection of the books you want cataloged. With more than one book selected in calibre's main window, only the selected books will be cataloged.
     * Use the Search field or the Tag Browser to filter the displayed books. Only the displayed books will be cataloged.
 
 To begin catalog generation, select the menu item :guilabel:`Convert books > Create a catalog of the books in your calibre library`. You may also add a :guilabel:`Create Catalog` button to a toolbar in :guilabel:`Preferences > Interface > Toolbars` for easier access to the Generate catalog dialog.
@@ -131,7 +131,7 @@ To install the plugin, go to :guilabel:`Preferences > Advanced > Plugins > Get n
 Additional help resources
 ---------------------------
 
-For more information on |app|'s Catalog feature, see the MobileRead forum sticky `Creating Catalogs - Start here <http://www.mobileread.com/forums/showthread.php?t=118556>`_, where you can find information on how to customize the catalog templates, and how to submit a bug report.
+For more information on calibre's Catalog feature, see the MobileRead forum sticky `Creating Catalogs - Start here <http://www.mobileread.com/forums/showthread.php?t=118556>`_, where you can find information on how to customize the catalog templates, and how to submit a bug report.
 
 To ask questions or discuss calibre's Catalog feature with other users, visit the MobileRead forum `Calibre Catalogs <http://www.mobileread.com/forums/forumdisplay.php?f=236>`_.
 

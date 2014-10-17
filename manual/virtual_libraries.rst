@@ -4,14 +4,14 @@
 Virtual Libraries
 ============================
 
-In |app|, a virtual library is a way to tell |app| to open only a subset of a
+In calibre, a virtual library is a way to tell calibre to open only a subset of a
 normal library. For example, you might want to only work with books by a certain
 author, or books having only a certain tag. Using virtual libraries is the
 preferred way of partitioning your large book collection into smaller sub
 collections. It is superior to splitting up your library into multiple smaller
 libraries as, when you want to search through your entire collection, you can
 simply go back to the full library. There is no way to search through multiple
-separate libraries simultaneously in |app|.
+separate libraries simultaneously in calibre.
 
 A virtual library is different from a simple search. A search will only restrict
 the list of books shown in the book list. A virtual library does that, and in
@@ -38,7 +38,7 @@ in the image below and choose the author you want to use and click OK.
 The Create Virtual Library dialog has been filled in for you. Click OK and you
 will see that a new Virtual Library has been created, and automatically
 switched to, that displays only the books by the selected author. As far as
-|app| is concerned, it is as if your library contains only the books by the
+calibre is concerned, it is as if your library contains only the books by the
 selected author.
 
 You can switch back to the full library at any time by once again clicking the
@@ -57,9 +57,9 @@ of things you can do with them, see :ref:`search_interface`.
 Examples of useful Virtual Libraries
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-  * Books added to |app| in the last day::
+  * Books added to calibre in the last day::
         date:>1daysago
-  * Books added to |app| in the last month::
+  * Books added to calibre in the last month::
         date:>30daysago
   * Books with a rating of 5 stars::
         rating:5
@@ -67,7 +67,7 @@ Examples of useful Virtual Libraries
         rating:>=4
   * Books with no rating::
         rating:false
-  * Periodicals downloaded by the Fetch News function in |app|::
+  * Periodicals downloaded by the Fetch News function in calibre::
         tags:=News and author:=calibre
   * Books with no tags::
         tags:false
@@ -80,11 +80,11 @@ Working with Virtual Libraries
 You can edit a previously created virtual library or remove it, by clicking the
 :guilabel:`Virtual Library` and choosing the appropriate action.
 
-You can tell |app| that you always want to apply a particular virtual library
+You can tell calibre that you always want to apply a particular virtual library
 when the current library is opened, by going to
 :guilabel:`Preferences->Behavior`. 
 
-If you use the |app| Content Server, you can have it share a virtual library
+If you use the calibre Content Server, you can have it share a virtual library
 instead of the full library by going to :guilabel:`Preferences->Sharing over the net`.
 
 You can quickly use the current search as a temporary virtual library by
