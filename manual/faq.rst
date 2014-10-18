@@ -48,7 +48,7 @@ How do I convert my file containing non-English characters, or smart quotes?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 There are two aspects to this problem:
   1. Knowing the encoding of the source file: calibre tries to guess what character encoding your source files use, but often, this is impossible, so you need to tell it what encoding to use. This can be done in the GUI via the :guilabel:`Input character encoding` field in the :guilabel:`Look & Feel` section. The command-line tools all have an :option:`--input-encoding` option.
-  2. When adding HTML files to calibre, you may need to tell calibre what encoding the files are in. To do this go to :guilabel:`Preferences->Advanced->Plugins->File Type plugins` and customize the HTML2Zip plugin, telling it what encoding your HTML files are in. Now when you add HTML files to calibre they will be correctly processed. HTML files from different sources often have different encodings, so you may have to change this setting repeatedly. A common encoding for many files from the web is ``cp1252`` and I would suggest you try that first. Note that when converting HTML files, leave the input encoding setting mentioned above blank. This is because the HTML2ZIP plugin automatically converts the HTML files to a standard encoding (utf-8).
+  2. When adding HTML files to calibre, you may need to tell calibre what encoding the files are in. To do this go to :guilabel:`Preferences->Plugins->File Type plugins` and customize the HTML2Zip plugin, telling it what encoding your HTML files are in. Now when you add HTML files to calibre they will be correctly processed. HTML files from different sources often have different encodings, so you may have to change this setting repeatedly. A common encoding for many files from the web is ``cp1252`` and I would suggest you try that first. Note that when converting HTML files, leave the input encoding setting mentioned above blank. This is because the HTML2ZIP plugin automatically converts the HTML files to a standard encoding (utf-8).
 
 What's the deal with Table of Contents in MOBI files?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -172,7 +172,7 @@ We just need some information from you:
   * Complete list of ebook formats that your device supports.
   * Is there a special directory on the device in which all ebook files should be placed? Also does the device detect files placed in sub directories?
   * We also need information about your device that calibre will collect automatically. First, if your
-    device supports SD cards, insert them. Then connect your device to the computer. In calibre go to :guilabel:`Preferences->Advanced->Miscellaneous`
+    device supports SD cards, insert them. Then connect your device to the computer. In calibre go to :guilabel:`Preferences->Miscellaneous`
     and click the "Debug device detection" button. This will create some debug output. Copy it to a file
     and repeat the process, this time with your device disconnected from your computer.
   * Send both the above outputs to us with the other information and we will write a device driver for your
@@ -199,7 +199,7 @@ Follow these steps to find the problem:
       at the bottom line of the main calibre window.
     * Ensure your operating system is seeing the device. That is, the device
       should show up in Windows Explorer (in Windows) or Finder (in OS X).
-    * In calibre, go to Preferences->Ignored Devices and check that your device
+    * In calibre, go to :guilabel:`Preferences->Ignored Devices` and check that your device
       is not being ignored
     * If all the above steps fail, go to :guilabel:`Preferences->Miscellaneous` and click
       :guilabel:`Debug device detection` with your device attached and post the output as a
@@ -218,7 +218,7 @@ of which books are members are shown on the device view.
 
 When you send a book to the reader, calibre will add the book to collections based on the metadata for that book. By
 default, collections are created from tags and series. You can control what metadata is used by going to
-:guilabel:`Preferences->Advanced->Plugins->Device Interface plugins` and customizing the SONY device interface plugin. If you remove all
+:guilabel:`Preferences->Plugins->Device Interface plugins` and customizing the SONY device interface plugin. If you remove all
 values, calibre will not add the book to any collection.
 
 Collection management is largely controlled by the 'Metadata management' option found at
