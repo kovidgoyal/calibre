@@ -1260,6 +1260,13 @@ _df = os.environ.get('CALIBRE_DEVELOP_FROM', None)
 if _df and os.path.exists(_df):
     build_forms(_df, check_for_migration=True)
 
+def event_type_name(ev_or_etype):
+    from PyQt5.QtCore import QEvent
+    etype = ev_or_etype.type() if isinstance(ev_or_etype, QEvent) else ev_or_etype
+    for name, num in vars(QEvent).iteritems():
+        if num == etype:
+            return name
+    return 'UnknownEventType'
 
 if islinux or isbsd:
     def workaround_broken_under_mouse(ch):
