@@ -647,7 +647,7 @@ Because there are a lot of characters, you can define your own :guilabel:`Favori
 characters, that will be shown first. Simply right click on a character to mark
 it as favorite. You can also right click on a character in favorites to remove
 it from favorites. Finally, you can re-arrange the order of characters in
-favorites by clicking the :guilabel:`Re-arrange favorties` button and then drag
+favorites by clicking the :guilabel:`Re-arrange favorites` button and then drag
 and dropping the characters in favorites around.
 
 You can also directly type in special characters using the keyboard. To do
