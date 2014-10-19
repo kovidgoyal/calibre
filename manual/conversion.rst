@@ -684,7 +684,7 @@ TXT input supports a number of options to differentiate how paragraphs are detec
         and median line length are used to attempt to re-create paragraphs.
 
     :guilabel:`Formatting Style: Auto`
-        Attemtps to detect the type of formatting markup being used.  If no markup is used then heuristic
+        Attempts to detect the type of formatting markup being used.  If no markup is used then heuristic
         formatting will be applied.
 
     :guilabel:`Formatting Style: Heuristic`
