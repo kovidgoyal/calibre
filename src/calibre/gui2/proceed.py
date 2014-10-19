@@ -76,6 +76,15 @@ class ProceedQuestion(QDialog):
 
         self.ask_question.connect(self.do_ask_question,
                 type=Qt.QueuedConnection)
+        for button in self.bb.buttons():
+            button.installEventFilter(self)
+        self.installEventFilter(self)  # For Return key presses that close the dialog
+
+    def eventFilter(self, obj, ev):
+        if ev.type() in (ev.KeyPress, ev.KeyRelease) and ev.key() in (Qt.Key_Enter, Qt.Key_Space, Qt.Key_Return):
+            ev.ignore()
+            return True
+        return False
 
     def copy_to_clipboard(self, *args):
         QApplication.clipboard().setText(
