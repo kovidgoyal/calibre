@@ -1452,6 +1452,9 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
             b = booklists[0].add_book(book, replace_metadata=True)
             if b:
                 b._new_book = True
+                from calibre.utils.date import isoformat, now
+                b.set('_format_mtime_', isoformat(now()))
+
         self.report_progress(1.0, _('Adding books to device metadata listing...'))
         self._debug('finished adding metadata')
 
