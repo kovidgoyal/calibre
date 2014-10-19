@@ -134,11 +134,12 @@ def create_worker(env, priority='normal', cwd=None, func='main'):
     w(cwd=cwd, priority=priority)
     return listener, w
 
-def start_pipe_worker(command, env=None, priority='normal'):
-    import subprocess, atexit
+def start_pipe_worker(command, env=None, priority='normal', **process_args):
+    import subprocess
     from functools import partial
     w = Worker(env or {})
     args = {'stdout':subprocess.PIPE, 'stdin':subprocess.PIPE, 'env':w.env}
+    args.update(process_args)
     if iswindows:
         import win32process
         priority = {
@@ -157,7 +158,6 @@ def start_pipe_worker(command, env=None, priority='normal'):
         args['close_fds'] = True
 
     p = subprocess.Popen([w.executable, '--pipe-worker', command], **args)
-    atexit.register(w.kill)
     return p
 
 def fork_job(mod_name, func_name, args=(), kwargs={}, timeout=300,  # seconds
