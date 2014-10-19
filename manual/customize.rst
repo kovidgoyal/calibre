@@ -73,6 +73,12 @@ the configuration directory as :file:`resources/images/trash.png`. All the
 icons used by the calibre user interface are in :file:`resources/images` and
 its sub-folders.
 
+
+.. note:: 
+    There are several replacement icon sets for calibre created by users
+    over the years. You can find them gathered together in this `forum thread 
+    <http://www.mobileread.com/forums/showthread.php?t=151397>`_.
+
 Customizing calibre with plugins
 --------------------------------
 
