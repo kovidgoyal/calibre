@@ -79,7 +79,7 @@ The covers for my MOBI files have stopped showing up in Kindle for PC/Kindle for
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 This is caused by a bug in the Amazon software. You can work around it by going
-to Preferences->Output Options->MOBI output and setting the "Enable sharing
+to :guilabel:`Preferences->Output Options->MOBI output` and setting the "Enable sharing
 of book content" option. If you are reconverting a previously converted book,
 you will also have to enable the option in the conversion dialog for that
 individual book (as per book conversion settings are saved and take
@@ -428,7 +428,7 @@ Can I access my calibre books using the web browser in my Kindle or other readin
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 calibre has a *Content Server* that exports the books in calibre as a web page. You can turn it on under
-:guilabel:`Preferences->Network->Sharing over the net`. Then just point the web browser on your device to the computer running
+:guilabel:`Preferences->Sharing over the net`. Then just point the web browser on your device to the computer running
 the Content Server and you will be able to browse your book collection. For example, if the computer running
 the server has IP address 63.45.128.5, in the browser, you would type::
 
@@ -452,7 +452,7 @@ The most common problem is if you are sending email directly (without a mail rel
 that does not come from a well known relay. The most robust way to setup email sending in calibre is to do the following:
 
   * Create a free GMX account at `GMX <http://www.gmx.com>`_. 
-  * Goto Preferences->Email in calibre and click the "Use GMX" button and fill in the information asked for.
+  * Goto :guilabel:`Preferences->Sharing by Email` in calibre and click the :guilabel:`Use GMX` button and fill in the information asked for.
   * calibre will then use GMX to send the mail.
   * If you are sending to your Kindle, remember to update the email preferences
     on your Amazon Kindle page to allow email sent from your GMX email
