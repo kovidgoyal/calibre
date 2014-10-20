@@ -12,7 +12,7 @@ from collections import namedtuple
 from PyQt5.Qt import (
     QWidget, Qt, QLabel, QVBoxLayout, QPixmap, QDialogButtonBox, QApplication,
     QSize, pyqtSignal, QIcon, QPlainTextEdit, QCheckBox, QPainter, QHBoxLayout,
-    QPainterPath, QRectF)
+    QPainterPath, QRectF, pyqtProperty, QPropertyAnimation, QEasingCurve)
 
 from calibre.constants import __version__
 from calibre.gui2.dialogs.message_box import ViewLog
@@ -26,9 +26,25 @@ class ProceedQuestion(QWidget):
 
     ask_question = pyqtSignal(object, object, object)
 
+    @pyqtProperty(float)
+    def show_fraction(self):
+        return self._show_fraction
+
+    @show_fraction.setter
+    def show_fraction(self, val):
+        self._show_fraction = max(0, min(1, float(val)))
+        self.update()
+
     def __init__(self, parent):
         QWidget.__init__(self, parent)
         self.setVisible(False)
+
+        self._show_fraction = 0.0
+        self.show_animation = a = QPropertyAnimation(self, "show_fraction", self)
+        a.setDuration(1000), a.setEasingCurve(QEasingCurve.OutQuad)
+        a.setStartValue(0.0), a.setEndValue(1.0)
+        a.finished.connect(self.stop_show_animation)
+        self.rendered_pixmap = None
 
         self.questions = []
 
@@ -140,10 +156,9 @@ class ProceedQuestion(QWidget):
         self.position_widget()
 
     def show_question(self):
-        if self.isVisible():
-            self.raise_()
+        if not self.questions:
             return
-        if self.questions:
+        if not self.isVisible():
             question = self.questions[0]
             self.msg_label.setText(question.msg)
             self.title_label.setText(question.title)
@@ -166,15 +181,36 @@ class ProceedQuestion(QWidget):
             self.bb.button(self.bb.Ok).setVisible(question.show_ok)
             self.bb.button(self.bb.Yes).setVisible(not question.show_ok)
             self.bb.button(self.bb.No).setVisible(not question.show_ok)
-            if question.show_det:
-                self.toggle_det_msg()
-            else:
-                self.do_resize()
+            self.toggle_det_msg() if question.show_det else self.do_resize()
             self.show_widget()
             button = self.action_button if question.focus_action and question.action_callback is not None else \
                 (self.bb.button(self.bb.Ok) if question.show_ok else self.bb.button(self.bb.Yes))
             button.setDefault(True)
-            self.raise_()
+        self.raise_()
+        self.start_show_animation()
+
+    def start_show_animation(self):
+        if self.rendered_pixmap is not None:
+            return
+
+        p = QPixmap(self.size())
+        self.render(p)
+        self.rendered_pixmap = p
+        self.original_visibility = v = []
+        for child in self.findChildren(QWidget):
+            if child.isVisible():
+                child.setVisible(False)
+                v.append(child)
+        self.show_animation.start()
+
+    def stop_show_animation(self):
+        self.rendered_pixmap = None
+        [c.setVisible(True) for c in getattr(self, 'original_visibility', ())]
+        self.update()
+        for child in self.findChildren(QWidget):
+            child.update()
+            if hasattr(child, 'viewport'):
+                child.viewport().update()
 
     def position_widget(self):
         geom = self.parent().geometry()
@@ -254,19 +290,32 @@ class ProceedQuestion(QWidget):
                         parent=self)
 
     def paintEvent(self, ev):
+        painter = QPainter(self)
+        painter.setRenderHint(QPainter.Antialiasing, True)
+        painter.setRenderHint(QPainter.SmoothPixmapTransform, True)
+        try:
+            if self.rendered_pixmap is None:
+                self.paint_background(painter)
+            else:
+                self.animated_paint(painter)
+        finally:
+            painter.end()
+
+    def animated_paint(self, painter):
+        top = (1 - self._show_fraction) * self.height()
+        painter.drawPixmap(0, top, self.rendered_pixmap)
+
+    def paint_background(self, painter):
         br = 12  # border_radius
         bw = 1  # border_width
         pal = self.palette()
         c = pal.color(pal.Window)
-        c.setAlphaF(0.86)
+        c.setAlphaF(0.85)
         p = QPainterPath()
         p.addRoundedRect(QRectF(self.rect()), br, br)
-        painter = QPainter(self)
-        painter.setRenderHint(QPainter.Antialiasing, True)
         painter.fillPath(p, c)
         p.addRoundedRect(QRectF(self.rect()).adjusted(bw, bw, -bw, -bw), br, br)
         painter.fillPath(p, pal.color(pal.WindowText))
-        painter.end()
 
 def main():
     from calibre.gui2 import Application
