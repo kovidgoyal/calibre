@@ -20,7 +20,7 @@ from calibre.gui2.dialogs.message_box import ViewLog
 Question = namedtuple('Question', 'payload callback cancel_callback '
         'title msg html_log log_viewer_title log_is_file det_msg '
         'show_copy_button checkbox_msg checkbox_checked action_callback '
-        'action_label action_icon focus_action show_det show_ok')
+        'action_label action_icon focus_action show_det show_ok icon')
 
 class Icon(QWidget):
 
@@ -45,6 +45,7 @@ class Icon(QWidget):
         QWidget.__init__(self, parent)
         self.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
         self.set_icon('dialog_question.png')
+        self.default_icon = self.icon
         self._fraction = 0.0
         self.animation = a = QPropertyAnimation(self, "fraction", self)
         a.setDuration(2000), a.setEasingCurve(QEasingCurve.Linear)
@@ -53,6 +54,8 @@ class Icon(QWidget):
     def set_icon(self, icon):
         if isinstance(icon, QIcon):
             self.icon = icon.pixmap(self.sizeHint())
+        elif icon is None:
+            self.icon = self.default_icon
         else:
             self.icon = QPixmap(I(icon)).scaled(self.sizeHint(), transformMode=Qt.SmoothTransformation)
         self.update()
@@ -203,6 +206,7 @@ class ProceedQuestion(QWidget):
         if not self.isVisible():
             question = self.questions[0]
             self.msg_label.setText(question.msg)
+            self.icon.set_icon(question.icon)
             self.title_label.setText(question.title)
             self.log_button.setVisible(bool(question.html_log))
             self.copy_button.setText(_('&Copy to clipboard'))
@@ -279,7 +283,7 @@ class ProceedQuestion(QWidget):
             msg, det_msg='', show_copy_button=False, cancel_callback=None,
             log_is_file=False, checkbox_msg=None, checkbox_checked=False,
             action_callback=None, action_label=None, action_icon=None, focus_action=False,
-            show_det=False, show_ok=False, **kw):
+            show_det=False, show_ok=False, icon=None, **kw):
         '''
         A non modal popup that notifies the user that a background task has
         been completed. This class guarantees that only a single popup is
@@ -313,12 +317,13 @@ class ProceedQuestion(QWidget):
         :param focus_action: If True, the action button will be focused instead of the Yes button
         :param show_det: If True, the Detailed message will be shown initially
         :param show_ok: If True, OK will be shown instead of YES/NO
+        :param icon: The icon to be used for this popop (defaults to question mark). Can be either a QIcon or a string to be used with I()
         '''
         question = Question(
             payload, callback, cancel_callback, title, msg, html_log,
             log_viewer_title, log_is_file, det_msg, show_copy_button,
             checkbox_msg, checkbox_checked, action_callback, action_label,
-            action_icon, focus_action, show_det, show_ok)
+            action_icon, focus_action, show_det, show_ok, icon)
         self.questions.append(question)
         self.show_question()
 
