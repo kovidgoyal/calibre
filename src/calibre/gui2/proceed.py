@@ -24,10 +24,31 @@ Question = namedtuple('Question', 'payload callback cancel_callback '
 
 class Icon(QWidget):
 
+    @pyqtProperty(float)
+    def fraction(self):
+        return self._fraction
+
+    @fraction.setter
+    def fraction(self, val):
+        self._fraction = max(0, min(2, float(val)))
+        self.update()
+
+    def showEvent(self, ev):
+        self.animation.start()
+        return QWidget.showEvent(self, ev)
+
+    def hideEvent(self, ev):
+        self.animation.stop()
+        return QWidget.hideEvent(self, ev)
+
     def __init__(self, parent):
         QWidget.__init__(self, parent)
         self.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
         self.set_icon('dialog_question.png')
+        self._fraction = 0.0
+        self.animation = a = QPropertyAnimation(self, "fraction", self)
+        a.setDuration(2000), a.setEasingCurve(QEasingCurve.Linear)
+        a.setStartValue(0.0), a.setEndValue(2.0), a.setLoopCount(10)
 
     def set_icon(self, icon):
         if isinstance(icon, QIcon):
@@ -41,8 +62,10 @@ class Icon(QWidget):
 
     def paintEvent(self, ev):
         p = QPainter(self)
+        p.setOpacity(min(1, abs(1 - self._fraction)))
         p.drawPixmap(self.rect(), self.icon)
         p.end()
+
 
 class ProceedQuestion(QWidget):
 
