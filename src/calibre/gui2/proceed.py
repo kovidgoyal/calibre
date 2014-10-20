@@ -9,41 +9,35 @@ __docformat__ = 'restructuredtext en'
 
 from collections import namedtuple
 
-from PyQt5.Qt import (QDialog, Qt, QLabel, QGridLayout, QPixmap,
-        QDialogButtonBox, QApplication, QSize, pyqtSignal, QIcon,
-        QPlainTextEdit, QCheckBox, QDesktopWidget)
+from PyQt5.Qt import (
+    QWidget, Qt, QLabel, QVBoxLayout, QPixmap, QDialogButtonBox, QApplication,
+    QSize, pyqtSignal, QIcon, QPlainTextEdit, QCheckBox, QPainter, QHBoxLayout,
+    QPainterPath, QRectF)
 
 from calibre.constants import __version__
 from calibre.gui2.dialogs.message_box import ViewLog
-from calibre.gui2 import gprefs
 
 Question = namedtuple('Question', 'payload callback cancel_callback '
         'title msg html_log log_viewer_title log_is_file det_msg '
         'show_copy_button checkbox_msg checkbox_checked action_callback '
-        'action_label action_icon focus_action show_det show_ok geom_pref')
+        'action_label action_icon focus_action show_det show_ok')
 
-class ProceedQuestion(QDialog):
+class ProceedQuestion(QWidget):
 
     ask_question = pyqtSignal(object, object, object)
 
     def __init__(self, parent):
-        QDialog.__init__(self, parent)
-        self.setAttribute(Qt.WA_DeleteOnClose, False)
-        self.setWindowIcon(QIcon(I('dialog_question.png')))
+        QWidget.__init__(self, parent)
+        self.setVisible(False)
 
         self.questions = []
-
-        self._l = l = QGridLayout(self)
-        self.setLayout(l)
 
         self.icon_label = ic = QLabel(self)
         ic.setPixmap(QPixmap(I('dialog_question.png')))
         self.msg_label = msg = QLabel('some random filler text')
         msg.setWordWrap(True)
-        ic.setMaximumWidth(110)
-        ic.setMaximumHeight(100)
+        ic.setMaximumSize(QSize(64, 64))
         ic.setScaledContents(True)
-        ic.setStyleSheet('QLabel { margin-right: 10px }')
         self.bb = QDialogButtonBox()
         self.bb.accepted.connect(self.accept)
         self.bb.rejected.connect(self.reject)
@@ -65,26 +59,29 @@ class ProceedQuestion(QDialog):
         self.det_msg.setReadOnly(True)
         self.bb.setStandardButtons(self.bb.Yes|self.bb.No|self.bb.Ok)
         self.bb.button(self.bb.Yes).setDefault(True)
+        self.title_label = title = QLabel('A dummy title')
+        f = title.font()
+        f.setBold(True)
+        title.setFont(f)
 
         self.checkbox = QCheckBox('', self)
 
-        l.addWidget(ic, 0, 0, 1, 1)
-        l.addWidget(msg, 0, 1, 1, 1)
-        l.addWidget(self.checkbox, 1, 0, 1, 2)
-        l.addWidget(self.det_msg, 2, 0, 1, 2)
-        l.addWidget(self.bb, 3, 0, 1, 2)
+        self._l = l = QVBoxLayout(self)
+        self._h = h = QHBoxLayout()
+        self._v = v = QVBoxLayout()
+        v.addWidget(title), v.addWidget(msg)
+        h.addWidget(ic), h.addSpacing(10), h.addLayout(v), l.addLayout(h)
+        l.addSpacing(5)
+        l.addWidget(self.checkbox)
+        l.addWidget(self.det_msg)
+        l.addWidget(self.bb)
 
         self.ask_question.connect(self.do_ask_question,
                 type=Qt.QueuedConnection)
-        for button in self.bb.buttons():
-            button.installEventFilter(self)
-        self.installEventFilter(self)  # For Return key presses that close the dialog
-
-    def eventFilter(self, obj, ev):
-        if ev.type() in (ev.KeyPress, ev.KeyRelease) and ev.key() in (Qt.Key_Enter, Qt.Key_Space, Qt.Key_Return):
-            ev.ignore()
-            return True
-        return False
+        self.setFocusPolicy(Qt.NoFocus)
+        for child in self.findChildren(QWidget):
+            child.setFocusPolicy(Qt.NoFocus)
+        self.setFocusProxy(self.parent())
 
     def copy_to_clipboard(self, *args):
         QApplication.clipboard().setText(
@@ -101,8 +98,6 @@ class ProceedQuestion(QDialog):
         self.accept()
 
     def accept(self):
-        if self.geom_pref:
-            gprefs[self.geom_pref] = bytearray(self.saveGeometry())
         if self.questions:
             payload, callback, cancel_callback = self.questions[0][:3]
             self.questions = self.questions[1:]
@@ -113,8 +108,6 @@ class ProceedQuestion(QDialog):
         self.hide()
 
     def reject(self):
-        if self.geom_pref:
-            gprefs[self.geom_pref] = bytearray(self.saveGeometry())
         if self.questions:
             payload, callback, cancel_callback = self.questions[0][:3]
             self.questions = self.questions[1:]
@@ -140,23 +133,20 @@ class ProceedQuestion(QDialog):
         self.do_resize()
 
     def do_resize(self):
-        if self.geom_pref:
-            geom = gprefs.get(self.geom_pref, None)
-            if geom:
-                self.restoreGeometry(geom)
-                return
         sz = self.sizeHint() + QSize(100, 0)
         sz.setWidth(min(500, sz.width()))
         sz.setHeight(min(500, sz.height()))
         self.resize(sz)
+        self.position_widget()
 
     def show_question(self):
         if self.isVisible():
+            self.raise_()
             return
         if self.questions:
             question = self.questions[0]
             self.msg_label.setText(question.msg)
-            self.setWindowTitle(question.title)
+            self.title_label.setText(question.title)
             self.log_button.setVisible(bool(question.html_log))
             self.copy_button.setText(_('&Copy to clipboard'))
             self.copy_button.setVisible(bool(question.show_copy_button))
@@ -176,33 +166,41 @@ class ProceedQuestion(QDialog):
             self.bb.button(self.bb.Ok).setVisible(question.show_ok)
             self.bb.button(self.bb.Yes).setVisible(not question.show_ok)
             self.bb.button(self.bb.No).setVisible(not question.show_ok)
-            self.geom_pref = ('proceed question dialog:' + question.geom_pref) if question.geom_pref else None
             if question.show_det:
                 self.toggle_det_msg()
             else:
                 self.do_resize()
-            self.show()
+            self.show_widget()
             button = self.action_button if question.focus_action and question.action_callback is not None else \
                 (self.bb.button(self.bb.Ok) if question.show_ok else self.bb.button(self.bb.Yes))
             button.setDefault(True)
-            button.setFocus(Qt.OtherFocusReason)
+            self.raise_()
 
-    def show(self):
-        QDialog.show(self)
-        if self.geom_pref is None:
-            if self.parent() is None:
-                geom = QDesktopWidget.screenGeometry(self)
-            else:
-                geom = self.parent().geometry()
-            x = max(50, geom.x() + geom.width() // 2 - self.width() // 2)
-            y = max(50, geom.y() + geom.height() // 2 - self.height() // 2)
-            self.move(x, y)
+    def position_widget(self):
+        geom = self.parent().geometry()
+        x = geom.right() - self.width()
+        sb = self.parent().statusBar()
+        if sb is None:
+            y = geom.bottom() - self.height()
+        else:
+            y = sb.geometry().top() - self.height()
+        self.move(x, y)
+
+    def show_widget(self):
+        self.show()
+        self.position_widget()
+
+    def dummy_question(self):
+        self(lambda *args:args, (), 'dummy log', 'Log Viewer', 'A Dummy Popup',
+             'This is a dummy popup to easily test things, with a long line of text that should wrap',
+             checkbox_msg='A dummy checkbox',
+             action_callback=lambda *args: args, action_label='An action')
 
     def __call__(self, callback, payload, html_log, log_viewer_title, title,
             msg, det_msg='', show_copy_button=False, cancel_callback=None,
             log_is_file=False, checkbox_msg=None, checkbox_checked=False,
             action_callback=None, action_label=None, action_icon=None, focus_action=False,
-            show_det=False, show_ok=False, geom_pref=None):
+            show_det=False, show_ok=False, **kw):
         '''
         A non modal popup that notifies the user that a background task has
         been completed. This class guarantees that only a single popup is
@@ -236,14 +234,12 @@ class ProceedQuestion(QDialog):
         :param focus_action: If True, the action button will be focused instead of the Yes button
         :param show_det: If True, the Detailed message will be shown initially
         :param show_ok: If True, OK will be shown instead of YES/NO
-        :param geom_pref: String for preference name to preserve dialog box geometry
-
         '''
         question = Question(
             payload, callback, cancel_callback, title, msg, html_log,
             log_viewer_title, log_is_file, det_msg, show_copy_button,
             checkbox_msg, checkbox_checked, action_callback, action_label,
-            action_icon, focus_action, show_det, show_ok, geom_pref)
+            action_icon, focus_action, show_det, show_ok)
         self.questions.append(question)
         self.show_question()
 
@@ -257,18 +253,36 @@ class ProceedQuestion(QDialog):
             self.log_viewer = ViewLog(q.log_viewer_title, log,
                         parent=self)
 
+    def paintEvent(self, ev):
+        br = 12  # border_radius
+        bw = 1  # border_width
+        pal = self.palette()
+        c = pal.color(pal.Window)
+        c.setAlphaF(0.86)
+        p = QPainterPath()
+        p.addRoundedRect(QRectF(self.rect()), br, br)
+        painter = QPainter(self)
+        painter.setRenderHint(QPainter.Antialiasing, True)
+        painter.fillPath(p, c)
+        p.addRoundedRect(QRectF(self.rect()).adjusted(bw, bw, -bw, -bw), br, br)
+        painter.fillPath(p, pal.color(pal.WindowText))
+        painter.end()
+
 def main():
     from calibre.gui2 import Application
-    from PyQt5.Qt import QMainWindow
+    from PyQt5.Qt import QMainWindow, QStatusBar, QTimer
     app = Application([])
     w = QMainWindow()
+    s = QStatusBar(w)
+    w.setStatusBar(s)
+    s.showMessage('Testing ProceedQuestion')
     w.show()
     p = ProceedQuestion(w)
-    p(lambda p,q:None, None, 'ass', 'ass', 'testing', 'testing',
-            checkbox_msg='testing the ruddy checkbox', det_msg='details')
-    p(lambda p:None, None, 'ass2', 'ass2', 'testing2', 'testing2',
-            det_msg='details shown first', show_det=True, show_ok=True,
-            geom_pref='ProceedQuestion-unit-test')
+    def doit():
+        p.dummy_question()
+        p(lambda p:None, None, 'ass2', 'ass2', 'testing2', 'testing2',
+                det_msg='details shown first', show_det=True, show_ok=True)
+    QTimer.singleShot(10, doit)
     app.exec_()
 
 if __name__ == '__main__':
