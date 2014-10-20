@@ -159,14 +159,15 @@ class EditMetadataAction(InterfaceAction):
                 failed_ids.union(failed_covers))
         review_apply = partial(self.apply_downloaded_metadata, True)
         normal_apply = partial(self.apply_downloaded_metadata, False)
-        self.gui.proceed_question(normal_apply, payload,
-                log_file, _('Download log'), _('Download complete'), msg,
-                det_msg=det_msg, show_copy_button=show_copy_button,
-                cancel_callback=partial(self.cleanup_bulk_download, tdir),
-                log_is_file=True, checkbox_msg=checkbox_msg,
-                checkbox_checked=False, action_callback=review_apply,
-                action_label=_('Review downloaded metadata'),
-                action_icon=QIcon(I('auto_author_sort.png')))
+        self.gui.proceed_question(
+            normal_apply, payload, log_file, _('Download log'),
+            _('Metadata download complete'), msg, icon='download-metadata.png',
+            det_msg=det_msg, show_copy_button=show_copy_button,
+            cancel_callback=partial(self.cleanup_bulk_download, tdir),
+            log_is_file=True, checkbox_msg=checkbox_msg,
+            checkbox_checked=False, action_callback=review_apply,
+            action_label=_('Review downloaded metadata'),
+            action_icon=QIcon(I('auto_author_sort.png')))
 
     def apply_downloaded_metadata(self, review, payload, *args):
         good_ids, tdir, log_file, lm_map, failed_ids = payload

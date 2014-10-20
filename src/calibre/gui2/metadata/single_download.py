@@ -1029,7 +1029,7 @@ class FullFetch(QDialog):  # {{{
         self.book = self.cover_pixmap = None
 
         self.setWindowTitle(_('Downloading metadata...'))
-        self.setWindowIcon(QIcon(I('metadata.png')))
+        self.setWindowIcon(QIcon(I('download-metadata.png')))
 
         self.stack = QStackedWidget()
         self.l = l = QVBoxLayout()
