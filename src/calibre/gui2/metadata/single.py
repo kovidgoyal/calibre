@@ -602,6 +602,7 @@ class MetadataSingleDialogBase(ResizableDialog):
         if apply_changes:
             self.apply_changes()
         self.current_row += delta
+        self.update_window_title()
         prev = next_ = None
         if self.current_row > 0:
             prev = self.db.title(self.row_list[self.current_row-1])
