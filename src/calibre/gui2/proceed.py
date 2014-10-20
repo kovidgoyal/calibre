@@ -358,7 +358,7 @@ class ProceedQuestion(QWidget):
         bw = 1  # border_width
         pal = self.palette()
         c = pal.color(pal.Window)
-        c.setAlphaF(0.85)
+        c.setAlphaF(0.9)
         p = QPainterPath()
         p.addRoundedRect(QRectF(self.rect()), br, br)
         painter.fillPath(p, c)
