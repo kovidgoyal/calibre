@@ -12,7 +12,7 @@ from collections import namedtuple
 from PyQt5.Qt import (
     QWidget, Qt, QLabel, QVBoxLayout, QPixmap, QDialogButtonBox, QApplication,
     QSize, pyqtSignal, QIcon, QPlainTextEdit, QCheckBox, QPainter, QHBoxLayout,
-    QPainterPath, QRectF, pyqtProperty, QPropertyAnimation, QEasingCurve)
+    QPainterPath, QRectF, pyqtProperty, QPropertyAnimation, QEasingCurve, QSizePolicy)
 
 from calibre.constants import __version__
 from calibre.gui2.dialogs.message_box import ViewLog
@@ -21,6 +21,28 @@ Question = namedtuple('Question', 'payload callback cancel_callback '
         'title msg html_log log_viewer_title log_is_file det_msg '
         'show_copy_button checkbox_msg checkbox_checked action_callback '
         'action_label action_icon focus_action show_det show_ok')
+
+class Icon(QWidget):
+
+    def __init__(self, parent):
+        QWidget.__init__(self, parent)
+        self.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+        self.set_icon('dialog_question.png')
+
+    def set_icon(self, icon):
+        if isinstance(icon, QIcon):
+            self.icon = icon.pixmap(self.sizeHint())
+        else:
+            self.icon = QPixmap(I(icon)).scaled(self.sizeHint(), transformMode=Qt.SmoothTransformation)
+        self.update()
+
+    def sizeHint(self):
+        return QSize(64, 64)
+
+    def paintEvent(self, ev):
+        p = QPainter(self)
+        p.drawPixmap(self.rect(), self.icon)
+        p.end()
 
 class ProceedQuestion(QWidget):
 
@@ -48,12 +70,9 @@ class ProceedQuestion(QWidget):
 
         self.questions = []
 
-        self.icon_label = ic = QLabel(self)
-        ic.setPixmap(QPixmap(I('dialog_question.png')))
+        self.icon = ic = Icon(self)
         self.msg_label = msg = QLabel('some random filler text')
         msg.setWordWrap(True)
-        ic.setMaximumSize(QSize(64, 64))
-        ic.setScaledContents(True)
         self.bb = QDialogButtonBox()
         self.bb.accepted.connect(self.accept)
         self.bb.rejected.connect(self.reject)
@@ -228,6 +247,7 @@ class ProceedQuestion(QWidget):
 
     def dummy_question(self):
         self(lambda *args:args, (), 'dummy log', 'Log Viewer', 'A Dummy Popup',
+             'This is a dummy popup to easily test things, with a long line of text that should wrap. '
              'This is a dummy popup to easily test things, with a long line of text that should wrap',
              checkbox_msg='A dummy checkbox',
              action_callback=lambda *args: args, action_label='An action')
