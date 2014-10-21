@@ -206,7 +206,11 @@ class DetectStructure(object):
         for item in self.oeb.spine:
             for a in XPath('//h:a[@href]')(item.data):
                 href = a.get('href')
-                purl = urlparse(href)
+                try:
+                    purl = urlparse(href)
+                except ValueError:
+                    self.log.warning('Ignoring malformed URL:', href)
+                    continue
                 if not purl[0] or purl[0] == 'file':
                     href, frag = purl.path, purl.fragment
                     href = item.abshref(href)
