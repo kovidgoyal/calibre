@@ -17,9 +17,9 @@ class WeeklyLWN(BasicNewsRecipe):
     language = 'en'
     site_url = u'http://lwn.net'
 
-    extra_css = 'pre,code,samp,kbd,tt { font-size: 80% }\nblockquote {margin-left:0 }\n* { color: black }\n'
     no_stylesheets = True
     remove_javascript = True
+    extra_css = 'pre,code,samp,kbd,tt { font-size: 80% }\nblockquote {margin-left:0 }\nDIV.BigQuote,SPAN { font-style:oblique }\n* { color: black }\n'
 
     cover_url = site_url + '/images/lcorner.png'
     # masthead_url = 'http://lwn.net/images/lcorner.png'
