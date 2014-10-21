@@ -519,7 +519,8 @@ class Main(MainWindow):
         e = b.addMenu(_('&View'))
         t = e.addMenu(_('Tool&bars'))
         e.addSeparator()
-        for name, ac in actions.iteritems():
+        for name in sorted(actions, key=lambda x:sort_key(actions[x].text())):
+            ac = actions[name]
             if name.endswith('-dock'):
                 e.addAction(ac)
             elif name.endswith('-bar'):
