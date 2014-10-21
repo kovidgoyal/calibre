@@ -10,7 +10,7 @@ __docformat__ = 'restructuredtext en'
 from collections import namedtuple
 
 from PyQt5.Qt import (
-    QWidget, Qt, QLabel, QVBoxLayout, QPixmap, QDialogButtonBox, QApplication,
+    QWidget, Qt, QLabel, QVBoxLayout, QPixmap, QDialogButtonBox, QApplication, QTimer,
     QSize, pyqtSignal, QIcon, QPlainTextEdit, QCheckBox, QPainter, QHBoxLayout,
     QPainterPath, QRectF, pyqtProperty, QPropertyAnimation, QEasingCurve, QSizePolicy)
 
@@ -86,6 +86,7 @@ class ProceedQuestion(QWidget):
     def __init__(self, parent):
         QWidget.__init__(self, parent)
         self.setVisible(False)
+        parent.installEventFilter(self)
 
         self._show_fraction = 0.0
         self.show_animation = a = QPropertyAnimation(self, "show_fraction", self)
@@ -143,6 +144,17 @@ class ProceedQuestion(QWidget):
         for child in self.findChildren(QWidget):
             child.setFocusPolicy(Qt.NoFocus)
         self.setFocusProxy(self.parent())
+        self.resize_timer = t = QTimer(self)
+        t.setSingleShot(True), t.setInterval(100), t.timeout.connect(self.parent_resized)
+
+    def eventFilter(self, obj, ev):
+        if ev.type() == ev.Resize and self.isVisible():
+            self.resize_timer.start()
+        return False
+
+    def parent_resized(self):
+        if self.isVisible():
+            self.do_resize()
 
     def copy_to_clipboard(self, *args):
         QApplication.clipboard().setText(
@@ -196,7 +208,8 @@ class ProceedQuestion(QWidget):
     def do_resize(self):
         sz = self.sizeHint() + QSize(100, 0)
         sz.setWidth(min(self.parent().width(), sz.width()))
-        sz.setHeight(min(600, sz.height()))
+        sb = self.parent().statusBar().height() + 10
+        sz.setHeight(min(self.parent().height() - sb, sz.height()))
         self.resize(sz)
         self.position_widget()
 
