@@ -195,8 +195,8 @@ class ProceedQuestion(QWidget):
 
     def do_resize(self):
         sz = self.sizeHint() + QSize(100, 0)
-        sz.setWidth(min(500, sz.width()))
-        sz.setHeight(min(500, sz.height()))
+        sz.setWidth(min(self.parent().width(), sz.width()))
+        sz.setHeight(min(600, sz.height()))
         self.resize(sz)
         self.position_widget()
 
