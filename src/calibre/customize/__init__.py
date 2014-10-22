@@ -43,7 +43,7 @@ class Plugin(object):  # {{{
         * :meth:`load_resources`
 
     '''
-    #: List of platforms this plugin works on
+    #: List of platforms this plugin works on.
     #: For example: ``['windows', 'osx', 'linux']``
     supported_platforms = []
 
