@@ -49,30 +49,10 @@ class FolhaOnline(BasicNewsRecipe):
     cover_margins         = (0,0,'white')
     masthead_url          = 'http://f.i.uol.com.br/fsp/furniture/images/lgo-fsp-430x50-ffffff.gif'
 
-    keep_only_tags      = [dict(name='div', attrs={'id':'articleNew'})]
-    remove_tags         = [
-                        dict(name='div',
-                            attrs={'id':[
-                                'articleButton'
-                                ,'bookmarklets'
-                                ,'ad-180x150-1'
-                                ,'contextualAdsArticle'
-                                ,'articleEnd'
-                                ,'articleComments'
-                            ]})
-                        ,dict(name='div',
-                            attrs={'class':[
-                            'openBox adslibraryArticle'
-               ,'toolbar'
-                            ]})
-
-                        ,dict(name='a')
-                        ,dict(name='iframe')
-                        ,dict(name='link')
-                        ,dict(name='script')
-            ,dict(name='li')
+    keep_only_tags      = [
+        dict(name='div', attrs={'id':'articleNew'}),
+        dict(name='article', id='news'),
     ]
-    remove_tags_after = 	dict(name='div',attrs={'id':'articleEnd'})
 
     feeds = [
     (u'Em cima da hora', u'http://feeds.folha.uol.com.br/emcimadahora/rss091.xml')

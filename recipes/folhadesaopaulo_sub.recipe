@@ -10,7 +10,7 @@ class FSP(BasicNewsRecipe):
     description = u'Printed edition contents. UOL subscription required (Folha subscription currently not supported).' + \
                   u' [Conte\xfado completo da edi\xe7\xe3o impressa. Somente para assinantes UOL.]'
 
-    #found this to be the easiest place to find the index page (13-Nov-2011).
+    # found this to be the easiest place to find the index page (13-Nov-2011).
     #  searching for the "Indice Geral" link
     HOMEPAGE = 'http://www1.folha.uol.com.br/fsp/'
     today=datetime.date.today()
@@ -26,17 +26,20 @@ class FSP(BasicNewsRecipe):
 #    remove_tags_before = dict(name='p')
 #    remove_tags_before = dict(name='div', id='articleNew')
 #    remove_tags_after = dict(name='div', id='articleNew')
-    keep_only_tags = [dict(name='div', id='articleNew'), dict(name='table', attrs={'class':'articleGraphic'})]
+    keep_only_tags = [
+        dict(name='div', id='articleNew'), dict(name='table', attrs={'class':'articleGraphic'}),
+        dict(name='article', id='news'),
+    ]
     publication_type = 'newspaper'
     simultaneous_downloads = 5
 #    remove_tags  = [dict(name='td', attrs={'align':'center'})]
     remove_attributes = ['height','width']
     # fixes the problem with the section names
-    section_dict = {'cotidian' : 'cotidiano', 'ilustrad': 'ilustrada', \
-                    'quadrin': 'quadrinhos' , 'opiniao' : u'opini\xE3o', \
-                    'ciencia' : u'ci\xeancia' , 'saude' : u'sa\xfade', \
-                    'ribeirao' : u'ribeir\xE3o' , 'equilibrio' : u'equil\xedbrio', \
-                    'imoveis' : u'im\xf3veis', 'negocios' : u'neg\xf3cios', \
+    section_dict = {'cotidian' : 'cotidiano', 'ilustrad': 'ilustrada',
+                    'quadrin': 'quadrinhos' , 'opiniao' : u'opini\xE3o',
+                    'ciencia' : u'ci\xeancia' , 'saude' : u'sa\xfade',
+                    'ribeirao' : u'ribeir\xE3o' , 'equilibrio' : u'equil\xedbrio',
+                    'imoveis' : u'im\xf3veis', 'negocios' : u'neg\xf3cios',
                     'veiculos' : u've\xedculos', 'corrida' : 'folha corrida'}
 
     # this solves the problem with truncated content in Kindle
@@ -89,32 +92,19 @@ img { background: none !important; float: none; margin: 0px; }
             br['user']   = self.username
             br['pass'] = self.password
             br.submit().read()
-##            if 'Please try again' in raw:
-##                raise Exception('Your username and password are incorrect')
         return br
 
-#    def postprocess_html(self, soup, first_fetch):
-#        #Clean-up normal articles
-#        tags = soup.findAll('div', id='articleNew')
-#        if tags and tags[0]:
-#            return tags[0]
-#        #Clean-up first page
-#        tags = soup.findAll('div', attrs={'class':'double_column facsimile'})
-#        if tags and tags[0]:
-#            return tags[0]
-#        return soup
-
     def parse_index(self):
-        #Searching for the index page on the HOMEPAGE
+        # Searching for the index page on the HOMEPAGE
         # hpsoup = self.index_to_soup(self.HOMEPAGE)
-        #indexref = hpsoup.find('a', href=re.compile('^indices.*'))
-        #self.log('--> tag containing the today s index: ', indexref)
-        #INDEX = indexref['href']
-        #INDEX = 'http://www1.folha.uol.com.br/'+INDEX
+        # indexref = hpsoup.find('a', href=re.compile('^indices.*'))
+        # self.log('--> tag containing the today s index: ', indexref)
+        # INDEX = indexref['href']
+        # INDEX = 'http://www1.folha.uol.com.br/'+INDEX
         INDEX = 'http://www1.folha.uol.com.br/' + 'fsp/indices/index-' + str(self.today).replace('-','') + '.shtml'
         self.log('--> INDEX after extracting href and adding prefix: ', INDEX)
         # ... and taking the opportunity to get the cover image link
-        #coverurl = hpsoup.find('a', href=re.compile('^cp.*'))['href']
+        # coverurl = hpsoup.find('a', href=re.compile('^cp.*'))['href']
         coverurl = self.FIRSTPAGE
         if coverurl:
             self.log('--> tag containing the today s cover: ', coverurl)
@@ -123,7 +113,7 @@ img { background: none !important; float: none; margin: 0px; }
             self.log('--> coverurl after extracting href and adding prefix: ', coverurl)
             self.cover_url = coverurl
 
-        #soup = self.index_to_soup(self.INDEX)
+        # soup = self.index_to_soup(self.INDEX)
         soup = self.index_to_soup(INDEX)
 
         feeds = []
@@ -132,13 +122,13 @@ img { background: none !important; float: none; margin: 0px; }
         for post in soup.findAll('a'):
             # if name=True => new section
             strpost = str(post)
-            #if strpost.startswith('<a name'):
+            # if strpost.startswith('<a name'):
             if re.match('<a href="/fsp/.*/index-' + str(self.today).replace('-','') + '.shtml"><span class="', strpost):
                 if articles:
                     feeds.append((section_title, articles))
                     self.log()
                     self.log('--> new section found, creating old section feed: ', section_title)
-                #section_title = post['name']
+                # section_title = post['name']
                 section_title = self.tag_to_string(post)
                 if section_title in self.section_dict:
                     section_title = self.section_dict[section_title]
@@ -148,12 +138,12 @@ img { background: none !important; float: none; margin: 0px; }
                 break
             elif strpost.startswith('<a href'):
                 url = post['href']
-                #this bit is kept if they ever go back to the old format (pre Nov-2011)
+                # this bit is kept if they ever go back to the old format (pre Nov-2011)
                 if url.startswith('/fsp'):
                     url = 'http://www1.folha.uol.com.br'+url
                 #
                 if url.startswith('http://www1.folha.uol.com.br/fsp'):
-                    #url = 'http://www1.folha.uol.com.br'+url
+                    # url = 'http://www1.folha.uol.com.br'+url
                     title = self.tag_to_string(post)
                     self.log()
                     self.log('--> post:  ', post)
@@ -164,15 +154,13 @@ img { background: none !important; float: none; margin: 0px; }
             feeds.append((section_title, articles))
 
         # keeping the front page url
-        #minha_capa = feeds[0][1][1]['url']
+        # minha_capa = feeds[0][1][1]['url']
 
         # removing the first section ('Preambulo')
         del feeds[0]
-        #del feeds[0][1][0]
+        # del feeds[0][1][0]
 
         # inserting the cover page as the first article (nicer for kindle users)
-        #feeds.insert(0,(u'primeira p\xe1gina', [{'title':u'Primeira p\xe1gina' , 'url':minha_capa}]))
-        #feeds[0][1].insert(0,{'title':u'fac-s\xedmile da capa' , 'url':self.HOMEPAGE+self.FIRSTPAGE})
+        # feeds.insert(0,(u'primeira p\xe1gina', [{'title':u'Primeira p\xe1gina' , 'url':minha_capa}]))
+        # feeds[0][1].insert(0,{'title':u'fac-s\xedmile da capa' , 'url':self.HOMEPAGE+self.FIRSTPAGE})
         return feeds
-
-
