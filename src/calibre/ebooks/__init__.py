@@ -66,6 +66,14 @@ class HTMLRenderer(object):
             self.loop.exit(0)
 
 
+def return_raster_image(path):
+    from calibre.utils.imghdr import what
+    if os.access(path, os.R_OK):
+        with open(path, 'rb') as f:
+            raw = f.read()
+        if what(None, raw) not in (None, 'svg'):
+            return raw
+
 def extract_cover_from_embedded_svg(html, base, log):
     from lxml import etree
     from calibre.ebooks.oeb.base import XPath, SVG, XLINK
@@ -75,9 +83,9 @@ def extract_cover_from_embedded_svg(html, base, log):
     if len(svg) == 1 and len(svg[0]) == 1 and svg[0][0].tag == SVG('image'):
         image = svg[0][0]
         href = image.get(XLINK('href'), None)
-        path = os.path.join(base, *href.split('/'))
-        if href and os.access(path, os.R_OK):
-            return open(path, 'rb').read()
+        if href:
+            path = os.path.join(base, *href.split('/'))
+            return return_raster_image(path)
 
 def extract_calibre_cover(raw, base, log):
     from calibre.ebooks.BeautifulSoup import BeautifulSoup
@@ -89,8 +97,7 @@ def extract_calibre_cover(raw, base, log):
             images[0].get('alt', '')=='cover':
         img = images[0]
         img = os.path.join(base, *img['src'].split('/'))
-        if os.path.exists(img):
-            return open(img, 'rb').read()
+        return_raster_image(img)
 
     # Look for a simple cover, i.e. a body with no text and only one <img> tag
     if matches is None:
@@ -103,8 +110,7 @@ def extract_calibre_cover(raw, base, log):
             images = body.findAll('img', src=True)
             if 0 < len(images) < 2:
                 img = os.path.join(base, *images[0]['src'].split('/'))
-                if os.path.exists(img):
-                    return open(img, 'rb').read()
+                return_raster_image(img)
 
 def render_html_svg_workaround(path_to_html, log, width=590, height=750):
     from calibre.ebooks.oeb.base import SVG_NS
