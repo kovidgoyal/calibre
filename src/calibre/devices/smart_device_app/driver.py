@@ -334,7 +334,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                 False, '9090',
                 False, '',
                 '',    '',
-                True,  '',
+                False, '',
                 True,   '75',
                 True
     ]
