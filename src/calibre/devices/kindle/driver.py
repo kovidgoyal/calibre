@@ -354,8 +354,9 @@ class KINDLE2(KINDLE):
     EXTRA_CUSTOMIZATION_CHOICES = {OPT_APNX_METHOD:{'fast', 'accurate', 'pagebreak'}}
 
     # x330 on the PaperWhite
-    THUMBNAIL_HEIGHT         = 330
     # x262 on the Touch. Doesn't choke on x330, though.
+    # x470 on the Voyage, checked that it works on PW, dont have Touch anymore
+    THUMBNAIL_HEIGHT         = 470
 
     @classmethod
     def migrate_extra_customization(cls, vals):
