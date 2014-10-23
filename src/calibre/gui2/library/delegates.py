@@ -8,12 +8,13 @@ __docformat__ = 'restructuredtext en'
 import sys
 
 from PyQt5.Qt import (Qt, QApplication, QStyle, QIcon,  QDoubleSpinBox, QStyleOptionViewItem,
-        QSpinBox, QStyledItemDelegate, QComboBox, QTextDocument, QSize,
+        QSpinBox, QStyledItemDelegate, QComboBox, QTextDocument, QSize, QMenu, QKeySequence,
         QAbstractTextDocumentLayout, QFont, QFontInfo, QDate, QDateTimeEdit, QDateTime)
 
 from calibre.gui2 import UNDEFINED_QDATETIME, error_dialog, rating_font
 from calibre.constants import iswindows
 from calibre.gui2.widgets import EnLineEdit
+from calibre.gui2.widgets2 import populate_standard_spinbox_context_menu
 from calibre.gui2.complete2 import EditWithComplete
 from calibre.utils.date import now, format_date, qt_to_dt, is_date_undefined
 from calibre.utils.config import tweaks
@@ -33,10 +34,21 @@ class DateTimeEdit(QDateTimeEdit):  # {{{
         self.setCalendarPopup(True)
         self.setDisplayFormat(format)
 
+    def contextMenuEvent(self, ev):
+        m = QMenu(self)
+        m.addAction(_('Set date to undefined') + '\t' + QKeySequence(Qt.Key_Minus).toString(QKeySequence.NativeText),
+                    self.clear_date)
+        m.addSeparator()
+        populate_standard_spinbox_context_menu(self, m)
+        m.popup(ev.globalPos())
+
+    def clear_date(self):
+        self.setDateTime(UNDEFINED_QDATETIME)
+
     def keyPressEvent(self, ev):
         if ev.key() == Qt.Key_Minus:
             ev.accept()
-            self.setDateTime(UNDEFINED_QDATETIME)
+            self.clear_date()
         elif ev.key() == Qt.Key_Equal:
             ev.accept()
             self.setDateTime(QDateTime.currentDateTime())
@@ -44,20 +56,33 @@ class DateTimeEdit(QDateTimeEdit):  # {{{
             return QDateTimeEdit.keyPressEvent(self, ev)
 # }}}
 
-class ClearingSpinBox(QSpinBox):    # {{{
-    def keyPressEvent(self, ev):
-        if ev.key() == Qt.Key_Space:
-            self.setValue(-1000000)
-        else:
-            return QSpinBox.keyPressEvent(self, ev)
-# }}}
+# Number Editor  {{{
 
-class ClearingDoubleSpinBox(QDoubleSpinBox):    # {{{
-    def keyPressEvent(self, ev):
-        if ev.key() == Qt.Key_Space:
-            self.setValue(-1000000.0)
-        else:
-            return QDoubleSpinBox.keyPressEvent(self, ev)
+def make_clearing_spinbox(spinbox):
+
+    class SpinBox(spinbox):
+
+        def contextMenuEvent(self, ev):
+            m = QMenu(self)
+            m.addAction(_('Set to undefined') + '\t' + QKeySequence(Qt.Key_Space).toString(QKeySequence.NativeText),
+                        self.clear_to_undefined)
+            m.addSeparator()
+            populate_standard_spinbox_context_menu(self, m)
+            m.popup(ev.globalPos())
+
+        def clear_to_undefined(self):
+            self.setValue(self.minimum())
+
+        def keyPressEvent(self, ev):
+            if ev.key() == Qt.Key_Space:
+                self.clear_to_undefined()
+            else:
+                return spinbox.keyPressEvent(self, ev)
+    return SpinBox
+
+ClearingSpinBox = make_clearing_spinbox(QSpinBox)
+ClearingDoubleSpinBox = make_clearing_spinbox(QDoubleSpinBox)
+
 # }}}
 
 class RatingDelegate(QStyledItemDelegate):  # {{{
@@ -145,6 +170,7 @@ class PubDateDelegate(QStyledItemDelegate):  # {{{
 # }}}
 
 class TextDelegate(QStyledItemDelegate):  # {{{
+
     def __init__(self, parent):
         '''
         Delegate for text data. If auto_complete_function needs to return a list
@@ -179,9 +205,10 @@ class TextDelegate(QStyledItemDelegate):  # {{{
         else:
             QStyledItemDelegate.setModelData(self, editor, model, index)
 
-#}}}
+# }}}
 
 class CompleteDelegate(QStyledItemDelegate):  # {{{
+
     def __init__(self, parent, sep, items_func_name, space_before_sep=False):
         QStyledItemDelegate.__init__(self, parent)
         self.sep = sep
@@ -239,6 +266,7 @@ class LanguagesDelegate(QStyledItemDelegate):  # {{{
 # }}}
 
 class CcDateDelegate(QStyledItemDelegate):  # {{{
+
     '''
     Delegate for custom columns dates. Because this delegate stores the
     format as an instance variable, a new instance must be created for each
@@ -278,6 +306,7 @@ class CcDateDelegate(QStyledItemDelegate):  # {{{
 # }}}
 
 class CcTextDelegate(QStyledItemDelegate):  # {{{
+
     '''
     Delegate for text data.
     '''
@@ -303,6 +332,7 @@ class CcTextDelegate(QStyledItemDelegate):  # {{{
 # }}}
 
 class CcNumberDelegate(QStyledItemDelegate):  # {{{
+
     '''
     Delegate for text/int/float data.
     '''
@@ -338,6 +368,7 @@ class CcNumberDelegate(QStyledItemDelegate):  # {{{
 # }}}
 
 class CcEnumDelegate(QStyledItemDelegate):  # {{{
+
     '''
     Delegate for text/int/float data.
     '''
@@ -370,6 +401,7 @@ class CcEnumDelegate(QStyledItemDelegate):  # {{{
 # }}}
 
 class CcCommentsDelegate(QStyledItemDelegate):  # {{{
+
     '''
     Delegate for comments data.
     '''
@@ -422,6 +454,7 @@ class DelegateCB(QComboBox):  # {{{
 # }}}
 
 class CcBoolDelegate(QStyledItemDelegate):  # {{{
+
     def __init__(self, parent):
         '''
         Delegate for custom_column bool data.
@@ -470,6 +503,7 @@ class CcBoolDelegate(QStyledItemDelegate):  # {{{
 # }}}
 
 class CcTemplateDelegate(QStyledItemDelegate):  # {{{
+
     def __init__(self, parent):
         '''
         Delegate for custom_column bool data.
@@ -506,5 +540,3 @@ class CcTemplateDelegate(QStyledItemDelegate):  # {{{
 
 
 # }}}
-
-

@@ -17,6 +17,7 @@ from PyQt5.Qt import (
     QUndoStack)
 
 from calibre.gui2.widgets import EnLineEdit, FormatList as _FormatList, ImageView
+from calibre.gui2.widgets2 import access_key, populate_standard_spinbox_context_menu
 from calibre.utils.icu import sort_key
 from calibre.utils.config import tweaks, prefs
 from calibre.ebooks.metadata import (
@@ -109,11 +110,6 @@ class ToMetadataMixin(object):
 def make_undoable(spinbox):
     'Add a proper undo/redo capability to spinbox which must be a sub-class of QAbstractSpinBox'
 
-    def access_key(k):
-        if QKeySequence.keyBindings(k):
-            return '\t' + QKeySequence(k).toString(QKeySequence.NativeText)
-        return ''
-
     class UndoCommand(QUndoCommand):
 
         def __init__(self, widget, val):
@@ -157,20 +153,13 @@ def make_undoable(spinbox):
 
         def contextMenuEvent(self, ev):
             m = QMenu(self)
+            if hasattr(self, 'setDateTime'):
+                m.addAction(_('Set date to undefined') + '\t' + QKeySequence(Qt.Key_Minus).toString(QKeySequence.NativeText),
+                            lambda : self.setDateTime(self.minimumDateTime()))
             m.addAction(_('&Undo') + access_key(QKeySequence.Undo), self.undo).setEnabled(self.undo_stack.canUndo())
             m.addAction(_('&Redo') + access_key(QKeySequence.Redo), self.redo).setEnabled(self.undo_stack.canRedo())
             m.addSeparator()
-            le = self.lineEdit()
-            m.addAction(_('Cu&t') + access_key(QKeySequence.Cut), le.cut).setEnabled(not le.isReadOnly() and le.hasSelectedText())
-            m.addAction(_('&Copy') + access_key(QKeySequence.Copy), le.copy).setEnabled(le.hasSelectedText())
-            m.addAction(_('&Paste') + access_key(QKeySequence.Paste), le.paste).setEnabled(not le.isReadOnly())
-            m.addAction(_('Delete') + access_key(QKeySequence.Delete), le.del_).setEnabled(not le.isReadOnly() and le.hasSelectedText())
-            m.addSeparator()
-            m.addAction(_('Select &All') + access_key(QKeySequence.SelectAll), self.selectAll)
-            m.addSeparator()
-            m.addAction(_('&Step up'), self.stepUp)
-            m.addAction(_('Step &down'), self.stepDown)
-            m.setAttribute(Qt.WA_DeleteOnClose)
+            populate_standard_spinbox_context_menu(self, m)
             m.popup(ev.globalPos())
 
         def set_spinbox_value(self, val):

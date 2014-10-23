@@ -6,7 +6,7 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
-from PyQt5.Qt import QPushButton, QPixmap, QIcon, QColor, Qt, QColorDialog, pyqtSignal
+from PyQt5.Qt import QPushButton, QPixmap, QIcon, QColor, Qt, QColorDialog, pyqtSignal, QKeySequence
 
 from calibre.gui2.complete2 import LineEdit, EditWithComplete
 from calibre.gui2.widgets import history
@@ -98,4 +98,25 @@ class ColorButton(QPushButton):
         col = QColorDialog.getColor(QColor(self._color or Qt.white), self, _('Choose a color'))
         if col.isValid():
             self.color = unicode(col.name())
+
+
+def access_key(k):
+    'Return shortcut text suitable for adding to a menu item'
+    if QKeySequence.keyBindings(k):
+        return '\t' + QKeySequence(k).toString(QKeySequence.NativeText)
+    return ''
+
+def populate_standard_spinbox_context_menu(spinbox, menu, add_clear=False):
+    m = menu
+    le = spinbox.lineEdit()
+    m.addAction(_('Cu&t') + access_key(QKeySequence.Cut), le.cut).setEnabled(not le.isReadOnly() and le.hasSelectedText())
+    m.addAction(_('&Copy') + access_key(QKeySequence.Copy), le.copy).setEnabled(le.hasSelectedText())
+    m.addAction(_('&Paste') + access_key(QKeySequence.Paste), le.paste).setEnabled(not le.isReadOnly())
+    m.addAction(_('Delete') + access_key(QKeySequence.Delete), le.del_).setEnabled(not le.isReadOnly() and le.hasSelectedText())
+    m.addSeparator()
+    m.addAction(_('Select &All') + access_key(QKeySequence.SelectAll), spinbox.selectAll)
+    m.addSeparator()
+    m.addAction(_('&Step up'), spinbox.stepUp)
+    m.addAction(_('Step &down'), spinbox.stepDown)
+    m.setAttribute(Qt.WA_DeleteOnClose)
 
