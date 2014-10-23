@@ -273,7 +273,7 @@ class ProceedQuestion(QWidget):
 
     def position_widget(self):
         geom = self.parent().geometry()
-        x = geom.width() - self.width()
+        x = geom.width() - self.width() - 5
         sb = self.parent().statusBar()
         if sb is None:
             y = geom.height() - self.height()
