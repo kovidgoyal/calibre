@@ -137,6 +137,9 @@ def identify_data(data):
     (width, height, format)
     or raises an Exception if data is not an image.
     '''
+    if data.startswith(b'<?xml'):
+        # ImageMagick segfaults when trying to identify SVG images
+        raise ValueError('Identifying svg images is not supported')
     img = Image()
     if hasattr(img, 'identify'):
         img.identify(data)

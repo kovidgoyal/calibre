@@ -10,10 +10,10 @@ def what(file, h=None):
     if h is None:
         if isinstance(file, basestring):
             f = open(file, 'rb')
-            h = f.read(44)
+            h = f.read(150)
         else:
             location = file.tell()
-            h = file.read(44)
+            h = file.read(150)
             file.seek(location)
             f = None
     else:
@@ -131,6 +131,12 @@ def test_emf(h, f):
         return 'emf'
 
 tests.append(test_emf)
+
+def test_svg(h, f):
+    if (h[:2] == b'<?' and h[2:5].lower() == 'xml' and b'<svg' in h) or h.startswith(b'<svg'):
+        return 'svg'
+
+tests.append(test_svg)
 
 # --------------------#
 # Small test program #
