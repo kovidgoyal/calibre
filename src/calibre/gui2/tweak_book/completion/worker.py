@@ -83,6 +83,12 @@ class CompletionWorker(Thread):
             self.worker_process.kill()
         return self.worker_process.returncode
 
+_completion_worker = None
+def completion_worker():
+    global _completion_worker
+    if _completion_worker is None:
+        _completion_worker = CompletionWorker()
+    return _completion_worker
 
 def run_main(func):
     from multiprocessing.connection import Client
