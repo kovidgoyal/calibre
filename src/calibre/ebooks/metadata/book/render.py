@@ -69,7 +69,7 @@ def mi_to_html(mi, field_list=None, default_author_link=None, use_roman_numbers=
             continue
         if field == 'sort':
             field = 'title_sort'
-        if metadata['datatype'] == 'bool':
+        if metadata['is_custom'] and metadata['datatype'] in ['bool', 'int', 'float']:
             isnull = mi.get(field) is None
         else:
             isnull = mi.is_null(field)
