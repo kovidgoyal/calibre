@@ -159,9 +159,10 @@ class Series(unicode):
 class Tags(unicode):
 
     def __new__(self, tags, output_profile):
-        tags = tags or ()
-        t = unicode.__new__(self, output_profile.tags_to_string(tags))
-        t.alphabetical = output_profile.tags_to_string(sorted(tags, key=sort_key))
+        tags = [escape(x) for x in tags or ()]
+        t = unicode.__new__(self, ', '.join(tags))
+        t.alphabetical = ', '.join(sorted(tags, key=sort_key))
+        t.tags_list = tags
         return t
 
 def render_jacket(mi, output_profile,
@@ -217,7 +218,8 @@ def render_jacket(mi, output_profile,
                     rating_label=_('Rating'), rating=rating,
                     tags_label=_('Tags'), tags=tags,
                     comments=comments,
-                    footer=''
+                    footer='',
+                    searchable_tags=' '.join(escape(t)+'ttt' for t in tags.tags_list),
                     )
         for key in mi.custom_field_keys():
             try:

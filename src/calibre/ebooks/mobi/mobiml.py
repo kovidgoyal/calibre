@@ -310,8 +310,8 @@ class MobiMLizer(object):
             return
         style = stylizer.style(elem)
         # <mbp:frame-set/> does not exist lalalala
-        if style['display'] in ('none', 'oeb-page-head', 'oeb-page-foot') \
-           or style['visibility'] == 'hidden':
+        if ((style['display'] in ('none', 'oeb-page-head', 'oeb-page-foot') or style['visibility'] == 'hidden') and
+                elem.get('data-calibre-jacket-searchable-tags', None) != '1'):
             id_ = elem.get('id', None)
             if id_:
                 # Keep anchors so people can use display:none

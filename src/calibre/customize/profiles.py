@@ -263,10 +263,6 @@ class OutputProfile(Plugin):
     #: Special periodical formatting needed in EPUB
     epub_periodical_format = None
 
-    @classmethod
-    def tags_to_string(cls, tags):
-        from xml.sax.saxutils import escape
-        return escape(', '.join(tags))
 
 class iPadOutput(OutputProfile):
 
@@ -645,11 +641,6 @@ class KindleOutput(OutputProfile):
 
     mobi_ems_per_blockquote = 2.0
 
-    @classmethod
-    def tags_to_string(cls, tags):
-        return u'%s <br/><span style="color:white">%s</span>' % (', '.join(tags),
-                'ttt '.join(tags)+'ttt ')
-
 class KindleDXOutput(OutputProfile):
 
     name        = 'Kindle DX'
@@ -666,11 +657,6 @@ class KindleDXOutput(OutputProfile):
     empty_ratings_char = u'\u2606'
     ratings_char = u'\u2605'
     mobi_ems_per_blockquote = 2.0
-
-    @classmethod
-    def tags_to_string(cls, tags):
-        return u'%s <br/><span style="color: white">%s</span>' % (', '.join(tags),
-                'ttt '.join(tags)+'ttt ')
 
 class KindlePaperWhiteOutput(KindleOutput):
 
@@ -705,12 +691,6 @@ class KindleFireOutput(KindleDXOutput):
     screen_size               = (570, 1016)
     dpi                       = 169.0
     comic_screen_size = (570, 1016)
-
-    @classmethod
-    def tags_to_string(cls, tags):
-        # The idiotic fire doesn't obey the color:white directive
-        from xml.sax.saxutils import escape
-        return escape(', '.join(tags))
 
 class IlliadOutput(OutputProfile):
 
