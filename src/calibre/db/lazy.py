@@ -107,7 +107,7 @@ ga = object.__getattribute__
 sa = object.__setattr__
 
 def simple_getter(field, default_value=None):
-    def func(dbref, book_id, cache):
+    def func(dbref, book_id, cache, proxy_metadata):
         try:
             return cache[field]
         except KeyError:
@@ -117,7 +117,7 @@ def simple_getter(field, default_value=None):
     return func
 
 def pp_getter(field, postprocess, default_value=None):
-    def func(dbref, book_id, cache):
+    def func(dbref, book_id, cache, proxy_metadata):
         try:
             return cache[field]
         except KeyError:
@@ -127,7 +127,7 @@ def pp_getter(field, postprocess, default_value=None):
     return func
 
 def adata_getter(field):
-    def func(dbref, book_id, cache):
+    def func(dbref, book_id, cache, proxy_metadata):
         try:
             author_ids, adata = cache['adata']
         except KeyError:
@@ -141,7 +141,7 @@ def adata_getter(field):
     return func
 
 def dt_getter(field):
-    def func(dbref, book_id, cache):
+    def func(dbref, book_id, cache, proxy_metadata):
         try:
             return cache[field]
         except KeyError:
@@ -151,7 +151,7 @@ def dt_getter(field):
     return func
 
 def item_getter(field, default_value=None, key=0):
-    def func(dbref, book_id, cache):
+    def func(dbref, book_id, cache, proxy_metadata):
         try:
             return cache[field]
         except KeyError:
@@ -164,7 +164,7 @@ def item_getter(field, default_value=None, key=0):
     return func
 
 def fmt_getter(field):
-    def func(dbref, book_id, cache):
+    def func(dbref, book_id, cache, proxy_metadata):
         try:
             format_metadata = cache['format_metadata']
         except KeyError:
@@ -179,7 +179,7 @@ def fmt_getter(field):
         return format_metadata
     return func
 
-def approx_fmts_getter(dbref, book_id, cache):
+def approx_fmts_getter(dbref, book_id, cache, proxy_metadata):
     try:
         return cache['formats']
     except KeyError:
@@ -188,9 +188,9 @@ def approx_fmts_getter(dbref, book_id, cache):
         return ret
 
 def series_index_getter(field='series'):
-    def func(dbref, book_id, cache):
+    def func(dbref, book_id, cache, proxy_metadata):
         try:
-            series = getters[field](dbref, book_id, cache)
+            series = getters[field](dbref, book_id, cache, proxy_metadata)
         except KeyError:
             series = custom_getter(field, dbref, book_id, cache)
         if series:
@@ -202,7 +202,7 @@ def series_index_getter(field='series'):
                 return ret
     return func
 
-def has_cover_getter(dbref, book_id, cache):
+def has_cover_getter(dbref, book_id, cache, proxy_metadata):
     try:
         return cache['has_cover']
     except KeyError:
@@ -232,13 +232,22 @@ def composite_getter(mi, field, metadata, book_id, cache, formatter, template_ca
             template_cache=template_cache).strip()
         return ret
 
-def virtual_libraries_getter(dbref, book_id, cache):
+def virtual_libraries_getter(dbref, book_id, cache, proxy_metadata):
     try:
         return cache['virtual_libraries']
     except KeyError:
         db = dbref()
         vls = db.virtual_libraries_for_books((book_id,))[book_id]
         ret = cache['virtual_libraries'] = ', '.join(vls)
+        return ret
+
+def user_categories_getter(dbref, book_id, cache, proxy_metadata):
+    try:
+        return cache['user_categories']
+    except KeyError:
+        db = dbref()
+        val = db.user_categories_for_book(book_id, proxy_metadata)
+        ret = cache['user_categories'] = val
         return ret
 
 getters = {
@@ -258,6 +267,7 @@ getters = {
     'application_id':lambda x, book_id, y: book_id,
     'id':lambda x, book_id, y: book_id,
     'virtual_libraries':virtual_libraries_getter,
+    'user_categories':user_categories_getter,
 }
 
 for field in ('comments', 'publisher', 'identifiers', 'series', 'rating'):
@@ -283,13 +293,13 @@ class ProxyMetadata(Metadata):
         sa(self, 'formatter', SafeFormat() if formatter is None else formatter)
         sa(self, '_db', weakref.ref(db))
         sa(self, '_book_id', book_id)
-        sa(self, '_cache', {'user_categories':{}, 'cover_data':(None,None), 'device_collections':[]})
+        sa(self, '_cache', {'cover_data':(None,None), 'device_collections':[]})
         sa(self, '_user_metadata', db.field_metadata)
 
     def __getattribute__(self, field):
         getter = getters.get(field, None)
         if getter is not None:
-            return getter(ga(self, '_db'), ga(self, '_book_id'), ga(self, '_cache'))
+            return getter(ga(self, '_db'), ga(self, '_book_id'), ga(self, '_cache'), self)
         if field in SIMPLE_GET:
             return ga(self, '_cache').get(field, None)
         try:

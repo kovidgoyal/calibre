@@ -1397,6 +1397,23 @@ class BuiltinVirtualLibraries(BuiltinFormatterFunction):
             return mi._proxy_metadata.virtual_libraries
         return _('This function can be used only in the GUI')
 
+class BuiltinUserCategories(BuiltinFormatterFunction):
+    name = 'user_categories'
+    arg_count = 0
+    category = 'Get values from metadata'
+    __doc__ = doc = _('user_categories() -- return a comma-separated list of '
+                      'the user categories that contain this book. This function '
+                      'works only in the GUI. If you want to use these values '
+                      'in save-to-disk or send-to-device templates then you '
+                      'must make a custom "Column built from other columns", use '
+                      'the function in that column\'s template, and use that '
+                      'column\'s value in your save/send templates')
+
+    def evaluate(self, formatter, kwargs, mi, locals_):
+        if hasattr(mi, '_proxy_metadata'):
+            return ', '.join(k for (k, v) in mi._proxy_metadata.user_categories.items() if v)
+        return _('This function can be used only in the GUI')
+
 class BuiltinTransliterate(BuiltinFormatterFunction):
     name = 'transliterate'
     arg_count = 1
@@ -1480,7 +1497,7 @@ _formatter_builtins = [
     BuiltinSublist(),BuiltinSubstr(), BuiltinSubtract(), BuiltinSwapAroundComma(),
     BuiltinSwitch(), BuiltinTemplate(), BuiltinTest(), BuiltinTitlecase(),
     BuiltinToday(), BuiltinTransliterate(), BuiltinUppercase(),
-    BuiltinVirtualLibraries()
+    BuiltinUserCategories(), BuiltinVirtualLibraries()
 ]
 
 class FormatterUserFunction(FormatterFunction):
