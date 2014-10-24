@@ -8,6 +8,7 @@ __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import textwrap, re, os, shutil, weakref
+from datetime import date
 
 from PyQt5.Qt import (
     Qt, QDateTimeEdit, pyqtSignal, QMessageBox, QIcon, QToolButton, QWidget,
@@ -27,11 +28,11 @@ from calibre.gui2 import (file_icon_provider, UNDEFINED_QDATETIME,
         choose_files, error_dialog, choose_images)
 from calibre.gui2.complete2 import EditWithComplete
 from calibre.utils.date import (
-    local_tz, qt_to_dt, as_local_time, UNDEFINED_DATE, is_date_undefined)
+    local_tz, qt_to_dt, as_local_time, UNDEFINED_DATE, is_date_undefined,
+    utcfromtimestamp, parse_only_date)
 from calibre import strftime
 from calibre.ebooks import BOOK_EXTENSIONS
 from calibre.customize.ui import run_plugins_on_import
-from calibre.utils.date import utcfromtimestamp
 from calibre.gui2.comments_editor import Editor
 from calibre.library.comments import comments_to_html
 from calibre.gui2.dialogs.tag_editor import TagEditor
@@ -119,6 +120,8 @@ def make_undoable(spinbox):
                 self.undo_val = widget.dateTime()
             elif hasattr(widget, 'value'):
                 self.undo_val = widget.value()
+            if isinstance(val, date):
+                val = parse_only_date(val.isoformat(), assume_utc=False)
             self.redo_val = val
 
         def undo(self):
@@ -169,6 +172,8 @@ def make_undoable(spinbox):
             else:
                 self.undo_stack.clear()
             if hasattr(self, 'setDateTime'):
+                if isinstance(val, date):
+                    val = parse_only_date(val.isoformat(), assume_utc=False)
                 self.setDateTime(val)
             elif hasattr(self, 'setValue'):
                 self.setValue(val)
