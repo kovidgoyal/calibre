@@ -1901,6 +1901,32 @@ class Cache(object):
                     ans[book].append(lib)
         return {k:tuple(sorted(v, key=sort_key)) for k, v in ans.iteritems()}
 
+    @read_api
+    def user_categories_for_book(self, book_id, proxy_metadata):
+        user_cats = self.backend.prefs['user_categories']
+        user_cat_vals = {}
+
+        for ucat in user_cats:
+            res = []
+            for name,cat,ign in user_cats[ucat]:
+                try:
+                    field_obj = self.fields[cat]
+                except KeyError:
+                    continue
+
+                if field_obj.is_composite:
+                    v = field_obj.get_value_with_cache(book_id, lambda x:proxy_metadata)
+                else:
+                    v = self._fast_field_for(field_obj, book_id)
+
+                if isinstance(v, (list, tuple)):
+                    if name in v:
+                        res.append([name,cat])
+                elif name == v:
+                    res.append([name,cat])
+            user_cat_vals[ucat] = res
+        return user_cat_vals
+
     @write_api
     def embed_metadata(self, book_ids, only_fmts=None, report_error=None, report_progress=None):
         ''' Update metadata in all formats of the specified book_ids to current metadata in the database. '''
