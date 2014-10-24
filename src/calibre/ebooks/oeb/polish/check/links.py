@@ -196,7 +196,10 @@ def check_mimetypes(container):
     return errors
 
 def check_link_destination(container, dest_map, name, href, a, errors):
-    tname = container.href_to_name(href, name)
+    try:
+        tname = container.href_to_name(href, name)
+    except ValueError:
+        tname = None  # Absolute links to files on another drive in windows cause this
     if tname and tname in container.mime_map:
         if container.mime_map[tname] not in OEB_DOCS:
             errors.append(BadDestinationType(name, tname, a))
@@ -249,7 +252,10 @@ def check_links(container):
     for name, mt in container.mime_map.iteritems():
         if mt in OEB_DOCS or mt in OEB_STYLES or mt in xml_types:
             for href, lnum, col in container.iterlinks(name):
-                tname = container.href_to_name(href, name)
+                try:
+                    tname = container.href_to_name(href, name)
+                except ValueError:
+                    tname = None  # Absolute paths to files on another drive in windows cause this
                 if tname is not None:
                     if container.exists(tname):
                         if tname in container.mime_map:
