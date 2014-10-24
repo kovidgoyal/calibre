@@ -60,15 +60,15 @@ QToolBox::tab:hover {
 }</string>
          </property>
          <property name="currentIndex">
-          <number>2</number>
+          <number>0</number>
          </property>
          <widget class="QWidget" name="page">
           <property name="geometry">
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>371</width>
-            <height>236</height>
+            <width>799</width>
+            <height>378</height>
            </rect>
           </property>
           <attribute name="label">
@@ -370,8 +370,8 @@ QToolBox::tab:hover {
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>799</width>
-            <height>378</height>
+            <width>381</width>
+            <height>193</height>
            </rect>
           </property>
           <attribute name="label">
@@ -551,8 +551,8 @@ QToolBox::tab:hover {
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>384</width>
-            <height>115</height>
+            <width>799</width>
+            <height>378</height>
            </rect>
           </property>
           <attribute name="label">
@@ -594,24 +594,31 @@ QToolBox::tab:hover {
              </property>
             </widget>
            </item>
-           <item row="1" column="0" colspan="2">
+           <item row="2" column="0" colspan="2">
             <widget class="QCheckBox" name="opt_wheel_flips_pages">
              <property name="text">
               <string>Mouse &amp;wheel flips pages</string>
              </property>
             </widget>
            </item>
-           <item row="2" column="0" colspan="2">
+           <item row="3" column="0" colspan="2">
             <widget class="QCheckBox" name="opt_line_scrolling_stops_on_pagebreaks">
              <property name="text">
               <string>Line &amp;scrolling stops at page breaks</string>
              </property>
             </widget>
            </item>
-           <item row="3" column="0" colspan="2">
+           <item row="4" column="0" colspan="2">
             <widget class="QCheckBox" name="opt_fit_images">
              <property name="text">
               <string>&amp;Resize images larger than the viewer window (needs restart)</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="0">
+            <widget class="QCheckBox" name="opt_tap_flips_pages">
+             <property name="text">
+              <string>&amp;Tapping on the page flips pages</string>
              </property>
             </widget>
            </item>

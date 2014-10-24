@@ -51,6 +51,8 @@ def config(defaults=None):
             help=_('Save the current position in the document, when quitting'))
     c.add_opt('wheel_flips_pages', default=False,
             help=_('Have the mouse wheel turn pages'))
+    c.add_opt('tap_flips_pages', default=True,
+            help=_('Tapping on the screen turns pages'))
     c.add_opt('line_scrolling_stops_on_pagebreaks', default=False,
             help=_('Prevent the up and down arrow keys from scrolling past '
                 'page breaks'))
@@ -280,6 +282,7 @@ class ConfigDialog(QDialog, Ui_Dialog):
         self.opt_remember_window_size.setChecked(opts.remember_window_size)
         self.opt_remember_current_page.setChecked(opts.remember_current_page)
         self.opt_wheel_flips_pages.setChecked(opts.wheel_flips_pages)
+        self.opt_tap_flips_pages.setChecked(opts.tap_flips_pages)
         self.opt_page_flip_duration.setValue(opts.page_flip_duration)
         fms = opts.font_magnification_step
         if fms < 0.01 or fms > 1:
@@ -381,6 +384,7 @@ class ConfigDialog(QDialog, Ui_Dialog):
         c.set('hyphenate', self.hyphenate.isChecked())
         c.set('remember_current_page', self.opt_remember_current_page.isChecked())
         c.set('wheel_flips_pages', self.opt_wheel_flips_pages.isChecked())
+        c.set('tap_flips_pages', self.opt_tap_flips_pages.isChecked())
         c.set('page_flip_duration', self.opt_page_flip_duration.value())
         c.set('font_magnification_step',
                 float(self.opt_font_mag_step.value())/100.)

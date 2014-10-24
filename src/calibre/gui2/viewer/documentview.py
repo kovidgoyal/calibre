@@ -157,6 +157,7 @@ class Document(QWebPage):  # {{{
         self.enable_page_flip = self.page_flip_duration > 0.1
         self.font_magnification_step = opts.font_magnification_step
         self.wheel_flips_pages = opts.wheel_flips_pages
+        self.tap_flips_pages = opts.tap_flips_pages
         self.line_scrolling_stops_on_pagebreaks = opts.line_scrolling_stops_on_pagebreaks
         screen_width = QApplication.desktop().screenGeometry().width()
         # Leave some space for the scrollbar and some border

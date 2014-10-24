@@ -322,9 +322,10 @@ class GestureHandler(QObject):
         mf = view.document.mainFrame()
         r = mf.hitTestContent(self.current_position(tp))
         if r.linkElement().isNull():
-            threshold = view.width() / 3.0
-            attr = 'previous' if self.current_position(tp).x() <= threshold else 'next'
-            getattr(view, '%s_page'%attr)()
+            if view.document.tap_flips_pages:
+                threshold = view.width() / 3.0
+                attr = 'previous' if self.current_position(tp).x() <= threshold else 'next'
+                getattr(view, '%s_page'%attr)()
         else:
             for etype in (QEvent.MouseButtonPress, QEvent.MouseButtonRelease):
                 ev = QMouseEvent(etype, self.current_position(tp), tp.current_screen_position.toPoint(), Qt.LeftButton, Qt.LeftButton, Qt.NoModifier)
