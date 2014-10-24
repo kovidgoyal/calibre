@@ -20,6 +20,41 @@
 #   new recipes:
 #     - title: 
 
+- version: 2.7.0
+  date: 2014-10-24
+
+  new features:
+    - title: "Support for the new Kindle Voyage"
+
+    - title: "The notification for the completion of background jobs, such as bulk metadata download, has been redesigned to not interrupt your work. It now waits in the lower right corner of the main window until you are ready to deal with it"
+      tickets: [1382795] 
+
+    - title: "Insert metadata as jacket page: Make the invisible tags used for searching across books format better, by giving them their own table row."
+
+    - title: "Book details panel: Show custom column values for numeric columns even when the value is zero"
+
+    - title: "Allow clearing of date and number type fields by right clicking and choosing clear when editing the fields in the book list or edit metadata dialog"
+
+  bug fixes:
+    - title: "MOBI/AZW3 Output: When converting an EPUB document that specifies an SVG image as its cover image, convert the cover to JPEG as the Kindle cannot handle SVG cover images."
+      tickets: [1384375]
+
+    - title: "AZW3 Input: Fix crash when processing AZW3 files that contain certain SVG images dies to a bug in ImageMagick."
+      tickets: [1384375]
+
+    - title: "Conversion: Ignore un-parseable links when trying to generate ToC from links, instead of aborting the conversion."
+      tickets: [1383365]
+
+    - title: "Edit metadata dialog: Fix window title not changing when using the Next/previous buttons if the books being edited have the same title."
+      tickets: [1383014]
+
+    - title: "Fix regression in previous release that prevented arrow keys/tab key from working in completion popups on OSX."
+      tickets: [1382633]
+
+  improved recipes:
+    - Folha de Sao Paolo
+    - LWN Weekly
+
 - version: 2.6.0
   date: 2014-10-17
 
