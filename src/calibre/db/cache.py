@@ -346,7 +346,7 @@ class Cache(object):
     # Cache Layer API {{{
 
     @read_api
-    def field_for(self, name, book_id, default_value=None, proxy_metadata=None):
+    def field_for(self, name, book_id, default_value=None):
         '''
         Return the value of the field ``name`` for the book identified
         by ``book_id``. If no such book exists or it has no defined
@@ -364,8 +364,8 @@ class Cache(object):
         which they were created.
         '''
         if self.composites and name in self.composites:
-            return self._composite_for(name, book_id,
-                    default_value=default_value, proxy_metadata=proxy_metadata)
+            return self.composite_for(name, book_id,
+                    default_value=default_value)
         try:
             field = self.fields[name]
         except KeyError:
@@ -396,15 +396,14 @@ class Cache(object):
         return {book_id:self._fast_field_for(field_obj, book_id, default_value=default_value) for book_id in book_ids}
 
     @read_api
-    def composite_for(self, name, book_id, mi=None, default_value='', proxy_metadata=None):
+    def composite_for(self, name, book_id, mi=None, default_value=''):
         try:
             f = self.fields[name]
         except KeyError:
             return default_value
 
         if mi is None:
-            return f.get_value_with_cache(book_id,
-                      (lambda x : proxy_metadata) if proxy_metadata else self._get_proxy_metadata)
+            return f.get_value_with_cache(book_id, self._get_proxy_metadata)
         else:
             return f.render_composite(book_id, mi)
 
@@ -1901,22 +1900,6 @@ class Cache(object):
                 if book in books:
                     ans[book].append(lib)
         return {k:tuple(sorted(v, key=sort_key)) for k, v in ans.iteritems()}
-
-    @read_api
-    def user_categories_for_book(self, book_id, proxy_metadata):
-        user_cats = self.backend.prefs['user_categories']
-        user_cat_vals = {}
-        for ucat in user_cats:
-            res = []
-            for name,cat,ign in user_cats[ucat]:
-                v = self._field_for(cat, book_id, proxy_metadata=proxy_metadata)
-                if isinstance(v, (list, tuple)):
-                    if name in v:
-                        res.append([name,cat])
-                elif name == v:
-                    res.append([name,cat])
-            user_cat_vals[ucat] = res
-        return user_cat_vals
 
     @write_api
     def embed_metadata(self, book_ids, only_fmts=None, report_error=None, report_progress=None):
