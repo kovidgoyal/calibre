@@ -114,7 +114,10 @@ def set_book_locale(lang):
 def verify_link(url, name=None):
     if _current_container is None or name is None:
         return None
-    target = _current_container.href_to_name(url, name)
+    try:
+        target = _current_container.href_to_name(url, name)
+    except ValueError:
+        return False  # Absolute URLs that point to a different drive on windows cause this
     if _current_container.has_name(target):
         return True
     if url.startswith('#'):
