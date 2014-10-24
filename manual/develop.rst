@@ -86,7 +86,7 @@ installing Git, you can get the calibre source code with the command::
 On Windows you will need the complete path name, that will be something like :file:`C:\\Program Files\\Git\\git.exe`. 
 
 calibre is a very large project with a very long source control history, so the
-above can take a while (10mins to an hour depending on your internet speed).
+above can take a while (10 mins to an hour depending on your internet speed).
 
 If you want to get the code faster, the source code for the latest release is
 always available as an `archive <http://status.calibre-ebook.com/dist/src>`_.
