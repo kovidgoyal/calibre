@@ -42,7 +42,14 @@ class NewYorker(BasicNewsRecipe):
             url = h2.find('a', href=True)['href']
             a = h2.find('a')
             title = self.tag_to_string(a)
+            h3 = h2.findNextSibling('h3')
             desc = ''
+            if h3 is not None:
+                desc += self.tag_to_string(h3)
+            p = h2.findNextSibling('p')
+            if p is not None:
+                desc += '. \n' + self.tag_to_string(p)
+
             self.log('Found article:', title)
             self.log('\t', url)
             self.log('\t', desc)
