@@ -10,8 +10,10 @@ __docformat__ = 'restructuredtext en'
 import weakref
 
 import sip
-from PyQt5.Qt import (QLineEdit, QAbstractListModel, Qt, pyqtSignal, QObject, QKeySequence,
-        QApplication, QListView, QPoint, QModelIndex, QFont, QFontInfo)
+from PyQt5.Qt import (
+    QLineEdit, QAbstractListModel, Qt, pyqtSignal, QObject, QKeySequence,
+    QApplication, QListView, QPoint, QModelIndex, QFont, QFontInfo,
+    QStyleOptionComboBox, QStyle, QComboBox, QTimer)
 
 from calibre.constants import isosx, get_osx_version
 from calibre.utils.icu import sort_key, primary_startswith, primary_contains
@@ -258,11 +260,21 @@ class Completer(QListView):  # {{{
             # See https://bugreports.qt-project.org/browse/QTBUG-41806
             e.accept()
             return True
-        elif etype == e.MouseButtonPress:
-            if not self.rect().contains(self.mapFromGlobal(e.globalPos())):
-                self.hide()
-                e.accept()
-                return True
+        elif etype == e.MouseButtonPress and not self.rect().contains(self.mapFromGlobal(e.globalPos())):
+            # A click outside the popup, close it
+            if isinstance(widget, QComboBox):
+                # This workaround is needed to ensure clicking on the drop down
+                # arrow of the combobox closes the popup
+                opt = QStyleOptionComboBox()
+                widget.initStyleOption(opt)
+                sc = widget.style().hitTestComplexControl(QStyle.CC_ComboBox, opt, widget.mapFromGlobal(e.globalPos()), widget)
+                if sc == QStyle.SC_ComboBoxArrow:
+                    QTimer.singleShot(0, self.hide)
+                    e.accept()
+                    return True
+            self.hide()
+            e.accept()
+            return True
         elif etype in (e.InputMethod, e.ShortcutOverride):
             QApplication.sendEvent(widget, e)
         return False
