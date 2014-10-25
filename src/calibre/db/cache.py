@@ -1901,6 +1901,41 @@ class Cache(object):
                     ans[book].append(lib)
         return {k:tuple(sorted(v, key=sort_key)) for k, v in ans.iteritems()}
 
+    @read_api
+    def user_categories_for_books(self, book_ids, proxy_metadata_map=None):
+        ''' Return the user categories for the specified books.
+        proxy_metadata_map is optional and is useful for a performance boost,
+        in contexts where a ProxyMetadata object for the books already exists.
+        It should be a mapping of book_ids to their corresponding ProxyMetadata
+        objects.
+        '''
+        user_cats = self.backend.prefs['user_categories']
+        pmm = proxy_metadata_map or {}
+        ans = {}
+
+        for book_id in book_ids:
+            user_cat_vals = ans[book_id] = {}
+            for ucat, categories in user_cats.iteritems():
+                user_cat_vals[ucat] = res = []
+                proxy_metadata = pmm.get(book_id) or self._get_proxy_metadata(book_id)
+                for name, cat, ign in categories:
+                    try:
+                        field_obj = self.fields[cat]
+                    except KeyError:
+                        continue
+
+                    if field_obj.is_composite:
+                        v = field_obj.get_value_with_cache(book_id, lambda x:proxy_metadata)
+                    else:
+                        v = self._fast_field_for(field_obj, book_id)
+
+                    if isinstance(v, (list, tuple)):
+                        if name in v:
+                            res.append([name, cat])
+                    elif name == v:
+                        res.append([name, cat])
+        return ans
+
     @write_api
     def embed_metadata(self, book_ids, only_fmts=None, report_error=None, report_progress=None):
         ''' Update metadata in all formats of the specified book_ids to current metadata in the database. '''

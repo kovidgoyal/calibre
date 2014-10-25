@@ -527,7 +527,7 @@ class ReadingTest(BaseTest):
         from calibre.ebooks.metadata.book.base import STANDARD_METADATA_FIELDS
         cache = self.init_cache()
         for book_id in cache.all_book_ids():
-            mi = cache.get_metadata(book_id, get_user_categories=False)
+            mi = cache.get_metadata(book_id, get_user_categories=True)
             pmi = cache.get_proxy_metadata(book_id)
             self.assertSetEqual(set(mi.custom_field_keys()), set(pmi.custom_field_keys()))
 

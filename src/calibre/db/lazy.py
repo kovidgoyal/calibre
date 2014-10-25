@@ -241,6 +241,16 @@ def virtual_libraries_getter(dbref, book_id, cache):
         ret = cache['virtual_libraries'] = ', '.join(vls)
         return ret
 
+def user_categories_getter(proxy_metadata):
+    cache = ga(proxy_metadata, '_cache')
+    try:
+        return cache['user_categories']
+    except KeyError:
+        db = ga(proxy_metadata, '_db')()
+        book_id = ga(proxy_metadata, '_book_id')
+        ret = cache['user_categories'] = db.user_categories_for_books((book_id,), {book_id:proxy_metadata})[book_id]
+        return ret
+
 getters = {
     'title':simple_getter('title', _('Unknown')),
     'title_sort':simple_getter('sort', _('Unknown')),
@@ -283,7 +293,7 @@ class ProxyMetadata(Metadata):
         sa(self, 'formatter', SafeFormat() if formatter is None else formatter)
         sa(self, '_db', weakref.ref(db))
         sa(self, '_book_id', book_id)
-        sa(self, '_cache', {'user_categories':{}, 'cover_data':(None,None), 'device_collections':[]})
+        sa(self, '_cache', {'cover_data':(None,None), 'device_collections':[]})
         sa(self, '_user_metadata', db.field_metadata)
 
     def __getattribute__(self, field):
@@ -291,6 +301,8 @@ class ProxyMetadata(Metadata):
         if getter is not None:
             return getter(ga(self, '_db'), ga(self, '_book_id'), ga(self, '_cache'))
         if field in SIMPLE_GET:
+            if field == 'user_categories':
+                return user_categories_getter(self)
             return ga(self, '_cache').get(field, None)
         try:
             return ga(self, field)
