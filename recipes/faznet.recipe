@@ -8,7 +8,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 class FazNet(BasicNewsRecipe):
     title                 = 'FAZ.NET'
-    __author__            = 'Kovid Goyal, Darko Miletic, Armin Geller'  # AGe upd. V4 2014-01-14
+    __author__            = 'Kovid Goyal, Darko Miletic, Armin Geller'  # AGe upd. V6 2014-10-24
     description           = 'Frankfurter Allgemeine Zeitung'
     publisher             = 'Frankfurter Allgemeine Zeitung GmbH'
     category              = 'news, politics, Germany'
@@ -20,54 +20,65 @@ class FazNet(BasicNewsRecipe):
     encoding              = 'utf-8'
     remove_javascript     = True
 
-    keep_only_tags = [{'class':'FAZArtikelEinleitung'},
-            {'id':'ArtikelTabContent_0'}]
+    keep_only_tags = [{'class':['FAZArtikelEinleitung']},
+											dict(name='div', attrs={'class':'FAZSlimHeader'}), 
+											{'id':'ArtikelTabContent_0'}
+											]
 
     remove_tags_after = [dict(name='div', attrs={'class':['ArtikelFooter']})]
-    remove_tags = [dict(name='div', attrs={'class':['ArtikelFooter']})]
-
-# recursions = 1                        # AGe 2014-01-10
-# match_regexps = [r'-p[2-9].html$']    # AGe 2014-01-10
+    remove_tags = [dict(name='div', attrs={'class':['ArtikelFooter','clear']}),
+									 dict(name='a', attrs={'title':['Vergrößern']}), #AGe 2014-10-22
+									 dict(name='img', attrs={'class':['VideoCtrlIcon']}), #AGe 2014-10-22
+									 dict(name='span', attrs={'class':['shareAutor']}) #AGe 2014-10-22
+									]
 
     feeds = [
               ('FAZ.NET Aktuell', 'http://www.faz.net/aktuell/?rssview=1'),
-              ('Politik', 'http://www.faz.net/aktuell/politik/?rssview=1'),
-              ('Wirtschaft', 'http://www.faz.net/aktuell/wirtschaft/?rssview=1'),
-              ('Feuilleton', 'http://www.faz.net/aktuell/feuilleton/?rssview=1'),
-              ('Sport', 'http://www.faz.net/aktuell/sport/?rssview=1'),
-              ('Lebensstil', 'http://www.faz.net/aktuell/lebensstil/?rssview=1'),
-              ('Gesellschaft', 'http://www.faz.net/aktuell/gesellschaft/?rssview=1'),
-              ('Finanzen', 'http://www.faz.net/aktuell/finanzen/?rssview=1'),
-              ('Technik & Motor', 'http://www.faz.net/aktuell/technik-motor/?rssview=1'),
-              ('Wissen', 'http://www.faz.net/aktuell/wissen/?rssview=1'),
-              ('Reise', 'http://www.faz.net/aktuell/reise/?rssview=1'),
-              ('Beruf & Chance', 'http://www.faz.net/aktuell/beruf-chance/?rssview=1'),
-              ('Rhein-Main', 'http://www.faz.net/aktuell/rhein-main/?rssview=1')
+							('Politik', 'http://www.faz.net/aktuell/politik/?rssview=1'),
+							('Wirtschaft', 'http://www.faz.net/aktuell/wirtschaft/?rssview=1'),
+							('Feuilleton', 'http://www.faz.net/aktuell/feuilleton/?rssview=1'),
+							('Sport', 'http://www.faz.net/aktuell/sport/?rssview=1'),
+							('Lebensstil', 'http://www.faz.net/aktuell/lebensstil/?rssview=1'),
+							('Gesellschaft', 'http://www.faz.net/aktuell/gesellschaft/?rssview=1'),
+							('Finanzen', 'http://www.faz.net/aktuell/finanzen/?rssview=1'),
+							('Technik & Motor', 'http://www.faz.net/aktuell/technik-motor/?rssview=1'),
+							('Wissen', 'http://www.faz.net/aktuell/wissen/?rssview=1'),
+							('Reise', 'http://www.faz.net/aktuell/reise/?rssview=1'),
+							('Beruf & Chance', 'http://www.faz.net/aktuell/beruf-chance/?rssview=1'),
+							('Rhein-Main', 'http://www.faz.net/aktuell/rhein-main/?rssview=1')
             ]
 
-# AGe 2014-01-10 New  for multipages
+# AGe 2014-01-10 For multipages
     INDEX                 = ''
-    def append_page(self, soup, appendtag, position):   # AGe upd 2014-01-14
+    def append_page(self, soup, appendtag, position):
         pager = soup.find('a',attrs={'title':'Nächste Seite'})
         if pager:
             nexturl = self.INDEX + pager['href']
             soup2 = self.index_to_soup(nexturl)
             texttag = soup2.find('div', attrs={'class':'FAZArtikelContent'})
-            for cls in ('ArtikelFooter', 'ArtikelAbbinder', 'ArtikelKommentieren Artikelfuss GETS;tk;boxen.top-lesermeinungen;tp;content', 'Anzeige GoogleAdsBuehne'):
+            for cls in ('ArtikelFooter', 'ArtikelAbbinder', 'ArtikelKommentieren Artikelfuss GETS;tk;boxen.top-lesermeinungen;tp;content', 'Anzeige GoogleAdsBuehne', 
+												'ThemenLinks', 'rechtehinweis', 'stageModule Ressortmodul Rubrikenkopf clearfix', 'VideoCtrlIcon', 'ArtikelAbbinder clearfix',
+												'stageModule clearfix GETS;tk;artikel.empfehlungen.weitere-artikel;tp;content'):  #AGe 2014-10-22       
                 div = texttag.find(attrs={'class':cls})
                 if div is not None:
                     div.extract()
+                div = texttag.find(attrs={'title':'Vergrößern'}) #AGe 2014-10-22
+                if div is not None:
+                    div.extract()
+           
             newpos = len(texttag.contents)
             self.append_page(soup2,texttag,newpos)
             texttag.extract()
             pager.extract()
             appendtag.insert(position,texttag)
 
-    def preprocess_html(self, soup):                    # AGe upd 2014-01-14
+    def preprocess_html(self, soup):
         self.append_page(soup, soup.body, 3)
         return self.adeify_images(soup)
 
-    def postprocess_html(self, soup, first_fetch):      # AGe add 2014-01-14
+    def postprocess_html(self, soup, first_fetch):
         for div in soup.findAll(id='ArticlePagerBottom'):
+            div.extract()
+        for div in soup.findAll('div', attrs={'class':'clear'}):  # AGe add 2014-10-24
             div.extract()
         return soup
