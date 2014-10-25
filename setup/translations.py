@@ -17,7 +17,7 @@ def qt_sources():
     qtdir = '/usr/src/qt5'
     j = partial(os.path.join, qtdir)
     return list(map(j, [
-            'qtbase/src/widgets/widgets/qdialogbuttonbox.cpp',
+            'qtbase/src/gui/kernel/qplatformtheme.cpp',
             'qtbase/src/widgets/dialogs/qcolordialog.cpp',
             'qtbase/src/widgets/dialogs/qfontdialog.cpp',
     ]))
@@ -158,7 +158,7 @@ class POT(Command):  # {{{
             subprocess.check_call(['xgettext', '-j',
                 '--default-domain=calibre', '-o', out.name,
                 '--from-code=UTF-8', '--sort-by-file', '--omit-header',
-                '--no-wrap', '-kQT_TRANSLATE_NOOP:2', '-ktr',
+                                   '--no-wrap', '-kQT_TRANSLATE_NOOP:2', '-ktr', '-ktranslate:2',
                 ] + qt_inputs)
 
             with open(out.name, 'rb') as f:
