@@ -228,6 +228,8 @@ def check_link_destinations(container):
                 check_link_destination(container, dest_map, name, href, a, errors)
         elif mt == opf_type:
             for a in container.opf_xpath('//opf:reference[@href]'):
+                if container.book_type == 'azw3' and a.get('type') in {'cover', 'other.ms-coverimage-standard', 'other.ms-coverimage'}:
+                    continue
                 href = a.get('href')
                 check_link_destination(container, dest_map, name, href, a, errors)
         elif mt == ncx_type:
