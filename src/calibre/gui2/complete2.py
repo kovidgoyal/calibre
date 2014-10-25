@@ -11,7 +11,7 @@ import weakref
 
 import sip
 from PyQt5.Qt import (QLineEdit, QAbstractListModel, Qt, pyqtSignal, QObject, QKeySequence,
-        QApplication, QListView, QPoint, QModelIndex, QFont, QFontInfo, QTimer)
+        QApplication, QListView, QPoint, QModelIndex, QFont, QFontInfo)
 
 from calibre.constants import isosx, get_osx_version
 from calibre.utils.icu import sort_key, primary_startswith, primary_contains
@@ -260,7 +260,7 @@ class Completer(QListView):  # {{{
             return True
         elif etype == e.MouseButtonPress:
             if not self.rect().contains(self.mapFromGlobal(e.globalPos())):
-                QTimer.singleShot(0, self.hide)
+                self.hide()
                 e.accept()
                 return True
         elif etype in (e.InputMethod, e.ShortcutOverride):
