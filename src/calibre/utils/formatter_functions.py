@@ -1411,7 +1411,9 @@ class BuiltinUserCategories(BuiltinFormatterFunction):
 
     def evaluate(self, formatter, kwargs, mi, locals_):
         if hasattr(mi, '_proxy_metadata'):
-            return ', '.join(k for k, v in mi._proxy_metadata.user_categories.iteritems() if v)
+            cats = set(k for k, v in mi._proxy_metadata.user_categories.iteritems() if v)
+            cats = sorted(cats, key=sort_key)
+            return ', '.join(cats)
         return _('This function can be used only in the GUI')
 
 class BuiltinTransliterate(BuiltinFormatterFunction):
