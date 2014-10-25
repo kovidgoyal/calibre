@@ -4,10 +4,9 @@ import re
 
 class AdvancedUserRecipe1325006965(BasicNewsRecipe):
     title          = u'Countryfile.com'
-    #cover_url = 'http://www.countryfile.com/sites/default/files/imagecache/160px_wide/cover/2_1.jpg'
     __author__ = 'Dave Asbury'
     description           = 'The official website of Countryfile Magazine'
-    # last updated 19/10/12
+    # last updated 24.10.14
     language = 'en_GB'
     oldest_article = 30
     max_articles_per_feed = 25
@@ -16,17 +15,16 @@ class AdvancedUserRecipe1325006965(BasicNewsRecipe):
     auto_cleanup = True
     compress_news_images = True
     ignore_duplicate_articles = {'title', 'url'}
-    #articles_are_obfuscated = True
-    #article_already_exists = False
-    #feed_hash = ''
+
     def get_cover_url(self):
         soup = self.index_to_soup('http://www.countryfile.com/magazine')
         cov = soup.find(attrs={'class' : re.compile('imagecache imagecache-250px')})  # 'width' : '160',
-
         cov=str(cov)
         cov=cov[10:]
         cov=cov[:-135]
+        # print '++++ ',cov,' ++++'
         br = browser()
+
         br.set_handle_redirect(False)
         try:
             br.open_novisit(cov)
@@ -34,14 +32,10 @@ class AdvancedUserRecipe1325006965(BasicNewsRecipe):
         except:
             cover_url = 'http://www.countryfile.com/sites/default/files/imagecache/160px_wide/cover/2_1.jpg'
         return cover_url
+
     preprocess_regexps = [
         (re.compile(r' \| Countryfile.com', re.IGNORECASE | re.DOTALL), lambda match: '')]
-    remove_tags    = [
-                             # dict(attrs={'class' : ['player']}),
-
-    ]
     feeds          = [
-    (u'Homepage', u'http://www.countryfile.com/rss/home'),
-    (u'Country News', u'http://www.countryfile.com/rss/news'),
-    (u'Countryside', u'http://www.countryfile.com/rss/countryside'),
-            ]
+        (u'Country News', u'http://www.feed43.com/7204505705648666.xml'),
+        (u'Articles', u'http://www.feed43.com/8542080013204443.xml'),
+    ]
