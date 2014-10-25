@@ -3,23 +3,53 @@ __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal kovid@kovidgoyal.net'
 __docformat__ = 'restructuredtext en'
 
-from PyQt5.Qt import QDialog, Qt, QPixmap, QIcon
+from PyQt5.Qt import (
+    QDialog, Qt, QPixmap, QIcon, QSize, QVBoxLayout, QHBoxLayout, QLabel,
+    QCheckBox, QDialogButtonBox)
 
 from calibre import confirm_config_name
 from calibre.gui2 import dynamic
-from calibre.gui2.dialogs.confirm_delete_ui import Ui_Dialog
 
-class Dialog(QDialog, Ui_Dialog):
+class Dialog(QDialog):
 
-    def __init__(self, msg, name, parent, config_set=dynamic):
+    def __init__(self, msg, name, parent, config_set=dynamic, icon='dialog_warning.png',
+                 title=None, confirm_msg=None, show_cancel_button=True):
         QDialog.__init__(self, parent)
-        self.setupUi(self)
+        self.setWindowTitle(title or _("Are you sure?"))
+        self.setWindowIcon(QIcon(I(icon)))
+        self.l = l = QVBoxLayout(self)
+        self.h = h = QHBoxLayout()
+        l.addLayout(h)
 
-        self.msg.setText(msg)
+        self.label = la = QLabel(self)
+        la.setScaledContents(True), la.setMaximumSize(QSize(96, 96)), la.setMinimumSize(QSize(96, 96))
+        la.setPixmap(QPixmap(I(icon)))
+        la.setObjectName("label")
+
+        self.msg = m = QLabel(self)
+        m.setMinimumWidth(300), m.setWordWrap(True), m.setObjectName("msg")
+        m.setText(msg)
+
+        h.addWidget(la), h.addSpacing(10), h.addWidget(m)
+
+        self.again = a = QCheckBox((confirm_msg or _("&Show this warning again")), self)
+        a.setChecked(True), a.setObjectName("again")
+        a.stateChanged.connect(self.toggle)
+        l.addWidget(a)
+
+        buttons = QDialogButtonBox.Ok
+        if show_cancel_button:
+            buttons |= QDialogButtonBox.Cancel
+        self.buttonBox = bb = QDialogButtonBox(buttons, self)
+        bb.setObjectName("buttonBox")
+        bb.setFocus(Qt.OtherFocusReason)
+        bb.accepted.connect(self.accept), bb.rejected.connect(self.reject)
+        l.addWidget(bb)
+
         self.name = name
-        self.again.stateChanged.connect(self.toggle)
-        self.buttonBox.setFocus(Qt.OtherFocusReason)
         self.config_set = config_set
+
+        self.resize(self.sizeHint())
 
     def toggle(self, *args):
         self.config_set[confirm_config_name(self.name)] = self.again.isChecked()
@@ -30,14 +60,6 @@ def confirm(msg, name, parent=None, pixmap='dialog_warning.png', title=None,
     config_set = config_set or dynamic
     if not config_set.get(confirm_config_name(name), True):
         return True
-    d = Dialog(msg, name, parent, config_set=config_set)
-    d.label.setPixmap(QPixmap(I(pixmap)))
-    d.setWindowIcon(QIcon(I(pixmap)))
-    if title is not None:
-        d.setWindowTitle(title)
-    if not show_cancel_button:
-        d.buttonBox.button(d.buttonBox.Cancel).setVisible(False)
-    if confirm_msg is not None:
-        d.again.setText(confirm_msg)
-    d.resize(d.sizeHint())
+    d = Dialog(msg, name, parent, config_set=config_set, icon=pixmap,
+               title=title, confirm_msg=confirm_msg, show_cancel_button=show_cancel_button)
     return d.exec_() == d.Accepted
