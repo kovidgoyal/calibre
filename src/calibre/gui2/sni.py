@@ -6,11 +6,11 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import os, sys
+import os, sys, array, socket
 
 import dbus
 from PyQt5.Qt import (
-    QApplication, QObject, pyqtSignal, Qt, QPoint, QRect, QMenu)
+    QApplication, QObject, pyqtSignal, Qt, QPoint, QRect, QMenu, QImage, QSize, QIcon)
 
 from calibre.utils.dbus_service import Object, method as dbus_method, BusName, dbus_property, signal as dbus_signal
 
@@ -18,6 +18,22 @@ def log(*args, **kw):
     kw['file'] = sys.stderr
     print('StatusNotifier:', *args, **kw)
     kw['file'].flush()
+
+def qicon_to_dbus_image_list(qicon):
+    ans = dbus.Array(signature='(iiay)')
+    if not qicon.isNull():
+        sizes = qicon.availableSizes() or (QSize(x, x) for x in (32, 64, 128, 256))
+        tc = b'L' if array.array(b'I') < 4 else b'I'
+        for size in sizes:
+            i = qicon.pixmap(size).toImage().convertToFormat(QImage.Format_ARGB32)
+            w, h = i.width(), i.height()
+            data = i.constBits().asstring(4 * w * h)
+            if socket.htonl(1) != 1:
+                data = array.array(tc, i.constBits().asstring(4 * i.width() * i.height()))
+                data.byteswap()
+                data = data.tostring()
+            ans.append((w, h, dbus.ByteArray(data)))
+    return ans
 
 class Factory(QObject):
 
@@ -116,6 +132,7 @@ class StatusNotifierItem(QObject):
         self.context_menu = None
         self.is_visible = True
         self.tool_tip = ''
+        self._icon = QIcon()
         self.show_menu.connect(self._show_menu, type=Qt.QueuedConnection)
         kw['num'] = num
         self.dbus = StatusNotifierItemAPI(self, **kw)
@@ -155,6 +172,13 @@ class StatusNotifierItem(QObject):
         self.tool_tip = val or ''
         self.NewToolTip.emit()
 
+    def setIcon(self, icon):
+        self._icon = icon
+        self.NewIcon.emit()
+
+    def icon(self):
+        return self._icon
+
 class StatusNotifierItemAPI(Object):
 
     IFACE = 'org.kde.StatusNotifierItem'
@@ -169,6 +193,7 @@ class StatusNotifierItemAPI(Object):
         self.app_id = kw.get('app_id', QApplication.instance().applicationName()) or 'unknown_application'
         self.category = kw.get('category', 'ApplicationStatus')
         self.title = kw.get('title', self.app_id)
+        self.icon_serialization = qicon_to_dbus_image_list(notifier.icon())
         Object.__init__(self, bus, '/' + self.IFACE.split('.')[-1])
         for name, val in vars(self.__class__).iteritems():
             if getattr(val, '_dbus_is_signal', False):
@@ -176,7 +201,7 @@ class StatusNotifierItemAPI(Object):
 
     @dbus_property(IFACE, signature='s')
     def IconName(self):
-        return 'calibre-gui'
+        return ''
 
     @dbus_property(IFACE, signature='s')
     def IconThemePath(self):
@@ -184,7 +209,7 @@ class StatusNotifierItemAPI(Object):
 
     @dbus_property(IFACE, signature='a(iiay)')
     def IconPixmap(self):
-        return dbus.Array(signature='(iiay)')
+        return self.icon_serialization
 
     @dbus_property(IFACE, signature='s')
     def OverlayIconName(self):
@@ -248,7 +273,7 @@ class StatusNotifierItemAPI(Object):
 
     @dbus_signal(IFACE, '')
     def NewIcon(self):
-        pass
+        self.icon_serialization = qicon_to_dbus_image_list(self.notifier.icon())
 
     @dbus_signal(IFACE, '')
     def NewAttentionIcon(self):
@@ -280,9 +305,11 @@ def test():
     DBusGMainLoop(set_as_default=True)
     threads_init()
     app = QApplication([])
+    app.setApplicationName('Testing SNI Interface')
     signal.signal(signal.SIGINT, signal.SIG_DFL)  # quit on Ctrl-C
-    tray_icon = factory().create_indicator(title='Testing SNI Interface')
+    tray_icon = factory().create_indicator()
     tray_icon.setToolTip('A test tooltip')
+    tray_icon.setIcon(QIcon(I('debug.png')))
     m = QMenu()
     m.addAction('Quit this application', app.quit)
     tray_icon.setContextMenu(m)
