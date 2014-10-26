@@ -19,16 +19,20 @@ def log(*args, **kw):
     print('StatusNotifier:', *args, **kw)
     kw['file'].flush()
 
-def qicon_to_dbus_image_list(qicon):
+def qicon_to_sni_image_list(qicon):
+    'See http://www.notmart.org/misc/statusnotifieritem/icons.html'
     ans = dbus.Array(signature='(iiay)')
     if not qicon.isNull():
         sizes = qicon.availableSizes() or (QSize(x, x) for x in (32, 64, 128, 256))
-        tc = b'L' if array.array(b'I') < 4 else b'I'
+        tc = b'L' if array.array(b'I').itemsize < 4 else b'I'
         for size in sizes:
+            # Convert to DBUS struct of width, height, and image data in ARGB32
+            # in network endianness
             i = qicon.pixmap(size).toImage().convertToFormat(QImage.Format_ARGB32)
             w, h = i.width(), i.height()
             data = i.constBits().asstring(4 * w * h)
             if socket.htonl(1) != 1:
+                # Host endianness != Network Endiannes
                 data = array.array(tc, i.constBits().asstring(4 * i.width() * i.height()))
                 data.byteswap()
                 data = data.tostring()
@@ -36,6 +40,8 @@ def qicon_to_dbus_image_list(qicon):
     return ans
 
 class Factory(QObject):
+
+    'See http://www.notmart.org/misc/statusnotifieritem/statusnotifierwatcher.html'
 
     SERVICE = "org.kde.StatusNotifierWatcher"
     PATH    = "/StatusNotifierWatcher"
@@ -181,6 +187,8 @@ class StatusNotifierItem(QObject):
 
 class StatusNotifierItemAPI(Object):
 
+    'See http://www.notmart.org/misc/statusnotifieritem/statusnotifieritem.html'
+
     IFACE = 'org.kde.StatusNotifierItem'
 
     def __init__(self, notifier, **kw):
@@ -193,7 +201,7 @@ class StatusNotifierItemAPI(Object):
         self.app_id = kw.get('app_id', QApplication.instance().applicationName()) or 'unknown_application'
         self.category = kw.get('category', 'ApplicationStatus')
         self.title = kw.get('title', self.app_id)
-        self.icon_serialization = qicon_to_dbus_image_list(notifier.icon())
+        self.icon_serialization = qicon_to_sni_image_list(notifier.icon())
         Object.__init__(self, bus, '/' + self.IFACE.split('.')[-1])
         for name, val in vars(self.__class__).iteritems():
             if getattr(val, '_dbus_is_signal', False):
@@ -273,7 +281,7 @@ class StatusNotifierItemAPI(Object):
 
     @dbus_signal(IFACE, '')
     def NewIcon(self):
-        self.icon_serialization = qicon_to_dbus_image_list(self.notifier.icon())
+        self.icon_serialization = qicon_to_sni_image_list(self.notifier.icon())
 
     @dbus_signal(IFACE, '')
     def NewAttentionIcon(self):
