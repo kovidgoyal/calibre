@@ -131,13 +131,41 @@ void QProgressIndicator::paintEvent(QPaintEvent * /*event*/)
     }
 }
 
+static inline QByteArray detectDesktopEnvironment()
+{
+    const QByteArray xdgCurrentDesktop = qgetenv("XDG_CURRENT_DESKTOP");
+    if (!xdgCurrentDesktop.isEmpty())
+        return xdgCurrentDesktop.toUpper(); // KDE, GNOME, UNITY, LXDE, MATE, XFCE...
+
+    // Classic fallbacks
+    if (!qEnvironmentVariableIsEmpty("KDE_FULL_SESSION"))
+        return QByteArrayLiteral("KDE");
+    if (!qEnvironmentVariableIsEmpty("GNOME_DESKTOP_SESSION_ID"))
+        return QByteArrayLiteral("GNOME");
+
+    // Fallback to checking $DESKTOP_SESSION (unreliable)
+    const QByteArray desktopSession = qgetenv("DESKTOP_SESSION");
+    if (desktopSession == "gnome")
+        return QByteArrayLiteral("GNOME");
+    if (desktopSession == "xfce")
+        return QByteArrayLiteral("XFCE");
+
+    return QByteArrayLiteral("UNKNOWN");
+}
+
 class CalibreStyle: public QProxyStyle {
     private:
         QHash<int, QString> icon_map;
+        QByteArray desktop_environment;
+        QDialogButtonBox::ButtonLayout button_layout;
 
     public:
         CalibreStyle(QStyle *base, QHash<int, QString> icmap) : QProxyStyle(base), icon_map(icmap) {
             setObjectName(QString("calibre"));
+            desktop_environment = detectDesktopEnvironment(); 
+            button_layout = (QDialogButtonBox::ButtonLayout)QProxyStyle::styleHint(SH_DialogButtonLayout);
+            if (desktop_environment == QString::fromLatin1("GNOME") || desktop_environment == QString::fromLatin1("MATE") || desktop_environment == QString::fromLatin1("UNITY"))
+                button_layout = QDialogButtonBox::GnomeLayout;
         }
 
         int styleHint(StyleHint hint, const QStyleOption *option = 0,
@@ -152,7 +180,7 @@ class CalibreStyle: public QProxyStyle {
 #elif defined(Q_OS_MAC)
                     return QDialogButtonBox::MacLayout;
 #endif
-                    break;
+                    return button_layout;
                 case SH_FormLayoutFieldGrowthPolicy:
                     return QFormLayout::FieldsStayAtSizeHint;  // Do not have fields expand to fill all available space in QFormLayout
                 default:
