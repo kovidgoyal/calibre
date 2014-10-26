@@ -164,7 +164,7 @@ class CalibreStyle: public QProxyStyle {
             setObjectName(QString("calibre"));
             desktop_environment = detectDesktopEnvironment(); 
             button_layout = static_cast<QDialogButtonBox::ButtonLayout>(QProxyStyle::styleHint(SH_DialogButtonLayout));
-            if (QLatin1String("GNOME") == desktop_environment || QLatin1String("MATE") == desktop_environment || QLatin1String("UNITY") == desktop_environment)
+            if (QLatin1String("GNOME") == desktop_environment || QLatin1String("MATE") == desktop_environment || QLatin1String("UNITY") == desktop_environment || QLatin1String("CINNAMON") == desktop_environment)
                 button_layout = QDialogButtonBox::GnomeLayout;
         }
 
