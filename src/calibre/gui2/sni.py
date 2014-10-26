@@ -10,7 +10,7 @@ import os, sys
 
 import dbus
 from PyQt5.Qt import (
-    QApplication, QObject, pyqtSignal, Qt, QPoint)
+    QApplication, QObject, pyqtSignal, Qt, QPoint, QRect, QMenu)
 
 from calibre.utils.dbus_service import Object, method as dbus_method, BusName, dbus_property, signal as dbus_signal
 
@@ -93,6 +93,7 @@ class Factory(QObject):
         self.items.append(item)
         item.destroyed.connect(self.items.remove)
         self.register(item)
+        return item
 
     def register(self, item):
         self.bus.call_blocking(
@@ -112,7 +113,9 @@ class StatusNotifierItem(QObject):
 
     def __init__(self, num, **kw):
         QObject.__init__(self, parent=kw.get('parent'))
+        self.context_menu = None
         self.is_visible = True
+        self.tool_tip = ''
         self.show_menu.connect(self._show_menu, type=Qt.QueuedConnection)
         kw['num'] = num
         self.dbus = StatusNotifierItemAPI(self, **kw)
@@ -136,6 +139,22 @@ class StatusNotifierItem(QObject):
     def hide(self):
         self.setVisible(False)
 
+    def contextMenu(self):
+        return self.context_menu
+
+    def setContextMenu(self, menu):
+        self.context_menu = menu
+
+    def geometry(self):
+        return QRect()
+
+    def toolTip(self):
+        return self.tool_tip
+
+    def setToolTip(self, val):
+        self.tool_tip = val or ''
+        self.NewToolTip.emit()
+
 class StatusNotifierItemAPI(Object):
 
     IFACE = 'org.kde.StatusNotifierItem'
@@ -157,7 +176,7 @@ class StatusNotifierItemAPI(Object):
 
     @dbus_property(IFACE, signature='s')
     def IconName(self):
-        return 'klipper'
+        return 'calibre-gui'
 
     @dbus_property(IFACE, signature='s')
     def IconThemePath(self):
@@ -170,6 +189,10 @@ class StatusNotifierItemAPI(Object):
     @dbus_property(IFACE, signature='s')
     def OverlayIconName(self):
         return ''
+
+    @dbus_property(IFACE, signature='(sa(iiay)ss)')
+    def ToolTip(self):
+        return self.IconName, self.IconPixmap, self.Title, self.notifier.toolTip()
 
     @dbus_property(IFACE, signature='a(iiay)')
     def OverlayIconPixmap(self):
@@ -258,7 +281,11 @@ def test():
     threads_init()
     app = QApplication([])
     signal.signal(signal.SIGINT, signal.SIG_DFL)  # quit on Ctrl-C
-    factory().create_indicator(title='Testing SNI Interface')
+    tray_icon = factory().create_indicator(title='Testing SNI Interface')
+    tray_icon.setToolTip('A test tooltip')
+    m = QMenu()
+    m.addAction('Quit this application', app.quit)
+    tray_icon.setContextMenu(m)
     app.exec_()
 
 if __name__ == '__main__':
