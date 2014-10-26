@@ -276,7 +276,7 @@ class BasicNewsRecipe(Recipe):
     #:         lambda match: '</body>'),
     #:     ]
     #:
-    #: will remove everythong from `<!--Article ends here-->` to `</body>`.
+    #: will remove everything from `<!--Article ends here-->` to `</body>`.
     preprocess_regexps    = []
 
     #: The CSS that is used to style the templates, i.e., the navigation bars and
