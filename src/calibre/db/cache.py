@@ -1914,10 +1914,10 @@ class Cache(object):
         ans = {}
 
         for book_id in book_ids:
+            proxy_metadata = pmm.get(book_id) or self._get_proxy_metadata(book_id)
             user_cat_vals = ans[book_id] = {}
             for ucat, categories in user_cats.iteritems():
                 user_cat_vals[ucat] = res = []
-                proxy_metadata = pmm.get(book_id) or self._get_proxy_metadata(book_id)
                 for name, cat, ign in categories:
                     try:
                         field_obj = self.fields[cat]
