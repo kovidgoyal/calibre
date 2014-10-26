@@ -135,7 +135,8 @@ static inline QByteArray detectDesktopEnvironment()
 {
     const QByteArray xdgCurrentDesktop = qgetenv("XDG_CURRENT_DESKTOP");
     if (!xdgCurrentDesktop.isEmpty())
-        return xdgCurrentDesktop.toUpper(); // KDE, GNOME, UNITY, LXDE, MATE, XFCE...
+        // See http://standards.freedesktop.org/menu-spec/latest/apb.html
+        return xdgCurrentDesktop.toUpper(); 
 
     // Classic fallbacks
     if (!qEnvironmentVariableIsEmpty("KDE_FULL_SESSION"))
