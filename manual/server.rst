@@ -27,7 +27,7 @@ Now suppose you are using Apache as your main server. First enable the proxy mod
     LoadModule proxy_module modules/mod_proxy.so
     LoadModule proxy_http_module modules/mod_proxy_http.so
 
-The exact technique for enabling the proxy modules will vary depending on your Apache installation. Once you have the proxy modules enabled, add the following rules to httpd.conf (or if you are using virtual hosts to the conf file for the virtual host in question::
+The exact technique for enabling the proxy modules will vary depending on your Apache installation. Once you have the proxy modules enabled, add the following rules to httpd.conf (or if you are using virtual hosts to the conf file for the virtual host in question)::
 
     RewriteEngine on
     RewriteRule ^/calibre/(.*) http://localhost:8080/calibre/$1 [proxy]
