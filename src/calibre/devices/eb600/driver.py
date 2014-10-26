@@ -55,7 +55,7 @@ class TOLINO(EB600):
     gui_name = 'Tolino Shine'
     description    = _('Communicate with the Tolino Shine and Vision readers')
     FORMATS = ['epub', 'pdf', 'txt']
-    PRODUCT_ID  = EB600.PRODUCT_ID + [0x6033]
+    PRODUCT_ID  = EB600.PRODUCT_ID + [0x6033, 0x6053]
     BCD         = [0x226, 0x9999]
     VENDOR_NAME      = ['DEUTSCHE', 'LINUX']
     WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = ['_TELEKOMTOLINO', 'FILE-CD_GADGET']
@@ -99,7 +99,7 @@ class TOLINO(EB600):
     def post_open_callback(self):
         # The Tolino Vision only handles books inside the Books folder
         product_id, bcd = self.device_being_opened[1], self.device_being_opened[2]
-        is_tolino = product_id == 0x6033 or (product_id == 0x1688 and bcd == 0x226)
+        is_tolino = product_id in (0x6033, 0x6053) or (product_id == 0x1688 and bcd == 0x226)
         self.ebook_dir_for_upload = 'Books' if is_tolino else ''
 
     def get_main_ebook_dir(self, for_upload=False):
