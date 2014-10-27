@@ -350,7 +350,7 @@ class Cache(object):
         '''
         Return the value of the field ``name`` for the book identified
         by ``book_id``. If no such book exists or it has no defined
-        value for the field ``name` or no such field exists, then
+        value for the field ``name`` or no such field exists, then
         ``default_value`` is returned.
 
         ``default_value`` is not used for title, title_sort, authors, author_sort
