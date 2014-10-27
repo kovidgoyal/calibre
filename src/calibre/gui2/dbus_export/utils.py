@@ -38,3 +38,10 @@ def qicon_to_sni_image_list(qicon):
             ans.append((w, h, dbus.ByteArray(data)))
     return ans
 
+def setup_for_cli_run():
+    import signal
+    from dbus.mainloop.glib import DBusGMainLoop, threads_init
+    DBusGMainLoop(set_as_default=True)
+    threads_init()
+    signal.signal(signal.SIGINT, signal.SIG_DFL)  # quit on Ctrl-C
+

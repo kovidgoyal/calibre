@@ -19,7 +19,7 @@ from PyQt5.Qt import (
     QApplication, QObject, pyqtSignal, Qt, QPoint, QRect, QMenu, QIcon)
 
 from calibre.gui2.dbus_export.menu import DBusMenu
-from calibre.gui2.dbus_export.utils import log, qicon_to_sni_image_list
+from calibre.gui2.dbus_export.utils import log, qicon_to_sni_image_list, setup_for_cli_run
 from calibre.utils.dbus_service import Object, method as dbus_method, BusName, dbus_property, signal as dbus_signal
 
 class Factory(QObject):
@@ -187,13 +187,21 @@ class StatusNotifierItemAPI(Object):
         self.title = kw.get('title', self.app_id)
         self.icon_serialization = qicon_to_sni_image_list(notifier.icon())
         Object.__init__(self, bus, '/' + self.IFACE.split('.')[-1])
-        self.dbus_menu = DBusMenu(notifier,  '/StatusItemMenu', **kw)
+        self.dbus_menu = DBusMenu('/StatusItemMenu', **kw)
         for name, val in vars(self.__class__).iteritems():
             if getattr(val, '_dbus_is_signal', False):
                 getattr(notifier, name).connect(getattr(self, name))
 
     def publish_new_menu(self):
-        self.dbus_menu.publish_new_menu()
+        menu = self.notifier.contextMenu()
+        if menu is None:
+            menu = QMenu()
+        if len(menu.actions()) == 0:
+            menu.addAction(self.notifier.icon(), _('Show/hide %s') % self.title, self.notifier.activated.emit)
+        # The menu must have at least one entry, namely the show/hide entry.
+        # This is necessary as Canonical in their infinite wisdom decided to
+        # force all tray icons to show their popup menus when clicked.
+        self.dbus_menu.publish_new_menu(menu)
 
     @dbus_property(IFACE, signature='s')
     def IconName(self):
@@ -305,13 +313,9 @@ def factory():
     return _factory
 
 def test():
-    import signal
-    from dbus.mainloop.glib import DBusGMainLoop, threads_init
-    DBusGMainLoop(set_as_default=True)
-    threads_init()
+    setup_for_cli_run()
     app = QApplication([])
     app.setApplicationName('Testing SNI Interface')
-    signal.signal(signal.SIGINT, signal.SIG_DFL)  # quit on Ctrl-C
     tray_icon = factory().create_indicator()
     tray_icon.setToolTip('A test tooltip')
     tray_icon.setIcon(QIcon(I('debug.png')))
