@@ -255,8 +255,8 @@ class ProceedQuestion(QWidget):
             button = self.action_button if question.focus_action and question.action_callback is not None else \
                 (self.bb.button(self.bb.Ok) if question.show_ok else self.bb.button(self.bb.Yes))
             button.setDefault(True)
-        self.raise_()
-        self.start_show_animation()
+            self.raise_()
+            self.start_show_animation()
 
     def start_show_animation(self):
         if self.rendered_pixmap is not None:
