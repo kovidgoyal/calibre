@@ -206,7 +206,7 @@ class ProceedQuestion(QWidget):
         self.do_resize()
 
     def do_resize(self):
-        sz = self.sizeHint() + QSize(100, 0)
+        sz = self.sizeHint()
         sz.setWidth(min(self.parent().width(), sz.width()))
         sb = self.parent().statusBar().height() + 10
         sz.setHeight(min(self.parent().height() - sb, sz.height()))
@@ -223,12 +223,13 @@ class ProceedQuestion(QWidget):
             self.title_label.setText(question.title)
             self.log_button.setVisible(bool(question.html_log))
             self.copy_button.setText(_('&Copy to clipboard'))
-            self.copy_button.setVisible(bool(question.show_copy_button))
-            self.action_button.setVisible(question.action_callback is not None)
             if question.action_callback is not None:
                 self.action_button.setText(question.action_label or '')
                 self.action_button.setIcon(
                     QIcon() if question.action_icon is None else question.action_icon)
+            # Force the button box to relayout its buttons, as button text
+            # might have changed
+            self.bb.setOrientation(Qt.Vertical), self.bb.setOrientation(Qt.Horizontal)
             self.det_msg.setPlainText(question.det_msg or '')
             self.det_msg.setVisible(False)
             self.det_msg_toggle.setVisible(bool(question.det_msg))
@@ -240,6 +241,8 @@ class ProceedQuestion(QWidget):
             self.bb.button(self.bb.Ok).setVisible(question.show_ok)
             self.bb.button(self.bb.Yes).setVisible(not question.show_ok)
             self.bb.button(self.bb.No).setVisible(not question.show_ok)
+            self.copy_button.setVisible(bool(question.show_copy_button))
+            self.action_button.setVisible(question.action_callback is not None)
             self.toggle_det_msg() if question.show_det else self.do_resize()
             self.show_widget()
             button = self.action_button if question.focus_action and question.action_callback is not None else \
@@ -285,12 +288,12 @@ class ProceedQuestion(QWidget):
         self.show()
         self.position_widget()
 
-    def dummy_question(self):
+    def dummy_question(self, action_label=None):
         self(lambda *args:args, (), 'dummy log', 'Log Viewer', 'A Dummy Popup',
              'This is a dummy popup to easily test things, with a long line of text that should wrap. '
              'This is a dummy popup to easily test things, with a long line of text that should wrap',
              checkbox_msg='A dummy checkbox',
-             action_callback=lambda *args: args, action_label='An action')
+             action_callback=lambda *args: args, action_label=action_label or 'An action')
 
     def __call__(self, callback, payload, html_log, log_viewer_title, title,
             msg, det_msg='', show_copy_button=False, cancel_callback=None,
@@ -390,8 +393,11 @@ def main():
     p = ProceedQuestion(w)
     def doit():
         p.dummy_question()
-        p(lambda p:None, None, 'ass2', 'ass2', 'testing2', 'testing2',
-                det_msg='details shown first', show_det=True, show_ok=True)
+        p.dummy_question(action_label='A very long button for testing relayout (indeed)')
+        p(
+            lambda p:None, None, 'ass2', 'ass2', 'testing2', 'testing2',
+            det_msg='details shown first, with a long line to test wrapping of text and width layout',
+            show_det=True, show_ok=True)
     QTimer.singleShot(10, doit)
     app.exec_()
 
