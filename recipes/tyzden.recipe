@@ -1,57 +1,76 @@
-#!/usr/bin/env  python
+#!/usr/bin/env python
+# vim:fileencoding=utf-8
+#
+# Copyright 2014 Martin Račák <martin.racak@riseup.net>
+# Copyright 2011 Miroslav Vasko <zemiak@gmail.com>
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 __license__   = 'GPL v3'
-__copyright__ = '2011, Miroslav Vasko zemiak@gmail.com'
+__copyright__ = '2014 Martin Račák <martin.racak@riseup.net>, 2011 Miroslav Vasko <zemiak@gmail.com>'
 
 '''
-.tyzden, a weekly news magazine (a week old issue)
+.týždeň - iný pohľad na spoločnosť
 '''
+
+import re
 from calibre import strftime
 from calibre.web.feeds.news import BasicNewsRecipe
 from datetime import date
-import re
 
-class TyzdenRecipe(BasicNewsRecipe):
-    __license__  = 'GPL v3'
-    __author__ = 'zemiak'
-    language = 'sk'
-    version = 1
+class Tyzden(BasicNewsRecipe):
+    title                = u'týždeň'
+    __author__           = u'Martin Račák, zemiak'
+    description          = 'A conservative weekly magazine.'
+    publisher            = 'www.tyzden.sk'
+    publication_type     = 'magazine'
+    language             = 'sk'
+    needs_subscription   = 'optional'
+    use_embedded_content = False
+    no_stylesheets       = True
 
-    publisher = u'www.tyzden.sk'
-    category = u'Magazine'
-    description = u'A conservative weekly magazine. The latest free issue'
+    def get_browser(self):
+        br = BasicNewsRecipe.get_browser(self)
+        if self.username is not None and self.password is not None:
+            br.open('http://www.tyzden.sk/prihlasenie.html')
+            br.select_form(nr=1)
+            br['user'] = self.username
+            br['pass'] = self.password
+            br.submit()
+        return br
 
-    today = date.today()
-    iso = today.isocalendar()
-    year = iso[0]
+    today   = date.today()
+    iso     = today.isocalendar()
+    year    = iso[0]
     weeknum = iso[1]
-
-    if (weeknum > 1):
-        weeknum -= 1
-
-    title = u'tyzden'
 
     base_url_path = 'http://www.tyzden.sk/casopis/' + str(year) + '/' + str(weeknum)
     base_url = base_url_path + '.html'
 
-    oldest_article = 20
-    max_articles_per_feed = 100
-    remove_javascript = True
-
-    use_embedded_content    = False
-    no_stylesheets = True
-
     keep_only_tags = []
-    keep_only_tags.append(dict(name = 'h1'))
-    keep_only_tags.append(dict(name = 'div', attrs = {'class': 'text_area top_nofoto'}))
-    keep_only_tags.append(dict(name = 'div', attrs = {'class': 'text_block'}))
+    keep_only_tags.append(dict(name='div', attrs={'class': 'text_area top_nofoto'}))
+    keep_only_tags.append(dict(name='div', attrs={'class': 'text_block'}))
 
-    remove_tags_after = [dict(name = 'div', attrs = {'class': 'text_block'})]
+    remove_tags_after = [dict(name='div', attrs={'class': 'text_block'})]
+
+    extra_css = '.top_nofoto h1 { text-align: left; font-size: 1.7em; }'
 
     def find_sections(self):
         soup = self.index_to_soup(self.base_url)
         # find cover pic
-	imgdiv = soup.find('div', attrs = {'class': 'foto'})
-	if imgdiv is not None:
+        imgdiv = soup.find('div', attrs={'class': 'foto'})
+        if imgdiv is not None:
             img = imgdiv.find('img')
             if img is not None:
                 self.cover_url = 'http://www.tyzden.sk/' + img['src']
@@ -62,14 +81,14 @@ class TyzdenRecipe(BasicNewsRecipe):
 
     def find_articles(self, soup):
         for art in soup.findAllNext('a'):
-            if (not art['href'].startswith('casopis/')):
-                break;
+            if (not art['href'].startswith('casopis/' + str(self.year) + '/' + str(self.weeknum) + '/')):
+                break
 
             url = art['href']
             title = self.tag_to_string(art)
             yield {
-                    'title': title, 'url':self.base_url_path + '/' + url, 'description':title,
-                    'date' : strftime('%a, %d %b'),
+                    'title': title, 'url':self.base_url_path + '/' + url,
+                    'date' : strftime(' %a, %d %b'),
                     }
 
     def parse_index(self):
