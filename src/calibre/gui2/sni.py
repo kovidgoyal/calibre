@@ -167,6 +167,7 @@ class StatusNotifierItem(QObject):
 
     def setContextMenu(self, menu):
         self.context_menu = menu
+        self.dbus.publish_new_menu()
 
     def geometry(self):
         return QRect()
@@ -185,6 +186,20 @@ class StatusNotifierItem(QObject):
     def icon(self):
         return self._icon
 
+class DBusMenu(Object):
+
+    IFACE = 'com.canonical.dbusmenu'
+
+    def __init__(self, notifier, object_path, **kw):
+        self.notifier = notifier
+        bus = kw.get('bus')
+        if bus is None:
+            bus = kw['bus'] = dbus.SessionBus()
+        Object.__init__(self, bus, object_path)
+
+    def publish_new_menu(self):
+        pass
+
 class StatusNotifierItemAPI(Object):
 
     'See http://www.notmart.org/misc/statusnotifieritem/statusnotifieritem.html'
@@ -195,7 +210,7 @@ class StatusNotifierItemAPI(Object):
         self.notifier = notifier
         bus = kw.get('bus')
         if bus is None:
-            bus = dbus.SessionBus()
+            bus = kw['bus'] = dbus.SessionBus()
         self.name = '%s-%s-%s' % (self.IFACE, os.getpid(), kw.get('num', 1))
         self.dbus_name = BusName(self.name, bus=bus, do_not_queue=True)
         self.app_id = kw.get('app_id', QApplication.instance().applicationName()) or 'unknown_application'
@@ -203,9 +218,13 @@ class StatusNotifierItemAPI(Object):
         self.title = kw.get('title', self.app_id)
         self.icon_serialization = qicon_to_sni_image_list(notifier.icon())
         Object.__init__(self, bus, '/' + self.IFACE.split('.')[-1])
+        self.dbus_menu = DBusMenu(notifier,  '/StatusItemMenu', **kw)
         for name, val in vars(self.__class__).iteritems():
             if getattr(val, '_dbus_is_signal', False):
                 getattr(notifier, name).connect(getattr(self, name))
+
+    def publish_new_menu(self):
+        self.dbus_menu.publish_new_menu()
 
     @dbus_property(IFACE, signature='s')
     def IconName(self):
@@ -255,6 +274,10 @@ class StatusNotifierItemAPI(Object):
     def Status(self):
         return 'Active' if self.notifier.isVisible() else 'Passive'
 
+    @dbus_property(IFACE, signature='o')
+    def Menu(self):
+        return dbus.ObjectPath(self.dbus_menu._object_path)
+
     @dbus_property(IFACE, signature='i')
     def WindowId(self):
         return 0
@@ -265,6 +288,11 @@ class StatusNotifierItemAPI(Object):
 
     @dbus_method(IFACE, in_signature='ii', out_signature='')
     def Activate(self, x, y):
+        self.notifier.activated.emit()
+
+    @dbus_method(IFACE, in_signature='u', out_signature='')
+    def XAyatanaSecondaryActivate(self, timestamp):
+        # This is called when the user middle clicks the icon in Unity
         self.notifier.activated.emit()
 
     @dbus_method(IFACE, in_signature='ii', out_signature='')
