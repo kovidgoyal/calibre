@@ -11,7 +11,7 @@ from collections import namedtuple
 
 from PyQt5.Qt import (
     QWidget, Qt, QLabel, QVBoxLayout, QPixmap, QDialogButtonBox, QApplication, QTimer,
-    QSize, pyqtSignal, QIcon, QPlainTextEdit, QCheckBox, QPainter, QHBoxLayout,
+    QSize, pyqtSignal, QIcon, QPlainTextEdit, QCheckBox, QPainter, QHBoxLayout, QFontMetrics,
     QPainterPath, QRectF, pyqtProperty, QPropertyAnimation, QEasingCurve, QSizePolicy)
 
 from calibre.constants import __version__
@@ -69,6 +69,13 @@ class Icon(QWidget):
         p.drawPixmap(self.rect(), self.icon)
         p.end()
 
+class PlainTextEdit(QPlainTextEdit):
+
+    def sizeHint(self):
+        fm = QFontMetrics(self.font())
+        ans = QPlainTextEdit.sizeHint(self)
+        ans.setWidth(fm.averageCharWidth() * 50)
+        return ans
 
 class ProceedQuestion(QWidget):
 
@@ -117,7 +124,7 @@ class ProceedQuestion(QWidget):
         self.det_msg_toggle.clicked.connect(self.toggle_det_msg)
         self.det_msg_toggle.setToolTip(
                 _('Show detailed information about this error'))
-        self.det_msg = QPlainTextEdit(self)
+        self.det_msg = PlainTextEdit(self)
         self.det_msg.setReadOnly(True)
         self.bb.setStandardButtons(self.bb.Yes|self.bb.No|self.bb.Ok)
         self.bb.button(self.bb.Yes).setDefault(True)
