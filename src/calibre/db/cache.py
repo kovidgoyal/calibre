@@ -1662,7 +1662,7 @@ class Cache(object):
     def tags_older_than(self, tag, delta=None, must_have_tag=None, must_have_authors=None):
         '''
         Return the ids of all books having the tag ``tag`` that are older than
-        than the specified time. tag comparison is case insensitive.
+        the specified time. tag comparison is case insensitive.
 
         :param delta: A timedelta object or None. If None, then all ids with
             the tag are returned.
