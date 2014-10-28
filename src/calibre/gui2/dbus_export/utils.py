@@ -6,11 +6,11 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import sys, array, socket
+import sys, array, socket, re
 
 import dbus
 
-from PyQt5.Qt import QSize, QImage
+from PyQt5.Qt import QSize, QImage, Qt, QKeySequence, QBuffer, QByteArray
 
 def log(*args, **kw):
     kw['file'] = sys.stderr
@@ -37,6 +37,41 @@ def qicon_to_sni_image_list(qicon):
                 data = data.tostring()
             ans.append((w, h, dbus.ByteArray(data)))
     return ans
+
+def swap_mnemonic_char(text, from_char='&', to_char='_'):
+    text = text.replace(to_char, to_char * 2)  # Escape to_char
+    # Replace the first occurence of an unescaped from_char with to_char
+    text = re.sub(r'(?<!{0}){0}(?!$)'.format(from_char), to_char, text, count=1)
+    # Remove any remaining unescaped from_char
+    text = re.sub(r'(?<!{0}){0}(?!$)'.format(from_char), '', text)
+    # Unescape from_char
+    text = text.replace(from_char * 2, from_char)
+    return text
+
+def key_sequence_to_dbus_shortcut(qks):
+    for key in qks:
+        if key == -1 or key == Qt.Key_unknown:
+            continue
+        items = []
+        for mod, name in {Qt.META:'Super', Qt.CTRL:'Control', Qt.ALT:'Alt', Qt.SHIFT:'Shift'}.iteritems():
+            if key & mod == mod:
+                items.append(name)
+        key &= int(~(Qt.ShiftModifier | Qt.ControlModifier | Qt.AltModifier | Qt.MetaModifier | Qt.KeypadModifier))
+        text = QKeySequence(key).toString()
+        if text:
+            text = {'+':'plus', '-':'minus'}.get(text, text)
+            items.append(text)
+        if items:
+            yield items
+
+def icon_to_dbus_menu_icon(icon, size=32):
+    if icon.isNull():
+        return None
+    ba = QByteArray()
+    buf = QBuffer(ba)
+    buf.open(QBuffer.WriteOnly)
+    icon.pixmap(32).save(buf, 'PNG')
+    return dbus.ByteArray(bytes((ba.data())))
 
 def setup_for_cli_run():
     import signal

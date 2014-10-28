@@ -10,24 +10,230 @@ __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 # dbus-menu.xml from the libdbusmenu project https://launchpad.net/libdbusmenu
 
 import dbus
-from PyQt5.Qt import QApplication, QMenu, QIcon, QKeySequence
+from PyQt5.Qt import (
+    QApplication, QMenu, QIcon, QKeySequence, QObject, QAction, QMenuBar,
+    QEvent, QTimer)
 
 from calibre.utils.dbus_service import Object, BusName, method as dbus_method, dbus_property, signal as dbus_signal
-from calibre.gui2.dbus_export.utils import setup_for_cli_run
+from calibre.gui2.dbus_export.utils import (
+    setup_for_cli_run, swap_mnemonic_char, key_sequence_to_dbus_shortcut, icon_to_dbus_menu_icon)
 
-class DBusMenu(Object):
+null = object()
+
+def PropDict(mapping=()):
+    return dbus.Dictionary(mapping, signature='sv')
+
+class MenuBarAction(QAction):
+
+    def __init__(self, mb):
+        QAction.__init__(self, mb)
+
+    def menu(self):
+        return self.parent()
+
+def create_properties_for_action(ac, previous=None):
+    ans = PropDict()
+    if ac.isSeparator():
+        ans['type'] = 'separator'
+        if not ac.isVisible():
+            ans['visible'] = False
+        return ans
+    text = ac.text() or ac.iconText()
+    if text:
+        ans['label'] = swap_mnemonic_char(text)
+    if not ac.isEnabled():
+        ans['enabled'] = False
+    if not ac.isVisible():
+        ans['visible'] = False
+    if ac.menu() is not None:
+        ans['children-display'] = 'submenu'
+    if ac.isCheckable():
+        exclusive = ac.actionGroup() is not None and ac.actionGroup().isExclusive()
+        ans['toggle-type'] = 'radio' if exclusive else 'checkmark'
+        ans['toggle-state'] = int(ac.isChecked())
+    shortcuts = ac.shortcuts()
+    if shortcuts:
+        ans['shortcut'] = sc = []
+        for s in shortcuts:
+            sc.extend(key_sequence_to_dbus_shortcut(s))
+    if ac.isIconVisibleInMenu():
+        icon = ac.icon()
+        if previous and previous.get('x-qt-icon-cache-key') == icon.cacheKey():
+            for x in 'icon-data x-qt-icon-cache-key'.split():
+                ans[x] = previous[x]
+        else:
+            data = icon_to_dbus_menu_icon(ac.icon())
+            if data is not None:
+                ans['icon-data'] = data
+                ans['x-qt-icon-cache-key'] = icon.cacheKey()
+    return ans
+
+
+class DBusMenu(QObject):
+
+    def __init__(self, object_path, **kw):
+        QObject.__init__(self, kw.get('parent'))
+        self.dbus_api = DBusMenuAPI(self, object_path, **kw)
+        self.set_status = self.dbus_api.set_status
+        self._next_id = 0
+        self.action_changed_timer = t = QTimer(self)
+        t.setInterval(0), t.setSingleShot(True), t.timeout.connect(self.actions_changed)
+        self.layout_changed_timer = t = QTimer(self)
+        t.setInterval(0), t.setSingleShot(True), t.timeout.connect(self.layouts_changed)
+        self.init_maps()
+
+    def init_maps(self, qmenu=None):
+        self.action_changes = set()
+        self.layout_changes = set()
+        self.qmenu = qmenu
+        self._id_to_action, self._action_to_id = {}, {}
+        self._action_properties = {}
+
+    @property
+    def next_id(self):
+        self._next_id += 1
+        return self._next_id
+
+    def id_to_action(self, action_id):
+        if self.qmenu is None:
+            return None
+        return self._id_to_action.get(action_id)
+
+    def action_to_id(self, action):
+        if self.qmenu is None:
+            return None
+        return self._action_to_id.get(action)
+
+    def action_properties(self, action_id, restrict_to=None):
+        if self.qmenu is None:
+            return {}
+        ans = self._action_properties.get(action_id, PropDict())
+        if restrict_to:
+            ans = PropDict({k:v for k, v in ans.iteritems() if k in restrict_to})
+        return ans
+
+    def publish_new_menu(self, qmenu=None):
+        self.init_maps(qmenu)
+        if qmenu is not None:
+            qmenu.destroyed.connect(self.publish_new_menu)
+            ac = MenuBarAction(qmenu) if isinstance(qmenu, QMenuBar) else qmenu.menuAction()
+            if isinstance(qmenu, QMenuBar):
+                qmenu.menuAction = lambda : ac
+            self.add_action(ac)
+
+    def add_action(self, ac):
+        ac_id = 0 if ac.menu() is self.qmenu else self.next_id
+        self._id_to_action[ac_id] = ac
+        self._action_to_id[ac] = ac_id
+        self._action_properties[ac_id] = create_properties_for_action(ac)
+        if ac.menu() is not None:
+            self.add_menu(ac.menu())
+
+    def add_menu(self, menu):
+        menu.installEventFilter(self)
+        for ac in menu.actions():
+            self.add_action(ac)
+
+    def eventFilter(self, obj, ev):
+        ac = getattr(obj, 'menuAction', lambda : None)()
+        ac_id = self.action_to_id(ac)
+        if ac_id is not None:
+            etype = ev.type()
+            if etype == QEvent.ActionChanged:
+                ac_id = self.action_to_id(ev.action())
+                self.action_changes.add(ac_id)
+                self.action_changed_timer.start()
+            elif etype == QEvent.ActionAdded:
+                self.layout_changes.add(ac_id)
+                self.layout_changed_timer.start()
+                self.add_action(ev.action())
+            elif etype == QEvent.ActionRemoved:
+                self.layout_changes.add(ac_id)
+                self.layout_changed_timer.start()
+                self.action_removed(ev.action())
+        return False
+
+    def actions_changed(self):
+        updated_props = dbus.Array(signature='(ia{sv})')
+        removed_props = dbus.Array(signature='(ias)')
+        for ac_id in self.action_changes:
+            ac = self.id_to_action(ac_id)
+            if ac is None:
+                continue
+            old_props = self.action_properties(ac_id)
+            new_props = self._action_properties[ac_id] = create_properties_for_action(ac, old_props)
+            removed = set(new_props) - set(old_props)
+            if removed:
+                removed_props.append((ac_id, dbus.Array(removed, signature='as')))
+            updated = PropDict({k:v for k, v in new_props.iteritems() if v != old_props.get(k, null)})
+            if updated:
+                updated_props.append((ac_id, updated))
+        self.action_changes = set()
+        if updated_props or removed_props:
+            self.dbus_api.ItemsPropertiesUpdated(updated_props, removed_props)
+        return updated_props, removed_props
+
+    def layouts_changed(self):
+        changes = set()
+        for ac_id in self.layout_changes:
+            if ac_id in self._id_to_action:
+                changes.add(ac_id)
+        self.layout_changes = set()
+        if changes:
+            self.dbus_api.revision += 1
+            for change in changes:
+                self.dbus_api.LayoutUpdated(self.dbus_api.revision, change)
+        return changes
+
+    def action_is_in_a_menu(self, ac):
+        all_menus = {ac.menu() for ac in self._action_to_id}
+        all_menus.discard(None)
+        return bool(set(ac.associatedWidgets()).intersection(all_menus))
+
+    def action_removed(self, ac):
+        if not self.action_is_in_a_menu(ac):
+            ac_id = self._action_to_id.pop(ac, None)
+            self._id_to_action.pop(ac_id, None)
+            self._action_properties.pop(ac_id, None)
+
+    def get_layout(self, parent_id, depth, property_names):
+        # Ensure any pending updates are done, as they are needed now
+        self.actions_changed()
+        self.layouts_changed()
+        property_names = property_names or None
+        props = self.action_properties(parent_id, property_names)
+        return parent_id, props, self.get_layout_children(parent_id, depth, property_names)
+
+    def get_layout_children(self, parent_id, depth, property_names):
+        ans = dbus.Array(signature='(ia{sv}av)')
+        ac = self.id_to_action(parent_id)
+        if ac is not None and depth != 0 and ac.menu() is not None:
+            for child in ac.menu().actions():
+                child_id = self.action_to_id(child)
+                if child_id is not None:
+                    props = self.action_properties(child_id, property_names)
+                    ans.append((child_id, props, self.get_layout_children(child_id, depth - 1, property_names)))
+        return ans
+
+    def get_properties(self, ids=None, property_names=None):
+        property_names = property_names or None
+        ans = dbus.Array(signature='(ia{sv})')
+        for action_id in (ids or self._id_to_action):
+            ans.append((action_id, self.action_properties(action_id, property_names)))
+        return ans
+
+class DBusMenuAPI(Object):
 
     IFACE = 'com.canonical.dbusmenu'
 
-    def __init__(self, object_path, **kw):
+    def __init__(self, menu, object_path, **kw):
         bus = kw.get('bus')
         if bus is None:
             bus = kw['bus'] = dbus.SessionBus()
         Object.__init__(self, bus, object_path)
         self.status = 'normal'
-
-    def publish_new_menu(self, qmenu):
-        self.qmenu = qmenu
+        self.menu = menu
+        self.revision = 0
 
     @dbus_property(IFACE, signature='u')
     def Version(self):
@@ -43,7 +249,7 @@ class DBusMenu(Object):
 
     @dbus_property(IFACE, signature='s')
     def TextDirection(self):
-        return 'ltr'
+        return 'ltr' if QApplication.instance().isLeftToRight() else 'rtl'
 
     @dbus_property(IFACE, signature='as')
     def IconThemePath(self):
@@ -51,15 +257,16 @@ class DBusMenu(Object):
 
     @dbus_method(IFACE, in_signature='iias', out_signature='u(ia{sv}av)')
     def GetLayout(self, parentId, recursionDepth, propertyNames):
-        pass
+        layout = self.menu.get_layout(parentId, recursionDepth, propertyNames)
+        return self.revision, layout
 
     @dbus_method(IFACE, in_signature='aias', out_signature='a(ia{sv})')
     def GetGroupProperties(self, ids, propertyNames):
-        pass
+        return self.menu.get_properties(ids, propertyNames)
 
     @dbus_method(IFACE, in_signature='is', out_signature='v')
     def GetProperty(self, id, name):
-        pass
+        return self.menu.action_properties(id).get(name)
 
     @dbus_method(IFACE, in_signature='isvu', out_signature='')
     def Event(self, id, eventId, data, timestamp):
