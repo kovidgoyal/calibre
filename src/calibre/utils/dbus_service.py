@@ -44,7 +44,7 @@ from dbus.exceptions import (
     DBusException, NameExistsException, UnknownMethodException)
 from dbus.lowlevel import ErrorMessage, MethodReturnMessage, MethodCallMessage
 from dbus.proxies import LOCAL_PATH
-is_py2 = True
+is_py2 = sys.version_info.major == 2
 
 class dbus_property(object):
     """A decorator used to mark properties of a `dbus.service.Object`.
