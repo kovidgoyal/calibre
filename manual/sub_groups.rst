@@ -111,4 +111,4 @@ Useful Template Functions
  
     {#genre:subitems(0,1)||/}{title} - {authors}
 
-See :ref:`The template language <templatelangcalibre>` for more information templates and the :func:`subitems` function.
+See :ref:`The template language <templatelangcalibre>` for more information about templates and the :func:`subitems` function.
