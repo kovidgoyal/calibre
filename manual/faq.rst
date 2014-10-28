@@ -380,8 +380,9 @@ detected, follow the instructions at :ref:`devsupport` to get your device
 supported in calibre.
 
 .. note:: With newer Android devices, the USB connection is not supported on
-          Windows XP. If you are on Windows XP, you should use one of the
-          wireless connection methods.
+          Windows XP and OS X before Mavericks (10.9). If you are on Windows
+          XP or old versions of OS X, you should use one of the wireless
+          connection methods.
 
 Over the air
 ^^^^^^^^^^^^^^
