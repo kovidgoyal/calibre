@@ -16,6 +16,7 @@ from PyQt5.Qt import (QAbstractTableModel, QModelIndex, Qt,
     QHBoxLayout, QVBoxLayout, QSizePolicy, QLabel, QCoreApplication, QAction,
     QByteArray, QSortFilterProxyModel)
 
+from calibre.constants import islinux, isbsd
 from calibre.utils.ipc.server import Server
 from calibre.utils.ipc.job import ParallelJob
 from calibre.gui2 import (Dispatcher, error_dialog, question_dialog,
@@ -446,6 +447,8 @@ class DetailView(QDialog, Ui_Dialog):  # {{{
 
 class JobsButton(QFrame):  # {{{
 
+    tray_tooltip_updated = pyqtSignal(object)
+
     def __init__(self, horizontal=False, size=48, parent=None):
         QFrame.__init__(self, parent)
         if horizontal:
@@ -506,6 +509,17 @@ class JobsButton(QFrame):  # {{{
         src = unicode(self._jobs.text())
         return int(re.search(r'\d+', src).group())
 
+    def tray_tooltip(self, num=0):
+        if num == 0:
+            text = _('No running jobs')
+        elif num == 1:
+            text = _('One running job')
+        else:
+            text = _('%d running jobs') % num
+        if not (islinux or isbsd):
+            text = 'calibre: ' + text
+        return text
+
     def job_added(self, nnum):
         jobs = self._jobs
         src = unicode(jobs.text())
@@ -513,6 +527,7 @@ class JobsButton(QFrame):  # {{{
         text = src.replace(str(num), str(nnum))
         jobs.setText(text)
         self.start()
+        self.tray_tooltip_updated.emit(self.tray_tooltip(nnum))
 
     def job_done(self, nnum):
         jobs = self._jobs
@@ -522,6 +537,7 @@ class JobsButton(QFrame):  # {{{
         jobs.setText(text)
         if nnum == 0:
             self.no_more_jobs()
+        self.tray_tooltip_updated.emit(self.tray_tooltip(nnum))
 
     def no_more_jobs(self):
         if self.is_running:

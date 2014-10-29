@@ -16,12 +16,12 @@ from collections import OrderedDict
 from io import BytesIO
 
 import apsw
-from PyQt5.Qt import (Qt, QTimer, QHelpEvent, QAction,
-                     QMenu, QIcon, pyqtSignal, QUrl, QFont,
-                     QDialog, QSystemTrayIcon, QApplication)
+from PyQt5.Qt import (
+    Qt, QTimer, QAction, QMenu, QIcon, pyqtSignal, QUrl, QFont, QDialog,
+    QApplication, QSystemTrayIcon)
 
 from calibre import prints, force_unicode
-from calibre.constants import __appname__, isosx, filesystem_encoding, DEBUG, islinux, isbsd
+from calibre.constants import __appname__, isosx, filesystem_encoding, DEBUG
 from calibre.utils.config import prefs, dynamic
 from calibre.utils.ipc.server import Server
 from calibre.db.legacy import LibraryDatabase
@@ -47,6 +47,7 @@ from calibre.gui2.auto_add import AutoAdder
 from calibre.gui2.proceed import ProceedQuestion
 from calibre.gui2.dialogs.message_box import JobError
 from calibre.gui2.job_indicator import Pointer
+from calibre.gui2.dbus_export.widgets import factory
 from calibre.library import current_library_name
 
 class Listener(Thread):  # {{{
@@ -77,23 +78,6 @@ class Listener(Thread):  # {{{
         except:
             import traceback
             traceback.print_exc()
-
-# }}}
-
-class SystemTrayIcon(QSystemTrayIcon):  # {{{
-
-    tooltip_requested = pyqtSignal(object)
-
-    def __init__(self, icon, parent):
-        QSystemTrayIcon.__init__(self, icon, parent)
-
-    def event(self, ev):
-        if ev.type() == ev.ToolTip:
-            evh = QHelpEvent(ev)
-            self.tooltip_requested.emit(
-                    (self, evh.globalPos()))
-            return True
-        return QSystemTrayIcon.event(self, ev)
 
 # }}}
 
@@ -270,20 +254,19 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
         self.default_thumbnail = None
         self.tb_wrapper = textwrap.TextWrapper(width=40)
         self.viewers = collections.deque()
-        self.system_tray_icon = SystemTrayIcon(QIcon(I('lt.png')), self)
-        self.system_tray_icon.setToolTip('calibre')
-        self.system_tray_icon.tooltip_requested.connect(
-                self.job_manager.show_tooltip)
-        systray_ok = config['systray_icon'] and not (islinux or isbsd)
-        # System tray icons are broken on linux, see
-        # https://bugreports.qt-project.org/browse/QTBUG-31762
-        if not systray_ok:
-            self.system_tray_icon.hide()
+        self.system_tray_icon = None
+        if config['systray_icon']:
+            self.system_tray_icon = factory(app_id='com.calibre-ebook.gui').create_system_tray_icon(parent=self, title='calibre')
+        if self.system_tray_icon is not None:
+            self.system_tray_icon.setIcon(QIcon(I('lt.png')))
+            self.system_tray_icon.setToolTip(self.jobs_button.tray_tooltip())
+            self.system_tray_icon.setVisible(True)
+            self.jobs_button.tray_tooltip_updated.connect(self.system_tray_icon.setToolTip)
         else:
-            self.system_tray_icon.show()
+            prints('Failed to create system tray icon')
         self.system_tray_menu = QMenu(self)
-        self.restore_action = self.system_tray_menu.addAction(
-                QIcon(I('page.png')), _('&Restore'))
+        self.toggle_to_tray_action = self.system_tray_menu.addAction(QIcon(I('page.png')), '')
+        self.toggle_to_tray_action.triggered.connect(self.system_tray_icon_activated)
         self.system_tray_menu.addAction(self.donate_action)
         self.donate_button.setDefaultAction(self.donate_action)
         self.donate_button.setStatusTip(self.donate_button.toolTip())
@@ -294,12 +277,11 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
         self.system_tray_menu.addAction(self.quit_action)
         self.keyboard.register_shortcut('quit calibre', _('Quit calibre'),
                 default_keys=('Ctrl+Q',), action=self.quit_action)
-        self.system_tray_icon.setContextMenu(self.system_tray_menu)
+        if self.system_tray_icon is not None:
+            self.system_tray_icon.setContextMenu(self.system_tray_menu)
+            self.system_tray_icon.activated.connect(self.system_tray_icon_activated)
         self.quit_action.triggered[bool].connect(self.quit)
         self.donate_action.triggered[bool].connect(self.donate)
-        self.restore_action.triggered.connect(self.show_windows)
-        self.system_tray_icon.activated.connect(
-            self.system_tray_icon_activated)
 
         self.esc_action = QAction(self)
         self.addAction(self.esc_action)
@@ -355,7 +337,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
         if splash_screen is not None:
             splash_screen.hide()
 
-        if self.system_tray_icon.isVisible() and opts.start_in_tray:
+        if self.system_tray_icon is not None and self.system_tray_icon.isVisible() and opts.start_in_tray:
             self.hide_windows()
         self.library_view.model().count_changed_signal.connect(
                 self.iactions['Choose Library'].count_changed)
@@ -441,6 +423,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
 
         self.iactions['Connect Share'].check_smartdevice_menus()
         QTimer.singleShot(1, self.start_smartdevice)
+        QTimer.singleShot(100, self.update_toggle_to_tray_action)
 
     def esc(self, *args):
         self.clear_button.click()
@@ -512,8 +495,8 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
     def no_op(self, *args):
         pass
 
-    def system_tray_icon_activated(self, r):
-        if r == QSystemTrayIcon.Trigger:
+    def system_tray_icon_activated(self, r=False):
+        if r in (QSystemTrayIcon.Trigger, QSystemTrayIcon.MiddleClick, False):
             if self.isVisible():
                 self.hide_windows()
             else:
@@ -533,18 +516,25 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
                 skip_dialog_name=skip_dialog_name,
                 skip_dialog_skipped_value=skipped_value)
 
+    def update_toggle_to_tray_action(self, *args):
+        if hasattr(self, 'toggle_to_tray_action'):
+            self.toggle_to_tray_action.setText(
+                _('Hide main window') if self.isVisible() else _('Show main window'))
+
     def hide_windows(self):
         for window in QApplication.topLevelWidgets():
             if isinstance(window, (MainWindow, QDialog)) and \
                     window.isVisible():
                 window.hide()
                 setattr(window, '__systray_minimized', True)
+        self.update_toggle_to_tray_action()
 
     def show_windows(self, *args):
         for window in QApplication.topLevelWidgets():
             if getattr(window, '__systray_minimized', False):
                 window.show()
                 setattr(window, '__systray_minimized', False)
+        self.update_toggle_to_tray_action()
 
     def test_server(self, *args):
         if self.content_server is not None and \
@@ -937,7 +927,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
 
     def closeEvent(self, e):
         self.write_settings()
-        if self.system_tray_icon.isVisible():
+        if self.system_tray_icon is not None and self.system_tray_icon.isVisible():
             if not dynamic['systray_msg'] and not isosx:
                 info_dialog(self, 'calibre', 'calibre '+
                         _('will keep running in the system tray. To close it, '
