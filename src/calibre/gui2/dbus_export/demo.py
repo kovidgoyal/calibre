@@ -8,7 +8,7 @@ __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
 from PyQt5.Qt import (
     QApplication, QMainWindow, QVBoxLayout, Qt, QKeySequence, QAction,
-    QActionGroup, QMenu, QIcon)
+    QActionGroup, QMenu, QPushButton, QWidget)
 
 from calibre.gui2.dbus_export.utils import setup_for_cli_run
 from calibre.gui2.dbus_export.widgets import factory
@@ -26,19 +26,20 @@ class MainWindow(QMainWindow):
         self.setMinimumWidth(400)
         self.setWindowTitle('Demo of DBUS menu exporter and systray integration')
         self.statusBar().showMessage(self.windowTitle())
-        w = self.centralWidget()
-        self.l = QVBoxLayout(w)
+        w = QWidget(self)
+        self.setCentralWidget(w)
+        self.l = l = QVBoxLayout(w)
         mb = f.create_window_menubar(self)
         self.setMenuBar(mb)
         m = self.menu_one = mb.addMenu('&One')
         m.aboutToShow.connect(self.about_to_show_one)
         s = self.style()
         self.q = q = QAction('&Quit', self)
-        q.setShortcut(QKeySequence.Quit)
+        q.setShortcut(QKeySequence.Quit), q.setIcon(s.standardIcon(s.SP_DialogCancelButton))
         q.triggered.connect(QApplication.quit)
         self.addAction(q)
-        QApplication.instance().setWindowIcon(QIcon(I('debug.png')))
-        for i, icon in zip(xrange(3), map(s.standardIcon, (s.SP_DialogOkButton, s.SP_DialogCancelButton, s.SP_ArrowUp))):
+        QApplication.instance().setWindowIcon(s.standardIcon(s.SP_ComputerIcon))
+        for i, icon in zip(xrange(3), map(s.standardIcon, (s.SP_DialogOkButton, s.SP_DialogHelpButton, s.SP_ArrowUp))):
             ac = m.addAction('One - &%d' % (i + 1))
             ac.setShortcut(QKeySequence(Qt.CTRL | (Qt.Key_1 + i), Qt.SHIFT | (Qt.Key_1 + i)))
             ac.setIcon(icon)
@@ -71,7 +72,19 @@ class MainWindow(QMainWindow):
             m.addAction(q)
             self.systray.setContextMenu(m)
             self.update_tray_toggle_action()
+            self.cib = b = QPushButton('Change system tray icon')
+            l.addWidget(b), b.clicked.connect(self.change_icon)
+            self.hib = b = QPushButton('Show/Hide system tray icon')
+            l.addWidget(b), b.clicked.connect(self.systray.toggle)
         print ('DBUS connection unique name:', f.bus.get_unique_name())
+
+    def change_icon(self):
+        import random
+        s = self.style()
+        num = s.SP_ComputerIcon
+        while num == s.SP_ComputerIcon:
+            num = random.choice(range(20))
+        self.systray.setIcon(self.style().standardIcon(num))
 
     def update_tray_toggle_action(self):
         if hasattr(self, 'sm'):
@@ -91,8 +104,8 @@ class MainWindow(QMainWindow):
         self.setVisible(not self.isVisible())
 
     def action_triggered(self, checked=False):
-        ac = self.sender()
-        text = 'Action triggered: %s' % ac.text()
+        ac=self.sender()
+        text='Action triggered: %s' % ac.text()
         self.statusBar().showMessage(text)
 
     def about_to_show(self):
@@ -105,8 +118,8 @@ class MainWindow(QMainWindow):
     def about_to_show_two(self):
         self.menu_two.addAction('Action added by about to show')
 
-app = QApplication([])
+app=QApplication([])
 app.setApplicationName('com.calibre-ebook.DBusExportDemo')
-mw = MainWindow()
+mw=MainWindow()
 mw.show()
 app.exec_()

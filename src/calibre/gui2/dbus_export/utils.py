@@ -6,7 +6,7 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import sys, array, socket, re
+import sys, array, re, os, errno
 
 import dbus
 
@@ -17,9 +17,57 @@ def log(*args, **kw):
     print('DBusExport:', *args, **kw)
     kw['file'].flush()
 
+from calibre.ptempfile import PersistentTemporaryDirectory
+
+class IconCache(object):
+
+    # Avoiding sending status notifier icon data over DBus, makes dbus-monitor
+    # easier to read.  Also Canonical's StatusNotifier implementation cannot
+    # handle icon data over DBus, so we have to do this anyway.
+
+    def __init__(self):
+        self.icon_theme_path = os.path.join(PersistentTemporaryDirectory(prefix='dbus-export-icons-'), 'icons')
+        self.theme_dir = os.path.join(self.icon_theme_path, 'hicolor')
+        os.makedirs(self.theme_dir)
+        self.cached = set()
+
+    def name_for_icon(self, qicon):
+        if qicon.isNull():
+            return ''
+        key = qicon.cacheKey()
+        ans = 'dbus-icon-cache-%d' % key
+        if key not in self.cached:
+            self.write_icon(qicon, ans)
+            self.cached.add(key)
+        return ans
+
+    def write_icon(self, qicon, name):
+        sizes = qicon.availableSizes() or [QSize(x, x) for x in (16, 32, 64, 128, 256)]
+        for size in sizes:
+            sdir = os.path.join(self.theme_dir, '%dx%d' % (size.width(), size.height()), 'apps')
+            try:
+                os.makedirs(sdir)
+            except EnvironmentError as err:
+                if err.errno != errno.EEXIST:
+                    raise
+            fname = os.path.join(sdir, '%s.png' % name)
+            qicon.pixmap(size).save(fname, 'PNG')
+        # Touch the theme path: GTK icon loading system checks the mtime of the
+        # dir to decide whether it should look for new icons in the theme dir.
+        os.utime(self.icon_theme_path, None)
+
+_icon_cache = None
+
+def icon_cache():
+    global _icon_cache
+    if _icon_cache is None:
+        _icon_cache = IconCache()
+    return _icon_cache
+
 
 def qicon_to_sni_image_list(qicon):
     'See http://www.notmart.org/misc/statusnotifieritem/icons.html'
+    import socket
     ans = dbus.Array(signature='(iiay)')
     if not qicon.isNull():
         sizes = qicon.availableSizes() or (QSize(x, x) for x in (32, 64, 128, 256))

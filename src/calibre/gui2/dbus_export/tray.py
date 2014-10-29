@@ -19,8 +19,9 @@ from PyQt5.Qt import (
     QApplication, QObject, pyqtSignal, Qt, QPoint, QRect, QMenu)
 
 from calibre.gui2.dbus_export.menu import DBusMenu
-from calibre.gui2.dbus_export.utils import qicon_to_sni_image_list
-from calibre.utils.dbus_service import Object, method as dbus_method, BusName, dbus_property, signal as dbus_signal
+from calibre.gui2.dbus_export.utils import icon_cache
+from calibre.utils.dbus_service import (
+    Object, method as dbus_method, BusName, dbus_property, signal as dbus_signal)
 
 _sni_count = 0
 
@@ -60,6 +61,9 @@ class StatusNotifierItem(QObject):
 
     def hide(self):
         self.setVisible(False)
+
+    def toggle(self):
+        self.setVisible(not self.isVisible())
 
     def contextMenu(self):
         return self.context_menu
@@ -104,7 +108,6 @@ class StatusNotifierItemAPI(Object):
         self.app_id = kw.get('app_id') or QApplication.instance().applicationName() or 'unknown_application'
         self.category = kw.get('category') or 'ApplicationStatus'
         self.title = kw.get('title') or self.app_id
-        self.icon_serialization = qicon_to_sni_image_list(notifier.icon())
         Object.__init__(self, bus, '/' + self.IFACE.split('.')[-1])
         _status_item_menu_count += 1
         self.dbus_menu = DBusMenu('/StatusItemMenu/%d' % _status_item_menu_count, bus=bus, parent=kw.get('parent'))
@@ -122,15 +125,15 @@ class StatusNotifierItemAPI(Object):
 
     @dbus_property(IFACE, signature='s')
     def IconName(self):
-        return ''
+        return icon_cache().name_for_icon(self.notifier.icon())
 
     @dbus_property(IFACE, signature='s')
     def IconThemePath(self):
-        return ''
+        return icon_cache().icon_theme_path
 
     @dbus_property(IFACE, signature='a(iiay)')
     def IconPixmap(self):
-        return self.icon_serialization
+        return dbus.Array(signature='(iiay)')
 
     @dbus_property(IFACE, signature='s')
     def OverlayIconName(self):
@@ -203,7 +206,7 @@ class StatusNotifierItemAPI(Object):
 
     @dbus_signal(IFACE, '')
     def NewIcon(self):
-        self.icon_serialization = qicon_to_sni_image_list(self.notifier.icon())
+        pass
 
     @dbus_signal(IFACE, '')
     def NewAttentionIcon(self):
