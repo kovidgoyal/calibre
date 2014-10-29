@@ -16,6 +16,7 @@ from PyQt5.Qt import (
 
 from calibre.constants import __version__
 from calibre.gui2.dialogs.message_box import ViewLog
+from calibre.utils.config_base import tweaks
 
 Question = namedtuple('Question', 'payload callback cancel_callback '
         'title msg html_log log_viewer_title log_is_file det_msg '
@@ -213,10 +214,11 @@ class ProceedQuestion(QWidget):
         self.do_resize()
 
     def do_resize(self):
+        minsz = tweaks.get('proceed_question_min_size', (0, 0))
         sz = self.sizeHint()
-        sz.setWidth(min(self.parent().width(), sz.width()))
+        sz.setWidth(min(self.parent().width(), max(minsz[0], sz.width())))
         sb = self.parent().statusBar().height() + 10
-        sz.setHeight(min(self.parent().height() - sb, sz.height()))
+        sz.setHeight(min(self.parent().height() - sb, max(minsz[1], sz.height())))
         self.resize(sz)
         self.position_widget()
 

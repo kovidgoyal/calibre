@@ -564,3 +564,10 @@ restrict_output_formats = None
 # numbers.
 # The value can be between 50 and 99
 content_server_thumbnail_compression_quality = 75
+
+#: Minimum size of the notification popup at the completion of background jobs
+# When a background job completes a notification pops up in the calibre window.
+# The minimum size for this notification can be set using this tweak. The pair
+# of values indicate the number of pixels of width and height. The default is
+# (0, 0) to use the automatically determined smallest size.
+proceed_question_min_size = (0, 0)
