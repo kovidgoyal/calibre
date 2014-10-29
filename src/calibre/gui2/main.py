@@ -374,22 +374,21 @@ def run_gui(opts, args, listener, app, gui_debug=None):
     return ret
 
 def cant_start(msg=_('If you are sure it is not running')+', ',
-        what=None):
+               det_msg=_('Timed out waiting for response from running calibre')):
     base = '<p>%s</p><p>%s %s'
     where = __appname__ + ' '+_('may be running in the system tray, in the')+' '
     if isosx:
         where += _('upper right region of the screen.')
     else:
         where += _('lower right region of the screen.')
-    if what is None:
-        if iswindows or islinux:
-            what = _('try rebooting your computer.')
-        else:
-            what = _('try deleting the file')+': '+ gui_socket_address()
+    if iswindows or islinux:
+        what = _('try rebooting your computer.')
+    else:
+        what = _('try deleting the file')+': '+ gui_socket_address()
 
     info = base%(where, msg, what)
     error_dialog(None, _('Cannot Start ')+__appname__,
-        '<p>'+(_('%s is already running.')%__appname__)+'</p>'+info, show=True)
+        '<p>'+(_('%s is already running.')%__appname__)+'</p>'+info, det_msg=det_msg, show=True)
 
     raise SystemExit(1)
 
@@ -398,11 +397,7 @@ def build_pipe(print_error=True):
     t.start()
     t.join(3.0)
     if t.is_alive():
-        if iswindows:
-            cant_start()
-        else:
-            f = os.path.expanduser('~/.calibre_calibre GUI.lock')
-            cant_start(what=_('try deleting the file')+': '+f)
+        cant_start()
         raise SystemExit(1)
     return t
 
@@ -460,13 +455,13 @@ def main(args=sys.argv):
             listener = create_listener()
         except socket.error:
             if iswindows or islinux:
-                cant_start()
+                cant_start(det_msg=traceback.format_exc())
             if os.path.exists(gui_socket_address()):
                 os.remove(gui_socket_address())
             try:
                 listener = create_listener()
             except socket.error:
-                cant_start()
+                cant_start(det_msg=traceback.format_exc())
             else:
                 return run_gui(opts, args, listener, app,
                         gui_debug=gui_debug)
