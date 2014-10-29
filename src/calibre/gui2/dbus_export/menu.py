@@ -68,12 +68,12 @@ class DBusMenu(QObject):
 
     handle_event_signal = pyqtSignal(object, object, object, object)
 
-    def __init__(self, object_path, **kw):
-        QObject.__init__(self, kw.get('parent'))
+    def __init__(self, object_path, parent=None, bus=None):
+        QObject.__init__(self, parent)
         # Unity barfs is the Event DBUS method does not return immediately, so
         # handle it asynchronously
         self.handle_event_signal.connect(self.handle_event, type=Qt.QueuedConnection)
-        self.dbus_api = DBusMenuAPI(self, object_path, **kw)
+        self.dbus_api = DBusMenuAPI(self, object_path, bus=bus)
         self.set_status = self.dbus_api.set_status
         self._next_id = 0
         self.action_changed_timer = t = QTimer(self)
@@ -81,6 +81,10 @@ class DBusMenu(QObject):
         self.layout_changed_timer = t = QTimer(self)
         t.setInterval(0), t.setSingleShot(True), t.timeout.connect(self.layouts_changed)
         self.init_maps()
+
+    @property
+    def object_path(self):
+        return self.dbus_api._object_path
 
     def init_maps(self, qmenu=None):
         self.action_changes = set()
@@ -241,10 +245,9 @@ class DBusMenuAPI(Object):
 
     IFACE = 'com.canonical.dbusmenu'
 
-    def __init__(self, menu, object_path, **kw):
-        bus = kw.get('bus')
+    def __init__(self, menu, object_path, bus=None):
         if bus is None:
-            bus = kw['bus'] = dbus.SessionBus()
+            bus = dbus.SessionBus()
         Object.__init__(self, bus, object_path)
         self.status = 'normal'
         self.menu = menu

@@ -8,7 +8,7 @@ __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import time, sys
 
-from PyQt5.Qt import QObject, QMenuBar, QAction, QEvent, QSystemTrayIcon
+from PyQt5.Qt import QObject, QMenuBar, QAction, QEvent, QSystemTrayIcon, QApplication
 
 from calibre.constants import iswindows, isosx
 
@@ -82,8 +82,9 @@ class ExportedMenuBar(QMenuBar):
 
 class Factory(QObject):
 
-    def __init__(self):
+    def __init__(self, app_id=None):
         QObject.__init__(self)
+        self.app_id = app_id or QApplication.instance().applicationName() or 'unknown_application'
         if iswindows or isosx:
             self.dbus = None
         else:
@@ -144,7 +145,7 @@ class Factory(QObject):
         'See http://www.notmart.org/misc/statusnotifieritem/statusnotifierwatcher.html'
         self.status_notifier = False
         if self.bus.name_has_owner(STATUS_NOTIFIER[0]):
-            args = STATUS_NOTIFIER + ('Get', 'ss', (STATUS_NOTIFIER[-1], 'IsStatusNotifierHostRegistered'))
+            args = STATUS_NOTIFIER[:2] + (self.dbus.PROPERTIES_IFACE, 'Get', 'ss', (STATUS_NOTIFIER[-1], 'IsStatusNotifierHostRegistered'))
             self.status_notifier = bool(self.bus.call_blocking(*args, timeout=0.1))
 
     def create_window_menubar(self, parent):
@@ -152,12 +153,12 @@ class Factory(QObject):
             return ExportedMenuBar(parent, self.menu_registrar, self.bus)
         return QMenuBar(parent)
 
-    def create_system_tray_icon(self, parent=None, title=None, app_id=None, category=None):
+    def create_system_tray_icon(self, parent=None, title=None, category=None):
         if self.has_status_notifier:
             from calibre.gui2.dbus_export.tray import StatusNotifierItem
-            ans = StatusNotifierItem(parent=parent, title=title, app_id=app_id, category=category)
-            self.bus.call_blocking(
-                self.SERVICE, self.PATH, self.IFACE, 'RegisterStatusNotifierItem', 's', (ans.dbus_api.name,), timeout=1)
+            ans = StatusNotifierItem(parent=parent, title=title, app_id=self.app_id, category=category)
+            args = STATUS_NOTIFIER + ('RegisterStatusNotifierItem', 's', (ans.dbus_api.name,))
+            self.bus.call_blocking(*args, timeout=1)
             return ans
         if iswindows or isosx:
             return QSystemTrayIcon(parent)

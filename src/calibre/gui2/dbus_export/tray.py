@@ -16,7 +16,7 @@ import os
 
 import dbus
 from PyQt5.Qt import (
-    QApplication, QObject, pyqtSignal, Qt, QPoint, QRect, QMenu, QIcon)
+    QApplication, QObject, pyqtSignal, Qt, QPoint, QRect, QMenu)
 
 from calibre.gui2.dbus_export.menu import DBusMenu
 from calibre.gui2.dbus_export.utils import qicon_to_sni_image_list
@@ -36,7 +36,7 @@ class StatusNotifierItem(QObject):
         self.context_menu = None
         self.is_visible = True
         self.tool_tip = ''
-        self._icon = QIcon()
+        self._icon = QApplication.instance().windowIcon()
         self.show_menu.connect(self._show_menu, type=Qt.QueuedConnection)
         _sni_count += 1
         kw['num'] = _sni_count
@@ -85,6 +85,8 @@ class StatusNotifierItem(QObject):
     def icon(self):
         return self._icon
 
+_status_item_menu_count = 0
+
 class StatusNotifierItemAPI(Object):
 
     'See http://www.notmart.org/misc/statusnotifieritem/statusnotifieritem.html'
@@ -92,6 +94,7 @@ class StatusNotifierItemAPI(Object):
     IFACE = 'org.kde.StatusNotifierItem'
 
     def __init__(self, notifier, **kw):
+        global _status_item_menu_count
         self.notifier = notifier
         bus = kw.get('bus')
         if bus is None:
@@ -103,7 +106,8 @@ class StatusNotifierItemAPI(Object):
         self.title = kw.get('title') or self.app_id
         self.icon_serialization = qicon_to_sni_image_list(notifier.icon())
         Object.__init__(self, bus, '/' + self.IFACE.split('.')[-1])
-        self.dbus_menu = DBusMenu('/StatusItemMenu', **kw)
+        _status_item_menu_count += 1
+        self.dbus_menu = DBusMenu('/StatusItemMenu/%d' % _status_item_menu_count, bus=bus, parent=kw.get('parent'))
 
     def publish_new_menu(self):
         menu = self.notifier.contextMenu()
@@ -166,7 +170,7 @@ class StatusNotifierItemAPI(Object):
 
     @dbus_property(IFACE, signature='o')
     def Menu(self):
-        return dbus.ObjectPath(self.dbus_menu._object_path)
+        return dbus.ObjectPath(self.dbus_menu.object_path)
 
     @dbus_property(IFACE, signature='i')
     def WindowId(self):
