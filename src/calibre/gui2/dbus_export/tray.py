@@ -89,6 +89,10 @@ class StatusNotifierItem(QObject):
     def icon(self):
         return self._icon
 
+    @classmethod
+    def supportsMessages(cls):
+        return False
+
 _status_item_menu_count = 0
 
 class StatusNotifierItemAPI(Object):
@@ -141,6 +145,8 @@ class StatusNotifierItemAPI(Object):
 
     @dbus_property(IFACE, signature='(sa(iiay)ss)')
     def ToolTip(self):
+        # This is ignored on Unity, Canonical believes in user interfaces
+        # that are so functionality free that they dont need tooltips
         return self.IconName, self.IconPixmap, self.Title, self.notifier.toolTip()
 
     @dbus_property(IFACE, signature='a(iiay)')

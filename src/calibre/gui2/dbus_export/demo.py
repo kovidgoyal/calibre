@@ -6,9 +6,11 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
+import time
+
 from PyQt5.Qt import (
     QApplication, QMainWindow, QVBoxLayout, Qt, QKeySequence, QAction,
-    QActionGroup, QMenu, QPushButton, QWidget)
+    QActionGroup, QMenu, QPushButton, QWidget, QTimer)
 
 from calibre.gui2.dbus_export.utils import setup_for_cli_run
 from calibre.gui2.dbus_export.widgets import factory
@@ -76,11 +78,16 @@ class MainWindow(QMainWindow):
             l.addWidget(b), b.clicked.connect(self.change_icon)
             self.hib = b = QPushButton('Show/Hide system tray icon')
             l.addWidget(b), b.clicked.connect(self.systray.toggle)
+            self.update_tooltip_timer = t = QTimer(self)
+            t.setInterval(1000), t.timeout.connect(self.update_tooltip), t.start()
         self.ab = b = QPushButton('Add a new menu')
         b.clicked.connect(self.add_menu), l.addWidget(b)
         self.rb = b = QPushButton('Remove a created menu')
         b.clicked.connect(self.remove_menu), l.addWidget(b)
         print ('DBUS connection unique name:', f.bus.get_unique_name())
+
+    def update_tooltip(self):
+        self.systray.setToolTip(time.strftime('A dynamically updated tooltip [%H:%M:%S]'))
 
     def add_menu(self):
         mb = self.menuBar()
@@ -137,6 +144,7 @@ class MainWindow(QMainWindow):
         self.menu_two.addAction('Action added by about to show')
 
 app=QApplication([])
+app.setAttribute(Qt.AA_DontUseNativeMenuBar, False)
 app.setApplicationName('com.calibre-ebook.DBusExportDemo')
 mw=MainWindow()
 mw.show()

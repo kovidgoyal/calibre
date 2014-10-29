@@ -8,7 +8,8 @@ __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import time, sys
 
-from PyQt5.Qt import QObject, QMenuBar, QAction, QEvent, QSystemTrayIcon, QApplication
+from PyQt5.Qt import (
+    QObject, QMenuBar, QAction, QEvent, QSystemTrayIcon, QApplication, Qt)
 
 from calibre.constants import iswindows, isosx
 
@@ -149,7 +150,7 @@ class Factory(QObject):
             self.status_notifier = bool(self.bus.call_blocking(*args, timeout=0.1))
 
     def create_window_menubar(self, parent):
-        if self.has_global_menu:
+        if not QApplication.instance().testAttribute(Qt.AA_DontUseNativeMenuBar) and self.has_global_menu:
             return ExportedMenuBar(parent, self.menu_registrar, self.bus)
         return QMenuBar(parent)
 
