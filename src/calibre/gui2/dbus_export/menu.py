@@ -11,8 +11,7 @@ __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import dbus
 from PyQt5.Qt import (
-    QApplication, QMenu, QIcon, QKeySequence, QObject, QAction, QMenuBar,
-    QEvent, QTimer)
+    QApplication, QMenu, QIcon, QKeySequence, QObject, QEvent, QTimer)
 
 from calibre.utils.dbus_service import Object, BusName, method as dbus_method, dbus_property, signal as dbus_signal
 from calibre.gui2.dbus_export.utils import (
@@ -22,14 +21,6 @@ null = object()
 
 def PropDict(mapping=()):
     return dbus.Dictionary(mapping, signature='sv')
-
-class MenuBarAction(QAction):
-
-    def __init__(self, mb):
-        QAction.__init__(self, mb)
-
-    def menu(self):
-        return self.parent()
 
 def create_properties_for_action(ac, previous=None):
     ans = PropDict()
@@ -53,9 +44,13 @@ def create_properties_for_action(ac, previous=None):
         ans['toggle-state'] = int(ac.isChecked())
     shortcuts = ac.shortcuts()
     if shortcuts:
-        ans['shortcut'] = sc = []
+        sc = dbus.Array(signature='as')
         for s in shortcuts:
-            sc.extend(key_sequence_to_dbus_shortcut(s))
+            if not s.isEmpty():
+                for x in key_sequence_to_dbus_shortcut(s):
+                    sc.append(dbus.Array(x, signature='s'))
+        if sc:
+            ans['shortcut'] = sc[:1]  # Unity fails to display the shortcuts at all if more than one is specified
     if ac.isIconVisibleInMenu():
         icon = ac.icon()
         if previous and previous.get('x-qt-icon-cache-key') == icon.cacheKey():
@@ -115,11 +110,10 @@ class DBusMenu(QObject):
     def publish_new_menu(self, qmenu=None):
         self.init_maps(qmenu)
         if qmenu is not None:
-            qmenu.destroyed.connect(self.publish_new_menu)
-            ac = MenuBarAction(qmenu) if isinstance(qmenu, QMenuBar) else qmenu.menuAction()
-            if isinstance(qmenu, QMenuBar):
-                qmenu.menuAction = lambda : ac
+            qmenu.destroyed.connect(lambda obj=None:self.publish_new_menu())
+            ac = qmenu.menuAction()
             self.add_action(ac)
+        self.dbus_api.LayoutUpdated(self.dbus_api.revision, 0)
 
     def add_action(self, ac):
         ac_id = 0 if ac.menu() is self.qmenu else self.next_id
@@ -222,6 +216,12 @@ class DBusMenu(QObject):
             ans.append((action_id, self.action_properties(action_id, property_names)))
         return ans
 
+    def handle_event(self, action_id, event, data, timestamp):
+        ac = self.id_to_action(action_id)
+        if event == 'clicked':
+            # TODO: Handle checkable actions
+            ac.triggered.emit()
+
 class DBusMenuAPI(Object):
 
     IFACE = 'com.canonical.dbusmenu'
@@ -266,18 +266,19 @@ class DBusMenuAPI(Object):
 
     @dbus_method(IFACE, in_signature='is', out_signature='v')
     def GetProperty(self, id, name):
-        return self.menu.action_properties(id).get(name)
+        return self.menu.action_properties(id).get(name, '')
 
     @dbus_method(IFACE, in_signature='isvu', out_signature='')
     def Event(self, id, eventId, data, timestamp):
         ''' This is called by the applet to notify the application an event happened on a
-        menu item. type can be one of the following::
+        menu item. eventId can be one of the following::
             * "clicked"
             * "hovered"
             * "opened"
             * "closed"
         Vendor specific events can be added by prefixing them with "x-<vendor>-"'''
-        pass
+        if self.menu.id_to_action(id) is not None:
+            self.menu.handle_event(id, eventId, data, timestamp)
 
     @dbus_method(IFACE, in_signature='a(isvu)', out_signature='ai')
     def EventGroup(self, events):
@@ -285,7 +286,13 @@ class DBusMenuAPI(Object):
         several different menuitems.  This is done to optimize DBus traffic.
         Should return a list of ids that are not found. events is a list of
         events in the same format as used for the Event method.'''
-        return dbus.Array(signature='u')
+        missing = dbus.Array(signature='u')
+        for id, eventId, data, timestamp in events:
+            if self.menu.id_to_action(id) is not None:
+                self.menu.handle_event(id, eventId, data, timestamp)
+            else:
+                missing.append(id)
+        return missing
 
     @dbus_method(IFACE, in_signature='i', out_signature='b')
     def AboutToShow(self, id):
@@ -313,7 +320,8 @@ def test():
     bus = dbus.SessionBus()
     dbus_name = BusName('com.calibre-ebook.TestDBusMenu', bus=bus, do_not_queue=True)
     m = QMenu()
-    m.addAction(QIcon(I('window-close.png')), 'Quit', app.quit).setShortcut(QKeySequence(QKeySequence.Quit))
+    ac = m.addAction(QIcon(I('window-close.png')), 'Quit', app.quit)
+    ac.setShortcut(QKeySequence('Ctrl+Q'))
     menu = DBusMenu('/Menu', bus=bus)
     menu.publish_new_menu(m)
     app.exec_()
