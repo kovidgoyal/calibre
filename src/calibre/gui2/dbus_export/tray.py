@@ -16,7 +16,7 @@ import os
 
 import dbus
 from PyQt5.Qt import (
-    QApplication, QObject, pyqtSignal, Qt, QPoint, QRect, QMenu)
+    QApplication, QObject, pyqtSignal, Qt, QPoint, QRect, QMenu, QSystemTrayIcon)
 
 from calibre.gui2.dbus_export.menu import DBusMenu
 from calibre.gui2.dbus_export.utils import icon_cache
@@ -28,7 +28,7 @@ _sni_count = 0
 class StatusNotifierItem(QObject):
 
     IFACE = 'org.kde.StatusNotifierItem'
-    activated = pyqtSignal()
+    activated = pyqtSignal(object)
     show_menu = pyqtSignal(int, int)
 
     def __init__(self, **kw):
@@ -93,6 +93,9 @@ class StatusNotifierItem(QObject):
     def supportsMessages(cls):
         return False
 
+    def emit_activated(self):
+        self.activated.emit(QSystemTrayIcon.Trigger)
+
 _status_item_menu_count = 0
 
 class StatusNotifierItemAPI(Object):
@@ -121,7 +124,7 @@ class StatusNotifierItemAPI(Object):
         if menu is None:
             menu = QMenu()
         if len(menu.actions()) == 0:
-            menu.addAction(self.notifier.icon(), _('Show/hide %s') % self.title, self.notifier.activated.emit)
+            menu.addAction(self.notifier.icon(), _('Show/hide %s') % self.title, self.notifier.emit_activated)
         # The menu must have at least one entry, namely the show/hide entry.
         # This is necessary as Canonical in their infinite wisdom decided to
         # force all tray icons to show their popup menus when clicked.
@@ -191,16 +194,16 @@ class StatusNotifierItemAPI(Object):
 
     @dbus_method(IFACE, in_signature='ii', out_signature='')
     def Activate(self, x, y):
-        self.notifier.activated.emit()
+        self.notifier.activated.emit(QSystemTrayIcon.Trigger)
 
     @dbus_method(IFACE, in_signature='u', out_signature='')
     def XAyatanaSecondaryActivate(self, timestamp):
         # This is called when the user middle clicks the icon in Unity
-        self.notifier.activated.emit()
+        self.notifier.activated.emit(QSystemTrayIcon.MiddleClick)
 
     @dbus_method(IFACE, in_signature='ii', out_signature='')
     def SecondaryActivate(self, x, y):
-        self.notifier.activated.emit()
+        self.notifier.activated.emit(QSystemTrayIcon.MiddleClick)
 
     @dbus_method(IFACE, in_signature='is', out_signature='')
     def Scroll(self, delta, orientation):

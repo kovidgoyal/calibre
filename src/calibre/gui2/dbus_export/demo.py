@@ -125,7 +125,7 @@ class MainWindow(QMainWindow):
             self.update_tray_toggle_action()
         return QMainWindow.showEvent(self, ev)
 
-    def tray_activated(self):
+    def tray_activated(self, reason):
         self.setVisible(not self.isVisible())
 
     def action_triggered(self, checked=False):

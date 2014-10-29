@@ -178,8 +178,8 @@ class Factory(QObject):
         # TODO: have the created widgets also handle bus disconnection
 
 _factory = None
-def factory():
+def factory(app_id=None):
     global _factory
     if _factory is None:
-        _factory = Factory()
+        _factory = Factory(app_id=app_id)
     return _factory
