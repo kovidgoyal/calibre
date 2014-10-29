@@ -7,7 +7,8 @@ __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
 from PyQt5.Qt import (
-    QApplication, QMainWindow, QVBoxLayout, Qt, QKeySequence, QAction, QActionGroup)
+    QApplication, QMainWindow, QVBoxLayout, Qt, QKeySequence, QAction,
+    QActionGroup, QMenu)
 
 from calibre.gui2.dbus_export.utils import setup_for_cli_run
 from calibre.gui2.dbus_export.widgets import factory
@@ -36,6 +37,13 @@ class MainWindow(QMainWindow):
             ac.setShortcut(QKeySequence(Qt.CTRL | (Qt.Key_1 + i), Qt.SHIFT | (Qt.Key_1 + i)))
             ac.setIcon(icon)
         m.addSeparator()
+        self.menu_two = m2 = m.addMenu('A &submenu')
+        for i, icon in zip(xrange(3), map(s.standardIcon, (s.SP_DialogOkButton, s.SP_DialogCancelButton, s.SP_ArrowUp))):
+            ac = m2.addAction('Two - &%d' % (i + 1))
+            ac.setShortcut(QKeySequence(Qt.CTRL | (Qt.Key_A + i)))
+            ac.setIcon(icon)
+        m2.aboutToShow.connect(self.about_to_show_two)
+        m2.addSeparator(), m.addSeparator()
         m.addAction('&Disabled action').setEnabled(False)
         ac = m.addAction('A checkable action')
         make_checkable(ac)
@@ -47,15 +55,23 @@ class MainWindow(QMainWindow):
         self.as_count = 0
         for ac in mb.findChildren(QAction):
             ac.triggered.connect(self.action_triggered)
+        for m in mb.findChildren(QMenu):
+            m.aboutToShow.connect(self.about_to_show)
 
     def action_triggered(self, checked=False):
         ac = self.sender()
         text = 'Action triggered: %s' % ac.text()
         self.statusBar().showMessage(text)
 
+    def about_to_show(self):
+        self.statusBar().showMessage('About to show menu: %s' % self.sender().title())
+
     def about_to_show_one(self):
         self.as_count += 1
         self.about_to_show_sentinel.setText('About to show handled: %d' % self.as_count)
+
+    def about_to_show_two(self):
+        self.menu_two.addAction('Action added by about to show')
 
 app = QApplication([])
 f = factory()
