@@ -76,7 +76,25 @@ class MainWindow(QMainWindow):
             l.addWidget(b), b.clicked.connect(self.change_icon)
             self.hib = b = QPushButton('Show/Hide system tray icon')
             l.addWidget(b), b.clicked.connect(self.systray.toggle)
+        self.ab = b = QPushButton('Add a new menu')
+        b.clicked.connect(self.add_menu), l.addWidget(b)
+        self.rb = b = QPushButton('Remove a created menu')
+        b.clicked.connect(self.remove_menu), l.addWidget(b)
         print ('DBUS connection unique name:', f.bus.get_unique_name())
+
+    def add_menu(self):
+        mb = self.menuBar()
+        m = mb.addMenu('Created menu %d' % len(mb.actions()))
+        for i in xrange(3):
+            m.addAction('Some action %d' % i)
+        for ac in m.findChildren(QAction):
+            ac.triggered.connect(self.action_triggered)
+        m.aboutToShow.connect(self.about_to_show)
+
+    def remove_menu(self):
+        mb = self.menuBar()
+        if len(mb.actions()) > 1:
+            mb.removeAction(mb.actions()[-1])
 
     def change_icon(self):
         import random
