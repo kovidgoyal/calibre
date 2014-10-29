@@ -14,7 +14,7 @@ import regex
 from PyQt5.Qt import (
     QPlainTextEdit, QFontDatabase, QToolTip, QPalette, QFont, QKeySequence,
     QTextEdit, QTextFormat, QWidget, QSize, QPainter, Qt, QRect, pyqtSlot,
-    QApplication, QMimeData, QColor, QColorDialog, QTimer, pyqtSignal)
+    QApplication, QMimeData, QColor, QColorDialog, QTimer, pyqtSignal, QT_VERSION)
 
 from calibre import prepare_string_for_xml, xml_entity_to_unicode
 from calibre.constants import isosx
@@ -739,7 +739,7 @@ class TextEdit(PlainTextEdit):
             self.setOverwriteMode(self.overwriteMode() ^ True)
             ev.accept()
             return
-        if isosx and ev.modifiers() == Qt.ControlModifier and re.search(r'[a-zA-Z0-9]+', ev.text()) is not None:
+        if isosx and QT_VERSION < 0x504000 and ev.modifiers() == Qt.ControlModifier and re.search(r'[a-zA-Z0-9]+', ev.text()) is not None:
             # For some reason Qt 5 translates Cmd+key into text on OS X
             # https://bugreports.qt-project.org/browse/QTBUG-36281
             ev.setAccepted(False)
