@@ -11,7 +11,7 @@ __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import dbus
 from PyQt5.Qt import (
-    QApplication, QMenu, QIcon, QKeySequence, QObject, QEvent, QTimer)
+    QApplication, QMenu, QIcon, QKeySequence, QObject, QEvent, QTimer, pyqtSignal, Qt)
 
 from calibre.utils.dbus_service import Object, BusName, method as dbus_method, dbus_property, signal as dbus_signal
 from calibre.gui2.dbus_export.utils import (
@@ -66,8 +66,13 @@ def create_properties_for_action(ac, previous=None):
 
 class DBusMenu(QObject):
 
+    handle_event_signal = pyqtSignal(object, object, object, object)
+
     def __init__(self, object_path, **kw):
         QObject.__init__(self, kw.get('parent'))
+        # Unity barfs is the Event DBUS method does not return immediately, so
+        # handle it asynchronously
+        self.handle_event_signal.connect(self.handle_event, type=Qt.QueuedConnection)
         self.dbus_api = DBusMenuAPI(self, object_path, **kw)
         self.set_status = self.dbus_api.set_status
         self._next_id = 0
@@ -219,8 +224,9 @@ class DBusMenu(QObject):
     def handle_event(self, action_id, event, data, timestamp):
         ac = self.id_to_action(action_id)
         if event == 'clicked':
-            # TODO: Handle checkable actions
-            ac.triggered.emit()
+            if ac.isCheckable():
+                ac.toggle()
+            ac.triggered.emit(ac.isCheckable() and ac.isChecked())
 
 class DBusMenuAPI(Object):
 
@@ -278,7 +284,7 @@ class DBusMenuAPI(Object):
             * "closed"
         Vendor specific events can be added by prefixing them with "x-<vendor>-"'''
         if self.menu.id_to_action(id) is not None:
-            self.menu.handle_event(id, eventId, data, timestamp)
+            self.menu.handle_event_signal.emit(id, eventId, data, timestamp)
 
     @dbus_method(IFACE, in_signature='a(isvu)', out_signature='ai')
     def EventGroup(self, events):
@@ -289,7 +295,7 @@ class DBusMenuAPI(Object):
         missing = dbus.Array(signature='u')
         for id, eventId, data, timestamp in events:
             if self.menu.id_to_action(id) is not None:
-                self.menu.handle_event(id, eventId, data, timestamp)
+                self.menu.handle_event_signal.emit(id, eventId, data, timestamp)
             else:
                 missing.append(id)
         return missing
