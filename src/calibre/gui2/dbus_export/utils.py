@@ -124,7 +124,7 @@ def icon_to_dbus_menu_icon(icon, size=32):
 def setup_for_cli_run():
     import signal
     from dbus.mainloop.glib import DBusGMainLoop, threads_init
-    DBusGMainLoop(set_as_default=True)
     threads_init()
+    DBusGMainLoop(set_as_default=True)
     signal.signal(signal.SIGINT, signal.SIG_DFL)  # quit on Ctrl-C
 
