@@ -182,8 +182,8 @@ def run_debug_gui(logpath):
     from calibre.constants import __appname__
     prints(__appname__, _('Debug log'))
     print_basic_debug_info()
-    from calibre.gui2.main import main
-    main(['__CALIBRE_GUI_DEBUG__', logpath])
+    from calibre.gui_launch import calibre
+    calibre(['__CALIBRE_GUI_DEBUG__', logpath])
 
 def run_script(path, args):
     # Load all user defined plugins so the script can import from the
@@ -212,14 +212,14 @@ def main(args=sys.argv):
 
     opts, args = option_parser().parse_args(args)
     if opts.gui:
-        from calibre.gui2.main import main
+        from calibre.gui_launch import calibre
         print_basic_debug_info()
-        main(['calibre'])
+        calibre(['calibre'])
     elif opts.gui_debug is not None:
         run_debug_gui(opts.gui_debug)
     elif opts.viewer:
-        from calibre.gui2.viewer.main import main
-        main(['ebook-viewer', '--debug-javascript'] + args[1:])
+        from calibre.gui_launch import ebook_viewer
+        ebook_viewer(['ebook-viewer', '--debug-javascript'] + args[1:])
     elif opts.py_console:
         from calibre.utils.pyconsole.main import main
         main()
@@ -240,8 +240,8 @@ def main(args=sys.argv):
         for path in args[1:]:
             inspect_mobi(path)
     elif opts.edit_book:
-        from calibre.gui2.tweak_book.main import main
-        main(['ebook-edit'] + args[1:])
+        from calibre.gui_launch import ebook_edit
+        ebook_edit(['ebook-edit'] + args[1:])
     elif opts.explode_book:
         from calibre.ebooks.tweak import tweak
         tweak(opts.explode_book)

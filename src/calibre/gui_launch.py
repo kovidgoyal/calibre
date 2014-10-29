@@ -33,21 +33,30 @@ def detach_gui():
     if (islinux or isbsd) and not DEBUG and '--detach' in sys.argv:
         do_detach()
 
+def init_dbus():
+    from calibre.constants import islinux, isbsd
+    if islinux or isbsd:
+        from dbus.mainloop.glib import DBusGMainLoop, threads_init
+        threads_init()
+        DBusGMainLoop(set_as_default=True)
 
-def calibre():
+def calibre(args=sys.argv):
     detach_gui()
+    init_dbus()
     from calibre.gui2.main import main
-    main()
+    main(args)
 
-def ebook_viewer():
+def ebook_viewer(args=sys.argv):
     detach_gui()
+    init_dbus()
     from calibre.gui2.viewer.main import main
-    main()
+    main(args)
 
-def ebook_edit():
+def ebook_edit(args=sys.argv):
     detach_gui()
+    init_dbus()
     from calibre.gui2.tweak_book.main import main
-    main()
+    main(args)
 
 def option_parser(basename):
     if basename == 'calibre':
