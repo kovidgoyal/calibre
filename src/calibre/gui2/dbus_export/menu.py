@@ -228,6 +228,15 @@ class DBusMenu(QObject):
                 ac.toggle()
             ac.triggered.emit(ac.isCheckable() and ac.isChecked())
 
+    def handle_about_to_show(self, ac):
+        child_ids = {self.action_to_id(x) for x in ac.menu().actions()}
+        child_ids.discard(None)
+        ac_id = self.action_to_id(ac)
+        ac.menu().aboutToShow.emit()
+        if ac_id in self.layout_changes or child_ids.intersection(self.action_changes):
+            return True
+        return False
+
 class DBusMenuAPI(Object):
 
     IFACE = 'com.canonical.dbusmenu'
@@ -302,11 +311,23 @@ class DBusMenuAPI(Object):
 
     @dbus_method(IFACE, in_signature='i', out_signature='b')
     def AboutToShow(self, id):
-        pass
+        ac = self.menu.id_to_action(id)
+        if ac is not None and ac.menu() is not None:
+            return self.menu.handle_about_to_show(ac)
+        return False
 
     @dbus_method(IFACE, in_signature='ai', out_signature='aiai')
     def AboutToShowGroup(self, ids):
-        pass
+        updates_needed = dbus.Array(signature='i')
+        id_errors = dbus.Array(signature='i')
+        for ac_id in ids:
+            ac = self.menu.id_to_action(id)
+            if ac is not None and ac.menu() is not None:
+                if self.menu.handle_about_to_show(ac):
+                    updates_needed.append(ac_id)
+            else:
+                id_errors.append(ac_id)
+        return updates_needed, id_errors
 
     @dbus_signal(IFACE, 'a(ia{sv})a(ias)')
     def ItemsPropertiesUpdated(self, updatedProps, removedProps):

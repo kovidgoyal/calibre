@@ -6,11 +6,16 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import time
+import time, sys
 
 from PyQt5.Qt import QObject, QMenuBar, QAction, QEvent
 
 UNITY_WINDOW_REGISTRAR = ('com.canonical.AppMenu.Registrar', '/com/canonical/AppMenu/Registrar', 'com.canonical.AppMenu.Registrar')
+
+def log(*args, **kw):
+    kw['file'] = sys.stderr
+    print('DBusExport:', *args, **kw)
+    kw['file'].flush()
 
 class MenuBarAction(QAction):
 
@@ -92,7 +97,7 @@ class Factory(QObject):
                 self._bus = self.dbus.SessionBus()
                 self._bus.call_on_disconnection(self.bus_disconnected)
             except Exception as err:
-                print ('Failed to connect to DBUS session bus, with error:', str(err))
+                log('Failed to connect to DBUS session bus, with error:', str(err))
                 self._bus = False
         return self._bus or None
 
@@ -106,7 +111,7 @@ class Factory(QObject):
                     self.detect_menu_registrar()
                 except Exception as err:
                     self.menu_registrar = False
-                    print ('Failed to detect window menu registrar, with error:', str(err))
+                    log('Failed to detect window menu registrar, with error:', str(err))
         return bool(self.menu_registrar)
 
     def detect_menu_registrar(self):

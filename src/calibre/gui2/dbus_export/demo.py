@@ -28,7 +28,8 @@ class MainWindow(QMainWindow):
         self.l = QVBoxLayout(w)
         mb = f.create_window_menubar(self)
         self.setMenuBar(mb)
-        m = mb.addMenu('&One')
+        m = self.menu_one = mb.addMenu('&One')
+        m.aboutToShow.connect(self.about_to_show_one)
         s = self.style()
         for i, icon in zip(xrange(3), map(s.standardIcon, (s.SP_DialogOkButton, s.SP_DialogCancelButton, s.SP_ArrowUp))):
             ac = m.addAction('One - &%d' % (i + 1))
@@ -41,6 +42,9 @@ class MainWindow(QMainWindow):
         g = QActionGroup(self)
         make_checkable(g.addAction(m.addAction('Exclusive 1')))
         make_checkable(g.addAction(m.addAction('Exclusive 2')), False)
+        m.addSeparator()
+        self.about_to_show_sentinel = m.addAction('This action\'s text should change before menu is shown')
+        self.as_count = 0
         for ac in mb.findChildren(QAction):
             ac.triggered.connect(self.action_triggered)
 
@@ -48,6 +52,10 @@ class MainWindow(QMainWindow):
         ac = self.sender()
         text = 'Action triggered: %s' % ac.text()
         self.statusBar().showMessage(text)
+
+    def about_to_show_one(self):
+        self.as_count += 1
+        self.about_to_show_sentinel.setText('About to show handled: %d' % self.as_count)
 
 app = QApplication([])
 f = factory()

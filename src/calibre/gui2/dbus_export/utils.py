@@ -14,7 +14,7 @@ from PyQt5.Qt import QSize, QImage, Qt, QKeySequence, QBuffer, QByteArray
 
 def log(*args, **kw):
     kw['file'] = sys.stderr
-    print('StatusNotifier:', *args, **kw)
+    print('DBusExport:', *args, **kw)
     kw['file'].flush()
 
 
