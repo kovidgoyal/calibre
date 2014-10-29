@@ -8,9 +8,12 @@ __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import time, sys
 
-from PyQt5.Qt import QObject, QMenuBar, QAction, QEvent
+from PyQt5.Qt import QObject, QMenuBar, QAction, QEvent, QSystemTrayIcon
+
+from calibre.constants import iswindows, isosx
 
 UNITY_WINDOW_REGISTRAR = ('com.canonical.AppMenu.Registrar', '/com/canonical/AppMenu/Registrar', 'com.canonical.AppMenu.Registrar')
+STATUS_NOTIFIER = ("org.kde.StatusNotifierWatcher", "/StatusNotifierWatcher", "org.kde.StatusNotifierWatcher")
 
 def log(*args, **kw):
     kw['file'] = sys.stderr
@@ -81,13 +84,18 @@ class Factory(QObject):
 
     def __init__(self):
         QObject.__init__(self)
-        try:
-            import dbus
-            self.dbus = dbus
-        except ImportError:
+        if iswindows or isosx:
             self.dbus = None
+        else:
+            try:
+                import dbus
+                self.dbus = dbus
+            except ImportError as err:
+                log('Failed to import dbus, with error:', str(err))
+                self.dbus = None
 
         self.menu_registrar = None
+        self.status_notifier = None
         self._bus = None
 
     @property
@@ -119,10 +127,40 @@ class Factory(QObject):
         if self.bus.name_has_owner(UNITY_WINDOW_REGISTRAR[0]):
             self.menu_registrar = UNITY_WINDOW_REGISTRAR
 
+    @property
+    def has_status_notifier(self):
+        if self.status_notifier is None:
+            if self.dbus is None:
+                self.status_notifier = False
+            else:
+                try:
+                    self.detect_status_notifier()
+                except Exception as err:
+                    self.status_notifier = False
+                    log('Failed to detect window status notifier, with error:', str(err))
+        return bool(self.status_notifier)
+
+    def detect_status_notifier(self):
+        'See http://www.notmart.org/misc/statusnotifieritem/statusnotifierwatcher.html'
+        self.status_notifier = False
+        if self.bus.name_has_owner(STATUS_NOTIFIER[0]):
+            args = STATUS_NOTIFIER + ('Get', 'ss', (STATUS_NOTIFIER[-1], 'IsStatusNotifierHostRegistered'))
+            self.status_notifier = bool(self.bus.call_blocking(*args, timeout=0.1))
+
     def create_window_menubar(self, parent):
         if self.has_global_menu:
             return ExportedMenuBar(parent, self.menu_registrar, self.bus)
         return QMenuBar(parent)
+
+    def create_system_tray_icon(self, parent=None, title=None, app_id=None, category=None):
+        if self.has_status_notifier:
+            from calibre.gui2.dbus_export.tray import StatusNotifierItem
+            ans = StatusNotifierItem(parent=parent, title=title, app_id=app_id, category=category)
+            self.bus.call_blocking(
+                self.SERVICE, self.PATH, self.IFACE, 'RegisterStatusNotifierItem', 's', (ans.dbus_api.name,), timeout=1)
+            return ans
+        if iswindows or isosx:
+            return QSystemTrayIcon(parent)
 
     def bus_disconnected(self):
         self._bus = None
