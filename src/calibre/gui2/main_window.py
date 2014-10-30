@@ -75,6 +75,9 @@ class MainWindow(QMainWindow):
     __actions   = []
 
     keyboard_interrupt = pyqtSignal()
+    # See https://bugreports.qt-project.org/browse/QTBUG-42281
+    window_blocked = pyqtSignal()
+    window_unblocked = pyqtSignal()
 
     @classmethod
     def create_application_menubar(cls):
@@ -129,3 +132,12 @@ class MainWindow(QMainWindow):
             pass
         except:
             pass
+
+    def event(self, ev):
+        # See https://bugreports.qt-project.org/browse/QTBUG-42281
+        etype = ev.type()
+        if etype == ev.WindowBlocked:
+            self.window_blocked.emit()
+        elif etype == ev.WindowUnblocked:
+            self.window_unblocked.emit()
+        return QMainWindow.event(self, ev)
