@@ -63,6 +63,13 @@ def create_properties_for_action(ac, previous=None):
                 ans['x-qt-icon-cache-key'] = icon.cacheKey()
     return ans
 
+def menu_actions(menu):
+    try:
+        return menu.actions()
+    except TypeError:
+        if isinstance(menu, QMenu):
+            return QMenu.actions(menu)
+        raise
 
 class DBusMenu(QObject):
 
@@ -129,7 +136,7 @@ class DBusMenu(QObject):
         if ac is not None and self.qmenu is not None:
             changed = False
             blocked = not visible
-            for ac in ac.menu().actions():
+            for ac in menu_actions(ac.menu()):
                 ac_id = self.action_to_id(ac)
                 if ac_id is not None:
                     old = ac.property('blocked')
@@ -150,7 +157,7 @@ class DBusMenu(QObject):
 
     def add_menu(self, menu):
         menu.installEventFilter(self)
-        for ac in menu.actions():
+        for ac in menu_actions(menu):
             self.add_action(ac)
 
     def eventFilter(self, obj, ev):
@@ -227,7 +234,7 @@ class DBusMenu(QObject):
         ans = dbus.Array(signature='(ia{sv}av)')
         ac = self.id_to_action(parent_id)
         if ac is not None and depth != 0 and ac.menu() is not None:
-            for child in ac.menu().actions():
+            for child in menu_actions(ac.menu()):
                 child_id = self.action_to_id(child)
                 if child_id is not None:
                     props = self.action_properties(child_id, property_names)
@@ -249,7 +256,7 @@ class DBusMenu(QObject):
             ac.triggered.emit(ac.isCheckable() and ac.isChecked())
 
     def handle_about_to_show(self, ac):
-        child_ids = {self.action_to_id(x) for x in ac.menu().actions()}
+        child_ids = {self.action_to_id(x) for x in menu_actions(ac.menu())}
         child_ids.discard(None)
         ac_id = self.action_to_id(ac)
         ac.menu().aboutToShow.emit()
