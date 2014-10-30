@@ -82,7 +82,7 @@ class Polish(QDialog):  # {{{
             ('smarten_punctuation', _('Smarten &punctuation')),
             ('metadata', _('Update &metadata in the book files')),
             ('do_cover', _('Update the &cover in the book files')),
-            ('jacket', _('Add metadata as a "book &jacket" page')),
+            ('jacket', _('Add/Replace metadata as a "book &jacket" page')),
             ('remove_jacket', _('&Remove a previously inserted book jacket')),
             ('remove_unused_css', _('Remove &unused CSS rules from the book')),
         ])
