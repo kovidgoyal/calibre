@@ -35,7 +35,6 @@ class MainWindow(QMainWindow):
         self.setCentralWidget(w)
         self.l = l = QVBoxLayout(w)
         mb = f.create_window_menubar(self)
-        self.setMenuBar(mb)
         m = self.menu_one = mb.addMenu('&One')
         m.aboutToShow.connect(self.about_to_show_one)
         s = self.style()

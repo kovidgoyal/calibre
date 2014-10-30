@@ -180,7 +180,9 @@ class Factory(QObject):
     def create_window_menubar(self, parent):
         if not QApplication.instance().testAttribute(Qt.AA_DontUseNativeMenuBar) and self.has_global_menu:
             return ExportedMenuBar(parent, self.menu_registrar, self.bus)
-        return QMenuBar(parent)
+        ans = QMenuBar(parent)
+        parent.setMenuBar(ans)
+        return ans
 
     def create_system_tray_icon(self, parent=None, title=None, category=None):
         if self.has_status_notifier:
