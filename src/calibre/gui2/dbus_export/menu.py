@@ -165,7 +165,7 @@ class DBusMenu(QObject):
                 continue
             old_props = self.action_properties(ac_id)
             new_props = self._action_properties[ac_id] = create_properties_for_action(ac, old_props)
-            removed = set(new_props) - set(old_props)
+            removed = set(old_props) - set(new_props)
             if removed:
                 removed_props.append((ac_id, dbus.Array(removed, signature='as')))
             updated = PropDict({k:v for k, v in new_props.iteritems() if v != old_props.get(k, null)})
