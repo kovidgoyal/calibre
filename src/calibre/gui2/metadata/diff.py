@@ -15,7 +15,7 @@ from PyQt5.Qt import (
     QDialog, QWidget, QGridLayout, QLineEdit, QLabel, QToolButton, QIcon,
     QVBoxLayout, QDialogButtonBox, QApplication, pyqtSignal, QFont, QPixmap,
     QSize, QPainter, Qt, QColor, QPen, QSizePolicy, QScrollArea, QFrame,
-    QKeySequence, QAction)
+    QKeySequence, QAction, QMenu)
 
 from calibre import fit_image
 from calibre.ebooks.metadata import title_sort, authors_to_sort_string
@@ -199,14 +199,21 @@ class SeriesEdit(LineEdit):
 class IdentifiersEdit(LineEdit):
 
     def from_mi(self, mi):
-        val = ('%s:%s' % (k, v) for k, v in mi.identifiers.iteritems())
-        self.setText(', '.join(val))
-        self.setCursorPosition(0)
+        self.as_dict = mi.identifiers
 
     def to_mi(self, mi):
-        parts = (x.strip() for x in self.current_val.split(',') if x.strip())
-        val = {x.partition(':')[0].strip():x.partition(':')[-1].strip() for x in parts}
-        mi.set_identifiers({k:v for k, v in val.iteritems() if k and v})
+        mi.set_identifiers(self.as_dict)
+
+    @dynamic_property
+    def as_dict(self):
+        def fget(self):
+            parts = (x.strip() for x in self.current_val.split(',') if x.strip())
+            return {k:v for k, v in {x.partition(':')[0].strip():x.partition(':')[-1].strip() for x in parts}.iteritems() if k and v}
+        def fset(self, val):
+            val = ('%s:%s' % (k, v) for k, v in val.iteritems())
+            self.setText(', '.join(val))
+            self.setCursorPosition(0)
+        return property(fget=fget, fset=fset)
 
 class CommentsEdit(Editor):
 
@@ -389,6 +396,15 @@ class CompareSingle(QWidget):
             button.setIcon(QIcon(I('back.png')))
             button.clicked.connect(partial(self.revert, field))
             button.setToolTip(revert_tooltip % m['name'])
+            if field == 'identifiers':
+                button.m = m = QMenu(button)
+                button.setMenu(m)
+                button.setPopupMode(QToolButton.DelayedPopup)
+                m.addAction(button.toolTip()).triggered.connect(button.click)
+                m.actions()[0].setIcon(button.icon())
+                m.addAction(_('Merge identifiers')).triggered.connect(self.merge_identifiers)
+                m.actions()[1].setIcon(QIcon(I('merge.png')))
+
             self.widgets[field] = Widgets(neww, oldw, newl, button)
             for i, w in enumerate((newl, neww, button, oldw)):
                 c = i if i < 2 else i + 1
@@ -423,6 +439,13 @@ class CompareSingle(QWidget):
         widgets = self.widgets[field]
         neww, oldw = widgets[:2]
         neww.current_val = oldw.current_val
+
+    def merge_identifiers(self):
+        widgets = self.widgets['identifiers']
+        neww, oldw = widgets[:2]
+        val = neww.as_dict
+        val.update(oldw.as_dict)
+        neww.as_dict = val
 
     def __call__(self, oldmi, newmi):
         self.current_mi = newmi
