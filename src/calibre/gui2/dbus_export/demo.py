@@ -34,7 +34,7 @@ class MainWindow(QMainWindow):
         w = QWidget(self)
         self.setCentralWidget(w)
         self.l = l = QVBoxLayout(w)
-        mb = f.create_window_menubar(self)
+        mb = self.menu_bar = f.create_window_menubar(self)
         m = self.menu_one = mb.addMenu('&One')
         m.aboutToShow.connect(self.about_to_show_one)
         s = self.style()
@@ -94,7 +94,7 @@ class MainWindow(QMainWindow):
         self.systray.setToolTip(time.strftime('A dynamically updated tooltip [%H:%M:%S]'))
 
     def add_menu(self):
-        mb = self.menuBar()
+        mb = self.menu_bar
         m = mb.addMenu('Created menu %d' % len(mb.actions()))
         for i in xrange(3):
             m.addAction('Some action %d' % i)
@@ -103,7 +103,7 @@ class MainWindow(QMainWindow):
         m.aboutToShow.connect(self.about_to_show)
 
     def remove_menu(self):
-        mb = self.menuBar()
+        mb = self.menu_bar
         if len(mb.actions()) > 1:
             mb.removeAction(mb.actions()[-1])
 
