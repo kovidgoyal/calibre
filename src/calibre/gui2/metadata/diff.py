@@ -14,7 +14,8 @@ from future_builtins import zip
 from PyQt5.Qt import (
     QDialog, QWidget, QGridLayout, QLineEdit, QLabel, QToolButton, QIcon,
     QVBoxLayout, QDialogButtonBox, QApplication, pyqtSignal, QFont, QPixmap,
-    QSize, QPainter, Qt, QColor, QPen, QSizePolicy, QScrollArea, QFrame)
+    QSize, QPainter, Qt, QColor, QPen, QSizePolicy, QScrollArea, QFrame,
+    QKeySequence, QAction)
 
 from calibre import fit_image
 from calibre.ebooks.metadata import title_sort, authors_to_sort_string
@@ -490,12 +491,18 @@ class CompareMany(QDialog):
             b.setIcon(QIcon(I('minus.png')))
             if reject_button_tooltip:
                 b.setToolTip(reject_button_tooltip)
+            self.next_action = ac = QAction(self)
+            ac.setShortcut(QKeySequence(Qt.ALT | Qt.Key_Right))
+            self.addAction(ac)
         if action_button is not None:
             self.acb = b = bb.addButton(action_button[0], bb.ActionRole)
             b.setIcon(QIcon(action_button[1]))
             self.action_button_action = action_button[2]
             b.clicked.connect(self.action_button_clicked)
         self.nb = b = bb.addButton(_('&Next') if self.total > 1 else _('&OK'), bb.ActionRole)
+        if self.total > 1:
+            b.setToolTip(_('Move to next [%s]') % self.next_action.shortcut().toString(QKeySequence.NativeText))
+            self.next_action.triggered.connect(b.click)
         b.setIcon(QIcon(I('forward.png' if self.total > 1 else 'ok.png')))
         b.clicked.connect(partial(self.next_item, True))
         b.setDefault(True)
