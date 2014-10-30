@@ -262,7 +262,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
             self.system_tray_icon.setToolTip(self.jobs_button.tray_tooltip())
             self.system_tray_icon.setVisible(True)
             self.jobs_button.tray_tooltip_updated.connect(self.system_tray_icon.setToolTip)
-        else:
+        elif config['systray_icon']:
             prints('Failed to create system tray icon')
         self.system_tray_menu = QMenu(self)
         self.toggle_to_tray_action = self.system_tray_menu.addAction(QIcon(I('page.png')), '')
