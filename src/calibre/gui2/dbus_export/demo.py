@@ -10,7 +10,7 @@ import time
 
 from PyQt5.Qt import (
     QApplication, QMainWindow, QVBoxLayout, Qt, QKeySequence, QAction,
-    QActionGroup, QMenu, QPushButton, QWidget, QTimer)
+    QActionGroup, QMenu, QPushButton, QWidget, QTimer, QMessageBox, pyqtSignal)
 
 from calibre.gui2.dbus_export.utils import setup_for_cli_run
 from calibre.gui2.dbus_export.widgets import factory
@@ -21,6 +21,9 @@ def make_checkable(ac, checked=True):
     ac.setCheckable(True), ac.setChecked(checked)
 
 class MainWindow(QMainWindow):
+
+    window_blocked = pyqtSignal()
+    window_unblocked = pyqtSignal()
 
     def __init__(self):
         QMainWindow.__init__(self)
@@ -84,6 +87,8 @@ class MainWindow(QMainWindow):
         b.clicked.connect(self.add_menu), l.addWidget(b)
         self.rb = b = QPushButton('Remove a created menu')
         b.clicked.connect(self.remove_menu), l.addWidget(b)
+        self.sd = b = QPushButton('Show modal dialog')
+        b.clicked.connect(self.show_dialog), l.addWidget(b)
         print ('DBUS connection unique name:', f.bus.get_unique_name())
 
     def update_tooltip(self):
@@ -142,6 +147,17 @@ class MainWindow(QMainWindow):
 
     def about_to_show_two(self):
         self.menu_two.addAction('Action added by about to show')
+
+    def show_dialog(self):
+        QMessageBox.information(self, 'A test dialog', 'While this dialog is shown, the global menu should be hidden')
+
+    def event(self, ev):
+        if ev.type() in (ev.WindowBlocked, ev.WindowUnblocked):
+            if ev.type() == ev.WindowBlocked:
+                self.window_blocked.emit()
+            else:
+                self.window_unblocked.emit()
+        return QMainWindow.event(self, ev)
 
 app=QApplication([])
 app.setAttribute(Qt.AA_DontUseNativeMenuBar, False)

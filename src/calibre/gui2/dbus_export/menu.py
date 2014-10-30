@@ -34,7 +34,7 @@ def create_properties_for_action(ac, previous=None):
         ans['label'] = swap_mnemonic_char(text)
     if not ac.isEnabled():
         ans['enabled'] = False
-    if not ac.isVisible():
+    if not ac.isVisible() or ac.property('blocked') is True:
         ans['visible'] = False
     if ac.menu() is not None:
         ans['children-display'] = 'submenu'
@@ -123,6 +123,22 @@ class DBusMenu(QObject):
             ac = qmenu.menuAction()
             self.add_action(ac)
         self.dbus_api.LayoutUpdated(self.dbus_api.revision, 0)
+
+    def set_visible(self, visible):
+        ac = self.id_to_action(0)
+        if ac is not None and self.qmenu is not None:
+            changed = False
+            blocked = not visible
+            for ac in ac.menu().actions():
+                ac_id = self.action_to_id(ac)
+                if ac_id is not None:
+                    old = ac.property('blocked')
+                    if old is not blocked:
+                        ac.setProperty('blocked', blocked)
+                        self.action_changes.add(ac_id)
+                        changed = True
+            if changed:
+                self.action_changed_timer.start()
 
     def add_action(self, ac):
         ac_id = 0 if ac.menu() is self.qmenu else self.next_id

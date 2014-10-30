@@ -37,6 +37,8 @@ class ExportedMenuBar(QMenuBar):
         global menu_counter
         if not parent.isWindow():
             raise ValueError('You must supply a top level window widget as the parent for an exported menu bar')
+        self._blocked = False
+        self.is_visible = True
         QMenuBar.__init__(self, parent)
         QMenuBar.setVisible(self, False)
         self.menu_action = MenuBarAction(self)
@@ -51,6 +53,10 @@ class ExportedMenuBar(QMenuBar):
         self.dbus_menu.publish_new_menu(self)
         self.register()
         parent.installEventFilter(self)
+        # See https://bugreports.qt-project.org/browse/QTBUG-42281
+        if hasattr(parent, 'window_blocked'):
+            parent.window_blocked.connect(self._block)
+            parent.window_unblocked.connect(self._unblock)
 
     def register(self):
         wid = self.parent().effectiveWinId()
@@ -66,16 +72,38 @@ class ExportedMenuBar(QMenuBar):
             self.bus.call_blocking(*args)
 
     def setVisible(self, visible):
-        pass  # no-op
+        self.is_visible = visible
+        self.dbus_menu.set_visible(self.is_visible and not self._blocked)
 
     def isVisible(self):
-        return True
+        return self.is_visible
+
+    def show(self):
+        self.setVisible(True)
+
+    def hide(self):
+        self.setVisible(False)
 
     def menuAction(self):
         return self.menu_action
 
+    def _block(self):
+        self._blocked = True
+        self.setVisible(self.is_visible)
+
+    def _unblock(self):
+        self._blocked = False
+        self.setVisible(self.is_visible)
+
     def eventFilter(self, obj, ev):
         etype = ev.type()
+        # WindowBlocked and WindowUnblocked aren't delivered to event filters,
+        # so we have to rely on co-operation from the mainwindow class
+        # See https://bugreports.qt-project.org/browse/QTBUG-42281
+        # if etype == QEvent.WindowBlocked:
+        #     self._block()
+        # elif etype == QEvent.WindowUnblocked:
+        #     self._unblock()
         if etype == QEvent.WinIdChange:
             self.unregister()
             self.register()
