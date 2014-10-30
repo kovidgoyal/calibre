@@ -498,9 +498,14 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
     def system_tray_icon_activated(self, r=False):
         if r in (QSystemTrayIcon.Trigger, QSystemTrayIcon.MiddleClick, False):
             if self.isVisible():
-                self.hide_windows()
+                if self.isMinimized():
+                    self.showNormal()
+                else:
+                    self.hide_windows()
             else:
                 self.show_windows()
+                if self.isMinimized():
+                    self.showNormal()
 
     @property
     def is_minimized_to_tray(self):
