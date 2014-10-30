@@ -263,7 +263,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
             self.system_tray_icon.setVisible(True)
             self.jobs_button.tray_tooltip_updated.connect(self.system_tray_icon.setToolTip)
         elif config['systray_icon']:
-            prints('Failed to create system tray icon')
+            prints('Failed to create system tray icon, your desktop environment probably does not support the StatusNotifier spec')
         self.system_tray_menu = QMenu(self)
         self.toggle_to_tray_action = self.system_tray_menu.addAction(QIcon(I('page.png')), '')
         self.toggle_to_tray_action.triggered.connect(self.system_tray_icon_activated)
