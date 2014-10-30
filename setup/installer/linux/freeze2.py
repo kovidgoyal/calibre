@@ -78,7 +78,7 @@ def binary_includes():
         'crypto.so.1.0.0', 'readline.so.6', 'chm.so.0', 'icudata.so.53',
         'icui18n.so.53', 'icuuc.so.53', 'icuio.so.53', 'python%s.so.1.0' % py_ver,
         'gcrypt.so.20', 'gpg-error.so.0', 'gobject-2.0.so.0', 'glib-2.0.so.0',
-        'gthread-2.0.so.0', 'gmodule-2.0.so.0', 'gio-2.0.so.0',
+        'gthread-2.0.so.0', 'gmodule-2.0.so.0', 'gio-2.0.so.0', 'dbus-glib-1.so.2',
     )] + [
 
     glob.glob('/lib/*/lib' + x)[-1] for x in (
