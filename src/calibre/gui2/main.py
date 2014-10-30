@@ -333,7 +333,10 @@ def run_gui(opts, args, listener, app, gui_debug=None):
         wizard().exec_()
         dynamic.set('welcome_wizard_was_run', True)
     from calibre.gui2.ui import Main
-    actions = tuple(Main.create_application_menubar())
+    if isosx:
+        actions = tuple(Main.create_application_menubar())
+    else:
+        actions = tuple(Main.get_menubar_actions())
     runner = GuiRunner(opts, args, actions, listener, app, gui_debug=gui_debug)
     ret = app.exec_()
     if getattr(runner.main, 'run_wizard_b4_shutdown', False):

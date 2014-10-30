@@ -33,6 +33,8 @@ menu_counter = 0
 
 class ExportedMenuBar(QMenuBar):  # {{{
 
+    is_native_menubar = True
+
     def __init__(self, parent, menu_registrar, bus):
         global menu_counter
         if not parent.isWindow():
@@ -109,6 +111,7 @@ class ExportedMenuBar(QMenuBar):  # {{{
             self.unregister()
             self.register()
         return False
+
 # }}}
 
 class Factory(QObject):
@@ -212,6 +215,7 @@ class Factory(QObject):
             return ans
         ans = QMenuBar(parent)
         parent.setMenuBar(ans)
+        ans.is_native_menubar = False
         return ans
 
     def register_status_notifier(self, item):

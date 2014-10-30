@@ -10,12 +10,12 @@ __docformat__ = 'restructuredtext en'
 from functools import partial
 
 import sip
-from PyQt5.Qt import (Qt, QAction, QMenu, QMenuBar, QObject,
-    QToolBar, QToolButton, QSize, pyqtSignal, QTimer)
+from PyQt5.Qt import (
+    Qt, QAction, QMenu, QObject, QToolBar, QToolButton, QSize, pyqtSignal, QTimer)
 
 from calibre.constants import isosx
 from calibre.gui2.throbber import create_donate_widget
-from calibre.gui2 import gprefs, workaround_broken_under_mouse
+from calibre.gui2 import gprefs, workaround_broken_under_mouse, native_menubar_defaults
 
 class ToolBar(QToolBar):  # {{{
 
@@ -273,6 +273,8 @@ if isosx:
 
     class MenuBar(QObject):
 
+        is_native_menubar = True
+
         @property
         def native_menubar(self):
             return self.gui.native_menubar
@@ -353,11 +355,17 @@ else:
             elif what in iactions:
                 m.addAction(iactions[what].qaction)
 
-    class MenuBar(QMenuBar):
+    from calibre.gui2.dbus_export.widgets import factory
+
+    class MenuBar(QObject):
+
+        is_native_menubar = False
 
         def __init__(self, location_manager, parent):
-            QMenuBar.__init__(self, parent)
-            parent.setMenuBar(self)
+            QObject.__init__(self, parent)
+            f = factory(app_id='com.calibre-ebook.gui')
+            self.menu_bar = f.create_window_menubar(parent)
+            self.is_native_menubar = self.menu_bar.is_native_menubar
             self.gui = parent
 
             self.location_manager = location_manager
@@ -367,6 +375,15 @@ else:
             self.donate_menu = QMenu()
             self.donate_menu.addAction(self.gui.donate_action)
             self.donate_action.setMenu(self.donate_menu)
+
+        def addAction(self, *args):
+            self.menu_bar.addAction(*args)
+
+        def setVisible(self, visible):
+            self.menu_bar.setVisible(visible)
+
+        def clear(self):
+            self.menu_bar.clear()
 
         def init_bar(self, actions):
             for ac in self.added_actions:
@@ -424,6 +441,9 @@ class BarsManager(QObject):
         self.child_bars = tuple(bars[2:])
 
         self.menu_bar = MenuBar(self.location_manager, self.parent())
+        is_native_menubar = self.menu_bar.is_native_menubar
+        self.menubar_fallback = native_menubar_defaults['action-layout-menubar'] if is_native_menubar else ()
+        self.menubar_device_fallback = native_menubar_defaults['action-layout-menubar-device'] if is_native_menubar else ()
 
         self.apply_settings()
         self.init_bars()
@@ -447,8 +467,8 @@ class BarsManager(QObject):
         self.bar_actions = tuple(
             [gprefs['action-layout-toolbar'+x] for x in ('', '-device')] +
             [gprefs['action-layout-toolbar-child']] +
-            [gprefs['action-layout-menubar']] +
-            [gprefs['action-layout-menubar-device']]
+            [gprefs['action-layout-menubar'] or self.menubar_fallback] +
+            [gprefs['action-layout-menubar-device'] or self.menubar_device_fallback]
         )
 
         for bar, actions in zip(self.bars, self.bar_actions[:3]):

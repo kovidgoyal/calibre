@@ -25,17 +25,22 @@ from calibre.utils.filenames import expanduser
 gprefs = JSONConfig('gui')
 defs = gprefs.defaults
 
-if isosx:
-    defs['action-layout-menubar'] = (
+native_menubar_defaults = {
+    'action-layout-menubar': (
         'Add Books', 'Edit Metadata', 'Convert Books',
         'Choose Library', 'Save To Disk', 'Preferences',
         'Help',
-        )
-    defs['action-layout-menubar-device'] = (
+        ),
+    'action-layout-menubar-device': (
         'Add Books', 'Edit Metadata', 'Convert Books',
         'Location Manager', 'Send To Device',
         'Save To Disk', 'Preferences', 'Help',
         )
+}
+
+if isosx:
+    defs['action-layout-menubar'] = native_menubar_defaults['action-layout-menubar']
+    defs['action-layout-menubar-device'] = native_menubar_defaults['action-layout-menubar-device']
     defs['action-layout-toolbar'] = (
         'Add Books', 'Edit Metadata', None, 'Convert Books', 'View', None,
         'Choose Library', 'Donate', None, 'Fetch News', 'Store', 'Save To Disk',

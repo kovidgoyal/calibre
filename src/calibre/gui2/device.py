@@ -712,7 +712,7 @@ class DeviceMenu(QMenu):  # {{{
     def __init__(self, parent=None):
         QMenu.__init__(self, parent)
         self.group = QActionGroup(self)
-        self.actions = []
+        self._actions = []
         self._memory = []
 
         self.set_default_menu = QMenu(_('Set default send to device action'))
@@ -771,7 +771,7 @@ class DeviceMenu(QMenu):  # {{{
                         self.group.addAction(action)
                     else:
                         action.a_s.connect(self.action_triggered)
-                        self.actions.append(action)
+                        self._actions.append(action)
                     mdest.addAction(action)
                 if actions is basic_actions:
                     menu.addSeparator()
@@ -822,14 +822,14 @@ class DeviceMenu(QMenu):  # {{{
 
     def trigger_default(self, *args):
         r = config['default_send_to_device_action']
-        for action in self.actions:
+        for action in self._actions:
             if repr(action) == r:
                 self.action_triggered(action)
                 break
 
     def enable_device_actions(self, enable, card_prefix=(None, None),
             device=None):
-        for action in self.actions:
+        for action in self._actions:
             if action.dest in ('main:', 'carda:0', 'cardb:0'):
                 if not enable:
                     action.setEnabled(False)
