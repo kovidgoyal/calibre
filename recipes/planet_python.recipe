@@ -1,0 +1,9 @@
+from calibre.web.feeds.news import AutomaticNewsRecipe
+
+class BasicUserRecipe(AutomaticNewsRecipe):
+    title			= u'Planet Python'
+    language			= 'en'
+    __author__			= 'Jelle van der Waa'
+    oldest_article		= 10
+    max_articles_per_feed	= 100
+    feeds			= [(u'Planet Python', u'http://planetpython.org/rss20.xml')]
