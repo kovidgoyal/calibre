@@ -6,7 +6,7 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import time, sys
+import time, sys, weakref
 
 from PyQt5.Qt import (
     QObject, QMenuBar, QAction, QEvent, QSystemTrayIcon, QApplication, Qt)
@@ -31,7 +31,7 @@ class MenuBarAction(QAction):
 
 menu_counter = 0
 
-class ExportedMenuBar(QMenuBar):
+class ExportedMenuBar(QMenuBar):  # {{{
 
     def __init__(self, parent, menu_registrar, bus):
         global menu_counter
@@ -58,7 +58,8 @@ class ExportedMenuBar(QMenuBar):
             parent.window_blocked.connect(self._block)
             parent.window_unblocked.connect(self._unblock)
 
-    def register(self):
+    def register(self, menu_registrar=None):
+        self.menu_registrar = menu_registrar or self.menu_registrar
         wid = self.parent().effectiveWinId()
         if wid is not None:
             self.registered_window_id = int(wid)
@@ -108,6 +109,7 @@ class ExportedMenuBar(QMenuBar):
             self.unregister()
             self.register()
         return False
+# }}}
 
 class Factory(QObject):
 
@@ -127,6 +129,29 @@ class Factory(QObject):
         self.menu_registrar = None
         self.status_notifier = None
         self._bus = None
+        self.status_notifiers, self.window_menus = [], []
+
+    def prune_dead_refs(self):
+        self.status_notifiers = [ref for ref in self.status_notifiers if ref() is not None]
+        self.window_menus = [ref for ref in self.window_menus if ref() is not None]
+
+    def window_registrar_changed(self, new_owner):
+        if new_owner:
+            self.menu_registrar = None
+            if self.has_global_menu:
+                for ref in self.window_menus:
+                    w = ref()
+                    if w is not None:
+                        w.register(self.menu_registrar)
+
+    def status_notifier_registrar_changed(self, new_owner):
+        if new_owner:
+            self.status_notifier = None
+            if self.has_status_notifier:
+                for ref in self.status_notifiers:
+                    w = ref()
+                    if w is not None:
+                        self.register_status_notifier(w)
 
     @property
     def bus(self):
@@ -134,6 +159,8 @@ class Factory(QObject):
             try:
                 self._bus = self.dbus.SessionBus()
                 self._bus.call_on_disconnection(self.bus_disconnected)
+                self._bus.watch_name_owner(UNITY_WINDOW_REGISTRAR[0], self.window_registrar_changed)
+                self._bus.watch_name_owner(STATUS_NOTIFIER[0], self.status_notifier_registrar_changed)
             except Exception as err:
                 log('Failed to connect to DBUS session bus, with error:', str(err))
                 self._bus = False
@@ -179,17 +206,25 @@ class Factory(QObject):
 
     def create_window_menubar(self, parent):
         if not QApplication.instance().testAttribute(Qt.AA_DontUseNativeMenuBar) and self.has_global_menu:
-            return ExportedMenuBar(parent, self.menu_registrar, self.bus)
+            ans = ExportedMenuBar(parent, self.menu_registrar, self.bus)
+            self.prune_dead_refs()
+            self.window_menus.append(weakref.ref(ans))
+            return ans
         ans = QMenuBar(parent)
         parent.setMenuBar(ans)
         return ans
+
+    def register_status_notifier(self, item):
+        args = STATUS_NOTIFIER + ('RegisterStatusNotifierItem', 's', (item.dbus_api.name,))
+        self.bus.call_blocking(*args, timeout=1)
 
     def create_system_tray_icon(self, parent=None, title=None, category=None):
         if self.has_status_notifier:
             from calibre.gui2.dbus_export.tray import StatusNotifierItem
             ans = StatusNotifierItem(parent=parent, title=title, app_id=self.app_id, category=category)
-            args = STATUS_NOTIFIER + ('RegisterStatusNotifierItem', 's', (ans.dbus_api.name,))
-            self.bus.call_blocking(*args, timeout=1)
+            self.register_status_notifier(ans)
+            self.prune_dead_refs()
+            self.status_notifiers.append(weakref.ref(ans))
             return ans
         if iswindows or isosx:
             return QSystemTrayIcon(parent)
