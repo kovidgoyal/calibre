@@ -955,6 +955,7 @@ class EbookViewer(MainWindow):
                 reopen_at = self.current_page_bookmark
             except Exception:
                 reopen_at = None
+            self.history.clear()
             self.load_ebook(self.iterator.pathtoebook, reopen_at=reopen_at)
             return
 

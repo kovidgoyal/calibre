@@ -106,13 +106,14 @@ class History(list):  # {{{
         self.action_back = action_back
         self.action_forward = action_forward
         super(History, self).__init__(self)
+        self.clear()
+
+    def clear(self):
+        del self[:]
         self.insert_pos = 0
         self.back_pos = None
         self.forward_pos = None
         self.set_actions()
-
-    def clear(self):
-        del self[:]
 
     def set_actions(self):
         if self.action_back is not None:
