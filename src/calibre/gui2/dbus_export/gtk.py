@@ -9,7 +9,7 @@ __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 # Demo program to explore the GTK DBus interface, which is only partially documented
 # at https://wiki.gnome.org/Projects/GLib/GApplication/DBusAPI
 
-import sys, dbus, subprocess
+import sys, dbus, struct
 from threading import Thread
 from pprint import pformat
 
@@ -200,18 +200,48 @@ class MyApplication(Gtk.Application):
         Thread(target=self.print_dbus_data).start()
 
     def get_xprop_data(self):
-        property_names = {GdkX11.x11_get_xatom_name(i) for i in xrange(691)}
-        property_names = {name for name in property_names if
+        win_id = self.window.get_window().get_xid()
+        try:
+            import xcb, xcb.xproto
+        except ImportError:
+            raise SystemExit('You must install the python-xpyb XCB bindings')
+        conn = xcb.Connection()
+        atoms = conn.core.ListProperties(win_id).reply().atoms
+        atom_names = {atom:conn.core.GetAtomNameUnchecked(atom) for atom in atoms}
+        atom_names = {k:str(a.reply().name.buf()) for k, a in atom_names.iteritems()}
+        property_names = {name:atom for atom, name in atom_names.iteritems() if
             name.startswith('_GTK') or name.startswith('_UNITY') or name.startswith('_GNOME')}
-        props = []
-        for name in sorted(property_names):
-            props.append(subprocess.check_output(['xprop', '-id', str(self.window.get_window().get_xid()), name]))
-            raw = props[-1]
-            if raw.startswith('_UNITY_OBJECT_PATH'):
-                self.object_path = eval(raw.split('=')[-1].strip())
-            elif raw.startswith('_GTK_UNIQUE_BUS_NAME'):
-                self.bus_name = eval(raw.split('=')[-1].strip())
-        self.xprop_data = '\n'.join(props)
+        replies = {name:conn.core.GetProperty(False, win_id, atom, xcb.xproto.GetPropertyType.Any, 0, 2 ** 32 - 1) for name, atom in property_names.iteritems()}
+
+        def get_property_value(property_reply):
+            if property_reply.format == 8:
+                if 0 in property_reply.value[:-1]:
+                    ret = []
+                    s = []
+                    for o in property_reply.value:
+                        if o == 0:
+                            ret.append(''.join(s))
+                            s = []
+                        else:
+                            s.append(chr(o))
+                else:
+                    ret = str(property_reply.value.buf())
+                    if len(property_reply.value) > 0 and 0 == property_reply.value[-1]:
+                        ret = ret[:-1]
+
+                return ret
+            elif property_reply.format in (16, 32):
+                return list(struct.unpack(b'I' * property_reply.value_len,
+                                        property_reply.value.buf()))
+
+            return None
+        props = {name:get_property_value(r.reply()) for name, r in replies.iteritems()}
+        ans = ['\nX Window properties:']
+        for name in sorted(props):
+            ans.append('%s: %r' % (name, props[name]))
+        self.xprop_data = '\n'.join(ans)
+        self.object_path = props['_UNITY_OBJECT_PATH']
+        self.bus_name = props['_GTK_UNIQUE_BUS_NAME']
 
     def print(self, *args):
         self.data.append(' '.join(map(str, args)))
