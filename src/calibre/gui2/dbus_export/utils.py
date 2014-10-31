@@ -128,3 +128,11 @@ def setup_for_cli_run():
     DBusGMainLoop(set_as_default=True)
     signal.signal(signal.SIGINT, signal.SIG_DFL)  # quit on Ctrl-C
 
+def set_X_window_properties(win_id, **properties):
+    import xcb, xcb.xproto
+    conn = xcb.connect()
+    for name, val in properties.iteritems():
+        atom = conn.core.InternAtom(False, len(name), name).reply().atom
+        conn.core.ChangePropertyChecked(xcb.xproto.PropMode.Replace, win_id, atom, xcb.xproto.Atom.STRING, 8, len(val), val)
+    conn.flush()
+    conn.disconnect()
