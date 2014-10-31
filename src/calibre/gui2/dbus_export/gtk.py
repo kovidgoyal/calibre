@@ -9,7 +9,7 @@ __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 # Demo program to explore the GTK DBus interface, which is only partially documented
 # at https://wiki.gnome.org/Projects/GLib/GApplication/DBusAPI
 
-import sys, dbus, struct
+import sys, dbus, struct, time, signal
 from threading import Thread
 from pprint import pformat
 
@@ -37,6 +37,11 @@ UI_INFO = """
       <menuitem action='ChoiceTwo'/>
       <separator />
       <menuitem action='ChoiceThree'/>
+      <separator />
+      <menuitem action='DisabledAction'/>
+      <menuitem action='InvisibleAction'/>
+      <menuitem action='TooltipAction'/>
+      <menuitem action='IconAction'/>
     </menu>
   </menubar>
   <toolbar name='ToolBar'>
@@ -93,6 +98,12 @@ class MenuExampleWindow(Gtk.ApplicationWindow):
         self.popup = uimanager.get_widget("/PopupMenu")
 
         self.add(box)
+        i = Gtk.Image.new_from_stock(Gtk.STOCK_OK, Gtk.IconSize.MENU)
+        # Currently the menu items image is not exported over DBus, so probably
+        # best to stick with using dbusmenu
+        uimanager.get_widget('/MenuBar/ChoicesMenu/IconAction')
+        uimanager.get_widget('/MenuBar/ChoicesMenu/IconAction').set_image(i)
+        uimanager.get_widget('/MenuBar/ChoicesMenu/IconAction').set_always_show_image(True)
 
     def add_file_menu_actions(self, action_group):
         action_filemenu = Gtk.Action("FileMenu", "File", None, None)
@@ -140,6 +151,15 @@ class MenuExampleWindow(Gtk.ApplicationWindow):
         three = Gtk.ToggleAction("ChoiceThree", "Three", None, None)
         three.connect("toggled", self.on_menu_choices_toggled)
         action_group.add_action(three)
+        ad = Gtk.Action('DisabledAction', 'Disabled Action', None, None)
+        ad.set_sensitive(False)
+        action_group.add_action(ad)
+        ia = Gtk.Action('InvisibleAction', 'Invisible Action', None, None)
+        ia.set_visible(False)
+        action_group.add_action(ia)
+        ta = Gtk.Action('TooltipAction', 'Tooltip Action', 'A tooltip', None)
+        action_group.add_action(ta)
+        action_group.add_action(Gtk.Action('IconAction', 'Icon Action', None, None))
 
     def create_ui_manager(self):
         uimanager = Gtk.UIManager()
@@ -263,6 +283,7 @@ class MyApplication(Gtk.Application):
 
     def print_dbus_data(self):
         bus = dbus.SessionBus()
+        time.sleep(0.5)
         self.data = []
         self.get_actions_description(bus)
         self.print_menu_start(bus)
@@ -273,7 +294,9 @@ class MyApplication(Gtk.Application):
         print = self.print
         print('\nActions description')
         self.actions_desc = d = {}
-        for name, data in bus.call_blocking(self.bus_name, self.object_path, 'org.gtk.Actions', 'DescribeAll', '', ()).iteritems():
+        adata = bus.call_blocking(self.bus_name, self.object_path, 'org.gtk.Actions', 'DescribeAll', '', ())
+        for name in sorted(adata):
+            data = adata[name]
             d[name] = {'enabled':convert(data[0]), 'param type': convert(data[1]), 'state':convert(data[2])}
             print ('Name:', name)
             print (pformat(d[name]))
@@ -282,4 +305,5 @@ class MyApplication(Gtk.Application):
         Gtk.Application.do_startup(self)
 
 app = MyApplication(application_id='com.calibre-ebook.test-gtk')
+signal.signal(signal.SIGINT, signal.SIG_DFL)
 sys.exit(app.run(sys.argv))
