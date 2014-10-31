@@ -43,25 +43,34 @@ class LineEdit(QLineEdit):
             self.setReadOnly(True)
         self.textChanged.connect(self.changed)
 
+    @dynamic_property
+    def value(self):
+        def fget(self):
+            val = unicode(self.text()).strip()
+            ism = self.metadata['is_multiple']
+            if ism:
+                if not val:
+                    val = []
+                else:
+                    val = [x.strip() for x in val.split(ism['list_to_ui']) if x.strip()]
+            return val
+        def fset(self, val):
+            ism = self.metadata['is_multiple']
+            if ism:
+                if not val:
+                    val = ''
+                else:
+                    val = ism['list_to_ui'].join(val)
+            self.setText(val)
+            self.setCursorPosition(0)
+        return property(fget=fget, fset=fset)
+
     def from_mi(self, mi):
         val = mi.get(self.field, default='') or ''
-        ism = self.metadata['is_multiple']
-        if ism:
-            if not val:
-                val = ''
-            else:
-                val = ism['list_to_ui'].join(val)
-        self.setText(val)
-        self.setCursorPosition(0)
+        self.value = val
 
     def to_mi(self, mi):
-        val = unicode(self.text()).strip()
-        ism = self.metadata['is_multiple']
-        if ism:
-            if not val:
-                val = []
-            else:
-                val = [x.strip() for x in val.split(ism['list_to_ui']) if x.strip()]
+        val = self.value
         mi.set(self.field, val)
         if self.field == 'title':
             mi.set('title_sort', title_sort(val, lang=mi.language))
@@ -404,6 +413,14 @@ class CompareSingle(QWidget):
                 m.actions()[0].setIcon(button.icon())
                 m.addAction(_('Merge identifiers')).triggered.connect(self.merge_identifiers)
                 m.actions()[1].setIcon(QIcon(I('merge.png')))
+            elif field == 'tags':
+                button.m = m = QMenu(button)
+                button.setMenu(m)
+                button.setPopupMode(QToolButton.DelayedPopup)
+                m.addAction(button.toolTip()).triggered.connect(button.click)
+                m.actions()[0].setIcon(button.icon())
+                m.addAction(_('Merge tags')).triggered.connect(self.merge_tags)
+                m.actions()[1].setIcon(QIcon(I('merge.png')))
 
             self.widgets[field] = Widgets(neww, oldw, newl, button)
             for i, w in enumerate((newl, neww, button, oldw)):
@@ -446,6 +463,15 @@ class CompareSingle(QWidget):
         val = neww.as_dict
         val.update(oldw.as_dict)
         neww.as_dict = val
+
+    def merge_tags(self):
+        widgets = self.widgets['tags']
+        neww, oldw = widgets[:2]
+        val = oldw.value
+        lval = {icu_lower(x) for x in val}
+        extra = [x for x in neww.value if icu_lower(x) not in lval]
+        if extra:
+            neww.value = val + extra
 
     def __call__(self, oldmi, newmi):
         self.current_mi = newmi
