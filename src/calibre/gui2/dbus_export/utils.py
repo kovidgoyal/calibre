@@ -129,10 +129,19 @@ def setup_for_cli_run():
     signal.signal(signal.SIGINT, signal.SIG_DFL)  # quit on Ctrl-C
 
 def set_X_window_properties(win_id, **properties):
+    ' Set X Window properties on the window with the specified id. Only string values are supported. '
     import xcb, xcb.xproto
     conn = xcb.connect()
+    atoms = {name:conn.core.InternAtom(False, len(name), name) for name in properties}
+    utf8_string_atom = None
     for name, val in properties.iteritems():
-        atom = conn.core.InternAtom(False, len(name), name).reply().atom
-        conn.core.ChangePropertyChecked(xcb.xproto.PropMode.Replace, win_id, atom, xcb.xproto.Atom.STRING, 8, len(val), val)
+        atom = atoms[name].reply().atom
+        type_atom = xcb.xproto.Atom.STRING
+        if isinstance(val, unicode):
+            if utf8_string_atom is None:
+                utf8_string_atom = conn.core.InternAtom(True, len(b'UTF8_STRING'), b'UTF8_STRING').reply().atom
+            type_atom = utf8_string_atom
+            val = val.encode('utf-8')
+        conn.core.ChangePropertyChecked(xcb.xproto.PropMode.Replace, win_id, atom, type_atom, 8, len(val), val)
     conn.flush()
     conn.disconnect()

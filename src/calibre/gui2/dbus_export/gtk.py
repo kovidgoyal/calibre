@@ -208,28 +208,24 @@ class MyApplication(Gtk.Application):
         conn = xcb.Connection()
         atoms = conn.core.ListProperties(win_id).reply().atoms
         atom_names = {atom:conn.core.GetAtomNameUnchecked(atom) for atom in atoms}
-        atom_names = {k:str(a.reply().name.buf()) for k, a in atom_names.iteritems()}
+        atom_names = {k:bytes(a.reply().name.buf()) for k, a in atom_names.iteritems()}
         property_names = {name:atom for atom, name in atom_names.iteritems() if
             name.startswith('_GTK') or name.startswith('_UNITY') or name.startswith('_GNOME')}
         replies = {name:conn.core.GetProperty(False, win_id, atom, xcb.xproto.GetPropertyType.Any, 0, 2 ** 32 - 1) for name, atom in property_names.iteritems()}
 
+        type_atom_cache = {}
+
         def get_property_value(property_reply):
             if property_reply.format == 8:
-                if 0 in property_reply.value[:-1]:
-                    ret = []
-                    s = []
-                    for o in property_reply.value:
-                        if o == 0:
-                            ret.append(''.join(s))
-                            s = []
-                        else:
-                            s.append(chr(o))
-                else:
-                    ret = str(property_reply.value.buf())
-                    if len(property_reply.value) > 0 and 0 == property_reply.value[-1]:
-                        ret = ret[:-1]
-
-                return ret
+                is_list_of_strings = 0 in property_reply.value[:-1]
+                ans = bytes(property_reply.value.buf())
+                if property_reply.type not in type_atom_cache:
+                    type_atom_cache[property_reply.type] = bytes(conn.core.GetAtomNameUnchecked(property_reply.type).reply().name.buf())
+                if type_atom_cache[property_reply.type] == b'UTF8_STRING':
+                    ans = ans.decode('utf-8')
+                if is_list_of_strings:
+                    ans = ans.split('\0')
+                return ans
             elif property_reply.format in (16, 32):
                 return list(struct.unpack(b'I' * property_reply.value_len,
                                         property_reply.value.buf()))
