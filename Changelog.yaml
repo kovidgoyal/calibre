@@ -20,6 +20,54 @@
 #   new recipes:
 #     - title: 
 
+- version: 2.8.0
+  date: 2014-10-31
+
+  new features:
+    - title: "Linux: Add support for the global menubar in Ubuntu Unity (The menu that is displayed in the top most on screen bar). It now works both with the main calibre program and the e-book editor. You can customize what appears in the menubar via Preferences->Toolbars"
+
+    - title: "Get Books: Add a new store, Bubok (bubok.es)"
+
+    - title: "Driver for Tolino Vision 2."
+      tickets: [1385904]
+
+    - title: "Review downloaded metadata: Allow merging downloaded and current identifiers by long-clicking the revert button."
+      tickets: [1387619]
+
+    - title: "Template language: New function user_categories() to return the list of User Categories for a given book (only works in the GUI)."
+
+    - title: "E-book viewer: Add an option to prevent tapping on the page from turning pages."
+
+  bug fixes:
+    - title: "Re-enable the system tray icon on linux. System tray icons now work in any desktop environment that supports the StatusNotifier spec, such as Ubuntu Unity, KDE 4+, GNOME 3, etc."
+
+    - title: "System tray icon: On windows if the calibre window is minimized, fix clicking on the system tray icon not restoring the window."
+      tickets: [1387596]
+
+    - title: "E-book viewer: Clear history when reloading the book, to avoid errors, since the locations pointed to by the history may no longer be valid anyway"
+
+    - title: "Linux: Force use of GNOME button layout for dialogs when running under the GNOME, UNITY or MATE desktop environments"
+
+    - title: "Check Book: Silence incorrect warning about guide references to cover image in AZW3 Format"
+
+    - title: "Fix text entry widgets' popup completion window not working well with windows on-screen keyboard."
+      tickets: [1385586]
+
+    - title: "Edit Book: Fix links that are absolute paths causing crashes in windows"
+
+    - title: "Fix the read metadata from format button in the edit metadata dialog not working for FB2 files."
+      tickets: [1385237]
+
+  improved recipes:
+    - Tyzden
+    - Countryfile.com
+    - FAZ net
+    - The New Yorker
+
+  new recipes:
+    - title: Planet Python and Krebs on security recipe
+      author: Jelle van der Waa
+
 - version: 2.7.0
   date: 2014-10-24
 
