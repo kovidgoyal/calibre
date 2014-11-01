@@ -280,6 +280,15 @@ class CompositeField(OneToOneField):
                 self._render_cache[book_id] = ans
         return ans
 
+    def get_value_in_cache(self, book_id):
+        with self._lock:
+            ans = self._render_cache.get(book_id, None)
+        return ans
+
+    def set_value_in_cache(self, book_id, val):
+        with self._lock:
+            self._render_cache[book_id] = val
+
     def sort_keys_for_books(self, get_metadata, lang_map):
         gv = self.get_value_with_cache
         sk = self._sort_key

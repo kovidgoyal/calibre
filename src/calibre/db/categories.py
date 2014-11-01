@@ -140,7 +140,7 @@ def get_categories(dbcache, sort='name', book_ids=None, icon_map=None):
 
     categories = {}
     book_ids = frozenset(book_ids) if book_ids else book_ids
-    get_metadata = partial(dbcache._get_metadata, get_user_categories=False)
+    get_metadata = dbcache._get_proxy_metadata
     bids = None
 
     for category, is_multiple, is_composite in find_categories(fm):
