@@ -219,17 +219,24 @@ def custom_getter(field, dbref, book_id, cache):
         cache[field] = ret = fmt_custom(db.field_for(field, book_id))
         return ret
 
-def composite_getter(mi, field, metadata, book_id, cache, formatter, template_cache):
+def composite_getter(mi, field, db, book_id, cache, formatter, template_cache):
     try:
         return cache[field]
     except KeyError:
         cache[field] = 'RECURSIVE_COMPOSITE FIELD (Metadata) ' + field
-        ret = cache[field] = formatter.safe_format(
-            metadata['display']['composite_template'],
-            mi,
-            _('TEMPLATE ERROR'),
-            mi, column_name=field,
-            template_cache=template_cache).strip()
+        try:
+            db = db()
+            with db.safe_read_lock:
+                try:
+                    fo = db.fields[field]
+                except KeyError:
+                    ret = cache[field] = _('Invalid field: %s') % field
+                else:
+                    ret = cache[field] = fo.render_composite_with_cache(book_id, mi, formatter, template_cache)
+        except Exception:
+            import traceback
+            traceback.print_exc()
+            return ''
         return ret
 
 def virtual_libraries_getter(dbref, book_id, cache):
@@ -316,7 +323,7 @@ class ProxyMetadata(Metadata):
                 if field.endswith('_index') and dt == 'float':
                     return series_index_getter(field[:-6])(ga(self, '_db'), ga(self, '_book_id'), ga(self, '_cache'))
                 return custom_getter(field, ga(self, '_db'), ga(self, '_book_id'), ga(self, '_cache'))
-            return composite_getter(self, field, d, ga(self, '_book_id'), ga(self, '_cache'), ga(self, 'formatter'), ga(self, 'template_cache'))
+            return composite_getter(self, field, ga(self, '_db'), ga(self, '_book_id'), ga(self, '_cache'), ga(self, 'formatter'), ga(self, 'template_cache'))
 
         try:
             return ga(self, '_cache')[field]
