@@ -236,7 +236,7 @@ def composite_getter(mi, field, dbref, book_id, cache, formatter, template_cache
         except Exception:
             import traceback
             traceback.print_exc()
-            return 'ERROR WHILE EVALUATING ' + field
+            return 'ERROR WHILE EVALUATING: %s' % field
         return ret
 
 def virtual_libraries_getter(dbref, book_id, cache):
