@@ -265,7 +265,7 @@ class CompositeField(OneToOneField):
     def _render_composite_with_cache(self, book_id, mi, formatter, template_cache):
         ''' INTERNAL USE ONLY. DO NOT USE METHOD DIRECTLY. INSTEAD USE
          db.composite_for() OR mi.get(). Those methods make sure there is no
-         risk of infinite recursion when evaluating temoplates that refer to
+         risk of infinite recursion when evaluating templates that refer to
          themselves. '''
         with self._lock:
             ans = self._render_cache.get(book_id, None)
