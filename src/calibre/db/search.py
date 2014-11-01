@@ -715,7 +715,7 @@ class LRUCache(object):  # {{{
 
     'A simple Least-Recently-Used cache'
 
-    def __init__(self, limit=30):
+    def __init__(self, limit=50):
         self.item_map = {}
         self.age_map = deque()
         self.limit = limit
@@ -854,6 +854,14 @@ class Search(object):
         search is on the full library and no virtual field is searched on '''
         if isinstance(search_restriction, bytes):
             search_restriction = search_restriction.decode('utf-8')
+        if isinstance(query, bytes):
+            query = query.decode('utf-8')
+
+        query = query.strip()
+        if book_ids is None and query and not search_restriction:
+            cached = self.cache.get(query)
+            if cached is not None:
+                return cached
 
         restricted_ids = all_book_ids = dbcache._all_book_ids(type=set)
         if search_restriction and search_restriction.strip():
@@ -870,14 +878,11 @@ class Search(object):
         elif book_ids is not None:
             restricted_ids = book_ids
 
-        if isinstance(query, bytes):
-            query = query.decode('utf-8')
-
-        if not query or not query.strip():
+        if not query:
             return restricted_ids
 
         if restricted_ids is all_book_ids:
-            cached = self.cache.get(query.strip())
+            cached = self.cache.get(query)
             if cached is not None:
                 return cached
 
@@ -885,7 +890,7 @@ class Search(object):
         result = sqp.parse(query)
 
         if not sqp.virtual_field_used and sqp.all_book_ids is all_book_ids:
-            self.cache.add(query.strip(), result)
+            self.cache.add(query, result)
 
         return result
 
