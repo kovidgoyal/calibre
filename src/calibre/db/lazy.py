@@ -219,13 +219,13 @@ def custom_getter(field, dbref, book_id, cache):
         cache[field] = ret = fmt_custom(db.field_for(field, book_id))
         return ret
 
-def composite_getter(mi, field, db, book_id, cache, formatter, template_cache):
+def composite_getter(mi, field, dbref, book_id, cache, formatter, template_cache):
     try:
         return cache[field]
     except KeyError:
         cache[field] = 'RECURSIVE_COMPOSITE FIELD (Metadata) ' + field
         try:
-            db = db()
+            db = dbref()
             with db.safe_read_lock:
                 try:
                     fo = db.fields[field]
