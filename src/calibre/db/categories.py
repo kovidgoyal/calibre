@@ -140,7 +140,14 @@ def get_categories(dbcache, sort='name', book_ids=None, icon_map=None):
 
     categories = {}
     book_ids = frozenset(book_ids) if book_ids else book_ids
-    get_metadata = partial(dbcache._get_metadata, get_user_categories=False)
+    pm_cache = {}
+
+    def get_metadata(book_id):
+        ans = pm_cache.get(book_id)
+        if ans is None:
+            ans = pm_cache[book_id] = dbcache._get_proxy_metadata(book_id)
+        return ans
+
     bids = None
 
     for category, is_multiple, is_composite in find_categories(fm):
@@ -227,7 +234,7 @@ def get_categories(dbcache, sort='name', book_ids=None, icon_map=None):
                 icon_map[cat_name] = icon_map['user:']
             categories[cat_name] = sort_categories(items, sort)
 
-    #### Finally, the saved searches category ####
+    # ### Finally, the saved searches category ####
     items = []
     icon = None
     if icon_map and 'search' in icon_map:
