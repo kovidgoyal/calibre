@@ -405,7 +405,7 @@ class Cache(object):
         if mi is None:
             return f.get_value_with_cache(book_id, self._get_proxy_metadata)
         else:
-            return f.render_composite(book_id, mi)
+            return f.render_composite_with_cache(book_id, mi, mi.formatter, mi.template_cache)
 
     @read_api
     def field_ids_for(self, name, book_id):

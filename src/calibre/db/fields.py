@@ -253,24 +253,19 @@ class CompositeField(OneToOneField):
     def bool_sort_key(self, val):
         return self._bool_sort_key(force_to_bool(val))
 
+    def render_composite(self, book_id, mi, formatter, template_cache):
+        ans = formatter.safe_format(
+            self.metadata['display']['composite_template'], mi, _('TEMPLATE ERROR'),
+            mi, column_name=self._composite_name, template_cache=template_cache).strip()
+        with self._lock:
+            self._render_cache[book_id] = ans
+        return ans
+
     def render_composite_with_cache(self, book_id, mi, formatter, template_cache):
         with self._lock:
             ans = self._render_cache.get(book_id, None)
         if ans is None:
-            ans = formatter.safe_format(
-                self.metadata['display']['composite_template'], mi, _('TEMPLATE ERROR'),
-                mi, column_name=self._composite_name, template_cache=template_cache).strip()
-            with self._lock:
-                self._render_cache[book_id] = ans
-        return ans
-
-    def render_composite(self, book_id, mi):
-        with self._lock:
-            ans = self._render_cache.get(book_id, None)
-        if ans is None:
-            ans = mi.get(self._composite_name)
-            with self._lock:
-                self._render_cache[book_id] = ans
+            return self.render_composite(book_id, mi, formatter, template_cache)
         return ans
 
     def clear_caches(self, book_ids=None):
@@ -286,9 +281,7 @@ class CompositeField(OneToOneField):
             ans = self._render_cache.get(book_id, None)
         if ans is None:
             mi = get_metadata(book_id)
-            ans = mi.get(self._composite_name)
-            with self._lock:
-                self._render_cache[book_id] = ans
+            return self.render_composite(book_id, mi, mi.formatter, mi.template_cache)
         return ans
 
     def sort_keys_for_books(self, get_metadata, lang_map):
