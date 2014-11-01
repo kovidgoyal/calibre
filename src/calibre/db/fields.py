@@ -253,7 +253,8 @@ class CompositeField(OneToOneField):
     def bool_sort_key(self, val):
         return self._bool_sort_key(force_to_bool(val))
 
-    def render_composite(self, book_id, mi, formatter, template_cache):
+    def __render_composite(self, book_id, mi, formatter, template_cache):
+        ' INTERNAL USE ONLY. DO NOT USE THIS OUTSIDE THIS CLASS! '
         ans = formatter.safe_format(
             self.metadata['display']['composite_template'], mi, _('TEMPLATE ERROR'),
             mi, column_name=self._composite_name, template_cache=template_cache).strip()
@@ -261,11 +262,15 @@ class CompositeField(OneToOneField):
             self._render_cache[book_id] = ans
         return ans
 
-    def render_composite_with_cache(self, book_id, mi, formatter, template_cache):
+    def _render_composite_with_cache(self, book_id, mi, formatter, template_cache):
+        ''' INTERNAL USE ONLY. DO NOT USE METHOD DIRECTLY. INSTEAD USE
+         db.composite_for() OR mi.get(). Those methods make sure there is no
+         risk of infinite recursion when evaluating temoplates that refer to
+         themselves. '''
         with self._lock:
             ans = self._render_cache.get(book_id, None)
         if ans is None:
-            return self.render_composite(book_id, mi, formatter, template_cache)
+            return self.__render_composite(book_id, mi, formatter, template_cache)
         return ans
 
     def clear_caches(self, book_ids=None):
@@ -281,7 +286,7 @@ class CompositeField(OneToOneField):
             ans = self._render_cache.get(book_id, None)
         if ans is None:
             mi = get_metadata(book_id)
-            return self.render_composite(book_id, mi, mi.formatter, mi.template_cache)
+            return self.__render_composite(book_id, mi, mi.formatter, mi.template_cache)
         return ans
 
     def sort_keys_for_books(self, get_metadata, lang_map):

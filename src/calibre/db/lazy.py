@@ -232,7 +232,7 @@ def composite_getter(mi, field, dbref, book_id, cache, formatter, template_cache
                 except KeyError:
                     ret = cache[field] = _('Invalid field: %s') % field
                 else:
-                    ret = cache[field] = fo.render_composite_with_cache(book_id, mi, formatter, template_cache)
+                    ret = cache[field] = fo._render_composite_with_cache(book_id, mi, formatter, template_cache)
         except Exception:
             import traceback
             traceback.print_exc()
