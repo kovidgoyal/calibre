@@ -1351,7 +1351,7 @@ class BasicNewsRecipe(Recipe):
 
     def default_cover(self, cover_file):
         '''
-        Create a generic cover for recipes that dont have a cover
+        Create a generic cover for recipes that don't have a cover
         '''
         try:
             from calibre.ebooks.covers import create_cover
