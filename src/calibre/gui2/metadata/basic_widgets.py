@@ -180,6 +180,14 @@ def make_undoable(spinbox):
 
     return UndoableSpinbox
 
+class RightClickButton(QToolButton):
+
+    def mousePressEvent(self, ev):
+        if ev.button() == Qt.RightButton and self.menu() is not None:
+            self.showMenu()
+            ev.accept()
+            return
+        return QToolButton.mousePressEvent(self, ev)
 
 # Title {{{
 class TitleEdit(EnLineEdit, ToMetadataMixin):
@@ -1014,10 +1022,10 @@ class Cover(ImageView):  # {{{
         self.cdata_before_trim = None
         self.cover_changed.connect(self.set_pixmap_from_data)
 
-        class CB(QToolButton):
+        class CB(RightClickButton):
 
             def __init__(self, text, icon=None, action=None):
-                QToolButton.__init__(self, parent)
+                RightClickButton.__init__(self, parent)
                 self.setText(text)
                 if icon is not None:
                     self.setIcon(QIcon(I(icon)))
@@ -1044,7 +1052,7 @@ class Cover(ImageView):  # {{{
         self.generate_cover_button = b = CB(_('&Generate cover'), 'default_cover.png', self.generate_cover)
         b.m = m = QMenu()
         b.setMenu(m)
-        m.addAction(_('Customize the styles and colors of the generated cover'), self.custom_cover)
+        m.addAction(QIcon(I('config.png')), _('Customize the styles and colors of the generated cover'), self.custom_cover)
         b.setPopupMode(b.DelayedPopup)
         self.buttons = [self.select_cover_button, self.remove_cover_button,
                 self.trim_cover_button, self.download_cover_button,
