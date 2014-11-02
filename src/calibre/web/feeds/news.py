@@ -144,7 +144,7 @@ class BasicNewsRecipe(Recipe):
     #: manually (though manual cleanup will always be superior).
     auto_cleanup = False
 
-    #: Specify elements that the auto cleanup algorithm should never remove
+    #: Specify elements that the auto cleanup algorithm should never remove.
     #: The syntax is a XPath expression. For example::
     #:
     #:   auto_cleanup_keep = '//div[@id="article-image"]' will keep all divs with
