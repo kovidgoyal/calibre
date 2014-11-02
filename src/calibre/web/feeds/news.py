@@ -249,7 +249,7 @@ class BasicNewsRecipe(Recipe):
     #: tags before the first element with `id="content"`.
     remove_tags_before    = None
 
-    #: List of attributes to remove from all tags
+    #: List of attributes to remove from all tags.
     #: For example::
     #:
     #:   remove_attributes = ['style', 'font']
