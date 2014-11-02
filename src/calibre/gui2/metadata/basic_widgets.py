@@ -172,7 +172,7 @@ def make_undoable(spinbox):
             else:
                 self.undo_stack.clear()
             if hasattr(self, 'setDateTime'):
-                if isinstance(val, date) and not val == UNDEFINED_DATE:
+                if isinstance(val, date) and not is_date_undefined(val):
                     val = parse_only_date(val.isoformat(), assume_utc=False)
                 self.setDateTime(val)
             elif hasattr(self, 'setValue'):
