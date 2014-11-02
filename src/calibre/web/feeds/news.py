@@ -325,12 +325,14 @@ class BasicNewsRecipe(Recipe):
 
     #: Ignore duplicates of articles that are present in more than one section.
     #: A duplicate article is an article that has the same title and/or URL.
-    #: To ignore articles with the same title, set this to:
-    #: ignore_duplicate_articles = {'title'}
-    #: To use URLs instead, set it to:
-    #: ignore_duplicate_articles = {'url'}
-    #: To match on title or URL, set it to:
-    #: ignore_duplicate_articles = {'title', 'url'}
+    #: To ignore articles with the same title, set this to::
+    #:   ignore_duplicate_articles = {'title'}
+    #:
+    #: To use URLs instead, set it to::
+    #:   ignore_duplicate_articles = {'url'}
+    #:
+    #: To match on title or URL, set it to::
+    #:   ignore_duplicate_articles = {'title', 'url'}
     ignore_duplicate_articles = None
 
     #: If you set this True, then calibre will use javascript to login to the
