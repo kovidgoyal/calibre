@@ -93,7 +93,7 @@ class BasicNewsRecipe(Recipe):
     #: By default: Day_Name, Day_Number Month_Name Year
     timefmt                = ' [%a, %d %b %Y]'
 
-    #: List of feeds to download
+    #: List of feeds to download.
     #: Can be either ``[url1, url2, ...]`` or ``[('title1', url1), ('title2', url2),...]``
     feeds = None
 
@@ -102,7 +102,7 @@ class BasicNewsRecipe(Recipe):
 
     #: Convenient flag to disable loading of stylesheets for websites
     #: that have overly complex stylesheets unsuitable for conversion
-    #: to ebooks formats
+    #: to ebooks formats.
     #: If True stylesheets are not downloaded and processed
     no_stylesheets         = False
 
@@ -110,7 +110,7 @@ class BasicNewsRecipe(Recipe):
     remove_javascript      = True
 
     #: If True the GUI will ask the user for a username and password
-    #: to use while downloading
+    #: to use while downloading.
     #: If set to "optional" the use of a username and password becomes optional
     needs_subscription     = False
 
@@ -174,7 +174,7 @@ class BasicNewsRecipe(Recipe):
     #: the ignore_duplicate_articles option.
     remove_empty_feeds = False
 
-    #: List of regular expressions that determines which links to follow
+    #: List of regular expressions that determines which links to follow.
     #: If empty, it is ignored. Used only if is_link_wanted is
     #: not implemented. For example::
     #:
@@ -186,7 +186,7 @@ class BasicNewsRecipe(Recipe):
     #: :attr:`BasicNewsRecipe.filter_regexps` should be defined.
     match_regexps         = []
 
-    #: List of regular expressions that determines which links to ignore
+    #: List of regular expressions that determines which links to ignore.
     #: If empty it is ignored. Used only if is_link_wanted is not
     #: implemented. For example::
     #:
@@ -319,7 +319,7 @@ class BasicNewsRecipe(Recipe):
     #: #ffffff instead
     cover_margins = (0, 0, '#ffffff')
 
-    #: Set to a non empty string to disable this recipe
+    #: Set to a non empty string to disable this recipe.
     #: The string will be used as the disabled message
     recipe_disabled = None
 
