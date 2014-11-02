@@ -62,9 +62,17 @@ class KeyMapper(object):
         endp = 0 if size < base else 36
         diff = (abs(base - size) * 3) + ((36 - size) / 100)
         logb = abs(base - endp)
-        if logb == 0:
-            logb = 1e-6
-        result = sign * math.log(diff, logb)
+        try:
+            result = sign * math.log(diff, logb)
+        except ValueError:
+            if diff < 0:
+                # Size is both very large and close to base
+                return 0
+            if logb == 0:
+                logb = 1e-6
+            if diff == 0:
+                diff = 1e-6
+            result = sign * math.log(diff, logb)
         return result
 
     def __getitem__(self, ssize):
