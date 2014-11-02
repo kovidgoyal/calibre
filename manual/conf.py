@@ -18,6 +18,8 @@ sys.path.append(os.path.abspath('.'))
 import init_calibre
 init_calibre
 from calibre.constants import __appname__, __version__
+import calibre.utils.localization as l  # Ensure calibre translations are installed
+del l
 import custom
 custom
 # General configuration
@@ -178,6 +180,7 @@ latex_logo = 'resources/logo.png'
 latex_show_pagerefs = True
 latex_show_urls = 'footnote'
 latex_elements = {
-'papersize':'letterpaper',
-'fontenc':r'\usepackage[T2A,T1]{fontenc}'
+    'papersize':'letterpaper',
+    'fontenc':r'\usepackage[T2A,T1]{fontenc}',
+    'preamble': r'\renewcommand{\pageautorefname}{%s}' % _('page'),
 }
