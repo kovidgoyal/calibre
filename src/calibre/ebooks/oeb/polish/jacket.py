@@ -59,7 +59,7 @@ def replace_jacket(container, name):
     container.dirty(name)
 
 def remove_jacket(container):
-    ' Remove an existing jacket, if ant. Returns False if no existing jacket was found. '
+    ' Remove an existing jacket, if any. Returns False if no existing jacket was found. '
     name = find_existing_jacket(container)
     if name is not None:
         remove_jacket_images(container, name)
