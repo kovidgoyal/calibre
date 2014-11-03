@@ -27,7 +27,7 @@ class Footnotes(object):
         if fd is None:
             raw = self.document.javascript('window.calibre_extract.get_footnote_data()', typ='string')
             try:
-                fd = frozenset(unicode(QUrl(x).toLocalFile()) for x in json.loads(raw))
+                fd = frozenset(QUrl(x).toLocalFile() for x in json.loads(raw))
             except Exception:
                 fd = frozenset()
             self.footnote_data_cache[current_url] = fd
