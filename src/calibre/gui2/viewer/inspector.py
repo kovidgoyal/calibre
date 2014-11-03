@@ -6,7 +6,7 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
-from PyQt5.Qt import QDialog, QDialogButtonBox, QVBoxLayout, QIcon
+from PyQt5.Qt import QDialog, QDialogButtonBox, QVBoxLayout, QIcon, Qt
 from PyQt5.QtWebKitWidgets import QWebInspector
 
 from calibre.gui2 import gprefs
@@ -15,6 +15,7 @@ class WebInspector(QDialog):
 
     def __init__(self, parent, page):
         QDialog.__init__(self, parent)
+        self.setWindowFlags(self.windowFlags() | Qt.WindowMinMaxButtonsHint)
         self.setWindowTitle(_('Inspect book code'))
         self.setWindowIcon(QIcon(I('debug.png')))
         l = QVBoxLayout()

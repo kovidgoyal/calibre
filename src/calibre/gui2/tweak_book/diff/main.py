@@ -193,6 +193,7 @@ class Diff(Dialog):
         self.show_open_in_editor = show_open_in_editor
         self.revert_button_msg = revert_button_msg
         Dialog.__init__(self, _('Differences between books'), 'diff-dialog', parent=parent)
+        self.setWindowFlags(self.windowFlags() | Qt.WindowMinMaxButtonsHint)
         if show_as_window:
             self.setWindowFlags(Qt.Window)
         self.view.line_activated.connect(self.line_activated)
