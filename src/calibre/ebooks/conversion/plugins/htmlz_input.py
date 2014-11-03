@@ -116,7 +116,7 @@ class HTMLZInput(InputFormatPlugin):
                 break
         if opf:
             opf = OPF(opf, basedir=os.getcwdu())
-            cover_path = opf.raster_cover
+            cover_path = opf.raster_cover or opf.cover
         # Set the cover.
         if cover_path:
             cdata = None
