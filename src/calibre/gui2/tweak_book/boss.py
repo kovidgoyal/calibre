@@ -223,7 +223,7 @@ class Boss(QObject):
         '''
         Open the ebook at ``path`` for editing. Will show an error if the ebook is not in a supported format or the current book has unsaved changes.
 
-        :param edit_file: The name of a file inside the newly openend book to start editing. Can also be a list of names.
+        :param edit_file: The name of a file inside the newly opened book to start editing. Can also be a list of names.
         '''
         if not self._check_before_open():
             return
