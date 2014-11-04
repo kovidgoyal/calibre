@@ -44,12 +44,21 @@
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>950</width>
-        <height>577</height>
+        <width>944</width>
+        <height>578</height>
        </rect>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout_2">
-       <property name="margin">
+       <property name="leftMargin">
+        <number>0</number>
+       </property>
+       <property name="topMargin">
+        <number>0</number>
+       </property>
+       <property name="rightMargin">
+        <number>0</number>
+       </property>
+       <property name="bottomMargin">
         <number>0</number>
        </property>
        <item>
@@ -308,7 +317,7 @@ for e.g., EPUB to EPUB, calibre saves the original EPUB
              <item>
               <widget class="QCheckBox" name="swap_title_and_author">
                <property name="text">
-                <string>&amp;Swap title and author</string>
+                <string>S&amp;wap title and author</string>
                </property>
               </widget>
              </item>
@@ -1158,8 +1167,8 @@ not multiple and the destination field is multiple</string>
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>203</width>
-                <height>58</height>
+                <width>204</width>
+                <height>65</height>
                </rect>
               </property>
               <layout class="QGridLayout" name="testgrid">
