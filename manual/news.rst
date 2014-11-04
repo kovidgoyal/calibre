@@ -31,7 +31,7 @@ blog into an ebook, we rely on the :term:`RSS` feed of the blog::
 
     http://blog.calibre-ebook.com/feeds/posts/default
 
-I got the RSS URL by looking under "Subscribe to" at the bototm of the blog
+I got the RSS URL by looking under "Subscribe to" at the bottom of the blog
 page and choosing Posts->Atom. To make calibre download the feeds and convert
 them into an ebook, you should right click the :guilabel:`Fetch news` button
 and then the :guilabel:`Add a custom news source` menu item. A dialog similar
