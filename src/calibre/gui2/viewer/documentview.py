@@ -508,7 +508,7 @@ class DocumentView(QWebView):  # {{{
         self.to_bottom = False
         self.document = Document(self.shortcuts, parent=self,
                 debug_javascript=debug_javascript)
-        self.footnotes = Footnotes(self.document)
+        self.footnotes = Footnotes(self)
         self.setPage(self.document)
         self.inspector = WebInspector(self, self.document)
         self.manager = None
@@ -1311,8 +1311,6 @@ class DocumentView(QWebView):  # {{{
         url = self.document.mainFrame().hitTestContent(ev.pos()).linkUrl()
         if url.isValid():
             fd = self.footnotes.get_footnote_data(url)
-            if fd is not None:
-                print (fd)
         return
         opos = self.document.ypos
         if self.manager is not None:
