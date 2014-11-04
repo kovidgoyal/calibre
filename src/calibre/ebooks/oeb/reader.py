@@ -76,7 +76,7 @@ class OEBReader(object):
         for elem in opf.iter(tag=etree.Element):
             nsmap.update(elem.nsmap)
         for elem in opf.iter(tag=etree.Element):
-            if namespace(elem.tag) in ('', OPF1_NS):
+            if namespace(elem.tag) in ('', OPF1_NS) and ':' not in barename(elem.tag):
                 elem.tag = OPF(barename(elem.tag))
         nsmap.update(OPF2_NSMAP)
         attrib = dict(opf.attrib)
@@ -89,6 +89,9 @@ class OEBReader(object):
                 continue
             if namespace(elem.tag) in DC_NSES:
                 tag = barename(elem.tag).lower()
+                elem.tag = '{%s}%s' % (DC11_NS, tag)
+            if elem.tag.startswith('dc:'):
+                tag = elem.tag.partition(':')[-1].lower()
                 elem.tag = '{%s}%s' % (DC11_NS, tag)
             metadata.append(elem)
         for element in xpath(opf, 'o2:metadata//o2:meta'):
@@ -115,8 +118,13 @@ class OEBReader(object):
                 data = re.sub(r'(?is)<tours>.+</tours>', '', data)
                 data = data.replace('<dc-metadata>',
                     '<dc-metadata xmlns:dc="http://purl.org/metadata/dublin_core">')
-                opf = etree.fromstring(data)
-                self.logger.warn('OPF contains invalid tours section')
+                try:
+                    opf = etree.fromstring(data)
+                    self.logger.warn('OPF contains invalid tours section')
+                except etree.XMLSyntaxError:
+                    from calibre.ebooks.oeb.parse_utils import RECOVER_PARSER
+                    opf = etree.fromstring(data, parser=RECOVER_PARSER)
+                    self.logger.warn('OPF contains invalid markup, trying to parse it anyway')
 
         ns = namespace(opf.tag)
         if ns not in ('', OPF1_NS, OPF2_NS):
@@ -691,7 +699,7 @@ class OEBReader(object):
         item = self._find_ncx(opf)
         self._toc_from_opf(opf, item)
         self._pages_from_opf(opf, item)
-        #self._ensure_cover_image()
+        # self._ensure_cover_image()
 
 
 def main(argv=sys.argv):
