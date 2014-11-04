@@ -104,7 +104,7 @@ class Guardian(BasicNewsRecipe):
         for tag in soup.findAll(name=['ul','li']):
             tag.name = 'div'
 
-     # removes number next to rating stars
+        # removes number next to rating stars
         items_to_remove = []
         rating_container = soup.find('div', attrs={'class': ['rating-container']})
         if rating_container:
@@ -130,7 +130,7 @@ class Guardian(BasicNewsRecipe):
         for s in idx.findAll('strong', attrs={'class':'book'}):
             a = s.find('a', href=True)
             section_title = self.tag_to_string(a)
-            if not section_title in self.ignore_sections:
+            if section_title not in self.ignore_sections:
                 prefix = ''
                 if section_title != 'Main section':
                     prefix = section_title + ': '
