@@ -14,34 +14,41 @@ To gain an understanding of how to use the framework, follow the examples in the
 Completely automatic fetching
 -------------------------------
 
-If your news source is simple enough, calibre may well be able to fetch it completely automatically, all you need to do is provide the URL. calibre gathers all the information needed to download a news source into a :term:`recipe`. In order to tell calibre about a news source, you have to create a :term:`recipe` for it. Let's see some examples:
+If your news source is simple enough, calibre may well be able to fetch it
+completely automatically, all you need to do is provide the URL. calibre
+gathers all the information needed to download a news source into a
+:term:`recipe`. In order to tell calibre about a news source, you have to
+create a :term:`recipe` for it. Let's see some examples:
 
-.. _portfolio:
+.. _calibre_blog:
 
-portfolio.com
+The calibre blog
 ~~~~~~~~~~~~~~~~~~~
 
-*portfolio.com* is the website for *Condé Nast Portfolio*, a business related magazine. In order to download articles from the magazine and convert them to ebooks, we rely on the :term:`RSS` feeds of portfolio.com. A list of such feeds is available at http://www.portfolio.com/rss/.
+The calibre blog is a blog of posts that describe many useful calibre features
+in a simple and accessible way for new calibre users. In order to download this
+blog into an ebook, we rely on the :term:`RSS` feed of the blog::
 
-Lets pick a couple of feeds that look interesting:
+    http://blog.calibre-ebook.com/feeds/posts/default
 
-    #. Business Travel: http://feeds.portfolio.com/portfolio/businesstravel
-    #. Tech Observer: http://feeds.portfolio.com/portfolio/thetechobserver
-
-I got the URLs by clicking the little orange RSS icon next to each feed name. To make calibre download the feeds and convert them into an ebook, you should right click the :guilabel:`Fetch news` button and then the :guilabel:`Add a custom news source` menu item. A dialog similar to that shown below should open up.
+I got the RSS URL by looking under "Subscribe to" at the bototm of the blog
+page and choosing Posts->Atom. To make calibre download the feeds and convert
+them into an ebook, you should right click the :guilabel:`Fetch news` button
+and then the :guilabel:`Add a custom news source` menu item. A dialog similar
+to that shown below should open up.
 
 .. image:: images/custom_news.png
     :align: center
 
-First enter ``Portfolio`` into the :guilabel:`Recipe title` field. This will be the title of the ebook that will be created from the articles in the above feeds. 
+First enter ``calibre Blog`` into the :guilabel:`Recipe title` field. This will be the title of the ebook that will be created from the articles in the above feeds. 
 
 The next two fields (:guilabel:`Oldest article` and :guilabel:`Max. number of articles`) allow you some control over how many articles should be downloaded from each feed, and they are pretty self explanatory.
 
-To add the feeds to the recipe, enter the feed title and the feed URL and click the :guilabel:`Add feed` button. Once you have added both feeds, simply click the :guilabel:`Add/update recipe` button and you're done! Close the dialog.
+To add the feeds to the recipe, enter the feed title and the feed URL and click the :guilabel:`Add feed` button. Once you have added the feed, simply click the :guilabel:`Add/update recipe` button and you're done! Close the dialog.
 
-To test your new :term:`recipe`, click the :guilabel:`Fetch news` button and in the :guilabel:`Custom news sources` sub-menu click :guilabel:`Portfolio`. After a couple of minutes, the newly downloaded Portfolio ebook will appear in the main library view (if you have your reader connected, it will be put onto the reader instead of into the library). Select it and hit the :guilabel:`View` button to read!
+To test your new :term:`recipe`, click the :guilabel:`Fetch news` button and in the :guilabel:`Custom news sources` sub-menu click :guilabel:`calibre Blog`. After a couple of minutes, the newly downloaded ebook of blog posts will appear in the main library view (if you have your reader connected, it will be put onto the reader instead of into the library). Select it and hit the :guilabel:`View` button to read!
 
-The reason this worked so well, with so little effort is that *portfolio.com* provides *full-content* :term:`RSS` feeds, i.e., the article content is embedded in the feed itself. For most news sources that provide news in this fashion, with *full-content* feeds, you don't need any more effort to convert them to ebooks. Now we will look at a news source that does not provide full content feeds. In such feeds, the full article is a webpage and the feed only contains a link to the webpage with a short summary of the article. 
+The reason this worked so well, with so little effort is that the blog provides *full-content* :term:`RSS` feeds, i.e., the article content is embedded in the feed itself. For most news sources that provide news in this fashion, with *full-content* feeds, you don't need any more effort to convert them to ebooks. Now we will look at a news source that does not provide full content feeds. In such feeds, the full article is a webpage and the feed only contains a link to the webpage with a short summary of the article. 
 
 .. _bbc:
 
@@ -53,7 +60,7 @@ Lets try the following two feeds from *The BBC*:
     #. News Front Page: http://newsrss.bbc.co.uk/rss/newsonline_world_edition/front_page/rss.xml
     #. Science/Nature: http://newsrss.bbc.co.uk/rss/newsonline_world_edition/science/nature/rss.xml
 
-Follow the procedure outlined in :ref:`portfolio` to create a recipe for *The BBC* (using the feeds above). Looking at the downloaded ebook, we see that calibre has done a creditable job of extracting only the content you care about from each article's webpage. However, the extraction process is not perfect. Sometimes it leaves in undesirable content like menus and navigation aids or it removes content that should have been left alone, like article headings. In order, to have perfect content extraction, we will need to customize the fetch process, as described in the next section. 
+Follow the procedure outlined in :ref:`calibre_blog` above to create a recipe for *The BBC* (using the feeds above). Looking at the downloaded ebook, we see that calibre has done a creditable job of extracting only the content you care about from each article's webpage. However, the extraction process is not perfect. Sometimes it leaves in undesirable content like menus and navigation aids or it removes content that should have been left alone, like article headings. In order, to have perfect content extraction, we will need to customize the fetch process, as described in the next section. 
 
 Customizing the fetch process
 --------------------------------
