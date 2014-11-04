@@ -7,6 +7,7 @@ __copyright__ = '2014, Nikolas Mangold-Takao <nmangold at gmail.com>'
 __version__   = '0.10'
 
 ''' http://brandeins.de - Wirtschaftsmagazin '''
+from collections import OrderedDict
 from calibre.web.feeds.recipes import BasicNewsRecipe
 
 class BrandEins(BasicNewsRecipe):
@@ -80,37 +81,24 @@ class BrandEins(BasicNewsRecipe):
 
     def parse_issue(self, url):
         soup = self.index_to_soup(url)
-        index = soup.find('div', attrs={'class': 'ihv_list'})
+        feeds = OrderedDict()
 
-        feeds = []
-        sections = index.findAll('section')
+        for item in soup.findAll(attrs={'class':lambda x:'ihv_item' in (x or '').split()}):
+            a = item.findParent('a', href=True)
+            if a is None:
+                continue
+            url = self.PREFIX + a['href']
+            title = self.tag_to_string(item.find(attrs={'class':'ihv_title'}))
+            sec = self.tag_to_string(item.find(attrs={'class':'ihv_page_category'}).findAll('span')[-1])
+            if sec not in feeds:
+                feeds[sec] = []
+            desc = ''
+            for p in item.findAll('p'):
+                desc += self.tag_to_string(p) + '\n'
+            feeds[sec].append({'title':title, 'url':url, 'description':desc})
+            self.log('Found article:', title, 'at', url)
 
-        # special treatment for 'editorial'. It is not grouped in <section> and title is not in <h3>
-        inhalt_section = index.find('h1', attrs={'class': 'reset'})
-        section_ttl = self.tag_to_string(inhalt_section)
-        #self.log('+++ Found section', section_ttl)
-        editorial_article = inhalt_section.parent.findNextSibling('a')
-        ttl = self.tag_to_string(editorial_article.find('h2', attrs={'class': 'ihv_title'}))
-        url = self.PREFIX + editorial_article['href']
-        #self.log('--- Found article', ttl, url)
-        feeds.append((section_ttl, [{'title': ttl, 'url': url}]))
-
-        #self.log('NUMBER OF SECTIONS', len(sections))
-        for section in sections:
-            section_ttl = self.tag_to_string(section.find('h3'))
-            #self.log('+++ Found section', section_ttl)
-
-            articles = []
-            for article in section.findNextSiblings(['a', 'section']):
-                if (article.name == 'section'):
-                    break
-
-                ttl = self.tag_to_string(article.find('h2', attrs={'class': 'ihv_title'}))
-                url = self.PREFIX + article['href']
-                #self.log('--- Found article', ttl, url)
-                articles.append({'title' : ttl, 'url' : url})
-            feeds.append((section_ttl, articles))
-        return feeds
+        return [(st, articles) for st, articles in feeds.iteritems() if articles]
 
     def get_cover_url(self):
         # the index does not contain a usable cover, but the "Welt in Zahlen"-article contains it
