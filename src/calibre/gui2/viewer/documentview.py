@@ -43,6 +43,20 @@ def apply_settings(settings, opts):
     settings.setFontFamily(QWebSettings.FixedFont, opts.mono_family)
     settings.setAttribute(QWebSettings.ZoomTextOnly, True)
 
+def apply_basic_settings(settings):
+    # Security
+    settings.setAttribute(QWebSettings.JavaEnabled, False)
+    settings.setAttribute(QWebSettings.PluginsEnabled, False)
+    settings.setAttribute(QWebSettings.JavascriptCanOpenWindows, False)
+    settings.setAttribute(QWebSettings.JavascriptCanAccessClipboard, False)
+    settings.setAttribute(QWebSettings.PrivateBrowsingEnabled, True)
+    settings.setAttribute(QWebSettings.NotificationsEnabled, False)
+    settings.setThirdPartyCookiePolicy(QWebSettings.AlwaysBlockThirdPartyCookies)
+
+    # Miscellaneous
+    settings.setAttribute(QWebSettings.LinksIncludedInFocusChain, True)
+    settings.setAttribute(QWebSettings.DeveloperExtrasEnabled, True)
+
 
 class Document(QWebPage):  # {{{
 
@@ -105,15 +119,7 @@ class Document(QWebPage):  # {{{
         opts = config().parse()
         self.set_font_settings(opts)
 
-        # Security
-        settings.setAttribute(QWebSettings.JavaEnabled, False)
-        settings.setAttribute(QWebSettings.PluginsEnabled, False)
-        settings.setAttribute(QWebSettings.JavascriptCanOpenWindows, False)
-        settings.setAttribute(QWebSettings.JavascriptCanAccessClipboard, False)
-
-        # Miscellaneous
-        settings.setAttribute(QWebSettings.LinksIncludedInFocusChain, True)
-        settings.setAttribute(QWebSettings.DeveloperExtrasEnabled, True)
+        apply_basic_settings(settings)
         self.set_user_stylesheet(opts)
         self.misc_config(opts)
 
@@ -509,6 +515,7 @@ class DocumentView(QWebView):  # {{{
         self.document = Document(self.shortcuts, parent=self,
                 debug_javascript=debug_javascript)
         self.footnotes = Footnotes(self)
+        self.document.settings_changed.connect(self.footnotes.clone_settings)
         self.setPage(self.document)
         self.inspector = WebInspector(self, self.document)
         self.manager = None
@@ -1309,9 +1316,12 @@ class DocumentView(QWebView):  # {{{
 
     def mouseReleaseEvent(self, ev):
         url = self.document.mainFrame().hitTestContent(ev.pos()).linkUrl()
-        if url.isValid():
+        if url.isValid() and self.manager is not None:
             fd = self.footnotes.get_footnote_data(url)
-        return
+            if fd:
+                self.manager.show_footnote_view()
+                ev.accept()
+                return
         opos = self.document.ypos
         if self.manager is not None:
             prev_pos = self.manager.update_page_number()

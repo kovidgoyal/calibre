@@ -9,15 +9,54 @@ __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 import json
 from collections import defaultdict
 
-from PyQt5.Qt import QUrl
+from PyQt5.Qt import QUrl, QWidget, QHBoxLayout, QSize
+from PyQt5.QtWebKitWidgets import QWebView, QWebPage
+from PyQt5.QtWebKit import QWebSettings
 
 from calibre import prints
+
+class FootnotesPage(QWebPage):
+
+    def __init__(self, parent):
+        QWebPage.__init__(self, parent)
+        from calibre.gui2.viewer.documentview import apply_basic_settings
+        settings = self.settings()
+        apply_basic_settings(settings)
+        settings.setAttribute(QWebSettings.DeveloperExtrasEnabled, False)
+
+
+class FootnotesView(QWidget):
+
+    def __init__(self, parent):
+        QWidget.__init__(self, parent)
+        self.l = l = QHBoxLayout(self)
+        self.view = v = QWebView(self)
+        l.addWidget(v)
+
+    def page(self):
+        return self.view.page()
+
+    def sizeHint(self):
+        return QSize(400, 200)
+
 
 class Footnotes(object):
 
     def __init__(self, view):
         self.view = view
         self.clear()
+
+    def set_footnotes_view(self, fv):
+        self.footnotes_view = fv
+        self.clone_settings()
+
+    def clone_settings(self):
+        source = self.view.document.settings()
+        settings = self.footnotes_view.page().settings()
+        for x in 'DefaultFontSize DefaultFixedFontSize MinimumLogicalFontSize MinimumFontSize StandardFont SerifFont SansSerifFont FixedFont'.split():
+            func = 'setFontSize' if x.endswith('FontSize') else 'setFontFamily'
+            getattr(settings, func)(getattr(QWebSettings, x), getattr(source, 'f' + func[4:])(getattr(QWebSettings, x)))
+        settings.setUserStyleSheetUrl(source.userStyleSheetUrl())
 
     def clear(self):
         self.footnote_data_cache = {}

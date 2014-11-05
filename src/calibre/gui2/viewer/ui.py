@@ -21,6 +21,7 @@ from calibre.gui2.search_box import SearchBox2
 from calibre.gui2.viewer.documentview import DocumentView
 from calibre.gui2.viewer.bookmarkmanager import BookmarkManager
 from calibre.gui2.viewer.toc import TOCView, TOCSearch
+from calibre.gui2.viewer.footnote import FootnotesView
 
 class DoubleSpinBox(QDoubleSpinBox):  # {{{
 
@@ -269,6 +270,15 @@ class Main(MainWindow):
         self.addDockWidget(Qt.RightDockWidgetArea, d)
         d.setAllowedAreas(Qt.LeftDockWidgetArea | Qt.RightDockWidgetArea)
 
+        self.footnotes_dock = d = QDockWidget(_('Footnotes'), self)
+        self.footnotes_view = FootnotesView(self)
+        self.view.footnotes.set_footnotes_view(self.footnotes_view)
+        d.setObjectName('footnotes-dock')
+        d.setWidget(self.footnotes_view)
+        d.close()  # starts out hidden
+        self.addDockWidget(Qt.BottomDockWidgetArea, d)
+        d.setAllowedAreas(Qt.BottomDockWidgetArea | Qt.TopDockWidgetArea)
+
         self.create_actions()
 
         self.metadata = Metadata(self.centralwidget)
@@ -331,6 +341,13 @@ class Main(MainWindow):
         if self.metadata.isVisible():
             self.metadata.update_layout()
         return MainWindow.resizeEvent(self, ev)
+
+    def initialize_dock_state(self):
+        self.setCorner(Qt.TopLeftCorner, Qt.LeftDockWidgetArea)
+        self.setCorner(Qt.BottomLeftCorner, Qt.LeftDockWidgetArea)
+        self.setCorner(Qt.TopRightCorner, Qt.RightDockWidgetArea)
+        self.setCorner(Qt.BottomRightCorner, Qt.RightDockWidgetArea)
+        self.footnotes_dock.close()
 
     def create_actions(self):
         def a(name, text, icon, tb=None, sc_name=None, menu_name=None, popup_mode=QToolButton.MenuButtonPopup):

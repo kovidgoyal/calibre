@@ -278,6 +278,7 @@ class EbookViewer(MainWindow):
                 self.restoreState(state, self.STATE_VERSION)
             except:
                 pass
+        self.initialize_dock_state()
         mult = vprefs.get('multiplier', None)
         if mult:
             self.view.multiplier = mult
@@ -978,6 +979,9 @@ class EbookViewer(MainWindow):
         av = desktop.availableGeometry(self).height() - 30
         if self.height() > av:
             self.resize(self.width(), av)
+
+    def show_footnote_view(self):
+        self.footnotes_dock.show()
 
 def config(defaults=None):
     desc = _('Options to control the ebook viewer')
