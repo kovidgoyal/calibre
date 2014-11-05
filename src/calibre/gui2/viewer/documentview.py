@@ -49,7 +49,8 @@ def apply_basic_settings(settings):
     settings.setAttribute(QWebSettings.PluginsEnabled, False)
     settings.setAttribute(QWebSettings.JavascriptCanOpenWindows, False)
     settings.setAttribute(QWebSettings.JavascriptCanAccessClipboard, False)
-    settings.setAttribute(QWebSettings.PrivateBrowsingEnabled, True)
+    # PrivateBrowsing disables console messages
+    # settings.setAttribute(QWebSettings.PrivateBrowsingEnabled, True)
     settings.setAttribute(QWebSettings.NotificationsEnabled, False)
     settings.setThirdPartyCookiePolicy(QWebSettings.AlwaysBlockThirdPartyCookies)
 
@@ -1319,6 +1320,7 @@ class DocumentView(QWebView):  # {{{
         if url.isValid() and self.manager is not None:
             fd = self.footnotes.get_footnote_data(url)
             if fd:
+                self.footnotes.show_footnote(fd)
                 self.manager.show_footnote_view()
                 ev.accept()
                 return
