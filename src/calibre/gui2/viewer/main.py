@@ -852,6 +852,7 @@ class EbookViewer(MainWindow):
             vprefs.set('viewer_open_history', vh[:50])
             self.build_recent_menu()
 
+            self.footnotes_dock.close()
             self.action_table_of_contents.setDisabled(not self.iterator.toc)
             self.current_book_has_toc = bool(self.iterator.toc)
             self.current_title = title
