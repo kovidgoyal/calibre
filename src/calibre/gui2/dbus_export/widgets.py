@@ -107,7 +107,11 @@ class ExportedMenuBar(QMenuBar):  # {{{
         #     self._block()
         # elif etype == QEvent.WindowUnblocked:
         #     self._unblock()
-        if etype == QEvent.WinIdChange:
+        if etype == QEvent.Show:
+            # Hiding a window causes the registrar to auto-unregister it, so we
+            # have to re-register it on show events.
+            self.register()
+        elif etype == QEvent.WinIdChange:
             self.unregister()
             self.register()
         return False
