@@ -1115,6 +1115,7 @@ def sanitize_env_vars():
                     os.environ[var] = orig
                 elif var in os.environ:
                     del os.environ[var]
+SanitizeLibraryPath = sanitize_env_vars  # For old plugins
 
 def open_url(qurl):
     # Qt 5 requires QApplication to be constructed before trying to use
