@@ -16,6 +16,7 @@ from calibre.constants import __appname__
 from calibre.gui2.search_box import SearchBox2, SavedSearchBox
 from calibre.gui2.throbber import ThrobbingButton
 from calibre.gui2.bars import BarsManager
+from calibre.gui2.widgets2 import RightClickButton
 from calibre.utils.config_base import tweaks
 from calibre import human_readable
 
@@ -249,7 +250,7 @@ class SearchBar(QWidget):  # {{{
         l.addWidget(x)
         x.setToolTip(_("Copy current search text (instead of search name)"))
 
-        x = parent.save_search_button = QToolButton(self)
+        x = parent.save_search_button = RightClickButton(self)
         x.setIcon(QIcon(I("search_add_saved.png")))
         x.setObjectName("save_search_button")
         l.addWidget(x)
