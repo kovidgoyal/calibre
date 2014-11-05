@@ -1070,7 +1070,7 @@ class DeviceMixin(object):  # {{{
                 self.device_manager.device.get_gui_name()+
                         _(' detected.'), 3000)
             self.library_view.set_device_connected(self.device_connected)
-            self.refresh_ondevice(reset_only=True)
+            self.refresh_ondevice()
         else:
             self.device_connected = None
             self.status_bar.device_disconnected()
@@ -1079,6 +1079,10 @@ class DeviceMixin(object):  # {{{
             self.location_manager.update_devices()
             self.bars_manager.update_bars()
             self.library_view.set_device_connected(self.device_connected)
+            # Empty any device view information
+            self.memory_view.set_database([])
+            self.card_a_view.set_database([])
+            self.card_b_view.set_database([])
             self.refresh_ondevice()
         device_signals.device_connection_changed.emit(connected)
 
@@ -1142,15 +1146,13 @@ class DeviceMixin(object):  # {{{
             prints('DeviceJob: metadata_downloaded: sending metadata_available signal')
         device_signals.device_metadata_available.emit()
 
-    def refresh_ondevice(self, reset_only=False):
+    def refresh_ondevice(self):
         '''
         Force the library view to refresh, taking into consideration new
         device books information
         '''
         with self.library_view.preserve_state():
             self.book_on_device(None, reset=True)
-            if reset_only:
-                return
             self.library_view.model().refresh_ondevice()
 
     # }}}
@@ -1183,7 +1185,7 @@ class DeviceMixin(object):  # {{{
             self.upload_booklists(job)
         # We need to reset the ondevice flags in the library. Use a big hammer,
         # so we don't need to worry about whether some succeeded or not.
-        self.refresh_ondevice(reset_only=False)
+        self.refresh_ondevice()
 
         try:
             if not self.current_view().currentIndex().isValid():
