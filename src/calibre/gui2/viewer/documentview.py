@@ -1316,9 +1316,10 @@ class DocumentView(QWebView):  # {{{
         return QWebView.event(self, ev)
 
     def mouseReleaseEvent(self, ev):
-        url = self.document.mainFrame().hitTestContent(ev.pos()).linkUrl()
-        if url.isValid() and self.manager is not None:
-            fd = self.footnotes.get_footnote_data(url)
+        r = self.document.mainFrame().hitTestContent(ev.pos())
+        a, url = r.linkElement(), r.linkUrl()
+        if url.isValid() and not a.isNull() and self.manager is not None:
+            fd = self.footnotes.get_footnote_data(a, url)
             if fd:
                 self.footnotes.show_footnote(fd)
                 self.manager.show_footnote_view()

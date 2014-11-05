@@ -98,7 +98,6 @@ class Footnotes(object):
         settings.setUserStyleSheetUrl(source.userStyleSheetUrl())
 
     def clear(self):
-        self.footnote_data_cache = {}
         self.known_footnote_targets = defaultdict(set)
         self.showing_url = None
 
@@ -109,33 +108,22 @@ class Footnotes(object):
         except (AttributeError, ValueError):
             pass
 
-    def load_footnote_data(self, current_url):
-        fd = self.footnote_data_cache[current_url] = {}
-        try:
-            raw = self.view.document.javascript('window.calibre_extract.get_footnote_data()', typ='string')
-            for x in json.loads(raw or '{}'):
-                if x not in fd:
-                    qu = QUrl(x)
-                    path = qu.toLocalFile()
-                    spath = self.spine_path(path)
-                    if spath is not None:
-                        target = qu.fragment(QUrl.FullyDecoded)
-                        fd[qu.toString()] = (spath, target, qu)
-                        self.known_footnote_targets[spath].add(target)
-        except Exception:
-            prints('Failed to get footnote data, with error:')
-            import traceback
-            traceback.print_exc()
-        return fd
-
-    def get_footnote_data(self, qurl):
-        current_url = unicode(self.view.document.mainFrame().baseUrl().toLocalFile())
-        if not current_url:
+    def get_footnote_data(self, a, qurl):
+        current_path = unicode(self.view.document.mainFrame().baseUrl().toLocalFile())
+        if not current_path:
             return  # Not viewing a local file
-        fd = self.footnote_data_cache.get(current_url)
-        if fd is None:
-            fd = self.load_footnote_data(current_url)
-        return fd.get(qurl.toString())
+        dest_path = self.spine_path(qurl.toLocalFile())
+        if dest_path is not None:
+            linked_to_anchors = {anchor:0 for path, anchor in dest_path.verified_links if path == current_path}
+            self.view.document.bridge_value = linked_to_anchors
+            if a.evaluateJavaScript('calibre_extract.is_footnote_link(this)'):
+                if dest_path not in self.known_footnote_targets:
+                    self.known_footnote_targets[dest_path] = s = set()
+                    for item in self.view.manager.iterator.spine:
+                        for path, target in item.verified_links:
+                            if target and path == dest_path:
+                                s.add(target)
+                return (dest_path, qurl.fragment(QUrl.FullyDecoded), qurl)
 
     def show_footnote(self, fd):
         path, target, self.showing_url = fd

@@ -13,7 +13,7 @@ from functools import partial
 from operator import attrgetter
 from collections import namedtuple
 
-from calibre import guess_type
+from calibre import guess_type, replace_entities
 from calibre.ebooks.chardet import xml_to_unicode
 
 def character_count(html):
@@ -33,10 +33,18 @@ def anchor_map(html):
         ans[anchor] = ans.get(anchor, match.start())
     return ans
 
+def all_links(html):
+    ''' Return set of all links in the file '''
+    ans = set()
+    for match in re.finditer(
+            r'''<\s*[Aa]\s+.*?[hH][Rr][Ee][Ff]\s*=\s*(['"])(.+?)\1''', html, re.MULTILINE|re.DOTALL):
+        ans.add(replace_entities(match.group(2)))
+    return ans
+
 class SpineItem(unicode):
 
     def __new__(cls, path, mime_type=None, read_anchor_map=True,
-            run_char_count=True, from_epub=False):
+            run_char_count=True, from_epub=False, read_links=True):
         ppath = path.partition('#')[0]
         if not os.path.exists(path) and os.path.exists(ppath):
             path = ppath
@@ -62,6 +70,8 @@ class SpineItem(unicode):
             raw, obj.encoding = xml_to_unicode(raw)
         obj.character_count = character_count(raw) if run_char_count else 10000
         obj.anchor_map = anchor_map(raw) if read_anchor_map else {}
+        obj.all_links = all_links(raw) if read_links else set()
+        obj.verified_links = set()
         obj.start_page = -1
         obj.pages      = -1
         obj.max_page   = -1

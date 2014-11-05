@@ -40,12 +40,14 @@ get_epub_type = (node, possible_values) ->
                 break
     return epub_type
 
-is_footnote_link = (node, url) ->
+is_footnote_link = (node, url, linked_to_anchors) ->
     if not url or url.substr(0, 'file://'.length).toLowerCase() != 'file://'
         return false  # Ignore non-local links
     epub_type = get_epub_type(node, ['noteref'])
     if epub_type and epub_type.toLowerCase() == 'noteref'
         return true
+    if epub_type and epub_type == 'link'
+        return false
 
     # Check if node or any of its first few parents have vertical-align set
     [x, num] = [node, 3]
@@ -62,6 +64,12 @@ is_footnote_link = (node, url) ->
         style = window.getComputedStyle(children[0])
         if style.verticalAlign in ['sub', 'super']
             return true
+
+    eid = node.getAttribute('id') or node.getAttribute('name')
+    if eid and linked_to_anchors.hasOwnProperty(eid)
+        # An <a href="..." id="..."> link that is linked back from some other
+        # file in the spine, most likely a footnote
+        return true
 
     return false
 
@@ -112,14 +120,8 @@ class CalibreExtract
         cnode = inline_styles(node)
         return cnode.outerHTML
 
-    get_footnote_data: () =>
-        ans = {}
-        for a in document.querySelectorAll('a[href]')
-            url = a.href  # .href returns the full URL while getAttribute() returns the value of the attribute
-            if not is_footnote_link(a, url)
-                continue
-            ans[url] = 1
-        return JSON.stringify(ans)
+    is_footnote_link: (a) ->
+        return is_footnote_link(a, a.href, py_bridge.value)
 
     show_footnote: (target, known_targets) ->
         if not target
