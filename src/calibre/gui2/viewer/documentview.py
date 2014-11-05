@@ -1334,6 +1334,11 @@ class DocumentView(QWebView):  # {{{
             self.manager.internal_link_clicked(prev_pos)
         return ret
 
+    def follow_footnote_link(self):
+        qurl =  self.footnotes.showing_url
+        if qurl and qurl.isValid():
+            self.link_clicked(qurl)
+
 # }}}
 
 

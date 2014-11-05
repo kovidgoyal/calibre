@@ -9,7 +9,9 @@ __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 import json
 from collections import defaultdict
 
-from PyQt5.Qt import QUrl, QWidget, QHBoxLayout, QSize, pyqtSlot
+from PyQt5.Qt import (
+    QUrl, QWidget, QHBoxLayout, QSize, pyqtSlot, QVBoxLayout, QToolButton,
+    QIcon, pyqtSignal)
 from PyQt5.QtWebKitWidgets import QWebView, QWebPage
 from PyQt5.QtWebKit import QWebSettings
 
@@ -62,13 +64,25 @@ class FootnotesPage(QWebPage):
 
 class FootnotesView(QWidget):
 
+    follow_link = pyqtSignal()
+    close_view = pyqtSignal()
+
     def __init__(self, parent):
         QWidget.__init__(self, parent)
         self.l = l = QHBoxLayout(self)
+        self.vl = vl = QVBoxLayout()
         self.view = v = QWebView(self)
         self._page = FootnotesPage(v)
         v.setPage(self._page)
-        l.addWidget(v)
+        l.addWidget(v), l.addLayout(vl)
+        self.goto_button = b = QToolButton(self)
+        b.setIcon(QIcon(I('forward.png'))), b.setToolTip(_('Go to this footnote in the main view'))
+        b.clicked.connect(self.follow_link)
+        vl.addWidget(b)
+        self.close_button = b = QToolButton(self)
+        b.setIcon(QIcon(I('window-close.png'))), b.setToolTip(_('Close the footnotes window'))
+        b.clicked.connect(self.close_view)
+        vl.addWidget(b)
 
     def page(self):
         return self._page

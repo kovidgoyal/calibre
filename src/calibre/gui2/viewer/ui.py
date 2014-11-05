@@ -272,6 +272,8 @@ class Main(MainWindow):
 
         self.footnotes_dock = d = QDockWidget(_('Footnotes'), self)
         self.footnotes_view = FootnotesView(self)
+        self.footnotes_view.follow_link.connect(self.view.follow_footnote_link)
+        self.footnotes_view.close_view.connect(d.close)
         self.view.footnotes.set_footnotes_view(self.footnotes_view)
         d.setObjectName('footnotes-dock')
         d.setWidget(self.footnotes_view)
