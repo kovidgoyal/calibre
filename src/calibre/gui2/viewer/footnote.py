@@ -128,7 +128,10 @@ class Footnotes(object):
             return  # Not viewing a local file
         dest_path = self.spine_path(qurl.toLocalFile())
         if dest_path is not None:
-            linked_to_anchors = {anchor:0 for path, anchor in dest_path.verified_links if path == current_path}
+            if dest_path == current_path:
+                linked_to_anchors = {}
+            else:
+                linked_to_anchors = {anchor:0 for path, anchor in dest_path.verified_links if path == current_path}
             self.view.document.bridge_value = linked_to_anchors
             if a.evaluateJavaScript('calibre_extract.is_footnote_link(this)'):
                 if dest_path not in self.known_footnote_targets:
