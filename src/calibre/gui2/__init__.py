@@ -2,6 +2,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 """ The GUI """
 import os, sys, Queue, threading, glob
+from contextlib import contextmanager
 from threading import RLock, Lock
 from urllib import unquote
 from PyQt5.Qt import (
@@ -678,7 +679,7 @@ class FileDialog(QObject):
             initial_dir = select_initial_dir(initial_dir)
         self.selected_files = []
         use_native_dialog = 'CALIBRE_NO_NATIVE_FILEDIALOGS' not in os.environ
-        with SanitizeLibraryPath():
+        with sanitize_env_vars():
             opts = QFileDialog.Option()
             if not use_native_dialog:
                 opts |= QFileDialog.DontUseNativeDialog
@@ -1078,30 +1079,42 @@ class Application(QApplication):
 
 _store_app = None
 
-class SanitizeLibraryPath(object):
-    '''Remove the bundled calibre libraries from LD_LIBRARY_PATH on linux. This
+@contextmanager
+def sanitize_env_vars():
+    '''Unset various environment variables that calibre uses. This
     is needed to prevent library conflicts when launching external utilities.'''
 
-    env_vars = {'LD_LIBRARY_PATH':'/lib', 'QT_PLUGIN_PATH':'/lib/qt_plugins'}
+    if islinux and isfrozen:
+        env_vars = {'LD_LIBRARY_PATH':'/lib', 'QT_PLUGIN_PATH':'/lib/qt_plugins', 'MAGICK_CODER_MODULE_PATH':None, 'MAGICK_CODER_FILTER_PATH':None}
+    elif iswindows:
+        env_vars = {k:None for k in 'MAGICK_HOME MAGICK_CONFIGURE_PATH MAGICK_CODER_MODULE_PATH MAGICK_FILTER_MODULE_PATH QT_PLUGIN_PATH'.split()}
+    elif isosx:
+        env_vars = {k:None for k in
+                    'FONTCONFIG_FILE FONTCONFIG_PATH MAGICK_CONFIGURE_PATH MAGICK_CODER_MODULE_PATH MAGICK_FILTER_MODULE_PATH QT_PLUGIN_PATH'.split()}
+    else:
+        env_vars = {}
 
-    def __enter__(self):
-        self.originals = {x:os.environ.get(x, '') for x in self.env_vars}
-        self.changed = {x:False for x in self.env_vars}
-        if isfrozen and islinux:
-            for var, suffix in self.env_vars.iteritems():
-                paths = [x for x in self.originals[var].split(os.pathsep) if x]
-                npaths = [x for x in paths if x != sys.frozen_path + suffix]
-                if len(npaths) < len(paths):
-                    if npaths:
-                        os.environ[var] = os.pathsep.join(npaths)
-                    else:
-                        del os.environ[var]
-                    self.changed[var] = True
+    originals = {x:os.environ.get(x, '') for x in env_vars}
+    changed = {x:False for x in env_vars}
+    for var, suffix in env_vars.iteritems():
+        paths = [x for x in originals[var].split(os.pathsep) if x]
+        npaths = [] if suffix is None else [x for x in paths if x != (sys.frozen_path + suffix)]
+        if len(npaths) < len(paths):
+            if npaths:
+                os.environ[var] = os.pathsep.join(npaths)
+            else:
+                del os.environ[var]
+            changed[var] = True
 
-    def __exit__(self, *args):
-        for var, orig in self.originals.iteritems():
-            if self.changed[var]:
-                os.environ[var] = orig
+    try:
+        yield
+    finally:
+        for var, orig in originals.iteritems():
+            if changed[var]:
+                if orig:
+                    os.environ[var] = orig
+                elif var in os.environ:
+                    del os.environ[var]
 
 def open_url(qurl):
     # Qt 5 requires QApplication to be constructed before trying to use
@@ -1109,7 +1122,7 @@ def open_url(qurl):
     ensure_app()
     if isinstance(qurl, basestring):
         qurl = QUrl(qurl)
-    with SanitizeLibraryPath():
+    with sanitize_env_vars():
         QDesktopServices.openUrl(qurl)
 
 def get_current_db():
