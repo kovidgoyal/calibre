@@ -191,9 +191,10 @@ class EbookIterator(BookmarksMixin):
                     p = urlparse(urlunquote(link))
                 except Exception:
                     continue
-                if not p.scheme and not p.netloc and p.path:
+                if not p.scheme and not p.netloc:
+                    path = os.path.abspath(os.path.join(base, p.path)) if p.path else item
                     try:
-                        path = spine_paths[os.path.abspath(os.path.join(base, p.path))]
+                        path = spine_paths[path]
                     except Exception:
                         continue
                     if not p.fragment or p.fragment in path.anchor_map:
