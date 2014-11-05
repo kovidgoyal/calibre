@@ -18,7 +18,7 @@ from PyQt5.Qt import (
     QUndoStack)
 
 from calibre.gui2.widgets import EnLineEdit, FormatList as _FormatList, ImageView
-from calibre.gui2.widgets2 import access_key, populate_standard_spinbox_context_menu
+from calibre.gui2.widgets2 import access_key, populate_standard_spinbox_context_menu, RightClickButton
 from calibre.utils.icu import sort_key
 from calibre.utils.config import tweaks, prefs
 from calibre.ebooks.metadata import (
@@ -179,15 +179,6 @@ def make_undoable(spinbox):
                 self.setValue(val)
 
     return UndoableSpinbox
-
-class RightClickButton(QToolButton):
-
-    def mousePressEvent(self, ev):
-        if ev.button() == Qt.RightButton and self.menu() is not None:
-            self.showMenu()
-            ev.accept()
-            return
-        return QToolButton.mousePressEvent(self, ev)
 
 # Title {{{
 class TitleEdit(EnLineEdit, ToMetadataMixin):

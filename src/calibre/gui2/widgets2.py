@@ -6,7 +6,9 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
-from PyQt5.Qt import QPushButton, QPixmap, QIcon, QColor, Qt, QColorDialog, pyqtSignal, QKeySequence
+from PyQt5.Qt import (
+    QPushButton, QPixmap, QIcon, QColor, Qt, QColorDialog, pyqtSignal,
+    QKeySequence, QToolButton)
 
 from calibre.gui2.complete2 import LineEdit, EditWithComplete
 from calibre.gui2.widgets import history
@@ -119,4 +121,13 @@ def populate_standard_spinbox_context_menu(spinbox, menu, add_clear=False):
     m.addAction(_('&Step up'), spinbox.stepUp)
     m.addAction(_('Step &down'), spinbox.stepDown)
     m.setAttribute(Qt.WA_DeleteOnClose)
+
+class RightClickButton(QToolButton):
+
+    def mousePressEvent(self, ev):
+        if ev.button() == Qt.RightButton and self.menu() is not None:
+            self.showMenu()
+            ev.accept()
+            return
+        return QToolButton.mousePressEvent(self, ev)
 
