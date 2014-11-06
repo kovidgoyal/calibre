@@ -112,7 +112,7 @@ def font_dirs():
                 ]
     return fc_list()
 
-class Scanner(Thread):
+class FontScanner(Thread):
 
     CACHE_VERSION = 1
 
@@ -380,7 +380,7 @@ class Scanner(Thread):
                 prints()
             prints()
 
-font_scanner = Scanner()
+font_scanner = FontScanner()
 font_scanner.start()
 
 def force_rescan():
