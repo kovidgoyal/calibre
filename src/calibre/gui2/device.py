@@ -1079,6 +1079,10 @@ class DeviceMixin(object):  # {{{
             self.location_manager.update_devices()
             self.bars_manager.update_bars()
             self.library_view.set_device_connected(self.device_connected)
+            # Empty any device view information
+            self.memory_view.set_database([])
+            self.card_a_view.set_database([])
+            self.card_b_view.set_database([])
             self.refresh_ondevice()
         device_signals.device_connection_changed.emit(connected)
 
@@ -1183,7 +1187,7 @@ class DeviceMixin(object):  # {{{
             self.upload_booklists(job)
         # We need to reset the ondevice flags in the library. Use a big hammer,
         # so we don't need to worry about whether some succeeded or not.
-        self.refresh_ondevice(reset_only=False)
+        self.refresh_ondevice()
 
         try:
             if not self.current_view().currentIndex().isValid():
