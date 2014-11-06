@@ -316,9 +316,9 @@ class FileTypePlugin(Plugin):  # {{{
     A plugin that is associated with a particular set of file types.
     '''
 
-    #: Set of file types for which this plugin should be run
-    #: For example: ``set(['lit', 'mobi', 'prc'])``
-    file_types     = set([])
+    #: Set of file types for which this plugin should be run.
+    #: For example: ``{'lit', 'mobi', 'prc'}``
+    file_types     = set()
 
     #: If True, this plugin is run when books are added
     #: to the database
