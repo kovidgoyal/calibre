@@ -5,6 +5,7 @@ class Counterpunch(BasicNewsRecipe):
     oldest_article = 7
     max_articles_per_feed = 100
     auto_cleanup = True
+    language = 'en'
 
     feeds          = [(u'Counterpunch', u'http://www.counterpunch.org/category/article/feed/')]
 

@@ -6,6 +6,7 @@ class Worldcrunch(BasicNewsRecipe):
     oldest_article = 2 #days
     max_articles_per_feed = 25
     use_embedded_content = False
+    language = 'en'
 
     no_stylesheets = True
     auto_cleanup = True

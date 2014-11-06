@@ -10,6 +10,7 @@ class AdvancedUserRecipe1376229553(BasicNewsRecipe):
     # 16-11-13 cover adjustment
     # 19.1.14 changes due to website changes breaking recipe
     encoding    = 'utf-8'
+    language = 'en_GB'
     remove_empty_feeds = True
     remove_javascript     = True
     no_stylesheets        = True

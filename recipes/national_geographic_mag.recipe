@@ -6,6 +6,7 @@ class NGM(BasicNewsRecipe):
     __author__  = 'Krittika Goyal'
     description = 'National Geographic Magazine'
     timefmt = ' [%d %b, %Y]'
+    language = 'en'
 
     no_stylesheets = True
     auto_cleanup = True
