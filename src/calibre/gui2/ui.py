@@ -888,7 +888,8 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
         if write_settings:
             self.write_settings()
         self.check_messages_timer.stop()
-        self.update_checker.shutdown()
+        if hasattr(self, 'update_checker'):
+            self.update_checker.shutdown()
         self.listener.close()
         self.job_manager.server.close()
         self.job_manager.threaded_server.close()
