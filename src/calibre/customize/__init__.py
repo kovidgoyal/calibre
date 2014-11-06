@@ -213,7 +213,7 @@ class Plugin(object):  # {{{
 
         :param names: List of paths to resources in the zip file using / as separator
 
-        :return: A dictionary of the form ``{name : file_contents}``. Any names
+        :return: A dictionary of the form ``{name: file_contents}``. Any names
                  that were not found in the zip file will not be present in the
                  dictionary.
 
