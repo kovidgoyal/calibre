@@ -1,53 +1,418 @@
-__license__   = 'GPL v3'
-__copyright__ = '2009-2010, Darko Miletic <darko.miletic at gmail.com>'
-'''
-www.boston.com
-'''
-
+import string, re
 from calibre.web.feeds.recipes import BasicNewsRecipe
+from calibre.ebooks.BeautifulSoup import Tag
+from datetime import date
 
-class BusinessStandard(BasicNewsRecipe):
-    title                  = 'The Boston Globe'
-    __author__             = 'Darko Miletic'
-    description            = 'News from Boston'
-    oldest_article         = 2
-    max_articles_per_feed  = 100
-    no_stylesheets         = True
-    delay                  = 1
-    use_embedded_content   = False
-    auto_cleanup = True
-    encoding               = 'utf-8'
-    publisher              = 'Boston'
-    category               = 'news, boston, usa, world'
-    language               = 'en'
-    publication_type       = 'newspaper'
-    masthead_url           = 'http://cache.boston.com/images/globe/grslider/the_boston_globe.gif'
-    extra_css              = ' body{font-family: Georgia, serif} div#articleBodyTop{display:block} '
+class BostonGlobeSubscription(BasicNewsRecipe):
 
-    conversion_options = {
-                             'comments'        : description
-                            ,'tags'            : category
-                            ,'language'        : language
-                            ,'publisher'       : publisher
-                         }
+    # logger = logging.getLogger("mechanize")
+    # logger.addHandler(logging.StreamHandler(sys.stdout))
+    # logger.setLevel(logging.DEBUG)
+    title       = "Boston Globe Subscription"
+    __author__  = 'Rob Freundlich'
+    description = 'Boston Globe with full articles for subscribers'
+    INDEX = date.today().strftime('http://www.bostonglobe.com/todayspaper/%Y/%m/%d')
+    todaysDate = date.today().strftime("%d/%m/%Y")
+    timefmt = ' [%a, %d %b, %Y]'
+    needs_subscription = True
+    remove_tags = [dict(attrs={"class":["skip-nav article-more",
+                                                  "aside promo",
+                                                  "article-bar bar-yellow",
+                                                  "tools",
+                                                  "sticky-tools",
+                                                  "article-footer",
+                                                  "bg-footer"]}),
+                   dict(attrs={"id":["masthead",
+                                        "video",
+                                        "section-nav",
+                                        "meter-limit-met-popup"]})]
+    no_stylesheets = True
+    # simultaneous_downloads = 1
+    valid_filename_chars = "-_.%s%s" % (string.ascii_letters, string.digits)
+    cover_url = "http://ecx.images-amazon.com/images/I/419qC6zeKSL._SL500_AA300_.jpg"
+    preprocess_regexps = [
+        (re.compile(r'\<img src\=\"\/\/'), lambda match: '<img src="http://'),
+    ]
+    comics_to_fetch = [
+        "ADAM@HOME",
+        "ARLO & JANIS",
+        #"ASK SHAGG",
+        #"CUL DE SAC",
+        #"CURTIS",
+        "DILBERT",
+        "DOONESBURY",
+        "DUSTIN",
+        #"THE FAMILY CIRCUS",
+        "F MINUS",
+        "FOR BETTER OR WORSE",
+        "FOXTROT",
+        #"GET FUZZY",
+        #"MOTHER GOOSE & GRIMM",
+        #"IN THE STICKS",
+        #"JUMPSTART",
+        "MONTY",
+        "NON SEQUITUR",
+        "PICKLES",
+        #"POOCH CAFE",
+        "RHYMES WITH ORANGE",
+        #"ROSE IS ROSE",
+        "STONE SOUP",
+        #"ZIPPY THE PINHEAD",
+        "ZITS"]
 
-    #keep_only_tags   = [dict(attrs={'id':['INDblogEntry','blogEntry','articleHeader','articleGraphs','galleryShell']})]
-    #remove_tags      = [
-                          #dict(name=['object','link','script','iframe'])
-                         #,dict(attrs={'id':['blogheadTools','bdc_emailWidget','tools','relatedContent']})
-                       #]
+    def image_url_processor(self, baseurl, url):
+        self.log("===================\nbaseurl: ", baseurl, "\nurl: ", url)
+        # This is a hack because some of the URLs just have a leading
+        # // instead of http://
+        if url.startswith("//"):
+            url = "http:" + url
 
-    feeds = [
-               (u'Top Stories'  , u'http://feeds.boston.com/boston/topstories'              )
-              ,(u'Patriots news', u'http://feeds.boston.com/boston/sports/football/patriots/patriots_rss')
-              ,(u'National news', u'http://feeds.boston.com/boston/news/nation'             )
-              ,(u'World news'   , u'http://feeds.boston.com/boston/news/world'              )
-            ]
+        url = self.get_image(url)
 
-    #def print_version(self, url):
-        #return url + '?page=full'
+        self.log("url out: ", url, "\n===================")
 
-    #def get_article_url(self, article):
-        #rawarticle = article.get('guid', None)
-        #return rawarticle.rpartition('?')[0]
+        return url
 
+    def get_image(self, url):
+        # Another hack - sometimes the URLs just have a leading /,
+        # in which case I stick on "http://" and the correct domain
+        if url.startswith("/"):
+            url = self.make_url(url)
+
+        # Get the image bytes
+        br = BasicNewsRecipe.get_browser(self)
+        response = br.open(url)
+        data = response.get_data()
+
+        # write it to a local file whose name is based on the URL
+        filename = ''.join(c for c in url if c in self.valid_filename_chars)
+        self.log("filename=%s" % filename)
+
+        f = open(filename, "wb")
+        f.write(data)
+        f.close()
+        return url
+
+    def is_login_form(self, form):
+        return form.action == "https://www.bostonglobe.com/Login"
+
+    def get_browser(self):
+        br = BasicNewsRecipe.get_browser(self)
+        if self.username is not None and self.password is not None:
+            # br.set_debug_http(True)
+            # br.set_debug_responses(True)
+            # br.set_debug_redirects(True)
+            #
+            # This next line is here because the connection was failing
+            # with a "closed by remote host".  But running Fiddler seems to solve it,
+            # so I'm running Fiddler on port 8888 all the time now.  It's a hack, but
+            # until I can figure out a better solution, it'll do
+            #
+            #br.set_proxies({"http":"127.0.0.1:8888", "https":"127.0.0.1:8888"})
+            #
+            # end of hack
+            #
+            br.open("https://www.bostonglobe.com/eom/SysConfig/WebPortal/BostonGlobe/Framework/regi/final-login.jsp")
+            br.select_form(predicate=self.is_login_form)
+            br["username"] = self.username
+            br["password"] = self.password
+            # pdb.set_trace()
+            br.submit()
+        return br
+
+    def make_url(self, url):
+        if url.startswith("//"):
+            return "http:" + url
+
+        return "http://www.bostonglobe.com" + url
+
+    def make_bostoncom_url(self, url):
+        if url.startswith("//"):
+            return "http:" + url
+
+        return "http://articles.boston.com" + url
+
+    def parse_index(self):
+        # self.logger.setLevel(logging.WARNING)
+        feeds = []
+        self.log("Getting today's paper from ", self.INDEX)
+        soup = self.index_to_soup(self.INDEX)
+
+        def get_top_stories():
+            self.log("Getting top stories")
+            articles = []
+            topStoriesDiv = soup.find("div", {"class":re.compile(".*stories-top.*")})
+
+            title = ""
+            url = ""
+            excerpt = ""
+
+            stories = topStoriesDiv.findAll("div", {"class":re.compile("story.*")})
+            for story in stories:
+                title = self.tag_to_string(story.find("h2", {"class":re.compile(".*story-title.*")}))
+                link = story.find("a")
+                if (link):
+                    url = link["href"]
+                    excerpt_div = story.find("div", {"class":"excerpt"})
+                    excerpt = self.tag_to_string(excerpt_div)
+                    articles.append({"title":title, "url":self.make_url(url), "date":self.todaysDate, "description":excerpt})
+                else:
+                    self.log("Skipping ", title, " because it has no link")
+
+            if articles:
+                feeds.append(("Top Stories", articles))
+
+        def get_section(sectionTitle, sectionID):
+            self.log("Getting section", sectionTitle)
+            articles = []
+            sectionDiv = soup.find(id=sectionID)
+            if (sectionDiv):
+                sectionHeader = sectionDiv.find("h2", "hed-section")
+                feedTitle = self.tag_to_string(sectionHeader)
+                excerpts = sectionDiv.findAll("div", "sec-excerpt")
+                for excerpt in excerpts:
+                    url = ""
+                    title = ""
+                    category = ""
+                    author = ""
+
+                    # Stories here follow similar forms to top-stories (above)
+                    storyTitle = excerpt.find("h3", "story-title")
+                    if (storyTitle.parent.name == "a"):
+                        a = storyTitle.parent
+                        url = a["href"]
+                        title = self.tag_to_string(storyTitle)
+                    else:
+                        a = storyTitle.find("a")
+                        url = a["href"]
+                        title = self.tag_to_string(a)
+
+                    hedCat = excerpt.find("p", "hed-cat")
+                    if (hedCat):
+                        category = self.tag_to_string(hedCat)
+
+                    authorHeader = excerpt.find("h4", "author")
+                    if (authorHeader):
+                        author = self.tag_to_string(authorHeader)
+
+                    if (category != "") & (category != " "):
+                        title = category + ": " + title
+
+                    description = ""
+                    for para in excerpt.findAll("p"):
+                        if (para != hedCat):
+                            description += self.tag_to_string(para)
+
+                    articles.append({"title":title, "url":self.make_url(url), "author":author, "date":self.todaysDate, "description":description})
+
+                if articles:
+                    feeds.append((feedTitle, articles))
+
+        def getOpinionSection():
+            self.log("Getting section", "Editorials and Opinions")
+            articles = []
+            opinionSoup = self.index_to_soup("http://www.bostonglobe.com/opinion")
+
+            # Find and process the editorials
+            topStories = opinionSoup.find("div", "stories-top")
+            for story in topStories.findAll("div", {"class":re.compile("story.*")}):
+                # Story title is always in an H2 tag whose class contains "story-title"
+                titleTag = story.find("h2", {"class":re.compile("story-title.*")})
+
+                # Description is always in a DIV whose class is "excert"
+                excerptTag = story.find("div", "excerpt")
+
+                # Author is in a P whose class is "hed-cat" or in a CITE
+                authorTag = story.find("p", "hed-cat")
+                if (authorTag == None):
+                    authorTag = story.find("cite")
+
+                # URL is in an A whose class is "story-perm".  If not, it's in the only A tag
+                urlTag = story.find("a", "story-perm")
+                if (urlTag == None):
+                    urlTag = story.find("a")
+
+                # Extract the values and build the article
+                title = ""
+                if (titleTag):
+                    title = self.tag_to_string(titleTag)
+
+                author = ""
+                if (authorTag):
+                    author = self.tag_to_string(authorTag)
+
+                description = ""
+                if (excerptTag):
+                    description = self.tag_to_string(excerptTag)
+
+                url = ""
+                if (urlTag):
+                    url = urlTag["href"]
+                    articles.append({"title":title, "url":self.make_url(url), "author":author, "date":self.todaysDate, "description":description})
+
+            # Now find Letters to the Editor and process them
+            mainDiv = opinionSoup.find("div", {"id":"main"})
+            if (mainDiv == None):
+                print "no mainDiv found"
+            else:
+                lettersAnchor = mainDiv.find("a", {"href":re.compile(".*opinion/letters.*")})
+                if (lettersAnchor == None):
+                    print "No lettersAnchor found"
+                else:
+                    lettersFeatureWell = lettersAnchor.parent.parent
+                    lettersContent = lettersFeatureWell.find("div", "content")
+                    if (lettersContent == None):
+                        print "No lettersContent found"
+                    else:
+                        mainLetterDiv = lettersContent.find("div", {"class":re.compile("main.*")})
+                        mainLetterStories = mainLetterDiv.findAll("h4", "story-title")
+                        if (mainLetterStories == None):
+                            print "no mainLetterStories found"
+                        else:
+                            for mainLetterStory in mainLetterStories:
+                                mainLetterAnchor = mainLetterStory.parent
+                                if (mainLetterAnchor == None):
+                                    print "no mainLetterAnchor found"
+                                else:
+                                    articles.append({"title":self.tag_to_string(mainLetterStory), "url":self.make_url(
+                                        mainLetterAnchor["href"]), "author":"Letter", "date":self.todaysDate, "description":""})
+                    inSection = lettersFeatureWell.find("div", "in-section")
+                    if (inSection == None):
+                        print "no inSection found"
+                    else:
+                        lettersList = inSection.find("ul")
+                        if (lettersList == None):
+                            print "no lettersList found"
+                        else:
+                            for letter in lettersList.findAll("li"):
+                                letterAnchor = letter.find("a")
+                                if (letterAnchor == None):
+                                    print "no letterAnchor for ", letter
+                                else:
+                                    articles.append({"title":self.tag_to_string(letterAnchor), "url":self.make_url(
+                                        letterAnchor["href"]), "author":"Letter", "date":self.todaysDate, "description":""})
+
+            if articles:
+                # for article in articles:
+                #    print "============"
+                #    print "TITLE", article["title"]
+                #    print "URL", article["url"]
+                #    print "AUTHOR", article["author"]
+                #    print "DATE", article["date"]
+                #    print "DESCRIPTION", article["description"]
+                #    print "============"
+                feeds.append(("Editorial and Opinion", articles))
+
+        def get_comics():
+            articles = []
+            comicSoup = self.index_to_soup("http://www.bostonglobe.com/lifestyle/comics")
+            for personIndex in comicSoup.findAll("ol", {"class":re.compile("person-index.*")}):
+                for li in personIndex.findAll("li"):
+                    title = self.tag_to_string(li.p)
+                    if (title in self.comics_to_fetch):
+                        url = li.a["href"]
+                        author = self.tag_to_string(li.h2)
+                        #comicPageSoup = self.index_to_soup(self.make_url(url))
+                        #imageURL = comicPageSoup.findAll("a", "comic")
+                        # if len(imageURL) > 0:
+                        #    url = imageURL[0]["href"]
+                        # print "COMIC %s: %s" % (title, url)
+                        articles.append({"title":title, "url":self.make_url(url), "author":author, "date":self.todaysDate, "description":""})
+
+            feeds.append(("Comics", articles))
+
+        get_top_stories()
+
+        get_section("Nation", "tp-section-thenation")
+        get_section("World", "tp-section-theworld")
+        get_section("Metro", "tp-section-metro")
+        getOpinionSection()
+        get_section("Arts & Movies", "tp-section-g:arts&movies")
+        get_section("Family", "tp-section-g:family")
+        get_section("Style", "tp-section-g:style")
+        get_section("Globe West", "tp-section-globewest")
+        get_section("Food", "tp-section-g:food")
+        get_section("Living", "tp-section-living")
+        get_section("Health", "tp-section-g:health")
+        get_section("Ideas", "tp-section-ideas")
+        get_section("Boston Globe Magazine", "tp-section-magazine")
+
+        get_comics()
+
+        #get_section("Business", "tp-section-business")
+        #get_section("Obituaries", "tp-section-obituaries")
+        #get_section("Sports", "tp-section-sports")
+        #get_section("Globe North", "tp-section-globenorth")
+        #get_section("Globe South", "tp-section-globesouth")
+        #get_section("Money & Careers", "tp-section-money&careers")
+        #get_section("Books", "tp-section-books")
+        #get_section("Travel", "tp-section-travel")
+        #get_section("Real Estate", "tp-section-realestate")
+
+        for feed in feeds:
+            feedTitle = feed[0]
+            articles = feed[1]
+            self.log(feedTitle)
+            for article in articles:
+                self.log("    ", article["title"], ".....", article["url"])
+                self.log("        ", article["description"])
+
+        return feeds
+
+    def postprocess_comics(self, soup, first):
+        main = soup.find("div", id="main")
+        sectionHead = main.find("div", "section-head")
+        title = sectionHead.h2
+        byline = sectionHead.h3
+        imgLink = main.find("a", "comic")
+        img = imgLink.img
+
+        print "title: %s" % title
+        print "byline: %s" % byline
+        print "imgLink: %s" % imgLink
+        print "img: %s" % img
+
+        body = Tag(soup, "body")
+        body.insert(0, title)
+        body.insert(1, byline)
+        body.insert(2, img)
+
+        soup.body.replaceWith(body)
+
+        return soup
+
+    def preprocess_html(self, soup):
+        images = soup.findAll("img")
+        for image in images:
+            if (image["src"] == ""):
+                if (image["data-fullsrc"]):
+                    image["src"] = image["data-fullsrc"]
+                elif (image["src"].startswith("//")):
+                    image["src"] = "http://" + image["src"]
+
+        return soup
+
+    def postprocess_html(self, soup, first):
+        comicsBody = soup.find("body", {"class":re.compile(".*section-comics.*")})
+        if (comicsBody):
+            return self.postprocess_comics(soup, first)
+
+        article = soup.find("div", "article")
+        if (article):
+            # Yay!  We're getting the subscriber view.  Easy to handle
+            articleHeader = article.find("div", "header")
+            articleByline = article.find("div", "byline")
+            articleBody = article.find("div", "article-body")
+            figureLead = article.find("div", "figure lead-figure full")
+
+            body = Tag(soup, "body")
+            body.insert(0, articleHeader)
+            body.insert(1, articleByline)
+            body.insert(2, articleBody)
+
+            if (figureLead):
+                body.insert(2, figureLead)
+
+            soup.body.replaceWith(body)
+
+        return soup
