@@ -1070,7 +1070,7 @@ class DeviceMixin(object):  # {{{
                 self.device_manager.device.get_gui_name()+
                         _(' detected.'), 3000)
             self.library_view.set_device_connected(self.device_connected)
-            self.refresh_ondevice()
+            self.refresh_ondevice(reset_only=True)
         else:
             self.device_connected = None
             self.status_bar.device_disconnected()
@@ -1146,13 +1146,15 @@ class DeviceMixin(object):  # {{{
             prints('DeviceJob: metadata_downloaded: sending metadata_available signal')
         device_signals.device_metadata_available.emit()
 
-    def refresh_ondevice(self):
+    def refresh_ondevice(self, reset_only=False):
         '''
         Force the library view to refresh, taking into consideration new
         device books information
         '''
         with self.library_view.preserve_state():
             self.book_on_device(None, reset=True)
+            if reset_only:
+                return
             self.library_view.model().refresh_ondevice()
 
     # }}}
