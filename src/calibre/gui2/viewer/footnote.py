@@ -129,6 +129,10 @@ class Footnotes(object):
         dest_path = self.spine_path(qurl.toLocalFile())
         if dest_path is not None:
             if dest_path == current_path:
+                # We deliberately ignore linked to anchors if the destination is
+                # the same as the source, because many books have section ToCs
+                # that are linked back from their destinations, for example,
+                # the calibre User Manual
                 linked_to_anchors = {}
             else:
                 linked_to_anchors = {anchor:0 for path, anchor in dest_path.verified_links if path == current_path}
