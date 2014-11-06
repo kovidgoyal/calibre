@@ -13,7 +13,7 @@ Once you've admired the list of books you just added to your heart's content, yo
 
 If you want to read the book on your reader, connect it to the computer, wait till calibre detects it (10-20 seconds) and then click the "Send to device" button. Once the icon stops spinning again, disconnect your reader and read away! If you didn't convert the book in the previous step, calibre will auto convert it to the format your reader device understands. 
 
-To get started with more advanced usage, you should read about the :ref:`Graphical User Interface <gui>`. For even more power and versatility, learn the :ref:`Command Line Interface <cli>`. You will find the list of :ref:`Frequently Asked Questions <faq>` useful as well. 
+To get started with more advanced usage, you should read about :doc:`gui`. For even more power and versatility, learn the :doc:`generated/|lang|/cli-index`. You will find the list of :doc:`faq` useful as well. 
 
 .. only:: online
     
