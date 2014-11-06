@@ -1576,8 +1576,10 @@ class DeviceBooksModel(BooksModel):  # {{{
                 return (_('Waiting for metadata to be updated'))
             if self.is_row_marked_for_deletion(row):
                 return (_('Marked for deletion'))
-            if cname in ['title', 'authors'] or (cname == 'collections' and
-                    self.db.supports_collections()):
+            if cname in ['title', 'authors'] or (
+                    cname == 'collections' and (
+                        callable(getattr(self.db, 'supports_collections', None)) and self.db.supports_collections())
+            ):
                 return (_("Double click to <b>edit</b> me<br><br>"))
         elif role == Qt.DecorationRole and cname == 'inlibrary':
             if hasattr(self.db[self.map[row]], 'in_library_waiting'):
