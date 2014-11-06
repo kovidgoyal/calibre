@@ -1349,6 +1349,15 @@ class StoreBubokPublishingStore(StoreBase):
     headquarters = 'ES'
     formats = ['EPUB', 'PDF']
 
+class StoreBubokPortugalStore(StoreBase):
+    name = 'Bubok Portugal'
+    description = u'Bubok Publishing Portugal is a publisher, library and store of books of authors from Portugal. They have a big amount of books of a lot of topics'  # noqa
+    actual_plugin = 'calibre.gui2.store.stores.bubok_portugal_plugin:BubokPortugalStore'
+
+    drm_free_only = True
+    headquarters = 'PT'
+    formats = ['EPUB', 'PDF']
+
 class StoreBaenWebScriptionStore(StoreBase):
     name = 'Baen Ebooks'
     description = u'Sci-Fi & Fantasy brought to you by Jim Baen.'
@@ -1724,6 +1733,7 @@ plugins += [
     StoreAllegroStore,
     StoreArchiveOrgStore,
     StoreBubokPublishingStore,
+    StoreBubokPortugalStore,
     StoreAmazonKindleStore,
     StoreAmazonCAKindleStore,
     StoreAmazonDEKindleStore,
