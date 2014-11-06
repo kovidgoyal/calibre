@@ -129,7 +129,7 @@ class ParseWorker(Thread):
         self.parse_items.clear()
 
     def is_alive(self):
-        return Thread.is_alive(self) or self.worker.is_alive()
+        return Thread.is_alive(self) or (hasattr(self, 'worker') and self.worker.is_alive())
 
 parse_worker = ParseWorker()
 # }}}
