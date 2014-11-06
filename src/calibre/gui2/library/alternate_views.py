@@ -6,7 +6,7 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import itertools, operator, os
+import itertools, operator, os, math
 from types import MethodType
 from threading import Event, Thread
 from Queue import LifoQueue
@@ -980,5 +980,20 @@ class GridView(QListView):
         if event and event.type() == event.KeyPress and event.key() in (Qt.Key_Home, Qt.Key_End) and event.modifiers() & Qt.CTRL:
             return QItemSelectionModel.ClearAndSelect | QItemSelectionModel.Rows
         return super(GridView, self).selectionCommand(index, event)
+
+    def wheelEvent(self, ev):
+        if ev.phase() != Qt.ScrollUpdate:
+            return
+        number_of_pixels = ev.pixelDelta()
+        number_of_degrees = ev.angleDelta() / 8
+        b = self.verticalScrollBar()
+        if number_of_pixels.isNull():
+            dy = number_of_degrees.y() / 15.0
+            # Scroll by approximately half a row
+            dy = int(math.ceil((dy) * b.singleStep() / 2.0))
+        else:
+            dy = number_of_pixels.y()
+        if abs(dy) > 0:
+            b.setValue(b.value() - dy)
 
 # }}}
