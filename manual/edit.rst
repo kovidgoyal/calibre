@@ -308,7 +308,7 @@ Some of the checks performed are:
       auto-fixing can sometimes have unexpected effects, so use with care. As
       always, a checkpoint is created before auto-fixing so you can easily
       revert all changes. Auto-fixing works by parsing the markup using the
-      HTML 5 algorithm, which is highly fault tolerant and then converting to
+      HTML5 algorithm, which is highly fault tolerant and then converting to
       well formed XML.
 
     * Malformed or unknown CSS styles. Any CSS that is not valid or that has
@@ -383,7 +383,7 @@ Fix HTML
 This tool simply converts HTML that cannot be parsed as XML into well-formed
 XML. It is very common in ebooks to have non-well-formed XML, so this tool
 simply automates the process of fixing such HTML. The tool works by parsing the
-HTML using the HTML 5 algorithm (the algorithm used in all modern browsers) and
+HTML using the HTML5 algorithm (the algorithm used in all modern browsers) and
 then converting the result into XML. Be aware that auto-fixing can sometimes
 have counter-intuitive results. If you prefer, you can use the Check Book tool
 discussed above to find and manually correct problems in the HTML. Accessed via
