@@ -11,6 +11,7 @@ class BostonGlobeSubscription(BasicNewsRecipe):
     title       = "Boston Globe Subscription"
     __author__  = 'Rob Freundlich'
     description = 'Boston Globe with full articles for subscribers'
+    language    = 'en'
     INDEX = date.today().strftime('http://www.bostonglobe.com/todayspaper/%Y/%m/%d')
     todaysDate = date.today().strftime("%d/%m/%Y")
     timefmt = ' [%a, %d %b, %Y]'
