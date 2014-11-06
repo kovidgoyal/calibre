@@ -3,8 +3,9 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import re, binascii, cPickle
 from future_builtins import map
+from threading import Thread, Event
 
-from PyQt5.Qt import (QThread, pyqtSignal, Qt, QUrl, QDialog, QGridLayout,
+from PyQt5.Qt import (QObject, pyqtSignal, Qt, QUrl, QDialog, QGridLayout,
         QLabel, QCheckBox, QDialogButtonBox, QIcon, QPixmap)
 import mechanize
 
@@ -44,16 +45,22 @@ def get_newest_version():
         ans = tuple(map(int, (m.group(1), m.group(2), m.group(3))))
     return ans
 
-class CheckForUpdates(QThread):
+class Signal(QObject):
 
     update_found = pyqtSignal(object, object)
-    INTERVAL = 24*60*60
+
+class CheckForUpdates(Thread):
+
+    INTERVAL = 24*60*60  # seconds
+    daemon = True
 
     def __init__(self, parent):
-        QThread.__init__(self, parent)
+        Thread.__init__(self)
+        self.shutdown_event = Event()
+        self.signal = Signal(parent)
 
     def run(self):
-        while True:
+        while not self.shutdown_event.is_set():
             calibre_update_version = NO_CALIBRE_UPDATE
             plugins_update_found = 0
             try:
@@ -69,8 +76,11 @@ class CheckForUpdates(QThread):
             except Exception as e:
                 prints('Failed to check for plugin update:', as_unicode(e))
             if calibre_update_version != NO_CALIBRE_UPDATE or plugins_update_found > 0:
-                self.update_found.emit(calibre_update_version, plugins_update_found)
-            self.sleep(self.INTERVAL)
+                self.signal.update_found.emit(calibre_update_version, plugins_update_found)
+            self.shutdown_event.wait(self.INTERVAL)
+
+    def shutdown(self):
+        self.shutdown_event.set()
 
 class UpdateNotification(QDialog):
 
@@ -141,7 +151,7 @@ class UpdateMixin(object):
         self.last_newest_calibre_version = NO_CALIBRE_UPDATE
         if not opts.no_update_check:
             self.update_checker = CheckForUpdates(self)
-            self.update_checker.update_found.connect(self.update_found,
+            self.update_checker.signal.update_found.connect(self.update_found,
                     type=Qt.QueuedConnection)
             self.update_checker.start()
 
