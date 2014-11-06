@@ -22,6 +22,7 @@ from calibre.ebooks.metadata import title_sort, authors_to_sort_string
 from calibre.gui2 import pixmap_to_data, gprefs
 from calibre.gui2.comments_editor import Editor
 from calibre.gui2.languages import LanguagesEdit as LE
+from calibre.gui2.widgets2 import RightClickButton
 from calibre.gui2.metadata.basic_widgets import PubdateEdit, RatingEdit
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.utils.date import UNDEFINED_DATE
@@ -401,7 +402,7 @@ class CompareSingle(QWidget):
             oldw = cls(field, False, self, m, extra)
             newl = QLabel('&%s:' % m['name'])
             newl.setBuddy(neww)
-            button = QToolButton(self)
+            button = RightClickButton(self)
             button.setIcon(QIcon(I('back.png')))
             button.clicked.connect(partial(self.revert, field))
             button.setToolTip(revert_tooltip % m['name'])
