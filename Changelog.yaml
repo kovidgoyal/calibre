@@ -20,6 +20,47 @@
 #   new recipes:
 #     - title: 
 
+- version: 2.9.0
+  date: 2014-11-07
+
+  new features:
+    - title: "E-book viewer: Show footnotes in a separate popup window"
+      type: major
+      description: "Now when you click on a link to a footnote/endnote, the corresponding note is shown in a separate popup window, for convenient reference. Footnote links are recognized using the EPUB 3 footnote markup as well as some heuristics. Any superscript or subscript links are assumed to be footnote links. Any link that links to another file which in turn links back to the original link, is assumed to be an endnote."
+
+    - title: "Cover Grid: Improve scroll wheel based scrolling."
+      description: 'On windows and linux a single "tick" of the wheel now scrolls by about half a row instead of a full screen. On OS X, scrolling is pixel based, so as you scroll faster, more content is scrolled.'
+
+    - title: "Get Books: Add the Bubok Portugal store"
+
+    - title: "Performance improvement for large libraries that using custom columns built with templates"
+
+    - title: "Review downloaded metadata dialog: Allow merging tags by long clicking the revert button"
+
+  bug fixes:
+    - title: "Fix a regression in 2.8 that caused the clear button next to date fields to set the date to Jan 101 instead of undefined."
+      tickets: [1388061]
+
+    - title: "Linux: Fix Unity global menu bar stops working after minimizing calibre to the dock or the system tray."
+      tickets: [1389404]
+
+    - title: "Sanitize the ImageMagick environment variables before launching external utilities."
+      tickets: [1389449]
+
+    - title: "Prevent stale 'On Device' info (from the previous connection) from showing during subsequent device connections"
+
+    - title: "Conversion: Add workaround for converting EPUB files with syntactically invalid (probably hand edited) OPF files."
+      tickets: [1389188]
+
+    - title: "Fix e-book viewer not displaying cover from HTMLZ files."
+      tickets: [1388595]
+
+    - title: "Conversion: Handle input documents with crazy font sizes (1000pt +)"
+
+  improved recipes:
+    - Boston Globe
+    - Brand Eins
+
 - version: 2.8.0
   date: 2014-10-31
 
