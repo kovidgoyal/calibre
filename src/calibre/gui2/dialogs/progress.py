@@ -5,7 +5,7 @@ __docformat__ = 'restructuredtext en'
 
 from PyQt5.Qt import (
     QDialog, pyqtSignal, Qt, QVBoxLayout, QLabel, QFont, QProgressBar,
-    QDialogButtonBox, QApplication, QFontMetrics)
+    QDialogButtonBox, QApplication, QFontMetrics, QHBoxLayout, QIcon)
 
 from calibre.gui2 import elided_text
 from calibre.gui2.progress_indicator import ProgressIndicator
@@ -14,9 +14,20 @@ class ProgressDialog(QDialog):
 
     canceled_signal = pyqtSignal()
 
-    def __init__(self, title, msg=u'\u00a0', min=0, max=99, parent=None, cancelable=True):
+    def __init__(self, title, msg=u'\u00a0', min=0, max=99, parent=None, cancelable=True, icon=None):
         QDialog.__init__(self, parent)
-        self.l = l = QVBoxLayout(self)
+        if icon is None:
+            self.l = l = QVBoxLayout(self)
+        else:
+            self.h = h = QHBoxLayout(self)
+            self.icon = i = QLabel(self)
+            if not isinstance(icon, QIcon):
+                icon = QIcon(I(icon))
+            i.setPixmap(icon.pixmap(64))
+            h.addWidget(i)
+            self.l = l = QVBoxLayout()
+            h.addLayout(l)
+            self.setWindowIcon(icon)
 
         self.title = t = QLabel(title)
         self.setWindowTitle(title)
@@ -144,6 +155,6 @@ class BlockingBusy(QDialog):
 
 if __name__ == '__main__':
     app = QApplication([])
-    d = ProgressDialog('A title', 'A message ' * 100)
+    d = ProgressDialog('A title', 'A message ' * 100, icon='lt.png')
     d.show(), d.canceled_signal.connect(app.quit)
     app.exec_()

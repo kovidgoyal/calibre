@@ -283,7 +283,7 @@ class Adder(QObject):  # {{{
 
     def __init__(self, parent, db, callback, spare_server=None):
         QObject.__init__(self, parent)
-        self.pd = ProgressDialog(_('Adding...'), parent=parent)
+        self.pd = ProgressDialog(_('Adding...'), parent=parent, icon='add_book.png')
         self.pd.setMaximumWidth(min(600, int(available_width()*0.75)))
         self.spare_server = spare_server
         self.db = db
