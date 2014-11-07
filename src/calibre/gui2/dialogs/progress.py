@@ -46,7 +46,6 @@ class ProgressDialog(QDialog, Ui_Dialog):
             return self.bar.value()
         return property(fget=fget, fset=fset)
 
-
     def set_min(self, min):
         self.bar.setMinimum(min)
 
@@ -55,10 +54,11 @@ class ProgressDialog(QDialog, Ui_Dialog):
 
     @dynamic_property
     def max(self):
-        def fget(self): return self.bar.maximum()
-        def fset(self, val): self.bar.setMaximum(val)
+        def fget(self):
+            return self.bar.maximum()
+        def fset(self, val):
+            self.bar.setMaximum(val)
         return property(fget=fget, fset=fset)
-
 
     def _canceled(self, *args):
         self.canceled = True
@@ -86,7 +86,7 @@ class BlockingBusy(QDialog):
         self._layout = QVBoxLayout()
         self.setLayout(self._layout)
         self.msg = QLabel(msg)
-        #self.msg.setWordWrap(True)
+        # self.msg.setWordWrap(True)
         self.font = QFont()
         self.font.setPointSize(self.font.pointSize() + 8)
         self.msg.setFont(self.font)
@@ -110,4 +110,4 @@ class BlockingBusy(QDialog):
         return QDialog.accept(self)
 
     def reject(self):
-        pass # Cannot cancel this dialog
+        pass  # Cannot cancel this dialog
