@@ -283,10 +283,46 @@ def save_book_to_disk(id_, db, root, opts, length):
             except:
                 pass
 
+def get_path_components(opts, mi, book_id, path_length):
+    try:
+        components = get_components(opts.template, mi, book_id, opts.timefmt, path_length,
+            ascii_filename if opts.asciiize else sanitize_file_name_unicode,
+            to_lowercase=opts.to_lowercase,
+            replace_whitespace=opts.replace_whitespace, safe_format=False)
+    except Exception, e:
+        raise ValueError(_('Failed to calculate path for '
+            'save to disk. Template: %(templ)s\n'
+            'Error: %(err)s')%dict(templ=opts.template, err=e))
+    if opts.single_dir:
+        components = components[-1:]
+    if not components:
+        raise ValueError(_('Template evaluation resulted in no'
+            ' path components. Template: %s')%opts.template)
+    return components
+
+
+def update_metadata(mi, fmt, stream, plugboards, cdata, error_report=None):
+    global plugboard_save_to_disk_value, plugboard_any_format_value
+    from calibre.ebooks.metadata.meta import set_metadata
+    try:
+        cpb = find_plugboard(plugboard_save_to_disk_value, fmt, plugboards)
+        if cpb:
+            newmi = mi.deepcopy_metadata()
+            newmi.template_to_attribute(mi, cpb)
+        else:
+            newmi = mi
+        if cdata:
+            newmi.cover_data = ('jpg', cdata)
+        set_metadata(stream, newmi, fmt)
+    except:
+        if error_report is None:
+            prints('Failed to set metadata for the', fmt, 'format of', mi.title)
+            traceback.print_exc()
+        else:
+            error_report(fmt, traceback.format_exc())
 
 def do_save_book_to_disk(id_, mi, cover, plugboards,
         format_map, root, opts, length):
-    from calibre.ebooks.metadata.meta import set_metadata
     available_formats = [x.lower().strip() for x in format_map.keys()]
     if mi.pubdate:
         mi.pubdate = as_local_time(mi.pubdate)
@@ -301,20 +337,7 @@ def do_save_book_to_disk(id_, mi, cover, plugboards,
     if not formats:
         return True, id_, mi.title
 
-    try:
-        components = get_components(opts.template, mi, id_, opts.timefmt, length,
-            ascii_filename if opts.asciiize else sanitize_file_name_unicode,
-            to_lowercase=opts.to_lowercase,
-            replace_whitespace=opts.replace_whitespace, safe_format=False)
-    except Exception, e:
-        raise ValueError(_('Failed to calculate path for '
-            'save to disk. Template: %(templ)s\n'
-            'Error: %(err)s')%dict(templ=opts.template, err=e))
-    if opts.single_dir:
-        components = components[-1:]
-    if not components:
-        raise ValueError(_('Template evaluation resulted in no'
-            ' path components. Template: %s')%opts.template)
+    components = get_path_components(opts, mi, id_, length)
     base_path = os.path.join(root, *components)
     base_name = os.path.basename(base_path)
     dirpath = os.path.dirname(base_path)
@@ -344,8 +367,6 @@ def do_save_book_to_disk(id_, mi, cover, plugboards,
 
     written = False
     for fmt in formats:
-        global plugboard_save_to_disk_value, plugboard_any_format_value
-        cpb = find_plugboard(plugboard_save_to_disk_value, fmt, plugboards)
         fp = format_map.get(fmt, None)
         if fp is None:
             continue
@@ -356,18 +377,7 @@ def do_save_book_to_disk(id_, mi, cover, plugboards,
         stream.seek(0)
         written = True
         if opts.update_metadata:
-            try:
-                if cpb:
-                    newmi = mi.deepcopy_metadata()
-                    newmi.template_to_attribute(mi, cpb)
-                else:
-                    newmi = mi
-                if cover:
-                    newmi.cover_data = ('jpg', cover)
-                set_metadata(stream, newmi, fmt)
-            except:
-                if DEBUG:
-                    traceback.print_exc()
+            update_metadata(mi, fmt, stream, plugboards, cover)
             stream.seek(0)
         fmt_path = base_path+'.'+str(fmt)
         with open(fmt_path, 'wb') as f:
@@ -375,13 +385,13 @@ def do_save_book_to_disk(id_, mi, cover, plugboards,
 
     return not written, id_, mi.title
 
-def _sanitize_args(root, opts):
+def sanitize_args(root, opts):
     if opts is None:
         opts = config().parse()
     root = os.path.abspath(root)
 
     opts.template = preprocess_template(opts.template)
-    length = 1000 if supports_long_names(root) else 250
+    length = 1000 if supports_long_names(root) else 240
     length -= len(root)
     if length < 5:
         raise ValueError('%r is too long.'%root)
@@ -399,7 +409,7 @@ def save_to_disk(db, ids, root, opts=None, callback=None):
     :return: A list of failures. Each element of the list is a tuple
     (id, title, traceback)
     '''
-    root, opts, length = _sanitize_args(root, opts)
+    root, opts, length = sanitize_args(root, opts)
     failures = []
     for x in ids:
         tb = ''
@@ -418,7 +428,7 @@ def save_to_disk(db, ids, root, opts=None, callback=None):
 
 def save_serialized_to_disk(ids, data, plugboards, root, opts, callback):
     from calibre.ebooks.metadata.opf2 import OPF
-    root, opts, length = _sanitize_args(root, opts)
+    root, opts, length = sanitize_args(root, opts)
     failures = []
     for x in ids:
         opf, cover, format_map, last_modified = data[x]
