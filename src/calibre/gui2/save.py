@@ -1,0 +1,272 @@
+#!/usr/bin/env python
+# vim:fileencoding=utf-8
+from __future__ import (unicode_literals, division, absolute_import,
+                        print_function)
+
+__license__ = 'GPL v3'
+__copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
+
+import traceback, errno, os
+from collections import namedtuple, defaultdict
+from tempfile import SpooledTemporaryFile
+from functools import partial
+
+from PyQt5.Qt import QObject, Qt, pyqtSignal
+
+from calibre.customize.ui import apply_null_metadata
+from calibre.db.errors import NoSuchFormat
+from calibre.ebooks.metadata import authors_to_string
+from calibre.ebooks.metadata.opf2 import metadata_to_opf
+from calibre.gui2 import error_dialog, warning_dialog, gprefs, open_local_file
+from calibre.gui2.dialogs.progress import ProgressDialog
+from calibre.utils.formatter_functions import load_user_template_functions
+from calibre.library.save_to_disk import sanitize_args, get_path_components, update_metadata
+
+BookId = namedtuple('BookId', 'title authors')
+
+def ensure_unique_components(data):  # {{{
+    cmap = {}
+    for book_id, (mi, components) in data.iteritems():
+        c = tuple(components)
+        if c in cmap:
+            cmap[c].add(book_id)
+        else:
+            cmap[c] = {book_id}
+
+    for book_ids in cmap.itervalues():
+        if len(book_ids) > 1:
+            for i, book_id in enumerate(sorted(book_ids)[1:]):
+                suffix = ' (%d)' % (i + 1)
+                components[-1] = components[-1] + suffix
+# }}}
+
+class SpooledFile(SpooledTemporaryFile):  # {{{
+
+    def __init__(self, file_obj, max_size=50*1024*1024):
+        self._file_obj = file_obj
+        SpooledTemporaryFile.__init__(self, max_size)
+
+    def rollover(self):
+        if self._rolled:
+            return
+        orig = self._file
+        newfile = self._file = self._file_obj
+        del self._TemporaryFileArgs
+
+        newfile.write(orig.getvalue())
+        newfile.seek(orig.tell(), 0)
+
+        self._rolled = True
+
+    def truncate(self, *args):
+        # The stdlib SpooledTemporaryFile implementation of truncate() doesn't
+        # allow specifying a size.
+        self._file.truncate(*args)
+# }}}
+
+class Saver(QObject):
+
+    do_one_signal = pyqtSignal()
+
+    def __init__(self, book_ids, db, opts, root, parent=None):
+        QObject.__init__(self, parent)
+        if parent is not None:
+            setattr(parent, 'no_gc_%s' % id(self), self)
+        self.db = db.new_api
+        self.plugboards = self.db.pref('plugboards', {})
+        self.template_functions = self.db.pref('user_template_functions', [])
+        load_user_template_functions('', self.template_functions)
+        self.collected_data = {}
+        self.errors = defaultdict(list)
+        self._book_id_data = {}
+        self.all_book_ids = frozenset(book_ids)
+        self.pd = ProgressDialog(_('Saving...'), _('Collecting metadata...'), min=0, max=0, parent=parent, icon='save.png')
+        self.do_one_signal.connect(self.tick, type=Qt.QueuedConnection)
+        self.do_one = self.do_one_collect
+        self.ids_to_collect = iter(self.all_book_ids)
+
+        self.pd.show()
+        self.root, self.opts, self.path_length = sanitize_args(root, opts)
+        self.do_one_signal.emit()
+
+    def tick(self):
+        if self.pd.canceled:
+            self.pd.close()
+            self.break_cycles()
+            return
+        self.do_one()
+
+    def break_cycles(self):
+        p = self.parent()
+        if p is not None:
+            setattr(p, 'no_gc_%s' % id(self), None)
+        self.plugboards = self.template_functions = self.collected_data = self.all_book_ids = self.pd = self.db = None
+
+    def book_id_data(self, book_id):
+        ans = self._book_id_data.get(book_id)
+        if ans is None:
+            try:
+                ans = BookId(self.db.field_for('title', book_id), self.db.field_for('authors', book_id))
+            except Exception:
+                ans = BookId((_('Unknown') + ' (%d)' % book_id), (_('Unknown'),))
+            self._book_id_data[book_id] = ans
+        return ans
+
+    def do_one_collect(self):
+        try:
+            book_id = next(self.ids_to_collect)
+        except StopIteration:
+            self.collection_finished()
+            return
+        try:
+            self.collect_data(book_id)
+        except Exception:
+            self.errors[book_id].append(('critical', traceback.format_exc()))
+        self.do_one_signal.emit()
+
+    def collect_data(self, book_id):
+        mi = self.db.get_metadata(book_id)
+        components = get_path_components(self.opts, mi, book_id, self.path_length)
+        self.collected_data[book_id] = (mi, components)
+
+    def collection_finished(self):
+        self.do_one = self.do_one_write
+        ensure_unique_components(self.collected_data)
+        self.ids_to_write = iter(self.collected_data)
+        self.pd.max = len(self.collected_data)
+        self.pd.value = 0
+        self.do_one_signal.emit()
+
+    def do_one_write(self):
+        try:
+            book_id = next(self.ids_to_write)
+        except StopIteration:
+            self.writing_finished()
+            return
+        self.pd.msg = self.book_id_data(book_id).title
+        self.pd.value += 1
+        try:
+            self.fmts_to_write = self.write_book(book_id)
+        except Exception:
+            self.errors[book_id].append(('critical', traceback.format_exc()))
+            self.fmts_to_write = iter(())
+        self.do_one = self.do_one_fmt
+        self.do_one_signal.emit()
+
+    def writing_finished(self):
+        self.pd.close()
+        self.report()
+        self.break_cycles()
+        if gprefs['show_files_after_save']:
+            open_local_file(self.root)
+
+    def write_book(self, book_id):
+        mi, components = self.collected_data[book_id]
+        base_path = os.path.join(self.root, *components)
+        base_dir = os.path.dirname(base_path)
+        fmts = {f.lower() for f in self.db.formats(book_id)}
+        if self.opts.formats != 'all':
+            asked_formats = {x.lower().strip() for x in self.opts.formats.split(',')}
+            fmts = asked_formats.intersection(fmts)
+
+        if not fmts and not self.opts.write_opf and not self.opts.save_cover:
+            return
+        try:
+            os.makedirs(base_dir)
+        except EnvironmentError as err:
+            if err.errno != errno.EEXIST:
+                raise
+
+        cdata = self.db.cover(book_id)
+        mi.cover, mi.cover_data = None, (None, None)
+
+        if self.opts.save_cover and cdata:
+            with lopen(base_path + os.extsep + 'jpg', 'wb') as f:
+                f.write(cdata)
+            mi.cover = os.path.basename(f.name)
+
+        if self.opts.write_opf:
+            opf = metadata_to_opf(mi)
+            with lopen(base_path + os.extsep + 'opf', 'wb') as f:
+                f.write(opf)
+
+        mi.cover, mi.cover_data = None, (None, None)
+
+        return ((book_id, f, base_path, mi, cdata) for f in fmts)
+
+    def do_one_fmt(self):
+        try:
+            args = next(self.fmts_to_write)
+        except StopIteration:
+            del self.fmts_to_write
+            self.do_one = self.do_one_write
+            self.do_one_signal.emit()
+            return
+        try:
+            self.write_fmt(*args)
+        except Exception:
+            self.errors[args[0]].append(('fmt', (args[1], traceback.format_exc())))
+        self.do_one_signal.emit()
+
+    def report_update_metadata_error(self, book_id, fmt, tb):
+        self.errors[book_id].append(('metadata', (fmt, tb)))
+
+    def write_fmt(self, book_id, fmt, base_path, mi, cdata):
+        fmtpath = base_path + os.extsep + fmt
+        written = False
+        with lopen(fmtpath, 'w+b') as f:
+            sf = SpooledTemporaryFile(f)
+            try:
+                self.db.copy_format_to(book_id, fmt, sf)
+            except NoSuchFormat:
+                pass
+            else:
+                if self.opts.update_metadata:
+                    sf.seek(0)
+                    with apply_null_metadata:
+                        update_metadata(mi, fmt, sf, self.plugboards, cdata,
+                                        error_report=partial(self.report_update_metadata_error, book_id))
+                sf.rollover()
+                written = True
+        if not written:
+            os.remove(fmtpath)
+
+    def format_report(self):
+        report = []
+        a = report.append
+
+        def indent(text):
+            return '\xa0\xa0\xa0\xa0' + '\n\xa0\xa0\xa0\xa0'.join(text.splitlines())
+
+        for book_id, errors in self.errors.iteritems():
+            types = {t for t, data in errors}
+            title, authors = self.book_id_data(book_id).title, authors_to_string(self.book_id_data(book_id).authors[:1])
+            if report:
+                a('\n' + ('_'*80) + '\n')
+            if 'critical' in types:
+                a(_('Failed to save: {0} by {1} to disk, with error:').format(title, authors))
+                for t, tb in errors:
+                    if t == 'critical':
+                        a(indent(tb))
+            else:
+                errs = defaultdict(list)
+                for t, data in errors:
+                    errs[t].append(data)
+                for fmt, tb in errs['fmt']:
+                    a(_('Failed to save the {2} format of: {0} by {1} to disk, with error:').format(title, authors, fmt.upper()))
+                    a(indent(tb)), a('')
+                for fmt, tb in errs['metadata']:
+                    a(_('Failed to update the metadata in the {2} format of: {0} by {1} to disk, with error:').format(title, authors, fmt.upper()))
+                    a(indent(tb)), a('')
+        return '\n'.join(report)
+
+    def report(self):
+        if not self.errors:
+            return
+        if len(self.errors) == len(self.all_book_ids):
+            msg = _('Failed to save any books to disk, click "Show details" for more information')
+            d = error_dialog
+        else:
+            msg = _('Failed to save some books to disk, click "Show details" for more information')
+            d = warning_dialog
+        d(self.parent(), _('Error while saving'), msg, det_msg=self.format_report(), show=True)
