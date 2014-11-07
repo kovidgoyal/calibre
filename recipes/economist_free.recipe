@@ -9,7 +9,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 from calibre.ebooks.BeautifulSoup import Tag, NavigableString
 from collections import OrderedDict
 
-import re
+import re, cookielib
 
 class Economist(BasicNewsRecipe):
 
@@ -58,22 +58,19 @@ class Economist(BasicNewsRecipe):
     delay = 1
 
     needs_subscription = False
-    '''
     def get_browser(self):
         br = BasicNewsRecipe.get_browser(self)
-        if self.username and self.password:
-            br.open('http://www.economist.com/user/login')
-            br.select_form(nr=1)
-            br['name'] = self.username
-            br['pass'] = self.password
-            res = br.submit()
-            raw = res.read()
-            if '>Log out<' not in raw:
-                raise ValueError('Failed to login to economist.com. '
-                        'Check your username and password.')
+        # Add a cookie indicating we have accepted Economist's cookie
+        # policy (needed when running from some European countries)
+        ck = cookielib.Cookie(
+            version=0, name='notice_preferences', value='2:', port=None,
+            port_specified=False, domain='.economist.com',
+            domain_specified=False, domain_initial_dot=True, path='/',
+            path_specified=False, secure=False, expires=None, discard=False,
+            comment=None, comment_url=None, rest={'HttpOnly': None},
+            rfc2109=False)
+        br.cookiejar.set_cookie(ck)
         return br
-    '''
-
 
     def parse_index(self):
         return self.economist_parse_index()
@@ -105,7 +102,8 @@ class Economist(BasicNewsRecipe):
                 a = node.find('a', href=True)
                 if a is not None:
                     url = a['href']
-                    if url.startswith('/'): url = 'http://www.economist.com'+url
+                    if url.startswith('/'):
+                        url = 'http://www.economist.com'+url
                     url += '/print'
                     title = self.tag_to_string(a)
                     if title:
