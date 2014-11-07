@@ -203,7 +203,7 @@ Follow these steps to find the problem:
       is not being ignored
     * If all the above steps fail, go to :guilabel:`Preferences->Miscellaneous` and click
       :guilabel:`Debug device detection` with your device attached and post the output as a
-      ticket on `the calibre bug tracker <http://bugs.calibre-ebook.com>`_.
+      ticket on `the calibre bug tracker <https://bugs.launchpad.net/calibre>`_.
 
 My device is non-standard or unusual. What can I do to connect to it?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
