@@ -19,7 +19,12 @@ class WeeklyLWN(BasicNewsRecipe):
 
     no_stylesheets = True
     remove_javascript = True
-    extra_css = 'pre,code,samp,kbd,tt { font-size: 80% }\nblockquote {margin-left:0 }\nDIV.BigQuote,SPAN { font-style:oblique }\n* { color: black }\n'
+    extra_css = '''pre,code,samp,kbd,tt { font-size: 80% }
+                   blockquote {margin-left:0 }
+                   DIV.BigQuote,SPAN { font-style:oblique }
+                   DIV.FeatureByline,DIV.GaByline { background-color:#EEE }
+                   DIV.tlr { background-color:#EED; border-style:groove; }
+                   * { color: black }'''
 
     cover_url = site_url + '/images/lcorner.png'
     # masthead_url = 'http://lwn.net/images/lcorner.png'
