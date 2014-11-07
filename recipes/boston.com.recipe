@@ -15,7 +15,7 @@ class BostonGlobeSubscription(BasicNewsRecipe):
     INDEX = date.today().strftime('http://www.bostonglobe.com/todayspaper/%Y/%m/%d')
     todaysDate = date.today().strftime("%d/%m/%Y")
     timefmt = ' [%a, %d %b, %Y]'
-    needs_subscription = True
+    needs_subscription = 'optional'
     remove_tags = [dict(attrs={"class":["skip-nav article-more",
                                                   "aside promo",
                                                   "article-bar bar-yellow",
