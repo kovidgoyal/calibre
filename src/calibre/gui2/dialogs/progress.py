@@ -3,8 +3,6 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal kovid@kovidgoyal.net'
 __docformat__ = 'restructuredtext en'
 
-''''''
-
 from PyQt5.Qt import (
     QDialog, pyqtSignal, Qt, QVBoxLayout, QLabel, QFont, QProgressBar,
     QDialogButtonBox, QApplication, QFontMetrics)
@@ -16,7 +14,7 @@ class ProgressDialog(QDialog):
 
     canceled_signal = pyqtSignal()
 
-    def __init__(self, title, msg='\xa0', min=0, max=99, parent=None, cancelable=True):
+    def __init__(self, title, msg=u'\u00a0', min=0, max=99, parent=None, cancelable=True):
         QDialog.__init__(self, parent)
         self.l = l = QVBoxLayout(self)
 
