@@ -1141,7 +1141,8 @@ def get_current_db():
 
 def open_local_file(path):
     if iswindows:
-        os.startfile(os.path.normpath(path))
+        with sanitize_env_vars():
+            os.startfile(os.path.normpath(path))
     else:
         url = QUrl.fromLocalFile(path)
         open_url(url)
