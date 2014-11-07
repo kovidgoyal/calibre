@@ -540,10 +540,7 @@ def create_inline_toc(container, title=None):
     html = E.html(
         E.head(
             E.title(title),
-            E.style('''
-                li { list-style-type: none; padding-left: 2em; margin-left: 0}
-                a { text-decoration: none }
-                a:hover { color: red }''', type='text/css'),
+            E.style(P('templates/inline_toc_styles.css', data=True), type='text/css'),
         ),
         E.body(
             E.h2(title),

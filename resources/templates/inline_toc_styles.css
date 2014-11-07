@@ -1,0 +1,5 @@
+li { list-style-type: none; padding-left: 2em; margin-left: 0}
+
+a { text-decoration: none }
+
+a:hover { color: red }
