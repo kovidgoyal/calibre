@@ -29,9 +29,9 @@ class ProgressDialog(QDialog):
             h.addLayout(l)
             self.setWindowIcon(icon)
 
-        self.title = t = QLabel(title)
+        self.title_label = t = QLabel(title)
         self.setWindowTitle(title)
-        t.setWordWrap(True), t.setStyleSheet('QLabel { font-weight: bold }'), t.setAlignment(Qt.AlignCenter)
+        t.setStyleSheet('QLabel { font-weight: bold }'), t.setAlignment(Qt.AlignCenter), t.setTextFormat(Qt.PlainText)
         l.addWidget(t)
 
         self.bar = b = QProgressBar(self)
@@ -40,7 +40,7 @@ class ProgressDialog(QDialog):
 
         self.message = m = QLabel(self)
         fm = QFontMetrics(self.font())
-        m.setAlignment(Qt.AlignCenter), m.setMinimumWidth(fm.averageCharWidth() * 80)
+        m.setAlignment(Qt.AlignCenter), m.setMinimumWidth(fm.averageCharWidth() * 80), m.setTextFormat(Qt.PlainText)
         l.addWidget(m)
         self.msg = msg
 
@@ -93,18 +93,26 @@ class ProgressDialog(QDialog):
         return property(fget=fget, fset=fset)
 
     @dynamic_property
+    def title(self):
+        def fget(self):
+            return self.title_label.text()
+        def fset(self, val):
+            self.title_label.setText(unicode(val or ''))
+        return property(fget=fget, fset=fset)
+
+    @dynamic_property
     def msg(self):
         def fget(self):
             return self.message.text()
         def fset(self, val):
             val = unicode(val or '')
-            self.message.setText(elided_text(val, self.font(), self.message.minimumWidth()))
+            self.message.setText(elided_text(val, self.font(), self.message.minimumWidth()-10))
         return property(fget=fget, fset=fset)
 
     def _canceled(self, *args):
         self.canceled = True
         self.button_box.setDisabled(True)
-        self.title.setText(_('Aborting...'))
+        self.title = _('Aborting...')
         self.canceled_signal.emit()
 
     def reject(self):
@@ -154,7 +162,9 @@ class BlockingBusy(QDialog):
         pass  # Cannot cancel this dialog
 
 if __name__ == '__main__':
+    from PyQt5.Qt import QTimer
     app = QApplication([])
-    d = ProgressDialog('A title', 'A message ' * 100, icon='lt.png')
+    d = ProgressDialog('A title', 'A message', icon='lt.png')
     d.show(), d.canceled_signal.connect(app.quit)
+    QTimer.singleShot(1000, lambda : (setattr(d, 'value', 10), setattr(d, 'msg', ('A message ' * 100))))
     app.exec_()
