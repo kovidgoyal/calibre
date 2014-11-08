@@ -128,7 +128,7 @@ class MetadataSingleDialogBase(ResizableDialog):
                 self.deduce_title_sort_button, self.languages)
         self.basic_metadata_widgets.extend([self.title, self.title_sort])
 
-        self.deduce_author_sort_button = b = QToolButton(self)
+        self.deduce_author_sort_button = b = RightClickButton(self)
         b.setToolTip('<p>' +
             _('Automatically create the author sort entry based on the current '
               'author entry. Using this button to create author sort will '
