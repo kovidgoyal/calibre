@@ -7,11 +7,11 @@ __docformat__ = 'restructuredtext en'
 
 import os
 from functools import partial
+from future_builtins import map
 
 
 from calibre.utils.config import prefs
-from calibre.gui2 import (error_dialog, Dispatcher, gprefs,
-    choose_dir, warning_dialog, open_local_file)
+from calibre.gui2 import error_dialog, Dispatcher, choose_dir
 from calibre.gui2.actions import InterfaceAction
 
 class SaveToDiskAction(InterfaceAction):
@@ -57,9 +57,9 @@ class SaveToDiskAction(InterfaceAction):
 
     def save_specific_format_disk(self):
         rb = self.gui.iactions['Remove Books']
-        ids = rb._get_selected_ids(err_title=
-            _('Cannot save to disk'))
-        if not ids: return
+        ids = rb._get_selected_ids(err_title=_('Cannot save to disk'))
+        if not ids:
+            return
         fmts = rb._get_selected_formats(
                 _('Choose format to save to disk'), ids,
                 single=True)
@@ -96,7 +96,7 @@ class SaveToDiskAction(InterfaceAction):
                       'files from your calibre library elsewhere.'), show=True)
 
         if self.gui.current_view() is self.gui.library_view:
-            from calibre.gui2.add import Saver
+            from calibre.gui2.save import Saver
             from calibre.library.save_to_disk import config
             opts = config().parse()
             if single_format is not None:
@@ -112,10 +112,8 @@ class SaveToDiskAction(InterfaceAction):
                 opts.write_opf = write_opf
             if save_cover is not None:
                 opts.save_cover = save_cover
-            self._saver = Saver(self.gui, self.gui.library_view.model().db,
-                    Dispatcher(self._books_saved), rows, path, opts,
-                    spare_server=self.gui.spare_server)
-
+            book_ids = set(map(self.gui.library_view.model().id, rows))
+            Saver(book_ids, self.gui.current_db, opts, path, parent=self.gui, spare_server=self.gui.spare_server)
         else:
             paths = self.gui.current_view().model().paths(rows)
             self.gui.device_manager.save_books(
@@ -129,26 +127,6 @@ class SaveToDiskAction(InterfaceAction):
         self.save_to_disk(True, single_dir=single_dir, single_format=fmt,
                 rows=rows, write_opf=False, save_cover=False)
 
-    def _books_saved(self, path, failures, error):
-        self._saver = None
-        if error:
-            return error_dialog(self.gui, _('Error while saving'),
-                    _('There was an error while saving.'),
-                    error, show=True)
-        if failures:
-            failures = [u'%s\n\t%s'%
-                    (title, '\n\t'.join(err.splitlines())) for title, err in
-                    failures]
-
-            warning_dialog(self.gui, _('Could not save some books'),
-            _('Could not save some books') + ', ' +
-            _('Click the show details button to see which ones.'),
-            u'\n\n'.join(failures), show=True)
-        if gprefs['show_files_after_save']:
-            open_local_file(path)
-
     def books_saved(self, job):
         if job.failed:
             return self.gui.device_job_exception(job)
-
-

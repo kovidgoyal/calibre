@@ -6,18 +6,16 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, traceback, cStringIO, re, shutil
+import os, traceback, re, shutil
 
 from calibre.constants import DEBUG
 from calibre.utils.config import Config, StringConfig, tweaks
 from calibre.utils.formatter import TemplateFormatter
-from calibre.utils.filenames import shorten_components_to, supports_long_names, \
-                                    ascii_filename
-from calibre.ebooks.metadata.opf2 import metadata_to_opf
+from calibre.utils.filenames import shorten_components_to, supports_long_names, ascii_filename
 from calibre.constants import preferred_encoding
 from calibre.ebooks.metadata import fmt_sidx
 from calibre.ebooks.metadata import title_sort
-from calibre.utils.date import parse_date, as_local_time
+from calibre.utils.date import as_local_time
 from calibre import strftime, prints, sanitize_file_name_unicode
 from calibre.ptempfile import SpooledTemporaryFile
 from calibre.db.lazy import FormatsList
@@ -301,11 +299,17 @@ def get_path_components(opts, mi, book_id, path_length):
     return components
 
 
-def update_metadata(mi, fmt, stream, plugboards, cdata, error_report=None):
-    global plugboard_save_to_disk_value, plugboard_any_format_value
+def update_metadata(mi, fmt, stream, plugboards, cdata, error_report=None, plugboard_cache=None):
     from calibre.ebooks.metadata.meta import set_metadata
+    if error_report is not None:
+        def report_error(mi, fmt, tb):
+            error_report(fmt, tb)
+
     try:
-        cpb = find_plugboard(plugboard_save_to_disk_value, fmt, plugboards)
+        if plugboard_cache is not None:
+            cpb = plugboard_cache[fmt]
+        else:
+            cpb = find_plugboard(plugboard_save_to_disk_value, fmt, plugboards)
         if cpb:
             newmi = mi.deepcopy_metadata()
             newmi.template_to_attribute(mi, cpb)
@@ -313,7 +317,7 @@ def update_metadata(mi, fmt, stream, plugboards, cdata, error_report=None):
             newmi = mi
         if cdata:
             newmi.cover_data = ('jpg', cdata)
-        set_metadata(stream, newmi, fmt)
+        set_metadata(stream, newmi, fmt, report_error=None if error_report is None else report_error)
     except:
         if error_report is None:
             prints('Failed to set metadata for the', fmt, 'format of', mi.title)
@@ -359,6 +363,7 @@ def do_save_book_to_disk(id_, mi, cover, plugboards,
         mi.cover = None
 
     if opts.write_opf:
+        from calibre.ebooks.metadata.opf2 import metadata_to_opf
         opf = metadata_to_opf(mi)
         with open(base_path+'.opf', 'wb') as f:
             f.write(opf)
@@ -426,37 +431,44 @@ def save_to_disk(db, ids, root, opts=None, callback=None):
                 break
     return failures
 
-def save_serialized_to_disk(ids, data, plugboards, root, opts, callback):
+def read_serialized_metadata(book_id, data):
     from calibre.ebooks.metadata.opf2 import OPF
-    root, opts, length = sanitize_args(root, opts)
-    failures = []
-    for x in ids:
-        opf, cover, format_map, last_modified = data[x]
-        if isinstance(opf, unicode):
-            opf = opf.encode('utf-8')
-        mi = OPF(cStringIO.StringIO(opf)).to_book_metadata()
-        try:
-            mi.last_modified = parse_date(last_modified)
-        except:
-            pass
-        tb = ''
-        try:
-            with open(cover, 'rb') as f:
-                cover = f.read()
-        except:
-            cover = None
-        try:
-            failed, id, title = do_save_book_to_disk(x, mi, cover,
-                plugboards, format_map, root, opts, length)
-            tb = _('Requested formats not available')
-        except:
-            failed, id, title = True, x, mi.title
-            tb = traceback.format_exc()
-        if failed:
-            failures.append((id, title, tb))
-        if callable(callback):
-            if not callback(int(id), title, failed, tb):
-                break
+    from calibre.utils.date import parse_date
+    mi = OPF(data['opf'], try_to_guess_cover=False, populate_spine=False, basedir=os.path.dirname(data['opf'])).to_book_metadata()
+    try:
+        mi.last_modified = parse_date(data['last_modified'])
+    except:
+        pass
+    mi.cover, mi.cover_data = None, (None, None)
+    cdata = None
+    if 'cover' in data:
+        with lopen(data['cover'], 'rb') as f:
+            cdata = f.read()
+    return mi, cdata
 
-    return failures
+def update_serialized_metadata(books, plugboard_cache, notification=lambda x,y:x):
+    result = []
+    from calibre.customize.ui import apply_null_metadata
+    with apply_null_metadata:
 
+        for book_id, data in books.iteritems():
+            fmts = [fp.rpartition(os.extsep)[-1] for fp in data['fmts']]
+            try:
+                mi, cdata = read_serialized_metadata(book_id, data)
+            except Exception:
+                tb = traceback.format_exc()
+                for fmt in fmts:
+                    result.append((book_id, fmt, tb))
+            else:
+                def report_error(fmt, tb):
+                    result.append((book_id, fmt, tb))
+
+                for fmt, fmtpath in zip(fmts, data['fmts']):
+                    try:
+                        with lopen(fmtpath, 'r+b') as stream:
+                            update_metadata(mi, fmt, stream, (), cdata, error_report=report_error, plugboard_cache=plugboard_cache)
+                    except Exception:
+                        report_error(fmt, traceback.format_exc())
+            notification(book_id)
+
+    return result

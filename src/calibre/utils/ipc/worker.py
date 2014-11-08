@@ -50,7 +50,7 @@ PARALLEL_FUNCS = {
       ('calibre.ebooks.metadata.worker', 'read_metadata_', 'notification'),
 
       'save_book' :
-      ('calibre.ebooks.metadata.worker', 'save_book', 'notification'),
+      ('calibre.library.save_to_disk', 'update_serialized_metadata', 'notification'),
 
       'arbitrary' :
       ('calibre.utils.ipc.worker', 'arbitrary', None),

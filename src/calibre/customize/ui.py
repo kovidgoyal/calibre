@@ -370,6 +370,13 @@ def set_file_type_metadata(stream, mi, ftype, report_error=None):
                         else:
                             report_error(mi, ftype, traceback.format_exc())
 
+def can_set_metadata(ftype):
+    ftype = ftype.lower().strip()
+    for plugin in _metadata_writers.get(ftype, ()):
+        if not is_disabled(plugin):
+            return True
+    return False
+
 # }}}
 
 # Add/remove plugins {{{

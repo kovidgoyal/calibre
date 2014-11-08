@@ -8,14 +8,13 @@ __docformat__ = 'restructuredtext en'
 
 from threading import Thread
 from Queue import Empty
-import os, time, sys, shutil, json
+import os, time, sys, shutil
 
 from calibre.utils.ipc.job import ParallelJob
 from calibre.utils.ipc.server import Server
 from calibre.ptempfile import PersistentTemporaryDirectory, TemporaryDirectory
-from calibre import prints, isbytestring
+from calibre import prints
 from calibre.constants import filesystem_encoding
-from calibre.db.errors import NoSuchFormat
 
 def debug(*args):
     prints(*args)
@@ -50,7 +49,8 @@ def do_read_metadata(task, tdir, mdir, notification):
         except:
             continue
         try:
-            if isinstance(formats, basestring): formats = [formats]
+            if isinstance(formats, basestring):
+                formats = [formats]
             import_map = {}
             fmts, metadata_fmts = [], []
             for format in formats:
@@ -101,7 +101,8 @@ class Progress(object):
 
     def __call__(self, id):
         cover = os.path.join(self.tdir, str(id))
-        if not os.path.exists(cover): cover = None
+        if not os.path.exists(cover):
+            cover = None
         res = os.path.join(self.tdir, '%s.error'%id)
         if not os.path.exists(res):
             res = res.replace('.error', '.opf')
@@ -117,7 +118,6 @@ class ReadMetadata(Thread):
         self.daemon = True
         self.failure_details = {}
         self.tdir = PersistentTemporaryDirectory('_rm_worker')
-
 
     def run(self):
         jobs, ids = set([]), set([])
@@ -181,162 +181,3 @@ def read_metadata(paths, result_queue, chunk=50, spare_server=None):
     t = ReadMetadata(tasks, result_queue, spare_server=spare_server)
     t.start()
     return t
-
-
-###########################################################################
-############ Saving #####################
-###########################################################################
-
-class SaveWorker(Thread):
-
-    def __init__(self, result_queue, db, ids, path, opts, spare_server=None):
-        Thread.__init__(self)
-        self.daemon = True
-        self.path, self.opts = path, opts
-        self.ids = ids
-        self.db = db
-        self.canceled = False
-        self.result_queue = result_queue
-        self.error = None
-        self.spare_server = spare_server
-        self.start()
-
-    def collect_data(self, ids, tdir):
-        from calibre.ebooks.metadata.opf2 import metadata_to_opf
-        data = {}
-        for i in set(ids):
-            mi = self.db.get_metadata(i, index_is_id=True, get_cover=True,
-                    cover_as_data=True)
-            opf = metadata_to_opf(mi)
-            if isbytestring(opf):
-                opf = opf.decode('utf-8')
-            cpath = None
-            if mi.cover_data and mi.cover_data[1]:
-                cpath = os.path.join(tdir, 'cover_%s.jpg'%i)
-                with lopen(cpath, 'wb') as f:
-                    f.write(mi.cover_data[1])
-                if isbytestring(cpath):
-                    cpath = cpath.decode(filesystem_encoding)
-            formats = {}
-            if mi.formats:
-                for fmt in mi.formats:
-                    fpath = os.path.join(tdir, 'fmt_%s.%s'%(i, fmt.lower()))
-                    with lopen(fpath, 'wb') as f:
-                        try:
-                            self.db.copy_format_to(i, fmt, f, index_is_id=True)
-                        except NoSuchFormat:
-                            continue
-                        else:
-                            if isbytestring(fpath):
-                                fpath = fpath.decode(filesystem_encoding)
-                            formats[fmt.lower()] = fpath
-            data[i] = [opf, cpath, formats, mi.last_modified.isoformat()]
-        return data
-
-    def run(self):
-        with TemporaryDirectory('save_to_disk_data') as tdir:
-            self._run(tdir)
-
-    def _run(self, tdir):
-        from calibre.library.save_to_disk import config
-        server = Server() if self.spare_server is None else self.spare_server
-        ids = set(self.ids)
-        tasks = server.split(list(ids))
-        jobs = set([])
-        c = config()
-        recs = {}
-        for pref in c.preferences:
-            recs[pref.name] = getattr(self.opts, pref.name)
-
-        plugboards = self.db.prefs.get('plugboards', {})
-        template_functions = self.db.prefs.get('user_template_functions', [])
-
-        for i, task in enumerate(tasks):
-            tids = [x[-1] for x in task]
-            data = self.collect_data(tids, tdir)
-            dpath = os.path.join(tdir, '%d.json'%i)
-            with open(dpath, 'wb') as f:
-                f.write(json.dumps(data, ensure_ascii=False).encode('utf-8'))
-
-            job = ParallelJob('save_book',
-                    'Save books (%d of %d)'%(i, len(tasks)),
-                    lambda x,y:x,
-                    args=[tids, dpath, plugboards, template_functions, self.path, recs])
-            jobs.add(job)
-            server.add_job(job)
-
-
-        while not self.canceled:
-            time.sleep(0.2)
-            running = False
-            for job in jobs:
-                self.get_notifications(job, ids)
-                if not job.is_finished:
-                    running = True
-
-            if not running:
-                break
-
-        for job in jobs:
-            if not job.result:
-                continue
-            for id_, title, ok, tb in job.result:
-                if id_ in ids:
-                    self.result_queue.put((id_, title, ok, tb))
-                    ids.remove(id_)
-
-        server.close()
-        time.sleep(1)
-
-        if self.canceled:
-            return
-
-        for job in jobs:
-            if job.failed:
-                prints(job.details)
-                self.error = job.details
-            if os.path.exists(job.log_path):
-                try:
-                    os.remove(job.log_path)
-                except:
-                    pass
-
-    def get_notifications(self, job, ids):
-        job.update(consume_notifications=False)
-        while True:
-            try:
-                id, title, ok, tb = job.notifications.get_nowait()[0]
-                if id in ids:
-                    self.result_queue.put((id, title, ok, tb))
-                    ids.remove(id)
-            except Empty:
-                break
-
-
-def save_book(ids, dpath, plugboards, template_functions, path, recs,
-              notification=lambda x,y:x):
-    from calibre.library.save_to_disk import config, save_serialized_to_disk
-    from calibre.customize.ui import apply_null_metadata
-    from calibre.utils.formatter_functions import load_user_template_functions
-    load_user_template_functions('', template_functions)
-    opts = config().parse()
-    for name in recs:
-        setattr(opts, name, recs[name])
-
-    results = []
-
-    def callback(id, title, failed, tb):
-        results.append((id, title, not failed, tb))
-        notification((id, title, not failed, tb))
-        return True
-
-    data_ = json.loads(open(dpath, 'rb').read().decode('utf-8'))
-    data = {}
-    for k, v in data_.iteritems():
-        data[int(k)] = v
-
-    with apply_null_metadata:
-        save_serialized_to_disk(ids, data, plugboards, path, opts, callback)
-
-    return results
-
