@@ -263,7 +263,11 @@ class Saver(QObject):
     def report(self):
         if not self.errors:
             return
-        if len(self.errors) == len(self.all_book_ids):
+        err_types = {e[0] for errors in self.errors.itervalues() for e in errors}
+        if err_types == {'metadata'}:
+            msg = _('Failed to update metadata in some books, click "Show details" for more information')
+            d = warning_dialog
+        elif len(self.errors) == len(self.all_book_ids):
             msg = _('Failed to save any books to disk, click "Show details" for more information')
             d = error_dialog
         else:
