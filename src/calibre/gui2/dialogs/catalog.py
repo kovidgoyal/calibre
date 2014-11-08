@@ -14,6 +14,7 @@ from calibre.gui2 import dynamic, ResizableDialog, info_dialog
 from calibre.customize.ui import catalog_plugins
 
 class Catalog(ResizableDialog, Ui_Dialog):
+
     ''' Catalog Dialog builder'''
 
     def __init__(self, parent, dbspec, ids, db):
@@ -33,14 +34,12 @@ class Catalog(ResizableDialog, Ui_Dialog):
 
         self.fmts, self.widgets = [], []
 
-        from calibre.customize.builtins import plugins as builtin_plugins
-
         for plugin in catalog_plugins():
             if plugin.name in config['disabled_plugins']:
                 continue
 
             name = plugin.name.lower().replace(' ', '_')
-            if type(plugin) in builtin_plugins:
+            if getattr(plugin, 'plugin_path', None) is None:
                 try:
                     catalog_widget = importlib.import_module('calibre.gui2.catalog.'+name)
                     pw = catalog_widget.PluginWidget()
@@ -58,7 +57,7 @@ class Catalog(ResizableDialog, Ui_Dialog):
                 compiled_form = os.path.join(plugin.resources_path,'%s_ui.py' % name)
 
                 if os.path.exists(form) and os.path.exists(klass):
-                    #info("Adding widget for user-installed Catalog plugin %s" % plugin.name)
+                    # info("Adding widget for user-installed Catalog plugin %s" % plugin.name)
 
                     # Compile the .ui form provided in plugin.zip
                     if not os.path.exists(compiled_form):
@@ -207,4 +206,3 @@ class Catalog(ResizableDialog, Ui_Dialog):
     def reject(self):
         dynamic.set('catalog_window_geom', bytearray(self.saveGeometry()))
         ResizableDialog.reject(self)
-
