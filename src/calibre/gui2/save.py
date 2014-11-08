@@ -215,7 +215,7 @@ class Saver(QObject):
         fmtpath = base_path + os.extsep + fmt
         written = False
         with lopen(fmtpath, 'w+b') as f:
-            sf = SpooledTemporaryFile(f)
+            sf = SpooledFile(f)
             try:
                 self.db.copy_format_to(book_id, fmt, sf)
             except NoSuchFormat:
