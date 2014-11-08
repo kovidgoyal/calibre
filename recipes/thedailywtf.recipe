@@ -1,0 +1,23 @@
+__license__   = 'GPL v3'
+__copyright__ = 'Jelle van der Waa <jelle@vdwaa.nl>'
+
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class TheDailyWTF(BasicNewsRecipe):
+
+    title          	  = u'The Daily WTF'
+    publisher      	  = u'Mark Bowytz'
+    __author__            = 'Jelle van der Waa'
+    description           = 'The Daily WTF is your how-not-to guide for developing software. We recount tales of disastrous development, from project management gone spectacularly bad to inexplicable coding choices.'
+    category		  = 'software, programming'
+    cover_url     	  = 'http://thedailywtf.com/content/images/wtf-logo.png'
+    oldest_article	  = 7
+    max_articles_per_feed = 100
+    remove_javascript 	  = True
+    no_stylesheets        = True
+    use_embedded_content  = False
+    language              = 'en'
+    remove_empty_feeds    = True
+    keep_only_tags = [dict(name = 'h1'),
+	dict(name='div', attrs={'class':['article-body']})]
+    feeds = [(u'The Daily WTF', u'http://syndication.thedailywtf.com/TheDailyWtf')]
