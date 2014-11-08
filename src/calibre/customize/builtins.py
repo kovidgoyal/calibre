@@ -1232,7 +1232,7 @@ plugins += [LookAndFeel, Behavior, Columns, Toolbar, Search, InputOptions,
         Email, Server, Plugins, Tweaks, Misc, TemplateFunctions,
         MetadataSources, Keyboard, IgnoredDevices]
 
-#}}}
+# }}}
 
 # Store plugins {{{
 class StoreAllegroStore(StoreBase):
