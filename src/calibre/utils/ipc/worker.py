@@ -176,7 +176,11 @@ def main():
         func()
         return
     if '--pipe-worker' in sys.argv:
-        exec (sys.argv[-1])
+        try:
+            exec (sys.argv[-1])
+        except Exception:
+            print 'Failed to run pipe worker with command:', sys.argv[-1]
+            raise
         return
     address = cPickle.loads(unhexlify(os.environ['CALIBRE_WORKER_ADDRESS']))
     key     = unhexlify(os.environ['CALIBRE_WORKER_KEY'])
