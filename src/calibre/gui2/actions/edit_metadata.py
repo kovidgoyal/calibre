@@ -241,6 +241,7 @@ class EditMetadataAction(InterfaceAction):
                             ' is on the right. If a downloaded value is blank or unknown,'
                             ' the original value is used.'),
                 action_button=(_('&View Book'), I('view.png'), self.gui.iactions['View'].view_historical),
+                db=db
             )
             if d.exec_() == d.Accepted:
                 nid_map = {}

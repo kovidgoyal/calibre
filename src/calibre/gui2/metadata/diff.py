@@ -12,7 +12,7 @@ from functools import partial
 from future_builtins import zip
 
 from PyQt5.Qt import (
-    QDialog, QWidget, QGridLayout, QLineEdit, QLabel, QToolButton, QIcon,
+    QDialog, QWidget, QGridLayout, QLabel, QToolButton, QIcon,
     QVBoxLayout, QDialogButtonBox, QApplication, pyqtSignal, QFont, QPixmap,
     QSize, QPainter, Qt, QColor, QPen, QSizePolicy, QScrollArea, QFrame,
     QKeySequence, QAction, QMenu)
@@ -20,6 +20,7 @@ from PyQt5.Qt import (
 from calibre import fit_image
 from calibre.ebooks.metadata import title_sort, authors_to_sort_string
 from calibre.gui2 import pixmap_to_data, gprefs
+from calibre.gui2.complete2 import LineEdit as EditWithComplete
 from calibre.gui2.comments_editor import Editor
 from calibre.gui2.languages import LanguagesEdit as LE
 from calibre.gui2.widgets2 import RightClickButton
@@ -31,17 +32,20 @@ Widgets = namedtuple('Widgets', 'new old label button')
 
 # Widgets {{{
 
-class LineEdit(QLineEdit):
+class LineEdit(EditWithComplete):
 
     changed = pyqtSignal()
 
     def __init__(self, field, is_new, parent, metadata, extra):
-        QLineEdit.__init__(self, parent)
+        EditWithComplete.__init__(self, parent)
         self.is_new = is_new
         self.field = field
         self.metadata = metadata
         if not is_new:
             self.setReadOnly(True)
+        else:
+            sep = metadata['is_multiple']['list_to_ui'] if metadata['is_multiple'] else None
+            self.set_separator(sep)
         self.textChanged.connect(self.changed)
 
     @dynamic_property
@@ -53,6 +57,7 @@ class LineEdit(QLineEdit):
                 if not val:
                     val = []
                 else:
+                    val = val.strip(ism['list_to_ui'].strip())
                     val = [x.strip() for x in val.split(ism['list_to_ui']) if x.strip()]
             return val
         def fset(self, val):
@@ -96,6 +101,7 @@ class LineEdit(QLineEdit):
 
     def same_as(self, other):
         return self.current_val == other.current_val
+
 
 class LanguagesEdit(LE):
 
@@ -359,7 +365,7 @@ class CompareSingle(QWidget):
     def __init__(
             self, field_metadata, parent=None, revert_tooltip=None,
             datetime_fmt='MMMM yyyy', blank_as_equal=True,
-            fields=('title', 'authors', 'series', 'tags', 'rating', 'publisher', 'pubdate', 'identifiers', 'languages', 'comments', 'cover')):
+            fields=('title', 'authors', 'series', 'tags', 'rating', 'publisher', 'pubdate', 'identifiers', 'languages', 'comments', 'cover'), db=None):
         QWidget.__init__(self, parent)
         self.l = l = QGridLayout()
         l.setContentsMargins(0, 0, 0, 0)
@@ -399,6 +405,11 @@ class CompareSingle(QWidget):
                 continue
             neww = cls(field, True, self, m, extra)
             neww.changed.connect(partial(self.changed, field))
+            if isinstance(neww, EditWithComplete):
+                try:
+                    neww.update_items_cache(db.new_api.all_field_names(field))
+                except ValueError:
+                    pass  # A one-one field like title
             oldw = cls(field, False, self, m, extra)
             newl = QLabel('&%s:' % m['name'])
             newl.setBuddy(neww)
@@ -626,7 +637,7 @@ if __name__ == '__main__':
     ids = tuple(zip(ids[0::2], ids[1::2]))
     gm = partial(db.get_metadata, index_is_id=True, get_cover=True, cover_as_data=True)
     get_metadata = lambda x:map(gm, ids[x])
-    d = CompareMany(list(xrange(len(ids))), get_metadata, db.field_metadata)
+    d = CompareMany(list(xrange(len(ids))), get_metadata, db.field_metadata, db=db)
     if d.exec_() == d.Accepted:
         for changed, mi in d.accepted.itervalues():
             if changed and mi is not None:
