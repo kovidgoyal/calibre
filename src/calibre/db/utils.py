@@ -6,7 +6,7 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import os, errno, cPickle, sys
+import os, errno, cPickle, sys, re
 from collections import OrderedDict, namedtuple
 from future_builtins import map
 from threading import Lock
@@ -29,6 +29,29 @@ def force_to_bool(val):
         except:
             val = None
     return val
+
+_fuzzy_title_patterns = None
+
+def fuzzy_title_patterns():
+    global _fuzzy_title_patterns
+    if _fuzzy_title_patterns is None:
+        from calibre.ebooks.metadata import get_title_sort_pat
+        _fuzzy_title_patterns = tuple((re.compile(pat, re.IGNORECASE) if
+            isinstance(pat, basestring) else pat, repl) for pat, repl in
+                [
+                    (r'[\[\](){}<>\'";,:#]', ''),
+                    (get_title_sort_pat(), ''),
+                    (r'[-._]', ' '),
+                    (r'\s+', ' ')
+                ]
+        )
+    return _fuzzy_title_patterns
+
+def fuzzy_title(title):
+    title = icu_lower(title.strip())
+    for pat, repl in fuzzy_title_patterns():
+        title = pat.sub(repl, title)
+    return title
 
 Entry = namedtuple('Entry', 'path size timestamp thumbnail_size')
 class CacheError(Exception):

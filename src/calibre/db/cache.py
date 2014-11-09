@@ -7,7 +7,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, traceback, random, shutil, re, operator
+import os, traceback, random, shutil, operator
 from io import BytesIO
 from collections import defaultdict
 from functools import wraps, partial
@@ -26,7 +26,7 @@ from calibre.db.tables import VirtualTable
 from calibre.db.write import get_series_values, uniq
 from calibre.db.lazy import FormatMetadata, FormatsList, ProxyMetadata
 from calibre.ebooks import check_ebook_format
-from calibre.ebooks.metadata import string_to_authors, author_to_author_sort, get_title_sort_pat
+from calibre.ebooks.metadata import string_to_authors, author_to_author_sort
 from calibre.ebooks.metadata.book.base import Metadata
 from calibre.ebooks.metadata.opf2 import metadata_to_opf
 from calibre.ptempfile import (base_dir, PersistentTemporaryFile,
@@ -1778,22 +1778,7 @@ class Cache(object):
     def find_identical_books(self, mi, search_restriction='', book_ids=None):
         ''' Finds books that have a superset of the authors in mi and the same
         title (title is fuzzy matched) '''
-        fuzzy_title_patterns = [(re.compile(pat, re.IGNORECASE) if
-            isinstance(pat, basestring) else pat, repl) for pat, repl in
-                [
-                    (r'[\[\](){}<>\'";,:#]', ''),
-                    (get_title_sort_pat(), ''),
-                    (r'[-._]', ' '),
-                    (r'\s+', ' ')
-                ]
-        ]
-
-        def fuzzy_title(title):
-            title = icu_lower(title.strip())
-            for pat, repl in fuzzy_title_patterns:
-                title = pat.sub(repl, title)
-            return title
-
+        from calibre.db.utils import fuzzy_title
         identical_book_ids = set()
         if mi.authors:
             try:
