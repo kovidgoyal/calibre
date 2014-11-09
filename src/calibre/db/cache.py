@@ -1423,10 +1423,17 @@ class Cache(object):
         return ' & '.join(filter(None, result))
 
     @read_api
+    def data_for_has_book(self):
+        ''' Return data suitable for use in :meth:`has_book`. This can be used for an
+        implementation of :meth:`has_book` in a worker process without access to the
+        db. '''
+        return {icu_lower(title):book_id for book_id, title in self.fields['title'].table.book_col_map.itervalues()}
+
+    @read_api
     def has_book(self, mi):
         ''' Return True iff the database contains an entry with the same title
         as the passed in Metadata object. The comparison is case-insensitive.
-        '''
+        See also :meth:`data_for_has_book`.  '''
         title = mi.title
         if title:
             if isbytestring(title):
