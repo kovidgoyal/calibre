@@ -446,8 +446,9 @@ def read_serialized_metadata(data):
             cdata = f.read()
     return mi, cdata
 
-def update_serialized_metadata(book, plugboard_cache):
+def update_serialized_metadata(book, common_data=None):
     result = []
+    plugboard_cache = common_data
     from calibre.customize.ui import apply_null_metadata
     with apply_null_metadata:
 

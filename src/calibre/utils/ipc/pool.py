@@ -26,6 +26,7 @@ class Failure(Exception):
         Exception.__init__(self, tf.message)
         self.details = tf.tb
         self.job_id = tf.job_id
+        self.failure_message = tf.message
 
 class Worker(object):
 
@@ -89,7 +90,8 @@ class Pool(Thread):
         needing to be transmitted every time. You must call this method before
         queueing any jobs, otherwise the behavior is undefined. You can call it
         after all jobs are done, then it will be used for the new round of
-        jobs. '''
+        jobs. Can raise the :class:`Failure` exception is data could not be
+        sent to workers.'''
         with self.lock:
             self.common_data = data
             for worker in self.available_workers:
@@ -99,7 +101,7 @@ class Pool(Thread):
                     import traceback
                     self.terminal_failure = TerminalFailure('Worker process crashed while sending common data', traceback.format_exc())
                     self.terminal_error()
-                    break
+                    raise Failure(self.terminal_failure)
 
     def start_worker(self):
         try:

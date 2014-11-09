@@ -88,7 +88,6 @@ class Saver(QObject):
         self.do_one_signal.connect(self.tick, type=Qt.QueuedConnection)
         self.do_one = self.do_one_collect
         self.ids_to_collect = iter(self.all_book_ids)
-        self.plugboards_cache = {}
         self.tdir = PersistentTemporaryDirectory('_save_to_disk')
         self.pool = None
 
@@ -113,7 +112,7 @@ class Saver(QObject):
             setattr(p, 'no_gc_%s' % id(self), None)
         if self.pool is not None:
             self.pool.shutdown()
-        self.jobs = self.pool = self.plugboards_cache = self.plugboards = self.template_functions = self.collected_data = self.all_book_ids = self.pd = self.db = None  # noqa
+        self.jobs = self.pool = self.plugboards = self.template_functions = self.collected_data = self.all_book_ids = self.pd = self.db = None  # noqa
 
     def book_id_data(self, book_id):
         ans = self._book_id_data.get(book_id)
@@ -153,8 +152,15 @@ class Saver(QObject):
         self.pd.value = 0
         if self.opts.update_metadata:
             all_fmts = {fmt for data in self.collected_data.itervalues() for fmt in data[2]}
-            self.plugboards_cache = {fmt:find_plugboard(plugboard_save_to_disk_value, fmt, self.plugboards) for fmt in all_fmts}
+            plugboards_cache = {fmt:find_plugboard(plugboard_save_to_disk_value, fmt, self.plugboards) for fmt in all_fmts}
             self.pool = Pool(name='SaveToDisk') if self.pool is None else self.pool
+            try:
+                self.pool.set_common_data(plugboards_cache)
+            except Failure as err:
+                error_dialog(self.pd, _('Critical failure'), _(
+                    'Could not save books to disk, click "Show details" for more information'),
+                    det_msg=unicode(err.failure_message) + '\n' + unicode(err.details), show=True)
+                self.pd.canceled = True
         self.do_one_signal.emit()
 
     def do_one_write(self):
@@ -260,11 +266,11 @@ class Saver(QObject):
         if self.opts.update_metadata:
             if d['fmts']:
                 try:
-                    self.pool(book_id, 'calibre.library.save_to_disk', 'update_serialized_metadata', d, self.plugboards_cache)
+                    self.pool(book_id, 'calibre.library.save_to_disk', 'update_serialized_metadata', d)
                 except Failure as err:
                     error_dialog(self.pd, _('Critical failure'), _(
                         'Could not save books to disk, click "Show details" for more information'),
-                        det_msg=unicode(err) + '\n' + unicode(err.details), show=True)
+                        det_msg=unicode(err.failure_message) + '\n' + unicode(err.details), show=True)
                     self.pd.canceled = True
             else:
                 self.pd.value += 1
@@ -298,7 +304,7 @@ class Saver(QObject):
         except Failure as err:
             error_dialog(self.pd, _('Critical failure'), _(
                 'Could not save books to disk, click "Show details" for more information'),
-                det_msg=unicode(err) + '\n' + unicode(err.details), show=True)
+                det_msg=unicode(err.failure_message) + '\n' + unicode(err.details), show=True)
             self.pd.canceled = True
         except RuntimeError:
             pass  # tasks not completed
