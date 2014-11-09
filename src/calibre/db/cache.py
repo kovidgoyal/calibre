@@ -1427,7 +1427,7 @@ class Cache(object):
         ''' Return data suitable for use in :meth:`has_book`. This can be used for an
         implementation of :meth:`has_book` in a worker process without access to the
         db. '''
-        return {icu_lower(title):book_id for book_id, title in self.fields['title'].table.book_col_map.itervalues()}
+        return {icu_lower(title) for title in self.fields['title'].table.book_col_map.itervalues()}
 
     @read_api
     def has_book(self, mi):
