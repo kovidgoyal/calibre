@@ -280,7 +280,7 @@ def test():
     for i in range(1000):
         p(i, 'def x(i):\n return 2*i', 'x', i)
         expected_results[i] = 2 * i
-    p.wait_for_tasks(2)
+    p.wait_for_tasks(30)
     results = {k:v.value for k, v in get_results(p).iteritems()}
     if results != expected_results:
         raise SystemExit('%r != %r' % (expected_results, results))
@@ -290,7 +290,7 @@ def test():
     p = Pool(name='Test')
     for i in range(1000):
         p(i, 'def x(i):\n return 1/0', 'x', i)
-    p.wait_for_tasks(2)
+    p.wait_for_tasks(30)
     for r in get_results(p).itervalues():
         if not r.traceback or 'ZeroDivisionError' not in r.traceback:
             raise SystemExit('Unexpected result: %s' % r)
@@ -304,7 +304,7 @@ def test():
         except Failure:
             break
     try:
-        p.wait_for_tasks()
+        p.wait_for_tasks(30)
     except Failure:
         pass
     results = get_results(p, ignore_fail=True)
