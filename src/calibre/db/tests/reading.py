@@ -628,3 +628,18 @@ class ReadingTest(BaseTest):
         self.assertEqual('FMT2', cache.field_for('#ccf', 1))
     # }}}
 
+    def test_find_identical_books(self):  # {{{
+        ' Test find_identical_books '
+        from calibre.ebooks.metadata.book.base import Metadata
+        from calibre.db.utils import find_identical_books
+        # 'find_identical_books': [(,), (Metadata('unknown'),), (Metadata('xxxx'),)],
+        cache = self.init_cache(self.library_path)
+        data = cache.data_for_find_identical_books()
+        for mi, books in (
+                (Metadata('title one', ['author one']), {2}),
+                (Metadata(_('Unknown')), {3}),
+                (Metadata('title two', ['author one']), {1}),
+        ):
+            self.assertEqual(books, cache.find_identical_books(mi))
+            self.assertEqual(books, find_identical_books(mi, data))
+    # }}}

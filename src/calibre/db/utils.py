@@ -53,6 +53,23 @@ def fuzzy_title(title):
         title = pat.sub(repl, title)
     return title
 
+def find_identical_books(mi, data):
+    author_map, aid_map, title_map = data
+    author_ids = set()
+    for a in mi.authors:
+        author_ids |= author_map.get(icu_lower(a), set())
+    book_ids = set()
+    for aid in author_ids:
+        book_ids |= aid_map.get(aid, set())
+    ans = set()
+    titleq = fuzzy_title(mi.title)
+    for book_id in book_ids:
+        title = title_map.get(book_id, '')
+        if fuzzy_title(title) == titleq:
+            ans.add(book_id)
+    return ans
+
+
 Entry = namedtuple('Entry', 'path size timestamp thumbnail_size')
 class CacheError(Exception):
     pass

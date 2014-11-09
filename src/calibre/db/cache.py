@@ -1775,9 +1775,20 @@ class Cache(object):
         return self._books_for_field(f.name, int(item_id_or_composite_value))
 
     @read_api
+    def data_for_find_identical_books(self):
+        ''' Return data that can be used to implement
+        :meth:`find_identical_books` in a worker process without access to the
+        db. See db.utils for an implementation. '''
+        at = self.fields['authors'].table
+        author_map = defaultdict(set)
+        for aid, author in at.id_map.iteritems():
+            author_map[icu_lower(author)].add(aid)
+        return (author_map, at.col_book_map.copy(), self.fields['title'].table.book_col_map.copy())
+
+    @read_api
     def find_identical_books(self, mi, search_restriction='', book_ids=None):
         ''' Finds books that have a superset of the authors in mi and the same
-        title (title is fuzzy matched) '''
+        title (title is fuzzy matched). See also :meth:`data_for_find_identical_books`. '''
         from calibre.db.utils import fuzzy_title
         identical_book_ids = set()
         if mi.authors:
