@@ -291,9 +291,13 @@ def test():
     for i in range(1000):
         p(i, 'def x(i):\n return 1/0', 'x', i)
     p.wait_for_tasks(30)
+    c = 0
     for r in get_results(p).itervalues():
+        c += 1
         if not r.traceback or 'ZeroDivisionError' not in r.traceback:
             raise SystemExit('Unexpected result: %s' % r)
+    if c != 1000:
+        raise SystemExit('Incorrect number of results')
     p.shutdown(), p.join()
 
     # Test worker crash
