@@ -737,7 +737,7 @@ class DevicePlugin(Plugin):
         database was not changed. If the first value is an empty set then the
         metadata for the book on the device is updated with calibre's metadata
         and given back to the device, but no GUI refresh of that book is done.
-        This is useful when the calire data is correct but must be sent to the
+        This is useful when the calibre data is correct but must be sent to the
         device.
 
         The second value is itself a 2-value tuple. The first value in the tuple
