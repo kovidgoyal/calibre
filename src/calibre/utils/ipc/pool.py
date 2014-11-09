@@ -72,6 +72,7 @@ class Pool(Thread):
         self.tracker = Queue()
         self.terminal_failure = None
         self.common_data = None
+        self.worker_data = None
 
         self.start()
 
@@ -80,7 +81,7 @@ class Pool(Thread):
         p = start_pipe_worker(
             'from {0} import run_main, {1}; run_main({1})'.format(self.__class__.__module__, 'worker_main'), stdout=None)
         sys.stdout.flush()
-        eintr_retry_call(p.stdin.write, cPickle.dumps((self.address, self.auth_key, self.common_data), -1))
+        eintr_retry_call(p.stdin.write, self.worker_data)
         p.stdin.flush(), p.stdin.close()
         conn = eintr_retry_call(self.listener.accept)
         return Worker(p, conn, self.events, self.name)
@@ -94,6 +95,7 @@ class Pool(Thread):
         sent to workers.'''
         with self.lock:
             self.common_data = data
+            self.worker_data = cPickle.dumps((self.address, self.auth_key, self.common_data), -1)
             for worker in self.available_workers:
                 try:
                     worker.set_common_data(data)
@@ -116,6 +118,7 @@ class Pool(Thread):
         from calibre.utils.ipc.server import create_listener
         self.auth_key = os.urandom(32)
         self.address, self.listener = create_listener(self.auth_key)
+        self.worker_data = cPickle.dumps((self.address, self.auth_key, self.common_data), -1)
         with self.lock:
             if self.start_worker() is False:
                 return
