@@ -98,7 +98,7 @@ class Pool(Thread):
             self.worker_data = cPickle.dumps((self.address, self.auth_key, self.common_data), -1)
             for worker in self.available_workers:
                 try:
-                    worker.set_common_data(data)
+                    worker.set_common_data(self.worker_data[-1])
                 except Exception:
                     import traceback
                     self.terminal_failure = TerminalFailure('Worker process crashed while sending common data', traceback.format_exc())
@@ -258,7 +258,7 @@ def worker_main(conn, common_data):
         if job is None:
             break
         if not isinstance(job, Job):
-            common_data = job
+            common_data = cPickle.loads(job)
             continue
         try:
             if '\n' in job.module:
