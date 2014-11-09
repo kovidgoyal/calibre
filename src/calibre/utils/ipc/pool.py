@@ -119,7 +119,7 @@ class Pool(Thread):
             return self.run_job(job)
         else:
             worker_result = event
-            self.busy_workers.pop(worker_result.worker)
+            self.busy_workers.pop(worker_result.worker, None)
             self.available_workers.append(worker_result.worker)
             self.tracker.task_done()
             if worker_result.is_terminal_failure:

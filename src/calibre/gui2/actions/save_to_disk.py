@@ -113,7 +113,7 @@ class SaveToDiskAction(InterfaceAction):
             if save_cover is not None:
                 opts.save_cover = save_cover
             book_ids = set(map(self.gui.library_view.model().id, rows))
-            Saver(book_ids, self.gui.current_db, opts, path, parent=self.gui, spare_server=self.gui.spare_server)
+            Saver(book_ids, self.gui.current_db, opts, path, parent=self.gui)
         else:
             paths = self.gui.current_view().model().paths(rows)
             self.gui.device_manager.save_books(
