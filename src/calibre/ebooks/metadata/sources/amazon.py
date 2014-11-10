@@ -551,17 +551,20 @@ class Worker(Thread):  # Get details {{{
                 except Exception:
                     continue
 
-        imgs = root.xpath('//img[(@id="prodImage" or @id="original-main-image" or @id="main-image") and @src]')
+        imgs = root.xpath('//img[(@id="prodImage" or @id="original-main-image" or @id="main-image" or @id="main-image-nonjs") and @src]')
         if not imgs:
             imgs = root.xpath('//div[@class="main-image-inner-wrapper"]/img[@src]')
             if not imgs:
                 imgs = root.xpath('//div[@id="main-image-container"]//img[@src]')
-        if imgs:
-            src = imgs[0].get('src')
+        for img in imgs:
+            src = img.get('src')
+            if src.startswith('data:'):
+                continue
             if 'loading-' in src:
                 js_img = re.search(br'"largeImage":"(http://[^"]+)",',raw)
                 if js_img:
                     src = js_img.group(1).decode('utf-8')
+                continue
             if ('/no-image-avail' not in src and 'loading-' not in src and '/no-img-sm' not in src):
                 self.log('Found image: %s' % src)
                 parts = src.split('/')
