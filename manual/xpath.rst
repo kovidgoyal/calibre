@@ -107,5 +107,5 @@ XPath built-in functions
         ``re:test(src, pattern, flags)`` returns `true` if the string `src` matches the
         regular expression `pattern`. A particularly useful flag is ``i``, it makes matching
         case insensitive. A good primer on the syntax for regular expressions can be found
-        at `regexp syntax <http://docs.python.org/lib/re-syntax.html>`_
+        at `regexp syntax <https://docs.python.org/2.7/library/re.html>`_
 
