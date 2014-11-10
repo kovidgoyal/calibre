@@ -541,15 +541,33 @@ class Worker(Thread):  # Get details {{{
     def parse_cover(self, root, raw=b""):
         # Look for the image URL in javascript, using the first image in the
         # image gallery as the cover
-        import json
         imgpat = re.compile(r"""'imageGalleryData'\s*:\s*(\[\s*{.+])""")
         for script in root.xpath('//script'):
             m = imgpat.search(script.text or '')
             if m is not None:
+                import json
                 try:
                     return json.loads(m.group(1))[0]['mainUrl']
                 except Exception:
                     continue
+
+        def clean_img_src(src):
+            parts = src.split('/')
+            if len(parts) > 3:
+                bn = parts[-1]
+                sparts = bn.split('_')
+                if len(sparts) > 2:
+                    bn = re.sub(r'\.\.jpg$', '.jpg', (sparts[0] + sparts[-1]))
+                    return ('/'.join(parts[:-1]))+'/'+bn
+
+        imgpat2 = re.compile(r'var imageSrc = "([^"]+)"')
+        for script in root.xpath('//script'):
+            m = imgpat2.search(script.text or '')
+            if m is not None:
+                src = m.group(1)
+                url = clean_img_src(src)
+                if url:
+                    return url
 
         imgs = root.xpath('//img[(@id="prodImage" or @id="original-main-image" or @id="main-image" or @id="main-image-nonjs") and @src]')
         if not imgs:
@@ -558,22 +576,17 @@ class Worker(Thread):  # Get details {{{
                 imgs = root.xpath('//div[@id="main-image-container"]//img[@src]')
         for img in imgs:
             src = img.get('src')
-            if src.startswith('data:'):
+            if 'data:' in src:
                 continue
             if 'loading-' in src:
                 js_img = re.search(br'"largeImage":"(http://[^"]+)",',raw)
                 if js_img:
                     src = js_img.group(1).decode('utf-8')
-                continue
             if ('/no-image-avail' not in src and 'loading-' not in src and '/no-img-sm' not in src):
                 self.log('Found image: %s' % src)
-                parts = src.split('/')
-                if len(parts) > 3:
-                    bn = parts[-1]
-                    sparts = bn.split('_')
-                    if len(sparts) > 2:
-                        bn = re.sub(r'\.\.jpg$', '.jpg', (sparts[0] + sparts[-1]))
-                        return ('/'.join(parts[:-1]))+'/'+bn
+                url = clean_img_src(src)
+                if url:
+                    return url
 
     def parse_new_details(self, root, mi, non_hero):
         table = non_hero.xpath('descendant::table')[0]
@@ -652,7 +665,7 @@ class Amazon(Source):
 
     capabilities = frozenset(['identify', 'cover'])
     touched_fields = frozenset(['title', 'authors', 'identifier:amazon',
-        'identifier:isbn', 'rating', 'comments', 'publisher', 'pubdate',
+        'rating', 'comments', 'publisher', 'pubdate',
         'languages', 'series'])
     has_html_comments = True
     supports_gzip_transfer_encoding = True
@@ -1110,8 +1123,8 @@ if __name__ == '__main__':  # tests {{{
             ),
 
             (  # A newer book
-                {'identifiers':{'isbn': '9780316044981'}},
-                [title_test('The Heroes', exact=True),
+                {'identifiers':{'amazon': 'B004JHY6OG'}},
+                [title_test('The Heroes', exact=False),
                     authors_test(['Joe Abercrombie'])]
 
             ),
@@ -1200,5 +1213,3 @@ if __name__ == '__main__':  # tests {{{
     # do_test('de')
 
 # }}}
-
-
