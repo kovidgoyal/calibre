@@ -152,7 +152,7 @@ class ISBNMerge(object):
                 key=attrgetter('relevance_in_source'))
         # Only use results that are from sources that have not also returned a
         # result with an ISBN
-        results = [r for r in results if r.identify_plugin not in isbn_sources]
+        results = [r for r in results if r.identify_plugin not in isbn_sources or not r.identify_plugin.prefer_results_with_isbn]
         if results:
             # Pick only the most relevant result from each source
             seen = set()
