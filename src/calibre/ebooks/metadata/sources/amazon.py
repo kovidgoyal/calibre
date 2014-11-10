@@ -669,6 +669,7 @@ class Amazon(Source):
         'languages', 'series'])
     has_html_comments = True
     supports_gzip_transfer_encoding = True
+    prefer_results_with_isbn = False
 
     AMAZON_DOMAINS = {
             'com': _('US'),
