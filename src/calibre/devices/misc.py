@@ -513,6 +513,8 @@ class POCKETBOOK626(USBMS):
     description    = _('Communicate with the PocketBook Touch Lux 2 reader')
     author         = 'Kovid Goyal'
     supported_platforms = ['windows', 'osx', 'linux']
+    # Ordered list of supported formats
+    FORMATS     = ['epub', 'pdf', 'fb2', 'txt', 'pdf', 'html', 'djvu', 'doc', 'docx', 'rtf', 'chm']
     VENDOR_ID   = [0xfffe]
     PRODUCT_ID  = [0x0001]
     BCD         = [0x0230]
