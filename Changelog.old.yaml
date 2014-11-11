@@ -1,3 +1,1106 @@
+     
+- version: 0.9.44
+  date: 2013-08-16
+
+  new features:
+    - title: "Add an option to display all virtual libraries as tabs above the book list."
+      description: "Convenient to quickly switch between virtual libraries. To enable, click the Virtual library button and select 'Show virtual libraries as tabs'.  You can re-arrange the tabs by drag and drop and close tabs you do not want. Right click on the tabs to restore closed tabs."
+
+    - title: "An improved cover trimming algorithm to automatically detect and remove borders and extra space from the edge of cover images. To try it use the 'Trim' button in the edit metadata dialog. This can sometimes remove too much so if you dont like the result, just click cancel. You can make the algorithm more or less aggressive via Preferences->Tweaks"
+
+    - title: "Allow customizing the comic metadata reader plugin via Preferences->Plugins to read the series index from either the volume or the issue number of the comic."
+      tickets: [1211433]
+
+    - title: "Linux MTP driver: Add ids for some newer devices."
+      tickets: [1212458]
+
+    - title: "Add a trim cover option to the bulk metadata edit dialog"
+
+    - title: "Make the book information dialog user resizable, with a splitter between the cover and the info panel. Also change the background of the cover panel for books that have been marked using the Temp marker plugin."
+      tickets: [1209057]
+
+    - title: "Driver for Samsung Galaxy Young Android phone"
+      tickets: [1212918]
+ 
+  bug fixes:
+    - title: "PDF Output: Do not abort conversion if the document being converted has an HTML cover (found in some broken EPUB files)."
+
+    - title: "RTF Input: When converting RTF files with no codepage, use the input encoding setting as the codepage."
+      tickets: [1163572]
+
+  improved recipes:
+    - The Independent
+    - El Periodica de Aragon 
+    - El Correo
+
+  new recipes:
+    - title: Daily Express 
+      author: Dave Asbury
+
+- version: 0.9.43
+  date: 2013-08-09
+
+  new features:
+    - title: "TXT Input: Allow using various markdown extensions for more features when converting markdown formatted txt files. See http://pythonhosted.org/Markdown/extensions/index.html for details."
+
+    - title: "Sending by email: Allow sending by email to an arbitrary combination of email address. Access it via the 'Select recipients' menu entry in the Email To menu."
+      tickets: [1207818]
+
+    - title: "A new 'Sort By' action for the right click menu. This allows sorting on all columns in the library, not just the visible columns. To use it go to Preferences->Toolbars and add it to 'The context menu for books in the calibre library'"
+
+    - title: "Allow adding images into the comments field, by clicking on the insert link button in the comments editor in the edit metadata dialog."
+
+    - title: "Allow skipping the confirm bulk reconvert dialog"
+
+    - title: "EPUB Input: If the EPUB file identifies an actual cover image in addition to the titlepage html file, use the cover image instead of rendering the titlepage. This is faster and has the advantage that an EPUB to EPUB conversion preserves internal cover structure."
+
+    - title: "Get Books: Improve searching by removing punctuation from title/authors before matching."
+ 
+  bug fixes:
+    - title: "Conversion: Fix empty inline tags that are the second child of a paragraph causing text change location."
+      tickets: [1207735]
+
+    - title: "Fix book count in tooltip of choose library button not updating"
+      ticket: [1208217]
+
+    - title: "Kobo driver: When deleting shelves that have been synced, the Activity entry for the shelf was not being deleted. This left a tile for the shelf on the home screen of the Glo and AuraHD."
+      tickets: [1208159]
+
+    - title: "Comments editor: The Insert Link button has no effect until the user clicks inside the comments box, therefore disable it until it is ready, to prevent confusion."
+      tickets: [1208073]
+
+    - title: "Get Books: Update various Polish store plugins"
+
+  improved recipes:
+    - The Sunday Times UK and The Times Online
+    - Telegraph UK
+    - "Le Monde: Edition abonnés"
+    - The Scotsman
+
+  new recipes:
+    - title: Various French news sources 
+      author: Malah
+
+    - title: La Capital de Rosario 
+      author: Darko Miletic
+
+    - title: Jot Down 
+      author: desUbiKado
+
+    - title: Private Eye 
+      author: Martyn Pritchard
+
+- version: 0.9.42
+  date: 2013-08-02
+
+  new features:
+    - title: "When downloading metadata from Amazon, convert the amazon categories into tags. You can turn this off by going to Preferences->Metadata download and configuring the Amazon source."
+      tickets: [1206763]
+
+    - title: "Kobo driver: Add an option to modify the styling in books being sent to the device, based on a template on the device."
+      tickets: [1207151]
+
+    - title: "Get Books: Add support for two more Polish ebook stores: cdp.pl and ebooki.allegro.pl"
+
+    - title: "calibredb: Add a new clone command to create clones of libraries with the same custom columns, virtual libraries, etc. as the current library."
+ 
+  bug fixes:
+    - title: "MOBI metadata: Do not fail to set metadata in MOBI files if they have EXTH fields with NULL pointers to a cover or thumbnail."
+      tickets: [1205757]
+
+    - title: "Fix editing of book metadata failing when its timestamp is out of range for the system."
+      tickets: [1191599]
+
+    - title: "Fix renaming a user category to the same name it already has erases the user category."
+      tickets: [1207131]
+
+    - title: "Fix drag 'n drop of cover onto conversion dialog not working"
+
+    - title: "Device drivers: Explicitly fsync() all files when writing to devices, to reduce chances of file corruption if the device is disconnected while jobs are running"
+
+    - title: "Fix calibre not appearing in Ubuntu's 'Open with..' menu"
+      tickets: [1207518]
+
+  improved recipes:
+    - PC World
+
+- version: 0.9.41
+  date: 2013-07-27
+
+  new features:
+    - title: "Add a button to clear the current virtual library easily"
+
+    - title: "Driver for Surftab Ventos"
+      tickets: [1204885]
+
+    - title: "Ebook-viewer: Allow re-ordering bookmarks in the bookmarks manager by drag and drop."
+ 
+  bug fixes:
+    - title: "DOCX Input: Fix conversion breaking for files that use heading style paragraphs to insert line rules"
+
+    - title: "Content server: Fix last search query not being fully sanitized in results page"
+      tickets: [1205385]
+
+    - title: "Book polishing: Fix page margins being removed if an unused font was found during subsetting of embedded fonts."
+
+    - title: "PDF Output: Do not error out when the input document uses a font that cannot be subset, such as the Symbol font. Instead print a warning and embed the full font."
+      tickets: [1203449]
+
+    - title: "Conversion: Fix a regression in the last release that broke conversion of a few files with comments just before a chapter start."
+      tickets: [1188635]
+
+  improved recipes:
+    - Something Awful
+    - Spektrum der Wissenschaft
+    - mediapart.fr
+    - Dilbert 
+    - Antyweb
+    - Scientific American
+    - taz.de (RSS)
+
+  new recipes:
+    - title: Blindbuch and No names, No jackets
+      author: Armin Geller
+
+    - title: El Tribuno Salta and Jujuy 
+      author: Darko Miletic
+
+- version: 0.9.40
+  date: 2013-07-19
+
+  new features:
+    - title: "EPUB Output: Add an option to insert an inline Table of Contents into the main text."
+      tickets: [1201006]
+
+    - title: "Driver for LG Android phone"
+      tickets: [1202013]
+
+    - title: "When matching books in the library against the device manually, pre-fill the search field with the book title"
+      tickets: [1200826]
+ 
+  bug fixes:
+    - title: "PDF Input: Fix a regression that caused some images to be flipped when converting PDF files that use image rotation operators."
+      tickets: [1201083]
+
+    - title: "Fix regression that caused incorrect font size in dropcaps generated by the DOCX input plugin"
+
+    - title: "Get Books: Fix searching for title and author returning some extra matches, if the title starts with an article like the, a or an."
+      tickets: [1200012]
+
+    - title: "PDF Output: Fix extra blank page being inserted at the start of the chapter when converting some epub files from feedbooks"
+
+    - title: "PDF Output: Workaround bug in WebKit's getBoundingClientRect() method that could cause links to occasionally point to incorrect locations."
+      tickets: [1202390]
+
+    - title: "E-book viewer: Fix a bug that could cause the reported position to be incorrect immediately after opening a previously opened book. This also fixes the Back button not working if a link is clicked on the page immediately after opening the book."
+
+    - title: "Fix memory card not being detected for Elonex 621 on Windows"
+
+    - title: "Fix regression in last release that broke auto-conversion of ebooks when sending to device/sending by email."
+      tickets: [1200864]
+
+    - title: "Get Books: Update amazon plugins for website changes"
+
+    - title: "Allow using non-ascii chars in email passwords."
+      tickets: [1202825]
+
+  improved recipes:
+    - Galaxy's Edge
+
+  new recipes:
+    - title: Il Foglio 
+      author: faber1971
+
+    - title: Le Monde Diplomatique and Acrimed
+      author: Gaetan Lehmann
+
+- version: 0.9.39
+  date: 2013-07-12
+
+  new features:
+    - title: "Bulk metadata edit: Add a checkbox to prevent the refreshing of the book list after the bulk edit. This means that the book list will not be resorted and any existing search/virtual library will not be refreshed.  Useful if you have a large library as the refresh can be slow."
+
+    - title: "Allow manually marking a book in the calibre library as being on the device. To do so click the device icon in calibre, then right click on the book you want marked and choose 'Match book to library'. Once you are done marking all the books, right click the device icon and choose 'Update cached metadata'"
+
+    - title: "Driver for Coby Kyros MID1126"
+      tickets: [1199410]
+
+    - title: "When adding formats to an existing book, by right clicking the add books button, ask for confirmation if some formats will be overwritten."
+
+    - title: "Add a tweak to restrict the list of output formats available in the conversion dialog. Go to Preferences->Tweaks to change it."
+ 
+  bug fixes:
+    - title: "Amazon metadata download: Update plugin to deal with the new amazon.com website"
+
+    - title: "Edelweiss metadata download plugin: Workaround for advanced search being broken at the Edelweiss website."
+
+    - title: "Invalid data in the device database on sony readers could cause errors when sorting device collections, ignore those errors."
+
+    - title: "DOCX Input: Fix no page break being inserted before the last section."
+      tickets: [1198414]
+
+    - title: "Metadata download dialog: Have the OK button enabled in the results screen as well."
+      tickets: [1198288]
+
+    - title: "Get Books: Update empik store plugin"
+
+  improved recipes:
+    - Houston Chronicle
+    - cracked.com
+    - mediapart.fr
+
+  new recipes:
+    - title: Glenn Brenwald and Ludwig von Mises Institute 
+      author: anywho
+
+- version: 0.9.38
+  date: 2013-07-05
+
+  new features:
+    - title: "Book polishing: Add option to embed all referenced fonts when polishing books using the 'Polish Books' tool."
+      tickets: [1196038]
+
+    - title: "DOCX Input: Add support for clickable (hyperlinked) images"
+      tickets: [1196728]
+
+    - title: "DOCX Input: Insert page breaks at the start of every new section"
+      tickets: [1196728]
+
+    - title: "Drivers for Trekstor Pyrus Maxi and PocketBook Surfpad 2"
+      tickets: [1196931, 1182850]
+
+    - title: "DOCX Input: Add support for horizontal rules created by typing three hyphens and pressing enter."
+ 
+  bug fixes:
+    - title: "Fix detection of SD Card in some PRS-T2N devices"
+      tickets: [1197970]
+
+    - title: "MOBI Input: Fix a regression that broke parsing of MOBI files with malformed markup that also used entities for apostrophes."
+      ticket: [1197585]
+
+    - title: "Get Books: Update Woblink store plugin"
+
+    - title: "Metadata download dialog: Prevent the buttons from being re-ordered when the Next button is clicked."
+
+    - title: "PDF Output: Fix links that point to URLs with query parameters being mangled by the conversion process."
+      tickets: [1197006]
+
+    - title: "DOCX Input: Fix links pointing to locations in the same document that contain multiple, redundant bookmarks not working."
+
+    - title: "EPUB/AZW3 Output: Fix splitting on page-break-after with plain text immediately following the split point causing the text to be added before rather than after the split point."
+      tickets: [1196728]
+
+    - title: "DOCX Input: handle bookmarks defined at the paragraph level"
+      tickets: [1196728]
+
+    - title: "DOCX Input: Handle hyperlinks created as fields"
+      tickets: [1196728]
+
+  improved recipes:
+    - iprofessional
+
+  new recipes:
+    - title: Democracy Now 
+      author: Antoine Beaupre
+     
+- version: 0.9.37
+  date: 2013-06-28
+
+  new features:
+    - title: "Conversion: Add option to embed all referenced fonts"
+      type: major
+      description: "Add an option to embed all fonts that are referenced in the input document but are not already embedded. This will search your system for the referenced font, and if found, the font will be embedded.  Only works if the output format supports font embedding (for example: EPUB or AZW3). The option is under the Look & Feel section of the conversion dialog."
+
+    - title: "ToC Editor: When generating a ToC from files, if the file has no text, do not skip it. Instead create an entry using the filename of the file."
+
+    - title: "AZW3 Input: Add support for the page-progression-direction that is used to indicate page turns should happen from right to left. The attribute is passed into EPUB when converting."
+      tickets: [1194766]
+
+    - title: "ebook-convert: Add a --from-opf option to read metadata from OPF files directly, instead of having to run ebook-meta --from-opf after conversion"
+ 
+  bug fixes:
+    - title: "PDF Output: Fix Table of Contents being added to the end of the PDF even without the Add Table of Contents option being enabled."
+      tickets: [1194836]
+
+    - title: "When auto-merging books on add, also merge identifiers."
+
+    - title: "Fix an error when using the Template Editor to create a template that uses custom columns."
+      tickets: [1193763]
+
+    - title: "LRF Output: Fix &quot; entities in attribute values causing problems"
+
+    - title: "News download: Apply the default page margin conversion settings. Also, when converting to PDF, apply the pdf conversion defaults."
+      tickets: [1193912]
+
+    - title: "Fix a regression that broke scanning for books on all devices that used the Aluratek Color driver."
+      tickets: [1192940]
+
+    - title: "fetch-ebbok-metadata: Fix --opf argument erroneously requiring a value"
+
+    - title: "When waiting before sending email, log the wait."
+      tickets: [1195173]
+
+  improved recipes:
+    - taz.de (RSS)
+    - Miradas al sur
+    - Frontline
+    - La Nacion (Costa Rica)
+
+
+- version: 0.9.36
+  date: 2013-06-21
+
+  new features:
+    - title: "DOCX Input: Support for Table of Contents created using the Word Table of Contents tool. calibre now first looks for such a Table of Contents and only if one is not found does it generate a ToC from headings."
+
+    - title: "DOCX Input: Add support for images used as bullets in lists"
+
+    - title: "DOCX Input: If a large image that looks like a cover is present at the start of the document, remove it and use it as the cover of the output ebook. This can be turned off under the DOCX Input section of the conversion dialog."
+
+    - title: "When dropping files onto the Book Details panel, ask for confirmation before adding the files to the book. The confirmation can be disabled."
+
+    - title: "News download: Add the 'downloaded from' link at the bottom of every article when using a touchscreen output profile (like the Tablet profile)."
+
+    - title: "E-book viewer: Change the bookmark button to always popup a menu when clicked, makes accessing existing bookmarks easier."
+
+    - title: "After a bulk metadata download, focus the review button on the popup notification, instead of the OK button."
+      tickets: [1190931]
+ 
+  bug fixes:
+    - title: "DOCX Input: Hide text that has been marked as not being visible in the web view in Word."
+
+    - title: "DOCX Input: When converting docx files with large numbers of unnamed images, do not crash on windows."
+      tickets: [1191354]
+
+    - title: "DOCX Input: Add support for the Word setting 'No space between paragraphs with the same style'."
+      tickets: [119100]
+
+    - title: "MOBI Output: Fix rendering of SVG images that embed large raster images in 64bit calibre installs."
+      tickets: [1191020]
+
+    - title: "HTMLZ Output: Fix handling of images with URL unsafe filenames."
+      tickets: [1192687]
+
+    - title: "Fix unable to change the case of a previously used search because of the search history."
+
+    - title: "When searching allow use of uppercase location names, such as AUTHOR instead of author, automatically lowercasing them."
+      tickets: [1192785]
+
+    - title: "DOCX metadata: When reading covers from DOCX files use the first image as specified in the actual markup instead of just the first image in the container."
+
+    - title: "Kobo driver: Fix a regression when deleting empty shelves on Kobo devices with older firmware."
+      tickets: [1192441]
+
+    - title: "Do not show builtin plugins in the get new plugins dialog If a builtin plugin with the same name as a third party plugin exists, then the builtin plagin was displayed in the get new plugins dialog as installed (happened with the new DOCX Input plugin)."
+
+    - title: "Apple driver: When in synchronous mode (direct to iBooks), disable PDF transfers, as we can't update metadata in iTunes. Not sure when this started, but as of iTunes 11.0.4 it's broken."
+
+    - title: "Get Books: Fix error when using internal browser on some systems"
+      tickets: [1191199]
+
+  improved recipes:
+    - The Walrus Mag
+    - Various Polish news sources
+
+  new recipes:
+    - title: Various Polish news sources
+      author: fenuks
+
+- version: 0.9.35
+  date: 2013-06-14
+
+  new features:
+    - title: "News download: Add a framework for scraping javascript heavy sites using a full WebKit browser. Used by the new recipe for time.com"
+
+    - title: "DOCX Input: Add a markup analyzer that identifies and removes redundant markup generated by Word. This can result in much cleaner HTML and reductions in markup size of up to 50%"
+
+    - title: "DOCX Input: Add support for theme fonts"
+
+    - title: "calibredb list: Add an option to limit the number of results"
+
+    - title: "Get Books: Allow stopping an in progress search. While doing a search, the Search button becomes a Stop button, and clicking on it stops the current search."
+
+    - title: "When viewing the list of jobs in calibre, display the time at which the job was started."
+      tickets: [1188906]
+
+    - title: "Conversion settings: When selecting the input/output profiles, show the profile screen size along with its description."
+ 
+  bug fixes:
+    - title: "Get Books: Fix searching using the title/author being case-sensitive and therefore sometimes not returning results if uppercase characters were used in the query."
+
+    - title: "EPUB/AZW3 Output: When splitting HTML on page breaks, preserve tag structure in the split files. This fixes splitting losing some styling information for HTML files that define page breaks on deeply nested tags."
+      tickets: [1188768]
+
+    - title: "DOCX Input: Fix some manual page breaks being ignored"
+
+    - title: "DOCX Input: Fix empty paragraphs not being rendered"
+
+    - title: "DOCX Input: Fix some text being underlined incorrectly. The 'none' underline style was being translated incorrectly."  
+      tickets: [1189311]
+
+    - title: "E-book viewer: When viewing EPUB files, ignore any encoding declarations in the HTML and assume that the HTML is encoded in UTF-8, unless decoding with UTF-8 fails. This is what the EPUB specification specifies."
+      tickets: [1188843]
+
+    - title: "AZW3 Output: Fix a typo that could prevent conversion of some files"
+
+    - title: "calibredb list: When outputting data in columns, handle multibyte and east asian characters correctly."
+      tickets: [1190476]
+
+    - title: "Get Books: Fix unable to change case of words in the title/author/keywords boxes because of completion."
+
+    - title: "Fix unable to clear custom date columns using the bulk metadata edit dialog"
+      tickets: [1190463]
+
+    - title: "MOBI Output: Fix regression that breaks conversion of some documents"
+      tickets: [1188635]
+
+  improved recipes:
+    - La Nacion
+    - Frontline
+    - New York Time Sports Beat
+    - Time
+    - Times of India
+    - Las Vegas Review Journal
+    - Folha de Sao Paolo
+
+  new recipes:
+    - title: Neu Osnabrucker Zeitung 
+      author: Krittika Goyal
+
+- version: 0.9.34
+  date: 2013-06-07
+
+  new features:
+    - title: "Conversion of Microsoft Word documents (.docx files generated by Word 2007 or newer)"
+      type: major
+      description: "DOCX files created with Microsoft Word 2007 or newer can now be converted by calibre. The converter has support for lists, tables, images, all types of text formatting, footnotes, endnotes and even dropcaps. A sample docx file showing the capabilities of the converter is available: http://calibre-ebook.com/downloads/demos/demo.docx Note that this code is still very new, so there are more than likely a few bugs waiting to be squashed."
+
+    - title: "Kobo driver: Support for the newly released firmware 2.6.1. Also remove empty shelves from the Aura HD home page when deleting books."
+      tickets: [1187791]
+
+    - title: "E-book viewer: Add Keyboard shortcuts for Back and Forward (Alt+Left, Alt+Right)"
+      tickets: [1186928]
+
+    - title: "Allow right clicking on an author in Book Details to manage that author, i.e. change the author name, sort value or link."
+      tickets: [1186192]
+ 
+  bug fixes:
+    - title: "Fix regression that broke FB2 input in the previous release."
+      tickets: [1186213]
+
+    - title: "Catalog generation on OS X: Fix handling of some unicode characters"
+      tickets: [1066922]
+
+    - title: "HTML Input: Avoid spurious log warnings about unspecified language/creator when these are actually specified on the command line."
+      tickets: [1186899]
+
+    - title: "MOBI Output: Fix regression in 0.9.31 that caused vertical margins specified on some block level elements to be ignored."
+      tickets: [1186533]
+
+    - title: "ToC Editor: Handle ebooks that have <p> tags inside the <head> tags.  Instead of erroring out, the <p> tags are automatically moved into <body>."
+      tickets: [1186298]
+
+    - title: "Linux build: Include the ffi libs from both gcc and libffi."
+      tickets: [1186148]
+
+    - title: "When deleting custom recipes, use recycle bin."
+      tickets: [1186142]
+
+  improved recipes:
+    - Folha de Sao Paolo
+    - Metro News NL
+
+  new recipes:
+    - title: Seventh Guard 
+      author: koliberek
+
+- version: 0.9.33
+  date: 2013-05-31
+
+  new features:
+    - title: "PDF Output: Add an option to generate a printable Table of Contents (that lists page numbers). Useful if you intend to print out the PDF."
+
+    - title: "Replace the book counts in the choose library button and next to the virtual library button with the names of the current library and virtual library. The count information is now displayed in the status bar at the bottom."
+
+    - title: "When reviewing downloaded metadata, add a button to view the book being reviewed."
+      tickets: [1184546]
+
+    - title: "Get Books: Add SONY Reader Store (Australia)."
+      tickets: [1184524]
+
+    - title: "For users running calibre from source, note that calibre has moved to using git for source control. See http://www.mobileread.com/forums/showthread.php?t=214465 for details"
+ 
+  bug fixes:
+    - title: "Windows build: Update the version of Qt calibre uses to fix crashes on some Windows 8 64 bit machines with touchscreens"
+
+    - title: "Fix error when using _daysago in search queries."
+      tickets: [1185398]
+
+    - title: "Kobo driver: When deleting books from the Kobo Aura, do not leave empty entries on the home screen. Also show downloaded books stored in the SD card as on the card, not the main memory."
+      tickets: [1185294]
+
+    - title: "Get Books: Fix price information for Sony store incorrect, also fix libri.de store plugin"
+
+    - title: "Fix error generated when changing libraries with the quickview window open"
+
+    - title: "Fix regression that broke clicking on column headers in the device views"
+
+  improved recipes:
+    - Folha de Sao Paolo
+    - Various Polish news sources
+    - Melbourne Herald Sun
+    - Hindu Business Line
+    - .net magazine
+    - Pocket
+    - Tagesschau.de
+
+  new recipes:
+    - title: "Various Polish News sources"
+      author: Tomasz Dlugoz
+
+- version: 0.9.32
+  date: 2013-05-24
+
+  new features:
+    - title: "Show the number of currently selected books in the status bar at the bottom of the book list"
+
+    - title: "Driver for PocketBook Touch 623 and Yarvik tablet Xenta 13c"
+      tickets: [1182850, 1181669]
+
+    - title: "When editing dates such as published, allow pressing the minus key to clear the date and the = key to set the date to today."
+      tickets: [1181449]
+ 
+  bug fixes:
+    - title: "EPUB/AZW3 Output: Fix regression that caused erros when trying to convert documents that have URLs with invalid (non-utf-8) quoting."
+      tickets: [1181049]
+
+    - title: "When backing up metadata automatically remove XML invalid chars, instead of erroring out"
+
+    - title: "ebook-viewer: Fix --debug-javascript option causing an error when running from a binary build on os x and linux"
+
+    - title: "Fix switch library dialog and menu both popping up when clicking the library button in some window managers"
+
+    - title: "Apple driver: Fix a regression in 0.9.31 that could cause sending books to the device to hang"
+
+    - title: "When setting metadata using the edit metadata dialog, convert newlines, tabs etc. to normal spaces"
+      tickets: [1182268]
+
+    - title: "EPUB/AZW3 Output: Fix pages that contain only an svg image being regarded as empty and removed during splitting"
+
+    - title: "AZW3 Input: Handle files that use unnecessary svg: prefixes."
+      tickets: [1182257]
+
+    - title: "EPUB Input: Handle EPUB files that have no <metadata> section in their OPF."
+      tickets: [1181546]
+
+    - title: "Get Books: Fix Foyles UK store plugin."
+      tickets: [1181494]
+
+  improved recipes:
+    - Wall Street Journal
+    - Various Polish news sources
+    - Handelsblatt
+    - The Australian
+    - Las Vegas Review
+    - NME
+
+  new recipes:
+    - title: WirtschaftsWoche Online 
+      author: Hegi
+
+
+- version: 0.9.31
+  date: 2013-05-17
+
+  new features:
+    - title: "Book list: Highlight the current cell in the book list, particularly convenient for usage with the keyboard."
+
+    - title: "Allow creation of advanced rules for column icons."
+
+    - title: "Driver for the limited edition SONY PRS-T2N"
+
+    - title: "MOBI Input: Add support for MOBI/KF8 files generated with the to be released kindlegen 2.9."
+      tickets: [1179144]
+ 
+  bug fixes:
+    - title: "ToC Editor: Fix incorrect playOrders in the generated toc.ncx when editing the toc in an epub file. This apparently affects FBReader."
+
+    - title: "PDF Input: Fix crashes on some malformed files, by updating the PDF library calibre uses (poppler 0.22.4)"
+
+    - title: "PDF Output: Ignore invalid links instead of erroring out on them."
+      tickets: [1179314]
+
+    - title: "MOBI Output: Fix space errorneously being removed when the input document contains a tag with leading space and sub-tags."
+      tickets: [1179216]
+
+    - title: "Search and replace wizard: Fix generated html being slightly different from the actual html in the conversion pipeline for some input formats (mainly HTML, CHM, LIT)."
+
+
+  improved recipes:
+    - Weblogs SL
+    - .net magazine
+
+  new recipes:
+    - title: nrc-next 
+      author: Niels Giesen
+
+- version: 0.9.30
+  date: 2013-05-10
+
+  new features:
+    - title: "Kobo driver: Add support for showing 'Archived' books on the device. Also up the supported firmware version to 2.5.3."
+      tickets: [1177677]
+
+    - title: "Driver for Blackberry 9790"
+      tickets: [1176607]
+
+    - title: "Add a tweak to turn off the highlighting of the book count when using a virtual library (Preferences->Tweaks)"
+
+    - title: "Add a button to clear the viewer search history in the viewer Preferences, under Miscellaneous"
+
+    - title: "Add keyboard shortcuts to clear the virtual Library and the additional restriction (Ctrl+Esc and Alt+Esc). Also use Shift+Esc to bring keyboard focus back tot he book list. Can be changed under Preferences->Keyboard"
+
+    - title: "Docx metadata: Read the language of the file, if present"
+ 
+  bug fixes:
+    - title: "Kobo driver: Fix unable to read SD card on OS X/Linux"
+      tickets: [1174815]
+
+    - title: "Content server: Fix unable to download ORIGINAL_* formats"
+      tickets: [1177158]
+
+    - title: "Fix regression that broke searching for terms containing a quote mark"
+      tickets: [1177114]
+
+    - title: "Fix regression that broke conversion of txt files when no input encoding is specified"
+      tickets: [1176622]
+
+    - title: "When changing to a virtual library, refresh the Book Details panel."
+      tickets: [1176296]
+
+    - title: "Fix regression that caused searching for user categories to break."
+      tickets: [1176187]
+
+    - title: "Fix error when downloading only covers and reviewing downloaded metadata."
+      tickets: [1176253]
+
+    - title: "MOBI metadata: Strip XML unsafe unicode codepoints when reading metadata from MOBI files."
+      tickets: [1175965]
+
+    - title: "Txt Input: Use the gbk encoding for txt files with detected encoding of gb2312."
+      tickets: [1175974]
+
+    - title: "When pressing Ctrl+Home/End preserve the horizontal scroll position in the book list"
+
+  improved recipes:
+    - NSFW
+    - Go Comics
+    - Various Polish news sources
+    - The Sun
+
+- version: 0.9.29
+  date: 2013-05-03
+
+  new features:
+    - title: "Bulk metadata download: Allow reviewing of the downloaded metadata before it is applied"
+
+    - title: "FB2 Output: Write ISBN, pubdate, tags and publisher metadata when creating fb2 files"
+      tickets: [1174047]
+ 
+  bug fixes:
+    - title: "When reading metadata from EPUB 3 files, use the first <dc:title> element rather than the last."
+      tickets: [1175184]
+
+    - title: "Fix regression causing the search query parser to not parse search string containing newlines/tabs instead of spaces correctly"
+      tickets: [1174629]
+
+    - title: "Kobo driver: Fix covers written to wrong place on OS X/linux when books sent to SD card. Fix covers not sent to SD card is images directory missing."
+      tickets: [1174147,1174126]
+
+    - title: "Fix 'Preferences->Behavior->Virtual library to use when this library is opened' being applied only on calibre startup and not when switching to the library"
+
+    - title: "PDF metadata: When rendering the first page as the cover, respect the PDF CropBox."
+      tickets: [1173795]
+
+    - title: "PDF Output: Fix link generation broken on windows when converting epubs if the filenames contained uppercase letters."
+      tickets: [1169795]
+
+    - title: "Tolino driver: Fix card and main memory swapped on windows"
+      tickets: [1173544]
+
+    - title: "FB2 Output: Fix images being ignored when converting a EPUB with image filenames that contain URL unsafe characters."
+      tickets: [1173351]
+
+    - title: "EPUB Input: Fix page margins specified in Adobe page template files with incorrect mime-types not being removed."
+
+  improved recipes:
+    - The New Republic
+    - io9
+    - What if
+    - Orlando Sentinel
+    - Read It Later recipe
+    - Smithsonian
+    - Business Week Magazine
+
+  new recipes:
+    - title: Diario Extra
+      author: Douglas Delgado
+
+- version: 0.9.28
+  date: 2013-04-26
+
+  new features:
+    - title: "Virtual Libraries: Easily partition your large calibre library into smaller 'virtual' libraries"
+      type: major
+      description: "A virtual library is a way to tell calibre to open only a subset of a normal library. For example, you might want to only work with books by a certain author, or books having only a certain tag. To use this feature, click the button labeled 'Virtual Library' to the left of the search bar. For details, see http://manual.calibre-ebook.com/virtual_libraries.html. This feature used to be called 'Search restriction', the new virtual libraries are easier to use, but otherwise fulfil the same function."
+
+    - title: "Book details panel: Allow copying of links in the book details panel by right clicking on them."
+      tickets: [1171963]
+
+    - title: "Kobo driver: Add support for the new Kobo Aura HD and firmware version 2.5.0"
+      tickets: [1169571,1169968]
+
+    - title: "Metadata download: When showing downloaded covers, allow right clicking on a cover to view a full size version."
+      tickets: [1170544]
+
+    - title: "Driver for Easy player cyber book e touch and Droid 4"
+      tickets: [1171633,1170763]
+
+    - title: "Edit ToC: Allow the size of the panels in the location view to be adjusted"
+
+    - title: "When copying to a library by path, make it more efficient to choose between moving and copying"
+      tickets: [1168231]
+
+    - title: "When checking if a zip/rar file is a comic or contains a single ebook to be auto-extracted, ignore thumbs.db files inside the archive"
+
+  bug fixes:
+    - title: "EPUB Input: Fix handling of EPUB files that contain images with non-ascii filenames."
+      tickets: [1171186]
+
+    - title: "Device driver: Detect Laser EB720 with newer firmware."
+      tickets: [1171341]
+
+    - title: "Fix bug in Danish translation causing books with language Ingush being incorrectly translated as Engelsk"
+
+    - title: "PDF Output: Fix hyperlinks not working when converting an EPUB whose individual files have names with URL unsafe characters."
+      tickets: [1169795]
+
+    - title: "Book polishing: Fix inserting cover into an epub with no cover could lead to incorrect guide entry if the opf is not at the root of the epub."
+      tickets: [1167941]
+
+    - title: "ZIP Output: Fix links containing backslashes on windows"
+      tickets: [1169910]
+
+    - title: "Fix polishing of AZW3 files not working on OS X."
+      tickets: [1168789]
+
+    - title: "Polishing books: Fix polishing erroring out if the book being polished has no cover"
+
+    - title: "RTF Input: Add partial support for hyperlinks to web resources."
+      tickets: [1167562]
+
+    - title: "Fix book details panel showing incorrect info after deleting books from a connected device"
+      tickets: [1172839]
+
+  improved recipes:
+    - NZZ Online
+    - Baltimore Sun
+    - Metro NL
+    - Financial Times
+    - EcoGeek
+    - comics.com
+    - Psychology Today
+    - Science News
+
+  new recipes:
+    - title: Voice of America 
+      author: Krittika Goyal
+
+    - title: Lightspeed Magazine 
+      author: Jose Pinto
+
+    - title: The Feature 
+      author: Jose Pinto
+
+- version: 0.9.27
+  date: 2013-04-12
+
+  new features:
+    - title: "Metadata download: Add two new sources for covers: Google Image Search and bigbooksearch.com."
+      description: "To enable them go to Preferences->Metadata download and enable the 'Google Image' and 'Big Book Search' sources. Google Images is useful for finding larger covers as well as alternate versions of the cover. Big Book Search searches for alternate covers from amazon.com. It can occasionally find nicer covers than the direct Amazon source. Note that both these sources download multiple covers for a single book. Some of these covers can be wrong (i.e. they may be of a different book or not covers at all, so you should inspect the results and manually pick the best match). When bulk downloading, these sources are only used if the other sources find no covers."
+      type: major
+
+    - title: "Content server: Allow specifying a restriction to use for the server when embedding it as a WSGI app."
+      tickets: [1167951]
+
+    - title: "Get Books: Add a plugin for the Koobe Polish book store"
+
+    - title: "calibredb add_format: Add an option to not replace existing formats. Also pep8 compliance."
+
+    - title: "Allow restoring of the ORIGINAL_XXX format by right-clicking it in the book details panel"
+ 
+  bug fixes:
+    - title: "AZW3 Input: Do not fail to identify JPEG images with 8BIM headers created with Adobe Photoshop."
+      tickets: [1167985]
+
+    - title: "Amazon metadata download: Ignore Spanish edition entries when searching for a book on amazon.com"
+
+    - title: "TXT Input: When converting a txt file with a Byte Order Mark, remove the Byte Order Mark before further processing as it can cause the first line of the text to be mis-interpreted."
+
+    - title: "Get Books: Fix searching for current book/title/author by right clicking the get books icon"
+
+    - title: "Get Books: Update nexto, gutenberg, and virtualo store plugins for website changes"
+
+    - title: "Amazon metadata download: When downloading from amazon.co.jp handle the 'Black curtain redirect' for adult titles."
+      tickets: [1165628]
+
+    - title: "When extracting zip files do not allow maliciously created zip files to overwrite other files on the system"
+
+    - title: "RTF Input: Handle RTF files with invalid border style specifications"
+      tickets: [1021270]
+
+  improved recipes:
+    - The Escapist
+    - San Francisco Chronicle
+    - The Onion
+    - Fronda
+    - Tom's Hardware
+    - New Yorker
+    - Financial Times UK
+    - Business Week Magazine
+    - Victoria Times
+    - tvxs
+    - The Independent
+
+  new recipes:
+    - title: Economia 
+      author: Manish Bhattarai
+
+    - title: Universe Today 
+      author: seird
+
+    - title: The Galaxy's Edge 
+      author: Krittika Goyal
+
+- version: 0.9.26
+  date: 2013-04-05
+
+  new features:
+    - title: "PDF Output: Allow using templates to create arbitrary headers and footers. Look under PDF Output in the conversion dialog for this feature."
+
+    - title: "ToC Editor: Allow generating the ToC directly from individual files inside the ebook. Useful for EPUBs that have individual chapters in single files."
+      tickets: [1163520]
+
+    - title: "ToC Editor: Add buttons to indent/unindent the current entry"
+
+    - title: "ToC Editor: Right-click menu to perform various useful actions on entries in the ToC"
+
+    - title: "Column icons: Allow use of wide images as column icons"
+
+    - title: "Add USB ids for the Palm Pre2 and Samsung Galaxy phone to the device drivers"
+      tickets: [1162293,1163115]
+ 
+  bug fixes:
+    - title: "PDF Output: Fix generating page numbers causing links to not work."
+      tickets: [1162573]
+
+    - title: "Wrong filename output in error message when 'Guide reference not found'"
+      tickets: [1163659]
+
+    - title: "Get Books: Update Amazon, Barnes & Noble, Waterstones and Gutenberg store plugins for website change"
+
+    - title: "PDF Output: Fix 1 pixel wide left and top margins on the cover page for some PDF conversions due to incorrect rounding."
+      tickets: [1162054]
+
+    - title: "ToC Editor: Fix drag and drop of multiple items resulting in the dropped items being in random order sometimes."
+      tickets: [1161999]
+
+  improved recipes:
+    - Financial Times UK
+    - Sing Tao Daily
+    - Apple Daily
+    - A List Apart
+    - Business Week
+    - Harpers printed edition
+    - Harvard Business Review
+
+  new recipes:
+    - title: AM730
+      author: Eddie Lau
+
+    - title: Arret sur images 
+      author: Francois D
+
+    - title: Diario de Noticias
+      author: Jose Pinto
+
+- version: 0.9.25
+  date: 2013-03-29
+
+  new features:
+    - title: "Automatic adding: When checking for duplicates is enabled, use the same duplicates found dialog as is used during manual adding."
+      tickets: [1160914]
+
+    - title: "ToC Editor: Allow searching to find a location quickly when browsing through the book to select a location for a ToC item"
+
+    - title: "ToC Editor: Add a button to quickly flatten the entire table of contents"
+
+    - title: "Conversion: When converting a single book to EPUB or AZW3, add an option to automatically launch the Table of Contents editor after the conversion completes. Found under the Table of Contents section of the conversion dialog."
+ 
+  bug fixes:
+    - title: "calibredb: Nicer error messages when user provides invalid input"
+      tickets: [1160452,1160631]
+
+    - title: "News download: Always use the .jpg extension for jpeg images as apparently Moon+ Reader cannot handle .jpeg"
+
+    - title: "Fix Book Details popup keyboard navigation doesn't work on a Mac"
+      tickets: [1159610]
+
+    - title: "Fix a regression that caused the case of the book files to not be changed when changing the case of the title/author on case insensitive filesystems"
+
+  improved recipes:
+    - RTE news
+    - Various Polish news sources
+    - Psychology Today
+    - Foreign Affairs
+    - History Today
+    - Harpers Magazine (printed edition)
+    - Business Week Magazine
+    - The Hindu
+    - Irish Times
+    - Le Devoir
+
+  new recipes:
+    - title: Fortune Magazine 
+      author: Rick Shang
+
+    - title: Eclipse Online 
+      author: Jim DeVona
+
+- version: 0.9.24
+  date: 2013-03-22
+
+  new features:
+    - title: "ToC Editor: Allow auto-generation of Table of Contents entries from headings and/or links in the book"
+
+    - title: "EPUB/MOBI Catalogs: Allow saving used settings as presets which can be loaded easily later."
+      tickets: [1155587]
+
+    - title: "Indicate which columns are custom columns when selecting columns in the Preferences"
+      tickets: [1158066]
+
+    - title: "News download: Add an option recipe authors can set to have calibre automatically reduce the size of downloaded images by lowering their quality"
+ 
+  bug fixes:
+    - title: "News download: Fix a regression in 0.9.23 that prevented oldest_article from working with some RSS feeds."
+
+    - title: "Conversion: handle the :before and :after pseudo CSS selectors correctly"
+
+    - title: "AZW3 Output: Handle the case of the <guide> reference to a ToC containing an anchor correctly."
+      tickets: [1158413]
+
+    - title: "BiBTeX catalogs: Fix ISBN not being output and the library_name field causing catalog generation to fail"
+      tickets: [1156432, 1158127]
+
+    - title: "Conversion: Add support for CSS stylesheets that wrap their rules inside a @media rule."
+      tickets: [1157345]
+
+    - title: "Cover browser: Fix scrolling not working for books after the 32678'th book in a large library."
+      tickets: [1153204]
+
+    - title: "Linux: Update bundled libmtp version"
+
+    - title: "Clear the Book details panel when the current search returns no matches."
+      tickets: [1153026]
+
+    - title: "Fix a regression that broke creation of advanced column coloring rules"
+      tickets: [1156291]
+
+    - title: "Amazon metadata download: Handle cover images loaded via javascript on the amazon.de site"
+
+    - title: "Nicer error message when exporting a generated csv catalog to a file open in another program on windows."
+      tickets: [1155539]
+
+    - title: "Fix ebook-convert -h showing ANSI escape codes in the windows command prompt"
+      tickets: [1158499]
+
+  improved recipes:
+    - Various Polish news sources
+    - kath.net
+    - Il Giornale
+    - Kellog Insight
+
+  new recipes:
+    - title: 
+
+- version: 0.9.23
+  date: 2013-03-15
+
+  new features:
+    - title: "New tool: \"Edit ToC\" that allows you to edit or create a Table of Contents easily in EPUB or AZW3 ebooks."
+      type: major
+      description: "Using the Edit ToC tool, you can easily re-arrange the entries in an existing Table of Contents, change their text and even change the location they point to by simply clicking the new location in the book. To use this tool, go to Preferences->Toolbar and add the Edit ToC tool to the main toolbar. Then simply select the books you want to be polished and click the Edit ToC button. This tool is based on a new codebase, so there may be bugs."
+
+    - title: "Content server: Enable use of plugboards for mobi and azw3 formats"
+
+    - title: "Windows driver for Tolino Shine"
+      tickets: [1153536]
+
+    - title: "When copying books to another library, show the name of the destination library in the copy dialog"
+      tickets: [1153407]
+
+    - title: "Allow running plugins from the command line with calibre-debug easily"
+ 
+  bug fixes:
+    - title: "PDF Output: Fix bug causing left and right margins to be applied to the cover page. Also fix the preserve cover aspect ratio option not working correctly"
+
+    - title: "PDF Output: Fix javascript dialog box popping up in the middle on converting very long documents."
+      tickets: [1154948]
+
+    - title: "MOBI metadata: When setting the language in a MOBI file also update the language field in the EXTH header."
+      tickets: [1154351]
+
+    - title: "MOBI metadata: Support writing of book producer field into MOBI files."
+      tickets: [1154353]
+
+    - title: "Fix job progress and status not always updated"
+      tickets: [1154137]
+
+    - title: "Fix conversion of zip.rar archives with very long title/author on windows"
+      tickets: [1153859]
+
+    - title: "News download: Update the library used to parse RSS feeds."
+      tickets: [1152852]
+
+    - title: "Fix Irex Illiad not recognized on OS X computers"
+      tickets: [824713]
+
+    - title: "Fix entering a very long search in the find item in tag browser box causes the tag browser to no longer be shrinkable."
+      tickets: [1152870]
+
+    - title: "Fix a bug in the zsh completion when converting for ebook-convert with PDF output"
+
+  improved recipes:
+    - Various Polish news sources
+    - Harpers Full
+    - kath.net
+    - Smithsonian
+
+  new recipes:
+    - title: Deccan Herald 
+      author: Muruli Shamanna
+
+    - title: What If 
+      author: kisnick
+
+    - title: The Friday Times 
+      tickets: Krittika Goyal
+
+    - title: Computer Woche 
+      author: Maria Seliger
+
+    - title: Lamebook 
+      author: atordo
 
 - version: 0.9.22
   date: 2013-03-08
