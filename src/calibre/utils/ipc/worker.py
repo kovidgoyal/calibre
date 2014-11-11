@@ -23,10 +23,10 @@ PARALLEL_FUNCS = {
         ('calibre.gui2.lrf_renderer.main', 'main', None),
 
       'ebook-viewer'    :
-        ('calibre.gui2.viewer.main', 'main', None),
+        ('calibre.gui_launch', 'ebook_viewer', None),
 
       'ebook-edit' :
-        ('calibre.gui2.tweak_book.main', 'gui_main', None),
+        ('calibre.gui_launch', 'gui_ebook_edit', None),
 
       'render_pages' :
         ('calibre.ebooks.comic.input', 'render_pages', 'notification'),

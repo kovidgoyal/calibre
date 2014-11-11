@@ -52,6 +52,12 @@ def ebook_viewer(args=sys.argv):
     from calibre.gui2.viewer.main import main
     main(args)
 
+def gui_ebook_edit(path=None, notify=None):
+    ' For launching the editor from inside calibre '
+    init_dbus()
+    from calibre.gui2.tweak_book.main import gui_main
+    gui_main(path, notify)
+
 def ebook_edit(args=sys.argv):
     detach_gui()
     init_dbus()
