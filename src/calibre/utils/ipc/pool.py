@@ -412,4 +412,10 @@ def test():
         raise SystemExit('No expected terminal failure')
     p.shutdown(), p.join()
 
+    # Test shutting down with busy workers
+    p = Pool(name='Test')
+    for i in range(1000):
+        p(i, 'import time;\ndef x(i):\n time.sleep(10000)', 'x', i)
+    p.shutdown(), p.join()
+
     print ('Tests all passed!')
