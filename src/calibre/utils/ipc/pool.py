@@ -224,6 +224,8 @@ class Pool(Thread):
         return self.terminal_failure is not None
 
     def terminal_error(self):
+        if self.shutting_down:
+            return
         for worker, job in self.busy_workers.iteritems():
             self.results.put(WorkerResult(job.id, Result(None, None, None), True, worker))
             self.tracker.task_done()
@@ -234,6 +236,7 @@ class Pool(Thread):
         self.shutdown()
 
     def shutdown_workers(self, wait_time=0.1):
+        self.worker_data = self.common_data = None
         for worker in self.busy_workers:
             if worker.process.poll() is None:
                 try:
@@ -257,6 +260,11 @@ class Pool(Thread):
         reaper.daemon = True
         reaper.start()
         reaper.join(wait_time)
+        for w in self.available_workers + list(self.busy_workers):
+            try:
+                w.conn.close()
+            except Exception:
+                pass
         for w in workers:
             if w.poll() is None:
                 try:
