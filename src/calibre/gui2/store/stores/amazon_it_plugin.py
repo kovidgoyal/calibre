@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import (unicode_literals, division, absolute_import, print_function)
-store_version = 5 # Needed for dynamic plugin loading
+store_version = 6 # Needed for dynamic plugin loading
 
 __license__ = 'GPL 3'
 __copyright__ = '2011, John Schember <john@nachtimwald.com>'
@@ -51,7 +51,6 @@ class AmazonITKindleStore(StorePlugin):
 
     def search(self, query, max_results=10, timeout=60):
         url = self.search_url + query.encode('ascii', 'backslashreplace').replace('%', '%25').replace('\\x', '%').replace(' ', '+')
-        #print(url)
         br = browser()
 
         counter = max_results
@@ -88,17 +87,15 @@ class AmazonITKindleStore(StorePlugin):
                         '//span[contains(@class, "lrg") and contains(@class, "bld")]/text()')
             elif doc.xpath('//div[@id = "atfResults" and contains(@class, "list")]'):
                 #print('list form')
-                data_xpath = '//div[contains(@class, "prod")]'
+                data_xpath = '//li[@class="s-result-item"]'
                 format_xpath = (
-                        './/ul[contains(@class, "rsltL")]'
-                        '//span[contains(@class, "lrg") and not(contains(@class, "bld"))]/text()')
-                asin_xpath = '@name'
-                cover_xpath = './/img[contains(@class, "productImage")]/@src'
-                title_xpath = './/h3[@class="newaps"]/a//text()'
-                author_xpath = './/h3[@class="newaps"]//span[contains(@class, "reg")]//text()'
-                price_xpath = (
-                        './/ul[contains(@class, "rsltL")]'
-                        '//span[contains(@class, "lrg") and contains(@class, "bld")]/text()')
+                        './/h3[contains(@class, "s-inline")]/text()')
+                asin_xpath = '@data-asin'
+                cover_xpath = './/img[contains(@class, "cfMarker")]/@src'
+                title_xpath = './/h2[contains(@class, "s-access-title")]/text()'
+                author_xpath = ('.//div[contains(@class, "a-fixed-left-grid-col")]'
+                                '/div/div/span//text()')
+                price_xpath = ('.//span[contains(@class, "s-price")]/text()')
             else:
                 # URK -- whats this?
                 print('unknown result table form for Amazon EU search')
@@ -155,4 +152,3 @@ class AmazonITKindleStore(StorePlugin):
 
     def get_details(self, search_result, timeout):
         pass
-
