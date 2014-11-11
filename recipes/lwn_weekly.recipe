@@ -30,8 +30,7 @@ class WeeklyLWN(BasicNewsRecipe):
     # masthead_url = 'http://lwn.net/images/lcorner.png'
     publication_type = 'magazine'
 
-    remove_tags_before = dict(attrs={'class':'PageHeadline'})
-    remove_tags_after = dict(attrs={'class':'ArticleText'})
+    keep_only_tags = [dict(attrs={'class':['PageHeadline','ArticleText']})]
     remove_tags = [dict(name=['h2', 'form'])]
 
     preprocess_regexps = [
@@ -40,7 +39,6 @@ class WeeklyLWN(BasicNewsRecipe):
     ]
 
     conversion_options = {
-        'linearize_tables' : True,
         'no_inline_navbars': True,
     }
 
