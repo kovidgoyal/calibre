@@ -10,30 +10,31 @@ __MakePeriodical__ = True
 __UseChineseTitle__ = False
 # Set it to False if you want to skip images (Default: True)
 __KeepImages__ = True
-# Set it to True if you want to include a summary in Kindle's article view (Default: False)
-__IncludeSummary__ = False
+# Set it to True if you want to include a summary in Kindle's article view (Default: True)
+__IncludeSummary__ = True
 # Set it to True if you want thumbnail images in Kindle's article view (Default: True)
 __IncludeThumbnails__ = True
 # (HK only) Turn below to True if you wish to use life.mingpao.com as the main article source (Default: True)
 __UseLife__ = True
 # (HK only) It is to disable premium content (Default: False)
 __InclPremium__ = False
-# (HK only) Turn below to True if you wish to parse articles in news.mingpao.com with their printer-friendly formats (Default: False)
+# (HK only) Turn below to True if you wish to parse articles in news1.mingpao.com with their printer-friendly formats (Default: False)
 __ParsePF__ = False
-# (HK only) Turn below to True if you wish to parse articles in news.mingpao.com with text formats (Default: True)  -- override __ParsePF__
+# (HK only) Turn below to True if you wish to parse articles in news1.mingpao.com with text formats (Default: True)  -- override __ParsePF__
 __ParseTxt__ = True
 # (HK only) Use mobile text version for some articles (Default: False)
 __ParseSelectedMobile__ = False
-# (HK only) Turn below to True if you wish hi-res images (Default: False)
-__HiResImg__ = False
+# (HK only) Turn below to True if you wish hi-res images (Default: True)
+__HiResImg__ = True
 # Override the date returned by the program if specifying a YYYYMMDD below (not work if __ParseSelectedMobile__ is True and __UseLife__ is False)
 __Date__ = ''
 
 
 '''
 Change Log:
+2014/10/19: update urls of some web location and top logo
 2013/09/28: allow thumbnails even with hi-res images
-2012/04/24: improved parsing of news.mingpao.com content
+2012/04/24: improved parsing of news1.mingpao.com content
 2011/12/18: update the overridden create_odf(.) routine with the one from Calibre version 0.8.31. Move __UseChineseTitle__ usage away
             from create_odf(.). Optional support of text_summary and thumbnail images in Kindle's article view. Start new day
             download of Hong Kong Mingpao at 4.30am. Set the actual publication date shown on kindle device.
@@ -83,10 +84,10 @@ class MPRecipe(BasicNewsRecipe):
             title = u'\u660e\u5831 (\u9999\u6e2f)'
         else:
             title   = 'Ming Pao - Hong Kong'
-        description = 'Hong Kong Chinese Newspaper (http://news.mingpao.com)'
+        description = 'Hong Kong Chinese Newspaper (http://news1.mingpao.com)'
         category    = 'Chinese, News, Hong Kong'
         extra_css = 'img {display: block; margin-left: auto; margin-right: auto; margin-top: 10px; margin-bottom: 10px; max-height:90%;} font>b {font-size:200%; font-weight:bold;} div[class=heading] {font-size:200%; font-weight:bold;} div[class=images] {font-size:50%;}'
-        masthead_url = 'http://news.mingpao.com/image/portals_top_logo_news.gif'
+        masthead_url = 'http://news.mingpao.com/image/mingpaonews_logo.png'
         remove_tags_before = dict(name='font', attrs={'color':['navy']})
         keep_only_tags = [dict(name='h1'),
                           dict(name='font', attrs={'style':['font-size:14pt; line-height:160%;']}), # for entertainment page title
@@ -131,7 +132,7 @@ class MPRecipe(BasicNewsRecipe):
                               lambda match: "<div id='newscontent'>"),
                               (re.compile(r"<br><br></b>", re.DOTALL|re.IGNORECASE),
                               lambda match: "</b>"),
-                              (re.compile(r'<br><br><img src="http://pda.mingpao.com/image/shim.gif" width=11><br>', re.DOTALL|re.IGNORECASE), 
+                              (re.compile(r'<br><br><img src="http://pda.mingpao.com/image/shim.gif" width=11><br>', re.DOTALL|re.IGNORECASE),
                               lambda match: ''),
                               (re.compile(r'<img src="http://pda.mingpao.com/image/mbup.gif" border=0>', re.DOTALL|re.IGNORECASE),
                               lambda match: ''),
@@ -241,14 +242,14 @@ class MPRecipe(BasicNewsRecipe):
             return __Date__[6:8]
         else:
             return self.get_dtlocal().strftime("%d")
-            
+
     # Note: does not work with custom date given by __Date__
     def get_weekday(self):
         return self.get_dtlocal().weekday()
 
     def get_cover_url(self):
         if __Region__ == 'Hong Kong':
-            cover = 'http://news.mingpao.com/' + self.get_fetchdate() + '/' + self.get_fetchdate() + '_' + self.get_fetchday() + 'gacov.jpg'
+            cover = 'http://news1.mingpao.com/' + self.get_fetchdate() + '/' + self.get_fetchdate() + '_' + self.get_fetchday() + 'gacov.jpg'
         elif __Region__ == 'Vancouver':
             cover = 'http://www.mingpaovan.com/ftp/News/' + self.get_fetchdate() + '/' + self.get_fetchday() + 'pgva1s.jpg'
         elif __Region__ == 'Toronto':
@@ -292,15 +293,15 @@ class MPRecipe(BasicNewsRecipe):
 #                        if articles:
 #                            feeds.append((title, articles))
 #
-#                for title, url in [(u'\u526f\u520a Supplement', 'http://news.mingpao.com/' + dateStr + '/jaindex.htm'),
-#                                   (u'\u82f1\u6587 English', 'http://news.mingpao.com/' + dateStr + '/emindex.htm')]:
+#                for title, url in [(u'\u526f\u520a Supplement', 'http://news1.mingpao.com/' + dateStr + '/jaindex.htm'),
+#                                   (u'\u82f1\u6587 English', 'http://news1.mingpao.com/' + dateStr + '/emindex.htm')]:
 #                    articles = self.parse_section(url)
 #                    if articles:
 #                        feeds.append((title, articles))
-                        
+
                 # new
                 if __InclPremium__ == True and (self.get_weekday() <> 6 or __ParseSelectedMobile__ == False):
-                    # if both not on Sunday and not __ParseSelectedMobile__, go ahead 
+                    # if both not on Sunday and not __ParseSelectedMobile__, go ahead
                     # parse column section articles directly from .txt files
                     for title, url, keystr in [(u'\u5c08\u6b04 Columns', 'http://life.mingpao.com/cfm/dailynews2.cfm?Issue=' + dateStr +'&Category=ncolumn', 'ncl')
                                               ]:
@@ -308,8 +309,8 @@ class MPRecipe(BasicNewsRecipe):
                         if articles:
                             feeds.append((title, articles))
 
-                if __InclPremium__ == False or self.get_weekday() <> 6:
-                    for title, url, seckey in [(u'\u526f\u520a Supplement', 'http://news.mingpao.com/' + dateStr + '/jaindex.htm', 'ja')]:
+                if self.get_weekday() <> 6:
+                    for title, url, seckey in [(u'\u526f\u520a Supplement', 'http://news1.mingpao.com/' + dateStr + '/jaindex.htm', 'ja')]:
                         if __ParseTxt__ == False:
                             articles = self.parse_section(url)
                         else:
@@ -322,15 +323,15 @@ class MPRecipe(BasicNewsRecipe):
                         if articles:
                             feeds.append((u'\u526f\u520a Supplement', articles))
                     else:
-                        for title, url, seckey in [(u'\u526f\u520a Supplement', 'http://news.mingpao.com/' + dateStr + '/jaindex.htm', 'ja')]:
+                        for title, url, seckey in [(u'\u526f\u520a Supplement', 'http://news1.mingpao.com/' + dateStr + '/jaindex.htm', 'ja')]:
                             if __ParseTxt__ == False:
                                 articles = self.parse_section(url)
-                        else:
-                            articles = self.parse_section_txt(url, seckey)
-                        if articles:
-                            feeds.append((title, articles))
-                            
-                for title, url, seckey in [(u'\u82f1\u6587 English', 'http://news.mingpao.com/' + dateStr + '/emindex.htm', 'em')]:
+                            else:
+                                articles = self.parse_section_txt(url, seckey)
+                            if articles:
+                                feeds.append((title, articles))
+
+                for title, url, seckey in [(u'\u82f1\u6587 English', 'http://news1.mingpao.com/' + dateStr + '/emindex.htm', 'em')]:
                     if __ParseTxt__ == False:
                         articles = self.parse_section(url)
                     else:
@@ -339,10 +340,10 @@ class MPRecipe(BasicNewsRecipe):
                         feeds.append((title, articles))
                 # end of new
             else:
-                for title, url, seckey in [(u'\u8981\u805e Headline', 'http://news.mingpao.com/' + dateStr + '/gaindex.htm', 'ga'),
-                                           (u'\u6e2f\u805e Local', 'http://news.mingpao.com/' + dateStr + '/gbindex.htm', 'gb'),
-                                           (u'\u6559\u80b2 Education', 'http://news.mingpao.com/' + dateStr + '/gfindex.htm', 'gf'),
-                                           (u'\u793e\u8a55/\u7b46\u9663 Editorial', 'http://news.mingpao.com/' + dateStr + '/mrindex.htm', 'mr')]:
+                for title, url, seckey in [(u'\u8981\u805e Headline', 'http://news1.mingpao.com/' + dateStr + '/gaindex.htm', 'ga'),
+                                           (u'\u6e2f\u805e Local', 'http://news1.mingpao.com/' + dateStr + '/gbindex.htm', 'gb'),
+                                           (u'\u6559\u80b2 Education', 'http://news1.mingpao.com/' + dateStr + '/gfindex.htm', 'gf'),
+                                           (u'\u793e\u8a55/\u7b46\u9663 Editorial', 'http://news1.mingpao.com/' + dateStr + '/mrindex.htm', 'mr')]:
                     if __ParseTxt__ == False:
                         articles = self.parse_section(url)
                     else:
@@ -355,9 +356,9 @@ class MPRecipe(BasicNewsRecipe):
                 #if ed_articles:
                 #    feeds.append((u'\u793e\u8a55/\u7b46\u9663 Editorial', ed_articles))
 
-                for title, url, seckey in [(u'\u8ad6\u58c7 Forum', 'http://news.mingpao.com/' + dateStr + '/faindex.htm', 'fa'),
-                                           (u'\u4e2d\u570b China', 'http://news.mingpao.com/' + dateStr + '/caindex.htm', 'ca'),
-                                           (u'\u570b\u969b World', 'http://news.mingpao.com/' + dateStr + '/taindex.htm', 'ta')]:
+                for title, url, seckey in [(u'\u8ad6\u58c7 Forum', 'http://news1.mingpao.com/' + dateStr + '/faindex.htm', 'fa'),
+                                           (u'\u4e2d\u570b China', 'http://news1.mingpao.com/' + dateStr + '/caindex.htm', 'ca'),
+                                           (u'\u570b\u969b World', 'http://news1.mingpao.com/' + dateStr + '/taindex.htm', 'ta')]:
                     if __ParseTxt__ == False:
                         articles = self.parse_section(url)
                     else:
@@ -376,8 +377,8 @@ class MPRecipe(BasicNewsRecipe):
                     if articles:
                         feeds.append((title, articles))
 
-                #for title, url in [('Tech News', 'http://news.mingpao.com/' + dateStr + '/naindex.htm'),
-                #                   (u'\u9ad4\u80b2 Sport', 'http://news.mingpao.com/' + dateStr + '/spindex.htm')]:
+                #for title, url in [('Tech News', 'http://news1.mingpao.com/' + dateStr + '/naindex.htm'),
+                #                   (u'\u9ad4\u80b2 Sport', 'http://news1.mingpao.com/' + dateStr + '/spindex.htm')]:
                 #    articles = self.parse_section(url)
                 #    if articles:
                 #        feeds.append((title, articles))
@@ -395,7 +396,7 @@ class MPRecipe(BasicNewsRecipe):
 
 
                 if __InclPremium__ == True and (self.get_weekday() <> 6 or __ParseSelectedMobile__ == False):
-                    # if both not on Sunday or not __ParseSelectedMobile__, go ahead 
+                    # if both not on Sunday or not __ParseSelectedMobile__, go ahead
                     # parse column section articles directly from .txt files
                     for title, url, keystr in [(u'\u5c08\u6b04 Columns', 'http://life.mingpao.com/cfm/dailynews2.cfm?Issue=' + dateStr +'&Category=ncolumn', 'ncl')
                                               ]:
@@ -404,7 +405,7 @@ class MPRecipe(BasicNewsRecipe):
                             feeds.append((title, articles))
 
                 if __InclPremium__ == False or self.get_weekday() <> 6:
-                    for title, url, seckey in [(u'\u526f\u520a Supplement', 'http://news.mingpao.com/' + dateStr + '/jaindex.htm', 'ja')]:
+                    for title, url, seckey in [(u'\u526f\u520a Supplement', 'http://news1.mingpao.com/' + dateStr + '/jaindex.htm', 'ja')]:
                         if __ParseTxt__ == False:
                             articles = self.parse_section(url)
                         else:
@@ -417,22 +418,22 @@ class MPRecipe(BasicNewsRecipe):
                         if articles:
                             feeds.append((u'\u526f\u520a Supplement', articles))
                     else:
-                        for title, url, seckey in [(u'\u526f\u520a Supplement', 'http://news.mingpao.com/' + dateStr + '/jaindex.htm', 'ja')]:
+                        for title, url, seckey in [(u'\u526f\u520a Supplement', 'http://news1.mingpao.com/' + dateStr + '/jaindex.htm', 'ja')]:
                             if __ParseTxt__ == False:
                                 articles = self.parse_section(url)
                         else:
                             articles = self.parse_section_txt(url, seckey)
                         if articles:
                             feeds.append((title, articles))
-                            
-                for title, url, seckey in [(u'\u82f1\u6587 English', 'http://news.mingpao.com/' + dateStr + '/emindex.htm', 'em')]:
+
+                for title, url, seckey in [(u'\u82f1\u6587 English', 'http://news1.mingpao.com/' + dateStr + '/emindex.htm', 'em')]:
                     if __ParseTxt__ == False:
                         articles = self.parse_section(url)
                     else:
                         articles = self.parse_section_txt(url, seckey)
                     if articles:
                         feeds.append((title, articles))
-                
+
         elif __Region__ == 'Vancouver':
             for title, url in [(u'\u8981\u805e Headline', 'http://www.mingpaovan.com/htm/News/' + dateStr + '/VAindex.htm'),
                                (u'\u52a0\u570b Canada', 'http://www.mingpaovan.com/htm/News/' + dateStr + '/VBindex.htm'),
@@ -463,7 +464,7 @@ class MPRecipe(BasicNewsRecipe):
                     feeds.append((title, articles))
         return feeds
 
-    # parse from news.mingpao.com (web html)
+    # parse from news1.mingpao.com (web html)
     def parse_section(self, url):
         dateStr = self.get_fetchdate()
         soup = self.index_to_soup(url)
@@ -475,9 +476,9 @@ class MPRecipe(BasicNewsRecipe):
             a = i.find('a', href = True)
             title = self.tag_to_string(a)
             url = a.get('href', False)
-            url = 'http://news.mingpao.com/' + dateStr + '/' +url
+            url = 'http://news1.mingpao.com/' + dateStr + '/' +url
             # replace the url to the alternative version
-            if __ParsePF__ == True: 
+            if __ParsePF__ == True:
                 # printer-friendly option
                 if url.rfind('Redirect') <> -1 and __InclPremium__ == True:
                     url = re.sub(dateStr + '.*' + dateStr, dateStr, url)
@@ -495,7 +496,7 @@ class MPRecipe(BasicNewsRecipe):
         current_articles.reverse()
         return current_articles
 
-    # parse from news.mingpao.com (txt)
+    # parse from news1.mingpao.com (txt)
     def parse_section_txt(self, url, ch):
         dateStr = self.get_fetchdate()
         soup = self.index_to_soup(url)
@@ -510,21 +511,22 @@ class MPRecipe(BasicNewsRecipe):
             #print 'Base url: ', url
             # replace the url to the alternative version
             # text version
-            if url.rfind('Redirect') <> -1:   
-                url = 'http://news.mingpao.com/' + dateStr + '/' +url
+            if url.rfind('Redirect') <> -1:
+                url = 'http://news1.mingpao.com/' + dateStr + '/' +url
                 #print 'original url: ', url
                 url = re.sub(dateStr + '/../cfm/Redirect.cfm.*NewsFile=', 'ftp/WebNews2/', url)
                 url = re.sub('%2F', '/', url)
                 if __InclPremium__ == True:
                     title = title.replace(u'\u6536\u8cbb\u5167\u5bb9', '')
                 url = url.replace('%2Etxt', '.txt')
-                url = url.replace('%5F', '_')                
+                url = url.replace('%5F', '_')
             else:
                 # get the first two char in url as ch
                 seckey = url[0:2]
                 url = url.replace('.htm', '.txt')
-                url = 'http://news.mingpao.com/ftp/WebNews2/' + dateStr + '/' + ch + '/' + seckey + '/' + url
+                url = 'http://news1.mingpao.com/ftp/WebNews2/' + dateStr + '/' + ch + '/' + seckey + '/' + url
             #print 'updated url: ', url
+
             if url not in included_urls and (__InclPremium__ == True or title.rfind(u'\u6536\u8cbb\u5167\u5bb9') == -1):
             #if url not in included_urls and (url.rfind('Redirect') == -1) and (__InclPremium__ == False or title.rfind(u'\u6536\u8cbb\u5167\u5bb9') == -1):
                 current_articles.append({'title': title, 'url': url, 'description':'', 'date':''})
@@ -587,7 +589,7 @@ class MPRecipe(BasicNewsRecipe):
                 current_articles.append({'title': title, 'url': base + '/' + url, 'description': ''})
                 included_urls.append(url)
         return current_articles
-    
+
     # parse from www.mingpaovan.com
     def parse_section3(self, url, baseUrl):
         self.get_fetchdate()
@@ -772,7 +774,7 @@ class MPRecipe(BasicNewsRecipe):
         #raw_html = raw_html.replace(u'<p>\u3010', u'\u3010')
         if __HiResImg__ == True:
             # TODO: add a _ in front of an image url
-            if url.rfind('news.mingpao.com') > -1:
+            if url.rfind('news1.mingpao.com') > -1:
                 imglist =  re.findall('src="?.*?jpg"', new_html)
                 br = mechanize.Browser()
                 br.set_handle_redirect(False)
@@ -797,7 +799,7 @@ class MPRecipe(BasicNewsRecipe):
                             #print 'imgstr: ', img
                             pos = img.find('_')
                             new_html = new_html.replace(img[5:], '_' + img[5:])
-                            
+
             elif url.rfind('life.mingpao.com') > -1:
                 imglist = re.findall('src=\'?.*?jpg\'', new_html)
                 br = mechanize.Browser()
@@ -1068,6 +1070,7 @@ class MPRecipe(BasicNewsRecipe):
 
         with nested(open(opf_path, 'wb'), open(ncx_path, 'wb')) as (opf_file, ncx_file):
             opf.render(opf_file, ncx_file)
+
 
 
 
