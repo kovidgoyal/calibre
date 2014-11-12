@@ -386,8 +386,6 @@ class Adder(QObject):
 
 # TODO: Duplicates and auto-merge (in particular adding duplicated files as well as adding files already in the db)
 # TODO: Test importing with filetype plugin (archive, de-obfuscate)
-# TODO: Test handling of exception in metadata read function
 # TODO: Report terminal erros where some books have been added better
 # TODO: Test direct add of books to device
 # TODO: Test adding form device to library
-# TODO: Check aborting after a few books have been added
