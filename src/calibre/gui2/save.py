@@ -6,7 +6,7 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import traceback, errno, os, time, shutil
+import traceback, errno, os, time, shutil, gc
 from collections import namedtuple, defaultdict
 from tempfile import SpooledTemporaryFile
 from Queue import Empty
@@ -74,8 +74,6 @@ class Saver(QObject):
 
     def __init__(self, book_ids, db, opts, root, parent=None):
         QObject.__init__(self, parent)
-        if parent is not None:
-            setattr(parent, 'no_gc_%s' % id(self), self)
         self.db = db.new_api
         self.plugboards = self.db.pref('plugboards', {})
         self.template_functions = self.db.pref('user_template_functions', [])
@@ -107,9 +105,7 @@ class Saver(QObject):
 
     def break_cycles(self):
         shutil.rmtree(self.tdir, ignore_errors=True)
-        p = self.parent()
-        if p is not None:
-            setattr(p, 'no_gc_%s' % id(self), None)
+        gc.enable()
         if self.pool is not None:
             self.pool.shutdown()
         self.jobs = self.pool = self.plugboards = self.template_functions = self.collected_data = self.all_book_ids = self.pd = self.db = None  # noqa
