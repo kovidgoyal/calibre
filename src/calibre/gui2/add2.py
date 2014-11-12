@@ -420,7 +420,5 @@ class Adder(QObject):
     def number_of_books_added(self):
         return len(self.added_book_ids)
 
-# TODO: Duplicates and auto-merge (in particular adding duplicated files as well as adding files already in the db)
-# TODO: Report terminal erros where some books have been added better
 # TODO: Test direct add of books to device
 # TODO: Test adding form device to library
