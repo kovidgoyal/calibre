@@ -430,6 +430,3 @@ class Adder(QObject):
     @property
     def number_of_books_added(self):
         return len(self.added_book_ids)
-
-# TODO: Test direct add of books to device
-# TODO: Test adding form device to library

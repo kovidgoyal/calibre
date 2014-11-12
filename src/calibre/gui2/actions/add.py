@@ -487,4 +487,4 @@ class AddAction(InterfaceAction):
         if ok_paths:
             from calibre.gui2.add import Adder
             callback = partial(self._add_from_device_adder, on_card=None, model=view.model())
-            Adder(ok_paths, db=None, parent=self.gui, callback=callback, pool=self.gui.spare_pool())
+            Adder(ok_paths, db=self.gui.current_db, parent=self.gui, callback=callback, pool=self.gui.spare_pool())
