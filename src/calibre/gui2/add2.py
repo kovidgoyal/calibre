@@ -6,7 +6,7 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import shutil, os, weakref, traceback, tempfile
+import shutil, os, weakref, traceback, tempfile, time
 from threading import Thread
 from collections import OrderedDict
 from Queue import Empty
@@ -15,6 +15,7 @@ from io import BytesIO
 from PyQt5.Qt import QObject, Qt, pyqtSignal
 
 from calibre import prints
+from calibre.constants import DEBUG
 from calibre.customize.ui import run_plugins_on_postimport
 from calibre.db.adding import find_books_in_directory
 from calibre.db.utils import find_identical_books
@@ -89,6 +90,8 @@ class Adder(QObject):
         self.scan_thread.start()
         self.do_one = self.monitor_scan
         self.do_one_signal.emit()
+        if DEBUG:
+            self.start_time = time.time()
 
     def break_cycles(self):
         self.abort_scan = True
@@ -342,6 +345,8 @@ class Adder(QObject):
                 self.add_book(mi, cover_path, paths)
 
     def add_book(self, mi, cover_path, paths):
+        if DEBUG:
+            st = time.time()
         try:
             cdata = None
             if cover_path:
@@ -366,6 +371,8 @@ class Adder(QObject):
             # Ignore this exception since all it means is that duplicate
             # detection/automerge will fail for this book.
             traceback.print_exc()
+        if DEBUG:
+            prints('Added', mi.title, 'to db in: %.1f' % time.time() - st)
 
     def add_formats(self, book_id, paths, mi, replace=True):
         fmap = {p.rpartition(os.path.extsep)[-1].lower():p for p in paths}
@@ -403,6 +410,8 @@ class Adder(QObject):
         self.do_one_signal.emit()
 
     def finish(self):
+        if DEBUG:
+            prints('Added %s books in %.1f seconds' % (len(self.added_book_ids or self.items), time.time() - self.start_time))
         if self.report:
             added_some = self.items or self.added_book_ids
             d = warning_dialog if added_some else error_dialog
