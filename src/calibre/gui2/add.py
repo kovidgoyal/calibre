@@ -66,7 +66,6 @@ class Adder(QObject):
         self.callback = callback
         self.add_formats_to_existing = prefs['add_formats_to_existing']
         self.do_one_signal.connect(self.tick, type=Qt.QueuedConnection)
-        self.tdir = PersistentTemporaryDirectory('_add_books')
         self.pool = pool
         self.pd = ProgressDialog(_('Adding books...'), _('Scanning for files...'), min=0, max=0, parent=parent, icon='add_book.png')
         self.db = getattr(db, 'new_api', None)
@@ -97,7 +96,6 @@ class Adder(QObject):
         self.abort_scan = True
         self.pd.close()
         self.pd.deleteLater()
-        shutil.rmtree(self.tdir, ignore_errors=True)
         if self.pool is not None:
             self.pool.shutdown()
         if not self.items:
