@@ -6,7 +6,7 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import traceback, errno, os, time, shutil, gc
+import traceback, errno, os, time, shutil
 from collections import namedtuple, defaultdict
 from tempfile import SpooledTemporaryFile
 from Queue import Empty
@@ -105,10 +105,11 @@ class Saver(QObject):
 
     def break_cycles(self):
         shutil.rmtree(self.tdir, ignore_errors=True)
-        gc.enable()
         if self.pool is not None:
             self.pool.shutdown()
+        self.setParent(None)
         self.jobs = self.pool = self.plugboards = self.template_functions = self.collected_data = self.all_book_ids = self.pd = self.db = None  # noqa
+        self.deleteLater()
 
     def book_id_data(self, book_id):
         ans = self._book_id_data.get(book_id)
