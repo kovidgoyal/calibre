@@ -6,7 +6,7 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import shutil, os, weakref, traceback
+import shutil, os, weakref, traceback, tempfile
 from threading import Thread
 from collections import OrderedDict
 from Queue import Empty
@@ -33,21 +33,21 @@ def validate_source(source, parent=None):  # {{{
             error_dialog(parent, _('Cannot add books'), _(
                 'The path %s does not exist') % source, show=True)
             return False
-        if os.path.isdir(source):
-            if not os.access(source, os.X_OK|os.R_OK):
-                error_dialog(parent, _('Cannot add books'), _(
-                    'You do not have permission to read %s') % source, show=True)
-                return False
-        else:
-            if not os.access(source, os.R_OK):
-                error_dialog(parent, _('Cannot add books'), _(
-                    'You do not have permission to read %s') % source, show=True)
-                return False
-            if not source.lower().rpartition(os.extsep)[-1] in {'zip', 'rar'}:
-                error_dialog(parent, _('Cannot add books'), _(
-                    'The file %s is not a recognized archive format') % source, show=True)
-                return False
-
+        if not os.access(source, os.X_OK|os.R_OK):
+            error_dialog(parent, _('Cannot add books'), _(
+                'You do not have permission to read %s') % source, show=True)
+            return False
+    else:
+        ok = False
+        for path in source:
+            if os.access(path, os.R_OK):
+                ok = True
+                break
+        if not ok:
+            error_dialog(parent, _('Cannot add books'), _(
+                'You do not have permission to read any of the selected files'),
+                det_msg='\n'.join(source), show=True)
+            return False
     return True
 # }}}
 
@@ -55,11 +55,12 @@ class Adder(QObject):
 
     do_one_signal = pyqtSignal()
 
-    def __init__(self, source, single_book_per_directory=True, db=None, parent=None, callback=None, pool=None):
+    def __init__(self, source, single_book_per_directory=True, db=None, parent=None, callback=None, pool=None, list_of_archives=False):
         if not validate_source(source, parent):
             return
         QObject.__init__(self, parent)
         self.single_book_per_directory = single_book_per_directory
+        self.list_of_archives = list_of_archives
         self.callback = callback
         self.add_formats_to_existing = prefs['add_formats_to_existing']
         self.do_one_signal.connect(self.tick, type=Qt.QueuedConnection)
@@ -111,26 +112,46 @@ class Adder(QObject):
         self.do_one()
 
     # Filesystem scan {{{
+
     def scan(self):
+
+        def find_files(root):
+            for dirpath, dirnames, filenames in os.walk(root):
+                for files in find_books_in_directory(dirpath, self.single_book_per_directory):
+                    if self.abort_scan:
+                        return
+                    if files:
+                        self.file_groups[len(self.file_groups)] = files
+
+        def extract(source):
+            tdir = tempfile.mkdtemp(suffix='_archive', dir=self.tdir)
+            if source.lower().endswith('.zip'):
+                from calibre.utils.zipfile import ZipFile
+                try:
+                    with ZipFile(source) as zf:
+                        zf.extractall(tdir)
+                except Exception:
+                    prints('Corrupt ZIP file, trying to use local headers')
+                    from calibre.utils.localunzip import extractall
+                    extractall(source, tdir)
+            elif source.lower().endswith('.rar'):
+                from calibre.utils.unrar import extract
+                extract(source, tdir)
+            return tdir
+
         try:
             if isinstance(self.source, basestring):
-                if os.path.isdir(self.source):
-                    root = self.source
-                else:
-                    root = self.extract()
-                for dirpath, dirnames, filenames in os.walk(root):
-                    for files in find_books_in_directory(dirpath, self.single_book_per_directory):
-                        if self.abort_scan:
-                            return
-                        if files:
-                            self.file_groups[len(self.file_groups)] = files
+                find_files(self.source)
             else:
                 unreadable_files = []
                 for path in self.source:
                     if self.abort_scan:
                         return
                     if os.access(path, os.R_OK):
-                        self.file_groups[len(self.file_groups)] = [path]
+                        if self.list_of_archives:
+                            find_files(extract(path))
+                        else:
+                            self.file_groups[len(self.file_groups)] = [path]
                     else:
                         unreadable_files.append(path)
                 if unreadable_files:
@@ -144,22 +165,6 @@ class Adder(QObject):
                             a('')
         except Exception:
             self.scan_error = traceback.format_exc()
-
-    def extract(self):
-        tdir = os.path.join(self.tdir, 'archive')
-        if self.source.lower().endswith('.zip'):
-            from calibre.utils.zipfile import ZipFile
-            try:
-                with ZipFile(self.source) as zf:
-                    zf.extractall(tdir)
-            except Exception:
-                prints('Corrupt ZIP file, trying to use local headers')
-                from calibre.utils.localunzip import extractall
-                extractall(self.source, tdir)
-        elif self.path.lower().endswith('.rar'):
-            from calibre.utils.unrar import extract
-            extract(self.source, tdir)
-        return tdir
 
     def monitor_scan(self):
         self.scan_thread.join(0.05)

@@ -142,9 +142,9 @@ class AddAction(InterfaceAction):
     def add_archive(self, single):
         paths = choose_files(
             self.gui, 'recursive-archive-add', _('Choose archive file'),
-            filters=[(_('Archives'), ('zip', 'rar'))], all_files=False, select_only_single_file=True)
+            filters=[(_('Archives'), ('zip', 'rar'))], all_files=False, select_only_single_file=False)
         if paths:
-            self.do_add_recursive(paths[0], single)
+            self.do_add_recursive(paths, single, list_of_archives=True)
 
     def add_recursive(self, single):
         root = choose_dir(self.gui, 'recursive book import root dir dialog',
@@ -157,9 +157,9 @@ class AddAction(InterfaceAction):
                 'Cannot add books from the folder: %s as it contains the currently opened calibre library') % root, show=True)
         self.do_add_recursive(root, single)
 
-    def do_add_recursive(self, root, single):
+    def do_add_recursive(self, root, single, list_of_archives=False):
         from calibre.gui2.add2 import Adder
-        Adder(root, single_book_per_directory=single, db=self.gui.current_db,
+        Adder(root, single_book_per_directory=single, db=self.gui.current_db, list_of_archives=list_of_archives,
               callback=self._files_added, parent=self.gui, pool=self.gui.spare_pool())
 
     def add_recursive_single(self, *args):
