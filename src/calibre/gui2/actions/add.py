@@ -161,7 +161,7 @@ class AddAction(InterfaceAction):
         self.do_add_recursive(root, single)
 
     def do_add_recursive(self, root, single, list_of_archives=False):
-        from calibre.gui2.add2 import Adder
+        from calibre.gui2.add import Adder
         Adder(root, single_book_per_directory=single, db=self.gui.current_db, list_of_archives=list_of_archives,
               callback=self._files_added, parent=self.gui, pool=self.gui.spare_pool())
 
@@ -365,7 +365,7 @@ class AddAction(InterfaceAction):
                       'cardb' if self.gui.stack.currentIndex() == 3 else None
         if not paths:
             return
-        from calibre.gui2.add2 import Adder
+        from calibre.gui2.add import Adder
         Adder(paths, db=None if to_device else self.gui.current_db,
               parent=self.gui, callback=partial(self._files_added, on_card=on_card), pool=self.gui.spare_pool())
 
@@ -485,6 +485,6 @@ class AddAction(InterfaceAction):
                     show=True)
 
         if ok_paths:
-            from calibre.gui2.add2 import Adder
+            from calibre.gui2.add import Adder
             callback = partial(self._add_from_device_adder, on_card=None, model=view.model())
             Adder(ok_paths, db=None, parent=self.gui, callback=callback, pool=self.gui.spare_pool())
