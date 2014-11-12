@@ -177,8 +177,9 @@ class Adder(QObject):
                 'No ebook files were found in %s') % self.source, show=True)
             self.break_cycles()
             return
-        self.pd.msg = _('Reading metadata and adding to library...')
         self.pd.max = len(self.file_groups)
+        self.pd.title = _('Reading metadata and adding to library (%d books)...') % self.pd.max
+        self.pd.msg = ''
         self.pd.value = 0
         self.pool = Pool(name='AddBooks') if self.pool is None else self.pool
         if self.db is not None:
