@@ -43,7 +43,7 @@ def validate_source(source, parent=None):  # {{{
                 error_dialog(parent, _('Cannot add books'), _(
                     'You do not have permission to read %s') % source, show=True)
                 return False
-            if not source.lower().rpartition(os.extsep) in {'zip', 'rar'}:
+            if not source.lower().rpartition(os.extsep)[-1] in {'zip', 'rar'}:
                 error_dialog(parent, _('Cannot add books'), _(
                     'The file %s is not a recognized archive format') % source, show=True)
                 return False
@@ -57,7 +57,7 @@ class Adder(QObject):
 
     def __init__(self, source, single_book_per_directory=True, db=None, parent=None, callback=None, pool=None):
         if not validate_source(source, parent):
-            raise ValueError('Bad source')
+            return
         QObject.__init__(self, parent)
         self.single_book_per_directory = single_book_per_directory
         self.callback = callback
@@ -381,7 +381,6 @@ class Adder(QObject):
 
 # TODO: Duplicates and auto-merge (in particular adding duplicated files as well as adding files already in the db)
 # TODO: Test importing with filetype plugin (archive, de-obfuscate)
-# TODO: Test recursive adding when no books are found
 # TODO: Test handling of exception in metadata read function
 # TODO: Report terminal erros where some books have been added better
 # TODO: Test direct add of books to device
