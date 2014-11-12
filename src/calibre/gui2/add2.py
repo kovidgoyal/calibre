@@ -17,9 +17,10 @@ from PyQt5.Qt import QObject, Qt, pyqtSignal
 from calibre import prints
 from calibre.customize.ui import run_plugins_on_postimport
 from calibre.db.adding import find_books_in_directory
+from calibre.db.utils import find_identical_books
 from calibre.ebooks.metadata.book.base import Metadata
 from calibre.ebooks.metadata.opf2 import OPF
-from calibre.gui2 import error_dialog, warning_dialog
+from calibre.gui2 import error_dialog, warning_dialog, gprefs
 from calibre.gui2.dialogs.duplicates import DuplicatesQuestion
 from calibre.gui2.dialogs.progress import ProgressDialog
 from calibre.ptempfile import PersistentTemporaryDirectory
@@ -79,7 +80,8 @@ class Adder(QObject):
         self.report = []
         self.items = []
         self.added_book_ids = set()
-        self.added_duplicate_info = ({}, {}, {}) if self.add_formats_to_existing else set()
+        self.merged_books = set()
+        self.added_duplicate_info = set()
         self.pd.show()
 
         self.scan_thread = Thread(target=self.scan, name='ScanBooks')
@@ -98,7 +100,7 @@ class Adder(QObject):
         if not self.items:
             shutil.rmtree(self.tdir, ignore_errors=True)
         self.setParent(None)
-        self.added_duplicate_info = self.pool = self.items = self.duplicates = self.pd = self.db = self.dbref = self.tdir = self.file_groups = self.scan_thread = None  # noqa
+        self.find_identical_books_data = self.merged_books = self.added_duplicate_info = self.pool = self.items = self.duplicates = self.pd = self.db = self.dbref = self.tdir = self.file_groups = self.scan_thread = None  # noqa
         self.deleteLater()
 
     def tick(self):
@@ -188,14 +190,16 @@ class Adder(QObject):
         self.pd.value = 0
         self.pool = Pool(name='AddBooks') if self.pool is None else self.pool
         if self.db is not None:
-            data = self.db.data_for_find_identical_books() if self.add_formats_to_existing else self.db.data_for_has_book()
-            try:
-                self.pool.set_common_data(data)
-            except Failure as err:
-                error_dialog(self.pd, _('Cannot add books'), _(
-                'Failed to add any books, click "Show details" for more information.'),
-                det_msg=unicode(err.failure_message) + '\n' + unicode(err.details), show=True)
-                self.pd.canceled = True
+            if self.add_formats_to_existing:
+                self.find_identical_books_data = self.db.data_for_find_identical_books()
+            else:
+                try:
+                    self.pool.set_common_data(self.db.data_for_has_book())
+                except Failure as err:
+                    error_dialog(self.pd, _('Cannot add books'), _(
+                    'Failed to add any books, click "Show details" for more information.'),
+                    det_msg=unicode(err.failure_message) + '\n' + unicode(err.details), show=True)
+                    self.pd.canceled = True
         self.groups_to_add = iter(self.file_groups)
         self.do_one = self.do_one_group
         self.do_one_signal.emit()
@@ -302,11 +306,39 @@ class Adder(QObject):
             return
 
         if self.add_formats_to_existing:
-            pass  # TODO: Implement this
+            identical_book_ids = find_identical_books(mi, self.find_identical_books_data)
+            if identical_book_ids:
+                try:
+                    self.merge_books(mi, cover_path, paths, identical_book_ids)
+                except Exception:
+                    a = self.report.append
+                    a(''), a('-' * 70)
+                    a(_('Failed to merge the book: ') + mi.title)
+                    [a('\t' + f) for f in paths]
+                    a(_('With error:')), a(traceback.format_exc())
+            else:
+                self.add_book(mi, cover_path, paths)
         else:
             if duplicate_info or icu_lower(mi.title or _('Unknown')) in self.added_duplicate_info:
                 self.duplicates.append((mi, cover_path, paths))
             else:
+                self.add_book(mi, cover_path, paths)
+
+    def merge_books(self, mi, cover_path, paths, identical_book_ids):
+        self.merged_books.add((mi.title, ' & '.join(mi.authors)))
+        seen_fmts = set()
+        replace = gprefs['automerge'] == 'overwrite'
+        for identical_book_id in identical_book_ids:
+            ib_fmts = {fmt.upper() for fmt in self.db.formats(identical_book_id)}
+            seen_fmts |= ib_fmts
+            self.add_formats(identical_book_id, paths, mi, replace=replace)
+        if gprefs['automerge'] == 'new record':
+            incoming_fmts = {path.rpartition(os.extsep)[-1].upper() for path in paths}
+            if incoming_fmts.intersection(seen_fmts):
+                # There was at least one duplicate format so create a new
+                # record and put the incoming formats into it We should
+                # arguably put only the duplicate formats, but no real harm is
+                # done by having all formats
                 self.add_book(mi, cover_path, paths)
 
     def add_book(self, mi, cover_path, paths):
@@ -324,20 +356,24 @@ class Adder(QObject):
             [a('\t' + f) for f in paths]
             a(_('With error:')), a(traceback.format_exc())
             return
-        else:
-            self.add_formats(book_id, paths, mi)
-        if self.add_formats_to_existing:
-            pass  # TODO: Implement this
-        else:
-            self.added_duplicate_info.add(icu_lower(mi.title or _('Unknown')))
+        self.add_formats(book_id, paths, mi)
+        try:
+            if self.add_formats_to_existing:
+                self.db.update_data_for_find_identical_books(book_id, self.find_identical_books_data)
+            else:
+                self.added_duplicate_info.add(icu_lower(mi.title or _('Unknown')))
+        except Exception:
+            # Ignore this exception since all it means is that duplicate
+            # detection/automerge will fail for this book.
+            traceback.print_exc()
 
-    def add_formats(self, book_id, paths, mi):
+    def add_formats(self, book_id, paths, mi, replace=True):
         fmap = {p.rpartition(os.path.extsep)[-1].lower():p for p in paths}
         for fmt, path in fmap.iteritems():
             # The onimport plugins have already been run by the read metadata
             # worker
             try:
-                if self.db.add_format(book_id, fmt, path, run_hooks=False):
+                if self.db.add_format(book_id, fmt, path, run_hooks=False, replace=replace):
                     run_plugins_on_postimport(self.dbref(), book_id, fmt)
             except Exception:
                 a = self.report.append

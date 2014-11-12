@@ -55,15 +55,22 @@ def fuzzy_title(title):
 
 def find_identical_books(mi, data):
     author_map, aid_map, title_map = data
-    author_ids = set()
+    found_books = None
     for a in mi.authors:
-        author_ids |= author_map.get(icu_lower(a), set())
-    book_ids = set()
-    for aid in author_ids:
-        book_ids |= aid_map.get(aid, set())
+        author_ids = author_map.get(icu_lower(a))
+        if author_ids is None:
+            return set()
+        books_by_author = {book_id for aid in author_ids for book_id in aid_map.get(aid, ())}
+        if found_books is None:
+            found_books = books_by_author
+        else:
+            found_books &= books_by_author
+        if not found_books:
+            return set()
+
     ans = set()
     titleq = fuzzy_title(mi.title)
-    for book_id in book_ids:
+    for book_id in found_books:
         title = title_map.get(book_id, '')
         if fuzzy_title(title) == titleq:
             ans.add(book_id)

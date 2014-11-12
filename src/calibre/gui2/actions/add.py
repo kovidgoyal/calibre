@@ -7,6 +7,7 @@ __docformat__ = 'restructuredtext en'
 
 import os
 from functools import partial
+from collections import defaultdict
 
 from PyQt5.Qt import QPixmap, QTimer
 
@@ -19,6 +20,7 @@ from calibre.gui2.dialogs.progress import ProgressDialog
 from calibre.gui2.widgets import IMAGE_EXTENSIONS
 from calibre.ebooks import BOOK_EXTENSIONS
 from calibre.utils.filenames import ascii_filename
+from calibre.utils.icu import sort_key
 from calibre.gui2.actions import InterfaceAction
 from calibre.gui2 import question_dialog
 from calibre.ebooks.metadata import MetaInformation
@@ -103,12 +105,13 @@ class AddAction(InterfaceAction):
                     _('Cannot add files as no books are selected'), show=True)
         ids = [view.model().id(r) for r in rows]
 
-        if len(ids) > 1 and not question_dialog(self.gui,
+        if len(ids) > 1 and not question_dialog(
+                self.gui,
                 _('Are you sure?'),
-            _('Are you sure you want to add the same'
-                ' files to all %d books? If the format'
-                ' already exists for a book, it will be replaced.')%len(ids)):
-                return
+                _('Are you sure you want to add the same'
+                  ' files to all %d books? If the format'
+                  ' already exists for a book, it will be replaced.')%len(ids)):
+            return
 
         books = choose_files(self.gui, 'add formats dialog dir',
                 _('Select book files'), filters=get_filters())
@@ -385,33 +388,30 @@ class AddAction(InterfaceAction):
                 self.gui.db_images.beginResetModel(), self.gui.db_images.endResetModel()
             self.gui.tags_view.recount()
 
-        # if getattr(self._adder, 'merged_books', False):
-        #     merged = defaultdict(list)
-        #     for title, author in self._adder.merged_books:
-        #         merged[author].append(title)
-        #     lines = []
-        #     for author in sorted(merged, key=sort_key):
-        #         lines.append(author)
-        #         for title in sorted(merged[author], key=sort_key):
-        #             lines.append('\t' + title)
-        #         lines.append('')
-        #     info_dialog(self.gui, _('Merged some books'),
-        #         _('The following %d duplicate books were found and incoming '
-        #             'book formats were processed and merged into your '
-        #             'Calibre database according to your automerge '
-        #             'settings:')%len(self._adder.merged_books),
-        #             det_msg='\n'.join(lines), show=True)
-        #
+        if adder.merged_books:
+            merged = defaultdict(list)
+            for title, author in adder.merged_books:
+                merged[author].append(title)
+            lines = []
+            for author in sorted(merged, key=sort_key):
+                lines.append(author)
+                for title in sorted(merged[author], key=sort_key):
+                    lines.append('\t' + title)
+                lines.append('')
+            info_dialog(self.gui, _('Merged some books'),
+                _('The following %d duplicate books were found and incoming '
+                    'book formats were processed and merged into your '
+                    'Calibre database according to your automerge '
+                    'settings:')%len(adder.merged_books),
+                    det_msg='\n'.join(lines), show=True)
 
-        # if getattr(self._adder, 'number_of_books_added', 0) > 0 or \
-        #         getattr(self._adder, 'merged_books', False):
-        #     # The formats of the current book could have changed if
-        #     # automerge is enabled
-        #     current_idx = self.gui.library_view.currentIndex()
-        #     if current_idx.isValid():
-        #         self.gui.library_view.model().current_changed(current_idx,
-        #                 current_idx)
-        #
+        if adder.number_of_books_added > 0 or adder.merged_books:
+            # The formats of the current book could have changed if
+            # automerge is enabled
+            current_idx = self.gui.library_view.currentIndex()
+            if current_idx.isValid():
+                self.gui.library_view.model().current_changed(current_idx,
+                        current_idx)
 
     def _add_from_device_adder(self, adder, on_card=None, model=None):
         self._files_added(adder, on_card=on_card)

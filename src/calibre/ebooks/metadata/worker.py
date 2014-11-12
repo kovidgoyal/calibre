@@ -9,7 +9,6 @@ __docformat__ = 'restructuredtext en'
 import os, shutil, errno
 
 from calibre.customize.ui import run_plugins_on_import
-from calibre.db.utils import find_identical_books
 from calibre.ebooks.metadata.meta import metadata_from_formats
 from calibre.ebooks.metadata.opf2 import metadata_to_opf
 from calibre.utils.filenames import samefile
@@ -62,6 +61,4 @@ def read_metadata(paths, group_id, tdir, common_data=None):
     if common_data is not None:
         if isinstance(common_data, (set, frozenset)):
             duplicate_info = mi.title and icu_lower(mi.title) in common_data
-        else:
-            duplicate_info = find_identical_books(mi, common_data)
     return paths, opf, has_cover, duplicate_info

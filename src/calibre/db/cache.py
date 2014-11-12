@@ -1786,6 +1786,18 @@ class Cache(object):
         return (author_map, at.col_book_map.copy(), self.fields['title'].table.book_col_map.copy())
 
     @read_api
+    def update_data_for_find_identical_books(self, book_id, data):
+        author_map, author_book_map, title_map = data
+        title_map[book_id] = self._field_for('title', book_id)
+        at = self.fields['authors'].table
+        for aid in at.book_col_map.get(book_id, ()):
+            author_map[icu_lower(at.id_map[aid])].add(aid)
+            try:
+                author_book_map[aid].add(book_id)
+            except KeyError:
+                author_book_map[aid] = {book_id}
+
+    @read_api
     def find_identical_books(self, mi, search_restriction='', book_ids=None):
         ''' Finds books that have a superset of the authors in mi and the same
         title (title is fuzzy matched). See also :meth:`data_for_find_identical_books`. '''
