@@ -372,7 +372,7 @@ class Adder(QObject):
             # detection/automerge will fail for this book.
             traceback.print_exc()
         if DEBUG:
-            prints('Added', mi.title, 'to db in: %.1f' % time.time() - st)
+            prints('Added', mi.title, 'to db in: %.1f' % (time.time() - st))
 
     def add_formats(self, book_id, paths, mi, replace=True):
         fmap = {p.rpartition(os.path.extsep)[-1].lower():p for p in paths}
