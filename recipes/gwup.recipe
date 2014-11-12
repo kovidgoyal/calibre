@@ -1,0 +1,27 @@
+##
+# Written:      November 2014 (new coding)
+# Version:      1.0
+# Last update:  2014-011-11
+##
+
+__license__ = 'GPL v3'
+__copyright__ = ''
+'''
+Fetch RSS-Feeds gwup.net
+'''
+from calibre.web.feeds.news import BasicNewsRecipe
+
+
+class AdvancedUserRecipe1415183545(BasicNewsRecipe):
+    title = u'GWUP | Die Skeptiker'
+    __author__ = 'Bernd Boehm'
+    description = u'German  online portal of GWUP  die Skeptiker'
+    publisher = 'Gesellschaft zur wissenschaftlichen Untersuchung von Parawissenschaften e.V. (GWUP)'
+    category = 'science and critical thinking, Germany'
+    language = 'de'
+    oldest_article = 7
+    max_articles_per_feed = 100
+    auto_cleanup = True
+
+    feeds = [(u'Aktuelle Artikel', u'http://blog.gwup.net/feed/'),
+             (u'Kommentare', u'http://blog.gwup.net/comments/feed/')]
