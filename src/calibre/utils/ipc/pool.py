@@ -122,12 +122,12 @@ class Pool(Thread):
         else:
             join_with_timeout(self.tracker, timeout)
 
-    def shutdown(self):
+    def shutdown(self, wait_time=0.1):
         ''' Shutdown this pool, terminating all worker process. The pool cannot
         be used after a shutdown. '''
         self.shutting_down = True
         self.events.put(None)
-        self.shutdown_workers()
+        self.shutdown_workers(wait_time=wait_time)
 
     def create_worker(self):
         from calibre.utils.ipc.simple_worker import start_pipe_worker

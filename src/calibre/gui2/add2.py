@@ -55,7 +55,7 @@ class Adder(QObject):
 
     do_one_signal = pyqtSignal()
 
-    def __init__(self, source, single_book_per_directory=True, db=None, parent=None, callback=None):
+    def __init__(self, source, single_book_per_directory=True, db=None, parent=None, callback=None, pool=None):
         if not validate_source(source, parent):
             raise ValueError('Bad source')
         QObject.__init__(self, parent)
@@ -64,7 +64,7 @@ class Adder(QObject):
         self.add_formats_to_existing = prefs['add_formats_to_existing']
         self.do_one_signal.connect(self.tick, type=Qt.QueuedConnection)
         self.tdir = PersistentTemporaryDirectory('_add_books')
-        self.pool = None
+        self.pool = pool
         self.pd = ProgressDialog(_('Adding books...'), _('Scanning for files...'), min=0, max=0, parent=parent, icon='add_book.png')
         self.db = getattr(db, 'new_api', None)
         if self.db is not None:

@@ -72,7 +72,7 @@ class Saver(QObject):
 
     do_one_signal = pyqtSignal()
 
-    def __init__(self, book_ids, db, opts, root, parent=None):
+    def __init__(self, book_ids, db, opts, root, parent=None, pool=None):
         QObject.__init__(self, parent)
         self.db = db.new_api
         self.plugboards = self.db.pref('plugboards', {})
@@ -87,7 +87,7 @@ class Saver(QObject):
         self.do_one = self.do_one_collect
         self.ids_to_collect = iter(self.all_book_ids)
         self.tdir = PersistentTemporaryDirectory('_save_to_disk')
-        self.pool = None
+        self.pool = pool
 
         self.pd.show()
         self.root, self.opts, self.path_length = sanitize_args(root, opts)
