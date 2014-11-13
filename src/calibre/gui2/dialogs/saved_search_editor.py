@@ -39,8 +39,13 @@ class SavedSearchEditor(QDialog, Ui_SavedSearchEditor):
         for name in sorted(self.searches.keys(), key=sort_key):
             self.search_name_box.addItem(name)
 
+    def sanitize_name(self):
+        n = unicode(self.input_box.text()).strip().replace('\\', '')
+        self.input_box.setText(n)
+        return n
+
     def add_search(self):
-        search_name = unicode(self.input_box.text()).strip()
+        search_name = self.sanitize_name()
         if search_name == '':
             return False
         if icu_lower(search_name) in self.search_names:
@@ -67,7 +72,7 @@ class SavedSearchEditor(QDialog, Ui_SavedSearchEditor):
             self.search_name_box.removeItem(self.search_name_box.currentIndex())
 
     def rename_search(self):
-        new_search_name = unicode(self.input_box.text()).strip()
+        new_search_name = self.sanitize_name()
         if new_search_name == '':
             return False
         if icu_lower(new_search_name) in self.search_names:

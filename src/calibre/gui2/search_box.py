@@ -348,7 +348,13 @@ class SavedSearchBox(QComboBox):  # {{{
         name = unicode(self.currentText())
         if not name.strip():
             name = unicode(self.search_box.text()).replace('"', '')
-        if not (name and self.search_box.text()):
+        name = name.replace('\\', '')
+        if not name:
+            error_dialog(self, _('Create saved search'),
+                         _('Invalid saved search name. '
+                           'It must contain at least one letter or number'), show=True)
+            return
+        if not self.search_box.text():
             error_dialog(self, _('Create saved search'),
                          _('There is no search to save'), show=True)
             return
