@@ -53,12 +53,13 @@ def name_is_ok(name, show_error):
     show_error('')
     return True
 
-def get_bulk_rename_settings(parent, number, msg=None, sanitize=sanitize_file_name_unicode, leading_zeros=True):  # {{{
+def get_bulk_rename_settings(parent, number, msg=None, sanitize=sanitize_file_name_unicode, leading_zeros=True, prefix=None):  # {{{
     d = QDialog(parent)
+    d.setWindowTitle(_('Bulk rename items'))
     d.l = l = QFormLayout(d)
     d.setLayout(l)
     d.prefix = p = QLineEdit(d)
-    p.setText(_('Chapter-'))
+    p.setText(prefix or _('Chapter-'))
     p.selectAll()
     d.la = la = QLabel(msg or _(
         'All selected files will be renamed to the form prefix-number'))
