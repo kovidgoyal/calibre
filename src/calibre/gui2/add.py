@@ -394,6 +394,9 @@ class Adder(QObject):
             if duplicates:
                 self.do_one = self.process_duplicate
                 self.duplicates_to_process = iter(duplicates)
+                self.pd.title = _('Adding duplicates')
+                self.pd.msg = ''
+                self.pd.max, self.pd.value = len(duplicates), 0
                 self.do_one_signal.emit()
                 return
         self.finish()
@@ -404,6 +407,8 @@ class Adder(QObject):
         except StopIteration:
             self.finish()
             return
+        self.pd.value += 1
+        self.pd.msg = mi.title
         self.add_book(mi, cover_path, paths)
         self.do_one_signal.emit()
 
