@@ -42,7 +42,7 @@ class MultiDeleter(QObject):  # {{{
         self.callback = callback
         single_shot(self.delete_one)
         self.pd = ProgressDialog(_('Deleting...'), parent=gui,
-                cancelable=False, min=0, max=len(self.ids))
+                cancelable=False, min=0, max=len(self.ids), icon='trash.png')
         self.pd.setModal(True)
         self.pd.show()
 
