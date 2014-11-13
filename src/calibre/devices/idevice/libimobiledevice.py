@@ -902,30 +902,39 @@ class libiMobileDevice():
         '''
         self._log_location("handle:{0} size:{1:,} mode='{2}'".format(handle.value, size, mode))
 
-        bytes_read = c_uint(0)
-
         bytes_remaining = size
         if 'b' in mode:
             data = bytearray(size)
             datatype = c_char * size
             while bytes_remaining > 0:
+                bytes_read = c_uint(0)
                 error = self.lib.afc_file_read(byref(self.afc),
                                                handle,
                                                byref(datatype.from_buffer(data), size - bytes_remaining),
                                                bytes_remaining,
                                                byref(bytes_read)) & 0xFFFF
                 if error:
-                    self._log_error(" ERROR: {0} handle:{1}".format(self._afc_error(error), handle))
-                bytes_remaining -= bytes_read.value
-                bytes_read = c_uint(0)
+                    self._log_error(" ERROR: {0} handle:{1}".format(self._afc_error(error), handle.value))
+                    bytes_remaining = 0
+                elif bytes_read.value == 0:
+                    self._log_error(" ERROR: reading {0:,} bytes, 0 bytes read, handle:{1}".format(bytes_remaining, handle.value))
+                    bytes_remaining = 0
+                else:
+                    bytes_remaining -= bytes_read.value
             return data
         else:
             data = create_string_buffer(size)
             while bytes_remaining > 0:
+                bytes_read = c_uint(0)
                 error = self.lib.afc_file_read(byref(self.afc), handle, byref(data, size - bytes_remaining), bytes_remaining, byref(bytes_read))
                 if error:
-                    self._log_error(" ERROR: {0} handle:{1}".format(self._afc_error(error), handle))
-                bytes_remaining -= bytes_read.value
+                    self._log_error(" ERROR: {0} handle:{1}".format(self._afc_error(error), handle.value))
+                    bytes_remaining = 0
+                elif bytes_read.value == 0:
+                    self._log_error(" ERROR: reading {0:,} bytes, 0 bytes read, handle:{1}".format(bytes_remaining, handle.value))
+                    bytes_remaining = 0
+                else:
+                    bytes_remaining -= bytes_read.value
             return data.value
 
     def _afc_file_write(self, handle, content, mode='w'):
