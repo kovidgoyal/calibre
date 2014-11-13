@@ -12,6 +12,7 @@ from collections import namedtuple
 from Queue import Queue
 
 from calibre import detect_ncpus, as_unicode, prints
+from calibre.constants import iswindows
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.utils import join_with_timeout
 from calibre.utils.ipc import eintr_retry_call
@@ -23,6 +24,11 @@ TerminalFailure = namedtuple('TerminalFailure', 'message tb job_id')
 File = namedtuple('File', 'name')
 
 MAX_SIZE = 30 * 1024 * 1024  # max size of data to send over the connection (old versions of windows cannot handle arbitrary data lengths)
+
+worker_kwargs = {'stdout':None}
+if iswindows and getattr(sys, 'gui_app', False):
+    from calibre.utils.ipc.launch import windows_null_file
+    worker_kwargs['stdout'] = worker_kwargs['stderr'] = windows_null_file
 
 class Failure(Exception):
 
@@ -132,7 +138,7 @@ class Pool(Thread):
     def create_worker(self):
         from calibre.utils.ipc.simple_worker import start_pipe_worker
         p = start_pipe_worker(
-            'from {0} import run_main, {1}; run_main({1})'.format(self.__class__.__module__, 'worker_main'), stdout=None)
+            'from {0} import run_main, {1}; run_main({1})'.format(self.__class__.__module__, 'worker_main'), **worker_kwargs)
         sys.stdout.flush()
         eintr_retry_call(p.stdin.write, self.worker_data)
         p.stdin.flush(), p.stdin.close()
