@@ -284,22 +284,22 @@ class libiMobileDevice():
         if handle is not None:
             file_stats = self._afc_get_file_info(src)
             file_size = int(file_stats['st_size'])
-            self._log("file_size: {:,} bytes".format(file_size))
+            self._log("file {0} file_size: {1:,} bytes".format(repr(src), file_size))
             if file_size > BUFFER_SIZE:
                 bytes_remaining = file_size
                 while bytes_remaining:
                     if bytes_remaining > BUFFER_SIZE:
-                        self._log("copying {:,} byte chunk".format(BUFFER_SIZE))
+                        self._log("copying file {0} to {1}, {2:,} byte chunk".format(repr(src), dst.name, BUFFER_SIZE))
                         data = self._afc_file_read(handle, BUFFER_SIZE, mode)
                         dst.write(data)
                         bytes_remaining -= BUFFER_SIZE
                     else:
-                        self._log("copying final {:,} bytes".format(bytes_remaining))
+                        self._log("copying file {0} to {1}, final {2:,} bytes".format(repr(src), dst.name, bytes_remaining))
                         data = self._afc_file_read(handle, bytes_remaining, mode)
                         dst.write(data)
                         bytes_remaining = 0
             else:
-                self._log("copying {:,} bytes".format(file_size))
+                self._log("copying file {0} to {1}, {2:,} bytes".format(repr(src), dst.name, file_size))
                 data = self._afc_file_read(handle, file_size, mode)
                 dst.write(data)
 
@@ -308,6 +308,7 @@ class libiMobileDevice():
 
             # Update timestamps to match
             file_stats = self._afc_get_file_info(src)
+            self._log("copied file {0} ({1:,} bytes) to file '{2}' ({3:,} bytes)".format(repr(src), file_size, dst.name, os.path.getsize(dst.name)))
             os.utime(dst.name, (file_stats['st_mtime'], file_stats['st_mtime']))
 
         else:
@@ -903,22 +904,28 @@ class libiMobileDevice():
 
         bytes_read = c_uint(0)
 
+        bytes_remaining = size
         if 'b' in mode:
             data = bytearray(size)
             datatype = c_char * size
-            error = self.lib.afc_file_read(byref(self.afc),
-                                           handle,
-                                           byref(datatype.from_buffer(data)),
-                                           size,
-                                           byref(bytes_read)) & 0xFFFF
-            if error:
-                self._log_error(" ERROR: {0} handle:{1}".format(self._afc_error(error), handle))
+            while bytes_remaining > 0:
+                error = self.lib.afc_file_read(byref(self.afc),
+                                               handle,
+                                               byref(datatype.from_buffer(data), size - bytes_remaining),
+                                               bytes_remaining,
+                                               byref(bytes_read)) & 0xFFFF
+                if error:
+                    self._log_error(" ERROR: {0} handle:{1}".format(self._afc_error(error), handle))
+                bytes_remaining -= bytes_read.value
+                bytes_read = c_uint(0)
             return data
         else:
             data = create_string_buffer(size)
-            error = self.lib.afc_file_read(byref(self.afc), handle, byref(data), size, byref(bytes_read))
-            if error:
-                self._log_error(" ERROR: {0} handle:{1}".format(self._afc_error(error), handle))
+            while bytes_remaining > 0:
+                error = self.lib.afc_file_read(byref(self.afc), handle, byref(data, size - bytes_remaining), bytes_remaining, byref(bytes_read))
+                if error:
+                    self._log_error(" ERROR: {0} handle:{1}".format(self._afc_error(error), handle))
+                bytes_remaining -= bytes_read.value
             return data.value
 
     def _afc_file_write(self, handle, content, mode='w'):
@@ -1914,3 +1921,4 @@ class libiMobileDevice():
 
     def __null(self, *args, **kwargs):
         pass
+
