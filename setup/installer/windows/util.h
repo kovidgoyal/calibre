@@ -37,12 +37,9 @@
 ExIm void set_gui_app(char yes);
 ExIm char is_gui_app();
 
-// Redirect output streams to a temporary file
-// The temporary file name is returned it should be
-// free'ed with LocalFree
-// If outstream is true redirects stdout, otherwise redirects stderr
-ExIm wchar_t* redirect_out_stream(const wchar_t *prefix, char outstream);
+// Redirect output streams to NUL
+ExIm void redirect_out_stream(FILE *stream);
 
 // Execute python entry point defined by: module and function
-ExIm int execute_python_entrypoint(const char *basename, const char *module, const char *function, wchar_t *stdout_redirect, wchar_t *stderr_redirect);
+ExIm int execute_python_entrypoint(const char *basename, const char *module, const char *function);
 
