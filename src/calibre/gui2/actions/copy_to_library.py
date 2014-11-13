@@ -438,7 +438,7 @@ class CopyToLibraryAction(InterfaceAction):
         aname = _('Moving to') if delete_after else _('Copying to')
         dtitle = '%s %s'%(aname, os.path.basename(loc))
         self.pd = ProgressDialog(dtitle, min=0, max=len(ids)-1,
-                parent=self.gui, cancelable=False)
+                parent=self.gui, cancelable=False, icon='lt.png')
 
         def progress(idx, title):
             self.pd.set_msg(title)
