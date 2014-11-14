@@ -41,7 +41,7 @@
   bug fixes:
     - title: "E-book viewer: Fix popup footnotes not working on windows"
 
-    - title: "Fix saving of searches that use the \\ to escape special characters not working"
+    - title: "Fix saving of searches that use the backslash to escape special characters not working"
       tickets: [1392052] 
 
     - title: "Save to disk: When multiple books end up with the same file name because they have the same metadata, automatically adjust the filename to make it unique."
