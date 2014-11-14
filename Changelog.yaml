@@ -20,7 +20,7 @@
 #   new recipes:
 #     - title: 
 
-- version: 2.10
+- version: 2.10.0
   date: 2014-11-14
 
   new features:
