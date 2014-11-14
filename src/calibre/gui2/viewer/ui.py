@@ -279,7 +279,7 @@ class Main(MainWindow):
         d.setWidget(self.footnotes_view)
         d.close()  # starts out hidden
         self.addDockWidget(Qt.BottomDockWidgetArea, d)
-        d.setAllowedAreas(Qt.BottomDockWidgetArea | Qt.TopDockWidgetArea)
+        d.setAllowedAreas(Qt.BottomDockWidgetArea | Qt.TopDockWidgetArea | Qt.LeftDockWidgetArea | Qt.RightDockWidgetArea)
 
         self.create_actions()
 
