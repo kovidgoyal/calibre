@@ -21,7 +21,7 @@ include_pat = re.compile(r'^.. include:: (\S+.rst)', re.M)
 
 def source_read_handler(app, docname, source):
     src = source[0]
-    src = src.replace('|lang|', app.config.language)
+    src = src.replace(' generated/|lang|', ' generated/' + app.config.language).replace('|lang|', 'en')
     # Sphinx does not call source_read_handle for the .. include directive
     for m in reversed(tuple(include_pat.finditer(src))):
         ss = [open(m.group(1)).read().decode('utf-8')]
