@@ -20,6 +20,61 @@
 #   new recipes:
 #     - title: 
 
+- version: 2.10
+  date: 2014-11-14
+
+  new features:
+    - title: "Driver for the PocketBook Lux 2 with latest firmware."
+      tickets: [1390720]
+
+    - title: "Review downloaded metadata: Add suggestions for the tags, authors, publishers and series fields. Suggestions will pop-up as you type."
+      tickets: [1390887]
+
+    - title: "Add Books: Improve performance when adding large numbers of books at once"
+
+    - title: "Add Books: Allow adding books from multiple ZIP/RAR archives, each containing many books, by right clicking on the Add Books and choosing 'Add from Archive'"
+
+    - title: "Metadata download: Prioritize results that have the same language as the current calibre user interface language"
+
+    - title: "Edit Book: Make the CSS used for styling the generated HTML Table of Contents user customizable via http://manual.calibre-ebook.com/customize.html#overriding-icons-templates-et-cetera"
+
+  bug fixes:
+    - title: "E-book viewer: Fix popup footnotes not working on windows"
+
+    - title: "Fix saving of searches that use the \\ to escape special characters not working"
+      tickets: [1392052] 
+
+    - title: "Save to disk: When multiple books end up with the same file name because they have the same metadata, automatically adjust the filename to make it unique."
+      tickets: [863472]
+
+    - title: "Fix ebook editor global menu not working on Unity when started from inside calibre"
+
+    - title: "Get Books: Update the Amazon European store plugins for website changes"
+
+    - title: "Edit Book: Fix handling of XML unsafe characters (like <, > and &) inside <style> tags"
+
+    - title: "Linux: Fix regression on Unity that prevented some keyboard shortcuts from working because of the global menu bar."
+      tickets: [1390901]
+
+    - title: "Amazon metadata download: Do not prefer results with an ISBN, since Amazon now lists a large number of ISBN less titles"
+
+    - title: "Amazon metadata download: Fix cover not being found for some books because of a website change at amazon.com"
+
+    - title: "Conversion: Fix incorrect conversion of east-asian characters in CSS class names."
+      tickets: [1390527]
+
+  improved recipes:
+    - LWN Weekly
+    - Scinexx
+    - Ming Pao
+
+  new recipes:
+    - title: Various German news sources 
+      author: Bernd Boehm
+
+    - title: The Daily WTF 
+      author: Jelle van der Waa
+
 - version: 2.9.0
   date: 2014-11-07
 
