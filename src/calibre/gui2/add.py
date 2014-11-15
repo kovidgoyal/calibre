@@ -62,6 +62,7 @@ class Adder(QObject):
             return
         QObject.__init__(self, parent)
         self.single_book_per_directory = single_book_per_directory
+        self.ignore_opf = False
         self.list_of_archives = list_of_archives
         self.callback = callback
         self.add_formats_to_existing = prefs['add_formats_to_existing']
@@ -123,8 +124,7 @@ class Adder(QObject):
                 for files in find_books_in_directory(dirpath, self.single_book_per_directory):
                     if self.abort_scan:
                         return
-                    if files:
-                        self.file_groups[len(self.file_groups)] = files
+                    self.file_groups[len(self.file_groups)] = files
 
         def extract(source):
             tdir = tempfile.mkdtemp(suffix='_archive', dir=self.tdir)
@@ -145,6 +145,7 @@ class Adder(QObject):
         try:
             if isinstance(self.source, basestring):
                 find_files(self.source)
+                self.ignore_opf = True
             else:
                 unreadable_files = []
                 for path in self.source:
@@ -153,6 +154,7 @@ class Adder(QObject):
                     if os.access(path, os.R_OK):
                         if self.list_of_archives:
                             find_files(extract(path))
+                            self.ignore_opf = True
                         else:
                             self.file_groups[len(self.file_groups)] = [path]
                     else:
@@ -377,6 +379,8 @@ class Adder(QObject):
         for fmt, path in fmap.iteritems():
             # The onimport plugins have already been run by the read metadata
             # worker
+            if self.ignore_opf and fmt.lower() == 'opf':
+                continue
             try:
                 if self.db.add_format(book_id, fmt, path, run_hooks=False, replace=replace):
                     run_plugins_on_postimport(self.dbref(), book_id, fmt)

@@ -7,44 +7,58 @@ __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import os
+from collections import defaultdict
+from future_builtins import map
+
 from calibre.ebooks import BOOK_EXTENSIONS
+
+def splitext(path):
+    key, ext = os.path.splitext(path)
+    return key, ext[1:].lower()
+
+def formats_ok(formats):
+    if formats and (len(formats) > 1 or tuple(formats.iterkeys()) != ('opf',)):
+        return True
+    return False
+
+def path_ok(path):
+    return not os.path.isdir(path) and os.access(path, os.R_OK)
+
+_metadata_extensions = None
+
+def metadata_extensions():
+    # Set of all known book extensions + OPF (the OPF is used to read metadata,
+    # but not actually added)
+    global _metadata_extensions
+    if _metadata_extensions is None:
+        _metadata_extensions =  frozenset(map(unicode, BOOK_EXTENSIONS)) | {'opf'}
+    return _metadata_extensions
+
+def listdir(root):
+    for path in os.listdir(root):
+        yield os.path.abspath(os.path.join(root, path))
 
 def find_books_in_directory(dirpath, single_book_per_directory):
     dirpath = os.path.abspath(dirpath)
+    book_extentions = metadata_extensions()
     if single_book_per_directory:
-        formats = []
-        for path in os.listdir(dirpath):
-            path = os.path.abspath(os.path.join(dirpath, path))
-            if os.path.isdir(path) or not os.access(path, os.R_OK):
-                continue
-            ext = os.path.splitext(path)[1]
-            if not ext:
-                continue
-            ext = ext[1:].lower()
-            if ext not in BOOK_EXTENSIONS and ext != 'opf':
-                continue
-            formats.append(path)
-        yield formats
+        formats = {}
+        for path in listdir(dirpath):
+            key, ext = splitext(path)
+            if ext in book_extentions and path_ok(path):
+                formats[ext] = path
+        if formats_ok(formats):
+            yield list(formats.itervalues())
     else:
-        books = {}
-        for path in os.listdir(dirpath):
-            path = os.path.abspath(os.path.join(dirpath, path))
-            if os.path.isdir(path) or not os.access(path, os.R_OK):
-                continue
-            ext = os.path.splitext(path)[1]
-            if not ext:
-                continue
-            ext = ext[1:].lower()
-            if ext not in BOOK_EXTENSIONS:
-                continue
+        books = defaultdict(dict)
+        for path in listdir(dirpath):
+            key, ext = splitext(path)
+            if ext in book_extentions and path_ok(path):
+                books[icu_lower(key) if isinstance(key, unicode) else key.lower()][ext] = path
 
-            key = os.path.splitext(path)[0]
-            if key not in books:
-                books[key] = []
-            books[key].append(path)
-
-        for formats in books.values():
-            yield formats
+        for formats in books.itervalues():
+            if formats_ok(formats):
+                yield list(formats.itervalues())
 
 def import_book_directory_multiple(db, dirpath, callback=None,
         added_ids=None):
