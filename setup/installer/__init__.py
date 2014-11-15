@@ -99,7 +99,7 @@ class VMInstaller(Command):
     SHUTDOWN_CMD = ['sudo', 'shutdown', '-h', 'now']
     IS_64_BIT = False
 
-    BUILD_PREFIX = ['#!/bin/bash', 'export CALIBRE_BUILDBOT=1']
+    BUILD_PREFIX = ['#!/bin/sh', 'export CALIBRE_BUILDBOT=1']
     BUILD_RSYNC  = ['mkdir -p ~/build/{project}', r'cd ~/build/{project}', Rsync.SYNC_CMD]
     BUILD_CLEAN  = ['rm -rf dist/* build/* src/calibre/plugins/*']
     BUILD_BUILD  = ['python setup.py build',]
