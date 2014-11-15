@@ -958,24 +958,31 @@ class libiMobileDevice():
         '''
         self._log_location("handle:{0} mode='{1}'".format(handle.value, mode))
 
-        bytes_written = c_uint(0)
-
+        size = len(content)
         if 'b' in mode:
             # Content already contained in a bytearray()
             data = content
-            datatype = c_char * len(content)
+            datatype = c_char * size
         else:
             data = bytearray(content, 'utf-8')
-            datatype = c_char * len(content)
+            datatype = c_char * size
 
-        error = self.lib.afc_file_write(byref(self.afc),
+        bytes_remaining = size
+        while bytes_remaining > 0:
+            bytes_written = c_uint(0)
+            error = self.lib.afc_file_write(byref(self.afc),
                                         handle,
-                                        byref(datatype.from_buffer(data)),
-                                        len(content),
+                                        byref(datatype.from_buffer(data), size - bytes_remaining),
+                                        bytes_remaining,
                                         byref(bytes_written)) & 0xFFFF
-        if error:
-            self._log_error(" ERROR: {0} handle:{1}".format(self._afc_error(error), handle))
-            return False
+            if error:
+                self._log_error(" ERROR: {0} handle:{1}".format(self._afc_error(error), handle.value))
+                return False
+            elif bytes_written.value == 0:
+                self._log_error(" ERROR: writing {0:,} bytes, 0 bytes written, handle:{1}".format(bytes_remaining, handle.value))
+                return False
+            else:
+                bytes_remaining -= bytes_written.value
         return True
 
     def _afc_get_device_info(self):
