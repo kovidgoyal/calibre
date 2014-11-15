@@ -21,7 +21,6 @@ from calibre.gui2.widgets import IMAGE_EXTENSIONS
 from calibre.ebooks import BOOK_EXTENSIONS
 from calibre.utils.filenames import ascii_filename
 from calibre.utils.icu import sort_key
-from calibre.constants import filesystem_encoding
 from calibre.gui2.actions import InterfaceAction
 from calibre.gui2 import question_dialog
 from calibre.ebooks.metadata import MetaInformation
@@ -106,12 +105,13 @@ class AddAction(InterfaceAction):
                     _('Cannot add files as no books are selected'), show=True)
         ids = [view.model().id(r) for r in rows]
 
-        if len(ids) > 1 and not question_dialog(self.gui,
+        if len(ids) > 1 and not question_dialog(
+                self.gui,
                 _('Are you sure?'),
-            _('Are you sure you want to add the same'
-                ' files to all %d books? If the format'
-                ' already exists for a book, it will be replaced.')%len(ids)):
-                return
+                _('Are you sure you want to add the same'
+                  ' files to all %d books? If the format'
+                  ' already exists for a book, it will be replaced.')%len(ids)):
+            return
 
         books = choose_files(self.gui, 'add formats dialog dir',
                 _('Select book files'), filters=get_filters())
@@ -145,24 +145,25 @@ class AddAction(InterfaceAction):
     def add_archive(self, single):
         paths = choose_files(
             self.gui, 'recursive-archive-add', _('Choose archive file'),
-            filters=[(_('Archives'), ('zip', 'rar'))], all_files=False, select_only_single_file=True)
+            filters=[(_('Archives'), ('zip', 'rar'))], all_files=False, select_only_single_file=False)
         if paths:
-            self.do_add_recursive(paths[0], single)
+            self.do_add_recursive(paths, single, list_of_archives=True)
 
     def add_recursive(self, single):
         root = choose_dir(self.gui, 'recursive book import root dir dialog',
                           _('Select root folder'))
         if not root:
             return
+        lp = os.path.normcase(os.path.abspath(self.gui.current_db.library_path))
+        if lp.startswith(os.path.normcase(os.path.abspath(root)) + os.pathsep):
+            return error_dialog(self.gui, _('Cannot add'), _(
+                'Cannot add books from the folder: %s as it contains the currently opened calibre library') % root, show=True)
         self.do_add_recursive(root, single)
 
-    def do_add_recursive(self, root, single):
+    def do_add_recursive(self, root, single, list_of_archives=False):
         from calibre.gui2.add import Adder
-        self._adder = Adder(self.gui,
-                self.gui.library_view.model().db,
-                self.Dispatcher(self._files_added), spare_server=self.gui.spare_server)
-        self.gui.tags_view.disable_recounting = True
-        self._adder.add_recursive(root, single)
+        Adder(root, single_book_per_directory=single, db=self.gui.current_db, list_of_archives=list_of_archives,
+              callback=self._files_added, parent=self.gui, pool=self.gui.spare_pool())
 
     def add_recursive_single(self, *args):
         '''
@@ -365,31 +366,31 @@ class AddAction(InterfaceAction):
         if not paths:
             return
         from calibre.gui2.add import Adder
-        self.__adder_func = partial(self._files_added, on_card=on_card)
-        self._adder = Adder(self.gui,
-                None if to_device else self.gui.library_view.model().db,
-                self.Dispatcher(self.__adder_func), spare_server=self.gui.spare_server)
-        self.gui.tags_view.disable_recounting = True
-        self._adder.add(paths)
+        Adder(paths, db=None if to_device else self.gui.current_db,
+              parent=self.gui, callback=partial(self._files_added, on_card=on_card), pool=self.gui.spare_pool())
 
-    def _files_added(self, paths=[], names=[], infos=[], on_card=None):
-        self.gui.tags_view.disable_recounting = False
-        if paths:
-            self.gui.upload_books(paths,
-                                list(map(ascii_filename, names)),
-                                infos, on_card=on_card)
+    def _files_added(self, adder, on_card=None):
+        if adder.items:
+            paths, infos, names = [], [], []
+            for mi, cover_path, format_paths in adder.items:
+                mi.cover = cover_path
+                paths.append(format_paths[0]), infos.append(mi)
+                names.append(ascii_filename(os.path.basename(paths[-1])))
+            self.gui.upload_books(paths, names, infos, on_card=on_card)
             self.gui.status_bar.show_message(
                     _('Uploading books to device.'), 2000)
-        if getattr(self._adder, 'number_of_books_added', 0) > 0:
-            self.gui.library_view.model().books_added(self._adder.number_of_books_added)
+            return
+
+        if adder.number_of_books_added > 0:
+            self.gui.library_view.model().books_added(adder.number_of_books_added)
             self.gui.library_view.set_current_row(0)
             if hasattr(self.gui, 'db_images'):
                 self.gui.db_images.beginResetModel(), self.gui.db_images.endResetModel()
             self.gui.tags_view.recount()
 
-        if getattr(self._adder, 'merged_books', False):
+        if adder.merged_books:
             merged = defaultdict(list)
-            for title, author in self._adder.merged_books:
+            for title, author in adder.merged_books:
                 merged[author].append(title)
             lines = []
             for author in sorted(merged, key=sort_key):
@@ -401,11 +402,10 @@ class AddAction(InterfaceAction):
                 _('The following %d duplicate books were found and incoming '
                     'book formats were processed and merged into your '
                     'Calibre database according to your automerge '
-                    'settings:')%len(self._adder.merged_books),
+                    'settings:')%len(adder.merged_books),
                     det_msg='\n'.join(lines), show=True)
 
-        if getattr(self._adder, 'number_of_books_added', 0) > 0 or \
-                getattr(self._adder, 'merged_books', False):
+        if adder.number_of_books_added > 0 or adder.merged_books:
             # The formats of the current book could have changed if
             # automerge is enabled
             current_idx = self.gui.library_view.currentIndex()
@@ -413,26 +413,8 @@ class AddAction(InterfaceAction):
                 self.gui.library_view.model().current_changed(current_idx,
                         current_idx)
 
-        if getattr(self._adder, 'critical', None):
-            det_msg = []
-            for name, log in self._adder.critical.items():
-                if isinstance(name, str):
-                    name = name.decode(filesystem_encoding, 'replace')
-                det_msg.append(name+'\n'+log)
-
-            warning_dialog(self.gui, _('Failed to read metadata'),
-                    _('Failed to read metadata from the following')+':',
-                    det_msg='\n\n'.join(det_msg), show=True)
-
-        if hasattr(self._adder, 'cleanup'):
-            self._adder.cleanup()
-            self._adder.setParent(None)
-            del self._adder
-            self._adder = None
-
-    def _add_from_device_adder(self, paths=[], names=[], infos=[],
-                               on_card=None, model=None):
-        self._files_added(paths, names, infos, on_card=on_card)
+    def _add_from_device_adder(self, adder, on_card=None, model=None):
+        self._files_added(adder, on_card=on_card)
         # set the in-library flags, and as a consequence send the library's
         # metadata for this book to the device. This sets the uuid to the
         # correct value. Note that set_books_in_library might sync_booklists
@@ -504,11 +486,5 @@ class AddAction(InterfaceAction):
 
         if ok_paths:
             from calibre.gui2.add import Adder
-            self.__adder_func = partial(self._add_from_device_adder, on_card=None,
-                                                        model=view.model())
-            self._adder = Adder(self.gui, self.gui.library_view.model().db,
-                    self.Dispatcher(self.__adder_func), spare_server=self.gui.spare_server)
-            self._adder.add(ok_paths)
-
-
-
+            callback = partial(self._add_from_device_adder, on_card=None, model=view.model())
+            Adder(ok_paths, db=self.gui.current_db, parent=self.gui, callback=callback, pool=self.gui.spare_pool())

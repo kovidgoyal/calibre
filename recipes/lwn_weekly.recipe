@@ -19,14 +19,18 @@ class WeeklyLWN(BasicNewsRecipe):
 
     no_stylesheets = True
     remove_javascript = True
-    extra_css = 'pre,code,samp,kbd,tt { font-size: 80% }\nblockquote {margin-left:0 }\nDIV.BigQuote,SPAN { font-style:oblique }\n* { color: black }\n'
+    extra_css = '''pre,code,samp,kbd,tt { font-size: 80% }
+                   blockquote {margin-left:0 }
+                   DIV.BigQuote,SPAN { font-style:oblique }
+                   DIV.FeatureByline,DIV.GaByline { background-color:#EEE }
+                   DIV.tlr { background-color:#EED; border-style:groove; }
+                   * { color: black }'''
 
     cover_url = site_url + '/images/lcorner.png'
     # masthead_url = 'http://lwn.net/images/lcorner.png'
     publication_type = 'magazine'
 
-    remove_tags_before = dict(attrs={'class':'PageHeadline'})
-    remove_tags_after = dict(attrs={'class':'ArticleText'})
+    keep_only_tags = [dict(attrs={'class':['PageHeadline','ArticleText']})]
     remove_tags = [dict(name=['h2', 'form'])]
 
     preprocess_regexps = [
@@ -35,7 +39,6 @@ class WeeklyLWN(BasicNewsRecipe):
     ]
 
     conversion_options = {
-        'linearize_tables' : True,
         'no_inline_navbars': True,
     }
 

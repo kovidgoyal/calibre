@@ -276,8 +276,7 @@ void setup_streams() {
     setup_stream("stderr", "strict", CP_UTF8);
 }
 
-void initialize_interpreter(wchar_t *outr, wchar_t *errr,
-        const char *basename, const char *module, const char *function) {
+void initialize_interpreter(const char *basename, const char *module, const char *function) {
     DWORD sz; char *buf, *path; HMODULE dll;
     int *flag, i, argc;
     wchar_t *app_dir, **wargv;
@@ -352,11 +351,6 @@ void initialize_interpreter(wchar_t *outr, wchar_t *errr,
     PySys_SetObject("calibre_basename", PyBytes_FromString(basename));
     PySys_SetObject("calibre_module", PyBytes_FromString(module));
     PySys_SetObject("calibre_function", PyBytes_FromString(function));
-
-    if (GUI_APP && outr && errr) {
-        PySys_SetObject("stdout_redirect", PyUnicode_FromWideChar(outr, wcslen(outr)));
-        PySys_SetObject("stderr_redirect", PyUnicode_FromWideChar(errr, wcslen(outr)));
-    }
 
     wargv = CommandLineToArgvW(GetCommandLineW(), &argc);
     if (wargv == NULL) ExitProcess(show_last_error(L"Failed to get command line"));
@@ -450,13 +444,12 @@ int calibre_show_python_error(const wchar_t *preamble, int code) {
     return _show_error(preamble, L"", code);
 }
 
-int execute_python_entrypoint(const char *basename, const char *module, const char *function,
-        wchar_t *outr, wchar_t *errr) {
+int execute_python_entrypoint(const char *basename, const char *module, const char *function) {
     PyObject *site, *main, *res;
     int ret = 0;
 
     load_python_dll();
-    initialize_interpreter(outr, errr, basename, module, function);
+    initialize_interpreter(basename, module, function);
 
     site = PyImport_ImportModule("site");
 
@@ -511,18 +504,13 @@ wchar_t* get_temp_filename(const wchar_t *prefix) {
      return szTempName;
 }
 
-wchar_t* redirect_out_stream(const wchar_t *prefix, char outstream) {
+void redirect_out_stream(FILE *stream) {
     FILE *f = NULL;
     wchar_t *temp_file;
     errno_t err;
 
-    temp_file = get_temp_filename(prefix);
-
-    err = _wfreopen_s(&f, temp_file, L"a+t", (outstream) ? stdout : stderr);
+    err = freopen_s(&f, "NUL", "wt", stream);
     if (err != 0) {
-        ExitProcess(show_last_error_crt(L"Failed to redirect stdout."));
+        ExitProcess(show_last_error_crt(L"Failed to redirect stdout/stderr to NUL. This indicates a corrupted Windows install.\r\n You should contact Microsoft for assistance and/or follow the steps described here:\r\n http://bytes.com/topic/net/answers/264804-compile-error-null-device-missing"));
     }
-
-    return temp_file;
-
 }

@@ -101,7 +101,7 @@ This is python, so indentation is important. After you've added the lines, it sh
 .. image:: images/bbc_altered.png
     :align: center
 
-In the above, ``def print_version(self, url)`` defines a *method* that is called by calibre for every article. ``url`` is the URL of the original article. What ``print_version`` does is take that url and replace it with the new URL that points to the print version of the article. To learn about `python <http://www.python.org>`_ see the `tutorial <http://docs.python.org/tut/>`_.
+In the above, ``def print_version(self, url)`` defines a *method* that is called by calibre for every article. ``url`` is the URL of the original article. What ``print_version`` does is take that url and replace it with the new URL that points to the print version of the article. To learn about `python <https://www.python.org>`_ see the `tutorial <https://docs.python.org/2/tutorial/>`_.
 
 Now, click the :guilabel:`Add/update recipe` button and your changes will be saved. Re-download the ebook. You should have a much improved ebook. One of the problems with the new version is that the fonts on the print version webpage are too small. This is automatically fixed when converting to an ebook, but even after the fixing process, the font size of the menus and navigation bar to become too large relative to the article text. To fix this, we will do some more customization, in the next section.
 

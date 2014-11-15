@@ -6,7 +6,7 @@ Setting up a calibre development environment
 calibre is completely open source, licensed under the `GNU GPL v3 <http://www.gnu.org/copyleft/gpl.html>`_.
 This means that you are free to download and modify the program to your heart's content. In this section,
 you will learn how to get a calibre development environment set up on the operating system of your choice.
-calibre is written primarily in `Python <http://www.python.org>`_ with some C/C++ code for speed and system interfacing.
+calibre is written primarily in `Python <https://www.python.org>`_ with some C/C++ code for speed and system interfacing.
 Note that calibre is not compatible with Python 3 and requires at least Python 2.7.
 
 .. contents:: Contents
@@ -122,7 +122,7 @@ commits::
 Be careful to not include merges when using ``HEAD~n``.
 
 If you plan to do a lot of development on calibre, then the best method is to create a
-`GitHub <http://github.com>`_ account. Below is a basic guide to setting up
+`GitHub <https://github.com>`_ account. Below is a basic guide to setting up
 your own fork of calibre in a way that will allow you to submit pull requests
 for inclusion into the main calibre repository:
 
@@ -164,7 +164,7 @@ calibre is the directory that contains the src and resources sub-directories.
 
 The next step is to set the environment variable ``CALIBRE_DEVELOP_FROM`` to the absolute path of the src directory.
 So, following the example above, it would be ``C:\Users\kovid\work\calibre\src``. `Here is a short
-guide <http://docs.python.org/using/windows.html#excursus-setting-environment-variables>`_ to setting environment
+guide <https://docs.python.org/2/using/windows.html#excursus-setting-environment-variables>`_ to setting environment
 variables on Windows.
 
 Once you have set the environment variable, open a new command prompt and check that it was correctly set by using

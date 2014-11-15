@@ -16,7 +16,7 @@ from calibre.ptempfile import PersistentTemporaryFile, base_dir
 if iswindows:
     import win32process
     try:
-        _windows_null_file = open(os.devnull, 'wb')
+        windows_null_file = open(os.devnull, 'wb')
     except:
         raise RuntimeError('NUL file missing in windows. This indicates a'
                 ' corrupted windows. You should contact Microsoft'
@@ -212,7 +212,7 @@ class Worker(object):
             # On windows when using the pythonw interpreter,
             # stdout, stderr and stdin may not be valid
             args['stdin'] = subprocess.PIPE
-            args['stdout'] = _windows_null_file
+            args['stdout'] = windows_null_file
             args['stderr'] = subprocess.STDOUT
 
         if not iswindows:

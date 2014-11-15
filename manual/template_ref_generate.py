@@ -67,7 +67,7 @@ functions.
 
 def generate_template_language_help(language):
     from calibre.utils.formatter_functions import formatter_functions
-    pat = re.compile(r'\)\s*-{1,2}')
+    pat = re.compile(r'\)`{0,2}\s*-{1,2}')
 
     funcs = defaultdict(dict)
 
@@ -78,7 +78,7 @@ def generate_template_language_help(language):
         if m is None:
             print ('No signature for template function ', class_name)
             continue
-        func_sig = func_sig[:m.start()+1]
+        func_sig = func_sig[:m.start()+1].strip('`')
         func_cat = getattr(func, 'category')
         funcs[func_cat][func_sig] = class_name
 

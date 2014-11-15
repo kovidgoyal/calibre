@@ -34,7 +34,7 @@ Environment variables
     * ``http_proxy`` - Used on linux to specify an HTTP proxy
 
 See `How to set environment variables in windows <http://www.computerhope.com/issues/ch000549.htm>`_ or
-`How to set environment variables in OS X <http://blog.dowdandassociates.com/content/howto-set-an-environment-variable-in-mac-os-x-home-slash-dot-macosx-slash-environment-dot-plist/>`_.
+`How to set environment variables in OS X <http://www.dowdandassociates.com/blog/content/howto-set-an-environment-variable-in-mac-os-x-home-slash-dot-macosx-slash-environment-dot-plist/>`_.
 
 Tweaks
 ------------

@@ -251,6 +251,7 @@ class Main(MainWindow):
         self.tool_bar2.addWidget(self.search)
 
         self.toc_dock = d = QDockWidget(_('Table of Contents'), self)
+        d.setContextMenuPolicy(Qt.CustomContextMenu)
         self.toc_container = w = QWidget(self)
         w.l = QVBoxLayout(w)
         self.toc = TOCView(w)
@@ -263,6 +264,7 @@ class Main(MainWindow):
         d.setAllowedAreas(Qt.LeftDockWidgetArea | Qt.RightDockWidgetArea)
 
         self.bookmarks_dock = d = QDockWidget(_('Bookmarks'), self)
+        d.setContextMenuPolicy(Qt.CustomContextMenu)
         self.bookmarks = BookmarkManager(self)
         d.setObjectName('bookmarks-dock')
         d.setWidget(self.bookmarks)
@@ -271,6 +273,7 @@ class Main(MainWindow):
         d.setAllowedAreas(Qt.LeftDockWidgetArea | Qt.RightDockWidgetArea)
 
         self.footnotes_dock = d = QDockWidget(_('Footnotes'), self)
+        d.setContextMenuPolicy(Qt.CustomContextMenu)
         self.footnotes_view = FootnotesView(self)
         self.footnotes_view.follow_link.connect(self.view.follow_footnote_link)
         self.footnotes_view.close_view.connect(d.close)
@@ -279,7 +282,7 @@ class Main(MainWindow):
         d.setWidget(self.footnotes_view)
         d.close()  # starts out hidden
         self.addDockWidget(Qt.BottomDockWidgetArea, d)
-        d.setAllowedAreas(Qt.BottomDockWidgetArea | Qt.TopDockWidgetArea)
+        d.setAllowedAreas(Qt.BottomDockWidgetArea | Qt.TopDockWidgetArea | Qt.LeftDockWidgetArea | Qt.RightDockWidgetArea)
 
         self.create_actions()
 

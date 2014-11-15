@@ -509,10 +509,11 @@ class TreeWidget(QTreeWidget):  # {{{
         from calibre.gui2.tweak_book.file_list import get_bulk_rename_settings
         sort_map = {item:i for i, item in enumerate(self.iteritems())}
         items = sorted(self.selectedItems(), key=lambda x:sort_map.get(x, -1))
-        fmt, num = get_bulk_rename_settings(self, len(items), msg=_(
+        fmt, num = get_bulk_rename_settings(self, len(items), prefix=_('Chapter '), msg=_(
             'All selected items will be renamed to the form prefix-number'), sanitize=lambda x:x, leading_zeros=False)
-        for i, item in enumerate(items):
-            item.setData(0, Qt.DisplayRole, fmt % (num + i))
+        if fmt is not None and num is not None:
+            for i, item in enumerate(items):
+                item.setData(0, Qt.DisplayRole, fmt % (num + i))
 
     def keyPressEvent(self, ev):
         if ev.key() == Qt.Key_Left and ev.modifiers() & Qt.CTRL:

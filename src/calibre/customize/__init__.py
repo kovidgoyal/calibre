@@ -363,7 +363,7 @@ class FileTypePlugin(Plugin):  # {{{
 
         :param book_id: Database id of the added book.
         :param book_format: The file type of the book that was added.
-                :param db: Library database.
+        :param db: Library database.
         '''
         pass  # Default implementation does nothing
 

@@ -6,7 +6,7 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import os, errno, cPickle, sys
+import os, errno, cPickle, sys, re
 from collections import OrderedDict, namedtuple
 from future_builtins import map
 from threading import Lock
@@ -29,6 +29,53 @@ def force_to_bool(val):
         except:
             val = None
     return val
+
+_fuzzy_title_patterns = None
+
+def fuzzy_title_patterns():
+    global _fuzzy_title_patterns
+    if _fuzzy_title_patterns is None:
+        from calibre.ebooks.metadata import get_title_sort_pat
+        _fuzzy_title_patterns = tuple((re.compile(pat, re.IGNORECASE) if
+            isinstance(pat, basestring) else pat, repl) for pat, repl in
+                [
+                    (r'[\[\](){}<>\'";,:#]', ''),
+                    (get_title_sort_pat(), ''),
+                    (r'[-._]', ' '),
+                    (r'\s+', ' ')
+                ]
+        )
+    return _fuzzy_title_patterns
+
+def fuzzy_title(title):
+    title = icu_lower(title.strip())
+    for pat, repl in fuzzy_title_patterns():
+        title = pat.sub(repl, title)
+    return title
+
+def find_identical_books(mi, data):
+    author_map, aid_map, title_map = data
+    found_books = None
+    for a in mi.authors:
+        author_ids = author_map.get(icu_lower(a))
+        if author_ids is None:
+            return set()
+        books_by_author = {book_id for aid in author_ids for book_id in aid_map.get(aid, ())}
+        if found_books is None:
+            found_books = books_by_author
+        else:
+            found_books &= books_by_author
+        if not found_books:
+            return set()
+
+    ans = set()
+    titleq = fuzzy_title(mi.title)
+    for book_id in found_books:
+        title = title_map.get(book_id, '')
+        if fuzzy_title(title) == titleq:
+            ans.add(book_id)
+    return ans
+
 
 Entry = namedtuple('Entry', 'path size timestamp thumbnail_size')
 class CacheError(Exception):

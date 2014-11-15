@@ -14,6 +14,7 @@ from calibre import browser, random_user_agent
 from calibre.customize import Plugin
 from calibre.utils.icu import capitalize, lower, upper
 from calibre.ebooks.metadata import check_isbn
+from calibre.utils.localization import canonicalize_lang, get_lang
 
 def create_log(ostream=None):
     from calibre.utils.logging import ThreadSafeLog, FileStream
@@ -48,9 +49,10 @@ class InternalMetadataCompareKeyGen(object):
 
     The algorithm is:
 
-        * Prefer results that have the same ISBN as specified in the query
+        * Prefer results that have at least one identifier the same as for the query
         * Prefer results with a cached cover URL
         * Prefer results with all available fields filled in
+        * Prefer results with the same language as the current user interface language
         * Prefer results that are an exact title match to the query
         * Prefer results with longer comments (greater than 10% longer)
         * Use the relevance of the result as reported by the metadata source's search
@@ -58,17 +60,28 @@ class InternalMetadataCompareKeyGen(object):
     '''
 
     def __init__(self, mi, source_plugin, title, authors, identifiers):
-        isbn = 1 if mi.isbn and mi.isbn == identifiers.get('isbn', None) else 2
+        same_identifier = 2
+        idents = mi.get_identifiers()
+        for k, v in identifiers.iteritems():
+            if idents.get(k) == v:
+                same_identifier = 1
+                break
 
         all_fields = 1 if source_plugin.test_fields(mi) is None else 2
 
         exact_title = 1 if title and \
                 cleanup_title(title) == cleanup_title(mi.title) else 2
 
+        language = 1
+        if mi.language:
+            mil = canonicalize_lang(mi.language)
+            if mil != 'und' and mil != canonicalize_lang(get_lang()):
+                language = 2
+
         has_cover = 2 if (not source_plugin.cached_cover_url_is_reliable or
                 source_plugin.get_cached_cover_url(mi.identifiers) is None) else 1
 
-        self.base = (isbn, has_cover, all_fields, exact_title)
+        self.base = (same_identifier, has_cover, all_fields, language, exact_title)
         self.comments_len = len(mi.comments.strip() if mi.comments else '')
         self.extra = (getattr(mi, 'source_relevance', 0), )
 
@@ -210,6 +223,11 @@ class Source(Plugin):
 
     #: If set to True covers downloaded by this plugin are automatically trimmed.
     auto_trim_covers = False
+
+    #: If set to True, and this source returns multiple results for a query,
+    #: some of which have ISBNs and some of which do not, the results without
+    #: ISBNs will be ignored
+    prefer_results_with_isbn = True
 
     def __init__(self, *args, **kwargs):
         Plugin.__init__(self, *args, **kwargs)

@@ -431,7 +431,7 @@ def save_to_disk(db, ids, root, opts=None, callback=None):
                 break
     return failures
 
-def read_serialized_metadata(book_id, data):
+def read_serialized_metadata(data):
     from calibre.ebooks.metadata.opf2 import OPF
     from calibre.utils.date import parse_date
     mi = OPF(data['opf'], try_to_guess_cover=False, populate_spine=False, basedir=os.path.dirname(data['opf'])).to_book_metadata()
@@ -446,29 +446,22 @@ def read_serialized_metadata(book_id, data):
             cdata = f.read()
     return mi, cdata
 
-def update_serialized_metadata(books, plugboard_cache, notification=lambda x,y:x):
+def update_serialized_metadata(book, common_data=None):
     result = []
+    plugboard_cache = common_data
     from calibre.customize.ui import apply_null_metadata
     with apply_null_metadata:
 
-        for book_id, data in books.iteritems():
-            fmts = [fp.rpartition(os.extsep)[-1] for fp in data['fmts']]
-            try:
-                mi, cdata = read_serialized_metadata(book_id, data)
-            except Exception:
-                tb = traceback.format_exc()
-                for fmt in fmts:
-                    result.append((book_id, fmt, tb))
-            else:
-                def report_error(fmt, tb):
-                    result.append((book_id, fmt, tb))
+            fmts = [fp.rpartition(os.extsep)[-1] for fp in book['fmts']]
+            mi, cdata = read_serialized_metadata(book)
+            def report_error(fmt, tb):
+                result.append((fmt, tb))
 
-                for fmt, fmtpath in zip(fmts, data['fmts']):
-                    try:
-                        with lopen(fmtpath, 'r+b') as stream:
-                            update_metadata(mi, fmt, stream, (), cdata, error_report=report_error, plugboard_cache=plugboard_cache)
-                    except Exception:
-                        report_error(fmt, traceback.format_exc())
-            notification(book_id)
+            for fmt, fmtpath in zip(fmts, book['fmts']):
+                try:
+                    with lopen(fmtpath, 'r+b') as stream:
+                        update_metadata(mi, fmt, stream, (), cdata, error_report=report_error, plugboard_cache=plugboard_cache)
+                except Exception:
+                    report_error(fmt, traceback.format_exc())
 
     return result

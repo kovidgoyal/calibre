@@ -92,7 +92,7 @@ class DevicePlugin(Plugin):
     #: A driver with this set to true is responsible for detection of devices,
     #: managing a blacklist of devices, a list of ejected devices and so forth.
     #: calibre will periodically call the detect_managed_devices() method and
-    #: is it returns a detected device, calibre will call open(). open() will
+    #: if it returns a detected device, calibre will call open(). open() will
     #: be called every time a device is returned even is previous calls to open()
     #: failed, therefore the driver must maintain its own blacklist of failed
     #: devices. Similarly, when ejecting, calibre will call eject() and then
@@ -737,7 +737,7 @@ class DevicePlugin(Plugin):
         database was not changed. If the first value is an empty set then the
         metadata for the book on the device is updated with calibre's metadata
         and given back to the device, but no GUI refresh of that book is done.
-        This is useful when the calire data is correct but must be sent to the
+        This is useful when the calibre data is correct but must be sent to the
         device.
 
         The second value is itself a 2-value tuple. The first value in the tuple

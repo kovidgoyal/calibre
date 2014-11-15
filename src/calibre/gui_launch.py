@@ -14,7 +14,10 @@ import os, sys
 # launch all the GUI apps, forking before Qt is loaded and not during a
 # python import.
 
+is_detached = False
+
 def do_detach(fork=True, setsid=True, redirect=True):
+    global is_detached
     if fork:
         # Detach from the controlling process.
         if os.fork() != 0:
@@ -23,10 +26,8 @@ def do_detach(fork=True, setsid=True, redirect=True):
         os.setsid()
     if redirect:
         from calibre.constants import plugins
-        try:
-            plugins['speedup'][0].detach(os.devnull)
-        except AttributeError:
-            pass  # people running from source without updated binaries
+        plugins['speedup'][0].detach(os.devnull)
+    is_detached = True
 
 def detach_gui():
     from calibre.constants import islinux, isbsd, DEBUG
@@ -51,6 +52,12 @@ def ebook_viewer(args=sys.argv):
     init_dbus()
     from calibre.gui2.viewer.main import main
     main(args)
+
+def gui_ebook_edit(path=None, notify=None):
+    ' For launching the editor from inside calibre '
+    init_dbus()
+    from calibre.gui2.tweak_book.main import gui_main
+    gui_main(path, notify)
 
 def ebook_edit(args=sys.argv):
     detach_gui()

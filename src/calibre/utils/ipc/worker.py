@@ -19,44 +19,38 @@ from calibre.constants import iswindows, isosx
 from calibre.utils.ipc import eintr_retry_call
 
 PARALLEL_FUNCS = {
-      'lrfviewer'    :
-        ('calibre.gui2.lrf_renderer.main', 'main', None),
+    'lrfviewer'    :
+    ('calibre.gui2.lrf_renderer.main', 'main', None),
 
-      'ebook-viewer'    :
-        ('calibre.gui2.viewer.main', 'main', None),
+    'ebook-viewer'    :
+    ('calibre.gui_launch', 'ebook_viewer', None),
 
-      'ebook-edit' :
-        ('calibre.gui2.tweak_book.main', 'gui_main', None),
+    'ebook-edit' :
+    ('calibre.gui_launch', 'gui_ebook_edit', None),
 
-      'render_pages' :
-        ('calibre.ebooks.comic.input', 'render_pages', 'notification'),
+    'render_pages' :
+    ('calibre.ebooks.comic.input', 'render_pages', 'notification'),
 
-      'gui_convert'     :
-        ('calibre.gui2.convert.gui_conversion', 'gui_convert', 'notification'),
+    'gui_convert'     :
+    ('calibre.gui2.convert.gui_conversion', 'gui_convert', 'notification'),
 
-      'gui_polish'     :
-        ('calibre.ebooks.oeb.polish.main', 'gui_polish', None),
+    'gui_polish'     :
+    ('calibre.ebooks.oeb.polish.main', 'gui_polish', None),
 
-      'gui_convert_override'     :
-        ('calibre.gui2.convert.gui_conversion', 'gui_convert_override', 'notification'),
+    'gui_convert_override'     :
+    ('calibre.gui2.convert.gui_conversion', 'gui_convert_override', 'notification'),
 
-      'gui_catalog'     :
-        ('calibre.gui2.convert.gui_conversion', 'gui_catalog', 'notification'),
+    'gui_catalog'     :
+    ('calibre.gui2.convert.gui_conversion', 'gui_catalog', 'notification'),
 
-      'move_library'     :
-        ('calibre.library.move', 'move_library', 'notification'),
+    'move_library'     :
+    ('calibre.library.move', 'move_library', 'notification'),
 
-      'read_metadata' :
-      ('calibre.ebooks.metadata.worker', 'read_metadata_', 'notification'),
+    'arbitrary' :
+    ('calibre.utils.ipc.worker', 'arbitrary', None),
 
-      'save_book' :
-      ('calibre.library.save_to_disk', 'update_serialized_metadata', 'notification'),
-
-      'arbitrary' :
-      ('calibre.utils.ipc.worker', 'arbitrary', None),
-
-      'arbitrary_n' :
-      ('calibre.utils.ipc.worker', 'arbitrary_n', 'notification'),
+    'arbitrary_n' :
+    ('calibre.utils.ipc.worker', 'arbitrary_n', 'notification'),
 }
 
 class Progress(Thread):
@@ -176,7 +170,11 @@ def main():
         func()
         return
     if '--pipe-worker' in sys.argv:
-        exec (sys.argv[-1])
+        try:
+            exec (sys.argv[-1])
+        except Exception:
+            print 'Failed to run pipe worker with command:', sys.argv[-1]
+            raise
         return
     address = cPickle.loads(unhexlify(os.environ['CALIBRE_WORKER_ADDRESS']))
     key     = unhexlify(os.environ['CALIBRE_WORKER_KEY'])

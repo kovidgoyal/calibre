@@ -349,8 +349,13 @@ def xml2text(elem):
 
 def serialize(data, media_type, pretty_print=False):
     if isinstance(data, etree._Element):
+        is_oeb_doc = media_type in OEB_DOCS
+        if is_oeb_doc:
+            for style in data.iterfind('.//{http://www.w3.org/1999/xhtml}style'):
+                if style.text and re.search(r'[<>&]', style.text) is not None:
+                    style.text = etree.CDATA(style.text)
         ans = xml2str(data, pretty_print=pretty_print)
-        if media_type in OEB_DOCS:
+        if is_oeb_doc:
             # Convert self closing div|span|a|video|audio|iframe|etc tags
             # to normally closed ones, as they are interpreted
             # incorrectly by some browser based renderers

@@ -241,6 +241,7 @@ class EditMetadataAction(InterfaceAction):
                             ' is on the right. If a downloaded value is blank or unknown,'
                             ' the original value is used.'),
                 action_button=(_('&View Book'), I('view.png'), self.gui.iactions['View'].view_historical),
+                db=db
             )
             if d.exec_() == d.Accepted:
                 nid_map = {}
@@ -267,7 +268,7 @@ class EditMetadataAction(InterfaceAction):
             db.data.set_marked_ids(failed_ids)
 
         self.apply_metadata_changes(
-            id_map, merge_comments=msprefs['append_comments'],
+            id_map, merge_comments=msprefs['append_comments'], icon='download-metadata.png',
             callback=partial(self.downloaded_metadata_applied, tdir, restrict_to_failed))
 
     def downloaded_metadata_applied(self, tdir, restrict_to_failed, *args):
@@ -619,7 +620,7 @@ class EditMetadataAction(InterfaceAction):
 
     # Apply bulk metadata changes {{{
     def apply_metadata_changes(self, id_map, title=None, msg='', callback=None,
-            merge_tags=True, merge_comments=False):
+            merge_tags=True, merge_comments=False, icon=None):
         '''
         Apply the metadata changes in id_map to the database synchronously
         id_map must be a mapping of ids to Metadata objects. Set any fields you
@@ -648,7 +649,7 @@ class EditMetadataAction(InterfaceAction):
             from calibre.gui2.dialogs.progress import ProgressDialog
             self.apply_pd = ProgressDialog(title, msg, min=0,
                     max=len(self.apply_id_map)-1, parent=self.gui,
-                    cancelable=False)
+                    cancelable=False, icon=icon)
             self.apply_pd.setModal(True)
             self.apply_pd.show()
         self._am_merge_tags = merge_tags

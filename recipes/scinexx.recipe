@@ -1,35 +1,24 @@
-from calibre.web.feeds.news import BasicNewsRecipe
+##
+# Written:      November 2014 (new coding)
+# Version:      1.0
+# Last update:  2014-011-11
+##
 
-class AdvancedUserRecipe1265145870(BasicNewsRecipe):
+__license__   = 'GPL v3'
+__copyright__ = ''
+'''
+Fetch RSS-Feeds scinexx.de
+'''
+from calibre.web.feeds.recipes import BasicNewsRecipe
+class AdvancedUserRecipe1415718806(BasicNewsRecipe):
     title          = u'Scinexx.de'
-    language = 'de'
     __author__ = 'JSuer'
-    cover_url    = 'http://www.g-o.de/grafiken/web_scinexx/head2.gif'
-    oldest_article = 14
+    description           = u'German  online portal of scinexx'
+    publisher             = 'MMCD NEW MEDIA GmbH'
+    category              = 'science and next generation, Germany'
+    language              = 'de'
+    oldest_article = 7
     max_articles_per_feed = 100
-    no_stylesheets = True
-    use_embedded_content  = False
-    encoding = 'ISO-8859-1'
+    auto_cleanup = True
 
-    feeds          = [(u'Scinexx.de', u'http://feeds.feedburner.com/scinexx')]
-
-    remove_tags = [{'class':['text1fett']}]
-    remove_tags = [{'href':['javascript:window.print()']}]
-
-    extra_css = '''
-                    .text2normal{font-family:Verdana,Geneva,Kalimati,sans-serif; font-size:x-small;}
-                    .text1normalblau{font-family:Verdana,Geneva,Kalimati,sans-serif; font-size:small;}
-                    .text1fett{font-color:grey; font-size:small;}
-                    .titel1{font-family:Georgia,"Times New Roman",Times,serif; font-size:large;}
-                    .titel2{font-family:Georgia,"Times New Roman",Times,serif; }
-                    .titel3{font-family:Georgia,"Times New Roman",Times,serif; font-size:larger;}
-                    h1{font-size:large;}
-                    '''
-
-
-    def print_version(self, url):
-        id_start = url.rfind('2010') - 6
-        id_end = id_start +  5
-        id = url[id_start : id_end]
-        result = 'http://www.scinexx.de/inc/artikel_drucken.php?id=' + id + '&a_flag=1'
-        return result
+    feeds          = [(u'Neueste Nachrichten', u'http://feeds.feedburner.com/scinexx')]

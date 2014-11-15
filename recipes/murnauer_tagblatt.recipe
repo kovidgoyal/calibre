@@ -1,0 +1,67 @@
+# vim:fileencoding=utf-8
+from __future__ import unicode_literals
+##
+# Written:      November 2014 (new coding)
+# Version:      1.0
+# Last update:  2014-011-11
+##
+
+__license__ = 'GPL v3'
+__copyright__ = ''
+'''
+Fetch RSS-Feeds Münchner Merkur.de
+'''
+from calibre.web.feeds.news import BasicNewsRecipe
+
+
+class AdvancedUserRecipe1414926536(BasicNewsRecipe):
+    title = u'Murnauer Tagblatt'
+    __author__ = 'Bernd Boehm'
+    description = u'German  online portal of Münchner Merkur'
+    publisher = 'Münchener Zeitungs-Verlag GmbH & Co.KG '
+    category = 'daily local paper, Germany'
+    language = 'de'
+    oldest_article = 1
+    max_articles_per_feed = 100
+    auto_cleanup = True
+
+    feeds = [
+        (u'Schlagzeilen',
+         u'http://www.merkur-online.de/aktuelles/schlagzeilen-des-tages/rssfeed.rdf'),
+        (u'Politik', u'http://www.merkur-online.de/aktuelles/politik/rssfeed.rdf'), (u'Wirtschaft',
+                                                                                     u'http://www.merkur-online.de/aktuelles/wirtschaft/rssfeed.rdf'),
+        (u'Welt', u'http://www.merkur-online.de/aktuelles/welt/rssfeed.rdf'), (u'Bayern', u'http://www.merkur-online.de/aktuelles/bayern/rssfeed.rdf'), (u'Regionen',
+                                                                                                                                                         u'http://www.merkur-online.de/lokales/regionen/rssfeed.rdf'), (u'Multimedia', u'http://www.merkur-online.de/aktuelles/computer-wissen/rssfeed.rdf'),
+        (u'Kultur', u'http://www.merkur-online.de/aktuelles/kultur/rssfeed.rdf'), (u'Boulevard',
+                                                                                   u'http://www.merkur-online.de/aktuelles/boulevard/rssfeed.rdf'),
+        (u'Kreis Garmisch-Partenkirchen', u'http://www.merkur-online.de/lokales/garmisch-partenkirchen/rssfeed.rdf'), (u'Lkr. Garmisch-Partenkirchen', u'http://www.merkur-online.de/lokales/garmisch-partenkirchen/landkreis/rssfeed.rdf'), (u'Oberammergau', u'http://www.merkur-online.de/lokales/garmisch-partenkirchen/oberammergau/rssfeed.rdf'), (u'Murnau',
+                                                                                                                                                                                                                                                                                                                                                         u'http://www.merkur-online.de/lokales/garmisch-partenkirchen/murnau/rssfeed.rdf'), (u'Garmisch-Partenkirchen', u'http://www.merkur-online.de/lokales/garmisch-partenkirchen/garmisch-partenkirchen/rssfeed.rdf'), (u'Mittenwald', u'http://www.merkur-online.de/lokales/garmisch-partenkirchen/mittenwald/rssfeed.rdf'),
+        (u'Sport', u'http://www.merkur-online.de/sport/rssfeed.rdf'),
+        (u'FC-Bayern',
+         u'http://www.merkur-online.de/sport/fc-bayern/rssfeed.rdf'),
+        (u'TSV 1860',
+         u'http://www.merkur-online.de/sport/tsv-1860/rssfeed.rdf'),
+        (u'Fussball',
+         u'http://www.merkur-online.de/sport/fussball/rssfeed.rdf'),
+        (u'FCB Basketball',
+         u'http://www.merkur-online.de/sport/fcb-basketball/rssfeed.rdf'),
+        (u'Mehr Sport',
+         u'http://www.merkur-online.de/sport/mehr-sport/rssfeed.rdf'),
+        (u'Wintersport',
+         u'http://www.merkur-online.de/sport/wintersport/rssfeed.rdf'),
+        (u'Eishockey',
+         u'http://www.merkur-online.de/sport/eishockey/rssfeed.rdf'),
+        (u'Service', u'http://www.merkur-online.de/service/rssfeed.rdf'),
+        (u'Auto', u'http://www.merkur-online.de/service/auto/rssfeed.rdf'),
+        (u'Karriere',
+         u'http://www.merkur-online.de/service/karriere/rssfeed.rdf'),
+        (u'Wohnen', u'http://www.merkur-online.de/service/wohnen/rssfeed.rdf'),
+        (u'Gesundheit',
+         u'http://www.merkur-online.de/service/gesundheit/rssfeed.rdf'),
+        (u'Specials',
+         u'http://www.merkur-online.de/service/specials/rssfeed.rdf'),
+        (u'Reise', u'http://www.merkur-online.de/freizeit/reise/rssfeed.rdf'),
+        (u'Bayrischer Wald',
+         u'http://www.merkur-online.de/freizeit/reise/bayerischer-wald/rssfeed.rdf'),
+        (u'Freizeit', u'http://www.merkur-online.de/freizeit/rssfeed.rdf'),
+        (u'Outdoor', u'http://www.merkur-online.de/freizeit/outdoor/rssfeed.rdf')]

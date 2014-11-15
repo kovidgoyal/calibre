@@ -916,7 +916,7 @@ class libiMobileDevice():
                 if error:
                     self._log_error(" ERROR: {0} handle:{1}".format(self._afc_error(error), handle.value))
                     bytes_remaining = 0
-                elif bytes_read.value == 0:
+                elif bytes_read.value <= 0:
                     self._log_error(" ERROR: reading {0:,} bytes, 0 bytes read, handle:{1}".format(bytes_remaining, handle.value))
                     bytes_remaining = 0
                 else:
@@ -930,7 +930,7 @@ class libiMobileDevice():
                 if error:
                     self._log_error(" ERROR: {0} handle:{1}".format(self._afc_error(error), handle.value))
                     bytes_remaining = 0
-                elif bytes_read.value == 0:
+                elif bytes_read.value <= 0:
                     self._log_error(" ERROR: reading {0:,} bytes, 0 bytes read, handle:{1}".format(bytes_remaining, handle.value))
                     bytes_remaining = 0
                 else:

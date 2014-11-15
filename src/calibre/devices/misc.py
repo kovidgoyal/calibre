@@ -506,4 +506,24 @@ class WOXTER(USBMS):
     VENDOR_NAME = ['ROCKCHIP', 'TEXET']
     WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = ['EREADER', 'TB-146SE']
 
+class POCKETBOOK626(USBMS):
+
+    name  = 'PocketBook Touch Lux 2'
+    gui_name = 'PocketBook'
+    description    = _('Communicate with the PocketBook Touch Lux 2 reader')
+    author         = 'Kovid Goyal'
+    supported_platforms = ['windows', 'osx', 'linux']
+    # Ordered list of supported formats
+    FORMATS     = ['epub', 'pdf', 'fb2', 'txt', 'pdf', 'html', 'djvu', 'doc', 'docx', 'rtf', 'chm']
+    VENDOR_ID   = [0xfffe]
+    PRODUCT_ID  = [0x0001]
+    BCD         = [0x0230]
+
+    EBOOK_DIR_MAIN = 'Books'
+    SCAN_FROM_ROOT = True
+    SUPPORTS_SUB_DIRS = True
+
+    VENDOR_NAME = ['USB_2.0']
+    WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = ['USB_FLASH_DRIVER']
+
 

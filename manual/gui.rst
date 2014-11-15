@@ -51,7 +51,7 @@ Add books
 
     3. **Add books from directories, including sub-directories (Multiple books per directory, assumes every ebook file is a different book)**: Allows you to choose a directory. The directory and all its sub-directories are scanned recursively and any ebooks found are added to the library. calibre assumes that each directory contains many books. All ebook files with the same name in a directory are assumed to be the same book in different formats. Ebooks with different names are added as different books. 
 
-    4. **Add multiple books from archive (ZIP/RAR)**: Allows you to add multiple ebooks that are stored inside a single ZIP or RAR file. It is a convenient shortcut that avoids having to first unzip the archive and then add the books via one of the above two options.
+    4. **Add multiple books from archive (ZIP/RAR)**: Allows you to add multiple ebooks that are stored inside the selected ZIP or RAR files. It is a convenient shortcut that avoids having to first unzip the archive and then add the books via one of the above two options.
 
     5. **Add empty book. (Book Entry with no formats)**: Allows you to create a blank book record. This can be used to then manually fill out the information about a book that you may not have yet in your collection.
 
@@ -342,8 +342,8 @@ Two other kinds of searches are available: equality search and search using `reg
 
 Equality searches are indicated by prefixing the search string with an equals sign (=). For example, the query
 ``tag:"=science"`` will match "science", but not "science fiction" or "hard science". Regular expression searches are
-indicated by prefixing the search string with a tilde (~). Any `python-compatible regular expression <http://docs.python.org/library/re.html>`_ can
-be used. Note that backslashes used to escape special characters in reqular expressions must be doubled because single backslashes will be removed during query parsing. For example, to match a literal parenthesis you must enter ``\\(``. Regular expression searches are 'contains' searches unless the expression contains anchors.
+indicated by prefixing the search string with a tilde (~). Any `python-compatible regular expression <https://docs.python.org/2/library/re.html>`_ can
+be used. Note that backslashes used to escape special characters in regular expressions must be doubled because single backslashes will be removed during query parsing. For example, to match a literal parenthesis you must enter ``\\(``. Regular expression searches are 'contains' searches unless the expression contains anchors.
 
 Should you need to search for a string with a leading equals or tilde, prefix the string with a backslash.
 

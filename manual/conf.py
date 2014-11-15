@@ -41,6 +41,11 @@ source_suffix = '.rst'
 master_doc = 'index' if tags.has('online') else 'simple_index'  # noqa
 # kill the warning about index/simple_index not being in a toctree
 exclude_patterns = ['simple_index.rst'] if master_doc == 'index' else ['index.rst']
+if tags.has('gettext'):  # noqa
+    # Do not exclude simple_index as its string must be translated. This will
+    # generate a warning about simple_index not being in a toctree, just ignore
+    # it.
+    exclude_patterns = []
 
 # The language
 language = os.environ.get('CALIBRE_OVERRIDE_LANG', 'en')
@@ -73,6 +78,15 @@ today_fmt = '%B %d, %Y'
 unused_docs = ['global', 'cli/global']
 
 locale_dirs = ['locale/']
+title = '%s User Manual' % __appname__
+if language not in {'en', 'eng'}:
+    import gettext
+    try:
+        t = gettext.translation('simple_index', locale_dirs[0], [language])
+    except IOError:
+        pass
+    else:
+        title = t.ugettext(title)
 
 # If true, '()' will be appended to :func: etc. cross-reference text.
 # add_function_parentheses = True
@@ -120,7 +134,7 @@ html_last_updated_fmt = '%b %d, %Y'
 html_use_smartypants = True
 
 # Overall title of the documentation
-html_title       = 'calibre User Manual'
+html_title       = title
 html_short_title = 'Start'
 html_logo        = 'resources/logo.png'
 
@@ -164,8 +178,7 @@ latex_font_size = '10pt'
 
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title, author, document class [howto/manual]).
-latex_documents = [(master_doc, 'calibre.tex', 'calibre User Manual',
-    'Kovid Goyal', 'manual', False)]
+latex_documents = [(master_doc, 'calibre.tex', title, 'Kovid Goyal', 'manual', False)]
 
 # Additional stuff for the LaTeX preamble.
 # latex_preamble = ''

@@ -551,11 +551,11 @@ class BasicNewsRecipe(Recipe):
         Override in a subclass to customize extraction of the :term:`URL` that points
         to the content for each article. Return the
         article URL. It is called with `article`, an object representing a parsed article
-        from a feed. See `feedparser <http://packages.python.org/feedparser/>`_.
+        from a feed. See `feedparser <https://pythonhosted.org/feedparser/>`_.
         By default it looks for the original link (for feeds syndicated via a
         service like feedburner or pheedo) and if found,
         returns that or else returns
-        `article.link <http://packages.python.org/feedparser/reference-entry-link.html>`_.
+        `article.link <https://pythonhosted.org/feedparser/reference-entry-link.html>`_.
         '''
         for key in article.keys():
             if key.endswith('_origlink'):
@@ -579,7 +579,7 @@ class BasicNewsRecipe(Recipe):
         an ad page, return the HTML of the real page. Otherwise return
         None.
 
-        `soup`: A `BeautifulSoup <http://www.crummy.com/software/BeautifulSoup/documentation.html>`_
+        `soup`: A `BeautifulSoup <http://www.crummy.com/software/BeautifulSoup/bs3/documentation.html>`_
         instance containing the downloaded :term:`HTML`.
         '''
         return None
@@ -615,7 +615,7 @@ class BasicNewsRecipe(Recipe):
         It can be used to do arbitrarily powerful pre-processing on the :term:`HTML`.
         It should return `soup` after processing it.
 
-        `soup`: A `BeautifulSoup <http://www.crummy.com/software/BeautifulSoup/documentation.html>`_
+        `soup`: A `BeautifulSoup <http://www.crummy.com/software/BeautifulSoup/bs3/documentation.html>`_
         instance containing the downloaded :term:`HTML`.
         '''
         return soup
@@ -627,7 +627,7 @@ class BasicNewsRecipe(Recipe):
         It can be used to do arbitrarily powerful post-processing on the :term:`HTML`.
         It should return `soup` after processing it.
 
-        :param soup: A `BeautifulSoup <http://www.crummy.com/software/BeautifulSoup/documentation.html>`_  instance containing the downloaded :term:`HTML`.
+        :param soup: A `BeautifulSoup <http://www.crummy.com/software/BeautifulSoup/bs3/documentation.html>`_  instance containing the downloaded :term:`HTML`.
         :param first_fetch: True if this is the first page of an article.
 
         '''
@@ -643,7 +643,7 @@ class BasicNewsRecipe(Recipe):
     def index_to_soup(self, url_or_raw, raw=False, as_tree=False):
         '''
         Convenience method that takes an URL to the index page and returns
-        a `BeautifulSoup <http://www.crummy.com/software/BeautifulSoup/documentation.html>`_
+        a `BeautifulSoup <http://www.crummy.com/software/BeautifulSoup/bs3/documentation.html>`_
         of it.
 
         `url_or_raw`: Either a URL or the downloaded index page as a string
@@ -1624,14 +1624,14 @@ class BasicNewsRecipe(Recipe):
     def tag_to_string(self, tag, use_alt=True, normalize_whitespace=True):
         '''
         Convenience method to take a
-        `BeautifulSoup <http://www.crummy.com/software/BeautifulSoup/documentation.html>`_
+        `BeautifulSoup <http://www.crummy.com/software/BeautifulSoup/bs3/documentation.html>`_
         `Tag` and extract the text from it recursively, including any CDATA sections
         and alt tag attributes. Return a possibly empty unicode string.
 
         `use_alt`: If `True` try to use the alt attribute for tags that don't
         have any textual content
 
-        `tag`: `BeautifulSoup <http://www.crummy.com/software/BeautifulSoup/documentation.html>`_
+        `tag`: `BeautifulSoup <http://www.crummy.com/software/BeautifulSoup/bs3/documentation.html>`_
         `Tag`
         '''
         if tag is None:

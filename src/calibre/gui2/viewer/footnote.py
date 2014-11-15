@@ -6,7 +6,7 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import json
+import json, os
 from collections import defaultdict
 
 from PyQt5.Qt import (
@@ -123,10 +123,10 @@ class Footnotes(object):
             pass
 
     def get_footnote_data(self, a, qurl):
-        current_path = unicode(self.view.document.mainFrame().baseUrl().toLocalFile())
+        current_path = os.path.abspath(unicode(self.view.document.mainFrame().baseUrl().toLocalFile()))
         if not current_path:
             return  # Not viewing a local file
-        dest_path = self.spine_path(qurl.toLocalFile())
+        dest_path = self.spine_path(os.path.abspath(unicode(qurl.toLocalFile())))
         if dest_path is not None:
             if dest_path == current_path:
                 # We deliberately ignore linked to anchors if the destination is

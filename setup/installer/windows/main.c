@@ -7,26 +7,15 @@
 #ifdef GUI_APP
 
 int WINAPI                                                                                                      
-wWinMain(HINSTANCE Inst, HINSTANCE PrevInst,
-    wchar_t *CmdLine, int CmdShow) {
-
-    wchar_t *stdout_redirect, *stderr_redirect, basename[50];
-
+wWinMain(HINSTANCE Inst, HINSTANCE PrevInst, wchar_t *CmdLine, int CmdShow) {
     set_gui_app((char)1);
 
-    MultiByteToWideChar(CP_UTF8, 0, BASENAME, -1, basename, 50);
+    // Redirect stdout and stderr to NUL so that python does not fail writing to them
+    redirect_out_stream(stdout);
+    redirect_out_stream(stderr);
 
-    stdout_redirect = redirect_out_stream(basename, (char)1);
-    stderr_redirect = redirect_out_stream(basename, (char)0);
+	execute_python_entrypoint(BASENAME, MODULE, FUNCTION);
 
-	execute_python_entrypoint(BASENAME, MODULE, FUNCTION,
-					stdout_redirect, stderr_redirect);
-
-    if (stdout != NULL) fclose(stdout);
-    if (stderr != NULL) fclose(stderr);
-
-    DeleteFile(stdout_redirect);
-    DeleteFile(stderr_redirect);
 
     return 0; // This should really be returning the value set in the WM_QUIT message, but I cannot be bothered figuring out how to get that.
 }
@@ -37,7 +26,7 @@ wWinMain(HINSTANCE Inst, HINSTANCE PrevInst,
 int wmain(int argc, wchar_t *argv) {
     int ret = 0;
     set_gui_app((char)0);
-	ret = execute_python_entrypoint(BASENAME, MODULE, FUNCTION, NULL, NULL);
+	ret = execute_python_entrypoint(BASENAME, MODULE, FUNCTION);
 
     return ret;
 }

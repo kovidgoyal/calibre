@@ -64,7 +64,7 @@ def build_manual(language, base):
     epub_to_azw3(epub_dest)
 
 def build_pot(base):
-    cmd = [SPHINX_BUILD, '-b', 'gettext', '-t', 'online', '.', base]
+    cmd = [SPHINX_BUILD, '-b', 'gettext', '-t', 'online', '-t', 'gettext', '.', base]
     print (' '.join(cmd))
     subprocess.check_call(cmd)
     os.remove(j(base, 'generated.pot'))
