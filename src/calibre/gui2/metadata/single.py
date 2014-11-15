@@ -239,6 +239,7 @@ class MetadataSingleDialogBase(ResizableDialog):
 
         self.fetch_metadata_button = b = RightClickButton(self)
         b.setText(_('&Download metadata')), b.setPopupMode(b.DelayedPopup)
+        b.setToolTip(_('Download metadata for this book [%s]') % self.download_shortcut.key().toString(QKeySequence.NativeText))
         b.setSizePolicy(QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed))
         self.fetch_metadata_button.clicked.connect(self.fetch_metadata)
         self.fetch_metadata_menu = m = QMenu(self.fetch_metadata_button)
