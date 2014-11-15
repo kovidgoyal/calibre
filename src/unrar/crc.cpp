@@ -30,7 +30,7 @@ void InitCRC()
     CRCTab[I]=crc_tables[0][I]=C;
   }
 
-	for (uint I=0;I<=256;I++) // Build additional lookup tables.
+	for (uint I=0;I<256;I++) // Build additional lookup tables.
   {
 		uint C=crc_tables[0][I];
 		for (uint J=1;J<8;J++)
