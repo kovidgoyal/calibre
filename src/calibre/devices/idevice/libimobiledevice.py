@@ -978,7 +978,7 @@ class libiMobileDevice():
             if error:
                 self._log_error(" ERROR: {0} handle:{1}".format(self._afc_error(error), handle.value))
                 return False
-            elif bytes_written.value == 0:
+            elif bytes_written.value <= 0:
                 self._log_error(" ERROR: writing {0:,} bytes, 0 bytes written, handle:{1}".format(bytes_remaining, handle.value))
                 return False
             else:
