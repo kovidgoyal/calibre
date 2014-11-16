@@ -451,8 +451,10 @@ class HTMLSmarts(NullSmarts):
         ''' Move the cursor to the tag identified by sourceline and tags (a
         list of tags names on the specified line). If attribute is specified
         the cursor will be placed at the start of the attribute value. '''
-        block = editor.document().findBlockByNumber(sourceline - 1)  # blockNumber() is zero based
         found_tag = False
+        if sourceline is None:
+            return found_tag
+        block = editor.document().findBlockByNumber(sourceline - 1)  # blockNumber() is zero based
         if not block.isValid():
             return found_tag
         c = editor.textCursor()
