@@ -8,7 +8,7 @@ __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import textwrap, re, os, shutil, weakref
-from datetime import date
+from datetime import date, datetime
 
 from PyQt5.Qt import (
     Qt, QDateTimeEdit, pyqtSignal, QMessageBox, QIcon, QToolButton, QWidget,
@@ -120,7 +120,7 @@ def make_undoable(spinbox):
                 self.undo_val = widget.dateTime()
             elif hasattr(widget, 'value'):
                 self.undo_val = widget.value()
-            if isinstance(val, date):
+            if isinstance(val, date) and not isinstance(val, datetime):
                 val = parse_only_date(val.isoformat(), assume_utc=False, as_utc=False)
             self.redo_val = val
 
@@ -172,7 +172,7 @@ def make_undoable(spinbox):
             else:
                 self.undo_stack.clear()
             if hasattr(self, 'setDateTime'):
-                if isinstance(val, date) and not is_date_undefined(val):
+                if isinstance(val, date) and not isinstance(val, datetime) and not is_date_undefined(val):
                     val = parse_only_date(val.isoformat(), assume_utc=False, as_utc=False)
                 self.setDateTime(val)
             elif hasattr(self, 'setValue'):
