@@ -319,10 +319,10 @@ To learn more about writing advanced recipes using some of the facilities, avail
     :ref:`API Documentation <news_recipe>`
         Documentation of the ``BasicNewsRecipe`` class and all its important methods and fields.
 
-    `BasicNewsRecipe <http://bazaar.launchpad.net/~kovid/calibre/trunk/annotate/head:/src/calibre/web/feeds/news.py>`_
+    `BasicNewsRecipe <https://github.com/kovidgoyal/calibre/blob/master/src/calibre/web/feeds/news.py>`_
         The source code of ``BasicNewsRecipe``
 
-    `Built-in recipes <http://bazaar.launchpad.net/~kovid/calibre/trunk/files/head:/recipes/>`_
+    `Built-in recipes <https://github.com/kovidgoyal/calibre/tree/master/recipes>`_
         The source code for the built-in recipes that come with calibre
 
     `The calibre recipes forum <http://www.mobileread.com/forums/forumdisplay.php?f=228>`_

@@ -24,7 +24,7 @@ comprehensive command line interface for all its functions, documented in :doc:`
 The modular design of calibre is expressed via ``Plugins``. There is a :ref:`tutorial <customize>` on writing calibre plugins.
 For example, adding support for a new device to calibre typically involves writing less than a 100 lines of code in the form of
 a device driver plugin. You can browse the
-`built-in drivers <http://bazaar.launchpad.net/%7Ekovid/calibre/trunk/files/head%3A/src/calibre/devices/>`_. Similarly, adding support
+`built-in drivers <https://github.com/kovidgoyal/calibre/tree/master/src/calibre/devices>`_. Similarly, adding support
 for new conversion formats involves writing input/output format plugins. Another example of the modular design is the :ref:`recipe system <news>` for
 fetching news. For more examples of plugins designed to add features to calibre, see the `plugin index <http://www.mobileread.com/forums/showthread.php?p=1362767#post1362767>`_.
 
