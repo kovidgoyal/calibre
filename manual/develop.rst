@@ -181,6 +181,9 @@ in your favorite editor and add the line::
 
 near the top of the file. Now run the command :command:`calibredb`. The very first line of output should be ``Hello, world!``.
 
+You can also setup a calibre development environment inside the free Microsoft
+Visual Studio, if you like, following the instructions `here <http://www.mobileread.com/forums/showthread.php?t=251201>`_.
+
 OS X development environment
 ------------------------------
 
