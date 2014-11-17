@@ -6,7 +6,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import sys, os
+import sys, os, re
 from xml.sax.saxutils import escape
 from string import Formatter
 
@@ -147,11 +147,12 @@ def get_rating(rating, rchar, e_rchar):
 class Series(unicode):
 
     def __new__(self, series, series_index):
-        series = roman = escape(series or u'')
         if series and series_index is not None:
             roman = _('Number {1} of <em>{0}</em>').format(
                 escape(series), escape(fmt_sidx(series_index, use_roman=True)))
             series = escape(series + ' [%s]'%fmt_sidx(series_index, use_roman=False))
+        else:
+            series = roman = escape(series or u'')
         s = unicode.__new__(self, series)
         s.roman = roman
         return s
@@ -171,17 +172,22 @@ def render_jacket(mi, output_profile,
     css = P('jacket/stylesheet.css', data=True).decode('utf-8')
     template = P('jacket/template.xhtml', data=True).decode('utf-8')
 
+    template = re.sub(r'<!--.*?-->', '', template, flags=re.DOTALL)
+    css = re.sub(r'/\*.*?\*/', '', css, flags=re.DOTALL)
+
     try:
         title_str = mi.title if mi.title else alt_title
     except:
         title_str = _('Unknown')
-    title = '<span class="title">%s</span>' % (escape(title_str))
+    title_str = escape(title_str)
+    title = '<span class="title">%s</span>' % title_str
 
     series = Series(mi.series, mi.series_index)
     try:
         publisher = mi.publisher if mi.publisher else alt_publisher
     except:
         publisher = ''
+    publisher = escape(publisher)
 
     try:
         if is_date_undefined(mi.pubdate):
@@ -205,6 +211,7 @@ def render_jacket(mi, output_profile,
         author = mi.format_authors()
     except:
         author = ''
+    author = escape(author)
 
     def generate_html(comments):
         args = dict(xmlns=XHTML_NS,
