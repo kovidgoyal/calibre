@@ -28,18 +28,18 @@ class SafeLocalTimeZone(tzlocal):
         #
         # The code above yields the following result:
         #
-        #>>> import tz, datetime
-        #>>> t = tz.tzlocal()
-        #>>> datetime.datetime(2003,2,15,23,tzinfo=t).tzname()
-        #'BRDT'
-        #>>> datetime.datetime(2003,2,16,0,tzinfo=t).tzname()
-        #'BRST'
-        #>>> datetime.datetime(2003,2,15,23,tzinfo=t).tzname()
-        #'BRST'
-        #>>> datetime.datetime(2003,2,15,22,tzinfo=t).tzname()
-        #'BRDT'
-        #>>> datetime.datetime(2003,2,15,23,tzinfo=t).tzname()
-        #'BRDT'
+        # >>> import tz, datetime
+        # >>> t = tz.tzlocal()
+        # >>> datetime.datetime(2003,2,15,23,tzinfo=t).tzname()
+        # 'BRDT'
+        # >>> datetime.datetime(2003,2,16,0,tzinfo=t).tzname()
+        # 'BRST'
+        # >>> datetime.datetime(2003,2,15,23,tzinfo=t).tzname()
+        # 'BRST'
+        # >>> datetime.datetime(2003,2,15,22,tzinfo=t).tzname()
+        # 'BRDT'
+        # >>> datetime.datetime(2003,2,15,23,tzinfo=t).tzname()
+        # 'BRDT'
         #
         # Here is a more stable implementation:
         #
@@ -136,7 +136,7 @@ def parse_date(date_string, assume_utc=False, as_utc=True, default=None):
         dt = dt.replace(tzinfo=_utc_tz if assume_utc else _local_tz)
     return dt.astimezone(_utc_tz if as_utc else _local_tz)
 
-def parse_only_date(raw, assume_utc=True):
+def parse_only_date(raw, assume_utc=True, as_utc=True):
     '''
     Parse a date string that contains no time information in a manner that
     guarantees that the month and year are always correct in all timezones, and
@@ -145,7 +145,7 @@ def parse_only_date(raw, assume_utc=True):
     f = utcnow if assume_utc else now
     default = f().replace(hour=0, minute=0, second=0, microsecond=0,
             day=15)
-    ans = parse_date(raw, default=default, assume_utc=assume_utc)
+    ans = parse_date(raw, default=default, assume_utc=assume_utc, as_utc=as_utc)
     n = ans + timedelta(days=1)
     if n.month > ans.month:
         ans = ans.replace(day=ans.day-1)
@@ -451,5 +451,3 @@ def replace_months(datestr, clang):
         if tmp != datestr:
             break
     return tmp
-
-
