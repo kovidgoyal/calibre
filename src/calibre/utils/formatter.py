@@ -30,10 +30,9 @@ class _Parser(object):
         if prog[1] != '':
             self.error(_('failed to scan program. Invalid input {0}').format(prog[1]))
         self.parent = parent
-        parent.locals = {'$':val}
         self.parent_kwargs = parent.kwargs
         self.parent_book = parent.book
-        self.parent_locals = parent.locals
+        self.locals = {'$':val}
 
     def error(self, message):
         m = 'Formatter: ' + message + _(' near ')
@@ -129,8 +128,8 @@ class _Parser(object):
                     self.consume()
                     cls = funcs['assign']
                     return cls.eval_(self.parent, self.parent_kwargs,
-                                    self.parent_book, self.parent_locals, id, self.expr())
-                val = self.parent.locals.get(id, None)
+                                    self.parent_book, self.locals, id, self.expr())
+                val = self.locals.get(id, None)
                 if val is None:
                     self.error(_('Unknown identifier ') + id)
                 return val
@@ -166,7 +165,7 @@ class _Parser(object):
             if cls.arg_count != -1 and len(args) != cls.arg_count:
                 self.error('incorrect number of arguments for function {}'.format(id))
             return cls.eval_(self.parent, self.parent_kwargs,
-                            self.parent_book, self.parent_locals, *args)
+                            self.parent_book, self.locals, *args)
         elif self.token_is_constant():
             # String or number
             return self.token()
@@ -182,10 +181,9 @@ class _CompileParser(_Parser):
         if prog[1] != '':
             self.error(_('failed to scan program. Invalid input {0}').format(prog[1]))
         self.parent = parent
-        parent.locals = {'$':val}
         self.parent_kwargs = parent.kwargs
         self.parent_book = parent.book
-        self.parent_locals = parent.locals
+        self.locals = {'$':val}
         self.compile_text = compile_text
 
     def program(self):
@@ -233,12 +231,12 @@ class _CompileParser(_Parser):
                     if self.compile_text:
                         self.compile_text += '\targs[%d] = list()\n'%(level+1,)
                     val = cls.eval_(self.parent, self.parent_kwargs,
-                                    self.parent_book, self.parent_locals, id, self.expr(level+1))
+                                    self.parent_book, self.locals, id, self.expr(level+1))
                     if self.compile_text:
                         self.compile_text += "\tlocals['%s'] = args[%d][0]\n"%(id, level+1)
                         self.compile_text += "\targs[%d].append(args[%d][0])\n"%(level, level+1)
                     return val
-                val = self.parent.locals.get(id, None)
+                val = self.locals.get(id, None)
                 if val is None:
                     self.error(_('Unknown identifier ') + id)
                 if self.compile_text:
@@ -293,7 +291,7 @@ class _CompileParser(_Parser):
                     "\targs[%d].append(self.__funcs__['%s']"
                     ".eval_(formatter, kwargs, book, locals, *args[%d]))\n")%(level, id, level+1)
             return cls.eval_(self.parent, self.parent_kwargs,
-                            self.parent_book, self.parent_locals, *args)
+                            self.parent_book, self.locals, *args)
         elif self.token_is_constant():
             # String or number
             v = unicode(self.token())
