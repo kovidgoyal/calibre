@@ -119,3 +119,26 @@ def replace_lowercase(match, number, file_name, metadata, dictionaries, function
     return apply_func_to_match_groups(match, icu_lower)
 replace_lowercase.name = 'Lower-case text'
 
+def replace_capitalize(match, number, file_name, metadata, dictionaries, functions, *args, **kwargs):
+    '''Capitalize matched text. If the regular expression contains groups,
+    only the text in the groups will be changed, otherwise the entire text is
+    changed.'''
+    from calibre.utils.icu import capitalize
+    return apply_func_to_match_groups(match, capitalize)
+replace_capitalize.name = 'Capitalize text'
+
+def replace_titlecase(match, number, file_name, metadata, dictionaries, functions, *args, **kwargs):
+    '''Title-case matched text. If the regular expression contains groups,
+    only the text in the groups will be changed, otherwise the entire text is
+    changed.'''
+    from calibre.utils.titlecase import titlecase
+    return apply_func_to_match_groups(match, titlecase)
+replace_titlecase.name = 'Title-case text'
+
+def replace_swapcase(match, number, file_name, metadata, dictionaries, functions, *args, **kwargs):
+    '''Swap the case of the matched text. If the regular expression contains groups,
+    only the text in the groups will be changed, otherwise the entire text is
+    changed.'''
+    from calibre.utils.icu import swapcase
+    return apply_func_to_match_groups(match, swapcase)
+replace_swapcase.name = 'Swap the case of text'
