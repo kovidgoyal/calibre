@@ -313,6 +313,21 @@ class Resources(Command):  # {{{
         import json
         json.dump(function_dict, open(dest, 'wb'), indent=4)
 
+        self.info('\tCreating editor-functions.json')
+        dest = self.j(self.RESOURCES, 'editor-functions.json')
+        function_dict = {}
+        from calibre.gui2.tweak_book.function_replace import builtin_functions
+        for func in builtin_functions():
+            try:
+                src = u''.join(inspect.getsourcelines(func)[0])
+            except Exception:
+                continue
+            src = src.replace('def ' + func.func_name, 'def replace')
+            if 'apply_func_to_match_groups' in src:
+                src = 'from calibre.ebooks.oeb.polish.utils import apply_func_to_match_groups\n\n' + src
+            function_dict[func.name] = src
+        json.dump(function_dict, open(dest, 'wb'), indent=4)
+
     def clean(self):
         for x in ('scripts', 'ebook-convert-complete'):
             x = self.j(self.RESOURCES, x+'.pickle')

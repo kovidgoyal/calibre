@@ -23,6 +23,7 @@ from calibre.gui2 import error_dialog, info_dialog, choose_files, choose_save_fi
 from calibre.gui2.dialogs.message_box import MessageBox
 from calibre.gui2.widgets2 import HistoryComboBox
 from calibre.gui2.tweak_book import tprefs, editors, current_container
+from calibre.gui2.tweak_book.function_replace import FunctionBox, functions as replace_functions
 from calibre.gui2.tweak_book.widgets import BusyCursor
 
 from calibre.utils.icu import primary_contains
@@ -155,7 +156,7 @@ class ModeBox(QComboBox):
 
     def __init__(self, parent):
         QComboBox.__init__(self, parent)
-        self.addItems([_('Normal'), _('Regex')])
+        self.addItems([_('Normal'), _('Regex'), _('Regex-Function')])
         self.setToolTip('<style>dd {margin-bottom: 1.5ex}</style>' + _(
             '''Select how the search expression is interpreted
             <dl>
@@ -163,14 +164,16 @@ class ModeBox(QComboBox):
             <dd>The search expression is treated as normal text, calibre will look for the exact text.</dd>
             <dt><b>Regex</b></dt>
             <dd>The search expression is interpreted as a regular expression. See the User Manual for more help on using regular expressions.</dd>
+            <dt><b>Regex-Function</b></dt>
+            <dd>The search expression is interpreted as a regular expression. The replace expression is an arbitrarily powerful python function.</dd>
             </dl>'''))
 
     @dynamic_property
     def mode(self):
         def fget(self):
-            return 'normal' if self.currentIndex() == 0 else 'regex'
+            return ('normal', 'regex', 'function')[self.currentIndex()]
         def fset(self, val):
-            self.setCurrentIndex({'regex':1}.get(val, 0))
+            self.setCurrentIndex({'regex':1, 'function':2}.get(val, 0))
         return property(fget=fget, fset=fset)
 
 
@@ -193,7 +196,6 @@ class SearchWidget(QWidget):
         QWidget.__init__(self, parent)
         self.l = l = QGridLayout(self)
         l.setContentsMargins(0, 0, 0, 0)
-        self.setLayout(l)
 
         self.fl = fl = QLabel(_('&Find:'))
         fl.setAlignment(Qt.AlignRight | Qt.AlignCenter)
@@ -205,6 +207,7 @@ class SearchWidget(QWidget):
         fl.setBuddy(ft)
         l.addWidget(fl, 0, 0)
         l.addWidget(ft, 0, 1)
+        l.setColumnStretch(1, 10)
 
         self.rl = rl = QLabel(_('&Replace:'))
         rl.setAlignment(Qt.AlignRight | Qt.AlignCenter)
@@ -213,9 +216,22 @@ class SearchWidget(QWidget):
         rt.show_saved_searches.connect(self.show_saved_searches)
         rt.initialize('tweak_book_replace_edit')
         rl.setBuddy(rt)
-        l.addWidget(rl, 1, 0)
-        l.addWidget(rt, 1, 1)
-        l.setColumnStretch(1, 10)
+        self.replace_stack1 = rs1 = QVBoxLayout()
+        self.replace_stack2 = rs2 = QVBoxLayout()
+        rs1.addWidget(rl), rs2.addWidget(rt)
+        l.addLayout(rs1, 1, 0)
+        l.addLayout(rs2, 1, 1)
+
+        self.rl2 = rl2 = QLabel(_('F&unction:'))
+        rl2.setAlignment(Qt.AlignRight | Qt.AlignCenter)
+        self.functions = fb = FunctionBox(self)
+        rl2.setBuddy(fb)
+        rs1.addWidget(rl2)
+        self.functions_container = w = QWidget(self)
+        rs2.addWidget(w)
+        self.fhl = fhl = QHBoxLayout(w)
+        fhl.setContentsMargins(0, 0, 0, 0)
+        fhl.addWidget(fb, stretch=10, alignment=Qt.AlignVCenter)
 
         self.fb = fb = PushButton(_('&Find'), 'find', self)
         self.rfb = rfb = PushButton(_('Replace a&nd Find'), 'replace-find', self)
@@ -258,9 +274,18 @@ class SearchWidget(QWidget):
         da.setSizePolicy(QSizePolicy.Maximum, QSizePolicy.Maximum)
         ol.addWidget(da)
 
-        self.mode_box.currentIndexChanged[int].connect(self.da.setVisible)
+        self.mode_box.currentIndexChanged[int].connect(self.mode_changed)
+        self.mode_changed(self.mode_box.currentIndex())
 
         ol.addStretch(10)
+
+    def mode_changed(self, idx):
+        self.da.setVisible(idx > 0)
+        function_mode = idx == 2
+        self.rl.setVisible(not function_mode)
+        self.rl2.setVisible(function_mode)
+        self.replace_text.setVisible(not function_mode)
+        self.functions_container.setVisible(function_mode)
 
     @dynamic_property
     def mode(self):
@@ -268,7 +293,7 @@ class SearchWidget(QWidget):
             return self.mode_box.mode
         def fset(self, val):
             self.mode_box.mode = val
-            self.da.setVisible(self.mode == 'regex')
+            self.da.setVisible(self.mode in ('regex', 'function'))
         return property(fget=fget, fset=fset)
 
     @dynamic_property
@@ -282,6 +307,8 @@ class SearchWidget(QWidget):
     @dynamic_property
     def replace(self):
         def fget(self):
+            if self.mode == 'function':
+                return self.functions.text()
             return unicode(self.replace_text.text())
         def fset(self, val):
             self.replace_text.setText(val)
@@ -346,7 +373,7 @@ class SearchWidget(QWidget):
         tprefs.set('find-widget-state', self.state)
 
     def pre_fill(self, text):
-        if self.mode == 'regex':
+        if self.mode in ('regex', 'function'):
             text = regex.escape(text, special_only=True)
         self.find = text
         self.find_text.lineEdit().setSelection(0, len(text)+10)
@@ -928,7 +955,7 @@ class SavedSearches(QWidget):
             search_index, search = i.data(Qt.UserRole)
             cs = '✓' if search.get('case_sensitive', SearchWidget.DEFAULT_STATE['case_sensitive']) else '✗'
             da = '✓' if search.get('dot_all', SearchWidget.DEFAULT_STATE['dot_all']) else '✗'
-            if search.get('mode', SearchWidget.DEFAULT_STATE['mode']) == 'regex':
+            if search.get('mode', SearchWidget.DEFAULT_STATE['mode']) in ('regex', 'function'):
                 ts = _('(Case sensitive: {0} Dot All: {1})').format(cs, da)
             else:
                 ts = _('(Case sensitive: {0} [Normal search])').format(cs)
@@ -1011,12 +1038,13 @@ class InvalidRegex(regex.error):
 
 def get_search_regex(state):
     raw = state['find']
-    if state['mode'] != 'regex':
+    is_regex = state['mode'] != 'normal'
+    if not is_regex:
         raw = regex.escape(raw, special_only=True)
     flags = REGEX_FLAGS
     if not state['case_sensitive']:
         flags |= regex.IGNORECASE
-    if state['mode'] == 'regex' and state['dot_all']:
+    if is_regex and state['dot_all']:
         flags |= regex.DOTALL
     if state['direction'] == 'up':
         flags |= regex.REVERSE
@@ -1064,6 +1092,18 @@ def initialize_search_request(state, action, current_editor, current_editor_name
 
     return editor, where, files, do_all, marked
 
+class NoSuchFunction(ValueError):
+    pass
+
+def get_search_function(search):
+    ans = search['replace']
+    if search['mode'] == 'function':
+        try:
+            return replace_functions()[ans]
+        except KeyError:
+            raise NoSuchFunction(ans)
+    return ans
+
 def run_search(
     searches, action, current_editor, current_editor_name, searchable_names,
     gui_parent, show_editor, edit_file, show_current_diff, add_savepoint, rewind_savepoint, set_modified):
@@ -1079,11 +1119,14 @@ def run_search(
         errfind = _('the selected searches')
 
     try:
-        searches = [(get_search_regex(search), search['replace']) for search in searches]
+        searches = [(get_search_regex(search), get_search_function(search)) for search in searches]
     except InvalidRegex as e:
         return error_dialog(gui_parent, _('Invalid regex'), '<p>' + _(
             'The regular expression you entered is invalid: <pre>{0}</pre>With error: {1}').format(
                 prepare_string_for_xml(e.regex), e.message), show=True)
+    except NoSuchFunction as e:
+        return error_dialog(gui_parent, _('No such function'), '<p>' + _(
+            'No replace function with the name: %s exists') % prepare_string_for_xml(e.message), show=True)
 
     def no_match():
         QApplication.restoreOverrideCursor()
@@ -1131,6 +1174,8 @@ def run_search(
         if editor is None:
             return no_replace()
         for p, repl in searches:
+            if callable(repl):
+                repl.init_env(current_editor_name)
             if editor.replace(p, repl, saved_match='gui'):
                 return True
         return no_replace(_(
@@ -1162,9 +1207,13 @@ def run_search(
             raw_data[n] = raw
 
         for p, repl in searches:
+            if callable(repl):
+                repl.init_env()
             for n, syntax in lfiles.iteritems():
                 raw = raw_data[n]
                 if replace:
+                    if callable(repl):
+                        repl.context_name = n
                     raw, num = p.subn(repl, raw)
                     if num > 0:
                         updates.add(n)

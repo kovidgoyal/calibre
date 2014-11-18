@@ -17,6 +17,7 @@ resources/ebook-convert-complete.pickle
 resources/builtin_recipes.xml
 resources/builtin_recipes.zip
 resources/template-functions.json
+resources/editor-functions.json
 icons/icns/*.iconset
 setup/installer/windows/calibre/build.log
 tags

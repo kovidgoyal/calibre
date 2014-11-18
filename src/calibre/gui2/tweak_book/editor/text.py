@@ -456,7 +456,10 @@ class TextEdit(PlainTextEdit):
                     m = saved
         if m is None:
             return False
-        text = m.expand(template)
+        if callable(template):
+            text = template(m)
+        else:
+            text = m.expand(template)
         c.insertText(text)
         return True
 
