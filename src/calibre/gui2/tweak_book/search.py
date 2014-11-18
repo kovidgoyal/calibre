@@ -232,6 +232,13 @@ class SearchWidget(QWidget):
         self.fhl = fhl = QHBoxLayout(w)
         fhl.setContentsMargins(0, 0, 0, 0)
         fhl.addWidget(fb, stretch=10, alignment=Qt.AlignVCenter)
+        self.ae_func = b = QPushButton(_('Create/&edit'), self)
+        fhl.addWidget(b)
+        self.rm_func = b = QPushButton(_('Remo&ve'), self)
+        fhl.addWidget(b)
+        self.fsep = f = QFrame(self)
+        f.setFrameShape(f.VLine)
+        fhl.addWidget(f)
 
         self.fb = fb = PushButton(_('&Find'), 'find', self)
         self.rfb = rfb = PushButton(_('Replace a&nd Find'), 'replace-find', self)
@@ -536,6 +543,20 @@ class EditSearch(QFrame):  # {{{
         la.setBuddy(r)
         l.addWidget(la), l.addWidget(r)
 
+        self.functions_container = w = QWidget()
+        l.addWidget(w)
+        w.g = g = QGridLayout(w)
+        self.la7 = la = QLabel(_('F&unction:'))
+        self.function = f = FunctionBox(self)
+        g.addWidget(la), g.addWidget(f)
+        g.setContentsMargins(0, 0, 0, 0)
+        la.setBuddy(f)
+        self.ae_func = b = QPushButton(_('Create/&edit'), self)
+        g.addWidget(b, 1, 1)
+        g.setColumnStretch(0, 10)
+        self.rm_func = b = QPushButton(_('Remo&ve'), self)
+        g.addWidget(b, 1, 2)
+
         self.case_sensitive = c = QCheckBox(_('Case sensitive'))
         self.h = h = QHBoxLayout()
         l.addLayout(h)
@@ -556,6 +577,15 @@ class EditSearch(QFrame):  # {{{
         b.setToolTip(_('Finish editing of search'))
         h.addWidget(b)
         b.clicked.connect(self.emit_done)
+
+        self.mode_box.currentIndexChanged[int].connect(self.mode_changed)
+        self.mode_changed(self.mode_box.currentIndex())
+
+    def mode_changed(self, idx):
+        self.dot_all.setVisible(idx > 0)
+        self.functions_container.setVisible(idx == 2)
+        self.la3.setVisible(idx < 2)
+        self.replace.setVisible(idx < 2)
 
     def show_search(self, search=None, search_index=-1, state=None):
         self.title.setText('<h2>' + (_('Add search') if search_index == -1 else _('Edit search')))
@@ -595,11 +625,14 @@ class EditSearch(QFrame):  # {{{
         search = self.search.copy()
         f = unicode(self.find.toPlainText())
         search['find'] = f
-        r = unicode(self.replace.toPlainText())
-        search['replace'] = r
         search['dot_all'] = bool(self.dot_all.isChecked())
         search['case_sensitive'] = bool(self.case_sensitive.isChecked())
         search['mode'] = self.mode_box.mode
+        if search['mode'] == 'function':
+            r = self.function.text()
+        else:
+            r = unicode(self.replace.toPlainText())
+        search['replace'] = r
         return search
 
     def save_changes(self):
@@ -623,13 +656,20 @@ class EditSearch(QFrame):  # {{{
                 'You must specify a find expression'), show=True)
             return False
         search['find'] = f
+        search['mode'] = self.mode_box.mode
 
-        r = unicode(self.replace.toPlainText())
+        if search['mode'] == 'function':
+            r = self.function.text()
+            if not r:
+                error_dialog(self, _('Must specify function'), _(
+                    'You must specify a function name in Function-Regex mode'), show=True)
+                return False
+        else:
+            r = unicode(self.replace.toPlainText())
         search['replace'] = r
 
         search['dot_all'] = bool(self.dot_all.isChecked())
         search['case_sensitive'] = bool(self.case_sensitive.isChecked())
-        search['mode'] = self.mode_box.mode
 
         if self.search_index == -1:
             searches.append(search)
