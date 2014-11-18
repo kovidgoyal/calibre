@@ -8,6 +8,8 @@ __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import re, io
 
+from PyQt5.Qt import pyqtSignal
+
 from calibre.gui2.complete2 import EditWithComplete
 from calibre.gui2.tweak_book import dictionaries
 from calibre.utils.config import JSONConfig
@@ -93,13 +95,25 @@ def functions(refresh=False):
 
 class FunctionBox(EditWithComplete):
 
-    def __init__(self, parent=None):
+    save_search = pyqtSignal()
+    show_saved_searches = pyqtSignal()
+
+    def __init__(self, parent=None, show_saved_search_actions=False):
         EditWithComplete.__init__(self, parent)
         self.set_separator(None)
+        self.show_saved_search_actions = show_saved_search_actions
         self.refresh()
 
     def refresh(self):
         self.update_items_cache(set(functions()))
+
+    def contextMenuEvent(self, event):
+        menu = self.lineEdit().createStandardContextMenu()
+        if self.show_saved_search_actions:
+            menu.addSeparator()
+            menu.addAction(_('Save current search'), self.save_search.emit)
+            menu.addAction(_('Show saved searches'), self.show_saved_searches.emit)
+        menu.exec_(event.globalPos())
 
 # Builtin functions ##########################################################
 

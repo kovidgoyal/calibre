@@ -224,7 +224,9 @@ class SearchWidget(QWidget):
 
         self.rl2 = rl2 = QLabel(_('F&unction:'))
         rl2.setAlignment(Qt.AlignRight | Qt.AlignCenter)
-        self.functions = fb = FunctionBox(self)
+        self.functions = fb = FunctionBox(self, show_saved_search_actions=True)
+        fb.show_saved_searches.connect(self.show_saved_searches)
+        fb.save_search.connect(self.save_search)
         rl2.setBuddy(fb)
         rs1.addWidget(rl2)
         self.functions_container = w = QWidget(self)
