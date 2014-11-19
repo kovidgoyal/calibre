@@ -319,7 +319,7 @@ class Resources(Command):  # {{{
         from calibre.gui2.tweak_book.function_replace import builtin_functions
         for func in builtin_functions():
             try:
-                src = u''.join(inspect.getsourcelines(func)[0])
+                src = ''.join(inspect.getsourcelines(func)[0][1:])
             except Exception:
                 continue
             src = src.replace('def ' + func.func_name, 'def replace')

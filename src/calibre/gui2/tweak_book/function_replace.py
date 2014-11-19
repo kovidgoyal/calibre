@@ -121,41 +121,44 @@ class FunctionBox(EditWithComplete):
 
 # Builtin functions ##########################################################
 
-def builtin(func, name, *args):
-    func.name = name
-    func.imports = args
+def builtin(name, *args):
+    def f(func):
+        func.name = name
+        func.imports = args
+        return func
+    return f
 
+@builtin('Upper-case text', upper, apply_func_to_match_groups)
 def replace_uppercase(match, number, file_name, metadata, dictionaries, functions, *args, **kwargs):
     '''Make matched text upper case. If the regular expression contains groups,
     only the text in the groups will be changed, otherwise the entire text is
     changed.'''
     return apply_func_to_match_groups(match, upper)
-builtin(replace_uppercase, 'Upper-case text', upper, apply_func_to_match_groups)
 
+@builtin('Lower-case text', lower, apply_func_to_match_groups)
 def replace_lowercase(match, number, file_name, metadata, dictionaries, functions, *args, **kwargs):
     '''Make matched text lower case. If the regular expression contains groups,
     only the text in the groups will be changed, otherwise the entire text is
     changed.'''
     return apply_func_to_match_groups(match, lower)
-builtin(replace_lowercase, 'Lower-case text', lower, apply_func_to_match_groups)
 
+@builtin('Capitalize text', capitalize, apply_func_to_match_groups)
 def replace_capitalize(match, number, file_name, metadata, dictionaries, functions, *args, **kwargs):
     '''Capitalize matched text. If the regular expression contains groups,
     only the text in the groups will be changed, otherwise the entire text is
     changed.'''
     return apply_func_to_match_groups(match, capitalize)
-builtin(replace_capitalize, 'Capitalize text', capitalize, apply_func_to_match_groups)
 
+@builtin('Title-case text', titlecase, apply_func_to_match_groups)
 def replace_titlecase(match, number, file_name, metadata, dictionaries, functions, *args, **kwargs):
     '''Title-case matched text. If the regular expression contains groups,
     only the text in the groups will be changed, otherwise the entire text is
     changed.'''
     return apply_func_to_match_groups(match, titlecase)
-builtin(replace_titlecase, 'Title-case text', titlecase, apply_func_to_match_groups)
 
+@builtin('Swap the case of text', swapcase, apply_func_to_match_groups)
 def replace_swapcase(match, number, file_name, metadata, dictionaries, functions, *args, **kwargs):
     '''Swap the case of the matched text. If the regular expression contains groups,
     only the text in the groups will be changed, otherwise the entire text is
     changed.'''
     return apply_func_to_match_groups(match, swapcase)
-builtin(replace_swapcase, 'Swap the case of text', swapcase, apply_func_to_match_groups)
