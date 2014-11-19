@@ -135,6 +135,10 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         ret = ConfigWidgetBase.commit(self)
         return changed or ret
 
+    def refresh_gui(self, gui):
+        # Ensure worker process reads updated settings
+        gui.spare_pool().shutdown()
+
 if __name__ == '__main__':
     from PyQt5.Qt import QApplication
     app = QApplication([])

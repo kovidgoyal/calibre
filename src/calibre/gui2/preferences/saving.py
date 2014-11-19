@@ -6,7 +6,6 @@ __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 
-
 from calibre.gui2.preferences import ConfigWidgetBase, test_widget, \
         AbortCommit
 from calibre.gui2.preferences.saving_ui import Ui_Form
@@ -29,7 +28,6 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
 
         self.save_template.changed_signal.connect(self.changed_signal.emit)
 
-
     def initialize(self):
         ConfigWidgetBase.initialize(self)
         self.save_template.blockSignals(True)
@@ -50,10 +48,11 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
 
     def refresh_gui(self, gui):
         gui.iactions['Save To Disk'].reread_prefs()
+        # Ensure worker process reads updated settings
+        gui.spare_pool().shutdown()
 
 
 if __name__ == '__main__':
     from PyQt5.Qt import QApplication
     app = QApplication([])
     test_widget('Import/Export', 'Saving')
-
