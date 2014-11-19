@@ -247,6 +247,13 @@ that you can apply. You can even select multiple entries in the list by holding
 down the Ctrl Key while clicking so as to run multiple search and replace
 expressions in a single operation.
 
+Function mode
+^^^^^^^^^^^^^^^^^^^^^
+
+Function mode allows you to write arbitrarily powerful python functions that
+are run on every Find/replace. You can do pretty much any text manipulation you
+like in function mode. For more information, see :doc:`function_mode`.
+
 Automated tools
 -------------------
 
@@ -693,3 +700,7 @@ particularly useful to directly create EPUB files from your own hand-edited
 HTML files. You can do this via :guilabel:`File->Import an HTML or DOCX file as
 a new book`.
 
+.. toctree::
+    :hidden:
+
+    function_mode
