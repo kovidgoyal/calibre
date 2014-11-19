@@ -93,7 +93,7 @@ write a simple function to automatically find and fix such words.
         # Search for words split by a hyphen
         return regex.sub(r'(\w+)\s*-\s*(\w+)', replace_word, match.group(), flags=regex.VERSION1 | regex.UNICODE)
 
-Use this function with the same find expressions as before, namely::
+Use this function with the same find expression as before, namely::
 
     >[^<>]+<
 
