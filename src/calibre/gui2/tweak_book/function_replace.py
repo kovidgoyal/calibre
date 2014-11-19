@@ -103,6 +103,7 @@ class FunctionBox(EditWithComplete):
         self.set_separator(None)
         self.show_saved_search_actions = show_saved_search_actions
         self.refresh()
+        self.setToolTip(_('Choose a function to run on matched text (by name)'))
 
     def refresh(self):
         self.update_items_cache(set(functions()))
