@@ -6,11 +6,12 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import re, io, weakref
+import re, io, weakref, sys
+from cStringIO import StringIO
 
 from PyQt5.Qt import (
     pyqtSignal, QVBoxLayout, QHBoxLayout, QPlainTextEdit, QLabel, QFontMetrics,
-    QSize)
+    QSize, Qt)
 
 from calibre.ebooks.oeb.polish.utils import apply_func_to_match_groups
 from calibre.gui2 import error_dialog
@@ -24,7 +25,7 @@ from calibre.utils.titlecase import titlecase
 
 user_functions = JSONConfig('editor-search-replace-functions')
 
-def compile_code(src):
+def compile_code(src, name='<string>'):
     if not isinstance(src, unicode):
         match = re.search(r'coding[:=]\s*([-\w.]+)', src[:200])
         enc = match.group(1) if match else 'utf-8'
@@ -35,9 +36,10 @@ def compile_code(src):
     src = re.sub(r'^#.*coding\s*[:=]\s*([-\w.]+)', '#', src, flags=re.MULTILINE)
     # Translate newlines to \n
     src = io.StringIO(src, newline=None).getvalue()
+    code = compile(src, name, 'exec')
 
     namespace = {}
-    exec src in namespace
+    exec code in namespace
     return namespace
 
 class Function(object):
@@ -47,7 +49,7 @@ class Function(object):
         self.is_builtin = source is None
         self.name = name
         if func is None:
-            self.mod = compile_code(source)
+            self.mod = compile_code(source, name)
             self.func = self.mod['replace']
         else:
             self.func = func
@@ -61,6 +63,7 @@ class Function(object):
         self.match_index = 0
         self.boss = get_boss()
         self.data = {}
+        self.debug_buf = StringIO()
 
     def __hash__(self):
         return hash(self.name)
@@ -73,7 +76,11 @@ class Function(object):
 
     def __call__(self, match):
         self.match_index += 1
-        return self.func(match, self.match_index, self.context_name, self.boss.current_metadata, dictionaries, self.data, functions())
+        oo, oe, sys.stdout, sys.stderr = sys.stdout, sys.stderr, self.debug_buf, self.debug_buf
+        try:
+            return self.func(match, self.match_index, self.context_name, self.boss.current_metadata, dictionaries, self.data, functions())
+        finally:
+            sys.stdout, sys.stderr = oo, oe
 
     @property
     def source(self):
@@ -81,6 +88,29 @@ class Function(object):
             import json
             return json.loads(P('editor-functions.json', data=True, allow_user_override=False))[self.name]
         return self._source
+
+class DebugOutput(Dialog):
+
+    def __init__(self, parent=None):
+        Dialog.__init__(self, 'Debug output', 'sr-function-debug-output')
+        self.setAttribute(Qt.WA_DeleteOnClose, False)
+
+    def setup_ui(self):
+        self.l = l = QVBoxLayout(self)
+        self.text = t = QPlainTextEdit(self)
+        l.addWidget(t)
+        l.addWidget(self.bb)
+        self.bb.setStandardButtons(self.bb.Close)
+
+    def show_log(self, name, text):
+        self.setWindowTitle(_('Debug output from %s') % name)
+        self.text.setPlainText(self.windowTitle() + '\n\n' + text)
+        self.show()
+        self.raise_()
+
+    def sizeHint(self):
+        fm = QFontMetrics(self.text.font())
+        return QSize(fm.averageCharWidth() * 120, 400)
 
 def builtin_functions():
     for name, obj in globals().iteritems():
@@ -183,7 +213,7 @@ class FunctionEditor(Dialog):
 
         self.la2 = la = QLabel(_(
             'For help with creating functions, see the <a href="%s">User Manual</a>') %
-            'http://manual.calibre-ebook.com/edit.html#function-mode')
+            'http://manual.calibre-ebook.com/function_mode.html')
         la.setOpenExternalLinks(True)
         l.addWidget(la)
 
@@ -207,7 +237,7 @@ class FunctionEditor(Dialog):
                 'You must specify a name for this function.'), show=True)
         source = self.source
         try:
-            mod = compile_code(source)
+            mod = compile_code(source, self.func_name)
         except Exception as err:
             return error_dialog(self, _('Invalid python code'), _(
                 'The code you created is not valid python code, with error: %s') % err, show=True)

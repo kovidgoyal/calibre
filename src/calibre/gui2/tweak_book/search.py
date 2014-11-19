@@ -1185,6 +1185,13 @@ def get_search_function(search):
             raise NoSuchFunction(ans)
     return ans
 
+def show_function_debug_output(func):
+    if isinstance(func, Function):
+        val = func.debug_buf.getvalue().strip()
+        if val:
+            from calibre.gui2.tweak_book.boss import get_boss
+            get_boss().gui.sr_debug_output.show_log(func.name, val)
+
 def run_search(
     searches, action, current_editor, current_editor_name, searchable_names,
     gui_parent, show_editor, edit_file, show_current_diff, add_savepoint, rewind_savepoint, set_modified):
@@ -1258,6 +1265,7 @@ def run_search(
             if callable(repl):
                 repl.init_env(current_editor_name)
             if editor.replace(p, repl, saved_match='gui'):
+                show_function_debug_output(repl)
                 return True
         return no_replace(_(
                 'Currently selected text does not match the search query.'))
@@ -1302,6 +1310,7 @@ def run_search(
                 else:
                     num = len(p.findall(raw))
                 count += num
+            show_function_debug_output(repl)
 
         for n in updates:
             raw = raw_data[n]
