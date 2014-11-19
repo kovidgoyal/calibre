@@ -172,12 +172,12 @@ def parse_css(data, fname='<string>', is_declaration=False, decode=None, log_lev
         data = parser.parseString(data, href=fname, validate=False)
     return data
 
-def apply_func_to_match_groups(match, func):
+def apply_func_to_match_groups(match, func=icu_upper):
     '''Apply the specified function to individual groups in the match object (the result of re.search() or
     the whole match if no groups were defined. Returns the replaced string.'''
     found_groups = False
     i = 0
-    parts, pos = [], 0
+    parts, pos = [], match.start()
     while True:
         i += 1
         try:
@@ -191,6 +191,6 @@ def apply_func_to_match_groups(match, func):
             pos = end
     if not found_groups:
         return func(match.group())
-    parts.append(match.string[pos:])
+    parts.append(match.string[pos:match.end()])
     return ''.join(parts)
 
