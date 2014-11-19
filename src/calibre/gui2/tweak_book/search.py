@@ -23,7 +23,8 @@ from calibre.gui2 import error_dialog, info_dialog, choose_files, choose_save_fi
 from calibre.gui2.dialogs.message_box import MessageBox
 from calibre.gui2.widgets2 import HistoryComboBox
 from calibre.gui2.tweak_book import tprefs, editors, current_container
-from calibre.gui2.tweak_book.function_replace import FunctionBox, functions as replace_functions
+from calibre.gui2.tweak_book.function_replace import (
+    FunctionBox, functions as replace_functions, FunctionEditor, remove_function, Function)
 from calibre.gui2.tweak_book.widgets import BusyCursor
 
 from calibre.utils.icu import primary_contains
@@ -235,10 +236,12 @@ class SearchWidget(QWidget):
         fhl.setContentsMargins(0, 0, 0, 0)
         fhl.addWidget(fb, stretch=10, alignment=Qt.AlignVCenter)
         self.ae_func = b = QPushButton(_('Create/&edit'), self)
+        b.clicked.connect(self.edit_function)
         b.setToolTip(_('Create a new function, or edit an existing function'))
         fhl.addWidget(b)
         self.rm_func = b = QPushButton(_('Remo&ve'), self)
         b.setToolTip(_('Remove this function'))
+        b.clicked.connect(self.remove_function)
         fhl.addWidget(b)
         self.fsep = f = QFrame(self)
         f.setFrameShape(f.VLine)
@@ -289,6 +292,17 @@ class SearchWidget(QWidget):
         self.mode_changed(self.mode_box.currentIndex())
 
         ol.addStretch(10)
+
+    def edit_function(self):
+        d = FunctionEditor(func_name=self.functions.text().strip(), parent=self)
+        if d.exec_() == d.Accepted:
+            self.functions.setText(d.func_name)
+
+    def remove_function(self):
+        fname = self.functions.text().strip()
+        if fname:
+            if remove_function(fname, self):
+                self.functions.setText('')
 
     def mode_changed(self, idx):
         self.da.setVisible(idx > 0)
@@ -557,10 +571,12 @@ class EditSearch(QFrame):  # {{{
         la.setBuddy(f)
         self.ae_func = b = QPushButton(_('Create/&edit'), self)
         b.setToolTip(_('Create a new function, or edit an existing function'))
+        b.clicked.connect(self.edit_function)
         g.addWidget(b, 1, 1)
         g.setColumnStretch(0, 10)
         self.rm_func = b = QPushButton(_('Remo&ve'), self)
         b.setToolTip(_('Remove this function'))
+        b.clicked.connect(self.remove_function)
         g.addWidget(b, 1, 2)
 
         self.case_sensitive = c = QCheckBox(_('Case sensitive'))
@@ -587,6 +603,17 @@ class EditSearch(QFrame):  # {{{
         self.mode_box.currentIndexChanged[int].connect(self.mode_changed)
         self.mode_changed(self.mode_box.currentIndex())
 
+    def edit_function(self):
+        d = FunctionEditor(func_name=self.function.text().strip(), parent=self)
+        if d.exec_() == d.Accepted:
+            self.function.setText(d.func_name)
+
+    def remove_function(self):
+        fname = self.function.text().strip()
+        if fname:
+            if remove_function(fname, self):
+                self.function.setText('')
+
     def mode_changed(self, idx):
         self.dot_all.setVisible(idx > 0)
         self.functions_container.setVisible(idx == 2)
@@ -599,19 +626,25 @@ class EditSearch(QFrame):  # {{{
         self.original_name = self.search.get('name', None)
         self.search_index = search_index
 
+        self.mode_box.mode = self.search.get('mode', 'regex')
         self.search_name.setText(self.search.get('name', ''))
         self.find.setPlainText(self.search.get('find', ''))
-        self.replace.setPlainText(self.search.get('replace', ''))
+        if self.mode_box.mode == 'function':
+            self.function.setText(self.search.get('replace', ''))
+        else:
+            self.replace.setPlainText(self.search.get('replace', ''))
         self.case_sensitive.setChecked(self.search.get('case_sensitive', SearchWidget.DEFAULT_STATE['case_sensitive']))
         self.dot_all.setChecked(self.search.get('dot_all', SearchWidget.DEFAULT_STATE['dot_all']))
-        self.mode_box.mode = self.search.get('mode', 'regex')
 
         if state is not None:
             self.find.setPlainText(state['find'])
-            self.replace.setPlainText(state['replace'])
+            self.mode_box.mode = state.get('mode')
+            if self.mode_box.mode == 'function':
+                self.function.setText(state['replace'])
+            else:
+                self.replace.setPlainText(state['replace'])
             self.case_sensitive.setChecked(state['case_sensitive'])
             self.dot_all.setChecked(state['dot_all'])
-            self.mode_box.mode = state.get('mode')
 
     def emit_done(self):
         self.done.emit(True)
@@ -1147,6 +1180,8 @@ def get_search_function(search):
         try:
             return replace_functions()[ans]
         except KeyError:
+            if not ans:
+                return Function('empty-function', '')
             raise NoSuchFunction(ans)
     return ans
 
