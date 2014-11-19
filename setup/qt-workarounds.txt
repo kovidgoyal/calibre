@@ -9,3 +9,5 @@ using Qt >= 5.3.3
 
 Undo manual filtering of Cmd+letter in edit book editor/text.py when
 using Qt >= 4.0.0 (QTBUG-36281)
+
+Undo QToolBar hover workaround (QTBUG-36862) when using Qt >= 4.0.0
