@@ -323,8 +323,12 @@ class Resources(Command):  # {{{
             except Exception:
                 continue
             src = src.replace('def ' + func.func_name, 'def replace')
-            if 'apply_func_to_match_groups' in src:
-                src = 'from calibre.ebooks.oeb.polish.utils import apply_func_to_match_groups\n\n' + src
+            imports = []
+            for x in func.imports.split():
+                if x and x.strip():
+                    imports.append('from %s import %s' % tuple(x.split(':')))
+            if imports:
+                src = '\n'.join(imports) + '\n\n' + src
             function_dict[func.name] = src
         json.dump(function_dict, open(dest, 'wb'), indent=4)
 
