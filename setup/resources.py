@@ -323,10 +323,7 @@ class Resources(Command):  # {{{
             except Exception:
                 continue
             src = src.replace('def ' + func.func_name, 'def replace')
-            imports = []
-            for x in func.imports.split():
-                if x and x.strip():
-                    imports.append('from %s import %s' % tuple(x.split(':')))
+            imports = ['from %s import %s' % (x.__module__, x.__name__) for x in func.imports]
             if imports:
                 src = '\n'.join(imports) + '\n\n' + src
             function_dict[func.name] = src

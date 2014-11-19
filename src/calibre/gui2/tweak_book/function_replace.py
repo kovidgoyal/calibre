@@ -121,43 +121,41 @@ class FunctionBox(EditWithComplete):
 
 # Builtin functions ##########################################################
 
-def builtin(func, name, imports='', uses_apply=False):
+def builtin(func, name, *args):
     func.name = name
-    if uses_apply:
-        imports = 'calibre.ebooks.oeb.polish.utils:apply_func_to_match_groups ' + imports
-    func.imports = imports.rstrip()
+    func.imports = args
 
 def replace_uppercase(match, number, file_name, metadata, dictionaries, functions, *args, **kwargs):
     '''Make matched text upper case. If the regular expression contains groups,
     only the text in the groups will be changed, otherwise the entire text is
     changed.'''
     return apply_func_to_match_groups(match, upper)
-builtin(replace_uppercase, 'Upper-case text', 'calibre.utils.icu:upper', True)
+builtin(replace_uppercase, 'Upper-case text', upper, apply_func_to_match_groups)
 
 def replace_lowercase(match, number, file_name, metadata, dictionaries, functions, *args, **kwargs):
     '''Make matched text lower case. If the regular expression contains groups,
     only the text in the groups will be changed, otherwise the entire text is
     changed.'''
     return apply_func_to_match_groups(match, lower)
-builtin(replace_lowercase, 'Lower-case text', 'calibre.utils.icu:lower', True)
+builtin(replace_lowercase, 'Lower-case text', lower, apply_func_to_match_groups)
 
 def replace_capitalize(match, number, file_name, metadata, dictionaries, functions, *args, **kwargs):
     '''Capitalize matched text. If the regular expression contains groups,
     only the text in the groups will be changed, otherwise the entire text is
     changed.'''
     return apply_func_to_match_groups(match, capitalize)
-builtin(replace_capitalize, 'Capitalize text', 'calibre.utils.icu:capitalize', True)
+builtin(replace_capitalize, 'Capitalize text', capitalize, apply_func_to_match_groups)
 
 def replace_titlecase(match, number, file_name, metadata, dictionaries, functions, *args, **kwargs):
     '''Title-case matched text. If the regular expression contains groups,
     only the text in the groups will be changed, otherwise the entire text is
     changed.'''
     return apply_func_to_match_groups(match, titlecase)
-builtin(replace_titlecase, 'Title-case text', 'calibre.utils.titlecase:titlecase', True)
+builtin(replace_titlecase, 'Title-case text', titlecase, apply_func_to_match_groups)
 
 def replace_swapcase(match, number, file_name, metadata, dictionaries, functions, *args, **kwargs):
     '''Swap the case of the matched text. If the regular expression contains groups,
     only the text in the groups will be changed, otherwise the entire text is
     changed.'''
     return apply_func_to_match_groups(match, swapcase)
-builtin(replace_swapcase, 'Swap the case of text', 'calibre.utils.icu:swapcase', True)
+builtin(replace_swapcase, 'Swap the case of text', swapcase, apply_func_to_match_groups)
