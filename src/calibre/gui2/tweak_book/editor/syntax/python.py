@@ -8,16 +8,16 @@ __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
 from functools import partial
 
-from PyQt5.Qt import QTextCharFormat, QTextBlockUserData
+from PyQt5.Qt import QTextBlockUserData
 
 from calibre.gui2.tweak_book.editor.syntax.base import SyntaxHighlighter
+from calibre.gui2.tweak_book.editor.syntax.utils import format_for_pygments_token, NULL_FMT
 
 from pygments.lexer import _TokenType, Text, Error
 from pygments.lexers import PythonLexer
 
 NORMAL = 0
 
-NULL_FMT = QTextCharFormat()
 
 class QtLexer(PythonLexer):
 
@@ -82,43 +82,6 @@ class QtLexer(PythonLexer):
 
 lexer = QtLexer()
 
-_pyg_map = None
-def pygments_map():
-    global _pyg_map
-    if _pyg_map is None:
-        from pygments.token import Token
-        _pyg_map = {
-            Token: None,
-            Token.Comment: 'Comment', Token.Comment.Preproc: 'PreProc',
-            Token.String: 'String',
-            Token.Number: 'Number',
-            Token.Keyword.Type: 'Type',
-            Token.Keyword: 'Keyword',
-            Token.Name.Builtin: 'Identifier',
-            Token.Operator: 'Statement',
-            Token.Name.Function: 'Function',
-            Token.Literal: 'Constant',
-            Token.Error: 'Error',
-        }
-    return _pyg_map
-
-def format_for_token(theme, cache, token):
-    try:
-        return cache[token]
-    except KeyError:
-        pass
-    pmap = pygments_map()
-    while token is not None:
-        try:
-            name = pmap[token]
-        except KeyError:
-            token = token.parent
-            continue
-        cache[token] = ans = theme[name]
-        return ans
-    cache[token] = ans = NULL_FMT
-    return ans
-
 class State(object):
 
     __slots__ = ('parse', 'pygments_stack')
@@ -177,7 +140,7 @@ def create_formats(highlighter):
     cache = {}
     theme = highlighter.theme.copy()
     theme[None] = NULL_FMT
-    return partial(format_for_token, theme, cache)
+    return partial(format_for_pygments_token, theme, cache)
 
 class PythonHighlighter(SyntaxHighlighter):
 
