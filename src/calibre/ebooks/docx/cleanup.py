@@ -115,7 +115,7 @@ def cleanup_markup(log, root, styles, dest_dir, detect_cover):
 
     # Merge consecutive spans that have the same styling
     current_run = []
-    for span in root.xpath('//span[not(@style)]'):
+    for span in root.xpath('//span[not(@style or @lang)]'):
         if not current_run:
             current_run.append(span)
         else:
@@ -144,6 +144,8 @@ def cleanup_markup(log, root, styles, dest_dir, detect_cover):
                     parent.set('class', pclass)
                 parent.text = span.text
                 parent.remove(span)
+                if span.get('lang'):
+                    parent.set('lang', span.get('lang'))
                 for child in span:
                     parent.append(child)
 
@@ -159,7 +161,7 @@ def cleanup_markup(log, root, styles, dest_dir, detect_cover):
                 del span.attrib['class']
 
     # Get rid of <span>s that have no styling
-    for span in root.xpath('//span[not(@class) and not(@id) and not(@style)]'):
+    for span in root.xpath('//span[not(@class or @id or @style or @lang)]'):
         lift(span)
 
     # Convert <p><br style="page-break-after:always"> </p> style page breaks

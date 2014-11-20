@@ -43,6 +43,13 @@ class Text:
         setattr(self.elem, self.attr, ''.join(self.buf))
         self.elem, self.attr, self.buf = elem, 'tail', []
 
+def html_lang(docx_lang):
+    lang = canonicalize_lang(docx_lang)
+    if lang and lang != 'und':
+        lang = lang_as_iso639_1(lang)
+        if lang:
+            return lang
+
 class Convert(object):
 
     def __init__(self, path_or_stream, dest_dir=None, log=None, detect_cover=True, notes_text=None):
@@ -77,11 +84,12 @@ class Convert(object):
             child.tail = '\n\t\t'
         self.html[0][-1].tail = '\n\t'
         self.html[1].text = self.html[1].tail = '\n'
-        lang = canonicalize_lang(self.mi.language)
-        if lang and lang != 'und':
-            lang = lang_as_iso639_1(lang)
-            if lang:
-                self.html.set('lang', lang)
+        lang = html_lang(self.mi.language)
+        if lang:
+            self.html.set('lang', lang)
+            self.doc_lang = lang
+        else:
+            self.doc_lang = None
 
     def __call__(self):
         doc = self.docx.document
@@ -626,7 +634,9 @@ class Convert(object):
         if style.vert_align in {'superscript', 'subscript'}:
             ans.tag = 'sub' if style.vert_align == 'subscript' else 'sup'
         if style.lang is not inherit:
-            ans.lang = style.lang
+            lang = html_lang(style.lang)
+            if lang is not None and lang != self.doc_lang:
+                ans.set('lang', lang)
         return ans
 
     def add_frame(self, html_obj, style):
