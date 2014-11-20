@@ -18,7 +18,7 @@ from calibre.gui2 import error_dialog
 from calibre.gui2.complete2 import EditWithComplete
 from calibre.gui2.tweak_book import dictionaries
 from calibre.gui2.tweak_book.widgets import Dialog
-from calibre.gui2.widgets import PythonHighlighter
+from calibre.gui2.tweak_book.editor.text import TextEdit
 from calibre.utils.config import JSONConfig
 from calibre.utils.icu import capitalize, upper, lower, swapcase
 from calibre.utils.titlecase import titlecase
@@ -216,8 +216,8 @@ class FunctionEditor(Dialog):
         h.addWidget(fb, stretch=10)
 
         self.la3 = la = QLabel(_('&Code:'))
-        self.source_code = QPlainTextEdit(self)
-        self.highlighter = PythonHighlighter(self.source_code.document())
+        self.source_code = TextEdit(self)
+        self.source_code.load_text('', 'python')
         la.setBuddy(self.source_code)
         l.addWidget(la), l.addWidget(self.source_code)
 
