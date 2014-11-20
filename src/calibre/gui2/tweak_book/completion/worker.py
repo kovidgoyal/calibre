@@ -29,9 +29,9 @@ class CompletionWorker(Thread):
 
     def launch_worker_process(self):
         from calibre.utils.ipc.server import create_listener
-        from calibre.utils.ipc.simple_worker import start_pipe_worker
-        self.worker_process = p = start_pipe_worker(
-            'from {0} import run_main, {1}; run_main({1})'.format(self.__class__.__module__, self.worker_entry_point), stdout=None)
+        from calibre.utils.ipc.pool import start_worker
+        self.worker_process = p = start_worker(
+            'from {0} import run_main, {1}; run_main({1})'.format(self.__class__.__module__, self.worker_entry_point))
         auth_key = os.urandom(32)
         address, self.listener = create_listener(auth_key)
         eintr_retry_call(p.stdin.write, cPickle.dumps((address, auth_key), -1))
