@@ -198,6 +198,83 @@ class FunctionBox(EditWithComplete):
             menu.addAction(_('Show saved searches'), self.show_saved_searches.emit)
         menu.exec_(event.globalPos())
 
+class PythonEdit(TextEdit):
+
+    def apply_settings(self, *args, **kwargs):
+        TextEdit.apply_settings(self, *args, **kwargs)
+        self.setTabStopWidth(4 * self.space_width)
+
+    def keyPressEvent(self, ev):
+        key = ev.key()
+
+        def expand_tabs(text):
+            return text.replace('\t', ' '*4)
+
+        def get_text_before_cursor():
+            cursor = self.textCursor()
+            cursor.clearSelection()
+            cursor.movePosition(cursor.StartOfLine, cursor.KeepAnchor)
+            text = cursor.selectedText()
+            return cursor, text
+
+        def get_leading_whitespace_on_line(previous=False):
+            cursor = self.textCursor()
+            block = cursor.block()
+            if previous:
+                block = block.previous()
+            if block.isValid():
+                text = block.text()
+                ntext = text.lstrip()
+                return expand_tabs(text[:len(text)-len(ntext)])
+            return ''
+
+        if key == Qt.Key_Tab:
+            cursor, text = get_text_before_cursor()
+            if not text.lstrip():
+                # cursor is preceded by whitespace
+                text = expand_tabs(text)
+                spclen = len(text) - (len(text) % 4) + 4
+                cursor.insertText(' ' * spclen)
+                self.setTextCursor(cursor)
+                return
+            else:
+                cursor = self.textCursor()
+                cursor.insertText(' ' * 4)
+                self.setTextCursor(cursor)
+        elif key == Qt.Key_Backspace:
+            cursor, text = get_text_before_cursor()
+            if text and not text.lstrip():
+                # cursor is preceded by whitespace
+                text = expand_tabs(text)
+                spclen = max(0, len(text) - (len(text) % 4) - 4)
+                cursor.insertText(' ' * spclen)
+                self.setTextCursor(cursor)
+                return
+        elif key in (Qt.Key_Enter, Qt.Key_Return):
+            ls = get_leading_whitespace_on_line()
+            cursor = self.textCursor()
+            line = cursor.block().text()
+            if line.rstrip().endswith(':'):
+                ls += ' ' * 4
+            elif re.match(r'\s+(continue|break|return|pass)(\s|$)', line) is not None:
+                ls = ls[:-4]
+            cursor.insertText('\n' + ls)
+            self.setTextCursor(cursor)
+            return
+        elif key == Qt.Key_Colon:
+            cursor, text = get_text_before_cursor()
+            if re.match(r'\s+(else|elif|except)(\(|\s|$)', text) is not None:
+                ls = get_leading_whitespace_on_line()
+                pls = get_leading_whitespace_on_line(previous=True)
+                if ls and ls >= pls:
+                    ls = ls[:-4]
+                    text = ls + text.lstrip() + ':'
+                    cursor.insertText(text)
+                    self.setTextCursor(cursor)
+                    return
+
+        TextEdit.keyPressEvent(self, ev)
+
 class FunctionEditor(Dialog):
 
     def __init__(self, func_name='', parent=None):
@@ -216,7 +293,7 @@ class FunctionEditor(Dialog):
         h.addWidget(fb, stretch=10)
 
         self.la3 = la = QLabel(_('&Code:'))
-        self.source_code = TextEdit(self)
+        self.source_code = PythonEdit(self)
         self.source_code.load_text('', 'python')
         la.setBuddy(self.source_code)
         l.addWidget(la), l.addWidget(self.source_code)
