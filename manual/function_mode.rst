@@ -79,6 +79,8 @@ write a simple function to automatically find and fix such words.
 .. code-block:: python
 
     import regex
+    from calibre import replace_entities
+    from calibre import prepare_string_for_xml
 
     def replace(match, number, file_name, metadata, dictionaries, data, functions, *args, **kwargs):
 
@@ -91,7 +93,9 @@ write a simple function to automatically find and fix such words.
             return wmatch.group()
 
         # Search for words split by a hyphen
-        return regex.sub(r'(\w+)\s*-\s*(\w+)', replace_word, match.group(), flags=regex.VERSION1 | regex.UNICODE)
+        text = replace_entities(match.group()[1:-1])  # Handle HTML entities like &amp;
+        corrected = regex.sub(r'(\w+)\s*-\s*(\w+)', replace_word, text, flags=regex.VERSION1 | regex.UNICODE)
+        return '>%s<' % prepare_string_for_xml(corrected)  # Put back required entities 
 
 Use this function with the same find expression as before, namely::
 
