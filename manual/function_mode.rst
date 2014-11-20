@@ -204,3 +204,131 @@ Another new feature is the use of ``call_after_last_match`` setting that to
 True on the ``replace()`` function means that the editor will call
 ``replace()`` one extra time after all matches have been found. For this extra
 call, the match object will be ``None``.
+
+The API for the function mode
+-------------------------------
+
+All function mode functions must be python functions named replace, with the
+following signature::
+    
+    def replace(match, number, file_name, metadata, dictionaries, data, functions, *args, **kwargs):
+        return a_string
+
+When a find/replace is run, for every match that is found, the ``replace()``
+function will be called, it must return the replacement string for that match.
+If no replacements are to be done, it should return ``match.group()`` which is
+the original string. The various arguments to the ``replace()`` function are
+documented below.
+
+The ``match`` argument
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The ``match`` argument represents the currently found match. It is a 
+`python Match object <https://docs.python.org/2.7/library/re.html#match-objects>`_.
+It's most useful method is ``group()`` which can be used to get the matched
+text corresponding to individual capture groups in the search regular
+expression.
+
+The ``number`` argument
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The ``number`` argument is the number of the current match. When you run
+:guilabel:`Replace All`, every successive match will cause ``replace()`` to be
+called with an increasing number. The first match has number 1.
+
+The ``file_name`` argument
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+This is the filename of the file in which the current match was found. When
+searching inside marked text, the ``file_name`` is empty. The ``file_name`` is
+in canonical form, a path relative to the root of the book, using ``/`` as the
+path separator.
+
+The ``metadata`` argument
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+This represents the metadata of the current book, such as title, authors,
+language, etc. It is an object of class :class:`calibre.ebooks.metadata.book.base.Metadata`.
+Useful attributes include, ``title``, ``authors`` (a list of authors) and
+``language`` (the language code).
+
+The ``dictionaries`` argument
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+This represents the collection of dictionaries used for spell checking the
+current book. It's most useful method is ``dictionaries.recognized(word)``
+which will return ``True`` if the passed in word is recognized by the dictionary
+for the current book's language.
+
+The ``data`` argument
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+This a simple python ``dict``. When you run
+:guilabel:`Replace All`, every successive match will cause ``replace()`` to be
+called with the same ``dict`` as data. You can thus use it to store arbitrary
+data between invocations of ``replace()`` during a :guilabel:`Replace All`
+operation.
+
+The ``functions`` argument
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The ``functions`` argument gives you access to all other user defined
+functions. This is useful for code re-use. You can define utility functions in
+one place and re-use them in all your other functions. For example, suppose you
+create a function name ``My Function`` like this:
+
+.. code-block:: python
+
+    def utility():
+       # do something
+
+    def replace(match, number, file_name, metadata, dictionaries, data, functions, *args, **kwargs):
+        ...
+
+Then, in another function, you can access the ``utility()`` function like this:
+
+.. code-block:: python
+
+    def replace(match, number, file_name, metadata, dictionaries, data, functions, *args, **kwargs):
+        utility = functions['My Function']['utility']
+        ...
+
+You can also use the functions object to store persistent data, that can be
+re-used by other functions. For example, you could have one function that when
+run with :guilabel:`Replace All` collects some data and another function that
+uses it when it is run afterwards. Consider the following two functions:
+
+.. code-block:: python
+
+    # Function One
+    persistent_data = {}
+
+    def replace(match, number, file_name, metadata, dictionaries, data, functions, *args, **kwargs):
+        ...
+        persistent_data['something'] = 'some data'
+
+    # Function Two
+    def replace(match, number, file_name, metadata, dictionaries, data, functions, *args, **kwargs):
+        persistent_data = functions['Function One']['persistent_data']
+        ...
+
+Debugging your functions
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+You can debug the functions you create by using the standard ``print()``
+function from python. The output of print will be displayed in a popup window
+after the Find/replace has completed. You saw an example of using ``print()``
+to output an entire table of contents above.
+
+Having your function called an extra time after the last match is found
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Sometimes, as in the auto generate table of contents example above, it is
+useful to have your function called an extra time after the last match is
+found. You can do this by setting the call_after_last_match attribute on your
+function, like this::
+
+    def replace(match, number, file_name, metadata, dictionaries, data, functions, *args, **kwargs):
+        ...
+
+    replace.call_after_last_match = True
