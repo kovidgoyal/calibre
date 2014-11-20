@@ -40,8 +40,11 @@ def get_highlighter(syntax):
     if ans is SyntaxHighlighter:
         # Load these highlighters only on demand
         if syntax == 'python':
-            from calibre.gui2.tweak_book.editor.syntax.python import PythonHighlighter
-            ans = PythonHighlighter
+            try:
+                from calibre.gui2.tweak_book.editor.syntax.python import PythonHighlighter
+                ans = PythonHighlighter
+            except ImportError:
+                pass  # For people running from source
     return ans
 
 _dff = None
