@@ -119,7 +119,7 @@ tarball. Edit setup.py and set zip_safe=False. Then run::
 
 Run the following command to install python dependencies::
 
-    easy_install --always-unzip -U mechanize python-dateutil dnspython cssutils clientform pycrypto cssselect
+    easy_install --always-unzip -U mechanize python-dateutil dnspython cssutils clientform pycrypto cssselect pygments
 
 Install pyreadline from https://pypi.python.org/pypi/pyreadline/2.0
 
