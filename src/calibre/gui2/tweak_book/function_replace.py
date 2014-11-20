@@ -96,6 +96,7 @@ class Function(object):
                 return self.func(None, self.match_index, self.context_name, self.boss.current_metadata, dictionaries, self.data, functions())
             finally:
                 sys.stdout, sys.stderr = oo, oe
+        self.data, self.debug_buf, self.boss = {}, None, None
 
 class DebugOutput(Dialog):
 
@@ -130,7 +131,7 @@ class DebugOutput(Dialog):
 
 def builtin_functions():
     for name, obj in globals().iteritems():
-        if name.startswith('replace_') and callable(obj):
+        if name.startswith('replace_') and callable(obj) and hasattr(obj, 'imports'):
             yield obj
 
 _functions = None
