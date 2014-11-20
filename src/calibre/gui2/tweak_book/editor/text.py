@@ -36,7 +36,13 @@ PARAGRAPH_SEPARATOR = '\u2029'
 entity_pat = re.compile(r'&(#{0,1}[a-zA-Z0-9]{1,8});')
 
 def get_highlighter(syntax):
-    return {'html':HTMLHighlighter, 'css':CSSHighlighter, 'xml':XMLHighlighter}.get(syntax, SyntaxHighlighter)
+    ans = {'html':HTMLHighlighter, 'css':CSSHighlighter, 'xml':XMLHighlighter}.get(syntax, SyntaxHighlighter)
+    if ans is SyntaxHighlighter:
+        # Load these highlighters only on demand
+        if syntax == 'python':
+            from calibre.gui2.tweak_book.editor.syntax.python import PythonHighlighter
+            ans = PythonHighlighter
+    return ans
 
 _dff = None
 def default_font_family():

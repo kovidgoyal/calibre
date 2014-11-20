@@ -8,13 +8,12 @@ __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import os
 
-from PyQt5.Qt import QTextDocument, QTextCursor, QTextCharFormat, QPlainTextDocumentLayout
+from PyQt5.Qt import QTextDocument, QTextCursor, QPlainTextDocumentLayout
 
 from calibre.gui2.tweak_book import tprefs
 from calibre.gui2.tweak_book.editor.text import get_highlighter as calibre_highlighter, SyntaxHighlighter
 from calibre.gui2.tweak_book.editor.themes import get_theme, highlight_to_char_format
-
-NULL_FMT = QTextCharFormat()
+from calibre.gui2.tweak_book.editor.syntax.python import format_for_token, NULL_FMT
 
 class QtHighlighter(QTextDocument):
 
@@ -71,44 +70,6 @@ def pygments_lexer(filename):
         if filename.lower().endswith('.recipe'):
             return glff('a.py')
         return None
-
-_pyg_map = None
-def pygments_map():
-    global _pyg_map
-    if _pyg_map is None:
-        from pygments.token import Token
-        _pyg_map = {
-            Token: None,
-            Token.Comment: 'Comment',
-            Token.Comment.Preproc: 'PreProc',
-            Token.String: 'String',
-            Token.Number: 'Number',
-            Token.Keyword.Type: 'Type',
-            Token.Keyword: 'Keyword',
-            Token.Name.Builtin: 'Identifier',
-            Token.Operator: 'Statement',
-            Token.Name.Function: 'Function',
-            Token.Literal: 'Constant',
-            Token.Error: 'Error',
-        }
-    return _pyg_map
-
-def format_for_token(theme, cache, token):
-    try:
-        return cache[token]
-    except KeyError:
-        pass
-    pmap = pygments_map()
-    while token is not None:
-        try:
-            name = pmap[token]
-        except KeyError:
-            token = token.parent
-            continue
-        cache[token] = ans = theme[name]
-        return ans
-    cache[token] = ans = NULL_FMT
-    return ans
 
 class PygmentsHighlighter(object):
 
