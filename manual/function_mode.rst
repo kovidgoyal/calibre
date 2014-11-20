@@ -137,3 +137,70 @@ Place the cursor at the top of the file and click :guilabel:`Replace all`. This
 function uses another of the useful extra arguments to ``replace()``: the
 ``number`` argument. When doing a :guilabel:`Replace All` number is
 automatically incremented for every successive match.
+
+
+Auto create a Table of Contents
+-------------------------------------
+
+Finally, lets try something a little more ambitious. Suppose your book has
+headings in ``h1`` and ``h2`` tags that look like 
+``<h1 id="someif">Some Text</h1>``. We will auto-generate an HTML Table of
+Contents based on these headings. Create the custom function below:
+
+.. code-block:: python
+
+    from calibre import replace_entities
+    from calibre.ebooks.oeb.polish.toc import TOC, toc_to_html
+    from calibre.gui2.tweak_book import current_container
+    from calibre.ebooks.oeb.base import xml2str
+
+    def replace(match, number, file_name, metadata, dictionaries, data, functions, *args, **kwargs):
+        if match is None:
+            # All matches found, output the resulting Table of Contents.
+            # The argument metadata is the metadata of the book being edited
+            if 'toc' in data:
+                book = current_container()
+                toc = data['toc']
+                # Re-arrange the entries in the spine order of the book
+                spine_order = {name:i for i, (name, is_linear) in enumerate(book.spine_names)}
+                toc.sort(key=lambda x: spine_order.get(x[0]))
+                root = TOC()
+                for (file_name, tag_name, anchor, text) in toc:
+                    parent = root.children[-1] if tag_name == 'h2' and root.children else root
+                    parent.add(text, file_name, anchor)
+                toc = toc_to_html(root, book, 'toc.html', 'Table of Contents for ' + metadata.title, metadata.language)
+                print (xml2str(toc))
+            else:
+                print ('No headings to build ToC from found')
+        else:
+            # Add an entry corresponding to this match to the Table of Contents
+            if 'toc' not in data:
+                # The entries are stored in the data object, which will persist
+                # for all invocations of this function during a 'Replace All' operation
+                data['toc'] = []
+            tag_name, anchor, text = match.group(1), replace_entities(match.group(2)), replace_entities(match.group(3))
+            data['toc'].append((file_name, tag_name, anchor, text))
+            return match.group()  # We dont want to make any actual changes, so return the original matched text
+
+    # Ensure that we are called once after the last match is found so we can
+    # output the ToC
+    replace.call_after_last_match = True
+
+And use it with the find expression::
+
+    <(h[12]) [^<>]* id=['"]([^'"]+)['"][^<>]*>([^<>]+)
+
+Run the search of :guilabel:`All text files` and at the end of the search, a
+window will popup with "Debug Output from your function" which will have the
+HTML Table of Contents, ready to be pasted into :file:`toc.html`.
+
+The function above is heavily commented, so it should be easy to follow. The
+key new feature is the use of another useful extra argument to the
+``replace()`` function, the ``data`` object. The ``data`` object is a python
+*dict* that persists between all successive invocations of ``replace()`` during
+a single :guilabel:`Replace All` operation.
+
+Another new feature is the use of ``call_after_last_match`` setting that to
+True on the ``replace()`` function means that the editor will call
+``replace()`` one extra time after all matches have been found. For this extra
+call, the match object will be ``None``.
