@@ -112,3 +112,28 @@ free composite word.
 Note that one limitation of this technique is it will only work for
 mono-lingual books, because, by default, ``dictionaries.recognized()`` uses the
 main language of the book.
+
+
+Auto numbering sections
+---------------------------
+
+Now we will see something a little different. Suppose your HTML file has many
+sections, each with a heading in an :code:`<h2>` tag that looks like
+:code:`<h2>Some text</h2>`. You can create a custom function that will
+automatically number these headings with consecutive section numbers, so that
+they look like :code:`<h2>1. Some text</h2>`.
+
+.. code-block:: python
+
+    def replace(match, number, file_name, metadata, dictionaries, data, functions, *args, **kwargs):
+        section_number = '%d. ' % number
+        return match.group(1) + section_number + match.group(2)
+
+Use it with the find expression::
+
+    (<h2[^<>]*>)([^<>]+</h2>)
+
+Place the cursor at the top of the file and click :guilabel:`Replace all`. This
+function uses another of the useful extra arguments to ``replace()``: the
+``number`` argument. When doing a :guilabel:`Replace All` number is
+automatically incremented for every successive match.
