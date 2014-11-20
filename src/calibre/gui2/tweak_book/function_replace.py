@@ -64,6 +64,7 @@ class Function(object):
         self.boss = get_boss()
         self.data = {}
         self.debug_buf = StringIO()
+        self.functions = {name:func.mod for name, func in functions().iteritems() if func.mod is not None}
 
     def __hash__(self):
         return hash(self.name)
@@ -78,7 +79,7 @@ class Function(object):
         self.match_index += 1
         oo, oe, sys.stdout, sys.stderr = sys.stdout, sys.stderr, self.debug_buf, self.debug_buf
         try:
-            return self.func(match, self.match_index, self.context_name, self.boss.current_metadata, dictionaries, self.data, functions())
+            return self.func(match, self.match_index, self.context_name, self.boss.current_metadata, dictionaries, self.data, self.functions)
         finally:
             sys.stdout, sys.stderr = oo, oe
 
@@ -93,10 +94,10 @@ class Function(object):
         if getattr(self.func, 'call_after_last_match', False):
             oo, oe, sys.stdout, sys.stderr = sys.stdout, sys.stderr, self.debug_buf, self.debug_buf
             try:
-                return self.func(None, self.match_index, self.context_name, self.boss.current_metadata, dictionaries, self.data, functions())
+                return self.func(None, self.match_index, self.context_name, self.boss.current_metadata, dictionaries, self.data, self.functions)
             finally:
                 sys.stdout, sys.stderr = oo, oe
-        self.data, self.debug_buf, self.boss = {}, None, None
+        self.data, self.debug_buf, self.boss, self.functions = {}, None, None, {}
 
 class DebugOutput(Dialog):
 
