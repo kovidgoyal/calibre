@@ -326,7 +326,9 @@ Having your function called an extra time after the last match is found
 Sometimes, as in the auto generate table of contents example above, it is
 useful to have your function called an extra time after the last match is
 found. You can do this by setting the call_after_last_match attribute on your
-function, like this::
+function, like this:
+
+.. code-block:: python
 
     def replace(match, number, file_name, metadata, dictionaries, data, functions, *args, **kwargs):
         ...
