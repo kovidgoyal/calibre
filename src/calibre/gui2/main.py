@@ -344,7 +344,7 @@ def run_gui(opts, args, listener, app, gui_debug=None):
         wizard().exec_()
     if getattr(runner.main, 'restart_after_quit', False):
         e = sys.executable if getattr(sys, 'frozen', False) else sys.argv[0]
-        if getattr(runner.main, 'debug_on_restart', False):
+        if getattr(runner.main, 'debug_on_restart', False) or gui_debug is not None:
             run_in_debug_mode()
         else:
             import subprocess
