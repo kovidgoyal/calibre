@@ -495,22 +495,7 @@ def find_inline_toc(container):
         if container.parsed(name).xpath('//*[local-name()="body" and @id="calibre_generated_inline_toc"]'):
             return name
 
-def create_inline_toc(container, title=None):
-    '''
-    Create an inline (HTML) Table of Contents from an existing NCX table of contents.
-
-    :param title: The title for this table of contents.
-    '''
-    lang = get_book_language(container)
-    default_title = 'Table of Contents'
-    if lang:
-        lang = lang_as_iso639_1(lang) or lang
-        default_title = translate(lang, default_title)
-    title = title or default_title
-    toc = get_toc(container)
-    if len(toc) == 0:
-        return None
-    toc_name = find_inline_toc(container)
+def toc_to_html(toc, container, toc_name, title, lang=None):
 
     def process_node(html_parent, toc, level=1, indent='  ', style_level=2):
         li = html_parent.makeelement(XHTML('li'))
@@ -549,7 +534,6 @@ def create_inline_toc(container, title=None):
         )
     )
 
-    name = toc_name
     ul = html[1][1]
     ul.set('class', 'level1')
     for child in toc:
@@ -557,6 +541,27 @@ def create_inline_toc(container, title=None):
     if lang:
         html.set('lang', lang)
     pretty_html_tree(container, html)
+    return html
+
+def create_inline_toc(container, title=None):
+    '''
+    Create an inline (HTML) Table of Contents from an existing NCX table of contents.
+
+    :param title: The title for this table of contents.
+    '''
+    lang = get_book_language(container)
+    default_title = 'Table of Contents'
+    if lang:
+        lang = lang_as_iso639_1(lang) or lang
+        default_title = translate(lang, default_title)
+    title = title or default_title
+    toc = get_toc(container)
+    if len(toc) == 0:
+        return None
+    toc_name = find_inline_toc(container)
+
+    name = toc_name
+    html = toc_to_html(toc, container, name, title, lang)
     raw = serialize(html, 'text/html')
     if name is None:
         name, c = 'toc.xhtml', 0
