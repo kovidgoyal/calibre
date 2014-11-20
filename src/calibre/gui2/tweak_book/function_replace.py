@@ -11,7 +11,7 @@ from cStringIO import StringIO
 
 from PyQt5.Qt import (
     pyqtSignal, QVBoxLayout, QHBoxLayout, QPlainTextEdit, QLabel, QFontMetrics,
-    QSize, Qt)
+    QSize, Qt, QApplication, QIcon)
 
 from calibre.ebooks.oeb.polish.utils import apply_func_to_match_groups
 from calibre.gui2 import error_dialog
@@ -89,6 +89,14 @@ class Function(object):
             return json.loads(P('editor-functions.json', data=True, allow_user_override=False))[self.name]
         return self._source
 
+    def end(self):
+        if getattr(self.func, 'call_after_last_match', False):
+            oo, oe, sys.stdout, sys.stderr = sys.stdout, sys.stderr, self.debug_buf, self.debug_buf
+            try:
+                return self.func(None, self.match_index, self.context_name, self.boss.current_metadata, dictionaries, self.data, functions())
+            finally:
+                sys.stdout, sys.stderr = oo, oe
+
 class DebugOutput(Dialog):
 
     def __init__(self, parent=None):
@@ -98,19 +106,27 @@ class DebugOutput(Dialog):
     def setup_ui(self):
         self.l = l = QVBoxLayout(self)
         self.text = t = QPlainTextEdit(self)
+        self.log_text = ''
         l.addWidget(t)
         l.addWidget(self.bb)
         self.bb.setStandardButtons(self.bb.Close)
+        self.cb = b = self.bb.addButton(_('&Copy to clipboard'), self.bb.ActionRole)
+        b.clicked.connect(self.copy_to_clipboard)
+        b.setIcon(QIcon(I('edit-copy.png')))
 
     def show_log(self, name, text):
         self.setWindowTitle(_('Debug output from %s') % name)
         self.text.setPlainText(self.windowTitle() + '\n\n' + text)
+        self.log_text = text
         self.show()
         self.raise_()
 
     def sizeHint(self):
         fm = QFontMetrics(self.text.font())
         return QSize(fm.averageCharWidth() * 120, 400)
+
+    def copy_to_clipboard(self):
+        QApplication.instance().clipboard().setText(self.log_text)
 
 def builtin_functions():
     for name, obj in globals().iteritems():
@@ -300,7 +316,6 @@ def replace_swapcase(match, number, file_name, metadata, dictionaries, data, fun
     return apply_func_to_match_groups(match, swapcase)
 
 if __name__ == '__main__':
-    from PyQt5.Qt import QApplication
     app = QApplication([])
     FunctionEditor().exec_()
     del app

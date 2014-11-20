@@ -343,7 +343,15 @@ class TextEdit(PlainTextEdit):
         if template is None:
             count = len(pat.findall(raw))
         else:
+            from calibre.gui2.tweak_book.function_replace import Function
+            repl_is_func = isinstance(template, Function)
+            if repl_is_func:
+                template.init_env()
             raw, count = pat.subn(template, raw)
+            if repl_is_func:
+                from calibre.gui2.tweak_book.search import show_function_debug_output
+                show_function_debug_output(template)
+                template.end()
             if count > 0:
                 start_pos = min(c.anchor(), c.position())
                 c.insertText(raw)

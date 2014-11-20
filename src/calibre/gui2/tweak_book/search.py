@@ -1262,10 +1262,13 @@ def run_search(
         if editor is None:
             return no_replace()
         for p, repl in searches:
-            if callable(repl):
+            repl_is_func = isinstance(repl, Function)
+            if repl_is_func:
                 repl.init_env(current_editor_name)
             if editor.replace(p, repl, saved_match='gui'):
-                show_function_debug_output(repl)
+                if repl_is_func:
+                    repl.end()
+                    show_function_debug_output(repl)
                 return True
         return no_replace(_(
                 'Currently selected text does not match the search query.'))
@@ -1296,12 +1299,13 @@ def run_search(
             raw_data[n] = raw
 
         for p, repl in searches:
-            if callable(repl):
+            repl_is_func = isinstance(repl, Function)
+            if repl_is_func:
                 repl.init_env()
             for n, syntax in lfiles.iteritems():
                 raw = raw_data[n]
                 if replace:
-                    if callable(repl):
+                    if repl_is_func:
                         repl.context_name = n
                     raw, num = p.subn(repl, raw)
                     if num > 0:
@@ -1310,7 +1314,9 @@ def run_search(
                 else:
                     num = len(p.findall(raw))
                 count += num
-            show_function_debug_output(repl)
+            if repl_is_func:
+                repl.end()
+                show_function_debug_output(repl)
 
         for n in updates:
             raw = raw_data[n]
