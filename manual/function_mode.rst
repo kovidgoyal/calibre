@@ -131,7 +131,7 @@ they look like :code:`<h2>1. Some text</h2>`.
 
 Use it with the find expression::
 
-    (<h2[^<>]*>)([^<>]+</h2>)
+    (?s)(<h2[^<>]*>)(.+?</h2>)
 
 Place the cursor at the top of the file and click :guilabel:`Replace all`. This
 function uses another of the useful extra arguments to ``replace()``: the
