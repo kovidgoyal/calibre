@@ -48,7 +48,7 @@ class SZmobil(BasicNewsRecipe):
 
         # Login via fetching of Streiflicht -> Fill out login request
         url = 'https://id.sueddeutsche.de/login'
-        url2 = 'https://id.sueddeutsche.de/service/ticket?redirect_uri=http%3A%2F%2Fepaper.sueddeutsche.de%2Fapp%2Fservice%2Fepaper-mobil%2Flanding.php%3Fid%3Dstreif%26etag%3D1&service_id=epapermobile'
+        url2 = 'https://id.sueddeutsche.de/login/ticket?redirect_uri=http%3A%2F%2Fepaper.sueddeutsche.de%2Fapp%2Fservice%2Fepaper-mobil%2Flanding.php%3Fid%3Dstreif%26etag%3D1&service_id=epapermobile'
         browser.open(url)
 
         browser.select_form(nr=0) # to select the first form
