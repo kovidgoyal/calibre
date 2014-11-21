@@ -20,6 +20,39 @@
 #   new recipes:
 #     - title: 
 
+- version: 2.11.0
+  date: 2014-11-21
+
+  new features:
+    - title: "Edit Book: Add a new 'function mode' for the Search and Replace tool"
+      description: "The function mode allows you to create python functions that run on the results of Search and Replace. This allows you to do arbitrarily powerful text processing. For example, you can automatically fix the case of text, automatically add section number to headings, and so on. For examples and documentation, see: http://manual.calibre-ebook.com/function_mode.html"
+      type: major
+
+  bug fixes:
+    - title: "DOCX Input: Add support for multilingual documents."
+      tickets: [1394428]
+
+    - title: "Edit metadata dialog: Fix date fields being displayed in the UTC timezone instead of the local timezone, causing the day to be off by one in some timezones."
+      tickets: [1393166]
+
+    - title: "Conversion/Book polishing: Fix ampersands in title/series/publisher/author not being properly escaped."
+      tickets: [1393230]
+
+    - title: "Update the bundled version of libimobiledevice on windows, so that the iOS Reader plugin can connect to iOS 8 devices again"
+
+    - title: "Fix a regression in 2.10 that causes Adding books from sub-folders, one book per folder to incorrectly add OPF files present in the sub-folders as an extra format."
+      tickets: [1392864]
+
+    - title: "Fix a regression in 2.10 that caused changes in Preferences->Adding books to not work for the next immediate add"
+
+    - title: "Fix Ctrl-R while in debug mode not restarting in debug mode properly"
+
+    - title: "Fix regression in evaluating composite columns that use other composite columns."
+
+  improved recipes:
+    - Nikkei News
+
+     
 - version: 2.10.0
   date: 2014-11-14
 
