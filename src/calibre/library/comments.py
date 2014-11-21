@@ -12,7 +12,6 @@ from calibre.ebooks.BeautifulSoup import BeautifulSoup, Tag, NavigableString, \
         CData, Comment, Declaration, ProcessingInstruction
 from calibre import prepare_string_for_xml
 from calibre.utils.html2text import html2text
-from calibre.ebooks.markdown import Markdown
 
 # Hackish - ignoring sentences ending or beginning in numbers to avoid
 # confusion with decimal points.
@@ -135,6 +134,7 @@ def merge_comments(one, two):
     return comments_to_html(one) + '\n\n' + comments_to_html(two)
 
 def sanitize_comments_html(html):
+    from calibre.ebooks.markdown import Markdown
     text = html2text(html)
     md = Markdown(safe_mode='remove')
     cleansed = re.sub('\n+', '', md.convert(text))
