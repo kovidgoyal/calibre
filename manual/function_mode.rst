@@ -200,8 +200,8 @@ key new feature is the use of another useful extra argument to the
 *dict* that persists between all successive invocations of ``replace()`` during
 a single :guilabel:`Replace All` operation.
 
-Another new feature is the use of ``call_after_last_match`` setting that to
-True on the ``replace()`` function means that the editor will call
+Another new feature is the use of ``call_after_last_match`` -- setting that to
+``True`` on the ``replace()`` function means that the editor will call
 ``replace()`` one extra time after all matches have been found. For this extra
 call, the match object will be ``None``.
 
