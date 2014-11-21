@@ -31,18 +31,20 @@ from calibre.utils.titlecase import titlecase
 PARAGRAPH_SEPARATOR = '\u2029'
 
 def get_highlighter(syntax):
-    try:
-        return importlib.import_module('calibre.gui2.tweak_book.editor.syntax.' + syntax).Highlighter
-    except (ImportError, AttributeError):
-        pass
+    if syntax:
+        try:
+            return importlib.import_module('calibre.gui2.tweak_book.editor.syntax.' + syntax).Highlighter
+        except (ImportError, AttributeError):
+            pass
     return SyntaxHighlighter
 
 def get_smarts(syntax):
-    smartsname = {'xml':'html'}.get(syntax, syntax)
-    try:
-        return importlib.import_module('calibre.gui2.tweak_book.editor.smarts.' + smartsname).Smarts
-    except (ImportError, AttributeError):
-        pass
+    if syntax:
+        smartsname = {'xml':'html'}.get(syntax, syntax)
+        try:
+            return importlib.import_module('calibre.gui2.tweak_book.editor.smarts.' + smartsname).Smarts
+        except (ImportError, AttributeError):
+            pass
 
 _dff = None
 def default_font_family():
