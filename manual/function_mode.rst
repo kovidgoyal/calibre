@@ -190,7 +190,7 @@ And use it with the find expression::
 
     <(h[12]) [^<>]* id=['"]([^'"]+)['"][^<>]*>([^<>]+)
 
-Run the search of :guilabel:`All text files` and at the end of the search, a
+Run the search on :guilabel:`All text files` and at the end of the search, a
 window will popup with "Debug Output from your function" which will have the
 HTML Table of Contents, ready to be pasted into :file:`toc.html`.
 
