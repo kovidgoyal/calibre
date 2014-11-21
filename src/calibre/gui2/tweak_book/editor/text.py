@@ -6,7 +6,7 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import re
+import re, importlib
 import textwrap, unicodedata
 from future_builtins import map
 
@@ -39,12 +39,10 @@ def get_highlighter(syntax):
     ans = {'html':HTMLHighlighter, 'css':CSSHighlighter, 'xml':XMLHighlighter}.get(syntax, SyntaxHighlighter)
     if ans is SyntaxHighlighter:
         # Load these highlighters only on demand
-        if syntax == 'python':
-            try:
-                from calibre.gui2.tweak_book.editor.syntax.python import PythonHighlighter
-                ans = PythonHighlighter
-            except ImportError:
-                pass  # For people running from source
+        try:
+            ans = importlib.import_module('calibre.gui2.tweak_book.editor.syntax.' + syntax).Highlighter
+        except (ImportError, AttributeError):
+            pass
     return ans
 
 _dff = None

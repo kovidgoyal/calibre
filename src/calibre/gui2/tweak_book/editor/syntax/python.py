@@ -10,7 +10,7 @@ from pygments.lexers import PythonLexer
 
 from calibre.gui2.tweak_book.editor.syntax.pygments_highlighter import create_highlighter
 
-PythonHighlighter = create_highlighter('PythonHighlighter', PythonLexer)
+Highlighter = create_highlighter('PythonHighlighter', PythonLexer)
 
 if __name__ == '__main__':
     import os
