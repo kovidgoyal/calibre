@@ -13,11 +13,14 @@ from calibre.ebooks.oeb.polish.container import guess_type
 
 _xml_types = {'application/oebps-page-map+xml', 'application/vnd.adobe-page-template+xml', 'application/page-template+xml'} | {
             guess_type('a.'+x) for x in ('ncx', 'opf', 'svg', 'xpgt', 'xml')}
+_js_types = {'application/javascript', 'application/x-javascript'}
 
 def syntax_from_mime(name, mime):
     for syntax, types in (('html', OEB_DOCS), ('css', OEB_STYLES), ('xml', _xml_types)):
         if mime in types:
             return syntax
+    if mime in _js_types:
+        return 'javascript'
     if mime.startswith('text/'):
         return 'text'
     if mime.startswith('image/') and mime.partition('/')[-1].lower() in {
@@ -27,7 +30,7 @@ def syntax_from_mime(name, mime):
         return 'xml'
 
 def editor_from_syntax(syntax, parent=None):
-    if syntax in {'text', 'html', 'css', 'xml'}:
+    if syntax in {'text', 'html', 'css', 'xml', 'javascript'}:
         from calibre.gui2.tweak_book.editor.widget import Editor
         return Editor(syntax, parent=parent)
     elif syntax == 'raster_image':
