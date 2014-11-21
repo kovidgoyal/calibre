@@ -17,7 +17,7 @@ from calibre.gui2 import error_dialog
 from calibre.gui2.tweak_book.editor.syntax.html import ATTR_NAME, ATTR_END, ATTR_START, ATTR_VALUE
 from calibre.utils.icu import utf16_length
 from calibre.gui2.tweak_book import tprefs
-from calibre.gui2.tweak_book.editor.smart import NullSmarts
+from calibre.gui2.tweak_book.editor.smarts import NullSmarts
 
 get_offset = itemgetter(0)
 PARAGRAPH_SEPARATOR = '\u2029'

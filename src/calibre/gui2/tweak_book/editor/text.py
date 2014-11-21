@@ -23,7 +23,7 @@ from calibre.gui2.tweak_book.editor import (
     SYNTAX_PROPERTY, SPELL_PROPERTY, SPELL_LOCALE_PROPERTY, store_locale, LINK_PROPERTY)
 from calibre.gui2.tweak_book.editor.themes import get_theme, theme_color, theme_format
 from calibre.gui2.tweak_book.editor.syntax.base import SyntaxHighlighter
-from calibre.gui2.tweak_book.editor.smart import NullSmarts
+from calibre.gui2.tweak_book.editor.smarts import NullSmarts
 from calibre.spell.break_iterator import index_of
 from calibre.utils.icu import safe_chr, string_length, capitalize, upper, lower, swapcase
 from calibre.utils.titlecase import titlecase
@@ -40,7 +40,7 @@ def get_highlighter(syntax):
 def get_smarts(syntax):
     smartsname = {'xml':'html'}.get(syntax, syntax)
     try:
-        return importlib.import_module('calibre.gui2.tweak_book.editor.smart.' + smartsname).Smarts
+        return importlib.import_module('calibre.gui2.tweak_book.editor.smarts.' + smartsname).Smarts
     except (ImportError, AttributeError):
         pass
 
@@ -814,7 +814,7 @@ class TextEdit(PlainTextEdit):
             return self.selected_text_from_cursor(c)
 
     def goto_css_rule(self, rule_address, sourceline_address=None):
-        from calibre.gui2.tweak_book.editor.smart.css import find_rule
+        from calibre.gui2.tweak_book.editor.smarts.css import find_rule
         block = None
         if self.syntax == 'css':
             raw = unicode(self.toPlainText())

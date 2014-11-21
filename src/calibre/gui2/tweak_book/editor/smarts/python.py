@@ -10,7 +10,7 @@ import re
 
 from PyQt5.Qt import Qt
 
-from calibre.gui2.tweak_book.editor.smart import NullSmarts
+from calibre.gui2.tweak_book.editor.smarts import NullSmarts
 
 def get_text_before_cursor(editor):
     cursor = editor.textCursor()
