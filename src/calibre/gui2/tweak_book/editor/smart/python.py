@@ -35,6 +35,8 @@ def get_leading_whitespace_on_line(editor, previous=False):
 
 class Smarts(NullSmarts):
 
+    override_tab_stop_width = 4
+
     def handle_key_press(self, ev, editor):
         key = ev.key()
 

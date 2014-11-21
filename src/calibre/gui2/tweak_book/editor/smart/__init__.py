@@ -8,6 +8,8 @@ __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
 class NullSmarts(object):
 
+    override_tab_stop_width = None
+
     def __init__(self, editor):
         pass
 

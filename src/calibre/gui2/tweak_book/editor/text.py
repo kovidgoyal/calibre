@@ -173,7 +173,7 @@ class TextEdit(PlainTextEdit):
         self.apply_theme(theme)
         w = self.fontMetrics()
         self.space_width = w.width(' ')
-        tw = 4 if self.syntax == 'python' else prefs['editor_tab_stop_width']
+        tw = self.smarts.override_tab_stop_width if self.smarts.override_tab_stop_width is not None else prefs['editor_tab_stop_width']
         self.setTabStopWidth(tw * self.space_width)
         if dictionaries_changed:
             self.highlighter.rehighlight()
@@ -220,12 +220,12 @@ class TextEdit(PlainTextEdit):
         sclass = get_smarts(syntax)
         if sclass is not None:
             self.smarts = sclass(self)
+            if self.smarts.override_tab_stop_width is not None:
+                self.setTabStopWidth(self.smarts.override_tab_stop_width * self.space_width)
         self.setPlainText(unicodedata.normalize('NFC', unicode(text)))
         if process_template and QPlainTextEdit.find(self, '%CURSOR%'):
             c = self.textCursor()
             c.insertText('')
-        if syntax == 'python':
-            self.setTabStopWidth(4 * self.space_width)
 
     def change_document_name(self, newname):
         self.highlighter.doc_name = newname
