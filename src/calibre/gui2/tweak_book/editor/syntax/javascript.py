@@ -29,7 +29,7 @@ class JavascriptLexer(RegexLexer):
     modify it.
     """
 
-    flags = re.DOTALL | re.UNICODE | re.MULTILINE
+    flags = re.UNICODE | re.MULTILINE
 
     tokens = {
         b'commentsandwhitespace': [
