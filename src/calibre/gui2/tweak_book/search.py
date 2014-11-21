@@ -1188,6 +1188,7 @@ def get_search_function(search):
 def show_function_debug_output(func):
     if isinstance(func, Function):
         val = func.debug_buf.getvalue().strip()
+        func.debug_buf.truncate(0)
         if val:
             from calibre.gui2.tweak_book.boss import get_boss
             get_boss().gui.sr_debug_output.show_log(func.name, val)

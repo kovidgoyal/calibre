@@ -359,8 +359,8 @@ class TextEdit(PlainTextEdit):
             raw, count = pat.subn(template, raw)
             if repl_is_func:
                 from calibre.gui2.tweak_book.search import show_function_debug_output
-                show_function_debug_output(template)
                 template.end()
+                show_function_debug_output(template)
             if count > 0:
                 start_pos = min(c.anchor(), c.position())
                 c.insertText(raw)

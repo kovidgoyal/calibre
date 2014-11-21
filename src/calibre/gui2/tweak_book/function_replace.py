@@ -97,7 +97,7 @@ class Function(object):
                 return self.func(None, self.match_index, self.context_name, self.boss.current_metadata, dictionaries, self.data, self.functions)
             finally:
                 sys.stdout, sys.stderr = oo, oe
-        self.data, self.debug_buf, self.boss, self.functions = {}, None, None, {}
+        self.data, self.boss, self.functions = {}, None, {}
 
 class DebugOutput(Dialog):
 
