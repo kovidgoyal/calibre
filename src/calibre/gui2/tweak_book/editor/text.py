@@ -139,6 +139,7 @@ class TextEdit(PlainTextEdit):
         self.gutter_width = 0
         self.expected_geometry = expected_geometry
         self.saved_matches = {}
+        self.syntax = None
         self.smarts = NullSmarts(self)
         self.current_cursor_line = None
         self.current_search_mark = None
@@ -151,7 +152,6 @@ class TextEdit(PlainTextEdit):
         self.cursorPositionChanged.connect(self.highlight_cursor_line)
         self.blockCountChanged[int].connect(self.update_line_number_area_width)
         self.updateRequest.connect(self.update_line_number_area)
-        self.syntax = None
 
     @dynamic_property
     def is_modified(self):
@@ -173,7 +173,8 @@ class TextEdit(PlainTextEdit):
         self.apply_theme(theme)
         w = self.fontMetrics()
         self.space_width = w.width(' ')
-        self.setTabStopWidth(prefs['editor_tab_stop_width'] * self.space_width)
+        tw = 4 if self.syntax == 'python' else prefs['editor_tab_stop_width']
+        self.setTabStopWidth(tw * self.space_width)
         if dictionaries_changed:
             self.highlighter.rehighlight()
 
@@ -223,6 +224,8 @@ class TextEdit(PlainTextEdit):
         if process_template and QPlainTextEdit.find(self, '%CURSOR%'):
             c = self.textCursor()
             c.insertText('')
+        if syntax == 'python':
+            self.setTabStopWidth(4 * self.space_width)
 
     def change_document_name(self, newname):
         self.highlighter.doc_name = newname
