@@ -31,12 +31,18 @@ from calibre.utils.titlecase import titlecase
 PARAGRAPH_SEPARATOR = '\u2029'
 
 def get_highlighter(syntax):
-    # Load these highlighters only on demand
     try:
         ans = importlib.import_module('calibre.gui2.tweak_book.editor.syntax.' + syntax).Highlighter
     except (ImportError, AttributeError):
         ans = SyntaxHighlighter
     return ans
+
+def get_smarts(syntax):
+    smartsname = {'xml':'html'}.get(syntax, syntax)
+    try:
+        return importlib.import_module('calibre.gui2.tweak_book.editor.smart.' + smartsname).Smarts
+    except (ImportError, AttributeError):
+        pass
 
 _dff = None
 def default_font_family():
@@ -210,12 +216,8 @@ class TextEdit(PlainTextEdit):
         self.highlighter = get_highlighter(syntax)()
         self.highlighter.apply_theme(self.theme)
         self.highlighter.set_document(self.document(), doc_name=doc_name)
-        smartsname = {'xml':'html'}.get(syntax, syntax)
-        try:
-            sclass = importlib.import_module('calibre.gui2.tweak_book.editor.smart.' + smartsname).Smarts
-        except (ImportError, AttributeError):
-            pass
-        else:
+        sclass = get_smarts(syntax)
+        if sclass is not None:
             self.smarts = sclass(self)
         self.setPlainText(unicodedata.normalize('NFC', unicode(text)))
         if process_template and QPlainTextEdit.find(self, '%CURSOR%'):
