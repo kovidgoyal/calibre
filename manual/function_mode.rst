@@ -205,6 +205,11 @@ True on the ``replace()`` function means that the editor will call
 ``replace()`` one extra time after all matches have been found. For this extra
 call, the match object will be ``None``.
 
+This was just a demonstration to show you the power of function mode,
+if you really needed to generate a Table of Contents from headings in your book,
+you would be better off using the dedicated Table of Contents tool in
+:guilabel:`Tools->Table of Contents`.
+
 The API for the function mode
 -------------------------------
 
