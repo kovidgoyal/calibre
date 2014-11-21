@@ -32,10 +32,10 @@ PARAGRAPH_SEPARATOR = '\u2029'
 
 def get_highlighter(syntax):
     try:
-        ans = importlib.import_module('calibre.gui2.tweak_book.editor.syntax.' + syntax).Highlighter
+        return importlib.import_module('calibre.gui2.tweak_book.editor.syntax.' + syntax).Highlighter
     except (ImportError, AttributeError):
-        ans = SyntaxHighlighter
-    return ans
+        pass
+    return SyntaxHighlighter
 
 def get_smarts(syntax):
     smartsname = {'xml':'html'}.get(syntax, syntax)
