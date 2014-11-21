@@ -269,12 +269,13 @@ def set_style_property(tag, property_name, value, editor):
         d.setProperty(property_name, value)
         c.insertText('"%s"' % css(d))
 
+entity_pat = re.compile(r'&(#{0,1}[a-zA-Z0-9]{1,8});$')
+
 class Smarts(NullSmarts):
 
     def __init__(self, *args, **kwargs):
         NullSmarts.__init__(self, *args, **kwargs)
         self.last_matched_tag = None
-        self.entity_pat = re.compile(r'&(#{0,1}[a-zA-Z0-9]{1,8});$')
 
     def get_extra_selections(self, editor):
         ans = []
@@ -544,7 +545,7 @@ class Smarts(NullSmarts):
         c.insertText(';')
         c.setPosition(c.position() - min(c.positionInBlock(), 10), c.KeepAnchor)
         text = editor.selected_text_from_cursor(c)
-        m = self.entity_pat.search(text)
+        m = entity_pat.search(text)
         if m is not None:
             ent = m.group()
             repl = xml_entity_to_unicode(m)
