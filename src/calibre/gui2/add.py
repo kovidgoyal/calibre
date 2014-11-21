@@ -331,6 +331,7 @@ class Adder(QObject):
         self.merged_books.add((mi.title, ' & '.join(mi.authors)))
         seen_fmts = set()
         replace = gprefs['automerge'] == 'overwrite'
+        cover_removed = False
         for identical_book_id in identical_book_ids:
             ib_fmts = {fmt.upper() for fmt in self.db.formats(identical_book_id)}
             seen_fmts |= ib_fmts
@@ -343,6 +344,12 @@ class Adder(QObject):
                 # arguably put only the duplicate formats, but no real harm is
                 # done by having all formats
                 self.add_book(mi, cover_path, paths)
+                cover_removed = True
+        if not cover_removed and cover_path:
+            try:
+                os.remove(cover_path)
+            except Exception:
+                pass
 
     def add_book(self, mi, cover_path, paths):
         if DEBUG:
@@ -352,6 +359,10 @@ class Adder(QObject):
             if cover_path:
                 with open(cover_path, 'rb') as f:
                     cdata = f.read()
+                try:
+                    os.remove(cover_path)
+                except Exception:
+                    pass
             book_id = self.dbref().create_book_entry(mi, cover=cdata)
             self.added_book_ids.add(book_id)
         except Exception:
