@@ -9,7 +9,7 @@ __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 from functools import partial
 
 from PyQt5.Qt import QTextBlockUserData
-from pygments.lexer import _TokenType, Text, Error
+from pygments.lexer import _TokenType, Error
 
 from calibre.gui2.tweak_book.editor.syntax.base import SyntaxHighlighter
 from calibre.gui2.tweak_book.editor.syntax.utils import format_for_pygments_token, NULL_FMT
@@ -18,20 +18,18 @@ NORMAL = 0
 
 def create_lexer(base_class):
     '''
-    Subclass the pygments RegexLexer to store state on the lexer itself,
-    allowing for efficient integration into Qt
+    Subclass the pygments RegexLexer to lex line by line instead of lexing full
+    text. The statestack at the end of each line is stored in the Qt block state.
     '''
 
-    def get_tokens_unprocessed(self, text, stack=('root',)):
-        # Method is overriden to store state on the lexer itself
+    def get_tokens_unprocessed(self, text, statestack):
         pos = 0
         tokendefs = self._tokens
-        statestack = self.saved_state_stack = list(stack if self.saved_state_stack is None else self.saved_state_stack)
         statetokens = tokendefs[statestack[-1]]
-        while 1:
+        while True:
             for rexmatch, action, new_state in statetokens:
                 m = rexmatch(text, pos)
-                if m:
+                if m is not None:
                     if action is not None:
                         if type(action) is _TokenType:
                             yield pos, action, m.group()
@@ -62,11 +60,8 @@ def create_lexer(base_class):
                 try:
                     if text[pos] == '\n':
                         # at EOL, reset state to "root"
-                        statestack = ['root']
-                        statetokens = tokendefs['root']
-                        yield pos, Text, u'\n'
-                        pos += 1
-                        continue
+                        statestack[:] = ['root']
+                        break
                     yield pos, Error, text[pos]
                     pos += 1
                 except IndexError:
@@ -74,25 +69,22 @@ def create_lexer(base_class):
 
     def lex_a_line(self, state, text, i, formats_map, user_data):
         ' Get formats for a single block (line) '
-        self.saved_state_stack = state.pygments_stack
+        statestack = list(state.pygments_stack) if state.pygments_stack is not None else ['root']
 
         # Lex the text using Pygments
         formats = []
         if i > 0:
-            text = text[i:]
-        for token, txt in self.get_tokens(text):
-            if txt:
+            # This should never happen
+            return [(len(text) - i, formats_map(Error))]
+        # Pygments lexers expect newlines at the end of the line
+        for pos, token, txt in self.get_tokens_unprocessed(text + '\n', statestack):
+            if txt not in ('\n', ''):
                 formats.append((len(txt), formats_map(token)))
 
-        ss = self.saved_state_stack
-        if ss is not None:
-            state.pygments_stack = ss
-            # Clean up the lexer so that it can be re-used
-            self.saved_state_stack = None
+        state.pygments_stack = statestack
         return formats
 
     return type(str('Qt'+base_class.__name__), (base_class,), {
-        'saved_state_stack': None,
         'get_tokens_unprocessed': get_tokens_unprocessed,
         'lex_a_line':lex_a_line,
     })
