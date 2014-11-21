@@ -75,11 +75,18 @@ def create_lexer(base_class):
         formats = []
         if i > 0:
             # This should never happen
+            state.pygments_stack = None
             return [(len(text) - i, formats_map(Error))]
-        # Pygments lexers expect newlines at the end of the line
-        for pos, token, txt in self.get_tokens_unprocessed(text + '\n', statestack):
-            if txt not in ('\n', ''):
-                formats.append((len(txt), formats_map(token)))
+        try:
+            # Pygments lexers expect newlines at the end of the line
+            for pos, token, txt in self.get_tokens_unprocessed(text + '\n', statestack):
+                if txt not in ('\n', ''):
+                    formats.append((len(txt), formats_map(token)))
+        except Exception:
+            import traceback
+            traceback.print_exc()
+            state.pygments_stack = None
+            return [(len(text) - i, formats_map(Error))]
 
         state.pygments_stack = statestack
         return formats
