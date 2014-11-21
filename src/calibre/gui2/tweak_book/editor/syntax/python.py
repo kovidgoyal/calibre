@@ -103,7 +103,7 @@ class State(object):
         return not self.__eq__(other)
 
     def __repr__(self):
-        return "PythonState(%r)" % (self.parse, self.pygments_stack)
+        return "PythonState(%r)" % self.pygments_stack
     __str__ = __repr__
 
 
