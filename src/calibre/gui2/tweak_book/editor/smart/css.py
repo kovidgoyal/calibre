@@ -26,6 +26,6 @@ def find_rule(raw, rule_address):
             rules = getattr(r, 'rules', ())
     return ans
 
-class CSSSmarts(NullSmarts):
+class Smarts(NullSmarts):
     pass
 

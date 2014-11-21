@@ -543,7 +543,7 @@ def create_formats(highlighter, add_css=True):
     return formats
 
 
-class HTMLHighlighter(SyntaxHighlighter):
+class Highlighter(SyntaxHighlighter):
 
     state_map = state_map
     create_formats_func = create_formats
@@ -553,7 +553,7 @@ class HTMLHighlighter(SyntaxHighlighter):
     def tag_ok_for_spell(self, name):
         return HTMLUserData.tag_ok_for_spell(name)
 
-class XMLHighlighter(HTMLHighlighter):
+class XMLHighlighter(Highlighter):
 
     state_map = xml_state_map
     spell_attributes = ('opf:file-as',)
@@ -576,7 +576,7 @@ def profile():
     raw = open(sys.argv[-2], 'rb').read().decode('utf-8')
     doc = QTextDocument()
     doc.setPlainText(raw)
-    h = HTMLHighlighter()
+    h = Highlighter()
     theme = get_theme(tprefs['editor_theme'])
     h.apply_theme(theme)
     h.set_document(doc)

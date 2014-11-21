@@ -23,11 +23,7 @@ from calibre.gui2.tweak_book.editor import (
     SYNTAX_PROPERTY, SPELL_PROPERTY, SPELL_LOCALE_PROPERTY, store_locale, LINK_PROPERTY)
 from calibre.gui2.tweak_book.editor.themes import get_theme, theme_color, theme_format
 from calibre.gui2.tweak_book.editor.syntax.base import SyntaxHighlighter
-from calibre.gui2.tweak_book.editor.syntax.html import HTMLHighlighter, XMLHighlighter
-from calibre.gui2.tweak_book.editor.syntax.css import CSSHighlighter
 from calibre.gui2.tweak_book.editor.smart import NullSmarts
-from calibre.gui2.tweak_book.editor.smart.html import HTMLSmarts
-from calibre.gui2.tweak_book.editor.smart.css import CSSSmarts
 from calibre.spell.break_iterator import index_of
 from calibre.utils.icu import safe_chr, string_length, capitalize, upper, lower, swapcase
 from calibre.utils.titlecase import titlecase
@@ -35,13 +31,11 @@ from calibre.utils.titlecase import titlecase
 PARAGRAPH_SEPARATOR = '\u2029'
 
 def get_highlighter(syntax):
-    ans = {'html':HTMLHighlighter, 'css':CSSHighlighter, 'xml':XMLHighlighter}.get(syntax, SyntaxHighlighter)
-    if ans is SyntaxHighlighter:
-        # Load these highlighters only on demand
-        try:
-            ans = importlib.import_module('calibre.gui2.tweak_book.editor.syntax.' + syntax).Highlighter
-        except (ImportError, AttributeError):
-            pass
+    # Load these highlighters only on demand
+    try:
+        ans = importlib.import_module('calibre.gui2.tweak_book.editor.syntax.' + syntax).Highlighter
+    except (ImportError, AttributeError):
+        ans = SyntaxHighlighter
     return ans
 
 _dff = None
@@ -216,8 +210,12 @@ class TextEdit(PlainTextEdit):
         self.highlighter = get_highlighter(syntax)()
         self.highlighter.apply_theme(self.theme)
         self.highlighter.set_document(self.document(), doc_name=doc_name)
-        sclass = {'html':HTMLSmarts, 'xml':HTMLSmarts, 'css':CSSSmarts}.get(syntax, None)
-        if sclass is not None:
+        smartsname = {'xml':'html'}.get(syntax, syntax)
+        try:
+            sclass = importlib.import_module('calibre.gui2.tweak_book.editor.smart.' + smartsname).Smarts
+        except (ImportError, AttributeError):
+            pass
+        else:
             self.smarts = sclass(self)
         self.setPlainText(unicodedata.normalize('NFC', unicode(text)))
         if process_template and QPlainTextEdit.find(self, '%CURSOR%'):

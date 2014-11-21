@@ -306,7 +306,7 @@ def create_formats(highlighter):
     return formats
 
 
-class CSSHighlighter(SyntaxHighlighter):
+class Highlighter(SyntaxHighlighter):
 
     state_map = state_map
     create_formats_func = create_formats

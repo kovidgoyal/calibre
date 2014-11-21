@@ -269,7 +269,7 @@ def set_style_property(tag, property_name, value, editor):
         d.setProperty(property_name, value)
         c.insertText('"%s"' % css(d))
 
-class HTMLSmarts(NullSmarts):
+class Smarts(NullSmarts):
 
     def __init__(self, *args, **kwargs):
         NullSmarts.__init__(self, *args, **kwargs)
