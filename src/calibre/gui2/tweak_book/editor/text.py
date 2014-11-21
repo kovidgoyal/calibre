@@ -16,7 +16,7 @@ from PyQt5.Qt import (
     QTextEdit, QTextFormat, QWidget, QSize, QPainter, Qt, QRect, pyqtSlot,
     QApplication, QMimeData, QColor, QColorDialog, QTimer, pyqtSignal, QT_VERSION)
 
-from calibre import prepare_string_for_xml, xml_entity_to_unicode
+from calibre import prepare_string_for_xml
 from calibre.constants import isosx
 from calibre.gui2.tweak_book import tprefs, TOP
 from calibre.gui2.tweak_book.editor import (
@@ -33,7 +33,6 @@ from calibre.utils.icu import safe_chr, string_length, capitalize, upper, lower,
 from calibre.utils.titlecase import titlecase
 
 PARAGRAPH_SEPARATOR = '\u2029'
-entity_pat = re.compile(r'&(#{0,1}[a-zA-Z0-9]{1,8});')
 
 def get_highlighter(syntax):
     ans = {'html':HTMLHighlighter, 'css':CSSHighlighter, 'xml':XMLHighlighter}.get(syntax, SyntaxHighlighter)
@@ -762,9 +761,9 @@ class TextEdit(PlainTextEdit):
             # https://bugreports.qt-project.org/browse/QTBUG-36281
             ev.setAccepted(False)
             return
+        if self.smarts.handle_key_press(ev, self):
+            return
         QPlainTextEdit.keyPressEvent(self, ev)
-        if (ev.key() == Qt.Key_Semicolon or ';' in unicode(ev.text())) and tprefs['replace_entities_as_typed'] and self.syntax == 'html':
-            self.replace_possible_entity()
 
     def replace_possible_unicode_sequence(self):
         c = self.textCursor()
@@ -788,19 +787,6 @@ class TextEdit(PlainTextEdit):
         c.setPosition(end_pos - len(text)), c.setPosition(end_pos, c.KeepAnchor)
         c.insertText(safe_chr(num))
         return True
-
-    def replace_possible_entity(self):
-        c = self.textCursor()
-        c.setPosition(c.position() - min(c.positionInBlock(), 10), c.KeepAnchor)
-        text = unicode(c.selectedText()).rstrip('\0')
-        m = entity_pat.search(text)
-        if m is None:
-            return
-        ent = m.group()
-        repl = xml_entity_to_unicode(m)
-        if repl != ent:
-            c.setPosition(c.position() + m.start(), c.KeepAnchor)
-            c.insertText(repl)
 
     def select_all(self):
         c = self.textCursor()

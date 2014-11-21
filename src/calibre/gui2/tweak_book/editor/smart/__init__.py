@@ -28,3 +28,6 @@ class NullSmarts(object):
 
     def get_inner_HTML(self, editor):
         return None
+
+    def handle_key_press(self, ev, editor):
+        return False

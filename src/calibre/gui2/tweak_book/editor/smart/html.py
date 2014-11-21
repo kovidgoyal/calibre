@@ -10,12 +10,13 @@ import sys, re
 from operator import itemgetter
 
 from cssutils import parseStyle
-from PyQt5.Qt import QTextEdit
+from PyQt5.Qt import QTextEdit, Qt
 
-from calibre import prepare_string_for_xml
+from calibre import prepare_string_for_xml, xml_entity_to_unicode
 from calibre.gui2 import error_dialog
 from calibre.gui2.tweak_book.editor.syntax.html import ATTR_NAME, ATTR_END, ATTR_START, ATTR_VALUE
 from calibre.utils.icu import utf16_length
+from calibre.gui2.tweak_book import tprefs
 from calibre.gui2.tweak_book.editor.smart import NullSmarts
 
 get_offset = itemgetter(0)
@@ -273,6 +274,7 @@ class HTMLSmarts(NullSmarts):
     def __init__(self, *args, **kwargs):
         NullSmarts.__init__(self, *args, **kwargs)
         self.last_matched_tag = None
+        self.entity_pat = re.compile(r'&(#{0,1}[a-zA-Z0-9]{1,8});$')
 
     def get_extra_selections(self, editor):
         ans = []
@@ -529,3 +531,24 @@ class HTMLSmarts(NullSmarts):
         for tag in reversed(tags):
             set_style_property(tag, 'text-align', value, editor)
 
+    def handle_key_press(self, ev, editor):
+        text = ev.text()
+        key = ev.key()
+        if tprefs['replace_entities_as_typed'] and (key == Qt.Key_Semicolon or ';' in text):
+            self.replace_possible_entity(editor)
+            return True
+        return False
+
+    def replace_possible_entity(self, editor):
+        c = editor.textCursor()
+        c.insertText(';')
+        c.setPosition(c.position() - min(c.positionInBlock(), 10), c.KeepAnchor)
+        text = editor.selected_text_from_cursor(c)
+        m = self.entity_pat.search(text)
+        if m is not None:
+            ent = m.group()
+            repl = xml_entity_to_unicode(m)
+            if repl != ent:
+                c.setPosition(c.position() + m.start(), c.KeepAnchor)
+                c.insertText(repl)
+            editor.setTextCursor(c)
