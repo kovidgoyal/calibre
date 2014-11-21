@@ -10,6 +10,7 @@ __docformat__ = 'restructuredtext en'
 from collections import OrderedDict
 from functools import partial
 
+import sip
 from PyQt5.Qt import (QObject, QKeySequence, QAbstractItemModel, QModelIndex,
         Qt, QStyledItemDelegate, QTextDocument, QStyle, pyqtSignal, QFrame,
         QApplication, QSize, QRectF, QWidget, QTreeView,
@@ -45,7 +46,7 @@ def keysequence_from_event(ev):  # {{{
 
 def finalize(shortcuts, custom_keys_map={}):  # {{{
     '''
-    Resolve conflicts and assign keys to every action in shorcuts, which must
+    Resolve conflicts and assign keys to every action in shortcuts, which must
     be a OrderedDict. User specified mappings of unique names to keys (as a
     list of strings) should be passed in in custom_keys_map. Return a mapping
     of unique names to resolved keys. Also sets the set_to_default member
@@ -53,6 +54,11 @@ def finalize(shortcuts, custom_keys_map={}):  # {{{
     '''
     seen, keys_map = {}, {}
     for unique_name, shortcut in shortcuts.iteritems():
+        ac = shortcut['action']
+        if ac is None or sip.isdeleted(ac):
+            if ac is not None and DEBUG:
+                prints('Shortcut %r has a deleted action' % unique_name)
+            continue
         custom_keys = custom_keys_map.get(unique_name, None)
         if custom_keys is None:
             candidates = shortcut['default_keys']
@@ -75,9 +81,7 @@ def finalize(shortcuts, custom_keys_map={}):  # {{{
         keys = tuple(keys)
 
         keys_map[unique_name] = keys
-        ac = shortcut['action']
-        if ac is not None:
-            ac.setShortcuts(list(keys))
+        ac.setShortcuts(list(keys))
 
     return keys_map
 
