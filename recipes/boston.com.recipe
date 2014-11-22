@@ -2,6 +2,8 @@ import string, re
 from calibre.web.feeds.recipes import BasicNewsRecipe
 from calibre.ebooks.BeautifulSoup import Tag
 from datetime import date
+from calibre.utils.magick.draw import save_cover_data_to
+from calibre.ptempfile import PersistentTemporaryFile
 
 class BostonGlobeSubscription(BasicNewsRecipe):
 
@@ -37,28 +39,28 @@ class BostonGlobeSubscription(BasicNewsRecipe):
     comics_to_fetch = [
         "ADAM@HOME",
         "ARLO & JANIS",
-        #"ASK SHAGG",
-        #"CUL DE SAC",
-        #"CURTIS",
+        # "ASK SHAGG",
+        # "CUL DE SAC",
+        # "CURTIS",
         "DILBERT",
         "DOONESBURY",
         "DUSTIN",
-        #"THE FAMILY CIRCUS",
+        # "THE FAMILY CIRCUS",
         "F MINUS",
         "FOR BETTER OR WORSE",
         "FOXTROT",
-        #"GET FUZZY",
-        #"MOTHER GOOSE & GRIMM",
-        #"IN THE STICKS",
-        #"JUMPSTART",
+        # "GET FUZZY",
+        # "MOTHER GOOSE & GRIMM",
+        # "IN THE STICKS",
+        # "JUMPSTART",
         "MONTY",
         "NON SEQUITUR",
         "PICKLES",
-        #"POOCH CAFE",
+        # "POOCH CAFE",
         "RHYMES WITH ORANGE",
-        #"ROSE IS ROSE",
+        # "ROSE IS ROSE",
         "STONE SOUP",
-        #"ZIPPY THE PINHEAD",
+        # "ZIPPY THE PINHEAD",
         "ZITS"]
 
     def image_url_processor(self, baseurl, url):
@@ -75,6 +77,7 @@ class BostonGlobeSubscription(BasicNewsRecipe):
         return url
 
     def get_image(self, url):
+        # pdb.set_trace()
         # Another hack - sometimes the URLs just have a leading /,
         # in which case I stick on "http://" and the correct domain
         if url.startswith("/"):
@@ -84,15 +87,14 @@ class BostonGlobeSubscription(BasicNewsRecipe):
         br = BasicNewsRecipe.get_browser(self)
         response = br.open(url)
         data = response.get_data()
-
-        # write it to a local file whose name is based on the URL
-        filename = ''.join(c for c in url if c in self.valid_filename_chars)
-        self.log("filename=%s" % filename)
-
-        f = open(filename, "wb")
-        f.write(data)
-        f.close()
-        return url
+        pt = PersistentTemporaryFile('.jpg')
+        pt.close()
+        try:
+            save_cover_data_to(data, pt.name)
+            return 'file:///' + pt.name
+        except:
+            self.log('Failed to load image: %s' % url)
+        return ''
 
     def is_login_form(self, form):
         return form.action == "https://www.bostonglobe.com/Login"
@@ -109,7 +111,7 @@ class BostonGlobeSubscription(BasicNewsRecipe):
             # so I'm running Fiddler on port 8888 all the time now.  It's a hack, but
             # until I can figure out a better solution, it'll do
             #
-            #br.set_proxies({"http":"127.0.0.1:8888", "https":"127.0.0.1:8888"})
+            # br.set_proxies({"http":"127.0.0.1:8888", "https":"127.0.0.1:8888"})
             #
             # end of hack
             #
@@ -225,12 +227,12 @@ class BostonGlobeSubscription(BasicNewsRecipe):
 
                 # Author is in a P whose class is "hed-cat" or in a CITE
                 authorTag = story.find("p", "hed-cat")
-                if (authorTag == None):
+                if (authorTag is None):
                     authorTag = story.find("cite")
 
                 # URL is in an A whose class is "story-perm".  If not, it's in the only A tag
                 urlTag = story.find("a", "story-perm")
-                if (urlTag == None):
+                if (urlTag is None):
                     urlTag = story.find("a")
 
                 # Extract the values and build the article
@@ -253,41 +255,41 @@ class BostonGlobeSubscription(BasicNewsRecipe):
 
             # Now find Letters to the Editor and process them
             mainDiv = opinionSoup.find("div", {"id":"main"})
-            if (mainDiv == None):
+            if (mainDiv is None):
                 print "no mainDiv found"
             else:
                 lettersAnchor = mainDiv.find("a", {"href":re.compile(".*opinion/letters.*")})
-                if (lettersAnchor == None):
+                if (lettersAnchor is None):
                     print "No lettersAnchor found"
                 else:
                     lettersFeatureWell = lettersAnchor.parent.parent
                     lettersContent = lettersFeatureWell.find("div", "content")
-                    if (lettersContent == None):
+                    if (lettersContent is None):
                         print "No lettersContent found"
                     else:
                         mainLetterDiv = lettersContent.find("div", {"class":re.compile("main.*")})
                         mainLetterStories = mainLetterDiv.findAll("h4", "story-title")
-                        if (mainLetterStories == None):
+                        if (mainLetterStories is None):
                             print "no mainLetterStories found"
                         else:
                             for mainLetterStory in mainLetterStories:
                                 mainLetterAnchor = mainLetterStory.parent
-                                if (mainLetterAnchor == None):
+                                if (mainLetterAnchor is None):
                                     print "no mainLetterAnchor found"
                                 else:
                                     articles.append({"title":self.tag_to_string(mainLetterStory), "url":self.make_url(
                                         mainLetterAnchor["href"]), "author":"Letter", "date":self.todaysDate, "description":""})
                     inSection = lettersFeatureWell.find("div", "in-section")
-                    if (inSection == None):
+                    if (inSection is None):
                         print "no inSection found"
                     else:
                         lettersList = inSection.find("ul")
-                        if (lettersList == None):
+                        if (lettersList is None):
                             print "no lettersList found"
                         else:
                             for letter in lettersList.findAll("li"):
                                 letterAnchor = letter.find("a")
-                                if (letterAnchor == None):
+                                if (letterAnchor is None):
                                     print "no letterAnchor for ", letter
                                 else:
                                     articles.append({"title":self.tag_to_string(letterAnchor), "url":self.make_url(
@@ -313,8 +315,8 @@ class BostonGlobeSubscription(BasicNewsRecipe):
                     if (title in self.comics_to_fetch):
                         url = li.a["href"]
                         author = self.tag_to_string(li.h2)
-                        #comicPageSoup = self.index_to_soup(self.make_url(url))
-                        #imageURL = comicPageSoup.findAll("a", "comic")
+                        # comicPageSoup = self.index_to_soup(self.make_url(url))
+                        # imageURL = comicPageSoup.findAll("a", "comic")
                         # if len(imageURL) > 0:
                         #    url = imageURL[0]["href"]
                         # print "COMIC %s: %s" % (title, url)
@@ -340,15 +342,15 @@ class BostonGlobeSubscription(BasicNewsRecipe):
 
         get_comics()
 
-        #get_section("Business", "tp-section-business")
-        #get_section("Obituaries", "tp-section-obituaries")
-        #get_section("Sports", "tp-section-sports")
-        #get_section("Globe North", "tp-section-globenorth")
-        #get_section("Globe South", "tp-section-globesouth")
-        #get_section("Money & Careers", "tp-section-money&careers")
-        #get_section("Books", "tp-section-books")
-        #get_section("Travel", "tp-section-travel")
-        #get_section("Real Estate", "tp-section-realestate")
+        # get_section("Business", "tp-section-business")
+        # get_section("Obituaries", "tp-section-obituaries")
+        # get_section("Sports", "tp-section-sports")
+        # get_section("Globe North", "tp-section-globenorth")
+        # get_section("Globe South", "tp-section-globesouth")
+        # get_section("Money & Careers", "tp-section-money&careers")
+        # get_section("Books", "tp-section-books")
+        # get_section("Travel", "tp-section-travel")
+        # get_section("Real Estate", "tp-section-realestate")
 
         for feed in feeds:
             feedTitle = feed[0]
