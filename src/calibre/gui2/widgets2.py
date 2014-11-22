@@ -8,8 +8,9 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
 from PyQt5.Qt import (
     QPushButton, QPixmap, QIcon, QColor, Qt, QColorDialog, pyqtSignal,
-    QKeySequence, QToolButton)
+    QKeySequence, QToolButton, QDialog, QDialogButtonBox)
 
+from calibre.gui2 import gprefs
 from calibre.gui2.complete2 import LineEdit, EditWithComplete
 from calibre.gui2.widgets import history
 
@@ -130,4 +131,41 @@ class RightClickButton(QToolButton):
             ev.accept()
             return
         return QToolButton.mousePressEvent(self, ev)
+
+class Dialog(QDialog):
+
+    def __init__(self, title, name, parent=None, prefs=gprefs):
+        QDialog.__init__(self, parent)
+        self.prefs_for_persistence = prefs
+        self.setWindowTitle(title)
+        self.name = name
+        self.bb = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
+        self.bb.accepted.connect(self.accept)
+        self.bb.rejected.connect(self.reject)
+
+        self.setup_ui()
+
+        self.resize(self.sizeHint())
+        geom = self.prefs_for_persistence.get(name + '-geometry', None)
+        if geom is not None:
+            self.restoreGeometry(geom)
+        if hasattr(self, 'splitter'):
+            state = self.prefs_for_persistence.get(name + '-splitter-state', None)
+            if state is not None:
+                self.splitter.restoreState(state)
+
+    def accept(self):
+        self.prefs_for_persistence.set(self.name + '-geometry', bytearray(self.saveGeometry()))
+        if hasattr(self, 'splitter'):
+            self.prefs_for_persistence.set(self.name + '-splitter-state', bytearray(self.splitter.saveState()))
+        QDialog.accept(self)
+
+    def reject(self):
+        self.prefs_for_persistence.set(self.name + '-geometry', bytearray(self.saveGeometry()))
+        if hasattr(self, 'splitter'):
+            self.prefs_for_persistence.set(self.name + '-splitter-state', bytearray(self.splitter.saveState()))
+        QDialog.reject(self)
+
+    def setup_ui(self):
+        raise NotImplementedError('You must implement this method in Dialog subclasses')
 

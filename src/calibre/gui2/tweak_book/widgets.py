@@ -11,17 +11,18 @@ from itertools import izip
 from collections import OrderedDict
 
 from PyQt5.Qt import (
-    QDialog, QDialogButtonBox, QGridLayout, QLabel, QLineEdit, QVBoxLayout,
-    QFormLayout, QHBoxLayout, QToolButton, QIcon, QApplication, Qt, QWidget,
-    QPoint, QSizePolicy, QPainter, QStaticText, pyqtSignal, QTextOption,
-    QAbstractListModel, QModelIndex, QStyledItemDelegate, QStyle, QCheckBox,
-    QListView, QTextDocument, QSize, QComboBox, QFrame, QCursor, QGroupBox,
-    QSplitter, QPixmap, QRect)
+    QGridLayout, QLabel, QLineEdit, QVBoxLayout, QFormLayout, QHBoxLayout,
+    QToolButton, QIcon, QApplication, Qt, QWidget, QPoint, QSizePolicy,
+    QPainter, QStaticText, pyqtSignal, QTextOption, QAbstractListModel,
+    QModelIndex, QStyledItemDelegate, QStyle, QCheckBox, QListView,
+    QTextDocument, QSize, QComboBox, QFrame, QCursor, QGroupBox, QSplitter,
+    QPixmap, QRect)
 
 from calibre import prepare_string_for_xml, human_readable
 from calibre.ebooks.oeb.polish.utils import lead_text, guess_type
 from calibre.gui2 import error_dialog, choose_files, choose_save_file, info_dialog, choose_images
 from calibre.gui2.tweak_book import tprefs, current_container
+from calibre.gui2.widgets2 import Dialog as BaseDialog
 from calibre.utils.icu import primary_sort_key, sort_key, primary_contains
 from calibre.utils.matcher import get_char, Matcher
 from calibre.gui2.complete2 import EditWithComplete
@@ -36,41 +37,10 @@ class BusyCursor(object):
     def __exit__(self, *args):
         QApplication.restoreOverrideCursor()
 
-class Dialog(QDialog):
+class Dialog(BaseDialog):
 
     def __init__(self, title, name, parent=None):
-        QDialog.__init__(self, parent)
-        self.setWindowTitle(title)
-        self.name = name
-        self.bb = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
-        self.bb.accepted.connect(self.accept)
-        self.bb.rejected.connect(self.reject)
-
-        self.setup_ui()
-
-        self.resize(self.sizeHint())
-        geom = tprefs.get(name + '-geometry', None)
-        if geom is not None:
-            self.restoreGeometry(geom)
-        if hasattr(self, 'splitter'):
-            state = tprefs.get(name + '-splitter-state', None)
-            if state is not None:
-                self.splitter.restoreState(state)
-
-    def accept(self):
-        tprefs.set(self.name + '-geometry', bytearray(self.saveGeometry()))
-        if hasattr(self, 'splitter'):
-            tprefs.set(self.name + '-splitter-state', bytearray(self.splitter.saveState()))
-        QDialog.accept(self)
-
-    def reject(self):
-        tprefs.set(self.name + '-geometry', bytearray(self.saveGeometry()))
-        if hasattr(self, 'splitter'):
-            tprefs.set(self.name + '-splitter-state', bytearray(self.splitter.saveState()))
-        QDialog.reject(self)
-
-    def setup_ui(self):
-        raise NotImplementedError('You must implement this method in Dialog subclasses')
+        BaseDialog.__init__(self, title, name, parent=parent, prefs=tprefs)
 
 class InsertTag(Dialog):  # {{{
 
