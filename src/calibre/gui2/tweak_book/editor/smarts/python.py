@@ -37,6 +37,12 @@ class Smarts(NullSmarts):
 
     override_tab_stop_width = 4
 
+    def __init__(self, *args, **kwargs):
+        NullSmarts.__init__(self, *args, **kwargs)
+        c = re.compile
+        self.escape_scope_pat = c(r'\s+(continue|break|return|pass)(\s|$)')
+        self.dedent_pat = c(r'\s+(else|elif|except)(\(|\s|$)')
+
     def handle_key_press(self, ev, editor):
         key = ev.key()
 
@@ -70,7 +76,7 @@ class Smarts(NullSmarts):
             line = cursor.block().text()
             if line.rstrip().endswith(':'):
                 ls += ' ' * 4
-            elif re.match(r'\s+(continue|break|return|pass)(\s|$)', line) is not None:
+            elif self.escape_scope_pat.match(line) is not None:
                 ls = ls[:-4]
             cursor.insertText('\n' + ls)
             editor.setTextCursor(cursor)
@@ -78,7 +84,7 @@ class Smarts(NullSmarts):
 
         elif key == Qt.Key_Colon:
             cursor, text = get_text_before_cursor(editor)
-            if re.match(r'\s+(else|elif|except)(\(|\s|$)', text) is not None:
+            if self.dedent_pat.search(text) is not None:
                 ls = get_leading_whitespace_on_line(editor)
                 pls = get_leading_whitespace_on_line(editor, previous=True)
                 if ls and ls >= pls:
