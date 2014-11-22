@@ -209,7 +209,7 @@ def windows_get_fileid(path):
     if isbytestring(path):
         path = path.decode(filesystem_encoding)
     try:
-        h = win32file.CreateFile(path, 0, 0, None, win32file.OPEN_EXISTING,
+        h = win32file.CreateFileW(path, 0, 0, None, win32file.OPEN_EXISTING,
                 win32file.FILE_FLAG_BACKUP_SEMANTICS, 0)
         try:
             data = win32file.GetFileInformationByHandle(h)
@@ -261,7 +261,9 @@ def windows_get_size(path):
     not in the directory entry (which could be out of date). So we open the
     file, and get the actual size. '''
     import win32file
-    h = win32file.CreateFile(
+    if isbytestring(path):
+        path = path.decode(filesystem_encoding)
+    h = win32file.CreateFileW(
         path, 0, win32file.FILE_SHARE_READ | win32file.FILE_SHARE_WRITE | win32file.FILE_SHARE_DELETE,
         None, win32file.OPEN_EXISTING, 0, None)
     try:
@@ -297,7 +299,9 @@ def windows_hardlink(src, dest):
 def windows_nlinks(path):
     import win32file
     dwFlagsAndAttributes = win32file.FILE_FLAG_BACKUP_SEMANTICS if os.path.isdir(path) else 0
-    handle = win32file.CreateFile(path, win32file.GENERIC_READ, win32file.FILE_SHARE_READ, None, win32file.OPEN_EXISTING, dwFlagsAndAttributes, None)
+    if isbytestring(path):
+        path = path.decode(filesystem_encoding)
+    handle = win32file.CreateFileW(path, win32file.GENERIC_READ, win32file.FILE_SHARE_READ, None, win32file.OPEN_EXISTING, dwFlagsAndAttributes, None)
     try:
         return win32file.GetFileInformationByHandle(handle)[7]
     finally:
@@ -343,7 +347,7 @@ class WindowsAtomicFolderMove(object):
                 pass
 
             try:
-                h = win32file.CreateFile(f, win32file.GENERIC_READ,
+                h = win32file.CreateFileW(f, win32file.GENERIC_READ,
                         win32file.FILE_SHARE_DELETE, None,
                         win32file.OPEN_EXISTING, win32file.FILE_FLAG_SEQUENTIAL_SCAN, 0)
             except error as e:
