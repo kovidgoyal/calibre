@@ -157,29 +157,26 @@ class PDFOutput(OutputFormatPlugin):
             self.cover_data = item.data
 
     def handle_embedded_fonts(self):
-        '''
-        Because of QtWebKit's inability to handle embedded fonts correctly, we
-        remove the embedded fonts and make them available system wide instead.
-        If you ever move to Qt WebKit 2.3+ then this will be unnecessary.
-        '''
+        ''' On windows, Qt uses GDI which does not support OpenType
+        (CFF) fonts, so we need to nuke references to OpenType
+        fonts. Qt's directwrite text backend is not mature.
+        Also make sure all fonts are embeddable. '''
         from calibre.ebooks.oeb.base import urlnormalize
         from calibre.utils.fonts.utils import remove_embed_restriction
-        from PyQt5.Qt import QFontDatabase, QByteArray, QRawFont, QFont
+        from PyQt5.Qt import QByteArray, QRawFont
 
-        # First find all @font-face rules and remove them, adding the embedded
-        # fonts to Qt
-        family_map = {}
+        font_warnings = set()
+        processed = set()
+        is_cff = {}
         for item in list(self.oeb.manifest):
             if not hasattr(item.data, 'cssRules'):
                 continue
             remove = set()
             for i, rule in enumerate(item.data.cssRules):
                 if rule.type == rule.FONT_FACE_RULE:
-                    remove.add(i)
                     try:
                         s = rule.style
                         src = s.getProperty('src').propertyValue[0].uri
-                        font_family = s.getProperty('font-family').propertyValue[0].value
                     except:
                         continue
                     path = item.abshref(src)
@@ -187,61 +184,28 @@ class PDFOutput(OutputFormatPlugin):
                     if ff is None:
                         continue
 
-                    raw = ff.data
-                    self.oeb.manifest.remove(ff)
-                    try:
-                        raw = remove_embed_restriction(raw)
-                    except:
-                        continue
-                    fid = QFontDatabase.addApplicationFontFromData(QByteArray(raw))
-                    family_name = None
-                    if fid > -1:
+                    raw = nraw = ff.data
+                    if path not in processed:
+                        processed.add(path)
                         try:
-                            family_name = unicode(QFontDatabase.applicationFontFamilies(fid)[0])
-                        except (IndexError, KeyError):
-                            pass
-                    if family_name:
-                        family_map[icu_lower(font_family)] = family_name
+                            nraw = remove_embed_restriction(raw)
+                        except:
+                            continue
+                        if nraw != raw:
+                            ff.data = nraw
+                            self.oeb.container.write(path, nraw)
 
+                    if iswindows:
+                        if path not in is_cff:
+                            f = QRawFont(QByteArray(nraw), 12)
+                            is_cff[path] = f.isValid() and len(f.fontTable('head')) == 0
+                        if is_cff[path]:
+                            if path not in font_warnings:
+                                font_warnings.add(path)
+                                self.log.warn('CFF OpenType fonts are not supported on windows, ignoring: %s' % path)
+                            remove.add(i)
             for i in sorted(remove, reverse=True):
                 item.data.cssRules.pop(i)
-
-        # Now map the font family name specified in the css to the actual
-        # family name of the embedded font (they may be different in general).
-        font_warnings = set()
-        for item in self.oeb.manifest:
-            if not hasattr(item.data, 'cssRules'):
-                continue
-            for i, rule in enumerate(item.data.cssRules):
-                if rule.type != rule.STYLE_RULE:
-                    continue
-                ff = rule.style.getProperty('font-family')
-                if ff is None:
-                    continue
-                val = ff.propertyValue
-                for i in xrange(val.length):
-                    try:
-                        k = icu_lower(val[i].value)
-                    except (AttributeError, TypeError):
-                        val[i].value = k = 'times'
-                    if k in family_map:
-                        val[i].value = family_map[k]
-                if iswindows:
-                    # On windows, Qt uses GDI which does not support OpenType
-                    # (CFF) fonts, so we need to nuke references to OpenType
-                    # fonts. Note that you could compile QT with configure
-                    # -directwrite, but that requires atleast Vista SP2
-                    for i in xrange(val.length):
-                        family = val[i].value
-                        if family:
-                            f = QRawFont.fromFont(QFont(family))
-                            if len(f.fontTable('head')) == 0:
-                                if family not in font_warnings:
-                                    self.log.warn('Ignoring unsupported font: %s'
-                                                %family)
-                                    font_warnings.add(family)
-                                # Either a bitmap or (more likely) a CFF font
-                                val[i].value = 'times'
 
     def convert_text(self, oeb_book):
         from calibre.ebooks.metadata.opf2 import OPF
