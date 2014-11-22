@@ -20,6 +20,8 @@ let g:syntastic_c_include_dirs = g:syntastic_cpp_include_dirs
 set wildignore+=resources/viewer/mathjax/*
 set wildignore+=build/*
 set wildignore+=dist/*
+set wildignore+=manual/generated/*
+set wildignore+=manual/locale/*
 
 fun! CalibreLog()
     " Setup buffers to edit the calibre changelog and version info prior to
