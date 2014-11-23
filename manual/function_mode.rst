@@ -129,14 +129,23 @@ they look like :code:`<h2>1. Some text</h2>`.
         section_number = '%d. ' % number
         return match.group(1) + section_number + match.group(2)
 
+    # Ensure that when running over multiple files, the files are processed
+    # in the order in which they appear in the book
+    replace.file_order = 'spine'
+
 Use it with the find expression::
 
     (?s)(<h2[^<>]*>)(.+?</h2>)
 
-Place the cursor at the top of the file and click :guilabel:`Replace all`. This
-function uses another of the useful extra arguments to ``replace()``: the
+Place the cursor at the top of the file and click :guilabel:`Replace all`.
+
+This function uses another of the useful extra arguments to ``replace()``: the
 ``number`` argument. When doing a :guilabel:`Replace All` number is
 automatically incremented for every successive match.
+
+Another new feature is the use of ``replace.file_order`` -- setting that to
+``'spine'`` means that if this search is run on multiple HTML files, the files
+are processed in the order in which they appear in the book.
 
 
 Auto create a Table of Contents
@@ -159,16 +168,12 @@ Contents based on these headings. Create the custom function below:
             # All matches found, output the resulting Table of Contents.
             # The argument metadata is the metadata of the book being edited
             if 'toc' in data:
-                book = current_container()
                 toc = data['toc']
-                # Re-arrange the entries in the spine order of the book
-                spine_order = {name:i for i, (name, is_linear) in enumerate(book.spine_names)}
-                toc.sort(key=lambda x: spine_order.get(x[0]))
                 root = TOC()
                 for (file_name, tag_name, anchor, text) in toc:
                     parent = root.children[-1] if tag_name == 'h2' and root.children else root
                     parent.add(text, file_name, anchor)
-                toc = toc_to_html(root, book, 'toc.html', 'Table of Contents for ' + metadata.title, metadata.language)
+                toc = toc_to_html(root, current_container(), 'toc.html', 'Table of Contents for ' + metadata.title, metadata.language)
                 print (xml2str(toc))
             else:
                 print ('No headings to build ToC from found')
@@ -185,6 +190,9 @@ Contents based on these headings. Create the custom function below:
     # Ensure that we are called once after the last match is found so we can
     # output the ToC
     replace.call_after_last_match = True
+    # Ensure that when running over multiple files, this function is called,
+    # the files are processed in the order in which they appear in the book
+    replace.file_order = 'spine'
 
 And use it with the find expression::
 
@@ -325,12 +333,31 @@ function from python. The output of print will be displayed in a popup window
 after the Find/replace has completed. You saw an example of using ``print()``
 to output an entire table of contents above.
 
+Choose file order when running on multiple HTML files
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+When you run a :guilabel:`Replace All` on multiple HTML files, the order in
+which the files are processes depends on what files you have open for editing.
+You can force the search to process files in the order in which the appear by
+setting the ``file_order`` attribute on your function, like this:
+
+.. code-block:: python
+
+    def replace(match, number, file_name, metadata, dictionaries, data, functions, *args, **kwargs):
+        ...
+
+    replace.file_order = 'spine'
+
+``file_order`` accepts two values, ``spine`` and ``spine-reverse`` which cause
+the search to process multiple files in the order they appear in the book,
+either forwards or backwards, respectively.
+
 Having your function called an extra time after the last match is found
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Sometimes, as in the auto generate table of contents example above, it is
 useful to have your function called an extra time after the last match is
-found. You can do this by setting the call_after_last_match attribute on your
+found. You can do this by setting the ``call_after_last_match`` attribute on your
 function, like this:
 
 .. code-block:: python

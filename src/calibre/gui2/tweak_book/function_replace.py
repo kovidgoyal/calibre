@@ -56,6 +56,7 @@ class Function(object):
             self.mod = None
         if not callable(self.func):
             raise ValueError('%r is not a function' % self.func)
+        self.file_order = getattr(self.func, 'file_order', None)
 
     def init_env(self, name=''):
         from calibre.gui2.tweak_book.boss import get_boss

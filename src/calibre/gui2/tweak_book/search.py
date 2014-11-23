@@ -1193,6 +1193,11 @@ def show_function_debug_output(func):
             from calibre.gui2.tweak_book.boss import get_boss
             get_boss().gui.sr_debug_output.show_log(func.name, val)
 
+def reorder_files(names, order):
+    reverse = order in {'spine-reverse', 'reverse-spine'}
+    spine_order = {name:i for i, (name, is_linear) in enumerate(current_container().spine_names)}
+    return sorted(frozenset(names), key=spine_order.get, reverse=reverse)
+
 def run_search(
     searches, action, current_editor, current_editor_name, searchable_names,
     gui_parent, show_editor, edit_file, show_current_diff, add_savepoint, rewind_savepoint, set_modified):
@@ -1292,7 +1297,7 @@ def run_search(
         lfiles = files or {current_editor_name:editor.syntax}
         updates = set()
         raw_data = {}
-        for n, syntax in lfiles.iteritems():
+        for n in lfiles:
             if n in editors:
                 raw = editors[n].get_raw_data()
             else:
@@ -1301,9 +1306,12 @@ def run_search(
 
         for p, repl in searches:
             repl_is_func = isinstance(repl, Function)
+            file_iterator = lfiles
             if repl_is_func:
                 repl.init_env()
-            for n, syntax in lfiles.iteritems():
+                if repl.file_order is not None and len(lfiles) > 1:
+                    file_iterator = reorder_files(file_iterator, repl.file_order)
+            for n in file_iterator:
                 raw = raw_data[n]
                 if replace:
                     if repl_is_func:
