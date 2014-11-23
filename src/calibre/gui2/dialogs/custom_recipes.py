@@ -12,12 +12,14 @@ from PyQt5.Qt import (
     QVBoxLayout, QStackedWidget, QSize, QPushButton, QIcon, QWidget, QListView,
     QHBoxLayout, QAbstractListModel, Qt, QLabel, QSizePolicy, pyqtSignal,
     QFormLayout, QSpinBox, QLineEdit, QGroupBox, QListWidget, QListWidgetItem,
-    QToolButton)
+    QToolButton, QDialog, QDialogButtonBox)
 
-from calibre.gui2 import error_dialog, open_local_file
+from calibre.gui2 import error_dialog, open_local_file, choose_files
 from calibre.gui2.widgets2 import Dialog
 from calibre.web.feeds.recipes import custom_recipes, compile_recipe
 from calibre.gui2.tweak_book.editor.text import TextEdit
+from calibre.utils.icu import sort_key
+from calibre.web.feeds.recipes.collection import get_builtin_recipe_collection, get_builtin_recipe_by_id
 
 def is_basic_recipe(src):
     return re.search(r'^class BasicUserRecipe', src, flags=re.MULTILINE) is not None
@@ -32,6 +34,12 @@ class CustomRecipeModel(QAbstractListModel):  # {{{
         row = index.row()
         if row > -1 and row < self.rowCount():
             return self.recipe_model.custom_recipe_collection[row].get('title', '')
+
+    def has_title(self, title):
+        for x in self.recipe_model.custom_recipe_collection:
+            if x.get('title', False) == title:
+                return True
+        return False
 
     def script(self, index):
         row = index.row()
@@ -223,6 +231,17 @@ class RecipeList(QWidget):  # {{{
         if idx.isValid():
             self.model.remove((idx.row(),))
             self.select_row()
+
+    def has_title(self, title):
+        return self.model.has_title(title)
+
+    def add_many(self, script_map):
+        self.model.add_many(script_map)
+        self.select_row()
+
+    def replace_many_by_title(self, script_map):
+        self.model.replace_many_by_title(script_map)
+        self.select_row()
 # }}}
 
 class BasicRecipe(QWidget):  # {{{
@@ -519,16 +538,103 @@ class CustomRecipes(Dialog):
             self.recipe_list.update(row, recipe.title, src)
         self.stack.setCurrentIndex(0)
 
-    # TODO: Implement these functions
-
     def customize_recipe(self):
-        pass
+        d = QDialog(self)
+        d.l = QVBoxLayout()
+        d.setLayout(d.l)
+        d.list = QListWidget(d)
+        d.list.doubleClicked.connect(lambda x: d.accept())
+        d.l.addWidget(d.list)
+        d.bb = QDialogButtonBox(QDialogButtonBox.Ok|QDialogButtonBox.Cancel,
+                Qt.Horizontal, d)
+        d.bb.accepted.connect(d.accept)
+        d.bb.rejected.connect(d.reject)
+        d.l.addWidget(d.bb)
+        d.setWindowTitle(_('Choose builtin recipe'))
+        items = []
+        for r in get_builtin_recipe_collection():
+            id_ = r.get('id', '')
+            title = r.get('title', '')
+            lang = r.get('language', '')
+            if id_ and title:
+                items.append((title + ' [%s]'%lang, id_))
+
+        items.sort(key=lambda x:sort_key(x[0]))
+        for title, id_ in items:
+            item = QListWidgetItem(title)
+            item.setData(Qt.UserRole, id_)
+            d.list.addItem(item)
+
+        d.resize(QSize(450, 400))
+        ret = d.exec_()
+        d.list.doubleClicked.disconnect()
+        if ret != d.Accepted:
+            return
+
+        items = list(d.list.selectedItems())
+        if not items:
+            return
+        item = items[-1]
+        id_ = unicode(item.data(Qt.UserRole) or '')
+        title = unicode(item.data(Qt.DisplayRole) or '').rpartition(' [')[0]
+        src = get_builtin_recipe_by_id(id_, download_recipe=True)
+        if src is None:
+            raise Exception('Something weird happened')
+
+        self.edit_recipe(None, src)
 
     def load_recipe(self):
-        pass
+        files = choose_files(self, 'recipe loader dialog',
+            _('Choose a recipe file'),
+            filters=[(_('Recipes'), ['.py', '.recipe'])],
+            all_files=False, select_only_single_file=True)
+        if files:
+            path = files[0]
+            try:
+                src = open(path, 'rb').read().decode('utf-8')
+            except Exception as err:
+                error_dialog(self, _('Invalid input'),
+                        _('<p>Could not create recipe. Error:<br>%s')%err, show=True)
+                return
+            self.edit_recipe(None, src)
 
     def import_opml(self):
-        pass
+        from calibre.gui2.dialogs.opml import ImportOPML
+        d = ImportOPML(parent=self)
+        if d.exec_() != d.Accepted:
+            return
+        oldest_article, max_articles_per_feed, replace_existing = d.oldest_article, d.articles_per_feed, d.replace_existing
+        failed_recipes, replace_recipes, add_recipes = {}, {}, {}
+
+        for group in d.recipes:
+            title = base_title = group.title or _('Unknown')
+            if not replace_existing:
+                c = 0
+                while self.recipe_list.has_title(title):
+                    c += 1
+                    title = '%s %d' % (base_title, c)
+            try:
+                src = options_to_recipe_source(title, oldest_article, max_articles_per_feed, group.feeds)
+                compile_recipe(src)
+            except Exception:
+                import traceback
+                failed_recipes[title] = traceback.format_exc()
+                continue
+
+            if replace_existing and self.recipe_list.has_title(title):
+                replace_recipes[title] = src
+            else:
+                add_recipes[title] = src
+
+        if add_recipes:
+            self.recipe_list.add_many(add_recipes)
+        if replace_recipes:
+            self.recipe_list.replace_many_by_title(replace_recipes)
+        if failed_recipes:
+            det_msg = '\n'.join('%s\n%s\n' % (title, tb) for title, tb in failed_recipes.iteritems())
+            error_dialog(self, _('Failed to create recipes'), _(
+                'Failed to create some recipes, click "Show details" for details'), show=True,
+                         det_msg=det_msg)
 
     def switch_to_advanced(self):
         src = self.basic_recipe.recipe_source
