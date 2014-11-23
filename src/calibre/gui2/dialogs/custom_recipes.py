@@ -231,6 +231,8 @@ class RecipeList(QWidget):  # {{{
         if idx.isValid():
             self.model.remove((idx.row(),))
             self.select_row()
+            if self.model.rowCount() == 0:
+                self.stacks.setCurrentIndex(0)
 
     def has_title(self, title):
         return self.model.has_title(title)
