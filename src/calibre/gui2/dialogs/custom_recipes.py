@@ -17,6 +17,7 @@ from PyQt5.Qt import (
 from calibre.gui2 import error_dialog, open_local_file
 from calibre.gui2.widgets2 import Dialog
 from calibre.web.feeds.recipes import custom_recipes, compile_recipe
+from calibre.gui2.tweak_book.editor.text import TextEdit
 
 def is_basic_recipe(src):
     return re.search(r'^class BasicUserRecipe', src, flags=re.MULTILINE) is not None
@@ -105,24 +106,41 @@ class CustomRecipeModel(QAbstractListModel):  # {{{
         self.endResetModel()
 # }}}
 
+def py3_repr(x):
+    ans = repr(x)
+    if isinstance(x, bytes) and not ans.startswith('b'):
+        ans = 'b' + ans
+    if isinstance(x, unicode) and ans.startswith('u'):
+        ans = ans[1:]
+    return ans
+
 def options_to_recipe_source(title, oldest_article, max_articles_per_feed, feeds):
     classname = 'BasicUserRecipe%d' % int(time.time())
     title = unicode(title).strip() or classname
     indent = ' ' * 8
-    feeds = '\n'.join(indent + repr(x) + ',' for x in feeds)
     if feeds:
-        feeds = 'feeds          = [\n%s%s\n    ]' % (indent, feeds)
+        if len(feeds[0]) == 1:
+            feeds = '\n'.join('%s%s,' % (indent, py3_repr(url)) for url in feeds)
+        else:
+            feeds = '\n'.join('%s(%s, %s),' % (indent, py3_repr(title), py3_repr(url)) for title, url in feeds)
+    else:
+        feeds = ''
+    if feeds:
+        feeds = 'feeds          = [\n%s\n    ]' % feeds
     src = textwrap.dedent('''\
+    #!/usr/bin/env python
+    # vim:fileencoding=utf-8
+    from __future__ import unicode_literals, division, absolute_import, print_function
     from calibre.web.feeds.news import {base}
 
     class {classname}({base}):
-        title          = {title!r}
+        title          = {title}
         oldest_article = {oldest_article}
         max_articles_per_feed = {max_articles_per_feed}
         auto_cleanup   = True
 
         {feeds}''').format(
-            classname=classname, title=title, oldest_article=oldest_article, feeds=feeds,
+            classname=classname, title=py3_repr(title), oldest_article=oldest_article, feeds=feeds,
             max_articles_per_feed=max_articles_per_feed, base='AutomaticNewsRecipe')
     return src
 
@@ -166,8 +184,12 @@ class RecipeList(QWidget):
         b.setSizePolicy(QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed))
         l.addWidget(b)
 
+        if v.model().rowCount() > 0:
+            idx = v.model().index(0)
+            if idx.isValid():
+                v.selectionModel().select(idx, v.selectionModel().ClearAndSelect)
+                self.recipe_selected(v.currentIndex())
         v.selectionModel().currentRowChanged.connect(self.recipe_selected)
-        self.recipe_selected(v.currentIndex())
 
     @property
     def model(self):
@@ -191,6 +213,7 @@ class BasicRecipe(QWidget):
         QWidget.__init__(self, parent)
         self.original_title_of_recipe = None
         self.l = l = QFormLayout(self)
+        l.setFieldGrowthPolicy(l.ExpandingFieldsGrow)
 
         self.hm = hm = QLabel(_(
             'Create a basic news recipe, by adding RSS feeds to it.\n'
@@ -203,7 +226,7 @@ class BasicRecipe(QWidget):
         l.addRow(_('Recipe &title:'), t)
 
         self.oldest_article = o = QSpinBox(self)
-        o.setSuffix(' ' + _('days'))
+        o.setSuffix(' ' + _('day(s)'))
         o.setToolTip(_("The oldest article to download"))
         o.setMinimum(1), o.setMaximum(36500)
         l.addRow(_('&Oldest article:'), o)
@@ -237,6 +260,20 @@ class BasicRecipe(QWidget):
         fg.h.addLayout(fg.l)
         l.addRow(fg)
 
+        self.afg = afg = QGroupBox(self)
+        afg.setTitle(_('Add feed to recipe'))
+        afg.l = QFormLayout(afg)
+        afg.l.setFieldGrowthPolicy(l.ExpandingFieldsGrow)
+        self.feed_title = ft = QLineEdit(self)
+        afg.l.addRow(_('Feed title:'), ft)
+        self.feed_url = fu = QLineEdit(self)
+        afg.l.addRow(_('Feed &URL:'), fu)
+        self.afb = b = QPushButton(QIcon(I('plus.png')), _('&Add feed'), self)
+        b.setToolTip(_('Add this feed to the recipe'))
+        b.clicked.connect(self.add_feed)
+        afg.l.addRow(b)
+        l.addRow(afg)
+
     # TODO: Implement these
     def move_up(self):
         pass
@@ -247,22 +284,39 @@ class BasicRecipe(QWidget):
     def remove_feed(self):
         pass
 
+    def add_feed(self):
+        pass
+
+    def validate(self):
+        title = self.title.text().strip()
+        if not title:
+            error_dialog(self, _('Title required'), _(
+                'You must give your news source a title'), show=True)
+            return False
+        if self.feeds.count() < 1:
+            error_dialog(self, _('Feed required'), _(
+                'You must add at least one feed to your news source'), show=True)
+            return False
+        try:
+            compile_recipe(self.recipe_source)
+        except Exception as err:
+            error_dialog(self, _('Invalid recipe'), _(
+                'Failed to compile the recipe, with syntax error: %s' % err), show=True)
+            return False
+        return True
+
     @dynamic_property
     def recipe_source(self):
 
         def fget(self):
             title = self.title.text().strip()
-            if not title:
-                error_dialog(self, _('Title required'), _(
-                    'You must give your news source a title'), show=True)
-                return
-            feeds = [self.feeds.itemAt(i).data(Qt.UserRole) for i in xrange(self.feeds.count())]
-            return options_to_recipe_source(title, self.oldest_article.value(), self.max_articles_per_feed.value(), feeds)
+            feeds = [self.feeds.item(i).data(Qt.UserRole) for i in xrange(self.feeds.count())]
+            return options_to_recipe_source(title, self.oldest_article.value(), self.max_articles.value(), feeds)
 
         def fset(self, src):
             self.feeds.clear()
-            self.feed_title.setText('')
-            self.feed_url.setText('')
+            self.feed_title.clear()
+            self.feed_url.clear()
             if src is None:
                 self.original_title_of_recipe = None
                 self.title.setText(_('My News Source'))
@@ -274,7 +328,8 @@ class BasicRecipe(QWidget):
                 self.title.setText(recipe.title)
                 self.oldest_article.setValue(recipe.oldest_article)
                 self.max_articles.setValue(recipe.max_articles_per_feed)
-                for title, url in (recipe.feeds or ()):
+                for x in (recipe.feeds or ()):
+                    title, url = ('', x) if len(x) == 1 else x
                     i = QListWidgetItem('%s - %s' % (title, url), self.feeds)
                     i.setData(Qt.UserRole, (title, url))
 
@@ -284,6 +339,43 @@ class AdvancedRecipe(QWidget):
 
     def __init__(self, parent):
         QWidget.__init__(self, parent)
+        self.original_title_of_recipe = None
+        self.l = l = QVBoxLayout(self)
+
+        self.la = la = QLabel(_(
+            'For help with writing advanced news recipes, see the <a href="%s">User Manual</a>'
+        ) % 'http://manual.calibre-ebook.com/news.html')
+        l.addWidget(la)
+
+        self.editor = TextEdit(self)
+        l.addWidget(self.editor)
+
+    def validate(self):
+        src = self.recipe_source
+        try:
+            compile_recipe(src)
+        except Exception as err:
+            error_dialog(self, _('Invalid recipe'), _(
+                'Failed to compile the recipe, with syntax error: %s' % err), show=True)
+            return False
+        return True
+
+    @dynamic_property
+    def recipe_source(self):
+
+        def fget(self):
+            return self.editor.toPlainText()
+
+        def fset(self, src):
+            recipe = compile_recipe(src)
+            self.original_title_of_recipe = recipe.title
+            self.editor.load_text(src, syntax='python', doc_name='<recipe>')
+
+        return property(fget=fget, fset=fset)
+
+    def sizeHint(self):
+        return QSize(800, 500)
+
 
 class CustomRecipes(Dialog):
 
@@ -336,13 +428,9 @@ class CustomRecipes(Dialog):
                 text = _('S&witch to Advanced mode')
                 tooltip = _('Edit this recipe in advanced mode')
                 receiver = self.switch_to_advanced
-            else:
-                text = _('S&witch to Basic mode')
-                tooltip = _('Edit this recipe in basic mode')
-                receiver = self.switch_to_basic
-            b = bb.addButton(text, bb.ActionRole)
-            b.setToolTip(tooltip)
-            b.clicked.connect(receiver)
+                b = bb.addButton(text, bb.ActionRole)
+                b.setToolTip(tooltip)
+                b.clicked.connect(receiver)
 
     def accept(self):
         idx = self.stack.currentIndex()
@@ -372,15 +460,18 @@ class CustomRecipes(Dialog):
 
     def edit_recipe(self, src):
         if is_basic_recipe(src):
+            self.basic_recipe.recipe_source = src
             self.stack.setCurrentIndex(1)
         else:
+            self.advanced_recipe.recipe_source = src
             self.stack.setCurrentIndex(2)
 
     # TODO: Implement these functions
 
     def editing_finished(self):
         w = self.stack.currentWidget()
-        w
+        if not w.validate():
+            return
 
     def add_recipe(self):
         pass
@@ -395,10 +486,8 @@ class CustomRecipes(Dialog):
         pass
 
     def switch_to_advanced(self):
+        self.advanced_recipe.recipe_source = self.basic_recipe.recipe_source
         self.stack.setCurrentIndex(2)
-
-    def switch_to_basic(self):
-        self.stack.setCurrentIndex(1)
 
 if __name__ == '__main__':
     from calibre.gui2 import Application
