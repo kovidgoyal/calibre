@@ -32,10 +32,10 @@ blog into an ebook, we rely on the :term:`RSS` feed of the blog::
     http://blog.calibre-ebook.com/feeds/posts/default
 
 I got the RSS URL by looking under "Subscribe to" at the bottom of the blog
-page and choosing Posts->Atom. To make calibre download the feeds and convert
+page and choosing :guilabel:`Posts->Atom`. To make calibre download the feeds and convert
 them into an ebook, you should right click the :guilabel:`Fetch news` button
-and then the :guilabel:`Add a custom news source` menu item. A dialog similar
-to that shown below should open up.
+and then the :guilabel:`Add a custom news source` menu item and then the
+:guilabel:`New Recipe` button. A dialog similar to that shown below should open up.
 
 .. image:: images/custom_news.png
     :align: center
@@ -44,7 +44,9 @@ First enter ``calibre Blog`` into the :guilabel:`Recipe title` field. This will 
 
 The next two fields (:guilabel:`Oldest article` and :guilabel:`Max. number of articles`) allow you some control over how many articles should be downloaded from each feed, and they are pretty self explanatory.
 
-To add the feeds to the recipe, enter the feed title and the feed URL and click the :guilabel:`Add feed` button. Once you have added the feed, simply click the :guilabel:`Add/update recipe` button and you're done! Close the dialog.
+To add the feeds to the recipe, enter the feed title and the feed URL and click
+the :guilabel:`Add feed` button. Once you have added the feed, simply click the
+:guilabel:`Save` button and you're done! Close the dialog.
 
 To test your new :term:`recipe`, click the :guilabel:`Fetch news` button and in the :guilabel:`Custom news sources` sub-menu click :guilabel:`calibre Blog`. After a couple of minutes, the newly downloaded ebook of blog posts will appear in the main library view (if you have your reader connected, it will be put onto the reader instead of into the library). Select it and hit the :guilabel:`View` button to read!
 

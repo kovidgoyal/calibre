@@ -489,11 +489,10 @@ class Scheduler(QObject):
             self.lock.unlock()
 
     def customize_feeds(self, *args):
-        from calibre.gui2.dialogs.user_profiles import UserProfiles
-        d = UserProfiles(self._parent, self.recipe_model)
+        from calibre.gui2.dialogs.custom_recipes import CustomRecipes
+        d = CustomRecipes(self.recipe_model, self._parent)
         try:
             d.exec_()
-            d.break_cycles()
         finally:
             d.deleteLater()
 
