@@ -40,6 +40,16 @@ get_epub_type = (node, possible_values) ->
                 break
     return epub_type
 
+get_containing_block = (node) ->
+    until node?.tagName?.toLowerCase() in ['p', 'div', 'li', 'td', 'h1', 'h2', 'h2', 'h3', 'h4', 'h5', 'h6', 'body']
+        node = node.parentNode
+        if not node
+            break
+    return node
+
+trim = (str) ->
+    return str.replace(/^\s\s*/, '').replace(/\s\s*$/, '')
+
 is_footnote_link = (node, url, linked_to_anchors) ->
     if not url or url.substr(0, 'file://'.length).toLowerCase() != 'file://'
         return false  # Ignore non-local links
@@ -68,7 +78,20 @@ is_footnote_link = (node, url, linked_to_anchors) ->
     eid = node.getAttribute('id') or node.getAttribute('name')
     if eid and linked_to_anchors.hasOwnProperty(eid)
         # An <a href="..." id="..."> link that is linked back from some other
-        # file in the spine, most likely a footnote
+        # file in the spine, most likely an endnote. We exclude links that are
+        # the only content of their parent block tag, as these are not likely
+        # to be endnotes.
+        cb = get_containing_block(node)
+        if not cb or cb.tagName.toLowerCase() == 'body'
+            return false
+        ltext = node.textContent
+        if not ltext
+            return false
+        ctext = cb.textContent
+        if not ctext
+            return false
+        if trim(ctext) == trim(ltext)
+            return false
         return true
 
     return false
