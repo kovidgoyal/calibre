@@ -221,7 +221,7 @@ class RecipeList(QWidget):  # {{{
             self.select_first()
 # }}}
 
-class BasicRecipe(QWidget):
+class BasicRecipe(QWidget):  # {{{
 
     def __init__(self, parent):
         QWidget.__init__(self, parent)
@@ -367,8 +367,9 @@ class BasicRecipe(QWidget):
                     QListWidgetItem('%s - %s' % (title, url), self.feeds).setData(Qt.UserRole, (title, url))
 
         return property(fget=fget, fset=fset)
+# }}}
 
-class AdvancedRecipe(QWidget):
+class AdvancedRecipe(QWidget):  # {{{
 
     def __init__(self, parent):
         QWidget.__init__(self, parent)
@@ -408,7 +409,7 @@ class AdvancedRecipe(QWidget):
 
     def sizeHint(self):
         return QSize(800, 500)
-
+# }}}
 
 class CustomRecipes(Dialog):
 
@@ -519,7 +520,10 @@ class CustomRecipes(Dialog):
         pass
 
     def switch_to_advanced(self):
-        self.advanced_recipe.recipe_source = self.basic_recipe.recipe_source
+        src = self.basic_recipe.recipe_source
+        src = src.replace('AutomaticNewsRecipe', 'BasicNewsRecipe')
+        src = src.replace('BasicUserRecipe', 'AdvancedUserRecipe')
+        self.advanced_recipe.recipe_source = src
         self.stack.setCurrentIndex(2)
 
 if __name__ == '__main__':
