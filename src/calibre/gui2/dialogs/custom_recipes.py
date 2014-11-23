@@ -144,7 +144,7 @@ def options_to_recipe_source(title, oldest_article, max_articles_per_feed, feeds
             max_articles_per_feed=max_articles_per_feed, base='AutomaticNewsRecipe')
     return src
 
-class RecipeList(QWidget):
+class RecipeList(QWidget):  # {{{
 
     edit_recipe = pyqtSignal(object)
 
@@ -179,17 +179,22 @@ class RecipeList(QWidget):
         b.setSizePolicy(QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed))
         b.clicked.connect(self.edit_requested)
         l.addWidget(b)
-        # TODO: Implement this button
         self.remove_button = b = QPushButton(QIcon(I('list_remove.png')), _('&Remove this recipe'), w)
+        b.clicked.connect(self.remove)
         b.setSizePolicy(QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed))
         l.addWidget(b)
 
+        self.select_first()
+        v.selectionModel().currentRowChanged.connect(self.recipe_selected)
+
+    def select_first(self):
+        v = self.view
         if v.model().rowCount() > 0:
             idx = v.model().index(0)
             if idx.isValid():
                 v.selectionModel().select(idx, v.selectionModel().ClearAndSelect)
-                self.recipe_selected(v.currentIndex())
-        v.selectionModel().currentRowChanged.connect(self.recipe_selected)
+                v.setCurrentIndex(idx)
+                self.recipe_selected(idx)
 
     @property
     def model(self):
@@ -199,6 +204,8 @@ class RecipeList(QWidget):
         if cur.isValid():
             self.stacks.setCurrentIndex(1)
             self.title.setText('<h2 style="text-align:center">%s</h2>' % self.model.title(cur))
+        else:
+            self.stacks.setCurrentIndex(0)
 
     def edit_requested(self):
         idx = self.view.currentIndex()
@@ -206,6 +213,13 @@ class RecipeList(QWidget):
             src = self.model.script(idx)
             if src is not None:
                 self.edit_recipe.emit(src)
+
+    def remove(self):
+        idx = self.view.currentIndex()
+        if idx.isValid():
+            self.model.remove((idx.row(),))
+            self.select_first()
+# }}}
 
 class BasicRecipe(QWidget):
 
@@ -224,6 +238,7 @@ class BasicRecipe(QWidget):
 
         self.title = t = QLineEdit(self)
         l.addRow(_('Recipe &title:'), t)
+        t.setStyleSheet('QLineEdit { font-weight: bold }')
 
         self.oldest_article = o = QSpinBox(self)
         o.setSuffix(' ' + _('day(s)'))
