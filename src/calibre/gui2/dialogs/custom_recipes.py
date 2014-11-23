@@ -158,6 +158,7 @@ class RecipeList(QWidget):  # {{{
         self.l = l = QHBoxLayout(self)
 
         self.view = v = QListView(self)
+        v.doubleClicked.connect(self.item_activated)
         v.setModel(CustomRecipeModel(model))
         l.addWidget(v)
 
@@ -221,6 +222,12 @@ class RecipeList(QWidget):  # {{{
 
     def edit_requested(self):
         idx = self.view.currentIndex()
+        if idx.isValid():
+            src = self.model.script(idx)
+            if src is not None:
+                self.edit_recipe.emit(idx.row(), src)
+
+    def item_activated(self, idx):
         if idx.isValid():
             src = self.model.script(idx)
             if src is not None:
