@@ -108,7 +108,7 @@ class LeMonde(BasicNewsRecipe):
 
 
     keep_only_tags    = [
-                       dict(name='div', attrs={'class':['global']})
+                       dict(name='article', attrs={})
                         ]
 
     remove_tags = [
