@@ -39,31 +39,19 @@ class CustomRecipeModel(QAbstractListModel):  # {{{
             urn = self.recipe_model.custom_recipe_collection[row].get('id')
             return self.recipe_model.get_recipe(urn)
 
-    def has_title(self, title):
-        for x in self.recipe_model.custom_recipe_collection:
-            if x.get('title', False) == title:
-                return True
-        return False
-
     def rowCount(self, *args):
         try:
             return len(self.recipe_model.custom_recipe_collection)
-        except:
+        except Exception:
             return 0
 
     def data(self, index, role):
         if role == Qt.DisplayRole:
-            ans = self.title(index)
-            if ans is not None:
-                return (ans)
-        return None
+            return self.title(index)
 
-    def replace_by_title(self, title, script):
-        urn = None
-        for x in self.recipe_model.custom_recipe_collection:
-            if x.get('title', False) == title:
-                urn = x.get('id')
-        if urn is not None:
+    def update(self, row, title, script):
+        if row > -1 and row < self.rowCount():
+            urn = self.recipe_model.custom_recipe_collection[row].get('id')
             self.beginResetModel()
             self.recipe_model.update_custom_recipe(urn, title, script)
             self.endResetModel()
@@ -84,9 +72,17 @@ class CustomRecipeModel(QAbstractListModel):  # {{{
             self.endResetModel()
 
     def add(self, title, script):
+        all_urns = {x.get('id') for x in self.recipe_model.custom_recipe_collection}
         self.beginResetModel()
         self.recipe_model.add_custom_recipe(title, script)
         self.endResetModel()
+        new_urns = {x.get('id') for x in self.recipe_model.custom_recipe_collection} - all_urns
+        if new_urns:
+            urn = tuple(new_urns)[0]
+            for row, item in enumerate(self.recipe_model.custom_recipe_collection):
+                if item.get('id') == urn:
+                    return row
+        return 0
 
     def add_many(self, scriptmap):
         self.beginResetModel()
@@ -146,7 +142,7 @@ def options_to_recipe_source(title, oldest_article, max_articles_per_feed, feeds
 
 class RecipeList(QWidget):  # {{{
 
-    edit_recipe = pyqtSignal(object)
+    edit_recipe = pyqtSignal(object, object)
 
     def __init__(self, parent, model):
         QWidget.__init__(self, parent)
@@ -184,17 +180,25 @@ class RecipeList(QWidget):  # {{{
         b.setSizePolicy(QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed))
         l.addWidget(b)
 
-        self.select_first()
+        self.select_row()
         v.selectionModel().currentRowChanged.connect(self.recipe_selected)
 
-    def select_first(self):
+    def select_row(self, row=0):
         v = self.view
         if v.model().rowCount() > 0:
-            idx = v.model().index(0)
+            idx = v.model().index(row)
             if idx.isValid():
                 v.selectionModel().select(idx, v.selectionModel().ClearAndSelect)
                 v.setCurrentIndex(idx)
                 self.recipe_selected(idx)
+
+    def add(self, title, src):
+        row = self.model.add(title, src)
+        self.select_row(row)
+
+    def update(self, row, title, src):
+        self.model.update(row, title, src)
+        self.select_row(row)
 
     @property
     def model(self):
@@ -212,20 +216,19 @@ class RecipeList(QWidget):  # {{{
         if idx.isValid():
             src = self.model.script(idx)
             if src is not None:
-                self.edit_recipe.emit(src)
+                self.edit_recipe.emit(idx.row(), src)
 
     def remove(self):
         idx = self.view.currentIndex()
         if idx.isValid():
             self.model.remove((idx.row(),))
-            self.select_first()
+            self.select_row()
 # }}}
 
 class BasicRecipe(QWidget):  # {{{
 
     def __init__(self, parent):
         QWidget.__init__(self, parent)
-        self.original_title_of_recipe = None
         self.l = l = QFormLayout(self)
         l.setFieldGrowthPolicy(l.ExpandingFieldsGrow)
 
@@ -280,7 +283,7 @@ class BasicRecipe(QWidget):  # {{{
         afg.l = QFormLayout(afg)
         afg.l.setFieldGrowthPolicy(l.ExpandingFieldsGrow)
         self.feed_title = ft = QLineEdit(self)
-        afg.l.addRow(_('Feed title:'), ft)
+        afg.l.addRow(_('&Feed title:'), ft)
         self.feed_url = fu = QLineEdit(self)
         afg.l.addRow(_('Feed &URL:'), fu)
         self.afb = b = QPushButton(QIcon(I('plus.png')), _('&Add feed'), self)
@@ -352,13 +355,11 @@ class BasicRecipe(QWidget):  # {{{
             self.feed_title.clear()
             self.feed_url.clear()
             if src is None:
-                self.original_title_of_recipe = None
                 self.title.setText(_('My News Source'))
                 self.oldest_article.setValue(7)
                 self.max_articles.setValue(100)
             else:
                 recipe = compile_recipe(src)
-                self.original_title_of_recipe = recipe.title
                 self.title.setText(recipe.title)
                 self.oldest_article.setValue(recipe.oldest_article)
                 self.max_articles.setValue(recipe.max_articles_per_feed)
@@ -373,7 +374,6 @@ class AdvancedRecipe(QWidget):  # {{{
 
     def __init__(self, parent):
         QWidget.__init__(self, parent)
-        self.original_title_of_recipe = None
         self.l = l = QVBoxLayout(self)
 
         self.la = la = QLabel(_(
@@ -401,8 +401,6 @@ class AdvancedRecipe(QWidget):  # {{{
             return self.editor.toPlainText()
 
         def fset(self, src):
-            recipe = compile_recipe(src)
-            self.original_title_of_recipe = recipe.title
             self.editor.load_text(src, syntax='python', doc_name='<recipe>')
 
         return property(fget=fget, fset=fset)
@@ -470,7 +468,6 @@ class CustomRecipes(Dialog):
         idx = self.stack.currentIndex()
         if idx > 0:
             self.editing_finished()
-            self.stack.setCurrentIndex(0)
             return
         Dialog.accept(self)
 
@@ -492,7 +489,13 @@ class CustomRecipes(Dialog):
                     _('No custom recipes created.'), show=True)
         open_local_file(bdir)
 
-    def edit_recipe(self, src):
+    def add_recipe(self):
+        self.editing_row = None
+        self.basic_recipe.recipe_source = None
+        self.stack.setCurrentIndex(1)
+
+    def edit_recipe(self, row, src):
+        self.editing_row = row
         if is_basic_recipe(src):
             self.basic_recipe.recipe_source = src
             self.stack.setCurrentIndex(1)
@@ -500,15 +503,23 @@ class CustomRecipes(Dialog):
             self.advanced_recipe.recipe_source = src
             self.stack.setCurrentIndex(2)
 
-    # TODO: Implement these functions
-
     def editing_finished(self):
         w = self.stack.currentWidget()
         if not w.validate():
             return
+        src = w.recipe_source
+        if not isinstance(src, bytes):
+            src = src.encode('utf-8')
+        recipe = compile_recipe(src)
+        row = self.editing_row
+        if row is None:
+            # Adding a new recipe
+            self.recipe_list.add(recipe.title, src)
+        else:
+            self.recipe_list.update(row, recipe.title, src)
+        self.stack.setCurrentIndex(0)
 
-    def add_recipe(self):
-        pass
+    # TODO: Implement these functions
 
     def customize_recipe(self):
         pass
