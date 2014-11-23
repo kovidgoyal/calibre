@@ -274,18 +274,37 @@ class BasicRecipe(QWidget):
         afg.l.addRow(b)
         l.addRow(afg)
 
-    # TODO: Implement these
     def move_up(self):
-        pass
+        items = self.feeds.selectedItems()
+        if items:
+            row = self.feeds.row(items[0])
+            if row > 0:
+                self.feeds.insertItem(row - 1, self.feeds.takeItem(row))
+                self.feeds.setCurrentItem(items[0])
 
     def move_down(self):
-        pass
+        items = self.feeds.selectedItems()
+        if items:
+            row = self.feeds.row(items[0])
+            if row < self.feeds.count() - 1:
+                self.feeds.insertItem(row + 1, self.feeds.takeItem(row))
+                self.feeds.setCurrentItem(items[0])
 
     def remove_feed(self):
-        pass
+        for item in self.feeds.selectedItems():
+            self.feeds.takeItem(self.feeds.row(item))
 
     def add_feed(self):
-        pass
+        title = self.feed_title.text().strip()
+        if not title:
+            return error_dialog(self, _('No feed title'), _(
+                'You must specify a title for the feed'), show=True)
+        url = self.feed_url.text().strip()
+        if not title:
+            return error_dialog(self, _('No feed URL'), _(
+                'You must specify a URL for the feed'), show=True)
+        QListWidgetItem('%s - %s' % (title, url), self.feeds).setData(Qt.UserRole, (title, url))
+        self.feed_title.clear(), self.feed_url.clear()
 
     def validate(self):
         title = self.title.text().strip()
@@ -330,8 +349,7 @@ class BasicRecipe(QWidget):
                 self.max_articles.setValue(recipe.max_articles_per_feed)
                 for x in (recipe.feeds or ()):
                     title, url = ('', x) if len(x) == 1 else x
-                    i = QListWidgetItem('%s - %s' % (title, url), self.feeds)
-                    i.setData(Qt.UserRole, (title, url))
+                    QListWidgetItem('%s - %s' % (title, url), self.feeds).setData(Qt.UserRole, (title, url))
 
         return property(fget=fget, fset=fset)
 
