@@ -19,6 +19,13 @@ def get_text_before_cursor(editor):
     text = cursor.selectedText()
     return cursor, text
 
+def is_cursor_on_wrapped_line(editor):
+    cursor = editor.textCursor()
+    cursor.movePosition(cursor.StartOfLine)
+    sol = cursor.position()
+    cursor.movePosition(cursor.StartOfBlock)
+    return sol != cursor.position()
+
 def expand_tabs(text):
     return text.replace('\t', ' '*4)
 
@@ -32,6 +39,20 @@ def get_leading_whitespace_on_line(editor, previous=False):
         ntext = text.lstrip()
         return expand_tabs(text[:len(text)-len(ntext)])
     return ''
+
+def no_modifiers(ev, *args):
+    mods = ev.modifiers()
+    for mod_mask in args:
+        if int(mods & mod_mask):
+            return False
+    return True
+
+def test_modifiers(ev, *args):
+    mods = ev.modifiers()
+    for mod_mask in args:
+        if not int(mods & mod_mask):
+            return False
+    return True
 
 class Smarts(NullSmarts):
 
@@ -93,6 +114,16 @@ class Smarts(NullSmarts):
                     cursor.insertText(text)
                     editor.setTextCursor(cursor)
                     return True
+
+        elif key == Qt.Key_Home and no_modifiers(ev, Qt.ControlModifier) and not is_cursor_on_wrapped_line(editor):
+            cursor, text = get_text_before_cursor(editor)
+            mode = cursor.KeepAnchor if test_modifiers(ev, Qt.ShiftModifier) else cursor.MoveAnchor
+            cursor.movePosition(cursor.StartOfBlock, mode)
+            if text.strip():
+                # Move to the start of text
+                cursor.movePosition(cursor.NextWord, mode)
+            editor.setTextCursor(cursor)
+            return True
 
 if __name__ == '__main__':
     import os
