@@ -6,12 +6,16 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
-def get_text_before_cursor(editor):
+from PyQt5.Qt import Qt
+
+def get_text_around_cursor(editor, before=True):
     cursor = editor.textCursor()
     cursor.clearSelection()
-    cursor.movePosition(cursor.StartOfBlock, cursor.KeepAnchor)
-    text = cursor.selectedText()
+    cursor.movePosition((cursor.StartOfBlock if before else cursor.EndOfBlock), cursor.KeepAnchor)
+    text = editor.selected_text_from_cursor(cursor)
     return cursor, text
+get_text_before_cursor = get_text_around_cursor
+get_text_after_cursor = lambda editor: get_text_around_cursor(editor, before=False)
 
 def is_cursor_on_wrapped_line(editor):
     cursor = editor.textCursor()
@@ -45,5 +49,41 @@ def test_modifiers(ev, *args):
             return False
     return True
 
+def smart_home(editor, ev):
+    if no_modifiers(ev, Qt.ControlModifier) and not is_cursor_on_wrapped_line(editor):
+        cursor, text = get_text_before_cursor(editor)
+        cursor = editor.textCursor()
+        mode = cursor.KeepAnchor if test_modifiers(ev, Qt.ShiftModifier) else cursor.MoveAnchor
+        cursor.movePosition(cursor.StartOfBlock, mode)
+        if text.strip():
+            # Move to the start of text
+            cursor.movePosition(cursor.NextWord, mode)
+        editor.setTextCursor(cursor)
+        return True
+    return False
 
+def expand_tabs(text, tw):
+    return text.replace('\t', ' ' * tw)
+
+def smart_tab(editor, ev, tw):
+    cursor, text = get_text_before_cursor(editor)
+    if not text.lstrip():
+        # cursor is preceded by only whitespace
+        text = expand_tabs(text, tw)
+        spclen = len(text) - (len(text) % tw) + tw
+        cursor.insertText(' ' * spclen)
+        editor.setTextCursor(cursor)
+        return True
+    return False
+
+def smart_backspace(editor, ev, tw):
+    cursor, text = get_text_before_cursor(editor)
+    if text and not text.lstrip():
+        # cursor is preceded by only whitespace
+        text = expand_tabs(text, tw)
+        spclen = max(0, len(text) - (len(text) % tw) - tw)
+        cursor.insertText(' ' * spclen)
+        editor.setTextCursor(cursor)
+        return True
+    return False
 

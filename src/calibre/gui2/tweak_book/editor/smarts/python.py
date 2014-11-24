@@ -12,8 +12,8 @@ from PyQt5.Qt import Qt
 
 from calibre.gui2.tweak_book.editor.smarts import NullSmarts
 from calibre.gui2.tweak_book.editor.smarts.utils import (
-    get_text_before_cursor, get_leading_whitespace_on_block as lw, no_modifiers,
-    test_modifiers, is_cursor_on_wrapped_line)
+    get_text_before_cursor, get_leading_whitespace_on_block as lw,
+    smart_home, smart_backspace, smart_tab)
 
 get_leading_whitespace_on_block = lambda editor, previous=False: expand_tabs(lw(editor, previous=previous))
 
@@ -35,29 +35,11 @@ class Smarts(NullSmarts):
     def handle_key_press(self, ev, editor):
         key = ev.key()
 
-        if key == Qt.Key_Tab:
-            cursor, text = get_text_before_cursor(editor)
-            if not text.lstrip():
-                # cursor is preceded by whitespace
-                text = expand_tabs(text)
-                spclen = len(text) - (len(text) % tw) + tw
-                cursor.insertText(' ' * spclen)
-                editor.setTextCursor(cursor)
-            else:
-                cursor = editor.textCursor()
-                cursor.insertText(' ' * tw)
-                editor.setTextCursor(cursor)
+        if key == Qt.Key_Tab and smart_tab(editor, ev, tw):
             return True
 
-        elif key == Qt.Key_Backspace:
-            cursor, text = get_text_before_cursor(editor)
-            if text and not text.lstrip():
-                # cursor is preceded by whitespace
-                text = expand_tabs(text)
-                spclen = max(0, len(text) - (len(text) % tw) - tw)
-                cursor.insertText(' ' * spclen)
-                editor.setTextCursor(cursor)
-                return True
+        elif key == Qt.Key_Backspace and smart_backspace(editor, ev, tw):
+            return True
 
         elif key in (Qt.Key_Enter, Qt.Key_Return):
             ls = get_leading_whitespace_on_block(editor)
@@ -83,15 +65,7 @@ class Smarts(NullSmarts):
                     editor.setTextCursor(cursor)
                     return True
 
-        elif key == Qt.Key_Home and no_modifiers(ev, Qt.ControlModifier) and not is_cursor_on_wrapped_line(editor):
-            cursor, text = get_text_before_cursor(editor)
-            cursor = editor.textCursor()
-            mode = cursor.KeepAnchor if test_modifiers(ev, Qt.ShiftModifier) else cursor.MoveAnchor
-            cursor.movePosition(cursor.StartOfBlock, mode)
-            if text.strip():
-                # Move to the start of text
-                cursor.movePosition(cursor.NextWord, mode)
-            editor.setTextCursor(cursor)
+        if key == Qt.Key_Home and smart_home(editor, ev):
             return True
 
 if __name__ == '__main__':
