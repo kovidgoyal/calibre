@@ -29,7 +29,7 @@ from calibre.web.jsbrowser.browser import Browser, Timeout
 import urllib
 
 def get_results(url, timeout):
-    browser = Browser(default_timeout=timeout)
+    browser = Browser(default_timeout=timeout, user_agent='CalibreCrawler/1.0')
     browser.visit(url)
     browser.wait_for_element('#nw_content_main')
     return browser.html
