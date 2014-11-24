@@ -48,7 +48,13 @@ def subset_all_fonts(container, font_stats, report):
                 continue
             with container.open(name, 'r+b') as f:
                 raw = f.read()
-                font_name = get_font_names(raw)[-1]
+                try:
+                    font_name = get_font_names(raw)[-1]
+                except Exception as e:
+                    container.log.warning(
+                        'Corrupted font: %s, ignoring.  Error: %s'%(
+                            name, as_unicode(e)))
+                    continue
                 warnings = []
                 container.log('Subsetting font: %s'%(font_name or name))
                 try:
