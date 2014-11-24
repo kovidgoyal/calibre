@@ -15,7 +15,7 @@ from calibre.gui2.tweak_book.editor.smarts import NullSmarts
 def get_text_before_cursor(editor):
     cursor = editor.textCursor()
     cursor.clearSelection()
-    cursor.movePosition(cursor.StartOfLine, cursor.KeepAnchor)
+    cursor.movePosition(cursor.StartOfBlock, cursor.KeepAnchor)
     text = cursor.selectedText()
     return cursor, text
 
