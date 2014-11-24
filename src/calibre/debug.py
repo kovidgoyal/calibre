@@ -193,8 +193,9 @@ def run_script(path, args):
 
     sys.argv = [path] + args
     ef = os.path.abspath(path)
-    base = os.path.dirname(ef)
-    sys.path.insert(0, base)
+    if '/src/calibre/' not in ef.replace(os.pathsep, '/'):
+        base = os.path.dirname(ef)
+        sys.path.insert(0, base)
     g = globals()
     g['__name__'] = '__main__'
     g['__file__'] = ef
