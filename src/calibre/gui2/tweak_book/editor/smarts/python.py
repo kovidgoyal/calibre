@@ -11,48 +11,14 @@ import re
 from PyQt5.Qt import Qt
 
 from calibre.gui2.tweak_book.editor.smarts import NullSmarts
+from calibre.gui2.tweak_book.editor.smarts.utils import (
+    get_text_before_cursor, get_leading_whitespace_on_block as lw, no_modifiers,
+    test_modifiers, is_cursor_on_wrapped_line)
 
-def get_text_before_cursor(editor):
-    cursor = editor.textCursor()
-    cursor.clearSelection()
-    cursor.movePosition(cursor.StartOfBlock, cursor.KeepAnchor)
-    text = cursor.selectedText()
-    return cursor, text
-
-def is_cursor_on_wrapped_line(editor):
-    cursor = editor.textCursor()
-    cursor.movePosition(cursor.StartOfLine)
-    sol = cursor.position()
-    cursor.movePosition(cursor.StartOfBlock)
-    return sol != cursor.position()
+get_leading_whitespace_on_block = lambda editor, previous=False: expand_tabs(lw(editor, previous=previous))
 
 def expand_tabs(text):
     return text.replace('\t', ' '*4)
-
-def get_leading_whitespace_on_line(editor, previous=False):
-    cursor = editor.textCursor()
-    block = cursor.block()
-    if previous:
-        block = block.previous()
-    if block.isValid():
-        text = block.text()
-        ntext = text.lstrip()
-        return expand_tabs(text[:len(text)-len(ntext)])
-    return ''
-
-def no_modifiers(ev, *args):
-    mods = ev.modifiers()
-    for mod_mask in args:
-        if int(mods & mod_mask):
-            return False
-    return True
-
-def test_modifiers(ev, *args):
-    mods = ev.modifiers()
-    for mod_mask in args:
-        if not int(mods & mod_mask):
-            return False
-    return True
 
 class Smarts(NullSmarts):
 
@@ -92,7 +58,7 @@ class Smarts(NullSmarts):
                 return True
 
         elif key in (Qt.Key_Enter, Qt.Key_Return):
-            ls = get_leading_whitespace_on_line(editor)
+            ls = get_leading_whitespace_on_block(editor)
             cursor = editor.textCursor()
             line = cursor.block().text()
             if line.rstrip().endswith(':'):
@@ -106,8 +72,8 @@ class Smarts(NullSmarts):
         elif key == Qt.Key_Colon:
             cursor, text = get_text_before_cursor(editor)
             if self.dedent_pat.search(text) is not None:
-                ls = get_leading_whitespace_on_line(editor)
-                pls = get_leading_whitespace_on_line(editor, previous=True)
+                ls = get_leading_whitespace_on_block(editor)
+                pls = get_leading_whitespace_on_block(editor, previous=True)
                 if ls and ls >= pls:
                     ls = ls[:-4]
                     text = ls + text.lstrip() + ':'
