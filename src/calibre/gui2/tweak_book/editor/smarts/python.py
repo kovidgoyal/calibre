@@ -17,12 +17,14 @@ from calibre.gui2.tweak_book.editor.smarts.utils import (
 
 get_leading_whitespace_on_block = lambda editor, previous=False: expand_tabs(lw(editor, previous=previous))
 
+tw = 4  # The tab width (hardcoded to the pep8 value)
+
 def expand_tabs(text):
-    return text.replace('\t', ' '*4)
+    return text.replace('\t', ' ' * tw)
 
 class Smarts(NullSmarts):
 
-    override_tab_stop_width = 4
+    override_tab_stop_width = tw
 
     def __init__(self, *args, **kwargs):
         NullSmarts.__init__(self, *args, **kwargs)
@@ -38,12 +40,12 @@ class Smarts(NullSmarts):
             if not text.lstrip():
                 # cursor is preceded by whitespace
                 text = expand_tabs(text)
-                spclen = len(text) - (len(text) % 4) + 4
+                spclen = len(text) - (len(text) % tw) + tw
                 cursor.insertText(' ' * spclen)
                 editor.setTextCursor(cursor)
             else:
                 cursor = editor.textCursor()
-                cursor.insertText(' ' * 4)
+                cursor.insertText(' ' * tw)
                 editor.setTextCursor(cursor)
             return True
 
@@ -52,7 +54,7 @@ class Smarts(NullSmarts):
             if text and not text.lstrip():
                 # cursor is preceded by whitespace
                 text = expand_tabs(text)
-                spclen = max(0, len(text) - (len(text) % 4) - 4)
+                spclen = max(0, len(text) - (len(text) % tw) - tw)
                 cursor.insertText(' ' * spclen)
                 editor.setTextCursor(cursor)
                 return True
@@ -62,9 +64,9 @@ class Smarts(NullSmarts):
             cursor = editor.textCursor()
             line = cursor.block().text()
             if line.rstrip().endswith(':'):
-                ls += ' ' * 4
+                ls += ' ' * tw
             elif self.escape_scope_pat.match(line) is not None:
-                ls = ls[:-4]
+                ls = ls[:-tw]
             cursor.insertText('\n' + ls)
             editor.setTextCursor(cursor)
             return True
@@ -75,7 +77,7 @@ class Smarts(NullSmarts):
                 ls = get_leading_whitespace_on_block(editor)
                 pls = get_leading_whitespace_on_block(editor, previous=True)
                 if ls and ls >= pls:
-                    ls = ls[:-4]
+                    ls = ls[:-tw]
                     text = ls + text.lstrip() + ':'
                     cursor.insertText(text)
                     editor.setTextCursor(cursor)
