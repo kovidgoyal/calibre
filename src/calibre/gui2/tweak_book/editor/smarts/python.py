@@ -85,6 +85,7 @@ class Smarts(NullSmarts):
 
         elif key == Qt.Key_Home and no_modifiers(ev, Qt.ControlModifier) and not is_cursor_on_wrapped_line(editor):
             cursor, text = get_text_before_cursor(editor)
+            cursor = editor.textCursor()
             mode = cursor.KeepAnchor if test_modifiers(ev, Qt.ShiftModifier) else cursor.MoveAnchor
             cursor.movePosition(cursor.StartOfBlock, mode)
             if text.strip():
