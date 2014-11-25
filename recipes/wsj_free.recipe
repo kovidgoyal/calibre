@@ -27,7 +27,6 @@ class WSJ(JavascriptRecipe):
     no_stylesheets = True
     ignore_duplicate_articles = {'url'}
     remove_attributes = ['style', 'data-scrim']
-    needs_subscription = True
 
     keep_only_tags = (
         'h1',  # 'h2.subhead', 'h2.subHed.deck',
@@ -45,14 +44,6 @@ class WSJ(JavascriptRecipe):
         '.article_tools', 'span[data-country-code][data-ticker-code]',
         'div.nc-exp-artmeta',
     )
-
-    def do_login(self, br, username, password):
-        br.visit(
-            'https://id.wsj.com/access/pages/wsj/us/login_standalone.html?mg=com-wsj', timeout=120)  # noqa
-        f = br.select_form(nr=0)
-        f['username'] = username
-        f['password'] = password
-        br.submit(timeout=120)
 
     def preprocess_stage2(self, article, browser, url, recursion_level):
         # Slideshow and expandable images need to be processed here to
@@ -156,9 +147,8 @@ class WSJ(JavascriptRecipe):
                 break
         for a in CSSSelect('div.itpSectionHeaderPdf a[href]')(root):
             href = a.get('href')
-            if href:
-                break
             ans['cover'] = browser.download_file(href)
+            break
 
         feeds = ans['index'] = []
         for a in CSSSelect('div.itpHeader ul.tab a[href]')(root):

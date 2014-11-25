@@ -152,9 +152,8 @@ class WSJ(JavascriptRecipe):
                 break
         for a in CSSSelect('div.itpSectionHeaderPdf a[href]')(root):
             href = a.get('href')
-            if href:
-                break
             ans['cover'] = browser.download_file(href)
+            break
 
         feeds = ans['index'] = []
         for a in CSSSelect('div.itpHeader ul.tab a[href]')(root):
