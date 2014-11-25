@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import (unicode_literals, division, absolute_import, print_function)
-store_version = 9  # Needed for dynamic plugin loading
+store_version = 10  # Needed for dynamic plugin loading
 
 __license__ = 'GPL 3'
 __copyright__ = '2011-2014, Tomasz Długosz <tomek3d@gmail.com>'
@@ -29,9 +29,9 @@ from calibre.web.jsbrowser.browser import Browser, Timeout
 import urllib
 
 def get_results(url, timeout):
-    browser = Browser(default_timeout=timeout)
+    browser = Browser(default_timeout=timeout, user_agent='CalibreCrawler/1.0')
     browser.visit(url)
-    browser.wait_for_element('#nw_content_main')
+    browser.wait_for_element('#nw_kontent_main')
     return browser.html
     '''
 
@@ -70,7 +70,7 @@ class WoblinkStore(BasicStoreConfig, StorePlugin):
         except WorkerError as e:
             raise Exception('Could not get results: %s'%e.orig_tb)
         doc = html.fromstring(strip_encoding_declarations(results['result']))
-        for data in doc.xpath('//div[@class="nw_katalog_lista_ksiazka"]'):
+        for data in doc.xpath('//div[@class="nw_katalog_lista_ksiazka "]'):
             if counter <= 0:
                 break
 
@@ -79,7 +79,7 @@ class WoblinkStore(BasicStoreConfig, StorePlugin):
                 continue
 
             cover_url = ''.join(data.xpath('.//div[@class="nw_katalog_lista_ksiazka_okladka nw_okladka"]/a[1]/img/@src'))
-            title = ''.join(data.xpath('.//h2[@class="nw_katalog_lista_ksiazka_detale_tytul"]/a[1]/text()'))
+            title = ''.join(data.xpath('.//h3[@class="nw_katalog_lista_ksiazka_detale_tytul"]/a[1]/text()'))
             author = ', '.join(data.xpath('.//p[@class="nw_katalog_lista_ksiazka_detale_autor"]/a/text()'))
             price = ''.join(data.xpath('.//div[@class="nw_opcjezakupu_cena"]/text()'))
             formats = ', '.join(data.xpath('.//p[@class="nw_katalog_lista_ksiazka_detale_format"]/span/text()'))
