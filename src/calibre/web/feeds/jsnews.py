@@ -146,6 +146,7 @@ class JavascriptRecipe(BasicNewsRecipe):
         Should return a dictionary with keys 'index', 'cover' and 'masthead'.
         'cover' and 'masthead' are optional, if not present, they will be auto-generated.
         The index must be in the same format as described in :meth:`parse_index`.
+        The cover and masthead must be the downloaded image data as a bytestring.
         '''
         raise NotImplementedError('You must implement this method in your recipe')
 
