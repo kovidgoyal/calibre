@@ -65,10 +65,11 @@ def smart_home(editor, ev):
 def expand_tabs(text, tw):
     return text.replace('\t', ' ' * tw)
 
-def smart_tab(editor, ev, tw):
+def smart_tab(editor, ev):
     cursor, text = get_text_before_cursor(editor)
     if not text.lstrip():
         # cursor is preceded by only whitespace
+        tw = editor.tw
         text = expand_tabs(text, tw)
         spclen = len(text) - (len(text) % tw) + tw
         cursor.insertText(' ' * spclen)
@@ -76,10 +77,11 @@ def smart_tab(editor, ev, tw):
         return True
     return False
 
-def smart_backspace(editor, ev, tw):
+def smart_backspace(editor, ev):
     cursor, text = get_text_before_cursor(editor)
     if text and not text.lstrip():
         # cursor is preceded by only whitespace
+        tw = editor.tw
         text = expand_tabs(text, tw)
         spclen = max(0, len(text) - (len(text) % tw) - tw)
         cursor.insertText(' ' * spclen)

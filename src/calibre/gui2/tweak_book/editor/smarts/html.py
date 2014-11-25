@@ -18,6 +18,9 @@ from calibre.gui2.tweak_book.editor.syntax.html import ATTR_NAME, ATTR_END, ATTR
 from calibre.utils.icu import utf16_length
 from calibre.gui2.tweak_book import tprefs
 from calibre.gui2.tweak_book.editor.smarts import NullSmarts
+from calibre.gui2.tweak_book.editor.smarts.utils import (
+    no_modifiers, get_leading_whitespace_on_block, get_text_before_cursor,
+    get_text_after_cursor, smart_home, smart_backspace, smart_tab, expand_tabs)
 
 get_offset = itemgetter(0)
 PARAGRAPH_SEPARATOR = '\u2029'
@@ -274,6 +277,12 @@ entity_pat = re.compile(r'&(#{0,1}[a-zA-Z0-9]{1,8});$')
 class Smarts(NullSmarts):
 
     def __init__(self, *args, **kwargs):
+        if not hasattr(Smarts, 'regexps_compiled'):
+            Smarts.regexps_compiled = True
+            Smarts.tag_pat = re.compile(r'<[^>]+>')
+            Smarts.closing_tag_pat = re.compile(r'<\s*/[^>]+>')
+            Smarts.closing_pat = re.compile(r'<\s*/')
+            Smarts.self_closing_pat = re.compile(r'/\s*>')
         NullSmarts.__init__(self, *args, **kwargs)
         self.last_matched_tag = None
 
@@ -533,11 +542,55 @@ class Smarts(NullSmarts):
             set_style_property(tag, 'text-align', value, editor)
 
     def handle_key_press(self, ev, editor):
-        text = ev.text()
+        ev_text = ev.text()
         key = ev.key()
-        if tprefs['replace_entities_as_typed'] and (key == Qt.Key_Semicolon or ';' in text):
+        is_xml = editor.syntax == 'xml'
+
+        if tprefs['replace_entities_as_typed'] and (key == Qt.Key_Semicolon or ';' in ev_text):
             self.replace_possible_entity(editor)
             return True
+
+        if key in (Qt.Key_Enter, Qt.Key_Return) and no_modifiers(ev, Qt.ControlModifier, Qt.AltModifier):
+            ls = get_leading_whitespace_on_block(editor)
+            if ls == ' ':
+                ls = ''  # Do not consider a single leading space as indentation
+            if is_xml:
+                count = 0
+                for m in self.tag_pat.finditer(get_text_before_cursor(editor)[1]):
+                    text = m.group()
+                    if self.closing_pat.search(text) is not None:
+                        count -= 1
+                    elif self.self_closing_pat.search(text) is None:
+                        count += 1
+                if self.closing_tag_pat.match(get_text_after_cursor(editor)[1].lstrip()):
+                    count -= 1
+                if count > 0:
+                    ls += editor.tw * ' '
+            editor.textCursor().insertText('\n' + ls)
+            return True
+
+        if key == Qt.Key_Slash:
+            cursor, text = get_text_before_cursor(editor)
+            if not text.rstrip().endswith('<'):
+                return False
+            text = expand_tabs(text.rstrip()[:-1], editor.tw)
+            pls = get_leading_whitespace_on_block(editor, previous=True)
+            if is_xml and not text.lstrip() and len(text) > 1 and len(text) >= len(pls):
+                # Auto-dedent
+                text = text[:-editor.tw] + '</'
+                cursor.insertText(text)
+                editor.setTextCursor(cursor)
+                return True
+
+        if key == Qt.Key_Home and smart_home(editor, ev):
+            return True
+
+        if key == Qt.Key_Tab and smart_tab(editor, ev):
+            return True
+
+        if key == Qt.Key_Backspace and smart_backspace(editor, ev):
+            return True
+
         return False
 
     def replace_possible_entity(self, editor):
@@ -553,3 +606,36 @@ class Smarts(NullSmarts):
                 c.setPosition(c.position() + m.start(), c.KeepAnchor)
                 c.insertText(repl)
             editor.setTextCursor(c)
+
+if __name__ == '__main__':
+    from calibre.gui2.tweak_book.editor.widget import launch_editor
+    launch_editor('''\
+<!DOCTYPE html>
+<html xml:lang="en" lang="en">
+<!--
+-->
+    <head>
+        <meta charset="utf-8" />
+        <title>A title with a tag <span> in it, the tag is treated as normal text</title>
+        <style type="text/css">
+            body {
+                  color: green;
+                  font-size: 12pt;
+            }
+        </style>
+        <style type="text/css">p.small { font-size: x-small; color:gray }</style>
+    </head id="invalid attribute on closing tag">
+    <body lang="en_IN"><p:
+        <!-- The start of the actual body text -->
+        <h1 lang="en_US">A heading that should appear in bold, with an <i>italic</i> word</h1>
+        <p>Some text with inline formatting, that is syntax highlighted. A <b>bold</b> word, and an <em>italic</em> word. \
+<i>Some italic text with a <b>bold-italic</b> word in </i>the middle.</p>
+        <!-- Let's see what exotic constructs like namespace prefixes and empty attributes look like -->
+        <svg:svg xmlns:svg="http://whatever" />
+        <input disabled><input disabled /><span attr=<></span>
+        <!-- Non-breaking spaces are rendered differently from normal spaces, so that they stand out -->
+        <p>Some\xa0words\xa0separated\xa0by\xa0non\u2011breaking\xa0spaces and non\u2011breaking hyphens.</p>
+        <p>Some non-BMP unicode text:\U0001f431\U0001f431\U0001f431</p>
+    </body>
+</html>
+''', path_is_raw=True, syntax='xml')

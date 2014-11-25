@@ -35,10 +35,10 @@ class Smarts(NullSmarts):
     def handle_key_press(self, ev, editor):
         key = ev.key()
 
-        if key == Qt.Key_Tab and smart_tab(editor, ev, tw):
+        if key == Qt.Key_Tab and smart_tab(editor, ev):
             return True
 
-        elif key == Qt.Key_Backspace and smart_backspace(editor, ev, tw):
+        elif key == Qt.Key_Backspace and smart_backspace(editor, ev):
             return True
 
         elif key in (Qt.Key_Enter, Qt.Key_Return):

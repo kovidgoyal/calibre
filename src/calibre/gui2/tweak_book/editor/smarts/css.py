@@ -6,7 +6,12 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
+from PyQt5.Qt import Qt
+
 from calibre.gui2.tweak_book.editor.smarts import NullSmarts
+from calibre.gui2.tweak_book.editor.smarts.utils import (
+    no_modifiers, get_leading_whitespace_on_block, get_text_before_cursor,
+    smart_home, smart_backspace, smart_tab, expand_tabs)
 
 def find_rule(raw, rule_address):
     import tinycss
@@ -27,5 +32,37 @@ def find_rule(raw, rule_address):
     return ans
 
 class Smarts(NullSmarts):
-    pass
+
+    def handle_key_press(self, ev, editor):
+        key = ev.key()
+
+        if key in (Qt.Key_Enter, Qt.Key_Return) and no_modifiers(ev, Qt.ControlModifier, Qt.AltModifier):
+            ls = get_leading_whitespace_on_block(editor)
+            cursor, text = get_text_before_cursor(editor)
+            if text.rstrip().endswith('{'):
+                ls += ' ' * editor.tw
+            editor.textCursor().insertText('\n' + ls)
+            return True
+
+        if key == Qt.Key_BraceRight:
+            ls = get_leading_whitespace_on_block(editor)
+            pls = get_leading_whitespace_on_block(editor, previous=True)
+            cursor, text = get_text_before_cursor(editor)
+            if not text.rstrip() and ls >= pls and len(text) > 1:
+                text = expand_tabs(text, editor.tw)[:-editor.tw]
+                cursor.insertText(text + '}')
+                editor.setTextCursor(cursor)
+                return True
+
+        if key == Qt.Key_Home and smart_home(editor, ev):
+            return True
+
+        if key == Qt.Key_Tab and smart_tab(editor, ev):
+            return True
+
+        if key == Qt.Key_Backspace and smart_backspace(editor, ev):
+            return True
+
+        return False
+
 

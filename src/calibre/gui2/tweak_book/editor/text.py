@@ -139,6 +139,7 @@ class TextEdit(PlainTextEdit):
     def __init__(self, parent=None, expected_geometry=(100, 50)):
         PlainTextEdit.__init__(self, parent)
         self.gutter_width = 0
+        self.tw = 2
         self.expected_geometry = expected_geometry
         self.saved_matches = {}
         self.syntax = None
@@ -175,8 +176,8 @@ class TextEdit(PlainTextEdit):
         self.apply_theme(theme)
         w = self.fontMetrics()
         self.space_width = w.width(' ')
-        tw = self.smarts.override_tab_stop_width if self.smarts.override_tab_stop_width is not None else prefs['editor_tab_stop_width']
-        self.setTabStopWidth(tw * self.space_width)
+        self.tw = self.smarts.override_tab_stop_width if self.smarts.override_tab_stop_width is not None else prefs['editor_tab_stop_width']
+        self.setTabStopWidth(self.tw * self.space_width)
         if dictionaries_changed:
             self.highlighter.rehighlight()
 
@@ -223,7 +224,8 @@ class TextEdit(PlainTextEdit):
         if sclass is not None:
             self.smarts = sclass(self)
             if self.smarts.override_tab_stop_width is not None:
-                self.setTabStopWidth(self.smarts.override_tab_stop_width * self.space_width)
+                self.tw = self.smarts.override_tab_stop_width
+                self.setTabStopWidth(self.tw * self.space_width)
         self.setPlainText(unicodedata.normalize('NFC', unicode(text)))
         if process_template and QPlainTextEdit.find(self, '%CURSOR%'):
             c = self.textCursor()
