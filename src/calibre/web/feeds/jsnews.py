@@ -30,6 +30,18 @@ def image_data_to_url(data, base='cover'):
     ans.name = 'cover.' + ext
     return ans
 
+css_select_cache = {}
+
+def CSSSelect(expr):
+    try:
+        return css_select_cache[expr]
+    except KeyError:
+        from cssselect import HTMLTranslator
+        from lxml.etree import XPath
+        ans = css_select_cache[expr] = XPath(HTMLTranslator().css_to_xpath(expr))
+        return ans
+
+
 class JavascriptRecipe(BasicNewsRecipe):
 
     '''
