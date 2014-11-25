@@ -580,6 +580,9 @@ class Smarts(NullSmarts):
                 text = text[:-editor.tw] + '</'
                 cursor.insertText(text)
                 editor.setTextCursor(cursor)
+                self.auto_close_tag(editor)
+                return True
+            if self.auto_close_tag(editor):
                 return True
 
         if key == Qt.Key_Home and smart_home(editor, ev):
@@ -606,6 +609,16 @@ class Smarts(NullSmarts):
                 c.setPosition(c.position() + m.start(), c.KeepAnchor)
                 c.insertText(repl)
             editor.setTextCursor(c)
+
+    def auto_close_tag(self, editor):
+        c = editor.textCursor()
+        block, offset = c.block(), c.positionInBlock()
+        tag = find_closest_containing_tag(block, offset, max_tags=4000)
+        if tag is None:
+            return False
+        c.insertText('/%s>' % tag.name)
+        editor.setTextCursor(c)
+        return True
 
 if __name__ == '__main__':
     from calibre.gui2.tweak_book.editor.widget import launch_editor
