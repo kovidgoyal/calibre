@@ -52,7 +52,7 @@ def apply_keep_only(browser, keep_only):
     for selector in keep_only:
         keep.extend(x for x in mf.findAllElements(selector))
     if not keep:
-        browser.log.error('Failed to find any elements matching the keep_only selectors: %r' % keep_only)
+        browser.log.error('Failed to find any elements matching the keep_only selectors: %r' % list(keep_only))
         return
     for elem in keep:
         body.appendInside(elem)
