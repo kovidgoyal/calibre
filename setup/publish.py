@@ -84,6 +84,8 @@ class Manual(Command):
     def add_options(self, parser):
         parser.add_option('-l', '--language', action='append', default=[],
                           help='Build translated versions for only the specified languages (can be specified multiple times)')
+        parser.add_option('--serve', action='store_true', default=False,
+                          help='Run a webserver on the built manual files')
 
     def run(self, opts):
         tdir = self.j(tempfile.gettempdir(), 'user-manual-build')
@@ -120,6 +122,26 @@ class Manual(Command):
             self.info('Built manual for %d languages in %s minutes' % (len(jobs), int((time.time() - st)/60.)))
         finally:
             os.chdir(cwd)
+
+        if opts.serve:
+            self.serve_manual(self.j(tdir, 'en', 'html'))
+
+    def serve_manual(self, root):
+        os.chdir(root)
+        import BaseHTTPServer
+        from SimpleHTTPServer import SimpleHTTPRequestHandler
+        HandlerClass = SimpleHTTPRequestHandler
+        ServerClass  = BaseHTTPServer.HTTPServer
+        Protocol     = "HTTP/1.0"
+        server_address = ('127.0.0.1', 8000)
+
+        HandlerClass.protocol_version = Protocol
+        httpd = ServerClass(server_address, HandlerClass)
+
+        print ("Serving User Manual on localhost:8000")
+        from calibre.gui2 import open_url
+        open_url('http://localhost:8000')
+        httpd.serve_forever()
 
     def replace_with_symlinks(self, lang_dir):
         ' Replace all identical files with symlinks to save disk space/upload bandwidth '
