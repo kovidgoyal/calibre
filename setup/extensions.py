@@ -505,7 +505,8 @@ class Build(Command):
         # plugins uses the static libQt5PlatformSupport.a which needs glib
         # to be specified after it for linking to succeed, so we add it to
         # QMAKE_LIBS_PRIVATE (we cannot use LIBS as that would put -lglib-2.0
-        # before libQt5PlatformSupport.
+        # before libQt5PlatformSupport. See
+        # https://bugs.archlinux.org/task/38819
 
         pro = textwrap.dedent(
         '''\
