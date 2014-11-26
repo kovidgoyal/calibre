@@ -16,6 +16,7 @@ from calibre.utils.logging import Log
 from calibre.customize.conversion import OptionRecommendation
 from calibre import patheq
 from calibre.ebooks.conversion import ConversionUserFeedBack
+from calibre.utils.localization import localize_user_manual_link
 
 USAGE = '%prog ' + _('''\
 input_file output_file [options]
@@ -41,7 +42,7 @@ To get help on them specify the input and output file and then use the -h \
 option.
 
 For full documentation of the conversion system see
-''') + 'http://manual.calibre-ebook.com/conversion.html'
+''') + localize_user_manual_link('http://manual.calibre-ebook.com/conversion.html')
 
 HEURISTIC_OPTIONS = ['markup_chapter_headings',
                       'italicize_common_cases', 'fix_indents',

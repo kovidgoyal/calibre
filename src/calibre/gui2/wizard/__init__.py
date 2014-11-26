@@ -24,6 +24,7 @@ from calibre.gui2.wizard.finish_ui import Ui_WizardPage as FinishUI
 from calibre.gui2.wizard.kindle_ui import Ui_WizardPage as KindleUI
 from calibre.gui2.wizard.stanza_ui import Ui_WizardPage as StanzaUI
 from calibre.gui2 import min_available_height, available_width
+from calibre.utils.localization import localize_user_manual_link
 
 from calibre.utils.config import dynamic, prefs
 from calibre.gui2 import choose_dir, error_dialog
@@ -484,6 +485,12 @@ class StanzaPage(QWizardPage, StanzaUI):
     def __init__(self):
         QWizardPage.__init__(self)
         self.setupUi(self)
+        try:
+            self.instructions.setText(self.instructions.text() % localize_user_manual_link(
+                'http://manual.calibre-ebook.com/faq.html#how-do-i-use-calibre-with-my-ipad-iphone-ipod-touch'))
+        except TypeError:
+            pass  # user manual link was already replaced
+        self.instructions.setOpenExternalLinks(True)
         self.content_server.stateChanged[(int)].connect(self.set_port)
 
     def initializePage(self):
@@ -852,6 +859,10 @@ class FinishPage(QWizardPage, FinishUI):
     def __init__(self):
         QWizardPage.__init__(self)
         self.setupUi(self)
+        try:
+            self.um_label.setText(self.um_label.text() % localize_user_manual_link('http://manual.calibre-ebook.com'))
+        except TypeError:
+            pass  # link already localized
 
     def nextId(self):
         return -1

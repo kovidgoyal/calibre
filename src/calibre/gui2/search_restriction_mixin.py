@@ -18,6 +18,7 @@ from calibre.gui2.widgets import ComboBoxWithHelp
 from calibre.utils.config_base import tweaks
 from calibre.utils.icu import sort_key
 from calibre.utils.search_query_parser import ParseException
+from calibre.utils.localization import localize_user_manual_link
 
 class SelectNames(QDialog):  # {{{
 
@@ -150,8 +151,8 @@ class CreateVirtualLibrary(QDialog):  # {{{
             or only books by <i>"My Favorite Author"</i> or only books in a particular series.</p>
 
             <p>More information and examples are available in the
-            <a href="http://manual.calibre-ebook.com/virtual_libraries.html">User Manual</a>.</p>
-            '''))
+            <a href="%s">User Manual</a>.</p>
+            ''') % localize_user_manual_link('http://manual.calibre-ebook.com/virtual_libraries.html'))
         hl.setWordWrap(True)
         hl.setOpenExternalLinks(True)
         hl.setFrameStyle(hl.StyledPanel)

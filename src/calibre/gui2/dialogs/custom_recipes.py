@@ -20,6 +20,7 @@ from calibre.web.feeds.recipes import custom_recipes, compile_recipe
 from calibre.gui2.tweak_book.editor.text import TextEdit
 from calibre.utils.icu import sort_key
 from calibre.web.feeds.recipes.collection import get_builtin_recipe_collection, get_builtin_recipe_by_id
+from calibre.utils.localization import localize_user_manual_link
 
 def is_basic_recipe(src):
     return re.search(r'^class BasicUserRecipe', src, flags=re.MULTILINE) is not None
@@ -406,7 +407,7 @@ class AdvancedRecipe(QWidget):  # {{{
 
         self.la = la = QLabel(_(
             'For help with writing advanced news recipes, see the <a href="%s">User Manual</a>'
-        ) % 'http://manual.calibre-ebook.com/news.html')
+        ) % localize_user_manual_link('http://manual.calibre-ebook.com/news.html'))
         l.addWidget(la)
 
         self.editor = TextEdit(self)

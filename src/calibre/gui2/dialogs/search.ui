@@ -28,7 +28,7 @@
      </property>
      <layout class="QVBoxLayout" name="verticalLayout_3">
       <item>
-       <widget class="QLabel" name="label_12">
+       <widget class="QLabel" name="um_label">
         <property name="minimumSize">
          <size>
           <width>150</width>
@@ -36,7 +36,7 @@
          </size>
         </property>
         <property name="text">
-         <string>&lt;p&gt;You can also perform other kinds of advanced searches, for example checking for books that have no covers, combining multiple search expression using Boolean operators and so on. See the &lt;a href=&quot;http://manual.calibre-ebook.com/gui.html#the-search-interface&quot;&gt;The Search Interface&lt;/a&gt; for more information.</string>
+         <string>&lt;p&gt;You can also perform other kinds of advanced searches, for example checking for books that have no covers, combining multiple search expression using Boolean operators and so on. See the &lt;a href=&quot;%s&quot;&gt;The Search Interface&lt;/a&gt; for more information.</string>
         </property>
         <property name="wordWrap">
          <bool>true</bool>

@@ -21,6 +21,7 @@ from calibre.utils.config import prefs, XMLConfig
 from calibre.gui2.progress_indicator import ProgressIndicator as _ProgressIndicator
 from calibre.gui2.dnd import (dnd_has_image, dnd_get_image, dnd_get_files,
     IMAGE_EXTENSIONS, dnd_has_extension, DownloadDialog)
+from calibre.utils.localization import localize_user_manual_link
 
 history = XMLConfig('history')
 
@@ -64,6 +65,11 @@ class FilenamePattern(QWidget, Ui_Form):  # {{{
     def __init__(self, parent):
         QWidget.__init__(self, parent)
         self.setupUi(self)
+        try:
+            self.help_label.setText(self.help_label.text() % localize_user_manual_link(
+                'http://manual.calibre-ebook.com/regexp.html'))
+        except TypeError:
+            pass  # link already localized
 
         self.test_button.clicked.connect(self.do_test)
         self.re.lineEdit().returnPressed[()].connect(self.do_test)

@@ -105,9 +105,9 @@
     <widget class="XPathEdit" name="opt_level1_toc" native="true"/>
    </item>
    <item row="0" column="0" colspan="2">
-    <widget class="QLabel" name="label_2">
+    <widget class="QLabel" name="help_label">
      <property name="text">
-      <string>&lt;a href=&quot;http://manual.calibre-ebook.com/conversion.html#table-of-contents&quot;&gt;Help with using these options to generate a Table of Contents&lt;/a&gt;</string>
+      <string>&lt;a href=&quot;%s&quot;&gt;Help with using these options to generate a Table of Contents&lt;/a&gt;</string>
      </property>
      <property name="wordWrap">
       <bool>true</bool>

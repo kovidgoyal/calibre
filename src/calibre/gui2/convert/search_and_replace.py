@@ -13,6 +13,7 @@ from calibre.gui2.convert import Widget
 from calibre.gui2 import (error_dialog, question_dialog, choose_files,
         choose_save_file)
 from calibre import as_unicode
+from calibre.utils.localization import localize_user_manual_link
 
 class SearchAndReplaceWidget(Widget, Ui_Form):
 
@@ -65,6 +66,12 @@ class SearchAndReplaceWidget(Widget, Ui_Form):
         self.search_replace.currentCellChanged.connect(self.sr_currentCellChanged)
 
         self.initialize_options(get_option, get_help, db, book_id)
+
+        try:
+            self.rh_label.setText(self.rh_label.text() % localize_user_manual_link(
+                'http://manual.calibre-ebook.com/regexp.html'))
+        except TypeError:
+            pass  # link already localized
 
     def sr_add_clicked(self):
         if self.sr_search.regex:
@@ -128,7 +135,7 @@ class SearchAndReplaceWidget(Widget, Ui_Form):
 
     def sr_up_clicked(self):
         self.cell_rearrange(-1)
-    
+
     def sr_down_clicked(self):
         self.cell_rearrange(1)
 
@@ -141,7 +148,7 @@ class SearchAndReplaceWidget(Widget, Ui_Form):
             item1.setText(item2.text())
             item2.setText(value)
         self.search_replace.setCurrentCell(row+i, 0)
-        
+
     def sr_currentCellChanged(self, row, column, previousRow, previousColumn) :
         if row >= 0:
             self.sr_change.setEnabled(True)

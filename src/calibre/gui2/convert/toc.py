@@ -10,6 +10,7 @@ __docformat__ = 'restructuredtext en'
 from calibre.gui2.convert.toc_ui import Ui_Form
 from calibre.gui2.convert import Widget
 from calibre.gui2 import error_dialog
+from calibre.utils.localization import localize_user_manual_link
 
 class TOCWidget(Widget, Ui_Form):
 
@@ -30,6 +31,11 @@ class TOCWidget(Widget, Ui_Form):
         self.opt_level1_toc.set_msg(_('Level &1 TOC (XPath expression):'))
         self.opt_level2_toc.set_msg(_('Level &2 TOC (XPath expression):'))
         self.opt_level3_toc.set_msg(_('Level &3 TOC (XPath expression):'))
+        try:
+            self.help_label.setText(self.help_label.text() % localize_user_manual_link(
+                'http://manual.calibre-ebook.com/conversion.html#table-of-contents'))
+        except TypeError:
+            pass  # link already localized
 
 
     def pre_commit_check(self):

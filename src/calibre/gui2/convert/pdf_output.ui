@@ -184,9 +184,9 @@
      </property>
      <layout class="QFormLayout" name="formLayout_2">
       <item row="0" column="0" colspan="2">
-       <widget class="QLabel" name="label_2">
+       <widget class="QLabel" name="hf_label">
         <property name="text">
-         <string>You can insert headers and footers into every page of the produced PDF file by using header and footer templates. For examples, see the &lt;a href=&quot;http://manual.calibre-ebook.com/conversion.html#converting-to-pdf&quot;&gt;documentation&lt;/a&gt;.</string>
+         <string>You can insert headers and footers into every page of the produced PDF file by using header and footer templates. For examples, see the &lt;a href=&quot;%s&quot;&gt;documentation&lt;/a&gt;.</string>
         </property>
         <property name="wordWrap">
          <bool>true</bool>

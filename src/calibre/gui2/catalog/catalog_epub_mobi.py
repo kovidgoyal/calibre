@@ -14,6 +14,7 @@ from calibre.ebooks.conversion.config import load_defaults
 from calibre.gui2 import gprefs, open_url, question_dialog, error_dialog
 from calibre.utils.config import JSONConfig
 from calibre.utils.icu import sort_key
+from calibre.utils.localization import localize_user_manual_link
 
 from catalog_epub_mobi_ui import Ui_Form
 from PyQt5.Qt import (Qt, QAbstractItemView, QCheckBox, QComboBox,
@@ -814,7 +815,7 @@ class PluginWidget(QWidget,Ui_Form):
         '''
         Display help file
         '''
-        open_url(QUrl('http://manual.calibre-ebook.com/catalogs.html'))
+        open_url(QUrl(localize_user_manual_link('http://manual.calibre-ebook.com/catalogs.html')))
 
 class CheckableTableWidgetItem(QTableWidgetItem):
 

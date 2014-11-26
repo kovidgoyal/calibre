@@ -9,6 +9,7 @@ from PyQt5.Qt import Qt
 from calibre.gui2 import gprefs
 from calibre.gui2.convert.heuristics_ui import Ui_Form
 from calibre.gui2.convert import Widget
+from calibre.utils.localization import localize_user_manual_link
 
 class HeuristicsWidget(Widget, Ui_Form):
 
@@ -37,6 +38,11 @@ class HeuristicsWidget(Widget, Ui_Form):
         self.opt_unwrap_lines.stateChanged.connect(self.enable_unwrap)
 
         self.enable_heuristics(self.opt_enable_heuristics.checkState())
+        try:
+            self.help_label.setText(self.help_label.text() % localize_user_manual_link(
+                'http://manual.calibre-ebook.com/conversion.html#heuristic-processing'))
+        except TypeError:
+            pass  # link already localized
 
     def restore_defaults(self, get_option):
         Widget.restore_defaults(self, get_option)
@@ -73,7 +79,7 @@ class HeuristicsWidget(Widget, Ui_Form):
 
     def load_histories(self):
         val = unicode(self.opt_replace_scene_breaks.currentText())
-        
+
         self.opt_replace_scene_breaks.clear()
         self.opt_replace_scene_breaks.lineEdit().setText('')
 

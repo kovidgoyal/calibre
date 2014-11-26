@@ -43,6 +43,7 @@ from calibre.gui2.tweak_book.function_replace import DebugOutput
 from calibre.gui2.tweak_book.editor.widget import register_text_editor_actions
 from calibre.gui2.tweak_book.editor.insert_resource import InsertImage
 from calibre.utils.icu import character_name, sort_key
+from calibre.utils.localization import localize_user_manual_link
 
 def open_donate():
     open_url(QUrl('http://calibre-ebook.com/donate'))
@@ -448,7 +449,8 @@ class Main(MainWindow):
             'edit-clear.png', _('&Close other tabs'), self.central.close_all_but_current_editor, 'close-all-but-current-tab', 'Ctrl+Alt+W', _(
                 'Close all tabs except the current tab'))
         self.action_help = treg(
-            'help.png', _('User &Manual'), lambda : open_url(QUrl('http://manual.calibre-ebook.com/edit.html')), 'user-manual', 'F1', _(
+            'help.png', _('User &Manual'), lambda : open_url(localize_user_manual_link(QUrl(
+                'http://manual.calibre-ebook.com/edit.html'))), 'user-manual', 'F1', _(
                 'Show User Manual'))
         self.action_browse_images = treg(
             'view-image.png', _('&Browse images in book'), self.boss.browse_images, 'browse-images', (), _(

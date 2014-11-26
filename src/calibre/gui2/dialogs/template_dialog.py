@@ -19,6 +19,7 @@ from calibre.ebooks.metadata.book.base import Metadata
 from calibre.ebooks.metadata.book.formatter import SafeFormat
 from calibre.library.coloring import (displayable_columns, color_row_key)
 from calibre.gui2 import error_dialog, choose_files, pixmap_to_data
+from calibre.utils.localization import localize_user_manual_link
 
 class ParenPosition:
 
@@ -330,12 +331,12 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
 
         tt = _('Template language tutorial')
         self.template_tutorial.setText(
-                '<a href="http://manual.calibre-ebook.com/template_lang.html">'
-                '%s</a>'%tt)
+            '<a href="%s">%s</a>' % (
+                localize_user_manual_link('http://manual.calibre-ebook.com/template_lang.html'), tt))
         tt = _('Template function reference')
         self.template_func_reference.setText(
-                '<a href="http://manual.calibre-ebook.com/template_ref.html">'
-                '%s</a>'%tt)
+            '<a href="%s">%s</a>' % (
+                localize_user_manual_link('http://manual.calibre-ebook.com/template_ref.html'), tt))
 
         self.font_size_box.setValue(gprefs['gpm_template_editor_font_size'])
         self.font_size_box.valueChanged.connect(self.font_size_changed)

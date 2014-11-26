@@ -12,6 +12,7 @@ from calibre.gui2 import gprefs
 from calibre.utils.icu import sort_key
 from calibre.utils.config import tweaks
 from calibre.utils.date import now
+from calibre.utils.localization import localize_user_manual_link
 
 box_values = {}
 last_matchkind = CONTAINS_MATCH
@@ -34,6 +35,7 @@ class SearchDialog(QDialog, Ui_Dialog):
     def __init__(self, parent, db):
         QDialog.__init__(self, parent)
         self.setupUi(self)
+        self.um_label.setText(self.um_label.text() % localize_user_manual_link('http://manual.calibre-ebook.com/gui.html#the-search-interface'))
         for val, text in [(0, '')] + [(i, date(2010, i, 1).strftime('%B')) for i in xrange(1, 13)]:
             self.date_month.addItem(text, val)
         for val, text in [('today', _('Today')), ('yesterday', _('Yesterday')), ('thismonth', _('This month'))]:

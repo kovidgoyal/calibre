@@ -22,6 +22,7 @@ from calibre.gui2.tweak_book.editor.text import TextEdit
 from calibre.utils.config import JSONConfig
 from calibre.utils.icu import capitalize, upper, lower, swapcase
 from calibre.utils.titlecase import titlecase
+from calibre.utils.localization import localize_user_manual_link
 
 user_functions = JSONConfig('editor-search-replace-functions')
 
@@ -232,7 +233,7 @@ class FunctionEditor(Dialog):
 
         self.la2 = la = QLabel(_(
             'For help with creating functions, see the <a href="%s">User Manual</a>') %
-            'http://manual.calibre-ebook.com/function_mode.html')
+            localize_user_manual_link('http://manual.calibre-ebook.com/function_mode.html'))
         la.setOpenExternalLinks(True)
         l.addWidget(la)
 

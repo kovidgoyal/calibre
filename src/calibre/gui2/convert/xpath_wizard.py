@@ -10,6 +10,7 @@ from PyQt5.Qt import QDialog, QWidget, Qt, QDialogButtonBox, QVBoxLayout
 
 from calibre.gui2.convert.xpath_wizard_ui import Ui_Form
 from calibre.gui2.convert.xexp_edit_ui import Ui_Form as Ui_Edit
+from calibre.utils.localization import localize_user_manual_link
 
 
 class WizardWidget(QWidget, Ui_Form):
@@ -17,6 +18,11 @@ class WizardWidget(QWidget, Ui_Form):
     def __init__(self, parent=None):
         QWidget.__init__(self, parent)
         self.setupUi(self)
+        try:
+            self.example_label.setText(self.example_label.text() % localize_user_manual_link(
+                'http://manual.calibre-ebook.com/xpath.html'))
+        except TypeError:
+            pass
 
     @property
     def xpath(self):

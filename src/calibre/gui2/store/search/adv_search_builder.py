@@ -12,24 +12,30 @@ from PyQt5.Qt import (QDialog, QDialogButtonBox)
 
 from calibre.gui2.store.search.adv_search_builder_ui import Ui_Dialog
 from calibre.library.caches import CONTAINS_MATCH, EQUALS_MATCH
+from calibre.utils.localization import localize_user_manual_link
 
 class AdvSearchBuilderDialog(QDialog, Ui_Dialog):
 
     def __init__(self, parent):
         QDialog.__init__(self, parent)
         self.setupUi(self)
-        
+        try:
+            self.sh_label.setText(self.sh_label.text() % localize_user_manual_link(
+                'http://manual.calibre-ebook.com/gui.html#the-search-interface'))
+        except TypeError:
+            pass  # link already localized
+
         self.buttonBox.accepted.connect(self.advanced_search_button_pushed)
         self.tab_2_button_box.accepted.connect(self.accept)
         self.tab_2_button_box.rejected.connect(self.reject)
         self.clear_button.clicked.connect(self.clear_button_pushed)
         self.adv_search_used = False
         self.mc = ''
-        
+
         self.tabWidget.setCurrentIndex(0)
         self.tabWidget.currentChanged[int].connect(self.tab_changed)
         self.tab_changed(0)
-        
+
     def tab_changed(self, idx):
         if idx == 1:
             self.tab_2_button_box.button(QDialogButtonBox.Ok).setDefault(True)
@@ -121,7 +127,7 @@ class AdvSearchBuilderDialog(QDialog, Ui_Dialog):
         format = unicode(self.format_box.text()).strip()
         if format:
             ans.append('format:"' + self.mc + format + '"')
-        drm = '' if self.drm_combo.currentIndex() == 0 else 'true' if self.drm_combo.currentIndex() == 1 else 'false' 
+        drm = '' if self.drm_combo.currentIndex() == 0 else 'true' if self.drm_combo.currentIndex() == 1 else 'false'
         if drm:
             ans.append('drm:' + drm)
         download = '' if self.download_combo.currentIndex() == 0 else 'true' if self.download_combo.currentIndex() == 1 else 'false'
@@ -129,7 +135,7 @@ class AdvSearchBuilderDialog(QDialog, Ui_Dialog):
             ans.append('download:' + download)
         affiliate = '' if self.affiliate_combo.currentIndex() == 0 else 'true' if self.affiliate_combo.currentIndex() == 1 else 'false'
         if affiliate:
-            ans.append('affiliate:' + affiliate)  
+            ans.append('affiliate:' + affiliate)
         if ans:
             return ' and '.join(ans)
         return ''

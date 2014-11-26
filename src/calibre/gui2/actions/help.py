@@ -9,6 +9,7 @@ from PyQt5.Qt import QUrl
 
 from calibre.gui2 import open_url
 from calibre.gui2.actions import InterfaceAction
+from calibre.utils.localization import localize_user_manual_link
 
 class HelpAction(InterfaceAction):
 
@@ -19,7 +20,7 @@ class HelpAction(InterfaceAction):
         self.qaction.triggered.connect(self.show_help)
 
     def show_help(self, *args):
-        open_url(QUrl('http://manual.calibre-ebook.com'))
+        open_url(QUrl(localize_user_manual_link('http://manual.calibre-ebook.com')))
 
 
 
