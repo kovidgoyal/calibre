@@ -6,7 +6,15 @@
         .float-right-img { float: right; margin-left: 1em; margin-bottom: 1em }
         .half-with-img { max-width: 50% }
         .fit-img { max-width: 95% }
+        #languages-menu { display: none }
     </style>
+    <script type="text/javascript">
+    function toggle_languages_menu() {
+        var m = document.getElementById('languages-menu');
+        if (m.style.display === "block") m.style.display = "none";
+        else m.style.display = "block";
+    }
+    </script>
 
 {% endblock %}
 
@@ -65,6 +73,15 @@
             <img alt="" border="0" src="https://www.paypalobjects.com/en_GB/i/scr/pixel.gif" width="1" height="1" />
         </form>
         <hr/>
+        {%- if not embedded %}
+        <div><a href="#" onclick="toggle_languages_menu(); return false;">{{ change_language_text }}</a></div>
+        <ul id="languages-menu">
+        {%- for lang in other_languages %}
+        <li><a href="{{ localized_path(lang[0], pagename) }}">{{ lang[1] }}</a></li>
+        {%- endfor %}
+        </ul>
+        <hr/>
+        {%- endif %}
 {% endblock %}
 
 

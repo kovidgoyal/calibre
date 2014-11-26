@@ -77,6 +77,9 @@ if __name__ == '__main__':
     if len(sys.argv) == 1:
         base = j(tempfile.gettempdir(), 'manual')
         os.environ['CALIBRE_OVERRIDE_LANG'] = language = 'en'
+        if 'ALL_USER_MANUAL_LANGUAGES' not in os.environ:
+            import json
+            os.environ['ALL_USER_MANUAL_LANGUAGES'] = ' '.join(json.load(open('locale/completed.json', 'rb')))
         sphinx_build(language, base, t='online', quiet=False)
     else:
         language, base  = sys.argv[1:]

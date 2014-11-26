@@ -138,6 +138,19 @@ html_title       = title
 html_short_title = 'Start'
 html_logo        = 'resources/logo.png'
 
+from calibre.utils.localization import get_language
+html_context = {}
+html_context['other_languages'] = [
+    (lc, get_language(lc)) for lc in os.environ.get('ALL_USER_MANUAL_LANGUAGES', '').split() if lc != language]
+def sort_languages(x):
+    from calibre.utils.icu import sort_key
+    lc, name = x
+    if lc == language:
+        return ''
+    return sort_key(unicode(name))
+html_context['other_languages'].sort(key=sort_languages)
+del sort_languages, get_language
+
 epub_author      = 'Kovid Goyal'
 epub_publisher   = 'Kovid Goyal'
 epub_identifier  = 'http://manual.calibre-ebook.com'

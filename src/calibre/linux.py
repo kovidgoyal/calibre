@@ -1106,7 +1106,8 @@ def cli_index_strings():
     ' if you installed calibre in :file:`/Applications` the command line tools'
     ' are in :file:`/Applications/calibre.app/Contents/console.app/Contents/MacOS/`.'), _(
         'Documented Commands'), _('Undocumented Commands'), _(
-        'You can see usage for undocumented commands by executing them without arguments in a terminal.')
+        'You can see usage for undocumented commands by executing them without arguments in a terminal.'), _(
+            'Change Language')
 
 
 if __name__ == '__main__':

@@ -4,6 +4,7 @@
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 import sys, os, re, textwrap
+from functools import partial
 import init_calibre
 del init_calibre
 
@@ -219,7 +220,7 @@ def cli_docs(app):
     documented = [' '*4 + c[0] for c in documented_cmds]
     undocumented = ['  * ' + c for c in undocumented_cmds]
 
-    raw = (CLI_INDEX % cli_index_strings()).format(documented='\n'.join(documented),
+    raw = (CLI_INDEX % cli_index_strings()[:5]).format(documented='\n'.join(documented),
             undocumented='\n'.join(undocumented))
     if not os.path.exists('cli'):
         os.makedirs('cli')
@@ -254,12 +255,25 @@ def template_docs(app):
     raw = generate_template_language_help(app.config.language)
     update_cli_doc('template_ref', raw, app)
 
+def localized_path(app, langcode, pagename):
+    href = app.builder.get_target_uri(pagename)
+    href = re.sub(r'generated/[a-z]+/', 'generated/%s/' % langcode, href)
+    prefix = '/'
+    if langcode != 'en':
+        prefix += langcode + '/'
+    return prefix + href
+
+def add_html_context(app, pagename, templatename, context, *args):
+    context['localized_path'] = partial(localized_path, app)
+    context['change_language_text'] = cli_index_strings()[5]
+
 def setup(app):
     app.add_builder(EPUBHelpBuilder)
     app.add_builder(LaTeXHelpBuilder)
     app.connect('source-read', source_read_handler)
     app.connect('doctree-read', substitute)
     app.connect('builder-inited', generate_docs)
+    app.connect('html-page-context', add_html_context)
     app.connect('build-finished', finished)
 
 def finished(app, exception):
