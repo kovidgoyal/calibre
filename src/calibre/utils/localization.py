@@ -380,4 +380,21 @@ def get_udc():
         _udc = Unihandecoder(lang=get_lang())
     return _udc
 
-
+def localize_user_manual_link(url):
+    lc = lang_as_iso639_1(get_lang())
+    if lc == 'en':
+        return url
+    import json
+    try:
+        stats = json.loads(P('user-manual-translation-stats.json', allow_user_override=False, data=True))
+    except EnvironmentError:
+        return url
+    if stats.get(lc, 0) < 0.3:
+        return url
+    from urlparse import urlparse, urlunparse
+    parts = urlparse(url)
+    path = re.sub(r'/generated/[a-z]+/', '/generated/%s/' % lc, parts.path or '')
+    path = '/%s%s' % (lc, path)
+    parts = list(parts)
+    parts[2] = path
+    return urlunparse(parts)
