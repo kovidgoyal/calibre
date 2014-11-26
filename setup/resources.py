@@ -328,6 +328,12 @@ class Resources(Command):  # {{{
                 src = '\n'.join(imports) + '\n\n' + src
             function_dict[func.name] = src
         json.dump(function_dict, open(dest, 'wb'), indent=4)
+        self.info('\tCreating user-manual-translation-stats.json')
+        d = {}
+        for lc, stats in json.load(open(self.j(self.d(self.SRC), 'manual', 'locale', 'completed.json'))).iteritems():
+            total = sum(stats.itervalues())
+            d[lc] = stats['translated'] / float(total)
+        json.dump(d, open(self.j(self.RESOURCES, 'user-manual-translation-stats.json'), 'wb'), indent=4)
 
     def clean(self):
         for x in ('scripts', 'ebook-convert-complete'):
@@ -338,7 +344,7 @@ class Resources(Command):  # {{{
         kakasi.clean()
         coffee.clean()
         for x in ('builtin_recipes.xml', 'builtin_recipes.zip',
-                'template-functions.json'):
+                'template-functions.json', 'user-manual-translation-stats.json'):
             x = self.j(self.RESOURCES, x)
             if os.path.exists(x):
                 os.remove(x)

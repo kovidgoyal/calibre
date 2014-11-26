@@ -18,6 +18,7 @@ resources/builtin_recipes.xml
 resources/builtin_recipes.zip
 resources/template-functions.json
 resources/editor-functions.json
+resources/user-manual-translation-stats.json
 icons/icns/*.iconset
 setup/installer/windows/calibre/build.log
 tags
