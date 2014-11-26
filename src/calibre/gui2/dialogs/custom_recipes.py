@@ -263,7 +263,7 @@ class BasicRecipe(QWidget):  # {{{
 
         self.hm = hm = QLabel(_(
             'Create a basic news recipe, by adding RSS feeds to it.\n'
-            'For some news sources, you will have to use the "Switch to advanced mode"'
+            'For some news sources, you will have to use the "Switch to advanced mode" '
             'button below to further customize the fetch process.'))
         hm.setWordWrap(True)
         l.addRow(hm)
