@@ -18,19 +18,23 @@ class DigitalJournal(BasicNewsRecipe):
     use_embedded_content  = False
     encoding              = 'utf8'
     language              = 'en'
-      
-    conversion_options = {  
+
+    conversion_options = {
                              'comments'        : description
                             ,'tags'            : category
                             ,'language'        : language
                             ,'publisher'       : publisher
                          }
 
-    keep_only_tags   = [dict(name='div', attrs={'class':['article','body']})]
+    keep_only_tags   = [
+        dict(id='article_text'),
+    ]
 
-    remove_tags     = [dict(name=['object','table'])]
-                         
-    feeds = [ 
+    remove_tags     = [
+        dict(attrs={'class':lambda x: x and 'article-top-social' in x}),
+    ]
+
+    feeds = [
                 (u'Latest News'  , u'http://digitaljournal.com/rss/?feed=latest_news'                   )
                ,(u'Business'     , u'http://digitaljournal.com/rss/?feed=top_news&depname=Business'     )
                ,(u'Entertainment', u'http://digitaljournal.com/rss/?feed=top_news&depname=Entertainment')
@@ -46,7 +50,4 @@ class DigitalJournal(BasicNewsRecipe):
                ,(u'World'        , u'http://digitaljournal.com/rss/?feed=top_news&depname=World'        )
                ,(u'Arts'         , u'http://digitaljournal.com/rss/?feed=top_news&depname=Arts'         )
             ]
-          
-    def print_version(self, url):
-        return url.replace('digitaljournal.com/','digitaljournal.com/print/')
-        
+
