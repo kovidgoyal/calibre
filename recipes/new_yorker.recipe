@@ -3,6 +3,7 @@
 __license__   = 'GPL v3'
 
 from calibre.web.feeds.news import BasicNewsRecipe
+from calibre import browser
 
 class NewYorker(BasicNewsRecipe):
 
@@ -28,6 +29,7 @@ class NewYorker(BasicNewsRecipe):
                 h3 { margin-bottom: 6px; }
                 .caption { font-size: xx-small; font-style: italic; font-weight: normal; }
                 '''
+    needs_subscription = 'optional'
 
     def parse_index(self):
         soup = self.index_to_soup('http://www.newyorker.com/magazine?intcid=magazine')
@@ -57,3 +59,18 @@ class NewYorker(BasicNewsRecipe):
                 'description':desc})
 
         return [('Current Issue', articles)]
+
+    # The New Yorker changes the content it delivers based on cookies, so the
+    # following ensures that we send no cookies
+    def get_browser(self, *args, **kwargs):
+        return self
+
+    def clone_browser(self, *args, **kwargs):
+        return self.get_browser()
+
+    def open_novisit(self, *args, **kwargs):
+        br = browser()
+        return br.open_novisit(*args, **kwargs)
+    open = open_novisit
+
+
