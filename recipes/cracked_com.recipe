@@ -11,10 +11,11 @@ class Cracked(BasicNewsRecipe):
     oldest_article = 3  # days
     max_articles_per_feed = 100
     no_stylesheets = True
-    encoding = 'ascii'
+    encoding = 'utf-8'
     remove_javascript = True
     use_embedded_content = False
-    # auto_cleanup = True
+    recursions = 1
+    remove_attributes = ['size', 'style']
 
     feeds = [(u'Articles', u'http://feeds.feedburner.com/CrackedRSS/')]
 
@@ -26,26 +27,25 @@ class Cracked(BasicNewsRecipe):
                         dict(name='article', attrs={'class': 'module blog dropShadowBottomCurved'})]
 
     remove_tags = [
-        dict(name='section', attrs={'class': ['socialTools', 'quickFixModule']})]
+        dict(name='section', attrs={'class': ['socialTools', 'quickFixModule']}),
+        dict(attrs={'class':['socialShareAfterContent', 'socialShareModule']}),
+    ]
 
-    def appendPage(self, soup, appendTag, position):
-        # Check if article has multiple pages
-        pageNav = soup.find('nav', attrs={'class': 'PaginationContent'})
-        if pageNav:
-            # Check not at last page
-            nextPage = pageNav.find('a', attrs={'class': 'next nativePagination'})
-            if nextPage:
-                nextPageURL = nextPage['href']
-                nextPageSoup = self.index_to_soup(nextPageURL)
-                # 8th <section> tag contains article content
-                nextPageContent = nextPageSoup.findAll('article')[0]
-                newPosition = len(nextPageContent.contents)
-                self.appendPage(nextPageSoup, nextPageContent, newPosition)
-                nextPageContent.extract()
-                pageNav.extract()
-                appendTag.insert(position, nextPageContent)
+    def is_link_wanted(self, url, a):
+        return a['class'] == 'next' and a.findParent('nav', attrs={'class':'PaginationContent'}) is not None
 
     def preprocess_html(self, soup):
-        self.appendPage(soup, soup.body, 3)
+        for img in soup.findAll('img', attrs={'data-img':True}):
+            img['src'] = img['data-img']
+        return soup
+
+    def postprocess_html(self, soup, first_fetch):
+        for div in soup.findAll(attrs={'class':'PaginationContent'}):
+            div.extract()
+        if not first_fetch:
+            for h1 in soup.findAll('h1'):
+                h1.extract()
+            for div in soup.findAll(attrs={'class':'meta'}):
+                div.extract()
         return soup
 
