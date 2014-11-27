@@ -114,7 +114,7 @@ class RealClear(BasicNewsRecipe):
                     return printFind['href']
             tag = printFind.parent
             print(tag)
-            if tag['href'] is None:
+            if tag.get('href', None) is None:
                 if self.debugMessages is True :
                     print("Not in parent, trying skip-up")
                 if tag.parent['href'] is None:
@@ -170,7 +170,10 @@ class RealClear(BasicNewsRecipe):
                 print(description)
                 print(pubDate)
                 print(url)
-            url = self.extractPrintURL(url)
+            try:
+                url = self.extractPrintURL(url)
+            except Exception:
+                self.log.exception('Failed to extract print URL for %s' % url)
             print(url)
             # url +=re.sub(r'\?.*', '', div['href'])
             pubdate = time.strftime('%a, %d %b')
