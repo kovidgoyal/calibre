@@ -6,7 +6,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, shutil, subprocess, glob, tempfile, json, time, filecmp
+import os, shutil, subprocess, glob, tempfile, json, time, filecmp, atexit, sys
 
 from setup import Command, __version__, require_clean_git, require_git_master
 from setup.parallel_build import parallel_build
@@ -28,15 +28,69 @@ class Stage1(Command):
 
 class Stage2(Command):
 
-    description = 'Stage 2 of the publish process'
-    sub_commands = ['linux', 'win', 'osx']
+    description = 'Stage 2 of the publish process, builds the binaries'
 
-    def pre_sub_commands(self, opts):
+    def run(self, opts):
+        from distutils.spawn import find_executable
         for x in glob.glob(os.path.join(self.d(self.SRC), 'dist', '*')):
             os.remove(x)
         build = os.path.join(self.d(self.SRC), 'build')
         if os.path.exists(build):
             shutil.rmtree(build)
+        processes = []
+        tdir = tempfile.mkdtemp('_build_logs')
+        atexit.register(shutil.rmtree, tdir)
+        self.info('Starting builds for all platforms, this will take a while...')
+        def kill_child_on_parent_death():
+            import ctypes, signal
+            libc = ctypes.CDLL("libc.so.6")
+            libc.prctl(1, signal.SIGTERM)
+
+        for x in ('linux', 'osx', 'win'):
+            log = open(os.path.join(tdir, x), 'w+b', buffering=1)  # line buffered
+            p = subprocess.Popen([sys.executable, 'setup.py', x], stdout=log, stderr=subprocess.STDOUT,
+                                 cwd=self.d(self.SRC), preexec_fn=kill_child_on_parent_death)
+            p.log, p.start_time, p.bname = log, time.time(), x
+            p.duration = None
+            processes.append(p)
+
+        error_ocurred = []
+
+        def workers_running():
+            running = False
+            for p in processes:
+                if p.returncode is not None:
+                    continue
+                rc = p.poll()
+                if rc is not None:
+                    p.duration = int(time.time() - p.start_time)
+                    if rc != 0 and not error_ocurred:
+                        error_ocurred.append(True)
+                        log = p.log
+                        log.flush()
+                        log.seek(0)
+                        sys.stderr.write(log.read())
+                        sys.stderr.write(b'\n')
+                        self.info('\n\nFailed to build: %s. Waiting for other builds to complete before aborting...' % x)
+                        if mtexe:
+                            mtexe.terminate(), mtexe.wait()
+                else:
+                    running = True
+            return running
+
+        mtexe = find_executable('multitail')
+        if mtexe:
+            mtexe = subprocess.Popen([mtexe, '--basename'] + [pr.log.name for pr in processes], preexec_fn=kill_child_on_parent_death)
+
+        while workers_running():
+            os.waitpid(-1, 0)
+
+        if error_ocurred:
+            raise SystemExit(1)
+        if mtexe and mtexe.poll() is None:
+            mtexe.terminate(), mtexe.wait()
+        for p in sorted(processes, key=lambda p:p.duration):
+            self.info('Built %s in %d minutes and %d seconds' % (p.bname, p.duration // 60, p.duration % 60))
 
 class Stage3(Command):
 
@@ -171,4 +225,3 @@ class TagRelease(Command):
         self.info('Tagging release')
         subprocess.check_call('git tag -a v{0} -m "version-{0}"'.format(__version__).split())
         subprocess.check_call('git push origin v{0}'.format(__version__).split())
-
