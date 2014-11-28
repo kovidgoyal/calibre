@@ -20,6 +20,49 @@
 #   new recipes:
 #     - title: 
 
+- version: 2.12.0
+  date: 2014-11-28
+
+  new features:
+    - title: "Edit Book: Automatically complete the closing tag in HTML/XML files when typing </"
+
+    - title: "Edit Book: Implement auto-indent, now when pressing the Enter key to start a new line, the new line's indentation is automatically created"
+
+    - title: "Driver for the Verso E71b ebook reader"
+      tickets: [1395289]
+
+    - title: "Redesigned the 'Add a custom news source' dialog to make it easier to use, with a more powerful python editor"
+
+    - title: "Make translations of the User Manual available in many different languages (fully or partially translated). Click the 'Change Language' link in the sidebar of the manual to change the language"
+
+    - title: "Edit Book: Search & Replace function mode: Add a new function annotation (replace.file_order) to control what order multiple files are processed in, when doing Replace All. See the User Manual for details."
+
+  bug fixes:
+    - title: "Get Books: Update Woblink store plugin for website changes"
+
+    - title: "Book polishing: Ignore zero byte font files in the ebook instead of erroring out on them when subsetting fonts."
+      tickets: [1395694]
+
+    - title: "E-book viewer: Tighten heuristic used to detect footnote links. Do not consider a link that is the only content inside a block level tag as an endnote link, even if it is linked back to from its destination."
+
+    - title: "Update the version of libimobiledevice shipped in the Linux and OS X builds to 1.1.7, should help with some connection issues to Apple devices"
+
+    - title: "PDF Output: Add support for font-family aliasing in @font-face rules."
+      tickets: [1395176]
+
+  improved recipes:
+    - Wall Street Journal
+    - New Yorker
+    - Le Monde
+    - Defense News
+    - Digital Journal
+    - Cracked.com
+    - Boston Globe
+    - RealClear Politics
+    - EcoGeek
+    - The Friday Times
+
+
 - version: 2.11.0
   date: 2014-11-21
 
