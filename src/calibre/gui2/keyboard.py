@@ -54,11 +54,6 @@ def finalize(shortcuts, custom_keys_map={}):  # {{{
     '''
     seen, keys_map = {}, {}
     for unique_name, shortcut in shortcuts.iteritems():
-        ac = shortcut['action']
-        if ac is None or sip.isdeleted(ac):
-            if ac is not None and DEBUG:
-                prints('Shortcut %r has a deleted action' % unique_name)
-            continue
         custom_keys = custom_keys_map.get(unique_name, None)
         if custom_keys is None:
             candidates = shortcut['default_keys']
@@ -81,6 +76,11 @@ def finalize(shortcuts, custom_keys_map={}):  # {{{
         keys = tuple(keys)
 
         keys_map[unique_name] = keys
+        ac = shortcut['action']
+        if ac is None or sip.isdeleted(ac):
+            if ac is not None and DEBUG:
+                prints('Shortcut %r has a deleted action' % unique_name)
+            continue
         ac.setShortcuts(list(keys))
 
     return keys_map
