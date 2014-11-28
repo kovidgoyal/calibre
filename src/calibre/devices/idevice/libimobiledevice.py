@@ -440,20 +440,20 @@ class libiMobileDevice():
     def load_library(self):
         if islinux:
             env = "linux"
-            self.lib = cdll.LoadLibrary('libimobiledevice.so.4')
-            self.plist_lib = cdll.LoadLibrary('libplist.so.2')
+            self.lib = cdll.LoadLibrary('libimobiledevice.so.5')
+            self.plist_lib = cdll.LoadLibrary('libplist.so.3')
         elif isosx:
             env = "OS X"
 
             # Load libiMobileDevice
-            path = 'libimobiledevice.4.dylib'
+            path = 'libimobiledevice.5.dylib'
             if hasattr(sys, 'frameworks_dir'):
                 self.lib = cdll.LoadLibrary(os.path.join(getattr(sys, 'frameworks_dir'), path))
             else:
                 self.lib = cdll.LoadLibrary(path)
 
             # Load libplist
-            path = 'libplist.2.dylib'
+            path = 'libplist.3.dylib'
             if hasattr(sys, 'frameworks_dir'):
                 self.plist_lib = cdll.LoadLibrary(os.path.join(getattr(sys, 'frameworks_dir'), path))
             else:
