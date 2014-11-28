@@ -145,7 +145,8 @@ automatically incremented for every successive match.
 
 Another new feature is the use of ``replace.file_order`` -- setting that to
 ``'spine'`` means that if this search is run on multiple HTML files, the files
-are processed in the order in which they appear in the book.
+are processed in the order in which they appear in the book. See
+:ref:`file_order_replace_all` for details.
 
 
 Auto create a Table of Contents
@@ -332,6 +333,8 @@ You can debug the functions you create by using the standard ``print()``
 function from python. The output of print will be displayed in a popup window
 after the Find/replace has completed. You saw an example of using ``print()``
 to output an entire table of contents above.
+
+.. _file_order_replace_all:
 
 Choose file order when running on multiple HTML files
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
