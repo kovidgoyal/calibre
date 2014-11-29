@@ -16,7 +16,6 @@ class TheFridayTimes(BasicNewsRecipe):
 
     keep_only_tags = [
         dict(name='div', attrs={'class':'sidebar_content'}),
-        dict(name='div', attrs={'class':'comment_inner'})
     ]
 
     remove_tags = [
