@@ -32,11 +32,11 @@ class WSJ(JavascriptRecipe):
         'h1',  # 'h2.subhead', 'h2.subHed.deck',
         'span[itemprop=author][rel=author]',
         'article#article-contents', 'article#articleBody',
-        'div#article_story_body',
+        'div#article_story_body', 'header.article_header',
         # Parallax formatting
         'div#ncTitleArea', 'section.nc-exp-artbody',
         # Error conditions, login required and page not found
-        'div#snippet-ad-login', 'div.errorNotFound',
+        'div#snippet-ad-login', 'div.wsj-snippet-body', 'div.wsj-snippet-login', 'div.errorNotFound',
     )
 
     remove_tags = (
