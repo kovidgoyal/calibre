@@ -1183,7 +1183,8 @@ class DeviceMixin(object):  # {{{
         # set_books_in_library even though books were not added because
         # the deleted book might have been an exact match. Upload the booklists
         # if set_books_in_library did not.
-        if not self.set_books_in_library(self.booklists(), reset=True, add_as_step_to_job=job):
+        if not self.set_books_in_library(self.booklists(), reset=True,
+                                 add_as_step_to_job=job, do_device_sync=False):
             self.upload_booklists(job)
         # We need to reset the ondevice flags in the library. Use a big hammer,
         # so we don't need to worry about whether some succeeded or not.
@@ -1634,7 +1635,8 @@ class DeviceMixin(object):  # {{{
         # because the UUID changed. Force both the device and the library view
         # to refresh the flags. Set_books_in_library could upload the booklists.
         # If it does not, then do it here.
-        if not self.set_books_in_library(self.booklists(), reset=True, add_as_step_to_job=job):
+        if not self.set_books_in_library(self.booklists(), reset=True,
+                                     add_as_step_to_job=job, do_device_sync=False):
             self.upload_booklists(job)
         self.refresh_ondevice()
 
@@ -1719,7 +1721,7 @@ class DeviceMixin(object):  # {{{
             book.thumbnail = self.default_thumbnail
 
     def set_books_in_library(self, booklists, reset=False, add_as_step_to_job=None,
-                             force_send=False):
+                             force_send=False, do_device_sync=True):
         '''
         Set the ondevice indications in the device database.
         This method should be called before book_on_device is called, because
@@ -1796,7 +1798,7 @@ class DeviceMixin(object):  # {{{
                 if not update_metadata:
                     return False
 
-                if self.device_manager.device is not None:
+                if do_device_sync and self.device_manager.device is not None:
                     set_of_ids, (fmt_name, date_bad) = \
                             self.device_manager.device.synchronize_with_db(db, id_, book,
                                            first_call_to_synchronize_with_db[0])
