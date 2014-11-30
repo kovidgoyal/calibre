@@ -443,8 +443,9 @@ class Editor(QMainWindow):
         a = m.addAction
         c = self.editor.cursorForPosition(pos)
         origc = QTextCursor(c)
+        current_cursor = self.editor.textCursor()
         r = origr = self.editor.syntax_range_for_cursor(c)
-        if (r is None or not r.format.property(SPELL_PROPERTY)) and c.positionInBlock() > 0:
+        if (r is None or not r.format.property(SPELL_PROPERTY)) and c.positionInBlock() > 0 and not current_cursor.hasSelection():
             c.setPosition(c.position() - 1)
             r = self.editor.syntax_range_for_cursor(c)
 
@@ -460,11 +461,16 @@ class Editor(QMainWindow):
                 fc = self.editor.textCursor()
                 if fc.position() < c.position():
                     self.editor.find_spell_word([word], locale.langcode, center_on_cursor=False)
+            spell_cursor = self.editor.textCursor()
+            if current_cursor.hasSelection():
+                # Restore the current cursor so that any selection is preserved
+                # for the change case actions
+                self.editor.setTextCursor(current_cursor)
             if found:
                 suggestions = dictionaries.suggestions(word, locale)[:7]
                 if suggestions:
                     for suggestion in suggestions:
-                        ac = m.addAction(suggestion, partial(self.editor.simple_replace, suggestion))
+                        ac = m.addAction(suggestion, partial(self.editor.simple_replace, suggestion, cursor=spell_cursor))
                         f = ac.font()
                         f.setBold(True), ac.setFont(f)
                     m.addSeparator()

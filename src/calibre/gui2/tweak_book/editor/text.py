@@ -247,8 +247,8 @@ class TextEdit(PlainTextEdit):
         self.setTextCursor(c)
         self.ensureCursorVisible()
 
-    def simple_replace(self, text):
-        c = self.textCursor()
+    def simple_replace(self, text, cursor=None):
+        c = cursor or self.textCursor()
         c.insertText(unicodedata.normalize('NFC', text))
         self.setTextCursor(c)
 
