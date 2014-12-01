@@ -14,7 +14,7 @@ class Cracked(BasicNewsRecipe):
     encoding = 'utf-8'
     remove_javascript = True
     use_embedded_content = False
-    recursions = 1
+    recursions = 11
     remove_attributes = ['size', 'style']
 
     feeds = [(u'Articles', u'http://feeds.feedburner.com/CrackedRSS/')]
