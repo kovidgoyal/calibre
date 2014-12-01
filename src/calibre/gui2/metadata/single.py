@@ -63,6 +63,8 @@ class MetadataSingleDialogBase(ResizableDialog):
             sc = p.keyboard.keys_map.get(kname, None)
             if sc:
                 self.download_shortcut.setKey(sc[0])
+        self.swap_title_author_shortcut = s = QShortcut(self)
+        s.setKey(QKeySequence('Alt+Down', QKeySequence.PortableText))
 
         self.button_box = bb = QDialogButtonBox(self)
         self.button_box.accepted.connect(self.accept)
@@ -164,8 +166,9 @@ class MetadataSingleDialogBase(ResizableDialog):
         self.swap_title_author_button = QToolButton(self)
         self.swap_title_author_button.setIcon(QIcon(I('swap.png')))
         self.swap_title_author_button.setToolTip(_(
-            'Swap the author and title'))
+            'Swap the author and title') + ' [%s]' % self.swap_title_author_shortcut.key().toString(QKeySequence.NativeText))
         self.swap_title_author_button.clicked.connect(self.swap_title_author)
+        self.swap_title_author_shortcut.activated.connect(self.swap_title_author_button.click)
 
         self.manage_authors_button = QToolButton(self)
         self.manage_authors_button.setIcon(QIcon(I('user_profile.png')))
