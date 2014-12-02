@@ -608,7 +608,7 @@ class Smarts(NullSmarts):
             if repl != ent:
                 c.setPosition(c.position() + m.start(), c.KeepAnchor)
                 c.insertText(repl)
-            editor.setTextCursor(c)
+                editor.setTextCursor(c)
 
     def auto_close_tag(self, editor):
         c = editor.textCursor()
