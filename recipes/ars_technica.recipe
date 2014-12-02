@@ -45,6 +45,9 @@ class ArsTechnica(BasicNewsRecipe):
     remove_tags = [
                     dict(name=['object','link','embed','iframe','meta'])
                     ,dict(attrs={'class':'corner-info'})
+                   ,dict(attrs={'id': 'article-footer-wrap'})
+                   ,dict(attrs={'class': 'article-expander'})
+                   ,dict(name='nav',attrs={'class': 'subheading'})
                   ]
     remove_attributes = ['lang']
 
