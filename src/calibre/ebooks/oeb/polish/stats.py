@@ -275,6 +275,8 @@ class StatsCollector(object):
 
         # Weed out invalid font-face rules
         rules = []
+        import tinycss
+        parser = tinycss.make_full_parser()
         for rule in font_face_rules:
             ff = rule.get('font-family', None)
             if not ff:
@@ -288,16 +290,22 @@ class StatsCollector(object):
             src = rule.get('src', None)
             if not src:
                 continue
-            if src.startswith('url(') and src.endswith(')') and src[4] not in {'"', "'"}:
-                # Quote the url otherwise cssutils fails to parse it if it has
-                # ' or " in it
-                src = "url('" + src[4:-1].replace("'", "\\'") + "')"
-            style = self.parser.parseStyle('background-image:%s'%src, validate=False)
-            src = style.getProperty('background-image').propertyValue[0].uri
-            name = self.href_to_name(src, '@font-face rule')
-            if name is None:
+            try:
+                tokens = parser.parse_stylesheet('@font-face { src: %s }' % src).rules[0].declarations[0].value
+            except Exception:
+                self.log.warn('Failed to parse @font-family src: %s' % src)
                 continue
-            rule['src'] = name
+            for token in tokens:
+                if token.type == 'URI':
+                    uv = token.value
+                    if uv:
+                        sn = self.href_to_name(uv, '@font-face rule')
+                        if sn is not None:
+                            rule['src'] = sn
+                            break
+            else:
+                self.log.warn('The @font-face rule refers to a font file that does not exist in the book: %s' % src)
+                continue
             normalize_font_properties(rule)
             rule['width'] = widths[rule['font-stretch']]
             rule['weight'] = int(rule['font-weight'])
