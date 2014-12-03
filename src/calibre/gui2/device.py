@@ -13,7 +13,7 @@ from PyQt5.Qt import (
 
 from calibre.customize.ui import (available_input_formats, available_output_formats,
     device_plugins, disabled_device_plugins)
-from calibre.devices.interface import DevicePlugin
+from calibre.devices.interface import DevicePlugin, currently_connected_device
 from calibre.devices.errors import (UserFeedback, OpenFeedback, OpenFailed,
                                     InitialConnectionError)
 from calibre.gui2.dialogs.choose_format_device import ChooseFormatDeviceDialog
@@ -231,6 +231,7 @@ class DeviceManager(Thread):  # {{{
         self.connected_device.specialize_global_preferences(device_prefs)
         self.connected_device_kind = device_kind
         self.connected_slot(True, device_kind)
+        currently_connected_device.set_connected_device(self.connected_device)
 
     def connected_device_removed(self):
         while True:
@@ -254,6 +255,8 @@ class DeviceManager(Thread):  # {{{
             # is being shut down.
             self.connected_device.shutdown()
             self.call_shutdown_on_disconnect = False
+
+        currently_connected_device.set_connected_device(None)
         device_prefs.set_overrides()
         self.connected_device = None
         self._device_information = None

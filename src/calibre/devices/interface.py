@@ -6,6 +6,28 @@ from collections import namedtuple
 from calibre.customize import Plugin
 from calibre.constants import iswindows
 
+class CurrentlyConnectedDevice:
+
+    def __init__(self):
+        self._connected_device = None
+
+    def connected_device(self):
+        '''
+        This method can be called by any device driver to determine if some other
+        device is already connected. It is threadsafe because of the python GIL.
+        '''
+        return self._connected_device
+
+    def set_connected_device(self, dev=None):
+        '''
+        This method is called by the device manager whenever a device connects
+        or disconnects. It must not be called by anything else. It is called
+        on the device manager thread. It is threadsafe because of the python GIL.
+        '''
+        self._connected_device = dev
+
+currently_connected_device = CurrentlyConnectedDevice()
+
 class DevicePlugin(Plugin):
     """
     Defines the interface that should be implemented by backends that
