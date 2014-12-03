@@ -21,7 +21,7 @@ from calibre import prints
 from calibre.constants import numeric_version, DEBUG, cache_dir
 from calibre.devices.errors import (OpenFailed, OpenFeedback, ControlError, TimeoutError,
                                     InitialConnectionError, PacketError)
-from calibre.devices.interface import DevicePlugin
+from calibre.devices.interface import DevicePlugin, currently_connected_device
 from calibre.devices.usbms.books import Book, CollectionsBookList
 from calibre.devices.usbms.deviceconfig import DeviceConfig
 from calibre.devices.usbms.driver import USBMS
@@ -54,8 +54,6 @@ def synchronous(tlockname):
 
 class ConnectionListener(Thread):
 
-    NOT_SERVICED_COUNT = 6
-
     def __init__(self, driver):
         Thread.__init__(self)
         self.daemon = True
@@ -67,7 +65,6 @@ class ConnectionListener(Thread):
         self.keep_running = False
 
     def run(self):
-        queue_not_serviced_count = 0
         device_socket = None
         get_all_ips(reinitialize=True)
 
@@ -87,9 +84,9 @@ class ConnectionListener(Thread):
                     self.driver._debug("All IP addresses", self.all_ip_addresses)
 
             if not self.driver.connection_queue.empty():
-                queue_not_serviced_count += 1
-                if queue_not_serviced_count >= self.NOT_SERVICED_COUNT:
-                    self.driver._debug('queue not serviced', queue_not_serviced_count)
+                d = currently_connected_device.device
+                if d is not None:
+                    self.driver._debug('queue not serviced', d.__class__.__name__)
                     try:
                         sock = self.driver.connection_queue.get_nowait()
                         s = self.driver._json_encode(
@@ -98,9 +95,6 @@ class ConnectionListener(Thread):
                         sock.close()
                     except Queue.Empty:
                         pass
-                    queue_not_serviced_count = 0
-            else:
-                queue_not_serviced_count = 0
 
             if getattr(self.driver, 'broadcast_socket', None) is not None:
                 while True:
@@ -194,6 +188,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
     NEWS_IN_FOLDER              = True
     SUPPORTS_USE_AUTHOR_SORT    = False
     WANTS_UPDATED_THUMBNAILS    = True
+    MANAGES_DEVICE_PRESENCE     = True
 
     # Guess about the max length on windows. This number will be reduced by
     # the length of the path on the client, and by the fudge factor below. We
@@ -914,18 +909,17 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
     # The public interface methods.
 
     @synchronous('sync_lock')
-    def is_usb_connected(self, devices_on_system, debug=False, only_presence=False):
+    def detect_managed_devices(self, devices_on_system, force_refresh=False):
         if getattr(self, 'listen_socket', None) is None:
             self.is_connected = False
         if self.is_connected:
             self.noop_counter += 1
-            if (only_presence and
-                    self.noop_counter > self.SEND_NOOP_EVERY_NTH_PROBE and
+            if (self.noop_counter > self.SEND_NOOP_EVERY_NTH_PROBE and
                     (self.noop_counter % self.SEND_NOOP_EVERY_NTH_PROBE) != 1):
                 try:
                     ans = select.select((self.device_socket,), (), (), 0)
                     if len(ans[0]) == 0:
-                        return (True, self)
+                        return self
                     # The socket indicates that something is there. Given the
                     # protocol, this can only be a disconnect notification. Fall
                     # through and actually try to talk to the client.
@@ -942,7 +936,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                         self._close_device_socket()
                 except:
                     self._close_device_socket()
-            return (self.is_connected, self)
+            return self if self.is_connected else None
 
         if getattr(self, 'listen_socket', None) is not None:
             try:
@@ -964,8 +958,23 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                     pass
             except Queue.Empty:
                 self.is_connected = False
-            return (self.is_connected, self)
-        return (False, None)
+            return self if self.is_connected else None
+        return None
+
+    @synchronous('sync_lock')
+    def debug_managed_device_detection(self, devices_on_system, output):
+        from functools import partial
+        p = partial(prints, file=output)
+        if self.is_connected:
+            p("A wireless device is connected")
+            return True
+        all_ip_addresses = get_all_ips()
+        if all_ip_addresses:
+            p("All IP addresses", all_ip_addresses)
+        else:
+            p("No IP addresses found")
+        p("No device is connected")
+        return False
 
     @synchronous('sync_lock')
     def open(self, connected_device, library_uuid):
