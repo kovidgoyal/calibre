@@ -78,8 +78,8 @@ class ORIZON(CYBOOK):
 
     EXTRA_CUSTOMIZATION_MESSAGE = [
         _('Card A folder') + ':::<p>' +
-            _('Enter the folder where the books are to be stored when sent to the '
-              'memory card. This folder is prepended to any send to device template') + '</p>',
+        _('Enter the folder where the books are to be stored when sent to the '
+          'memory card. This folder is prepended to any send to device template') + '</p>',
     ]
     EXTRA_CUSTOMIZATION_DEFAULT = [EBOOK_DIR_CARD_A]
 
@@ -117,6 +117,8 @@ class MUSE(CYBOOK):
     gui_name       = 'Orizon'
     description    = _('Communicate with the Cybook Muse eBook reader.')
     author         = 'Kovid Goyal'
+
+    FORMATS     = ['epub', 'html', 'fb2', 'txt', 'pdf', 'djvu']
 
     VENDOR_ID   = [0x0525]
     PRODUCT_ID  = [0xa4a5]
