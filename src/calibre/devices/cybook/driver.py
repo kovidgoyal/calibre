@@ -111,3 +111,19 @@ class ORIZON(CYBOOK):
             return ''
         return self.EBOOK_DIR_CARD_A
 
+class MUSE(CYBOOK):
+
+    name           = 'Cybook Orizon Device Interface'
+    gui_name       = 'Orizon'
+    description    = _('Communicate with the Cybook Muse eBook reader.')
+    author         = 'Kovid Goyal'
+
+    VENDOR_ID   = [0x0525]
+    PRODUCT_ID  = [0xa4a5]
+    BCD         = [0x0230]
+
+    VENDOR_NAME = 'USB_2.0'
+    WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = 'USB_FLASH_DRIVER'
+
+    EBOOK_DIR_MAIN = 'Books'
+    SCAN_FROM_ROOT = True
