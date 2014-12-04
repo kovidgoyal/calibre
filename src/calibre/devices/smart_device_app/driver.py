@@ -86,11 +86,12 @@ class ConnectionListener(Thread):
             if not self.driver.connection_queue.empty():
                 d = currently_connected_device.device
                 if d is not None:
-                    self.driver._debug('queue not serviced', d.__class__.__name__)
+                    self.driver._debug('queue not serviced', d.get_gui_name())
                     try:
                         sock = self.driver.connection_queue.get_nowait()
                         s = self.driver._json_encode(
-                                        self.driver.opcodes['CALIBRE_BUSY'], {})
+                                        self.driver.opcodes['CALIBRE_BUSY'],
+                                        {'otherDevice': d.get_gui_name()})
                         self.driver._send_byte_string(device_socket, (b'%d' % len(s)) + s)
                         sock.close()
                     except Queue.Empty:
@@ -221,7 +222,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
 
     PURGE_CACHE_ENTRIES_DAYS    = 30
 
-    CURRENT_CC_VERSION          = 77
+    CURRENT_CC_VERSION          = 128
 
     ZEROCONF_CLIENT_STRING      = b'calibre wireless device client'
 
