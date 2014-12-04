@@ -956,7 +956,6 @@ class Application(QApplication):
                 p.setColor(p.Inactive, role, p.color(p.Active, role))
             self.setPalette(p)
 
-        if iswindows:
             # Prevent text copied to the clipboard from being lost on quit due to
             # Qt 5 bug: https://bugreports.qt-project.org/browse/QTBUG-41125
             self.aboutToQuit.connect(self.flush_clipboard)
