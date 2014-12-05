@@ -149,14 +149,16 @@ def _run_filetype_plugins(path_to_file, ft=None, occasion='preprocess'):
         if is_disabled(plugin):
             continue
         plugin.site_customization = customization.get(plugin.name, '')
+        oo, oe = sys.stdout, sys.stderr  # Some file type plugins out there override the output streams with buggy implementations
         with plugin:
             try:
                 nfp = plugin.run(path_to_file)
                 if not nfp:
                     nfp = path_to_file
             except:
-                print 'Running file type plugin %s failed with traceback:'%plugin.name
-                traceback.print_exc()
+                print >>oe, 'Running file type plugin %s failed with traceback:'%plugin.name
+                traceback.print_exc(file=oe)
+        sys.stdout, sys.stderr = oo, oe
     x = lambda j : os.path.normpath(os.path.normcase(j))
     if occasion == 'postprocess' and x(nfp) != x(path_to_file):
         shutil.copyfile(nfp, path_to_file)
