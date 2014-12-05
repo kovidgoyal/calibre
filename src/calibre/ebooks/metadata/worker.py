@@ -36,7 +36,12 @@ def run_import_plugins(paths, group_id, tdir):
     for path in paths:
         if not os.access(path, os.R_OK):
             continue
-        nfp = run_plugins_on_import(path)
+        try:
+            nfp = run_plugins_on_import(path)
+        except Exception:
+            nfp = None
+            import traceback
+            traceback.print_exc()
         if nfp and os.access(nfp, os.R_OK) and not samefile(nfp, path):
             # Ensure that the filename is preserved so that
             # reading metadata from filename is not broken
