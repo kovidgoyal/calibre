@@ -1,4 +1,5 @@
 from calibre.web.feeds.jsnews import JavascriptRecipe
+from calibre.web.jsbrowser.browser import NotAFile
 
 try:
     from calibre.web.feeds.jsnews import CSSSelect
@@ -147,7 +148,10 @@ class WSJ(JavascriptRecipe):
                 break
         for a in CSSSelect('div.itpSectionHeaderPdf a[href]')(root):
             href = a.get('href')
-            ans['cover'] = browser.download_file(href)
+            try:
+                ans['cover'] = browser.download_file(href)
+            except NotAFile:
+                break
             break
 
         feeds = ans['index'] = []
