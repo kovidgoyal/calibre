@@ -38,27 +38,29 @@ class Guardian(BasicNewsRecipe):
     ignore_sections = []
 
     timefmt = ' [%a, %d %b %Y]'
+
     keep_only_tags = [
-                      dict(name='div', attrs={'id':["content","article_header","main-article-info",]}),
-                           ]
+        dict(name='div', attrs={'id':["content","article_header","main-article-info",]}),
+        dict(attrs={'class':lambda x: x and set(x.split()).intersection({'content__head', 'content__main'})}),
+    ]
     remove_tags = [
-                        dict(name='div', attrs={'class':["video-content","videos-third-column"]}),
-                        dict(name='div', attrs={'id':["article-toolbox","subscribe-feeds",]}),
-                        dict(name='div', attrs={'class':["guardian-tickets promo-component",]}),
-                        dict(name='ul', attrs={'class':["pagination"]}),
-                        dict(name='ul', attrs={'id':["content-actions"]}),
-                        # article history link
-                        dict(name='a', attrs={'class':["rollover history-link"]}),
-                        # "a version of this article ..." speil
-                        dict(name='div' , attrs={'class' : ['section']}),
-                        # "about this article" js dialog
-                        dict(name='div', attrs={'class':["share-top",]}),
-                        # author picture
-                        dict(name='img', attrs={'class':["contributor-pic-small"]}),
-                        # embedded videos/captions
-                        dict(name='span',attrs={'class' : ['inline embed embed-media']}),
-                        # dict(name='img'),
-                        ]
+        dict(name='div', attrs={'class':[
+            "video-content","videos-third-column", 'meta__extras', 'submeta-container  submeta-container--break-at-leftcol ']}),
+        dict(name='div', attrs={'id':["article-toolbox","subscribe-feeds",]}),
+        dict(name='div', attrs={'class':["guardian-tickets promo-component",]}),
+        dict(name='ul', attrs={'class':["pagination"]}),
+        dict(name='ul', attrs={'id':["content-actions"]}),
+        # article history link
+        dict(name='a', attrs={'class':["rollover history-link"]}),
+        # "a version of this article ..." speil
+        dict(name='div' , attrs={'class' : ['section']}),
+        # "about this article" js dialog
+        dict(name='div', attrs={'class':["share-top",]}),
+        # author picture
+        dict(name='img', attrs={'class':["contributor-pic-small"]}),
+        # embedded videos/captions
+        dict(name='span',attrs={'class' : ['inline embed embed-media']}),
+    ]
     use_embedded_content    = False
 
     no_stylesheets = True
