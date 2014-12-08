@@ -132,9 +132,10 @@ class AddAction(InterfaceAction):
                     if not confirm(msg, 'confirm_format_override_on_add', title=_('Are you sure?'), parent=self.gui):
                         return
 
+        fmt_map = {os.path.splitext(fpath)[1][1:].upper():fpath for fpath in books}
+
         for id_ in ids:
-            for fpath in books:
-                fmt = os.path.splitext(fpath)[1][1:].upper()
+            for fmt, fpath in fmt_map.iteritems():
                 if fmt:
                     db.add_format_with_hooks(id_, fmt, fpath, index_is_id=True,
                         notify=True)
