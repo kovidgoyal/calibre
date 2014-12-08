@@ -42,7 +42,7 @@ Add books
 .. |adbi| image:: images/add_books.png
     :class: float-right-img
 
-|adbi| The :guilabel:`Add books` action has six variations accessed by doing a right-click on the button.
+|adbi| The :guilabel:`Add books` action has seven variations accessed by doing a right-click on the button.
 
 
     1. **Add books from a single directory**: Opens a file chooser dialog and allows you to specify which books in a directory should be added. This action is *context sensitive*, i.e. it depends on which :ref:`catalog <catalogs>` you have selected. If you have selected the :guilabel:`Library`, books will be added to the library. If you have selected the ebook reader device, the books will be uploaded to the device, and so on.
