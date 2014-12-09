@@ -39,7 +39,15 @@ class NewYorker(BasicNewsRecipe):
             if img is not None:
                 self.cover_url = img['src'].replace('-320.jpg', '.jpg')
         articles = []
-        for story in soup.findAll('article', itemtype='http://schema.org/NewsArticle'):
+        current_section = 'Current Issue'
+        feeds = []
+        for story in soup.findAll(['h5', 'article'], itemtype=[None, 'http://schema.org/NewsArticle']):
+            if story.name == 'h5':
+                if articles:
+                    feeds.append((current_section, articles))
+                current_section, articles = self.tag_to_string(story), []
+                self.log('\nFound section: ' + current_section)
+                continue
             h2 = story.find('h2')
             url = h2.find('a', href=True)['href']
             a = h2.find('a')
@@ -58,7 +66,7 @@ class NewYorker(BasicNewsRecipe):
             articles.append({'title':title, 'url':url, 'date':'',
                 'description':desc})
 
-        return [('Current Issue', articles)]
+        return feeds
 
     # The New Yorker changes the content it delivers based on cookies, so the
     # following ensures that we send no cookies
