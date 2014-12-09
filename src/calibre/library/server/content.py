@@ -252,10 +252,14 @@ class ContentServer(object):
         cherrypy.response.headers['Content-Length'] = fmt.tell()
         fmt.seek(0)
 
+        ua = cherrypy.request.headers.get('User-Agent', '').strip()
+        have_kobo_browser = self.is_kobo_browser(ua)
+        file_extension = "kepub.epub" if format.lower() == "kepub" and have_kobo_browser else format
+
         au = authors_to_string(newmi.authors if newmi.authors else
                 [_('Unknown')])
         title = newmi.title if newmi.title else _('Unknown')
-        fname = u'%s - %s_%s.%s'%(title[:30], au[:30], id, format.lower())
+        fname = u'%s - %s_%s.%s'%(title[:30], au[:30], id, file_extension.lower())
         fname = ascii_filename(fname).replace('"', '_')
         cherrypy.response.headers['Content-Disposition'] = \
                 b'attachment; filename="%s"'%fname
