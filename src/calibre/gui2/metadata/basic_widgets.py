@@ -15,10 +15,10 @@ from PyQt5.Qt import (
     QLabel, QGridLayout, QApplication, QDoubleSpinBox, QListWidgetItem, QSize,
     QPixmap, QDialog, QMenu, QSpinBox, QLineEdit, QSizePolicy, QKeySequence,
     QDialogButtonBox, QAction, QCalendarWidget, QDate, QDateTime, QUndoCommand,
-    QUndoStack)
+    QUndoStack, QVBoxLayout, QPlainTextEdit)
 
 from calibre.gui2.widgets import EnLineEdit, FormatList as _FormatList, ImageView
-from calibre.gui2.widgets2 import access_key, populate_standard_spinbox_context_menu, RightClickButton
+from calibre.gui2.widgets2 import access_key, populate_standard_spinbox_context_menu, RightClickButton, Dialog
 from calibre.utils.icu import sort_key
 from calibre.utils.config import tweaks, prefs
 from calibre.ebooks.metadata import (
@@ -1375,7 +1375,54 @@ class LanguagesEdit(LE, ToMetadataMixin):  # {{{
             db.set_languages(id_, cv)
 # }}}
 
-class IdentifiersEdit(QLineEdit, ToMetadataMixin):  # {{{
+# Identifiers {{{
+
+class Identifiers(Dialog):
+
+    def __init__(self, identifiers, parent=None):
+        Dialog.__init__(self, _('Edit Identifiers'), 'edit-identifiers-dialog', parent=parent)
+        self.text.setPlainText('\n'.join('%s:%s' % (k, identifiers[k]) for k in sorted(identifiers, key=sort_key)))
+
+    def setup_ui(self):
+        self.l = l = QVBoxLayout(self)
+
+        self.la = la = QLabel(_(
+            'Edit the book\'s identifiers. Every identifier must be on a separate line, and have the form type:value'))
+        la.setWordWrap(True)
+        self.text = t = QPlainTextEdit(self)
+        l.addWidget(la), l.addWidget(t)
+
+        l.addWidget(self.bb)
+
+    def get_identifiers(self, validate=False):
+        from calibre.ebooks.metadata.book.base import Metadata
+        mi = Metadata('xxx')
+        ans = {}
+        for line in self.text.toPlainText().splitlines():
+            if line.strip():
+                k, v = line.partition(':')[0::2]
+                k, v = mi._clean_identifier(k.strip(), v.strip())
+                if k and v:
+                    if validate and k in ans:
+                        error_dialog(self, _('Duplicate identifier'), _(
+                            'The identifier of type: %s occurs more than once. Each type of identifier must be unique') % k, show=True)
+                        return
+                    ans[k] = v
+                elif validate:
+                    error_dialog(self, _('Invalid identifier'), _(
+                        'The identifier %s is invalid. Identifiers must be of the form type:value') % line.strip(), show=True)
+                    return
+        return ans
+
+    def sizeHint(self):
+        return QSize(500, 400)
+
+    def accept(self):
+        if self.get_identifiers(validate=True) is None:
+            return
+        Dialog.accept(self)
+
+class IdentifiersEdit(QLineEdit, ToMetadataMixin):
     LABEL = _('I&ds:')
     BASE_TT = _('Edit the identifiers for this book. '
             'For example: \n\n%s')%(
@@ -1386,6 +1433,19 @@ class IdentifiersEdit(QLineEdit, ToMetadataMixin):  # {{{
         QLineEdit.__init__(self, parent)
         self.pat = re.compile(r'[^0-9a-zA-Z]')
         self.textChanged.connect(self.validate)
+
+    def contextMenuEvent(self, ev):
+        m = self.createStandardContextMenu()
+        first = m.actions()[0]
+        ac = m.addAction(_('Edit identifiers in a dedicated window'), self.edit_identifiers)
+        m.insertAction(first, ac)
+        m.insertSeparator(first)
+        m.exec_(ev.globalPos())
+
+    def edit_identifiers(self):
+        d = Identifiers(self.current_val, self)
+        if d.exec_() == d.Accepted:
+            self.current_val = d.get_identifiers()
 
     @dynamic_property
     def current_val(self):
