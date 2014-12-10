@@ -90,17 +90,21 @@ def do_list(db, fields, afields, sort_by, ascending, search_text, line_width, se
         return ans
     if for_machine:
         import json
+        record_keys = {field_name(field):field for field in fields}
         for record in data:
-            for key in set(record) - set(fields):
+            for key in set(record) - set(record_keys):
                 del record[key]
+            for key in tuple(record):
+                if record_keys[key] != key:  # A custom column, use the column label as the key rather than the column id number
+                    record[record_keys[key]] = record.pop(key)
             for key, val in tuple(record.iteritems()):
                 if hasattr(val, 'isoformat'):
                     record[key] = isoformat(val, as_utc=True)
                 elif val is None:
                     del record[key]
         return json.dumps(data, indent=2, sort_keys=True)
-    fields = list(map(field_name, fields))
 
+    fields = list(map(field_name, fields))
     for f in data:
         fmts = [x for x in f['formats'] if x is not None]
         f['formats'] = u'[%s]'%u', '.join(fmts)
