@@ -122,7 +122,7 @@ def build_index(books, num, search, sort, order, start, total, url_base, CKEYS,
         for fmt in book['formats'].split(','):
             if not fmt or fmt.lower().startswith('original_'):
                 continue
-            file_extension = "kepub.epub" if fmt.lower() == "kepub" and have_kobo_browser else fmt
+            file_extension = "kepub.epub" if have_kobo_browser and fmt.lower() == "kepub" else fmt
             a = quote(ascii_filename(book['authors']))
             t = quote(ascii_filename(book['title']))
             s = SPAN(
@@ -183,15 +183,13 @@ class MobileServer(object):
     'A view optimized for browsers in mobile devices'
 
     MOBILE_UA = re.compile('(?i)(?:iPhone|Opera Mini|NetFront|webOS|Mobile|Android|imode|DoCoMo|Minimo|Blackberry|MIDP|Symbian|HD2|Kindle)')
-    KOBO_UA = re.compile('(?i)(?:Kobo Touch)')
 
     def is_mobile_browser(self, ua):
         match = self.MOBILE_UA.search(ua)
         return match is not None and 'iPad' not in ua
 
     def is_kobo_browser(self, ua):
-        match = self.KOBO_UA.search(ua)
-        return match is not None
+        return 'Kobo Touch' in ua
 
     def add_routes(self, connect):
         connect('mobile', '/mobile', self.mobile)

@@ -254,7 +254,7 @@ class ContentServer(object):
 
         ua = cherrypy.request.headers.get('User-Agent', '').strip()
         have_kobo_browser = self.is_kobo_browser(ua)
-        file_extension = "kepub.epub" if format.lower() == "kepub" and have_kobo_browser else format
+        file_extension = "kepub.epub" if have_kobo_browser and format.lower() == "kepub" else format
 
         au = authors_to_string(newmi.authors if newmi.authors else
                 [_('Unknown')])
