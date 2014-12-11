@@ -2020,6 +2020,11 @@ class KOBOTOUCH(KOBO):
                     cursor = connection.cursor()
                     debug_print('KoboTouch:delete_via_sql: have cursor')
                     t = (ContentID,)
+
+                    # Delete the Bookmarks
+                    debug_print('KoboTouch:delete_via_sql: Delete from Bookmark')
+                    cursor.execute('DELETE FROM Bookmark WHERE VolumeID  = ?', t)
+
                     # Delete from the Bookshelf
                     debug_print('KoboTouch:delete_via_sql: Delete from the Bookshelf')
                     cursor.execute('delete from ShelfContent where ContentID = ?', t)
