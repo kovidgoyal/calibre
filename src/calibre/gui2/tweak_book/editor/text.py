@@ -281,7 +281,7 @@ class TextEdit(PlainTextEdit):
             sel.append(self.current_cursor_line)
         if self.current_search_mark is not None:
             sel.append(self.current_search_mark)
-        if instant and not self.highlighter.has_requests:
+        if instant and not self.highlighter.has_requests and self.smarts is not None:
             sel.extend(self.smarts.get_extra_selections(self))
             self.smart_highlighting_updated.emit()
         else:
