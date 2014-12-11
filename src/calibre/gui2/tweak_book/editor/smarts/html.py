@@ -613,7 +613,7 @@ class Smarts(NullSmarts):
     def auto_close_tag(self, editor):
         c = editor.textCursor()
         block, offset = c.block(), c.positionInBlock()
-        tag = find_closest_containing_tag(block, offset, max_tags=4000)
+        tag = find_closest_containing_tag(block, offset - 1, max_tags=4000)
         if tag is None:
             return False
         c.insertText('/%s>' % tag.name)
