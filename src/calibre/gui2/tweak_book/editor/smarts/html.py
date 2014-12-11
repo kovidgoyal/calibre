@@ -36,6 +36,11 @@ class Tag(object):
         self.name = tag
         self.self_closing = self_closing
 
+    def __repr__(self):
+        return '<%s start_block=%s start_offset=%s end_block=%s end_offset=%s self_closing=%s>' % (
+            self.name, self.start_block.blockNumber(), self.start_offset, self.end_block.blockNumber(), self.end_offset, self.self_closing)
+    __str__ = __repr__
+
 def next_tag_boundary(block, offset, forward=True):
     while block.isValid():
         ud = block.userData()
