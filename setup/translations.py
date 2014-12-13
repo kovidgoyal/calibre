@@ -6,7 +6,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, tempfile, shutil, subprocess, glob, re, time, textwrap, cPickle, shlex, json
+import os, tempfile, shutil, subprocess, glob, re, time, textwrap, cPickle, shlex, json, errno
 from locale import normalize as normalize_locale
 from functools import partial
 
@@ -299,6 +299,12 @@ class Translations(POT):  # {{{
             locale = self.mo_file(f)[0]
             stats[locale] = min(1.0, float(trans)/total)
 
+        base = self.d(dest)
+        try:
+            os.mkdir(base)
+        except EnvironmentError as err:
+            if err.errno != errno.EEXIST:
+                raise
         cPickle.dump(stats, open(dest, 'wb'), -1)
 
     def compile_user_manual_translations(self):
