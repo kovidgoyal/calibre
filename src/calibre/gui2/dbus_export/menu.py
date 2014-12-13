@@ -9,7 +9,7 @@ __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 # Support for excporting Qt's MenuBars/Menus over DBUS. The API is defined in
 # dbus-menu.xml from the libdbusmenu project https://launchpad.net/libdbusmenu
 
-import dbus
+import dbus, sip
 from PyQt5.Qt import (
     QApplication, QMenu, QIcon, QKeySequence, QObject, QEvent, QTimer, pyqtSignal, Qt)
 
@@ -212,7 +212,9 @@ class DBusMenu(QObject):
         return changes
 
     def action_is_in_a_menu(self, ac):
-        all_menus = {ac.menu() for ac in self._action_to_id}
+        if sip.isdeleted(ac):
+            return False
+        all_menus = {a.menu() for a in self._action_to_id if not sip.isdeleted(a)}
         all_menus.discard(None)
         return bool(set(ac.associatedWidgets()).intersection(all_menus))
 
