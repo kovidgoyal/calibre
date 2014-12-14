@@ -9,8 +9,8 @@ import os, re
 from calibre.customize.conversion import InputFormatPlugin, OptionRecommendation
 from calibre import guess_type
 
-FB2NS = 'http://www.gribuser.ru/xml/fictionbook/2.0'
-
+FB2NS  = 'http://www.gribuser.ru/xml/fictionbook/2.0'
+FB21NS = 'http://www.gribuser.ru/xml/fictionbook/2.1'
 
 class FB2Input(InputFormatPlugin):
 
@@ -40,7 +40,6 @@ class FB2Input(InputFormatPlugin):
         from calibre.ebooks.metadata.meta import get_metadata
         from calibre.ebooks.oeb.base import XLINK_NS, XHTML_NS, RECOVER_PARSER
         from calibre.ebooks.chardet import xml_to_unicode
-        NAMESPACES = {'f':FB2NS, 'l':XLINK_NS}
         self.log = log
         log.debug('Parsing XML...')
         raw = stream.read().replace('\0', '')
@@ -61,7 +60,8 @@ class FB2Input(InputFormatPlugin):
         try:
             fb_ns = doc.nsmap[doc.prefix]
         except Exception:
-            fb_ns = 'http://www.gribuser.ru/xml/fictionbook/2.0'
+            fb_ns = FB2NS
+        NAMESPACES = {'f':fb_ns, 'l':XLINK_NS}
         stylesheets = doc.xpath('//*[local-name() = "stylesheet" and @type="text/css"]')
         css = ''
         for s in stylesheets:
