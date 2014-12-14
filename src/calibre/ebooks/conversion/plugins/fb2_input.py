@@ -58,6 +58,10 @@ class FB2Input(InputFormatPlugin):
                         parser=RECOVER_PARSER)
         if doc is None:
             raise ValueError('The FB2 file is not valid XML')
+        try:
+            fb_ns = doc.nsmap[doc.prefix]
+        except Exception:
+            fb_ns = 'http://www.gribuser.ru/xml/fictionbook/2.0'
         stylesheets = doc.xpath('//*[local-name() = "stylesheet" and @type="text/css"]')
         css = ''
         for s in stylesheets:
@@ -78,6 +82,7 @@ class FB2Input(InputFormatPlugin):
         self.extract_embedded_content(doc)
         log.debug('Converting XML to HTML...')
         ss = open(P('templates/fb2.xsl'), 'rb').read()
+        ss = ss.replace("__FB_NS__", fb_ns)
         if options.no_inline_fb2_toc:
             log('Disabling generation of inline FB2 TOC')
             ss = re.compile(r'<!-- BUILD TOC -->.*<!-- END BUILD TOC -->',
