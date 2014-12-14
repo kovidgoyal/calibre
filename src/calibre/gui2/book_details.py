@@ -19,8 +19,7 @@ from calibre.gui2.dnd import (dnd_has_image, dnd_get_image, dnd_get_files,
 from calibre.ebooks import BOOK_EXTENSIONS
 from calibre.ebooks.metadata.book.base import (field_metadata, Metadata)
 from calibre.ebooks.metadata.book.render import mi_to_html
-from calibre.gui2 import (config, open_url, pixmap_to_data, gprefs,
-        rating_font)
+from calibre.gui2 import (config, open_url, pixmap_to_data, gprefs, rating_font)
 from calibre.utils.config import tweaks
 
 def render_html(mi, css, vertical, widget, all_fields=False, render_data_func=None):  # {{{
@@ -208,11 +207,13 @@ class CoverView(QWidget):  # {{{
         paste = cm.addAction(_('Paste Cover'))
         copy = cm.addAction(_('Copy Cover'))
         remove = cm.addAction(_('Remove Cover'))
+        gc = cm.addAction(_('Generate Cover from metadata'))
         if not QApplication.instance().clipboard().mimeData().hasImage():
             paste.setEnabled(False)
         copy.triggered.connect(self.copy_to_clipboard)
         paste.triggered.connect(self.paste_from_clipboard)
         remove.triggered.connect(self.remove_cover)
+        gc.triggered.connect(self.generate_cover)
         cm.exec_(ev.globalPos())
 
     def copy_to_clipboard(self):
@@ -225,16 +226,32 @@ class CoverView(QWidget):  # {{{
             if pmap.isNull() and cb.supportsSelection():
                 pmap = cb.pixmap(cb.Selection)
         if not pmap.isNull():
-            self.pixmap = pmap
-            self.do_layout()
-            self.update()
-            self.update_tooltip(getattr(self.parent(), 'current_path', ''))
-            if not config['disable_animations']:
-                self.animation.start()
-            id_ = self.data.get('id', None)
-            if id_ is not None:
-                self.cover_changed.emit(id_,
-                    pixmap_to_data(pmap))
+            self.update_cover(pmap)
+
+    def update_cover(self, pmap=None, cdata=None):
+        if pmap is None:
+            pmap = QPixmap()
+            pmap.loadFromData(cdata)
+        if pmap.isNull():
+            return
+        self.pixmap = pmap
+        self.do_layout()
+        self.update()
+        self.update_tooltip(getattr(self.parent(), 'current_path', ''))
+        if not config['disable_animations']:
+            self.animation.start()
+        id_ = self.data.get('id', None)
+        if id_ is not None:
+            self.cover_changed.emit(id_, cdata or pixmap_to_data(pmap))
+
+    def generate_cover(self, *args):
+        book_id = self.data.get('id')
+        if book_id is not None:
+            from calibre.ebooks.covers import generate_cover
+            from calibre.gui2.ui import get_gui
+            mi = get_gui().current_db.new_api.get_metadata(book_id)
+            cdata = generate_cover(mi)
+            self.update_cover(cdata=cdata)
 
     def remove_cover(self):
         id_ = self.data.get('id', None)
