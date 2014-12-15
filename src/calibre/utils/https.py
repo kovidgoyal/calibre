@@ -6,11 +6,12 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import ssl, socket, re
+import ssl, socket, re, sys
 from contextlib import closing
 
 from calibre import get_proxies
 from calibre.constants import ispy3
+has_ssl_verify = sys.version_info[:3] >= (2, 7, 9)
 
 class HTTPError(ValueError):
 
@@ -24,6 +25,11 @@ class HTTPError(ValueError):
 if ispy3:
     from urllib.parse import urlparse
     import http.client as httplib
+else:
+    import httplib
+    from urlparse import urlsplit as urlparse
+
+if has_ssl_verify:
     class HTTPSConnection(httplib.HTTPSConnection):
 
         def __init__(self, ssl_version, *args, **kwargs):
@@ -33,9 +39,6 @@ if ispy3:
             context.verify_mode = ssl.CERT_REQUIRED
             httplib.HTTPSConnection.__init__(self, *args, **kwargs)
 else:
-    import httplib
-    from urlparse import urlsplit as urlparse
-
     # Check certificate hostname {{{
     # Implementation taken from python 3
     class CertificateError(ValueError):

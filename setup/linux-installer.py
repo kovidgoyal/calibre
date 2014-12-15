@@ -19,6 +19,7 @@ py3 = sys.version_info[0] > 2
 enc = getattr(sys.stdout, 'encoding', 'UTF-8') or 'utf-8'
 calibre_version = signature = None
 urllib = __import__('urllib.request' if py3 else 'urllib', fromlist=1)
+has_ssl_verify = sys.version_info[:3] >= (2, 7, 9)
 
 if py3:
     unicode = str
@@ -467,7 +468,7 @@ def match_hostname(cert, hostname):
         raise CertificateError("no appropriate commonName or "
             "subjectAltName fields were found")
 
-if py3:
+if has_ssl_verify:
     class HTTPSConnection(httplib.HTTPSConnection):
 
         def __init__(self, ssl_version, *args, **kwargs):
