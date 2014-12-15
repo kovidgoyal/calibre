@@ -41,4 +41,6 @@ class PluginWidget(Widget, Ui_Form):
             self.opt_pdf_standard_font.addItem(x)
 
         self.initialize_options(get_option, get_help, db, book_id)
+        self.layout().setFieldGrowthPolicy(self.layout().ExpandingFieldsGrow)
+        self.template_box.layout().setFieldGrowthPolicy(self.layout().AllNonFixedFieldsGrow)
 
