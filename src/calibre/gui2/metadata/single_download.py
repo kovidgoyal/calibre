@@ -21,7 +21,8 @@ from PyQt5.Qt import (
     QDialog, QVBoxLayout, QLabel, QDialogButtonBox, QStyle, QStackedWidget,
     QWidget, QTableView, QGridLayout, QFontInfo, QPalette, QTimer, pyqtSignal,
     QAbstractTableModel, QSize, QListView, QPixmap, QModelIndex, QUrl,
-    QAbstractListModel, QColor, QRect, QTextBrowser, QStringListModel, QMenu, QCursor)
+    QAbstractListModel, QColor, QRect, QTextBrowser, QStringListModel, QMenu,
+    QCursor, QHBoxLayout, QPushButton, QSizePolicy)
 from PyQt5.QtWebKitWidgets import QWebView
 
 from calibre.customize.ui import metadata_plugins
@@ -1037,24 +1038,21 @@ class FullFetch(QDialog):  # {{{
         l.addWidget(self.stack)
 
         self.bb = QDialogButtonBox(QDialogButtonBox.Cancel|QDialogButtonBox.Ok)
-        l.addWidget(self.bb)
+        self.h = h = QHBoxLayout()
+        l.addLayout(h)
         self.bb.rejected.connect(self.reject)
         self.bb.accepted.connect(self.accept)
-        self.next_button = self.bb.addButton(_('Next'), self.bb.ActionRole)
-        self.next_button.setDefault(True)
-        self.next_button.setEnabled(False)
-        self.next_button.setIcon(QIcon(I('ok.png')))
-        self.next_button.clicked.connect(self.next_clicked)
         self.ok_button = self.bb.button(self.bb.Ok)
         self.ok_button.setEnabled(False)
         self.ok_button.clicked.connect(self.ok_clicked)
-        self.prev_button = self.bb.addButton(_('Back'), self.bb.ActionRole)
-        self.prev_button.setIcon(QIcon(I('back.png')))
-        self.prev_button.clicked.connect(self.back_clicked)
+        self.prev_button = pb = QPushButton(QIcon(I('back.png')), _('&Back'), self)
+        pb.clicked.connect(self.back_clicked)
+        pb.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
         self.log_button = self.bb.addButton(_('View log'), self.bb.ActionRole)
         self.log_button.clicked.connect(self.view_log)
         self.log_button.setIcon(QIcon(I('debug.png')))
         self.prev_button.setVisible(False)
+        h.addWidget(self.prev_button), h.addWidget(self.bb)
 
         self.identify_widget = IdentifyWidget(self.log, self)
         self.identify_widget.rejected.connect(self.reject)
@@ -1077,7 +1075,6 @@ class FullFetch(QDialog):  # {{{
         self._lv = LogViewer(self.log, self)
 
     def book_selected(self, book, caches):
-        self.next_button.setVisible(False)
         self.prev_button.setVisible(True)
         self.book = book
         self.stack.setCurrentIndex(1)
@@ -1087,9 +1084,7 @@ class FullFetch(QDialog):  # {{{
         self.ok_button.setFocus()
 
     def back_clicked(self):
-        self.next_button.setVisible(True)
         self.prev_button.setVisible(False)
-        self.next_button.setFocus()
         self.stack.setCurrentIndex(0)
         self.covers_widget.cancel()
         self.covers_widget.reset_covers()
@@ -1114,7 +1109,6 @@ class FullFetch(QDialog):  # {{{
         self.covers_widget.cleanup()
 
     def identify_results_found(self):
-        self.next_button.setEnabled(True)
         self.ok_button.setEnabled(True)
 
     def next_clicked(self, *args):
