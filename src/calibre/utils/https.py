@@ -6,12 +6,12 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import ssl, socket, re, sys
+import ssl, socket, re
 from contextlib import closing
 
 from calibre import get_proxies
 from calibre.constants import ispy3
-has_ssl_verify = sys.version_info[:3] >= (2, 7, 9)
+has_ssl_verify = hasattr(ssl, 'PROTOCOL_TLSv1_2')
 
 class HTTPError(ValueError):
 
