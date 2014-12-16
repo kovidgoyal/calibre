@@ -17,9 +17,12 @@ from calibre import isbytestring
 # UTC. The returned date is also UTC
 def string_to_datetime(src):
     from calibre.utils.date import parse_date
-    if src == "None":
-        return None
-    return parse_date(src)
+    if src != "None":
+        try:
+            return parse_date(src)
+        except Exception:
+            pass
+    return None
 
 def datetime_to_string(dateval):
     from calibre.utils.date import isoformat, UNDEFINED_DATE, local_tz
