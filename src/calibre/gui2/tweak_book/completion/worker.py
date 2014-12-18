@@ -10,6 +10,7 @@ import cPickle, os, sys
 from threading import Thread, Event
 from Queue import Queue
 from contextlib import closing
+from collections import namedtuple
 
 from calibre.constants import iswindows
 from calibre.utils.ipc import eintr_retry_call
@@ -38,6 +39,9 @@ class CompletionWorker(Thread):
         p.stdin.flush(), p.stdin.close()
         self.control_conn = eintr_retry_call(self.listener.accept)
         self.data_conn = eintr_retry_call(self.listener.accept)
+        self.data_thread = t = Thread(name='CWData', target=self.handle_data_requests)
+        t.daemon = True
+        t.start()
         self.connected.set()
 
     def send(self, data, conn=None):
@@ -59,6 +63,29 @@ class CompletionWorker(Thread):
     def wait_for_connection(self, timeout=None):
         self.connected.wait(timeout)
 
+    def handle_data_requests(self):
+        from calibre.gui2.tweak_book.completion.basic import handle_data_request
+        while True:
+            try:
+                req = self.recv(self.data_conn)
+            except EOFError:
+                break
+            except Exception:
+                import traceback
+                traceback.print_exc()
+                break
+            if req is None or self.shutting_down:
+                break
+            result, tb = handle_data_request(req)
+            try:
+                self.send((result, tb), self.data_conn)
+            except EOFError:
+                break
+            except Exception:
+                import traceback
+                traceback.print_exc()
+                break
+
     def run(self):
         self.launch_worker_process()
         while True:
@@ -69,8 +96,13 @@ class CompletionWorker(Thread):
     def shutdown(self):
         self.shutting_down = True
         self.main_queue.put(None)
+        for conn in (self.control_conn, self.data_conn):
+            try:
+                conn.close()
+            except Exception:
+                pass
         p = self.worker_process
-        if p.returncode is None:
+        if p.poll() is None:
             self.worker_process.terminate()
             t = self.reap_thread = Thread(target=p.wait)
             t.daemon = True
@@ -95,6 +127,28 @@ def run_main(func):
     address, key = cPickle.loads(eintr_retry_call(sys.stdin.read))
     with closing(Client(address, authkey=key)) as control_conn, closing(Client(address, authkey=key)) as data_conn:
         func(control_conn, data_conn)
+
+Result = namedtuple('Result', 'request_id ans traceback')
+
+def main(control_conn, data_conn):
+    from calibre.gui2.tweak_book.completion.basic import handle_control_request
+    while True:
+        try:
+            request = eintr_retry_call(control_conn.recv)
+        except EOFError:
+            break
+        if request is None:
+            break
+        try:
+            ans, tb = handle_control_request(request, data_conn), None
+        except Exception:
+            import traceback
+            ans, tb = None, traceback.format_exc()
+        result = Result(request.id, ans, tb)
+        try:
+            eintr_retry_call(control_conn.send, result)
+        except EOFError:
+            break
 
 def test_main(control_conn, data_conn):
     obj = control_conn.recv()
