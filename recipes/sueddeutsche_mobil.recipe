@@ -4,6 +4,7 @@ __copyright__ = '2012, 2013 Andreas Zeiser <andreas.zeiser@web.de>'
 szmobil.sueddeutsche.de/
 '''
 # History
+# 2014.12.18 Fixing URL set Cover by lala-rob (web@lala-rob.de)
 # 2014.10.06 Fixing Login URL and Article URL by lala-rob (web@lala-rob.de)
 #
 # 2013.01.09 Fixed bugs in article titles containing "strong" and
@@ -19,17 +20,17 @@ class SZmobil(BasicNewsRecipe):
     __author__  = u'Andreas Zeiser'
     description = u'Nachrichten aus Deutschland. Zugriff auf kostenpflichtiges Abo SZ mobil.'
     publisher              = u'Sueddeutsche Zeitung'
+    masthead_url           = 'http://pix.sueddeutsche.de/img/layout/header/SZ_solo288x31.gif'
     language               = u'de'
     publication_type       = u'newspaper'
     category               = u'news, politics, Germany'
-
+    cover_url              = 'http://upload.wikimedia.org/wikipedia/commons/d/d3/Suddeutsche_Zeitung_090520_M.jpg'
     no_stylesheets         = True
     oldest_article         = 2
     encoding               = 'iso-8859-1'
     needs_subscription     = True
     remove_empty_feeds     = True
     delay                  = 1
-    cover_source           = 'http://www.sueddeutsche.de/verlag'
 
     # if you want to get rid of the date on the title page use
     # timefmt = ''
@@ -38,25 +39,17 @@ class SZmobil(BasicNewsRecipe):
     root_url ='http://epaper.sueddeutsche.de/app/service/epaper-mobil/'
     keep_only_tags = [dict(name='div', attrs={'class':'article'})]
 
-    def get_cover_url(self):
-        src = self.index_to_soup(self.cover_source)
-        image_url = src.find(attrs={'class':'preview-image'})
-        return image_url.div.img['src']
-
     def get_browser(self):
         browser = BasicNewsRecipe.get_browser(self)
 
         # Login via fetching of Streiflicht -> Fill out login request
         url = 'https://id.sueddeutsche.de/login'
-        url2 = 'https://id.sueddeutsche.de/login/ticket?redirect_uri=http%3A%2F%2Fepaper.sueddeutsche.de%2Fapp%2Fservice%2Fepaper-mobil%2Flanding.php%3Fid%3Dstreif%26etag%3D1&service_id=epapermobile'
         browser.open(url)
 
         browser.select_form(nr=0) # to select the first form
         browser['login'] = self.username
         browser['password'] = self.password
         browser.submit()
-        browser.open(url2)
-
         return browser
 
     def parse_index(self):
