@@ -191,6 +191,8 @@ def _clean_lock_file(file):
     except:
         pass
 
+def singleinstance_path(name):
+    return os.path.expanduser('~/.'+__appname__+'_'+name+'.lock')
 
 def singleinstance(name):
     '''
@@ -211,7 +213,7 @@ def singleinstance(name):
             atexit.register(win32api.CloseHandle, mutex)
         return not err == winerror.ERROR_ALREADY_EXISTS
     else:
-        path = os.path.expanduser('~/.'+__appname__+'_'+name+'.lock')
+        path = singleinstance_path(name)
         try:
             f = open(path, 'w')
             fcntl.lockf(f.fileno(), fcntl.LOCK_EX|fcntl.LOCK_NB)
