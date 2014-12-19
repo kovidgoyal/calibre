@@ -233,12 +233,15 @@ else:
         @param name: The name to lock.
         @type name: string
         '''
+        from calibre.utils.ipc import eintr_retry_call
         path = singleinstance_path(name)
+        f = open(path, 'w')
         try:
-            f = open(path, 'w')
-            fcntl.lockf(f.fileno(), fcntl.LOCK_EX|fcntl.LOCK_NB)
+            eintr_retry_call(fcntl.lockf, f.fileno(), fcntl.LOCK_EX|fcntl.LOCK_NB)
             atexit.register(_clean_lock_file, f)
             return True
-        except EnvironmentError:
-            pass
+        except IOError as err:
+            if err.errno == errno.EAGAIN:
+                return False
+            raise
         return False

@@ -459,8 +459,14 @@ def main(args=sys.argv):
         app, opts, args = init_qt(args)
     except AbortInit:
         return 1
-    from calibre.utils.lock import singleinstance
-    si = singleinstance(singleinstance_name)
+    try:
+        from calibre.utils.lock import singleinstance
+        si = singleinstance(singleinstance_name)
+    except Exception:
+        error_dialog(None, _('Cannot start calibre'), _(
+            'Failed to start calibre, single instance locking failed. Click "Show Details" for more information'),
+                     det_msg=traceback.format_exc(), show=True)
+        return 1
     if si and opts.shutdown_running_calibre:
         return 0
     if si:
