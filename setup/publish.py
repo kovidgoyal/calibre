@@ -56,24 +56,30 @@ class Stage2(Command):
 
         error_ocurred = []
 
+        def report_error(p):
+            error_ocurred.append(True)
+            if mtexe:
+                mtexe.terminate(), mtexe.wait()
+            log = p.log
+            log.flush()
+            log.seek(0)
+            raw = log.read()
+            sys.stderr.write(raw)
+            sys.stderr.write(b'\n')
+            self.info('\n\nFailed to build: %s. Waiting for other builds to complete before aborting...' % x)
+
         def workers_running():
             running = False
             for p in processes:
                 if p.returncode is not None:
+                    if p.returncode != 0 and not error_ocurred:
+                        report_error(p)
                     continue
                 rc = p.poll()
                 if rc is not None:
                     p.duration = int(time.time() - p.start_time)
                     if rc != 0 and not error_ocurred:
-                        error_ocurred.append(True)
-                        log = p.log
-                        log.flush()
-                        log.seek(0)
-                        sys.stderr.write(log.read())
-                        sys.stderr.write(b'\n')
-                        self.info('\n\nFailed to build: %s. Waiting for other builds to complete before aborting...' % x)
-                        if mtexe:
-                            mtexe.terminate(), mtexe.wait()
+                        report_error(p)
                 else:
                     running = True
             return running
@@ -86,7 +92,7 @@ class Stage2(Command):
             os.waitpid(-1, 0)
 
         if error_ocurred:
-            raise SystemExit(1)
+            raise SystemExit('One of the OS specific builders failed')
         if mtexe and mtexe.poll() is None:
             mtexe.terminate(), mtexe.wait()
         for p in sorted(processes, key=lambda p:p.duration):
