@@ -112,6 +112,13 @@ if islinux:
             self._listener._socket.shutdown(socket.SHUT_RDWR)
             self._listener._socket.close()
 
+        def accept(self, *args, **kwargs):
+            ans = Listener.accept(self, *args, **kwargs)
+            fd = ans.fileno()
+            old_flags = fcntl.fcntl(fd, fcntl.F_GETFD)
+            fcntl.fcntl(fd, fcntl.F_SETFD, old_flags | fcntl.FD_CLOEXEC)
+            return ans
+
     def create_listener(authkey, backlog=4):
         # Use abstract named sockets on linux to avoid creating unnecessary temp files
         global _name_counter
