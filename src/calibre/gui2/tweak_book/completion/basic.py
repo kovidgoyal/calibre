@@ -19,7 +19,7 @@ from calibre.utils.matcher import Matcher
 
 Request = namedtuple('Request', 'id type data query')
 
-names_cache = frozenset()
+names_cache = {}
 
 def control(func):
     func.function_type = 'control'
@@ -33,7 +33,7 @@ def data(func):
 def clear_caches(cache_type, data_conn):
     global names_cache
     if cache_type is None or cache_type == 'names':
-        names_cache = frozenset()
+        names_cache.clear()
 
 @data
 def names_data(request_data):
@@ -63,19 +63,14 @@ class Name(unicode):
 
 @control
 def complete_names(names_type, data_conn):
-    global names_cache
     if not names_cache:
         mime_map, spine_names = get_data(data_conn, 'names_data')
-        names_cache = frozenset(Name(name, mt, spine_names) for name, mt in mime_map.iteritems())
-    ans = names_cache
-    if names_type == 'text_link':
-        ans = frozenset(n for n in names_cache if n.in_spine)
-    elif names_type == 'stylesheet':
-        ans = frozenset(n for n in names_cache if n.mime_type in OEB_STYLES)
-    elif names_type == 'image':
-        ans = frozenset(n for n in names_cache if n.mime_type.startswith('image/'))
-    elif names_type == 'font':
-        ans = frozenset(n for n in names_cache if n.mime_type in OEB_FONTS)
+        names_cache[None] = frozenset(Name(name, mt, spine_names) for name, mt in mime_map.iteritems())
+        names_cache['text_link'] = frozenset(n for n in names_cache if n.in_spine)
+        names_cache['stylesheet'] = frozenset(n for n in names_cache if n.mime_type in OEB_STYLES)
+        names_cache['image'] = frozenset(n for n in names_cache if n.mime_type.startswith('image/'))
+        names_cache['font'] = frozenset(n for n in names_cache if n.mime_type in OEB_FONTS)
+    ans = names_cache.get(names_type, names_cache[None])
     return ans, {}
 
 _current_matcher = (None, None, None)
