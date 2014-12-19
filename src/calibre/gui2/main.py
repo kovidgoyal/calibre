@@ -391,10 +391,6 @@ def cant_start(msg=_('If you are sure it is not running')+', ',
         where += _('lower right region of the screen.')
     if iswindows or islinux:
         what = _('try rebooting your computer.')
-        if islinux and not listener_failed:
-            from calibre.utils.lock import singleinstance_path
-            path = singleinstance_path(singleinstance_name)
-            what = _('try deleting the file: "%s"') % path
     else:
         if listener_failed:
             path = gui_socket_address()
@@ -464,7 +460,7 @@ def main(args=sys.argv):
     except AbortInit:
         return 1
     from calibre.utils.lock import singleinstance
-    si = singleinstance('calibre GUI')
+    si = singleinstance(singleinstance_name)
     if si and opts.shutdown_running_calibre:
         return 0
     if si:

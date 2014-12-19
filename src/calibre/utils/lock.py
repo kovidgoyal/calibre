@@ -6,8 +6,7 @@ __docformat__ = 'restructuredtext en'
 Secure access to locked files from multiple processes.
 '''
 
-from calibre.constants import iswindows, __appname__, \
-                              win32api, win32event, winerror, fcntl
+from calibre.constants import iswindows, __appname__, islinux, win32api, win32event, winerror, fcntl
 import time, atexit, os, stat, errno
 
 class LockError(Exception):
@@ -191,17 +190,8 @@ def _clean_lock_file(file):
     except:
         pass
 
-def singleinstance_path(name):
-    return os.path.expanduser('~/.'+__appname__+'_'+name+'.lock')
-
-def singleinstance(name):
-    '''
-    Return True if no other instance of the application identified by name is running,
-    False otherwise.
-    @param name: The name to lock.
-    @type name: string
-    '''
-    if iswindows:
+if iswindows:
+    def singleinstance(name):
         mutexname = 'mutexforsingleinstanceof'+__appname__+name
         mutex =  win32event.CreateMutex(None, False, mutexname)
         err = win32api.GetLastError()
@@ -212,14 +202,43 @@ def singleinstance(name):
         elif mutex and err != winerror.ERROR_INVALID_HANDLE:
             atexit.register(win32api.CloseHandle, mutex)
         return not err == winerror.ERROR_ALREADY_EXISTS
-    else:
+elif islinux:
+    def singleinstance(name):
+        import socket
+        from calibre.utils.ipc import eintr_retry_call
+        name = '%s-singleinstance-%s-%d' % (__appname__, name, os.geteuid())
+        if not isinstance(name, bytes):
+            name = name.encode('utf-8')
+        address = b'\0' + name.replace(b' ', b'_')
+        sock = socket.socket(family=socket.AF_UNIX)
+        try:
+            eintr_retry_call(sock.bind, address)
+        except socket.error as err:
+            if getattr(err, 'errno', None) == errno.EADDRINUSE:
+                return False
+            raise
+        fd = sock.fileno()
+        old_flags = fcntl.fcntl(fd, fcntl.F_GETFD)
+        fcntl.fcntl(fd, fcntl.F_SETFD, old_flags | fcntl.FD_CLOEXEC)
+        atexit.register(sock.close)
+        return True
+else:
+    def singleinstance_path(name):
+        return os.path.expanduser('~/.'+__appname__+'_'+name+'.lock')
+
+    def singleinstance(name):
+        '''
+        Return True if no other instance of the application identified by name is running,
+        False otherwise.
+        @param name: The name to lock.
+        @type name: string
+        '''
         path = singleinstance_path(name)
         try:
             f = open(path, 'w')
             fcntl.lockf(f.fileno(), fcntl.LOCK_EX|fcntl.LOCK_NB)
             atexit.register(_clean_lock_file, f)
             return True
-        except IOError:
-            return False
-
-    return False
+        except EnvironmentError:
+            pass
+        return False
