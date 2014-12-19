@@ -250,7 +250,7 @@ class Pool(Thread):
                     worker.set_common_data(self.common_data)
                 except Exception:
                     import traceback
-                    self.terminal_failure = TerminalFailure('Worker process crashed while sending common data', traceback.format_exc())
+                    self.terminal_failure = TerminalFailure('Worker process crashed while sending common data', traceback.format_exc(), None)
                     self.terminal_error()
                     return False
 
