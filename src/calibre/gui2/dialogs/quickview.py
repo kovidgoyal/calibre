@@ -96,7 +96,7 @@ class Quickview(QDialog, Ui_Quickview):
         self.books_table.setHorizontalHeaderItem(self.title_column, t)
         t = QTableWidgetItem(_('Authors'))
         self.books_table.setHorizontalHeaderItem(self.author_column, t)
-        t = QTableWidgetItem(_('Series'))
+        t = QTableWidgetItem(ngettext("Series", 'Series', 1))
         self.books_table.setHorizontalHeaderItem(self.series_column, t)
         self.books_table_header_height = self.books_table.height()
         self.books_table.cellDoubleClicked.connect(self.book_doubleclicked)
