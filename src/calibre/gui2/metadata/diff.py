@@ -622,6 +622,9 @@ class CompareMany(QDialog):
         self.accept()
 
     def reject_all_remaining(self):
+        from calibre.gui2.dialogs.confirm_delete import confirm
+        if not confirm(_('Are you sure you want to reject all %d remaining results?') % len(self.ids), 'confirm_metadata_review_reject', parent=self):
+            return
         self.next_item(False)
         for id_ in self.ids:
             oldmi, newmi = self.get_metadata(id_)
