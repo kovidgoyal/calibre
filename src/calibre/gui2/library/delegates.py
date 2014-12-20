@@ -416,6 +416,11 @@ class CcCommentsDelegate(QStyledItemDelegate):  # {{{
                                                 else option.widget.style()
         self.document.setHtml(option.text)
         style.drawPrimitive(QStyle.PE_PanelItemViewItem, option, painter, widget=option.widget)
+        rect = style.subElementRect(QStyle.SE_ItemViewItemDecoration, option)
+        ic = option.icon
+        if rect.isValid() and not ic.isNull():
+            sz = ic.actualSize(option.decorationSize)
+            painter.drawPixmap(rect.topLeft(), ic.pixmap(sz))
         ctx = QAbstractTextDocumentLayout.PaintContext()
         ctx.palette = option.palette
         if option.state & QStyle.State_Selected:
