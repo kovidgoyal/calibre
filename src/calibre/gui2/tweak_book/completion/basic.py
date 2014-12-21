@@ -11,23 +11,16 @@ from collections import namedtuple
 
 from PyQt5.Qt import QObject, pyqtSignal, Qt
 
-from calibre.ebooks.oeb.polish.container import OEB_STYLES, OEB_FONTS
+from calibre.ebooks.oeb.polish.container import OEB_STYLES, OEB_FONTS, name_to_href
 from calibre.gui2 import is_gui_thread
 from calibre.gui2.tweak_book import current_container
+from calibre.gui2.tweak_book.completion.utils import control, data, DataError
 from calibre.utils.ipc import eintr_retry_call
 from calibre.utils.matcher import Matcher
 
 Request = namedtuple('Request', 'id type data query')
 
 names_cache = {}
-
-def control(func):
-    func.function_type = 'control'
-    return func
-
-def data(func):
-    func.function_type = 'data'
-    return func
 
 @control
 def clear_caches(cache_type, data_conn):
@@ -39,12 +32,6 @@ def clear_caches(cache_type, data_conn):
 def names_data(request_data):
     c = current_container()
     return c.mime_map, {n for n, is_linear in c.spine_names}
-
-class DataError(Exception):
-
-    def __init__(self, tb, msg=None):
-        Exception.__init__(self, msg or _('Failed to get completion data'))
-        self.tb = tb
 
 def get_data(data_conn, data_type, data=None):
     eintr_retry_call(data_conn.send, Request(None, data_type, data, None))
@@ -62,7 +49,7 @@ class Name(unicode):
         return ans
 
 @control
-def complete_names(names_type, data_conn):
+def complete_names(names_data, data_conn):
     if not names_cache:
         mime_map, spine_names = get_data(data_conn, 'names_data')
         names_cache[None] = frozenset(Name(name, mt, spine_names) for name, mt in mime_map.iteritems())
@@ -70,7 +57,9 @@ def complete_names(names_type, data_conn):
         names_cache['stylesheet'] = frozenset(n for n in names_cache if n.mime_type in OEB_STYLES)
         names_cache['image'] = frozenset(n for n in names_cache if n.mime_type.startswith('image/'))
         names_cache['font'] = frozenset(n for n in names_cache if n.mime_type in OEB_FONTS)
-    ans = names_cache.get(names_type, names_cache[None])
+    names_type, base, root = names_data
+    names = names_cache.get(names_type, names_cache[None])
+    ans = frozenset(name_to_href(name, root, base) for name in names)
     return ans, {}
 
 _current_matcher = (None, None, None)
