@@ -14,6 +14,7 @@ from collections import namedtuple
 
 from calibre.constants import iswindows
 from calibre.gui2.tweak_book.completion.basic import Request
+from calibre.gui2.tweak_book.completion.utils import DataError
 from calibre.utils.ipc import eintr_retry_call
 
 COMPLETION_REQUEST = 'completion request'
@@ -179,6 +180,8 @@ def main(control_conn, data_conn):
             break
         try:
             ans, tb = handle_control_request(request, data_conn), None
+        except DataError as err:
+            ans, tb = None, err.traceback()
         except Exception:
             import traceback
             ans, tb = None, traceback.format_exc()
