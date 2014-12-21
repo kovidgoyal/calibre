@@ -224,7 +224,13 @@ elif islinux:
         return True
 else:
     def singleinstance_path(name):
-        return os.path.expanduser('~/.'+__appname__+'_'+name+'.lock')
+        home = os.path.expanduser('~')
+        if os.access(home, os.W_OK|os.R_OK|os.X_OK):
+            basename = __appname__+'_'+name+'.lock'
+            return os.path.expanduser('~/.' + basename)
+        import tempfile
+        tdir = tempfile.gettempdir()
+        return os.path.join(tdir, '%s_%s_%s.lock' % (__appname__, name, os.geteuid()))
 
     def singleinstance(name):
         '''
