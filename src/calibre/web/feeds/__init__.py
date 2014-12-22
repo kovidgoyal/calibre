@@ -89,7 +89,7 @@ Date        : %s
 TOC thumb   : %s
 Has content : %s
 '''%(self.title, self.url, self.author, self.summary[:20]+'...',
-    self.toc_thumbnail, self.localtime.strftime('%a, %d %b, %Y %H:%M'),
+     self.localtime.strftime('%a, %d %b, %Y %H:%M'), self.toc_thumbnail,
      bool(self.content))).encode('utf-8')
 
     def __str__(self):
