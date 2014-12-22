@@ -36,6 +36,7 @@ class FB2Input(InputFormatPlugin):
     def convert(self, stream, options, file_ext, log,
                 accelerators):
         from lxml import etree
+        from calibre.ebooks.metadata.fb2 import ensure_namespace
         from calibre.ebooks.metadata.opf2 import OPFCreator
         from calibre.ebooks.metadata.meta import get_metadata
         from calibre.ebooks.oeb.base import XLINK_NS, XHTML_NS, RECOVER_PARSER
@@ -57,10 +58,12 @@ class FB2Input(InputFormatPlugin):
                         parser=RECOVER_PARSER)
         if doc is None:
             raise ValueError('The FB2 file is not valid XML')
+        doc = ensure_namespace(doc)
         try:
             fb_ns = doc.nsmap[doc.prefix]
         except Exception:
             fb_ns = FB2NS
+
         NAMESPACES = {'f':fb_ns, 'l':XLINK_NS}
         stylesheets = doc.xpath('//*[local-name() = "stylesheet" and @type="text/css"]')
         css = ''
