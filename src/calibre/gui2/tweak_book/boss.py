@@ -31,6 +31,7 @@ from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.gui2.tweak_book import (
     set_current_container, current_container, tprefs, actions, editors,
     set_book_locale, dictionaries, editor_name)
+from calibre.gui2.tweak_book.completion.worker import completion_worker
 from calibre.gui2.tweak_book.undo import GlobalUndoHistory
 from calibre.gui2.tweak_book.file_list import NewFileDialog
 from calibre.gui2.tweak_book.save import SaveManager, save_container, find_first_existing_ancestor
@@ -82,6 +83,7 @@ class Boss(QObject):
         setup_cssutils_serialization()
         _boss = self
         self.gui = parent
+        completion_worker()
 
     def __call__(self, gui):
         self.gui = gui
@@ -1398,6 +1400,7 @@ class Boss(QObject):
             QApplication.instance().quit()
 
     def shutdown(self):
+        completion_worker().shutdown()
         self.save_manager.check_for_completion.disconnect()
         self.gui.preview.stop_refresh_timer()
         self.gui.live_css.stop_update_timer()
