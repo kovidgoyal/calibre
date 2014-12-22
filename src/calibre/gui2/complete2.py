@@ -290,6 +290,7 @@ class LineEdit(QLineEdit, LineEditECM):
     A call to self.set_separator(None) will allow this widget to be used
     to complete non multiple fields as well.
     '''
+    item_selected = pyqtSignal(object)
 
     def __init__(self, parent=None, completer_widget=None, sort_func=sort_key):
         QLineEdit.__init__(self, parent)
@@ -407,12 +408,16 @@ class LineEdit(QLineEdit, LineEditECM):
         before_text, after_text = self.get_completed_text(unicode(text))
         self.setText(before_text + after_text)
         self.setCursorPosition(len(before_text))
+        self.item_selected.emit(text)
 
 class EditWithComplete(EnComboBox):
+
+    item_selected = pyqtSignal(object)
 
     def __init__(self, *args, **kwargs):
         EnComboBox.__init__(self, *args)
         self.setLineEdit(LineEdit(self, completer_widget=self, sort_func=kwargs.get('sort_func', sort_key)))
+        self.lineEdit().item_selected.connect(self.item_selected)
         self.setCompleter(None)
         self.eat_focus_out = True
         self.installEventFilter(self)
