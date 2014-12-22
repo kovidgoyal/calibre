@@ -714,6 +714,9 @@ class BooksView(QTableView):  # {{{
             sections = tuple(x for x in map(f, changed) if x is not None)
             if sections:
                 self.row_header.headerDataChanged(Qt.Vertical, min(sections), max(sections))
+                # This is needed otherwise Qt does not always update the
+                # viewport correctly. See https://bugs.launchpad.net/bugs/1404697
+                self.row_header.viewport().update()
         else:
             # Marked items have either appeared or all been removed
             self.model().set_row_decoration(current_marked)
