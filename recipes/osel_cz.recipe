@@ -5,19 +5,20 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 class OselCZ(BasicNewsRecipe):
     title          = 'OSEL.cz'
+    __author__ = 'spacekpe'
     oldest_article = 100
     max_articles_per_feed = 100
     auto_cleanup   = True
     recursions = 1
-    language = 'cze'
+    language = 'cs'
 
     feeds          = [
         ('OSEL.cz', 'http://www.osel.cz/rss/rss.php'),
     ]
-    
+
     def print_version(self, url):
         return url.replace('http://www.osel.cz/index.php?clanek=', 'http://www.osel.cz/tisk.php?clanek=')
-    
+
     def get_cover_url(self):
         return 'http://www.osel.cz/themes/default/logo_osel.gif'
 
