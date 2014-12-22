@@ -24,12 +24,12 @@ class CompletionWorker(Thread):
 
     daemon = True
 
-    def __init__(self, worker_entry_point='main'):
+    def __init__(self, result_callback=lambda x:x, worker_entry_point='main'):
         Thread.__init__(self)
         self.worker_entry_point = worker_entry_point
         self.start()
         self.main_queue = Queue()
-        self.result_queue = Queue()
+        self.result_callback = result_callback
         self.reap_thread = None
         self.shutting_down = False
         self.connected = Event()
@@ -121,7 +121,11 @@ class CompletionWorker(Thread):
         self.send(request)
         result = self.recv()
         if result.request_id == self.latest_completion_request_id:
-            self.result_queue.put(result)
+            try:
+                self.result_callback(result)
+            except Exception:
+                import traceback
+                traceback.print_exc()
 
     def clear_caches(self, cache_type=None):
         self.main_queue.put((CLEAR_REQUEST, Request(None, 'clear_caches', cache_type, None)))
