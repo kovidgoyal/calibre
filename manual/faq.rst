@@ -1006,10 +1006,11 @@ A portable version of calibre is available `here <http://calibre-ebook.com/downl
 How do I run parts of calibre like news download and the content server on my own linux server?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-First, you must install calibre onto your linux server. If your server is using a modern linux distro, you should have no problems installing calibre onto it.
-
-.. note::
-    If you bought into the notion that a real server must run a decade old version of Debian, then you will have to jump through a few hoops. First, compile a newer version of glibc (>= 2.10) on your server from source. Then get the calibre linux binary tarball from the calibre google code page for your server architecture. Extract it into :file:`/opt/calibre`. Put your previously compiled glibc into :file:`/opt/calibre` as :file:`libc.so.6`. You can now run the calibre binaries from :file:`/opt/calibre`.
+First, you must install calibre onto your linux server. If your server is using
+a modern linux distro, you should have no problems installing calibre onto it
+(calibre needs GLIBC >= 2.13 and libstdc++ >= 6.0.17). If you have an older
+server, you will either need to compile these from source, or use calibre 1.48
+which requires only GLIBC >= 2.10.
 
 You can run the calibre server via the command::
 
@@ -1032,6 +1033,4 @@ Finally, you can add downloaded news to the calibre library with::
    /opt/calibre/calibredb add --with-library /path/to/library outfile.epub
 
 Remember to read the command line documentation section of the calibre User Manual to learn more about these, and other commands.
-
-.. note:: Some parts of calibre require a X server. If you're lucky, nothing you do will fall into this category, if not, you will have to look into using xvfb.
 
