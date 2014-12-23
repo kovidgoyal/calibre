@@ -453,7 +453,8 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
         app_id = str(getattr(mdata, 'application_id', ''))
         id_ = mdata.get('id', fname)
         extra_components = get_components(template, mdata, id_,
-                timefmt=opts.send_timefmt, length=maxlen-len(app_id)-1)
+                timefmt=opts.send_timefmt, length=maxlen-len(app_id)-1,
+                last_has_extension=False)
         if not extra_components:
             extra_components.append(sanitize(fname))
         else:

@@ -52,7 +52,7 @@ def shorten_component(s, by_what):
         return s
     return s[:l] + s[-l:]
 
-def shorten_components_to(length, components, more_to_take=0):
+def shorten_components_to(length, components, more_to_take=0, last_has_extension=True):
     filepath = os.sep.join(components)
     extra = len(filepath) - (length - more_to_take)
     if extra < 1:
@@ -68,7 +68,7 @@ def shorten_components_to(length, components, more_to_take=0):
         if delta > len(x):
             r = x[0] if x is components[-1] else ''
         else:
-            if x is components[-1]:
+            if last_has_extension and x is components[-1]:
                 b, e = os.path.splitext(x)
                 if e == '.':
                     e = ''
