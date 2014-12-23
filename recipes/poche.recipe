@@ -3,10 +3,10 @@ from calibre.web.feeds.recipes import BasicNewsRecipe
 
 class NYTimes(BasicNewsRecipe):
 
-    appURL      = 'http://app.inthepoche.com'
-    title       = 'Poche'
+    appURL      = 'https://www.framabag.org'
+    title       = 'wallabag'
     __author__  = 'Xavier Detant'
-    description = 'Get your poche from your poche account. Poche is a self hosted read it later platform'
+    description = 'Get your wallabag from your framabag account. wallabag is a self hosted read it later platform'
     needs_subscription = True
     remove_tags_before = dict(id='article')
     remove_tags_after  = dict(id='article')
