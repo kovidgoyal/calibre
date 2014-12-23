@@ -169,7 +169,7 @@ class Formatter(TemplateFormatter):
 
 def get_components(template, mi, id, timefmt='%b %Y', length=250,
         sanitize_func=ascii_filename, replace_whitespace=False,
-        to_lowercase=False, safe_format=True):
+        to_lowercase=False, safe_format=True, last_has_extension=True):
 
     tsorder = tweaks['save_template_title_series_sorting']
     format_args = FORMAT_ARGS.copy()
@@ -248,7 +248,7 @@ def get_components(template, mi, id, timefmt='%b %Y', length=250,
     if replace_whitespace:
         components = [re.sub(r'\s', '_', x) for x in components]
 
-    return shorten_components_to(length, components)
+    return shorten_components_to(length, components, last_has_extension=last_has_extension)
 
 
 def save_book_to_disk(id_, db, root, opts, length):
@@ -286,7 +286,8 @@ def get_path_components(opts, mi, book_id, path_length):
         components = get_components(opts.template, mi, book_id, opts.timefmt, path_length,
             ascii_filename if opts.asciiize else sanitize_file_name_unicode,
             to_lowercase=opts.to_lowercase,
-            replace_whitespace=opts.replace_whitespace, safe_format=False)
+            replace_whitespace=opts.replace_whitespace, safe_format=False,
+            last_has_extension=False)
     except Exception, e:
         raise ValueError(_('Failed to calculate path for '
             'save to disk. Template: %(templ)s\n'
