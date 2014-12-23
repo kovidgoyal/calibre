@@ -5,7 +5,7 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 '''
 Contains the logic for parsing feeds.
 '''
-import time, traceback, copy, re
+import hashlib, time, traceback, copy, re
 
 from calibre.utils.logging import default_log
 from calibre import entity_to_unicode, strftime
@@ -28,6 +28,9 @@ class Article(object):
             self._title = self._title.decode('utf-8', 'replace')
         self._title = clean_ascii_chars(self._title)
         self.url = url
+        # Feed processing machinery can change URL value but we need
+        # to keep track of the original value
+        self.orig_url = url
         self.author = author
         self.toc_thumbnail = None
         if author and not isinstance(author, unicode):
@@ -101,6 +104,22 @@ Has content : %s
         if self.url:
             return self.url == getattr(other_article, 'url', False)
         return self.content == getattr(other_article, 'content', False)
+
+    @property
+    def fingerprint(self):
+        '''
+        Hash article summary and content and return string [url:]hash.
+        '''
+        art_hash = hashlib.md5()
+        for key in ['summary', 'content']:
+            val = getattr(self, key, None)
+            if val:
+                art_hash.update(val.encode('utf-8'))
+        fingerprint = art_hash.hexdigest()
+
+        if self.url:
+            fingerprint = self.orig_url + ':' + fingerprint
+        return fingerprint
 
 
 class Feed(object):

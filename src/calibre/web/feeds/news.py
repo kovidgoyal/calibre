@@ -7,7 +7,7 @@ Defines various abstract base classes that can be subclassed to create powerful 
 __docformat__ = "restructuredtext en"
 
 
-import os, time, traceback, re, urlparse, sys, cStringIO
+import os, time, traceback, re, urllib, urlparse, sys, cStringIO
 from collections import defaultdict
 from functools import partial
 from contextlib import nested, closing
@@ -15,6 +15,7 @@ from contextlib import nested, closing
 
 from calibre import (browser, __appname__, iswindows, force_unicode,
                     strftime, preferred_encoding, as_unicode)
+from calibre.constants import config_dir, CONFIG_DIR_MODE
 from calibre.ebooks.BeautifulSoup import BeautifulSoup, NavigableString, CData, Tag
 from calibre.ebooks.metadata.opf2 import OPFCreator
 from calibre import entity_to_unicode
@@ -337,6 +338,11 @@ class BasicNewsRecipe(Recipe):
     #:
     #:   ignore_duplicate_articles = {'title', 'url'}
     ignore_duplicate_articles = None
+
+    #: Ignore duplicates of articles that were downloaded in the past.
+    #: A duplicate article is an article that has the same fingerprint.
+    ignore_downloaded_articles = False
+    _feed_hashes = {}
 
     #: If you set this True, then calibre will use javascript to login to the
     #: website. This is needed for some websites that require the use of
@@ -1012,6 +1018,11 @@ class BasicNewsRecipe(Recipe):
                     for l, tb in debug:
                         self.log.warning(l)
                         self.log.debug(tb)
+            # write hashes of downloaded and skipped articles to disk
+            if self.ignore_downloaded_articles:
+                for feed_fn in self._feed_hashes:
+                    with open(feed_fn, 'w') as f:
+                        f.write(self._feed_hashes[feed_fn])
             return res
         finally:
             self.cleanup()
@@ -1134,6 +1145,26 @@ class BasicNewsRecipe(Recipe):
             url = ('file:'+pt.name) if iswindows else ('file://'+pt.name)
         return self._fetch_article(url, dir, f, a, num_of_feeds)
 
+    @staticmethod
+    def _encode_fs_name(name):
+        '''
+        Encode string name to a form suitable for filesystems.
+        '''
+        return urllib.quote(name.encode('utf-8'), safe='')
+
+    @property
+    def recipe_dir(self):
+        recipes_dir = os.path.join(config_dir, 'recipes', 'recipe_storage')
+        recipe_title_encoded = self._encode_fs_name(self.title)
+        recipe_dir = os.path.join(recipes_dir, recipe_title_encoded)
+        if not os.path.isdir(recipe_dir):
+            os.makedirs(recipe_dir, mode=CONFIG_DIR_MODE)
+        return recipe_dir
+
+    def get_feed_hash_fn(self, feed):
+        feed_title_encoded = self._encode_fs_name(feed.title)
+        return os.path.join(self.recipe_dir, feed_title_encoded)
+
     def remove_duplicate_articles(self, feeds):
         seen_keys = defaultdict(set)
         remove = []
@@ -1153,8 +1184,31 @@ class BasicNewsRecipe(Recipe):
                 article.title, feed.title))
             feed.remove_article(article)
 
-        if self.remove_empty_feeds:
-            feeds = [f for f in feeds if len(f) > 0]
+        return feeds
+
+    def remove_downloaded_articles(self, feeds):
+        for feed in feeds:
+            # load hashes remembered from last run
+            past_articles = set()
+            feed_fn = self.get_feed_hash_fn(feed)
+            if os.path.exists(feed_fn):
+               with file(feed_fn) as feed_f:
+                   for h in feed_f:
+                       past_articles.add(h.strip())
+
+            # compute hashes from current data, skip matching articles
+            # and remember what we skipped
+            feed_hashes = ''
+            for article in feed.articles[:]:
+                if article.fingerprint in past_articles:
+                    feed_hashes += article.fingerprint + '\n'
+                    feed.articles.remove(article)
+                    self.log.debug('Skipping article %s %s because it was '
+                            'downloaded in the past', article.url,
+                            article.title)
+
+            # hashes will be stored after all articles were downloaded
+            self._feed_hashes[feed_fn] = feed_hashes
         return feeds
 
     def build_index(self):
@@ -1172,6 +1226,10 @@ class BasicNewsRecipe(Recipe):
 
         if self.ignore_duplicate_articles is not None:
             feeds = self.remove_duplicate_articles(feeds)
+        if self.ignore_downloaded_articles:
+            feeds = self.remove_downloaded_articles(feeds)
+        if self.remove_empty_feeds:
+            feeds = [f for f in feeds if len(f) > 0]
 
         self.report_progress(0, _('Trying to download cover...'))
         self.download_cover()
@@ -1569,6 +1627,10 @@ class BasicNewsRecipe(Recipe):
             _(u'Article downloaded: %s')%force_unicode(article.title))
         if result[2]:
             self.partial_failures.append((request.feed.title, article.title, article.url, result[2]))
+        if self.ignore_downloaded_articles:
+            feed_fn = self.get_feed_hash_fn(request.feed)
+            self._feed_hashes[feed_fn] = self._feed_hashes.get(feed_fn, '') \
+                    + request.article.fingerprint + '\n'
 
     def error_in_article_download(self, request, traceback):
         self.jobs_done += 1
