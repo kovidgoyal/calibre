@@ -422,8 +422,9 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
         except:
             pass
 
+        dotless_ext = ext[1:] if len(ext) > 0 else ext
         maxlen = (self.MAX_PATH_LEN - (self.PATH_FUDGE_FACTOR +
-                   self.exts_path_lengths.get(ext, self.PATH_FUDGE_FACTOR)))
+                   self.exts_path_lengths.get(dotless_ext, self.PATH_FUDGE_FACTOR)))
 
         special_tag = None
         if mdata.tags:
@@ -491,6 +492,9 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
         extra_components = list(map(remove_trailing_periods, extra_components))
         components = shorten_components_to(maxlen, extra_components)
         filepath = posixpath.join(*components)
+        self._debug('lengths', dotless_ext, maxlen,
+                    self.exts_path_lengths.get(dotless_ext, self.PATH_FUDGE_FACTOR),
+                    len(filepath))
         return filepath
 
     def _strip_prefix(self, path):
