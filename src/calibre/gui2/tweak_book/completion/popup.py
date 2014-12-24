@@ -10,9 +10,9 @@ import textwrap
 from math import ceil
 
 from PyQt5.Qt import (
-    QWidget, Qt, QStaticText, QTextOption, QSize, QPainter, QTimer, QPen)
+    QWidget, Qt, QStaticText, QTextOption, QSize, QPainter, QTimer, QPalette)
 
-from calibre import prints
+from calibre import prints, prepare_string_for_xml
 from calibre.gui2 import error_dialog
 from calibre.gui2.tweak_book.widgets import make_highlighted_text
 from calibre.utils.icu import string_length
@@ -67,7 +67,9 @@ class CompletionPopup(QWidget):
             text = make_highlighted_text('color: magenta', text, positions)
             desc = self.descriptions.get(otext)
             if desc:
-                text += ' - ' + desc
+                text += ' - <i>%s</i>' % prepare_string_for_xml(desc)
+            color = self.palette().color(QPalette.Text).name()
+            text = '<span style="color: %s">%s</span>' % (color, text)
             st = self.rendered_text_cache[otext] = QStaticText(text)
             st.setTextOption(self.text_option)
             st.setTextFormat(Qt.RichText)
@@ -82,7 +84,7 @@ class CompletionPopup(QWidget):
                 sz = self.get_static_text(text, positions).size()
                 height += int(ceil(sz.height())) + self.TOP_MARGIN + self.BOTTOM_MARGIN
                 max_width = max(max_width, int(ceil(sz.width())))
-            self.current_size_hint = QSize(max_width, height + 2)
+            self.current_size_hint = QSize(max_width, height + self.BOTTOM_MARGIN)
         return self.current_size_hint
 
     def iter_visible_items(self):
@@ -102,13 +104,15 @@ class CompletionPopup(QWidget):
         pal = self.palette()
         painter.fillRect(self.rect(), pal.color(pal.Base))
         painter.setFont(self.parent().font())
-        painter.setPen(QPen(pal.color(pal.Text)))
         width = self.rect().width()
         for i, st, y, height in self.iter_visible_items():
             painter.save()
             if i == self.current_index:
                 painter.fillRect(0, y, width, height, pal.color(pal.Highlight))
-                painter.setPen(QPen(pal.color(pal.HighlightedText)))
+                color = pal.color(QPalette.HighlightedText).name()
+                st = QStaticText(st)
+                text = st.text().partition('>')[2]
+                st.setText('<span style="color: %s">%s' % (color, text))
             painter.drawStaticText(0, y, st)
             painter.restore()
         painter.end()
@@ -228,7 +232,7 @@ if __name__ == '__main__':
         items = 'a ab abc abcd abcde abcdef abcdefg abcdefgh'.split()
         m = Matcher(items)
         c.set_items(m('a'), descriptions={x:x for x in items})
-        QTimer.singleShot(10, c.show)
+        QTimer.singleShot(100, c.show)
     from calibre.gui2.tweak_book.editor.widget import launch_editor
     raw = textwrap.dedent('''\
     Is the same as saying through shrinking from toil and pain. These

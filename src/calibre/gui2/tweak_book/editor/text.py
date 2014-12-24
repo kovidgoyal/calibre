@@ -217,6 +217,7 @@ class TextEdit(PlainTextEdit):
         self.size_hint = QSize(self.expected_geometry[0] * w.averageCharWidth(), self.expected_geometry[1] * w.height())
         self.highlight_color = theme_color(theme, 'HighlightRegion', 'bg')
         self.highlight_cursor_line()
+        self.completion_popup.clear_caches(), self.completion_popup.update()
     # }}}
 
     def load_text(self, text, syntax='html', process_template=False, doc_name=None):
