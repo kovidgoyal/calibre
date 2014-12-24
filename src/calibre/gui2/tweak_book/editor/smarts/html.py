@@ -41,8 +41,8 @@ class Tag(object):
             self.name, self.start_block.blockNumber(), self.start_offset, self.end_block.blockNumber(), self.end_offset, self.self_closing)
     __str__ = __repr__
 
-def next_tag_boundary(block, offset, forward=True):
-    while block.isValid():
+def next_tag_boundary(block, offset, forward=True, max_lines=10000):
+    while block.isValid() and max_lines > 0:
         ud = block.userData()
         if ud is not None:
             tags = sorted(ud.tags, key=get_offset, reverse=not forward)
@@ -53,6 +53,7 @@ def next_tag_boundary(block, offset, forward=True):
                     return block, boundary
         block = block.next() if forward else block.previous()
         offset = -1 if forward else sys.maxint
+        max_lines -= 1
     return None, None
 
 def next_attr_boundary(block, offset, forward=True):
@@ -629,7 +630,7 @@ class Smarts(NullSmarts):
     def get_completion_data(self, editor, ev=None):
         c = editor.textCursor()
         block, offset = c.block(), c.positionInBlock()
-        oblock, boundary = next_tag_boundary(block, offset, forward=False)
+        oblock, boundary = next_tag_boundary(block, offset, forward=False, max_lines=5)
         if boundary is None or not boundary.is_start or boundary.closing:
             # Not inside a opening tag definition
             return
