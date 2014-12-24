@@ -63,11 +63,11 @@ class CompletionPopup(QWidget):
     def get_static_text(self, otext, positions):
         st = self.rendered_text_cache.get(otext)
         if st is None:
-            text = (otext or '').ljust(self.max_text_length + 1, ' ')
+            text = (otext or '').ljust(self.max_text_length + 1, '\xa0')
             text = make_highlighted_text('color: magenta', text, positions)
             desc = self.descriptions.get(otext)
             if desc:
-                text += ' ' + desc
+                text += ' - ' + desc
             st = self.rendered_text_cache[otext] = QStaticText(text)
             st.setTextOption(self.text_option)
             st.setTextFormat(Qt.RichText)
@@ -225,8 +225,9 @@ if __name__ == '__main__':
     from calibre.utils.matcher import Matcher
     def test(editor):
         c = editor.__c = CompletionPopup(editor.editor, max_height=100)
-        m = Matcher('one two three four five six seven eight nine ten'.split())
-        c.set_items(m('one'))
+        items = 'a ab abc abcd abcde abcdef abcdefg abcdefgh'.split()
+        m = Matcher(items)
+        c.set_items(m('a'), descriptions={x:x for x in items})
         QTimer.singleShot(10, c.show)
     from calibre.gui2.tweak_book.editor.widget import launch_editor
     raw = textwrap.dedent('''\
