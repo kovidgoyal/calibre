@@ -21,6 +21,7 @@ from calibre.utils.icu import string_length
 class CompletionPopup(QWidget):
 
     TOP_MARGIN = BOTTOM_MARGIN = 2
+    SIDE_MARGIN = 4
 
     def __init__(self, parent, max_height=1000):
         QWidget.__init__(self, parent)
@@ -78,13 +79,12 @@ class CompletionPopup(QWidget):
 
     def sizeHint(self):
         if self.current_size_hint is None:
-            max_width = 0
-            height = 0
+            max_width = height = 0
             for text, positions in self.current_results:
                 sz = self.get_static_text(text, positions).size()
-                height += int(ceil(sz.height())) + self.TOP_MARGIN + self.BOTTOM_MARGIN
+                height += int(ceil(sz.height())) + self.BOTTOM_MARGIN
                 max_width = max(max_width, int(ceil(sz.width())))
-            self.current_size_hint = QSize(max_width, height + self.BOTTOM_MARGIN)
+            self.current_size_hint = QSize(max_width + 2 * self.SIDE_MARGIN, height + self.BOTTOM_MARGIN + self.TOP_MARGIN)
         return self.current_size_hint
 
     def iter_visible_items(self):
@@ -102,18 +102,21 @@ class CompletionPopup(QWidget):
         painter = QPainter(self)
         painter.setClipRect(ev.rect())
         pal = self.palette()
-        painter.fillRect(self.rect(), pal.color(pal.Base))
+        painter.fillRect(self.rect(), pal.color(pal.Text))
+        crect = self.rect().adjusted(1, 1, -1, -1)
+        painter.fillRect(crect, pal.color(pal.Base))
+        painter.setClipRect(crect)
         painter.setFont(self.parent().font())
         width = self.rect().width()
         for i, st, y, height in self.iter_visible_items():
             painter.save()
             if i == self.current_index:
-                painter.fillRect(0, y, width, height, pal.color(pal.Highlight))
+                painter.fillRect(1, y, width, height, pal.color(pal.Highlight))
                 color = pal.color(QPalette.HighlightedText).name()
                 st = QStaticText(st)
                 text = st.text().partition('>')[2]
                 st.setText('<span style="color: %s">%s' % (color, text))
-            painter.drawStaticText(0, y, st)
+            painter.drawStaticText(self.SIDE_MARGIN, y, st)
             painter.restore()
         painter.end()
         if self.current_size_hint is None:
@@ -148,7 +151,7 @@ class CompletionPopup(QWidget):
     def layout(self, cursor_rect=None):
         p = self.parent()
         if cursor_rect is None:
-            cursor_rect = p.cursorRect()
+            cursor_rect = p.cursorRect().adjusted(0, 0, 0, 2)
         gutter_width = p.gutter_width
         vp = p.viewport()
         above = cursor_rect.top() > vp.height() - cursor_rect.bottom()
