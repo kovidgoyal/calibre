@@ -67,7 +67,8 @@ def complete_names(names_data, data_conn):
     names = names_cache.get(names_type, names_cache[None])
     nmap = {name:name_to_href(name, root, base, quote) for name in names}
     items = frozenset(nmap.itervalues())
-    descriptions = {href:names_cache.get(name) for name, href in nmap.iteritems()}
+    d = names_cache['descriptions'].get
+    descriptions = {href:d(name) for name, href in nmap.iteritems()}
     return items, descriptions, {}
 
 _current_matcher = (None, None, None)
