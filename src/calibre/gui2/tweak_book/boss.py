@@ -12,7 +12,7 @@ from urlparse import urlparse
 
 from PyQt5.Qt import (
     QObject, QApplication, QDialog, QGridLayout, QLabel, QSize, Qt,
-    QDialogButtonBox, QIcon, QPixmap, QInputDialog, QUrl)
+    QDialogButtonBox, QIcon, QPixmap, QInputDialog, QUrl, pyqtSignal)
 
 from calibre import prints, isbytestring
 from calibre.ptempfile import PersistentTemporaryDirectory, TemporaryDirectory
@@ -69,6 +69,8 @@ def get_boss():
 
 class Boss(QObject):
 
+    handle_completion_result_signal = pyqtSignal(object)
+
     def __init__(self, parent, notify=None):
         global _boss
         QObject.__init__(self, parent)
@@ -83,7 +85,8 @@ class Boss(QObject):
         setup_cssutils_serialization()
         _boss = self
         self.gui = parent
-        completion_worker().result_callback = self.handle_completion_result
+        completion_worker().result_callback = self.handle_completion_result_signal.emit
+        self.handle_completion_result_signal.connect(self.handle_completion_result, Qt.QueuedConnection)
         self.completion_request_count = 0
 
     def __call__(self, gui):
@@ -676,6 +679,7 @@ class Boss(QObject):
         request_id = (self.completion_request_count, name)
         self.completion_request_count += 1
         completion_worker().queue_completion(request_id, completion_type, completion_data, query)
+        return request_id[0]
 
     def handle_completion_result(self, result):
         name = result.request_id[1]

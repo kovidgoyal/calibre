@@ -7,7 +7,7 @@ __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
 from threading import Event
-from collections import namedtuple
+from collections import namedtuple, OrderedDict
 
 from PyQt5.Qt import QObject, pyqtSignal, Qt
 
@@ -52,15 +52,21 @@ class Name(unicode):
 def complete_names(names_data, data_conn):
     if not names_cache:
         mime_map, spine_names = get_data(data_conn, 'names_data')
-        names_cache[None] = frozenset(Name(name, mt, spine_names) for name, mt in mime_map.iteritems())
-        names_cache['text_link'] = frozenset(n for n in names_cache if n.in_spine)
-        names_cache['stylesheet'] = frozenset(n for n in names_cache if n.mime_type in OEB_STYLES)
-        names_cache['image'] = frozenset(n for n in names_cache if n.mime_type.startswith('image/'))
-        names_cache['font'] = frozenset(n for n in names_cache if n.mime_type in OEB_FONTS)
+        names_cache[None] = all_names = frozenset(Name(name, mt, spine_names) for name, mt in mime_map.iteritems())
+        names_cache['text_link'] = frozenset(n for n in all_names if n.in_spine)
+        names_cache['stylesheet'] = frozenset(n for n in all_names if n.mime_type in OEB_STYLES)
+        names_cache['image'] = frozenset(n for n in all_names if n.mime_type.startswith('image/'))
+        names_cache['font'] = frozenset(n for n in all_names if n.mime_type in OEB_FONTS)
+        names_cache['descriptions'] = d = {}
+        for x, desc in {'text_link':_('Text'), 'stylesheet':_('Stylesheet'), 'image':_('Image'), 'font':_('Font')}.iteritems():
+            for n in names_cache[x]:
+                d[n] = desc
     names_type, base, root = names_data
     names = names_cache.get(names_type, names_cache[None])
-    ans = frozenset(name_to_href(name, root, base) for name in names)
-    return ans, {}
+    nmap = {name:name_to_href(name, root, base) for name in names}
+    items = frozenset(nmap.itervalues())
+    descriptions = {href:names_cache.get(name) for name, href in nmap.iteritems()}
+    return items, descriptions, {}
 
 _current_matcher = (None, None, None)
 
@@ -68,11 +74,15 @@ def handle_control_request(request, data_conn):
     global _current_matcher
     ans = control_funcs[request.type](request.data, data_conn)
     if ans is not None:
-        items, matcher_kwargs = ans
+        items, descriptions, matcher_kwargs = ans
         fingerprint = hash(items)
         if fingerprint != _current_matcher[0] or matcher_kwargs != _current_matcher[1]:
             _current_matcher = (fingerprint, matcher_kwargs, Matcher(items, **matcher_kwargs))
-        ans = _current_matcher[-1](request.query or '', limit=50)
+        if request.query:
+            items = _current_matcher[-1](request.query, limit=50)
+        else:
+            items = OrderedDict((i, ()) for i in _current_matcher[-1].items)
+        ans = items, descriptions
     return ans
 
 class HandleDataRequest(QObject):

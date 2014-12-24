@@ -288,7 +288,7 @@ class Smarts(NullSmarts):
             Smarts.closing_tag_pat = re.compile(r'<\s*/[^>]+>')
             Smarts.closing_pat = re.compile(r'<\s*/')
             Smarts.self_closing_pat = re.compile(r'/\s*>')
-            Smarts.complete_attr_pat = re.compile(r'''([a-zA-Z0-9_-]+)\s*=\s*(?:'([^']+)|"([^"]+))$''')
+            Smarts.complete_attr_pat = re.compile(r'''([a-zA-Z0-9_-]+)\s*=\s*(?:'([^']*)|"([^"]*))$''')
         NullSmarts.__init__(self, *args, **kwargs)
         self.last_matched_tag = None
 
@@ -644,7 +644,7 @@ class Smarts(NullSmarts):
         doc_name = editor.highlighter.doc_name
         if doc_name and attr in {'href', 'src'}:
             # A link
-            query = m.group(2) or m.group(3)
+            query = m.group(2) or m.group(3) or ''
             names_type = {'a':'text_link', 'img':'image', 'image':'image', 'link':'stylesheet'}.get(tagname)
             return 'complete_names', (names_type, doc_name, current_container().root), query
 

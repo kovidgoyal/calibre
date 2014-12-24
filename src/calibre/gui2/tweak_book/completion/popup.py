@@ -12,9 +12,10 @@ from math import ceil
 from PyQt5.Qt import (
     QWidget, Qt, QStaticText, QTextOption, QSize, QPainter, QTimer, QPen)
 
+from calibre import prints
+from calibre.gui2 import error_dialog
 from calibre.gui2.tweak_book.widgets import make_highlighted_text
 from calibre.utils.icu import string_length
-from calibre.utils.matcher import Matcher
 
 
 class CompletionPopup(QWidget):
@@ -23,12 +24,13 @@ class CompletionPopup(QWidget):
 
     def __init__(self, parent, max_height=1000):
         QWidget.__init__(self, parent)
+        self.completion_error_shown = False
         self.setFocusPolicy(Qt.NoFocus)
         self.setFocusProxy(parent)
         self.setVisible(False)
 
         self.matcher = None
-        self.current_query = self.current_results = self.current_size_hint = None
+        self.current_results = self.current_size_hint = None
         self.max_text_length = 0
         self.current_index = -1
         self.current_top_index = 0
@@ -47,25 +49,11 @@ class CompletionPopup(QWidget):
         self.rendered_text_cache.clear()
         self.current_size_hint = None
 
-    def set_items(self, items, items_are_filenames=False):
-        kw = {}
-        if not items_are_filenames:
-            kw['level1'] = ' '
-        self.matcher = Matcher(tuple(items), **kw)
-        self.descriptions = dict(items) if isinstance(items, dict) else {}
-        self.clear_caches()
-        self.set_query()
-
-    def set_query(self, query='', limit=100):
+    def set_items(self, items, descriptions=None):
+        self.current_results = tuple(items.iteritems())
         self.current_size_hint = None
-        self.current_query = query
-        if self.matcher is None:
-            self.current_results = ()
-        else:
-            if query:
-                self.current_results = tuple(self.matcher(query, limit=limit).iteritems())
-            else:
-                self.current_results = tuple((text, ()) for text in self.matcher.items[:limit])
+        self.descriptions = descriptions or {}
+        self.clear_caches()
         self.max_text_length = 0
         self.current_index = -1
         self.current_top_index = 0
@@ -94,7 +82,7 @@ class CompletionPopup(QWidget):
                 sz = self.get_static_text(text, positions).size()
                 height += int(ceil(sz.height())) + self.TOP_MARGIN + self.BOTTOM_MARGIN
                 max_width = max(max_width, int(ceil(sz.width())))
-            self.current_size_hint = QSize(max_width, height)
+            self.current_size_hint = QSize(max_width, height + 2)
         return self.current_size_hint
 
     def iter_visible_items(self):
@@ -184,6 +172,26 @@ class CompletionPopup(QWidget):
         QWidget.hide(self)
         self.relayout_timer.stop()
 
+    def handle_result(self, result):
+        if result.traceback:
+            prints(result.traceback)
+            if not self.completion_error_shown:
+                error_dialog(self, _('Completion failed'), _(
+                    'Failed to get completions, click "Show Details" for more information.'
+                    ' Future errors during completion will be suppressed.'), det_msg=result.traceback, show=True)
+                self.completion_error_shown = True
+            self.hide()
+            return
+        if result.ans is None:
+            self.hide()
+            return
+        items, descriptions = result.ans
+        if not items:
+            self.hide()
+            return
+        self.set_items(items, descriptions)
+        self.show()
+
     def handle_keypress(self, ev):
         key = ev.key()
         if key == Qt.Key_Escape:
@@ -214,9 +222,11 @@ class CompletionPopup(QWidget):
         return False
 
 if __name__ == '__main__':
+    from calibre.utils.matcher import Matcher
     def test(editor):
         c = editor.__c = CompletionPopup(editor.editor, max_height=100)
-        c.set_items('one two three four five six seven eight nine ten'.split())
+        m = Matcher('one two three four five six seven eight nine ten'.split())
+        c.set_items(m('one'))
         QTimer.singleShot(10, c.show)
     from calibre.gui2.tweak_book.editor.widget import launch_editor
     raw = textwrap.dedent('''\

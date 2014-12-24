@@ -141,6 +141,7 @@ class TextEdit(PlainTextEdit):
         PlainTextEdit.__init__(self, parent)
         self.completion_popup = CompletionPopup(self)
         self.request_completion = self.completion_doc_name = None
+        self.last_completion_request = -1
         self.gutter_width = 0
         self.tw = 2
         self.expected_geometry = expected_geometry
@@ -782,11 +783,14 @@ class TextEdit(PlainTextEdit):
             return
         result = self.smarts.get_completion_data(self, ev)
         if result is None:
-            return
-        self.request_completion(*result)
+            self.last_completion_request += 1
+            self.completion_popup.hide()
+        else:
+            self.last_completion_request = self.request_completion(*result)
 
     def handle_completion_result(self, result):
-        print (result)
+        if result.request_id[0] >= self.last_completion_request:
+            self.completion_popup.handle_result(result)
 
     def replace_possible_unicode_sequence(self):
         c = self.textCursor()
