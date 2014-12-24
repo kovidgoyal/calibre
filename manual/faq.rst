@@ -1007,10 +1007,17 @@ How do I run parts of calibre like news download and the content server on my ow
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 First, you must install calibre onto your linux server. If your server is using
-a modern linux distro, you should have no problems installing calibre onto it
-(calibre needs GLIBC >= 2.13 and libstdc++ >= 6.0.17). If you have an older
-server, you will either need to compile these from source, or use calibre 1.48
-which requires only GLIBC >= 2.10.
+a modern linux distro, you should have no problems installing calibre onto it.
+
+.. note:: 
+    calibre needs GLIBC >= 2.13 and libstdc++ >= 6.0.17. If you have an older
+    server, you will either need to compile these from source, or use calibre 1.48
+    which requires only GLIBC >= 2.10. In addition, although the calibre
+    command line utilities do not need a running X server, some of them do
+    require the X server libraries to be installed on your system. This is
+    because the use Qt, which links against these libraries. If you get an
+    ImportError about some Qt modules, you are likely missing some X
+    libraries.
 
 You can run the calibre server via the command::
 
