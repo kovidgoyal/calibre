@@ -16,7 +16,7 @@ from calibre import prepare_string_for_xml, xml_entity_to_unicode
 from calibre.gui2 import error_dialog
 from calibre.gui2.tweak_book.editor.syntax.html import ATTR_NAME, ATTR_END, ATTR_START, ATTR_VALUE
 from calibre.utils.icu import utf16_length
-from calibre.gui2.tweak_book import tprefs
+from calibre.gui2.tweak_book import tprefs, current_container
 from calibre.gui2.tweak_book.editor.smarts import NullSmarts
 from calibre.gui2.tweak_book.editor.smarts.utils import (
     no_modifiers, get_leading_whitespace_on_block, get_text_before_cursor,
@@ -288,6 +288,7 @@ class Smarts(NullSmarts):
             Smarts.closing_tag_pat = re.compile(r'<\s*/[^>]+>')
             Smarts.closing_pat = re.compile(r'<\s*/')
             Smarts.self_closing_pat = re.compile(r'/\s*>')
+            Smarts.complete_attr_pat = re.compile(r'''([a-zA-Z0-9_-]+)\s*=\s*(?:'([^']+)|"([^"]+))$''')
         NullSmarts.__init__(self, *args, **kwargs)
         self.last_matched_tag = None
 
@@ -625,7 +626,29 @@ class Smarts(NullSmarts):
         editor.setTextCursor(c)
         return True
 
-if __name__ == '__main__':
+    def get_completion_data(self, editor, ev=None):
+        c = editor.textCursor()
+        block, offset = c.block(), c.positionInBlock()
+        oblock, boundary = next_tag_boundary(block, offset, forward=False)
+        if boundary is None or not boundary.is_start or boundary.closing:
+            # Not inside a opening tag definition
+            return
+        tagname = boundary.name.lower()
+        startpos = oblock.position() + boundary.offset
+        c.setPosition(c.position()), c.setPosition(startpos, c.KeepAnchor)
+        text = c.selectedText()
+        m = self.complete_attr_pat.search(text)
+        if m is None:
+            return
+        attr = m.group(1).lower().split(':')[-1]
+        doc_name = editor.highlighter.doc_name
+        if doc_name and attr in {'href', 'src'}:
+            # A link
+            query = m.group(2) or m.group(3)
+            names_type = {'a':'text_link', 'img':'image', 'image':'image', 'link':'stylesheet'}.get(tagname)
+            return 'complete_names', (names_type, doc_name, current_container().root), query
+
+if __name__ == '__main__':  # {{{
     from calibre.gui2.tweak_book.editor.widget import launch_editor
     launch_editor('''\
 <!DOCTYPE html>
@@ -657,3 +680,4 @@ if __name__ == '__main__':
     </body>
 </html>
 ''', path_is_raw=True, syntax='xml')
+# }}}

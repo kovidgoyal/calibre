@@ -83,7 +83,8 @@ class Boss(QObject):
         setup_cssutils_serialization()
         _boss = self
         self.gui = parent
-        completion_worker()
+        completion_worker().result_callback = self.handle_completion_result
+        self.completion_request_count = 0
 
     def __call__(self, gui):
         self.gui = gui
@@ -671,6 +672,17 @@ class Boss(QObject):
         ' Mark the book as having been modified '
         self.gui.action_save.setEnabled(True)
 
+    def request_completion(self, name, completion_type, completion_data, query=None):
+        request_id = (self.completion_request_count, name)
+        self.completion_request_count += 1
+        completion_worker().queue_completion(request_id, completion_type, completion_data, query)
+
+    def handle_completion_result(self, result):
+        name = result.request_id[1]
+        editor = editors.get(name)
+        if editor is not None:
+            editor.handle_completion_result(result)
+
     def fix_html(self, current):
         if current:
             ed = self.gui.central.current_editor
@@ -1164,6 +1176,8 @@ class Boss(QObject):
             editor.link_clicked.connect(self.editor_link_clicked)
         if getattr(editor, 'syntax', None) == 'html':
             editor.smart_highlighting_updated.connect(self.gui.live_css.sync_to_editor)
+        if hasattr(editor, 'set_request_completion'):
+            editor.set_request_completion(partial(self.request_completion, name), name)
         if data is not None:
             if use_template:
                 editor.init_from_template(data)

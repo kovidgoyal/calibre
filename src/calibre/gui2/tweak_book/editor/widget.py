@@ -173,6 +173,7 @@ class Editor(QMainWindow):
 
     def change_document_name(self, newname):
         self.editor.change_document_name(newname)
+        self.editor.completion_doc_name = newname
 
     def get_raw_data(self):
         # The EPUB spec requires NFC normalization, see section 1.3.6 of
@@ -219,6 +220,13 @@ class Editor(QMainWindow):
         mru.insert(0, name)
         tprefs['insert_tag_mru'] = mru
         self._build_insert_tag_button_menu()
+
+    def set_request_completion(self, callback=None, doc_name=None):
+        self.editor.request_completion = callback
+        self.editor.completion_doc_name = doc_name
+
+    def handle_completion_result(self, result):
+        return self.editor.handle_completion_result(result)
 
     def undo(self):
         self.editor.undo()
@@ -367,6 +375,7 @@ class Editor(QMainWindow):
         self.editor.smart_highlighting_updated.disconnect()
         self.editor.setPlainText('')
         self.editor.smarts = None
+        self.editor.request_completion = None
 
     def _modification_state_changed(self):
         self.is_synced_to_container = self.is_modified

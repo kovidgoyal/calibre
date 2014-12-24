@@ -79,7 +79,7 @@ class HandleDataRequest(QObject):
 
     # Ensure data is obtained in the GUI thread
 
-    call = pyqtSignal(object, object, object)
+    call = pyqtSignal(object, object)
 
     def __init__(self):
         QObject.__init__(self)

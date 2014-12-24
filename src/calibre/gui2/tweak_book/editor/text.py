@@ -19,6 +19,7 @@ from PyQt5.Qt import (
 from calibre import prepare_string_for_xml
 from calibre.constants import isosx
 from calibre.gui2.tweak_book import tprefs, TOP
+from calibre.gui2.tweak_book.completion.popup import CompletionPopup
 from calibre.gui2.tweak_book.editor import (
     SYNTAX_PROPERTY, SPELL_PROPERTY, SPELL_LOCALE_PROPERTY, store_locale, LINK_PROPERTY)
 from calibre.gui2.tweak_book.editor.themes import get_theme, theme_color, theme_format
@@ -138,6 +139,8 @@ class TextEdit(PlainTextEdit):
 
     def __init__(self, parent=None, expected_geometry=(100, 50)):
         PlainTextEdit.__init__(self, parent)
+        self.completion_popup = CompletionPopup(self)
+        self.request_completion = self.completion_doc_name = None
         self.gutter_width = 0
         self.tw = 2
         self.expected_geometry = expected_geometry
@@ -769,8 +772,21 @@ class TextEdit(PlainTextEdit):
             ev.setAccepted(False)
             return
         if self.smarts.handle_key_press(ev, self):
+            self.handle_keypress_completion(ev)
             return
         QPlainTextEdit.keyPressEvent(self, ev)
+        self.handle_keypress_completion(ev)
+
+    def handle_keypress_completion(self, ev):
+        if self.request_completion is None:
+            return
+        result = self.smarts.get_completion_data(self, ev)
+        if result is None:
+            return
+        self.request_completion(*result)
+
+    def handle_completion_result(self, result):
+        print (result)
 
     def replace_possible_unicode_sequence(self):
         c = self.textCursor()
