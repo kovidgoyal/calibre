@@ -435,7 +435,7 @@ class FB2MLizer(object):
 
                 # Start a new section if necessary
                 if newlevel:
-                    if not (newlevel > self.section_level):
+                    while newlevel <= self.section_level:
                         fb2_out.append('</section>')
                         self.section_level -= 1
                     fb2_out.append('<section>')
