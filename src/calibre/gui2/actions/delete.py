@@ -332,6 +332,7 @@ class DeleteAction(InterfaceAction):
 
     def do_library_delete(self, to_delete_ids):
         view = self.gui.current_view()
+        next_id = view.next_id
         # Ask the user if they want to delete the book from the library or device if it is in both.
         if self.gui.device_manager.is_device_present:
             on_device = False
@@ -360,7 +361,6 @@ class DeleteAction(InterfaceAction):
                                 'removed from your calibre library. Are you sure?')%len(to_delete_ids)
                             +'</p>', 'library_delete_books', self.gui):
             return
-        next_id = view.next_id
         if len(to_delete_ids) < 5:
             try:
                 view.model().delete_books_by_id(to_delete_ids)
