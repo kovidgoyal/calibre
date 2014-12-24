@@ -78,11 +78,11 @@ def name_to_abspath(name, root):
 def abspath_to_name(path, root):
     return relpath(os.path.abspath(path), root).replace(os.sep, '/')
 
-def name_to_href(name, root, base=None):
+def name_to_href(name, root, base=None, quote=urlquote):
     fullpath = name_to_abspath(name, root)
     basepath = root if base is None else os.path.dirname(name_to_abspath(base, root))
     path = relpath(fullpath, basepath).replace(os.sep, '/')
-    return urlquote(path)
+    return quote(path)
 
 def href_to_name(href, root, base=None):
     base = root if base is None else os.path.dirname(name_to_abspath(base, root))

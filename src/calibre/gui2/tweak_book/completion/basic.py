@@ -11,6 +11,7 @@ from collections import namedtuple, OrderedDict
 
 from PyQt5.Qt import QObject, pyqtSignal, Qt
 
+from calibre import prepare_string_for_xml
 from calibre.ebooks.oeb.polish.container import OEB_STYLES, OEB_FONTS, name_to_href
 from calibre.gui2 import is_gui_thread
 from calibre.gui2.tweak_book import current_container
@@ -62,8 +63,9 @@ def complete_names(names_data, data_conn):
             for n in names_cache[x]:
                 d[n] = desc
     names_type, base, root = names_data
+    quote = (lambda x:x) if base.lower().endswith('.css') else prepare_string_for_xml
     names = names_cache.get(names_type, names_cache[None])
-    nmap = {name:name_to_href(name, root, base) for name in names}
+    nmap = {name:name_to_href(name, root, base, quote) for name in names}
     items = frozenset(nmap.itervalues())
     descriptions = {href:names_cache.get(name) for name, href in nmap.iteritems()}
     return items, descriptions, {}
