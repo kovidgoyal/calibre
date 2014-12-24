@@ -252,10 +252,9 @@ class ImportForeign(Dialog):  # {{{
 
 def make_highlighted_text(emph, text, positions):
     positions = sorted(set(positions) - {-1}, reverse=True)
-    text = prepare_string_for_xml(text)
     for p in positions:
         ch = get_char(text, p)
-        text = '%s<span style="%s">%s</span>%s' % (text[:p], emph, ch, text[p+len(ch):])
+        text = '%s<span style="%s">%s</span>%s' % (prepare_string_for_xml(text[:p]), emph, ch, prepare_string_for_xml(text[p+len(ch):]))
     return text
 
 
