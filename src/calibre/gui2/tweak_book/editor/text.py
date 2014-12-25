@@ -662,6 +662,10 @@ class TextEdit(PlainTextEdit):
             return self.text_for_range(c.block(), r)
 
     def mousePressEvent(self, ev):
+        if self.completion_popup.isVisible() and not self.completion_popup.rect().contains(ev.pos()):
+            # For some reason using eventFilter for this does not work, so we
+            # implement it here
+            self.completion_popup.hide()
         if ev.modifiers() & Qt.CTRL:
             url = self.link_for_position(ev.pos())
             if url is not None:

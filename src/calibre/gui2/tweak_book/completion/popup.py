@@ -29,6 +29,8 @@ class CompletionPopup(QWidget):
         self.setFocusPolicy(Qt.NoFocus)
         self.setFocusProxy(parent)
         self.setVisible(False)
+        self.setMouseTracking(True)
+        self.setCursor(Qt.PointingHandCursor)
 
         self.matcher = None
         self.current_results = self.current_size_hint = None
@@ -97,6 +99,11 @@ class CompletionPopup(QWidget):
                 break
             yield i + self.current_top_index, st, y, height
             y += height
+
+    def index_for_y(self, y):
+        for idx, st, top, height in self.iter_visible_items():
+            if top <= y < top + height:
+                return idx
 
     def paintEvent(self, ev):
         painter = QPainter(self)
@@ -214,6 +221,9 @@ class CompletionPopup(QWidget):
         if key in (Qt.Key_Up, Qt.Key_Down):
             self.choose_next_result(previous=key == Qt.Key_Up)
             return True
+        if key in (Qt.Key_Enter, Qt.Key_Return) and self.current_index > -1:
+            self.index_activated(self.current_index)
+            return True
         return False
 
     def eventFilter(self, obj, ev):
@@ -227,6 +237,25 @@ class CompletionPopup(QWidget):
             elif etype == ev.Resize:
                 self.relayout_timer.start()
         return False
+
+    def mouseMoveEvent(self, ev):
+        y = ev.pos().y()
+        idx = self.index_for_y(y)
+        if idx is not None and idx != self.current_index:
+            self.current_index = idx
+            self.update()
+            ev.accept()
+
+    def mouseReleaseEvent(self, ev):
+        y = ev.pos().y()
+        idx = self.index_for_y(y)
+        if idx is not None:
+            self.index_activated(idx)
+        ev.accept()
+
+    def index_activated(self, idx):
+        print ('index activated', idx)
+        self.hide()
 
 if __name__ == '__main__':
     from calibre.utils.matcher import Matcher
