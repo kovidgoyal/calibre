@@ -786,6 +786,12 @@ class TextEdit(PlainTextEdit):
     def handle_keypress_completion(self, ev):
         if self.request_completion is None:
             return
+        code = ev.key()
+        if code in (
+            0, Qt.Key_unknown, Qt.Key_Shift, Qt.Key_Control, Qt.Key_Alt,
+            Qt.Key_Meta, Qt.Key_AltGr, Qt.Key_CapsLock, Qt.Key_NumLock,
+            Qt.Key_ScrollLock):
+            return
         result = self.smarts.get_completion_data(self, ev)
         if result is None:
             self.last_completion_request += 1
