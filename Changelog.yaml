@@ -20,6 +20,53 @@
 #   new recipes:
 #     - title: 
 
+- version: 2.14.0
+  date: 2014-12-26
+
+  new features:
+    - title: "Metadata review dialog: Automatically insert series number when selecting a series from the completion dropdown. Also if the user does not specify a series number, use 1 as the default, instead of not setting the series."
+      tickets: [1404692]
+
+  bug fixes:
+    - title: "Fix regression that broke error reporting for save to disk for books that contain no formats."
+      tickets: [1405674]
+
+    - title: "Metadata download: Fix metadata download not working for titles that contain a apostrophes in languages other than English."
+      tickets: [1403677]
+
+    - title: "Fix deleting a book from both the library and the device causing the next selected book to be incorrect, when the library is sorted by the On Device column."
+      tickets: [1404629]
+
+    - title: "FB2 Output: Fix generation of FB2 sections based on a multi-level Table of Contents in the input document."
+      tickets: [1393514]
+
+    - title: "Tolino Shine driver: Fix option to swap main memory and SD card not working on OS X."
+      tickets: [1404793]
+
+    - title: "FB2 Input: Workaround for broken FB2 files produced by convertonlinefree.com."
+      tickets: [1404701]
+
+    - title: "OS X: Workaround for OS X installs that have incorrect permissions set on their home directories. calibre will now no longer refuse to start on such machines."
+
+    - title: "MOBI Input: Dont crash on corrupted JPG images."
+      tickets: [1404590]
+
+    - title: "Fix column icons not displaying for custom comments type columns"
+      tickets: [1404234]
+
+    - title: "Metadata review dialog: Show a confirmation for the 'Reject all remaining' button."
+      tickets: [1404386]
+
+  improved recipes:
+    - Nikkei News
+
+  new recipes:
+    - title: OSEL.cz 
+      author: spacekpe
+
+    - title: Courier Mail 
+      author: Krittika Goyal
+
 - version: 2.13.0
   date: 2014-12-19
 
