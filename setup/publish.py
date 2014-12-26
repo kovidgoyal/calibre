@@ -8,7 +8,8 @@ __docformat__ = 'restructuredtext en'
 
 import os, shutil, subprocess, glob, tempfile, json, time, filecmp, atexit, sys
 
-from setup import Command, __version__, require_clean_git, require_git_master, installer_name
+from setup import Command, __version__, require_clean_git, require_git_master
+from setup.upload import installers
 from setup.parallel_build import parallel_build
 
 class Stage1(Command):
@@ -98,8 +99,7 @@ class Stage2(Command):
         for p in sorted(processes, key=lambda p:p.duration):
             self.info('Built %s in %d minutes and %d seconds' % (p.bname, p.duration // 60, p.duration % 60))
 
-        for ext, is64bit in {'msi': True, 'msi':False, 'exe':False, 'dmg':True, 'txz':True, 'txz':False}.iteritems():
-            installer = installer_name(ext, is64bit)
+        for installer in installers(include_source=False):
             if not os.path.exists(self.j(self.d(self.SRC), installer)):
                 raise SystemExit('The installer %s does not exist' % os.path.basename(installer))
 
