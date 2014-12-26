@@ -55,32 +55,12 @@ class Stage2(Command):
             p.duration = None
             processes.append(p)
 
-        error_ocurred = []
-
-        def report_error(p):
-            error_ocurred.append(True)
-            if mtexe:
-                mtexe.terminate(), mtexe.wait()
-            log = p.log
-            log.flush()
-            log.seek(0)
-            raw = log.read()
-            sys.stderr.write(raw)
-            sys.stderr.write(b'\n')
-            self.info('\n\nFailed to build: %s. Waiting for other builds to complete before aborting...' % x)
-
         def workers_running():
             running = False
             for p in processes:
-                if p.returncode is not None:
-                    if p.returncode != 0 and not error_ocurred:
-                        report_error(p)
-                    continue
                 rc = p.poll()
                 if rc is not None:
                     p.duration = int(time.time() - p.start_time)
-                    if rc != 0 and not error_ocurred:
-                        report_error(p)
                 else:
                     running = True
             return running
@@ -92,10 +72,23 @@ class Stage2(Command):
         while workers_running():
             os.waitpid(-1, 0)
 
-        if error_ocurred:
-            raise SystemExit('One of the OS specific builders failed')
         if mtexe and mtexe.poll() is None:
             mtexe.terminate(), mtexe.wait()
+
+        failed = False
+        for p in processes:
+            if p.poll() != 0:
+                failed = True
+                log = p.log
+                log.flush()
+                log.seek(0)
+                raw = log.read()
+                self.info('Building of %s failed' % p.bname)
+                sys.stderr.write(raw)
+                sys.stderr.write(b'\n\n')
+        if failed:
+            raise SystemExit('Building of installers failed!')
+
         for p in sorted(processes, key=lambda p:p.duration):
             self.info('Built %s in %d minutes and %d seconds' % (p.bname, p.duration // 60, p.duration % 60))
 
