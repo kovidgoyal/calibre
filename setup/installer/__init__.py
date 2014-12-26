@@ -26,7 +26,12 @@ def get_rsync_pw():
 
 def is_vm_running(name):
     qname = '"%s"' % name
-    for line in subprocess.check_output('VBoxManage list runningvms'.split()).decode('utf-8').splitlines():
+    try:
+        lines = subprocess.check_output('VBoxManage list runningvms'.split()).decode('utf-8').splitlines()
+    except Exception:
+        time.sleep(1)
+        lines = subprocess.check_output('VBoxManage list runningvms'.split()).decode('utf-8').splitlines()
+    for line in lines:
         if line.startswith(qname):
             return True
     return False
