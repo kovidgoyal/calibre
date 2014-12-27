@@ -33,7 +33,8 @@ class CompletionPopup(QWidget):
         self.setCursor(Qt.PointingHandCursor)
 
         self.matcher = None
-        self.current_results = self.current_size_hint = None
+        self.current_results = self.current_size_hint = self.current_query = None
+        self.current_completion = None
         self.max_text_length = 0
         self.current_index = -1
         self.current_top_index = 0
@@ -52,7 +53,8 @@ class CompletionPopup(QWidget):
         self.rendered_text_cache.clear()
         self.current_size_hint = None
 
-    def set_items(self, items, descriptions=None):
+    def set_items(self, items, descriptions=None, query=None):
+        self.current_query = query
         self.current_results = tuple(items.iteritems())
         self.current_size_hint = None
         self.descriptions = descriptions or {}
@@ -143,6 +145,16 @@ class CompletionPopup(QWidget):
                     self.current_index += 1
             self.ensure_index_visible(self.current_index)
             self.update()
+            self.activate_current_result()
+
+    def activate_current_result(self):
+        if self.current_completion is not None:
+            c = self.current_completion
+            text = self.current_query if self.current_index == -1 else self.current_results[self.current_index][0]
+            c.insertText(text)
+            chars = string_length(text)
+            c.setPosition(c.position() - chars)
+            c.setPosition(c.position() + chars, c.KeepAnchor)
 
     def ensure_index_visible(self, index):
         if index < self.current_top_index:
@@ -186,6 +198,16 @@ class CompletionPopup(QWidget):
         QWidget.hide(self)
         self.relayout_timer.stop()
 
+    def abort(self):
+        self.hide()
+        self.current_completion = self.current_query = None
+
+    def mark_completion(self, editor, query):
+        self.current_completion = c = editor.textCursor()
+        chars = string_length(query or '')
+        c.setPosition(c.position() - chars), c.setPosition(c.position() + chars, c.KeepAnchor)
+        self.hide()
+
     def handle_result(self, result):
         if result.traceback:
             prints(result.traceback)
@@ -203,13 +225,13 @@ class CompletionPopup(QWidget):
         if not items:
             self.hide()
             return
-        self.set_items(items, descriptions)
+        self.set_items(items, descriptions, result.query)
         self.show()
 
     def handle_keypress(self, ev):
         key = ev.key()
         if key == Qt.Key_Escape:
-            self.hide(), ev.accept()
+            self.abort(), ev.accept()
             return True
         if key == Qt.Key_Tab:
             self.choose_next_result(previous=ev.modifiers() & Qt.ShiftModifier)
@@ -220,9 +242,6 @@ class CompletionPopup(QWidget):
             return True
         if key in (Qt.Key_Up, Qt.Key_Down):
             self.choose_next_result(previous=key == Qt.Key_Up)
-            return True
-        if key in (Qt.Key_Enter, Qt.Key_Return) and self.current_index > -1:
-            self.index_activated(self.current_index)
             return True
         return False
 
@@ -250,12 +269,10 @@ class CompletionPopup(QWidget):
         y = ev.pos().y()
         idx = self.index_for_y(y)
         if idx is not None:
-            self.index_activated(idx)
+            self.activate_current_result()
+            self.hide()
         ev.accept()
 
-    def index_activated(self, idx):
-        print ('index activated', idx)
-        self.hide()
 
 if __name__ == '__main__':
     from calibre.utils.matcher import Matcher

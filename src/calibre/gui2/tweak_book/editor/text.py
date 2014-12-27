@@ -665,7 +665,7 @@ class TextEdit(PlainTextEdit):
         if self.completion_popup.isVisible() and not self.completion_popup.rect().contains(ev.pos()):
             # For some reason using eventFilter for this does not work, so we
             # implement it here
-            self.completion_popup.hide()
+            self.completion_popup.abort()
         if ev.modifiers() & Qt.CTRL:
             url = self.link_for_position(ev.pos())
             if url is not None:
@@ -795,9 +795,9 @@ class TextEdit(PlainTextEdit):
         result = self.smarts.get_completion_data(self, ev)
         if result is None:
             self.last_completion_request += 1
-            self.completion_popup.hide()
         else:
             self.last_completion_request = self.request_completion(*result)
+        self.completion_popup.mark_completion(self, None if result is None else result[-1])
 
     def handle_completion_result(self, result):
         if result.request_id[0] >= self.last_completion_request:

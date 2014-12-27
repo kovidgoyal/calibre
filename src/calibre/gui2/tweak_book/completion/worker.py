@@ -171,7 +171,7 @@ def run_main(func):
     with closing(Client(address, authkey=key)) as control_conn, closing(Client(address, authkey=key)) as data_conn:
         func(control_conn, data_conn)
 
-Result = namedtuple('Result', 'request_id ans traceback')
+Result = namedtuple('Result', 'request_id ans traceback query')
 
 def main(control_conn, data_conn):
     from calibre.gui2.tweak_book.completion.basic import handle_control_request
@@ -190,7 +190,7 @@ def main(control_conn, data_conn):
             import traceback
             ans, tb = None, traceback.format_exc()
         if request.id is not None:
-            result = Result(request.id, ans, tb)
+            result = Result(request.id, ans, tb, request.query)
             try:
                 eintr_retry_call(control_conn.send, result)
             except EOFError:
