@@ -525,7 +525,7 @@ class MobiReader(object):
                 except ValueError:
                     pass
             if (tag.tag == 'a' and attrib.get('id', '').startswith('filepos')
-                    and not tag.text and (tag.tail is None or not
+                    and not tag.text and len(tag) == 0 and (tag.tail is None or not
                         tag.tail.strip()) and getattr(tag.getnext(), 'tag',
                             None) in BLOCK_TAGS):
                 # This is an empty anchor immediately before a block tag, move
