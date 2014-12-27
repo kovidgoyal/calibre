@@ -522,7 +522,8 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                 res[k]['_series_sort_'] = series
             else:
                 res[k] = v
-        return json.dumps([op, res], encoding='utf-8')
+        from calibre.utils.config import to_json
+        return json.dumps([op, res], encoding='utf-8', default=to_json)
 
     # Network functions
 
