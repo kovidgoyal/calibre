@@ -19,7 +19,7 @@ class DataURL(object):
             if not hasattr(root, 'xpath'):
                 continue
             for img in attr_path(root):
-                raw = img.get('src')
+                raw = img.get('src', '')
                 if not raw.startswith('data:'):
                     continue
                 header, data = raw.partition(',')[0::2]
