@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import (unicode_literals, division, absolute_import, print_function)
-store_version = 6  # Needed for dynamic plugin loading
+store_version = 7  # Needed for dynamic plugin loading
 
 __license__ = 'GPL 3'
 __copyright__ = '2011, John Schember <john@nachtimwald.com>'
@@ -47,9 +47,7 @@ def search_amazon(query, max_results=10, timeout=60,
             asin_xpath = '@data-asin'
             cover_xpath = CSSSelect('img.s-access-image') + '/@src'
             title_xpath = CSSSelect('h2.s-access-title') + '//text()'
-            author_xpath = ('.//a[not(@title) and starts-with(@href, "/") and'
-                            ' contains(@class, "a-link-normal") and'
-                            ' contains(@href, "ref=sr_ntt_srch_lnk")]//text()')
+            author_xpath = './/span[starts-with(text(), "by ")]/following-sibling::span//text()'
             price_xpath = '(.//span[contains(@class, " s-price ")])[last()]//text()'
         elif 'grid' in results.get('class', ''):
             data_xpath = '//div[contains(@class, "prod")]'
