@@ -642,7 +642,7 @@ class Smarts(NullSmarts):
         if m is None:
             return
         attr = m.group(1).lower().split(':')[-1]
-        doc_name = editor.highlighter.doc_name
+        doc_name = editor.completion_doc_name
         if doc_name and attr in {'href', 'src'}:
             # A link
             query = m.group(2) or m.group(3) or ''

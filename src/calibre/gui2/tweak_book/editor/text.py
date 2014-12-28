@@ -141,6 +141,9 @@ class TextEdit(PlainTextEdit):
         PlainTextEdit.__init__(self, parent)
         self.completion_popup = CompletionPopup(self)
         self.request_completion = self.completion_doc_name = None
+        self.clear_completion_cache_timer = t = QTimer(self)
+        t.setInterval(5000), t.timeout.connect(self.clear_completion_cache), t.setSingleShot(True)
+        self.textChanged.connect(t.start)
         self.last_completion_request = -1
         self.gutter_width = 0
         self.tw = 2
@@ -802,6 +805,10 @@ class TextEdit(PlainTextEdit):
     def handle_completion_result(self, result):
         if result.request_id[0] >= self.last_completion_request:
             self.completion_popup.handle_result(result)
+
+    def clear_completion_cache(self):
+        if self.request_completion is not None and self.completion_doc_name:
+            self.request_completion(None, 'file:' + self.completion_doc_name)
 
     def replace_possible_unicode_sequence(self):
         c = self.textCursor()

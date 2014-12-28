@@ -22,12 +22,19 @@ from calibre.utils.matcher import Matcher
 Request = namedtuple('Request', 'id type data query')
 
 names_cache = {}
+file_cache = {}
 
 @control
 def clear_caches(cache_type, data_conn):
-    global names_cache
-    if cache_type is None or cache_type == 'names':
+    global names_cache, file_cache
+    if cache_type is None:
         names_cache.clear()
+        file_cache.clear()
+        return
+    if cache_type == 'names':
+        names_cache.clear()
+    elif cache_type.startswith('file:'):
+        file_cache.pop(cache_type.partition(':')[2], None)
 
 @data
 def names_data(request_data):

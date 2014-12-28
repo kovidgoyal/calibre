@@ -676,6 +676,9 @@ class Boss(QObject):
         self.gui.action_save.setEnabled(True)
 
     def request_completion(self, name, completion_type, completion_data, query=None):
+        if completion_type is None:
+            completion_worker().clear_caches(completion_data)
+            return
         request_id = (self.completion_request_count, name)
         self.completion_request_count += 1
         completion_worker().queue_completion(request_id, completion_type, completion_data, query)
