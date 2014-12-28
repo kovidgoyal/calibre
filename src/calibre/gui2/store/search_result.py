@@ -30,3 +30,11 @@ class SearchResult(object):
 
     def __eq__(self, other):
         return self.title == other.title and self.author == other.author and self.store_name == other.store_name and self.formats == other.formats
+
+    def __str__(self):
+        items = []
+        for x in 'store_name title author price formats detail_item cover_url'.split():
+            items.append('\t%s=%r' % (x, getattr(self, x)))
+        return 'SearchResult(\n%s\n)' % '\n'.join(items)
+    __repr__ = __str__
+    __unicode__ = __str__
