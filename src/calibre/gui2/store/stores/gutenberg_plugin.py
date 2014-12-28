@@ -28,13 +28,17 @@ def fix_url(url):
         url = 'http:' + url
     return url
 
-def search(query, max_results=10, timeout=60):
+def search(query, max_results=10, timeout=60, write_raw_to=None):
     url = 'http://m.gutenberg.org/ebooks/search.opds/?query=' + urllib.quote_plus(query)
 
     counter = max_results
     br = browser(user_agent='calibre/'+__version__)
     with closing(br.open(url, timeout=timeout)) as f:
-        doc = etree.fromstring(f.read())
+        raw = f.read()
+        if write_raw_to is not None:
+            with open(write_raw_to, 'wb') as f:
+                f.write(raw)
+        doc = etree.fromstring(raw)
         for data in doc.xpath('//*[local-name() = "entry"]'):
             if counter <= 0:
                 break
