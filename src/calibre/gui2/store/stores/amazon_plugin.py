@@ -256,10 +256,4 @@ class AmazonKindleStore(StorePlugin):
                 search_result.drm = SearchResult.DRM_LOCKED
         return True
 
-if __name__ == '__main__':
-    import os
-    from tempfile import gettempdir
-    rp = os.path.join(gettempdir(), 'raw.html')
-    for result in search_amazon('heroes abercrombie', write_html_to=rp):
-        print (result)
-    print ('HTML written to: %s' % rp)
+
