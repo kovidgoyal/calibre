@@ -34,7 +34,10 @@ def clear_caches(cache_type, data_conn):
     if cache_type == 'names':
         names_cache.clear()
     elif cache_type.startswith('file:'):
-        file_cache.pop(cache_type.partition(':')[2], None)
+        name = cache_type.partition(':')[2]
+        file_cache.pop(name, None)
+        if name.lower().endswith('.opf'):
+            names_cache.clear()
 
 @data
 def names_data(request_data):

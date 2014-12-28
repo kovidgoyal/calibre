@@ -289,6 +289,7 @@ class Boss(QObject):
         parse_worker.clear()
         container = job.result
         set_current_container(container)
+        completion_worker().clear_caches()
         with BusyCursor():
             self.current_metadata = self.gui.current_metadata = container.mi
             lang = container.opf_xpath('//dc:language/text()') or [self.current_metadata.language]
@@ -326,6 +327,7 @@ class Boss(QObject):
     def refresh_file_list(self):
         container = current_container()
         self.gui.file_list.build(container)
+        completion_worker().clear_caches('names')
 
     def apply_container_update_to_gui(self, mark_as_modified=True):
         '''
@@ -340,6 +342,7 @@ class Boss(QObject):
         if mark_as_modified:
             self.set_modified()
         self.gui.toc_view.update_if_visible()
+        completion_worker().clear_caches()
 
     @in_thread_job
     def delete_requested(self, spine_items, other_items):
@@ -351,6 +354,7 @@ class Boss(QObject):
         self.set_modified()
         self.gui.file_list.delete_done(spine_items, other_items)
         spine_names = [x for x, remove in spine_items if remove]
+        completion_worker().clear_caches('names')
         for name in spine_names + list(other_items):
             if name in editors:
                 self.close_editor(name)
@@ -376,6 +380,7 @@ class Boss(QObject):
         self.gui.file_list.build(current_container())  # needed as the linear flag may have changed on some items
         if c.opf_name in editors:
             editors[c.opf_name].replace_data(c.raw_data(c.opf_name))
+        completion_worker().clear_caches('names')
 
     def add_file(self):
         if current_container() is None:
@@ -410,6 +415,7 @@ class Boss(QObject):
             else:
                 self.edit_file(file_name, syntax)
         self.set_modified()
+        completion_worker().clear_caches('names')
 
     def add_files(self):
         if current_container() is None:
@@ -440,6 +446,7 @@ class Boss(QObject):
             if c.opf_name in editors:
                 editors[c.opf_name].replace_data(c.raw_data(c.opf_name))
             self.set_modified()
+            completion_worker().clear_caches('names')
 
     def add_cover(self):
         d = AddCover(current_container(), self.gui)
