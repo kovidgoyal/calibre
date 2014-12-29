@@ -6,8 +6,11 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
+import re
+
 from PyQt5.Qt import Qt
 
+from calibre.gui2.tweak_book import current_container
 from calibre.gui2.tweak_book.editor.smarts import NullSmarts
 from calibre.gui2.tweak_book.editor.smarts.utils import (
     no_modifiers, get_leading_whitespace_on_block, get_text_before_cursor,
@@ -32,6 +35,12 @@ def find_rule(raw, rule_address):
     return ans
 
 class Smarts(NullSmarts):
+
+    def __init__(self, *args, **kwargs):
+        if not hasattr(Smarts, 'regexps_compiled'):
+            Smarts.regexps_compiled = True
+            Smarts.complete_attr_pat = re.compile(r'''url\s*\(\s*['"]{0,1}([^)]*)$''')
+        NullSmarts.__init__(self, *args, **kwargs)
 
     def handle_key_press(self, ev, editor):
         key = ev.key()
@@ -65,4 +74,14 @@ class Smarts(NullSmarts):
 
         return False
 
-
+    def get_completion_data(self, editor, ev=None):
+        c = editor.textCursor()
+        c.movePosition(c.StartOfLine, c.KeepAnchor)
+        text = c.selectedText()
+        m = self.complete_attr_pat.search(text)
+        if m is None:
+            return
+        query = m.group(1) or ''
+        doc_name = editor.completion_doc_name
+        if doc_name:
+            return 'complete_names', ('css_resource', doc_name, current_container().root), query

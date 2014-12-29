@@ -77,6 +77,7 @@ def complete_names(names_data, data_conn):
         names_cache['stylesheet'] = frozenset(n for n in all_names if n.mime_type in OEB_STYLES)
         names_cache['image'] = frozenset(n for n in all_names if n.mime_type.startswith('image/'))
         names_cache['font'] = frozenset(n for n in all_names if n.mime_type in OEB_FONTS)
+        names_cache['css_resource'] = names_cache['image'] | names_cache['font']
         names_cache['descriptions'] = d = {}
         for x, desc in {'text_link':_('Text'), 'stylesheet':_('Stylesheet'), 'image':_('Image'), 'font':_('Font')}.iteritems():
             for n in names_cache[x]:
