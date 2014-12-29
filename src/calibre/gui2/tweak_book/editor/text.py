@@ -793,7 +793,9 @@ class TextEdit(PlainTextEdit):
         if code in (
             0, Qt.Key_unknown, Qt.Key_Shift, Qt.Key_Control, Qt.Key_Alt,
             Qt.Key_Meta, Qt.Key_AltGr, Qt.Key_CapsLock, Qt.Key_NumLock,
-            Qt.Key_ScrollLock):
+            Qt.Key_ScrollLock, Qt.Key_Up, Qt.Key_Down):
+            # We ignore up/down arrow so as to not break scrolling through the
+            # text with the arrow keys
             return
         result = self.smarts.get_completion_data(self, ev)
         if result is None:
