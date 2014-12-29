@@ -12,9 +12,11 @@ from collections import namedtuple, OrderedDict
 from PyQt5.Qt import QObject, pyqtSignal, Qt
 
 from calibre import prepare_string_for_xml
+from calibre.ebooks.oeb.base import xml2text
 from calibre.ebooks.oeb.polish.container import OEB_STYLES, OEB_FONTS, name_to_href
+from calibre.ebooks.oeb.polish.parsing import parse
 from calibre.gui2 import is_gui_thread
-from calibre.gui2.tweak_book import current_container
+from calibre.gui2.tweak_book import current_container, editors
 from calibre.gui2.tweak_book.completion.utils import control, data, DataError
 from calibre.utils.ipc import eintr_retry_call
 from calibre.utils.matcher import Matcher
@@ -43,6 +45,13 @@ def clear_caches(cache_type, data_conn):
 def names_data(request_data):
     c = current_container()
     return c.mime_map, {n for n, is_linear in c.spine_names}
+
+@data
+def file_data(name):
+    'Get the data for name. Returns a unicode string if name is a text document/stylesheet'
+    if name in editors:
+        return editors[name].get_raw_data()
+    return current_container().raw_data(name)
 
 def get_data(data_conn, data_type, data=None):
     eintr_retry_call(data_conn.send, Request(None, data_type, data, None))
@@ -80,6 +89,57 @@ def complete_names(names_data, data_conn):
     d = names_cache['descriptions'].get
     descriptions = {href:d(name) for name, href in nmap.iteritems()}
     return items, descriptions, {}
+
+
+def description_for_anchor(elem):
+    def check(x, min_len=4):
+        if x:
+            x = x.strip()
+            if len(x) >= min_len:
+                return x[:30]
+
+    desc = check(elem.get('title'))
+    if desc is not None:
+        return desc
+    desc = check(elem.text)
+    if desc is not None:
+        return desc
+    if len(elem) > 0:
+        desc = check(elem[0].text)
+        if desc is not None:
+            return desc
+    # Get full text for tags that have only a few descendants
+    for i, x in enumerate(elem.iterdescendants('*')):
+        if i > 5:
+            break
+    else:
+        desc = check(xml2text(elem), min_len=1)
+        if desc is not None:
+            return desc
+
+def create_anchor_map(root):
+    ans = {}
+    for elem in root.xpath('//*[@id or @name]'):
+        anchor = elem.get('id') or elem.get('name')
+        if anchor and anchor not in ans:
+            ans[anchor] = description_for_anchor(elem)
+    return ans
+
+@control
+def complete_anchor(name, data_conn):
+    if name not in file_cache:
+        data = raw = get_data(data_conn, 'file_data', name)
+        if isinstance(raw, type('')):
+            try:
+                root = parse(raw, decoder=lambda x:x.decode('utf-8'))
+            except Exception:
+                pass
+            else:
+                data = (root, create_anchor_map(root))
+        file_cache[name] = data
+    data = file_cache[name]
+    if isinstance(data, tuple) and len(data) > 1 and isinstance(data[1], dict):
+        return frozenset(data[1]), data[1], {}
 
 _current_matcher = (None, None, None)
 

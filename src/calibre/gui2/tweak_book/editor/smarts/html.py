@@ -13,14 +13,15 @@ from cssutils import parseStyle
 from PyQt5.Qt import QTextEdit, Qt
 
 from calibre import prepare_string_for_xml, xml_entity_to_unicode
+from calibre.ebooks.oeb.polish.container import OEB_DOCS
 from calibre.gui2 import error_dialog
 from calibre.gui2.tweak_book.editor.syntax.html import ATTR_NAME, ATTR_END, ATTR_START, ATTR_VALUE
-from calibre.utils.icu import utf16_length
 from calibre.gui2.tweak_book import tprefs, current_container
 from calibre.gui2.tweak_book.editor.smarts import NullSmarts
 from calibre.gui2.tweak_book.editor.smarts.utils import (
     no_modifiers, get_leading_whitespace_on_block, get_text_before_cursor,
     get_text_after_cursor, smart_home, smart_backspace, smart_tab, expand_tabs)
+from calibre.utils.icu import utf16_length
 
 get_offset = itemgetter(0)
 PARAGRAPH_SEPARATOR = '\u2029'
@@ -646,8 +647,16 @@ class Smarts(NullSmarts):
         if doc_name and attr in {'href', 'src'}:
             # A link
             query = m.group(2) or m.group(3) or ''
+            c = current_container()
             names_type = {'a':'text_link', 'img':'image', 'image':'image', 'link':'stylesheet'}.get(tagname)
-            return 'complete_names', (names_type, doc_name, current_container().root), query
+            idx = query.find('#')
+            if idx > -1 and names_type in (None, 'text_link'):
+                href, query = query[:idx], query[idx+1:]
+                name = c.href_to_name(href) if href else doc_name
+                if c.mime_map.get(name) in OEB_DOCS:
+                    return 'complete_anchor', name, query
+
+            return 'complete_names', (names_type, doc_name, c.root), query
 
 if __name__ == '__main__':  # {{{
     from calibre.gui2.tweak_book.editor.widget import launch_editor
