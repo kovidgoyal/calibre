@@ -100,6 +100,20 @@ class UnreferencedDoc(UnreferencedResource):
 
     HELP = _('This file is not in the book spine. All content documents must be in the spine.'
              ' You should probably add it to the spine.')
+    INDIVIDUAL_FIX = _('Append this file to the spine')
+
+    def __call__(self, container):
+        from calibre.ebooks.oeb.base import OPF
+        rmap = {v:k for k, v in container.manifest_id_map.iteritems()}
+        if self.name in rmap:
+            manifest_id = rmap[self.name]
+        else:
+            manifest_id = container.add_name_to_manifest(self.name)
+        spine = container.opf_xpath('//opf:spine')[0]
+        si = spine.makeelement(OPF('itemref'), idref=manifest_id)
+        container.insert_into_xml(spine, si)
+        container.dirty(container.opf_name)
+        return True
 
 class Unmanifested(BadLink):
 
@@ -121,7 +135,10 @@ class Unmanifested(BadLink):
         if self.file_action == 'remove':
             container.remove_item(self.name)
         else:
-            container.add_name_to_manifest(self.name)
+            rmap = {v:k for k, v in container.manifest_id_map.iteritems()}
+            if self.name not in rmap:
+                container.add_name_to_manifest(self.name)
+        return True
 
 class Bookmarks(BadLink):
 
