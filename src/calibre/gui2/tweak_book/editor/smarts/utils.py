@@ -55,7 +55,7 @@ def smart_home(editor, ev):
         cursor = editor.textCursor()
         mode = cursor.KeepAnchor if test_modifiers(ev, Qt.ShiftModifier) else cursor.MoveAnchor
         cursor.movePosition(cursor.StartOfBlock, mode)
-        if text.strip():
+        if text.strip() and text.lstrip() != text:
             # Move to the start of text
             cursor.movePosition(cursor.NextWord, mode)
         editor.setTextCursor(cursor)
