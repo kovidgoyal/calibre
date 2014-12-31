@@ -17,24 +17,22 @@ from calibre.gui2 import error_dialog
 from calibre.gui2.tweak_book.widgets import make_highlighted_text
 from calibre.utils.icu import string_length
 
-
-class CompletionPopup(QWidget):
+class ChoosePopupWidget(QWidget):
 
     TOP_MARGIN = BOTTOM_MARGIN = 2
     SIDE_MARGIN = 4
 
     def __init__(self, parent, max_height=1000):
         QWidget.__init__(self, parent)
-        self.completion_error_shown = False
+
         self.setFocusPolicy(Qt.NoFocus)
         self.setFocusProxy(parent)
         self.setVisible(False)
         self.setMouseTracking(True)
         self.setCursor(Qt.PointingHandCursor)
 
-        self.matcher = None
-        self.current_results = self.current_size_hint = self.current_query = None
-        self.current_completion = None
+        self.current_results = self.current_size_hint = None
+
         self.max_text_length = 0
         self.current_index = -1
         self.current_top_index = 0
@@ -53,9 +51,8 @@ class CompletionPopup(QWidget):
         self.rendered_text_cache.clear()
         self.current_size_hint = None
 
-    def set_items(self, items, descriptions=None, query=None):
-        self.current_query = query
-        self.current_results = tuple(items.iteritems())
+    def set_items(self, items, descriptions=None):
+        self.current_results = items
         self.current_size_hint = None
         self.descriptions = descriptions or {}
         self.clear_caches()
@@ -131,42 +128,6 @@ class CompletionPopup(QWidget):
         if self.current_size_hint is None:
             QTimer.singleShot(0, self.layout)
 
-    def choose_next_result(self, previous=False):
-        if self.current_results:
-            if previous:
-                if self.current_index == -1:
-                    self.current_index = len(self.current_results) - 1
-                else:
-                    self.current_index -= 1
-            else:
-                if self.current_index == len(self.current_results) - 1:
-                    self.current_index = -1
-                else:
-                    self.current_index += 1
-            self.ensure_index_visible(self.current_index)
-            self.update()
-            self.activate_current_result()
-
-    def activate_current_result(self):
-        if self.current_completion is not None:
-            c = self.current_completion
-            text = self.current_query if self.current_index == -1 else self.current_results[self.current_index][0]
-            c.insertText(text)
-            chars = string_length(text)
-            c.setPosition(c.position() - chars)
-            c.setPosition(c.position() + chars, c.KeepAnchor)
-
-    def ensure_index_visible(self, index):
-        if index < self.current_top_index:
-            self.current_top_index = max(0, index)
-        else:
-            try:
-                i = tuple(self.iter_visible_items())[-1][0]
-            except IndexError:
-                return
-            if i < index:
-                self.current_top_index += index - i
-
     def layout(self, cursor_rect=None):
         p = self.parent()
         if cursor_rect is None:
@@ -188,6 +149,17 @@ class CompletionPopup(QWidget):
         self.move(left, top)
         self.update()
 
+    def ensure_index_visible(self, index):
+        if index < self.current_top_index:
+            self.current_top_index = max(0, index)
+        else:
+            try:
+                i = tuple(self.iter_visible_items())[-1][0]
+            except IndexError:
+                return
+            if i < index:
+                self.current_top_index += index - i
+
     def show(self):
         if self.current_results:
             self.layout()
@@ -197,36 +169,10 @@ class CompletionPopup(QWidget):
     def hide(self):
         QWidget.hide(self)
         self.relayout_timer.stop()
+    abort = hide
 
-    def abort(self):
-        self.hide()
-        self.current_completion = self.current_query = None
-
-    def mark_completion(self, editor, query):
-        self.current_completion = c = editor.textCursor()
-        chars = string_length(query or '')
-        c.setPosition(c.position() - chars), c.setPosition(c.position() + chars, c.KeepAnchor)
-        self.hide()
-
-    def handle_result(self, result):
-        if result.traceback:
-            prints(result.traceback)
-            if not self.completion_error_shown:
-                error_dialog(self, _('Completion failed'), _(
-                    'Failed to get completions, click "Show Details" for more information.'
-                    ' Future errors during completion will be suppressed.'), det_msg=result.traceback, show=True)
-                self.completion_error_shown = True
-            self.hide()
-            return
-        if result.ans is None:
-            self.hide()
-            return
-        items, descriptions = result.ans
-        if not items:
-            self.hide()
-            return
-        self.set_items(items, descriptions, result.query)
-        self.show()
+    def activate_current_result(self):
+        raise NotImplementedError('You must implement this method in a subclass')
 
     def handle_keypress(self, ev):
         key = ev.key()
@@ -272,6 +218,76 @@ class CompletionPopup(QWidget):
             self.activate_current_result()
             self.hide()
         ev.accept()
+
+    def choose_next_result(self, previous=False):
+        if self.current_results:
+            if previous:
+                if self.current_index == -1:
+                    self.current_index = len(self.current_results) - 1
+                else:
+                    self.current_index -= 1
+            else:
+                if self.current_index == len(self.current_results) - 1:
+                    self.current_index = -1
+                else:
+                    self.current_index += 1
+            self.ensure_index_visible(self.current_index)
+            self.update()
+
+class CompletionPopup(ChoosePopupWidget):
+
+    def __init__(self, parent, max_height=1000):
+        ChoosePopupWidget.__init__(self, parent, max_height=max_height)
+        self.completion_error_shown = False
+
+        self.current_query = self.current_completion = None
+
+    def set_items(self, items, descriptions=None, query=None):
+        self.current_query = query
+        ChoosePopupWidget.set_items(self, tuple(items.iteritems()), descriptions=descriptions)
+
+    def choose_next_result(self, previous=False):
+        ChoosePopupWidget.choose_next_result(self, previous=previous)
+        self.activate_current_result()
+
+    def activate_current_result(self):
+        if self.current_completion is not None:
+            c = self.current_completion
+            text = self.current_query if self.current_index == -1 else self.current_results[self.current_index][0]
+            c.insertText(text)
+            chars = string_length(text)
+            c.setPosition(c.position() - chars)
+            c.setPosition(c.position() + chars, c.KeepAnchor)
+
+    def abort(self):
+        ChoosePopupWidget.abort(self)
+        self.current_completion = self.current_query = None
+
+    def mark_completion(self, editor, query):
+        self.current_completion = c = editor.textCursor()
+        chars = string_length(query or '')
+        c.setPosition(c.position() - chars), c.setPosition(c.position() + chars, c.KeepAnchor)
+        self.hide()
+
+    def handle_result(self, result):
+        if result.traceback:
+            prints(result.traceback)
+            if not self.completion_error_shown:
+                error_dialog(self, _('Completion failed'), _(
+                    'Failed to get completions, click "Show Details" for more information.'
+                    ' Future errors during completion will be suppressed.'), det_msg=result.traceback, show=True)
+                self.completion_error_shown = True
+            self.hide()
+            return
+        if result.ans is None:
+            self.hide()
+            return
+        items, descriptions = result.ans
+        if not items:
+            self.hide()
+            return
+        self.set_items(items, descriptions, result.query)
+        self.show()
 
 
 if __name__ == '__main__':
