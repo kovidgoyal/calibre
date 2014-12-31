@@ -13,7 +13,7 @@ from PyQt5.Qt import (
     pyqtSignal, QVBoxLayout, QHBoxLayout, QPlainTextEdit, QLabel, QFontMetrics,
     QSize, Qt, QApplication, QIcon)
 
-from calibre.ebooks.oeb.polish.utils import apply_func_to_match_groups
+from calibre.ebooks.oeb.polish.utils import apply_func_to_match_groups, apply_func_to_html_text
 from calibre.gui2 import error_dialog
 from calibre.gui2.complete2 import EditWithComplete
 from calibre.gui2.tweak_book import dictionaries
@@ -318,6 +318,31 @@ def replace_swapcase(match, number, file_name, metadata, dictionaries, data, fun
     only the text in the groups will be changed, otherwise the entire text is
     changed.'''
     return apply_func_to_match_groups(match, swapcase)
+
+@builtin('Upper-case text (ignore tags)', upper, apply_func_to_html_text)
+def replace_uppercase_ignore_tags(match, number, file_name, metadata, dictionaries, data, functions, *args, **kwargs):
+    '''Make matched text upper case, ignoring the text inside tag definitions.'''
+    return apply_func_to_html_text(match, upper)
+
+@builtin('Lower-case text (ignore tags)', lower, apply_func_to_html_text)
+def replace_lowercase_ignore_tags(match, number, file_name, metadata, dictionaries, data, functions, *args, **kwargs):
+    '''Make matched text lower case, ignoring the text inside tag definitions.'''
+    return apply_func_to_html_text(match, lower)
+
+@builtin('Capitalize text (ignore tags)', capitalize, apply_func_to_html_text)
+def replace_capitalize_ignore_tags(match, number, file_name, metadata, dictionaries, data, functions, *args, **kwargs):
+    '''Capitalize matched text, ignoring the text inside tag definitions.'''
+    return apply_func_to_html_text(match, capitalize)
+
+@builtin('Title-case text (ignore tags)', titlecase, apply_func_to_html_text)
+def replace_titlecase_ignore_tags(match, number, file_name, metadata, dictionaries, data, functions, *args, **kwargs):
+    '''Title-case matched text, ignoring the text inside tag definitions.'''
+    return apply_func_to_html_text(match, titlecase)
+
+@builtin('Swap the case of text (ignore tags)', swapcase, apply_func_to_html_text)
+def replace_swapcase_ignore_tags(match, number, file_name, metadata, dictionaries, data, functions, *args, **kwargs):
+    '''Swap the case of the matched text, ignoring the text inside tag definitions.'''
+    return apply_func_to_html_text(match, swapcase)
 
 if __name__ == '__main__':
     app = QApplication([])

@@ -198,3 +198,9 @@ def apply_func_to_match_groups(match, func=icu_upper, handle_entities=handle_ent
     parts.append(match.string[pos:match.end()])
     return ''.join(parts)
 
+def apply_func_to_html_text(match, func=icu_upper, handle_entities=handle_entities):
+    ''' Apply the specified function only to text between HTML tag definitions. '''
+    parts = re.split(r'(<[^>]+>)', match.group())
+    parts = (x if x.startswith('<') else func(x) for x in parts)
+    return ''.join(parts)
+
