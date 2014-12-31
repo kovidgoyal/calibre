@@ -6,11 +6,14 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import re
+import re, copy
 from collections import OrderedDict
 from itertools import groupby
 from operator import attrgetter
 
+from PyQt5.Qt import QTextCursor
+
+from calibre.utils.config import JSONConfig
 from calibre.utils.icu import string_length
 
 builtin_snippets = {  # {{{
@@ -81,7 +84,7 @@ class TabStop(unicode):
         return self
 
     def __repr__(self):
-        return 'TabStop(text=%s, num=%d, start=%d, is_mirror=%s takes_selection=%s is_toplevel=%s)' % (
+        return 'TabStop(text=%s num=%d start=%d is_mirror=%s takes_selection=%s is_toplevel=%s)' % (
             unicode.__repr__(self), self.num, self.start, self.is_mirror, self.takes_selection, self.is_toplevel)
     __str__ = __unicode__ = __repr__
 
@@ -110,3 +113,72 @@ def parse_template(template, start_offset=0, is_toplevel=True, grouped=True):
     return ''.join(parts), tab_stops
 
 # }}}
+
+_snippets = None
+user_snippets = JSONConfig('editor_snippets')
+
+def snippets():
+    global _snippets
+    if _snippets is None:
+        _snippets = copy.deepcopy(builtin_snippets)
+        us = copy.deepcopy(user_snippets.copy())
+        _snippets.update(us)
+    return _snippets
+
+class TabStopCursor(QTextCursor):
+
+    def __init__(self, other, tab_stops):
+        QTextCursor.__init__(self, other)
+        tab_stop = tab_stops[0]
+        self.num = tab_stop.num
+        self.is_mirror = tab_stop.is_mirror
+        self.is_toplevel = tab_stop.is_toplevel
+        self.takes_selection = tab_stop.takes_selection
+        self.visited = False
+        self.setPosition(other.anchor() + tab_stop.start)
+        l = string_length(tab_stop)
+        if l > 0:
+            self.setPosition(self.position() + l, self.KeepAnchor)
+        self.mirrors = []
+        for ts in tab_stops[1:]:
+            m = QTextCursor(other)
+            m.setPosition(other.anchor() + ts.start)
+            l = string_length(ts)
+            if l > 0:
+                m.setPosition(m.position() + l, m.KeepAnchor)
+            self.mirrors.append(m)
+
+class CursorCollection(list):
+
+    def __new__(self, cursors):
+        self = list.__new__(self, cursors)
+        self.left_most_cursor = self.right_most_cursor = None
+        for c in self:
+            if self.left_most_cursor is None or self.left_most_cursor.anchor() > c.anchor():
+                self.left_most_cursor = c
+            if self.right_most_cursor is None or self.right_most_cursor.position() <= c.position():
+                self.right_most_cursor = c
+        return self
+
+def expand_template(editor, template_name, template, selected_text=''):
+    c = editor.textCursor()
+    c.setPosition(c.position())
+    right = c.position()
+    left = right - string_length(template_name)
+    text, tab_stops = parse_template(template)
+    cursors = []
+    c.setPosition(left), c.setPosition(right, c.KeepAnchor), c.insertText(text)
+    for i, ts in enumerate(tab_stops.itervalues()):
+        tsc = TabStopCursor(c, ts)
+        cursors.append(tsc)
+
+    if selected_text:
+        for tsc in cursors:
+            pos = min(tsc.anchor(), tsc.position())
+            tsc.insertText(selected_text)
+            apos = tsc.position()
+            tsc.setPosition(pos), tsc.setPosition(apos, tsc.KeepAnchor)
+    active_cursor = (cursors or [c])[0]
+    active_cursor.visited = True
+    editor.setTextCursor(active_cursor)
+    return CursorCollection(cursors)
