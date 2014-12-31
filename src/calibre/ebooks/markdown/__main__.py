@@ -4,7 +4,7 @@ COMMAND-LINE SPECIFIC STUFF
 
 """
 
-import markdown
+import calibre.ebooks.markdown as markdown
 import sys
 import optparse
 
@@ -22,7 +22,7 @@ def parse_options():
     desc = "A Python implementation of John Gruber's Markdown. " \
            "http://packages.python.org/Markdown/"
     ver = "%%prog %s" % markdown.version
-    
+
     parser = optparse.OptionParser(usage=usage, description=desc, version=ver)
     parser.add_option("-f", "--file", dest="filename", default=None,
                       help="Write output to OUTPUT_FILE. Defaults to STDOUT.",
@@ -38,7 +38,7 @@ def parse_options():
     parser.add_option("-s", "--safe", dest="safe", default=False,
                       metavar="SAFE_MODE",
                       help="'replace', 'remove' or 'escape' HTML tags in input")
-    parser.add_option("-o", "--output_format", dest="output_format", 
+    parser.add_option("-o", "--output_format", dest="output_format",
                       default='xhtml1', metavar="OUTPUT_FORMAT",
                       help="'xhtml1' (default), 'html4' or 'html5'.")
     parser.add_option("--noisy",
@@ -46,7 +46,7 @@ def parse_options():
                       help="Print debug messages.")
     parser.add_option("-x", "--extension", action="append", dest="extensions",
                       help = "Load extension EXTENSION.", metavar="EXTENSION")
-    parser.add_option("-n", "--no_lazy_ol", dest="lazy_ol", 
+    parser.add_option("-n", "--no_lazy_ol", dest="lazy_ol",
                       action='store_false', default=True,
                       help="Observe number of first item of ordered lists.")
 
@@ -81,7 +81,7 @@ def run():
     markdown.markdownFromFile(**options)
 
 if __name__ == '__main__':
-    # Support running module as a commandline command. 
+    # Support running module as a commandline command.
     # Python 2.5 & 2.6 do: `python -m markdown.__main__ [options] [args]`.
     # Python 2.7 & 3.x do: `python -m markdown [options] [args]`.
     run()
