@@ -9,7 +9,7 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 import re, os
 from bisect import bisect
 
-from calibre import guess_type as _guess_type, prepare_string_for_xml, replace_entities
+from calibre import guess_type as _guess_type, replace_entities
 
 def guess_type(x):
     return _guess_type(x)[0] or 'application/octet-stream'
@@ -173,7 +173,7 @@ def parse_css(data, fname='<string>', is_declaration=False, decode=None, log_lev
     return data
 
 def handle_entities(text, func):
-    return prepare_string_for_xml(func(replace_entities(text)))
+    return func(replace_entities(text))
 
 def apply_func_to_match_groups(match, func=icu_upper, handle_entities=handle_entities):
     '''Apply the specified function to individual groups in the match object (the result of re.search() or
@@ -200,7 +200,8 @@ def apply_func_to_match_groups(match, func=icu_upper, handle_entities=handle_ent
 
 def apply_func_to_html_text(match, func=icu_upper, handle_entities=handle_entities):
     ''' Apply the specified function only to text between HTML tag definitions. '''
+    f = lambda text:handle_entities(text, func)
     parts = re.split(r'(<[^>]+>)', match.group())
-    parts = (x if x.startswith('<') else func(x) for x in parts)
+    parts = (x if x.startswith('<') else f(x) for x in parts)
     return ''.join(parts)
 
