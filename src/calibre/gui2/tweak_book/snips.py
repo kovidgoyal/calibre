@@ -12,7 +12,7 @@ builtin_snips = {
         'template': '<$1>${2*}</$1>',
     },
 
-    '</' : {
+    '<>' : {
         'description': _('Insert a self closing HTML tag'),
         'template': '<$1/>$2',
     },
@@ -21,5 +21,11 @@ builtin_snips = {
         'description': _('Insert a HTML link'),
         'template': '<a href="$1">${2*}</a>',
     },
+
+    '<i' : {
+        'description': _('Insert a HTML image'),
+        'template': '<img src="$1" alt="${2*}" />$3',
+    },
+
 }
 
