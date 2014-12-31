@@ -13,7 +13,7 @@ from operator import attrgetter
 
 from calibre.utils.icu import string_length
 
-builtin_snips = {
+builtin_snippets = {  # {{{
     '<<' : {
         'description': _('Insert a HTML tag'),
         'template': '<$1>${2*}</$1>',
@@ -39,8 +39,9 @@ builtin_snips = {
         'template': '<$1 class="$2">${3*}</$1>',
     },
 
-}
+}  # }}}
 
+# Parsing of snippets {{{
 escape = unescape = None
 def escape_funcs():
     global escape, unescape
@@ -107,3 +108,5 @@ def parse_template(template, start_offset=0, is_toplevel=True, grouped=True):
             ans[num] = stops
         tab_stops = ans
     return ''.join(parts), tab_stops
+
+# }}}
