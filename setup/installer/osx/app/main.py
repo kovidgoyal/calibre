@@ -10,6 +10,7 @@ import sys, os, shutil, plistlib, subprocess, glob, zipfile, tempfile, \
     py_compile, stat, operator, time
 from functools import partial
 from contextlib import contextmanager
+from itertools import repeat
 
 abspath, join, basename = os.path.abspath, os.path.join, os.path.basename
 
@@ -92,8 +93,8 @@ def compile_launchers(contents_dir, xprograms, pyver):
     src = src.replace('/*ENV_VARS*/', env)
     src = src.replace('/*ENV_VAR_VALS*/', env_vals)
     programs = [lib]
-    for program, x in xprograms.items():
-        module, func = x
+    for program, x in xprograms.iteritems():
+        module, func, ptype = x
         info('\tCompiling', program)
         out = join(contents_dir, 'MacOS', program)
         programs.append(out)
@@ -101,6 +102,7 @@ def compile_launchers(contents_dir, xprograms, pyver):
         psrc = psrc.replace('**MODULE**', module)
         psrc = psrc.replace('**FUNCTION**', func)
         psrc = psrc.replace('**PYVER**', pyver)
+        psrc = psrc.replace('**IS_GUI**', ('1' if ptype == 'gui' else '0'))
         fsrc = '/tmp/%s.c'%program
         with open(fsrc, 'wb') as f:
             f.write(psrc)
@@ -230,9 +232,9 @@ class Py2App(object):
         programs = {}
         progs = []
         for x in ('console', 'gui'):
-            progs += list(zip(basenames[x], main_modules[x], main_functions[x]))
-        for program, module, func in progs:
-            programs[program] = (module, func)
+            progs += list(zip(basenames[x], main_modules[x], main_functions[x], repeat(x)))
+        for program, module, func, ptype in progs:
+            programs[program] = (module, func, ptype)
         programs = compile_launchers(self.contents_dir, programs,
                 self.version_info)
         for out in programs:
