@@ -308,7 +308,7 @@ def upshift_markup(parts):
 
 def handle_media_queries(raw):
     # cssutils cannot handle CSS 3 media queries. We look for media queries
-    # that use amzn-mobi or amzn-kf8 and map them to asimple @media screen
+    # that use amzn-mobi or amzn-kf8 and map them to a simple @media screen
     # rule. See https://bugs.launchpad.net/bugs/1406708 for an example
     import tinycss
     parser = tinycss.make_full_parser()
@@ -317,10 +317,8 @@ def handle_media_queries(raw):
         for mq in sheet.rules[0].media:
             # Only accept KF8 media types
             if (mq.media_type, mq.negated) in {('amzn-mobi', True), ('amzn-kf8', False)}:
-                break
-        else:
-            return m.group()
-        return '@media screen {'
+                return '@media screen {'
+        return m.group()
 
     return re.sub(r'@media\s[^{]*{', replace, raw)
 
