@@ -11,7 +11,7 @@ from copy import deepcopy
 import optparse
 
 from calibre.constants import (config_dir, CONFIG_DIR_MODE, __appname__,
-        get_version, __author__)
+        get_version, __author__, DEBUG)
 from calibre.utils.lock import ExclusiveFile
 from calibre.utils.config_base import (make_config_dir, Option, OptionValues,
         OptionSet, ConfigInterface, Config, prefs, StringConfig, ConfigProxy,
@@ -216,9 +216,10 @@ class DynamicConfig(dict):
                 except SystemError:
                     pass
                 except:
-                    import traceback
-                    print 'Failed to unpickle stored object:'
-                    traceback.print_exc()
+                    print 'WARNING: Failed to unpickle stored config object, ignoring'
+                    if DEBUG:
+                        import traceback
+                        traceback.print_exc()
                     d = {}
         if clear_current:
             self.clear()
