@@ -192,7 +192,7 @@ def main():
         except:
             pass  # Failure to log to Console.app is not critical
 
-    # Needed on OS X 10.7, which passes -psn_... as a command line arg when
+    # Needed on OS X <= 10.7, which passes -psn_... as a command line arg when
     # starting via launch services
     for arg in tuple(sys.argv[1:]):
         if arg.startswith('-psn_'):
