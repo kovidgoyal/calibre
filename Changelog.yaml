@@ -6,7 +6,7 @@
 # Also, each release can have new and improved recipes.
 
 # - version: ?.?.?
-#   date: 2014-??-??
+#   date: 2015-??-??
 #
 #   new features:
 #     - title: 
@@ -19,6 +19,41 @@
 #
 #   new recipes:
 #     - title: 
+
+- version: 2.15.0
+  date: 2015-01-02
+
+  new features:
+    - title: "Edit Book: Add auto-completion for links."
+      description: "Now as you type the filename in href or src attributes, a popup with possible completions is displayed. See http://manual.calibre-ebook.com/edit.html#auto-complete for details."
+      type: major
+
+    - title: "Edit Book Function mode: Add builtin functions to change case of text, ignoring HTML tags in the matched text"
+
+    - title: "Edit Book - Check Book: Allow auto-fixing of file not in spine errors"
+
+    - title: "Driver for Papyre 624 ml"
+      tickets: [1405901]
+
+    - title: "Conversion: Convert images encoded as data URIs in the input document into normal images, as some ebook reader software cannot handle data URIs."
+      tickets: [1405803]
+
+  bug fixes:
+    - title: "AZW3 Input: Handle AZW3 files that contain Amazon specific CSS media queries."
+      tickets: [1406708]
+
+    - title: "Fix regression that broke the markdown-calibre command"
+
+    - title: "Edit Book - Show what changed: Fix scrollbar sometimes not visible if the differences contain a few, very long lines. Also fix the line numbers being partially obscured on some systems (depending on the font used)."
+      tickets: [1406056]
+
+    - title: "Edit Book: Fix a regression that caused the Home key to not move to the start of the line on lines containing un-indented tags"
+
+    - title: "Get Books: Update the Amazon (US) plugin for website changes."
+      tickets: [1406040]
+
+    - title: "MOBI Input: Fix incorrect conversion of MOBI files that wrap their content inside <a> anchor tags."
+      tickets: [1405858]
 
 - version: 2.14.0
   date: 2014-12-26
