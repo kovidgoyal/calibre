@@ -747,7 +747,7 @@ the correct filename and relative path to the file. The editor has
 auto-complete to make that easier. 
 
 As you type a filename, the editor automatically pops up suggestions. Simply
-sue the Tab key to select the correct file name. The editor even offers
+use the Tab key to select the correct file name. The editor even offers
 suggestions for links pointing to an anchor inside another HTML file. After you
 type the ``#`` character, the editor will show you a list of all anchors in the
 target file, with a small snippet of text to help you choose the right anchor.
