@@ -192,6 +192,12 @@ def main():
         except:
             pass  # Failure to log to Console.app is not critical
 
+    # Needed on OS X 10.7, which passes -psn_... as a command line arg when
+    # starting via launch services
+    for arg in tuple(sys.argv[1:]):
+        if arg.startswith('-psn_'):
+            sys.argv.remove(arg)
+
     base = sys.resourcepath
     sys.frozen = 'macosx_app'
     sys.new_app_bundle = True
