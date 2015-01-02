@@ -4,11 +4,13 @@ __copyright__ = '2010, Darko Miletic <darko.miletic at gmail.com>'
 www.sueddeutsche.de/sz/
 '''
 # History
+# 2015.01.02 Daily Cover from https://zeitung.sueddeutsche.de/webapp  by lala-rob (web@lala-rob.de)
 # 2014.12.15 Set Cover by lala-rob(web@lala-rob.de)
 # 2014.10.02 Fixed url Problem by lala-rob(web@lala-rob.de)
 
 from calibre.web.feeds.news import BasicNewsRecipe
 from calibre import strftime
+import datetime
 
 class SueddeutcheZeitung(BasicNewsRecipe):
     title                  = u'Süddeutsche Zeitung'
@@ -22,7 +24,7 @@ class SueddeutcheZeitung(BasicNewsRecipe):
     needs_subscription     = True
     remove_empty_feeds     = True
     delay                  = 1
-    cover_url              = 'http://upload.wikimedia.org/wikipedia/commons/d/d3/Suddeutsche_Zeitung_090520_M.jpg'
+    cover_url              = 'https://zeitung.sueddeutsche.de/szdigital/public/issue/previewimage?size=l&issueId=' + (datetime.datetime.utcnow()+datetime.timedelta(hours=1)).strftime("%Y-%m-%d") + '&targetVersion=3&productId=sz'
     PREFIX                 = 'http://epaper.sueddeutsche.de'
     INDEX                  = PREFIX + '/app/epaper/textversion/'
     use_embedded_content   = False

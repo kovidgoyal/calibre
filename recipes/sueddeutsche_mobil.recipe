@@ -4,6 +4,7 @@ __copyright__ = '2012, 2013 Andreas Zeiser <andreas.zeiser@web.de>'
 szmobil.sueddeutsche.de/
 '''
 # History
+# 2015.01.02 Daily Cover from https://zeitung.sueddeutsche.de/webapp  by lala-rob (web@lala-rob.de)
 # 2014.12.18 Fixing URL set Cover by lala-rob (web@lala-rob.de)
 # 2014.10.06 Fixing Login URL and Article URL by lala-rob (web@lala-rob.de)
 #
@@ -12,6 +13,7 @@ szmobil.sueddeutsche.de/
 # 2012.08.04 Initial release
 
 from calibre import strftime
+import datetime
 from calibre.web.feeds.recipes import BasicNewsRecipe
 import re
 
@@ -24,7 +26,7 @@ class SZmobil(BasicNewsRecipe):
     language               = u'de'
     publication_type       = u'newspaper'
     category               = u'news, politics, Germany'
-    cover_url              = 'http://upload.wikimedia.org/wikipedia/commons/d/d3/Suddeutsche_Zeitung_090520_M.jpg'
+    cover_url              = 'https://zeitung.sueddeutsche.de/szdigital/public/issue/previewimage?size=l&issueId=' + (datetime.datetime.utcnow()+datetime.timedelta(hours=1)).strftime("%Y-%m-%d") + '&targetVersion=3&productId=sz'
     no_stylesheets         = True
     oldest_article         = 2
     encoding               = 'iso-8859-1'
