@@ -13,7 +13,7 @@ szmobil.sueddeutsche.de/
 # 2012.08.04 Initial release
 
 from calibre import strftime
-from time import localtime
+import datetime
 from calibre.web.feeds.recipes import BasicNewsRecipe
 import re
 
@@ -26,8 +26,7 @@ class SZmobil(BasicNewsRecipe):
     language               = u'de'
     publication_type       = u'newspaper'
     category               = u'news, politics, Germany'
-    lt = localtime()
-    cover_url              = 'https://zeitung.sueddeutsche.de/szdigital/public/issue/previewimage?size=l&issueId=' + strftime("%Y-%m-%d", lt) + '&targetVersion=3&productId=sz
+    cover_url              = 'https://zeitung.sueddeutsche.de/szdigital/public/issue/previewimage?size=l&issueId=' + (datetime.datetime.utcnow()+datetime.timedelta(hours=1)).strftime("%Y-%m-%d") + '&targetVersion=3&productId=sz'
     no_stylesheets         = True
     oldest_article         = 2
     encoding               = 'iso-8859-1'
