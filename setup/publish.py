@@ -60,7 +60,8 @@ class Stage2(Command):
             for p in processes:
                 rc = p.poll()
                 if rc is not None:
-                    p.duration = int(time.time() - p.start_time)
+                    if p.duration is None:
+                        p.duration = int(time.time() - p.start_time)
                 else:
                     running = True
             return running
