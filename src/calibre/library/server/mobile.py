@@ -12,7 +12,7 @@ from urllib import quote
 import cherrypy
 from lxml import html
 from lxml.html.builder import HTML, HEAD, TITLE, LINK, DIV, IMG, BODY, \
-        OPTION, SELECT, INPUT, FORM, SPAN, TABLE, TR, TD, A, HR
+        OPTION, SELECT, INPUT, FORM, SPAN, TABLE, TR, TD, A, HR, META
 
 from calibre.library.server import custom_fields_to_display
 from calibre.library.server.utils import strftime, format_tag_string
@@ -173,7 +173,8 @@ def build_index(books, num, search, sort, order, start, total, url_base, CKEYS,
                 type='image/x-icon'),
             LINK(rel='stylesheet', type='text/css',
                 href=prefix+'/mobile/style.css'),
-            LINK(rel='apple-touch-icon', href="/static/calibre.png")
+            LINK(rel='apple-touch-icon', href="/static/calibre.png"),
+            META(name="robots", content="noindex")
         ),  # End head
         body
     )  # End html
