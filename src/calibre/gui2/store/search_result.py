@@ -27,6 +27,7 @@ class SearchResult(object):
         self.downloads = {}
         self.affiliate = False
         self.plugin_author = ''
+        self.create_browser = None
 
     def __eq__(self, other):
         return self.title == other.title and self.author == other.author and self.store_name == other.store_name and self.formats == other.formats

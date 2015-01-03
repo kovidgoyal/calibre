@@ -26,6 +26,7 @@ class NPWebView(QWebView):
         QWebView.__init__(self, *args)
         self.gui = None
         self.tags = ''
+        self.create_browser = None
 
         self._page = NPWebPage()
         self.setPage(self._page)
@@ -90,10 +91,10 @@ class NPWebView(QWebView):
                     return
             name = choose_save_file(self, 'web-store-download-unknown', _('File is not a supported ebook type. Save to disk?'), initial_filename=filename)
             if name:
-                self.gui.download_ebook(url, cf, name, name, False)
+                self.gui.download_ebook(url, cf, name, name, False, create_browser=self.create_browser)
         else:
             show_download_info(filename, self)
-            self.gui.download_ebook(url, cf, filename, tags=self.tags)
+            self.gui.download_ebook(url, cf, filename, tags=self.tags, create_browser=self.create_browser)
 
     def ignore_ssl_errors(self, reply, errors):
         reply.ignoreSslErrors(errors)

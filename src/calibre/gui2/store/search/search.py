@@ -395,7 +395,7 @@ class SearchDialog(QDialog, Ui_Dialog):
             fname = result.title[:60] + '.' + ext.lower()
             fname = ascii_filename(fname)
             show_download_info(result.title, parent=self)
-            self.gui.download_ebook(result.downloads[ext], filename=fname)
+            self.gui.download_ebook(result.downloads[ext], filename=fname, create_browser=result.create_browser)
 
     def open_store(self, result):
         self.gui.istores[result.store_name].open(self, result.detail_item, self.open_external.isChecked())
