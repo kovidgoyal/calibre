@@ -251,13 +251,18 @@ class ImportForeign(Dialog):  # {{{
 # Quick Open {{{
 
 def make_highlighted_text(emph, text, positions):
-    positions = sorted(set(positions) - {-1}, reverse=True)
-    text = prepare_string_for_xml(text)
-    for p in positions:
-        ch = get_char(text, p)
-        text = '%s<span style="%s">%s</span>%s' % (text[:p], emph, ch, text[p+len(ch):])
+    positions = sorted(set(positions) - {-1})
+    if positions:
+        parts = []
+        pos = 0
+        for p in positions:
+            ch = get_char(text, p)
+            parts.append(prepare_string_for_xml(text[pos:p]))
+            parts.append('<span style="%s">%s</span>' % (emph, prepare_string_for_xml(ch)))
+            pos = p + len(ch)
+        parts.append(prepare_string_for_xml(text[pos:]))
+        return ''.join(parts)
     return text
-
 
 class Results(QWidget):
 

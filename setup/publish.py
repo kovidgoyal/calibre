@@ -9,6 +9,7 @@ __docformat__ = 'restructuredtext en'
 import os, shutil, subprocess, glob, tempfile, json, time, filecmp, atexit, sys
 
 from setup import Command, __version__, require_clean_git, require_git_master
+from setup.upload import installers
 from setup.parallel_build import parallel_build
 
 class Stage1(Command):
@@ -54,26 +55,13 @@ class Stage2(Command):
             p.duration = None
             processes.append(p)
 
-        error_ocurred = []
-
         def workers_running():
             running = False
             for p in processes:
-                if p.returncode is not None:
-                    continue
                 rc = p.poll()
                 if rc is not None:
-                    p.duration = int(time.time() - p.start_time)
-                    if rc != 0 and not error_ocurred:
-                        error_ocurred.append(True)
-                        log = p.log
-                        log.flush()
-                        log.seek(0)
-                        sys.stderr.write(log.read())
-                        sys.stderr.write(b'\n')
-                        self.info('\n\nFailed to build: %s. Waiting for other builds to complete before aborting...' % x)
-                        if mtexe:
-                            mtexe.terminate(), mtexe.wait()
+                    if p.duration is None:
+                        p.duration = int(time.time() - p.start_time)
                 else:
                     running = True
             return running
@@ -85,12 +73,29 @@ class Stage2(Command):
         while workers_running():
             os.waitpid(-1, 0)
 
-        if error_ocurred:
-            raise SystemExit(1)
         if mtexe and mtexe.poll() is None:
             mtexe.terminate(), mtexe.wait()
+
+        failed = False
+        for p in processes:
+            if p.poll() != 0:
+                failed = True
+                log = p.log
+                log.flush()
+                log.seek(0)
+                raw = log.read()
+                self.info('Building of %s failed' % p.bname)
+                sys.stderr.write(raw)
+                sys.stderr.write(b'\n\n')
+        if failed:
+            raise SystemExit('Building of installers failed!')
+
         for p in sorted(processes, key=lambda p:p.duration):
             self.info('Built %s in %d minutes and %d seconds' % (p.bname, p.duration // 60, p.duration % 60))
+
+        for installer in installers(include_source=False):
+            if not os.path.exists(self.j(self.d(self.SRC), installer)):
+                raise SystemExit('The installer %s does not exist' % os.path.basename(installer))
 
 class Stage3(Command):
 

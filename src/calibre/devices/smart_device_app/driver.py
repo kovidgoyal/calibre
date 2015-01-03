@@ -422,8 +422,9 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
         except:
             pass
 
+        dotless_ext = ext[1:] if len(ext) > 0 else ext
         maxlen = (self.MAX_PATH_LEN - (self.PATH_FUDGE_FACTOR +
-                   self.exts_path_lengths.get(ext, self.PATH_FUDGE_FACTOR)))
+                   self.exts_path_lengths.get(dotless_ext, self.PATH_FUDGE_FACTOR)))
 
         special_tag = None
         if mdata.tags:
@@ -452,7 +453,8 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
         app_id = str(getattr(mdata, 'application_id', ''))
         id_ = mdata.get('id', fname)
         extra_components = get_components(template, mdata, id_,
-                timefmt=opts.send_timefmt, length=maxlen-len(app_id)-1)
+                timefmt=opts.send_timefmt, length=maxlen-len(app_id)-1,
+                last_has_extension=False)
         if not extra_components:
             extra_components.append(sanitize(fname))
         else:
@@ -491,6 +493,9 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
         extra_components = list(map(remove_trailing_periods, extra_components))
         components = shorten_components_to(maxlen, extra_components)
         filepath = posixpath.join(*components)
+        self._debug('lengths', dotless_ext, maxlen,
+                    self.exts_path_lengths.get(dotless_ext, self.PATH_FUDGE_FACTOR),
+                    len(filepath))
         return filepath
 
     def _strip_prefix(self, path):
@@ -517,7 +522,8 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                 res[k]['_series_sort_'] = series
             else:
                 res[k] = v
-        return json.dumps([op, res], encoding='utf-8')
+        from calibre.utils.config import to_json
+        return json.dumps([op, res], encoding='utf-8', default=to_json)
 
     # Network functions
 

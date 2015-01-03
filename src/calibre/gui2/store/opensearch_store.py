@@ -32,7 +32,7 @@ class OpenSearchOPDSStore(StorePlugin):
         if external or self.config.get('open_external', False):
             open_url(QUrl(detail_item if detail_item else self.web_url))
         else:
-            d = WebStoreDialog(self.gui, self.web_url, parent, detail_item)
+            d = WebStoreDialog(self.gui, self.web_url, parent, detail_item, create_browser=self.create_browser)
             d.setWindowTitle(self.name)
             d.set_tags(self.config.get('tags', ''))
             d.exec_()
@@ -96,6 +96,5 @@ class OpenSearchOPDSStore(StorePlugin):
                     price = ''.join(price_e.xpath('.//text()')).strip()
                     s.price = currency_code + ' ' + price
                     s.price = s.price.strip()
-
 
                 yield s

@@ -704,3 +704,59 @@ a new book`.
     :hidden:
 
     function_mode
+
+Special features in the code editor
+---------------------------------------
+
+The calibre HTML editor is very powerful. It has many features that make
+editing of HTML (and CSS) easier.
+
+Syntax highlighting
+^^^^^^^^^^^^^^^^^^^^^
+
+The HTML editor has very sophisticated syntax highlighting. Features include:
+
+    * The text inside bold, italic and heading tags is made bold/italic
+    * As you move your cursor through the HTML, the matching HTML tags are
+      highlighted
+    * Invalid HTML is highlighted with a red underline
+    * Spelling errors in the text inside HTML tags and attributes such as title
+      are highlighted. The spell checking is language aware, based on the value
+      of the lang attribute of the current tag and the overall book language.
+    * CSS embedded inside ``<style>`` tags is highlighted
+    * Special characters that can be hard to distinguish such as non-breaking
+      spaces, different types of hyphens, etc. are highlighted.
+    * Links to other files in ``<a>`` tags, ``<img>`` and ``<link>`` tags all
+      have the filenames highlighted. If the filename they point to does not
+      exist, the filename is marked with a red underline.
+
+Context sensitive help
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+You can right click on an HTML tag name or a CSS property name to get help for that tag or property.
+
+You can also hold down the Ctrl key and click on any filename inside a link tag
+to open that file in the editor automatically.
+
+Auto-complete
+^^^^^^^^^^^^^^^^
+
+When editing an ebook, one of the most tedious tasks is creating links to other
+files inside the book, or to CSS stylesheets, or images. You have to figure out
+the correct filename and relative path to the file. The editor has
+auto-complete to make that easier. 
+
+As you type a filename, the editor automatically pops up suggestions. Simply
+use the Tab key to select the correct file name. The editor even offers
+suggestions for links pointing to an anchor inside another HTML file. After you
+type the ``#`` character, the editor will show you a list of all anchors in the
+target file, with a small snippet of text to help you choose the right anchor.
+
+Note that unlike most other completion systems, the editor's completion system
+uses subsequence matching. This means that you can type just two or three
+letters from anywhere in the filename to complete the filename. For example,
+say you want the filename ``../images/arrow1.png``, you can simply type ``ia1``
+and press Tab to complete the filename. When searching for matches, the
+completion system prioritizes letters that are at the start of a word, or
+immediately after a path separator. Once you get used to this system, you will
+find it saves you a lot of time and effort.

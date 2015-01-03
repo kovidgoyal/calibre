@@ -206,7 +206,7 @@ class Saver(QObject):
             asked_formats = {x.lower().strip() for x in self.opts.formats.split(',')}
             fmts = asked_formats.intersection(fmts)
             if not fmts:
-                self.errors[book_id] = ('critical', _('Requested formats not available'))
+                self.errors[book_id].append(('critical', _('Requested formats not available')))
                 return
 
         if not fmts and not self.opts.write_opf and not self.opts.save_cover:

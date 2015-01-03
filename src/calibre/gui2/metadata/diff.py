@@ -6,7 +6,7 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import os
+import os, weakref
 from collections import OrderedDict, namedtuple
 from functools import partial
 from future_builtins import zip
@@ -18,7 +18,7 @@ from PyQt5.Qt import (
     QKeySequence, QAction, QMenu)
 
 from calibre import fit_image
-from calibre.ebooks.metadata import title_sort, authors_to_sort_string
+from calibre.ebooks.metadata import title_sort, authors_to_sort_string, fmt_sidx
 from calibre.gui2 import pixmap_to_data, gprefs
 from calibre.gui2.complete2 import LineEdit as EditWithComplete
 from calibre.gui2.comments_editor import Editor
@@ -193,6 +193,11 @@ class DateEdit(PubdateEdit):
 
 class SeriesEdit(LineEdit):
 
+    def __init__(self, *args, **kwargs):
+        LineEdit.__init__(self, *args, **kwargs)
+        self.dbref = None
+        self.item_selected.connect(self.insert_series_index)
+
     def from_mi(self, mi):
         series = mi.get(self.field, default='')
         series_index = mi.get(self.field + '_index', default=1.0)
@@ -208,9 +213,20 @@ class SeriesEdit(LineEdit):
             series_index = float(val.rpartition('[')[-1].rstrip(']').strip())
         except:
             series_index = 1.0
-        series = val.rpartition('[')[0].strip() or None
+        series = val.rpartition('[')[0].strip() or val.rpartition('[')[-1].strip() or None
         mi.set(self.field, series)
         mi.set(self.field + '_index', series_index)
+
+    def set_db(self, db):
+        self.dbref = weakref.ref(db)
+
+    def insert_series_index(self, series):
+        db = self.dbref()
+        if db is None or not series:
+            return
+        num = db.get_next_series_num_for(series)
+        sidx = fmt_sidx(num)
+        self.setText(self.text() + ' [%s]' % sidx)
 
 class IdentifiersEdit(LineEdit):
 
@@ -410,6 +426,8 @@ class CompareSingle(QWidget):
                     neww.update_items_cache(db.new_api.all_field_names(field))
                 except ValueError:
                     pass  # A one-one field like title
+            if isinstance(neww, SeriesEdit):
+                neww.set_db(db.new_api)
             oldw = cls(field, False, self, m, extra)
             newl = QLabel('&%s:' % m['name'])
             newl.setBuddy(neww)
@@ -622,6 +640,9 @@ class CompareMany(QDialog):
         self.accept()
 
     def reject_all_remaining(self):
+        from calibre.gui2.dialogs.confirm_delete import confirm
+        if not confirm(_('Are you sure you want to reject all %d remaining results?') % len(self.ids), 'confirm_metadata_review_reject', parent=self):
+            return
         self.next_item(False)
         for id_ in self.ids:
             oldmi, newmi = self.get_metadata(id_)

@@ -12,7 +12,7 @@ from urlparse import urlparse
 
 from PyQt5.Qt import (
     QObject, QApplication, QDialog, QGridLayout, QLabel, QSize, Qt,
-    QDialogButtonBox, QIcon, QPixmap, QInputDialog, QUrl)
+    QDialogButtonBox, QIcon, QPixmap, QInputDialog, QUrl, pyqtSignal)
 
 from calibre import prints, isbytestring
 from calibre.ptempfile import PersistentTemporaryDirectory, TemporaryDirectory
@@ -31,6 +31,7 @@ from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.gui2.tweak_book import (
     set_current_container, current_container, tprefs, actions, editors,
     set_book_locale, dictionaries, editor_name)
+from calibre.gui2.tweak_book.completion.worker import completion_worker
 from calibre.gui2.tweak_book.undo import GlobalUndoHistory
 from calibre.gui2.tweak_book.file_list import NewFileDialog
 from calibre.gui2.tweak_book.save import SaveManager, save_container, find_first_existing_ancestor
@@ -68,6 +69,8 @@ def get_boss():
 
 class Boss(QObject):
 
+    handle_completion_result_signal = pyqtSignal(object)
+
     def __init__(self, parent, notify=None):
         global _boss
         QObject.__init__(self, parent)
@@ -82,6 +85,9 @@ class Boss(QObject):
         setup_cssutils_serialization()
         _boss = self
         self.gui = parent
+        completion_worker().result_callback = self.handle_completion_result_signal.emit
+        self.handle_completion_result_signal.connect(self.handle_completion_result, Qt.QueuedConnection)
+        self.completion_request_count = 0
 
     def __call__(self, gui):
         self.gui = gui
@@ -283,6 +289,7 @@ class Boss(QObject):
         parse_worker.clear()
         container = job.result
         set_current_container(container)
+        completion_worker().clear_caches()
         with BusyCursor():
             self.current_metadata = self.gui.current_metadata = container.mi
             lang = container.opf_xpath('//dc:language/text()') or [self.current_metadata.language]
@@ -320,6 +327,7 @@ class Boss(QObject):
     def refresh_file_list(self):
         container = current_container()
         self.gui.file_list.build(container)
+        completion_worker().clear_caches('names')
 
     def apply_container_update_to_gui(self, mark_as_modified=True):
         '''
@@ -334,6 +342,7 @@ class Boss(QObject):
         if mark_as_modified:
             self.set_modified()
         self.gui.toc_view.update_if_visible()
+        completion_worker().clear_caches()
 
     @in_thread_job
     def delete_requested(self, spine_items, other_items):
@@ -345,6 +354,7 @@ class Boss(QObject):
         self.set_modified()
         self.gui.file_list.delete_done(spine_items, other_items)
         spine_names = [x for x, remove in spine_items if remove]
+        completion_worker().clear_caches('names')
         for name in spine_names + list(other_items):
             if name in editors:
                 self.close_editor(name)
@@ -370,6 +380,7 @@ class Boss(QObject):
         self.gui.file_list.build(current_container())  # needed as the linear flag may have changed on some items
         if c.opf_name in editors:
             editors[c.opf_name].replace_data(c.raw_data(c.opf_name))
+        completion_worker().clear_caches('names')
 
     def add_file(self):
         if current_container() is None:
@@ -404,6 +415,7 @@ class Boss(QObject):
             else:
                 self.edit_file(file_name, syntax)
         self.set_modified()
+        completion_worker().clear_caches('names')
 
     def add_files(self):
         if current_container() is None:
@@ -434,6 +446,7 @@ class Boss(QObject):
             if c.opf_name in editors:
                 editors[c.opf_name].replace_data(c.raw_data(c.opf_name))
             self.set_modified()
+            completion_worker().clear_caches('names')
 
     def add_cover(self):
         d = AddCover(current_container(), self.gui)
@@ -668,6 +681,21 @@ class Boss(QObject):
     def set_modified(self):
         ' Mark the book as having been modified '
         self.gui.action_save.setEnabled(True)
+
+    def request_completion(self, name, completion_type, completion_data, query=None):
+        if completion_type is None:
+            completion_worker().clear_caches(completion_data)
+            return
+        request_id = (self.completion_request_count, name)
+        self.completion_request_count += 1
+        completion_worker().queue_completion(request_id, completion_type, completion_data, query)
+        return request_id[0]
+
+    def handle_completion_result(self, result):
+        name = result.request_id[1]
+        editor = editors.get(name)
+        if editor is not None:
+            editor.handle_completion_result(result)
 
     def fix_html(self, current):
         if current:
@@ -1162,6 +1190,8 @@ class Boss(QObject):
             editor.link_clicked.connect(self.editor_link_clicked)
         if getattr(editor, 'syntax', None) == 'html':
             editor.smart_highlighting_updated.connect(self.gui.live_css.sync_to_editor)
+        if hasattr(editor, 'set_request_completion'):
+            editor.set_request_completion(partial(self.request_completion, name), name)
         if data is not None:
             if use_template:
                 editor.init_from_template(data)
@@ -1398,6 +1428,7 @@ class Boss(QObject):
             QApplication.instance().quit()
 
     def shutdown(self):
+        completion_worker().shutdown()
         self.save_manager.check_for_completion.disconnect()
         self.gui.preview.stop_refresh_timer()
         self.gui.live_css.stop_update_timer()

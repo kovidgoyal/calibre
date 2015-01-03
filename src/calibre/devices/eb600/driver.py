@@ -96,6 +96,19 @@ class TOLINO(EB600):
             drives['carda'] = main
         return drives
 
+    def osx_sort_names(self, names):
+        e = self.settings().extra_customization
+        if len(names) < 2 or not e[self.OPT_SWAP_MEMORY]:
+            return names
+        main = names.get('main', None)
+        card = names.get('carda', None)
+
+        if main is not None and card is not None:
+            names['main'] = card
+            names['carda'] = main
+
+        return names
+
     def post_open_callback(self):
         # The Tolino Vision only handles books inside the Books folder
         product_id, bcd = self.device_being_opened[1], self.device_being_opened[2]

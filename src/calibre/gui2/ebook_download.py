@@ -12,7 +12,6 @@ from contextlib import closing
 from mechanize import MozillaCookieJar
 
 from calibre import browser
-from calibre.constants import __appname__, __version__
 from calibre.ebooks import BOOK_EXTENSIONS
 from calibre.gui2 import Dispatcher, gprefs
 from calibre.gui2.dialogs.message_box import MessageBox
@@ -52,15 +51,13 @@ def get_download_filename(response):
     filename = ascii_filename(filename)
     return filename
 
-def download_file(url, cookie_file=None, filename=None):
-    user_agent = None
+def download_file(url, cookie_file=None, filename=None, create_browser=None):
     if url.startswith('//'):
         url = 'http:' + url
-    if url.startswith('http://www.gutenberg.org'):
-        # Project Gutenberg returns an HTML page if the user agent is a normal
-        # browser user agent
-        user_agent = '%s/%s' % (__appname__, __version__)
-    br = browser(user_agent=user_agent)
+    try:
+        br = browser() if create_browser is None else create_browser()
+    except NotImplementedError:
+        br = browser()
     if cookie_file:
         cj = MozillaCookieJar()
         cj.load(cookie_file)
@@ -78,10 +75,11 @@ def download_file(url, cookie_file=None, filename=None):
 
 class EbookDownload(object):
 
-    def __call__(self, gui, cookie_file=None, url='', filename='', save_loc='', add_to_lib=True, tags=[], log=None, abort=None, notifications=None):
+    def __call__(self, gui, cookie_file=None, url='', filename='', save_loc='', add_to_lib=True, tags=[], create_browser=None,
+                 log=None, abort=None, notifications=None):
         dfilename = ''
         try:
-            dfilename = self._download(cookie_file, url, filename, save_loc, add_to_lib)
+            dfilename = self._download(cookie_file, url, filename, save_loc, add_to_lib, create_browser)
             self._add(dfilename, gui, add_to_lib, tags)
             self._save_as(dfilename, save_loc)
         finally:
@@ -91,13 +89,13 @@ class EbookDownload(object):
             except:
                 pass
 
-    def _download(self, cookie_file, url, filename, save_loc, add_to_lib):
+    def _download(self, cookie_file, url, filename, save_loc, add_to_lib, create_browser):
         if not url:
             raise Exception(_('No file specified to download.'))
         if not save_loc and not add_to_lib:
             # Nothing to do.
             return ''
-        return download_file(url, cookie_file, filename)
+        return download_file(url, cookie_file, filename, create_browser=create_browser)
 
     def _add(self, filename, gui, add_to_lib, tags):
         if not add_to_lib or not filename:
@@ -124,10 +122,10 @@ class EbookDownload(object):
 
 gui_ebook_download = EbookDownload()
 
-def start_ebook_download(callback, job_manager, gui, cookie_file=None, url='', filename='', save_loc='', add_to_lib=True, tags=[]):
+def start_ebook_download(callback, job_manager, gui, cookie_file=None, url='', filename='', save_loc='', add_to_lib=True, tags=[], create_browser=None):
     description = _('Downloading %s') % filename.decode('utf-8', 'ignore') if filename else url.decode('utf-8', 'ignore')
     job = ThreadedJob('ebook_download', description, gui_ebook_download, (
-        gui, cookie_file, url, filename, save_loc, add_to_lib, tags), {},
+        gui, cookie_file, url, filename, save_loc, add_to_lib, tags, create_browser), {},
                       callback, max_concurrent_count=2, killable=False)
     job_manager.run_threaded_job(job)
 
@@ -137,11 +135,11 @@ class EbookDownloadMixin(object):
     def __init__(self, *args, **kwargs):
         pass
 
-    def download_ebook(self, url='', cookie_file=None, filename='', save_loc='', add_to_lib=True, tags=[]):
+    def download_ebook(self, url='', cookie_file=None, filename='', save_loc='', add_to_lib=True, tags=[], create_browser=None):
         if tags:
             if isinstance(tags, basestring):
                 tags = tags.split(',')
-        start_ebook_download(Dispatcher(self.downloaded_ebook), self.job_manager, self, cookie_file, url, filename, save_loc, add_to_lib, tags)
+        start_ebook_download(Dispatcher(self.downloaded_ebook), self.job_manager, self, cookie_file, url, filename, save_loc, add_to_lib, tags, create_browser)
         self.status_bar.show_message(_('Downloading') + ' ' + filename.decode('utf-8', 'ignore') if filename else url.decode('utf-8', 'ignore'), 3000)
 
     def downloaded_ebook(self, job):

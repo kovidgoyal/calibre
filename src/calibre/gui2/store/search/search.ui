@@ -14,7 +14,7 @@
    <string>Get Books</string>
   </property>
   <property name="windowIcon">
-   <iconset resource="../../../../work/calibre/resources/images.qrc">
+   <iconset resource="../../../../../resources/images.qrc">
     <normaloff>:/images/store.png</normaloff>:/images/store.png</iconset>
   </property>
   <property name="sizeGripEnabled">
@@ -94,7 +94,16 @@
        <property name="spacing">
         <number>0</number>
        </property>
-       <property name="margin">
+       <property name="leftMargin">
+        <number>0</number>
+       </property>
+       <property name="topMargin">
+        <number>0</number>
+       </property>
+       <property name="rightMargin">
+        <number>0</number>
+       </property>
+       <property name="bottomMargin">
         <number>0</number>
        </property>
        <item>
@@ -107,8 +116,8 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>207</width>
-            <height>163</height>
+            <width>208</width>
+            <height>161</height>
            </rect>
           </property>
          </widget>
@@ -122,21 +131,21 @@
          <item>
           <widget class="QPushButton" name="select_all_stores">
            <property name="text">
-            <string>All</string>
+            <string>Select all</string>
            </property>
           </widget>
          </item>
          <item>
           <widget class="QPushButton" name="select_invert_stores">
            <property name="text">
-            <string>Invert</string>
+            <string>Invert selection</string>
            </property>
           </widget>
          </item>
          <item>
           <widget class="QPushButton" name="select_none_stores">
            <property name="text">
-            <string>None</string>
+            <string>Select none</string>
            </property>
           </widget>
          </item>
@@ -335,7 +344,7 @@
   <tabstop>close</tabstop>
  </tabstops>
  <resources>
-  <include location="../../../../work/calibre/resources/images.qrc"/>
+  <include location="../../../../../resources/images.qrc"/>
  </resources>
  <connections>
   <connection>

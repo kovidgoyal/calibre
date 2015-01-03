@@ -477,8 +477,9 @@ class JobsButton(QFrame):  # {{{
         self.setToolTip(b + u' (%s)'%self.shortcut)
         self.action_toggle = QAction(b, parent)
         parent.addAction(self.action_toggle)
-        self.action_toggle.setShortcut(self.shortcut)
         self.action_toggle.triggered.connect(self.toggle)
+        if hasattr(parent, 'keyboard'):
+            parent.keyboard.register_shortcut('toggle jobs list', _('Show/hide the Jobs List'), default_keys=(self.shortcut,), action=self.action_toggle)
 
     def initialize(self, jobs_dialog, job_manager):
         self.jobs_dialog = jobs_dialog

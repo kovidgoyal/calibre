@@ -1067,6 +1067,8 @@ OptionRecommendation(name='search_replace',
 
         self.oeb.plumber_output_format = self.output_fmt or ''
 
+        from calibre.ebooks.oeb.transforms.data_url import DataURL
+        DataURL()(self.oeb, self.opts)
         from calibre.ebooks.oeb.transforms.guide import Clean
         Clean()(self.oeb, self.opts)
         pr(0.1)

@@ -25,11 +25,12 @@ STAGING_HOST = 'download.calibre-ebook.com'
 STAGING_USER = 'root'
 STAGING_DIR = '/root/staging'
 
-def installers():
+def installers(include_source=True):
     installers = list(map(installer_name, ('dmg', 'msi', 'txz')))
     installers.append(installer_name('txz', is64bit=True))
     installers.append(installer_name('msi', is64bit=True))
-    installers.insert(0, 'dist/%s-%s.tar.xz'%(__appname__, __version__))
+    if include_source:
+        installers.insert(0, 'dist/%s-%s.tar.xz'%(__appname__, __version__))
     installers.append('dist/%s-portable-installer-%s.exe'%(__appname__, __version__))
     return installers
 

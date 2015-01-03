@@ -84,8 +84,10 @@ class Plugin(object):  # {{{
 
     def initialize(self):
         '''
-        Called once when calibre plugins are initialized. Plugins are re-initialized
-        every time a new plugin is added.
+        Called once when calibre plugins are initialized.  Plugins are
+        re-initialized every time a new plugin is added. Also note that if the
+        plugin is run in a worker process, such as for adding books, then the
+        plugin will be initialized for every new worker process.
 
         Perform any plugin specific initialization here, such as extracting
         resources from the plugin zip file. The path to the zip file is

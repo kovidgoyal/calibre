@@ -12,6 +12,6 @@ static const char PYVER[] = "**PYVER**";
 
 int 
 main(int argc, const char **argv, const char **envp) {
-    return run(ENV_VARS, ENV_VAR_VALS, PROGRAM, MODULE, FUNCTION, PYVER, argc, argv, envp);
+    return run(ENV_VARS, ENV_VAR_VALS, PROGRAM, MODULE, FUNCTION, PYVER, **IS_GUI**, argc, argv, envp);
 }
 

@@ -31,7 +31,7 @@ for dir in sys.path:
     # if they only differ in case); turn relative paths into absolute
     # paths.
     dir, dircase = makepath(dir)
-    if not dircase in _dirs_in_sys_path:
+    if dircase not in _dirs_in_sys_path:
         L.append(dir)
         _dirs_in_sys_path[dircase] = 1
 sys.path[:] = L
@@ -55,7 +55,7 @@ def addsitedir(sitedir):
     else:
         reset = 0
     sitedir, sitedircase = makepath(sitedir)
-    if not sitedircase in _dirs_in_sys_path:
+    if sitedircase not in _dirs_in_sys_path:
         sys.path.append(sitedir)        # Add path component
     try:
         names = os.listdir(sitedir)
@@ -92,7 +92,7 @@ def addpackage(sitedir, name):
         if dir[-1] == '\n':
             dir = dir[:-1]
         dir, dircase = makepath(sitedir, dir)
-        if not dircase in _dirs_in_sys_path and os.path.exists(dir):
+        if dircase not in _dirs_in_sys_path and os.path.exists(dir):
             sys.path.append(dir)
             _dirs_in_sys_path[dircase] = 1
     if reset:
@@ -184,25 +184,26 @@ def setup_asl():
 
 def main():
     global __file__
-    base = sys.resourcepath
 
+    if sys.calibre_is_gui_app and not (
+            sys.stdout.isatty() or sys.stderr.isatty() or sys.stdin.isatty()):
+        try:
+            setup_asl()
+        except:
+            pass  # Failure to log to Console.app is not critical
+
+    # Needed on OS X <= 10.7, which passes -psn_... as a command line arg when
+    # starting via launch services
+    for arg in tuple(sys.argv[1:]):
+        if arg.startswith('-psn_'):
+            sys.argv.remove(arg)
+
+    base = sys.resourcepath
     sys.frozen = 'macosx_app'
     sys.new_app_bundle = True
     abs__file__()
 
     add_calibre_vars(base)
     addsitedir(sys.site_packages)
-
-    launched_by_launch_services = False
-
-    for arg in tuple(sys.argv[1:]):
-        if arg.startswith('-psn_'):
-            sys.argv.remove(arg)
-            launched_by_launch_services = True
-    if launched_by_launch_services:
-        try:
-            setup_asl()
-        except:
-            pass  # Failure to log to Console.app is not critical
 
     return run_entry_point()

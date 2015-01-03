@@ -378,8 +378,11 @@ def run_gui(opts, args, listener, app, gui_debug=None):
         open_local_file(debugfile)
     return ret
 
+singleinstance_name = 'calibre_GUI'
+
 def cant_start(msg=_('If you are sure it is not running')+', ',
-               det_msg=_('Timed out waiting for response from running calibre')):
+               det_msg=_('Timed out waiting for response from running calibre'),
+               listener_failed=False):
     base = '<p>%s</p><p>%s %s'
     where = __appname__ + ' '+_('may be running in the system tray, in the')+' '
     if isosx:
@@ -389,7 +392,12 @@ def cant_start(msg=_('If you are sure it is not running')+', ',
     if iswindows or islinux:
         what = _('try rebooting your computer.')
     else:
-        what = _('try deleting the file')+': '+ gui_socket_address()
+        if listener_failed:
+            path = gui_socket_address()
+        else:
+            from calibre.utils.lock import singleinstance_path
+            path = singleinstance_path(singleinstance_name)
+        what = _('try deleting the file: "%s"') % path
 
     info = base%(where, msg, what)
     error_dialog(None, _('Cannot Start ')+__appname__,
@@ -416,7 +424,7 @@ def shutdown_other(rc=None):
     rc.conn.send('shutdown:')
     prints(_('Shutdown command sent, waiting for shutdown...'))
     for i in xrange(50):
-        if singleinstance('calibre GUI'):
+        if singleinstance(singleinstance_name):
             return
         time.sleep(0.1)
     prints(_('Failed to shutdown running calibre instance'))
@@ -451,8 +459,14 @@ def main(args=sys.argv):
         app, opts, args = init_qt(args)
     except AbortInit:
         return 1
-    from calibre.utils.lock import singleinstance
-    si = singleinstance('calibre GUI')
+    try:
+        from calibre.utils.lock import singleinstance
+        si = singleinstance(singleinstance_name)
+    except Exception:
+        error_dialog(None, _('Cannot start calibre'), _(
+            'Failed to start calibre, single instance locking failed. Click "Show Details" for more information'),
+                     det_msg=traceback.format_exc(), show=True)
+        return 1
     if si and opts.shutdown_running_calibre:
         return 0
     if si:
@@ -460,13 +474,13 @@ def main(args=sys.argv):
             listener = create_listener()
         except socket.error:
             if iswindows or islinux:
-                cant_start(det_msg=traceback.format_exc())
+                cant_start(det_msg=traceback.format_exc(), listener_failed=True)
             if os.path.exists(gui_socket_address()):
                 os.remove(gui_socket_address())
             try:
                 listener = create_listener()
             except socket.error:
-                cant_start(det_msg=traceback.format_exc())
+                cant_start(det_msg=traceback.format_exc(), listener_failed=True)
             else:
                 return run_gui(opts, args, listener, app,
                         gui_debug=gui_debug)

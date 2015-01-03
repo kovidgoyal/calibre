@@ -306,6 +306,22 @@ def upshift_markup(parts):
         # store away modified version
         parts[i] = part
 
+def handle_media_queries(raw):
+    # cssutils cannot handle CSS 3 media queries. We look for media queries
+    # that use amzn-mobi or amzn-kf8 and map them to a simple @media screen
+    # rule. See https://bugs.launchpad.net/bugs/1406708 for an example
+    import tinycss
+    parser = tinycss.make_full_parser()
+    def replace(m):
+        sheet = parser.parse_stylesheet(m.group() + '}')
+        for mq in sheet.rules[0].media:
+            # Only accept KF8 media types
+            if (mq.media_type, mq.negated) in {('amzn-mobi', True), ('amzn-kf8', False)}:
+                return '@media screen {'
+        return m.group()
+
+    return re.sub(r'@media\s[^{]*{', replace, raw)
+
 def expand_mobi8_markup(mobi8_reader, resource_map, log):
     # First update all internal links that are based on offsets
     parts = update_internal_links(mobi8_reader, log)
@@ -347,6 +363,8 @@ def expand_mobi8_markup(mobi8_reader, resource_map, log):
             if not os.path.exists(fi.dir):
                 os.mkdir(fi.dir)
             with open(os.path.join(fi.dir, fi.fname), 'wb') as f:
+                if fi.fname.endswith('.css') and '@media' in flow:
+                    flow = handle_media_queries(flow)
                 f.write(flow.encode('utf-8'))
 
     return spine

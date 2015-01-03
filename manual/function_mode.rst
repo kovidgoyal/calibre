@@ -28,11 +28,12 @@ Automatically fixing the case of headings in the document
 Here, we will leverage one of the builtin functions in the editor to
 automatically change the case of all text inside heading tags to title case::
 
-    Find expression: <[Hh][1-6][^>]*>([^<>]+)</[hH][1-6]>
+    Find expression: <([Hh][1-6])[^>]*>.+?</\1>
     
-For the function, simply choose the :guilabel:`Title-case text` builtin
+For the function, simply choose the :guilabel:`Title-case text (ignore tags)` builtin
 function. The will change titles that look like: ``<h1>some TITLE</h1>`` to
-``<h1>Some Title</h1>``.
+``<h1>Some Title</h1>``. It will work even if there are other HTML tags inside
+the heading tags.
 
 
 Your first custom function - smartening hyphens

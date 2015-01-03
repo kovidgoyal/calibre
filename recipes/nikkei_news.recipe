@@ -1,21 +1,25 @@
+#!/usr/bin/env python
+# vim:fileencoding=utf-8
 from calibre.web.feeds.recipes import BasicNewsRecipe
 import re
 
-#import pprint, sys
-#pp = pprint.PrettyPrinter(indent=4)
+import unicodedata
+
+# import pprint, sys
+# pp = pprint.PrettyPrinter(indent=4)
 
 class NikkeiNet_paper_subscription(BasicNewsRecipe):
     title           = u'\u65E5\u672C\u7D4C\u6E08\u65B0\u805E\uFF08\u671D\u520A\u30FB\u5915\u520A\uFF09'
     __author__      = 'Ado Nishimura'
-    description     = u'\u65E5\u7D4C\u96FB\u5B50\u7248\u306B\u3088\u308B\u65E5\u672C\u7D4C\u6E08\u65B0\u805E\u3002\u671D\u520A\u30FB\u5915\u520A\u306F\u53D6\u5F97\u6642\u9593\u306B\u3088\u308A\u5207\u308A\u66FF\u308F\u308A\u307E\u3059\u3002\u8981\u8CFC\u8AAD'
+    description     = u'\u65E5\u7D4C\u96FB\u5B50\u7248\u306B\u3088\u308B\u65E5\u672C\u7D4C\u6E08\u65B0\u805E\u3002\u671D\u520A\u30FB\u5915\u520A\u306F\u53D6\u5F97\u6642\u9593\u306B\u3088\u308A\u5207\u308A\u66FF\u308F\u308A\u307E\u3059\u3002\u8981\u8CFC\u8AAD'  # noqa
     needs_subscription = True
     oldest_article  = 1
     max_articles_per_feed = 30
     language        = 'ja'
     no_stylesheets  = True
-    #cover_url       = 'http://parts.nikkei.com/parts/ds/images/common/logo_r1.svg'
+    # cover_url       = 'http://parts.nikkei.com/parts/ds/images/common/logo_r1.svg'
     cover_url       = 'http://cdn.nikkei.co.jp/parts/ds/images/common/st_nikkei_r1_20101003_1.gif'
-    #masthead_url    = 'http://parts.nikkei.com/parts/ds/images/common/logo_r1.svg'
+    # masthead_url    = 'http://parts.nikkei.com/parts/ds/images/common/logo_r1.svg'
     masthead_url    = 'http://cdn.nikkei.co.jp/parts/ds/images/common/st_nikkei_r1_20101003_1.gif'
     cover_margins   = (10, 188, '#ffffff')
 
@@ -50,18 +54,18 @@ class NikkeiNet_paper_subscription(BasicNewsRecipe):
             except StopIteration:
                 url = 'http://www.nikkei.com/etc/accounts/login?dps=3&pageflag=top&url=http%3A%2F%2Fwww.nikkei.com%2F'
             br.open(url)  # br.follow_link(link)
-            #response = br.response()
+            # response = br.response()
             # print response.get_data()
             print "-------------------------JS redirect(send autoPostForm)--------------------"
             br.select_form(name='autoPostForm')
             br.submit()
-            #response = br.response()
+            # response = br.response()
             print "-------------------------got login form------------------------------------"
             br.select_form(name='LA0210Form01')
             br['LA0210Form01:LA0210Email']    = self.username
             br['LA0210Form01:LA0210Password'] = self.password
             br.submit()
-            #response = br.response()
+            # response = br.response()
             print "-------------------------JS redirect---------------------------------------"
             br.select_form(nr=0)
             br.submit()
@@ -100,7 +104,11 @@ class NikkeiNet_paper_subscription(BasicNewsRecipe):
         return result
 
     def populate_article_metadata(self, article, soup, first):
-        elm = soup.find('div', {"class":"cmn-article_text JSID_key_fonttxt"})
-        elm_text = ''.join([s.string for s in elm])
-        article.summary = elm_text
-        article.text_summary = elm_text
+        try:
+            elms = soup.findAll('div', {"class":"cmn-article_text JSID_key_fonttxt"})
+            elm_text = u'◆'.join([self.tag_to_string(elm).strip() for elm in elms])
+            elm_text = unicodedata.normalize('NFKC', elm_text)
+            article.summary = article.text_summary = elm_text
+        except:
+            self.log("Error: Failed to get article summary.")
+            return

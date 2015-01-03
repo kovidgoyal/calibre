@@ -19,6 +19,7 @@ from PyQt5.Qt import (
 from calibre import prepare_string_for_xml
 from calibre.constants import isosx
 from calibre.gui2.tweak_book import tprefs, TOP
+from calibre.gui2.tweak_book.completion.popup import CompletionPopup
 from calibre.gui2.tweak_book.editor import (
     SYNTAX_PROPERTY, SPELL_PROPERTY, SPELL_LOCALE_PROPERTY, store_locale, LINK_PROPERTY)
 from calibre.gui2.tweak_book.editor.themes import get_theme, theme_color, theme_format
@@ -138,6 +139,12 @@ class TextEdit(PlainTextEdit):
 
     def __init__(self, parent=None, expected_geometry=(100, 50)):
         PlainTextEdit.__init__(self, parent)
+        self.completion_popup = CompletionPopup(self)
+        self.request_completion = self.completion_doc_name = None
+        self.clear_completion_cache_timer = t = QTimer(self)
+        t.setInterval(5000), t.timeout.connect(self.clear_completion_cache), t.setSingleShot(True)
+        self.textChanged.connect(t.start)
+        self.last_completion_request = -1
         self.gutter_width = 0
         self.tw = 2
         self.expected_geometry = expected_geometry
@@ -213,6 +220,7 @@ class TextEdit(PlainTextEdit):
         self.size_hint = QSize(self.expected_geometry[0] * w.averageCharWidth(), self.expected_geometry[1] * w.height())
         self.highlight_color = theme_color(theme, 'HighlightRegion', 'bg')
         self.highlight_cursor_line()
+        self.completion_popup.clear_caches(), self.completion_popup.update()
     # }}}
 
     def load_text(self, text, syntax='html', process_template=False, doc_name=None):
@@ -657,6 +665,10 @@ class TextEdit(PlainTextEdit):
             return self.text_for_range(c.block(), r)
 
     def mousePressEvent(self, ev):
+        if self.completion_popup.isVisible() and not self.completion_popup.rect().contains(ev.pos()):
+            # For some reason using eventFilter for this does not work, so we
+            # implement it here
+            self.completion_popup.abort()
         if ev.modifiers() & Qt.CTRL:
             url = self.link_for_position(ev.pos())
             if url is not None:
@@ -769,8 +781,36 @@ class TextEdit(PlainTextEdit):
             ev.setAccepted(False)
             return
         if self.smarts.handle_key_press(ev, self):
+            self.handle_keypress_completion(ev)
             return
         QPlainTextEdit.keyPressEvent(self, ev)
+        self.handle_keypress_completion(ev)
+
+    def handle_keypress_completion(self, ev):
+        if self.request_completion is None:
+            return
+        code = ev.key()
+        if code in (
+            0, Qt.Key_unknown, Qt.Key_Shift, Qt.Key_Control, Qt.Key_Alt,
+            Qt.Key_Meta, Qt.Key_AltGr, Qt.Key_CapsLock, Qt.Key_NumLock,
+            Qt.Key_ScrollLock, Qt.Key_Up, Qt.Key_Down):
+            # We ignore up/down arrow so as to not break scrolling through the
+            # text with the arrow keys
+            return
+        result = self.smarts.get_completion_data(self, ev)
+        if result is None:
+            self.last_completion_request += 1
+        else:
+            self.last_completion_request = self.request_completion(*result)
+        self.completion_popup.mark_completion(self, None if result is None else result[-1])
+
+    def handle_completion_result(self, result):
+        if result.request_id[0] >= self.last_completion_request:
+            self.completion_popup.handle_result(result)
+
+    def clear_completion_cache(self):
+        if self.request_completion is not None and self.completion_doc_name:
+            self.request_completion(None, 'file:' + self.completion_doc_name)
 
     def replace_possible_unicode_sequence(self):
         c = self.textCursor()

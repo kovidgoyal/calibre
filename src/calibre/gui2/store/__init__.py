@@ -8,7 +8,8 @@ __docformat__ = 'restructuredtext en'
 
 from calibre.utils.filenames import ascii_filename
 
-class StorePlugin(object): # {{{
+class StorePlugin(object):  # {{{
+
     '''
     A plugin representing an online ebook repository (store). The store can
     be a commercial store that sells ebooks or a source of free downloadable
@@ -59,6 +60,18 @@ class StorePlugin(object): # {{{
             from calibre.gui2 import JSONConfig
             config = JSONConfig('store/stores/' + ascii_filename(self.name))
         self.config = config
+
+    def create_browser(self):
+        '''
+        If the server requires special headers, such as a particular user agent
+        or a referrer, then implement this method in you plugin to return a
+        customized browser instance. See the Gutenberg plugin for an example.
+
+        Note that if you implement the open() method in your plugin and use the
+        WebStoreDialog class, remember to pass self.createbrowser in the
+        constructor of WebStoreDialog.
+        '''
+        raise NotImplementedError()
 
     def open(self, gui, parent=None, detail_item=None, external=False):
         '''

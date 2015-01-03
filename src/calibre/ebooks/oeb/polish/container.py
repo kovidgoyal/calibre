@@ -72,6 +72,33 @@ def clone_container(container, dest_dir):
         return cls(None, None, container.log, clone_data=clone_data)
     return cls(None, container.log, clone_data=clone_data)
 
+def name_to_abspath(name, root):
+    return os.path.abspath(join(root, *name.split('/')))
+
+def abspath_to_name(path, root):
+    return relpath(os.path.abspath(path), root).replace(os.sep, '/')
+
+def name_to_href(name, root, base=None, quote=urlquote):
+    fullpath = name_to_abspath(name, root)
+    basepath = root if base is None else os.path.dirname(name_to_abspath(base, root))
+    path = relpath(fullpath, basepath).replace(os.sep, '/')
+    return quote(path)
+
+def href_to_name(href, root, base=None):
+    base = root if base is None else os.path.dirname(name_to_abspath(base, root))
+    purl = urlparse(href)
+    if purl.scheme or not purl.path:
+        return None
+    href = urlunquote(purl.path)
+    if href.startswith('/') or (len(href) > 1 and href[1] == ':' and 'a' <= href[0].lower() <= 'z'):
+        # For paths that start with drive letter os.path.join(base, href)
+        # will discard base and return href on windows, so we assume that
+        # such paths are also absolute paths, on all platforms.
+        return None
+    fullpath = os.path.join(base, *href.split('/'))
+    return abspath_to_name(fullpath, root)
+
+
 class Container(object):  # {{{
 
     '''
@@ -340,11 +367,11 @@ class Container(object):  # {{{
 
         :param root: The base directory. By default the root for this container object is used.
         '''
-        return self.relpath(os.path.abspath(fullpath), base=root).replace(os.sep, '/')
+        return abspath_to_name(fullpath, root or self.root)
 
     def name_to_abspath(self, name):
         ' Convert a canonical name to an absolute OS dependant path '
-        return os.path.abspath(join(self.root, *name.split('/')))
+        return name_to_abspath(name, self.root)
 
     def exists(self, name):
         ''' True iff a file corresponding to the canonical name exists. Note
@@ -359,29 +386,12 @@ class Container(object):  # {{{
         Convert an href (relative to base) to a name. base must be a name or
         None, in which case self.root is used.
         '''
-        if base is None:
-            base = self.root
-        else:
-            base = os.path.dirname(self.name_to_abspath(base))
-        purl = urlparse(href)
-        if purl.scheme or not purl.path:
-            return None
-        href = urlunquote(purl.path)
-        if href.startswith('/') or (len(href) > 1 and href[1] == ':' and 'a' <= href[0].lower() <= 'z'):
-            # For paths that start with drive letter os.path.join(base, href)
-            # will discard base and return href on windows, so we assume that
-            # such paths are also absolute paths, on all platforms.
-            return None
-        fullpath = os.path.join(base, *href.split('/'))
-        return self.abspath_to_name(fullpath)
+        return href_to_name(href, self.root, base=base)
 
     def name_to_href(self, name, base=None):
         '''Convert a name to a href relative to base, which must be a name or
         None in which case self.root is used as the base'''
-        fullpath = self.name_to_abspath(name)
-        basepath = self.root if base is None else os.path.dirname(self.name_to_abspath(base))
-        path = relpath(fullpath, basepath).replace(os.sep, '/')
-        return urlquote(path)
+        return name_to_href(name, self.root, base=base)
 
     def opf_xpath(self, expr):
         ' Convenience method to evaluate an XPath expression on the OPF file, has the opf: and dc: namespace prefixes pre-defined. '

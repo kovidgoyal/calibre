@@ -33,3 +33,6 @@ class NullSmarts(object):
 
     def handle_key_press(self, ev, editor):
         return False
+
+    def get_completion_data(self, editor, ev=None):
+        return None

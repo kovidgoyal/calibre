@@ -9,7 +9,7 @@ __copyright__ = '2009, Kovid Goyal kovid@kovidgoyal.net and ' \
     'Marshall T. Vandegrift <llasram@gmail.com>'
 __docformat__ = 'restructuredtext en'
 
-import os, cStringIO
+import os
 from struct import pack, unpack
 from cStringIO import StringIO
 
@@ -467,13 +467,8 @@ def get_metadata(stream):
     from calibre.ptempfile import TemporaryDirectory
     from calibre.ebooks.mobi.reader.headers import MetadataHeader
     from calibre.ebooks.mobi.reader.mobi6 import MobiReader
+    from calibre.utils.magick.draw import save_cover_data_to
     from calibre import CurrentDir
-
-    try:
-        from PIL import Image as PILImage
-        PILImage
-    except ImportError:
-        import Image as PILImage
 
     stream.seek(0)
     try:
@@ -520,13 +515,9 @@ def get_metadata(stream):
             data  = mh.section_data(mh.first_image_index)
         except:
             data = ''
-    buf = cStringIO.StringIO(data)
-    try:
-        im = PILImage.open(buf)
-    except:
-        log.exception('Failed to read MOBI cover')
-    else:
-        obuf = cStringIO.StringIO()
-        im.convert('RGB').save(obuf, format='JPEG')
-        mi.cover_data = ('jpg', obuf.getvalue())
+    if data and what(None, data) in {'jpg', 'jpeg', 'gif', 'png', 'bmp', 'webp'}:
+        try:
+            mi.cover_data = ('jpg', save_cover_data_to(data, 'cover.jpg', return_data=True))
+        except Exception:
+            log.exception('Failed to read MOBI cover')
     return mi

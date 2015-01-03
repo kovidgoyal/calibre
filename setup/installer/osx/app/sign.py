@@ -20,6 +20,11 @@ def current_dir(path):
 def codesign(items):
     if isinstance(items, basestring):
         items = [items]
+    # If you get errors while codesigning that look like "A timestamp was
+    # expected but not found" it means that codesign  failed to contact Apple's time
+    # servers, probably due to network congestion, so add --timestamp=none to
+    # this command line. That means the signature will fail once your code
+    # signing key expires and key revocation wont work, but...
     subprocess.check_call(['codesign', '-s', 'Kovid Goyal'] + list(items))
 
 def files_in(folder):

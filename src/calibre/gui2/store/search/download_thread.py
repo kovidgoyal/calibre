@@ -122,6 +122,7 @@ class SearchThread(Thread):
                     res.store_name = store_name
                     res.affiliate = store_plugin.base_plugin.affiliate
                     res.plugin_author = store_plugin.base_plugin.author
+                    res.create_browser = store_plugin.create_browser
                     self.results.put((res, store_plugin))
                 self.tasks.task_done()
             except:

@@ -13,14 +13,15 @@ from cssutils import parseStyle
 from PyQt5.Qt import QTextEdit, Qt
 
 from calibre import prepare_string_for_xml, xml_entity_to_unicode
+from calibre.ebooks.oeb.polish.container import OEB_DOCS
 from calibre.gui2 import error_dialog
 from calibre.gui2.tweak_book.editor.syntax.html import ATTR_NAME, ATTR_END, ATTR_START, ATTR_VALUE
-from calibre.utils.icu import utf16_length
-from calibre.gui2.tweak_book import tprefs
+from calibre.gui2.tweak_book import tprefs, current_container
 from calibre.gui2.tweak_book.editor.smarts import NullSmarts
 from calibre.gui2.tweak_book.editor.smarts.utils import (
     no_modifiers, get_leading_whitespace_on_block, get_text_before_cursor,
     get_text_after_cursor, smart_home, smart_backspace, smart_tab, expand_tabs)
+from calibre.utils.icu import utf16_length
 
 get_offset = itemgetter(0)
 PARAGRAPH_SEPARATOR = '\u2029'
@@ -41,8 +42,8 @@ class Tag(object):
             self.name, self.start_block.blockNumber(), self.start_offset, self.end_block.blockNumber(), self.end_offset, self.self_closing)
     __str__ = __repr__
 
-def next_tag_boundary(block, offset, forward=True):
-    while block.isValid():
+def next_tag_boundary(block, offset, forward=True, max_lines=10000):
+    while block.isValid() and max_lines > 0:
         ud = block.userData()
         if ud is not None:
             tags = sorted(ud.tags, key=get_offset, reverse=not forward)
@@ -53,6 +54,7 @@ def next_tag_boundary(block, offset, forward=True):
                     return block, boundary
         block = block.next() if forward else block.previous()
         offset = -1 if forward else sys.maxint
+        max_lines -= 1
     return None, None
 
 def next_attr_boundary(block, offset, forward=True):
@@ -288,6 +290,7 @@ class Smarts(NullSmarts):
             Smarts.closing_tag_pat = re.compile(r'<\s*/[^>]+>')
             Smarts.closing_pat = re.compile(r'<\s*/')
             Smarts.self_closing_pat = re.compile(r'/\s*>')
+            Smarts.complete_attr_pat = re.compile(r'''([a-zA-Z0-9_-]+)\s*=\s*(?:'([^']*)|"([^"]*))$''')
         NullSmarts.__init__(self, *args, **kwargs)
         self.last_matched_tag = None
 
@@ -625,7 +628,37 @@ class Smarts(NullSmarts):
         editor.setTextCursor(c)
         return True
 
-if __name__ == '__main__':
+    def get_completion_data(self, editor, ev=None):
+        c = editor.textCursor()
+        block, offset = c.block(), c.positionInBlock()
+        oblock, boundary = next_tag_boundary(block, offset, forward=False, max_lines=5)
+        if boundary is None or not boundary.is_start or boundary.closing:
+            # Not inside a opening tag definition
+            return
+        tagname = boundary.name.lower()
+        startpos = oblock.position() + boundary.offset
+        c.setPosition(c.position()), c.setPosition(startpos, c.KeepAnchor)
+        text = c.selectedText()
+        m = self.complete_attr_pat.search(text)
+        if m is None:
+            return
+        attr = m.group(1).lower().split(':')[-1]
+        doc_name = editor.completion_doc_name
+        if doc_name and attr in {'href', 'src'}:
+            # A link
+            query = m.group(2) or m.group(3) or ''
+            c = current_container()
+            names_type = {'a':'text_link', 'img':'image', 'image':'image', 'link':'stylesheet'}.get(tagname)
+            idx = query.find('#')
+            if idx > -1 and names_type in (None, 'text_link'):
+                href, query = query[:idx], query[idx+1:]
+                name = c.href_to_name(href) if href else doc_name
+                if c.mime_map.get(name) in OEB_DOCS:
+                    return 'complete_anchor', name, query
+
+            return 'complete_names', (names_type, doc_name, c.root), query
+
+if __name__ == '__main__':  # {{{
     from calibre.gui2.tweak_book.editor.widget import launch_editor
     launch_editor('''\
 <!DOCTYPE html>
@@ -657,3 +690,4 @@ if __name__ == '__main__':
     </body>
 </html>
 ''', path_is_raw=True, syntax='xml')
+# }}}

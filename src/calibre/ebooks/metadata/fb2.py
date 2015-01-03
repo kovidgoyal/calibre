@@ -278,7 +278,7 @@ def _get_fbroot(stream):
     raw = stream.read()
     raw = xml_to_unicode(raw, strip_encoding_pats=True)[0]
     root = etree.fromstring(raw, parser=parser)
-    return root
+    return ensure_namespace(root)
 
 def _set_title(title_info, mi, ctx):
     if not mi.is_null('title'):
@@ -381,3 +381,19 @@ def set_metadata(stream, mi, apply_null=False, update_timestamp=False):
     stream.write(b'<?xml version="1.0" encoding="UTF-8"?>\n')
     stream.write(etree.tostring(root, method='xml', encoding='utf-8',
         xml_declaration=False))
+
+def ensure_namespace(doc):
+    # Workaround for broken FB2 files produced by convertonlinefree.com. See
+    # https://bugs.launchpad.net/bugs/1404701
+    bare_tags = False
+    for x in ('description', 'body'):
+        for x in doc.findall(x):
+            if '{' not in x.tag:
+                bare_tags = True
+                break
+    if bare_tags:
+        import re
+        raw = etree.tostring(doc, encoding=unicode)
+        raw = re.sub(r'''<(description|body)\s+xmlns=['"]['"]>''', r'<\1>', raw)
+        doc = etree.fromstring(raw)
+    return doc

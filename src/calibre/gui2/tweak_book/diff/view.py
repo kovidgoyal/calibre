@@ -104,11 +104,7 @@ class TextBrowser(PlainTextEdit):  # {{{
         self.setFocusPolicy(Qt.NoFocus)
         self.right = right
         self.setReadOnly(True)
-        w = self.fontMetrics()
-        self.number_width = max(map(lambda x:w.width(str(x)), xrange(10)))
-        self.space_width = w.width(' ')
         self.setLineWrapMode(self.WidgetWidth)
-        self.setTabStopWidth(tprefs['editor_tab_stop_width'] * self.space_width)
         font = self.font()
         ff = tprefs['editor_font_family']
         if ff is None:
@@ -116,6 +112,8 @@ class TextBrowser(PlainTextEdit):  # {{{
         font.setFamily(ff)
         font.setPointSize(tprefs['editor_font_size'])
         self.setFont(font)
+        self.calculate_metrics()
+        self.setTabStopWidth(tprefs['editor_tab_stop_width'] * self.space_width)
         font = self.heading_font = QFont(self.font())
         font.setPointSize(int(tprefs['editor_font_size'] * 1.5))
         font.setBold(True)
@@ -156,6 +154,11 @@ class TextBrowser(PlainTextEdit):  # {{{
             f = QTextCharFormat()
             f.setBackground(self.diff_backgrounds[x])
             setattr(self, '%s_format' % x, f)
+
+    def calculate_metrics(self):
+        w = self.fontMetrics()
+        self.number_width = max(map(lambda x:w.width(str(x)), xrange(10)))
+        self.space_width = w.width(' ')
 
     def show_context_menu(self, pos):
         m = QMenu(self)
@@ -1018,7 +1021,7 @@ class DiffView(QWidget):  # {{{
         self.scrollbar.setPageStep(min(ls.pageStep(), rs.pageStep()))
         self.scrollbar.setSingleStep(min(ls.singleStep(), rs.singleStep()))
         self.scrollbar.setRange(0, ls.maximum() + self.delta)
-        self.scrollbar.setVisible(self.view.left.blockCount() > ls.pageStep() or self.view.right.blockCount() > rs.pageStep())
+        self.scrollbar.setVisible(self.view.left.document().lineCount() > ls.pageStep() or self.view.right.document().lineCount() > rs.pageStep())
         self.syncpos = int(ceil(self.scrollbar.pageStep() * self.SYNC_POSITION))
 
     def finalize(self):

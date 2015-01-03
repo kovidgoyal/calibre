@@ -13,21 +13,22 @@ from calibre.gui2.store.web_store_dialog_ui import Ui_Dialog
 
 class WebStoreDialog(QDialog, Ui_Dialog):
 
-    def __init__(self, gui, base_url, parent=None, detail_url=None):
+    def __init__(self, gui, base_url, parent=None, detail_url=None, create_browser=None):
         QDialog.__init__(self, parent=parent)
         self.setupUi(self)
-        
+
         self.gui = gui
         self.base_url = base_url
-        
+
         self.view.set_gui(self.gui)
+        self.view.create_browser = create_browser
         self.view.loadStarted.connect(self.load_started)
         self.view.loadProgress.connect(self.load_progress)
         self.view.loadFinished.connect(self.load_finished)
         self.home.clicked.connect(self.go_home)
         self.reload.clicked.connect(self.view.reload)
         self.back.clicked.connect(self.view.back)
-        
+
         self.go_home(detail_url=detail_url)
 
     def set_tags(self, tags):
@@ -35,21 +36,21 @@ class WebStoreDialog(QDialog, Ui_Dialog):
 
     def load_started(self):
         self.progress.setValue(0)
-    
+
     def load_progress(self, val):
         self.progress.setValue(val)
-        
+
     def load_finished(self, ok=True):
         self.progress.setValue(100)
-    
+
     def go_home(self, checked=False, detail_url=None):
         if detail_url:
             url = detail_url
         else:
             url = self.base_url
-            
+
         # Reduce redundant /'s because some stores
         # (Feedbooks) and server frameworks (cherrypy)
-        # choke on them. 
+        # choke on them.
         url = url_slash_cleaner(url)
         self.view.load(QUrl(url))

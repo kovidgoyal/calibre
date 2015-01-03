@@ -16,7 +16,7 @@ from contextlib import closing
 from lxml import etree
 
 from calibre import browser, url_slash_cleaner
-from calibre.constants import __version__
+from calibre.constants import __appname__, __version__
 from calibre.gui2.store.basic_config import BasicStoreConfig
 from calibre.gui2.store.opensearch_store import OpenSearchOPDSStore
 from calibre.gui2.store.search_result import SearchResult
@@ -28,13 +28,17 @@ def fix_url(url):
         url = 'http:' + url
     return url
 
-def search(query, max_results=10, timeout=60):
+def search(query, max_results=10, timeout=60, write_raw_to=None):
     url = 'http://m.gutenberg.org/ebooks/search.opds/?query=' + urllib.quote_plus(query)
 
     counter = max_results
     br = browser(user_agent='calibre/'+__version__)
     with closing(br.open(url, timeout=timeout)) as f:
-        doc = etree.fromstring(f.read())
+        raw = f.read()
+        if write_raw_to is not None:
+            with open(write_raw_to, 'wb') as f:
+                f.write(raw)
+        doc = etree.fromstring(raw)
         for data in doc.xpath('//*[local-name() = "entry"]'):
             if counter <= 0:
                 break
@@ -88,6 +92,11 @@ class GutenbergStore(BasicStoreConfig, OpenSearchOPDSStore):
 
     open_search_url = 'http://www.gutenberg.org/catalog/osd-books.xml'
     web_url = web_url
+
+    def create_browser(self):
+        from calibre import browser
+        user_agent = '%s/%s' % (__appname__, __version__)
+        return browser(user_agent=user_agent)
 
     def search(self, query, max_results=10, timeout=60):
         '''
