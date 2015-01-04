@@ -634,15 +634,14 @@ calibre is designed to have columns for the most frequently and widely used
 fields. In addition, you can add any columns you like. Columns can be added via
 :guilabel:`Preferences->Interface->Add your own columns`.  Watch the tutorial
 `UI Power tips <http://calibre-ebook.com/demo#tutorials>`_ to learn how to
-create your own columns.
+create your own columns, or read `this blog post
+<http://blog.calibre-ebook.com/2011/11/calibre-custom-columns.html>`_.
 
 You can also create "virtual columns" that contain combinations of the metadata
 from other columns. In the add column dialog  use the :guilabel:`Quick create`
-links to easily create columns to show the book ISBN or formats. See `this blog
-post <http://blog.calibre-ebook.com/2011/11/calibre-custom-columns.html>`_ for
-a tutorial on using custom columns. You can use the powerful calibre template
-language to do much more with columns. For more details, see
-:ref:`templatelangcalibre`.
+links to easily create columns to show the book ISBN or formats.  You can use
+the powerful calibre template language to do much more with columns. For more
+details, see :ref:`templatelangcalibre`.
 
 
 Can I have a column showing the formats or the ISBN?
