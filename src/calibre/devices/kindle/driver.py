@@ -283,8 +283,8 @@ class KINDLE(USBMS):
 
 class KINDLE2(KINDLE):
 
-    name           = 'Kindle 2/3/4/Touch/PaperWhite Device Interface'
-    description    = _('Communicate with the Kindle 2/3/4/Touch/PaperWhite eBook reader.')
+    name           = 'Kindle 2/3/4/Touch/PaperWhite/Voyage Device Interface'
+    description    = _('Communicate with the Kindle 2/3/4/Touch/PaperWhite/Voyage eBook reader.')
 
     FORMATS     = ['azw', 'mobi', 'azw3', 'prc', 'azw1', 'tpz', 'azw4', 'pobi', 'pdf', 'txt']
     DELETE_EXTS    = KINDLE.DELETE_EXTS + ['.mbp1', '.mbs', '.sdr', '.han']
@@ -355,7 +355,7 @@ class KINDLE2(KINDLE):
 
     # x330 on the PaperWhite
     # x262 on the Touch. Doesn't choke on x330, though.
-    # x470 on the Voyage, checked that it works on PW, dont have Touch anymore
+    # x470 on the Voyage, checked that it works on PW, dont have Touch anymore. Checked by eschwartz.
     THUMBNAIL_HEIGHT         = 470
 
     @classmethod
