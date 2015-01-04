@@ -629,10 +629,20 @@ If you are still not convinced, then I'm afraid calibre is not for you. Look els
 
 Why doesn't calibre have a column for foo?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-calibre is designed to have columns for the most frequently and widely used fields. In addition, you can add any columns you like. Columns can be added via :guilabel:`Preferences->Interface->Add your own columns`.
-Watch the tutorial `UI Power tips <http://calibre-ebook.com/demo#tutorials>`_ to learn how to create your own columns.
 
-You can also create "virtual columns" that contain combinations of the metadata from other columns. In the add column dialog  use the :guilabel:`Quick create` links to easily create columns to show the book ISBN, formats or the time the book was last modified. For more details, see :ref:`templatelangcalibre`.
+calibre is designed to have columns for the most frequently and widely used
+fields. In addition, you can add any columns you like. Columns can be added via
+:guilabel:`Preferences->Interface->Add your own columns`.  Watch the tutorial
+`UI Power tips <http://calibre-ebook.com/demo#tutorials>`_ to learn how to
+create your own columns.
+
+You can also create "virtual columns" that contain combinations of the metadata
+from other columns. In the add column dialog  use the :guilabel:`Quick create`
+links to easily create columns to show the book ISBN or formats. See `this blog
+post <http://blog.calibre-ebook.com/2011/11/calibre-custom-columns.html>`_ for
+a tutorial on using custom columns. You can use the powerful calibre template
+language to do much more with columns. For more details, see
+:ref:`templatelangcalibre`.
 
 
 Can I have a column showing the formats or the ISBN?
