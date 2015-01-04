@@ -116,7 +116,7 @@ class NYTimes(BasicNewsRecipe):
                     ]
 
     tech_feeds = [
-               (u'Tech - Pogues Posts', u'http://pogue.blogs.nytimes.com/feed/'),
+               (u'Tech - News', u'http://pogue.blogs.nytimes.com/feed/'),
                (u'Tech - Bits', u'http://bits.blogs.nytimes.com/feed/'),
                (u'Tech - Gadgetwise', u'http://gadgetwise.blogs.nytimes.com/feed/'),
                (u'Tech - Open', u'http://open.blogs.nytimes.com/feed/')

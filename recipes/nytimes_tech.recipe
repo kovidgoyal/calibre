@@ -25,7 +25,7 @@ class NYTimesTechnology(BasicNewsRecipe):
     language = 'en'
     cover_url ='http://bit.ly/g0SKJT'
     feeds = [
-               (u'Pogues Posts', u'http://pogue.blogs.nytimes.com/feed/'),
+               (u'News', u'http://pogue.blogs.nytimes.com/feed/'),
                (u'Bits', u'http://bits.blogs.nytimes.com/feed/'),
                (u'Gadgetwise', u'http://gadgetwise.blogs.nytimes.com/feed/'),
                (u'Open', u'http://open.blogs.nytimes.com/feed/')
