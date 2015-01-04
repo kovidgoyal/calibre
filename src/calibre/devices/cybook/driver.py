@@ -113,8 +113,8 @@ class ORIZON(CYBOOK):
 
 class MUSE(CYBOOK):
 
-    name           = 'Cybook Orizon Device Interface'
-    gui_name       = 'Orizon'
+    name           = 'Cybook Muse Device Interface'
+    gui_name       = 'Muse'
     description    = _('Communicate with the Cybook Muse eBook reader.')
     author         = 'Kovid Goyal'
 
