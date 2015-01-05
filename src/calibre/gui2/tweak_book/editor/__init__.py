@@ -29,8 +29,10 @@ def syntax_from_mime(name, mime):
     if mime.endswith('+xml'):
         return 'xml'
 
+all_text_syntaxes = frozenset({'text', 'html', 'xml', 'css', 'javascript'})
+
 def editor_from_syntax(syntax, parent=None):
-    if syntax in {'text', 'html', 'css', 'xml', 'javascript'}:
+    if syntax in all_text_syntaxes:
         from calibre.gui2.tweak_book.editor.widget import Editor
         return Editor(syntax, parent=parent)
     elif syntax == 'raster_image':
