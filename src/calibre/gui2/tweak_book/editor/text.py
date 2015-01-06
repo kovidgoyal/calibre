@@ -31,6 +31,9 @@ from calibre.utils.titlecase import titlecase
 
 PARAGRAPH_SEPARATOR = '\u2029'
 
+def selected_text_from_cursor(cursor):
+    return unicodedata.normalize('NFC', unicode(cursor.selectedText()).replace(PARAGRAPH_SEPARATOR, '\n').rstrip('\0'))
+
 def get_highlighter(syntax):
     if syntax:
         try:
@@ -111,7 +114,7 @@ class PlainTextEdit(QPlainTextEdit):
         self.textCursor().removeSelectedText()
 
     def selected_text_from_cursor(self, cursor):
-        return unicodedata.normalize('NFC', unicode(cursor.selectedText()).replace(PARAGRAPH_SEPARATOR, '\n').rstrip('\0'))
+        return selected_text_from_cursor(cursor)
 
     @property
     def selected_text(self):
