@@ -208,9 +208,11 @@ def download_builtin_recipe(urn):
     return get_https_resource_securely('https://status.calibre-ebook.com/recipe/'+urn)
 
 def download_builtin_recipe2(urn):
+    from calibre.utils.config_base import prefs
     from calibre.utils.https import get_https_resource_securely
     import bz2
-    return bz2.decompress(get_https_resource_securely('https://code.calibre-ebook.com/recipe-compressed/'+urn))
+    return bz2.decompress(get_https_resource_securely(
+        'https://code.calibre-ebook.com/recipe-compressed/'+urn, headers={'CALIBRE-INSTALL-UUID':prefs['installation_uuid']}))
 
 def get_builtin_recipe(urn):
     with zipfile.ZipFile(P('builtin_recipes.zip', allow_user_override=False), 'r') as zf:

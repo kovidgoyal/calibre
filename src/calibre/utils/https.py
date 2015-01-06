@@ -154,7 +154,7 @@ else:
             getattr(ssl, 'match_hostname', match_hostname)(self.sock.getpeercert(), self.host)
 
 def get_https_resource_securely(
-    url, cacerts='calibre-ebook-root-CA.crt', timeout=60, max_redirects=5, ssl_version=None):
+    url, cacerts='calibre-ebook-root-CA.crt', timeout=60, max_redirects=5, ssl_version=None, headers=None):
     '''
     Download the resource pointed to by url using https securely (verify server
     certificate).  Ensures that redirects, if any, are also downloaded
@@ -195,7 +195,7 @@ def get_https_resource_securely(
         path = p.path or '/'
         if p.query:
             path += '?' + p.query
-        c.request('GET', path)
+        c.request('GET', path, headers=headers or {})
         response = c.getresponse()
         if response.status in (httplib.MOVED_PERMANENTLY, httplib.FOUND, httplib.SEE_OTHER):
             if max_redirects <= 0:
