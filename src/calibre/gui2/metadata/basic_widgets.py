@@ -461,6 +461,7 @@ class AuthorSortEdit(EnLineEdit, ToMetadataMixin):
         a_to_as.triggered.connect(self.author_to_sort)
         as_to_a.triggered.connect(self.sort_to_author)
         self.original_val = ''
+        self.first_time = True
         self.update_state()
 
     @dynamic_property
@@ -480,8 +481,9 @@ class AuthorSortEdit(EnLineEdit, ToMetadataMixin):
     def update_state_and_val(self):
         # Handle case change if the authors box changed
         aus = authors_to_sort_string(self.authors_edit.current_val)
-        if strcmp(aus, self.current_val) == 0:
+        if not self.first_time and strcmp(aus, self.current_val) == 0:
             self.current_val = aus
+        self.first_time = False
         self.update_state()
 
     def update_state(self, *args):
@@ -489,7 +491,7 @@ class AuthorSortEdit(EnLineEdit, ToMetadataMixin):
         au = re.sub(r'\s+et al\.$', '', au)
         au = self.db.author_sort_from_authors(string_to_authors(au))
 
-        normal = strcmp(au, self.current_val) == 0
+        normal = au == self.current_val
         col = OK_COLOR if normal else ERR_COLOR
         self.setStyleSheet(INDICATOR_SHEET % col)
         tt = self.tooltips[0 if normal else 1]
@@ -531,6 +533,7 @@ class AuthorSortEdit(EnLineEdit, ToMetadataMixin):
     def initialize(self, db, id_):
         self.current_val = db.author_sort(id_, index_is_id=True)
         self.original_val = self.current_val
+        self.first_time = True
 
     def commit(self, db, id_):
         aus = self.current_val
