@@ -5,7 +5,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, subprocess, hashlib, shutil, glob, stat, sys, time
+import os, subprocess, hashlib, shutil, glob, stat, sys, time, shlex
 from subprocess import check_call
 from tempfile import NamedTemporaryFile, mkdtemp, gettempdir
 from zipfile import ZipFile
@@ -61,6 +61,8 @@ def upload_signatures():
             f.write(fingerprint)
     check_call('scp %s/*.sha512 divok:%s/signatures/' % (tdir, DOWNLOADS),
             shell=True)
+    check_call(shlex.split('scp %s/*.sha512 code:/srv/code/signatures/' % tdir))
+    check_call(shlex.split('ssh code chown -R nobody:nobody /srv/code/signatures'))
     shutil.rmtree(tdir)
 
 class ReUpload(Command):  # {{{
