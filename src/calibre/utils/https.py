@@ -33,10 +33,7 @@ if has_ssl_verify:
     class HTTPSConnection(httplib.HTTPSConnection):
 
         def __init__(self, ssl_version, *args, **kwargs):
-            context = kwargs['context'] = ssl.SSLContext(ssl_version)
-            cf = kwargs.pop('cert_file')
-            context.load_verify_locations(cf)
-            context.verify_mode = ssl.CERT_REQUIRED
+            kwargs['context'] = ssl.create_default_context(cafile=kwargs.pop('cert_file'))
             httplib.HTTPSConnection.__init__(self, *args, **kwargs)
 else:
     # Check certificate hostname {{{
