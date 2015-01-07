@@ -11,7 +11,7 @@ from contextlib import closing
 
 from calibre import get_proxies
 from calibre.constants import ispy3
-has_ssl_verify = hasattr(ssl, 'PROTOCOL_TLSv1_2') and sys.version_info[:3] > (2, 7, 8)
+has_ssl_verify = sys.version_info[:3] > (2, 7, 8)
 
 class HTTPError(ValueError):
 
