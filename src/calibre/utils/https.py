@@ -11,6 +11,8 @@ from contextlib import closing
 
 from calibre import get_proxies
 from calibre.constants import ispy3
+# On OS X PROTOCOL_TLSv1_2 is not available because the SSL library shipped
+# with OS X is too old
 has_ssl_verify = sys.version_info[:3] > (2, 7, 8)
 
 class HTTPError(ValueError):
