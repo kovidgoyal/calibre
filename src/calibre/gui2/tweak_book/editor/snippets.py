@@ -6,12 +6,12 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import re, copy
+import re, copy, weakref
 from collections import OrderedDict, namedtuple
 from itertools import groupby
 from operator import attrgetter
 
-from PyQt5.Qt import QTextCursor, Qt, QObject
+from PyQt5.Qt import Qt, QObject
 
 from calibre.gui2 import error_dialog
 from calibre.gui2.tweak_book.editor import all_text_syntaxes
@@ -141,18 +141,17 @@ def snippets(refresh=False):
 
 class EditorTabStop(object):
 
-    def __init__(self, other, tab_stops):
-        self.left = QTextCursor(other)
-        self.right = QTextCursor(other)
+    def __init__(self, left, tab_stops, editor):
+        self.editor = weakref.ref(editor)
         tab_stop = tab_stops[0]
         self.num = tab_stop.num
         self.is_mirror = tab_stop.is_mirror
         self.is_toplevel = tab_stop.is_toplevel
         self.takes_selection = tab_stop.takes_selection
-        self.left.setPosition(other.anchor() + tab_stop.start)
+        self.left = left + tab_stop.start
         l = string_length(tab_stop)
-        self.right.setPosition(self.left.position() + l)
-        self.mirrors = tuple(EditorTabStop(other, [ts]) for ts in tab_stops[1:])
+        self.right = self.left + l
+        self.mirrors = tuple(EditorTabStop(left, [ts], editor) for ts in tab_stops[1:])
 
     def apply_selected_text(self, text):
         if self.takes_selection:
@@ -163,34 +162,38 @@ class EditorTabStop(object):
     @dynamic_property
     def text(self):
         def fget(self):
-            from calibre.gui2.tweak_book.editor.text import selected_text_from_cursor
-            c = QTextCursor(self.left)
-            c.setPosition(self.right.position(), c.KeepAnchor)
-            return selected_text_from_cursor(c)
+            editor = self.editor()
+            if editor is None:
+                return ''
+            c = editor.textCursor()
+            c.setPosition(self.left), c.setPosition(self.right, c.KeepAnchor)
+            return editor.selected_text_from_cursor(c)
         def fset(self, text):
-            c = QTextCursor(self.left)
-            c.setPosition(self.right.position(), c.KeepAnchor)
+            editor = self.editor()
+            if editor is None:
+                return
+            c = editor.textCursor()
+            c.setPosition(self.left), c.setPosition(self.right, c.KeepAnchor)
             c.insertText(text)
         return property(fget=fget, fset=fset)
 
     def set_editor_cursor(self, editor):
         c = editor.textCursor()
-        c.setPosition(self.left.position())
-        c.setPosition(self.right.position(), c.KeepAnchor)
+        c.setPosition(self.left), c.setPosition(self.right, c.KeepAnchor)
         editor.setTextCursor(c)
 
 class Template(list):
 
     def __new__(self, tab_stops):
         self = list.__new__(self)
-        self.left_most_cursor = self.right_most_cursor = None
+        self.left_most_position = self.right_most_position = None
         self.extend(tab_stops)
         for c in self:
-            if self.left_most_cursor is None or self.left_most_cursor.position() > c.left.position():
-                self.left_most_cursor = c.left
-            if self.right_most_cursor is None or self.right_most_cursor.position() <= c.right.position():
-                self.right_most_cursor = c.right
-        self.has_tab_stops = self.left_most_cursor is not None
+            if self.left_most_position is None or self.left_most_position > c.left:
+                self.left_most_position = c.left
+            if self.right_most_position is None or self.right_most_position <= c.right:
+                self.right_most_position = c.right
+        self.has_tab_stops = self.left_most_position is not None
         self.active_tab_stop = None
         return self
 
@@ -217,13 +220,10 @@ class Template(list):
                 x.set_editor_cursor(editor)
                 return x
 
-    def distance_to_position(self, cursor, position):
-        return min(abs(cursor.position() - position), abs(cursor.anchor() - position))
-
     def find_closest_tab_stop(self, position):
         ans = dist = None
         for c in self:
-            x = min(self.distance_to_position(c.left, position), self.distance_to_position(c.right, position))
+            x = min(abs(c.left - position), abs(c.right - position))
             if ans is None or x < dist:
                 dist, ans = x, c
         return ans
@@ -235,9 +235,7 @@ def expand_template(editor, trigger, template, selected_text=''):
     left = right - string_length(trigger)
     text, tab_stops = parse_template(template)
     c.setPosition(left), c.setPosition(right, c.KeepAnchor), c.insertText(text)
-    other = QTextCursor(c)
-    other.setPosition(left)
-    editor_tab_stops = [EditorTabStop(other, ts) for ts in tab_stops.itervalues()]
+    editor_tab_stops = [EditorTabStop(left, ts, editor) for ts in tab_stops.itervalues()]
 
     if selected_text:
         for ts in editor_tab_stops:
@@ -262,6 +260,10 @@ class SnippetManager(QObject):
         QObject.__init__(self, editor)
         self.active_templates = []
         self.last_selected_text = ''
+        editor.document().contentsChange.connect(self.contents_changed)
+
+    def contents_changed(self, position, chars_removed, chars_added):
+        pass
 
     def get_active_template(self, cursor):
         remove = []
