@@ -262,7 +262,7 @@ class Template(list):
                 if not m.is_deleted:
                     m.text = ts.text
         for x in self:
-            if x.num > ts.num:
+            if x.num > ts.num and not x.is_deleted:
                 self.active_tab_stop = x
                 x.set_editor_cursor(editor)
                 return x
