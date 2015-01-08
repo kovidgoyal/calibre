@@ -374,21 +374,6 @@ class BookInfo(QWebView):
             if action is not ca:
                 menu.removeAction(action)
         if not r.isNull():
-            if url.startswith('http') or url.startswith('file:'):
-                el = r.linkElement()
-                author = el.toPlainText() if unicode(el.attribute('calibre-data')) == u'authors' else None
-                for a, t in [('copy', _('&Copy Link')),
-                ]:
-                    ac = getattr(self, '%s_link_action'%a)
-                    ac.current_url = url
-                    ac.setText(t)
-                    menu.addAction(ac)
-                if author is not None:
-                    ac = self.manage_author_action
-                    ac.current_fmt = author
-                    ac.setText(_('Manage %s') % author)
-                    menu.addAction(ac)
-
             if url.startswith('format:'):
                 parts = url.split(':')
                 try:
@@ -420,6 +405,23 @@ class BookInfo(QWebView):
                         ac.current_fmt = (book_id, fmt)
                         ac.setText(t)
                         menu.addAction(ac)
+
+            else:
+                el = r.linkElement()
+                author = el.toPlainText() if unicode(el.attribute('calibre-data')) == u'authors' else None
+                if not url.startswith('search:'):
+                    for a, t in [('copy', _('&Copy Link')),
+                    ]:
+                        ac = getattr(self, '%s_link_action'%a)
+                        ac.current_url = url
+                        ac.setText(t)
+                        menu.addAction(ac)
+                if author is not None:
+                    ac = self.manage_author_action
+                    ac.current_fmt = author
+                    ac.setText(_('Manage %s') % author)
+                    menu.addAction(ac)
+
         if len(menu.actions()) > 0:
             menu.exec_(ev.globalPos())
 
