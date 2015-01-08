@@ -152,7 +152,7 @@ class EditorSettings(BasicSettings):
 
     def __init__(self, parent=None):
         BasicSettings.__init__(self, parent)
-        self.dictionaries_changed = False
+        self.dictionaries_changed = self.snippets_changed = False
         self.l = l = QFormLayout(self)
         self.setLayout(l)
 
@@ -217,10 +217,21 @@ class EditorSettings(BasicSettings):
         d.clicked.connect(self.manage_dictionaries)
         l.addRow(d)
 
+        self.snippets = s = QPushButton(_('Manage sni&ppets'), self)
+        s.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+        s.clicked.connect(self.manage_snippets)
+        l.addRow(s)
+
     def manage_dictionaries(self):
         d = ManageDictionaries(self)
         d.exec_()
         self.dictionaries_changed = True
+
+    def manage_snippets(self):
+        from calibre.gui2.tweak_book.editor.snippets import UserSnippets
+        d = UserSnippets(self)
+        if d.exec_() == d.Accepted:
+            self.snippets_changed = True
 
     def theme_choices(self):
         choices = {k:k for k in all_theme_names()}
@@ -663,6 +674,10 @@ class Preferences(QDialog):
     @property
     def dictionaries_changed(self):
         return self.editor_panel.dictionaries_changed
+
+    @property
+    def snippets_changed(self):
+        return self.editor_panel.snippets_changed
 
     @property
     def toolbars_changed(self):

@@ -9,13 +9,17 @@ __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 import re, copy, weakref
 from collections import OrderedDict, namedtuple
 from itertools import groupby
-from operator import attrgetter
+from operator import attrgetter, itemgetter
 
-from PyQt5.Qt import Qt, QObject
+from PyQt5.Qt import (
+    Qt, QObject, QSize, QVBoxLayout, QStackedLayout, QWidget, QLineEdit,
+    QToolButton, QIcon, QHBoxLayout, QPushButton, QListWidget, QListWidgetItem,
+    QGridLayout, QPlainTextEdit, QLabel)
 
 from calibre.gui2 import error_dialog
 from calibre.gui2.tweak_book.editor import all_text_syntaxes
 from calibre.gui2.tweak_book.editor.smarts.utils import get_text_before_cursor
+from calibre.gui2.tweak_book.widgets import Dialog
 from calibre.utils.config import JSONConfig
 from calibre.utils.icu import string_length
 
@@ -142,6 +146,8 @@ def snippets(refresh=False):
                 key = snip_key(snip['trigger'], *snip['syntaxes'])
                 _snippets[key] = {'template':snip['template'], 'description':snip['description']}
     return _snippets
+
+# Editor integration {{{
 
 class EditorTabStop(object):
 
@@ -385,3 +391,231 @@ class SnippetManager(QObject):
             ev.accept()
             return True
         return False
+# }}}
+
+
+# Config {{{
+
+class EditSnippet(QWidget):
+
+    def __init__(self, parent=None):
+        QWidget.__init__(self, parent)
+        self.l = l = QGridLayout(self)
+
+        def add_row(*args):
+            r = l.rowCount()
+            if len(args) == 1:
+                l.addWidget(args[0], r, 0, 1, 2)
+            else:
+                la = QLabel(args[0])
+                l.addWidget(la, r, 0, Qt.AlignRight), l.addWidget(args[1], r, 1)
+                la.setBuddy(args[1])
+
+        self.heading = la = QLabel('<h2>\xa0')
+        add_row(la)
+
+        self.name = n = QLineEdit(self)
+        n.setPlaceholderText(_('The name of this snippet'))
+        add_row(_('&Name:'), n)
+
+        self.trig = t = QLineEdit(self)
+        t.setPlaceholderText(_('The text used to trigger this snippet'))
+        add_row(_('Tri&gger:'), t)
+
+        self.template = t = QPlainTextEdit(self)
+        la.setBuddy(t)
+        add_row(_('&Template:'), t)
+
+        self.types = t = QListWidget(self)
+        t.setFlow(t.LeftToRight)
+        t.setWrapping(True), t.setResizeMode(t.Adjust), t.setSpacing(5)
+        fm = t.fontMetrics()
+        t.setMaximumHeight(2*(fm.ascent() + fm.descent()) + 25)
+        add_row(_('&File types:'), t)
+        t.setToolTip(_('Which file types this snippet should be active in'))
+
+        i = QListWidgetItem(_('All'), t)
+        i.setData(Qt.UserRole, '*')
+        i.setCheckState(Qt.Checked)
+        i.setFlags(i.flags() | Qt.ItemIsUserCheckable)
+        for ftype in sorted(all_text_syntaxes):
+            i = QListWidgetItem(ftype, t)
+            i.setData(Qt.UserRole, ftype)
+            i.setCheckState(Qt.Checked)
+            i.setFlags(i.flags() | Qt.ItemIsUserCheckable)
+
+        self.creating_snippet = False
+
+    @dynamic_property
+    def snip(self):
+        def fset(self, snip):
+            self.creating_snippet = not snip
+            self.heading.setText('<h2>' + (_('Create a snippet') if self.creating_snippet else _('Edit snippet')))
+            snip = snip or {}
+            self.name.setText(snip.get('description') or '')
+            self.trig.setText(snip.get('trigger') or '')
+            self.template.setPlainText(snip.get('template') or '')
+
+            ftypes = snip.get('syntaxes', ())
+            for i in xrange(self.types.count()):
+                i = self.types.item(i)
+                ftype = i.data(Qt.UserRole)
+                i.setCheckState(Qt.Checked if ftype in ftypes else Qt.Unchecked)
+            if self.creating_snippet:
+                self.types.item(0).setCheckState(Qt.Checked)
+            (self.name if self.creating_snippet else self.template).setFocus(Qt.OtherFocusReason)
+
+        def fget(self):
+            ftypes = []
+            for i in xrange(self.types.count()):
+                i = self.types.item(i)
+                if i.checkState() == Qt.Checked:
+                    ftypes.append(i.data(Qt.UserRole))
+            return {'description':self.name.text().strip(), 'trigger':self.trig.text(), 'template':self.template.toPlainText(), 'syntaxes':ftypes}
+
+        return property(fget=fget, fset=fset)
+
+    def validate(self):
+        snip = self.snip
+        err = None
+        if not snip['description']:
+            err = _('You must provide a name for this snippet')
+        elif not snip['trigger']:
+            err = _('You must provide a trigger for this snippet')
+        elif not snip['template']:
+            err = _('You must provide a template for this snippet')
+        elif not snip['syntaxes']:
+            err = _('You must specify at least one file type')
+        return err
+
+class UserSnippets(Dialog):
+
+    def __init__(self, parent=None):
+        Dialog.__init__(self, _('Create/Edit snippets'), 'snippet-editor', parent=parent)
+
+    def setup_ui(self):
+        self.setWindowIcon(QIcon(I('modified.png')))
+        self.l = l = QVBoxLayout(self)
+        self.stack = s = QStackedLayout()
+        l.addLayout(s), l.addWidget(self.bb)
+        self.listc = c = QWidget(self)
+        s.addWidget(c)
+        c.l = l = QVBoxLayout(c)
+        c.h = h = QHBoxLayout()
+        l.addLayout(h)
+
+        self.search_bar = sb = QLineEdit(self)
+        sb.setPlaceholderText(_('Search for a snippet'))
+        h.addWidget(sb)
+        self.next_button = b = QPushButton(_('&Next'))
+        b.clicked.connect(self.find_next)
+        h.addWidget(b)
+
+        c.h2 = h = QHBoxLayout()
+        l.addLayout(h)
+        self.snip_list = sl = QListWidget(self)
+        sl.doubleClicked.connect(self.edit_snippet)
+        h.addWidget(sl)
+
+        c.l2 = l = QVBoxLayout()
+        h.addLayout(l)
+        self.add_button = b = QToolButton(self)
+        b.setIcon(QIcon(I('plus.png'))), b.setText(_('&Add snippet')), b.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
+        b.clicked.connect(self.add_snippet)
+        l.addWidget(b)
+
+        self.edit_button = b = QToolButton(self)
+        b.setIcon(QIcon(I('modified.png'))), b.setText(_('&Edit snippet')), b.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
+        b.clicked.connect(self.edit_snippet)
+        l.addWidget(b)
+
+        self.add_button = b = QToolButton(self)
+        b.setIcon(QIcon(I('minus.png'))), b.setText(_('&Remove snippet')), b.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
+        b.clicked.connect(self.remove_snippet)
+        l.addWidget(b)
+
+        for i, snip in enumerate(sorted(user_snippets.get('snippets', []), key=itemgetter('trigger'))):
+            item = self.snip_to_item(snip)
+            if i == 0:
+                self.snip_list.setCurrentItem(item)
+
+        self.edit_snip = es = EditSnippet(self)
+        self.stack.addWidget(es)
+
+    def snip_to_text(self, snip):
+        return '%s - %s' % (snip['trigger'], snip['description'])
+
+    def snip_to_item(self, snip):
+        i = QListWidgetItem(self.snip_to_text(snip), self.snip_list)
+        i.setData(Qt.UserRole, copy.deepcopy(snip))
+        return i
+
+    def reject(self):
+        if self.stack.currentIndex() > 0:
+            self.stack.setCurrentIndex(0)
+            return
+        return Dialog.reject(self)
+
+    def accept(self):
+        if self.stack.currentIndex() > 0:
+            err = self.edit_snip.validate()
+            if err is None:
+                self.stack.setCurrentIndex(0)
+                if self.edit_snip.creating_snippet:
+                    item = self.snip_to_item(self.edit_snip.snip)
+                else:
+                    item = self.snip_list.currentItem()
+                    snip = self.edit_snip.snip
+                    item.setText(self.snip_to_text(snip))
+                    item.setData(Qt.UserRole, snip)
+                self.snip_list.setCurrentItem(item)
+                self.snip_list.scrollToItem(item)
+            else:
+                error_dialog(self, _('Invalid snippet'), err, show=True)
+            return
+        user_snippets['snippets'] = [self.snip_list.item(i).data(Qt.UserRole) for i in xrange(self.snip_list.count())]
+        snippets(refresh=True)
+        return Dialog.accept(self)
+
+    def sizeHint(self):
+        return QSize(900, 600)
+
+    def edit_snippet(self, *args):
+        item = self.snip_list.currentItem()
+        if item is None:
+            return error_dialog(self, _('Cannot edit snippet'), _('No snippet selected'), show=True)
+        self.stack.setCurrentIndex(1)
+        self.edit_snip.snip = item.data(Qt.UserRole)
+
+    def add_snippet(self, *args):
+        self.stack.setCurrentIndex(1)
+        self.edit_snip.snip = None
+
+    def remove_snippet(self, *args):
+        item = self.snip_list.currentItem()
+        if item is not None:
+            self.snip_list.takeItem(self.snip_list.row(item))
+
+    def find_next(self, *args):
+        q = self.search_bar.text().strip()
+        if not q:
+            return
+        matches = self.snip_list.findItems(q, Qt.MatchContains | Qt.MatchWrap)
+        if len(matches) < 1:
+            return error_dialog(self, _('No snippets found'), _(
+                'No snippets found for query: %s') % q, show=True)
+        ci = self.snip_list.currentItem()
+        try:
+            item = matches[(matches.index(ci) + 1) % len(matches)]
+        except Exception:
+            item = matches[0]
+        self.snip_list.setCurrentItem(item)
+        self.snip_list.scrollToItem(item)
+# }}}
+
+if __name__ == '__main__':
+    from calibre.gui2 import Application
+    app = Application([])
+    d = UserSnippets()
+    d.exec_()
+    del app
