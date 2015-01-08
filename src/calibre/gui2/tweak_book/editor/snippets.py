@@ -166,6 +166,11 @@ class EditorTabStop(object):
     def __exit__(self, *args):
         self.join_previous_edit = False
 
+    def __repr__(self):
+        return 'EditorTabStop(num=%r text=%r left=%r right=%r is_deleted=%r mirrors=%r)' % (
+            self.num, self.text, self.left, self.right, self.is_deleted, self.mirrors)
+    __str__ = __unicode__ = __repr__
+
     def apply_selected_text(self, text):
         if self.takes_selection and not self.is_deleted:
             with self:
