@@ -326,9 +326,9 @@ def expand_template(editor, trigger, template):
     c.endEditBlock()
     return tl
 
-def find_matching_snip(text, syntax):
+def find_matching_snip(text, syntax=None):
     for key, snip in snippets().iteritems():
-        if text.endswith(key.trigger) and syntax in key.syntaxes:
+        if text.endswith(key.trigger) and (syntax in key.syntaxes or syntax is None):
             return snip, key.trigger
     return None, None
 
@@ -392,7 +392,6 @@ class SnippetManager(QObject):
             return True
         return False
 # }}}
-
 
 # Config {{{
 

@@ -84,6 +84,7 @@ class PlainTextEdit(QPlainTextEdit):
     def __init__(self, parent=None):
         QPlainTextEdit.__init__(self, parent)
         self.selectionChanged.connect(self.selection_changed)
+        self.syntax = None
 
     def toPlainText(self):
         # QPlainTextEdit's toPlainText implementation replaces nbsp with normal
