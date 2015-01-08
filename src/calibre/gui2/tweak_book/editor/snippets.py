@@ -25,6 +25,10 @@ def snip_key(trigger, *syntaxes):
         syntaxes = all_text_syntaxes
     return SnipKey(trigger, frozenset(syntaxes))
 
+def contains(l1, r1, l2, r2):
+    # True iff (l2, r2) if contained in (l1, r1)
+    return l2 >= l1 and r2 <= r1
+
 builtin_snippets = {  # {{{
     snip_key('<<', 'html', 'xml'):  {
         'description': _('Insert a tag'),
@@ -146,6 +150,7 @@ class EditorTabStop(object):
         tab_stop = tab_stops[0]
         self.num = tab_stop.num
         self.is_mirror = tab_stop.is_mirror
+        self.is_deleted = False
         self.is_toplevel = tab_stop.is_toplevel
         self.takes_selection = tab_stop.takes_selection
         self.left = left + tab_stop.start
@@ -154,7 +159,7 @@ class EditorTabStop(object):
         self.mirrors = tuple(EditorTabStop(left, [ts], editor) for ts in tab_stops[1:])
 
     def apply_selected_text(self, text):
-        if self.takes_selection:
+        if self.takes_selection and not self.is_deleted:
             self.text = text
             for m in self.mirrors:
                 m.text = text
@@ -163,14 +168,14 @@ class EditorTabStop(object):
     def text(self):
         def fget(self):
             editor = self.editor()
-            if editor is None:
+            if editor is None or self.is_deleted:
                 return ''
             c = editor.textCursor()
             c.setPosition(self.left), c.setPosition(self.right, c.KeepAnchor)
             return editor.selected_text_from_cursor(c)
         def fset(self, text):
             editor = self.editor()
-            if editor is None:
+            if editor is None or self.is_deleted:
                 return
             c = editor.textCursor()
             c.setPosition(self.left), c.setPosition(self.right, c.KeepAnchor)
@@ -178,9 +183,37 @@ class EditorTabStop(object):
         return property(fget=fget, fset=fset)
 
     def set_editor_cursor(self, editor):
-        c = editor.textCursor()
-        c.setPosition(self.left), c.setPosition(self.right, c.KeepAnchor)
-        editor.setTextCursor(c)
+        if not self.is_deleted:
+            c = editor.textCursor()
+            c.setPosition(self.left), c.setPosition(self.right, c.KeepAnchor)
+            editor.setTextCursor(c)
+
+    def contained_in(self, left, right):
+        return contains(left, right, self.left, self.right)
+
+    def contains(self, left, right):
+        return contains(self.left, self.right, left, right)
+
+    def update_positions(self, position, chars_removed, chars_added):
+        for m in self.mirrors:
+            m.update_positions(position, chars_removed, chars_added)
+        if position > self.right or self.is_deleted:
+            return
+        # First handle deletions
+        if chars_removed > 0:
+            if self.contained_in(position, position + chars_removed):
+                self.is_deleted = True
+                return
+            if position <= self.left:
+                self.left -= chars_removed
+            if position <= self.right:
+                self.right -= chars_removed
+
+        if chars_added > 0:
+            if position < self.left:
+                self.left += chars_added
+            if position <= self.right:
+                self.right += chars_added
 
 class Template(list):
 
@@ -212,8 +245,10 @@ class Template(list):
                 ts.set_editor_cursor(editor)
             return ts
         ts = self.active_tab_stop
-        for m in ts.mirrors:
-            m.text = ts.text
+        if not ts.is_deleted:
+            for m in ts.mirrors:
+                if not m.is_deleted:
+                    m.text = ts.text
         for x in self:
             if x.num > ts.num:
                 self.active_tab_stop = x
@@ -263,7 +298,9 @@ class SnippetManager(QObject):
         editor.document().contentsChange.connect(self.contents_changed)
 
     def contents_changed(self, position, chars_removed, chars_added):
-        pass
+        for template in self.active_templates:
+            for ets in template:
+                ets.update_positions(position, chars_removed, chars_added)
 
     def get_active_template(self, cursor):
         remove = []
