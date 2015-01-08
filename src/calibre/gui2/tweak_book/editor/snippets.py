@@ -23,7 +23,7 @@ SnipKey = namedtuple('SnipKey', 'trigger syntaxes')
 def snip_key(trigger, *syntaxes):
     if '*' in syntaxes:
         syntaxes = all_text_syntaxes
-    return SnipKey(trigger, frozenset(*syntaxes))
+    return SnipKey(trigger, frozenset(syntaxes))
 
 builtin_snippets = {  # {{{
     snip_key('<<', 'html', 'xml'):  {
@@ -234,7 +234,7 @@ def expand_template(editor, trigger, template, selected_text=''):
     left = right - string_length(trigger)
     text, tab_stops = parse_template(template)
     c.setPosition(left), c.setPosition(right, c.KeepAnchor), c.insertText(text)
-    editor_tab_stops = [EditorTabStop(c, ts) for ts in tab_stops]
+    editor_tab_stops = [EditorTabStop(c, ts) for ts in tab_stops.itervalues()]
 
     if selected_text:
         for ts in editor_tab_stops:
@@ -273,10 +273,10 @@ class SnippetManager(QObject):
             self.active_templates.remove(template)
         return at
 
-    def handle_keypress(self, ev):
+    def handle_key_press(self, ev):
         editor = self.parent()
         if ev.key() == Qt.Key_Tab and ev.modifiers() & Qt.CTRL:
-            at = self.get_active_template(editor.cursor())
+            at = self.get_active_template(editor.textCursor())
             if at is not None:
                 if at.jump_to_next(editor) is None:
                     self.active_templates.remove(at)

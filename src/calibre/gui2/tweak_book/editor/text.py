@@ -25,6 +25,7 @@ from calibre.gui2.tweak_book.editor import (
 from calibre.gui2.tweak_book.editor.themes import get_theme, theme_color, theme_format
 from calibre.gui2.tweak_book.editor.syntax.base import SyntaxHighlighter
 from calibre.gui2.tweak_book.editor.smarts import NullSmarts
+from calibre.gui2.tweak_book.editor.snippets import SnippetManager
 from calibre.spell.break_iterator import index_of
 from calibre.utils.icu import safe_chr, string_length, capitalize, upper, lower, swapcase
 from calibre.utils.titlecase import titlecase
@@ -142,6 +143,7 @@ class TextEdit(PlainTextEdit):
 
     def __init__(self, parent=None, expected_geometry=(100, 50)):
         PlainTextEdit.__init__(self, parent)
+        self.snippet_manager = SnippetManager(self)
         self.completion_popup = CompletionPopup(self)
         self.request_completion = self.completion_doc_name = None
         self.clear_completion_cache_timer = t = QTimer(self)
@@ -782,6 +784,8 @@ class TextEdit(PlainTextEdit):
             # For some reason Qt 5 translates Cmd+key into text on OS X
             # https://bugreports.qt-project.org/browse/QTBUG-36281
             ev.setAccepted(False)
+            return
+        if self.snippet_manager.handle_key_press(ev):
             return
         if self.smarts.handle_key_press(ev, self):
             self.handle_keypress_completion(ev)
