@@ -285,7 +285,7 @@ class SnippetManager(QObject):
                     self.active_templates.remove(at)
                 ev.accept()
                 return True
-            self.last_selected_text = editor.selected_text
+            lst, self.last_selected_text = self.last_selected_text, editor.selected_text
             if self.last_selected_text:
                 editor.textCursor().insertText('')
                 ev.accept()
@@ -296,7 +296,7 @@ class SnippetManager(QObject):
                 error_dialog(self.parent(), _('No snippet found'), _(
                     'No matching snippet was found'), show=True)
                 return False
-            template = expand_template(editor, trigger, snip['template'], self.last_selected_text)
+            template = expand_template(editor, trigger, snip['template'], lst)
             if template.has_tab_stops:
                 self.active_templates.append(template)
             ev.accept()
