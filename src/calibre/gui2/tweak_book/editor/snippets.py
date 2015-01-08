@@ -108,7 +108,6 @@ class TabStop(unicode):
     def __repr__(self):
         return 'TabStop(text=%s num=%d start=%d is_mirror=%s takes_selection=%s is_toplevel=%s)' % (
             unicode.__repr__(self), self.num, self.start, self.is_mirror, self.takes_selection, self.is_toplevel)
-    __str__ = __unicode__ = __repr__
 
 def parse_template(template, start_offset=0, is_toplevel=True, grouped=True):
     escape, unescape = escape_funcs()
