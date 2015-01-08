@@ -231,16 +231,24 @@ class Template(list):
 
     def __new__(self, tab_stops):
         self = list.__new__(self)
-        self.left_most_position = self.right_most_position = None
+        self.left_most_ts = self.right_most_ts = None
         self.extend(tab_stops)
         for c in self:
-            if self.left_most_position is None or self.left_most_position > c.left:
-                self.left_most_position = c.left
-            if self.right_most_position is None or self.right_most_position <= c.right:
-                self.right_most_position = c.right
-        self.has_tab_stops = self.left_most_position is not None
+            if self.left_most_ts is None or self.left_most_ts.left > c.left:
+                self.left_most_ts = c
+            if self.right_most_ts is None or self.right_most_ts.right <= c.right:
+                self.right_most_ts = c
+        self.has_tab_stops = bool(self)
         self.active_tab_stop = None
         return self
+
+    @property
+    def left_most_position(self):
+        return getattr(self.left_most_ts, 'left', None)
+
+    @property
+    def right_most_position(self):
+        return getattr(self.right_most_ts, 'right', None)
 
     def contains_cursor(self, cursor):
         if not self.has_tab_stops:
