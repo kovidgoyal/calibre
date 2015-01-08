@@ -159,6 +159,8 @@ class EditorTabStop(object):
         self.mirrors = tuple(EditorTabStop(left, [ts], editor) for ts in tab_stops[1:])
         self.ignore_position_update = False
         self.join_previous_edit = False
+        self.transform = None
+        self.has_transform = self.transform is not None
 
     def __enter__(self):
         self.join_previous_edit = True
@@ -271,6 +273,8 @@ class Template(list):
             return ts
         ts = self.active_tab_stop
         if not ts.is_deleted:
+            if ts.has_transform:
+                ts.text = ts.transform(ts.text)
             for m in ts.mirrors:
                 if not m.is_deleted:
                     m.text = ts.text
@@ -279,6 +283,15 @@ class Template(list):
                 self.active_tab_stop = x
                 x.set_editor_cursor(editor)
                 return x
+
+    def remains_active(self):
+        if self.active_tab_stop is None:
+            return False
+        ts = self.active_tab_stop
+        for x in self:
+            if x.num > ts.num and not x.is_deleted:
+                return True
+        return bool(ts.mirrors) or ts.has_transform
 
     def find_closest_tab_stop(self, position):
         ans = dist = None
@@ -346,6 +359,9 @@ class SnippetManager(QObject):
             if at is not None:
                 if at.jump_to_next(editor) is None:
                     self.active_templates.remove(at)
+                else:
+                    if not at.remains_active():
+                        self.active_templates.remove(at)
                 ev.accept()
                 return True
             lst, self.last_selected_text = self.last_selected_text, editor.selected_text
