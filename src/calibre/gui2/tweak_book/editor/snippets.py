@@ -158,12 +158,21 @@ class EditorTabStop(object):
         self.right = self.left + l
         self.mirrors = tuple(EditorTabStop(left, [ts], editor) for ts in tab_stops[1:])
         self.ignore_position_update = False
+        self.join_previous_edit = False
+
+    def __enter__(self):
+        self.join_previous_edit = True
+
+    def __exit__(self, *args):
+        self.join_previous_edit = False
 
     def apply_selected_text(self, text):
         if self.takes_selection and not self.is_deleted:
-            self.text = text
+            with self:
+                self.text = text
             for m in self.mirrors:
-                m.text = text
+                with m:
+                    m.text = text
 
     @dynamic_property
     def text(self):
@@ -179,8 +188,10 @@ class EditorTabStop(object):
             if editor is None or self.is_deleted:
                 return
             c = editor.textCursor()
+            c.joinPreviousEditBlock() if self.join_previous_edit else c.beginEditBlock()
             c.setPosition(self.left), c.setPosition(self.right, c.KeepAnchor)
             c.insertText(text)
+            c.endEditBlock()
         return property(fget=fget, fset=fset)
 
     def set_editor_cursor(self, editor):
@@ -266,6 +277,7 @@ class Template(list):
 
 def expand_template(editor, trigger, template):
     c = editor.textCursor()
+    c.beginEditBlock()
     c.setPosition(c.position())
     right = c.position()
     left = right - string_length(trigger)
@@ -279,6 +291,7 @@ def expand_template(editor, trigger, template):
         ts.set_editor_cursor(editor)
     else:
         editor.setTextCursor(c)
+    c.endEditBlock()
     return tl
 
 def find_matching_snip(text, syntax):
