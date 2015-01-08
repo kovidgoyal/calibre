@@ -42,17 +42,17 @@ builtin_snippets = {  # {{{
 
     snip_key('<a', 'html'): {
         'description': _('Insert a HTML link'),
-        'template': '<a href="$1">${2*}</a>',
+        'template': '<a href="${1:filename}">${2*}</a>',
     },
 
     snip_key('<i', 'html'): {
         'description': _('Insert a HTML image'),
-        'template': '<img src="$1" alt="${2*}" />$3',
+        'template': '<img src="${1:filename}" alt="${2*:description}" />$3',
     },
 
     snip_key('<c', 'html'): {
         'description': _('Insert a HTML tag with a class'),
-        'template': '<$1 class="$2">${3*}</$1>',
+        'template': '<$1 class="${2:classname}">${3*}</$1>',
     },
 
 }  # }}}
