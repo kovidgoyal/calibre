@@ -21,7 +21,9 @@ from calibre.gui2.tweak_book.editor import all_text_syntaxes
 from calibre.gui2.tweak_book.editor.smarts.utils import get_text_before_cursor
 from calibre.gui2.tweak_book.widgets import Dialog
 from calibre.utils.config import JSONConfig
-from calibre.utils.icu import string_length
+from calibre.utils.icu import string_length as strlen
+
+string_length = lambda x: strlen(unicode(x))
 
 SnipKey = namedtuple('SnipKey', 'trigger syntaxes')
 def snip_key(trigger, *syntaxes):
