@@ -23,7 +23,7 @@ from calibre.gui2.tweak_book.widgets import Dialog
 from calibre.utils.config import JSONConfig
 from calibre.utils.icu import string_length as strlen
 
-string_length = lambda x: strlen(unicode(x))
+string_length = lambda x: strlen(unicode(x))  # Needed on narrow python builds, as subclasses of unicode dont work
 
 SnipKey = namedtuple('SnipKey', 'trigger syntaxes')
 def snip_key(trigger, *syntaxes):
