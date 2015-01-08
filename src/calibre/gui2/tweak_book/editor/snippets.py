@@ -182,8 +182,9 @@ class EditorTabStop(object):
 class Template(list):
 
     def __new__(self, tab_stops):
-        self = list.__new__(self, tab_stops)
+        self = list.__new__(self)
         self.left_most_cursor = self.right_most_cursor = None
+        self.extend(tab_stops)
         for c in self:
             if self.left_most_cursor is None or self.left_most_cursor.position() > c.left.position():
                 self.left_most_cursor = c.left
@@ -234,7 +235,9 @@ def expand_template(editor, trigger, template, selected_text=''):
     left = right - string_length(trigger)
     text, tab_stops = parse_template(template)
     c.setPosition(left), c.setPosition(right, c.KeepAnchor), c.insertText(text)
-    editor_tab_stops = [EditorTabStop(c, ts) for ts in tab_stops.itervalues()]
+    other = QTextCursor(c)
+    other.setPosition(left)
+    editor_tab_stops = [EditorTabStop(other, ts) for ts in tab_stops.itervalues()]
 
     if selected_text:
         for ts in editor_tab_stops:
