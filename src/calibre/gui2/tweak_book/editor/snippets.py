@@ -358,7 +358,7 @@ class SnippetManager(QObject):
             if snip is None:
                 error_dialog(self.parent(), _('No snippet found'), _(
                     'No matching snippet was found'), show=True)
-                return False
+                return True
             template = expand_template(editor, trigger, snip['template'])
             if template.has_tab_stops:
                 self.active_templates.append(template)
