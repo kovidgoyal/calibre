@@ -786,6 +786,7 @@ class TextEdit(PlainTextEdit):
             ev.setAccepted(False)
             return
         if self.snippet_manager.handle_key_press(ev):
+            self.completion_popup.hide()
             return
         if self.smarts.handle_key_press(ev, self):
             self.handle_keypress_completion(ev)
