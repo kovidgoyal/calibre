@@ -1153,6 +1153,7 @@ OptionRecommendation(name='search_replace',
                 specializer=partial(self.output_plugin.specialize_css_for_output,
                     self.log, self.opts))
         flattener(self.oeb, self.opts)
+        self.opts._final_base_font_size = fbase
 
         self.opts.insert_blank_line = oibl
         self.opts.remove_paragraph_spacing = orps

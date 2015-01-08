@@ -192,12 +192,12 @@ class PDFWriter(QObject):
         self.header = opts.pdf_header_template
         if self.header:
             self.header = self.header.strip()
-        min_margin = 36
+        min_margin = 1.5 * opts._final_base_font_size
         if self.footer and opts.margin_bottom < min_margin:
-            self.log.warn('Bottom margin is too small for footer, increasing it.')
+            self.log.warn('Bottom margin is too small for footer, increasing it to %.1fpts' % min_margin)
             opts.margin_bottom = min_margin
         if self.header and opts.margin_top < min_margin:
-            self.log.warn('Top margin is too small for header, increasing it.')
+            self.log.warn('Top margin is too small for header, increasing it to %.1fpts' % min_margin)
             opts.margin_top = min_margin
 
         self.page.setViewportSize(QSize(self.doc.width(), self.doc.height()))
