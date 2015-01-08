@@ -201,7 +201,7 @@ class Template(list):
         if not self.has_tab_stops:
             return False
         pos = cursor.position()
-        if self.left_most_cursor.position() <= pos <= self.right_most_cursor.position():
+        if self.left_most_position <= pos <= self.right_most_position:
             return True
         return False
 
@@ -272,7 +272,7 @@ class SnippetManager(QObject):
         for template in self.active_templates:
             if at is None and template.contains_cursor(cursor):
                 at = template
-            elif pos > template.right_most_cursor.position() or pos < template.left_most_cursor.position():
+            elif pos > template.right_most_position or pos < template.left_most_position:
                 remove.append(template)
         for template in remove:
             self.active_templates.remove(template)
