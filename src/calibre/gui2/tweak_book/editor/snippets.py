@@ -157,6 +157,7 @@ class EditorTabStop(object):
         l = string_length(tab_stop)
         self.right = self.left + l
         self.mirrors = tuple(EditorTabStop(left, [ts], editor) for ts in tab_stops[1:])
+        self.ignore_position_update = False
 
     def apply_selected_text(self, text):
         if self.takes_selection and not self.is_deleted:
@@ -197,7 +198,7 @@ class EditorTabStop(object):
     def update_positions(self, position, chars_removed, chars_added):
         for m in self.mirrors:
             m.update_positions(position, chars_removed, chars_added)
-        if position > self.right or self.is_deleted:
+        if position > self.right or self.is_deleted or self.ignore_position_update:
             return
         # First handle deletions
         if chars_removed > 0:
@@ -263,7 +264,7 @@ class Template(list):
                 dist, ans = x, c
         return ans
 
-def expand_template(editor, trigger, template, selected_text=''):
+def expand_template(editor, trigger, template):
     c = editor.textCursor()
     c.setPosition(c.position())
     right = c.position()
@@ -272,9 +273,6 @@ def expand_template(editor, trigger, template, selected_text=''):
     c.setPosition(left), c.setPosition(right, c.KeepAnchor), c.insertText(text)
     editor_tab_stops = [EditorTabStop(left, ts, editor) for ts in tab_stops.itervalues()]
 
-    if selected_text:
-        for ts in editor_tab_stops:
-            ts.apply_selected_text(selected_text)
     tl = Template(editor_tab_stops)
     if tl.has_tab_stops:
         tl.active_tab_stop = ts = editor_tab_stops[0]
@@ -335,9 +333,13 @@ class SnippetManager(QObject):
                 error_dialog(self.parent(), _('No snippet found'), _(
                     'No matching snippet was found'), show=True)
                 return False
-            template = expand_template(editor, trigger, snip['template'], lst)
+            template = expand_template(editor, trigger, snip['template'])
             if template.has_tab_stops:
                 self.active_templates.append(template)
+                if lst:
+                    for ts in template:
+                        ts.apply_selected_text(lst)
+
             ev.accept()
             return True
         return False
