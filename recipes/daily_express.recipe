@@ -7,6 +7,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 class AdvancedUserRecipe1390132023(BasicNewsRecipe):
     title          = u'Daily Express'
+    language = 'en_GB'
     __author__ = 'Dave Asbury'
     # 21.11.14 written due to website changes
     oldest_article = 1
