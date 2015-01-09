@@ -18,7 +18,11 @@ This is, inevitably, going to be somewhat technical- after all, regular expressi
 Where in calibre can you use regular expressions?
 ---------------------------------------------------
 
-There are a few places calibre uses regular expressions. There's the Search & Replace in conversion options, metadata detection from filenames in the import settings and Search & Replace when editing the metadata of books in bulk.
+There are a few places calibre uses regular expressions. There's the Search &
+Replace in conversion options, metadata detection from filenames in the import
+settings and Search & Replace when editing the metadata of books in bulk. The
+calibre book editor can also use regular expressions in its search and replace
+feature.
 
 What on earth *is* a regular expression?
 ------------------------------------------------
