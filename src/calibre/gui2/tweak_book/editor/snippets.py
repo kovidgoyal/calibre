@@ -344,10 +344,12 @@ def expand_template(editor, trigger, template):
     return tl
 
 def find_matching_snip(text, syntax=None, snip_func=None):
+    ans_snip = ans_trigger = None
     for key, snip in (snip_func or snippets)().iteritems():
         if text.endswith(key.trigger) and (syntax in key.syntaxes or syntax is None):
-            return snip, key.trigger
-    return None, None
+            if ans_trigger is None or len(key.trigger) > len(ans_trigger):
+                ans_snip, ans_trigger = snip, key.trigger
+    return ans_snip, ans_trigger
 
 class SnippetManager(QObject):
 
