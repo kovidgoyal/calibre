@@ -14,7 +14,7 @@ from operator import attrgetter, itemgetter
 from PyQt5.Qt import (
     Qt, QObject, QSize, QVBoxLayout, QStackedLayout, QWidget, QLineEdit,
     QToolButton, QIcon, QHBoxLayout, QPushButton, QListWidget, QListWidgetItem,
-    QGridLayout, QPlainTextEdit, QLabel)
+    QGridLayout, QPlainTextEdit, QLabel, QFrame)
 
 from calibre.gui2 import error_dialog
 from calibre.gui2.tweak_book.editor import all_text_syntaxes
@@ -36,6 +36,22 @@ def contains(l1, r1, l2, r2):
     return l2 >= l1 and r2 <= r1
 
 builtin_snippets = {  # {{{
+    snip_key('Lorem', 'html', 'xml'):  {
+        'description': _('Insert filler text'),
+        'template': '''\
+<p>The actual teachings of the great explorer of the truth, the master-builder
+of human happiness. No one rejects, dislikes, or avoids pleasure itself,
+because it is pleasure, but because those who do not know how to pursue
+pleasure rationally encounter consequences that are extremely painful.</p>
+
+<p>Nor again is there anyone who loves or pursues or desires to obtain pain of
+itself, because it is pain, but because occasionally circumstances occur in
+which toil and pain can procure him some great pleasure. To take a trivial
+example, which of us ever undertakes laborious physical exercise, except to
+obtain some advantage from it? But.</p>
+''',
+    },
+
     snip_key('<<', 'html', 'xml'):  {
         'description': _('Insert a tag'),
         'template': '<$1>${2*}</$1>',
@@ -327,8 +343,8 @@ def expand_template(editor, trigger, template):
     c.endEditBlock()
     return tl
 
-def find_matching_snip(text, syntax=None):
-    for key, snip in snippets().iteritems():
+def find_matching_snip(text, syntax=None, snip_func=None):
+    for key, snip in (snip_func or snippets)().iteritems():
         if text.endswith(key.trigger) and (syntax in key.syntaxes or syntax is None):
             return snip, key.trigger
     return None, None
@@ -340,6 +356,7 @@ class SnippetManager(QObject):
         self.active_templates = []
         self.last_selected_text = ''
         editor.document().contentsChange.connect(self.contents_changed)
+        self.snip_func = None
 
     def contents_changed(self, position, chars_removed, chars_added):
         for template in self.active_templates:
@@ -377,7 +394,7 @@ class SnippetManager(QObject):
                 ev.accept()
                 return True
             c, text = get_text_before_cursor(editor)
-            snip, trigger = find_matching_snip(text, editor.syntax)
+            snip, trigger = find_matching_snip(text, editor.syntax, self.snip_func)
             if snip is None:
                 error_dialog(self.parent(), _('No snippet found'), _(
                     'No matching snippet was found'), show=True)
@@ -434,6 +451,17 @@ class EditSnippet(QWidget):
         add_row(_('&File types:'), t)
         t.setToolTip(_('Which file types this snippet should be active in'))
 
+        from calibre.gui2.tweak_book.search import TextEdit
+        self.frame = f = QFrame(self)
+        f.setFrameShape(f.HLine)
+        add_row(f)
+        self.test = d = TextEdit('', self)
+        d.snippet_manager.snip_func = self.snip_func
+        d.setToolTip(_('You can test your snippet here'))
+        d.setMaximumHeight(t.maximumHeight() + 15)
+        d.setToolTip
+        add_row(_('T&est'), d)
+
         i = QListWidgetItem(_('All'), t)
         i.setData(Qt.UserRole, '*')
         i.setCheckState(Qt.Checked)
@@ -445,6 +473,10 @@ class EditSnippet(QWidget):
             i.setFlags(i.flags() | Qt.ItemIsUserCheckable)
 
         self.creating_snippet = False
+
+    def snip_func(self):
+        key = snip_key(self.trig.text(), '*')
+        return {key: self.snip}
 
     @dynamic_property
     def snip(self):
