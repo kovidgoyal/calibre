@@ -715,8 +715,6 @@ class Win32Freeze(Command, WixMixIn):
                 if hname in handled:
                     continue
                 handled.add(hname)
-                if os.path.basename(d).startswith('six-'):
-                    continue  # We prefer the version bundled with calibre
                 for x in os.listdir(d):
                     if x in {'EGG-INFO', 'site.py', 'site.pyc', 'site.pyo'}:
                         continue
