@@ -162,6 +162,7 @@ def snippets(refresh=False):
             if snip['trigger'] and isinstance(snip['trigger'], type('')):
                 key = snip_key(snip['trigger'], *snip['syntaxes'])
                 _snippets[key] = {'template':snip['template'], 'description':snip['description']}
+        _snippets = sorted(_snippets.iteritems(), key=(lambda (key, snip):string_length(key.trigger)), reverse=True)
     return _snippets
 
 # Editor integration {{{
@@ -345,10 +346,10 @@ def expand_template(editor, trigger, template):
 
 def find_matching_snip(text, syntax=None, snip_func=None):
     ans_snip = ans_trigger = None
-    for key, snip in (snip_func or snippets)().iteritems():
+    for key, snip in (snip_func or snippets)():
         if text.endswith(key.trigger) and (syntax in key.syntaxes or syntax is None):
-            if ans_trigger is None or len(key.trigger) > len(ans_trigger):
-                ans_snip, ans_trigger = snip, key.trigger
+            ans_snip, ans_trigger = snip, key.trigger
+            break
     return ans_snip, ans_trigger
 
 class SnippetManager(QObject):
@@ -489,7 +490,7 @@ class EditSnippet(QWidget):
 
     def snip_func(self):
         key = snip_key(self.trig.text(), '*')
-        return {key: self.snip}
+        return ((key, self.snip),)
 
     def apply_snip(self, snip, creating_snippet=None):
         self.creating_snippet = not snip if creating_snippet is None else creating_snippet
