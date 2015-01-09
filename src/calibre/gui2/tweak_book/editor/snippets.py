@@ -33,7 +33,7 @@ def snip_key(trigger, *syntaxes):
 
 def contains(l1, r1, l2, r2):
     # True iff (l2, r2) if contained in (l1, r1)
-    return l2 >= l1 and r2 <= r1
+    return l2 > l1 and r2 < r1
 
 builtin_snippets = {  # {{{
     snip_key('Lorem', 'html', 'xml'):  {
@@ -247,9 +247,9 @@ class EditorTabStop(object):
                 self.is_deleted = True
                 return
             if position <= self.left:
-                self.left -= chars_removed
+                self.left = max(self.left - chars_removed, position)
             if position <= self.right:
-                self.right -= chars_removed
+                self.right = max(self.right - chars_removed, position)
 
         if chars_added > 0:
             if position < self.left:
@@ -459,7 +459,6 @@ class EditSnippet(QWidget):
         d.snippet_manager.snip_func = self.snip_func
         d.setToolTip(_('You can test your snippet here'))
         d.setMaximumHeight(t.maximumHeight() + 15)
-        d.setToolTip
         add_row(_('T&est:'), d)
 
         i = QListWidgetItem(_('All'), t)
