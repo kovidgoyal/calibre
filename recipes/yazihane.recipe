@@ -3,7 +3,7 @@ import re
 
 class AdvancedUserRecipe1350731826(BasicNewsRecipe):
     title          = u'Yazihane'
-    oldest_article = 7
+    oldest_article = 30
     max_articles_per_feed = 100
     __author__            = 'A Erdogan'
     description           = 'Sports Blog'

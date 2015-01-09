@@ -1,12 +1,16 @@
-from calibre.web.feeds.news import BasicNewsRecipe
+#!/usr/bin/env python
+# vim:fileencoding=utf-8
+from __future__ import unicode_literals, division, absolute_import, print_function
+from calibre.web.feeds.news import AutomaticNewsRecipe
 
-class BasicUserRecipe1324739957(BasicNewsRecipe):
-    title          = u'Tasfiye Dergisi'
+class BasicUserRecipe1420466896(AutomaticNewsRecipe):
+    title          = 'Tasfiye Dergisi'
     language = 'tr'
     __author__ = 'asalet_r'
-
-    oldest_article = 7
+    oldest_article = 30
     max_articles_per_feed = 20
-    auto_cleanup = True
+    auto_cleanup   = True
 
-    feeds          = [(u'Tasfiye Dergisi', u'http://www.tasfiyedergisi.com/direnen-edebiyat/?feed=rss2')]
+    feeds          = [
+        ('Tasfiye Dergisi', 'http://www.tasfiyedergisi.com/direnen-edebiyat/?feed=rss2'),
+    ]
