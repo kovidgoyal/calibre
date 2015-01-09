@@ -14,7 +14,7 @@ from operator import attrgetter, itemgetter
 from PyQt5.Qt import (
     Qt, QObject, QSize, QVBoxLayout, QStackedLayout, QWidget, QLineEdit,
     QToolButton, QIcon, QHBoxLayout, QPushButton, QListWidget, QListWidgetItem,
-    QGridLayout, QPlainTextEdit, QLabel, QFrame)
+    QGridLayout, QPlainTextEdit, QLabel, QFrame, QDialog, QDialogButtonBox)
 
 from calibre.gui2 import error_dialog
 from calibre.gui2.tweak_book.editor import all_text_syntaxes
@@ -477,25 +477,27 @@ class EditSnippet(QWidget):
         key = snip_key(self.trig.text(), '*')
         return {key: self.snip}
 
+    def apply_snip(self, snip, creating_snippet=None):
+        self.creating_snippet = not snip if creating_snippet is None else creating_snippet
+        self.heading.setText('<h2>' + (_('Create a snippet') if self.creating_snippet else _('Edit snippet')))
+        snip = snip or {}
+        self.name.setText(snip.get('description') or '')
+        self.trig.setText(snip.get('trigger') or '')
+        self.template.setPlainText(snip.get('template') or '')
+
+        ftypes = snip.get('syntaxes', ())
+        for i in xrange(self.types.count()):
+            i = self.types.item(i)
+            ftype = i.data(Qt.UserRole)
+            i.setCheckState(Qt.Checked if ftype in ftypes else Qt.Unchecked)
+        if self.creating_snippet:
+            self.types.item(0).setCheckState(Qt.Checked)
+        (self.name if self.creating_snippet else self.template).setFocus(Qt.OtherFocusReason)
+
     @dynamic_property
     def snip(self):
         def fset(self, snip):
-            self.creating_snippet = not snip
-            self.heading.setText('<h2>' + (_('Create a snippet') if self.creating_snippet else _('Edit snippet')))
-            snip = snip or {}
-            self.name.setText(snip.get('description') or '')
-            self.trig.setText(snip.get('trigger') or '')
-            self.template.setPlainText(snip.get('template') or '')
-
-            ftypes = snip.get('syntaxes', ())
-            for i in xrange(self.types.count()):
-                i = self.types.item(i)
-                ftype = i.data(Qt.UserRole)
-                i.setCheckState(Qt.Checked if ftype in ftypes else Qt.Unchecked)
-            if self.creating_snippet:
-                self.types.item(0).setCheckState(Qt.Checked)
-            (self.name if self.creating_snippet else self.template).setFocus(Qt.OtherFocusReason)
-
+            self.apply_snip(snip)
         def fget(self):
             ftypes = []
             for i in xrange(self.types.count()):
@@ -563,6 +565,11 @@ class UserSnippets(Dialog):
         self.add_button = b = QToolButton(self)
         b.setIcon(QIcon(I('minus.png'))), b.setText(_('&Remove snippet')), b.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
         b.clicked.connect(self.remove_snippet)
+        l.addWidget(b)
+
+        self.add_button = b = QToolButton(self)
+        b.setIcon(QIcon(I('config.png'))), b.setText(_('Change &built-in')), b.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
+        b.clicked.connect(self.change_builtin)
         l.addWidget(b)
 
         for i, snip in enumerate(sorted(user_snippets.get('snippets', []), key=itemgetter('trigger'))):
@@ -642,6 +649,25 @@ class UserSnippets(Dialog):
             item = matches[0]
         self.snip_list.setCurrentItem(item)
         self.snip_list.scrollToItem(item)
+
+    def change_builtin(self):
+        d = QDialog(self)
+        lw = QListWidget(d)
+        for (trigger, syntaxes), snip in builtin_snippets.iteritems():
+            snip = copy.deepcopy(snip)
+            snip['trigger'], snip['syntaxes'] = trigger, syntaxes
+            i = QListWidgetItem(self.snip_to_text(snip), lw)
+            i.setData(Qt.UserRole, snip)
+        d.l = l = QVBoxLayout(d)
+        l.addWidget(QLabel(_('Choose the built-in snippet to modify:')))
+        l.addWidget(lw)
+        lw.itemDoubleClicked.connect(d.accept)
+        d.bb = bb = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
+        l.addWidget(bb)
+        bb.accepted.connect(d.accept), bb.rejected.connect(d.reject)
+        if d.exec_() == d.Accepted and lw.currentItem() is not None:
+            self.stack.setCurrentIndex(1)
+            self.edit_snip.apply_snip(lw.currentItem().data(Qt.UserRole), creating_snippet=True)
 # }}}
 
 if __name__ == '__main__':
