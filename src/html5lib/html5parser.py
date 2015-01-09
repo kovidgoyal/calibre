@@ -1,5 +1,4 @@
 from __future__ import absolute_import, division, unicode_literals
-from six import with_metaclass
 
 import types
 from collections import OrderedDict
@@ -17,6 +16,16 @@ from .constants import (
     htmlIntegrationPointElements, mathmlTextIntegrationPointElements,
     adjustForeignAttributes as adjustForeignAttributesMap, adjustSVGAttributes,
     adjustMathMLAttributes)
+
+try:
+    unicode
+    def with_metaclass(meta, *bases):
+        """Create a base class with a metaclass."""
+        return meta(b"NewBase", bases, {})
+except NameError:
+    def with_metaclass(meta, *bases):
+        """Create a base class with a metaclass."""
+        return meta("NewBase", bases, {})
 
 
 def parse(doc, treebuilder="etree", encoding=None,

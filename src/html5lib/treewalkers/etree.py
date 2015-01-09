@@ -12,7 +12,10 @@ _ = gettext.gettext
 
 import re
 
-from six import text_type
+try:
+    text_type = unicode
+except NameError:
+    text_type = str
 
 from . import _base
 from ..utils import moduleFactoryFactory

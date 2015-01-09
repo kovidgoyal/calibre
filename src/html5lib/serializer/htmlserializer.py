@@ -1,5 +1,8 @@
 from __future__ import absolute_import, division, unicode_literals
-from six import text_type
+try:
+    text_type = unicode
+except NameError:
+    text_type = str
 
 import gettext
 _ = gettext.gettext
