@@ -19,7 +19,7 @@ from PyQt5.Qt import (
 from calibre.gui2 import error_dialog
 from calibre.gui2.tweak_book.editor import all_text_syntaxes
 from calibre.gui2.tweak_book.editor.smarts.utils import get_text_before_cursor
-from calibre.gui2.tweak_book.widgets import Dialog
+from calibre.gui2.tweak_book.widgets import Dialog, PlainTextEdit
 from calibre.utils.config import JSONConfig
 from calibre.utils.icu import string_length as strlen
 
@@ -413,6 +413,19 @@ class SnippetManager(QObject):
 
 # Config {{{
 
+class SnippetTextEdit(PlainTextEdit):
+
+    def __init__(self, text, parent=None):
+        PlainTextEdit.__init__(self, parent)
+        if text:
+            self.setPlainText(text)
+        self.snippet_manager = SnippetManager(self)
+
+    def keyPressEvent(self, ev):
+        if self.snippet_manager.handle_key_press(ev):
+            return
+        PlainTextEdit.keyPressEvent(self, ev)
+
 class EditSnippet(QWidget):
 
     def __init__(self, parent=None):
@@ -451,11 +464,10 @@ class EditSnippet(QWidget):
         add_row(_('&File types:'), t)
         t.setToolTip(_('Which file types this snippet should be active in'))
 
-        from calibre.gui2.tweak_book.search import TextEdit
         self.frame = f = QFrame(self)
         f.setFrameShape(f.HLine)
         add_row(f)
-        self.test = d = TextEdit('', self)
+        self.test = d = SnippetTextEdit('', self)
         d.snippet_manager.snip_func = self.snip_func
         d.setToolTip(_('You can test your snippet here'))
         d.setMaximumHeight(t.maximumHeight() + 15)

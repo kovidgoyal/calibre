@@ -26,8 +26,7 @@ from calibre.gui2.tweak_book import tprefs, editors, current_container
 from calibre.gui2.tweak_book.function_replace import (
     FunctionBox, functions as replace_functions, FunctionEditor, remove_function, Function)
 from calibre.gui2.tweak_book.widgets import BusyCursor
-from calibre.gui2.tweak_book.editor.text import PlainTextEdit
-from calibre.gui2.tweak_book.editor.snippets import find_matching_snip, parse_template, string_length, SnippetManager
+from calibre.gui2.tweak_book.editor.snippets import find_matching_snip, parse_template, string_length, SnippetTextEdit
 
 from calibre.utils.icu import primary_contains
 
@@ -52,19 +51,6 @@ class AnimatablePushButton(QPushButton):
     def animate_done(self):
         self.setDown(False)
         self.update()
-
-class TextEdit(PlainTextEdit):
-
-    def __init__(self, text, parent=None):
-        PlainTextEdit.__init__(self, parent)
-        if text:
-            self.setPlainText(text)
-        self.snippet_manager = SnippetManager(self)
-
-    def keyPressEvent(self, ev):
-        if self.snippet_manager.handle_key_press(ev):
-            return
-        PlainTextEdit.keyPressEvent(self, ev)
 
 class PushButton(AnimatablePushButton):
 
@@ -594,12 +580,12 @@ class EditSearch(QFrame):  # {{{
         h.addWidget(la), h.addWidget(n)
         l.addLayout(h)
 
-        self.find = f = TextEdit('', self)
+        self.find = f = SnippetTextEdit('', self)
         self.la2 = la = QLabel(_('&Find:'))
         la.setBuddy(f)
         l.addWidget(la), l.addWidget(f)
 
-        self.replace = r = TextEdit('', self)
+        self.replace = r = SnippetTextEdit('', self)
         self.la3 = la = QLabel(_('&Replace:'))
         la.setBuddy(r)
         l.addWidget(la), l.addWidget(r)

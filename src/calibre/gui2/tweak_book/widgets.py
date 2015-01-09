@@ -6,7 +6,7 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import os, textwrap
+import os, textwrap, unicodedata
 from itertools import izip
 from collections import OrderedDict
 
@@ -16,7 +16,7 @@ from PyQt5.Qt import (
     QPainter, QStaticText, pyqtSignal, QTextOption, QAbstractListModel,
     QModelIndex, QStyledItemDelegate, QStyle, QCheckBox, QListView,
     QTextDocument, QSize, QComboBox, QFrame, QCursor, QGroupBox, QSplitter,
-    QPixmap, QRect)
+    QPixmap, QRect, QPlainTextEdit, pyqtSlot, QMimeData, QKeySequence)
 
 from calibre import prepare_string_for_xml, human_readable
 from calibre.ebooks.oeb.polish.utils import lead_text, guess_type
@@ -28,6 +28,7 @@ from calibre.utils.matcher import get_char, Matcher
 from calibre.gui2.complete2 import EditWithComplete
 
 ROOT = QModelIndex()
+PARAGRAPH_SEPARATOR = '\u2029'
 
 class BusyCursor(object):
 
@@ -1109,6 +1110,68 @@ class AddCover(Dialog):
         if d.exec_() == d.Accepted:
             pass
 
+# }}}
+
+class PlainTextEdit(QPlainTextEdit):  # {{{
+
+    ''' A class that overrides some methods from QPlainTextEdit to fix handling
+    of the nbsp unicode character. '''
+
+    def __init__(self, parent=None):
+        QPlainTextEdit.__init__(self, parent)
+        self.selectionChanged.connect(self.selection_changed)
+        self.syntax = None
+
+    def toPlainText(self):
+        # QPlainTextEdit's toPlainText implementation replaces nbsp with normal
+        # space, so we re-implement it using QTextCursor, which does not do
+        # that
+        c = self.textCursor()
+        c.clearSelection()
+        c.movePosition(c.Start)
+        c.movePosition(c.End, c.KeepAnchor)
+        ans = c.selectedText().replace(PARAGRAPH_SEPARATOR, '\n')
+        # QTextCursor pads the return value of selectedText with null bytes if
+        # non BMP characters such as 0x1f431 are present.
+        return ans.rstrip('\0')
+
+    @pyqtSlot()
+    def copy(self):
+        # Workaround Qt replacing nbsp with normal spaces on copy
+        c = self.textCursor()
+        if not c.hasSelection():
+            return
+        md = QMimeData()
+        md.setText(self.selected_text)
+        QApplication.clipboard().setMimeData(md)
+
+    @pyqtSlot()
+    def cut(self):
+        # Workaround Qt replacing nbsp with normal spaces on copy
+        self.copy()
+        self.textCursor().removeSelectedText()
+
+    def selected_text_from_cursor(self, cursor):
+        return unicodedata.normalize('NFC', unicode(cursor.selectedText()).replace(PARAGRAPH_SEPARATOR, '\n').rstrip('\0'))
+
+    @property
+    def selected_text(self):
+        return self.selected_text_from_cursor(self.textCursor())
+
+    def selection_changed(self):
+        # Workaround Qt replacing nbsp with normal spaces on copy
+        clipboard = QApplication.clipboard()
+        if clipboard.supportsSelection() and self.textCursor().hasSelection():
+            md = QMimeData()
+            md.setText(self.selected_text)
+            clipboard.setMimeData(md, clipboard.Selection)
+
+    def event(self, ev):
+        if ev.type() == ev.ShortcutOverride and ev in (QKeySequence.Copy, QKeySequence.Cut):
+            ev.accept()
+            (self.copy if ev == QKeySequence.Copy else self.cut)()
+            return True
+        return QPlainTextEdit.event(self, ev)
 # }}}
 
 if __name__ == '__main__':

@@ -13,8 +13,8 @@ from future_builtins import map
 import regex
 from PyQt5.Qt import (
     QPlainTextEdit, QFontDatabase, QToolTip, QPalette, QFont, QKeySequence,
-    QTextEdit, QTextFormat, QWidget, QSize, QPainter, Qt, QRect, pyqtSlot,
-    QApplication, QMimeData, QColor, QColorDialog, QTimer, pyqtSignal, QT_VERSION)
+    QTextEdit, QTextFormat, QWidget, QSize, QPainter, Qt, QRect, QColor,
+    QColorDialog, QTimer, pyqtSignal, QT_VERSION)
 
 from calibre import prepare_string_for_xml
 from calibre.constants import isosx
@@ -26,14 +26,11 @@ from calibre.gui2.tweak_book.editor.themes import get_theme, theme_color, theme_
 from calibre.gui2.tweak_book.editor.syntax.base import SyntaxHighlighter
 from calibre.gui2.tweak_book.editor.smarts import NullSmarts
 from calibre.gui2.tweak_book.editor.snippets import SnippetManager
+from calibre.gui2.tweak_book.widgets import PlainTextEdit, PARAGRAPH_SEPARATOR
 from calibre.spell.break_iterator import index_of
 from calibre.utils.icu import safe_chr, string_length, capitalize, upper, lower, swapcase
 from calibre.utils.titlecase import titlecase
 
-PARAGRAPH_SEPARATOR = '\u2029'
-
-def selected_text_from_cursor(cursor):
-    return unicodedata.normalize('NFC', unicode(cursor.selectedText()).replace(PARAGRAPH_SEPARATOR, '\n').rstrip('\0'))
 
 def get_highlighter(syntax):
     if syntax:
@@ -75,67 +72,6 @@ class LineNumbers(QWidget):  # {{{
     def paintEvent(self, ev):
         self.parent().paint_line_numbers(ev)
 # }}}
-
-class PlainTextEdit(QPlainTextEdit):
-
-    ''' A class that overrides some methods from QPlainTextEdit to fix handling
-    of the nbsp unicode character. '''
-
-    def __init__(self, parent=None):
-        QPlainTextEdit.__init__(self, parent)
-        self.selectionChanged.connect(self.selection_changed)
-        self.syntax = None
-
-    def toPlainText(self):
-        # QPlainTextEdit's toPlainText implementation replaces nbsp with normal
-        # space, so we re-implement it using QTextCursor, which does not do
-        # that
-        c = self.textCursor()
-        c.clearSelection()
-        c.movePosition(c.Start)
-        c.movePosition(c.End, c.KeepAnchor)
-        ans = c.selectedText().replace(PARAGRAPH_SEPARATOR, '\n')
-        # QTextCursor pads the return value of selectedText with null bytes if
-        # non BMP characters such as 0x1f431 are present.
-        return ans.rstrip('\0')
-
-    @pyqtSlot()
-    def copy(self):
-        # Workaround Qt replacing nbsp with normal spaces on copy
-        c = self.textCursor()
-        if not c.hasSelection():
-            return
-        md = QMimeData()
-        md.setText(self.selected_text)
-        QApplication.clipboard().setMimeData(md)
-
-    @pyqtSlot()
-    def cut(self):
-        # Workaround Qt replacing nbsp with normal spaces on copy
-        self.copy()
-        self.textCursor().removeSelectedText()
-
-    def selected_text_from_cursor(self, cursor):
-        return selected_text_from_cursor(cursor)
-
-    @property
-    def selected_text(self):
-        return self.selected_text_from_cursor(self.textCursor())
-
-    def selection_changed(self):
-        # Workaround Qt replacing nbsp with normal spaces on copy
-        clipboard = QApplication.clipboard()
-        if clipboard.supportsSelection() and self.textCursor().hasSelection():
-            md = QMimeData()
-            md.setText(self.selected_text)
-            clipboard.setMimeData(md, clipboard.Selection)
-
-    def event(self, ev):
-        if ev.type() == ev.ShortcutOverride and ev in (QKeySequence.Copy, QKeySequence.Cut):
-            ev.accept()
-            (self.copy if ev == QKeySequence.Copy else self.cut)()
-            return True
-        return QPlainTextEdit.event(self, ev)
 
 class TextEdit(PlainTextEdit):
 
