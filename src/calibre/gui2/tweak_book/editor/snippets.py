@@ -16,6 +16,7 @@ from PyQt5.Qt import (
     QToolButton, QIcon, QHBoxLayout, QPushButton, QListWidget, QListWidgetItem,
     QGridLayout, QPlainTextEdit, QLabel, QFrame, QDialog, QDialogButtonBox)
 
+from calibre.constants import isosx
 from calibre.gui2 import error_dialog
 from calibre.gui2.tweak_book.editor import all_text_syntaxes
 from calibre.gui2.tweak_book.editor.smarts.utils import get_text_before_cursor
@@ -25,6 +26,8 @@ from calibre.utils.icu import string_length as strlen
 from calibre.utils.localization import localize_user_manual_link
 
 string_length = lambda x: strlen(unicode(x))  # Needed on narrow python builds, as subclasses of unicode dont work
+KEY = Qt.Key_J
+MODIFIER = Qt.META if isosx else Qt.CTRL
 
 SnipKey = namedtuple('SnipKey', 'trigger syntaxes')
 def snip_key(trigger, *syntaxes):
@@ -382,7 +385,7 @@ class SnippetManager(QObject):
 
     def handle_key_press(self, ev):
         editor = self.parent()
-        if ev.key() == Qt.Key_Tab and ev.modifiers() & Qt.CTRL:
+        if ev.key() == KEY and ev.modifiers() & MODIFIER:
             at = self.get_active_template(editor.textCursor())
             if at is not None:
                 if at.jump_to_next(editor) is None:

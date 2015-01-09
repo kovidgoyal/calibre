@@ -26,7 +26,7 @@ from calibre.gui2.tweak_book import tprefs, editors, current_container
 from calibre.gui2.tweak_book.function_replace import (
     FunctionBox, functions as replace_functions, FunctionEditor, remove_function, Function)
 from calibre.gui2.tweak_book.widgets import BusyCursor
-from calibre.gui2.tweak_book.editor.snippets import find_matching_snip, parse_template, string_length, SnippetTextEdit
+from calibre.gui2.tweak_book.editor.snippets import find_matching_snip, parse_template, string_length, SnippetTextEdit, MODIFIER, KEY
 
 from calibre.utils.icu import primary_contains
 
@@ -88,7 +88,7 @@ class HistoryBox(HistoryComboBox):
         self.ignore_snip_expansion = False
 
     def event(self, ev):
-        if ev.type() in (ev.ShortcutOverride, ev.KeyPress) and ev.key() == Qt.Key_Tab and ev.modifiers() & Qt.CTRL:
+        if ev.type() in (ev.ShortcutOverride, ev.KeyPress) and ev.key() == KEY and ev.modifiers() & MODIFIER:
             if not self.ignore_snip_expansion:
                 self.ignore_snip_expansion = True
                 expand_template(self.lineEdit())

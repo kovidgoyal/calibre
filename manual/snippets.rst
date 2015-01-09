@@ -1,7 +1,7 @@
 Snippets
 ========================
 
-.. |ct| replace:: ``Ctrl+Tab``
+.. |ct| replace:: ``Control+J``
 
 The calibre editor supports *snippets*. A snippet is a 
 piece of text that is either re-used often or contains a lot of redundant
