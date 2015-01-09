@@ -490,7 +490,7 @@ class EditSnippet(QWidget):
             i = self.types.item(i)
             ftype = i.data(Qt.UserRole)
             i.setCheckState(Qt.Checked if ftype in ftypes else Qt.Unchecked)
-        if self.creating_snippet:
+        if self.creating_snippet and not ftypes:
             self.types.item(0).setCheckState(Qt.Checked)
         (self.name if self.creating_snippet else self.template).setFocus(Qt.OtherFocusReason)
 
