@@ -704,6 +704,7 @@ a new book`.
     :hidden:
 
     function_mode
+    snippets
 
 Special features in the code editor
 ---------------------------------------
@@ -738,6 +739,8 @@ You can right click on an HTML tag name or a CSS property name to get help for t
 You can also hold down the Ctrl key and click on any filename inside a link tag
 to open that file in the editor automatically.
 
+.. _editor_auto_complete:
+
 Auto-complete
 ^^^^^^^^^^^^^^^^
 
@@ -760,3 +763,14 @@ and press Tab to complete the filename. When searching for matches, the
 completion system prioritizes letters that are at the start of a word, or
 immediately after a path separator. Once you get used to this system, you will
 find it saves you a lot of time and effort.
+
+Snippets
+^^^^^^^^^^^^^^^
+
+The calibre editor supports *snippets*. A snippet is a 
+piece of text that is either re-used often or contains a lot of redundant
+text. The editor allows you to insert a snippet with only a few key strokes.
+The snippets are very powerful, with many features, such as placeholders you
+can jump between, automatic mirroring of repeated text and so on.
+For more information, see :doc:`snippets`.
+
