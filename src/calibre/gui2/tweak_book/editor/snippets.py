@@ -460,7 +460,7 @@ class EditSnippet(QWidget):
         d.setToolTip(_('You can test your snippet here'))
         d.setMaximumHeight(t.maximumHeight() + 15)
         d.setToolTip
-        add_row(_('T&est'), d)
+        add_row(_('T&est:'), d)
 
         i = QListWidgetItem(_('All'), t)
         i.setData(Qt.UserRole, '*')
