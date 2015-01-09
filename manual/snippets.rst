@@ -71,7 +71,7 @@ placeholder (the placeholder with the lowest number). When you press |ct| again
 the cursor jumps to the next placeholder (the placeholder with the next higher
 number). 
 
-Inserting an HTML link tag
+Inserting an HTML link tag [<a]
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 HTML link tags all share a common structure. They have an ``href`` attribute and
@@ -110,7 +110,7 @@ will be expanded to::
 
     <a href="filename">whatever text you selected</a>
 
-Inserting a HTML image tag
+Inserting a HTML image tag [<i]
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 This is very similar to inserting an HTML link, as we saw above. It allows you
@@ -120,7 +120,7 @@ between the ``src`` and ``alt`` attributes::
     Trigger: <i
     Template: <img src="${1:filename}" alt="${2*:description}" />$3
 
-Insert an arbitrary HTML tag
+Insert an arbitrary HTML tag [<<]
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 This allows you to insert an arbitrary full HTML tag (or wrap previously
@@ -147,7 +147,7 @@ As you can see, the first placeholder ($1) has been specified twice, the second
 time in the closing tag, which will simply copy whatever you type in the
 opening tag.
 
-Inserting an arbitrary HTML tag with a class attribute
+Inserting an arbitrary HTML tag with a class attribute [<c]
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 This is very similar to the insert arbitrary tag example above, except that it
