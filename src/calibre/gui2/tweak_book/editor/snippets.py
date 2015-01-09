@@ -22,6 +22,7 @@ from calibre.gui2.tweak_book.editor.smarts.utils import get_text_before_cursor
 from calibre.gui2.tweak_book.widgets import Dialog, PlainTextEdit
 from calibre.utils.config import JSONConfig
 from calibre.utils.icu import string_length as strlen
+from calibre.utils.localization import localize_user_manual_link
 
 string_length = lambda x: strlen(unicode(x))  # Needed on narrow python builds, as subclasses of unicode dont work
 
@@ -54,7 +55,7 @@ obtain some advantage from it? But.</p>
 
     snip_key('<<', 'html', 'xml'):  {
         'description': _('Insert a tag'),
-        'template': '<$1>${2*}</$1>',
+        'template': '<$1>${2*}</$1>$3',
     },
 
     snip_key('<>', 'html', 'xml'): {
@@ -64,7 +65,7 @@ obtain some advantage from it? But.</p>
 
     snip_key('<a', 'html'): {
         'description': _('Insert a HTML link'),
-        'template': '<a href="${1:filename}">${2*}</a>',
+        'template': '<a href="${1:filename}">${2*}</a>$3',
     },
 
     snip_key('<i', 'html'): {
@@ -74,7 +75,7 @@ obtain some advantage from it? But.</p>
 
     snip_key('<c', 'html'): {
         'description': _('Insert a HTML tag with a class'),
-        'template': '<$1 class="${2:classname}">${3*}</$1>',
+        'template': '<$1 class="${2:classname}">${3*}</$1>$4',
     },
 
 }  # }}}
@@ -445,6 +446,10 @@ class EditSnippet(QWidget):
                 la.setBuddy(args[1])
 
         self.heading = la = QLabel('<h2>\xa0')
+        add_row(la)
+        self.helpl = la = QLabel(_('For help with snippets, see the <a href="%s">User Manual</a>') %
+                                 localize_user_manual_link('http://manual.calibre-ebook.com/snippets.html'))
+        la.setOpenExternalLinks(True)
         add_row(la)
 
         self.name = n = QLineEdit(self)
