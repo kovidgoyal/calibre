@@ -74,7 +74,7 @@ number).
 Inserting an HTML link tag
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-HTML link tags all share a common structure. They have an href attribute and
+HTML link tags all share a common structure. They have an ``href`` attribute and
 some text between the opening and closing tags. A snippet to make typing them
 more efficient will introduce us to some more features of placeholders. To use
 this snippet, simply type ``<a`` and press |ct|. The editor will expand this
