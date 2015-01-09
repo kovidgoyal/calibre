@@ -432,7 +432,7 @@ class Boss(QObject):
             c = current_container()
             for path, name in files.iteritems():
                 i = 0
-                while c.exists(name):
+                while c.exists(name) or c.manifest_has_name(name):
                     i += 1
                     name, ext = name.rpartition('.')[0::2]
                     name = '%s_%d.%s' % (name, i, ext)

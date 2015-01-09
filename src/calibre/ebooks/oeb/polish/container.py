@@ -232,6 +232,12 @@ class Container(object):  # {{{
         self.dirty(self.opf_name)
         return item_id
 
+    def manifest_has_name(self, name):
+        ''' Return True if the manifest has an entry corresponding to name '''
+        href = self.name_to_href(name, self.opf_name)
+        all_hrefs = {x.get('href') for x in self.opf_xpath('//opf:manifest/opf:item[@href]')}
+        return href in all_hrefs
+
     def add_file(self, name, data, media_type=None, spine_index=None):
         ''' Add a file to this container. Entries for the file are
         automatically created in the OPF manifest and spine
