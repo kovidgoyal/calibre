@@ -61,8 +61,8 @@ def upload_signatures():
             f.write(fingerprint)
     check_call('scp %s/*.sha512 divok:%s/signatures/' % (tdir, DOWNLOADS),
             shell=True)
-    check_call(shlex.split('scp %s/*.sha512 code:/srv/code/signatures/' % tdir))
-    check_call(shlex.split('ssh code chown -R nobody:nobody /srv/code/signatures'))
+    check_call('scp %s/*.sha512 code:/srv/code/signatures/' % tdir, shell=True)
+    check_call(shlex.split('ssh code chown -R http:http /srv/code/signatures'))
     shutil.rmtree(tdir)
 
 class ReUpload(Command):  # {{{
