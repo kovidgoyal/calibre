@@ -20,6 +20,38 @@
 #   new recipes:
 #     - title: 
 
+- version: 2.16.0
+  date: 2015-01-10
+
+  new features:
+    - title: "Edit Book: Add support for snippets -- small pieces of text that are often re-used."
+      description: "You can now create your own snippets and insert them into the text with only a few keystrokes. The snippets include support for placeholders that you can jump between. See http://manual.calibre-ebook.com/snippets.html for details."
+      type: major
+
+  bug fixes:
+    - title: "Edit Book: When importing files and the book has an orphaned entry in the manifest for that file, but the file itself is not present, rename the file instead of erroring out."
+      tickets: [1407860]
+
+    - title: "Book Details panel: Fix author links with URL schemes other than http or file preventing context menu from working."
+      tickets: [1408174]
+
+    - title: "PDF Output: Make the minimum height for headers and footers scale with the base font size"
+
+    - title: "Fix a typo that prevented the Cybook Muse from being detected on some computers."
+      tickets: [1407435]
+
+    - title: "Fix regression in 2.15 that broke calibre on OS X 10.7 and 10.8"
+      tickets: [1407102]
+
+  improved recipes:
+    - Various updated Turkish news sources
+    - tyzden
+    - Sueddeutsche Zeitung
+
+  new recipes:
+    - title: Ajans Firat and Edebiyat Haber 
+      author: asalet_r
+
 - version: 2.15.0
   date: 2015-01-02
 
