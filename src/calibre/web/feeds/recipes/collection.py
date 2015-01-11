@@ -204,10 +204,6 @@ def get_builtin_recipe_titles():
     return [r.get('title') for r in get_builtin_recipe_collection()]
 
 def download_builtin_recipe(urn):
-    from calibre.utils.https import get_https_resource_securely
-    return get_https_resource_securely('https://status.calibre-ebook.com/recipe/'+urn)
-
-def download_builtin_recipe2(urn):
     from calibre.utils.config_base import prefs
     from calibre.utils.https import get_https_resource_securely
     import bz2

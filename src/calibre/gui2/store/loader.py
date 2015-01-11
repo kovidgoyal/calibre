@@ -23,7 +23,7 @@ class VersionMismatch(ValueError):
         ValueError.__init__(self, 'calibre too old')
         self.ver = ver
 
-def download_updates(ver_map={}, server='https://status.calibre-ebook.com'):
+def download_updates(ver_map={}, server='https://code.calibre-ebook.com'):
     from calibre.utils.https import get_https_resource_securely
     data = {k:type(u'')(v) for k, v in ver_map.iteritems()}
     data['ver'] = '1'
@@ -192,8 +192,8 @@ if __name__ == '__main__':
     for name, code in download_updates():
         count += 1
         print(name)
-        print(code)
+        print(code.encode('utf-8'))
         print('\n', '_'*80, '\n', sep='')
-    print ('Time to download all %d plugins: %.2f'%(count, time.time() - st))
+    print ('Time to download all %d plugins: %.2f seconds'%(count, time.time() - st))
 
 
