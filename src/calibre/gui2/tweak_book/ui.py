@@ -460,6 +460,9 @@ class Main(MainWindow):
                 'Split HTML file at multiple locations'))
         self.action_compare_book = treg('diff.png', _('&Compare to another book'), self.boss.compare_book, 'compare-book', (), _(
             'Compare to another book'))
+        self.action_manage_snippets = treg(
+            'snippets.png', _('Manage &Snippets'), self.boss.manage_snippets, 'manage-snippets', (), _(
+                'Manage user created snippets'))
 
         self.plugin_menu_actions = []
 

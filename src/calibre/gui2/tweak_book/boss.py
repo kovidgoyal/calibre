@@ -1353,6 +1353,10 @@ class Boss(QObject):
     def insert_character(self):
         self.gui.insert_char.show()
 
+    def manage_snippets(self):
+        from calibre.gui2.tweak_book.editor.snippets import UserSnippets
+        UserSnippets(self.gui).exec_()
+
     # Shutdown {{{
 
     def quit(self):

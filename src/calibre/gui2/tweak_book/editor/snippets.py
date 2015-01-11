@@ -548,6 +548,7 @@ class UserSnippets(Dialog):
 
     def __init__(self, parent=None):
         Dialog.__init__(self, _('Create/Edit snippets'), 'snippet-editor', parent=parent)
+        self.setWindowIcon(QIcon(I('snippets.png')))
 
     def setup_ui(self):
         self.setWindowIcon(QIcon(I('modified.png')))
