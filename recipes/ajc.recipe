@@ -1,112 +1,129 @@
 #!/usr/bin/env  python
-__license__   = 'GPL v3'
-__author__    = 'Tony Stegall'
-__copyright__ = '2010, Tony Stegall or Tonythebookworm on mobiread.com'
-__version__   = '1.03'
-__date__      = '27, September 2010'
+__license__   = 'Creative Commons Attribution 4.0 International License'
+__author__    = 'John McDole'
+__copyright__ = ''
+__version__   = '0.1'
+__date__      = '2015/01/10'
 __docformat__ = 'restructuredtext en'
 
-
-
-import datetime
+import datetime, re
 from calibre.web.feeds.news import BasicNewsRecipe
+from calibre.ebooks.BeautifulSoup import Tag
+from calibre.utils.magick import Image
 
 class AdvancedUserRecipe1282101454(BasicNewsRecipe):
     now = datetime.datetime.now()
     title = 'The AJC'
     timefmt = ' [%a,%d %B %Y %I:%M %p]'
-    __author__ = 'TonytheBookworm'
+    __author__ = 'John McDole'
     language = 'en'
-    description = 'News from Atlanta and USA'
-    publisher = 'The Atlanta Journal'
+    description = 'The Atlanta Journal-Constitution; Metro Atlanta & Georgia'
+    publisher = 'The Atlanta Journal-Constitution'
+    publication_type = 'newspaper'
     category = 'news, politics, USA'
     oldest_article = 1
     max_articles_per_feed = 100
     no_stylesheets = True
 
+    # The AJC lists identical articles in multiple feeds; this removes them based on their URL
+    ignore_duplicate_articles = {'title', 'url'}
+
+    # And this says "Hey, AJC, different feeds should mean something!"
+    remove_empty_feeds = True
+
+    # Sets whether a feed has full articles embedded in it. The AJC feeds do not.
+    use_embedded_content = False
+
     masthead_url = 'http://gawand.org/wp-content/uploads/2010/06/ajc-logo.gif'
-    extra_css = '''
-                    h1.articleHeadline{font-family:Arial,Helvetica,sans-serif; font-weight:bold;font-size:large;}
-                    h2.articleSubheadline{font-family:Arial,Helvetica,sans-serif; font-weight:normal;font-size:small;}
 
-                    p.byline{text-align:right; font-size:small;margin-top:0px;margin-bottom: 0px;}
-                    p.organization{text-align:right; font-size:small;margin-top:0px;margin-bottom: 0px;}
+    # Pick your poison. Business seems to be mostly cross-linked articles. Premium and cross-linked
+    # articels will be dropped.
+    feeds          = [
+                  ('Breaking News', 'http://www.ajc.com/list/rss/online/ajc-auto-list-iphone-topnews/aFKq/'),
+                  ('Metro and Georgia', 'http://www.ajc.com/list/rss/news/local/news-georgia-and-region/aCxP/'),
+                  ('Business', 'http://www.ajc.com/feeds/categories/business/'),
+                  ('Health', 'http://www.ajc.com/feeds/categories/health/'),
+                  # ('Braves', 'http://www.ajc.com/list/rss/sports/baseball/atlanta-braves-news/aGpN/'),
+                  # ('Falcons', 'http://www.ajc.com/list/rss/sports/football/falcons-news/aGK4/'),
+                  # ('Georgia Tech Yellow Jackets', 'http://www.ajc.com/list/rss/sports/college/georgia-tech-headlines/aGK6/'),
+                ]
 
+    headline_reg_exp = '^.*cm-story-headline.*$'
+    story_body_reg_exp = '^.*cm-story-body.*$'
+    author_reg_exp = '^.*cm-story-author.*$'
 
-                    p{font-family:Helvetica,Arial,sans-serif;font-size:small;}
-		        '''
+    keep_only_tags = [
+                       dict(name='div',   attrs={'class':re.compile(headline_reg_exp, re.IGNORECASE)}),
+                       dict(name='div',   attrs={'class':'cm-story-meta'}),
+                       dict(name='div',   attrs={'class':re.compile(author_reg_exp, re.IGNORECASE)}),
+                       dict(name='meta',  attrs={'name':'description'}),
+                       dict(name='div',   attrs={'class':re.compile(story_body_reg_exp, re.IGNORECASE)}),
+                     ]
 
-
-    keep_only_tags    = [
-                        dict(name='div', attrs={'class':['cxArticleHeader']})
-                       ,dict(attrs={'id':['cxArticleText']})
-                        ]
-
+    premium_reg_exp = '^.*cmPremiumContent.*$'
+    footer_reg_exp = '^.*cm-story-footer.*$'
 
     remove_tags = [
-                     dict(name='div'  , attrs={'class':'cxArticleList'       })
-                    ,dict(name='div'  , attrs={'class':'cxFeedTease' })
-                    ,dict(name='div'  , attrs={'class':'cxElementEnlarge'  })
-                    ,dict(name='div'  , attrs={'id':'cxArticleTools'  })
+                    dict(name='div', attrs={'class':re.compile(footer_reg_exp, re.IGNORECASE)}),
+                    dict(name='div', attrs={'class':'cm-inline-related-group'})
                   ]
 
+    extra_css = 'body { font-family: verdana, helvetica, sans-serif; } \
+                 .cm-story-headline h1 { text-align: center; font-size: 175%; font-weight: bold; } \
+                 .cm-story-meta { font-size: 80%; } \
+                 .cm-related-caption, .cmPhotoImageAttribution, img { display: block; font-size: 75%; font-style: italic; text-align: center; margin: 5px auto;} \
+                 .cm-story-author { display: block; font-size: 80%; font-style: italic; }'
 
+    # I would love to remove these completely from the finished product, but I can't see how at the momemnt.
+    # Retuning "None" from preprocess_html(soup) as suggested in mobileread forums leads to errors.
+    def preprocess_html(self, soup):
+        premium = soup.find('div', attrs={'class':re.compile(self.premium_reg_exp, re.IGNORECASE)})
+        if premium:
+            return None
+        crosslink = soup.find('a', attrs={'class':'cm-feed-story-more-link'})
+        if crosslink:
+            return None
+        return soup
 
-    feeds          = [
-                      ('Breaking News', 'http://www.ajc.com/genericList-rss.do?source=61499'),
-                      # -------------------------------------------------------------------
-                      # Here are the different area feeds. Choose which ever one you wish to
-                      # read by simply removing the pound sign from it.  I currently have it
-                      # set to only get the Cobb area
-                      # --------------------------------------------------------------------
-                      #('Atlanta & Fulton', 'http://www.ajc.com/section-rss.do?source=atlanta'),
-                      #('Clayton', 'http://www.ajc.com/section-rss.do?source=clayton'),
-                      #('DeKalb', 'http://www.ajc.com/section-rss.do?source=dekalb'),
-                      #('Gwinnett', 'http://www.ajc.com/section-rss.do?source=gwinnett'),
-                      #('North Fulton', 'http://www.ajc.com/section-rss.do?source=north-fulton'),
-                      #('Metro', 'http://www.ajc.com/section-rss.do?source=news'),
-                      #('Cherokee', 'http://www.ajc.com/section-rss.do?source=cherokee'),
-                       ('Cobb', 'http://www.ajc.com/section-rss.do?source=cobb'),
-                      #('Fayette', 'http://www.ajc.com/section-rss.do?source=fayette'),
-                      #('Henry', 'http://www.ajc.com/section-rss.do?source=henry'),
-                      #('Q & A', 'http://www.ajc.com/genericList-rss.do?source=77197'),
-                       ('Opinions', 'http://www.ajc.com/section-rss.do?source=opinion'),
-                       ('Ga Politics', 'http://www.ajc.com/section-rss.do?source=georgia-politics-elections'),
-                      # ------------------------------------------------------------------------
-                      # Here are the different sports feeds. I only follow the Falcons, and Highschool
-                      # but again
-                      # You can enable which ever team you like by removing the pound sign
-                      # ------------------------------------------------------------------------
-                      #('Sports News', 'http://www.ajc.com/genericList-rss.do?source=61510'),
-                      #('Braves', 'http://www.ajc.com/genericList-rss.do?source=61457'),
-                       ('Falcons', 'http://www.ajc.com/genericList-rss.do?source=61458'),
-                      #('Hawks', 'http://www.ajc.com/genericList-rss.do?source=61522'),
-                      #('Dawgs', 'http://www.ajc.com/genericList-rss.do?source=61492'),
-                      #('Yellowjackets', 'http://www.ajc.com/genericList-rss.do?source=61523'),
-                       ('Highschool', 'http://www.ajc.com/section-rss.do?source=high-school'),
-                       ('Events', 'http://www.accessatlanta.com/section-rss.do?source=events'),
-                       ('Music', 'http://www.accessatlanta.com/section-rss.do?source=music'),
-                    ]
+    def populate_article_metadata(self, article, soup, first):
+        for meta in soup.findAll('meta', attrs={'name':'description'}):
+            article.text_summary = meta['content']
+            article.summary = meta['content']
 
+        lead = soup.find('div', attrs={'class':'cm-story-photo'})
+        if lead:
+            lead = lead.find('img')
+        else:
+            lead = soup.find('img')
+        if lead:
+            self.add_toc_thumbnail(article, lead['src'])
+        names = ''
+        comma = ''
+        for div in soup.findAll('div', attrs={'class':re.compile(self.author_reg_exp, re.IGNORECASE)}):
+            div.extract()
+            for auth in div.findAll('a'):
+                if (auth.has_key('class') and auth['class'] == 'cm-source-image'):
+                    continue
+                names = names + comma + auth.contents[0]
+                comma = ', '
+        article.author = names
+        if len(names) > 0:
+            tag = Tag(soup, 'div', [('class', 'cm-story-author')])
+            tag.append("by: ")
+            tag.append(names)
+            meta = soup.find('div', attrs={'class':'cm-story-meta'})
+            meta_idx = meta.parent.contents.index(meta)
+            meta.parent.insert(meta_idx + 1, tag)
 
-
+    # Starson17 'Convert Images to Grayscale'
     def postprocess_html(self, soup, first):
-      for credit_tag in soup.findAll('span', attrs={'class':['imageCredit rightFloat']}):
-       credit_tag.extract()
-
-      return soup
-
-   #def print_version(self, url):
-   #     return url.partition('?')[0] +'?printArticle=y'
-
-
-
-
-
-
-
-
-
-
-
-
+        # process all the images
+        for tag in soup.findAll(lambda tag: tag.name.lower()=='img' and tag.has_key('src')):
+            iurl = tag['src']
+            img = Image()
+            img.open(iurl)
+            if img < 0:
+                raise RuntimeError('Out of memory')
+            img.type = "GrayscaleType"
+            img.save(iurl)
+        return soup
