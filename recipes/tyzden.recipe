@@ -49,14 +49,15 @@ class Tyzden(BasicNewsRecipe):
             br.submit()
         return br
 
-    base_url = 'http://www.tyzden.sk/casopis.html'
+    base_url = 'http://www.tyzden.sk/'
+    issue_url = base_url + 'casopis.html'
 
     keep_only_tags = []
     keep_only_tags.append(dict(name='div', attrs={'class': 'text_area top_nofoto'}))
     keep_only_tags.append(dict(name='div', attrs={'class': 'text_block'}))
 
     def find_sections(self):
-        soup = self.index_to_soup(self.base_url)
+        soup = self.index_to_soup(self.issue_url)
         # Use only the impotant part of page
         content = soup.find('div', 'top')
         content.extract()
@@ -64,7 +65,7 @@ class Tyzden(BasicNewsRecipe):
         # Find cover pic
         img = content.find('div', 'foto').img
         if img is not None:
-            self.cover_url = 'http://www.tyzden.sk/' + img['src']
+            self.cover_url = self.base_url + img['src']
 
         for section in content.findAll('a', {'href': re.compile(r'rubrika/.*')}):
             yield (self.tag_to_string(section), section)
@@ -76,7 +77,7 @@ class Tyzden(BasicNewsRecipe):
 
             yield {
                     'title': self.tag_to_string(article),
-                    'url': self.base_url + '/' + article['href'],
+                    'url': self.base_url + article['href'],
                     'date': strftime(' %a, %d %b'),
                     }
 
@@ -86,3 +87,4 @@ class Tyzden(BasicNewsRecipe):
             feeds.append((title, list(self.find_articles(section))))
 
         return feeds
+
