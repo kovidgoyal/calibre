@@ -13,7 +13,7 @@ from contextlib import closing
 
 is64bit = platform.architecture()[0] == '64bit'
 url = 'http://status.calibre-ebook.com/dist/linux'+('64' if is64bit else '32')
-signature_url = 'http://calibre-ebook.com/downloads/signatures/%s.sha512'
+signature_url = 'http://code.calibre-ebook.com/signatures/%s.sha512'
 url = os.environ.get('CALIBRE_INSTALLER_LOCAL_URL', url)
 py3 = sys.version_info[0] > 2
 enc = getattr(sys.stdout, 'encoding', 'UTF-8') or 'utf-8'

@@ -59,8 +59,6 @@ def upload_signatures():
         fname = os.path.basename(installer+'.sha512')
         with open(os.path.join(tdir, fname), 'wb') as f:
             f.write(fingerprint)
-    check_call('scp %s/*.sha512 divok:%s/signatures/' % (tdir, DOWNLOADS),
-            shell=True)
     check_call('scp %s/*.sha512 code:/srv/code/signatures/' % tdir, shell=True)
     check_call(shlex.split('ssh code chown -R http:http /srv/code/signatures'))
     shutil.rmtree(tdir)
