@@ -35,7 +35,11 @@ if has_ssl_verify:
     class HTTPSConnection(httplib.HTTPSConnection):
 
         def __init__(self, ssl_version, *args, **kwargs):
-            kwargs['context'] = ssl.create_default_context(cafile=kwargs.pop('cert_file'))
+            cafile = kwargs.pop('cert_file', None)
+            if cafile is None:
+                kwargs['context'] = ssl._create_unverified_context()
+            else:
+                kwargs['context'] = ssl.create_default_context(cafile=cafile)
             httplib.HTTPSConnection.__init__(self, *args, **kwargs)
 else:
     # Check certificate hostname {{{
@@ -159,13 +163,16 @@ def get_https_resource_securely(
     certificate).  Ensures that redirects, if any, are also downloaded
     securely. Needs a CA certificates bundle (in PEM format) to verify the
     server's certificates.
+
+    You can pass cacerts=None to download using SSL but without verifying the server certificate.
     '''
     if ssl_version is None:
         try:
             ssl_version = ssl.PROTOCOL_TLSv1_2
         except AttributeError:
             ssl_version = ssl.PROTOCOL_TLSv1  # old python
-    cacerts = P(cacerts, allow_user_override=False)
+    if cacerts is not None:
+        cacerts = P(cacerts, allow_user_override=False)
     p = urlparse(url)
     if p.scheme != 'https':
         raise ValueError('URL %s scheme must be https, not %r' % (url, p.scheme))
@@ -209,6 +216,5 @@ def get_https_resource_securely(
         return response.read()
 
 if __name__ == '__main__':
-    # print (len(get_url_secure('https://status.calibre-ebook.com/dist/win32')))
-    print (get_https_resource_securely('https://status.calibre-ebook.com/latest'))
+    print (get_https_resource_securely('https://code.calibre-ebook.com/latest'))
 
