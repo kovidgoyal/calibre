@@ -13,7 +13,6 @@ from contextlib import closing
 
 is64bit = platform.architecture()[0] == '64bit'
 url = 'http://status.calibre-ebook.com/dist/linux'+('64' if is64bit else '32')
-signature_url = 'http://code.calibre-ebook.com/signatures/%s.sha512'
 url = os.environ.get('CALIBRE_INSTALLER_LOCAL_URL', url)
 py3 = sys.version_info[0] > 2
 enc = getattr(sys.stdout, 'encoding', 'UTF-8') or 'utf-8'
@@ -609,7 +608,7 @@ def extract_tarball(raw, destdir):
 def get_tarball_info():
     global signature, calibre_version
     print ('Downloading tarball signature securely...')
-    raw = get_https_resource_securely('https://status.calibre-ebook.com/tarball-info/' +
+    raw = get_https_resource_securely('https://code.calibre-ebook.com/tarball-info/' +
                                       ('x86_64' if is64bit else 'i686'))
     signature, calibre_version = raw.rpartition(b'@')[::2]
     if not signature or not calibre_version:

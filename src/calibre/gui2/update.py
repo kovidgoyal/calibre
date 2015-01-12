@@ -1,22 +1,22 @@
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import re, binascii, cPickle
+import re, binascii, cPickle, ssl
 from future_builtins import map
 from threading import Thread, Event
 
 from PyQt5.Qt import (QObject, pyqtSignal, Qt, QUrl, QDialog, QGridLayout,
         QLabel, QCheckBox, QDialogButtonBox, QIcon, QPixmap)
-import mechanize
 
 from calibre.constants import (__appname__, __version__, iswindows, isosx,
         isportable, is64bit, numeric_version)
-from calibre import browser, prints, as_unicode
+from calibre import prints, as_unicode
 from calibre.utils.config import prefs
+from calibre.utils.https import get_https_resource_securely
 from calibre.gui2 import config, dynamic, open_url
 from calibre.gui2.dialogs.plugin_updater import get_plugin_updates_available
 
-URL = 'http://status.calibre-ebook.com/latest'
+URL = 'https://code.calibre-ebook.com/latest'
 # URL = 'http://localhost:8000/latest'
 NO_CALIBRE_UPDATE = (0, 0, 0)
 
@@ -28,13 +28,21 @@ def get_download_url():
     return 'http://calibre-ebook.com/download_' + which
 
 def get_newest_version():
-    br = browser()
-    req = mechanize.Request(URL)
-    req.add_header('CALIBRE_VERSION', __version__)
-    req.add_header('CALIBRE_OS',
-            'win' if iswindows else 'osx' if isosx else 'oth')
-    req.add_header('CALIBRE_INSTALL_UUID', prefs['installation_uuid'])
-    version = br.open(req).read().strip()
+    headers={
+        'CALIBRE-VERSION':__version__,
+        'CALIBRE-OS': ('win' if iswindows else 'osx' if isosx else 'oth'),
+        'CALIBRE-INSTALL-UUID': prefs['installation_uuid']
+    }
+    try:
+        version = get_https_resource_securely(URL, headers=headers)
+    except ssl.SSLError as err:
+        if getattr(err, 'reason', None) != 'CERTIFICATE_VERIFY_FAILED':
+            raise
+        # certificate verification failed, since the version check contains no
+        # critical information, ignore and proceed
+        # We have to do this as if the calibre CA certificate ever
+        # needs to be revoked, then we wont be able to do version checks
+        version = get_https_resource_securely(URL, headers=headers, cacerts=None)
     try:
         version = version.decode('utf-8').strip()
     except UnicodeDecodeError:
