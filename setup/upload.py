@@ -150,7 +150,7 @@ class UploadInstallers(Command):  # {{{
     def record_sizes(self, sizes):
         print ('\nRecording dist sizes')
         args = ['%s:%s:%s' % (__version__, fname, size) for fname, size in sizes.iteritems()]
-        check_call(['ssh', 'divok', 'dist_sizes'] + args)
+        check_call(['ssh', 'code', 'dist_sizes'] + args)
 
     def upload_to_staging(self, tdir, backup, files):
         os.mkdir(tdir+'/dist')
