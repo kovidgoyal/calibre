@@ -228,3 +228,8 @@ class UpdateMixin(object):
             calibre_version, number_of_plugin_updates = cPickle.loads(binascii.unhexlify(url[len('update:'):]))
             self.update_found(calibre_version, number_of_plugin_updates, force=True)
 
+if __name__ == '__main__':
+    from calibre.gui2 import Application
+    app = Application([])
+    UpdateNotification('x.y.z', False).exec_()
+    del app
