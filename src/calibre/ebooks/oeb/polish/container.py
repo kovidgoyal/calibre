@@ -41,7 +41,7 @@ from calibre.utils.zipfile import ZipFile
 exists, join, relpath = os.path.exists, os.path.join, os.path.relpath
 
 
-OEB_FONTS = {guess_type('a.ttf'), guess_type('b.otf'), guess_type('a.woff'), 'application/x-font-ttf', 'application/x-font-otf'}
+OEB_FONTS = {guess_type('a.ttf'), guess_type('b.otf'), guess_type('a.woff'), 'application/x-font-ttf', 'application/x-font-otf', 'application/font-sfnt'}
 OPF_NAMESPACES = {'opf':OPF2_NS, 'dc':DC11_NS}
 
 class CSSPreProcessor(cssp):
