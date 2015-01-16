@@ -221,7 +221,7 @@ class Main(MainWindow):
         cl.addWidget(vs, 0, 1, 2, 1)
 
         self.horizontal_scrollbar = hs = QScrollBar(c)
-        hs.setOrientation(Qt.Vertical), hs.setObjectName("horizontal_scrollbar")
+        hs.setOrientation(Qt.Horizontal), hs.setObjectName("horizontal_scrollbar")
         cl.addWidget(hs, 1, 0, 1, 1)
 
         self.tool_bar = tb = ToolBar(self)
