@@ -15,7 +15,7 @@ class LeMondeDiplomatiqueSiteWeb(BasicNewsRecipe):
     title                  = u'Le Monde diplomatique.fr'
     __author__             = 'Gaëtan Lehmann'
     description            = "Le Monde diplomatique est un mensuel français d’information et d’opinion à la ligne éditoriale nettement engagée en faveur d'une gauche de rupture avec le capitalisme. Il aborde de nombreux sujets — géopolitique, relations internationales, économie, questions sociales, écologie, culture, médias, …"  # noqa
-    oldest_article         = 7
+    oldest_article         = 30
     max_articles_per_feed  = 100
     auto_cleanup = True
     publisher              = 'monde-diplomatique.fr'
@@ -87,7 +87,9 @@ class LeMondeDiplomatiqueSiteWeb(BasicNewsRecipe):
             feed_link = item.find('a',attrs={'class':'couve'})
             h3 = item.find('h3')
             authorAndDate = item.find('div',attrs={'class':'dates_auteurs'})
-            author, date = authorAndDate.string.strip().split(', ')
+            author_date = authorAndDate.string.strip().split(', ')
+            author = author_date[0]
+            date = author_date[-1]
             if feed_link and feed_link.has_key('href'):
                 url   = 'http://www.monde-diplomatique.fr' + feed_link['href']
                 title = self.tag_to_string(h3)
