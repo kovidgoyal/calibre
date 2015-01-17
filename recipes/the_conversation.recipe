@@ -1,0 +1,28 @@
+from calibre.web.feeds.news import BasicNewsRecipe
+
+
+class Politics(BasicNewsRecipe):
+    title          = u'The Conversation'
+    language       = 'en'
+    __author__     = 'Krittika Goyal'
+    oldest_article = 2  # days
+    max_articles_per_feed = 20
+    use_embedded_content = False
+
+    no_stylesheets = True
+    auto_cleanup = True
+
+    feeds          = [
+('All Articles',
+ 'http://theconversation.com/articles.atom'),
+('Arts + Culture',
+ 'http://theconversation.com/us/arts/articles.atom'),
+('Business + Economy',
+ 'http://theconversation.com/us/business/articles.atom'),
+('Health + Medicine',
+ 'http://theconversation.com/us/health/articles.atom'),
+('Politics + Society',
+ 'http://theconversation.com/us/politics/articles.atom'),
+('Science + Technology',
+ 'http://theconversation.com/us/technology/articles.atom'),
+]
