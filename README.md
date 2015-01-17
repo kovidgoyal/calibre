@@ -22,7 +22,7 @@ Development
 [Setting up a development environment for calibre](http://manual.calibre-ebook.com/develop.html)
 
 
-A [tarball of the source code](http://status.calibre-ebook.com/dist/src) for the 
+A [tarball of the source code](http://code.calibre-ebook.com/dist/src) for the 
 current calibre release.
 
 Bugs

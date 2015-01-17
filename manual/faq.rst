@@ -986,10 +986,9 @@ For many reasons:
     turn off the update notification, on the update notification itself.
 
   * calibre downloads currently use `about 100TB of bandwidth a month
-    <http://status.calibre-ebook.com/downloads>`_. Implementing automatic
+    <http://calibre-ebook.com/dynamic/downloads>`_. Implementing automatic
     updates would greatly increase that and end up costing thousands of dollars
-    a month, which someone has to pay. And calibre is currently growing at `half
-    a million new installs a month <https://status.calibre-ebook.com>`_.
+    a month, which someone has to pay. 
 
   * If I implement a dialog that downloads the update and launches it, instead
     of going to the website as it does now, that would save the most ardent
