@@ -12,7 +12,7 @@ import ssl, socket
 from contextlib import closing
 
 is64bit = platform.architecture()[0] == '64bit'
-url = 'http://status.calibre-ebook.com/dist/linux'+('64' if is64bit else '32')
+url = 'http://code.calibre-ebook.com/dist/linux'+('64' if is64bit else '32')
 url = os.environ.get('CALIBRE_INSTALLER_LOCAL_URL', url)
 py3 = sys.version_info[0] > 2
 enc = getattr(sys.stdout, 'encoding', 'UTF-8') or 'utf-8'
@@ -630,7 +630,7 @@ def download_and_extract(destdir):
 def check_version():
     global calibre_version
     if calibre_version == '%version':
-        calibre_version = urllib.urlopen('http://status.calibre-ebook.com/latest').read()
+        calibre_version = urllib.urlopen('http://code.calibre-ebook.com/latest').read()
 
 def main(install_dir=None, isolated=False, bin_dir=None, share_dir=None):
     destdir = os.path.abspath(os.path.expanduser(install_dir or '/opt'))
