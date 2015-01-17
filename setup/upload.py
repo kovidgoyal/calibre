@@ -16,9 +16,7 @@ if __name__ == '__main__':
 
 from setup import Command, __version__, installer_name, __appname__
 
-PREFIX = "/var/www/calibre-ebook.com"
-DOWNLOADS = PREFIX+"/htdocs/downloads"
-BETAS = DOWNLOADS +'/betas'
+DOWNLOADS = '/srv/main/downloads'
 HTML2LRF = "calibre/ebooks/lrf/html/demo"
 TXT2LRF  = "src/calibre/ebooks/lrf/txt/demo"
 STAGING_HOST = 'download.calibre-ebook.com'
@@ -216,7 +214,7 @@ class UploadUserManual(Command):  # {{{
                                 zf.write(os.path.join(x, y))
             bname = self.b(path) + '_plugin.zip'
             dest = '%s/%s'%(DOWNLOADS, bname)
-            subprocess.check_call(['scp', f.name, 'divok:'+dest])
+            subprocess.check_call(['scp', f.name, 'main:'+dest])
 
     def run(self, opts):
         path = self.j(self.SRC, '..', 'manual', 'plugin_examples')
@@ -246,7 +244,7 @@ class UploadDemo(Command):  # {{{
         check_call(
             'cd %s && zip -j /tmp/html-demo.zip * /tmp/html2lrf.lrf' % lrf, shell=True)
 
-        check_call('scp /tmp/html-demo.zip divok:%s/'%(DOWNLOADS,), shell=True)
+        check_call('scp /tmp/html-demo.zip main:%s/'%(DOWNLOADS,), shell=True)
 # }}}
 
 class UploadToServer(Command):  # {{{
