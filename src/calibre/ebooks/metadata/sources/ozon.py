@@ -147,7 +147,7 @@ class Ozon(Source):
         norm_authors = map(_normalizeAuthorNameWithInitials, map(unicode.strip, unicode(author).split(u',')))
         mi = Metadata(title, norm_authors)
 
-        ozon_id = entry.xpath(u'substring-before(substring-after(normalize-space(.//a[starts-with(@href, "/context/detail/id/")][1]/@href), "id/"), "/")')
+        ozon_id = entry.xpath(u'substring-before(substring-after(normalize-space(//link[@rel="canonical"][contains(@href, "/context/detail/id/")][1]/@href), "id/"), "/")')
         if ozon_id:
             # log.debug(u'ozon_id (from_detail): -----> %s' % ozon_id)
             mi.identifiers = {'ozon':ozon_id}
