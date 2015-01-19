@@ -33,11 +33,16 @@ def get_category(name, mt):
         category = 'toc'
     return category
 
+def safe_size(container, name):
+    try:
+        return os.path.getsize(container.name_to_abspath(name))
+    except Exception:
+        return 0
+
 def file_data(container):
     for name, path in container.name_path_map.iteritems():
-        yield File(name, posixpath.dirname(name), os.path.getsize(name), posixpath.basename(name),
+        yield File(name, posixpath.dirname(name), posixpath.basename(name), safe_size(container, name),
                    get_category(name, container.mime_map.get(name, '')))
-
 
 def gather_data(container):
     data =  {'files':tuple(file_data(container))}
