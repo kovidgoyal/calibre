@@ -175,7 +175,7 @@ class FilesWidget(QWidget):
             human_readable, (m.total_size, m.images_size, m.fonts_size))))
 
     def double_clicked(self, index):
-        name = self.model.name(index)
+        name = self.model.name(self.proxy.mapToSource(index))
         if name is not None:
             self.edit_requested.emit(name, None)
 
@@ -231,6 +231,7 @@ class Reports(Dialog):
     def __init__(self, parent=None):
         Dialog.__init__(self, _('Reports'), 'reports-dialog', parent=parent)
         self.data_gathered.connect(self.display_data, type=Qt.QueuedConnection)
+        self.setAttribute(Qt.WA_DeleteOnClose, False)
 
     def setup_ui(self):
         self.l = l = QVBoxLayout(self)
