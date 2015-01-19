@@ -23,8 +23,6 @@ from calibre.gui2.tweak_book.widgets import Dialog
 from calibre.gui2.progress_indicator import ProgressIndicator
 from calibre.utils.icu import primary_contains, primary_sort_key
 
-SORT_ROLE = Qt.UserRole
-
 def read_state(name, default=None):
     data = tprefs.get('reports-ui-state')
     if data is None:
@@ -156,7 +154,6 @@ class FilesWidget(QWidget):
         f.doubleClicked.connect(self.double_clicked)
         self.model = m = FilesModel(self)
         self.proxy = p = ProxyModel(self)
-        p.setSortRole(SORT_ROLE)
         e.textChanged.connect(p.filter_text)
         p.setSourceModel(m)
         f.setModel(p)
