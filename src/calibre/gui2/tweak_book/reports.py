@@ -16,12 +16,12 @@ from PyQt5.Qt import (
     QListWidgetItem, QLineEdit, QStackedWidget, QSplitter, QByteArray)
 
 from calibre import human_readable
-from calibre.ebooks.oeb.polish.report import gather_data
+from calibre.ebooks.oeb.polish.report import gather_data, Location
 from calibre.gui2 import error_dialog
 from calibre.gui2.tweak_book import current_container, tprefs
 from calibre.gui2.tweak_book.widgets import Dialog
 from calibre.gui2.progress_indicator import ProgressIndicator
-from calibre.utils.icu import primary_contains, primary_sort_key
+from calibre.utils.icu import primary_contains, numeric_sort_key
 
 def read_state(name, default=None):
     data = tprefs.get('reports-ui-state')
@@ -66,22 +66,13 @@ class ProxyModel(QSortFilterProxyModel):  # {{{
         return QSortFilterProxyModel.headerData(self, section, orientation, role)
 # }}}
 
-# Files {{{
-class FilesModel(QAbstractTableModel):
+class FileCollection(QAbstractTableModel):
 
-    COLUMN_HEADERS = [_('Folder'), _('Name'), _('Size (KB)'), _('Type')]
-    CATEGORY_NAMES = {
-        'image':_('Image'),
-        'text': _('Text'),
-        'font': _('Font'),
-        'style': _('Style'),
-        'opf': _('Metadata'),
-        'toc': _('Table of Contents'),
-    }
+    COLUMN_HEADERS = ()
 
     def __init__(self, parent=None):
         self.files = self.sort_keys = ()
-        self.total_size = self.images_size = self.fonts_size = 0
+        self.total_size = 0
         QAbstractTableModel.__init__(self, parent)
 
     def columnCount(self, parent=None):
@@ -98,28 +89,45 @@ class FilesModel(QAbstractTableModel):
                 pass
         return QAbstractTableModel.headerData(self, section, orientation, role)
 
-    def __call__(self, data):
-        self.beginResetModel()
-        self.files = data['files']
-        self.total_size = sum(map(itemgetter(3), self.files))
-        self.images_size = sum(map(itemgetter(3), (f for f in self.files if f.category == 'image')))
-        self.fonts_size = sum(map(itemgetter(3), (f for f in self.files if f.category == 'font')))
-        psk = primary_sort_key
-        self.sort_keys = tuple((psk(entry.dir), psk(entry.basename), entry.size, psk(self.CATEGORY_NAMES.get(entry.category, '')))
-                               for entry in self.files)
-        self.endResetModel()
-
     def sort_key(self, row, col):
         try:
             return self.sort_keys[row][col]
         except IndexError:
             pass
 
-    def name(self, index):
+    def location(self, index):
         try:
-            return self.files[index.row()].name
+            return Location(self.files[index.row()].name)
         except IndexError:
             pass
+
+# Files {{{
+class FilesModel(FileCollection):
+
+    COLUMN_HEADERS = (_('Folder'), _('Name'), _('Size (KB)'), _('Type'))
+    CATEGORY_NAMES = {
+        'image':_('Image'),
+        'text': _('Text'),
+        'font': _('Font'),
+        'style': _('Style'),
+        'opf': _('Metadata'),
+        'toc': _('Table of Contents'),
+    }
+
+    def __init__(self, parent=None):
+        FileCollection.__init__(self, parent)
+        self.images_size = self.fonts_size = 0
+
+    def __call__(self, data):
+        self.beginResetModel()
+        self.files = data['files']
+        self.total_size = sum(map(itemgetter(3), self.files))
+        self.images_size = sum(map(itemgetter(3), (f for f in self.files if f.category == 'image')))
+        self.fonts_size = sum(map(itemgetter(3), (f for f in self.files if f.category == 'font')))
+        psk = numeric_sort_key
+        self.sort_keys = tuple((psk(entry.dir), psk(entry.basename), entry.size, psk(self.CATEGORY_NAMES.get(entry.category, '')))
+                               for entry in self.files)
+        self.endResetModel()
 
     def data(self, index, role=Qt.DisplayRole):
         if role == Qt.DisplayRole:
@@ -140,7 +148,7 @@ class FilesModel(QAbstractTableModel):
 
 class FilesWidget(QWidget):
 
-    edit_requested = pyqtSignal(object, object)
+    edit_requested = pyqtSignal(object)
 
     def __init__(self, parent=None):
         QWidget.__init__(self, parent)
@@ -175,19 +183,83 @@ class FilesWidget(QWidget):
             human_readable, (m.total_size, m.images_size, m.fonts_size))))
 
     def double_clicked(self, index):
-        name = self.model.name(self.proxy.mapToSource(index))
-        if name is not None:
-            self.edit_requested.emit(name, None)
+        location = self.model.location(self.proxy.mapToSource(index))
+        if location is not None:
+            self.edit_requested.emit(location)
 
     def save(self):
         save_state('all-files-table', bytearray(self.files.horizontalHeader().saveState()))
 
 # }}}
 
+class ImagesModel(QAbstractTableModel):
+
+    COLUMN_HEADERS = [_('Name'), _('Size (KB)'), _('Times used'), _('Width'), _('Height'), _('Image')]
+
+    def __init__(self, parent=None):
+        self.files = self.sort_keys = ()
+        self.total_size = 0
+        QAbstractTableModel.__init__(self, parent)
+
+    def columnCount(self, parent=None):
+        return len(self.COLUMN_HEADERS)
+
+    def rowCount(self, parent=None):
+        return len(self.files)
+
+    def headerData(self, section, orientation, role=Qt.DisplayRole):
+        if role == Qt.DisplayRole and orientation == Qt.Horizontal:
+            try:
+                return self.COLUMN_HEADERS[section]
+            except IndexError:
+                pass
+        return QAbstractTableModel.headerData(self, section, orientation, role)
+
+    def __call__(self, data):
+        self.beginResetModel()
+        self.files = data['files']
+        self.total_size = sum(map(itemgetter(3), self.files))
+        self.images_size = sum(map(itemgetter(3), (f for f in self.files if f.category == 'image')))
+        self.fonts_size = sum(map(itemgetter(3), (f for f in self.files if f.category == 'font')))
+        psk = numeric_sort_key
+        self.sort_keys = tuple((psk(entry.dir), psk(entry.basename), entry.size, psk(self.CATEGORY_NAMES.get(entry.category, '')))
+                               for entry in self.files)
+        self.endResetModel()
+
+    def sort_key(self, row, col):
+        try:
+            return self.sort_keys[row][col]
+        except IndexError:
+            pass
+
+    def name(self, index):
+        try:
+            return self.files[index.row()].name
+        except IndexError:
+            pass
+
+    def data(self, index, role=Qt.DisplayRole):
+        if role == Qt.DisplayRole:
+            col = index.column()
+            try:
+                entry = self.files[index.row()]
+            except IndexError:
+                return None
+            if col == 0:
+                return entry.dir
+            if col == 1:
+                return entry.basename
+            if col == 2:
+                sz = entry.size / 1024.
+                return ('%.2f' % sz if int(sz) != sz else type('')(sz))
+            if col == 3:
+                return self.CATEGORY_NAMES.get(entry.category)
+
+
 # Wrapper UI {{{
 class ReportsWidget(QWidget):
 
-    edit_requested = pyqtSignal(object, object)
+    edit_requested = pyqtSignal(object)
 
     def __init__(self, parent=None):
         QWidget.__init__(self, parent)
@@ -226,7 +298,7 @@ class ReportsWidget(QWidget):
 class Reports(Dialog):
 
     data_gathered = pyqtSignal(object, object)
-    edit_requested = pyqtSignal(object, object)
+    edit_requested = pyqtSignal(object)
 
     def __init__(self, parent=None):
         Dialog.__init__(self, _('Reports'), 'reports-dialog', parent=parent)
@@ -271,6 +343,7 @@ class Reports(Dialog):
             ok, data = True, gather_data(current_container())
         except Exception:
             import traceback
+            traceback.print_exc()
             ok, data = False, traceback.format_exc()
         self.data_gathered.emit(ok, data)
 

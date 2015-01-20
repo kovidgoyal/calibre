@@ -129,7 +129,7 @@ class Boss(QObject):
         self.gui.manage_fonts.container_changed.connect(self.apply_container_update_to_gui)
         self.gui.manage_fonts.embed_all_fonts.connect(self.manage_fonts_embed)
         self.gui.manage_fonts.subset_all_fonts.connect(self.manage_fonts_subset)
-        self.gui.reports.edit_requested.connect(self.report_edit_requested)
+        self.gui.reports.edit_requested.connect(self.reports_edit_requested)
 
     @property
     def currently_editing(self):
@@ -1157,10 +1157,11 @@ class Boss(QObject):
         self.gui.reports.show()
         self.gui.reports.raise_()
 
-    def report_edit_requested(self, name, location=None):
+    def reports_edit_requested(self, location):
+        name = location.name
         mt = current_container().mime_map.get(name, guess_type(name))
         editor = self.edit_file_requested(name, None, mt)
-        if editor is None and location is not None:
+        if editor is not None:
             pass
 
     def image_activated(self, name):
