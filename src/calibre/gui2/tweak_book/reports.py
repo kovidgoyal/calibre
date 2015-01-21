@@ -10,7 +10,9 @@ from threading import Thread
 from future_builtins import map
 from operator import itemgetter
 from functools import partial
+from collections import defaultdict
 
+import regex
 from PyQt5.Qt import (
     QSize, QStackedLayout, QLabel, QVBoxLayout, Qt, QWidget, pyqtSignal,
     QAbstractTableModel, QTableView, QSortFilterProxyModel, QIcon, QListWidget,
@@ -18,6 +20,7 @@ from PyQt5.Qt import (
     QStyledItemDelegate, QModelIndex, QRect, QStyle, QPalette, QTimer, QMenu)
 
 from calibre import human_readable, fit_image
+from calibre.ebooks.oeb.polish.container import guess_type
 from calibre.ebooks.oeb.polish.report import gather_data, Location
 from calibre.gui2 import error_dialog, question_dialog
 from calibre.gui2.tweak_book import current_container, tprefs
@@ -254,6 +257,39 @@ class FilesWidget(QWidget):
 
 # }}}
 
+class Jump(object):  # {{{
+
+    def __init__(self):
+        self.pos_map = defaultdict(lambda : -1)
+
+    def clear(self):
+        self.pos_map.clear()
+
+    def __call__(self, key, locations):
+        self.pos_map[key] = (self.pos_map[key] + 1) % len(locations)
+        loc = locations[self.pos_map[key]]
+        from calibre.gui2.tweak_book.boss import get_boss
+        boss = get_boss()
+        if boss is None:
+            return
+        name = loc.name
+        mt = current_container().mime_map.get(name, guess_type(name))
+        editor = boss.edit_file_requested(name, None, mt)
+        if editor is None:
+            return
+        editor = editor.editor
+        if loc.line_number is not None:
+            block = editor.document().findBlockByNumber(loc.line_number - 1)  # blockNumber() is zero based
+            if not block.isValid():
+                return
+            c = editor.textCursor()
+            c.setPosition(block.position(), c.MoveAnchor)
+            editor.setTextCursor(c)
+            if loc.text_on_line is not None:
+                editor.find(regex.compile(regex.escape(loc.text_on_line)))
+
+jump = Jump()  # }}}
+
 # Images {{{
 
 class ImagesDelegate(QStyledItemDelegate):
@@ -384,9 +420,9 @@ class ImagesWidget(QWidget):
         QTimer.singleShot(0, self.files.resizeRowsToContents)
 
     def double_clicked(self, index):
-        location = self.model.location(index)
-        if location is not None:
-            self.edit_requested.emit(location)
+        entry = index.data(Qt.UserRole)
+        if entry is not None:
+            jump((id(self), entry.id), entry.usage)
 
     def customize_context_menu(self, menu, selected_locations, current_location):
         if current_location is not None:
@@ -436,6 +472,7 @@ class ReportsWidget(QWidget):
             self.reports.setCurrentRow(current_page)
 
     def __call__(self, data):
+        jump.clear()
         self.files(data)
         self.images(data)
 

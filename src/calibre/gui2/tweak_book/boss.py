@@ -1162,9 +1162,7 @@ class Boss(QObject):
     def reports_edit_requested(self, location):
         name = location.name
         mt = current_container().mime_map.get(name, guess_type(name))
-        editor = self.edit_file_requested(name, None, mt)
-        if editor is not None:
-            pass
+        self.edit_file_requested(name, None, mt)
 
     def image_activated(self, name):
         mt = current_container().mime_map.get(name, guess_type(name))
@@ -1250,7 +1248,7 @@ class Boss(QObject):
     def edit_file_requested(self, name, syntax, mime):
         if name in editors:
             self.gui.central.show_editor(editors[name])
-            return
+            return editors[name]
         syntax = syntax or syntax_from_mime(name, mime)
         if not syntax:
             return error_dialog(
