@@ -130,6 +130,8 @@ class Boss(QObject):
         self.gui.manage_fonts.embed_all_fonts.connect(self.manage_fonts_embed)
         self.gui.manage_fonts.subset_all_fonts.connect(self.manage_fonts_subset)
         self.gui.reports.edit_requested.connect(self.reports_edit_requested)
+        self.gui.reports.refresh_starting.connect(self.commit_all_editors_to_container)
+        self.gui.reports.delete_requested.connect(self.delete_requested)
 
     @property
     def currently_editing(self):

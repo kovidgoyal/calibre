@@ -55,7 +55,8 @@ def file_data(container):
         yield File(name, posixpath.dirname(name), posixpath.basename(name), safe_size(container, name),
                    get_category(name, container.mime_map.get(name, '')))
 
-Image = namedtuple('Image', 'name mime_type usage size width height')
+Image = namedtuple('Image', 'name mime_type usage size basename width height')
+
 L = namedtuple('Location', 'name line_number offset word')
 def Location(name, line_number=None, offset=0, word=None):
     return L(name, line_number, offset, word)
@@ -81,7 +82,7 @@ def link_data(container):
     for name, mt in container.mime_map.iteritems():
         if mt.startswith('image/') and container.exists(name):
             image_data.append(Image(name, mt, sort_locations(image_usage.get(name, set())), safe_size(container, name),
-                                    *safe_img_data(container, name, mt)))
+                                    posixpath.basename(name), *safe_img_data(container, name, mt)))
     return tuple(image_data)
 
 def gather_data(container):
