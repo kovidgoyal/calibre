@@ -1,5 +1,5 @@
 __license__   = 'GPL v3'
-__copyright__ = '2010-2012, Darko Miletic <darko.miletic at gmail.com>'
+__copyright__ = '2010-2015, Darko Miletic <darko.miletic at gmail.com>'
 '''
 www.haaretz.com
 '''
@@ -31,8 +31,6 @@ class Haaretz_en(BasicNewsRecipe):
                                 .authorBar {font-size: small}
                             """
 
-    preprocess_regexps = [(re.compile(r'</body>.*?</html>', re.DOTALL|re.IGNORECASE),lambda match: '</body></html>')]
-
     conversion_options = {
                           'comment'  : description
                         , 'tags'     : category
@@ -40,28 +38,29 @@ class Haaretz_en(BasicNewsRecipe):
                         , 'language' : language
                         }
 
-    keep_only_tags    = [dict(attrs={'id':'threecolumns'})]
+    keep_only_tags    = [dict(name='div', attrs={'id':'content'})]
     remove_attributes = ['width','height']
     remove_tags       = [
                            dict(name=['iframe','link','object','embed'])
-                          ,dict(name='div',attrs={'class':'rightcol'})
+                          ,dict(name='div',attrs={'class':['rightcol', 'fblike']})
+                          ,dict(name='div',attrs={'id':'article_sso_form'})
                         ]
 
 
     feeds = [
-              (u'Headlines'             , 'http://feeds.feedburner.com/haaretz/LBao'        )
-             ,(u'Opinion'               , 'http://feeds.feedburner.com/haaretz/opinions'    )
-             ,(u'Defence and diplomacy' , 'http://feeds.feedburner.com/DefenseAndDiplomacy' )
-             ,(u'National'              , 'http://feeds.feedburner.com/haaretz/National'    )
-             ,(u'International'         , 'http://feeds.feedburner.com/InternationalRss'    )
-             ,(u'Jewish World'          , 'http://feeds.feedburner.com/JewishWorldRss'      )
-             ,(u'Business'              , 'http://feeds.feedburner.com/BusinessPrintRss'    )
-             ,(u'Real Estate'           , 'http://feeds.feedburner.com/RealEstatePrintRss'  )
-             ,(u'Features'              , 'http://feeds.feedburner.com/FeaturesPrintRss'    )
-             ,(u'Arts & Leisure'        , 'http://feeds.feedburner.com/ArtsAndLeisureRss'   )
-             ,(u'Books'                 , 'http://www.haaretz.com/cmlink/books-rss-1.264947?localLinksEnabled=false')
-             ,(u'Food & Wine'           , 'http://feeds.feedburner.com/FoodAndWinePrintRss' )
-             ,(u'Sports'                , 'http://feeds.feedburner.com/haaretz/Sport'       )
+              (u'Headlines'             , 'http://www.haaretz.com/cmlink/1.263335')
+             ,(u'Opinion'               , 'http://www.haaretz.com/cmlink/1.628752')
+             ,(u'Defence and diplomacy' , 'http://www.haaretz.com/cmlink/1.628763')
+             ,(u'National'              , 'http://www.haaretz.com/cmlink/1.628764')
+             ,(u'International'         , 'http://www.haaretz.com/cmlink/1.628765')
+             ,(u'Jewish World'          , 'http://www.haaretz.com/cmlink/1.628766')
+             ,(u'Business'              , 'http://www.haaretz.com/cmlink/1.628767')
+             ,(u'Real Estate'           , 'http://www.haaretz.com/cmlink/1.628768')
+             ,(u'Features'              , 'http://www.haaretz.com/cmlink/1.628769')
+             ,(u'Arts & Leisure'        , 'http://www.haaretz.com/cmlink/1.628771')
+             ,(u'Books'                 , 'http://www.haaretz.com/cmlink/1.628772')
+             ,(u'Food & Wine'           , 'http://www.haaretz.com/cmlink/1.628773')
+             ,(u'Sports'                , 'http://www.haaretz.com/cmlink/1.628774')
             ]
 
     def get_browser(self):
@@ -78,13 +77,7 @@ class Haaretz_en(BasicNewsRecipe):
             br.open('https://sso.haaretz.com/sso/sso/signIn',data)
         return br
 
-    def get_article_url(self, article):
-        url = BasicNewsRecipe.get_article_url(self, article)
-        return self.browser.open_novisit(url).geturl()
-
     def print_version(self, url):
         article = url.rpartition('/')[2]
         return 'http://www.haaretz.com/misc/article-print-page/' + article
 
-    def preprocess_raw_html(self, raw, url):
-       return '<html><head>'+raw[raw.find('</head>'):]
