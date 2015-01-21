@@ -316,7 +316,7 @@ libraries_with_checked_columns = defaultdict(set)
 class CopyToLibraryAction(InterfaceAction):
 
     name = 'Copy To Library'
-    action_spec = (_('Copy to library'), 'lt.png',
+    action_spec = (_('Copy to library'), 'copy-to-library.png',
             _('Copy selected books to the specified library'), None)
     popup_type = QToolButton.InstantPopup
     dont_add_to = frozenset(['context-menu-device'])
