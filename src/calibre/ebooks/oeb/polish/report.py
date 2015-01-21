@@ -62,9 +62,10 @@ L = namedtuple('Location', 'name line_number text_on_line word_on_line character
 def Location(name, line_number=None, text_on_line=None, word_on_line=None, character_offset=None):
     return L(name, line_number, text_on_line, word_on_line, character_offset)
 
-def sort_locations(locations):
+def sort_locations(container, locations):
+    nmap = {n:i for i, (n, l) in enumerate(container.spine_names)}
     def sort_key(l):
-        return (numeric_sort_key(l.name), l.line_number, l.character_offset)
+        return (nmap.get(l.name, 100000), numeric_sort_key(l.name), l.line_number, l.character_offset)
     return sorted(locations, key=sort_key)
 
 def link_data(container):
@@ -82,7 +83,7 @@ def link_data(container):
     image_data = []
     for name, mt in container.mime_map.iteritems():
         if mt.startswith('image/') and container.exists(name):
-            image_data.append(Image(name, mt, sort_locations(image_usage.get(name, set())), safe_size(container, name),
+            image_data.append(Image(name, mt, sort_locations(container, image_usage.get(name, set())), safe_size(container, name),
                                     posixpath.basename(name), len(image_data), *safe_img_data(container, name, mt)))
     return tuple(image_data)
 
@@ -104,7 +105,7 @@ def char_data(container):
             chars[codepoint].append(Location(name, character_offset=i))
 
     for i, (codepoint, usage) in enumerate(chars.iteritems()):
-        yield Char(i, safe_chr(codepoint), codepoint, usage)
+        yield Char(i, safe_chr(codepoint), codepoint, sort_locations(container, usage))
 
 def gather_data(container, book_locale):
     data =  {'files':tuple(file_data(container))}
