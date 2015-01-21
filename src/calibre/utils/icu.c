@@ -968,18 +968,34 @@ icu_chr(PyObject *self, PyObject *args) {
     UChar32 code = 0;
     UChar buf[5] = {0};
     int32_t sz = 0;
-    char utf8[21];
-    PyObject *result = NULL;
   
     if (!PyArg_ParseTuple(args, "I", &code)) return NULL;
 
     u_strFromUTF32(buf, 4, &sz, &code, 1, &status);
-    if (U_FAILURE(status)) { PyErr_SetString(PyExc_ValueError, "arg not in range(0x110000)"); goto end; }
-    u_strToUTF8(utf8, 20, &sz, buf, sz, &status);
-    if (U_FAILURE(status)) { PyErr_SetString(PyExc_ValueError, "arg not in range(0x110000)"); goto end; }
-    result = PyUnicode_DecodeUTF8(utf8, sz, "strict");
+    if (U_FAILURE(status)) { PyErr_SetString(PyExc_ValueError, "arg not in range(0x110000)"); return NULL; }
+    return icu_to_python(buf, sz);
+} // }}}
+
+// ord_string {{{
+static PyObject *
+icu_ord_string(PyObject *self, PyObject *input) {
+    UChar32 *input_buf = NULL;
+    int32_t sz = 0, i = 0;
+    PyObject *ans = NULL, *temp = NULL;
+
+    input_buf = python_to_icu32(input, &sz, 1);
+    if (input_buf == NULL) goto end;
+    ans = PyTuple_New(sz);
+    if (ans == NULL) goto end;
+    for (i = 0; i < sz; i++) {
+        temp = PyInt_FromLong((long)input_buf[i]);
+        if (temp == NULL) { Py_DECREF(ans); ans = NULL; PyErr_NoMemory(); goto end; }
+        PyTuple_SET_ITEM(ans, i, temp);
+    }
 end:
-    return result;
+    if (input_buf != NULL) free(input_buf);
+    return ans;
+  
 } // }}}
 
 // normalize {{{
@@ -1128,6 +1144,10 @@ static PyMethodDef icu_methods[] = {
 
     {"chr", icu_chr, METH_VARARGS, 
      "chr(code) -> Return a python unicode string corresponding to the specified character code. The string can have length 1 or 2 (for non BMP codes on narrow python builds)."
+    },
+
+    {"ord_string", icu_ord_string, METH_O, 
+     "ord_string(code) -> Convert a python unicode string to a tuple of unicode codepoints."
     },
 
     {"normalize", icu_normalize, METH_VARARGS, 

@@ -6,6 +6,7 @@
  */
 
 #define NO_ICU_TO_PYTHON
+#define NO_PYTHON_TO_ICU32
 #include "icu_calibre_utils.h"
 #include <float.h>
 
