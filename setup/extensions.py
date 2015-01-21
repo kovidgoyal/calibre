@@ -500,12 +500,12 @@ class Build(Command):
         target = self.dest('headless')
         if not self.newer(target, headers + sources + others):
             return
-        # Arch monkey patches qmake as a result of which it fails to add
-        # glib-2.0 and freetype2 to the list of library dependencies. Compiling QPA
-        # plugins uses the static libQt5PlatformSupport.a which needs glib
-        # to be specified after it for linking to succeed, so we add it to
-        # QMAKE_LIBS_PRIVATE (we cannot use LIBS as that would put -lglib-2.0
-        # before libQt5PlatformSupport. See
+        # Arch and possibly other distros (fedora?) monkey patches qmake as a
+        # result of which it fails to add glib-2.0 and freetype2 to the list of
+        # library dependencies. Compiling QPA plugins uses the static
+        # libQt5PlatformSupport.a which needs glib to be specified after it for
+        # linking to succeed, so we add it to QMAKE_LIBS_PRIVATE (we cannot use
+        # LIBS as that would put -lglib-2.0 before libQt5PlatformSupport. See
         # https://bugs.archlinux.org/task/38819
 
         pro = textwrap.dedent(
