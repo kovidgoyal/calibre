@@ -43,12 +43,12 @@ class TheOnion(BasicNewsRecipe):
     remove_tags       = [
                          dict(name=['object','link','iframe','base','meta'])
                         ,dict(attrs={'class':lambda x: x and 'share-tools' in x.split()})
+                        ,dict(name='div', attrs={'id':['topshare', 'bottomshare']})
                         ]
 
-
     feeds = [
-              (u'Daily'  , u'http://feeds.theonion.com/theonion/daily' )
-             ,(u'Sports' , u'http://feeds.theonion.com/theonion/sports' )
+              (u'Daily'  , u'http://feeds.theonion.com/theonion/daily')
+             ,(u'Sports' , u'http://feeds.theonion.com/theonion/sports')
             ]
 
     def get_browser(self):
@@ -61,11 +61,11 @@ class TheOnion(BasicNewsRecipe):
             br['j_password'] = self.password
             br.submit()
         return br
-        
+
     def get_article_url(self, article):
         artl = BasicNewsRecipe.get_article_url(self, article)
         if artl.startswith('http://www.theonion.com/audio/'):
-           artl = None
+            artl = None
         return artl
 
     def preprocess_html(self, soup):
@@ -74,19 +74,18 @@ class TheOnion(BasicNewsRecipe):
         for item in soup.findAll('a'):
             limg = item.find('img')
             if item.string is not None:
-               str = item.string
-               item.replaceWith(str)
+                str = item.string
+                item.replaceWith(str)
             else:
-               if limg:
-                  item.name  = 'div'
-                  item.attrs = []
-                  if not limg.has_key('alt'):
-                     limg['alt'] = 'image'
-               else:
-                   str = self.tag_to_string(item)
-                   item.replaceWith(str)
+                if limg:
+                    item.name  = 'div'
+                    item.attrs = []
+                    if not limg.has_key('alt'):
+                        limg['alt'] = 'image'
+                else:
+                    str = self.tag_to_string(item)
+                    item.replaceWith(str)
         for item in soup.findAll('img'):
             if item.has_key('data-src'):
-               item['src'] = item['data-src']           
+                item['src'] = item['data-src']
         return soup
-        
