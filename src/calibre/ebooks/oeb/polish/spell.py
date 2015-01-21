@@ -86,6 +86,7 @@ def add_words(text, node, words, file_name, locale, node_item):
                     sword = sword[len(elided_prefix):]
             loc = Location(file_name, elided_prefix, word, node, node_item)
             words[(sword, locale)].append(loc)
+            words[None] += 1
 
 def add_words_from_attr(node, attr, words, file_name, locale):
     text = node.get(attr, None)
@@ -164,8 +165,9 @@ def get_checkable_file_names(container):
         file_names.append(toc)
     return file_names, toc
 
-def get_all_words(container, book_locale):
+def get_all_words(container, book_locale, get_word_count=False):
     words = defaultdict(list)
+    words[None] = 0
     file_names, toc = get_checkable_file_names(container)
     for file_name in file_names:
         if not container.exists(file_name):
@@ -177,8 +179,11 @@ def get_all_words(container, book_locale):
             read_words_from_ncx(root, words, file_name, book_locale)
         else:
             read_words_from_html(root, words, file_name, book_locale)
-
-    return {k:group_sort(v) for k, v in words.iteritems()}
+    count = words.pop(None)
+    ans = {k:group_sort(v) for k, v in words.iteritems()}
+    if get_word_count:
+        return count, ans
+    return ans
 
 def merge_locations(locs1, locs2):
     return group_sort(locs1 + locs2)

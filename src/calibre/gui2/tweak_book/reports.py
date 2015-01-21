@@ -23,10 +23,11 @@ from calibre import human_readable, fit_image
 from calibre.ebooks.oeb.polish.container import guess_type
 from calibre.ebooks.oeb.polish.report import gather_data, Location
 from calibre.gui2 import error_dialog, question_dialog
-from calibre.gui2.tweak_book import current_container, tprefs
+from calibre.gui2.tweak_book import current_container, tprefs, dictionaries
 from calibre.gui2.tweak_book.widgets import Dialog
 from calibre.gui2.progress_indicator import ProgressIndicator
 from calibre.utils.icu import primary_contains, numeric_sort_key
+from calibre.utils.localization import calibre_langcode_to_name, canonicalize_lang
 
 # Utils {{{
 
@@ -111,6 +112,7 @@ class FilesView(QTableView):
 
     double_clicked = pyqtSignal(object)
     delete_requested = pyqtSignal(object, object)
+    DELETE_POSSIBLE = True
 
     def __init__(self, model, parent=None):
         QTableView.__init__(self, parent)
@@ -132,7 +134,7 @@ class FilesView(QTableView):
             self.double_clicked.emit(index)
 
     def keyPressEvent(self, ev):
-        if ev.key() == Qt.Key_Delete:
+        if self.DELETE_POSSIBLE and ev.key() == Qt.Key_Delete:
             self.delete_selected()
             ev.accept()
             return
@@ -148,13 +150,14 @@ class FilesView(QTableView):
         return self.proxy.sourceModel().location(self.proxy.mapToSource(index))
 
     def delete_selected(self):
-        locations = self.selected_locations
-        if locations:
-            names = {l.name for l in locations}
-            spine_names = {n for n, l in current_container().spine_names}
-            spine_items = spine_names.intersection(names)
-            other_items = names - spine_names
-            self.delete_requested.emit(spine_items, other_items)
+        if self.DELETE_POSSIBLE:
+            locations = self.selected_locations
+            if locations:
+                names = {l.name for l in locations}
+                spine_names = {n for n, l in current_container().spine_names}
+                spine_items = spine_names.intersection(names)
+                other_items = names - spine_names
+                self.delete_requested.emit(spine_items, other_items)
 
     def show_context_menu(self, pos):
         pos = self.viewport().mapToGlobal(pos)
@@ -287,6 +290,10 @@ class Jump(object):  # {{{
             editor.setTextCursor(c)
             if loc.text_on_line is not None:
                 editor.find(regex.compile(regex.escape(loc.text_on_line)))
+        elif loc.character_offset is not None:
+            c = editor.textCursor()
+            c.setPosition(loc.character_offset)
+            editor.setTextCursor(c)
 
 jump = Jump()  # }}}
 
@@ -432,6 +439,96 @@ class ImagesWidget(QWidget):
         save_state('image-files-table', bytearray(self.files.horizontalHeader().saveState()))
 # }}}
 
+# Words {{{
+
+class WordsModel(FileCollection):
+
+    COLUMN_HEADERS = (_('Word'), _('Language'), _('Times used'))
+    total_words = 0
+
+    def __call__(self, data):
+        self.beginResetModel()
+        self.total_words, self.files = data['words']
+        self.total_size = len({entry.locale for entry in self.files})
+        psk = numeric_sort_key
+        lsk_cache = {}
+        def locale_sort_key(loc):
+            try:
+                return lsk_cache[loc]
+            except KeyError:
+                lsk_cache[loc] = (psk(calibre_langcode_to_name(canonicalize_lang(loc[0]))), psk(loc[1] or ''))
+            return lsk_cache[loc]
+
+        self.sort_keys = tuple((psk(entry.word), locale_sort_key(entry.locale), len(entry.usage)) for entry in self.files)
+        self.endResetModel()
+
+    def data(self, index, role=Qt.DisplayRole):
+        if role == Qt.DisplayRole:
+            col = index.column()
+            try:
+                entry = self.files[index.row()]
+            except IndexError:
+                return None
+            if col == 0:
+                return entry.word
+            if col == 1:
+                ans = calibre_langcode_to_name(canonicalize_lang(entry.locale.langcode)) or ''
+                if entry.locale.countrycode:
+                    ans += ' (%s)' % entry.locale.countrycode
+                return ans
+            if col == 2:
+                return type('')(len(entry.usage))
+        if role == Qt.UserRole:
+            try:
+                return self.files[index.row()]
+            except IndexError:
+                pass
+
+    def location(self, index):
+        return None
+
+class WordsWidget(QWidget):
+
+    def __init__(self, parent=None):
+        QWidget.__init__(self, parent)
+        self.l = l = QVBoxLayout(self)
+
+        self.filter_edit = e = QLineEdit(self)
+        l.addWidget(e)
+        e.setPlaceholderText(_('Filter'))
+        self.model = m = WordsModel(self)
+        self.words = f = FilesView(m, self)
+        f.DELETE_POSSIBLE = False
+        f.double_clicked.connect(self.double_clicked)
+        e.textChanged.connect(f.proxy.filter_text)
+        l.addWidget(f)
+
+        self.summary = la = QLabel('\xa0')
+        l.addWidget(la)
+
+        try:
+            self.words.horizontalHeader().restoreState(read_state('words-table'))
+        except TypeError:
+            self.words.sortByColumn(0, Qt.AscendingOrder)
+
+    def __call__(self, data):
+        self.model(data)
+        self.filter_edit.clear()
+        self.summary.setText(_('Words: {2} :: Unique Words: :: {0} Languages: {1}').format(
+            self.model.rowCount(), self.model.total_size, self.model.total_words))
+
+    def double_clicked(self, index):
+        entry = index.data(Qt.UserRole)
+        if entry is not None:
+            from calibre.gui2.tweak_book.boss import get_boss
+            boss = get_boss()
+            if boss is not None:
+                boss.find_word((entry.word, entry.locale), entry.usage)
+
+    def save(self):
+        save_state('words-table', bytearray(self.words.horizontalHeader().saveState()))
+# }}}
+
 # Wrapper UI {{{
 class ReportsWidget(QWidget):
 
@@ -456,6 +553,10 @@ class ReportsWidget(QWidget):
         s.addWidget(f)
         QListWidgetItem(_('Files'), r)
 
+        self.words = w = WordsWidget(self)
+        s.addWidget(w)
+        QListWidgetItem(_('Words'), r)
+
         self.images = i = ImagesWidget(self)
         i.edit_requested.connect(self.edit_requested)
         i.delete_requested.connect(self.delete_requested)
@@ -473,14 +574,14 @@ class ReportsWidget(QWidget):
 
     def __call__(self, data):
         jump.clear()
-        self.files(data)
-        self.images(data)
+        for i in xrange(self.stack.count()):
+            self.stack.widget(i)(data)
 
     def save(self):
         save_state('splitter-state', bytearray(self.splitter.saveState()))
         save_state('report-page', self.reports.currentRow())
-        self.files.save()
-        self.images.save()
+        for i in xrange(self.stack.count()):
+            self.stack.widget(i).save()
 
 class Reports(Dialog):
 
@@ -538,7 +639,7 @@ class Reports(Dialog):
 
     def gather_data(self):
         try:
-            ok, data = True, gather_data(current_container())
+            ok, data = True, gather_data(current_container(), dictionaries.default_locale)
         except Exception:
             import traceback
             traceback.print_exc()

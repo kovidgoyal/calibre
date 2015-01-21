@@ -10,6 +10,7 @@ import posixpath, os
 from collections import namedtuple, defaultdict
 
 from calibre.ebooks.oeb.polish.container import OEB_DOCS, OEB_STYLES, OEB_FONTS
+from calibre.ebooks.oeb.polish.spell import get_all_words
 from calibre.utils.icu import numeric_sort_key
 from calibre.utils.magick.draw import identify
 
@@ -85,8 +86,16 @@ def link_data(container):
                                     posixpath.basename(name), len(image_data), *safe_img_data(container, name, mt)))
     return tuple(image_data)
 
-def gather_data(container):
+Word = namedtuple('Word', 'id word locale usage')
+
+def word_data(container, book_locale):
+    count, words = get_all_words(container, book_locale, get_word_count=True)
+    return (count, tuple(Word(i, word, locale, v) for i, ((word, locale), v) in enumerate(words.iteritems())))
+
+def gather_data(container, book_locale):
     data =  {'files':tuple(file_data(container))}
     img_data = link_data(container)
     data['images'] = img_data
+    data['words'] = word_data(container, book_locale)
     return data
+
