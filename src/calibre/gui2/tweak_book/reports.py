@@ -26,7 +26,7 @@ from calibre.gui2 import error_dialog, question_dialog
 from calibre.gui2.tweak_book import current_container, tprefs, dictionaries
 from calibre.gui2.tweak_book.widgets import Dialog
 from calibre.gui2.progress_indicator import ProgressIndicator
-from calibre.utils.icu import primary_contains, numeric_sort_key
+from calibre.utils.icu import primary_contains, numeric_sort_key, character_name_from_code
 from calibre.utils.localization import calibre_langcode_to_name, canonicalize_lang
 
 # Utils {{{
@@ -292,7 +292,7 @@ class Jump(object):  # {{{
                 editor.find(regex.compile(regex.escape(loc.text_on_line)))
         elif loc.character_offset is not None:
             c = editor.textCursor()
-            c.setPosition(loc.character_offset)
+            c.setPosition(loc.character_offset + 1)  # put cursor after the character
             editor.setTextCursor(c)
 
 jump = Jump()  # }}}
@@ -529,6 +529,78 @@ class WordsWidget(QWidget):
         save_state('words-table', bytearray(self.words.horizontalHeader().saveState()))
 # }}}
 
+# Characters {{{
+
+class CharsModel(FileCollection):
+
+    COLUMN_HEADERS = (_('Character'), _('Name'), _('Codepoint'), _('Times used'))
+    total_words = 0
+
+    def __call__(self, data):
+        self.beginResetModel()
+        self.files = data['chars']
+        psk = numeric_sort_key
+        self.sort_keys = tuple((psk(entry.char), None, entry.codepoint, len(entry.usage)) for entry in self.files)
+        self.endResetModel()
+
+    def data(self, index, role=Qt.DisplayRole):
+        if role == Qt.DisplayRole:
+            col = index.column()
+            try:
+                entry = self.files[index.row()]
+            except IndexError:
+                return None
+            if col == 0:
+                return entry.char
+            if col == 1:
+                return {0xa:'LINE FEED', 0xd:'CARRIAGE RETURN'}.get(entry.codepoint, character_name_from_code(entry.codepoint))
+            if col == 2:
+                return ('U+%04X' if entry.codepoint < 0x10000 else 'U+%06X') % entry.codepoint
+            if col == 3:
+                return type('')(len(entry.usage))
+        if role == Qt.UserRole:
+            try:
+                return self.files[index.row()]
+            except IndexError:
+                pass
+
+    def location(self, index):
+        return None
+
+class CharsWidget(QWidget):
+
+    def __init__(self, parent=None):
+        QWidget.__init__(self, parent)
+        self.l = l = QVBoxLayout(self)
+
+        self.filter_edit = e = QLineEdit(self)
+        l.addWidget(e)
+        e.setPlaceholderText(_('Filter'))
+        self.model = m = CharsModel(self)
+        self.chars = f = FilesView(m, self)
+        f.DELETE_POSSIBLE = False
+        f.double_clicked.connect(self.double_clicked)
+        e.textChanged.connect(f.proxy.filter_text)
+        l.addWidget(f)
+
+        try:
+            self.chars.horizontalHeader().restoreState(read_state('chars-table'))
+        except TypeError:
+            self.chars.sortByColumn(0, Qt.AscendingOrder)
+
+    def __call__(self, data):
+        self.model(data)
+        self.filter_edit.clear()
+
+    def double_clicked(self, index):
+        entry = index.data(Qt.UserRole)
+        if entry is not None:
+            jump((id(self), entry.id), entry.usage)
+
+    def save(self):
+        save_state('chars-table', bytearray(self.chars.horizontalHeader().saveState()))
+# }}}
+
 # Wrapper UI {{{
 class ReportsWidget(QWidget):
 
@@ -562,6 +634,10 @@ class ReportsWidget(QWidget):
         i.delete_requested.connect(self.delete_requested)
         s.addWidget(i)
         QListWidgetItem(_('Images'), r)
+
+        self.chars = c = CharsWidget(self)
+        s.addWidget(c)
+        QListWidgetItem(_('Characters'), r)
 
         self.splitter.setStretchFactor(1, 500)
         try:

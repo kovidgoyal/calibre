@@ -11,7 +11,7 @@ from collections import namedtuple, defaultdict
 
 from calibre.ebooks.oeb.polish.container import OEB_DOCS, OEB_STYLES, OEB_FONTS
 from calibre.ebooks.oeb.polish.spell import get_all_words
-from calibre.utils.icu import numeric_sort_key
+from calibre.utils.icu import numeric_sort_key, ord_string, safe_chr
 from calibre.utils.magick.draw import identify
 
 File = namedtuple('File', 'name dir basename size category')
@@ -92,10 +92,25 @@ def word_data(container, book_locale):
     count, words = get_all_words(container, book_locale, get_word_count=True)
     return (count, tuple(Word(i, word, locale, v) for i, ((word, locale), v) in enumerate(words.iteritems())))
 
+Char = namedtuple('Char', 'id char codepoint usage')
+
+def char_data(container):
+    chars = defaultdict(list)
+    for name, is_linear in container.spine_names:
+        if container.mime_map.get(name) not in OEB_DOCS:
+            continue
+        raw = container.raw_data(name)
+        for i, codepoint in enumerate(ord_string(raw)):
+            chars[codepoint].append(Location(name, character_offset=i))
+
+    for i, (codepoint, usage) in enumerate(chars.iteritems()):
+        yield Char(i, safe_chr(codepoint), codepoint, usage)
+
 def gather_data(container, book_locale):
     data =  {'files':tuple(file_data(container))}
     img_data = link_data(container)
     data['images'] = img_data
     data['words'] = word_data(container, book_locale)
+    data['chars'] = tuple(char_data(container))
     return data
 
