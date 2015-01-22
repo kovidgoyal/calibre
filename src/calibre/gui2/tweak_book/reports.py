@@ -1053,10 +1053,11 @@ class Reports(Dialog):
 
 if __name__ == '__main__':
     from calibre.gui2 import Application
+    import sys
     app = Application([])
     from calibre.gui2.tweak_book import set_current_container
     from calibre.gui2.tweak_book.boss import get_container
-    set_current_container(get_container('/t/demo.epub'))
+    set_current_container(get_container(sys.argv[-1]))
     d = Reports()
     d.refresh()
     d.exec_()
