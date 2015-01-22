@@ -11,6 +11,8 @@ from future_builtins import map
 from operator import itemgetter
 from functools import partial
 from collections import defaultdict
+from csv import writer as csv_writer
+from io import BytesIO
 
 import regex
 from PyQt5.Qt import (
@@ -21,7 +23,7 @@ from PyQt5.Qt import (
 
 from calibre import human_readable, fit_image
 from calibre.ebooks.oeb.polish.report import gather_data
-from calibre.gui2 import error_dialog, question_dialog
+from calibre.gui2 import error_dialog, question_dialog, choose_save_file
 from calibre.gui2.tweak_book import current_container, tprefs, dictionaries
 from calibre.gui2.tweak_book.widgets import Dialog
 from calibre.gui2.progress_indicator import ProgressIndicator
@@ -167,6 +169,17 @@ class FilesView(QTableView):
         self.customize_context_menu(m, locations, self.current_location)
         if len(m.actions()) > 0:
             m.exec_(pos)
+
+    def to_csv(self):
+        buf = BytesIO()
+        w = csv_writer(buf)
+        w.writerow(self.proxy.sourceModel().COLUMN_HEADERS)
+        cols = self.proxy.columnCount()
+        for r in xrange(self.proxy.rowCount()):
+            items = [self.proxy.index(r, c).data(Qt.DisplayRole) for c in xrange(cols)]
+            w.writerow(items)
+        return buf.getvalue()
+
 # }}}
 
 # Files {{{
@@ -229,6 +242,7 @@ class FilesWidget(QWidget):
         e.setPlaceholderText(_('Filter'))
         self.model = m = FilesModel(self)
         self.files = f = FilesView(m, self)
+        self.to_csv = f.to_csv
         f.delete_requested.connect(self.delete_requested)
         f.double_clicked.connect(self.double_clicked)
         e.textChanged.connect(f.proxy.filter_text)
@@ -397,6 +411,7 @@ class ImagesWidget(QWidget):
         e.setPlaceholderText(_('Filter'))
         self.model = m = ImagesModel(self)
         self.files = f = FilesView(m, self)
+        self.to_csv = f.to_csv
         f.customize_context_menu = self.customize_context_menu
         f.delete_requested.connect(self.delete_requested)
         f.horizontalHeader().sortIndicatorChanged.connect(self.resize_to_contents)
@@ -492,6 +507,7 @@ class WordsWidget(QWidget):
         e.setPlaceholderText(_('Filter'))
         self.model = m = WordsModel(self)
         self.words = f = FilesView(m, self)
+        self.to_csv = f.to_csv
         f.DELETE_POSSIBLE = False
         f.double_clicked.connect(self.double_clicked)
         e.textChanged.connect(f.proxy.filter_text)
@@ -573,6 +589,7 @@ class CharsWidget(QWidget):
         e.setPlaceholderText(_('Filter'))
         self.model = m = CharsModel(self)
         self.chars = f = FilesView(m, self)
+        self.to_csv = f.to_csv
         f.DELETE_POSSIBLE = False
         f.double_clicked.connect(self.double_clicked)
         e.textChanged.connect(f.proxy.filter_text)
@@ -690,6 +707,19 @@ class ReportsWidget(QWidget):
         for i in xrange(self.stack.count()):
             self.stack.widget(i).save()
 
+    def to_csv(self):
+        w = self.stack.currentWidget()
+        category = self.reports.currentItem().data(Qt.DisplayRole)
+        if not hasattr(w, 'to_csv'):
+            return error_dialog(self, _('Not supported'), _(
+                'Export of %s data is not supported') % category, show=True)
+        data = w.to_csv()
+        fname = choose_save_file(self, 'report-csv-export', _('Choose a filename for the data'), filters=[
+            (_('CSV files'), ['csv'])], all_files=False, initial_filename='%s.csv' % category)
+        if fname:
+            with open(fname, 'wb') as f:
+                f.write(data)
+
 class Reports(Dialog):
 
     data_gathered = pyqtSignal(object, object)
@@ -723,7 +753,11 @@ class Reports(Dialog):
         self.bb.setStandardButtons(self.bb.Close)
         self.refresh_button = b = self.bb.addButton(_('&Refresh'), self.bb.ActionRole)
         b.clicked.connect(self.refresh)
-        b.setIcon(QIcon(I('view-refresh')))
+        b.setIcon(QIcon(I('view-refresh.png')))
+        self.save_button = b = self.bb.addButton(_('&Save'), self.bb.ActionRole)
+        b.clicked.connect(self.reports.to_csv)
+        b.setIcon(QIcon(I('save.png')))
+        b.setToolTip(_('Export the currently shown report as a CSV file'))
 
     def sizeHint(self):
         return QSize(950, 600)
