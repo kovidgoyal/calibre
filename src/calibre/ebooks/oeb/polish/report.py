@@ -6,10 +6,13 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import posixpath, os, time, types
+import posixpath, os, time, types, re
 from collections import namedtuple, defaultdict, Counter
 
+from calibre import prepare_string_for_xml
+from calibre.ebooks.oeb.base import XPath
 from calibre.ebooks.oeb.polish.container import OEB_DOCS, OEB_STYLES, OEB_FONTS
+from calibre.ebooks.oeb.polish.css import build_selector, PSEUDO_PAT, MIN_SPACE_RE
 from calibre.ebooks.oeb.polish.spell import get_all_words
 from calibre.utils.icu import numeric_sort_key, ord_string, safe_chr
 from calibre.utils.magick.draw import identify
@@ -115,14 +118,117 @@ def chars_data(container, book_locale):
     for i, (codepoint, usage) in enumerate(chars.iteritems()):
         yield Char(i, safe_chr(codepoint), codepoint, sorted(usage, key=sort_key), counter[codepoint])
 
+
+CSSRule = namedtuple('CSSRule', 'selector location')
+RuleLocation = namedtuple('RuleLocation', 'file_name line column')
+MatchLocation = namedtuple('MatchLocation', 'tag sourceline')
+
+def css_data(container, book_locale):
+    import tinycss
+    from tinycss.css21 import RuleSet, ImportRule
+
+    def css_rules(file_name, rules, sourceline=0):
+        ans = []
+        for rule in rules:
+            if isinstance(rule, RuleSet):
+                selector = rule.selector.as_css()
+                ans.append(CSSRule(selector, RuleLocation(file_name, sourceline + rule.line, rule.column)))
+            elif isinstance(rule, ImportRule):
+                import_name = container.href_to_name(rule.uri, file_name)
+                if import_name and container.exists(import_name):
+                    ans.append(import_name)
+            elif getattr(rule, 'rules', False):
+                ans.extend(css_rules(file_name, rule.rules, sourceline))
+        return ans
+
+    parser = tinycss.make_full_parser()
+    importable_sheets = {}
+    html_sheets = {}
+    spine_names = {name for name, is_linear in container.spine_names}
+    style_path, link_path = XPath('//h:style'), XPath('//h:link/@href')
+
+    for name, mt in container.mime_map.iteritems():
+        if mt in OEB_STYLES:
+            importable_sheets[name] = css_rules(name, parser.parse_stylesheet(container.raw_data(name)).rules)
+        elif mt in OEB_DOCS and name in spine_names:
+            html_sheets[name] = []
+            for style in style_path(container.parsed(name)):
+                if style.get('type', 'text/css') == 'text/css' and style.text:
+                    html_sheets[name].append(
+                        css_rules(name, parser.parse_stylesheet(container.raw_data(name)).rules, style.sourceline))
+
+    rule_map = defaultdict(lambda : defaultdict(list))
+    pseudo_pat = re.compile(PSEUDO_PAT, re.I)
+    cache = {}
+
+    def rules_in_sheet(sheet):
+        for rule in sheet:
+            if isinstance(rule, CSSRule):
+                yield rule
+            sheet = importable_sheets.get(rule)
+            if sheet is not None:
+                for rule in rules_in_sheet(sheet):
+                    yield rule
+
+    def sheets_for_html(name, root):
+        for href in link_path(root):
+            tname = container.href_to_name(href, name)
+            sheet = importable_sheets.get(tname)
+            if sheet is not None:
+                yield sheet
+
+    def tag_text(elem):
+        tag = elem.tag.rpartition('}')[-1]
+        if elem.attrib:
+            attribs = ' '.join('%s="%s"' % (k, prepare_string_for_xml(elem.get(k, ''), True)) for k in elem.keys())
+            return '<%s %s>' % (tag, attribs)
+        return '<%s>' % tag
+
+    def matches_for_selector(selector, root):
+        selector = pseudo_pat.sub('', selector)
+        selector = MIN_SPACE_RE.sub(r'\1', selector)
+        try:
+            xp = cache[(True, selector)]
+        except KeyError:
+            xp = cache[(True, selector)] = build_selector(selector)
+
+        try:
+            matches = xp(root)
+        except Exception:
+            return ()
+        if not matches:
+            try:
+                xp = cache[(False, selector)]
+            except KeyError:
+                xp = cache[(False, selector)] = build_selector(selector, case_sensitive=False)
+            try:
+                matches = xp(root)
+            except Exception:
+                return ()
+        return (MatchLocation(tag_text(elem), elem.sourceline) for elem in matches)
+
+    for name, inline_sheets in html_sheets.iteritems():
+        root = container.parsed(name)
+        for sheet in list(sheets_for_html(name, root)) + inline_sheets:
+            for rule in sheet:
+                rule_map[rule][name].extend(matches_for_selector(rule.selector, root))
+
+    ans = []
+    for rule, loc_map in rule_map.iteritems():
+        la = [(name, locations) for name, locations in loc_map.iteritems() if locations]
+        if la:
+            ans.append((rule, la))
+
+    return ans
+
+
 def gather_data(container, book_locale):
     timing = {}
     data = {}
-    for x in 'files images words chars'.split():
+    for x in 'files chars images words css'.split():
         st = time.time()
         data[x] = globals()[x + '_data'](container, book_locale)
         if isinstance(data[x], types.GeneratorType):
             data[x] = tuple(data[x])
         timing[x] = time.time() - st
     return data, timing
-
