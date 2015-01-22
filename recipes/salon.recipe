@@ -1,48 +1,34 @@
 #!/usr/bin/env python
-# vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
-from __future__ import with_statement
-
-__license__   = 'GPL v3'
-__copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
-__docformat__ = 'restructuredtext en'
-
+# vim:fileencoding=utf-8
+from __future__ import unicode_literals, division, absolute_import, print_function
 from calibre.web.feeds.news import BasicNewsRecipe
 
-
 class Salon_com(BasicNewsRecipe):
-    title = 'Salon.com'
-    __author__ = 'Kovid Goyal'
-    description = 'Salon.com - Breaking news, opinion, politics, entertainment, sports and culture.'
-    timefmt = ' [%b %d, %Y]'
-    language = 'en'
 
+    title          = 'Salon.com'
+    __author__     = 'ebrandon'
+    description    = 'Salon.com - Breaking news, opinion, politics, entertainment, sports and culture.'
+    timefmt        = ' [%b %d, %Y]'
+    language       = 'en'
     oldest_article = 7
     max_articles_per_feed = 100
-    auto_cleanup = True
-    auto_cleanup_keep = '//div[@class="art"]'
+    auto_cleanup   = True
+    ignore_duplicate_articles = {'title', 'url'}
     remove_empty_feeds = True
 
-    feeds = [
-        ('News & Politics', 'http://www.salon.com/category/news/feed/rss/'),
-        ('War Room', 'http://feeds.feedburner.com/salon/war_room'),
-        ('Joan Walsh', 'http://feeds.feedburner.com/Salon_Joan_Walsh'),
-        ('Glenn Greenwald', 'http://feeds.feedburner.com/salon/greenwald'),
-        ('Tech & Business', 'http://feeds.salon.com/salon/tech'),
-        ('Ask the Pilot', 'http://feeds.feedburner.com/salon/ask_the_pilot'),
-        ('How World Works', 'http://feeds.feedburner.com/salon/htww'),
-        ('Life', 'http://feeds.feedburner.com/salon/mwt'),
-        ('Broadsheet', 'http://feeds.feedburner.com/salon/broadsheet'),
-        ('Movie Reviews', 'http://feeds.feedburner.com/salon/movie_reviews'),
-        ('Film Salon', 'http://feeds.feedburner.com/Salon/Film_Salon'),
-        ('TV', 'http://feeds.feedburner.com/salon/tv'),
-        ('Books', 'http://feeds.feedburner.com/salon/books')
+    feeds          = [
+        ('News', 'http://www.salon.com/category/news/feed/rss/'),
+        ('Politics', 'http://www.salon.com/category/politics/feed/rss/'),
+        ('Business', 'http://www.salon.com/category/business/feed/rss/'),
+        ('Technology', 'http://www.salon.com/category/technology/feed/rss/'),
+        ('Innovation', 'http://www.salon.com/category/innovation/feed/rss/'),
+        ('Sustainability', 'http://www.salon.com/category/sustainability/feed/rss/'),
+        ('Entertainment', 'http://www.salon.com/category/entertainment/feed/rss/'),
+        ('Life', 'http://www.salon.com/category/life/feed/rss/'),
     ]
 
     def get_browser(self, *args, **kwargs):
         br = BasicNewsRecipe.get_browser(self, *args, **kwargs)
         br.set_handle_gzip(True)
         return br
-
-    def print_version(self, url):
-        return url + '/print/'
 
