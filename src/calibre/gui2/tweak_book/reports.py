@@ -52,11 +52,14 @@ def save_state(name, val):
         tprefs['reports-ui-state'] = data = {}
     data[name] = val
 
+SORT_ROLE = Qt.UserRole + 1
+
 class ProxyModel(QSortFilterProxyModel):
 
     def __init__(self, parent=None):
         QSortFilterProxyModel.__init__(self, parent)
         self._filter_text = None
+        self.setSortRole(SORT_ROLE)
 
     def filter_text(self, text):
         self._filter_text = text
@@ -70,10 +73,6 @@ class ProxyModel(QSortFilterProxyModel):
             if item and primary_contains(self._filter_text, item):
                 return True
         return False
-
-    def lessThan(self, left, right):
-        sm = self.sourceModel()
-        return sm.sort_key(left.row(), left.column()) < sm.sort_key(right.row(), right.column())
 
     def headerData(self, section, orientation, role=Qt.DisplayRole):
         if orientation == Qt.Vertical and role == Qt.DisplayRole:
@@ -102,12 +101,6 @@ class FileCollection(QAbstractTableModel):
             except IndexError:
                 pass
         return QAbstractTableModel.headerData(self, section, orientation, role)
-
-    def sort_key(self, row, col):
-        try:
-            return self.sort_keys[row][col]
-        except IndexError:
-            pass
 
     def location(self, index):
         try:
@@ -223,7 +216,12 @@ class FilesModel(FileCollection):
         self.endResetModel()
 
     def data(self, index, role=Qt.DisplayRole):
-        if role == Qt.DisplayRole:
+        if role == SORT_ROLE:
+            try:
+                return self.sort_keys[index.row()][index.column()]
+            except IndexError:
+                pass
+        elif role == Qt.DisplayRole:
             col = index.column()
             try:
                 entry = self.files[index.row()]
@@ -386,7 +384,12 @@ class ImagesModel(FileCollection):
         self.endResetModel()
 
     def data(self, index, role=Qt.DisplayRole):
-        if role == Qt.DisplayRole:
+        if role == SORT_ROLE:
+            try:
+                return self.sort_keys[index.row()][index.column()]
+            except IndexError:
+                pass
+        elif role == Qt.DisplayRole:
             col = index.column()
             try:
                 entry = self.files[index.row()]
@@ -401,7 +404,7 @@ class ImagesModel(FileCollection):
                 return type('')(len(entry.usage))
             if col == 3:
                 return '%d x %d' % (entry.width, entry.height)
-        if role == Qt.UserRole:
+        elif role == Qt.UserRole:
             try:
                 return self.files[index.row()]
             except IndexError:
@@ -484,7 +487,12 @@ class WordsModel(FileCollection):
         self.endResetModel()
 
     def data(self, index, role=Qt.DisplayRole):
-        if role == Qt.DisplayRole:
+        if role == SORT_ROLE:
+            try:
+                return self.sort_keys[index.row()][index.column()]
+            except IndexError:
+                pass
+        elif role == Qt.DisplayRole:
             col = index.column()
             try:
                 entry = self.files[index.row()]
@@ -499,7 +507,7 @@ class WordsModel(FileCollection):
                 return ans
             if col == 2:
                 return type('')(len(entry.usage))
-        if role == Qt.UserRole:
+        elif role == Qt.UserRole:
             try:
                 return self.files[index.row()]
             except IndexError:
@@ -568,7 +576,12 @@ class CharsModel(FileCollection):
         self.endResetModel()
 
     def data(self, index, role=Qt.DisplayRole):
-        if role == Qt.DisplayRole:
+        if role == SORT_ROLE:
+            try:
+                return self.sort_keys[index.row()][index.column()]
+            except IndexError:
+                pass
+        elif role == Qt.DisplayRole:
             col = index.column()
             try:
                 entry = self.files[index.row()]
@@ -582,7 +595,7 @@ class CharsModel(FileCollection):
                 return ('U+%04X' if entry.codepoint < 0x10000 else 'U+%06X') % entry.codepoint
             if col == 3:
                 return type('')(entry.count)
-        if role == Qt.UserRole:
+        elif role == Qt.UserRole:
             try:
                 return self.files[index.row()]
             except IndexError:
@@ -669,6 +682,7 @@ class CSSRulesModel(QAbstractItemModel):
     def __init__(self, parent):
         QAbstractItemModel.__init__(self, parent)
         self.rules = ()
+        self.sort_on_count = True
         self.num_size = 1
         self.build_maps()
         self.main_font = f = QFontDatabase.systemFont(QFontDatabase.FixedFont)
@@ -729,7 +743,15 @@ class CSSRulesModel(QAbstractItemModel):
         return 1
 
     def data(self, index, role=Qt.DisplayRole):
-        if role == Qt.DisplayRole:
+        if role == SORT_ROLE:
+            entry = self.index_to_entry(index)
+            if isinstance(entry, CSSEntry):
+                return entry.count if self.sort_on_count else entry.sort_key
+            if isinstance(entry, CSSFileMatch):
+                return len(entry.locations) if self.sort_on_count else entry.sort_key
+            if isinstance(entry, MatchLocation):
+                return entry.sourceline
+        elif role == Qt.DisplayRole:
             entry = self.index_to_entry(index)
             if isinstance(entry, CSSEntry):
                 return '[%{}d] %s'.format(self.num_size) % (entry.count, entry.rule.selector)
@@ -761,7 +783,7 @@ class CSSProxyModel(QSortFilterProxyModel):
     def __init__(self, parent=None):
         QSortFilterProxyModel.__init__(self, parent)
         self._filter_text = None
-        self.sort_on_count = True
+        self.setSortRole(SORT_ROLE)
 
     def filter_text(self, text):
         self._filter_text = text
@@ -775,21 +797,6 @@ class CSSProxyModel(QSortFilterProxyModel):
         if not isinstance(entry, CSSEntry):
             return True
         return primary_contains(self._filter_text, entry.rule.selector)
-
-    def lessThan(self, left, right):
-        sm = self.sourceModel()
-        left, right = sm.index_to_entry(left), sm.index_to_entry(right)
-        if isinstance(left, CSSEntry) and isinstance(right, CSSEntry):
-            if self.sort_on_count:
-                return left.count < right.count
-            return left.sort_key < right.sort_key
-        if isinstance(left, CSSFileMatch) and isinstance(right, CSSFileMatch):
-            if self.sort_on_count:
-                return len(left.locations) < len(right.locations)
-            return left.sort_key < right.sort_key
-        if isinstance(left, MatchLocation) and isinstance(right, MatchLocation):
-            return left.sourceline < right.sourceline
-        return False
 
 class CSSWidget(QWidget):
 
@@ -847,7 +854,7 @@ class CSSWidget(QWidget):
         save_state('css-sort-ascending', self.sort_order == Qt.AscendingOrder)
 
     def resort(self, *args):
-        self.proxy.sort_on_count = self.counts_button.isChecked()
+        self.model.sort_on_count = self.counts_button.isChecked()
         self.proxy.sort(-1, self.sort_order)  # for some reason the proxy model does not resort without this
         self.proxy.sort(0, self.sort_order)
 
