@@ -58,14 +58,12 @@ def file_data(container):
 
 Image = namedtuple('Image', 'name mime_type usage size basename id width height')
 
-L = namedtuple('Location', 'name line_number text_on_line word_on_line character_offset')
-def Location(name, line_number=None, text_on_line=None, word_on_line=None, character_offset=None):
-    return L(name, line_number, text_on_line, word_on_line, character_offset)
+LinkLocation = namedtuple('LinkLocation', 'name line_number text_on_line')
 
 def sort_locations(container, locations):
     nmap = {n:i for i, (n, l) in enumerate(container.spine_names)}
     def sort_key(l):
-        return (nmap.get(l.name, 100000), numeric_sort_key(l.name), l.line_number, l.character_offset)
+        return (nmap.get(l.name, len(nmap)), numeric_sort_key(l.name), l.line_number)
     return sorted(locations, key=sort_key)
 
 def link_data(container):
@@ -78,7 +76,7 @@ def link_data(container):
                 if target and container.exists(target):
                     mt = container.mime_map.get(target)
                     if mt and mt.startswith('image/'):
-                        image_usage[target].add(Location(name, line_number, text_on_line=href))
+                        image_usage[target].add(LinkLocation(name, line_number, href))
 
     image_data = []
     for name, mt in container.mime_map.iteritems():
