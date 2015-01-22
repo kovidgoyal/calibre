@@ -129,9 +129,13 @@ class FilesView(QTableView):
         pass
 
     def resize_rows(self):
-        if self.model().rowCount() > 1:
-            self.resizeRowToContents(1)
-            self.verticalHeader().setDefaultSectionSize(self.rowHeight(1))
+        if self.model().rowCount() > 0:
+            num = min(5, self.model().rowCount())
+            h = 1000000
+            for i in xrange(num):
+                self.resizeRowToContents(i)
+                h = min(h, self.rowHeight(i))
+            self.verticalHeader().setDefaultSectionSize(h)
 
     def _double_clicked(self, index):
         index = self.proxy.mapToSource(index)
