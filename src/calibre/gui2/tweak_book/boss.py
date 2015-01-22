@@ -1159,8 +1159,7 @@ class Boss(QObject):
         self.gui.reports.show()
         self.gui.reports.raise_()
 
-    def reports_edit_requested(self, location):
-        name = location.name
+    def reports_edit_requested(self, name):
         mt = current_container().mime_map.get(name, guess_type(name))
         self.edit_file_requested(name, None, mt)
 

@@ -21,7 +21,7 @@ from PyQt5.Qt import (
 
 from calibre import human_readable, fit_image
 from calibre.ebooks.oeb.polish.container import guess_type
-from calibre.ebooks.oeb.polish.report import gather_data, Location
+from calibre.ebooks.oeb.polish.report import gather_data
 from calibre.gui2 import error_dialog, question_dialog
 from calibre.gui2.tweak_book import current_container, tprefs, dictionaries
 from calibre.gui2.tweak_book.widgets import Dialog
@@ -104,7 +104,7 @@ class FileCollection(QAbstractTableModel):
 
     def location(self, index):
         try:
-            return Location(self.files[index.row()].name)
+            return self.files[index.row()].name
         except IndexError:
             pass
 
@@ -153,10 +153,10 @@ class FilesView(QTableView):
         if self.DELETE_POSSIBLE:
             locations = self.selected_locations
             if locations:
-                names = {l.name for l in locations}
+                names = frozenset(locations)
                 spine_names = {n for n, l in current_container().spine_names}
-                spine_items = spine_names.intersection(names)
                 other_items = names - spine_names
+                spine_items = [(name, name in names) for name, is_linear in current_container().spine_names]
                 self.delete_requested.emit(spine_items, other_items)
 
     def show_context_menu(self, pos):
@@ -433,7 +433,7 @@ class ImagesWidget(QWidget):
 
     def customize_context_menu(self, menu, selected_locations, current_location):
         if current_location is not None:
-            menu.addAction(_('Edit the image: %s') % current_location.name, partial(self.edit_requested.emit, current_location))
+            menu.addAction(_('Edit the image: %s') % current_location, partial(self.edit_requested.emit, current_location))
 
     def save(self):
         save_state('image-files-table', bytearray(self.files.horizontalHeader().saveState()))
@@ -697,11 +697,12 @@ class Reports(Dialog):
     def sizeHint(self):
         return QSize(950, 600)
 
-    def confirm_delete(self, spine_names, other_names):
+    def confirm_delete(self, spine_items, other_names):
+        spine_names = {name for name, remove in spine_items if remove}
         if not question_dialog(self, _('Are you sure?'), _(
                 'Are you sure you want to delete the selected files?'), det_msg='\n'.join(spine_names | other_names)):
             return
-        self.delete_requested.emit(spine_names, other_names)
+        self.delete_requested.emit(spine_items, other_names)
         QTimer.singleShot(10, self.refresh)
 
     def refresh(self):
