@@ -1244,10 +1244,11 @@ class Boss(QObject):
         self.gui.central.show_editor(editors[name])
         editors[name].set_focus()
 
-    def edit_file_requested(self, name, syntax, mime):
+    def edit_file_requested(self, name, syntax=None, mime=None):
         if name in editors:
             self.gui.central.show_editor(editors[name])
             return editors[name]
+        mime = mime or current_container().mime_map.get(name, guess_type(name))
         syntax = syntax or syntax_from_mime(name, mime)
         if not syntax:
             return error_dialog(

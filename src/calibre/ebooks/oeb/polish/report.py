@@ -7,7 +7,7 @@ __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import posixpath, os
-from collections import namedtuple, defaultdict
+from collections import namedtuple, defaultdict, Counter
 
 from calibre.ebooks.oeb.polish.container import OEB_DOCS, OEB_STYLES, OEB_FONTS
 from calibre.ebooks.oeb.polish.spell import get_all_words
@@ -93,19 +93,29 @@ def word_data(container, book_locale):
     count, words = get_all_words(container, book_locale, get_word_count=True)
     return (count, tuple(Word(i, word, locale, v) for i, ((word, locale), v) in enumerate(words.iteritems())))
 
-Char = namedtuple('Char', 'id char codepoint usage')
+Char = namedtuple('Char', 'id char codepoint usage count')
 
 def char_data(container):
-    chars = defaultdict(list)
+    chars = defaultdict(set)
+    counter = Counter()
+    def count(codepoint):
+        counter[codepoint] += 1
+
     for name, is_linear in container.spine_names:
         if container.mime_map.get(name) not in OEB_DOCS:
             continue
         raw = container.raw_data(name)
-        for i, codepoint in enumerate(ord_string(raw)):
-            chars[codepoint].append(Location(name, character_offset=i))
+        counts = Counter(ord_string(raw))
+        counter.update(counts)
+        for codepoint in counts:
+            chars[codepoint].add(name)
+
+    nmap = {n:i for i, (n, l) in enumerate(container.spine_names)}
+    def sort_key(name):
+        return nmap.get(name, len(nmap)), numeric_sort_key(name)
 
     for i, (codepoint, usage) in enumerate(chars.iteritems()):
-        yield Char(i, safe_chr(codepoint), codepoint, sort_locations(container, usage))
+        yield Char(i, safe_chr(codepoint), codepoint, sorted(usage, key=sort_key), counter[codepoint])
 
 def gather_data(container, book_locale):
     data =  {'files':tuple(file_data(container))}

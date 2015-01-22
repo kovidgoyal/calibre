@@ -20,7 +20,6 @@ from PyQt5.Qt import (
     QStyledItemDelegate, QModelIndex, QRect, QStyle, QPalette, QTimer, QMenu)
 
 from calibre import human_readable, fit_image
-from calibre.ebooks.oeb.polish.container import guess_type
 from calibre.ebooks.oeb.polish.report import gather_data
 from calibre.gui2 import error_dialog, question_dialog
 from calibre.gui2.tweak_book import current_container, tprefs, dictionaries
@@ -276,8 +275,7 @@ class Jump(object):  # {{{
         if boss is None:
             return
         name = loc.name
-        mt = current_container().mime_map.get(name, guess_type(name))
-        editor = boss.edit_file_requested(name, None, mt)
+        editor = boss.edit_file_requested(name)
         if editor is None:
             return
         editor = editor.editor
@@ -290,10 +288,6 @@ class Jump(object):  # {{{
             editor.setTextCursor(c)
             if loc.text_on_line is not None:
                 editor.find(regex.compile(regex.escape(loc.text_on_line)))
-        elif loc.character_offset is not None:
-            c = editor.textCursor()
-            c.setPosition(loc.character_offset + 1)  # put cursor after the character
-            editor.setTextCursor(c)
 
 jump = Jump()  # }}}
 
@@ -557,7 +551,7 @@ class CharsModel(FileCollection):
             if col == 2:
                 return ('U+%04X' if entry.codepoint < 0x10000 else 'U+%06X') % entry.codepoint
             if col == 3:
-                return type('')(len(entry.usage))
+                return type('')(entry.count)
         if role == Qt.UserRole:
             try:
                 return self.files[index.row()]
@@ -595,10 +589,37 @@ class CharsWidget(QWidget):
     def double_clicked(self, index):
         entry = index.data(Qt.UserRole)
         if entry is not None:
-            jump((id(self), entry.id), entry.usage)
+            self.find_next_location(entry)
 
     def save(self):
         save_state('chars-table', bytearray(self.chars.horizontalHeader().saveState()))
+
+    def find_next_location(self, entry):
+        from calibre.gui2.tweak_book.boss import get_boss
+        boss = get_boss()
+        if boss is None:
+            return
+        files = entry.usage
+        current_editor_name = boss.currently_editing
+        if current_editor_name not in files:
+            current_editor_name = None
+        else:
+            idx = files.index(current_editor_name)
+            before, after = files[:idx], files[idx+1:]
+            files = [current_editor_name] + after + before + [current_editor_name]
+
+        pat = regex.compile(regex.escape(entry.char))
+        for file_name in files:
+            from_cursor = False
+            if file_name == current_editor_name:
+                from_cursor = True
+                current_editor_name = None
+            ed = boss.edit_file_requested(file_name)
+            if ed.editor.find(pat, complete=not from_cursor):
+                boss.show_editor(file_name)
+                return True
+        return False
+
 # }}}
 
 # Wrapper UI {{{
