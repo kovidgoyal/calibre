@@ -8,6 +8,7 @@ __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import posixpath, os, time, types, re
 from collections import namedtuple, defaultdict, Counter
+from itertools import chain
 
 from calibre import prepare_string_for_xml, force_unicode
 from calibre.ebooks.oeb.base import XPath
@@ -212,7 +213,7 @@ def css_data(container, book_locale):
 
     for name, inline_sheets in html_sheets.iteritems():
         root = container.parsed(name)
-        for sheet in list(sheets_for_html(name, root)) + inline_sheets:
+        for sheet in chain(sheets_for_html(name, root), inline_sheets):
             for rule in rules_in_sheet(sheet):
                 rule_map[rule][name].extend(matches_for_selector(rule.selector, root))
 
