@@ -23,7 +23,7 @@ class Salon_com(BasicNewsRecipe):
     remove_empty_feeds = True
 
     feeds = [
-        ('News & Politics', 'http://feeds.salon.com/salon/news'),
+        ('News & Politics', 'http://www.salon.com/category/news/feed/rss/'),
         ('War Room', 'http://feeds.feedburner.com/salon/war_room'),
         ('Joan Walsh', 'http://feeds.feedburner.com/Salon_Joan_Walsh'),
         ('Glenn Greenwald', 'http://feeds.feedburner.com/salon/greenwald'),
@@ -36,7 +36,12 @@ class Salon_com(BasicNewsRecipe):
         ('Film Salon', 'http://feeds.feedburner.com/Salon/Film_Salon'),
         ('TV', 'http://feeds.feedburner.com/salon/tv'),
         ('Books', 'http://feeds.feedburner.com/salon/books')
-            ]
+    ]
+
+    def get_browser(self, *args, **kwargs):
+        br = BasicNewsRecipe.get_browser(self, *args, **kwargs)
+        br.set_handle_gzip(True)
+        return br
 
     def print_version(self, url):
         return url + '/print/'
