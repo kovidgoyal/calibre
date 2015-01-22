@@ -643,6 +643,8 @@ class CharsWidget(QWidget):
                 from_cursor = True
                 current_editor_name = None
             ed = boss.edit_file_requested(file_name)
+            if ed is None:
+                return
             if ed.editor.find(pat, complete=not from_cursor):
                 boss.show_editor(file_name)
                 return True
@@ -796,6 +798,7 @@ class CSSWidget(QWidget):
         f.setHeaderHidden(True)
         f.setModel(p)
         l.addWidget(f)
+        f.doubleClicked.connect(self.double_clicked)
         e.textChanged.connect(p.filter_text)
 
         l.addLayout(h)
@@ -846,6 +849,34 @@ class CSSWidget(QWidget):
             entry = self.proxy.mapToSource(self.proxy.index(r, 0)).data(Qt.UserRole)
             w.writerow([entry.rule.selector, entry.count])
         return buf.getvalue()
+
+    def double_clicked(self, index):
+        from calibre.gui2.tweak_book.boss import get_boss
+        boss = get_boss()
+        if boss is None:
+            return
+        index = self.proxy.mapToSource(index)
+        entry = self.model.index_to_entry(index)
+        if entry is None:
+            return
+        if isinstance(entry, CSSEntry):
+            loc = entry.rule.location
+            name, sourceline, col = loc
+        elif isinstance(entry, CSSFileMatch):
+            name, sourceline = entry.file_name, 0
+        else:
+            name = self.model.index_to_entry(index.parent()).file_name
+            sourceline = entry.sourceline
+        editor = boss.edit_file_requested(name)
+        if editor is None:
+            return
+        editor = editor.editor
+        block = editor.document().findBlockByNumber(sourceline - 1)  # blockNumber() is zero based
+        if block.isValid():
+            c = editor.textCursor()
+            c.setPosition(block.position())
+            editor.setTextCursor(c)
+        boss.show_editor(name)
 
 # }}}
 
