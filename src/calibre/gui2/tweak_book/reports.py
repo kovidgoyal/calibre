@@ -133,6 +133,11 @@ class FilesView(QTableView):
     def customize_context_menu(self, menu, selected_locations, current_location):
         pass
 
+    def resize_rows(self):
+        if self.model().rowCount() > 1:
+            self.resizeRowToContents(1)
+            self.verticalHeader().setDefaultSectionSize(self.rowHeight(1))
+
     def _double_clicked(self, index):
         index = self.proxy.mapToSource(index)
         if index.isValid():
@@ -262,6 +267,7 @@ class FilesWidget(QWidget):
 
     def __call__(self, data):
         self.model(data)
+        self.files.resize_rows()
         self.filter_edit.clear()
         m = self.model
         self.summary.setText(_('Total uncompressed size of all files: {0} :: Images: {1} :: Fonts: {2}').format(*map(
@@ -527,6 +533,7 @@ class WordsWidget(QWidget):
 
     def __call__(self, data):
         self.model(data)
+        self.words.resize_rows()
         self.filter_edit.clear()
         self.summary.setText(_('Words: {2} :: Unique Words: :: {0} :: Languages: {1}').format(
             self.model.rowCount(), self.model.total_size, self.model.total_words))
@@ -611,6 +618,7 @@ class CharsWidget(QWidget):
 
     def __call__(self, data):
         self.model(data)
+        self.chars.resize_rows()
         self.summary.setText(''.join(self.model.all_chars))
         self.filter_edit.clear()
 
