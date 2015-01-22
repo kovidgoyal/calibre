@@ -26,6 +26,8 @@
 #error Not implemented for python >= 3.3
 #endif
 
+#define MIN(x, y) ((x)<(y)) ? (x) : (y)
+
 // Roundtripping will need to be implemented differently for python 3.3+ where strings are stored with variable widths
 
 #ifndef NO_PYTHON_TO_ICU
@@ -73,17 +75,17 @@ static UChar32* python_to_icu32(PyObject *obj, int32_t *osz, uint8_t do_check) {
         goto end;
     }
 
-    sz = PyUnicode_GET_DATA_SIZE(obj);
-    ans = (UChar32*) calloc(sz+1, 1);  // Ensure null termination
+    sz = PyUnicode_GET_SIZE(obj);  // number of UCS2 code-points in narrow build and UCS4 code-points in wide build
+    ans = (UChar32*) calloc(sz+1, sizeof(UChar32));  // Ensure null termination
     if (ans == NULL) { PyErr_NoMemory(); goto end; }
 
 #ifdef Py_UNICODE_WIDE
 // wide build (UCS 4)
-    memcpy(ans, PyUnicode_AS_UNICODE(obj), sz);
+    memcpy(ans, PyUnicode_AS_DATA(obj), MIN((sizeof(UChar32)*(sz+1)),PyUnicode_GET_DATA_SIZE(obj)));
     if (osz != NULL) *osz = (int32_t)PyUnicode_GET_SIZE(obj);
 #else
 // narrow build (UTF-16)
-    u_strToUTF32(ans, sz + 1, osz, (UChar*)PyUnicode_AS_UNICODE(obj), PyUnicode_GET_SIZE(obj), &status);
+    u_strToUTF32(ans, (int32_t)sz + 1, osz, (UChar*)PyUnicode_AS_UNICODE(obj), (int32_t)sz, &status);
     if (U_FAILURE(status)) { PyErr_SetString(PyExc_ValueError, u_errorName(status)); free(ans); ans = NULL; goto end; }
 #endif
 end:

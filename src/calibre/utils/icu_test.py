@@ -137,7 +137,7 @@ class TestICU(unittest.TestCase):
         for x, l in [('', 0), ('a', 1), ('\U0001f431', 2)]:
             self.ae(icu._icu.utf16_length(x), l)
         self.ae(icu._icu.chr(0x1f431), '\U0001f431')
-        self.ae(icu._icu.ord_string('abc'), tuple(map(ord, 'abc')))
+        self.ae(icu._icu.ord_string('abc'*100), tuple(map(ord, 'abc'*100)))
         self.ae(icu._icu.ord_string('\U0001f431'), (0x1f431,))
 
     def test_character_name(self):
