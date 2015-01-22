@@ -167,10 +167,11 @@ def css_data(container, book_locale):
         for rule in sheet:
             if isinstance(rule, CSSRule):
                 yield rule
-            sheet = importable_sheets.get(rule)
-            if sheet is not None:
-                for rule in rules_in_sheet(sheet):
-                    yield rule
+            else:  # @import rule
+                isheet = importable_sheets.get(rule)
+                if isheet is not None:
+                    for irule in rules_in_sheet(isheet):
+                        yield irule
 
     def sheets_for_html(name, root):
         for href in link_path(root):
@@ -212,7 +213,7 @@ def css_data(container, book_locale):
     for name, inline_sheets in html_sheets.iteritems():
         root = container.parsed(name)
         for sheet in list(sheets_for_html(name, root)) + inline_sheets:
-            for rule in sheet:
+            for rule in rules_in_sheet(sheet):
                 rule_map[rule][name].extend(matches_for_selector(rule.selector, root))
 
     ans = []
