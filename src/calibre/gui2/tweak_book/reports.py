@@ -795,7 +795,7 @@ class CSSWidget(QWidget):
         self.proxy = p = CSSProxyModel(self)
         p.setSourceModel(m)
         self.view = f = QTreeView(self)
-        f.setHeaderHidden(True)
+        f.setHeaderHidden(True), f.setExpandsOnDoubleClick(False)
         f.setModel(p)
         l.addWidget(f)
         f.doubleClicked.connect(self.double_clicked)
