@@ -838,6 +838,15 @@ class CSSWidget(QWidget):
         self.proxy.sort(-1, self.sort_order)  # for some reason the proxy model does not resort without this
         self.proxy.sort(0, self.sort_order)
 
+    def to_csv(self):
+        buf = BytesIO()
+        w = csv_writer(buf)
+        w.writerow([_('Style Rule'), _('Number of matches')])
+        for r in xrange(self.proxy.rowCount()):
+            entry = self.proxy.mapToSource(self.proxy.index(r, 0)).data(Qt.UserRole)
+            w.writerow([entry.rule.selector, entry.count])
+        return buf.getvalue()
+
 # }}}
 
 # Wrapper UI {{{
