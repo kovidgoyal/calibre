@@ -1043,8 +1043,8 @@ class Reports(Dialog):
                 ' information.'), det_msg=data, show=True)
         data, timing = data
         try:
-            for x, t in timing.iteritems():
-                print ('Time for %s data: %.3f seconds' % (x, t))
+            for x, t in sorted(timing.iteritems(), key=itemgetter(1)):
+                print ('Time for %6s data: %.3f seconds' % (x, t))
         except Exception:
             pass
         self.reports(data)
