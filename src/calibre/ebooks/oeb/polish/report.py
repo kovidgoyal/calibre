@@ -221,7 +221,7 @@ def css_data(container, book_locale):
     for rule, loc_map in rule_map.iteritems():
         la = tuple(CSSFileMatch(name, tuple(locations), numeric_sort_key(name)) for name, locations in loc_map.iteritems() if locations)
         count = sum(len(fm.locations) for fm in la)
-        ans.append(CSSEntry(rule, count, la, numeric_sort_key(rule)))
+        ans.append(CSSEntry(rule, count, la, numeric_sort_key(rule.selector)))
 
     return ans
 
