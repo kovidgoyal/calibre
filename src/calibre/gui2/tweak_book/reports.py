@@ -508,7 +508,7 @@ class WordsWidget(QWidget):
     def __call__(self, data):
         self.model(data)
         self.filter_edit.clear()
-        self.summary.setText(_('Words: {2} :: Unique Words: :: {0} Languages: {1}').format(
+        self.summary.setText(_('Words: {2} :: Unique Words: :: {0} :: Languages: {1}').format(
             self.model.rowCount(), self.model.total_size, self.model.total_words))
 
     def double_clicked(self, index):
@@ -528,11 +528,12 @@ class WordsWidget(QWidget):
 class CharsModel(FileCollection):
 
     COLUMN_HEADERS = (_('Character'), _('Name'), _('Codepoint'), _('Times used'))
-    total_words = 0
+    all_chars = ()
 
     def __call__(self, data):
         self.beginResetModel()
         self.files = data['chars']
+        self.all_chars = tuple(entry.char for entry in self.files)
         psk = numeric_sort_key
         self.sort_keys = tuple((psk(entry.char), None, entry.codepoint, len(entry.usage)) for entry in self.files)
         self.endResetModel()
@@ -577,6 +578,11 @@ class CharsWidget(QWidget):
         e.textChanged.connect(f.proxy.filter_text)
         l.addWidget(f)
 
+        self.summary = la = QLineEdit(self)
+        la.setReadOnly(True)
+        la.setToolTip(_('All the characters in the book'))
+        l.addWidget(la)
+
         try:
             self.chars.horizontalHeader().restoreState(read_state('chars-table'))
         except TypeError:
@@ -584,6 +590,7 @@ class CharsWidget(QWidget):
 
     def __call__(self, data):
         self.model(data)
+        self.summary.setText(''.join(self.model.all_chars))
         self.filter_edit.clear()
 
     def double_clicked(self, index):
@@ -668,6 +675,9 @@ class ReportsWidget(QWidget):
         current_page = read_state('report-page')
         if current_page is not None:
             self.reports.setCurrentRow(current_page)
+        self.layout().setContentsMargins(0, 0, 0, 0)
+        for i in xrange(self.stack.count()):
+            self.stack.widget(i).layout().setContentsMargins(0, 0, 0, 0)
 
     def __call__(self, data):
         jump.clear()
