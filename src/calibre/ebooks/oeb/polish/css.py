@@ -68,6 +68,8 @@ def build_selector(text, case_sensitive=True):
     except Exception:
         return None
 
+PSEUDO_PAT = r':(first-letter|first-line|link|hover|visited|active|focus|before|after)'
+
 def is_rule_used(root, selector, log, pseudo_pat, cache):
     selector = pseudo_pat.sub('', selector)
     selector = MIN_SPACE_RE.sub(r'\1', selector)
@@ -160,7 +162,7 @@ def remove_unused_css(container, report=None, remove_unused_classes=False):
     style_rules = {name:tuple(sheet.cssRules.rulesOfType(CSSRule.STYLE_RULE)) for name, sheet in sheets.iteritems()}
 
     num_of_removed_rules = num_of_removed_classes = 0
-    pseudo_pat = re.compile(r':(first-letter|first-line|link|hover|visited|active|focus|before|after)', re.I)
+    pseudo_pat = re.compile(PSEUDO_PAT, re.I)
     cache = {}
 
     for name, mt in container.mime_map.iteritems():
