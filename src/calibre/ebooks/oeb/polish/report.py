@@ -70,13 +70,19 @@ def sort_locations(container, locations):
         return (nmap.get(l.name, len(nmap)), numeric_sort_key(l.name), l.line_number)
     return sorted(locations, key=sort_key)
 
+def safe_href_to_name(container, href, base):
+    try:
+        return container.href_to_name(href, base)
+    except ValueError:
+        pass  # Absolute path on windows
+
 def images_data(container, book_locale):
     image_usage = defaultdict(set)
     link_sources = OEB_STYLES | OEB_DOCS
     for name, mt in container.mime_map.iteritems():
         if mt in link_sources:
             for href, line_number, offset in container.iterlinks(name):
-                target = container.href_to_name(href, name)
+                target = safe_href_to_name(container, href, name)
                 if target and container.exists(target):
                     mt = container.mime_map.get(target)
                     if mt and mt.startswith('image/'):
@@ -137,7 +143,7 @@ def css_data(container, book_locale):
                 selector = rule.selector.as_css()
                 ans.append(CSSRule(selector, RuleLocation(file_name, sourceline + rule.line, rule.column)))
             elif isinstance(rule, ImportRule):
-                import_name = container.href_to_name(rule.uri, file_name)
+                import_name = safe_href_to_name(container, rule.uri, file_name)
                 if import_name and container.exists(import_name):
                     ans.append(import_name)
             elif getattr(rule, 'rules', False):
@@ -176,7 +182,7 @@ def css_data(container, book_locale):
 
     def sheets_for_html(name, root):
         for href in link_path(root):
-            tname = container.href_to_name(href, name)
+            tname = safe_href_to_name(container, href, name)
             sheet = importable_sheets.get(tname)
             if sheet is not None:
                 yield sheet
