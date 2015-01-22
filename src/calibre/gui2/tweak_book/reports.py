@@ -871,11 +871,10 @@ class CSSWidget(QWidget):
         if editor is None:
             return
         editor = editor.editor
-        block = editor.document().findBlockByNumber(sourceline - 1)  # blockNumber() is zero based
-        if block.isValid():
-            c = editor.textCursor()
-            c.setPosition(block.position())
-            editor.setTextCursor(c)
+        block = editor.document().findBlockByNumber(max(0, sourceline - 1))  # blockNumber() is zero based
+        c = editor.textCursor()
+        c.setPosition(block.position() if block.isValid() else 0)
+        editor.setTextCursor(c)
         boss.show_editor(name)
 
 # }}}
