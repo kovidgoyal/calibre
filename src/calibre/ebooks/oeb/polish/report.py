@@ -9,7 +9,7 @@ __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 import posixpath, os, time, types, re
 from collections import namedtuple, defaultdict, Counter
 
-from calibre import prepare_string_for_xml
+from calibre import prepare_string_for_xml, force_unicode
 from calibre.ebooks.oeb.base import XPath
 from calibre.ebooks.oeb.polish.container import OEB_DOCS, OEB_STYLES, OEB_FONTS
 from calibre.ebooks.oeb.polish.css import build_selector, PSEUDO_PAT, MIN_SPACE_RE
@@ -157,7 +157,7 @@ def css_data(container, book_locale):
             for style in style_path(container.parsed(name)):
                 if style.get('type', 'text/css') == 'text/css' and style.text:
                     html_sheets[name].append(
-                        css_rules(name, parser.parse_stylesheet(container.raw_data(name)).rules, style.sourceline))
+                        css_rules(name, parser.parse_stylesheet(force_unicode(style.text, 'utf-8')).rules, style.sourceline - 1))
 
     rule_map = defaultdict(lambda : defaultdict(list))
     pseudo_pat = re.compile(PSEUDO_PAT, re.I)
