@@ -1101,7 +1101,7 @@ icu_utf16_length(PyObject *self, PyObject *src) {
 #endif
   
     if (!PyUnicode_Check(src)) { PyErr_SetString(PyExc_TypeError, "Must be a unicode object"); return NULL; }
-    sz = PyUnicode_GET_SIZE(src);
+    sz = (int32_t)PyUnicode_GET_SIZE(src);
 #ifdef Py_UNICODE_WIDE
     data = PyUnicode_AS_UNICODE(src);
     for (i = 0; i < sz; i++) {
