@@ -122,6 +122,8 @@ def chars_data(container, book_locale):
 CSSRule = namedtuple('CSSRule', 'selector location')
 RuleLocation = namedtuple('RuleLocation', 'file_name line column')
 MatchLocation = namedtuple('MatchLocation', 'tag sourceline')
+CSSEntry = namedtuple('CSSEntry', 'rule count matched_files sort_key')
+CSSFileMatch = namedtuple('CSSFileMatch', 'file_name locations sort_key')
 
 def css_data(container, book_locale):
     import tinycss
@@ -215,9 +217,9 @@ def css_data(container, book_locale):
 
     ans = []
     for rule, loc_map in rule_map.iteritems():
-        la = [(name, locations) for name, locations in loc_map.iteritems() if locations]
-        if la:
-            ans.append((rule, la))
+        la = tuple(CSSFileMatch(name, tuple(locations), numeric_sort_key(name)) for name, locations in loc_map.iteritems() if locations)
+        count = sum(len(fm.locations) for fm in la)
+        ans.append(CSSEntry(rule, count, la, numeric_sort_key(rule)))
 
     return ans
 

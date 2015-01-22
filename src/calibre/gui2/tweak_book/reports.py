@@ -19,10 +19,12 @@ from PyQt5.Qt import (
     QSize, QStackedLayout, QLabel, QVBoxLayout, Qt, QWidget, pyqtSignal,
     QAbstractTableModel, QTableView, QSortFilterProxyModel, QIcon, QListWidget,
     QListWidgetItem, QLineEdit, QStackedWidget, QSplitter, QByteArray, QPixmap,
-    QStyledItemDelegate, QModelIndex, QRect, QStyle, QPalette, QTimer, QMenu)
+    QStyledItemDelegate, QModelIndex, QRect, QStyle, QPalette, QTimer, QMenu,
+    QAbstractItemModel, QTreeView, QFont, QRadioButton, QHBoxLayout,
+    QFontDatabase, QComboBox)
 
 from calibre import human_readable, fit_image
-from calibre.ebooks.oeb.polish.report import gather_data
+from calibre.ebooks.oeb.polish.report import gather_data, CSSEntry, CSSFileMatch, MatchLocation
 from calibre.gui2 import error_dialog, question_dialog, choose_save_file
 from calibre.gui2.tweak_book import current_container, tprefs, dictionaries
 from calibre.gui2.tweak_book.widgets import Dialog
@@ -31,6 +33,8 @@ from calibre.utils.icu import primary_contains, numeric_sort_key, character_name
 from calibre.utils.localization import calibre_langcode_to_name, canonicalize_lang
 
 # Utils {{{
+
+ROOT = QModelIndex()
 
 def read_state(name, default=None):
     data = tprefs.get('reports-ui-state')
@@ -326,7 +330,7 @@ class ImagesDelegate(QStyledItemDelegate):
         return QSize(max(width + m, ans.width()), height + m + self.MARGIN + ans.height())
 
     def paint(self, painter, option, index):
-        QStyledItemDelegate.paint(self, painter, option, QModelIndex())
+        QStyledItemDelegate.paint(self, painter, option, ROOT)
         entry = index.data(Qt.UserRole)
         if entry is None:
             return
@@ -646,6 +650,196 @@ class CharsWidget(QWidget):
 
 # }}}
 
+# CSS {{{
+
+class CSSRulesModel(QAbstractItemModel):
+
+    def __init__(self, parent):
+        QAbstractItemModel.__init__(self, parent)
+        self.rules = ()
+        self.num_size = 1
+        self.build_maps()
+        self.main_font = f = QFontDatabase.systemFont(QFontDatabase.FixedFont)
+        f.setBold(True), f.setPointSize(parent.font().pointSize() + 2)
+        self.italic_font = f = QFont(parent.font())
+        f.setItalic(True)
+
+    def build_maps(self):
+        self.parent_map = pm = {}
+        for i, entry in enumerate(self.rules):
+            container = entry.matched_files
+            pm[container] = (i, self.rules)
+            for i, child in enumerate(container):
+                gcontainer = child.locations
+                pm[gcontainer] = (i, container)
+                for i, gc in enumerate(gcontainer):
+                    pm[gc] = (i, gcontainer)
+
+    def index(self, row, column, parent=ROOT):
+        container = self.to_container(self.index_to_entry(parent) or self.rules)
+        return self.createIndex(row, column, container) if -1 < row < len(container) else ROOT
+
+    def to_container(self, entry):
+        if isinstance(entry, CSSEntry):
+            return entry.matched_files
+        elif isinstance(entry, CSSFileMatch):
+            return entry.locations
+        return entry
+
+    def index_to_entry(self, index):
+        if index.isValid():
+            try:
+                return index.internalPointer()[index.row()]
+            except IndexError:
+                pass
+
+    def parent(self, index):
+        if not index.isValid():
+            return ROOT
+        parent = index.internalPointer()
+        if parent is self.rules or parent is None:
+            return ROOT
+        try:
+            pidx, grand_parent = self.parent_map[parent]
+        except KeyError:
+            return ROOT
+        return self.createIndex(pidx, 0, grand_parent)
+
+    def rowCount(self, parent=ROOT):
+        if not parent.isValid():
+            return len(self.rules)
+        entry = self.index_to_entry(parent)
+        if isinstance(entry, (CSSEntry, CSSFileMatch)):
+            return len(self.to_container(entry))
+        return 0
+
+    def columnCount(self, parent=ROOT):
+        return 1
+
+    def data(self, index, role=Qt.DisplayRole):
+        if role == Qt.DisplayRole:
+            entry = self.index_to_entry(index)
+            if isinstance(entry, CSSEntry):
+                return '[%{}d] %s'.format(self.num_size) % (entry.count, entry.rule.selector)
+            elif isinstance(entry, CSSFileMatch):
+                return _('%s [%d elements]') % (entry.file_name, len(entry.locations))
+            elif isinstance(entry, MatchLocation):
+                return '%s @ %s' % (entry.tag, entry.sourceline)
+        elif role == Qt.UserRole:
+            return self.index_to_entry(index)
+        elif role == Qt.FontRole:
+            entry = self.index_to_entry(index)
+            if isinstance(entry, CSSEntry):
+                return self.main_font
+            elif isinstance(entry, CSSFileMatch):
+                return self.italic_font
+
+    def __call__(self, data):
+        self.beginResetModel()
+        self.rules = data['css']
+        try:
+            self.num_size = len(str(max(r.count for r in self.rules)))
+        except ValueError:
+            self.num_size = 1
+        self.build_maps()
+        self.endResetModel()
+
+class CSSProxyModel(QSortFilterProxyModel):
+
+    def __init__(self, parent=None):
+        QSortFilterProxyModel.__init__(self, parent)
+        self._filter_text = None
+        self.sort_on_count = True
+
+    def filter_text(self, text):
+        self._filter_text = text
+        self.setFilterFixedString(text)
+
+    def filterAcceptsRow(self, row, parent):
+        if not self._filter_text:
+            return True
+        sm = self.sourceModel()
+        entry = sm.index_to_entry(sm.index(row, 0, parent))
+        if not isinstance(entry, CSSEntry):
+            return True
+        return primary_contains(self._filter_text, entry.rule.selector)
+
+    def lessThan(self, left, right):
+        sm = self.sourceModel()
+        left, right = sm.index_to_entry(left), sm.index_to_entry(right)
+        if isinstance(left, CSSEntry) and isinstance(right, CSSEntry):
+            if self.sort_on_count:
+                return left.count < right.count
+            return left.sort_key < right.sort_key
+        if isinstance(left, CSSFileMatch) and isinstance(right, CSSFileMatch):
+            if self.sort_on_count:
+                return len(left.locations) < len(right.locations)
+            return left.sort_key < right.sort_key
+        if isinstance(left, MatchLocation) and isinstance(right, MatchLocation):
+            return left.sourceline < right.sourceline
+        return False
+
+class CSSWidget(QWidget):
+
+    def __init__(self, parent=None):
+        QWidget.__init__(self, parent)
+        self.l = l = QVBoxLayout(self)
+        self.h = h = QHBoxLayout()
+
+        self.filter_edit = e = QLineEdit(self)
+        l.addWidget(e)
+        e.setPlaceholderText(_('Filter'))
+        self.model = m = CSSRulesModel(self)
+        self.proxy = p = CSSProxyModel(self)
+        p.setSourceModel(m)
+        self.view = f = QTreeView(self)
+        f.setHeaderHidden(True)
+        f.setModel(p)
+        l.addWidget(f)
+        e.textChanged.connect(p.filter_text)
+
+        l.addLayout(h)
+        h.addWidget(QLabel(_('Sort by:')))
+        self.counts_button = b = QRadioButton(_('&Counts'), self)
+        b.setChecked(read_state('css-sort-on-counts', True))
+        h.addWidget(b)
+        self.name_button = b = QRadioButton(_('&Name'), self)
+        b.setChecked(not read_state('css-sort-on-counts', True))
+        h.addWidget(b)
+        b.toggled.connect(self.resort)
+        h.addStrut(20)
+        self._sort_order = o = QComboBox(self)
+        o.addItems([_('Ascending'), _('Descending')])
+        o.setCurrentIndex(0 if read_state('css-sort-ascending', True) else 1)
+        o.setEditable(False)
+        o.currentIndexChanged[int].connect(self.resort)
+        h.addWidget(o)
+        h.addStretch(10)
+
+    @dynamic_property
+    def sort_order(self):
+        def fget(self):
+            return [Qt.AscendingOrder, Qt.DescendingOrder][self._sort_order.currentIndex()]
+        def fset(self, val):
+            self._sort_order.setCurrentIndex({Qt.AscendingOrder:0}.get(val, 1))
+        return property(fget=fget, fset=fset)
+
+    def __call__(self, data):
+        self.model(data)
+        self.filter_edit.clear()
+        self.resort()
+
+    def save(self):
+        save_state('css-sort-on-counts', self.counts_button.isChecked())
+        save_state('css-sort-ascending', self.sort_order == Qt.AscendingOrder)
+
+    def resort(self, *args):
+        self.proxy.sort_on_count = self.counts_button.isChecked()
+        self.proxy.sort(-1, self.sort_order)  # for some reason the proxy model does not resort without this
+        self.proxy.sort(0, self.sort_order)
+
+# }}}
+
 # Wrapper UI {{{
 class ReportsWidget(QWidget):
 
@@ -679,6 +873,10 @@ class ReportsWidget(QWidget):
         i.delete_requested.connect(self.delete_requested)
         s.addWidget(i)
         QListWidgetItem(_('Images'), r)
+
+        self.css = c = CSSWidget(self)
+        s.addWidget(c)
+        QListWidgetItem(_('Style Rules'), r)
 
         self.chars = c = CharsWidget(self)
         s.addWidget(c)
