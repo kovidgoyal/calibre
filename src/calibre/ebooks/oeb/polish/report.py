@@ -6,7 +6,7 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import posixpath, os
+import posixpath, os, time, types
 from collections import namedtuple, defaultdict, Counter
 
 from calibre.ebooks.oeb.polish.container import OEB_DOCS, OEB_STYLES, OEB_FONTS
@@ -51,7 +51,7 @@ def safe_img_data(container, name, mt):
         width = height = 0
     return width, height
 
-def file_data(container):
+def files_data(container, book_locale):
     for name, path in container.name_path_map.iteritems():
         yield File(name, posixpath.dirname(name), posixpath.basename(name), safe_size(container, name),
                    get_category(name, container.mime_map.get(name, '')))
@@ -66,7 +66,7 @@ def sort_locations(container, locations):
         return (nmap.get(l.name, len(nmap)), numeric_sort_key(l.name), l.line_number)
     return sorted(locations, key=sort_key)
 
-def link_data(container):
+def images_data(container, book_locale):
     image_usage = defaultdict(set)
     link_sources = OEB_STYLES | OEB_DOCS
     for name, mt in container.mime_map.iteritems():
@@ -87,13 +87,13 @@ def link_data(container):
 
 Word = namedtuple('Word', 'id word locale usage')
 
-def word_data(container, book_locale):
+def words_data(container, book_locale):
     count, words = get_all_words(container, book_locale, get_word_count=True)
     return (count, tuple(Word(i, word, locale, v) for i, ((word, locale), v) in enumerate(words.iteritems())))
 
 Char = namedtuple('Char', 'id char codepoint usage count')
 
-def char_data(container):
+def chars_data(container, book_locale):
     chars = defaultdict(set)
     counter = Counter()
     def count(codepoint):
@@ -116,10 +116,13 @@ def char_data(container):
         yield Char(i, safe_chr(codepoint), codepoint, sorted(usage, key=sort_key), counter[codepoint])
 
 def gather_data(container, book_locale):
-    data =  {'files':tuple(file_data(container))}
-    img_data = link_data(container)
-    data['images'] = img_data
-    data['words'] = word_data(container, book_locale)
-    data['chars'] = tuple(char_data(container))
-    return data
+    timing = {}
+    data = {}
+    for x in 'files images words chars'.split():
+        st = time.time()
+        data[x] = globals()[x + '_data'](container, book_locale)
+        if isinstance(data[x], types.GeneratorType):
+            data[x] = tuple(data[x])
+        timing[x] = time.time() - st
+    return data, timing
 

@@ -752,6 +752,12 @@ class Reports(Dialog):
             return error_dialog(self, _('Failed to gather data'), _(
                 'Failed to gather data for the report. Click "Show details" for more'
                 ' information.'), det_msg=data, show=True)
+        data, timing = data
+        try:
+            for x, t in timing.iteritems():
+                print ('Time for %s data: %.3f seconds' % (x, t))
+        except Exception:
+            pass
         self.reports(data)
 
     def accept(self):
