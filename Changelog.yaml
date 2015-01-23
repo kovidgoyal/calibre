@@ -20,6 +20,45 @@
 #   new recipes:
 #     - title: 
 
+- version: 2.17.0
+  date: 2015-01-23
+
+  new features:
+    - title: "Edit Book: A new reports tool that shows a summary of files, images, words, characters and styles used in the book."
+      description: "The reports tool is a great way to get an overview of the different parts of your book. Every line in the report is hot-linked, double clicking it jumps to the places in the book where that item is used."
+      type: major
+
+    - title: "Edit Book: Allow adding the 'Manage Snippets' action to the toolbar, for easy access"
+
+  bug fixes:
+    - title: "Update Ozon.ru metadata download plugin for website changes."
+      tickets: [1407265]
+
+    - title: "E-book viewer: Fix regression in 'flow' mode that caused horizontal scrollbar to be rendered as vertical."
+      tickets: [1409916]
+
+    - title: "Fix a regression that prevented adding of books from sub-folders if the folder contained only an OPF file and no actual ebook files."
+      tickets: [1411240]
+
+  improved recipes:
+    - Salon.com
+    - The Onion
+    - Haaretz
+    - Jot Down
+    - Le Monde Diplomatique
+    - tyzden
+    - The AJC
+
+  new recipes:
+    - title: TheAtlantic.com 
+      author: ebrandon
+
+    - title: The Conversation 
+      author: Krittika Goyal
+
+    - title: Apple Daily (TW) 
+      author: Yulun Shih
+
 - version: 2.16.0
   date: 2015-01-10
 
