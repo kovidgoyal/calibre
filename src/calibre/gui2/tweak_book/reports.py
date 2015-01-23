@@ -688,6 +688,7 @@ class CSSRulesModel(QAbstractItemModel):
         self.rules = ()
         self.sort_on_count = True
         self.num_size = 1
+        self.num_unused = 0
         self.build_maps()
         self.main_font = f = QFontDatabase.systemFont(QFontDatabase.FixedFont)
         f.setBold(True), f.setPointSize(parent.font().pointSize() + 2)
@@ -775,6 +776,7 @@ class CSSRulesModel(QAbstractItemModel):
     def __call__(self, data):
         self.beginResetModel()
         self.rules = data['css']
+        self.num_unused = sum(1 for r in self.rules if r.count == 0)
         try:
             self.num_size = len(str(max(r.count for r in self.rules)))
         except ValueError:
@@ -839,6 +841,8 @@ class CSSWidget(QWidget):
         o.currentIndexChanged[int].connect(self.resort)
         h.addWidget(o)
         h.addStretch(10)
+        self.summary = la = QLabel('\xa0')
+        h.addWidget(la)
 
     @dynamic_property
     def sort_order(self):
@@ -850,6 +854,7 @@ class CSSWidget(QWidget):
 
     def __call__(self, data):
         self.model(data)
+        self.summary.setText(_('{0} rules, {1} unused').format(self.model.rowCount(), self.model.num_unused))
         self.filter_edit.clear()
         self.resort()
 
