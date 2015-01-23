@@ -117,6 +117,7 @@ class FilesView(QTableView):
     def __init__(self, model, parent=None):
         QTableView.__init__(self, parent)
         self.setSelectionBehavior(self.SelectRows), self.setSelectionMode(self.ExtendedSelection)
+        self.setAlternatingRowColors(True)
         self.setSortingEnabled(True)
         self.proxy = p = ProxyModel(self)
         p.setSourceModel(model)
@@ -816,6 +817,7 @@ class CSSWidget(QWidget):
         self.proxy = p = CSSProxyModel(self)
         p.setSourceModel(m)
         self.view = f = QTreeView(self)
+        f.setAlternatingRowColors(True)
         f.setHeaderHidden(True), f.setExpandsOnDoubleClick(False)
         f.setModel(p)
         l.addWidget(f)
