@@ -252,9 +252,11 @@ class UploadToServer(Command):  # {{{
     description = 'Upload miscellaneous data to calibre server'
 
     def run(self, opts):
+        src_file = glob.glob('dist/calibre-*.tar.xz')[0]
         upload_signatures()
-        check_call('gpg --armor --detach-sign dist/calibre-*.tar.xz', shell=True)
-        check_call('scp dist/calibre-*.tar.xz.asc code:/srv/code/signatures/', shell=True)
+        gpg = os.path.expanduser('~/work/env/private/gpg')
+        check_call([gpg, '--armor', '--detach-sign', src_file])
+        check_call(['scp', src_file + '.asc', 'code:/srv/code/signatures/'])
         check_call('ssh code /usr/local/bin/update-calibre-code.py'.split())
         check_call(('ssh code /apps/update-calibre-version.py ' + __version__).split())
         check_call('ssh main /usr/local/bin/update-calibre-code.py && /apps/static/generate.py'.split())
