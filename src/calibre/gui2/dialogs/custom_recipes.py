@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python2
 # vim:fileencoding=utf-8
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
@@ -133,7 +133,7 @@ def options_to_recipe_source(title, oldest_article, max_articles_per_feed, feeds
     if feeds:
         feeds = 'feeds          = [\n%s\n    ]' % feeds
     src = textwrap.dedent('''\
-    #!/usr/bin/env python
+    #!/usr/bin/env python2
     # vim:fileencoding=utf-8
     from __future__ import unicode_literals, division, absolute_import, print_function
     from calibre.web.feeds.news import {base}

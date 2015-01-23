@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python2
 # This is a patched version of sheel.py to fix
 # https://code.google.com/p/apsw/issues/detail?id=142
 

@@ -1,5 +1,5 @@
+#!/usr/bin/env  python2
 # -*- coding: utf-8 -*-
-#!/usr/bin/env  python
 
 __license__   = 'GPL v3'
 __copyright__ = u'2014-01-09, Silviu Cotoar\u0103, Marius Popescu'
@@ -27,7 +27,7 @@ class DilemaVeche(BasicNewsRecipe):
     remove_javascript     = True
     no_stylesheets        = True
     remove_empty_feeds    = True
-    feeds = [    
+    feeds = [
                 #('Editoriale şi opinii', 'http://www.dilemaveche.ro/taxonomy/term/1/0/feed'),
                 ('Editoriale si opinii - Situatiunea', 'http://www.dilemaveche.ro/taxonomy/term/37/0/feed'),
                 ('Editoriale si opinii - Pe ce lume traim', 'http://www.dilemaveche.ro/taxonomy/term/38/0/feed'),
@@ -79,7 +79,7 @@ class DilemaVeche(BasicNewsRecipe):
              dict(name='div', attrs={'id':['closure']})
              ]
     remove_tags_after = [
-              dict(name='div', attrs={'id':['adshop_widget_428x60']})    
+              dict(name='div', attrs={'id':['adshop_widget_428x60']})
             ]
     extra_css             = """
         body{font-family: Georgia,Times,serif }
@@ -109,7 +109,7 @@ class DilemaVeche(BasicNewsRecipe):
            cover_url = link_item.a['href']
         br = BasicNewsRecipe.get_browser(self)
         try:
-            br.open(cover_url) 
+            br.open(cover_url)
         except: #daca nu gaseste pdf-ul
             self.log("\nPDF indisponibil")
             link_item = soup.find('div',attrs={'class':'box_dr_pdf_picture'})

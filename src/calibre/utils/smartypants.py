@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python2
 # vim:fileencoding=utf-8
 
 __author__ = "Chad Miller <smartypantspy@chad.org>, Kovid Goyal <kovid at kovidgoyal.net>"

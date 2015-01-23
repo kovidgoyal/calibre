@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python2
 # vim:fileencoding=utf-8
 __license__   = 'GPL v3'
 __copyright__ = '2011, Roman Mukhin <ramses_ru at hotmail.com>, '\

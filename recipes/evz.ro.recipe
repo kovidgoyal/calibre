@@ -1,5 +1,5 @@
+#!/usr/bin/env  python2
 # -*- coding: utf-8 -*-
-#!/usr/bin/env  python
 
 __license__   = 'GPL v3'
 __copyright__ = u'2011, Silviu Cotoar\u0103'
@@ -33,7 +33,7 @@ class EvenimentulZilei(BasicNewsRecipe):
     keep_only_tags = [
             dict(name='div', attrs={'class':'single'})
             , dict(name='img', attrs={'id':'placeholder'})
-			, dict(name='a', attrs={'id':'holderlink'})			
+			, dict(name='a', attrs={'id':'holderlink'})
                      ]
 
     remove_tags = [
@@ -43,7 +43,7 @@ class EvenimentulZilei(BasicNewsRecipe):
                   ]
 
     remove_tags_after = [
-             dict(name='div', attrs={'id':['bannerAddoceansArticleJos']})			  			 
+             dict(name='div', attrs={'id':['bannerAddoceansArticleJos']})
             ]
 
     feeds          = [

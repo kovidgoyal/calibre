@@ -28,7 +28,7 @@ from calibre.ebooks.rtf2xml.old_rtf import OldRtf
 
 """
 Here is an example script using the ParseRTF module directly
-#!/usr/bin/env python
+#!/usr/bin/env python2
 
 def Handle_Main():
     # Handles options and creates a parse object

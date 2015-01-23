@@ -1,5 +1,5 @@
+#!/usr/bin/env  python2
 # -*- coding: utf-8 -*-
-#!/usr/bin/env  python
 
 __license__   = 'GPL v3'
 __copyright__ = u'2011, Silviu Cotoar\u0103'
@@ -35,7 +35,7 @@ class GSP(BasicNewsRecipe):
                        ,dict(name='div', attrs={'id':'only_text'})
 					   ,dict(name='span', attrs={'class':'block poza_principala'})
                      ]
-					 
+
     feeds = [ (u'\u0218tiri', u'http://www.gsp.ro/rss.xml') ]
 
     def preprocess_html(self, soup):

@@ -1,5 +1,5 @@
+#!/usr/bin/env  python2
 # -*- coding: utf-8 -*-
-#!/usr/bin/env  python
 
 __license__   = 'GPL v3'
 __copyright__ = u'2011, Silviu Cotoar\u0103'
@@ -31,7 +31,7 @@ class FormulaAS(BasicNewsRecipe):
                          }
 
     keep_only_tags = [
-                      dict(name='div', attrs={'class':'item padded'})					 
+                      dict(name='div', attrs={'class':'item padded'})
                      ]
 
     remove_tags = [
@@ -40,7 +40,7 @@ class FormulaAS(BasicNewsRecipe):
 
     remove_tags_after = [
 			         dict(name='ul', attrs={'class':'subtitle lower'}),
-					 dict(name='div', attrs={'class':'item-brief-options'})					 
+					 dict(name='div', attrs={'class':'item-brief-options'})
 	               ]
     feeds  = [
         (u'\u0218tiri', u'http://www.formula-as.ro/rss/articole.xml')

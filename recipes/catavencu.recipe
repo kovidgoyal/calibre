@@ -1,5 +1,5 @@
+#!/usr/bin/env  python2
 # -*- coding: utf-8 -*-
-#!/usr/bin/env  python
 
 __license__   = 'GPL v3'
 __copyright__ = u'2011, Silviu Cotoar\u0103'
@@ -37,7 +37,7 @@ class AcademiaCatavencu(BasicNewsRecipe):
 
     remove_tags = [
              dict(name='div', attrs={'class':['mr_social_sharing_wrapper']})
-           , dict(name='div', attrs={'id':['fb_share_1']})          
+           , dict(name='div', attrs={'id':['fb_share_1']})
                   ]
 
     remove_tags_after = [

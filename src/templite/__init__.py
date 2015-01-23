@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python2
 #
 #       Templite+
 #       A light-weight, fully functional, general purpose templating engine

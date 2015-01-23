@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python2
 """
     pylrf.py -- very low level interface to create lrf files.  See pylrs for
     higher level interface that can use this module to render books to lrf.

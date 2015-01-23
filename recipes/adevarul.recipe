@@ -1,5 +1,5 @@
+#!/usr/bin/env  python2
 # -*- coding: utf-8 -*-
-#!/usr/bin/env  python
 
 __license__   = 'GPL v3'
 __copyright__ = u'2011, Silviu Cotoar\u0103'
@@ -36,7 +36,7 @@ class Adevarul(BasicNewsRecipe):
                      ]
 
 
-    remove_tags = [ 
+    remove_tags = [
 					 dict(name='li', attrs={'class':'author'})
 					,dict(name='li', attrs={'class':'date'})
 					,dict(name='li', attrs={'class':'comments'})
@@ -44,12 +44,12 @@ class Adevarul(BasicNewsRecipe):
                     ,dict(name='div', attrs={'class':'bb-md bb-md-article_comments'})
                     ,dict(name='form', attrs={'id':'bb-comment-create-form'})
 				    ,dict(name='div', attrs={'id':'mediatag'})
-					,dict(name='div', attrs={'id':'ft'})	
+					,dict(name='div', attrs={'id':'ft'})
 					,dict(name='div', attrs={'id':'comment_wrapper'})
                  ]
 
-    remove_tags_after = [ 
-							dict(name='div', attrs={'id':'comment_wrapper'}),											
+    remove_tags_after = [
+							dict(name='div', attrs={'id':'comment_wrapper'}),
 						]
 
     feeds = [ (u'\u0218tiri', u'http://www.adevarul.ro/rss/latest') ]

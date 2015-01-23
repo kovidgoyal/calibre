@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 """
 Get word, character, and Asian character counts
