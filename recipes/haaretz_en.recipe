@@ -4,7 +4,6 @@ __copyright__ = '2010-2015, Darko Miletic <darko.miletic at gmail.com>'
 www.haaretz.com
 '''
 
-import re
 import urllib
 from calibre.web.feeds.news import BasicNewsRecipe
 
@@ -46,7 +45,6 @@ class Haaretz_en(BasicNewsRecipe):
                           ,dict(name='div',attrs={'id':'article_sso_form'})
                         ]
 
-
     feeds = [
               (u'Headlines'             , 'http://www.haaretz.com/cmlink/1.263335')
              ,(u'Opinion'               , 'http://www.haaretz.com/cmlink/1.628752')
@@ -67,7 +65,7 @@ class Haaretz_en(BasicNewsRecipe):
         br = BasicNewsRecipe.get_browser(self)
         br.open(self.PREFIX)
         if self.username is not None and self.password is not None:
-            data = urllib.urlencode({ 'cb':'parseEngReply'
+            data = urllib.urlencode({'cb':'parseEngReply'
                                      ,'newsso':'true'
                                      ,'fromlogin':'true'
                                      ,'layer':'eng_login'
@@ -80,4 +78,3 @@ class Haaretz_en(BasicNewsRecipe):
     def print_version(self, url):
         article = url.rpartition('/')[2]
         return 'http://www.haaretz.com/misc/article-print-page/' + article
-
