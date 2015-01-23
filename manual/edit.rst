@@ -706,6 +706,20 @@ a new book`.
     function_mode
     snippets
 
+The Reports tool
+^^^^^^^^^^^^^^^^^^^^^
+
+The editor includes a nice *Reports* tool (via :guilabel:`Tools->Reports`) that
+shows summaries of the files, images, words, characters and styles used in the
+book. Every line in the report is hot-linked. Double clicking a line jumps to
+the place in the book where that item is used or defined (as appropriate).
+
+.. image:: images/reports-ss.png
+    :alt: The Reports tool
+    :align: center
+    :class: fit-img
+
+
 Special features in the code editor
 ---------------------------------------
 
