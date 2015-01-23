@@ -188,6 +188,19 @@ class FilesView(QTableView):
             w.writerow(items)
         return buf.getvalue()
 
+    def save_table(self, name):
+        save_state(name, bytearray(self.horizontalHeader().saveState()))
+
+    def restore_table(self, name, sort_column=0, sort_order=Qt.AscendingOrder):
+        h = self.horizontalHeader()
+        try:
+            h.restoreState(read_state(name))
+        except TypeError:
+            self.sortByColumn(sort_column, sort_order)
+        h.setSectionsMovable(True), h.setSectionsClickable(True)
+        h.setDragEnabled(True), h.setAcceptDrops(True)
+        h.setDragDropMode(self.InternalMove)
+
 # }}}
 
 # Files {{{
@@ -264,10 +277,7 @@ class FilesWidget(QWidget):
         self.summary = s = QLabel(self)
         l.addWidget(s)
         s.setText('\xa0')
-        try:
-            self.files.horizontalHeader().restoreState(read_state('all-files-table'))
-        except TypeError:
-            self.files.sortByColumn(1, Qt.AscendingOrder)
+        self.files.restore_table('all-files-table', 1, Qt.AscendingOrder)
 
     def __call__(self, data):
         self.model(data)
@@ -283,7 +293,7 @@ class FilesWidget(QWidget):
             self.edit_requested.emit(location)
 
     def save(self):
-        save_state('all-files-table', bytearray(self.files.horizontalHeader().saveState()))
+        self.files.save_table('all-files-table')
 
 # }}}
 
@@ -439,11 +449,7 @@ class ImagesWidget(QWidget):
         f.double_clicked.connect(self.double_clicked)
         e.textChanged.connect(f.proxy.filter_text)
         l.addWidget(f)
-
-        try:
-            self.files.horizontalHeader().restoreState(read_state('image-files-table'))
-        except TypeError:
-            self.files.sortByColumn(0, Qt.AscendingOrder)
+        self.files.restore_table('image-files-table')
 
     def __call__(self, data):
         self.model(data)
@@ -464,7 +470,7 @@ class ImagesWidget(QWidget):
             menu.addAction(_('Edit the image: %s') % current_location, partial(self.edit_requested.emit, current_location))
 
     def save(self):
-        save_state('image-files-table', bytearray(self.files.horizontalHeader().saveState()))
+        self.files.save_table('image-files-table')
 # }}}
 
 # Words {{{
@@ -539,11 +545,7 @@ class WordsWidget(QWidget):
 
         self.summary = la = QLabel('\xa0')
         l.addWidget(la)
-
-        try:
-            self.words.horizontalHeader().restoreState(read_state('words-table'))
-        except TypeError:
-            self.words.sortByColumn(0, Qt.AscendingOrder)
+        self.words.restore_table('words-table')
 
     def __call__(self, data):
         self.model(data)
@@ -561,7 +563,7 @@ class WordsWidget(QWidget):
                 boss.find_word((entry.word, entry.locale), entry.usage)
 
     def save(self):
-        save_state('words-table', bytearray(self.words.horizontalHeader().saveState()))
+        self.words.save_table('words-table')
 # }}}
 
 # Characters {{{
@@ -629,11 +631,7 @@ class CharsWidget(QWidget):
         la.setReadOnly(True)
         la.setToolTip(_('All the characters in the book'))
         l.addWidget(la)
-
-        try:
-            self.chars.horizontalHeader().restoreState(read_state('chars-table'))
-        except TypeError:
-            self.chars.sortByColumn(0, Qt.AscendingOrder)
+        self.chars.restore_table('chars-table')
 
     def __call__(self, data):
         self.model(data)
@@ -647,7 +645,7 @@ class CharsWidget(QWidget):
             self.find_next_location(entry)
 
     def save(self):
-        save_state('chars-table', bytearray(self.chars.horizontalHeader().saveState()))
+        self.chars.save_table('chars-table')
 
     def find_next_location(self, entry):
         from calibre.gui2.tweak_book.boss import get_boss
