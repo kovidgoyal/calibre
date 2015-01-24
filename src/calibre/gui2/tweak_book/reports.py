@@ -1003,6 +1003,7 @@ class Reports(Dialog):
         Dialog.__init__(self, _('Reports'), 'reports-dialog', parent=parent)
         self.data_gathered.connect(self.display_data, type=Qt.QueuedConnection)
         self.setAttribute(Qt.WA_DeleteOnClose, False)
+        self.setWindowIcon(QIcon(I('reports.png')))
 
     def setup_ui(self):
         self.l = l = QVBoxLayout(self)
