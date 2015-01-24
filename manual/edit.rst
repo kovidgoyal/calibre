@@ -710,9 +710,12 @@ The Reports tool
 ^^^^^^^^^^^^^^^^^^^^^
 
 The editor includes a nice *Reports* tool (via :guilabel:`Tools->Reports`) that
-shows summaries of the files, images, words, characters and styles used in the
-book. Every line in the report is hot-linked. Double clicking a line jumps to
-the place in the book where that item is used or defined (as appropriate).
+shows summaries of the files, images, links, words, characters and styles used
+in the book. Every line in the report is hot-linked. Double clicking a line
+jumps to the place in the book where that item is used or defined (as
+appropriate). For example, in the :guilabel:`Links` view, you can double click
+entries the :guilabel:`Source` column to jump to where the link is defined and
+entries in the :guilabel:`Target` column to jump to where the link points.
 
 .. image:: images/reports-ss.png
     :alt: The Reports tool
