@@ -29,18 +29,17 @@ from calibre.library.save_to_disk import sanitize_args, get_path_components, fin
 BookId = namedtuple('BookId', 'title authors')
 
 def ensure_unique_components(data):  # {{{
-    cmap = {}
+    cmap = defaultdict(set)
+    bid_map = {}
     for book_id, (mi, components, fmts) in data.iteritems():
-        c = tuple(components)
-        if c in cmap:
-            cmap[c].add(book_id)
-        else:
-            cmap[c] = {book_id}
+        cmap[tuple(components)].add(book_id)
+        bid_map[book_id] = components
 
     for book_ids in cmap.itervalues():
         if len(book_ids) > 1:
             for i, book_id in enumerate(sorted(book_ids)[1:]):
                 suffix = ' (%d)' % (i + 1)
+                components = bid_map[book_id]
                 components[-1] = components[-1] + suffix
 # }}}
 
