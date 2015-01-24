@@ -6,7 +6,7 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import time
+import time, textwrap, os
 from threading import Thread
 from future_builtins import map
 from operator import itemgetter
@@ -22,12 +22,12 @@ from PyQt5.Qt import (
     QListWidgetItem, QLineEdit, QStackedWidget, QSplitter, QByteArray, QPixmap,
     QStyledItemDelegate, QModelIndex, QRect, QStyle, QPalette, QTimer, QMenu,
     QAbstractItemModel, QTreeView, QFont, QRadioButton, QHBoxLayout,
-    QFontDatabase, QComboBox)
+    QFontDatabase, QComboBox, QUrl, QWebView)
 
 from calibre import human_readable, fit_image
 from calibre.constants import DEBUG
 from calibre.ebooks.oeb.polish.report import gather_data, CSSEntry, CSSFileMatch, MatchLocation
-from calibre.gui2 import error_dialog, question_dialog, choose_save_file
+from calibre.gui2 import error_dialog, question_dialog, choose_save_file, open_url
 from calibre.gui2.tweak_book import current_container, tprefs, dictionaries
 from calibre.gui2.tweak_book.widgets import Dialog
 from calibre.gui2.progress_indicator import ProgressIndicator
@@ -112,6 +112,7 @@ class FilesView(QTableView):
 
     double_clicked = pyqtSignal(object)
     delete_requested = pyqtSignal(object, object)
+    current_changed = pyqtSignal(object, object)
     DELETE_POSSIBLE = True
 
     def __init__(self, model, parent=None):
@@ -125,6 +126,10 @@ class FilesView(QTableView):
         self.doubleClicked.connect(self._double_clicked)
         self.setContextMenuPolicy(Qt.CustomContextMenu)
         self.customContextMenuRequested.connect(self.show_context_menu)
+
+    def currentChanged(self, current, previous):
+        QTableView.currentChanged(self, current, previous)
+        self.current_changed.emit(*map(self.proxy.mapToSource, (current, previous)))
 
     def customize_context_menu(self, menu, selected_locations, current_location):
         pass
@@ -477,6 +482,159 @@ class ImagesWidget(QWidget):
 
     def save(self):
         self.files.save_table('image-files-table')
+# }}}
+
+# Links {{{
+
+class LinksModel(FileCollection):
+
+    COLUMN_HEADERS = [_('OK'), _('Source'), _('Source text'), _('Target'), _('Anchor'), _('Target text')]
+
+    def __init__(self, parent=None):
+        FileCollection.__init__(self, parent)
+        self.num_bad = 0
+
+    def __call__(self, data):
+        self.beginResetModel()
+        self.links = self.files = data['links']
+        self.total_size = len(self.links)
+        self.num_bad = sum(1 for link in self.links if link.ok is False)
+        psk = numeric_sort_key
+        self.sort_keys = tuple((
+            link.ok, psk(link.location.name), psk(link.text or ''), psk(link.href or ''), psk(link.anchor.id or ''), psk(link.anchor.text or ''))
+                               for link in self.links)
+        self.endResetModel()
+
+    def data(self, index, role=Qt.DisplayRole):
+        if role == SORT_ROLE:
+            try:
+                return self.sort_keys[index.row()][index.column()]
+            except IndexError:
+                pass
+        elif role == Qt.DisplayRole:
+            col = index.column()
+            try:
+                link = self.links[index.row()]
+            except IndexError:
+                return None
+            if col == 0:
+                return {True:'✓ ', False:'✗'}.get(link.ok)
+            if col == 1:
+                return link.location.name
+            if col == 2:
+                return link.text
+            if col == 3:
+                return link.href
+            if col == 4:
+                return link.anchor.id
+            if col == 5:
+                return link.anchor.text
+        elif role == Qt.ToolTipRole:
+            col = index.column()
+            try:
+                link = self.links[index.row()]
+            except IndexError:
+                return None
+            if col == 0:
+                return {True:_('The link destination exists'), False:_('The link destination does not exist')}.get(
+                    link.ok, _('The link destination could not be verified'))
+            if col == 2:
+                if link.text:
+                    return textwrap.fill(link.text)
+            if col == 5:
+                if link.anchor.text:
+                    return textwrap.fill(link.anchor.text)
+        elif role == Qt.UserRole:
+            try:
+                return self.links[index.row()]
+            except IndexError:
+                pass
+
+class WebView(QWebView):
+
+    def sizeHint(self):
+        return QSize(600, 200)
+
+class LinksWidget(QWidget):
+
+    def __init__(self, parent=None):
+        QWidget.__init__(self, parent)
+        self.l = l = QVBoxLayout(self)
+
+        self.filter_edit = e = QLineEdit(self)
+        l.addWidget(e)
+        self.splitter = s = QSplitter(Qt.Vertical, self)
+        l.addWidget(s)
+        e.setPlaceholderText(_('Filter'))
+        self.model = m = LinksModel(self)
+        self.links = f = FilesView(m, self)
+        f.DELETE_POSSIBLE = False
+        self.to_csv = f.to_csv
+        f.double_clicked.connect(self.double_clicked)
+        e.textChanged.connect(f.proxy.filter_text)
+        s.addWidget(f)
+        self.links.restore_table('links-table', sort_column=1)
+        self.view = WebView(self)
+        s.addWidget(self.view)
+        self.ignore_current_change = False
+        self.current_url = None
+        f.current_changed.connect(self.current_changed)
+        try:
+            s.restoreState(read_state('links-view-splitter'))
+        except TypeError:
+            pass
+        s.setCollapsible(0, False), s.setCollapsible(1, True)
+        s.setStretchFactor(0, 10)
+
+    def __call__(self, data):
+        self.ignore_current_change = True
+        self.model(data)
+        self.filter_edit.clear()
+        self.links.resize_rows()
+        self.view.setHtml('<p>'+_(
+            'Click entries above to see their destination here'))
+        self.ignore_current_change = False
+
+    def current_changed(self, current, previous):
+        link = current.data(Qt.UserRole)
+        if link is None:
+            return
+        url = None
+        if link.is_external:
+            if link.href:
+                frag = ('#' + link.anchor.id) if link.anchor.id else ''
+                url = QUrl(link.href + frag)
+        elif link.anchor.location:
+            path = current_container().name_to_abspath(link.anchor.location.name)
+            if path and os.path.exists(path):
+                url = QUrl.fromLocalFile(path)
+                if link.anchor.id:
+                    url.setFragment(link.anchor.id)
+        if url is None:
+            self.view.setHtml('<p>' + _('No destination found for this link'))
+            self.current_url = url
+        elif url != self.current_url:
+            self.current_url = url
+            self.view.setUrl(url)
+
+    def double_clicked(self, index):
+        link = index.data(Qt.UserRole)
+        if link is None:
+            return
+        if index.column() < 3:
+            # Jump to source
+            jump_to_location(link.location)
+        else:
+            # Jump to destination
+            if link.is_external:
+                if link.href:
+                    open_url(link.href)
+            elif link.anchor.location:
+                jump_to_location(link.anchor.location)
+
+    def save(self):
+        self.links.save_table('links-table')
+        save_state('links-view-splitter', bytearray(self.splitter.saveState()))
 # }}}
 
 # Words {{{
@@ -951,6 +1109,10 @@ class ReportsWidget(QWidget):
         self.chars = c = CharsWidget(self)
         s.addWidget(c)
         QListWidgetItem(_('Characters'), r)
+
+        self.links = li = LinksWidget(self)
+        s.addWidget(li)
+        QListWidgetItem(_('Links'), r)
 
         self.splitter.setStretchFactor(1, 500)
         try:

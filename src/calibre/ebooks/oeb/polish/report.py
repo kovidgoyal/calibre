@@ -11,7 +11,7 @@ from collections import namedtuple, defaultdict, Counter
 from itertools import chain
 
 from calibre import prepare_string_for_xml, force_unicode
-from calibre.ebooks.oeb.base import XPath
+from calibre.ebooks.oeb.base import XPath, xml2text
 from calibre.ebooks.oeb.polish.container import OEB_DOCS, OEB_STYLES, OEB_FONTS
 from calibre.ebooks.oeb.polish.css import build_selector, PSEUDO_PAT, MIN_SPACE_RE
 from calibre.ebooks.oeb.polish.spell import get_all_words
@@ -94,6 +94,90 @@ def images_data(container, book_locale):
             image_data.append(Image(name, mt, sort_locations(container, image_usage.get(name, set())), safe_size(container, name),
                                     posixpath.basename(name), len(image_data), *safe_img_data(container, name, mt)))
     return tuple(image_data)
+
+def description_for_anchor(elem):
+    def check(x, min_len=4):
+        if x:
+            x = x.strip()
+            if len(x) >= min_len:
+                return x[:30]
+
+    desc = check(elem.get('title'))
+    if desc is not None:
+        return desc
+    desc = check(elem.text)
+    if desc is not None:
+        return desc
+    if len(elem) > 0:
+        desc = check(elem[0].text)
+        if desc is not None:
+            return desc
+    # Get full text for tags that have only a few descendants
+    for i, x in enumerate(elem.iterdescendants('*')):
+        if i > 5:
+            break
+    else:
+        desc = check(xml2text(elem), min_len=1)
+        if desc is not None:
+            return desc
+
+def create_anchor_map(root, pat, name):
+    ans = {}
+    for elem in pat(root):
+        anchor = elem.get('id') or elem.get('name')
+        if anchor and anchor not in ans:
+            ans[anchor] = (LinkLocation(name, elem.sourceline, anchor), description_for_anchor(elem))
+    return ans
+
+Anchor = namedtuple('Anchor', 'id location text')
+L = namedtuple('Link', 'location text is_external href path_ok anchor_ok anchor ok')
+def Link(location, text, is_external, href, path_ok, anchor_ok, anchor):
+    if is_external:
+        ok = None
+    else:
+        ok = path_ok and anchor_ok
+    return L(location, text, is_external, href, path_ok, anchor_ok, anchor, ok)
+
+def links_data(container, book_locale):
+    anchor_map = {}
+    links = []
+    anchor_pat = XPath('//*[@id or @name]')
+    link_pat = XPath('//h:a[@href]')
+    for name, mt in container.mime_map.iteritems():
+        if mt in OEB_DOCS:
+            root = container.parsed(name)
+            anchor_map[name] = create_anchor_map(root, anchor_pat, name)
+            for a in link_pat(root):
+                href = a.get('href')
+                text = description_for_anchor(a)
+                if href:
+                    base, frag = href.partition('#')[0::2]
+                    if frag and not base:
+                        dest = name
+                    else:
+                        dest = safe_href_to_name(container, href, name)
+                    location = LinkLocation(name, a.sourceline, href)
+                    links.append((base, frag, dest, location, text))
+                else:
+                    links.append(('', '', None, location, text))
+
+    for base, frag, dest, location, text in links:
+        if dest is None:
+            link = Link(location, text, True, base, True, True, Anchor(frag, None, None))
+        else:
+            if dest in anchor_map:
+                loc = LinkLocation(dest, None, None)
+                if frag:
+                    anchor = anchor_map[dest].get(frag)
+                    if anchor is None:
+                        link = Link(location, text, False, dest, True, False, Anchor(frag, loc, None))
+                    else:
+                        link = Link(location, text, False, dest, True, True, Anchor(frag, *anchor))
+                else:
+                    link = Link(location, text, False, dest, True, True, Anchor(None, loc, None))
+            else:
+                link = Link(location, text, False, dest, False, False, Anchor(frag, None, None))
+        yield link
 
 Word = namedtuple('Word', 'id word locale usage')
 
@@ -235,7 +319,7 @@ def css_data(container, book_locale):
 def gather_data(container, book_locale):
     timing = {}
     data = {}
-    for x in 'files chars images words css'.split():
+    for x in 'files chars images links words css'.split():
         st = time.time()
         data[x] = globals()[x + '_data'](container, book_locale)
         if isinstance(data[x], types.GeneratorType):

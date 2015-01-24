@@ -12,9 +12,9 @@ from collections import namedtuple, OrderedDict
 from PyQt5.Qt import QObject, pyqtSignal, Qt
 
 from calibre import prepare_string_for_xml
-from calibre.ebooks.oeb.base import xml2text
 from calibre.ebooks.oeb.polish.container import OEB_STYLES, OEB_FONTS, name_to_href
 from calibre.ebooks.oeb.polish.parsing import parse
+from calibre.ebooks.oeb.polish.report import description_for_anchor
 from calibre.gui2 import is_gui_thread
 from calibre.gui2.tweak_book import current_container, editors
 from calibre.gui2.tweak_book.completion.utils import control, data, DataError
@@ -90,33 +90,6 @@ def complete_names(names_data, data_conn):
     d = names_cache['descriptions'].get
     descriptions = {href:d(name) for name, href in nmap.iteritems()}
     return items, descriptions, {}
-
-
-def description_for_anchor(elem):
-    def check(x, min_len=4):
-        if x:
-            x = x.strip()
-            if len(x) >= min_len:
-                return x[:30]
-
-    desc = check(elem.get('title'))
-    if desc is not None:
-        return desc
-    desc = check(elem.text)
-    if desc is not None:
-        return desc
-    if len(elem) > 0:
-        desc = check(elem[0].text)
-        if desc is not None:
-            return desc
-    # Get full text for tags that have only a few descendants
-    for i, x in enumerate(elem.iterdescendants('*')):
-        if i > 5:
-            break
-    else:
-        desc = check(xml2text(elem), min_len=1)
-        if desc is not None:
-            return desc
 
 def create_anchor_map(root):
     ans = {}
