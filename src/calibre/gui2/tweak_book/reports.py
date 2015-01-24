@@ -298,7 +298,29 @@ class FilesWidget(QWidget):
 
 # }}}
 
-class Jump(object):  # {{{
+# Jump {{{
+
+def jump_to_location(loc):
+    from calibre.gui2.tweak_book.boss import get_boss
+    boss = get_boss()
+    if boss is None:
+        return
+    name = loc.name
+    editor = boss.edit_file_requested(name)
+    if editor is None:
+        return
+    editor = editor.editor
+    if loc.line_number is not None:
+        block = editor.document().findBlockByNumber(loc.line_number - 1)  # blockNumber() is zero based
+        if not block.isValid():
+            return
+        c = editor.textCursor()
+        c.setPosition(block.position(), c.MoveAnchor)
+        editor.setTextCursor(c)
+        if loc.text_on_line is not None:
+            editor.find(regex.compile(regex.escape(loc.text_on_line)))
+
+class Jump(object):
 
     def __init__(self):
         self.pos_map = defaultdict(lambda : -1)
@@ -309,24 +331,7 @@ class Jump(object):  # {{{
     def __call__(self, key, locations):
         self.pos_map[key] = (self.pos_map[key] + 1) % len(locations)
         loc = locations[self.pos_map[key]]
-        from calibre.gui2.tweak_book.boss import get_boss
-        boss = get_boss()
-        if boss is None:
-            return
-        name = loc.name
-        editor = boss.edit_file_requested(name)
-        if editor is None:
-            return
-        editor = editor.editor
-        if loc.line_number is not None:
-            block = editor.document().findBlockByNumber(loc.line_number - 1)  # blockNumber() is zero based
-            if not block.isValid():
-                return
-            c = editor.textCursor()
-            c.setPosition(block.position(), c.MoveAnchor)
-            editor.setTextCursor(c)
-            if loc.text_on_line is not None:
-                editor.find(regex.compile(regex.escape(loc.text_on_line)))
+        jump_to_location(loc)
 
 jump = Jump()  # }}}
 
