@@ -8,7 +8,7 @@ __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 # Imports {{{
-import os, shutil, uuid, json, glob, time, cPickle, hashlib, errno
+import os, shutil, uuid, json, glob, time, cPickle, hashlib, errno, sys
 from functools import partial
 
 import apsw
@@ -1538,7 +1538,14 @@ class DB(object):
             with lopen(path, 'wb') as f:
                 f.write(raw)
         except EnvironmentError:
-            os.makedirs(os.path.dirname(path))
+            exc_info = sys.exc_info()
+            try:
+                os.makedirs(os.path.dirname(path))
+            except EnvironmentError as err:
+                if err.errno == errno.EEXIST:
+                    # Parent directory already exists, re-raise original exception
+                    raise exc_info[0], exc_info[1], exc_info[2]
+                raise
             with lopen(path, 'wb') as f:
                 f.write(raw)
 
