@@ -228,5 +228,5 @@ class TagRelease(Command):
 
     def run(self, opts):
         self.info('Tagging release')
-        subprocess.check_call('git tag -a v{0} -m "version-{0}"'.format(__version__).split())
+        subprocess.check_call('git tag -s v{0} -m "version-{0}"'.format(__version__).split())
         subprocess.check_call('git push origin v{0}'.format(__version__).split())
