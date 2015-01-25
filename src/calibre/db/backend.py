@@ -1546,6 +1546,8 @@ class DB(object):
                     # Parent directory already exists, re-raise original exception
                     raise exc_info[0], exc_info[1], exc_info[2]
                 raise
+            finally:
+                del exc_info
             with lopen(path, 'wb') as f:
                 f.write(raw)
 
