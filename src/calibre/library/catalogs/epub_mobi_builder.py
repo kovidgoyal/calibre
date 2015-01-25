@@ -7,8 +7,8 @@ import datetime, os, platform, re, shutil, time, unicodedata, zlib
 from copy import deepcopy
 from xml.sax.saxutils import escape
 
-from calibre import (prepare_string_for_xml, strftime, force_unicode,
-        isbytestring, replace_entities)
+from calibre import (
+    prepare_string_for_xml, strftime, force_unicode, isbytestring, replace_entities, as_unicode)
 from calibre.constants import isosx, cache_dir
 from calibre.customize.conversion import DummyReporter
 from calibre.customize.ui import output_profiles
@@ -4442,8 +4442,12 @@ class CatalogBuilder(object):
 
         # Write thumb_width to the file, validating cache contents
         # Allows detection of aborted catalog builds
-        with ZipFile(self.thumbs_path, mode='a') as zfw:
-            zfw.writestr('thumb_width', self.opts.thumb_width)
+        try:
+            with ZipFile(self.thumbs_path, mode='a') as zfw:
+                zfw.writestr('thumb_width', self.opts.thumb_width)
+        except Exception as err:
+            raise ValueError('There was an error writing to the thumbnail cache: %s\n'
+                             'Try deleting it. Underlying error: %s' % (force_unicode(self.thumbs_path), as_unicode(err)))
 
         self.thumbs = thumbs
 
