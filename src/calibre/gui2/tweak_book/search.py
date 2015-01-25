@@ -1309,7 +1309,7 @@ def run_search(
                 'Currently selected text does not match the search query.'))
 
     def count_message(action, count, show_diff=False):
-        msg = _('%(action)s %(num)s occurrences of %(query)s' % dict(num=count, query=errfind, action=action))
+        msg = _('%(action)s %(num)s occurrences of %(query)s') % dict(num=count, query=errfind, action=action)
         if show_diff and count > 0:
             d = MessageBox(MessageBox.INFO, _('Searching done'), prepare_string_for_xml(msg), parent=gui_parent, show_copy_button=False)
             d.diffb = b = d.bb.addButton(_('See what &changed'), d.bb.ActionRole)
