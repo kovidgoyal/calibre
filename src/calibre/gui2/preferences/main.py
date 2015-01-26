@@ -208,6 +208,7 @@ class Preferences(QDialog):
         self.wizard_button.setIcon(QIcon(I('wizard.png')))
         self.wizard_button.clicked.connect(self.run_wizard,
                 type=Qt.QueuedConnection)
+        self.wizard_button.setAutoDefault(False)
         self.bb.button(self.bb.Close).setDefault(True)
         self.bb.rejected.connect(self.reject, type=Qt.QueuedConnection)
         self.browser = Browser(self)
@@ -252,6 +253,7 @@ class Preferences(QDialog):
             if plugin is not None:
                 self.show_plugin(plugin)
 
+        self.bb.button(self.bb.Close).setFocus(Qt.OtherFocusReason)
         l.addWidget(self.bar), l.addWidget(self.stack), l.addWidget(self.bb), l.addWidget(self.status_bar)
 
     def event(self, ev):
@@ -390,7 +392,9 @@ class Preferences(QDialog):
         QDialog.reject(self)
 
 if __name__ == '__main__':
+    from calibre.gui_launch import init_dbus
     from calibre.gui2 import Application
+    init_dbus()
     app = Application([])
     app
     gui = init_gui()
