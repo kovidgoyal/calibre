@@ -9,10 +9,10 @@ import textwrap, re
 from functools import partial
 from collections import OrderedDict
 
-from PyQt5.Qt import (QMainWindow, Qt, QIcon, QStatusBar, QFont, QWidget,
-        QScrollArea, QStackedWidget, QVBoxLayout, QLabel, QFrame, QKeySequence,
-        QToolBar, QSize, pyqtSignal, QPixmap, QToolButton, QAction,
-        QDialogButtonBox, QHBoxLayout, QStatusTipEvent)
+from PyQt5.Qt import (
+    Qt, QIcon, QStatusBar, QFont, QWidget, QScrollArea, QStackedWidget,
+    QVBoxLayout, QLabel, QFrame, QKeySequence, QToolBar, QSize, pyqtSignal,
+    QPixmap, QToolButton, QAction, QDialogButtonBox, QHBoxLayout, QDialog)
 
 from calibre.constants import __appname__, __version__, islinux
 from calibre.gui2 import (gprefs, min_available_height, available_width,
@@ -161,12 +161,12 @@ class Browser(QScrollArea):  # {{{
 
 # }}}
 
-class Preferences(QMainWindow):
+class Preferences(QDialog):
 
     run_wizard_requested = pyqtSignal()
 
     def __init__(self, gui, initial_plugin=None, close_after_initial=False):
-        QMainWindow.__init__(self, gui)
+        QDialog.__init__(self, gui)
         self.gui = gui
         self.must_restart = False
         self.committed = False
@@ -186,7 +186,7 @@ class Preferences(QMainWindow):
         self.esc_action.setShortcut(QKeySequence(Qt.Key_Escape))
         self.esc_action.triggered.connect(self.esc)
 
-        geom = gprefs.get('preferences_window_geometry', None)
+        geom = gprefs.get('preferences dialog geometry', None)
         if geom is not None:
             self.restoreGeometry(geom)
 
@@ -194,27 +194,22 @@ class Preferences(QMainWindow):
         if islinux:
             self.move(gui.rect().center() - self.rect().center())
 
-        self.setWindowModality(Qt.WindowModal)
+        self.setWindowModality(Qt.ApplicationModal)
         self.setWindowTitle(__appname__ + ' - ' + _('Preferences'))
         self.setWindowIcon(QIcon(I('config.png')))
+        self.l = l = QVBoxLayout(self)
 
         self.status_bar = StatusBar(self)
-        self.setStatusBar(self.status_bar)
 
         self.stack = QStackedWidget(self)
-        self.cw = QWidget(self)
-        self.cw.setLayout(QVBoxLayout())
-        self.cw.layout().addWidget(self.stack)
         self.bb = QDialogButtonBox(QDialogButtonBox.Close)
         self.wizard_button = self.bb.addButton(_('Run welcome wizard'),
                 self.bb.ActionRole)
         self.wizard_button.setIcon(QIcon(I('wizard.png')))
         self.wizard_button.clicked.connect(self.run_wizard,
                 type=Qt.QueuedConnection)
-        self.cw.layout().addWidget(self.bb)
         self.bb.button(self.bb.Close).setDefault(True)
-        self.bb.rejected.connect(self.close, type=Qt.QueuedConnection)
-        self.setCentralWidget(self.cw)
+        self.bb.rejected.connect(self.reject, type=Qt.QueuedConnection)
         self.browser = Browser(self)
         self.browser.show_plugin.connect(self.show_plugin)
         self.stack.addWidget(self.browser)
@@ -224,7 +219,6 @@ class Preferences(QMainWindow):
 
         self.setContextMenuPolicy(Qt.NoContextMenu)
         self.bar = QToolBar(self)
-        self.addToolBar(self.bar)
         self.bar.setVisible(False)
         self.bar.setIconSize(QSize(ICON_SIZE, ICON_SIZE))
         self.bar.setMovable(False)
@@ -258,15 +252,20 @@ class Preferences(QMainWindow):
             if plugin is not None:
                 self.show_plugin(plugin)
 
+        l.addWidget(self.bar), l.addWidget(self.stack), l.addWidget(self.bb), l.addWidget(self.status_bar)
+
     def event(self, ev):
         if ev.type() == ev.StatusTip:
             msg = re.sub(r'</?[a-z1-6]+>', ' ', ev.tip())
-            ev = QStatusTipEvent(msg)
-        return QMainWindow.event(self, ev)
+            if msg:
+                self.status_bar.showMessage(msg, 0)
+            else:
+                self.status_bar.clearMessage()
+        return QDialog.event(self, ev)
 
     def run_wizard(self):
-        self.close()
         self.run_wizard_requested.emit()
+        self.accept()
 
     def set_tooltips_for_labels(self):
 
@@ -325,7 +324,7 @@ class Preferences(QMainWindow):
         if self.stack.currentIndex() == 1:
             self.cancel()
         elif self.stack.currentIndex() == 0:
-            self.close()
+            self.reject()
 
     def restart_now(self):
         try:
@@ -333,7 +332,7 @@ class Preferences(QMainWindow):
         except AbortCommit:
             return
         self.hide_plugin()
-        self.close()
+        self.accept()
         self.gui.quit(restart=True)
 
     def commit(self, *args):
@@ -358,22 +357,21 @@ class Preferences(QMainWindow):
         self.showing_widget.refresh_gui(self.gui)
         self.hide_plugin()
         if self.close_after_initial or (must_restart and rc) or do_restart:
-            self.close()
+            self.accept()
         if do_restart:
             self.gui.quit(restart=True)
 
     def cancel(self, *args):
         if self.close_after_initial:
-            self.close()
+            self.accept()
         else:
             self.hide_plugin()
 
     def restore_defaults(self, *args):
         self.showing_widget.restore_defaults()
 
-    def closeEvent(self, *args):
-        gprefs.set('preferences_window_geometry',
-                bytearray(self.saveGeometry()))
+    def on_shutdown(self):
+        gprefs.set('preferences dialog geometry', bytearray(self.saveGeometry()))
         if self.committed:
             self.gui.must_restart_before_config = self.must_restart
             self.gui.tags_view.recount()
@@ -383,7 +381,13 @@ class Preferences(QMainWindow):
             self.gui.bars_manager.update_bars()
             self.gui.build_context_menus()
 
-        return QMainWindow.closeEvent(self, *args)
+    def accept(self):
+        self.on_shutdown()
+        QDialog.accept(self)
+
+    def reject(self):
+        self.on_shutdown()
+        QDialog.reject(self)
 
 if __name__ == '__main__':
     from calibre.gui2 import Application
@@ -392,7 +396,6 @@ if __name__ == '__main__':
     gui = init_gui()
 
     p = Preferences(gui)
-    p.show()
-    app.exec_()
+    p.exec_()
     gui.shutdown()
 

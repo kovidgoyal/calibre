@@ -62,9 +62,9 @@ class PreferencesAction(InterfaceAction):
             return
         d = Preferences(self.gui, initial_plugin=initial_plugin,
                 close_after_initial=close_after_initial)
-        d.show()
         d.run_wizard_requested.connect(self.gui.run_wizard,
                 type=Qt.QueuedConnection)
+        d.exec_()
 
     def debug_restart(self, *args):
         self.gui.quit(restart=True, debug_on_restart=True)
