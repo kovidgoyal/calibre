@@ -10,9 +10,9 @@ from functools import partial
 from collections import OrderedDict
 
 from PyQt5.Qt import (
-    Qt, QIcon, QStatusBar, QFont, QWidget, QScrollArea, QStackedWidget,
-    QVBoxLayout, QLabel, QFrame, QKeySequence, QToolBar, QSize, pyqtSignal,
-    QPixmap, QToolButton, QAction, QDialogButtonBox, QHBoxLayout, QDialog)
+    Qt, QIcon, QFont, QWidget, QScrollArea, QStackedWidget, QVBoxLayout,
+    QLabel, QFrame, QToolBar, QSize, pyqtSignal, QPixmap, QDialogButtonBox,
+    QHBoxLayout, QDialog, QSizePolicy, QPainter, QTextLayout, QPointF)
 
 from calibre.constants import __appname__, __version__, islinux
 from calibre.gui2 import (gprefs, min_available_height, available_width,
@@ -22,48 +22,79 @@ from calibre.customize.ui import preferences_plugins
 
 ICON_SIZE = 32
 
-class StatusBar(QStatusBar):  # {{{
+# Title Bar {{{
+class Message(QWidget):
 
-    def __init__(self, parent=None):
-        QStatusBar.__init__(self, parent)
-        self.default_message = __appname__ + ' ' + _('version') + ' ' + \
-                __version__ + ' ' + _('created by Kovid Goyal')
-        self.device_string = ''
-        self._font = QFont()
-        self._font.setBold(True)
-        self.setFont(self._font)
+    def __init__(self, parent):
+        QWidget.__init__(self, parent)
+        self.layout = QTextLayout()
+        self.layout.setFont(self.font())
+        self.layout.setCacheEnabled(True)
+        self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
+        self.last_layout_rect = None
 
-        self.w = QLabel(self.default_message)
-        self.w.setFont(self._font)
-        self.addWidget(self.w)
+    def setText(self, text):
+        self.layout.setText(text)
+        self.last_layout_rect = None
+        self.update()
 
-# }}}
+    def sizeHint(self):
+        return QSize(10, 10)
 
-class BarTitle(QWidget):  # {{{
+    def do_layout(self):
+        ly = self.layout
+        ly.beginLayout()
+        w = self.width() - 5
+        height = 0
+        leading = self.fontMetrics().leading()
+        while True:
+            line = ly.createLine()
+            if not line.isValid():
+                break
+            line.setLineWidth(w)
+            height += leading
+            line.setPosition(QPointF(5, height))
+            height += line.height()
+        ly.endLayout()
+
+    def paintEvent(self, ev):
+        if self.last_layout_rect != self.rect():
+            self.do_layout()
+        p = QPainter(self)
+        br = self.layout.boundingRect()
+        y = 0
+        if br.height() < self.height():
+            y = (self.height() - br.height()) / 2
+        self.layout.draw(p, QPointF(0, y))
+
+class TitleBar(QWidget):
 
     def __init__(self, parent=None):
         QWidget.__init__(self, parent)
-        self._layout = QHBoxLayout()
-        self.setLayout(self._layout)
-        self._layout.addStretch(10)
-        self.icon = QLabel('')
-        self._layout.addWidget(self.icon)
+        self.l = l = QHBoxLayout(self)
+        self.icon = i = QLabel('')
+        i.setScaledContents(True)
+        l.addWidget(i), i.setFixedSize(QSize(ICON_SIZE, ICON_SIZE))
         self.title = QLabel('')
-        self.title.setStyleSheet('QLabel { font-weight: bold }')
-        self.title.setAlignment(Qt.AlignLeft | Qt.AlignCenter)
-        self._layout.addWidget(self.title)
-        self._layout.addStretch(10)
+        self.title.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
+        l.addWidget(self.title)
+        l.addStrut(25)
+        self.msg = la = Message(self)
+        l.addWidget(la)
+        self.default_message = __appname__ + ' ' + _('version') + ' ' + \
+                __version__ + ' ' + _('created by Kovid Goyal')
+        self.show_plugin()
+        self.show_msg()
 
-    def show_plugin(self, plugin):
-        self.pmap = QPixmap(plugin.icon).scaled(ICON_SIZE, ICON_SIZE,
+    def show_plugin(self, plugin=None):
+        self.pmap = QPixmap(I('lt.png') if plugin is None else plugin.icon).scaled(ICON_SIZE, ICON_SIZE,
                 Qt.KeepAspectRatio, Qt.SmoothTransformation)
         self.icon.setPixmap(self.pmap)
-        self.title.setText(plugin.gui_name)
-        tt = plugin.description
-        self.setStatusTip(tt)
-        tt = textwrap.fill(tt)
-        self.setToolTip(tt)
-        self.setWhatsThis(tt)
+        self.title.setText('<h1>' + (_('Preferences') if plugin is None else plugin.gui_name))
+
+    def show_msg(self, msg=None):
+        msg = msg or self.default_message
+        self.msg.setText(' '.join(msg.splitlines()).strip())
 
 # }}}
 
@@ -169,6 +200,7 @@ class Preferences(QDialog):
         QDialog.__init__(self, gui)
         self.gui = gui
         self.must_restart = False
+        self.do_restart = False
         self.committed = False
         self.close_after_initial = close_after_initial
 
@@ -181,10 +213,6 @@ class Preferences(QDialog):
         nh = min(self.height(), nh)
         nw = min(self.width(), nw)
         self.resize(nw, nh)
-        self.esc_action = QAction(self)
-        self.addAction(self.esc_action)
-        self.esc_action.setShortcut(QKeySequence(Qt.Key_Escape))
-        self.esc_action.triggered.connect(self.esc)
 
         geom = gprefs.get('preferences dialog geometry', None)
         if geom is not None:
@@ -199,18 +227,17 @@ class Preferences(QDialog):
         self.setWindowIcon(QIcon(I('config.png')))
         self.l = l = QVBoxLayout(self)
 
-        self.status_bar = StatusBar(self)
-
         self.stack = QStackedWidget(self)
-        self.bb = QDialogButtonBox(QDialogButtonBox.Close)
-        self.wizard_button = self.bb.addButton(_('Run welcome wizard'),
-                self.bb.ActionRole)
+        self.bb = QDialogButtonBox(QDialogButtonBox.Close | QDialogButtonBox.Apply | QDialogButtonBox.Discard | QDialogButtonBox.RestoreDefaults)
+        self.bb.button(self.bb.Apply).clicked.connect(self.accept)
+        self.bb.button(self.bb.Discard).clicked.connect(self.reject)
+        self.bb.button(self.bb.RestoreDefaults).setIcon(QIcon(I('clear_left.png')))
+        self.bb.button(self.bb.RestoreDefaults).clicked.connect(self.restore_defaults)
+        self.wizard_button = self.bb.addButton(_('Run welcome wizard'), self.bb.ActionRole)
         self.wizard_button.setIcon(QIcon(I('wizard.png')))
-        self.wizard_button.clicked.connect(self.run_wizard,
-                type=Qt.QueuedConnection)
+        self.wizard_button.clicked.connect(self.run_wizard, type=Qt.QueuedConnection)
         self.wizard_button.setAutoDefault(False)
-        self.bb.button(self.bb.Close).setDefault(True)
-        self.bb.rejected.connect(self.reject, type=Qt.QueuedConnection)
+        self.bb.rejected.connect(self.reject)
         self.browser = Browser(self)
         self.browser.show_plugin.connect(self.show_plugin)
         self.stack.addWidget(self.browser)
@@ -219,50 +246,25 @@ class Preferences(QDialog):
         self.scroll_area.setWidgetResizable(True)
 
         self.setContextMenuPolicy(Qt.NoContextMenu)
-        self.bar = QToolBar(self)
-        self.bar.setVisible(False)
-        self.bar.setIconSize(QSize(ICON_SIZE, ICON_SIZE))
-        self.bar.setMovable(False)
-        self.bar.setFloatable(False)
-        self.bar.setToolButtonStyle(Qt.ToolButtonTextBesideIcon)
-        self.apply_action = self.bar.addAction(QIcon(I('ok.png')), _('&Apply'),
-                self.commit)
-        self.cancel_action = self.bar.addAction(QIcon(I('window-close.png')),
-                _('&Cancel'),                self.cancel)
-        self.bar_title = BarTitle(self.bar)
-        self.bar.addWidget(self.bar_title)
-        self.restore_action = self.bar.addAction(QIcon(I('clear_left.png')),
-                _('Restore &defaults'), self.restore_defaults)
-        for ac, tt in [('apply', _('Save changes')),
-                ('cancel', _('Cancel and return to overview'))]:
-            ac = getattr(self, ac+'_action')
-            ac.setToolTip(tt)
-            ac.setWhatsThis(tt)
-            ac.setStatusTip(tt)
+        self.title_bar = TitleBar(self)
+        for ac, tt in [(self.bb.Apply, _('Save changes')),
+                (self.bb.Discard, _('Cancel and return to overview'))]:
+            self.bb.button(ac).setToolTip(tt)
 
-        for ch in self.bar.children():
-            if isinstance(ch, QToolButton):
-                ch.setCursor(Qt.PointingHandCursor)
-                ch.setAutoRaise(True)
-
-        self.stack.setCurrentIndex(0)
+        l.addWidget(self.title_bar), l.addWidget(self.stack), l.addWidget(self.bb)
 
         if initial_plugin is not None:
             category, name = initial_plugin
             plugin = get_plugin(category, name)
             if plugin is not None:
                 self.show_plugin(plugin)
-
-        self.bb.button(self.bb.Close).setFocus(Qt.OtherFocusReason)
-        l.addWidget(self.bar), l.addWidget(self.stack), l.addWidget(self.bb), l.addWidget(self.status_bar)
+        else:
+            self.hide_plugin()
 
     def event(self, ev):
         if ev.type() == ev.StatusTip:
             msg = re.sub(r'</?[a-z1-6]+>', ' ', ev.tip())
-            if msg:
-                self.status_bar.showMessage(msg, 0)
-            else:
-                self.status_bar.clearMessage()
+            self.title_bar.show_msg(msg)
         return QDialog.event(self, ev)
 
     def run_wizard(self):
@@ -296,52 +298,60 @@ class Preferences(QDialog):
         self.showing_widget.show()
         self.setWindowTitle(__appname__ + ' - ' + _('Preferences') + ' - ' +
                 plugin.gui_name)
-        self.apply_action.setEnabled(False)
-        self.showing_widget.changed_signal.connect(lambda :
-                self.apply_action.setEnabled(True))
         self.showing_widget.restart_now.connect(self.restart_now)
-        self.restore_action.setEnabled(self.showing_widget.supports_restoring_to_defaults)
-        tt = self.showing_widget.restore_defaults_desc
-        if not self.restore_action.isEnabled():
-            tt = _('Restoring to defaults not supported for') + ' ' + \
-                plugin.gui_name
-        self.restore_action.setToolTip(textwrap.fill(tt))
-        self.restore_action.setWhatsThis(textwrap.fill(tt))
-        self.restore_action.setStatusTip(tt)
-        self.bar_title.show_plugin(plugin)
+        self.title_bar.show_plugin(plugin)
         self.setWindowIcon(QIcon(plugin.icon))
-        self.bar.setVisible(True)
-        self.bb.setVisible(False)
+
+        self.bb.button(self.bb.Close).setVisible(False)
+        self.wizard_button.setVisible(False)
+        for button in (self.bb.Apply, self.bb.RestoreDefaults, self.bb.Discard):
+            button = self.bb.button(button)
+            button.setVisible(True)
+
+        self.bb.button(self.bb.Apply).setEnabled(False)
+        self.bb.button(self.bb.Apply).setDefault(False), self.bb.button(self.bb.Apply).setDefault(True)
+        self.bb.button(self.bb.RestoreDefaults).setEnabled(self.showing_widget.supports_restoring_to_defaults)
+        self.bb.button(self.bb.RestoreDefaults).setToolTip(
+            self.showing_widget.restore_defaults_desc if self.showing_widget.supports_restoring_to_defaults else
+            (_('Restoring to defaults not supported for') + ' ' + plugin.gui_name))
+        self.showing_widget.changed_signal.connect(self.changed_signal)
+
+    def changed_signal(self):
+        b = self.bb.button(self.bb.Apply)
+        b.setEnabled(True)
 
     def hide_plugin(self):
+        for sig in 'changed_signal restart_now'.split():
+            try:
+                getattr(self.showing_widget, sig).disconnect(getattr(self, sig))
+            except Exception:
+                pass
         self.showing_widget = QWidget(self.scroll_area)
         self.scroll_area.setWidget(self.showing_widget)
         self.setWindowTitle(__appname__ + ' - ' + _('Preferences'))
-        self.bar.setVisible(False)
         self.stack.setCurrentIndex(0)
+        self.title_bar.show_plugin()
         self.setWindowIcon(QIcon(I('config.png')))
-        self.bb.setVisible(True)
 
-    def esc(self, *args):
-        if self.stack.currentIndex() == 1:
-            self.cancel()
-        elif self.stack.currentIndex() == 0:
-            self.reject()
+        for button in (self.bb.Apply, self.bb.RestoreDefaults, self.bb.Discard):
+            button = self.bb.button(button)
+            button.setVisible(False)
+
+        self.bb.button(self.bb.Close).setVisible(True)
+        self.bb.button(self.bb.Close).setDefault(False), self.bb.button(self.bb.Close).setDefault(True)
+        self.wizard_button.setVisible(True)
 
     def restart_now(self):
         try:
             self.showing_widget.commit()
         except AbortCommit:
             return
+        self.do_restart = True
         self.hide_plugin()
         self.accept()
-        self.gui.quit(restart=True)
 
     def commit(self, *args):
-        try:
-            must_restart = self.showing_widget.commit()
-        except AbortCommit:
-            return
+        must_restart = self.showing_widget.commit()
         rc = self.showing_widget.restart_critical
         self.committed = True
         do_restart = False
@@ -357,17 +367,9 @@ class Preferences(QDialog):
             do_restart = show_restart_warning(msg, parent=self)
 
         self.showing_widget.refresh_gui(self.gui)
-        self.hide_plugin()
-        if self.close_after_initial or (must_restart and rc) or do_restart:
-            self.accept()
         if do_restart:
-            self.gui.quit(restart=True)
-
-    def cancel(self, *args):
-        if self.close_after_initial:
-            self.accept()
-        else:
-            self.hide_plugin()
+            self.do_restart = True
+        return self.close_after_initial or (must_restart and rc) or do_restart
 
     def restore_defaults(self, *args):
         self.showing_widget.restore_defaults()
@@ -384,12 +386,23 @@ class Preferences(QDialog):
             self.gui.build_context_menus()
 
     def accept(self):
-        self.on_shutdown()
-        QDialog.accept(self)
+        if self.stack.currentIndex() == 0:
+            self.on_shutdown()
+            return QDialog.accept(self)
+        try:
+            close = self.commit()
+        except AbortCommit:
+            return
+        if close:
+            self.on_shutdown()
+            return QDialog.accept(self)
+        self.hide_plugin()
 
     def reject(self):
-        self.on_shutdown()
-        QDialog.reject(self)
+        if self.stack.currentIndex() == 0 or self.close_after_initial:
+            self.on_shutdown()
+            return QDialog.reject(self)
+        self.hide_plugin()
 
 if __name__ == '__main__':
     from calibre.gui_launch import init_dbus
