@@ -55,7 +55,7 @@ def safe_img_data(container, name, mt):
         width = height = 0
     return width, height
 
-def files_data(container, book_locale):
+def files_data(container, *args):
     for name, path in container.name_path_map.iteritems():
         yield File(name, posixpath.dirname(name), posixpath.basename(name), safe_size(container, name),
                    get_category(name, container.mime_map.get(name, '')))
@@ -76,7 +76,7 @@ def safe_href_to_name(container, href, base):
     except ValueError:
         pass  # Absolute path on windows
 
-def images_data(container, book_locale):
+def images_data(container, *args):
     image_usage = defaultdict(set)
     link_sources = OEB_STYLES | OEB_DOCS
     for name, mt in container.mime_map.iteritems():
@@ -138,7 +138,7 @@ def Link(location, text, is_external, href, path_ok, anchor_ok, anchor):
         ok = path_ok and anchor_ok
     return L(location, text, is_external, href, path_ok, anchor_ok, anchor, ok)
 
-def links_data(container, book_locale):
+def links_data(container, *args):
     anchor_map = {}
     links = []
     anchor_pat = XPath('//*[@id or @name]')
@@ -181,13 +181,13 @@ def links_data(container, book_locale):
 
 Word = namedtuple('Word', 'id word locale usage')
 
-def words_data(container, book_locale):
+def words_data(container, book_locale, *args):
     count, words = get_all_words(container, book_locale, get_word_count=True)
     return (count, tuple(Word(i, word, locale, v) for i, ((word, locale), v) in enumerate(words.iteritems())))
 
 Char = namedtuple('Char', 'id char codepoint usage count')
 
-def chars_data(container, book_locale):
+def chars_data(container, *args):
     chars = defaultdict(set)
     counter = Counter()
     def count(codepoint):
@@ -216,7 +216,11 @@ MatchLocation = namedtuple('MatchLocation', 'tag sourceline')
 CSSEntry = namedtuple('CSSEntry', 'rule count matched_files sort_key')
 CSSFileMatch = namedtuple('CSSFileMatch', 'file_name locations sort_key')
 
-def css_data(container, book_locale):
+ClassEntry = namedtuple('ClassEntry', 'cls num_of_matches matched_files sort_key')
+ClassFileMatch = namedtuple('ClassFileMatch', 'file_name class_elements sort_key')
+ClassElement = namedtuple('ClassElement', 'name line_number text_on_line tag matched_rules')
+
+def css_data(container, book_locale, result_data, *args):
     import tinycss
     from tinycss.css21 import RuleSet, ImportRule
 
@@ -271,14 +275,17 @@ def css_data(container, book_locale):
             if sheet is not None:
                 yield sheet
 
+    tt_cache = {}
     def tag_text(elem):
-        tag = elem.tag.rpartition('}')[-1]
-        if elem.attrib:
-            attribs = ' '.join('%s="%s"' % (k, prepare_string_for_xml(elem.get(k, ''), True)) for k in elem.keys())
-            return '<%s %s>' % (tag, attribs)
-        return '<%s>' % tag
+        ans = tt_cache.get(elem)
+        if ans is None:
+            tag = elem.tag.rpartition('}')[-1]
+            if elem.attrib:
+                attribs = ' '.join('%s="%s"' % (k, prepare_string_for_xml(elem.get(k, ''), True)) for k in elem.keys())
+                return '<%s %s>' % (tag, attribs)
+            ans = tt_cache[elem] = '<%s>' % tag
 
-    def matches_for_selector(selector, root):
+    def matches_for_selector(selector, root, class_map, rule):
         selector = pseudo_pat.sub('', selector)
         selector = MIN_SPACE_RE.sub(r'\1', selector)
         try:
@@ -299,13 +306,36 @@ def css_data(container, book_locale):
                 matches = xp(root)
             except Exception:
                 return ()
+        lsel = selector.lower()
+        for elem in matches:
+            for cls in elem.get('class', '').split():
+                if '.' + cls.lower() in lsel:
+                    class_map[cls][elem].append(rule)
+
         return (MatchLocation(tag_text(elem), elem.sourceline) for elem in matches)
+
+    class_map = defaultdict(lambda : defaultdict(list))
 
     for name, inline_sheets in html_sheets.iteritems():
         root = container.parsed(name)
+        cmap = defaultdict(lambda : defaultdict(list))
+        for elem in root.xpath('//*[@class]'):
+            for cls in elem.get('class', '').split():
+                cmap[cls][elem] = []
         for sheet in chain(sheets_for_html(name, root), inline_sheets):
             for rule in rules_in_sheet(sheet):
-                rule_map[rule][name].extend(matches_for_selector(rule.selector, root))
+                rule_map[rule][name].extend(matches_for_selector(rule.selector, root, cmap, rule))
+        for cls, elem_map in cmap.iteritems():
+            class_elements = class_map[cls][name]
+            for elem, usage in elem_map.iteritems():
+                class_elements.append(
+                    ClassElement(name, elem.sourceline, elem.get('class'), tag_text(elem), tuple(usage)))
+
+    result_data['classes'] = ans = []
+    for cls, name_map in class_map.iteritems():
+        la = tuple(ClassFileMatch(name, tuple(class_elements), numeric_sort_key(name)) for name, class_elements in name_map.iteritems() if class_elements)
+        num_of_matches = sum(sum(len(ce.matched_rules) for ce in cfm.class_elements) for cfm in la)
+        ans.append(ClassEntry(cls, num_of_matches, la, numeric_sort_key(cls)))
 
     ans = []
     for rule, loc_map in rule_map.iteritems():
@@ -321,7 +351,7 @@ def gather_data(container, book_locale):
     data = {}
     for x in 'files chars images links words css'.split():
         st = time.time()
-        data[x] = globals()[x + '_data'](container, book_locale)
+        data[x] = globals()[x + '_data'](container, book_locale, data)
         if isinstance(data[x], types.GeneratorType):
             data[x] = tuple(data[x])
         timing[x] = time.time() - st

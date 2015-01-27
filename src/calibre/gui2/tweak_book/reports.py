@@ -26,7 +26,9 @@ from PyQt5.Qt import (
 
 from calibre import human_readable, fit_image
 from calibre.constants import DEBUG
-from calibre.ebooks.oeb.polish.report import gather_data, CSSEntry, CSSFileMatch, MatchLocation
+from calibre.ebooks.oeb.polish.report import (
+    gather_data, CSSEntry, CSSFileMatch, MatchLocation, ClassEntry,
+    ClassFileMatch, ClassElement, CSSRule, LinkLocation)
 from calibre.gui2 import error_dialog, question_dialog, choose_save_file, open_url
 from calibre.gui2.tweak_book import current_container, tprefs, dictionaries
 from calibre.gui2.tweak_book.widgets import Dialog
@@ -902,9 +904,8 @@ class CSSRulesModel(QAbstractItemModel):
         if not parent.isValid():
             return len(self.rules)
         entry = self.index_to_entry(parent)
-        if isinstance(entry, (CSSEntry, CSSFileMatch)):
-            return len(self.to_container(entry))
-        return 0
+        c = self.to_container(entry)
+        return 0 if c is entry else len(c)
 
     def columnCount(self, parent=ROOT):
         return 1
@@ -968,6 +969,16 @@ class CSSProxyModel(QSortFilterProxyModel):
 
 class CSSWidget(QWidget):
 
+    SETTING_PREFIX = 'css-'
+    MODEL = CSSRulesModel
+    PROXY = CSSProxyModel
+
+    def read_state(self, name, default=None):
+        return read_state(self.SETTING_PREFIX+name, default)
+
+    def save_state(self, name, val):
+        return save_state(self.SETTING_PREFIX + name, val)
+
     def __init__(self, parent=None):
         QWidget.__init__(self, parent)
         self.l = l = QVBoxLayout(self)
@@ -976,8 +987,8 @@ class CSSWidget(QWidget):
         self.filter_edit = e = QLineEdit(self)
         l.addWidget(e)
         e.setPlaceholderText(_('Filter'))
-        self.model = m = CSSRulesModel(self)
-        self.proxy = p = CSSProxyModel(self)
+        self.model = m = self.MODEL(self)
+        self.proxy = p = self.PROXY(self)
         p.setSourceModel(m)
         self.view = f = QTreeView(self)
         f.setAlternatingRowColors(True)
@@ -990,16 +1001,16 @@ class CSSWidget(QWidget):
         l.addLayout(h)
         h.addWidget(QLabel(_('Sort by:')))
         self.counts_button = b = QRadioButton(_('&Counts'), self)
-        b.setChecked(read_state('css-sort-on-counts', True))
+        b.setChecked(self.read_state('sort-on-counts', True))
         h.addWidget(b)
         self.name_button = b = QRadioButton(_('&Name'), self)
-        b.setChecked(not read_state('css-sort-on-counts', True))
+        b.setChecked(not self.read_state('sort-on-counts', True))
         h.addWidget(b)
         b.toggled.connect(self.resort)
         h.addStrut(20)
         self._sort_order = o = QComboBox(self)
         o.addItems([_('Ascending'), _('Descending')])
-        o.setCurrentIndex(0 if read_state('css-sort-ascending', True) else 1)
+        o.setCurrentIndex(0 if self.read_state('sort-ascending', True) else 1)
         o.setEditable(False)
         o.currentIndexChanged[int].connect(self.resort)
         h.addWidget(o)
@@ -1015,15 +1026,18 @@ class CSSWidget(QWidget):
             self._sort_order.setCurrentIndex({Qt.AscendingOrder:0}.get(val, 1))
         return property(fget=fget, fset=fset)
 
+    def update_summary(self):
+        self.summary.setText(_('{0} rules, {1} unused').format(self.model.rowCount(), self.model.num_unused))
+
     def __call__(self, data):
         self.model(data)
-        self.summary.setText(_('{0} rules, {1} unused').format(self.model.rowCount(), self.model.num_unused))
+        self.update_summary()
         self.filter_edit.clear()
         self.resort()
 
     def save(self):
-        save_state('css-sort-on-counts', self.counts_button.isChecked())
-        save_state('css-sort-ascending', self.sort_order == Qt.AscendingOrder)
+        self.save_state('sort-on-counts', self.counts_button.isChecked())
+        self.save_state('sort-ascending', self.sort_order == Qt.AscendingOrder)
 
     def resort(self, *args):
         self.model.sort_on_count = self.counts_button.isChecked()
@@ -1048,6 +1062,9 @@ class CSSWidget(QWidget):
         entry = self.model.index_to_entry(index)
         if entry is None:
             return
+        self.handle_double_click(entry, index, boss)
+
+    def handle_double_click(self, entry, index, boss):
         if isinstance(entry, CSSEntry):
             loc = entry.rule.location
             name, sourceline, col = loc
@@ -1056,6 +1073,9 @@ class CSSWidget(QWidget):
         else:
             name = self.model.index_to_entry(index.parent()).file_name
             sourceline = entry.sourceline
+        self.show_line(name, sourceline, boss)
+
+    def show_line(self, name, sourceline, boss):
         editor = boss.edit_file_requested(name)
         if editor is None:
             return
@@ -1065,6 +1085,138 @@ class CSSWidget(QWidget):
         c.setPosition(block.position() if block.isValid() else 0)
         editor.setTextCursor(c)
         boss.show_editor(name)
+
+# }}}
+
+# Classes {{{
+
+class ClassesModel(CSSRulesModel):
+
+    def __init__(self, parent):
+        self.classes = self.rules = ()
+        CSSRulesModel.__init__(self, parent)
+        self.sort_on_count = True
+        self.num_size = 1
+        self.num_unused = 0
+        self.build_maps()
+
+    def build_maps(self):
+        self.parent_map = pm = {}
+        for i, entry in enumerate(self.classes):
+            container = entry.matched_files
+            pm[container] = (i, self.classes)
+
+            for i, child in enumerate(container):
+                gcontainer = child.class_elements
+                pm[gcontainer] = (i, container)
+
+                for i, gc in enumerate(gcontainer):
+                    ggcontainer = gc.matched_rules
+                    pm[gc] = (i, gcontainer)
+
+                    for i, ggc in enumerate(ggcontainer):
+                        pm[ggc] = (i, ggcontainer)
+
+    def to_container(self, entry):
+        if isinstance(entry, ClassEntry):
+            return entry.matched_files
+        elif isinstance(entry, ClassFileMatch):
+            return entry.class_elements
+        elif isinstance(entry, ClassElement):
+            return entry.matched_rules
+        return entry
+
+    def data(self, index, role=Qt.DisplayRole):
+        if role == SORT_ROLE:
+            entry = self.index_to_entry(index)
+            if isinstance(entry, ClassEntry):
+                return entry.num_of_matches if self.sort_on_count else entry.sort_key
+            if isinstance(entry, ClassFileMatch):
+                return len(entry.class_elements) if self.sort_on_count else entry.sort_key
+            if isinstance(entry, ClassElement):
+                return entry.line_number
+            if isinstance(entry, CSSRule):
+                return entry.location.file_name
+        elif role == Qt.DisplayRole:
+            entry = self.index_to_entry(index)
+            if isinstance(entry, ClassEntry):
+                return '[%{}d] %s'.format(self.num_size) % (entry.num_of_matches, entry.cls)
+            elif isinstance(entry, ClassFileMatch):
+                return _('%s [%d elements]') % (entry.file_name, len(entry.class_elements))
+            elif isinstance(entry, ClassElement):
+                return '%s @ %s' % (entry.tag, entry.line_number)
+            elif isinstance(entry, CSSRule):
+                return '%s @ %s:%s' % (entry.selector, entry.location.file_name, entry.location.line)
+        elif role == Qt.UserRole:
+            return self.index_to_entry(index)
+        elif role == Qt.FontRole:
+            entry = self.index_to_entry(index)
+            if isinstance(entry, ClassEntry):
+                return self.main_font
+            elif isinstance(entry, ClassFileMatch):
+                return self.italic_font
+
+    def __call__(self, data):
+        self.beginResetModel()
+        self.rules = self.classes = tuple(data['classes'])
+        self.num_unused = sum(1 for ce in self.classes if ce.num_of_matches == 0)
+        try:
+            self.num_size = len(str(max(r.num_of_matches for r in self.classes)))
+        except ValueError:
+            self.num_size = 1
+        self.build_maps()
+        self.endResetModel()
+
+class ClassProxyModel(CSSProxyModel):
+
+    def filterAcceptsRow(self, row, parent):
+        if not self._filter_text:
+            return True
+        sm = self.sourceModel()
+        entry = sm.index_to_entry(sm.index(row, 0, parent))
+        if not isinstance(entry, ClassEntry):
+            return True
+        return primary_contains(self._filter_text, entry.cls)
+
+class ClassesWidget(CSSWidget):
+
+    SETTING_PREFIX = 'classes-'
+    MODEL = ClassesModel
+    PROXY = ClassProxyModel
+
+    def update_summary(self):
+        self.summary.setText(_('{0} classes, {1} unused').format(self.model.rowCount(), self.model.num_unused))
+
+    def to_csv(self):
+        buf = BytesIO()
+        w = csv_writer(buf)
+        w.writerow([_('Class'), _('Number of matches')])
+        for r in xrange(self.proxy.rowCount()):
+            entry = self.proxy.mapToSource(self.proxy.index(r, 0)).data(Qt.UserRole)
+            w.writerow([entry.cls, entry.num_of_matches])
+        return buf.getvalue()
+
+    def handle_double_click(self, entry, index, boss):
+        if isinstance(entry, ClassEntry):
+            def uniq(vals):
+                vals = vals or ()
+                seen = set()
+                seen_add = seen.add
+                return tuple(x for x in vals if x not in seen and not seen_add(x))
+
+            rules = tuple(uniq([LinkLocation(rule.location.file_name, rule.location.line, None)
+                                for cfm in entry.matched_files for ce in cfm.class_elements for rule in ce.matched_rules]))
+            if rules:
+                jump((id(self), id(entry)), rules)
+            return
+        elif isinstance(entry, ClassFileMatch):
+            name, sourceline = entry.file_name, 0
+        elif isinstance(entry, ClassElement):
+            return jump_to_location(entry)
+        else:
+            loc = entry.location
+            name, sourceline, col = loc
+        self.show_line(name, sourceline, boss)
 
 # }}}
 
@@ -1105,6 +1257,10 @@ class ReportsWidget(QWidget):
         self.css = c = CSSWidget(self)
         s.addWidget(c)
         QListWidgetItem(_('Style Rules'), r)
+
+        self.css = c = ClassesWidget(self)
+        s.addWidget(c)
+        QListWidgetItem(_('Style Classes'), r)
 
         self.chars = c = CharsWidget(self)
         s.addWidget(c)
