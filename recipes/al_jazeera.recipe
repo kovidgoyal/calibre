@@ -6,6 +6,9 @@ english.aljazeera.net
 '''
 from calibre.web.feeds.news import BasicNewsRecipe
 
+def has_cls(x):
+    return dict(attrs={'class':lambda cls: cls and x in cls.split()})
+
 class AlJazeera(BasicNewsRecipe):
     title                  = 'Al Jazeera in English'
     __author__             = 'Darko Miletic'
@@ -17,7 +20,6 @@ class AlJazeera(BasicNewsRecipe):
     oldest_article         = 2
     max_articles_per_feed  = 100
     no_stylesheets         = True
-    encoding               = 'iso-8859-1'
     use_embedded_content   = False
     extra_css              = """
                                 body{font-family: Arial,sans-serif}
@@ -25,23 +27,19 @@ class AlJazeera(BasicNewsRecipe):
                                 #dvArticleDate{font-size: small; color: #999999}
                              """
     conversion_options = {
-                          'comment'   : description
-                        , 'tags'      : category
-                        , 'publisher' : publisher
-                        , 'language'  : language
-                        }
-
+        'comment'   : description , 'tags'      : category ,
+        'publisher' : publisher , 'language'  : language
+    }
     keep_only_tags = [
-                         dict(attrs={'id':['DetailedTitle','ctl00_cphBody_dvSummary','dvArticleDate']})
-                        ,dict(name='td',attrs={'class':'DetailedSummary'})
-                     ]
+        dict(id='main-story'),
+    ]
 
     remove_tags = [
-                     dict(name=['object','link','table','meta','base','iframe','embed'])
-                    ,dict(name='td', attrs={'class':['MostActiveDescHeader','MostActiveDescBody']})
-                  ]
+        has_cls('MoreOnTheStory'), has_cls('ArticleBottomToolbar'), dict(smtitle="ShowMore"),
+        dict(name=['object','link','table','meta','base','iframe','embed']),
+    ]
 
-    feeds = [(u'AL JAZEERA ENGLISH (AJE)', u'http://english.aljazeera.net/Services/Rss/?PostingId=2007731105943979989' )]
+    feeds = [(u'Al Jazeera English', u'http://english.aljazeera.net/Services/Rss/?PostingId=2007731105943979989')]
 
     def get_article_url(self, article):
         artlurl =  article.get('link',  None)
@@ -54,15 +52,14 @@ class AlJazeera(BasicNewsRecipe):
             del item['face']
         td = soup.find('td',attrs={'class':'DetailedSummary'})
         if td:
-           td.name = 'div'
+            td.name = 'div'
         spn = soup.find('span',attrs={'id':'DetailedTitle'})
         if spn:
-           spn.name='h1'
+            spn.name='h1'
         for itm in soup.findAll('span', attrs={'id':['dvArticleDate','ctl00_cphBody_lblDate']}):
             itm.name = 'div'
         for alink in soup.findAll('a'):
             if alink.string is not None:
-               tstr = alink.string
-               alink.replaceWith(tstr)
+                tstr = alink.string
+                alink.replaceWith(tstr)
         return soup
-
