@@ -18,7 +18,7 @@ from io import BytesIO
 import apsw
 from PyQt5.Qt import (
     Qt, QTimer, QAction, QMenu, QIcon, pyqtSignal, QUrl, QFont, QDialog,
-    QApplication, QSystemTrayIcon)
+    QApplication, QSystemTrayIcon, QWindowStateChangeEvent)
 
 from calibre import prints, force_unicode, detect_ncpus
 from calibre.constants import __appname__, isosx, filesystem_encoding, DEBUG
@@ -926,6 +926,11 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
             except:
                 pass
             QApplication.instance().quit()
+
+    def changeEvent(self, e):
+        e.ignore()
+        if isinstance(e, QWindowStateChangeEvent):
+            self.iactions['Show quickview'].change_window_state(self.windowState())
 
     def closeEvent(self, e):
         self.write_settings()

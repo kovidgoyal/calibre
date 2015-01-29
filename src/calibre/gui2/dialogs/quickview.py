@@ -63,8 +63,9 @@ class Quickview(QDialog, Ui_Quickview):
 
         # Remove the help button from the window title bar
         icon = self.windowIcon()
-        self.setWindowFlags(self.windowFlags()&(~Qt.WindowContextHelpButtonHint))
-        self.setWindowFlags(self.windowFlags()|Qt.WindowStaysOnTopHint)
+        self.setWindowFlags(self.windowFlags()&(~Qt.WindowContextHelpButtonHint &
+                            ~Qt.WindowMinMaxButtonsHint))
+        self.setWindowFlags(self.windowFlags()|Qt.Window)
         self.setWindowIcon(icon)
 
         self.db = view.model().db
@@ -256,6 +257,12 @@ class Quickview(QDialog, Ui_Quickview):
         if select_item is not None:
             self.books_table.setCurrentItem(select_item)
             self.books_table.scrollToItem(select_item, QAbstractItemView.PositionAtCenter)
+
+    def change_window_state(self, state):
+        if state & Qt.WindowMinimized:
+            self.setWindowState(Qt.WindowMinimized)
+        else:
+            self.setWindowState(Qt.WindowNoState)
 
     # Deal with sizing the table columns. Done here because the numbers are not
     # correct until the first paint.

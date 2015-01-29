@@ -37,6 +37,7 @@ class ShowQuickviewAction(InterfaceAction):
             self.current_instance = \
                 Quickview(self.gui, self.gui.library_view, index)
             self.current_instance.show()
+            self.last_window_state = self.current_instance.windowState();
 
     def change_quickview_column(self, idx):
         self.show_quickview()
@@ -48,3 +49,7 @@ class ShowQuickviewAction(InterfaceAction):
     def library_changed(self, db):
         if self.current_instance and not self.current_instance.is_closed:
             self.current_instance.reject()
+
+    def change_window_state(self, state):
+        if self.current_instance and not self.current_instance.is_closed:
+            self.current_instance.change_window_state(state)
