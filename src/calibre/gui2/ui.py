@@ -928,9 +928,9 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
             QApplication.instance().quit()
 
     def changeEvent(self, e):
-        e.ignore()
         if isinstance(e, QWindowStateChangeEvent):
             self.iactions['Show quickview'].change_window_state(self.windowState())
+        MainWindow.changeEvent(self, e)
 
     def closeEvent(self, e):
         self.write_settings()
