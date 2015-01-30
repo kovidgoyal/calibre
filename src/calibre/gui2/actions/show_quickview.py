@@ -25,6 +25,7 @@ class ShowQuickviewAction(InterfaceAction):
     def show_quickview(self, *args):
         if self.current_instance:
             if not self.current_instance.is_closed:
+                self.current_instance.set_focus()
                 return
             self.current_instance = None
         if self.gui.current_view() is not self.gui.library_view:
@@ -34,8 +35,7 @@ class ShowQuickviewAction(InterfaceAction):
             return
         index = self.gui.library_view.currentIndex()
         if index.isValid():
-            self.current_instance = \
-                Quickview(self.gui, self.gui.library_view, index)
+            self.current_instance = Quickview(self.gui, index)
             self.current_instance.show()
 
     def change_quickview_column(self, idx):

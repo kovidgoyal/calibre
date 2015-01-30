@@ -5,8 +5,8 @@ __docformat__ = 'restructuredtext en'
 
 
 from PyQt5.Qt import (Qt, QDialog, QAbstractItemView, QTableWidgetItem,
-                      QListWidgetItem, QByteArray, QCoreApplication,
-                      QApplication, pyqtSignal, QDialogButtonBox)
+                      QListWidgetItem, QCoreApplication, QEvent, QObject,
+                      QApplication, pyqtSignal, QDialogButtonBox, QByteArray)
 
 from calibre.customize.ui import find_plugin
 from calibre.gui2 import gprefs
@@ -42,33 +42,52 @@ class TableItem(QTableWidgetItem):
             return self.sort_idx < other.sort_idx
         return 0
 
+class KeyPressFilter(QObject):
+
+    return_pressed_signal = pyqtSignal()
+
+    def eventFilter(self, obj, event):
+        if event.type() == QEvent.KeyPress and event.key() == Qt.Key_Return:
+            self.return_pressed_signal.emit()
+            return True;
+        else:
+            return QObject.eventFilter(self, obj, event);
+
 class Quickview(QDialog, Ui_Quickview):
 
     change_quickview_column   = pyqtSignal(object)
 
-    def __init__(self, gui, view, row):
-        QDialog.__init__(self, gui, flags=Qt.Window)
+    def __init__(self, gui, row):
+        self.is_pane = gprefs.get('quickview_is_pane', False)
+
+        if not self.is_pane:
+            QDialog.__init__(self, gui, flags=Qt.Window)
+        else:
+            QDialog.__init__(self, gui)
         Ui_Quickview.__init__(self)
         self.setupUi(self)
         self.isClosed = False
+
 
         self.books_table_column_widths = None
         try:
             self.books_table_column_widths = \
                         gprefs.get('quickview_dialog_books_table_widths', None)
-            geom = gprefs.get('quickview_dialog_geometry', bytearray(''))
-            self.restoreGeometry(QByteArray(geom))
+            if not self.is_pane:
+                geom = gprefs.get('quickview_dialog_geometry', bytearray(''))
+                self.restoreGeometry(QByteArray(geom))
         except:
             pass
 
-        # Remove the help button from the window title bar
-        icon = self.windowIcon()
-        self.setWindowFlags(self.windowFlags()&(~Qt.WindowContextHelpButtonHint))
-        self.setWindowFlags(self.windowFlags()|Qt.WindowStaysOnTopHint)
-        self.setWindowIcon(icon)
+        if not self.is_pane:
+            # Remove the help button from the window title bar
+            icon = self.windowIcon()
+            self.setWindowFlags(self.windowFlags()&(~Qt.WindowContextHelpButtonHint))
+            self.setWindowFlags(self.windowFlags()|Qt.WindowStaysOnTopHint)
+            self.setWindowIcon(icon)
 
-        self.db = view.model().db
-        self.view = view
+        self.view = gui.library_view
+        self.db = self.view.model().db
         self.gui = gui
         self.is_closed = False
         self.current_book_id = None
@@ -89,6 +108,9 @@ class Quickview(QDialog, Ui_Quickview):
         self.items.currentTextChanged.connect(self.item_selected)
 
         # Set up the books table columns
+        return_filter = KeyPressFilter(self.books_table)
+        return_filter.return_pressed_signal.connect(self.return_pressed)
+        self.books_table.installEventFilter(return_filter)
         self.books_table.setSelectionBehavior(QAbstractItemView.SelectRows)
         self.books_table.setSelectionMode(QAbstractItemView.SingleSelection)
         self.books_table.setColumnCount(3)
@@ -118,10 +140,28 @@ class Quickview(QDialog, Ui_Quickview):
         self.change_quickview_column.connect(self.slave)
         QCoreApplication.instance().aboutToQuit.connect(self.save_state)
         self.search_button.clicked.connect(self.do_search)
-        view.model().new_bookdisplay_data.connect(self.book_was_changed)
+        self.view.model().new_bookdisplay_data.connect(self.book_was_changed)
 
         close_button = self.buttonBox.button(QDialogButtonBox.Close)
-        close_button.setAutoDefault(False)
+        close_button.setDefault(False)
+        if self.is_pane:
+            close_button.setText(_('&Close'))
+
+        self.books_table.horizontalHeader().sectionResized.connect(self.section_resized)
+        if self.is_pane:
+            self.gui.quickview_splitter.add_quickview_dialog(self)
+            self.set_focus()
+
+        self.show_as_pane.setChecked(self.is_pane)
+        self.show_as_pane.stateChanged.connect(self.show_as_pane_changed)
+
+    def show(self):
+        QDialog.show(self)
+        if self.is_pane:
+            self.gui.quickview_splitter.show_quickview_widget()
+
+    def show_as_pane_changed(self, new_state):
+        gprefs['quickview_is_pane'] = self.show_as_pane.isChecked()
 
     # search button
     def do_search(self):
@@ -261,6 +301,11 @@ class Quickview(QDialog, Ui_Quickview):
     # correct until the first paint.
     def resizeEvent(self, *args):
         QDialog.resizeEvent(self, *args)
+
+        # Do this if we are resizing for the first time to reset state.
+        if self.is_pane and self.height() == 0:
+            self.gui.quickview_splitter.set_sizes()
+
         if self.books_table_column_widths is not None:
             for c,w in enumerate(self.books_table_column_widths):
                 self.books_table.setColumnWidth(c, w)
@@ -274,9 +319,15 @@ class Quickview(QDialog, Ui_Quickview):
                 self.books_table.setColumnWidth(c, w)
         self.save_state()
 
+    def return_pressed(self):
+        self.select_book(self.books_table.currentRow())
+
     def book_doubleclicked(self, row, column):
         if self.no_valid_items:
             return
+        self.select_book(row)
+
+    def select_book(self, row):
         book_id = int(self.books_table.item(row, self.title_column).data(Qt.UserRole))
         self.view.select_rows([book_id])
         modifiers = int(QApplication.keyboardModifiers())
@@ -285,12 +336,18 @@ class Quickview(QDialog, Ui_Quickview):
             if em is not None:
                 em.actual_plugin_.edit_metadata(None)
 
+    def set_focus(self):
+        self.books_table.setFocus(Qt.ActiveWindowFocusReason)
+
     # called when a book is clicked on the library view
     def slave(self, current):
         if self.is_closed:
             return
         self.refresh(current)
         self.view.activateWindow()
+
+    def section_resized(self, logicalIndex, oldSize, newSize):
+        self.save_state()
 
     def save_state(self):
         if self.is_closed:
@@ -299,7 +356,8 @@ class Quickview(QDialog, Ui_Quickview):
         for c in range(0, self.books_table.columnCount()):
             self.books_table_column_widths.append(self.books_table.columnWidth(c))
         gprefs['quickview_dialog_books_table_widths'] = self.books_table_column_widths
-        gprefs['quickview_dialog_geometry'] = bytearray(self.saveGeometry())
+        if not self.is_pane:
+            gprefs['quickview_dialog_geometry'] = bytearray(self.saveGeometry())
 
     def _close(self):
         self.save_state()
@@ -307,12 +365,10 @@ class Quickview(QDialog, Ui_Quickview):
         self.db = self.view = self.gui = None
         self.is_closed = True
 
-    # called by the window system
-    def closeEvent(self, *args):
-        self._close()
-        QDialog.closeEvent(self, *args)
-
     # called by the close button
     def reject(self):
+        if self.is_pane:
+            self.gui.quickview_splitter.hide_quickview_widget()
+        self.gui.library_view.setFocus(Qt.ActiveWindowFocusReason)
         self._close()
         QDialog.reject(self)

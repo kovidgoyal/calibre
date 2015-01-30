@@ -8,7 +8,8 @@ __docformat__ = 'restructuredtext en'
 import functools
 
 from PyQt5.Qt import (Qt, QApplication, QStackedWidget, QMenu, QTimer,
-        QSize, QSizePolicy, QStatusBar, QLabel, QFont, QAction, QTabBar)
+        QSize, QSizePolicy, QStatusBar, QLabel, QFont, QAction, QTabBar,
+        QVBoxLayout, QWidget, QSplitter)
 
 from calibre.utils.config import prefs
 from calibre.utils.icu import sort_key
@@ -99,6 +100,37 @@ class LibraryViewMixin(object):  # {{{
 
     # }}}
 
+class QuickviewSplitter(QSplitter): # {{{
+
+    def __init__(self, parent=None, orientation=Qt.Vertical, qv_widget=None):
+        QSplitter.__init__(self, parent=parent, orientation=orientation)
+        self.splitterMoved.connect(self.splitter_moved)
+        self.setChildrenCollapsible(False)
+        self.qv_widget = qv_widget
+
+    def splitter_moved(self):
+        gprefs['quickview_dialog_heights'] = self.sizes()
+
+    def resizeEvent(self, *args):
+        QSplitter.resizeEvent(self, *args)
+        if self.sizes()[1] != 0:
+            gprefs['quickview_dialog_heights'] = self.sizes()
+
+    def set_sizes(self):
+        sizes =  gprefs.get('quickview_dialog_heights', [])
+        if len(sizes) == 2:
+            self.setSizes(sizes)
+
+    def add_quickview_dialog(self, qv_dialog):
+        self.qv_widget.layout().addWidget(qv_dialog)
+
+    def show_quickview_widget(self):
+        self.qv_widget.show()
+
+    def hide_quickview_widget(self):
+        self.qv_widget.hide()
+# }}}
+
 class LibraryWidget(Splitter):  # {{{
 
     def __init__(self, parent):
@@ -113,6 +145,10 @@ class LibraryWidget(Splitter):  # {{{
                 connect_button=not config['separate_cover_flow'],
                 side_index=idx, initial_side_size=size, initial_show=False,
                 shortcut='Shift+Alt+B')
+
+        quickview_widget = QWidget()
+        parent.quickview_splitter = QuickviewSplitter(
+                parent=self, orientation=Qt.Vertical, qv_widget=quickview_widget)
         parent.library_view = BooksView(parent)
         parent.library_view.setObjectName('library_view')
         stack = QStackedWidget(self)
@@ -121,7 +157,13 @@ class LibraryWidget(Splitter):  # {{{
         parent.grid_view = GridView(parent)
         parent.grid_view.setObjectName('grid_view')
         av.add_view('grid', parent.grid_view)
-        self.addWidget(stack)
+        parent.quickview_splitter.addWidget(stack)
+
+        quickview_widget.setLayout(QVBoxLayout())
+        parent.quickview_splitter.addWidget(quickview_widget)
+        parent.quickview_splitter.hide_quickview_widget()
+
+        self.addWidget(parent.quickview_splitter)
 # }}}
 
 class Stack(QStackedWidget):  # {{{

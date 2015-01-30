@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="sizePolicy">
-   <sizepolicy hsizetype="Expanding" vsizetype="MinimumExpanding">
+   <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
     <horstretch>0</horstretch>
     <verstretch>0</verstretch>
    </sizepolicy>
@@ -68,8 +68,33 @@
         <string>&amp;Lock Quickview contents</string>
        </property>
        <property name="toolTip">
-        <string>Select to prevent Quickview from changing content when the
-        selection on the library view is changed</string>
+        <string>&lt;p&gt;Select to prevent Quickview from changing content when the
+        selection on the library view is changed&lt;/p&gt;</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <spacer>
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>0</width>
+         <height>0</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QCheckBox" name="show_as_pane">
+       <property name="text">
+        <string>Sho&amp;w as pane</string>
+       </property>
+       <property name="toolTip">
+        <string>&lt;p&gt;If checked, the next time Quickview is opened it will be shown
+        as a pane under the library view. If unchecked it will be shown as a
+        separate window.&lt;/p&gt;</string>
        </property>
       </widget>
      </item>
