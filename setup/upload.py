@@ -254,7 +254,7 @@ class UploadToServer(Command):  # {{{
     def run(self, opts):
         src_file = glob.glob('dist/calibre-*.tar.xz')[0]
         upload_signatures()
-        check_call(['gpg', '--armor', '--detach-sign', src_file])
+        check_call(['gpg', '--armor', '--yes', '--detach-sign', src_file])
         check_call(['scp', src_file + '.asc', 'code:/srv/code/signatures/'])
         check_call('ssh code /usr/local/bin/update-calibre-code.py'.split())
         check_call(('ssh code /apps/update-calibre-version.py ' + __version__).split())
