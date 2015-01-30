@@ -20,6 +20,26 @@
 #   new recipes:
 #     - title: 
 
+- version: 2.18.0
+  date: 2015-01-30
+
+  new features:
+    - title: "Edit Book: Add 'Style Classes' and 'Links' report pages to the Reports tool"
+
+    - title: "Tag browser: Allow expanding all children of a node by right clicking and choosing 'Expand All'"
+      tickets: [1414315]
+
+    - title: "Preferences: Re-arrange the controls to avoid needing to move the mouse from the top to the bottom of the dialog when closing the dialog after making some changes"
+
+  bug fixes:
+    - title: "Save to Disk: Fix a bug where when multiple books are being saved to disk, if the save to disk template results in identical filenames, the filenames were not being properly disambiguated."
+
+    - title: "Preferences: Use a dialog instead of a main window to workaround Qt's poor handling of full screen mode on OS X Yosemite."
+      tickets: [1414497]
+
+  improved recipes:
+    - Al Jazeera in English
+
 - version: 2.17.0
   date: 2015-01-23
 
