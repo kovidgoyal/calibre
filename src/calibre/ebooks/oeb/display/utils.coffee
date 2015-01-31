@@ -51,6 +51,15 @@ class CalibreUtils
                 process.stdout.write(msg + '\n')
     # }}}
 
+    stack_trace: () -> # {{{
+        currentFunction = arguments.callee.caller
+        while (currentFunction)
+            fn = currentFunction.toString()
+            this.log(fn)
+            currentFunction = currentFunction.caller
+
+    # }}}
+
     window_scroll_pos: (win=window) -> # {{{
         # The current scroll position of the browser window
         if typeof(win.pageXOffset) == 'number'

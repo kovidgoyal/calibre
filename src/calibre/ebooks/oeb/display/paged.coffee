@@ -350,6 +350,9 @@ class PagedDisplay
         else
             window.scrollTo(pos, 0)
 
+    scroll_to_column: (number) ->
+        this.scroll_to_xpos(number * this.page_width + 10)
+
     column_at: (xpos) ->
         # Return the number of the column that contains xpos
         return Math.floor(xpos/this.page_width)

@@ -460,6 +460,29 @@ class Document(QWebPage):  # {{{
                 self.scroll_to(x=self.xpos, y=npos)
         return property(fget=fget, fset=fset)
 
+    @dynamic_property
+    def page_number(self):
+        ' The page number is the number of the page at the left most edge of the screen (starting from 0) '
+        def fget(self):
+            if self.in_paged_mode:
+                return self.javascript(
+                    'ans = 0; if (window.paged_display) ans = window.paged_display.column_boundaries()[0]; ans;', typ='int')
+        def fset(self, val):
+            if self.in_paged_mode and self.loaded_javascript:
+                self.javascript('if (window.paged_display) window.paged_display.scroll_to_column(%d)' % int(val))
+                return True
+        return property(fget=fget, fset=fset)
+
+    @property
+    def page_dimensions(self):
+        if self.in_paged_mode:
+            return self.javascript(
+                '''
+                ans = ''
+                if (window.paged_display)
+                    ans = window.paged_display.col_width + ':' + window.paged_display.current_page_height;
+                ans;''', typ='string')
+
     @property
     def hscroll_fraction(self):
         try:
