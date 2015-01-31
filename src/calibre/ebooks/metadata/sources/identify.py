@@ -7,7 +7,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import time
+import time, re
 from datetime import datetime
 from Queue import Queue, Empty
 from threading import Thread
@@ -545,13 +545,13 @@ def urls_from_identifiers(identifiers):  # {{{
     if issn:
         ans.append((issn, 'issn', issn,
             'http://www.worldcat.org/issn/'+issn))
-    for x in ('uri', 'url'):
-        url = identifiers.get(x, None)
-        if url and url.startswith('http'):
+    for k, url in identifiers.iteritems():
+        print (k, url)
+        if url and re.match(r'ur[il]\d*$', k) is not None and url.startswith('http'):
             url = url[:8].replace('|', ':') + url[8:].replace('|', ',')
             parts = urlparse(url)
             name = parts.netloc
-            ans.append((name, x, url, url))
+            ans.append((name, k, url, url))
     return ans
 # }}}
 
