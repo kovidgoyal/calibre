@@ -489,6 +489,16 @@ class Source(Plugin):
         '''
         return self.name
 
+    def get_book_urls(self, identifiers):
+        '''
+        Override this method if you would like to return multiple urls for this book.
+        Return a list of 3-tuples. By default this method simply calls :method:`get_book_url`.
+        '''
+        data = self.get_book_url(identifiers)
+        if data is None:
+            return ()
+        return (data,)
+
     def get_cached_cover_url(self, identifiers):
         '''
         Return cached cover URL for the book identified by
