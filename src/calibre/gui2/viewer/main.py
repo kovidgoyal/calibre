@@ -1,9 +1,10 @@
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import traceback, os, sys, functools
+import traceback, os, sys, functools, time
 from functools import partial
 from threading import Thread
+from collections import namedtuple
 
 from PyQt5.Qt import (
     QApplication, Qt, QIcon, QTimer, QByteArray, QSize, QTime,
@@ -93,6 +94,7 @@ class EbookViewer(MainWindow):
         self.existing_bookmarks= []
         self.selected_text     = None
         self.was_maximized     = False
+        self.page_position_on_footnote_toggle = []
         self.read_settings()
         self.pos.value_changed.connect(self.update_pos_label)
         self.pos.setMinimumWidth(150)
@@ -676,6 +678,25 @@ class EbookViewer(MainWindow):
         self.open_progress_indicator(_('Laying out %s')%self.current_title)
         self.view.load_path(path, pos=pos)
 
+    def footnote_visibility_changed(self, is_visible):
+        if self.view.document.in_paged_mode:
+            pp = namedtuple('PagePosition', 'time is_visible page_dimensions multiplier last_loaded_path page_number after_resize_page_number')
+            self.page_position_on_footnote_toggle.append(pp(
+                time.time(), is_visible, self.view.document.page_dimensions, self.view.multiplier,
+                self.view.last_loaded_path, self.view.document.page_number, None))
+
+    def pre_footnote_toggle_position(self):
+        num = len(self.page_position_on_footnote_toggle)
+        if self.view.document.in_paged_mode and num > 1 and num % 2 == 0:
+            two, one = self.page_position_on_footnote_toggle.pop(), self.page_position_on_footnote_toggle.pop()
+            if (
+                    time.time() - two.time < 1 and not two.is_visible and one.is_visible
+                    and one.last_loaded_path == two.last_loaded_path and two.last_loaded_path == self.view.last_loaded_path
+                    and one.page_dimensions == self.view.document.page_dimensions and one.multiplier == self.view.multiplier
+                    and one.after_resize_page_number == self.view.document.page_number
+            ):
+                return one.page_number
+
     def viewport_resize_started(self, event):
         if not self.resize_in_progress:
             # First resize, so save the current page position
@@ -693,11 +714,11 @@ class EbookViewer(MainWindow):
         # There hasn't been a resize event for some time
         # restore the current page position.
         self.resize_in_progress = False
+        wmc = self.window_mode_changed
         if self.window_mode_changed:
             # This resize is part of a window mode change, special case it
             self.handle_window_mode_toggle()
         else:
-            self.view.document.page_position.restore()
             if self.isFullScreen():
                 self.relayout_fullscreen_labels()
         self.view.document.after_resize()
@@ -705,7 +726,19 @@ class EbookViewer(MainWindow):
         # mode for some time after a resize is finished. No way of knowing
         # exactly how long, so we update it in a second, in the hopes that it
         # will be enough *most* of the time.
-        QTimer.singleShot(1000, self.update_page_number)
+        QTimer.singleShot(1000, self.scroll_after_resize_done)
+        if not wmc:
+            pre_footnote_pos = self.pre_footnote_toggle_position()
+            if pre_footnote_pos is not None:
+                self.view.document.page_number = pre_footnote_pos
+            else:
+                self.view.document.page_position.restore()
+
+    def scroll_after_resize_done(self):
+        self.update_page_number()
+        if len(self.page_position_on_footnote_toggle) % 2 == 1:
+            self.page_position_on_footnote_toggle[-1] = self.page_position_on_footnote_toggle[-1]._replace(
+                after_resize_page_number=self.view.document.page_number)
 
     def update_page_number(self):
         self.set_page_number(self.view.document.scroll_fraction)

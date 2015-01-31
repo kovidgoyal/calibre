@@ -273,6 +273,7 @@ class Main(MainWindow):
         d.setAllowedAreas(Qt.LeftDockWidgetArea | Qt.RightDockWidgetArea)
 
         self.footnotes_dock = d = QDockWidget(_('Footnotes'), self)
+        d.visibilityChanged.connect(self.footnote_visibility_changed)
         d.setContextMenuPolicy(Qt.CustomContextMenu)
         self.footnotes_view = FootnotesView(self)
         self.footnotes_view.follow_link.connect(self.view.follow_footnote_link)
