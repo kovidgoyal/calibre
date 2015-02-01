@@ -89,6 +89,9 @@ click->Properties->Configuration.
 Project Dependencies:
     Depends on: libplist
 
+**Add the following patch to prevent detection of WiFi devices**
+http://www.mobileread.com/forums/showthread.php?t=255234
+
 Right-click libusbmuxd, Build. Should build with 0 errors, many warnings
 
 Build libgen
