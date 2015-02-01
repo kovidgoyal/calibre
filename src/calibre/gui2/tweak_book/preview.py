@@ -364,6 +364,7 @@ class WebView(QWebView):
         self.setPage(self._page)
         self.inspector.setPage(self._page)
         self.clear()
+        self.setAcceptDrops(False)
 
     def sizeHint(self):
         return self._size_hint
