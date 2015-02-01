@@ -7,25 +7,11 @@ __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 
+from PyQt5.Qt import QAction
+
 from calibre.gui2.actions import InterfaceAction
 from calibre.gui2.dialogs.quickview import Quickview
 from calibre.gui2 import error_dialog
-
-class FocusToQuickviewAction(InterfaceAction):
-
-    name = 'Focus To Quickview'
-    action_spec = (_('Focus To Quickview'), 'search.png', None, ('Shift+Q'))
-    dont_add_to = frozenset(['context-menu-device'])
-    action_type = 'current'
-
-    def genesis(self):
-        self.qaction.triggered.connect(self.focus_quickview)
-
-    def focus_quickview(self, *args):
-        from calibre.customize.ui import find_plugin
-        qv = find_plugin('Show Quickview')
-        if qv:
-            qv.actual_plugin_.focus_quickview()
 
 class ShowQuickviewAction(InterfaceAction):
 
@@ -39,12 +25,21 @@ class ShowQuickviewAction(InterfaceAction):
     def genesis(self):
         self.qaction.triggered.connect(self.show_quickview)
 
+        self.focus_action = QAction(self.gui)
+        self.gui.addAction(self.focus_action)
+        self.gui.keyboard.register_shortcut('Focus To Quickview', _('Focus To Quickview'),
+                     description=_('Move the focus to the Quickview pane/window'),
+                     default_keys=('Shift+Q',), action=self.focus_action,
+                     group=self.action_spec[0])
+        self.focus_action.triggered.connect(self.focus_quickview)
+
     def show_quickview(self, *args):
         if self.current_instance:
             if not self.current_instance.is_closed:
                 self.current_instance.reject()
+                self.current_instance = None
+                return
             self.current_instance = None
-            return
         if self.gui.current_view() is not self.gui.library_view:
             error_dialog(self.gui, _('No quickview available'),
                 _('Quickview is not available for books '

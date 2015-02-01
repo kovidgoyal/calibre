@@ -48,7 +48,6 @@ IN_WIDGET_LOCK = 2
 IN_WIDGET_DOCK = 3
 IN_WIDGET_SEARCH = 4
 IN_WIDGET_CLOSE = 5
-IN_WIDGET_LAST = 5
 
 class BooksKeyPressFilter(QObject):
 
@@ -62,8 +61,8 @@ class BooksKeyPressFilter(QObject):
 
 class WidgetTabFilter(QObject):
 
-    def __init__(self, attachToClass, which_widget, tab_signal):
-        QObject.__init__(self, attachToClass)
+    def __init__(self, attach_to_Class, which_widget, tab_signal):
+        QObject.__init__(self, attach_to_Class)
         self.tab_signal = tab_signal
         self.which_widget = which_widget
 
@@ -140,6 +139,7 @@ class Quickview(QDialog, Ui_Quickview):
         self.books_table.installEventFilter(return_filter)
 
         self.close_button = self.buttonBox.button(QDialogButtonBox.Close)
+
         self.tab_order_widgets = [self.items, self.books_table, self.lock_qv,
                           self.dock_button, self.search_button, self.close_button]
         for idx,widget in enumerate(self.tab_order_widgets):
@@ -182,24 +182,24 @@ class Quickview(QDialog, Ui_Quickview):
             self.lock_qv.setText(_('Lock Quickview contents'))
             self.search_button.setText(_('Search'))
             self.gui.quickview_splitter.add_quickview_dialog(self)
-            self.set_focus()
         else:
             self.lock_qv.setText(_('&Dock'))
             self.close_button.setText(_('&Close'))
+        self.set_focus()
 
         self.books_table.horizontalHeader().sectionResized.connect(self.section_resized)
         self.dock_button.clicked.connect(self.show_as_pane_changed)
 
-    def tab_pressed(self, inWidget, isForward):
+    def tab_pressed(self, in_widget, isForward):
         if isForward:
-            inWidget += 1
-            if inWidget > IN_WIDGET_LAST:
-                inWidget = 0
+            in_widget += 1
+            if in_widget >= len(self.tab_order_widgets):
+                in_widget = 0
         else:
-            inWidget -= 1
-            if inWidget < 0:
-                inWidget = IN_WIDGET_LAST
-        self.tab_order_widgets[inWidget].setFocus(Qt.TabFocusReason)
+            in_widget -= 1
+            if in_widget < 0:
+                in_widget = len(self.tab_order_widgets) - 1
+        self.tab_order_widgets[in_widget].setFocus(Qt.TabFocusReason)
 
     def show(self):
         QDialog.show(self)
@@ -259,8 +259,10 @@ class Quickview(QDialog, Ui_Quickview):
                 self.indicate_no_items()
                 return
             key = self.current_key
-        self.items_label.setText(_('&Item: {0} ({1})').format(
-                                    self.db.field_metadata[key]['name'], key))
+        label_text = _('&Item: {0} ({1})')
+        if self.is_pane:
+            label_text = label_text.replace('&', '')
+        self.items_label.setText(label_text.format(self.db.field_metadata[key]['name'], key))
 
         self.items.blockSignals(True)
         self.items.clear()
@@ -311,8 +313,10 @@ class Quickview(QDialog, Ui_Quickview):
                                sort_results=False)
 
         self.books_table.setRowCount(len(books))
-        self.books_label.setText(_('&Books with selected item "{0}": {1}').
-                                 format(selected_item, len(books)))
+        label_text = _('&Books with selected item "{0}": {1}')
+        if self.is_pane:
+            label_text = label_text.replace('&', '')
+        self.books_label.setText(label_text.format(selected_item, len(books)))
 
         select_item = None
         self.books_table.setSortingEnabled(False)
