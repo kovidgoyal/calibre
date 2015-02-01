@@ -690,7 +690,8 @@ There can be two reasons why calibre is showing a empty list of books:
     and so starts up with an empty library instead. To remedy this, do a
     right-click on the calibre icon in the calibre toolbar and select Switch/create
     library. Click the little blue icon to select the new location of your
-    calibre library and click OK.
+    calibre library and click OK. If you dont know the new location search your
+    computer for the file :file:`metadata.db`.
 
   * Your metadata.db file was deleted/corrupted. In this case, you can ask
     calibre to rebuild the metadata.db from its backups. Right click the calibre
