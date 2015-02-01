@@ -27,20 +27,6 @@ class FocusToQuickviewAction(InterfaceAction):
         if qv:
             qv.actual_plugin_.focus_quickview()
 
-
-class FocusFromQuickviewAction(InterfaceAction):
-
-    name = 'Focus From Quickview'
-    action_spec = (_('Focus From Quickview'), 'search.png', None, ('Ctrl+Q'))
-    dont_add_to = frozenset(['context-menu-device'])
-    action_type = 'current'
-
-    def genesis(self):
-        self.qaction.triggered.connect(self.focus_quickview)
-
-    def focus_quickview(self, *args):
-        self.gui.library_view.setFocus()
-
 class ShowQuickviewAction(InterfaceAction):
 
     name = 'Show Quickview'

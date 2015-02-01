@@ -839,11 +839,6 @@ class ActionQuickviewFocusTo(InterfaceActionBase):
     actual_plugin = 'calibre.gui2.actions.show_quickview:FocusToQuickviewAction'
     description = _('Move the focus to the Quickview pane/window')
 
-class ActionQuickviewFocusFrom(InterfaceActionBase):
-    name = 'Focus From Quickview'
-    actual_plugin = 'calibre.gui2.actions.show_quickview:FocusFromQuickviewAction'
-    description = _('Move the focus to the library pane')
-
 class ActionTemplateTester(InterfaceActionBase):
     name = 'Template Tester'
     actual_plugin = 'calibre.gui2.actions.show_template_tester:ShowTemplateTesterAction'
@@ -984,8 +979,7 @@ plugins += [ActionAdd, ActionFetchAnnotations, ActionGenerateCatalog,
         ActionAddToLibrary, ActionEditCollections, ActionMatchBooks, ActionChooseLibrary,
         ActionCopyToLibrary, ActionTweakEpub, ActionUnpackBook, ActionNextMatch, ActionStore,
         ActionPluginUpdater, ActionPickRandom, ActionEditToC, ActionSortBy,
-        ActionMarkBooks, ActionEmbed, ActionTemplateTester, ActionQuickviewFocusTo,
-        ActionQuickviewFocusFrom]
+        ActionMarkBooks, ActionEmbed, ActionTemplateTester, ActionQuickviewFocusTo]
 
 # }}}
 
