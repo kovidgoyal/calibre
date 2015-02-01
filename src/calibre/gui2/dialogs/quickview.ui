@@ -87,14 +87,17 @@
       </spacer>
      </item>
      <item>
-      <widget class="QCheckBox" name="show_as_pane">
+      <widget class="QPushButton" name="dock_button">
        <property name="text">
-        <string>Sho&amp;w as pane</string>
+        <string>&amp;Dock</string>
        </property>
        <property name="toolTip">
         <string>&lt;p&gt;If checked, the next time Quickview is opened it will be shown
         as a pane under the library view. If unchecked it will be shown as a
         separate window.&lt;/p&gt;</string>
+       </property>
+       <property name="autoDefault">
+        <bool>false</bool>
        </property>
       </widget>
      </item>

@@ -42,7 +42,15 @@ class TableItem(QTableWidgetItem):
             return self.sort_idx < other.sort_idx
         return 0
 
-class KeyPressFilter(QObject):
+IN_WIDGET_ITEMS = 0
+IN_WIDGET_BOOKS = 1
+IN_WIDGET_LOCK = 2
+IN_WIDGET_DOCK = 3
+IN_WIDGET_SEARCH = 4
+IN_WIDGET_CLOSE = 5
+IN_WIDGET_LAST = 5
+
+class BooksKeyPressFilter(QObject):
 
     return_pressed_signal = pyqtSignal()
 
@@ -50,12 +58,30 @@ class KeyPressFilter(QObject):
         if event.type() == QEvent.KeyPress and event.key() == Qt.Key_Return:
             self.return_pressed_signal.emit()
             return True;
-        else:
-            return QObject.eventFilter(self, obj, event);
+        return False
+
+class WidgetTabFilter(QObject):
+
+    def __init__(self, attachToClass, which_widget, tab_signal):
+        QObject.__init__(self, attachToClass)
+        self.tab_signal = tab_signal
+        self.which_widget = which_widget
+
+    def eventFilter(self, obj, event):
+        if event.type() == QEvent.KeyPress:
+            if event.key() == Qt.Key_Tab:
+                self.tab_signal.emit(self.which_widget, True)
+                return True
+            if event.key() == Qt.Key_Backtab:
+                self.tab_signal.emit(self.which_widget, False)
+                return True
+        return False
 
 class Quickview(QDialog, Ui_Quickview):
 
-    change_quickview_column   = pyqtSignal(object)
+    change_quickview_column = pyqtSignal(object)
+    reopen_quickview        = pyqtSignal()
+    tab_pressed_signal      = pyqtSignal(object, object)
 
     def __init__(self, gui, row):
         self.is_pane = gprefs.get('quickview_is_pane', False)
@@ -107,10 +133,18 @@ class Quickview(QDialog, Ui_Quickview):
         self.items.setSelectionMode(QAbstractItemView.SingleSelection)
         self.items.currentTextChanged.connect(self.item_selected)
 
+        self.tab_pressed_signal.connect(self.tab_pressed)
         # Set up the books table columns
-        return_filter = KeyPressFilter(self.books_table)
+        return_filter = BooksKeyPressFilter(self.books_table)
         return_filter.return_pressed_signal.connect(self.return_pressed)
         self.books_table.installEventFilter(return_filter)
+
+        self.close_button = self.buttonBox.button(QDialogButtonBox.Close)
+        self.tab_order_widgets = [self.items, self.books_table, self.lock_qv,
+                          self.dock_button, self.search_button, self.close_button]
+        for idx,widget in enumerate(self.tab_order_widgets):
+            widget.installEventFilter(WidgetTabFilter(widget, idx, self.tab_pressed_signal))
+
         self.books_table.setSelectionBehavior(QAbstractItemView.SelectRows)
         self.books_table.setSelectionMode(QAbstractItemView.SingleSelection)
         self.books_table.setColumnCount(3)
@@ -142,26 +176,39 @@ class Quickview(QDialog, Ui_Quickview):
         self.search_button.clicked.connect(self.do_search)
         self.view.model().new_bookdisplay_data.connect(self.book_was_changed)
 
-        close_button = self.buttonBox.button(QDialogButtonBox.Close)
-        close_button.setDefault(False)
+        self.close_button.setDefault(False)
         if self.is_pane:
-            close_button.setText(_('&Close'))
-
-        self.books_table.horizontalHeader().sectionResized.connect(self.section_resized)
-        if self.is_pane:
+            self.dock_button.setText(_('Undock'))
+            self.lock_qv.setText(_('Lock Quickview contents'))
+            self.search_button.setText(_('Search'))
             self.gui.quickview_splitter.add_quickview_dialog(self)
             self.set_focus()
+        else:
+            self.lock_qv.setText(_('&Dock'))
+            self.close_button.setText(_('&Close'))
 
-        self.show_as_pane.setChecked(self.is_pane)
-        self.show_as_pane.stateChanged.connect(self.show_as_pane_changed)
+        self.books_table.horizontalHeader().sectionResized.connect(self.section_resized)
+        self.dock_button.clicked.connect(self.show_as_pane_changed)
+
+    def tab_pressed(self, inWidget, isForward):
+        if isForward:
+            inWidget += 1
+            if inWidget > IN_WIDGET_LAST:
+                inWidget = 0
+        else:
+            inWidget -= 1
+            if inWidget < 0:
+                inWidget = IN_WIDGET_LAST
+        self.tab_order_widgets[inWidget].setFocus(Qt.TabFocusReason)
 
     def show(self):
         QDialog.show(self)
         if self.is_pane:
             self.gui.quickview_splitter.show_quickview_widget()
 
-    def show_as_pane_changed(self, new_state):
-        gprefs['quickview_is_pane'] = self.show_as_pane.isChecked()
+    def show_as_pane_changed(self):
+        gprefs['quickview_is_pane'] = not gprefs.get('quickview_is_pane', False)
+        self.reopen_quickview.emit()
 
     # search button
     def do_search(self):
