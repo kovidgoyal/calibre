@@ -7,12 +7,19 @@ __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import json
+import json, time
+
+from PyQt5.Qt import QApplication, QEventLoop
+
+from calibre.constants import DEBUG
 
 class PagePosition(object):
 
     def __init__(self, document):
         self.document = document
+        document.jump_to_cfi_listeners.add(self)
+        self.cfi_job_id = 0
+        self.pending_scrolls = set()
 
     @property
     def viewport_cfi(self):
@@ -30,9 +37,22 @@ class PagePosition(object):
 
     def scroll_to_cfi(self, cfi):
         if cfi:
+            jid = self.cfi_job_id
+            self.cfi_job_id += 1
             cfi = json.dumps(cfi)
+            self.pending_scrolls.add(jid)
             self.document.mainFrame().evaluateJavaScript(
-                    'paged_display.jump_to_cfi(%s)'%cfi)
+                    'paged_display.jump_to_cfi(%s, %d)' % (cfi, jid))
+            # jump_to_cfi is async, so we wait for it to complete
+            st = time.time()
+            WAIT = 1  # seconds
+            while jid in self.pending_scrolls and time.time() - st < WAIT:
+                QApplication.processEvents(QEventLoop.ExcludeUserInputEvents | QEventLoop.ExcludeSocketNotifiers)
+                time.sleep(0.01)
+            if jid in self.pending_scrolls:
+                self.pending_scrolls.discard(jid)
+                if DEBUG:
+                    print ('jump_to_cfi() failed to complete after %s seconds' % WAIT)
 
     @property
     def current_pos(self):
@@ -46,6 +66,9 @@ class PagePosition(object):
 
     def __exit__(self, *args):
         self.restore()
+
+    def __call__(self, cfi_job_id):
+        self.pending_scrolls.discard(cfi_job_id)
 
     def save(self, overwrite=True):
         if not overwrite and self._cpos is not None:
@@ -66,5 +89,3 @@ class PagePosition(object):
 
     def set_pos(self, pos):
         self._cpos = pos
-
-

@@ -93,6 +93,7 @@ class Document(QWebPage):  # {{{
         # javascript, get/set the value as: py_bridge.value
         self.bridge_value = None
         self.first_load = True
+        self.jump_to_cfi_listeners = set()
 
         self.debug_javascript = debug_javascript
         self.anchor_positions = {}
@@ -335,6 +336,11 @@ class Document(QWebPage):  # {{{
     @pyqtSlot(str)
     def debug(self, msg):
         prints(unicode(msg))
+
+    @pyqtSlot(int)
+    def jump_to_cfi_finished(self, job_id):
+        for l in self.jump_to_cfi_listeners:
+            l(job_id)
 
     def reference_mode(self, enable):
         self.javascript(('enter' if enable else 'leave')+'_reference_mode()')

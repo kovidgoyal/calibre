@@ -722,23 +722,16 @@ class EbookViewer(MainWindow):
             if self.isFullScreen():
                 self.relayout_fullscreen_labels()
         self.view.document.after_resize()
-        # For some reason scroll_fraction returns incorrect results in paged
-        # mode for some time after a resize is finished. No way of knowing
-        # exactly how long, so we update it in a second, in the hopes that it
-        # will be enough *most* of the time.
-        QTimer.singleShot(1000, self.scroll_after_resize_done)
         if not wmc:
             pre_footnote_pos = self.pre_footnote_toggle_position()
             if pre_footnote_pos is not None:
                 self.view.document.page_number = pre_footnote_pos
             else:
                 self.view.document.page_position.restore()
-
-    def scroll_after_resize_done(self):
-        self.update_page_number()
-        if len(self.page_position_on_footnote_toggle) % 2 == 1:
-            self.page_position_on_footnote_toggle[-1] = self.page_position_on_footnote_toggle[-1]._replace(
-                after_resize_page_number=self.view.document.page_number)
+                self.update_page_number()
+                if len(self.page_position_on_footnote_toggle) % 2 == 1:
+                    self.page_position_on_footnote_toggle[-1] = self.page_position_on_footnote_toggle[-1]._replace(
+                        after_resize_page_number=self.view.document.page_number)
 
     def update_page_number(self):
         self.set_page_number(self.view.document.scroll_fraction)
