@@ -17,7 +17,7 @@ from PyQt5.QtWebKitWidgets import QWebView, QWebPage
 from PyQt5.QtWebKit import QWebElement
 
 from calibre.ebooks.oeb.display.webview import load_html
-from calibre.gui2 import error_dialog, question_dialog, gprefs
+from calibre.gui2 import error_dialog, question_dialog
 from calibre.utils.logging import default_log
 
 class Page(QWebPage):  # {{{
@@ -97,8 +97,9 @@ class WebView(QWebView):  # {{{
 
 class ItemEdit(QWidget):
 
-    def __init__(self, parent):
+    def __init__(self, parent, prefs):
         QWidget.__init__(self, parent)
+        self.prefs = prefs
         self.setLayout(QVBoxLayout())
 
         self.la = la = QLabel('<b>'+_(
@@ -168,7 +169,7 @@ class ItemEdit(QWidget):
 
         l.addStretch()
 
-        state = gprefs.get('toc_edit_splitter_state', None)
+        state = self.prefs.get('toc_edit_splitter_state', None)
         if state is not None:
             sp.restoreState(state)
 

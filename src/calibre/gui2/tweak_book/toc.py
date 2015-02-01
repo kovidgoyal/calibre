@@ -13,9 +13,9 @@ from PyQt5.Qt import (
 
 from calibre.constants import plugins
 from calibre.ebooks.oeb.polish.toc import commit_toc, get_toc
-from calibre.gui2 import gprefs, error_dialog
+from calibre.gui2 import error_dialog
 from calibre.gui2.toc.main import TOCView, ItemEdit
-from calibre.gui2.tweak_book import current_container, TOP, actions
+from calibre.gui2.tweak_book import current_container, TOP, actions, tprefs
 
 class TOCEditor(QDialog):
 
@@ -35,10 +35,10 @@ class TOCEditor(QDialog):
 
         self.stacks = s = QStackedWidget(self)
         l.addWidget(s)
-        self.toc_view = TOCView(self)
+        self.toc_view = TOCView(self, tprefs)
         self.toc_view.add_new_item.connect(self.add_new_item)
         s.addWidget(self.toc_view)
-        self.item_edit = ItemEdit(self)
+        self.item_edit = ItemEdit(self, tprefs)
         s.addWidget(self.item_edit)
 
         bb = self.bb = QDialogButtonBox(QDialogButtonBox.Ok|QDialogButtonBox.Cancel)
@@ -49,7 +49,7 @@ class TOCEditor(QDialog):
         self.read_toc()
 
         self.resize(950, 630)
-        geom = gprefs.get('toc_editor_window_geom', None)
+        geom = tprefs.get('toc_editor_window_geom', None)
         if geom is not None:
             self.restoreGeometry(bytes(geom))
 
@@ -60,19 +60,19 @@ class TOCEditor(QDialog):
     def accept(self):
         if self.stacks.currentIndex() == 1:
             self.toc_view.update_item(*self.item_edit.result)
-            gprefs['toc_edit_splitter_state'] = bytearray(self.item_edit.splitter.saveState())
+            tprefs['toc_edit_splitter_state'] = bytearray(self.item_edit.splitter.saveState())
             self.stacks.setCurrentIndex(0)
         elif self.stacks.currentIndex() == 0:
             self.write_toc()
             super(TOCEditor, self).accept()
 
     def really_accept(self, tb):
-        gprefs['toc_editor_window_geom'] = bytearray(self.saveGeometry())
+        tprefs['toc_editor_window_geom'] = bytearray(self.saveGeometry())
         if tb:
             error_dialog(self, _('Failed to write book'),
                 _('Could not write %s. Click "Show details" for'
                   ' more information.')%self.book_title, det_msg=tb, show=True)
-            gprefs['toc_editor_window_geom'] = bytearray(self.saveGeometry())
+            tprefs['toc_editor_window_geom'] = bytearray(self.saveGeometry())
             super(TOCEditor, self).reject()
             return
 
@@ -82,10 +82,10 @@ class TOCEditor(QDialog):
         if not self.bb.isEnabled():
             return
         if self.stacks.currentIndex() == 1:
-            gprefs['toc_edit_splitter_state'] = bytearray(self.item_edit.splitter.saveState())
+            tprefs['toc_edit_splitter_state'] = bytearray(self.item_edit.splitter.saveState())
             self.stacks.setCurrentIndex(0)
         else:
-            gprefs['toc_editor_window_geom'] = bytearray(self.saveGeometry())
+            tprefs['toc_editor_window_geom'] = bytearray(self.saveGeometry())
             super(TOCEditor, self).reject()
 
     def read_toc(self):
