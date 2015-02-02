@@ -39,6 +39,8 @@ class ShowQuickviewAction(InterfaceAction):
                      default_keys=('Shift+S',), action=self.search_action,
                      group=self.action_spec[0])
         self.search_action.triggered.connect(self.search_quickview)
+        self.search_action.changed.connect(self.set_search_shortcut)
+        self.menuless_qaction.changed.connect(self.set_search_shortcut)
 
     def show_quickview(self, *args):
         if self.current_instance:
@@ -56,7 +58,13 @@ class ShowQuickviewAction(InterfaceAction):
         if index.isValid():
             self.current_instance = Quickview(self.gui, index)
             self.current_instance.reopen_quickview.connect(self.reopen_quickview)
+            self.set_search_shortcut()
             self.current_instance.show()
+
+    def set_search_shortcut(self):
+        if self.current_instance and not self.current_instance.is_closed:
+            self.current_instance.set_shortcuts(self.search_action.shortcut().toString(),
+                                                self.menuless_qaction.shortcut().toString())
 
     def reopen_quickview(self):
         if self.current_instance and not self.current_instance.is_closed:

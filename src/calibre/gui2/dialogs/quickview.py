@@ -200,7 +200,9 @@ class Quickview(QDialog, Ui_Quickview):
         self.view.model().new_bookdisplay_data.connect(self.book_was_changed)
 
         self.close_button.setDefault(False)
-        self.search_button.setToolTip(_('Search in the library view for the currently highlighted selection'))
+        self.close_button_tooltip = _('The Quickview shortcut ({0}) shows/hides the Quickview pane')
+        self.search_button_tooltip = _('Search in the library view for the currently highlighted selection')
+        self.search_button.setToolTip(self.search_button_tooltip)
         if self.is_pane:
             self.dock_button.setText(_('Undock'))
             self.dock_button.setToolTip(_('Pop up the quickview panel into its own floating window'))
@@ -208,8 +210,6 @@ class Quickview(QDialog, Ui_Quickview):
             self.lock_qv.setText(_('Lock Quickview contents'))
             self.search_button.setText(_('Search'))
             self.gui.quickview_splitter.add_quickview_dialog(self)
-            self.search_button.setToolTip(self.search_button.toolTip() + _(' (has shortcut)'))
-            self.close_button.setToolTip(_('The Quickview shortcut toggles this pane on/off'))
         else:
             self.close_button.setText(_('&Close'))
             self.dock_button.setText(_('&Dock'))
@@ -226,6 +226,11 @@ class Quickview(QDialog, Ui_Quickview):
         else:
             self.search_button.setEnabled(False)
         self.last_search = txt
+
+    def set_shortcuts(self, search_sc, qv_sc):
+        if self.is_pane:
+            self.search_button.setToolTip(self.search_button_tooltip + ' (' + search_sc + ')')
+            self.close_button.setToolTip(self.close_button_tooltip.format(qv_sc))
 
     def focus_entered(self, obj):
         if obj == self.books_table:
