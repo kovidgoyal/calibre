@@ -132,6 +132,7 @@ class Quickview(QDialog, Ui_Quickview):
 
         self.items.setSelectionMode(QAbstractItemView.SingleSelection)
         self.items.currentTextChanged.connect(self.item_selected)
+        self.items.setProperty('highlight_current_item', 150)
 
         self.tab_pressed_signal.connect(self.tab_pressed)
         # Set up the books table columns
@@ -148,6 +149,7 @@ class Quickview(QDialog, Ui_Quickview):
 
         self.books_table.setSelectionBehavior(QAbstractItemView.SelectRows)
         self.books_table.setSelectionMode(QAbstractItemView.SingleSelection)
+        self.books_table.setProperty('highlight_current_item', 150)
         self.books_table.setColumnCount(3)
         t = QTableWidgetItem(_('Title'))
         self.books_table.setHorizontalHeaderItem(self.title_column, t)
@@ -157,6 +159,7 @@ class Quickview(QDialog, Ui_Quickview):
         self.books_table.setHorizontalHeaderItem(self.series_column, t)
         self.books_table_header_height = self.books_table.height()
         self.books_table.cellDoubleClicked.connect(self.book_doubleclicked)
+        self.books_table.currentCellChanged.connect(self.books_table_cell_changed)
         self.books_table.sortByColumn(self.title_column, Qt.AscendingOrder)
 
         # get the standard table row height. Do this here because calling
@@ -194,6 +197,10 @@ class Quickview(QDialog, Ui_Quickview):
 
         self.books_table.horizontalHeader().sectionResized.connect(self.section_resized)
         self.dock_button.clicked.connect(self.show_as_pane_changed)
+
+    def books_table_cell_changed(self, current_row, current_col, last_row, last_col):
+        if current_col != 0:
+            self.books_table.setCurrentCell(current_row, 0)
 
     def tab_pressed(self, in_widget, isForward):
         if isForward:
