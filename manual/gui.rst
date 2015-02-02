@@ -700,6 +700,12 @@ Calibre has several keyboard shortcuts to save you time and mouse movement. Thes
       - Restart calibre in debug mode
     * - :kbd:`Shift+Ctrl+E`
       - Add empty books to calibre
+    * - :kbd:`Q`
+      - Open the Quick View popup for viewing books in related series/tags/etc.
+    * - :kbd:`Shift+Q`
+      - Focus the opened Quick View panel
+    * - :kbd:`Shift+S`
+      - Perform a search in the Quick View panel
     * - :kbd:`Ctrl+Q`
       - Quit calibre
 

@@ -115,7 +115,7 @@
         <string>&amp;Search</string>
        </property>
        <property name="toolTip">
-        <string>Search in the library view for the selected item</string>
+        <string>Search in the library view for the currently highlighted selection</string>
        </property>
        <property name="autoDefault">
         <bool>false</bool>

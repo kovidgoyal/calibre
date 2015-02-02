@@ -32,6 +32,14 @@ class ShowQuickviewAction(InterfaceAction):
                      group=self.action_spec[0])
         self.focus_action.triggered.connect(self.focus_quickview)
 
+        self.search_action = QAction(self.gui)
+        self.gui.addAction(self.search_action)
+        self.gui.keyboard.register_shortcut('Search from Quickview', _('Search from Quickview'),
+                     description=_('Search for the currently selected Quickview item'),
+                     default_keys=('Shift+S',), action=self.search_action,
+                     group=self.action_spec[0])
+        self.search_action.triggered.connect(self.search_quickview)
+
     def show_quickview(self, *args):
         if self.current_instance:
             if not self.current_instance.is_closed:
@@ -71,3 +79,8 @@ class ShowQuickviewAction(InterfaceAction):
         if not (self.current_instance and not self.current_instance.is_closed):
             self.show_quickview()
         self.current_instance.set_focus()
+
+    def search_quickview(self):
+        if not self.current_instance or self.current_instance.is_closed:
+            return
+        self.current_instance.do_search()
