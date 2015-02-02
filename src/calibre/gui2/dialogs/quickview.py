@@ -51,7 +51,7 @@ IN_WIDGET_DOCK = 3
 IN_WIDGET_SEARCH = 4
 IN_WIDGET_CLOSE = 5
 
-class BooksKeyPressFilter(QObject):
+class BooksTableFilter(QObject):
 
     return_pressed_signal = pyqtSignal()
 
@@ -59,6 +59,15 @@ class BooksKeyPressFilter(QObject):
         if event.type() == QEvent.KeyPress and event.key() == Qt.Key_Return:
             self.return_pressed_signal.emit()
             return True
+        return False
+
+class WidgetFocusFilter(QObject):
+
+    focus_entered_signal = pyqtSignal(object)
+
+    def eventFilter(self, obj, event):
+        if event.type() == QEvent.FocusIn:
+            self.focus_entered_signal.emit(obj)
         return False
 
 class WidgetTabFilter(QObject):
@@ -134,11 +143,19 @@ class Quickview(QDialog, Ui_Quickview):
         self.items.currentTextChanged.connect(self.item_selected)
         self.items.setProperty('highlight_current_item', 150)
 
+        focus_filter = WidgetFocusFilter(self.items)
+        focus_filter.focus_entered_signal.connect(self.focus_entered)
+        self.items.installEventFilter(focus_filter)
+
         self.tab_pressed_signal.connect(self.tab_pressed)
         # Set up the books table columns
-        return_filter = BooksKeyPressFilter(self.books_table)
+        return_filter = BooksTableFilter(self.books_table)
         return_filter.return_pressed_signal.connect(self.return_pressed)
         self.books_table.installEventFilter(return_filter)
+
+        focus_filter = WidgetFocusFilter(self.books_table)
+        focus_filter.focus_entered_signal.connect(self.focus_entered)
+        self.books_table.installEventFilter(focus_filter)
 
         self.close_button = self.buttonBox.button(QDialogButtonBox.Close)
 
@@ -160,6 +177,8 @@ class Quickview(QDialog, Ui_Quickview):
         self.books_table_header_height = self.books_table.height()
         self.books_table.cellDoubleClicked.connect(self.book_doubleclicked)
         self.books_table.currentCellChanged.connect(self.books_table_cell_changed)
+        self.books_table.cellClicked.connect(self.books_table_set_search_string)
+        self.books_table.cellActivated.connect(self.books_table_set_search_string)
         self.books_table.sortByColumn(self.title_column, Qt.AscendingOrder)
 
         # get the standard table row height. Do this here because calling
@@ -181,6 +200,7 @@ class Quickview(QDialog, Ui_Quickview):
         self.view.model().new_bookdisplay_data.connect(self.book_was_changed)
 
         self.close_button.setDefault(False)
+        self.search_button.setToolTip(_('Search in the library view for the currently highlighted selection'))
         if self.is_pane:
             self.dock_button.setText(_('Undock'))
             self.dock_button.setToolTip(_('Pop up the quickview panel into its own floating window'))
@@ -188,9 +208,11 @@ class Quickview(QDialog, Ui_Quickview):
             self.lock_qv.setText(_('Lock Quickview contents'))
             self.search_button.setText(_('Search'))
             self.gui.quickview_splitter.add_quickview_dialog(self)
+            self.search_button.setToolTip(self.search_button.toolTip() + _(' (has shortcut)'))
+            self.close_button.setToolTip(_('The Quickview shortcut toggles this pane on/off'))
         else:
-            self.lock_qv.setText(_('&Dock'))
             self.close_button.setText(_('&Close'))
+            self.dock_button.setText(_('&Dock'))
             self.dock_button.setToolTip(_('Embed the quickview panel into the main calibre window'))
             self.dock_button.setIcon(QIcon(I('arrow-down.png')))
         self.set_focus()
@@ -198,9 +220,40 @@ class Quickview(QDialog, Ui_Quickview):
         self.books_table.horizontalHeader().sectionResized.connect(self.section_resized)
         self.dock_button.clicked.connect(self.show_as_pane_changed)
 
-    def books_table_cell_changed(self, current_row, current_col, last_row, last_col):
-        if current_col != 0:
-            self.books_table.setCurrentCell(current_row, 0)
+    def set_search_text(self, txt):
+        if txt:
+            self.search_button.setEnabled(True)
+        else:
+            self.search_button.setEnabled(False)
+        self.last_search = txt
+
+    def focus_entered(self, obj):
+        if obj == self.books_table:
+            self.books_table_set_search_string(self.books_table.currentRow(),
+                                               self.books_table.currentColumn())
+        elif obj.currentItem():
+            self.item_selected(obj.currentItem().text())
+
+    def books_table_cell_changed(self, cur_row, cur_col, prev_row, prev_col):
+        self.books_table_set_search_string(cur_row, cur_col)
+
+    def books_table_set_search_string(self, current_row, current_col):
+        current = self.books_table.currentItem()
+        if current is None:
+            return
+        if current.column() == 0:
+            self.set_search_text('title:="' + current.text().replace('"', '\\"') + '"')
+        elif current.column() == 1:
+            authors = []
+            for aut in [t.strip() for t in current.text().split('&')]:
+                authors.append('authors:="' + aut.replace('"', '\\"') + '"')
+            self.set_search_text(' and '.join(authors))
+        else:
+            t = current.text().rpartition('[')[0].strip()
+            if t:
+                self.set_search_text('series:="' + t.replace('"', '\\"') + '"')
+            else:
+                self.set_search_text(None)
 
     def tab_pressed(self, in_widget, isForward):
         if isForward:
@@ -251,6 +304,7 @@ class Quickview(QDialog, Ui_Quickview):
         if self.no_valid_items:
             return
         self.fill_in_books_box(unicode(txt))
+        self.set_search_text(self.current_key + ':"=' + txt.replace('"', '\\"') + '"')
 
     # Given a cell in the library view, display the information
     def refresh(self, idx):
@@ -319,9 +373,8 @@ class Quickview(QDialog, Ui_Quickview):
             sv = '.' + selected_item
         else:
             sv = selected_item
-        sv = sv.replace('"', r'\"')
-        self.last_search = self.current_key+':"=' + sv + '"'
-        books = self.db.search(self.last_search, return_matches=True,
+        sv = self.current_key + ':"=' + sv.replace('"', r'\"') + '"'
+        books = self.db.search(sv, return_matches=True,
                                sort_results=False)
 
         self.books_table.setRowCount(len(books))
@@ -359,6 +412,7 @@ class Quickview(QDialog, Ui_Quickview):
         if select_item is not None:
             self.books_table.setCurrentItem(select_item)
             self.books_table.scrollToItem(select_item, QAbstractItemView.PositionAtCenter)
+        self.set_search_text(sv)
 
     # Deal with sizing the table columns. Done here because the numbers are not
     # correct until the first paint.
@@ -400,7 +454,7 @@ class Quickview(QDialog, Ui_Quickview):
                 em.actual_plugin_.edit_metadata(None)
 
     def set_focus(self):
-        self.books_table.setFocus(Qt.ActiveWindowFocusReason)
+        self.items.setFocus(Qt.ActiveWindowFocusReason)
 
     # called when a book is clicked on the library view
     def slave(self, current):
