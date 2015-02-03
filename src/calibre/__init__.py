@@ -19,6 +19,7 @@ from calibre.constants import (iswindows, isosx, islinux, isfrozen,
         win32event, win32api, winerror, fcntl,
         filesystem_encoding, plugins, config_dir)
 from calibre.startup import winutil, winutilerror
+from calibre.utils.icu import safe_chr
 
 if False and islinux and not getattr(sys, 'frozen', False):
     # Imported before PyQt to workaround PyQt util-linux conflict discovered on gentoo
@@ -533,7 +534,7 @@ def strftime(fmt, t=None):
 
 def my_unichr(num):
     try:
-        return unichr(num)
+        return safe_chr(num)
     except (ValueError, OverflowError):
         return u'?'
 
