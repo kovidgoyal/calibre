@@ -70,6 +70,15 @@ def zip_rebuilder(tdir, path):
                 zfn = unicodedata.normalize('NFC', os.path.relpath(absfn, tdir).replace(os.sep, '/'))
                 zf.write(absfn, zfn)
 
+def docx_exploder(path, tdir, question=lambda x:True):
+    zipextract(path, tdir)
+    from calibre.ebooks.docx.dump import pretty_all_xml_in_dir
+    pretty_all_xml_in_dir(tdir)
+    for f in walk(tdir):
+        if os.path.basename(f) == 'document.xml':
+            return f
+    raise Error('Invalid book: Could not find document.xml')
+
 def get_tools(fmt):
     fmt = fmt.lower()
 
@@ -78,6 +87,8 @@ def get_tools(fmt):
         ans = mobi_exploder, rebuild
     elif fmt in {'epub', 'htmlz'}:
         ans = zip_exploder, zip_rebuilder
+    elif fmt == 'docx':
+        ans = docx_exploder, zip_rebuilder
     else:
         ans = None, None
 
