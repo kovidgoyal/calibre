@@ -581,17 +581,21 @@ class Convert(object):
                     continue
                 space = child.get(XML('space'), None)
                 preserve = False
-                if space == 'preserve':
-                    # Only use a <span> with white-space:pre-wrap if this element
-                    # actually needs it, i.e. if it has more than one
-                    # consecutive space or it has newlines or tabs.
-                    multi_spaces = self.ms_pat.search(child.text) is not None
-                    preserve = multi_spaces or self.ws_pat.search(child.text) is not None
+                ctext = child.text
+                if space != 'preserve':
+                    # Remove leading and trailing whitespace. Word ignores
+                    # leading and trailing whitespace without preserve
+                    ctext = ctext.strip()
+                # Only use a <span> with white-space:pre-wrap if this element
+                # actually needs it, i.e. if it has more than one
+                # consecutive space or it has newlines or tabs.
+                multi_spaces = self.ms_pat.search(ctext) is not None
+                preserve = multi_spaces or self.ws_pat.search(ctext) is not None
                 if preserve:
-                    text.add_elem(SPAN(child.text, style="white-space:pre-wrap"))
+                    text.add_elem(SPAN(ctext, style="white-space:pre-wrap"))
                     ans.append(text.elem)
                 else:
-                    text.buf.append(child.text)
+                    text.buf.append(ctext)
             elif is_tag(child, 'w:cr'):
                 text.add_elem(BR())
                 ans.append(text.elem)
