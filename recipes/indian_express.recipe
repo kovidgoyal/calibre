@@ -35,3 +35,6 @@ class IndianExpress(BasicNewsRecipe):
 ('Bollywood',
  'http://indianexpress.com/section/entertainment/bollywood/feed/'),
 ]
+
+    def print_version(self, url):
+        return url.partition('?')[0].rstrip('/') + '/99'
