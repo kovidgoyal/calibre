@@ -88,7 +88,7 @@ def tweak(ebook_file):
     fmt = ebook_file.rpartition('.')[-1].lower()
     exploder, rebuilder = get_tools(fmt)
     if exploder is None:
-        prints('Cannot tweak %s files. Supported formats are: EPUB, HTMLZ, AZW3, MOBI'
+        prints('Cannot tweak %s files. Supported formats are: EPUB, HTMLZ, AZW3, MOBI' % fmt.upper()
                 , file=sys.stderr)
         raise SystemExit(1)
 
