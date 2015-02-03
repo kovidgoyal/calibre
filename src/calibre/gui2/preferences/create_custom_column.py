@@ -145,6 +145,7 @@ class CreateCustomColumn(QDialog, Ui_QCreateCustomColumn):
             self.use_decorations.setChecked(c['display'].get('use_decorations', False))
         elif ct == '*text':
             self.is_names.setChecked(c['display'].get('is_names', False))
+        self.description_box.setText(c['display'].get('description', ''))
 
         self.composite_contains_html.setToolTip('<p>' +
                 _('If checked, this column will be displayed as HTML in '
@@ -312,6 +313,7 @@ class CreateCustomColumn(QDialog, Ui_QCreateCustomColumn):
 
         if col_type in ['text', 'composite', 'enumeration'] and not is_multiple:
             display_dict['use_decorations'] = self.use_decorations.checkState()
+        display_dict['description'] = self.description_box.text().strip()
 
         if not self.editing_col:
             self.parent.custcols[key] = {

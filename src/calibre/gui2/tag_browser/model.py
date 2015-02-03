@@ -333,7 +333,13 @@ class TagsModel(QAbstractItemModel):  # {{{
             elif key == 'news':
                 tt = ''
             else:
-                tt = _(u'The lookup/search name is "{0}"').format(key)
+                cust_desc = ''
+                fm = self.db.field_metadata[key]
+                if fm['is_custom']:
+                    cust_desc = fm['display'].get('description', '')
+                    if cust_desc:
+                        cust_desc = '\n' + _('Description:') + ' ' + cust_desc
+                tt = _(u'The lookup/search name is "{0}"{1}').format(key, cust_desc)
 
             if self.category_custom_icons.get(key, None) is None:
                 self.category_custom_icons[key] = (
