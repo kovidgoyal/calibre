@@ -18,7 +18,7 @@ from PyQt5.Qt import (QObject, QKeySequence, QAbstractItemModel, QModelIndex,
 
 from calibre.utils.config import JSONConfig
 from calibre.constants import DEBUG
-from calibre import prints
+from calibre import prints, prepare_string_for_xml
 from calibre.utils.icu import sort_key, lower
 from calibre.gui2 import error_dialog, info_dialog
 from calibre.utils.search_query_parser import SearchQueryParser, ParseException
@@ -520,7 +520,8 @@ class Delegate(QStyledItemDelegate):  # {{{
                 keys = _('None')
             else:
                 keys = ', '.join(keys)
-            html = '<b>%s</b><br>%s: %s'%(shortcut['name'], _('Shortcuts'), keys)
+            html = '<b>%s</b><br>%s: %s'%(
+                prepare_string_for_xml(shortcut['name']), _('Shortcuts'), prepare_string_for_xml(keys))
         else:
             # Group
             html = '<h3>%s</h3>'%data.data
