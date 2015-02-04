@@ -20,33 +20,35 @@ class FazNet(BasicNewsRecipe):
     encoding              = 'utf-8'
     remove_javascript     = True
 
-    keep_only_tags = [{'class':['FAZArtikelEinleitung']},
-											dict(name='div', attrs={'class':'FAZSlimHeader'}), 
-											{'id':'ArtikelTabContent_0'}
-											]
+    keep_only_tags = [
+        {'class':['FAZArtikelEinleitung']},
+        dict(name='div', attrs={'class':'FAZSlimHeader'}),
+        {'id':'ArtikelTabContent_0'}
+    ]
 
     remove_tags_after = [dict(name='div', attrs={'class':['ArtikelFooter']})]
-    remove_tags = [dict(name='div', attrs={'class':['ArtikelFooter','clear']}),
-									 dict(name='a', attrs={'title':['Vergrößern']}), #AGe 2014-10-22
-									 dict(name='img', attrs={'class':['VideoCtrlIcon']}), #AGe 2014-10-22
-									 dict(name='span', attrs={'class':['shareAutor']}) #AGe 2014-10-22
-									]
+    remove_tags = [
+        dict(name='div', attrs={'class':['ArtikelFooter','clear']}),
+        dict(name='a', attrs={'title':['Vergrößern']}),  # AGe 2014-10-22
+        dict(name='img', attrs={'class':['VideoCtrlIcon']}),  # AGe 2014-10-22
+        dict(name='span', attrs={'class':['shareAutor']})  # AGe 2014-10-22
+    ]
 
     feeds = [
-              ('FAZ.NET Aktuell', 'http://www.faz.net/aktuell/?rssview=1'),
-							('Politik', 'http://www.faz.net/aktuell/politik/?rssview=1'),
-							('Wirtschaft', 'http://www.faz.net/aktuell/wirtschaft/?rssview=1'),
-							('Feuilleton', 'http://www.faz.net/aktuell/feuilleton/?rssview=1'),
-							('Sport', 'http://www.faz.net/aktuell/sport/?rssview=1'),
-							('Lebensstil', 'http://www.faz.net/aktuell/lebensstil/?rssview=1'),
-							('Gesellschaft', 'http://www.faz.net/aktuell/gesellschaft/?rssview=1'),
-							('Finanzen', 'http://www.faz.net/aktuell/finanzen/?rssview=1'),
-							('Technik & Motor', 'http://www.faz.net/aktuell/technik-motor/?rssview=1'),
-							('Wissen', 'http://www.faz.net/aktuell/wissen/?rssview=1'),
-							('Reise', 'http://www.faz.net/aktuell/reise/?rssview=1'),
-							('Beruf & Chance', 'http://www.faz.net/aktuell/beruf-chance/?rssview=1'),
-							('Rhein-Main', 'http://www.faz.net/aktuell/rhein-main/?rssview=1')
-            ]
+        ('FAZ.NET Aktuell', 'http://www.faz.net/aktuell/?rssview=1'),
+        ('Politik', 'http://www.faz.net/aktuell/politik/?rssview=1'),
+        ('Wirtschaft', 'http://www.faz.net/aktuell/wirtschaft/?rssview=1'),
+        ('Feuilleton', 'http://www.faz.net/aktuell/feuilleton/?rssview=1'),
+        ('Sport', 'http://www.faz.net/aktuell/sport/?rssview=1'),
+        ('Lebensstil', 'http://www.faz.net/aktuell/lebensstil/?rssview=1'),
+        ('Gesellschaft', 'http://www.faz.net/aktuell/gesellschaft/?rssview=1'),
+        ('Finanzen', 'http://www.faz.net/aktuell/finanzen/?rssview=1'),
+        ('Technik & Motor', 'http://www.faz.net/aktuell/technik-motor/?rssview=1'),
+        ('Wissen', 'http://www.faz.net/aktuell/wissen/?rssview=1'),
+        ('Reise', 'http://www.faz.net/aktuell/reise/?rssview=1'),
+        ('Beruf & Chance', 'http://www.faz.net/aktuell/beruf-chance/?rssview=1'),
+        ('Rhein-Main', 'http://www.faz.net/aktuell/rhein-main/?rssview=1')
+    ]
 
 # AGe 2014-01-10 For multipages
     INDEX                 = ''
@@ -56,16 +58,20 @@ class FazNet(BasicNewsRecipe):
             nexturl = self.INDEX + pager['href']
             soup2 = self.index_to_soup(nexturl)
             texttag = soup2.find('div', attrs={'class':'FAZArtikelContent'})
-            for cls in ('ArtikelFooter', 'ArtikelAbbinder', 'ArtikelKommentieren Artikelfuss GETS;tk;boxen.top-lesermeinungen;tp;content', 'Anzeige GoogleAdsBuehne', 
-												'ThemenLinks', 'rechtehinweis', 'stageModule Ressortmodul Rubrikenkopf clearfix', 'VideoCtrlIcon', 'ArtikelAbbinder clearfix',
-												'stageModule clearfix GETS;tk;artikel.empfehlungen.weitere-artikel;tp;content'):  #AGe 2014-10-22       
+            for cls in (
+                    'ArtikelFooter', 'ArtikelAbbinder',
+                    'ArtikelKommentieren Artikelfuss GETS;tk;boxen.top-lesermeinungen;tp;content',
+                    'Anzeige GoogleAdsBuehne', 'ThemenLinks', 'rechtehinweis',
+                    'stageModule Ressortmodul Rubrikenkopf clearfix', 'VideoCtrlIcon',
+                    'ArtikelAbbinder clearfix',
+                    'stageModule clearfix GETS;tk;artikel.empfehlungen.weitere-artikel;tp;content'):  # AGe 2014-10-22
                 div = texttag.find(attrs={'class':cls})
                 if div is not None:
                     div.extract()
-                div = texttag.find(attrs={'title':'Vergrößern'}) #AGe 2014-10-22
+                div = texttag.find(attrs={'title':'Vergrößern'})  # AGe 2014-10-22
                 if div is not None:
                     div.extract()
-           
+
             newpos = len(texttag.contents)
             self.append_page(soup2,texttag,newpos)
             texttag.extract()
@@ -74,6 +80,8 @@ class FazNet(BasicNewsRecipe):
 
     def preprocess_html(self, soup):
         self.append_page(soup, soup.body, 3)
+        for img in soup.findAll('img', attrs={'data-src':True}):
+            img['src'] = img['data-src']
         return self.adeify_images(soup)
 
     def postprocess_html(self, soup, first_fetch):
