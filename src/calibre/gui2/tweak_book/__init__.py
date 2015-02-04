@@ -64,6 +64,7 @@ d['editor_format_toolbar'] = [('format-text-' + x) if x else x for x in (
 d['spell_check_case_sensitive_search'] = False
 d['add_cover_preserve_aspect_ratio'] = False
 d['templates'] = {}
+d['auto_close_tags'] = True
 del d
 
 ucase_map = {l:string.ascii_uppercase[i] for i, l in enumerate(string.ascii_lowercase)}

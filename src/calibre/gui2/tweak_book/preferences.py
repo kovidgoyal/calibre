@@ -194,6 +194,12 @@ class EditorSettings(BasicSettings):
             ' happens only when the trailing semi-colon is typed.'))
         l.addRow(lw)
 
+        lw = self('auto_close_tags')
+        lw.setText(_('Auto &close tags when typing </'))
+        lw.setToolTip('<p>' + _(
+            'With this option, every time you type </ the current HTML closing tag is auto-completed'))
+        l.addRow(lw)
+
         lw = self('editor_show_char_under_cursor')
         lw.setText(_('Show the name of the current character before the cursor along with the line and column number'))
         l.addRow(lw)

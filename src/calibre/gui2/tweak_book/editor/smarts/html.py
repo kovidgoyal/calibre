@@ -619,6 +619,8 @@ class Smarts(NullSmarts):
                 editor.setTextCursor(c)
 
     def auto_close_tag(self, editor):
+        if not tprefs['auto_close_tags']:
+            return False
 
         def check_if_in_tag(block, offset=0):
             if block.isValid():
