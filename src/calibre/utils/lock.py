@@ -242,6 +242,8 @@ else:
         from calibre.utils.ipc import eintr_retry_call
         path = singleinstance_path(name)
         f = open(path, 'w')
+        old_flags = fcntl.fcntl(f.fileno(), fcntl.F_GETFD)
+        fcntl.fcntl(f.fileno(), fcntl.F_SETFD, old_flags | fcntl.FD_CLOEXEC)
         try:
             eintr_retry_call(fcntl.lockf, f.fileno(), fcntl.LOCK_EX|fcntl.LOCK_NB)
             atexit.register(_clean_lock_file, f)
