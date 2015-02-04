@@ -135,13 +135,14 @@ class CalibreSplashScreen(QSplashScreen):
 
 def main():
     os.closerange(3, 256)
-    from calibre.gui2 import Application
-    app = Application([])
+    app = QApplication([])
     s = CalibreSplashScreen()
     s.show_message.connect(s.showMessage, type=Qt.QueuedConnection)
     s.shutdown.connect(app.quit, type=Qt.QueuedConnection)
     s.show()
-    Thread(target=run_loop, args=(s,)).start()
+    t = Thread(target=run_loop, args=(s,))
+    t.daemon = True
+    t.start()
     app.exec_()
 
 if isosx:
