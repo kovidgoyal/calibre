@@ -619,8 +619,20 @@ class Smarts(NullSmarts):
                 editor.setTextCursor(c)
 
     def auto_close_tag(self, editor):
+
+        def check_if_in_tag(block, offset=0):
+            if block.isValid():
+                text = block.text()
+                close_pos = text.find('>', offset)
+                open_pos = text.find('<', offset)
+                if (close_pos > -1 and open_pos == -1) or (close_pos < open_pos):
+                    return True
+            return False
+
         c = editor.textCursor()
         block, offset = c.block(), c.positionInBlock()
+        if check_if_in_tag(block, offset) or check_if_in_tag(block.next()):
+            return False
         tag = find_closest_containing_tag(block, offset - 1, max_tags=4000)
         if tag is None:
             return False
