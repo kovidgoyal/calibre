@@ -4,8 +4,9 @@ __docformat__ = 'restructuredtext en'
 __license__   = 'GPL v3'
 
 
-from PyQt5.Qt import QDialog, QGridLayout, QLabel, QDialogButtonBox,  \
-            QApplication, QSpinBox, QToolButton, QIcon, QCheckBox
+from PyQt5.Qt import (
+    QDialog, QGridLayout, QLabel, QDialogButtonBox,  QApplication, QSpinBox,
+    QToolButton, QIcon, QCheckBox, QLineEdit)
 from calibre.ebooks.metadata import string_to_authors
 from calibre.gui2.complete2 import EditWithComplete
 from calibre.utils.config import tweaks
@@ -13,7 +14,7 @@ from calibre.gui2 import gprefs
 
 class AddEmptyBookDialog(QDialog):
 
-    def __init__(self, parent, db, author, series=None):
+    def __init__(self, parent, db, author, series=None, title=None):
         QDialog.__init__(self, parent)
         self.db = db
 
@@ -50,7 +51,7 @@ class AddEmptyBookDialog(QDialog):
         self._layout.addWidget(self.series_label, 4, 0, 1, 2)
 
         self.series_combo = EditWithComplete(self)
-        self.authors_combo.setSizeAdjustPolicy(
+        self.series_combo.setSizeAdjustPolicy(
                 self.authors_combo.AdjustToMinimumContentsLengthWithIcon)
         self.series_combo.setEditable(True)
         self._layout.addWidget(self.series_combo, 5, 0, 1, 1)
@@ -62,15 +63,28 @@ class AddEmptyBookDialog(QDialog):
         self.sclear_button.clicked.connect(self.reset_series)
         self._layout.addWidget(self.sclear_button, 5, 1, 1, 1)
 
+        self.title_label = QLabel(_('Set the title of the new books to:'))
+        self._layout.addWidget(self.title_label, 6, 0, 1, 2)
+
+        self.title_edit = QLineEdit(self)
+        self.title_edit.setText(title or '')
+        self._layout.addWidget(self.title_edit, 7, 0, 1, 1)
+
+        self.tclear_button = QToolButton(self)
+        self.tclear_button.setIcon(QIcon(I('trash.png')))
+        self.tclear_button.setToolTip(_('Reset title'))
+        self.tclear_button.clicked.connect(self.title_edit.clear)
+        self._layout.addWidget(self.tclear_button, 7, 1, 1, 1)
+
         self.create_epub = c = QCheckBox(_('Create an empty EPUB file as well'))
         c.setChecked(gprefs.get('create_empty_epub_file', False))
         c.setToolTip(_('Also create an empty EPUB file that you can subsequently edit'))
-        self._layout.addWidget(c, 6, 0, 1, -1)
+        self._layout.addWidget(c, 8, 0, 1, -1)
 
         button_box = self.bb = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
         button_box.accepted.connect(self.accept)
         button_box.rejected.connect(self.reject)
-        self._layout.addWidget(button_box, 7, 0, 1, -1)
+        self._layout.addWidget(button_box, 9, 0, 1, -1)
         self.resize(self.sizeHint())
 
     def accept(self):
@@ -113,7 +127,13 @@ class AddEmptyBookDialog(QDialog):
     def selected_series(self):
         return unicode(self.series_combo.text())
 
+    @property
+    def selected_title(self):
+        return self.title_edit.text().strip()
+
 if __name__ == '__main__':
+    from calibre.library import db
+    db = db()
     app = QApplication([])
-    d = AddEmptyBookDialog()
+    d = AddEmptyBookDialog(None, db, 'Test Author')
     d.exec_()
