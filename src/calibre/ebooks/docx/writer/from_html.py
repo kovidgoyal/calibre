@@ -6,6 +6,8 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
+import re
+
 from lxml import etree
 
 from calibre.ebooks.docx.writer.utils import convert_color, int_or_zero
@@ -91,11 +93,21 @@ class LineBreak(object):
 
 class TextRun(object):
 
+    ws_pat = None
+
     def __init__(self, style):
+        if self.ws_pat is None:
+            TextRun.ws_pat = self.ws_pat = re.compile(r'\s+')
         self.style = style
         self.texts = []
 
     def add_text(self, text, preserve_whitespace):
+        if not preserve_whitespace:
+            text = self.ws_pat.sub(' ', text)
+            if text.strip() != text:
+                # If preserve_whitespace is False, Word ignores leading and
+                # trailing whitespace
+                preserve_whitespace = True
         self.texts.append((text, preserve_whitespace))
 
     def add_break(self, clear='none'):
@@ -188,5 +200,3 @@ class Convert(object):
 
         if html_child.tail:
             docx_block.add_text(html_child.tail, stylizer.style(html_child.getparent()))
-
-
