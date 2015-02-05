@@ -76,7 +76,13 @@ class TextStyle(object):
             getattr(self, x) for x in self.ALL_PROPS))
 
     def __eq__(self, other):
-        return hash(self) == hash(other)
+        for x in self.ALL_PROPS:
+            if getattr(self, x) != getattr(other, x, None):
+                return False
+        return True
+
+    def __ne__(self, other):
+        return not self == other
 
 class LineBreak(object):
 
