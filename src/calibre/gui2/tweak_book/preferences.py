@@ -20,6 +20,7 @@ from PyQt5.Qt import (
     QFontComboBox, QPushButton, QSizePolicy, QHBoxLayout, QGroupBox,
     QToolButton, QVBoxLayout, QSpacerItem, QTimer)
 
+from calibre import prepare_string_for_xml
 from calibre.gui2.keyboard import ShortcutConfig
 from calibre.gui2.tweak_book import tprefs, toolbar_actions, editor_toolbar_actions, actions
 from calibre.gui2.tweak_book.editor.themes import default_theme, all_theme_names, ThemeEditor
@@ -196,8 +197,8 @@ class EditorSettings(BasicSettings):
 
         lw = self('auto_close_tags')
         lw.setText(_('Auto &close tags when typing </'))
-        lw.setToolTip('<p>' + _(
-            'With this option, every time you type </ the current HTML closing tag is auto-completed'))
+        lw.setToolTip('<p>' + prepare_string_for_xml(_(
+            'With this option, every time you type </ the current HTML closing tag is auto-completed')))
         l.addRow(lw)
 
         lw = self('editor_show_char_under_cursor')
