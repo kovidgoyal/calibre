@@ -31,7 +31,7 @@ scp -r ~/work/vim/zsh-syntax-highlighting $server:work/vim
 scp -r ~/work/vim/zsh-history-substring-search $server:work/vim
 
 cd /usr/local && git clone https://github.com/kovidgoyal/calibre.git
-echo '#!/bin/sh\ncd /usr/local/calibre && git pull -q' > /usr/local/bin/update-calibre && chmod +x /usr/local/bin/update-calibre
+echo '#!/bin/sh\ncd /usr/local/calibre && git fetch -q && git reset --hard -q origin/master' > /usr/local/bin/update-calibre && chmod +x /usr/local/bin/update-calibre
 
 Edit /etc/default/rcS and set
 FSCKFIX=yes
