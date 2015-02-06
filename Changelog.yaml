@@ -20,6 +20,53 @@
 #   new recipes:
 #     - title: 
 
+- version: 2.19.0
+  date: 2015-02-06
+
+  new features:
+    - title: "Quick view window: Allow the quickview window to be docked into the main calibre window."
+      tickets: [1415714]
+
+    - title: "Add empty book: Allow setting the title as well as the author and series for the added empty book records"
+
+    - title: "Windows driver for Grammata Papyre 602."
+      tickets: [1418207]
+
+    - title: "Edit Book: Add an option to turn off auto-completion of closing tags"
+
+    - title: "Allow adding a description for custom columns."
+      tickets: [1417219]
+
+    - title: "Book Details panel: Allow any identifier of the form url+number to become a clickable link. For example: url1:http://example.com"
+
+  bug fixes:
+    - title: "Conversion: Convert entities that reference non-BMP unicode codepoints on Windows and OS X correctly. Linux was not affected by this bug."
+      tickets: [1417327]
+
+    - title: "Edit Book: Do not autocomplete the closing tag wen typing the / key inside an existing tag."
+      tickets: [1417700]
+
+    - title: "Fix Booken Lev e-book reader not being detected in OS X and Linux."
+      tickets: [1417325]
+
+    - title: "DOCX Input: Change handling of sequences of space characters to more closely follow Microsoft Word."
+
+    - title: "Edit Book: Fix Table of Contents editor not remembering its saved state across calibre sessions"
+
+    - title: "Edit book: Disallow drag and drop of documents onto the preview panel to workaround crashing bug in Qt."
+      tickets: [1416752]
+
+    - title: "E-book viewer: Fix current page not being preserved when opening and then immediately closing the footnote window."
+      tickets: [1416526]
+
+    - title: "PDF Output: Fix incorrect encoding for some chinese characters in the PDF Outline (Table of Contents)"
+      tickets: [1416222]
+
+  improved recipes:
+    - FAZ.net
+    - Indian Express
+    - CNN
+
 - version: 2.18.0
   date: 2015-01-30
 
