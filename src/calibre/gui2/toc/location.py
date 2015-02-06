@@ -17,7 +17,7 @@ from PyQt5.QtWebKitWidgets import QWebView, QWebPage
 from PyQt5.QtWebKit import QWebElement
 
 from calibre.ebooks.oeb.display.webview import load_html
-from calibre.gui2 import error_dialog, question_dialog
+from calibre.gui2 import error_dialog, question_dialog, gprefs
 from calibre.utils.logging import default_log
 
 class Page(QWebPage):  # {{{
@@ -97,9 +97,9 @@ class WebView(QWebView):  # {{{
 
 class ItemEdit(QWidget):
 
-    def __init__(self, parent, prefs):
+    def __init__(self, parent, prefs=None):
         QWidget.__init__(self, parent)
-        self.prefs = prefs
+        self.prefs = prefs or gprefs
         self.setLayout(QVBoxLayout())
 
         self.la = la = QLabel('<b>'+_(
