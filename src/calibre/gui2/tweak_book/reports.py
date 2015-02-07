@@ -490,7 +490,7 @@ class ImagesWidget(QWidget):
 
 class LinksModel(FileCollection):
 
-    COLUMN_HEADERS = [_('OK'), _('Source'), _('Source text'), _('Target'), _('Anchor'), _('Target text')]
+    COLUMN_HEADERS = ['✓ ', _('Source'), _('Source text'), _('Target'), _('Anchor'), _('Target text')]
 
     def __init__(self, parent=None):
         FileCollection.__init__(self, parent)
