@@ -177,6 +177,12 @@ def mi_to_html(mi, field_list=None, default_author_link=None, use_roman_numbers=
                 continue
             names = filter(None, map(calibre_langcode_to_name, mi.languages))
             ans.append((field, row % (name, u', '.join(names))))
+        elif field == 'publisher':
+            if not mi.publisher:
+                continue
+            val = '<a href="%s" title="%s">%s</a>' % (
+                search_href('publisher', mi.publisher), _('Click to see books with {0}: {1}').format(metadata['name'], a(mi.publisher)), p(mi.publisher))
+            ans.append((field, row % (name, val)))
         else:
             val = mi.format_field(field)[-1]
             if val is None:
