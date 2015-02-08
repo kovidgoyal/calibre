@@ -24,6 +24,7 @@ FOOTNOTES = 'http://schemas.openxmlformats.org/officeDocument/2006/relationships
 ENDNOTES  = 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/endnotes'
 THEMES    = 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/theme'
 SETTINGS  = 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/settings'
+WEB_SETTINGS = 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/webSettings'
 
 namespaces = {
     'mo': 'http://schemas.microsoft.com/office/mac/office/2008/main',

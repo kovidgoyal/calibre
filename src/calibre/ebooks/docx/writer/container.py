@@ -8,18 +8,57 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import textwrap
 
+from lxml import etree
 from lxml.builder import ElementMaker
 
 from calibre import guess_type
 from calibre.constants import numeric_version, __appname__
-from calibre.ebooks.docx.names import namespaces
-from calibre.ebooks.oeb.base import xml2str
+from calibre.ebooks.docx.names import namespaces, STYLES, WEB_SETTINGS
 from calibre.utils.zipfile import ZipFile
+
+def xml2str(root, pretty_print=False, with_tail=False):
+    ans = etree.tostring(root, encoding='utf-8', xml_declaration=True,
+                          pretty_print=pretty_print, with_tail=with_tail)
+    return ans
+
+
+class DocumentRelationships(object):
+
+    def __init__(self):
+        self.rmap = {}
+        self.counter = 0
+        for typ, target in {
+                STYLES: 'styles.xml',
+                WEB_SETTINGS: 'webSettings.xml',
+        }.iteritems():
+            self.add_relationship(target, typ)
+
+    def get_relationship_id(self, target, rtype, target_mode=None):
+        return self.rmap.get((target, rtype, target_mode))
+
+    def add_relationship(self, target, rtype, target_mode=None):
+        ans = self.get_relationship_id(target, rtype, target_mode)
+        if ans is None:
+            self.counter += 1
+            ans = 'rId%d' % self.counter
+            self.rmap[(target, rtype, target_mode)] = ans
+        return ans
+
+    def serialize(self):
+        E = ElementMaker(namespace=namespaces['pr'], nsmap={None:namespaces['pr']})
+        relationships = E.Relationships()
+        for (target, rtype, target_mode), rid in self.rmap.iteritems():
+            r = E.Relationship(Id=rid, Type=rtype, Target=target)
+            if target_mode is not None:
+                r.set('TargetMode', target_mode)
+            relationships.append(r)
+        return xml2str(relationships)
 
 class DOCX(object):
 
     def __init__(self, opts, log):
         self.opts, self.log = opts, log
+        self.document_relationships = DocumentRelationships()
 
     # Boilerplate {{{
     @property
@@ -92,7 +131,9 @@ class DOCX(object):
             zf.writestr('_rels/.rels', self.containerrels)
             zf.writestr('docProps/app.xml', self.appproperties)
             zf.writestr('word/webSettings.xml', self.websettings)
-            # TODO: Write document and document relationships
+            zf.writestr('word/document.xml', xml2str(self.document))
+            zf.writestr('word/styles.xml', xml2str(self.styles))
+            zf.writestr('word/_rels/document.xml.rels', self.document_relationships.serialize())
 
 if __name__ == '__main__':
     d = DOCX(None, None)

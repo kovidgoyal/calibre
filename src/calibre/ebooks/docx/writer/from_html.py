@@ -9,7 +9,9 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 import re
 
 from lxml import etree
+from lxml.builder import ElementMaker
 
+from calibre.ebooks.docx.names import namespaces
 from calibre.ebooks.docx.writer.utils import convert_color, int_or_zero
 from calibre.ebooks.oeb.stylizer import Stylizer as Sz, Style as St
 from calibre.ebooks.oeb.base import XPath, barename
@@ -42,7 +44,7 @@ class TextStyle(object):
 
     ALL_PROPS = ('font_family', 'font_size', 'bold', 'italic', 'color',
                  'background_color', 'underline', 'strike', 'dstrike', 'caps',
-                 'shadow', 'small_caps', 'spacing', 'vertical-align')
+                 'shadow', 'small_caps', 'spacing', 'vertical_align')
 
     def __init__(self, css):
         self.font_family = css['font-family']  # TODO: Resolve multiple font families and generic font family names
@@ -113,6 +115,16 @@ class TextRun(object):
     def add_break(self, clear='none'):
         self.texts.append(LineBreak(clear=clear))
 
+    def serialize(self, p):
+        r = p.makeelement('{%s}r' % namespaces['w'])
+        p.append(r)
+        for text, preserve_whitespace in self.texts:
+            t = r.makeelement('{%s}t' % namespaces['w'])
+            r.append(t)
+            t.text = text or ''
+            if preserve_whitespace:
+                t.set('{http://www.w3.org/XML/1998/namespace}space', 'preserve')
+
 style_cache = {}
 
 class Block(object):
@@ -120,19 +132,29 @@ class Block(object):
     def __init__(self):
         self.runs = []
 
-    def add_text(self, text, style):
+    def add_text(self, text, style, ignore_leading_whitespace=False):
         ts = TextStyle(style)
         ws = style['white-space']
         if self.runs and ts == self.runs[-1].style:
             run = self.runs[-1]
         else:
             run = TextRun(ts)
+            self.runs.append(run)
+        preserve_whitespace = ws in {'pre', 'pre-wrap'}
+        if ignore_leading_whitespace and not preserve_whitespace:
+            text = text.lstrip()
         if ws == 'pre-line':
             for text in text.splitlines():
                 run.add_text(text, False)
                 run.add_break()
         else:
-            run.add_text(text, ws in {'pre', 'pre-wrap'})
+            run.add_text(text, preserve_whitespace)
+
+    def serialize(self, body):
+        p = body.makeelement('{%s}p' % namespaces['w'])
+        body.append(p)
+        for run in self.runs:
+            run.serialize(p)
 
 class Convert(object):
 
@@ -149,6 +171,8 @@ class Convert(object):
         for item in self.oeb.spine:
             self.process_item(item)
 
+        self.write()
+
     def process_item(self, item):
         stylizer = Stylizer(item.data, item.href, self.oeb, self.opts, self.opts.output_profile)
 
@@ -159,7 +183,7 @@ class Convert(object):
 
     def process_block(self, html_block, docx_block, stylizer, ignore_tail=False):
         if html_block.text:
-            docx_block.add_text(html_block.text, stylizer.style(html_block))
+            docx_block.add_text(html_block.text, stylizer.style(html_block), ignore_leading_whitespace=True)
 
         for child in html_block.iterchildren(etree.Element):
             tag = barename(child.tag)
@@ -174,7 +198,7 @@ class Convert(object):
             else:
                 self.process_inline(child, self.blocks[-1], stylizer)
 
-        if ignore_tail is False and html_block.tail:
+        if ignore_tail is False and html_block.tail and html_block.tail.strip():
             b = docx_block
             if b is not self.blocks[-1]:
                 b = Block()
@@ -200,3 +224,28 @@ class Convert(object):
 
         if html_child.tail:
             docx_block.add_text(html_child.tail, stylizer.style(html_child.getparent()))
+
+    def write(self):
+        dn = {k:v for k, v in namespaces.iteritems() if k in {'w', 'r', 'm', 've', 'o', 'wp', 'w10', 'wne'}}
+        E = ElementMaker(namespace=dn['w'], nsmap=dn)
+        self.docx.document = doc = E.document()
+        body = E.body()
+        doc.append(body)
+        for block in self.blocks:
+            block.serialize(body)
+
+        dn = {k:v for k, v in namespaces.iteritems() if k in 'wr'}
+        E = ElementMaker(namespace=dn['w'], nsmap=dn)
+        self.docx.styles = E.styles(
+            E.docDefaults(
+                E.rPrDefault(
+                    E.rPr(
+                        E.rFonts(),
+                    )
+                ),
+                E.pPrDefault(
+                    E.pPr(
+                    )
+                )
+            )
+        )
