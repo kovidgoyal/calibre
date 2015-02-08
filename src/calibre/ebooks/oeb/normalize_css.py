@@ -18,42 +18,42 @@ from cssutils import profile as cssprofiles, CSSParser
 DEFAULTS = {'azimuth': 'center', 'background-attachment': 'scroll',  # {{{
             'background-color': 'transparent', 'background-image': 'none',
             'background-position': '0% 0%', 'background-repeat': 'repeat',
-            'border-bottom-color': 'currentColor', 'border-bottom-style': 'none',
-            'border-bottom-width': 'medium', 'border-collapse': 'separate',
-            'border-left-color': 'currentColor', 'border-left-style': 'none',
-            'border-left-width': 'medium', 'border-right-color': 'currentColor',
-            'border-right-style': 'none', 'border-right-width': 'medium',
-            'border-spacing': 0, 'border-top-color': 'currentColor',
-            'border-top-style': 'none', 'border-top-width': 'medium', 'bottom':
-            'auto', 'caption-side': 'top', 'clear': 'none', 'clip': 'auto',
-            'color': 'black', 'content': 'normal', 'counter-increment': 'none',
-            'counter-reset': 'none', 'cue-after': 'none', 'cue-before': 'none',
-            'cursor': 'auto', 'direction': 'ltr', 'display': 'inline',
-            'elevation': 'level', 'empty-cells': 'show', 'float': 'none',
-            'font-family': 'serif', 'font-size': 'medium', 'font-style':
-            'normal', 'font-variant': 'normal', 'font-weight': 'normal',
-            'height': 'auto', 'left': 'auto', 'letter-spacing': 'normal',
-            'line-height': 'normal', 'list-style-image': 'none',
-            'list-style-position': 'outside', 'list-style-type': 'disc',
-            'margin-bottom': 0, 'margin-left': 0, 'margin-right': 0,
-            'margin-top': 0, 'max-height': 'none', 'max-width': 'none',
-            'min-height': 0, 'min-width': 0, 'orphans': '2',
-            'outline-color': 'invert', 'outline-style': 'none',
+            'border-bottom-color': 'currentColor', 'border-bottom-style':
+            'none', 'border-bottom-width': 'medium', 'border-collapse':
+            'separate', 'border-left-color': 'currentColor',
+            'border-left-style': 'none', 'border-left-width': 'medium',
+            'border-right-color': 'currentColor', 'border-right-style': 'none',
+            'border-right-width': 'medium', 'border-spacing': 0,
+            'border-top-color': 'currentColor', 'border-top-style': 'none',
+            'border-top-width': 'medium', 'bottom': 'auto', 'caption-side':
+            'top', 'clear': 'none', 'clip': 'auto', 'color': 'black',
+            'content': 'normal', 'counter-increment': 'none', 'counter-reset':
+            'none', 'cue-after': 'none', 'cue-before': 'none', 'cursor':
+            'auto', 'direction': 'ltr', 'display': 'inline', 'elevation':
+            'level', 'empty-cells': 'show', 'float': 'none', 'font-family':
+            'serif', 'font-size': 'medium', 'font-style': 'normal',
+            'font-variant': 'normal', 'font-weight': 'normal', 'height':
+            'auto', 'left': 'auto', 'letter-spacing': 'normal', 'line-height':
+            'normal', 'list-style-image': 'none', 'list-style-position':
+            'outside', 'list-style-type': 'disc', 'margin-bottom': 0,
+            'margin-left': 0, 'margin-right': 0, 'margin-top': 0, 'max-height':
+            'none', 'max-width': 'none', 'min-height': 0, 'min-width': 0,
+            'orphans': '2', 'outline-color': 'invert', 'outline-style': 'none',
             'outline-width': 'medium', 'overflow': 'visible', 'padding-bottom':
             0, 'padding-left': 0, 'padding-right': 0, 'padding-top': 0,
             'page-break-after': 'auto', 'page-break-before': 'auto',
-            'page-break-inside': 'auto', 'pause-after': 0, 'pause-before':
-            0, 'pitch': 'medium', 'pitch-range': '50', 'play-during': 'auto',
+            'page-break-inside': 'auto', 'pause-after': 0, 'pause-before': 0,
+            'pitch': 'medium', 'pitch-range': '50', 'play-during': 'auto',
             'position': 'static', 'quotes': u"'“' '”' '‘' '’'", 'richness':
             '50', 'right': 'auto', 'speak': 'normal', 'speak-header': 'once',
             'speak-numeral': 'continuous', 'speak-punctuation': 'none',
             'speech-rate': 'medium', 'stress': '50', 'table-layout': 'auto',
-            'text-align': 'auto', 'text-decoration': 'none', 'text-indent':
-            0, 'text-transform': 'none', 'top': 'auto', 'unicode-bidi':
-            'normal', 'vertical-align': 'baseline', 'visibility': 'visible',
-            'voice-family': 'default', 'volume': 'medium', 'white-space':
-            'normal', 'widows': '2', 'width': 'auto', 'word-spacing': 'normal',
-            'z-index': 'auto'}
+            'text-align': 'auto', 'text-decoration': 'none', 'text-indent': 0,
+            'text-shadow': 'none', 'text-transform': 'none', 'top': 'auto',
+            'unicode-bidi': 'normal', 'vertical-align': 'baseline',
+            'visibility': 'visible', 'voice-family': 'default', 'volume':
+            'medium', 'white-space': 'normal', 'widows': '2', 'width': 'auto',
+            'word-spacing': 'normal', 'z-index': 'auto'}
 # }}}
 
 EDGES = ('top', 'right', 'bottom', 'left')
