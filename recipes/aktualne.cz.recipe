@@ -10,6 +10,7 @@ class aktualneRecipe(BasicNewsRecipe):
     description = 'aktuálně.cz'
     oldest_article = 1
     max_articles_per_feed = 20
+    encoding = 'utf-8'
 
     feeds = [
             (u'Domácí', u'http://aktualne.centrum.cz/feeds/rss/domaci/?photo=0'),
@@ -19,7 +20,6 @@ class aktualneRecipe(BasicNewsRecipe):
             (u'Finance', u'http://aktualne.centrum.cz/feeds/rss/finance/?photo=0'),
             (u'Blogy a názory', u'http://blog.aktualne.centrum.cz/export-all.php')
             ]
-
 
     language = 'cs'
     cover_url = 'http://img.aktualne.centrum.cz/design/akt4/o/l/logo-akt-ciste.png'
@@ -43,7 +43,8 @@ class aktualneRecipe(BasicNewsRecipe):
                 dict(name='div', attrs={'class':'boxP'}),
                 dict(name='div', attrs={'class':'box2'})]
     preprocess_regexps = [
-            (re.compile(r'<div class="(contenttitle"|socialni-site|wiki|facebook-promo|facebook-like-button"|meta-akce).*', re.DOTALL|re.IGNORECASE), lambda match: '</body>'),
+            (re.compile(r'<div class="(contenttitle"|socialni-site|wiki|facebook-promo|facebook-like-button"|meta-akce).*',
+             re.DOTALL|re.IGNORECASE), lambda match: '</body>'),
             (re.compile(r'<div class="[^"]*poutak-clanek-trojka".*', re.DOTALL|re.IGNORECASE), lambda match: '</body>')]
 
     keep_only_tags = []
@@ -58,12 +59,3 @@ class aktualneRecipe(BasicNewsRecipe):
             self.visited_urls[url] = True
             self.log.debug('Accepting: ' + url)
             return url
-
-    def encoding(self, source):
-        if source.newurl.find('blog.aktualne') >= 0:
-            enc = 'utf-8'
-        else:
-            enc = 'iso-8859-2'
-        self.log.debug('Called encoding ' + enc + " " + str(source.newurl))
-        return source.decode(enc, 'replace')
-
