@@ -37,7 +37,7 @@ def download_updates(ver_map={}, server='https://code.calibre-ebook.com'):
         name = name.decode('utf-8')
         d = decompressobj()
         src = d.decompress(raw)
-        src = src.decode('utf-8')
+        src = src.decode('utf-8').lstrip(u'\ufeff')
         # Python complains if there is a coding declaration in a unicode string
         src = re.sub(r'^#.*coding\s*[:=]\s*([-\w.]+)', '#', src, flags=re.MULTILINE)
         # Translate newlines to \n
