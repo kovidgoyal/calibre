@@ -10,7 +10,7 @@ from functools import partial
 
 from PyQt5.Qt import (QSize, QSizePolicy, QUrl, Qt, pyqtProperty,
         QPainter, QPalette, QBrush, QDialog, QColor, QPoint, QImage, QRegion,
-        QIcon, QAction, QMenu, pyqtSignal, QApplication, pyqtSlot)
+        QIcon, QAction, QMenu, pyqtSignal, QApplication, pyqtSlot, QKeySequence)
 from PyQt5.QtWebKitWidgets import QWebPage, QWebView
 from PyQt5.QtWebKit import QWebSettings, QWebElement
 
@@ -558,8 +558,9 @@ class DocumentView(QWebView):  # {{{
         self.document.selectionChanged[()].connect(self.selection_changed)
         self.document.animated_scroll_done_signal.connect(self.animated_scroll_done, type=Qt.QueuedConnection)
         self.document.page_turn.connect(self.page_turn_requested)
-        copy_action = self.pageAction(self.document.Copy)
+        copy_action = self.copy_action
         copy_action.setIcon(QIcon(I('convert.png')))
+        copy_action.triggered.connect(self.copy, Qt.QueuedConnection)
         d = self.document
         self.unimplemented_actions = list(map(self.pageAction,
             [d.DownloadImageToDisk, d.OpenLinkInNewWindow, d.DownloadLinkToDisk,
@@ -668,9 +669,16 @@ class DocumentView(QWebView):  # {{{
     def bookmark(self):
         return self.document.bookmark()
 
+    @property
+    def selected_text(self):
+        return self.document.selectedText().replace(u'\u00ad', u'').strip()
+
+    def copy(self):
+        QApplication.clipboard().setText(self.selected_text)
+
     def selection_changed(self):
         if self.manager is not None:
-            self.manager.selection_changed(unicode(self.document.selectedText()))
+            self.manager.selection_changed(self.selected_text)
 
     def _selectedText(self):
         t = unicode(self.selectedText()).strip()
@@ -1330,6 +1338,8 @@ class DocumentView(QWebView):  # {{{
         elif key == 'Forward':
             if self.manager is not None:
                 self.manager.forward(None)
+        elif event.matches(QKeySequence.Copy):
+            self.copy()
         else:
             handled = False
         return handled
