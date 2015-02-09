@@ -39,7 +39,10 @@ class TheHindu(BasicNewsRecipe):
             current_articles = []
 
             div = soup.find('div', attrs={'id': 'left-column'})
-            soup.find('span', attrs={'class': 'newsection-title'}).extract()
+            try:
+                soup.find('span', attrs={'class': 'newsection-title'}).extract()
+            except AttributeError:
+                continue  # empty section
             soup.find('div', attrs={'id': 'tpnav-bar'}).extract()
 
             for x in div.findAll(['a']):
