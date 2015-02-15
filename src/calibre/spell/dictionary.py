@@ -356,8 +356,8 @@ class Dictionaries(object):
                         if self.recognized(w1) and self.recognized(w2):
                             fw = w1 + m.group() + ' ' + w2
                             ans = (fw,) + ans
-                            if m.group() == '.' and capitalize(w2) != w2:
-                                fw = w1 + '. ' + capitalize(w2)
+                            if capitalize(w2) != w2:
+                                fw = w1 + m.group() + ' ' + capitalize(w2)
                                 ans = (fw,) + ans
 
         return ans
