@@ -277,6 +277,17 @@ def unit_convert(value, base, font, dpi, body_font_size=12):
             result = value * body_font_size
     return result
 
+def parse_css_length(value):
+    try:
+        m = UNIT_RE.match(value)
+    except TypeError:
+        return None, None
+    if m is not None and m.group(1):
+        value = float(m.group(1))
+        unit = m.group(2)
+        return value, unit.lower()
+    return None, None
+
 def generate_masthead(title, output_path=None, width=600, height=60):
     from calibre.ebooks.conversion.config import load_defaults
     recs = load_defaults('mobi_output')
