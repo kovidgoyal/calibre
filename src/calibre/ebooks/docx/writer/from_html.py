@@ -92,7 +92,7 @@ class Block(object):
         if self.runs and ts == self.runs[-1].style:
             run = self.runs[-1]
         else:
-            run = TextRun(ts, html_parent or self.html_block)
+            run = TextRun(ts, self.html_block if html_parent is None else html_parent)
             self.runs.append(run)
         preserve_whitespace = ws in {'pre', 'pre-wrap'}
         if ignore_leading_whitespace and not preserve_whitespace:
