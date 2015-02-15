@@ -12,7 +12,7 @@ from lxml import etree
 from lxml.builder import ElementMaker
 
 from calibre.ebooks.docx.names import namespaces
-from calibre.ebooks.docx.styles import w, BlockStyle, TextStyle
+from calibre.ebooks.docx.writer.styles import w, BlockStyle, TextStyle
 from calibre.ebooks.oeb.stylizer import Stylizer as Sz, Style as St
 from calibre.ebooks.oeb.base import XPath, barename
 
@@ -138,8 +138,11 @@ class Convert(object):
             self.process_block(body, b, stylizer, ignore_tail=True)
 
     def process_block(self, html_block, docx_block, stylizer, ignore_tail=False):
+        block_style = stylizer.style(html_block)
+        if block_style.is_hidden:
+            return
         if html_block.text:
-            docx_block.add_text(html_block.text, stylizer.style(html_block), ignore_leading_whitespace=True)
+            docx_block.add_text(html_block.text, block_style, ignore_leading_whitespace=True)
 
         for child in html_block.iterchildren(etree.Element):
             tag = barename(child.tag)
@@ -157,15 +160,17 @@ class Convert(object):
         if ignore_tail is False and html_block.tail and html_block.tail.strip():
             b = docx_block
             if b is not self.blocks[-1]:
-                b = Block(html_block, stylizer.style(html_block))
+                b = Block(html_block, block_style)
                 self.blocks.append(b)
             b.add_text(html_block.tail, stylizer.style(html_block.getparent()))
 
     def process_inline(self, html_child, docx_block, stylizer):
         tag = barename(html_child.tag)
+        style = stylizer.style(html_child)
+        if style.is_hidden:
+            return
         if tag == 'img':
             return  # TODO: Handle images
-        style = stylizer.style(html_child)
         if html_child.text:
             docx_block.add_text(html_child.text, style, html_parent=html_child)
         for child in html_child.iterchildren(etree.Element):

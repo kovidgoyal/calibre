@@ -737,3 +737,7 @@ class Style(object):
             css = self._pseudo_classes
         return {k:v for k, v in css.iteritems() if v}
 
+    @property
+    def is_hidden(self):
+        return self._style.get('display') == 'none' or self._style.get('visibility') == 'hidden'
+
