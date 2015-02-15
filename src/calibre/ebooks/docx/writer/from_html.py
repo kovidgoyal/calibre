@@ -16,7 +16,9 @@ from calibre.ebooks.docx.names import namespaces
 from calibre.ebooks.docx.writer.utils import convert_color, int_or_zero
 from calibre.ebooks.oeb.stylizer import Stylizer as Sz, Style as St
 from calibre.ebooks.oeb.base import XPath, barename
-from tinycss.color3 import parse_color_string
+from tinycss.css21 import CSS21Parser
+
+css_parser = CSS21Parser()
 
 class Style(St):
 
@@ -45,17 +47,20 @@ class Stylizer(Sz):
 border_edges = ('left', 'top', 'right', 'bottom')
 border_props = ('padding_%s', 'border_%s_width', 'border_%s_style', 'border_%s_color')
 
-def css_color_to_rgb(value):
-    if not value:
-        return
-    if value.lower() == 'currentcolor':
-        return 'auto'
-    val = parse_color_string(value)
-    if val is None:
-        return
-    if val.alpha < 0.01:
-        return
-    return '%02X%02X%02X' % (int(val.red * 255), int(val.green * 255), int(val.blue * 255))
+def parse_css_font_family(raw):
+    decl, errs = css_parser.parse_style_attr('font-family:' + raw)
+    if decl:
+        for token in decl[0].value:
+            if token.type in 'STRING IDENT':
+                val = token.value
+                if val == 'inherit':
+                    break
+                yield val
+
+def css_font_family_to_docx(raw):
+    generic = {'serif':'Cambria', 'sansserif':'Candara', 'sans-serif':'Candara', 'fantasy':'Comic Sans', 'cursive':'Segoe Script'}
+    for ff in parse_css_font_family(raw):
+        return generic.get(ff.lower(), ff)
 
 class DOCXStyle(object):
 
@@ -78,8 +83,24 @@ class DOCXStyle(object):
         return not self == other
 
     def __repr__(self):
-        return etree.tostring(self.serialize(etree.Element(w('style'), nsmap={'w':namespaces['w']})), pretty_print=True)
+        return etree.tostring(self.serialize(etree.Element(self.__class__.__name__, nsmap={'w':namespaces['w']})), pretty_print=True)
     __str__ = __repr__
+
+    def serialize_borders(self, bdr):
+        for edge in border_edges:
+            e = bdr.makeelement(w(edge))
+            padding = getattr(self, 'padding_' + edge)
+            if padding > 0:
+                e.set(w('space'), str(padding))
+            width = getattr(self, 'border_%s_width' % edge)
+            bstyle = getattr(self, 'border_%s_style' % edge)
+            if width > 0 and bstyle != 'none':
+                e.set(w('val'), bstyle)
+                e.set(w('sz'), str(width))
+                e.set(w('color'), getattr(self, 'border_%s_color' % edge))
+            if e.attrib:
+                bdr.append(e)
+        return bdr
 
 LINE_STYLES = {
     'none': 'none',
@@ -101,19 +122,19 @@ class TextStyle(DOCXStyle):
 
     ALL_PROPS = ('font_family', 'font_size', 'bold', 'italic', 'color',
                  'background_color', 'underline', 'strike', 'dstrike', 'caps',
-                 'shadow', 'small_caps', 'spacing', 'vertical_align')
+                 'shadow', 'small_caps', 'spacing', 'vertical_align') + tuple(
+        x%edge for edge in border_edges for x in border_props)
 
     def __init__(self, css):
-        self.font_family = css['font-family']  # TODO: Resolve multiple font families and generic font family names
+        self.font_family = css_font_family_to_docx(css['font-family'])
         try:
-            self.font_size = int(float(css['font-size']) * 2)  # stylizer normalizes all font sizes into pts
+            self.font_size = max(0, int(float(css['font-size']) * 2))  # stylizer normalizes all font sizes into pts
         except (ValueError, TypeError, AttributeError):
             self.font_size = None
 
-        fw = self.font_weight = css['font-weight']
-        self.bold = fw in {'bold', 'bolder'} or int_or_zero(fw) >= 700
-        self.font_style = css['font-style']
-        self.italic = self.font_style in {'italic', 'oblique'}
+        fw = css['font-weight']
+        self.bold = fw.lower() in {'bold', 'bolder'} or int_or_zero(fw) >= 700
+        self.italic = css['font-style'].lower() in {'italic', 'oblique'}
         self.color = convert_color(css['color'])
         self.background_color = convert_color(css.backgroundColor)
         td = set((css.effective_text_decoration or '').split())
@@ -122,16 +143,63 @@ class TextStyle(DOCXStyle):
         self.strike = not self.dstrike and 'line-through' in td
         self.text_transform = css['text-transform']  # TODO: If lowercase or capitalize, transform the actual text
         self.caps = self.text_transform == 'uppercase'
+        self.small_caps = css['font-variant'].lower() in {'small-caps', 'smallcaps'}
         self.shadow = css['text-shadow'] not in {'none', None}
-        self.small_caps = css['font-variant'] in {'small-caps', 'smallcaps'}
         try:
             self.spacing = int(float(css['letter-spacing']) * 20)
         except (ValueError, TypeError, AttributeError):
             self.spacing = None
-        self.vertical_align = {'sub':'subscript', 'super':'superscript'}.get((css['vertical-align'] or '').lower(), 'baseline')
-        # TODO: Borders and padding
+        self.vertical_align = css['vertical-align']
+        for edge in border_edges:
+            # In DOCX padding can only be a positive integer
+            setattr(self, 'padding_' + edge, max(0, int(css['padding-' + edge])))
+            val = min(96, max(2, int({'thin':0.2, 'medium':1, 'thick':2}.get(css['border-%s-width' % edge], 0) * 8)))
+            setattr(self, 'border_%s_width' % edge, val)
+            setattr(self, 'border_%s_color' % edge, convert_color(css['border-%s-color' % edge]))
+            setattr(self, 'border_%s_style' %  edge, LINE_STYLES.get(css['border-%s-style' % edge].lower(), 'none'))
 
         DOCXStyle.__init__(self)
+
+    def serialize(self, style):
+        style.append(style.makeelement(w('rFonts'), **{
+            w(k):self.font_family for k in 'ascii cs eastAsia hAnsi'.split()}))
+        for suffix in ('', 'Cs'):
+            style.append(style.makeelement(w('sz' + suffix), **{w('val'):str(self.font_size)}))
+            style.append(style.makeelement(w('b' + suffix), **{w('val'):('on' if self.bold else 'off')}))
+            style.append(style.makeelement(w('i' + suffix), **{w('val'):('on' if self.italic else 'off')}))
+        if self.color:
+            style.append(style.makeelement(w('color'), **{w('val'):str(self.color)}))
+        if self.background_color:
+            style.append(style.makeelement(w('shd'), **{w('val'):str(self.background_color)}))
+        if self.underline:
+            style.append(style.makeelement(w('u'), **{w('val'):'single'}))
+        if self.dstrike:
+            style.append(style.makeelement(w('dstrike'), **{w('val'):'on'}))
+        elif self.strike:
+            style.append(style.makeelement(w('strike'), **{w('val'):'on'}))
+        if self.caps:
+            style.append(style.makeelement(w('caps'), **{w('val'):'on'}))
+        if self.small_caps:
+            style.append(style.makeelement(w('smallCaps'), **{w('val'):'on'}))
+        if self.shadow:
+            style.append(style.makeelement(w('shadow'), **{w('val'):'on'}))
+        if self.spacing is not None:
+            style.append(style.makeelement(w('spacing'), **{w('val'):str(self.spacing)}))
+        if isinstance(self.vertical_align, (int, float)):
+            val = int(self.vertical_align * 2)
+            style.append(style.makeelement(w('position'), **{w('val'):str(val)}))
+        elif isinstance(self.vertical_align, basestring):
+            val = {'top':'superscript', 'text-top':'superscript', 'sup':'superscript', 'bottom':'subscript', 'text-bottom':'subscript', 'sub':'subscript'}.get(
+                self.vertical_align.lower())
+            if val:
+                style.append(style.makeelement(w('vertAlign'), **{w('val'):val}))
+
+        bdr = self.serialize_borders(style.makeelement(w('bdr')))
+        if len(bdr):
+            style.append(bdr)
+
+        return style
+
 
 class BlockStyle(DOCXStyle):
 
@@ -155,13 +223,13 @@ class BlockStyle(DOCXStyle):
             setattr(self, 'css_margin_' + edge, css._style.get('margin-' + edge, ''))
             val = min(96, max(2, int({'thin':0.2, 'medium':1, 'thick':2}.get(css['border-%s-width' % edge], 0) * 8)))
             setattr(self, 'border_%s_width' % edge, val)
-            setattr(self, 'border_%s_color' % edge, css_color_to_rgb(css['border-%s-color' % edge]))
+            setattr(self, 'border_%s_color' % edge, convert_color(css['border-%s-color' % edge]))
             setattr(self, 'border_%s_style' %  edge, LINE_STYLES.get(css['border-%s-style' % edge].lower(), 'none'))
         self.text_indent = max(0, int(css['text-indent'] * 20))
         self.css_text_indent = css._get('text-indent')
         self.line_height = max(0, int(css['line-height'] * 20))
         self.css_line_height = css._get('line-height')
-        self.background_color = css_color_to_rgb(css['background-color'])
+        self.background_color = convert_color(css['background-color'])
         self.text_align = {'start':'left', 'left':'left', 'end':'right', 'right':'right', 'center':'center', 'justify':'both', 'centre':'center'}.get(
             css['text-align'].lower(), 'left')
 
@@ -223,20 +291,7 @@ class BlockStyle(DOCXStyle):
             style.append(shd)
             shd.set(w('val'), 'clear'), shd.set(w('fill'), self.background_color), shd.set(w('color'), 'auto')
 
-        pbdr = style.makeelement(w('pBdr'))
-        for edge in border_edges:
-            e = pbdr.makeelement(w(edge))
-            padding = getattr(self, 'padding_' + edge)
-            if padding > 0:
-                e.set(w('space'), str(padding))
-            width = getattr(self, 'border_%s_width' % edge)
-            bstyle = getattr(self, 'border_%s_style' % edge)
-            if width > 0 and bstyle != 'none':
-                e.set(w('val'), bstyle)
-                e.set(w('sz'), str(width))
-                e.set(w('color'), getattr(self, 'border_%s_color' % edge))
-            if e.attrib:
-                pbdr.append(e)
+        pbdr = self.serialize_borders(style.makeelement(w('pBdr')))
         if len(pbdr):
             style.append(pbdr)
         jc = style.makeelement(w('jc'))
