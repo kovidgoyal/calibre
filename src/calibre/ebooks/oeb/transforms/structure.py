@@ -222,9 +222,13 @@ class DetectStructure(object):
                         if (not self.opts.duplicate_links_in_toc and
                                 self.oeb.toc.has_text(text)):
                             continue
-                        num += 1
-                        self.oeb.toc.add(text, href,
-                            play_order=self.oeb.toc.next_play_order())
+                        try:
+                            self.oeb.toc.add(text, href,
+                                play_order=self.oeb.toc.next_play_order())
+                            num += 1
+                        except ValueError:
+                            self.oeb.log.exception('Failed to process link: %r' % href)
+                            continue  # Most likely an incorrectly URL encoded link
                         if self.opts.max_toc_links > 0 and \
                                 num >= self.opts.max_toc_links:
                             self.log('Maximum TOC links reached, stopping.')
