@@ -734,7 +734,8 @@ class DB(object):
 
         base = max(self.FIELD_MAP.itervalues())
 
-        for label_, data in self.custom_column_label_map.iteritems():
+        for label_ in sorted(self.custom_column_label_map):
+            data = self.custom_column_label_map[label_]
             label = self.field_metadata.custom_field_prefix + label_
             metadata = self.field_metadata[label].copy()
             link_table = self.custom_table_names(data['num'])[1]
