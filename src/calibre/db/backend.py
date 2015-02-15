@@ -106,11 +106,10 @@ class DBPrefs(dict):  # {{{
         self.db.execute('DELETE FROM preferences WHERE key=?', (key,))
 
     def __setitem__(self, key, val):
-        if self.disable_setting:
-            return
-        raw = self.to_raw(val)
-        self.db.execute('INSERT OR REPLACE INTO preferences (key,val) VALUES (?,?)', (key, raw))
-        dict.__setitem__(self, key, val)
+        if not self.disable_setting and val != self[key]:
+            raw = self.to_raw(val)
+            self.db.execute('INSERT OR REPLACE INTO preferences (key,val) VALUES (?,?)', (key, raw))
+            dict.__setitem__(self, key, val)
 
     def set(self, key, val):
         self.__setitem__(key, val)
