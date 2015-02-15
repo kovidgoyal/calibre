@@ -41,11 +41,6 @@ class Stylizer(Sz):
             return Style(element, self)
 
 
-class LineBreak(object):
-
-    def __init__(self, clear='none'):
-        self.clear = clear
-
 class TextRun(object):
 
     ws_pat = None
@@ -67,22 +62,26 @@ class TextRun(object):
         self.texts.append((text, preserve_whitespace))
 
     def add_break(self, clear='none'):
-        self.texts.append(LineBreak(clear=clear))
+        self.texts.append((None, clear))
 
     def serialize(self, p):
         r = p.makeelement('{%s}r' % namespaces['w'])
         p.append(r)
         for text, preserve_whitespace in self.texts:
-            t = r.makeelement('{%s}t' % namespaces['w'])
-            r.append(t)
-            t.text = text or ''
-            if preserve_whitespace:
-                t.set('{http://www.w3.org/XML/1998/namespace}space', 'preserve')
+            if text is None:
+                r.append(r.makeelement(w('br'), **{w('clear'):preserve_whitespace}))
+            else:
+                t = r.makeelement('{%s}t' % namespaces['w'])
+                r.append(t)
+                t.text = text or ''
+                if preserve_whitespace:
+                    t.set('{http://www.w3.org/XML/1998/namespace}space', 'preserve')
 
 class Block(object):
 
     def __init__(self, html_block, style, is_first_block=False):
         self.html_block = html_block
+        self.html_style = style
         self.style = BlockStyle(style, html_block, is_first_block=is_first_block)
         self.runs = []
 
@@ -103,6 +102,14 @@ class Block(object):
                 run.add_break()
         else:
             run.add_text(text, preserve_whitespace)
+
+    def add_break(self, clear='none'):
+        if self.runs:
+            run = self.runs[-1]
+        else:
+            run = TextRun(TextStyle(self.html_style), self.html_block)
+            self.runs.append(run)
+        run.add_break(clear=clear)
 
     def serialize(self, body):
         p = body.makeelement('{%s}p' % namespaces['w'])
@@ -147,10 +154,10 @@ class Convert(object):
         for child in html_block.iterchildren(etree.Element):
             tag = barename(child.tag)
             style = stylizer.style(child)
-            display = style.get('display', 'inline')
+            display = style._get('display')
             if tag == 'img':
-                return  # TODO: Handle images
-            if display == 'block':
+                pass  # TODO: Handle images
+            if display == 'block' and tag != 'br':
                 b = Block(child, style)
                 self.blocks.append(b)
                 self.process_block(child, b, stylizer)
@@ -169,19 +176,23 @@ class Convert(object):
         style = stylizer.style(html_child)
         if style.is_hidden:
             return
-        if tag == 'img':
+        if tag == 'br':
+            if html_child.tail or html_child is not html_child.getparent()[-1]:
+                docx_block.add_break(clear={'both':'all', 'left':'left', 'right':'right'}.get(style['clear'], 'none'))
+        elif tag == 'img':
             return  # TODO: Handle images
-        if html_child.text:
-            docx_block.add_text(html_child.text, style, html_parent=html_child)
-        for child in html_child.iterchildren(etree.Element):
-            style = stylizer.style(child)
-            display = style.get('display', 'inline')
-            if display == 'block':
-                b = Block(child, style)
-                self.blocks.append(b)
-                self.process_block(child, b, stylizer)
-            else:
-                self.process_inline(child, self.blocks[-1], stylizer)
+        else:
+            if html_child.text:
+                docx_block.add_text(html_child.text, style, html_parent=html_child)
+            for child in html_child.iterchildren(etree.Element):
+                style = stylizer.style(child)
+                display = style.get('display', 'inline')
+                if display == 'block':
+                    b = Block(child, style)
+                    self.blocks.append(b)
+                    self.process_block(child, b, stylizer)
+                else:
+                    self.process_inline(child, self.blocks[-1], stylizer)
 
         if html_child.tail:
             self.blocks[-1].add_text(html_child.tail, stylizer.style(html_child.getparent()), html_parent=html_child.getparent())
