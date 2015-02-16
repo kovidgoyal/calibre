@@ -74,19 +74,19 @@
                         <Shortcut Id="s1" Name="{app}{x64} - E-book management"
                             Description="Manage your e-book collection and download news"
                             Target="[#{exe_map[calibre]}]"
-                             WorkingDirectory="APPLICATIONROOTDIRECTORY" />
+                            WorkingDirectory="APPLICATIONROOTDIRECTORY" />
                          <Shortcut Id="s2" Name="E-book viewer{x64}"
                             Description="Viewer for all the major e-book formats"
                             Target="[#{exe_map[ebook-viewer]}]"
-                             WorkingDirectory="APPLICATIONROOTDIRECTORY" />
+                            WorkingDirectory="APPLICATIONROOTDIRECTORY" />
                          <Shortcut Id="s4" Name="Edit E-book{x64}"
                             Description="Edit e-books"
                             Target="[#{exe_map[ebook-edit]}]"
-                             WorkingDirectory="APPLICATIONROOTDIRECTORY" />
+                            WorkingDirectory="APPLICATIONROOTDIRECTORY" />
                          <Shortcut Id="s3" Name="LRF viewer{x64}"
                             Description="Viewer for LRF format e-books"
                             Target="[#{exe_map[lrfviewer]}]"
-                             WorkingDirectory="APPLICATIONROOTDIRECTORY" />
+                            WorkingDirectory="APPLICATIONROOTDIRECTORY" />
                         <util:InternetShortcut Id="OnlineDocumentationShortcut"
                             Name="User Manual" Type="url"
                                Target="http://manual.calibre-ebook.com"/>
