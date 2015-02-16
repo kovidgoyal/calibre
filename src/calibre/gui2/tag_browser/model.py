@@ -865,16 +865,19 @@ class TagsModel(QAbstractItemModel):  # {{{
         # Get the categories
         if self.db.data.get_base_restriction() or self.db.data.get_search_restriction():
             try:
-                data = self.db.get_categories(sort=sort,
+                data = self.db.new_api.get_categories(sort=sort,
                         icon_map=self.category_icon_map,
-                        ids=self.db.search('', return_matches=True, sort_results=False))
+                        book_ids=self.db.search('', return_matches=True, sort_results=False),
+                        first_letter_sort = self.collapse_model == 'first letter')
             except:
                 import traceback
                 traceback.print_exc()
-                data = self.db.get_categories(sort=sort, icon_map=self.category_icon_map)
+                data = self.db.new_api.get_categories(sort=sort, icon_map=self.category_icon_map,
+                        first_letter_sort = self.collapse_model == 'first letter')
                 self.restriction_error.emit()
         else:
-            data = self.db.get_categories(sort=sort, icon_map=self.category_icon_map)
+            data = self.db.new_api.get_categories(sort=sort, icon_map=self.category_icon_map,
+                        first_letter_sort = self.collapse_model == 'first letter')
 
         # Reconstruct the user categories, putting them into metadata
         self.db.field_metadata.remove_dynamic_categories()

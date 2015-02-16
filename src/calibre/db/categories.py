@@ -15,7 +15,7 @@ from future_builtins import map
 from calibre.ebooks.metadata import author_to_author_sort
 from calibre.library.field_metadata import TagsIcons
 from calibre.utils.config_base import tweaks
-from calibre.utils.icu import sort_key
+from calibre.utils.icu import sort_key, collation_order
 
 CATEGORY_SORTS = ('name', 'popularity', 'rating')  # This has to be a tuple not a set
 
@@ -116,19 +116,22 @@ def clean_user_categories(dbcache):
         pass
     return new_cats
 
-def sort_categories(items, sort):
-    reverse = True
+def sort_categories(items, sort, first_letter_sort=False):
     if sort == 'popularity':
-        key=attrgetter('count')
+        key=lambda x:(-getattr(x, 'count', 0), sort_key(x.sort or x.name))
     elif sort == 'rating':
-        key=attrgetter('avg_rating')
+        key=lambda x:(-getattr(x, 'avg_rating', 0.0), sort_key(x.sort or x.name))
     else:
-        key=lambda x:sort_key(x.sort or x.name)
-        reverse=False
-    items.sort(key=key, reverse=reverse)
+        if first_letter_sort:
+            key=lambda x:(collation_order(icu_upper(x.sort or x.name or ' ')),
+                          sort_key(x.sort or x.name))
+        else:
+            key=lambda x:sort_key(x.sort or x.name)
+    items.sort(key=key)
     return items
 
-def get_categories(dbcache, sort='name', book_ids=None, icon_map=None):
+def get_categories(dbcache, sort='name', book_ids=None, icon_map=None,
+                   first_letter_sort=False):
     if icon_map is not None and type(icon_map) != TagsIcons:
         raise TypeError('icon_map passed to get_categories must be of type TagIcons')
     if sort not in CATEGORY_SORTS:
@@ -170,7 +173,7 @@ def get_categories(dbcache, sort='name', book_ids=None, icon_map=None):
                 cat['is_multiple'] and cat['display'].get('is_names', False)):
                 for item in cats:
                     item.sort = author_to_author_sort(item.sort)
-        sort_categories(cats, sort)
+        sort_categories(cats, sort, first_letter_sort=first_letter_sort)
         categories[category] = cats
 
     # Needed for legacy databases that have multiple ratings that

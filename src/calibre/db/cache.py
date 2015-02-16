@@ -941,11 +941,13 @@ class Cache(object):
         return self._search_api(self, query, restriction, virtual_fields=virtual_fields, book_ids=book_ids)
 
     @api
-    def get_categories(self, sort='name', book_ids=None, icon_map=None, already_fixed=None):
+    def get_categories(self, sort='name', book_ids=None, icon_map=None, already_fixed=None,
+                       first_letter_sort=False):
         ' Used internally to implement the Tag Browser '
         try:
             with self.safe_read_lock:
-                return get_categories(self, sort=sort, book_ids=book_ids, icon_map=icon_map)
+                return get_categories(self, sort=sort, book_ids=book_ids, icon_map=icon_map,
+                                      first_letter_sort=first_letter_sort)
         except InvalidLinkTable as err:
             bad_field = err.field_name
             if bad_field == already_fixed:
