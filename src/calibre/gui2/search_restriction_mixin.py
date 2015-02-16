@@ -341,6 +341,7 @@ class SearchRestrictionMixin(object):
         self.ar_menu = QMenu(_('Additional restriction'))
         self.edit_menu = QMenu(_('Edit Virtual Library'))
         self.rm_menu = QMenu(_('Remove Virtual Library'))
+        self.search_restriction_list_built = False
 
     def add_virtual_library(self, db, name, search):
         virt_libs = db.prefs.get('virtual_libraries', {})
@@ -498,6 +499,7 @@ class SearchRestrictionMixin(object):
         return name[0:MAX_VIRTUAL_LIBRARY_NAME_LENGTH].strip()
 
     def build_search_restriction_list(self):
+        self.search_restriction_list_built = True
         from calibre.gui2.ui import get_gui
         m = self.ar_menu
         m.clear()
@@ -539,6 +541,8 @@ class SearchRestrictionMixin(object):
         self.apply_search_restriction(index)
 
     def apply_named_search_restriction(self, name):
+        if not self.search_restriction_list_built:
+            self.build_search_restriction_list()
         if not name:
             r = 0
         else:
@@ -549,6 +553,8 @@ class SearchRestrictionMixin(object):
         self.apply_search_restriction(r)
 
     def apply_text_search_restriction(self, search):
+        if not self.search_restriction_list_built:
+            self.build_search_restriction_list()
         search = unicode(search)
         if not search:
             self.search_restriction.setCurrentIndex(0)
@@ -567,6 +573,8 @@ class SearchRestrictionMixin(object):
             self._apply_search_restriction(search, self._trim_restriction_name(s))
 
     def apply_search_restriction(self, i):
+        if not self.search_restriction_list_built:
+            self.build_search_restriction_list()
         if i == 1:
             self.apply_text_search_restriction(unicode(self.search.currentText()))
         elif i == 2 and unicode(self.search_restriction.currentText()).startswith('*'):
