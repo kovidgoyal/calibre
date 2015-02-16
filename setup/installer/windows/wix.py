@@ -34,25 +34,26 @@ class WixMixIn:
 
         components = self.get_components_from_files()
         wxs = template.format(
-            app                = __appname__,
-            appfolder          = 'Calibre2' if is64bit else __appname__,
-            version            = __version__,
-            upgrade_code       = UPGRADE_CODE,
-            ProgramFilesFolder = 'ProgramFiles64Folder' if is64bit else 'ProgramFilesFolder',
-            x64                = ' 64bit' if is64bit else '',
-            minverhuman        = MINVERHUMAN,
-            minver             = '600',
-            fix_wix = '<Custom Action="OverwriteWixSetDefaultPerMachineFolder" After="WixSetDefaultPerMachineFolder" />' if is64bit else '',
-            compression        = self.opts.msi_compression,
-            app_components     = components,
-            exe_map            = self.smap,
-            main_icon          = self.j(self.src_root, 'icons', 'library.ico'),
-            web_icon           = self.j(self.src_root, 'icons', 'web.ico'),
+            app=__appname__,
+            appfolder='Calibre2' if is64bit else __appname__,
+            version=__version__,
+            upgrade_code=UPGRADE_CODE,
+            ProgramFilesFolder='ProgramFiles64Folder' if is64bit else 'ProgramFilesFolder',
+            x64=' 64bit' if is64bit else '',
+            minverhuman=MINVERHUMAN,
+            minver='600',
+            fix_wix='<Custom Action="OverwriteWixSetDefaultPerMachineFolder" After="WixSetDefaultPerMachineFolder" />' if is64bit else '',
+            compression=self.opts.msi_compression,
+            app_components=components,
+            exe_map=self.smap,
+            main_icon=self.j(self.src_root, 'icons', 'library.ico'),
+            viewer_icon=self.j(self.src_root, 'icons', 'viewer.ico'),
+            editor_icon=self.j(self.src_root, 'icons', 'ebook-edit.ico'),
+            web_icon=self.j(self.src_root, 'icons', 'web.ico'),
         )
         template = open(self.j(self.d(__file__), 'en-us.xml'),
                 'rb').read()
         enus = template.format(app=__appname__)
-
 
         enusf = self.j(self.installer_dir, 'en-us.wxl')
         wxsf = self.j(self.installer_dir, __appname__+'.wxs')
@@ -81,10 +82,10 @@ class WixMixIn:
                 '-dWixUIBannerBmp='+banner,
                 '-dWixUIDialogBmp='+dialog]
         cmd.extend([
-            '-sice:ICE60',# No language in dlls warning
-            '-sice:ICE61',# Allow upgrading with same version number
-            '-sice:ICE40', # Re-install mode overriden
-            '-sice:ICE69', # Shortcut components are part of a different feature than the files they point to
+            '-sice:ICE60',  # No language in dlls warning
+            '-sice:ICE61',  # Allow upgrading with same version number
+            '-sice:ICE40',  # Re-install mode overriden
+            '-sice:ICE69',  # Shortcut components are part of a different feature than the files they point to
         ])
         if self.opts.no_ice:
             cmd.append('-sval')
@@ -153,5 +154,3 @@ class WixMixIn:
             self.smap[x] = 'file_%d'%self.file_id_map[self.a(self.j(self.base, x+'.exe'))]
 
         return '\t\t\t\t'+'\n\t\t\t\t'.join(components)
-
-

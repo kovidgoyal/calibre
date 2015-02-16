@@ -55,6 +55,10 @@
         <Directory Id="DesktopFolder" Name="Desktop"/>
     </Directory>
 
+    <Icon Id="main_icon" SourceFile="{main_icon}"/>
+    <Icon Id="viewer_icon" SourceFile="{viewer_icon}"/>
+    <Icon Id="editor_icon" SourceFile="{editor_icon}"/>
+
     <DirectoryRef Id="APPLICATIONFOLDER">
         {app_components}
         <Component Id="AddToPath" Guid="*">
@@ -132,7 +136,6 @@
     </Feature>
 
     <!-- Add icon to entry in Add/Remove programs -->
-    <Icon Id="main_icon" SourceFile="{main_icon}"/>
     <Property Id="ARPPRODUCTICON" Value="main_icon" />
     <Property Id="ARPURLINFOABOUT" Value="http://calibre-ebook.com" />
     <Property Id='ARPHELPLINK' Value="http://calibre-ebook.com/help" />
