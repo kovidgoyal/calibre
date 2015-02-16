@@ -12,7 +12,7 @@ from lxml import etree
 from lxml.builder import ElementMaker
 
 from calibre.ebooks.docx.names import namespaces
-from calibre.ebooks.docx.writer.styles import w, BlockStyle, TextStyle
+from calibre.ebooks.docx.writer.styles import w, StylesManager
 from calibre.ebooks.oeb.stylizer import Stylizer as Sz, Style as St
 from calibre.ebooks.oeb.base import XPath, barename
 
@@ -65,13 +65,13 @@ class TextRun(object):
         self.texts.append((None, clear))
 
     def serialize(self, p):
-        r = p.makeelement('{%s}r' % namespaces['w'])
+        r = p.makeelement(w('r'))
         p.append(r)
         for text, preserve_whitespace in self.texts:
             if text is None:
                 r.append(r.makeelement(w('br'), **{w('clear'):preserve_whitespace}))
             else:
-                t = r.makeelement('{%s}t' % namespaces['w'])
+                t = r.makeelement(w('t'))
                 r.append(t)
                 t.text = text or ''
                 if preserve_whitespace:
@@ -79,14 +79,16 @@ class TextRun(object):
 
 class Block(object):
 
-    def __init__(self, html_block, style, is_first_block=False):
+    def __init__(self, styles_manager, html_block, style, is_first_block=False):
         self.html_block = html_block
         self.html_style = style
-        self.style = BlockStyle(style, html_block, is_first_block=is_first_block)
+        self.style = styles_manager.create_block_style(style, html_block, is_first_block=is_first_block)
+        self.styles_manager = styles_manager
+        self.keep_next = False
         self.runs = []
 
     def add_text(self, text, style, ignore_leading_whitespace=False, html_parent=None):
-        ts = TextStyle(style)
+        ts = self.styles_manager.create_text_style(style)
         ws = style['white-space']
         if self.runs and ts == self.runs[-1].style:
             run = self.runs[-1]
@@ -107,13 +109,17 @@ class Block(object):
         if self.runs:
             run = self.runs[-1]
         else:
-            run = TextRun(TextStyle(self.html_style), self.html_block)
+            run = TextRun(self.styles_manager.create_text_style(self.html_style), self.html_block)
             self.runs.append(run)
         run.add_break(clear=clear)
 
     def serialize(self, body):
-        p = body.makeelement('{%s}p' % namespaces['w'])
+        p = body.makeelement(w('p'))
         body.append(p)
+        ppr = p.makeelement(w('pPr'))
+        p.append(ppr)
+        if self.keep_next:
+            ppr.append(ppr.makeelement(w('keepNext')))
         for run in self.runs:
             run.serialize(p)
 
@@ -129,6 +135,8 @@ class Convert(object):
         from calibre.ebooks.oeb.transforms.rasterize import SVGRasterizer
         SVGRasterizer()(self.oeb, self.opts)
 
+        self.styles_manager = StylesManager()
+
         for item in self.oeb.spine:
             self.process_item(item)
 
@@ -139,7 +147,7 @@ class Convert(object):
 
         is_first_block = True
         for body in XPath('//h:body')(item.data):
-            b = Block(body, stylizer.style(body), is_first_block=is_first_block)
+            b = Block(self.styles_manager, body, stylizer.style(body), is_first_block=is_first_block)
             self.blocks.append(b)
             is_first_block = False
             self.process_block(body, b, stylizer, ignore_tail=True)
@@ -158,7 +166,7 @@ class Convert(object):
             if tag == 'img':
                 pass  # TODO: Handle images
             if display == 'block' and tag != 'br':
-                b = Block(child, style)
+                b = Block(self.styles_manager, child, style)
                 self.blocks.append(b)
                 self.process_block(child, b, stylizer)
             else:
@@ -167,9 +175,11 @@ class Convert(object):
         if ignore_tail is False and html_block.tail and html_block.tail.strip():
             b = docx_block
             if b is not self.blocks[-1]:
-                b = Block(html_block, block_style)
+                b = Block(self.styles_manager, html_block, block_style)
                 self.blocks.append(b)
             b.add_text(html_block.tail, stylizer.style(html_block.getparent()))
+        if block_style['page-break-after'] == 'avoid':
+            self.blocks[-1].keep_next = True
 
     def process_inline(self, html_child, docx_block, stylizer):
         tag = barename(html_child.tag)
@@ -188,7 +198,7 @@ class Convert(object):
                 style = stylizer.style(child)
                 display = style.get('display', 'inline')
                 if display == 'block':
-                    b = Block(child, style)
+                    b = Block(self.styles_manager, child, style)
                     self.blocks.append(b)
                     self.process_block(child, b, stylizer)
                 else:

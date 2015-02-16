@@ -38,17 +38,17 @@ class DOCXStyle(object):
     ALL_PROPS = ()
 
     def __init__(self):
-        self.update_hash()
+        self._hash = hash(tuple(
+            getattr(self, x) for x in self.ALL_PROPS))
 
     def __hash__(self):
         return self._hash
 
-    def update_hash(self):
-        self._hash = hash(tuple(
-            getattr(self, x) for x in self.ALL_PROPS))
-
     def __eq__(self, other):
-        return hash(self) == hash(other)
+        for x in self.ALL_PROPS:
+            if getattr(self, x) != getattr(other, x, None):
+                return False
+        return True
 
     def __ne__(self, other):
         return not self == other
@@ -175,7 +175,7 @@ class TextStyle(DOCXStyle):
 class BlockStyle(DOCXStyle):
 
     ALL_PROPS = tuple(
-        'text_align page_break_before keep_lines keep_next css_text_indent text_indent line_height css_line_height background_color'.split()
+        'text_align page_break_before keep_lines css_text_indent text_indent line_height css_line_height background_color'.split()
         + ['margin_' + edge for edge in border_edges]
         + ['css_margin_' + edge for edge in border_edges]
         + [x%edge for edge in border_edges for x in border_props]
@@ -184,8 +184,6 @@ class BlockStyle(DOCXStyle):
     def __init__(self, css, html_block, is_first_block=False):
         self.page_break_before = html_block.tag.endswith('}body') or (not is_first_block and css['page-break-before'] == 'always')
         self.keep_lines = css['page-break-inside'] == 'avoid'
-        # TODO: Ensure that only the last docx block for this html block has the correct value for keep next
-        self.keep_next = css['page-break-after'] == 'avoid'
         for edge in border_edges:
             # In DOCX padding can only be a positive integer
             setattr(self, 'padding_' + edge, max(0, int(css['padding-' + edge])))
@@ -272,9 +270,28 @@ class BlockStyle(DOCXStyle):
             style.append(style.makeelement(w('pageBreakBefore'), **{w('val'):'on'}))
         if self.keep_lines:
             style.append(style.makeelement(w('keepLines'), **{w('val'):'on'}))
-        if self.keep_next:
-            style.append(style.makeelement(w('keepNext'), **{w('val'):'on'}))
         return style
 
 
+class StylesManager(object):
 
+    def __init__(self):
+        self.block_styles, self.text_styles = {}, {}
+
+    def create_text_style(self, css_style):
+        ans = TextStyle(css_style)
+        existing = self.text_styles.get(ans, None)
+        if existing is None:
+            self.text_styles[ans] = ans
+        else:
+            ans = existing
+        return ans
+
+    def create_block_style(self, css_style, html_block, is_first_block=False):
+        ans = BlockStyle(css_style, html_block, is_first_block=is_first_block)
+        existing = self.block_styles.get(ans, None)
+        if existing is None:
+            self.block_styles[ans] = ans
+        else:
+            ans = existing
+        return ans
