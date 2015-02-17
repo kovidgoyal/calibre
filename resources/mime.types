@@ -1374,6 +1374,7 @@ application/x-mobi8-ebook                  azw3
 application/x-cbz                          cbz
 application/x-cbr                          cbr
 application/x-cb7                          cb7
+application/x-cbc                          cbc
 application/x-koboreader-ebook             kobo
 image/wmf                                  wmf
 application/ereader                        pdb
