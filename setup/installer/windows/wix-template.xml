@@ -56,8 +56,8 @@
     </Directory>
 
     <Icon Id="main_icon" SourceFile="{main_icon}"/>
-    <Icon Id="viewer_icon" SourceFile="{viewer_icon}"/>
-    <Icon Id="editor_icon" SourceFile="{editor_icon}"/>
+    <!-- <Icon Id="viewer_icon" SourceFile="{viewer_icon}"/> -->
+    <!-- <Icon Id="editor_icon" SourceFile="{editor_icon}"/> -->
 
     <DirectoryRef Id="APPLICATIONFOLDER">
         {app_components}
