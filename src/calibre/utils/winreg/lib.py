@@ -6,7 +6,7 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import ctypes, ctypes.wintypes as types, _winreg as winreg, struct
+import ctypes, ctypes.wintypes as types, _winreg as winreg, struct, datetime
 import winerror, win32con
 
 # Binding to C library {{{
@@ -131,6 +131,20 @@ RegSetKeyValue = cwrap(
 
 RegDeleteTree = cwrap(
     'RegDeleteTreeW', LONG, a('key', HKEY), a('sub_key', LPCWSTR, None))
+RegDeleteKeyValue = cwrap(
+    'RegDeleteKeyValueW', LONG, a('key', HKEY), a('sub_key', LPCWSTR, None), a('name', LPCWSTR, None))
+RegEnumKeyEx = cwrap(
+    'RegEnumKeyExW', LONG, a('key', HKEY), a('index', DWORD), a('name', LPWSTR), a('name_size', LPDWORD), a('reserved', LPDWORD, None),
+    a('cls', LPWSTR, None), a('cls_size', LPDWORD, None), a('last_write_time', ctypes.POINTER(FILETIME), in_arg=False),
+    errcheck=enum_value_errcheck)
+
+
+def filetime_to_datettime(ft):
+    timestamp = ft.dwHighDateTime
+    timestamp <<= 32
+    timestamp |= ft.dwLowDateTime
+    return datetime.datetime(1601, 1, 1, 0, 0, 0) + datetime.timedelta(microseconds=timestamp/10)
+
 # }}}
 
 class Key(object):
@@ -144,6 +158,27 @@ class Key(object):
             self.hkey = RegOpenKey(root, open_at, 0, open_mode)
         else:
             self.hkey = HKEY()
+
+    def iterkeynames(self, get_last_write_times=False):
+        ' Iterate over the names of all keys in this key '
+        name_buf = ctypes.create_unicode_buffer(1024)
+        lname_buf = DWORD(len(name_buf))
+        i = 0
+        while True:
+            lname_buf.value = len(name_buf)
+            try:
+                file_time = RegEnumKeyEx(self.hkey, i, name_buf, ctypes.byref(lname_buf))
+            except ValueError:
+                raise RuntimeError('Enumerating keys failed with buffer too small, which should never happen')
+            if get_last_write_times:
+                yield name_buf.value[:lname_buf.value], filetime_to_datettime(file_time)
+            else:
+                yield name_buf.value[:lname_buf.value]
+            i += 1
+
+    def delete_value(self, sub_key=None, name=None):
+        ' Delete the named value from this key. If name is None the default value is deleted. '
+        RegDeleteKeyValue(self.hkey, sub_key, name)
 
     def delete_tree(self, sub_key=None):
         ''' Delete this key and all its children. Note that a key is not
@@ -237,4 +272,6 @@ if __name__ == '__main__':
     k.set_default_value(r'other\key', '%PATH%', has_expansions=True)
     pprint(tuple(k.itervalues(get_data=True)))
     k.set_default_value(r'delete\me\please', 'xxx')
+    pprint(tuple(k.iterkeynames(get_last_write_times=True)))
     k.delete_tree('delete')
+    pprint(tuple(k.iterkeynames(get_last_write_times=True)))
