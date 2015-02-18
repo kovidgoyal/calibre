@@ -9,8 +9,8 @@ __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 import os, sys
 from threading import Thread
 
-from calibre import guess_type
-from calibre.constants import is64bit, isportable, isfrozen, __version__
+from calibre import guess_type, prints
+from calibre.constants import is64bit, isportable, isfrozen, __version__, DEBUG
 from calibre.utils.winreg.lib import Key
 
 def default_programs():
@@ -155,7 +155,9 @@ class Register(Thread):
             return
         if singleinstance('register_default_programs'):
             if self.prefs.get('windows_register_default_programs', None) != __version__:
-                self.prefs.set('windows_register_default_programs', __version__)
+                self.prefs['windows_register_default_programs'] = __version__
+                if DEBUG:
+                    prints('Registering with default programs...')
                 register()
 
 
