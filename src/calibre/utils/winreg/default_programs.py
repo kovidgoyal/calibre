@@ -163,4 +163,6 @@ class Register(Thread):
 
 if __name__ == '__main__':
     del sys.path[0]
-    unregister()
+    func = (register if sys.argv[-1] == 'register' else unregister)
+    print ('Running', func.__name__, '...')
+    func()
