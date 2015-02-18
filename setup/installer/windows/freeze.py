@@ -28,8 +28,8 @@ machine = 'X64' if is64bit else 'X86'
 
 DESCRIPTIONS = {
         'calibre' : 'The main calibre program',
-        'ebook-viewer' : 'Viewer for all e-book formats',
-        'ebook-edit' : 'Edit e-books',
+        'ebook-viewer' : 'The calibre e-book viewer',
+        'ebook-edit'   : 'The calibre e-book editor',
         'lrfviewer'    : 'Viewer for LRF files',
         'ebook-convert': 'Command line interface to the conversion/news download system',
         'ebook-meta'   : 'Command line interface for manipulating e-book metadata',
