@@ -7,9 +7,10 @@ __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import os, sys
+from threading import Thread
 
 from calibre import guess_type
-from calibre.constants import is64bit, isportable, isfrozen
+from calibre.constants import is64bit, isportable, isfrozen, __version__
 from calibre.utils.winreg.lib import Key
 
 def default_programs():
@@ -77,13 +78,16 @@ def create_prog_id(ext, prog_id, ext_map, exe):
 def progid_name(assoc_name, ext):
     return '%s.AssocFile.%s' % (assoc_name, ext.upper())
 
+def cap_path(data):
+    return r'Software\calibre\%s\Capabilities' % data['capability_name']
+
 def register():
-    check_allowed()
     base = os.path.dirname(sys.executable)
 
     for program, data in default_programs().iteritems():
+        data = data.copy()
         exe = os.path.join(base, program)
-        capabilities_path = r'Software\calibre\%s\Capabilities' % data['capability_name']
+        capabilities_path = cap_path(data)
         ext_map = {ext.lower():guess_type('file.' + ext.lower())[0] for ext in extensions(program)}
         ext_map = {ext:mt for ext, mt in ext_map.iteritems() if mt}
         prog_id_map = {ext:progid_name(data['assoc_name'], ext) for ext in ext_map}
@@ -109,6 +113,52 @@ def register():
     from win32com.shell import shell, shellcon
     shell.SHChangeNotify(shellcon.SHCNE_ASSOCCHANGED, shellcon.SHCNF_DWORD | shellcon.SHCNF_FLUSH, 0, 0)
 
+def unregister():
+    for program, data in default_programs().iteritems():
+        capabilities_path = cap_path(data).rpartition('\\')[0]
+        ext_map = {ext.lower():guess_type('file.' + ext.lower())[0] for ext in extensions(program)}
+        ext_map = {ext:mt for ext, mt in ext_map.iteritems() if mt}
+        prog_id_map = {ext:progid_name(data['assoc_name'], ext) for ext in ext_map}
+        with Key(r'Software\RegisteredApplications') as key:
+            key.delete_value(data['name'])
+        parent, sk = capabilities_path.rpartition('\\')[0::2]
+        with Key(parent) as key:
+            key.delete_tree(sk)
+        for ext, prog_id in prog_id_map.iteritems():
+            with Key(r'Software\Classes\.%s\OpenWithProgIDs' % ext) as key:
+                key.delete_value(prog_id)
+            with Key(r'Software\Classes') as key:
+                key.delete_tree(prog_id)
+
+
+class Register(Thread):
+
+    daemon = True
+
+    def __init__(self, prefs):
+        Thread.__init__(self, name='RegisterDP')
+        self.prefs = prefs
+        self.start()
+
+    def run(self):
+        try:
+            self.do_register()
+        except Exception:
+            import traceback
+            traceback.print_exc()
+
+    def do_register(self):
+        from calibre.utils.lock import singleinstance
+        try:
+            check_allowed()
+        except NotAllowed:
+            return
+        if singleinstance('register_default_programs'):
+            if self.prefs.get('windows_register_default_programs', None) != __version__:
+                self.prefs.set('windows_register_default_programs', __version__)
+                register()
+
+
 if __name__ == '__main__':
     del sys.path[0]
-    register()
+    unregister()
