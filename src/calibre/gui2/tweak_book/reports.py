@@ -336,9 +336,10 @@ class Jump(object):
         self.pos_map.clear()
 
     def __call__(self, key, locations):
-        self.pos_map[key] = (self.pos_map[key] + 1) % len(locations)
-        loc = locations[self.pos_map[key]]
-        jump_to_location(loc)
+        if len(locations):
+            self.pos_map[key] = (self.pos_map[key] + 1) % len(locations)
+            loc = locations[self.pos_map[key]]
+            jump_to_location(loc)
 
 jump = Jump()  # }}}
 
