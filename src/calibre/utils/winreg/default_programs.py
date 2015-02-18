@@ -67,7 +67,7 @@ def create_prog_id(ext, prog_id, ext_map, exe):
         key.set(value=type_name)
         key.set('FriendlyTypeName', type_name)
         key.set('PerceivedType', 'Document')
-        key.set('DefaultIcon', exe+',1')
+        key.set('DefaultIcon', exe+',0')
         key.set_default_value(r'shell\open\command', '"%s" "%%1"' % exe)
         key.set('AllowSilentDefaultTakeOver')
 
@@ -91,7 +91,7 @@ def register():
         with Key(capabilities_path) as key:
             for k, v in {'ApplicationDescription':'description', 'ApplicationName':'name'}.iteritems():
                 key.set(k, data[v])
-            key.set('ApplicationIcon', '%s,1' % exe)
+            key.set('ApplicationIcon', '%s,0' % exe)
             key.set_default_value(r'shell\open\command', '"%s" "%%1"' % exe)
 
             with Key('FileAssociations', root=key) as fak, Key('MimeAssociations', root=key) as mak:
