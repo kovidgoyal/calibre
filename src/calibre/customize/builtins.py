@@ -579,7 +579,10 @@ from calibre.ebooks.conversion.plugins.txt_output import TXTOutput, TXTZOutput
 from calibre.ebooks.conversion.plugins.html_output import HTMLOutput
 from calibre.ebooks.conversion.plugins.htmlz_output import HTMLZOutput
 from calibre.ebooks.conversion.plugins.snb_output import SNBOutput
-from calibre.ebooks.conversion.plugins.docx_output import DOCXOutput
+enable_docx_output = 'CALIBRE_ENABLE_EXPERIMENTAL_DOCX_OUTPUT' in os.environ
+if enable_docx_output:
+    from calibre.ebooks.conversion.plugins.docx_output import DOCXOutput
+    plugins.append(DOCXOutput)
 
 plugins += [
     ComicInput,
@@ -623,7 +626,6 @@ plugins += [
     HTMLOutput,
     HTMLZOutput,
     SNBOutput,
-    DOCXOutput,
 ]
 # }}}
 
