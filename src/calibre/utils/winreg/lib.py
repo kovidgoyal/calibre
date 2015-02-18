@@ -129,9 +129,6 @@ RegSetKeyValue = cwrap(
     'RegSetKeyValueW', LONG, a('key', HKEY), a('sub_key', LPCWSTR, None), a('name', LPCWSTR, None),
     a('dtype', DWORD, winreg.REG_SZ), a('data', LPCVOID, None), a('size', DWORD))
 
-RegDeleteTree = cwrap(
-    'RegDeleteTreeW', LONG, a('key', HKEY), a('sub_key', LPCWSTR, None))
-
 def delete_value_errcheck(result, func, args):
     if result == winerror.ERROR_FILE_NOT_FOUND:
         return args
@@ -140,6 +137,8 @@ def delete_value_errcheck(result, func, args):
     return args
 RegDeleteKeyValue = cwrap(
     'RegDeleteKeyValueW', LONG, a('key', HKEY), a('sub_key', LPCWSTR, None), a('name', LPCWSTR, None), errcheck=delete_value_errcheck)
+RegDeleteTree = cwrap(
+    'RegDeleteTreeW', LONG, a('key', HKEY), a('sub_key', LPCWSTR, None), errcheck=delete_value_errcheck)
 RegEnumKeyEx = cwrap(
     'RegEnumKeyExW', LONG, a('key', HKEY), a('index', DWORD), a('name', LPWSTR), a('name_size', LPDWORD), a('reserved', LPDWORD, None),
     a('cls', LPWSTR, None), a('cls_size', LPDWORD, None), a('last_write_time', ctypes.POINTER(FILETIME), in_arg=False),
@@ -184,12 +183,14 @@ class Key(object):
             i += 1
 
     def delete_value(self, name=None, sub_key=None):
-        ' Delete the named value from this key. If name is None the default value is deleted. '
+        ' Delete the named value from this key. If name is None the default value is deleted. If name does not exist, not error is reported. '
         RegDeleteKeyValue(self.hkey, sub_key, name)
 
     def delete_tree(self, sub_key=None):
-        ''' Delete this key and all its children. Note that a key is not
-        actually deleted till the last handle to it is closed. '''
+        ''' Delete this all children of this key. Note that a key is not
+        actually deleted till the last handle to it is closed. Also if you
+        specify a sub_key, then the sub-key is deleted completely. If sub_key
+        does not exist, no error is reported.'''
         RegDeleteTree(self.hkey, sub_key)
 
     def set(self, name=None, value=None, sub_key=None, has_expansions=False):
