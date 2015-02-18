@@ -79,6 +79,8 @@ Everything after the -- is passed to the script.
     parser.add_option('--diff', action='store_true', default=False, help=_(
         'Run the calibre diff tool. For example:\n'
         'calibre-debug --diff file1 file2'))
+    parser.add_option('--default-programs', default=None, choices=['register', 'unregister'],
+                          help=_('(Un)register calibre from Windows Default Programs.') + ' --default-programs=(register|unregister)')
 
     return parser
 
@@ -267,6 +269,15 @@ def main(args=sys.argv):
     elif opts.diff:
         from calibre.gui2.tweak_book.diff.main import main
         main(['calibre-diff'] + args[1:])
+    elif opts.default_programs:
+        if not iswindows:
+            raise SystemExit('Can only be run on Microsoft Windows')
+        if opts.default_programs == 'register':
+            from calibre.utils.winreg.default_programs import register as func
+        else:
+            from calibre.utils.winreg.default_programs import unregister as func
+        print 'Running', func.__name__, '...'
+        func()
     elif len(args) >= 2 and args[1].rpartition('.')[-1] in {'py', 'recipe'}:
         run_script(args[1], args[2:])
     elif len(args) >= 2 and args[1].rpartition('.')[-1] in {'mobi', 'azw', 'azw3', 'docx', 'odt'}:
@@ -290,4 +301,3 @@ def main(args=sys.argv):
 
 if __name__ == '__main__':
     sys.exit(main())
-

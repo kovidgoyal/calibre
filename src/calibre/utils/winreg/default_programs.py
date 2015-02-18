@@ -159,10 +159,3 @@ class Register(Thread):
                 if DEBUG:
                     prints('Registering with default programs...')
                 register()
-
-
-if __name__ == '__main__':
-    del sys.path[0]
-    func = (register if sys.argv[-1] == 'register' else unregister)
-    print ('Running', func.__name__, '...')
-    func()
