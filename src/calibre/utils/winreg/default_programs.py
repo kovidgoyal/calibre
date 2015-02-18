@@ -6,7 +6,7 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import os, sys
+import os, sys, time
 from threading import Thread
 
 from calibre import guess_type, prints
@@ -157,5 +157,16 @@ class Register(Thread):
             if self.prefs.get('windows_register_default_programs', None) != __version__:
                 self.prefs['windows_register_default_programs'] = __version__
                 if DEBUG:
+                    st = time.time()
                     prints('Registering with default programs...')
                 register()
+                if DEBUG:
+                    prints('Registered with default programs in %.1f seconds' % (time.time() - st))
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *args):
+        # Give the thread some time to finish in case the user quit the
+        # application very quickly
+        self.join(4.0)

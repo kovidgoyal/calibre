@@ -41,17 +41,33 @@ def init_dbus():
         threads_init()
         DBusGMainLoop(set_as_default=True)
 
+def register_with_default_programs():
+    from calibre.constants import iswindows
+    if iswindows:
+        from calibre.utils.winreg.default_programs import Register
+        from calibre.gui2 import gprefs
+        return Register(gprefs)
+    else:
+        class Dummy(object):
+            def __enter__(self):
+                return self
+            def __exit__(self, *args):
+                pass
+        return Dummy()
+
 def calibre(args=sys.argv):
     detach_gui()
     init_dbus()
-    from calibre.gui2.main import main
-    main(args)
+    with register_with_default_programs():
+        from calibre.gui2.main import main
+        main(args)
 
 def ebook_viewer(args=sys.argv):
     detach_gui()
     init_dbus()
-    from calibre.gui2.viewer.main import main
-    main(args)
+    with register_with_default_programs():
+        from calibre.gui2.viewer.main import main
+        main(args)
 
 def gui_ebook_edit(path=None, notify=None):
     ' For launching the editor from inside calibre '
@@ -62,8 +78,9 @@ def gui_ebook_edit(path=None, notify=None):
 def ebook_edit(args=sys.argv):
     detach_gui()
     init_dbus()
-    from calibre.gui2.tweak_book.main import main
-    main(args)
+    with register_with_default_programs():
+        from calibre.gui2.tweak_book.main import main
+        main(args)
 
 def option_parser(basename):
     if basename == 'calibre':
