@@ -131,8 +131,15 @@ RegSetKeyValue = cwrap(
 
 RegDeleteTree = cwrap(
     'RegDeleteTreeW', LONG, a('key', HKEY), a('sub_key', LPCWSTR, None))
+
+def delete_value_errcheck(result, func, args):
+    if result == winerror.ERROR_FILE_NOT_FOUND:
+        return args
+    if result != 0:
+        raise ctypes.WinError(result)
+    return args
 RegDeleteKeyValue = cwrap(
-    'RegDeleteKeyValueW', LONG, a('key', HKEY), a('sub_key', LPCWSTR, None), a('name', LPCWSTR, None))
+    'RegDeleteKeyValueW', LONG, a('key', HKEY), a('sub_key', LPCWSTR, None), a('name', LPCWSTR, None), errcheck=delete_value_errcheck)
 RegEnumKeyEx = cwrap(
     'RegEnumKeyExW', LONG, a('key', HKEY), a('index', DWORD), a('name', LPWSTR), a('name_size', LPDWORD), a('reserved', LPDWORD, None),
     a('cls', LPWSTR, None), a('cls_size', LPDWORD, None), a('last_write_time', ctypes.POINTER(FILETIME), in_arg=False),
@@ -176,7 +183,7 @@ class Key(object):
                 yield name_buf.value[:lname_buf.value]
             i += 1
 
-    def delete_value(self, sub_key=None, name=None):
+    def delete_value(self, name=None, sub_key=None):
         ' Delete the named value from this key. If name is None the default value is deleted. '
         RegDeleteKeyValue(self.hkey, sub_key, name)
 
