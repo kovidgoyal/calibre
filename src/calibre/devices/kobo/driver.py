@@ -1256,7 +1256,7 @@ class KOBOTOUCH(KOBO):
     description = 'Communicate with the Kobo Touch, Glo, Mini and Aura HD ereaders. Based on the existing Kobo driver by %s.' % (KOBO.author)
 #    icon        = I('devices/kobotouch.jpg')
 
-    supported_dbversion             = 112
+    supported_dbversion             = 115
     min_supported_dbversion         = 53
     min_dbversion_series            = 65
     min_dbversion_externalid        = 65
@@ -1265,7 +1265,7 @@ class KOBOTOUCH(KOBO):
     min_dbversion_activity          = 77
     min_dbversion_keywords          = 82
 
-    max_supported_fwversion         = (3, 12, 1)
+    max_supported_fwversion         = (3, 13, 2)
     min_fwversion_shelves           = (2, 0, 0)
     min_fwversion_images_on_sdcard  = (2, 4, 1)
     min_fwversion_images_tree       = (2, 9, 0)  # Cover images stored in tree under .kobo-images
