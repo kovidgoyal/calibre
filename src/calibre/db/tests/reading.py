@@ -305,7 +305,7 @@ class ReadingTest(BaseTest):
         old.conn.close()
         old = None
 
-        cache = self.init_cache(self.library_path)
+        cache = self.init_cache(self.cloned_library)
         for query, ans in oldvals.iteritems():
             nr = cache.search(query, '')
             self.assertEqual(ans, nr,
@@ -315,6 +315,18 @@ class ReadingTest(BaseTest):
         # Test searching by id, which was introduced in the new backend
         self.assertEqual(cache.search('id:1', ''), {1})
         self.assertEqual(cache.search('id:>1', ''), {2, 3})
+
+        # Numeric/rating searches with relops in the old db were incorrect, so
+        # test them specifically here
+        cache.set_field('rating', {1:4, 2:2, 3:5})
+        self.assertEqual(cache.search('rating:>2'), set())
+        self.assertEqual(cache.search('rating:>=2'), {1, 3})
+        self.assertEqual(cache.search('rating:<2'), {2})
+        self.assertEqual(cache.search('rating:<=2'), {1, 2, 3})
+        self.assertEqual(cache.search('rating:<=2'), {1, 2, 3})
+        self.assertEqual(cache.search('rating:=2'), {1, 3})
+        self.assertEqual(cache.search('rating:2'), {1, 3})
+        self.assertEqual(cache.search('rating:!=2'), {2})
 
         # Note that the old db searched uuid for un-prefixed searches, the new
         # db does not, for performance

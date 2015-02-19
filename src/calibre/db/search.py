@@ -7,10 +7,10 @@ __license__   = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import re, weakref
+import re, weakref, operator
 from functools import partial
 from datetime import timedelta
-from collections import deque
+from collections import deque, OrderedDict
 
 from calibre.constants import preferred_encoding
 from calibre.db.utils import force_to_bool
@@ -85,14 +85,14 @@ def _match(query, value, matchkind, use_primary_find_in_search=True):
 class DateSearch(object):  # {{{
 
     def __init__(self):
-        self.operators = {
-            '=': (1, self.eq),
-            '!=': (2, self.ne),
-            '>': (1, self.gt),
-            '>=': (2, self.ge),
-            '<': (1, self.lt),
-            '<=': (2, self.le),
-        }
+        self.operators = OrderedDict((
+            ('!=', self.ne),
+            ('>=', self.ge),
+            ('<=', self.le),
+            ('=', self.eq),
+            ('>', self.gt),
+            ('<', self.lt),
+        ))
         self.local_today         = {'_today', 'today', icu_lower(_('today'))}
         self.local_yesterday     = {'_yesterday', 'yesterday', icu_lower(_('yesterday'))}
         self.local_thismonth     = {'_thismonth', 'thismonth', icu_lower(_('thismonth'))}
@@ -158,13 +158,12 @@ class DateSearch(object):  # {{{
                     matches |= book_ids
             return matches
 
-        relop = None
-        for k, op in self.operators.iteritems():
+        for k, relop in self.operators.iteritems():
             if query.startswith(k):
-                p, relop = op
-                query = query[p:]
-        if relop is None:
-            relop = self.operators['='][-1]
+                query = query[len(k):]
+                break
+        else:
+            relop = self.operators['=']
 
         if query in self.local_today:
             qd = now()
@@ -206,14 +205,14 @@ class DateSearch(object):  # {{{
 class NumericSearch(object):  # {{{
 
     def __init__(self):
-        self.operators = {
-            '=':(1, lambda r, q: r == q),
-            '>':(1, lambda r, q: r is not None and r > q),
-            '<':(1, lambda r, q: r is not None and r < q),
-            '!=':(2, lambda r, q: r != q),
-            '>=':(2, lambda r, q: r is not None and r >= q),
-            '<=':(2, lambda r, q: r is not None and r <= q)
-        }
+        self.operators = OrderedDict((
+            ('!=', operator.ne),
+            ('>=', operator.ge),
+            ('<=', operator.le),
+            ('=', operator.eq),
+            ('>', operator.gt),
+            ('<', operator.lt),
+        ))
 
     def __call__(self, query, field_iter, location, datatype, candidates, is_many=False):
         matches = set()
@@ -245,18 +244,17 @@ class NumericSearch(object):  # {{{
             else:
                 relop = lambda x,y: x is not None
         else:
-            relop = None
-            for k, op in self.operators.iteritems():
+            for k, relop in self.operators.iteritems():
                 if query.startswith(k):
-                    p, relop = op
-                    query = query[p:]
-            if relop is None:
-                p, relop = self.operators['=']
+                    query = query[len(k):]
+                    break
+            else:
+                relop = self.operators['=']
 
             cast = int
             if dt == 'rating':
                 cast = lambda x: 0 if x is None else int(x)
-                adjust = lambda x: x/2
+                adjust = lambda x: x // 2
             elif dt in ('float', 'composite'):
                 cast = float
 
