@@ -898,7 +898,7 @@ dl.notes dd:last-of-type { page-break-after: avoid }
 #           self.writeout(escape(note['citation']))
 #           self.closetag('sup', False)
             self.writeout('[')
-            self.opentag('a', { 'href': "#citation-%d" % key, 'id': "footnote-%d" % key })
+            self.opentag('a', { 'href': "#citation-%d" % key })
             self.writeout(u"\u2190%d".encode('utf-8') % key)
             self.closetag('a')
             self.writeout(u']\xa0'.encode('utf-8'))
