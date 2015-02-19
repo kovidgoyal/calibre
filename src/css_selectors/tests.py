@@ -333,7 +333,7 @@ cde"><span id="foobar-span"></span></div>
             "Got nested :not()")
     # }}}
 
-    def test_select(self):
+    def test_select(self):  # {{{
         document = etree.fromstring(self.HTML_IDS)
         select = Select(document)
 
@@ -373,7 +373,7 @@ cde"><span id="foobar-span"></span></div>
         # Attribute values are case sensitive
         self.ae(pcss('*[lang|="en"]', '[lang|="en-US"]'), [])
         self.ae(pcss('*[lang|="e"]'), [])
-
+    # }}}
 
 # Run tests {{{
 def find_tests():
