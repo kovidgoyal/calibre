@@ -30,6 +30,14 @@ def ascii_lower(string):
     """Lower-case, but only in the ASCII range."""
     return string.translate(utab if isinstance(string, _unicode) else tab)
 
+def urepr(x):
+    if isinstance(x, list):
+        return '[%s]' % ', '.join((map(urepr, x)))
+    ans = repr(x)
+    if ans.startswith("u'") or ans.startswith('u"'):
+        ans = ans[1:]
+    return ans
+
 # Parsed objects
 
 class Selector(object):
@@ -129,9 +137,9 @@ class FunctionalPseudoElement(object):
         self.arguments = arguments
 
     def __repr__(self):
-        return '%s[::%s(%r)]' % (
+        return '%s[::%s(%s)]' % (
             self.__class__.__name__, self.name,
-            [token.value for token in self.arguments])
+            urepr([token.value for token in self.arguments]))
 
     def argument_types(self):
         return [token.type for token in self.arguments]
@@ -153,9 +161,9 @@ class Function(object):
         self.arguments = arguments
 
     def __repr__(self):
-        return '%s[%r:%s(%r)]' % (
+        return '%s[%r:%s(%s)]' % (
             self.__class__.__name__, self.selector, self.name,
-            [token.value for token in self.arguments])
+            urepr([token.value for token in self.arguments]))
 
     def argument_types(self):
         return [token.type for token in self.arguments]
@@ -225,9 +233,9 @@ class Attrib(object):
             return '%s[%r[%s]]' % (
                 self.__class__.__name__, self.selector, attrib)
         else:
-            return '%s[%r[%s %s %r]]' % (
+            return '%s[%r[%s %s %s]]' % (
                 self.__class__.__name__, self.selector, attrib,
-                self.operator, self.value)
+                self.operator, urepr(self.value))
 
     def specificity(self):
         a, b, c = self.selector.specificity()

@@ -10,7 +10,7 @@ class SelectorError(ValueError):
 
     """Common parent for SelectorSyntaxError and ExpressionError"""
 
-class SelectorSyntaxError(SelectorError, SyntaxError):
+class SelectorSyntaxError(SelectorError):
 
     """Parsing a selector that does not match the grammar."""
 
