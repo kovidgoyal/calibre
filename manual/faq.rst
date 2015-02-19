@@ -91,6 +91,21 @@ will not work, but the covers will. It's your choice which functionality is
 more important to you. I encourage you to contact Amazon and ask them to fix
 this bug.
 
+The bug in Amazon's software is that when you put a MOBI file on a Kindle,
+unless the file is marked as a Personal document, Amazon assumes you bought the
+book from it and tries to download the cover thumbnail for it from its servers. When the 
+download fails, it refuses to fallback to the cover defined in the MOBI file.
+This is likely deliberate on Amazon's part to try to force authors to sell only
+through them. In other words, Kindle's only display covers for books marked as
+Personal Documents or books bought directly from Amazon. 
+
+If you send a MOBI file to a Kindle with calibre using a USB connection,
+calibre works around this Amazon bug by uploading a cover thumbnail itself.
+However, that workaround is only possible when using a USB connection and
+sending with calibre. Note that if you send using email, Amazon will
+automatically mark the MOBI file as a Personal Document and the cover will
+work, but the book will show up in Personal Documents.
+
 How do I convert a collection of HTML files in a specific order?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 In order to convert a collection of HTML files in a specific order, you have to
