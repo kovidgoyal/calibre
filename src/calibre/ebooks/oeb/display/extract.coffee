@@ -166,6 +166,7 @@ class CalibreExtract
                     in_note = false
                 else if pb['after']
                     in_note = false
+                    elem.do_not_hide = true
                     for child in elem.getElementsByTagName('*')
                         child.do_not_hide = true
                 else
