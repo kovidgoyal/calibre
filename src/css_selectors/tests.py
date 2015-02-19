@@ -8,10 +8,66 @@ __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import unittest, sys, argparse
 
+from lxml import etree
+
 from css_selectors.errors import SelectorSyntaxError
 from css_selectors.parse import tokenize, parse
+from css_selectors.select import Select
 
 class TestCSSSelectors(unittest.TestCase):
+
+    # Test data {{{
+    HTML_IDS = '''
+<html id="html"><head>
+  <link id="link-href" href="foo" />
+  <link id="link-nohref" />
+</head><body>
+<div id="outer-div">
+ <a id="name-anchor" name="foo"></a>
+ <a id="tag-anchor" rel="tag" href="http://localhost/foo">link</a>
+ <a id="nofollow-anchor" rel="nofollow" href="https://example.org">
+    link</a>
+ <ol id="first-ol" class="a b c">
+   <li id="first-li">content</li>
+   <li id="second-li" lang="En-us">
+     <div id="li-div">
+     </div>
+   </li>
+   <li id="third-li" class="ab c"></li>
+   <li id="fourth-li" class="ab
+c"></li>
+   <li id="fifth-li"></li>
+   <li id="sixth-li"></li>
+   <li id="seventh-li">  </li>
+ </ol>
+ <p id="paragraph">
+   <b id="p-b">hi</b> <em id="p-em">there</em>
+   <b id="p-b2">guy</b>
+   <input type="checkbox" id="checkbox-unchecked" />
+   <input type="checkbox" id="checkbox-disabled" disabled="" />
+   <input type="text" id="text-checked" checked="checked" />
+   <input type="hidden" />
+   <input type="hidden" disabled="disabled" />
+   <input type="checkbox" id="checkbox-checked" checked="checked" />
+   <input type="checkbox" id="checkbox-disabled-checked"
+          disabled="disabled" checked="checked" />
+   <fieldset id="fieldset" disabled="disabled">
+     <input type="checkbox" id="checkbox-fieldset-disabled" />
+     <input type="hidden" />
+   </fieldset>
+ </p>
+ <ol id="second-ol">
+ </ol>
+ <map name="dummymap">
+   <area shape="circle" coords="200,250,25" href="foo.html" id="area-href" />
+   <area shape="default" id="area-nohref" />
+ </map>
+</div>
+<div id="foobar-div" foobar="ab bc
+cde"><span id="foobar-span"></span></div>
+</body></html>
+'''
+# }}}
 
     ae = unittest.TestCase.assertEqual
 
@@ -276,6 +332,48 @@ class TestCSSSelectors(unittest.TestCase):
         assert get_error(':not(:not(a))') == (
             "Got nested :not()")
     # }}}
+
+    def test_select(self):
+        document = etree.fromstring(self.HTML_IDS)
+        select = Select(document)
+
+        def select_ids(selector):
+            for elem in select(selector):
+                yield elem.get('id') or 'nil'
+
+        def pcss(main, *selectors, **kwargs):
+            result = list(select_ids(main))
+            for selector in selectors:
+                self.ae(list(select_ids(selector)), result)
+            return result
+        all_ids = pcss('*')
+        self.ae(all_ids[:6], [
+            'html', 'nil', 'link-href', 'link-nohref', 'nil', 'outer-div'])
+        self.ae(all_ids[-1:], ['foobar-span'])
+        self.ae(pcss('div'), ['outer-div', 'li-div', 'foobar-div'])
+        self.ae(pcss('DIV'), [
+            'outer-div', 'li-div', 'foobar-div'])  # case-insensitive in HTML
+        self.ae(pcss('div div'), ['li-div'])
+        self.ae(pcss('div, div div'), ['outer-div', 'li-div', 'foobar-div'])
+        self.ae(pcss('a[name]'), ['name-anchor'])
+        self.ae(pcss('a[NAme]'), ['name-anchor'])  # case-insensitive in HTML:
+        self.ae(pcss('a[rel]'), ['tag-anchor', 'nofollow-anchor'])
+        self.ae(pcss('a[rel="tag"]'), ['tag-anchor'])
+        self.ae(pcss('a[href*="localhost"]'), ['tag-anchor'])
+        self.ae(pcss('a[href*=""]'), [])
+        self.ae(pcss('a[href^="http"]'), ['tag-anchor', 'nofollow-anchor'])
+        self.ae(pcss('a[href^="http:"]'), ['tag-anchor'])
+        self.ae(pcss('a[href^=""]'), [])
+        self.ae(pcss('a[href$="org"]'), ['nofollow-anchor'])
+        self.ae(pcss('a[href$=""]'), [])
+        self.ae(pcss('div[foobar~="bc"]', 'div[foobar~="cde"]'), ['foobar-div'])
+        self.ae(pcss('[foobar~="ab bc"]', '[foobar~=""]', '[foobar~=" \t"]'), [])
+        self.ae(pcss('div[foobar~="cd"]'), [])
+        self.ae(pcss('*[lang|="En"]', '[lang|="En-us"]'), ['second-li'])
+        # Attribute values are case sensitive
+        self.ae(pcss('*[lang|="en"]', '[lang|="en-US"]'), [])
+        self.ae(pcss('*[lang|="e"]'), [])
+
 
 # Run tests {{{
 def find_tests():
