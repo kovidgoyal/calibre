@@ -817,11 +817,18 @@ class ODF2XHTML(handler.ContentHandler):
     # background-color: white removed by Kovid for #9118
     # Specifying an explicit bg color prevents ebook readers
     # from successfully inverting colors
+    # Added styling for endnotes
     default_styles = """
 img { width: 100%; height: 100%; }
 * { padding: 0; margin: 0; }
 body { margin: 0 1em; }
 ol, ul { padding-left: 2em; }
+a.citation { text-decoration: none }
+h1.notes-header { page-break-before: always }
+dl.notes dt { font-size: large }
+dl.notes dt a { text-decoration: none }
+dl.notes dd { page-break-after: always }
+dl.notes dd:last-of-type { page-break-after: avoid }
 """
 
     def generate_stylesheet(self):
@@ -878,20 +885,28 @@ ol, ul { padding-left: 2em; }
     def generate_footnotes(self):
         if self.currentnote == 0:
             return
-        if self.generate_css:
-            self.opentag('ol', {'style':'border-top: 1px solid black'}, True)
-        else:
-            self.opentag('ol')
+        # Changed by Kovid to improve endnote functionality
+        self.opentag('h1', {'class':'notes-header'})
+        self.writeout(_('Notes'))
+        self.closetag('h1')
+        self.opentag('dl', {'class':'notes'})
         for key in range(1,self.currentnote+1):
             note = self.notedict[key]
 #       for key,note in self.notedict.items():
-            self.opentag('li', { 'id':"footnote-%d" % key })
+            self.opentag('dt', { 'id':"footnote-%d" % key })
 #           self.opentag('sup')
 #           self.writeout(escape(note['citation']))
 #           self.closetag('sup', False)
+            self.writeout('[')
+            self.opentag('a', { 'href': "#citation-%d" % key, 'id': "footnote-%d" % key })
+            self.writeout(u"\u2190%d".encode('utf-8') % key)
+            self.closetag('a')
+            self.writeout(u']\xa0'.encode('utf-8'))
+            self.closetag('dt')
+            self.opentag('dd')
             self.writeout(note['body'])
-            self.closetag('li')
-        self.closetag('ol')
+            self.closetag('dd')
+        self.closetag('dl')
 
     def s_office_automatic_styles(self, tag, attrs):
         if self.xmlfile == 'styles.xml':
@@ -1368,16 +1383,21 @@ ol, ul { padding-left: 2em; }
         del self._orgwfunc
 
     def e_text_note_citation(self, tag, attrs):
+        # Changed by Kovid to improve formatting and enable backlinks
         mark = ''.join(self.data)
         self.notedict[self.currentnote]['citation'] = mark
-        self.opentag('a',{ 'href': "#footnote-%s" % self.currentnote })
         self.opentag('sup')
+        self.opentag('a', {
+            'href': "#footnote-%s" % self.currentnote,
+            'class': 'citation',
+            'id':'citation-%s' % self.currentnote
+        })
 #        self.writeout( escape(mark) )
         # Since HTML only knows about endnotes, there is too much risk that the
         # marker is reused in the source. Therefore we force numeric markers
         self.writeout(unicode(self.currentnote))
-        self.closetag('sup')
         self.closetag('a')
+        self.closetag('sup')
 
     def s_text_p(self, tag, attrs):
         """ Paragraph
