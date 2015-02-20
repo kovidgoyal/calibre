@@ -19,11 +19,6 @@ from calibre.ebooks.metadata.sources.base import (Source, Option, fixcase,
 from calibre.ebooks.metadata.book.base import Metadata
 from calibre.utils.localization import canonicalize_lang
 
-def CSSSelect(expr):
-    from cssselect import HTMLTranslator
-    from lxml.etree import XPath
-    return XPath(HTMLTranslator().css_to_xpath(expr))
-
 class Worker(Thread):  # Get details {{{
 
     '''
@@ -269,6 +264,8 @@ class Worker(Thread):  # Get details {{{
             self.log.error(msg)
             return
 
+        from css_selectors import Select
+        self.selector = Select(root)
         self.parse_details(oraw, root)
 
     def parse_details(self, raw, root):
@@ -337,7 +334,7 @@ class Worker(Thread):  # Get details {{{
             self.log.exception('Error parsing cover for url: %r'%self.url)
         mi.has_cover = bool(self.cover_url)
 
-        non_hero = CSSSelect('div#bookDetails_container_div div#nonHeroSection')(root)
+        non_hero = tuple(self.selector('div#bookDetails_container_div div#nonHeroSection'))
         if non_hero:
             # New style markup
             try:
@@ -417,9 +414,9 @@ class Worker(Thread):  # Get details {{{
         return ans
 
     def parse_authors(self, root):
-        matches = CSSSelect('#byline .author .contributorNameID')(root)
+        matches = tuple(self.selector('#byline .author .contributorNameID'))
         if not matches:
-            matches = CSSSelect('#byline .author a.a-link-normal')(root)
+            matches = tuple(self.selector('#byline .author a.a-link-normal'))
         if matches:
             authors = [self.totext(x) for x in matches]
             return [a for a in authors if a]
@@ -490,7 +487,7 @@ class Worker(Thread):  # Get details {{{
 
     def parse_comments(self, root):
         ans = ''
-        ns = CSSSelect('#bookDescription_feature_div noscript')(root)
+        ns = tuple(self.selector('#bookDescription_feature_div noscript'))
         if ns:
             ns = ns[0]
             if len(ns) == 0 and ns.text:
@@ -1123,13 +1120,6 @@ if __name__ == '__main__':  # tests {{{
                 {'identifiers':{'isbn': '0743273567'}},
                 [title_test('The great gatsby', exact=True),
                     authors_test(['F. Scott Fitzgerald'])]
-            ),
-
-            (  # A newer book
-                {'identifiers':{'amazon': 'B004JHY6OG'}},
-                [title_test('The Heroes', exact=False),
-                    authors_test(['Joe Abercrombie'])]
-
             ),
 
     ]  # }}}
