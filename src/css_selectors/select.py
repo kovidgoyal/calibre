@@ -92,7 +92,7 @@ class Select(object):
     Tags are returned in document order. Note that attribute and tag names are
     matched case-insensitively. Also namespaces are ignored (this is for
     performance of the common case).  The UI related selectors are not
-    implemented, such as :enabled, :diabled, :checked, :hover, etc.  Similarly,
+    implemented, such as :enabled, :disabled, :checked, :hover, etc.  Similarly,
     the non-element related selectors such as ::first-line, ::first-letter,
     ::before, etc. are not implemented.
 
@@ -102,7 +102,7 @@ class Select(object):
 
     This class can be easily sub-classed to work with tree implementations
     other than lxml. Simply override the methods in the ``Tree Integration``
-    block.
+    block below.
 
     '''
 
