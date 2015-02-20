@@ -31,10 +31,9 @@ class OrderedSet(collections.MutableSet):
     every entry has an index that can be looked up.
     """
     def __init__(self, iterable=None):
-        if iterable is None:
-            self.items = []
-            self.map = {}
-        else:
+        self.items = []
+        self.map = {}
+        if iterable is not None:
             for item in iterable:
                 idx = self.map.get(item)
                 if idx is None:
@@ -131,9 +130,6 @@ class OrderedSet(collections.MutableSet):
         if isinstance(other, OrderedSet):
             return len(self) == len(other) and self.items == other.items
         try:
-            other_as_set = set(other)
+            return type(other)(self.map) == other
         except TypeError:
-            # If `other` can't be converted into a set, it's not equal.
             return False
-        else:
-            return set(self) == other_as_set
