@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import (unicode_literals, division, absolute_import, print_function)
-store_version = 4 # Needed for dynamic plugin loading
+store_version = 5 # Needed for dynamic plugin loading
 
 __license__ = 'GPL 3'
-__copyright__ = '2013-2014, Tomasz Długosz <tomek3d@gmail.com>'
+__copyright__ = '2013-2015, Tomasz Długosz <tomek3d@gmail.com>'
 __docformat__ = 'restructuredtext en'
 
 import urllib
@@ -50,43 +50,40 @@ class CdpStore(BasicStoreConfig, StorePlugin):
 
         counter = max_results
         while counter:
-            with closing(br.open(u'https://cdp.pl/products/search?utf8=✓&keywords=' + urllib.quote_plus(query) + '&page=' + str(page), timeout=timeout)) as f:
+            with closing(br.open(u'https://cdp.pl/ksiazki/e-book.html?q=' + urllib.quote_plus(query) + '&p=' + str(page), timeout=timeout)) as f:
                 doc = html.fromstring(f.read())
-                for data in doc.xpath('//ul[@id="products"]/li'):
+                for data in doc.xpath('//ul[@class="grid-of-products"]/li'):
                     if counter <= 0:
                         break
 
-                    id = ''.join(data.xpath('.//div[@class="product-image"]/a[1]/@href'))
+                    id = ''.join(data.xpath('.//a[@class="product-image"]/@href'))
                     if not id:
                         continue
                     if 'ksiazki' not in id:
                         continue
 
-                    cover_url = ''.join(data.xpath('.//div[@class="product-image"]/a[1]/@data-background'))
-                    cover_url = cover_url.split('\'')[1]
-                    title = ''.join(data.xpath('.//div[@class="product-description"]/h2/a/text()'))
-                    author = ''.join(data.xpath('.//div[@class="product-description"]//ul[@class="taxons"]/li[@class="author"]/a/text()'))
-                    price = ''.join(data.xpath('.//span[@itemprop="price"]/text()'))
+                    cover_url = ''.join(data.xpath('.//a[@class="product-image"]/img/@data-src'))
+                    title = ''.join(data.xpath('.//h3[1]/a/@title'))
+                    price = ''.join(data.xpath('.//span[@class="custom_price"]/text()'))+','+''.join(data.xpath('.//span[@class="custom_price"]/sup/text()'))
+                    author = ''
+                    formats = ''
+                    with closing(br.open( id.strip(), timeout=timeout/4)) as nf:
+                        idata = html.fromstring(nf.read())
+                        author = ', '.join(idata.xpath('.//ul[@class="film-data"]/li[1]/p/text()'))
+                        formats = idata.xpath('//div[@class="product-attributes-container"][2]/ul/li/span/text()')[-1]
 
                     counter -= 1
 
                     s = SearchResult()
                     s.cover_url = cover_url
                     s.title = title.strip()
-                    s.author = author.strip()
-                    s.price = price
+                    s.author = author
+                    s.price = price + ' zł'
                     s.detail_item = id.strip()
                     s.drm = SearchResult.DRM_UNLOCKED
+                    s.formats = formats.upper().strip()
 
                     yield s
-                if not doc.xpath('//span[@class="next"]/a'):
+                if not doc.xpath('//span[@class="next-page"]/a'):
                     break
             page+=1
-
-    def get_details(self, search_result, timeout):
-        br = browser()
-        with closing(br.open(search_result.detail_item, timeout=timeout)) as nf:
-            idata = html.fromstring(nf.read())
-            formats = ', '.join(idata.xpath('//div[@id="product-bonus"]/div/ul/li/text()'))
-            search_result.formats = formats.upper()
-        return True
