@@ -373,6 +373,8 @@ cde"><span id="foobar-span"></span></div>
         # Attribute values are case sensitive
         self.ae(pcss('*[lang|="en"]', '[lang|="en-US"]'), [])
         self.ae(pcss('*[lang|="e"]'), [])
+        self.ae(pcss(':lang("EN")', '*:lang(en-US)'), ['second-li', 'li-div'])
+        self.ae(pcss(':lang("e")'), [])
     # }}}
 
 # Run tests {{{

@@ -6,7 +6,7 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import re
+import re, itertools
 from collections import OrderedDict, defaultdict
 from functools import wraps
 
@@ -56,6 +56,28 @@ def trace_wrapper(func):
         return func(*args, **kwargs)
     return trace
 
+def normalize_language_tag(tag):
+    """Return a list of normalized combinations for a `BCP 47` language tag.
+
+    Example:
+
+    >>> normalize_language_tag('de_AT-1901')
+    ['de-at-1901', 'de-at', 'de-1901', 'de']
+    """
+    # normalize:
+    tag = ascii_lower(tag).replace('_','-')
+    # split (except singletons, which mark the following tag as non-standard):
+    tag = re.sub(r'-([a-zA-Z0-9])-', r'-\1_', tag)
+    subtags = [subtag.replace('_', '-') for subtag in tag.split('-')]
+    base_tag = (subtags.pop(0),)
+    taglist = {base_tag[0]}
+    # find all combinations of subtags
+    for n in range(len(subtags), 0, -1):
+        for tags in itertools.combinations(subtags, n):
+            taglist.add('-'.join(base_tag + tags))
+    return taglist
+
+
 class Select(object):
 
     combinator_mapping = {
@@ -75,10 +97,11 @@ class Select(object):
         '*=': 'substringmatch',
     }
 
-    def __init__(self, root, dispatch_map=None, trace=False):
+    def __init__(self, root, default_lang=None, dispatch_map=None, trace=False):
         self.root = root
         self.dispatch_map = dispatch_map or default_dispatch_map
         self.invalidate_caches()
+        self.default_lang = default_lang
         if trace:
             self.dispatch_map = {k:trace_wrapper(v) for k, v in self.dispatch_map.iteritems()}
 
@@ -88,6 +111,7 @@ class Select(object):
         self._class_map = None
         self._attrib_map = None
         self._attrib_space_map = None
+        self._lang_map = None
 
     def __call__(self, selector):
         seen = set()
@@ -166,6 +190,24 @@ class Select(object):
                         am[map_attrib_name(attr)][v].add(tag)
         return self._attrib_space_map
 
+    @property
+    def lang_map(self):
+        if self._lang_map is None:
+            self._lang_map = lm = defaultdict(OrderedSet)
+            dl = normalize_language_tag(self.default_lang) if self.default_lang else None
+            lmap = {tag:dl for tag in self.root.iter('*')} if dl else {}
+            for tag in self.root.iter('*'):
+                lang = None
+                for attr in ('{http://www.w3.org/XML/1998/namespace}lang', 'lang'):
+                    lang = tag.get(attr)
+                if lang:
+                    lang = normalize_language_tag(lang)
+                    for dtag in tag.iter('*'):
+                        lmap[dtag] = lang
+            for tag, langs in lmap.iteritems():
+                for lang in langs:
+                    lm[lang].add(tag)
+        return self._lang_map
 
 # Combinators {{{
 
@@ -291,10 +333,38 @@ def select_substringmatch(cache, attrib, value):
 
 # }}}
 
+# Function selectors {{{
+
+def select_function(cache, function):
+    """Select with a functional pseudo-class."""
+    try:
+        func = cache.dispatch_map[function.name.replace('-', '_')]
+    except KeyError:
+        raise ExpressionError(
+            "The pseudo-class :%s() is unknown" % function.name)
+    items = frozenset(func(cache, function))
+    for item in cache.iterparsedselector(function.selector):
+        if item in items:
+            yield item
+
+def select_lang(cache, function):
+    if function.argument_types() not in (['STRING'], ['IDENT']):
+        raise ExpressionError("Expected a single string or ident for :lang(), got %r" % function.arguments)
+    lang = function.arguments[0].value
+    if lang:
+        lang = ascii_lower(lang)
+        lp = lang + '-'
+        for tlang, elem_set in cache.lang_map.iteritems():
+            if tlang == lang or (tlang is not None and tlang.startswith(lp)):
+                for elem in elem_set:
+                    yield elem
+
+# }}}
+
 default_dispatch_map = {name.partition('_')[2]:obj for name, obj in globals().items() if name.startswith('select_') and callable(obj)}
 
 if __name__ == '__main__':
     from pprint import pprint
-    root = etree.fromstring('<body xmlns="xxx"><p id="p" class="one two"><a id="a"/></p></body>')
+    root = etree.fromstring('<body xmlns="xxx" xml:lang="en"><p id="p" class="one two" lang="fr"><a id="a"/></p></body>')
     select = Select(root, trace=True)
-    pprint(list(select('[class~=two]')))
+    pprint(list(select(':lang(en)')))
