@@ -125,6 +125,8 @@ class Select(object):
     }
 
     def __init__(self, root, default_lang=None, dispatch_map=None, trace=False):
+        if hasattr(root, 'getroot'):
+            root = root.getroot()
         self.root = root
         self.dispatch_map = dispatch_map or default_dispatch_map
         self.invalidate_caches()
@@ -568,4 +570,4 @@ if __name__ == '__main__':
     from pprint import pprint
     root = etree.fromstring('<body xmlns="xxx" xml:lang="en"><p id="p" class="one two" lang="fr"><a id="a"/><b/><c/><d/></p></body>')
     select = Select(root, trace=True)
-    pprint(list(select('p *:root')))
+    pprint(list(select('p')))
