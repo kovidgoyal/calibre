@@ -20,6 +20,48 @@
 #   new recipes:
 #     - title: 
 
+- version: 2.20.0
+  date: 2015-02-20
+
+  new features:
+    - title: "ODT Input: Add backlinks for footnotes/endnotes and improve their formatting."
+      tickets: [1421056]
+
+    - title: "Windows: When running on windows 8 and newer register with default programs so that users can more easily select calibre or its viewer/editor as the default program to launch ebook files."
+      tickets: [1422248]
+
+    - title: "Make publishers in the book details panel clickable."
+      tickets: [1419313]
+
+    - title: "Edit Book spell check: For mis-spelled words of the form one:two offer one: two as a suggested correction."
+      tickets: [1422133]
+
+  bug fixes:
+    - title: "Fix a regression that caused incorrect results when searching on numeric or date fields with relational operators."
+      tickets: [1423390]
+
+    - title: "DOCX Input: Fix regression in 2.19 that broke handling of text with leading or trailing non-breaking spaces/en-spaces/quad-spaces."
+      tickets: [1422844]
+
+    - title: "Amazon metadata download: Update plugin for website changes to Amazon Brazil."
+      tickets: [1420629]
+
+    - title: "E-book viewer: Fix footnote popup window not displaying entire footnote if footnote contains element with page-break-after set"
+
+    - title: "Edit Book: Reports tool: Fix double clicking on an unused image causing an error"
+
+    - title: "Tag Browser: Fix incorrect grouping of words starting with graphemes, such as ash."
+      tickets: [1422116]
+
+    - title: "Conversion: Ignore incorrectly URL encoded links instead of erroring out on them."
+      tickets: [1421996]
+
+    - title: "E-book viewer: Remove soft-hyphens when copying text to clipboard"
+
+  improved recipes:
+    - aktualne.cz
+
+
 - version: 2.19.0
   date: 2015-02-06
 
