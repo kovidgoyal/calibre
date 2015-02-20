@@ -91,11 +91,12 @@ class Select(object):
     >>> print(tuple(select('p.myclass')))
 
     Tags are returned in document order. Note that attribute and tag names are
-    matched case-insensitively. Also namespaces are ignored (this is for
-    performance of the common case).  The UI related selectors are not
-    implemented, such as :enabled, :disabled, :checked, :hover, etc.  Similarly,
-    the non-element related selectors such as ::first-line, ::first-letter,
-    ::before, etc. are not implemented.
+    matched case-insensitively. Class and id values are also matched
+    case-insensitively. Also namespaces are ignored (this is for performance of
+    the common case).  The UI related selectors are not implemented, such as
+    :enabled, :disabled, :checked, :hover, etc.  Similarly, the non-element
+    related selectors such as ::first-line, ::first-letter, ::before, etc. are
+    not implemented.
 
     WARNING: This class uses internal caches. You *must not* make any changes
     to the lxml tree. If you do make some changes, either create a new Select
