@@ -507,13 +507,13 @@ def select_nth_last_of_type(cache, function, elem):
 # Pseudo elements {{{
 
 def select_pseudo(cache, pseudo):
-    if pseudo.ident == 'root':
-        yield cache.root
-        return
-
     try:
         func = cache.dispatch_map[pseudo.ident.replace('-', '_')]
     except KeyError:
+        if pseudo.ident == 'root':
+            yield cache.root
+            return
+
         raise ExpressionError(
             "The pseudo-class :%s is not supported" % pseudo.ident)
 
