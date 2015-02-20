@@ -804,11 +804,12 @@ class PostInstall:
                 cc('xdg-icon-resource install --size 256 calibre-ebook-edit.png calibre-ebook-edit', shell=True)
                 self.icon_resources.append(('apps', 'calibre-ebook-edit', '256'))
 
-                mimetypes = set([])
+                mimetypes = set()
                 for x in all_input_formats():
                     mt = guess_type('dummy.'+x)[0]
                     if mt and 'chemical' not in mt and 'ctc-posml' not in mt:
                         mimetypes.add(mt)
+                mimetypes.discard('application/octet-stream')
 
                 def write_mimetypes(f):
                     f.write('MimeType=%s;\n'%';'.join(mimetypes))
