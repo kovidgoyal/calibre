@@ -412,6 +412,17 @@ class LinuxFreeze(Command):
             def set_helper():
                 __builtin__.help = _Helper()
 
+            def setup_openssl_environment():
+                # Workaround for Linux distros that have still failed to get their heads
+                # out of their asses and implement a common location for SSL certificates.
+                # It's not that hard people, there exists a wonderful tool called the symlink
+                # See http://www.mobileread.com/forums/showthread.php?t=256095
+                if b'SSL_CERT_FILE' not in os.environ and b'SSL_CERT_DIR' not in os.environ:
+                    if os.access('/etc/pki/tls/certs/ca-bundle.crt', os.R_OK):
+                        os.environ['SSL_CERT_FILE'] = '/etc/pki/tls/certs/ca-bundle.crt'
+                    elif os.path.isdir('/etc/ssl/certs'):
+                        os.environ['SSL_CERT_DIR'] = '/etc/ssl/certs'
+
             def main():
                 try:
                     sys.argv[0] = sys.calibre_basename
@@ -420,6 +431,7 @@ class LinuxFreeze(Command):
                         sys.path.insert(0, os.path.abspath(dfv))
                     set_default_encoding()
                     set_helper()
+                    setup_openssl_environment()
                     mod = __import__(sys.calibre_module, fromlist=[1])
                     func = getattr(mod, sys.calibre_function)
                     return func()
