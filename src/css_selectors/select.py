@@ -86,7 +86,8 @@ class Select(object):
     This class implements CSS Level 3 selectors on an lxml tree, with caching
     for performance. To use:
 
-    >>> select = Select(root)
+    >>> from css_selectors import Select
+    >>> select = Select(root)  # Where root is an lxml document
     >>> print(tuple(select('p.myclass')))
 
     Tags are returned in document order. Note that attribute and tag names are
