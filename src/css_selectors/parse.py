@@ -14,7 +14,7 @@ import re
 import operator
 import string
 
-from css_selectors.errors import SelectorSyntaxError
+from css_selectors.errors import SelectorSyntaxError, ExpressionError
 
 if sys.version_info[0] < 3:
     _unicode = unicode
@@ -159,6 +159,7 @@ class Function(object):
         self.selector = selector
         self.name = ascii_lower(name)
         self.arguments = arguments
+        self._parsed_arguments = None
 
     def __repr__(self):
         return '%s[%r:%s(%s)]' % (
@@ -167,6 +168,19 @@ class Function(object):
 
     def argument_types(self):
         return [token.type for token in self.arguments]
+
+    @property
+    def parsed_arguments(self):
+        if self._parsed_arguments is None:
+            try:
+                self._parsed_arguments = parse_series(self.arguments)
+            except ValueError:
+                raise ExpressionError("Invalid series: '%r'" % self.arguments)
+        return self._parsed_arguments
+
+    def parse_arguments(self):
+        if not self.arguments_parsed:
+            self.arguments_parsed = True
 
     def specificity(self):
         a, b, c = self.selector.specificity()
