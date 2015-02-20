@@ -24,11 +24,6 @@ def parse_html(raw):
     return html5lib.parse(raw, treebuilder='lxml',
                               namespaceHTMLElements=False).getroot()
 
-def CSSSelect(expr):
-    from cssselect import HTMLTranslator
-    from lxml.etree import XPath
-    return XPath(HTMLTranslator().css_to_xpath(expr))
-
 def astext(node):
     from lxml import etree
     return etree.tostring(node, method='text', encoding=unicode,
@@ -61,8 +56,10 @@ class Worker(Thread):  # {{{
     def parse(self, raw):
         from calibre.ebooks.metadata.book.base import Metadata
         from calibre.utils.date import parse_only_date, UNDEFINED_DATE
+        from css_selectors import Select
         root = parse_html(raw)
-        sku = CSSSelect('div.sku.attGroup')(root)[0]
+        selector = Select(root)
+        sku = next(selector('div.sku.attGroup'))
         info = sku.getparent()
         top = info.getparent().getparent()
         banner = top.find('div')
@@ -87,20 +84,20 @@ class Worker(Thread):  # {{{
         mi.set_identifier('edelweiss', self.sku)
 
         # Tags
-        bisac = CSSSelect('div.bisac.attGroup')(root)
+        bisac = tuple(selector('div.bisac.attGroup'))
         if bisac:
             bisac = astext(bisac[0])
             mi.tags = [x.strip() for x in bisac.split(',')]
             mi.tags = [t[1:].strip() if t.startswith('&') else t for t in mi.tags]
 
         # Publisher
-        pub = CSSSelect('div.supplier.attGroup')(root)
+        pub = tuple(selector('div.supplier.attGroup'))
         if pub:
             pub = astext(pub[0])
             mi.publisher = pub
 
         # Pubdate
-        pub = CSSSelect('div.shipDate.attGroupItem')(root)
+        pub = tuple(selector('div.shipDate.attGroupItem'))
         if pub:
             pub = astext(pub[0])
             parts = pub.partition(':')[0::2]
@@ -116,22 +113,22 @@ class Worker(Thread):  # {{{
 
         # Comments
         comm = ''
-        general = CSSSelect('div#pd-general-overview-content')(root)
+        general = tuple(selector('div#pd-general-overview-content'))
         if general:
             q = self.render_comments(general[0])
             if q != '<p>No title summary available. </p>':
                 comm += q
-        general = CSSSelect('div#pd-general-contributor-content')(root)
+        general = tuple(selector('div#pd-general-contributor-content'))
         if general:
             comm += self.render_comments(general[0])
-        general = CSSSelect('div#pd-general-quotes-content')(root)
+        general = tuple(selector('div#pd-general-quotes-content'))
         if general:
             comm += self.render_comments(general[0])
         if comm:
             mi.comments = comm
 
         # Cover
-        img = CSSSelect('img.title-image[src]')(root)
+        img = tuple(selector('img.title-image[src]'))
         if img:
             href = img[0].get('src').replace('jacket_covers/medium/',
                                              'jacket_covers/flyout/')
@@ -252,11 +249,12 @@ class Edelweiss(Source):
             except Exception as e:
                 log.exception('Failed to parse identify results')
                 return as_unicode(e)
-
+            from css_selectors import Select
+            select = Select(root)
             has_isbn = check_isbn(identifiers.get('isbn', None)) is not None
             if not has_isbn:
                 author_tokens = set(x.lower() for x in self.get_author_tokens(authors, only_first_author=True))
-            for entry in CSSSelect('div.listRow div.listRowMain')(root):
+            for entry in select('div.listRow div.listRowMain'):
                 a = entry.xpath('descendant::a[contains(@href, "sku=") and contains(@href, "productDetailPage.aspx")]')
                 if not a:
                     continue
@@ -265,7 +263,7 @@ class Edelweiss(Source):
                 sku = parse_qs(qs).get('sku', None)
                 if sku and sku[0]:
                     sku = sku[0]
-                    div = CSSSelect('div.sku.attGroup')(entry)
+                    div = tuple(select('div.sku.attGroup'))
                     if div:
                         text = astext(div[0])
                         isbns = [check_isbn(x.strip()) for x in text.split(',')]
@@ -275,14 +273,14 @@ class Edelweiss(Source):
                     for img in entry.xpath('descendant::img[contains(@src, "/jacket_covers/thumbnail/")]'):
                         self.cache_identifier_to_cover_url(sku, img.get('src').replace('/thumbnail/', '/flyout/'))
 
-                    div = CSSSelect('div.format.attGroup')(entry)
+                    div = tuple(select('div.format.attGroup'))
                     text = astext(div[0]).lower()
                     if 'audio' in text or 'mp3' in text:  # Audio-book, ignore
                         continue
                     if not has_isbn:
                         # edelweiss returns matches based only on title, so we
                         # filter by author manually
-                        div = CSSSelect('div.contributor.attGroup')(entry)
+                        div = tuple(select('div.contributor.attGroup'))
                         try:
                             entry_authors = set(self.get_author_tokens([x.strip() for x in astext(div[0]).lower().split(',')]))
                         except IndexError:
@@ -389,7 +387,3 @@ if __name__ == '__main__':
 
     tests = tests[start:stop]
     test_identify_plugin(Edelweiss.name, tests)
-
-
-
-
