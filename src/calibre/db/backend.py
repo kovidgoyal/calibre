@@ -111,12 +111,12 @@ class DBPrefs(dict):  # {{{
         if not self.disable_setting:
             raw = self.to_raw(val)
             with self.db.conn:
-                dbraw = self.db.execute('SELECT val FROM preferences WHERE key=?', (key,)).fetchone()
-                if dbraw != (raw,):
+                dbraw = self.db.execute('SELECT id,val FROM preferences WHERE key=?', (key,)).fetchone()
+                if dbraw is None or dbraw[1] != raw:
                     if dbraw is None:
                         self.db.execute('INSERT INTO preferences (key,val) VALUES (?,?)', (key, raw))
                     else:
-                        self.db.execute('UPDATE preferences SET val=? WHERE key=?', (raw, key))
+                        self.db.execute('UPDATE preferences SET val=? WHERE id=?', (raw, dbraw[0]))
                     dict.__setitem__(self, key, val)
 
     def set(self, key, val):
