@@ -78,6 +78,8 @@ def normalize_language_tag(tag):
             taglist.add('-'.join(base_tag + tags))
     return taglist
 
+INAPPROPRIATE_PSEUDO_CLASSES = frozenset([
+    'active', 'after', 'disabled', 'visited', 'link', 'before', 'focus', 'first-letter', 'enabled', 'first-line', 'hover', 'checked', 'target'])
 
 class Select(object):
 
@@ -125,7 +127,7 @@ class Select(object):
         '*=': 'substringmatch',
     }
 
-    def __init__(self, root, default_lang=None, dispatch_map=None, trace=False):
+    def __init__(self, root, default_lang=None, ignore_inappropriate_pseudo_classes=False, dispatch_map=None, trace=False):
         if hasattr(root, 'getroot'):
             root = root.getroot()
         self.root = root
@@ -134,6 +136,10 @@ class Select(object):
         self.default_lang = default_lang
         if trace:
             self.dispatch_map = {k:trace_wrapper(v) for k, v in self.dispatch_map.iteritems()}
+        if ignore_inappropriate_pseudo_classes:
+            self.ignore_inappropriate_pseudo_classes = INAPPROPRIATE_PSEUDO_CLASSES
+        else:
+            self.ignore_inappropriate_pseudo_classes = frozenset()
 
     def invalidate_caches(self):
         'Invalidate all caches. You must call this before using this object if you have made changes to the HTML tree'
@@ -517,8 +523,12 @@ def select_pseudo(cache, pseudo):
             yield cache.root
             return
 
-        raise ExpressionError(
-            "The pseudo-class :%s is not supported" % pseudo.ident)
+        if pseudo.ident in cache.ignore_inappropriate_pseudo_classes:
+            def func(cache, item):
+                return True
+        else:
+            raise ExpressionError(
+                "The pseudo-class :%s is not supported" % pseudo.ident)
 
     for item in cache.iterparsedselector(pseudo.selector):
         if func(cache, item):
@@ -571,4 +581,4 @@ if __name__ == '__main__':
     from pprint import pprint
     root = etree.fromstring('<body xmlns="xxx" xml:lang="en"><p id="p" class="one two" lang="fr"><a id="a"/><b/><c/><d/></p></body>')
     select = Select(root, trace=True)
-    pprint(list(select('p')))
+    pprint(list(select('p:disabled')))
