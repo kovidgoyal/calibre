@@ -705,8 +705,8 @@ class WritingTest(BaseTest):
         self.assertIn(4, prefs['test mutable'])
         changes = []
         cache.backend.conn.setupdatehook(lambda typ, dbname, tblname, rowid: changes.append(rowid))
-        prefs['test mutable'] = {str(k):k for k in range(4)}
+        prefs['test mutable'] = {k:k for k in range(4)}
         self.assertEqual(len(changes), 1)
-        prefs['test mutable'] = {str(k):k for k in range(4)}
+        prefs['test mutable'] = {k:k for k in range(4)}
         self.assertEqual(len(changes), 1, 'The database was written to despite there being no change in value')
     # }}}
