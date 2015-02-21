@@ -291,6 +291,7 @@ class Select(object):
             return len(parent) - 1
 
     def is_empty(self, elem):
+        ' Return True iff elem has no child tags and no text content '
         for child in elem:
             # Check for comment/PI nodes with tail text
             if child.tail:
