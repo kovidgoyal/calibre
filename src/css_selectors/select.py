@@ -85,8 +85,9 @@ class Select(object):
 
     '''
 
-    This class implements CSS Level 3 selectors on an lxml tree, with caching
-    for performance. To use:
+    This class implements CSS Level 3 selectors
+    (http://www.w3.org/TR/css3-selectors) on an lxml tree, with caching for
+    performance. To use:
 
     >>> from css_selectors import Select
     >>> select = Select(root)  # Where root is an lxml document
@@ -107,6 +108,12 @@ class Select(object):
     This class can be easily sub-classed to work with tree implementations
     other than lxml. Simply override the methods in the ``Tree Integration``
     block below.
+
+    The caching works by maintaining internal maps from classes/ids/tag
+    names/etc.  to node sets. These caches are populated as needed, and used
+    for all subsequent selections.  Thus, for best performance you should use
+    the same selector object for finding the matching nodes for multiple
+    queries. Of course, remember not to change the tree in between queries.
 
     '''
 
