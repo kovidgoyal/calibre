@@ -156,13 +156,19 @@ class Select(object):
                 return ascii_lower(x.rpartition('}')[2])
             self.map_tag_name = map_tag_name
 
-    def __call__(self, selector):
-        'Return an iterator over all matching tags, in document order.'
+    def __call__(self, selector, root=None):
+        ''' Return an iterator over all matching tags, in document order.
+        Normally, all matching tags in the document are returned, is you
+        specify root, then only tags that are root or descendants of root are
+        returned. Note that this can be very expensive if root has a lot of
+        descendants. '''
         seen = set()
+        if root is not None:
+            root = frozenset(self.itertag(root))
         for selector in get_parsed_selector(selector):
             parsed_selector = selector.parsed_tree
             for item in self.iterparsedselector(parsed_selector):
-                if item not in seen:
+                if item not in seen and (root is None or item in root):
                     yield item
                     seen.add(item)
 
