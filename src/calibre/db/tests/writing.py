@@ -7,6 +7,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
+import os
 from collections import namedtuple
 from functools import partial
 from io import BytesIO
@@ -692,3 +693,18 @@ class WritingTest(BaseTest):
             ae(c.field_for('tags', 3), (t.id_map[lid], t.id_map[norm]))
     # }}}
 
+    def test_preferences(self):  # {{{
+        ' Test getting and setting of preferences, especially with mutable objects '
+        cache = self.init_cache()
+        prefs = cache.backend.prefs
+        prefs['test mutable'] =  [1, 2, 3]
+        a = prefs['test mutable']
+        a.append(4)
+        self.assertIn(4, prefs['test mutable'])
+        prefs['test mutable'] = a
+        prefs.load_from_db()
+        self.assertIn(4, prefs['test mutable'])
+        before = os.stat(cache.backend.library_path)
+        prefs['test mutable'] = a
+        self.assertEqual(before, os.stat(cache.backend.library_path), 'The database was written to despite there being no change in value')
+    # }}}
