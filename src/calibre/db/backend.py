@@ -90,7 +90,9 @@ class DBPrefs(dict):  # {{{
         return json.loads(raw, object_hook=from_json)
 
     def to_raw(self, val):
-        return json.dumps(val, indent=2, default=to_json)
+        # sort_keys=True is required so that the serialization of dictionaries is
+        # not random, which is needed for the changed check in __setitem__
+        return json.dumps(val, indent=2, default=to_json, sort_keys=True)
 
     def has_setting(self, key):
         return key in self
@@ -110,8 +112,11 @@ class DBPrefs(dict):  # {{{
             raw = self.to_raw(val)
             with self.db.conn:
                 dbraw = self.db.execute('SELECT val FROM preferences WHERE key=?', (key,)).fetchone()
-                if dbraw != raw:
-                    self.db.execute('INSERT OR REPLACE INTO preferences (key,val) VALUES (?,?)', (key, raw))
+                if dbraw != (raw,):
+                    if dbraw is None:
+                        self.db.execute('INSERT INTO preferences (key,val) VALUES (?,?)', (key, raw))
+                    else:
+                        self.db.execute('UPDATE preferences SET val=? WHERE key=?', (raw, key))
                     dict.__setitem__(self, key, val)
 
     def set(self, key, val):

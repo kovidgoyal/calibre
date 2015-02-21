@@ -7,7 +7,6 @@ __license__   = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os
 from collections import namedtuple
 from functools import partial
 from io import BytesIO
@@ -704,7 +703,10 @@ class WritingTest(BaseTest):
         prefs['test mutable'] = a
         prefs.load_from_db()
         self.assertIn(4, prefs['test mutable'])
-        before = os.stat(cache.backend.library_path)
-        prefs['test mutable'] = a
-        self.assertEqual(before, os.stat(cache.backend.library_path), 'The database was written to despite there being no change in value')
+        changes = []
+        cache.backend.conn.setupdatehook(lambda typ, dbname, tblname, rowid: changes.append(rowid))
+        prefs['test mutable'] = {str(k):k for k in range(4)}
+        self.assertEqual(len(changes), 1)
+        prefs['test mutable'] = {str(k):k for k in range(4)}
+        self.assertEqual(len(changes), 1, 'The database was written to despite there being no change in value')
     # }}}
