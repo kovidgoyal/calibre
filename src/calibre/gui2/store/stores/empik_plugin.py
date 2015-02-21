@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import (unicode_literals, division, absolute_import, print_function)
-store_version = 6 # Needed for dynamic plugin loading
+store_version = 7 # Needed for dynamic plugin loading
 
 __license__ = 'GPL 3'
 __copyright__ = '2011-2015, Tomasz Długosz <tomek3d@gmail.com>'
@@ -63,7 +63,7 @@ class EmpikStore(BasicStoreConfig, StorePlugin):
                 cover_url = ''.join(data.xpath('.//div[@class="productBox-450Pic"]/a/img/@data-original'))
                 title = ''.join(data.xpath('.//a[@class="productBox-450Title"]/text()'))
                 title = re.sub(r' \(ebook\)', '', title)
-                author = ''.join(data.xpath('.//div[@class="productBox-450Author"]/a/text()'))
+                author = ', '.join(data.xpath('.//div[@class="productBox-450Author"]/a/text()'))
                 price = ''.join(data.xpath('.//span[@class="currentPrice"]/text()'))
                 formats = ''.join(data.xpath('.//div[@class="productBox-450Type"]/text()'))
                 formats = re.sub(r'Ebook *,? *','', formats)
