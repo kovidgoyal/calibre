@@ -14,7 +14,7 @@ from itertools import chain
 from lxml import etree
 
 from css_selectors.errors import ExpressionError
-from css_selectors.parse import parse, ascii_lower, Element
+from css_selectors.parser import parse, ascii_lower, Element
 from css_selectors.ordered_set import OrderedSet
 
 PARSE_CACHE_SIZE = 200

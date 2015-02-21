@@ -11,7 +11,7 @@ import unittest, sys, argparse, json
 from lxml import etree, html
 
 from css_selectors.errors import SelectorSyntaxError
-from css_selectors.parse import tokenize, parse
+from css_selectors.parser import tokenize, parse
 from css_selectors.select import Select
 
 def run_webkit_selector(page, selector):

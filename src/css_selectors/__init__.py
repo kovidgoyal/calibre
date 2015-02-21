@@ -6,7 +6,7 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
-from css_selectors.parse import parse
+from css_selectors.parser import parse
 from css_selectors.select import Select
 from css_selectors.errors import SelectorError, SelectorSyntaxError, ExpressionError
 
