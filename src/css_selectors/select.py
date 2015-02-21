@@ -141,6 +141,7 @@ class Select(object):
         else:
             self.ignore_inappropriate_pseudo_classes = frozenset()
 
+    # External API {{{
     def invalidate_caches(self):
         'Invalidate all caches. You must call this before using this object if you have made changes to the HTML tree'
         self._element_map = None
@@ -164,6 +165,13 @@ class Select(object):
                 if item not in seen:
                     yield item
                     seen.add(item)
+
+    def has_matches(self, selector):
+        'Return True iff selector matches at least one item in the tree'
+        for elem in self(selector):
+            return True
+        return False
+    # }}}
 
     def iterparsedselector(self, parsed_selector):
         type_name = type(parsed_selector).__name__
