@@ -256,6 +256,7 @@ class BooksModel(QAbstractTableModel):  # {{{
 
     def set_database(self, db):
         self.ids_to_highlight = []
+        self.alignment_map = {}
         self.ids_to_highlight_set = set()
         self.current_highlighted_idx = None
         self.db = db
