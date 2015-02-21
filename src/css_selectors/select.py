@@ -172,9 +172,9 @@ class Select(object):
                     yield item
                     seen.add(item)
 
-    def has_matches(self, selector):
+    def has_matches(self, selector, root=None):
         'Return True iff selector matches at least one item in the tree'
-        for elem in self(selector):
+        for elem in self(selector, root=root):
             return True
         return False
     # }}}
