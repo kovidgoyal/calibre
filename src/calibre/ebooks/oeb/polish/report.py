@@ -6,17 +6,17 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import posixpath, os, time, types, re
+import posixpath, os, time, types
 from collections import namedtuple, defaultdict, Counter
 from itertools import chain
 
 from calibre import prepare_string_for_xml, force_unicode
 from calibre.ebooks.oeb.base import XPath, xml2text
 from calibre.ebooks.oeb.polish.container import OEB_DOCS, OEB_STYLES, OEB_FONTS
-from calibre.ebooks.oeb.polish.css import build_selector, PSEUDO_PAT, MIN_SPACE_RE
 from calibre.ebooks.oeb.polish.spell import get_all_words
 from calibre.utils.icu import numeric_sort_key, ord_string, safe_chr
 from calibre.utils.magick.draw import identify
+from css_selectors import Select, SelectorError
 
 File = namedtuple('File', 'name dir basename size category')
 
@@ -255,8 +255,6 @@ def css_data(container, book_locale, result_data, *args):
                         css_rules(name, parser.parse_stylesheet(force_unicode(style.text, 'utf-8')).rules, style.sourceline - 1))
 
     rule_map = defaultdict(lambda : defaultdict(list))
-    pseudo_pat = re.compile(PSEUDO_PAT, re.I)
-    cache = {}
 
     def rules_in_sheet(sheet):
         for rule in sheet:
@@ -285,28 +283,12 @@ def css_data(container, book_locale, result_data, *args):
                 return '<%s %s>' % (tag, attribs)
             ans = tt_cache[elem] = '<%s>' % tag
 
-    def matches_for_selector(selector, root, class_map, rule):
-        selector = pseudo_pat.sub('', selector)
-        selector = MIN_SPACE_RE.sub(r'\1', selector)
-        try:
-            xp = cache[(True, selector)]
-        except KeyError:
-            xp = cache[(True, selector)] = build_selector(selector)
-
-        try:
-            matches = xp(root)
-        except Exception:
-            return ()
-        if not matches:
-            try:
-                xp = cache[(False, selector)]
-            except KeyError:
-                xp = cache[(False, selector)] = build_selector(selector, case_sensitive=False)
-            try:
-                matches = xp(root)
-            except Exception:
-                return ()
+    def matches_for_selector(selector, select, class_map, rule):
         lsel = selector.lower()
+        try:
+            matches = tuple(select(selector))
+        except SelectorError:
+            return ()
         for elem in matches:
             for cls in elem.get('class', '').split():
                 if '.' + cls.lower() in lsel:
@@ -322,9 +304,10 @@ def css_data(container, book_locale, result_data, *args):
         for elem in root.xpath('//*[@class]'):
             for cls in elem.get('class', '').split():
                 cmap[cls][elem] = []
+        select = Select(root, ignore_inappropriate_pseudo_classes=True)
         for sheet in chain(sheets_for_html(name, root), inline_sheets):
             for rule in rules_in_sheet(sheet):
-                rule_map[rule][name].extend(matches_for_selector(rule.selector, root, cmap, rule))
+                rule_map[rule][name].extend(matches_for_selector(rule.selector, select, cmap, rule))
         for cls, elem_map in cmap.iteritems():
             class_elements = class_map[cls][name]
             for elem, usage in elem_map.iteritems():

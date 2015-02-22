@@ -8,7 +8,6 @@ __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import json
 
-from cssselect import parse
 from PyQt5.Qt import (
     QWidget, QTimer, QStackedLayout, QLabel, QScrollArea, QVBoxLayout,
     QPainter, Qt, QPalette, QRect, QSize, QSizePolicy, pyqtSignal,
@@ -18,6 +17,7 @@ from calibre.constants import iswindows
 from calibre.gui2.tweak_book import editors, actions, current_container, tprefs
 from calibre.gui2.tweak_book.editor.themes import get_theme, theme_color
 from calibre.gui2.tweak_book.editor.text import default_font_family
+from css_selectors import parse, SelectorError
 
 class Heading(QWidget):  # {{{
 
@@ -434,7 +434,7 @@ class LiveCSS(QWidget):
         if selector is not None:
             try:
                 specificity = [0] + list(parse(selector)[0].specificity())
-            except (AttributeError, TypeError):
+            except (AttributeError, TypeError, SelectorError):
                 specificity = [0, 0, 0, 0]
         else:  # style attribute
             specificity = [1, 0, 0, 0]
