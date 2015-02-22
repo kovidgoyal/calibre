@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import (unicode_literals, division, absolute_import, print_function)
-store_version = 7  # Needed for dynamic plugin loading
+store_version = 8  # Needed for dynamic plugin loading
 
 __license__ = 'GPL 3'
 __copyright__ = '2011, John Schember <john@nachtimwald.com>'
@@ -18,10 +18,6 @@ from calibre import browser
 from calibre.gui2 import open_url
 from calibre.gui2.store import StorePlugin
 from calibre.gui2.store.search_result import SearchResult
-
-def CSSSelect(expr):
-    from cssselect import HTMLTranslator
-    return HTMLTranslator().css_to_xpath(expr)
 
 def search_amazon(query, max_results=10, timeout=60,
                   write_html_to=None,
@@ -42,11 +38,11 @@ def search_amazon(query, max_results=10, timeout=60,
             return
 
         if 's-result-list-parent-container' in results.get('class', ''):
-            data_xpath = CSSSelect('li.s-result-item')
+            data_xpath = "descendant-or-self::li[@class and contains(concat(' ', normalize-space(@class), ' '), ' s-result-item ')]"
             format_xpath = './/a[@title="Kindle Edition"]//h3/text()'
             asin_xpath = '@data-asin'
-            cover_xpath = CSSSelect('img.s-access-image') + '/@src'
-            title_xpath = CSSSelect('h2.s-access-title') + '//text()'
+            cover_xpath =  "descendant-or-self::img[@class and contains(concat(' ', normalize-space(@class), ' '), ' s-access-image ')]/@src"
+            title_xpath = "descendant-or-self::h2[@class and contains(concat(' ', normalize-space(@class), ' '), ' s-access-title ')]//text()"
             author_xpath = './/span[starts-with(text(), "by ")]/following-sibling::span//text()'
             price_xpath = '(.//span[contains(@class, " s-price ")])[last()]//text()'
         elif 'grid' in results.get('class', ''):
