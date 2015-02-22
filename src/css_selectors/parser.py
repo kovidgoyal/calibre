@@ -128,7 +128,7 @@ class FunctionalPseudoElement(object):
         The arguments of the pseudo-element, as a list of tokens.
 
         **Note:** tokens are not part of the public API,
-        and may change between cssselect versions.
+        and may change between versions.
         Use at your own risks.
 
     """
