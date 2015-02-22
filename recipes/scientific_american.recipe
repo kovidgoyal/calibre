@@ -3,14 +3,6 @@ __license__   = 'GPL v3'
 
 from calibre.web.feeds.news import BasicNewsRecipe
 
-try:
-    from calibre.web.feeds.jsnews import CSSSelect
-except ImportError:
-    def CSSSelect(expr):
-        from cssselect import HTMLTranslator
-        from lxml.etree import XPath
-        return XPath(HTMLTranslator().css_to_xpath(expr))
-
 def absurl(url):
     if url.startswith('/'):
         url = 'http://www.scientificamerican.com' + url
@@ -46,8 +38,8 @@ class ScientificAmerican(BasicNewsRecipe):
     def parse_index(self):
         # Get the cover, date and issue URL
         root = self.index_to_soup('http://www.scientificamerican.com/sciammag/', as_tree=True)
-        for a in CSSSelect('.archiveIssues a.cover[href]')(root):
-            self.cover_url = absurl(CSSSelect('img[src]')(a)[0].get('src'))
+        for a in root.xpath('''descendant-or-self::*[@class and contains(concat(' ', normalize-space(@class), ' '), ' archiveIssues ')]/descendant-or-self::*/a[@class and contains(concat(' ', normalize-space(@class), ' '), ' cover ') and (@href)]'''):
+            self.cover_url = absurl(a.xpath('descendant-or-self::img[@src]')[0].get('src'))
             root = self.index_to_soup(absurl(a.get('href')), as_tree=True)
             for a in a.xpath('following-sibling::a[@href]'):
                 self.timefmt = self.tag_to_string(a).strip()
@@ -58,7 +50,7 @@ class ScientificAmerican(BasicNewsRecipe):
 
         # Now parse the actual issue to get the list of articles
         feeds = []
-        for i, div in enumerate(CSSSelect('div.toc-features, div.toc-departments')(root)):
+        for i, div in enumerate(root.xpath('''descendant-or-self::div[@class and contains(concat(' ', normalize-space(@class), ' '), ' toc-features ')] | descendant-or-self::div[@class and contains(concat(' ', normalize-space(@class), ' '), ' toc-departments ')]''')):
             if i == 0:
                 feeds.append(('Features', list(self.parse_sciam_features(div))))
             else:
@@ -67,7 +59,7 @@ class ScientificAmerican(BasicNewsRecipe):
         return feeds
 
     def parse_sciam_features(self, div):
-        for h4 in CSSSelect('li a[href] h4')(div):
+        for h4 in div.xpath('''descendant-or-self::li/descendant-or-self::*/a[@href]/descendant-or-self::*/h4'''):
             title = self.tag_to_string(h4)
             a = h4.getparent()
             url = absurl(a.get('href'))
@@ -81,7 +73,7 @@ class ScientificAmerican(BasicNewsRecipe):
 
     def parse_sciam_departments(self, div):
         section_title, articles = 'Unknown', []
-        for x in CSSSelect('li a[href] h3, li span.deptTitle a[href]')(div):
+        for x in div.xpath('''descendant-or-self::li/descendant-or-self::*/a[@href]/descendant-or-self::*/h3 | descendant-or-self::li/descendant-or-self::*/span[@class and contains(concat(' ', normalize-space(@class), ' '), ' deptTitle ')]/descendant-or-self::*/a[@href]'''):
             if x.tag == 'a':
                 if articles:
                     yield section_title, list(articles)
