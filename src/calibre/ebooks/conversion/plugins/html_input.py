@@ -299,7 +299,7 @@ class HTMLInput(InputFormatPlugin):
             return (None, None)
         try:
             raw = open(link, 'rb').read().decode('utf-8', 'replace')
-            raw = self.oeb.css_preprocessor(raw, add_namespace=True)
+            raw = self.oeb.css_preprocessor(raw, add_namespace=False)
         except:
             self.log.exception('Failed to read CSS file: %r'%link)
             return (None, None)

@@ -924,13 +924,12 @@ class Manifest(object):
             log.raiseExceptions = False
             self.oeb.log.debug('Parsing', self.href, '...')
             data = self.oeb.decode(data)
-            data = self.oeb.css_preprocessor(data, add_namespace=True)
+            data = self.oeb.css_preprocessor(data, add_namespace=False)
             parser = CSSParser(loglevel=logging.WARNING,
                                fetcher=self.override_css_fetch or self._fetch_css,
                                log=_css_logger)
             data = parser.parseString(data, href=self.href, validate=False)
             data = resolveImports(data)
-            data.namespaces['h'] = XHTML_NS
             for rule in tuple(data.cssRules.rulesOfType(CSSRule.PAGE_RULE)):
                 data.cssRules.remove(rule)
             return data

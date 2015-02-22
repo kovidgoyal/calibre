@@ -15,28 +15,23 @@ from cssutils.css import (CSSStyleRule, CSSPageRule, CSSFontFaceRule,
         cssproperties, CSSRule)
 from cssutils import (profile as cssprofiles, parseString, parseStyle, log as
         cssutils_log, CSSParser, profiles, replaceUrls)
-from lxml import etree
-from cssselect import HTMLTranslator
-
-from calibre import force_unicode
+from calibre import force_unicode, as_unicode
 from calibre.ebooks import unit_convert
-from calibre.ebooks.oeb.base import XHTML, XHTML_NS, CSS_MIME, OEB_STYLES, XPNSMAP, xpath, urlnormalize
+from calibre.ebooks.oeb.base import XHTML, XHTML_NS, CSS_MIME, OEB_STYLES, xpath, urlnormalize
 from calibre.ebooks.oeb.normalize_css import DEFAULTS, normalizers
+from css_selectors import Select, SelectorError, INAPPROPRIATE_PSEUDO_CLASSES
 
 cssutils_log.setLevel(logging.WARN)
 
 _html_css_stylesheet = None
-css_to_xpath = HTMLTranslator().css_to_xpath
 
 def html_css_stylesheet():
     global _html_css_stylesheet
     if _html_css_stylesheet is None:
         html_css = open(P('templates/html.css'), 'rb').read()
         _html_css_stylesheet = parseString(html_css, validate=False)
-        _html_css_stylesheet.namespaces['h'] = XHTML_NS
     return _html_css_stylesheet
 
-XHTML_CSS_NAMESPACE = '@namespace "%s";\n' % XHTML_NS
 
 INHERITED = set(['azimuth', 'border-collapse', 'border-spacing',
                  'caption-side', 'color', 'cursor', 'direction', 'elevation',
@@ -52,100 +47,6 @@ INHERITED = set(['azimuth', 'border-collapse', 'border-spacing',
 
 FONT_SIZE_NAMES = set(['xx-small', 'x-small', 'small', 'medium', 'large',
                        'x-large', 'xx-large'])
-
-def xpath_lower_case(arg):
-    'An ASCII lowercase function for XPath'
-    return ("translate(%s, 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', "
-            "'abcdefghijklmnopqrstuvwxyz')")%arg
-is_non_whitespace = re.compile(r'^[^ \t\r\n\f]+$').match
-
-class CaseInsensitiveAttributesTranslator(HTMLTranslator):
-    'Treat class and id CSS selectors case-insensitively'
-
-    def xpath_class(self, class_selector):
-        """Translate a class selector."""
-        x = self.xpath(class_selector.selector)
-        if is_non_whitespace(class_selector.class_name):
-            x.add_condition(
-                "%s and contains(concat(' ', normalize-space(%s), ' '), %s)"
-                % ('@class', xpath_lower_case('@class'), self.xpath_literal(
-                    ' '+class_selector.class_name.lower()+' ')))
-        else:
-            x.add_condition('0')
-        return x
-
-    def xpath_hash(self, id_selector):
-        """Translate an ID selector."""
-        x = self.xpath(id_selector.selector)
-        return self.xpath_attrib_equals(x, xpath_lower_case('@id'),
-                (id_selector.id.lower()))
-
-ci_css_to_xpath = CaseInsensitiveAttributesTranslator().css_to_xpath
-
-NULL_NAMESPACE_REGEX = re.compile(ur'''(name\(\) = ['"])h:''')
-def fix_namespace(raw):
-    '''
-    cssselect uses name() = 'h:p' to select tags for some CSS selectors (e.g.
-    h|p+h|p).
-    However, since for us the XHTML namespace is the default namespace (with no
-    prefix), name() is the same as local-name(). So this is a hack to
-    workaround the problem.
-    '''
-    return NULL_NAMESPACE_REGEX.sub(ur'\1', raw)
-
-class CSSSelector(object):
-
-    def __init__(self, css, log=None, namespaces=XPNSMAP):
-        self.namespaces = namespaces
-        self.sel = self.build_selector(css, log)
-        self.css = css
-        self.used_ci_sel = False
-
-    def build_selector(self, css, log, func=css_to_xpath):
-        try:
-            return etree.XPath(fix_namespace(func(css)), namespaces=self.namespaces)
-        except:
-            if log is not None:
-                log.exception('Failed to parse CSS selector: %r'%css)
-        return None
-
-    def __call__(self, node, log):
-        if self.sel is None:
-            return []
-        try:
-            ans = self.sel(node)
-        except:
-            log.exception(u'Failed to run CSS selector: %s'%self.css)
-            return []
-
-        if not ans:
-            # Try a case insensitive version
-            if not hasattr(self, 'ci_sel'):
-                self.ci_sel = self.build_selector(self.css, log, ci_css_to_xpath)
-                if self.ci_sel is not None:
-                    try:
-                        ans = self.ci_sel(node)
-                    except:
-                        log.exception(u'Failed to run case-insensitive CSS selector: %s'%self.css)
-                        return []
-                    if ans:
-                        if not self.used_ci_sel:
-                            log.warn('Interpreting class and id values '
-                                'case-insensitively in selector: %s'%self.css)
-                        self.used_ci_sel = True
-        return ans
-
-_selector_cache = {}
-
-MIN_SPACE_RE = re.compile(r' *([>~+]) *')
-
-def get_css_selector(raw_selector, log):
-    css = MIN_SPACE_RE.sub(r'\1', raw_selector)
-    ans = _selector_cache.get(css, None)
-    if ans is None:
-        ans = CSSSelector(css, log)
-        _selector_cache[css] = ans
-    return ans
 
 class Stylizer(object):
     STYLESHEETS = WeakKeyDictionary()
@@ -195,13 +96,12 @@ class Stylizer(object):
                     if t:
                         text += u'\n\n' + force_unicode(t, u'utf-8')
                 if text:
-                    text = oeb.css_preprocessor(text, add_namespace=True)
+                    text = oeb.css_preprocessor(text)
                     # We handle @import rules separately
                     parser.setFetcher(lambda x: ('utf-8', b''))
                     stylesheet = parser.parseString(text, href=cssname,
                             validate=False)
                     parser.setFetcher(self._fetch_css_file)
-                    stylesheet.namespaces['h'] = XHTML_NS
                     for rule in stylesheet.cssRules:
                         if rule.type == rule.IMPORT_RULE:
                             ihref = item.abshref(rule.href)
@@ -244,10 +144,9 @@ class Stylizer(object):
         for w, x in csses.items():
             if x:
                 try:
-                    text = XHTML_CSS_NAMESPACE + x
+                    text = x
                     stylesheet = parser.parseString(text, href=cssname,
                             validate=False)
-                    stylesheet.namespaces['h'] = XHTML_NS
                     stylesheets.append(stylesheet)
                 except:
                     self.logger.exception('Failed to parse %s, ignoring.'%w)
@@ -275,13 +174,17 @@ class Stylizer(object):
         rules.sort()
         self.rules = rules
         self._styles = {}
-        pseudo_pat = re.compile(ur':{1,2}(first-letter|first-line|link|hover|visited|active|focus|before|after)', re.I)
+        pseudo_pat = re.compile(ur':{1,2}(%s)' % ('|'.join(INAPPROPRIATE_PSEUDO_CLASSES)), re.I)
+        select = Select(tree, ignore_inappropriate_pseudo_classes=True)
+
         for _, _, cssdict, text, _ in rules:
             fl = pseudo_pat.search(text)
-            if fl is not None:
-                text = text.replace(fl.group(), '')
-            selector = get_css_selector(text, self.oeb.log)
-            matches = selector(tree, self.logger)
+            try:
+                matches = select(text)
+            except SelectorError as err:
+                self.log.error('Ignoring CSS rule with invalid selector: %r (%s)' % (text, as_unicode(err)))
+                continue
+
             if fl is not None:
                 fl = fl.group(1)
                 if fl == 'first-letter' and getattr(self.oeb,
@@ -486,9 +389,7 @@ class Style(object):
         result = None
         if name in self._style:
             result = self._style[name]
-        if (result == 'inherit'
-            or (result is None and name in INHERITED
-                and self._has_parent())):
+        if (result == 'inherit' or (result is None and name in INHERITED and self._has_parent())):
             stylizer = self._stylizer
             result = stylizer.style(self._element.getparent())._get(name)
         if result is None:
