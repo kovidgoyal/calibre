@@ -1,10 +1,5 @@
 from calibre.web.feeds.jsnews import JavascriptRecipe
-from cssselect import HTMLTranslator
-from lxml.etree import XPath
 import datetime
-
-def CSSSelect(expr):
-    return XPath(HTMLTranslator().css_to_xpath(expr))
 
 BASE = 'http://www.newsweek.com'
 def href_to_url(a, add_piano=False):
@@ -40,16 +35,16 @@ class Newsweek(JavascriptRecipe):
     def get_publication_data(self, browser):
         browser.wait_for_element('nav.main-menu a[href]')
         root = self.index_to_soup(browser.html)
-        for a in CSSSelect('nav.main-menu a[href]')(root):
+        for a in root.xpath('''descendant-or-self::nav[@class and contains(concat(' ', normalize-space(@class), ' '), ' main-menu ')]/descendant-or-self::*/a[@href]'''):
             if a.text and a.text.strip() == 'This Week\'s Edition':
                 return self.get_newsweek_publication_data(browser, href_to_url(a, True))
 
     def get_newsweek_publication_data(self, browser, url):
         root = self.index_to_soup(url)
-        sel = lambda expr: CSSSelect(expr)(root)
+        sel = lambda expr: root.xpath(expr)
         ans = {}
 
-        for img in sel('div.cover-story div.info img[src]'):
+        for img in sel('''descendant-or-self::div[@class and contains(concat(' ', normalize-space(@class), ' '), ' cover-story ')]/descendant-or-self::*/div[@class and contains(concat(' ', normalize-space(@class), ' '), ' info ')]/descendant-or-self::*/img[@src]'''):
             if '_Cover_' in img.get('title', ''):
                 ans['cover'] = browser.get_resource(img.get('src'))
                 break
@@ -59,7 +54,7 @@ class Newsweek(JavascriptRecipe):
                 self.timefmt = datetime.datetime.strptime(raw, '%Y/%m/%d').strftime(' [%b %d]')
 
         sections = []
-        for div in sel('div.cover-story div.info'):
+        for div in sel('''descendant-or-self::div[@class and contains(concat(' ', normalize-space(@class), ' '), ' cover-story ')]/descendant-or-self::*/div[@class and contains(concat(' ', normalize-space(@class), ' '), ' info ')]'''):
             url = None
             for a in div.xpath('descendant::a[@href]'):
                 url = href_to_url(a)
@@ -68,7 +63,7 @@ class Newsweek(JavascriptRecipe):
                 sections.append(('Cover Story', [{'title':'Cover Story', 'date':'', 'url':url, 'description':self.tag_to_string(s)}]))
                 break
         features = []
-        for li in sel('div.features li'):
+        for li in sel('''descendant-or-self::div[@class and contains(concat(' ', normalize-space(@class), ' '), ' features ')]/descendant-or-self::*/li'''):
             url = None
             for a in li.xpath('descendant::a[@class="article-link"]'):
                 url = href_to_url(a)
@@ -77,7 +72,7 @@ class Newsweek(JavascriptRecipe):
         if features:
             sections.append(('Features', features))
 
-        for div in sel('div.issue-list-block'):
+        for div in sel('''descendant-or-self::div[@class and contains(concat(' ', normalize-space(@class), ' '), ' issue-list-block ')]'''):
             for d in div.xpath('descendant::div[@class="block-title"]'):
                 section_title = self.tag_to_string(d)
                 articles = []

@@ -8,11 +8,6 @@ from calibre.web.feeds.news import BasicNewsRecipe
 from calibre.utils.cleantext import clean_xml_chars
 from lxml import etree
 
-def CSSSelect(expr):
-    from cssselect import HTMLTranslator
-    from lxml.etree import XPath
-    return XPath(HTMLTranslator().css_to_xpath(expr))
-
 class AmericanThinker(BasicNewsRecipe):
     title          = u'American Thinker'
     description    = "American Thinker is a daily internet publication devoted to the thoughtful exploration of issues of importance to Americans."
@@ -27,7 +22,6 @@ class AmericanThinker(BasicNewsRecipe):
 
     remove_javascript     = True
     auto_cleanup = True
-    #remove_tags_before = dict(name='h1')
 
     conversion_options = {
                           'comment'   : description
@@ -41,13 +35,10 @@ class AmericanThinker(BasicNewsRecipe):
         root = html5lib.parse(
             clean_xml_chars(raw), treebuilder='lxml',
             namespaceHTMLElements=False)
-        for x in CSSSelect('.article_body.bottom')(root):
+        for x in root.xpath('''descendant-or-self::*[@class and contains(concat(' ', normalize-space(@class), ' '), ' article_body ') and (@class and contains(concat(' ', normalize-space(@class), ' '), ' bottom '))]'''):
             x.getparent().remove(x)
         return etree.tostring(root, encoding=unicode)
 
     feeds = [(u'http://feeds.feedburner.com/americanthinker'),
                      (u'http://feeds.feedburner.com/AmericanThinkerBlog')
             ]
-
-    #def print_version(self, url):
-        #return 'http://www.americanthinker.com/assets/3rd_party/printpage/?url=' + url
