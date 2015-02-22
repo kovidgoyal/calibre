@@ -67,12 +67,19 @@ def shorten_title(doc):
             if e.text_content():
                 add_match(candidates, e.text_content(), orig)
 
-    from cssselect import HTMLTranslator
-    css_to_xpath = HTMLTranslator().css_to_xpath
-    for item in ('#title', '#head', '#heading', '.pageTitle', '.news_title',
-            '.title', '.head', '.heading', '.contentheading',
-            '.small_header_red'):
-        for e in doc.xpath(css_to_xpath(item)):
+    for item in [
+            "descendant-or-self::*[@id = 'title']",
+            "descendant-or-self::*[@id = 'head']",
+            "descendant-or-self::*[@id = 'heading']",
+            "descendant-or-self::*[@class and contains(concat(' ', normalize-space(@class), ' '), ' pageTitle ')]",
+            "descendant-or-self::*[@class and contains(concat(' ', normalize-space(@class), ' '), ' news_title ')]",
+            "descendant-or-self::*[@class and contains(concat(' ', normalize-space(@class), ' '), ' title ')]",
+            "descendant-or-self::*[@class and contains(concat(' ', normalize-space(@class), ' '), ' head ')]",
+            "descendant-or-self::*[@class and contains(concat(' ', normalize-space(@class), ' '), ' heading ')]",
+            "descendant-or-self::*[@class and contains(concat(' ', normalize-space(@class), ' '), ' contentheading ')]",
+            "descendant-or-self::*[@class and contains(concat(' ', normalize-space(@class), ' '), ' small_header_red ')]"
+    ]:
+        for e in doc.xpath(item):
             if e.text:
                 add_match(candidates, e.text, orig)
             if e.text_content():
