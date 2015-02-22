@@ -708,7 +708,7 @@ by William Shakespeare
         self.ae(pcss(':lang("EN")', '*:lang(en-US)', skip_webkit=True), ['second-li', 'li-div'])
         self.ae(pcss(':lang("e")'), [])
         self.ae(pcss('li:nth-child(1)', 'li:first-child'), ['first-li'])
-        self.ae(pcss('li:nth-child(3)'), ['third-li'])
+        self.ae(pcss('li:nth-child(3)', '#first-li ~ :nth-child(3)'), ['third-li'])
         self.ae(pcss('li:nth-child(10)'), [])
         self.ae(pcss('li:nth-child(2n)', 'li:nth-child(even)', 'li:nth-child(2n+0)'), ['second-li', 'fourth-li', 'sixth-li'])
         self.ae(pcss('li:nth-child(+2n+1)', 'li:nth-child(odd)'), ['first-li', 'third-li', 'fifth-li', 'seventh-li'])
