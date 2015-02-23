@@ -15,7 +15,7 @@ from PyQt5.Qt import (QIcon, QFont, QLabel, QListWidget, QAction,
 from calibre.gui2 import (error_dialog, pixmap_to_data, gprefs,
         warning_dialog)
 from calibre.gui2.filename_pattern_ui import Ui_Form
-from calibre import fit_image
+from calibre import fit_image, strftime
 from calibre.ebooks import BOOK_EXTENSIONS
 from calibre.utils.config import prefs, XMLConfig
 from calibre.gui2.progress_indicator import ProgressIndicator as _ProgressIndicator
@@ -143,7 +143,7 @@ class FilenamePattern(QWidget, Ui_Form):  # {{{
             self.publisher.setText(_('No match'))
 
         if mi.pubdate:
-            self.pubdate.setText(mi.pubdate.strftime('%Y-%m-%d'))
+            self.pubdate.setText(strftime('%Y-%m-%d', mi.pubdate))
         else:
             self.pubdate.setText(_('No match'))
 
