@@ -12,12 +12,12 @@ from collections import OrderedDict
 from PyQt5.Qt import (QTimer, QDialog, QGridLayout, QCheckBox, QLabel,
                       QDialogButtonBox, QIcon)
 
-from calibre.gui2 import error_dialog
+from calibre.gui2 import error_dialog, gprefs
 from calibre.gui2.actions import InterfaceAction
 
 SUPPORTED = {'EPUB', 'AZW3'}
 
-class ChooseFormat(QDialog): # {{{
+class ChooseFormat(QDialog):  # {{{
 
     def __init__(self, formats, parent=None):
         QDialog.__init__(self, parent)
@@ -33,8 +33,7 @@ class ChooseFormat(QDialog): # {{{
             b = QCheckBox('&' + f, self)
             l.addWidget(b, 1, i)
             self.buttons.append(b)
-            if i == 0:
-                b.setChecked(True)
+        self.formats = gprefs.get('edit_toc_last_selected_formats', ['EPUB',])
         bb = self.bb = QDialogButtonBox(
             QDialogButtonBox.Ok|QDialogButtonBox.Cancel)
         bb.addButton(_('&All formats'),
@@ -43,17 +42,25 @@ class ChooseFormat(QDialog): # {{{
         bb.rejected.connect(self.reject)
         l.addWidget(bb, l.rowCount(), 0, 1, -1)
         self.resize(self.sizeHint())
+        self.finished.connect(lambda code:gprefs.set('edit_toc_last_selected_formats', list(self.formats)))
 
     def do_all(self):
         for b in self.buttons:
             b.setChecked(True)
         self.accept()
 
-    @property
+    @dynamic_property
     def formats(self):
-        for b in self.buttons:
-            if b.isChecked():
-                yield unicode(b.text())[1:]
+        def fget(self):
+            for b in self.buttons:
+                if b.isChecked():
+                    yield unicode(b.text())[1:]
+        def fset(self, formats):
+            formats = {x.upper() for x in formats}
+            for b in self.buttons:
+                b.setChecked(b.text()[1:] in formats)
+        return property(fget=fget, fset=fset)
+
 # }}}
 
 class ToCEditAction(InterfaceAction):
@@ -95,7 +102,7 @@ class ToCEditAction(InterfaceAction):
     def get_supported_books(self, book_ids):
         db = self.gui.library_view.model().db
         supported = set(SUPPORTED)
-        ans = [(x, set( (db.formats(x, index_is_id=True) or '').split(',') )
+        ans = [(x, set((db.formats(x, index_is_id=True) or '').split(','))
                .intersection(supported)) for x in book_ids]
         ans = [x for x in ans if x[1]]
         if not ans:
@@ -144,5 +151,3 @@ class ToCEditAction(InterfaceAction):
         if not book_id_map:
             return
         self.do_edit(book_id_map)
-
-
