@@ -43,7 +43,7 @@ def default_programs():
 def extensions(basename):
     if basename == 'calibre.exe':
         from calibre.ebooks import BOOK_EXTENSIONS
-        return set(BOOK_EXTENSIONS)
+        return set(BOOK_EXTENSIONS) - {'rar', 'zip'}
     if basename == 'ebook-viewer.exe':
         from calibre.customize.ui import all_input_formats
         return set(all_input_formats())
