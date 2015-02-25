@@ -11,6 +11,7 @@ from collections import defaultdict
 
 from calibre import force_unicode, walk, guess_type, prints
 from calibre.constants import iswindows, isosx, filesystem_encoding, cache_dir
+from calibre.utils.icu import numeric_sort_key as sort_key
 from calibre.utils.localization import canonicalize_lang, get_lang
 
 if iswindows:
@@ -18,6 +19,7 @@ if iswindows:
 elif isosx:
     pass
 else:
+    # Linux find_programs {{{
     def parse_localized_key(key):
         name, rest = key.partition('[')[0::2]
         if not rest:
@@ -68,7 +70,7 @@ else:
                         ans[name][lang] = v
                     else:
                         ans[k] = v
-        if 'Exec' in ans and 'MimeType' in ans:
+        if 'Exec' in ans and 'MimeType' in ans and 'Name' in ans:
             return ans
 
     icon_data = None
@@ -168,6 +170,7 @@ else:
         data_dirs = [x for x in data_dirs if x and os.path.isdir(x)]
         desktop_files = {}
         mime_types = {guess_type('file.' + ext)[0] for ext in extensions}
+        ans = []
         for base in data_dirs:
             for f in walk(os.path.join(base, 'applications')):
                 if f.endswith('.desktop'):
@@ -191,7 +194,107 @@ else:
                     val = data.get(k)
                     if val:
                         data[k] = localize_string(val)
-                yield data
+                ans.append(data)
+        ans.sort(key=lambda d:sort_key(d.get('Name')))
+        return ans
+
+    def entry_to_item(entry, parent):
+        icon_path = entry.get('Icon') or I('blank.png')
+        ans = QListWidgetItem(QIcon(icon_path), entry.get('Name') or _('Unknown'), parent)
+        ans.setData(DESC_ROLE, entry.get('Comment') or '')
+        ans.setData(ENTRY_ROLE, entry)
+        comment = (entry.get('Comment') or '')
+        if comment:
+            comment += '\n'
+        ans.setToolTip(comment + _('Command line:') + '\n' + (' '.join(entry['Exec'])))
+# }}}
+
+from threading import Thread
+
+from PyQt5.Qt import (
+    QApplication, QStackedLayout, QVBoxLayout, QWidget, QLabel, Qt,
+    QListWidget, QSize, pyqtSignal, QListWidgetItem, QIcon)
+from calibre.gui2 import gprefs, error_dialog
+from calibre.gui2.widgets2 import Dialog
+from calibre.gui2.progress_indicator import ProgressIndicator
+
+DESC_ROLE = Qt.UserRole
+ENTRY_ROLE = DESC_ROLE + 1
+
+class ChooseProgram(Dialog):
+
+    found = pyqtSignal()
+
+    def __init__(self, file_type='jpeg', parent=None, prefs=gprefs):
+        self.file_type = file_type
+        self.programs = self.find_error = self.selected_entry = None
+        self.select_manually = False
+        Dialog.__init__(self, _('Choose a program'), 'choose-open-with-program-dialog', parent=parent, prefs=prefs)
+        self.found.connect(self.programs_found, type=Qt.QueuedConnection)
+        self.pi.startAnimation()
+        t = Thread(target=self.find_programs)
+        t.daemon = True
+        t.start()
+
+    def setup_ui(self):
+        self.stacks = s = QStackedLayout(self)
+        self.w = w = QWidget(self)
+        self.w.l = l = QVBoxLayout(w)
+        self.pi = pi = ProgressIndicator(self, 256)
+        l.addStretch(1), l.addWidget(pi, alignment=Qt.AlignHCenter), l.addSpacing(10)
+        w.la = la = QLabel(_('Gathering data, please wait...'))
+        la.setStyleSheet('QLabel { font-size: 30pt; font-weight: bold }')
+        l.addWidget(la, alignment=Qt.AlignHCenter), l.addStretch(1)
+        s.addWidget(w)
+
+        self.w2 = w = QWidget(self)
+        self.l = l = QVBoxLayout(w)
+        s.addWidget(w)
+
+        self.la = la = QLabel(_('Choose a program to open %s files') % self.file_type.upper())
+        self.plist = pl = QListWidget(self)
+        pl.setIconSize(QSize(48, 48)), pl.setSpacing(5)
+        pl.doubleClicked.connect(self.accept)
+        l.addWidget(la), l.addWidget(pl)
+        la.setBuddy(pl)
+
+        l.addWidget(self.bb)
+
+    def sizeHint(self):
+        return QSize(600, 500)
+
+    def find_programs(self):
+        try:
+            self.programs = find_programs(self.file_type.split())
+        except Exception:
+            import traceback
+            self.find_error = traceback.print_exc()
+        self.found.emit()
+
+    def programs_found(self):
+        if self.find_error is not None:
+            error_dialog(self, _('Error finding programs'), _(
+                'Failed to find programs on your computer, click "Show details" for'
+                ' more information'), det_msg=self.find_error, show=True)
+            self.select_manually = True
+            return self.reject()
+        if not self.programs:
+            self.select_manually = True
+            return self.reject()
+        for entry in self.programs:
+            entry_to_item(entry, self.plist)
+        self.stacks.setCurrentIndex(1)
+
+    def accept(self):
+        ci = self.plist.currentItem()
+        if ci is not None:
+            self.selected_entry = ci.data(ENTRY_ROLE)
+        return Dialog.accept(self)
 
 if __name__ == '__main__':
-    print (find_programs('jpg jpeg'.split()))
+    from pprint import pprint
+    app = QApplication([])
+    d = ChooseProgram()
+    d.exec_()
+    pprint(d.selected_entry)
+    del app
