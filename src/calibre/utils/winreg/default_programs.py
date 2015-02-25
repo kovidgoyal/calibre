@@ -43,13 +43,16 @@ def default_programs():
 def extensions(basename):
     if basename == 'calibre.exe':
         from calibre.ebooks import BOOK_EXTENSIONS
+        # We remove rar and zip as they interfere with 7-zip associations
+        # http://www.mobileread.com/forums/showthread.php?t=256459
         return set(BOOK_EXTENSIONS) - {'rar', 'zip'}
     if basename == 'ebook-viewer.exe':
         from calibre.customize.ui import all_input_formats
         return set(all_input_formats())
     if basename == 'ebook-edit.exe':
         from calibre.ebooks.oeb.polish.main import SUPPORTED
-        return set(SUPPORTED)
+        from calibre.ebooks.oeb.polish.import_book import IMPORTABLE
+        return SUPPORTED | IMPORTABLE
 
 class NotAllowed(ValueError):
     pass
