@@ -383,6 +383,7 @@ def choose_program(file_type='jpeg', parent=None, prefs=oprefs):
     entry = choose_manually(file_type, parent) if d.select_manually else d.selected_entry
     if entry is not None:
         entry = finalize_entry(entry)
+        entry['keyboard_shortcut'] = None
         entries = oprefs['entries']
         if file_type not in entries:
             entries[file_type] = []
