@@ -1230,6 +1230,12 @@ class DB(object):
             shutil.copyfile(candidates[0], fmt_path)
             return fmt_path
 
+    def cover_abspath(self, book_id, path):
+        path = os.path.join(self.library_path, path)
+        fmt_path = os.path.join(path, 'cover.jpg')
+        if os.path.exists(fmt_path):
+            return fmt_path
+
     def apply_to_format(self, book_id, path, fname, fmt, func, missing_value=None):
         path = self.format_abspath(book_id, fmt, fname, path)
         if path is None:
