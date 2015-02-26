@@ -100,7 +100,7 @@ class LibraryViewMixin(object):  # {{{
 
     # }}}
 
-class QuickviewSplitter(QSplitter): # {{{
+class QuickviewSplitter(QSplitter):  # {{{
 
     def __init__(self, parent=None, orientation=Qt.Vertical, qv_widget=None):
         QSplitter.__init__(self, parent=parent, orientation=orientation)
@@ -489,6 +489,10 @@ class LayoutMixin(object):  # {{{
         self.book_details.files_dropped.connect(self.iactions['Add Books'].files_dropped_on_book)
         self.book_details.cover_changed.connect(self.bd_cover_changed,
                 type=Qt.QueuedConnection)
+        self.book_details.open_cover_with.connect(self.bd_open_cover_with,
+                type=Qt.QueuedConnection)
+        self.book_details.open_fmt_with.connect(self.bd_open_fmt_with,
+                type=Qt.QueuedConnection)
         self.book_details.cover_removed.connect(self.bd_cover_removed,
                 type=Qt.QueuedConnection)
         self.book_details.remote_file_dropped.connect(
@@ -524,6 +528,18 @@ class LayoutMixin(object):  # {{{
         self.library_view.model().db.set_cover(id_, cdata)
         if self.cover_flow:
             self.cover_flow.dataChanged()
+
+    def bd_open_cover_with(self, book_id, entry):
+        cpath = self.current_db.new_api.format_abspath(book_id, '__COVER_INTERNAL__')
+        if cpath:
+            from calibre.gui2.open_with import run_program
+            run_program(entry, cpath, self)
+
+    def bd_open_fmt_with(self, book_id, fmt, entry):
+        path = self.current_db.new_api.format_abspath(book_id, fmt)
+        if path:
+            from calibre.gui2.open_with import run_program
+            run_program(entry, path, self)
 
     def bd_cover_removed(self, id_):
         self.library_view.model().db.remove_cover(id_, commit=True,
@@ -570,5 +586,3 @@ class LayoutMixin(object):  # {{{
         self.status_bar.update_state(library_total, total, current, selected)
 
 # }}}
-
-

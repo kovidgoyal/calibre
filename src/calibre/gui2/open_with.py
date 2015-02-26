@@ -8,18 +8,59 @@ __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import os, re, shlex, cPickle
 from collections import defaultdict
+from threading import Thread
+from functools import partial
 
-from calibre import force_unicode, walk, guess_type, prints
+from PyQt5.Qt import (
+    QApplication, QStackedLayout, QVBoxLayout, QWidget, QLabel, Qt,
+    QListWidget, QSize, pyqtSignal, QListWidgetItem, QIcon, QByteArray,
+    QBuffer, QPixmap)
+
+from calibre import force_unicode, walk, guess_type, prints, as_unicode
 from calibre.constants import iswindows, isosx, filesystem_encoding, cache_dir
+from calibre.gui2 import error_dialog, choose_files
+from calibre.gui2.widgets2 import Dialog
+from calibre.gui2.progress_indicator import ProgressIndicator
+from calibre.utils.config import JSONConfig
 from calibre.utils.icu import numeric_sort_key as sort_key
 from calibre.utils.localization import canonicalize_lang, get_lang
 
+DESC_ROLE = Qt.UserRole
+ENTRY_ROLE = DESC_ROLE + 1
+
+def pixmap_to_data(pixmap):
+    ba = QByteArray()
+    buf = QBuffer(ba)
+    buf.open(QBuffer.WriteOnly)
+    pixmap.save(buf, 'PNG')
+    return bytearray(ba.data())
+
+def run_program(entry, path, parent):
+    import subprocess
+    cmdline = entry_to_cmdline(entry, path)
+    print('Running Open With commandline:', repr(cmdline))
+    try:
+        process = subprocess.Popen(cmdline)
+    except Exception as err:
+        return error_dialog(
+            parent, _('Failed to run'), _(
+            'Failed to run program, click "Show Details" for more information'),
+            det_msg='Command line: %r\n%s' %(cmdline, as_unicode(err)))
+    t = Thread(name='WaitProgram', target=process.wait)
+    t.daemon = True
+    t.start()
+
 if iswindows:
-    pass
+    oprefs = JSONConfig('windows_open_with')
+    run_program
+    def run_program(entry, path, parent):
+        raise NotImplementedError()
+
 elif isosx:
-    pass
+    oprefs = JSONConfig('osx_open_with')
 else:
-    # Linux find_programs {{{
+    oprefs = JSONConfig('xdg_open_with')
+    # XDG find_programs {{{
     def parse_localized_key(key):
         name, rest = key.partition('[')[0::2]
         if not rest:
@@ -42,6 +83,7 @@ else:
             return
         group = None
         ans = {}
+        ans['desktop_file_path'] = path
         for line in raw.splitlines():
             m = gpat.match(line)
             if m is not None:
@@ -207,25 +249,61 @@ else:
         if comment:
             comment += '\n'
         ans.setToolTip(comment + _('Command line:') + '\n' + (' '.join(entry['Exec'])))
+
+    def choose_manually(filetype, parent):
+        ans = choose_files(parent, 'choose-open-with-program-manually', _('Choose a program to open %s files') % filetype.upper(), select_only_single_file=True)
+        if ans:
+            ans = ans[0]
+            if not os.access(ans, os.X_OK):
+                return error_dialog(parent, _('Cannot execute'), _(
+                    'The program %s is not an executable file') % ans, show=True)
+            return {'Exec':[ans, '%f'], 'Name':os.path.basename(ans)}
+
+    def finalize_entry(entry):
+        icon_path = entry.get('Icon')
+        if icon_path:
+            ic = QIcon(icon_path)
+            if not ic.isNull():
+                pmap = ic.pixmap(48, 48)
+                if not pmap.isNull():
+                    entry['icon_data'] = pixmap_to_data(pmap)
+        entry['MimeType'] = tuple(entry['MimeType'])
+        return entry
+
+    def entry_sort_key(entry):
+        return sort_key(entry['Name'])
+
+    def entry_to_icon_text(entry):
+        data = entry.get('icon_data')
+        if data is None:
+            icon = QIcon(I('blank.png'))
+        else:
+            pmap = QPixmap()
+            pmap.loadFromData(bytes(data))
+            icon = QIcon(pmap)
+        return icon, entry['Name']
+
+    def entry_to_cmdline(entry, path):
+        path = os.path.abspath(path)
+        rmap = {
+            'f':path, 'F':path, 'u':'file://'+path, 'U':'file://'+path, '%':'%',
+            'i':entry.get('Icon', '%i'), 'c':entry.get('Name', ''), 'k':entry.get('desktop_file_path', ''),
+        }
+        def replace(match):
+            char = match.group()[-1]
+            repl = rmap.get(char)
+            return match.group() if repl is None else repl
+        sub = re.compile(r'%[fFuUdDnNickvm%]').sub
+        cmd = entry['Exec']
+        return cmd[:1] + [sub(replace, x) for x in cmd[1:]]
+
 # }}}
 
-from threading import Thread
-
-from PyQt5.Qt import (
-    QApplication, QStackedLayout, QVBoxLayout, QWidget, QLabel, Qt,
-    QListWidget, QSize, pyqtSignal, QListWidgetItem, QIcon)
-from calibre.gui2 import gprefs, error_dialog
-from calibre.gui2.widgets2 import Dialog
-from calibre.gui2.progress_indicator import ProgressIndicator
-
-DESC_ROLE = Qt.UserRole
-ENTRY_ROLE = DESC_ROLE + 1
-
-class ChooseProgram(Dialog):
+class ChooseProgram(Dialog):  # {{{
 
     found = pyqtSignal()
 
-    def __init__(self, file_type='jpeg', parent=None, prefs=gprefs):
+    def __init__(self, file_type='jpeg', parent=None, prefs=oprefs):
         self.file_type = file_type
         self.programs = self.find_error = self.selected_entry = None
         self.select_manually = False
@@ -258,6 +336,8 @@ class ChooseProgram(Dialog):
         l.addWidget(la), l.addWidget(pl)
         la.setBuddy(pl)
 
+        b = self.bb.addButton(_('&Browse computer for program'), self.bb.ActionRole)
+        b.clicked.connect(self.manual)
         l.addWidget(self.bb)
 
     def sizeHint(self):
@@ -291,10 +371,36 @@ class ChooseProgram(Dialog):
             self.selected_entry = ci.data(ENTRY_ROLE)
         return Dialog.accept(self)
 
+    def manual(self):
+        self.select_manually = True
+        self.reject()
+
+oprefs.defaults['entries'] = {}
+
+def choose_program(file_type='jpeg', parent=None, prefs=oprefs):
+    d = ChooseProgram(file_type, parent, prefs)
+    d.exec_()
+    entry = choose_manually(file_type, parent) if d.select_manually else d.selected_entry
+    if entry is not None:
+        entry = finalize_entry(entry)
+        entries = oprefs['entries']
+        if file_type not in entries:
+            entries[file_type] = []
+        entries[file_type].append(entry)
+        entries[file_type].sort(key=entry_sort_key)
+        oprefs['entries'] = entries
+    return entry
+
+def populate_menu(menu, receiver, file_type):
+    for entry in oprefs['entries'].get(file_type, ()):
+        ac = menu.addAction(*entry_to_icon_text(entry))
+        ac.triggered.connect(partial(receiver, entry))
+    return menu
+
+# }}}
+
 if __name__ == '__main__':
     from pprint import pprint
     app = QApplication([])
-    d = ChooseProgram()
-    d.exec_()
-    pprint(d.selected_entry)
+    pprint(choose_program('pdf'))
     del app
