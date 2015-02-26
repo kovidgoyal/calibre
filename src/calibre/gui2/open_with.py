@@ -291,7 +291,7 @@ else:
         path = os.path.abspath(path)
         rmap = {
             'f':path, 'F':path, 'u':'file://'+path, 'U':'file://'+path, '%':'%',
-            'i':entry.get('Icon', '%i'), 'c':entry.get('Name', ''), 'k':entry.get('desktop_file_path', ''),
+            'c':entry.get('Name', ''), 'k':entry.get('desktop_file_path', ''),
         }
         def replace(match):
             char = match.group()[-1]
@@ -299,6 +299,14 @@ else:
             return match.group() if repl is None else repl
         sub = re.compile(r'%[fFuUdDnNickvm%]').sub
         cmd = entry['Exec']
+        try:
+            idx = cmd.index('%i')
+        except ValueError:
+            pass
+        else:
+            icon = entry.get('Icon')
+            repl = ['--icon', icon] if icon else []
+            cmd[idx:idx+1] = repl
         return cmd[:1] + [sub(replace, x) for x in cmd[1:]]
 
 # }}}
