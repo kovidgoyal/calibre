@@ -109,6 +109,8 @@ else:
                         name, lang = parse_localized_key(k)
                         if name not in ans:
                             ans[name] = {}
+                        if isinstance(ans[name], type('')):
+                            ans[name] = {None:ans[name]}
                         ans[name][lang] = v
                     else:
                         ans[k] = v
@@ -223,6 +225,8 @@ else:
             try:
                 data = parse_desktop_file(path)
             except Exception:
+                import traceback
+                traceback.print_exc()
                 continue
             if data is not None and mime_types.intersection(data['MimeType']):
                 icon = data.get('Icon', {}).get(None)
