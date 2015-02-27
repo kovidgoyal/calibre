@@ -219,13 +219,13 @@ class CoverView(QWidget):  # {{{
         gc.triggered.connect(self.generate_cover)
 
         m = QMenu(_('Open cover with...'))
-        populate_menu(m, self.open_with, 'jpeg')
+        populate_menu(m, self.open_with, 'cover_image')
         if len(m.actions()) == 0:
             cm.addAction(_('Open cover with...'), self.choose_open_with)
         else:
             m.addSeparator()
             m.addAction(_('Add another application to open cover...'), self.choose_open_with)
-            m.addAction(_('Edit Open With applications...'), partial(edit_programs, 'jpeg', self))
+            m.addAction(_('Edit Open With applications...'), partial(edit_programs, 'cover_image', self))
             cm.addMenu(m)
         cm.exec_(ev.globalPos())
 
@@ -236,7 +236,7 @@ class CoverView(QWidget):  # {{{
 
     def choose_open_with(self):
         from calibre.gui2.open_with import choose_program
-        entry = choose_program('jpeg', self)
+        entry = choose_program('cover_image', self)
         if entry is not None:
             self.open_with(entry)
 

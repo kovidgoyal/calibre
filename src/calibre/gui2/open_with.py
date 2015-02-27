@@ -180,19 +180,19 @@ class ChooseProgram(Dialog):  # {{{
 oprefs.defaults['entries'] = {}
 
 def choose_program(file_type='jpeg', parent=None, prefs=oprefs):
-    file_type = file_type.lower()
+    oft = file_type = file_type.lower()
+    file_type = {'cover_image':'jpeg'}.get(oft, oft)
     d = ChooseProgram(file_type, parent, prefs)
     d.exec_()
     entry = choose_manually(file_type, parent) if d.select_manually else d.selected_entry
     if entry is not None:
         entry = finalize_entry(entry)
-        entry['keyboard_shortcut'] = None
         entry['uuid'] = type('')(uuid.uuid4())
         entries = oprefs['entries']
-        if file_type not in entries:
-            entries[file_type] = []
-        entries[file_type].append(entry)
-        entries[file_type].sort(key=entry_sort_key)
+        if oft not in entries:
+            entries[oft] = []
+        entries[oft].append(entry)
+        entries[oft].sort(key=entry_sort_key)
         oprefs['entries'] = entries
     return entry
 
