@@ -14,7 +14,7 @@ from PyQt5.Qt import (QAbstractTableModel, QModelIndex, Qt,
     QTimer, pyqtSignal, QIcon, QDialog, QAbstractItemDelegate, QApplication,
     QSize, QStyleOptionProgressBar, QStyle, QToolTip, QFrame,
     QHBoxLayout, QVBoxLayout, QSizePolicy, QLabel, QCoreApplication, QAction,
-    QByteArray, QSortFilterProxyModel)
+    QByteArray, QSortFilterProxyModel, QTextBrowser, QPlainTextEdit)
 
 from calibre.constants import islinux, isbsd
 from calibre.utils.ipc.server import Server
@@ -24,9 +24,9 @@ from calibre.gui2 import (Dispatcher, error_dialog, question_dialog,
 from calibre.gui2.device import DeviceJob
 from calibre.gui2.dialogs.jobs_ui import Ui_JobsDialog
 from calibre import __appname__, as_unicode
-from calibre.gui2.dialogs.job_view_ui import Ui_Dialog
 from calibre.gui2.progress_indicator import ProgressIndicator
 from calibre.gui2.threaded_jobs import ThreadedJobServer, ThreadedJob
+from calibre.gui2.widgets2 import Dialog
 from calibre.utils.search_query_parser import SearchQueryParser, ParseException
 from calibre.utils.icu import lower
 
@@ -408,26 +408,34 @@ class ProgressBarDelegate(QAbstractItemDelegate):  # {{{
         QApplication.style().drawControl(QStyle.CE_ProgressBar, opts, painter)
 # }}}
 
-class DetailView(QDialog, Ui_Dialog):  # {{{
+class DetailView(Dialog):  # {{{
 
     def __init__(self, parent, job):
-        QDialog.__init__(self, parent)
-        self.setupUi(self)
-        self.setWindowTitle(job.description)
         self.job = job
-        self.html_view = (hasattr(job, 'html_details') and not getattr(job,
-            'ignore_html_details', False))
+        self.html_view = hasattr(job, 'html_details') and not getattr(job, 'ignore_html_details', False)
+        Dialog.__init__(self, job.description, 'job-detail-view-dialog', parent)
+
+    def sizeHint(self):
+        return QSize(700, 500)
+
+    def setup_ui(self):
+        self.l = l = QVBoxLayout(self)
         if self.html_view:
-            self.log.setVisible(False)
+            self.tb = w = QTextBrowser(self)
         else:
-            self.tb.setVisible(False)
+            self.log = w = QPlainTextEdit(self)
+            w.setReadOnly(True), w.setLineWrapMode(w.NoWrap)
+        l.addWidget(w)
+        l.addWidget(self.bb)
+        self.bb.clear(), self.bb.setStandardButtons(self.bb.Close)
         self.next_pos = 0
         self.update()
         self.timer = QTimer(self)
         self.timer.timeout.connect(self.update)
         self.timer.start(1000)
-        v = self.log.verticalScrollBar()
-        v.setValue(v.maximum())
+        if not self.html_view:
+            v = self.log.verticalScrollBar()
+            v.setValue(v.maximum())
 
     def update(self):
         if self.html_view:
