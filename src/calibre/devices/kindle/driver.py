@@ -355,7 +355,7 @@ class KINDLE2(KINDLE):
 
     # x330 on the PaperWhite
     # x262 on the Touch. Doesn't choke on x330, though.
-    # x470 on the Voyage, checked that it works on PW, dont have Touch anymore. Checked by eschwartz.
+    # x470 on the Voyage, checked that it works on PW, Touch checked by eschwartz.
     THUMBNAIL_HEIGHT         = 470
 
     @classmethod
