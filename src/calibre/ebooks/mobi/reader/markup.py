@@ -314,10 +314,14 @@ def handle_media_queries(raw):
     parser = tinycss.make_full_parser()
     def replace(m):
         sheet = parser.parse_stylesheet(m.group() + '}')
-        for mq in sheet.rules[0].media:
-            # Only accept KF8 media types
-            if (mq.media_type, mq.negated) in {('amzn-mobi', True), ('amzn-kf8', False)}:
-                return '@media screen {'
+        if len(sheet.rules) > 0:
+            for mq in sheet.rules[0].media:
+                # Only accept KF8 media types
+                if (mq.media_type, mq.negated) in {('amzn-mobi', True), ('amzn-kf8', False)}:
+                    return '@media screen {'
+        else:
+            # Empty sheet, doesn't matter what we use
+            return '@media screen {'
         return m.group()
 
     return re.sub(r'@media\s[^{]*{', replace, raw)
