@@ -49,6 +49,57 @@
 # 02 Feb 2015  eschwartz -- Fix path issues, allow setting each location in one variable, allow
 #                           specifying a list of libraries in descending order of priority.
 
+# -----------------------------------------------------
+# Make all new files get created read-writable by world
+# by default. This allows you to use calibre on other
+# computers without changing fstab rules and suchlike.
+#
+# You can now use an ext3 drive instead of vfat and the
+# binaries and script will be executable.
+# -----------------------------------------------------
+
+umask 000
+
+# ------------------------------------------------
+# Interactive options.
+# ------------------------------------------------
+
+usage()
+{
+	cat <<- _EOF_
+		Usage: calibre-portable.sh [OPTIONS]
+		Run a portable instance of calibre.
+
+		OPTIONS
+		  -u, --upgrade-install     upgrade or install the portable calibre binaries
+		  -h, --help                show this usage message then exit
+_EOF_
+}
+
+do_upgrade()
+{
+    wget -nv -O- https://raw.githubusercontent.com/kovidgoyal/calibre/master/setup/linux-installer.py \
+        | python -c "import sys; main=lambda x,y:sys.stderr.write('Download failed\n'); \
+        exec(sys.stdin.read()); main('$(pwd)', True)"
+}
+
+while [[ "${#}" -gt 0 ]]; do
+    case "${1}" in
+        -h|--help)
+            usage
+            exit
+            ;;
+        -u|--upgrade-install)
+            do_upgrade
+            exit
+            ;;
+        *)
+            echo "calibre-portable.sh: unecognzed option '${1}'"
+            echo "Try 'calibre-portable.sh --help' for more information."
+            exit 1
+    esac
+    shift
+done
 
 # ------------------------------------------------
 # Set up Calibre Config folder
@@ -173,9 +224,7 @@ elif [[ -z "${BIN_DIR}" ]]; then
 else
     CALIBRE="calibre"
     echo "PROGRAM FILES:      No portable copy found."
-    echo "To intall a portable copy, run the following command:"
-    echo "wget -nv -O- https://raw.githubusercontent.com/kovidgoyal/calibre/master/setup/linux-installer.py" \
-         "| python -c \"import sys; main=lambda x,y:sys.stderr.write('Download failed\n'); exec(sys.stdin.read()); main('$(pwd)/calibre', True)\""
+    echo "To intall a portable copy, run './calibre-portable.sh --upgrade-install'"
     echo -e "\033[0;31m*** Using System search path instead***\033[0m"
 fi
 echo "--------------------------------------------------"
