@@ -205,7 +205,7 @@ class CoverView(QWidget):  # {{{
             )
 
     def contextMenuEvent(self, ev):
-        from calibre.gui2.open_with import populate_menu
+        from calibre.gui2.open_with import populate_menu, edit_programs
         cm = QMenu(self)
         paste = cm.addAction(_('Paste Cover'))
         copy = cm.addAction(_('Copy Cover'))
@@ -218,13 +218,14 @@ class CoverView(QWidget):  # {{{
         remove.triggered.connect(self.remove_cover)
         gc.triggered.connect(self.generate_cover)
 
-        m = QMenu(_('Open with...'))
+        m = QMenu(_('Open cover with...'))
         populate_menu(m, self.open_with, 'jpeg')
         if len(m.actions()) == 0:
-            cm.addAction(_('Open with...'), self.choose_open_with)
+            cm.addAction(_('Open cover with...'), self.choose_open_with)
         else:
             m.addSeparator()
-            m.addAction(_('Choose other program...'), self.choose_open_with)
+            m.addAction(_('Add another application to open cover...'), self.choose_open_with)
+            m.addAction(_('Edit Open With applications...'), partial(edit_programs, 'jpeg', self))
             cm.addMenu(m)
         cm.exec_(ev.globalPos())
 
@@ -430,14 +431,15 @@ class BookInfo(QWebView):
                         ac.setText(t)
                         menu.addAction(ac)
                     if not fmt.upper().startswith('ORIGINAL_'):
-                        from calibre.gui2.open_with import populate_menu
-                        m = QMenu(_('Open with...'))
+                        from calibre.gui2.open_with import populate_menu, edit_programs
+                        m = QMenu(_('Open %s with...') % fmt.upper())
                         populate_menu(m, partial(self.open_with, book_id, fmt), fmt)
                         if len(m.actions()) == 0:
-                            menu.addAction(_('Open with...'), partial(self.choose_open_with, book_id, fmt))
+                            menu.addAction(_('Open %s with...') % fmt.upper(), partial(self.choose_open_with, book_id, fmt))
                         else:
                             m.addSeparator()
-                            m.addAction(_('Choose other program...'), partial(self.choose_open_with, book_id, fmt))
+                            m.addAction(_('Add other application for %s files...') % fmt.upper(), partial(self.choose_open_with, book_id, fmt))
+                            m.addAction(_('Edit Open With applications...'), partial(edit_programs, fmt, self))
                             menu.addMenu(m)
             else:
                 el = r.linkElement()

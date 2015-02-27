@@ -6,7 +6,7 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import os
+import os, uuid
 from threading import Thread
 from functools import partial
 
@@ -17,7 +17,7 @@ from PyQt5.Qt import (
 
 from calibre import as_unicode
 from calibre.constants import iswindows, isosx
-from calibre.gui2 import error_dialog, choose_files
+from calibre.gui2 import error_dialog, choose_files, choose_images
 from calibre.gui2.widgets2 import Dialog
 from calibre.gui2.progress_indicator import ProgressIndicator
 from calibre.utils.config import JSONConfig
@@ -180,12 +180,14 @@ class ChooseProgram(Dialog):  # {{{
 oprefs.defaults['entries'] = {}
 
 def choose_program(file_type='jpeg', parent=None, prefs=oprefs):
+    file_type = file_type.lower()
     d = ChooseProgram(file_type, parent, prefs)
     d.exec_()
     entry = choose_manually(file_type, parent) if d.select_manually else d.selected_entry
     if entry is not None:
         entry = finalize_entry(entry)
         entry['keyboard_shortcut'] = None
+        entry['uuid'] = type('')(uuid.uuid4())
         entries = oprefs['entries']
         if file_type not in entries:
             entries[file_type] = []
@@ -195,12 +197,80 @@ def choose_program(file_type='jpeg', parent=None, prefs=oprefs):
     return entry
 
 def populate_menu(menu, receiver, file_type):
+    file_type = file_type.lower()
     for entry in oprefs['entries'].get(file_type, ()):
         ac = menu.addAction(*entry_to_icon_text(entry))
         ac.triggered.connect(partial(receiver, entry))
     return menu
 
 # }}}
+
+class EditPrograms(Dialog):
+
+    def __init__(self, file_type='jpeg', parent=None):
+        self.file_type = file_type.lower()
+        Dialog.__init__(self, _('Edit the applications for %s files') % file_type.upper(), 'edit-open-with-programs', parent=parent)
+
+    def setup_ui(self):
+        self.l = l = QVBoxLayout(self)
+        self.plist = pl = QListWidget(self)
+        pl.setIconSize(QSize(48, 48)), pl.setSpacing(5)
+        l.addWidget(pl)
+
+        self.bb.clear(), self.bb.setStandardButtons(self.bb.Close)
+        self.rb = b = self.bb.addButton(_('&Remove'), self.bb.ActionRole)
+        b.clicked.connect(self.remove), b.setIcon(QIcon(I('list_remove.png')))
+        self.cb = b = self.bb.addButton(_('Change &Icon'), self.bb.ActionRole)
+        b.clicked.connect(self.change_icon), b.setIcon(QIcon(I('icon_choose.png')))
+        l.addWidget(self.bb)
+
+        self.populate()
+
+    def sizeHint(self):
+        return QSize(600, 400)
+
+    def populate(self):
+        self.plist.clear()
+        for entry in oprefs['entries'].get(self.file_type, ()):
+            entry_to_item(entry, self.plist)
+
+    def change_icon(self):
+        ci = self.plist.currentItem()
+        if ci is None:
+            return error_dialog(self, _('No selection'), _(
+                'No application selected'), show=True)
+        paths = choose_images(self, 'choose-new-icon-for-open-with-program', _(
+            'Choose new icon'))
+        if paths:
+            ic = QIcon(paths[0])
+            if ic.isNull():
+                return error_dialog(self, _('Invalid icon'), _(
+                    'Could not load image from %s') % paths[0], show=True)
+            pmap = ic.pixmap(48, 48)
+            if not pmap.isNull():
+                entry = ci.data(ENTRY_ROLE)
+                entry['icon_data'] = pixmap_to_data(pmap)
+                ci.setData(ENTRY_ROLE, entry)
+                self.update_stored_config()
+                ci.setIcon(ic)
+
+    def remove(self):
+        ci = self.plist.currentItem()
+        if ci is None:
+            return error_dialog(self, _('No selection'), _(
+                'No application selected'), show=True)
+        row = self.plist.row(ci)
+        self.plist.takeItem(row)
+        self.update_stored_config()
+
+    def update_stored_config(self):
+        entries = [self.plist.item(i).data(ENTRY_ROLE) for i in xrange(self.plist.count())]
+        oprefs['entries'][self.file_type] = entries
+        oprefs['entries'] = oprefs['entries']
+
+def edit_programs(file_type, parent):
+    d = EditPrograms(file_type, parent)
+    d.exec_()
 
 if __name__ == '__main__':
     from pprint import pprint
