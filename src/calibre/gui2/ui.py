@@ -48,6 +48,7 @@ from calibre.gui2.proceed import ProceedQuestion
 from calibre.gui2.dialogs.message_box import JobError
 from calibre.gui2.job_indicator import Pointer
 from calibre.gui2.dbus_export.widgets import factory
+from calibre.gui2.open_with import register_keyboard_shortcuts
 from calibre.library import current_library_name
 
 class Listener(Thread):  # {{{
@@ -406,6 +407,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
         self.set_current_library_information(current_library_name(), db.library_id,
                                              db.field_metadata)
 
+        register_keyboard_shortcuts()
         self.keyboard.finalize()
         self.auto_adder = AutoAdder(gprefs['auto_add_path'], self)
 

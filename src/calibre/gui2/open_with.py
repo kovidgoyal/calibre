@@ -13,7 +13,7 @@ from functools import partial
 from PyQt5.Qt import (
     QApplication, QStackedLayout, QVBoxLayout, QWidget, QLabel, Qt,
     QListWidget, QSize, pyqtSignal, QListWidgetItem, QIcon, QByteArray,
-    QBuffer, QPixmap)
+    QBuffer, QPixmap, QAction)
 
 from calibre import as_unicode
 from calibre.constants import iswindows, isosx
@@ -60,7 +60,9 @@ else:
     oprefs = JSONConfig('xdg_open_with')
     from calibre.utils.open_with.linux import entry_to_cmdline, find_programs, entry_sort_key
 
-    def entry_to_icon_text(entry):
+    def entry_to_icon_text(entry, only_text=False):
+        if only_text:
+            return entry['Name']
         data = entry.get('icon_data')
         if data is None:
             icon = QIcon(I('blank.png'))
@@ -194,6 +196,7 @@ def choose_program(file_type='jpeg', parent=None, prefs=oprefs):
         entries[oft].append(entry)
         entries[oft].sort(key=entry_sort_key)
         oprefs['entries'] = entries
+        register_keyboard_shortcuts(finalize=True)
     return entry
 
 def populate_menu(menu, receiver, file_type):
@@ -205,7 +208,7 @@ def populate_menu(menu, receiver, file_type):
 
 # }}}
 
-class EditPrograms(Dialog):
+class EditPrograms(Dialog):  # {{{
 
     def __init__(self, file_type='jpeg', parent=None):
         self.file_type = file_type.lower()
@@ -262,6 +265,7 @@ class EditPrograms(Dialog):
         row = self.plist.row(ci)
         self.plist.takeItem(row)
         self.update_stored_config()
+        register_keyboard_shortcuts(finalize=True)
 
     def update_stored_config(self):
         entries = [self.plist.item(i).data(ENTRY_ROLE) for i in xrange(self.plist.count())]
@@ -271,6 +275,34 @@ class EditPrograms(Dialog):
 def edit_programs(file_type, parent):
     d = EditPrograms(file_type, parent)
     d.exec_()
+# }}}
+
+registered_shortcuts = {}
+
+def register_keyboard_shortcuts(gui=None, finalize=False):
+    if gui is None:
+        from calibre.gui2.ui import get_gui
+        gui = get_gui()
+    if gui is None:
+        return
+    for unique_name, action in registered_shortcuts.iteritems():
+        gui.keyboard.unregister_shortcut(unique_name)
+        gui.removeAction(action)
+    registered_shortcuts.clear()
+
+    for filetype, applications in oprefs['entries'].iteritems():
+        for application in applications:
+            text = entry_to_icon_text(application, only_text=True)
+            t = _('cover image') if filetype.upper() == 'COVER_IMAGE' else filetype.upper()
+            name = _('Open %s files with %s') % (t, text)
+            ac = QAction(gui)
+            unique_name = application['uuid']
+            ac.triggered.connect(partial(gui.open_with_action_triggerred, filetype, application))
+            gui.keyboard.register_shortcut(unique_name, name, action=ac, group=_('Open With'))
+            gui.addAction(ac)
+            registered_shortcuts[unique_name] = ac
+    if finalize:
+        gui.keyboard.finalize()
 
 if __name__ == '__main__':
     from pprint import pprint

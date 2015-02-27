@@ -15,7 +15,7 @@ from calibre.utils.config import prefs
 from calibre.utils.icu import sort_key
 from calibre.constants import (isosx, __appname__, preferred_encoding,
     get_version)
-from calibre.gui2 import config, is_widescreen, gprefs
+from calibre.gui2 import config, is_widescreen, gprefs, error_dialog
 from calibre.gui2.library.views import BooksView, DeviceBooksView
 from calibre.gui2.library.alternate_views import GridView
 from calibre.gui2.widgets import Splitter, LayoutButton
@@ -540,6 +540,20 @@ class LayoutMixin(object):  # {{{
         if path:
             from calibre.gui2.open_with import run_program
             run_program(entry, path, self)
+        else:
+            fmt = fmt.upper()
+            error_dialog(self, _('No %s format') % fmt, _(
+                'The book {0} does not have the {1} format').format(
+                    self.current_db.new_api.field_for('title', book_id, default_value=_('Unknown')),
+                    fmt), show=True)
+
+    def open_with_action_triggerred(self, fmt, entry, *args):
+        book_id = self.library_view.current_book
+        if book_id is not None:
+            if fmt == 'cover_image':
+                self.bd_open_cover_with(book_id, entry)
+            else:
+                self.bd_open_fmt_with(book_id, fmt, entry)
 
     def bd_cover_removed(self, id_):
         self.library_view.model().db.remove_cover(id_, commit=True,
