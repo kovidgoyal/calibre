@@ -13,7 +13,7 @@ from functools import partial
 from PyQt5.Qt import (
     QApplication, QStackedLayout, QVBoxLayout, QWidget, QLabel, Qt,
     QListWidget, QSize, pyqtSignal, QListWidgetItem, QIcon, QByteArray,
-    QBuffer, QPixmap, QAction)
+    QBuffer, QPixmap, QAction, QKeySequence)
 
 from calibre import as_unicode
 from calibre.constants import iswindows, isosx
@@ -202,7 +202,12 @@ def choose_program(file_type='jpeg', parent=None, prefs=oprefs):
 def populate_menu(menu, receiver, file_type):
     file_type = file_type.lower()
     for entry in oprefs['entries'].get(file_type, ()):
-        ac = menu.addAction(*entry_to_icon_text(entry))
+        icon, text = entry_to_icon_text(entry)
+        sa = registered_shortcuts.get(entry['uuid'])
+        if sa is not None:
+            text += '\t' + sa.shortcut().toString(QKeySequence.NativeText)
+        ac = menu.addAction(icon, text)
+
         ac.triggered.connect(partial(receiver, entry))
     return menu
 
