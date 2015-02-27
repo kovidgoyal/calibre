@@ -125,9 +125,13 @@ def convert_registry_data(raw, size, dtype):
         return ctypes.cast(raw, ctypes.POINTER(types.QWORD)).contents.value
     raise ValueError('Unsupported data type: %r' % dtype)
 
-RegSetKeyValue = cwrap(
-    'RegSetKeyValueW', LONG, a('key', HKEY), a('sub_key', LPCWSTR, None), a('name', LPCWSTR, None),
-    a('dtype', DWORD, winreg.REG_SZ), a('data', LPCVOID, None), a('size', DWORD))
+try:
+    RegSetKeyValue = cwrap(
+        'RegSetKeyValueW', LONG, a('key', HKEY), a('sub_key', LPCWSTR, None), a('name', LPCWSTR, None),
+        a('dtype', DWORD, winreg.REG_SZ), a('data', LPCVOID, None), a('size', DWORD))
+except Exception:
+    raise RuntimeError('calibre requires Windows Vista or newer to run, the last version of calibre'
+                       ' that could run on Windows XP is version 1.48, available from: http://download.calibre-ebook.com/')
 
 def delete_value_errcheck(result, func, args):
     if result == winerror.ERROR_FILE_NOT_FOUND:
