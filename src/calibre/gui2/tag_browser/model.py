@@ -855,6 +855,11 @@ class TagsModel(QAbstractItemModel):  # {{{
         self.drag_drop_finished.emit(ids)
     # }}}
 
+    def get_book_ids_to_use(self):
+        if self.db.data.get_base_restriction() or self.db.data.get_search_restriction():
+            return self.db.search('', return_matches=True, sort_results=False)
+        return None
+
     def _get_category_nodes(self, sort):
         '''
         Called by __init__. Do not directly call this method.
@@ -863,21 +868,17 @@ class TagsModel(QAbstractItemModel):  # {{{
         self.categories = {}
 
         # Get the categories
-        if self.db.data.get_base_restriction() or self.db.data.get_search_restriction():
-            try:
-                data = self.db.new_api.get_categories(sort=sort,
-                        icon_map=self.category_icon_map,
-                        book_ids=self.db.search('', return_matches=True, sort_results=False),
-                        first_letter_sort = self.collapse_model == 'first letter')
-            except:
-                import traceback
-                traceback.print_exc()
-                data = self.db.new_api.get_categories(sort=sort, icon_map=self.category_icon_map,
-                        first_letter_sort = self.collapse_model == 'first letter')
-                self.restriction_error.emit()
-        else:
+        try:
+            data = self.db.new_api.get_categories(sort=sort,
+                    icon_map=self.category_icon_map,
+                    book_ids=self.get_book_ids_to_use(),
+                    first_letter_sort = self.collapse_model == 'first letter')
+        except:
+            import traceback
+            traceback.print_exc()
             data = self.db.new_api.get_categories(sort=sort, icon_map=self.category_icon_map,
-                        first_letter_sort = self.collapse_model == 'first letter')
+                    first_letter_sort = self.collapse_model == 'first letter')
+            self.restriction_error.emit()
 
         # Reconstruct the user categories, putting them into metadata
         self.db.field_metadata.remove_dynamic_categories()
@@ -1042,21 +1043,14 @@ class TagsModel(QAbstractItemModel):  # {{{
             item.tag.name = val
             self.search_item_renamed.emit()  # Does a refresh
         else:
-            if key == 'series':
-                self.db.rename_series(item.tag.id, val)
-            elif key == 'publisher':
-                self.db.rename_publisher(item.tag.id, val)
-            elif key == 'tags':
-                self.db.rename_tag(item.tag.id, val)
-            elif key == 'authors':
-                self.db.rename_author(item.tag.id, val)
-            elif self.db.field_metadata[key]['is_custom']:
-                self.db.rename_custom_item(item.tag.id, val,
-                                    label=self.db.field_metadata[key]['label'])
+            restrict_to_book_ids=self.get_book_ids_to_use()
+            self.db.new_api.rename_items(key, {item.tag.id: val},
+                                         restrict_to_book_ids=restrict_to_book_ids)
             self.tag_item_renamed.emit()
             item.tag.name = val
             item.tag.state = TAG_SEARCH_STATES['clear']
-            self.rename_item_in_all_user_categories(name, key, val)
+            if not restrict_to_book_ids:
+                self.rename_item_in_all_user_categories(name, key, val)
             self.refresh_required.emit()
         return True
 

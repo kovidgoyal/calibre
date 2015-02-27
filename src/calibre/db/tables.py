@@ -265,8 +265,37 @@ class ManyToOneTable(Table):
                 [(x,) for x in clean])
         return clean
 
-    def remove_items(self, item_ids, db):
+    def remove_items(self, item_ids, db, restrict_to_book_ids=None):
         affected_books = set()
+
+        if restrict_to_book_ids:
+            rtb_set = frozenset(restrict_to_book_ids)
+            items_to_process_normally = set()
+            # Check if all the books with the item are in the restriction. If
+            # so, process them normally
+            for item_id in item_ids:
+                books_to_process = self.col_book_map.get(item_id, set())
+                books_not_to_delete = books_to_process - rtb_set
+                if books_not_to_delete:
+                    # Some books not in restriction. Must do special processing
+                    books_to_delete = books_to_process & rtb_set
+                    # remove the books from the old id maps
+                    self.col_book_map[item_id] = books_not_to_delete
+                    for book_id in books_to_delete:
+                        self.book_col_map.pop(book_id, None)
+                    # Delete links to the affected books from the link table. As
+                    # this is a many-to-one mapping we know that we can delete
+                    # links without checking the item ID
+                    db.executemany('DELETE FROM {0} WHERE {1}=?'.format(self.link_table,
+                                                    'book'), books_to_delete)
+                    affected_books |= books_to_delete
+                else:
+                    # Process normally any items where the VL was not significant
+                    items_to_process_normally.add(item_id)
+            if items_to_process_normally:
+                affected_books |= self.remove_items(items_to_process_normally, db)
+            return affected_books
+
         for item_id in item_ids:
             val = self.id_map.pop(item_id, null)
             if val is null:
@@ -373,8 +402,38 @@ class ManyToManyTable(ManyToOneTable):
                 [(x,) for x in clean])
         return clean
 
-    def remove_items(self, item_ids, db):
+    def remove_items(self, item_ids, db, restrict_to_book_ids=None):
         affected_books = set()
+        if restrict_to_book_ids:
+            rtb_set = frozenset(restrict_to_book_ids)
+            items_to_process_normally = set()
+            # Check if all the books with the item are in the restriction. If
+            # so, process them normally
+            for item_id in item_ids:
+                books_to_process = self.col_book_map.get(item_id, set())
+                books_not_to_delete = books_to_process - rtb_set
+                if books_not_to_delete:
+                    # Some books not in restriction. Must do special processing
+                    books_to_delete = books_to_process & rtb_set
+                    # remove the books from the old id maps
+                    self.col_book_map[item_id] = books_not_to_delete
+                    for book_id in books_to_delete:
+                        self.book_col_map[book_id] = tuple(
+                           x for x in self.book_col_map.get(book_id, ()) if x != item_id)
+                    affected_books |= books_to_delete
+                else:
+                    items_to_process_normally.add(item_id)
+            # Delete book/item pairs from the link table. We don't need to do
+            # anything with the main table because books with the old ID are
+            # still in the library.
+            db.executemany('DELETE FROM {0} WHERE {1}=? and {2}=?'.format(
+                    self.link_table, 'book', self.metadata['link_column']),
+                           [(b, i) for b in affected_books for i in item_ids])
+            # Take care of any items where the VL was not significant
+            if items_to_process_normally:
+                affected_books |= self.remove_items(items_to_process_normally, db)
+            return affected_books
+
         for item_id in item_ids:
             val = self.id_map.pop(item_id, null)
             if val is null:

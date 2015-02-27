@@ -223,14 +223,18 @@ class TagBrowserMixin(object):  # {{{
             if (category in ['tags', 'series', 'publisher'] or
                     db.new_api.field_metadata.is_custom_field(category)):
                 m = self.tags_view.model()
-                for item in to_delete:
-                    m.delete_item_from_all_user_categories(orig_name[item], category)
-                for old_id in to_rename:
+                restrict_to_book_ids = m.get_book_ids_to_use()
+                if not restrict_to_book_ids:
+                    for item in to_delete:
+                        m.delete_item_from_all_user_categories(orig_name[item], category)
+                for old_id in to_rename and not restrict_to_book_ids:
                     m.rename_item_in_all_user_categories(orig_name[old_id],
                                             category, unicode(to_rename[old_id]))
 
-                db.new_api.remove_items(category, to_delete)
-                db.new_api.rename_items(category, to_rename, change_index=False)
+                db.new_api.remove_items(category, to_delete,
+                                        restrict_to_book_ids=restrict_to_book_ids)
+                db.new_api.rename_items(category, to_rename, change_index=False,
+                                        restrict_to_book_ids=restrict_to_book_ids)
 
                 # Clean up the library view
                 self.do_tag_item_renamed()
@@ -260,8 +264,10 @@ class TagBrowserMixin(object):  # {{{
             delete_func = partial(db.delete_custom_item_using_id, label=cc_label)
         m = self.tags_view.model()
         if delete_func:
-            delete_func(item_id)
-            m.delete_item_from_all_user_categories(orig_name, category)
+            restrict_to_book_ids=m.get_book_ids_to_use()
+            delete_func(item_id, restrict_to_book_ids=restrict_to_book_ids)
+            if not restrict_to_book_ids:
+                m.delete_item_from_all_user_categories(orig_name, category)
 
         # Clean up the library view
         self.do_tag_item_renamed()

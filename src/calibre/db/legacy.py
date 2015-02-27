@@ -820,8 +820,9 @@ for field in (
 
 for field in ('authors', 'tags', 'publisher'):
     def renamer(field):
-        def func(self, old_id, new_name):
-            id_map = self.new_api.rename_items(field, {old_id:new_name})[1]
+        def func(self, old_id, new_name, restrict_to_book_ids=None):
+            id_map = self.new_api.rename_items(field, {old_id:new_name},
+                                       restrict_to_book_ids=restrict_to_book_ids)[1]
             if field == 'authors':
                 return id_map[old_id]
         return func
@@ -877,8 +878,8 @@ for field in ('author', 'tag', 'series'):
 for field in ('publisher', 'series', 'tag'):
     def getter(field):
         fname = 'tags' if field == 'tag' else field
-        def func(self, item_id):
-            self.new_api.remove_items(fname, (item_id,))
+        def func(self, item_id, restrict_to_book_ids=None):
+            self.new_api.remove_items(fname, (item_id,), restrict_to_book_ids=restrict_to_book_ids)
         return func
     setattr(LibraryDatabase, 'delete_%s_using_id' % field, MT(getter(field)))
 # }}}
