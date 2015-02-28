@@ -1584,32 +1584,53 @@ class Cache(object):
             # We have a VL. Only change the item name for those books
             rtb_set = frozenset(restrict_to_book_ids)
             id_map = {}
+            default_process_map = {}
             for old_id, new_name in item_id_to_new_name_map.iteritems():
                 new_names = tuple(x.strip() for x in new_name.split(sv)) if sv else (new_name,)
                 # Get a list of books in the VL with the item
-                books_to_process = f.books_for(old_id) & rtb_set
-                # This should never be empty, but ...
-                if books_to_process:
+                books_with_id = f.books_for(old_id)
+                books_to_process = books_with_id & rtb_set
+                if len(books_with_id) == len(books_to_process):
+                    # All the books with the ID are in the VL, so we can use
+                    # the normal processing
+                    default_process_map[old_id] = new_name
+                elif books_to_process:
                     affected_books.update(books_to_process)
                     newvals = {}
                     for book in books_to_process:
                         # Get the current values, remove the one being renamed, then add
-                        # the new value(s) back
+                        # the new value(s) back.
                         vals = self._field_for(field, book)
                         # Check for is_multiple
                         if isinstance(vals, tuple):
-                            vals = set(vals)
+                            # We must preserve order.
+                            vals = list(vals)
                             # Don't need to worry about case here because we
-                            # are fetching its one-true spelling
-                            vals.remove(self.get_item_name(field, old_id))
-                            # This can put the name back with a different case
-                            vals.update(new_names)
-                            newvals[book] = vals
+                            # are fetching its one-true spelling. But lets be
+                            # careful anyway
+                            try:
+                                dex = vals.index(self.get_item_name(field, old_id))
+                                # This can put the name back with a different case
+                                vals[dex] = new_names[0]
+                                # now add any other items if they aren't already there
+                                set_vals = frozenset(vals)
+                                if len(new_names) > 1:
+                                    for v in new_names[1:]:
+                                        if v not in set_vals:
+                                            vals.append(v)
+                                newvals[book] = vals
+                            except:
+                                traceback.print_exc()
                         else:
                             newvals[book] = new_names[0]
                     # Allow case changes
                     self._set_field(field, newvals)
                     id_map[old_id] = self.get_item_id(field, new_names[0])
+            if default_process_map:
+                ab, idm = self.rename_items(field, default_process_map,
+                            change_index=change_index, restrict_to_book_ids=None)
+                affected_books.update(ab)
+                id_map.update(idm)
             return affected_books, id_map
 
         try:
