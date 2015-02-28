@@ -245,7 +245,7 @@ class TagBrowserMixin(object):  # {{{
         if restrict_to_book_ids:
             msg = _('%s will be deleted from books in the virtual library. Are you sure?')%orig_name
         else:
-            msg = _('%s will be deleted from all books. Are you sure?')%orig_name,
+            msg = _('%s will be deleted from all books. Are you sure?')%orig_name
         if not question_dialog(self.tags_view,
                     title=_('Delete item'),
                     msg='<p>'+ msg,

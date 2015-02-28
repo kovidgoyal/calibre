@@ -84,7 +84,7 @@ class TagsView(QTreeView):  # {{{
     search_item_renamed     = pyqtSignal()
     drag_drop_finished      = pyqtSignal(object)
     restriction_error       = pyqtSignal()
-    tag_item_delete         = pyqtSignal(object, object, object)
+    tag_item_delete         = pyqtSignal(object, object, object, object)
 
     def __init__(self, parent=None):
         QTreeView.__init__(self, parent=None)
@@ -339,8 +339,12 @@ class TagsView(QTreeView):  # {{{
                 item.use_vl = True
                 self.edit(index)
                 return
-            if action == 'delete_item':
-                self.tag_item_delete.emit(key, index.id, index.original_name)
+            if action == 'delete_item_in_vl':
+                self.tag_item_delete.emit(key, index.id, index.original_name,
+                                          self.model().get_book_ids_to_use())
+                return
+            if action == 'delete_item_no_vl':
+                self.tag_item_delete.emit(key, index.id, index.original_name, None)
                 return
             if action == 'open_editor':
                 self.tags_list_edit.emit(category, key)
