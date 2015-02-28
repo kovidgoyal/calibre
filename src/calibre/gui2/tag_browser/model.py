@@ -855,6 +855,9 @@ class TagsModel(QAbstractItemModel):  # {{{
         self.drag_drop_finished.emit(ids)
     # }}}
 
+    def get_in_vl(self):
+        return self.db.data.get_base_restriction() or self.db.data.get_search_restriction()
+
     def get_book_ids_to_use(self):
         if self.db.data.get_base_restriction() or self.db.data.get_search_restriction():
             return self.db.search('', return_matches=True, sort_results=False)
@@ -1043,7 +1046,7 @@ class TagsModel(QAbstractItemModel):  # {{{
             item.tag.name = val
             self.search_item_renamed.emit()  # Does a refresh
         else:
-            restrict_to_book_ids=self.get_book_ids_to_use()
+            restrict_to_book_ids=self.get_book_ids_to_use() if item.use_vl else None
             self.db.new_api.rename_items(key, {item.tag.id: val},
                                          restrict_to_book_ids=restrict_to_book_ids)
             self.tag_item_renamed.emit()

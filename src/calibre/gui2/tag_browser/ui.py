@@ -223,31 +223,32 @@ class TagBrowserMixin(object):  # {{{
             if (category in ['tags', 'series', 'publisher'] or
                     db.new_api.field_metadata.is_custom_field(category)):
                 m = self.tags_view.model()
-                restrict_to_book_ids = m.get_book_ids_to_use()
-                if not restrict_to_book_ids:
-                    for item in to_delete:
-                        m.delete_item_from_all_user_categories(orig_name[item], category)
-                for old_id in to_rename and not restrict_to_book_ids:
+                for item in to_delete:
+                    m.delete_item_from_all_user_categories(orig_name[item], category)
+                for old_id in to_rename:
                     m.rename_item_in_all_user_categories(orig_name[old_id],
                                             category, unicode(to_rename[old_id]))
 
                 db.new_api.remove_items(category, to_delete,
-                                        restrict_to_book_ids=restrict_to_book_ids)
+                                        restrict_to_book_ids=None)
                 db.new_api.rename_items(category, to_rename, change_index=False,
-                                        restrict_to_book_ids=restrict_to_book_ids)
+                                        restrict_to_book_ids=None)
 
                 # Clean up the library view
                 self.do_tag_item_renamed()
                 self.tags_view.recount()
 
-    def do_tag_item_delete(self, category, item_id, orig_name):
+    def do_tag_item_delete(self, category, item_id, orig_name, restrict_to_book_ids=None):
         '''
         Delete an item from some category.
         '''
+        if restrict_to_book_ids:
+            msg = _('%s will be deleted from books in the virtual library. Are you sure?')%orig_name
+        else:
+            msg = _('%s will be deleted from all books. Are you sure?')%orig_name,
         if not question_dialog(self.tags_view,
                     title=_('Delete item'),
-                    msg='<p>'+
-                    _('%s will be deleted from all books. Are you sure?') %orig_name,
+                    msg='<p>'+ msg,
                     skip_dialog_name='tag_item_delete',
                     skip_dialog_msg=_('Show this confirmation again')):
             return
@@ -264,7 +265,6 @@ class TagBrowserMixin(object):  # {{{
             delete_func = partial(db.delete_custom_item_using_id, label=cc_label)
         m = self.tags_view.model()
         if delete_func:
-            restrict_to_book_ids=m.get_book_ids_to_use()
             delete_func(item_id, restrict_to_book_ids=restrict_to_book_ids)
             if not restrict_to_book_ids:
                 m.delete_item_from_all_user_categories(orig_name, category)
