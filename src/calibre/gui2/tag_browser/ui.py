@@ -201,8 +201,12 @@ class TagBrowserMixin(object):  # {{{
         dialog will position the editor on that item.
         '''
 
-        tags_model = self.tags_view.model()
-        result = tags_model.get_category_editor_data(category)
+        db=self.library_view.model().db
+        data = db.new_api.get_categories()
+        if category in data:
+            result = [(t.id, t.original_name, t.count) for t in data[category] if t.count > 0]
+        else:
+            result = None
         if result is None:
             return
 
@@ -211,7 +215,6 @@ class TagBrowserMixin(object):  # {{{
         else:
             key = sort_key
 
-        db=self.library_view.model().db
         d = TagListEditor(self, cat_name=db.field_metadata[category]['name'],
                           tag_to_match=tag, data=result, sorter=key)
         d.exec_()
