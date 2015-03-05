@@ -295,7 +295,7 @@ class ImageView(QWidget, ImageDropMixin):  # {{{
     def __init__(self, parent=None, show_size_pref_name=None, default_show_size=False):
         QWidget.__init__(self, parent)
         self.show_size_pref_name = ('show_size_on_cover_' + show_size_pref_name) if show_size_pref_name else None
-        self._pixmap = QPixmap(self)
+        self._pixmap = QPixmap()
         self.setMinimumSize(QSize(150, 200))
         ImageDropMixin.__init__(self)
         self.draw_border = True
