@@ -162,6 +162,10 @@ RegGetValue = cwrap(
     'RegGetValueW', LONG, a('key', HKEY), a('sub_key', LPCWSTR, None), a('value_name', LPCWSTR, None), a('flags', DWORD, RRF_RT_ANY),
     a('data_type', LPDWORD, 0), a('data', ctypes.c_void_p, 0), a('size', LPDWORD, 0), errcheck=get_value_errcheck
 )
+RegLoadMUIString = cwrap(
+    'RegLoadMUIStringW', LONG, a('key', HKEY), a('value_name', LPCWSTR, None), a('data', LPWSTR, None), a('buf_size', DWORD, 0),
+    a('size', LPDWORD, 0), a('flags', DWORD, 0), a('directory', LPCWSTR, None), errcheck=get_value_errcheck
+)
 
 
 def filetime_to_datettime(ft):
@@ -199,6 +203,25 @@ class Key(object):
             except KeyError:
                 return default
         return convert_registry_data(data_buf, len_data_buf.value, data_type.value)
+
+    def get_mui_string(self, value_name=None, default=None, directory=None, fallback=True):
+        data_buf = ctypes.create_unicode_buffer(1024)
+        len_data_buf = DWORD(len(data_buf))
+        size = DWORD(0)
+        while True:
+            len_data_buf.value = len(data_buf)
+            try:
+                RegLoadMUIString(self.hkey, value_name, data_buf, 2 * len(data_buf), ctypes.byref(size), 0, directory)
+                break
+            except ValueError:
+                data_buf = ctypes.create_unicode_buffer(max(2 * len(data_buf), size // 2))
+            except KeyError:
+                return default
+            except WindowsError as err:
+                if fallback and err.errno == winerror.ERROR_BAD_COMMAND:
+                    return self.get(value_name=value_name, default=default)
+                raise
+        return data_buf.value
 
     def iterkeynames(self, get_last_write_times=False):
         ' Iterate over the names of all keys in this key '
