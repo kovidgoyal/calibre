@@ -218,6 +218,7 @@ class ItemEdit(QWidget):
 
     def current_changed(self, item):
         name = self.current_name = unicode(item.data(Qt.DisplayRole) or '')
+        self.current_frag = None
         path = self.container.name_to_abspath(name)
         # Ensure encoding map is populated
         root = self.container.parsed(name)
@@ -305,5 +306,3 @@ class ItemEdit(QWidget):
     def result(self):
         return (self.current_item, self.current_where, self.current_name,
                 self.current_frag, unicode(self.name.text()))
-
-
