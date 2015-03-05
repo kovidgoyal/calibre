@@ -224,10 +224,10 @@ def split_commandline(commandline):
     LocalFree(result_pointer)
     return result
 
-def friendly_app_name(progid=None, exe=None):
+def friendly_app_name(prog_id=None, exe=None):
     from win32com.shell import shell, shellcon
     a = shell.AssocCreate()
-    a.Init((shellcon.ASSOCF_INIT_BYEXENAME if exe else 0), exe or progid)
+    a.Init((shellcon.ASSOCF_INIT_BYEXENAME if exe else 0), exe or prog_id)
     return a.GetString(shellcon.ASSOCF_REMAPRUNDLL, shellcon.ASSOCSTR_FRIENDLYAPPNAME)
 
 def find_programs(extensions):
@@ -237,7 +237,6 @@ def find_programs(extensions):
 
     # Search for programs registered using Default Programs that claim they are
     # capable of handling the specified extensions.
-
     for base in (HKEY_CURRENT_USER, HKEY_LOCAL_MACHINE):
         try:
             k = Key(open_at=r'Software\RegisteredApplications', root=base)
