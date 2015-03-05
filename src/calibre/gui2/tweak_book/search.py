@@ -1060,7 +1060,10 @@ class SavedSearches(QWidget):
         self.description.setText(' \n \n ')
         i = self.searches.currentIndex()
         if i.isValid():
-            search_index, search = i.data(Qt.UserRole)
+            try:
+                search_index, search = i.data(Qt.UserRole)
+            except TypeError:
+                return  # no saved searches
             cs = '✓' if search.get('case_sensitive', SearchWidget.DEFAULT_STATE['case_sensitive']) else '✗'
             da = '✓' if search.get('dot_all', SearchWidget.DEFAULT_STATE['dot_all']) else '✗'
             if search.get('mode', SearchWidget.DEFAULT_STATE['mode']) in ('regex', 'function'):
