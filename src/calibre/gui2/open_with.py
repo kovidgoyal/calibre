@@ -101,7 +101,9 @@ if iswindows:
         return entry
 
     def entry_to_item(entry, parent):
-        icon = load_icon_resource(entry.get('icon_resource')) or QIcon(I('blank.png'))
+        icon = load_icon_resource(entry.get('icon_resource'))
+        if not icon:
+            icon = entry_to_icon_text(entry)[0]
         ans = QListWidgetItem(icon, entry.get('name') or _('Unknown'), parent)
         ans.setData(ENTRY_ROLE, entry)
         ans.setToolTip(_('Command line:') + '\n' + entry['cmdline'])
