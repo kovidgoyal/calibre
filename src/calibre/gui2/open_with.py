@@ -6,9 +6,10 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import os, uuid
+import os, uuid, re
 from threading import Thread
 from functools import partial
+from future_builtins import map
 
 from PyQt5.Qt import (
     QApplication, QStackedLayout, QVBoxLayout, QWidget, QLabel, Qt,
@@ -17,13 +18,13 @@ from PyQt5.Qt import (
 
 from calibre import as_unicode
 from calibre.constants import iswindows, isosx
-from calibre.gui2 import error_dialog, choose_files, choose_images
+from calibre.gui2 import error_dialog, choose_files, choose_images, elided_text
 from calibre.gui2.widgets2 import Dialog
 from calibre.gui2.progress_indicator import ProgressIndicator
 from calibre.utils.config import JSONConfig
+from calibre.utils.icu import numeric_sort_key as sort_key
 
-DESC_ROLE = Qt.UserRole
-ENTRY_ROLE = DESC_ROLE + 1
+ENTRY_ROLE = Qt.UserRole
 
 def pixmap_to_data(pixmap):
     ba = QByteArray()
@@ -47,11 +48,98 @@ def run_program(entry, path, parent):
     t.daemon = True
     t.start()
 
+def entry_to_icon_text(entry, only_text=False):
+    if only_text:
+        return entry.get('name', entry.get('Name')) or _('Unknown')
+    data = entry.get('icon_data')
+    if data is None:
+        icon = QIcon(I('blank.png'))
+    else:
+        pmap = QPixmap()
+        pmap.loadFromData(bytes(data))
+        icon = QIcon(pmap)
+    return icon, entry.get('name', entry.get('Name')) or _('Unknown')
+
 if iswindows:
+    # Windows {{{
+    from calibre.utils.winreg.default_programs import find_programs, friendly_app_name
+    from calibre.gui2 import must_use_qt
+    from win32gui import ExtractIconEx, DestroyIcon
+    from win32process import CreateProcess, STARTUPINFO
+    from win32event import WaitForInputIdle
+    import win32con
+    from PyQt5.Qt import QtWin
     oprefs = JSONConfig('windows_open_with')
-    run_program
+
+    def entry_sort_key(entry):
+        return sort_key(entry.get('name') or '')
+
+    def load_icon_resource(icon_resource, as_data=False):
+        if not icon_resource:
+            return
+        parts = tuple(filter(None, re.split(r',([-0-9]+$)', icon_resource)))
+        if len(parts) != 2:
+            return
+        module, index = parts
+        large_icons, small_icons = ExtractIconEx(module, int(index), 1)
+        icons = large_icons + small_icons
+        try:
+            if icons:
+                must_use_qt()
+                pixmap = QtWin.fromHICON(icons[0])
+                pixmap = pixmap.scaled(48, 48, transformMode=Qt.SmoothTransformation)
+                if as_data:
+                    return pixmap_to_data(pixmap)
+                return QIcon(pixmap)
+        finally:
+            tuple(map(DestroyIcon, icons))
+
+    def finalize_entry(entry):
+        data = load_icon_resource(entry.pop('icon_resource', None), as_data=True)
+        if data:
+            entry['icon_data'] = data
+        return entry
+
+    def entry_to_item(entry, parent):
+        icon = load_icon_resource(entry.get('icon_resource')) or QIcon(I('blank.png'))
+        ans = QListWidgetItem(icon, entry.get('name') or _('Unknown'), parent)
+        ans.setData(ENTRY_ROLE, entry)
+        ans.setToolTip(_('Command line:') + '\n' + entry['cmdline'])
+
+    def choose_manually(filetype, parent):
+        ans = choose_files(
+            parent, 'choose-open-with-program-manually-win',
+            _('Choose a program to open %s files') % filetype.upper(),
+            filters=[(_('Executable files'), ['exe', 'bat', 'com'])], select_only_single_file=True)
+        if ans:
+            ans = os.path.abspath(ans[0])
+            if not os.access(ans, os.X_OK):
+                return error_dialog(parent, _('Cannot execute'), _(
+                    'The program %s is not an executable file') % ans, show=True)
+            qans = ans.replace('"', r'\"')
+            name = friendly_app_name(exe=ans) or os.path.splitext(os.path.basename(ans))[0]
+            return {'cmdline':'"%s" "%%1"' % qans, 'name':name, 'icon_resource':ans + ',0'}
+
+    def entry_to_cmdline(entry, path):
+        cmdline = entry['cmdline']
+        qpath = path.replace('"', r'\"')
+        return cmdline.replace('%1', qpath)
+
+    del run_program
     def run_program(entry, path, parent):
-        raise NotImplementedError()
+        cmdline = entry_to_cmdline(entry, path)
+        print('Running Open With commandline:', repr(entry['cmdline']), ' |==> ', repr(cmdline))
+        try:
+            process_handle, thread_handle, process_id, thread_id = CreateProcess(
+                None, cmdline, None, None, False, win32con.CREATE_DEFAULT_ERROR_MODE | win32con.CREATE_NEW_PROCESS_GROUP | win32con.DETACHED_PROCESS,
+                None, None, STARTUPINFO())
+            WaitForInputIdle(process_handle, 2000)
+        except Exception as err:
+            return error_dialog(
+                parent, _('Failed to run'), _(
+                'Failed to run program, click "Show Details" for more information'),
+                det_msg='Command line: %r\n%s' %(cmdline, as_unicode(err)))
+    # }}}
 
 elif isosx:
     oprefs = JSONConfig('osx_open_with')
@@ -60,22 +148,9 @@ else:
     oprefs = JSONConfig('xdg_open_with')
     from calibre.utils.open_with.linux import entry_to_cmdline, find_programs, entry_sort_key
 
-    def entry_to_icon_text(entry, only_text=False):
-        if only_text:
-            return entry['Name']
-        data = entry.get('icon_data')
-        if data is None:
-            icon = QIcon(I('blank.png'))
-        else:
-            pmap = QPixmap()
-            pmap.loadFromData(bytes(data))
-            icon = QIcon(pmap)
-        return icon, entry['Name']
-
     def entry_to_item(entry, parent):
         icon_path = entry.get('Icon') or I('blank.png')
         ans = QListWidgetItem(QIcon(icon_path), entry.get('Name') or _('Unknown'), parent)
-        ans.setData(DESC_ROLE, entry.get('Comment') or '')
         ans.setData(ENTRY_ROLE, entry)
         comment = (entry.get('Comment') or '')
         if comment:
@@ -203,6 +278,7 @@ def populate_menu(menu, receiver, file_type):
     file_type = file_type.lower()
     for entry in oprefs['entries'].get(file_type, ()):
         icon, text = entry_to_icon_text(entry)
+        text = elided_text(text, pos='right')
         sa = registered_shortcuts.get(entry['uuid'])
         if sa is not None:
             text += '\t' + sa.shortcut().toString(QKeySequence.NativeText)

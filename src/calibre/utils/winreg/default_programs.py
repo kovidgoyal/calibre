@@ -225,10 +225,14 @@ def split_commandline(commandline):
     return result
 
 def friendly_app_name(prog_id=None, exe=None):
-    from win32com.shell import shell, shellcon
-    a = shell.AssocCreate()
-    a.Init((shellcon.ASSOCF_INIT_BYEXENAME if exe else 0), exe or prog_id)
-    return a.GetString(shellcon.ASSOCF_REMAPRUNDLL, shellcon.ASSOCSTR_FRIENDLYAPPNAME)
+    try:
+        from win32com.shell import shell, shellcon
+        a = shell.AssocCreate()
+        a.Init((shellcon.ASSOCF_INIT_BYEXENAME if exe else 0), exe or prog_id)
+        return a.GetString(shellcon.ASSOCF_REMAPRUNDLL, shellcon.ASSOCSTR_FRIENDLYAPPNAME)
+    except Exception:
+        import traceback
+        traceback.print_exc()
 
 def find_programs(extensions):
     extensions = frozenset(extensions)
