@@ -541,15 +541,11 @@ class SearchesModel(QAbstractListModel):
         self.endResetModel()
 
     def remove_searches(self, rows):
-        rows = sorted(set(rows), reverse=True)
-        indices = [self.filtered_searches[row] for row in rows]
-        for row in rows:
-            self.beginRemoveRows(QModelIndex(), row, row)
-            del self.filtered_searches[row]
-            self.endRemoveRows()
+        indices = {self.filtered_searches[row] for row in frozenset(rows)}
         for idx in sorted(indices, reverse=True):
             del self.searches[idx]
         tprefs['saved_searches'] = self.searches
+        self.do_filter('')
 
 class EditSearch(QFrame):  # {{{
 
