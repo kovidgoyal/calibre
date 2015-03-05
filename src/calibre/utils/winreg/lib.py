@@ -263,7 +263,7 @@ class Key(object):
         return bool(self.hkey)
 
     def close(self):
-        if not self.hkey:
+        if not getattr(self, 'hkey', None):
             return
         if RegCloseKey is None or HKEY is None:
             return  # globals become None during exit
