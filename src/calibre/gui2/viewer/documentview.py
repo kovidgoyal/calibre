@@ -11,7 +11,7 @@ from functools import partial
 from PyQt5.Qt import (
     QSize, QSizePolicy, QUrl, Qt, pyqtProperty, QPainter, QPalette, QBrush,
     QDialog, QColor, QPoint, QImage, QRegion, QIcon, QAction, QMenu,
-    pyqtSignal, QApplication, pyqtSlot, QKeySequence, QMimeData)
+    pyqtSignal, QApplication, pyqtSlot, QKeySequence)
 from PyQt5.QtWebKitWidgets import QWebPage, QWebView
 from PyQt5.QtWebKit import QWebSettings, QWebElement
 
@@ -677,10 +677,8 @@ class DocumentView(QWebView):  # {{{
     def copy(self):
         self.document.triggerAction(self.document.Copy)
         c = QApplication.clipboard()
-        html = c.text('html')[0].replace(u'\u00ad', u'').strip()
-        md = QMimeData()
+        md = c.mimeData()
         md.setText(self.selected_text)
-        md.setHtml(html)
         QApplication.clipboard().setMimeData(md)
 
     def selection_changed(self):
