@@ -6,12 +6,17 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import os, sys, time
+import os, sys, time, ctypes
+from ctypes.wintypes import HLOCAL, LPCWSTR
 from threading import Thread
+
+import winerror
 
 from calibre import guess_type, prints
 from calibre.constants import is64bit, isportable, isfrozen, __version__, DEBUG
-from calibre.utils.winreg.lib import Key
+from calibre.utils.winreg.lib import Key, HKEY_CURRENT_USER, HKEY_LOCAL_MACHINE
+
+# See https://msdn.microsoft.com/en-us/library/windows/desktop/cc144154(v=vs.85).aspx
 
 def default_programs():
     return {
@@ -173,3 +178,113 @@ class Register(Thread):
         # Give the thread some time to finish in case the user quit the
         # application very quickly
         self.join(4.0)
+
+def get_prog_id_map(base, key_path):
+    desc, ans = None, {}
+    try:
+        k = Key(open_at=key_path, root=base)
+    except WindowsError as err:
+        if err.errno == winerror.ERROR_FILE_NOT_FOUND:
+            return desc, ans
+        raise
+    with k:
+        desc = k.get_mui_string('ApplicationDescription')
+        if desc is None:
+            return desc, ans
+        for ext, prog_id in k.itervalues(sub_key='FileAssociations', get_data=True):
+            ans[ext[1:].lower()] = prog_id
+    return desc, ans
+
+def get_open_data(base, prog_id):
+    try:
+        k = Key(open_at=r'Software\Classes\%s' % prog_id, root=base)
+    except WindowsError as err:
+        if err.errno == winerror.ERROR_FILE_NOT_FOUND:
+            return None, None
+    with k:
+        return k.get(sub_key=r'shell\open\command'), k.get(sub_key='DefaultIcon'), k.get_mui_string('FriendlyTypeName') or k.get()
+
+CommandLineToArgvW = ctypes.windll.shell32.CommandLineToArgvW
+CommandLineToArgvW.arg_types = [LPCWSTR, ctypes.POINTER(ctypes.c_int)]
+CommandLineToArgvW.restype = ctypes.POINTER(LPCWSTR)
+LocalFree = ctypes.windll.kernel32.LocalFree
+LocalFree.res_type = HLOCAL
+LocalFree.arg_types = [HLOCAL]
+
+def split_commandline(commandline):
+    # CommandLineToArgvW returns path to executable if called with empty string.
+    if not commandline.strip():
+        return []
+    num = ctypes.c_int(0)
+    result_pointer = CommandLineToArgvW(commandline.lstrip(), ctypes.byref(num))
+    if not result_pointer:
+        raise ctypes.WinError()
+    result_array_type = LPCWSTR * num.value
+    result = [arg for arg in result_array_type.from_address(ctypes.addressof(result_pointer.contents))]
+    LocalFree(result_pointer)
+    return result
+
+def friendly_app_name(progid=None, exe=None):
+    from win32com.shell import shell, shellcon
+    a = shell.AssocCreate()
+    a.Init((shellcon.ASSOCF_INIT_BYEXENAME if exe else 0), exe or progid)
+    return a.GetString(shellcon.ASSOCF_REMAPRUNDLL, shellcon.ASSOCSTR_FRIENDLYAPPNAME)
+
+def find_programs(extensions):
+    extensions = frozenset(extensions)
+    ans = []
+    seen_prog_ids, seen_cmdlines = set(), set()
+
+    # Search for programs registered using Default Programs that claim they are
+    # capable of handling the specified extensions.
+
+    for base in (HKEY_CURRENT_USER, HKEY_LOCAL_MACHINE):
+        try:
+            k = Key(open_at=r'Software\RegisteredApplications', root=base)
+        except WindowsError as err:
+            if err.errno == winerror.ERROR_FILE_NOT_FOUND:
+                continue
+            raise
+        with k:
+            for name, key_path in k.itervalues(get_data=True):
+                try:
+                    app_desc, prog_id_map = get_prog_id_map(base, key_path)
+                except Exception:
+                    import traceback
+                    traceback.print_exc()
+                    continue
+                for ext in extensions:
+                    prog_id = prog_id_map.get(ext)
+                    if prog_id is not None and prog_id not in seen_prog_ids:
+                        seen_prog_ids.add(prog_id)
+                        cmdline, icon_resource, friendly_name = get_open_data(base, prog_id)
+                        if cmdline and cmdline not in seen_cmdlines:
+                            seen_cmdlines.add(cmdline)
+                            ans.append({'name':app_desc, 'cmdline':cmdline, 'icon_resource':icon_resource})
+
+    # Now look for programs that only register with Windows Explorer instead of
+    # Default Programs (for example, FoxIt PDF reader)
+    for ext in extensions:
+        try:
+            k = Key(open_at=r'Software\Microsoft\Windows\CurrentVersion\Explorer\FileExts\.%s\OpenWithProgIDs' % ext, root=HKEY_CURRENT_USER)
+        except WindowsError as err:
+            if err.errno == winerror.ERROR_FILE_NOT_FOUND:
+                continue
+        for prog_id in k.itervalues():
+            if prog_id and prog_id not in seen_prog_ids:
+                seen_prog_ids.add(prog_id)
+                cmdline, icon_resource, friendly_name = get_open_data(base, prog_id)
+                if cmdline and cmdline not in seen_cmdlines:
+                    seen_cmdlines.add(cmdline)
+                    exe_name = None
+                    exe = split_commandline(cmdline)
+                    if exe:
+                        exe_name = friendly_app_name(prog_id) or os.path.splitext(os.path.basename(exe[0]))[0]
+                    name = exe_name or friendly_name
+                    if name:
+                        ans.append({'name':name, 'cmdline':cmdline, 'icon_resource':icon_resource})
+    return ans
+
+if __name__ == '__main__':
+    from pprint import pprint
+    pprint(find_programs('jpeg pdf'.split()))
