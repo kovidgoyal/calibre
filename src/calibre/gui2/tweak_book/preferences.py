@@ -21,6 +21,7 @@ from PyQt5.Qt import (
     QToolButton, QVBoxLayout, QSpacerItem, QTimer)
 
 from calibre import prepare_string_for_xml
+from calibre.gui2 import info_dialog
 from calibre.gui2.keyboard import ShortcutConfig
 from calibre.gui2.tweak_book import tprefs, toolbar_actions, editor_toolbar_actions, actions
 from calibre.gui2.tweak_book.editor.themes import default_theme, all_theme_names, ThemeEditor
@@ -641,6 +642,10 @@ class Preferences(QDialog):
         self.rcdb = b = bb.addButton(_('Restore current defaults'), bb.ResetRole)
         b.setToolTip(_('Restore defaults for currently displayed preferences'))
         b.clicked.connect(self.restore_current_defaults)
+        self.rconfs = b = bb.addButton(_('Restore confirmations'), bb.ResetRole)
+        b.setToolTip(_('Restore all disabled confirmation prompts'))
+        b.clicked.connect(self.restore_confirmations)
+
         l.addWidget(bb, 1, 0, 1, 2)
 
         self.resize(800, 600)
@@ -697,6 +702,15 @@ class Preferences(QDialog):
 
     def restore_current_defaults(self):
         self.stacks.currentWidget().restore_defaults()
+
+    def restore_confirmations(self):
+        changed = 0
+        for key in tuple(tprefs):
+            if key.endswith('_again') and tprefs.get(key) is False:
+                del tprefs[key]
+                changed += 1
+        info_dialog(self, _('Disabled confirmations restored'), _(
+            '%d disabled confirmation prompts were restored') % changed, show=True)
 
     def accept(self):
         tprefs.set('preferences_geom', bytearray(self.saveGeometry()))
