@@ -20,6 +20,7 @@ import regex
 
 from calibre import prepare_string_for_xml
 from calibre.gui2 import error_dialog, info_dialog, choose_files, choose_save_file
+from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.gui2.dialogs.message_box import MessageBox
 from calibre.gui2.widgets2 import HistoryComboBox
 from calibre.gui2.tweak_book import tprefs, editors, current_container
@@ -1026,9 +1027,11 @@ class SavedSearches(QWidget):
     def remove_search(self):
         if self.editing_search:
             return
-        rows = {index.row() for index in self.searches.selectionModel().selectedIndexes()} - {-1}
-        self.model.remove_searches(rows)
-        self.show_details()
+        if confirm(_('Are you sure you want to permanently delete the selected saved searches?'),
+                   'confirm-remove-editor-saved-search', config_set=tprefs):
+            rows = {index.row() for index in self.searches.selectionModel().selectedIndexes()} - {-1}
+            self.model.remove_searches(rows)
+            self.show_details()
 
     def add_search(self):
         if self.editing_search:
