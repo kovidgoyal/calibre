@@ -71,7 +71,7 @@ def create_prog_id(ext, prog_id, ext_map, exe):
         key.set(value=type_name)
         key.set('FriendlyTypeName', type_name)
         key.set('PerceivedType', 'Document')
-        key.set('DefaultIcon', exe+',0')
+        key.set(sub_key='DefaultIcon', value=exe+',0')
         key.set_default_value(r'shell\open\command', '"%s" "%%1"' % exe)
         key.set('AllowSilentDefaultTakeOver')
 
