@@ -214,7 +214,7 @@ class Key(object):
                 RegLoadMUIString(self.hkey, value_name, data_buf, 2 * len(data_buf), ctypes.byref(size), 0, directory)
                 break
             except ValueError:
-                data_buf = ctypes.create_unicode_buffer(max(2 * len(data_buf), size // 2))
+                data_buf = ctypes.create_unicode_buffer(max(2 * len(data_buf), size.value // 2))
             except KeyError:
                 return default
             except WindowsError as err:
