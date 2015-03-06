@@ -494,8 +494,15 @@ class Build(Command):
             return  # Dont have headless operation on these platforms
         self.info('\n####### Building headless QPA plugin', '#'*7)
         a = Extension.absolutize
-        headers = a(['calibre/headless/headless_backingstore.h', 'calibre/headless/headless_integration.h'])
-        sources = a(['calibre/headless/main.cpp', 'calibre/headless/headless_backingstore.cpp', 'calibre/headless/headless_integration.cpp'])
+        headers = a([
+            'calibre/headless/headless_backingstore.h',
+            'calibre/headless/headless_integration.h',
+            'calibre/headless/fontconfig_database.h'])
+        sources = a([
+            'calibre/headless/main.cpp',
+            'calibre/headless/headless_backingstore.cpp',
+            'calibre/headless/headless_integration.cpp',
+            'calibre/headless/fontconfig_database.cpp'])
         others = a(['calibre/headless/headless.json'])
         target = self.dest('headless')
         if not self.newer(target, headers + sources + others):
@@ -518,12 +525,13 @@ class Build(Command):
             HEADERS = {headers}
             SOURCES = {sources}
             OTHER_FILES = {others}
+            INCLUDEPATH += {freetype}
             DESTDIR = {destdir}
             CONFIG -= create_cmake  # Prevent qmake from generating a cmake build file which it puts in the calibre src directory
             QMAKE_LIBS_PRIVATE += {glib} {fontconfig}
             ''').format(
                 headers=' '.join(headers), sources=' '.join(sources), others=' '.join(others), destdir=self.d(
-                    target), glib=glib_flags, fontconfig=fontconfig_flags)
+                    target), glib=glib_flags, fontconfig=fontconfig_flags, freetype=' '.join(ft_inc_dirs))
         bdir = self.j(self.d(self.SRC), 'build', 'headless')
         if not os.path.exists(bdir):
             os.makedirs(bdir)

@@ -1,5 +1,6 @@
 #include "headless_integration.h"
 #include "headless_backingstore.h"
+#include "fontconfig_database.h"
 #ifndef Q_OS_WIN
 #include <QtPlatformSupport/private/qgenericunixeventdispatcher_p.h>
 #else
@@ -10,7 +11,6 @@
 #include <QtGui/private/qguiapplication_p.h>
 #include <qpa/qplatformwindow.h>
 #include <qpa/qplatformfontdatabase.h>
-#include <QtPlatformSupport/private/qfontconfigdatabase_p.h>
 
 QT_BEGIN_NAMESPACE
 
@@ -19,7 +19,12 @@ class GenericUnixServices : public QGenericUnixServices {
      * Qt will try to query the nativeInterface() without checking if it exists
      * leading to a segfault.  For example, defaultHintStyleFromMatch() queries
      * the nativeInterface() without checking that it is NULL. See
-     * https://bugreports.qt-project.org/browse/QTBUG-40946 */
+     * https://bugreports.qt-project.org/browse/QTBUG-40946 
+     * This is no longer strictly neccessary since we implement our own fontconfig database 
+     * (a patched version of the Qt fontconfig database). However, it is probably a good idea to
+     * keep it unknown, since the headless QPA is used in contexts where a desktop environment 
+     * does not make sense anyway.
+     */
     QByteArray desktopEnvironment() const { return QByteArrayLiteral("UNKNOWN"); }
 };
 
@@ -59,15 +64,6 @@ QPlatformOpenGLContext *HeadlessIntegration::createPlatformOpenGLContext(QOpenGL
     // Suppress warnings about this plugin not supporting createPlatformOpenGLContext that come from the default implementation of this function
     return 0;
 }
-
-// Dummy font database that does not scan the fonts directory to be
-// used for command line tools like qmlplugindump that do not create windows
-// unless DebugBackingStore is activated.
-class DummyFontDatabase : public QPlatformFontDatabase
-{
-public:
-    virtual void populateFontDatabase() {}
-};
 
 QPlatformFontDatabase *HeadlessIntegration::fontDatabase() const
 {
