@@ -55,6 +55,7 @@ bool HeadlessIntegration::hasCapability(QPlatformIntegration::Capability cap) co
 
 QPlatformOpenGLContext *HeadlessIntegration::createPlatformOpenGLContext(QOpenGLContext *context) const
 {
+    Q_UNUSED(context);
     // Suppress warnings about this plugin not supporting createPlatformOpenGLContext that come from the default implementation of this function
     return 0;
 }
