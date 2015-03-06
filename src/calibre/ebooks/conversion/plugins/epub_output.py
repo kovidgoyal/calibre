@@ -355,7 +355,7 @@ class EPUBOutput(OutputFormatPlugin):
                 frag = urlunquote(frag)
                 if frag and frag_pat.match(frag) is None:
                     self.log.warn(
-                            'Removing invalid fragment identifier %r from TOC'%frag)
+                            'Removing fragment identifier %r from TOC as Adobe Digital Editions cannot handle it'%frag)
                     node.href = base
 
         for x in self.oeb.spine:
