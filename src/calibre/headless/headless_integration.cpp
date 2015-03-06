@@ -47,8 +47,16 @@ bool HeadlessIntegration::hasCapability(QPlatformIntegration::Capability cap) co
     switch (cap) {
     case ThreadedPixmaps: return true;
     case MultipleWindows: return true;
+    case OpenGL: return false;
+    case ThreadedOpenGL: return false;
     default: return QPlatformIntegration::hasCapability(cap);
     }
+}
+
+QPlatformOpenGLContext *HeadlessIntegration::createPlatformOpenGLContext(QOpenGLContext *context) const
+{
+    // Suppress warnings about this plugin not supporting createPlatformOpenGLContext that come from the default implementation of this function
+    return 0;
 }
 
 // Dummy font database that does not scan the fonts directory to be

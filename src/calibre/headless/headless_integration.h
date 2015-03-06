@@ -38,6 +38,7 @@ public:
     QPlatformWindow *createPlatformWindow(QWindow *window) const;
     QPlatformBackingStore *createPlatformBackingStore(QWindow *window) const;
     QAbstractEventDispatcher *createEventDispatcher() const;
+    QPlatformOpenGLContext *createPlatformOpenGLContext(QOpenGLContext *context) const; 
 
     unsigned options() const { return 0; }
 
