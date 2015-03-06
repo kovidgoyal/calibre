@@ -6,10 +6,9 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import os, uuid, re
+import os, uuid
 from threading import Thread
 from functools import partial
-from future_builtins import map
 
 from PyQt5.Qt import (
     QApplication, QStackedLayout, QVBoxLayout, QWidget, QLabel, Qt,
@@ -63,36 +62,14 @@ def entry_to_icon_text(entry, only_text=False):
 if iswindows:
     # Windows {{{
     from calibre.utils.winreg.default_programs import find_programs, friendly_app_name
-    from calibre.gui2 import must_use_qt
-    from win32gui import ExtractIconEx, DestroyIcon
+    from calibre.utils.open_with.windows import load_icon_resource
     from win32process import CreateProcess, STARTUPINFO
     from win32event import WaitForInputIdle
     import win32con
-    from PyQt5.Qt import QtWin
     oprefs = JSONConfig('windows_open_with')
 
     def entry_sort_key(entry):
         return sort_key(entry.get('name') or '')
-
-    def load_icon_resource(icon_resource, as_data=False):
-        if not icon_resource:
-            return
-        parts = tuple(filter(None, re.split(r',([-0-9]+$)', icon_resource)))
-        if len(parts) != 2:
-            return
-        module, index = parts
-        large_icons, small_icons = ExtractIconEx(module, int(index), 1)
-        icons = large_icons + small_icons
-        try:
-            if icons:
-                must_use_qt()
-                pixmap = QtWin.fromHICON(icons[0])
-                pixmap = pixmap.scaled(48, 48, transformMode=Qt.SmoothTransformation)
-                if as_data:
-                    return pixmap_to_data(pixmap)
-                return QIcon(pixmap)
-        finally:
-            tuple(map(DestroyIcon, icons))
 
     def finalize_entry(entry):
         data = load_icon_resource(entry.pop('icon_resource', None), as_data=True)
@@ -104,7 +81,7 @@ if iswindows:
         icon = load_icon_resource(entry.get('icon_resource'))
         if not icon:
             icon = entry_to_icon_text(entry)[0]
-        ans = QListWidgetItem(icon, entry.get('name') or _('Unknown'), parent)
+        ans = QListWidgetItem(QIcon(icon), entry.get('name') or _('Unknown'), parent)
         ans.setData(ENTRY_ROLE, entry)
         ans.setToolTip(_('Command line:') + '\n' + entry['cmdline'])
 
