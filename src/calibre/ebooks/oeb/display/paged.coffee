@@ -112,6 +112,7 @@ class PagedDisplay
                 if node.nodeType == node.ELEMENT_NODE and window.getComputedStyle(node).direction == "rtl"
                     node.style.setProperty("direction", "rtl")
             document.body.style.direction = "ltr"
+        document.documentElement.style.direction = 'ltr'
 
     layout: (is_single_page=false) ->
         # start_time = new Date().getTime()
