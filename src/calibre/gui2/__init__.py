@@ -1180,7 +1180,7 @@ def must_use_qt():
     RuntimeError if using Qt is not possible, which will happen if the current
     thread is not the main GUI thread. On linux, it uses a special QPA headless
     plugin, so that the X server does not need to be running. '''
-    global gui_thread, _store_app
+    global gui_thread
     ensure_app()
     if gui_thread is None:
         gui_thread = QThread.currentThread()
