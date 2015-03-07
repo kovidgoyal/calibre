@@ -17,7 +17,7 @@ from PyQt5.Qt import (
 
 from calibre import as_unicode
 from calibre.constants import iswindows, isosx
-from calibre.gui2 import error_dialog, choose_files, choose_images, elided_text
+from calibre.gui2 import error_dialog, choose_files, choose_images, elided_text, sanitize_env_vars
 from calibre.gui2.widgets2 import Dialog
 from calibre.gui2.progress_indicator import ProgressIndicator
 from calibre.utils.config import JSONConfig
@@ -37,7 +37,8 @@ def run_program(entry, path, parent):
     cmdline = entry_to_cmdline(entry, path)
     print('Running Open With commandline:', repr(cmdline))
     try:
-        process = subprocess.Popen(cmdline)
+        with sanitize_env_vars():
+            process = subprocess.Popen(cmdline)
     except Exception as err:
         return error_dialog(
             parent, _('Failed to run'), _(
@@ -109,9 +110,10 @@ if iswindows:
         cmdline = entry_to_cmdline(entry, path)
         print('Running Open With commandline:', repr(entry['cmdline']), ' |==> ', repr(cmdline))
         try:
-            process_handle, thread_handle, process_id, thread_id = CreateProcess(
-                None, cmdline, None, None, False, win32con.CREATE_DEFAULT_ERROR_MODE | win32con.CREATE_NEW_PROCESS_GROUP | win32con.DETACHED_PROCESS,
-                None, None, STARTUPINFO())
+            with sanitize_env_vars():
+                process_handle, thread_handle, process_id, thread_id = CreateProcess(
+                    None, cmdline, None, None, False, win32con.CREATE_DEFAULT_ERROR_MODE | win32con.CREATE_NEW_PROCESS_GROUP | win32con.DETACHED_PROCESS,
+                    None, None, STARTUPINFO())
             WaitForInputIdle(process_handle, 2000)
         except Exception as err:
             return error_dialog(
