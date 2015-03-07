@@ -21,16 +21,17 @@ def generate_public_uti_map():
     raw = urllib.urlopen(
         'https://developer.apple.com/library/ios/documentation/Miscellaneous/Reference/UTIRef/Articles/System-DeclaredUniformTypeIdentifiers.html').read()
     root = html5lib.parse(raw, treebuilder='lxml', namespaceHTMLElements=False)
-    table = root.xpath('//table')[0]
+    tables = root.xpath('//table')[0::2]
     data = {}
-    for tr in table.xpath('descendant::tr')[1:]:
-        td = tr.xpath('descendant::td')
-        identifier = etree.tostring(td[0], method='text', encoding=unicode).strip()
-        tags = etree.tostring(td[2], method='text', encoding=unicode).strip()
-        identifier = identifier.split()[0].replace('\u200b', '')
-        exts = [x.strip()[1:].lower() for x in tags.split(',') if x.strip().startswith('.')]
-        for ext in exts:
-            data[ext] = identifier
+    for table in tables:
+        for tr in table.xpath('descendant::tr')[1:]:
+            td = tr.xpath('descendant::td')
+            identifier = etree.tostring(td[0], method='text', encoding=unicode).strip()
+            tags = etree.tostring(td[2], method='text', encoding=unicode).strip()
+            identifier = identifier.split()[0].replace('\u200b', '')
+            exts = [x.strip()[1:].lower() for x in tags.split(',') if x.strip().startswith('.')]
+            for ext in exts:
+                data[ext] = identifier
     lines = ['PUBLIC_UTI_MAP = {']
     for ext in sorted(data):
         r = ("'" + ext + "':").ljust(16)
@@ -47,14 +48,18 @@ PUBLIC_UTI_MAP = {
     '3gp':          'public.3gpp',
     '3gp2':         'public.3gpp2',
     '3gpp':         'public.3gpp',
+    'ai':           'com.adobe.illustrator.ai-image',
     'aif':          'public.aiff-audio',
     'aifc':         'public.aifc-audio',
     'aiff':         'public.aiff-audio',
     'app':          'com.apple.application-bundle',
     'applescript':  'com.apple.applescript.text',
+    'asf':          'com.microsoft.advanced-systems-format',
+    'asx':          'com.microsoft.advanced-stream-redirector',
     'au':           'public.ulaw-audio',
     'avi':          'public.avi',
     'bin':          'com.apple.macbinary-archive',
+    'bmp':          'com.microsoft.bmp',
     'bundle':       'com.apple.bundle',
     'c':            'public.c-source',
     'c++':          'public.c-plus-plus-source',
@@ -70,9 +75,15 @@ PUBLIC_UTI_MAP = {
     'defs':         'public.mig-source',
     'dfont':        'com.apple.truetype-datafork-suitcase-font',
     'dll':          'com.microsoft.windows-dynamic-link-library',
+    'doc':          'com.microsoft.word.doc',
+    'efx':          'com.js.efx-fax',
+    'eps':          'com.adobe.encapsulated-postscript',
     'exe':          'com.microsoft.windows-executable',
     'exp':          'com.apple.symbol-export',
+    'exr':          'com.ilm.openexr-image',
+    'fpx':          'com.kodak.flashpix.image',
     'framework':    'com.apple.framework',
+    'gif':          'com.compuserve.gif',
     'gtar':         'org.gnu.gnu-tar-archive',
     'gz':           'org.gnu.gnu-zip-archive',
     'gzip':         'org.gnu.gnu-zip-archive',
@@ -86,16 +97,20 @@ PUBLIC_UTI_MAP = {
     'icc':          'com.apple.colorsync-profile',
     'icm':          'com.apple.colorsync-profile',
     'icns':         'com.apple.icns',
+    'ico':          'com.microsoft.ico',
     'jar':          'com.sun.java-archive',
     'jav':          'com.sun.java-source',
     'java':         'com.sun.java-source',
     'javascript':   'com.netscape.javascript-source',
+    'jfx':          'com.j2.jfx-fax',
     'jnlp':         'com.sun.java-web-start',
     'jp2':          'public.jpeg-2000',
     'jpeg':         'public.jpeg',
     'jpg':          'public.jpeg',
     'js':           'com.netscape.javascript-source',
     'jscript':      'com.netscape.javascript-source',
+    'key':          'com.apple.keynote.key',
+    'kth':          'com.apple.keynote.kth',
     'm':            'public.objective-c-source',
     'm15':          'public.mpeg',
     'm4a':          'public.mpeg-4-audio',
@@ -113,6 +128,7 @@ PUBLIC_UTI_MAP = {
     'o':            'public.object-code',
     'otf':          'public.opentype-font',
     'pct':          'com.apple.pict',
+    'pdf':          'com.adobe.pdf',
     'pf':           'com.apple.colorsync-profile',
     'pfa':          'com.adobe.postscript.pfa-font',
     'pfb':          'com.adobe.postscript-pfb-font',
@@ -129,22 +145,34 @@ PUBLIC_UTI_MAP = {
     'pm':           'public.perl-script',
     'png':          'public.png',
     'pntg':         'com.apple.macpaint-image',
+    'ppt':          'com.microsoft.powerpoint.ppt',
+    'ps':           'com.adobe.postscript',
+    'psd':          'com.adobe.photoshop-image',
     'py':           'public.python-script',
     'qif':          'com.apple.quicktime-image',
     'qt':           'com.apple.quicktime-movie',
     'qtif':         'com.apple.quicktime-image',
     'qtz':          'com.apple.quartz-composer-composition',
     'r':            'com.apple.rez-source',
+    'ra':           'com.real.realaudio',
+    'ram':          'com.real.realaudio',
     'rb':           'public.ruby-script',
     'rbw':          'public.ruby-script',
+    'rm':           'com.real.realmedia',
     'rtf':          'public.rtf',
     'rtfd':         'com.apple.rtfd',
     's':            'public.assembly-source',
     'scpt':         'com.apple.applescript.script',
+    'sd2':          'com.digidesign.sd2-audio',
+    'sgi':          'com.sgi.sgi-image',
     'sh':           'public.shell-script',
+    'sit':          'com.allume.stuffit-archive',
+    'sitx':         'com.allume.stuffit-archive',
+    'smil':         'com.real.smil',
     'snd':          'public.ulaw-audio',
     'suit':         'com.apple.font-suitcase',
     'tar':          'public.tar-archive',
+    'tga':          'com.truevision.tga-image',
     'tgz':          'org.gnu.gnu-zip-tar-archive',
     'tif':          'public.tiff',
     'tiff':         'public.tiff',
@@ -155,8 +183,18 @@ PUBLIC_UTI_MAP = {
     'vcard':        'public.vcard',
     'vcf':          'public.vcard',
     'vfw':          'public.avi',
+    'wav':          'com.microsoft.waveform-audio',
+    'wave':         'com.microsoft.waveform-audio',
+    'wax':          'com.microsoft.windows-media-wax',
     'wdgt':         'com.apple.dashboard-widget',
+    'wm':           'com.microsoft.windows-media-wm',
+    'wma':          'com.microsoft.windows-media-wma',
+    'wmp':          'com.microsoft.windows-media-wmp',
+    'wmv':          'com.microsoft.windows-media-wmv',
+    'wmx':          'com.microsoft.windows-media-wmx',
+    'wvx':          'com.microsoft.windows-media-wvx',
     'xbm':          'public.xbitmap-image',
+    'xls':          'com.microsoft.excel.xls',
     'xml':          'public.xml',
     'zip':          'com.pkware.zip-archive',
 }
