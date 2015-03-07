@@ -17,7 +17,7 @@ from PyQt5.Qt import (
 
 from calibre import as_unicode
 from calibre.constants import iswindows, isosx
-from calibre.gui2 import error_dialog, choose_files, choose_images, elided_text, sanitize_env_vars, Application
+from calibre.gui2 import error_dialog, choose_files, choose_images, elided_text, sanitize_env_vars, Application, choose_osx_app
 from calibre.gui2.widgets2 import Dialog
 from calibre.gui2.progress_indicator import ProgressIndicator
 from calibre.utils.config import JSONConfig
@@ -125,7 +125,7 @@ if iswindows:
 elif isosx:
     # OS X {{{
     oprefs = JSONConfig('osx_open_with')
-    from calibre.utils.open_with.osx import find_programs, get_icon, entry_to_cmdline
+    from calibre.utils.open_with.osx import find_programs, get_icon, entry_to_cmdline, get_bundle_data
 
     def entry_sort_key(entry):
         return sort_key(entry.get('name') or '')
@@ -148,7 +148,21 @@ elif isosx:
         ans.setToolTip(_('Application path:') + '\n' + entry['path'])
 
     def choose_manually(filetype, parent):
-        raise NotImplementedError()
+        ans = choose_osx_app(parent, 'choose-open-with-program-manually', _('Choose a program to open %s files') % filetype.upper())
+        if ans:
+            ans = ans[0]
+            if os.path.isdir(ans):
+                app = get_bundle_data(ans)
+                if app is None:
+                    return error_dialog(parent, _('Invalid Application'), _(
+                        '%s is not a valid OS X application bundle.') % ans, show=True)
+                return app
+            if not os.access(ans, os.X_OK):
+                return error_dialog(parent, _('Cannot execute'), _(
+                    'The program %s is not an executable file') % ans, show=True)
+
+            return {'path':ans, 'name': os.path.basename(ans)}
+
     # }}}
 
 else:

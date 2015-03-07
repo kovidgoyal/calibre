@@ -331,6 +331,8 @@ def get_icon(path, pixmap_to_data=None, as_data=False, size=64):
 
 def entry_to_cmdline(entry, path):
     app = entry['path']
-    if not os.path.isdir(app) and 'identifier' in entry:
+    if os.path.isdir(app):
+        return ['open', '-a', app, path]
+    if 'identifier' in entry:
         return ['open', '-b', entry['identifier'], path]
-    return ['open', '-a', app, path]
+    return [app, path]
