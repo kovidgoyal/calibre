@@ -78,7 +78,11 @@ class Links(object):
                         pass
             else:
                 url = href + (('#'+frag) if frag else '')
-                purl = urlparse(url)
+                try:
+                    purl = urlparse(url)
+                except Exception:
+                    self.pdf.debug('Ignoring unparseable URL: %r' % url)
+                    continue
                 if purl.scheme and purl.scheme != 'file':
                     action = Dictionary({
                         'Type':Name('Action'), 'S':Name('URI'),
