@@ -11,13 +11,13 @@ from threading import Thread
 from functools import partial
 
 from PyQt5.Qt import (
-    QApplication, QStackedLayout, QVBoxLayout, QWidget, QLabel, Qt,
+    QStackedLayout, QVBoxLayout, QWidget, QLabel, Qt,
     QListWidget, QSize, pyqtSignal, QListWidgetItem, QIcon, QByteArray,
     QBuffer, QPixmap, QAction, QKeySequence)
 
 from calibre import as_unicode
 from calibre.constants import iswindows, isosx
-from calibre.gui2 import error_dialog, choose_files, choose_images, elided_text, sanitize_env_vars
+from calibre.gui2 import error_dialog, choose_files, choose_images, elided_text, sanitize_env_vars, Application
 from calibre.gui2.widgets2 import Dialog
 from calibre.gui2.progress_indicator import ProgressIndicator
 from calibre.utils.config import JSONConfig
@@ -123,7 +123,34 @@ if iswindows:
     # }}}
 
 elif isosx:
+    # OS X {{{
     oprefs = JSONConfig('osx_open_with')
+    from calibre.utils.open_with.osx import find_programs, get_icon, entry_to_cmdline
+
+    def entry_sort_key(entry):
+        return sort_key(entry.get('name') or '')
+
+    def finalize_entry(entry):
+        entry['extensions'] = tuple(entry['extensions'])
+        data = get_icon(entry.pop('icon_file', None), as_data=True, pixmap_to_data=pixmap_to_data)
+        if data:
+            entry['icon_data'] = data
+        return entry
+
+    def entry_to_item(entry, parent):
+        icon = get_icon(entry.get('icon_file'), as_data=False)
+        if icon is None:
+            icon = entry_to_icon_text(entry)[0]
+        else:
+            icon = QPixmap.fromImage(icon)
+        ans = QListWidgetItem(QIcon(icon), entry.get('name') or _('Unknown'), parent)
+        ans.setData(ENTRY_ROLE, entry)
+        ans.setToolTip(_('Application path:') + '\n' + entry['path'])
+
+    def choose_manually(filetype, parent):
+        raise NotImplementedError()
+    # }}}
+
 else:
     # XDG {{{
     oprefs = JSONConfig('xdg_open_with')
@@ -191,6 +218,7 @@ class ChooseProgram(Dialog):  # {{{
 
         self.la = la = QLabel(_('Choose a program to open %s files') % self.file_type.upper())
         self.plist = pl = QListWidget(self)
+        pl.doubleClicked.connect(self.accept)
         pl.setIconSize(QSize(48, 48)), pl.setSpacing(5)
         pl.doubleClicked.connect(self.accept)
         l.addWidget(la), l.addWidget(pl)
@@ -368,6 +396,6 @@ def register_keyboard_shortcuts(gui=None, finalize=False):
 
 if __name__ == '__main__':
     from pprint import pprint
-    app = QApplication([])
+    app = Application([])
     pprint(choose_program('pdf'))
     del app
