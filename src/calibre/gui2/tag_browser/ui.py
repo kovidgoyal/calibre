@@ -201,8 +201,12 @@ class TagBrowserMixin(object):  # {{{
         dialog will position the editor on that item.
         '''
 
-        tags_model = self.tags_view.model()
-        result = tags_model.get_category_editor_data(category)
+        db = self.current_db
+        data = db.new_api.get_categories()
+        if category in data:
+            result = [(t.id, t.original_name, t.count) for t in data[category] if t.count > 0]
+        else:
+            result = None
         if result is None:
             return
 
@@ -211,7 +215,6 @@ class TagBrowserMixin(object):  # {{{
         else:
             key = sort_key
 
-        db=self.library_view.model().db
         d = TagListEditor(self, cat_name=db.field_metadata[category]['name'],
                           tag_to_match=tag, data=result, sorter=key)
         d.exec_()
@@ -236,31 +239,23 @@ class TagBrowserMixin(object):  # {{{
                 self.do_tag_item_renamed()
                 self.tags_view.recount()
 
-    def do_tag_item_delete(self, category, item_id, orig_name):
+    def do_tag_item_delete(self, category, item_id, orig_name, restrict_to_book_ids=None):
         '''
         Delete an item from some category.
         '''
+        if restrict_to_book_ids:
+            msg = _('%s will be deleted from books in the virtual library. Are you sure?')%orig_name
+        else:
+            msg = _('%s will be deleted from all books. Are you sure?')%orig_name
         if not question_dialog(self.tags_view,
                     title=_('Delete item'),
-                    msg='<p>'+
-                    _('%s will be deleted from all books. Are you sure?') %orig_name,
+                    msg='<p>'+ msg,
                     skip_dialog_name='tag_item_delete',
                     skip_dialog_msg=_('Show this confirmation again')):
             return
-        db = self.current_db
-
-        if category == 'tags':
-            delete_func = db.delete_tag_using_id
-        elif category == 'series':
-            delete_func = db.delete_series_using_id
-        elif category == 'publisher':
-            delete_func = db.delete_publisher_using_id
-        else:  # must be custom
-            cc_label = db.field_metadata[category]['label']
-            delete_func = partial(db.delete_custom_item_using_id, label=cc_label)
-        m = self.tags_view.model()
-        if delete_func:
-            delete_func(item_id)
+        self.current_db.new_api.remove_items(category, (item_id,), restrict_to_book_ids=restrict_to_book_ids)
+        if restrict_to_book_ids is None:
+            m = self.tags_view.model()
             m.delete_item_from_all_user_categories(orig_name, category)
 
         # Clean up the library view

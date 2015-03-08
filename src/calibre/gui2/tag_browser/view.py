@@ -84,7 +84,7 @@ class TagsView(QTreeView):  # {{{
     search_item_renamed     = pyqtSignal()
     drag_drop_finished      = pyqtSignal(object)
     restriction_error       = pyqtSignal()
-    tag_item_delete         = pyqtSignal(object, object, object)
+    tag_item_delete         = pyqtSignal(object, object, object, object)
 
     def __init__(self, parent=None):
         QTreeView.__init__(self, parent=None)
@@ -297,7 +297,8 @@ class TagsView(QTreeView):  # {{{
             self.clear()
 
     def context_menu_handler(self, action=None, category=None,
-                             key=None, index=None, search_state=None):
+                             key=None, index=None, search_state=None,
+                             use_vl=None):
         if not action:
             return
         try:
@@ -328,11 +329,22 @@ class TagsView(QTreeView):  # {{{
                 self.recount()
                 return
 
-            if action == 'edit_item':
+            if action == 'edit_item_no_vl':
+                item = self.model().get_node(index)
+                item.use_vl = False
                 self.edit(index)
                 return
-            if action == 'delete_item':
-                self.tag_item_delete.emit(key, index.id, index.original_name)
+            if action == 'edit_item_in_vl':
+                item = self.model().get_node(index)
+                item.use_vl = True
+                self.edit(index)
+                return
+            if action == 'delete_item_in_vl':
+                self.tag_item_delete.emit(key, index.id, index.original_name,
+                                          self.model().get_book_ids_to_use())
+                return
+            if action == 'delete_item_no_vl':
+                self.tag_item_delete.emit(key, index.id, index.original_name, None)
                 return
             if action == 'open_editor':
                 self.tags_list_edit.emit(category, key)
@@ -441,15 +453,26 @@ class TagsView(QTreeView):  # {{{
                     # the possibility of renaming that item.
                     if tag.is_editable:
                         # Add the 'rename' items
+                        if self.model().get_in_vl():
+                            self.context_menu.addAction(self.rename_icon,
+                                                    _('Rename %s in virtual library')%display_name(tag),
+                                    partial(self.context_menu_handler, action='edit_item_in_vl',
+                                            index=index))
                         self.context_menu.addAction(self.rename_icon,
-                                                    _('Rename %s')%display_name(tag),
-                            partial(self.context_menu_handler, action='edit_item',
-                                    index=index))
+                                                _('Rename %s')%display_name(tag),
+                                partial(self.context_menu_handler, action='edit_item_no_vl',
+                                        index=index))
                         if key in ('tags', 'series', 'publisher') or \
                                 self._model.db.field_metadata.is_custom_field(key):
+                            if self.model().get_in_vl():
+                                self.context_menu.addAction(self.delete_icon,
+                                                    _('Delete %s in virtual library')%display_name(tag),
+                                partial(self.context_menu_handler, action='delete_item_in_vl',
+                                    key=key, index=tag))
+
                             self.context_menu.addAction(self.delete_icon,
                                                     _('Delete %s')%display_name(tag),
-                                partial(self.context_menu_handler, action='delete_item',
+                                partial(self.context_menu_handler, action='delete_item_no_vl',
                                     key=key, index=tag))
                         if key == 'authors':
                             self.context_menu.addAction(_('Edit sort for %s')%display_name(tag),
@@ -482,7 +505,7 @@ class TagsView(QTreeView):  # {{{
                     elif key == 'search' and tag.is_searchable:
                         self.context_menu.addAction(self.rename_icon,
                                                     _('Rename %s')%display_name(tag),
-                            partial(self.context_menu_handler, action='edit_item',
+                            partial(self.context_menu_handler, action='edit_item_no_vl',
                                     index=index))
                         self.context_menu.addAction(self.delete_icon,
                                 _('Delete search %s')%display_name(tag),
@@ -512,7 +535,7 @@ class TagsView(QTreeView):  # {{{
                     if item.can_be_edited:
                         self.context_menu.addAction(self.rename_icon,
                             _('Rename %s')%item.py_name,
-                            partial(self.context_menu_handler, action='edit_item',
+                            partial(self.context_menu_handler, action='edit_item_no_vl',
                                     index=index))
                     self.context_menu.addAction(self.user_category_icon,
                             _('Add sub-category to %s')%item.py_name,

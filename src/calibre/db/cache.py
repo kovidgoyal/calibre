@@ -9,7 +9,7 @@ __docformat__ = 'restructuredtext en'
 
 import os, traceback, random, shutil, operator
 from io import BytesIO
-from collections import defaultdict
+from collections import defaultdict, Set, MutableSet
 from functools import wraps, partial
 from future_builtins import zip
 
@@ -1564,24 +1564,82 @@ class Cache(object):
         return val_map
 
     @write_api
-    def rename_items(self, field, item_id_to_new_name_map, change_index=True):
+    def rename_items(self, field, item_id_to_new_name_map, change_index=True, restrict_to_book_ids=None):
         '''
         Rename items from a many-one or many-many field such as tags or series.
 
         :param change_index: When renaming in a series-like field also change the series_index values.
+        :param restrict_to_book_ids: An optional set of book ids for which the rename is to be performed, defaults to all books.
         '''
+
         f = self.fields[field]
-        try:
-            func = f.table.rename_item
-        except AttributeError:
-            raise ValueError('Cannot rename items for one-one fields: %s' % field)
         affected_books = set()
-        moved_books = set()
-        id_map = {}
         try:
             sv = f.metadata['is_multiple']['ui_to_list']
         except (TypeError, KeyError, AttributeError):
             sv = None
+
+        if restrict_to_book_ids is not None:
+            # We have a VL. Only change the item name for those books
+            if not isinstance(restrict_to_book_ids, (Set, MutableSet)):
+                restrict_to_book_ids = frozenset(restrict_to_book_ids)
+            id_map = {}
+            default_process_map = {}
+            for old_id, new_name in item_id_to_new_name_map.iteritems():
+                new_names = tuple(x.strip() for x in new_name.split(sv)) if sv else (new_name,)
+                # Get a list of books in the VL with the item
+                books_with_id = f.books_for(old_id)
+                books_to_process = books_with_id & restrict_to_book_ids
+                if len(books_with_id) == len(books_to_process):
+                    # All the books with the ID are in the VL, so we can use
+                    # the normal processing
+                    default_process_map[old_id] = new_name
+                elif books_to_process:
+                    affected_books.update(books_to_process)
+                    newvals = {}
+                    for book_id in books_to_process:
+                        # Get the current values, remove the one being renamed, then add
+                        # the new value(s) back.
+                        vals = self._field_for(field, book_id)
+                        # Check for is_multiple
+                        if isinstance(vals, tuple):
+                            # We must preserve order.
+                            vals = list(vals)
+                            # Don't need to worry about case here because we
+                            # are fetching its one-true spelling. But lets be
+                            # careful anyway
+                            try:
+                                dex = vals.index(self._get_item_name(field, old_id))
+                                # This can put the name back with a different case
+                                vals[dex] = new_names[0]
+                                # now add any other items if they aren't already there
+                                if len(new_names) > 1:
+                                    set_vals = {icu_lower(x) for x in vals}
+                                    for v in new_names[1:]:
+                                        lv = icu_lower(v)
+                                        if lv not in set_vals:
+                                            vals.append(v)
+                                            set_vals.add(lv)
+                                newvals[book_id] = vals
+                            except Exception:
+                                traceback.print_exc()
+                        else:
+                            newvals[book_id] = new_names[0]
+                    # Allow case changes
+                    self._set_field(field, newvals)
+                    id_map[old_id] = self._get_item_id(field, new_names[0])
+            if default_process_map:
+                ab, idm = self._rename_items(field, default_process_map, change_index=change_index)
+                affected_books.update(ab)
+                id_map.update(idm)
+            return affected_books, id_map
+
+        try:
+            func = f.table.rename_item
+        except AttributeError:
+            raise ValueError('Cannot rename items for one-one fields: %s' % field)
+        moved_books = set()
+        id_map = {}
         for item_id, new_name in item_id_to_new_name_map.iteritems():
             new_names = tuple(x.strip() for x in new_name.split(sv)) if sv else (new_name,)
             books, new_id = func(item_id, new_names[0], self.backend)
@@ -1606,10 +1664,16 @@ class Cache(object):
         return affected_books, id_map
 
     @write_api
-    def remove_items(self, field, item_ids):
-        ''' Delete all items in the specified field with the specified ids. Returns the set of affected book ids. '''
+    def remove_items(self, field, item_ids, restrict_to_book_ids=None):
+        ''' Delete all items in the specified field with the specified ids.
+        Returns the set of affected book ids. ``restrict_to_book_ids`` is an
+        optional set of books ids. If specified the items will only be removed
+        from those books. '''
         field = self.fields[field]
-        affected_books = field.table.remove_items(item_ids, self.backend)
+        if restrict_to_book_ids is not None and not isinstance(restrict_to_book_ids, (MutableSet, Set)):
+            restrict_to_book_ids = frozenset(restrict_to_book_ids)
+        affected_books = field.table.remove_items(item_ids, self.backend,
+                                                  restrict_to_book_ids=restrict_to_book_ids)
         if affected_books:
             if hasattr(field, 'index_field'):
                 self._set_field(field.index_field.name, {bid:1.0 for bid in affected_books})

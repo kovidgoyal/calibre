@@ -490,6 +490,27 @@ class WritingTest(BaseTest):
             self.assertEqual(c.all_field_names('#series'), {'My Series One'})
             for bid in c.all_book_ids():
                 self.assertIn(c.field_for('#series', bid), (None, 'My Series One'))
+
+        # Now test with restriction
+        cache = self.init_cache()
+        cache.set_field('tags', {1:'a,b,c', 2:'b,a', 3:'x,y,z'})
+        cache.set_field('series', {1:'a', 2:'a', 3:'b'})
+        cache.set_field('series_index', {1:8, 2:9, 3:3})
+        tmap, smap = cache.get_id_map('tags'), cache.get_id_map('series')
+        self.assertEqual(cache.remove_items('tags', tmap, restrict_to_book_ids=()), set())
+        self.assertEqual(cache.remove_items('tags', tmap, restrict_to_book_ids={1}), {1})
+        self.assertEqual(cache.remove_items('series', smap, restrict_to_book_ids=()), set())
+        self.assertEqual(cache.remove_items('series', smap, restrict_to_book_ids=(1,)), {1})
+        c2 = self.init_cache()
+        for c in (cache, c2):
+            self.assertEqual(c.field_for('tags', 1), ())
+            self.assertEqual(c.field_for('tags', 2), ('b', 'a'))
+            self.assertNotIn('c', set(c.get_id_map('tags').itervalues()))
+            self.assertEqual(c.field_for('series', 1), None)
+            self.assertEqual(c.field_for('series', 2), 'a')
+            self.assertEqual(c.field_for('series_index', 1), 1.0)
+            self.assertEqual(c.field_for('series_index', 2), 9)
+
     # }}}
 
     def test_rename_items(self):  # {{{
@@ -573,6 +594,19 @@ class WritingTest(BaseTest):
             for t in 'Something,Else,Entirely'.split(','):
                 self.assertIn(t, f)
             self.assertNotIn('Tag One', f)
+
+        # Test with restriction
+        cache = self.init_cache()
+        cache.set_field('tags', {1:'a,b,c', 2:'x,y,z', 3:'a,x,z'})
+        tmap = {v:k for k, v in cache.get_id_map('tags').iteritems()}
+        self.assertEqual(cache.rename_items('tags', {tmap['a']:'r'}, restrict_to_book_ids=()), (set(), {}))
+        self.assertEqual(cache.rename_items('tags', {tmap['a']:'r', tmap['b']:'q'}, restrict_to_book_ids=(1,))[0], {1})
+        self.assertEqual(cache.rename_items('tags', {tmap['x']:'X'}, restrict_to_book_ids=(2,))[0], {2})
+        c2 = self.init_cache()
+        for c in (cache, c2):
+            self.assertEqual(c.field_for('tags', 1), ('r', 'q', 'c'))
+            self.assertEqual(c.field_for('tags', 2), ('X', 'y', 'z'))
+            self.assertEqual(c.field_for('tags', 3), ('a', 'X', 'z'))
     # }}}
 
     def test_composite_cache(self):  # {{{
