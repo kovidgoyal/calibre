@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import (unicode_literals, division, absolute_import, print_function)
-store_version = 6 # Needed for dynamic plugin loading
+store_version = 7 # Needed for dynamic plugin loading
 
 __license__ = 'GPL 3'
 __copyright__ = '2011, John Schember <john@nachtimwald.com>'
@@ -10,6 +10,7 @@ __docformat__ = 'restructuredtext en'
 import re
 from contextlib import closing
 from lxml import html
+# from lxml import html
 
 from PyQt5.Qt import QUrl
 
@@ -62,6 +63,7 @@ class AmazonUKKindleStore(StorePlugin):
             allText = f.read()
             doc = html.fromstring(allText)#.decode('latin-1', 'replace'))
 
+            format_xpath2 = ''
             if doc.xpath('//div[@id = "atfResults" and contains(@class, "grid")]'):
                 #print('grid form')
                 data_xpath = '//div[contains(@class, "prod")]'
@@ -92,8 +94,8 @@ class AmazonUKKindleStore(StorePlugin):
             elif doc.xpath('//div[@id = "atfResults" and contains(@class, "list")]'):
                 #print('list form')
                 data_xpath = '//li[@class="s-result-item"]'
-                format_xpath = (
-                        './/h3[contains(@class, "s-inline")]/text()')
+                format_xpath = './/a[contains(@class, "a-size-small")]/text()'
+                format_xpath2 = './/h3[contains(@class, "s-inline")]/text()'
                 asin_xpath = '@data-asin'
                 cover_xpath = './/img[contains(@class, "cfMarker")]/@src'
                 title_xpath = './/h2[contains(@class, "s-access-title")]/text()'
@@ -118,7 +120,11 @@ class AmazonUKKindleStore(StorePlugin):
                 # if it isn't.
                 format_ = ''.join(data.xpath(format_xpath))
                 if 'kindle' not in format_.lower():
-                    continue
+                    if format_xpath2:
+                        format_ = ''.join(data.xpath(format_xpath2))
+                        if 'kindle' not in format_.lower():
+                            # print(etree.tostring(data, pretty_print=True))
+                            continue
 
                 # We must have an asin otherwise we can't easily reference the
                 # book later.
