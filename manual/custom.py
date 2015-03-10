@@ -191,7 +191,7 @@ def render_options(cmd, groups, options_header=True, add_program=True):
 
 def mark_options(raw):
     raw = re.sub(r'(\s+)--(\s+)', r'\1``--``\2', raw)
-    raw = re.sub(r'(--[a-zA-Z0-9_=,-]+)', r':option:`\1`', raw)
+    raw = re.sub(r'(--[|()a-zA-Z0-9_=,-]+)', r':option:`\1`', raw)
     return raw
 
 def cli_docs(app):

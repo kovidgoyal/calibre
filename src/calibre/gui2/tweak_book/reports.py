@@ -925,7 +925,7 @@ class CSSRulesModel(QAbstractItemModel):
             if isinstance(entry, CSSEntry):
                 return '[%{}d] %s'.format(self.num_size) % (entry.count, entry.rule.selector)
             elif isinstance(entry, CSSFileMatch):
-                return _('%s [%d elements]') % (entry.file_name, len(entry.locations))
+                return _('{0} [{1} elements]').format(entry.file_name, len(entry.locations))
             elif isinstance(entry, MatchLocation):
                 return '%s @ %s' % (entry.tag, entry.sourceline)
         elif role == Qt.UserRole:
@@ -1143,7 +1143,7 @@ class ClassesModel(CSSRulesModel):
             if isinstance(entry, ClassEntry):
                 return '[%{}d] %s'.format(self.num_size) % (entry.num_of_matches, entry.cls)
             elif isinstance(entry, ClassFileMatch):
-                return _('%s [%d elements]') % (entry.file_name, len(entry.class_elements))
+                return _('{0} [{1} elements]').format(entry.file_name, len(entry.class_elements))
             elif isinstance(entry, ClassElement):
                 return '%s @ %s' % (entry.tag, entry.line_number)
             elif isinstance(entry, CSSRule):

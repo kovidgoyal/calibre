@@ -398,7 +398,7 @@ def register_keyboard_shortcuts(gui=None, finalize=False):
         for application in applications:
             text = entry_to_icon_text(application, only_text=True)
             t = _('cover image') if filetype.upper() == 'COVER_IMAGE' else filetype.upper()
-            name = _('Open %s files with %s') % (t, text)
+            name = _('Open {0} files with {1}').format(t, text)
             ac = QAction(gui)
             unique_name = application['uuid']
             ac.triggered.connect(partial(gui.open_with_action_triggerred, filetype, application))
