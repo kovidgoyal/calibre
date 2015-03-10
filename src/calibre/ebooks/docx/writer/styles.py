@@ -74,15 +74,15 @@ class DOCXStyle(object):
         return bdr
 
 LINE_STYLES = {
-    'none': 'none',
+    'none'  : 'none',
     'hidden': 'none',
     'dotted': 'dotted',
     'dashed': 'dashed',
-    'solid': 'single',
+    'solid' : 'single',
     'double': 'double',
     'groove': 'threeDEngrave',
-    'ridge': 'threeDEmboss',
-    'inset': 'inset',
+    'ridge' : 'threeDEmboss',
+    'inset' : 'inset',
     'outset': 'outset',
 }
 
@@ -175,10 +175,10 @@ class TextStyle(DOCXStyle):
 class BlockStyle(DOCXStyle):
 
     ALL_PROPS = tuple(
-        'text_align page_break_before keep_lines css_text_indent text_indent line_height css_line_height background_color'.split()
-        + ['margin_' + edge for edge in border_edges]
-        + ['css_margin_' + edge for edge in border_edges]
-        + [x%edge for edge in border_edges for x in border_props]
+        'text_align page_break_before keep_lines css_text_indent text_indent line_height css_line_height background_color'.split() +
+        ['margin_' + edge for edge in border_edges] +
+        ['css_margin_' + edge for edge in border_edges] +
+        [x%edge for edge in border_edges for x in border_props]
     )
 
     def __init__(self, css, html_block, is_first_block=False):
