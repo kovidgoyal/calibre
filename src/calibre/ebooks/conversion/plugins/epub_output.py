@@ -51,9 +51,9 @@ class EPUBOutput(OutputFormatPlugin):
 
     options = set([
         OptionRecommendation(name='extract_to',
-            help=_('Extract the contents of the generated EPUB file to the '
+            help=_('Extract the contents of the generated %s file to the '
                 'specified directory. The contents of the directory are first '
-                'deleted, so be careful.')),
+                'deleted, so be careful.') % 'EPUB'),
 
         OptionRecommendation(name='dont_split_on_page_breaks',
             recommended_value=False, level=OptionRecommendation.LOW,

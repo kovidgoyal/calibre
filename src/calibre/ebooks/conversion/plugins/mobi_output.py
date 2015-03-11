@@ -73,10 +73,10 @@ class MOBIOutput(OutputFormatPlugin):
             help=_('When adding the Table of Contents to the book, add it at the start of the '
                 'book instead of the end. Not recommended.')
         ),
-        OptionRecommendation(name='extract_to', recommended_value=None,
-            help=_('Extract the contents of the MOBI file to the'
-                ' specified directory. If the directory already '
-                'exists, it will be deleted.')
+        OptionRecommendation(name='extract_to',
+            help=_('Extract the contents of the generated %s file to the '
+                'specified directory. The contents of the directory are first '
+                'deleted, so be careful.') % 'MOBI'
         ),
         OptionRecommendation(name='share_not_sync', recommended_value=False,
             help=_('Enable sharing of book content via Facebook etc. '
@@ -286,11 +286,10 @@ class AZW3Output(OutputFormatPlugin):
             help=_('When adding the Table of Contents to the book, add it at the start of the '
                 'book instead of the end. Not recommended.')
         ),
-        OptionRecommendation(name='extract_to', recommended_value=None,
-            help=_('Extract the contents of the MOBI file to the'
-                ' specified directory. If the directory already '
-                'exists, it will be deleted.')
-        ),
+        OptionRecommendation(name='extract_to',
+            help=_('Extract the contents of the generated %s file to the '
+                'specified directory. The contents of the directory are first '
+                'deleted, so be careful.') % 'AZW3'),
         OptionRecommendation(name='share_not_sync', recommended_value=False,
             help=_('Enable sharing of book content via Facebook etc. '
                 ' on the Kindle. WARNING: Using this feature means that '
