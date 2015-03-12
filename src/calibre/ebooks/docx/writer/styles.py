@@ -127,7 +127,7 @@ class TextStyle(DOCXStyle):
             val = min(96, max(2, int({'thin':0.2, 'medium':1, 'thick':2}.get(css['border-%s-width' % edge], 0) * 8)))
             setattr(self, 'border_%s_width' % edge, val)
             setattr(self, 'border_%s_color' % edge, convert_color(css['border-%s-color' % edge]))
-            setattr(self, 'border_%s_style' %  edge, LINE_STYLES.get(css['border-%s-style' % edge].lower(), 'none'))
+            setattr(self, 'border_%s_style' % edge, LINE_STYLES.get(css['border-%s-style' % edge].lower(), 'none'))
 
         DOCXStyle.__init__(self)
 
