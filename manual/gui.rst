@@ -441,8 +441,6 @@ calibre allows you to save a frequently used search under a special name and the
 
 Now you can access your saved search in the Tag Browser under "Searches". A single click will allow you to reuse any arbitrarily complex search easily, without needing to re-create it.
 
-.. _config_filename_metadata:
-
 Virtual Libraries
 -------------------
 
@@ -452,14 +450,26 @@ partition your large collection of books into smaller, manageable chunks. To
 learn how to create and use virtual libraries, see the tutorial:
 :ref:`virtual_libraries`.
 
+.. _config_filename_metadata:
+
 Guessing metadata from file names
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-In the :guilabel:`Add/Save` section of the configuration dialog, you can specify a regular expression that calibre will use to try and guess metadata from the names of ebook files
-that you add to the library. The default regular expression is::
+------------------------------------
+
+Normally, calibre reads metadata from inside the book file. However, it can
+be configured to read metadata from the file name instead, via
+:guilabel:`Preferences->Adding Books->Read metadata from file contents`.
+
+You can also control how metadata is read from the filename using regular
+expressions (see :doc:`regexp`).  In the :guilabel:`Adding Books` section of
+the configuration dialog, you can specify a regular expression that calibre
+will use to try and guess metadata from the names of ebook files that you add
+to the library. The default regular expression is::
 
     title - author
 
-i.e., it assumes that all characters up to the first ``-`` are the title of the book and subsequent characters are the author of the book. For example, the filename::
+that is, it assumes that all characters up to the first ``-`` are the title of
+the book and subsequent characters are the author of the book. For example, the
+filename::
 
     Foundation and Earth - Isaac Asimov.txt
 
