@@ -314,7 +314,7 @@ class BlockStyle(DOCXStyle):
             style.append(makeelement(style, 'keepLines', bmap(self.keep_lines)))
 
         if self is not normal_style and self.next_style is not None:
-            style.append(style.makeelement(w('next'), **{w('val'):self.next_style}))
+            style.append(makeelement(style, 'next', val=self.next_style))
         return style
 
 
