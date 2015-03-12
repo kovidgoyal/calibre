@@ -1172,7 +1172,7 @@ class BackupProgress(object):
         else:
             self.count += 1
             prints(u'%.1f%% %s - %s'%((self.count*100)/float(self.total),
-                book_id, mi.title))
+                book_id, getattr(mi, 'title', 'Unknown')))
 
 def command_backup_metadata(args, dbpath):
     parser = backup_metadata_option_parser()
