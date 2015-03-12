@@ -6,6 +6,9 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
+from collections import Counter, defaultdict
+from operator import attrgetter
+
 from lxml import etree
 
 from calibre.ebooks import parse_css_length
@@ -33,13 +36,25 @@ def css_font_family_to_docx(raw):
     for ff in parse_css_font_family(raw):
         return generic.get(ff.lower(), ff)
 
+def w(x):
+    return '{%s}%s' % (namespaces['w'], x)
+
+def makeelement(parent, name, **attrs):
+    return parent.makeelement(w(name), **{w(k):v for k, v in attrs.iteritems()})
+
+def bmap(x):
+    return 'on' if x else 'off'
+
 class DOCXStyle(object):
 
     ALL_PROPS = ()
+    TYPE = 'paragraph'
 
     def __init__(self):
         self._hash = hash(tuple(
             getattr(self, x) for x in self.ALL_PROPS))
+        self.id = self.name = None
+        self.next_style = None
 
     def __hash__(self):
         return self._hash
@@ -57,21 +72,34 @@ class DOCXStyle(object):
         return etree.tostring(self.serialize(etree.Element(self.__class__.__name__, nsmap={'w':namespaces['w']})), pretty_print=True)
     __str__ = __repr__
 
-    def serialize_borders(self, bdr):
+    def serialize_borders(self, bdr, normal_style):
         for edge in border_edges:
             e = bdr.makeelement(w(edge))
             padding = getattr(self, 'padding_' + edge)
-            if padding > 0:
+            if (self is normal_style and padding > 0) or (padding != getattr(normal_style, 'padding_' + edge)):
                 e.set(w('space'), str(padding))
             width = getattr(self, 'border_%s_width' % edge)
             bstyle = getattr(self, 'border_%s_style' % edge)
-            if width > 0 and bstyle != 'none':
+            if (self is normal_style and width > 0 and bstyle != 'none'
+                    ) or width != getattr(normal_style, 'border_%s_width' % edge
+                    ) or bstyle != getattr(normal_style, 'border_%s_style' % edge):
                 e.set(w('val'), bstyle)
                 e.set(w('sz'), str(width))
                 e.set(w('color'), getattr(self, 'border_%s_color' % edge))
             if e.attrib:
                 bdr.append(e)
         return bdr
+
+    def serialize(self, styles, normal_style):
+        style = makeelement(styles, 'style', styleId=self.id, type=self.TYPE)
+        style.append(makeelement(style, 'name', val=self.name))
+        if self is normal_style:
+            style.set(w('default'), '1')
+            style.append(makeelement(style, 'qFormat'))
+        else:
+            style.append(makeelement(style, 'basedOn', val=normal_style.id))
+        styles.append(style)
+        return style
 
 LINE_STYLES = {
     'none'  : 'none',
@@ -86,15 +114,13 @@ LINE_STYLES = {
     'outset': 'outset',
 }
 
-def w(x):
-    return '{%s}%s' % (namespaces['w'], x)
-
 class TextStyle(DOCXStyle):
 
     ALL_PROPS = ('font_family', 'font_size', 'bold', 'italic', 'color',
                  'background_color', 'underline', 'strike', 'dstrike', 'caps',
                  'shadow', 'small_caps', 'spacing', 'vertical_align') + tuple(
         x%edge for edge in border_edges for x in border_props)
+    TYPE = 'character'
 
     def __init__(self, css):
         self.font_family = css_font_family_to_docx(css['font-family'])
@@ -131,41 +157,51 @@ class TextStyle(DOCXStyle):
 
         DOCXStyle.__init__(self)
 
-    def serialize(self, style):
-        style.append(style.makeelement(w('rFonts'), **{
-            w(k):self.font_family for k in 'ascii cs eastAsia hAnsi'.split()}))
-        for suffix in ('', 'Cs'):
-            style.append(style.makeelement(w('sz' + suffix), **{w('val'):str(self.font_size)}))
-            style.append(style.makeelement(w('b' + suffix), **{w('val'):('on' if self.bold else 'off')}))
-            style.append(style.makeelement(w('i' + suffix), **{w('val'):('on' if self.italic else 'off')}))
-        if self.color:
-            style.append(style.makeelement(w('color'), **{w('val'):str(self.color)}))
-        if self.background_color:
-            style.append(style.makeelement(w('shd'), **{w('val'):str(self.background_color)}))
-        if self.underline:
-            style.append(style.makeelement(w('u'), **{w('val'):'single'}))
-        if self.dstrike:
-            style.append(style.makeelement(w('dstrike'), **{w('val'):'on'}))
-        elif self.strike:
-            style.append(style.makeelement(w('strike'), **{w('val'):'on'}))
-        if self.caps:
-            style.append(style.makeelement(w('caps'), **{w('val'):'on'}))
-        if self.small_caps:
-            style.append(style.makeelement(w('smallCaps'), **{w('val'):'on'}))
-        if self.shadow:
-            style.append(style.makeelement(w('shadow'), **{w('val'):'on'}))
-        if self.spacing is not None:
-            style.append(style.makeelement(w('spacing'), **{w('val'):str(self.spacing)}))
+    def serialize(self, styles, normal_style):
+        style = DOCXStyle.serialize(self, styles, normal_style)
+
+        if self is normal_style or self.font_family != normal_style.font_family:
+            style.append(makeelement(
+                style, 'rFonts', **{k:self.font_family for k in 'ascii cs eastAsia hAnsi'.split()}))
+
+        for name, attr, vmap in (('sz', 'font_size', str), ('b', 'bold', bmap), ('i', 'italic', bmap)):
+            val = getattr(self, attr)
+            if self is normal_style or getattr(normal_style, attr) != val:
+                for suffix in ('', 'Cs'):
+                    style.append(makeelement(style, 'sz' + suffix, val=vmap(val)))
+
+        def check_attr(attr):
+            val = getattr(self, attr)
+            return (self is normal_style and val is not False and val is not None) or (val != getattr(normal_style, attr))
+
+        if check_attr('color'):
+            style.append(makeelement(style, 'color', val=self.color or 'auto'))
+        if check_attr('background_color'):
+            style.append(makeelement(style, 'shd', fill=self.background_color or 'auto'))
+        if check_attr('underline'):
+            style.append(makeelement(style, 'u', val='single' if self.underline else 'none'))
+        if check_attr('dstrike'):
+            style.append(makeelement(style, 'dstrike', val=bmap(self.dstrike)))
+        if check_attr('strike'):
+            style.append(makeelement(style, 'strike', val=bmap(self.strike)))
+        if check_attr('caps'):
+            style.append(makeelement(style, 'caps', val=bmap(self.caps)))
+        if check_attr('small_caps'):
+            style.append(makeelement(style, 'smallCaps', val=bmap(self.small_caps)))
+        if check_attr('shadow'):
+            style.append(makeelement(style, 'shadow', val=bmap(self.shadow)))
+        if check_attr('spacing'):
+            style.append(makeelement(style, 'spacing', val=str(self.spacing or 0)))
         if isinstance(self.vertical_align, (int, float)):
             val = int(self.vertical_align * 2)
-            style.append(style.makeelement(w('position'), **{w('val'):str(val)}))
+            style.append(makeelement(style, 'position', val=str(val)))
         elif isinstance(self.vertical_align, basestring):
             val = {'top':'superscript', 'text-top':'superscript', 'sup':'superscript', 'bottom':'subscript', 'text-bottom':'subscript', 'sub':'subscript'}.get(
                 self.vertical_align.lower())
             if val:
-                style.append(style.makeelement(w('vertAlign'), **{w('val'):val}))
+                style.append(makeelement(style, 'vertAlign', val=val))
 
-        bdr = self.serialize_borders(style.makeelement(w('bdr')))
+        bdr = self.serialize_borders(makeelement(style, 'bdr', normal_style))
         if len(bdr):
             style.append(bdr)
 
@@ -204,19 +240,24 @@ class BlockStyle(DOCXStyle):
 
         DOCXStyle.__init__(self)
 
-    def serialize(self, style):
-        spacing = style.makeelement(w('spacing'))
+    def serialize(self, styles, normal_style):
+        style = DOCXStyle.serialize(self, styles, normal_style)
+
+        spacing = makeelement(style, 'spacing')
         for edge, attr in {'top':'before', 'bottom':'after'}.iteritems():
-            css_val, css_unit = parse_css_length(getattr(self, 'css_margin_' + edge))
+            getter = attrgetter('css_margin_' + edge)
+            css_val, css_unit = parse_css_length(getter(self))
             if css_unit in ('em', 'ex'):
                 lines = max(0, int(css_val * (50 if css_unit == 'ex' else 100)))
-                if lines > 0:
+                if (self is normal_style and lines > 0) or getter(self) != getter(normal_style):
                     spacing.set(w(attr + 'Lines'), str(lines))
             else:
-                val = getattr(self, 'margin_' + edge)
-                if val > 0:
+                getter = attrgetter('margin_' + edge)
+                val = getter(self)
+                if (self is normal_style and val > 0) or val != getter(normal_style):
                     spacing.set(w(attr), str(val))
-        if self.css_line_height != 'normal':
+
+        if (self is normal_style and self.css_line_height != 'normal') or self.css_line_height != normal_style.css_line_height:
             try:
                 css_val, css_unit = float(self.css_line_height), 'ratio'
             except Exception:
@@ -226,50 +267,54 @@ class BlockStyle(DOCXStyle):
                 val = int(css_val * 240 * mult)
                 spacing.set(w('line'), str(val))
             else:
-                spacing.set(w('line'), str(self.line_height))
+                spacing.set(w('line'), (0 if self.css_line_height == 'normal' else str(self.line_height)))
                 spacing.set(w('lineRule', 'exactly'))
 
         if spacing.attrib:
             style.append(spacing)
 
-        ind = style.makeelement(w('ind'))
+        ind = makeelement(style, 'ind')
         for edge in ('left', 'right'):
-            css_val, css_unit = parse_css_length(getattr(self, 'css_margin_' + edge))
+            getter = attrgetter('css_margin_' + edge)
+            css_val, css_unit = parse_css_length(getter(self))
             if css_unit in ('em', 'ex'):
                 chars = max(0, int(css_val * (50 if css_unit == 'ex' else 100)))
-                if chars > 0:
+                if (self is normal_style and chars > 0) or getter(self) != getter(normal_style):
                     ind.set(w(edge + 'Chars'), str(chars))
             else:
-                val = getattr(self, 'margin_' + edge)
-                if val > 0:
-                    ind.set(w(attr), str(val))
+                getter = attrgetter('margin_' + edge)
+                val = getter(self)
+                if (self is normal_style and val > 0) or val != getter(normal_style):
+                    ind.set(w(edge), str(val))
         css_val, css_unit = parse_css_length(self.css_text_indent)
         if css_unit in ('em', 'ex'):
             chars = max(0, int(css_val * (50 if css_unit == 'ex' else 100)))
-            if chars > 0:
+            if (self is normal_style and chars > 0) or self.css_text_indent != normal_style.css_text_indent:
                 ind.set('firstLineChars', str(chars))
         else:
             val = self.text_indent
-            if val > 0:
+            if (self is normal_style and val > 0) or self.text_indent != normal_style.text_indent:
                 ind.set('firstLine', str(val))
         if ind.attrib:
             style.append(ind)
 
-        if self.background_color:
-            shd = style.makeelement(w('shd'))
-            style.append(shd)
-            shd.set(w('val'), 'clear'), shd.set(w('fill'), self.background_color), shd.set(w('color'), 'auto')
+        if (self is normal_style and self.background_color) or self.background_color != normal_style.background_color:
+            makeelement(style, 'shd', val='clear', color='auto', fill=self.background_color or 'auto')
 
-        pbdr = self.serialize_borders(style.makeelement(w('pBdr')))
+        pbdr = self.serialize_borders(style.makeelement(w('pBdr')), normal_style)
         if len(pbdr):
             style.append(pbdr)
-        jc = style.makeelement(w('jc'))
-        jc.set(w('val'), self.text_align)
-        style.append(jc)
-        if self.page_break_before:
-            style.append(style.makeelement(w('pageBreakBefore'), **{w('val'):'on'}))
-        if self.keep_lines:
-            style.append(style.makeelement(w('keepLines'), **{w('val'):'on'}))
+
+        if self is normal_style or self.text_align != normal_style.text_align:
+            style.append(makeelement(style, 'jc', val=self.text_align))
+
+        if (self is normal_style and self.page_break_before) or self.page_break_before != normal_style.page_break_before:
+            style.append(makeelement(style, 'pageBreakBefore', bmap(self.page_break_before)))
+        if (self is normal_style and self.keep_lines) or self.keep_lines != normal_style.keep_lines:
+            style.append(makeelement(style, 'keepLines', bmap(self.keep_lines)))
+
+        if self is not normal_style and self.next_style is not None:
+            style.append(style.makeelement(w('next'), **{w('val'):self.next_style}))
         return style
 
 
@@ -295,3 +340,29 @@ class StylesManager(object):
         else:
             ans = existing
         return ans
+
+    def finalize(self, blocks):
+        block_counts, run_counts = Counter(), Counter()
+        block_rmap, run_rmap = defaultdict(list), defaultdict(list)
+        for block in blocks:
+            block_counts[block.style] += 1
+            block_rmap[block.style].append(block)
+            for run in block.runs:
+                run_counts[run.style] += 1
+                run_rmap[run.style].append(run)
+        for i, (block_style, count) in enumerate(block_counts.most_common()):
+            if i == 0:
+                normal_block_style = block_style
+                normal_block_style.id = 'BlockNormal'
+                normal_block_style.name = 'Normal'
+            else:
+                block_style.id = 'Block%d' % i
+                block_style.name = 'Paragraph %d' % i
+        for i, (text_style, count) in enumerate(run_counts.most_common()):
+            if i == 0:
+                normal_text_style = text_style
+                normal_text_style.id = 'TextNormal'
+                normal_text_style.name = 'Normal'
+            else:
+                block_style.id = 'Text%d' % i
+                block_style.name = 'Text %d' % i
