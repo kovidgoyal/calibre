@@ -476,7 +476,7 @@ filename::
 will be interpreted to have the title: Foundation and Earth and author: Isaac Asimov
 
 .. tip::
-    If the filename does not contain the hyphen, the regular expression will fail.
+    If the filename does not contain the hyphen, the above regular expression will fail.
 
 .. _book_details:
 
@@ -498,11 +498,15 @@ automatically show you links pointing to the web pages for the book on amazon,
 worldcat, etc. from where the metadata was downloaded.
 
 You can right click on individual ebook formats in the Book Details panel to
-delete them, compare them to their original versions, save them to disk, etc.
+delete them, compare them to their original versions, save them to disk, open
+them with an external program, etc.
 
 You can change the cover of the book by simply drag and dropping an
-image onto the book details panel. You can also add ebook files to the current
-book by drag and dropping the files onto the book details panel.
+image onto the book details panel. If yo wish to edit the cover image in
+an external program, simply right click on it and choose :guilabel:`Open With`.
+
+You can also add ebook files to the current book by drag and dropping the files
+onto the book details panel.
 
 Double clicking the book details panel will open it up in a separate popup
 window.
