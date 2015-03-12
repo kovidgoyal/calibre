@@ -448,6 +448,8 @@ class Styles(object):
 
             /* In word all paragraphs have zero margins unless explicitly specified in a style */
             p, h1, h2, h3, h4, h5, h6 { margin: 0; padding: 0 }
+            /* In word headings only have bold font if explicitly specified */
+            h1, h2, h3, h4, h5, h6 { font-weight: normal }
             /* Setting padding-left to zero breaks rendering of lists, so we only set the other values to zero and leave padding-left for the user-agent */
             ul, ol { margin: 0; padding-top: 0; padding-bottom: 0; padding-right: 0 }
 
