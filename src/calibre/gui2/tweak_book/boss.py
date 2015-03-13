@@ -1387,7 +1387,6 @@ class Boss(QObject):
 
         if not self.confirm_quit():
             return False
-        self.save_state()
         self.shutdown()
         QApplication.instance().quit()
         return True
@@ -1445,11 +1444,11 @@ class Boss(QObject):
             QApplication.instance().quit()
 
     def shutdown(self):
+        self.save_state()
         completion_worker().shutdown()
         self.save_manager.check_for_completion.disconnect()
         self.gui.preview.stop_refresh_timer()
         self.gui.live_css.stop_update_timer()
-        self.save_state()
         [x.reject() for x in _diff_dialogs]
         del _diff_dialogs[:]
         self.save_manager.shutdown()
