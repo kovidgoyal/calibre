@@ -1,7 +1,7 @@
 ##
 ## Written:      October 2012 (new coding)
-## Version:      8.0
-## Last update:  2014-08-29
+## Version:      9.0
+## Last update:  2015-03-12
 ##
 
 __license__   = 'GPL v3'
@@ -22,16 +22,15 @@ class AdvancedUserRecipe1303841067(BasicNewsRecipe):
     remove_javascript     = True
     remove_empty_feeds    = True
     language              = 'de'
-    encoding              = 'cp1252' # AGe 2014-08-21 new
+    encoding              = 'utf8' # AGe 2015-03-13 new, old encoding'cp1252'
 #    recursions						= 0 # AGe 2014-08-21 new
     #conversion_options    = {'base_font_size': 20}
 
 
     # Cover from Rainer Zenz
-    cover_url             = 'http://www16.zippyshare.com/scaled/52219516/file.html' # AGE 2013-07-26 new cover location
-
+    cover_url             = 'http://www58.zippyshare.com/scaled/VISHzqJj/file.html' # AGE 2015-03-12 new cover location
     masthead_url          = 'http://www.spektrum.de/fm/861/spektrum.de.png'
-
+    
     # AGE 2014-02-25 add .textbox-wide
     extra_css      =  '''
                       h1 {font-size: 1.6em; text-align: left}
@@ -59,4 +58,5 @@ class AdvancedUserRecipe1303841067(BasicNewsRecipe):
     remove_tags = [
                     dict(name='aside', attrs={'class':['bilderrahmenlinks','bilderrahmenrechts']}), # AGE 2014-08-29
                     dict(name='div', attrs={'class':'textbox-wide clearfix'}), # AGE 2014-08-29
+                    dict(name='span', attrs={'class':['no-display','sprite-a sprite-lupe']}), # AGe 2015-03-13
                   ]
