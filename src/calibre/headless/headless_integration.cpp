@@ -1,6 +1,11 @@
+#include <QtGlobal>
 #include "headless_integration.h"
 #include "headless_backingstore.h"
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 4, 1))
 #include "fontconfig_database.h"
+#else
+#include <QtPlatformSupport/private/qfontconfigdatabase_p.h>
+#endif
 #ifndef Q_OS_WIN
 #include <QtPlatformSupport/private/qgenericunixeventdispatcher_p.h>
 #else

@@ -492,17 +492,21 @@ class Build(Command):
     def build_headless(self):
         if iswindows or isosx:
             return  # Dont have headless operation on these platforms
+        from PyQt5.QtCore import QT_VERSION
         self.info('\n####### Building headless QPA plugin', '#'*7)
         a = Extension.absolutize
         headers = a([
             'calibre/headless/headless_backingstore.h',
             'calibre/headless/headless_integration.h',
-            'calibre/headless/fontconfig_database.h'])
+        ])
         sources = a([
             'calibre/headless/main.cpp',
             'calibre/headless/headless_backingstore.cpp',
             'calibre/headless/headless_integration.cpp',
-            'calibre/headless/fontconfig_database.cpp'])
+        ])
+        if QT_VERSION >= 0x50401:
+            headers.extend(a(['calibre/headless/fontconfig_database.h']))
+            sources.extend(a(['calibre/headless/fontconfig_database.cpp']))
         others = a(['calibre/headless/headless.json'])
         target = self.dest('headless')
         if not self.newer(target, headers + sources + others):
