@@ -20,6 +20,74 @@
 #   new recipes:
 #     - title: 
 
+- version: 2.21.0
+  date: 2015-03-13
+
+  new features:
+    - title: "Allow opening ebook files and covers in external applications by simply right clicking on them in the Book Details panel."
+      type: major
+      description: "Now, you can right click on an ebook format or the cover in the Book Details panel, and open it with any application installed on your computer. calibre will automatically present you with a list of application capable of opening the file. Simply choose one, or if your particular application is not auto-detected, you can browse for it manually."
+
+    - title: "Tag Browser: Make rename and delete for items in the Tag Browser restrict themselves to the current Virtual Library (if any). There is also an additional menu entry you can use to rename and delete across all books while in a Virtual Library."
+
+    - title: "Conversion: Use a new (written from scratch) implementation of CSS Level 3 selectors that fixes various bugs in handling of the more advanced/uncommon CSS selectors such as nth-last-child()"
+
+    - title: "Edit Book: Allow restoring of disabled confirmation prompts in preferences and add a confirmation when removing saved searches"
+
+    - title: "Edit ToC button: Remember the last used ebook formats"
+
+  bug fixes:
+    - title: "E-book viewer: Fix regression that prevented pasting of text with formatting from the viewer."
+      tickets: [1428018]
+
+    - title: "Table of Contents Editor: Fix selecting a location inside a file and then clicking on another file causes the previous location to be used in the new file."
+      tickets: [1428212]
+
+    - title: "DOCX Input: Fix incorrect bold font weight being used for heading styles even if the style definition does not specify bold."
+      tickets: [1430831]
+
+    - title: "AZW3 Input: Fix a bug that prevented conversion of AZW3 files that contained an empty CSS media block."
+      tickets: [1426220]
+
+    - title: "PDF Output: Fix incorrect rendering of text in elements that use font-variant:small-caps and also have children."
+      tickets: [1425094]
+
+    - title: "Get Books: Update Amazon Europe, Empik and CDP store plugins"
+
+    - title: "PDF Output: Fix incorrect conversion of source document that specify dir='rtl' on the root element."
+      tickets: [1429292]
+
+    - title: "PDF Output: Ignore unparseable links instead of aborting the conversion on them."
+      tickets: [1429282]
+
+    - title: "Fix reading metadata from filenames tester not working for dates before 1900."
+      tickets: [1424607]
+
+    - title: "Linux binary install: Fix SSL CA certificates not being detected on Fedora based distributions"
+
+    - title: "Books list: Fix column alignment incorrectly propagating when changing libraries"
+
+    - title: "FB2 Input: Do not put a border around images"
+
+    - title: "Fixes for various incompatibilities with (Py)Qt 5.4.1 which is used by some calibre distro packages on linux"
+
+    - title: "Fix error when running calibredb backup_metadata on a library that contains book records with no path information"
+
+    - title: "Edit Book: Fix extra search being hidden when removing a saved search"
+
+    - title: "Fix a regression in 2.20 that prevented some changes to per-library preferences from being saved"
+
+    - title: "Linux installer: Do not register application/octet-stream as one of the mimetypes calibre can handle"
+
+  improved recipes:
+    - Spektrum der Wissenschaft
+    - New Musical Express
+    - The Daily Mirror
+
+  new recipes:
+    - title: Pando Daily 
+      author: Darko Miletic
+
 - version: 2.20.0
   date: 2015-02-20
 
