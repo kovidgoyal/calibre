@@ -48,12 +48,17 @@ def parse_html(raw):
 
 class ParseItem(object):
 
-    __slots__ = ('name', 'length', 'fingerprint', 'parsed_data')
+    __slots__ = ('name', 'length', 'fingerprint', 'parsing_done', 'parsed_data')
 
     def __init__(self, name):
         self.name = name
         self.length, self.fingerprint = 0, None
         self.parsed_data = None
+        self.parsing_done = False
+
+    def __repr__(self):
+        return 'ParsedItem(name=%r, length=%r, fingerprint=%r, parsing_done=%r, parsed_data_is_None=%r)' % (
+            self.name, self.length, self.fingerprint, self.parsing_done, self.parsed_data is None)
 
 class ParseWorker(Thread):
 
@@ -100,6 +105,7 @@ class ParseWorker(Thread):
                 import traceback
                 traceback.print_exc()
             else:
+                pi.parsing_done = True
                 parsed_data = res['result']
                 if res['tb']:
                     prints("Parser error:")
@@ -114,9 +120,10 @@ class ParseWorker(Thread):
         if pi is None:
             self.parse_items[name] = pi = ParseItem(name)
         else:
-            if pi.length == ldata and pi.fingerprint == hdata:
+            if pi.parsing_done and pi.length == ldata and pi.fingerprint == hdata:
                 return
             pi.parsed_data = None
+            pi.parsing_done = False
         pi.length, pi.fingerprint = ldata, hdata
         self.requests.put((self.request_count, pi, data))
         self.request_count += 1
