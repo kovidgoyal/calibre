@@ -52,7 +52,7 @@
    <item row="0" column="0">
     <widget class="QLabel" name="label_5">
      <property name="text">
-      <string>&amp;What kind of match to use:</string>
+      <string>What &amp;kind of match to use:</string>
      </property>
      <property name="buddy">
       <cstring>matchkind</cstring>
@@ -109,7 +109,7 @@
             <item>
              <widget class="QLabel" name="label">
               <property name="text">
-               <string>&amp;All these words:</string>
+               <string>A&amp;ll these words:</string>
               </property>
               <property name="buddy">
                <cstring>all</cstring>
@@ -126,7 +126,7 @@
             <item>
              <widget class="QLabel" name="label_2">
               <property name="text">
-               <string>This exact &amp;phrase:</string>
+               <string>&amp;This exact phrase:</string>
               </property>
               <property name="buddy">
                <cstring>all</cstring>
@@ -143,7 +143,7 @@
             <item>
              <widget class="QLabel" name="label_3">
               <property name="text">
-               <string>&amp;One or more of these words:</string>
+               <string>O&amp;ne or more of these words:</string>
               </property>
               <property name="buddy">
                <cstring>all</cstring>
@@ -402,7 +402,7 @@
          <item>
           <widget class="QLabel" name="label_15">
            <property name="text">
-            <string>&amp;month</string>
+            <string>mo&amp;nth</string>
            </property>
            <property name="buddy">
             <cstring>date_month</cstring>
@@ -461,9 +461,12 @@
           </widget>
          </item>
          <item>
+          <widget class="QComboBox" name="date_ago_type"/>
+         </item>
+         <item>
           <widget class="QLabel" name="label_18">
            <property name="text">
-            <string>days ago</string>
+            <string> ago</string>
            </property>
           </widget>
          </item>

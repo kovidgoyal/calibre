@@ -50,6 +50,7 @@ class SearchDialog(QDialog, Ui_Dialog):
         self.date_month.currentIndexChanged.connect(lambda : self.sel_date.setChecked(True))
         self.date_day.valueChanged.connect(lambda : self.sel_date.setChecked(True))
         self.date_daysago.valueChanged.connect(lambda : self.sel_daysago.setChecked(True))
+        self.date_ago_type.addItems([_('days'), _('weeks'), _('months'), _('years')])
         self.date_human.currentIndexChanged.connect(lambda : self.sel_human.setChecked(True))
         init_dateop(self.dateop_date)
         self.sel_date.setChecked(True)
@@ -143,7 +144,9 @@ class SearchDialog(QDialog, Ui_Dialog):
                     ans += '-%s' % d
             return ans
         if self.sel_daysago.isChecked():
-            return '%s%sdaysago' % (prefix, self.date_daysago.value())
+            val = self.date_daysago.value()
+            val *= {0:1, 1:7, 2:30, 3:365}[self.date_ago_type.currentIndex()]
+            return '%s%sdaysago' % (prefix, val)
         return '%s%s' % (prefix, unicode(self.date_human.itemData(self.date_human.currentIndex()) or ''))
 
     def adv_search_string(self):
