@@ -314,6 +314,9 @@ class Boss(QObject):
                 if isinstance(ef, type('')):
                     ef = [ef]
                 map(self.gui.file_list.request_edit, ef)
+            else:
+                if tprefs['restore_book_state']:
+                    self.restore_book_edit_state()
             self.gui.toc_view.update_if_visible()
             self.add_savepoint(_('Start of editing session'))
 
@@ -1458,5 +1461,50 @@ class Boss(QObject):
     def save_state(self):
         with tprefs:
             self.gui.save_state()
-    # }}}
+            self.save_book_edit_state()
 
+    def save_book_edit_state(self):
+        c = current_container()
+        if c and c.path_to_ebook:
+            mem = tprefs['edit_book_state']
+            order = tprefs['edit_book_state_order']
+            extra = len(order) - 99
+            if extra > 0:
+                order = [k for k in order[extra:] if k in mem]
+                mem = {k:mem[k] for k in order}
+            mem[c.path_to_ebook] = {
+                'editors':{name:ed.current_editing_state for name, ed in editors.iteritems()},
+                'currently_editing':self.currently_editing,
+                'tab_order':self.gui.central.tab_order,
+            }
+            try:
+                order.remove(c.path_to_ebook)
+            except ValueError:
+                pass
+            order.append(c.path_to_ebook)
+            tprefs['edit_book_state'] = mem
+            tprefs['edit_book_state_order'] = order
+
+    def restore_book_edit_state(self):
+        c = current_container()
+        if c and c.path_to_ebook:
+            state = tprefs['edit_book_state'].get(c.path_to_ebook)
+            if state is not None:
+                opened = set()
+                eds = state.get('editors', {})
+                for name in state.get('tab_order', ()):
+                    if c.has_name(name):
+                        try:
+                            editor = self.edit_file_requested(name)
+                            if editor is not None:
+                                opened.add(name)
+                                es = eds.get(name)
+                                if es is not None:
+                                    editor.current_editing_state = es
+                        except Exception:
+                            import traceback
+                            traceback.print_exc()
+                ce = state.get('currently_editing')
+                if ce in opened:
+                    self.show_editor(ce)
+    # }}}

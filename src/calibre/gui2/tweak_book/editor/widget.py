@@ -149,6 +149,19 @@ class Editor(QMainWindow):
             self.editor.go_to_line(val)
         return property(fget=fget, fset=fset)
 
+    @dynamic_property
+    def current_editing_state(self):
+        def fget(self):
+            c = self.editor.textCursor()
+            return {'cursor':(c.anchor(), c.position())}
+        def fset(self, val):
+            anchor, position = val.get('cursor', (None, None))
+            if anchor is not None and position is not None:
+                c = self.editor.textCursor()
+                c.setPosition(anchor), c.setPosition(position, c.KeepAnchor)
+                self.editor.setTextCursor(c)
+        return property(fget=fget, fset=fset)
+
     def current_tag(self, for_position_sync=True):
         return self.editor.current_tag(for_position_sync=for_position_sync)
 

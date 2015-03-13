@@ -116,6 +116,14 @@ class Editor(QMainWindow):
             self.modification_state_changed.emit(val)
         return property(fget=fget, fset=fset)
 
+    @dynamic_property
+    def current_editing_state(self):
+        def fget(self):
+            return {}
+        def fset(self, val):
+            pass
+        return property(fget=fget, fset=fset)
+
     @property
     def undo_available(self):
         return self.canvas.undo_action.isEnabled()

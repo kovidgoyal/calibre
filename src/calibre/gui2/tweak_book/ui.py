@@ -99,6 +99,16 @@ class Central(QStackedWidget):  # {{{
         self.editor_tabs.setTabToolTip(index, _('Full path:') + ' ' + name)
         editor.modification_state_changed.connect(self.editor_modified)
 
+    @property
+    def tab_order(self):
+        ans = []
+        rmap = {v:k for k, v in editors.iteritems()}
+        for i in xrange(self.editor_tabs.count()):
+            name = rmap.get(self.editor_tabs.widget(i))
+            if name is not None:
+                ans.append(name)
+        return ans
+
     def rename_editor(self, editor, name):
         for i in xrange(self.editor_tabs.count()):
             if self.editor_tabs.widget(i) is editor:

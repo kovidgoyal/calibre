@@ -306,6 +306,13 @@ class MainWindowSettings(BasicSettings):
             cn = {('top', 'left'): _('The top-left corner'), ('top', 'right'):_('The top-right corner'),
                   ('bottom', 'left'):_('The bottom-left corner'), ('bottom', 'right'):_('The bottom-right corner')}[(v, h)]
             l.addRow(cn + ':', w)
+        nd = self('restore_book_state')
+        nd.setText(_('Restore state of previously edited book when opening it again'))
+        nd.setToolTip('<p>' + _(
+            'When opening a previously edited book again, restore its state. That means all open'
+            ' files are automatically re-opened and the cursor is positioned at its previous location.'
+        ))
+        l.addRow(nd)
 
 class PreviewSettings(BasicSettings):
 
