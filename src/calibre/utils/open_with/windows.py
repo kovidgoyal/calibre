@@ -11,9 +11,12 @@ from collections import namedtuple
 from future_builtins import map
 
 from PyQt5.Qt import QtWin, Qt, QIcon, QByteArray, QBuffer, QPixmap
-import win32con, win32api, win32gui
+import win32con, win32api, win32gui, pywintypes, winerror
 
+from calibre import prints
 from calibre.gui2 import must_use_qt
+from calibre.utils.winreg.default_programs import split_commandline
+
 ICON_SIZE = 64
 
 def hicon_to_pixmap(hicon):
@@ -33,7 +36,13 @@ def copy_to_size(pixmap, size=ICON_SIZE):
 
 def simple_load_icon(module, index, as_data=False, size=ICON_SIZE):
     ' Use the win32 API ExtractIcon to load the icon. This restricts icon size to 32x32, but has less chance of failing '
-    large_icons, small_icons = win32gui.ExtractIconEx(module, index, 10)
+    try:
+        large_icons, small_icons = win32gui.ExtractIconEx(module, index, 10)
+    except pywintypes.error as err:
+        if err.winerror != winerror.ERROR_FILE_NOT_FOUND:
+            raise
+        prints('File %r does not exist, cannot load icon' % module)
+        return
     icons = large_icons + small_icons
     try:
         if icons:
@@ -104,6 +113,8 @@ def load_icon_resource(icon_resource, as_data=False, size=ICON_SIZE):
         return
     module, index = parts
     index = int(index)
+    if module.startswith('"') and module.endswith('"'):
+        module = split_commandline(module)[0]
     try:
         return load_icon(module, index, as_data=as_data, size=size)
     except Exception:

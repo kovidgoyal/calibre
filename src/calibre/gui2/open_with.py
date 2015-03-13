@@ -73,13 +73,23 @@ if iswindows:
         return sort_key(entry.get('name') or '')
 
     def finalize_entry(entry):
-        data = load_icon_resource(entry.pop('icon_resource', None), as_data=True)
+        try:
+            data = load_icon_resource(entry.pop('icon_resource', None), as_data=True)
+        except Exception:
+            data = None
+            import traceback
+            traceback.print_exc()
         if data:
             entry['icon_data'] = data
         return entry
 
     def entry_to_item(entry, parent):
-        icon = load_icon_resource(entry.get('icon_resource'))
+        try:
+            icon = load_icon_resource(entry.get('icon_resource'))
+        except Exception:
+            icon = None
+            import traceback
+            traceback.print_exc()
         if not icon:
             icon = entry_to_icon_text(entry)[0]
         ans = QListWidgetItem(QIcon(icon), entry.get('name') or _('Unknown'), parent)
