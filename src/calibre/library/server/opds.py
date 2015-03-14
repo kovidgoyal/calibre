@@ -551,7 +551,7 @@ class OPDSServer(object):
         which = which[1:]
         if type_ == 'I':
             try:
-                p = which.index(':')
+                p = which.rindex(':')
                 category = which[p+1:]
                 which = which[:p]
                 # This line will toss an exception for composite columns
