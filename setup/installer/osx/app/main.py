@@ -415,7 +415,7 @@ class Py2App(object):
         info('\nAdding poppler')
         for x in ('libpoppler.46.dylib',):
             self.install_dylib(os.path.join(SW, 'lib', x))
-        for x in ('pdftohtml', 'pdftoppm', 'pdfinfo'):
+        for x in ('pdftohtml', 'pdftoppm', 'pdfinfo', 'pdfimages'):
             self.install_dylib(os.path.join(SW, 'bin', x), False)
 
     @flush
