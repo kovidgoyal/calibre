@@ -315,7 +315,7 @@ class Win32Freeze(Command, WixMixIn):
 
         self.info('\tAdding misc binary deps')
         bindir = os.path.join(SW, 'bin')
-        for x in ('pdftohtml', 'pdfinfo', 'pdftoppm'):
+        for x in ('pdftohtml', 'pdfinfo', 'pdftoppm', 'pdfimages'):
             shutil.copy2(os.path.join(bindir, x+'.exe'), self.base)
         for pat in ('*.dll',):
             for f in glob.glob(os.path.join(bindir, pat)):
