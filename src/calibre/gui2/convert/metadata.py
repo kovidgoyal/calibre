@@ -6,7 +6,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, re
+import os, re, errno
 
 from PyQt5.Qt import QPixmap
 
@@ -210,9 +210,48 @@ class MetadataWidget(Widget, Ui_Form):
 
     def get_recommendations(self):
         return {
-                'prefer_metadata_cover':
-                    bool(self.opt_prefer_metadata_cover.isChecked()),
-                }
+            'prefer_metadata_cover': bool(self.opt_prefer_metadata_cover.isChecked()),
+        }
+
+    def pre_commit_check(self):
+        if self.db is None:
+            return True
+        db = self.db.new_api
+        title, authors = self.get_title_and_authors()
+        try:
+            if title != db.field_for('title', self.book_id):
+                db.set_field('title', {self.book_id:title})
+                langs = db.field_for('languages', self.book_id)
+                if langs:
+                    db.set_field('sort', {self.book_id:title_sort(title, langs[0])})
+            if list(authors) != list(db.field_for('authors', self.book_id)):
+                db.set_field('authors', {self.book_id:authors})
+            if self.cover_changed and self.cover_data is not None:
+                self.db.set_cover(self.book_id, self.cover_data)
+        except EnvironmentError as err:
+            if getattr(err, 'errno', None) == errno.EACCES:  # Permission denied
+                import traceback
+                fname = getattr(err, 'filename', None) or 'file'
+                error_dialog(self, _('Permission denied'),
+                        _('Could not open %s. Is it being used by another'
+                        ' program?')%fname, det_msg=traceback.format_exc(), show=True)
+                return False
+        publisher = self.publisher.text().strip()
+        if publisher != db.field_for('publisher', self.book_id):
+            db.set_field('publisher', {self.book_id:publisher})
+        author_sort = self.author_sort.text().strip()
+        if author_sort != db.field_for('author_sort', self.book_id):
+            db.set_field('author_sort', {self.book_id:author_sort})
+        tags = [t.strip() for t in self.tags.text().strip().split(',')]
+        if tags != list(db.field_for('tags', self.book_id)):
+            db.set_field('tags', {self.book_id:tags})
+        series_index = float(self.series_index.value())
+        series = self.series.currentText().strip()
+        if series != db.field_for('series', self.book_id):
+            db.set_field('series', {self.book_id:series})
+        if series and series_index != db.field_for('series_index', self.book_id):
+            db.set_field('series_index', {self.book_id:series_index})
+        return True
 
     def commit(self, save_defaults=False):
         '''
@@ -220,23 +259,10 @@ class MetadataWidget(Widget, Ui_Form):
         Both may be None. Also returns a recommendation dictionary.
         '''
         recs = self.commit_options(save_defaults)
-        self.user_mi = mi = self.get_metadata()
+        self.user_mi = self.get_metadata()
         self.cover_file = self.opf_file = None
         if self.db is not None:
-            if mi.title == self.db.title(self.book_id, index_is_id=True):
-                mi.title_sort = self.db.title_sort(self.book_id, index_is_id=True)
-            else:
-                # Regenerate title sort taking into account book language
-                languages = self.db.languages(self.book_id, index_is_id=True)
-                if languages:
-                    lang = languages.split(',')[0]
-                else:
-                    lang = None
-                mi.title_sort = title_sort(mi.title, lang=lang)
-            self.db.set_metadata(self.book_id, self.user_mi)
             self.mi, self.opf_file = create_opf_file(self.db, self.book_id)
-            if self.cover_changed and self.cover_data is not None:
-                self.db.set_cover(self.book_id, self.cover_data)
             cover = self.db.cover(self.book_id, index_is_id=True)
             if cover:
                 cf = PersistentTemporaryFile('.jpeg')
@@ -244,5 +270,3 @@ class MetadataWidget(Widget, Ui_Form):
                 cf.close()
                 self.cover_file = cf
         return recs
-
-
