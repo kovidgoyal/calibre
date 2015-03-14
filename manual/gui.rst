@@ -502,7 +502,7 @@ delete them, compare them to their original versions, save them to disk, open
 them with an external program, etc.
 
 You can change the cover of the book by simply drag and dropping an
-image onto the book details panel. If yo wish to edit the cover image in
+image onto the book details panel. If you wish to edit the cover image in
 an external program, simply right click on it and choose :guilabel:`Open With`.
 
 You can also add ebook files to the current book by drag and dropping the files
