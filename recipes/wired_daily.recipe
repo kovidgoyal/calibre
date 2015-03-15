@@ -35,7 +35,7 @@ class WiredDailyNews(BasicNewsRecipe):
     remove_tags = [
         dict(name=['meta','link']),
         dict(name='div', attrs={'class':'podcast_storyboard'}),
-        dict(id='article-tags'),
+        dict(id=['sharing', 'social', 'article-tags', 'sidebar']),
                   ]
     keep_only_tags=[
         dict(attrs={'data-js':['post', 'postHeader']}),
@@ -62,8 +62,4 @@ class WiredDailyNews(BasicNewsRecipe):
             ]
 
     def get_article_url(self, article):
-        url = article.get('guid',  None)
-        try:
-            return self.browser.open_novisit(url).geturl()  # resolve redirect.
-        except:
-            return url
+        return article.get('guid',  None)
