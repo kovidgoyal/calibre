@@ -9,7 +9,8 @@ import sys
 
 from PyQt5.Qt import (Qt, QApplication, QStyle, QIcon,  QDoubleSpinBox, QStyleOptionViewItem,
         QSpinBox, QStyledItemDelegate, QComboBox, QTextDocument, QSize, QMenu, QKeySequence,
-        QAbstractTextDocumentLayout, QFont, QFontInfo, QDate, QDateTimeEdit, QDateTime)
+        QAbstractTextDocumentLayout, QFont, QFontInfo, QDate, QDateTimeEdit, QDateTime,
+        QStyleOptionComboBox, QStyleOptionSpinBox)
 
 from calibre.gui2 import UNDEFINED_QDATETIME, error_dialog, rating_font
 from calibre.constants import iswindows
@@ -126,7 +127,7 @@ class DateDelegate(QStyledItemDelegate):  # {{{
     def __init__(self, parent, tweak_name='gui_timestamp_display_format',
             default_format='dd MMM yyyy'):
         QStyledItemDelegate.__init__(self, parent)
-        self.parent = parent
+        self.table_widget = parent
         self.tweak_name = tweak_name
         self.format = tweaks[self.tweak_name]
         if self.format is None:
@@ -143,7 +144,7 @@ class DateDelegate(QStyledItemDelegate):  # {{{
 
     def setEditorData(self, editor, index):
         QStyledItemDelegate.setEditorData(self, editor, index)
-        resize_line_edit_to_contents(self.parent, editor)
+        resize_line_edit_to_contents(self.table_widget, editor)
 
 # }}}
 
@@ -152,7 +153,7 @@ class PubDateDelegate(QStyledItemDelegate):  # {{{
     def __init__(self, *args, **kwargs):
         QStyledItemDelegate.__init__(self, *args, **kwargs)
         self.format = tweaks['gui_pubdate_display_format']
-        self.parent = args[0]
+        self.table_widget = args[0]
         if self.format is None:
             self.format = 'MMM yyyy'
 
@@ -172,37 +173,41 @@ class PubDateDelegate(QStyledItemDelegate):  # {{{
         if isinstance(val, QDateTime):
             val = val.date()
         editor.setDate(val)
-        resize_line_edit_to_contents(self.parent, editor)
+        resize_line_edit_to_contents(self.table_widget, editor)
 
 # }}}
 
-def resize_line_edit_to_contents(parent, line_edit):
+def resize_line_edit_to_contents(table_widget, line_edit):
     if isinstance(line_edit, DelegateCB):
         text = line_edit.currentText()
     else:
         text = line_edit.text();
 
     fm = line_edit.fontMetrics();
-    style = QApplication.style()
+
     orig_width = line_edit.width()
 
-    # I can't figure out how to find the size of the area around where the text
-    # goes. A constant of 10 seems to work.
-    srect = style.itemTextRect(fm, line_edit.geometry(), Qt.AlignLeft, True, text)
-    new_width = (srect.right() - srect.left()) + 10
-
-    if isinstance(line_edit, (QComboBox, QDateTimeEdit, QSpinBox, QDoubleSpinBox)):
-        # And again, I can't find the size of the down arrow that opens the
-        # combo box. A constant of 20 seems to work
-        new_width += 20
-
+    # The line edit box seems to extend by the space consumed by an 'M'. So add
+    # that to the text
     style = QApplication.style()
-    srect = style.itemTextRect(fm, line_edit.geometry(), Qt.AlignLeft, True, text)
+    srect = style.itemTextRect(fm, line_edit.geometry(), Qt.AlignLeft, False, text + 'M')
+    new_width = srect.right() - srect.left()
+
+    # Now compute the size of the combo/spinner arrow
+    if isinstance(line_edit, (QComboBox, QDateTimeEdit)):
+        r = style.subControlRect(QStyle.CC_ComboBox, QStyleOptionComboBox(),
+                                  QStyle.SC_ComboBoxArrow)
+        new_width -= r.left()
+    elif isinstance(line_edit, (QSpinBox, QDoubleSpinBox)):
+        r = style.subControlRect(QStyle.CC_SpinBox, QStyleOptionSpinBox(),
+                              QStyle.SC_SpinBoxUp)
+        new_width -= r.left()
 
     # Compute the space available from the left edge of the widget to the
-    # right edge of the table
-    max_width = (parent.horizontalScrollBar().geometry().width() -
-                 parent.verticalHeader().width() -
+    # right edge of the displayed table (the viewport). We can't display any
+    # more than that
+    max_width = (table_widget.horizontalScrollBar().geometry().width() -
+                 table_widget.verticalHeader().width() -
                  line_edit.pos().x())
     new_width = new_width if new_width < max_width else max_width
 
@@ -218,7 +223,7 @@ class TextDelegate(QStyledItemDelegate):  # {{{
         auto-complete will be used.
         '''
         QStyledItemDelegate.__init__(self, parent)
-        self.parent = parent
+        self.table_widget = parent
         self.auto_complete_function = None
 
     def set_auto_complete_function(self, f):
@@ -238,7 +243,7 @@ class TextDelegate(QStyledItemDelegate):  # {{{
         ct = unicode(index.data(Qt.DisplayRole) or '')
         editor.setText(ct)
         editor.selectAll()
-        resize_line_edit_to_contents(self.parent, editor)
+        resize_line_edit_to_contents(self.table_widget, editor)
 
     def setModelData(self, editor, model, index):
         if isinstance(editor, EditWithComplete):
@@ -256,7 +261,7 @@ class CompleteDelegate(QStyledItemDelegate):  # {{{
         self.sep = sep
         self.items_func_name = items_func_name
         self.space_before_sep = space_before_sep
-        self.parent = parent
+        self.table_widget = parent
 
     def set_database(self, db):
         self.db = db
@@ -283,7 +288,7 @@ class CompleteDelegate(QStyledItemDelegate):  # {{{
         ct = unicode(index.data(Qt.DisplayRole) or '')
         editor.setText(ct)
         editor.selectAll()
-        resize_line_edit_to_contents(self.parent, editor)
+        resize_line_edit_to_contents(self.table_widget, editor)
 
     def setModelData(self, editor, model, index):
         if isinstance(editor, EditWithComplete):
@@ -297,7 +302,7 @@ class LanguagesDelegate(QStyledItemDelegate):  # {{{
 
     def __init__(self, parent):
         QStyledItemDelegate.__init__(self, parent)
-        self.parent = parent
+        self.table_widget = parent
 
     def createEditor(self, parent, option, index):
         editor = LanguagesEdit(parent=parent)
@@ -307,7 +312,7 @@ class LanguagesDelegate(QStyledItemDelegate):  # {{{
     def setEditorData(self, editor, index):
         ct = unicode(index.data(Qt.DisplayRole) or '')
         editor.show_initial_value(ct)
-        resize_line_edit_to_contents(self.parent, editor)
+        resize_line_edit_to_contents(self.table_widget, editor)
 
     def setModelData(self, editor, model, index):
         val = ','.join(editor.lang_codes)
@@ -324,7 +329,7 @@ class CcDateDelegate(QStyledItemDelegate):  # {{{
 
     def __init__(self, parent):
         QStyledItemDelegate.__init__(self, parent)
-        self.parent = parent
+        self.table_widget = parent
 
     def set_format(self, format):
         if not format:
@@ -349,7 +354,7 @@ class CcDateDelegate(QStyledItemDelegate):  # {{{
         if val is None:
             val = now()
         editor.setDateTime(val)
-        resize_line_edit_to_contents(self.parent, editor)
+        resize_line_edit_to_contents(self.table_widget, editor)
 
     def setModelData(self, editor, model, index):
         val = editor.dateTime()
@@ -367,7 +372,7 @@ class CcTextDelegate(QStyledItemDelegate):  # {{{
 
     def __init__(self, parent):
         QStyledItemDelegate.__init__(self, parent)
-        self.parent = parent
+        self.table_widget = parent
 
     def createEditor(self, parent, option, index):
         m = index.model()
@@ -382,7 +387,7 @@ class CcTextDelegate(QStyledItemDelegate):  # {{{
     def setEditorData(self, editor, index):
         ct = unicode(index.data(Qt.DisplayRole) or '')
         editor.setText(ct)
-        resize_line_edit_to_contents(self.parent, editor)
+        resize_line_edit_to_contents(self.table_widget, editor)
         editor.selectAll()
 
     def setModelData(self, editor, model, index):
@@ -398,7 +403,7 @@ class CcNumberDelegate(QStyledItemDelegate):  # {{{
 
     def __init__(self, parent):
         QStyledItemDelegate.__init__(self, parent)
-        self.parent = parent
+        self.table_widget = parent
 
     def createEditor(self, parent, option, index):
         m = index.model()
@@ -428,7 +433,7 @@ class CcNumberDelegate(QStyledItemDelegate):  # {{{
         if val is None:
             val = 0
         editor.setValue(val)
-        resize_line_edit_to_contents(self.parent, editor)
+        resize_line_edit_to_contents(self.table_widget, editor)
 
 # }}}
 
@@ -440,7 +445,7 @@ class CcEnumDelegate(QStyledItemDelegate):  # {{{
 
     def __init__(self, parent):
         QStyledItemDelegate.__init__(self, parent)
-        self.parent = parent
+        self.table_widget = parent
 
     def createEditor(self, parent, option, index):
         m = index.model()
@@ -467,7 +472,7 @@ class CcEnumDelegate(QStyledItemDelegate):  # {{{
             editor.setCurrentIndex(0)
         else:
             editor.setCurrentIndex(idx)
-        resize_line_edit_to_contents(self.parent, editor)
+        resize_line_edit_to_contents(self.table_widget, editor)
 # }}}
 
 class CcCommentsDelegate(QStyledItemDelegate):  # {{{
