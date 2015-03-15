@@ -7,6 +7,7 @@ __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import textwrap
+from io import BytesIO
 
 from lxml import etree
 from lxml.builder import ElementMaker
@@ -14,13 +15,36 @@ from lxml.builder import ElementMaker
 from calibre import guess_type
 from calibre.constants import numeric_version, __appname__
 from calibre.ebooks.docx.names import namespaces, STYLES, WEB_SETTINGS
+from calibre.ebooks.metadata import authors_to_string
+from calibre.ebooks.metadata.opf2 import OPF as ReadOPF
+from calibre.ebooks.oeb.base import OPF, OPF2_NS
 from calibre.utils.date import utcnow
+from calibre.utils.localization import canonicalize_lang, lang_as_iso639_1
 from calibre.utils.zipfile import ZipFile
 
 def xml2str(root, pretty_print=False, with_tail=False):
     ans = etree.tostring(root, encoding='utf-8', xml_declaration=True,
                           pretty_print=pretty_print, with_tail=with_tail)
     return ans
+
+def update_doc_props(root, mi):
+    def setm(name, text=None, ns='dc'):
+        ans = root.makeelement('{%s}%s' % (namespaces[ns], name))
+        for child in root:
+            if child.tag == ans.tag:
+                root.remove(child)
+        ans.text = text
+        root.append(ans)
+        return ans
+    setm('title', mi.title)
+    setm('creator', authors_to_string(mi.authors))
+    if mi.tags:
+        setm('keywords', ', '.join(mi.tags), ns='cp')
+    if mi.comments:
+        setm('description', mi.comments)
+    if mi.languages:
+        l = canonicalize_lang(mi.languages[0])
+        setm('language', lang_as_iso639_1(l) or l)
 
 
 class DocumentRelationships(object):
@@ -105,6 +129,8 @@ class DOCX(object):
             E.ScaleCrop('false'),
             E.SharedDoc('false'),
         )
+        if self.mi.publisher:
+            props.append(E.Company(self.mi.publisher))
         return xml2str(props)
 
     @property
@@ -134,14 +160,18 @@ class DOCX(object):
             x = cp.makeelement('{%s}%s' % (namespaces['dcterms'], x), **{'{%s}type' % namespaces['xsi']:'dcterms:W3CDTF'})
             x.text = ts
             cp.append(x)
+        package = etree.Element(OPF('package'), attrib={'version': '2.0'}, nsmap={None: OPF2_NS})
+        oeb.metadata.to_opf2(package)
+        self.mi = ReadOPF(BytesIO(xml2str(package)), populate_spine=False, try_to_guess_cover=False).to_book_metadata()
+        update_doc_props(cp, self.mi)
         return xml2str(cp)
 
     def write(self, path_or_stream, oeb):
         with ZipFile(path_or_stream, 'w') as zf:
             zf.writestr('[Content_Types].xml', self.contenttypes)
             zf.writestr('_rels/.rels', self.containerrels)
-            zf.writestr('docProps/app.xml', self.appproperties)
             zf.writestr('docProps/core.xml', self.convert_metadata(oeb))
+            zf.writestr('docProps/app.xml', self.appproperties)
             zf.writestr('word/webSettings.xml', self.websettings)
             zf.writestr('word/document.xml', xml2str(self.document))
             zf.writestr('word/styles.xml', xml2str(self.styles))
