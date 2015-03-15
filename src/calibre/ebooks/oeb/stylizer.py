@@ -180,9 +180,9 @@ class Stylizer(object):
         for _, _, cssdict, text, _ in rules:
             fl = pseudo_pat.search(text)
             try:
-                matches = select(text)
+                matches = tuple(select(text))
             except SelectorError as err:
-                self.log.error('Ignoring CSS rule with invalid selector: %r (%s)' % (text, as_unicode(err)))
+                self.logger.error('Ignoring CSS rule with invalid selector: %r (%s)' % (text, as_unicode(err)))
                 continue
 
             if fl is not None:
