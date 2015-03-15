@@ -80,6 +80,13 @@ class TextRun(object):
                 if preserve_whitespace:
                     t.set('{http://www.w3.org/XML/1998/namespace}space', 'preserve')
 
+    def is_empty(self):
+        if not self.texts:
+            return True
+        if len(self.texts) == 1 and self.texts[0] == ('', False):
+            return True
+        return False
+
 class Block(object):
 
     def __init__(self, styles_manager, html_block, style, is_first_block=False):
@@ -127,6 +134,12 @@ class Block(object):
         for run in self.runs:
             run.serialize(p)
 
+    def is_empty(self):
+        for run in self.runs:
+            if not run.is_empty():
+                return False
+        return True
+
 class Convert(object):
 
     def __init__(self, oeb, docx):
@@ -156,6 +169,8 @@ class Convert(object):
             self.blocks.append(b)
             is_first_block = False
             self.process_block(body, b, stylizer, ignore_tail=True)
+        if self.blocks and self.blocks[0].is_empty():
+            del self.blocks[0]
 
     def process_block(self, html_block, docx_block, stylizer, ignore_tail=False):
         block_style = stylizer.style(html_block)

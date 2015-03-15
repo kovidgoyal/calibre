@@ -367,6 +367,12 @@ class StylesManager(object):
             else:
                 text_style.id = 'Text%d' % i
                 text_style.name = 'Text %d' % i
+        for s in tuple(self.block_styles):
+            if s.id is None:
+                self.block_styles.pop(s)
+        for s in tuple(self.text_styles):
+            if s.id is None:
+                self.text_styles.pop(s)
 
     def serialize(self, styles):
         for style in sorted(self.block_styles, key=lambda s:(s is not self.normal_block_style, numeric_sort_key(s.id))):
