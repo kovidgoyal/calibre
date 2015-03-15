@@ -159,7 +159,8 @@ class TextStyle(DOCXStyle):
         DOCXStyle.__init__(self)
 
     def serialize(self, styles, normal_style):
-        style = DOCXStyle.serialize(self, styles, normal_style)
+        style_root = DOCXStyle.serialize(self, styles, normal_style)
+        style = makeelement(style_root, 'rPr')
 
         if self is normal_style or self.font_family != normal_style.font_family:
             style.append(makeelement(
@@ -206,7 +207,9 @@ class TextStyle(DOCXStyle):
         if len(bdr):
             style.append(bdr)
 
-        return style
+        if len(style) > 0:
+            style_root.append(style)
+        return style_root
 
 
 class BlockStyle(DOCXStyle):
@@ -242,7 +245,8 @@ class BlockStyle(DOCXStyle):
         DOCXStyle.__init__(self)
 
     def serialize(self, styles, normal_style):
-        style = DOCXStyle.serialize(self, styles, normal_style)
+        style_root = DOCXStyle.serialize(self, styles, normal_style)
+        style = makeelement(style_root, 'pPr')
 
         spacing = makeelement(style, 'spacing')
         for edge, attr in {'top':'before', 'bottom':'after'}.iteritems():
@@ -316,7 +320,10 @@ class BlockStyle(DOCXStyle):
 
         if self is not normal_style and self.next_style is not None:
             style.append(makeelement(style, 'next', val=self.next_style))
-        return style
+
+        if len(style) > 0:
+            style_root.append(style)
+        return style_root
 
 
 class StylesManager(object):
