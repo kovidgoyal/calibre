@@ -15,6 +15,7 @@ from calibre.ebooks.docx.names import namespaces
 from calibre.ebooks.docx.writer.styles import w, StylesManager
 from calibre.ebooks.oeb.stylizer import Stylizer as Sz, Style as St
 from calibre.ebooks.oeb.base import XPath, barename
+from calibre.ebooks.pdf.render.common import PAPER_SIZES
 
 class Style(St):
 
@@ -235,6 +236,18 @@ class Convert(object):
         doc.append(body)
         for block in self.blocks:
             block.serialize(body)
+        width, height = PAPER_SIZES[self.opts.docx_page_size]
+        if self.opts.docx_custom_page_size is not None:
+            width, height = map(float, self.opts.docx_custom_page_size.partition('x')[0::2])
+        width, height = int(20 * width), int(20 * height)
+        def margin(which):
+            return w(which), str(int(getattr(self.opts, 'margin_'+which) * 20))
+        body.append(E.sectPr(
+            E.pgSz(**{w('w'):str(width), w('h'):str(height)}),
+            E.pgMar(**dict(map(margin, 'left top right bottom'.split()))),
+            E.cols(**{w('space'):'720'}),
+            E.docGrid(**{w('linePitch'):"360"}),
+        ))
 
         dn = {k:v for k, v in namespaces.iteritems() if k in 'wr'}
         E = ElementMaker(namespace=dn['w'], nsmap=dn)
