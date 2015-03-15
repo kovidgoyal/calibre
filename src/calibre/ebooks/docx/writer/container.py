@@ -30,7 +30,7 @@ def xml2str(root, pretty_print=False, with_tail=False):
 def update_doc_props(root, mi):
     def setm(name, text=None, ns='dc'):
         ans = root.makeelement('{%s}%s' % (namespaces[ns], name))
-        for child in root:
+        for child in tuple(root):
             if child.tag == ans.tag:
                 root.remove(child)
         ans.text = text

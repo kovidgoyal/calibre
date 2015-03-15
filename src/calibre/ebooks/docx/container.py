@@ -200,17 +200,27 @@ class DOCX(object):
 
         return by_id, by_type
 
-    @property
-    def metadata(self):
-        mi = Metadata(_('Unknown'))
+    def get_document_properties_names(self):
         name = self.relationships.get(DOCPROPS, None)
         if name is None:
             names = tuple(n for n in self.names if n.lower() == 'docprops/core.xml')
             if names:
                 name = names[0]
-        if name:
+        yield name
+        name = self.relationships.get(APPPROPS, None)
+        if name is None:
+            names = tuple(n for n in self.names if n.lower() == 'docprops/app.xml')
+            if names:
+                name = names[0]
+        yield name
+
+    @property
+    def metadata(self):
+        mi = Metadata(_('Unknown'))
+        dp_name, ap_name = self.get_document_properties_names()
+        if dp_name:
             try:
-                raw = self.read(name)
+                raw = self.read(dp_name)
             except KeyError:
                 pass
             else:
@@ -223,14 +233,10 @@ class DOCX(object):
             else:
                 read_default_style_language(raw, mi)
 
-        name = self.relationships.get(APPPROPS, None)
-        if name is None:
-            names = tuple(n for n in self.names if n.lower() == 'docprops/app.xml')
-            if names:
-                name = names[0]
-        if name:
+        ap_name = self.relationships.get(APPPROPS, None)
+        if ap_name:
             try:
-                raw = self.read(name)
+                raw = self.read(ap_name)
             except KeyError:
                 pass
             else:

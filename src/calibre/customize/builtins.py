@@ -533,6 +533,17 @@ class TXTZMetadataWriter(MetadataWriterPlugin):
         from calibre.ebooks.metadata.extz import set_metadata
         set_metadata(stream, mi)
 
+class DocXMetadataWriter(MetadataWriterPlugin):
+
+    name        = 'Set DOCX metadata'
+    file_types  = set(['docx'])
+    description = _('Read metadata from %s files')%'DOCX'
+
+    def set_metadata(self, stream, mi, type):
+        from calibre.ebooks.metadata.docx import set_metadata
+        return set_metadata(stream, mi)
+
+
 plugins += [x for x in list(locals().values()) if isinstance(x, type) and
                                         x.__name__.endswith('MetadataWriter')]
 

@@ -7,9 +7,13 @@ __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-from calibre.ebooks.docx.container import DOCX
-from calibre.ebooks.docx.names import XPath, get
+from io import BytesIO
 
+from lxml import etree
+
+from calibre.ebooks.docx.container import DOCX
+from calibre.ebooks.docx.writer.container import update_doc_props, xml2str, namespaces
+from calibre.ebooks.docx.names import XPath, get
 from calibre.utils.magick.draw import identify_data
 
 images = XPath('//*[name()="w:drawing" or name()="w:pict"]/descendant::*[(name()="a:blip" and @r:embed) or (name()="v:imagedata" and @r:id)][1]')
@@ -43,6 +47,30 @@ def get_metadata(stream):
         mi.cover_data = cdata
 
     return mi
+
+def set_metadata(stream, mi):
+    from calibre.utils.zipfile import safe_replace
+    c = DOCX(stream, extract=False)
+    dp_name, ap_name = c.get_document_properties_names()
+    dp_raw = c.read(dp_name)
+    try:
+        ap_raw = c.read(ap_name)
+    except Exception:
+        ap_raw = None
+    cp = etree.fromstring(dp_raw)
+    update_doc_props(cp, mi)
+    replacements = {}
+    if ap_raw is not None:
+        ap = etree.fromstring(ap_raw)
+        comp = ap.makeelement('{%s}Company' % namespaces['ep'])
+        for child in tuple(ap):
+            if child.tag == comp.tag:
+                ap.remove(child)
+        comp.text = mi.publisher
+        ap.append(comp)
+        replacements[ap_name] = BytesIO(xml2str(ap))
+    stream.seek(0)
+    safe_replace(stream, dp_name, BytesIO(xml2str(cp)), extra_replacements=replacements)
 
 if __name__ == '__main__':
     import sys
