@@ -67,6 +67,9 @@ class TextRun(object):
     def serialize(self, p):
         r = p.makeelement(w('r'))
         p.append(r)
+        rpr = r.makeelement(w('rPr'))
+        rpr.append(rpr.makeelement(w('rStyle'), **{w('val'):self.style.id}))
+        r.append(rpr)
         for text, preserve_whitespace in self.texts:
             if text is None:
                 r.append(r.makeelement(w('br'), **{w('clear'):preserve_whitespace}))
@@ -120,6 +123,7 @@ class Block(object):
         p.append(ppr)
         if self.keep_next:
             ppr.append(ppr.makeelement(w('keepNext')))
+        ppr.append(ppr.makeelement(w('pStyle'), **{w('val'):self.style.id}))
         for run in self.runs:
             run.serialize(p)
 
@@ -140,6 +144,7 @@ class Convert(object):
         for item in self.oeb.spine:
             self.process_item(item)
 
+        self.styles_manager.finalize(self.blocks)
         self.write()
 
     def process_item(self, item):
@@ -235,3 +240,4 @@ class Convert(object):
                 )
             )
         )
+        self.styles_manager.serialize(self.docx.styles)

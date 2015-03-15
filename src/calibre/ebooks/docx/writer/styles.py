@@ -14,6 +14,7 @@ from lxml import etree
 from calibre.ebooks import parse_css_length
 from calibre.ebooks.docx.names import namespaces
 from calibre.ebooks.docx.writer.utils import convert_color, int_or_zero
+from calibre.utils.icu import numeric_sort_key
 from tinycss.css21 import CSS21Parser
 
 css_parser = CSS21Parser()
@@ -168,7 +169,7 @@ class TextStyle(DOCXStyle):
             val = getattr(self, attr)
             if self is normal_style or getattr(normal_style, attr) != val:
                 for suffix in ('', 'Cs'):
-                    style.append(makeelement(style, 'sz' + suffix, val=vmap(val)))
+                    style.append(makeelement(style, name + suffix, val=vmap(val)))
 
         def check_attr(attr):
             val = getattr(self, attr)
@@ -201,7 +202,7 @@ class TextStyle(DOCXStyle):
             if val:
                 style.append(makeelement(style, 'vertAlign', val=val))
 
-        bdr = self.serialize_borders(makeelement(style, 'bdr', normal_style))
+        bdr = self.serialize_borders(makeelement(style, 'bdr'), normal_style)
         if len(bdr):
             style.append(bdr)
 
@@ -267,8 +268,8 @@ class BlockStyle(DOCXStyle):
                 val = int(css_val * 240 * mult)
                 spacing.set(w('line'), str(val))
             else:
-                spacing.set(w('line'), (0 if self.css_line_height == 'normal' else str(self.line_height)))
-                spacing.set(w('lineRule', 'exactly'))
+                spacing.set(w('line'), str(0 if self.css_line_height == 'normal' else self.line_height))
+                spacing.set(w('lineRule'), 'exactly')
 
         if spacing.attrib:
             style.append(spacing)
@@ -309,7 +310,7 @@ class BlockStyle(DOCXStyle):
             style.append(makeelement(style, 'jc', val=self.text_align))
 
         if (self is normal_style and self.page_break_before) or self.page_break_before != normal_style.page_break_before:
-            style.append(makeelement(style, 'pageBreakBefore', bmap(self.page_break_before)))
+            style.append(makeelement(style, 'pageBreakBefore', val=bmap(self.page_break_before)))
         if (self is normal_style and self.keep_lines) or self.keep_lines != normal_style.keep_lines:
             style.append(makeelement(style, 'keepLines', bmap(self.keep_lines)))
 
@@ -352,17 +353,23 @@ class StylesManager(object):
                 run_rmap[run.style].append(run)
         for i, (block_style, count) in enumerate(block_counts.most_common()):
             if i == 0:
-                normal_block_style = block_style
-                normal_block_style.id = 'BlockNormal'
-                normal_block_style.name = 'Normal'
+                self.normal_block_style = block_style
+                block_style.id = 'ParagraphNormal'
+                block_style.name = 'Normal'
             else:
-                block_style.id = 'Block%d' % i
+                block_style.id = 'Paragraph%d' % i
                 block_style.name = 'Paragraph %d' % i
         for i, (text_style, count) in enumerate(run_counts.most_common()):
             if i == 0:
-                normal_text_style = text_style
-                normal_text_style.id = 'TextNormal'
-                normal_text_style.name = 'Normal'
+                self.normal_text_style = text_style
+                text_style.id = 'TextNormal'
+                text_style.name = 'Normal'
             else:
-                block_style.id = 'Text%d' % i
-                block_style.name = 'Text %d' % i
+                text_style.id = 'Text%d' % i
+                text_style.name = 'Text %d' % i
+
+    def serialize(self, styles):
+        for style in sorted(self.block_styles, key=lambda s:(s is not self.normal_block_style, numeric_sort_key(s.id))):
+            style.serialize(styles, self.normal_block_style)
+        for style in sorted(self.text_styles, key=lambda s:(s is not self.normal_text_style, numeric_sort_key(s.id))):
+            style.serialize(styles, self.normal_text_style)
