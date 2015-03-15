@@ -14,6 +14,7 @@ from lxml.builder import ElementMaker
 from calibre import guess_type
 from calibre.constants import numeric_version, __appname__
 from calibre.ebooks.docx.names import namespaces, STYLES, WEB_SETTINGS
+from calibre.utils.date import utcnow
 from calibre.utils.zipfile import ZipFile
 
 def xml2str(root, pretty_print=False, with_tail=False):
@@ -90,7 +91,7 @@ class DOCX(object):
             types.append(E.Default(Extension=ext, ContentType=mt))
         # TODO: Iterate over all resources and add mimetypes for any that are
         # not already added
-        return xml2str(types, pretty_print=True)
+        return xml2str(types)
 
     @property
     def appproperties(self):
@@ -104,7 +105,7 @@ class DOCX(object):
             E.ScaleCrop('false'),
             E.SharedDoc('false'),
         )
-        return xml2str(props, pretty_print=True)
+        return xml2str(props)
 
     @property
     def containerrels(self):
@@ -121,15 +122,26 @@ class DOCX(object):
         E = ElementMaker(namespace=namespaces['w'], nsmap={'w':namespaces['w']})
         ws = E.webSettings(
             E.optimizeForBrowser, E.allowPNG, E.doNotSaveAsSingleFile)
-        return xml2str(ws, pretty_print=True)
+        return xml2str(ws)
 
     # }}}
 
-    def write(self, path_or_stream):
+    def convert_metadata(self, oeb):
+        E = ElementMaker(namespace=namespaces['cp'], nsmap={x:namespaces[x] for x in 'cp dc dcterms xsi'.split()})
+        cp = E.coreProperties(E.revision("1"), E.lastModifiedBy('calibre'))
+        ts = utcnow().isoformat(str('T')).rpartition('.')[0] + 'Z'
+        for x in 'created modified'.split():
+            x = cp.makeelement('{%s}%s' % (namespaces['dcterms'], x), **{'{%s}type' % namespaces['xsi']:'dcterms:W3CDTF'})
+            x.text = ts
+            cp.append(x)
+        return xml2str(cp)
+
+    def write(self, path_or_stream, oeb):
         with ZipFile(path_or_stream, 'w') as zf:
             zf.writestr('[Content_Types].xml', self.contenttypes)
             zf.writestr('_rels/.rels', self.containerrels)
             zf.writestr('docProps/app.xml', self.appproperties)
+            zf.writestr('docProps/core.xml', self.convert_metadata(oeb))
             zf.writestr('word/webSettings.xml', self.websettings)
             zf.writestr('word/document.xml', xml2str(self.document))
             zf.writestr('word/styles.xml', xml2str(self.styles))

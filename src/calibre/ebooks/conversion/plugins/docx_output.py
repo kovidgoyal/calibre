@@ -39,7 +39,7 @@ class DOCXOutput(OutputFormatPlugin):
         from calibre.ebooks.docx.writer.from_html import Convert
         docx = DOCX(opts, log)
         Convert(oeb, docx)()
-        docx.write(output_path)
+        docx.write(output_path, oeb)
         if opts.extract_to:
             from calibre.ebooks.docx.dump import do_dump
             do_dump(output_path, opts.extract_to)
