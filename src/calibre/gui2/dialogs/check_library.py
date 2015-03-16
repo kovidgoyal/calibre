@@ -230,10 +230,8 @@ class CheckLibraryDialog(QDialog):
         return True
 
     def accept(self):
-        self.db.prefs['check_library_ignore_extensions'] = \
-                                            unicode(self.ext_ignores.text())
-        self.db.prefs['check_library_ignore_names'] = \
-                                            unicode(self.name_ignores.text())
+        self.db.new_api.set_pref('check_library_ignore_extensions', unicode(self.ext_ignores.text()))
+        self.db.new_api.set_pref('check_library_ignore_names', unicode(self.name_ignores.text()))
         QDialog.accept(self)
 
     def box_to_list(self, txt):

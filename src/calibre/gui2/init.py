@@ -341,13 +341,13 @@ class VLTabs(QTabBar):  # {{{
         self.gui.apply_virtual_library(vl, update_tabs=False)
 
     def tab_moved(self, from_, to):
-        self.current_db.prefs['virt_libs_order'] = [unicode(self.tabData(i) or '') for i in range(self.count())]
+        self.current_db.new_api.set_pref('virt_libs_order', [unicode(self.tabData(i) or '') for i in range(self.count())])
 
     def tab_close(self, index):
         vl = unicode(self.tabData(index) or '')
         if vl:  # Dont allow closing the All Books tab
-            self.current_db.prefs['virt_libs_hidden'] = list(
-                self.current_db.prefs['virt_libs_hidden']) + [vl]
+            self.current_db.new_api.set_pref('virt_libs_hidden', list(
+                self.current_db.prefs['virt_libs_hidden']) + [vl])
             self.removeTab(index)
 
     @property
@@ -368,14 +368,14 @@ class VLTabs(QTabBar):  # {{{
         hidden = set(db.prefs['virt_libs_hidden'])
         if hidden - virt_libs:
             hidden = hidden.intersection(virt_libs)
-            db.prefs['virt_libs_hidden'] = list(hidden)
+            db.new_api.set_pref('virt_libs_hidden', list(hidden))
         order = db.prefs['virt_libs_order']
         while self.count():
             self.removeTab(0)
         current_lib = db.data.get_base_restriction_name()
         if current_lib in hidden:
             hidden.discard(current_lib)
-            db.prefs['virt_libs_hidden'] = list(hidden)
+            db.new_api.set_pref('virt_libs_hidden', list(hidden))
         current_idx = all_idx = None
         virt_libs = (set(virt_libs) - hidden) | {''}
         order = {x:i for i, x in enumerate(order)}
@@ -417,12 +417,12 @@ class VLTabs(QTabBar):  # {{{
         m.exec_(ev.globalPos())
 
     def sort_alphabetically(self):
-        self.current_db.prefs['virt_libs_order'] = ()
+        self.current_db.new_api.set_pref('virt_libs_order', ())
         self.rebuild()
 
     def restore(self, x):
         h = self.current_db.prefs['virt_libs_hidden']
-        self.current_db.prefs['virt_libs_hidden'] = list(set(h) - {x})
+        self.current_db.new_api.set_pref('virt_libs_hidden', list(set(h) - {x}))
         self.rebuild()
 
 # }}}

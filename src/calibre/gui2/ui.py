@@ -876,7 +876,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
             cf()
             # Save the current field_metadata for applications like calibre2opds
             # Goes here, because if cf is valid, db is valid.
-            db.prefs['field_metadata'] = db.field_metadata.all_metadata()
+            db.new_api.set_pref('field_metadata', db.field_metadata.all_metadata())
             db.commit_dirty_cache()
             db.prefs.write_serialized(prefs['library_path'])
         for action in self.iactions.values():

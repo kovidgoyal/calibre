@@ -74,7 +74,7 @@ class ViewAction(InterfaceAction):
 
     def clear_history(self):
         db = self.gui.current_db
-        db.prefs['gui_view_history'] = []
+        db.new_api.set_pref('gui_view_history', [])
         self.build_menus(db)
 
     def view_historical(self, id_):
@@ -272,12 +272,12 @@ class ViewAction(InterfaceAction):
                     seen.add(title)
                     history.append((id_, title))
 
-            db.prefs['gui_view_history'] = history[:vh]
+            db.new_api.set_pref('gui_view_history', history[:vh])
             self.build_menus(db)
         if remove:
             history = db.prefs.get('gui_view_history', [])
             history = [x for x in history if x[0] not in remove]
-            db.prefs['gui_view_history'] = history[:vh]
+            db.new_api.set_pref('gui_view_history', history[:vh])
             self.build_menus(db)
 
     def view_device_book(self, path):
