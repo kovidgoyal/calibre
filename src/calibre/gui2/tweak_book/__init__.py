@@ -65,8 +65,6 @@ d['spell_check_case_sensitive_search'] = False
 d['add_cover_preserve_aspect_ratio'] = False
 d['templates'] = {}
 d['auto_close_tags'] = True
-d['edit_book_state'] = {}
-d['edit_book_state_order'] = []
 d['restore_book_state'] = True
 del d
 

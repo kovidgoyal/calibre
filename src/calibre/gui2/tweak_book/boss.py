@@ -15,6 +15,7 @@ from PyQt5.Qt import (
     QDialogButtonBox, QIcon, QPixmap, QInputDialog, QUrl, pyqtSignal)
 
 from calibre import prints, isbytestring
+from calibre.constants import cache_dir
 from calibre.ptempfile import PersistentTemporaryDirectory, TemporaryDirectory
 from calibre.ebooks.oeb.base import urlnormalize
 from calibre.ebooks.oeb.polish.main import SUPPORTED, tweak_polish
@@ -45,6 +46,7 @@ from calibre.gui2.tweak_book.spell import find_next as find_next_word, find_next
 from calibre.gui2.tweak_book.widgets import (
     RationalizeFolders, MultiSplit, ImportForeign, QuickOpen, InsertLink,
     InsertSemantics, BusyCursor, InsertTag, FilterCSS, AddCover)
+from calibre.utils.config import JSONConfig
 
 _diff_dialogs = []
 
@@ -67,6 +69,7 @@ _boss = None
 def get_boss():
     return _boss
 
+
 class Boss(QObject):
 
     handle_completion_result_signal = pyqtSignal(object)
@@ -88,6 +91,10 @@ class Boss(QObject):
         completion_worker().result_callback = self.handle_completion_result_signal.emit
         self.handle_completion_result_signal.connect(self.handle_completion_result, Qt.QueuedConnection)
         self.completion_request_count = 0
+        self.editor_cache = JSONConfig('editor-cache', base_path=cache_dir())
+        d = self.editor_cache.defaults
+        d['edit_book_state'] = {}
+        d['edit_book_state_order'] = []
 
     def __call__(self, gui):
         self.gui = gui
@@ -1459,13 +1466,15 @@ class Boss(QObject):
         self.save_manager.wait(0.1)
 
     def save_state(self):
+        with self.editor_cache:
+            self.save_book_edit_state()
         with tprefs:
             self.gui.save_state()
-            self.save_book_edit_state()
 
     def save_book_edit_state(self):
         c = current_container()
         if c and c.path_to_ebook:
+            tprefs = self.editor_cache
             mem = tprefs['edit_book_state']
             order = tprefs['edit_book_state_order']
             extra = len(order) - 99
@@ -1488,6 +1497,7 @@ class Boss(QObject):
     def restore_book_edit_state(self):
         c = current_container()
         if c and c.path_to_ebook:
+            tprefs = self.editor_cache
             state = tprefs['edit_book_state'].get(c.path_to_ebook)
             if state is not None:
                 opened = set()

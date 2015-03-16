@@ -268,11 +268,11 @@ class XMLConfig(dict):
 
     EXTENSION = '.plist'
 
-    def __init__(self, rel_path_to_cf_file):
+    def __init__(self, rel_path_to_cf_file, base_path=config_dir):
         dict.__init__(self)
         self.no_commit = False
         self.defaults = {}
-        self.file_path = os.path.join(config_dir,
+        self.file_path = os.path.join(base_path,
                 *(rel_path_to_cf_file.split('/')))
         self.file_path = os.path.abspath(self.file_path)
         if not self.file_path.endswith(self.EXTENSION):
