@@ -10,7 +10,7 @@ import sys
 from PyQt5.Qt import (Qt, QApplication, QStyle, QIcon,  QDoubleSpinBox, QStyleOptionViewItem,
         QSpinBox, QStyledItemDelegate, QComboBox, QTextDocument, QSize, QMenu, QKeySequence,
         QAbstractTextDocumentLayout, QFont, QFontInfo, QDate, QDateTimeEdit, QDateTime,
-        QStyleOptionComboBox, QStyleOptionSpinBox)
+        QStyleOptionComboBox, QStyleOptionSpinBox, QLocale)
 
 from calibre.gui2 import UNDEFINED_QDATETIME, error_dialog, rating_font
 from calibre.constants import iswindows
@@ -24,6 +24,75 @@ from calibre.utils.icu import sort_key
 from calibre.gui2.dialogs.comments_dialog import CommentsDialog
 from calibre.gui2.dialogs.template_dialog import TemplateDialog
 from calibre.gui2.languages import LanguagesEdit
+
+class UpdateEditorGeometry(object):
+
+    def updateEditorGeometry(self, editor, option, index):
+        if editor is None:
+            return
+        fm = editor.fontMetrics();
+
+        # get the original size of the edit widget
+        opt = QStyleOptionViewItem(option)
+        self.initStyleOption(opt, index)
+        style = QApplication.style()
+        initial_geometry = style.subElementRect(style.SE_ItemViewItemText, opt, None)
+        orig_width = initial_geometry.width()
+
+        # Compute the required width: the width that can show all of the current value
+        if hasattr(self, 'get_required_width'):
+            new_width = self.get_required_width(editor, index, style, fm)
+        else:
+            # The line edit box seems to extend by the space consumed by an 'M'.
+            # So add that to the text
+            text = self.displayText(index.data(Qt.DisplayRole), QLocale()) + u'M'
+            srect = style.itemTextRect(fm, editor.geometry(), Qt.AlignLeft, False, text)
+            new_width = srect.width()
+
+        # Now get the size of the combo/spinner arrows and add them to the needed width
+        if isinstance(editor, (QComboBox, QDateTimeEdit)):
+            r = style.subControlRect(QStyle.CC_ComboBox, QStyleOptionComboBox(),
+                                      QStyle.SC_ComboBoxArrow)
+            new_width += r.width()
+        elif isinstance(editor, (QSpinBox, QDoubleSpinBox)):
+            r = style.subControlRect(QStyle.CC_SpinBox, QStyleOptionSpinBox(),
+                                  QStyle.SC_SpinBoxUp)
+            new_width += r.width()
+
+        # Compute the maximum we can show if we consume the entire viewport
+        max_width = (self.table_widget.horizontalScrollBar().geometry().width() -
+                     self.table_widget.verticalHeader().width())
+        # What we have to display might not fit. If so, adjust down
+        new_width = new_width if new_width < max_width else max_width
+
+        # See if we need to change the editor's geometry
+        if new_width <= orig_width:
+            delta_x = 0
+            delta_width = 0
+        else:
+            # Compute the space available from the left edge of the widget to
+            # the right edge of the displayed table (the viewport) and the left
+            # edge of the widget to the left edge of the viewport. These are
+            # used to position the edit box
+            space_left = initial_geometry.x()
+            space_right = max_width - space_left
+
+            if editor.layoutDirection() == Qt.RightToLeft:
+                # If language is RtL, align to the cell's right edge if possible
+                cw = initial_geometry.width()
+                consume_on_left = min(space_left, new_width - cw)
+                consume_on_right = max(0, new_width - (consume_on_left + cw))
+                delta_x = -consume_on_left
+                delta_width = consume_on_right
+            else:
+                # If language is LtR, align to the left if possible
+                consume_on_right = min(space_right, new_width)
+                consume_on_left = max(0, new_width - consume_on_right)
+                delta_x = -consume_on_left
+                delta_width = consume_on_right - initial_geometry.width()
+
+        initial_geometry.adjust(delta_x, 0, delta_width, 0)
+        editor.setGeometry(initial_geometry)
 
 class DateTimeEdit(QDateTimeEdit):  # {{{
 
@@ -86,10 +155,11 @@ ClearingDoubleSpinBox = make_clearing_spinbox(QDoubleSpinBox)
 
 # }}}
 
-class RatingDelegate(QStyledItemDelegate):  # {{{
+class RatingDelegate(QStyledItemDelegate, UpdateEditorGeometry):  # {{{
 
     def __init__(self, *args, **kwargs):
         QStyledItemDelegate.__init__(self, *args, **kwargs)
+        self.table_widget = args[0]
         self.rf = QFont(rating_font())
         self.em = Qt.ElideMiddle
         delta = 0
@@ -98,11 +168,18 @@ class RatingDelegate(QStyledItemDelegate):  # {{{
         self.rf.setPointSize(QFontInfo(QApplication.font()).pointSize()+delta)
 
     def createEditor(self, parent, option, index):
-        sb = QStyledItemDelegate.createEditor(self, parent, option, index)
+        sb = QSpinBox(parent)
         sb.setMinimum(0)
         sb.setMaximum(5)
         sb.setSuffix(' ' + _('stars'))
         return sb
+
+    def get_required_width(self, editor, index, style, fm):
+        val = editor.maximum()
+        text = editor.textFromValue(val) + editor.suffix()
+        srect = style.itemTextRect(fm, editor.geometry(), Qt.AlignLeft, False,
+                                   text + u'M')
+        return srect.width()
 
     def displayText(self, value, locale):
         r = int(value)
@@ -122,7 +199,7 @@ class RatingDelegate(QStyledItemDelegate):  # {{{
 
 # }}}
 
-class DateDelegate(QStyledItemDelegate):  # {{{
+class DateDelegate(QStyledItemDelegate, UpdateEditorGeometry):  # {{{
 
     def __init__(self, parent, tweak_name='gui_timestamp_display_format',
             default_format='dd MMM yyyy'):
@@ -144,11 +221,10 @@ class DateDelegate(QStyledItemDelegate):  # {{{
 
     def setEditorData(self, editor, index):
         QStyledItemDelegate.setEditorData(self, editor, index)
-        resize_line_edit_to_contents(self.table_widget, editor)
 
 # }}}
 
-class PubDateDelegate(QStyledItemDelegate):  # {{{
+class PubDateDelegate(QStyledItemDelegate, UpdateEditorGeometry):  # {{{
 
     def __init__(self, *args, **kwargs):
         QStyledItemDelegate.__init__(self, *args, **kwargs)
@@ -173,48 +249,10 @@ class PubDateDelegate(QStyledItemDelegate):  # {{{
         if isinstance(val, QDateTime):
             val = val.date()
         editor.setDate(val)
-        resize_line_edit_to_contents(self.table_widget, editor)
 
 # }}}
 
-def resize_line_edit_to_contents(table_widget, line_edit):
-    if isinstance(line_edit, DelegateCB):
-        text = line_edit.currentText()
-    else:
-        text = line_edit.text();
-
-    fm = line_edit.fontMetrics();
-
-    orig_width = line_edit.width()
-
-    # The line edit box seems to extend by the space consumed by an 'M'. So add
-    # that to the text
-    style = QApplication.style()
-    srect = style.itemTextRect(fm, line_edit.geometry(), Qt.AlignLeft, False, text + 'M')
-    new_width = srect.right() - srect.left()
-
-    # Now compute the size of the combo/spinner arrow
-    if isinstance(line_edit, (QComboBox, QDateTimeEdit)):
-        r = style.subControlRect(QStyle.CC_ComboBox, QStyleOptionComboBox(),
-                                  QStyle.SC_ComboBoxArrow)
-        new_width -= r.left()
-    elif isinstance(line_edit, (QSpinBox, QDoubleSpinBox)):
-        r = style.subControlRect(QStyle.CC_SpinBox, QStyleOptionSpinBox(),
-                              QStyle.SC_SpinBoxUp)
-        new_width -= r.left()
-
-    # Compute the space available from the left edge of the widget to the
-    # right edge of the displayed table (the viewport). We can't display any
-    # more than that
-    max_width = (table_widget.horizontalScrollBar().geometry().width() -
-                 table_widget.verticalHeader().width() -
-                 line_edit.pos().x())
-    new_width = new_width if new_width < max_width else max_width
-
-    if new_width > orig_width:
-        line_edit.resize(new_width, line_edit.height());
-
-class TextDelegate(QStyledItemDelegate):  # {{{
+class TextDelegate(QStyledItemDelegate, UpdateEditorGeometry):  # {{{
 
     def __init__(self, parent):
         '''
@@ -243,7 +281,6 @@ class TextDelegate(QStyledItemDelegate):  # {{{
         ct = unicode(index.data(Qt.DisplayRole) or '')
         editor.setText(ct)
         editor.selectAll()
-        resize_line_edit_to_contents(self.table_widget, editor)
 
     def setModelData(self, editor, model, index):
         if isinstance(editor, EditWithComplete):
@@ -254,7 +291,7 @@ class TextDelegate(QStyledItemDelegate):  # {{{
 
 # }}}
 
-class CompleteDelegate(QStyledItemDelegate):  # {{{
+class CompleteDelegate(QStyledItemDelegate, UpdateEditorGeometry):  # {{{
 
     def __init__(self, parent, sep, items_func_name, space_before_sep=False):
         QStyledItemDelegate.__init__(self, parent)
@@ -288,7 +325,6 @@ class CompleteDelegate(QStyledItemDelegate):  # {{{
         ct = unicode(index.data(Qt.DisplayRole) or '')
         editor.setText(ct)
         editor.selectAll()
-        resize_line_edit_to_contents(self.table_widget, editor)
 
     def setModelData(self, editor, model, index):
         if isinstance(editor, EditWithComplete):
@@ -298,7 +334,7 @@ class CompleteDelegate(QStyledItemDelegate):  # {{{
             QStyledItemDelegate.setModelData(self, editor, model, index)
 # }}}
 
-class LanguagesDelegate(QStyledItemDelegate):  # {{{
+class LanguagesDelegate(QStyledItemDelegate, UpdateEditorGeometry):  # {{{
 
     def __init__(self, parent):
         QStyledItemDelegate.__init__(self, parent)
@@ -312,14 +348,13 @@ class LanguagesDelegate(QStyledItemDelegate):  # {{{
     def setEditorData(self, editor, index):
         ct = unicode(index.data(Qt.DisplayRole) or '')
         editor.show_initial_value(ct)
-        resize_line_edit_to_contents(self.table_widget, editor)
 
     def setModelData(self, editor, model, index):
         val = ','.join(editor.lang_codes)
         model.setData(index, (val), Qt.EditRole)
 # }}}
 
-class CcDateDelegate(QStyledItemDelegate):  # {{{
+class CcDateDelegate(QStyledItemDelegate, UpdateEditorGeometry):  # {{{
 
     '''
     Delegate for custom columns dates. Because this delegate stores the
@@ -354,7 +389,6 @@ class CcDateDelegate(QStyledItemDelegate):  # {{{
         if val is None:
             val = now()
         editor.setDateTime(val)
-        resize_line_edit_to_contents(self.table_widget, editor)
 
     def setModelData(self, editor, model, index):
         val = editor.dateTime()
@@ -364,7 +398,7 @@ class CcDateDelegate(QStyledItemDelegate):  # {{{
 
 # }}}
 
-class CcTextDelegate(QStyledItemDelegate):  # {{{
+class CcTextDelegate(QStyledItemDelegate, UpdateEditorGeometry):  # {{{
 
     '''
     Delegate for text data.
@@ -387,7 +421,6 @@ class CcTextDelegate(QStyledItemDelegate):  # {{{
     def setEditorData(self, editor, index):
         ct = unicode(index.data(Qt.DisplayRole) or '')
         editor.setText(ct)
-        resize_line_edit_to_contents(self.table_widget, editor)
         editor.selectAll()
 
     def setModelData(self, editor, model, index):
@@ -395,7 +428,7 @@ class CcTextDelegate(QStyledItemDelegate):  # {{{
         model.setData(index, (val), Qt.EditRole)
 # }}}
 
-class CcNumberDelegate(QStyledItemDelegate):  # {{{
+class CcNumberDelegate(QStyledItemDelegate, UpdateEditorGeometry):  # {{{
 
     '''
     Delegate for text/int/float data.
@@ -433,11 +466,17 @@ class CcNumberDelegate(QStyledItemDelegate):  # {{{
         if val is None:
             val = 0
         editor.setValue(val)
-        resize_line_edit_to_contents(self.table_widget, editor)
+
+    def get_required_width(self, editor, index, style, fm):
+        val = editor.maximum()
+        text = editor.textFromValue(val)
+        srect = style.itemTextRect(fm, editor.geometry(), Qt.AlignLeft, False,
+                                   text + u'M')
+        return srect.width()
 
 # }}}
 
-class CcEnumDelegate(QStyledItemDelegate):  # {{{
+class CcEnumDelegate(QStyledItemDelegate, UpdateEditorGeometry):  # {{{
 
     '''
     Delegate for text/int/float data.
@@ -446,14 +485,19 @@ class CcEnumDelegate(QStyledItemDelegate):  # {{{
     def __init__(self, parent):
         QStyledItemDelegate.__init__(self, parent)
         self.table_widget = parent
+        self.longest_text = ''
 
     def createEditor(self, parent, option, index):
         m = index.model()
         col = m.column_map[index.column()]
         editor = DelegateCB(parent)
         editor.addItem('')
+        max_len = 0
+        self.longest_text = ''
         for v in m.custom_columns[col]['display']['enum_values']:
             editor.addItem(v)
+            if len(v) > max_len:
+                self.longest_text = v
         return editor
 
     def setModelData(self, editor, model, index):
@@ -461,6 +505,14 @@ class CcEnumDelegate(QStyledItemDelegate):  # {{{
         if not val:
             val = None
         model.setData(index, (val), Qt.EditRole)
+
+    def get_required_width(self, editor, index, style, fm):
+        m = index.model()
+        col = m.column_map[index.column()]
+        use_decorations = m.custom_columns[col]['display'].get('use_decorations', False)
+        srect = style.itemTextRect(fm, editor.geometry(), Qt.AlignLeft, False,
+                                   self.longest_text + u'M')
+        return srect.width() + editor.iconSize().width() if use_decorations else 0
 
     def setEditorData(self, editor, index):
         m = index.model()
@@ -472,7 +524,6 @@ class CcEnumDelegate(QStyledItemDelegate):  # {{{
             editor.setCurrentIndex(0)
         else:
             editor.setCurrentIndex(idx)
-        resize_line_edit_to_contents(self.table_widget, editor)
 # }}}
 
 class CcCommentsDelegate(QStyledItemDelegate):  # {{{
@@ -532,14 +583,14 @@ class DelegateCB(QComboBox):  # {{{
         return QComboBox.event(self, e)
 # }}}
 
-class CcBoolDelegate(QStyledItemDelegate):  # {{{
+class CcBoolDelegate(QStyledItemDelegate, UpdateEditorGeometry):  # {{{
 
     def __init__(self, parent):
         '''
         Delegate for custom_column bool data.
         '''
         QStyledItemDelegate.__init__(self, parent)
-        self.parent = parent
+        self.table_widget = parent
 
     def createEditor(self, parent, option, index):
         editor = DelegateCB(parent)
@@ -548,9 +599,17 @@ class CcBoolDelegate(QStyledItemDelegate):  # {{{
         if not index.model().db.prefs.get('bools_are_tristate'):
             items = items[:-1]
             icons = icons[:-1]
+        self.longest_text = ''
         for icon, text in zip(icons, items):
             editor.addItem(QIcon(icon), text)
+            if len(text) > len(self.longest_text):
+                self.longest_text = text
         return editor
+
+    def get_required_width(self, editor, index, style, fm):
+        srect = style.itemTextRect(fm, editor.geometry(), Qt.AlignLeft, False,
+                                   self.longest_text + u'M')
+        return srect.width() + editor.iconSize().width()
 
     def setModelData(self, editor, model, index):
         val = {0:True, 1:False, 2:None}[editor.currentIndex()]
@@ -565,21 +624,6 @@ class CcBoolDelegate(QStyledItemDelegate):  # {{{
             val = 2 if val is None else 1 if not val else 0
         editor.setCurrentIndex(val)
 
-    def updateEditorGeometry(self, editor, option, index):
-        if editor is None:
-            return
-        opt = QStyleOptionViewItem(option)
-        self.initStyleOption(opt, index)
-        opt.showDecorationSelected = True
-        opt.decorationSize = QSize(0, 0)  # We want the editor to cover the decoration
-        style = QApplication.style()
-        geom = style.subElementRect(style.SE_ItemViewItemText, opt, None)
-
-        if editor.layoutDirection() == Qt.RightToLeft:
-            delta = editor.sizeHint().width() - geom.width()
-            if delta > 0:
-                geom.adjust(-delta, 0, 0, 0)
-        editor.setGeometry(geom)
 # }}}
 
 class CcTemplateDelegate(QStyledItemDelegate):  # {{{
