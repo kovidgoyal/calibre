@@ -10,7 +10,7 @@ import sys
 from PyQt5.Qt import (Qt, QApplication, QStyle, QIcon,  QDoubleSpinBox, QStyleOptionViewItem,
         QSpinBox, QStyledItemDelegate, QComboBox, QTextDocument, QMenu, QKeySequence,
         QAbstractTextDocumentLayout, QFont, QFontInfo, QDate, QDateTimeEdit, QDateTime,
-        QStyleOptionComboBox, QStyleOptionSpinBox, QLocale)
+        QStyleOptionComboBox, QStyleOptionSpinBox, QLocale, QSize)
 
 from calibre.gui2 import UNDEFINED_QDATETIME, error_dialog, rating_font
 from calibre.constants import iswindows
@@ -35,13 +35,15 @@ class UpdateEditorGeometry(object):
         # get the original size of the edit widget
         opt = QStyleOptionViewItem(option)
         self.initStyleOption(opt, index)
+        opt.showDecorationSelected = True
+        opt.decorationSize = QSize(0, 0)  # We want the editor to cover the decoration
         style = QApplication.style()
         initial_geometry = style.subElementRect(style.SE_ItemViewItemText, opt, None)
         orig_width = initial_geometry.width()
 
         # Compute the required width: the width that can show all of the current value
         if hasattr(self, 'get_required_width'):
-            new_width = self.get_required_width(editor, index, style, fm)
+            new_width = self.get_required_width(editor, style, fm)
         else:
             # The line edit box seems to extend by the space consumed by an 'M'.
             # So add that to the text
@@ -174,7 +176,7 @@ class RatingDelegate(QStyledItemDelegate, UpdateEditorGeometry):  # {{{
         sb.setSuffix(' ' + _('stars'))
         return sb
 
-    def get_required_width(self, editor, index, style, fm):
+    def get_required_width(self, editor, style, fm):
         val = editor.maximum()
         text = editor.textFromValue(val) + editor.suffix()
         srect = style.itemTextRect(fm, editor.geometry(), Qt.AlignLeft, False,
@@ -467,7 +469,7 @@ class CcNumberDelegate(QStyledItemDelegate, UpdateEditorGeometry):  # {{{
             val = 0
         editor.setValue(val)
 
-    def get_required_width(self, editor, index, style, fm):
+    def get_required_width(self, editor, style, fm):
         val = editor.maximum()
         text = editor.textFromValue(val)
         srect = style.itemTextRect(fm, editor.geometry(), Qt.AlignLeft, False,
@@ -506,13 +508,10 @@ class CcEnumDelegate(QStyledItemDelegate, UpdateEditorGeometry):  # {{{
             val = None
         model.setData(index, (val), Qt.EditRole)
 
-    def get_required_width(self, editor, index, style, fm):
-        m = index.model()
-        col = m.column_map[index.column()]
-        use_decorations = m.custom_columns[col]['display'].get('use_decorations', False)
+    def get_required_width(self, editor, style, fm):
         srect = style.itemTextRect(fm, editor.geometry(), Qt.AlignLeft, False,
                                    self.longest_text + u'M')
-        return srect.width() + editor.iconSize().width() if use_decorations else 0
+        return srect.width()
 
     def setEditorData(self, editor, index):
         m = index.model()
@@ -606,7 +605,7 @@ class CcBoolDelegate(QStyledItemDelegate, UpdateEditorGeometry):  # {{{
                 self.longest_text = text
         return editor
 
-    def get_required_width(self, editor, index, style, fm):
+    def get_required_width(self, editor, style, fm):
         srect = style.itemTextRect(fm, editor.geometry(), Qt.AlignLeft, False,
                                    self.longest_text + u'M')
         return srect.width() + editor.iconSize().width()
