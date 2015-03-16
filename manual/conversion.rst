@@ -390,7 +390,7 @@ By default, calibre uses the following expression for chapter detection::
 
     //*[((name()='h1' or name()='h2') and re:test(., 'chapter|book|section|part\s+', 'i')) or @class = 'chapter']
 
-This expression is rather complex, because it tries to handle a number of common cases simulataneously. What it means
+This expression is rather complex, because it tries to handle a number of common cases simultaneously. What it means
 is that calibre will assume chapters start at either `<h1>` or `<h2>` tags that have any of the words 
 `(chapter, book, section or part)` in them or that have the `class="chapter"` attribute. 
 
