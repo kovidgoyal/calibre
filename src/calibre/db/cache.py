@@ -126,6 +126,10 @@ class Cache(object):
         self.initialize_dynamic()
 
     @property
+    def new_api(self):
+        return self
+
+    @property
     def safe_read_lock(self):
         ''' A safe read lock is a lock that does nothing if the thread already
         has a write lock, otherwise it acquires a read lock. This is necessary
