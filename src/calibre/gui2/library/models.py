@@ -7,6 +7,7 @@ __docformat__ = 'restructuredtext en'
 
 import functools, re, os, traceback, errno, time
 from collections import defaultdict, namedtuple
+from itertools import groupby
 
 from PyQt5.Qt import (QAbstractTableModel, Qt, pyqtSignal, QIcon, QImage,
         QModelIndex, QDateTime, QColor, QPixmap, QPainter)
@@ -47,6 +48,14 @@ def default_image():
     if _default_image is None:
         _default_image = QImage(I('default_cover.png'))
     return _default_image
+
+def group_numbers(numbers):
+    for k, g in groupby(enumerate(sorted(numbers)), lambda (i, x):i - x):
+        first = None
+        for last in g:
+            if first is None:
+                first = last[1]
+        yield first, last[1]
 
 class ColumnColor(object):  # {{{
 
@@ -302,12 +311,11 @@ class BooksModel(QAbstractTableModel):  # {{{
 
     def refresh_rows(self, rows, current_row=-1):
         self._clear_caches()
-        for row in rows:
-            if row == current_row:
-                self.new_bookdisplay_data.emit(
-                          self.get_book_display_info(row))
-            self.dataChanged.emit(self.index(row, 0), self.index(row,
-                self.columnCount(QModelIndex())-1))
+        cc = self.columnCount(QModelIndex()) - 1
+        for first_row, last_row in group_numbers(rows):
+            self.dataChanged.emit(self.index(first_row, 0), self.index(last_row, cc))
+            if current_row >= 0 and first_row <= current_row <= last_row:
+                self.new_bookdisplay_data.emit(self.get_book_display_info(current_row))
 
     def close(self):
         self.db.close()
