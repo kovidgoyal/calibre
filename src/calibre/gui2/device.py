@@ -1360,7 +1360,7 @@ class DeviceMixin(object):  # {{{
 
         def fset(self, ids):
             try:
-                self.library_view.model().db.prefs.set('news_to_be_synced',
+                self.library_view.model().db.new_api.set_pref('news_to_be_synced',
                         list(ids))
             except:
                 import traceback

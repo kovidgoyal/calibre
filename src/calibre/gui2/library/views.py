@@ -489,7 +489,7 @@ class BooksView(QTableView):  # {{{
         db = getattr(self.model(), 'db', None)
         name = unicode(self.objectName())
         if name and db is not None:
-            db.prefs.set(name + ' books view state', state)
+            db.new_api.set_pref(name + ' books view state', state)
 
     def save_state(self):
         # Only save if we have been initialized (set_database called)

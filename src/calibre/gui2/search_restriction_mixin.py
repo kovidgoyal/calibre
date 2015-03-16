@@ -346,7 +346,7 @@ class SearchRestrictionMixin(object):
     def add_virtual_library(self, db, name, search):
         virt_libs = db.prefs.get('virtual_libraries', {})
         virt_libs[name] = search
-        db.prefs.set('virtual_libraries', virt_libs)
+        db.new_api.set_pref('virtual_libraries', virt_libs)
 
     def do_create_edit(self, name=None):
         db = self.library_view.model().db
@@ -490,7 +490,7 @@ class SearchRestrictionMixin(object):
         db = self.library_view.model().db
         virt_libs = db.prefs.get('virtual_libraries', {})
         virt_libs.pop(name, None)
-        db.prefs.set('virtual_libraries', virt_libs)
+        db.new_api.set_pref('virtual_libraries', virt_libs)
         if reapply and db.data.get_base_restriction_name() == name:
             self.apply_virtual_library('')
         self.rebuild_vl_tabs()

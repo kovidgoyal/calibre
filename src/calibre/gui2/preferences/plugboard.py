@@ -392,7 +392,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.changed_signal.emit()
 
     def commit(self):
-        self.db.prefs.set('plugboards', self.current_plugboards)
+        self.db.new_api.set_pref('plugboards', self.current_plugboards)
         return ConfigWidgetBase.commit(self)
 
     def refresh_gui(self, gui):

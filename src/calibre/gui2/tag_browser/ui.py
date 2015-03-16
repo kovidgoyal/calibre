@@ -94,7 +94,7 @@ class TagBrowserMixin(object):  # {{{
             n = new_name + unicode(i)
         # Add the new category
         user_cats[new_cat] = []
-        db.prefs.set('user_categories', user_cats)
+        db.new_api.set_pref('user_categories', user_cats)
         self.tags_view.recount()
         m = self.tags_view.model()
         idx = m.index_for_path(m.find_category_node('@' + new_cat))
@@ -110,7 +110,7 @@ class TagBrowserMixin(object):  # {{{
         db = self.library_view.model().db
         d = TagCategories(self, db, on_category)
         if d.exec_() == d.Accepted:
-            db.prefs.set('user_categories', d.categories)
+            db.new_api.set_pref('user_categories', d.categories)
             db.field_metadata.remove_user_categories()
             for k in d.categories:
                 db.field_metadata.add_user_category('@' + k, k)
@@ -147,7 +147,7 @@ class TagBrowserMixin(object):  # {{{
                 del user_cats[k]
             elif k.startswith(category_name + '.'):
                 del user_cats[k]
-        db.prefs.set('user_categories', user_cats)
+        db.new_api.set_pref('user_categories', user_cats)
         self.tags_view.recount()
 
     def do_del_item_from_user_cat(self, user_cat, item_name, item_category):
@@ -192,7 +192,7 @@ class TagBrowserMixin(object):  # {{{
                 add_it = False
         if add_it:
             user_cats[dest_category].append([src_name, src_category, 0])
-        db.prefs.set('user_categories', user_cats)
+        db.new_api.set_pref('user_categories', user_cats)
         self.tags_view.recount()
 
     def do_tags_list_edit(self, tag, category):

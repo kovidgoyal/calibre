@@ -208,7 +208,7 @@ class TagsView(QTreeView):  # {{{
 
     def user_categories_edited(self, user_cats, nkey):
         state_map = self.get_state()[1]
-        self.db.prefs.set('user_categories', user_cats)
+        self.db.new_api.set_pref('user_categories', user_cats)
         self._model.rebuild_node_tree(state_map=state_map)
         p = self._model.find_category_node('@'+nkey)
         self.show_item_at_path(p)
@@ -408,7 +408,7 @@ class TagsView(QTreeView):  # {{{
                     gprefs['tags_browser_partition_method'] = category
             elif action == 'defaults':
                 self.hidden_categories.clear()
-            self.db.prefs.set('tag_browser_hidden_categories', list(self.hidden_categories))
+            self.db.new_api.set_pref('tag_browser_hidden_categories', list(self.hidden_categories))
             if reset_filter_categories:
                 self._model.set_categories_filter(None)
             self._model.rebuild_node_tree()
