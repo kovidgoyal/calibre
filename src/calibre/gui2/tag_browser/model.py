@@ -809,13 +809,13 @@ class TagsModel(QAbstractItemModel):  # {{{
         key = on_node.tag.category
         if (key == 'authors' and len(ids) >= 5):
             if not confirm('<p>'+_('Changing the authors for several books can '
-                           'take a while. Are you sure?')
-                        +'</p>', 'tag_browser_drop_authors', self.gui_parent):
+                           'take a while. Are you sure?') +
+                           '</p>', 'tag_browser_drop_authors', self.gui_parent):
                 return
         elif len(ids) > 15:
             if not confirm('<p>'+_('Changing the metadata for that many books '
-                           'can take a while. Are you sure?')
-                        +'</p>', 'tag_browser_many_changes', self.gui_parent):
+                           'can take a while. Are you sure?') +
+                           '</p>', 'tag_browser_many_changes', self.gui_parent):
                 return
 
         fm = self.db.metadata_for_field(key)
@@ -875,12 +875,12 @@ class TagsModel(QAbstractItemModel):  # {{{
             data = self.db.new_api.get_categories(sort=sort,
                     icon_map=self.category_icon_map,
                     book_ids=self.get_book_ids_to_use(),
-                    first_letter_sort = self.collapse_model == 'first letter')
+                    first_letter_sort=self.collapse_model == 'first letter')
         except:
             import traceback
             traceback.print_exc()
             data = self.db.new_api.get_categories(sort=sort, icon_map=self.category_icon_map,
-                    first_letter_sort = self.collapse_model == 'first letter')
+                    first_letter_sort=self.collapse_model == 'first letter')
             self.restriction_error.emit()
 
         # Reconstruct the user categories, putting them into metadata
@@ -1428,4 +1428,3 @@ class TagsModel(QAbstractItemModel):  # {{{
             process_level(self.index(i, 0, QModelIndex()))
 
     # }}}
-
