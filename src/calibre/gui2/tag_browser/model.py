@@ -270,7 +270,7 @@ class TagsModel(QAbstractItemModel):  # {{{
 
     def set_database(self, db):
         self.beginResetModel()
-        hidden_cats = db.prefs.get('tag_browser_hidden_categories', None)
+        hidden_cats = db.new_api.pref('tag_browser_hidden_categories', None)
         # migrate from config to db prefs
         if hidden_cats is None:
             hidden_cats = config['tag_browser_hidden_categories']
@@ -279,7 +279,7 @@ class TagsModel(QAbstractItemModel):  # {{{
         for cat in hidden_cats:
             if cat in db.field_metadata:
                 self.hidden_categories.add(cat)
-        db.prefs.set('tag_browser_hidden_categories', list(self.hidden_categories))
+        db.new_api.set_pref('tag_browser_hidden_categories', list(self.hidden_categories))
 
         self.db = db
         self._run_rebuild()
