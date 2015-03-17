@@ -990,7 +990,8 @@ class Application(QApplication):
             if not depth_ok:
                 prints('Color depth is less than 32 bits disabling modern look')
 
-        self.using_calibre_style = force_calibre_style or (depth_ok and gprefs['ui_style'] != 'system')
+        self.using_calibre_style = force_calibre_style or 'CALIBRE_IGNORE_SYSTEM_THEME' in os.environ or (
+            depth_ok and gprefs['ui_style'] != 'system')
         if self.using_calibre_style:
             self.load_calibre_style()
 
