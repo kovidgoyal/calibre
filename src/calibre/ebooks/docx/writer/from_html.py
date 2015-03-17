@@ -98,8 +98,8 @@ class Block(object):
         self.keep_next = False
         self.runs = []
 
-    def add_text(self, text, style, ignore_leading_whitespace=False, html_parent=None):
-        ts = self.styles_manager.create_text_style(style)
+    def add_text(self, text, style, ignore_leading_whitespace=False, html_parent=None, is_parent_style=False):
+        ts = self.styles_manager.create_text_style(style, is_parent_style=is_parent_style)
         ws = style['white-space']
         if self.runs and ts == self.runs[-1].style:
             run = self.runs[-1]
@@ -178,7 +178,7 @@ class Convert(object):
         if block_style.is_hidden:
             return
         if html_block.text:
-            docx_block.add_text(html_block.text, block_style, ignore_leading_whitespace=True)
+            docx_block.add_text(html_block.text, block_style, ignore_leading_whitespace=True, is_parent_style=True)
 
         for child in html_block.iterchildren(etree.Element):
             tag = barename(child.tag)
@@ -198,7 +198,7 @@ class Convert(object):
             if b is not self.blocks[-1]:
                 b = Block(self.styles_manager, html_block, block_style)
                 self.blocks.append(b)
-            b.add_text(html_block.tail, stylizer.style(html_block.getparent()))
+            b.add_text(html_block.tail, stylizer.style(html_block.getparent()), is_parent_style=True)
         if block_style['page-break-after'] == 'avoid':
             self.blocks[-1].keep_next = True
 
@@ -226,7 +226,7 @@ class Convert(object):
                     self.process_inline(child, self.blocks[-1], stylizer)
 
         if html_child.tail:
-            self.blocks[-1].add_text(html_child.tail, stylizer.style(html_child.getparent()), html_parent=html_child.getparent())
+            self.blocks[-1].add_text(html_child.tail, stylizer.style(html_child.getparent()), html_parent=html_child.getparent(), is_parent_style=True)
 
     def write(self):
         dn = {k:v for k, v in namespaces.iteritems() if k in {'w', 'r', 'm', 've', 'o', 'wp', 'w10', 'wne'}}

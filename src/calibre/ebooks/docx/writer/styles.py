@@ -123,7 +123,7 @@ class TextStyle(DOCXStyle):
         x%edge for edge in border_edges for x in border_props)
     TYPE = 'character'
 
-    def __init__(self, css):
+    def __init__(self, css, is_parent_style=False):
         self.font_family = css_font_family_to_docx(css['font-family'])
         try:
             self.font_size = max(0, int(float(css['font-size']) * 2))  # stylizer normalizes all font sizes into pts
@@ -134,7 +134,7 @@ class TextStyle(DOCXStyle):
         self.bold = fw.lower() in {'bold', 'bolder'} or int_or_zero(fw) >= 700
         self.italic = css['font-style'].lower() in {'italic', 'oblique'}
         self.color = convert_color(css['color'])
-        self.background_color = convert_color(css.backgroundColor)
+        self.background_color = None if is_parent_style else convert_color(css.backgroundColor)
         td = set((css.effective_text_decoration or '').split())
         self.underline = 'underline' in td
         self.dstrike = 'line-through' in td and 'overline' in td
@@ -149,12 +149,18 @@ class TextStyle(DOCXStyle):
             self.spacing = None
         self.vertical_align = css['vertical-align']
         for edge in border_edges:
-            # In DOCX padding can only be a positive integer
-            setattr(self, 'padding_' + edge, max(0, int(css['padding-' + edge])))
-            val = min(96, max(2, int({'thin':0.2, 'medium':1, 'thick':2}.get(css['border-%s-width' % edge], 0) * 8)))
-            setattr(self, 'border_%s_width' % edge, val)
-            setattr(self, 'border_%s_color' % edge, convert_color(css['border-%s-color' % edge]))
-            setattr(self, 'border_%s_style' % edge, LINE_STYLES.get(css['border-%s-style' % edge].lower(), 'none'))
+            if is_parent_style:
+                setattr(self, 'padding_' + edge, 0)
+                setattr(self, 'border_%s_width' % edge, 0)
+                setattr(self, 'border_%s_color' % edge, None)
+                setattr(self, 'border_%s_style' % edge, 'none')
+            else:
+                # In DOCX padding can only be a positive integer
+                setattr(self, 'padding_' + edge, max(0, int(css['padding-' + edge])))
+                val = min(96, max(2, int({'thin':0.2, 'medium':1, 'thick':2}.get(css['border-%s-width' % edge], 0) * 8)))
+                setattr(self, 'border_%s_width' % edge, val)
+                setattr(self, 'border_%s_color' % edge, convert_color(css['border-%s-color' % edge]))
+                setattr(self, 'border_%s_style' % edge, LINE_STYLES.get(css['border-%s-style' % edge].lower(), 'none'))
 
         DOCXStyle.__init__(self)
 
@@ -331,8 +337,8 @@ class StylesManager(object):
     def __init__(self):
         self.block_styles, self.text_styles = {}, {}
 
-    def create_text_style(self, css_style):
-        ans = TextStyle(css_style)
+    def create_text_style(self, css_style, is_parent_style=False):
+        ans = TextStyle(css_style, is_parent_style=is_parent_style)
         existing = self.text_styles.get(ans, None)
         if existing is None:
             self.text_styles[ans] = ans
