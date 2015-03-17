@@ -141,6 +141,31 @@ PDFDoc_page_count(PDFDoc *self, PyObject *args) {
     return Py_BuildValue("i", count);
 } // }}}
 
+// image_count() {{{
+static PyObject *
+PDFDoc_image_count(PDFDoc *self, PyObject *args) {
+    int count = 0;
+    const PdfObject* obj_type = NULL;
+    const PdfObject* obj_sub_type = NULL;
+    try {
+        TCIVecObjects it = self->doc->GetObjects().begin();
+         while( it != self->doc->GetObjects().end() ) {
+             if( (*it)->IsDictionary() ) {
+                 obj_type = (*it)->GetDictionary().GetKey( PdfName::KeyType );
+                 obj_sub_type = (*it)->GetDictionary().GetKey( PdfName::KeySubtype );
+                 if( ( obj_type && obj_type->IsName() && ( obj_type->GetName().GetName() == "XObject" ) ) ||
+                        ( obj_sub_type && obj_sub_type->IsName() && ( obj_sub_type->GetName().GetName() == "Image" ) ) ) count++;
+                 self->doc->FreeObjectMemory( *it );
+             }
+             it++;
+         }
+    } catch(const PdfError & err) {
+        podofo_set_exception(err);
+        return NULL;
+    }
+    return Py_BuildValue("i", count);
+} // }}}
+
 // delete_page {{{
 static PyObject *
 PDFDoc_delete_page(PDFDoc *self, PyObject *args) {
@@ -538,6 +563,9 @@ static PyMethodDef PDFDoc_methods[] = {
     },
     {"page_count", (PyCFunction)PDFDoc_page_count, METH_VARARGS,
      "page_count() -> Number of pages in the PDF."
+    },
+    {"image_count", (PyCFunction)PDFDoc_image_count, METH_VARARGS,
+     "image_count() -> Number of images in the PDF."
     },
     {"delete_page", (PyCFunction)PDFDoc_delete_page, METH_VARARGS,
      "delete_page(page_num) -> Delete the specified page from the pdf (0 is the first page)."

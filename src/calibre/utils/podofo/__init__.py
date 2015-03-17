@@ -119,6 +119,14 @@ def get_xmp_metadata(path):
     p.load(raw)
     return p.get_xmp_metadata()
 
+def get_image_count(path):
+    podofo = get_podofo()
+    p = podofo.PDFDoc()
+    with open(path, 'rb') as f:
+        raw = f.read()
+    p.load(raw)
+    return p.image_count()
+
 def test_outline(src):
     podofo = get_podofo()
     p = podofo.PDFDoc()
