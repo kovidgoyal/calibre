@@ -310,7 +310,7 @@ class BlockStyle(DOCXStyle):
             style.append(ind)
 
         if (self is normal_style and self.background_color) or self.background_color != normal_style.background_color:
-            makeelement(style, 'shd', val='clear', color='auto', fill=self.background_color or 'auto')
+            style.append(makeelement(style, 'shd', val='clear', color='auto', fill=self.background_color or 'auto'))
 
         pbdr = self.serialize_borders(style.makeelement(w('pBdr')), normal_style)
         if len(pbdr):
