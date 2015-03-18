@@ -19,6 +19,70 @@ from calibre.ebooks.metadata.sources.base import (Source, Option, fixcase,
 from calibre.ebooks.metadata.book.base import Metadata
 from calibre.utils.localization import canonicalize_lang
 
+def parse_details_page(url, log, timeout, browser, domain):
+    from calibre.utils.cleantext import clean_ascii_chars
+    from calibre.ebooks.chardet import xml_to_unicode
+    import html5lib
+    from lxml.html import tostring
+    try:
+        raw = browser.open_novisit(url, timeout=timeout).read().strip()
+    except Exception as e:
+        if callable(getattr(e, 'getcode', None)) and \
+                e.getcode() == 404:
+            log.error('URL malformed: %r'%url)
+            return
+        attr = getattr(e, 'args', [None])
+        attr = attr if attr else [None]
+        if isinstance(attr[0], socket.timeout):
+            msg = 'Amazon timed out. Try again later.'
+            log.error(msg)
+        else:
+            msg = 'Failed to make details query: %r'%url
+            log.exception(msg)
+        return
+
+    oraw = raw
+    if 'amazon.com.br' in url:
+        raw = raw.decode('utf-8')  # amazon.com.br serves utf-8 but has an incorrect latin1 <meta> tag
+    raw = xml_to_unicode(raw, strip_encoding_pats=True, resolve_entities=True)[0]
+    if '<title>404 - ' in raw:
+        log.error('URL malformed: %r'%url)
+        return
+
+    try:
+        root = html5lib.parse(clean_ascii_chars(raw), treebuilder='lxml',
+                namespaceHTMLElements=False)
+    except:
+        msg = 'Failed to parse amazon details page: %r'%url
+        log.exception(msg)
+        return
+    if domain == 'jp':
+        for a in root.xpath('//a[@href]'):
+            if 'black-curtain-redirect.html' in a.get('href'):
+                url = 'http://amazon.co.jp'+a.get('href')
+                log('Black curtain redirect found, following')
+                return parse_details_page(url, log, timeout, browser, domain)
+
+    errmsg = root.xpath('//*[@id="errorMessage"]')
+    if errmsg:
+        msg = 'Failed to parse amazon details page: %r'%url
+        msg += tostring(errmsg, method='text', encoding=unicode).strip()
+        log.error(msg)
+        return
+
+    from css_selectors import Select
+    selector = Select(root)
+    return oraw, root, selector
+
+def parse_asin(root, log, url):
+    try:
+        link = root.xpath('//link[@rel="canonical" and @href]')
+        for l in link:
+            return l.get('href').rpartition('/')[-1]
+    except Exception:
+        log.exception('Error parsing ASIN for url: %r'%url)
+
+
 class Worker(Thread):  # Get details {{{
 
     '''
@@ -26,8 +90,9 @@ class Worker(Thread):  # Get details {{{
     '''
 
     def __init__(self, url, result_queue, browser, log, relevance, domain,
-            plugin, timeout=20, testing=False):
+            plugin, timeout=20, testing=False, preparsed_root=None):
         Thread.__init__(self)
+        self.preparsed_root = preparsed_root
         self.daemon = True
         self.testing = testing
         self.url, self.result_queue = url, result_queue
@@ -213,67 +278,18 @@ class Worker(Thread):  # Get details {{{
             self.log.exception('get_details failed for url: %r'%self.url)
 
     def get_details(self):
-        from calibre.utils.cleantext import clean_ascii_chars
-        from calibre.ebooks.chardet import xml_to_unicode
-        import html5lib
 
-        try:
-            raw = self.browser.open_novisit(self.url, timeout=self.timeout).read().strip()
-        except Exception as e:
-            if callable(getattr(e, 'getcode', None)) and \
-                    e.getcode() == 404:
-                self.log.error('URL malformed: %r'%self.url)
-                return
-            attr = getattr(e, 'args', [None])
-            attr = attr if attr else [None]
-            if isinstance(attr[0], socket.timeout):
-                msg = 'Amazon timed out. Try again later.'
-                self.log.error(msg)
-            else:
-                msg = 'Failed to make details query: %r'%self.url
-                self.log.exception(msg)
-            return
-
-        oraw = raw
-        if 'amazon.com.br' in self.url:
-            raw = raw.decode('utf-8')  # amazon.com.br serves utf-8 but has an incorrect latin1 <meta> tag
-        raw = xml_to_unicode(raw, strip_encoding_pats=True,
-                resolve_entities=True)[0]
-        if '<title>404 - ' in raw:
-            self.log.error('URL malformed: %r'%self.url)
-            return
-
-        try:
-            root = html5lib.parse(clean_ascii_chars(raw), treebuilder='lxml',
-                    namespaceHTMLElements=False)
-        except:
-            msg = 'Failed to parse amazon details page: %r'%self.url
-            self.log.exception(msg)
-            return
-        if self.domain == 'jp':
-            for a in root.xpath('//a[@href]'):
-                if 'black-curtain-redirect.html' in a.get('href'):
-                    self.url = 'http://amazon.co.jp'+a.get('href')
-                    self.log('Black curtain redirect found, following')
-                    return self.get_details()
-
-        errmsg = root.xpath('//*[@id="errorMessage"]')
-        if errmsg:
-            msg = 'Failed to parse amazon details page: %r'%self.url
-            msg += self.tostring(errmsg, method='text', encoding=unicode).strip()
-            self.log.error(msg)
-            return
+        if self.preparsed_root is None:
+            raw, root, selector = parse_details_page(self.url, self.log, self.timeout, self.browser, self.domain)
+        else:
+            raw, root, selector = self.preparsed_root
 
         from css_selectors import Select
         self.selector = Select(root)
-        self.parse_details(oraw, root)
+        self.parse_details(raw, root)
 
     def parse_details(self, raw, root):
-        try:
-            asin = self.parse_asin(root)
-        except:
-            self.log.exception('Error parsing asin for url: %r'%self.url)
-            asin = None
+        asin = parse_asin(root, self.log, self.url)
         if self.testing:
             import tempfile, uuid
             with tempfile.NamedTemporaryFile(prefix=(asin or str(uuid.uuid4()))+ '_',
@@ -385,11 +401,6 @@ class Worker(Thread):  # Get details {{{
         self.plugin.clean_downloaded_metadata(mi)
 
         self.result_queue.put(mi)
-
-    def parse_asin(self, root):
-        link = root.xpath('//link[@rel="canonical" and @href]')
-        for l in link:
-            return l.get('href').rpartition('/')[-1]
 
     def totext(self, elem):
         return self.tostring(elem, encoding=unicode, method='text').strip()
@@ -934,13 +945,28 @@ class Amazon(Source):
         import html5lib
 
         testing = getattr(self, 'running_a_test', False)
+        br = self.browser
+
+        domain, asin = self.get_domain_and_asin(identifiers)
+        if asin and domain == 'com':
+            # Try to directly get details page instead of running a search
+            durl = 'http://www.amazon.com/gp/product/' + asin
+            preparsed_root = parse_details_page(durl, log, timeout, br, domain)
+            if preparsed_root is not None:
+                qasin = parse_asin(preparsed_root[1], log, durl)
+                if qasin == asin:
+                    w = Worker(durl, result_queue, br, log, 0, domain, self, testing=testing, preparsed_root=preparsed_root)
+                    try:
+                        w.get_details()
+                        return
+                    except Exception:
+                        log.exception('get_details failed for url: %r'%durl)
 
         query, domain = self.create_query(log, title=title, authors=authors,
                 identifiers=identifiers)
         if query is None:
             log.error('Insufficient metadata to construct query')
             return
-        br = self.browser
         if testing:
             print ('Using user agent for amazon: %s'%self.user_agent)
         try:
@@ -1068,6 +1094,11 @@ if __name__ == '__main__':  # tests {{{
     from calibre.ebooks.metadata.sources.test import (test_identify_plugin,
             isbn_test, title_test, authors_test, comments_test)
     com_tests = [  # {{{
+
+            (   # A kindle edition that does not appear in the search results when searching by ASIN
+                {'identifiers':{'amazon':'B004JHY6OG'}},
+                [title_test('The Heroes: A First Law Novel', exact=True)]
+            ),
 
             (  # + in title and uses id="main-image" for cover
              {'title':'C++ Concurrency in Action'},
