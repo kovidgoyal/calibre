@@ -747,7 +747,7 @@ class Amazon(Source):
                     return domain, val
         return None, None
 
-    def get_book_url(self, identifiers):  # {{{
+    def _get_book_url(self, identifiers):  # {{{
         domain, asin = self.get_domain_and_asin(identifiers)
         if domain and asin:
             url = None
@@ -761,7 +761,12 @@ class Amazon(Source):
                 url = 'http://www.amazon.%s/dp/%s'%(domain, asin)
             if url:
                 idtype = 'amazon' if domain == 'com' else 'amazon_'+domain
-                return (idtype, asin, url)
+                return domain, idtype, asin, url
+
+    def get_book_url(self, identifiers):
+        ans = self._get_book_url(identifiers)
+        if ans is not None:
+            return ans[1:]
 
     def get_book_url_name(self, idtype, idval, url):
         if idtype == 'amazon':
@@ -947,9 +952,10 @@ class Amazon(Source):
         testing = getattr(self, 'running_a_test', False)
         br = self.browser
 
-        domain, asin = self.get_domain_and_asin(identifiers)
-        if asin and domain == 'com':
+        udata = self._get_book_url(identifiers)
+        if udata is not None:
             # Try to directly get details page instead of running a search
+            domain, idtype, asin, durl = udata
             durl = 'http://www.amazon.com/gp/product/' + asin
             preparsed_root = parse_details_page(durl, log, timeout, br, domain)
             if preparsed_root is not None:
