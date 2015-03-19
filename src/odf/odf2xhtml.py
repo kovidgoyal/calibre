@@ -418,7 +418,9 @@ class ODF2XHTML(handler.ContentHandler):
         (TEXTNS, "bibliography-source"):(self.s_text_x_source, self.e_text_x_source),
         (TEXTNS, 'bookmark'): (self.s_text_bookmark, None),
         (TEXTNS, 'bookmark-start'): (self.s_text_bookmark, None),
+        (TEXTNS, 'reference-mark-start'): (self.s_text_bookmark, None),  # Added by Kovid
         (TEXTNS, 'bookmark-ref'): (self.s_text_bookmark_ref, self.e_text_a),
+        (TEXTNS, 'reference-ref'): (self.s_text_bookmark_ref, self.e_text_a),  # Added by Kovid
         (TEXTNS, 'bookmark-ref-start'): (self.s_text_bookmark_ref, None),
         (TEXTNS, 'h'): (self.s_text_h, self.e_text_h),
         (TEXTNS, "illustration-index-source"):(self.s_text_x_source, self.e_text_x_source),
