@@ -690,10 +690,10 @@ class EbookViewer(MainWindow):
         if self.view.document.in_paged_mode and num > 1 and num % 2 == 0:
             two, one = self.page_position_on_footnote_toggle.pop(), self.page_position_on_footnote_toggle.pop()
             if (
-                    time.time() - two.time < 1 and not two.is_visible and one.is_visible
-                    and one.last_loaded_path == two.last_loaded_path and two.last_loaded_path == self.view.last_loaded_path
-                    and one.page_dimensions == self.view.document.page_dimensions and one.multiplier == self.view.multiplier
-                    and one.after_resize_page_number == self.view.document.page_number
+                    time.time() - two.time < 1 and not two.is_visible and one.is_visible and
+                    one.last_loaded_path == two.last_loaded_path and two.last_loaded_path == self.view.last_loaded_path and
+                    one.page_dimensions == self.view.document.page_dimensions and one.multiplier == self.view.multiplier and
+                    one.after_resize_page_number == self.view.document.page_number
             ):
                 return one.page_number
 
