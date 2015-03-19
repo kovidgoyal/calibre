@@ -139,7 +139,7 @@ class CompletionWorker(Thread):
     def shutdown(self):
         self.shutting_down = True
         self.main_queue.put(None)
-        for conn in (self.control_conn, self.data_conn):
+        for conn in (getattr(self, 'control_conn', None), getattr(self, 'data_conn', None)):
             try:
                 conn.close()
             except Exception:
