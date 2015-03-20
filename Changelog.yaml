@@ -20,6 +20,48 @@
 #   new recipes:
 #     - title: 
 
+- version: 2.22.0
+  date: 2015-03-20
+
+  new features:
+    - title: "Book List: When editing data in the book list directly, expand the editor widget to use all available width if the data does not fit inside the current column width"
+
+    - title: "Edit Book: When re-opening a previously edited book, restore all open files and the cursor position. Can be disabled in Preferences->Main Window"
+
+    - title: "Advanced search builder: Allow using days/weeks/months/years when building a date based search with number of days ago."
+      tickets: [1431695]
+
+    - title: "Amazon metadata download: Speedup metadata download from amazon.com when an ASIN is specified by trying the product page directly first instead of running a search."
+
+    - title: "Implement updating metadata in DOCX files"
+
+  bug fixes:
+    - title: "ODT Input: Add support for intra-document cross-references."
+      tickets: [1429271]
+
+    - title: "PDF Output: Fix incorrect encoding of ASCII control characters and some Chines characters in metadata and Table of Contents strings."
+      tickets: [1433848]
+
+    - title: "Amazon metadata download: Work around amazon server problems where it does not return Kindle Editions in search results when not logged in."
+      tickets: [1433125]
+
+    - title: "Fix Manage Authors dialog causing current search in the book list to be cleared."
+      tickets: [1432324]
+
+    - title: "Conversion: Fix a regression in 2.21 that caused conversion to fail for books with invalid pseudo-class CSS selectors."
+      tickets: [1432267]
+
+    - title: "Content server: Fix OPDS categories not showing books for composite column categories if the column contains a colon."
+
+    - title: "Single convert dialog: Only write metadata updates if metadata actually changed. Also show a nicer error message when a file is locked by another process."
+
+    - title: "Open With: Fix error when scanning for default programs on windows for some file types"
+
+    - title: "Edit Book: Fix Preview panel sometimes not working when opening multiple html files one after the other very quickly"
+
+  improved recipes:
+    - Wired Daily
+
 - version: 2.21.0
   date: 2015-03-13
 
