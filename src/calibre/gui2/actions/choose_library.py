@@ -290,7 +290,7 @@ class ChooseLibraryAction(InterfaceAction):
         return self.stats.pretty(path)
 
     def update_tooltip(self, count):
-        tooltip = self.action_spec[2] + '\n\n' + _('{0} [{1} books]').format(
+        tooltip = self.action_spec[2] + '\n\n' + ngettext('{0} [{1} book]', '{0} [{1} books]', count).format(
             getattr(self, 'last_lname', ''), count)
         a = self.qaction
         a.setToolTip(tooltip)
