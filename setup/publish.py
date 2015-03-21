@@ -32,7 +32,7 @@ class Stage2(Command):
     description = 'Stage 2 of the publish process, builds the binaries'
 
     def run(self, opts):
-        from distutils.spawn import find_executable
+        from setup.multitail import pipe, multitail
         for x in glob.glob(os.path.join(self.d(self.SRC), 'dist', '*')):
             os.remove(x)
         build = os.path.join(self.d(self.SRC), 'build')
@@ -48,10 +48,11 @@ class Stage2(Command):
             libc.prctl(1, signal.SIGTERM)
 
         for x in ('linux', 'osx', 'win'):
-            log = open(os.path.join(tdir, x), 'w+b', buffering=1)  # line buffered
-            p = subprocess.Popen([sys.executable, 'setup.py', x], stdout=log, stderr=subprocess.STDOUT,
+            r, w = pipe()
+            p = subprocess.Popen([sys.executable, 'setup.py', x], stdout=w, stderr=subprocess.STDOUT,
                                  cwd=self.d(self.SRC), preexec_fn=kill_child_on_parent_death)
-            p.log, p.start_time, p.bname = log, time.time(), x
+            p.log, p.start_time, p.bname = r, time.time(), x
+            p.save = open(os.path.join(tdir, x), 'w+b')
             p.duration = None
             processes.append(p)
 
@@ -66,21 +67,22 @@ class Stage2(Command):
                     running = True
             return running
 
-        mtexe = find_executable('multitail')
-        if mtexe:
-            mtexe = subprocess.Popen([mtexe, '--basename'] + [pr.log.name for pr in processes], preexec_fn=kill_child_on_parent_death)
+        stop_multitail = multitail(
+            [proc.log for proc in processes],
+            name_map={proc.log:proc.bname for proc in processes},
+            copy_to=[proc.save for proc in processes]
+        )[0]
 
         while workers_running():
             os.waitpid(-1, 0)
 
-        if mtexe and mtexe.poll() is None:
-            mtexe.terminate(), mtexe.wait()
+        stop_multitail()
 
         failed = False
         for p in processes:
             if p.poll() != 0:
                 failed = True
-                log = p.log
+                log = p.save
                 log.flush()
                 log.seek(0)
                 raw = log.read()
