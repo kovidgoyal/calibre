@@ -210,7 +210,9 @@ class TextStyle(DOCXStyle):
             val = int(self.vertical_align * 2)
             style.append(makeelement(style, 'position', val=str(val)))
         elif isinstance(self.vertical_align, basestring):
-            val = {'top':'superscript', 'text-top':'superscript', 'sup':'superscript', 'bottom':'subscript', 'text-bottom':'subscript', 'sub':'subscript'}.get(
+            val = {
+                'top':'superscript', 'text-top':'superscript', 'sup':'superscript', 'super':'superscript',
+                'bottom':'subscript', 'text-bottom':'subscript', 'sub':'subscript'}.get(
                 self.vertical_align.lower())
             if val:
                 style.append(makeelement(style, 'vertAlign', val=val))
