@@ -200,7 +200,7 @@ def get_open_data(base, prog_id):
         k = Key(open_at=r'Software\Classes\%s' % prog_id, root=base)
     except WindowsError as err:
         if err.errno == winerror.ERROR_FILE_NOT_FOUND:
-            return None, None
+            return None, None, None
     with k:
         return k.get(sub_key=r'shell\open\command'), k.get(sub_key='DefaultIcon'), k.get_mui_string('FriendlyTypeName') or k.get()
 
