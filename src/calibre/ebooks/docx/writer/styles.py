@@ -227,7 +227,7 @@ class TextStyle(DOCXStyle):
 class BlockStyle(DOCXStyle):
 
     ALL_PROPS = tuple(
-        'text_align page_break_before keep_lines css_text_indent text_indent line_height css_line_height background_color'.split() +
+        'text_align page_break_before keep_lines css_text_indent text_indent line_height background_color'.split() +
         ['margin_' + edge for edge in border_edges] +
         ['css_margin_' + edge for edge in border_edges] +
         [x%edge for edge in border_edges for x in border_props]
@@ -248,8 +248,7 @@ class BlockStyle(DOCXStyle):
             setattr(self, 'border_%s_style' %  edge, LINE_STYLES.get(css['border-%s-style' % edge].lower(), 'none'))
         self.text_indent = max(0, int(css['text-indent'] * 20))
         self.css_text_indent = css._get('text-indent')
-        self.line_height = max(0, int(css['line-height'] * 20))
-        self.css_line_height = css._get('line-height')
+        self.line_height = max(0, int(css.lineHeight * 20))
         self.background_color = convert_color(css['background-color'])
         self.text_align = {'start':'left', 'left':'left', 'end':'right', 'right':'right', 'center':'center', 'justify':'both', 'centre':'center'}.get(
             css['text-align'].lower(), 'left')
@@ -292,18 +291,9 @@ class BlockStyle(DOCXStyle):
                 if (self is normal_style and val > 0) or val != getter(normal_style):
                     spacing.set(w(attr), str(val))
 
-        if (self is normal_style and self.css_line_height != 'normal') or self.css_line_height != normal_style.css_line_height:
-            try:
-                css_val, css_unit = float(self.css_line_height), 'ratio'
-            except Exception:
-                css_val, css_unit = parse_css_length(self.css_line_height)
-            if css_unit in {'em', 'ex', '%', 'ratio'}:
-                mult = {'ex':0.5, '%':0.01}.get(css_unit, 1)
-                val = int(css_val * 240 * mult)
-                spacing.set(w('line'), str(val))
-            else:
-                spacing.set(w('line'), str(0 if self.css_line_height == 'normal' else self.line_height))
-                spacing.set(w('lineRule'), 'exactly')
+        if self is normal_style or self.line_height != normal_style.line_height:
+            spacing.set(w('line'), str(self.line_height))
+            spacing.set(w('lineRule'), 'atLeast')
 
         if spacing.attrib:
             style.append(spacing)
