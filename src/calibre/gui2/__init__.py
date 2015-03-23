@@ -1289,15 +1289,3 @@ def event_type_name(ev_or_etype):
         if num == etype:
             return name
     return 'UnknownEventType'
-
-if islinux or isbsd:
-    def workaround_broken_under_mouse(ch):
-        import sip
-        from PyQt5.Qt import QCursor, QToolButton
-        # See https://bugreports.qt-project.org/browse/QTBUG-40233
-        if isinstance(ch, QToolButton) and not sip.isdeleted(ch):
-            ch.setAttribute(Qt.WA_UnderMouse, ch.rect().contains(ch.mapFromGlobal(QCursor.pos())))
-            ch.update()
-else:
-    workaround_broken_under_mouse = None
-
