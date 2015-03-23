@@ -492,23 +492,9 @@ Download Qt sourcecode (.zip) from: http://download.qt-project.org/official_rele
     * Slim down Qt by not building various things we dont need. Edit
       :file:`qtwebkit/Tools/qmake/mkspecs/features/configure.prf` and remove
       build_webkit2. Edit qt.pro and comment out the addModule() lines for
-      qtxmlpatterns, qtdeclarative, qtquick1, qtwebsockets. Change the
-      addModule line for qtwebkit to depend on qtbase instead of qtdeclarative.
-
-    * Patch to fix soft hyphen rendering in viewer (https://bugreports.qt-project.org/browse/QTBUG-40912):
-
---- qtwebkit/Source/WebCore/platform/graphics/WidthIterator.cpp
-+++ qtwebkit/Source/WebCore/platform/graphics/WidthIterator.cpp
-@@ -265,7 +265,7 @@ inline unsigned WidthIterator::advanceInternal(TextIterator& textIterator, Glyph
-                 m_isAfterExpansion = false;
-         }
- 
--        if (shouldApplyFontTransforms() && glyphBuffer && Font::treatAsSpace(character))
-+        if (shouldApplyFontTransforms() && glyphBuffer && (Font::treatAsSpace(character) || Font::treatAsZeroWidthSpace(character)))
-             charactersTreatedAsSpace.append(make_pair(glyphBuffer->size(),
-                 OriginalAdvancesForCharacterTreatedAsSpace(character == ' ', glyphBuffer->size() ? glyphBuffer->advanceAt(glyphBuffer->size() - 1).width() : 0, width)));
- 
-
+      qtxmlpatterns, qtdeclarative, qtquick1, qttools, qtwebsockets,
+      qtwebengine. Change the addModule line for qtwebkit to depend on qtbase
+      instead of qtdeclarative.
 
     * Qt uses its own routine to locate and load "system libraries" including
       the openssl libraries needed for "Get Books". This means that we have to
