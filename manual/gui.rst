@@ -666,6 +666,8 @@ Calibre has several keyboard shortcuts to save you time and mouse movement. Thes
       - Polish books
     * - :kbd:`S`
       - Save to Disk
+    * - :kbd:`T`
+      - Edit Book
     * - :kbd:`V`
       - View
     * - :kbd:`Alt+V/Cmd+V in OS X`
@@ -722,11 +724,3 @@ Calibre has several keyboard shortcuts to save you time and mouse movement. Thes
       - Perform a search in the Quick View panel
     * - :kbd:`Ctrl+Q`
       - Quit calibre
-
-
-
-
-
-
-
-
