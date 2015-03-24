@@ -6,7 +6,7 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import textwrap
+import textwrap, os
 from io import BytesIO
 
 from lxml import etree
@@ -14,7 +14,7 @@ from lxml.builder import ElementMaker
 
 from calibre import guess_type
 from calibre.constants import numeric_version, __appname__
-from calibre.ebooks.docx.names import namespaces, STYLES, WEB_SETTINGS
+from calibre.ebooks.docx.names import namespaces, STYLES, WEB_SETTINGS, IMAGES
 from calibre.ebooks.metadata import authors_to_string
 from calibre.ebooks.metadata.opf2 import OPF as ReadOPF
 from calibre.ebooks.oeb.base import OPF, OPF2_NS
@@ -51,7 +51,6 @@ class DocumentRelationships(object):
 
     def __init__(self):
         self.rmap = {}
-        self.counter = 0
         for typ, target in {
                 STYLES: 'styles.xml',
                 WEB_SETTINGS: 'webSettings.xml',
@@ -64,10 +63,12 @@ class DocumentRelationships(object):
     def add_relationship(self, target, rtype, target_mode=None):
         ans = self.get_relationship_id(target, rtype, target_mode)
         if ans is None:
-            self.counter += 1
-            ans = 'rId%d' % self.counter
+            ans = 'rId%d' % (len(self.rmap) + 1)
             self.rmap[(target, rtype, target_mode)] = ans
         return ans
+
+    def add_image(self, target):
+        return self.add_relationship(target, IMAGES)
 
     def serialize(self):
         E = ElementMaker(namespace=namespaces['pr'], nsmap={None:namespaces['pr']})
@@ -113,8 +114,13 @@ class DOCX(object):
         }.iteritems():
             added.add(ext)
             types.append(E.Default(Extension=ext, ContentType=mt))
-        # TODO: Iterate over all resources and add mimetypes for any that are
-        # not already added
+        for fname in self.images:
+            ext = fname.rpartition(os.extsep)[-1]
+            if ext not in added:
+                added.add(ext)
+                mt = guess_type('a.' + ext)[0]
+                if mt:
+                    types.append(E.Default(Extension=ext, ContentType=mt))
         return xml2str(types)
 
     @property
@@ -176,6 +182,8 @@ class DOCX(object):
             zf.writestr('word/document.xml', xml2str(self.document))
             zf.writestr('word/styles.xml', xml2str(self.styles))
             zf.writestr('word/_rels/document.xml.rels', self.document_relationships.serialize())
+            for fname, data_getter in self.images.iteritems():
+                zf.writestr(fname, data_getter())
 
 if __name__ == '__main__':
     d = DOCX(None, None)

@@ -13,6 +13,7 @@ from lxml.builder import ElementMaker
 
 from calibre.ebooks.docx.names import namespaces
 from calibre.ebooks.docx.writer.styles import w, StylesManager
+from calibre.ebooks.docx.writer.images import ImagesManager
 from calibre.ebooks.oeb.stylizer import Stylizer as Sz, Style as St
 from calibre.ebooks.oeb.base import XPath, barename
 from calibre.ebooks.pdf.render.common import PAPER_SIZES
@@ -151,18 +152,26 @@ class Convert(object):
 
     def __call__(self):
         from calibre.ebooks.oeb.transforms.rasterize import SVGRasterizer
-        SVGRasterizer()(self.oeb, self.opts)
+        self.svg_rasterizer = SVGRasterizer()
+        self.svg_rasterizer(self.oeb, self.opts)
 
         self.styles_manager = StylesManager()
+        self.images_manager = ImagesManager(self.oeb, self.docx.document_relationships)
 
-        for item in self.oeb.spine:
-            self.process_item(item)
+        try:
+            for item in self.oeb.spine:
+                self.process_item(item)
 
-        self.styles_manager.finalize(self.blocks)
-        self.write()
+            self.styles_manager.finalize(self.blocks)
+            self.write()
+        finally:
+            self.images_manager.cleanup()
 
     def process_item(self, item):
-        stylizer = Stylizer(item.data, item.href, self.oeb, self.opts, self.opts.output_profile)
+        stylizer = self.svg_rasterizer.stylizer_cache.get(item)
+        if stylizer is None:
+            stylizer = Stylizer(item.data, item.href, self.oeb, self.opts, self.opts.output_profile)
+        self.abshref = self.images_manager.abshref = item.abshref
 
         is_first_block = True
         for body in XPath('//h:body')(item.data):
@@ -177,21 +186,24 @@ class Convert(object):
         block_style = stylizer.style(html_block)
         if block_style.is_hidden:
             return
-        if html_block.text:
-            docx_block.add_text(html_block.text, block_style, ignore_leading_whitespace=True, is_parent_style=True)
+        if html_block.tag.endswith('}img'):
+            b = Block(self.styles_manager, html_block, stylizer.style(html_block))
+            self.blocks.append(b)
+            self.images_manager.add_image(html_block, b, stylizer)
+        else:
+            if html_block.text:
+                docx_block.add_text(html_block.text, block_style, ignore_leading_whitespace=True, is_parent_style=True)
 
-        for child in html_block.iterchildren(etree.Element):
-            tag = barename(child.tag)
-            style = stylizer.style(child)
-            display = style._get('display')
-            if tag == 'img':
-                pass  # TODO: Handle images
-            if display == 'block' and tag != 'br':
-                b = Block(self.styles_manager, child, style)
-                self.blocks.append(b)
-                self.process_block(child, b, stylizer)
-            else:
-                self.process_inline(child, self.blocks[-1], stylizer)
+            for child in html_block.iterchildren(etree.Element):
+                tag = barename(child.tag)
+                style = stylizer.style(child)
+                display = style._get('display')
+                if display == 'block' and tag != 'br':
+                    b = Block(self.styles_manager, child, style)
+                    self.blocks.append(b)
+                    self.process_block(child, b, stylizer)
+                else:
+                    self.process_inline(child, self.blocks[-1], stylizer)
 
         if ignore_tail is False and html_block.tail and html_block.tail.strip():
             b = docx_block
@@ -211,7 +223,7 @@ class Convert(object):
             if html_child.tail or html_child is not html_child.getparent()[-1]:
                 docx_block.add_break(clear={'both':'all', 'left':'left', 'right':'right'}.get(style['clear'], 'none'))
         elif tag == 'img':
-            return  # TODO: Handle images
+            self.images_manager.add_image(html_child, docx_block, stylizer)
         else:
             if html_child.text:
                 docx_block.add_text(html_child.text, style, html_parent=html_child)
@@ -249,7 +261,7 @@ class Convert(object):
             E.docGrid(**{w('linePitch'):"360"}),
         ))
 
-        dn = {k:v for k, v in namespaces.iteritems() if k in 'wr'}
+        dn = {k:v for k, v in namespaces.iteritems() if k in tuple('wra') + ('wp',)}
         E = ElementMaker(namespace=dn['w'], nsmap=dn)
         self.docx.styles = E.styles(
             E.docDefaults(
@@ -268,4 +280,6 @@ class Convert(object):
                 )
             )
         )
+        self.docx.images = {}
         self.styles_manager.serialize(self.docx.styles)
+        self.images_manager.serialize(self.docx.images)
