@@ -1,2 +1,0 @@
-Undo manual patching for webkit soft hyphen rendering bug when using qt
->= 5.4.0
