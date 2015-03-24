@@ -335,10 +335,9 @@ class Py2App(object):
         self.set_id(lib, self.FID+'/'+rpath)
         self.fix_dependencies_in_lib(lib)
         # The following is needed for codesign in OS X >= 10.9.5
-        # See https://bugreports.qt-project.org/browse/QTBUG-32895
+        # The presence of the .prl file in the root of the framework causes
+        # codesign to fail.
         with current_dir(dest):
-            os.rename('Contents', 'Versions/Current/Resources')
-            os.symlink('Versions/Current/Resources', 'Resources')
             for x in os.listdir('.'):
                 if x != 'Versions' and not os.path.islink(x):
                     os.remove(x)

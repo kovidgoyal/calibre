@@ -14,10 +14,9 @@ import regex
 from PyQt5.Qt import (
     QPlainTextEdit, QFontDatabase, QToolTip, QPalette, QFont, QKeySequence,
     QTextEdit, QTextFormat, QWidget, QSize, QPainter, Qt, QRect, QColor,
-    QColorDialog, QTimer, pyqtSignal, QT_VERSION)
+    QColorDialog, QTimer, pyqtSignal)
 
 from calibre import prepare_string_for_xml
-from calibre.constants import isosx
 from calibre.gui2.tweak_book import tprefs, TOP
 from calibre.gui2.tweak_book.completion.popup import CompletionPopup
 from calibre.gui2.tweak_book.editor import (
@@ -716,11 +715,6 @@ class TextEdit(PlainTextEdit):
         if ev.key() == Qt.Key_Insert:
             self.setOverwriteMode(self.overwriteMode() ^ True)
             ev.accept()
-            return
-        if isosx and QT_VERSION < 0x504000 and ev.modifiers() == Qt.ControlModifier and re.search(r'[a-zA-Z0-9]+', ev.text()) is not None:
-            # For some reason Qt 5 translates Cmd+key into text on OS X
-            # https://bugreports.qt-project.org/browse/QTBUG-36281
-            ev.setAccepted(False)
             return
         if self.snippet_manager.handle_key_press(ev):
             self.completion_popup.hide()

@@ -1,11 +1,2 @@
 Undo manual patching for webkit soft hyphen rendering bug when using qt
 >= 5.4.0
-
-Undo manual patching for OS X search box keyboard focus when using Qt >=
-5.3.2
-
-Undo manual fixing of Qt framework bundles in OS X setup script when
-using Qt >= 5.3.3
-
-Undo manual filtering of Cmd+letter in edit book editor/text.py when
-using Qt >= 5.4.0 (QTBUG-36281)
