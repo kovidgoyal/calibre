@@ -290,8 +290,7 @@ def do_download(dest):
     prints('Downloaded %s bytes'%os.path.getsize(dest))
 
 def download_tarball():
-    ext = 'tar.bz2' if calibre_version.startswith('1.') else 'txz'
-    fname = 'calibre-%s-i686.%s'%(calibre_version, ext)
+    fname = 'calibre-%s-i686.%s'%(calibre_version, 'txz')
     if is64bit:
         fname = fname.replace('i686', 'x86_64')
     tdir = tempfile.gettempdir()
@@ -593,10 +592,9 @@ def get_https_resource_securely(url, timeout=60, max_redirects=5, ssl_version=No
 # }}}
 
 def extract_tarball(raw, destdir):
-    c = 'j' if raw.startswith(b'BZh') else 'J'
     prints('Extracting application files...')
     with open('/dev/null', 'w') as null:
-        p = subprocess.Popen(['tar', 'x%sof' % c, '-', '-C', destdir], stdout=null, stdin=subprocess.PIPE, close_fds=True,
+        p = subprocess.Popen(['tar', 'xJof', '-', '-C', destdir], stdout=null, stdin=subprocess.PIPE, close_fds=True,
             preexec_fn=lambda:
                         signal.signal(signal.SIGPIPE, signal.SIG_DFL))
         p.stdin.write(raw)
