@@ -79,9 +79,9 @@ class DOCXStyle(object):
         style.append(makeelement(style, 'name', val=self.name))
         if self is normal_style:
             style.set(w('default'), '1')
-            style.append(makeelement(style, 'qFormat'))
         else:
             style.append(makeelement(style, 'basedOn', val=normal_style.id))
+        style.append(makeelement(style, 'qFormat'))
         styles.append(style)
         return style
 
