@@ -13,14 +13,20 @@ from calibre import force_unicode
 from calibre.ebooks.oeb.base import OEB_STYLES, OEB_DOCS
 from calibre.ebooks.oeb.normalize_css import normalize_filter_css, normalizers
 from calibre.ebooks.oeb.polish.pretty import pretty_script_or_style
-from css_selectors import Select
+from css_selectors import Select, SelectorError
 
 
 def filter_used_rules(rules, log, select):
     for rule in rules:
         used = False
         for selector in rule.selectorList:
-            if select.has_matches(selector.selectorText):
+            try:
+                if select.has_matches(selector.selectorText):
+                    used = True
+                    break
+            except SelectorError:
+                # Cannot parse/execute this selector, be safe and assume it
+                # matches something
                 used = True
                 break
         if not used:
