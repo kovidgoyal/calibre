@@ -500,6 +500,40 @@ class Style(object):
             self._fontSize = result
         return self._fontSize
 
+    def img_dimension(self, attr, img_size):
+        ans = None
+        parent = self._get_parent()
+        if parent is not None:
+            base = getattr(parent, attr)
+        else:
+            base = getattr(self._profile, attr + '_pts')
+        x = self._style.get(attr)
+        if x is not None:
+            if x == 'auto':
+                ans = base
+            else:
+                x = self._unit_convert(x, base=base)
+                if isinstance(x, (float, int, long)):
+                    ans = x
+        if ans is None:
+            x = self._element.get(attr)
+            if x is not None:
+                x = self._unit_convert(x + 'px', base=base)
+                if isinstance(x, (float, int, long)):
+                    ans = x
+        if ans is None:
+            ans = self._unit_convert(str(img_size) + 'px', base=base)
+        maa = self._style.get('max-' + attr)
+        if maa is not None:
+            x = self._unit_convert(maa, base=base)
+            if isinstance(x, (int, float, long)) and (ans is None or x < ans):
+                ans = x
+        return ans
+
+    def img_size(self, width, height):
+        ' Return the final size of an <img> given that it points to an imafe of size widthxheight '
+        return self.img_dimension('width', width), self.img_dimension('height', height)
+
     @property
     def width(self):
         if self._width is None:

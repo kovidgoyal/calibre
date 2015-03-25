@@ -76,11 +76,11 @@ def barename(x):
 def XML(x):
     return '{%s}%s' % (namespaces['xml'], x)
 
-def expand(name):
-    ns, tag = name.partition(':')[0::2]
-    if ns:
+def expand(name, sep=':'):
+    ns, tag = name.partition(sep)[::2]
+    if ns and tag:
         tag = '{%s}%s' % (namespaces[ns], tag)
-    return tag
+    return tag or ns
 
 def get(x, attr, default=None):
     return x.attrib.get(expand(attr), default)
@@ -104,3 +104,9 @@ def children(elem, *args):
 
 def descendants(elem, *args):
     return XPath('|'.join('descendant::%s' % a for a in args))(elem)
+
+def makeelement(root, tag, append=True, **attrs):
+    ans = root.makeelement(expand(tag), **{expand(k, sep='_'):v for k, v in attrs.iteritems()})
+    if append:
+        root.append(ans)
+    return ans

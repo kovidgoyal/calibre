@@ -66,6 +66,9 @@ class TextRun(object):
     def add_break(self, clear='none'):
         self.texts.append((None, clear))
 
+    def add_image(self, drawing):
+        self.texts.append((drawing, None))
+
     def serialize(self, p):
         r = p.makeelement(w('r'))
         p.append(r)
@@ -75,6 +78,8 @@ class TextRun(object):
         for text, preserve_whitespace in self.texts:
             if text is None:
                 r.append(r.makeelement(w('br'), **{w('clear'):preserve_whitespace}))
+            elif hasattr(text, 'xpath'):
+                r.append(text)
             else:
                 t = r.makeelement(w('t'))
                 r.append(t)
@@ -124,6 +129,14 @@ class Block(object):
             run = TextRun(self.styles_manager.create_text_style(self.html_style), self.html_block)
             self.runs.append(run)
         run.add_break(clear=clear)
+
+    def add_image(self, drawing):
+        if self.runs:
+            run = self.runs[-1]
+        else:
+            run = TextRun(self.styles_manager.create_text_style(self.html_style), self.html_block)
+            self.runs.append(run)
+        run.add_image(drawing)
 
     def serialize(self, body):
         p = body.makeelement(w('p'))
@@ -241,7 +254,7 @@ class Convert(object):
             self.blocks[-1].add_text(html_child.tail, stylizer.style(html_child.getparent()), html_parent=html_child.getparent(), is_parent_style=True)
 
     def write(self):
-        dn = {k:v for k, v in namespaces.iteritems() if k in {'w', 'r', 'm', 've', 'o', 'wp', 'w10', 'wne'}}
+        dn = {k:v for k, v in namespaces.iteritems() if k in {'w', 'r', 'm', 've', 'o', 'wp', 'w10', 'wne', 'a', 'pic'}}
         E = ElementMaker(namespace=dn['w'], nsmap=dn)
         self.docx.document = doc = E.document()
         body = E.body()
