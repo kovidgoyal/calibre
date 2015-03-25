@@ -70,7 +70,7 @@ class ImagesManager(object):
         return self.images[href].rid
 
     def create_image_markup(self, html_img, stylizer, href):
-        # TODO: inline img with non baseline vertical-align, img inside a link (clickable image)
+        # TODO: img inside a link (clickable image)
         style = stylizer.style(html_img)
         floating = style['float']
         if floating not in {'left', 'right'}:
