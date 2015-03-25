@@ -565,6 +565,13 @@ class Style(object):
         return self._width
 
     @property
+    def parent_width(self):
+        parent = self._get_parent()
+        if parent is None:
+            return self.width
+        return parent.width
+
+    @property
     def height(self):
         if self._height is None:
             height = None
@@ -638,22 +645,42 @@ class Style(object):
     @property
     def marginTop(self):
         return self._unit_convert(
-            self._get('margin-top'), base=self.height)
+            self._get('margin-top'), base=self.parent_width)
 
     @property
     def marginBottom(self):
         return self._unit_convert(
-            self._get('margin-bottom'), base=self.height)
+            self._get('margin-bottom'), base=self.parent_width)
+
+    @property
+    def marginLeft(self):
+        return self._unit_convert(
+            self._get('margin-left'), base=self.parent_width)
+
+    @property
+    def marginRight(self):
+        return self._unit_convert(
+            self._get('margin-right'), base=self.parent_width)
 
     @property
     def paddingTop(self):
         return self._unit_convert(
-            self._get('padding-top'), base=self.height)
+            self._get('padding-top'), base=self.parent_width)
 
     @property
     def paddingBottom(self):
         return self._unit_convert(
-            self._get('padding-bottom'), base=self.height)
+            self._get('padding-bottom'), base=self.parent_width)
+
+    @property
+    def paddingLeft(self):
+        return self._unit_convert(
+            self._get('padding-left'), base=self.parent_width)
+
+    @property
+    def paddingRight(self):
+        return self._unit_convert(
+            self._get('padding-right'), base=self.parent_width)
 
     def __str__(self):
         items = sorted(self._style.iteritems())

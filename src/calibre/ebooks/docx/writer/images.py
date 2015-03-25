@@ -23,6 +23,13 @@ from calibre.utils.magick.draw import identify_data
 
 Image = namedtuple('Image', 'rid fname width height fmt item')
 
+def get_image_margins(style):
+    ans = {}
+    for edge in 'Left Right Top Bottom'.split():
+        val = getattr(style, 'padding' + edge) + getattr(style, 'margin' + edge)
+        ans['dist' + edge[0]] = str(pt_to_emu(val))
+    return ans
+
 class ImagesManager(object):
 
     def __init__(self, oeb, document_relationships):
@@ -63,21 +70,43 @@ class ImagesManager(object):
         return self.images[href].rid
 
     def create_image_markup(self, html_img, stylizer, href):
-        # TODO: Handle floating images, margin/padding/border on image, img
-        # inside a link (clickable image)
+        # TODO: inline img with non baseline vertical-align, img inside a link (clickable image)
+        style = stylizer.style(html_img)
+        floating = style['float']
+        if floating not in {'left', 'right'}:
+            floating = None
+        fake_margins = floating is None
         self.count += 1
         img = self.images[href]
         name = urlunquote(posixpath.basename(href))
-        width, height = map(pt_to_emu, stylizer.style(html_img).img_size(img.width, img.height))
+        width, height = map(pt_to_emu, style.img_size(img.width, img.height))
 
         root = etree.Element('root', nsmap=namespaces)
         ans = makeelement(root, 'w:drawing', append=False)
-        inline = makeelement(ans, 'wp:inline', distT='0', distB='0', distR='0', distL='0')
-        makeelement(inline, 'wp:extent', cx=str(width), cy=str(width))
-        makeelement(inline, 'wp:effectExtent', l='0', r='0', t='0', b='0')
-        makeelement(inline, 'wp:docPr', id=str(self.count), name=name, descr=html_img.get('alt') or name)
-        makeelement(makeelement(inline, 'wp:cNvGraphicFramePr'), 'a:graphicFrameLocks', noChangeAspect="1")
-        g = makeelement(inline, 'a:graphic')
+        if floating is None:
+            parent = makeelement(ans, 'wp:inline')
+        else:
+            parent = makeelement(ans, 'wp:anchor', **get_image_margins(style))
+            # The next three lines are boilerplate that Word requires, even
+            # though the DOCX specs define defaults for all of them
+            parent.set('simplePos', '0'), parent.set('relativeHeight', '1'), parent.set('behindDoc',"0"), parent.set('locked', "0")
+            parent.set('layoutInCell', "1"), parent.set('allowOverlap', '1')
+            makeelement(parent, 'wp:simplePos', x='0', y='0')
+            makeelement(makeelement(parent, 'wp:positionH', relativeFrom='margin'), 'wp:align').text = floating
+            makeelement(makeelement(parent, 'wp:positionV', relativeFrom='line'), 'wp:align').text = 'top'
+        makeelement(parent, 'wp:extent', cx=str(width), cy=str(width))
+        if fake_margins:
+            # DOCX does not support setting margins for inline images, so we
+            # fake it by using effect extents to simulate margins
+            makeelement(parent, 'wp:effectExtent', **{k[-1].lower():v for k, v in get_image_margins(style).iteritems()})
+        else:
+            makeelement(parent, 'wp:effectExtent', l='0', r='0', t='0', b='0')
+        if floating is not None:
+            # The idiotic Word requires this to be after the extent settings
+            makeelement(parent, 'wp:wrapSquare', wrapText='bothSides')
+        makeelement(parent, 'wp:docPr', id=str(self.count), name=name, descr=html_img.get('alt') or name)
+        makeelement(makeelement(parent, 'wp:cNvGraphicFramePr'), 'a:graphicFrameLocks', noChangeAspect="1")
+        g = makeelement(parent, 'a:graphic')
         gd = makeelement(g, 'a:graphicData', uri=namespaces['pic'])
         pic = makeelement(gd, 'pic:pic')
         nvPicPr = makeelement(pic, 'pic:nvPicPr')

@@ -200,9 +200,7 @@ class Convert(object):
         if block_style.is_hidden:
             return
         if html_block.tag.endswith('}img'):
-            b = Block(self.styles_manager, html_block, None)
-            self.blocks.append(b)
-            self.images_manager.add_image(html_block, b, stylizer)
+            self.images_manager.add_image(html_block, docx_block, stylizer)
         else:
             if html_block.text:
                 docx_block.add_text(html_block.text, block_style, ignore_leading_whitespace=True, is_parent_style=True)
@@ -212,9 +210,14 @@ class Convert(object):
                 style = stylizer.style(child)
                 display = style._get('display')
                 if display == 'block' and tag != 'br':
-                    b = Block(self.styles_manager, child, style)
-                    self.blocks.append(b)
-                    self.process_block(child, b, stylizer)
+                    if tag == 'img' and style['float'] in {'left', 'right'}:
+                        # Image is floating so dont start a new paragraph for
+                        # it
+                        self.process_inline(child, self.blocks[-1], stylizer)
+                    else:
+                        b = Block(self.styles_manager, child, style)
+                        self.blocks.append(b)
+                        self.process_block(child, b, stylizer)
                 else:
                     self.process_inline(child, self.blocks[-1], stylizer)
 
