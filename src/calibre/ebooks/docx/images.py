@@ -24,6 +24,9 @@ class LinkedImageNotFound(ValueError):
 def emu_to_pt(x):
     return x / 12700
 
+def pt_to_emu(x):
+    return int(x * 12700)
+
 def get_image_properties(parent):
     width = height = None
     for extent in XPath('./wp:extent')(parent):
@@ -292,5 +295,3 @@ class Images(object):
         else:
             for tag in self.pict_to_html(elem, page):
                 yield tag
-
-
