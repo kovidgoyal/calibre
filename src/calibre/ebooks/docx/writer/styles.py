@@ -236,24 +236,39 @@ class BlockStyle(DOCXStyle):
     )
 
     def __init__(self, css, html_block, is_first_block=False):
-        self.page_break_before = html_block.tag.endswith('}body') or (not is_first_block and css['page-break-before'] == 'always')
-        self.keep_lines = css['page-break-inside'] == 'avoid'
-        for edge in border_edges:
-            # In DOCX padding can only be a positive integer
-            setattr(self, 'padding_' + edge, max(0, int(css['padding-' + edge])))
-            # In DOCX margin must be a positive integer in twips (twentieth of a point)
-            setattr(self, 'margin_' + edge, max(0, int(css['margin-' + edge] * 20)))
-            setattr(self, 'css_margin_' + edge, css._style.get('margin-' + edge, ''))
-            val = min(96, max(2, int({'thin':0.2, 'medium':1, 'thick':2}.get(css['border-%s-width' % edge], 0) * 8)))
-            setattr(self, 'border_%s_width' % edge, val)
-            setattr(self, 'border_%s_color' % edge, convert_color(css['border-%s-color' % edge]))
-            setattr(self, 'border_%s_style' %  edge, LINE_STYLES.get(css['border-%s-style' % edge].lower(), 'none'))
-        self.text_indent = max(0, int(css['text-indent'] * 20))
-        self.css_text_indent = css._get('text-indent')
-        self.line_height = max(0, int(css.lineHeight * 20))
-        self.background_color = convert_color(css['background-color'])
-        self.text_align = {'start':'left', 'left':'left', 'end':'right', 'right':'right', 'center':'center', 'justify':'both', 'centre':'center'}.get(
-            css['text-align'].lower(), 'left')
+        if css is None:
+            self.page_break_before = self.keep_lines = False
+            for edge in border_edges:
+                setattr(self, 'padding_' + edge, 0)
+                setattr(self, 'margin_' + edge, 0)
+                setattr(self, 'css_margin_' + edge, '')
+                setattr(self, 'border_%s_width' % edge, 2)
+                setattr(self, 'border_%s_color' % edge, None)
+                setattr(self, 'border_%s_style' %  edge, 'none')
+            self.text_indent = 0
+            self.css_text_indent = None
+            self.line_height = 280
+            self.background_color = None
+            self.text_align = 'left'
+        else:
+            self.page_break_before = html_block.tag.endswith('}body') or (not is_first_block and css['page-break-before'] == 'always')
+            self.keep_lines = css['page-break-inside'] == 'avoid'
+            for edge in border_edges:
+                # In DOCX padding can only be a positive integer
+                setattr(self, 'padding_' + edge, max(0, int(css['padding-' + edge])))
+                # In DOCX margin must be a positive integer in twips (twentieth of a point)
+                setattr(self, 'margin_' + edge, max(0, int(css['margin-' + edge] * 20)))
+                setattr(self, 'css_margin_' + edge, css._style.get('margin-' + edge, ''))
+                val = min(96, max(2, int({'thin':0.2, 'medium':1, 'thick':2}.get(css['border-%s-width' % edge], 0) * 8)))
+                setattr(self, 'border_%s_width' % edge, val)
+                setattr(self, 'border_%s_color' % edge, convert_color(css['border-%s-color' % edge]))
+                setattr(self, 'border_%s_style' %  edge, LINE_STYLES.get(css['border-%s-style' % edge].lower(), 'none'))
+            self.text_indent = max(0, int(css['text-indent'] * 20))
+            self.css_text_indent = css._get('text-indent')
+            self.line_height = max(0, int(css.lineHeight * 20))
+            self.background_color = convert_color(css['background-color'])
+            self.text_align = {'start':'left', 'left':'left', 'end':'right', 'right':'right', 'center':'center', 'justify':'both', 'centre':'center'}.get(
+                css['text-align'].lower(), 'left')
 
         DOCXStyle.__init__(self)
 

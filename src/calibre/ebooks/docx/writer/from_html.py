@@ -200,7 +200,7 @@ class Convert(object):
         if block_style.is_hidden:
             return
         if html_block.tag.endswith('}img'):
-            b = Block(self.styles_manager, html_block, stylizer.style(html_block))
+            b = Block(self.styles_manager, html_block, None)
             self.blocks.append(b)
             self.images_manager.add_image(html_block, b, stylizer)
         else:
@@ -218,14 +218,14 @@ class Convert(object):
                 else:
                     self.process_inline(child, self.blocks[-1], stylizer)
 
-        if ignore_tail is False and html_block.tail and html_block.tail.strip():
-            b = docx_block
-            if b is not self.blocks[-1]:
-                b = Block(self.styles_manager, html_block, block_style)
-                self.blocks.append(b)
-            b.add_text(html_block.tail, stylizer.style(html_block.getparent()), is_parent_style=True)
         if block_style['page-break-after'] == 'avoid':
             self.blocks[-1].keep_next = True
+
+        if ignore_tail is False and html_block.tail and html_block.tail.strip():
+            style = stylizer.style(html_block.getparent())
+            b = Block(self.styles_manager, html_block.getparent(), style)
+            self.blocks.append(b)
+            b.add_text(html_block.tail, style, is_parent_style=True)
 
     def process_inline(self, html_child, docx_block, stylizer):
         tag = barename(html_child.tag)
