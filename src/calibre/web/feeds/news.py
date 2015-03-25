@@ -22,8 +22,7 @@ from calibre.web import Recipe
 from calibre.ebooks.metadata.toc import TOC
 from calibre.ebooks.metadata import MetaInformation
 from calibre.web.feeds import feed_from_xml, templates, feeds_from_index, Feed
-from calibre.web.fetch.simple import option_parser as web2disk_option_parser
-from calibre.web.fetch.simple import RecursiveFetcher
+from calibre.web.fetch.simple import option_parser as web2disk_option_parser, RecursiveFetcher, AbortArticle
 from calibre.utils.threadpool import WorkRequest, ThreadPool, NoResultsPending
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.utils.date import now as nowf
@@ -583,6 +582,12 @@ class BasicNewsRecipe(Recipe):
         instance containing the downloaded :term:`HTML`.
         '''
         return None
+
+    def abort_article(self, msg=None):
+        ''' Call this method inside any of the preprocess methods to abort the
+        download for the current article. Useful to skip articles that contain
+        inappropriate content, such as pure video articles. '''
+        raise AbortArticle(msg or _('Article download aborted'))
 
     def preprocess_raw_html(self, raw_html, url):
         '''
@@ -1572,13 +1577,19 @@ class BasicNewsRecipe(Recipe):
 
     def error_in_article_download(self, request, traceback):
         self.jobs_done += 1
-        self.log.error('Failed to download article:', request.article.title,
-        'from', request.article.url)
-        self.log.debug(traceback)
-        self.log.debug('\n')
-        self.report_progress(float(self.jobs_done)/len(self.jobs),
-                _('Article download failed: %s')%force_unicode(request.article.title))
-        self.failed_downloads.append((request.feed, request.article, traceback))
+        if traceback and re.search('^AbortArticle:', traceback, flags=re.M) is not None:
+            self.log.warn('Aborted download of article:', request.article.title,
+                          'from', request.article.url)
+            self.report_progress(float(self.jobs_done)/len(self.jobs),
+                _('Article download aborted: %s')%force_unicode(request.article.title))
+        else:
+            self.log.error('Failed to download article:', request.article.title,
+            'from', request.article.url)
+            self.log.debug(traceback)
+            self.log.debug('\n')
+            self.report_progress(float(self.jobs_done)/len(self.jobs),
+                    _('Article download failed: %s')%force_unicode(request.article.title))
+            self.failed_downloads.append((request.feed, request.article, traceback))
 
     def parse_feeds(self):
         '''

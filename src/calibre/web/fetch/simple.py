@@ -23,6 +23,9 @@ from calibre.utils.magick import Image
 from calibre.utils.magick.draw import identify_data, thumbnail
 from calibre.utils.imghdr import what
 
+class AbortArticle(Exception):
+    pass
+
 class FetchError(Exception):
     pass
 
@@ -567,7 +570,9 @@ class RecursiveFetcher(object):
 
                     save_soup(soup, res)
                     self.localize_link(tag, 'href', res)
-                except Exception:
+                except Exception as err:
+                    if isinstance(err, AbortArticle):
+                        raise
                     self.failed_links.append((iurl, traceback.format_exc()))
                     self.log.exception('Could not fetch link', iurl)
                 finally:
