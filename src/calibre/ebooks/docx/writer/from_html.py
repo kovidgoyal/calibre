@@ -171,14 +171,11 @@ class Convert(object):
         self.styles_manager = StylesManager()
         self.images_manager = ImagesManager(self.oeb, self.docx.document_relationships)
 
-        try:
-            for item in self.oeb.spine:
-                self.process_item(item)
+        for item in self.oeb.spine:
+            self.process_item(item)
 
-            self.styles_manager.finalize(self.blocks)
-            self.write()
-        finally:
-            self.images_manager.cleanup()
+        self.styles_manager.finalize(self.blocks)
+        self.write()
 
     def process_item(self, item):
         stylizer = self.svg_rasterizer.stylizer_cache.get(item)

@@ -7,7 +7,7 @@ __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import os
-import shutil, posixpath
+import posixpath
 from collections import namedtuple
 from functools import partial
 from future_builtins import map
@@ -17,7 +17,6 @@ from lxml import etree
 from calibre.ebooks.oeb.base import urlunquote
 from calibre.ebooks.docx.names import makeelement, namespaces
 from calibre.ebooks.docx.images import pt_to_emu
-from calibre.ptempfile import PersistentTemporaryDirectory
 from calibre.utils.filenames import ascii_filename
 from calibre.utils.magick.draw import identify_data
 
@@ -37,19 +36,7 @@ class ImagesManager(object):
         self.images = {}
         self.seen_filenames = set()
         self.document_relationships = document_relationships
-        self._tdir = None
         self.count = 0
-
-    @property
-    def tdir(self):
-        if self._tdir is None:
-            self._tdir = PersistentTemporaryDirectory(suffix='_docx_output_images')
-        return self._tdir
-
-    def cleanup(self):
-        if self._tdir is not None:
-            shutil.rmtree(self._tdir)
-            self._tdir = None
 
     def add_image(self, img, block, stylizer):
         src = img.get('src')
