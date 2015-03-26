@@ -14,7 +14,7 @@ from lxml.builder import ElementMaker
 
 from calibre import guess_type
 from calibre.constants import numeric_version, __appname__
-from calibre.ebooks.docx.names import namespaces, STYLES, WEB_SETTINGS, IMAGES
+from calibre.ebooks.docx.names import namespaces, STYLES, WEB_SETTINGS, IMAGES, FONTS
 from calibre.ebooks.metadata import authors_to_string
 from calibre.ebooks.metadata.opf2 import OPF as ReadOPF
 from calibre.ebooks.oeb.base import OPF, OPF2_NS
@@ -54,6 +54,7 @@ class DocumentRelationships(object):
         for typ, target in {
                 STYLES: 'styles.xml',
                 WEB_SETTINGS: 'webSettings.xml',
+                FONTS: 'fontTable.xml',
         }.iteritems():
             self.add_relationship(target, typ)
 
@@ -85,6 +86,9 @@ class DOCX(object):
     def __init__(self, opts, log):
         self.opts, self.log = opts, log
         self.document_relationships = DocumentRelationships()
+        self.font_table = etree.Element('{%s}fonts' % namespaces['w'], nsmap={k:namespaces[k] for k in 'wr'})
+        E = ElementMaker(namespace=namespaces['pr'], nsmap={None:namespaces['pr']})
+        self.embedded_fonts = E.Relationships()
 
     # Boilerplate {{{
     @property
@@ -181,7 +185,9 @@ class DOCX(object):
             zf.writestr('word/webSettings.xml', self.websettings)
             zf.writestr('word/document.xml', xml2str(self.document))
             zf.writestr('word/styles.xml', xml2str(self.styles))
+            zf.writestr('word/fontTable.xml', xml2str(self.font_table))
             zf.writestr('word/_rels/document.xml.rels', self.document_relationships.serialize())
+            zf.writestr('word/_rels/fontTable.xml.rels', xml2str(self.embedded_fonts))
             for fname, data_getter in self.images.iteritems():
                 zf.writestr(fname, data_getter())
 

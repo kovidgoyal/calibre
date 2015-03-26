@@ -14,6 +14,7 @@ from lxml.builder import ElementMaker
 from calibre.ebooks.docx.names import namespaces
 from calibre.ebooks.docx.writer.styles import w, StylesManager
 from calibre.ebooks.docx.writer.images import ImagesManager
+from calibre.ebooks.docx.writer.fonts import FontsManager
 from calibre.ebooks.oeb.stylizer import Stylizer as Sz, Style as St
 from calibre.ebooks.oeb.base import XPath, barename
 from calibre.ebooks.pdf.render.common import PAPER_SIZES
@@ -170,6 +171,7 @@ class Convert(object):
 
         self.styles_manager = StylesManager()
         self.images_manager = ImagesManager(self.oeb, self.docx.document_relationships)
+        self.fonts_manager = FontsManager(self.oeb)
 
         for item in self.oeb.spine:
             self.process_item(item)
@@ -296,3 +298,4 @@ class Convert(object):
         self.docx.images = {}
         self.styles_manager.serialize(self.docx.styles)
         self.images_manager.serialize(self.docx.images)
+        self.fonts_manager.serialize(self.styles_manager.text_styles, self.docx.font_table, self.docx.embedded_fonts)
