@@ -493,6 +493,12 @@ class RuleEditor(QDialog):  # {{{
             <span style="color: {c}; background-color: {bg2}">&nbsp;{st}&nbsp;</span>
             '''.format(c=c, bg1=bg1, bg2=bg2, st=_('Sample Text')))
 
+    def sanitize_icon_file_name(self, icon_path):
+        n = lower(sanitize_file_name_unicode(
+                             os.path.splitext(
+                                   os.path.basename(icon_path))[0]+'.png'))
+        return n.replace("'", '_')
+
     def filename_button_clicked(self):
         try:
             path = choose_files(self, 'choose_category_icon',
@@ -501,13 +507,9 @@ class RuleEditor(QDialog):  # {{{
                     all_files=False, select_only_single_file=True)
             if path:
                 icon_path = path[0]
-                icon_name = lower(sanitize_file_name_unicode(
-                             os.path.splitext(
-                                   os.path.basename(icon_path))[0]+'.png'))
+                icon_name = self.sanitize_icon_file_name(icon_path)
                 if icon_name not in self.icon_file_names:
                     self.icon_file_names.append(icon_name)
-                    self.update_filename_box()
-                    self.update_remove_button()
                     try:
                         p = QIcon(icon_path).pixmap(QSize(128, 128))
                         d = self.icon_folder
@@ -519,6 +521,8 @@ class RuleEditor(QDialog):  # {{{
                     except:
                         import traceback
                         traceback.print_exc()
+                    self.update_filename_box()
+                    self.update_remove_button()
                 if self.doing_multiple:
                     if icon_name not in self.rule_icon_files:
                         self.rule_icon_files.append(icon_name)
