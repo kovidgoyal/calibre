@@ -1,4 +1,3 @@
-Images
 Table of Contents
 Links
 <hr> tag (probably as an empty block with a border)
@@ -9,5 +8,4 @@ Embed Fonts
 Cover image
 RTL text
 Lang support in run styles <w:lang>
-Create graphical config widget
-Roundtripping of dropcaps
+Dropcaps (in general floating display=inline elements)
