@@ -10,6 +10,8 @@ class TheDailyMail(BasicNewsRecipe):
     max_articles_per_feed = 50
     use_embedded_content = False
     auto_cleanup = True
+    compress_news_images = True
+    compress_news_images_max_size = 15
 
     extra_css = '''#js-article-text{font-family:Arial,Helvetica,sans-serif;}
                     h1{font-size:x-large; font-weight:bold;}
