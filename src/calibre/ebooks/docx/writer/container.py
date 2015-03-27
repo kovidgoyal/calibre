@@ -91,6 +91,7 @@ class DOCX(object):
         self.font_table = etree.Element('{%s}fonts' % namespaces['w'], nsmap={k:namespaces[k] for k in 'wr'})
         E = ElementMaker(namespace=namespaces['pr'], nsmap={None:namespaces['pr']})
         self.embedded_fonts = E.Relationships()
+        self.fonts = {}
 
     # Boilerplate {{{
     @property
@@ -192,6 +193,8 @@ class DOCX(object):
             zf.writestr('word/_rels/fontTable.xml.rels', xml2str(self.embedded_fonts))
             for fname, data_getter in self.images.iteritems():
                 zf.writestr(fname, data_getter())
+            for fname, data in self.fonts.iteritems():
+                zf.writestr(fname, data)
 
 if __name__ == '__main__':
     d = DOCX(None, None)

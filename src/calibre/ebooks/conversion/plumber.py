@@ -63,6 +63,7 @@ class CompositeProgressReporter(object):
 ARCHIVE_FMTS = ('zip', 'rar', 'oebzip')
 
 class Plumber(object):
+
     '''
     The `Plumber` manages the conversion pipeline. An UI should call the methods
     :method:`merge_ui_recommendations` and then :method:`run`. The plumber will
@@ -202,7 +203,7 @@ OptionRecommendation(name='embed_font_family',
             'specifies its own fonts, they may override this base font. '
             'You can use the filter style information option to remove fonts from the '
             'input document. Note that font embedding only works '
-            'with some output formats, principally EPUB and AZW3.')
+            'with some output formats, principally EPUB, AZW3 and DOCX.')
         ),
 
 OptionRecommendation(name='embed_all_fonts',
@@ -212,7 +213,7 @@ OptionRecommendation(name='embed_all_fonts',
             'but not already embedded. This will search your system for the '
             'fonts, and if found, they will be embedded. Embedding will only work '
             'if the format you are converting to supports embedded fonts, such as '
-            'EPUB, AZW3 or PDF. Please ensure that you have the proper license for embedding '
+            'EPUB, AZW3, DOCX or PDF. Please ensure that you have the proper license for embedding '
             'the fonts used in this document.'
         )),
 
@@ -1142,8 +1143,7 @@ OptionRecommendation(name='search_replace',
 
         mobi_file_type = getattr(self.opts, 'mobi_file_type', 'old')
         needs_old_markup = (self.output_plugin.file_type == 'lit' or
-                    (self.output_plugin.file_type == 'mobi' and mobi_file_type
-                     == 'old'))
+                    (self.output_plugin.file_type == 'mobi' and mobi_file_type == 'old'))
         flattener = CSSFlattener(fbase=fbase, fkey=fkey,
                 lineh=line_height,
                 untable=needs_old_markup,
@@ -1233,4 +1233,3 @@ def create_oebbook(log, path_or_stream, opts, reader=None,
 
     reader()(oeb, path_or_stream)
     return oeb
-

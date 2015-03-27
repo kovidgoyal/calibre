@@ -18,6 +18,7 @@ APPPROPS  = 'http://schemas.openxmlformats.org/officeDocument/2006/relationships
 STYLES    = 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles'
 NUMBERING = 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/numbering'
 FONTS     = 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/fontTable'
+EMBEDDED_FONT = 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/font'
 IMAGES    = 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/image'
 LINKS     = 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/hyperlink'
 FOOTNOTES = 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/footnotes'

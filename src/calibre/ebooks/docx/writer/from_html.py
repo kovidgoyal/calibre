@@ -171,7 +171,7 @@ class Convert(object):
 
         self.styles_manager = StylesManager()
         self.images_manager = ImagesManager(self.oeb, self.docx.document_relationships)
-        self.fonts_manager = FontsManager(self.oeb)
+        self.fonts_manager = FontsManager(self.oeb, self.opts)
 
         for item in self.oeb.spine:
             self.process_item(item)
@@ -298,4 +298,4 @@ class Convert(object):
         self.docx.images = {}
         self.styles_manager.serialize(self.docx.styles)
         self.images_manager.serialize(self.docx.images)
-        self.fonts_manager.serialize(self.styles_manager.text_styles, self.docx.font_table, self.docx.embedded_fonts)
+        self.fonts_manager.serialize(self.styles_manager.text_styles, self.docx.font_table, self.docx.embedded_fonts, self.docx.fonts)
