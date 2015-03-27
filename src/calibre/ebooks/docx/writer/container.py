@@ -23,6 +23,8 @@ from calibre.utils.localization import canonicalize_lang, lang_as_iso639_1
 from calibre.utils.zipfile import ZipFile
 
 def xml2str(root, pretty_print=False, with_tail=False):
+    if hasattr(etree, 'cleanup_namespaces'):
+        etree.cleanup_namespaces(root)
     ans = etree.tostring(root, encoding='utf-8', xml_declaration=True,
                           pretty_print=pretty_print, with_tail=with_tail)
     return ans
