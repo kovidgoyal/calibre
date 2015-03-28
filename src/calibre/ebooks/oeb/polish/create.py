@@ -34,6 +34,8 @@ def create_toc(mi, opf, html_name, lang):
 
 def create_book(mi, path, fmt='epub', opf_name='metadata.opf', html_name='start.xhtml', toc_name='toc.ncx'):
     ''' Create an empty book in the specified format at the specified location. '''
+    if fmt not in ['epub', 'azw3']:
+        return
     path = os.path.abspath(path)
     lang = 'und'
     opf = metadata_to_opf(mi, as_string=False)

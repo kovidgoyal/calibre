@@ -6,11 +6,13 @@ __license__   = 'GPL v3'
 
 from PyQt5.Qt import (
     QDialog, QGridLayout, QLabel, QDialogButtonBox,  QApplication, QSpinBox,
-    QToolButton, QIcon, QCheckBox, QLineEdit)
+    QToolButton, QIcon, QCheckBox, QLineEdit, QComboBox)
 from calibre.ebooks.metadata import string_to_authors
 from calibre.gui2.complete2 import EditWithComplete
 from calibre.utils.config import tweaks
 from calibre.gui2 import gprefs
+
+valid_empty_formats = ['epub', 'txt', 'docx', 'azw3']
 
 class AddEmptyBookDialog(QDialog):
 
@@ -76,21 +78,31 @@ class AddEmptyBookDialog(QDialog):
         self.tclear_button.clicked.connect(self.title_edit.clear)
         self._layout.addWidget(self.tclear_button, 7, 1, 1, 1)
 
-        self.create_epub = c = QCheckBox(_('Create an empty EPUB file as well'))
-        c.setChecked(gprefs.get('create_empty_epub_file', False))
-        c.setToolTip(_('Also create an empty EPUB file that you can subsequently edit'))
-        self._layout.addWidget(c, 8, 0, 1, -1)
+        self.format_label = QLabel(_('Create an empty format as well:'))
+        self._layout.addWidget(self.format_label, 8, 0, 1, 2)
+        c = self.format_value = QComboBox(self)
+        possible_formats = [''] + valid_empty_formats
+        c.addItems(possible_formats)
+        c.setToolTip(_('Also create an empty book format file that you can subsequently edit'))
+        if gprefs.get('create_empty_epub_file', False):
+            # Migration of the check box
+            gprefs.set('create_empty_format_file', 'epub')
+            gprefs.set('create_empty_epub_file', False)
+        use_format = gprefs.get('create_empty_format_file', '')
+        try:
+            c.setCurrentIndex(possible_formats.index(use_format))
+        except:
+            pass
+        self._layout.addWidget(c, 9, 0, 1, 1)
 
         button_box = self.bb = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
         button_box.accepted.connect(self.accept)
         button_box.rejected.connect(self.reject)
-        self._layout.addWidget(button_box, 9, 0, 1, -1)
+        self._layout.addWidget(button_box, 10, 0, 1, -1)
         self.resize(self.sizeHint())
 
     def accept(self):
-        oval = gprefs.get('create_empty_epub_file', False)
-        if self.create_epub.isChecked() != oval:
-            gprefs['create_empty_epub_file'] = self.create_epub.isChecked()
+        gprefs['create_empty_format_file'] = self.format_value.currentText()
         return QDialog.accept(self)
 
     def reset_author(self, *args):
