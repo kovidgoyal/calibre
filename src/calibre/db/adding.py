@@ -81,8 +81,9 @@ def import_book_directory_multiple(db, dirpath, callback=None,
 def import_book_directory(db, dirpath, callback=None, added_ids=None):
     from calibre.ebooks.metadata.meta import metadata_from_formats
     dirpath = os.path.abspath(dirpath)
-    formats = find_books_in_directory(dirpath, True)
-    formats = list(formats)[0]
+    formats = None
+    for formats in find_books_in_directory(dirpath, True):
+        break
     if not formats:
         return
     mi = metadata_from_formats(formats)
