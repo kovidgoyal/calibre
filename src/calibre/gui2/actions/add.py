@@ -183,11 +183,13 @@ class AddAction(InterfaceAction):
             from calibre.ebooks.oeb.polish.create import create_book
             pt = PersistentTemporaryFile(suffix='.' + format_)
             pt.close()
-            mi = db.new_api.get_metadata(id_, get_cover=False,
-                                 get_user_categories=False, cover_as_data=False)
-            create_book(mi, pt.name, fmt=format_)
-            db.add_format_with_hooks(id_, format_, pt.name, index_is_id=True, notify=True)
-            os.remove(pt.name)
+            try:
+                mi = db.new_api.get_metadata(id_, get_cover=False,
+                                    get_user_categories=False, cover_as_data=False)
+                create_book(mi, pt.name, fmt=format_)
+                db.add_format_with_hooks(id_, format_, pt.name, index_is_id=True, notify=True)
+            finally:
+                os.remove(pt.name)
 
         current_idx = self.gui.library_view.currentIndex()
         if current_idx.isValid():
