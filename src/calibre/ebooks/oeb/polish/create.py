@@ -24,6 +24,8 @@ from calibre.utils.localization import lang_as_iso639_1
 from calibre.utils.logging import DevNull
 from calibre.utils.zipfile import ZipFile, ZIP_STORED
 
+valid_empty_formats = {'epub', 'txt', 'docx', 'azw3'}
+
 def create_toc(mi, opf, html_name, lang):
     uuid = ''
     for u in opf.xpath('//*[@id="uuid_id"]'):
@@ -34,7 +36,9 @@ def create_toc(mi, opf, html_name, lang):
 
 def create_book(mi, path, fmt='epub', opf_name='metadata.opf', html_name='start.xhtml', toc_name='toc.ncx'):
     ''' Create an empty book in the specified format at the specified location. '''
-    if fmt not in ['epub', 'azw3']:
+    if fmt not in valid_empty_formats:
+        raise ValueError('Cannot create empty book in the %s format' % fmt)
+    if fmt not in {'epub', 'azw3'}:
         return
     path = os.path.abspath(path)
     lang = 'und'

@@ -14,7 +14,7 @@ from PyQt5.Qt import QPixmap, QTimer
 from calibre import as_unicode
 from calibre.gui2 import (error_dialog, choose_files, choose_dir,
         warning_dialog, info_dialog, gprefs)
-from calibre.gui2.dialogs.add_empty_book import AddEmptyBookDialog, valid_empty_formats
+from calibre.gui2.dialogs.add_empty_book import AddEmptyBookDialog
 from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.gui2.dialogs.progress import ProgressDialog
 from calibre.gui2.widgets import IMAGE_EXTENSIONS
@@ -79,6 +79,7 @@ class AddAction(InterfaceAction):
         ma('add-formats', _('Add files to selected book records'),
                 triggered=self.add_formats, shortcut='Shift+A')
         arm = self.add_archive_menu = self.add_menu.addMenu(_('Add an empty file to selected book records'))
+        from calibre.ebooks.oeb.polish.create import valid_empty_formats
         for fmt in sorted(valid_empty_formats):
             self.create_menu_action(arm, 'add-empty-' + fmt,
                                     _('Add empty {}').format(fmt.upper())).triggered.connect(

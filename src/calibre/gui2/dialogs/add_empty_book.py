@@ -12,7 +12,6 @@ from calibre.gui2.complete2 import EditWithComplete
 from calibre.utils.config import tweaks
 from calibre.gui2 import gprefs
 
-valid_empty_formats = {'epub', 'txt', 'docx', 'azw3'}
 
 class AddEmptyBookDialog(QDialog):
 
@@ -81,6 +80,7 @@ class AddEmptyBookDialog(QDialog):
         self.format_label = QLabel(_('Also create an empty ebook in format:'))
         self._layout.addWidget(self.format_label, 8, 0, 1, 2)
         c = self.format_value = QComboBox(self)
+        from calibre.ebooks.oeb.polish.create import valid_empty_formats
         possible_formats = [''] + sorted(x.upper() for x in valid_empty_formats)
         c.addItems(possible_formats)
         c.setToolTip(_('Also create an empty book format file that you can subsequently edit'))
