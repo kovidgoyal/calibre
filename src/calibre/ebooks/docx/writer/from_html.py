@@ -9,15 +9,13 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 import re
 
 from lxml import etree
-from lxml.builder import ElementMaker
 
-from calibre.ebooks.docx.names import namespaces
+from calibre.ebooks.docx.writer.container import create_skeleton
 from calibre.ebooks.docx.writer.styles import w, StylesManager
 from calibre.ebooks.docx.writer.images import ImagesManager
 from calibre.ebooks.docx.writer.fonts import FontsManager
 from calibre.ebooks.oeb.stylizer import Stylizer as Sz, Style as St
 from calibre.ebooks.oeb.base import XPath, barename
-from calibre.ebooks.pdf.render.common import PAPER_SIZES
 
 class Style(St):
 
@@ -256,46 +254,9 @@ class Convert(object):
             self.blocks[-1].add_text(html_child.tail, stylizer.style(html_child.getparent()), html_parent=html_child.getparent(), is_parent_style=True)
 
     def write(self):
-        dn = {k:v for k, v in namespaces.iteritems() if k in {'w', 'r', 'm', 've', 'o', 'wp', 'w10', 'wne', 'a', 'pic'}}
-        E = ElementMaker(namespace=dn['w'], nsmap=dn)
-        self.docx.document = doc = E.document()
-        body = E.body()
-        doc.append(body)
+        self.docx.document, self.docx.styles, body = create_skeleton(self.opts)
         for block in self.blocks:
             block.serialize(body)
-        width, height = PAPER_SIZES[self.opts.docx_page_size]
-        if self.opts.docx_custom_page_size is not None:
-            width, height = map(float, self.opts.docx_custom_page_size.partition('x')[0::2])
-        width, height = int(20 * width), int(20 * height)
-        def margin(which):
-            return w(which), str(int(getattr(self.opts, 'margin_'+which) * 20))
-        body.append(E.sectPr(
-            E.pgSz(**{w('w'):str(width), w('h'):str(height)}),
-            E.pgMar(**dict(map(margin, 'left top right bottom'.split()))),
-            E.cols(**{w('space'):'720'}),
-            E.docGrid(**{w('linePitch'):"360"}),
-        ))
-
-        dn = {k:v for k, v in namespaces.iteritems() if k in tuple('wra') + ('wp',)}
-        E = ElementMaker(namespace=dn['w'], nsmap=dn)
-        self.docx.styles = E.styles(
-            E.docDefaults(
-                E.rPrDefault(
-                    E.rPr(
-                        E.rFonts(**{w('asciiTheme'):"minorHAnsi", w('eastAsiaTheme'):"minorEastAsia", w('hAnsiTheme'):"minorHAnsi", w('cstheme'):"minorBidi"}),
-                        E.sz(**{w('val'):'22'}),
-                        E.szCs(**{w('val'):'22'}),
-                        E.lang(**{w('val'):'en-US', w('eastAsia'):"en-US", w('bidi'):"ar-SA"})
-                    )
-                ),
-                E.pPrDefault(
-                    E.pPr(
-                        E.spacing(**{w('after'):"0", w('line'):"276", w('lineRule'):"auto"})
-                    )
-                )
-            )
-        )
-        self.docx.images = {}
         self.styles_manager.serialize(self.docx.styles)
         self.images_manager.serialize(self.docx.images)
         self.fonts_manager.serialize(self.styles_manager.text_styles, self.docx.font_table, self.docx.embedded_fonts, self.docx.fonts)

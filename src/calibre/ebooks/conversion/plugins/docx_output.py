@@ -34,12 +34,22 @@ class DOCXOutput(OutputFormatPlugin):
                 'deleted, so be careful.') % 'DOCX'),
     }
 
+    def convert_metadata(self, oeb):
+        from lxml import etree
+        from calibre.ebooks.oeb.base import OPF, OPF2_NS
+        from calibre.ebooks.metadata.opf2 import OPF as ReadOPF
+        from io import BytesIO
+        package = etree.Element(OPF('package'), attrib={'version': '2.0'}, nsmap={None: OPF2_NS})
+        oeb.metadata.to_opf2(package)
+        self.mi = ReadOPF(BytesIO(etree.tostring(package, encoding='utf-8')), populate_spine=False, try_to_guess_cover=False).to_book_metadata()
+
     def convert(self, oeb, output_path, input_plugin, opts, log):
         from calibre.ebooks.docx.writer.container import DOCX
         from calibre.ebooks.docx.writer.from_html import Convert
         docx = DOCX(opts, log)
+        self.convert_metadata(oeb)
         Convert(oeb, docx)()
-        docx.write(output_path, oeb)
+        docx.write(output_path, self.mi)
         if opts.extract_to:
             from calibre.ebooks.docx.dump import do_dump
             do_dump(output_path, opts.extract_to)
