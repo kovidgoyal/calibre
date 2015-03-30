@@ -449,6 +449,8 @@ class BookInfo(QWebView):
                     ]:
                         ac = getattr(self, '%s_link_action'%a)
                         ac.current_url = url
+                        if url.startswith('path:'):
+                            ac.current_url = el.attribute('title')
                         ac.setText(t)
                         menu.addAction(ac)
                 if author is not None:
