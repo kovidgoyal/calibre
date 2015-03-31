@@ -17,7 +17,7 @@ def read_text_border(parent, dest):
     elems = XPath('./w:bdr')(parent)
     if elems and elems[0].attrib:
         border_color = simple_color('auto')
-        border_style = 'solid'
+        border_style = 'none'
         border_width = 1
     for elem in elems:
         color = get(elem, 'w:color')
