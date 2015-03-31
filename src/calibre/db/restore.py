@@ -271,12 +271,8 @@ class Restore(Thread):
             os.remove(save_path)
         try:
             os.rename(dbpath, save_path)
-        except OSError as err:
-            if getattr(err, 'winerror', None) == 32:  # ERROR_SHARING_VIOLATION
-                time.sleep(30)  # Wait a little for dropbox or the antivirus or whatever to release the file
-                os.rename(dbpath, save_path)
-            else:
-                raise
+        except EnvironmentError:
+            time.sleep(30)  # Wait a little for dropbox or the antivirus or whatever to release the file
+            shutil.copyfile(dbpath, save_path)
+            os.remove(dbpath)
         shutil.copyfile(ndbpath, dbpath)
-
-
