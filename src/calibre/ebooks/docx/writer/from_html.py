@@ -93,12 +93,13 @@ class TextRun(object):
 
 class Block(object):
 
-    def __init__(self, styles_manager, html_block, style, is_first_block=False):
+    def __init__(self, styles_manager, html_block, style):
         self.html_block = html_block
         self.html_style = style
-        self.style = styles_manager.create_block_style(style, html_block, is_first_block=is_first_block)
+        self.style = styles_manager.create_block_style(style, html_block)
         self.styles_manager = styles_manager
         self.keep_next = False
+        self.page_break_before = False
         self.runs = []
 
     def add_text(self, text, style, ignore_leading_whitespace=False, html_parent=None, is_parent_style=False):
@@ -142,6 +143,8 @@ class Block(object):
         p.append(ppr)
         if self.keep_next:
             ppr.append(ppr.makeelement(w('keepNext')))
+        if self.page_break_before:
+            ppr.append(ppr.makeelement(w('pageBreakBefore')))
         ppr.append(ppr.makeelement(w('pStyle'), **{w('val'):self.style.id}))
         for run in self.runs:
             run.serialize(p)
@@ -159,10 +162,10 @@ class Blocks(object):
         self.pos = 0
         self.current_block = None
 
-    def start_new_block(self, styles_manager, html_block, style, is_first_tag=False):
+    def start_new_block(self, styles_manager, html_block, style):
         if self.current_block is not None:
             self.all_blocks.append(self.current_block)
-        self.current_block = Block(styles_manager, html_block, style, is_first_block=is_first_tag)
+        self.current_block = Block(styles_manager, html_block, style)
         return self.current_block
 
     def serialize(self, body):
@@ -178,8 +181,11 @@ class Blocks(object):
         self.current_block = None
         if len(self.all_blocks) > self.pos and self.all_blocks[self.pos].is_empty():
             # Delete the empty block corresponding to the <body> tag when the
-            # body tag has no text content before its first sub-block
+            # body tag has no inline content before its first sub-block
             del self.all_blocks[self.pos]
+        if self.pos > 0 and self.pos < len(self.all_blocks):
+            # Insert a page break corresponding to the start of the html file
+            self.all_blocks[self.pos].page_break_before = True
 
 class Convert(object):
 
@@ -240,7 +246,7 @@ class Convert(object):
                 # Image is floating so dont start a new paragraph for it
                 self.add_inline_tag(tagname, html_tag, tag_style, stylizer)
             else:
-                self.add_block_tag(tagname, html_tag, tag_style, stylizer, is_first_tag=is_first_tag)
+                self.add_block_tag(tagname, html_tag, tag_style, stylizer)
                 inlined = False
 
         for child in html_tag.iterchildren('*'):
@@ -258,8 +264,8 @@ class Convert(object):
         if block is not None:
             block.add_text(text, tag_style, ignore_leading_whitespace=ignore_leading_whitespace, html_parent=html_parent, is_parent_style=is_parent_style)
 
-    def add_block_tag(self, tagname, html_tag, tag_style, stylizer, is_first_tag=False):
-        block = self.blocks.start_new_block(self.styles_manager, html_tag, tag_style, is_first_tag=is_first_tag)
+    def add_block_tag(self, tagname, html_tag, tag_style, stylizer):
+        block = self.blocks.start_new_block(self.styles_manager, html_tag, tag_style)
         if tagname == 'img':
             self.images_manager.add_image(html_tag, block, stylizer)
         else:

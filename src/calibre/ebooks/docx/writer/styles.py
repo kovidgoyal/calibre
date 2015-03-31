@@ -235,7 +235,7 @@ class BlockStyle(DOCXStyle):
         [x%edge for edge in border_edges for x in border_props]
     )
 
-    def __init__(self, css, html_block, is_first_block=False):
+    def __init__(self, css, html_block):
         if css is None:
             self.page_break_before = self.keep_lines = False
             for edge in border_edges:
@@ -251,7 +251,7 @@ class BlockStyle(DOCXStyle):
             self.background_color = None
             self.text_align = 'left'
         else:
-            self.page_break_before = html_block.tag.endswith('}body') or (not is_first_block and css['page-break-before'] == 'always')
+            self.page_break_before = css['page-break-before'] == 'always'
             self.keep_lines = css['page-break-inside'] == 'avoid'
             for edge in border_edges:
                 # In DOCX padding can only be a positive integer
@@ -377,8 +377,8 @@ class StylesManager(object):
             ans = existing
         return ans
 
-    def create_block_style(self, css_style, html_block, is_first_block=False):
-        ans = BlockStyle(css_style, html_block, is_first_block=is_first_block)
+    def create_block_style(self, css_style, html_block):
+        ans = BlockStyle(css_style, html_block)
         existing = self.block_styles.get(ans, None)
         if existing is None:
             self.block_styles[ans] = ans
