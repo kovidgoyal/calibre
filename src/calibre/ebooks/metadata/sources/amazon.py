@@ -676,7 +676,7 @@ class Amazon(Source):
     capabilities = frozenset(['identify', 'cover'])
     touched_fields = frozenset(['title', 'authors', 'identifier:amazon',
         'rating', 'comments', 'publisher', 'pubdate',
-        'languages', 'series'])
+        'languages', 'series', 'tags'])
     has_html_comments = True
     supports_gzip_transfer_encoding = True
     prefer_results_with_isbn = False
@@ -1244,7 +1244,7 @@ if __name__ == '__main__':  # tests {{{
             stop = len(tests)
         tests = tests[start:stop]
         test_identify_plugin(Amazon.name, tests, modify_plugin=lambda
-                p:setattr(p, 'testing_domain', domain))
+                p:(setattr(p, 'testing_domain', domain), setattr(p, 'touched_fields', p.touched_fields - {'tags'})))
 
     do_test('com')
 
