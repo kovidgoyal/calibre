@@ -81,7 +81,7 @@ class BookmarksMixin(object):
         if bookmarks is None:
             bookmarks = self.bookmarks
         dat = self.serialize_bookmarks(bookmarks)
-        if os.path.splitext(self.pathtoebook)[1].lower() == '.epub' and \
+        if (not os.environ["CALIBRE_NO_WRITE_BOOKMARKS"]) and os.path.splitext(self.pathtoebook)[1].lower() == '.epub' and \
             os.access(self.pathtoebook, os.R_OK):
             try:
                 zf = open(self.pathtoebook, 'r+b')
