@@ -12,6 +12,7 @@ from calibre.ebooks.docx.writer.container import create_skeleton
 from calibre.ebooks.docx.writer.styles import w, StylesManager
 from calibre.ebooks.docx.writer.images import ImagesManager
 from calibre.ebooks.docx.writer.fonts import FontsManager
+from calibre.ebooks.docx.writer.tables import Table
 from calibre.ebooks.oeb.stylizer import Stylizer as Sz, Style as St
 from calibre.ebooks.oeb.base import XPath, barename
 
@@ -157,23 +158,74 @@ class Block(object):
 
 class Blocks(object):
 
-    def __init__(self):
+    def __init__(self, styles_manager):
+        self.styles_manager = styles_manager
         self.all_blocks = []
         self.pos = 0
         self.current_block = None
+        self.items = []
+        self.tables = []
+        self.current_table = None
+        self.open_html_blocks = set()
 
-    def start_new_block(self, styles_manager, html_block, style):
+    def current_or_new_block(self, html_tag, tag_style):
+        return self.current_block or self.start_new_block(html_tag, tag_style)
+
+    def end_current_block(self):
         if self.current_block is not None:
             self.all_blocks.append(self.current_block)
-        self.current_block = Block(styles_manager, html_block, style)
+            if self.current_table is not None:
+                self.current_table.add_block(self.current_block)
+            else:
+                self.block_map[self.current_block] = len(self.items)
+                self.items.append(self.current_block)
+        self.current_block = None
+
+    def start_new_block(self, html_block, style):
+        self.end_current_block()
+        self.current_block = Block(self.styles_manager, html_block, style)
+        self.open_html_blocks.add(html_block)
         return self.current_block
 
+    def start_new_table(self, html_tag, tag_style=None):
+        self.current_table = Table(html_tag, tag_style)
+        self.tables.append(self.current_table)
+
+    def start_new_row(self, html_tag, tag_style):
+        if self.current_table is None:
+            self.start_new_table(html_tag)
+        self.current_table.start_new_row(html_tag, tag_style)
+
+    def start_new_cell(self, html_tag, tag_style):
+        if self.current_table is None:
+            self.start_new_table(html_tag)
+        self.current_table.start_new_cell(html_tag, tag_style)
+
+    def finish_tag(self, html_tag):
+        if self.current_block is not None and html_tag in self.open_html_blocks:
+            self.end_current_block()
+            self.open_html_blocks.discard(html_tag)
+
+        if self.current_table is not None:
+            table_finished = self.current_table.finish_tag(html_tag)
+            if table_finished:
+                table = self.tables[-1]
+                del self.tables[-1]
+                if self.tables:
+                    self.current_table = self.tables[-1]
+                    self.current_table.add_table(table)
+                else:
+                    self.current_table = None
+                    self.block_map[table] = len(self.items)
+                    self.items.append(table)
+
     def serialize(self, body):
-        for block in self.all_blocks:
-            block.serialize(body)
+        for item in self.items:
+            item.serialize(body)
 
     def __enter__(self):
         self.pos = len(self.all_blocks)
+        self.block_map = {}
 
     def __exit__(self, *args):
         if self.current_block is not None:
@@ -182,7 +234,9 @@ class Blocks(object):
         if len(self.all_blocks) > self.pos and self.all_blocks[self.pos].is_empty():
             # Delete the empty block corresponding to the <body> tag when the
             # body tag has no inline content before its first sub-block
+            block = self.all_blocks[self.pos]
             del self.all_blocks[self.pos]
+            del self.items[self.block_map.pop(block)]
         if self.pos > 0 and self.pos < len(self.all_blocks):
             # Insert a page break corresponding to the start of the html file
             self.all_blocks[self.pos].page_break_before = True
@@ -193,8 +247,6 @@ class Convert(object):
         self.oeb, self.docx = oeb, docx
         self.log, self.opts = docx.log, docx.opts
 
-        self.blocks = Blocks()
-
     def __call__(self):
         from calibre.ebooks.oeb.transforms.rasterize import SVGRasterizer
         self.svg_rasterizer = SVGRasterizer()
@@ -203,6 +255,7 @@ class Convert(object):
         self.styles_manager = StylesManager()
         self.images_manager = ImagesManager(self.oeb, self.docx.document_relationships)
         self.fonts_manager = FontsManager(self.oeb, self.opts)
+        self.blocks = Blocks(self.styles_manager)
 
         for item in self.oeb.spine:
             self.process_item(item)
@@ -228,61 +281,63 @@ class Convert(object):
         if tag_style.is_hidden:
             return
         display = tag_style._get('display')
-        inlined = True
         if display in {'inline', 'inline-block'} or tagname == 'br':  # <br> has display:block but we dont want to start a new paragraph
-            if self.blocks.current_block is not None:
-                self.add_inline_tag(tagname, html_tag, tag_style, stylizer)
+            self.add_inline_tag(tagname, html_tag, tag_style, stylizer)
         elif display == 'list-item':
             # TODO: Implement this
-            inlined = False
             self.add_block_tag(tagname, html_tag, tag_style, stylizer)
         elif display.startswith('table') or display == 'inline-table':
-            inlined = False
-            # TODO: implement this
             if display == 'table-cell':
+                self.blocks.start_new_cell(html_tag, tag_style)
                 self.add_block_tag(tagname, html_tag, tag_style, stylizer)
+            elif display == 'table-row':
+                self.blocks.start_new_row(html_tag, tag_style)
+            elif display in {'table', 'inline-table'}:
+                self.blocks.start_new_table(html_tag, tag_style)
         else:
             if tagname == 'img' and tag_style['float'] in {'left', 'right'}:
                 # Image is floating so dont start a new paragraph for it
                 self.add_inline_tag(tagname, html_tag, tag_style, stylizer)
             else:
                 self.add_block_tag(tagname, html_tag, tag_style, stylizer)
-                inlined = False
 
         for child in html_tag.iterchildren('*'):
             self.process_tag(child, stylizer)
 
-        if not is_first_tag and html_tag.tail:
-            if inlined:
-                self.add_text_to_current_block(html_tag.tail, stylizer.style(html_tag.getparent()))
-            elif html_tag.tail.strip():
-                self.blocks.start_new_block(self.styles_manager, html_tag.getparent(), stylizer.style(html_tag.getparent()))
-                self.add_text_to_current_block(html_tag.tail, stylizer.style(html_tag.getparent()))
+        is_block = html_tag in self.blocks.open_html_blocks
+        self.blocks.finish_tag(html_tag)
+        if is_block and tag_style['page-break-after'] == 'avoid':
+            self.blocks.all_blocks[-1].keep_next = True
 
-    def add_text_to_current_block(self, text, tag_style, ignore_leading_whitespace=False, html_parent=None, is_parent_style=False):
-        block = self.blocks.current_block
-        if block is not None:
-            block.add_text(text, tag_style, ignore_leading_whitespace=ignore_leading_whitespace, html_parent=html_parent, is_parent_style=is_parent_style)
+        if display == 'table-row':
+            return  # We ignore the tail for these tags
+
+        if not is_first_tag and html_tag.tail and (not is_block or not html_tag.tail.isspace()):
+            # Ignore trailing space after a block tag, as otherwise it will
+            # become a new empty paragraph
+            block = self.blocks.current_or_new_block(html_tag.getparent(), stylizer.style(html_tag.getparent()))
+            block.add_text(html_tag.tail, stylizer.style(html_tag.getparent()), is_parent_style=True)
 
     def add_block_tag(self, tagname, html_tag, tag_style, stylizer):
-        block = self.blocks.start_new_block(self.styles_manager, html_tag, tag_style)
+        block = self.blocks.start_new_block(html_tag, tag_style)
         if tagname == 'img':
             self.images_manager.add_image(html_tag, block, stylizer)
         else:
             if html_tag.text:
                 block.add_text(html_tag.text, tag_style, ignore_leading_whitespace=True, is_parent_style=True)
-        if tag_style['page-break-after'] == 'avoid':
-            block.keep_next = True
 
     def add_inline_tag(self, tagname, html_tag, tag_style, stylizer):
         if tagname == 'br':
             if html_tag.tail or html_tag is not tuple(html_tag.getparent().iterchildren('*'))[-1]:
-                self.blocks.current_block.add_break(clear={'both':'all', 'left':'left', 'right':'right'}.get(tag_style['clear'], 'none'))
+                block = self.blocks.current_or_new_block(html_tag.getparent(), stylizer.style(html_tag.getparent()))
+                block.add_break(clear={'both':'all', 'left':'left', 'right':'right'}.get(tag_style['clear'], 'none'))
         elif tagname == 'img':
-            self.images_manager.add_image(html_tag, self.blocks.current_block, stylizer)
+            block = self.blocks.current_or_new_block(html_tag.getparent(), stylizer.style(html_tag.getparent()))
+            self.images_manager.add_image(html_tag, block, stylizer)
         else:
             if html_tag.text:
-                self.add_text_to_current_block(html_tag.text, tag_style, html_parent=html_tag)
+                block = self.blocks.current_or_new_block(html_tag.getparent(), stylizer.style(html_tag.getparent()))
+                block.add_text(html_tag.text, tag_style, is_parent_style=False)
 
     def write(self):
         self.docx.document, self.docx.styles, body = create_skeleton(self.opts)
