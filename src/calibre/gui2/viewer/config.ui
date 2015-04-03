@@ -689,6 +689,13 @@ QToolBox::tab:hover {
              </property>
             </widget>
            </item>
+           <item row="5" column="0">
+            <widget class="QCheckBox" name="opt_store_epub_bookmarks_in_the_file">
+             <property name="text">
+              <string>When viewing EPUB files, store bookmarks in the file</string>
+             </property>
+            </widget>
+           </item>
           </layout>
          </widget>
         </widget>

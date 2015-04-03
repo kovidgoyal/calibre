@@ -49,6 +49,8 @@ def config(defaults=None):
             help=_('Default language for hyphenation rules'))
     c.add_opt('remember_current_page', default=True,
             help=_('Save the current position in the document, when quitting'))
+    c.add_opt('store_epub_bookmarks_in_the_file', default=True,
+            help=_('When viewing EPUB files, store bookmarks in the file'))
     c.add_opt('wheel_flips_pages', default=False,
             help=_('Have the mouse wheel turn pages'))
     c.add_opt('tap_flips_pages', default=True,
@@ -281,6 +283,7 @@ class ConfigDialog(QDialog, Ui_Dialog):
     def load_options(self, opts):
         self.opt_remember_window_size.setChecked(opts.remember_window_size)
         self.opt_remember_current_page.setChecked(opts.remember_current_page)
+        self.opt_store_epub_bookmarks_in_the_file.setChecked(opts.store_epub_bookmarks_in_the_file)
         self.opt_wheel_flips_pages.setChecked(opts.wheel_flips_pages)
         self.opt_tap_flips_pages.setChecked(opts.tap_flips_pages)
         self.opt_page_flip_duration.setValue(opts.page_flip_duration)
@@ -383,6 +386,7 @@ class ConfigDialog(QDialog, Ui_Dialog):
         c.set('max_fs_height', max_fs_height)
         c.set('hyphenate', self.hyphenate.isChecked())
         c.set('remember_current_page', self.opt_remember_current_page.isChecked())
+        c.set('store_epub_bookmarks_in_the_file', self.opt_store_epub_bookmarks_in_the_file.isChecked())
         c.set('wheel_flips_pages', self.opt_wheel_flips_pages.isChecked())
         c.set('tap_flips_pages', self.opt_tap_flips_pages.isChecked())
         c.set('page_flip_duration', self.opt_page_flip_duration.value())
