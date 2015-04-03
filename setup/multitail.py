@@ -49,9 +49,9 @@ def nonblocking_readlines(window, fileobj, buf, name, copy_to=None):
 def show_line(window, line, fname):
     line = clean_pat.sub(b'', line)
     max_lines, max_chars = window.getmaxyx()
+    title = str(b" %s " % fname)
     if line:
         continue_prompt = b'> '
-        title = str(b" %s " % fname)
         max_line_len = max_chars - 2
         if len(line) > max_line_len:
             first_portion = line[0:max_line_len - 1]
