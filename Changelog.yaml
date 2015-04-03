@@ -20,6 +20,41 @@
 #   new recipes:
 #     - title: 
 
+- version: 2.23.0
+  date: 2015-04-03
+
+  new features:
+    - title: "Allow adding an empty ebook in various formats to existing book records by right clicking the Add Books button"
+
+    - title: "Add ability to create additional empty formats to the 'Add empty book' command"
+
+    - title: "News download: Add API to cleanly abort the download of an article during the preprocess stage based on the article's contents."
+
+    - title: "Update the version of Qt bundled with calibre to 5.4.1. This fixes various minor bugs, most notably, improving text rendering on linux."
+
+  bug fixes:
+    - title: "MOBI Input: Fix links not working in viewer for MOBI files that contain anchors placed on linebreak elements."
+      tickets: [1439450]
+
+    - title: "Book details panel: Fix copying Path link by right clicking on it not working."
+      tickets: [1437756]
+
+    - title: "Fix a regression that caused importing of a single book from a directory to fail if the directory has no ebook files in it"
+
+    - title: "Column Icons: Fix apostrophes in icon filenames causing errors."
+      tickets: [1436690]
+
+    - title: "Edit Book: Fix a regression that caused Remove unused CSS to fail on invalid CSS selectors, instead of ignoring them"
+
+    - title: "Open With: Fix open with failing to get list of default programs on windows if the registry contains missing ProgIDs."
+      tickets: [1434990]
+
+  improved recipes:
+    - Esquire
+    - Courrier International
+    - CNET
+    - Tagesschau
+
 - version: 2.22.0
   date: 2015-03-20
 
