@@ -66,7 +66,8 @@ class BookmarksMixin(object):
         self.bookmarks = []
         bmfile = os.path.join(self.base, 'META-INF', 'calibre_bookmarks.txt')
         raw = ''
-        if os.path.exists(bmfile):
+        if self.get_sore_epub_bookmarks_in_the_file_opt() and \
+            os.path.exists(bmfile):
             with open(bmfile, 'rb') as f:
                 raw = f.read()
         else:
@@ -81,7 +82,8 @@ class BookmarksMixin(object):
         if bookmarks is None:
             bookmarks = self.bookmarks
         dat = self.serialize_bookmarks(bookmarks)
-        if os.path.splitext(self.pathtoebook)[1].lower() == '.epub' and \
+        if self.get_sore_epub_bookmarks_in_the_file_opt() and \
+            os.path.splitext(self.pathtoebook)[1].lower() == '.epub' and \
             os.access(self.pathtoebook, os.R_OK):
             try:
                 zf = open(self.pathtoebook, 'r+b')
@@ -92,6 +94,11 @@ class BookmarksMixin(object):
                     add_missing=True)
         else:
             self.config['bookmarks_'+self.pathtoebook] = dat
+
+    def get_sore_epub_bookmarks_in_the_file_opt(self):
+        from calibre.gui2.viewer.documentview import config
+        c = config().parse()
+        return c.store_epub_bookmarks_in_the_file
 
     def add_bookmark(self, bm):
         self.bookmarks = [x for x in self.bookmarks if x['title'] !=
