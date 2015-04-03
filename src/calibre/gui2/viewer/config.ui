@@ -213,7 +213,7 @@ QToolBox::tab:hover {
            <item row="7" column="0">
             <widget class="QLabel" name="label_22">
              <property name="text">
-              <string>M&amp;inimum font size:</string>
+              <string>Minimum font si&amp;ze:</string>
              </property>
              <property name="buddy">
               <cstring>minimum_font_size</cstring>
@@ -551,8 +551,8 @@ QToolBox::tab:hover {
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>799</width>
-            <height>378</height>
+            <width>384</width>
+            <height>140</height>
            </rect>
           </property>
           <attribute name="label">
@@ -629,8 +629,8 @@ QToolBox::tab:hover {
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>368</width>
-            <height>167</height>
+            <width>799</width>
+            <height>378</height>
            </rect>
           </property>
           <attribute name="label">
@@ -661,7 +661,7 @@ QToolBox::tab:hover {
              </property>
             </widget>
            </item>
-           <item row="5" column="0">
+           <item row="6" column="0">
             <widget class="QPushButton" name="clear_search_history_button">
              <property name="text">
               <string>Clear search history</string>
@@ -686,6 +686,16 @@ QToolBox::tab:hover {
             <widget class="QCheckBox" name="opt_remember_current_page">
              <property name="text">
               <string>Remember the &amp;current page when quitting</string>
+             </property>
+            </widget>
+           </item>
+           <item row="5" column="0" colspan="2">
+            <widget class="QCheckBox" name="opt_copy_bookmarks_to_file">
+             <property name="toolTip">
+              <string>Keep a copy of all bookmarks/current page information inside the ebook file, so that you can share them by simply sending the ebook file itself. Currently only works with ebooks in the EPUB format.</string>
+             </property>
+             <property name="text">
+              <string>Keep a copy of bookmarks/current page inside the ebook file, for easy sharing</string>
              </property>
             </widget>
            </item>

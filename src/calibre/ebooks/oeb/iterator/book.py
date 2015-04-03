@@ -50,7 +50,8 @@ class EbookIterator(BookmarksMixin):
 
     CHARACTERS_PER_PAGE = 1000
 
-    def __init__(self, pathtoebook, log=None):
+    def __init__(self, pathtoebook, log=None, copy_bookmarks_to_file=True):
+        BookmarksMixin.__init__(self, copy_bookmarks_to_file=copy_bookmarks_to_file)
         self.log = log or default_log
         pathtoebook = pathtoebook.strip()
         self.pathtoebook = os.path.abspath(pathtoebook)
@@ -101,8 +102,8 @@ class EbookIterator(BookmarksMixin):
             if not only_input_plugin:
                 # Run the HTML preprocess/parsing from the conversion pipeline as
                 # well
-                if (processed or plumber.input_fmt.lower() in {'pdb', 'pdf', 'rb'}
-                        and not hasattr(self.pathtoopf, 'manifest')):
+                if (processed or plumber.input_fmt.lower() in {'pdb', 'pdf', 'rb'} and
+                        not hasattr(self.pathtoopf, 'manifest')):
                     if hasattr(self.pathtoopf, 'manifest'):
                         self.pathtoopf = write_oebbook(self.pathtoopf, self.base)
                     self.pathtoopf = create_oebbook(self.log, self.pathtoopf,

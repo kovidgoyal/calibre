@@ -183,6 +183,8 @@ class Document(QWebPage):  # {{{
         self.side_margin = opts.side_margin
         self.top_margin, self.bottom_margin = opts.top_margin, opts.bottom_margin
         self.show_controls = opts.show_controls
+        self.remember_current_page = opts.remember_current_page
+        self.copy_bookmarks_to_file = opts.copy_bookmarks_to_file
 
     def fit_images(self):
         if self.do_fit_images and not self.in_paged_mode:
