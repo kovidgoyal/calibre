@@ -1,4 +1,5 @@
 from calibre.web.feeds.news import BasicNewsRecipe
+from css_selectors import Select
 
 class HBR(BasicNewsRecipe):
 
@@ -13,88 +14,55 @@ class HBR(BasicNewsRecipe):
     LOGIN_URL = 'https://hbr.org/login?request_url=/'
     LOGOUT_URL = 'https://hbr.org/logout?request_url=/'
 
-    keep_only_tags = [dict(name='div', id='pageContainer')]
-    remove_tags = [dict(id=['mastheadContainer', 'magazineHeadline',
-        'articleToolbarTopRD', 'pageRightSubColumn', 'pageRightColumn',
-        'todayOnHBRListWidget', 'mostWidget', 'keepUpWithHBR',
-        'mailingListTout', 'partnerCenter', 'pageFooter',
-        'superNavHeadContainer', 'hbrDisqus', 'article-toolbox',
-        'articleToolbarTop', 'articleToolbarBottom', 'articleToolbarRD']),
-        dict(name='iframe')]
-    extra_css = '''
-                a {font-family:Georgia,"Times New Roman",Times,serif; font-style:italic; color:#000000; }
-                .article{font-family:Georgia,"Times New Roman",Times,serif; font-size: xx-small;}
-                h2{font-family:Georgia,"Times New Roman",Times,serif; font-weight:bold; font-size:large; }
-                h4{font-family:Georgia,"Times New Roman",Times,serif; font-weight:bold; font-size:small;  }
-                #articleAuthors{font-family:Georgia,"Times New Roman",Times,serif; font-style:italic; color:#000000;font-size:x-small;}
-                #summaryText{font-family:Georgia,"Times New Roman",Times,serif; font-weight:bold; font-size:x-small;}
-                '''
+    keep_only_tags = [
+        dict(attrs={'class':['article-hed', 'byline']}),
+        dict(attrs={'class':lambda x: x and 'article' in x.split()}),
+    ]
+    remove_tags = [
+        dict(name='personalization-placement'),
+    ]
     use_javascript_to_login = True
 
     def javascript_login(self, br, username, password):
-        from calibre.web.jsbrowser.browser import Timeout
-        try:
-            br.visit('https://hbr.org/login?request_url=/', timeout=20)
-        except Timeout:
-            pass
-        br.click('#form-wrapper h3[tabindex="0"]', wait_for_load=False)
-        f = br.select_form('#login-form')
-        f['username'] = username
-        f['password'] = password
-        br.submit(wait_for_load=False)
-        br.run_for_a_time(30)
+        br.visit('https://hbr.org/sign-in')
+        br.run_for_a_time(15)
+        f = br.select_form('sign-in form')
+        f['login-email'] = username
+        f['login-password'] = password
+        br.submit('[js-target="submit-sign-in"]', wait_for_load=False)
+        br.run_for_a_time(15)
 
-    def map_url(self, url):
-        if url.endswith('/ar/1'):
-            return url[:-1]+'pr'
-
-    def hbr_parse_toc(self, soup):
-        feeds = []
-        current_section = None
+    def hbr_parse_toc(self, url):
+        root = self.index_to_soup(url, as_tree=True)
+        select = Select(root)
+        section = 'Unknown'
         articles = []
-        for x in soup.find(id='issueFeaturesContent').findAll(['li', 'h4']):
-            if x.name == 'h4':
-                if x.get('class', None) == 'basic':
-                    continue
-                if current_section is not None and articles:
-                    feeds.append((current_section, articles))
-                current_section = self.tag_to_string(x).capitalize()
+        feeds = []
+        toc = next(select('stream-content[data-stream-name="table-of-contents"] ul'))
+        for x in toc.xpath('descendant::*[local-name()="h4" or local-name()="stream-item"]'):
+            if 'h4' in x.tag:
+                if articles:
+                    feeds.append((section, articles))
+                section = self.tag_to_string(x)
                 articles = []
-                self.log('\tFound section:', current_section)
+                self.log('Found section:', section)
             else:
-                a = x.find('a', href=True)
-                if a is None:
-                    continue
-                title = self.tag_to_string(a)
-                url = a['href']
-                if '/ar/' not in url:
-                    continue
-                if url.startswith('/'):
-                    url = 'http://hbr.org' + url
-                url = self.map_url(url)
-                p = x.find('p', attrs={'class':'author'})
-                desc = ''
-                if p is not None:
-                    desc = self.tag_to_string(p)
-                self.log('\t\tFound article:', title)
-                self.log('\t\t\t', url)
-                self.log('\t\t\t', desc)
-
-                articles.append({'title':title, 'url':url, 'description':desc,
-                    'date':''})
-
-        if current_section is not None and articles:
-            feeds.append((current_section, articles))
+                title, url = x.get('data-title'), x.get('data-url')
+                desc = ''.join(c.tail or '' for c in x).strip()
+                authors = x.get('data-authors')
+                if authors:
+                    desc = 'by ' + authors + ': ' + desc
+                self.log('\tFound article:', title, url, desc)
+                articles.append({'title':title, 'url':'https://hbr.org' + url, 'description':desc})
+        if articles:
+            feeds.append((section, articles))
         return feeds
 
     def parse_index(self):
-        soup0 = self.index_to_soup('http://hbr.org/magazine')
-        datencover = soup0.find('ul', attrs={'id':'magazineArchiveCarousel'}).findAll('li')[-1]
-        # find date & cover
-        self.cover_url=datencover.img['src']
-        dates=self.tag_to_string(datencover.img['alt'])
-        self.timefmt = u' [%s]'%dates
-        soup = self.index_to_soup(soup0.find('div', attrs={'class':'magazine_page'}).a['href'])
-        feeds = self.hbr_parse_toc(soup)
-        return feeds
-
+        soup = self.index_to_soup('http://hbr.org/magazine')
+        fig = soup.find('figure', attrs={'class': lambda x: x and 'magazine-cover' in x.split()})
+        url = 'https://hbr.org' + fig.findParent('a', href=True)['href']
+        img = fig.find('img')
+        self.cover_url = 'https://hbr.org' + img['src']
+        self.timefmt = img['alt']
+        return self.hbr_parse_toc(url)
