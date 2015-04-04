@@ -1,7 +1,8 @@
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
-from PyQt5.Qt import (Qt, QDialog, QTableWidgetItem, QIcon, QByteArray, QSize)
+from PyQt5.Qt import (Qt, QDialog, QTableWidgetItem, QIcon, QByteArray, QSize,
+                      QDialogButtonBox)
 
 from calibre.gui2.dialogs.tag_list_editor_ui import Ui_TagListEditor
 from calibre.gui2 import question_dialog, error_dialog, info_dialog, gprefs
@@ -147,10 +148,17 @@ class TagListEditor(QDialog, Ui_TagListEditor):
         self.rename_button.clicked.connect(self.rename_tag)
         self.table.itemDoubleClicked.connect(self._rename_tag)
         self.table.itemChanged.connect(self.finish_editing)
+
+        self.buttonBox.button(QDialogButtonBox.Ok).setText(_('&OK'))
+        self.buttonBox.button(QDialogButtonBox.Cancel).setText(_('&Cancel'))
         self.buttonBox.accepted.connect(self.accepted)
 
         self.search_box.initialize('tag_list_search_box_' + cat_name)
+        self.search_box.editTextChanged.connect(self.find_text_changed)
         self.search_button.clicked.connect(self.search_clicked)
+        self.search_button.setDefault(True)
+
+        self.start_find_pos = -1
 
         try:
             geom = gprefs.get('tag_list_editor_dialog_geometry', None)
@@ -161,21 +169,21 @@ class TagListEditor(QDialog, Ui_TagListEditor):
         except:
             pass
 
+    def find_text_changed(self):
+        self.start_find_pos = -1
+
     def search_clicked(self):
         search_for = icu_lower(unicode(self.search_box.text()))
         if not search_for:
             error_dialog(self, _('Find'), _('You must enter some text to search for'),
                          show=True, show_copy_button=False)
             return
-        row = self.table.currentRow()
-        if row < 0:
-            row = 0
         rows = self.table.rowCount()
         for i in range(0, rows):
-            row += 1
-            if row >= rows:
-                row = 0
-            item = self.table.item(row, 0)
+            self.start_find_pos += 1
+            if self.start_find_pos >= rows:
+                self.start_find_pos = 0
+            item = self.table.item(self.start_find_pos, 0)
             if search_for in icu_lower(unicode(item.text())):
                 self.table.setCurrentItem(item)
                 return
