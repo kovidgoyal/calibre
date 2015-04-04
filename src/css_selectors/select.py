@@ -552,6 +552,12 @@ def select_pseudo(cache, pseudo):
             raise ExpressionError(
                 "The pseudo-class :%s is not supported" % pseudo.ident)
 
+    try:
+        func.is_pseudo
+    except AttributeError:
+        raise ExpressionError(
+            "The pseudo-class :%s is invalid" % pseudo.ident)
+
     for item in cache.iterparsedselector(pseudo.selector):
         if func(cache, item):
             yield item
@@ -561,39 +567,46 @@ def select_first_child(cache, elem):
         return cache.sibling_count(elem) == 0
     except ValueError:
         return False
+select_first_child.is_pseudo = True
 
 def select_last_child(cache, elem):
     try:
         return cache.sibling_count(elem, before=False) == 0
     except ValueError:
         return False
+select_last_child.is_pseudo = True
 
 def select_only_child(cache, elem):
     try:
         return cache.all_sibling_count(elem) == 0
     except ValueError:
         return False
+select_only_child.is_pseudo = True
 
 def select_first_of_type(cache, elem):
     try:
         return cache.sibling_count(elem, same_type=True) == 0
     except ValueError:
         return False
+select_first_of_type.is_pseudo = True
 
 def select_last_of_type(cache, elem):
     try:
         return cache.sibling_count(elem, before=False, same_type=True) == 0
     except ValueError:
         return False
+select_last_of_type.is_pseudo = True
 
 def select_only_of_type(cache, elem):
     try:
         return cache.all_sibling_count(elem, same_type=True) == 0
     except ValueError:
         return False
+select_only_of_type.is_pseudo = True
 
 def select_empty(cache, elem):
     return cache.is_empty(elem)
+select_empty.is_pseudo = True
 
 # }}}
 

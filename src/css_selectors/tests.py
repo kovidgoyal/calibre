@@ -10,7 +10,7 @@ import unittest, sys, argparse, json
 
 from lxml import etree, html
 
-from css_selectors.errors import SelectorSyntaxError
+from css_selectors.errors import SelectorSyntaxError, ExpressionError
 from css_selectors.parser import tokenize, parse
 from css_selectors.select import Select
 
@@ -756,6 +756,8 @@ by William Shakespeare
             'fifth-li', 'sixth-li', 'seventh-li'])
         self.ae(pcss(r'di\a0 v', r'div\['), [])
         self.ae(pcss(r'[h\a0 ref]', r'[h\]ref]'), [])
+
+        self.assertRaises(ExpressionError, lambda : tuple(select('body:nth-child')))
 
         del app
 
