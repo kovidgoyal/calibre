@@ -80,6 +80,7 @@ class EbookViewer(MainWindow):
                  start_in_fullscreen=False):
         MainWindow.__init__(self, debug_javascript)
         self.view.magnification_changed.connect(self.magnification_changed)
+        self.closed = False
         self.show_toc_on_open = False
         self.current_book_has_toc = False
         self.iterator          = None
@@ -252,7 +253,11 @@ class EbookViewer(MainWindow):
             QApplication.instance().quit()
 
     def closeEvent(self, e):
+        if self.closed:
+            e.ignore()
+            return
         if self.shutdown():
+            self.closed = True
             return MainWindow.closeEvent(self, e)
         else:
             e.ignore()
