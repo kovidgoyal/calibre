@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import (unicode_literals, division, absolute_import, print_function)
-store_version = 8  # Needed for dynamic plugin loading
+store_version = 9  # Needed for dynamic plugin loading
 
 __license__ = 'GPL 3'
 __copyright__ = '2011, John Schember <john@nachtimwald.com>'
@@ -39,7 +39,7 @@ def search_amazon(query, max_results=10, timeout=60,
 
         if 's-result-list-parent-container' in results.get('class', ''):
             data_xpath = "descendant-or-self::li[@class and contains(concat(' ', normalize-space(@class), ' '), ' s-result-item ')]"
-            format_xpath = './/a[@title="Kindle Edition"]//h3/text()'
+            format_xpath = './/a[contains(text(), "Kindle Edition")]//text()'
             asin_xpath = '@data-asin'
             cover_xpath =  "descendant-or-self::img[@class and contains(concat(' ', normalize-space(@class), ' '), ' s-access-image ')]/@src"
             title_xpath = "descendant-or-self::h2[@class and contains(concat(' ', normalize-space(@class), ' '), ' s-access-title ')]//text()"
@@ -250,4 +250,7 @@ class AmazonKindleStore(StorePlugin):
                 search_result.drm = SearchResult.DRM_LOCKED
         return True
 
-
+if __name__ == '__main__':
+    import sys
+    for result in search_amazon(' '.join(sys.argv[1:]), write_html_to='/t/amazon.html'):
+        print (result)
