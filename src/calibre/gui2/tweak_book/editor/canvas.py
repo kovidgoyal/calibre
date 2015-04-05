@@ -11,7 +11,8 @@ from functools import wraps
 
 from PyQt5.Qt import (
     QWidget, QPainter, QColor, QApplication, Qt, QPixmap, QRectF, QTransform,
-    QPointF, QPen, pyqtSignal, QUndoCommand, QUndoStack, QIcon, QImage, QByteArray)
+    QPointF, QPen, pyqtSignal, QUndoCommand, QUndoStack, QIcon, QImage,
+    QByteArray, QImageWriter)
 
 from calibre import fit_image
 from calibre.gui2 import error_dialog, pixmap_to_data
@@ -336,7 +337,10 @@ class Canvas(QWidget):
     def get_image_data(self, quality=90):
         if not self.is_modified:
             return self.original_image_data
-        return pixmap_to_data(self.current_image, format=self.original_image_format or 'JPEG', quality=90)
+        fmt = self.original_image_format or 'JPEG'
+        if fmt.lower() not in set(map(lambda x:bytes(x).decode('ascii'), QImageWriter.supportedImageFormats())):
+            return qimage_to_magick(self.current_image).export(fmt)
+        return pixmap_to_data(self.current_image, format=fmt, quality=90)
 
     def copy(self):
         if not self.is_valid:
