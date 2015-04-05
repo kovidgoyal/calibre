@@ -33,20 +33,21 @@ def html_css_stylesheet():
     return _html_css_stylesheet
 
 
-INHERITED = set(['azimuth', 'border-collapse', 'border-spacing',
-                 'caption-side', 'color', 'cursor', 'direction', 'elevation',
-                 'empty-cells', 'font-family', 'font-size', 'font-style',
-                 'font-variant', 'font-weight', 'letter-spacing',
-                 'line-height', 'list-style-image', 'list-style-position',
-                 'list-style-type', 'orphans', 'page-break-inside',
-                 'pitch-range', 'pitch', 'quotes', 'richness', 'speak-header',
-                 'speak-numeral', 'speak-punctuation', 'speak', 'speech-rate',
-                 'stress', 'text-align', 'text-indent', 'text-transform',
-                 'visibility', 'voice-family', 'volume', 'white-space',
-                 'widows', 'word-spacing', 'text-shadow'])
+INHERITED = {
+    'azimuth', 'border-collapse', 'border-spacing', 'caption-side', 'color',
+    'cursor', 'direction', 'elevation', 'empty-cells', 'font-family',
+    'font-size', 'font-style', 'font-variant', 'font-weight', 'letter-spacing',
+    'line-height', 'list-style-image', 'list-style-position',
+    'list-style-type', 'orphans', 'page-break-inside', 'pitch-range', 'pitch',
+    'quotes', 'richness', 'speak-header', 'speak-numeral', 'speak-punctuation',
+    'speak', 'speech-rate', 'stress', 'text-align', 'text-indent',
+    'text-transform', 'visibility', 'voice-family', 'volume', 'white-space',
+    'widows', 'word-spacing', 'text-shadow',
+}
 
-FONT_SIZE_NAMES = set(['xx-small', 'x-small', 'small', 'medium', 'large',
-                       'x-large', 'xx-large'])
+FONT_SIZE_NAMES = {
+    'xx-small', 'x-small', 'small', 'medium', 'large', 'x-large', 'xx-large'
+}
 
 class Stylizer(object):
     STYLESHEETS = WeakKeyDictionary()
