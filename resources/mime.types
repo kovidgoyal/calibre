@@ -1385,3 +1385,5 @@ application/x-font-truetype                ttf
 text/xml                                   plist
 text/x-markdown                            md markdown
 application/x-ibooks+zip                   ibook ibooks
+audio/webm                                 weba
+video/webm                                 webm
