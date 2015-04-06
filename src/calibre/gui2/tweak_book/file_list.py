@@ -155,6 +155,7 @@ class FileList(QTreeWidget):
 
     def __init__(self, parent=None):
         QTreeWidget.__init__(self, parent)
+        self.ordered_selected_indexes = False
         pi = plugins['progress_indicator'][0]
         if hasattr(pi, 'set_no_activate_on_click'):
             pi.set_no_activate_on_click(self)
@@ -556,23 +557,38 @@ class FileList(QTreeWidget):
             b.setValue(b.minimum())
             QTimer.singleShot(0, lambda : b.setValue(b.maximum()))
 
+    def __enter__(self):
+        self.ordered_selected_indexes = True
+
+    def __exit__(self, *args):
+        self.ordered_selected_indexes = False
+
+    def selectedIndexes(self):
+        ans = QTreeWidget.selectedIndexes(self)
+        if self.ordered_selected_indexes:
+            # The reverse is needed because Qt's implementation of dropEvent
+            # reverses the selectedIndexes when dropping.
+            ans = list(sorted(ans, key=lambda idx:idx.row(), reverse=True))
+        return ans
+
     def dropEvent(self, event):
-        text = self.categories['text']
-        pre_drop_order = {text.child(i):i for i in xrange(text.childCount())}
-        super(FileList, self).dropEvent(event)
-        current_order = {text.child(i):i for i in xrange(text.childCount())}
-        if current_order != pre_drop_order:
-            order = []
-            for child in (text.child(i) for i in xrange(text.childCount())):
-                name = unicode(child.data(0, NAME_ROLE) or '')
-                linear = bool(child.data(0, LINEAR_ROLE))
-                order.append([name, linear])
-            # Ensure that all non-linear items are at the end, any non-linear
-            # items not at the end will be made linear
-            for i, (name, linear) in tuple(enumerate(order)):
-                if not linear and i < len(order) - 1 and order[i+1][1]:
-                    order[i][1] = True
-            self.reorder_spine.emit(order)
+        with self:
+            text = self.categories['text']
+            pre_drop_order = {text.child(i):i for i in xrange(text.childCount())}
+            super(FileList, self).dropEvent(event)
+            current_order = {text.child(i):i for i in xrange(text.childCount())}
+            if current_order != pre_drop_order:
+                order = []
+                for child in (text.child(i) for i in xrange(text.childCount())):
+                    name = unicode(child.data(0, NAME_ROLE) or '')
+                    linear = bool(child.data(0, LINEAR_ROLE))
+                    order.append([name, linear])
+                # Ensure that all non-linear items are at the end, any non-linear
+                # items not at the end will be made linear
+                for i, (name, linear) in tuple(enumerate(order)):
+                    if not linear and i < len(order) - 1 and order[i+1][1]:
+                        order[i][1] = True
+                self.reorder_spine.emit(order)
 
     def item_double_clicked(self, item, column):
         category = unicode(item.data(0, CATEGORY_ROLE) or '')
