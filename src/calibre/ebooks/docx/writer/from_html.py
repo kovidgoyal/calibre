@@ -94,10 +94,10 @@ class TextRun(object):
 
 class Block(object):
 
-    def __init__(self, styles_manager, html_block, style):
+    def __init__(self, styles_manager, html_block, style, is_table_cell=False):
         self.html_block = html_block
         self.html_style = style
-        self.style = styles_manager.create_block_style(style, html_block)
+        self.style = styles_manager.create_block_style(style, html_block, is_table_cell=is_table_cell)
         self.styles_manager = styles_manager
         self.keep_next = False
         self.page_break_before = False
@@ -181,9 +181,9 @@ class Blocks(object):
                 self.items.append(self.current_block)
         self.current_block = None
 
-    def start_new_block(self, html_block, style):
+    def start_new_block(self, html_block, style, is_table_cell=False):
         self.end_current_block()
-        self.current_block = Block(self.styles_manager, html_block, style)
+        self.current_block = Block(self.styles_manager, html_block, style, is_table_cell=is_table_cell)
         self.open_html_blocks.add(html_block)
         return self.current_block
 
@@ -289,7 +289,7 @@ class Convert(object):
         elif display.startswith('table') or display == 'inline-table':
             if display == 'table-cell':
                 self.blocks.start_new_cell(html_tag, tag_style)
-                self.add_block_tag(tagname, html_tag, tag_style, stylizer)
+                self.add_block_tag(tagname, html_tag, tag_style, stylizer, is_table_cell=True)
             elif display == 'table-row':
                 self.blocks.start_new_row(html_tag, tag_style)
             elif display in {'table', 'inline-table'}:
@@ -318,8 +318,8 @@ class Convert(object):
             block = self.blocks.current_or_new_block(html_tag.getparent(), stylizer.style(html_tag.getparent()))
             block.add_text(html_tag.tail, stylizer.style(html_tag.getparent()), is_parent_style=True)
 
-    def add_block_tag(self, tagname, html_tag, tag_style, stylizer):
-        block = self.blocks.start_new_block(html_tag, tag_style)
+    def add_block_tag(self, tagname, html_tag, tag_style, stylizer, is_table_cell=False):
+        block = self.blocks.start_new_block(html_tag, tag_style, is_table_cell=is_table_cell)
         if tagname == 'img':
             self.images_manager.add_image(html_tag, block, stylizer)
         else:

@@ -136,15 +136,21 @@ class TextStyle(DOCXStyle):
             # DOCX does not support individual borders/padding for inline content
             for edge in border_edges:
                 # In DOCX padding can only be a positive integer
-                padding = max(0, int(css['padding-' + edge]))
+                try:
+                    padding = max(0, int(css['padding-' + edge]))
+                except ValueError:
+                    padding = 0
                 if self.padding is None:
                     self.padding = padding
                 elif self.padding != padding:
                     self.padding = ignore
-                width = min(96, max(2, int({'thin':0.2, 'medium':1, 'thick':2}.get(css['border-%s-width' % edge], 0) * 8)))
+                val = css['border-%s-width' % edge]
+                if not isinstance(val, (float, int, long)):
+                    val = {'thin':0.2, 'medium':1, 'thick':2}.get(val, 0)
+                val = min(96, max(2, int(val * 8)))
                 if self.border_width is None:
-                    self.border_width = width
-                elif self.border_width != width:
+                    self.border_width = val
+                elif self.border_width != val:
                     self.border_width = ignore
                 color = convert_color(css['border-%s-color' % edge])
                 if self.border_color is None:
@@ -225,6 +231,38 @@ class TextStyle(DOCXStyle):
             style_root.append(style)
         return style_root
 
+def read_css_block_borders(self, css, store_css_style=False):
+    for edge in border_edges:
+        if css is None:
+            setattr(self, 'padding_' + edge, 0)
+            setattr(self, 'margin_' + edge, 0)
+            setattr(self, 'css_margin_' + edge, '')
+            setattr(self, 'border_%s_width' % edge, 2)
+            setattr(self, 'border_%s_color' % edge, None)
+            setattr(self, 'border_%s_style' %  edge, 'none')
+            if store_css_style:
+                setattr(self, 'border_%s_css_style' %  edge, 'none')
+        else:
+            # In DOCX padding can only be a positive integer
+            try:
+                setattr(self, 'padding_' + edge, max(0, int(css['padding-' + edge])))
+            except ValueError:
+                setattr(self, 'padding_' + edge, 0)  # invalid value for padding
+            # In DOCX margin must be a positive integer in twips (twentieth of a point)
+            try:
+                setattr(self, 'margin_' + edge, max(0, int(css['margin-' + edge] * 20)))
+            except ValueError:
+                setattr(self, 'margin_' + edge, 0)  # for e.g.: margin: auto
+            setattr(self, 'css_margin_' + edge, css._style.get('margin-' + edge, ''))
+            val = css['border-%s-width' % edge]
+            if not isinstance(val, (float, int, long)):
+                val = {'thin':0.2, 'medium':1, 'thick':2}.get(val, 0)
+            val = min(96, max(2, int(val * 8)))
+            setattr(self, 'border_%s_width' % edge, val)
+            setattr(self, 'border_%s_color' % edge, convert_color(css['border-%s-color' % edge]) or 'auto')
+            setattr(self, 'border_%s_style' %  edge, LINE_STYLES.get(css['border-%s-style' % edge].lower(), 'none'))
+            if store_css_style:
+                setattr(self, 'border_%s_css_style' %  edge, css['border-%s-style' % edge].lower())
 
 class BlockStyle(DOCXStyle):
 
@@ -235,16 +273,14 @@ class BlockStyle(DOCXStyle):
         [x%edge for edge in border_edges for x in border_props]
     )
 
-    def __init__(self, css, html_block):
+    def __init__(self, css, html_block, is_table_cell=False):
+        read_css_block_borders(self, css)
+        if is_table_cell:
+            for edge in border_edges:
+                setattr(self, 'border_%s_style' % edge, 'none')
+                setattr(self, 'border_%s_width' % edge, 0)
         if css is None:
             self.page_break_before = self.keep_lines = False
-            for edge in border_edges:
-                setattr(self, 'padding_' + edge, 0)
-                setattr(self, 'margin_' + edge, 0)
-                setattr(self, 'css_margin_' + edge, '')
-                setattr(self, 'border_%s_width' % edge, 2)
-                setattr(self, 'border_%s_color' % edge, None)
-                setattr(self, 'border_%s_style' %  edge, 'none')
             self.text_indent = 0
             self.css_text_indent = None
             self.line_height = 280
@@ -253,20 +289,10 @@ class BlockStyle(DOCXStyle):
         else:
             self.page_break_before = css['page-break-before'] == 'always'
             self.keep_lines = css['page-break-inside'] == 'avoid'
-            for edge in border_edges:
-                # In DOCX padding can only be a positive integer
-                setattr(self, 'padding_' + edge, max(0, int(css['padding-' + edge])))
-                # In DOCX margin must be a positive integer in twips (twentieth of a point)
-                setattr(self, 'margin_' + edge, max(0, int(css['margin-' + edge] * 20)))
-                setattr(self, 'css_margin_' + edge, css._style.get('margin-' + edge, ''))
-                val = min(96, max(2, int({'thin':0.2, 'medium':1, 'thick':2}.get(css['border-%s-width' % edge], 0) * 8)))
-                setattr(self, 'border_%s_width' % edge, val)
-                setattr(self, 'border_%s_color' % edge, convert_color(css['border-%s-color' % edge]))
-                setattr(self, 'border_%s_style' %  edge, LINE_STYLES.get(css['border-%s-style' % edge].lower(), 'none'))
             self.text_indent = max(0, int(css['text-indent'] * 20))
             self.css_text_indent = css._get('text-indent')
             self.line_height = max(0, int(css.lineHeight * 20))
-            self.background_color = convert_color(css['background-color'])
+            self.background_color = None if is_table_cell else convert_color(css['background-color'])
             self.text_align = {'start':'left', 'left':'left', 'end':'right', 'right':'right', 'center':'center', 'justify':'both', 'centre':'center'}.get(
                 css['text-align'].lower(), 'left')
 
@@ -377,8 +403,8 @@ class StylesManager(object):
             ans = existing
         return ans
 
-    def create_block_style(self, css_style, html_block):
-        ans = BlockStyle(css_style, html_block)
+    def create_block_style(self, css_style, html_block, is_table_cell=False):
+        ans = BlockStyle(css_style, html_block, is_table_cell=is_table_cell)
         existing = self.block_styles.get(ans, None)
         if existing is None:
             self.block_styles[ans] = ans
