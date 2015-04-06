@@ -63,7 +63,7 @@ class UnitedDaily(BasicNewsRecipe):
     extra_css = '''div[id='story_title'] {font-size:200%; font-weight:bold;} td[class='story_title'] {font-size:200%; font-weight:bold;} td[class='story_title'] td[class='story_title']>div {font-size:200%; font-weight:bold;}'''
 
     __author__ = 'Eddie Lau'
-    __version__ = '1.1'
+    __version__ = '1.2'
     language = 'zh_TW'
     publisher = 'United Daily News Group'
     description = 'United Daily (Taiwan)'
@@ -71,16 +71,18 @@ class UnitedDaily(BasicNewsRecipe):
     remove_javascript = True
     use_embedded_content = False
     no_stylesheets = True
-    encoding = 'big5'
+    encoding = 'utf-8'
     conversion_options = {'linearize_tables':True}
     masthead_url = 'http://udn.com/NEWS/2004/images/logo_udn.gif'
     cover_url = 'http://udn.com/NEWS/2004/images/logo_udn.gif'
-    keep_only_tags = [dict(name='td', attrs={'class':['story_title']}),
-                      dict(name='div', attrs={'id':['story_title']}),
-                      dict(name='td', attrs={'class':['story_author']}),
-                      dict(name='div', attrs={'id':['story_author']}),
-                      dict(name='td', attrs={'class':['story']}),
-                      dict(name='div', attrs={'id':['story']}),
-                      ]
-    remove_tags = [dict(name='div', attrs={'id':['mvouter']})]
+    auto_cleanup = True
+    #keep_only_tags = [dict(name='td', attrs={'class':['story_title']}),
+    #                  dict(name='div', attrs={'id':['story_title']}),
+    #                  dict(name='td', attrs={'class':['story_author']}),
+    #                  dict(name='div', attrs={'id':['story_author']}),
+    #                  dict(name='td', attrs={'class':['story']}),
+    #                  dict(name='div', attrs={'id':['story']}),
+    #                  ]
+    #remove_tags = [dict(name='div', attrs={'id':['mvouter']})]
+
 
