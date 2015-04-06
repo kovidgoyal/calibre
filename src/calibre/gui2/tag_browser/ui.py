@@ -108,7 +108,8 @@ class TagBrowserMixin(object):  # {{{
         Open the user categories editor.
         '''
         db = self.library_view.model().db
-        d = TagCategories(self, db, on_category)
+        d = TagCategories(self, db, on_category,
+                          book_ids=self.tags_view.model().get_book_ids_to_use())
         if d.exec_() == d.Accepted:
             db.new_api.set_pref('user_categories', d.categories)
             db.field_metadata.remove_user_categories()

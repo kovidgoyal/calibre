@@ -35,7 +35,7 @@ class TagCategories(QDialog, Ui_TagCategories):
     '''
     category_labels_orig =   ['', 'authors', 'series', 'publisher', 'tags']
 
-    def __init__(self, window, db, on_category=None):
+    def __init__(self, window, db, on_category=None, book_ids = None):
         QDialog.__init__(self, window)
         Ui_TagCategories.__init__(self)
         self.setupUi(self)
@@ -47,69 +47,41 @@ class TagCategories(QDialog, Ui_TagCategories):
 
         self.db = db
         self.applied_items = []
+        self.book_ids = book_ids
+
+        if self.book_ids is None:
+            self.apply_vl_checkbox.setEnabled(False)
 
         cc_icon = QIcon(I('column.png'))
 
         self.category_labels = self.category_labels_orig[:]
-        category_icons  = [None, QIcon(I('user_profile.png')), QIcon(I('series.png')),
+        self.category_icons  = [None, QIcon(I('user_profile.png')), QIcon(I('series.png')),
                            QIcon(I('publisher.png')), QIcon(I('tags.png'))]
-        category_values = [None,
-                           lambda: [n.replace('|', ',') for (id, n) in self.db.all_authors()],
-                           lambda: [n for (id, n) in self.db.all_series()],
-                           lambda: [n for (id, n) in self.db.all_publishers()],
-                           lambda: self.db.all_tags()
+        self.category_values = [None,
+                           lambda: [t.original_name.replace('|', ',') for t in self.db_categories['authors']],
+                           lambda: [t.original_name for t in self.db_categories['series']],
+                           lambda: [t.original_name for t in self.db_categories['publisher']],
+                           lambda: [t.original_name for t in self.db_categories['tags']]
                           ]
         category_names  = ['', _('Authors'), ngettext('Series', 'Series', 2), _('Publishers'), _('Tags')]
 
-        cvals = {}
         for key,cc in self.db.custom_field_metadata().iteritems():
             if cc['datatype'] in ['text', 'series', 'enumeration']:
                 self.category_labels.append(key)
-                category_icons.append(cc_icon)
-                category_values.append(lambda col=cc['label']: self.db.all_custom(label=col))
+                self.category_icons.append(cc_icon)
+                self.category_values.append(lambda col=key: [t.original_name for t in self.db_categories[col]])
                 category_names.append(cc['name'])
             elif cc['datatype'] == 'composite' and \
                     cc['display'].get('make_category', False):
                 self.category_labels.append(key)
-                category_icons.append(cc_icon)
+                self.category_icons.append(cc_icon)
                 category_names.append(cc['name'])
-                dex = cc['rec_index']
-                cvals = set()
-                for book in db.data.iterall():
-                    if book[dex]:
-                        cvals.add(book[dex])
-                category_values.append(lambda s=list(cvals): s)
-        self.all_items = []
-        self.all_items_dict = {}
-        for idx,label in enumerate(self.category_labels):
-            if idx == 0:
-                continue
-            for n in category_values[idx]():
-                t = Item(name=n, label=label, index=len(self.all_items),
-                         icon=category_icons[idx], exists=True)
-                self.all_items.append(t)
-                self.all_items_dict[icu_lower(label+':'+n)] = t
-
+                self.category_values.append(lambda col=key: [t.original_name for t in self.db_categories[col]])
         self.categories = dict.copy(db.prefs.get('user_categories', {}))
         if self.categories is None:
             self.categories = {}
-        for cat in self.categories:
-            for item,l in enumerate(self.categories[cat]):
-                key = icu_lower(':'.join([l[1], l[0]]))
-                t = self.all_items_dict.get(key, None)
-                if l[1] in self.category_labels:
-                    if t is None:
-                        t = Item(name=l[0], label=l[1], index=len(self.all_items),
-                                 icon=category_icons[self.category_labels.index(l[1])],
-                                 exists=False)
-                        self.all_items.append(t)
-                        self.all_items_dict[key] = t
-                    l[2] = t.index
-                else:
-                    # remove any references to a category that no longer exists
-                    del self.categories[cat][item]
+        self.initialize_category_lists(book_ids=None)
 
-        self.all_items_sorted = sorted(self.all_items, key=lambda x: sort_key(x.name))
         self.display_filtered_categories(0)
 
         for v in category_names:
@@ -129,6 +101,7 @@ class TagCategories(QDialog, Ui_TagCategories):
         else:
             self.available_items_box.itemActivated.connect(self.apply_tags)
         self.applied_items_box.itemActivated.connect(self.unapply_tags)
+        self.apply_vl_checkbox.clicked.connect(self.apply_vl)
 
         self.populate_category_list()
         if on_category is not None:
@@ -138,6 +111,44 @@ class TagCategories(QDialog, Ui_TagCategories):
         if self.current_cat_name is None:
             self.category_box.setCurrentIndex(0)
             self.select_category(0)
+
+    def initialize_category_lists(self, book_ids):
+        self.db_categories = self.db.new_api.get_categories(book_ids=book_ids)
+        self.all_items = []
+        self.all_items_dict = {}
+        for idx,label in enumerate(self.category_labels):
+            if idx == 0:
+                continue
+            for n in self.category_values[idx]():
+                t = Item(name=n, label=label, index=len(self.all_items),
+                         icon=self.category_icons[idx], exists=True)
+                self.all_items.append(t)
+                self.all_items_dict[icu_lower(label+':'+n)] = t
+
+        for cat in self.categories:
+            for item,l in enumerate(self.categories[cat]):
+                key = icu_lower(':'.join([l[1], l[0]]))
+                t = self.all_items_dict.get(key, None)
+                if l[1] in self.category_labels:
+                    if t is None:
+                        t = Item(name=l[0], label=l[1], index=len(self.all_items),
+                                 icon=self.category_icons[self.category_labels.index(l[1])],
+                                 exists=False)
+                        self.all_items.append(t)
+                        self.all_items_dict[key] = t
+                    l[2] = t.index
+                else:
+                    # remove any references to a category that no longer exists
+                    del self.categories[cat][item]
+
+        self.all_items_sorted = sorted(self.all_items, key=lambda x: sort_key(x.name))
+
+    def apply_vl(self, checked):
+        if checked:
+            self.initialize_category_lists(self.book_ids)
+        else:
+            self.initialize_category_lists(None)
+        self.fill_applied_items()
 
     def make_list_widget(self, item):
         n = item.name if item.exists else item.name + _(' (not on any book)')
@@ -256,6 +267,9 @@ class TagCategories(QDialog, Ui_TagCategories):
             self.current_cat_name = unicode(s)
         else:
             self.current_cat_name  = None
+        self.fill_applied_items()
+
+    def fill_applied_items(self):
         if self.current_cat_name:
             self.applied_items = [cat[2] for cat in self.categories.get(self.current_cat_name, [])]
         else:
