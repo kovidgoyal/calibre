@@ -441,6 +441,11 @@ class BookInfo(QWebView):
                             m.addAction(_('Add other application for %s files...') % fmt.upper(), partial(self.choose_open_with, book_id, fmt))
                             m.addAction(_('Edit Open With applications...'), partial(edit_programs, fmt, self))
                             menu.addMenu(m)
+                    ac = self.copy_link_action
+                    ac.current_url = r.linkElement().attribute('data-full-path')
+                    if ac.current_url:
+                        ac.setText(_('&Copy path to file'))
+                        menu.addAction(ac)
             else:
                 el = r.linkElement()
                 author = el.toPlainText() if unicode(el.attribute('calibre-data')) == u'authors' else None

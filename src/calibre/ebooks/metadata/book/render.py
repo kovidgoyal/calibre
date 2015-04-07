@@ -131,15 +131,16 @@ def mi_to_html(mi, field_list=None, default_author_link=None, use_roman_numbers=
         elif field == 'formats':
             if isdevice:
                 continue
-            path = ''
-            if mi.path:
-                h, t = os.path.split(mi.path)
-                path = '/'.join((os.path.basename(h), t))
+            path = mi.path or ''
+            bpath = ''
+            if path:
+                h, t = os.path.split(path)
+                bpath = '/'.join((os.path.basename(h), t))
             data = ({
                 'fmt':x, 'path':a(path or ''), 'fname':a(mi.format_files.get(x, '')),
-                'ext':x.lower(), 'id':mi.id
+                'ext':x.lower(), 'id':mi.id, 'bpath':bpath,
             } for x in mi.formats)
-            fmts = [u'<a title="{path}/{fname}.{ext}" href="format:{id}:{fmt}">{fmt}</a>'.format(**x) for x in data]
+            fmts = [u'<a data-full-path="{path}/{fname}.{ext}" title="{bpath}/{fname}.{ext}" href="format:{id}:{fmt}">{fmt}</a>'.format(**x) for x in data]
             ans.append((field, row % (name, u', '.join(fmts))))
         elif field == 'identifiers':
             urls = urls_from_identifiers(mi.identifiers)
