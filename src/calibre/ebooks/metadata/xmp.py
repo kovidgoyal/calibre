@@ -199,6 +199,23 @@ def read_xmp_identifers(parent):
         else:
             yield scheme[0].text or '', value
 
+def safe_parse_date(raw):
+    if raw:
+        try:
+            return parse_date(raw)
+        except Exception:
+            pass
+
+def more_recent(one, two):
+    if one is None:
+        return two
+    if two is None:
+        return one
+    try:
+        return max(one, two)
+    except Exception:
+        return one
+
 def metadata_from_xmp_packet(raw_bytes):
     root = parse_xmp_packet(raw_bytes)
     mi = Metadata(_('Unknown'))
@@ -226,12 +243,11 @@ def metadata_from_xmp_packet(raw_bytes):
     bkp = first_simple('//xmp:CreatorTool', root)
     if bkp:
         mi.book_producer = bkp
-    md = first_simple('//xmp:MetadataDate', root)
-    if md:
-        try:
-            mi.metadata_date = parse_date(md)
-        except:
-            pass
+    md = safe_parse_date(first_simple('//xmp:MetadataDate', root))
+    mod = safe_parse_date(first_simple('//xmp:ModifyDate', root))
+    fd = more_recent(md, mod)
+    if fd is not None:
+        mi.metadata_date = fd
     rating = first_simple('//calibre:rating', root)
     if rating is not None:
         try:
@@ -311,7 +327,7 @@ def consolidate_metadata(info_mi, info):
     if 'ModDate' in info and hasattr(xmp_mi, 'metadata_date'):
         try:
             info_date = parse_date(info['ModDate'])
-        except:
+        except Exception:
             pass
         else:
             prefer_info = info_date > xmp_mi.metadata_date
