@@ -544,8 +544,8 @@ class TextEdit(PlainTextEdit):
                 # characters
                 ev.key() == Qt.Key_X and ev.modifiers() == Qt.AltModifier
             ):
-                ev.ignore()
-                return False
+                ev.accept()
+                return True
         return QPlainTextEdit.event(self, ev)
 
     def text_for_range(self, block, r):
