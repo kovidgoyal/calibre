@@ -30,6 +30,7 @@ def read_css_block_borders(self, css):
             getattr(obj, 'border_%s_color' % edge),
             self.BLEVEL
         ))
+        setattr(self, 'padding_' + edge, getattr(obj, 'padding_' + edge))
 
 def as_percent(x):
     if x and x.endswith('%'):
@@ -91,12 +92,23 @@ class Cell(object):
         bc = self.background_color or self.row.background_color or self.row.table.background_color
         if bc:
             makeelement(tcPr, 'w:shd', w_val="clear", w_color="auto", w_fill=bc)
+
         b = makeelement(tcPr, 'w:tcBorders', append=False)
         for edge, border in self.borders.iteritems():
             if border.width > 0 and border.style != 'none':
                 makeelement(b, 'w:' + edge, w_val=border.style, w_sz=str(border.width), w_color=border.color)
         if len(b) > 0:
             tcPr.append(b)
+
+        m = makeelement(tcPr, 'w:tcMar', append=False)
+        for edge in border_edges:
+            padding = getattr(self, 'padding_' + edge)
+            if edge in {'top', 'bottom'} or (edge == 'left' and self is self.row.first_cell) or (edge == 'right' and self is self.row.last_cell):
+                padding += getattr(self.row, 'padding_' + edge)
+            if padding > 0:
+                makeelement(m, 'w:' + edge, w_type='dxa', w_w=str(int(padding * 20)))
+        if len(m) > 0:
+            tcPr.append(m)
 
         for item in self.items:
             item.serialize(tc)

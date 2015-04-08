@@ -279,6 +279,8 @@ class BlockStyle(DOCXStyle):
             for edge in border_edges:
                 setattr(self, 'border_%s_style' % edge, 'none')
                 setattr(self, 'border_%s_width' % edge, 0)
+                setattr(self, 'padding_' + edge, 0)
+                setattr(self, 'margin_' + edge, 0)
         if css is None:
             self.page_break_before = self.keep_lines = False
             self.text_indent = 0
