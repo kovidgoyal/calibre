@@ -763,7 +763,7 @@ class CharsModel(FileCollection):
             if col == 0:
                 return entry.char
             if col == 1:
-                return {0xa:'LINE FEED', 0xd:'CARRIAGE RETURN'}.get(entry.codepoint, character_name_from_code(entry.codepoint))
+                return {0xa:'LINE FEED', 0xd:'CARRIAGE RETURN', 0x9:'TAB'}.get(entry.codepoint, character_name_from_code(entry.codepoint))
             if col == 2:
                 return ('U+%04X' if entry.codepoint < 0x10000 else 'U+%06X') % entry.codepoint
             if col == 3:
