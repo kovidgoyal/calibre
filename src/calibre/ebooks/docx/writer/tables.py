@@ -19,6 +19,22 @@ Border = namedtuple('Border', 'css_style style width color level')
 border_style_weight = {
     x:100-i for i, x in enumerate(('double', 'solid', 'dashed', 'dotted', 'ridge', 'outset', 'groove', 'inset'))}
 
+class SpannedCell(object):
+
+    def __init__(self, spanning_cell, horizontal=True):
+        self.spanning_cell = spanning_cell
+        self.horizontal = horizontal
+        self.row_span = self.col_span = 1
+
+    def resolve_borders(self):
+        pass
+
+    def serialize(self, tr):
+        tc = makeelement(tr, 'w:tc')
+        tcPr = makeelement(tc, 'w:tcPr')
+        makeelement(tcPr, 'w:%sMerge' % ('h' if self.horizontal else 'v'), w_val='continue')
+        makeelement(tc, 'w:p')
+
 def read_css_block_borders(self, css):
     obj = Dummy()
     rcbb(obj, css, store_css_style=True)
@@ -70,6 +86,14 @@ class Cell(object):
         self.row = row
         self.table = self.row.table
         self.html_tag = html_tag
+        try:
+            self.row_span = max(0, int(html_tag.get('rowspan', 1)))
+        except Exception:
+            self.row_span = 1
+        try:
+            self.col_span = max(0, int(html_tag.get('colspan', 1)))
+        except Exception:
+            self.col_span = 1
         self.items = []
         self.width = convert_width(tag_style)
         self.background_color = None if tag_style is None else convert_color(tag_style.backgroundColor)
@@ -110,6 +134,10 @@ class Cell(object):
         if len(m) > 0:
             tcPr.append(m)
 
+        if self.row_span > 1:
+            makeelement(tcPr, 'w:vMerge', w_val='restart')
+        if self.col_span > 1:
+            makeelement(tcPr, 'w:hMerge', w_val='restart')
         for item in self.items:
             item.serialize(tc)
 
@@ -241,10 +269,39 @@ class Table(object):
                 self.current_row = None
         table_ended = self.html_tag is html_tag
         if table_ended:
+            self.expand_spanned_cells()
             for row in self.rows:
                 for cell in row.cells:
                     cell.resolve_borders()
         return table_ended
+
+    def expand_spanned_cells(self):
+        # Expand horizontally
+        for row in self.rows:
+            for cell in tuple(row.cells):
+                idx = row.cells.index(cell)
+                if cell.col_span > 1 and (cell is row.cells[-1] or not isinstance(row.cells[idx+1], SpannedCell)):
+                    row.cells[idx:idx+1] = [cell] + [SpannedCell(cell, horizontal=True) for i in xrange(1, cell.col_span)]
+
+        # Expand vertically
+        for r, row in enumerate(self.rows):
+            for idx, cell in enumerate(row.cells):
+                if cell.row_span > 1:
+                    for nrow in self.rows[r+1:]:
+                        sc = SpannedCell(cell, horizontal=False)
+                        try:
+                            tcell = nrow.cells[idx]
+                        except Exception:
+                            tcell = None
+                        if tcell is None:
+                            nrow.extend([SpannedCell(nrow[-1], horizontal=True) for i in xrange(idx - len(nrow))])
+                            nrow.append(sc)
+                        else:
+                            if isinstance(tcell, SpannedCell):
+                                # Conflict between rowspan and colspan
+                                break
+                            else:
+                                nrow.cells.insert(idx, sc)
 
     def start_new_row(self, html_tag, html_style):
         if self.current_row is not None:
