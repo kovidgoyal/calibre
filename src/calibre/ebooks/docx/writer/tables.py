@@ -143,9 +143,10 @@ class Cell(object):
         if self.col_span > 1:
             makeelement(tcPr, 'w:hMerge', w_val='restart')
 
+        item = None
         for item in self.items:
             item.serialize(tc)
-        if isinstance(item, Table):
+        if item is None or isinstance(item, Table):
             # Word 2007 requires the last element in a table cell to be a paragraph
             makeelement(tc, 'w:p')
 
