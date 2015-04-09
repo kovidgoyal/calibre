@@ -1168,6 +1168,9 @@ class DeviceMixin(object):  # {{{
         '''
         Called once deletion is done on the device
         '''
+        cv, row = self.current_view(), -1
+        if cv is not self.library_view:
+            row = cv.currentIndex().row()
         for view in (self.memory_view, self.card_a_view, self.card_b_view):
             view.model().deletion_done(job, job.failed)
         if job.failed:
@@ -1186,11 +1189,14 @@ class DeviceMixin(object):  # {{{
         # if set_books_in_library did not.
         if not self.set_books_in_library(self.booklists(), reset=True,
                                  add_as_step_to_job=job, do_device_sync=False):
+
             self.upload_booklists(job)
         # We need to reset the ondevice flags in the library. Use a big hammer,
         # so we don't need to worry about whether some succeeded or not.
         self.refresh_ondevice()
 
+        if row > -1:
+            cv.set_current_row(row)
         try:
             if not self.current_view().currentIndex().isValid():
                 self.current_view().set_current_row()
@@ -1568,9 +1574,14 @@ class DeviceMixin(object):  # {{{
                 self.device_manager.device.icon)
         # reset the views so that up-to-date info is shown. These need to be
         # here because some drivers update collections in sync_booklists
+        cv, row = self.current_view(), -1
+        if cv is not self.library_view:
+            row = cv.currentIndex().row()
         self.memory_view.reset()
         self.card_a_view.reset()
         self.card_b_view.reset()
+        if row > -1:
+            cv.set_current_row(row)
 
     def _upload_collections(self, job):
         if job.failed:

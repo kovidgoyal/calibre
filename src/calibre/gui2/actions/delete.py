@@ -302,7 +302,7 @@ class DeleteAction(InterfaceAction):
             self.gui.status_bar.show_message(_('Deleting books from device.'), 1000)
             if row > -1:
                 nrow = row - 1 if row > 0 else row + 1
-                cv.set_current_row(max(0, nrow))
+                cv.set_current_row(min(cv.model().rowCount(None), max(0, nrow)))
 
     def delete_covers(self, *args):
         ids = self._get_selected_ids()
@@ -421,4 +421,4 @@ class DeleteAction(InterfaceAction):
             self.gui.status_bar.show_message(_('Deleting books from device.'), 1000)
             if row > -1:
                 nrow = row - 1 if row > 0 else row + 1
-                cv.set_current_row(max(0, nrow))
+                cv.set_current_row(min(cv.model().rowCount(None), max(0, nrow)))
