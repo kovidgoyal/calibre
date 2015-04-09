@@ -1814,8 +1814,8 @@ class DeviceMixin(object):  # {{{
 
                 return (db.metadata_last_modified(id_, index_is_id=True) !=
                         getattr(book, 'last_modified', None) or
-                        (isinstance(getattr(book, 'thumbnail', None), (list, tuple))
-                         and max(book.thumbnail[0], book.thumbnail[1]) != desired_thumbnail_height
+                        (isinstance(getattr(book, 'thumbnail', None), (list, tuple)) and
+                         max(book.thumbnail[0], book.thumbnail[1]) != desired_thumbnail_height
                         )
                        )
             except:
