@@ -6,9 +6,9 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-#-------------------------------
+# -------------------------------
 #   Modified by Roland Kessi - February 2014
-#-------------------------------
+# -------------------------------
 
 from calibre.web.feeds.news import BasicNewsRecipe
 
@@ -52,9 +52,9 @@ class LeTemps(BasicNewsRecipe):
             returns that or else returns
             `article.link <http://packages.python.org/feedparser/reference-entry-link.html>`_.
         '''
-        #=======================================================================
+        # =======================================================================
         # Avoid going through http://rss.feedsportal.com/...
-        #=======================================================================
+        # =======================================================================
         for key in article.keys():
             if key.endswith('_origlink'):
                 url = article[key]
@@ -68,11 +68,12 @@ class LeTemps(BasicNewsRecipe):
                     ans = item['href']
                     break
         pos = ans.find('letemps0Bch')
-        ans = 'http://www.' + ans[pos:]
-        ans = ans.replace('0A', '0')
-        ans = ans.replace('0B', '.')
-        ans = ans.replace('0C', '/')
-        ans = ans.replace('0E', '-')
+        if pos > -1:
+            ans = 'http://www.' + ans[pos:]
+            ans = ans.replace('0A', '0')
+            ans = ans.replace('0B', '.')
+            ans = ans.replace('0C', '/')
+            ans = ans.replace('0E', '-')
         return ans
 
     keep_only_tags =    [
@@ -80,10 +81,12 @@ class LeTemps(BasicNewsRecipe):
                         ]
     remove_tags    =    [
                             dict(name='div', attrs={'id':'html5_gallery'}),
-                            dict(name='ul', attrs={'class':['tabs']}),
+                            dict(name='ul', attrs={'class':['tabs', 'social-buttons cf']}),
                             dict(name='img', attrs={'class':['bigImg']}),
-                            dict(name='div', attrs={'class':['box function','contentInserts','box banner',
-                                 'box additional','galleryOverview','position','rightAd','bottomAd','video',]}),
+                            dict(name='div', attrs={'class':[
+                                'box function','contentInserts','box banner', 'related-stories',
+                                'box additional','galleryOverview','position','rightAd','bottomAd','video',
+                            ]}),
                         ]
 
     extra_css       =   '''
@@ -94,7 +97,6 @@ class LeTemps(BasicNewsRecipe):
                         #content{font-family:"Lucida Grande","Lucida Sans Unicode",Arial,Verdana,sans-serif;}
                         .box.article.important{font-family:"Lucida Grande","Lucida Sans Unicode",Arial,Verdana,sans-serif;}
                         #h2 {font-size: 24px; line-height: 25px; margin-bottom: 14px; text-transform:uppercase;}
-                        .author {font-size:x-small; margin: 0 0 5px 0; color:#797971; font-family:"Lucida Grande","Lucida Sans Unicode",Arial,Verdana,sans-serif;}
                         .lead {font-family:"Lucida Grande","Lucida Sans Unicode",Arial,Verdana,sans-serif;font-weight: bold; margin: 10px 0;font-size:small;}
                         p {margin: 0 0 10px 0;}
                         h3{font-size:small;font-weight:bold;}
@@ -114,7 +116,6 @@ class LeTemps(BasicNewsRecipe):
                         .caption dt img {float: left;}
                         .caption dd {width: 100%;bottom: -1px;position: absolute;}
                         .caption dd .description {z-index: 2;margin-left: 0px;padding: 3px 4px;position: relative;}
-                        .caption dd .background {top: 0;left: 0;width: 100%;height: 100%;filter: alpha(opacity=70);opacity: 0.7;z-index: 1;position: absolute;background-color: black;}
                         '''
 
     feeds          =    [
