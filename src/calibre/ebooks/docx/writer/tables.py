@@ -94,6 +94,7 @@ class Cell(object):
             self.col_span = max(0, int(html_tag.get('colspan', 1)))
         except Exception:
             self.col_span = 1
+        self.valign = {'top':'top', 'bottom':'bottom', 'middle':'center'}.get(tag_style._get('vertical-align'))
         self.items = []
         self.width = convert_width(tag_style)
         self.background_color = None if tag_style is None else convert_color(tag_style.backgroundColor)
@@ -133,6 +134,9 @@ class Cell(object):
                 makeelement(m, 'w:' + edge, w_type='dxa', w_w=str(int(padding * 20)))
         if len(m) > 0:
             tcPr.append(m)
+
+        if self.valign is not None:
+            makeelement(tcPr, 'w:vAlign', w_val=self.valign)
 
         if self.row_span > 1:
             makeelement(tcPr, 'w:vMerge', w_val='restart')
