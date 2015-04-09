@@ -104,7 +104,7 @@ def render_data(mi, use_roman_numbers=True, all_fields=False):
 
 # }}}
 
-def details_context_menu_event(view, ev, self):  # {{{
+def details_context_menu_event(view, ev, book_info):  # {{{
     p = view.page()
     mf = p.mainFrame()
     r = mf.hitTestContent(ev.pos())
@@ -142,22 +142,22 @@ def details_context_menu_event(view, ev, self):  # {{{
                         t = _('Compare to the %s format') % (fmt[9:] if fmt.startswith('ORIGINAL_') else ofmt)
                     else:
                         t = t % fmt
-                    ac = getattr(self, '%s_format_action'%a)
+                    ac = getattr(book_info, '%s_format_action'%a)
                     ac.current_fmt = (book_id, fmt)
                     ac.setText(t)
                     menu.addAction(ac)
                 if not fmt.upper().startswith('ORIGINAL_'):
                     from calibre.gui2.open_with import populate_menu, edit_programs
                     m = QMenu(_('Open %s with...') % fmt.upper())
-                    populate_menu(m, partial(self.open_with, book_id, fmt), fmt)
+                    populate_menu(m, partial(book_info.open_with, book_id, fmt), fmt)
                     if len(m.actions()) == 0:
-                        menu.addAction(_('Open %s with...') % fmt.upper(), partial(self.choose_open_with, book_id, fmt))
+                        menu.addAction(_('Open %s with...') % fmt.upper(), partial(book_info.choose_open_with, book_id, fmt))
                     else:
                         m.addSeparator()
-                        m.addAction(_('Add other application for %s files...') % fmt.upper(), partial(self.choose_open_with, book_id, fmt))
-                        m.addAction(_('Edit Open With applications...'), partial(edit_programs, fmt, self))
+                        m.addAction(_('Add other application for %s files...') % fmt.upper(), partial(book_info.choose_open_with, book_id, fmt))
+                        m.addAction(_('Edit Open With applications...'), partial(edit_programs, fmt, book_info))
                         menu.addMenu(m)
-                ac = self.copy_link_action
+                ac = book_info.copy_link_action
                 ac.current_url = r.linkElement().attribute('data-full-path')
                 if ac.current_url:
                     ac.setText(_('&Copy path to file'))
@@ -168,14 +168,14 @@ def details_context_menu_event(view, ev, self):  # {{{
             if not url.startswith('search:'):
                 for a, t in [('copy', _('&Copy Link')),
                 ]:
-                    ac = getattr(self, '%s_link_action'%a)
+                    ac = getattr(book_info, '%s_link_action'%a)
                     ac.current_url = url
                     if url.startswith('path:'):
                         ac.current_url = el.attribute('title')
                     ac.setText(t)
                     menu.addAction(ac)
             if author is not None:
-                ac = self.manage_author_action
+                ac = book_info.manage_author_action
                 ac.current_fmt = author
                 ac.setText(_('Manage %s') % author)
                 menu.addAction(ac)
