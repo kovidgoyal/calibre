@@ -170,8 +170,8 @@ class DeleteAction(InterfaceAction):
         title = self.gui.current_db.title(book_id, index_is_id=True)
         if not confirm('<p>'+(_(
             'The %(fmt)s format will be <b>permanently deleted</b> from '
-            '%(title)s. Are you sure?')%dict(fmt=fmt, title=title))
-                            +'</p>', 'library_delete_specific_format', self.gui):
+            '%(title)s. Are you sure?')%dict(fmt=fmt, title=title)) +
+                       '</p>', 'library_delete_specific_format', self.gui):
             return
 
         self.gui.library_view.model().db.remove_format(book_id, fmt,
@@ -240,8 +240,8 @@ class DeleteAction(InterfaceAction):
             return
         if not confirm('<p>'+_('<b>All formats</b> for the selected books will '
                                'be <b>deleted</b> from your library.<br>'
-                               'The book metadata will be kept. Are you sure?')
-                            +'</p>', 'delete_all_formats', self.gui):
+                               'The book metadata will be kept. Are you sure?') +
+                       '</p>', 'delete_all_formats', self.gui):
             return
         db = self.gui.library_view.model().db
         removals = {}
@@ -265,7 +265,7 @@ class DeleteAction(InterfaceAction):
             return
         ids = self._get_selected_ids()
         if not ids:
-            #_get_selected_ids shows a dialog box if nothing is selected, so we
+            # _get_selected_ids shows a dialog box if nothing is selected, so we
             # do not need to show one here
             return
         to_delete = {}
@@ -291,11 +291,18 @@ class DeleteAction(InterfaceAction):
                     ids[model] = []
                 paths[model].append(path)
                 ids[model].append(id)
+            cv, row = self.gui.current_view(), -1
+            if cv is not self.gui.library_view:
+                row = cv.currentIndex().row()
             for model in paths:
                 job = self.gui.remove_paths(paths[model])
                 self.delete_memory[job] = (paths[model], model)
+
                 model.mark_for_deletion(job, ids[model], rows_are_ids=True)
             self.gui.status_bar.show_message(_('Deleting books from device.'), 1000)
+            if row > -1:
+                nrow = row - 1 if row > 0 else row + 1
+                cv.set_current_row(max(0, nrow))
 
     def delete_covers(self, *args):
         ids = self._get_selected_ids()
@@ -358,8 +365,8 @@ class DeleteAction(InterfaceAction):
         # The user has selected to delete from the library or the device and library.
         if not confirm('<p>'+_('The %d selected book(s) will be '
                                 '<b>permanently deleted</b> and the files '
-                                'removed from your calibre library. Are you sure?')%len(to_delete_ids)
-                            +'</p>', 'library_delete_books', self.gui):
+                                'removed from your calibre library. Are you sure?')%len(to_delete_ids) +
+                       '</p>', 'library_delete_books', self.gui):
             return
         if len(to_delete_ids) < 5:
             try:
@@ -392,6 +399,9 @@ class DeleteAction(InterfaceAction):
             self.do_library_delete(to_delete_ids)
         # Device view is visible.
         else:
+            cv, row = self.gui.current_view(), -1
+            if cv is not self.gui.library_view:
+                row = cv.currentIndex().row()
             if self.gui.stack.currentIndex() == 1:
                 view = self.gui.memory_view
             elif self.gui.stack.currentIndex() == 2:
@@ -402,11 +412,13 @@ class DeleteAction(InterfaceAction):
             ids = view.model().indices(rows)
             if not confirm('<p>'+_('The %d selected book(s) will be '
                                    '<b>permanently deleted</b> '
-                                   'from your device. Are you sure?')%len(paths)
-                                +'</p>', 'device_delete_books', self.gui):
+                                   'from your device. Are you sure?')%len(paths) +
+                           '</p>', 'device_delete_books', self.gui):
                 return
             job = self.gui.remove_paths(paths)
             self.delete_memory[job] = (paths, view.model())
             view.model().mark_for_deletion(job, ids, rows_are_ids=True)
             self.gui.status_bar.show_message(_('Deleting books from device.'), 1000)
-
+            if row > -1:
+                nrow = row - 1 if row > 0 else row + 1
+                cv.set_current_row(max(0, nrow))
