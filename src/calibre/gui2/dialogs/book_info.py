@@ -14,7 +14,7 @@ from PyQt5.QtWebKitWidgets import QWebView
 
 from calibre.gui2 import gprefs
 from calibre import fit_image
-from calibre.gui2.book_details import render_html
+from calibre.gui2.book_details import render_html, details_context_menu_event
 from calibre.gui2.widgets import CoverView
 
 _css = None
@@ -23,6 +23,18 @@ def css():
     if _css is None:
         _css = P('templates/book_details.css', data=True).decode('utf-8')
     return _css
+
+class Details(QWebView):
+
+    def __init__(self, book_info, parent=None):
+        QWebView.__init__(self, parent)
+        self.book_info = book_info
+
+    def sizeHint(self):
+        return QSize(350, 350)
+
+    def contextMenuEvent(self, ev):
+        details_context_menu_event(self, ev, self.book_info)
 
 class BookInfo(QDialog):
 
@@ -46,8 +58,7 @@ class BookInfo(QDialog):
         self.cover.sizeHint = self.details_size_hint
         self.splitter.addWidget(self.cover)
 
-        self.details = QWebView(self)
-        self.details.sizeHint = self.details_size_hint
+        self.details = Details(parent.book_details.book_info, self)
         self.details.page().setLinkDelegationPolicy(self.details.page().DelegateAllLinks)
         self.details.linkClicked.connect(self.link_clicked)
         s = self.details.page().settings()
