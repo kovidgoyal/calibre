@@ -293,6 +293,7 @@ class Convert(object):
             elif display == 'table-row':
                 self.blocks.start_new_row(html_tag, tag_style)
             elif display in {'table', 'inline-table'}:
+                self.blocks.end_current_block()
                 self.blocks.start_new_table(html_tag, tag_style)
         else:
             if tagname == 'img' and tag_style['float'] in {'left', 'right'}:
@@ -312,7 +313,8 @@ class Convert(object):
         if display == 'table-row':
             return  # We ignore the tail for these tags
 
-        if not is_first_tag and html_tag.tail and (not is_block or not html_tag.tail.isspace()):
+        ignore_whitespace_tail = is_block or display.startswith('table')
+        if not is_first_tag and html_tag.tail and (not ignore_whitespace_tail or not html_tag.tail.isspace()):
             # Ignore trailing space after a block tag, as otherwise it will
             # become a new empty paragraph
             block = self.blocks.current_or_new_block(html_tag.getparent(), stylizer.style(html_tag.getparent()))
