@@ -202,7 +202,12 @@ def get_open_data(base, prog_id):
         if err.errno == winerror.ERROR_FILE_NOT_FOUND:
             return None, None, None
     with k:
-        return k.get(sub_key=r'shell\open\command'), k.get(sub_key='DefaultIcon'), k.get_mui_string('FriendlyTypeName') or k.get()
+        cmd = k.get(sub_key=r'shell\open\command')
+        if cmd:
+            parts = cmd.split()
+            if parts[-1] == '/dde' and '%1' not in cmd:
+                cmd = ' '.join(parts[:-1]) + ' "%1"'
+        return cmd, k.get(sub_key='DefaultIcon'), k.get_mui_string('FriendlyTypeName') or k.get()
 
 CommandLineToArgvW = ctypes.windll.shell32.CommandLineToArgvW
 CommandLineToArgvW.arg_types = [LPCWSTR, ctypes.POINTER(ctypes.c_int)]
@@ -290,4 +295,4 @@ def find_programs(extensions):
 
 if __name__ == '__main__':
     from pprint import pprint
-    pprint(find_programs('jpeg pdf'.split()))
+    pprint(find_programs('docx'.split()))
