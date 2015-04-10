@@ -10,7 +10,6 @@ import os, re
 from collections import namedtuple
 
 from calibre.ebooks.docx.block_styles import binary_property, inherit
-from calibre.ebooks.docx.names import XPath, get
 from calibre.utils.filenames import ascii_filename
 from calibre.utils.fonts.scanner import font_scanner, NoFonts
 from calibre.utils.fonts.utils import panose_to_css_generic_family, is_truetype_font
@@ -29,7 +28,7 @@ def get_variant(bold=False, italic=False):
 
 class Family(object):
 
-    def __init__(self, elem, embed_relationships):
+    def __init__(self, elem, embed_relationships, XPath, get):
         self.name = self.family_name = get(elem, 'w:name')
         self.alt_names = tuple(get(x, 'w:val') for x in XPath('./w:altName')(elem))
         if self.alt_names and not has_system_fonts(self.name):
@@ -51,7 +50,7 @@ class Family(object):
         for x in XPath('./w:family[@w:val]')(elem):
             self.generic_family = get(x, 'w:val', 'auto')
 
-        ntt = binary_property(elem, 'notTrueType')
+        ntt = binary_property(elem, 'notTrueType', XPath, get)
         self.is_ttf = ntt is inherit or not ntt
 
         self.panose1 = None
@@ -73,13 +72,14 @@ class Family(object):
 
 class Fonts(object):
 
-    def __init__(self):
+    def __init__(self, namespace):
+        self.namespace = namespace
         self.fonts = {}
         self.used = set()
 
     def __call__(self, root, embed_relationships, docx, dest_dir):
-        for elem in XPath('//w:font[@w:name]')(root):
-            self.fonts[get(elem, 'w:name')] = Family(elem, embed_relationships)
+        for elem in self.namespace.XPath('//w:font[@w:name]')(root):
+            self.fonts[self.namespace.get(elem, 'w:name')] = Family(elem, embed_relationships, self.namespace.XPath, self.namespace.get)
 
     def family_for(self, name, bold=False, italic=False):
         f = self.fonts.get(name, None)

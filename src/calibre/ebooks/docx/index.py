@@ -10,10 +10,9 @@ from operator import itemgetter
 
 from lxml import etree
 
-from calibre.ebooks.docx.names import XPath, expand
 from calibre.utils.icu import partition_by_first_letter, sort_key
 
-def get_applicable_xe_fields(index, xe_fields):
+def get_applicable_xe_fields(index, xe_fields, XPath, expand):
     iet = index.get('entry-type', None)
     xe_fields = [xe for xe in xe_fields if xe.get('entry-type', None) == iet]
 
@@ -40,7 +39,7 @@ def get_applicable_xe_fields(index, xe_fields):
 
     return [xe for xe in xe_fields if contained(xe)]
 
-def make_block(style, parent, pos):
+def make_block(expand, style, parent, pos):
     p = parent.makeelement(expand('w:p'))
     parent.insert(pos, p)
     if style is not None:
@@ -56,7 +55,7 @@ def make_block(style, parent, pos):
     r.append(t)
     return p, t
 
-def add_xe(xe, t):
+def add_xe(xe, t, expand):
     text = xe.get('text', '')
     pt = xe.get('page-number-text', None)
     t.text = text or ' '
@@ -70,7 +69,7 @@ def add_xe(xe, t):
         r.append(t2)
     return xe['anchor'], t.getparent()
 
-def process_index(field, index, xe_fields, log):
+def process_index(field, index, xe_fields, log, XPath, expand):
     '''
     We remove all the word generated index markup and replace it with our own
     that is more suitable for an ebook.
@@ -89,7 +88,7 @@ def process_index(field, index, xe_fields, log):
                 start_pos = (p, p.index(elem))
             p.remove(elem)
 
-    xe_fields = get_applicable_xe_fields(index, xe_fields)
+    xe_fields = get_applicable_xe_fields(index, xe_fields, XPath, expand)
     if not xe_fields:
         return [], []
     if heading_text is not None:
@@ -107,14 +106,14 @@ def process_index(field, index, xe_fields, log):
     for item in reversed(items):
         is_heading = not isinstance(item, dict)
         style = heading_style if is_heading else None
-        p, t = make_block(style, *start_pos)
+        p, t = make_block(expand, style, *start_pos)
         if is_heading:
             text = heading_text
             if text.lower().startswith('a'):
                 text = item + text[1:]
             t.text = text
         else:
-            hyperlinks.append(add_xe(item, t))
+            hyperlinks.append(add_xe(item, t, expand))
             blocks.append(p)
 
     return hyperlinks, blocks

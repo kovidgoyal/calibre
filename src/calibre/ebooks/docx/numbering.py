@@ -13,7 +13,6 @@ from lxml.html.builder import OL, UL, SPAN
 
 from calibre.ebooks.docx.block_styles import ParagraphStyle
 from calibre.ebooks.docx.char_styles import RunStyle, inherit
-from calibre.ebooks.docx.names import XPath, get
 
 STYLE_MAP = {
     'aiueo': 'hiragana',
@@ -32,7 +31,8 @@ STYLE_MAP = {
 
 class Level(object):
 
-    def __init__(self, lvl=None):
+    def __init__(self, namespace, lvl=None):
+        self.namespace = namespace
         self.restart = None
         self.start = 0
         self.fmt = 'decimal'
@@ -47,7 +47,7 @@ class Level(object):
             self.read_from_xml(lvl)
 
     def copy(self):
-        ans = Level()
+        ans = Level(self.namespace)
         for x in ('restart', 'pic_id', 'start', 'fmt', 'para_link', 'paragraph_style', 'character_style', 'is_numbered', 'num_template', 'bullet_template'):
             setattr(ans, x, getattr(self, x))
         return ans
@@ -61,6 +61,7 @@ class Level(object):
         return re.sub(r'%(\d+)', sub, template).rstrip() + '\xa0'
 
     def read_from_xml(self, lvl, override=False):
+        XPath, get = self.namespace.XPath, self.namespace.get
         for lr in XPath('./w:lvlRestart[@w:val]')(lvl):
             try:
                 self.restart = int(get(lr, 'w:val'))
@@ -74,7 +75,7 @@ class Level(object):
                 pass
 
         for rPr in XPath('./w:rPr')(lvl):
-            ps = RunStyle(rPr)
+            ps = RunStyle(self.namespace, rPr)
             if self.character_style is None:
                 self.character_style = ps
             else:
@@ -106,7 +107,7 @@ class Level(object):
             self.para_link = get(lr, 'w:val')
 
         for pPr in XPath('./w:pPr')(lvl):
-            ps = ParagraphStyle(pPr)
+            ps = ParagraphStyle(self.namespace, pPr)
             if self.paragraph_style is None:
                 self.paragraph_style = ps
             else:
@@ -135,7 +136,9 @@ class Level(object):
 
 class NumberingDefinition(object):
 
-    def __init__(self, parent=None, an_id=None):
+    def __init__(self, namespace, parent=None, an_id=None):
+        self.namespace = namespace
+        XPath, get = self.namespace.XPath, self.namespace.get
         self.levels = {}
         self.abstract_numbering_definition_id = an_id
         if parent is not None:
@@ -144,17 +147,18 @@ class NumberingDefinition(object):
                     ilvl = int(get(lvl, 'w:ilvl', 0))
                 except (TypeError, ValueError):
                     ilvl = 0
-                self.levels[ilvl] = Level(lvl)
+                self.levels[ilvl] = Level(namespace, lvl)
 
     def copy(self):
-        ans = NumberingDefinition(an_id=self.abstract_numbering_definition_id)
+        ans = NumberingDefinition(self.namespace, an_id=self.abstract_numbering_definition_id)
         for l, lvl in self.levels.iteritems():
             ans.levels[l] = lvl.copy()
         return ans
 
 class Numbering(object):
 
-    def __init__(self):
+    def __init__(self, namespace):
+        self.namespace = namespace
         self.definitions = {}
         self.instances = {}
         self.counters = defaultdict(Counter)
@@ -163,6 +167,7 @@ class Numbering(object):
 
     def __call__(self, root, styles, rid_map):
         ' Read all numbering style definitions '
+        XPath, get = self.namespace.XPath, self.namespace.get
         self.rid_map = rid_map
         for npb in XPath('./w:numPicBullet[@w:numPicBulletId]')(root):
             npbid = get(npb, 'w:numPicBulletId')
@@ -176,7 +181,7 @@ class Numbering(object):
             if nsl:
                 lazy_load[an_id] = get(nsl[0], 'w:val')
             else:
-                nd = NumberingDefinition(an, an_id=an_id)
+                nd = NumberingDefinition(self.namespace, an, an_id=an_id)
                 self.definitions[an_id] = nd
 
         def create_instance(n, definition):
@@ -199,7 +204,7 @@ class Numbering(object):
                     ilvl = nilvl if ilvl is None else ilvl
                     alvl = nd.levels.get(ilvl, None)
                     if alvl is None:
-                        alvl = Level()
+                        alvl = Level(self.namespace)
                     alvl.read_from_xml(lvl, override=True)
             for ilvl, so in start_overrides.iteritems():
                 try:

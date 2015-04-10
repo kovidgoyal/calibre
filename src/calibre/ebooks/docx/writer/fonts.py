@@ -9,7 +9,6 @@ __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 from collections import defaultdict
 from uuid import uuid4
 
-from calibre.ebooks.docx.names import makeelement, EMBEDDED_FONT
 from calibre.ebooks.oeb.base import OEB_STYLES
 from calibre.ebooks.oeb.transforms.subset import find_font_face_rules
 
@@ -21,10 +20,12 @@ def obfuscate_font_data(data, key):
 
 class FontsManager(object):
 
-    def __init__(self, oeb, opts):
+    def __init__(self, namespace, oeb, opts):
+        self.namespace = namespace
         self.oeb, self.log, self.opts = oeb, oeb.log, opts
 
     def serialize(self, text_styles, fonts, embed_relationships, font_data_map):
+        makeelement = self.namespace.makeelement
         font_families, seen = set(), set()
         for ts in text_styles:
             if ts.font_family:
@@ -68,7 +69,7 @@ class FontsManager(object):
             if rid is None:
                 rel_map[item] = rid = 'rId%d' % num
                 fname = 'fonts/font%d.odttf' % num
-                makeelement(embed_relationships, 'Relationship', Id=rid, Type=EMBEDDED_FONT, Target=fname)
+                makeelement(embed_relationships, 'Relationship', Id=rid, Type=self.namespace.names['EMBEDDED_FONT'], Target=fname)
                 font_data_map['word/' + fname] = obfuscate_font_data(item.data, key)
             makeelement(font, 'w:embed' + tag, r_id=rid,
                         w_fontKey='{%s}' % key.urn.rpartition(':')[-1].upper(),

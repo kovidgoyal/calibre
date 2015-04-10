@@ -12,22 +12,25 @@ from lxml.etree import XPath as X
 
 from calibre.utils.filenames import ascii_text
 
-DOCUMENT  = 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument'
-DOCPROPS  = 'http://schemas.openxmlformats.org/package/2006/relationships/metadata/core-properties'
-APPPROPS  = 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/extended-properties'
-STYLES    = 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles'
-NUMBERING = 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/numbering'
-FONTS     = 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/fontTable'
-EMBEDDED_FONT = 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/font'
-IMAGES    = 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/image'
-LINKS     = 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/hyperlink'
-FOOTNOTES = 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/footnotes'
-ENDNOTES  = 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/endnotes'
-THEMES    = 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/theme'
-SETTINGS  = 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/settings'
-WEB_SETTINGS = 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/webSettings'
+# Names {{{
+TRANSITIONAL_NAMES = {
+    'DOCUMENT'  : 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument',
+    'DOCPROPS'  : 'http://schemas.openxmlformats.org/package/2006/relationships/metadata/core-properties',
+    'APPPROPS'  : 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/extended-properties',
+    'STYLES'    : 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles',
+    'NUMBERING' : 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/numbering',
+    'FONTS'     : 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/fontTable',
+    'EMBEDDED_FONT' : 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/font',
+    'IMAGES'    : 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/image',
+    'LINKS'     : 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/hyperlink',
+    'FOOTNOTES' : 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/footnotes',
+    'ENDNOTES'  : 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/endnotes',
+    'THEMES'    : 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/theme',
+    'SETTINGS'  : 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/settings',
+    'WEB_SETTINGS' : 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/webSettings',
+}
 
-namespaces = {
+TRANSITIONAL_NAMESPACES = {
     'mo': 'http://schemas.microsoft.com/office/mac/office/2008/main',
     'o': 'urn:schemas-microsoft-com:office:office',
     've': 'http://schemas.openxmlformats.org/markup-compatibility/2006',
@@ -57,40 +60,13 @@ namespaces = {
     'dcmitype': 'http://purl.org/dc/dcmitype/',
     'dcterms': 'http://purl.org/dc/terms/'
 }
-
-xpath_cache = {}
-
-def XPath(expr):
-    ans = xpath_cache.get(expr, None)
-    if ans is None:
-        xpath_cache[expr] = ans = X(expr, namespaces=namespaces)
-    return ans
-
-def is_tag(x, q):
-    tag = getattr(x, 'tag', x)
-    ns, name = q.partition(':')[0::2]
-    return '{%s}%s' % (namespaces.get(ns, None), name) == tag
+# }}}
 
 def barename(x):
     return x.rpartition('}')[-1]
 
 def XML(x):
-    return '{%s}%s' % (namespaces['xml'], x)
-
-def expand(name, sep=':'):
-    ns, tag = name.partition(sep)[::2]
-    if ns and tag:
-        tag = '{%s}%s' % (namespaces[ns], tag)
-    return tag or ns
-
-def get(x, attr, default=None):
-    return x.attrib.get(expand(attr), default)
-
-def ancestor(elem, name):
-    try:
-        return XPath('ancestor::%s[1]' % name)(elem)[0]
-    except IndexError:
-        return None
+    return '{%s}%s' % (TRANSITIONAL_NAMESPACES['xml'], x)
 
 def generate_anchor(name, existing):
     x = y = 'id_' + re.sub(r'[^0-9a-zA-Z_]', '', ascii_text(name)).lstrip('_')
@@ -100,14 +76,48 @@ def generate_anchor(name, existing):
         c += 1
     return y
 
-def children(elem, *args):
-    return XPath('|'.join('child::%s' % a for a in args))(elem)
+class DOCXNamespace(object):
 
-def descendants(elem, *args):
-    return XPath('|'.join('descendant::%s' % a for a in args))(elem)
+    def __init__(self, transitional=True):
+        self.xpath_cache = {}
+        if transitional:
+            self.namespaces = TRANSITIONAL_NAMESPACES.copy()
+            self.names = TRANSITIONAL_NAMES.copy()
 
-def makeelement(root, tag, append=True, **attrs):
-    ans = root.makeelement(expand(tag), **{expand(k, sep='_'):v for k, v in attrs.iteritems()})
-    if append:
-        root.append(ans)
-    return ans
+    def XPath(self, expr):
+        ans = self.xpath_cache.get(expr, None)
+        if ans is None:
+            self.xpath_cache[expr] = ans = X(expr, namespaces=self.namespaces)
+        return ans
+
+    def is_tag(self, x, q):
+        tag = getattr(x, 'tag', x)
+        ns, name = q.partition(':')[0::2]
+        return '{%s}%s' % (self.namespaces.get(ns, None), name) == tag
+
+    def expand(self, name, sep=':'):
+        ns, tag = name.partition(sep)[::2]
+        if ns and tag:
+            tag = '{%s}%s' % (self.namespaces[ns], tag)
+        return tag or ns
+
+    def get(self, x, attr, default=None):
+        return x.attrib.get(self.expand(attr), default)
+
+    def ancestor(self, elem, name):
+        try:
+            return self.XPath('ancestor::%s[1]' % name)(elem)[0]
+        except IndexError:
+            return None
+
+    def children(self, elem, *args):
+        return self.XPath('|'.join('child::%s' % a for a in args))(elem)
+
+    def descendants(self, elem, *args):
+        return self.XPath('|'.join('descendant::%s' % a for a in args))(elem)
+
+    def makeelement(self, root, tag, append=True, **attrs):
+        ans = root.makeelement(self.expand(tag), **{self.expand(k, sep='_'):v for k, v in attrs.iteritems()})
+        if append:
+            root.append(ans)
+        return ans

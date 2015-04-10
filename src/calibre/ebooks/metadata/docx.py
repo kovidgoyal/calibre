@@ -12,14 +12,14 @@ from io import BytesIO
 from lxml import etree
 
 from calibre.ebooks.docx.container import DOCX
-from calibre.ebooks.docx.writer.container import update_doc_props, xml2str, namespaces
-from calibre.ebooks.docx.names import XPath, get
+from calibre.ebooks.docx.writer.container import update_doc_props, xml2str
 from calibre.utils.magick.draw import identify_data
-
-images = XPath('//*[name()="w:drawing" or name()="w:pict"]/descendant::*[(name()="a:blip" and @r:embed) or (name()="v:imagedata" and @r:id)][1]')
 
 def get_cover(docx):
     doc = docx.document
+    get = docx.namespace.get
+    images = docx.namespace.XPath(
+        '//*[name()="w:drawing" or name()="w:pict"]/descendant::*[(name()="a:blip" and @r:embed) or (name()="v:imagedata" and @r:id)][1]')
     rid_map = docx.document_relationships[0]
     for image in images(doc):
         rid = get(image, 'r:embed') or get(image, 'r:id')
@@ -58,11 +58,11 @@ def set_metadata(stream, mi):
     except Exception:
         ap_raw = None
     cp = etree.fromstring(dp_raw)
-    update_doc_props(cp, mi)
+    update_doc_props(cp, mi, c.namespace)
     replacements = {}
     if ap_raw is not None:
         ap = etree.fromstring(ap_raw)
-        comp = ap.makeelement('{%s}Company' % namespaces['ep'])
+        comp = ap.makeelement('{%s}Company' % c.namespace.namespaces['ep'])
         for child in tuple(ap):
             if child.tag == comp.tag:
                 ap.remove(child)

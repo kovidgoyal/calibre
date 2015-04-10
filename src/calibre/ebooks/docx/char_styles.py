@@ -9,10 +9,9 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 from collections import OrderedDict
 from calibre.ebooks.docx.block_styles import (  # noqa
     inherit, simple_color, LINE_STYLES, simple_float, binary_property, read_shd)
-from calibre.ebooks.docx.names import XPath, get
 
 # Read from XML {{{
-def read_text_border(parent, dest):
+def read_text_border(parent, dest, XPath, get):
     border_color = border_style = border_width = padding = inherit
     elems = XPath('./w:bdr')(parent)
     if elems and elems[0].attrib:
@@ -46,7 +45,7 @@ def read_text_border(parent, dest):
     setattr(dest, 'border_width', border_width)
     setattr(dest, 'padding', padding)
 
-def read_color(parent, dest):
+def read_color(parent, dest, XPath, get):
     ans = inherit
     for col in XPath('./w:color[@w:val]')(parent):
         val = get(col, 'w:val')
@@ -61,7 +60,7 @@ def convert_highlight_color(val):
         'darkGreen': '#008000', 'darkMagenta': '#800080', 'darkRed': '#800000', 'darkYellow': '#808000',
         'lightGray': '#c0c0c0'}.get(val, val)
 
-def read_highlight(parent, dest):
+def read_highlight(parent, dest, XPath, get):
     ans = inherit
     for col in XPath('./w:highlight[@w:val]')(parent):
         val = get(col, 'w:val')
@@ -74,7 +73,7 @@ def read_highlight(parent, dest):
         ans = val
     setattr(dest, 'highlight', ans)
 
-def read_lang(parent, dest):
+def read_lang(parent, dest, XPath, get):
     ans = inherit
     for col in XPath('./w:lang[@w:val]')(parent):
         val = get(col, 'w:val')
@@ -91,7 +90,7 @@ def read_lang(parent, dest):
                 ans = val
     setattr(dest, 'lang', ans)
 
-def read_letter_spacing(parent, dest):
+def read_letter_spacing(parent, dest, XPath, get):
     ans = inherit
     for col in XPath('./w:spacing[@w:val]')(parent):
         val = simple_float(get(col, 'w:val'), 0.05)
@@ -99,7 +98,7 @@ def read_letter_spacing(parent, dest):
             ans = val
     setattr(dest, 'letter_spacing', ans)
 
-def read_sz(parent, dest):
+def read_sz(parent, dest, XPath, get):
     ans = inherit
     for col in XPath('./w:sz[@w:val]')(parent):
         val = simple_float(get(col, 'w:val'), 0.5)
@@ -107,7 +106,7 @@ def read_sz(parent, dest):
             ans = val
     setattr(dest, 'font_size', ans)
 
-def read_underline(parent, dest):
+def read_underline(parent, dest, XPath, get):
     ans = inherit
     for col in XPath('./w:u[@w:val]')(parent):
         val = get(col, 'w:val')
@@ -115,7 +114,7 @@ def read_underline(parent, dest):
             ans = val if val == 'none' else 'underline'
     setattr(dest, 'text_decoration', ans)
 
-def read_vert_align(parent, dest):
+def read_vert_align(parent, dest, XPath, get):
     ans = inherit
     for col in XPath('./w:vertAlign[@w:val]')(parent):
         val = get(col, 'w:val')
@@ -123,7 +122,7 @@ def read_vert_align(parent, dest):
             ans = val
     setattr(dest, 'vert_align', ans)
 
-def read_font_family(parent, dest):
+def read_font_family(parent, dest, XPath, get):
     ans = inherit
     for col in XPath('./w:rFonts')(parent):
         val = get(col, 'w:asciiTheme')
@@ -150,7 +149,8 @@ class RunStyle(object):
         'b', 'bCs', 'caps', 'emboss', 'i', 'iCs', 'imprint', 'shadow', 'smallCaps', 'strike', 'dstrike', 'vanish',
     }
 
-    def __init__(self, rPr=None):
+    def __init__(self, namespace, rPr=None):
+        self.namespace = namespace
         self.linked_style = None
         if rPr is None:
             for p in self.all_properties:
@@ -160,14 +160,14 @@ class RunStyle(object):
                 'b', 'bCs', 'caps', 'cs', 'dstrike', 'emboss', 'i', 'iCs', 'imprint', 'rtl', 'shadow',
                 'smallCaps', 'strike', 'vanish', 'webHidden',
             ):
-                setattr(self, p, binary_property(rPr, p))
+                setattr(self, p, binary_property(rPr, p, namespace.XPath, namespace.get))
 
             for x in ('text_border', 'color', 'highlight', 'shd', 'letter_spacing', 'sz', 'underline', 'vert_align', 'lang', 'font_family'):
                 f = globals()['read_%s' % x]
-                f(rPr, self)
+                f(rPr, self, namespace.XPath, namespace.get)
 
-            for s in XPath('./w:rStyle[@w:val]')(rPr):
-                self.linked_style = get(s, 'w:val')
+            for s in namespace.XPath('./w:rStyle[@w:val]')(rPr):
+                self.linked_style = namespace.get(s, 'w:val')
 
         self._css = None
 

@@ -15,7 +15,6 @@ from future_builtins import map
 from lxml import etree
 
 from calibre.ebooks.oeb.base import urlunquote
-from calibre.ebooks.docx.names import makeelement, namespaces
 from calibre.ebooks.docx.images import pt_to_emu
 from calibre.utils.filenames import ascii_filename
 from calibre.utils.magick.draw import identify_data
@@ -67,6 +66,8 @@ class ImagesManager(object):
         img = self.images[href]
         name = urlunquote(posixpath.basename(href))
         width, height = map(pt_to_emu, style.img_size(img.width, img.height))
+
+        makeelement, namespaces = self.document_relationships.namespace.makeelement, self.document_relationships.namespace.namespaces
 
         root = etree.Element('root', nsmap=namespaces)
         ans = makeelement(root, 'w:drawing', append=False)

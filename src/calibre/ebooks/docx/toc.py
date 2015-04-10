@@ -10,7 +10,6 @@ from collections import namedtuple
 
 from lxml.etree import tostring
 
-from calibre.ebooks.docx.names import XPath, descendants, get, ancestor
 from calibre.ebooks.metadata.toc import TOC
 from calibre.ebooks.oeb.polish.toc import elem_to_toc_text
 
@@ -21,8 +20,9 @@ class Count(object):
     def __init__(self):
         self.val = 0
 
-def from_headings(body, log):
+def from_headings(body, log, namespace):
     ' Create a TOC from headings in the document '
+    XPath, descendants = namespace.XPath, namespace.descendants
     headings = ('h1', 'h2', 'h3')
     tocroot = TOC()
     xpaths = [XPath('//%s' % x) for x in headings]
@@ -99,7 +99,8 @@ def link_to_txt(a, styles, object_map):
 
     return tostring(a, method='text', with_tail=False, encoding=unicode).strip()
 
-def from_toc(docx, link_map, styles, object_map, log):
+def from_toc(docx, link_map, styles, object_map, log, namespace):
+    XPath, get, ancestor = namespace.XPath, namespace.get, namespace.ancestor
     toc_level = None
     level = 0
     TI = namedtuple('TI', 'text anchor indent')
@@ -136,7 +137,5 @@ def from_toc(docx, link_map, styles, object_map, log):
         log('Found Word Table of Contents, using it to generate the Table of Contents')
         return structure_toc(toc)
 
-def create_toc(docx, body, link_map, styles, object_map, log):
-    return from_toc(docx, link_map, styles, object_map, log) or from_headings(body, log)
-
-
+def create_toc(docx, body, link_map, styles, object_map, log, namespace):
+    return from_toc(docx, link_map, styles, object_map, log, namespace) or from_headings(body, log, namespace)

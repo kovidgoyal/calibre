@@ -9,7 +9,6 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 import re
 
 from calibre.ebooks.docx.index import process_index, polish_index_markup
-from calibre.ebooks.docx.names import XPath, get, namespaces
 
 class Field(object):
 
@@ -47,9 +46,6 @@ scanner = re.Scanner([
 ], flags=re.DOTALL)
 
 null = object()
-
-def WORD(x):
-    return '{%s}%s' % (namespaces['w'], x)
 
 def parser(name, field_map, default_field_name=None):
 
@@ -98,22 +94,23 @@ parse_noteref = parser('noteref',
 
 class Fields(object):
 
-    def __init__(self):
+    def __init__(self, namespace):
+        self.namespace = namespace
         self.fields = []
         self.index_bookmark_counter = 0
         self.index_bookmark_prefix = 'index-'
 
     def __call__(self, doc, log):
-        all_ids = frozenset(XPath('//*/@w:id')(doc))
+        all_ids = frozenset(self.namespace.XPath('//*/@w:id')(doc))
         c = 0
         while self.index_bookmark_prefix in all_ids:
             c += 1
             self.index_bookmark_prefix = self.index_bookmark_prefix.replace('-', '%d-' % c)
         stack = []
-        for elem in XPath(
+        for elem in self.namespace.XPath(
             '//*[name()="w:p" or name()="w:r" or name()="w:instrText" or (name()="w:fldChar" and (@w:fldCharType="begin" or @w:fldCharType="end"))]')(doc):
             if elem.tag.endswith('}fldChar'):
-                typ = get(elem, 'w:fldCharType')
+                typ = self.namespace.get(elem, 'w:fldCharType')
                 if typ == 'begin':
                     stack.append(Field(elem))
                     self.fields.append(stack[-1])
@@ -193,6 +190,8 @@ class Fields(object):
         if xe:
             # We insert a synthetic bookmark around this index item so that we
             # can link to it later
+            def WORD(x):
+                return self.namespace.expand('w:' + x)
             self.index_bookmark_counter += 1
             bmark = xe['anchor'] = '%s%d' % (self.index_bookmark_prefix, self.index_bookmark_counter)
             p = field.start.getparent()
@@ -210,7 +209,7 @@ class Fields(object):
         if not field.contents:
             return
         idx = parse_func(field.instructions, log)
-        hyperlinks, blocks = process_index(field, idx, self.xe_fields, log)
+        hyperlinks, blocks = process_index(field, idx, self.xe_fields, log, self.namespace.XPath, self.namespace.expand)
         if not blocks:
             return
         for anchor, run in hyperlinks:

@@ -14,7 +14,7 @@ from calibre import walk, guess_type
 from calibre.ebooks.metadata import string_to_authors, authors_to_sort_string
 from calibre.ebooks.metadata.book.base import Metadata
 from calibre.ebooks.docx import InvalidDOCX
-from calibre.ebooks.docx.names import DOCUMENT, DOCPROPS, XPath, APPPROPS
+from calibre.ebooks.docx.names import DOCXNamespace
 from calibre.ptempfile import PersistentTemporaryDirectory
 from calibre.utils.localization import canonicalize_lang
 from calibre.utils.logging import default_log
@@ -25,7 +25,7 @@ def fromstring(raw, parser=RECOVER_PARSER):
     return etree.fromstring(raw, parser=parser)
 
 # Read metadata {{{
-def read_doc_props(raw, mi):
+def read_doc_props(raw, mi, XPath):
     root = fromstring(raw)
     titles = XPath('//dc:title')(root)
     if titles:
@@ -72,7 +72,7 @@ def read_app_props(raw, mi):
     if company and company[0].text and company[0].text.strip():
         mi.publisher = company[0].text.strip()
 
-def read_default_style_language(raw, mi):
+def read_default_style_language(raw, mi, XPath):
     root = fromstring(raw)
     for lang in XPath('/w:styles/w:docDefaults/w:rPrDefault/w:rPr/w:lang/@w:val')(root):
         lang = canonicalize_lang(lang)
@@ -84,6 +84,7 @@ def read_default_style_language(raw, mi):
 class DOCX(object):
 
     def __init__(self, path_or_stream, log=None, extract=True):
+        self.docx_is_transitional = True
         stream = path_or_stream if hasattr(path_or_stream, 'read') else open(path_or_stream, 'rb')
         self.name = getattr(stream, 'name', None) or '<stream>'
         self.log = log or default_log
@@ -93,6 +94,7 @@ class DOCX(object):
             self.init_zipfile(stream)
         self.read_content_types()
         self.read_package_relationships()
+        self.namespace = DOCXNamespace(self.docx_is_transitional)
 
     def init_zipfile(self, stream):
         self.zipf = ZipFile(stream)
@@ -158,12 +160,14 @@ class DOCX(object):
         for item in root.xpath('//*[local-name()="Relationships"]/*[local-name()="Relationship" and @Type and @Target]'):
             target = item.get('Target').lstrip('/')
             typ = item.get('Type')
+            if target == 'word/document.xml':
+                self.docx_is_transitional = typ != 'http://purl.oclc.org/ooxml/officeDocument/relationships/officeDocument'
             self.relationships[typ] = target
             self.relationships_rmap[target] = typ
 
     @property
     def document_name(self):
-        name = self.relationships.get(DOCUMENT, None)
+        name = self.relationships.get(self.namespace.names['DOCUMENT'], None)
         if name is None:
             names = tuple(n for n in self.names if n == 'document.xml' or n.endswith('/document.xml'))
             if not names:
@@ -201,13 +205,13 @@ class DOCX(object):
         return by_id, by_type
 
     def get_document_properties_names(self):
-        name = self.relationships.get(DOCPROPS, None)
+        name = self.relationships.get(self.namespace.names['DOCPROPS'], None)
         if name is None:
             names = tuple(n for n in self.names if n.lower() == 'docprops/core.xml')
             if names:
                 name = names[0]
         yield name
-        name = self.relationships.get(APPPROPS, None)
+        name = self.relationships.get(self.namespace.names['APPPROPS'], None)
         if name is None:
             names = tuple(n for n in self.names if n.lower() == 'docprops/app.xml')
             if names:
@@ -224,16 +228,16 @@ class DOCX(object):
             except KeyError:
                 pass
             else:
-                read_doc_props(raw, mi)
+                read_doc_props(raw, mi, self.namespace.XPath)
         if mi.is_null('language'):
             try:
                 raw = self.read('word/styles.xml')
             except KeyError:
                 pass
             else:
-                read_default_style_language(raw, mi)
+                read_default_style_language(raw, mi, self.namespace.XPath)
 
-        ap_name = self.relationships.get(APPPROPS, None)
+        ap_name = self.relationships.get(self.namespace.names['APPPROPS'], None)
         if ap_name:
             try:
                 raw = self.read(ap_name)

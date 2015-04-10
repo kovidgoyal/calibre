@@ -9,7 +9,7 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 import re
 
 from calibre.ebooks.docx.writer.container import create_skeleton
-from calibre.ebooks.docx.writer.styles import w, StylesManager
+from calibre.ebooks.docx.writer.styles import StylesManager
 from calibre.ebooks.docx.writer.images import ImagesManager
 from calibre.ebooks.docx.writer.fonts import FontsManager
 from calibre.ebooks.docx.writer.tables import Table
@@ -45,12 +45,13 @@ class TextRun(object):
 
     ws_pat = None
 
-    def __init__(self, style, first_html_parent):
+    def __init__(self, namespace, style, first_html_parent):
         self.first_html_parent = first_html_parent
         if self.ws_pat is None:
             TextRun.ws_pat = self.ws_pat = re.compile(r'\s+')
         self.style = style
         self.texts = []
+        self.makelement = namespace.makeelement
 
     def add_text(self, text, preserve_whitespace):
         if not preserve_whitespace:
@@ -68,19 +69,18 @@ class TextRun(object):
         self.texts.append((drawing, None))
 
     def serialize(self, p):
-        r = p.makeelement(w('r'))
-        p.append(r)
-        rpr = r.makeelement(w('rPr'))
-        rpr.append(rpr.makeelement(w('rStyle'), **{w('val'):self.style.id}))
-        r.append(rpr)
+        makeelement = self.makelement
+        r = makeelement(p, 'w:r')
+        rpr = makeelement(r, 'w:rPr')
+        makeelement(rpr, 'w:rStyle', w_val=self.style.id)
+
         for text, preserve_whitespace in self.texts:
             if text is None:
-                r.append(r.makeelement(w('br'), **{w('clear'):preserve_whitespace}))
+                makeelement(r, 'w:br', w_clear=preserve_whitespace)
             elif hasattr(text, 'xpath'):
                 r.append(text)
             else:
-                t = r.makeelement(w('t'))
-                r.append(t)
+                t = makeelement(r, 'w:t')
                 t.text = text or ''
                 if preserve_whitespace:
                     t.set('{http://www.w3.org/XML/1998/namespace}space', 'preserve')
@@ -94,7 +94,8 @@ class TextRun(object):
 
 class Block(object):
 
-    def __init__(self, styles_manager, html_block, style, is_table_cell=False):
+    def __init__(self, namespace, styles_manager, html_block, style, is_table_cell=False):
+        self.namespace = namespace
         self.html_block = html_block
         self.html_style = style
         self.style = styles_manager.create_block_style(style, html_block, is_table_cell=is_table_cell)
@@ -109,7 +110,7 @@ class Block(object):
         if self.runs and ts == self.runs[-1].style:
             run = self.runs[-1]
         else:
-            run = TextRun(ts, self.html_block if html_parent is None else html_parent)
+            run = TextRun(self.namespace, ts, self.html_block if html_parent is None else html_parent)
             self.runs.append(run)
         preserve_whitespace = ws in {'pre', 'pre-wrap'}
         if ignore_leading_whitespace and not preserve_whitespace:
@@ -125,7 +126,7 @@ class Block(object):
         if self.runs:
             run = self.runs[-1]
         else:
-            run = TextRun(self.styles_manager.create_text_style(self.html_style), self.html_block)
+            run = TextRun(self.namespace, self.styles_manager.create_text_style(self.html_style), self.html_block)
             self.runs.append(run)
         run.add_break(clear=clear)
 
@@ -133,20 +134,19 @@ class Block(object):
         if self.runs:
             run = self.runs[-1]
         else:
-            run = TextRun(self.styles_manager.create_text_style(self.html_style), self.html_block)
+            run = TextRun(self.namespace, self.styles_manager.create_text_style(self.html_style), self.html_block)
             self.runs.append(run)
         run.add_image(drawing)
 
     def serialize(self, body):
-        p = body.makeelement(w('p'))
-        body.append(p)
-        ppr = p.makeelement(w('pPr'))
-        p.append(ppr)
+        makeelement = self.namespace.makeelement
+        p = makeelement(body, 'w:p')
+        ppr = makeelement(p, 'w:pPr')
         if self.keep_next:
-            ppr.append(ppr.makeelement(w('keepNext')))
+            makeelement(ppr, 'w:keepNext')
         if self.page_break_before:
-            ppr.append(ppr.makeelement(w('pageBreakBefore')))
-        ppr.append(ppr.makeelement(w('pStyle'), **{w('val'):self.style.id}))
+            makeelement(ppr, 'w:pageBreakBefore')
+        makeelement(ppr, 'w:pStyle', w_val=self.style.id)
         for run in self.runs:
             run.serialize(p)
 
@@ -158,7 +158,8 @@ class Block(object):
 
 class Blocks(object):
 
-    def __init__(self, styles_manager):
+    def __init__(self, namespace, styles_manager):
+        self.namespace = namespace
         self.styles_manager = styles_manager
         self.all_blocks = []
         self.pos = 0
@@ -183,12 +184,12 @@ class Blocks(object):
 
     def start_new_block(self, html_block, style, is_table_cell=False):
         self.end_current_block()
-        self.current_block = Block(self.styles_manager, html_block, style, is_table_cell=is_table_cell)
+        self.current_block = Block(self.namespace, self.styles_manager, html_block, style, is_table_cell=is_table_cell)
         self.open_html_blocks.add(html_block)
         return self.current_block
 
     def start_new_table(self, html_tag, tag_style=None):
-        self.current_table = Table(html_tag, tag_style)
+        self.current_table = Table(self.namespace, html_tag, tag_style)
         self.tables.append(self.current_table)
 
     def start_new_row(self, html_tag, tag_style):
@@ -252,10 +253,10 @@ class Convert(object):
         self.svg_rasterizer = SVGRasterizer()
         self.svg_rasterizer(self.oeb, self.opts)
 
-        self.styles_manager = StylesManager()
+        self.styles_manager = StylesManager(self.docx.namespace)
         self.images_manager = ImagesManager(self.oeb, self.docx.document_relationships)
-        self.fonts_manager = FontsManager(self.oeb, self.opts)
-        self.blocks = Blocks(self.styles_manager)
+        self.fonts_manager = FontsManager(self.docx.namespace, self.oeb, self.opts)
+        self.blocks = Blocks(self.docx.namespace, self.styles_manager)
 
         for item in self.oeb.spine:
             self.process_item(item)

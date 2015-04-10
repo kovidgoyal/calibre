@@ -12,7 +12,6 @@ from collections import OrderedDict, Counter
 from calibre.ebooks.docx.block_styles import ParagraphStyle, inherit
 from calibre.ebooks.docx.char_styles import RunStyle
 from calibre.ebooks.docx.tables import TableStyle
-from calibre.ebooks.docx.names import XPath, get
 
 class PageProperties(object):
 
@@ -21,12 +20,12 @@ class PageProperties(object):
     sectPr elements.
     '''
 
-    def __init__(self, elems=()):
+    def __init__(self, namespace, elems=()):
         self.width = self.height = 595.28, 841.89  # pts, A4
         self.margin_left = self.margin_right = 72  # pts
         for sectPr in elems:
-            for pgSz in XPath('./w:pgSz')(sectPr):
-                w, h = get(pgSz, 'w:w'), get(pgSz, 'w:h')
+            for pgSz in namespace.XPath('./w:pgSz')(sectPr):
+                w, h = namespace.get(pgSz, 'w:w'), namespace.get(pgSz, 'w:h')
                 try:
                     self.width = int(w)/20
                 except (ValueError, TypeError):
@@ -35,8 +34,8 @@ class PageProperties(object):
                     self.height = int(h)/20
                 except (ValueError, TypeError):
                     pass
-            for pgMar in XPath('./w:pgMar')(sectPr):
-                l, r = get(pgMar, 'w:left'), get(pgMar, 'w:right')
+            for pgMar in namespace.XPath('./w:pgMar')(sectPr):
+                l, r = namespace.get(pgMar, 'w:left'), namespace.get(pgMar, 'w:right')
                 try:
                     self.margin_left = int(l)/20
                 except (ValueError, TypeError):
@@ -52,41 +51,41 @@ class Style(object):
     Class representing a <w:style> element. Can contain block, character, etc. styles.
     '''
 
-    name_path = XPath('./w:name[@w:val]')
-    based_on_path = XPath('./w:basedOn[@w:val]')
-
-    def __init__(self, elem):
+    def __init__(self, namespace, elem):
+        self.namespace = namespace
+        self.name_path = namespace.XPath('./w:name[@w:val]')
+        self.based_on_path = namespace.XPath('./w:basedOn[@w:val]')
         self.resolved = False
-        self.style_id = get(elem, 'w:styleId')
-        self.style_type = get(elem, 'w:type')
+        self.style_id = namespace.get(elem, 'w:styleId')
+        self.style_type = namespace.get(elem, 'w:type')
         names = self.name_path(elem)
-        self.name = get(names[-1], 'w:val') if names else None
+        self.name = namespace.get(names[-1], 'w:val') if names else None
         based_on = self.based_on_path(elem)
-        self.based_on = get(based_on[0], 'w:val') if based_on else None
+        self.based_on = namespace.get(based_on[0], 'w:val') if based_on else None
         if self.style_type == 'numbering':
             self.based_on = None
-        self.is_default = get(elem, 'w:default') in {'1', 'on', 'true'}
+        self.is_default = namespace.get(elem, 'w:default') in {'1', 'on', 'true'}
 
         self.paragraph_style = self.character_style = self.table_style = None
 
         if self.style_type in {'paragraph', 'character', 'table'}:
             if self.style_type == 'table':
-                for tblPr in XPath('./w:tblPr')(elem):
-                    ts = TableStyle(tblPr)
+                for tblPr in namespace.XPath('./w:tblPr')(elem):
+                    ts = TableStyle(namespace, tblPr)
                     if self.table_style is None:
                         self.table_style = ts
                     else:
                         self.table_style.update(ts)
             if self.style_type in {'paragraph', 'table'}:
-                for pPr in XPath('./w:pPr')(elem):
-                    ps = ParagraphStyle(pPr)
+                for pPr in namespace.XPath('./w:pPr')(elem):
+                    ps = ParagraphStyle(namespace, pPr)
                     if self.paragraph_style is None:
                         self.paragraph_style = ps
                     else:
                         self.paragraph_style.update(ps)
 
-            for rPr in XPath('./w:rPr')(elem):
-                rs = RunStyle(rPr)
+            for rPr in namespace.XPath('./w:rPr')(elem):
+                rs = RunStyle(namespace, rPr)
                 if self.character_style is None:
                     self.character_style = rs
                 else:
@@ -94,21 +93,21 @@ class Style(object):
 
         if self.style_type in {'numbering', 'paragraph'}:
             self.numbering_style_link = None
-            for x in XPath('./w:pPr/w:numPr/w:numId[@w:val]')(elem):
-                self.numbering_style_link = get(x, 'w:val')
+            for x in namespace.XPath('./w:pPr/w:numPr/w:numId[@w:val]')(elem):
+                self.numbering_style_link = namespace.get(x, 'w:val')
 
     def resolve_based_on(self, parent):
         if parent.table_style is not None:
             if self.table_style is None:
-                self.table_style = TableStyle()
+                self.table_style = TableStyle(self.namespace)
             self.table_style.resolve_based_on(parent.table_style)
         if parent.paragraph_style is not None:
             if self.paragraph_style is None:
-                self.paragraph_style = ParagraphStyle()
+                self.paragraph_style = ParagraphStyle(self.namespace)
             self.paragraph_style.resolve_based_on(parent.paragraph_style)
         if parent.character_style is not None:
             if self.character_style is None:
-                self.character_style = RunStyle()
+                self.character_style = RunStyle(self.namespace)
             self.character_style.resolve_based_on(parent.character_style)
 
 
@@ -118,7 +117,8 @@ class Styles(object):
     Collection of all styles defined in the document. Used to get the final styles applicable to elements in the document markup.
     '''
 
-    def __init__(self, tables):
+    def __init__(self, namespace, tables):
+        self.namespace = namespace
         self.id_map = OrderedDict()
         self.para_cache = {}
         self.para_char_cache = {}
@@ -144,8 +144,8 @@ class Styles(object):
 
     def __call__(self, root, fonts, theme):
         self.fonts, self.theme = fonts, theme
-        for s in XPath('//w:style')(root):
-            s = Style(s)
+        for s in self.namespace.XPath('//w:style')(root):
+            s = Style(self.namespace, s)
             if s.style_id:
                 self.id_map[s.style_id] = s
             if s.is_default:
@@ -155,17 +155,17 @@ class Styles(object):
 
         self.default_paragraph_style = self.default_character_style = None
 
-        for dd in XPath('./w:docDefaults')(root):
-            for pd in XPath('./w:pPrDefault')(dd):
-                for pPr in XPath('./w:pPr')(pd):
-                    ps = ParagraphStyle(pPr)
+        for dd in self.namespace.XPath('./w:docDefaults')(root):
+            for pd in self.namespace.XPath('./w:pPrDefault')(dd):
+                for pPr in self.namespace.XPath('./w:pPr')(pd):
+                    ps = ParagraphStyle(self.namespace, pPr)
                     if self.default_paragraph_style is None:
                         self.default_paragraph_style = ps
                     else:
                         self.default_paragraph_style.update(ps)
-            for pd in XPath('./w:rPrDefault')(dd):
-                for pPr in XPath('./w:rPr')(pd):
-                    ps = RunStyle(pPr)
+            for pd in self.namespace.XPath('./w:rPrDefault')(dd):
+                for pPr in self.namespace.XPath('./w:rPr')(pd):
+                    ps = RunStyle(self.namespace, pPr)
                     if self.default_character_style is None:
                         self.default_character_style = ps
                     else:
@@ -213,18 +213,18 @@ class Styles(object):
         ans = self.para_cache.get(p, None)
         if ans is None:
             linked_style = None
-            ans = self.para_cache[p] = ParagraphStyle()
+            ans = self.para_cache[p] = ParagraphStyle(self.namespace)
             ans.style_name = None
             direct_formatting = None
-            for pPr in XPath('./w:pPr')(p):
-                ps = ParagraphStyle(pPr)
+            for pPr in self.namespace.XPath('./w:pPr')(p):
+                ps = ParagraphStyle(self.namespace, pPr)
                 if direct_formatting is None:
                     direct_formatting = ps
                 else:
                     direct_formatting.update(ps)
 
             if direct_formatting is None:
-                direct_formatting = ParagraphStyle()
+                direct_formatting = ParagraphStyle(self.namespace)
             parent_styles = []
             if self.default_paragraph_style is not None:
                 parent_styles.append(self.default_paragraph_style)
@@ -275,19 +275,19 @@ class Styles(object):
     def resolve_run(self, r):
         ans = self.run_cache.get(r, None)
         if ans is None:
-            p = XPath('ancestor::w:p[1]')(r)
+            p = self.namespace.XPath('ancestor::w:p[1]')(r)
             p = p[0] if p else None
-            ans = self.run_cache[r] = RunStyle()
+            ans = self.run_cache[r] = RunStyle(self.namespace)
             direct_formatting = None
-            for rPr in XPath('./w:rPr')(r):
-                rs = RunStyle(rPr)
+            for rPr in self.namespace.XPath('./w:rPr')(r):
+                rs = RunStyle(self.namespace, rPr)
                 if direct_formatting is None:
                     direct_formatting = rs
                 else:
                     direct_formatting.update(rs)
 
             if direct_formatting is None:
-                direct_formatting = RunStyle()
+                direct_formatting = RunStyle(self.namespace)
 
             parent_styles = []
             default_char = self.default_styles.get('character', None)
@@ -484,5 +484,3 @@ class Styles(object):
             b = '\n'.join(b)
             ans.append('.%s {\n%s\n}\n' % (cls, b.rstrip(';')))
         return prefix + '\n' + '\n'.join(ans)
-
-

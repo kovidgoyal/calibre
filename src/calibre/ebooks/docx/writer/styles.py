@@ -12,7 +12,6 @@ from operator import attrgetter
 from lxml import etree
 
 from calibre.ebooks import parse_css_length
-from calibre.ebooks.docx.names import namespaces
 from calibre.ebooks.docx.writer.utils import convert_color, int_or_zero
 from calibre.utils.icu import numeric_sort_key
 from tinycss.css21 import CSS21Parser
@@ -38,12 +37,6 @@ def css_font_family_to_docx(raw):
     for ff in parse_css_font_family(raw):
         return generic.get(ff.lower(), ff)
 
-def w(x):
-    return '{%s}%s' % (namespaces['w'], x)
-
-def makeelement(parent, name, **attrs):
-    return parent.makeelement(w(name), **{w(k):v for k, v in attrs.iteritems()})
-
 def bmap(x):
     return 'on' if x else 'off'
 
@@ -52,11 +45,16 @@ class DOCXStyle(object):
     ALL_PROPS = ()
     TYPE = 'paragraph'
 
-    def __init__(self):
+    def __init__(self, namespace):
+        self.namespace = namespace
+        self.w = lambda x: '{%s}%s' % (namespace.namespaces['w'], x)
         self._hash = hash(tuple(
             getattr(self, x) for x in self.ALL_PROPS))
         self.id = self.name = None
         self.next_style = None
+
+    def makeelement(self, parent, name, **attrs):
+        return parent.makeelement(self.w(name), **{self.w(k):v for k, v in attrs.iteritems()})
 
     def __hash__(self):
         return self._hash
@@ -71,10 +69,11 @@ class DOCXStyle(object):
         return not self == other
 
     def __repr__(self):
-        return etree.tostring(self.serialize(etree.Element(self.__class__.__name__, nsmap={'w':namespaces['w']})), pretty_print=True)
+        return etree.tostring(self.serialize(etree.Element(self.__class__.__name__, nsmap={'w':self.namespace.namespaces['w']})), pretty_print=True)
     __str__ = __repr__
 
     def serialize(self, styles, normal_style):
+        w, makeelement = self.w, self.makeelement
         style = makeelement(styles, 'style', styleId=self.id, type=self.TYPE)
         style.append(makeelement(style, 'name', val=self.name))
         if self is normal_style:
@@ -106,7 +105,7 @@ class TextStyle(DOCXStyle):
                  'border_style', 'border_width', 'border_color')
     TYPE = 'character'
 
-    def __init__(self, css, is_parent_style=False):
+    def __init__(self, namespace, css, is_parent_style=False):
         self.font_family = css_font_family_to_docx(css['font-family'])
         try:
             self.font_size = max(0, int(float(css['font-size']) * 2))  # stylizer normalizes all font sizes into pts
@@ -163,9 +162,10 @@ class TextStyle(DOCXStyle):
                 elif self.border_style != style:
                     self.border_style = ignore
 
-        DOCXStyle.__init__(self)
+        DOCXStyle.__init__(self, namespace)
 
     def serialize_borders(self, bdr, normal_style):
+        w = self.w
         if (self.padding not in (None, ignore, 0) and self is normal_style) or self.padding != normal_style.padding:
             bdr.set(w('space'), str(0 if self.padding in (None, ignore) else self.padding))
         if (self.border_width not in (None, ignore, 0) and self is normal_style) or self.border_width != normal_style.border_width:
@@ -177,6 +177,7 @@ class TextStyle(DOCXStyle):
         return bdr
 
     def serialize(self, styles, normal_style):
+        makeelement = self.makeelement
         style_root = DOCXStyle.serialize(self, styles, normal_style)
         style = makeelement(style_root, 'rPr')
 
@@ -273,7 +274,7 @@ class BlockStyle(DOCXStyle):
         [x%edge for edge in border_edges for x in border_props]
     )
 
-    def __init__(self, css, html_block, is_table_cell=False):
+    def __init__(self, namespace, css, html_block, is_table_cell=False):
         read_css_block_borders(self, css)
         if is_table_cell:
             for edge in border_edges:
@@ -298,9 +299,10 @@ class BlockStyle(DOCXStyle):
             self.text_align = {'start':'left', 'left':'left', 'end':'right', 'right':'right', 'center':'center', 'justify':'both', 'centre':'center'}.get(
                 css['text-align'].lower(), 'left')
 
-        DOCXStyle.__init__(self)
+        DOCXStyle.__init__(self, namespace)
 
     def serialize_borders(self, bdr, normal_style):
+        w = self.w
         for edge in border_edges:
             e = bdr.makeelement(w(edge))
             padding = getattr(self, 'padding_' + edge)
@@ -319,6 +321,7 @@ class BlockStyle(DOCXStyle):
         return bdr
 
     def serialize(self, styles, normal_style):
+        w, makeelement = self.w, self.makeelement
         style_root = DOCXStyle.serialize(self, styles, normal_style)
         style = makeelement(style_root, 'pPr')
 
@@ -393,11 +396,12 @@ class BlockStyle(DOCXStyle):
 
 class StylesManager(object):
 
-    def __init__(self):
+    def __init__(self, namespace):
+        self.namespace = namespace
         self.block_styles, self.text_styles = {}, {}
 
     def create_text_style(self, css_style, is_parent_style=False):
-        ans = TextStyle(css_style, is_parent_style=is_parent_style)
+        ans = TextStyle(self.namespace, css_style, is_parent_style=is_parent_style)
         existing = self.text_styles.get(ans, None)
         if existing is None:
             self.text_styles[ans] = ans
@@ -406,7 +410,7 @@ class StylesManager(object):
         return ans
 
     def create_block_style(self, css_style, html_block, is_table_cell=False):
-        ans = BlockStyle(css_style, html_block, is_table_cell=is_table_cell)
+        ans = BlockStyle(self.namespace, css_style, html_block, is_table_cell=is_table_cell)
         existing = self.block_styles.get(ans, None)
         if existing is None:
             self.block_styles[ans] = ans

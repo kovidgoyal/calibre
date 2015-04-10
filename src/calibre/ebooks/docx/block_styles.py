@@ -7,13 +7,12 @@ __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
 from collections import OrderedDict
-from calibre.ebooks.docx.names import XPath, get
 
 class Inherit:
     pass
 inherit = Inherit()
 
-def binary_property(parent, name):
+def binary_property(parent, name, XPath, get):
     vals = XPath('./w:%s' % name)(parent)
     if not vals:
         return inherit
@@ -68,7 +67,7 @@ LINE_STYLES = {  # {{{
 
 border_props = ('padding_%s', 'border_%s_width', 'border_%s_style', 'border_%s_color')
 
-def read_single_border(parent, edge):
+def read_single_border(parent, edge, XPath, get):
     color = style = width = padding = None
     for elem in XPath('./w:%s' % edge)(parent):
         c = get(elem, 'w:color')
@@ -95,19 +94,19 @@ def read_single_border(parent, edge):
         width = 3  # WebKit needs 3pts to render double borders
     return {p:v for p, v in zip(border_props, (padding, width, style, color))}
 
-def read_border(parent, dest, border_edges=('left', 'top', 'right', 'bottom'), name='pBdr'):
+def read_border(parent, dest, XPath, get, border_edges=('left', 'top', 'right', 'bottom'), name='pBdr'):
     vals = {k % edge:inherit for edge in border_edges for k in border_props}
 
     for border in XPath('./w:' + name)(parent):
         for edge in border_edges:
-            for prop, val in read_single_border(border, edge).iteritems():
+            for prop, val in read_single_border(border, edge, XPath, get).iteritems():
                 if val is not None:
                     vals[prop % edge] = val
 
     for key, val in vals.iteritems():
         setattr(dest, key, val)
 
-def read_indent(parent, dest):
+def read_indent(parent, dest, XPath, get):
     padding_left = padding_right = text_indent = inherit
     for indent in XPath('./w:ind')(parent):
         l, lc = get(indent, 'w:left'), get(indent, 'w:leftChars')
@@ -133,7 +132,7 @@ def read_indent(parent, dest):
     setattr(dest, 'margin_right', padding_right)
     setattr(dest, 'text_indent', text_indent)
 
-def read_justification(parent, dest):
+def read_justification(parent, dest, XPath, get):
     ans = inherit
     for jc in XPath('./w:jc[@w:val]')(parent):
         val = get(jc, 'w:val')
@@ -145,7 +144,7 @@ def read_justification(parent, dest):
             ans = val
     setattr(dest, 'text_align', ans)
 
-def read_spacing(parent, dest):
+def read_spacing(parent, dest, XPath, get):
     padding_top = padding_bottom = line_height = inherit
     for s in XPath('./w:spacing')(parent):
         a, al, aa = get(s, 'w:after'), get(s, 'w:afterLines'), get(s, 'w:afterAutospacing')
@@ -167,7 +166,7 @@ def read_spacing(parent, dest):
     setattr(dest, 'margin_bottom', padding_bottom)
     setattr(dest, 'line_height', line_height)
 
-def read_direction(parent, dest):
+def read_direction(parent, dest, XPath, get):
     ans = inherit
     for jc in XPath('./w:textFlow[@w:val]')(parent):
         val = get(jc, 'w:val')
@@ -177,7 +176,7 @@ def read_direction(parent, dest):
             ans = 'rtl'
     setattr(dest, 'direction', ans)
 
-def read_shd(parent, dest):
+def read_shd(parent, dest, XPath, get):
     ans = inherit
     for shd in XPath('./w:shd[@w:fill]')(parent):
         val = get(shd, 'w:fill')
@@ -185,7 +184,7 @@ def read_shd(parent, dest):
             ans = simple_color(val, auto='transparent')
     setattr(dest, 'background_color', ans)
 
-def read_numbering(parent, dest):
+def read_numbering(parent, dest, XPath, get):
     lvl = num_id = None
     for np in XPath('./w:numPr')(parent):
         for ilvl in XPath('./w:ilvl[@w:val]')(np):
@@ -203,7 +202,7 @@ class Frame(object):
     all_attributes = ('drop_cap', 'h', 'w', 'h_anchor', 'h_rule', 'v_anchor', 'wrap',
                       'h_space', 'v_space', 'lines', 'x_align', 'y_align', 'x', 'y')
 
-    def __init__(self, fp):
+    def __init__(self, fp, XPath, get):
         self.drop_cap = get(fp, 'w:dropCap', 'none')
         try:
             self.h = int(get(fp, 'w:h'))/20
@@ -275,10 +274,10 @@ class Frame(object):
     def __ne__(self, other):
         return not self.__eq__(other)
 
-def read_frame(parent, dest):
+def read_frame(parent, dest, XPath, get):
     ans = inherit
     for fp in XPath('./w:framePr')(parent):
-        ans = Frame(fp)
+        ans = Frame(fp, XPath, get)
     setattr(dest, 'frame', ans)
 
 # }}}
@@ -303,7 +302,8 @@ class ParagraphStyle(object):
         'numbering', 'font_family', 'font_size', 'color', 'frame',
     )
 
-    def __init__(self, pPr=None):
+    def __init__(self, namespace, pPr=None):
+        self.namespace = namespace
         self.linked_style = None
         if pPr is None:
             for p in self.all_properties:
@@ -315,14 +315,14 @@ class ParagraphStyle(object):
                 'pageBreakBefore', 'snapToGrid', 'suppressLineNumbers',
                 'suppressOverlap', 'topLinePunct', 'widowControl', 'wordWrap',
             ):
-                setattr(self, p, binary_property(pPr, p))
+                setattr(self, p, binary_property(pPr, p, namespace.XPath, namespace.get))
 
             for x in ('border', 'indent', 'justification', 'spacing', 'direction', 'shd', 'numbering', 'frame'):
                 f = globals()['read_%s' % x]
-                f(pPr, self)
+                f(pPr, self, namespace.XPath, namespace.get)
 
-            for s in XPath('./w:pStyle[@w:val]')(pPr):
-                self.linked_style = get(s, 'w:val')
+            for s in namespace.XPath('./w:pStyle[@w:val]')(pPr):
+                self.linked_style = namespace.get(s, 'w:val')
 
             self.font_family = self.font_size = self.color = inherit
 

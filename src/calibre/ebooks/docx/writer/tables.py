@@ -8,7 +8,6 @@ __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
 from collections import namedtuple
 
-from calibre.ebooks.docx.names import makeelement
 from calibre.ebooks.docx.writer.utils import convert_color
 from calibre.ebooks.docx.writer.styles import read_css_block_borders as rcbb, border_edges
 
@@ -29,7 +28,7 @@ class SpannedCell(object):
     def resolve_borders(self):
         pass
 
-    def serialize(self, tr):
+    def serialize(self, tr, makeelement):
         tc = makeelement(tr, 'w:tc')
         tcPr = makeelement(tc, 'w:tcPr')
         makeelement(tcPr, 'w:%sMerge' % ('h' if self.horizontal else 'v'), w_val='continue')
@@ -70,14 +69,6 @@ def convert_width(tag_style):
                 pass
     return ('auto', 0)
 
-def serialize_border_edge(self, bdr, edge):
-    width = getattr(self, 'border_%s_width' % edge)
-    bstyle = getattr(self, 'border_%s_style' % edge)
-    if width > 0 and bstyle != 'none':
-        makeelement(bdr, 'w:' + edge, w_val=bstyle, w_sz=str(width), w_color=getattr(self, 'border_%s_color' % edge))
-        return True
-    return False
-
 class Cell(object):
 
     BLEVEL = 2
@@ -107,7 +98,7 @@ class Cell(object):
         self.items.append(table)
         return table
 
-    def serialize(self, parent):
+    def serialize(self, parent, makeelement):
         tc = makeelement(parent, 'w:tc')
         tcPr = makeelement(tc, 'w:tcPr')
         makeelement(tcPr, 'w:tcW', w_type=self.width[0], w_w=str(self.width[1]))
@@ -240,16 +231,17 @@ class Row(object):
     def add_table(self, table):
         return self.current_cell.add_table(table)
 
-    def serialize(self, parent):
+    def serialize(self, parent, makeelement):
         tr = makeelement(parent, 'w:tr')
         for cell in self.cells:
-            cell.serialize(tr)
+            cell.serialize(tr, makeelement)
 
 class Table(object):
 
     BLEVEL = 0
 
-    def __init__(self, html_tag, tag_style=None):
+    def __init__(self, namespace, html_tag, tag_style=None):
+        self.namespace = namespace
         self.html_tag = html_tag
         self.rows = []
         self.current_row = None
@@ -329,6 +321,7 @@ class Table(object):
         return self.current_row.add_table(table)
 
     def serialize(self, parent):
+        makeelement = self.namespace.makeelement
         rows = [r for r in self.rows if r.cells]
         if not rows:
             return
@@ -338,4 +331,4 @@ class Table(object):
         if self.jc is not None:
             makeelement(tblPr, 'w:jc', w_val=self.jc)
         for row in rows:
-            row.serialize(tbl)
+            row.serialize(tbl, makeelement)
