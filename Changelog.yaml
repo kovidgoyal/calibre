@@ -20,6 +20,54 @@
 #   new recipes:
 #     - title: 
 
+- version: 2.24.0
+  date: 2015-04-10
+
+  new features:
+    - title: "E-book viewer: Add an option to not save the bookmarks inside EPUB files, under the Miscellaneous section of the viewer preferences"
+
+    - title: "Manage User Categories: Allow restricting the visible items to only those present in the current Virtual Library (if any)"
+
+    - title: "Book details panel: Allow copying full path to ebook files by right clicking on the format link."
+      tickets: [1437756]
+
+  bug fixes:
+    - title: "Edit Book: Fix GIF format images being corrupted when using the builtin image editor to make changes to them."
+      tickets: [1440398]
+
+    - title: "Edit Book: When dragging and dropping files to re-order them in the file browser, fix the final order being dependent on the order the files were selected in."
+      tickets: [1440598]
+
+    - title: "Conversion: Fix error when converting a document that contains an invalid function based CSS selector without parentheses."
+      tickets: [1440278]
+
+    - title: "Edit Book: Fix regression that caused pressing Alt+X to type unicode characters to not work"
+
+    - title: "Device view: Preserve position in list of books when deleting books from the device view"
+
+    - title: "Make the context menu for the book details popup window work the same way as for the book details panel"
+
+    - title: "Get Books: Update amazon store plugin for website changes"
+
+    - title: "PDF Metadata: When choosing between reading metadata from the Info dict and the XMP block, consider both the MetadataData and the ModifyDate in the XMP block, since there exist PDF metadata writing tools that update one and not the other."
+      tickets: [1440304]
+
+    - title: "Fix a regression that caused ebook viewer to remember the state of the Table of Contents panel when quitting on OS X."
+      tickets: [1440444]
+
+    - title: "Prevent Enter key on Manage authors/tags/etc. dialogs from closing the dialog."
+      tickets: [1440146]
+
+  improved recipes:
+    - Le Temps
+    - United Daily
+    - Liberty Times
+    - Apple Daily
+    - China Times 
+    - House News
+    - Providence Journal
+    - Harvard Business Review
+
 - version: 2.23.0
   date: 2015-04-03
 
