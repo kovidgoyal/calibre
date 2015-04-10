@@ -28,7 +28,15 @@ def simple_float(val, mult=1.0):
     try:
         return float(val) * mult
     except (ValueError, TypeError, AttributeError, KeyError):
-        return None
+        pass
+
+def twips(val, mult=0.05):
+    ''' Parse val as either a pure number representing twentieths of a point or a number followed by the suffix pt, representing pts.'''
+    try:
+        return float(val) * mult
+    except (ValueError, TypeError, AttributeError, KeyError):
+        if val and val.endswith('pt') and mult == 0.05:
+            return twips(val[:-2], mult=1.0)
 
 
 LINE_STYLES = {  # {{{
@@ -160,7 +168,8 @@ def read_spacing(parent, dest, XPath, get):
         l, lr = get(s, 'w:line'), get(s, 'w:lineRule', 'auto')
         if l is not None:
             lh = simple_float(l, 0.05) if lr in {'exact', 'atLeast'} else simple_float(l, 1/240.0)
-            line_height = '%.3g%s' % (lh, 'pt' if lr in {'exact', 'atLeast'} else '')
+            if lh is not None:
+                line_height = '%.3g%s' % (lh, 'pt' if lr in {'exact', 'atLeast'} else '')
 
     setattr(dest, 'margin_top', padding_top)
     setattr(dest, 'margin_bottom', padding_bottom)

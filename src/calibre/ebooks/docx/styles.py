@@ -9,7 +9,7 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 import textwrap
 from collections import OrderedDict, Counter
 
-from calibre.ebooks.docx.block_styles import ParagraphStyle, inherit
+from calibre.ebooks.docx.block_styles import ParagraphStyle, inherit, twips
 from calibre.ebooks.docx.char_styles import RunStyle
 from calibre.ebooks.docx.tables import TableStyle
 
@@ -21,29 +21,21 @@ class PageProperties(object):
     '''
 
     def __init__(self, namespace, elems=()):
-        self.width = self.height = 595.28, 841.89  # pts, A4
+        self.width, self.height = 595.28, 841.89  # pts, A4
         self.margin_left = self.margin_right = 72  # pts
+
+        def setval(attr, val):
+            val = twips(val)
+            if val is not None:
+                setattr(self, attr, val)
+
         for sectPr in elems:
             for pgSz in namespace.XPath('./w:pgSz')(sectPr):
                 w, h = namespace.get(pgSz, 'w:w'), namespace.get(pgSz, 'w:h')
-                try:
-                    self.width = int(w)/20
-                except (ValueError, TypeError):
-                    pass
-                try:
-                    self.height = int(h)/20
-                except (ValueError, TypeError):
-                    pass
+                setval('width', w), setval('height', h)
             for pgMar in namespace.XPath('./w:pgMar')(sectPr):
                 l, r = namespace.get(pgMar, 'w:left'), namespace.get(pgMar, 'w:right')
-                try:
-                    self.margin_left = int(l)/20
-                except (ValueError, TypeError):
-                    pass
-                try:
-                    self.margin_right = int(r)/20
-                except (ValueError, TypeError):
-                    pass
+                setval('margin_left', l), setval('margin_right', r)
 
 
 class Style(object):

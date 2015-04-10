@@ -30,6 +30,11 @@ TRANSITIONAL_NAMES = {
     'WEB_SETTINGS' : 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/webSettings',
 }
 
+STRICT_NAMES = {
+    k:v.replace('http://schemas.openxmlformats.org/officeDocument/2006',  'http://purl.oclc.org/ooxml/officeDocument')
+    for k, v in TRANSITIONAL_NAMES.iteritems()
+}
+
 TRANSITIONAL_NAMESPACES = {
     'mo': 'http://schemas.microsoft.com/office/mac/office/2008/main',
     'o': 'urn:schemas-microsoft-com:office:office',
@@ -60,6 +65,14 @@ TRANSITIONAL_NAMESPACES = {
     'dcmitype': 'http://purl.org/dc/dcmitype/',
     'dcterms': 'http://purl.org/dc/terms/'
 }
+
+STRICT_NAMESPACES = {
+    k:v.replace(
+        'http://schemas.openxmlformats.org/officeDocument/2006', 'http://purl.oclc.org/ooxml/officeDocument').replace(
+        'http://schemas.openxmlformats.org/wordprocessingml/2006', 'http://purl.oclc.org/ooxml/wordprocessingml').replace(
+        'http://schemas.openxmlformats.org/drawingml/2006', 'http://purl.oclc.org/ooxml/drawingml')
+    for k, v in TRANSITIONAL_NAMESPACES.iteritems()
+}
 # }}}
 
 def barename(x):
@@ -83,6 +96,9 @@ class DOCXNamespace(object):
         if transitional:
             self.namespaces = TRANSITIONAL_NAMESPACES.copy()
             self.names = TRANSITIONAL_NAMES.copy()
+        else:
+            self.namespaces = STRICT_NAMESPACES.copy()
+            self.names = STRICT_NAMES.copy()
 
     def XPath(self, expr):
         ans = self.xpath_cache.get(expr, None)
