@@ -170,7 +170,7 @@ class ViewAction(InterfaceAction):
                     _('Selected books have no formats'), show=True)
             return
         d = ChooseFormatDialog(self.gui, _('Choose the format to view'),
-                list(sorted(all_fmts)))
+                list(sorted(all_fmts)), show_open_with=True)
         self.gui.book_converted.connect(d.book_converted)
         if d.exec_() == d.Accepted:
             formats = [[x.upper() for x in db.new_api.formats(book_id)] for book_id in book_ids]
@@ -180,13 +180,20 @@ class ViewAction(InterfaceAction):
                     formats[i]]
             if self._view_check(len(rows)):
                 for row in rows:
-                    self.view_format(row, fmt)
+                    if d.open_with_format is None:
+                        self.view_format(row, fmt)
+                    else:
+                        self.open_fmt_with(row, *d.open_with_format)
                 if len(rows) < orig_num:
                     info_dialog(self.gui, _('Format unavailable'),
                             _('Not all the selected books were available in'
                                 ' the %s format. You should convert'
                                 ' them first.')%fmt, show=True)
         self.gui.book_converted.disconnect(d.book_converted)
+
+    def open_fmt_with(self, row, fmt, entry):
+        book_id = self.gui.library_view.model().id(row)
+        self.gui.book_details.open_fmt_with.emit(book_id, fmt, entry)
 
     def _view_check(self, num, max_=3):
         if num <= max_:
