@@ -533,17 +533,16 @@ class TextEdit(PlainTextEdit):
             self.show_tooltip(ev)
             return True
         if ev.type() == ev.ShortcutOverride:
-            if ev in (
-                # Let the global cut/copy/paste/undo/redo shortcuts work,this avoids the nbsp
-                # problem as well, since they use the overridden copy() method
-                # instead of the one from Qt, and allows proper customization
-                # of the shortcuts
-                QKeySequence.Copy, QKeySequence.Cut, QKeySequence.Paste, QKeySequence.Undo, QKeySequence.Redo
-            ) or (
-                # This is used to convert typed hex codes into unicode
-                # characters
-                ev.key() == Qt.Key_X and ev.modifiers() == Qt.AltModifier
-            ):
+            # Let the global cut/copy/paste/undo/redo shortcuts work, this avoids the nbsp
+            # problem as well, since they use the overridden copy() method
+            # instead of the one from Qt, and allows proper customization
+            # of the shortcuts
+            if ev in (QKeySequence.Copy, QKeySequence.Cut, QKeySequence.Paste, QKeySequence.Undo, QKeySequence.Redo):
+                ev.ignore()
+                return True
+            # This is used to convert typed hex codes into unicode
+            # characters
+            if ev.key() == Qt.Key_X and ev.modifiers() == Qt.AltModifier:
                 ev.accept()
                 return True
         return QPlainTextEdit.event(self, ev)
