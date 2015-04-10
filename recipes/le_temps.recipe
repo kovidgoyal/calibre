@@ -37,7 +37,7 @@ class LeTemps(BasicNewsRecipe):
         br['password'] = self.password
         raw = br.submit().read()
         if '>Login' in raw:
-            raise ValueError('Failed to login to letemp.ch. Check '
+            raise ValueError('Failed to login to letemps.ch. Check '
                 'your username and password')
         return br
 
