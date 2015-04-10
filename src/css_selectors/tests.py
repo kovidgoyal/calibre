@@ -759,6 +759,9 @@ by William Shakespeare
 
         self.assertRaises(ExpressionError, lambda : tuple(select('body:nth-child')))
 
+        select = Select(document, ignore_inappropriate_pseudo_classes=True)
+        self.assertGreater(len(tuple(select('p:hover'))), 0)
+
         del app
 
     def test_select_shakespeare(self):

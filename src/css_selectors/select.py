@@ -548,6 +548,7 @@ def select_pseudo(cache, pseudo):
         if pseudo.ident in cache.ignore_inappropriate_pseudo_classes:
             def func(cache, item):
                 return True
+            func.is_pseudo = True
         else:
             raise ExpressionError(
                 "The pseudo-class :%s is not supported" % pseudo.ident)
@@ -615,5 +616,5 @@ default_dispatch_map = {name.partition('_')[2]:obj for name, obj in globals().it
 if __name__ == '__main__':
     from pprint import pprint
     root = etree.fromstring('<body xmlns="xxx" xml:lang="en"><p id="p" class="one two" lang="fr"><a id="a"/><b/><c/><d/></p></body>')
-    select = Select(root, trace=True)
+    select = Select(root, ignore_inappropriate_pseudo_classes=True, trace=True)
     pprint(list(select('p:disabled')))
