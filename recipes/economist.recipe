@@ -41,6 +41,7 @@ class Economist(BasicNewsRecipe):
         }
         '''
     oldest_article = 7.0
+    resolve_internal_links = True
     remove_tags = [
             dict(name=['script', 'noscript', 'title', 'iframe', 'cf_floatingcontent']),
             dict(attrs={'class':['dblClkTrk', 'ec-article-info',
@@ -150,3 +151,8 @@ class Economist(BasicNewsRecipe):
             div.insert(2, img)
             table.replaceWith(div)
         return soup
+
+    def canonicalize_internal_url(self, url, is_link=True):
+        if url.endswith('/print'):
+            url = url.rpartition('/')[0]
+        return BasicNewsRecipe.canonicalize_internal_url(self, url, is_link=is_link)
