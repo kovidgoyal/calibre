@@ -6,20 +6,50 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import sys
+import sys, textwrap
 
 from PyQt5.Qt import (
     QSplitter, QVBoxLayout, QTableView, QWidget, QLabel, QAbstractTableModel,
-    Qt, QApplication, QTimer, QPushButton, pyqtSignal, QFormLayout, QLineEdit,
-    QIcon, QSize)
+    Qt, QTimer, QPushButton, pyqtSignal, QFormLayout, QLineEdit, QIcon, QSize,
+    QHBoxLayout, QTextEdit)
 
 from calibre.ebooks.oeb.polish.container import get_container
 from calibre.ebooks.oeb.polish.fonts import font_family_data, change_font
-from calibre.gui2 import error_dialog
+from calibre.gui2 import error_dialog, info_dialog
 from calibre.gui2.tweak_book import current_container, set_current_container
 from calibre.gui2.tweak_book.widgets import Dialog, BusyCursor
 from calibre.utils.icu import primary_sort_key as sort_key
 from calibre.utils.fonts.scanner import font_scanner, NoFonts
+
+class EmbeddingData(Dialog):
+
+    def __init__(self, family, faces, parent=None):
+        Dialog.__init__(self, _('Font faces for %s') % family, 'editor-embedding-data', parent)
+        self.family, self.faces = family, faces
+        self.populate_text()
+
+    def sizeHint(self):
+        return QSize(600, 500)
+
+    def setup_ui(self):
+        self.l = l = QVBoxLayout(self)
+        self.text = t = QTextEdit(self)
+        t.setReadOnly(True)
+        l.addWidget(t), l.addWidget(self.bb)
+        self.bb.clear(), self.bb.setStandardButtons(self.bb.Close)
+
+    def populate_text(self):
+        text = ['<h2>' + self.windowTitle() + '</h2><ul>']
+        for face in self.faces:
+            text.append('<li style="margin-bottom:2em">' + _('Path to font file:') + '\xa0\xa0' + '<b>' + face['path'] + '</b>')
+            name = face.get('full_name') or face.get('family_name') or face.get('subfamily_name')
+            if name:
+                text.append('<br>' + _('Name:') + '\xa0<b>' + type('')(name) + '</b>')
+            if 'font-weight' in face:
+                text.append('<br>' + 'font-weight:\xa0' + type('')(face['font-weight']))
+            if 'font-style' in face:
+                text.append('<br>' + 'font-style:\xa0' + type('')(face['font-style']))
+        self.text.setHtml('\n'.join(text))
 
 class AllFonts(QAbstractTableModel):
 
@@ -65,7 +95,20 @@ class AllFonts(QAbstractTableModel):
         if role == Qt.TextAlignmentRole:
             col = index.column()
             if col == 0:
-                return Qt.AlignHCenter
+                return Qt.AlignHCenter | Qt.AlignVCenter
+        if role in (Qt.UserRole, Qt.UserRole + 1):
+            row = index.row()
+            try:
+                name = self.items[row]
+            except (IndexError, KeyError):
+                return
+            if role == Qt.UserRole:
+                try:
+                    return font_scanner.fonts_for_family(name)
+                except NoFonts:
+                    return []
+            else:
+                return name
 
     def sort(self, col, order=Qt.AscendingOrder):
         sorted_on = (('name' if col == 1 else 'embedded'), order == Qt.AscendingOrder)
@@ -152,9 +195,16 @@ class ManageFonts(Dialog):
         self.bb.clear()
         self.bb.addButton(self.bb.Close)
         self.splitter = s = QSplitter(self)
-        l.addWidget(s), l.addWidget(self.bb)
+        self.h = h = QHBoxLayout()
+        h.setContentsMargins(0, 0, 0, 0)
+        self.install_fonts_button = b = QPushButton(_('&Install fonts'), self)
+        h.addWidget(b), b.setIcon(QIcon(I('plus.png')))
+        b.setToolTip(textwrap.fill(_('Install fonts from .ttf/.otf files to make them available for embedding')))
+        b.clicked.connect(self.install_fonts)
+        l.addWidget(s), l.addLayout(h), h.addStretch(10), h.addWidget(self.bb)
 
         self.fonts_view = fv = QTableView(self)
+        fv.doubleClicked.connect(self.show_embedding_data)
         self.model = m = AllFonts(fv)
         fv.horizontalHeader().setStretchLastSection(True)
         fv.setModel(m)
@@ -190,13 +240,35 @@ class ManageFonts(Dialog):
         b.setIcon(QIcon(I('view-refresh.png')))
         b.clicked.connect(self.refresh)
 
-        self.la = la = QLabel('<p>' + _(
-        ''' All the fonts declared in this book are shown to the left, along with whether they are embedded or not.
-            You can remove or replace any selected font and also embed any declared fonts that are not already embedded.'''))
+        self.la = la = QLabel(
+            '<p>' + _(
+            ''' All the fonts declared in this book are shown to the left, along with whether they are embedded or not.
+            You can remove or replace any selected font and also embed any declared fonts that are not already embedded.''') + '<p>' + _(
+            ''' Double click any font family to see if the font is available for embedding on your computer. ''')
+        )
         la.setWordWrap(True)
         l.addWidget(la)
 
         l.setAlignment(Qt.AlignTop | Qt.AlignHCenter)
+
+    def show_embedding_data(self, index):
+        faces = index.data(Qt.UserRole)
+        family = index.data(Qt.UserRole + 1)
+        if not faces:
+            return error_dialog(self, _('Not found'), _(
+                'The font <b>%s</b> was not found on your computer. If you have the font files,'
+                ' you can install it using the "Install fonts" button in the lower left corner.'
+            ) % family, show=True)
+        EmbeddingData(family, faces, self).exec_()
+
+    def install_fonts(self):
+        from calibre.gui2.font_family_chooser import add_fonts
+        families = add_fonts(self)
+        if not families:
+            return
+        font_scanner.do_scan()
+        self.refresh()
+        info_dialog(self, _('Added fonts'), _('Added font families: %s')%(', '.join(families)), show=True)
 
     def sizeHint(self):
         return Dialog.sizeHint(self) + QSize(100, 50)
@@ -250,7 +322,8 @@ class ManageFonts(Dialog):
         self.model.build()
 
 if __name__ == '__main__':
-    app = QApplication([])
+    from calibre.gui2 import Application
+    app = Application([])
     c = get_container(sys.argv[-1], tweak_mode=True)
     set_current_container(c)
     d = ManageFonts()

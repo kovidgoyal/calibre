@@ -18,6 +18,34 @@ from PyQt5.Qt import (QFontInfo, QFontMetrics, Qt, QFont, QFontDatabase, QPen,
 from calibre.constants import config_dir
 from calibre.gui2 import choose_files, error_dialog, info_dialog
 
+
+def add_fonts(parent):
+    from calibre.utils.fonts.metadata import FontMetadata
+    files = choose_files(parent, 'add fonts to calibre',
+            _('Select font files'), filters=[(_('TrueType/OpenType Fonts'),
+                ['ttf', 'otf'])], all_files=False)
+    if not files:
+        return
+    families = set()
+    for f in files:
+        try:
+            with open(f, 'rb') as stream:
+                fm = FontMetadata(stream)
+        except:
+            import traceback
+            error_dialog(parent, _('Corrupt font'),
+                    _('Failed to read metadata from the font file: %s')%
+                    f, det_msg=traceback.format_exc(), show=True)
+            return
+        families.add(fm.font_family)
+    families = sorted(families)
+
+    dest = os.path.join(config_dir, 'fonts')
+    for f in files:
+        shutil.copyfile(f, os.path.join(dest, os.path.basename(f)))
+
+    return families
+
 def writing_system_for_font(font):
     has_latin = True
     systems = QFontDatabase().writingSystems(font.family())
@@ -136,8 +164,8 @@ class Typefaces(QLabel):
         '''%(_('Available faces for %s')%family)
         entries = []
         for font in faces:
-            sf = (font['wws_subfamily_name'] or font['preferred_subfamily_name']
-                or font['subfamily_name'])
+            sf = (font['wws_subfamily_name'] or font['preferred_subfamily_name'] or
+                  font['subfamily_name'])
             entries.append('''
             <dt><b>{sf}</b></dt>
             <dd>font-stretch: <i>{width}</i> font-weight: <i>{weight}</i> font-style:
@@ -261,29 +289,9 @@ class FontFamilyDialog(QDialog):
         self.m.setStringList(self.families)
 
     def add_fonts(self):
-        from calibre.utils.fonts.metadata import FontMetadata
-        files = choose_files(self, 'add fonts to calibre',
-                _('Select font files'), filters=[(_('TrueType/OpenType Fonts'),
-                    ['ttf', 'otf'])], all_files=False)
-        if not files:
+        families = add_fonts(self)
+        if not families:
             return
-        families = set()
-        for f in files:
-            try:
-                with open(f, 'rb') as stream:
-                    fm = FontMetadata(stream)
-            except:
-                import traceback
-                error_dialog(self, _('Corrupt font'),
-                        _('Failed to read metadata from the font file: %s')%
-                        f, det_msg=traceback.format_exc(), show=True)
-                return
-            families.add(fm.font_family)
-        families = sorted(families)
-
-        dest = os.path.join(config_dir, 'fonts')
-        for f in files:
-            shutil.copyfile(f, os.path.join(dest, os.path.basename(f)))
         self.font_scanner.do_scan()
         self.m.beginResetModel()
         self.build_font_list()
