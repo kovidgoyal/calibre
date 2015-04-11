@@ -204,7 +204,7 @@ class NavBarTemplate(Template):
             if not url.startswith('file://'):
                 navbar.append(HR())
                 text = 'This article was downloaded by '
-                p = PT(text, STRONG(__appname__), A(url, href=url),
+                p = PT(text, STRONG(__appname__), A(url, href=url, rel='calibre-downloaded-from'),
                         style='text-align:left; max-width: 100%; overflow: hidden;')
                 p[0].tail = ' from '
                 navbar.append(p)
@@ -390,7 +390,7 @@ class TouchscreenNavBarTemplate(Template):
         if bottom and not url.startswith('file://'):
             navbar.append(HR())
             text = 'This article was downloaded by '
-            p = PT(text, STRONG(__appname__), A(url, href=url),
+            p = PT(text, STRONG(__appname__), A(url, href=url, rel='calibre-downloaded-from'),
                     style='text-align:left; max-width: 100%; overflow: hidden;')
             p[0].tail = ' from '
             navbar.append(p)
