@@ -41,7 +41,7 @@ class EmbeddingData(Dialog):
     def populate_text(self):
         text = ['<h2>' + self.windowTitle() + '</h2><ul>']
         for face in self.faces:
-            text.append('<li style="margin-bottom:2em">' + _('Path to font file:') + '\xa0\xa0' + '<b>' + face['path'] + '</b>')
+            text.append('<li style="margin-bottom:2em">' + '<b>' + face['path'] + '</b>')
             name = face.get('full_name') or face.get('family_name') or face.get('subfamily_name')
             if name:
                 text.append('<br>' + _('Name:') + '\xa0<b>' + type('')(name) + '</b>')
