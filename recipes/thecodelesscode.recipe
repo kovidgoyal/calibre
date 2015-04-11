@@ -31,7 +31,7 @@ class CodelessCode(BasicNewsRecipe):
 	                         .chapter_title { font-size: 1.75em; margin-top: 0; } \
 	                         .chapter_title::first-letter { font-size: 1.35em; font-weight: 500; letter-spacing: -.05em; } \
 	                         h2 { margin-top: 0; } \
-													 .image_wrapper { text-align: center; }'
+ 	                         .image_wrapper { text-align: center; }'
 	index                 = 'http://www.thecodelesscode.com/contents'
 	language              = 'en'
 	max_articles_per_feed = 1000  # I can only wish
