@@ -38,24 +38,10 @@ class CodelessCode(BasicNewsRecipe):
 	path_remappings       = {}    # IE, /case/182 -> articles_72/index.html
 	publication_type      = 'blog'
 	publisher             = 'Qi'
+	resolve_internal_links = True
 	scale_news_images     = (600, 400)
 	simultaneous_downloads = 1
 	url                   = 'http://www.thecodelesscode.com'
-
-	def create_opf(self, feeds, dir=None):
-		'''
-		Generate a mapping of the original URL, ie, http://thecodelesscode.com/case/100 to the
-		internal Calibre file system, eg, ../article_7/index_u39.html
-		'''
-		for feed in feeds:
-			for article in feed:
-				orig_path = article.orig_url.split(self.url, 2)[-1]          # http://thecodelesscode.com/case/100 -> /case/100
-				article_id = article.id.split('#')[-1]                       # internal id#10 -> 10
-				article_path = article.url.split('index')[0] + 'index.html'  # article_X/index.html -> article_X/
-
-				self.path_remappings[orig_path] = article_path
-
-		BasicNewsRecipe.create_opf(self, feeds, dir=dir)
 
 	def parse_index(self):
 		koans = []
@@ -145,6 +131,10 @@ class CodelessCode(BasicNewsRecipe):
 				
 		return(koan)
 
+	def canonicalize_internal_url(self, url, is_link=True):
+		url = url.split(self.url)[-1]
+		return BasicNewsRecipe.canonicalize_internal_url(self, url, is_link=is_link)
+		
 	def postprocess_book(self, oeb, opts, log):
 		# Go through each internal representation of each HTML file, and fix all the broken hrefs, if possible
 		for item in oeb.manifest.items:
