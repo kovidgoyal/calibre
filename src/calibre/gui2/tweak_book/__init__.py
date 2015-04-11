@@ -51,7 +51,10 @@ d['custom_themes'] = {}
 d['remove_unused_classes'] = False
 d['global_book_toolbar'] = [
 'new-file', 'open-book',  'save-book', None, 'global-undo', 'global-redo', 'create-checkpoint', None, 'donate', 'user-manual']
-d['global_tools_toolbar'] = ['check-book', 'spell-check-book', 'edit-toc', 'insert-character', 'manage-fonts', 'smarten-punctuation', 'remove-unused-css']
+d['global_tools_toolbar'] = [
+    'check-book', 'spell-check-book', 'edit-toc', 'insert-character',
+    'manage-fonts', 'smarten-punctuation', 'remove-unused-css', 'show-reports'
+]
 d['global_plugins_toolbar'] = []
 d['editor_common_toolbar'] = [('editor-' + x) if x else None for x in ('undo', 'redo', None, 'cut', 'copy', 'paste')]
 d['editor_css_toolbar'] = ['pretty-current', 'insert-image']

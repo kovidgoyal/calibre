@@ -1165,6 +1165,9 @@ class Boss(QObject):
         self.gui.image_browser.raise_()
 
     def show_reports(self):
+        if current_container() is None:
+            return error_dialog(self.gui, _('No book open'), _(
+                'You must first open a book in order to see the report.'), show=True)
         self.gui.reports.refresh()
         self.gui.reports.show()
         self.gui.reports.raise_()
