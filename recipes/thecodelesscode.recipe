@@ -1,0 +1,169 @@
+#!/usr/bin/env python2
+
+from datetime import date
+from lxml import etree
+
+__copyright__ = '2015, April King <april@twoevils.org>'
+__license__ = 'GPL v3'
+__version__ = '1.2'
+
+'''
+http://www.thecodelesscode.com/
+'''
+
+from calibre.web.feeds.news import BasicNewsRecipe
+from calibre.ebooks.BeautifulSoup import BeautifulSoup as bs
+
+class CodelessCode(BasicNewsRecipe):
+	__author__            = 'April King'
+	title                 = u'The Codeless Code'
+	category              = 'fiction, programming, technology'
+	chapters              = {}    # ie, Mousetrap -> 182
+	compress_news_images  = True
+	compress_news_images_max_size = 100
+	cover_url             = 'http://www.thecodelesscode.com/pages/case-9/Lotus-050.jpg'
+	credits               = [ u'<h2 class="chapter_title">{0}</h2>'.format(title),
+	                          u'<p>By <em>Qi</em></p>',
+	                          u'<p>An illustrated collection of (sometimes violent) fables concerning the Art and Philosophy of software development, written in the spirit of Zen kōans</p>',
+	                          u'<p>eBook conversion courtesy of <em>{0}</em></p>'.format(__author__) ]
+	description           = u'The Art and Philosophy of software development, written in the spirit of Zen kōans'
+	extra_css             = '.article_date { display: none; float: right; } \
+	                         .chapter_title { font-size: 1.75em; margin-top: 0; } \
+	                         .chapter_title::first-letter { font-size: 1.35em; font-weight: 500; letter-spacing: -.05em; } \
+	                         h2 { margin-top: 0; } \
+ 	                         .image_wrapper { text-align: center; }'
+	index                 = 'http://www.thecodelesscode.com/contents'
+	language              = 'en'
+	max_articles_per_feed = 1000  # I can only wish
+	path_remappings       = {}    # IE, /case/182 -> articles_72/index.html
+	publication_type      = 'blog'
+	publisher             = 'Qi'
+	resolve_internal_links = True
+	scale_news_images     = (600, 400)
+	simultaneous_downloads = 1
+	url                   = 'http://www.thecodelesscode.com'
+
+	def parse_index(self):
+		koans = []
+
+		# Retrieve the contents page, containing the ToC
+		soup = self.index_to_soup(self.index)
+
+		for koan in soup.findAll('tr'):
+			# BS has some trouble with the weird layout
+			tag = koan.find('a')
+
+			if tag == None: continue
+			if 'random' in tag['href']: continue
+
+			# Minor coding error causes calibre to glitch; use the current date for the most recent title
+			koan_date = koan.find('td', attrs={'class' : 'toc-date' })
+			if koan_date == None:
+				koan_date = date.isoformat(date.today())
+			else:
+				koan_date = koan_date.string
+
+			title = tag.string
+			url = self.url + tag['href']
+
+			if u'The Applicant' in title: continue  # Only the main story
+
+			koans.append({
+				'content': '',
+				'date': koan_date,
+				'description': '',
+				'title': title,
+				'url' : url,
+			})
+
+			# ie, Mousetrap -> 182
+			self.chapters[title] = url.split('/')[-1]
+
+		# Oldest koans first
+		koans.reverse()
+
+		# Log and then get out of here
+		self.log("Found {0} koans".format(len(koans)))
+		return( [(self.title, koans)] )
+
+	def preprocess_html(self, soup):
+		title = soup.find('h1', attrs = {'class': 'title'}).find('a', attrs = {'class' : 'subtle'}).string
+		
+		# Add a title at the beginning of each chapter
+		if title in self.chapters:
+			title = '<div class="chapter_title">{0}</div>'.format(title)
+
+		# Load up the actual story
+		koan = soup.find('div', attrs = {'class' : 'story koan'})
+
+		# Kind of a hack-y way to get .children in BS3  <a><b><c></c></b></a>  -> <b><c></c></b>
+		contents = list(koan.contents)
+		koan = bs(title)
+
+		for i in reversed(contents):
+			koan.insert(1, i)
+
+		# Remove all anchors that don't contain /case/, leaving them as just their text
+		# Note that we'll come back and clean up /case/ links when the URLs are remapped
+		# during postprocess_book()
+		anchors = koan.findAll('a')
+		if anchors != []:
+			for anchor in anchors:
+				if '/case/' in anchor['href']:
+					pass
+				elif 'note' in anchor['href']:
+					anchor.replaceWith('')
+				else:
+					# Again, a hacky way to get the contents of the tag, thanks to BS3
+					contents = list(anchor.contents)
+					linktext = bs()
+					for i in reversed(contents):
+						linktext.insert(1, i)
+					anchor.replaceWith(linktext)
+
+		# Find all the images, and wrap them up in an image_wrapper div
+		for i in range(0, len(koan.contents), 1):
+			if not hasattr(koan.contents[i], 'name'): continue  # skip carriage returns
+			if koan.contents[i].name == u'img':
+				div = bs('<div class="image_wrapper"></div>')
+				div.div.insert(0, koan.contents[i])
+				koan.insert(i, div)
+				
+		return(koan)
+
+	def canonicalize_internal_url(self, url, is_link=True):
+		url = url.split(self.url)[-1]
+		return BasicNewsRecipe.canonicalize_internal_url(self, url, is_link=is_link)
+		
+	def postprocess_book(self, oeb, opts, log):
+		# Go through each internal representation of each HTML file, and fix all the broken hrefs, if possible
+		for item in oeb.manifest.items:
+			if item.media_type == 'text/html':
+
+				for node in item.data.xpath('//*[@href]'):
+					naughty_href = node.get('href')
+
+					if naughty_href in self.path_remappings:
+						node.set('href', '../' + self.path_remappings[ naughty_href ] )
+						href = node.get('href')
+						self.log("Remapped href {0} --> {1}".format(naughty_href, href))
+
+		# Remove the superfluous extra feed page at the beginning of the book, replacing it
+		# with the proper credits
+		for item in oeb.manifest.hrefs['index.html'].data.xpath('//*[local-name()="ul"]'):
+			item.getparent().remove(item)
+
+		for item in oeb.manifest.hrefs['index.html'].data.xpath('//*[local-name()="p"]'):
+			item.getparent().remove(item)
+
+		for item in oeb.manifest.hrefs['index.html'].data.xpath('//*[local-name()="div"]'):
+			for credit in self.credits[::-1]:
+				item.insert(0, etree.fromstring(credit))
+		
+		# Change the creator from "calibre" to the actual author
+		# Also, we don't need the date in the ebook's title
+		oeb.metadata.items['creator'][0].value = self.publisher
+		oeb.metadata.items['description'][0].value = oeb.metadata.items['description'][0].value.split('\n\nArticles in this issue')[0]
+		oeb.metadata.items['publication_type'][0].value = self.title
+		oeb.metadata.items['publisher'][0].value = self.publisher
+		oeb.metadata.items['title'][0].value = self.title
