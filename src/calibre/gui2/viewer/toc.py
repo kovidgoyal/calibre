@@ -8,9 +8,11 @@ __copyright__ = '2012, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import re
+from functools import partial
+
 from PyQt5.Qt import (
     QStandardItem, QStandardItemModel, Qt, QFont, QTreeView, QWidget,
-    QHBoxLayout, QToolButton, QIcon, QModelIndex, pyqtSignal)
+    QHBoxLayout, QToolButton, QIcon, QModelIndex, pyqtSignal, QMenu)
 
 from calibre.ebooks.metadata.toc import TOC as MTOC
 from calibre.gui2 import error_dialog
@@ -45,6 +47,8 @@ class TOCView(QTreeView):
                     border-radius: 6px;
                 }
         ''')
+        self.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.customContextMenuRequested.connect(self.context_menu)
 
     def mouseMoveEvent(self, ev):
         if self.indexAt(ev.pos()).isValid():
@@ -52,6 +56,26 @@ class TOCView(QTreeView):
         else:
             self.unsetCursor()
         return QTreeView.mouseMoveEvent(self, ev)
+
+    def expand_tree(self, index):
+        self.expand(index)
+        i = -1
+        while True:
+            i += 1
+            child = index.child(i, 0)
+            if not child.isValid():
+                break
+            self.expand_tree(child)
+
+    def context_menu(self, pos):
+        index = self.indexAt(pos)
+        m = QMenu(self)
+        if index.isValid():
+            m.addAction(_('Expand all items under %s') % index.data(), partial(self.expand_tree, index))
+        m.addSeparator()
+        m.addAction(_('Expand all items'), self.expandAll)
+        m.addAction(_('Collapse all items'), self.collapseAll)
+        m.exec_(self.mapToGlobal(pos))
 
 class TOCSearch(QWidget):
 
@@ -263,8 +287,8 @@ class TOC(QStandardItemModel):
             self.appendRow(TOCItem(spine, t, 0, depth_first))
 
         for x in depth_first:
-            possible_enders = [t for t in depth_first if t.depth <= x.depth
-                    and t.starts_at >= x.starts_at and t is not x and t not in
+            possible_enders = [t for t in depth_first if t.depth <= x.depth and
+                               t.starts_at >= x.starts_at and t is not x and t not in
                     x.ancestors]
             if possible_enders:
                 min_spine = min(t.starts_at for t in possible_enders)
