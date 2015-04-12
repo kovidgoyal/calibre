@@ -927,7 +927,8 @@ class Boss(QObject):
             f.write(ed.data)
         if name == container.opf_name:
             container.refresh_mime_map()
-            set_book_locale(container.mi.language)
+            lang = container.opf_xpath('//dc:language/text()') or [self.current_metadata.language]
+            set_book_locale(lang[0])
         if container is current_container():
             ed.is_synced_to_container = True
             if name == container.opf_name:
