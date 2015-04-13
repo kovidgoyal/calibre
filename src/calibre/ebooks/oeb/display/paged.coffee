@@ -32,6 +32,19 @@ has_start_text = (elem) ->
             return true
     return false
 
+create_page_div = (elem) ->
+    div = document.createElement('div')
+    div.innerText = ' \n    '
+    div.setAttribute('data-calibre-dummy-page', '1')
+    document.body.appendChild(div)
+    div.style.setProperty('-webkit-column-break-before', 'always')
+    div.style.setProperty('white-space', 'pre')
+    div.style.setProperty('background-color', 'transparent')
+    div.style.setProperty('background-image', 'none')
+    div.style.setProperty('border-width', '0')
+    div.style.setProperty('float', 'none')
+    div.style.setProperty('position', 'static')
+
 class PagedDisplay
     # This class is a namespace to expose functions via the
     # window.paged_display object. The most important functions are:
@@ -125,6 +138,11 @@ class PagedDisplay
             single_screen = (document.body.scrollHeight < window.innerHeight + 75)
             this.handle_rtl_body(body_style)
             first_layout = true
+            if not single_screen and this.cols_per_screen > 1
+                num = this.cols_per_screen - 1
+                while num > 0
+                    num -= 1
+                    create_page_div()
 
         ww = window.innerWidth
 
@@ -434,6 +452,11 @@ class PagedDisplay
             return -1
         cc = this.current_column_location()
         ans = cc + this.screen_width
+        if this.cols_per_screen > 1
+            width_left = document.body.scrollWidth - (window.pageXOffset + window.innerWidth)
+            pages_left = width_left / this.page_width
+            if pages_left < this.cols_per_screen
+                return -1  # Only blank, dummy pages left
         limit = document.body.scrollWidth - window.innerWidth
         if ans > limit
             ans = if window.pageXOffset < limit then limit else -1
