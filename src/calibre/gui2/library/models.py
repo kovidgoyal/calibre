@@ -10,7 +10,7 @@ from collections import defaultdict, namedtuple
 from itertools import groupby
 
 from PyQt5.Qt import (QAbstractTableModel, Qt, pyqtSignal, QIcon, QImage,
-        QModelIndex, QDateTime, QColor, QPixmap, QPainter)
+        QModelIndex, QDateTime, QColor, QPixmap, QPainter, QApplication)
 
 from calibre.gui2 import error_dialog
 from calibre.utils.search_query_parser import ParseException
@@ -203,9 +203,13 @@ class BooksModel(QAbstractTableModel):  # {{{
         self.alignment_map = {}
         self.buffer_size = buffer
         self.metadata_backup = None
-        self.bool_yes_icon = QIcon(I('ok.png'))
-        self.bool_no_icon = QIcon(I('list_remove.png'))
-        self.bool_blank_icon = QIcon(I('blank.png'))
+        icon_height = (parent.fontMetrics() if hasattr(parent, 'fontMetrics') else QApplication.instance().fontMetrics()).lineSpacing()
+        self.bool_yes_icon = QPixmap(I('ok.png')).scaledToHeight(icon_height, Qt.SmoothTransformation)
+        self.bool_no_icon = QPixmap(I('list_remove.png')).scaledToHeight(icon_height, Qt.SmoothTransformation)
+        self.bool_blank_icon = QPixmap(I('blank.png')).scaledToHeight(icon_height, Qt.SmoothTransformation)
+        # Qt auto-scales marked icon correctly, so we dont need to do it (and
+        # remember that the cover grid view needs a larger version of the icon,
+        # anyway)
         self.marked_icon = QIcon(I('marked.png'))
         self.row_decoration = None
         self.device_connected = False
