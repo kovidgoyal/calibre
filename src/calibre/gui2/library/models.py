@@ -231,8 +231,21 @@ class BooksModel(QAbstractTableModel):  # {{{
         self.icon_template_cache = {}
         self.cover_grid_template_cache = {}
 
+    def _build_icon_pixmap(self, initial_pixmap):
+        rh = max(2, self.row_height - 4)
+        if initial_pixmap.height() > rh:
+            initial_pixmap = initial_pixmap.scaledToHeight(rh,
+                                                    mode=Qt.SmoothTransformation)
+        return initial_pixmap
+
     def set_row_height(self, height):
         self.row_height = height
+        self.bool_yes_icon = self._build_icon_pixmap(QPixmap(I('ok.png')))
+        self.bool_no_icon = self._build_icon_pixmap(QPixmap(I('list_remove.png')))
+        self.bool_blank_icon = self._build_icon_pixmap(QPixmap(I('blank.png')))
+        # Must leave the marked icon as an icon or it won't show
+        # self.marked_icon = self._build_icon_pixmap(QPixmap(I('marked.png')))
+        self.build_data_convertors()
 
     def set_row_decoration(self, current_marked):
         self.row_decoration = self.bool_blank_icon if current_marked else None
@@ -1269,6 +1282,9 @@ class DeviceBooksModel(BooksModel):  # {{{
 
     def count_changed(self, *args):
         self.count_changed_signal.emit(len(self.db))
+
+    def set_row_height(self, height):
+        self.row_height = height
 
     def mark_for_deletion(self, job, rows, rows_are_ids=False):
         db_indices = rows if rows_are_ids else self.indices(rows)
