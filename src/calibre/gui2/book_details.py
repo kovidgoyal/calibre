@@ -5,6 +5,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
+import cPickle
 from binascii import unhexlify
 from functools import partial
 
@@ -164,6 +165,7 @@ def details_context_menu_event(view, ev, book_info):  # {{{
                     menu.addAction(ac)
         else:
             el = r.linkElement()
+            data = el.attribute('data-item')
             author = el.toPlainText() if unicode(el.attribute('calibre-data')) == u'authors' else None
             if not url.startswith('search:'):
                 for a, t in [('copy', _('&Copy Link')),
@@ -179,6 +181,16 @@ def details_context_menu_event(view, ev, book_info):  # {{{
                 ac.current_fmt = author
                 ac.setText(_('Manage %s') % author)
                 menu.addAction(ac)
+            if data:
+                try:
+                    field, value, book_id = cPickle.loads(unhexlify(data))
+                except Exception:
+                    field = value = book_id = None
+                if field:
+                    ac = book_info.remove_item_action
+                    ac.data = (field, value, book_id)
+                    ac.setText(_('Remove %s from this book') % value)
+                    menu.addAction(ac)
 
     if len(menu.actions()) > 0:
         menu.exec_(ev.globalPos())
@@ -385,6 +397,7 @@ class BookInfo(QWebView):
 
     link_clicked = pyqtSignal(object)
     remove_format = pyqtSignal(int, object)
+    remove_item = pyqtSignal(int, object, object)
     save_format = pyqtSignal(int, object)
     restore_format = pyqtSignal(int, object)
     compare_format = pyqtSignal(int, object)
@@ -415,7 +428,15 @@ class BookInfo(QWebView):
             ac.current_url = None
             ac.triggered.connect(getattr(self, '%s_triggerred'%x))
             setattr(self, '%s_action'%x, ac)
+        self.remove_item_action = ac = QAction(QIcon(I('minus.png')), '...', self)
+        ac.data = (None, None, None)
+        ac.triggered.connect(self.remove_item_triggered)
         self.setFocusPolicy(Qt.NoFocus)
+
+    def remove_item_triggered(self):
+        field, value, book_id = self.remove_item_action.data
+        if field:
+            self.remove_item.emit(book_id, field, value)
 
     def context_action_triggered(self, which):
         f = getattr(self, '%s_action'%which).current_fmt
@@ -579,6 +600,7 @@ class BookDetails(QWidget):  # {{{
     view_specific_format = pyqtSignal(int, object)
     search_requested = pyqtSignal(object)
     remove_specific_format = pyqtSignal(int, object)
+    remove_metadata_item = pyqtSignal(int, object, object)
     save_specific_format = pyqtSignal(int, object)
     restore_specific_format = pyqtSignal(int, object)
     compare_specific_format = pyqtSignal(int, object)
@@ -654,6 +676,7 @@ class BookDetails(QWidget):  # {{{
         self._layout.addWidget(self.book_info)
         self.book_info.link_clicked.connect(self.handle_click)
         self.book_info.remove_format.connect(self.remove_specific_format)
+        self.book_info.remove_item.connect(self.remove_metadata_item)
         self.book_info.open_fmt_with.connect(self.open_fmt_with)
         self.book_info.save_format.connect(self.save_specific_format)
         self.book_info.restore_format.connect(self.restore_specific_format)

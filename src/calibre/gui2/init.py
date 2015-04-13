@@ -503,6 +503,8 @@ class LayoutMixin(object):  # {{{
         self.book_details.search_requested.connect(self.search.set_search_string)
         self.book_details.remove_specific_format.connect(
                 self.iactions['Remove Books'].remove_format_by_id)
+        self.book_details.remove_metadata_item.connect(
+                self.iactions['Edit Metadata'].remove_metadata_item)
         self.book_details.save_specific_format.connect(
                 self.iactions['Save To Disk'].save_library_format_by_ids)
         self.book_details.restore_specific_format.connect(
