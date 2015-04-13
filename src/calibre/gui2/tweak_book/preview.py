@@ -400,9 +400,7 @@ class WebView(QWebView):
 
             <p style="font-size:x-small; color: gray">Note that this is a quick preview
             only, it is not intended to simulate an actual ebook reader. Some
-            aspects of your ebook will not work, such as, page breaks and
-            page margins.
-
+            aspects of your ebook will not work, such as page breaks and page margins.
             '''))
         self.page().current_root = None
 

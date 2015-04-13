@@ -275,7 +275,7 @@ that have been explicitly ignored below.</string>
        <item row="3" column="0" colspan="2">
         <widget class="QCheckBox" name="opt_auto_add_check_for_duplicates">
          <property name="toolTip">
-          <string>If set, this option will causes calibre to check if a file
+          <string>If set, this option will cause calibre to check if a file
  being auto-added is already in the calibre library.
  If it is, a message will pop up asking you whether
  you want to add it anyway.</string>

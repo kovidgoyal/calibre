@@ -44,7 +44,7 @@ def subset_all_fonts(container, font_stats, report):
                 total_old += f.tell()
             if not chars:
                 remove.add(name)
-                report('Removed unused font: %s'%name)
+                report(_('Removed unused font: %s')%name)
                 continue
             with container.open(name, 'r+b') as f:
                 raw = f.read()
@@ -72,9 +72,9 @@ def subset_all_fonts(container, font_stats, report):
                 nlen = sum(new_sizes.itervalues())
                 total_new += len(nraw)
                 if nlen == olen:
-                    report('The font %s was already subset'%font_name)
+                    report(_('The font %s was already subset')%font_name)
                 else:
-                    report('Decreased the font %s to %.1f%% of its original size'%
+                    report(_('Decreased the font %s to %.1f%% of its original size')%
                        (font_name, nlen/olen * 100))
                     changed = True
                 f.seek(0), f.truncate(), f.write(nraw)
@@ -97,10 +97,10 @@ def subset_all_fonts(container, font_stats, report):
                             style.text = sheet.cssText
                             container.dirty(name)
     if total_old > 0:
-        report('Reduced total font size to %.1f%% of original'%(
+        report(_('Reduced total font size to %.1f%% of original')%(
             total_new/total_old*100))
     else:
-        report('No embedded fonts found')
+        report(_('No embedded fonts found'))
     return changed
 
 if __name__ == '__main__':

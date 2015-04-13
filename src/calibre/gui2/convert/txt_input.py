@@ -35,10 +35,6 @@ class PluginWidget(Widget, Ui_Form):
 
         self.initialize_options(get_option, get_help, db, book_id)
 
-    def setup_widget_help(self, g):
-        g._help = _('Specify which markdown extensions to enable')
-        return Widget.setup_widget_help(self, g)
-
     def set_value_handler(self, g, val):
         if g is self.opt_markdown_extensions:
             for i in self.md_map.itervalues():

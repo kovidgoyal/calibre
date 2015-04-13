@@ -161,7 +161,7 @@
        <item row="1" column="0">
         <widget class="QGroupBox" name="groupBox_2">
          <property name="title">
-          <string>But dont show entries that have...</string>
+          <string>But don&apos;t show entries that have...</string>
          </property>
          <layout class="QVBoxLayout" name="verticalLayout_2">
           <item>

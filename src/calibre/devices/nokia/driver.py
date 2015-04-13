@@ -50,14 +50,13 @@ class E71X(USBMS):
 
     name           = 'Nokia E71X device interface'
     gui_name       = 'Nokia E71X'
-    description    = 'Communicate with the Nokia E71X'
+    description    = _('Communicate with the Nokia E71X')
     author         = 'Kovid Goyal'
     supported_platforms = ['windows', 'linux', 'osx']
 
     VENDOR_ID   = [0x421]
     PRODUCT_ID  = [0x1a0]
     BCD         = [0x100]
-
 
     FORMATS = ['mobi', 'prc']
 
@@ -79,7 +78,6 @@ class E52(USBMS):
     PRODUCT_ID = [0x1CD, 0x273, 0x00aa]
     BCD = [0x100]
 
-
     FORMATS = ['epub', 'fb2', 'mobi', 'prc', 'txt']
 
     EBOOK_DIR_MAIN = 'eBooks'
@@ -87,4 +85,3 @@ class E52(USBMS):
 
     VENDOR_NAME = 'NOKIA'
     WINDOWS_MAIN_MEM = ['S60', 'E71']
-

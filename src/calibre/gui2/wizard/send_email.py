@@ -81,13 +81,12 @@ class RelaySetup(QDialog):
                 self.ptoggle = QCheckBox(_('&Show password'), self)
                 l.addWidget(self.ptoggle, r, 2)
                 self.ptoggle.stateChanged.connect(
-                        lambda s: self.password.setEchoMode(self.password.Normal if s
-                            == Qt.Checked else self.password.Password))
+                        lambda s: self.password.setEchoMode(self.password.Normal if s == Qt.Checked else self.password.Password))
         self.username.setText(service['username'])
         self.password.setEchoMode(self.password.Password)
         self.bl = QLabel('<p>' + _(
             'If you plan to use email to send books to your Kindle, remember to'
-            ' add the your %s email address to the allowed email addresses in your '
+            ' add your %s email address to the allowed email addresses in your '
             'Amazon.com Kindle management page.')%service['name'])
         self.bl.setWordWrap(True)
         l.addWidget(self.bl, l.rowCount(), 0, 3, 0)

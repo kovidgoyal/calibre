@@ -303,7 +303,7 @@ class RuleEditor(QDialog):  # {{{
         self.setLayout(l)
 
         self.l1 = l1 = QLabel(_('Create a {0} rule by'
-            ' filling in the boxes below'.format(rule_text)))
+            ' filling in the boxes below').format(rule_text))
         l.addWidget(l1, 0, 0, 1, 8)
 
         self.f1 = QFrame(self)
@@ -503,7 +503,7 @@ class RuleEditor(QDialog):  # {{{
         try:
             path = choose_files(self, 'choose_category_icon',
                         _('Select Icon'), filters=[
-                        ('Images', ['png', 'gif', 'jpg', 'jpeg'])],
+                        (_('Images'), ['png', 'gif', 'jpg', 'jpeg'])],
                     all_files=False, select_only_single_file=True)
             if path:
                 icon_path = path[0]
@@ -929,7 +929,7 @@ class EditRules(QWidget):  # {{{
             self.enabled.setText(_('Show &emblems next to the covers'))
             self.enabled.stateChanged.connect(self.enabled_toggled)
             self.enabled.setToolTip(_(
-                'If checked, you can tell calibre to displays icons of your choosing'
+                'If checked, you can tell calibre to display icons of your choosing'
                 ' next to the covers shown in the cover grid, controlled by the'
                 ' metadata of the book.'))
             self.enabled_toggled()

@@ -116,7 +116,7 @@ class KOBO(USBMS):
                 ' by default they are no longer displayed as there is no good reason to '
                 'see them.  Enable if you wish to see/delete them.'),
             _('Show Recommendations') +
-            ':::'+_('Kobo now shows recommendations on the device.  In some case these have '
+            ':::'+_('Kobo now shows recommendations on the device. In some cases these have '
                 'files but in other cases they are just pointers to the web site to buy. '
                 'Enable if you wish to see/delete them.'),
             _('Attempt to support newer firmware') +
@@ -693,8 +693,8 @@ class KOBO(USBMS):
         if extension == '.kobo':
             from calibre.devices.errors import UserFeedback
             raise UserFeedback(_("Not Implemented"),
-                    _('".kobo" files do not exist on the device as books '
-                        'instead, they are rows in the sqlite database. '
+                    _('".kobo" files do not exist on the device as books; '
+                        'instead they are rows in the sqlite database. '
                     'Currently they cannot be exported or viewed.'),
                     UserFeedback.WARN)
 
@@ -1374,7 +1374,7 @@ class KOBOTOUCH(KOBO):
     BCD = [0x0110, 0x0326]
 
     # Image file name endings. Made up of: image size, min_dbversion, max_dbversion, isFullSize,
-    # Note: "200" has been used just as a much larger number than the current versions. It is just a lazy 
+    # Note: "200" has been used just as a much larger number than the current versions. It is just a lazy
     #    way of making it open ended.
     COVER_FILE_ENDINGS = {
                           ' - N3_FULL.parsed':[(600,800),0, 200,True,],            # Used for screensaver, home screen

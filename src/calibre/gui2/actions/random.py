@@ -15,7 +15,7 @@ class PickRandomAction(InterfaceAction):
 
     name = 'Pick Random Book'
     action_spec = (_('Pick a random book'), 'random.png',
-            'Select a random book from your calibre library', ())
+            _('Select a random book from your calibre library'), ())
     dont_add_to = frozenset(['context-menu-device'])
 
     def genesis(self):
