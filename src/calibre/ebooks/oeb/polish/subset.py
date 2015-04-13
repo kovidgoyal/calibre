@@ -74,8 +74,8 @@ def subset_all_fonts(container, font_stats, report):
                 if nlen == olen:
                     report(_('The font %s was already subset')%font_name)
                 else:
-                    report(_('Decreased the font %s to %.1f%% of its original size')%
-                       (font_name, nlen/olen * 100))
+                    report(_('Decreased the font {0} to {1:.1f}% of its original size').format(
+                        font_name, nlen/olen * 100))
                     changed = True
                 f.seek(0), f.truncate(), f.write(nraw)
 
