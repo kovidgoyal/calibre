@@ -119,7 +119,7 @@ class Level(object):
             rid = pic_map.get(self.pic_id, None)
             if rid:
                 try:
-                    fname = images.generate_filename(rid, rid_map=rid_map)
+                    fname = images.generate_filename(rid, rid_map=rid_map, max_width=20, max_height=20)
                 except Exception:
                     fname = None
                 else:
