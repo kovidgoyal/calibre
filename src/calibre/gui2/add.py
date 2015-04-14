@@ -14,7 +14,7 @@ from io import BytesIO
 
 from PyQt5.Qt import QObject, Qt, pyqtSignal
 
-from calibre import prints
+from calibre import prints, as_unicode
 from calibre.constants import DEBUG
 from calibre.customize.ui import run_plugins_on_postimport
 from calibre.db.adding import find_books_in_directory
@@ -201,7 +201,7 @@ class Adder(QObject):
                 except Failure as err:
                     error_dialog(self.pd, _('Cannot add books'), _(
                     'Failed to add any books, click "Show details" for more information.'),
-                    det_msg=unicode(err.failure_message) + '\n' + unicode(err.details), show=True)
+                    det_msg=as_unicode(err.failure_message) + '\n' + as_unicode(err.details), show=True)
                     self.pd.canceled = True
         self.groups_to_add = iter(self.file_groups)
         self.do_one = self.do_one_group
