@@ -1,0 +1,56 @@
+#!/usr/bin/env  python2
+from __future__ import unicode_literals
+__license__   = 'GPL v3'
+__copyright__ = '2015 Michael Marotta <mikefm at gmail.net>'
+'''
+technologyreview.com
+'''
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class MitTechnologyReview(BasicNewsRecipe):
+
+    title      = 'MIT Technology Review Magazine'
+    __author__ = 'Michael Marotta'
+    description = 'MIT Technology Review (The Magazine)'
+    INDEX = 'http://www.technologyreview.com/magazine/'
+    language = 'en'
+    encoding = 'utf-8'
+
+    keep_only_tags = [
+        {'attrs':{'class':['body', 'intro', 'article-magazine', 'byline', 'view-byline', 'sticky-wrap', 'body hack']}},
+    ]
+    remove_tags        = [
+        {'name': ['meta', 'link', 'noscript', 'clearfix', 'flag']},
+    ]
+    no_stylesheets = True
+
+    def parse_index(self):
+        soup = self.index_to_soup(self.INDEX)
+        col = soup.find(attrs={'class':'view-content'})
+        current_section, current_articles = None, []
+        feeds = []
+        for tag in col.findAll(name=['section', 'a'], attrs={'class':['content-block in-this-issue no-border', None]}):
+            if tag.name == 'section':
+                if current_section and current_articles:
+                    feeds.append((current_section, current_articles))
+                current_section = self.tag_to_string(tag.find('h2'))[15:].capitalize()
+                current_articles = []
+                self.log('Found section:', current_section)
+            elif current_section:
+                a = tag  # since tag itself is a <a> tag use it directly instead of using find
+                if not self.tag_to_string(a.h2):
+                    title = self.tag_to_string(a.h1)
+                else:
+                    title = self.tag_to_string(a.h2) + ": " + self.tag_to_string(a.h1)
+                url = a['href']
+                if url.startswith('/'):
+                    url = "http://www.technologyreview.com" + url
+                if title and url:
+                    p = tag.find('p', attrs={'class':'columns-off'})
+                    desc = self.tag_to_string(p) if p is not None else ''
+                    current_articles.append({'title':title, 'url':url, 'description':desc})
+                    self.log('\tArticle:', title, '[%s]' % url)
+                    self.log('\t\t', desc)
+        if current_section and current_articles:
+            feeds.append((current_section, current_articles))
+        return feeds

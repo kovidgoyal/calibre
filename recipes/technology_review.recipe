@@ -3,7 +3,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 class TechnologyReview(BasicNewsRecipe):
     title          = u'Technology Review'
     __author__ = 'rty'
-    description = 'MIT Technology Magazine'
+    description = 'MIT Technology Magazine (from RSS feeds)'
     publisher = 'Technology Review Inc.'
     category = 'Technology, Innovation, R&D'
     language = 'en'
