@@ -384,7 +384,7 @@ class BlockStyle(DOCXStyle):
         if (self is normal_style and self.page_break_before) or self.page_break_before != normal_style.page_break_before:
             style.append(makeelement(style, 'pageBreakBefore', val=bmap(self.page_break_before)))
         if (self is normal_style and self.keep_lines) or self.keep_lines != normal_style.keep_lines:
-            style.append(makeelement(style, 'keepLines', bmap(self.keep_lines)))
+            style.append(makeelement(style, 'keepLines', val=bmap(self.keep_lines)))
 
         if self is not normal_style and self.next_style is not None:
             style.append(makeelement(style, 'next', val=self.next_style))

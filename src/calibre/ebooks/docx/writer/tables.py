@@ -111,7 +111,7 @@ class Cell(object):
 
         b = makeelement(tcPr, 'w:tcBorders', append=False)
         for edge, border in self.borders.iteritems():
-            if border.width > 0 and border.style != 'none':
+            if border is not None and border.width > 0 and border.style != 'none':
                 makeelement(b, 'w:' + edge, w_val=border.style, w_sz=str(border.width), w_color=border.color)
         if len(b) > 0:
             tcPr.append(b)
