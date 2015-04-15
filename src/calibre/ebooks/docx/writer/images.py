@@ -21,10 +21,17 @@ from calibre.utils.magick.draw import identify_data
 
 Image = namedtuple('Image', 'rid fname width height fmt item')
 
+def as_num(x):
+    try:
+        return float(x)
+    except Exception:
+        pass
+    return 0
+
 def get_image_margins(style):
     ans = {}
     for edge in 'Left Right Top Bottom'.split():
-        val = getattr(style, 'padding' + edge) + getattr(style, 'margin' + edge)
+        val = as_num(getattr(style, 'padding' + edge)) + as_num(getattr(style, 'margin' + edge))
         ans['dist' + edge[0]] = str(pt_to_emu(val))
     return ans
 
