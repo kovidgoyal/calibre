@@ -248,10 +248,15 @@ class Table(object):
         self.width = convert_width(tag_style)
         self.background_color = None if tag_style is None else convert_color(tag_style.backgroundColor)
         self.jc = None
+        self.float = None
+        self.margin_left = self.margin_right = self.margin_top = self.margin_bottom = None
         if tag_style is not None:
             ml, mr = tag_style._get('margin-left'), tag_style.get('margin-right')
             if ml == 'auto':
                 self.jc = 'center' if mr == 'auto' else 'right'
+            self.float = tag_style['float']
+            for edge in border_edges:
+                setattr(self, 'margin_' + edge, tag_style['margin-' + edge])
         read_css_block_borders(self, tag_style)
 
     @property
@@ -328,6 +333,14 @@ class Table(object):
         tbl = makeelement(parent, 'w:tbl')
         tblPr = makeelement(tbl, 'w:tblPr')
         makeelement(tblPr, 'w:tblW', w_type=self.width[0], w_w=str(self.width[1]))
+        if self.float in {'left', 'right'}:
+            kw = {'w_vertAnchor':'text', 'w_horzAnchor':'text', 'w_tblpXSpec':self.float}
+            for edge in border_edges:
+                val = getattr(self, 'margin_' + edge) or 0
+                if {self.float, edge} == {'left', 'right'}:
+                    val = max(val, 2)
+                kw['w_' + edge + 'FromText'] = str(max(0, int(val *20)))
+            makeelement(tblPr, 'w:tblpPr', **kw)
         if self.jc is not None:
             makeelement(tblPr, 'w:jc', w_val=self.jc)
         for row in rows:
