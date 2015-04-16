@@ -130,7 +130,7 @@ class FormatterFunction(object):
         if isinstance(ret, (str, unicode)):
             return ret
         if isinstance(ret, list):
-            return ','.join(list)
+            return ','.join(ret)
         if isinstance(ret, (int, float, bool)):
             return unicode(ret)
 
@@ -348,7 +348,13 @@ class BuiltinRawField(BuiltinFormatterFunction):
             'without applying any formatting.')
 
     def evaluate(self, formatter, kwargs, mi, locals, name):
-        return unicode(getattr(mi, name, None))
+        res = getattr(mi, name, None)
+        if isinstance(res, list):
+            fm = mi.metadata_for_field(name)
+            if fm is None:
+                return ', '.join(res)
+            return fm['is_multiple']['list_to_ui'].join(res)
+        return unicode(res)
 
 class BuiltinRawList(BuiltinFormatterFunction):
     name = 'raw_list'
