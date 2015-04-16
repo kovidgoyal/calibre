@@ -1,8 +1,9 @@
 import re
 from calibre import strftime
+from calibre.ebooks.BeautifulSoup import Tag
 
 __license__   = 'GPL v3'
-__copyright__ = '2012-14, Bernd Leinfelder <skoll1975 at gmail.com> '
+__copyright__ = '2012-15, Bernd Leinfelder <skoll1975 at gmail.com> '
 
 '''
 webpaper.nzz.ch
@@ -14,7 +15,7 @@ from calibre.web.feeds.recipes import BasicNewsRecipe
 class Nzz(BasicNewsRecipe):
     title                 = 'NZZ Webpaper'
     __author__            = 'Bernd Leinfelder'
-    description           = 'Neue Zuercher Zeitung Webpaper - Erfordert NZZ Digital Abonnement'
+    description           = 'Neue Zuercher Zeitung Webpaper - Erfordert NZZ Digital Abonnement. v20140425'
     timefmt = ' [%a, %d %b, %Y]'
     publisher             = 'NZZ AG'
     needs_subscription = True
@@ -30,9 +31,9 @@ class Nzz(BasicNewsRecipe):
 
     conversion_options = {
                              'comments'  : description
-                            ,'tags'      : category
-                            ,'language'  : language
-                            ,'publisher' : publisher
+                             ,'tags'      : category
+                             ,'language'  : language
+                             ,'publisher' : publisher
                          }
 
     remove_tags = [dict(name='footer') , dict({'class' : ['sharebox' , 'fullarticle__related']})]
@@ -52,7 +53,15 @@ class Nzz(BasicNewsRecipe):
         issue = soup.find("link",rel="prefetch")
 
         soup = self.index_to_soup(baseref+issue['href'])
+
+        for span in soup.findAll('span', attrs={'data-src-640':True}):
+            imgSrc=span['data-src-640']
+            # print "image source: "+ imgSrc
+            imgTag = Tag(soup,"img",[("src",imgSrc)])
+            span.replaceWith(imgTag)
+
         # print soup.prettify()
+
         section = ""
         lastsection = ""
         pubdate = strftime('%a, %d %b')
@@ -78,7 +87,7 @@ class Nzz(BasicNewsRecipe):
             articles[section].append(
                            dict(title=caption.string,url='file://'+filename, date=pubdate, description='', content=''))
 
-        ans = [(key, articles[key]) for key in sections if articles.has_key(key)]
+        ans = [(key, articles[key]) for key in sections if key in articles]
 
         # pprint.pprint(ans)
 
