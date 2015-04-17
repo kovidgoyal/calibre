@@ -25,7 +25,7 @@ class ZeitEPUBAbo(BasicNewsRecipe):
     language = 'de'
     lang = 'de-DE'
 
-    __author__ = 'Steffen Siebert, revised by Tobias Isenberg (with some code by Kovid Goyal)'
+    __author__ = 'Steffen Siebert, revised by Tobias Isenberg (with some code by Kovid Goyal), updated by Henning Losert'
     needs_subscription = True
 
     conversion_options = {
@@ -117,18 +117,14 @@ class ZeitEPUBAbo(BasicNewsRecipe):
     ]
 
     def build_index(self):
-        domain = "https://premium.zeit.de"
-        url = domain + "/abo/digitalpaket"
+        url = "https://meine.zeit.de/anmelden?url=https%3A//premium.zeit.de/node/125"
         browser = self.get_browser()
 
         # new login process
-        response = browser.open(url)
-        # Get rid of nested form
-        response.set_data(response.get_data().replace('<div><form action="/abo/digitalpaket?destination=node%2F94"  accept-charset="UTF-8" method="post" id="user-login-form" class="zol_inlinelabel">', ''))
-        browser.set_response(response)
-        browser.select_form(nr=2)
-        browser.form['name']=self.username
-        browser.form['pass']=self.password
+        browser.open(url)
+        browser.select_form(nr=0)
+        browser.form['email']=self.username
+        browser.form['password']=self.password
         browser.submit()
         # now find the correct file, we will still use the ePub file
         epublink = browser.find_link(text_regex=re.compile('.*Download als Datei im ePub-Format für eReader.*'))
@@ -176,22 +172,17 @@ class ZeitEPUBAbo(BasicNewsRecipe):
         self.log.warning('Downloading cover')
         try:
             self.log.warning('Trying PDF-based cover')
-            domain = "https://premium.zeit.de"
-            url = domain + "/abo/digitalpaket"
+            url = "https://meine.zeit.de/anmelden?url=https%3A//premium.zeit.de/node/125"
             browser = self.get_browser()
 
             # new login process
-            response=browser.open(url)
-            # Get rid of nested form
-            response.set_data(response.get_data().replace('<div><form action="/abo/digitalpaket?destination=node%2F94"  accept-charset="UTF-8" method="post" id="user-login-form" class="zol_inlinelabel">', ''))
-            browser.set_response(response)
-
-            browser.select_form(nr=2)
-            browser.form['name']=self.username
-            browser.form['pass']=self.password
+            browser.open(url)
+            browser.select_form(nr=0)
+            browser.form['email']=self.username
+            browser.form['password']=self.password
             browser.submit()
             # actual cover search
-            pdflink = browser.find_link(url_regex=re.compile('system/files/epaper/DZ/pdf/DZ_ePaper*'))
+            pdflink = browser.find_link(text_regex=re.compile('.*Download der gesamten Ausgabe als PDF Datei.*'))
             cover_url = urlparse(pdflink.base_url)[0]+'://'+urlparse(pdflink.base_url)[1]+''+(urlparse(pdflink.url)[2]).replace('ePaper_','').replace('.pdf','_001.pdf')
             self.log.warning('PDF link found:')
             self.log.warning(cover_url)
