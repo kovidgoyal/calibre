@@ -20,6 +20,55 @@
 #   new recipes:
 #     - title: 
 
+- version: 2.25.0
+  date: 2015-04-17
+
+  new features:
+    - title: "Edit Book: Make embedding fonts using the manage fonts dialog easier. You can now double click on a font family to see what faces for that family area available on your computer and install new fonts directly from the dialog."
+
+    - title: "Book Details panel: Allow deleting tags/series/publisher/etc. by right clicking on the link in the book details panel."
+      tickets: [1442925]
+
+    - title: "E-book viewer: Allow expanding/collapsing all items in the Table of Contents view by right clicking"
+
+    - title: "When using the View specific format action add an 'Open With' button to choose a specific program to view the specified format"
+
+    - title: "Fetch News: Add API to allow recipe writers to easily resolve internal links to point to the downloaded versions of articles"
+
+    - title: "DOCX Input: Add support for DOCX files created by Word 2013 in 'Strict' mode"
+
+    - title: "When getting cover from comic files, use smart filename sorting to find the first filename, recognizing numbers inside the filenames."
+
+  bug fixes:
+    - title: "E-book viewer: When displaying multiple pages per screen fix whole screen scrolling so that it works as expected even at the end of the file, when their might be fewer pages left than would fill the screen."
+
+    - title: "DOCX Input: Automatically resize large images used as bullets in lists, to compensate for the fact that HTML renderers do not do this."
+
+    - title: "Book list: Prevent yes/no columns from making the minimum row height too large."
+
+    - title: "Template language: Fix raw_field() function returning incorrect values for lists"
+
+    - title: "Edit book: Fix book locale changing when OPF edited if OPF contains a country code in addition to a language code"
+
+    - title: "Edit Book: Fix escaped HTML tags in the comments metadata being reported as mis-spelled words."
+      tickets: [1441925]
+
+    - title: "Edit Book: Fix regression that caused copying of non-breaking spaces to not work when using the keyboard shortcuts"
+
+    - title: "Open With: Fix open with not working for programs from the Microsoft Office suite"
+
+  improved recipes:
+    - Die Zeit
+    - NZZ Webpaper
+    - Arcamax
+
+  new recipes:
+    - title: MIT Technology Review Magazine 
+      author: Michael Marotta
+
+    - title: The Codeless Code 
+      author: April King
+
 - version: 2.24.0
   date: 2015-04-10
 
