@@ -22,6 +22,8 @@ class CNN(BasicNewsRecipe):
     # recursions = 1
     # match_regexps = [r'http://sportsillustrated.cnn.com/.*/[1-9].html']
     max_articles_per_feed = 25
+    compress_news_images = True
+    compress_news_images_auto_size = 8
 
     extra_css = '''
                     h1 {font-size:xx-large; font-family:Arial,Helvetica,sans-serif;}
@@ -41,7 +43,11 @@ class CNN(BasicNewsRecipe):
         dict(id=['body-text', 'storycontent']),
         dict(attrs={'class':['pg-headline', 'metadata']}),
     ]
+
     remove_tags = [
+        dict(attrs={'class':lambda x: x and bool({
+            'video__end-slate', 'owl-filmstrip', 'el-embed-instagram',
+        }.intersection(set(x.split())))}),
     ]
 
     feeds =  [
