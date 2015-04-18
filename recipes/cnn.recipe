@@ -23,7 +23,7 @@ class CNN(BasicNewsRecipe):
     # match_regexps = [r'http://sportsillustrated.cnn.com/.*/[1-9].html']
     max_articles_per_feed = 25
     compress_news_images = True
-    compress_news_images_auto_size = 8
+    compress_news_images_auto_size = 12
 
     extra_css = '''
                     h1 {font-size:xx-large; font-family:Arial,Helvetica,sans-serif;}
