@@ -360,6 +360,7 @@ class Boss(QObject):
     @in_thread_job
     def delete_requested(self, spine_items, other_items):
         self.add_savepoint(_('Before: Delete files'))
+        self.commit_dirty_opf()
         c = current_container()
         c.remove_from_spine(spine_items)
         for name in other_items:
@@ -379,6 +380,8 @@ class Boss(QObject):
             toc = find_existing_toc(current_container())
             if toc and toc in editors:
                 editors[toc].replace_data(c.raw_data(toc))
+        if c.opf_name in editors:
+            editors[c.opf_name].replace_data(c.raw_data(c.opf_name))
 
     def commit_dirty_opf(self):
         c = current_container()
