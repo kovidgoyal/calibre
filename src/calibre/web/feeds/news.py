@@ -487,7 +487,7 @@ class BasicNewsRecipe(Recipe):
             if getattr(self, 'browser', None) is not None:
                 return self.clone_browser(self.browser)
             from calibre.web.jsbrowser.browser import Browser
-            br = Browser()
+            br = Browser(headless=not self.test)
             with br:
                 self.javascript_login(br, self.username, self.password)
                 kwargs['user_agent'] = br.user_agent

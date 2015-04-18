@@ -14,15 +14,15 @@ from threading import current_thread
 from PyQt5.QtWebKit import QWebSettings, QWebElement
 from PyQt5.QtWebKitWidgets import QWebPage, QWebView
 from PyQt5.Qt import (
-    QObject, QNetworkAccessManager, QNetworkDiskCache, QCoreApplication,
-    QNetworkProxy, QNetworkProxyFactory, QEventLoop, QUrl, pyqtSignal,
-    QDialog, QVBoxLayout, QSize, QNetworkCookieJar, Qt, pyqtSlot, QPixmap)
+    QObject, QNetworkAccessManager, QNetworkDiskCache, QNetworkProxy,
+    QNetworkProxyFactory, QEventLoop, QUrl, pyqtSignal, QDialog, QVBoxLayout,
+    QSize, QNetworkCookieJar, Qt, pyqtSlot, QPixmap)
 
 from calibre import USER_AGENT, prints, get_proxies, get_proxy_info, prepare_string_for_xml
 from calibre.constants import ispy3, cache_dir
 from calibre.ptempfile import PersistentTemporaryDirectory
 from calibre.utils.logging import ThreadSafeLog
-from calibre.gui2 import must_use_qt
+from calibre.gui2 import must_use_qt, app_is_headless
 from calibre.web.jsbrowser.forms import FormsMixin, default_timeout
 
 class Timeout(Exception):
@@ -364,9 +364,12 @@ class Browser(QObject, FormsMixin):
             verbosity=0,
 
             # The default timeout (in seconds)
-            default_timeout=30
+            default_timeout=30,
+
+            # If True, do not connect to the X server on linux
+            headless=True
         ):
-        must_use_qt()
+        must_use_qt(headless=headless)
         QObject.__init__(self)
         FormsMixin.__init__(self)
 
@@ -682,7 +685,7 @@ class Browser(QObject, FormsMixin):
         '''
         Show the currently loaded web page in a window. Useful for debugging.
         '''
-        if getattr(QCoreApplication.instance(), 'headless', False):
+        if app_is_headless():
             raise RuntimeError('Cannot show browser when running in a headless Qt application')
         view = BrowserView(self.page)
         view.exec_()

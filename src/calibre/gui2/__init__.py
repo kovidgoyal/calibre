@@ -1149,16 +1149,16 @@ def open_local_file(path):
 
 _ea_lock = Lock()
 
-def ensure_app():
+def ensure_app(headless=True):
     global _store_app
     with _ea_lock:
         if _store_app is None and QApplication.instance() is None:
             args = sys.argv[:1]
-            headless = islinux or isbsd
-            if headless:
+            if headless and (islinux or isbsd):
                 args += ['-platformpluginpath', sys.extensions_location, '-platform', 'headless']
             _store_app = QApplication(args)
-            _store_app.headless = headless
+            if headless and (islinux or isbsd):
+                _store_app.headless = True
             import traceback
             # This is needed because as of PyQt 5.4 if sys.execpthook ==
             # sys.__excepthook__ PyQt will abort the application on an
@@ -1175,14 +1175,17 @@ def ensure_app():
                     pass
             sys.excepthook = eh
 
-def must_use_qt():
+def app_is_headless():
+    return getattr(_store_app, 'headless', False)
+
+def must_use_qt(headless=True):
     ''' This function should be called if you want to use Qt for some non-GUI
     task like rendering HTML/SVG or using a headless browser. It will raise a
     RuntimeError if using Qt is not possible, which will happen if the current
     thread is not the main GUI thread. On linux, it uses a special QPA headless
     plugin, so that the X server does not need to be running. '''
     global gui_thread
-    ensure_app()
+    ensure_app(headless=headless)
     if gui_thread is None:
         gui_thread = QThread.currentThread()
     if gui_thread is not QThread.currentThread():
