@@ -199,7 +199,7 @@ class GuiRunner(QObject):
 
     def hide_splash_screen(self):
         if self.splash_screen is not None:
-            with self.app:
+            with self.app:  # Disable quit on last window closed
                 self.splash_screen.hide()
         self.splash_screen = None
 
