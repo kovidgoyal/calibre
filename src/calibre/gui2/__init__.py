@@ -1213,7 +1213,7 @@ def elided_text(text, font=None, width=300, pos='middle'):
     of the string with an ellipsis. Results in a string much closer to the
     limit than Qt's elidedText().'''
     from PyQt5.Qt import QFontMetrics, QApplication
-    fm = QApplication.fontMetrics() if font is None else QFontMetrics(font)
+    fm = QApplication.fontMetrics() if font is None else (font if isinstance(font, QFontMetrics) else QFontMetrics(font))
     delta = 4
     ellipsis = u'\u2026'
 

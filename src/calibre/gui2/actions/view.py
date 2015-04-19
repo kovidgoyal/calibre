@@ -12,7 +12,8 @@ from PyQt5.Qt import Qt, QAction, pyqtSignal
 
 from calibre.constants import isosx, iswindows
 from calibre.gui2 import (
-    error_dialog, Dispatcher, question_dialog, config, open_local_file, info_dialog)
+    error_dialog, Dispatcher, question_dialog, config, open_local_file,
+    info_dialog, elided_text)
 from calibre.gui2.dialogs.choose_format import ChooseFormatDialog
 from calibre.utils.config import prefs, tweaks
 from calibre.ptempfile import PersistentTemporaryFile
@@ -66,8 +67,9 @@ class ViewAction(InterfaceAction):
         if history:
             self.view_menu.insertAction(self.clear_sep2, self.clear_sep1)
             self.history_actions.append(self.clear_sep1)
+            fm = self.gui.fontMetrics()
             for id_, title in history:
-                ac = HistoryAction(id_, title, self.view_menu)
+                ac = HistoryAction(id_, elided_text(title, font=fm, pos='right'), self.view_menu)
                 self.view_menu.insertAction(self.clear_sep2, ac)
                 ac.view_historical.connect(self.view_historical)
                 self.history_actions.append(ac)
