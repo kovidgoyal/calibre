@@ -207,10 +207,13 @@ class GuiRunner(QObject):
         main = self.main = Main(self.opts, gui_debug=self.gui_debug)
         if self.splash_screen is not None:
             self.splash_screen.show_message(_('Initializing user interface...'))
-            self.splash_screen.finish(main)
-        with gprefs:  # Only write gui.json after initialization is complete
-            main.initialize(self.library_path, db, self.listener, self.actions)
-        self.splash_screen = None
+        try:
+            with gprefs:  # Only write gui.json after initialization is complete
+                main.initialize(self.library_path, db, self.listener, self.actions)
+        finally:
+            if self.splash_screen is not None:
+                self.splash_screen.finish(main)
+            self.splash_screen = None
         if DEBUG:
             prints('Started up in %.2f seconds'%(time.time() -
                 self.startup_time), 'with', len(db.data), 'books')
