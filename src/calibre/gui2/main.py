@@ -5,7 +5,9 @@ import sys, os, time, socket, traceback, re
 from functools import partial
 
 import apsw
-from PyQt5.Qt import (QCoreApplication, QIcon, QObject, QTimer)
+from PyQt5.Qt import (
+    QCoreApplication, QIcon, QObject, QTimer, Qt, QSplashScreen, QBrush,
+    QColor, QPixmap)
 
 from calibre import prints, plugins, force_unicode
 from calibre.constants import (iswindows, __appname__, isosx, DEBUG, islinux,
@@ -15,7 +17,6 @@ from calibre.gui2 import (
     ORG_NAME, APP_UID, initialize_file_icon_provider, Application, choose_dir,
     error_dialog, question_dialog, gprefs, setup_gui_option_parser)
 from calibre.gui2.main_window import option_parser as _option_parser
-from calibre.gui2.splash import SplashScreen
 from calibre.utils.config import prefs, dynamic
 
 if iswindows:
@@ -157,6 +158,34 @@ class EventAccumulator(object):
     def __call__(self, ev):
         self.events.append(ev)
 
+class SplashScreen(QSplashScreen):
+
+    def __init__(self):
+        self.drawn_once = False
+        QSplashScreen.__init__(self, QPixmap(I('library.png')))
+
+    def drawContents(self, painter):
+        self.drawn_once = True
+        painter.setBackgroundMode(Qt.OpaqueMode)
+        painter.setBackground(QBrush(QColor(0xee, 0xee, 0xee)))
+        painter.setPen(Qt.black)
+        painter.setRenderHint(painter.TextAntialiasing, True)
+        painter.drawText(self.rect().adjusted(5, 5, -5, -5), Qt.AlignLeft, self.message())
+
+    def show_message(self, msg):
+        self.showMessage(msg)
+        self.wait_for_draw()
+
+    def wait_for_draw(self):
+        # Without this the splash screen is not painted on linux and windows
+        self.drawn_once = False
+        st = time.time()
+        while not self.drawn_once and (time.time() - st < 0.1):
+            Application.instance().processEvents()
+
+    def show(self):
+        QSplashScreen.show(self)
+
 class GuiRunner(QObject):
     '''Make sure an event loop is running before starting the main work of
     initialization'''
@@ -178,8 +207,9 @@ class GuiRunner(QObject):
         main = self.main = Main(self.opts, gui_debug=self.gui_debug)
         if self.splash_screen is not None:
             self.splash_screen.show_message(_('Initializing user interface...'))
+            self.splash_screen.finish(main)
         with gprefs:  # Only write gui.json after initialization is complete
-            main.initialize(self.library_path, db, self.listener, self.actions, splash_screen=self.splash_screen)
+            main.initialize(self.library_path, db, self.listener, self.actions)
         self.splash_screen = None
         if DEBUG:
             prints('Started up in %.2f seconds'%(time.time() -
@@ -197,22 +227,14 @@ class GuiRunner(QObject):
             add_filesystem_book(event)
         self.app.file_event_hook = add_filesystem_book
 
-    def hide_splash_screen(self):
-        if self.splash_screen is not None:
-            with self.app:  # Disable quit on last window closed
-                self.splash_screen.hide()
-        self.splash_screen = None
-
     def choose_dir(self, initial_dir):
-        self.hide_splash_screen()
-        return choose_dir(None, 'choose calibre library',
+        return choose_dir(self.splash_screen, 'choose calibre library',
                 _('Choose a location for your new calibre e-book library'),
                 default_dir=initial_dir)
 
     def show_error(self, title, msg, det_msg=''):
-        self.hide_splash_screen()
         with self.app:
-            error_dialog(self.main, title, msg, det_msg=det_msg, show=True)
+            error_dialog(self.splash_screen, title, msg, det_msg=det_msg, show=True)
 
     def initialization_failed(self):
         print 'Catastrophic failure initializing GUI, bailing out...'
@@ -255,9 +277,8 @@ class GuiRunner(QObject):
         try:
             db = LibraryDatabase(self.library_path)
         except apsw.Error:
-            self.hide_splash_screen()
             with self.app:
-                repair = question_dialog(None, _('Corrupted database'),
+                repair = question_dialog(self.splash_screen, _('Corrupted database'),
                         _('The library database at %s appears to be corrupted. Do '
                         'you want calibre to try and rebuild it automatically? '
                         'The rebuild may not be completely successful. '
@@ -277,13 +298,13 @@ class GuiRunner(QObject):
         self.initialize_db_stage2(db, None)
 
     def show_splash_screen(self):
-        self.splash_screen = SplashScreen(get_debug_executable())
+        self.splash_screen = SplashScreen()
+        self.splash_screen.show()
         self.splash_screen.show_message(_('Starting %s: Loading books...') % __appname__)
 
     def initialize(self, *args):
         if gprefs['show_splash_screen']:
             self.show_splash_screen()
-
         self.library_path = get_library_path(self)
         if not self.library_path:
             self.initialization_failed()
