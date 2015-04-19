@@ -306,7 +306,7 @@ class GuiRunner(QObject):
         self.splash_screen.show_message(_('Starting %s: Loading books...') % __appname__)
 
     def initialize(self, *args):
-        if gprefs['show_splash_screen']:
+        if gprefs['show_splash_screen'] and not self.opts.start_in_tray:
             self.show_splash_screen()
         self.library_path = get_library_path(self)
         if not self.library_path:
