@@ -1,0 +1,92 @@
+#!/usr/bin/env  python2
+from __future__ import unicode_literals
+__license__   = 'GPL v3'
+__copyright__ = '2015 Michael Marotta <mikefm at gmail.net>'
+# Written April 2015
+# Last edited 4/17/15
+'''
+discovermagazine.com
+'''
+import re
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class DiscoverMagazine(BasicNewsRecipe):
+
+    title      = 'Discover Magazine Monthly'
+    __author__ = 'Michael Marotta'
+    description = 'Monthly magazine version of Discover Magazine (not rss feed).'
+    language = 'en'
+    encoding = 'utf-8'
+    simultaneous_downloads = 20
+    tags = 'news, technology, science'
+    INDEX = 'http://www.discovermagazine.com'
+
+    keep_only_tags = [
+        {'attrs':{'class':['headline', 'deck', 'belowDeck', 'mediaContainer', 'segment', 'cover']}},
+    ]
+    remove_tags = [dict(name='div', attrs={'class': ['ladder', 'mobile', 'popular', 'open', 'scistarter']})]
+
+    # Login stuff
+    needs_subscription = True
+    use_javascript_to_login = True
+    requires_version = (0, 9, 20)
+
+    def javascript_login(self, br, username, password):
+        br.visit('http://discovermagazine.com', timeout=120)
+        f = br.select_form('div.login.section div.form')
+        f['username'] = username
+        f['password'] = password
+        br.submit('input[id="signInButton"]', timeout=120)
+        br.run_for_a_time(20)
+        # br.show_browser()
+    # End login stuff
+
+    no_stylesheets = True
+    preprocess_regexps     = [(re.compile(r'<br[ ]*/>', re.IGNORECASE), lambda m: ''),
+                              (re.compile(r'<br[ ]*clear.*/>', re.IGNORECASE), lambda m: '')]
+
+    extra_css = 'body { font-family: helvetica, sans-serif; } \
+                 .belowdeck {font-style: italic; padding=bottom: 10px; max-width: none} \
+                 .caption {font-style: italic; padding=bottom: 10px; max-width: none} \
+                 .caption1 {font-style: italic; padding=bottom: 10px; max-width: none} \
+                 h2 { text-align: left; font-size: 1em; font-weight: bold; }}'
+
+    def parse_index(self):
+        # gets current month from homepage and append to index
+        soup = self.index_to_soup(self.INDEX)
+        c = soup.find(name=['a'], attrs={'title':['See inside the current issue of Discover Magazine']})
+        currentMonth = self.tag_to_string(c['href'])
+        self.INDEX = self.INDEX + currentMonth
+        # continue parsing
+        soup = self.index_to_soup(self.INDEX)
+        col = soup.find(attrs={'class':'issue'})
+        current_section, current_articles = None, []
+        feeds = []
+        # find cover
+        cover = soup.find('div', attrs={'class':'cover'})
+        if cover is not None:
+            img = cover.find('img', src=True)
+            if img is not None:
+                self.cover_url = 'http://www.discovermagazine.com' + img['src'].replace(' ', '%20')  # [:-7]
+        # parse articles
+        for tag in col.findAll(name=['h3', 'div'], attrs={'class':['bottomBorder', 'headline']}):
+            if tag.name == 'h3':
+                if current_section and current_articles:
+                    feeds.append((current_section, current_articles))
+                current_section = self.tag_to_string(tag).capitalize()
+                current_articles = []
+                self.log('Found section:', current_section)
+            elif current_section:
+                a = tag.find('a', href=True)
+                if a is not None:
+                    title = self.tag_to_string(a)
+                    url = 'http://www.discovermagazine.com' + a['href']
+                    if title and url:
+                        p = tag.find('div', attrs={'class':'snippet'})
+                        desc = self.tag_to_string(p) if p is not None else ''
+                        current_articles.append({'title':title, 'url':url, 'description':desc})
+                        self.log('\tArticle:', title, '[%s]' % url)
+                        self.log('\t\t', desc)
+        if current_section and current_articles:
+            feeds.append((current_section, current_articles))
+        return feeds
