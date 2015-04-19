@@ -5,11 +5,11 @@ __copyright__ = '2013, Armin Geller'
 Fetch WirtschaftsWoche Online
 '''
 import re
-# import time
 from calibre.web.feeds.news import BasicNewsRecipe
+
 class WirtschaftsWocheOnline(BasicNewsRecipe):
     title                 = u'WirtschaftsWoche Online'
-    __author__            = 'Hegi'  # Update AGE 2013-01-05; Modified by Hegi 2013-04-28
+    __author__            = 'Armin Geller'  # Update AGE 2013-01-05; Modified by Hegi 2013-04-28
     description           = u'Wirtschaftswoche Online - basierend auf den RRS-Feeds von Wiwo.de'
     tags 	                = 'Nachrichten, Blog, Wirtschaft'
     publisher             = 'Verlagsgruppe Handelsblatt GmbH / Redaktion WirtschaftsWoche Online'
@@ -29,9 +29,10 @@ class WirtschaftsWocheOnline(BasicNewsRecipe):
     ignore_duplicate_articles = {'title', 'url'}
 
     # if you want to reduce size for an b/w or E-ink device, uncomment this:
-    # compress_news_images  = True
+    compress_news_images  = True
     # compress_news_images_auto_size = 16
-    # scale_news_images     = (400,300)
+    scale_news_images     = (400,300)
+    compress_news_images_max_size = 35
 
     timefmt               = ' [%a, %d %b %Y]'
 
@@ -40,18 +41,19 @@ class WirtschaftsWocheOnline(BasicNewsRecipe):
                         'publisher'  	  : publisher}
     language              = 'de_DE'
     encoding              = 'UTF-8'
-    cover_source          = 'http://www.wiwo-shop.de/wirtschaftswoche/wirtschaftswoche-emagazin-p1952.html'
+    cover_source          = 'https://kaufhaus.handelsblatt.com/downloads/wirtschaftswoche-emagazin-p1952.html'
     masthead_url          = 'http://www.wiwo.de/images/wiwo_logo/5748610/1-formatOriginal.png'
 
     def get_cover_url(self):
-        cover_source_soup = self.index_to_soup(self.cover_source)
-        preview_image_div = cover_source_soup.find(attrs={'class':'container vorschau'})
-        return 'http://www.wiwo-shop.de'+preview_image_div.a.img['src']
+        soup = self.index_to_soup(self.cover_source)
+        style = soup.find('img', alt='WirtschaftsWoche eMagazin', style=True)['style']
+        self.cover_url = style.partition('(')[-1].rpartition(')')[0]
+        return self.cover_url
 
     # Insert ". " after "Place" in <span class="hcf-location-mark">Place</span>
     # If you use .epub format you could also do this as extra_css '.hcf-location-mark:after {content: ". "}'
-    preprocess_regexps    = [(re.compile(r'(<span class="hcf-location-mark">[^<]*)(</span>)',
-                              re.DOTALL|re.IGNORECASE), lambda match: match.group(1) + '. ' + match.group(2))]
+    preprocess_regexps    = [
+        (re.compile(r'(<span class="hcf-location-mark">[^<]*)(</span>)', re.DOTALL|re.IGNORECASE), lambda match: match.group(1) + '. ' + match.group(2))]
 
     extra_css      =  'h1 {font-size: 1.6em; text-align: left} \
                        h2 {font-size: 1em; font-style: italic; font-weight: normal} \
@@ -83,4 +85,3 @@ class WirtschaftsWocheOnline(BasicNewsRecipe):
     def print_version(self, url):
         main, sep, id = url.rpartition('/')
         return main + '/v_detail_tab_print/' + id
-
