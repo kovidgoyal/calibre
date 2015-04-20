@@ -41,7 +41,7 @@ class NameTableWidgetItem(QTableWidgetItem):
 
     def setText(self, txt):
         self.current_value = txt
-        QTableWidgetItem.setText(txt)
+        QTableWidgetItem.setText(self, txt)
 
     def __ge__(self, other):
         return sort_key(unicode(self.text())) >= sort_key(unicode(other.text()))
