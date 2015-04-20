@@ -40,6 +40,67 @@ def css_font_family_to_docx(raw):
 def bmap(x):
     return 'on' if x else 'off'
 
+def is_dropcaps(html_tag, tag_style):
+    return len(html_tag) < 2 and len(etree.tostring(html_tag, method='text', encoding=unicode, with_tail=False)) < 5 and tag_style['float'] == 'left'
+
+class FloatSpec(object):
+
+    def __init__(self, namespace, html_tag, tag_style):
+        self.makeelement = namespace.makeelement
+        self.is_dropcaps = is_dropcaps(html_tag, tag_style)
+        self.blocks = []
+        if self.is_dropcaps:
+            self.dropcaps_lines = 3
+        else:
+            self.x_align = tag_style['float']
+            self.w = self.h = None
+            if tag_style._get('width') != 'auto':
+                self.w = int(20 * max(tag_style['min-width'], tag_style['width']))
+            if tag_style._get('height') == 'auto':
+                self.h_rule = 'auto'
+            else:
+                if tag_style['min-height'] > 0:
+                    self.h_rule, self.h = 'atLeast', tag_style['min-height']
+                else:
+                    self.h_rule, self.h = 'exact', tag_style['height']
+                self.h = int(20 * self.h)
+            self.h_space = int(20 * max(tag_style['margin-right'], tag_style['margin-left']))
+            self.v_space = int(20 * max(tag_style['margin-top'], tag_style['margin-bottom']))
+
+        read_css_block_borders(self, tag_style)
+
+    def serialize(self, block, parent):
+        if self.is_dropcaps:
+            attrs = dict(w_dropCap='drop', w_lines=str(self.dropcaps_lines), w_wrap='around', w_vAnchor='text', w_hAnchor='text')
+        else:
+            attrs = dict(
+                w_wrap='around', w_vAnchor='text', w_hAnchor='text', w_xAlign=self.x_align, w_y='1',
+                w_hSpace=str(self.h_space), w_vSpace=str(self.v_space), w_hRule=self.h_rule
+            )
+            if self.w is not None:
+                attrs['w_w'] = str(self.w)
+            if self.h is not None:
+                attrs['w_h'] = str(self.h)
+        self.makeelement(parent, 'w:framePr', **attrs)
+        # Margins are already applied by the frame style, so override them to
+        # be zero on individual blocks
+        self.makeelement(parent, 'w:ind', w_left='0', w_leftChars='0', w_right='0', w_rightChars='0')
+        attrs = {}
+        if block is self.blocks[0]:
+            attrs.update(dict(w_before='0', w_beforeLines='0'))
+        if block is self.blocks[-1]:
+            attrs.update(dict(w_after='0', w_afterLines='0'))
+        if attrs:
+            self.makeelement(parent, 'w:spacing', **attrs)
+        # Similarly apply the same border and padding properties to all blocks
+        # in this floatspec
+        bdr = self.makeelement(parent, 'w:pBdr')
+        for edge in border_edges:
+            padding = getattr(self, 'padding_' + edge)
+            width = getattr(self, 'border_%s_width' % edge)
+            bstyle = getattr(self, 'border_%s_style' % edge)
+            self.makeelement(bdr, 'w:'+edge, w_space=str(padding), w_val=bstyle, w_sz=str(width), w_color=getattr(self, 'border_%s_color' % edge))
+
 class DOCXStyle(object):
 
     ALL_PROPS = ()

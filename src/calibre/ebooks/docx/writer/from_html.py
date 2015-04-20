@@ -9,7 +9,7 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 import re
 
 from calibre.ebooks.docx.writer.container import create_skeleton
-from calibre.ebooks.docx.writer.styles import StylesManager
+from calibre.ebooks.docx.writer.styles import StylesManager, FloatSpec
 from calibre.ebooks.docx.writer.images import ImagesManager
 from calibre.ebooks.docx.writer.fonts import FontsManager
 from calibre.ebooks.docx.writer.tables import Table
@@ -39,7 +39,6 @@ class Stylizer(Sz):
             return self._styles[element]
         except KeyError:
             return Style(element, self)
-
 
 class TextRun(object):
 
@@ -85,6 +84,9 @@ class TextRun(object):
                 if preserve_whitespace:
                     t.set('{http://www.w3.org/XML/1998/namespace}space', 'preserve')
 
+    def __repr__(self):
+        return repr(self.texts)
+
     def is_empty(self):
         if not self.texts:
             return True
@@ -94,15 +96,26 @@ class TextRun(object):
 
 class Block(object):
 
-    def __init__(self, namespace, styles_manager, html_block, style, is_table_cell=False):
+    def __init__(self, namespace, styles_manager, html_block, style, is_table_cell=False, float_spec=None):
         self.namespace = namespace
+        self.parent_items = None
         self.html_block = html_block
+        self.float_spec = float_spec
+        if float_spec is not None:
+            float_spec.blocks.append(self)
         self.html_style = style
         self.style = styles_manager.create_block_style(style, html_block, is_table_cell=is_table_cell)
         self.styles_manager = styles_manager
         self.keep_next = False
         self.page_break_before = False
         self.runs = []
+        self.skipped = False
+
+    def resolve_skipped(self, next_block):
+        if not self.is_empty():
+            return
+        if len(self.html_block) > 0 and self.html_block[0] is next_block.html_block:
+            self.skipped = True
 
     def add_text(self, text, style, ignore_leading_whitespace=False, html_parent=None, is_parent_style=False):
         ts = self.styles_manager.create_text_style(style, is_parent_style=is_parent_style)
@@ -146,9 +159,14 @@ class Block(object):
             makeelement(ppr, 'w:keepNext')
         if self.page_break_before:
             makeelement(ppr, 'w:pageBreakBefore')
+        if self.float_spec is not None:
+            self.float_spec.serialize(self, ppr)
         makeelement(ppr, 'w:pStyle', w_val=self.style.id)
         for run in self.runs:
             run.serialize(p)
+
+    def __repr__(self):
+        return 'Block(%r)' % self.runs
 
     def is_empty(self):
         for run in self.runs:
@@ -180,11 +198,12 @@ class Blocks(object):
             else:
                 self.block_map[self.current_block] = len(self.items)
                 self.items.append(self.current_block)
+                self.current_block.parent_items = self.items
         self.current_block = None
 
-    def start_new_block(self, html_block, style, is_table_cell=False):
+    def start_new_block(self, html_block, style, is_table_cell=False, float_spec=None):
         self.end_current_block()
-        self.current_block = Block(self.namespace, self.styles_manager, html_block, style, is_table_cell=is_table_cell)
+        self.current_block = Block(self.namespace, self.styles_manager, html_block, style, is_table_cell=is_table_cell, float_spec=float_spec)
         self.open_html_blocks.add(html_block)
         return self.current_block
 
@@ -224,6 +243,19 @@ class Blocks(object):
         for item in self.items:
             item.serialize(body)
 
+    def delete_block_at(self, pos=None):
+        pos = self.pos if pos is None else pos
+        block = self.all_blocks[pos]
+        del self.all_blocks[pos]
+        if self.block_map:
+            del self.items[self.block_map.pop(block)]
+        else:
+            items = self.items if block.parent_items is None else block.parent_items
+            items.remove(block)
+        block.parent_items = None
+        if block.float_spec is not None:
+            block.float_spec.blocks.remove(block)
+
     def __enter__(self):
         self.pos = len(self.all_blocks)
         self.block_map = {}
@@ -235,12 +267,11 @@ class Blocks(object):
         if len(self.all_blocks) > self.pos and self.all_blocks[self.pos].is_empty():
             # Delete the empty block corresponding to the <body> tag when the
             # body tag has no inline content before its first sub-block
-            block = self.all_blocks[self.pos]
-            del self.all_blocks[self.pos]
-            del self.items[self.block_map.pop(block)]
+            self.delete_block_at(self.pos)
         if self.pos > 0 and self.pos < len(self.all_blocks):
             # Insert a page break corresponding to the start of the html file
             self.all_blocks[self.pos].page_break_before = True
+        self.block_map = {}
 
 class Convert(object):
 
@@ -261,7 +292,20 @@ class Convert(object):
         for item in self.oeb.spine:
             self.process_item(item)
 
-        self.styles_manager.finalize(self.blocks.all_blocks)
+        all_blocks = self.blocks.all_blocks
+        remove_blocks = []
+        for i, block in enumerate(all_blocks):
+            try:
+                nb = all_blocks[i+1]
+            except IndexError:
+                break
+            block.resolve_skipped(nb)
+            if block.skipped:
+                remove_blocks.append((i, block))
+        for pos, block in reversed(remove_blocks):
+            self.blocks.delete_block_at(pos)
+
+        self.styles_manager.finalize(all_blocks)
         self.write()
 
     def process_item(self, item):
@@ -274,16 +318,25 @@ class Convert(object):
             with self.blocks:
                 self.process_tag(body, stylizer, is_first_tag=i == 0)
 
-    def process_tag(self, html_tag, stylizer, is_first_tag=False):
+    def process_tag(self, html_tag, stylizer, is_first_tag=False, float_spec=None):
         tagname = barename(html_tag.tag)
         if tagname in {'script', 'style', 'title', 'meta'}:
             return
         tag_style = stylizer.style(html_tag)
         if tag_style.is_hidden:
             return
+
         display = tag_style._get('display')
+        is_float = tag_style['float'] in {'left', 'right'} and not is_first_tag
+        if float_spec is None and is_float:
+            float_spec = FloatSpec(self.docx.namespace, html_tag, tag_style)
+
         if display in {'inline', 'inline-block'} or tagname == 'br':  # <br> has display:block but we dont want to start a new paragraph
-            self.add_inline_tag(tagname, html_tag, tag_style, stylizer)
+            if is_float and float_spec.is_dropcaps:
+                self.add_block_tag(tagname, html_tag, tag_style, stylizer, float_spec=float_spec)
+                float_spec = None
+            else:
+                self.add_inline_tag(tagname, html_tag, tag_style, stylizer)
         elif display == 'list-item':
             # TODO: Implement this
             self.add_block_tag(tagname, html_tag, tag_style, stylizer)
@@ -297,14 +350,14 @@ class Convert(object):
                 self.blocks.end_current_block()
                 self.blocks.start_new_table(html_tag, tag_style)
         else:
-            if tagname == 'img' and tag_style['float'] in {'left', 'right'}:
+            if tagname == 'img' and is_float:
                 # Image is floating so dont start a new paragraph for it
                 self.add_inline_tag(tagname, html_tag, tag_style, stylizer)
             else:
-                self.add_block_tag(tagname, html_tag, tag_style, stylizer)
+                self.add_block_tag(tagname, html_tag, tag_style, stylizer, float_spec=float_spec)
 
         for child in html_tag.iterchildren('*'):
-            self.process_tag(child, stylizer)
+            self.process_tag(child, stylizer, float_spec=float_spec)
 
         is_block = html_tag in self.blocks.open_html_blocks
         self.blocks.finish_tag(html_tag)
@@ -321,8 +374,8 @@ class Convert(object):
             block = self.blocks.current_or_new_block(html_tag.getparent(), stylizer.style(html_tag.getparent()))
             block.add_text(html_tag.tail, stylizer.style(html_tag.getparent()), is_parent_style=True)
 
-    def add_block_tag(self, tagname, html_tag, tag_style, stylizer, is_table_cell=False):
-        block = self.blocks.start_new_block(html_tag, tag_style, is_table_cell=is_table_cell)
+    def add_block_tag(self, tagname, html_tag, tag_style, stylizer, is_table_cell=False, float_spec=None):
+        block = self.blocks.start_new_block(html_tag, tag_style, is_table_cell=is_table_cell, float_spec=float_spec)
         if tagname == 'img':
             self.images_manager.add_image(html_tag, block, stylizer)
         else:

@@ -93,6 +93,7 @@ class Cell(object):
 
     def add_block(self, block):
         self.items.append(block)
+        block.parent_items = self.items
 
     def add_table(self, table):
         self.items.append(table)
