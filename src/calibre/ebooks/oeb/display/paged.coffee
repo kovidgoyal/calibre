@@ -33,11 +33,11 @@ has_start_text = (elem) ->
     return false
 
 create_page_div = (elem) ->
-    div = document.createElement('div')
+    div = document.createElement('blank-page-div')
     div.innerText = ' \n    '
-    div.setAttribute('data-calibre-dummy-page', '1')
     document.body.appendChild(div)
     div.style.setProperty('-webkit-column-break-before', 'always')
+    div.style.setProperty('display', 'block')
     div.style.setProperty('white-space', 'pre')
     div.style.setProperty('background-color', 'transparent')
     div.style.setProperty('background-image', 'none')
@@ -455,7 +455,7 @@ class PagedDisplay
         if this.cols_per_screen > 1
             width_left = document.body.scrollWidth - (window.pageXOffset + window.innerWidth)
             pages_left = width_left / this.page_width
-            if pages_left < this.cols_per_screen
+            if Math.ceil(pages_left) < this.cols_per_screen
                 return -1  # Only blank, dummy pages left
         limit = document.body.scrollWidth - window.innerWidth
         if ans > limit
