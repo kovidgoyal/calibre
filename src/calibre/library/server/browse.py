@@ -507,7 +507,7 @@ class BrowseServer(object):
             items = get_category_items(category, items,
                     datatype, self.opts.url_prefix)
         else:
-            getter = lambda x: unicode(getattr(x, 'sort', x.name))
+            getter = lambda x: unicode(getattr(x, 'sort', None) or x.name)
             starts = set([])
             for x in items:
                 val = getter(x)
@@ -571,7 +571,10 @@ class BrowseServer(object):
             raise cherrypy.HTTPError(404, 'category not found')
 
         category_meta = self.db.field_metadata
-        datatype = category_meta[category]['datatype']
+        try:
+            datatype = category_meta[category]['datatype']
+        except KeyError:
+            datatype = 'text'
 
         try:
             group = unhexlify(group)
@@ -582,7 +585,7 @@ class BrowseServer(object):
 
         items = categories[category]
         entries = []
-        getter = lambda x: unicode(getattr(x, 'sort', x.name))
+        getter = lambda x: unicode(getattr(x, 'sort', None) or x.name)
         for x in items:
             val = getter(x)
             if not val:
@@ -870,7 +873,7 @@ class BrowseServer(object):
                     continue
                 if m['datatype'] == 'comments' or field == 'comments' or (
                         m['datatype'] == 'composite' and
-                            m['display'].get('contains_html', False)):
+                        m['display'].get('contains_html', False)):
                     val = mi.get(field, '')
                     if val and val.strip():
                         comments.append((m['name'], comments_to_html(val)))
