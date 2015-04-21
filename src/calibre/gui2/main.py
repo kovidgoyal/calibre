@@ -183,9 +183,6 @@ class SplashScreen(QSplashScreen):
         while not self.drawn_once and (time.time() - st < 0.1):
             Application.instance().processEvents()
 
-    def show(self):
-        QSplashScreen.show(self)
-
 class GuiRunner(QObject):
     '''Make sure an event loop is running before starting the main work of
     initialization'''
