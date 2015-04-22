@@ -43,7 +43,7 @@ def save_container(container, path):
         try:
             os.fchown(fno, st.st_uid, st.st_gid)
         except EnvironmentError as err:
-            if err.errno != errno.EPERM:
+            if err.errno not in (errno.EPERM, errno.EACCES):
                 # ignore chown failure as user could be editing file belonging
                 # to a different user, in which case we really cant do anything
                 # about it short of making the file update non-atomic
