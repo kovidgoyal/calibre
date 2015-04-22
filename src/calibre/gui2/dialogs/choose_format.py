@@ -43,7 +43,8 @@ class ChooseFormatDialog(QDialog):
         self._formats = formats
         self.formats.setCurrentRow(0)
         self._format = self.open_with_format = None
-        self.populate_open_with()
+        if show_open_with:
+            self.populate_open_with()
 
     def populate_open_with(self):
         from calibre.gui2.open_with import populate_menu, edit_programs
