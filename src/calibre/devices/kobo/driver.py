@@ -64,11 +64,11 @@ class KOBO(USBMS):
     gui_name = 'Kobo Reader'
     description = _('Communicate with the Kobo Reader')
     author = 'Timothy Legge and David Forrester'
-    version = (2, 1, 7)
+    version = (2, 1, 8)
 
     dbversion = 0
     fwversion = 0
-    supported_dbversion = 112
+    supported_dbversion = 120
     has_kepubs = False
 
     supported_platforms = ['windows', 'osx', 'linux']
@@ -1256,7 +1256,7 @@ class KOBOTOUCH(KOBO):
     description = 'Communicate with the Kobo Touch, Glo, Mini and Aura HD ereaders. Based on the existing Kobo driver by %s.' % (KOBO.author)
 #    icon        = I('devices/kobotouch.jpg')
 
-    supported_dbversion             = 115
+    supported_dbversion             = 120
     min_supported_dbversion         = 53
     min_dbversion_series            = 65
     min_dbversion_externalid        = 65
@@ -1265,12 +1265,15 @@ class KOBOTOUCH(KOBO):
     min_dbversion_activity          = 77
     min_dbversion_keywords          = 82
 
-    max_supported_fwversion         = (3, 13, 2)
+    max_supported_fwversion         = (3, 15, 1)
+    # The following document firwmare versions where new function or devices were added.
+    # Not all are used, but this feels a good place to record it.
     min_fwversion_shelves           = (2, 0, 0)
     min_fwversion_images_on_sdcard  = (2, 4, 1)
     min_fwversion_images_tree       = (2, 9, 0)  # Cover images stored in tree under .kobo-images
-    min_aurah2o_fwversion           = (3, 7, 0)  # Not used yet
-    min_reviews_fwversion           = (3, 12, 0) # Not used yet
+    min_aurah2o_fwversion           = (3, 7, 0)
+    min_reviews_fwversion           = (3, 12, 0)
+    min_glohd_fwversion             = (3, 14, 0)
 
     has_kepubs = True
 
@@ -1367,9 +1370,12 @@ class KOBOTOUCH(KOBO):
     AURA_HD_PRODUCT_ID  = [0x4193]
     AURA_H2O_PRODUCT_ID = [0x4213]
     GLO_PRODUCT_ID      = [0x4173]
+    GLO_HD_PRODUCT_ID   = [0x4223]
     MINI_PRODUCT_ID     = [0x4183]
     TOUCH_PRODUCT_ID    = [0x4163]
-    PRODUCT_ID          = AURA_PRODUCT_ID + AURA_HD_PRODUCT_ID + AURA_H2O_PRODUCT_ID + GLO_PRODUCT_ID + MINI_PRODUCT_ID + TOUCH_PRODUCT_ID
+    PRODUCT_ID          = AURA_PRODUCT_ID + AURA_HD_PRODUCT_ID + AURA_H2O_PRODUCT_ID + \
+                          GLO_PRODUCT_ID + GLO_HD_PRODUCT_ID + \
+                          MINI_PRODUCT_ID + TOUCH_PRODUCT_ID
 
     BCD = [0x0110, 0x0326]
 
@@ -2784,13 +2790,17 @@ class KOBOTOUCH(KOBO):
         return self.detected_device.idProduct in self.AURA_H2O_PRODUCT_ID
     def isGlo(self):
         return self.detected_device.idProduct in self.GLO_PRODUCT_ID
+    def isGloHD(self):
+        return self.detected_device.idProduct in self.GLO_HD_PRODUCT_ID
     def isMini(self):
         return self.detected_device.idProduct in self.MINI_PRODUCT_ID
     def isTouch(self):
         return self.detected_device.idProduct in self.TOUCH_PRODUCT_ID
 
     def cover_file_endings(self):
-        return self.GLO_COVER_FILE_ENDINGS if self.isGlo() or self.isAura() else self.AURA_HD_COVER_FILE_ENDINGS if self.isAuraHD() or self.isAuraH2O() else self.COVER_FILE_ENDINGS
+        return self.GLO_COVER_FILE_ENDINGS if self.isGlo() or self.isAura() \
+                else self.AURA_HD_COVER_FILE_ENDINGS if self.isAuraHD() or self.isAuraH2O() or self.isGloHD() \
+                else self.COVER_FILE_ENDINGS
 
     def set_device_name(self):
         device_name = self.gui_name
@@ -2802,6 +2812,8 @@ class KOBOTOUCH(KOBO):
             device_name = 'Kobo Aura H2O'
         elif self.isGlo():
             device_name = 'Kobo Glo'
+        elif self.isGloHD():
+            device_name = 'Kobo Glo HD'
         elif self.isMini():
             device_name = 'Kobo Mini'
         elif self.isTouch():
