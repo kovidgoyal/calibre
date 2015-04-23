@@ -185,9 +185,9 @@ def extract_member(stream, match=re.compile(r'\.(jpg|jpeg|gif|png)\s*$', re.I),
             return h['filename'], et.getvalue()
 
 def extract_first_alphabetically(stream):
-    from calibre.utils.icu import numeric_sort_key
+    from calibre.libunzip import sort_key
     names_ = sorted([x for x in names(stream) if os.path.splitext(x)[1][1:].lower() in
-            {'png', 'jpg', 'jpeg', 'gif'}], key=numeric_sort_key)
+            {'png', 'jpg', 'jpeg', 'gif', 'webp'}], key=sort_key)
     return extract_member(stream, name=names_[0], match=None)
 
 # Test normal RAR file {{{
