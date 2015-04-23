@@ -604,5 +604,11 @@ class ChooseLibraryAction(InterfaceAction):
                         ' are running.'), show=True)
             return False
 
+        if self.gui.proceed_question.questions:
+            warning_dialog(self.gui, _('Not allowed'),
+                    _('You cannot change libraries until all'
+                        ' updates are accepted or rejected.'), show=True)
+            return False
+
         return True
 
