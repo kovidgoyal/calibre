@@ -46,6 +46,8 @@ def extract(filename, dir):
 
 def sort_key(filename):
     bn, ext = filename.rpartition('.')[::2]
+    if not bn and ext:
+        bn, ext = ext, bn
     return (numeric_sort_key(bn), numeric_sort_key(ext))
 
 def extract_member(filename, match=re.compile(r'\.(jpg|jpeg|gif|png)\s*$', re.I), sort_alphabetically=False):
