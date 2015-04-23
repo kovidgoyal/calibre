@@ -351,6 +351,7 @@ class CopyToLibraryAction(InterfaceAction):
             self.menu.addAction(_('Choose library by path...'), self.choose_library)
             self.menu.addSeparator()
         for name, loc in locations:
+            name = name.replace('&', '&&')
             self.menu.addAction(name, partial(self.copy_to_library,
                 loc))
             self.menu.addAction(name + ' ' + _('(delete after copy)'),

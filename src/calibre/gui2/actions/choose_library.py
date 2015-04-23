@@ -303,7 +303,7 @@ class ChooseLibraryAction(InterfaceAction):
         if len(lname) > 16:
             lname = lname[:16] + u'…'
         a = self.qaction
-        a.setText(lname)
+        a.setText(lname.replace('&', '&&&'))  # I have no idea why this requires a triple ampersand
         self.update_tooltip(db.count())
         self.build_menus()
         state = self.view_state_map.get(self.stats.canonicalize_path(
@@ -331,6 +331,7 @@ class ChooseLibraryAction(InterfaceAction):
         self.delete_menu.clear()
         quick_actions, rename_actions, delete_actions = [], [], []
         for name, loc in locations:
+            name = name.replace('&', '&&')
             ac = self.quick_menu.addAction(name, Dispatcher(partial(self.switch_requested,
                 loc)))
             ac.setStatusTip(_('Switch to: %s') % loc)
@@ -347,6 +348,7 @@ class ChooseLibraryAction(InterfaceAction):
         qs_actions = []
         for i, x in enumerate(locations[:len(self.switch_actions)]):
             name, loc = x
+            name = name.replace('&', '&&')
             ac = self.switch_actions[i]
             ac.setText(name)
             ac.setStatusTip(_('Switch to: %s') % loc)
@@ -371,12 +373,13 @@ class ChooseLibraryAction(InterfaceAction):
         LibraryDatabase = db_class()
         loc = location.replace('/', os.sep)
         base = os.path.dirname(loc)
-        newname, ok = QInputDialog.getText(self.gui, _('Rename') + ' ' + name,
+        old_name = name.replace('&&', '&')
+        newname, ok = QInputDialog.getText(self.gui, _('Rename') + ' ' + old_name,
                 '<p>'+_('Choose a new name for the library <b>%s</b>. ')%name +
                 '<p>'+_('Note that the actual library folder will be renamed.'),
-                text=name)
+                text=old_name)
         newname = sanitize_file_name_unicode(unicode(newname))
-        if not ok or not newname or newname == name:
+        if not ok or not newname or newname == old_name:
             return
         newloc = os.path.join(base, newname)
         if os.path.exists(newloc):
