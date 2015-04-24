@@ -194,7 +194,7 @@ class Stylizer(object):
                     from lxml.builder import ElementMaker
                     E = ElementMaker(namespace=XHTML_NS)
                     for elem in matches:
-                        for x in elem.iter():
+                        for x in elem.iter('*'):
                             if x.text:
                                 punctuation_chars = []
                                 text = unicode(x.text)
