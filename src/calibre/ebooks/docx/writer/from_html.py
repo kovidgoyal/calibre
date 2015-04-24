@@ -13,6 +13,7 @@ from calibre.ebooks.docx.writer.styles import StylesManager, FloatSpec
 from calibre.ebooks.docx.writer.images import ImagesManager
 from calibre.ebooks.docx.writer.fonts import FontsManager
 from calibre.ebooks.docx.writer.tables import Table
+from calibre.ebooks.docx.writer.lists import ListsManager
 from calibre.ebooks.oeb.stylizer import Stylizer as Sz, Style as St
 from calibre.ebooks.oeb.base import XPath, barename
 
@@ -96,8 +97,9 @@ class TextRun(object):
 
 class Block(object):
 
-    def __init__(self, namespace, styles_manager, html_block, style, is_table_cell=False, float_spec=None):
+    def __init__(self, namespace, styles_manager, html_block, style, is_table_cell=False, float_spec=None, is_list_item=False):
         self.namespace = namespace
+        self.list_tag = (html_block, style) if is_list_item else None
         self.parent_items = None
         self.html_block = html_block
         self.float_spec = float_spec
@@ -116,6 +118,8 @@ class Block(object):
             return
         if len(self.html_block) > 0 and self.html_block[0] is next_block.html_block:
             self.skipped = True
+            if self.list_tag is not None:
+                next_block.list_tag = self.list_tag
 
     def add_text(self, text, style, ignore_leading_whitespace=False, html_parent=None, is_parent_style=False):
         ts = self.styles_manager.create_text_style(style, is_parent_style=is_parent_style)
@@ -201,9 +205,11 @@ class Blocks(object):
                 self.current_block.parent_items = self.items
         self.current_block = None
 
-    def start_new_block(self, html_block, style, is_table_cell=False, float_spec=None):
+    def start_new_block(self, html_block, style, is_table_cell=False, float_spec=None, is_list_item=False):
         self.end_current_block()
-        self.current_block = Block(self.namespace, self.styles_manager, html_block, style, is_table_cell=is_table_cell, float_spec=float_spec)
+        self.current_block = Block(
+            self.namespace, self.styles_manager, html_block, style,
+            is_table_cell=is_table_cell, float_spec=float_spec, is_list_item=is_list_item)
         self.open_html_blocks.add(html_block)
         return self.current_block
 
@@ -286,6 +292,7 @@ class Convert(object):
 
         self.styles_manager = StylesManager(self.docx.namespace)
         self.images_manager = ImagesManager(self.oeb, self.docx.document_relationships)
+        self.lists_manager = ListsManager(self.docx)
         self.fonts_manager = FontsManager(self.docx.namespace, self.oeb, self.opts)
         self.blocks = Blocks(self.docx.namespace, self.styles_manager)
 
@@ -305,6 +312,7 @@ class Convert(object):
         for pos, block in reversed(remove_blocks):
             self.blocks.delete_block_at(pos)
 
+        self.lists_manager.finalize(all_blocks)
         self.styles_manager.finalize(all_blocks)
         self.write()
 
@@ -338,8 +346,7 @@ class Convert(object):
             else:
                 self.add_inline_tag(tagname, html_tag, tag_style, stylizer)
         elif display == 'list-item':
-            # TODO: Implement this
-            self.add_block_tag(tagname, html_tag, tag_style, stylizer)
+            self.add_block_tag(tagname, html_tag, tag_style, stylizer, is_list_item=True)
         elif display.startswith('table') or display == 'inline-table':
             if display == 'table-cell':
                 self.blocks.start_new_cell(html_tag, tag_style)
@@ -374,8 +381,8 @@ class Convert(object):
             block = self.blocks.current_or_new_block(html_tag.getparent(), stylizer.style(html_tag.getparent()))
             block.add_text(html_tag.tail, stylizer.style(html_tag.getparent()), is_parent_style=True)
 
-    def add_block_tag(self, tagname, html_tag, tag_style, stylizer, is_table_cell=False, float_spec=None):
-        block = self.blocks.start_new_block(html_tag, tag_style, is_table_cell=is_table_cell, float_spec=float_spec)
+    def add_block_tag(self, tagname, html_tag, tag_style, stylizer, is_table_cell=False, float_spec=None, is_list_item=False):
+        block = self.blocks.start_new_block(html_tag, tag_style, is_table_cell=is_table_cell, float_spec=float_spec, is_list_item=is_list_item)
         if tagname == 'img':
             self.images_manager.add_image(html_tag, block, stylizer)
         else:
