@@ -20,6 +20,44 @@
 #   new recipes:
 #     - title: 
 
+- version: 2.26.0
+  date: 2015-04-24
+
+  new features:
+    - title: "Driver for the soon to be released Kobo Glo HD"
+
+  bug fixes:
+    - title: "Do not use a separate process to draw the splash screen. This might fix the issue of calibre randomly freezing on startup on a few windows systems"
+
+    - title: "MOBI Ouput: Fix :first-letter applied to elements containing a comment causing conversion to fail"
+
+    - title: "Properly display names of libraries containing the ampersand character."
+      tickets: [1447188]
+
+    - title: "When sorting filenames in comics treat the file extension as a secondary sort key. Fixes xyz.jpg sorting before xyz_1.jpg"
+
+    - title: "Fix a regression in 2.25 that broke the search & replace wizard in the conversion dialog when converting a book with multiple formats"
+
+    - title: "Content server: Fix errors when library contains enough virtual libraries to cause grouping."
+      tickets: [1446282]
+
+    - title: "Manage tags dialog: Fix setting a tag to empty causes an unhandled error."
+      tickets: [1446318]
+
+    - title: "E-book viewer: Fix a regression that caused the viewer to occasionally skip the last page in a chapter when displaying more than one pages per screen and scrolling by screen"
+
+    - title: "Edit Book: Fix open OPF file not being refreshed when deleting items from the file browser."
+      tickets: [1445634]
+
+  improved recipes:
+    - WirtschaftsWoche Online
+    - Wired
+    - CNN
+
+  new recipes:
+    - title: Discover Magazine Monthly 
+      author: Michael Marotta
+
 - version: 2.25.0
   date: 2015-04-17
 
