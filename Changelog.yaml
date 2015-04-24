@@ -34,7 +34,7 @@
     - title: "Properly display names of libraries containing the ampersand character."
       tickets: [1447188]
 
-    - title: "When sorting filenames in comics treat the file extension as a secondary sort key. Fixes xyz.jpg sorting before xyz_1.jpg"
+    - title: "When sorting filenames in comics treat the file extension as a secondary sort key. Fixes xyz.jpg sorting after xyz_1.jpg"
 
     - title: "Fix a regression in 2.25 that broke the search & replace wizard in the conversion dialog when converting a book with multiple formats"
 
