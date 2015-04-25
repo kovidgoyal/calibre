@@ -163,6 +163,7 @@ class SplashScreen(QSplashScreen):
     def __init__(self):
         self.drawn_once = False
         QSplashScreen.__init__(self, QPixmap(I('library.png')))
+        self.setWindowTitle(__appname__)
 
     def drawContents(self, painter):
         self.drawn_once = True
