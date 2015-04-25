@@ -329,7 +329,7 @@ class BuiltinPrint(BuiltinFormatterFunction):
 
     def evaluate(self, formatter, kwargs, mi, locals, *args):
         print args
-        return None
+        return ''
 
 class BuiltinField(BuiltinFormatterFunction):
     name = 'field'
