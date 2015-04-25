@@ -432,10 +432,10 @@ class Styles(object):
         h = hash(frozenset(css.iteritems()))
         return self.classes.get(h, (None, None))[0]
 
-    def generate_css(self, dest_dir, docx):
+    def generate_css(self, dest_dir, docx, notes_nopb):
         ef = self.fonts.embed_fonts(dest_dir, docx)
-        prefix = textwrap.dedent(
-            '''\
+
+        s = '''\
             body { font-family: %s; font-size: %s; color: %s }
 
             /* In word all paragraphs have zero margins unless explicitly specified in a style */
@@ -456,8 +456,12 @@ class Styles(object):
 
             dl.notes dt a { text-decoration: none }
 
-            dl.notes dd { page-break-after: always }
+            '''
 
+        if not notes_nopb:
+            s = s + 'dl.notes dd { page-break-after: always }'
+
+        s = s + '''\
             dl.notes dd:last-of-type { page-break-after: avoid }
 
             span.tab { white-space: pre }
@@ -466,7 +470,9 @@ class Styles(object):
             p.index-entry a:visited { color: blue }
             p.index-entry a:hover { color: red }
 
-            ''') % (self.body_font_family, self.body_font_size, self.body_color)
+            '''
+
+        prefix = textwrap.dedent(s) % (self.body_font_family, self.body_font_size, self.body_color)
         if ef:
             prefix = ef + '\n' + prefix
 

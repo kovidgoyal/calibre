@@ -19,6 +19,9 @@ class DOCXInput(InputFormatPlugin):
             help=_('Normally, if a large image is present at the start of the document that looks like a cover, '
                    'it will be removed from the document and used as the cover for created ebook. This option '
                    'turns off that behavior.')),
+        OptionRecommendation(name='docx_notes_nopb', recommended_value=False,
+            help=_('Normally, a page break is added after every footnote, '
+                   'This option turns off that behavior.')),
 
     }
 
@@ -26,5 +29,5 @@ class DOCXInput(InputFormatPlugin):
 
     def convert(self, stream, options, file_ext, log, accelerators):
         from calibre.ebooks.docx.to_html import Convert
-        return Convert(stream, detect_cover=not options.docx_no_cover, log=log)()
+        return Convert(stream, detect_cover=not options.docx_no_cover, log=log, notes_nopb=options.docx_notes_nopb)()
 

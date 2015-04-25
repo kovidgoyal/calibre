@@ -50,7 +50,7 @@ def html_lang(docx_lang):
 
 class Convert(object):
 
-    def __init__(self, path_or_stream, dest_dir=None, log=None, detect_cover=True, notes_text=None):
+    def __init__(self, path_or_stream, dest_dir=None, log=None, detect_cover=True, notes_text=None, notes_nopb=False):
         self.docx = DOCX(path_or_stream, log=log)
         self.namespace = self.docx.namespace
         self.ms_pat = re.compile(r'\s{2,}')
@@ -58,6 +58,7 @@ class Convert(object):
         self.log = self.docx.log
         self.detect_cover = detect_cover
         self.notes_text = notes_text or _('Notes')
+        self.notes_nopb = notes_nopb
         self.dest_dir = dest_dir or os.getcwdu()
         self.mi = self.docx.metadata
         self.body = BODY()
@@ -340,7 +341,7 @@ class Convert(object):
         raw = html.tostring(self.html, encoding='utf-8', doctype='<!DOCTYPE html>')
         with open(os.path.join(self.dest_dir, 'index.html'), 'wb') as f:
             f.write(raw)
-        css = self.styles.generate_css(self.dest_dir, self.docx)
+        css = self.styles.generate_css(self.dest_dir, self.docx, self.notes_nopb)
         if css:
             with open(os.path.join(self.dest_dir, 'docx.css'), 'wb') as f:
                 f.write(css.encode('utf-8'))
