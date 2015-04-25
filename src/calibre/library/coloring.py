@@ -13,7 +13,7 @@ from textwrap import dedent
 
 color_row_key = '*row'
 
-class Rule(object): # {{{
+class Rule(object):  # {{{
 
     SIGNATURE = '# BasicColorRule():'
 
@@ -56,7 +56,7 @@ class Rule(object): # {{{
     def template(self):
         if not self.color or not self.conditions:
             return None
-        conditions = map(self.apply_condition, self.conditions)
+        conditions = [x for x in map(self.apply_condition, self.conditions) if x is not None]
         conditions = (',\n' + ' '*9).join(conditions)
         return dedent('''\
                 program:
@@ -248,4 +248,3 @@ def migrate_old_rule(fm, template):
                 rules.append(r.template)
         return rules
     return [template]
-
