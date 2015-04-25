@@ -394,8 +394,7 @@ class Main(MainWindow):
         a('load_theme', _('Load a theme'), 'wizard.png', menu_name='themes', popup_mode=QToolButton.InstantPopup)
         self.tool_bar.addSeparator()
 
-        a('print', _('Print'), 'print.png', menu_name='print')
-        self.print_menu.addAction(QIcon(I('print-preview.png')), _('Print Preview'))
+        a('print', _('Print to PDF file'), 'print.png')
 
         a('find_next', _('Find next occurrence'), 'arrow-down.png', tb=self.tool_bar2)
         a('find_previous', _('Find previous occurrence'), 'arrow-up.png', tb=self.tool_bar2)

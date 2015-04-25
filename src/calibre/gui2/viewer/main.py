@@ -11,7 +11,6 @@ from PyQt5.Qt import (
     QPropertyAnimation, QUrl, QInputDialog, QAction, QModelIndex)
 
 from calibre.gui2.viewer.ui import Main as MainWindow
-from calibre.gui2.viewer.printing import Printing
 from calibre.gui2.viewer.toc import TOC
 from calibre.gui2.widgets import ProgressIndicator
 from calibre.gui2 import (
@@ -156,7 +155,6 @@ class EbookViewer(MainWindow):
         self.clock_timer.timeout.connect(self.update_clock)
 
         self.action_print.triggered.connect(self.print_book)
-        self.print_menu.actions()[0].triggered.connect(self.print_preview)
         self.clear_recent_history_action = QAction(
                 _('Clear list of recently opened books'), self)
         self.clear_recent_history_action.triggered.connect(self.clear_recent_history)
@@ -310,12 +308,8 @@ class EbookViewer(MainWindow):
         open_url(url)
 
     def print_book(self):
-        p = Printing(self.iterator, self)
-        p.start_print()
-
-    def print_preview(self):
-        p = Printing(self.iterator, self)
-        p.start_preview()
+        from calibre.gui2.viewer.printing import print_book
+        print_book(self.iterator.pathtoebook, self, self.current_title)
 
     def toggle_fullscreen(self):
         if self.isFullScreen():

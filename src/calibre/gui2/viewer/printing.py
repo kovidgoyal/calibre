@@ -1,113 +1,193 @@
 #!/usr/bin/env python2
-# vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:fdm=marker:ai
+# vim:fileencoding=utf-8
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
 
-__license__   = 'GPL v3'
-__copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
-__docformat__ = 'restructuredtext en'
+__license__ = 'GPL v3'
+__copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
-from PyQt5.Qt import (QObject, QEventLoop, Qt, QPrintDialog, QPainter, QSize,
-        QPrintPreviewDialog)
-from PyQt5.QtWebKitWidgets import QWebView
+import os, subprocess, cPickle, sys
+from threading import Thread
 
-from calibre.gui2 import error_dialog
-from calibre.ebooks.oeb.display.webview import load_html
-from calibre.utils.resources import compiled_coffeescript
+from PyQt5.Qt import (
+    QFormLayout, QLineEdit, QToolButton, QHBoxLayout, QLabel, QIcon, QPrinter,
+    QPageSize, QComboBox, QDoubleSpinBox, QCheckBox, QProgressDialog, QTimer)
 
-class Printing(QObject):
+from calibre.ptempfile import PersistentTemporaryFile
+from calibre.ebooks.conversion.plugins.pdf_output import PAPER_SIZES
+from calibre.gui2 import elided_text, error_dialog, choose_save_file, Application, open_local_file
+from calibre.gui2.widgets2 import Dialog
+from calibre.gui2.viewer.main import vprefs
+from calibre.utils.icu import numeric_sort_key
+from calibre.utils.ipc.simple_worker import start_pipe_worker
 
-    def __init__(self, iterator, parent):
-        QObject.__init__(self, parent)
-        self.current_index = 0
-        self.iterator = iterator
-        self.view = QWebView(self.parent())
-        self.mf = mf = self.view.page().mainFrame()
-        for x in (Qt.Horizontal, Qt.Vertical):
-            mf.setScrollBarPolicy(x, Qt.ScrollBarAlwaysOff)
-        self.view.loadFinished.connect(self.load_finished)
-        self.paged_js = compiled_coffeescript('ebooks.oeb.display.utils')
-        self.paged_js += compiled_coffeescript('ebooks.oeb.display.paged')
+class PrintDialog(Dialog):
 
-    def load_finished(self, ok):
-        self.loaded_ok = ok
+    def __init__(self, book_title, parent=None, prefs=vprefs):
+        self.book_title = book_title
+        self.default_file_name = book_title[:75] + '.pdf'
+        self.paper_size_map = {a:getattr(QPageSize, a.capitalize()) for a in PAPER_SIZES}
+        Dialog.__init__(self, _('Print to PDF'), 'print-to-pdf', prefs=prefs, parent=parent)
 
-    def start_print(self):
-        self.pd = QPrintDialog(self.parent())
-        self.pd.open(self._start_print)
+    def setup_ui(self):
+        self.l = l = QFormLayout(self)
+        l.addRow(QLabel(_('Print %s to a PDF file') % elided_text(self.book_title)))
+        self.h = h = QHBoxLayout()
+        self.file_name = f = QLineEdit(self)
+        f.setText(os.path.abspath(os.path.join(os.path.expanduser('~'), self.default_file_name)))
+        self.browse_button = b = QToolButton(self)
+        b.setIcon(QIcon(I('document_open.png'))), b.setToolTip(_('Choose location for PDF file'))
+        b.clicked.connect(self.choose_file)
+        h.addWidget(f), h.addWidget(b)
+        f.setMinimumWidth(350)
+        w = QLabel(_('&File:'))
+        l.addRow(w, h), w.setBuddy(f)
 
-    def _start_print(self):
-        self.do_print(self.pd.printer())
+        self.paper_size = ps = QComboBox(self)
+        ps.addItems([a.upper() for a in sorted(self.paper_size_map, key=numeric_sort_key)])
+        previous_size = vprefs.get('print-to-pdf-page-size', None)
+        if previous_size not in self.paper_size_map:
+            previous_size = (QPrinter().pageLayout().pageSize().name() or '').lower()
+        if previous_size not in self.paper_size_map:
+            previous_size = 'a4'
+        ps.setCurrentIndex(ps.findText(previous_size.upper()))
+        l.addRow(_('Paper &size:'), ps)
+        tmap = {
+                'left':_('&Left margin:'),
+                'top':_('&Top margin:'),
+                'right':_('&Right margin:'),
+                'bottom':_('&Bottom margin:'),
+        }
+        for edge in 'left top right bottom'.split():
+            m = QDoubleSpinBox(self)
+            m.setSuffix(' ' + _('inches'))
+            m.setMinimum(0), m.setMaximum(3), m.setSingleStep(0.1)
+            val = vprefs.get('print-to-pdf-%s-margin' % edge, 1)
+            m.setValue(val)
+            setattr(self, '%s_margin' % edge, m)
+            l.addRow(tmap[edge], m)
+        self.pnum = pnum = QCheckBox(_('Add page &number to printed pages'), self)
+        pnum.setChecked(vprefs.get('print-to-pdf-page-numbers', True))
+        l.addRow(pnum)
 
-    def start_preview(self):
-        self.pd = QPrintPreviewDialog(self.parent())
-        self.pd.paintRequested.connect(self.do_print)
-        self.pd.exec_()
+        l.addRow(self.bb)
 
-    def do_print(self, printer):
-        painter = QPainter(printer)
-        zoomx = printer.logicalDpiX()/self.view.logicalDpiX()
-        zoomy = printer.logicalDpiY()/self.view.logicalDpiY()
-        painter.scale(zoomx, zoomy)
-        pr = printer.pageRect()
-        self.view.page().setViewportSize(QSize(pr.width()/zoomx,
-            pr.height()/zoomy))
-        evaljs = self.mf.evaluateJavaScript
-        loop = QEventLoop(self)
-        pagenum = 0
-        from_, to = printer.fromPage(), printer.toPage()
-        first = True
+    @property
+    def data(self):
+        ans = {
+            'output': self.file_name.text().strip(),
+            'paper_size': self.paper_size.currentText().lower(),
+            'page_numbers':self.pnum.isChecked(),
+        }
+        for edge in 'left top right bottom'.split():
+            ans['margin_' + edge] = getattr(self, '%s_margin' % edge).value()
+        return ans
 
-        for path in self.iterator.spine:
-            self.loaded_ok = None
-            load_html(path, self.view, codec=getattr(path, 'encoding', 'utf-8'),
-                    mime_type=getattr(path, 'mime_type', None))
-            while self.loaded_ok is None:
-                loop.processEvents(loop.ExcludeUserInputEvents)
-            if not self.loaded_ok:
-                return error_dialog(self.parent(), _('Failed to render'),
-                        _('Failed to render document %s')%path, show=True)
-            evaljs(self.paged_js)
-            evaljs('''
-                document.body.style.backgroundColor = "white";
-                paged_display.set_geometry(1, 0, 0, 0);
-                paged_display.layout();
-                paged_display.fit_images();
-            ''')
+    def choose_file(self):
+        ans = choose_save_file(self, 'print-to-pdf-choose-file', _('PDF file'), filters=[(_('PDF file'), 'pdf')],
+                               all_files=False, initial_filename=self.default_file_name)
+        if ans:
+            self.file_name.setText(ans)
 
-            while True:
-                pagenum += 1
-                if (pagenum >= from_ and (to == 0 or pagenum <= to)):
-                    if not first:
-                        printer.newPage()
-                    first = False
-                    self.mf.render(painter)
-                try:
-                    nsl = int(evaljs('paged_display.next_screen_location()'))
-                except (TypeError, ValueError):
-                    break
-                if nsl <= 0:
-                    break
-                evaljs('window.scrollTo(%d, 0)'%nsl)
+    def save_used_values(self):
+        data = self.data
+        vprefs['print-to-pdf-page-size'] = data['paper_size']
+        vprefs['print-to-pdf-page-numbers'] = data['page_numbers']
+        for edge in 'left top right bottom'.split():
+            vprefs['print-to-pdf-%s-margin' % edge] = data['margin_' + edge]
 
-        painter.end()
+    def accept(self):
+        fname = self.file_name.text().strip()
+        if not fname:
+            return error_dialog(self, _('No filename specified'), _(
+                'You must specify a filename for the PDF file to generate'), show=True)
+        if not fname.lower().endswith('.pdf'):
+            return error_dialog(self, _('Incorrect filename specified'), _(
+                'The filename for the PDF file must end with .pdf'), show=True)
+        self.save_used_values()
+        return Dialog.accept(self)
+
+class DoPrint(Thread):
+
+    daemon = True
+
+    def __init__(self, data):
+        Thread.__init__(self, name='DoPrint')
+        self.data = data
+        self.tb = self.log = None
+
+    def run(self):
+        try:
+            with PersistentTemporaryFile('print-to-pdf-log.txt') as f:
+                p = self.worker = start_pipe_worker('from calibre.gui2.viewer.printing import do_print; do_print()', stdout=f, stderr=subprocess.STDOUT)
+                p.stdin.write(cPickle.dumps(self.data, -1)), p.stdin.flush(), p.stdin.close()
+                rc = p.wait()
+                if rc != 0:
+                    f.seek(0)
+                    self.log = f.read().decode('utf-8', 'replace')
+            try:
+                os.remove(f.name)
+            except EnvironmentError:
+                pass
+        except Exception:
+            import traceback
+            self.tb = traceback.format_exc()
+
+def do_print():
+    data = cPickle.loads(sys.stdin.read())
+    args = ['ebook-convert', data['input'], data['output'], '--override-profile-size', '--paper-size', data['paper_size'], '--pdf-add-toc',
+            '--disable-remove-fake-margins', '--disable-font-rescaling', '--page-breaks-before', '/', '--chapter-mark', 'none', '-vv']
+    if data['page_numbers']:
+        args.append('--pdf-page-numbers')
+    for edge in 'left top right bottom'.split():
+        args.append('--margin-' + edge), args.append('%.1f' % (data['margin_' + edge] * 72))
+    from calibre.ebooks.conversion.cli import main
+    main(args)
+
+class Printing(QProgressDialog):
+
+    def __init__(self, thread, parent=None):
+        QProgressDialog.__init__(self, _('Printing, this will take a while, please wait...'), _('&Cancel'), 0, 0, parent)
+        self.setWindowTitle(_('Printing...'))
+        self.setWindowIcon(QIcon(I('print.png')))
+        self.thread = thread
+        self.timer = t = QTimer(self)
+        t.timeout.connect(self.check)
+        self.canceled.connect(self.do_cancel)
+        t.start(100)
+
+    def check(self):
+        if self.thread.is_alive():
+            return
+        if self.thread.tb or self.thread.log:
+            error_dialog(self, _('Failed to convert to PDF'), _(
+                'Failed to generate PDF file, click "Show details" for more information.'), det_msg=self.thread.tb or self.thread.log, show=True)
+        else:
+            open_local_file(self.thread.data['output'])
+        self.accept()
+
+    def do_cancel(self):
+        if hasattr(self.thread, 'worker'):
+            try:
+                if self.thread.worker.poll() is None:
+                    self.thread.worker.kill()
+            except EnvironmentError:
+                import traceback
+                traceback.print_exc()
+        self.timer.stop()
+        self.reject()
+
+def print_book(path_to_book, parent=None, book_title=None):
+    book_title = book_title or os.path.splitext(os.path.basename(path_to_book))[0]
+    d = PrintDialog(book_title, parent)
+    if d.exec_() == d.Accepted:
+        data = d.data
+        data['input'] = path_to_book
+        t = DoPrint(data)
+        t.start()
+        Printing(t, parent).exec_()
 
 if __name__ == '__main__':
-    from calibre.gui2 import Application
-    from calibre.ebooks.oeb.iterator.book import EbookIterator
-    from PyQt5.Qt import QPrinter, QTimer
-    import sys
     app = Application([])
-
-    def doit():
-        with EbookIterator(sys.argv[-1]) as it:
-            p = Printing(it, None)
-            printer = QPrinter()
-            of = sys.argv[-1]+'.pdf'
-            printer.setOutputFileName(of)
-            p.do_print(printer)
-            print ('Printed to:', of)
-            app.exit()
-    QTimer.singleShot(0, doit)
-    app.exec_()
-
+    print_book(sys.argv[-1])
+    del app
