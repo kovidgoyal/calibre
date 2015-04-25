@@ -103,6 +103,8 @@ def do_list(db, fields, afields, sort_by, ascending, search_text, line_width, se
                     record[key] = isoformat(val, as_utc=True)
                 elif val is None:
                     del record[key]
+                elif key == 'languages' and val:
+                    record[key] = val.split(',')
         return json.dumps(data, indent=2, sort_keys=True)
 
     fields = list(map(field_name, fields))
