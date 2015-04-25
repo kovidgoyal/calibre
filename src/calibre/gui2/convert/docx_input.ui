@@ -22,9 +22,9 @@
     </widget>
    </item>
    <item>
-    <widget class="QCheckBox" name="opt_docx_notes_nopb">
+    <widget class="QCheckBox" name="opt_docx_no_pagebreaks_between_notes">
      <property name="text">
-      <string>Do not add a page after before every footnote</string>
+      <string>Do not add a page after after every endnote</string>
      </property>
     </widget>
    </item>
