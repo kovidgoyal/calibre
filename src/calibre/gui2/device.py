@@ -1078,7 +1078,7 @@ class DeviceMixin(object):  # {{{
             if self.current_view() != self.library_view:
                 self.book_details.reset_info()
             self.location_manager.update_devices()
-            self.bars_manager.update_bars()
+            self.bars_manager.update_bars(reveal_bar=True)
             self.library_view.set_device_connected(self.device_connected)
             # Empty any device view information
             self.memory_view.set_database([])
@@ -1096,7 +1096,7 @@ class DeviceMixin(object):  # {{{
         info, cp, fs = job.result
         self.location_manager.update_devices(cp, fs,
                 self.device_manager.device.icon)
-        self.bars_manager.update_bars()
+        self.bars_manager.update_bars(reveal_bar=True)
         self.status_bar.device_connected(info[0])
         db = self.current_db
         self.device_manager.set_library_information(None, os.path.basename(db.library_path),
