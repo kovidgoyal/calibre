@@ -868,7 +868,7 @@ class EditRules(QWidget):  # {{{
         self.add_button = QPushButton(QIcon(I('plus.png')), _('Add Rule'),
                 self)
         self.remove_button = QPushButton(QIcon(I('minus.png')),
-                _('Remove Rule'), self)
+                _('Remove Rule(s)'), self)
         self.add_button.clicked.connect(self.add_rule)
         self.remove_button.clicked.connect(self.remove_rule)
         l.addWidget(self.add_button, l.rowCount(), 0)
@@ -877,7 +877,7 @@ class EditRules(QWidget):  # {{{
         self.g = g = QGridLayout()
         self.rules_view = QListView(self)
         self.rules_view.doubleClicked.connect(self.edit_rule)
-        self.rules_view.setSelectionMode(self.rules_view.SingleSelection)
+        self.rules_view.setSelectionMode(self.rules_view.ExtendedSelection)
         self.rules_view.setAlternatingRowColors(True)
         self.rtfd = RichTextDelegate(parent=self.rules_view, max_width=400)
         self.rules_view.setItemDelegate(self.rtfd)
@@ -1007,12 +1007,13 @@ class EditRules(QWidget):  # {{{
             error_dialog(self, _('No rule selected'),
                     _('No rule selected for %s.')%txt, show=True)
             return None
-        return rows[0]
+        return sorted(rows, reverse=True)
 
     def remove_rule(self):
-        row = self.get_selected_row(_('removal'))
-        if row is not None:
-            self.model.remove_rule(row)
+        rows = self.get_selected_row(_('removal'))
+        if rows is not None:
+            for row in rows:
+                self.model.remove_rule(row)
             self.changed.emit()
 
     def move_up(self):
