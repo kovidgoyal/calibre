@@ -17,6 +17,8 @@ class Rule(object):  # {{{
 
     SIGNATURE = '# BasicColorRule():'
 
+    INVALID_CONDITION = _('INVALID CONDITION')
+
     def __init__(self, fm, color=None):
         self.color = color
         self.fm = fm
@@ -28,6 +30,8 @@ class Rule(object):  # {{{
         v = self.validate_condition(col, action, val)
         if v:
             raise ValueError(v)
+        if self.apply_condition((col, action, val)) is None:
+            action = self.INVALID_CONDITION
         self.conditions.append((col, action, val))
 
     def validate_condition(self, col, action, val):
