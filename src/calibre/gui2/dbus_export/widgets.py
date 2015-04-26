@@ -188,7 +188,7 @@ class Factory(QObject):
 
     def detect_menu_registrar(self):
         self.menu_registrar = False
-        if self.bus.name_has_owner(UNITY_WINDOW_REGISTRAR[0]):
+        if self.bus is not None and self.bus.name_has_owner(UNITY_WINDOW_REGISTRAR[0]):
             self.menu_registrar = UNITY_WINDOW_REGISTRAR
 
     @property
@@ -207,7 +207,7 @@ class Factory(QObject):
     def detect_status_notifier(self):
         'See http://www.notmart.org/misc/statusnotifieritem/statusnotifierwatcher.html'
         self.status_notifier = False
-        if self.bus.name_has_owner(STATUS_NOTIFIER[0]):
+        if self.bus is not None and self.bus.name_has_owner(STATUS_NOTIFIER[0]):
             args = STATUS_NOTIFIER[:2] + (self.dbus.PROPERTIES_IFACE, 'Get', 'ss', (STATUS_NOTIFIER[-1], 'IsStatusNotifierHostRegistered'))
             self.status_notifier = bool(self.bus.call_blocking(*args, timeout=0.1))
 
