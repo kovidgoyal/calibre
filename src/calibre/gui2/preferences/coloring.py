@@ -836,6 +836,10 @@ class RulesModel(QAbstractListModel):  # {{{
                 else:
                     continue
                 break
+        if action_name == Rule.INVALID_CONDITION:
+            return (
+                _('<li>The condition using column <b>%(col)s</b> is <b>invalid</b>')
+                % dict(col=c))
         return (
             _('<li>If the <b>%(col)s</b> column <b>%(action)s</b> value: <b>%(val)s</b>') % dict(
                 col=c, action=action_name, val=prepare_string_for_xml(v)))
