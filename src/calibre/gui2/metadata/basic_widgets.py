@@ -1089,8 +1089,8 @@ class Cover(ImageView):  # {{{
                 cover = cf.read()
             except IOError as e:
                 d = error_dialog(self, _('Error reading file'),
-                        _("<p>There was an error reading from file: <br /><b>")
-                        + _file + "</b></p><br />"+str(e))
+                        _("<p>There was an error reading from file: <br /><b>") +
+                                 _file + "</b></p><br />"+str(e))
                 d.exec_()
             if cover:
                 orig = self.current_val
@@ -1588,6 +1588,10 @@ class PublisherEdit(EditWithComplete, ToMetadataMixin):  # {{{
         self.setSizeAdjustPolicy(
                 self.AdjustToMinimumContentsLengthWithIcon)
         self.books_to_refresh = set([])
+        self.clear_button = QToolButton(parent)
+        self.clear_button.setIcon(QIcon(I('trash.png')))
+        self.clear_button.setToolTip(_('Clear publisher'))
+        self.clear_button.clicked.connect(self.clearEditText)
 
     @dynamic_property
     def current_val(self):

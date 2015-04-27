@@ -777,8 +777,8 @@ class MetadataSingleDialog(MetadataSingleDialogBase):  # {{{
         sto(self.timestamp.clear_button, self.pubdate)
         create_row2(5, self.pubdate, self.pubdate.clear_button)
         sto(self.pubdate.clear_button, self.publisher)
-        create_row2(6, self.publisher)
-        sto(self.publisher, self.languages)
+        create_row2(6, self.publisher, self.publisher.clear_button)
+        sto(self.publisher.clear_button, self.languages)
         create_row2(7, self.languages)
         self.tabs[0].spc_two = QSpacerItem(10, 10, QSizePolicy.Expanding,
                 QSizePolicy.Expanding)
@@ -888,7 +888,7 @@ class MetadataSingleDialogAlt1(MetadataSingleDialogBase):  # {{{
         create_row(7, self.rating, self.pubdate, button=self.clear_ratings_button)
         create_row(8, self.pubdate, self.publisher,
                    button=self.pubdate.clear_button, icon='trash.png')
-        create_row(9, self.publisher, self.languages)
+        create_row(9, self.publisher, self.languages, button=self.publisher.clear_button, icon='trash.png')
         create_row(10, self.languages, self.timestamp)
         create_row(11, self.timestamp, self.identifiers,
                    button=self.timestamp.clear_button, icon='trash.png')
@@ -1025,7 +1025,8 @@ class MetadataSingleDialogAlt2(MetadataSingleDialogBase):  # {{{
         create_row(7, self.rating, self.pubdate, button=self.clear_ratings_button)
         create_row(8, self.pubdate, self.publisher,
                    button=self.pubdate.clear_button, icon='trash.png')
-        create_row(9, self.publisher, self.languages)
+        create_row(9, self.publisher, self.languages,
+                   button=self.publisher.clear_button, icon='trash.png')
         create_row(10, self.languages, self.timestamp)
         create_row(11, self.timestamp, self.identifiers,
                    button=self.timestamp.clear_button, icon='trash.png')
