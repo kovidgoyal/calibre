@@ -327,6 +327,9 @@ class Mobi8Reader(object):
             m = self.id_re.match(tag) or self.name_re.match(tag)
             if m is not None:
                 return m.group(1)
+            # For some files, kindlegen apparently creates links to tags
+            # without HTML anchors, using the AID instead. See
+            # See http://www.mobileread.com/forums/showthread.php?t=259557
             m = self.aid_re.match(tag)
             if m is not None:
                 self.linked_aids.add(m.group(1))
