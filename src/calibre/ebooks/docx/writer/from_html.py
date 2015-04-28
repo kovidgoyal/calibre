@@ -100,6 +100,7 @@ class Block(object):
     def __init__(self, namespace, styles_manager, html_block, style, is_table_cell=False, float_spec=None, is_list_item=False):
         self.namespace = namespace
         self.list_tag = (html_block, style) if is_list_item else None
+        self.numbering_id = None
         self.parent_items = None
         self.html_block = html_block
         self.float_spec = float_spec
@@ -165,6 +166,10 @@ class Block(object):
             makeelement(ppr, 'w:pageBreakBefore')
         if self.float_spec is not None:
             self.float_spec.serialize(self, ppr)
+        if self.numbering_id is not None:
+            numpr = makeelement(ppr, 'w:numPr')
+            makeelement(numpr, 'w:ilvl', w_val=str(self.numbering_id[1]))
+            makeelement(numpr, 'w:numId', w_val=str(self.numbering_id[0]))
         makeelement(ppr, 'w:pStyle', w_val=self.style.id)
         for run in self.runs:
             run.serialize(p)
@@ -409,3 +414,4 @@ class Convert(object):
         self.styles_manager.serialize(self.docx.styles)
         self.images_manager.serialize(self.docx.images)
         self.fonts_manager.serialize(self.styles_manager.text_styles, self.docx.font_table, self.docx.embedded_fonts, self.docx.fonts)
+        self.lists_manager.serialize(self.docx.numbering)

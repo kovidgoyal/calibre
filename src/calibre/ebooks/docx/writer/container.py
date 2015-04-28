@@ -98,6 +98,7 @@ class DocumentRelationships(object):
         self.namespace = namespace
         for typ, target in {
                 namespace.names['STYLES']: 'styles.xml',
+                namespace.names['NUMBERING']: 'numbering.xml',
                 namespace.names['WEB_SETTINGS']: 'webSettings.xml',
                 namespace.names['FONTS']: 'fontTable.xml',
         }.iteritems():
@@ -135,6 +136,7 @@ class DOCX(object):
         self.opts, self.log = opts, log
         self.document_relationships = DocumentRelationships(self.namespace)
         self.font_table = etree.Element('{%s}fonts' % namespaces['w'], nsmap={k:namespaces[k] for k in 'wr'})
+        self.numbering = etree.Element('{%s}numbering' % namespaces['w'], nsmap={k:namespaces[k] for k in 'wr'})
         E = ElementMaker(namespace=namespaces['pr'], nsmap={None:namespaces['pr']})
         self.embedded_fonts = E.Relationships()
         self.fonts = {}
@@ -239,6 +241,7 @@ class DOCX(object):
             zf.writestr('word/webSettings.xml', self.websettings)
             zf.writestr('word/document.xml', xml2str(self.document))
             zf.writestr('word/styles.xml', xml2str(self.styles))
+            zf.writestr('word/numbering.xml', xml2str(self.numbering))
             zf.writestr('word/fontTable.xml', xml2str(self.font_table))
             zf.writestr('word/_rels/document.xml.rels', self.document_relationships.serialize())
             zf.writestr('word/_rels/fontTable.xml.rels', xml2str(self.embedded_fonts))
