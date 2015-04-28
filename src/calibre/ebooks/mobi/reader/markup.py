@@ -54,12 +54,12 @@ def update_internal_links(mobi8_reader, log):
     # All parts are now unicode and have no internal links
     return parts
 
-def remove_kindlegen_markup(parts):
+def remove_kindlegen_markup(parts, aid_anchor_suffix, linked_aids):
 
     # we can safely remove all of the Kindlegen generated aid tags
     find_tag_with_aid_pattern = re.compile(r'''(<[^>]*\said\s*=[^>]*>)''',
             re.IGNORECASE)
-    within_tag_aid_position_pattern = re.compile(r'''\said\s*=['"][^'"]*['"]''')
+    within_tag_aid_position_pattern = re.compile(r'''\said\s*=['"]([^'"]*)['"]''')
 
     for i in xrange(len(parts)):
         part = parts[i]
@@ -68,9 +68,14 @@ def remove_kindlegen_markup(parts):
             tag = srcpieces[j]
             if tag.startswith('<'):
                 for m in within_tag_aid_position_pattern.finditer(tag):
+                    try:
+                        aid = m.group(1)
+                    except IndexError:
+                        aid = None
                     replacement = ''
-                    tag = within_tag_aid_position_pattern.sub(replacement, tag,
-                            1)
+                    if aid in linked_aids:
+                        replacement = ' id="%s"' % (aid + '-' + aid_anchor_suffix)
+                    tag = within_tag_aid_position_pattern.sub(replacement, tag, 1)
                 srcpieces[j] = tag
         part = "".join(srcpieces)
         parts[i] = part
@@ -331,7 +336,7 @@ def expand_mobi8_markup(mobi8_reader, resource_map, log):
     parts = update_internal_links(mobi8_reader, log)
 
     # Remove pointless markup inserted by kindlegen
-    remove_kindlegen_markup(parts)
+    remove_kindlegen_markup(parts, mobi8_reader.aid_anchor_suffix, mobi8_reader.linked_aids)
 
     # Handle substitutions for the flows pieces first as they may
     # be inlined into the xhtml text

@@ -11,6 +11,7 @@ import struct, re, os
 from collections import namedtuple
 from itertools import repeat, izip
 from urlparse import urldefrag
+from uuid import uuid4
 
 from lxml import etree
 
@@ -72,9 +73,13 @@ class Mobi8Reader(object):
         self.mobi6_reader, self.log = mobi6_reader, log
         self.header = mobi6_reader.book_header
         self.encrypted_fonts = []
+        self.id_re = re.compile(br'''<[^>]+\s(?:id|ID)\s*=\s*['"]([^'"]+)['"]''')
+        self.name_re = re.compile(br'''<\s*a\s*\s(?:name|NAME)\s*=\s*['"]([^'"]+)['"]''')
+        self.aid_re = re.compile(br'''<[^>]+\s(?:aid|AID)\s*=\s*['"]([^'"]+)['"]''')
 
     def __call__(self):
         self.mobi6_reader.check_for_drm()
+        self.aid_anchor_suffix = bytes(uuid4().hex)
         bh = self.mobi6_reader.book_header
         if self.mobi6_reader.kf8_type == 'joint':
             offset = self.mobi6_reader.kf8_boundary + 2
@@ -94,6 +99,7 @@ class Mobi8Reader(object):
         self.kf8_sections = self.mobi6_reader.sections[offset-1:]
 
         self.cover_offset = getattr(self.header.exth, 'cover_offset', None)
+        self.linked_aids = set()
 
         self.read_indices()
         self.build_parts()
@@ -317,12 +323,14 @@ class Mobi8Reader(object):
         if plt == npos or pgt < plt:
             npos = pgt + 1
         textblock = textblock[0:npos]
-        id_re = re.compile(br'''<[^>]+\s(?:id|ID)\s*=\s*['"]([^'"]+)['"]''')
-        name_re = re.compile(br'''<\s*a\s*\s(?:name|NAME)\s*=\s*['"]([^'"]+)['"]''')
         for tag in reverse_tag_iter(textblock):
-            m = id_re.match(tag) or name_re.match(tag)
+            m = self.id_re.match(tag) or self.name_re.match(tag)
             if m is not None:
                 return m.group(1)
+            m = self.aid_re.match(tag)
+            if m is not None:
+                self.linked_aids.add(m.group(1))
+                return m.group(1) + b'-' + self.aid_anchor_suffix
 
         # No tag found, link to start of file
         return b''
