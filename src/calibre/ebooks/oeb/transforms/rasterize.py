@@ -27,7 +27,8 @@ class Unavailable(Exception):
     pass
 
 class SVGRasterizer(object):
-    def __init__(self):
+    def __init__(self, base_css=''):
+        self.base_css = base_css
         from calibre.gui2 import must_use_qt
         must_use_qt()
 
@@ -129,7 +130,7 @@ class SVGRasterizer(object):
         ans = self.stylizer_cache.get(item, None)
         if ans is None:
             ans = Stylizer(item.data, item.href, self.oeb, self.opts,
-                    self.profile)
+                    self.profile, base_css=self.base_css)
             self.stylizer_cache[item] = ans
         return ans
 

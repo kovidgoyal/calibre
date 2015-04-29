@@ -10,6 +10,7 @@ import re
 
 from calibre.ebooks.docx.writer.container import create_skeleton
 from calibre.ebooks.docx.writer.styles import StylesManager, FloatSpec
+from calibre.ebooks.docx.writer.links import LinksManager
 from calibre.ebooks.docx.writer.images import ImagesManager
 from calibre.ebooks.docx.writer.fonts import FontsManager
 from calibre.ebooks.docx.writer.tables import Table
@@ -51,30 +52,36 @@ class TextRun(object):
             TextRun.ws_pat = self.ws_pat = re.compile(r'\s+')
         self.style = style
         self.texts = []
+        self.link = None
         self.makelement = namespace.makeelement
 
-    def add_text(self, text, preserve_whitespace):
+    def add_text(self, text, preserve_whitespace, bookmark=None, link=None):
         if not preserve_whitespace:
             text = self.ws_pat.sub(' ', text)
             if text.strip() != text:
                 # If preserve_whitespace is False, Word ignores leading and
                 # trailing whitespace
                 preserve_whitespace = True
-        self.texts.append((text, preserve_whitespace))
+        self.texts.append((text, preserve_whitespace, bookmark))
+        self.link = link
 
-    def add_break(self, clear='none'):
-        self.texts.append((None, clear))
+    def add_break(self, clear='none', bookmark=None):
+        self.texts.append((None, clear, bookmark))
 
-    def add_image(self, drawing):
-        self.texts.append((drawing, None))
+    def add_image(self, drawing, bookmark=None):
+        self.texts.append((drawing, None, bookmark))
 
-    def serialize(self, p):
+    def serialize(self, p, links_manager):
         makeelement = self.makelement
-        r = makeelement(p, 'w:r')
+        parent = p if self.link is None else links_manager.serialize_hyperlink(p, self.link)
+        r = makeelement(parent, 'w:r')
         rpr = makeelement(r, 'w:rPr')
         makeelement(rpr, 'w:rStyle', w_val=self.style.id)
 
-        for text, preserve_whitespace in self.texts:
+        for text, preserve_whitespace, bookmark in self.texts:
+            if bookmark is not None:
+                bid = links_manager.bookmark_id
+                makeelement(r, 'w:bookmarkStart', w_id=str(bid), w_name=bookmark)
             if text is None:
                 makeelement(r, 'w:br', w_clear=preserve_whitespace)
             elif hasattr(text, 'xpath'):
@@ -84,6 +91,8 @@ class TextRun(object):
                 t.text = text or ''
                 if preserve_whitespace:
                     t.set('{http://www.w3.org/XML/1998/namespace}space', 'preserve')
+            if bookmark is not None:
+                makeelement(r, 'w:bookmarkEnd', w_id=str(bid))
 
     def __repr__(self):
         return repr(self.texts)
@@ -91,14 +100,15 @@ class TextRun(object):
     def is_empty(self):
         if not self.texts:
             return True
-        if len(self.texts) == 1 and self.texts[0] == ('', False):
+        if len(self.texts) == 1 and self.texts[0][:2] == ('', False):
             return True
         return False
 
 class Block(object):
 
-    def __init__(self, namespace, styles_manager, html_block, style, is_table_cell=False, float_spec=None, is_list_item=False):
+    def __init__(self, namespace, styles_manager, links_manager, html_block, style, is_table_cell=False, float_spec=None, is_list_item=False):
         self.namespace = namespace
+        self.bookmarks = set()
         self.list_tag = (html_block, style) if is_list_item else None
         self.numbering_id = None
         self.parent_items = None
@@ -108,7 +118,7 @@ class Block(object):
             float_spec.blocks.append(self)
         self.html_style = style
         self.style = styles_manager.create_block_style(style, html_block, is_table_cell=is_table_cell)
-        self.styles_manager = styles_manager
+        self.styles_manager, self.links_manager = styles_manager, links_manager
         self.keep_next = False
         self.page_break_before = False
         self.runs = []
@@ -122,10 +132,10 @@ class Block(object):
             if self.list_tag is not None:
                 next_block.list_tag = self.list_tag
 
-    def add_text(self, text, style, ignore_leading_whitespace=False, html_parent=None, is_parent_style=False):
+    def add_text(self, text, style, ignore_leading_whitespace=False, html_parent=None, is_parent_style=False, bookmark=None, link=None):
         ts = self.styles_manager.create_text_style(style, is_parent_style=is_parent_style)
         ws = style['white-space']
-        if self.runs and ts == self.runs[-1].style:
+        if self.runs and ts == self.runs[-1].style and link == self.runs[-1].link:
             run = self.runs[-1]
         else:
             run = TextRun(self.namespace, ts, self.html_block if html_parent is None else html_parent)
@@ -135,30 +145,35 @@ class Block(object):
             text = text.lstrip()
         if ws == 'pre-line':
             for text in text.splitlines():
-                run.add_text(text, False)
+                run.add_text(text, False, bookmark=bookmark, link=link)
+                bookmark = None
                 run.add_break()
         else:
-            run.add_text(text, preserve_whitespace)
+            run.add_text(text, preserve_whitespace, bookmark=bookmark, link=link)
 
-    def add_break(self, clear='none'):
+    def add_break(self, clear='none', bookmark=None):
         if self.runs:
             run = self.runs[-1]
         else:
             run = TextRun(self.namespace, self.styles_manager.create_text_style(self.html_style), self.html_block)
             self.runs.append(run)
-        run.add_break(clear=clear)
+        run.add_break(clear=clear, bookmark=bookmark)
 
-    def add_image(self, drawing):
+    def add_image(self, drawing, bookmark=None):
         if self.runs:
             run = self.runs[-1]
         else:
             run = TextRun(self.namespace, self.styles_manager.create_text_style(self.html_style), self.html_block)
             self.runs.append(run)
-        run.add_image(drawing)
+        run.add_image(drawing, bookmark=bookmark)
 
     def serialize(self, body):
         makeelement = self.namespace.makeelement
         p = makeelement(body, 'w:p')
+        end_bookmarks = []
+        for bmark in self.bookmarks:
+            end_bookmarks.append(str(self.links_manager.bookmark_id))
+            makeelement(p, 'w:bookmarkStart', w_id=end_bookmarks[-1], w_name=bmark)
         ppr = makeelement(p, 'w:pPr')
         if self.keep_next:
             makeelement(ppr, 'w:keepNext')
@@ -172,7 +187,9 @@ class Block(object):
             makeelement(numpr, 'w:numId', w_val=str(self.numbering_id[0]))
         makeelement(ppr, 'w:pStyle', w_val=self.style.id)
         for run in self.runs:
-            run.serialize(p)
+            run.serialize(p, self.links_manager)
+        for bmark in end_bookmarks:
+            makeelement(p, 'w:bookmarkEnd', w_id=bmark)
 
     def __repr__(self):
         return 'Block(%r)' % self.runs
@@ -185,9 +202,10 @@ class Block(object):
 
 class Blocks(object):
 
-    def __init__(self, namespace, styles_manager):
+    def __init__(self, namespace, styles_manager, links_manager):
         self.namespace = namespace
         self.styles_manager = styles_manager
+        self.links_manager = links_manager
         self.all_blocks = []
         self.pos = 0
         self.current_block = None
@@ -213,7 +231,7 @@ class Blocks(object):
     def start_new_block(self, html_block, style, is_table_cell=False, float_spec=None, is_list_item=False):
         self.end_current_block()
         self.current_block = Block(
-            self.namespace, self.styles_manager, html_block, style,
+            self.namespace, self.styles_manager, self.links_manager, html_block, style,
             is_table_cell=is_table_cell, float_spec=float_spec, is_list_item=is_list_item)
         self.open_html_blocks.add(html_block)
         return self.current_block
@@ -266,6 +284,10 @@ class Blocks(object):
         block.parent_items = None
         if block.float_spec is not None:
             block.float_spec.blocks.remove(block)
+        try:
+            self.all_blocks[pos].bookmarks.update(block.bookmarks)
+        except (IndexError, KeyError):
+            pass
 
     def __enter__(self):
         self.pos = len(self.all_blocks)
@@ -286,20 +308,29 @@ class Blocks(object):
 
 class Convert(object):
 
+    # Word does not apply default styling to hyperlinks, so we ensure they get
+    # default styling (the conversion pipeline does not apply any styling to
+    # them).
+    base_css = '''
+    a[href] { text-decoration: underline; color: blue }
+    '''
+
     def __init__(self, oeb, docx):
         self.oeb, self.docx = oeb, docx
         self.log, self.opts = docx.log, docx.opts
 
     def __call__(self):
         from calibre.ebooks.oeb.transforms.rasterize import SVGRasterizer
-        self.svg_rasterizer = SVGRasterizer()
+        self.svg_rasterizer = SVGRasterizer(base_css=self.base_css)
         self.svg_rasterizer(self.oeb, self.opts)
 
         self.styles_manager = StylesManager(self.docx.namespace)
+        self.links_manager = LinksManager(self.docx.namespace, self.docx.document_relationships)
         self.images_manager = ImagesManager(self.oeb, self.docx.document_relationships)
         self.lists_manager = ListsManager(self.docx)
         self.fonts_manager = FontsManager(self.docx.namespace, self.oeb, self.opts)
-        self.blocks = Blocks(self.docx.namespace, self.styles_manager)
+        self.blocks = Blocks(self.docx.namespace, self.styles_manager, self.links_manager)
+        self.current_link = None
 
         for item in self.oeb.spine:
             self.process_item(item)
@@ -322,13 +353,15 @@ class Convert(object):
         self.write()
 
     def process_item(self, item):
+        self.current_item = item
         stylizer = self.svg_rasterizer.stylizer_cache.get(item)
         if stylizer is None:
-            stylizer = Stylizer(item.data, item.href, self.oeb, self.opts, self.opts.output_profile)
+            stylizer = Stylizer(item.data, item.href, self.oeb, self.opts, self.opts.output_profile, base_css=self.base_css)
         self.abshref = self.images_manager.abshref = item.abshref
 
         for i, body in enumerate(XPath('//h:body')(item.data)):
             with self.blocks:
+                body.set('id', body.get('id', None) or self.links_manager.top_anchor)
                 self.process_tag(body, stylizer, is_first_tag=i == 0)
 
     def process_tag(self, html_tag, stylizer, is_first_tag=False, float_spec=None):
@@ -338,6 +371,10 @@ class Convert(object):
         tag_style = stylizer.style(html_tag)
         if tag_style.is_hidden:
             return
+
+        previous_link = self.current_link
+        if tagname == 'a' and html_tag.get('href'):
+            self.current_link = (self.current_item, html_tag.get('href'), html_tag.get('title'))
 
         display = tag_style._get('display')
         is_float = tag_style['float'] in {'left', 'right'} and not is_first_tag
@@ -376,6 +413,8 @@ class Convert(object):
         if is_block and tag_style['page-break-after'] == 'avoid':
             self.blocks.all_blocks[-1].keep_next = True
 
+        self.current_link = previous_link
+
         if display == 'table-row':
             return  # We ignore the tail for these tags
 
@@ -384,28 +423,38 @@ class Convert(object):
             # Ignore trailing space after a block tag, as otherwise it will
             # become a new empty paragraph
             block = self.blocks.current_or_new_block(html_tag.getparent(), stylizer.style(html_tag.getparent()))
-            block.add_text(html_tag.tail, stylizer.style(html_tag.getparent()), is_parent_style=True)
+            block.add_text(html_tag.tail, stylizer.style(html_tag.getparent()), is_parent_style=True, link=self.current_link)
 
     def add_block_tag(self, tagname, html_tag, tag_style, stylizer, is_table_cell=False, float_spec=None, is_list_item=False):
         block = self.blocks.start_new_block(html_tag, tag_style, is_table_cell=is_table_cell, float_spec=float_spec, is_list_item=is_list_item)
+        anchor = html_tag.get('id') or html_tag.get('name')
+        if anchor:
+            block.bookmarks.add(self.bookmark_for_anchor(anchor, html_tag))
         if tagname == 'img':
             self.images_manager.add_image(html_tag, block, stylizer)
         else:
             if html_tag.text:
-                block.add_text(html_tag.text, tag_style, ignore_leading_whitespace=True, is_parent_style=True)
+                block.add_text(html_tag.text, tag_style, ignore_leading_whitespace=True, is_parent_style=True, link=self.current_link)
 
     def add_inline_tag(self, tagname, html_tag, tag_style, stylizer):
+        anchor = html_tag.get('id') or html_tag.get('name') or None
+        bmark = None
+        if anchor:
+            bmark = self.bookmark_for_anchor(anchor, html_tag)
         if tagname == 'br':
             if html_tag.tail or html_tag is not tuple(html_tag.getparent().iterchildren('*'))[-1]:
                 block = self.blocks.current_or_new_block(html_tag.getparent(), stylizer.style(html_tag.getparent()))
-                block.add_break(clear={'both':'all', 'left':'left', 'right':'right'}.get(tag_style['clear'], 'none'))
+                block.add_break(clear={'both':'all', 'left':'left', 'right':'right'}.get(tag_style['clear'], 'none'), bookmark=bmark)
         elif tagname == 'img':
             block = self.blocks.current_or_new_block(html_tag.getparent(), stylizer.style(html_tag.getparent()))
-            self.images_manager.add_image(html_tag, block, stylizer)
+            self.images_manager.add_image(html_tag, block, stylizer, bookmark=bmark)
         else:
             if html_tag.text:
                 block = self.blocks.current_or_new_block(html_tag.getparent(), stylizer.style(html_tag.getparent()))
-                block.add_text(html_tag.text, tag_style, is_parent_style=False)
+                block.add_text(html_tag.text, tag_style, is_parent_style=False, bookmark=bmark, link=self.current_link)
+
+    def bookmark_for_anchor(self, anchor, html_tag):
+        return self.links_manager.bookmark_for_anchor(anchor, self.current_item, html_tag)
 
     def write(self):
         self.docx.document, self.docx.styles, body = create_skeleton(self.opts)

@@ -44,7 +44,7 @@ class ImagesManager(object):
         self.document_relationships = document_relationships
         self.count = 0
 
-    def add_image(self, img, block, stylizer):
+    def add_image(self, img, block, stylizer, bookmark=None):
         src = img.get('src')
         if not src:
             return
@@ -59,7 +59,7 @@ class ImagesManager(object):
             self.images[href] = Image(image_rid, image_fname, width, height, fmt, item)
             item.unload_data_from_memory()
         drawing = self.create_image_markup(img, stylizer, href)
-        block.add_image(drawing)
+        block.add_image(drawing, bookmark=bookmark)
         return self.images[href].rid
 
     def create_image_markup(self, html_img, stylizer, href):

@@ -53,7 +53,7 @@ class Stylizer(object):
     STYLESHEETS = WeakKeyDictionary()
 
     def __init__(self, tree, path, oeb, opts, profile=None,
-            extra_css='', user_css=''):
+            extra_css='', user_css='', base_css=''):
         self.oeb, self.opts = oeb, opts
         self.profile = profile
         if self.profile is None:
@@ -74,6 +74,8 @@ class Stylizer(object):
         basename = os.path.basename(path)
         cssname = os.path.splitext(basename)[0] + '.css'
         stylesheets = [html_css_stylesheet()]
+        if base_css:
+            stylesheets.append(parseString(base_css, validate=False))
         style_tags = xpath(tree, '//*[local-name()="style" or local-name()="link"]')
 
         # Add cssutils parsing profiles from output_profile
