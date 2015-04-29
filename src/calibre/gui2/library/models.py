@@ -251,7 +251,10 @@ class BooksModel(QAbstractTableModel):  # {{{
                     col))
 
     def is_custom_column(self, cc_label):
-        return cc_label in self.custom_columns
+        try:
+            return cc_label in self.custom_columns
+        except AttributeError:
+            return False
 
     def read_config(self):
         pass
