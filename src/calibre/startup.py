@@ -55,12 +55,7 @@ if not _run_once:
     # Convert command line arguments to unicode
     enc = preferred_encoding
     if isosx:
-        # Newer versions of OS X seem to use UTF-8
-        try:
-            [x.decode('utf-8') for x in sys.argv[1:]]
-            enc = 'utf-8'
-        except:
-            pass
+        enc = 'utf-8'
     for i in range(1, len(sys.argv)):
         if not isinstance(sys.argv[i], unicode):
             sys.argv[i] = sys.argv[i].decode(enc, 'replace')
