@@ -16,7 +16,7 @@ __builtin__.__dict__['_'] = lambda s: s
 # immediately translated to the environment language
 __builtin__.__dict__['__'] = lambda s: s
 
-from calibre.constants import iswindows, preferred_encoding, plugins, isosx, islinux, isfrozen
+from calibre.constants import iswindows, preferred_encoding, plugins, isosx, islinux, isfrozen, DEBUG
 
 _run_once = False
 winutil = winutilerror = None
@@ -59,6 +59,19 @@ if not _run_once:
     for i in range(1, len(sys.argv)):
         if not isinstance(sys.argv[i], unicode):
             sys.argv[i] = sys.argv[i].decode(enc, 'replace')
+
+    #
+    # Ensure that the max number of open files is at least 1024
+    if not iswindows:
+        import resource
+        soft, hard = resource.getrlimit(resource.RLIMIT_NOFILE)
+        if soft < 1024:
+            try:
+                resource.setrlimit(resource.RLIMIT_NOFILE, (min(1024, hard), hard))
+            except Exception:
+                if DEBUG:
+                    import traceback
+                    traceback.print_exc()
 
     #
     # Setup resources
