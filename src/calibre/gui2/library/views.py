@@ -260,6 +260,9 @@ class BooksView(QTableView):  # {{{
         h = self.column_header
 
         if action == 'hide':
+            if h.hiddenSectionCount() >= h.count():
+                return error_dialog(self, _('Cannot hide all columns'), _(
+                    'You must not hide all columns'), show=True)
             h.setSectionHidden(idx, True)
         elif action == 'show':
             h.setSectionHidden(idx, False)
