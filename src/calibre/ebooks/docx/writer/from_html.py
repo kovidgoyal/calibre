@@ -110,6 +110,7 @@ class Block(object):
         self.namespace = namespace
         self.bookmarks = set()
         self.list_tag = (html_block, style) if is_list_item else None
+        self.is_first_block = False
         self.numbering_id = None
         self.parent_items = None
         self.html_block = html_block
@@ -186,6 +187,8 @@ class Block(object):
             makeelement(numpr, 'w:ilvl', w_val=str(self.numbering_id[1]))
             makeelement(numpr, 'w:numId', w_val=str(self.numbering_id[0]))
         makeelement(ppr, 'w:pStyle', w_val=self.style.id)
+        if self.is_first_block:
+            makeelement(ppr, 'w:pageBreakBefore', w_val='off')
         for run in self.runs:
             run.serialize(p, self.links_manager)
         for bmark in end_bookmarks:
@@ -347,6 +350,7 @@ class Convert(object):
                 remove_blocks.append((i, block))
         for pos, block in reversed(remove_blocks):
             self.blocks.delete_block_at(pos)
+        self.blocks.all_blocks[0].is_first_block = True
 
         self.lists_manager.finalize(all_blocks)
         self.styles_manager.finalize(all_blocks)
