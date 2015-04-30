@@ -83,6 +83,7 @@ if pictureflow is not None:
             self.model = model
             self.is_cover_browser_visible = is_cover_browser_visible
             self.model.modelReset.connect(self.reset, type=Qt.QueuedConnection)
+            self.ignore_image_requests = True
 
         def count(self):
             return self.model.count()
@@ -116,6 +117,8 @@ if pictureflow is not None:
             pass
 
         def image(self, index):
+            if self.ignore_image_requests:
+                return QImage()
             return self.model.cover(index)
 
     class CoverFlow(pictureflow.PictureFlow):
@@ -162,6 +165,9 @@ if pictureflow is not None:
 
         def _data_changed(self):
             pictureflow.PictureFlow.dataChanged(self)
+
+        def setCurrentSlide(self, num):
+            pictureflow.PictureFlow.setCurrentSlide(self, num)
 
 
 else:
@@ -267,7 +273,7 @@ class CoverFlowMixin(object):
             self.cb_splitter.insertWidget(self.cb_splitter.side_index, self.cover_flow)
             if CoverFlow is not None:
                 self.cover_flow.stop.connect(self.cb_splitter.hide_side_pane)
-        self.cb_splitter.button.toggled.connect(self.cover_browser_toggled)
+        self.cb_splitter.button.toggled.connect(self.cover_browser_toggled, type=Qt.QueuedConnection)
 
     def toggle_cover_browser(self, *args):
         cbd = getattr(self, 'cb_dialog', None)
@@ -285,6 +291,9 @@ class CoverFlowMixin(object):
     def cover_browser_shown(self):
         self.cover_flow.setFocus(Qt.OtherFocusReason)
         if CoverFlow is not None:
+            if self.db_images.ignore_image_requests:
+                self.db_images.ignore_image_requests = False
+                self.db_images.dataChanged.emit()
             self.cover_flow.setCurrentSlide(self.library_view.currentIndex().row())
             self.cover_flow_syncing_enabled = True
             QTimer.singleShot(500, self.cover_flow_do_sync)
@@ -335,6 +344,7 @@ class CoverFlowMixin(object):
     def refresh_cover_browser(self):
         try:
             if self.is_cover_browser_visible() and not isinstance(self.cover_flow, QLabel):
+                self.db_images.ignore_image_requests = False
                 self.cover_flow.dataChanged()
         except AttributeError:
             pass  # called before init_cover_flow_mixin
