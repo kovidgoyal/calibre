@@ -130,8 +130,7 @@ class BookInfo(QDialog):
         if self.current_row is not None:
             id_ = self.view.model().id(self.current_row)
             self.view.model().db.set_cover(id_, data)
-        if self.gui.cover_flow:
-            self.gui.cover_flow.dataChanged()
+        self.gui.refresh_cover_browser()
         ci = self.view.currentIndex()
         if ci.isValid():
             self.view.model().current_changed(ci, ci)

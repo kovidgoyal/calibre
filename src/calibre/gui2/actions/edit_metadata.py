@@ -333,8 +333,7 @@ class EditMetadataAction(InterfaceAction):
         m = self.gui.library_view.model()
         m.refresh_ids(list(book_ids))
         current = self.gui.library_view.currentIndex()
-        if self.gui.cover_flow:
-            self.gui.cover_flow.dataChanged()
+        self.gui.refresh_cover_browser()
         m.current_changed(current, previous or current)
         self.gui.tags_view.recount()
 
@@ -401,8 +400,7 @@ class EditMetadataAction(InterfaceAction):
             else:
                 m.refresh_ids(refresh_books)
             self.gui.tags_view.recount()
-            if self.gui.cover_flow:
-                self.gui.cover_flow.dataChanged()
+            self.gui.refresh_cover_browser()
             self.gui.library_view.select_rows(book_ids)
 
     # Merge books {{{
@@ -755,8 +753,8 @@ class EditMetadataAction(InterfaceAction):
             cr = self.gui.library_view.currentIndex().row()
             self.gui.library_view.model().refresh_ids(
                 list(book_ids), cr)
-            if covers_changed and self.gui.cover_flow:
-                self.gui.cover_flow.dataChanged()
+            if covers_changed:
+                self.gui.refresh_cover_browser()
             if tag_browser_changed:
                 self.gui.tags_view.recount()
 

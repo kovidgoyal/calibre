@@ -470,9 +470,8 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.update_font_display()
         gui.tags_view.reread_collapse_parameters()
         gui.library_view.refresh_book_details()
-        if hasattr(gui.cover_flow, 'setShowReflections'):
-            gui.cover_flow.setShowReflections(gprefs['cover_browser_reflections'])
-            gui.cover_flow.setPreserveAspectRatio(gprefs['cb_preserve_aspect_ratio'])
+        gui.cover_flow.setShowReflections(gprefs['cover_browser_reflections'])
+        gui.cover_flow.setPreserveAspectRatio(gprefs['cb_preserve_aspect_ratio'])
         gui.library_view.refresh_row_sizing()
         gui.grid_view.refresh_settings()
 

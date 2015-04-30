@@ -260,8 +260,7 @@ class AutoAdder(QObject):
             gui.status_bar.show_message(_(
                 'Added %(num)d book(s) automatically from %(src)s') %
                 dict(num=count, src=self.worker.path), 2000)
-            if hasattr(gui, 'db_images'):
-                gui.db_images.beginResetModel(), gui.db_images.endResetModel()
+            gui.refresh_cover_browser()
 
         if needs_rescan:
             QTimer.singleShot(2000, self.dir_changed)

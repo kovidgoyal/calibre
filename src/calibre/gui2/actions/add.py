@@ -272,8 +272,7 @@ class AddAction(InterfaceAction):
                     fmts = [pt.name]
                 ids.append(db.import_book(mi, fmts))
             self.gui.library_view.model().books_added(num)
-            if hasattr(self.gui, 'db_images'):
-                self.gui.db_images.beginResetModel(), self.gui.db_images.endResetModel()
+            self.gui.refresh_cover_browser()
             self.gui.tags_view.recount()
             if ids:
                 ids.reverse()
@@ -374,8 +373,7 @@ class AddAction(InterfaceAction):
         if current_idx.isValid():
             self.gui.library_view.model().current_changed(current_idx, current_idx)
         if cover_changed:
-            if self.gui.cover_flow:
-                self.gui.cover_flow.dataChanged()
+            self.gui.refresh_cover_browser()
 
     def __add_filesystem_book(self, paths, allow_device=True):
         if isinstance(paths, basestring):
@@ -440,8 +438,7 @@ class AddAction(InterfaceAction):
         if adder.number_of_books_added > 0:
             self.gui.library_view.model().books_added(adder.number_of_books_added)
             self.gui.library_view.set_current_row(0)
-            if hasattr(self.gui, 'db_images'):
-                self.gui.db_images.beginResetModel(), self.gui.db_images.endResetModel()
+            self.gui.refresh_cover_browser()
             self.gui.tags_view.recount()
 
         if adder.merged_books:

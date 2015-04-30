@@ -528,8 +528,7 @@ class LayoutMixin(object):  # {{{
 
     def bd_cover_changed(self, id_, cdata):
         self.library_view.model().db.set_cover(id_, cdata)
-        if self.cover_flow:
-            self.cover_flow.dataChanged()
+        self.refresh_cover_browser()
 
     def bd_open_cover_with(self, book_id, entry):
         cpath = self.current_db.new_api.format_abspath(book_id, '__COVER_INTERNAL__')
@@ -560,8 +559,7 @@ class LayoutMixin(object):  # {{{
     def bd_cover_removed(self, id_):
         self.library_view.model().db.remove_cover(id_, commit=True,
                 notify=False)
-        if self.cover_flow:
-            self.cover_flow.dataChanged()
+        self.refresh_cover_browser()
 
     def bd_copy_link(self, url):
         if url:
