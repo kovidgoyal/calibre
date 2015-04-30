@@ -411,7 +411,7 @@ private:
   QRect renderSlide(const SlideInfo &slide, int alpha=256, int col1=-1, int col=-1);
   QRect renderCenterSlide(const SlideInfo &slide);
   QImage* surface(int slideIndex);
-  void triggerRender();
+  void triggerRender(int after_msecs);
   void resetSlides();
   void render_text(QPainter*, int);
 };
@@ -447,7 +447,7 @@ PictureFlowPrivate::PictureFlowPrivate(PictureFlow* w, int queueLength_)
 void PictureFlowPrivate::dataChanged() {
 	surfaceCache.clear();
 	resetSlides();
-	triggerRender();
+	triggerRender(100);
 }
 
 void PictureFlowPrivate::setImages(FlowImages *images)
@@ -474,7 +474,7 @@ void PictureFlowPrivate::setSlideSize(QSize size)
   slideWidth = size.width();
   slideHeight = size.height();
   recalc(buffer.width(), buffer.height());
-  triggerRender();
+  triggerRender(100);
 }
 
 QImage PictureFlowPrivate::slide(int index) const
@@ -500,7 +500,7 @@ void PictureFlowPrivate::setCurrentSlide(int index)
   target = centerIndex;
   slideFrame = ((long long)centerIndex) << 16;
   resetSlides();
-  triggerRender();
+  triggerRender(100);
   widget->emitcurrentChanged(centerIndex);
 }
 
@@ -510,7 +510,7 @@ bool PictureFlowPrivate::showReflections() const {
 
 void PictureFlowPrivate::setShowReflections(bool show) {
     doReflections = show;
-    triggerRender();
+    triggerRender(100);
 }
 
 void PictureFlowPrivate::showPrevious()
@@ -566,7 +566,7 @@ void PictureFlowPrivate::resize(int w, int h)
   fontSize = MAX(int(h/15.), 12);
   recalc(w, h);
   resetSlides();
-  triggerRender();
+  triggerRender(100);
 }
 
 
@@ -702,9 +702,9 @@ QImage* PictureFlowPrivate::surface(int slideIndex)
 
 // Schedules rendering the slides. Call this function to avoid immediate 
 // render and thus cause less flicker.
-void PictureFlowPrivate::triggerRender()
+void PictureFlowPrivate::triggerRender(int after_msecs)
 {
-  triggerTimer.start();
+  triggerTimer.start(after_msecs);
 }
 
 void PictureFlowPrivate::render_text(QPainter *painter, int index) {
@@ -1150,7 +1150,7 @@ void PictureFlowPrivate::updateAnimation()
   {
     resetSlides();
     animateTimer.stop();
-    triggerRender();
+    triggerRender(0);
     step = 0;
     fade = 256;
     return;
@@ -1193,7 +1193,7 @@ void PictureFlowPrivate::updateAnimation()
   if(target > index) if(step < 0)
     step = 1;
 
-  triggerRender();
+  triggerRender(0);
 }
 
 
