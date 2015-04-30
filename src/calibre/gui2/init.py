@@ -81,7 +81,7 @@ class LibraryViewMixin(object):  # {{{
         for v in (self.memory_view, self.card_a_view, self.card_b_view):
             v.set_context_menu(dm, ec)
 
-        if self.cover_flow is not None:
+        if hasattr(self.cover_flow, 'set_context_menu'):
             cm = QMenu(self.cover_flow)
             populate_menu(cm,
                     gprefs['action-layout-context-menu-cover-browser'], self.iactions)
