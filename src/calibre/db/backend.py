@@ -1304,11 +1304,11 @@ class DB(object):
                     f = lopen(path, 'rb')
                 except (IOError, OSError):
                     time.sleep(0.2)
-                try:
-                    f = lopen(path, 'rb')
-                except (IOError, OSError) as e:
-                    # Ensure the path that caused this error is reported
-                    raise Exception('Failed to open %r with error: %s' % (path, e))
+                    try:
+                        f = lopen(path, 'rb')
+                    except (IOError, OSError) as e:
+                        # Ensure the path that caused this error is reported
+                        raise Exception('Failed to open %r with error: %s' % (path, e))
 
                 with f:
                     if hasattr(dest, 'write'):
