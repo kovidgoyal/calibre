@@ -132,12 +132,8 @@ if pictureflow is not None:
                     type=Qt.QueuedConnection)
             self.context_menu = None
             self.setContextMenuPolicy(Qt.DefaultContextMenu)
-            try:
-                self.setPreserveAspectRatio(gprefs['cb_preserve_aspect_ratio'])
-            except AttributeError:
-                pass  # source checkout without updated binary
-            if hasattr(self, 'setSubtitleFont'):
-                self.setSubtitleFont(QFont(rating_font()))
+            self.setPreserveAspectRatio(gprefs['cb_preserve_aspect_ratio'])
+            self.setSubtitleFont(QFont(rating_font()))
             if not gprefs['cover_browser_reflections']:
                 self.setShowReflections(False)
 
@@ -254,8 +250,8 @@ class CoverFlowMixin(object):
             self.cover_flow.setImages(self.db_images)
             self.cover_flow.itemActivated.connect(self.iactions['View'].view_specific_book)
         else:
-            self.cover_flow = QLabel('<p>'+_('Cover browser could not be loaded')
-                    +'<br>'+pictureflowerror)
+            self.cover_flow = QLabel('<p>'+_('Cover browser could not be loaded') +
+                                     '<br>'+pictureflowerror)
             self.cover_flow.setWordWrap(True)
         if config['separate_cover_flow']:
             self.cb_splitter.button.clicked.connect(self.toggle_cover_browser)
