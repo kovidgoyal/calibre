@@ -20,6 +20,36 @@
 #   new recipes:
 #     - title: 
 
+- version: 2.27.0
+  date: 2015-05-01
+
+  new features:
+    - title: "Edit metadata dialog: Add a clear button for the publisher."
+      tickets: [1449105]
+
+    - title: "DOCX Input: Add option to not insert page breaks between endnotes."
+      tickets: [1448433] 
+
+    - title: "calibredb list: Allow outputting the book languages as well."
+      tickets: [1445853]
+
+    - title: "Italian translation of Quick Start Guide"
+
+    - title: "Embed metadata: When embedding metadata fails for some books, add an option to show the failed books in the book list"
+      tickets: [1449076] 
+
+    - title: "Animate the main toolbar when a device is connected/disconnected, to indicate that the contents of the toolbar have changed"
+
+  bug fixes:
+    - title: "E-book viewer: When printing, print to a PDF file instead of directly to the printer. This fixes printing not working on some systems."
+      tickets: [1448330]
+
+    - title: "AZW3 Input: Handle kindlegen produced azw3 files that do not use normal HTML anchors for linking."
+
+    - title: "Fix too many open files errors that could occur in a few places on OS X"
+
+    - title: "Do not allow user to hide all columns in book list via the context menu, as restoring them becomes difficult"
+
 - version: 2.26.0
   date: 2015-04-24
 
